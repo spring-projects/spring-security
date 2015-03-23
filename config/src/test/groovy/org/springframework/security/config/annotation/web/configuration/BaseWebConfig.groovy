@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *		http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,17 +24,17 @@ import org.springframework.security.config.annotation.authentication.builders.Au
  */
 @EnableWebSecurity
 public abstract class BaseWebConfig extends WebSecurityConfigurerAdapter {
-    BaseWebConfig(boolean disableDefaults) {
-        super(disableDefaults)
-    }
+	BaseWebConfig(boolean disableDefaults) {
+		super(disableDefaults)
+	}
 
-    BaseWebConfig() {
-    }
+	BaseWebConfig() {
+	}
 
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth
-            .inMemoryAuthentication()
-                .withUser("user").password("password").roles("USER").and()
-                .withUser("admin").password("password").roles("USER", "ADMIN");
-    }
+	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+		auth
+			.inMemoryAuthentication()
+				.withUser("user").password("password").roles("USER").and()
+				.withUser("admin").password("password").roles("USER", "ADMIN");
+	}
 }

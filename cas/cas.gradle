@@ -1,14 +1,14 @@
 
 dependencies {
-    compile project(':spring-security-core'),
-            project(':spring-security-web'),
-            springCoreDependency,
-            "org.springframework:spring-context:$springVersion",
-            "org.springframework:spring-beans:$springVersion",
-            "org.springframework:spring-web:$springVersion",
-            "org.jasig.cas.client:cas-client-core:$casClientVersion"
+	compile project(':spring-security-core'),
+			project(':spring-security-web'),
+			springCoreDependency,
+			"org.springframework:spring-context:$springVersion",
+			"org.springframework:spring-beans:$springVersion",
+			"org.springframework:spring-web:$springVersion",
+			"org.jasig.cas.client:cas-client-core:$casClientVersion"
 
-    optional "net.sf.ehcache:ehcache:$ehcacheVersion"
+	optional "net.sf.ehcache:ehcache:$ehcacheVersion"
 
-    provided "javax.servlet:javax.servlet-api:$servletApiVersion"
+	provided "javax.servlet:javax.servlet-api:$servletApiVersion"
 }

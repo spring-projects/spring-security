@@ -10,38 +10,38 @@ import org.springframework.security.web.access.ExceptionTranslationFilter
  * @author Luke Taylor
  */
 class AccessDeniedConfigTests extends AbstractHttpConfigTests {
-    def invalidAccessDeniedUrlIsDetected() {
-        when:
-        httpAutoConfig() {
-            'access-denied-handler'('error-page':'noLeadingSlash')
-        }
-        createAppContext();
-        then:
-        thrown(BeanCreationException)
-    }
+	def invalidAccessDeniedUrlIsDetected() {
+		when:
+		httpAutoConfig() {
+			'access-denied-handler'('error-page':'noLeadingSlash')
+		}
+		createAppContext();
+		then:
+		thrown(BeanCreationException)
+	}
 
-    def accessDeniedHandlerIsSetCorectly() {
-        httpAutoConfig() {
-            'access-denied-handler'(ref: 'adh')
-        }
-        bean('adh', AccessDeniedHandlerImpl)
-        createAppContext();
+	def accessDeniedHandlerIsSetCorectly() {
+		httpAutoConfig() {
+			'access-denied-handler'(ref: 'adh')
+		}
+		bean('adh', AccessDeniedHandlerImpl)
+		createAppContext();
 
-        def filter = getFilter(ExceptionTranslationFilter.class);
-        def adh = appContext.getBean("adh");
+		def filter = getFilter(ExceptionTranslationFilter.class);
+		def adh = appContext.getBean("adh");
 
-        expect:
-        filter.accessDeniedHandler == adh
-    }
+		expect:
+		filter.accessDeniedHandler == adh
+	}
 
-    def void accessDeniedHandlerPageAndRefAreMutuallyExclusive() {
-        when:
-        httpAutoConfig {
-            'access-denied-handler'('error-page': '/go-away', ref: 'adh')
-        }
-        createAppContext();
-        bean('adh', AccessDeniedHandlerImpl)
-        then:
-        thrown(BeanDefinitionParsingException)
-    }
+	def void accessDeniedHandlerPageAndRefAreMutuallyExclusive() {
+		when:
+		httpAutoConfig {
+			'access-denied-handler'('error-page': '/go-away', ref: 'adh')
+		}
+		createAppContext();
+		bean('adh', AccessDeniedHandlerImpl)
+		then:
+		thrown(BeanDefinitionParsingException)
+	}
 }

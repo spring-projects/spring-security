@@ -5,43 +5,43 @@ apply plugin: 'gae'
 def gaeVersion="1.4.2"
 
 repositories {
-    maven {
-        // Hibernate Validator
-        name =  'JBoss'
-        url = 'https://repository.jboss.org/nexus/content/repositories/releases'
-    }
-    maven {
-        // GAE Jars
-        name =  'GAE'
-        url = 'http://maven-gae-plugin.googlecode.com/svn/repository'
-    }
+	maven {
+		// Hibernate Validator
+		name =	'JBoss'
+		url = 'https://repository.jboss.org/nexus/content/repositories/releases'
+	}
+	maven {
+		// GAE Jars
+		name =	'GAE'
+		url = 'http://maven-gae-plugin.googlecode.com/svn/repository'
+	}
 }
 
 // Remove logback as it causes security issues with GAE.
 configurations.runtime.exclude(group: 'ch.qos.logback')
 
 dependencies {
-    providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion"
+	providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion"
 
-    compile project(':spring-security-core'),
-            project(':spring-security-web'),
-            "org.springframework:spring-beans:$springVersion",
-            "org.springframework:spring-web:$springVersion",
-            "org.springframework:spring-webmvc:$springVersion",
-            "org.springframework:spring-context:$springVersion",
-            "org.springframework:spring-context-support:$springVersion",
-            "com.google.appengine:appengine-api-1.0-sdk:$gaeVersion",
-            'javax.validation:validation-api:1.0.0.GA',
-            'org.hibernate:hibernate-validator:4.2.0.Final',
-            "org.slf4j:slf4j-api:$slf4jVersion"
+	compile project(':spring-security-core'),
+			project(':spring-security-web'),
+			"org.springframework:spring-beans:$springVersion",
+			"org.springframework:spring-web:$springVersion",
+			"org.springframework:spring-webmvc:$springVersion",
+			"org.springframework:spring-context:$springVersion",
+			"org.springframework:spring-context-support:$springVersion",
+			"com.google.appengine:appengine-api-1.0-sdk:$gaeVersion",
+			'javax.validation:validation-api:1.0.0.GA',
+			'org.hibernate:hibernate-validator:4.2.0.Final',
+			"org.slf4j:slf4j-api:$slf4jVersion"
 
-    runtime project(':spring-security-config'),
-            project(':spring-security-taglibs'),
-            "org.slf4j:jcl-over-slf4j:$slf4jVersion",
-            "org.slf4j:slf4j-jdk14:$slf4jVersion"
-    testCompile "com.google.appengine:appengine-testing:$gaeVersion"
+	runtime project(':spring-security-config'),
+			project(':spring-security-taglibs'),
+			"org.slf4j:jcl-over-slf4j:$slf4jVersion",
+			"org.slf4j:slf4j-jdk14:$slf4jVersion"
+	testCompile "com.google.appengine:appengine-testing:$gaeVersion"
 
-    testRuntime "com.google.appengine:appengine-api-labs:$gaeVersion",
-                "com.google.appengine:appengine-api-stubs:$gaeVersion"
+	testRuntime "com.google.appengine:appengine-api-labs:$gaeVersion",
+				"com.google.appengine:appengine-api-stubs:$gaeVersion"
 
 }

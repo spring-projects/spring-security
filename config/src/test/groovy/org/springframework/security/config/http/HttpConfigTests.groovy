@@ -43,20 +43,20 @@ import static org.mockito.Mockito.*
  * @author Rob Winch
  */
 class HttpConfigTests extends AbstractHttpConfigTests {
-    MockHttpServletRequest request = new MockHttpServletRequest('GET','/secure')
-    MockHttpServletResponse response = new MockHttpServletResponse()
-    MockFilterChain chain = new MockFilterChain()
+	MockHttpServletRequest request = new MockHttpServletRequest('GET','/secure')
+	MockHttpServletResponse response = new MockHttpServletResponse()
+	MockFilterChain chain = new MockFilterChain()
 
-    def 'http minimal configuration works'() {
-        setup:
-        xml.http() {}
-        createAppContext("""<user-service>
-        <user name="user" password="password" authorities="ROLE_USER" />
-    </user-service>""")
-        when: 'request protected URL'
-        springSecurityFilterChain.doFilter(request,response,chain)
-        then: 'sent to login page'
-        response.status == HttpServletResponse.SC_MOVED_TEMPORARILY
-        response.redirectedUrl == 'http://localhost/login'
-    }
+	def 'http minimal configuration works'() {
+		setup:
+		xml.http() {}
+		createAppContext("""<user-service>
+		<user name="user" password="password" authorities="ROLE_USER" />
+	</user-service>""")
+		when: 'request protected URL'
+		springSecurityFilterChain.doFilter(request,response,chain)
+		then: 'sent to login page'
+		response.status == HttpServletResponse.SC_MOVED_TEMPORARILY
+		response.redirectedUrl == 'http://localhost/login'
+	}
 }

@@ -5,8 +5,8 @@
 int maxAESKeySize = javax.crypto.Cipher.getMaxAllowedKeyLength('AES')
 
 configure(project.tasks.withType(Test)) {
-    if (maxAESKeySize < 256) {
-        println "AES keysize limited to $maxAESKeySize, skipping EncryptorsTests"
-        exclude '**/EncryptorsTests.class'
-    }
+	if (maxAESKeySize < 256) {
+		println "AES keysize limited to $maxAESKeySize, skipping EncryptorsTests"
+		exclude '**/EncryptorsTests.class'
+	}
 }

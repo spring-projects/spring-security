@@ -24,110 +24,110 @@ import org.springframework.security.web.SecurityFilterChain
  */
 class MultiHttpBlockConfigTests extends AbstractHttpConfigTests {
 
-    def multipleHttpElementsAreSupported () {
-        when: "Two <http> elements are used"
-        xml.http(pattern: '/stateless/**', 'create-session': 'stateless') {
-            'http-basic'()
-        }
-        xml.http(pattern: '/stateful/**') {
-            'form-login'()
-        }
-        createAppContext()
-        FilterChainProxy fcp = appContext.getBean(BeanIds.FILTER_CHAIN_PROXY)
-        def filterChains = fcp.getFilterChains();
+	def multipleHttpElementsAreSupported () {
+		when: "Two <http> elements are used"
+		xml.http(pattern: '/stateless/**', 'create-session': 'stateless') {
+			'http-basic'()
+		}
+		xml.http(pattern: '/stateful/**') {
+			'form-login'()
+		}
+		createAppContext()
+		FilterChainProxy fcp = appContext.getBean(BeanIds.FILTER_CHAIN_PROXY)
+		def filterChains = fcp.getFilterChains();
 
-        then:
-        filterChains.size() == 2
-        filterChains[0].requestMatcher.pattern == '/stateless/**'
-    }
+		then:
+		filterChains.size() == 2
+		filterChains[0].requestMatcher.pattern == '/stateless/**'
+	}
 
-    def duplicateHttpElementsAreRejected () {
-        when: "Two <http> elements are used"
-        xml.http('create-session': 'stateless') {
-            'http-basic'()
-        }
-        xml.http() {
-            'form-login'()
-        }
-        createAppContext()
-        then:
-        BeanCreationException e = thrown()
-        e.cause instanceof IllegalArgumentException
-    }
+	def duplicateHttpElementsAreRejected () {
+		when: "Two <http> elements are used"
+		xml.http('create-session': 'stateless') {
+			'http-basic'()
+		}
+		xml.http() {
+			'form-login'()
+		}
+		createAppContext()
+		then:
+		BeanCreationException e = thrown()
+		e.cause instanceof IllegalArgumentException
+	}
 
-    def duplicatePatternsAreRejected () {
-        when: "Two <http> elements with the same pattern are used"
-        xml.http(pattern: '/stateless/**', 'create-session': 'stateless') {
-            'http-basic'()
-        }
-        xml.http(pattern: '/stateless/**') {
-            'form-login'()
-        }
-        createAppContext()
-        then:
-        BeanCreationException e = thrown()
-        e.cause instanceof IllegalArgumentException
-    }
+	def duplicatePatternsAreRejected () {
+		when: "Two <http> elements with the same pattern are used"
+		xml.http(pattern: '/stateless/**', 'create-session': 'stateless') {
+			'http-basic'()
+		}
+		xml.http(pattern: '/stateless/**') {
+			'form-login'()
+		}
+		createAppContext()
+		then:
+		BeanCreationException e = thrown()
+		e.cause instanceof IllegalArgumentException
+	}
 
 
-    def 'SEC-1937: http@authentication-manager-ref and multi authentication-mananager'() {
-        setup:
-            xml.http('authentication-manager-ref' : 'authManager', 'pattern' : '/first/**') {
-                'form-login'('login-processing-url': '/first/login')
-                csrf(disabled:true)
-            }
-            xml.http('authentication-manager-ref' : 'authManager2') {
-                'form-login'()
-                csrf(disabled:true)
-            }
-            mockBean(UserDetailsService,'uds')
-            mockBean(UserDetailsService,'uds2')
-            createAppContext("""
+	def 'SEC-1937: http@authentication-manager-ref and multi authentication-mananager'() {
+		setup:
+			xml.http('authentication-manager-ref' : 'authManager', 'pattern' : '/first/**') {
+				'form-login'('login-processing-url': '/first/login')
+				csrf(disabled:true)
+			}
+			xml.http('authentication-manager-ref' : 'authManager2') {
+				'form-login'()
+				csrf(disabled:true)
+			}
+			mockBean(UserDetailsService,'uds')
+			mockBean(UserDetailsService,'uds2')
+			createAppContext("""
 <authentication-manager id="authManager">
-    <authentication-provider user-service-ref="uds" />
+	<authentication-provider user-service-ref="uds" />
 </authentication-manager>
 <authentication-manager id="authManager2">
-    <authentication-provider user-service-ref="uds2" />
+	<authentication-provider user-service-ref="uds2" />
 </authentication-manager>
 """)
-            UserDetailsService uds = appContext.getBean('uds')
-            UserDetailsService uds2 = appContext.getBean('uds2')
-        when:
-            MockHttpServletRequest request = new MockHttpServletRequest()
-            MockHttpServletResponse response = new MockHttpServletResponse()
-            MockFilterChain chain = new MockFilterChain()
-            request.servletPath = "/first/login"
-            request.requestURI = "/first/login"
-            request.method = 'POST'
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            verify(uds).loadUserByUsername(anyString()) || true
-            verifyZeroInteractions(uds2) || true
-        when:
-            MockHttpServletRequest request2 = new MockHttpServletRequest()
-            MockHttpServletResponse response2 = new MockHttpServletResponse()
-            MockFilterChain chain2 = new MockFilterChain()
-            request2.servletPath = "/login"
-            request2.requestURI = "/login"
-            request2.method = 'POST'
-            springSecurityFilterChain.doFilter(request2,response2,chain2)
-        then:
-            verify(uds2).loadUserByUsername(anyString()) || true
-            verifyNoMoreInteractions(uds) || true
-    }
+			UserDetailsService uds = appContext.getBean('uds')
+			UserDetailsService uds2 = appContext.getBean('uds2')
+		when:
+			MockHttpServletRequest request = new MockHttpServletRequest()
+			MockHttpServletResponse response = new MockHttpServletResponse()
+			MockFilterChain chain = new MockFilterChain()
+			request.servletPath = "/first/login"
+			request.requestURI = "/first/login"
+			request.method = 'POST'
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			verify(uds).loadUserByUsername(anyString()) || true
+			verifyZeroInteractions(uds2) || true
+		when:
+			MockHttpServletRequest request2 = new MockHttpServletRequest()
+			MockHttpServletResponse response2 = new MockHttpServletResponse()
+			MockFilterChain chain2 = new MockFilterChain()
+			request2.servletPath = "/login"
+			request2.requestURI = "/login"
+			request2.method = 'POST'
+			springSecurityFilterChain.doFilter(request2,response2,chain2)
+		then:
+			verify(uds2).loadUserByUsername(anyString()) || true
+			verifyNoMoreInteractions(uds) || true
+	}
 
-    def multipleAuthenticationManagersWorks () {
-        xml.http(name: 'basic', pattern: '/basic/**', ) {
-            'http-basic'()
-        }
-        xml.http(pattern: '/form/**') {
-            'form-login'()
-        }
-        createAppContext()
-        FilterChainProxy fcp = appContext.getBean(BeanIds.FILTER_CHAIN_PROXY)
-        SecurityFilterChain basicChain = fcp.filterChains[0];
+	def multipleAuthenticationManagersWorks () {
+		xml.http(name: 'basic', pattern: '/basic/**', ) {
+			'http-basic'()
+		}
+		xml.http(pattern: '/form/**') {
+			'form-login'()
+		}
+		createAppContext()
+		FilterChainProxy fcp = appContext.getBean(BeanIds.FILTER_CHAIN_PROXY)
+		SecurityFilterChain basicChain = fcp.filterChains[0];
 
-        expect:
-        Assert.assertSame (basicChain, appContext.getBean('basic'))
-    }
+		expect:
+		Assert.assertSame (basicChain, appContext.getBean('basic'))
+	}
 }

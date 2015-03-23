@@ -23,11 +23,11 @@ package org.springframework.security.config.doc
  * @see XsdDocumentedSpec
  */
 class Attribute {
-    def name
-    def desc
-    def elmt
+	def name
+	def desc
+	def elmt
 
-    def getId() {
-        return "${elmt.id}-${name}".toString()
-    }
+	def getId() {
+		return "${elmt.id}-${name}".toString()
+	}
 }

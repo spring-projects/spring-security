@@ -8,39 +8,39 @@ war.baseName = "sample"
 def excludeModules = ['spring-security-acl', 'jsr250-api', 'ehcache', 'spring-jdbc', 'spring-tx']
 
 configurations {
-    excludeModules.each {name ->
-        runtime.exclude module: name
-    }
+	excludeModules.each {name ->
+		runtime.exclude module: name
+	}
 
-    runtime.exclude group: 'org.aspectj'
+	runtime.exclude group: 'org.aspectj'
 }
 
 dependencies {
-    providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion"
+	providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion"
 
-    compile project(':spring-security-core'),
-            "org.springframework:spring-beans:$springVersion",
-            "org.springframework:spring-web:$springVersion",
-            "org.springframework:spring-webmvc:$springVersion",
-            "org.slf4j:slf4j-api:$slf4jVersion"
+	compile project(':spring-security-core'),
+			"org.springframework:spring-beans:$springVersion",
+			"org.springframework:spring-web:$springVersion",
+			"org.springframework:spring-webmvc:$springVersion",
+			"org.slf4j:slf4j-api:$slf4jVersion"
 
-    runtime project(':spring-security-web'),
-            project(':spring-security-config'),
-            project(':spring-security-taglibs'),
-            jstlDependencies,
-            "org.slf4j:jcl-over-slf4j:$slf4jVersion",
-            "ch.qos.logback:logback-core:$logbackVersion",
-            "ch.qos.logback:logback-classic:$logbackVersion"
+	runtime project(':spring-security-web'),
+			project(':spring-security-config'),
+			project(':spring-security-taglibs'),
+			jstlDependencies,
+			"org.slf4j:jcl-over-slf4j:$slf4jVersion",
+			"ch.qos.logback:logback-core:$logbackVersion",
+			"ch.qos.logback:logback-classic:$logbackVersion"
 }
 
 jettyRun {
-    def httpConnector = jettyRunWar.class.classLoader.loadClass('org.mortbay.jetty.nio.SelectChannelConnector').newInstance()
-    httpConnector.port = 8080
-    httpConnector.confidentialPort = 8443
-    def httpsConnector = jettyRunWar.class.classLoader.loadClass('org.mortbay.jetty.security.SslSocketConnector').newInstance()
-    httpsConnector.port = 8443
-    httpsConnector.keystore = "$rootDir/samples/certificates/server.jks"
-    httpsConnector.keyPassword = 'password'
+	def httpConnector = jettyRunWar.class.classLoader.loadClass('org.mortbay.jetty.nio.SelectChannelConnector').newInstance()
+	httpConnector.port = 8080
+	httpConnector.confidentialPort = 8443
+	def httpsConnector = jettyRunWar.class.classLoader.loadClass('org.mortbay.jetty.security.SslSocketConnector').newInstance()
+	httpsConnector.port = 8443
+	httpsConnector.keystore = "$rootDir/samples/certificates/server.jks"
+	httpsConnector.keyPassword = 'password'
 
-    connectors = [httpConnector, httpsConnector]
+	connectors = [httpConnector, httpsConnector]
 }

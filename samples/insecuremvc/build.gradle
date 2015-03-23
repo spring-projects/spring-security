@@ -2,21 +2,21 @@ apply from: WAR_SAMPLE_GRADLE
 
 dependencies {
 
-    providedCompile "javax.servlet:javax.servlet-api:3.0.1",
-                    'javax.servlet.jsp:jsp-api:2.1'
+	providedCompile "javax.servlet:javax.servlet-api:3.0.1",
+					'javax.servlet.jsp:jsp-api:2.1'
 
-    compile project(":spring-security-samples-messages-jc"),
-            "org.springframework:spring-webmvc:$springVersion",
-            "org.springframework:spring-jdbc:$springVersion",
-            "org.slf4j:slf4j-api:$slf4jVersion",
-            "org.slf4j:log4j-over-slf4j:$slf4jVersion",
-            "org.slf4j:jul-to-slf4j:$slf4jVersion",
-            "org.slf4j:jcl-over-slf4j:$slf4jVersion",
-            "javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api:$jstlVersion",
-            "javax.validation:validation-api:1.0.0.GA",
-            "org.hibernate:hibernate-validator:4.2.0.Final"
+	compile project(":spring-security-samples-messages-jc"),
+			"org.springframework:spring-webmvc:$springVersion",
+			"org.springframework:spring-jdbc:$springVersion",
+			"org.slf4j:slf4j-api:$slf4jVersion",
+			"org.slf4j:log4j-over-slf4j:$slf4jVersion",
+			"org.slf4j:jul-to-slf4j:$slf4jVersion",
+			"org.slf4j:jcl-over-slf4j:$slf4jVersion",
+			"javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api:$jstlVersion",
+			"javax.validation:validation-api:1.0.0.GA",
+			"org.hibernate:hibernate-validator:4.2.0.Final"
 
-    runtime "opensymphony:sitemesh:2.4.2",
-            "cglib:cglib-nodep:$cglibVersion",
-            'ch.qos.logback:logback-classic:0.9.30'
+	runtime "opensymphony:sitemesh:2.4.2",
+			"cglib:cglib-nodep:$cglibVersion",
+			'ch.qos.logback:logback-classic:0.9.30'
 }

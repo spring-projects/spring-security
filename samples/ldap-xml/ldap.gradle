@@ -4,23 +4,23 @@ apply from: WAR_SAMPLE_GRADLE
 def excludeModules = ['spring-security-acl', 'jsr250-api', 'ehcache', 'spring-jdbc', 'ldapsdk']
 
 configurations {
-    excludeModules.each {name ->
-        runtime.exclude module: name
-    }
+	excludeModules.each {name ->
+		runtime.exclude module: name
+	}
 
-    runtime.exclude group: 'org.aspectj'
+	runtime.exclude group: 'org.aspectj'
 }
 
 dependencies {
-    compile project(':spring-security-taglibs'),
-            jstlDependencies
+	compile project(':spring-security-taglibs'),
+			jstlDependencies
 
-    runtime project(':spring-security-web'),
-            project(':spring-security-config'),
-            project(':spring-security-ldap'),
-            "org.slf4j:jcl-over-slf4j:$slf4jVersion",
-            "ch.qos.logback:logback-classic:$logbackVersion",
-            apachedsDependencies
+	runtime project(':spring-security-web'),
+			project(':spring-security-config'),
+			project(':spring-security-ldap'),
+			"org.slf4j:jcl-over-slf4j:$slf4jVersion",
+			"ch.qos.logback:logback-classic:$logbackVersion",
+			apachedsDependencies
 
-    integrationTestCompile gebDependencies
+	integrationTestCompile gebDependencies
 }

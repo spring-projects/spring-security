@@ -23,68 +23,68 @@ package org.springframework.security.config.doc
 * @see XsdDocumentedSpec
 */
 class Element {
-    def name
-    def desc
-    def attrs
-    /**
-     * Contains the elements that extend this element (i.e. any-user-service contains ldap-user-service)
-     */
-    def subGrps = []
-    def childElmts = [:]
-    def parentElmts = [:]
+	def name
+	def desc
+	def attrs
+	/**
+	 * Contains the elements that extend this element (i.e. any-user-service contains ldap-user-service)
+	 */
+	def subGrps = []
+	def childElmts = [:]
+	def parentElmts = [:]
 
-    def getId() {
-        return "nsa-${name}".toString()
-    }
+	def getId() {
+		return "nsa-${name}".toString()
+	}
 
-    /**
-     * Gets all the ids related to this Element including attributes, parent elements, and child elements.
-     *
-     * <p>
-     * The expected ids to be found are documented below.
-     * <ul>
-     * <li>Elements - any xml element will have the nsa-&lt;element&gt;. For example the http element will have the id
-     * nsa-http</li>
-     * <li>Parent Section - Any element with a parent other than beans will have a section named
-     * nsa-&lt;element&gt;-parents. For example, authentication-provider would have a section id of
-     * nsa-authentication-provider-parents. The section would then contain a list of links pointing to the
-     * documentation for each parent element.</li>
-     * <li>Attributes Section - Any element with attributes will have a section with the id
-     * nsa-&lt;element&gt;-attributes. For example the http element would require a section with the id
-     * http-attributes.</li>
-     * <li>Attribute - Each attribute of an element would have an id of nsa-&lt;element&gt;-&lt;attributeName&gt;. For
-     * example the attribute create-session for the http attribute would have the id http-create-session.</li>
-     * <li>Child Section - Any element with a child element will have a section named nsa-&lt;element&gt;-children.
-     * For example, authentication-provider would have a section id of nsa-authentication-provider-children. The
-     * section would then contain a list of links pointing to the documentation for each child element.</li>
-     * </ul>
-     * @return
-     */
-    def getIds() {
-        def ids = [id]
-        childElmts.values()*.ids.each { ids.addAll it }
-        attrs*.id.each { ids.add it }
-        if(childElmts) {
-            ids.add id+'-children'
-        }
-        if(attrs) {
-            ids.add id+'-attributes'
-        }
-        if(parentElmts) {
-            ids.add id+'-parents'
-        }
-        ids
-    }
+	/**
+	 * Gets all the ids related to this Element including attributes, parent elements, and child elements.
+	 *
+	 * <p>
+	 * The expected ids to be found are documented below.
+	 * <ul>
+	 * <li>Elements - any xml element will have the nsa-&lt;element&gt;. For example the http element will have the id
+	 * nsa-http</li>
+	 * <li>Parent Section - Any element with a parent other than beans will have a section named
+	 * nsa-&lt;element&gt;-parents. For example, authentication-provider would have a section id of
+	 * nsa-authentication-provider-parents. The section would then contain a list of links pointing to the
+	 * documentation for each parent element.</li>
+	 * <li>Attributes Section - Any element with attributes will have a section with the id
+	 * nsa-&lt;element&gt;-attributes. For example the http element would require a section with the id
+	 * http-attributes.</li>
+	 * <li>Attribute - Each attribute of an element would have an id of nsa-&lt;element&gt;-&lt;attributeName&gt;. For
+	 * example the attribute create-session for the http attribute would have the id http-create-session.</li>
+	 * <li>Child Section - Any element with a child element will have a section named nsa-&lt;element&gt;-children.
+	 * For example, authentication-provider would have a section id of nsa-authentication-provider-children. The
+	 * section would then contain a list of links pointing to the documentation for each child element.</li>
+	 * </ul>
+	 * @return
+	 */
+	def getIds() {
+		def ids = [id]
+		childElmts.values()*.ids.each { ids.addAll it }
+		attrs*.id.each { ids.add it }
+		if(childElmts) {
+			ids.add id+'-children'
+		}
+		if(attrs) {
+			ids.add id+'-attributes'
+		}
+		if(parentElmts) {
+			ids.add id+'-parents'
+		}
+		ids
+	}
 
-    def getAllChildElmts() {
-        def result = [:]
-        childElmts.values()*.subGrps*.each { elmt -> result.put(elmt.name,elmt) }
-        result + childElmts
-    }
+	def getAllChildElmts() {
+		def result = [:]
+		childElmts.values()*.subGrps*.each { elmt -> result.put(elmt.name,elmt) }
+		result + childElmts
+	}
 
-    def getAllParentElmts() {
-        def result = [:]
-        parentElmts.values()*.subGrps*.each { elmt -> result.put(elmt.name,elmt) }
-        result + parentElmts
-    }
+	def getAllParentElmts() {
+		def result = [:]
+		parentElmts.values()*.subGrps*.each { elmt -> result.put(elmt.name,elmt) }
+		result + parentElmts
+	}
 }

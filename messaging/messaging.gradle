@@ -1,24 +1,24 @@
 apply plugin: 'groovy'
 
 dependencies {
-    compile project(':spring-security-core'),
-            springCoreDependency,
-            'aopalliance:aopalliance:1.0',
-            "org.springframework:spring-beans:$springVersion",
-            "org.springframework:spring-context:$springVersion",
-            "org.springframework:spring-expression:$springVersion",
-            "org.springframework:spring-messaging:$springVersion"
+	compile project(':spring-security-core'),
+			springCoreDependency,
+			'aopalliance:aopalliance:1.0',
+			"org.springframework:spring-beans:$springVersion",
+			"org.springframework:spring-context:$springVersion",
+			"org.springframework:spring-expression:$springVersion",
+			"org.springframework:spring-messaging:$springVersion"
 
-    optional project(':spring-security-web'),
-            "org.springframework:spring-websocket:$springVersion",
-            "javax.servlet:javax.servlet-api:$servletApiVersion"
+	optional project(':spring-security-web'),
+			"org.springframework:spring-websocket:$springVersion",
+			"javax.servlet:javax.servlet-api:$servletApiVersion"
 
-    testCompile project(':spring-security-core').sourceSets.test.output,
-                "commons-codec:commons-codec:$commonsCodecVersion",
-                "org.slf4j:jcl-over-slf4j:$slf4jVersion",
-                "org.codehaus.groovy:groovy-all:$groovyVersion",
-                powerMockDependencies,
-                spockDependencies
+	testCompile project(':spring-security-core').sourceSets.test.output,
+				"commons-codec:commons-codec:$commonsCodecVersion",
+				"org.slf4j:jcl-over-slf4j:$slf4jVersion",
+				"org.codehaus.groovy:groovy-all:$groovyVersion",
+				powerMockDependencies,
+				spockDependencies
 
-    testRuntime "org.hsqldb:hsqldb:$hsqlVersion"
+	testRuntime "org.hsqldb:hsqldb:$hsqlVersion"
 }

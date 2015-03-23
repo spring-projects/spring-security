@@ -4,16 +4,16 @@ apply plugin: 'war'
 apply plugin: 'jetty'
 
 dependencies {
-    compile project(':spring-security-core'),
-            project(':spring-security-openid')
+	compile project(':spring-security-core'),
+			project(':spring-security-openid')
 
-    providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion"
+	providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion"
 
-    runtime project(':spring-security-config'),
-            project(':spring-security-taglibs'),
-            jstlDependencies,
-            "org.slf4j:jcl-over-slf4j:$slf4jVersion",
-            "ch.qos.logback:logback-classic:$logbackVersion"
+	runtime project(':spring-security-config'),
+			project(':spring-security-taglibs'),
+			jstlDependencies,
+			"org.slf4j:jcl-over-slf4j:$slf4jVersion",
+			"ch.qos.logback:logback-classic:$logbackVersion"
 }
 
 [jettyRun, jettyRunWar]*.contextPath = "/openid"

@@ -2,25 +2,25 @@
 apply plugin: 'groovy'
 
 dependencies {
-    compile project(':spring-security-core'),
-            project(':spring-security-web'),
-            project(':spring-security-acl'),
-            springCoreDependency,
-            "org.springframework:spring-beans:$springVersion",
-            "org.springframework:spring-aop:$springVersion",
-            "org.springframework:spring-context:$springVersion",
-            "org.springframework:spring-expression:$springVersion",
-            "org.springframework:spring-web:$springVersion"
+	compile project(':spring-security-core'),
+			project(':spring-security-web'),
+			project(':spring-security-acl'),
+			springCoreDependency,
+			"org.springframework:spring-beans:$springVersion",
+			"org.springframework:spring-aop:$springVersion",
+			"org.springframework:spring-context:$springVersion",
+			"org.springframework:spring-expression:$springVersion",
+			"org.springframework:spring-web:$springVersion"
 
-    provided 'javax.servlet.jsp:javax.servlet.jsp-api:2.2.1',
-             "javax.servlet:javax.servlet-api:$servletApiVersion"
+	provided 'javax.servlet.jsp:javax.servlet.jsp-api:2.2.1',
+			 "javax.servlet:javax.servlet-api:$servletApiVersion"
 
-    testCompile "org.codehaus.groovy:groovy-all:$groovyVersion",
-                spockDependencies
+	testCompile "org.codehaus.groovy:groovy-all:$groovyVersion",
+				spockDependencies
 
-    testRuntime "javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api:$jstlVersion"
+	testRuntime "javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api:$jstlVersion"
 }
 
 configure(project.tasks.withType(Test)) {
-    systemProperties['springSecurityVersion'] = version
+	systemProperties['springSecurityVersion'] = version
 }

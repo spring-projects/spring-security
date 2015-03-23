@@ -1,68 +1,68 @@
 buildscript {
-    repositories {
-        maven { url "https://repo.spring.io/plugins-release" }
-    }
-    dependencies {
-        classpath("org.gradle.api.plugins:gradle-tomcat-plugin:1.2.5")
-    }
+	repositories {
+		maven { url "https://repo.spring.io/plugins-release" }
+	}
+	dependencies {
+		classpath("org.gradle.api.plugins:gradle-tomcat-plugin:1.2.5")
+	}
 }
 
 apply plugin: 'tomcat'
 
 dependencies {
-    def tomcatVersion = '7.0.54'
-    tomcat "org.apache.tomcat.embed:tomcat-embed-core:${tomcatVersion}",
-           "org.apache.tomcat.embed:tomcat-embed-logging-juli:${tomcatVersion}",
-           "org.apache.tomcat.embed:tomcat-embed-websocket:${tomcatVersion}"
-    tomcat("org.apache.tomcat.embed:tomcat-embed-jasper:${tomcatVersion}") {
-        exclude group: 'org.eclipse.jdt.core.compiler', module: 'ecj'
-    }
+	def tomcatVersion = '7.0.54'
+	tomcat "org.apache.tomcat.embed:tomcat-embed-core:${tomcatVersion}",
+		   "org.apache.tomcat.embed:tomcat-embed-logging-juli:${tomcatVersion}",
+		   "org.apache.tomcat.embed:tomcat-embed-websocket:${tomcatVersion}"
+	tomcat("org.apache.tomcat.embed:tomcat-embed-jasper:${tomcatVersion}") {
+		exclude group: 'org.eclipse.jdt.core.compiler', module: 'ecj'
+	}
 }
 
 task integrationTomcatRun(type: org.gradle.api.plugins.tomcat.tasks.TomcatRun) {
-    onlyIf { !sourceSets.integrationTest.allSource.empty }
-    buildscriptClasspath = tomcatRun.buildscriptClasspath
-    contextPath = tomcatRun.contextPath
-    daemon = true
-    tomcatClasspath = tomcatRun.tomcatClasspath
-    webAppClasspath = tomcatRun.webAppClasspath
-    webAppSourceDirectory = tomcatRun.webAppSourceDirectory
-    doFirst {
-        def mainOutputDir = project.sourceSets.main.output.classesDir
-        if(mainOutputDir) {
-            classesDirectory = mainOutputDir
-        }
-        // delay reserving ports to ensure they are still available
-        def ports = reservePorts(3)
-        httpPort = ports[0]
-        ajpPort = ports[1]
-        stopPort = ports[2]
-    }
+	onlyIf { !sourceSets.integrationTest.allSource.empty }
+	buildscriptClasspath = tomcatRun.buildscriptClasspath
+	contextPath = tomcatRun.contextPath
+	daemon = true
+	tomcatClasspath = tomcatRun.tomcatClasspath
+	webAppClasspath = tomcatRun.webAppClasspath
+	webAppSourceDirectory = tomcatRun.webAppSourceDirectory
+	doFirst {
+		def mainOutputDir = project.sourceSets.main.output.classesDir
+		if(mainOutputDir) {
+			classesDirectory = mainOutputDir
+		}
+		// delay reserving ports to ensure they are still available
+		def ports = reservePorts(3)
+		httpPort = ports[0]
+		ajpPort = ports[1]
+		stopPort = ports[2]
+	}
 }
 
 task integrationTomcatStop(type: org.gradle.api.plugins.tomcat.tasks.TomcatStop) {
-    onlyIf { !sourceSets.integrationTest.allSource.empty }
-    doFirst {
-        stopPort = integrationTomcatRun.stopPort
-    }
+	onlyIf { !sourceSets.integrationTest.allSource.empty }
+	doFirst {
+		stopPort = integrationTomcatRun.stopPort
+	}
 }
 
 integrationTest {
-    dependsOn integrationTomcatRun
-    doFirst {
-        def host = 'localhost:' + integrationTomcatRun.httpPort
-        systemProperties['geb.build.baseUrl'] = 'http://'+host+'/' + integrationTomcatRun.contextPath + '/'
-        systemProperties['geb.build.reportsDir'] = 'build/geb-reports'
-    }
-    finalizedBy integrationTomcatStop
+	dependsOn integrationTomcatRun
+	doFirst {
+		def host = 'localhost:' + integrationTomcatRun.httpPort
+		systemProperties['geb.build.baseUrl'] = 'http://'+host+'/' + integrationTomcatRun.contextPath + '/'
+		systemProperties['geb.build.reportsDir'] = 'build/geb-reports'
+	}
+	finalizedBy integrationTomcatStop
 }
 
 def reservePorts(int count) {
-    def sockets = []
-    for(int i in 1..count) {
-        sockets << new ServerSocket(0)
-    }
-    def result = sockets*.localPort
-    sockets*.close()
-    result
+	def sockets = []
+	for(int i in 1..count) {
+		sockets << new ServerSocket(0)
+	}
+	def result = sockets*.localPort
+	sockets*.close()
+	result
 }

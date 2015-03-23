@@ -1,15 +1,15 @@
 // OpenID Module build file
 
 dependencies {
-    compile project(':spring-security-core'),
-            project(':spring-security-web'),
-            springCoreDependency,
-            "org.springframework:spring-test:$springVersion"
+	compile project(':spring-security-core'),
+			project(':spring-security-web'),
+			springCoreDependency,
+			"org.springframework:spring-test:$springVersion"
 
-    optional project(':spring-security-config')
+	optional project(':spring-security-config')
 
-    provided "javax.servlet:javax.servlet-api:$servletApiVersion"
+	provided "javax.servlet:javax.servlet-api:$servletApiVersion"
 
-    testCompile "org.springframework:spring-webmvc:$springVersion",
-                powerMockDependencies
+	testCompile "org.springframework:spring-webmvc:$springVersion",
+				powerMockDependencies
 }

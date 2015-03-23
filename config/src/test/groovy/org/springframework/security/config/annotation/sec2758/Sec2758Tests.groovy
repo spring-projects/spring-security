@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *		http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -44,100 +44,100 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
 
 public class Sec2758Tests extends BaseSpringSpec {
 
-    def cleanup() {
-        SecurityContextHolder.clearContext()
-    }
+	def cleanup() {
+		SecurityContextHolder.clearContext()
+	}
 
-    def "SEC-2758: Verify Passivity Restored with Advice from JIRA"() {
-        setup:
-        SecurityContextHolder.context.authentication = new TestingAuthenticationToken("user", "pass", "USER")
-        loadConfig(SecurityConfig)
-        Service service = context.getBean(Service)
+	def "SEC-2758: Verify Passivity Restored with Advice from JIRA"() {
+		setup:
+		SecurityContextHolder.context.authentication = new TestingAuthenticationToken("user", "pass", "USER")
+		loadConfig(SecurityConfig)
+		Service service = context.getBean(Service)
 
-        when:
-        findFilter(FilterSecurityInterceptor).doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), new MockFilterChain())
-        then:
-        noExceptionThrown()
+		when:
+		findFilter(FilterSecurityInterceptor).doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), new MockFilterChain())
+		then:
+		noExceptionThrown()
 
-        when:
-        service.doPreAuthorize()
-        then:
-        noExceptionThrown()
+		when:
+		service.doPreAuthorize()
+		then:
+		noExceptionThrown()
 
-        when:
-        service.doJsr250()
-        then:
-        noExceptionThrown()
-    }
+		when:
+		service.doJsr250()
+		then:
+		noExceptionThrown()
+	}
 
-    @EnableWebSecurity
-    @EnableGlobalMethodSecurity(prePostEnabled=true)
-    static class SecurityConfig extends WebSecurityConfigurerAdapter {
+	@EnableWebSecurity
+	@EnableGlobalMethodSecurity(prePostEnabled=true)
+	static class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .authorizeRequests()
-                    .anyRequest().hasAnyAuthority("USER");
-        }
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.authorizeRequests()
+					.anyRequest().hasAnyAuthority("USER");
+		}
 
-        @Autowired
-        public void configureGlobal(AuthenticationManagerBuilder auth) {
-            auth
-                .inMemoryAuthentication()
-                    .withUser("user").password("password").authorities("USER")
-        }
+		@Autowired
+		public void configureGlobal(AuthenticationManagerBuilder auth) {
+			auth
+				.inMemoryAuthentication()
+					.withUser("user").password("password").authorities("USER")
+		}
 
-        @Bean
-        Service service() {
-            return new ServiceImpl()
-        }
+		@Bean
+		Service service() {
+			return new ServiceImpl()
+		}
 
-        @Bean
-        static DefaultRolesPrefixPostProcessor defaultRolesPrefixPostProcessor() {
-            new DefaultRolesPrefixPostProcessor()
-        }
-    }
+		@Bean
+		static DefaultRolesPrefixPostProcessor defaultRolesPrefixPostProcessor() {
+			new DefaultRolesPrefixPostProcessor()
+		}
+	}
 
-    interface Service {
-        void doPreAuthorize()
-        void doJsr250()
-    }
+	interface Service {
+		void doPreAuthorize()
+		void doJsr250()
+	}
 
-    static class ServiceImpl implements Service {
-        @PreAuthorize("hasRole('USER')")
-        void doPreAuthorize() {}
+	static class ServiceImpl implements Service {
+		@PreAuthorize("hasRole('USER')")
+		void doPreAuthorize() {}
 
-        @RolesAllowed("USER")
-        void doJsr250() {}
-    }
+		@RolesAllowed("USER")
+		void doJsr250() {}
+	}
 
-    static class DefaultRolesPrefixPostProcessor implements BeanPostProcessor, PriorityOrdered {
+	static class DefaultRolesPrefixPostProcessor implements BeanPostProcessor, PriorityOrdered {
 
-    @Override
-    public Object postProcessAfterInitialization(Object bean, String beanName)
-            throws BeansException {
-        if(bean instanceof Jsr250MethodSecurityMetadataSource) {
-            ((Jsr250MethodSecurityMetadataSource) bean).setDefaultRolePrefix(null);
-        }
-        if(bean instanceof DefaultMethodSecurityExpressionHandler) {
-            ((DefaultMethodSecurityExpressionHandler) bean).setDefaultRolePrefix(null);
-        }
-        if(bean instanceof DefaultWebSecurityExpressionHandler) {
-            ((DefaultWebSecurityExpressionHandler) bean).setDefaultRolePrefix(null);
-        }
-        return bean;
-    }
+	@Override
+	public Object postProcessAfterInitialization(Object bean, String beanName)
+			throws BeansException {
+		if(bean instanceof Jsr250MethodSecurityMetadataSource) {
+			((Jsr250MethodSecurityMetadataSource) bean).setDefaultRolePrefix(null);
+		}
+		if(bean instanceof DefaultMethodSecurityExpressionHandler) {
+			((DefaultMethodSecurityExpressionHandler) bean).setDefaultRolePrefix(null);
+		}
+		if(bean instanceof DefaultWebSecurityExpressionHandler) {
+			((DefaultWebSecurityExpressionHandler) bean).setDefaultRolePrefix(null);
+		}
+		return bean;
+	}
 
-    @Override
-    public Object postProcessBeforeInitialization(Object bean, String beanName)
-            throws BeansException {
-        return bean;
-    }
+	@Override
+	public Object postProcessBeforeInitialization(Object bean, String beanName)
+			throws BeansException {
+		return bean;
+	}
 
-    @Override
-    public int getOrder() {
-        return PriorityOrdered.HIGHEST_PRECEDENCE;
-    }
+	@Override
+	public int getOrder() {
+		return PriorityOrdered.HIGHEST_PRECEDENCE;
+	}
 }
 }

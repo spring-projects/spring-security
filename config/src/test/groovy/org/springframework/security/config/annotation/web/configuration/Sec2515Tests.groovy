@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *		http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,86 +28,86 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 
 public class Sec2515Tests extends BaseSpringSpec {
 
-    def "SEC-2515: Prevent StackOverflow with bean graph cycle"() {
-        when:
-           loadConfig(StackOverflowSecurityConfig)
-        then:
-            thrown(FatalBeanException)
-    }
+	def "SEC-2515: Prevent StackOverflow with bean graph cycle"() {
+		when:
+		   loadConfig(StackOverflowSecurityConfig)
+		then:
+			thrown(FatalBeanException)
+	}
 
-    @EnableWebSecurity
-    static class StackOverflowSecurityConfig extends WebSecurityConfigurerAdapter {
+	@EnableWebSecurity
+	static class StackOverflowSecurityConfig extends WebSecurityConfigurerAdapter {
 
-        @Override
-        @Bean
-        public AuthenticationManager authenticationManagerBean()
-                throws Exception {
-            return super.authenticationManagerBean();
-        }
-    }
+		@Override
+		@Bean
+		public AuthenticationManager authenticationManagerBean()
+				throws Exception {
+			return super.authenticationManagerBean();
+		}
+	}
 
-    def "Custom Name Prevent StackOverflow with bean graph cycle"() {
-        when:
-           loadConfig(StackOverflowSecurityConfig)
-        then:
-            thrown(FatalBeanException)
-    }
+	def "Custom Name Prevent StackOverflow with bean graph cycle"() {
+		when:
+		   loadConfig(StackOverflowSecurityConfig)
+		then:
+			thrown(FatalBeanException)
+	}
 
-    @EnableWebSecurity
-    static class CustomBeanNameStackOverflowSecurityConfig extends WebSecurityConfigurerAdapter {
+	@EnableWebSecurity
+	static class CustomBeanNameStackOverflowSecurityConfig extends WebSecurityConfigurerAdapter {
 
-        @Override
-        @Bean(name="custom")
-        public AuthenticationManager authenticationManagerBean()
-                throws Exception {
-            return super.authenticationManagerBean();
-        }
-    }
+		@Override
+		@Bean(name="custom")
+		public AuthenticationManager authenticationManagerBean()
+				throws Exception {
+			return super.authenticationManagerBean();
+		}
+	}
 
-    def "SEC-2549: Can load with child classloader"() {
-        setup:
-            CanLoadWithChildConfig.AM = Mock(AuthenticationManager)
-            context = new AnnotationConfigApplicationContext()
-            context.classLoader = new URLClassLoader(new URL[0], context.classLoader)
-            context.register(CanLoadWithChildConfig)
-            context.refresh()
-        when:
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("user", "password"))
-        then:
-            noExceptionThrown()
-            1 * CanLoadWithChildConfig.AM.authenticate(_) >> new TestingAuthenticationToken("user","password","ROLE_USER")
-    }
+	def "SEC-2549: Can load with child classloader"() {
+		setup:
+			CanLoadWithChildConfig.AM = Mock(AuthenticationManager)
+			context = new AnnotationConfigApplicationContext()
+			context.classLoader = new URLClassLoader(new URL[0], context.classLoader)
+			context.register(CanLoadWithChildConfig)
+			context.refresh()
+		when:
+			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("user", "password"))
+		then:
+			noExceptionThrown()
+			1 * CanLoadWithChildConfig.AM.authenticate(_) >> new TestingAuthenticationToken("user","password","ROLE_USER")
+	}
 
-    @EnableWebSecurity
-    static class CanLoadWithChildConfig extends WebSecurityConfigurerAdapter {
-        static AuthenticationManager AM
-        @Bean
-        public AuthenticationManager am() {
-            AM
-        }
-    }
+	@EnableWebSecurity
+	static class CanLoadWithChildConfig extends WebSecurityConfigurerAdapter {
+		static AuthenticationManager AM
+		@Bean
+		public AuthenticationManager am() {
+			AM
+		}
+	}
 
-    def "SEC-2515: @Bean still works when configure(AuthenticationManagerBuilder) used"() {
-        when:
-           loadConfig(SecurityConfig)
-        then:
-            noExceptionThrown();
-    }
+	def "SEC-2515: @Bean still works when configure(AuthenticationManagerBuilder) used"() {
+		when:
+		   loadConfig(SecurityConfig)
+		then:
+			noExceptionThrown();
+	}
 
-    @EnableWebSecurity
-    static class SecurityConfig extends WebSecurityConfigurerAdapter {
+	@EnableWebSecurity
+	static class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-        @Override
-        @Bean
-        public AuthenticationManager authenticationManagerBean()
-                throws Exception {
-            return super.authenticationManagerBean();
-        }
+		@Override
+		@Bean
+		public AuthenticationManager authenticationManagerBean()
+				throws Exception {
+			return super.authenticationManagerBean();
+		}
 
-        @Override
-        protected void configure(AuthenticationManagerBuilder auth)
-                throws Exception {
-            auth.inMemoryAuthentication()
-        }
-    }
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth)
+				throws Exception {
+			auth.inMemoryAuthentication()
+		}
+	}
 }

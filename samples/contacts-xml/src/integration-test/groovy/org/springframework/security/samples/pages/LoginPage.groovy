@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *		http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,15 +23,15 @@ import geb.*
  * @author Rob Winch
  */
 class LoginPage extends Page {
-    static url = 'login'
-    static at = { assert driver.title == 'Login'; true}
-    static content = {
-        login(required:false) { user='rod', password='koala' ->
-            loginForm.username = user
-            loginForm.password = password
-            submit.click()
-        }
-        loginForm { $('form') }
-        submit { $('input', type: 'submit') }
-    }
+	static url = 'login'
+	static at = { assert driver.title == 'Login'; true}
+	static content = {
+		login(required:false) { user='rod', password='koala' ->
+			loginForm.username = user
+			loginForm.password = password
+			submit.click()
+		}
+		loginForm { $('form') }
+		submit { $('input', type: 'submit') }
+	}
 }

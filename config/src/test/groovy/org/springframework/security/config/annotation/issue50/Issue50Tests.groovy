@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *		http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -39,62 +39,62 @@ import spock.lang.Specification
 @ContextConfiguration(classes=[ApplicationConfig,SecurityConfig])
 @Transactional
 class Issue50Tests extends Specification {
-    @Autowired
-    private FilterChainProxy springSecurityFilterChain
-    @Autowired
-    private AuthenticationManager authenticationManager
-    @Autowired
-    private UserRepository userRepo
+	@Autowired
+	private FilterChainProxy springSecurityFilterChain
+	@Autowired
+	private AuthenticationManager authenticationManager
+	@Autowired
+	private UserRepository userRepo
 
-    def setup() {
-        SecurityContextHolder.context.authentication = new TestingAuthenticationToken("test",null,"ROLE_ADMIN")
-    }
+	def setup() {
+		SecurityContextHolder.context.authentication = new TestingAuthenticationToken("test",null,"ROLE_ADMIN")
+	}
 
-    def cleanup() {
-        SecurityContextHolder.clearContext()
-    }
+	def cleanup() {
+		SecurityContextHolder.clearContext()
+	}
 
-    // https://github.com/SpringSource/spring-security-javaconfig/issues/50
-    def "#50 - GlobalMethodSecurityConfiguration should load AuthenticationManager lazily"() {
-        when:
-        "Configuration Loads"
-        then: "GlobalMethodSecurityConfiguration loads AuthenticationManager lazily"
-        noExceptionThrown()
-    }
+	// https://github.com/SpringSource/spring-security-javaconfig/issues/50
+	def "#50 - GlobalMethodSecurityConfiguration should load AuthenticationManager lazily"() {
+		when:
+		"Configuration Loads"
+		then: "GlobalMethodSecurityConfiguration loads AuthenticationManager lazily"
+		noExceptionThrown()
+	}
 
-    def "AuthenticationManager will not authenticate missing user"() {
-        when:
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("test", "password"))
-        then:
-        thrown(UsernameNotFoundException)
-    }
+	def "AuthenticationManager will not authenticate missing user"() {
+		when:
+		authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("test", "password"))
+		then:
+		thrown(UsernameNotFoundException)
+	}
 
-    def "AuthenticationManager will not authenticate with invalid password"() {
-        when:
-        User user = new User(username:"test",password:"password")
-        userRepo.save(user)
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.username , "invalid"))
-        then:
-        thrown(BadCredentialsException)
-    }
+	def "AuthenticationManager will not authenticate with invalid password"() {
+		when:
+		User user = new User(username:"test",password:"password")
+		userRepo.save(user)
+		authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.username , "invalid"))
+		then:
+		thrown(BadCredentialsException)
+	}
 
-    def "AuthenticationManager can be used to authenticate a user"() {
-        when:
-        User user = new User(username:"test",password:"password")
-        userRepo.save(user)
-        Authentication result = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.username , user.password))
-        then:
-        result.principal == user.username
-    }
+	def "AuthenticationManager can be used to authenticate a user"() {
+		when:
+		User user = new User(username:"test",password:"password")
+		userRepo.save(user)
+		Authentication result = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.username , user.password))
+		then:
+		result.principal == user.username
+	}
 
-    def "Global Method Security is enabled and works"() {
-        setup:
-        SecurityContextHolder.context.authentication = new TestingAuthenticationToken("test",null,"ROLE_USER")
-        when:
-        User user = new User(username:"denied",password:"password")
-        userRepo.save(user)
-        Authentication result = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.username , user.password))
-        then:
-        thrown(AccessDeniedException)
-    }
+	def "Global Method Security is enabled and works"() {
+		setup:
+		SecurityContextHolder.context.authentication = new TestingAuthenticationToken("test",null,"ROLE_USER")
+		when:
+		User user = new User(username:"denied",password:"password")
+		userRepo.save(user)
+		Authentication result = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.username , user.password))
+		then:
+		thrown(AccessDeniedException)
+	}
 }

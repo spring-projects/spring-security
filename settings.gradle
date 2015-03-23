@@ -1,87 +1,87 @@
 def String[] modules = [
-    'core',
-    'data',
-    'remoting',
-    'web',
-    'ldap',
-    'acl',
-    'config',
-    'cas',
-    'openid',
-    'taglibs',
-    'aspects',
-    'crypto',
-    'messaging',
-    'test'
+	'core',
+	'data',
+	'remoting',
+	'web',
+	'ldap',
+	'acl',
+	'config',
+	'cas',
+	'openid',
+	'taglibs',
+	'aspects',
+	'crypto',
+	'messaging',
+	'test'
 ]
 
 def String[] samples = [
-    'tutorial-xml',
-    'contacts-xml',
-    'chat-jc',
-    'openid-xml',
-    'aspectj-xml',
-    'aspectj-jc',
-    'data-jc',
-    'gae-xml',
-    'dms-xml',
-    'preauth-xml',
-    'cas/server',
-    'cas/sample-xml',
-    'ldap-xml',
-    'jaas-xml',
-    'servletapi-xml',
-    'concurrency-jc',
-    'form-jc',
-    'helloworld-jc',
-    'helloworld-xml',
-    'hellomvc-jc',
-    'hellojs-jc',
-    'insecure',
-    'insecuremvc',
-    'inmemory-jc',
-    'jdbc-jc',
-    'ldap-jc',
-    'messages-jc',
-    'openid-jc',
-    'preauth-jc',
-    'rememberme-jc',
-    'x509-jc'
+	'tutorial-xml',
+	'contacts-xml',
+	'chat-jc',
+	'openid-xml',
+	'aspectj-xml',
+	'aspectj-jc',
+	'data-jc',
+	'gae-xml',
+	'dms-xml',
+	'preauth-xml',
+	'cas/server',
+	'cas/sample-xml',
+	'ldap-xml',
+	'jaas-xml',
+	'servletapi-xml',
+	'concurrency-jc',
+	'form-jc',
+	'helloworld-jc',
+	'helloworld-xml',
+	'hellomvc-jc',
+	'hellojs-jc',
+	'insecure',
+	'insecuremvc',
+	'inmemory-jc',
+	'jdbc-jc',
+	'ldap-jc',
+	'messages-jc',
+	'openid-jc',
+	'preauth-jc',
+	'rememberme-jc',
+	'x509-jc'
 ]
 
 def String[] itest = [
-    'web',
-    'context'
+	'web',
+	'context'
 ]
 
 include modules
 
 modules.each {name ->
-    def p = findProject(":${name}")
-    p.name = "spring-security-${name}"
-    p.buildFileName = "${name}.gradle"
+	def p = findProject(":${name}")
+	p.name = "spring-security-${name}"
+	p.buildFileName = "${name}.gradle"
 }
 
 include samples
 
 samples.each {name ->
-    def p = findProject(":${name}")
-    def fullName = name.replaceAll('/','')
-    p.name = "spring-security-samples-${fullName}"
-    p.projectDir = new File(settingsDir, "samples/${name}");
-    if(!p.buildFile.exists()) {
-        def buildFile = fullName.replaceFirst("-xml","")
-        p.buildFileName = "${buildFile}.gradle"
-    }
+	def p = findProject(":${name}")
+	def fullName = name.replaceAll('/','')
+	p.name = "spring-security-samples-${fullName}"
+	p.projectDir = new File(settingsDir, "samples/${name}");
+	if(!p.buildFile.exists()) {
+		def buildFile = fullName.replaceFirst("-xml","")
+		p.buildFileName = "${buildFile}.gradle"
+	}
 }
 
 include itest
 
 itest.each { name ->
-    def p = findProject(":${name}")
-    p.name = "itest-${name}"
-    p.buildFileName = "itest-${name}.gradle"
-    p.projectDir = new File(settingsDir, "itest/${name}");
+	def p = findProject(":${name}")
+	p.name = "itest-${name}"
+	p.buildFileName = "itest-${name}.gradle"
+	p.projectDir = new File(settingsDir, "itest/${name}");
 }
 
 include 'docs', 'docs:manual', 'docs:guides'
@@ -92,8 +92,8 @@ docs.buildFileName = 'docs.gradle'
 rootProject.name = 'spring-security'
 
 rootProject.children.each {project ->
-    //assert project.projectDir.isDirectory()
-    //assert project.buildFile.isFile()
+	//assert project.projectDir.isDirectory()
+	//assert project.buildFile.isFile()
 }
 
 include 'bom'

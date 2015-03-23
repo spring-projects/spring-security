@@ -1,37 +1,37 @@
 apply plugin: 'groovy'
 
 repositories {
-    mavenCentral()
-    maven {
-        name = 'SpringSource Enterprise Release'
-        url = 'http://repository.springsource.com/maven/bundles/release'
-    }
-    maven {
-        name = 'SpringSource Enterprise External'
-        url = 'http://repository.springsource.com/maven/bundles/external'
-    }
+	mavenCentral()
+	maven {
+		name = 'SpringSource Enterprise Release'
+		url = 'http://repository.springsource.com/maven/bundles/release'
+	}
+	maven {
+		name = 'SpringSource Enterprise External'
+		url = 'http://repository.springsource.com/maven/bundles/external'
+	}
 }
 
 dependencies {
-    compile gradleApi()
+	compile gradleApi()
 }
 
 // GAE
 dependencies {
-    compile 'com.google.appengine:appengine-tools-sdk:1.4.2'
+	compile 'com.google.appengine:appengine-tools-sdk:1.4.2'
 }
 
 dependencies{
-    compile "emma:emma:2.0.5312"
+	compile "emma:emma:2.0.5312"
 }
 
 // Trang
 dependencies {
-    compile 'com.thaiopensource:trang:20091111',
-            'net.sourceforge.saxon:saxon:9.1.0.8'
+	compile 'com.thaiopensource:trang:20091111',
+			'net.sourceforge.saxon:saxon:9.1.0.8'
 }
 
 task ide(type: Copy)  {
-    from configurations.runtime
-    into 'ide'
+	from configurations.runtime
+	into 'ide'
 }

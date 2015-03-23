@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *		http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,35 +27,35 @@ import org.springframework.security.samples.pages.*
  */
 @Stepwise
 class JaasXmlTests extends GebReportingSpec {
-    def 'access home page with unauthenticated works'() {
-        when: 'Unauthenticated user accesses the Home Page'
-        to HomePage
-        then: 'The home page is displayed'
-        at HomePage
-    }
+	def 'access home page with unauthenticated works'() {
+		when: 'Unauthenticated user accesses the Home Page'
+		to HomePage
+		then: 'The home page is displayed'
+		at HomePage
+	}
 
-    def 'access secure page with unauthenticated requires login'() {
-        when: 'Unauthenticated user accesses the Secure Page'
-        securePage LoginPage
-        then: 'The login page is displayed'
-        at LoginPage
-    }
+	def 'access secure page with unauthenticated requires login'() {
+		when: 'Unauthenticated user accesses the Secure Page'
+		securePage LoginPage
+		then: 'The login page is displayed'
+		at LoginPage
+	}
 
-    def 'authenticated user is sent to original page'() {
-        when: 'user authenticates'
-        login()
-        then: 'The secure page is displayed'
-        at SecurePage
-    }
+	def 'authenticated user is sent to original page'() {
+		when: 'user authenticates'
+		login()
+		then: 'The secure page is displayed'
+		at SecurePage
+	}
 
-    def 'authenticated user logs out'() {
-        when: 'user logs out'
-        logout()
-        then: 'the default logout success page is displayed'
-        at LogoutPage
-        when: 'Unauthenticated user accesses the Secure Page'
-        via SecurePage
-        then: 'The login page is displayed'
-        at LoginPage
-    }
+	def 'authenticated user logs out'() {
+		when: 'user logs out'
+		logout()
+		then: 'the default logout success page is displayed'
+		at LogoutPage
+		when: 'Unauthenticated user accesses the Secure Page'
+		via SecurePage
+		then: 'The login page is displayed'
+		at LoginPage
+	}
 }

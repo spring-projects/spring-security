@@ -41,206 +41,206 @@ ext.thymeleafVersion = '2.1.3.RELEASE'
 ext.thymeleafVersion = '1.2.7.RELEASE'
 
 ext.spockDependencies = [
-    dependencies.create("org.spockframework:spock-spring:$spockVersion") {
-        exclude group: 'junit', module: 'junit-dep'
-    },
-    dependencies.create("org.spockframework:spock-core:$spockVersion") {
-        exclude group: 'junit', module: 'junit-dep'
-    }
+	dependencies.create("org.spockframework:spock-spring:$spockVersion") {
+		exclude group: 'junit', module: 'junit-dep'
+	},
+	dependencies.create("org.spockframework:spock-core:$spockVersion") {
+		exclude group: 'junit', module: 'junit-dep'
+	}
 ]
 
 ext.gebDependencies = spockDependencies + [
-    "org.seleniumhq.selenium:selenium-htmlunit-driver:$seleniumVersion",
-    "org.gebish:geb-spock:$gebVersion",
-    'commons-httpclient:commons-httpclient:3.1',
-    "org.codehaus.groovy:groovy:$groovyVersion"
+	"org.seleniumhq.selenium:selenium-htmlunit-driver:$seleniumVersion",
+	"org.gebish:geb-spock:$gebVersion",
+	'commons-httpclient:commons-httpclient:3.1',
+	"org.codehaus.groovy:groovy:$groovyVersion"
 ]
 
 ext.powerMockDependencies = [
-    "org.powermock:powermock-core:$powerMockVersion",
-    "org.powermock:powermock-api-support:$powerMockVersion",
-    "org.powermock:powermock-module-junit4-common:$powerMockVersion",
-    "org.powermock:powermock-module-junit4:$powerMockVersion",
-    dependencies.create("org.powermock:powermock-api-mockito:$powerMockVersion") {
-        exclude group: 'org.mockito', module: 'mockito-all'
-    },
-    "org.powermock:powermock-reflect:$powerMockVersion"
+	"org.powermock:powermock-core:$powerMockVersion",
+	"org.powermock:powermock-api-support:$powerMockVersion",
+	"org.powermock:powermock-module-junit4-common:$powerMockVersion",
+	"org.powermock:powermock-module-junit4:$powerMockVersion",
+	dependencies.create("org.powermock:powermock-api-mockito:$powerMockVersion") {
+		exclude group: 'org.mockito', module: 'mockito-all'
+	},
+	"org.powermock:powermock-reflect:$powerMockVersion"
 ]
 
 ext.springCoreDependency = [
-    dependencies.create("org.springframework:spring-core:$springVersion") {
-        exclude(group: 'commons-logging', module: 'commons-logging')
-    }
+	dependencies.create("org.springframework:spring-core:$springVersion") {
+		exclude(group: 'commons-logging', module: 'commons-logging')
+	}
 ]
 
 ext.jstlDependencies = [
-        "javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api:$jstlVersion",
-        "org.apache.taglibs:taglibs-standard-jstlel:1.2.1"
+		"javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api:$jstlVersion",
+		"org.apache.taglibs:taglibs-standard-jstlel:1.2.1"
 ]
 
 ext.apachedsDependencies = [
-         "org.apache.directory.server:apacheds-core:$apacheDsVersion",
-         "org.apache.directory.server:apacheds-core-entry:$apacheDsVersion",
-         "org.apache.directory.server:apacheds-protocol-shared:$apacheDsVersion",
-         "org.apache.directory.server:apacheds-protocol-ldap:$apacheDsVersion",
-         "org.apache.directory.server:apacheds-server-jndi:$apacheDsVersion",
-         'org.apache.directory.shared:shared-ldap:0.9.15'
+		 "org.apache.directory.server:apacheds-core:$apacheDsVersion",
+		 "org.apache.directory.server:apacheds-core-entry:$apacheDsVersion",
+		 "org.apache.directory.server:apacheds-protocol-shared:$apacheDsVersion",
+		 "org.apache.directory.server:apacheds-protocol-ldap:$apacheDsVersion",
+		 "org.apache.directory.server:apacheds-server-jndi:$apacheDsVersion",
+		 'org.apache.directory.shared:shared-ldap:0.9.15'
 ]
 
 // Integration test setup
 configurations {
-    integrationTestCompile {
-        extendsFrom testCompile, optional, provided
-    }
-    integrationTestRuntime {
-        extendsFrom integrationTestCompile, testRuntime
-    }
+	integrationTestCompile {
+		extendsFrom testCompile, optional, provided
+	}
+	integrationTestRuntime {
+		extendsFrom integrationTestCompile, testRuntime
+	}
 }
 
 sourceSets {
-    integrationTest {
-        java.srcDir file('src/integration-test/java')
-        groovy.srcDirs file('src/integration-test/groovy')
-        resources.srcDir file('src/integration-test/resources')
-        compileClasspath = sourceSets.main.output + sourceSets.test.output + configurations.integrationTestCompile
-        runtimeClasspath = output + compileClasspath + configurations.integrationTestRuntime
-    }
+	integrationTest {
+		java.srcDir file('src/integration-test/java')
+		groovy.srcDirs file('src/integration-test/groovy')
+		resources.srcDir file('src/integration-test/resources')
+		compileClasspath = sourceSets.main.output + sourceSets.test.output + configurations.integrationTestCompile
+		runtimeClasspath = output + compileClasspath + configurations.integrationTestRuntime
+	}
 }
 
 task integrationTest(type: Test, dependsOn: jar) {
-    testClassesDir = sourceSets.integrationTest.output.classesDir
-    logging.captureStandardOutput(LogLevel.INFO)
-    classpath = sourceSets.integrationTest.runtimeClasspath
-    maxParallelForks = 1
-    reports {
-        html.destination = project.file("$project.buildDir/reports/integration-tests/")
-        junitXml.destination = project.file("$project.buildDir/integration-test-results/")
-    }
+	testClassesDir = sourceSets.integrationTest.output.classesDir
+	logging.captureStandardOutput(LogLevel.INFO)
+	classpath = sourceSets.integrationTest.runtimeClasspath
+	maxParallelForks = 1
+	reports {
+		html.destination = project.file("$project.buildDir/reports/integration-tests/")
+		junitXml.destination = project.file("$project.buildDir/integration-test-results/")
+	}
 }
 
 eclipse {
-    classpath {
-        plusConfigurations += [ configurations.integrationTestCompile ]
-    }
+	classpath {
+		plusConfigurations += [ configurations.integrationTestCompile ]
+	}
 }
 project.conf2ScopeMappings.addMapping(MavenPlugin.TEST_COMPILE_PRIORITY + 1, project.configurations.getByName("integrationTestCompile"), Conf2ScopeMappingContainer.TEST)
 project.conf2ScopeMappings.addMapping(MavenPlugin.TEST_COMPILE_PRIORITY + 2, project.configurations.getByName("integrationTestRuntime"), Conf2ScopeMappingContainer.TEST)
 check.dependsOn integrationTest
 
 dependencies {
-    optional "commons-logging:commons-logging:$commonsLoggingVersion"
+	optional "commons-logging:commons-logging:$commonsLoggingVersion"
 
-    testCompile "junit:junit:$junitVersion",
-            'org.mockito:mockito-core:1.9.5',
-            "org.springframework:spring-test:$springVersion",
-            'org.easytesting:fest-assert:1.4'
+	testCompile "junit:junit:$junitVersion",
+			'org.mockito:mockito-core:1.9.5',
+			"org.springframework:spring-test:$springVersion",
+			'org.easytesting:fest-assert:1.4'
 
-    // Use slf4j/logback for logging
-    testRuntime "org.slf4j:jcl-over-slf4j:$slf4jVersion",
-                "ch.qos.logback:logback-classic:$logbackVersion"
+	// Use slf4j/logback for logging
+	testRuntime "org.slf4j:jcl-over-slf4j:$slf4jVersion",
+				"ch.qos.logback:logback-classic:$logbackVersion"
 }
 
 [configurations.runtime, configurations.default, configurations.testCompile]*.exclude(module: 'commons-logging')
 
 configurations.all {
-    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-            if (details.requested.group == 'org.slf4j') {
-                details.useVersion slf4jVersion
-            }
-    }
+	resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+			if (details.requested.group == 'org.slf4j') {
+				details.useVersion slf4jVersion
+			}
+	}
 }
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 project.tasks.matching { it instanceof Test && it.name != 'integrationTest' }.all {
-    jvmArgs = ['-ea', '-Xmx500m', '-XX:MaxPermSize=256M']
-    maxParallelForks = guessMaxForks()
-    logging.captureStandardOutput(LogLevel.INFO)
+	jvmArgs = ['-ea', '-Xmx500m', '-XX:MaxPermSize=256M']
+	maxParallelForks = guessMaxForks()
+	logging.captureStandardOutput(LogLevel.INFO)
 }
 
 def guessMaxForks() {
-    int processors = Runtime.runtime.availableProcessors()
-    return Math.max(2, (int) (processors / 2))
+	int processors = Runtime.runtime.availableProcessors()
+	return Math.max(2, (int) (processors / 2))
 }
 
 javadoc {
-    title = "Spring Security $version API"
-    source = sourceSets.main.allJava
-    options {
-        memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PROTECTED
-        author = true
-        header = project.name
-        outputLevel = org.gradle.external.javadoc.JavadocOutputLevel.QUIET
-        links = [
-            "http://static.springsource.org/spring/docs/3.2.x/javadoc-api/",
-            "http://static.springsource.org/spring-ldap/docs/1.3.x/apidocs/",
-            "http://download.oracle.com/javase/6/docs/api/"
-        ]
-        groups = [
-            'Spring Security Core':[
-                'org.springframework.security.core*',
-                'org.springframework.security.authentication*',
-                'org.springframework.security.access*',
-                'org.springframework.security.remoting*',
-                'org.springframework.security.provisioning*',
-                'org.springframework.security.util*'],
-            'Spring Security Web':['org.springframework.security.web*'],
-            'Spring Security LDAP':['org.springframework.security.ldap*'],
-            'Spring Security Crypto':['org.springframework.security.crypto*'],
-            'Spring Security OpenID':['org.springframework.security.openid*'],
-            'Spring Security CAS':['org.springframework.security.cas*'],
-            'Spring Security ACL':['org.springframework.security.acls*'],
-            'Spring Security Config':['org.springframework.security.config*'],
-            'Spring Security Taglibs':['org.springframework.security.taglibs*'],
-        ]
-    }
+	title = "Spring Security $version API"
+	source = sourceSets.main.allJava
+	options {
+		memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PROTECTED
+		author = true
+		header = project.name
+		outputLevel = org.gradle.external.javadoc.JavadocOutputLevel.QUIET
+		links = [
+			"http://static.springsource.org/spring/docs/3.2.x/javadoc-api/",
+			"http://static.springsource.org/spring-ldap/docs/1.3.x/apidocs/",
+			"http://download.oracle.com/javase/6/docs/api/"
+		]
+		groups = [
+			'Spring Security Core':[
+				'org.springframework.security.core*',
+				'org.springframework.security.authentication*',
+				'org.springframework.security.access*',
+				'org.springframework.security.remoting*',
+				'org.springframework.security.provisioning*',
+				'org.springframework.security.util*'],
+			'Spring Security Web':['org.springframework.security.web*'],
+			'Spring Security LDAP':['org.springframework.security.ldap*'],
+			'Spring Security Crypto':['org.springframework.security.crypto*'],
+			'Spring Security OpenID':['org.springframework.security.openid*'],
+			'Spring Security CAS':['org.springframework.security.cas*'],
+			'Spring Security ACL':['org.springframework.security.acls*'],
+			'Spring Security Config':['org.springframework.security.config*'],
+			'Spring Security Taglibs':['org.springframework.security.taglibs*'],
+		]
+	}
 }
 
 eclipse.classpath.downloadSources = true
 
 // http://forums.gradle.org/gradle/topics/eclipse_wtp_deploys_testcode_to_server_example_provided
 eclipse.classpath {
-    defaultOutputDir = file('bin/main')
-    file.whenMerged { cp ->
-        cp.entries.findAll { it instanceof SourceFolder && (it.path.contains("test") || it.path.contains("Test")) }*.output = "bin/test"
-    }
+	defaultOutputDir = file('bin/main')
+	file.whenMerged { cp ->
+		cp.entries.findAll { it instanceof SourceFolder && (it.path.contains("test") || it.path.contains("Test")) }*.output = "bin/test"
+	}
 }
 
 // GRADLE-1116
 project.eclipse.classpath.file.whenMerged { classpath ->
-    classpath.entries.removeAll { entry -> entry.path.endsWith('/build/resources/test') }
-    classpath.entries.removeAll { entry -> entry.path.endsWith('/build/classes/test') }
-    classpath.entries.removeAll { entry -> entry.path.endsWith('/build/resources/main') }
-    classpath.entries.removeAll { entry -> entry.path.endsWith('/build/classes/main') }
+	classpath.entries.removeAll { entry -> entry.path.endsWith('/build/resources/test') }
+	classpath.entries.removeAll { entry -> entry.path.endsWith('/build/classes/test') }
+	classpath.entries.removeAll { entry -> entry.path.endsWith('/build/resources/main') }
+	classpath.entries.removeAll { entry -> entry.path.endsWith('/build/classes/main') }
 }
 
 // GRADLE-1422
 project.eclipseClasspath.doFirst {
    // delay adding whenMerged till the entryAttributes are added (must be the last whenMerged)
    project.eclipse.classpath.file.whenMerged { classpath ->
-       def includeDeps = project.configurations.getByName('runtime').collect {f -> f.absolutePath } as Set
-       classpath.entries.each { cp ->
-           if(cp instanceof org.gradle.plugins.ide.eclipse.model.Library) {
-               def include = includeDeps.contains(cp.path)
-               def attr = 'org.eclipse.jst.component.dependency'
-               if(!include) {
-                   cp.entryAttributes.remove(attr)
-               }
-           }
-       }
+	   def includeDeps = project.configurations.getByName('runtime').collect {f -> f.absolutePath } as Set
+	   classpath.entries.each { cp ->
+		   if(cp instanceof org.gradle.plugins.ide.eclipse.model.Library) {
+			   def include = includeDeps.contains(cp.path)
+			   def attr = 'org.eclipse.jst.component.dependency'
+			   if(!include) {
+				   cp.entryAttributes.remove(attr)
+			   }
+		   }
+	   }
    }
 }
 
 project.idea.module {
-    scopes.TEST.plus += [project.configurations.integrationTestRuntime]
-    testSourceDirs += sourceSets.integrationTest.resources.srcDirs
+	scopes.TEST.plus += [project.configurations.integrationTestRuntime]
+	testSourceDirs += sourceSets.integrationTest.resources.srcDirs
 }
 
 task javadocJar(type: Jar) {
-    classifier = 'javadoc'
-    from javadoc
+	classifier = 'javadoc'
+	from javadoc
 }
 
 artifacts {
-    archives javadocJar
+	archives javadocJar
 }

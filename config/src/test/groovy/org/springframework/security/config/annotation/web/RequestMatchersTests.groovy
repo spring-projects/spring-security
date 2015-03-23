@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *		http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,31 +29,31 @@ import spock.lang.Specification;
  */
 class RequestMatchersTests extends Specification {
 
-    def "regexMatchers(GET,'/a.*') uses RegexRequestMatcher"() {
-        when:
-        def matchers = regexMatchers(HttpMethod.GET, "/a.*")
-        then: 'matcher is a RegexRequestMatcher'
-        matchers.collect {it.class } == [RegexRequestMatcher]
-    }
+	def "regexMatchers(GET,'/a.*') uses RegexRequestMatcher"() {
+		when:
+		def matchers = regexMatchers(HttpMethod.GET, "/a.*")
+		then: 'matcher is a RegexRequestMatcher'
+		matchers.collect {it.class } == [RegexRequestMatcher]
+	}
 
-    def "regexMatchers('/a.*') uses RegexRequestMatcher"() {
-        when:
-        def matchers = regexMatchers("/a.*")
-        then: 'matcher is a RegexRequestMatcher'
-        matchers.collect {it.class } == [RegexRequestMatcher]
-    }
+	def "regexMatchers('/a.*') uses RegexRequestMatcher"() {
+		when:
+		def matchers = regexMatchers("/a.*")
+		then: 'matcher is a RegexRequestMatcher'
+		matchers.collect {it.class } == [RegexRequestMatcher]
+	}
 
-    def "antMatchers(GET,'/a.*') uses AntPathRequestMatcher"() {
-        when:
-        def matchers = antMatchers(HttpMethod.GET, "/a.*")
-        then: 'matcher is a RegexRequestMatcher'
-        matchers.collect {it.class } == [AntPathRequestMatcher]
-    }
+	def "antMatchers(GET,'/a.*') uses AntPathRequestMatcher"() {
+		when:
+		def matchers = antMatchers(HttpMethod.GET, "/a.*")
+		then: 'matcher is a RegexRequestMatcher'
+		matchers.collect {it.class } == [AntPathRequestMatcher]
+	}
 
-    def "antMatchers('/a.*') uses AntPathRequestMatcher"() {
-        when:
-        def matchers = antMatchers("/a.*")
-        then: 'matcher is a AntPathRequestMatcher'
-        matchers.collect {it.class } == [AntPathRequestMatcher]
-    }
+	def "antMatchers('/a.*') uses AntPathRequestMatcher"() {
+		when:
+		def matchers = antMatchers("/a.*")
+		then: 'matcher is a AntPathRequestMatcher'
+		matchers.collect {it.class } == [AntPathRequestMatcher]
+	}
 }

@@ -16,44 +16,44 @@ import org.gradle.api.file.FileCollection
  * @author Rob Winch
  */
 class TrangPlugin implements Plugin<Project> {
-    public void apply(Project project) {
-        Task rncToXsd = project.tasks.create('rncToXsd', RncToXsd.class)
-        rncToXsd.description = 'Converts .rnc to .xsd'
-        rncToXsd.group = 'Build'
-    }
+	public void apply(Project project) {
+		Task rncToXsd = project.tasks.create('rncToXsd', RncToXsd.class)
+		rncToXsd.description = 'Converts .rnc to .xsd'
+		rncToXsd.group = 'Build'
+	}
 }
 
 /**
  * Converts .rnc files to .xsd files using trang and then applies an xsl file to cleanup the results.
  */
 public class RncToXsd extends DefaultTask {
-    @InputDirectory
-    File rncDir
+	@InputDirectory
+	File rncDir
 
-    @InputFile
-    File xslFile
+	@InputFile
+	File xslFile
 
-    @OutputDirectory
-    File xsdDir
+	@OutputDirectory
+	File xsdDir
 
-    @TaskAction
-    public final void transform() {
-        String xslPath = xslFile.absolutePath
-        rncDir.listFiles( { dir, file -> file.endsWith('.rnc')} as FilenameFilter).each { rncFile ->
-            File xsdFile = new File(xsdDir, rncFile.name.replace('.rnc', '.xsd'))
-            String xsdOutputPath = xsdFile.absolutePath
-            new Driver().run([rncFile.absolutePath, xsdOutputPath] as String[]);
+	@TaskAction
+	public final void transform() {
+		String xslPath = xslFile.absolutePath
+		rncDir.listFiles( { dir, file -> file.endsWith('.rnc')} as FilenameFilter).each { rncFile ->
+			File xsdFile = new File(xsdDir, rncFile.name.replace('.rnc', '.xsd'))
+			String xsdOutputPath = xsdFile.absolutePath
+			new Driver().run([rncFile.absolutePath, xsdOutputPath] as String[]);
 
-            TransformerFactory tFactory = new net.sf.saxon.TransformerFactoryImpl()
-            Transformer transformer =
-                    tFactory.newTransformer(new StreamSource(xslPath))
-            File temp = File.createTempFile("gradle-trang-" + xsdFile.name, ".xsd")
-            xsdFile.withInputStream { is ->
-                temp << is
-            }
-            StreamSource xmlSource = new StreamSource(temp)
-            transformer.transform(xmlSource, new StreamResult(xsdFile))
-            temp.delete()
-        }
-    }
+			TransformerFactory tFactory = new net.sf.saxon.TransformerFactoryImpl()
+			Transformer transformer =
+					tFactory.newTransformer(new StreamSource(xslPath))
+			File temp = File.createTempFile("gradle-trang-" + xsdFile.name, ".xsd")
+			xsdFile.withInputStream { is ->
+				temp << is
+			}
+			StreamSource xmlSource = new StreamSource(temp)
+			transformer.transform(xmlSource, new StreamResult(xsdFile))
+			temp.delete()
+		}
+	}
 }

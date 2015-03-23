@@ -6,50 +6,50 @@ import org.gradle.api.tasks.*
 
 public class MavenBomTask extends DefaultTask {
 
-    Set<Project> projects
+	Set<Project> projects
 
-    File bomFile
+	File bomFile
 
 
-    public MavenBomTask() {
-        this.group = "Generate"
-        this.description = "Generates a Maven Build of Materials (BOM). See http://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#Importing_Dependencies"
-        this.projects = project.subprojects
-        this.bomFile = project.file("${->project.buildDir}/maven-bom/${->project.name}-${->project.version}.txt")
-    }
+	public MavenBomTask() {
+		this.group = "Generate"
+		this.description = "Generates a Maven Build of Materials (BOM). See http://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#Importing_Dependencies"
+		this.projects = project.subprojects
+		this.bomFile = project.file("${->project.buildDir}/maven-bom/${->project.name}-${->project.version}.txt")
+	}
 
-    @TaskAction
-    public void configureBom() {
-        project.configurations.archives.artifacts.clear()
+	@TaskAction
+	public void configureBom() {
+		project.configurations.archives.artifacts.clear()
 
-        bomFile.parentFile.mkdirs()
-        bomFile.write("Maven Build of Materials (BOM). See http://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#Importing_Dependencies")
-        project.artifacts {
-            // work around GRADLE-2406 by attaching text artifact
-            archives(bomFile)
-        }
-        project.install {
-            repositories.mavenInstaller {
-                pom.whenConfigured {
-                    packaging = "pom"
-                    withXml {
-                        asNode().children().last() + {
-                            delegate.dependencyManagement {
-                                delegate.dependencies {
-                                    projects.sort { dep -> "$dep.group:$dep.name" }.each { p ->
+		bomFile.parentFile.mkdirs()
+		bomFile.write("Maven Build of Materials (BOM). See http://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#Importing_Dependencies")
+		project.artifacts {
+			// work around GRADLE-2406 by attaching text artifact
+			archives(bomFile)
+		}
+		project.install {
+			repositories.mavenInstaller {
+				pom.whenConfigured {
+					packaging = "pom"
+					withXml {
+						asNode().children().last() + {
+							delegate.dependencyManagement {
+								delegate.dependencies {
+									projects.sort { dep -> "$dep.group:$dep.name" }.each { p ->
 
-                                        delegate.dependency {
-                                            delegate.groupId(p.group)
-                                            delegate.artifactId(p.name)
-                                            delegate.version(p.version)
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+										delegate.dependency {
+											delegate.groupId(p.group)
+											delegate.artifactId(p.name)
+											delegate.version(p.version)
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 }

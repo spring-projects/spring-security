@@ -1,10 +1,10 @@
 dependencies {
-    compile project(':spring-security-data'),
-            project(':spring-security-config'),
-            "org.springframework.data:spring-data-jpa:$springDataJpaVersion",
-            "org.hibernate.javax.persistence:hibernate-jpa-2.0-api:1.0.0.Final",
-            'org.hibernate:hibernate-entitymanager:3.6.10.Final',
-            "org.hsqldb:hsqldb:$hsqlVersion",
-            "javax.validation:validation-api:1.0.0.GA",
-            "org.hibernate:hibernate-validator:4.2.0.Final"
+	compile project(':spring-security-data'),
+			project(':spring-security-config'),
+			"org.springframework.data:spring-data-jpa:$springDataJpaVersion",
+			"org.hibernate.javax.persistence:hibernate-jpa-2.0-api:1.0.0.Final",
+			'org.hibernate:hibernate-entitymanager:3.6.10.Final',
+			"org.hsqldb:hsqldb:$hsqlVersion",
+			"javax.validation:validation-api:1.0.0.GA",
+			"org.hibernate:hibernate-validator:4.2.0.Final"
 }

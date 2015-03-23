@@ -3,27 +3,27 @@
 apply from: WAR_SAMPLE_GRADLE
 
 dependencies {
-    providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion"
+	providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion"
 
-    compile project(':spring-security-core'),
-            project(':spring-security-acl'),
-            "org.springframework:spring-aop:$springVersion",
-            "org.springframework:spring-beans:$springVersion",
-            "org.springframework:spring-context:$springVersion",
-            "org.springframework:spring-jdbc:$springVersion",
-            "org.springframework:spring-tx:$springVersion",
-            "org.springframework:spring-web:$springVersion",
-            "org.springframework:spring-webmvc:$springVersion"
+	compile project(':spring-security-core'),
+			project(':spring-security-acl'),
+			"org.springframework:spring-aop:$springVersion",
+			"org.springframework:spring-beans:$springVersion",
+			"org.springframework:spring-context:$springVersion",
+			"org.springframework:spring-jdbc:$springVersion",
+			"org.springframework:spring-tx:$springVersion",
+			"org.springframework:spring-web:$springVersion",
+			"org.springframework:spring-webmvc:$springVersion"
 
-    runtime project(':spring-security-web'),
-            project(':spring-security-config'),
-            project(':spring-security-taglibs'),
-            "org.springframework:spring-context-support:$springVersion",
-            jstlDependencies,
-            "org.hsqldb:hsqldb:$hsqlVersion",
-            "org.slf4j:jcl-over-slf4j:$slf4jVersion",
-            "ch.qos.logback:logback-classic:$logbackVersion",
-            "net.sf.ehcache:ehcache:$ehcacheVersion"
+	runtime project(':spring-security-web'),
+			project(':spring-security-config'),
+			project(':spring-security-taglibs'),
+			"org.springframework:spring-context-support:$springVersion",
+			jstlDependencies,
+			"org.hsqldb:hsqldb:$hsqlVersion",
+			"org.slf4j:jcl-over-slf4j:$slf4jVersion",
+			"ch.qos.logback:logback-classic:$logbackVersion",
+			"net.sf.ehcache:ehcache:$ehcacheVersion"
 
-    integrationTestCompile gebDependencies
+	integrationTestCompile gebDependencies
 }

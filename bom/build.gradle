@@ -5,5 +5,5 @@ generatePom.enabled = false
 sonarRunner.skipProject = true
 
 mavenBom {
-    projects = coreModuleProjects
+	projects = coreModuleProjects
 }

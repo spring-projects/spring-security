@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *		http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -36,83 +36,83 @@ import org.springframework.stereotype.Component
  */
 class Issue55Tests extends BaseSpringSpec {
 
-    def "WebSecurityConfigurerAdapter defaults to @Autowired"() {
-        setup:
-            TestingAuthenticationToken token = new TestingAuthenticationToken("test", "this")
-        when:
-            loadConfig(WebSecurityConfigurerAdapterDefaultsAuthManagerConfig)
-        then:
-            context.getBean(FilterChainProxy)
-            findFilter(FilterSecurityInterceptor).authenticationManager.authenticate(token) == CustomAuthenticationManager.RESULT
-     }
+	def "WebSecurityConfigurerAdapter defaults to @Autowired"() {
+		setup:
+			TestingAuthenticationToken token = new TestingAuthenticationToken("test", "this")
+		when:
+			loadConfig(WebSecurityConfigurerAdapterDefaultsAuthManagerConfig)
+		then:
+			context.getBean(FilterChainProxy)
+			findFilter(FilterSecurityInterceptor).authenticationManager.authenticate(token) == CustomAuthenticationManager.RESULT
+	 }
 
-    @EnableWebSecurity
-    static class WebSecurityConfigurerAdapterDefaultsAuthManagerConfig {
-        @Component
-        public static class WebSecurityAdapter extends WebSecurityConfigurerAdapter {
+	@EnableWebSecurity
+	static class WebSecurityConfigurerAdapterDefaultsAuthManagerConfig {
+		@Component
+		public static class WebSecurityAdapter extends WebSecurityConfigurerAdapter {
 
-            @Override
-            protected void configure(HttpSecurity http) throws Exception {
-                http
-                    .authorizeRequests()
-                        .anyRequest().hasRole("USER");
-            }
-        }
-        @Configuration
-        public static class AuthenticationManagerConfiguration {
-            @Bean
-            public AuthenticationManager authenticationManager() throws Exception {
-                return new CustomAuthenticationManager();
-            }
-        }
-    }
+			@Override
+			protected void configure(HttpSecurity http) throws Exception {
+				http
+					.authorizeRequests()
+						.anyRequest().hasRole("USER");
+			}
+		}
+		@Configuration
+		public static class AuthenticationManagerConfiguration {
+			@Bean
+			public AuthenticationManager authenticationManager() throws Exception {
+				return new CustomAuthenticationManager();
+			}
+		}
+	}
 
-    def "multi http WebSecurityConfigurerAdapter defaults to @Autowired"() {
-        setup:
-            TestingAuthenticationToken token = new TestingAuthenticationToken("test", "this")
-        when:
-            loadConfig(MultiWebSecurityConfigurerAdapterDefaultsAuthManagerConfig)
-        then:
-            context.getBean(FilterChainProxy)
-            findFilter(FilterSecurityInterceptor).authenticationManager.authenticate(token) == CustomAuthenticationManager.RESULT
-            findFilter(FilterSecurityInterceptor,1).authenticationManager.authenticate(token) == CustomAuthenticationManager.RESULT
-     }
+	def "multi http WebSecurityConfigurerAdapter defaults to @Autowired"() {
+		setup:
+			TestingAuthenticationToken token = new TestingAuthenticationToken("test", "this")
+		when:
+			loadConfig(MultiWebSecurityConfigurerAdapterDefaultsAuthManagerConfig)
+		then:
+			context.getBean(FilterChainProxy)
+			findFilter(FilterSecurityInterceptor).authenticationManager.authenticate(token) == CustomAuthenticationManager.RESULT
+			findFilter(FilterSecurityInterceptor,1).authenticationManager.authenticate(token) == CustomAuthenticationManager.RESULT
+	 }
 
-    @EnableWebSecurity
-    static class MultiWebSecurityConfigurerAdapterDefaultsAuthManagerConfig {
-        @Component
-        @Order(1)
-        public static class ApiWebSecurityAdapter extends WebSecurityConfigurerAdapter {
-            @Override
-            protected void configure(HttpSecurity http) throws Exception {
-                http
-                    .antMatcher("/api/**")
-                    .authorizeRequests()
-                        .anyRequest().hasRole("USER");
-            }
-        }
-        @Component
-        public static class WebSecurityAdapter extends WebSecurityConfigurerAdapter {
-            @Override
-            protected void configure(HttpSecurity http) throws Exception {
-                http
-                    .authorizeRequests()
-                        .anyRequest().hasRole("USER");
-            }
-        }
-        @Configuration
-        public static class AuthenticationManagerConfiguration {
-            @Bean
-            public AuthenticationManager authenticationManager() throws Exception {
-                return new CustomAuthenticationManager();
-            }
-        }
-    }
+	@EnableWebSecurity
+	static class MultiWebSecurityConfigurerAdapterDefaultsAuthManagerConfig {
+		@Component
+		@Order(1)
+		public static class ApiWebSecurityAdapter extends WebSecurityConfigurerAdapter {
+			@Override
+			protected void configure(HttpSecurity http) throws Exception {
+				http
+					.antMatcher("/api/**")
+					.authorizeRequests()
+						.anyRequest().hasRole("USER");
+			}
+		}
+		@Component
+		public static class WebSecurityAdapter extends WebSecurityConfigurerAdapter {
+			@Override
+			protected void configure(HttpSecurity http) throws Exception {
+				http
+					.authorizeRequests()
+						.anyRequest().hasRole("USER");
+			}
+		}
+		@Configuration
+		public static class AuthenticationManagerConfiguration {
+			@Bean
+			public AuthenticationManager authenticationManager() throws Exception {
+				return new CustomAuthenticationManager();
+			}
+		}
+	}
 
-    static class CustomAuthenticationManager implements AuthenticationManager {
-        static Authentication RESULT = new TestingAuthenticationToken("test", "this","ROLE_USER")
-        public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-            return RESULT;
-        }
-    }
+	static class CustomAuthenticationManager implements AuthenticationManager {
+		static Authentication RESULT = new TestingAuthenticationToken("test", "this","ROLE_USER")
+		public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+			return RESULT;
+		}
+	}
 }

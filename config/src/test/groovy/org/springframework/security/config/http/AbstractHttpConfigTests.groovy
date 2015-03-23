@@ -28,55 +28,55 @@ import javax.servlet.http.HttpServletRequest
  *
  */
 abstract class AbstractHttpConfigTests extends AbstractXmlConfigTests {
-    final int AUTO_CONFIG_FILTERS = 14;
+	final int AUTO_CONFIG_FILTERS = 14;
 
-    def httpAutoConfig(Closure c) {
-        xml.http(['auto-config': 'true', 'use-expressions':false], c)
-    }
+	def httpAutoConfig(Closure c) {
+		xml.http(['auto-config': 'true', 'use-expressions':false], c)
+	}
 
-    def httpAutoConfig(String matcher, Closure c) {
-        xml.http(['auto-config': 'true', 'use-expressions':false, 'request-matcher': matcher], c)
-    }
+	def httpAutoConfig(String matcher, Closure c) {
+		xml.http(['auto-config': 'true', 'use-expressions':false, 'request-matcher': matcher], c)
+	}
 
-    def interceptUrl(String path, String authz) {
-        xml.'intercept-url'(pattern: path, access: authz)
-    }
+	def interceptUrl(String path, String authz) {
+		xml.'intercept-url'(pattern: path, access: authz)
+	}
 
-    def interceptUrl(String path, String httpMethod, String authz) {
-        xml.'intercept-url'(pattern: path, method: httpMethod, access: authz)
-    }
+	def interceptUrl(String path, String httpMethod, String authz) {
+		xml.'intercept-url'(pattern: path, method: httpMethod, access: authz)
+	}
 
-    Filter getFilter(Class type) {
-        List filters = getFilters("/any");
+	Filter getFilter(Class type) {
+		List filters = getFilters("/any");
 
-        for (f in filters) {
-            if (f.class.isAssignableFrom(type)) {
-                return f;
-            }
-        }
+		for (f in filters) {
+			if (f.class.isAssignableFrom(type)) {
+				return f;
+			}
+		}
 
-        return null;
-    }
+		return null;
+	}
 
-    List getFilters(String url) {
-        springSecurityFilterChain.getFilters(url)
-    }
+	List getFilters(String url) {
+		springSecurityFilterChain.getFilters(url)
+	}
 
-    Filter getSpringSecurityFilterChain() {
-        appContext.getBean(BeanIds.FILTER_CHAIN_PROXY)
-    }
+	Filter getSpringSecurityFilterChain() {
+		appContext.getBean(BeanIds.FILTER_CHAIN_PROXY)
+	}
 
-    FilterInvocation createFilterinvocation(String path, String method) {
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setMethod(method);
-        request.setRequestURI(null);
-        request.setServletPath(path);
+	FilterInvocation createFilterinvocation(String path, String method) {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setMethod(method);
+		request.setRequestURI(null);
+		request.setServletPath(path);
 
-        return new FilterInvocation(request, new MockHttpServletResponse(), new MockFilterChain());
-    }
+		return new FilterInvocation(request, new MockHttpServletResponse(), new MockFilterChain());
+	}
 
-    def basicLogin(HttpServletRequest request, String username="user",String password="password") {
-        def credentials = username + ":" + password
-        request.addHeader("Authorization", "Basic " + credentials.bytes.encodeBase64())
-    }
+	def basicLogin(HttpServletRequest request, String username="user",String password="password") {
+		def credentials = username + ":" + password
+		request.addHeader("Authorization", "Basic " + credentials.bytes.encodeBase64())
+	}
 }

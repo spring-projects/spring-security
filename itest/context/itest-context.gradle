@@ -1,17 +1,17 @@
 System.setProperty('python.cachedir.skip', 'true')
 
 dependencies {
-    compile     project(':spring-security-core'),
-                'aopalliance:aopalliance:1.0',
-                'org.python:jython:2.5.0',
-                "org.springframework:spring-context:$springVersion",
-                "org.springframework:spring-aop:$springVersion",
-                "org.springframework:spring-tx:$springVersion",
-                "org.springframework:spring-beans:$springVersion"
+	compile		project(':spring-security-core'),
+				'aopalliance:aopalliance:1.0',
+				'org.python:jython:2.5.0',
+				"org.springframework:spring-context:$springVersion",
+				"org.springframework:spring-aop:$springVersion",
+				"org.springframework:spring-tx:$springVersion",
+				"org.springframework:spring-beans:$springVersion"
 
-    testCompile project(':spring-security-web'),
-                "javax.servlet:javax.servlet-api:$servletApiVersion",
-                "org.springframework:spring-web:$springVersion"
-    testRuntime project(':spring-security-config'),
-                "org.aspectj:aspectjweaver:$aspectjVersion"
+	testCompile project(':spring-security-web'),
+				"javax.servlet:javax.servlet-api:$servletApiVersion",
+				"org.springframework:spring-web:$springVersion"
+	testRuntime project(':spring-security-config'),
+				"org.aspectj:aspectjweaver:$aspectjVersion"
 }

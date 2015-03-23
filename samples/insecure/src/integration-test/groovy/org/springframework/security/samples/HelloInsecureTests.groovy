@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *		http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,12 +26,12 @@ import org.springframework.security.samples.pages.*
  */
 @Stepwise
 class HelloInsecureTests extends GebReportingSpec {
-    def 'The HomePage is accessible'() {
-        when: 'Unauthenticated user accesses the Home Page'
-        to HomePage
-        then: 'The HomePage is displayed'
-        at HomePage
-        and: 'We can see the message'
-        message == 'We would like to secure this page'
-    }
+	def 'The HomePage is accessible'() {
+		when: 'Unauthenticated user accesses the Home Page'
+		to HomePage
+		then: 'The HomePage is displayed'
+		at HomePage
+		and: 'We can see the message'
+		message == 'We would like to secure this page'
+	}
 }

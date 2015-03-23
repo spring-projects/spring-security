@@ -1,30 +1,30 @@
 sonarRunner.skipProject = true
 
 dependencies {
-    provided "javax.servlet:javax.servlet-api:3.0.1"
+	provided "javax.servlet:javax.servlet-api:3.0.1"
 
 
-    compile project(":spring-security-web"),
-            project(":spring-security-config"),
-            "org.hibernate.javax.persistence:hibernate-jpa-2.0-api:1.0.0.Final",
-            "org.hsqldb:hsqldb:$hsqlVersion",
-            "javax.validation:validation-api:1.0.0.GA",
-            "org.hibernate:hibernate-validator:4.2.0.Final",
-            "org.springframework:spring-webmvc:$springVersion",
-            "org.springframework:spring-orm:$springVersion",
-            "org.springframework:spring-context:$springVersion",
-            "org.springframework:spring-aop:$springVersion",
-            "org.springframework:spring-tx:$springVersion",
-            "org.springframework:spring-beans:$springVersion",
-            "org.springframework:spring-instrument:$springVersion",
-            "org.springframework:spring-core:$springVersion",
-            "org.springframework:spring-aspects:$springVersion",
-            "org.thymeleaf:thymeleaf-spring4:$thymeleafVersion",
-            "org.thymeleaf.extras:thymeleaf-extras-tiles2-spring4:2.1.1.RELEASE"
-      compile('org.hibernate:hibernate-entitymanager:3.6.10.Final') {
-            exclude group:'javassist', module: 'javassist'
-      }
-      compile("org.springframework.data:spring-data-jpa:$springDataJpaVersion") {
-            exclude group:'org.aspectj', module:'aspectjrt'
-      }
+	compile project(":spring-security-web"),
+			project(":spring-security-config"),
+			"org.hibernate.javax.persistence:hibernate-jpa-2.0-api:1.0.0.Final",
+			"org.hsqldb:hsqldb:$hsqlVersion",
+			"javax.validation:validation-api:1.0.0.GA",
+			"org.hibernate:hibernate-validator:4.2.0.Final",
+			"org.springframework:spring-webmvc:$springVersion",
+			"org.springframework:spring-orm:$springVersion",
+			"org.springframework:spring-context:$springVersion",
+			"org.springframework:spring-aop:$springVersion",
+			"org.springframework:spring-tx:$springVersion",
+			"org.springframework:spring-beans:$springVersion",
+			"org.springframework:spring-instrument:$springVersion",
+			"org.springframework:spring-core:$springVersion",
+			"org.springframework:spring-aspects:$springVersion",
+			"org.thymeleaf:thymeleaf-spring4:$thymeleafVersion",
+			"org.thymeleaf.extras:thymeleaf-extras-tiles2-spring4:2.1.1.RELEASE"
+	  compile('org.hibernate:hibernate-entitymanager:3.6.10.Final') {
+			exclude group:'javassist', module: 'javassist'
+	  }
+	  compile("org.springframework.data:spring-data-jpa:$springDataJpaVersion") {
+			exclude group:'org.aspectj', module:'aspectjrt'
+	  }
 }
