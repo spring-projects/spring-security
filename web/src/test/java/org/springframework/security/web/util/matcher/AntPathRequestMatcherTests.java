@@ -71,15 +71,6 @@ public class AntPathRequestMatcherTests {
         assertTrue(matcher.matches(createRequest("/blah/blah")));
         assertFalse(matcher.matches(createRequest("/blah/bleh")));
         assertTrue(matcher.matches(createRequest("/blah/aaa/blah/bbb")));
-
-        matcher = new AntPathRequestMatcher("/{id}/blAh/**");
-        assertTrue(matcher.matches(createRequest("/1234/blah")));
-        assertFalse(matcher.matches(createRequest("/4567/bleh")));
-        assertTrue(matcher.matches(createRequest("/paskos/blah/")));
-        assertTrue(matcher.matches(createRequest("/12345/blah/xxx")));
-        assertFalse(matcher.matches(createRequest("/12345/blaha")));
-        assertFalse(matcher.matches(createRequest("/paskos/bleh/")));
-
     }
 
     @Test
