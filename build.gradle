@@ -25,16 +25,16 @@ allprojects {
 
 	ext.releaseBuild = version.endsWith('RELEASE')
 	ext.snapshotBuild = version.endsWith('SNAPSHOT')
-	ext.springVersion = '4.1.5.RELEASE'
+	ext.springVersion = '4.1.6.RELEASE'
 	ext.springLdapVersion = '2.0.2.RELEASE'
 
 	group = 'org.springframework.security'
 
 	repositories {
-	   mavenCentral()
-	   maven { url "https://repo.spring.io/libs-snapshot" }
-	   maven { url "https://repo.spring.io/plugins-release" }
-	   maven { url "http://repo.terracotta.org/maven2/" }
+	mavenCentral()
+	maven { url "https://repo.spring.io/libs-snapshot" }
+	maven { url "https://repo.spring.io/plugins-release" }
+	maven { url "http://repo.terracotta.org/maven2/" }
 	}
 
 	eclipse.project.name = "${project.name}-4.0.x"
