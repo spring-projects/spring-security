@@ -38,11 +38,14 @@ import org.springframework.security.messaging.util.matcher.SimpMessageTypeMatche
 import org.springframework.security.messaging.web.csrf.CsrfChannelInterceptor;
 import org.springframework.security.messaging.web.socket.server.CsrfTokenHandshakeInterceptor;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.util.PathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Parses Spring Security's websocket namespace support. A simple example is:
@@ -84,9 +87,6 @@ import java.util.List;
  */
 public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 		BeanDefinitionParser {
-	private static final Log logger = LogFactory
-			.getLog(WebSocketMessageBrokerSecurityBeanDefinitionParser.class);
-
 	private static final String ID_ATTR = "id";
 
 	private static final String DISABLED_ATTR = "same-origin-disabled";
@@ -96,6 +96,8 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 	private static final String ACCESS_ATTR = "access";
 
 	private static final String TYPE_ATTR = "type";
+
+	private static final String PATH_MATCHER_BEAN_NAME = "springSecurityMessagePathMatcher";
 
 	/**
 	 * @param element
@@ -149,6 +151,10 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 
 		if (StringUtils.hasText(id)) {
 			registry.registerAlias(inSecurityInterceptorName, id);
+
+			if(!registry.containsBeanDefinition(PATH_MATCHER_BEAN_NAME)) {
+				registry.registerBeanDefinition(PATH_MATCHER_BEAN_NAME, new RootBeanDefinition(AntPathMatcher.class));
+			}
 		}
 		else {
 			BeanDefinitionBuilder mspp = BeanDefinitionBuilder
@@ -190,16 +196,18 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 								interceptMessage);
 			}
 		}
+
 		BeanDefinitionBuilder matcher = BeanDefinitionBuilder
 				.rootBeanDefinition(SimpDestinationMessageMatcher.class);
 		matcher.setFactoryMethod(factoryName);
 		matcher.addConstructorArgValue(matcherPattern);
-		matcher.addConstructorArgValue(new RootBeanDefinition(AntPathMatcher.class));
+		matcher.addConstructorArgValue(new RuntimeBeanReference("springSecurityMessagePathMatcher"));
 		return matcher.getBeanDefinition();
 	}
 
 	static class MessageSecurityPostProcessor implements
 			BeanDefinitionRegistryPostProcessor {
+
 		private static final String CLIENT_INBOUND_CHANNEL_BEAN_ID = "clientInboundChannel";
 
 		private static final String INTERCEPTORS_PROP = "interceptors";
@@ -233,6 +241,14 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 					argResolvers.add(new RootBeanDefinition(
 							AuthenticationPrincipalArgumentResolver.class));
 					bd.getPropertyValues().add(CUSTOM_ARG_RESOLVERS_PROP, argResolvers);
+
+					if(!registry.containsBeanDefinition(PATH_MATCHER_BEAN_NAME)) {
+						PropertyValue pathMatcherProp = bd.getPropertyValues().getPropertyValue("pathMatcher");
+						Object pathMatcher = pathMatcherProp == null ? null : pathMatcherProp.getValue();
+						if(pathMatcher instanceof BeanReference) {
+							registry.registerAlias(((BeanReference) pathMatcher).getBeanName(), PATH_MATCHER_BEAN_NAME);
+						}
+					}
 				}
 				else if (beanClassName
 						.equals("org.springframework.web.socket.server.support.WebSocketHttpRequestHandler")) {
@@ -270,6 +286,10 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 			}
 
 			inboundChannel.getPropertyValues().add(INTERCEPTORS_PROP, interceptors);
+
+			if(!registry.containsBeanDefinition(PATH_MATCHER_BEAN_NAME)) {
+				registry.registerBeanDefinition(PATH_MATCHER_BEAN_NAME, new RootBeanDefinition(AntPathMatcher.class));
+			}
 		}
 
 		private void addCsrfTokenHandshakeInterceptor(BeanDefinition bd) {
@@ -287,6 +307,43 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 		public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory)
 				throws BeansException {
 
+		}
+	}
+
+	static class DelegatingPathMatcher implements PathMatcher {
+
+		private PathMatcher delegate = new AntPathMatcher();
+
+		public boolean isPattern(String path) {
+			return delegate.isPattern(path);
+		}
+
+		public boolean match(String pattern, String path) {
+			return delegate.match(pattern, path);
+		}
+
+		public boolean matchStart(String pattern, String path) {
+			return delegate.matchStart(pattern, path);
+		}
+
+		public String extractPathWithinPattern(String pattern, String path) {
+			return delegate.extractPathWithinPattern(pattern, path);
+		}
+
+		public Map<String, String> extractUriTemplateVariables(String pattern, String path) {
+			return delegate.extractUriTemplateVariables(pattern, path);
+		}
+
+		public Comparator<String> getPatternComparator(String path) {
+			return delegate.getPatternComparator(path);
+		}
+
+		public String combine(String pattern1, String pattern2) {
+			return delegate.combine(pattern1, pattern2);
+		}
+
+		void setPathMatcher(PathMatcher pathMatcher) {
+			this.delegate = pathMatcher;
 		}
 	}
 }
