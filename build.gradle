@@ -103,7 +103,7 @@ configure(coreModuleProjects) {
     apply plugin: 'emma'
     apply plugin: 'spring-io'
 
-    ext.springIoVersion = project.hasProperty('platformVersion') ? platformVersion : '1.0.0.BUILD-SNAPSHOT'
+    ext.springIoVersion = project.hasProperty('platformVersion') ? platformVersion : 'latest.integration'
 
     bundlor.doFirst {
         def templateText = file("template.mf").text
