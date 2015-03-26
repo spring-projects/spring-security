@@ -34,6 +34,7 @@ import org.springframework.security.web.access.ExceptionTranslationFilter
 import org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy
 import org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy
+import org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy;
 import org.springframework.security.web.context.NullSecurityContextRepository
 import org.springframework.security.web.context.SecurityContextPersistenceFilter
 import org.springframework.security.web.context.SecurityContextRepository
@@ -48,205 +49,207 @@ import org.springframework.security.web.session.SessionManagementFilter
  */
 class SessionManagementConfigurerTests extends BaseSpringSpec {
 
-    def "sessionManagement does not override explicit RequestCache"() {
-        setup:
-            SessionManagementDoesNotOverrideExplicitRequestCacheConfig.REQUEST_CACHE = Mock(RequestCache)
-        when:
-            loadConfig(SessionManagementDoesNotOverrideExplicitRequestCacheConfig)
-        then:
-            findFilter(ExceptionTranslationFilter).requestCache == SessionManagementDoesNotOverrideExplicitRequestCacheConfig.REQUEST_CACHE
-    }
+	def "sessionManagement does not override explicit RequestCache"() {
+		setup:
+			SessionManagementDoesNotOverrideExplicitRequestCacheConfig.REQUEST_CACHE = Mock(RequestCache)
+		when:
+			loadConfig(SessionManagementDoesNotOverrideExplicitRequestCacheConfig)
+		then:
+			findFilter(ExceptionTranslationFilter).requestCache == SessionManagementDoesNotOverrideExplicitRequestCacheConfig.REQUEST_CACHE
+	}
 
-    @EnableWebSecurity
-    static class SessionManagementDoesNotOverrideExplicitRequestCacheConfig extends WebSecurityConfigurerAdapter {
-        static RequestCache REQUEST_CACHE
+	@EnableWebSecurity
+	static class SessionManagementDoesNotOverrideExplicitRequestCacheConfig extends WebSecurityConfigurerAdapter {
+		static RequestCache REQUEST_CACHE
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .requestCache()
-                    .requestCache(REQUEST_CACHE)
-                    .and()
-                .sessionManagement()
-                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        }
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.requestCache()
+					.requestCache(REQUEST_CACHE)
+					.and()
+				.sessionManagement()
+					.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+		}
 
-    }
+	}
 
-    def "sessionManagement does not override explict SecurityContextRepository"() {
-        setup:
-            SessionManagementDoesNotOverrideExplicitSecurityContextRepositoryConfig.SECURITY_CONTEXT_REPO = Mock(SecurityContextRepository)
-        when:
-            loadConfig(SessionManagementDoesNotOverrideExplicitSecurityContextRepositoryConfig)
-        then:
-            findFilter(SecurityContextPersistenceFilter).repo == SessionManagementDoesNotOverrideExplicitSecurityContextRepositoryConfig.SECURITY_CONTEXT_REPO
-    }
+	def "sessionManagement does not override explict SecurityContextRepository"() {
+		setup:
+			SessionManagementDoesNotOverrideExplicitSecurityContextRepositoryConfig.SECURITY_CONTEXT_REPO = Mock(SecurityContextRepository)
+		when:
+			loadConfig(SessionManagementDoesNotOverrideExplicitSecurityContextRepositoryConfig)
+		then:
+			findFilter(SecurityContextPersistenceFilter).repo == SessionManagementDoesNotOverrideExplicitSecurityContextRepositoryConfig.SECURITY_CONTEXT_REPO
+	}
 
-    @EnableWebSecurity
-    static class SessionManagementDoesNotOverrideExplicitSecurityContextRepositoryConfig extends WebSecurityConfigurerAdapter {
-        static SecurityContextRepository SECURITY_CONTEXT_REPO
+	@EnableWebSecurity
+	static class SessionManagementDoesNotOverrideExplicitSecurityContextRepositoryConfig extends WebSecurityConfigurerAdapter {
+		static SecurityContextRepository SECURITY_CONTEXT_REPO
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .securityContext()
-                    .securityContextRepository(SECURITY_CONTEXT_REPO)
-                    .and()
-                .sessionManagement()
-                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        }
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.securityContext()
+					.securityContextRepository(SECURITY_CONTEXT_REPO)
+					.and()
+				.sessionManagement()
+					.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+		}
 
-    }
+	}
 
-    def "invoke sessionManagement twice does not override"() {
-        when:
-            loadConfig(InvokeTwiceDoesNotOverride)
-        then:
-            findFilter(SecurityContextPersistenceFilter).repo.class == NullSecurityContextRepository
-    }
+	def "invoke sessionManagement twice does not override"() {
+		when:
+			loadConfig(InvokeTwiceDoesNotOverride)
+		then:
+			findFilter(SecurityContextPersistenceFilter).repo.class == NullSecurityContextRepository
+	}
 
-    @EnableWebSecurity
-    static class InvokeTwiceDoesNotOverride extends WebSecurityConfigurerAdapter {
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .sessionManagement()
-                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                    .and()
-                .sessionManagement()
-        }
+	@EnableWebSecurity
+	static class InvokeTwiceDoesNotOverride extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.sessionManagement()
+					.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+					.and()
+				.sessionManagement()
+		}
 
-    }
+	}
 
-    def 'SEC-2137: disable session fixation and enable concurrency control'() {
-        setup: "context where session fixation is disabled and concurrency control is enabled"
-            loadConfig(DisableSessionFixationEnableConcurrencyControlConfig)
-            String originalSessionId = request.session.id
-            String credentials = "user:password"
-            request.addHeader("Authorization", "Basic " + credentials.bytes.encodeBase64())
-        when: "authenticate"
-            springSecurityFilterChain.doFilter(request, response, new MockFilterChain())
-        then: "session invalidate is not called"
-            request.session.id == originalSessionId
-    }
+	def 'SEC-2137: disable session fixation and enable concurrency control'() {
+		setup: "context where session fixation is disabled and concurrency control is enabled"
+			loadConfig(DisableSessionFixationEnableConcurrencyControlConfig)
+			String originalSessionId = request.session.id
+			String credentials = "user:password"
+			request.addHeader("Authorization", "Basic " + credentials.bytes.encodeBase64())
+		when: "authenticate"
+			springSecurityFilterChain.doFilter(request, response, new MockFilterChain())
+		then: "session invalidate is not called"
+			request.session.id == originalSessionId
+	}
 
-    @EnableWebSecurity
-    static class DisableSessionFixationEnableConcurrencyControlConfig extends WebSecurityConfigurerAdapter {
-        @Override
-        public void configure(HttpSecurity http) {
-            http
-                .httpBasic()
-                    .and()
-                .sessionManagement()
-                    .sessionFixation().none()
-                    .maximumSessions(1)
-        }
-        @Override
-        protected void configure(AuthenticationManagerBuilder auth) {
-            auth
-                .inMemoryAuthentication()
-                    .withUser("user").password("password").roles("USER")
-        }
-    }
+	@EnableWebSecurity
+	static class DisableSessionFixationEnableConcurrencyControlConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		public void configure(HttpSecurity http) {
+			http
+				.httpBasic()
+					.and()
+				.sessionManagement()
+					.sessionFixation().none()
+					.maximumSessions(1)
+		}
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) {
+			auth
+				.inMemoryAuthentication()
+					.withUser("user").password("password").roles("USER")
+		}
+	}
 
-    def 'session fixation and enable concurrency control'() {
-        setup: "context where session fixation is disabled and concurrency control is enabled"
-            loadConfig(ConcurrencyControlConfig)
-            def authenticatedSession
-        when: "authenticate successfully"
-            request.servletPath = "/login"
-            request.method = "POST"
-            request.setParameter("username", "user");
-            request.setParameter("password","password")
-            springSecurityFilterChain.doFilter(request, response, chain)
-            authenticatedSession = request.session
-        then: "authentication is sucessful"
-            response.status == HttpServletResponse.SC_MOVED_TEMPORARILY
-            response.redirectedUrl == "/"
-        when: "authenticate with the same user"
-            super.setup()
-            request.servletPath = "/login"
-            request.method = "POST"
-            request.setParameter("username", "user");
-            request.setParameter("password","password")
-            springSecurityFilterChain.doFilter(request, response, chain)
-        then:
-            response.status == HttpServletResponse.SC_MOVED_TEMPORARILY
-            response.redirectedUrl == '/login?error'
-        when: 'SEC-2574: When Session Expires and authentication attempted'
-            context.publishEvent(new HttpSessionDestroyedEvent(authenticatedSession))
-            super.setup()
-            request.servletPath = "/login"
-            request.method = "POST"
-            request.setParameter("username", "user");
-            request.setParameter("password","password")
-            springSecurityFilterChain.doFilter(request, response, chain)
-        then: "authentication is successful"
-            response.status == HttpServletResponse.SC_MOVED_TEMPORARILY
-            response.redirectedUrl == "/"
-    }
+	def 'session fixation and enable concurrency control'() {
+		setup: "context where session fixation is disabled and concurrency control is enabled"
+			loadConfig(ConcurrencyControlConfig)
+			def authenticatedSession
+		when: "authenticate successfully"
+			request.servletPath = "/login"
+			request.method = "POST"
+			request.setParameter("username", "user");
+			request.setParameter("password","password")
+			springSecurityFilterChain.doFilter(request, response, chain)
+			authenticatedSession = request.session
+		then: "authentication is sucessful"
+			response.status == HttpServletResponse.SC_MOVED_TEMPORARILY
+			response.redirectedUrl == "/"
+		when: "authenticate with the same user"
+			super.setup()
+			request.servletPath = "/login"
+			request.method = "POST"
+			request.setParameter("username", "user");
+			request.setParameter("password","password")
+			springSecurityFilterChain.doFilter(request, response, chain)
+		then:
+			response.status == HttpServletResponse.SC_MOVED_TEMPORARILY
+			response.redirectedUrl == '/login?error'
+		when: 'SEC-2574: When Session Expires and authentication attempted'
+			context.publishEvent(new HttpSessionDestroyedEvent(authenticatedSession))
+			super.setup()
+			request.servletPath = "/login"
+			request.method = "POST"
+			request.setParameter("username", "user");
+			request.setParameter("password","password")
+			springSecurityFilterChain.doFilter(request, response, chain)
+		then: "authentication is successful"
+			response.status == HttpServletResponse.SC_MOVED_TEMPORARILY
+			response.redirectedUrl == "/"
+	}
 
-    @EnableWebSecurity
-    static class ConcurrencyControlConfig extends WebSecurityConfigurerAdapter {
-        @Override
-        public void configure(HttpSecurity http) {
-            http
-                .formLogin()
-                    .and()
-                .sessionManagement()
-                    .maximumSessions(1)
-                        .maxSessionsPreventsLogin(true)
-        }
-        @Override
-        protected void configure(AuthenticationManagerBuilder auth) {
-            auth
-                .inMemoryAuthentication()
-                    .withUser("user").password("password").roles("USER")
-        }
-    }
+	@EnableWebSecurity
+	static class ConcurrencyControlConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		public void configure(HttpSecurity http) {
+			http
+				.formLogin()
+					.and()
+				.sessionManagement()
+					.maximumSessions(1)
+						.maxSessionsPreventsLogin(true)
+		}
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) {
+			auth
+				.inMemoryAuthentication()
+					.withUser("user").password("password").roles("USER")
+		}
+	}
 
-    def "sessionManagement ObjectPostProcessor"() {
-        setup:
-            AnyObjectPostProcessor opp = Mock()
-            HttpSecurity http = new HttpSecurity(opp, authenticationBldr, [:])
-        when:
-            http
-                .sessionManagement()
-                    .maximumSessions(1)
-                        .and()
-                    .and()
-                .build()
+	def "sessionManagement ObjectPostProcessor"() {
+		setup:
+			AnyObjectPostProcessor opp = Mock()
+			HttpSecurity http = new HttpSecurity(opp, authenticationBldr, [:])
+		when:
+			http
+				.sessionManagement()
+					.maximumSessions(1)
+						.and()
+					.and()
+				.build()
 
-        then: "SessionManagementFilter is registered with ObjectPostProcessor"
-            1 * opp.postProcess(_ as SessionManagementFilter) >> {SessionManagementFilter o -> o}
-        and: "ConcurrentSessionFilter is registered with ObjectPostProcessor"
-            1 * opp.postProcess(_ as ConcurrentSessionFilter) >> {ConcurrentSessionFilter o -> o}
-        and: "ConcurrentSessionControlAuthenticationStrategy is registered with ObjectPostProcessor"
-            1 * opp.postProcess(_ as ConcurrentSessionControlAuthenticationStrategy) >> {ConcurrentSessionControlAuthenticationStrategy o -> o}
-        and: "CompositeSessionAuthenticationStrategy is registered with ObjectPostProcessor"
-            1 * opp.postProcess(_ as CompositeSessionAuthenticationStrategy) >> {CompositeSessionAuthenticationStrategy o -> o}
-        and: "RegisterSessionAuthenticationStrategy is registered with ObjectPostProcessor"
-            1 * opp.postProcess(_ as RegisterSessionAuthenticationStrategy) >> {RegisterSessionAuthenticationStrategy o -> o}
-    }
+		then: "SessionManagementFilter is registered with ObjectPostProcessor"
+			1 * opp.postProcess(_ as SessionManagementFilter) >> {SessionManagementFilter o -> o}
+		and: "ConcurrentSessionFilter is registered with ObjectPostProcessor"
+			1 * opp.postProcess(_ as ConcurrentSessionFilter) >> {ConcurrentSessionFilter o -> o}
+		and: "ConcurrentSessionControlAuthenticationStrategy is registered with ObjectPostProcessor"
+			1 * opp.postProcess(_ as ConcurrentSessionControlAuthenticationStrategy) >> {ConcurrentSessionControlAuthenticationStrategy o -> o}
+		and: "CompositeSessionAuthenticationStrategy is registered with ObjectPostProcessor"
+			1 * opp.postProcess(_ as CompositeSessionAuthenticationStrategy) >> {CompositeSessionAuthenticationStrategy o -> o}
+		and: "RegisterSessionAuthenticationStrategy is registered with ObjectPostProcessor"
+			1 * opp.postProcess(_ as RegisterSessionAuthenticationStrategy) >> {RegisterSessionAuthenticationStrategy o -> o}
+		and: "SessionFixationProtectionStrategy is registered with ObjectPostProcessor"
+			1 * opp.postProcess(_ as SessionFixationProtectionStrategy) >> {SessionFixationProtectionStrategy o -> o}
+	}
 
-    def "use sharedObject trustResolver"() {
-        setup:
-            SharedTrustResolverConfig.TR = Mock(AuthenticationTrustResolver)
-        when:
-            loadConfig(SharedTrustResolverConfig)
-        then:
-            findFilter(SecurityContextPersistenceFilter).repo.trustResolver == SharedTrustResolverConfig.TR
-            findFilter(SessionManagementFilter).trustResolver == SharedTrustResolverConfig.TR
-    }
+	def "use sharedObject trustResolver"() {
+		setup:
+			SharedTrustResolverConfig.TR = Mock(AuthenticationTrustResolver)
+		when:
+			loadConfig(SharedTrustResolverConfig)
+		then:
+			findFilter(SecurityContextPersistenceFilter).repo.trustResolver == SharedTrustResolverConfig.TR
+			findFilter(SessionManagementFilter).trustResolver == SharedTrustResolverConfig.TR
+	}
 
-    @EnableWebSecurity
-    static class SharedTrustResolverConfig extends WebSecurityConfigurerAdapter {
-        static AuthenticationTrustResolver TR
+	@EnableWebSecurity
+	static class SharedTrustResolverConfig extends WebSecurityConfigurerAdapter {
+		static AuthenticationTrustResolver TR
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .setSharedObject(AuthenticationTrustResolver, TR)
-        }
-    }
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.setSharedObject(AuthenticationTrustResolver, TR)
+		}
+	}
 }
