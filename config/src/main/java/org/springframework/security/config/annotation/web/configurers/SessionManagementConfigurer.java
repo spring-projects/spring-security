@@ -88,7 +88,8 @@ import org.springframework.util.Assert;
  * @see ConcurrentSessionFilter
  */
 public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHttpConfigurer<SessionManagementConfigurer<H>,H> {
-    private SessionAuthenticationStrategy sessionFixationAuthenticationStrategy = createDefaultSessionFixationProtectionStrategy();
+    private final SessionAuthenticationStrategy DEFAULT_SESSION_FIXATION_STRATEGY = createDefaultSessionFixationProtectionStrategy();
+    private SessionAuthenticationStrategy sessionFixationAuthenticationStrategy = DEFAULT_SESSION_FIXATION_STRATEGY;
     private SessionAuthenticationStrategy sessionAuthenticationStrategy;
     private InvalidSessionStrategy invalidSessionStrategy;
     private List<SessionAuthenticationStrategy> sessionAuthenticationStrategies = new ArrayList<SessionAuthenticationStrategy>();
@@ -454,6 +455,9 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
             return sessionAuthenticationStrategy;
         }
         List<SessionAuthenticationStrategy> delegateStrategies = sessionAuthenticationStrategies;
+        if(DEFAULT_SESSION_FIXATION_STRATEGY == sessionFixationAuthenticationStrategy) {
+            sessionFixationAuthenticationStrategy = postProcess(sessionFixationAuthenticationStrategy);
+        }
         if(isConcurrentSessionControlEnabled()) {
             SessionRegistry sessionRegistry = getSessionRegistry(http);
             ConcurrentSessionControlAuthenticationStrategy concurrentSessionControlStrategy = new ConcurrentSessionControlAuthenticationStrategy(sessionRegistry);

@@ -15,19 +15,20 @@
  */
 package org.springframework.security.config.annotation.web.configurers
 
+import org.springframework.context.ApplicationListener
+import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.mock.web.MockHttpSession
+import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.config.annotation.BaseSpringSpec
-import org.springframework.security.config.annotation.ObjectPostProcessor
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.core.session.SessionRegistry
-import org.springframework.security.web.authentication.session.NullAuthenticatedSessionStrategy;
-import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.security.web.authentication.session.NullAuthenticatedSessionStrategy
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy
+import org.springframework.security.web.authentication.session.SessionFixationProtectionEvent
 import org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy
-import org.springframework.security.web.context.SecurityContextPersistenceFilter
-import org.springframework.security.web.context.SecurityContextRepository
 import org.springframework.security.web.session.ConcurrentSessionFilter
 import org.springframework.security.web.session.SessionManagementFilter
 
@@ -141,6 +142,29 @@ class NamespaceSessionManagementTests extends BaseSpringSpec {
         }
     }
 
+    def "SEC-2913: Default JavaConfig session fixation AuthenticationStrategy has NullEventPublisher"() {
+        setup:
+            loadConfig(SFPPostProcessedConfig)
+        when:
+            findSessionAuthenticationStrategy(SessionFixationProtectionStrategy).onSessionChange("id", new MockHttpSession(), new TestingAuthenticationToken("u","p","ROLE_USER"))
+        then:
+            context.getBean(MockEventListener).events
+    }
+
+    @EnableWebSecurity
+    static class SFPPostProcessedConfig extends WebSecurityConfigurerAdapter {
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http
+                .sessionManagement()
+        }
+
+        @Bean
+        public MockEventListener eventListener() {
+            new MockEventListener()
+        }
+    }
+
     def "http/session-management@session-fixation-protection=newSession"() {
         when:
             loadConfig(SFPNewSessionSessionManagementConfig)
@@ -162,5 +186,14 @@ class NamespaceSessionManagementTests extends BaseSpringSpec {
                     .sessionFixation()
                         .newSession()
         }
+    }
+
+    static class MockEventListener implements ApplicationListener<SessionFixationProtectionEvent> {
+        List<SessionFixationProtectionEvent> events = []
+
+        public void onApplicationEvent(SessionFixationProtectionEvent event) {
+            events.add(event)
+        }
+
     }
 }

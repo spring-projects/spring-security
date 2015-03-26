@@ -21,7 +21,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.mock.web.MockFilterChain
 import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.mock.web.MockHttpServletResponse
-import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.authentication.AuthenticationTrustResolver
 import org.springframework.security.config.annotation.AnyObjectPostProcessor
 import org.springframework.security.config.annotation.BaseSpringSpec
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
@@ -29,17 +29,17 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.http.SessionCreationPolicy
-import org.springframework.security.core.session.SessionDestroyedEvent
 import org.springframework.security.web.access.ExceptionTranslationFilter
 import org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy
 import org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy
+import org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy
 import org.springframework.security.web.context.NullSecurityContextRepository
 import org.springframework.security.web.context.SecurityContextPersistenceFilter
 import org.springframework.security.web.context.SecurityContextRepository
 import org.springframework.security.web.savedrequest.RequestCache
 import org.springframework.security.web.session.ConcurrentSessionFilter
-import org.springframework.security.web.session.HttpSessionDestroyedEvent;
+import org.springframework.security.web.session.HttpSessionDestroyedEvent
 import org.springframework.security.web.session.SessionManagementFilter
 
 /**
@@ -232,6 +232,8 @@ class SessionManagementConfigurerTests extends BaseSpringSpec {
             1 * opp.postProcess(_ as CompositeSessionAuthenticationStrategy) >> {CompositeSessionAuthenticationStrategy o -> o}
         and: "RegisterSessionAuthenticationStrategy is registered with ObjectPostProcessor"
             1 * opp.postProcess(_ as RegisterSessionAuthenticationStrategy) >> {RegisterSessionAuthenticationStrategy o -> o}
+        and: "SessionFixationProtectionStrategy is registered with ObjectPostProcessor"
+            1 * opp.postProcess(_ as SessionFixationProtectionStrategy) >> {SessionFixationProtectionStrategy o -> o}
     }
 
     def "use sharedObject trustResolver"() {
