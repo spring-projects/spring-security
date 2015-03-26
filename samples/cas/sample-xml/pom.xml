@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-samples-cassample-xml</artifactId>
-  <version>3.2.4.CI-SNAPSHOT</version>
+  <version>3.2.7.CI-SNAPSHOT</version>
   <packaging>war</packaging>
   <name>spring-security-samples-cassample-xml</name>
   <description>spring-security-samples-cassample-xml</description>
@@ -60,32 +60,20 @@
     <dependency>
       <groupId>org.jasig.cas.client</groupId>
       <artifactId>cas-client-core</artifactId>
-      <version>3.1.12</version>
+      <version>3.3.3</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-cas</artifactId>
-      <version>3.2.4.CI-SNAPSHOT</version>
+      <version>3.2.7.CI-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <version>3.2.4.CI-SNAPSHOT</version>
+      <version>3.2.7.CI-SNAPSHOT</version>
       <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-core</artifactId>
-      <version>3.2.8.RELEASE</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>commons-logging</artifactId>
-          <groupId>commons-logging</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
@@ -121,13 +109,13 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
-      <version>3.2.4.CI-SNAPSHOT</version>
+      <version>3.2.7.CI-SNAPSHOT</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
-      <version>3.2.4.CI-SNAPSHOT</version>
+      <version>3.2.7.CI-SNAPSHOT</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -211,7 +199,7 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
-      <version>3.2.8.RELEASE</version>
+      <version>3.2.13.RELEASE</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

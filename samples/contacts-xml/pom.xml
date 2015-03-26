@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-samples-contacts-xml</artifactId>
-  <version>3.2.4.CI-SNAPSHOT</version>
+  <version>3.2.7.CI-SNAPSHOT</version>
   <packaging>war</packaging>
   <name>spring-security-samples-contacts-xml</name>
   <description>spring-security-samples-contacts-xml</description>
@@ -60,67 +60,55 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-acl</artifactId>
-      <version>3.2.4.CI-SNAPSHOT</version>
+      <version>3.2.7.CI-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <version>3.2.4.CI-SNAPSHOT</version>
+      <version>3.2.7.CI-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-aop</artifactId>
-      <version>3.2.8.RELEASE</version>
+      <version>3.2.13.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-beans</artifactId>
-      <version>3.2.8.RELEASE</version>
+      <version>3.2.13.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
-      <version>3.2.8.RELEASE</version>
+      <version>3.2.13.RELEASE</version>
       <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-core</artifactId>
-      <version>3.2.8.RELEASE</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>commons-logging</artifactId>
-          <groupId>commons-logging</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-jdbc</artifactId>
-      <version>3.2.8.RELEASE</version>
+      <version>3.2.13.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-tx</artifactId>
-      <version>3.2.8.RELEASE</version>
+      <version>3.2.13.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-web</artifactId>
-      <version>3.2.8.RELEASE</version>
+      <version>3.2.13.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-webmvc</artifactId>
-      <version>3.2.8.RELEASE</version>
+      <version>3.2.13.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -175,25 +163,25 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
-      <version>3.2.4.CI-SNAPSHOT</version>
+      <version>3.2.7.CI-SNAPSHOT</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-taglibs</artifactId>
-      <version>3.2.4.CI-SNAPSHOT</version>
+      <version>3.2.7.CI-SNAPSHOT</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
-      <version>3.2.4.CI-SNAPSHOT</version>
+      <version>3.2.7.CI-SNAPSHOT</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context-support</artifactId>
-      <version>3.2.8.RELEASE</version>
+      <version>3.2.13.RELEASE</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -217,7 +205,7 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
-      <version>3.2.8.RELEASE</version>
+      <version>3.2.13.RELEASE</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
