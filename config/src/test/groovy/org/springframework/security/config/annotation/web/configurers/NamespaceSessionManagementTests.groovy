@@ -136,7 +136,7 @@ class NamespaceSessionManagementTests extends BaseSpringSpec {
 		}
 	}
 
-	def "http/session-management@session-fixation-protection=changeSessionId"() {
+	def "SEC-2913: Default JavaConfig session fixation AuthenticationStrategy has NullEventPublisher"() {
 		setup:
 			loadConfig(SFPPostProcessedConfig)
 		when:
