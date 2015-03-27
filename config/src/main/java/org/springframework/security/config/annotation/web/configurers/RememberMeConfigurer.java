@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -177,6 +177,18 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>> extend
 	 */
 	public RememberMeConfigurer<H> rememberMeParameter(String rememberMeParameter) {
 		this.rememberMeParameter = rememberMeParameter;
+		return this;
+	}
+
+	/**
+	 * The Cookie parameter used to indicate to remember the user at time of login.
+	 *
+	 * @param rememberMeCookieName the HTTP parameter used to indicate to remember the user
+	 * @return the {@link RememberMeConfigurer} for further customization
+	 * @since 4.1
+	 */
+	public RememberMeConfigurer<H> rememberMeCookieName(String rememberMeCookieName) {
+		this.rememberMeCookieName = rememberMeCookieName;
 		return this;
 	}
 

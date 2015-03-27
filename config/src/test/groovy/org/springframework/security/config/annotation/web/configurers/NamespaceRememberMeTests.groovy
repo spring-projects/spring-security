@@ -271,6 +271,24 @@ public class NamespaceRememberMeTests extends BaseSpringSpec {
     }
 
     @Configuration
+    static class RememberMeCookieNameConfig extends BaseWebConfig {
+        protected void configure(HttpSecurity http) throws Exception {
+            http
+                .formLogin()
+                    .and()
+                .rememberMe()
+                    .rememberMeCookieName("rememberMe")
+        }
+    }
+
+    def "http/remember-me@remember-me-cookie-name"() {
+        when: "use custom rememberMeCookieName"
+            loadConfig(RememberMeCookieNameConfig)
+        then: "custom rememberMeCookieName will be used"
+            findFilter(RememberMeAuthenticationFilter).rememberMeServices.cookieName == "rememberMe"
+    }
+
+    @Configuration
     static class UseSecureCookieConfig extends BaseWebConfig {
         protected void configure(HttpSecurity http) throws Exception {
             http
