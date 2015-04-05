@@ -16,7 +16,8 @@
 package org.springframework.security.web.csrf;
 
 import java.io.IOException;
-import java.util.regex.Pattern;
+import java.util.Collections;
+import java.util.HashSet;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -62,7 +63,7 @@ public final class CsrfFilter extends OncePerRequestFilter {
 
 	private final Log logger = LogFactory.getLog(getClass());
 	private final CsrfTokenRepository tokenRepository;
-	private RequestMatcher requireCsrfProtectionMatcher = new DefaultRequiresCsrfMatcher();
+	private RequestMatcher requireCsrfProtectionMatcher = DEFAULT_CSRF_MATCHER;
 	private AccessDeniedHandler accessDeniedHandler = new AccessDeniedHandlerImpl();
 
 	public CsrfFilter(CsrfTokenRepository csrfTokenRepository) {
@@ -235,7 +236,11 @@ public final class CsrfFilter extends OncePerRequestFilter {
 	}
 
 	private static final class DefaultRequiresCsrfMatcher implements RequestMatcher {
-		private Pattern allowedMethods = Pattern.compile("^(GET|HEAD|TRACE|OPTIONS)$");
+		private final HashSet<String> allowedMethods = new HashSet<>();
+
+		DefaultRequiresCsrfMatcher() {
+			Collections.addAll(allowedMethods, "GET", "HEAD", "TRACE", "OPTIONS");
+		}
 
 		/*
 		 * (non-Javadoc)
@@ -245,7 +250,7 @@ public final class CsrfFilter extends OncePerRequestFilter {
 		 * servlet.http.HttpServletRequest)
 		 */
 		public boolean matches(HttpServletRequest request) {
-			return !allowedMethods.matcher(request.getMethod()).matches();
+			return !allowedMethods.contains(request.getMethod());
 		}
 	}
 }
