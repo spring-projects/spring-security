@@ -279,7 +279,7 @@ public class MapBasedMethodSecurityMetadataSource extends
 	 * inherits but does not redeclare a method, the registered Class will be the Class
 	 * we're invoking against and the Method will provide details of the declared class.
 	 */
-	private class RegisteredMethod {
+	private static class RegisteredMethod {
 		private final Method method;
 		private final Class<?> registeredJavaType;
 

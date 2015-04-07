@@ -170,7 +170,7 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends
 	protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
 	}
 
-	private class WebSocketMessageSecurityMetadataSourceRegistry extends
+	private static class WebSocketMessageSecurityMetadataSourceRegistry extends
 			MessageSecurityMetadataSourceRegistry {
 		@Override
 		public MessageSecurityMetadataSource createMetadataSource() {

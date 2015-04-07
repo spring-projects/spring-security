@@ -410,7 +410,7 @@ public class MessageSecurityMetadataSourceRegistry {
 		return "hasAnyAuthority('" + anyAuthorities + "')";
 	}
 
-	private class PreBuiltMatcherBuilder implements MatcherBuilder {
+	private static class PreBuiltMatcherBuilder implements MatcherBuilder {
 		private MessageMatcher<?> matcher;
 
 		private PreBuiltMatcherBuilder(MessageMatcher<?> matcher) {
