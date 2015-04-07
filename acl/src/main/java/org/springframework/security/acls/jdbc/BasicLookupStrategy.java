@@ -660,7 +660,7 @@ public class BasicLookupStrategy implements LookupStrategy {
 		}
 	}
 
-	private class StubAclParent implements Acl {
+	private static class StubAclParent implements Acl {
 		private final Long id;
 
 		public StubAclParent(Long id) {

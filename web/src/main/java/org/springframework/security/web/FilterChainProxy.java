@@ -336,7 +336,7 @@ public class FilterChainProxy extends GenericFilterBean {
 		void validate(FilterChainProxy filterChainProxy);
 	}
 
-	private class NullFilterChainValidator implements FilterChainValidator {
+	private static class NullFilterChainValidator implements FilterChainValidator {
 		public void validate(FilterChainProxy filterChainProxy) {
 		}
 	}
