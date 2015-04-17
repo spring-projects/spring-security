@@ -51,34 +51,34 @@ import spock.lang.Unroll;
 class RequestMatcherConfigurerTests extends BaseSpringSpec {
 
 
-    @Unroll
-    def "SEC-2908 - multiple invocations of authorizeRequests() chains #path"(def path) {
-        setup:
-            loadConfig(Sec2908Config)
-            request.servletPath = path
-        when:
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            response.status == HttpServletResponse.SC_FORBIDDEN
-        where:
-            path << ['/oauth/abc','/api/abc']
-    }
+	@Unroll
+	def "SEC-2908 - multiple invocations of authorizeRequests() chains #path"(def path) {
+		setup:
+			loadConfig(Sec2908Config)
+			request.servletPath = path
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			response.status == HttpServletResponse.SC_FORBIDDEN
+		where:
+			path << ['/oauth/abc','/api/abc']
+	}
 
-    @Configuration
-    @EnableWebSecurity
-    static class Sec2908Config extends WebSecurityConfigurerAdapter {
+	@Configuration
+	@EnableWebSecurity
+	static class Sec2908Config extends WebSecurityConfigurerAdapter {
 
-         @Override
-         protected void configure(HttpSecurity http) throws Exception {
-             http
-                .requestMatchers()
-                    .antMatchers("/api/**")
-                    .and()
-                 .requestMatchers()
-                    .antMatchers("/oauth/**")
-                    .and()
-                 .authorizeRequests()
-                    .anyRequest().denyAll();
-        }
-    }
+		 @Override
+		 protected void configure(HttpSecurity http) throws Exception {
+			 http
+				.requestMatchers()
+					.antMatchers("/api/**")
+					.and()
+				 .requestMatchers()
+					.antMatchers("/oauth/**")
+					.and()
+				 .authorizeRequests()
+					.anyRequest().denyAll();
+		}
+	}
 }

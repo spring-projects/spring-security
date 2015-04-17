@@ -23,10 +23,10 @@ import geb.*
  * @author Rob Winch
  */
 class HomePage extends Page {
-    static at = { assert $('h1').text() == 'Home Page'; true}
-    static url = ''
-    static content = {
-        securePage { $('a',text: 'Secure page') }
-        extremelySecurePage { $('a',text: 'Extremely secure page') }
-    }
+	static at = { assert $('h1').text() == 'Home Page'; true}
+	static url = ''
+	static content = {
+		securePage { $('a',text: 'Secure page') }
+		extremelySecurePage { $('a',text: 'Extremely secure page') }
+	}
 }

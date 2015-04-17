@@ -39,87 +39,87 @@ import org.springframework.security.core.context.SecurityContextHolder
  *
  */
 public class SampleEnableGlobalMethodSecurityTests extends BaseSpringSpec {
-    def setup() {
-        SecurityContextHolder.getContext().setAuthentication(
-                        new TestingAuthenticationToken("user", "password","ROLE_USER"))
-    }
+	def setup() {
+		SecurityContextHolder.getContext().setAuthentication(
+						new TestingAuthenticationToken("user", "password","ROLE_USER"))
+	}
 
-    def preAuthorize() {
-        when:
-        loadConfig(SampleWebSecurityConfig)
-        MethodSecurityService service = context.getBean(MethodSecurityService)
-        then:
-        service.secured() == null
-        service.jsr250() == null
+	def preAuthorize() {
+		when:
+		loadConfig(SampleWebSecurityConfig)
+		MethodSecurityService service = context.getBean(MethodSecurityService)
+		then:
+		service.secured() == null
+		service.jsr250() == null
 
-        when:
-        service.preAuthorize()
-        then:
-        thrown(AccessDeniedException)
-    }
+		when:
+		service.preAuthorize()
+		then:
+		thrown(AccessDeniedException)
+	}
 
-    @EnableGlobalMethodSecurity(prePostEnabled=true)
-    public static class SampleWebSecurityConfig {
-        @Bean
-        public MethodSecurityService methodSecurityService() {
-            return new MethodSecurityServiceImpl()
-        }
+	@EnableGlobalMethodSecurity(prePostEnabled=true)
+	public static class SampleWebSecurityConfig {
+		@Bean
+		public MethodSecurityService methodSecurityService() {
+			return new MethodSecurityServiceImpl()
+		}
 
-        @Autowired
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .inMemoryAuthentication()
-                    .withUser("user").password("password").roles("USER").and()
-                    .withUser("admin").password("password").roles("USER", "ADMIN");
-        }
-    }
+		@Autowired
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.inMemoryAuthentication()
+					.withUser("user").password("password").roles("USER").and()
+					.withUser("admin").password("password").roles("USER", "ADMIN");
+		}
+	}
 
-    def 'custom permission handler'() {
-        when:
-        loadConfig(CustomPermissionEvaluatorWebSecurityConfig)
-        MethodSecurityService service = context.getBean(MethodSecurityService)
-        then:
-        service.hasPermission("allowed") == null
+	def 'custom permission handler'() {
+		when:
+		loadConfig(CustomPermissionEvaluatorWebSecurityConfig)
+		MethodSecurityService service = context.getBean(MethodSecurityService)
+		then:
+		service.hasPermission("allowed") == null
 
-        when:
-        service.hasPermission("denied") == null
-        then:
-        thrown(AccessDeniedException)
-    }
+		when:
+		service.hasPermission("denied") == null
+		then:
+		thrown(AccessDeniedException)
+	}
 
-    @EnableGlobalMethodSecurity(prePostEnabled=true)
-    public static class CustomPermissionEvaluatorWebSecurityConfig extends GlobalMethodSecurityConfiguration {
-        @Bean
-        public MethodSecurityService methodSecurityService() {
-            return new MethodSecurityServiceImpl()
-        }
+	@EnableGlobalMethodSecurity(prePostEnabled=true)
+	public static class CustomPermissionEvaluatorWebSecurityConfig extends GlobalMethodSecurityConfiguration {
+		@Bean
+		public MethodSecurityService methodSecurityService() {
+			return new MethodSecurityServiceImpl()
+		}
 
-        @Override
-        protected MethodSecurityExpressionHandler createExpressionHandler() {
-            DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
-            expressionHandler.setPermissionEvaluator(new CustomPermissionEvaluator());
-            return expressionHandler;
-        }
+		@Override
+		protected MethodSecurityExpressionHandler createExpressionHandler() {
+			DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
+			expressionHandler.setPermissionEvaluator(new CustomPermissionEvaluator());
+			return expressionHandler;
+		}
 
-        @Override
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .inMemoryAuthentication()
-                .withUser("user").password("password").roles("USER").and()
-                .withUser("admin").password("password").roles("USER", "ADMIN");
-        }
-    }
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.inMemoryAuthentication()
+				.withUser("user").password("password").roles("USER").and()
+				.withUser("admin").password("password").roles("USER", "ADMIN");
+		}
+	}
 
-    static class CustomPermissionEvaluator implements PermissionEvaluator {
-        public boolean hasPermission(Authentication authentication,
-                Object targetDomainObject, Object permission) {
-            return !"denied".equals(targetDomainObject);
-        }
+	static class CustomPermissionEvaluator implements PermissionEvaluator {
+		public boolean hasPermission(Authentication authentication,
+				Object targetDomainObject, Object permission) {
+			return !"denied".equals(targetDomainObject);
+		}
 
-        public boolean hasPermission(Authentication authentication,
-                Serializable targetId, String targetType, Object permission) {
-            return !"denied".equals(targetId);
-        }
+		public boolean hasPermission(Authentication authentication,
+				Serializable targetId, String targetType, Object permission) {
+			return !"denied".equals(targetId);
+		}
 
-    }
+	}
 }

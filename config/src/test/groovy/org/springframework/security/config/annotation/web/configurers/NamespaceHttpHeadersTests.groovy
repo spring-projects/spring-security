@@ -38,230 +38,230 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  */
 public class NamespaceHttpHeadersTests extends BaseSpringSpec {
 
-    def "http/headers"() {
-        setup:
-            loadConfig(HeadersDefaultConfig)
-            request.secure = true
-        when:
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            responseHeaders == ['X-Content-Type-Options':'nosniff',
-                'X-Frame-Options':'DENY',
-                'Strict-Transport-Security': 'max-age=31536000 ; includeSubDomains',
-                'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate',
-                'Pragma':'no-cache',
-                'Expires' : '0',
-                'X-XSS-Protection' : '1; mode=block']
-    }
+	def "http/headers"() {
+		setup:
+			loadConfig(HeadersDefaultConfig)
+			request.secure = true
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			responseHeaders == ['X-Content-Type-Options':'nosniff',
+				'X-Frame-Options':'DENY',
+				'Strict-Transport-Security': 'max-age=31536000 ; includeSubDomains',
+				'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate',
+				'Pragma':'no-cache',
+				'Expires' : '0',
+				'X-XSS-Protection' : '1; mode=block']
+	}
 
-    @Configuration
-    static class HeadersDefaultConfig extends BaseWebConfig {
-        @Override
-        protected void configure(HttpSecurity http) {
-            http
-                .headers()
-        }
-    }
+	@Configuration
+	static class HeadersDefaultConfig extends BaseWebConfig {
+		@Override
+		protected void configure(HttpSecurity http) {
+			http
+				.headers()
+		}
+	}
 
-    def "http/headers/cache-control"() {
-        setup:
-            loadConfig(HeadersCacheControlConfig)
-            request.secure = true
-        when:
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            responseHeaders == ['Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate',
-                'Expires' : '0',
-                'Pragma':'no-cache']
-    }
+	def "http/headers/cache-control"() {
+		setup:
+			loadConfig(HeadersCacheControlConfig)
+			request.secure = true
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			responseHeaders == ['Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate',
+				'Expires' : '0',
+				'Pragma':'no-cache']
+	}
 
-    @Configuration
-    static class HeadersCacheControlConfig extends BaseWebConfig {
-        @Override
-        protected void configure(HttpSecurity http) {
-            http
-                .headers()
-                    .defaultsDisabled()
-                    .cacheControl()
-        }
-    }
+	@Configuration
+	static class HeadersCacheControlConfig extends BaseWebConfig {
+		@Override
+		protected void configure(HttpSecurity http) {
+			http
+				.headers()
+					.defaultsDisabled()
+					.cacheControl()
+		}
+	}
 
-    def "http/headers/hsts"() {
-        setup:
-            loadConfig(HstsConfig)
-            request.secure = true
-        when:
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            responseHeaders == ['Strict-Transport-Security': 'max-age=31536000 ; includeSubDomains']
-    }
+	def "http/headers/hsts"() {
+		setup:
+			loadConfig(HstsConfig)
+			request.secure = true
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			responseHeaders == ['Strict-Transport-Security': 'max-age=31536000 ; includeSubDomains']
+	}
 
-    @Configuration
-    static class HstsConfig extends BaseWebConfig {
-        @Override
-        protected void configure(HttpSecurity http) {
-            http
-                .headers()
-                    .defaultsDisabled()
-                    .httpStrictTransportSecurity()
-        }
-    }
+	@Configuration
+	static class HstsConfig extends BaseWebConfig {
+		@Override
+		protected void configure(HttpSecurity http) {
+			http
+				.headers()
+					.defaultsDisabled()
+					.httpStrictTransportSecurity()
+		}
+	}
 
-    def "http/headers/hsts custom"() {
-        setup:
-            loadConfig(HstsCustomConfig)
-        when:
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            responseHeaders == ['Strict-Transport-Security': 'max-age=15768000']
-    }
+	def "http/headers/hsts custom"() {
+		setup:
+			loadConfig(HstsCustomConfig)
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			responseHeaders == ['Strict-Transport-Security': 'max-age=15768000']
+	}
 
-    @Configuration
-    static class HstsCustomConfig extends BaseWebConfig {
-        @Override
-        protected void configure(HttpSecurity http) {
-            http
-                .headers()
-                    // hsts@request-matcher-ref, hsts@max-age-seconds, hsts@include-subdomains
-                    .defaultsDisabled()
-                    .httpStrictTransportSecurity()
-                        .requestMatcher(AnyRequestMatcher.INSTANCE)
-                        .maxAgeInSeconds(15768000)
-                        .includeSubDomains(false)
-        }
-    }
+	@Configuration
+	static class HstsCustomConfig extends BaseWebConfig {
+		@Override
+		protected void configure(HttpSecurity http) {
+			http
+				.headers()
+					// hsts@request-matcher-ref, hsts@max-age-seconds, hsts@include-subdomains
+					.defaultsDisabled()
+					.httpStrictTransportSecurity()
+						.requestMatcher(AnyRequestMatcher.INSTANCE)
+						.maxAgeInSeconds(15768000)
+						.includeSubDomains(false)
+		}
+	}
 
-    def "http/headers/frame-options@policy=SAMEORIGIN"() {
-        setup:
-            loadConfig(FrameOptionsSameOriginConfig)
-        when:
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            responseHeaders == ['X-Frame-Options': 'SAMEORIGIN']
-    }
+	def "http/headers/frame-options@policy=SAMEORIGIN"() {
+		setup:
+			loadConfig(FrameOptionsSameOriginConfig)
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			responseHeaders == ['X-Frame-Options': 'SAMEORIGIN']
+	}
 
-    @Configuration
-    static class FrameOptionsSameOriginConfig extends BaseWebConfig {
-        @Override
-        protected void configure(HttpSecurity http) {
-            http
-                .headers()
-                    // frame-options@policy=SAMEORIGIN
-                    .defaultsDisabled()
-                    .frameOptions()
-                        .sameOrigin()
-        }
-    }
+	@Configuration
+	static class FrameOptionsSameOriginConfig extends BaseWebConfig {
+		@Override
+		protected void configure(HttpSecurity http) {
+			http
+				.headers()
+					// frame-options@policy=SAMEORIGIN
+					.defaultsDisabled()
+					.frameOptions()
+						.sameOrigin()
+		}
+	}
 
-    // frame-options@strategy, frame-options@value, frame-options@parameter are not provided instead use frame-options@ref
+	// frame-options@strategy, frame-options@value, frame-options@parameter are not provided instead use frame-options@ref
 
-    def "http/headers/frame-options"() {
-        setup:
-            loadConfig(FrameOptionsAllowFromConfig)
-        when:
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            responseHeaders == ['X-Frame-Options': 'ALLOW-FROM https://example.com']
-    }
+	def "http/headers/frame-options"() {
+		setup:
+			loadConfig(FrameOptionsAllowFromConfig)
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			responseHeaders == ['X-Frame-Options': 'ALLOW-FROM https://example.com']
+	}
 
 
-    @Configuration
-    static class FrameOptionsAllowFromConfig extends BaseWebConfig {
-        @Override
-        protected void configure(HttpSecurity http) {
-            http
-                .headers()
-                    // frame-options@ref
-                    .defaultsDisabled()
-                    .addHeaderWriter(new XFrameOptionsHeaderWriter(new StaticAllowFromStrategy(new URI("https://example.com"))))
-        }
-    }
+	@Configuration
+	static class FrameOptionsAllowFromConfig extends BaseWebConfig {
+		@Override
+		protected void configure(HttpSecurity http) {
+			http
+				.headers()
+					// frame-options@ref
+					.defaultsDisabled()
+					.addHeaderWriter(new XFrameOptionsHeaderWriter(new StaticAllowFromStrategy(new URI("https://example.com"))))
+		}
+	}
 
-    def "http/headers/xss-protection"() {
-        setup:
-            loadConfig(XssProtectionConfig)
-        when:
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            responseHeaders == ['X-XSS-Protection': '1; mode=block']
-    }
+	def "http/headers/xss-protection"() {
+		setup:
+			loadConfig(XssProtectionConfig)
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			responseHeaders == ['X-XSS-Protection': '1; mode=block']
+	}
 
-    @Configuration
-    static class XssProtectionConfig extends BaseWebConfig {
-        @Override
-        protected void configure(HttpSecurity http) {
-            http
-                .headers()
-                    // xss-protection
-                    .defaultsDisabled()
-                    .xssProtection()
-        }
-    }
+	@Configuration
+	static class XssProtectionConfig extends BaseWebConfig {
+		@Override
+		protected void configure(HttpSecurity http) {
+			http
+				.headers()
+					// xss-protection
+					.defaultsDisabled()
+					.xssProtection()
+		}
+	}
 
-    def "http/headers/xss-protection custom"() {
-        setup:
-            loadConfig(XssProtectionCustomConfig)
-        when:
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            responseHeaders == ['X-XSS-Protection': '1']
-    }
+	def "http/headers/xss-protection custom"() {
+		setup:
+			loadConfig(XssProtectionCustomConfig)
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			responseHeaders == ['X-XSS-Protection': '1']
+	}
 
-    @Configuration
-    static class XssProtectionCustomConfig extends BaseWebConfig {
-        @Override
-        protected void configure(HttpSecurity http) {
-            http
-                .headers()
-                    // xss-protection@enabled and xss-protection@block
-                    .defaultsDisabled()
-                    .xssProtection()
-                        .xssProtectionEnabled(true)
-                        .block(false)
-        }
-    }
+	@Configuration
+	static class XssProtectionCustomConfig extends BaseWebConfig {
+		@Override
+		protected void configure(HttpSecurity http) {
+			http
+				.headers()
+					// xss-protection@enabled and xss-protection@block
+					.defaultsDisabled()
+					.xssProtection()
+						.xssProtectionEnabled(true)
+						.block(false)
+		}
+	}
 
-    def "http/headers/content-type-options"() {
-        setup:
-            loadConfig(ContentTypeOptionsConfig)
-        when:
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            responseHeaders == ['X-Content-Type-Options': 'nosniff']
-    }
+	def "http/headers/content-type-options"() {
+		setup:
+			loadConfig(ContentTypeOptionsConfig)
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			responseHeaders == ['X-Content-Type-Options': 'nosniff']
+	}
 
-    @Configuration
-    static class ContentTypeOptionsConfig extends BaseWebConfig {
-        @Override
-        protected void configure(HttpSecurity http) {
-            http
-                .headers()
-                    // content-type-options
-                    .defaultsDisabled()
-                    .contentTypeOptions()
-        }
-    }
+	@Configuration
+	static class ContentTypeOptionsConfig extends BaseWebConfig {
+		@Override
+		protected void configure(HttpSecurity http) {
+			http
+				.headers()
+					// content-type-options
+					.defaultsDisabled()
+					.contentTypeOptions()
+		}
+	}
 
-    // header@name / header@value are not provided instead use header@ref
+	// header@name / header@value are not provided instead use header@ref
 
-    def "http/headers/header@ref"() {
-        setup:
-            loadConfig(HeaderRefConfig)
-        when:
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            responseHeaders == ['customHeaderName': 'customHeaderValue']
-    }
+	def "http/headers/header@ref"() {
+		setup:
+			loadConfig(HeaderRefConfig)
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			responseHeaders == ['customHeaderName': 'customHeaderValue']
+	}
 
-    @Configuration
-    static class HeaderRefConfig extends BaseWebConfig {
-        @Override
-        protected void configure(HttpSecurity http) {
-            http
-                .headers()
-                    .defaultsDisabled()
-                    .addHeaderWriter(new StaticHeadersWriter("customHeaderName", "customHeaderValue"))
-        }
-    }
+	@Configuration
+	static class HeaderRefConfig extends BaseWebConfig {
+		@Override
+		protected void configure(HttpSecurity http) {
+			http
+				.headers()
+					.defaultsDisabled()
+					.addHeaderWriter(new StaticHeadersWriter("customHeaderName", "customHeaderValue"))
+		}
+	}
 
 }

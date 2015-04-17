@@ -9,94 +9,94 @@
   -->
 
 <beans>
-    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="dataSource"/>
-    </bean>
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
 
-    <bean id="aclCache" class="org.springframework.security.acls.domain.EhCacheBasedAclCache">
-        <constructor-arg>
-           <bean class="org.springframework.cache.ehcache.EhCacheFactoryBean">
-              <property name="cacheManager">
-                <bean class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"/>
-              </property>
-              <property name="cacheName" value="aclCache"/>
-           </bean>
-        </constructor-arg>
-        <constructor-arg>
-            <bean class="org.springframework.security.acls.domain.DefaultPermissionGrantingStrategy">
-                <constructor-arg>
-                    <bean class="org.springframework.security.acls.domain.ConsoleAuditLogger"/>
-                </constructor-arg>
-            </bean>
-        </constructor-arg>
-        <constructor-arg>
-            <bean class="org.springframework.security.acls.domain.AclAuthorizationStrategyImpl">
-                <constructor-arg>
-                    <list>
-                        <bean class="org.springframework.security.core.authority.SimpleGrantedAuthority">
-                            <constructor-arg value="ROLE_USER"/>
-                        </bean>
-                    </list>
-                </constructor-arg>
-            </bean>
-        </constructor-arg>
+	<bean id="aclCache" class="org.springframework.security.acls.domain.EhCacheBasedAclCache">
+		<constructor-arg>
+		   <bean class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+			  <property name="cacheManager">
+				<bean class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"/>
+			  </property>
+			  <property name="cacheName" value="aclCache"/>
+		   </bean>
+		</constructor-arg>
+		<constructor-arg>
+			<bean class="org.springframework.security.acls.domain.DefaultPermissionGrantingStrategy">
+				<constructor-arg>
+					<bean class="org.springframework.security.acls.domain.ConsoleAuditLogger"/>
+				</constructor-arg>
+			</bean>
+		</constructor-arg>
+		<constructor-arg>
+			<bean class="org.springframework.security.acls.domain.AclAuthorizationStrategyImpl">
+				<constructor-arg>
+					<list>
+						<bean class="org.springframework.security.core.authority.SimpleGrantedAuthority">
+							<constructor-arg value="ROLE_USER"/>
+						</bean>
+					</list>
+				</constructor-arg>
+			</bean>
+		</constructor-arg>
 
-    </bean>
+	</bean>
 
-    <bean id="lookupStrategy" class="org.springframework.security.acls.jdbc.BasicLookupStrategy">
-        <constructor-arg ref="dataSource"/>
-        <constructor-arg ref="aclCache"/>
-        <constructor-arg ref="aclAuthorizationStrategy"/>
-        <constructor-arg>
-            <bean class="org.springframework.security.acls.domain.ConsoleAuditLogger"/>
-        </constructor-arg>
-    </bean>
+	<bean id="lookupStrategy" class="org.springframework.security.acls.jdbc.BasicLookupStrategy">
+		<constructor-arg ref="dataSource"/>
+		<constructor-arg ref="aclCache"/>
+		<constructor-arg ref="aclAuthorizationStrategy"/>
+		<constructor-arg>
+			<bean class="org.springframework.security.acls.domain.ConsoleAuditLogger"/>
+		</constructor-arg>
+	</bean>
 
-    <bean id="aclAuthorizationStrategy" class="org.springframework.security.acls.domain.AclAuthorizationStrategyImpl">
-        <constructor-arg>
-            <list>
-                <bean class="org.springframework.security.core.authority.SimpleGrantedAuthority">
-                    <constructor-arg value="ROLE_ADMINISTRATOR"/>
-                </bean>
-                <bean class="org.springframework.security.core.authority.SimpleGrantedAuthority">
-                    <constructor-arg value="ROLE_ADMINISTRATOR"/>
-                </bean>
-                <bean class="org.springframework.security.core.authority.SimpleGrantedAuthority">
-                    <constructor-arg value="ROLE_ADMINISTRATOR"/>
-                </bean>
-            </list>
-        </constructor-arg>
-    </bean>
+	<bean id="aclAuthorizationStrategy" class="org.springframework.security.acls.domain.AclAuthorizationStrategyImpl">
+		<constructor-arg>
+			<list>
+				<bean class="org.springframework.security.core.authority.SimpleGrantedAuthority">
+					<constructor-arg value="ROLE_ADMINISTRATOR"/>
+				</bean>
+				<bean class="org.springframework.security.core.authority.SimpleGrantedAuthority">
+					<constructor-arg value="ROLE_ADMINISTRATOR"/>
+				</bean>
+				<bean class="org.springframework.security.core.authority.SimpleGrantedAuthority">
+					<constructor-arg value="ROLE_ADMINISTRATOR"/>
+				</bean>
+			</list>
+		</constructor-arg>
+	</bean>
 
-    <bean id="aclService" class="org.springframework.security.acls.jdbc.JdbcMutableAclService">
-        <constructor-arg ref="dataSource"/>
-        <constructor-arg ref="lookupStrategy"/>
-        <constructor-arg ref="aclCache"/>
+	<bean id="aclService" class="org.springframework.security.acls.jdbc.JdbcMutableAclService">
+		<constructor-arg ref="dataSource"/>
+		<constructor-arg ref="lookupStrategy"/>
+		<constructor-arg ref="aclCache"/>
 
 <!-- Uncomment to use PostgreSQL
-        <property name="classIdentityQuery" value="select currval(pg_get_serial_sequence('acl_class', 'id'))"/>
-        <property name="sidIdentityQuery" value="select currval(pg_get_serial_sequence('acl_sid', 'id'))"/>
+		<property name="classIdentityQuery" value="select currval(pg_get_serial_sequence('acl_class', 'id'))"/>
+		<property name="sidIdentityQuery" value="select currval(pg_get_serial_sequence('acl_sid', 'id'))"/>
  -->
-    </bean>
+	</bean>
 
 <!-- PostgreSQL DataSource configuration
 
-    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-        <property name="driverClassName" value="org.postgresql.Driver"/>
-        <property name="url" value="jdbc:postgresql://localhost:5432/acltest"/>
-        <property name="username" value="acltest"/>
-        <property name="password" value="acltest"/>
-    </bean>
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="org.postgresql.Driver"/>
+		<property name="url" value="jdbc:postgresql://localhost:5432/acltest"/>
+		<property name="username" value="acltest"/>
+		<property name="password" value="acltest"/>
+	</bean>
  -->
-    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-        <property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
-        <property name="url" value="jdbc:hsqldb:mem:acltest"/>
-        <property name="username" value="sa"/>
-        <property name="password" value=""/>
-    </bean>
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
+		<property name="url" value="jdbc:hsqldb:mem:acltest"/>
+		<property name="username" value="sa"/>
+		<property name="password" value=""/>
+	</bean>
 
-    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
-        <property name="dataSource" ref="dataSource"/>
-    </bean>
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
 
 </beans>

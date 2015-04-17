@@ -32,98 +32,98 @@ import org.springframework.security.web.authentication.AnonymousAuthenticationFi
  *
  */
 public class NamespaceHttpAnonymousTests extends BaseSpringSpec {
-    def "http/anonymous@enabled = true (default)"() {
-        when:
-        loadConfig(AnonymousConfig)
-        then:
-        def filter = findFilter(AnonymousAuthenticationFilter)
-        filter != null
-        def authManager = findFilter(FilterSecurityInterceptor).authenticationManager
-        authManager.authenticate(new AnonymousAuthenticationToken(filter.key, filter.principal, filter.authorities)).authenticated
-    }
+	def "http/anonymous@enabled = true (default)"() {
+		when:
+		loadConfig(AnonymousConfig)
+		then:
+		def filter = findFilter(AnonymousAuthenticationFilter)
+		filter != null
+		def authManager = findFilter(FilterSecurityInterceptor).authenticationManager
+		authManager.authenticate(new AnonymousAuthenticationToken(filter.key, filter.principal, filter.authorities)).authenticated
+	}
 
-    @Configuration
-    static class AnonymousConfig extends BaseWebConfig {
-        @Override
-        protected void configure(HttpSecurity http) {
-            http
-                .authorizeRequests()
-                    .anyRequest().hasRole("USER");
-        }
-    }
+	@Configuration
+	static class AnonymousConfig extends BaseWebConfig {
+		@Override
+		protected void configure(HttpSecurity http) {
+			http
+				.authorizeRequests()
+					.anyRequest().hasRole("USER");
+		}
+	}
 
-    def "http/anonymous@enabled = false"() {
-        when:
-        loadConfig(AnonymousDisabledConfig)
-        then:
-        findFilter(AnonymousAuthenticationFilter) == null
-    }
+	def "http/anonymous@enabled = false"() {
+		when:
+		loadConfig(AnonymousDisabledConfig)
+		then:
+		findFilter(AnonymousAuthenticationFilter) == null
+	}
 
-    @Configuration
-    static class AnonymousDisabledConfig extends BaseWebConfig {
-      protected void configure(HttpSecurity http) {
-                http.anonymous().disable()
-        }
-    }
+	@Configuration
+	static class AnonymousDisabledConfig extends BaseWebConfig {
+	  protected void configure(HttpSecurity http) {
+				http.anonymous().disable()
+		}
+	}
 
-    def "http/anonymous@granted-authority"() {
-        when:
-        loadConfig(AnonymousGrantedAuthorityConfig)
-        then:
-        findFilter(AnonymousAuthenticationFilter).authorities == AuthorityUtils.createAuthorityList("ROLE_ANON")
-    }
+	def "http/anonymous@granted-authority"() {
+		when:
+		loadConfig(AnonymousGrantedAuthorityConfig)
+		then:
+		findFilter(AnonymousAuthenticationFilter).authorities == AuthorityUtils.createAuthorityList("ROLE_ANON")
+	}
 
-    @Configuration
-    static class AnonymousGrantedAuthorityConfig extends BaseWebConfig {
-        protected void configure(HttpSecurity http) {
-            http
-                .anonymous()
-                    .authorities("ROLE_ANON")
-        }
-    }
+	@Configuration
+	static class AnonymousGrantedAuthorityConfig extends BaseWebConfig {
+		protected void configure(HttpSecurity http) {
+			http
+				.anonymous()
+					.authorities("ROLE_ANON")
+		}
+	}
 
 
-    def "http/anonymous@key"() {
-        when:
-        loadConfig(AnonymousKeyConfig)
-        then:
-        def filter = findFilter(AnonymousAuthenticationFilter)
-        filter != null
-        filter.key == "AnonymousKeyConfig"
-        def authManager = findFilter(FilterSecurityInterceptor).authenticationManager
-        authManager.authenticate(new AnonymousAuthenticationToken(filter.key, filter.principal, filter.authorities)).authenticated
-    }
+	def "http/anonymous@key"() {
+		when:
+		loadConfig(AnonymousKeyConfig)
+		then:
+		def filter = findFilter(AnonymousAuthenticationFilter)
+		filter != null
+		filter.key == "AnonymousKeyConfig"
+		def authManager = findFilter(FilterSecurityInterceptor).authenticationManager
+		authManager.authenticate(new AnonymousAuthenticationToken(filter.key, filter.principal, filter.authorities)).authenticated
+	}
 
-    @Configuration
-    static class AnonymousKeyConfig extends BaseWebConfig {
-        protected void configure(HttpSecurity http) {
-            http
-                .authorizeRequests()
-                    .anyRequest().hasRole("USER")
-                    .and()
-                .anonymous().key("AnonymousKeyConfig")
-        }
-    }
+	@Configuration
+	static class AnonymousKeyConfig extends BaseWebConfig {
+		protected void configure(HttpSecurity http) {
+			http
+				.authorizeRequests()
+					.anyRequest().hasRole("USER")
+					.and()
+				.anonymous().key("AnonymousKeyConfig")
+		}
+	}
 
-    def "http/anonymous@username"() {
-        when:
-        loadConfig(AnonymousUsernameConfig)
-        then:
-        def filter = findFilter(AnonymousAuthenticationFilter)
-        filter != null
-        filter.principal == "AnonymousUsernameConfig"
-        def authManager = findFilter(FilterSecurityInterceptor).authenticationManager
-        authManager.authenticate(new AnonymousAuthenticationToken(filter.key, filter.principal, filter.authorities)).principal == "AnonymousUsernameConfig"
-    }
+	def "http/anonymous@username"() {
+		when:
+		loadConfig(AnonymousUsernameConfig)
+		then:
+		def filter = findFilter(AnonymousAuthenticationFilter)
+		filter != null
+		filter.principal == "AnonymousUsernameConfig"
+		def authManager = findFilter(FilterSecurityInterceptor).authenticationManager
+		authManager.authenticate(new AnonymousAuthenticationToken(filter.key, filter.principal, filter.authorities)).principal == "AnonymousUsernameConfig"
+	}
 
-    @Configuration
-    static class AnonymousUsernameConfig extends BaseWebConfig {
-        protected void configure(HttpSecurity http) {
-            http
-                .authorizeRequests()
-                    .anyRequest().hasRole("USER")
-                    .and()
-                .anonymous().principal("AnonymousUsernameConfig")
-        }
-    }
+	@Configuration
+	static class AnonymousUsernameConfig extends BaseWebConfig {
+		protected void configure(HttpSecurity http) {
+			http
+				.authorizeRequests()
+					.anyRequest().hasRole("USER")
+					.and()
+				.anonymous().principal("AnonymousUsernameConfig")
+		}
+	}
 }

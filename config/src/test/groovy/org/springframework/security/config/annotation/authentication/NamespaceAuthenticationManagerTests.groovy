@@ -32,80 +32,80 @@ import org.springframework.security.core.Authentication
  *
  */
 class NamespaceAuthenticationManagerTests extends BaseSpringSpec {
-    def "authentication-manager@erase-credentials=true (default)"() {
-        when:
-            loadConfig(EraseCredentialsTrueDefaultConfig)
-            Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("user","password"))
-        then:
-            auth.principal.password == null
-            auth.credentials == null
-        when: "authenticate the same user"
-            auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("user","password"))
-        then: "successfully authenticate again"
-            noExceptionThrown()
-    }
+	def "authentication-manager@erase-credentials=true (default)"() {
+		when:
+			loadConfig(EraseCredentialsTrueDefaultConfig)
+			Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("user","password"))
+		then:
+			auth.principal.password == null
+			auth.credentials == null
+		when: "authenticate the same user"
+			auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("user","password"))
+		then: "successfully authenticate again"
+			noExceptionThrown()
+	}
 
-    @EnableWebSecurity
-    static class EraseCredentialsTrueDefaultConfig extends WebSecurityConfigurerAdapter {
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .inMemoryAuthentication()
-                    .withUser("user").password("password").roles("USER")
-        }
+	@EnableWebSecurity
+	static class EraseCredentialsTrueDefaultConfig extends WebSecurityConfigurerAdapter {
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.inMemoryAuthentication()
+					.withUser("user").password("password").roles("USER")
+		}
 
-        // Only necessary to have access to verify the AuthenticationManager
-        @Bean
-        @Override
-        public AuthenticationManager authenticationManagerBean()
-                throws Exception {
-            return super.authenticationManagerBean();
-        }
-    }
+		// Only necessary to have access to verify the AuthenticationManager
+		@Bean
+		@Override
+		public AuthenticationManager authenticationManagerBean()
+				throws Exception {
+			return super.authenticationManagerBean();
+		}
+	}
 
-    def "authentication-manager@erase-credentials=false"() {
-        when:
-            loadConfig(EraseCredentialsFalseConfig)
-            Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("user","password"))
-        then:
-            auth.credentials == "password"
-            auth.principal.password == "password"
-    }
+	def "authentication-manager@erase-credentials=false"() {
+		when:
+			loadConfig(EraseCredentialsFalseConfig)
+			Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("user","password"))
+		then:
+			auth.credentials == "password"
+			auth.principal.password == "password"
+	}
 
-    @EnableWebSecurity
-    static class EraseCredentialsFalseConfig extends WebSecurityConfigurerAdapter {
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .eraseCredentials(false)
-                .inMemoryAuthentication()
-                    .withUser("user").password("password").roles("USER")
-        }
+	@EnableWebSecurity
+	static class EraseCredentialsFalseConfig extends WebSecurityConfigurerAdapter {
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.eraseCredentials(false)
+				.inMemoryAuthentication()
+					.withUser("user").password("password").roles("USER")
+		}
 
-        // Only necessary to have access to verify the AuthenticationManager
-        @Bean
-        @Override
-        public AuthenticationManager authenticationManagerBean()
-                throws Exception {
-            return super.authenticationManagerBean();
-        }
-    }
+		// Only necessary to have access to verify the AuthenticationManager
+		@Bean
+		@Override
+		public AuthenticationManager authenticationManagerBean()
+				throws Exception {
+			return super.authenticationManagerBean();
+		}
+	}
 
-    def "SEC-2533: global authentication-manager@erase-credentials=false"() {
-        when:
-            loadConfig(GlobalEraseCredentialsFalseConfig)
-            Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("user","password"))
-        then:
-            auth.credentials == "password"
-            auth.principal.password == "password"
-    }
+	def "SEC-2533: global authentication-manager@erase-credentials=false"() {
+		when:
+			loadConfig(GlobalEraseCredentialsFalseConfig)
+			Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("user","password"))
+		then:
+			auth.credentials == "password"
+			auth.principal.password == "password"
+	}
 
-    @EnableWebSecurity
-    static class GlobalEraseCredentialsFalseConfig extends WebSecurityConfigurerAdapter {
-        @Autowired
-        public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .eraseCredentials(false)
-                .inMemoryAuthentication()
-                    .withUser("user").password("password").roles("USER")
-        }
-    }
+	@EnableWebSecurity
+	static class GlobalEraseCredentialsFalseConfig extends WebSecurityConfigurerAdapter {
+		@Autowired
+		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.eraseCredentials(false)
+				.inMemoryAuthentication()
+					.withUser("user").password("password").roles("USER")
+		}
+	}
 }

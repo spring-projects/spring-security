@@ -44,18 +44,18 @@ import org.springframework.test.util.ReflectionTestUtils;
  *
  */
 class PasswordEncoderConfigurerTests extends BaseSpringSpec {
-    def "password-encoder@ref with No AuthenticationManager Bean"() {
-        when:
-            loadConfig(PasswordEncoderNoAuthManagerLoadsConfig)
-        then:
-            noExceptionThrown()
-    }
+	def "password-encoder@ref with No AuthenticationManager Bean"() {
+		when:
+			loadConfig(PasswordEncoderNoAuthManagerLoadsConfig)
+		then:
+			noExceptionThrown()
+	}
 
-    def "password-encoder@ref with AuthenticationManagerBuilder"() {
-        when:
-            loadConfig(PasswordEncoderConfig)
-            AuthenticationManager authMgr = authenticationManager()
-        then:
-            authMgr.authenticate(new UsernamePasswordAuthenticationToken("user", "password"))
-    }
+	def "password-encoder@ref with AuthenticationManagerBuilder"() {
+		when:
+			loadConfig(PasswordEncoderConfig)
+			AuthenticationManager authMgr = authenticationManager()
+		then:
+			authMgr.authenticate(new UsernamePasswordAuthenticationToken("user", "password"))
+	}
 }

@@ -36,45 +36,45 @@ import org.springframework.test.util.ReflectionTestUtils;
  *
  */
 class NamespaceLdapAuthenticationProviderTests extends BaseSpringSpec {
-    def "ldap-authentication-provider"() {
-        when:
-            loadConfig(LdapAuthenticationProviderConfig)
-        then:
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("bob","bobspassword"))
-    }
+	def "ldap-authentication-provider"() {
+		when:
+			loadConfig(LdapAuthenticationProviderConfig)
+		then:
+			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("bob","bobspassword"))
+	}
 
-    def "ldap-authentication-provider custom"() {
-        when:
-            loadConfig(CustomLdapAuthenticationProviderConfig)
-            LdapAuthenticationProvider provider = findAuthenticationProvider(LdapAuthenticationProvider)
-        then:
-            provider.authoritiesPopulator.groupRoleAttribute == "cn"
-            provider.authoritiesPopulator.groupSearchBase == "ou=groups"
-            provider.authoritiesPopulator.groupSearchFilter == "(member={0})"
-            ReflectionTestUtils.getField(provider,"authoritiesMapper").prefix == "PREFIX_"
-            provider.userDetailsContextMapper instanceof PersonContextMapper
-            provider.authenticator.getUserDns("user") == ["uid=user,ou=people"]
-            provider.authenticator.userSearch.searchBase == "ou=users"
-            provider.authenticator.userSearch.searchFilter == "(uid={0})"
-    }
+	def "ldap-authentication-provider custom"() {
+		when:
+			loadConfig(CustomLdapAuthenticationProviderConfig)
+			LdapAuthenticationProvider provider = findAuthenticationProvider(LdapAuthenticationProvider)
+		then:
+			provider.authoritiesPopulator.groupRoleAttribute == "cn"
+			provider.authoritiesPopulator.groupSearchBase == "ou=groups"
+			provider.authoritiesPopulator.groupSearchFilter == "(member={0})"
+			ReflectionTestUtils.getField(provider,"authoritiesMapper").prefix == "PREFIX_"
+			provider.userDetailsContextMapper instanceof PersonContextMapper
+			provider.authenticator.getUserDns("user") == ["uid=user,ou=people"]
+			provider.authenticator.userSearch.searchBase == "ou=users"
+			provider.authenticator.userSearch.searchFilter == "(uid={0})"
+	}
 
-    def "SEC-2490: ldap-authentication-provider custom LdapAuthoritiesPopulator"() {
-        setup:
-            LdapAuthoritiesPopulator LAP = Mock()
-            CustomAuthoritiesPopulatorConfig.LAP = LAP
-        when:
-            loadConfig(CustomAuthoritiesPopulatorConfig)
-            LdapAuthenticationProvider provider = findAuthenticationProvider(LdapAuthenticationProvider)
-        then:
-            provider.authoritiesPopulator == LAP
-    }
+	def "SEC-2490: ldap-authentication-provider custom LdapAuthoritiesPopulator"() {
+		setup:
+			LdapAuthoritiesPopulator LAP = Mock()
+			CustomAuthoritiesPopulatorConfig.LAP = LAP
+		when:
+			loadConfig(CustomAuthoritiesPopulatorConfig)
+			LdapAuthenticationProvider provider = findAuthenticationProvider(LdapAuthenticationProvider)
+		then:
+			provider.authoritiesPopulator == LAP
+	}
 
-    def "ldap-authentication-provider password compare"() {
-        when:
-            loadConfig(PasswordCompareLdapConfig)
-            LdapAuthenticationProvider provider = findAuthenticationProvider(LdapAuthenticationProvider)
-        then:
-            provider.authenticator instanceof PasswordComparisonAuthenticator
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("bob","bobspassword"))
-    }
+	def "ldap-authentication-provider password compare"() {
+		when:
+			loadConfig(PasswordCompareLdapConfig)
+			LdapAuthenticationProvider provider = findAuthenticationProvider(LdapAuthenticationProvider)
+		then:
+			provider.authenticator instanceof PasswordComparisonAuthenticator
+			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("bob","bobspassword"))
+	}
 }

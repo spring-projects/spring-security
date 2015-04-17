@@ -30,31 +30,31 @@ import org.springframework.security.web.authentication.preauth.x509.X509Authenti
  */
 class X509ConfigurerTests extends BaseSpringSpec {
 
-    def "x509 ObjectPostProcessor"() {
-        setup:
-            AnyObjectPostProcessor opp = Mock()
-            HttpSecurity http = new HttpSecurity(opp, authenticationBldr, [:])
-        when:
-            http
-                .x509()
-                    .and()
-                .build()
+	def "x509 ObjectPostProcessor"() {
+		setup:
+			AnyObjectPostProcessor opp = Mock()
+			HttpSecurity http = new HttpSecurity(opp, authenticationBldr, [:])
+		when:
+			http
+				.x509()
+					.and()
+				.build()
 
-        then: "X509AuthenticationFilter is registered with LifecycleManager"
-            1 * opp.postProcess(_ as X509AuthenticationFilter) >> {X509AuthenticationFilter o -> o}
-    }
+		then: "X509AuthenticationFilter is registered with LifecycleManager"
+			1 * opp.postProcess(_ as X509AuthenticationFilter) >> {X509AuthenticationFilter o -> o}
+	}
 
-    def "invoke x509 twice does not override"() {
-        setup:
-            AnyObjectPostProcessor opp = Mock()
-            HttpSecurity http = new HttpSecurity(opp, authenticationBldr, [:])
-        when:
-            http
-                .x509()
-                    .subjectPrincipalRegex(".*")
-                    .and()
-                .x509()
-        then:
-            http.getConfigurer(X509Configurer).subjectPrincipalRegex == ".*"
-    }
+	def "invoke x509 twice does not override"() {
+		setup:
+			AnyObjectPostProcessor opp = Mock()
+			HttpSecurity http = new HttpSecurity(opp, authenticationBldr, [:])
+		when:
+			http
+				.x509()
+					.subjectPrincipalRegex(".*")
+					.and()
+				.x509()
+		then:
+			http.getConfigurer(X509Configurer).subjectPrincipalRegex == ".*"
+	}
 }

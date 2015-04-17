@@ -44,185 +44,185 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
  *
  */
 public class NamespaceHttpOpenIDLoginTests extends BaseSpringSpec {
-    def "http/openid-login"() {
-        when:
-            loadConfig(OpenIDLoginConfig)
-        then:
-            findFilter(OpenIDAuthenticationFilter).consumer.class == OpenID4JavaConsumer
-        when:
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            response.getRedirectedUrl() == "http://localhost/login"
-        when: "fail to log in"
-            super.setup()
-            request.servletPath = "/login/openid"
-            request.method = "POST"
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then: "sent to login error page"
-            response.getRedirectedUrl() == "/login?error"
-    }
+	def "http/openid-login"() {
+		when:
+			loadConfig(OpenIDLoginConfig)
+		then:
+			findFilter(OpenIDAuthenticationFilter).consumer.class == OpenID4JavaConsumer
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			response.getRedirectedUrl() == "http://localhost/login"
+		when: "fail to log in"
+			super.setup()
+			request.servletPath = "/login/openid"
+			request.method = "POST"
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then: "sent to login error page"
+			response.getRedirectedUrl() == "/login?error"
+	}
 
-    @Configuration
-    static class OpenIDLoginConfig extends BaseWebConfig {
-        protected void configure(HttpSecurity http) {
-            http
-                .authorizeRequests()
-                    .anyRequest().hasRole("USER")
-                    .and()
-                .openidLogin()
-                    .permitAll();
-        }
-    }
+	@Configuration
+	static class OpenIDLoginConfig extends BaseWebConfig {
+		protected void configure(HttpSecurity http) {
+			http
+				.authorizeRequests()
+					.anyRequest().hasRole("USER")
+					.and()
+				.openidLogin()
+					.permitAll();
+		}
+	}
 
-    def "http/openid-login/attribute-exchange"() {
-        when:
-            loadConfig(OpenIDLoginAttributeExchangeConfig)
-            OpenID4JavaConsumer consumer = findFilter(OpenIDAuthenticationFilter).consumer
-        then:
-            consumer.class == OpenID4JavaConsumer
+	def "http/openid-login/attribute-exchange"() {
+		when:
+			loadConfig(OpenIDLoginAttributeExchangeConfig)
+			OpenID4JavaConsumer consumer = findFilter(OpenIDAuthenticationFilter).consumer
+		then:
+			consumer.class == OpenID4JavaConsumer
 
-            def googleAttrs = consumer.attributesToFetchFactory.createAttributeList("https://www.google.com/1")
-            googleAttrs[0].name == "email"
-            googleAttrs[0].type == "http://axschema.org/contact/email"
-            googleAttrs[0].required
-            googleAttrs[1].name == "firstname"
-            googleAttrs[1].type == "http://axschema.org/namePerson/first"
-            googleAttrs[1].required
-            googleAttrs[2].name == "lastname"
-            googleAttrs[2].type == "http://axschema.org/namePerson/last"
-            googleAttrs[2].required
+			def googleAttrs = consumer.attributesToFetchFactory.createAttributeList("https://www.google.com/1")
+			googleAttrs[0].name == "email"
+			googleAttrs[0].type == "http://axschema.org/contact/email"
+			googleAttrs[0].required
+			googleAttrs[1].name == "firstname"
+			googleAttrs[1].type == "http://axschema.org/namePerson/first"
+			googleAttrs[1].required
+			googleAttrs[2].name == "lastname"
+			googleAttrs[2].type == "http://axschema.org/namePerson/last"
+			googleAttrs[2].required
 
-            def yahooAttrs = consumer.attributesToFetchFactory.createAttributeList("https://rwinch.yahoo.com/rwinch/id")
-            yahooAttrs[0].name == "email"
-            yahooAttrs[0].type == "http://schema.openid.net/contact/email"
-            yahooAttrs[0].required
-            yahooAttrs[1].name == "fullname"
-            yahooAttrs[1].type == "http://axschema.org/namePerson"
-            yahooAttrs[1].required
-        when:
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            response.getRedirectedUrl() == "http://localhost/login"
-        when: "fail to log in"
-            super.setup()
-            request.servletPath = "/login/openid"
-            request.method = "POST"
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then: "sent to login error page"
-            response.getRedirectedUrl() == "/login?error"
-    }
+			def yahooAttrs = consumer.attributesToFetchFactory.createAttributeList("https://rwinch.yahoo.com/rwinch/id")
+			yahooAttrs[0].name == "email"
+			yahooAttrs[0].type == "http://schema.openid.net/contact/email"
+			yahooAttrs[0].required
+			yahooAttrs[1].name == "fullname"
+			yahooAttrs[1].type == "http://axschema.org/namePerson"
+			yahooAttrs[1].required
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			response.getRedirectedUrl() == "http://localhost/login"
+		when: "fail to log in"
+			super.setup()
+			request.servletPath = "/login/openid"
+			request.method = "POST"
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then: "sent to login error page"
+			response.getRedirectedUrl() == "/login?error"
+	}
 
-    @Configuration
-    static class OpenIDLoginAttributeExchangeConfig extends BaseWebConfig {
-        protected void configure(HttpSecurity http) {
-            http
-                .authorizeRequests()
-                    .anyRequest().hasRole("USER")
-                    .and()
-                .openidLogin()
-                    .attributeExchange("https://www.google.com/.*") // attribute-exchange@identifier-match
-                        .attribute("email") // openid-attribute@name
-                            .type("http://axschema.org/contact/email") // openid-attribute@type
-                            .required(true) // openid-attribute@required
-                            .count(1) // openid-attribute@count
-                            .and()
-                        .attribute("firstname")
-                            .type("http://axschema.org/namePerson/first")
-                            .required(true)
-                            .and()
-                        .attribute("lastname")
-                            .type("http://axschema.org/namePerson/last")
-                            .required(true)
-                            .and()
-                        .and()
-                    .attributeExchange(".*yahoo.com.*")
-                        .attribute("email")
-                            .type("http://schema.openid.net/contact/email")
-                            .required(true)
-                            .and()
-                        .attribute("fullname")
-                            .type("http://axschema.org/namePerson")
-                            .required(true)
-                            .and()
-                        .and()
-                    .permitAll();
-        }
-    }
+	@Configuration
+	static class OpenIDLoginAttributeExchangeConfig extends BaseWebConfig {
+		protected void configure(HttpSecurity http) {
+			http
+				.authorizeRequests()
+					.anyRequest().hasRole("USER")
+					.and()
+				.openidLogin()
+					.attributeExchange("https://www.google.com/.*") // attribute-exchange@identifier-match
+						.attribute("email") // openid-attribute@name
+							.type("http://axschema.org/contact/email") // openid-attribute@type
+							.required(true) // openid-attribute@required
+							.count(1) // openid-attribute@count
+							.and()
+						.attribute("firstname")
+							.type("http://axschema.org/namePerson/first")
+							.required(true)
+							.and()
+						.attribute("lastname")
+							.type("http://axschema.org/namePerson/last")
+							.required(true)
+							.and()
+						.and()
+					.attributeExchange(".*yahoo.com.*")
+						.attribute("email")
+							.type("http://schema.openid.net/contact/email")
+							.required(true)
+							.and()
+						.attribute("fullname")
+							.type("http://axschema.org/namePerson")
+							.required(true)
+							.and()
+						.and()
+					.permitAll();
+		}
+	}
 
-    def "http/openid-login custom"() {
-        setup:
-            loadConfig(OpenIDLoginCustomConfig)
-        when:
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            response.getRedirectedUrl() == "http://localhost/authentication/login"
-        when: "fail to log in"
-            super.setup()
-            request.servletPath = "/authentication/login/process"
-            request.method = "POST"
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then: "sent to login error page"
-            response.getRedirectedUrl() == "/authentication/login?failed"
-    }
+	def "http/openid-login custom"() {
+		setup:
+			loadConfig(OpenIDLoginCustomConfig)
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			response.getRedirectedUrl() == "http://localhost/authentication/login"
+		when: "fail to log in"
+			super.setup()
+			request.servletPath = "/authentication/login/process"
+			request.method = "POST"
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then: "sent to login error page"
+			response.getRedirectedUrl() == "/authentication/login?failed"
+	}
 
-    @Configuration
-    static class OpenIDLoginCustomConfig extends BaseWebConfig {
-        protected void configure(HttpSecurity http) throws Exception {
-            boolean alwaysUseDefaultSuccess = true;
-            http
-                .authorizeRequests()
-                    .anyRequest().hasRole("USER")
-                    .and()
-                .openidLogin()
-                    .permitAll()
-                    .loginPage("/authentication/login") // openid-login@login-page
-                    .failureUrl("/authentication/login?failed") // openid-login@authentication-failure-url
-                    .loginProcessingUrl("/authentication/login/process") // openid-login@login-processing-url
-                    .defaultSuccessUrl("/default", alwaysUseDefaultSuccess) // openid-login@default-target-url / openid-login@always-use-default-target
-        }
-    }
+	@Configuration
+	static class OpenIDLoginCustomConfig extends BaseWebConfig {
+		protected void configure(HttpSecurity http) throws Exception {
+			boolean alwaysUseDefaultSuccess = true;
+			http
+				.authorizeRequests()
+					.anyRequest().hasRole("USER")
+					.and()
+				.openidLogin()
+					.permitAll()
+					.loginPage("/authentication/login") // openid-login@login-page
+					.failureUrl("/authentication/login?failed") // openid-login@authentication-failure-url
+					.loginProcessingUrl("/authentication/login/process") // openid-login@login-processing-url
+					.defaultSuccessUrl("/default", alwaysUseDefaultSuccess) // openid-login@default-target-url / openid-login@always-use-default-target
+		}
+	}
 
-    def "http/openid-login custom refs"() {
-        when:
-            OpenIDLoginCustomRefsConfig.AUDS = Mock(AuthenticationUserDetailsService)
-            loadConfig(OpenIDLoginCustomRefsConfig)
-        then: "CustomWebAuthenticationDetailsSource is used"
-            findFilter(OpenIDAuthenticationFilter).authenticationDetailsSource.class == CustomWebAuthenticationDetailsSource
-            findAuthenticationProvider(OpenIDAuthenticationProvider).userDetailsService == OpenIDLoginCustomRefsConfig.AUDS
-        when: "fail to log in"
-            request.servletPath = "/login/openid"
-            request.method = "POST"
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then: "sent to login error page"
-            response.getRedirectedUrl() == "/custom/failure"
-    }
+	def "http/openid-login custom refs"() {
+		when:
+			OpenIDLoginCustomRefsConfig.AUDS = Mock(AuthenticationUserDetailsService)
+			loadConfig(OpenIDLoginCustomRefsConfig)
+		then: "CustomWebAuthenticationDetailsSource is used"
+			findFilter(OpenIDAuthenticationFilter).authenticationDetailsSource.class == CustomWebAuthenticationDetailsSource
+			findAuthenticationProvider(OpenIDAuthenticationProvider).userDetailsService == OpenIDLoginCustomRefsConfig.AUDS
+		when: "fail to log in"
+			request.servletPath = "/login/openid"
+			request.method = "POST"
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then: "sent to login error page"
+			response.getRedirectedUrl() == "/custom/failure"
+	}
 
-    @Configuration
-    static class OpenIDLoginCustomRefsConfig extends BaseWebConfig {
-        static AuthenticationUserDetailsService AUDS
+	@Configuration
+	static class OpenIDLoginCustomRefsConfig extends BaseWebConfig {
+		static AuthenticationUserDetailsService AUDS
 
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .authorizeRequests()
-                    .anyRequest().hasRole("USER")
-                    .and()
-                .openidLogin()
-                    // if using UserDetailsService wrap with new UserDetailsByNameServiceWrapper<OpenIDAuthenticationToken>()
-                    .authenticationUserDetailsService(AUDS) // openid-login@user-service-ref
-                    .failureHandler(new SimpleUrlAuthenticationFailureHandler("/custom/failure")) // openid-login@authentication-failure-handler-ref
-                    .successHandler(new SavedRequestAwareAuthenticationSuccessHandler( defaultTargetUrl : "/custom/targetUrl" )) // openid-login@authentication-success-handler-ref
-                    .authenticationDetailsSource(new CustomWebAuthenticationDetailsSource()); // openid-login@authentication-details-source-ref
-        }
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.authorizeRequests()
+					.anyRequest().hasRole("USER")
+					.and()
+				.openidLogin()
+					// if using UserDetailsService wrap with new UserDetailsByNameServiceWrapper<OpenIDAuthenticationToken>()
+					.authenticationUserDetailsService(AUDS) // openid-login@user-service-ref
+					.failureHandler(new SimpleUrlAuthenticationFailureHandler("/custom/failure")) // openid-login@authentication-failure-handler-ref
+					.successHandler(new SavedRequestAwareAuthenticationSuccessHandler( defaultTargetUrl : "/custom/targetUrl" )) // openid-login@authentication-success-handler-ref
+					.authenticationDetailsSource(new CustomWebAuthenticationDetailsSource()); // openid-login@authentication-details-source-ref
+		}
 
-        // only necessary to have easy access to the AuthenticationManager for testing/verification
-        @Bean
-        @Override
-        public AuthenticationManager authenticationManagerBean()
-                throws Exception {
-            return super.authenticationManagerBean();
-        }
+		// only necessary to have easy access to the AuthenticationManager for testing/verification
+		@Bean
+		@Override
+		public AuthenticationManager authenticationManagerBean()
+				throws Exception {
+			return super.authenticationManagerBean();
+		}
 
-    }
+	}
 
-    static class CustomWebAuthenticationDetailsSource extends WebAuthenticationDetailsSource {}
+	static class CustomWebAuthenticationDetailsSource extends WebAuthenticationDetailsSource {}
 }

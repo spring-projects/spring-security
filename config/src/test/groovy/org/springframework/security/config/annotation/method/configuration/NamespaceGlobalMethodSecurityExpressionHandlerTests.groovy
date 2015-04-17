@@ -40,53 +40,53 @@ import org.springframework.security.core.context.SecurityContextHolder
  * @author Rob Winch
  */
 public class NamespaceGlobalMethodSecurityExpressionHandlerTests extends BaseSpringSpec {
-    def setup() {
-        SecurityContextHolder.getContext().setAuthentication(
-                        new TestingAuthenticationToken("user", "password","ROLE_USER"))
-    }
+	def setup() {
+		SecurityContextHolder.getContext().setAuthentication(
+						new TestingAuthenticationToken("user", "password","ROLE_USER"))
+	}
 
-    def "global-method-security/expression-handler @PreAuthorize"() {
-        setup:
-        context = new AnnotationConfigApplicationContext(BaseMethodConfig,CustomAccessDecisionManagerConfig)
-        MethodSecurityService service = context.getBean(MethodSecurityService)
-        when:
-        service.hasPermission("granted")
-        then:
-        noExceptionThrown()
-        when:
-        service.hasPermission("denied")
-        then:
-        thrown(AccessDeniedException)
-    }
+	def "global-method-security/expression-handler @PreAuthorize"() {
+		setup:
+		context = new AnnotationConfigApplicationContext(BaseMethodConfig,CustomAccessDecisionManagerConfig)
+		MethodSecurityService service = context.getBean(MethodSecurityService)
+		when:
+		service.hasPermission("granted")
+		then:
+		noExceptionThrown()
+		when:
+		service.hasPermission("denied")
+		then:
+		thrown(AccessDeniedException)
+	}
 
-    def "global-method-security/expression-handler @PostAuthorize"() {
-        setup:
-        context = new AnnotationConfigApplicationContext(BaseMethodConfig,CustomAccessDecisionManagerConfig)
-        MethodSecurityService service = context.getBean(MethodSecurityService)
-        when:
-        service.postHasPermission("granted")
-        then:
-        noExceptionThrown()
-        when:
-        service.postHasPermission("denied")
-        then:
-        thrown(AccessDeniedException)
-    }
+	def "global-method-security/expression-handler @PostAuthorize"() {
+		setup:
+		context = new AnnotationConfigApplicationContext(BaseMethodConfig,CustomAccessDecisionManagerConfig)
+		MethodSecurityService service = context.getBean(MethodSecurityService)
+		when:
+		service.postHasPermission("granted")
+		then:
+		noExceptionThrown()
+		when:
+		service.postHasPermission("denied")
+		then:
+		thrown(AccessDeniedException)
+	}
 
-    @EnableGlobalMethodSecurity(prePostEnabled = true)
-    public static class CustomAccessDecisionManagerConfig extends GlobalMethodSecurityConfiguration {
-        @Override
-        protected MethodSecurityExpressionHandler createExpressionHandler() {
-            DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler()
-            expressionHandler.permissionEvaluator = new PermissionEvaluator() {
-                boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission) {
-                    "granted" == targetDomainObject
-                }
-                boolean hasPermission(Authentication authentication, Serializable targetId, String targetType, Object permission) {
-                    throw new UnsupportedOperationException()
-                }
-            }
-            return expressionHandler
-        }
-    }
+	@EnableGlobalMethodSecurity(prePostEnabled = true)
+	public static class CustomAccessDecisionManagerConfig extends GlobalMethodSecurityConfiguration {
+		@Override
+		protected MethodSecurityExpressionHandler createExpressionHandler() {
+			DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler()
+			expressionHandler.permissionEvaluator = new PermissionEvaluator() {
+				boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission) {
+					"granted" == targetDomainObject
+				}
+				boolean hasPermission(Authentication authentication, Serializable targetId, String targetType, Object permission) {
+					throw new UnsupportedOperationException()
+				}
+			}
+			return expressionHandler
+		}
+	}
 }

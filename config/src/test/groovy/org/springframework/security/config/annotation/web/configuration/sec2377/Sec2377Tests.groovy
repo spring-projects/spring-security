@@ -22,17 +22,17 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
 
 public class Sec2377Tests extends BaseSpringSpec {
 
-    def "SEC-2377: Error reporting with multiple EnableWebSecurity from other packages"() {
-        when:
-            AnnotationConfigWebApplicationContext parent = new AnnotationConfigWebApplicationContext()
-            parent.register(Sec2377AConfig)
-            parent.refresh()
+	def "SEC-2377: Error reporting with multiple EnableWebSecurity from other packages"() {
+		when:
+			AnnotationConfigWebApplicationContext parent = new AnnotationConfigWebApplicationContext()
+			parent.register(Sec2377AConfig)
+			parent.refresh()
 
-            AnnotationConfigWebApplicationContext child = new AnnotationConfigWebApplicationContext()
-            child.register(Sec2377BConfig)
-            child.parent = parent
-            child.refresh()
-        then:
-            noExceptionThrown();
-    }
+			AnnotationConfigWebApplicationContext child = new AnnotationConfigWebApplicationContext()
+			child.register(Sec2377BConfig)
+			child.parent = parent
+			child.refresh()
+		then:
+			noExceptionThrown();
+	}
 }

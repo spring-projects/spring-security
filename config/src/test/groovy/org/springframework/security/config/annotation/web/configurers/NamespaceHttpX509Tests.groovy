@@ -55,201 +55,201 @@ import org.springframework.test.util.ReflectionTestUtils
  *
  */
 public class NamespaceHttpX509Tests extends BaseSpringSpec {
-    def "http/x509 can authenticate"() {
-        setup:
-            X509Certificate certificate = loadCert("rod.cer")
-            loadConfig(X509Config)
-        when:
-            request.setAttribute("javax.servlet.request.X509Certificate", [certificate] as X509Certificate[] )
-            springSecurityFilterChain.doFilter(request, response, chain);
-        then:
-            response.status == 200
-            authentication().name == 'rod'
-    }
+	def "http/x509 can authenticate"() {
+		setup:
+			X509Certificate certificate = loadCert("rod.cer")
+			loadConfig(X509Config)
+		when:
+			request.setAttribute("javax.servlet.request.X509Certificate", [certificate] as X509Certificate[] )
+			springSecurityFilterChain.doFilter(request, response, chain);
+		then:
+			response.status == 200
+			authentication().name == 'rod'
+	}
 
-    def "http/x509"() {
-        when:
-            loadConfig(X509Config)
-            X509AuthenticationFilter filter = findFilter(X509AuthenticationFilter)
-            AuthenticationManager authenticationManager = ReflectionTestUtils.getField(filter,"authenticationManager")
-        then:
-            authenticationManager
-            filter.authenticationDetailsSource.class == WebAuthenticationDetailsSource
-            authenticationManager.providers.find { it instanceof PreAuthenticatedAuthenticationProvider }.preAuthenticatedUserDetailsService.class == UserDetailsByNameServiceWrapper
-    }
+	def "http/x509"() {
+		when:
+			loadConfig(X509Config)
+			X509AuthenticationFilter filter = findFilter(X509AuthenticationFilter)
+			AuthenticationManager authenticationManager = ReflectionTestUtils.getField(filter,"authenticationManager")
+		then:
+			authenticationManager
+			filter.authenticationDetailsSource.class == WebAuthenticationDetailsSource
+			authenticationManager.providers.find { it instanceof PreAuthenticatedAuthenticationProvider }.preAuthenticatedUserDetailsService.class == UserDetailsByNameServiceWrapper
+	}
 
-    @EnableWebSecurity
-    public static class X509Config extends WebSecurityConfigurerAdapter {
-        @Override
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth.
-                inMemoryAuthentication()
-                    .withUser("rod").password("password").roles("USER","ADMIN");
-        }
+	@EnableWebSecurity
+	public static class X509Config extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth.
+				inMemoryAuthentication()
+					.withUser("rod").password("password").roles("USER","ADMIN");
+		}
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .authorizeRequests()
-                    .anyRequest().hasRole("USER")
-                    .and()
-                .x509();
-        }
-    }
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.authorizeRequests()
+					.anyRequest().hasRole("USER")
+					.and()
+				.x509();
+		}
+	}
 
-    def "http/x509@authentication-details-source-ref"() {
-        setup:
-            AuthenticationDetailsSourceRefConfig.AUTHENTICATION_DETAILS_SOURCE = Mock(AuthenticationDetailsSource)
-        when:
-            loadConfig(AuthenticationDetailsSourceRefConfig)
-            X509AuthenticationFilter filter = findFilter(X509AuthenticationFilter)
-            AuthenticationManager authenticationManager = ReflectionTestUtils.getField(filter,"authenticationManager")
-        then:
-            authenticationManager
-            filter.authenticationDetailsSource == AuthenticationDetailsSourceRefConfig.AUTHENTICATION_DETAILS_SOURCE
-            authenticationManager.providers.find { it instanceof PreAuthenticatedAuthenticationProvider }.preAuthenticatedUserDetailsService.class == UserDetailsByNameServiceWrapper
-    }
+	def "http/x509@authentication-details-source-ref"() {
+		setup:
+			AuthenticationDetailsSourceRefConfig.AUTHENTICATION_DETAILS_SOURCE = Mock(AuthenticationDetailsSource)
+		when:
+			loadConfig(AuthenticationDetailsSourceRefConfig)
+			X509AuthenticationFilter filter = findFilter(X509AuthenticationFilter)
+			AuthenticationManager authenticationManager = ReflectionTestUtils.getField(filter,"authenticationManager")
+		then:
+			authenticationManager
+			filter.authenticationDetailsSource == AuthenticationDetailsSourceRefConfig.AUTHENTICATION_DETAILS_SOURCE
+			authenticationManager.providers.find { it instanceof PreAuthenticatedAuthenticationProvider }.preAuthenticatedUserDetailsService.class == UserDetailsByNameServiceWrapper
+	}
 
-    @EnableWebSecurity
-    public static class AuthenticationDetailsSourceRefConfig extends WebSecurityConfigurerAdapter {
-        static AuthenticationDetailsSource<HttpServletRequest, PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails> AUTHENTICATION_DETAILS_SOURCE
+	@EnableWebSecurity
+	public static class AuthenticationDetailsSourceRefConfig extends WebSecurityConfigurerAdapter {
+		static AuthenticationDetailsSource<HttpServletRequest, PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails> AUTHENTICATION_DETAILS_SOURCE
 
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth.
-                inMemoryAuthentication()
-                    .withUser("rod").password("password").roles("USER","ADMIN");
-        }
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth.
+				inMemoryAuthentication()
+					.withUser("rod").password("password").roles("USER","ADMIN");
+		}
 
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .authorizeRequests()
-                    .anyRequest().hasRole("USER")
-                    .and()
-                .x509()
-                    .authenticationDetailsSource(AUTHENTICATION_DETAILS_SOURCE);
-        }
-    }
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.authorizeRequests()
+					.anyRequest().hasRole("USER")
+					.and()
+				.x509()
+					.authenticationDetailsSource(AUTHENTICATION_DETAILS_SOURCE);
+		}
+	}
 
-    def "http/x509@subject-principal-regex"() {
-        setup:
-            X509Certificate certificate = loadCert("rodatexampledotcom.cer")
-            loadConfig(SubjectPrincipalRegexConfig)
-        when:
-            request.setAttribute("javax.servlet.request.X509Certificate", [certificate] as X509Certificate[] )
-            springSecurityFilterChain.doFilter(request, response, chain);
-        then:
-            response.status == 200
-            authentication().name == 'rod'
-    }
+	def "http/x509@subject-principal-regex"() {
+		setup:
+			X509Certificate certificate = loadCert("rodatexampledotcom.cer")
+			loadConfig(SubjectPrincipalRegexConfig)
+		when:
+			request.setAttribute("javax.servlet.request.X509Certificate", [certificate] as X509Certificate[] )
+			springSecurityFilterChain.doFilter(request, response, chain);
+		then:
+			response.status == 200
+			authentication().name == 'rod'
+	}
 
-    @EnableWebSecurity
-    public static class SubjectPrincipalRegexConfig extends WebSecurityConfigurerAdapter {
-        @Override
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth.
-                inMemoryAuthentication()
-                    .withUser("rod").password("password").roles("USER","ADMIN");
-        }
+	@EnableWebSecurity
+	public static class SubjectPrincipalRegexConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth.
+				inMemoryAuthentication()
+					.withUser("rod").password("password").roles("USER","ADMIN");
+		}
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .authorizeRequests()
-                    .anyRequest().hasRole("USER")
-                    .and()
-                .x509()
-                    .subjectPrincipalRegex('CN=(.*?)@example.com(?:,|$)');
-        }
-    }
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.authorizeRequests()
+					.anyRequest().hasRole("USER")
+					.and()
+				.x509()
+					.subjectPrincipalRegex('CN=(.*?)@example.com(?:,|$)');
+		}
+	}
 
-    def "http/x509@user-service-ref"() {
-        setup:
-            X509Certificate certificate = loadCert("rodatexampledotcom.cer")
-            loadConfig(UserDetailsServiceRefConfig)
-        when:
-            request.setAttribute("javax.servlet.request.X509Certificate", [certificate] as X509Certificate[] )
-            springSecurityFilterChain.doFilter(request, response, chain);
-        then:
-            response.status == 200
-            authentication().name == 'customuser'
-    }
+	def "http/x509@user-service-ref"() {
+		setup:
+			X509Certificate certificate = loadCert("rodatexampledotcom.cer")
+			loadConfig(UserDetailsServiceRefConfig)
+		when:
+			request.setAttribute("javax.servlet.request.X509Certificate", [certificate] as X509Certificate[] )
+			springSecurityFilterChain.doFilter(request, response, chain);
+		then:
+			response.status == 200
+			authentication().name == 'customuser'
+	}
 
-    @EnableWebSecurity
-    public static class UserDetailsServiceRefConfig extends WebSecurityConfigurerAdapter {
-        @Override
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth.
-                inMemoryAuthentication()
-                    .withUser("rod").password("password").roles("USER","ADMIN");
-        }
+	@EnableWebSecurity
+	public static class UserDetailsServiceRefConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth.
+				inMemoryAuthentication()
+					.withUser("rod").password("password").roles("USER","ADMIN");
+		}
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .authorizeRequests()
-                    .anyRequest().hasRole("USER")
-                    .and()
-                .x509()
-                    .userDetailsService(new CustomUserDetailsService());
-        }
-    }
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.authorizeRequests()
+					.anyRequest().hasRole("USER")
+					.and()
+				.x509()
+					.userDetailsService(new CustomUserDetailsService());
+		}
+	}
 
-    def "http/x509 custom AuthenticationUserDetailsService"() {
-        setup:
-            X509Certificate certificate = loadCert("rodatexampledotcom.cer")
-            loadConfig(AuthenticationUserDetailsServiceConfig)
-        when:
-            request.setAttribute("javax.servlet.request.X509Certificate", [certificate] as X509Certificate[] )
-            springSecurityFilterChain.doFilter(request, response, chain);
-        then:
-            response.status == 200
-            authentication().name == 'customuser'
-    }
+	def "http/x509 custom AuthenticationUserDetailsService"() {
+		setup:
+			X509Certificate certificate = loadCert("rodatexampledotcom.cer")
+			loadConfig(AuthenticationUserDetailsServiceConfig)
+		when:
+			request.setAttribute("javax.servlet.request.X509Certificate", [certificate] as X509Certificate[] )
+			springSecurityFilterChain.doFilter(request, response, chain);
+		then:
+			response.status == 200
+			authentication().name == 'customuser'
+	}
 
-    @EnableWebSecurity
-    public static class AuthenticationUserDetailsServiceConfig extends WebSecurityConfigurerAdapter {
-        static AuthenticationDetailsSource<HttpServletRequest, PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails> AUTHENTICATION_DETAILS_SOURCE
+	@EnableWebSecurity
+	public static class AuthenticationUserDetailsServiceConfig extends WebSecurityConfigurerAdapter {
+		static AuthenticationDetailsSource<HttpServletRequest, PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails> AUTHENTICATION_DETAILS_SOURCE
 
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth.
-                inMemoryAuthentication()
-                    .withUser("rod").password("password").roles("USER","ADMIN");
-        }
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth.
+				inMemoryAuthentication()
+					.withUser("rod").password("password").roles("USER","ADMIN");
+		}
 
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .authorizeRequests()
-                    .anyRequest().hasRole("USER")
-                    .and()
-                .x509()
-                    .userDetailsService(new CustomUserDetailsService());
-        }
-    }
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.authorizeRequests()
+					.anyRequest().hasRole("USER")
+					.and()
+				.x509()
+					.userDetailsService(new CustomUserDetailsService());
+		}
+	}
 
-    def loadCert(String location) {
-        CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-        certFactory.generateCertificate(Thread.currentThread().contextClassLoader.getResourceAsStream(location))
-    }
+	def loadCert(String location) {
+		CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+		certFactory.generateCertificate(Thread.currentThread().contextClassLoader.getResourceAsStream(location))
+	}
 
-    static class CustomUserDetailsService implements UserDetailsService {
+	static class CustomUserDetailsService implements UserDetailsService {
 
-        public UserDetails loadUserByUsername(String username)
-                throws UsernameNotFoundException {
-            return new User("customuser", "password", AuthorityUtils.createAuthorityList("ROLE_USER"));
-        }
+		public UserDetails loadUserByUsername(String username)
+				throws UsernameNotFoundException {
+			return new User("customuser", "password", AuthorityUtils.createAuthorityList("ROLE_USER"));
+		}
 
-    }
+	}
 
-    static class CustomAuthenticationUserDetailsService implements AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> {
-        public UserDetails loadUserDetails(
-                PreAuthenticatedAuthenticationToken token)
-                throws UsernameNotFoundException {
-            return new User("customuser", "password", AuthorityUtils.createAuthorityList("ROLE_USER"));
-        }
-    }
+	static class CustomAuthenticationUserDetailsService implements AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> {
+		public UserDetails loadUserDetails(
+				PreAuthenticatedAuthenticationToken token)
+				throws UsernameNotFoundException {
+			return new User("customuser", "password", AuthorityUtils.createAuthorityList("ROLE_USER"));
+		}
+	}
 
-    def authentication() {
-        HttpRequestResponseHolder requestResponseHolder = new HttpRequestResponseHolder(request, response)
-        new HttpSessionSecurityContextRepository().loadContext(requestResponseHolder)?.authentication
-    }
+	def authentication() {
+		HttpRequestResponseHolder requestResponseHolder = new HttpRequestResponseHolder(request, response)
+		new HttpSessionSecurityContextRepository().loadContext(requestResponseHolder)?.authentication
+	}
 }

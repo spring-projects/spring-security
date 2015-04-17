@@ -38,78 +38,78 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
  *
  */
 public class NamespaceHttpPortMappingsTests extends BaseSpringSpec {
-    FilterChainProxy springSecurityFilterChain
-    MockHttpServletRequest request
-    MockHttpServletResponse response
-    MockFilterChain chain
+	FilterChainProxy springSecurityFilterChain
+	MockHttpServletRequest request
+	MockHttpServletResponse response
+	MockFilterChain chain
 
-    def setup() {
-        request = new MockHttpServletRequest()
-        request.setMethod("GET")
-        response = new MockHttpServletResponse()
-        chain = new MockFilterChain()
-    }
+	def setup() {
+		request = new MockHttpServletRequest()
+		request.setMethod("GET")
+		response = new MockHttpServletResponse()
+		chain = new MockFilterChain()
+	}
 
-    def "http/port-mapper works with http/intercept-url@requires-channel"() {
-        setup:
-            loadConfig(HttpInterceptUrlWithPortMapperConfig)
-            springSecurityFilterChain = context.getBean(FilterChainProxy)
-        when:
-            request.setServletPath("/login")
-            request.setRequestURI("/login")
-            request.setServerPort(9080);
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            response.redirectedUrl == "https://localhost:9443/login"
-        when:
-            setup()
-            request.setServletPath("/secured/a")
-            request.setRequestURI("/secured/a")
-            request.setServerPort(9080);
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            response.redirectedUrl == "https://localhost:9443/secured/a"
-        when:
-            setup()
-            request.setSecure(true)
-            request.setScheme("https")
-            request.setServerPort(9443);
-            request.setServletPath("/user")
-            request.setRequestURI("/user")
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            response.redirectedUrl == "http://localhost:9080/user"
-    }
+	def "http/port-mapper works with http/intercept-url@requires-channel"() {
+		setup:
+			loadConfig(HttpInterceptUrlWithPortMapperConfig)
+			springSecurityFilterChain = context.getBean(FilterChainProxy)
+		when:
+			request.setServletPath("/login")
+			request.setRequestURI("/login")
+			request.setServerPort(9080);
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			response.redirectedUrl == "https://localhost:9443/login"
+		when:
+			setup()
+			request.setServletPath("/secured/a")
+			request.setRequestURI("/secured/a")
+			request.setServerPort(9080);
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			response.redirectedUrl == "https://localhost:9443/secured/a"
+		when:
+			setup()
+			request.setSecure(true)
+			request.setScheme("https")
+			request.setServerPort(9443);
+			request.setServletPath("/user")
+			request.setRequestURI("/user")
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			response.redirectedUrl == "http://localhost:9080/user"
+	}
 
-    @EnableWebSecurity
-    static class HttpInterceptUrlWithPortMapperConfig extends WebSecurityConfigurerAdapter {
+	@EnableWebSecurity
+	static class HttpInterceptUrlWithPortMapperConfig extends WebSecurityConfigurerAdapter {
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .authorizeRequests()
-                    .anyRequest().hasRole("USER")
-                    .and()
-                .portMapper()
-                    .http(9080).mapsTo(9443)
-                    .and()
-                .requiresChannel()
-                    .antMatchers("/login","/secured/**").requiresSecure()
-                    .anyRequest().requiresInsecure()
-        }
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.authorizeRequests()
+					.anyRequest().hasRole("USER")
+					.and()
+				.portMapper()
+					.http(9080).mapsTo(9443)
+					.and()
+				.requiresChannel()
+					.antMatchers("/login","/secured/**").requiresSecure()
+					.anyRequest().requiresInsecure()
+		}
 
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .inMemoryAuthentication()
-                    .withUser("user").password("password").roles("USER").and()
-                    .withUser("admin").password("password").roles("USER", "ADMIN")
-        }
-    }
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.inMemoryAuthentication()
+					.withUser("user").password("password").roles("USER").and()
+					.withUser("admin").password("password").roles("USER", "ADMIN")
+		}
+	}
 
-    def login(String username="user", String role="ROLE_USER") {
-        HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository()
-        HttpRequestResponseHolder requestResponseHolder = new HttpRequestResponseHolder(request, response)
-        repo.loadContext(requestResponseHolder)
-        repo.saveContext(new SecurityContextImpl(authentication: new UsernamePasswordAuthenticationToken(username, null, AuthorityUtils.createAuthorityList(role))), requestResponseHolder.request, requestResponseHolder.response)
-    }
+	def login(String username="user", String role="ROLE_USER") {
+		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository()
+		HttpRequestResponseHolder requestResponseHolder = new HttpRequestResponseHolder(request, response)
+		repo.loadContext(requestResponseHolder)
+		repo.saveContext(new SecurityContextImpl(authentication: new UsernamePasswordAuthenticationToken(username, null, AuthorityUtils.createAuthorityList(role))), requestResponseHolder.request, requestResponseHolder.response)
+	}
 }

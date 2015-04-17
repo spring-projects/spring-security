@@ -40,117 +40,117 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
  */
 public class NamespaceHttpBasicTests extends BaseSpringSpec {
 
-    def "http/http-basic"() {
-        setup:
-            loadConfig(HttpBasicConfig)
-        when:
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            response.status == HttpServletResponse.SC_UNAUTHORIZED
-        when: "fail to log in"
-            super.setup()
-            basicLogin("user","invalid")
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then: "unauthorized"
-            response.status == HttpServletResponse.SC_UNAUTHORIZED
-            response.getHeader("WWW-Authenticate") == 'Basic realm="Realm"'
-        when: "login success"
-            super.setup()
-            basicLogin()
-        then: "sent to default succes page"
-            !response.committed
-    }
+	def "http/http-basic"() {
+		setup:
+			loadConfig(HttpBasicConfig)
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			response.status == HttpServletResponse.SC_UNAUTHORIZED
+		when: "fail to log in"
+			super.setup()
+			basicLogin("user","invalid")
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then: "unauthorized"
+			response.status == HttpServletResponse.SC_UNAUTHORIZED
+			response.getHeader("WWW-Authenticate") == 'Basic realm="Realm"'
+		when: "login success"
+			super.setup()
+			basicLogin()
+		then: "sent to default succes page"
+			!response.committed
+	}
 
-    @Configuration
-    static class HttpBasicConfig extends BaseWebConfig {
-        protected void configure(HttpSecurity http) {
-            http
-                .authorizeRequests()
-                    .anyRequest().hasRole("USER")
-                    .and()
-                .httpBasic();
-        }
-    }
+	@Configuration
+	static class HttpBasicConfig extends BaseWebConfig {
+		protected void configure(HttpSecurity http) {
+			http
+				.authorizeRequests()
+					.anyRequest().hasRole("USER")
+					.and()
+				.httpBasic();
+		}
+	}
 
-    def "http@realm"() {
-        setup:
-            loadConfig(CustomHttpBasicConfig)
-        when:
-            basicLogin("user","invalid")
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then: "unauthorized"
-            response.status == HttpServletResponse.SC_UNAUTHORIZED
-            response.getHeader("WWW-Authenticate") == 'Basic realm="Custom Realm"'
-    }
+	def "http@realm"() {
+		setup:
+			loadConfig(CustomHttpBasicConfig)
+		when:
+			basicLogin("user","invalid")
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then: "unauthorized"
+			response.status == HttpServletResponse.SC_UNAUTHORIZED
+			response.getHeader("WWW-Authenticate") == 'Basic realm="Custom Realm"'
+	}
 
-    @Configuration
-    static class CustomHttpBasicConfig extends BaseWebConfig {
-        protected void configure(HttpSecurity http) {
-            http
-                .authorizeRequests()
-                    .anyRequest().hasRole("USER")
-                    .and()
-                .httpBasic().realmName("Custom Realm");
-        }
-    }
+	@Configuration
+	static class CustomHttpBasicConfig extends BaseWebConfig {
+		protected void configure(HttpSecurity http) {
+			http
+				.authorizeRequests()
+					.anyRequest().hasRole("USER")
+					.and()
+				.httpBasic().realmName("Custom Realm");
+		}
+	}
 
-    def "http-basic@authentication-details-source-ref"() {
-        when:
-            loadConfig(AuthenticationDetailsSourceHttpBasicConfig)
-        then:
-            findFilter(BasicAuthenticationFilter).authenticationDetailsSource.class == CustomAuthenticationDetailsSource
-    }
+	def "http-basic@authentication-details-source-ref"() {
+		when:
+			loadConfig(AuthenticationDetailsSourceHttpBasicConfig)
+		then:
+			findFilter(BasicAuthenticationFilter).authenticationDetailsSource.class == CustomAuthenticationDetailsSource
+	}
 
-    @Configuration
-    static class AuthenticationDetailsSourceHttpBasicConfig extends BaseWebConfig {
-        protected void configure(HttpSecurity http) {
-            http
-                .httpBasic()
-                    .authenticationDetailsSource(new CustomAuthenticationDetailsSource())
-        }
-    }
+	@Configuration
+	static class AuthenticationDetailsSourceHttpBasicConfig extends BaseWebConfig {
+		protected void configure(HttpSecurity http) {
+			http
+				.httpBasic()
+					.authenticationDetailsSource(new CustomAuthenticationDetailsSource())
+		}
+	}
 
-    static class CustomAuthenticationDetailsSource extends WebAuthenticationDetailsSource {}
+	static class CustomAuthenticationDetailsSource extends WebAuthenticationDetailsSource {}
 
-    def "http-basic@entry-point-ref"() {
-        setup:
-            loadConfig(EntryPointRefHttpBasicConfig)
-        when:
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            response.status == HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-        when: "fail to log in"
-            super.setup()
-            basicLogin("user","invalid")
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then: "custom"
-            response.status == HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-        when: "login success"
-            super.setup()
-            basicLogin()
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then: "sent to default succes page"
-            !response.committed
-    }
+	def "http-basic@entry-point-ref"() {
+		setup:
+			loadConfig(EntryPointRefHttpBasicConfig)
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			response.status == HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+		when: "fail to log in"
+			super.setup()
+			basicLogin("user","invalid")
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then: "custom"
+			response.status == HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+		when: "login success"
+			super.setup()
+			basicLogin()
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then: "sent to default succes page"
+			!response.committed
+	}
 
-    @Configuration
-    static class EntryPointRefHttpBasicConfig extends BaseWebConfig {
-        protected void configure(HttpSecurity http) {
-            http
-                .authorizeRequests()
-                    .anyRequest().hasRole("USER")
-                    .and()
-                .httpBasic()
-                    .authenticationEntryPoint(new AuthenticationEntryPoint() {
-                        public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) {
-                            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
-                        }
-                    })
-        }
-    }
+	@Configuration
+	static class EntryPointRefHttpBasicConfig extends BaseWebConfig {
+		protected void configure(HttpSecurity http) {
+			http
+				.authorizeRequests()
+					.anyRequest().hasRole("USER")
+					.and()
+				.httpBasic()
+					.authenticationEntryPoint(new AuthenticationEntryPoint() {
+						public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) {
+							response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
+						}
+					})
+		}
+	}
 
-    def basicLogin(String username="user",String password="password") {
-        def credentials = username + ":" + password
-        request.addHeader("Authorization", "Basic " + credentials.bytes.encodeBase64())
-    }
+	def basicLogin(String username="user",String password="password") {
+		def credentials = username + ":" + password
+		request.addHeader("Authorization", "Basic " + credentials.bytes.encodeBase64())
+	}
 }

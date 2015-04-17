@@ -34,11 +34,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
  */
 @Configuration
 class BaseAuthenticationConfig {
-    @Autowired
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth
-            .inMemoryAuthentication()
-                .withUser("user").password("password").roles("USER").and()
-                .withUser("admin").password("password").roles("USER", "ADMIN").and()
-    }
+	@Autowired
+	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+		auth
+			.inMemoryAuthentication()
+				.withUser("user").password("password").roles("USER").and()
+				.withUser("admin").password("password").roles("USER", "ADMIN").and()
+	}
 }

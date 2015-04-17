@@ -39,163 +39,163 @@ import spock.lang.Unroll;
  */
 class HeadersConfigurerTests extends BaseSpringSpec {
 
-    def "headers"() {
-        setup:
-            loadConfig(HeadersConfig)
-            request.secure = true
-        when:
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            responseHeaders == ['X-Content-Type-Options':'nosniff',
-                         'X-Frame-Options':'DENY',
-                         'Strict-Transport-Security': 'max-age=31536000 ; includeSubDomains',
-                         'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate',
-                         'Expires' : '0',
-                         'Pragma':'no-cache',
-                         'X-XSS-Protection' : '1; mode=block']
-    }
+	def "headers"() {
+		setup:
+			loadConfig(HeadersConfig)
+			request.secure = true
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			responseHeaders == ['X-Content-Type-Options':'nosniff',
+						 'X-Frame-Options':'DENY',
+						 'Strict-Transport-Security': 'max-age=31536000 ; includeSubDomains',
+						 'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate',
+						 'Expires' : '0',
+						 'Pragma':'no-cache',
+						 'X-XSS-Protection' : '1; mode=block']
+	}
 
-    @EnableWebSecurity
-    static class HeadersConfig extends WebSecurityConfigurerAdapter {
+	@EnableWebSecurity
+	static class HeadersConfig extends WebSecurityConfigurerAdapter {
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http.headers()
-        }
-    }
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http.headers()
+		}
+	}
 
-    def "headers.contentType"() {
-        setup:
-            loadConfig(ContentTypeOptionsConfig)
-        when:
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            responseHeaders == ['X-Content-Type-Options':'nosniff']
-    }
+	def "headers.contentType"() {
+		setup:
+			loadConfig(ContentTypeOptionsConfig)
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			responseHeaders == ['X-Content-Type-Options':'nosniff']
+	}
 
-    @EnableWebSecurity
-    static class ContentTypeOptionsConfig extends WebSecurityConfigurerAdapter {
+	@EnableWebSecurity
+	static class ContentTypeOptionsConfig extends WebSecurityConfigurerAdapter {
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .headers()
-                    .defaultsDisabled()
-                    .contentTypeOptions()
-        }
-    }
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.headers()
+					.defaultsDisabled()
+					.contentTypeOptions()
+		}
+	}
 
-    def "headers.frameOptions"() {
-        setup:
-            loadConfig(FrameOptionsConfig)
-        when:
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            responseHeaders == ['X-Frame-Options':'DENY']
-    }
+	def "headers.frameOptions"() {
+		setup:
+			loadConfig(FrameOptionsConfig)
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			responseHeaders == ['X-Frame-Options':'DENY']
+	}
 
-    @EnableWebSecurity
-    static class FrameOptionsConfig extends WebSecurityConfigurerAdapter {
+	@EnableWebSecurity
+	static class FrameOptionsConfig extends WebSecurityConfigurerAdapter {
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .headers()
-                    .defaultsDisabled()
-                    .frameOptions()
-        }
-    }
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.headers()
+					.defaultsDisabled()
+					.frameOptions()
+		}
+	}
 
-    def "headers.hsts"() {
-        setup:
-            loadConfig(HstsConfig)
-            request.secure = true
-        when:
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            responseHeaders == ['Strict-Transport-Security': 'max-age=31536000 ; includeSubDomains']
-    }
+	def "headers.hsts"() {
+		setup:
+			loadConfig(HstsConfig)
+			request.secure = true
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			responseHeaders == ['Strict-Transport-Security': 'max-age=31536000 ; includeSubDomains']
+	}
 
-    @EnableWebSecurity
-    static class HstsConfig extends WebSecurityConfigurerAdapter {
+	@EnableWebSecurity
+	static class HstsConfig extends WebSecurityConfigurerAdapter {
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .headers()
-                    .defaultsDisabled()
-                    .httpStrictTransportSecurity()
-        }
-    }
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.headers()
+					.defaultsDisabled()
+					.httpStrictTransportSecurity()
+		}
+	}
 
-    def "headers.cacheControl"() {
-        setup:
-            loadConfig(CacheControlConfig)
-        when:
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            responseHeaders == ['Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate',
-                         'Expires' : '0',
-                         'Pragma':'no-cache']
-    }
+	def "headers.cacheControl"() {
+		setup:
+			loadConfig(CacheControlConfig)
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			responseHeaders == ['Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate',
+						 'Expires' : '0',
+						 'Pragma':'no-cache']
+	}
 
-    @EnableWebSecurity
-    static class CacheControlConfig extends WebSecurityConfigurerAdapter {
+	@EnableWebSecurity
+	static class CacheControlConfig extends WebSecurityConfigurerAdapter {
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .headers()
-                    .defaultsDisabled()
-                    .cacheControl()
-        }
-    }
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.headers()
+					.defaultsDisabled()
+					.cacheControl()
+		}
+	}
 
-    def "headers.xssProtection"() {
-        setup:
-            loadConfig(XssProtectionConfig)
-        when:
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            responseHeaders == ['X-XSS-Protection' : '1; mode=block']
-    }
+	def "headers.xssProtection"() {
+		setup:
+			loadConfig(XssProtectionConfig)
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			responseHeaders == ['X-XSS-Protection' : '1; mode=block']
+	}
 
-    @EnableWebSecurity
-    static class XssProtectionConfig extends WebSecurityConfigurerAdapter {
+	@EnableWebSecurity
+	static class XssProtectionConfig extends WebSecurityConfigurerAdapter {
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .headers()
-                    .defaultsDisabled()
-                    .xssProtection()
-        }
-    }
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.headers()
+					.defaultsDisabled()
+					.xssProtection()
+		}
+	}
 
-    def "headers custom x-frame-options"() {
-        setup:
-            loadConfig(HeadersCustomSameOriginConfig)
-            request.secure = true
-        when:
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            responseHeaders == ['X-Content-Type-Options':'nosniff',
-                         'X-Frame-Options':'SAMEORIGIN',
-                         'Strict-Transport-Security': 'max-age=31536000 ; includeSubDomains',
-                         'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate',
-                         'Expires' : '0',
-                         'Pragma':'no-cache',
-                         'X-XSS-Protection' : '1; mode=block']
-    }
+	def "headers custom x-frame-options"() {
+		setup:
+			loadConfig(HeadersCustomSameOriginConfig)
+			request.secure = true
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			responseHeaders == ['X-Content-Type-Options':'nosniff',
+						 'X-Frame-Options':'SAMEORIGIN',
+						 'Strict-Transport-Security': 'max-age=31536000 ; includeSubDomains',
+						 'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate',
+						 'Expires' : '0',
+						 'Pragma':'no-cache',
+						 'X-XSS-Protection' : '1; mode=block']
+	}
 
-    @EnableWebSecurity
-    static class HeadersCustomSameOriginConfig extends WebSecurityConfigurerAdapter {
+	@EnableWebSecurity
+	static class HeadersCustomSameOriginConfig extends WebSecurityConfigurerAdapter {
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .headers()
-                    .frameOptions().sameOrigin()
-        }
-    }
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.headers()
+					.frameOptions().sameOrigin()
+		}
+	}
 }

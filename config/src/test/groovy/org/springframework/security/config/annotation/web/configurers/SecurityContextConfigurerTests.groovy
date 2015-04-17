@@ -31,40 +31,40 @@ import org.springframework.security.web.context.SecurityContextRepository
  */
 class SecurityContextConfigurerTests extends BaseSpringSpec {
 
-    def "securityContext ObjectPostProcessor"() {
-        setup:
-            AnyObjectPostProcessor opp = Mock()
-            HttpSecurity http = new HttpSecurity(opp, authenticationBldr, [:])
-        when:
-            http
-                .securityContext()
-                    .and()
-                .build()
+	def "securityContext ObjectPostProcessor"() {
+		setup:
+			AnyObjectPostProcessor opp = Mock()
+			HttpSecurity http = new HttpSecurity(opp, authenticationBldr, [:])
+		when:
+			http
+				.securityContext()
+					.and()
+				.build()
 
-        then: "SecurityContextPersistenceFilter is registered with LifecycleManager"
-            1 * opp.postProcess(_ as SecurityContextPersistenceFilter) >> {SecurityContextPersistenceFilter o -> o}
-    }
+		then: "SecurityContextPersistenceFilter is registered with LifecycleManager"
+			1 * opp.postProcess(_ as SecurityContextPersistenceFilter) >> {SecurityContextPersistenceFilter o -> o}
+	}
 
-    def "invoke securityContext twice does not override"() {
-        setup:
-            InvokeTwiceDoesNotOverrideConfig.SCR = Mock(SecurityContextRepository)
-        when:
-            loadConfig(InvokeTwiceDoesNotOverrideConfig)
-        then:
-            findFilter(SecurityContextPersistenceFilter).repo == InvokeTwiceDoesNotOverrideConfig.SCR
-    }
+	def "invoke securityContext twice does not override"() {
+		setup:
+			InvokeTwiceDoesNotOverrideConfig.SCR = Mock(SecurityContextRepository)
+		when:
+			loadConfig(InvokeTwiceDoesNotOverrideConfig)
+		then:
+			findFilter(SecurityContextPersistenceFilter).repo == InvokeTwiceDoesNotOverrideConfig.SCR
+	}
 
-    @EnableWebSecurity
-    static class InvokeTwiceDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
-        static SecurityContextRepository SCR
+	@EnableWebSecurity
+	static class InvokeTwiceDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
+		static SecurityContextRepository SCR
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .securityContext()
-                    .securityContextRepository(SCR)
-                    .and()
-                .securityContext()
-        }
-    }
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.securityContext()
+					.securityContextRepository(SCR)
+					.and()
+				.securityContext()
+		}
+	}
 }

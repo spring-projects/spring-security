@@ -36,28 +36,28 @@ import org.springframework.security.web.session.SessionManagementFilter
  */
 class PortMapperConfigurerTests extends BaseSpringSpec {
 
-    def "invoke portMapper twice does not override"() {
-        setup:
-            loadConfig(InvokeTwiceDoesNotOverride)
-            request.setServerPort(543)
-        when:
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            response.redirectedUrl == "https://localhost:123"
-    }
+	def "invoke portMapper twice does not override"() {
+		setup:
+			loadConfig(InvokeTwiceDoesNotOverride)
+			request.setServerPort(543)
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			response.redirectedUrl == "https://localhost:123"
+	}
 
-    @EnableWebSecurity
-    static class InvokeTwiceDoesNotOverride extends WebSecurityConfigurerAdapter {
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .requiresChannel()
-                    .anyRequest().requiresSecure()
-                    .and()
-                .portMapper()
-                    .http(543).mapsTo(123)
-                    .and()
-                .portMapper()
-        }
-    }
+	@EnableWebSecurity
+	static class InvokeTwiceDoesNotOverride extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.requiresChannel()
+					.anyRequest().requiresSecure()
+					.and()
+				.portMapper()
+					.http(543).mapsTo(123)
+					.and()
+				.portMapper()
+		}
+	}
 }

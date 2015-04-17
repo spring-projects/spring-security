@@ -23,5 +23,5 @@ import geb.*
  * @author Rob Winch
  */
 class AccessDeniedPage extends Page {
-    static at = { $("*",text: iContains(~/.*?403.*/)) }
+	static at = { $("*",text: iContains(~/.*?403.*/)) }
 }

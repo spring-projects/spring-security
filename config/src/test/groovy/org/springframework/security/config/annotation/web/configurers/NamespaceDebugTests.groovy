@@ -64,14 +64,14 @@ import spock.lang.Ignore;
  *
  */
 public class NamespaceDebugTests extends BaseSpringSpec {
-    def "debug=true"() {
-        when: "Load configuraiton with debug enabled"
-            loadConfig(DebugWebSecurity)
-        then: "The DebugFilter is present"
-            context.getBean("springSecurityFilterChain").class == DebugFilter
-    }
+	def "debug=true"() {
+		when: "Load configuraiton with debug enabled"
+			loadConfig(DebugWebSecurity)
+		then: "The DebugFilter is present"
+			context.getBean("springSecurityFilterChain").class == DebugFilter
+	}
 
-    @EnableWebSecurity(debug=true)
-    static class DebugWebSecurity extends WebSecurityConfigurerAdapter {
-    }
+	@EnableWebSecurity(debug=true)
+	static class DebugWebSecurity extends WebSecurityConfigurerAdapter {
+	}
 }

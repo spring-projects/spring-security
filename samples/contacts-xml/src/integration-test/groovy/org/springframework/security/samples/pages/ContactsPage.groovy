@@ -23,22 +23,22 @@ import geb.*
  * @author Rob Winch
  */
 class ContactsPage extends Page {
-    static url = 'secure/'
-    static at = { assert driver.title == 'Your Contacts'; true}
-    static content = {
-        addContact(to: AddPage) { $('a', text: 'Add') }
-        contacts { moduleList Contact, $("table tr").tail() }
-        logout { $("input[type=submit]", value: "Logoff") }
-    }
+	static url = 'secure/'
+	static at = { assert driver.title == 'Your Contacts'; true}
+	static content = {
+		addContact(to: AddPage) { $('a', text: 'Add') }
+		contacts { moduleList Contact, $("table tr").tail() }
+		logout { $("input[type=submit]", value: "Logoff") }
+	}
 }
 
 class Contact extends Module {
-    static content = {
-        cell { $("td", it) }
-        id { cell(0).text().toInteger() }
-        name { cell(1).text() }
-        email { cell(2).text() }
-        delete { cell(3).$('a').click() }
-        adminPermission { cell(4).$('a') }
-    }
+	static content = {
+		cell { $("td", it) }
+		id { cell(0).text().toInteger() }
+		name { cell(1).text() }
+		email { cell(2).text() }
+		delete { cell(3).$('a').click() }
+		adminPermission { cell(4).$('a') }
+	}
 }

@@ -31,23 +31,23 @@ import org.springframework.security.web.authentication.logout.LogoutFilter
  */
 class AnonymousConfigurerTests extends BaseSpringSpec {
 
-    def "invoke logout twice does not override"() {
-        when:
-            loadConfig(InvokeTwiceDoesNotOverride)
-        then:
-            findFilter(AnonymousAuthenticationFilter).key == "custom"
-    }
+	def "invoke logout twice does not override"() {
+		when:
+			loadConfig(InvokeTwiceDoesNotOverride)
+		then:
+			findFilter(AnonymousAuthenticationFilter).key == "custom"
+	}
 
-    @EnableWebSecurity
-    static class InvokeTwiceDoesNotOverride extends WebSecurityConfigurerAdapter {
+	@EnableWebSecurity
+	static class InvokeTwiceDoesNotOverride extends WebSecurityConfigurerAdapter {
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .anonymous()
-                    .key("custom")
-                    .and()
-                .anonymous()
-        }
-    }
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.anonymous()
+					.key("custom")
+					.and()
+				.anonymous()
+		}
+	}
 }

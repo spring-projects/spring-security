@@ -23,24 +23,24 @@ import geb.*
  * @author Rob Winch
  */
 class LoginPage extends Page {
-    static url = loginUrl()
-    static at = { assert driver.currentUrl.startsWith(loginUrl()); true}
-    static content = {
-        login(required:false) { user, password=user ->
-            loginForm.username = user
-            loginForm.password = password
-            submit.click()
-        }
-        loginForm { $('#login') }
-        submit { $('input', type: 'submit') }
-    }
+	static url = loginUrl()
+	static at = { assert driver.currentUrl.startsWith(loginUrl()); true}
+	static content = {
+		login(required:false) { user, password=user ->
+			loginForm.username = user
+			loginForm.password = password
+			submit.click()
+		}
+		loginForm { $('#login') }
+		submit { $('input', type: 'submit') }
+	}
 
-    /**
-     * Gets the login page url which might change based upon the system properties. This is to support using a randomly available port for CI.
-     * @return
-     */
-    private static String loginUrl() {
-        def host = System.getProperty('cas.server.host', 'localhost:9443')
-        "https://${host}/cas/login"
-    }
+	/**
+	 * Gets the login page url which might change based upon the system properties. This is to support using a randomly available port for CI.
+	 * @return
+	 */
+	private static String loginUrl() {
+		def host = System.getProperty('cas.server.host', 'localhost:9443')
+		"https://${host}/cas/login"
+	}
 }

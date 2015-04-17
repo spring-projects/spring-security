@@ -29,57 +29,57 @@ import org.springframework.security.web.debug.DebugFilter;
 
 class EnableWebSecurityTests extends BaseSpringSpec {
 
-    def "@Bean(BeanIds.AUTHENTICATION_MANAGER) includes HttpSecurity's AuthenticationManagerBuilder"() {
-        when:
-            loadConfig(SecurityConfig)
-            AuthenticationManager authenticationManager = context.getBean(AuthenticationManager)
-            AnonymousAuthenticationToken anonymousAuthToken = findFilter(AnonymousAuthenticationFilter).createAuthentication(new MockHttpServletRequest())
-        then:
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("user", "password"))
-            authenticationManager.authenticate(anonymousAuthToken)
+	def "@Bean(BeanIds.AUTHENTICATION_MANAGER) includes HttpSecurity's AuthenticationManagerBuilder"() {
+		when:
+			loadConfig(SecurityConfig)
+			AuthenticationManager authenticationManager = context.getBean(AuthenticationManager)
+			AnonymousAuthenticationToken anonymousAuthToken = findFilter(AnonymousAuthenticationFilter).createAuthentication(new MockHttpServletRequest())
+		then:
+			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("user", "password"))
+			authenticationManager.authenticate(anonymousAuthToken)
 
-    }
+	}
 
 
-    @EnableWebSecurity
-    static class SecurityConfig extends WebSecurityConfigurerAdapter {
-        @Override
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .inMemoryAuthentication()
-                    .withUser("user").password("password").roles("USER");
-        }
+	@EnableWebSecurity
+	static class SecurityConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.inMemoryAuthentication()
+					.withUser("user").password("password").roles("USER");
+		}
 
-        @Bean
-        @Override
-        public AuthenticationManager authenticationManagerBean()
-                throws Exception {
-            return super.authenticationManagerBean();
-        }
+		@Bean
+		@Override
+		public AuthenticationManager authenticationManagerBean()
+				throws Exception {
+			return super.authenticationManagerBean();
+		}
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .authorizeRequests()
-                    .antMatchers("/*").hasRole("USER")
-                    .and()
-                .formLogin();
-        }
-    }
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.authorizeRequests()
+					.antMatchers("/*").hasRole("USER")
+					.and()
+				.formLogin();
+		}
+	}
 
-    def "@EnableWebSecurity on superclass"() {
-        when:
-            loadConfig(ChildSecurityConfig)
-        then:
-            context.getBean("springSecurityFilterChain", DebugFilter)
-    }
+	def "@EnableWebSecurity on superclass"() {
+		when:
+			loadConfig(ChildSecurityConfig)
+		then:
+			context.getBean("springSecurityFilterChain", DebugFilter)
+	}
 
-    @Configuration
-    static class ChildSecurityConfig extends DebugSecurityConfig {
-    }
+	@Configuration
+	static class ChildSecurityConfig extends DebugSecurityConfig {
+	}
 
-    @EnableWebSecurity(debug=true)
-    static class DebugSecurityConfig extends WebSecurityConfigurerAdapter {
+	@EnableWebSecurity(debug=true)
+	static class DebugSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    }
+	}
 }

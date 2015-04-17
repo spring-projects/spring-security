@@ -54,103 +54,103 @@ import org.springframework.security.web.util.matcher.AnyRequestMatcher
  */
 class DefaultFiltersTests extends BaseSpringSpec {
 
-    def "Default the WebSecurityConfigurerAdapter"() {
-        when:
-        context = new AnnotationConfigApplicationContext(FilterChainProxyBuilderMissingConfig)
-        then:
-        context.getBean(FilterChainProxy) != null
-    }
+	def "Default the WebSecurityConfigurerAdapter"() {
+		when:
+		context = new AnnotationConfigApplicationContext(FilterChainProxyBuilderMissingConfig)
+		then:
+		context.getBean(FilterChainProxy) != null
+	}
 
-    @EnableWebSecurity
-    static class FilterChainProxyBuilderMissingConfig {
-        @Autowired
-        public void configureGlobal(AuthenticationManagerBuilder auth) {
-            auth
-                .inMemoryAuthentication()
-                    .withUser("user").password("password").roles("USER")
-        }
-    }
+	@EnableWebSecurity
+	static class FilterChainProxyBuilderMissingConfig {
+		@Autowired
+		public void configureGlobal(AuthenticationManagerBuilder auth) {
+			auth
+				.inMemoryAuthentication()
+					.withUser("user").password("password").roles("USER")
+		}
+	}
 
-    @EnableWebSecurity
-    static class FilterChainProxyBuilderNoSecurityFilterBuildersConfig {
-        @Bean
-        public WebSecurity filterChainProxyBuilder(ObjectPostProcessor<Object> opp) {
-            new WebSecurity(opp)
-                .ignoring()
-                    .antMatchers("/resources/**")
-        }
-    }
+	@EnableWebSecurity
+	static class FilterChainProxyBuilderNoSecurityFilterBuildersConfig {
+		@Bean
+		public WebSecurity filterChainProxyBuilder(ObjectPostProcessor<Object> opp) {
+			new WebSecurity(opp)
+				.ignoring()
+					.antMatchers("/resources/**")
+		}
+	}
 
-    def "null WebInvocationPrivilegeEvaluator"() {
-        when:
-        context = new AnnotationConfigApplicationContext(NullWebInvocationPrivilegeEvaluatorConfig)
-        then:
-        List<DefaultSecurityFilterChain> filterChains = context.getBean(FilterChainProxy).filterChains
-        filterChains.size() == 1
-        filterChains[0].requestMatcher instanceof AnyRequestMatcher
-        filterChains[0].filters.size() == 1
-        filterChains[0].filters.find { it instanceof UsernamePasswordAuthenticationFilter }
-    }
+	def "null WebInvocationPrivilegeEvaluator"() {
+		when:
+		context = new AnnotationConfigApplicationContext(NullWebInvocationPrivilegeEvaluatorConfig)
+		then:
+		List<DefaultSecurityFilterChain> filterChains = context.getBean(FilterChainProxy).filterChains
+		filterChains.size() == 1
+		filterChains[0].requestMatcher instanceof AnyRequestMatcher
+		filterChains[0].filters.size() == 1
+		filterChains[0].filters.find { it instanceof UsernamePasswordAuthenticationFilter }
+	}
 
-    @EnableWebSecurity
-    static class NullWebInvocationPrivilegeEvaluatorConfig extends BaseWebConfig {
-        NullWebInvocationPrivilegeEvaluatorConfig() {
-            super(true)
-        }
+	@EnableWebSecurity
+	static class NullWebInvocationPrivilegeEvaluatorConfig extends BaseWebConfig {
+		NullWebInvocationPrivilegeEvaluatorConfig() {
+			super(true)
+		}
 
-        protected void configure(HttpSecurity http) {
-            http.formLogin()
-        }
-    }
+		protected void configure(HttpSecurity http) {
+			http.formLogin()
+		}
+	}
 
-    def "FilterChainProxyBuilder ignoring resources"() {
-        when:
-            loadConfig(FilterChainProxyBuilderIgnoringConfig)
-        then:
-            List<DefaultSecurityFilterChain> filterChains = context.getBean(FilterChainProxy).filterChains
-            filterChains.size() == 2
-            filterChains[0].requestMatcher.pattern == '/resources/**'
-            filterChains[0].filters.empty
-            filterChains[1].requestMatcher instanceof AnyRequestMatcher
-            filterChains[1].filters.collect { it.class } ==
-                    [WebAsyncManagerIntegrationFilter, SecurityContextPersistenceFilter, HeaderWriterFilter, CsrfFilter, LogoutFilter, RequestCacheAwareFilter,
-                     SecurityContextHolderAwareRequestFilter, AnonymousAuthenticationFilter, SessionManagementFilter,
-                     ExceptionTranslationFilter, FilterSecurityInterceptor ]
-    }
+	def "FilterChainProxyBuilder ignoring resources"() {
+		when:
+			loadConfig(FilterChainProxyBuilderIgnoringConfig)
+		then:
+			List<DefaultSecurityFilterChain> filterChains = context.getBean(FilterChainProxy).filterChains
+			filterChains.size() == 2
+			filterChains[0].requestMatcher.pattern == '/resources/**'
+			filterChains[0].filters.empty
+			filterChains[1].requestMatcher instanceof AnyRequestMatcher
+			filterChains[1].filters.collect { it.class } ==
+					[WebAsyncManagerIntegrationFilter, SecurityContextPersistenceFilter, HeaderWriterFilter, CsrfFilter, LogoutFilter, RequestCacheAwareFilter,
+					 SecurityContextHolderAwareRequestFilter, AnonymousAuthenticationFilter, SessionManagementFilter,
+					 ExceptionTranslationFilter, FilterSecurityInterceptor ]
+	}
 
-    @EnableWebSecurity
-    static class FilterChainProxyBuilderIgnoringConfig extends BaseWebConfig {
-        @Override
-        public void configure(WebSecurity builder)	throws Exception {
-            builder
-                .ignoring()
-                    .antMatchers("/resources/**");
-        }
-        @Override
-        protected void configure(HttpSecurity http) {
-            http
-                .authorizeRequests()
-                    .anyRequest().hasRole("USER");
-        }
-    }
+	@EnableWebSecurity
+	static class FilterChainProxyBuilderIgnoringConfig extends BaseWebConfig {
+		@Override
+		public void configure(WebSecurity builder)	throws Exception {
+			builder
+				.ignoring()
+					.antMatchers("/resources/**");
+		}
+		@Override
+		protected void configure(HttpSecurity http) {
+			http
+				.authorizeRequests()
+					.anyRequest().hasRole("USER");
+		}
+	}
 
    def "DefaultFilters.permitAll()"() {
-        when:
-            loadConfig(DefaultFiltersConfigPermitAll)
-            MockHttpServletResponse response = new MockHttpServletResponse()
-            request = new MockHttpServletRequest(servletPath : uri, queryString: query, method:"POST")
-            setupCsrf()
-            springSecurityFilterChain.doFilter(request, response, new MockFilterChain())
-        then:
-            response.redirectedUrl == "/login?logout"
-        where:
-            uri | query
-            "/logout" | null
-    }
+		when:
+			loadConfig(DefaultFiltersConfigPermitAll)
+			MockHttpServletResponse response = new MockHttpServletResponse()
+			request = new MockHttpServletRequest(servletPath : uri, queryString: query, method:"POST")
+			setupCsrf()
+			springSecurityFilterChain.doFilter(request, response, new MockFilterChain())
+		then:
+			response.redirectedUrl == "/login?logout"
+		where:
+			uri | query
+			"/logout" | null
+	}
 
-    @EnableWebSecurity
-    static class DefaultFiltersConfigPermitAll extends BaseWebConfig {
-        protected void configure(HttpSecurity http) {
-        }
-    }
+	@EnableWebSecurity
+	static class DefaultFiltersConfigPermitAll extends BaseWebConfig {
+		protected void configure(HttpSecurity http) {
+		}
+	}
 }

@@ -24,8 +24,8 @@ import org.springframework.security.samples.cas.pages.*
  * @author Rob Winch
  */
 class NavModule extends Module {
-    static content = {
-        home(to: HomePage) { $("a", text: "Home") }
-        logout(to: LocalLogoutPage) { $("a", text: "Logout") }
-    }
+	static content = {
+		home(to: HomePage) { $("a", text: "Home") }
+		logout(to: LocalLogoutPage) { $("a", text: "Logout") }
+	}
 }

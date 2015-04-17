@@ -30,33 +30,33 @@ import org.springframework.security.core.Authentication
  * @author Rob Winch
  */
 public interface MethodSecurityService {
-    @PreAuthorize("denyAll")
-    public String preAuthorize();
+	@PreAuthorize("denyAll")
+	public String preAuthorize();
 
-    @Secured("ROLE_ADMIN")
-    public String secured();
+	@Secured("ROLE_ADMIN")
+	public String secured();
 
-    @Secured("ROLE_USER")
-    public String securedUser();
+	@Secured("ROLE_USER")
+	public String securedUser();
 
-    @DenyAll
-    public String jsr250();
+	@DenyAll
+	public String jsr250();
 
-    @PermitAll
-    public String jsr250PermitAll();
+	@PermitAll
+	public String jsr250PermitAll();
 
-    @Secured(["ROLE_USER","RUN_AS_SUPER"])
-    public Authentication runAs();
+	@Secured(["ROLE_USER","RUN_AS_SUPER"])
+	public Authentication runAs();
 
-    @PreAuthorize("permitAll")
-    public String preAuthorizePermitAll();
+	@PreAuthorize("permitAll")
+	public String preAuthorizePermitAll();
 
-    @PreAuthorize("hasPermission(#object,'read')")
-    public String hasPermission(String object);
+	@PreAuthorize("hasPermission(#object,'read')")
+	public String hasPermission(String object);
 
-    @PostAuthorize("hasPermission(#object,'read')")
-    public String postHasPermission(String object);
+	@PostAuthorize("hasPermission(#object,'read')")
+	public String postHasPermission(String object);
 
-    @PostAuthorize("#o?.contains('grant')")
-    public String postAnnotation(@P("o") String object);
+	@PostAuthorize("#o?.contains('grant')")
+	public String postAnnotation(@P("o") String object);
 }

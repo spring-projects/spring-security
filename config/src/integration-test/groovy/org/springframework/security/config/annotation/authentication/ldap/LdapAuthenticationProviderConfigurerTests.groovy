@@ -37,24 +37,24 @@ import static org.springframework.security.config.annotation.authentication.ldap
  */
 class LdapAuthenticationProviderConfigurerTests extends BaseSpringSpec {
 
-    def "authentication-manager support multiple default ldap contexts (ports dynamically allocated)"() {
-        when:
-            loadConfig(MultiLdapAuthenticationProvidersConfig)
-        then:
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("bob","bobspassword"))
-    }
+	def "authentication-manager support multiple default ldap contexts (ports dynamically allocated)"() {
+		when:
+			loadConfig(MultiLdapAuthenticationProvidersConfig)
+		then:
+			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("bob","bobspassword"))
+	}
 
-    @EnableWebSecurity
-    static class MultiLdapAuthenticationProvidersConfig extends WebSecurityConfigurerAdapter {
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .ldapAuthentication()
-                    .groupSearchBase("ou=groups")
-                    .userDnPatterns("uid={0},ou=people")
-                    .and()
-                .ldapAuthentication()
-                    .groupSearchBase("ou=groups")
-                    .userDnPatterns("uid={0},ou=people")
-        }
-    }
+	@EnableWebSecurity
+	static class MultiLdapAuthenticationProvidersConfig extends WebSecurityConfigurerAdapter {
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.ldapAuthentication()
+					.groupSearchBase("ou=groups")
+					.userDnPatterns("uid={0},ou=people")
+					.and()
+				.ldapAuthentication()
+					.groupSearchBase("ou=groups")
+					.userDnPatterns("uid={0},ou=people")
+		}
+	}
 }

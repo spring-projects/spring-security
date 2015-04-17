@@ -53,348 +53,348 @@ import org.springframework.security.core.context.SecurityContextHolder
  * @author Rob Winch
  */
 public class GlobalMethodSecurityConfigurationTests extends BaseSpringSpec {
-    def "messages set when using GlobalMethodSecurityConfiguration"() {
-        when:
-            loadConfig(InMemoryAuthWithGlobalMethodSecurityConfig)
-        then:
-            authenticationManager.messages.messageSource instanceof ApplicationContext
-    }
+	def "messages set when using GlobalMethodSecurityConfiguration"() {
+		when:
+			loadConfig(InMemoryAuthWithGlobalMethodSecurityConfig)
+		then:
+			authenticationManager.messages.messageSource instanceof ApplicationContext
+	}
 
-    def "AuthenticationEventPublisher is registered GlobalMethodSecurityConfiguration"() {
-        when:
-            loadConfig(InMemoryAuthWithGlobalMethodSecurityConfig)
-        then:
-            authenticationManager.eventPublisher instanceof DefaultAuthenticationEventPublisher
-        when:
-            Authentication auth = new UsernamePasswordAuthenticationToken("user",null,AuthorityUtils.createAuthorityList("ROLE_USER"))
-            authenticationManager.eventPublisher.publishAuthenticationSuccess(auth)
-        then:
-            InMemoryAuthWithGlobalMethodSecurityConfig.EVENT.authentication == auth
-    }
+	def "AuthenticationEventPublisher is registered GlobalMethodSecurityConfiguration"() {
+		when:
+			loadConfig(InMemoryAuthWithGlobalMethodSecurityConfig)
+		then:
+			authenticationManager.eventPublisher instanceof DefaultAuthenticationEventPublisher
+		when:
+			Authentication auth = new UsernamePasswordAuthenticationToken("user",null,AuthorityUtils.createAuthorityList("ROLE_USER"))
+			authenticationManager.eventPublisher.publishAuthenticationSuccess(auth)
+		then:
+			InMemoryAuthWithGlobalMethodSecurityConfig.EVENT.authentication == auth
+	}
 
-    @EnableGlobalMethodSecurity(prePostEnabled = true)
-    public static class InMemoryAuthWithGlobalMethodSecurityConfig extends GlobalMethodSecurityConfiguration implements ApplicationListener<AuthenticationSuccessEvent> {
-        static AuthenticationSuccessEvent EVENT
+	@EnableGlobalMethodSecurity(prePostEnabled = true)
+	public static class InMemoryAuthWithGlobalMethodSecurityConfig extends GlobalMethodSecurityConfiguration implements ApplicationListener<AuthenticationSuccessEvent> {
+		static AuthenticationSuccessEvent EVENT
 
-        @Override
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .inMemoryAuthentication()
-        }
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.inMemoryAuthentication()
+		}
 
-        @Override
-        public void onApplicationEvent(AuthenticationSuccessEvent e) {
-            EVENT = e
-        }
-    }
+		@Override
+		public void onApplicationEvent(AuthenticationSuccessEvent e) {
+			EVENT = e
+		}
+	}
 
-    AuthenticationManager getAuthenticationManager() {
-        context.getBean(MethodInterceptor).authenticationManager
-    }
+	AuthenticationManager getAuthenticationManager() {
+		context.getBean(MethodInterceptor).authenticationManager
+	}
 
-    def "AuthenticationTrustResolver autowires"() {
-        setup:
-            CustomTrustResolverConfig.TR = Mock(AuthenticationTrustResolver)
-        when:
-            loadConfig(CustomTrustResolverConfig)
-            def preAdviceVoter = context.getBean(MethodInterceptor).accessDecisionManager.decisionVoters.find { it instanceof PreInvocationAuthorizationAdviceVoter}
-        then:
-            preAdviceVoter.preAdvice.expressionHandler.trustResolver == CustomTrustResolverConfig.TR
-    }
+	def "AuthenticationTrustResolver autowires"() {
+		setup:
+			CustomTrustResolverConfig.TR = Mock(AuthenticationTrustResolver)
+		when:
+			loadConfig(CustomTrustResolverConfig)
+			def preAdviceVoter = context.getBean(MethodInterceptor).accessDecisionManager.decisionVoters.find { it instanceof PreInvocationAuthorizationAdviceVoter}
+		then:
+			preAdviceVoter.preAdvice.expressionHandler.trustResolver == CustomTrustResolverConfig.TR
+	}
 
-    @EnableGlobalMethodSecurity(prePostEnabled = true)
-    static class CustomTrustResolverConfig extends GlobalMethodSecurityConfiguration {
-        static AuthenticationTrustResolver TR
+	@EnableGlobalMethodSecurity(prePostEnabled = true)
+	static class CustomTrustResolverConfig extends GlobalMethodSecurityConfiguration {
+		static AuthenticationTrustResolver TR
 
-        @Override
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .inMemoryAuthentication()
-        }
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.inMemoryAuthentication()
+		}
 
-        @Bean
-        public AuthenticationTrustResolver tr() {
-            return TR
-        }
-    }
+		@Bean
+		public AuthenticationTrustResolver tr() {
+			return TR
+		}
+	}
 
-    def "SEC-2301: DefaultWebSecurityExpressionHandler has BeanResolver set"() {
-        setup:
-            SecurityContextHolder.getContext().setAuthentication(
-                new TestingAuthenticationToken("user", "password","ROLE_USER"))
-            loadConfig(ExpressionHandlerHasBeanResolverSetConfig)
-            def service = context.getBean(ServiceImpl)
-        when: "service with bean reference on PreAuthorize invoked"
-            service.message()
-        then: "properly throws AccessDeniedException"
-            thrown(AccessDeniedException)
-        when: "service with bean reference on PreAuthorize invoked"
-            context.getBean(CustomAuthzService).grantAccess = true
-            service.message()
-        then: "grants access too"
-            noExceptionThrown()
-    }
+	def "SEC-2301: DefaultWebSecurityExpressionHandler has BeanResolver set"() {
+		setup:
+			SecurityContextHolder.getContext().setAuthentication(
+				new TestingAuthenticationToken("user", "password","ROLE_USER"))
+			loadConfig(ExpressionHandlerHasBeanResolverSetConfig)
+			def service = context.getBean(ServiceImpl)
+		when: "service with bean reference on PreAuthorize invoked"
+			service.message()
+		then: "properly throws AccessDeniedException"
+			thrown(AccessDeniedException)
+		when: "service with bean reference on PreAuthorize invoked"
+			context.getBean(CustomAuthzService).grantAccess = true
+			service.message()
+		then: "grants access too"
+			noExceptionThrown()
+	}
 
-    @EnableGlobalMethodSecurity(prePostEnabled = true, proxyTargetClass = true)
-    static class ExpressionHandlerHasBeanResolverSetConfig extends GlobalMethodSecurityConfiguration {
+	@EnableGlobalMethodSecurity(prePostEnabled = true, proxyTargetClass = true)
+	static class ExpressionHandlerHasBeanResolverSetConfig extends GlobalMethodSecurityConfiguration {
 
-        @Override
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .inMemoryAuthentication()
-        }
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.inMemoryAuthentication()
+		}
 
-        @Bean
-        public ServiceImpl service() {
-            return new ServiceImpl()
-        }
+		@Bean
+		public ServiceImpl service() {
+			return new ServiceImpl()
+		}
 
-        @Bean
-        public CustomAuthzService authz() {
-            return new CustomAuthzService()
-        }
-    }
+		@Bean
+		public CustomAuthzService authz() {
+			return new CustomAuthzService()
+		}
+	}
 
-    static class ServiceImpl {
-        @PreAuthorize("@authz.authorize()")
-        public String message() {
-            null
-        }
-    }
+	static class ServiceImpl {
+		@PreAuthorize("@authz.authorize()")
+		public String message() {
+			null
+		}
+	}
 
-    static class CustomAuthzService {
-        boolean grantAccess
+	static class CustomAuthzService {
+		boolean grantAccess
 
-        public boolean authorize() {
-            grantAccess
-        }
-    }
+		public boolean authorize() {
+			grantAccess
+		}
+	}
 
-    def "Method Security supports annotations on interface parameter names"() {
-        setup:
-            SecurityContextHolder.getContext().setAuthentication(
-                new TestingAuthenticationToken("user", "password","ROLE_USER"))
-            loadConfig(MethodSecurityServiceConfig)
-            MethodSecurityService service = context.getBean(MethodSecurityService)
-        when: "service with annotated argument"
-            service.postAnnotation('deny')
-        then: "properly throws AccessDeniedException"
-            thrown(AccessDeniedException)
-        when: "service with annotated argument"
-            service.postAnnotation('grant')
-        then: "properly throws AccessDeniedException"
-            noExceptionThrown()
-    }
+	def "Method Security supports annotations on interface parameter names"() {
+		setup:
+			SecurityContextHolder.getContext().setAuthentication(
+				new TestingAuthenticationToken("user", "password","ROLE_USER"))
+			loadConfig(MethodSecurityServiceConfig)
+			MethodSecurityService service = context.getBean(MethodSecurityService)
+		when: "service with annotated argument"
+			service.postAnnotation('deny')
+		then: "properly throws AccessDeniedException"
+			thrown(AccessDeniedException)
+		when: "service with annotated argument"
+			service.postAnnotation('grant')
+		then: "properly throws AccessDeniedException"
+			noExceptionThrown()
+	}
 
-    @EnableGlobalMethodSecurity(prePostEnabled = true)
-    static class MethodSecurityServiceConfig extends GlobalMethodSecurityConfiguration {
+	@EnableGlobalMethodSecurity(prePostEnabled = true)
+	static class MethodSecurityServiceConfig extends GlobalMethodSecurityConfiguration {
 
-        @Override
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .inMemoryAuthentication()
-        }
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.inMemoryAuthentication()
+		}
 
-        @Bean
-        public MethodSecurityService service() {
-            new MethodSecurityServiceImpl()
-        }
-    }
+		@Bean
+		public MethodSecurityService service() {
+			new MethodSecurityServiceImpl()
+		}
+	}
 
-    def "GlobalMethodSecurityConfiguration autowires PermissionEvaluator"() {
-        setup:
-            SecurityContextHolder.getContext().setAuthentication(
-                new TestingAuthenticationToken("user", "password","ROLE_USER"))
-            PermissionEvaluator evaluator = Mock()
-            AutowirePermissionEvaluatorConfig.PE = evaluator
-            loadConfig(AutowirePermissionEvaluatorConfig)
-            MethodSecurityService service = context.getBean(MethodSecurityService)
-        when:
-            service.hasPermission("something")
-        then:
-            1 * evaluator.hasPermission(_, "something", "read") >> true
-        when:
-            service.hasPermission("something")
-        then:
-            1 * evaluator.hasPermission(_, "something", "read") >> false
-            thrown(AccessDeniedException)
-    }
+	def "GlobalMethodSecurityConfiguration autowires PermissionEvaluator"() {
+		setup:
+			SecurityContextHolder.getContext().setAuthentication(
+				new TestingAuthenticationToken("user", "password","ROLE_USER"))
+			PermissionEvaluator evaluator = Mock()
+			AutowirePermissionEvaluatorConfig.PE = evaluator
+			loadConfig(AutowirePermissionEvaluatorConfig)
+			MethodSecurityService service = context.getBean(MethodSecurityService)
+		when:
+			service.hasPermission("something")
+		then:
+			1 * evaluator.hasPermission(_, "something", "read") >> true
+		when:
+			service.hasPermission("something")
+		then:
+			1 * evaluator.hasPermission(_, "something", "read") >> false
+			thrown(AccessDeniedException)
+	}
 
-    @EnableGlobalMethodSecurity(prePostEnabled = true)
-    public static class AutowirePermissionEvaluatorConfig extends GlobalMethodSecurityConfiguration {
-        static PermissionEvaluator PE
+	@EnableGlobalMethodSecurity(prePostEnabled = true)
+	public static class AutowirePermissionEvaluatorConfig extends GlobalMethodSecurityConfiguration {
+		static PermissionEvaluator PE
 
-        @Override
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .inMemoryAuthentication()
-        }
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.inMemoryAuthentication()
+		}
 
-        @Bean
-        public PermissionEvaluator pe() {
-            PE
-        }
+		@Bean
+		public PermissionEvaluator pe() {
+			PE
+		}
 
-        @Bean
-        public MethodSecurityService service() {
-            new MethodSecurityServiceImpl()
-        }
-    }
+		@Bean
+		public MethodSecurityService service() {
+			new MethodSecurityServiceImpl()
+		}
+	}
 
-    def "GlobalMethodSecurityConfiguration does not failw with multiple PermissionEvaluator"() {
-        when:
-            loadConfig(MultiPermissionEvaluatorConfig)
-        then:
-            noExceptionThrown()
-    }
+	def "GlobalMethodSecurityConfiguration does not failw with multiple PermissionEvaluator"() {
+		when:
+			loadConfig(MultiPermissionEvaluatorConfig)
+		then:
+			noExceptionThrown()
+	}
 
-    @EnableGlobalMethodSecurity(prePostEnabled = true)
-    public static class MultiPermissionEvaluatorConfig extends GlobalMethodSecurityConfiguration {
-        static PermissionEvaluator PE
+	@EnableGlobalMethodSecurity(prePostEnabled = true)
+	public static class MultiPermissionEvaluatorConfig extends GlobalMethodSecurityConfiguration {
+		static PermissionEvaluator PE
 
-        @Override
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .inMemoryAuthentication()
-        }
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.inMemoryAuthentication()
+		}
 
-        @Bean
-        public PermissionEvaluator pe() {
-            PE
-        }
+		@Bean
+		public PermissionEvaluator pe() {
+			PE
+		}
 
-        @Bean
-        public PermissionEvaluator pe2() {
-            PE
-        }
+		@Bean
+		public PermissionEvaluator pe2() {
+			PE
+		}
 
-        @Bean
-        public MethodSecurityService service() {
-            new MethodSecurityServiceImpl()
-        }
-    }
+		@Bean
+		public MethodSecurityService service() {
+			new MethodSecurityServiceImpl()
+		}
+	}
 
-    def "SEC-2425: EnableGlobalMethodSecurity works on superclass"() {
-        setup:
-            SecurityContextHolder.getContext().setAuthentication(
-                new TestingAuthenticationToken("user", "password","ROLE_USER"))
-            loadConfig(ParentConfig)
-            MethodSecurityService service = context.getBean(MethodSecurityService)
-        when:
-            service.preAuthorize()
-        then:
-            thrown(AccessDeniedException)
-    }
+	def "SEC-2425: EnableGlobalMethodSecurity works on superclass"() {
+		setup:
+			SecurityContextHolder.getContext().setAuthentication(
+				new TestingAuthenticationToken("user", "password","ROLE_USER"))
+			loadConfig(ParentConfig)
+			MethodSecurityService service = context.getBean(MethodSecurityService)
+		when:
+			service.preAuthorize()
+		then:
+			thrown(AccessDeniedException)
+	}
 
-    static class ChildConfig extends ParentConfig {}
+	static class ChildConfig extends ParentConfig {}
 
-    @EnableGlobalMethodSecurity(prePostEnabled = true)
-    static class ParentConfig {
+	@EnableGlobalMethodSecurity(prePostEnabled = true)
+	static class ParentConfig {
 
-        @Autowired
-        protected void configurGlobal(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .inMemoryAuthentication()
-        }
+		@Autowired
+		protected void configurGlobal(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.inMemoryAuthentication()
+		}
 
-        @Bean
-        public MethodSecurityService service() {
-            new MethodSecurityServiceImpl()
-        }
-    }
+		@Bean
+		public MethodSecurityService service() {
+			new MethodSecurityServiceImpl()
+		}
+	}
 
-    def "SEC-2479: Support AuthenticationManager in parent"() {
-        setup:
-            SecurityContextHolder.getContext().setAuthentication(
-                new TestingAuthenticationToken("user", "password","ROLE_USER"))
-            loadConfig(Sec2479ParentConfig)
-            def child = new AnnotationConfigApplicationContext()
-            child.register(Sec2479ChildConfig)
-            child.parent = context
-            child.refresh()
-            MethodSecurityService service = child.getBean(MethodSecurityService)
-        when:
-            service.preAuthorize()
-        then:
-            thrown(AccessDeniedException)
-        cleanup:
-            child?.close()
-    }
+	def "SEC-2479: Support AuthenticationManager in parent"() {
+		setup:
+			SecurityContextHolder.getContext().setAuthentication(
+				new TestingAuthenticationToken("user", "password","ROLE_USER"))
+			loadConfig(Sec2479ParentConfig)
+			def child = new AnnotationConfigApplicationContext()
+			child.register(Sec2479ChildConfig)
+			child.parent = context
+			child.refresh()
+			MethodSecurityService service = child.getBean(MethodSecurityService)
+		when:
+			service.preAuthorize()
+		then:
+			thrown(AccessDeniedException)
+		cleanup:
+			child?.close()
+	}
 
-    @Configuration
-    static class Sec2479ParentConfig {
-        static AuthenticationManager AM
+	@Configuration
+	static class Sec2479ParentConfig {
+		static AuthenticationManager AM
 
-        @Bean
-        public AuthenticationManager am() {
-            AM
-        }
-    }
+		@Bean
+		public AuthenticationManager am() {
+			AM
+		}
+	}
 
-    @EnableGlobalMethodSecurity(prePostEnabled = true)
-    static class Sec2479ChildConfig {
-        @Bean
-        public MethodSecurityService service() {
-            new MethodSecurityServiceImpl()
-        }
-    }
+	@EnableGlobalMethodSecurity(prePostEnabled = true)
+	static class Sec2479ChildConfig {
+		@Bean
+		public MethodSecurityService service() {
+			new MethodSecurityServiceImpl()
+		}
+	}
 
-    def "SEC-2815: @EnableGlobalMethodSecurity does not trigger eager initialization of Beans in GlobalAuthenticationConfigurer"() {
-        setup:
-        Sec2815Config.dataSource = Mock(DataSource)
-        when: 'load a Configuration that uses a Bean (DataSource) in a GlobalAuthenticationConfigurerAdapter'
-        loadConfig(Sec2815Config)
-        then: 'The Bean (DataSource) is still properly post processed with all BeanPostProcessor'
-        context.getBean(MockBeanPostProcessor).beforeInit['dataSource']
-        context.getBean(MockBeanPostProcessor).afterInit['dataSource']
-    }
+	def "SEC-2815: @EnableGlobalMethodSecurity does not trigger eager initialization of Beans in GlobalAuthenticationConfigurer"() {
+		setup:
+		Sec2815Config.dataSource = Mock(DataSource)
+		when: 'load a Configuration that uses a Bean (DataSource) in a GlobalAuthenticationConfigurerAdapter'
+		loadConfig(Sec2815Config)
+		then: 'The Bean (DataSource) is still properly post processed with all BeanPostProcessor'
+		context.getBean(MockBeanPostProcessor).beforeInit['dataSource']
+		context.getBean(MockBeanPostProcessor).afterInit['dataSource']
+	}
 
-    @EnableGlobalMethodSecurity(prePostEnabled = true)
-    static class Sec2815Config {
-        static DataSource dataSource;
+	@EnableGlobalMethodSecurity(prePostEnabled = true)
+	static class Sec2815Config {
+		static DataSource dataSource;
 
-        @Bean
-        public MethodSecurityService service() {
-            new MethodSecurityServiceImpl()
-        }
+		@Bean
+		public MethodSecurityService service() {
+			new MethodSecurityServiceImpl()
+		}
 
-        @Bean
-        public MockBeanPostProcessor mockBeanPostProcessor() {
-            new MockBeanPostProcessor()
-        }
+		@Bean
+		public MockBeanPostProcessor mockBeanPostProcessor() {
+			new MockBeanPostProcessor()
+		}
 
-        @Bean
-        public DataSource dataSource() {
-            dataSource
-        }
+		@Bean
+		public DataSource dataSource() {
+			dataSource
+		}
 
-        @Configuration
-        static class AuthConfig extends GlobalAuthenticationConfigurerAdapter {
-            @Autowired
-            DataSource dataSource
+		@Configuration
+		static class AuthConfig extends GlobalAuthenticationConfigurerAdapter {
+			@Autowired
+			DataSource dataSource
 
-            @Override
-            void init(AuthenticationManagerBuilder auth) throws Exception {
-                auth.inMemoryAuthentication()
-            }
-        }
-    }
+			@Override
+			void init(AuthenticationManagerBuilder auth) throws Exception {
+				auth.inMemoryAuthentication()
+			}
+		}
+	}
 
 
-    static class MockBeanPostProcessor implements BeanPostProcessor {
-        Map<String,Object> beforeInit = new HashMap<String,Object>()
-        Map<String,Object> afterInit = new HashMap<String,Object>()
+	static class MockBeanPostProcessor implements BeanPostProcessor {
+		Map<String,Object> beforeInit = new HashMap<String,Object>()
+		Map<String,Object> afterInit = new HashMap<String,Object>()
 
-        @Override
-        Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-            beforeInit[beanName] = bean
-            bean
-        }
+		@Override
+		Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+			beforeInit[beanName] = bean
+			bean
+		}
 
-        @Override
-        Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-            afterInit[beanName] = bean
-            bean
-        }
-    }
+		@Override
+		Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+			afterInit[beanName] = bean
+			bean
+		}
+	}
 }

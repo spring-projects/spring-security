@@ -72,90 +72,90 @@ import org.springframework.security.web.util.matcher.RequestMatcher
  */
 public class NamespaceHttpLogoutTests extends BaseSpringSpec {
 
-    def "http/logout"() {
-        setup:
-            loadConfig(HttpLogoutConfig)
-            login()
-            request.servletPath = "/logout"
-            request.method = "POST"
-        when:
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            !authenticated()
-            !request.getSession(false)
-            response.redirectedUrl == "/login?logout"
-            !response.getCookies()
-    }
+	def "http/logout"() {
+		setup:
+			loadConfig(HttpLogoutConfig)
+			login()
+			request.servletPath = "/logout"
+			request.method = "POST"
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			!authenticated()
+			!request.getSession(false)
+			response.redirectedUrl == "/login?logout"
+			!response.getCookies()
+	}
 
-    @Configuration
-    static class HttpLogoutConfig extends BaseWebConfig {
-        protected void configure(HttpSecurity http) throws Exception {
-        }
-    }
+	@Configuration
+	static class HttpLogoutConfig extends BaseWebConfig {
+		protected void configure(HttpSecurity http) throws Exception {
+		}
+	}
 
-    def "http/logout custom"() {
-        setup:
-            loadConfig(CustomHttpLogoutConfig)
-            login()
-            request.servletPath = "/custom-logout"
-            request.method = "POST"
-        when:
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            !authenticated()
-            request.getSession(false)
-            response.redirectedUrl == "/logout-success"
-            response.getCookies().length == 1
-            response.getCookies()[0].name == "remove"
-            response.getCookies()[0].maxAge == 0
-    }
+	def "http/logout custom"() {
+		setup:
+			loadConfig(CustomHttpLogoutConfig)
+			login()
+			request.servletPath = "/custom-logout"
+			request.method = "POST"
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			!authenticated()
+			request.getSession(false)
+			response.redirectedUrl == "/logout-success"
+			response.getCookies().length == 1
+			response.getCookies()[0].name == "remove"
+			response.getCookies()[0].maxAge == 0
+	}
 
-    @Configuration
-    static class CustomHttpLogoutConfig extends BaseWebConfig {
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .logout()
-                    .deleteCookies("remove") // logout@delete-cookies
-                    .invalidateHttpSession(false) // logout@invalidate-session=false (default is true)
-                    .logoutUrl("/custom-logout") // logout@logout-url (default is /logout)
-                    .logoutSuccessUrl("/logout-success") // logout@success-url (default is /login?logout)
-        }
-    }
+	@Configuration
+	static class CustomHttpLogoutConfig extends BaseWebConfig {
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.logout()
+					.deleteCookies("remove") // logout@delete-cookies
+					.invalidateHttpSession(false) // logout@invalidate-session=false (default is true)
+					.logoutUrl("/custom-logout") // logout@logout-url (default is /logout)
+					.logoutSuccessUrl("/logout-success") // logout@success-url (default is /login?logout)
+		}
+	}
 
-    def "http/logout@success-handler-ref"() {
-        setup:
-            loadConfig(SuccessHandlerRefHttpLogoutConfig)
-            login()
-            request.servletPath = "/logout"
-            request.method = "POST"
-        when:
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            !authenticated()
-            !request.getSession(false)
-            response.redirectedUrl == "/SuccessHandlerRefHttpLogoutConfig"
-            !response.getCookies()
-    }
+	def "http/logout@success-handler-ref"() {
+		setup:
+			loadConfig(SuccessHandlerRefHttpLogoutConfig)
+			login()
+			request.servletPath = "/logout"
+			request.method = "POST"
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			!authenticated()
+			!request.getSession(false)
+			response.redirectedUrl == "/SuccessHandlerRefHttpLogoutConfig"
+			!response.getCookies()
+	}
 
-    @Configuration
-    static class SuccessHandlerRefHttpLogoutConfig extends BaseWebConfig {
-        protected void configure(HttpSecurity http) throws Exception {
-            SimpleUrlLogoutSuccessHandler logoutSuccessHandler = new SimpleUrlLogoutSuccessHandler(defaultTargetUrl:"/SuccessHandlerRefHttpLogoutConfig")
-            http
-                .logout()
-                    .logoutSuccessHandler(logoutSuccessHandler)
-        }
-    }
+	@Configuration
+	static class SuccessHandlerRefHttpLogoutConfig extends BaseWebConfig {
+		protected void configure(HttpSecurity http) throws Exception {
+			SimpleUrlLogoutSuccessHandler logoutSuccessHandler = new SimpleUrlLogoutSuccessHandler(defaultTargetUrl:"/SuccessHandlerRefHttpLogoutConfig")
+			http
+				.logout()
+					.logoutSuccessHandler(logoutSuccessHandler)
+		}
+	}
 
-    def login(String username="user", String role="ROLE_USER") {
-        HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository()
-        HttpRequestResponseHolder requestResponseHolder = new HttpRequestResponseHolder(request, response)
-        repo.loadContext(requestResponseHolder)
-        repo.saveContext(new SecurityContextImpl(authentication: new UsernamePasswordAuthenticationToken(username, null, AuthorityUtils.createAuthorityList(role))), requestResponseHolder.request, requestResponseHolder.response)
-    }
+	def login(String username="user", String role="ROLE_USER") {
+		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository()
+		HttpRequestResponseHolder requestResponseHolder = new HttpRequestResponseHolder(request, response)
+		repo.loadContext(requestResponseHolder)
+		repo.saveContext(new SecurityContextImpl(authentication: new UsernamePasswordAuthenticationToken(username, null, AuthorityUtils.createAuthorityList(role))), requestResponseHolder.request, requestResponseHolder.response)
+	}
 
-    def authenticated() {
-        HttpRequestResponseHolder requestResponseHolder = new HttpRequestResponseHolder(request, response)
-        new HttpSessionSecurityContextRepository().loadContext(requestResponseHolder)?.authentication?.authenticated
-    }
+	def authenticated() {
+		HttpRequestResponseHolder requestResponseHolder = new HttpRequestResponseHolder(request, response)
+		new HttpSessionSecurityContextRepository().loadContext(requestResponseHolder)?.authentication?.authenticated
+	}
 }

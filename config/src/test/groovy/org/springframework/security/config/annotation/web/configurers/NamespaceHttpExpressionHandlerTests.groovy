@@ -30,27 +30,27 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
  *
  */
 public class NamespaceHttpExpressionHandlerTests extends BaseSpringSpec {
-    def "http/expression-handler@ref"() {
-        when:
-            def parser = new SpelExpressionParser()
-            ExpressionHandlerConfig.EXPRESSION_HANDLER = Mock(SecurityExpressionHandler.class)
-            ExpressionHandlerConfig.EXPRESSION_HANDLER.getExpressionParser() >> parser
-            loadConfig(ExpressionHandlerConfig)
-        then:
-            noExceptionThrown()
-    }
+	def "http/expression-handler@ref"() {
+		when:
+			def parser = new SpelExpressionParser()
+			ExpressionHandlerConfig.EXPRESSION_HANDLER = Mock(SecurityExpressionHandler.class)
+			ExpressionHandlerConfig.EXPRESSION_HANDLER.getExpressionParser() >> parser
+			loadConfig(ExpressionHandlerConfig)
+		then:
+			noExceptionThrown()
+	}
 
-    @EnableWebSecurity
-    static class ExpressionHandlerConfig extends BaseWebConfig {
-        static EXPRESSION_HANDLER;
+	@EnableWebSecurity
+	static class ExpressionHandlerConfig extends BaseWebConfig {
+		static EXPRESSION_HANDLER;
 
-        protected void configure(HttpSecurity http) {
-            http
-                .authorizeRequests()
-                    .expressionHandler(EXPRESSION_HANDLER)
-                    .antMatchers("/users**","/sessions/**").hasRole("ADMIN")
-                    .antMatchers("/signup").permitAll()
-                    .anyRequest().hasRole("USER")
-        }
-    }
+		protected void configure(HttpSecurity http) {
+			http
+				.authorizeRequests()
+					.expressionHandler(EXPRESSION_HANDLER)
+					.antMatchers("/users**","/sessions/**").hasRole("ADMIN")
+					.antMatchers("/signup").permitAll()
+					.anyRequest().hasRole("USER")
+		}
+	}
 }

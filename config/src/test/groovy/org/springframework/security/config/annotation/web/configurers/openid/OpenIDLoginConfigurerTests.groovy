@@ -34,53 +34,53 @@ import org.springframework.security.openid.OpenIDAuthenticationToken
  */
 class OpenIDLoginConfigurerTests extends BaseSpringSpec {
 
-    def "openidLogin ObjectPostProcessor"() {
-        setup:
-            AnyObjectPostProcessor opp = Mock()
-            HttpSecurity http = new HttpSecurity(opp, authenticationBldr, [:])
-            UserDetailsService uds = authenticationBldr.getDefaultUserDetailsService()
-        when:
-            http
-                .openidLogin()
-                    .authenticationUserDetailsService(new UserDetailsByNameServiceWrapper<OpenIDAuthenticationToken>(uds))
-                    .and()
-                .build()
+	def "openidLogin ObjectPostProcessor"() {
+		setup:
+			AnyObjectPostProcessor opp = Mock()
+			HttpSecurity http = new HttpSecurity(opp, authenticationBldr, [:])
+			UserDetailsService uds = authenticationBldr.getDefaultUserDetailsService()
+		when:
+			http
+				.openidLogin()
+					.authenticationUserDetailsService(new UserDetailsByNameServiceWrapper<OpenIDAuthenticationToken>(uds))
+					.and()
+				.build()
 
-        then: "OpenIDAuthenticationFilter is registered with LifecycleManager"
-            1 * opp.postProcess(_ as OpenIDAuthenticationFilter) >> {OpenIDAuthenticationFilter o -> o}
-        and: "OpenIDAuthenticationProvider is registered with LifecycleManager"
-            1 * opp.postProcess(_ as OpenIDAuthenticationProvider) >> {OpenIDAuthenticationProvider o -> o}
-    }
+		then: "OpenIDAuthenticationFilter is registered with LifecycleManager"
+			1 * opp.postProcess(_ as OpenIDAuthenticationFilter) >> {OpenIDAuthenticationFilter o -> o}
+		and: "OpenIDAuthenticationProvider is registered with LifecycleManager"
+			1 * opp.postProcess(_ as OpenIDAuthenticationProvider) >> {OpenIDAuthenticationProvider o -> o}
+	}
 
-    def "invoke openidLogin twice does not override"() {
-        setup:
-            loadConfig(InvokeTwiceDoesNotOverrideConfig)
-        when:
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            response.redirectedUrl.endsWith("/login/custom")
+	def "invoke openidLogin twice does not override"() {
+		setup:
+			loadConfig(InvokeTwiceDoesNotOverrideConfig)
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			response.redirectedUrl.endsWith("/login/custom")
 
-    }
+	}
 
-    @EnableWebSecurity
-    static class InvokeTwiceDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
+	@EnableWebSecurity
+	static class InvokeTwiceDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
 
-        @Override
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .inMemoryAuthentication()
-        }
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.inMemoryAuthentication()
+		}
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .authorizeRequests()
-                    .anyRequest().authenticated()
-                    .and()
-                .openidLogin()
-                    .loginPage("/login/custom")
-                    .and()
-                .openidLogin()
-        }
-    }
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.authorizeRequests()
+					.anyRequest().authenticated()
+					.and()
+				.openidLogin()
+					.loginPage("/login/custom")
+					.and()
+				.openidLogin()
+		}
+	}
 }

@@ -38,73 +38,73 @@ import org.springframework.security.web.firewall.RequestRejectedException
  *
  */
 public class NamespaceHttpFirewallTests extends BaseSpringSpec {
-    FilterChainProxy springSecurityFilterChain
-    MockHttpServletRequest request
-    MockHttpServletResponse response
-    MockFilterChain chain
+	FilterChainProxy springSecurityFilterChain
+	MockHttpServletRequest request
+	MockHttpServletResponse response
+	MockFilterChain chain
 
-    def setup() {
-        request = new MockHttpServletRequest()
-        response = new MockHttpServletResponse()
-        chain = new MockFilterChain()
-    }
+	def setup() {
+		request = new MockHttpServletRequest()
+		response = new MockHttpServletResponse()
+		chain = new MockFilterChain()
+	}
 
-    def "http-firewall"() {
-        setup:
-            loadConfig(HttpFirewallConfig)
-            springSecurityFilterChain = context.getBean(FilterChainProxy)
-            request.setPathInfo("/public/../private/")
-        when:
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then: "the default firewall is used"
-            thrown(RequestRejectedException)
-    }
+	def "http-firewall"() {
+		setup:
+			loadConfig(HttpFirewallConfig)
+			springSecurityFilterChain = context.getBean(FilterChainProxy)
+			request.setPathInfo("/public/../private/")
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then: "the default firewall is used"
+			thrown(RequestRejectedException)
+	}
 
-    @Configuration
-    static class HttpFirewallConfig extends BaseWebConfig {
-        protected void configure(HttpSecurity http) {
-        }
-    }
+	@Configuration
+	static class HttpFirewallConfig extends BaseWebConfig {
+		protected void configure(HttpSecurity http) {
+		}
+	}
 
-    def "http-firewall@ref"() {
-        setup:
-            loadConfig(CustomHttpFirewallConfig)
-            springSecurityFilterChain = context.getBean(FilterChainProxy)
-            request.setParameter("deny", "true")
-        when:
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then: "the custom firewall is used"
-            thrown(RequestRejectedException)
-    }
+	def "http-firewall@ref"() {
+		setup:
+			loadConfig(CustomHttpFirewallConfig)
+			springSecurityFilterChain = context.getBean(FilterChainProxy)
+			request.setParameter("deny", "true")
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then: "the custom firewall is used"
+			thrown(RequestRejectedException)
+	}
 
-    @Configuration
-    static class CustomHttpFirewallConfig extends BaseWebConfig {
-        @Override
-        protected void configure(HttpSecurity http) { }
+	@Configuration
+	static class CustomHttpFirewallConfig extends BaseWebConfig {
+		@Override
+		protected void configure(HttpSecurity http) { }
 
-        @Override
-        public void configure(WebSecurity builder)	throws Exception {
-            builder
-                .httpFirewall(new CustomHttpFirewall())
-        }
-    }
+		@Override
+		public void configure(WebSecurity builder)	throws Exception {
+			builder
+				.httpFirewall(new CustomHttpFirewall())
+		}
+	}
 
-    static class CustomHttpFirewall extends DefaultHttpFirewall {
+	static class CustomHttpFirewall extends DefaultHttpFirewall {
 
-        @Override
-        public FirewalledRequest getFirewalledRequest(HttpServletRequest request)
-                throws RequestRejectedException {
-            if(request.getParameter("deny")) {
-                throw new RequestRejectedException("custom rejection")
-            }
-            return super.getFirewalledRequest(request)
-        }
+		@Override
+		public FirewalledRequest getFirewalledRequest(HttpServletRequest request)
+				throws RequestRejectedException {
+			if(request.getParameter("deny")) {
+				throw new RequestRejectedException("custom rejection")
+			}
+			return super.getFirewalledRequest(request)
+		}
 
-        @Override
-        public HttpServletResponse getFirewalledResponse(
-                HttpServletResponse response) {
-            return super.getFirewalledRequest(response)
-        }
+		@Override
+		public HttpServletResponse getFirewalledResponse(
+				HttpServletResponse response) {
+			return super.getFirewalledRequest(response)
+		}
 
-    }
+	}
 }

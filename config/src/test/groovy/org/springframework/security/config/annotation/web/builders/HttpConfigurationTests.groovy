@@ -41,81 +41,81 @@ import spock.lang.Unroll;
  *
  */
 public class HttpSecurityTests extends BaseSpringSpec {
-    def "addFilter with unregistered Filter"() {
-        when:
-            loadConfig(UnregisteredFilterConfig)
-        then:
-            BeanCreationException success = thrown()
-            success.message.contains "The Filter class ${UnregisteredFilter.name} does not have a registered order and cannot be added without a specified order. Consider using addFilterBefore or addFilterAfter instead."
-    }
+	def "addFilter with unregistered Filter"() {
+		when:
+			loadConfig(UnregisteredFilterConfig)
+		then:
+			BeanCreationException success = thrown()
+			success.message.contains "The Filter class ${UnregisteredFilter.name} does not have a registered order and cannot be added without a specified order. Consider using addFilterBefore or addFilterAfter instead."
+	}
 
-    @Configuration
-    static class UnregisteredFilterConfig extends BaseWebConfig {
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .addFilter(new UnregisteredFilter())
-        }
-    }
+	@Configuration
+	static class UnregisteredFilterConfig extends BaseWebConfig {
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.addFilter(new UnregisteredFilter())
+		}
+	}
 
-    static class UnregisteredFilter extends OncePerRequestFilter {
-        @Override
-        protected void doFilterInternal(HttpServletRequest request,
-                HttpServletResponse response, FilterChain filterChain)
-                throws ServletException, IOException {
-            filterChain.doFilter(request, response);
-        }
-    }
+	static class UnregisteredFilter extends OncePerRequestFilter {
+		@Override
+		protected void doFilterInternal(HttpServletRequest request,
+				HttpServletResponse response, FilterChain filterChain)
+				throws ServletException, IOException {
+			filterChain.doFilter(request, response);
+		}
+	}
 
-    // https://github.com/SpringSource/spring-security-javaconfig/issues/104
-    def "#104 addFilter CasAuthenticationFilter"() {
-        when:
-            loadConfig(CasAuthenticationFilterConfig)
-        then:
-            findFilter(CasAuthenticationFilter)
-    }
+	// https://github.com/SpringSource/spring-security-javaconfig/issues/104
+	def "#104 addFilter CasAuthenticationFilter"() {
+		when:
+			loadConfig(CasAuthenticationFilterConfig)
+		then:
+			findFilter(CasAuthenticationFilter)
+	}
 
-    @Configuration
-    static class CasAuthenticationFilterConfig extends BaseWebConfig {
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .addFilter(new CasAuthenticationFilter())
-        }
-    }
+	@Configuration
+	static class CasAuthenticationFilterConfig extends BaseWebConfig {
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.addFilter(new CasAuthenticationFilter())
+		}
+	}
 
 
-    @Unroll
-    def "requestMatchers javadoc"() {
-        setup: "load configuration like the config on the requestMatchers() javadoc"
-            loadConfig(RequestMatcherRegistryConfigs)
-        when:
-            super.setup()
-            request.servletPath = "/oauth/a"
-            springSecurityFilterChain.doFilter(request, response, chain)
-        then:
-            response.status == HttpServletResponse.SC_UNAUTHORIZED
-        where:
-            servletPath | _
-            "/oauth/a"  | _
-            "/oauth/b"  | _
-            "/api/a"    | _
-            "/api/b"    | _
-            "/oauth2/b" | _
-            "/api2/b"   | _
-    }
+	@Unroll
+	def "requestMatchers javadoc"() {
+		setup: "load configuration like the config on the requestMatchers() javadoc"
+			loadConfig(RequestMatcherRegistryConfigs)
+		when:
+			super.setup()
+			request.servletPath = "/oauth/a"
+			springSecurityFilterChain.doFilter(request, response, chain)
+		then:
+			response.status == HttpServletResponse.SC_UNAUTHORIZED
+		where:
+			servletPath | _
+			"/oauth/a"  | _
+			"/oauth/b"  | _
+			"/api/a"    | _
+			"/api/b"    | _
+			"/oauth2/b" | _
+			"/api2/b"   | _
+	}
 
-    @EnableWebSecurity
-    static class RequestMatcherRegistryConfigs extends BaseWebConfig {
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-              .requestMatchers()
-                  .antMatchers("/api/**")
-                  .antMatchers("/oauth/**")
-                  .and()
-              .authorizeRequests()
-                  .antMatchers("/**").hasRole("USER")
-                  .and()
-              .httpBasic()
-        }
-    }
+	@EnableWebSecurity
+	static class RequestMatcherRegistryConfigs extends BaseWebConfig {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+			  .requestMatchers()
+				  .antMatchers("/api/**")
+				  .antMatchers("/oauth/**")
+				  .and()
+			  .authorizeRequests()
+				  .antMatchers("/**").hasRole("USER")
+				  .and()
+			  .httpBasic()
+		}
+	}
 }

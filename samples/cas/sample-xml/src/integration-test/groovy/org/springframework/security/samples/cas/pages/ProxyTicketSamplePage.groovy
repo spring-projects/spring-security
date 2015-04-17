@@ -25,9 +25,9 @@ import org.springframework.security.samples.cas.modules.*
  * @author Rob Winch
  */
 class ProxyTicketSamplePage extends Page {
-    static url = "secure/ptSample"
-    static at = { assert $('h1').text() == 'Secure Page using a Proxy Ticket'; true}
-    static content = {
-        navModule { module NavModule }
-    }
+	static url = "secure/ptSample"
+	static at = { assert $('h1').text() == 'Secure Page using a Proxy Ticket'; true}
+	static content = {
+		navModule { module NavModule }
+	}
 }

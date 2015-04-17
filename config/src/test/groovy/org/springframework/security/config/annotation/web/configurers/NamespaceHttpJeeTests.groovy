@@ -80,64 +80,64 @@ import org.springframework.test.util.ReflectionTestUtils;
  */
 public class NamespaceHttpJeeTests extends BaseSpringSpec {
 
-    def "http/jee@mappable-roles"() {
-        when:
-            loadConfig(JeeMappableRolesConfig)
-            J2eePreAuthenticatedProcessingFilter filter = findFilter(J2eePreAuthenticatedProcessingFilter)
-            AuthenticationManager authenticationManager = ReflectionTestUtils.getField(filter,"authenticationManager")
-        then:
-            authenticationManager
-            filter.authenticationDetailsSource.class == J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource
-            filter.authenticationDetailsSource.j2eeMappableRoles == ["ROLE_USER", "ROLE_ADMIN"] as Set
-            authenticationManager.providers.find { it instanceof PreAuthenticatedAuthenticationProvider }.preAuthenticatedUserDetailsService.class == PreAuthenticatedGrantedAuthoritiesUserDetailsService
-    }
+	def "http/jee@mappable-roles"() {
+		when:
+			loadConfig(JeeMappableRolesConfig)
+			J2eePreAuthenticatedProcessingFilter filter = findFilter(J2eePreAuthenticatedProcessingFilter)
+			AuthenticationManager authenticationManager = ReflectionTestUtils.getField(filter,"authenticationManager")
+		then:
+			authenticationManager
+			filter.authenticationDetailsSource.class == J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource
+			filter.authenticationDetailsSource.j2eeMappableRoles == ["ROLE_USER", "ROLE_ADMIN"] as Set
+			authenticationManager.providers.find { it instanceof PreAuthenticatedAuthenticationProvider }.preAuthenticatedUserDetailsService.class == PreAuthenticatedGrantedAuthoritiesUserDetailsService
+	}
 
-    @EnableWebSecurity
-    public static class JeeMappableRolesConfig extends WebSecurityConfigurerAdapter {
+	@EnableWebSecurity
+	public static class JeeMappableRolesConfig extends WebSecurityConfigurerAdapter {
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .authorizeRequests()
-                    .anyRequest().hasRole("USER")
-                    .and()
-                .jee()
-                    .mappableRoles("USER","ADMIN");
-        }
-    }
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.authorizeRequests()
+					.anyRequest().hasRole("USER")
+					.and()
+				.jee()
+					.mappableRoles("USER","ADMIN");
+		}
+	}
 
-    def "http/jee@user-service-ref"() {
-        when:
-            loadConfig(JeeUserServiceRefConfig)
-            J2eePreAuthenticatedProcessingFilter filter = findFilter(J2eePreAuthenticatedProcessingFilter)
-            AuthenticationManager authenticationManager = ReflectionTestUtils.getField(filter,"authenticationManager")
-        then:
-            authenticationManager
-            filter.authenticationDetailsSource.class == J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource
-            filter.authenticationDetailsSource.j2eeMappableRoles == ["ROLE_USER", "ROLE_ADMIN"] as Set
-            authenticationManager.providers.find { it instanceof PreAuthenticatedAuthenticationProvider }.preAuthenticatedUserDetailsService.class == CustomUserService
-    }
+	def "http/jee@user-service-ref"() {
+		when:
+			loadConfig(JeeUserServiceRefConfig)
+			J2eePreAuthenticatedProcessingFilter filter = findFilter(J2eePreAuthenticatedProcessingFilter)
+			AuthenticationManager authenticationManager = ReflectionTestUtils.getField(filter,"authenticationManager")
+		then:
+			authenticationManager
+			filter.authenticationDetailsSource.class == J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource
+			filter.authenticationDetailsSource.j2eeMappableRoles == ["ROLE_USER", "ROLE_ADMIN"] as Set
+			authenticationManager.providers.find { it instanceof PreAuthenticatedAuthenticationProvider }.preAuthenticatedUserDetailsService.class == CustomUserService
+	}
 
-    @EnableWebSecurity
-    public static class JeeUserServiceRefConfig extends WebSecurityConfigurerAdapter {
+	@EnableWebSecurity
+	public static class JeeUserServiceRefConfig extends WebSecurityConfigurerAdapter {
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .authorizeRequests()
-                    .anyRequest().hasRole("USER")
-                    .and()
-                .jee()
-                    .mappableAuthorities("ROLE_USER","ROLE_ADMIN")
-                    .authenticatedUserDetailsService(new CustomUserService());
-        }
-    }
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.authorizeRequests()
+					.anyRequest().hasRole("USER")
+					.and()
+				.jee()
+					.mappableAuthorities("ROLE_USER","ROLE_ADMIN")
+					.authenticatedUserDetailsService(new CustomUserService());
+		}
+	}
 
-    static class CustomUserService implements AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> {
-        public UserDetails loadUserDetails(
-                PreAuthenticatedAuthenticationToken token)
-                throws UsernameNotFoundException {
-            return null;
-        }
-    }
+	static class CustomUserService implements AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> {
+		public UserDetails loadUserDetails(
+				PreAuthenticatedAuthenticationToken token)
+				throws UsernameNotFoundException {
+			return null;
+		}
+	}
 }

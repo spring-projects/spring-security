@@ -9,21 +9,21 @@ import org.springframework.security.core.Authentication;
 
 public class TestVoter implements AccessDecisionVoter {
 
-    public boolean supports(ConfigAttribute attribute) {
-        return true;
-    }
+	public boolean supports(ConfigAttribute attribute) {
+		return true;
+	}
 
-    public boolean supports(Class<?> clazz) {
-        return MethodInvocation.class.isAssignableFrom(clazz);
-    }
+	public boolean supports(Class<?> clazz) {
+		return MethodInvocation.class.isAssignableFrom(clazz);
+	}
 
-    public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> config) {
-        MethodInvocation mi = (MethodInvocation) object;
+	public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> config) {
+		MethodInvocation mi = (MethodInvocation) object;
 
-        mi.getMethod().getParameterAnnotations();
+		mi.getMethod().getParameterAnnotations();
 
 
-        return ACCESS_GRANTED;
-    }
+		return ACCESS_GRANTED;
+	}
 
 }

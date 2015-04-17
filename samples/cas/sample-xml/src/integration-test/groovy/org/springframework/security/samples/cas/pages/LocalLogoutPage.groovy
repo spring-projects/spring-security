@@ -27,9 +27,9 @@ import geb.*
  * @author Rob Winch
  */
 class LocalLogoutPage extends Page {
-    static url = 'cas-logout.jsp'
-    static at = { assert driver.currentUrl.endsWith(url); true }
-    static content = {
-        casServerLogout { $('a',text: 'Logout of CAS') }
-    }
+	static url = 'cas-logout.jsp'
+	static at = { assert driver.currentUrl.endsWith(url); true }
+	static content = {
+		casServerLogout { $('a',text: 'Logout of CAS') }
+	}
 }

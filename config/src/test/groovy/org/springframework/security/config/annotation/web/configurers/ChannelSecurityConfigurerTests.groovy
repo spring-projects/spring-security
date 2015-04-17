@@ -33,46 +33,46 @@ import org.springframework.security.web.access.channel.SecureChannelProcessor
  */
 class ChannelSecurityConfigurerTests extends BaseSpringSpec {
 
-    def "requiresChannel ObjectPostProcessor"() {
-        setup: "initialize the AUTH_FILTER as a mock"
-            AnyObjectPostProcessor objectPostProcessor = Mock()
-        when:
-            HttpSecurity http = new HttpSecurity(objectPostProcessor, authenticationBldr, [:])
-            http
-                .requiresChannel()
-                    .anyRequest().requiresSecure()
-                    .and()
-                .build()
+	def "requiresChannel ObjectPostProcessor"() {
+		setup: "initialize the AUTH_FILTER as a mock"
+			AnyObjectPostProcessor objectPostProcessor = Mock()
+		when:
+			HttpSecurity http = new HttpSecurity(objectPostProcessor, authenticationBldr, [:])
+			http
+				.requiresChannel()
+					.anyRequest().requiresSecure()
+					.and()
+				.build()
 
-        then: "InsecureChannelProcessor is registered with LifecycleManager"
-            1 * objectPostProcessor.postProcess(_ as InsecureChannelProcessor) >> {InsecureChannelProcessor o -> o}
-        and: "SecureChannelProcessor is registered with LifecycleManager"
-            1 * objectPostProcessor.postProcess(_ as SecureChannelProcessor) >> {SecureChannelProcessor o -> o}
-        and: "ChannelDecisionManagerImpl is registered with LifecycleManager"
-            1 * objectPostProcessor.postProcess(_ as ChannelDecisionManagerImpl) >> {ChannelDecisionManagerImpl o -> o}
-        and: "ChannelProcessingFilter is registered with LifecycleManager"
-            1 * objectPostProcessor.postProcess(_ as ChannelProcessingFilter) >> {ChannelProcessingFilter o -> o}
-    }
+		then: "InsecureChannelProcessor is registered with LifecycleManager"
+			1 * objectPostProcessor.postProcess(_ as InsecureChannelProcessor) >> {InsecureChannelProcessor o -> o}
+		and: "SecureChannelProcessor is registered with LifecycleManager"
+			1 * objectPostProcessor.postProcess(_ as SecureChannelProcessor) >> {SecureChannelProcessor o -> o}
+		and: "ChannelDecisionManagerImpl is registered with LifecycleManager"
+			1 * objectPostProcessor.postProcess(_ as ChannelDecisionManagerImpl) >> {ChannelDecisionManagerImpl o -> o}
+		and: "ChannelProcessingFilter is registered with LifecycleManager"
+			1 * objectPostProcessor.postProcess(_ as ChannelProcessingFilter) >> {ChannelProcessingFilter o -> o}
+	}
 
-    def "invoke requiresChannel twice does not override"() {
-        setup:
-            loadConfig(DuplicateInvocationsDoesNotOverrideConfig)
-        when:
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            response.redirectedUrl == "https://localhost"
-    }
+	def "invoke requiresChannel twice does not override"() {
+		setup:
+			loadConfig(DuplicateInvocationsDoesNotOverrideConfig)
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			response.redirectedUrl == "https://localhost"
+	}
 
-    @EnableWebSecurity
-    static class DuplicateInvocationsDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
+	@EnableWebSecurity
+	static class DuplicateInvocationsDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .requiresChannel()
-                    .anyRequest().requiresSecure()
-                    .and()
-                .requiresChannel()
-        }
-    }
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.requiresChannel()
+					.anyRequest().requiresSecure()
+					.and()
+				.requiresChannel()
+		}
+	}
 }

@@ -27,30 +27,30 @@ import org.springframework.security.samples.pages.*
  */
 @Stepwise
 class HelloWorldJcTests extends GebReportingSpec {
-    def 'access home page with unauthenticated user sends to login page'() {
-        when: 'Unauthenticated user accesses the Home Page'
-        via HomePage
-        then: 'The login page is displayed'
-        at LoginPage
-    }
+	def 'access home page with unauthenticated user sends to login page'() {
+		when: 'Unauthenticated user accesses the Home Page'
+		via HomePage
+		then: 'The login page is displayed'
+		at LoginPage
+	}
 
-    def 'authenticated user is sent to original page'() {
-        when: 'user authenticates'
-        login()
-        then: 'The home page is displayed'
-        at HomePage
-        and: 'The username is displayed'
-        message == 'Hello user'
-    }
+	def 'authenticated user is sent to original page'() {
+		when: 'user authenticates'
+		login()
+		then: 'The home page is displayed'
+		at HomePage
+		and: 'The username is displayed'
+		message == 'Hello user'
+	}
 
-    def 'authenticated user logs out'() {
-        when: 'user logs out'
-        logout()
-        then: 'the login page is displayed'
-        at LoginPage
-        when: 'Unauthenticated user accesses the Home Page'
-        via HomePage
-        then: 'The login page is displayed'
-        at LoginPage
-    }
+	def 'authenticated user logs out'() {
+		when: 'user logs out'
+		logout()
+		then: 'the login page is displayed'
+		at LoginPage
+		when: 'Unauthenticated user accesses the Home Page'
+		via HomePage
+		then: 'The login page is displayed'
+		at LoginPage
+	}
 }

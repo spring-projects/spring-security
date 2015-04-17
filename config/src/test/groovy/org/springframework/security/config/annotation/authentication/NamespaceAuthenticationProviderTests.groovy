@@ -31,51 +31,51 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager
  *
  */
 class NamespaceAuthenticationProviderTests extends BaseSpringSpec {
-    def "authentication-provider@ref"() {
-        when:
-            loadConfig(AuthenticationProviderRefConfig)
-        then:
-            authenticationProviders()[1] == AuthenticationProviderRefConfig.expected
-    }
+	def "authentication-provider@ref"() {
+		when:
+			loadConfig(AuthenticationProviderRefConfig)
+		then:
+			authenticationProviders()[1] == AuthenticationProviderRefConfig.expected
+	}
 
-    @EnableWebSecurity
-    static class AuthenticationProviderRefConfig extends WebSecurityConfigurerAdapter {
-        static DaoAuthenticationProvider expected = new DaoAuthenticationProvider()
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .authenticationProvider(expected)
-        }
+	@EnableWebSecurity
+	static class AuthenticationProviderRefConfig extends WebSecurityConfigurerAdapter {
+		static DaoAuthenticationProvider expected = new DaoAuthenticationProvider()
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.authenticationProvider(expected)
+		}
 
-        // Only necessary to have access to verify the AuthenticationManager
-        @Bean
-        @Override
-        public AuthenticationManager authenticationManagerBean()
-                throws Exception {
-            return super.authenticationManagerBean();
-        }
-    }
+		// Only necessary to have access to verify the AuthenticationManager
+		@Bean
+		@Override
+		public AuthenticationManager authenticationManagerBean()
+				throws Exception {
+			return super.authenticationManagerBean();
+		}
+	}
 
-    def "authentication-provider@user-service-ref"() {
-        when:
-            loadConfig(UserServiceRefConfig)
-        then:
-            findAuthenticationProvider(DaoAuthenticationProvider).userDetailsService == UserServiceRefConfig.expected
-    }
+	def "authentication-provider@user-service-ref"() {
+		when:
+			loadConfig(UserServiceRefConfig)
+		then:
+			findAuthenticationProvider(DaoAuthenticationProvider).userDetailsService == UserServiceRefConfig.expected
+	}
 
-    @EnableWebSecurity
-    static class UserServiceRefConfig extends WebSecurityConfigurerAdapter {
-        static InMemoryUserDetailsManager expected = new InMemoryUserDetailsManager([] as Collection)
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .userDetailsService(expected)
-        }
+	@EnableWebSecurity
+	static class UserServiceRefConfig extends WebSecurityConfigurerAdapter {
+		static InMemoryUserDetailsManager expected = new InMemoryUserDetailsManager([] as Collection)
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.userDetailsService(expected)
+		}
 
-        // Only necessary to have access to verify the AuthenticationManager
-        @Bean
-        @Override
-        public AuthenticationManager authenticationManagerBean()
-                throws Exception {
-            return super.authenticationManagerBean();
-        }
-    }
+		// Only necessary to have access to verify the AuthenticationManager
+		@Bean
+		@Override
+		public AuthenticationManager authenticationManagerBean()
+				throws Exception {
+			return super.authenticationManagerBean();
+		}
+	}
 }

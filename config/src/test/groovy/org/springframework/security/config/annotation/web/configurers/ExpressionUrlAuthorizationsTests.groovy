@@ -37,494 +37,494 @@ import org.springframework.security.web.access.intercept.FilterSecurityIntercept
 
 public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
 
-    def "hasAnyAuthority('ROLE_USER')"() {
-        when:
-            def expression = ExpressionUrlAuthorizationConfigurer.hasAnyAuthority("ROLE_USER")
-        then:
-            expression == "hasAnyAuthority('ROLE_USER')"
-    }
+	def "hasAnyAuthority('ROLE_USER')"() {
+		when:
+			def expression = ExpressionUrlAuthorizationConfigurer.hasAnyAuthority("ROLE_USER")
+		then:
+			expression == "hasAnyAuthority('ROLE_USER')"
+	}
 
-    def "hasAnyAuthority('ROLE_USER','ROLE_ADMIN')"() {
-        when:
-            def expression = ExpressionUrlAuthorizationConfigurer.hasAnyAuthority("ROLE_USER","ROLE_ADMIN")
-        then:
-            expression == "hasAnyAuthority('ROLE_USER','ROLE_ADMIN')"
-    }
+	def "hasAnyAuthority('ROLE_USER','ROLE_ADMIN')"() {
+		when:
+			def expression = ExpressionUrlAuthorizationConfigurer.hasAnyAuthority("ROLE_USER","ROLE_ADMIN")
+		then:
+			expression == "hasAnyAuthority('ROLE_USER','ROLE_ADMIN')"
+	}
 
-    def "hasAnyRole('USER')"() {
-        when:
-            def expression = ExpressionUrlAuthorizationConfigurer.hasAnyRole("USER")
-        then:
-            expression == "hasAnyRole('ROLE_USER')"
-    }
+	def "hasAnyRole('USER')"() {
+		when:
+			def expression = ExpressionUrlAuthorizationConfigurer.hasAnyRole("USER")
+		then:
+			expression == "hasAnyRole('ROLE_USER')"
+	}
 
-    def "hasAnyRole('USER','ADMIN')"() {
-        when:
-            def expression = ExpressionUrlAuthorizationConfigurer.hasAnyRole("USER","ADMIN")
-        then:
-            expression == "hasAnyRole('ROLE_USER','ROLE_ADMIN')"
-    }
+	def "hasAnyRole('USER','ADMIN')"() {
+		when:
+			def expression = ExpressionUrlAuthorizationConfigurer.hasAnyRole("USER","ADMIN")
+		then:
+			expression == "hasAnyRole('ROLE_USER','ROLE_ADMIN')"
+	}
 
-    def "hasRole('ROLE_USER') is rejected due to starting with ROLE_"() {
-        when:
-            def expression = ExpressionUrlAuthorizationConfigurer.hasRole("ROLE_USER")
-        then:
-            IllegalArgumentException e = thrown()
-            e.message == "role should not start with 'ROLE_' since it is automatically inserted. Got 'ROLE_USER'"
-    }
+	def "hasRole('ROLE_USER') is rejected due to starting with ROLE_"() {
+		when:
+			def expression = ExpressionUrlAuthorizationConfigurer.hasRole("ROLE_USER")
+		then:
+			IllegalArgumentException e = thrown()
+			e.message == "role should not start with 'ROLE_' since it is automatically inserted. Got 'ROLE_USER'"
+	}
 
-    def "authorizeRequests() uses AffirmativeBased AccessDecisionManager"() {
-        when: "Load Config with no specific AccessDecisionManager"
-            loadConfig(NoSpecificAccessDecessionManagerConfig)
-        then: "AccessDecessionManager matches the HttpSecurityBuilder's default"
-            findFilter(FilterSecurityInterceptor).accessDecisionManager.class == AffirmativeBased
-    }
+	def "authorizeRequests() uses AffirmativeBased AccessDecisionManager"() {
+		when: "Load Config with no specific AccessDecisionManager"
+			loadConfig(NoSpecificAccessDecessionManagerConfig)
+		then: "AccessDecessionManager matches the HttpSecurityBuilder's default"
+			findFilter(FilterSecurityInterceptor).accessDecisionManager.class == AffirmativeBased
+	}
 
-    @EnableWebSecurity
-    static class NoSpecificAccessDecessionManagerConfig extends WebSecurityConfigurerAdapter {
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .authorizeRequests()
-                    .anyRequest().hasRole("USER")
-        }
-    }
+	@EnableWebSecurity
+	static class NoSpecificAccessDecessionManagerConfig extends WebSecurityConfigurerAdapter {
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.authorizeRequests()
+					.anyRequest().hasRole("USER")
+		}
+	}
 
-    def "authorizeRequests() no requests"() {
-        when: "Load Config with no requests"
-            loadConfig(NoRequestsConfig)
-        then: "A meaningful exception is thrown"
-            BeanCreationException success = thrown()
-            success.message.contains "At least one mapping is required (i.e. authorizeRequests().anyRequest.authenticated())"
-    }
+	def "authorizeRequests() no requests"() {
+		when: "Load Config with no requests"
+			loadConfig(NoRequestsConfig)
+		then: "A meaningful exception is thrown"
+			BeanCreationException success = thrown()
+			success.message.contains "At least one mapping is required (i.e. authorizeRequests().anyRequest.authenticated())"
+	}
 
-    @EnableWebSecurity
-    static class NoRequestsConfig extends WebSecurityConfigurerAdapter {
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .authorizeRequests()
-        }
-    }
+	@EnableWebSecurity
+	static class NoRequestsConfig extends WebSecurityConfigurerAdapter {
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.authorizeRequests()
+		}
+	}
 
-    def "authorizeRequests() incomplete mapping"() {
-        when: "Load Config with incomplete mapping"
-            loadConfig(IncompleteMappingConfig)
-        then: "A meaningful exception is thrown"
-            BeanCreationException success = thrown()
-            success.message.contains "An incomplete mapping was found for "
-    }
+	def "authorizeRequests() incomplete mapping"() {
+		when: "Load Config with incomplete mapping"
+			loadConfig(IncompleteMappingConfig)
+		then: "A meaningful exception is thrown"
+			BeanCreationException success = thrown()
+			success.message.contains "An incomplete mapping was found for "
+	}
 
-    @EnableWebSecurity
-    static class IncompleteMappingConfig extends WebSecurityConfigurerAdapter {
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .authorizeRequests()
-                    .antMatchers("/a").authenticated()
-                    .anyRequest()
-        }
-    }
+	@EnableWebSecurity
+	static class IncompleteMappingConfig extends WebSecurityConfigurerAdapter {
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.authorizeRequests()
+					.antMatchers("/a").authenticated()
+					.anyRequest()
+		}
+	}
 
-    def "authorizeRequests() hasAuthority"() {
-        setup:
-            loadConfig(HasAuthorityConfig)
-        when:
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            response.status == HttpServletResponse.SC_UNAUTHORIZED
-        when:
-            super.setup()
-            login()
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            response.status == HttpServletResponse.SC_OK
-        when:
-            super.setup()
-            login("user","ROLE_INVALID")
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            response.status == HttpServletResponse.SC_FORBIDDEN
-    }
+	def "authorizeRequests() hasAuthority"() {
+		setup:
+			loadConfig(HasAuthorityConfig)
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			response.status == HttpServletResponse.SC_UNAUTHORIZED
+		when:
+			super.setup()
+			login()
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			response.status == HttpServletResponse.SC_OK
+		when:
+			super.setup()
+			login("user","ROLE_INVALID")
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			response.status == HttpServletResponse.SC_FORBIDDEN
+	}
 
-    @EnableWebSecurity
-    static class HasAuthorityConfig extends WebSecurityConfigurerAdapter {
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .httpBasic()
-                    .and()
-                .authorizeRequests()
-                    .anyRequest().hasAuthority("ROLE_USER")
-        }
-    }
+	@EnableWebSecurity
+	static class HasAuthorityConfig extends WebSecurityConfigurerAdapter {
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.httpBasic()
+					.and()
+				.authorizeRequests()
+					.anyRequest().hasAuthority("ROLE_USER")
+		}
+	}
 
-    def "authorizeRequests() hasAnyAuthority"() {
-        setup:
-            loadConfig(HasAnyAuthorityConfig)
-        when:
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            response.status == HttpServletResponse.SC_UNAUTHORIZED
-        when:
-            super.setup()
-            login("user","ROLE_ADMIN")
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            response.status == HttpServletResponse.SC_OK
-        when:
-            super.setup()
-            login("user","ROLE_DBA")
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            response.status == HttpServletResponse.SC_OK
-        when:
-            super.setup()
-            login("user","ROLE_INVALID")
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            response.status == HttpServletResponse.SC_FORBIDDEN
-    }
+	def "authorizeRequests() hasAnyAuthority"() {
+		setup:
+			loadConfig(HasAnyAuthorityConfig)
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			response.status == HttpServletResponse.SC_UNAUTHORIZED
+		when:
+			super.setup()
+			login("user","ROLE_ADMIN")
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			response.status == HttpServletResponse.SC_OK
+		when:
+			super.setup()
+			login("user","ROLE_DBA")
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			response.status == HttpServletResponse.SC_OK
+		when:
+			super.setup()
+			login("user","ROLE_INVALID")
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			response.status == HttpServletResponse.SC_FORBIDDEN
+	}
 
-    @EnableWebSecurity
-    static class HasAnyAuthorityConfig extends WebSecurityConfigurerAdapter {
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .httpBasic()
-                    .and()
-                .authorizeRequests()
-                    .anyRequest().hasAnyAuthority("ROLE_ADMIN","ROLE_DBA")
-        }
-    }
+	@EnableWebSecurity
+	static class HasAnyAuthorityConfig extends WebSecurityConfigurerAdapter {
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.httpBasic()
+					.and()
+				.authorizeRequests()
+					.anyRequest().hasAnyAuthority("ROLE_ADMIN","ROLE_DBA")
+		}
+	}
 
-    def "authorizeRequests() hasIpAddress"() {
-        setup:
-            loadConfig(HasIpAddressConfig)
-        when:
-            request.remoteAddr = "192.168.1.1"
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            response.status == HttpServletResponse.SC_UNAUTHORIZED
-        when:
-            super.setup()
-            request.remoteAddr = "192.168.1.0"
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            response.status == HttpServletResponse.SC_OK
-    }
+	def "authorizeRequests() hasIpAddress"() {
+		setup:
+			loadConfig(HasIpAddressConfig)
+		when:
+			request.remoteAddr = "192.168.1.1"
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			response.status == HttpServletResponse.SC_UNAUTHORIZED
+		when:
+			super.setup()
+			request.remoteAddr = "192.168.1.0"
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			response.status == HttpServletResponse.SC_OK
+	}
 
-    @EnableWebSecurity
-    static class HasIpAddressConfig extends WebSecurityConfigurerAdapter {
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .httpBasic()
-                    .and()
-                .authorizeRequests()
-                    .anyRequest().hasIpAddress("192.168.1.0")
-        }
-    }
+	@EnableWebSecurity
+	static class HasIpAddressConfig extends WebSecurityConfigurerAdapter {
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.httpBasic()
+					.and()
+				.authorizeRequests()
+					.anyRequest().hasIpAddress("192.168.1.0")
+		}
+	}
 
-    def "authorizeRequests() anonymous"() {
-        setup:
-            loadConfig(AnonymousConfig)
-        when:
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            response.status == HttpServletResponse.SC_OK
-        when:
-            super.setup()
-            login()
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            response.status == HttpServletResponse.SC_FORBIDDEN
-    }
+	def "authorizeRequests() anonymous"() {
+		setup:
+			loadConfig(AnonymousConfig)
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			response.status == HttpServletResponse.SC_OK
+		when:
+			super.setup()
+			login()
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			response.status == HttpServletResponse.SC_FORBIDDEN
+	}
 
-    @EnableWebSecurity
-    static class AnonymousConfig extends WebSecurityConfigurerAdapter {
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .httpBasic()
-                    .and()
-                .authorizeRequests()
-                    .anyRequest().anonymous()
-        }
-    }
+	@EnableWebSecurity
+	static class AnonymousConfig extends WebSecurityConfigurerAdapter {
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.httpBasic()
+					.and()
+				.authorizeRequests()
+					.anyRequest().anonymous()
+		}
+	}
 
-    def "authorizeRequests() rememberMe"() {
-        setup:
-            loadConfig(RememberMeConfig)
-        when:
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            response.status == HttpServletResponse.SC_UNAUTHORIZED
-        when:
-            super.setup()
-            login(new RememberMeAuthenticationToken("key", "user", AuthorityUtils.createAuthorityList("ROLE_USER")))
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            response.status == HttpServletResponse.SC_OK
-    }
+	def "authorizeRequests() rememberMe"() {
+		setup:
+			loadConfig(RememberMeConfig)
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			response.status == HttpServletResponse.SC_UNAUTHORIZED
+		when:
+			super.setup()
+			login(new RememberMeAuthenticationToken("key", "user", AuthorityUtils.createAuthorityList("ROLE_USER")))
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			response.status == HttpServletResponse.SC_OK
+	}
 
-    @EnableWebSecurity
-    static class RememberMeConfig extends WebSecurityConfigurerAdapter {
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .rememberMe()
-                    .and()
-                .httpBasic()
-                    .and()
-                .authorizeRequests()
-                    .anyRequest().rememberMe()
-        }
+	@EnableWebSecurity
+	static class RememberMeConfig extends WebSecurityConfigurerAdapter {
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.rememberMe()
+					.and()
+				.httpBasic()
+					.and()
+				.authorizeRequests()
+					.anyRequest().rememberMe()
+		}
 
-        @Override
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .inMemoryAuthentication()
-                    .withUser("user").password("password").roles("USER")
-        }
-    }
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.inMemoryAuthentication()
+					.withUser("user").password("password").roles("USER")
+		}
+	}
 
-    def "authorizeRequests() denyAll"() {
-        setup:
-            loadConfig(DenyAllConfig)
-        when:
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            response.status == HttpServletResponse.SC_UNAUTHORIZED
-        when:
-            super.setup()
-            login(new RememberMeAuthenticationToken("key", "user", AuthorityUtils.createAuthorityList("ROLE_USER")))
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            response.status == HttpServletResponse.SC_FORBIDDEN
-    }
+	def "authorizeRequests() denyAll"() {
+		setup:
+			loadConfig(DenyAllConfig)
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			response.status == HttpServletResponse.SC_UNAUTHORIZED
+		when:
+			super.setup()
+			login(new RememberMeAuthenticationToken("key", "user", AuthorityUtils.createAuthorityList("ROLE_USER")))
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			response.status == HttpServletResponse.SC_FORBIDDEN
+	}
 
-    @EnableWebSecurity
-    static class DenyAllConfig extends WebSecurityConfigurerAdapter {
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .httpBasic()
-                    .and()
-                .authorizeRequests()
-                    .anyRequest().denyAll()
-        }
-    }
+	@EnableWebSecurity
+	static class DenyAllConfig extends WebSecurityConfigurerAdapter {
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.httpBasic()
+					.and()
+				.authorizeRequests()
+					.anyRequest().denyAll()
+		}
+	}
 
-    def "authorizeRequests() not denyAll"() {
-        setup:
-            loadConfig(NotDenyAllConfig)
-        when:
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            response.status == HttpServletResponse.SC_OK
-        when:
-            super.setup()
-            login(new RememberMeAuthenticationToken("key", "user", AuthorityUtils.createAuthorityList("ROLE_USER")))
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            response.status == HttpServletResponse.SC_OK
-    }
+	def "authorizeRequests() not denyAll"() {
+		setup:
+			loadConfig(NotDenyAllConfig)
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			response.status == HttpServletResponse.SC_OK
+		when:
+			super.setup()
+			login(new RememberMeAuthenticationToken("key", "user", AuthorityUtils.createAuthorityList("ROLE_USER")))
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			response.status == HttpServletResponse.SC_OK
+	}
 
-    @EnableWebSecurity
-    static class NotDenyAllConfig extends WebSecurityConfigurerAdapter {
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .httpBasic()
-                    .and()
-                .authorizeRequests()
-                    .anyRequest().not().denyAll()
-        }
-    }
+	@EnableWebSecurity
+	static class NotDenyAllConfig extends WebSecurityConfigurerAdapter {
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.httpBasic()
+					.and()
+				.authorizeRequests()
+					.anyRequest().not().denyAll()
+		}
+	}
 
-    def "authorizeRequests() fullyAuthenticated"() {
-        setup:
-            loadConfig(FullyAuthenticatedConfig)
-        when:
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            response.status == HttpServletResponse.SC_UNAUTHORIZED
-        when:
-            super.setup()
-            login(new RememberMeAuthenticationToken("key", "user", AuthorityUtils.createAuthorityList("ROLE_USER")))
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            response.status == HttpServletResponse.SC_FORBIDDEN
-        when:
-            super.setup()
-            login()
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            response.status == HttpServletResponse.SC_OK
-    }
+	def "authorizeRequests() fullyAuthenticated"() {
+		setup:
+			loadConfig(FullyAuthenticatedConfig)
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			response.status == HttpServletResponse.SC_UNAUTHORIZED
+		when:
+			super.setup()
+			login(new RememberMeAuthenticationToken("key", "user", AuthorityUtils.createAuthorityList("ROLE_USER")))
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			response.status == HttpServletResponse.SC_FORBIDDEN
+		when:
+			super.setup()
+			login()
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			response.status == HttpServletResponse.SC_OK
+	}
 
-    @EnableWebSecurity
-    static class FullyAuthenticatedConfig extends WebSecurityConfigurerAdapter {
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .rememberMe()
-                    .and()
-                .httpBasic()
-                    .and()
-                .authorizeRequests()
-                    .anyRequest().fullyAuthenticated()
-        }
+	@EnableWebSecurity
+	static class FullyAuthenticatedConfig extends WebSecurityConfigurerAdapter {
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.rememberMe()
+					.and()
+				.httpBasic()
+					.and()
+				.authorizeRequests()
+					.anyRequest().fullyAuthenticated()
+		}
 
-        @Override
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .inMemoryAuthentication()
-                    .withUser("user").password("password").roles("USER")
-        }
-    }
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.inMemoryAuthentication()
+					.withUser("user").password("password").roles("USER")
+		}
+	}
 
-    def "authorizeRequests() access"() {
-        setup:
-            loadConfig(AccessConfig)
-        when:
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then: "Access is granted due to GET"
-            response.status == HttpServletResponse.SC_OK
-        when:
-            super.setup()
-            login()
-            request.method = "POST"
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then: "Access is granted due to role"
-            response.status == HttpServletResponse.SC_OK
-        when:
-            super.setup()
-            request.method = "POST"
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then: "Access is denied"
-            response.status == HttpServletResponse.SC_UNAUTHORIZED
-    }
+	def "authorizeRequests() access"() {
+		setup:
+			loadConfig(AccessConfig)
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then: "Access is granted due to GET"
+			response.status == HttpServletResponse.SC_OK
+		when:
+			super.setup()
+			login()
+			request.method = "POST"
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then: "Access is granted due to role"
+			response.status == HttpServletResponse.SC_OK
+		when:
+			super.setup()
+			request.method = "POST"
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then: "Access is denied"
+			response.status == HttpServletResponse.SC_UNAUTHORIZED
+	}
 
-    @EnableWebSecurity
-    static class AccessConfig extends WebSecurityConfigurerAdapter {
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .rememberMe()
-                    .and()
-                .httpBasic()
-                    .and()
-                .authorizeRequests()
-                    .anyRequest().access("hasRole('ROLE_USER') or request.method == 'GET'")
-        }
+	@EnableWebSecurity
+	static class AccessConfig extends WebSecurityConfigurerAdapter {
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.rememberMe()
+					.and()
+				.httpBasic()
+					.and()
+				.authorizeRequests()
+					.anyRequest().access("hasRole('ROLE_USER') or request.method == 'GET'")
+		}
 
-        @Override
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .inMemoryAuthentication()
-                    .withUser("user").password("password").roles("USER")
-        }
-    }
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.inMemoryAuthentication()
+					.withUser("user").password("password").roles("USER")
+		}
+	}
 
 
-    def "invoke authorizeUrls twice does not reset"() {
-        setup:
-            loadConfig(InvokeTwiceDoesNotResetConfig)
-        when:
-            request.method = "POST"
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then: "Access is denied"
-            response.status == HttpServletResponse.SC_UNAUTHORIZED
-    }
+	def "invoke authorizeUrls twice does not reset"() {
+		setup:
+			loadConfig(InvokeTwiceDoesNotResetConfig)
+		when:
+			request.method = "POST"
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then: "Access is denied"
+			response.status == HttpServletResponse.SC_UNAUTHORIZED
+	}
 
-    @EnableWebSecurity
-    static class InvokeTwiceDoesNotResetConfig extends WebSecurityConfigurerAdapter {
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .httpBasic()
-                    .and()
-                .authorizeRequests()
-                    .anyRequest().authenticated()
-                    .and()
-                .authorizeRequests()
-        }
+	@EnableWebSecurity
+	static class InvokeTwiceDoesNotResetConfig extends WebSecurityConfigurerAdapter {
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.httpBasic()
+					.and()
+				.authorizeRequests()
+					.anyRequest().authenticated()
+					.and()
+				.authorizeRequests()
+		}
 
-        @Override
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .inMemoryAuthentication()
-        }
-    }
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.inMemoryAuthentication()
+		}
+	}
 
-    def "All Properties are accessible and chain properly"() {
-        when:
-            loadConfig(AllPropertiesWorkConfig)
-        then:
-            noExceptionThrown()
-    }
+	def "All Properties are accessible and chain properly"() {
+		when:
+			loadConfig(AllPropertiesWorkConfig)
+		then:
+			noExceptionThrown()
+	}
 
-    def "AuthorizedRequests withPostProcessor"() {
-        setup:
-            ApplicationListener al = Mock()
-            AuthorizedRequestsWithPostProcessorConfig.AL = al
-            loadConfig(AuthorizedRequestsWithPostProcessorConfig)
-        when:
-            springSecurityFilterChain.doFilter(request, response, chain)
-        then:
-            1 * al.onApplicationEvent(_ as AuthorizedEvent)
-    }
+	def "AuthorizedRequests withPostProcessor"() {
+		setup:
+			ApplicationListener al = Mock()
+			AuthorizedRequestsWithPostProcessorConfig.AL = al
+			loadConfig(AuthorizedRequestsWithPostProcessorConfig)
+		when:
+			springSecurityFilterChain.doFilter(request, response, chain)
+		then:
+			1 * al.onApplicationEvent(_ as AuthorizedEvent)
+	}
 
-    def "Use @permission.check in access"() {
-        setup:
-            loadConfig(UseBeansInExpressions)
-        when: "invoke standard expression that denies access"
-            login()
-            request.servletPath = "/admin/1"
-            springSecurityFilterChain.doFilter(request, response, chain)
-        then: "standard expression works - get forbidden"
-            response.status == HttpServletResponse.SC_FORBIDDEN
-        when: "invoke standard expression that allows access"
-            super.setup()
-            login()
-            request.servletPath = "/user/1"
-            springSecurityFilterChain.doFilter(request, response, chain)
-        then: "standard expression works - get ok"
-            response.status == HttpServletResponse.SC_OK
-        when: "invoke custom bean as expression that allows access"
-            super.setup()
-            login()
-            request.servletPath = "/allow/1"
-            springSecurityFilterChain.doFilter(request, response, chain)
-        then: "custom bean expression allows access"
-            response.status == HttpServletResponse.SC_OK
-        when: "invoke custom bean as expression that denies access"
-            super.setup()
-            login()
-            request.servletPath = "/deny/1"
-            springSecurityFilterChain.doFilter(request, response, chain)
-        then: "custom bean expression denies access"
-            response.status == HttpServletResponse.SC_FORBIDDEN
-    }
+	def "Use @permission.check in access"() {
+		setup:
+			loadConfig(UseBeansInExpressions)
+		when: "invoke standard expression that denies access"
+			login()
+			request.servletPath = "/admin/1"
+			springSecurityFilterChain.doFilter(request, response, chain)
+		then: "standard expression works - get forbidden"
+			response.status == HttpServletResponse.SC_FORBIDDEN
+		when: "invoke standard expression that allows access"
+			super.setup()
+			login()
+			request.servletPath = "/user/1"
+			springSecurityFilterChain.doFilter(request, response, chain)
+		then: "standard expression works - get ok"
+			response.status == HttpServletResponse.SC_OK
+		when: "invoke custom bean as expression that allows access"
+			super.setup()
+			login()
+			request.servletPath = "/allow/1"
+			springSecurityFilterChain.doFilter(request, response, chain)
+		then: "custom bean expression allows access"
+			response.status == HttpServletResponse.SC_OK
+		when: "invoke custom bean as expression that denies access"
+			super.setup()
+			login()
+			request.servletPath = "/deny/1"
+			springSecurityFilterChain.doFilter(request, response, chain)
+		then: "custom bean expression denies access"
+			response.status == HttpServletResponse.SC_FORBIDDEN
+	}
 
-    def "Use custom expressionroot in access"() {
-        setup:
-            loadConfig(CustomExpressionRootConfig)
-        when: "invoke standard expression that denies access"
-            login()
-            request.servletPath = "/admin/1"
-            springSecurityFilterChain.doFilter(request, response, chain)
-        then: "standard expression works - get forbidden"
-            response.status == HttpServletResponse.SC_FORBIDDEN
-        when: "invoke standard expression that allows access"
-            super.setup()
-            login()
-            request.servletPath = "/user/1"
-            springSecurityFilterChain.doFilter(request, response, chain)
-        then: "standard expression works - get ok"
-            response.status == HttpServletResponse.SC_OK
-        when: "invoke custom bean as expression that allows access"
-            super.setup()
-            login()
-            request.servletPath = "/allow/1"
-            springSecurityFilterChain.doFilter(request, response, chain)
-        then: "custom bean expression allows access"
-            response.status == HttpServletResponse.SC_OK
-        when: "invoke custom bean as expression that denies access"
-            super.setup()
-            login()
-            request.servletPath = "/deny/1"
-            springSecurityFilterChain.doFilter(request, response, chain)
-        then: "custom bean expression denies access"
-            response.status == HttpServletResponse.SC_FORBIDDEN
-    }
+	def "Use custom expressionroot in access"() {
+		setup:
+			loadConfig(CustomExpressionRootConfig)
+		when: "invoke standard expression that denies access"
+			login()
+			request.servletPath = "/admin/1"
+			springSecurityFilterChain.doFilter(request, response, chain)
+		then: "standard expression works - get forbidden"
+			response.status == HttpServletResponse.SC_FORBIDDEN
+		when: "invoke standard expression that allows access"
+			super.setup()
+			login()
+			request.servletPath = "/user/1"
+			springSecurityFilterChain.doFilter(request, response, chain)
+		then: "standard expression works - get ok"
+			response.status == HttpServletResponse.SC_OK
+		when: "invoke custom bean as expression that allows access"
+			super.setup()
+			login()
+			request.servletPath = "/allow/1"
+			springSecurityFilterChain.doFilter(request, response, chain)
+		then: "custom bean expression allows access"
+			response.status == HttpServletResponse.SC_OK
+		when: "invoke custom bean as expression that denies access"
+			super.setup()
+			login()
+			request.servletPath = "/deny/1"
+			springSecurityFilterChain.doFilter(request, response, chain)
+		then: "custom bean expression denies access"
+			response.status == HttpServletResponse.SC_FORBIDDEN
+	}
 }

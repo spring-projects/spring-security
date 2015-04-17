@@ -38,133 +38,133 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
  *
  */
 public class NamespaceHttpFormLoginTests extends BaseSpringSpec {
-    FilterChainProxy springSecurityFilterChain
+	FilterChainProxy springSecurityFilterChain
 
-    def "http/form-login"() {
-        setup:
-        loadConfig(FormLoginConfig)
-            springSecurityFilterChain = context.getBean(FilterChainProxy)
-        when:
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            response.getRedirectedUrl() == "http://localhost/login"
-        when: "fail to log in"
-            super.setup()
-            request.servletPath = "/login"
-            request.method = "POST"
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then: "sent to login error page"
-            response.getRedirectedUrl() == "/login?error"
-        when: "login success"
-            super.setup()
-            request.servletPath = "/login"
-            request.method = "POST"
-            request.parameters.username = ["user"] as String[]
-            request.parameters.password = ["password"] as String[]
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then: "sent to default succes page"
-            response.getRedirectedUrl() == "/"
-    }
+	def "http/form-login"() {
+		setup:
+		loadConfig(FormLoginConfig)
+			springSecurityFilterChain = context.getBean(FilterChainProxy)
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			response.getRedirectedUrl() == "http://localhost/login"
+		when: "fail to log in"
+			super.setup()
+			request.servletPath = "/login"
+			request.method = "POST"
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then: "sent to login error page"
+			response.getRedirectedUrl() == "/login?error"
+		when: "login success"
+			super.setup()
+			request.servletPath = "/login"
+			request.method = "POST"
+			request.parameters.username = ["user"] as String[]
+			request.parameters.password = ["password"] as String[]
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then: "sent to default succes page"
+			response.getRedirectedUrl() == "/"
+	}
 
-    @Configuration
-    static class FormLoginConfig extends BaseWebConfig {
+	@Configuration
+	static class FormLoginConfig extends BaseWebConfig {
 
-        @Override
-        public void configure(WebSecurity web) throws Exception {
-            web
-                .ignoring()
-                    .antMatchers("/resources/**");
-        }
+		@Override
+		public void configure(WebSecurity web) throws Exception {
+			web
+				.ignoring()
+					.antMatchers("/resources/**");
+		}
 
-        @Override
-        protected void configure(HttpSecurity http) {
-            http
-                .authorizeRequests()
-                    .anyRequest().hasRole("USER")
-                    .and()
-                .formLogin()
-        }
-    }
+		@Override
+		protected void configure(HttpSecurity http) {
+			http
+				.authorizeRequests()
+					.anyRequest().hasRole("USER")
+					.and()
+				.formLogin()
+		}
+	}
 
-    def "http/form-login custom"() {
-        setup:
-            loadConfig(FormLoginCustomConfig)
-            springSecurityFilterChain = context.getBean(FilterChainProxy)
-        when:
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then:
-            response.getRedirectedUrl() == "http://localhost/authentication/login"
-        when: "fail to log in"
-            super.setup()
-            request.servletPath = "/authentication/login/process"
-            request.method = "POST"
-            springSecurityFilterChain.doFilter(request,response,chain)
-            then: "sent to login error page"
-            response.getRedirectedUrl() == "/authentication/login?failed"
-        when: "login success"
-            super.setup()
-            request.servletPath = "/authentication/login/process"
-            request.method = "POST"
-            request.parameters.username = ["user"] as String[]
-            request.parameters.password = ["password"] as String[]
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then: "sent to default succes page"
-            response.getRedirectedUrl() == "/default"
-    }
+	def "http/form-login custom"() {
+		setup:
+			loadConfig(FormLoginCustomConfig)
+			springSecurityFilterChain = context.getBean(FilterChainProxy)
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			response.getRedirectedUrl() == "http://localhost/authentication/login"
+		when: "fail to log in"
+			super.setup()
+			request.servletPath = "/authentication/login/process"
+			request.method = "POST"
+			springSecurityFilterChain.doFilter(request,response,chain)
+			then: "sent to login error page"
+			response.getRedirectedUrl() == "/authentication/login?failed"
+		when: "login success"
+			super.setup()
+			request.servletPath = "/authentication/login/process"
+			request.method = "POST"
+			request.parameters.username = ["user"] as String[]
+			request.parameters.password = ["password"] as String[]
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then: "sent to default succes page"
+			response.getRedirectedUrl() == "/default"
+	}
 
-    @Configuration
-    static class FormLoginCustomConfig extends BaseWebConfig {
-        protected void configure(HttpSecurity http) throws Exception {
-            boolean alwaysUseDefaultSuccess = true;
-            http
-                .authorizeRequests()
-                    .anyRequest().hasRole("USER")
-                    .and()
-                .formLogin()
-                    .usernameParameter("username") // form-login@username-parameter
-                    .passwordParameter("password") // form-login@password-parameter
-                    .loginPage("/authentication/login") // form-login@login-page
-                    .failureUrl("/authentication/login?failed") // form-login@authentication-failure-url
-                    .loginProcessingUrl("/authentication/login/process") // form-login@login-processing-url
-                    .defaultSuccessUrl("/default", alwaysUseDefaultSuccess) // form-login@default-target-url / form-login@always-use-default-target
-        }
-    }
+	@Configuration
+	static class FormLoginCustomConfig extends BaseWebConfig {
+		protected void configure(HttpSecurity http) throws Exception {
+			boolean alwaysUseDefaultSuccess = true;
+			http
+				.authorizeRequests()
+					.anyRequest().hasRole("USER")
+					.and()
+				.formLogin()
+					.usernameParameter("username") // form-login@username-parameter
+					.passwordParameter("password") // form-login@password-parameter
+					.loginPage("/authentication/login") // form-login@login-page
+					.failureUrl("/authentication/login?failed") // form-login@authentication-failure-url
+					.loginProcessingUrl("/authentication/login/process") // form-login@login-processing-url
+					.defaultSuccessUrl("/default", alwaysUseDefaultSuccess) // form-login@default-target-url / form-login@always-use-default-target
+		}
+	}
 
-    def "http/form-login custom refs"() {
-        when:
-            loadConfig(FormLoginCustomRefsConfig)
-            springSecurityFilterChain = context.getBean(FilterChainProxy)
-            then: "CustomWebAuthenticationDetailsSource is used"
-            findFilter(UsernamePasswordAuthenticationFilter).authenticationDetailsSource.class == CustomWebAuthenticationDetailsSource
-        when: "fail to log in"
-            request.servletPath = "/login"
-            request.method = "POST"
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then: "sent to login error page"
-            response.getRedirectedUrl() == "/custom/failure"
-        when: "login success"
-            super.setup()
-            request.servletPath = "/login"
-            request.method = "POST"
-            request.parameters.username = ["user"] as String[]
-            request.parameters.password = ["password"] as String[]
-            springSecurityFilterChain.doFilter(request,response,chain)
-        then: "sent to default succes page"
-            response.getRedirectedUrl() == "/custom/targetUrl"
-    }
+	def "http/form-login custom refs"() {
+		when:
+			loadConfig(FormLoginCustomRefsConfig)
+			springSecurityFilterChain = context.getBean(FilterChainProxy)
+			then: "CustomWebAuthenticationDetailsSource is used"
+			findFilter(UsernamePasswordAuthenticationFilter).authenticationDetailsSource.class == CustomWebAuthenticationDetailsSource
+		when: "fail to log in"
+			request.servletPath = "/login"
+			request.method = "POST"
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then: "sent to login error page"
+			response.getRedirectedUrl() == "/custom/failure"
+		when: "login success"
+			super.setup()
+			request.servletPath = "/login"
+			request.method = "POST"
+			request.parameters.username = ["user"] as String[]
+			request.parameters.password = ["password"] as String[]
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then: "sent to default succes page"
+			response.getRedirectedUrl() == "/custom/targetUrl"
+	}
 
-    @Configuration
-    static class FormLoginCustomRefsConfig extends BaseWebConfig {
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .formLogin()
-                    .loginPage("/login")
-                    .failureHandler(new SimpleUrlAuthenticationFailureHandler("/custom/failure")) // form-login@authentication-failure-handler-ref
-                    .successHandler(new SavedRequestAwareAuthenticationSuccessHandler( defaultTargetUrl : "/custom/targetUrl" )) // form-login@authentication-success-handler-ref
-                    .authenticationDetailsSource(new CustomWebAuthenticationDetailsSource()) // form-login@authentication-details-source-ref
-                    .and();
-        }
-    }
+	@Configuration
+	static class FormLoginCustomRefsConfig extends BaseWebConfig {
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.formLogin()
+					.loginPage("/login")
+					.failureHandler(new SimpleUrlAuthenticationFailureHandler("/custom/failure")) // form-login@authentication-failure-handler-ref
+					.successHandler(new SavedRequestAwareAuthenticationSuccessHandler( defaultTargetUrl : "/custom/targetUrl" )) // form-login@authentication-success-handler-ref
+					.authenticationDetailsSource(new CustomWebAuthenticationDetailsSource()) // form-login@authentication-details-source-ref
+					.and();
+		}
+	}
 
-    static class CustomWebAuthenticationDetailsSource extends WebAuthenticationDetailsSource {}
+	static class CustomWebAuthenticationDetailsSource extends WebAuthenticationDetailsSource {}
 }

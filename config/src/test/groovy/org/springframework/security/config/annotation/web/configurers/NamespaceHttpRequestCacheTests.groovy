@@ -39,35 +39,35 @@ import org.springframework.security.web.savedrequest.RequestCache;
  *
  */
 public class NamespaceHttpRequestCacheTests extends BaseSpringSpec {
-    def "http/request-cache@ref"() {
-        setup:
-            RequestCacheRefConfig.REQUEST_CACHE = Mock(RequestCache)
-        when:
-            loadConfig(RequestCacheRefConfig)
-        then:
-            findFilter(ExceptionTranslationFilter).requestCache == RequestCacheRefConfig.REQUEST_CACHE
-    }
+	def "http/request-cache@ref"() {
+		setup:
+			RequestCacheRefConfig.REQUEST_CACHE = Mock(RequestCache)
+		when:
+			loadConfig(RequestCacheRefConfig)
+		then:
+			findFilter(ExceptionTranslationFilter).requestCache == RequestCacheRefConfig.REQUEST_CACHE
+	}
 
-    @Configuration
-    static class RequestCacheRefConfig extends BaseWebConfig {
-        static RequestCache REQUEST_CACHE
-        protected void configure(HttpSecurity http) {
-            http.
-                requestCache()
-                    .requestCache(REQUEST_CACHE)
-        }
-    }
+	@Configuration
+	static class RequestCacheRefConfig extends BaseWebConfig {
+		static RequestCache REQUEST_CACHE
+		protected void configure(HttpSecurity http) {
+			http.
+				requestCache()
+					.requestCache(REQUEST_CACHE)
+		}
+	}
 
-    def "http/request-cache@ref defaults to HttpSessionRequestCache"() {
-        when:
-            loadConfig(DefaultRequestCacheRefConfig)
-        then:
-            findFilter(ExceptionTranslationFilter).requestCache.class == HttpSessionRequestCache
-    }
+	def "http/request-cache@ref defaults to HttpSessionRequestCache"() {
+		when:
+			loadConfig(DefaultRequestCacheRefConfig)
+		then:
+			findFilter(ExceptionTranslationFilter).requestCache.class == HttpSessionRequestCache
+	}
 
-    @Configuration
-    static class DefaultRequestCacheRefConfig extends BaseWebConfig {
-        protected void configure(HttpSecurity http) {
-        }
-    }
+	@Configuration
+	static class DefaultRequestCacheRefConfig extends BaseWebConfig {
+		protected void configure(HttpSecurity http) {
+		}
+	}
 }

@@ -33,101 +33,101 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
  */
 class HttpBasicConfigurerTests extends BaseSpringSpec {
 
-    def "httBasic ObjectPostProcessor"() {
-        setup:
-            AnyObjectPostProcessor opp = Mock()
-            HttpSecurity http = new HttpSecurity(opp, authenticationBldr, [:])
-        when:
-            http
-                .httpBasic()
-                    .and()
-                .build()
+	def "httBasic ObjectPostProcessor"() {
+		setup:
+			AnyObjectPostProcessor opp = Mock()
+			HttpSecurity http = new HttpSecurity(opp, authenticationBldr, [:])
+		when:
+			http
+				.httpBasic()
+					.and()
+				.build()
 
-        then: "ExceptionTranslationFilter is registered with LifecycleManager"
-            1 * opp.postProcess(_ as BasicAuthenticationFilter) >> {BasicAuthenticationFilter o -> o}
-    }
+		then: "ExceptionTranslationFilter is registered with LifecycleManager"
+			1 * opp.postProcess(_ as BasicAuthenticationFilter) >> {BasicAuthenticationFilter o -> o}
+	}
 
-    def "SEC-2198: http.httpBasic() defaults AuthenticationEntryPoint"() {
-        setup:
-            loadConfig(DefaultsEntryPointConfig)
-        when:
-            springSecurityFilterChain.doFilter(request, response, chain)
-        then:
-            response.status == 401
-            response.getHeader("WWW-Authenticate") == 'Basic realm="Realm"'
-    }
+	def "SEC-2198: http.httpBasic() defaults AuthenticationEntryPoint"() {
+		setup:
+			loadConfig(DefaultsEntryPointConfig)
+		when:
+			springSecurityFilterChain.doFilter(request, response, chain)
+		then:
+			response.status == 401
+			response.getHeader("WWW-Authenticate") == 'Basic realm="Realm"'
+	}
 
-    @EnableWebSecurity
-    static class DefaultsEntryPointConfig extends WebSecurityConfigurerAdapter {
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .authorizeRequests()
-                    .anyRequest().authenticated()
-                    .and()
-                .httpBasic()
-        }
+	@EnableWebSecurity
+	static class DefaultsEntryPointConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.authorizeRequests()
+					.anyRequest().authenticated()
+					.and()
+				.httpBasic()
+		}
 
-        @Override
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .inMemoryAuthentication()
-        }
-    }
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.inMemoryAuthentication()
+		}
+	}
 
-    def "http.httpBasic().authenticationEntryPoint used for AuthenticationEntryPoint"() {
-        setup:
-            CustomAuthenticationEntryPointConfig.ENTRY_POINT = Mock(AuthenticationEntryPoint)
-        when:
-            loadConfig(CustomAuthenticationEntryPointConfig)
-        then:
-            findFilter(ExceptionTranslationFilter).authenticationEntryPoint == CustomAuthenticationEntryPointConfig.ENTRY_POINT
-    }
+	def "http.httpBasic().authenticationEntryPoint used for AuthenticationEntryPoint"() {
+		setup:
+			CustomAuthenticationEntryPointConfig.ENTRY_POINT = Mock(AuthenticationEntryPoint)
+		when:
+			loadConfig(CustomAuthenticationEntryPointConfig)
+		then:
+			findFilter(ExceptionTranslationFilter).authenticationEntryPoint == CustomAuthenticationEntryPointConfig.ENTRY_POINT
+	}
 
-    @EnableWebSecurity
-    static class CustomAuthenticationEntryPointConfig extends WebSecurityConfigurerAdapter {
-        static AuthenticationEntryPoint ENTRY_POINT
+	@EnableWebSecurity
+	static class CustomAuthenticationEntryPointConfig extends WebSecurityConfigurerAdapter {
+		static AuthenticationEntryPoint ENTRY_POINT
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .httpBasic()
-                    .authenticationEntryPoint(ENTRY_POINT)
-        }
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.httpBasic()
+					.authenticationEntryPoint(ENTRY_POINT)
+		}
 
-        @Override
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .inMemoryAuthentication()
-        }
-    }
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.inMemoryAuthentication()
+		}
+	}
 
-    def "duplicate httpBasic invocations does not override"() {
-        setup:
-            DuplicateDoesNotOverrideConfig.ENTRY_POINT = Mock(AuthenticationEntryPoint)
-        when:
-            loadConfig(DuplicateDoesNotOverrideConfig)
-        then:
-            findFilter(ExceptionTranslationFilter).authenticationEntryPoint == DuplicateDoesNotOverrideConfig.ENTRY_POINT
-    }
+	def "duplicate httpBasic invocations does not override"() {
+		setup:
+			DuplicateDoesNotOverrideConfig.ENTRY_POINT = Mock(AuthenticationEntryPoint)
+		when:
+			loadConfig(DuplicateDoesNotOverrideConfig)
+		then:
+			findFilter(ExceptionTranslationFilter).authenticationEntryPoint == DuplicateDoesNotOverrideConfig.ENTRY_POINT
+	}
 
-    @EnableWebSecurity
-    static class DuplicateDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
-        static AuthenticationEntryPoint ENTRY_POINT
+	@EnableWebSecurity
+	static class DuplicateDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
+		static AuthenticationEntryPoint ENTRY_POINT
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .httpBasic()
-                    .authenticationEntryPoint(ENTRY_POINT)
-                    .and()
-                .httpBasic()
-        }
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.httpBasic()
+					.authenticationEntryPoint(ENTRY_POINT)
+					.and()
+				.httpBasic()
+		}
 
-        @Override
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .inMemoryAuthentication()
-        }
-    }
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.inMemoryAuthentication()
+		}
+	}
 }

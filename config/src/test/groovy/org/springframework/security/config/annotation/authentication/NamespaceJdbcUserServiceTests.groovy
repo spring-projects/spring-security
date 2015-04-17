@@ -41,145 +41,145 @@ import org.springframework.security.provisioning.JdbcUserDetailsManager
  *
  */
 class NamespaceJdbcUserServiceTests extends BaseSpringSpec {
-    def "jdbc-user-service"() {
-        when:
-            loadConfig(DataSourceConfig,JdbcUserServiceConfig)
-        then:
-            findAuthenticationProvider(DaoAuthenticationProvider).userDetailsService instanceof JdbcUserDetailsManager
-    }
+	def "jdbc-user-service"() {
+		when:
+			loadConfig(DataSourceConfig,JdbcUserServiceConfig)
+		then:
+			findAuthenticationProvider(DaoAuthenticationProvider).userDetailsService instanceof JdbcUserDetailsManager
+	}
 
-    @EnableWebSecurity
-    static class JdbcUserServiceConfig extends WebSecurityConfigurerAdapter {
-        @Autowired
-        private DataSource dataSource;
+	@EnableWebSecurity
+	static class JdbcUserServiceConfig extends WebSecurityConfigurerAdapter {
+		@Autowired
+		private DataSource dataSource;
 
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .jdbcAuthentication()
-                    .dataSource(dataSource) // jdbc-user-service@data-source-ref
-        }
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.jdbcAuthentication()
+					.dataSource(dataSource) // jdbc-user-service@data-source-ref
+		}
 
-        // Only necessary to have access to verify the AuthenticationManager
-        @Bean
-        @Override
-        public AuthenticationManager authenticationManagerBean()
-                throws Exception {
-            return super.authenticationManagerBean();
-        }
-    }
+		// Only necessary to have access to verify the AuthenticationManager
+		@Bean
+		@Override
+		public AuthenticationManager authenticationManagerBean()
+				throws Exception {
+			return super.authenticationManagerBean();
+		}
+	}
 
-    def "jdbc-user-service in memory testing sample"() {
-        when:
-            loadConfig(DataSourceConfig,JdbcUserServiceInMemorySampleConfig)
-        then:
-           Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("user", "password"))
-            auth.authorities.collect {it.authority} == ['ROLE_USER']
-            auth.name == "user"
-    }
+	def "jdbc-user-service in memory testing sample"() {
+		when:
+			loadConfig(DataSourceConfig,JdbcUserServiceInMemorySampleConfig)
+		then:
+		   Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("user", "password"))
+			auth.authorities.collect {it.authority} == ['ROLE_USER']
+			auth.name == "user"
+	}
 
-    @EnableWebSecurity
-    static class JdbcUserServiceInMemorySampleConfig extends WebSecurityConfigurerAdapter {
-        @Autowired
-        private DataSource dataSource;
+	@EnableWebSecurity
+	static class JdbcUserServiceInMemorySampleConfig extends WebSecurityConfigurerAdapter {
+		@Autowired
+		private DataSource dataSource;
 
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .jdbcAuthentication()
-                    .dataSource(dataSource)
-                    // imports the default schema (will fail if already exists)
-                    .withDefaultSchema()
-                    // adds this user automatically (will fail if already exists)
-                    .withUser("user")
-                        .password("password")
-                        .roles("USER")
-        }
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.jdbcAuthentication()
+					.dataSource(dataSource)
+					// imports the default schema (will fail if already exists)
+					.withDefaultSchema()
+					// adds this user automatically (will fail if already exists)
+					.withUser("user")
+						.password("password")
+						.roles("USER")
+		}
 
-        // Only necessary to have access to verify the AuthenticationManager
-        @Bean
-        @Override
-        public AuthenticationManager authenticationManagerBean()
-                throws Exception {
-            return super.authenticationManagerBean();
-        }
-    }
+		// Only necessary to have access to verify the AuthenticationManager
+		@Bean
+		@Override
+		public AuthenticationManager authenticationManagerBean()
+				throws Exception {
+			return super.authenticationManagerBean();
+		}
+	}
 
-    @Configuration
-    static class DataSourceConfig {
-        @Bean
-        public DataSource dataSource() {
-            EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder()
-            return builder.setType(EmbeddedDatabaseType.HSQL).build();
-        }
-    }
+	@Configuration
+	static class DataSourceConfig {
+		@Bean
+		public DataSource dataSource() {
+			EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder()
+			return builder.setType(EmbeddedDatabaseType.HSQL).build();
+		}
+	}
 
-    def "jdbc-user-service custom"() {
-        when:
-            loadConfig(CustomDataSourceConfig,CustomJdbcUserServiceSampleConfig)
-        then:
-            findAuthenticationProvider(DaoAuthenticationProvider).userDetailsService.userCache instanceof CustomUserCache
-        when:
-            Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("user", "password"))
-        then:
-            auth.authorities.collect {it.authority}.sort() == ['ROLE_DBA','ROLE_USER']
-            auth.name == 'user'
-    }
+	def "jdbc-user-service custom"() {
+		when:
+			loadConfig(CustomDataSourceConfig,CustomJdbcUserServiceSampleConfig)
+		then:
+			findAuthenticationProvider(DaoAuthenticationProvider).userDetailsService.userCache instanceof CustomUserCache
+		when:
+			Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("user", "password"))
+		then:
+			auth.authorities.collect {it.authority}.sort() == ['ROLE_DBA','ROLE_USER']
+			auth.name == 'user'
+	}
 
-    @EnableWebSecurity
-    static class CustomJdbcUserServiceSampleConfig extends WebSecurityConfigurerAdapter {
-        @Autowired
-        private DataSource dataSource;
+	@EnableWebSecurity
+	static class CustomJdbcUserServiceSampleConfig extends WebSecurityConfigurerAdapter {
+		@Autowired
+		private DataSource dataSource;
 
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .jdbcAuthentication()
-                    // jdbc-user-service@dataSource
-                    .dataSource(dataSource)
-                    // jdbc-user-service@cache-ref
-                    .userCache(new CustomUserCache())
-                    // jdbc-user-service@users-byusername-query
-                    .usersByUsernameQuery("select principal,credentials,true from users where principal = ?")
-                    // jdbc-user-service@authorities-by-username-query
-                    .authoritiesByUsernameQuery("select principal,role from roles where principal = ?")
-                    // jdbc-user-service@group-authorities-by-username-query
-                    .groupAuthoritiesByUsername(JdbcUserDetailsManager.DEF_GROUP_AUTHORITIES_BY_USERNAME_QUERY)
-                    // jdbc-user-service@role-prefix
-                    .rolePrefix("ROLE_")
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.jdbcAuthentication()
+					// jdbc-user-service@dataSource
+					.dataSource(dataSource)
+					// jdbc-user-service@cache-ref
+					.userCache(new CustomUserCache())
+					// jdbc-user-service@users-byusername-query
+					.usersByUsernameQuery("select principal,credentials,true from users where principal = ?")
+					// jdbc-user-service@authorities-by-username-query
+					.authoritiesByUsernameQuery("select principal,role from roles where principal = ?")
+					// jdbc-user-service@group-authorities-by-username-query
+					.groupAuthoritiesByUsername(JdbcUserDetailsManager.DEF_GROUP_AUTHORITIES_BY_USERNAME_QUERY)
+					// jdbc-user-service@role-prefix
+					.rolePrefix("ROLE_")
 
-        }
+		}
 
-        // Only necessary to have access to verify the AuthenticationManager
-        @Bean
-        @Override
-        public AuthenticationManager authenticationManagerBean()
-                throws Exception {
-            return super.authenticationManagerBean();
-        }
+		// Only necessary to have access to verify the AuthenticationManager
+		@Bean
+		@Override
+		public AuthenticationManager authenticationManagerBean()
+				throws Exception {
+			return super.authenticationManagerBean();
+		}
 
-        static class CustomUserCache implements UserCache {
+		static class CustomUserCache implements UserCache {
 
-            @Override
-            public UserDetails getUserFromCache(String username) {
-                return null;
-            }
+			@Override
+			public UserDetails getUserFromCache(String username) {
+				return null;
+			}
 
-            @Override
-            public void putUserInCache(UserDetails user) {
-            }
+			@Override
+			public void putUserInCache(UserDetails user) {
+			}
 
-            @Override
-            public void removeUserFromCache(String username) {
-            }
-        }
-    }
+			@Override
+			public void removeUserFromCache(String username) {
+			}
+		}
+	}
 
-    @Configuration
-    static class CustomDataSourceConfig {
-        @Bean
-        public DataSource dataSource() {
-            EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder()
-                // simulate that the DB already has the schema loaded and users in it
-                .addScript("CustomJdbcUserServiceSampleConfig.sql")
-            return builder.setType(EmbeddedDatabaseType.HSQL).build();
-        }
-    }
+	@Configuration
+	static class CustomDataSourceConfig {
+		@Bean
+		public DataSource dataSource() {
+			EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder()
+				// simulate that the DB already has the schema loaded and users in it
+				.addScript("CustomJdbcUserServiceSampleConfig.sql")
+			return builder.setType(EmbeddedDatabaseType.HSQL).build();
+		}
+	}
 }

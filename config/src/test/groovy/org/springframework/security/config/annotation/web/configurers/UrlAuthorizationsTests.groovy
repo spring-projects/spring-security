@@ -32,48 +32,48 @@ import org.springframework.security.web.access.intercept.FilterSecurityIntercept
  */
 public class UrlAuthorizationsTests extends BaseSpringSpec {
 
-    def "hasAnyAuthority('ROLE_USER')"() {
-        when:
-            def expression = UrlAuthorizationConfigurer.hasAnyAuthority("ROLE_USER")
-        then:
-            expression == ["ROLE_USER"]
-    }
+	def "hasAnyAuthority('ROLE_USER')"() {
+		when:
+			def expression = UrlAuthorizationConfigurer.hasAnyAuthority("ROLE_USER")
+		then:
+			expression == ["ROLE_USER"]
+	}
 
-    def "hasAnyAuthority('ROLE_USER','ROLE_ADMIN')"() {
-        when:
-            def expression =  UrlAuthorizationConfigurer.hasAnyAuthority("ROLE_USER","ROLE_ADMIN")
-        then:
-            expression == ["ROLE_USER","ROLE_ADMIN"]
-    }
+	def "hasAnyAuthority('ROLE_USER','ROLE_ADMIN')"() {
+		when:
+			def expression =  UrlAuthorizationConfigurer.hasAnyAuthority("ROLE_USER","ROLE_ADMIN")
+		then:
+			expression == ["ROLE_USER","ROLE_ADMIN"]
+	}
 
-    def "hasAnyRole('USER')"() {
-        when:
-            def expression = UrlAuthorizationConfigurer.hasAnyRole("USER")
-        then:
-            expression == ["ROLE_USER"]
-    }
+	def "hasAnyRole('USER')"() {
+		when:
+			def expression = UrlAuthorizationConfigurer.hasAnyRole("USER")
+		then:
+			expression == ["ROLE_USER"]
+	}
 
-    def "hasAnyRole('ROLE_USER','ROLE_ADMIN')"() {
-        when:
-            def expression =  UrlAuthorizationConfigurer.hasAnyRole("USER","ADMIN")
-        then:
-            expression == ["ROLE_USER","ROLE_ADMIN"]
-    }
+	def "hasAnyRole('ROLE_USER','ROLE_ADMIN')"() {
+		when:
+			def expression =  UrlAuthorizationConfigurer.hasAnyRole("USER","ADMIN")
+		then:
+			expression == ["ROLE_USER","ROLE_ADMIN"]
+	}
 
-    def "uses AffirmativeBased AccessDecisionManager"() {
-        when: "Load Config with no specific AccessDecisionManager"
-            loadConfig(NoSpecificAccessDecessionManagerConfig)
-        then: "AccessDecessionManager matches the HttpSecurityBuilder's default"
-            findFilter(FilterSecurityInterceptor).accessDecisionManager.class == AffirmativeBased
-    }
+	def "uses AffirmativeBased AccessDecisionManager"() {
+		when: "Load Config with no specific AccessDecisionManager"
+			loadConfig(NoSpecificAccessDecessionManagerConfig)
+		then: "AccessDecessionManager matches the HttpSecurityBuilder's default"
+			findFilter(FilterSecurityInterceptor).accessDecisionManager.class == AffirmativeBased
+	}
 
-    @EnableWebSecurity
-    static class NoSpecificAccessDecessionManagerConfig extends WebSecurityConfigurerAdapter {
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .apply(new UrlAuthorizationConfigurer()).getRegistry()
-                    .antMatchers("/a").hasRole("ADMIN")
-                    .anyRequest().hasRole("USER")
-        }
-    }
+	@EnableWebSecurity
+	static class NoSpecificAccessDecessionManagerConfig extends WebSecurityConfigurerAdapter {
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.apply(new UrlAuthorizationConfigurer()).getRegistry()
+					.antMatchers("/a").hasRole("ADMIN")
+					.anyRequest().hasRole("USER")
+		}
+	}
 }

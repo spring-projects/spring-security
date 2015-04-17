@@ -43,78 +43,78 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager
  *
  */
 class NamespacePasswordEncoderTests extends BaseSpringSpec {
-    def "password-encoder@ref with in memory"() {
-        when:
-            loadConfig(PasswordEncoderWithInMemoryConfig)
-        then:
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("user", "password"))
-    }
+	def "password-encoder@ref with in memory"() {
+		when:
+			loadConfig(PasswordEncoderWithInMemoryConfig)
+		then:
+			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("user", "password"))
+	}
 
-    @EnableWebSecurity
-    static class PasswordEncoderWithInMemoryConfig extends WebSecurityConfigurerAdapter {
-        @Override
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+	@EnableWebSecurity
+	static class PasswordEncoderWithInMemoryConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 
-            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder()
-            auth
-                .inMemoryAuthentication()
-                    .withUser("user").password(encoder.encode("password")).roles("USER").and()
-                    .passwordEncoder(encoder)
-        }
-    }
+			BCryptPasswordEncoder encoder = new BCryptPasswordEncoder()
+			auth
+				.inMemoryAuthentication()
+					.withUser("user").password(encoder.encode("password")).roles("USER").and()
+					.passwordEncoder(encoder)
+		}
+	}
 
-    def "password-encoder@ref with jdbc"() {
-        when:
-            loadConfig(PasswordEncoderWithJdbcConfig)
-        then:
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("user", "password"))
-    }
+	def "password-encoder@ref with jdbc"() {
+		when:
+			loadConfig(PasswordEncoderWithJdbcConfig)
+		then:
+			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("user", "password"))
+	}
 
-    @EnableWebSecurity
-    static class PasswordEncoderWithJdbcConfig extends WebSecurityConfigurerAdapter {
-        @Override
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+	@EnableWebSecurity
+	static class PasswordEncoderWithJdbcConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 
-            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder()
-            auth
-                .jdbcAuthentication()
-                    .withDefaultSchema()
-                    .dataSource(dataSource())
-                    .withUser("user").password(encoder.encode("password")).roles("USER").and()
-                    .passwordEncoder(encoder)
-        }
+			BCryptPasswordEncoder encoder = new BCryptPasswordEncoder()
+			auth
+				.jdbcAuthentication()
+					.withDefaultSchema()
+					.dataSource(dataSource())
+					.withUser("user").password(encoder.encode("password")).roles("USER").and()
+					.passwordEncoder(encoder)
+		}
 
-        @Bean
-        public DataSource dataSource() {
-            EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder()
-            return builder.setType(EmbeddedDatabaseType.HSQL).build();
-        }
-    }
+		@Bean
+		public DataSource dataSource() {
+			EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder()
+			return builder.setType(EmbeddedDatabaseType.HSQL).build();
+		}
+	}
 
-    def "password-encoder@ref with userdetailsservice"() {
-        when:
-            loadConfig(PasswordEncoderWithUserDetailsServiceConfig)
-        then:
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("user", "password"))
-    }
+	def "password-encoder@ref with userdetailsservice"() {
+		when:
+			loadConfig(PasswordEncoderWithUserDetailsServiceConfig)
+		then:
+			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("user", "password"))
+	}
 
-    @EnableWebSecurity
-    static class PasswordEncoderWithUserDetailsServiceConfig extends WebSecurityConfigurerAdapter {
-        @Override
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+	@EnableWebSecurity
+	static class PasswordEncoderWithUserDetailsServiceConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 
-            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder()
-            User user = new User("user",encoder.encode("password"), AuthorityUtils.createAuthorityList("ROLE_USER"))
-            InMemoryUserDetailsManager uds = new InMemoryUserDetailsManager([user])
-            auth
-                .userDetailsService(uds)
-                    .passwordEncoder(encoder)
-        }
+			BCryptPasswordEncoder encoder = new BCryptPasswordEncoder()
+			User user = new User("user",encoder.encode("password"), AuthorityUtils.createAuthorityList("ROLE_USER"))
+			InMemoryUserDetailsManager uds = new InMemoryUserDetailsManager([user])
+			auth
+				.userDetailsService(uds)
+					.passwordEncoder(encoder)
+		}
 
-        @Bean
-        public DataSource dataSource() {
-            EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder()
-            return builder.setType(EmbeddedDatabaseType.HSQL).build();
-        }
-    }
+		@Bean
+		public DataSource dataSource() {
+			EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder()
+			return builder.setType(EmbeddedDatabaseType.HSQL).build();
+		}
+	}
 }

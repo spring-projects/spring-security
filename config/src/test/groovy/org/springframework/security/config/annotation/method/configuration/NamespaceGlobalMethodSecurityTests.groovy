@@ -57,387 +57,387 @@ import org.springframework.security.core.context.SecurityContextHolder
  * @author Rob Winch
  */
 public class NamespaceGlobalMethodSecurityTests extends BaseSpringSpec {
-    def setup() {
-        SecurityContextHolder.getContext().setAuthentication(
-                        new TestingAuthenticationToken("user", "password","ROLE_USER"))
-    }
+	def setup() {
+		SecurityContextHolder.getContext().setAuthentication(
+						new TestingAuthenticationToken("user", "password","ROLE_USER"))
+	}
 
-    // --- access-decision-manager-ref ---
+	// --- access-decision-manager-ref ---
 
-    def "custom AccessDecisionManager can be used"() {
-        setup: "Create an instance with an AccessDecisionManager that always denies access"
-            context = new AnnotationConfigApplicationContext(BaseMethodConfig,CustomAccessDecisionManagerConfig)
-            MethodSecurityService service = context.getBean(MethodSecurityService)
-        when:
-            service.preAuthorize()
-        then:
-            thrown(AccessDeniedException)
-        when:
-            service.secured()
-        then:
-            thrown(AccessDeniedException)
-    }
+	def "custom AccessDecisionManager can be used"() {
+		setup: "Create an instance with an AccessDecisionManager that always denies access"
+			context = new AnnotationConfigApplicationContext(BaseMethodConfig,CustomAccessDecisionManagerConfig)
+			MethodSecurityService service = context.getBean(MethodSecurityService)
+		when:
+			service.preAuthorize()
+		then:
+			thrown(AccessDeniedException)
+		when:
+			service.secured()
+		then:
+			thrown(AccessDeniedException)
+	}
 
-    @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
-    public static class CustomAccessDecisionManagerConfig extends GlobalMethodSecurityConfiguration {
-        @Override
-        protected AccessDecisionManager accessDecisionManager() {
-            return new DenyAllAccessDecisionManager()
-        }
+	@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
+	public static class CustomAccessDecisionManagerConfig extends GlobalMethodSecurityConfiguration {
+		@Override
+		protected AccessDecisionManager accessDecisionManager() {
+			return new DenyAllAccessDecisionManager()
+		}
 
-        public static class DenyAllAccessDecisionManager implements AccessDecisionManager {
-            public void decide(Authentication authentication, Object object, Collection<ConfigAttribute> configAttributes) {
-                throw new AccessDeniedException("Always Denied")
-            }
-            public boolean supports(ConfigAttribute attribute) {
-                return true
-            }
-            public boolean supports(Class<?> clazz) {
-                return true
-            }
-        }
-    }
+		public static class DenyAllAccessDecisionManager implements AccessDecisionManager {
+			public void decide(Authentication authentication, Object object, Collection<ConfigAttribute> configAttributes) {
+				throw new AccessDeniedException("Always Denied")
+			}
+			public boolean supports(ConfigAttribute attribute) {
+				return true
+			}
+			public boolean supports(Class<?> clazz) {
+				return true
+			}
+		}
+	}
 
-    // --- authentication-manager-ref ---
+	// --- authentication-manager-ref ---
 
-    def "custom AuthenticationManager can be used"() {
-        when:
-            context = new AnnotationConfigApplicationContext(CustomAuthenticationConfig)
-        MethodSecurityInterceptor interceptor = context.getBean(MethodSecurityInterceptor)
-            interceptor.authenticationManager.authenticate(SecurityContextHolder.context.authentication)
-        then:
-            thrown(UnsupportedOperationException)
-    }
+	def "custom AuthenticationManager can be used"() {
+		when:
+			context = new AnnotationConfigApplicationContext(CustomAuthenticationConfig)
+		MethodSecurityInterceptor interceptor = context.getBean(MethodSecurityInterceptor)
+			interceptor.authenticationManager.authenticate(SecurityContextHolder.context.authentication)
+		then:
+			thrown(UnsupportedOperationException)
+	}
 
-    @EnableGlobalMethodSecurity
-    public static class CustomAuthenticationConfig extends GlobalMethodSecurityConfiguration {
-        @Override
-        protected AuthenticationManager authenticationManager() {
-            return new AuthenticationManager() {
-                Authentication authenticate(Authentication authentication) {
-                    throw new UnsupportedOperationException()
-                }
-            }
-        }
-    }
+	@EnableGlobalMethodSecurity
+	public static class CustomAuthenticationConfig extends GlobalMethodSecurityConfiguration {
+		@Override
+		protected AuthenticationManager authenticationManager() {
+			return new AuthenticationManager() {
+				Authentication authenticate(Authentication authentication) {
+					throw new UnsupportedOperationException()
+				}
+			}
+		}
+	}
 
-    // --- jsr250-annotations ---
+	// --- jsr250-annotations ---
 
-    def "enable jsr250"() {
-        when:
-            context = new AnnotationConfigApplicationContext(Jsr250Config)
-            MethodSecurityService service = context.getBean(MethodSecurityService)
-        then: "@Secured and @PreAuthorize are ignored"
-            service.secured() == null
-            service.preAuthorize() ==  null
+	def "enable jsr250"() {
+		when:
+			context = new AnnotationConfigApplicationContext(Jsr250Config)
+			MethodSecurityService service = context.getBean(MethodSecurityService)
+		then: "@Secured and @PreAuthorize are ignored"
+			service.secured() == null
+			service.preAuthorize() ==  null
 
-        when: "@DenyAll method invoked"
-            service.jsr250()
-        then: "access is denied"
-            thrown(AccessDeniedException)
-        when: "@PermitAll method invoked"
-            String jsr250PermitAll = service.jsr250PermitAll()
-        then: "access is allowed"
-            jsr250PermitAll == null
-    }
+		when: "@DenyAll method invoked"
+			service.jsr250()
+		then: "access is denied"
+			thrown(AccessDeniedException)
+		when: "@PermitAll method invoked"
+			String jsr250PermitAll = service.jsr250PermitAll()
+		then: "access is allowed"
+			jsr250PermitAll == null
+	}
 
-    @EnableGlobalMethodSecurity(jsr250Enabled = true)
-    @Configuration
-    public static class Jsr250Config extends BaseMethodConfig {
-    }
+	@EnableGlobalMethodSecurity(jsr250Enabled = true)
+	@Configuration
+	public static class Jsr250Config extends BaseMethodConfig {
+	}
 
-    // --- metadata-source-ref ---
+	// --- metadata-source-ref ---
 
-    def "custom MethodSecurityMetadataSource can be used with higher priority than other sources"() {
-        setup:
-            context = new AnnotationConfigApplicationContext(BaseMethodConfig,CustomMethodSecurityMetadataSourceConfig)
-            MethodSecurityService service = context.getBean(MethodSecurityService)
-        when:
-            service.preAuthorize()
-        then:
-            thrown(AccessDeniedException)
-        when:
-            service.secured()
-        then:
-            thrown(AccessDeniedException)
-        when:
-            service.jsr250()
-        then:
-            thrown(AccessDeniedException)
-    }
+	def "custom MethodSecurityMetadataSource can be used with higher priority than other sources"() {
+		setup:
+			context = new AnnotationConfigApplicationContext(BaseMethodConfig,CustomMethodSecurityMetadataSourceConfig)
+			MethodSecurityService service = context.getBean(MethodSecurityService)
+		when:
+			service.preAuthorize()
+		then:
+			thrown(AccessDeniedException)
+		when:
+			service.secured()
+		then:
+			thrown(AccessDeniedException)
+		when:
+			service.jsr250()
+		then:
+			thrown(AccessDeniedException)
+	}
 
-    @EnableGlobalMethodSecurity
-    public static class CustomMethodSecurityMetadataSourceConfig extends GlobalMethodSecurityConfiguration {
-        @Override
-        protected MethodSecurityMetadataSource customMethodSecurityMetadataSource() {
-            return new AbstractMethodSecurityMetadataSource() {
-                public Collection<ConfigAttribute> getAttributes(Method method, Class<?> targetClass) {
-                    // require ROLE_NOBODY for any method on MethodSecurityService class
-                    return MethodSecurityService.isAssignableFrom(targetClass) ? [new SecurityConfig("ROLE_NOBODY")] : []
-                }
-                public Collection<ConfigAttribute> getAllConfigAttributes() {
-                    return null
-                }
-            }
-        }
-    }
+	@EnableGlobalMethodSecurity
+	public static class CustomMethodSecurityMetadataSourceConfig extends GlobalMethodSecurityConfiguration {
+		@Override
+		protected MethodSecurityMetadataSource customMethodSecurityMetadataSource() {
+			return new AbstractMethodSecurityMetadataSource() {
+				public Collection<ConfigAttribute> getAttributes(Method method, Class<?> targetClass) {
+					// require ROLE_NOBODY for any method on MethodSecurityService class
+					return MethodSecurityService.isAssignableFrom(targetClass) ? [new SecurityConfig("ROLE_NOBODY")] : []
+				}
+				public Collection<ConfigAttribute> getAllConfigAttributes() {
+					return null
+				}
+			}
+		}
+	}
 
-    // --- mode ---
+	// --- mode ---
 
-    def "aspectj mode works"() {
-        when:
-            context = new AnnotationConfigApplicationContext(AspectJModeConfig)
-        then:
-            context.getBean(AnnotationSecurityAspect)
-            context.getBean(AspectJMethodSecurityInterceptor)
-    }
+	def "aspectj mode works"() {
+		when:
+			context = new AnnotationConfigApplicationContext(AspectJModeConfig)
+		then:
+			context.getBean(AnnotationSecurityAspect)
+			context.getBean(AspectJMethodSecurityInterceptor)
+	}
 
-    @EnableGlobalMethodSecurity(mode = AdviceMode.ASPECTJ, proxyTargetClass = true)
-    public static class AspectJModeConfig extends BaseMethodConfig {
-    }
+	@EnableGlobalMethodSecurity(mode = AdviceMode.ASPECTJ, proxyTargetClass = true)
+	public static class AspectJModeConfig extends BaseMethodConfig {
+	}
 
-    def "aspectj mode works extending GlobalMethodSecurityConfiguration"() {
-        when:
-            context = new AnnotationConfigApplicationContext(BaseMethodConfig,AspectJModeExtendsGMSCConfig)
-        then:
-            context.getBean(AnnotationSecurityAspect)
-            context.getBean(AspectJMethodSecurityInterceptor)
-    }
+	def "aspectj mode works extending GlobalMethodSecurityConfiguration"() {
+		when:
+			context = new AnnotationConfigApplicationContext(BaseMethodConfig,AspectJModeExtendsGMSCConfig)
+		then:
+			context.getBean(AnnotationSecurityAspect)
+			context.getBean(AspectJMethodSecurityInterceptor)
+	}
 
-    @EnableGlobalMethodSecurity(mode = AdviceMode.ASPECTJ)
-    public static class AspectJModeExtendsGMSCConfig extends GlobalMethodSecurityConfiguration {
-    }
+	@EnableGlobalMethodSecurity(mode = AdviceMode.ASPECTJ)
+	public static class AspectJModeExtendsGMSCConfig extends GlobalMethodSecurityConfiguration {
+	}
 
-    // --- order ---
+	// --- order ---
 
-    def order() {
-        when:
-            context = new AnnotationConfigApplicationContext(CustomOrderConfig)
-            MethodSecurityMetadataSourceAdvisor advisor = context.getBean(MethodSecurityMetadataSourceAdvisor)
-        then:
-            advisor.order == 135
-    }
+	def order() {
+		when:
+			context = new AnnotationConfigApplicationContext(CustomOrderConfig)
+			MethodSecurityMetadataSourceAdvisor advisor = context.getBean(MethodSecurityMetadataSourceAdvisor)
+		then:
+			advisor.order == 135
+	}
 
-    @EnableGlobalMethodSecurity(order = 135)
-    public static class CustomOrderConfig extends BaseMethodConfig {
-    }
+	@EnableGlobalMethodSecurity(order = 135)
+	public static class CustomOrderConfig extends BaseMethodConfig {
+	}
 
-    def "order is defaulted to Ordered.LOWEST_PRECEDENCE when using @EnableGlobalMethodSecurity"() {
-        when:
-            context = new AnnotationConfigApplicationContext(DefaultOrderConfig)
-            MethodSecurityMetadataSourceAdvisor advisor = context.getBean(MethodSecurityMetadataSourceAdvisor)
-        then:
-            advisor.order == Ordered.LOWEST_PRECEDENCE
-    }
+	def "order is defaulted to Ordered.LOWEST_PRECEDENCE when using @EnableGlobalMethodSecurity"() {
+		when:
+			context = new AnnotationConfigApplicationContext(DefaultOrderConfig)
+			MethodSecurityMetadataSourceAdvisor advisor = context.getBean(MethodSecurityMetadataSourceAdvisor)
+		then:
+			advisor.order == Ordered.LOWEST_PRECEDENCE
+	}
 
-    @EnableGlobalMethodSecurity
-    public static class DefaultOrderConfig extends BaseMethodConfig {
-    }
+	@EnableGlobalMethodSecurity
+	public static class DefaultOrderConfig extends BaseMethodConfig {
+	}
 
-    def "order is defaulted to Ordered.LOWEST_PRECEDENCE when extending GlobalMethodSecurityConfiguration"() {
-        when:
-            context = new AnnotationConfigApplicationContext(BaseMethodConfig,DefaultOrderExtendsMethodSecurityConfig)
-            MethodSecurityMetadataSourceAdvisor advisor = context.getBean(MethodSecurityMetadataSourceAdvisor)
-        then:
-            advisor.order == Ordered.LOWEST_PRECEDENCE
-    }
+	def "order is defaulted to Ordered.LOWEST_PRECEDENCE when extending GlobalMethodSecurityConfiguration"() {
+		when:
+			context = new AnnotationConfigApplicationContext(BaseMethodConfig,DefaultOrderExtendsMethodSecurityConfig)
+			MethodSecurityMetadataSourceAdvisor advisor = context.getBean(MethodSecurityMetadataSourceAdvisor)
+		then:
+			advisor.order == Ordered.LOWEST_PRECEDENCE
+	}
 
-    @EnableGlobalMethodSecurity
-    public static class DefaultOrderExtendsMethodSecurityConfig extends GlobalMethodSecurityConfiguration {
-    }
+	@EnableGlobalMethodSecurity
+	public static class DefaultOrderExtendsMethodSecurityConfig extends GlobalMethodSecurityConfiguration {
+	}
 
-    // --- pre-post-annotations ---
+	// --- pre-post-annotations ---
 
-    def preAuthorize() {
-        when:
-            context = new AnnotationConfigApplicationContext(PreAuthorizeConfig)
-            MethodSecurityService service = context.getBean(MethodSecurityService)
-        then:
-            service.secured() == null
-            service.jsr250() == null
+	def preAuthorize() {
+		when:
+			context = new AnnotationConfigApplicationContext(PreAuthorizeConfig)
+			MethodSecurityService service = context.getBean(MethodSecurityService)
+		then:
+			service.secured() == null
+			service.jsr250() == null
 
-        when:
-            service.preAuthorize()
-        then:
-            thrown(AccessDeniedException)
-    }
+		when:
+			service.preAuthorize()
+		then:
+			thrown(AccessDeniedException)
+	}
 
-    @EnableGlobalMethodSecurity(prePostEnabled = true)
-    @Configuration
-    public static class PreAuthorizeConfig extends BaseMethodConfig {
-    }
+	@EnableGlobalMethodSecurity(prePostEnabled = true)
+	@Configuration
+	public static class PreAuthorizeConfig extends BaseMethodConfig {
+	}
 
-    def "prePostEnabled extends GlobalMethodSecurityConfiguration"() {
-        when:
-            context = new AnnotationConfigApplicationContext(BaseMethodConfig,PreAuthorizeExtendsGMSCConfig)
-            MethodSecurityService service = context.getBean(MethodSecurityService)
-        then:
-            service.secured() == null
-            service.jsr250() == null
+	def "prePostEnabled extends GlobalMethodSecurityConfiguration"() {
+		when:
+			context = new AnnotationConfigApplicationContext(BaseMethodConfig,PreAuthorizeExtendsGMSCConfig)
+			MethodSecurityService service = context.getBean(MethodSecurityService)
+		then:
+			service.secured() == null
+			service.jsr250() == null
 
-        when:
-            service.preAuthorize()
-        then:
-            thrown(AccessDeniedException)
-    }
+		when:
+			service.preAuthorize()
+		then:
+			thrown(AccessDeniedException)
+	}
 
-    @EnableGlobalMethodSecurity(prePostEnabled = true)
-    @Configuration
-    public static class PreAuthorizeExtendsGMSCConfig extends GlobalMethodSecurityConfiguration {
-    }
+	@EnableGlobalMethodSecurity(prePostEnabled = true)
+	@Configuration
+	public static class PreAuthorizeExtendsGMSCConfig extends GlobalMethodSecurityConfiguration {
+	}
 
-    // --- proxy-target-class ---
+	// --- proxy-target-class ---
 
-    def "proxying classes works"() {
-        when:
-            context = new AnnotationConfigApplicationContext(ProxyTargetClass)
-            MethodSecurityServiceImpl service = context.getBean(MethodSecurityServiceImpl)
-        then:
-            noExceptionThrown()
-    }
+	def "proxying classes works"() {
+		when:
+			context = new AnnotationConfigApplicationContext(ProxyTargetClass)
+			MethodSecurityServiceImpl service = context.getBean(MethodSecurityServiceImpl)
+		then:
+			noExceptionThrown()
+	}
 
-    @EnableGlobalMethodSecurity(proxyTargetClass = true)
-    @Configuration
-    public static class ProxyTargetClass extends BaseMethodConfig {
-    }
+	@EnableGlobalMethodSecurity(proxyTargetClass = true)
+	@Configuration
+	public static class ProxyTargetClass extends BaseMethodConfig {
+	}
 
-    def "proxying interfaces works"() {
-        when:
-            context = new AnnotationConfigApplicationContext(PreAuthorizeConfig)
-            MethodSecurityService service = context.getBean(MethodSecurityService)
-        then: "we get an instance of the interface"
-            noExceptionThrown()
-        when: "try to cast to the class"
-            MethodSecurityServiceImpl serviceImpl = service
-        then: "we get a class cast exception"
-            thrown(ClassCastException)
-    }
+	def "proxying interfaces works"() {
+		when:
+			context = new AnnotationConfigApplicationContext(PreAuthorizeConfig)
+			MethodSecurityService service = context.getBean(MethodSecurityService)
+		then: "we get an instance of the interface"
+			noExceptionThrown()
+		when: "try to cast to the class"
+			MethodSecurityServiceImpl serviceImpl = service
+		then: "we get a class cast exception"
+			thrown(ClassCastException)
+	}
 
-    // --- run-as-manager-ref ---
+	// --- run-as-manager-ref ---
 
-    def "custom RunAsManager"() {
-        when:
-            context = new AnnotationConfigApplicationContext(BaseMethodConfig,CustomRunAsManagerConfig)
-            MethodSecurityService service = context.getBean(MethodSecurityService)
-        then:
-            service.runAs().authorities.find { it.authority == "ROLE_RUN_AS_SUPER"}
-    }
+	def "custom RunAsManager"() {
+		when:
+			context = new AnnotationConfigApplicationContext(BaseMethodConfig,CustomRunAsManagerConfig)
+			MethodSecurityService service = context.getBean(MethodSecurityService)
+		then:
+			service.runAs().authorities.find { it.authority == "ROLE_RUN_AS_SUPER"}
+	}
 
-    @EnableGlobalMethodSecurity(securedEnabled = true)
-    public static class CustomRunAsManagerConfig extends GlobalMethodSecurityConfiguration {
-        @Override
-        protected RunAsManager runAsManager() {
-            RunAsManagerImpl runAsManager = new RunAsManagerImpl()
-            runAsManager.setKey("some key")
-            return runAsManager
-        }
-    }
+	@EnableGlobalMethodSecurity(securedEnabled = true)
+	public static class CustomRunAsManagerConfig extends GlobalMethodSecurityConfiguration {
+		@Override
+		protected RunAsManager runAsManager() {
+			RunAsManagerImpl runAsManager = new RunAsManagerImpl()
+			runAsManager.setKey("some key")
+			return runAsManager
+		}
+	}
 
-    // --- secured-annotation ---
+	// --- secured-annotation ---
 
-    def "secured enabled"() {
-        setup:
-            context = new AnnotationConfigApplicationContext(SecuredConfig)
-            MethodSecurityService service = context.getBean(MethodSecurityService)
-        when:
-            service.secured()
-        then:
-            thrown(AccessDeniedException)
-        and: "service with ROLE_USER allowed"
-            service.securedUser() == null
-        and:
-            service.preAuthorize() == null
-            service.jsr250() == null
-    }
+	def "secured enabled"() {
+		setup:
+			context = new AnnotationConfigApplicationContext(SecuredConfig)
+			MethodSecurityService service = context.getBean(MethodSecurityService)
+		when:
+			service.secured()
+		then:
+			thrown(AccessDeniedException)
+		and: "service with ROLE_USER allowed"
+			service.securedUser() == null
+		and:
+			service.preAuthorize() == null
+			service.jsr250() == null
+	}
 
-    @EnableGlobalMethodSecurity(securedEnabled = true)
-    @Configuration
-    public static class SecuredConfig extends BaseMethodConfig {
-    }
+	@EnableGlobalMethodSecurity(securedEnabled = true)
+	@Configuration
+	public static class SecuredConfig extends BaseMethodConfig {
+	}
 
-    // --- after-invocation-provider
+	// --- after-invocation-provider
 
-    def "custom AfterInvocationManager"() {
-        setup:
-            context = new AnnotationConfigApplicationContext(BaseMethodConfig,CustomAfterInvocationManagerConfig)
-            MethodSecurityService service = context.getBean(MethodSecurityService)
-        when:
-            service.preAuthorizePermitAll()
-        then:
-            AccessDeniedException e = thrown()
-            e.message == "custom AfterInvocationManager"
-    }
+	def "custom AfterInvocationManager"() {
+		setup:
+			context = new AnnotationConfigApplicationContext(BaseMethodConfig,CustomAfterInvocationManagerConfig)
+			MethodSecurityService service = context.getBean(MethodSecurityService)
+		when:
+			service.preAuthorizePermitAll()
+		then:
+			AccessDeniedException e = thrown()
+			e.message == "custom AfterInvocationManager"
+	}
 
-    @EnableGlobalMethodSecurity(prePostEnabled = true)
-    public static class CustomAfterInvocationManagerConfig extends GlobalMethodSecurityConfiguration {
-        @Override
-        protected AfterInvocationManager afterInvocationManager() {
-            return new AfterInvocationManagerStub()
-        }
+	@EnableGlobalMethodSecurity(prePostEnabled = true)
+	public static class CustomAfterInvocationManagerConfig extends GlobalMethodSecurityConfiguration {
+		@Override
+		protected AfterInvocationManager afterInvocationManager() {
+			return new AfterInvocationManagerStub()
+		}
 
-        public static class AfterInvocationManagerStub implements AfterInvocationManager {
-            Object decide(Authentication authentication, Object object, Collection<ConfigAttribute> attributes,
-                Object returnedObject) throws AccessDeniedException {
-                throw new AccessDeniedException("custom AfterInvocationManager")
-            }
+		public static class AfterInvocationManagerStub implements AfterInvocationManager {
+			Object decide(Authentication authentication, Object object, Collection<ConfigAttribute> attributes,
+				Object returnedObject) throws AccessDeniedException {
+				throw new AccessDeniedException("custom AfterInvocationManager")
+			}
 
-            boolean supports(ConfigAttribute attribute) {
-                return true
-            }
-            boolean supports(Class<?> clazz) {
-                return true
-            }
-        }
-    }
+			boolean supports(ConfigAttribute attribute) {
+				return true
+			}
+			boolean supports(Class<?> clazz) {
+				return true
+			}
+		}
+	}
 
-    // --- misc ---
+	// --- misc ---
 
-    def "good error message when no Enable annotation"() {
-        when:
-            context = new AnnotationConfigApplicationContext(ExtendsNoEnableAnntotationConfig)
-            MethodSecurityInterceptor interceptor = context.getBean(MethodSecurityInterceptor)
-            interceptor.authenticationManager.authenticate(SecurityContextHolder.context.authentication)
-        then:
-            BeanCreationException e = thrown()
-            e.message.contains(EnableGlobalMethodSecurity.class.getName() + " is required")
-    }
+	def "good error message when no Enable annotation"() {
+		when:
+			context = new AnnotationConfigApplicationContext(ExtendsNoEnableAnntotationConfig)
+			MethodSecurityInterceptor interceptor = context.getBean(MethodSecurityInterceptor)
+			interceptor.authenticationManager.authenticate(SecurityContextHolder.context.authentication)
+		then:
+			BeanCreationException e = thrown()
+			e.message.contains(EnableGlobalMethodSecurity.class.getName() + " is required")
+	}
 
-    @Configuration
-    public static class ExtendsNoEnableAnntotationConfig extends GlobalMethodSecurityConfiguration {
-        @Override
-        protected AuthenticationManager authenticationManager() {
-            return new AuthenticationManager() {
-                Authentication authenticate(Authentication authentication) {
-                    throw new UnsupportedOperationException()
-                }
-            }
-        }
-    }
+	@Configuration
+	public static class ExtendsNoEnableAnntotationConfig extends GlobalMethodSecurityConfiguration {
+		@Override
+		protected AuthenticationManager authenticationManager() {
+			return new AuthenticationManager() {
+				Authentication authenticate(Authentication authentication) {
+					throw new UnsupportedOperationException()
+				}
+			}
+		}
+	}
 
-    def "import subclass of GlobalMethodSecurityConfiguration"() {
-        when:
-            context = new AnnotationConfigApplicationContext(ImportSubclassGMSCConfig)
-            MethodSecurityService service = context.getBean(MethodSecurityService)
-        then:
-            service.secured() == null
-            service.jsr250() == null
+	def "import subclass of GlobalMethodSecurityConfiguration"() {
+		when:
+			context = new AnnotationConfigApplicationContext(ImportSubclassGMSCConfig)
+			MethodSecurityService service = context.getBean(MethodSecurityService)
+		then:
+			service.secured() == null
+			service.jsr250() == null
 
-        when:
-            service.preAuthorize()
-        then:
-            thrown(AccessDeniedException)
-    }
+		when:
+			service.preAuthorize()
+		then:
+			thrown(AccessDeniedException)
+	}
 
-    @Configuration
-    @Import(PreAuthorizeExtendsGMSCConfig)
-    public static class ImportSubclassGMSCConfig extends BaseMethodConfig {
-    }
+	@Configuration
+	@Import(PreAuthorizeExtendsGMSCConfig)
+	public static class ImportSubclassGMSCConfig extends BaseMethodConfig {
+	}
 
-    @Configuration
-    public static class BaseMethodConfig extends BaseAuthenticationConfig {
-        @Bean
-        public MethodSecurityService methodSecurityService() {
-            return new MethodSecurityServiceImpl()
-        }
-    }
+	@Configuration
+	public static class BaseMethodConfig extends BaseAuthenticationConfig {
+		@Bean
+		public MethodSecurityService methodSecurityService() {
+			return new MethodSecurityServiceImpl()
+		}
+	}
 }

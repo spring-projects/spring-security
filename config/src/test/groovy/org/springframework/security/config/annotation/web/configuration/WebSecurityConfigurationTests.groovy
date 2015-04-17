@@ -47,295 +47,295 @@ import org.springframework.test.util.ReflectionTestUtils
  */
 class WebSecurityConfigurationTests extends BaseSpringSpec {
 
-    def "WebSecurityConfigurers are sorted"() {
-        when:
-            loadConfig(SortedWebSecurityConfigurerAdaptersConfig);
-            List<SecurityFilterChain> filterChains = context.getBean(FilterChainProxy).filterChains
-        then:
-            filterChains[0].requestMatcher.pattern == "/ignore1"
-            filterChains[0].filters.empty
-            filterChains[1].requestMatcher.pattern == "/ignore2"
-            filterChains[1].filters.empty
+	def "WebSecurityConfigurers are sorted"() {
+		when:
+			loadConfig(SortedWebSecurityConfigurerAdaptersConfig);
+			List<SecurityFilterChain> filterChains = context.getBean(FilterChainProxy).filterChains
+		then:
+			filterChains[0].requestMatcher.pattern == "/ignore1"
+			filterChains[0].filters.empty
+			filterChains[1].requestMatcher.pattern == "/ignore2"
+			filterChains[1].filters.empty
 
-            filterChains[2].requestMatcher.pattern == "/role1/**"
-            filterChains[3].requestMatcher.pattern == "/role2/**"
-            filterChains[4].requestMatcher.pattern == "/role3/**"
-            filterChains[5].requestMatcher.class == AnyRequestMatcher
-    }
-
-
-    @EnableWebSecurity
-    static class SortedWebSecurityConfigurerAdaptersConfig {
-        public AuthenticationManager authenticationManager() throws Exception {
-            return new AuthenticationManagerBuilder()
-                .inMemoryAuthentication()
-                    .withUser("marissa").password("koala").roles("USER").and()
-                    .withUser("paul").password("emu").roles("USER").and()
-                    .and()
-                .build();
-        }
-
-        @Configuration
-        @Order(1)
-        public static class WebConfigurer1 extends WebSecurityConfigurerAdapter {
-            @Override
-            public void configure(WebSecurity web)	throws Exception {
-                web
-                    .ignoring()
-                        .antMatchers("/ignore1","/ignore2");
-            }
-
-            @Override
-            protected void configure(HttpSecurity http) throws Exception {
-                http
-                    .antMatcher("/role1/**")
-                    .authorizeRequests()
-                        .anyRequest().hasRole("1");
-            }
-        }
-
-        @Configuration
-        @Order(2)
-        public static class WebConfigurer2 extends WebSecurityConfigurerAdapter {
-            @Override
-            protected void configure(HttpSecurity http) throws Exception {
-                http
-                    .antMatcher("/role2/**")
-                        .authorizeRequests()
-                            .anyRequest().hasRole("2");
-            }
-        }
-
-        @Configuration
-        @Order(3)
-        public static class WebConfigurer3 extends WebSecurityConfigurerAdapter {
-            @Override
-            protected void configure(HttpSecurity http) throws Exception {
-                http
-                    .antMatcher("/role3/**")
-                    .authorizeRequests()
-                        .anyRequest().hasRole("3");
-            }
-        }
-
-        @Configuration
-        public static class WebConfigurer4 extends WebSecurityConfigurerAdapter {
-
-            @Override
-            protected void configure(HttpSecurity http) throws Exception {
-                http
-                    .authorizeRequests()
-                        .anyRequest().hasRole("4");
-            }
-        }
-    }
-
-    def "WebSecurityConfigurers fails with duplicate order"() {
-        when:
-            loadConfig(DuplicateOrderConfig);
-        then:
-            BeanCreationException e = thrown()
-            e.message.contains "@Order on WebSecurityConfigurers must be unique"
-    }
+			filterChains[2].requestMatcher.pattern == "/role1/**"
+			filterChains[3].requestMatcher.pattern == "/role2/**"
+			filterChains[4].requestMatcher.pattern == "/role3/**"
+			filterChains[5].requestMatcher.class == AnyRequestMatcher
+	}
 
 
-    @EnableWebSecurity
-    static class DuplicateOrderConfig {
-        public AuthenticationManager authenticationManager() throws Exception {
-            return new AuthenticationManagerBuilder()
-                .inMemoryAuthentication()
-                    .withUser("user").password("password").roles("USER").and()
-                    .and()
-                .build();
-        }
+	@EnableWebSecurity
+	static class SortedWebSecurityConfigurerAdaptersConfig {
+		public AuthenticationManager authenticationManager() throws Exception {
+			return new AuthenticationManagerBuilder()
+				.inMemoryAuthentication()
+					.withUser("marissa").password("koala").roles("USER").and()
+					.withUser("paul").password("emu").roles("USER").and()
+					.and()
+				.build();
+		}
 
-        @Configuration
-        public static class WebConfigurer1 extends WebSecurityConfigurerAdapter {
+		@Configuration
+		@Order(1)
+		public static class WebConfigurer1 extends WebSecurityConfigurerAdapter {
+			@Override
+			public void configure(WebSecurity web)	throws Exception {
+				web
+					.ignoring()
+						.antMatchers("/ignore1","/ignore2");
+			}
 
-            @Override
-            protected void configure(HttpSecurity http) throws Exception {
-                http
-                    .antMatcher("/role1/**")
-                    .authorizeRequests()
-                        .anyRequest().hasRole("1");
-            }
-        }
+			@Override
+			protected void configure(HttpSecurity http) throws Exception {
+				http
+					.antMatcher("/role1/**")
+					.authorizeRequests()
+						.anyRequest().hasRole("1");
+			}
+		}
 
-        @Configuration
-        public static class WebConfigurer2 extends WebSecurityConfigurerAdapter {
-            @Override
-            protected void configure(HttpSecurity http) throws Exception {
-                http
-                    .antMatcher("/role2/**")
-                    .authorizeRequests()
-                        .anyRequest().hasRole("2");
-            }
-        }
-    }
+		@Configuration
+		@Order(2)
+		public static class WebConfigurer2 extends WebSecurityConfigurerAdapter {
+			@Override
+			protected void configure(HttpSecurity http) throws Exception {
+				http
+					.antMatcher("/role2/**")
+						.authorizeRequests()
+							.anyRequest().hasRole("2");
+			}
+		}
 
-    def "Override privilegeEvaluator"() {
-        setup:
-            WebInvocationPrivilegeEvaluator privilegeEvaluator = Mock()
-            PrivilegeEvaluatorConfigurerAdapterConfig.PE = privilegeEvaluator
-        when:
-            loadConfig(PrivilegeEvaluatorConfigurerAdapterConfig)
-        then:
-            context.getBean(WebInvocationPrivilegeEvaluator) == privilegeEvaluator
-    }
+		@Configuration
+		@Order(3)
+		public static class WebConfigurer3 extends WebSecurityConfigurerAdapter {
+			@Override
+			protected void configure(HttpSecurity http) throws Exception {
+				http
+					.antMatcher("/role3/**")
+					.authorizeRequests()
+						.anyRequest().hasRole("3");
+			}
+		}
 
-    @EnableWebSecurity
-    static class PrivilegeEvaluatorConfigurerAdapterConfig extends WebSecurityConfigurerAdapter {
-        static WebInvocationPrivilegeEvaluator PE
+		@Configuration
+		public static class WebConfigurer4 extends WebSecurityConfigurerAdapter {
 
-        @Override
-        public void configure(WebSecurity web) throws Exception {
-            web
-                .privilegeEvaluator(PE)
-        }
-    }
+			@Override
+			protected void configure(HttpSecurity http) throws Exception {
+				http
+					.authorizeRequests()
+						.anyRequest().hasRole("4");
+			}
+		}
+	}
 
-    def "Override webSecurityExpressionHandler"() {
-        setup:
-            SecurityExpressionHandler expressionHandler = Mock()
-            ExpressionParser parser = Mock()
-            WebSecurityExpressionHandlerConfig.EH = expressionHandler
-        when:
-            loadConfig(WebSecurityExpressionHandlerConfig)
-        then:
-            context.getBean(SecurityExpressionHandler) == expressionHandler
-            1 * expressionHandler.getExpressionParser() >> parser
-    }
+	def "WebSecurityConfigurers fails with duplicate order"() {
+		when:
+			loadConfig(DuplicateOrderConfig);
+		then:
+			BeanCreationException e = thrown()
+			e.message.contains "@Order on WebSecurityConfigurers must be unique"
+	}
 
-    @EnableWebSecurity
-    static class WebSecurityExpressionHandlerConfig extends WebSecurityConfigurerAdapter {
-        static SecurityExpressionHandler EH
 
-        @Override
-        public void configure(WebSecurity web) throws Exception {
-            web
-                .expressionHandler(EH)
-        }
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .authorizeRequests()
-                    .expressionHandler(EH)
-                    .anyRequest().authenticated()
-        }
-    }
+	@EnableWebSecurity
+	static class DuplicateOrderConfig {
+		public AuthenticationManager authenticationManager() throws Exception {
+			return new AuthenticationManagerBuilder()
+				.inMemoryAuthentication()
+					.withUser("user").password("password").roles("USER").and()
+					.and()
+				.build();
+		}
 
-    def "#138 webSecurityExpressionHandler defaults"() {
-        when:
-            loadConfig(WebSecurityExpressionHandlerDefaultsConfig)
-        then:
-            SecurityExpressionHandler wseh = context.getBean(SecurityExpressionHandler)
-            wseh instanceof DefaultWebSecurityExpressionHandler
-    }
+		@Configuration
+		public static class WebConfigurer1 extends WebSecurityConfigurerAdapter {
 
-    @EnableWebSecurity
-    static class WebSecurityExpressionHandlerDefaultsConfig extends WebSecurityConfigurerAdapter {
+			@Override
+			protected void configure(HttpSecurity http) throws Exception {
+				http
+					.antMatcher("/role1/**")
+					.authorizeRequests()
+						.anyRequest().hasRole("1");
+			}
+		}
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .authorizeRequests()
-                    .anyRequest().authenticated()
-        }
-    }
+		@Configuration
+		public static class WebConfigurer2 extends WebSecurityConfigurerAdapter {
+			@Override
+			protected void configure(HttpSecurity http) throws Exception {
+				http
+					.antMatcher("/role2/**")
+					.authorizeRequests()
+						.anyRequest().hasRole("2");
+			}
+		}
+	}
 
-    def "#138 WebInvocationPrivilegeEvaluator defaults"() {
-        when:
-            loadConfig(WebInvocationPrivilegeEvaluatorDefaultsConfig)
-        then:
-            WebInvocationPrivilegeEvaluator wipe = context.getBean(WebInvocationPrivilegeEvaluator)
-            wipe instanceof DefaultWebInvocationPrivilegeEvaluator
-            wipe.securityInterceptor != null
-    }
+	def "Override privilegeEvaluator"() {
+		setup:
+			WebInvocationPrivilegeEvaluator privilegeEvaluator = Mock()
+			PrivilegeEvaluatorConfigurerAdapterConfig.PE = privilegeEvaluator
+		when:
+			loadConfig(PrivilegeEvaluatorConfigurerAdapterConfig)
+		then:
+			context.getBean(WebInvocationPrivilegeEvaluator) == privilegeEvaluator
+	}
 
-    @EnableWebSecurity
-    static class WebInvocationPrivilegeEvaluatorDefaultsConfig extends WebSecurityConfigurerAdapter {
+	@EnableWebSecurity
+	static class PrivilegeEvaluatorConfigurerAdapterConfig extends WebSecurityConfigurerAdapter {
+		static WebInvocationPrivilegeEvaluator PE
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .authorizeRequests()
-                    .anyRequest().authenticated()
-        }
-    }
+		@Override
+		public void configure(WebSecurity web) throws Exception {
+			web
+				.privilegeEvaluator(PE)
+		}
+	}
 
-    def "SEC-2303: DefaultExpressionHandler has bean resolver set"() {
-        when:
-            loadConfig(DefaultExpressionHandlerSetsBeanResolverConfig)
-        then: "the exposed bean has a BeanResolver set"
-            ReflectionTestUtils.getField(context.getBean(SecurityExpressionHandler),"br")
-        when:
-            springSecurityFilterChain.doFilter(request, response, chain)
-        then: "we can use the BeanResolver with a grant"
-            noExceptionThrown()
-        when: "we can use the Beanresolver with a deny"
-            springSecurityFilterChain.doFilter(new MockHttpServletRequest(method:'POST'), response, chain)
-        then:
-            noExceptionThrown()
-    }
+	def "Override webSecurityExpressionHandler"() {
+		setup:
+			SecurityExpressionHandler expressionHandler = Mock()
+			ExpressionParser parser = Mock()
+			WebSecurityExpressionHandlerConfig.EH = expressionHandler
+		when:
+			loadConfig(WebSecurityExpressionHandlerConfig)
+		then:
+			context.getBean(SecurityExpressionHandler) == expressionHandler
+			1 * expressionHandler.getExpressionParser() >> parser
+	}
 
-    @EnableWebSecurity
-    static class DefaultExpressionHandlerSetsBeanResolverConfig extends WebSecurityConfigurerAdapter {
+	@EnableWebSecurity
+	static class WebSecurityExpressionHandlerConfig extends WebSecurityConfigurerAdapter {
+		static SecurityExpressionHandler EH
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .authorizeRequests()
-                    .anyRequest().access("request.method == 'GET' ? @b.grant() : @b.deny()")
-        }
+		@Override
+		public void configure(WebSecurity web) throws Exception {
+			web
+				.expressionHandler(EH)
+		}
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.authorizeRequests()
+					.expressionHandler(EH)
+					.anyRequest().authenticated()
+		}
+	}
 
-        @Bean
-        public MyBean b() {
-            new MyBean()
-        }
+	def "#138 webSecurityExpressionHandler defaults"() {
+		when:
+			loadConfig(WebSecurityExpressionHandlerDefaultsConfig)
+		then:
+			SecurityExpressionHandler wseh = context.getBean(SecurityExpressionHandler)
+			wseh instanceof DefaultWebSecurityExpressionHandler
+	}
 
-        static class MyBean {
-            boolean deny() {
-                false
-            }
+	@EnableWebSecurity
+	static class WebSecurityExpressionHandlerDefaultsConfig extends WebSecurityConfigurerAdapter {
 
-            boolean grant() {
-                true
-            }
-        }
-    }
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.authorizeRequests()
+					.anyRequest().authenticated()
+		}
+	}
 
-    def "SEC-2461: Multiple WebSecurityConfiguration instances cause null springSecurityFilterChain"() {
-        setup:
-            def parent = loadConfig(ParentConfig)
-            def child = new AnnotationConfigApplicationContext()
-            child.register(ChildConfig)
-            child.parent = parent
-        when:
-            child.refresh()
-        then: "springSecurityFilterChain can be found in parent and child"
-            parent.getBean("springSecurityFilterChain")
-            child.getBean("springSecurityFilterChain")
-        and: "springSecurityFilterChain is defined in both parent and child (don't search parent)"
-            parent.containsBeanDefinition("springSecurityFilterChain")
-            child.containsBeanDefinition("springSecurityFilterChain")
-        cleanup:
-            child?.close()
-            // parent.close() is in superclass
-    }
+	def "#138 WebInvocationPrivilegeEvaluator defaults"() {
+		when:
+			loadConfig(WebInvocationPrivilegeEvaluatorDefaultsConfig)
+		then:
+			WebInvocationPrivilegeEvaluator wipe = context.getBean(WebInvocationPrivilegeEvaluator)
+			wipe instanceof DefaultWebInvocationPrivilegeEvaluator
+			wipe.securityInterceptor != null
+	}
 
-    @EnableWebSecurity
-    static class ParentConfig extends WebSecurityConfigurerAdapter {
-        @Autowired
-        public void configureGlobal(AuthenticationManagerBuilder auth) {
-            auth.inMemoryAuthentication()
-        }
-    }
+	@EnableWebSecurity
+	static class WebInvocationPrivilegeEvaluatorDefaultsConfig extends WebSecurityConfigurerAdapter {
 
-    @EnableWebSecurity
-    static class ChildConfig extends WebSecurityConfigurerAdapter { }
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.authorizeRequests()
+					.anyRequest().authenticated()
+		}
+	}
 
-    def "SEC-2773: delegatingApplicationListener is static method"() {
-        expect: 'delegatingApplicationListener to prevent premature instantiation of WebSecurityConfiguration'
-        Modifier.isStatic(WebSecurityConfiguration.metaClass.methods.find { it.name == 'delegatingApplicationListener'}.modifiers)
-    }
+	def "SEC-2303: DefaultExpressionHandler has bean resolver set"() {
+		when:
+			loadConfig(DefaultExpressionHandlerSetsBeanResolverConfig)
+		then: "the exposed bean has a BeanResolver set"
+			ReflectionTestUtils.getField(context.getBean(SecurityExpressionHandler),"br")
+		when:
+			springSecurityFilterChain.doFilter(request, response, chain)
+		then: "we can use the BeanResolver with a grant"
+			noExceptionThrown()
+		when: "we can use the Beanresolver with a deny"
+			springSecurityFilterChain.doFilter(new MockHttpServletRequest(method:'POST'), response, chain)
+		then:
+			noExceptionThrown()
+	}
+
+	@EnableWebSecurity
+	static class DefaultExpressionHandlerSetsBeanResolverConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.authorizeRequests()
+					.anyRequest().access("request.method == 'GET' ? @b.grant() : @b.deny()")
+		}
+
+		@Bean
+		public MyBean b() {
+			new MyBean()
+		}
+
+		static class MyBean {
+			boolean deny() {
+				false
+			}
+
+			boolean grant() {
+				true
+			}
+		}
+	}
+
+	def "SEC-2461: Multiple WebSecurityConfiguration instances cause null springSecurityFilterChain"() {
+		setup:
+			def parent = loadConfig(ParentConfig)
+			def child = new AnnotationConfigApplicationContext()
+			child.register(ChildConfig)
+			child.parent = parent
+		when:
+			child.refresh()
+		then: "springSecurityFilterChain can be found in parent and child"
+			parent.getBean("springSecurityFilterChain")
+			child.getBean("springSecurityFilterChain")
+		and: "springSecurityFilterChain is defined in both parent and child (don't search parent)"
+			parent.containsBeanDefinition("springSecurityFilterChain")
+			child.containsBeanDefinition("springSecurityFilterChain")
+		cleanup:
+			child?.close()
+			// parent.close() is in superclass
+	}
+
+	@EnableWebSecurity
+	static class ParentConfig extends WebSecurityConfigurerAdapter {
+		@Autowired
+		public void configureGlobal(AuthenticationManagerBuilder auth) {
+			auth.inMemoryAuthentication()
+		}
+	}
+
+	@EnableWebSecurity
+	static class ChildConfig extends WebSecurityConfigurerAdapter { }
+
+	def "SEC-2773: delegatingApplicationListener is static method"() {
+		expect: 'delegatingApplicationListener to prevent premature instantiation of WebSecurityConfiguration'
+		Modifier.isStatic(WebSecurityConfiguration.metaClass.methods.find { it.name == 'delegatingApplicationListener'}.modifiers)
+	}
 }

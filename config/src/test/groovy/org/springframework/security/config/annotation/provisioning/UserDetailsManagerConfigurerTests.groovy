@@ -29,69 +29,69 @@ import spock.lang.Specification
  */
 class UserDetailsManagerConfigurerTests extends Specification {
 
-    def "all attributes supported"() {
-        setup:
-            InMemoryUserDetailsManager userDetailsManager = new InMemoryUserDetailsManager([])
-        when:
-            UserDetails userDetails = new UserDetailsManagerConfigurer<UserDetailsManagerConfigurer<InMemoryUserDetailsManager>>(userDetailsManager)
-                .withUser("user")
-                    .password("password")
-                    .roles("USER")
-                    .disabled(true)
-                    .accountExpired(true)
-                    .accountLocked(true)
-                    .credentialsExpired(true)
-                    .build()
-        then:
-            userDetails.username == 'user'
-            userDetails.password == 'password'
-            userDetails.authorities.collect { it.authority } == ["ROLE_USER"]
-            !userDetails.accountNonExpired
-            !userDetails.accountNonLocked
-            !userDetails.credentialsNonExpired
-            !userDetails.enabled
-    }
+	def "all attributes supported"() {
+		setup:
+			InMemoryUserDetailsManager userDetailsManager = new InMemoryUserDetailsManager([])
+		when:
+			UserDetails userDetails = new UserDetailsManagerConfigurer<UserDetailsManagerConfigurer<InMemoryUserDetailsManager>>(userDetailsManager)
+				.withUser("user")
+					.password("password")
+					.roles("USER")
+					.disabled(true)
+					.accountExpired(true)
+					.accountLocked(true)
+					.credentialsExpired(true)
+					.build()
+		then:
+			userDetails.username == 'user'
+			userDetails.password == 'password'
+			userDetails.authorities.collect { it.authority } == ["ROLE_USER"]
+			!userDetails.accountNonExpired
+			!userDetails.accountNonLocked
+			!userDetails.credentialsNonExpired
+			!userDetails.enabled
+	}
 
-    def "authorities(GrantedAuthorities...) works"() {
-        setup:
-            InMemoryUserDetailsManager userDetailsManager = new InMemoryUserDetailsManager([])
-            SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_USER")
-        when:
-            UserDetails userDetails = new UserDetailsManagerConfigurer<UserDetailsManagerConfigurer<InMemoryUserDetailsManager>>(userDetailsManager)
-                .withUser("user")
-                    .password("password")
-                    .authorities(authority)
-                    .build()
-        then:
-            userDetails.authorities == [authority] as Set
-    }
+	def "authorities(GrantedAuthorities...) works"() {
+		setup:
+			InMemoryUserDetailsManager userDetailsManager = new InMemoryUserDetailsManager([])
+			SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_USER")
+		when:
+			UserDetails userDetails = new UserDetailsManagerConfigurer<UserDetailsManagerConfigurer<InMemoryUserDetailsManager>>(userDetailsManager)
+				.withUser("user")
+					.password("password")
+					.authorities(authority)
+					.build()
+		then:
+			userDetails.authorities == [authority] as Set
+	}
 
-    def "authorities(String...) works"() {
-        setup:
-            InMemoryUserDetailsManager userDetailsManager = new InMemoryUserDetailsManager([])
-            String authority = "ROLE_USER"
-        when:
-            UserDetails userDetails = new UserDetailsManagerConfigurer<UserDetailsManagerConfigurer<InMemoryUserDetailsManager>>(userDetailsManager)
-                .withUser("user")
-                    .password("password")
-                    .authorities(authority)
-                    .build()
-        then:
-            userDetails.authorities.collect { it.authority } == [authority]
-    }
+	def "authorities(String...) works"() {
+		setup:
+			InMemoryUserDetailsManager userDetailsManager = new InMemoryUserDetailsManager([])
+			String authority = "ROLE_USER"
+		when:
+			UserDetails userDetails = new UserDetailsManagerConfigurer<UserDetailsManagerConfigurer<InMemoryUserDetailsManager>>(userDetailsManager)
+				.withUser("user")
+					.password("password")
+					.authorities(authority)
+					.build()
+		then:
+			userDetails.authorities.collect { it.authority } == [authority]
+	}
 
 
-    def "authorities(List) works"() {
-        setup:
-            InMemoryUserDetailsManager userDetailsManager = new InMemoryUserDetailsManager([])
-            SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_USER")
-        when:
-            UserDetails userDetails = new UserDetailsManagerConfigurer<UserDetailsManagerConfigurer<InMemoryUserDetailsManager>>(userDetailsManager)
-                .withUser("user")
-                    .password("password")
-                    .authorities([authority])
-                    .build()
-        then:
-            userDetails.authorities == [authority] as Set
-    }
+	def "authorities(List) works"() {
+		setup:
+			InMemoryUserDetailsManager userDetailsManager = new InMemoryUserDetailsManager([])
+			SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_USER")
+		when:
+			UserDetails userDetails = new UserDetailsManagerConfigurer<UserDetailsManagerConfigurer<InMemoryUserDetailsManager>>(userDetailsManager)
+				.withUser("user")
+					.password("password")
+					.authorities([authority])
+					.build()
+		then:
+			userDetails.authorities == [authority] as Set
+	}
 }

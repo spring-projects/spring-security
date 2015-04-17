@@ -23,8 +23,8 @@ import geb.Page
  * @author Rob Winch
  */
 class DeleteConfirmPage extends Page {
-    static at = { assert driver.title == 'Deletion completed'; true}
-    static content = {
-        manage(to: ContactsPage) { $('a', text: 'Manage') }
-    }
+	static at = { assert driver.title == 'Deletion completed'; true}
+	static content = {
+		manage(to: ContactsPage) { $('a', text: 'Manage') }
+	}
 }

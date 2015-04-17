@@ -30,144 +30,144 @@ import spock.lang.Specification
  */
 class AbstractConfiguredSecurityBuilderTests extends BaseSpringSpec {
 
-    ConcreteAbstractConfiguredBuilder builder
+	ConcreteAbstractConfiguredBuilder builder
 
-    def setup() {
-        builder = new ConcreteAbstractConfiguredBuilder(objectPostProcessor)
-    }
+	def setup() {
+		builder = new ConcreteAbstractConfiguredBuilder(objectPostProcessor)
+	}
 
-    def "Null ObjectPostProcessor rejected"() {
-        when:
-            new ConcreteAbstractConfiguredBuilder(null)
-        then:
-            thrown(IllegalArgumentException)
-        when:
-            builder.objectPostProcessor(null);
-        then:
-            thrown(IllegalArgumentException)
-    }
+	def "Null ObjectPostProcessor rejected"() {
+		when:
+			new ConcreteAbstractConfiguredBuilder(null)
+		then:
+			thrown(IllegalArgumentException)
+		when:
+			builder.objectPostProcessor(null);
+		then:
+			thrown(IllegalArgumentException)
+	}
 
-    def "apply null is rejected"() {
-        when:
-            builder.apply(null)
-        then:
-            thrown(IllegalArgumentException)
-    }
+	def "apply null is rejected"() {
+		when:
+			builder.apply(null)
+		then:
+			thrown(IllegalArgumentException)
+	}
 
-    def "Duplicate configurer is removed"() {
-        when:
-            builder.apply(new ConcreteConfigurer())
-            builder.apply(new ConcreteConfigurer())
-        then:
-            ReflectionTestUtils.getField(builder,"configurers").size() == 1
-    }
+	def "Duplicate configurer is removed"() {
+		when:
+			builder.apply(new ConcreteConfigurer())
+			builder.apply(new ConcreteConfigurer())
+		then:
+			ReflectionTestUtils.getField(builder,"configurers").size() == 1
+	}
 
-    def "build twice fails"() {
-        setup:
-            builder.build()
-        when:
-            builder.build()
-        then:
-            thrown(IllegalStateException)
-    }
+	def "build twice fails"() {
+		setup:
+			builder.build()
+		when:
+			builder.build()
+		then:
+			thrown(IllegalStateException)
+	}
 
-    def "getObject before build fails"() {
-        when:
-            builder.getObject()
-        then:
-            thrown(IllegalStateException)
-    }
+	def "getObject before build fails"() {
+		when:
+			builder.getObject()
+		then:
+			thrown(IllegalStateException)
+	}
 
-    def "Configurer.init can apply another configurer"() {
-        setup:
-            DelegateConfigurer.CONF = Mock(SecurityConfigurerAdapter)
-        when:
-            builder.apply(new DelegateConfigurer())
-            builder.build()
-        then:
-            1 * DelegateConfigurer.CONF.init(builder)
-            1 * DelegateConfigurer.CONF.configure(builder)
-    }
+	def "Configurer.init can apply another configurer"() {
+		setup:
+			DelegateConfigurer.CONF = Mock(SecurityConfigurerAdapter)
+		when:
+			builder.apply(new DelegateConfigurer())
+			builder.build()
+		then:
+			1 * DelegateConfigurer.CONF.init(builder)
+			1 * DelegateConfigurer.CONF.configure(builder)
+	}
 
-    def "getConfigurer with multi fails"() {
-        setup:
-            ConcreteAbstractConfiguredBuilder builder = new ConcreteAbstractConfiguredBuilder(objectPostProcessor, true)
-            builder.apply(new DelegateConfigurer())
-            builder.apply(new DelegateConfigurer())
-        when:
-            builder.getConfigurer(DelegateConfigurer)
-        then: "Fail due to trying to obtain a single DelegateConfigurer and multiple are provided"
-            thrown(IllegalStateException)
-    }
+	def "getConfigurer with multi fails"() {
+		setup:
+			ConcreteAbstractConfiguredBuilder builder = new ConcreteAbstractConfiguredBuilder(objectPostProcessor, true)
+			builder.apply(new DelegateConfigurer())
+			builder.apply(new DelegateConfigurer())
+		when:
+			builder.getConfigurer(DelegateConfigurer)
+		then: "Fail due to trying to obtain a single DelegateConfigurer and multiple are provided"
+			thrown(IllegalStateException)
+	}
 
-    def "removeConfigurer with multi fails"() {
-        setup:
-            ConcreteAbstractConfiguredBuilder builder = new ConcreteAbstractConfiguredBuilder(objectPostProcessor, true)
-            builder.apply(new DelegateConfigurer())
-            builder.apply(new DelegateConfigurer())
-        when:
-            builder.removeConfigurer(DelegateConfigurer)
-        then: "Fail due to trying to remove and obtain a single DelegateConfigurer and multiple are provided"
-            thrown(IllegalStateException)
-    }
+	def "removeConfigurer with multi fails"() {
+		setup:
+			ConcreteAbstractConfiguredBuilder builder = new ConcreteAbstractConfiguredBuilder(objectPostProcessor, true)
+			builder.apply(new DelegateConfigurer())
+			builder.apply(new DelegateConfigurer())
+		when:
+			builder.removeConfigurer(DelegateConfigurer)
+		then: "Fail due to trying to remove and obtain a single DelegateConfigurer and multiple are provided"
+			thrown(IllegalStateException)
+	}
 
-    def "removeConfigurers with multi"() {
-        setup:
-            DelegateConfigurer c1 = new DelegateConfigurer()
-            DelegateConfigurer c2 = new DelegateConfigurer()
-            ConcreteAbstractConfiguredBuilder builder = new ConcreteAbstractConfiguredBuilder(objectPostProcessor, true)
-            builder.apply(c1)
-            builder.apply(c2)
-        when:
-            def result = builder.removeConfigurers(DelegateConfigurer)
-        then:
-            result.size() == 2
-            result.contains(c1)
-            result.contains(c2)
-            builder.getConfigurers(DelegateConfigurer).empty
-    }
+	def "removeConfigurers with multi"() {
+		setup:
+			DelegateConfigurer c1 = new DelegateConfigurer()
+			DelegateConfigurer c2 = new DelegateConfigurer()
+			ConcreteAbstractConfiguredBuilder builder = new ConcreteAbstractConfiguredBuilder(objectPostProcessor, true)
+			builder.apply(c1)
+			builder.apply(c2)
+		when:
+			def result = builder.removeConfigurers(DelegateConfigurer)
+		then:
+			result.size() == 2
+			result.contains(c1)
+			result.contains(c2)
+			builder.getConfigurers(DelegateConfigurer).empty
+	}
 
-    def "getConfigurers with multi"() {
-        setup:
-            DelegateConfigurer c1 = new DelegateConfigurer()
-            DelegateConfigurer c2 = new DelegateConfigurer()
-            ConcreteAbstractConfiguredBuilder builder = new ConcreteAbstractConfiguredBuilder(objectPostProcessor, true)
-            builder.apply(c1)
-            builder.apply(c2)
-        when:
-            def result = builder.getConfigurers(DelegateConfigurer)
-        then:
-            result.size() == 2
-            result.contains(c1)
-            result.contains(c2)
-            builder.getConfigurers(DelegateConfigurer).size() == 2
-    }
+	def "getConfigurers with multi"() {
+		setup:
+			DelegateConfigurer c1 = new DelegateConfigurer()
+			DelegateConfigurer c2 = new DelegateConfigurer()
+			ConcreteAbstractConfiguredBuilder builder = new ConcreteAbstractConfiguredBuilder(objectPostProcessor, true)
+			builder.apply(c1)
+			builder.apply(c2)
+		when:
+			def result = builder.getConfigurers(DelegateConfigurer)
+		then:
+			result.size() == 2
+			result.contains(c1)
+			result.contains(c2)
+			builder.getConfigurers(DelegateConfigurer).size() == 2
+	}
 
-    private static class DelegateConfigurer extends SecurityConfigurerAdapter<Object, ConcreteAbstractConfiguredBuilder> {
-        private static SecurityConfigurer<Object, ConcreteAbstractConfiguredBuilder> CONF;
+	private static class DelegateConfigurer extends SecurityConfigurerAdapter<Object, ConcreteAbstractConfiguredBuilder> {
+		private static SecurityConfigurer<Object, ConcreteAbstractConfiguredBuilder> CONF;
 
-        @Override
-        public void init(ConcreteAbstractConfiguredBuilder builder)
-                throws Exception {
-            builder.apply(CONF);
-        }
-    }
+		@Override
+		public void init(ConcreteAbstractConfiguredBuilder builder)
+				throws Exception {
+			builder.apply(CONF);
+		}
+	}
 
-    private static class ConcreteConfigurer extends SecurityConfigurerAdapter<Object, ConcreteAbstractConfiguredBuilder> { }
+	private static class ConcreteConfigurer extends SecurityConfigurerAdapter<Object, ConcreteAbstractConfiguredBuilder> { }
 
-    private class ConcreteAbstractConfiguredBuilder extends AbstractConfiguredSecurityBuilder<Object, ConcreteAbstractConfiguredBuilder> {
+	private class ConcreteAbstractConfiguredBuilder extends AbstractConfiguredSecurityBuilder<Object, ConcreteAbstractConfiguredBuilder> {
 
-        public ConcreteAbstractConfiguredBuilder(ObjectPostProcessor<Object> objectPostProcessor) {
-            super(objectPostProcessor);
-        }
+		public ConcreteAbstractConfiguredBuilder(ObjectPostProcessor<Object> objectPostProcessor) {
+			super(objectPostProcessor);
+		}
 
-        public ConcreteAbstractConfiguredBuilder(ObjectPostProcessor<Object> objectPostProcessor, boolean allowMulti) {
-            super(objectPostProcessor,allowMulti);
-        }
+		public ConcreteAbstractConfiguredBuilder(ObjectPostProcessor<Object> objectPostProcessor, boolean allowMulti) {
+			super(objectPostProcessor,allowMulti);
+		}
 
-        public Object performBuild() throws Exception {
-            return "success";
-        }
-    }
+		public Object performBuild() throws Exception {
+			return "success";
+		}
+	}
 
 }

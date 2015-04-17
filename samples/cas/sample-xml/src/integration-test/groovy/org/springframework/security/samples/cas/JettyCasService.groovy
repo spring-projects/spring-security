@@ -38,87 +38,87 @@ import org.jasig.cas.client.validation.Cas20ProxyTicketValidator;
  * @author Rob Winch
  */
 class JettyCasService extends Server {
-    private Cas20ProxyTicketValidator validator
-    private int port = availablePort()
+	private Cas20ProxyTicketValidator validator
+	private int port = availablePort()
 
-    /**
-     * The Proxy Granting Ticket. To initialize pgt, authenticate to the CAS Server with the service parameter
-     * equal to {@link #serviceUrl()}.
-     */
-    String pgt
+	/**
+	 * The Proxy Granting Ticket. To initialize pgt, authenticate to the CAS Server with the service parameter
+	 * equal to {@link #serviceUrl()}.
+	 */
+	String pgt
 
-    /**
-     * Start the CAS Service which will be available at {@link #serviceUrl()}.
-     *
-     * @param casServerUrl
-     * @return
-     */
-    def init(String casServerUrl) {
-        ProxyGrantingTicketStorage storage = new ProxyGrantingTicketStorageImpl()
-        validator = new Cas20ProxyTicketValidator(casServerUrl)
-        validator.setAcceptAnyProxy(true)
-        validator.setProxyGrantingTicketStorage(storage)
-        validator.setProxyCallbackUrl(absoluteUrl('callback'))
+	/**
+	 * Start the CAS Service which will be available at {@link #serviceUrl()}.
+	 *
+	 * @param casServerUrl
+	 * @return
+	 */
+	def init(String casServerUrl) {
+		ProxyGrantingTicketStorage storage = new ProxyGrantingTicketStorageImpl()
+		validator = new Cas20ProxyTicketValidator(casServerUrl)
+		validator.setAcceptAnyProxy(true)
+		validator.setProxyGrantingTicketStorage(storage)
+		validator.setProxyCallbackUrl(absoluteUrl('callback'))
 
-        String password = System.getProperty('javax.net.ssl.trustStorePassword','password')
-        SslSelectChannelConnector ssl_connector = new SslSelectChannelConnector()
-        ssl_connector.setPort(port)
-        ssl_connector.setKeystore(getTrustStore())
-        ssl_connector.setPassword(password)
-        ssl_connector.setKeyPassword(password)
-        addConnector(ssl_connector)
-        setHandler(new AbstractHandler() {
-            public void handle(String target, Request baseRequest,
-                    HttpServletRequest request, HttpServletResponse response)
-            throws IOException, ServletException {
-                def st = request.getParameter('ticket')
-                if(st) {
-                    JettyCasService.this.validator.validate(st, JettyCasService.this.serviceUrl())
-                }
-                def pgt = request.getParameter('pgtId')
-                if(pgt) {
-                  JettyCasService.this.pgt = pgt
-                }
-                response.setStatus(HttpServletResponse.SC_OK);
-                baseRequest.setHandled(true);
-            }
-        })
-        start()
-        this
-    }
+		String password = System.getProperty('javax.net.ssl.trustStorePassword','password')
+		SslSelectChannelConnector ssl_connector = new SslSelectChannelConnector()
+		ssl_connector.setPort(port)
+		ssl_connector.setKeystore(getTrustStore())
+		ssl_connector.setPassword(password)
+		ssl_connector.setKeyPassword(password)
+		addConnector(ssl_connector)
+		setHandler(new AbstractHandler() {
+			public void handle(String target, Request baseRequest,
+					HttpServletRequest request, HttpServletResponse response)
+			throws IOException, ServletException {
+				def st = request.getParameter('ticket')
+				if(st) {
+					JettyCasService.this.validator.validate(st, JettyCasService.this.serviceUrl())
+				}
+				def pgt = request.getParameter('pgtId')
+				if(pgt) {
+				  JettyCasService.this.pgt = pgt
+				}
+				response.setStatus(HttpServletResponse.SC_OK);
+				baseRequest.setHandled(true);
+			}
+		})
+		start()
+		this
+	}
 
-    /**
-     * Returns the absolute URL that this CAS service is available at.
-     * @return
-     */
-    String serviceUrl() {
-        absoluteUrl('service')
-    }
+	/**
+	 * Returns the absolute URL that this CAS service is available at.
+	 * @return
+	 */
+	String serviceUrl() {
+		absoluteUrl('service')
+	}
 
-    /**
-     * Given a relative url, will provide an absolute url for this CAS Service.
-     * @param relativeUrl the relative url (i.e. service, callback, etc)
-     * @return
-     */
-    private String absoluteUrl(String relativeUrl) {
-        "https://localhost:${port}/${relativeUrl}"
-    }
+	/**
+	 * Given a relative url, will provide an absolute url for this CAS Service.
+	 * @param relativeUrl the relative url (i.e. service, callback, etc)
+	 * @return
+	 */
+	private String absoluteUrl(String relativeUrl) {
+		"https://localhost:${port}/${relativeUrl}"
+	}
 
-    private static String getTrustStore() {
-        String trustStoreLocation = System.getProperty('javax.net.ssl.trustStore')
-        if(trustStoreLocation == null || !new File(trustStoreLocation).isFile()) {
-            throw new  IllegalStateException('Could not find the trust store at path "'+trustStoreLocation+'". Specify the location using the javax.net.ssl.trustStore system property.')
-        }
-        trustStoreLocation
-    }
-    /**
-     * Obtains a random available port (i.e. one that is not in use)
-     * @return
-     */
-    private static int availablePort() {
-        ServerSocket server = new ServerSocket(0)
-        int port = server.localPort
-        server.close()
-        port
-    }
+	private static String getTrustStore() {
+		String trustStoreLocation = System.getProperty('javax.net.ssl.trustStore')
+		if(trustStoreLocation == null || !new File(trustStoreLocation).isFile()) {
+			throw new  IllegalStateException('Could not find the trust store at path "'+trustStoreLocation+'". Specify the location using the javax.net.ssl.trustStore system property.')
+		}
+		trustStoreLocation
+	}
+	/**
+	 * Obtains a random available port (i.e. one that is not in use)
+	 * @return
+	 */
+	private static int availablePort() {
+		ServerSocket server = new ServerSocket(0)
+		int port = server.localPort
+		server.close()
+		port
+	}
 }

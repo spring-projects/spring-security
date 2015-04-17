@@ -36,116 +36,116 @@ import org.springframework.security.web.servletapi.SecurityContextHolderAwareReq
  */
 class ServletApiConfigurerTests extends BaseSpringSpec {
 
-    def "servletApi ObjectPostProcessor"() {
-        setup:
-            AnyObjectPostProcessor opp = Mock()
-            HttpSecurity http = new HttpSecurity(opp, authenticationBldr, [:])
-        when:
-            http
-                .servletApi()
-                    .and()
-                .build()
+	def "servletApi ObjectPostProcessor"() {
+		setup:
+			AnyObjectPostProcessor opp = Mock()
+			HttpSecurity http = new HttpSecurity(opp, authenticationBldr, [:])
+		when:
+			http
+				.servletApi()
+					.and()
+				.build()
 
-        then: "SecurityContextHolderAwareRequestFilter is registered with LifecycleManager"
-            1 * opp.postProcess(_ as SecurityContextHolderAwareRequestFilter) >> {SecurityContextHolderAwareRequestFilter o -> o}
-    }
+		then: "SecurityContextHolderAwareRequestFilter is registered with LifecycleManager"
+			1 * opp.postProcess(_ as SecurityContextHolderAwareRequestFilter) >> {SecurityContextHolderAwareRequestFilter o -> o}
+	}
 
-    def "SecurityContextHolderAwareRequestFilter properties set"() {
-        when:
-            loadConfig(ServletApiConfig)
-            SecurityContextHolderAwareRequestFilter filter = findFilter(SecurityContextHolderAwareRequestFilter)
-        then: "SEC-2215: authenticationManager != null"
-            filter.authenticationManager != null
-        and: "authenticationEntryPoint != null"
-            filter.authenticationEntryPoint != null
-        and: "requestFactory != null"
-            filter.requestFactory != null
-        and: "logoutHandlers populated"
-            filter.logoutHandlers.collect { it.class } == [CsrfLogoutHandler, SecurityContextLogoutHandler]
-    }
+	def "SecurityContextHolderAwareRequestFilter properties set"() {
+		when:
+			loadConfig(ServletApiConfig)
+			SecurityContextHolderAwareRequestFilter filter = findFilter(SecurityContextHolderAwareRequestFilter)
+		then: "SEC-2215: authenticationManager != null"
+			filter.authenticationManager != null
+		and: "authenticationEntryPoint != null"
+			filter.authenticationEntryPoint != null
+		and: "requestFactory != null"
+			filter.requestFactory != null
+		and: "logoutHandlers populated"
+			filter.logoutHandlers.collect { it.class } == [CsrfLogoutHandler, SecurityContextLogoutHandler]
+	}
 
-    @CompileStatic
-    @EnableWebSecurity
-    static class ServletApiConfig extends WebSecurityConfigurerAdapter {
+	@CompileStatic
+	@EnableWebSecurity
+	static class ServletApiConfig extends WebSecurityConfigurerAdapter {
 
-        @Override
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .inMemoryAuthentication()
-                    .withUser("user").password("password").roles("USER")
-        }
-    }
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.inMemoryAuthentication()
+					.withUser("user").password("password").roles("USER")
+		}
+	}
 
-    def "SecurityContextHolderAwareRequestFilter.authenticationEntryPoint = customEntryPoint"() {
-        setup:
-            CustomEntryPointConfig.ENTRYPOINT = Mock(AuthenticationEntryPoint)
-        when: "load config with customEntryPoint"
-            loadConfig(CustomEntryPointConfig)
-        then: "SecurityContextHolderAwareRequestFilter.authenticationEntryPoint == customEntryPoint"
-            findFilter(SecurityContextHolderAwareRequestFilter).authenticationEntryPoint == CustomEntryPointConfig.ENTRYPOINT
-    }
+	def "SecurityContextHolderAwareRequestFilter.authenticationEntryPoint = customEntryPoint"() {
+		setup:
+			CustomEntryPointConfig.ENTRYPOINT = Mock(AuthenticationEntryPoint)
+		when: "load config with customEntryPoint"
+			loadConfig(CustomEntryPointConfig)
+		then: "SecurityContextHolderAwareRequestFilter.authenticationEntryPoint == customEntryPoint"
+			findFilter(SecurityContextHolderAwareRequestFilter).authenticationEntryPoint == CustomEntryPointConfig.ENTRYPOINT
+	}
 
-    @EnableWebSecurity
-    static class CustomEntryPointConfig extends WebSecurityConfigurerAdapter {
-        static AuthenticationEntryPoint ENTRYPOINT
+	@EnableWebSecurity
+	static class CustomEntryPointConfig extends WebSecurityConfigurerAdapter {
+		static AuthenticationEntryPoint ENTRYPOINT
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .exceptionHandling()
-                    .authenticationEntryPoint(ENTRYPOINT)
-                    .and()
-                .formLogin()
-        }
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.exceptionHandling()
+					.authenticationEntryPoint(ENTRYPOINT)
+					.and()
+				.formLogin()
+		}
 
-        @Override
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .inMemoryAuthentication()
-                    .withUser("user").password("password").roles("USER")
-        }
-    }
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.inMemoryAuthentication()
+					.withUser("user").password("password").roles("USER")
+		}
+	}
 
-    def "invoke servletApi twice does not override"() {
-        setup:
-            InvokeTwiceDoesNotOverrideConfig.ENTRYPOINT = Mock(AuthenticationEntryPoint)
-        when:
-            loadConfig(InvokeTwiceDoesNotOverrideConfig)
-        then:
-            findFilter(SecurityContextHolderAwareRequestFilter).authenticationEntryPoint == InvokeTwiceDoesNotOverrideConfig.ENTRYPOINT
-    }
+	def "invoke servletApi twice does not override"() {
+		setup:
+			InvokeTwiceDoesNotOverrideConfig.ENTRYPOINT = Mock(AuthenticationEntryPoint)
+		when:
+			loadConfig(InvokeTwiceDoesNotOverrideConfig)
+		then:
+			findFilter(SecurityContextHolderAwareRequestFilter).authenticationEntryPoint == InvokeTwiceDoesNotOverrideConfig.ENTRYPOINT
+	}
 
-    @EnableWebSecurity
-    static class InvokeTwiceDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
-        static AuthenticationEntryPoint ENTRYPOINT
+	@EnableWebSecurity
+	static class InvokeTwiceDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
+		static AuthenticationEntryPoint ENTRYPOINT
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .exceptionHandling()
-                    .authenticationEntryPoint(ENTRYPOINT)
-                    .and()
-                .exceptionHandling()
-        }
-    }
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.exceptionHandling()
+					.authenticationEntryPoint(ENTRYPOINT)
+					.and()
+				.exceptionHandling()
+		}
+	}
 
-    def "use sharedObject trustResolver"() {
-        setup:
-            SharedTrustResolverConfig.TR = Mock(AuthenticationTrustResolver)
-        when:
-            loadConfig(SharedTrustResolverConfig)
-        then:
-            findFilter(SecurityContextHolderAwareRequestFilter).trustResolver == SharedTrustResolverConfig.TR
-    }
+	def "use sharedObject trustResolver"() {
+		setup:
+			SharedTrustResolverConfig.TR = Mock(AuthenticationTrustResolver)
+		when:
+			loadConfig(SharedTrustResolverConfig)
+		then:
+			findFilter(SecurityContextHolderAwareRequestFilter).trustResolver == SharedTrustResolverConfig.TR
+	}
 
-    @EnableWebSecurity
-    static class SharedTrustResolverConfig extends WebSecurityConfigurerAdapter {
-        static AuthenticationTrustResolver TR
+	@EnableWebSecurity
+	static class SharedTrustResolverConfig extends WebSecurityConfigurerAdapter {
+		static AuthenticationTrustResolver TR
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .setSharedObject(AuthenticationTrustResolver, TR)
-        }
-    }
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.setSharedObject(AuthenticationTrustResolver, TR)
+		}
+	}
 }

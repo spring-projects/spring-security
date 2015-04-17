@@ -30,40 +30,40 @@ import org.springframework.security.web.util.matcher.RequestMatcher
  *
  */
 class PermitAllSupportTests extends BaseSpringSpec {
-    def "PermitAllSupport.ExactUrlRequestMatcher"() {
-        expect:
-            RequestMatcher matcher = new PermitAllSupport.ExactUrlRequestMatcher(processUrl)
-            matcher.matches(new MockHttpServletRequest(requestURI:requestURI,contextPath:contextPath,queryString: query)) == matches
-        where:
-           processUrl             | requestURI            | contextPath        | query      | matches
-            "/login"              | "/sample/login"       | "/sample"          | null       | true
-            "/login"              | "/sample/login"       | "/sample"          | "error"    | false
-            "/login?error"        | "/sample/login"       | "/sample"          | "error"    | true
-    }
+	def "PermitAllSupport.ExactUrlRequestMatcher"() {
+		expect:
+			RequestMatcher matcher = new PermitAllSupport.ExactUrlRequestMatcher(processUrl)
+			matcher.matches(new MockHttpServletRequest(requestURI:requestURI,contextPath:contextPath,queryString: query)) == matches
+		where:
+		   processUrl             | requestURI            | contextPath        | query      | matches
+			"/login"              | "/sample/login"       | "/sample"          | null       | true
+			"/login"              | "/sample/login"       | "/sample"          | "error"    | false
+			"/login?error"        | "/sample/login"       | "/sample"          | "error"    | true
+	}
 
-    def "PermitAllSupport throws Exception when authorizedUrls() not invoked"() {
-        when:
-            loadConfig(NoAuthorizedUrlsConfig)
-        then:
-            BeanCreationException e = thrown()
-            e.message.contains "permitAll only works with HttpSecurity.authorizeRequests"
+	def "PermitAllSupport throws Exception when authorizedUrls() not invoked"() {
+		when:
+			loadConfig(NoAuthorizedUrlsConfig)
+		then:
+			BeanCreationException e = thrown()
+			e.message.contains "permitAll only works with HttpSecurity.authorizeRequests"
 
-    }
+	}
 
-    @EnableWebSecurity
-    static class NoAuthorizedUrlsConfig extends WebSecurityConfigurerAdapter {
+	@EnableWebSecurity
+	static class NoAuthorizedUrlsConfig extends WebSecurityConfigurerAdapter {
 
-        @Override
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .inMemoryAuthentication()
-        }
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.inMemoryAuthentication()
+		}
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .formLogin()
-                    .permitAll()
-        }
-    }
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.formLogin()
+					.permitAll()
+		}
+	}
 }

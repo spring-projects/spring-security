@@ -37,44 +37,44 @@ import org.springframework.security.web.access.ExceptionTranslationFilter;
  *
  */
 public class NamespaceHttpAccessDeniedHandlerTests extends BaseSpringSpec {
-    def "http/access-denied-handler@error-page"() {
-        when:
-        loadConfig(AccessDeniedPageConfig)
-        then:
-        findFilter(ExceptionTranslationFilter).accessDeniedHandler.errorPage == "/AccessDeniedPageConfig"
-    }
+	def "http/access-denied-handler@error-page"() {
+		when:
+		loadConfig(AccessDeniedPageConfig)
+		then:
+		findFilter(ExceptionTranslationFilter).accessDeniedHandler.errorPage == "/AccessDeniedPageConfig"
+	}
 
-    @Configuration
-    static class AccessDeniedPageConfig extends BaseWebConfig {
-        protected void configure(HttpSecurity http) {
-            http.
-                exceptionHandling()
-                    .accessDeniedPage("/AccessDeniedPageConfig")
-        }
-    }
+	@Configuration
+	static class AccessDeniedPageConfig extends BaseWebConfig {
+		protected void configure(HttpSecurity http) {
+			http.
+				exceptionHandling()
+					.accessDeniedPage("/AccessDeniedPageConfig")
+		}
+	}
 
-    def "http/access-denied-handler@ref"() {
-        when:
-        loadConfig(AccessDeniedHandlerRefConfig)
-        then:
-        findFilter(ExceptionTranslationFilter).accessDeniedHandler.class == AccessDeniedHandlerRefConfig.CustomAccessDeniedHandler
-    }
+	def "http/access-denied-handler@ref"() {
+		when:
+		loadConfig(AccessDeniedHandlerRefConfig)
+		then:
+		findFilter(ExceptionTranslationFilter).accessDeniedHandler.class == AccessDeniedHandlerRefConfig.CustomAccessDeniedHandler
+	}
 
-    @Configuration
-    static class AccessDeniedHandlerRefConfig extends BaseWebConfig {
-        protected void configure(HttpSecurity http) {
-            CustomAccessDeniedHandler accessDeniedHandler = new CustomAccessDeniedHandler()
-            http.
-                exceptionHandling()
-                    .accessDeniedHandler(accessDeniedHandler)
-        }
+	@Configuration
+	static class AccessDeniedHandlerRefConfig extends BaseWebConfig {
+		protected void configure(HttpSecurity http) {
+			CustomAccessDeniedHandler accessDeniedHandler = new CustomAccessDeniedHandler()
+			http.
+				exceptionHandling()
+					.accessDeniedHandler(accessDeniedHandler)
+		}
 
-        static class CustomAccessDeniedHandler implements AccessDeniedHandler {
-            public void handle(HttpServletRequest request,
-                    HttpServletResponse response,
-                    AccessDeniedException accessDeniedException)
-                    throws IOException, ServletException {
-            }
-        }
-    }
+		static class CustomAccessDeniedHandler implements AccessDeniedHandler {
+			public void handle(HttpServletRequest request,
+					HttpServletResponse response,
+					AccessDeniedException accessDeniedException)
+					throws IOException, ServletException {
+			}
+		}
+	}
 }

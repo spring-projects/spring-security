@@ -23,15 +23,15 @@ import geb.*
  * @author Rob Winch
  */
 class LoginPage extends Page {
-    static url = 'login'
-    static at = { assert driver.title == 'Login Page'; true}
-    static content = {
-        login(required:false) { user='user', password='password' ->
-            loginForm.username = user
-            loginForm.password = password
-            submit.click()
-        }
-        loginForm { $('form') }
-        submit { $('input', type: 'submit') }
-    }
+	static url = 'login'
+	static at = { assert driver.title == 'Login Page'; true}
+	static content = {
+		login(required:false) { user='user', password='password' ->
+			loginForm.username = user
+			loginForm.password = password
+			submit.click()
+		}
+		loginForm { $('form') }
+		submit { $('input', type: 'submit') }
+	}
 }

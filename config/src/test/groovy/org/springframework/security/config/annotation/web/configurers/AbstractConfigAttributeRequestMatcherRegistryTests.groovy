@@ -29,43 +29,43 @@ import spock.lang.Specification
  *
  */
 class AbstractConfigAttributeRequestMatcherRegistryTests extends Specification {
-    ConcreteAbstractRequestMatcherMappingConfigurer registry = new ConcreteAbstractRequestMatcherMappingConfigurer()
+	ConcreteAbstractRequestMatcherMappingConfigurer registry = new ConcreteAbstractRequestMatcherMappingConfigurer()
 
-    def "regexMatchers(GET,'/a.*') uses RegexRequestMatcher"() {
-        when:
-        def matchers = registry.regexMatchers(HttpMethod.GET,"/a.*")
-        then: 'matcher is a RegexRequestMatcher'
-        matchers.collect {it.class } == [RegexRequestMatcher]
-    }
+	def "regexMatchers(GET,'/a.*') uses RegexRequestMatcher"() {
+		when:
+		def matchers = registry.regexMatchers(HttpMethod.GET,"/a.*")
+		then: 'matcher is a RegexRequestMatcher'
+		matchers.collect {it.class } == [RegexRequestMatcher]
+	}
 
-    def "regexMatchers('/a.*') uses RegexRequestMatcher"() {
-        when:
-        def matchers = registry.regexMatchers("/a.*")
-        then: 'matcher is a RegexRequestMatcher'
-        matchers.collect {it.class } == [RegexRequestMatcher]
-    }
+	def "regexMatchers('/a.*') uses RegexRequestMatcher"() {
+		when:
+		def matchers = registry.regexMatchers("/a.*")
+		then: 'matcher is a RegexRequestMatcher'
+		matchers.collect {it.class } == [RegexRequestMatcher]
+	}
 
-    def "antMatchers(GET,'/a.*') uses AntPathRequestMatcher"() {
-        when:
-        def matchers = registry.antMatchers(HttpMethod.GET, "/a.*")
-        then: 'matcher is a RegexRequestMatcher'
-        matchers.collect {it.class } == [AntPathRequestMatcher]
-    }
+	def "antMatchers(GET,'/a.*') uses AntPathRequestMatcher"() {
+		when:
+		def matchers = registry.antMatchers(HttpMethod.GET, "/a.*")
+		then: 'matcher is a RegexRequestMatcher'
+		matchers.collect {it.class } == [AntPathRequestMatcher]
+	}
 
-    def "antMatchers('/a.*') uses AntPathRequestMatcher"() {
-        when:
-        def matchers = registry.antMatchers("/a.*")
-        then: 'matcher is a AntPathRequestMatcher'
-        matchers.collect {it.class } == [AntPathRequestMatcher]
-    }
+	def "antMatchers('/a.*') uses AntPathRequestMatcher"() {
+		when:
+		def matchers = registry.antMatchers("/a.*")
+		then: 'matcher is a AntPathRequestMatcher'
+		matchers.collect {it.class } == [AntPathRequestMatcher]
+	}
 
-    static class ConcreteAbstractRequestMatcherMappingConfigurer extends AbstractConfigAttributeRequestMatcherRegistry<List<RequestMatcher>> {
-        List<AccessDecisionVoter> decisionVoters() {
-            return null;
-        }
+	static class ConcreteAbstractRequestMatcherMappingConfigurer extends AbstractConfigAttributeRequestMatcherRegistry<List<RequestMatcher>> {
+		List<AccessDecisionVoter> decisionVoters() {
+			return null;
+		}
 
-        List<RequestMatcher> chainRequestMatchersInternal(List<RequestMatcher> requestMatchers) {
-            return requestMatchers;
-        }
-    }
+		List<RequestMatcher> chainRequestMatchersInternal(List<RequestMatcher> requestMatchers) {
+			return requestMatchers;
+		}
+	}
 }

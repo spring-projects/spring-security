@@ -47,174 +47,174 @@ import org.springframework.test.util.ReflectionTestUtils;
  *
  */
 class LdapAuthenticationProviderBuilderSecurityBuilderTests extends BaseSpringSpec {
-    def "default configuration"() {
-        when:
-        loadConfig(DefaultLdapConfig)
-        LdapAuthenticationProvider provider = ldapProvider()
-        then:
-        provider.authoritiesPopulator.groupRoleAttribute == "cn"
-        provider.authoritiesPopulator.groupSearchBase == ""
-        provider.authoritiesPopulator.groupSearchFilter == "(uniqueMember={0})"
-        ReflectionTestUtils.getField(provider,"authoritiesMapper").prefix == "ROLE_"
+	def "default configuration"() {
+		when:
+		loadConfig(DefaultLdapConfig)
+		LdapAuthenticationProvider provider = ldapProvider()
+		then:
+		provider.authoritiesPopulator.groupRoleAttribute == "cn"
+		provider.authoritiesPopulator.groupSearchBase == ""
+		provider.authoritiesPopulator.groupSearchFilter == "(uniqueMember={0})"
+		ReflectionTestUtils.getField(provider,"authoritiesMapper").prefix == "ROLE_"
 
-    }
+	}
 
-    @Configuration
-    static class DefaultLdapConfig extends BaseLdapProviderConfig {
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .ldapAuthentication()
-                    .contextSource(contextSource())
-                    .userDnPatterns("uid={0},ou=people")
-        }
-    }
+	@Configuration
+	static class DefaultLdapConfig extends BaseLdapProviderConfig {
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.ldapAuthentication()
+					.contextSource(contextSource())
+					.userDnPatterns("uid={0},ou=people")
+		}
+	}
 
-    def "group roles custom"() {
-        when:
-        loadConfig(GroupRolesConfig)
-        LdapAuthenticationProvider provider = ldapProvider()
-        then:
-        provider.authoritiesPopulator.groupRoleAttribute == "group"
-    }
+	def "group roles custom"() {
+		when:
+		loadConfig(GroupRolesConfig)
+		LdapAuthenticationProvider provider = ldapProvider()
+		then:
+		provider.authoritiesPopulator.groupRoleAttribute == "group"
+	}
 
-    @Configuration
-    static class GroupRolesConfig extends BaseLdapProviderConfig {
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .ldapAuthentication()
-                    .contextSource(contextSource())
-                    .userDnPatterns("uid={0},ou=people")
-                    .groupRoleAttribute("group")
-        }
-    }
+	@Configuration
+	static class GroupRolesConfig extends BaseLdapProviderConfig {
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.ldapAuthentication()
+					.contextSource(contextSource())
+					.userDnPatterns("uid={0},ou=people")
+					.groupRoleAttribute("group")
+		}
+	}
 
-    def "group search custom"() {
-        when:
-        loadConfig(GroupSearchConfig)
-        LdapAuthenticationProvider provider = ldapProvider()
-        then:
-        provider.authoritiesPopulator.groupSearchFilter == "ou=groupName"
-    }
+	def "group search custom"() {
+		when:
+		loadConfig(GroupSearchConfig)
+		LdapAuthenticationProvider provider = ldapProvider()
+		then:
+		provider.authoritiesPopulator.groupSearchFilter == "ou=groupName"
+	}
 
-    @Configuration
-    static class GroupSearchConfig extends BaseLdapProviderConfig {
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .ldapAuthentication()
-                    .contextSource(contextSource())
-                    .userDnPatterns("uid={0},ou=people")
-                    .groupSearchFilter("ou=groupName");
-        }
-    }
+	@Configuration
+	static class GroupSearchConfig extends BaseLdapProviderConfig {
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.ldapAuthentication()
+					.contextSource(contextSource())
+					.userDnPatterns("uid={0},ou=people")
+					.groupSearchFilter("ou=groupName");
+		}
+	}
 
-    def "role prefix custom"() {
-        when:
-        loadConfig(RolePrefixConfig)
-        LdapAuthenticationProvider provider = ldapProvider()
-        then:
-        ReflectionTestUtils.getField(provider,"authoritiesMapper").prefix == "role_"
-    }
+	def "role prefix custom"() {
+		when:
+		loadConfig(RolePrefixConfig)
+		LdapAuthenticationProvider provider = ldapProvider()
+		then:
+		ReflectionTestUtils.getField(provider,"authoritiesMapper").prefix == "role_"
+	}
 
-    @Configuration
-    static class RolePrefixConfig extends BaseLdapProviderConfig {
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .ldapAuthentication()
-                    .contextSource(contextSource())
-                    .userDnPatterns("uid={0},ou=people")
-                    .rolePrefix("role_")
-        }
-    }
+	@Configuration
+	static class RolePrefixConfig extends BaseLdapProviderConfig {
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.ldapAuthentication()
+					.contextSource(contextSource())
+					.userDnPatterns("uid={0},ou=people")
+					.rolePrefix("role_")
+		}
+	}
 
-    def "bind authentication"() {
-        when:
-        loadConfig(BindAuthenticationConfig)
-        AuthenticationManager auth = context.getBean(AuthenticationManager)
-        then:
-        auth
-        auth.authenticate(new UsernamePasswordAuthenticationToken("bob","bobspassword")).authorities.collect { it.authority }.sort() == ["ROLE_DEVELOPERS"]
-    }
+	def "bind authentication"() {
+		when:
+		loadConfig(BindAuthenticationConfig)
+		AuthenticationManager auth = context.getBean(AuthenticationManager)
+		then:
+		auth
+		auth.authenticate(new UsernamePasswordAuthenticationToken("bob","bobspassword")).authorities.collect { it.authority }.sort() == ["ROLE_DEVELOPERS"]
+	}
 
-    @Configuration
-    static class BindAuthenticationConfig extends BaseLdapServerConfig {
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .ldapAuthentication()
-                    .contextSource(contextSource())
-                    .groupSearchBase("ou=groups")
-                    .groupSearchFilter("(member={0})")
-                    .userDnPatterns("uid={0},ou=people");
-        }
-    }
+	@Configuration
+	static class BindAuthenticationConfig extends BaseLdapServerConfig {
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.ldapAuthentication()
+					.contextSource(contextSource())
+					.groupSearchBase("ou=groups")
+					.groupSearchFilter("(member={0})")
+					.userDnPatterns("uid={0},ou=people");
+		}
+	}
 
-    def "SEC-2472: Can use crypto PasswordEncoder"() {
-        setup:
-        loadConfig(PasswordEncoderConfig)
-        when:
-        AuthenticationManager auth = context.getBean(AuthenticationManager)
-        then:
-        auth.authenticate(new UsernamePasswordAuthenticationToken("bcrypt","password")).authorities.collect { it.authority }.sort() == ["ROLE_DEVELOPERS"]
-    }
+	def "SEC-2472: Can use crypto PasswordEncoder"() {
+		setup:
+		loadConfig(PasswordEncoderConfig)
+		when:
+		AuthenticationManager auth = context.getBean(AuthenticationManager)
+		then:
+		auth.authenticate(new UsernamePasswordAuthenticationToken("bcrypt","password")).authorities.collect { it.authority }.sort() == ["ROLE_DEVELOPERS"]
+	}
 
-    @Configuration
-    static class PasswordEncoderConfig extends BaseLdapServerConfig {
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .ldapAuthentication()
-                    .contextSource(contextSource())
-                    .passwordEncoder(new BCryptPasswordEncoder())
-                    .groupSearchBase("ou=groups")
-                    .groupSearchFilter("(member={0})")
-                    .userDnPatterns("uid={0},ou=people");
-        }
-    }
+	@Configuration
+	static class PasswordEncoderConfig extends BaseLdapServerConfig {
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.ldapAuthentication()
+					.contextSource(contextSource())
+					.passwordEncoder(new BCryptPasswordEncoder())
+					.groupSearchBase("ou=groups")
+					.groupSearchFilter("(member={0})")
+					.userDnPatterns("uid={0},ou=people");
+		}
+	}
 
-    def ldapProvider() {
-        context.getBean(AuthenticationManager).providers[0]
-    }
+	def ldapProvider() {
+		context.getBean(AuthenticationManager).providers[0]
+	}
 
-    @Configuration
-    static abstract class BaseLdapServerConfig extends BaseLdapProviderConfig {
-        @Bean
-        public ApacheDSContainer ldapServer() throws Exception {
-            ApacheDSContainer apacheDSContainer = new ApacheDSContainer("dc=springframework,dc=org", "classpath:/test-server.ldif");
-            apacheDSContainer.setPort(getPort());
-            return apacheDSContainer;
-        }
-    }
+	@Configuration
+	static abstract class BaseLdapServerConfig extends BaseLdapProviderConfig {
+		@Bean
+		public ApacheDSContainer ldapServer() throws Exception {
+			ApacheDSContainer apacheDSContainer = new ApacheDSContainer("dc=springframework,dc=org", "classpath:/test-server.ldif");
+			apacheDSContainer.setPort(getPort());
+			return apacheDSContainer;
+		}
+	}
 
-    @Configuration
-    @EnableGlobalAuthentication
-    @Import(ObjectPostProcessorConfiguration)
-    static abstract class BaseLdapProviderConfig {
+	@Configuration
+	@EnableGlobalAuthentication
+	@Import(ObjectPostProcessorConfiguration)
+	static abstract class BaseLdapProviderConfig {
 
-        @Bean
-        public BaseLdapPathContextSource contextSource() throws Exception {
-            DefaultSpringSecurityContextSource contextSource = new DefaultSpringSecurityContextSource(
-                    "ldap://127.0.0.1:"+ getPort() + "/dc=springframework,dc=org")
-            contextSource.userDn = "uid=admin,ou=system"
-            contextSource.password = "secret"
-            contextSource.afterPropertiesSet()
-            return contextSource;
-        }
+		@Bean
+		public BaseLdapPathContextSource contextSource() throws Exception {
+			DefaultSpringSecurityContextSource contextSource = new DefaultSpringSecurityContextSource(
+					"ldap://127.0.0.1:"+ getPort() + "/dc=springframework,dc=org")
+			contextSource.userDn = "uid=admin,ou=system"
+			contextSource.password = "secret"
+			contextSource.afterPropertiesSet()
+			return contextSource;
+		}
 
-        @Bean
-        public AuthenticationManager authenticationManager(AuthenticationManagerBuilder auth) {
-            configure(auth)
-            auth.build()
-        }
+		@Bean
+		public AuthenticationManager authenticationManager(AuthenticationManagerBuilder auth) {
+			configure(auth)
+			auth.build()
+		}
 
-        abstract protected void configure(AuthenticationManagerBuilder auth) throws Exception
-    }
+		abstract protected void configure(AuthenticationManagerBuilder auth) throws Exception
+	}
 
-    static Integer port;
+	static Integer port;
 
-    static int getPort() {
-        if(port == null) {
-            ServerSocket socket = new ServerSocket(0)
-            port = socket.localPort
-            socket.close()
-        }
-        port
-    }
+	static int getPort() {
+		if(port == null) {
+			ServerSocket socket = new ServerSocket(0)
+			port = socket.localPort
+			socket.close()
+		}
+		port
+	}
 }

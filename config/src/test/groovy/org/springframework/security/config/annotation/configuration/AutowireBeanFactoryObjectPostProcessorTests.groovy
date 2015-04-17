@@ -42,100 +42,100 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
  */
 class AutowireBeanFactoryObjectPostProcessorTests extends BaseSpringSpec {
 
-    def "Verify All Aware methods are invoked"() {
-        setup:
-            ApplicationContextAware contextAware = Mock(ApplicationContextAware)
-            ApplicationEventPublisherAware publisher = Mock(ApplicationEventPublisherAware)
-            BeanClassLoaderAware classloader = Mock(BeanClassLoaderAware)
-            BeanFactoryAware beanFactory = Mock(BeanFactoryAware)
-            EnvironmentAware environment = Mock(EnvironmentAware)
-            MessageSourceAware messageSource = Mock(MessageSourceAware)
-            ServletConfigAware servletConfig = Mock(ServletConfigAware)
-            ServletContextAware servletContext = Mock(ServletContextAware)
-            DisposableBean disposable = Mock(DisposableBean)
+	def "Verify All Aware methods are invoked"() {
+		setup:
+			ApplicationContextAware contextAware = Mock(ApplicationContextAware)
+			ApplicationEventPublisherAware publisher = Mock(ApplicationEventPublisherAware)
+			BeanClassLoaderAware classloader = Mock(BeanClassLoaderAware)
+			BeanFactoryAware beanFactory = Mock(BeanFactoryAware)
+			EnvironmentAware environment = Mock(EnvironmentAware)
+			MessageSourceAware messageSource = Mock(MessageSourceAware)
+			ServletConfigAware servletConfig = Mock(ServletConfigAware)
+			ServletContextAware servletContext = Mock(ServletContextAware)
+			DisposableBean disposable = Mock(DisposableBean)
 
-            context = new AnnotationConfigWebApplicationContext([servletConfig:new MockServletConfig(),servletContext:new MockServletContext()])
-            context.register(Config)
-            context.refresh()
-            context.start()
+			context = new AnnotationConfigWebApplicationContext([servletConfig:new MockServletConfig(),servletContext:new MockServletContext()])
+			context.register(Config)
+			context.refresh()
+			context.start()
 
-            ObjectPostProcessor opp = context.getBean(ObjectPostProcessor)
-        when:
-            opp.postProcess(contextAware)
-        then:
-            1 * contextAware.setApplicationContext(!null)
+			ObjectPostProcessor opp = context.getBean(ObjectPostProcessor)
+		when:
+			opp.postProcess(contextAware)
+		then:
+			1 * contextAware.setApplicationContext(!null)
 
-        when:
-            opp.postProcess(publisher)
-        then:
-            1 * publisher.setApplicationEventPublisher(!null)
+		when:
+			opp.postProcess(publisher)
+		then:
+			1 * publisher.setApplicationEventPublisher(!null)
 
-        when:
-            opp.postProcess(classloader)
-        then:
-            1 * classloader.setBeanClassLoader(!null)
+		when:
+			opp.postProcess(classloader)
+		then:
+			1 * classloader.setBeanClassLoader(!null)
 
-        when:
-            opp.postProcess(beanFactory)
-        then:
-            1 * beanFactory.setBeanFactory(!null)
+		when:
+			opp.postProcess(beanFactory)
+		then:
+			1 * beanFactory.setBeanFactory(!null)
 
-        when:
-            opp.postProcess(environment)
-        then:
-            1 * environment.setEnvironment(!null)
+		when:
+			opp.postProcess(environment)
+		then:
+			1 * environment.setEnvironment(!null)
 
-        when:
-            opp.postProcess(messageSource)
-        then:
-            1 * messageSource.setMessageSource(!null)
+		when:
+			opp.postProcess(messageSource)
+		then:
+			1 * messageSource.setMessageSource(!null)
 
-        when:
-            opp.postProcess(servletConfig)
-        then:
-            1 * servletConfig.setServletConfig(!null)
+		when:
+			opp.postProcess(servletConfig)
+		then:
+			1 * servletConfig.setServletConfig(!null)
 
-        when:
-            opp.postProcess(servletContext)
-        then:
-            1 * servletContext.setServletContext(!null)
+		when:
+			opp.postProcess(servletContext)
+		then:
+			1 * servletContext.setServletContext(!null)
 
-        when:
-            opp.postProcess(disposable)
-            context.close()
-            context = null
-        then:
-            1 * disposable.destroy()
-    }
+		when:
+			opp.postProcess(disposable)
+			context.close()
+			context = null
+		then:
+			1 * disposable.destroy()
+	}
 
-    @Configuration
-    static class Config {
-        @Bean
-        public ObjectPostProcessor objectPostProcessor(AutowireCapableBeanFactory beanFactory) {
-            return new AutowireBeanFactoryObjectPostProcessor(beanFactory);
-        }
-    }
+	@Configuration
+	static class Config {
+		@Bean
+		public ObjectPostProcessor objectPostProcessor(AutowireCapableBeanFactory beanFactory) {
+			return new AutowireBeanFactoryObjectPostProcessor(beanFactory);
+		}
+	}
 
-    def "SEC-2382: AutowireBeanFactoryObjectPostProcessor works with BeanNameAutoProxyCreator"() {
-        when:
-            // must load with XML for BeanPostProcessors to work
-            context = new ClassPathXmlApplicationContext("AutowireBeanFactoryObjectPostProcessorTests-aopconfig.xml", getClass());
-        then:
-            noExceptionThrown()
-        and: "make sure autoproxying was actually enabled"
-            context.getBean(MyAdvisedBean).doStuff() == "null"
-    }
+	def "SEC-2382: AutowireBeanFactoryObjectPostProcessor works with BeanNameAutoProxyCreator"() {
+		when:
+			// must load with XML for BeanPostProcessors to work
+			context = new ClassPathXmlApplicationContext("AutowireBeanFactoryObjectPostProcessorTests-aopconfig.xml", getClass());
+		then:
+			noExceptionThrown()
+		and: "make sure autoproxying was actually enabled"
+			context.getBean(MyAdvisedBean).doStuff() == "null"
+	}
 
-    @Configuration
-    static class WithBanNameAutoProxyCreatorConfig {
-        @Bean
-        public ObjectPostProcessor objectPostProcessor(AutowireCapableBeanFactory beanFactory) {
-            return new AutowireBeanFactoryObjectPostProcessor(beanFactory)
-        }
+	@Configuration
+	static class WithBanNameAutoProxyCreatorConfig {
+		@Bean
+		public ObjectPostProcessor objectPostProcessor(AutowireCapableBeanFactory beanFactory) {
+			return new AutowireBeanFactoryObjectPostProcessor(beanFactory)
+		}
 
-        @Autowired
-        public void configure(ObjectPostProcessor<Object> p) {
-            p.postProcess(new Object())
-        }
-    }
+		@Autowired
+		public void configure(ObjectPostProcessor<Object> p) {
+			p.postProcess(new Object())
+		}
+	}
 }

@@ -25,9 +25,9 @@ import org.springframework.security.samples.cas.modules.*
  * @author Rob Winch
  */
 class SecurePage extends Page {
-    static url = "secure/"
-    static at = { assert $('h1').text() == 'Secure Page'; true}
-    static content = {
-        navModule { module NavModule }
-    }
+	static url = "secure/"
+	static at = { assert $('h1').text() == 'Secure Page'; true}
+	static content = {
+		navModule { module NavModule }
+	}
 }

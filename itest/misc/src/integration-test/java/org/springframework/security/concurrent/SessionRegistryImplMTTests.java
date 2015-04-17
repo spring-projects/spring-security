@@ -28,185 +28,185 @@ import java.util.Random;
  * @author Luke Taylor
  */
 public class SessionRegistryImplMTTests extends TestCase {
-    private static final Random rnd = new Random();
-    private static boolean errorOccurred;
+	private static final Random rnd = new Random();
+	private static boolean errorOccurred;
 
-    protected void setUp() throws Exception {
-        errorOccurred = false;
-    }
+	protected void setUp() throws Exception {
+		errorOccurred = false;
+	}
 
-    /**
-     * Reproduces the NPE mentioned in SEC-484 where a sessionId is removed from
-     * the set of sessions before it is removed from the list of sessions for a principal.
-     * getAllSessions(principal, false) then finds the sessionId in the principal's session list
-     * but reads null for the SessionInformation with the same Id.
-     * Note that this is not guaranteed to produce the error but is a good testing point. Increasing the number
-     * of sessions makes a failure more likely, but slows the test considerably.
-     * Inserting temporary sleep statements in SessionRegistryClassImpl will also help.
-     */
-    public void testConcurrencyOfReadAndRemoveIsSafe() {
-        Object principal = "Joe Principal";
-        SessionRegistryImpl sessionregistry = new SessionRegistryImpl();
-        Set sessions = Collections.synchronizedSet(new HashSet());
-        // Register some sessions
-        for (int i = 0; i < 50; i++) {
-            String sessionId = Integer.toString(i);
-            sessions.add(sessionId);
-            sessionregistry.registerNewSession(sessionId, principal);
-        }
+	/**
+	 * Reproduces the NPE mentioned in SEC-484 where a sessionId is removed from
+	 * the set of sessions before it is removed from the list of sessions for a principal.
+	 * getAllSessions(principal, false) then finds the sessionId in the principal's session list
+	 * but reads null for the SessionInformation with the same Id.
+	 * Note that this is not guaranteed to produce the error but is a good testing point. Increasing the number
+	 * of sessions makes a failure more likely, but slows the test considerably.
+	 * Inserting temporary sleep statements in SessionRegistryClassImpl will also help.
+	 */
+	public void testConcurrencyOfReadAndRemoveIsSafe() {
+		Object principal = "Joe Principal";
+		SessionRegistryImpl sessionregistry = new SessionRegistryImpl();
+		Set sessions = Collections.synchronizedSet(new HashSet());
+		// Register some sessions
+		for (int i = 0; i < 50; i++) {
+			String sessionId = Integer.toString(i);
+			sessions.add(sessionId);
+			sessionregistry.registerNewSession(sessionId, principal);
+		}
 
-        // Pile of readers to hammer the getAllSessions method.
-        for (int i=0; i < 10; i++) {
-            Thread reader = new Thread(new SessionRegistryReader(principal, sessionregistry));
-            reader.start();
-        }
+		// Pile of readers to hammer the getAllSessions method.
+		for (int i=0; i < 10; i++) {
+			Thread reader = new Thread(new SessionRegistryReader(principal, sessionregistry));
+			reader.start();
+		}
 
-        Thread remover = new Thread(new SessionRemover("remover", sessionregistry, sessions));
+		Thread remover = new Thread(new SessionRemover("remover", sessionregistry, sessions));
 
-        remover.start();
+		remover.start();
 
-        while(remover.isAlive()) {
-            pause(250);
-        }
+		while(remover.isAlive()) {
+			pause(250);
+		}
 
-        assertFalse("Thread errors detected; review log output for details", errorOccurred);
-    }
+		assertFalse("Thread errors detected; review log output for details", errorOccurred);
+	}
 
-    public void testConcurrentRemovalIsSafe() {
-        Object principal = "Some principal object";
-        SessionRegistryImpl sessionregistry = new SessionRegistryImpl();
-        // The session list (effectivelly the containers sessions).
-        Set sessions = Collections.synchronizedSet(new HashSet());
-        Thread registerer = new Thread(new SessionRegisterer(principal, sessionregistry, 100, sessions));
+	public void testConcurrentRemovalIsSafe() {
+		Object principal = "Some principal object";
+		SessionRegistryImpl sessionregistry = new SessionRegistryImpl();
+		// The session list (effectivelly the containers sessions).
+		Set sessions = Collections.synchronizedSet(new HashSet());
+		Thread registerer = new Thread(new SessionRegisterer(principal, sessionregistry, 100, sessions));
 
-        registerer.start();
+		registerer.start();
 
-        int nRemovers = 4;
+		int nRemovers = 4;
 
-        SessionRemover[] removers = new SessionRemover[nRemovers];
-        Thread[] removerThreads = new Thread[nRemovers];
+		SessionRemover[] removers = new SessionRemover[nRemovers];
+		Thread[] removerThreads = new Thread[nRemovers];
 
-        for (int i = 0; i < removers.length; i++) {
-            removers[i] = new SessionRemover("remover" + i, sessionregistry, sessions);
-            removerThreads[i] = new Thread(removers[i], "remover" + i);
-            removerThreads[i].start();
-        }
+		for (int i = 0; i < removers.length; i++) {
+			removers[i] = new SessionRemover("remover" + i, sessionregistry, sessions);
+			removerThreads[i] = new Thread(removers[i], "remover" + i);
+			removerThreads[i].start();
+		}
 
-        while (stillRunning(removerThreads)) {
-            pause(500);
-        }
-    }
+		while (stillRunning(removerThreads)) {
+			pause(500);
+		}
+	}
 
-    private boolean stillRunning(Thread[] threads) {
-        for (int i = 0; i < threads.length; i++) {
-            if (threads[i].isAlive()) {
-                return true;
-            }
-        }
+	private boolean stillRunning(Thread[] threads) {
+		for (int i = 0; i < threads.length; i++) {
+			if (threads[i].isAlive()) {
+				return true;
+			}
+		}
 
-        return false;
-    }
+		return false;
+	}
 
-    private static class SessionRegisterer implements Runnable {
-        private SessionRegistry sessionregistry;
-        private int nIterations;
-        private Set sessionList;
-        private Object principal;
+	private static class SessionRegisterer implements Runnable {
+		private SessionRegistry sessionregistry;
+		private int nIterations;
+		private Set sessionList;
+		private Object principal;
 
-        public SessionRegisterer(Object principal, SessionRegistry sessionregistry, int nIterations, Set sessionList) {
-            this.sessionregistry = sessionregistry;
-            this.nIterations = nIterations;
-            this.sessionList = sessionList;
-            this.principal = principal;
-        }
+		public SessionRegisterer(Object principal, SessionRegistry sessionregistry, int nIterations, Set sessionList) {
+			this.sessionregistry = sessionregistry;
+			this.nIterations = nIterations;
+			this.sessionList = sessionList;
+			this.principal = principal;
+		}
 
-        public void run() {
-            for (int i=0; i < nIterations && !errorOccurred; i++) {
-                String sessionId = Integer.toString(i);
-                sessionList.add(sessionId);
-                try {
-                    sessionregistry.registerNewSession(sessionId,principal);
-                    pause(20);
-                    Thread.yield();
-                } catch(Exception e) {
-                    e.printStackTrace();
-                    errorOccurred = true;
-                }
-            }
-        }
-    }
+		public void run() {
+			for (int i=0; i < nIterations && !errorOccurred; i++) {
+				String sessionId = Integer.toString(i);
+				sessionList.add(sessionId);
+				try {
+					sessionregistry.registerNewSession(sessionId,principal);
+					pause(20);
+					Thread.yield();
+				} catch(Exception e) {
+					e.printStackTrace();
+					errorOccurred = true;
+				}
+			}
+		}
+	}
 
-    private static class SessionRegistryReader implements Runnable {
-        private SessionRegistry sessionRegistry;
-        private Object principal;
+	private static class SessionRegistryReader implements Runnable {
+		private SessionRegistry sessionRegistry;
+		private Object principal;
 
-        public SessionRegistryReader(Object principal, SessionRegistry sessionregistry) {
-            this.sessionRegistry = sessionregistry;
-            this.principal = principal;
-        }
+		public SessionRegistryReader(Object principal, SessionRegistry sessionregistry) {
+			this.sessionRegistry = sessionregistry;
+			this.principal = principal;
+		}
 
-        public void run() {
-            while (!errorOccurred) {
-                try {
-                    sessionRegistry.getAllSessions(principal, false);
-                    sessionRegistry.getAllPrincipals();
-                    sessionRegistry.getAllSessions(principal, true);
-                    Thread.yield();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    errorOccurred = true;
-                }
-            }
-        }
-    }
+		public void run() {
+			while (!errorOccurred) {
+				try {
+					sessionRegistry.getAllSessions(principal, false);
+					sessionRegistry.getAllPrincipals();
+					sessionRegistry.getAllSessions(principal, true);
+					Thread.yield();
+				} catch (Exception e) {
+					e.printStackTrace();
+					errorOccurred = true;
+				}
+			}
+		}
+	}
 
-    private static class SessionRemover implements Runnable {
-        private SessionRegistry sessionregistry;
-        private Set sessionList;
-        private String name;
+	private static class SessionRemover implements Runnable {
+		private SessionRegistry sessionregistry;
+		private Set sessionList;
+		private String name;
 
-        public SessionRemover(String name, SessionRegistry sessionregistry, Set sessionList) {
-            this.name = name;
-            this.sessionregistry = sessionregistry;
-            this.sessionList = sessionList;
-        }
+		public SessionRemover(String name, SessionRegistry sessionregistry, Set sessionList) {
+			this.name = name;
+			this.sessionregistry = sessionregistry;
+			this.sessionList = sessionList;
+		}
 
-        public void run() {
-            boolean finished = false;
+		public void run() {
+			boolean finished = false;
 
-            while (!finished && !errorOccurred) {
-                if (sessionList.isEmpty()) {
-                    finished = true;
-                    // List of sessions appears to be empty but give it a chance to fill up again
-                    System.out.println(name + ": Session list empty. Waiting.");
-                    pause(500);
-                }
+			while (!finished && !errorOccurred) {
+				if (sessionList.isEmpty()) {
+					finished = true;
+					// List of sessions appears to be empty but give it a chance to fill up again
+					System.out.println(name + ": Session list empty. Waiting.");
+					pause(500);
+				}
 
-                Object[] sessions = sessionList.toArray();
+				Object[] sessions = sessionList.toArray();
 
-                if (sessions.length > 0) {
-                    finished = false;
-                    String sessionId = (String) sessions[0];
+				if (sessions.length > 0) {
+					finished = false;
+					String sessionId = (String) sessions[0];
 //                    System.out.println(name + ": removing " + sessionId);
-                    try {
-                        sessionregistry.removeSessionInformation(sessionId);
+					try {
+						sessionregistry.removeSessionInformation(sessionId);
 
-                        pause(rnd.nextInt(100));
+						pause(rnd.nextInt(100));
 
-                        sessionList.remove(sessionId);
-                        Thread.yield();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        errorOccurred = true;
-                    }
-                }
-            }
-        }
-    }
+						sessionList.remove(sessionId);
+						Thread.yield();
+					} catch (Exception e) {
+						e.printStackTrace();
+						errorOccurred = true;
+					}
+				}
+			}
+		}
+	}
 
-    private static void pause(int length) {
-        try {
-            Thread.sleep(length);
-        } catch (InterruptedException ignore) {}
-    }
+	private static void pause(int length) {
+		try {
+			Thread.sleep(length);
+		} catch (InterruptedException ignore) {}
+	}
 }

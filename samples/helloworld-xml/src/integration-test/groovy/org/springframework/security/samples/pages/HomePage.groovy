@@ -23,10 +23,10 @@ import geb.*
  * @author Rob Winch
  */
 class HomePage extends Page {
-    static url = ''
-    static at = { assert driver.title == 'Hello Security'; true}
-    static content = {
-        message { $('p').text() }
-        logout { $('input', type: 'submit').click() }
-    }
+	static url = ''
+	static at = { assert driver.title == 'Hello Security'; true}
+	static content = {
+		message { $('p').text() }
+		logout { $('input', type: 'submit').click() }
+	}
 }
