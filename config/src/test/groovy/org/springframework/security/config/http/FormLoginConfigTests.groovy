@@ -6,6 +6,7 @@ import org.springframework.security.web.access.ExceptionTranslationFilter
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.ReflectionUtils;
 
@@ -103,5 +104,16 @@ class FormLoginConfigTests extends AbstractHttpConfigTests {
 		expect:
 		apf.usernameParameter == 'xname';
 		apf.passwordParameter == 'xpass'
+	}
+
+	def 'SEC-2919: DefaultLoginGeneratingFilter should not be present if login-page="/login"'() {
+		when:
+		xml.http() {
+			'form-login'('login-page':'/login')
+		}
+		createAppContext()
+
+		then:
+		getFilter(DefaultLoginPageGeneratingFilter) == null
 	}
 }

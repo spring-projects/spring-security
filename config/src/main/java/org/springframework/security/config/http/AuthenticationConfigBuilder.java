@@ -131,6 +131,10 @@ final class AuthenticationConfigBuilder {
 	private String loginProcessingUrl;
 	private String openidLoginProcessingUrl;
 
+	private String formLoginPage;
+
+	private String openIDLoginPage;
+
 	public AuthenticationConfigBuilder(Element element, boolean forceAutoConfig,
 			ParserContext pc, SessionCreationPolicy sessionPolicy,
 			BeanReference requestCache, BeanReference authenticationManager,
@@ -212,6 +216,7 @@ final class AuthenticationConfigBuilder {
 			formFilter = parser.getFilterBean();
 			formEntryPoint = parser.getEntryPointBean();
 			loginProcessingUrl = parser.getLoginProcessingUrl();
+			formLoginPage = parser.getLoginPage();
 		}
 
 		if (formFilter != null) {
@@ -242,6 +247,7 @@ final class AuthenticationConfigBuilder {
 			openIDFilter = parser.getFilterBean();
 			openIDEntryPoint = parser.getEntryPointBean();
 			openidLoginProcessingUrl = parser.getLoginProcessingUrl();
+			openIDLoginPage = parser.getLoginPage();
 
 			List<Element> attrExElts = DomUtils.getChildElementsByTagName(openIDLoginElt,
 					Elements.OPENID_ATTRIBUTE_EXCHANGE);
@@ -527,8 +533,6 @@ final class AuthenticationConfigBuilder {
 
 	void createLoginPageFilterIfNeeded() {
 		boolean needLoginPage = formFilterId != null || openIDFilterId != null;
-		String formLoginPage = getLoginFormUrl(formEntryPoint);
-		String openIDLoginPage = getLoginFormUrl(openIDEntryPoint);
 
 		// If no login page has been defined, add in the default page generator.
 		if (needLoginPage && formLoginPage == null && openIDLoginPage == null) {

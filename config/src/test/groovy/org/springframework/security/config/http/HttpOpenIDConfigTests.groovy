@@ -151,4 +151,16 @@ class OpenIDConfigTests extends AbstractHttpConfigTests {
 		attributes[1].required
 		attributes[1].getCount() == 2
 	}
+
+	def 'SEC-2919: DefaultLoginGeneratingFilter should not be present if login-page="/login"'() {
+		when:
+		xml.http() {
+			'openid-login'('login-page':'/login')
+		}
+		createAppContext()
+
+		then:
+		getFilter(DefaultLoginPageGeneratingFilter) == null
+	}
+
 }
