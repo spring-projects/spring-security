@@ -560,7 +560,7 @@ final class AuthenticationConfigBuilder {
 	void createLogoutFilter() {
 		Element logoutElt = DomUtils.getChildElementByTagName(httpElt, Elements.LOGOUT);
 		if (logoutElt != null || autoConfig) {
-			String formLoginPage = getLoginFormUrl(formEntryPoint);
+			String formLoginPage = this.formLoginPage;
 			if (formLoginPage == null) {
 				formLoginPage = DefaultLoginPageGeneratingFilter.DEFAULT_LOGIN_PAGE_URL;
 			}
@@ -720,8 +720,6 @@ final class AuthenticationConfigBuilder {
 		// If formLogin has been enabled either through an element or auto-config, then it
 		// is used if no openID login page
 		// has been set.
-		String formLoginPage = getLoginFormUrl(formEntryPoint);
-		String openIDLoginPage = getLoginFormUrl(openIDEntryPoint);
 
 		if (formLoginPage != null && openIDLoginPage != null) {
 			pc.getReaderContext().error(
@@ -749,26 +747,6 @@ final class AuthenticationConfigBuilder {
 						+ "specify a custom AuthenticationEntryPoint with the '"
 						+ ATT_ENTRY_POINT_REF + "' attribute ", pc.extractSource(httpElt));
 		return null;
-	}
-
-	private String getLoginFormUrl(BeanDefinition entryPoint) {
-		if (entryPoint == null) {
-			return null;
-		}
-
-		ConstructorArgumentValues cavs = entryPoint.getConstructorArgumentValues();
-		ValueHolder vh = cavs.getIndexedArgumentValue(0, String.class);
-		if (vh == null) {
-			return null;
-		}
-
-		// If the login URL is the default one, then it is assumed not to have been set
-		// explicitly
-		if (DefaultLoginPageGeneratingFilter.DEFAULT_LOGIN_PAGE_URL.equals(vh.getValue())) {
-			return null;
-		}
-
-		return (String) vh.getValue();
 	}
 
 	private void createUserDetailsServiceFactory() {
