@@ -199,21 +199,21 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 			sb.append("<h3>Login with Username and Password</h3>");
 			sb.append("<form name='f' action='").append(request.getContextPath())
 					.append(authenticationUrl).append("' method='POST'>\n");
-			sb.append(" <table>\n");
-			sb.append("    <tr><td>User:</td><td><input type='text' name='");
+			sb.append("<table>\n");
+			sb.append("	<tr><td>User:</td><td><input type='text' name='");
 			sb.append(usernameParameter).append("' value='").append("'></td></tr>\n");
-			sb.append("    <tr><td>Password:</td><td><input type='password' name='")
+			sb.append("	<tr><td>Password:</td><td><input type='password' name='")
 					.append(passwordParameter).append("'/></td></tr>\n");
 
 			if (rememberMeParameter != null) {
-				sb.append("    <tr><td><input type='checkbox' name='")
+				sb.append("	<tr><td><input type='checkbox' name='")
 						.append(rememberMeParameter)
 						.append("'/></td><td>Remember me on this computer.</td></tr>\n");
 			}
 
-			sb.append("    <tr><td colspan='2'><input name=\"submit\" type=\"submit\" value=\"Login\"/></td></tr>\n");
+			sb.append("	<tr><td colspan='2'><input name=\"submit\" type=\"submit\" value=\"Login\"/></td></tr>\n");
 			renderHiddenInputs(sb, request);
-			sb.append("  </table>\n");
+			sb.append("</table>\n");
 			sb.append("</form>");
 		}
 
@@ -221,18 +221,18 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 			sb.append("<h3>Login with OpenID Identity</h3>");
 			sb.append("<form name='oidf' action='").append(request.getContextPath())
 					.append(openIDauthenticationUrl).append("' method='POST'>\n");
-			sb.append(" <table>\n");
-			sb.append("    <tr><td>Identity:</td><td><input type='text' size='30' name='");
+			sb.append("<table>\n");
+			sb.append("	<tr><td>Identity:</td><td><input type='text' size='30' name='");
 			sb.append(openIDusernameParameter).append("'/></td></tr>\n");
 
 			if (openIDrememberMeParameter != null) {
-				sb.append("    <tr><td><input type='checkbox' name='")
+				sb.append("	<tr><td><input type='checkbox' name='")
 						.append(openIDrememberMeParameter)
 						.append("'></td><td>Remember me on this computer.</td></tr>\n");
 			}
 
-			sb.append("    <tr><td colspan='2'><input name=\"submit\" type=\"submit\" value=\"Login\"/></td></tr>\n");
-			sb.append("  </table>\n");
+			sb.append("	<tr><td colspan='2'><input name=\"submit\" type=\"submit\" value=\"Login\"/></td></tr>\n");
+			sb.append("</table>\n");
 			renderHiddenInputs(sb, request);
 			sb.append("</form>");
 		}
@@ -246,7 +246,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 		CsrfToken token = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
 
 		if (token != null) {
-			sb.append("    <input name=\"" + token.getParameterName()
+			sb.append("	<input name=\"" + token.getParameterName()
 					+ "\" type=\"hidden\" value=\"" + token.getToken() + "\" />\n");
 		}
 	}

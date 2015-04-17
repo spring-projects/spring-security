@@ -1,5 +1,3 @@
-
-
 /*
  * Copyright 2002-2013 the original author or authors.
  *
@@ -57,12 +55,12 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
 		then:
 			response.getContentAsString() == """<html><head><title>Login Page</title></head><body onload='document.f.username.focus();'>
 <h3>Login with Username and Password</h3><form name='f' action='/login' method='POST'>
- <table>
+<table>
 	<tr><td>User:</td><td><input type='text' name='username' value=''></td></tr>
 	<tr><td>Password:</td><td><input type='password' name='password'/></td></tr>
 	<tr><td colspan='2'><input name="submit" type="submit" value="Login"/></td></tr>
 	<input name="${csrfToken.parameterName}" type="hidden" value="${csrfToken.token}" />
-  </table>
+</table>
 </form></body></html>"""
 		when: "fail to log in"
 			super.setup()
@@ -81,12 +79,12 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
 		then:
 			response.getContentAsString() == """<html><head><title>Login Page</title></head><body onload='document.f.username.focus();'>
 <p><font color='red'>Your login attempt was not successful, try again.<br/><br/>Reason: Bad credentials</font></p><h3>Login with Username and Password</h3><form name='f' action='/login' method='POST'>
- <table>
+<table>
 	<tr><td>User:</td><td><input type='text' name='username' value=''></td></tr>
 	<tr><td>Password:</td><td><input type='password' name='password'/></td></tr>
 	<tr><td colspan='2'><input name="submit" type="submit" value="Login"/></td></tr>
 	<input name="${csrfToken.parameterName}" type="hidden" value="${csrfToken.token}" />
-  </table>
+</table>
 </form></body></html>"""
 		when: "login success"
 			super.setup()
@@ -110,12 +108,12 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
 		then: "sent to default success page"
 			response.getContentAsString() == """<html><head><title>Login Page</title></head><body onload='document.f.username.focus();'>
 <p><font color='green'>You have been logged out</font></p><h3>Login with Username and Password</h3><form name='f' action='/login' method='POST'>
- <table>
+<table>
 	<tr><td>User:</td><td><input type='text' name='username' value=''></td></tr>
 	<tr><td>Password:</td><td><input type='password' name='password'/></td></tr>
 	<tr><td colspan='2'><input name="submit" type="submit" value="Login"/></td></tr>
 	<input name="${csrfToken.parameterName}" type="hidden" value="${csrfToken.token}" />
-  </table>
+</table>
 </form></body></html>"""
 	}
 
@@ -195,13 +193,13 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
 		then:
 			response.getContentAsString() == """<html><head><title>Login Page</title></head><body onload='document.f.username.focus();'>
 <h3>Login with Username and Password</h3><form name='f' action='/login' method='POST'>
- <table>
+<table>
 	<tr><td>User:</td><td><input type='text' name='username' value=''></td></tr>
 	<tr><td>Password:</td><td><input type='password' name='password'/></td></tr>
 	<tr><td><input type='checkbox' name='remember-me'/></td><td>Remember me on this computer.</td></tr>
 	<tr><td colspan='2'><input name="submit" type="submit" value="Login"/></td></tr>
 	<input name="${csrfToken.parameterName}" type="hidden" value="${csrfToken.token}" />
-  </table>
+</table>
 </form></body></html>"""
 	}
 
@@ -227,10 +225,10 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
 			springSecurityFilterChain.doFilter(request,response,chain)
 		then:
 			response.getContentAsString() == """<html><head><title>Login Page</title></head><h3>Login with OpenID Identity</h3><form name='oidf' action='/login/openid' method='POST'>
- <table>
+<table>
 	<tr><td>Identity:</td><td><input type='text' size='30' name='openid_identifier'/></td></tr>
 	<tr><td colspan='2'><input name="submit" type="submit" value="Login"/></td></tr>
-  </table>
+</table>
 	<input name="${csrfToken.parameterName}" type="hidden" value="${csrfToken.token}" />
 </form></body></html>"""
 	}
@@ -256,19 +254,19 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
 		then:
 			response.getContentAsString() == """<html><head><title>Login Page</title></head><body onload='document.f.username.focus();'>
 <h3>Login with Username and Password</h3><form name='f' action='/login' method='POST'>
- <table>
+<table>
 	<tr><td>User:</td><td><input type='text' name='username' value=''></td></tr>
 	<tr><td>Password:</td><td><input type='password' name='password'/></td></tr>
 	<tr><td><input type='checkbox' name='remember-me'/></td><td>Remember me on this computer.</td></tr>
 	<tr><td colspan='2'><input name="submit" type="submit" value="Login"/></td></tr>
 	<input name="${csrfToken.parameterName}" type="hidden" value="${csrfToken.token}" />
-  </table>
+</table>
 </form><h3>Login with OpenID Identity</h3><form name='oidf' action='/login/openid' method='POST'>
- <table>
+<table>
 	<tr><td>Identity:</td><td><input type='text' size='30' name='openid_identifier'/></td></tr>
 	<tr><td><input type='checkbox' name='remember-me'></td><td>Remember me on this computer.</td></tr>
 	<tr><td colspan='2'><input name="submit" type="submit" value="Login"/></td></tr>
-  </table>
+</table>
 	<input name="${csrfToken.parameterName}" type="hidden" value="${csrfToken.token}" />
 </form></body></html>"""
 	}
