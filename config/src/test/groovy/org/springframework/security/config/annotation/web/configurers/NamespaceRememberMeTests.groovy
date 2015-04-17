@@ -253,13 +253,13 @@ public class NamespaceRememberMeTests extends BaseSpringSpec {
     }
 
     @Configuration
-    static class RememberMeParameterConfig extends BaseWebConfig {
+    static class UseSecureCookieConfig extends BaseWebConfig {
         protected void configure(HttpSecurity http) throws Exception {
             http
                 .formLogin()
                     .and()
                 .rememberMe()
-                    .rememberMeParameter("rememberMe")
+                    .useSecureCookie(true)
         }
     }
 
@@ -271,13 +271,13 @@ public class NamespaceRememberMeTests extends BaseSpringSpec {
     }
 
     @Configuration
-    static class RememberMeCookieNameConfig extends BaseWebConfig {
+    static class RememberMeParameterConfig extends BaseWebConfig {
         protected void configure(HttpSecurity http) throws Exception {
             http
                 .formLogin()
                     .and()
                 .rememberMe()
-                    .rememberMeCookieName("rememberMe")
+                    .rememberMeParameter("rememberMe")
         }
     }
 
@@ -290,13 +290,13 @@ public class NamespaceRememberMeTests extends BaseSpringSpec {
     }
 
     @Configuration
-    static class UseSecureCookieConfig extends BaseWebConfig {
+    static class RememberMeCookieNameConfig extends BaseWebConfig {
         protected void configure(HttpSecurity http) throws Exception {
             http
                 .formLogin()
                     .and()
                 .rememberMe()
-                    .useSecureCookie(true)
+                    .rememberMeCookieName("rememberMe")
         }
     }
 
