@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-samples-openid-jc</artifactId>
-  <version>4.0.0.CI-SNAPSHOT</version>
+  <version>4.0.1.CI-SNAPSHOT</version>
   <packaging>war</packaging>
   <name>spring-security-samples-openid-jc</name>
   <description>spring-security-samples-openid-jc</description>
@@ -83,43 +83,41 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
-      <version>4.0.0.CI-SNAPSHOT</version>
+      <version>4.0.1.CI-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <version>4.0.0.CI-SNAPSHOT</version>
+      <version>4.0.1.CI-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-openid</artifactId>
-      <version>4.0.0.CI-SNAPSHOT</version>
+      <version>4.0.1.CI-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-samples-messages-jc</artifactId>
-      <version>4.0.0.CI-SNAPSHOT</version>
+      <version>4.0.1.CI-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
-      <version>4.0.0.CI-SNAPSHOT</version>
+      <version>4.0.1.CI-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-jdbc</artifactId>
-      <version>4.1.6.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-webmvc</artifactId>
-      <version>4.1.6.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -192,10 +190,20 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
-      <version>4.1.6.RELEASE</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-framework-bom</artifactId>
+        <version>4.1.6.RELEASE</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
   <properties>
     <m2eclipse.wtp.contextRoot>/sample</m2eclipse.wtp.contextRoot>
   </properties>

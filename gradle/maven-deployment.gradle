@@ -31,6 +31,9 @@ def customizePom(pom, gradleProject) {
 			it.scope = "compile"
 			it.optional = true
 		}
+		p.dependencies.findAll{ it.groupId == "org.springframework" }.each {
+			it.version = null
+		}
 		// sort to make pom dependencies order consistent to ease comparison of older poms
 		p.dependencies = p.dependencies.sort { dep ->
 			"$dep.scope:$dep.optional:$dep.groupId:$dep.artifactId"
@@ -65,6 +68,17 @@ def customizePom(pom, gradleProject) {
 				id = 'rwinch'
 				name = 'Rob Winch'
 				email = 'rwinch@gopivotal.com'
+			}
+		}
+		dependencyManagement {
+			dependencies {
+				dependency {
+					groupId 'org.springframework'
+					artifactId 'spring-framework-bom'
+					version project.springVersion
+					type 'pom'
+					scope 'import'
+				}
 			}
 		}
 		if(isWar) {
