@@ -162,6 +162,17 @@ def guessMaxForks() {
 	return Math.max(2, (int) (processors / 2))
 }
 
+jar {
+	manifest.attributes["Created-By"] = 'Spring Security Team'
+	manifest.attributes["Implementation-Title"] = project.name
+	manifest.attributes["Implementation-Version"] = project.version
+	manifest.attributes["Premain-Class"] =
+	manifest.attributes["Agent-Class"] =
+	manifest.attributes["Can-Redefine-Classes"] = "true"
+	manifest.attributes["Can-Retransform-Classes"] = "true"
+	manifest.attributes["Can-Set-Native-Method-Prefix"] = "false"
+}
+
 javadoc {
 	title = "Spring Security $version API"
 	source = sourceSets.main.allJava
