@@ -2176,14 +2176,14 @@ If you are using the namespace, an instance of `ProviderManager` is created and 
 ----
 
 <bean id="authenticationManager"
-	 class="org.springframework.security.authentication.ProviderManager">
-<property name="providers">
-	<list>
-	  <ref local="daoAuthenticationProvider"/>
-	  <ref local="anonymousAuthenticationProvider"/>
-	  <ref local="ldapAuthenticationProvider"/>
-	</list>
-</property>
+		class="org.springframework.security.authentication.ProviderManager">
+	<constructor-arg>
+		<list>
+			<ref local="daoAuthenticationProvider"/>
+			<ref local="anonymousAuthenticationProvider"/>
+			<ref local="ldapAuthenticationProvider"/>
+		</list>
+	</constructor-arg>
 </bean>
 ----
 
