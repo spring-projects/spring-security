@@ -70,14 +70,17 @@ def customizePom(pom, gradleProject) {
 				email = 'rwinch@gopivotal.com'
 			}
 		}
-		dependencyManagement {
-			dependencies {
-				dependency {
-					groupId 'org.springframework'
-					artifactId 'spring-framework-bom'
-					version project.springVersion
-					type 'pom'
-					scope 'import'
+
+		if(!gradleProject.name.endsWith('-bom')) {
+			dependencyManagement {
+				dependencies {
+					dependency {
+						groupId 'org.springframework'
+						artifactId 'spring-framework-bom'
+						version project.springVersion
+						type 'pom'
+						scope 'import'
+					}
 				}
 			}
 		}
