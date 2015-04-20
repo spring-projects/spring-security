@@ -368,7 +368,7 @@ This will give you access to the entire project history (including all releases 
 [[new]]
 == What's new in Spring Security 4.0
 
-There are https://jira.springsource.org/issues/?jql=project%20%3D%20SEC%20AND%20fixVersion%20in%20(%223.2.0.RC2%22%2C%20%223.2.0%22%2C%20%223.2.0.RC1%22%2C%20%223.2.0.M2%22%2C%20%223.2.0.M1%22)%20ORDER%20BY%20priority%20DESC%2C%20issuetype%20ASC%2C%20key%20DESC[150+ tickets resolved] with the Spring Security 4.0 release.
+There are http://goo.gl/ui9GCl[175+ tickets resolved] with the Spring Security 4.0 release.
 
 [[new-features]]
 === Features
