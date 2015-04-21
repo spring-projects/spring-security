@@ -19,8 +19,7 @@ public interface SecurityExpressionOperations {
 
 	/**
 	 * Determines if the {@link #getAuthentication()} has a particular authority within
-	 * {@link Authentication#getAuthorities()}. This is a synonym for
-	 * {@link #hasAuthority(String)}.
+	 * {@link Authentication#getAuthorities()}.
 	 * @param authority the authority to test (i.e. "ROLE_USER")
 	 * @return true if the authority is found, else false
 	 */
@@ -28,27 +27,42 @@ public interface SecurityExpressionOperations {
 
 	/**
 	 * Determines if the {@link #getAuthentication()} has any of the specified authorities
-	 * within {@link Authentication#getAuthorities()}. This is a synonym for
-	 * {@link #hasAnyRole(String...)}.
+	 * within {@link Authentication#getAuthorities()}.
 	 * @param authorities the authorities to test (i.e. "ROLE_USER", "ROLE_ADMIN")
 	 * @return true if any of the authorities is found, else false
 	 */
 	boolean hasAnyAuthority(String... authorities);
 
 	/**
+	 * <p>
 	 * Determines if the {@link #getAuthentication()} has a particular authority within
-	 * {@link Authentication#getAuthorities()}. This is a synonym for
-	 * {@link #hasAuthority(String)}.
-	 * @param authority the authority to test (i.e. "ROLE_USER")
+	 * {@link Authentication#getAuthorities()}.
+	 * </p>
+	 * <p>
+	 * This is similar to {@link #hasAuthority(String)} except that this method implies
+	 * that the String passed in is a role. For example, if "USER" is passed in the
+	 * implementation may convert it to use "ROLE_USER" instead. The way in which the role
+	 * is converted may depend on the implementation settings.
+	 * </p>
+	 *
+	 * @param authority the authority to test (i.e. "USER")
 	 * @return true if the authority is found, else false
 	 */
 	boolean hasRole(String role);
 
 	/**
+	 * <p>
 	 * Determines if the {@link #getAuthentication()} has any of the specified authorities
-	 * within {@link Authentication#getAuthorities()}. This is a synonym for
-	 * {@link #hasAnyAuthority(String...)}.
-	 * @param authorities the authorities to test (i.e. "ROLE_USER", "ROLE_ADMIN")
+	 * within {@link Authentication#getAuthorities()}.
+	 * </p>
+	 * <p>
+	 * This is a similar to hasAnyAuthority except that this method implies
+	 * that the String passed in is a role. For example, if "USER" is passed in the
+	 * implementation may convert it to use "ROLE_USER" instead. The way in which the role
+	 * is converted may depend on the implementation settings.
+	 * </p>
+	 *
+	 * @param authorities the authorities to test (i.e. "USER", "ADMIN")
 	 * @return true if any of the authorities is found, else false
 	 */
 	boolean hasAnyRole(String... roles);
