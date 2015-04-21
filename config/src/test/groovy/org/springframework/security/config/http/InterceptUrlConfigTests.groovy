@@ -84,48 +84,48 @@ import org.springframework.security.authentication.AuthenticationManager
  */
 class InterceptUrlConfigTests extends AbstractHttpConfigTests {
 
-   def "SEC-2256: intercept-url method is not given priority"() {
-	   when:
-		   httpAutoConfig {
-			   'intercept-url'(pattern: '/anyurl', access: "ROLE_USER")
-			   'intercept-url'(pattern: '/anyurl', 'method':'GET',access: 'ROLE_ADMIN')
-		   }
-		   createAppContext()
+	def "SEC-2256: intercept-url method is not given priority"() {
+		when:
+			httpAutoConfig {
+				'intercept-url'(pattern: '/anyurl', access: "ROLE_USER")
+				'intercept-url'(pattern: '/anyurl', 'method':'GET',access: 'ROLE_ADMIN')
+			}
+			createAppContext()
 
-		   def fids = getFilter(FilterSecurityInterceptor).securityMetadataSource
-		   def attrs = fids.getAttributes(createFilterinvocation("/anyurl", "GET"))
-		   def attrsPost = fids.getAttributes(createFilterinvocation("/anyurl", "POST"))
+			def fids = getFilter(FilterSecurityInterceptor).securityMetadataSource
+			def attrs = fids.getAttributes(createFilterinvocation("/anyurl", "GET"))
+			def attrsPost = fids.getAttributes(createFilterinvocation("/anyurl", "POST"))
 
-	   then:
-		   attrs.size() == 1
-		   attrs.contains(new SecurityConfig("ROLE_USER"))
-		   attrsPost.size() == 1
-		   attrsPost.contains(new SecurityConfig("ROLE_USER"))
-   }
+		then:
+			attrs.size() == 1
+			attrs.contains(new SecurityConfig("ROLE_USER"))
+			attrsPost.size() == 1
+			attrsPost.contains(new SecurityConfig("ROLE_USER"))
+	}
 
-   def "SEC-2355: intercept-url support patch"() {
-	   setup:
-		   MockHttpServletRequest request = new MockHttpServletRequest(method:'GET')
-		   MockHttpServletResponse response = new MockHttpServletResponse()
-		   MockFilterChain chain = new MockFilterChain()
-		   xml.http('use-expressions':false) {
-			   'http-basic'()
-			   'intercept-url'(pattern: '/**', 'method':'PATCH',access: 'ROLE_ADMIN')
-			   csrf(disabled:true)
-		   }
-		   createAppContext()
-	   when: 'Method other than PATCH is used'
-		   springSecurityFilterChain.doFilter(request,response,chain)
-	   then: 'The response is OK'
-		   response.status == HttpServletResponse.SC_OK
-	   when: 'Method of PATCH is used'
-		   request = new MockHttpServletRequest(method:'PATCH')
-		   response = new MockHttpServletResponse()
-		   chain = new MockFilterChain()
-		   springSecurityFilterChain.doFilter(request, response, chain)
-		then: 'The response is unauthorized'
-			response.status == HttpServletResponse.SC_UNAUTHORIZED
-   }
+	def "SEC-2355: intercept-url support patch"() {
+		setup:
+			MockHttpServletRequest request = new MockHttpServletRequest(method:'GET')
+			MockHttpServletResponse response = new MockHttpServletResponse()
+			MockFilterChain chain = new MockFilterChain()
+			xml.http('use-expressions':false) {
+				'http-basic'()
+				'intercept-url'(pattern: '/**', 'method':'PATCH',access: 'ROLE_ADMIN')
+				csrf(disabled:true)
+			}
+			createAppContext()
+		when: 'Method other than PATCH is used'
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then: 'The response is OK'
+			response.status == HttpServletResponse.SC_OK
+		when: 'Method of PATCH is used'
+			request = new MockHttpServletRequest(method:'PATCH')
+			response = new MockHttpServletResponse()
+			chain = new MockFilterChain()
+			springSecurityFilterChain.doFilter(request, response, chain)
+			then: 'The response is unauthorized'
+				response.status == HttpServletResponse.SC_UNAUTHORIZED
+	}
 
 	def "intercept-url supports hasAnyRoles"() {
 		setup:
