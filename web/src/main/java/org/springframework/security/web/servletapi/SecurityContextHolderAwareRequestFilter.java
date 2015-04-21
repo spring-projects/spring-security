@@ -76,7 +76,7 @@ public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
 	// ~ Instance fields
 	// ================================================================================================
 
-	private String rolePrefix;
+	private String rolePrefix = "ROLE_";
 
 	private HttpServletRequestFactory requestFactory;
 

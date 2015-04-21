@@ -17,17 +17,27 @@ package org.springframework.security.config.annotation.web.configurers
 
 import groovy.transform.CompileStatic
 
-import org.springframework.context.annotation.Configuration
-import org.springframework.security.authentication.AuthenticationTrustResolver;
+import javax.servlet.ServletException
+import javax.servlet.ServletRequest
+import javax.servlet.ServletResponse
+
+import org.springframework.mock.web.MockFilterChain
+import org.springframework.mock.web.MockHttpServletRequest
+import org.springframework.mock.web.MockHttpServletResponse
+import org.springframework.security.authentication.AuthenticationTrustResolver
+import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.config.annotation.AnyObjectPostProcessor
 import org.springframework.security.config.annotation.BaseSpringSpec
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
+import org.springframework.security.core.context.SecurityContext
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.AuthenticationEntryPoint
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
-import org.springframework.security.web.csrf.CsrfLogoutHandler;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository
+import org.springframework.security.web.csrf.CsrfLogoutHandler
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter
 
 /**
@@ -62,6 +72,28 @@ class ServletApiConfigurerTests extends BaseSpringSpec {
 			filter.requestFactory != null
 		and: "logoutHandlers populated"
 			filter.logoutHandlers.collect { it.class } == [CsrfLogoutHandler, SecurityContextLogoutHandler]
+	}
+
+
+	def 'SEC-2926: Role Prefix is set'() {
+		setup:
+			loadConfig(ServletApiConfig)
+			MockFilterChain chain = new MockFilterChain() {
+				public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
+					assert request.isUserInRole("USER")
+
+					super.doFilter(request,response)
+				}
+			}
+			MockHttpServletRequest request = new MockHttpServletRequest(method:'GET')
+			SecurityContext context = SecurityContextHolder.createEmptyContext()
+			context.setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_USER"))
+			request.getSession().setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, context)
+
+		when:
+			springSecurityFilterChain.doFilter(request, new MockHttpServletResponse(), chain)
+		then:
+			chain.request != null
 	}
 
 	@CompileStatic

@@ -17,26 +17,27 @@ package org.springframework.security.config.http
 
 import static org.springframework.security.config.ConfigTestUtils.AUTH_PROVIDER_XML
 
-import org.springframework.beans.factory.parsing.BeanDefinitionParsingException
-import org.springframework.security.TestDataSource
-import org.springframework.security.authentication.ProviderManager
-import org.springframework.security.authentication.RememberMeAuthenticationProvider
-import org.springframework.security.config.ldap.ContextSourceSettingPostProcessor;
-import org.springframework.security.core.userdetails.MockUserDetailsService
-import org.springframework.security.util.FieldUtils
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
+
+import org.springframework.mock.web.MockFilterChain
+import org.springframework.mock.web.MockHttpServletRequest
+import org.springframework.mock.web.MockHttpServletResponse
+import org.springframework.security.authentication.TestingAuthenticationToken
+import org.springframework.security.core.context.SecurityContext
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.access.ExceptionTranslationFilter
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
-import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler;
-import org.springframework.security.web.authentication.logout.LogoutFilter
+import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler
-import org.springframework.security.web.authentication.rememberme.InMemoryTokenRepositoryImpl
-import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl
-import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices
-import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter
-import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices
-import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter
 
 /**
@@ -141,5 +142,30 @@ class SecurityContextHolderAwareRequestConfigTests extends AbstractHttpConfigTes
 		securityContextAwareFilter.logoutHandlers[0].invalidateHttpSession == false
 		securityContextAwareFilter.logoutHandlers[1].class == CookieClearingLogoutHandler
 		securityContextAwareFilter.logoutHandlers[1].cookiesToClear == ['JSESSIONID']
+	}
+
+	def 'SEC-2926: Role Prefix is set'() {
+		setup:
+		httpAutoConfig () {
+
+		}
+		createAppContext(AUTH_PROVIDER_XML)
+
+		MockFilterChain chain = new MockFilterChain() {
+			public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
+				assert request.isUserInRole("USER")
+
+				super.doFilter(request,response)
+			}
+		}
+		MockHttpServletRequest request = new MockHttpServletRequest(method:'GET')
+		SecurityContext context = SecurityContextHolder.createEmptyContext()
+		context.setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_USER"))
+		request.getSession().setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, context)
+
+		when:
+		springSecurityFilterChain.doFilter(request, new MockHttpServletResponse(), chain)
+		then:
+		chain.request != null
 	}
 }
