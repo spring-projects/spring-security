@@ -7,7 +7,6 @@ import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.codec.Base64;
@@ -127,7 +126,7 @@ public class PersistentTokenBasedRememberMeServices extends AbstractRememberMeSe
 					newToken.getDate());
 			addCookie(newToken, request, response);
 		}
-		catch (DataAccessException e) {
+		catch (Exception e) {
 			logger.error("Failed to update token: ", e);
 			throw new RememberMeAuthenticationException(
 					"Autologin failed due to data access problem");
@@ -153,7 +152,7 @@ public class PersistentTokenBasedRememberMeServices extends AbstractRememberMeSe
 			tokenRepository.createNewToken(persistentToken);
 			addCookie(persistentToken, request, response);
 		}
-		catch (DataAccessException e) {
+		catch (Exception e) {
 			logger.error("Failed to save persistent token ", e);
 		}
 	}
