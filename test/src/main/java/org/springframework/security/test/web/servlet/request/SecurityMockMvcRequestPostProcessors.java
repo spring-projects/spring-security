@@ -226,7 +226,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see org.springframework.test.web.servlet.request.RequestPostProcessor
 		 * #postProcessRequest (org.springframework.mock.web.MockHttpServletRequest)
 		 */
@@ -457,9 +457,9 @@ public final class SecurityMockMvcRequestPostProcessors {
 		 * Used to wrap the SecurityContextRepository to provide support for testing in
 		 * stateless mode
 		 */
-		private static class TestSecurityContextRepository implements
+		static class TestSecurityContextRepository implements
 				SecurityContextRepository {
-			private final String ATTR_NAME = TestSecurityContextRepository.class
+			private final static String ATTR_NAME = TestSecurityContextRepository.class
 					.getName().concat(".REPO");
 
 			private final SecurityContextRepository delegate;
@@ -490,7 +490,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 				return getContext(request) != null || delegate.containsContext(request);
 			}
 
-			private SecurityContext getContext(HttpServletRequest request) {
+			private static SecurityContext getContext(HttpServletRequest request) {
 				return (SecurityContext) request.getAttribute(ATTR_NAME);
 			}
 		}
@@ -506,9 +506,20 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 */
 	private final static class TestSecurityContextHolderPostProcessor extends
 			SecurityContextRequestPostProcessorSupport implements RequestPostProcessor {
+		private SecurityContext EMPTY = SecurityContextHolder.createEmptyContext();
 
 		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
-			save(TestSecurityContextHolder.getContext(), request);
+			// TestSecurityContextHolder is only a default value
+			SecurityContext existingContext = TestSecurityContextRepository.getContext(request);
+			if(existingContext != null) {
+				return request;
+			}
+
+			SecurityContext context = TestSecurityContextHolder.getContext();
+			if(!EMPTY.equals(context)) {
+				save(context, request);
+			}
+
 			return request;
 		}
 	}
@@ -552,7 +563,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		}
 
 		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
-			SecurityContext context = SecurityContextHolder.getContext();
+			SecurityContext context = SecurityContextHolder.createEmptyContext();
 			context.setAuthentication(authentication);
 			save(authentication, request);
 			return request;

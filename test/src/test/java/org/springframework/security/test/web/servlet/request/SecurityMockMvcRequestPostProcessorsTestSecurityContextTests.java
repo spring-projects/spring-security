@@ -16,6 +16,7 @@
 package org.springframework.security.test.web.servlet.request;
 
 import static org.powermock.api.mockito.PowerMockito.*;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.any;
@@ -72,7 +73,7 @@ public class SecurityMockMvcRequestPostProcessorsTestSecurityContextTests {
 	public void testSecurityContextNoContext() {
 		testSecurityContext().postProcessRequest(request);
 
-		verify(repository).saveContext(any(SecurityContext.class), eq(request),
+		verify(repository, never()).saveContext(any(SecurityContext.class), eq(request),
 				any(HttpServletResponse.class));
 	}
 
