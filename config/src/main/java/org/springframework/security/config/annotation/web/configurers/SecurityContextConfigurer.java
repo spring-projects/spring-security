@@ -20,6 +20,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.context.SecurityContextRepository;
 
@@ -85,6 +86,9 @@ public final class SecurityContextConfigurer<H extends HttpSecurityBuilder<H>> e
 
 		SecurityContextRepository securityContextRepository = http
 				.getSharedObject(SecurityContextRepository.class);
+		if(securityContextRepository == null) {
+			securityContextRepository = new HttpSessionSecurityContextRepository();
+		}
 		SecurityContextPersistenceFilter securityContextFilter = new SecurityContextPersistenceFilter(
 				securityContextRepository);
 		SessionManagementConfigurer<?> sessionManagement = http

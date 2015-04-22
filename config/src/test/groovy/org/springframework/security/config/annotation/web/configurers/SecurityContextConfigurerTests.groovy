@@ -24,6 +24,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.web.context.SecurityContextPersistenceFilter
 import org.springframework.security.web.context.SecurityContextRepository
+import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter
 
 /**
  *
@@ -66,5 +67,45 @@ class SecurityContextConfigurerTests extends BaseSpringSpec {
 					.and()
 				.securityContext()
 		}
+	}
+
+	def 'SEC-2932: SecurityContextConfigurer defaults SecurityContextRepository'() {
+		setup: 'Configuration without default SecurityContextRepository setup'
+		loadConfig(SecurityContextRepositoryDefaultsSecurityContextRepositoryConfig)
+		when: 'Spring Security invoked'
+		springSecurityFilterChain.doFilter(request,response,chain)
+		then: 'no exception thrown'
+		noExceptionThrown()
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class SecurityContextRepositoryDefaultsSecurityContextRepositoryConfig extends WebSecurityConfigurerAdapter {
+		public SecurityContextRepositoryDefaultsSecurityContextRepositoryConfig() {
+			super(true);
+		}
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.addFilter(new WebAsyncManagerIntegrationFilter())
+				.anonymous().and()
+				.securityContext().and()
+				.authorizeRequests()
+					.anyRequest().permitAll()
+					.and()
+				.httpBasic();
+			// @formatter:on
+		}
+
+		// @formatter:off
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) {
+			auth
+			.inMemoryAuthentication()
+			.withUser("user").password("password").roles("USER")
+		}
+		// @formatter:on
 	}
 }
