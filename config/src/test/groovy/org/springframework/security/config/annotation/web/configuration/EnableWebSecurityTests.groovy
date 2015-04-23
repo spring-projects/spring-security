@@ -13,8 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.config.annotation.web.configuration;
+package org.springframework.security.config.annotation.web.configuration
 
+import org.springframework.mock.web.MockServletContext
+import org.springframework.security.authentication.TestingAuthenticationToken
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.core.context.SecurityContext
+import org.springframework.security.core.context.SecurityContextImpl
+import org.springframework.security.core.userdetails.User
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository
+import org.springframework.test.context.web.WebAppConfiguration
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.mock.web.MockHttpServletRequest
@@ -25,7 +39,11 @@ import org.springframework.security.config.annotation.BaseSpringSpec
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter
-import org.springframework.security.web.debug.DebugFilter;
+import org.springframework.security.web.debug.DebugFilter
+import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 class EnableWebSecurityTests extends BaseSpringSpec {
 
@@ -81,5 +99,45 @@ class EnableWebSecurityTests extends BaseSpringSpec {
 	@EnableWebSecurity(debug=true)
 	static class DebugSecurityConfig extends WebSecurityConfigurerAdapter {
 
+	}
+
+	def "SEC-2942: EnableWebSecurity adds AuthenticationPrincipalArgumentResolver"() {
+		setup:
+		def username = "test"
+		context = new AnnotationConfigWebApplicationContext()
+		context.servletContext = new MockServletContext()
+		context.register(AuthenticationPrincipalConfig)
+		context.refresh()
+		SecurityContext securityContext = new SecurityContextImpl(authentication: new TestingAuthenticationToken(username, "pass", "ROLE_USER"))
+		MockMvc mockMvc = MockMvcBuilders
+				.webAppContextSetup(context)
+				.addFilters(springSecurityFilterChain)
+				.build()
+		when:
+		String body = mockMvc
+				.perform(get("/").sessionAttr(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, securityContext))
+				.andReturn().response.contentAsString
+		then:
+		body == username
+
+	}
+
+	@EnableWebSecurity
+	@EnableWebMvc
+	@Configuration
+	static class AuthenticationPrincipalConfig {
+		@Autowired
+		public void configureGlobal(AuthenticationManagerBuilder auth) {
+			auth.inMemoryAuthentication()
+		}
+
+		@RestController
+		static class AuthController {
+
+			@RequestMapping("/")
+			String principal(@AuthenticationPrincipal String principal) {
+				principal
+			}
+		}
 	}
 }
