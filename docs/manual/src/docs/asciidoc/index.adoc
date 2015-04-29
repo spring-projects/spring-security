@@ -6085,9 +6085,11 @@ Spring Security provides a number of optional integrations with Spring MVC. This
 [[mvc-enablewebmvcsecurity]]
 === @EnableWebMvcSecurity
 
-WARN: As of Spring Security 4.0, `@EnableWebMvcSecurity` is deprecated. The replacement is `@EnableWebSecurity` which will determine adding the Spring MVC features based upon the classpath.
+NOTE: As of Spring Security 4.0, `@EnableWebMvcSecurity` is deprecated. The replacement is `@EnableWebSecurity` which will determine adding the Spring MVC features based upon the classpath.
 
 To enable Spring Security integration with Spring MVC add the `@EnableWebSecurity` annotation to your configuration.
+
+NOTE: Spring Security provides the configuration using Spring MVC's http://docs.spring.io/spring-framework/docs/4.1.x/spring-framework-reference/htmlsingle/#mvc-config-customize[WebMvcConfigurerAdapter]. This means that if you are using more advanced options, like integrating with `WebMvcConfigurationSupport` directly, then you will need to manually provide the Spring Security configuration.
 
 
 [[mvc-authentication-principal]]
