@@ -495,6 +495,7 @@ mvc
     .perform(formLogin("/auth").user("a","admin").password("p","pass"))
 ----
 
+[[test-logout]]
 ==== Testing Logout
 
 While fairly trivial using standard Spring MVC Test, you can use Spring Security's testing support to make testing log out easier.
