@@ -15,7 +15,7 @@
  */
 package org.springframework.security.web.authentication.logout;
 
-import static org.junit.Assert.*;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import org.junit.Assert;
@@ -39,10 +39,10 @@ public class HttpStatusReturningLogoutSuccessHandlerTests {
 
 		lsh.onLogoutSuccess(request, response, mock(Authentication.class));
 
-		assertNull(request.getSession(false));
-		assertNull(response.getRedirectedUrl());
-		assertNull(response.getForwardedUrl());
-		assertEquals(HttpStatus.OK.value(), response.getStatus());
+		assertThat(request.getSession(false)).isNull();
+		assertThat(response.getRedirectedUrl()).isNull();
+		assertThat(response.getForwardedUrl()).isNull();
+		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
 	}
 
 	@Test
@@ -54,10 +54,10 @@ public class HttpStatusReturningLogoutSuccessHandlerTests {
 
 		lsh.onLogoutSuccess(request, response, mock(Authentication.class));
 
-		assertNull(request.getSession(false));
-		assertNull(response.getRedirectedUrl());
-		assertNull(response.getForwardedUrl());
-		assertEquals(HttpStatus.NO_CONTENT.value(), response.getStatus());
+		assertThat(request.getSession(false)).isNull();
+		assertThat(response.getRedirectedUrl()).isNull();
+		assertThat(response.getForwardedUrl()).isNull();
+		assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT.value());
 	}
 
 	@Test
@@ -67,7 +67,7 @@ public class HttpStatusReturningLogoutSuccessHandlerTests {
 			new HttpStatusReturningLogoutSuccessHandler(null);
 		}
 		catch (IllegalArgumentException e) {
-			assertEquals("The provided HttpStatus must not be null.", e.getMessage());
+			assertThat(e).hasMessage("The provided HttpStatus must not be null.");
 			return;
 		}
 
