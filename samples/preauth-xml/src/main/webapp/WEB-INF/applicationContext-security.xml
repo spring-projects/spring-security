@@ -75,7 +75,7 @@
 		<property name="authenticationManager" ref="authenticationManager"/>
 		<property name="accessDecisionManager" ref="httpRequestAccessDecisionManager"/>
 		<property name="securityMetadataSource">
-			<sec:filter-security-metadata-source>
+			<sec:filter-security-metadata-source use-expressions="false">
 				<sec:intercept-url pattern="/secure/extreme/**" access="ROLE_SUPERVISOR"/>
 				<sec:intercept-url pattern="/secure/**" access="ROLE_USER"/>
 				<sec:intercept-url pattern="/**" access="ROLE_USER"/>
