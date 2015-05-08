@@ -971,7 +971,7 @@ public class MethodSecurityConfig {
 }
 ----
 
-Adding an annotation to a method (on an class or interface) would then limit the access to that method accordingly. Spring Security's native annotation support defines a set of attributes for the method. These will be passed to the AccessDecisionManager for it to make the actual decision:
+Adding an annotation to a method (on a class or interface) would then limit the access to that method accordingly. Spring Security's native annotation support defines a set of attributes for the method. These will be passed to the AccessDecisionManager for it to make the actual decision:
 
 [source,java]
 ----
@@ -1027,7 +1027,7 @@ public Account post(Account account, double amount);
 
 ==== GlobalMethodSecurityConfiguration
 
-Sometimes you may need to perform operations that are more complicated than are possible with the `@EnableGlobalMethodSecurity` annotation allow. For these instances, you can extend the `GlobalMethodSecurityConfiguration` ensuring that the `@EnableGlobalMethodSecurity` annotation is present on your subclass. For example, if you wanted to provide a custom `MethodSecurityExpressionHander`, you could use the following configuration:
+Sometimes you may need to perform operations that are more complicated and cannot be expressed using the `@EnableGlobalMethodSecurity` annotation. For these instances, you can extend the `GlobalMethodSecurityConfiguration` ensuring that the `@EnableGlobalMethodSecurity` annotation is present on your subclass. For example, if you wanted to provide a custom `MethodSecurityExpressionHander`, you could use the following configuration:
 
 [source,java]
 ----
@@ -1036,7 +1036,7 @@ public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
 	@Override
 	protected MethodSecurityExpressionHandler createExpressionHandler() {
 		// ... create and return custom MethodSecurityExpressionHandler ...
-		return expressionHander;
+		return expressionHandler;
 	}
 }
 ----
