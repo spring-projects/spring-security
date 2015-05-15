@@ -401,7 +401,7 @@ NOTE: Spring Security provides https://github.com/spring-projects/spring-securit
 
 === Hello Web Security Java Configuration
 
-The first step is to create our Spring Security Java Configuration. The configuration creates a Servlet Filter known as the `springSecurityFilterChain` which is responsible for all the security (protecting the application URLs, validating submitted username and passwords, redirecting to the log in form, etc) within your application. You can find the most basic example of a Spring Security Java configuration below:
+The first step is to create our Spring Security Java Configuration. The configuration creates a Servlet Filter known as the `springSecurityFilterChain` which is responsible for all the security (protecting the application URLs, validating submitted username and passwords, redirecting to the log in form, etc) within your application. You can find the most basic example of a Spring Security Java Configuration below:
 
 [[jc-hello-wsca]]
 [source,java]
@@ -544,7 +544,7 @@ You will notice that this configuration is quite similar the XML Namespace confi
 
 The Java Configuration equivalent of closing an XML tag is expressed using the `and()` method which allows us to continue configuring the parent. If you read the code it also makes sense. I want to configure authorized requests __and__ configure form login __and__ configure HTTP Basic authentication.
 
-However, Java configuration has different defaults URLs and parameters. Keep this in mind when creating custom login pages. The result is that our URLs are more RESTful. Additionally, it is not quite so obvious we are using Spring Security which helps to prevent https://www.owasp.org/index.php/Information_Leak_(information_disclosure)[information leaks]. For example:
+However, Java Configuration has different defaults URLs and parameters. Keep this in mind when creating custom login pages. The result is that our URLs are more RESTful. Additionally, it is not quite so obvious we are using Spring Security which helps to prevent https://www.owasp.org/index.php/Information_Leak_(information_disclosure)[information leaks]. For example:
 
 [[jc-form]]
 === Java Configuration and Form Login
@@ -1018,7 +1018,7 @@ public Account post(Account account, double amount);
 
 ==== GlobalMethodSecurityConfiguration
 
-Sometimes you may need to perform operations that are more complicated than are possible with the `@EnableGlobalMethodSecurity` annotation allow. For these instances, you can extend the `GlobalMethodSecurityConfiguration` ensuring that the `@EnableGlobalMethodSecurity` annotation is present on your subclass. For example, if you wanted to provide a custom `MethodSecurityExpressionHander`, you could use the following configuration:
+Sometimes you may need to perform operations that are more complicated than are possible with the `@EnableGlobalMethodSecurity` annotation allow. For these instances, you can extend the `GlobalMethodSecurityConfiguration` ensuring that the `@EnableGlobalMethodSecurity` annotation is present on your subclass. For example, if you wanted to provide a custom `MethodSecurityExpressionHandler`, you could use the following configuration:
 
 [source,java]
 ----
@@ -1027,7 +1027,7 @@ public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
 	@Override
 	protected MethodSecurityExpressionHandler createExpressionHandler() {
 		// ... create and return custom MethodSecurityExpressionHandler ...
-		return expressionHander;
+		return expressionHandler;
 	}
 }
 ----
@@ -1090,7 +1090,7 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans
 </beans>
 ----
 
-In many of the examples you will see (and in the sample) applications, we
+In many of the examples you will see (and in the sample applications), we
 			will often use "security" as the default namespace rather than "beans", which means we
 			can omit the prefix on all the security namespace elements, making the content easier to
 			read. You may also want to do this if you have your application context divided up into
@@ -3236,7 +3236,7 @@ As of Spring Security 4.0, CSRF protection is enabled by default with XML config
 </http>
 ----
 
-CSRF protection is enabled by default with Java configuration. If you would like to disable CSRF, the corresponding Java configuration can be seen below. Refer to the Javadoc of csrf() for additional customizations in how CSRF protection is configured.
+CSRF protection is enabled by default with Java Configuration. If you would like to disable CSRF, the corresponding Java configuration can be seen below. Refer to the Javadoc of csrf() for additional customizations in how CSRF protection is configured.
 
 [source,java]
 ----
