@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,6 +83,7 @@ import org.w3c.dom.Element;
  *
  * @author Luke Taylor
  * @author Rob Winch
+ * @author Kazuki Shimizu
  * @since 3.0
  */
 class HttpConfigurationBuilder {
@@ -94,6 +95,7 @@ class HttpConfigurationBuilder {
 	private static final String OPT_CHANGE_SESSION_ID = "changeSessionId";
 
 	private static final String ATT_INVALID_SESSION_URL = "invalid-session-url";
+	private static final String ATT_INVALID_SESSION_REQUEST_MATCHER_REF = "invalid-session-request-matcher-ref";
 	private static final String ATT_SESSION_AUTH_STRATEGY_REF = "session-authentication-strategy-ref";
 	private static final String ATT_SESSION_AUTH_ERROR_URL = "session-authentication-error-url";
 	private static final String ATT_SECURITY_CONTEXT_REPOSITORY = "security-context-repository-ref";
@@ -287,6 +289,7 @@ class HttpConfigurationBuilder {
 
 		String sessionFixationAttribute = null;
 		String invalidSessionUrl = null;
+		String invalidSessionRequestMatcherRef = null;
 		String sessionAuthStratRef = null;
 		String errorUrl = null;
 
@@ -302,6 +305,7 @@ class HttpConfigurationBuilder {
 			sessionFixationAttribute = sessionMgmtElt
 					.getAttribute(ATT_SESSION_FIXATION_PROTECTION);
 			invalidSessionUrl = sessionMgmtElt.getAttribute(ATT_INVALID_SESSION_URL);
+			invalidSessionRequestMatcherRef = sessionMgmtElt.getAttribute(ATT_INVALID_SESSION_REQUEST_MATCHER_REF);
 			sessionAuthStratRef = sessionMgmtElt
 					.getAttribute(ATT_SESSION_AUTH_STRATEGY_REF);
 			errorUrl = sessionMgmtElt.getAttribute(ATT_SESSION_AUTH_ERROR_URL);
@@ -442,6 +446,9 @@ class HttpConfigurationBuilder {
 			invalidSessionBldr.addConstructorArgValue(invalidSessionUrl);
 			invalidSession = invalidSessionBldr.getBeanDefinition();
 			sessionMgmtFilter.addPropertyValue("invalidSessionStrategy", invalidSession);
+			if(StringUtils.hasText(invalidSessionRequestMatcherRef)) {
+				sessionMgmtFilter.addPropertyReference("invalidSessionDetectionMatcher", invalidSessionRequestMatcherRef);
+			}
 		}
 
 		sessionMgmtFilter.addConstructorArgReference(sessionAuthStratRef);

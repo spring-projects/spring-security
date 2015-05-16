@@ -527,6 +527,9 @@ session-management.attlist &=
 	## The URL to which a user will be redirected if they submit an invalid session indentifier. Typically used to detect session timeouts.
 	attribute invalid-session-url {xsd:token}?
 session-management.attlist &=
+	## Sets the RequestMatcher to customize target URLs of detecting a invalid session. Setting this attribute will be inject to the SessionManagementFilter#invalidSessionDetectionMatcher field. This attribute is valid only when set the invalid-session-url. Default setting set the RequestMatcher to detect a invalid session for all requests.
+	attribute invalid-session-request-matcher-ref {xsd:token}?
+session-management.attlist &=
 	## Allows injection of the SessionAuthenticationStrategy instance used by the SessionManagementFilter
 	attribute session-authentication-strategy-ref {xsd:token}?
 session-management.attlist &=

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -36,10 +36,14 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.authentication.session.SessionAuthenticationException;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 /**
  * @author Luke Taylor
  * @author Rob Winch
+ * @author Kazuki Shimizu
  */
 public class SessionManagementFilterTests {
 
@@ -159,6 +163,57 @@ public class SessionManagementFilterTests {
 		verifyZeroInteractions(fc);
 
 		assertEquals("/timedOut", response.getRedirectedUrl());
+	}
+
+
+	// SEC-2910
+	@Test
+	public void invalidSessionDoesNotDetectedWhenCustomizeRequestMatcher() throws Exception {
+		SecurityContextRepository repo = mock(SecurityContextRepository.class);
+		SessionAuthenticationStrategy strategy = mock(SessionAuthenticationStrategy.class);
+		RequestMatcher invalidSessionDetectionMatcher = new NegatedRequestMatcher(new AntPathRequestMatcher("/login"));
+		SessionManagementFilter filter = new SessionManagementFilter(repo,strategy);
+		SimpleRedirectInvalidSessionStrategy iss = new SimpleRedirectInvalidSessionStrategy("/timedOut");
+		iss.setCreateNewSession(true);
+		filter.setInvalidSessionStrategy(iss);
+		filter.setInvalidSessionDetectionMatcher(invalidSessionDetectionMatcher);
+
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		request.setRequestedSessionId("xxx");
+		request.setRequestedSessionIdValid(false);
+		request.setServletPath("/login"); // exclusion url
+		FilterChain fc = mock(FilterChain.class);
+
+		filter.doFilter(request, response, fc);
+
+		assertNull(response.getRedirectedUrl());
+		verify(fc, times(1)).doFilter(request, response);
+	}
+
+	// SEC-2910
+	@Test
+	public void invalidSessionDetectedWhenCustomizeRequestMatcher() throws Exception {
+		SecurityContextRepository repo = mock(SecurityContextRepository.class);
+		SessionAuthenticationStrategy strategy = mock(SessionAuthenticationStrategy.class);
+		RequestMatcher invalidSessionDetectionMatcher = new NegatedRequestMatcher(new AntPathRequestMatcher("/login"));
+		SessionManagementFilter filter = new SessionManagementFilter(repo,strategy);
+		SimpleRedirectInvalidSessionStrategy iss = new SimpleRedirectInvalidSessionStrategy("/timedOut");
+		iss.setCreateNewSession(true);
+		filter.setInvalidSessionStrategy(iss);
+		filter.setInvalidSessionDetectionMatcher(invalidSessionDetectionMatcher);
+
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		request.setRequestedSessionId("xxx");
+		request.setRequestedSessionIdValid(false);
+		request.setServletPath("/account"); // target url
+		FilterChain fc = mock(FilterChain.class);
+
+		filter.doFilter(request, response, fc);
+
+		assertEquals("/timedOut", response.getRedirectedUrl());
+		verifyZeroInteractions(fc);
 	}
 
 	@Test

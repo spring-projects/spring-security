@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,7 @@ import org.springframework.security.web.session.ConcurrentSessionFilter;
 import org.springframework.security.web.session.InvalidSessionStrategy;
 import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.security.web.session.SimpleRedirectInvalidSessionStrategy;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 
 /**
@@ -85,6 +86,7 @@ import org.springframework.util.Assert;
  * </ul>
  *
  * @author Rob Winch
+ * @author Kazuki Shimizu
  * @since 3.2
  * @see SessionManagementFilter
  * @see ConcurrentSessionFilter
@@ -103,6 +105,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	private SessionCreationPolicy sessionPolicy = SessionCreationPolicy.IF_REQUIRED;
 	private boolean enableSessionUrlRewriting;
 	private String invalidSessionUrl;
+	private RequestMatcher invalidSessionRequestMatcher;
 	private String sessionAuthenticationErrorUrl;
 
 	/**
@@ -123,6 +126,23 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	 */
 	public SessionManagementConfigurer<H> invalidSessionUrl(String invalidSessionUrl) {
 		this.invalidSessionUrl = invalidSessionUrl;
+		return this;
+	}
+
+	/**
+	 * Sets the {@link RequestMatcher} to customize target URLs of detecting a invalid session.
+	 * Setting this attribute will be inject to the {@link SessionManagementFilter#invalidSessionDetectionMatcher}.
+	 * <p>
+	 * This attribute is valid only when set the {@link #invalidSessionUrl(String)}.
+	 * Default setting set the {@link RequestMatcher} to detect a invalid session for all requests.
+	 * </p>
+	 *
+	 * @param invalidSessionRequestMatcher the {@link RequestMatcher} to detect invalid session
+	 * @return the {@link SessionManagementConfigurer} for further customization
+	 * @since 4.0.1
+	 */
+	public SessionManagementConfigurer<H> invalidSessionRequestMatcher(RequestMatcher invalidSessionRequestMatcher){
+		this.invalidSessionRequestMatcher = invalidSessionRequestMatcher;
 		return this;
 	}
 
@@ -404,6 +424,9 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		if (invalidSessionUrl != null) {
 			sessionManagementFilter
 					.setInvalidSessionStrategy(getInvalidSessionStrategy());
+			if (invalidSessionRequestMatcher != null) {
+					sessionManagementFilter.setInvalidSessionDetectionMatcher(invalidSessionRequestMatcher);
+			}
 		}
 		AuthenticationTrustResolver trustResolver = http
 				.getSharedObject(AuthenticationTrustResolver.class);

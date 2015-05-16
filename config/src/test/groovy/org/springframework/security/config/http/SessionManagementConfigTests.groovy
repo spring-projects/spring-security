@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,14 @@
  */
 package org.springframework.security.config.http
 
+import org.springframework.security.web.util.matcher.RequestMatcher
+
 import static org.junit.Assert.assertSame
 import static org.mockito.Mockito.*
 
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
-import org.mockito.Mockito
 import org.springframework.mock.web.MockFilterChain
 import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.mock.web.MockHttpServletResponse
@@ -41,7 +42,6 @@ import org.springframework.security.web.authentication.logout.CookieClearingLogo
 import org.springframework.security.web.authentication.logout.LogoutFilter
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler
 import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter
-import org.springframework.security.web.authentication.session.SessionAuthenticationException
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy
 import org.springframework.security.web.context.NullSecurityContextRepository
 import org.springframework.security.web.context.SaveContextOnUpdateOrErrorResponseWrapper
@@ -55,6 +55,7 @@ import org.springframework.security.web.session.SessionManagementFilter
  *
  * @author Luke Taylor
  * @author Rob Winch
+ * @author Kazuki Shimizu
  */
 class SessionManagementConfigTests extends AbstractHttpConfigTests {
 
@@ -427,6 +428,23 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
 		expect:
 		filter instanceof SessionManagementFilter
 		filter.invalidSessionStrategy.destinationUrl == '/timeoutUrl'
+	}
+
+	def sessionManagementFilterInvalidSessionDetectionRequestMatcherSet() {
+		httpAutoConfig {
+			'session-management'(
+					'invalid-session-url': '/timeoutUrl',
+					'invalid-session-request-matcher-ref':'matcher')
+        }
+		mockBean(RequestMatcher, 'matcher')
+		createAppContext()
+		RequestMatcher matcher = appContext.getBean("matcher",RequestMatcher)
+
+		def filter = getFilters("/someurl")[11]
+
+		expect:
+		filter instanceof SessionManagementFilter
+		filter.invalidSessionDetectionMatcher == matcher
 	}
 
 }
