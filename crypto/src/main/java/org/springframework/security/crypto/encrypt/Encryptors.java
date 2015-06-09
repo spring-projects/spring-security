@@ -15,6 +15,7 @@
  */
 package org.springframework.security.crypto.encrypt;
 
+import org.springframework.security.crypto.encrypt.AesBytesEncryptor.CipherAlgorithm;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 
 /**
@@ -24,6 +25,28 @@ import org.springframework.security.crypto.keygen.KeyGenerators;
  * @author Keith Donald
  */
 public class Encryptors {
+
+	/**
+	 * Creates a standard password-based bytes encryptor using 256 bit AES encryption with
+	 * Galois Counter Mode (GCM). Derives the secret key using PKCS #5's PBKDF2
+	 * (Password-Based Key Derivation Function #2). Salts the password to prevent
+	 * dictionary attacks against the key. The provided salt is expected to be
+	 * hex-encoded; it should be random and at least 8 bytes in length. Also applies a
+	 * random 16 byte initialization vector to ensure each encrypted message will be
+	 * unique. Requires Java 6.
+	 *
+	 * @param password the password used to generate the encryptor's secret key; should
+	 * not be shared
+	 * @param salt a hex-encoded, random, site-global salt value to use to generate the
+	 * key
+	 *
+	 * @see #standard(CharSequence, CharSequence) which uses the slightly weaker CBC mode
+	 * (instead of GCM)
+	 */
+	public static BytesEncryptor stronger(CharSequence password, CharSequence salt) {
+		return new AesBytesEncryptor(password.toString(), salt,
+				KeyGenerators.secureRandom(16), CipherAlgorithm.GCM);
+	}
 
 	/**
 	 * Creates a standard password-based bytes encryptor using 256 bit AES encryption.
@@ -44,11 +67,24 @@ public class Encryptors {
 	}
 
 	/**
-	 * Creates a text encryptor that uses standard password-based encryption. Encrypted
+	 * Creates a text encryptor that uses "stronger" password-based encryption. Encrypted
 	 * text is hex-encoded.
 	 *
 	 * @param password the password used to generate the encryptor's secret key; should
 	 * not be shared
+	 * @see Encryptors#stronger(CharSequence, CharSequence)
+	 */
+	public static TextEncryptor delux(CharSequence password, CharSequence salt) {
+		return new HexEncodingTextEncryptor(stronger(password, salt));
+	}
+
+	/**
+	 * Creates a text encryptor that uses "standard" password-based encryption. Encrypted
+	 * text is hex-encoded.
+	 *
+	 * @param password the password used to generate the encryptor's secret key; should
+	 * not be shared
+	 * @see Encryptors#standard(CharSequence, CharSequence)
 	 */
 	public static TextEncryptor text(CharSequence password, CharSequence salt) {
 		return new HexEncodingTextEncryptor(standard(password, salt));
