@@ -138,7 +138,6 @@ public class Person extends LdapUserDetailsImpl {
 
 		public LdapUserDetails createUserDetails() {
 			Person p = (Person) super.createUserDetails();
-			Assert.hasLength(p.sn);
 			Assert.notNull(p.cn);
 			Assert.notEmpty(p.cn);
 			// TODO: Check contents for null entries
