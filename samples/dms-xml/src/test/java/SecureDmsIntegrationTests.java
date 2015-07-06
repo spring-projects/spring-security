@@ -15,18 +15,23 @@ public class SecureDmsIntegrationTests extends DmsIntegrationTests {
 
 	@Test
 	public void testBasePopulation() {
-		assertEquals(9, jdbcTemplate.queryForInt("select count(id) from DIRECTORY"));
-		assertEquals(90, jdbcTemplate.queryForInt("select count(id) from FILE"));
-		assertEquals(4, jdbcTemplate.queryForInt("select count(id) from ACL_SID")); // 3
-																					// users
-																					// + 1
-																					// role
-		assertEquals(2, jdbcTemplate.queryForInt("select count(id) from ACL_CLASS")); // Directory
-																						// and
-																						// File
+		assertEquals(9,
+				jdbcTemplate.queryForObject("select count(id) from DIRECTORY", int.class));
+		assertEquals(90,
+				jdbcTemplate.queryForObject("select count(id) from FILE", int.class));
+		assertEquals(4,
+				jdbcTemplate.queryForObject("select count(id) from ACL_SID", int.class));	// 3
+																							// users
+																							// + 1
+																							// role
+		assertEquals(2,
+				jdbcTemplate.queryForObject("select count(id) from ACL_CLASS", int.class)); // Directory
+																							// and
+																							// File
 		assertEquals(100,
-				jdbcTemplate.queryForInt("select count(id) from ACL_OBJECT_IDENTITY"));
-		assertEquals(115, jdbcTemplate.queryForInt("select count(id) from ACL_ENTRY"));
+				jdbcTemplate.queryForObject("select count(id) from ACL_OBJECT_IDENTITY", int.class));
+		assertEquals(115,
+				jdbcTemplate.queryForObject("select count(id) from ACL_ENTRY", int.class));
 	}
 
 	public void testMarissaRetrieval() {

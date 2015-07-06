@@ -192,7 +192,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 			jdbcTemplate.update(insertClass, type);
 			Assert.isTrue(TransactionSynchronizationManager.isSynchronizationActive(),
 					"Transaction must be running");
-			return new Long(jdbcTemplate.queryForLong(classIdentityQuery));
+			return jdbcTemplate.queryForObject(classIdentityQuery, Long.class);
 		}
 
 		return null;
@@ -252,7 +252,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 			jdbcTemplate.update(insertSid, Boolean.valueOf(sidIsPrincipal), sidName);
 			Assert.isTrue(TransactionSynchronizationManager.isSynchronizationActive(),
 					"Transaction must be running");
-			return new Long(jdbcTemplate.queryForLong(sidIdentityQuery));
+			return jdbcTemplate.queryForObject(sidIdentityQuery, Long.class);
 		}
 
 		return null;
@@ -332,8 +332,8 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 	 */
 	protected Long retrieveObjectIdentityPrimaryKey(ObjectIdentity oid) {
 		try {
-			return new Long(jdbcTemplate.queryForLong(selectObjectIdentityPrimaryKey,
-					oid.getType(), oid.getIdentifier()));
+			return jdbcTemplate.queryForObject(selectObjectIdentityPrimaryKey, Long.class,
+					oid.getType(), oid.getIdentifier());
 		}
 		catch (DataAccessException notFound) {
 			return null;
