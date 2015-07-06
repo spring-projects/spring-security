@@ -375,7 +375,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 	}
 
 	private int findGroupId(String group) {
-		return getJdbcTemplate().queryForInt(findGroupIdSql, group);
+		return getJdbcTemplate().queryForObject(findGroupIdSql, int.class, group);
 	}
 
 	public void setAuthenticationManager(AuthenticationManager authenticationManager) {

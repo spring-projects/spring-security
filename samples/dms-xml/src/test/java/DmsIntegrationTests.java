@@ -40,8 +40,8 @@ public class DmsIntegrationTests extends AbstractTransactionalJUnit4SpringContex
 
 	@Test
 	public void testBasePopulation() {
-		assertEquals(9, jdbcTemplate.queryForInt("select count(id) from DIRECTORY"));
-		assertEquals(90, jdbcTemplate.queryForInt("select count(id) from FILE"));
+		assertEquals(9, jdbcTemplate.queryForObject("select count(id) from DIRECTORY", int.class));
+		assertEquals(90, jdbcTemplate.queryForObject("select count(id) from FILE", int.class));
 		assertEquals(3, documentDao.findElements(Directory.ROOT_DIRECTORY).length);
 	}
 

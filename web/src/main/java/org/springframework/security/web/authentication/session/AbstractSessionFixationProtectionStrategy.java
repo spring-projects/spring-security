@@ -149,6 +149,9 @@ abstract class AbstractSessionFixationProtectionStrategy implements
 	protected static final class NullEventPublisher implements ApplicationEventPublisher {
 		public void publishEvent(ApplicationEvent event) {
 		}
+
+		public void publishEvent(Object event) {
+		}
 	}
 
 }
