@@ -94,6 +94,15 @@ configurations {
 	integrationTestRuntime {
 		extendsFrom integrationTestCompile, testRuntime
 	}
+	springSnapshotTestRuntime.extendsFrom testRuntime
+}
+
+configurations.springSnapshotTestRuntime {
+	resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+		if (details.requested.group == 'org.springframework') {
+			details.useVersion 'latest.integration'
+		}
+	}
 }
 
 sourceSets {
@@ -125,6 +134,16 @@ eclipse {
 project.conf2ScopeMappings.addMapping(MavenPlugin.TEST_COMPILE_PRIORITY + 1, project.configurations.getByName("integrationTestCompile"), Conf2ScopeMappingContainer.TEST)
 project.conf2ScopeMappings.addMapping(MavenPlugin.TEST_COMPILE_PRIORITY + 2, project.configurations.getByName("integrationTestRuntime"), Conf2ScopeMappingContainer.TEST)
 check.dependsOn integrationTest
+
+task springSnapshotTest(type: Test) {
+	jvmArgs = ['-ea', '-Xmx500m', '-XX:MaxPermSize=128M']
+	classpath = sourceSets.test.output + sourceSets.main.output + configurations.springSnapshotTestRuntime
+	reports {
+		html.destination = project.file("$buildDir/spring-snapshot-test-results/")
+		junitXml.destination = project.file("$buildDir/reports/spring-snapshot-tests/")
+	}
+}
+check.dependsOn springSnapshotTest
 
 dependencies {
 	optional "commons-logging:commons-logging:$commonsLoggingVersion"
