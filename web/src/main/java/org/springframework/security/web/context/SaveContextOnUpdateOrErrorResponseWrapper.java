@@ -17,7 +17,6 @@ import java.io.PrintWriter;
 import java.util.Locale;
 
 import javax.servlet.ServletOutputStream;
-import javax.servlet.WriteListener;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
@@ -469,16 +468,6 @@ public abstract class SaveContextOnUpdateOrErrorResponseWrapper extends
 
 		public String toString() {
 			return getClass().getName() + "[delegate=" + delegate.toString() + "]";
-		}
-
-		@Override
-		public boolean isReady() {
-			return delegate.isReady();
-		}
-
-		@Override
-		public void setWriteListener(WriteListener writeListener) {
-			delegate.setWriteListener(writeListener);
 		}
 	}
 }
