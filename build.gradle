@@ -6,7 +6,7 @@ buildscript {
 	}
 	dependencies {
 		classpath("org.springframework.build.gradle:propdeps-plugin:0.0.7")
-		classpath("org.springframework.build.gradle:spring-io-plugin:0.0.3.RELEASE")
+		classpath("io.spring.gradle:spring-io-plugin:0.0.4.RELEASE")
 		classpath("org.gradle.api.plugins:gradle-tomcat-plugin:1.2.5")
 		classpath('me.champeau.gradle:gradle-javadoc-hotfix-plugin:0.1')
 		classpath('org.asciidoctor:asciidoctor-gradle-plugin:1.5.1')
@@ -105,8 +105,14 @@ configure(coreModuleProjects) {
 		jacoco //Configuration Group used by Sonar to provide Code Coverage using JaCoCo
 	}
 
+	dependencyManagement {
+		springIoTestRuntime {
+			imports {
+				mavenBom "io.spring.platform:platform-bom:${springIoVersion}"
+			}
+		}
+	}
 	dependencies {
-		springIoVersions "io.spring.platform:platform-versions:${springIoVersion}@properties"
 		jacoco "org.jacoco:org.jacoco.agent:0.6.2.201302030002:runtime"
 	}
 	test {
