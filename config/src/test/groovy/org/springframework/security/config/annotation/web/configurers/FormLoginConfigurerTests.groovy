@@ -68,8 +68,8 @@ class FormLoginConfigurerTests extends BaseSpringSpec {
 			filterChains[1].requestMatcher instanceof AnyRequestMatcher
 			filterChains[1].filters.collect { it.class.name.contains('$') ? it.class.superclass : it.class } ==
 					[WebAsyncManagerIntegrationFilter, SecurityContextPersistenceFilter, HeaderWriterFilter, CsrfFilter, LogoutFilter, UsernamePasswordAuthenticationFilter,
-					 RequestCacheAwareFilter, SecurityContextHolderAwareRequestFilter,
-					 AnonymousAuthenticationFilter, SessionManagementFilter, ExceptionTranslationFilter, FilterSecurityInterceptor ]
+					RequestCacheAwareFilter, SecurityContextHolderAwareRequestFilter,
+					AnonymousAuthenticationFilter, SessionManagementFilter, ExceptionTranslationFilter, FilterSecurityInterceptor ]
 
 		and: "UsernamePasswordAuthentictionFilter is configured correctly"
 			UsernamePasswordAuthenticationFilter authFilter = findFilter(UsernamePasswordAuthenticationFilter,1)
@@ -79,10 +79,6 @@ class FormLoginConfigurerTests extends BaseSpringSpec {
 			authFilter.successHandler.defaultTargetUrl == "/"
 			authFilter.requiresAuthentication(new MockHttpServletRequest(servletPath : "/login", method: "POST"), new MockHttpServletResponse())
 			!authFilter.requiresAuthentication(new MockHttpServletRequest(servletPath : "/login", method: "GET"), new MockHttpServletResponse())
-
-		and: "SessionFixationProtectionStrategy is configured correctly"
-			SessionFixationProtectionStrategy sessionStrategy = ReflectionTestUtils.getField(authFilter,"sessionStrategy").delegateStrategies.find { SessionFixationProtectionStrategy }
-			sessionStrategy.migrateSessionAttributes
 
 		and: "Exception handling is configured correctly"
 			AuthenticationEntryPoint authEntryPoint = filterChains[1].filters.find { it instanceof ExceptionTranslationFilter}.authenticationEntryPoint

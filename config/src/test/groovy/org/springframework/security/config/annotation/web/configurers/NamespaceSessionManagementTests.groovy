@@ -24,6 +24,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.core.session.SessionRegistry
+import org.springframework.security.web.authentication.session.AbstractSessionFixationProtectionStrategy;
+import org.springframework.security.web.authentication.session.ChangeSessionIdAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.NullAuthenticatedSessionStrategy
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy
 import org.springframework.security.web.authentication.session.SessionFixationProtectionEvent
@@ -41,7 +43,7 @@ class NamespaceSessionManagementTests extends BaseSpringSpec {
 		when:
 			loadConfig(SessionManagementConfig)
 		then:
-			findSessionAuthenticationStrategy(SessionFixationProtectionStrategy)
+			findSessionAuthenticationStrategy(AbstractSessionFixationProtectionStrategy)
 	}
 
 	@EnableWebSecurity
@@ -124,7 +126,11 @@ class NamespaceSessionManagementTests extends BaseSpringSpec {
 		when:
 			loadConfig(SFPMigrateSessionManagementConfig)
 		then:
-			findSessionAuthenticationStrategy(SessionFixationProtectionStrategy).migrateSessionAttributes
+			if(isChangeSession()) {
+				findSessionAuthenticationStrategy(ChangeSessionIdAuthenticationStrategy)
+			} else {
+				findSessionAuthenticationStrategy(SessionFixationProtectionStrategy).migrateSessionAttributes
+			}
 	}
 
 	@EnableWebSecurity
@@ -140,7 +146,7 @@ class NamespaceSessionManagementTests extends BaseSpringSpec {
 		setup:
 			loadConfig(SFPPostProcessedConfig)
 		when:
-			findSessionAuthenticationStrategy(SessionFixationProtectionStrategy).onSessionChange("id", new MockHttpSession(), new TestingAuthenticationToken("u","p","ROLE_USER"))
+			findSessionAuthenticationStrategy(AbstractSessionFixationProtectionStrategy).onSessionChange("id", new MockHttpSession(), new TestingAuthenticationToken("u","p","ROLE_USER"))
 		then:
 			context.getBean(MockEventListener).events
 	}
@@ -167,7 +173,7 @@ class NamespaceSessionManagementTests extends BaseSpringSpec {
 	}
 
 	def findSessionAuthenticationStrategy(def c) {
-		findFilter(SessionManagementFilter).sessionAuthenticationStrategy.delegateStrategies.find { it.class.isAssignableFrom(c) }
+		findFilter(SessionManagementFilter).sessionAuthenticationStrategy.delegateStrategies.find { c.isAssignableFrom(it.class) }
 	}
 
 	@EnableWebSecurity
@@ -188,5 +194,13 @@ class NamespaceSessionManagementTests extends BaseSpringSpec {
 			events.add(event)
 		}
 
+	}
+
+	boolean isChangeSession() {
+		try {
+			new ChangeSessionIdAuthenticationStrategy()
+			return true
+		} catch(Exception e) {}
+		return false
 	}
 }

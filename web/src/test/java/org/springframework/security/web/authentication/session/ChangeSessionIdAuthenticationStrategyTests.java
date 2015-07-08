@@ -42,6 +42,12 @@ public class ChangeSessionIdAuthenticationStrategyTests {
 
 	@Test(expected = IllegalStateException.class)
 	public void constructChangeIdMethodNotFound() {
+		spy(ReflectionUtils.class);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.getSession();
+		when(ReflectionUtils.findMethod(HttpServletRequest.class, "changeSessionId"))
+				.thenReturn(null);
+
 		new ChangeSessionIdAuthenticationStrategy();
 	}
 
