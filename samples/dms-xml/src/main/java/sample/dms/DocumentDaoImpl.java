@@ -30,7 +30,7 @@ public class DocumentDaoImpl extends JdbcDaoSupport implements DocumentDao {
 	private Long obtainPrimaryKey() {
 		Assert.isTrue(TransactionSynchronizationManager.isSynchronizationActive(),
 				"Transaction must be running");
-		return new Long(getJdbcTemplate().queryForLong(SELECT_IDENTITY));
+		return getJdbcTemplate().queryForObject(SELECT_IDENTITY, Long.class);
 	}
 
 	public void create(AbstractElement element) {

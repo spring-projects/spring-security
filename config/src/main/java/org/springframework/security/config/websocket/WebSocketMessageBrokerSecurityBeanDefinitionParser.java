@@ -15,12 +15,22 @@
  */
 package org.springframework.security.config.websocket;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.PropertyValue;
-import org.springframework.beans.factory.config.*;
-import org.springframework.beans.factory.support.*;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.BeanReference;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.config.RuntimeBeanReference;
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
+import org.springframework.beans.factory.support.ManagedList;
+import org.springframework.beans.factory.support.ManagedMap;
+import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.beans.factory.xml.XmlReaderContext;
@@ -42,10 +52,6 @@ import org.springframework.util.PathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
-
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Parses Spring Security's websocket namespace support. A simple example is:
@@ -208,6 +214,11 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 	static class MessageSecurityPostProcessor implements
 			BeanDefinitionRegistryPostProcessor {
 
+		/**
+		 * This is not available prior to Spring 4.2
+		 */
+		private static final String WEB_SOCKET_AMMH_CLASS_NAME = "org.springframework.web.socket.messaging.WebSocketAnnotationMethodMessageHandler";
+
 		private static final String CLIENT_INBOUND_CHANNEL_BEAN_ID = "clientInboundChannel";
 
 		private static final String INTERCEPTORS_PROP = "interceptors";
@@ -231,7 +242,7 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 				BeanDefinition bd = registry.getBeanDefinition(beanName);
 				String beanClassName = bd.getBeanClassName();
 				if (beanClassName.equals(SimpAnnotationMethodMessageHandler.class
-						.getName())) {
+						.getName()) || beanClassName.equals(WEB_SOCKET_AMMH_CLASS_NAME)) {
 					PropertyValue current = bd.getPropertyValues().getPropertyValue(
 							CUSTOM_ARG_RESOLVERS_PROP);
 					ManagedList<Object> argResolvers = new ManagedList<Object>();

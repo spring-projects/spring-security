@@ -250,7 +250,8 @@ public class JdbcUserDetailsManagerTests {
 
 		assertEquals(
 				0,
-				template.queryForInt("select id from groups where group_name = 'GROUP_X'"));
+				(int) template.queryForObject("select id from groups where group_name = 'GROUP_X'",
+						Integer.class));
 	}
 
 	@Test

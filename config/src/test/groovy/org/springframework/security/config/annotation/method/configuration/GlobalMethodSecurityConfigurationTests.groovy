@@ -44,6 +44,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent
 import org.springframework.security.config.annotation.BaseSpringSpec
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
+import org.springframework.security.config.method.TestPermissionEvaluator;
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.authority.AuthorityUtils
 import org.springframework.security.core.context.SecurityContextHolder
@@ -250,7 +251,7 @@ public class GlobalMethodSecurityConfigurationTests extends BaseSpringSpec {
 
 	@EnableGlobalMethodSecurity(prePostEnabled = true)
 	public static class MultiPermissionEvaluatorConfig extends GlobalMethodSecurityConfiguration {
-		static PermissionEvaluator PE
+		static PermissionEvaluator PE = new TestPermissionEvaluator()
 
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
