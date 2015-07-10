@@ -10,6 +10,17 @@ import org.junit.Test;
 public class EncryptorsTests {
 
     @Test
+    public void stronger() throws Exception {
+        BytesEncryptor encryptor = Encryptors.stronger("password", "5c0744940b5c369b");
+        byte[] result = encryptor.encrypt("text".getBytes("UTF-8"));
+        assertNotNull(result);
+        assertFalse(new String(result).equals("text"));
+        assertEquals("text", new String(encryptor.decrypt(result)));
+        assertFalse(new String(result).equals(new String(encryptor.encrypt("text"
+                .getBytes()))));
+    }
+
+    @Test
     public void standard() throws Exception {
         BytesEncryptor encryptor = Encryptors.standard("password", "5c0744940b5c369b");
         byte[] result = encryptor.encrypt("text".getBytes("UTF-8"));
@@ -17,6 +28,16 @@ public class EncryptorsTests {
         assertFalse(new String(result).equals("text"));
         assertEquals("text", new String(encryptor.decrypt(result)));
         assertFalse(new String(result).equals(new String(encryptor.encrypt("text".getBytes()))));
+    }
+
+    @Test
+    public void preferred() {
+        TextEncryptor encryptor = Encryptors.delux("password", "5c0744940b5c369b");
+        String result = encryptor.encrypt("text");
+        assertNotNull(result);
+        assertFalse(result.equals("text"));
+        assertEquals("text", encryptor.decrypt(result));
+        assertFalse(result.equals(encryptor.encrypt("text")));
     }
 
     @Test
