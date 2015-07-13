@@ -5,12 +5,19 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.security.GeneralSecurityException;
+
+import javax.crypto.Cipher;
+
+import org.junit.Assume;
 import org.junit.Test;
 
 public class EncryptorsTests {
 
     @Test
     public void stronger() throws Exception {
+        Assume.assumeTrue("GCM must be available for this test", isAesGcmAvailable());
+
         BytesEncryptor encryptor = Encryptors.stronger("password", "5c0744940b5c369b");
         byte[] result = encryptor.encrypt("text".getBytes("UTF-8"));
         assertNotNull(result);
@@ -27,11 +34,14 @@ public class EncryptorsTests {
         assertNotNull(result);
         assertFalse(new String(result).equals("text"));
         assertEquals("text", new String(encryptor.decrypt(result)));
-        assertFalse(new String(result).equals(new String(encryptor.encrypt("text".getBytes()))));
+        assertFalse(new String(result).equals(new String(encryptor.encrypt("text"
+                .getBytes()))));
     }
 
     @Test
     public void preferred() {
+        Assume.assumeTrue("GCM must be available for this test", isAesGcmAvailable());
+
         TextEncryptor encryptor = Encryptors.delux("password", "5c0744940b5c369b");
         String result = encryptor.encrypt("text");
         assertNotNull(result);
@@ -52,7 +62,8 @@ public class EncryptorsTests {
 
     @Test
     public void queryableText() {
-        TextEncryptor encryptor = Encryptors.queryableText("password", "5c0744940b5c369b");
+        TextEncryptor encryptor = Encryptors
+                .queryableText("password", "5c0744940b5c369b");
         String result = encryptor.encrypt("text");
         assertNotNull(result);
         assertFalse(result.equals("text"));
@@ -65,5 +76,14 @@ public class EncryptorsTests {
         TextEncryptor encryptor = Encryptors.noOpText();
         assertEquals("text", encryptor.encrypt("text"));
         assertEquals("text", encryptor.decrypt("text"));
+    }
+
+    private boolean isAesGcmAvailable() {
+        try {
+            Cipher.getInstance("AES/GCM/NoPadding");
+            return true;
+        } catch (GeneralSecurityException e) {
+            return false;
+        }
     }
 }
