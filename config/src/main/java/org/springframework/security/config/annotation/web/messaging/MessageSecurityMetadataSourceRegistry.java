@@ -15,9 +15,17 @@
  */
 package org.springframework.security.config.annotation.web.messaging;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.messaging.Message;
 import org.springframework.messaging.simp.SimpMessageType;
+import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.config.annotation.web.configurers.RememberMeConfigurer;
+import org.springframework.security.messaging.access.expression.DefaultMessageSecurityExpressionHandler;
 import org.springframework.security.messaging.access.expression.ExpressionBasedMessageSecurityMetadataSourceFactory;
 import org.springframework.security.messaging.access.intercept.MessageSecurityMetadataSource;
 import org.springframework.security.messaging.util.matcher.MessageMatcher;
@@ -27,8 +35,6 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.PathMatcher;
 import org.springframework.util.StringUtils;
-
-import java.util.*;
 
 /**
  * Allows mapping security constraints using {@link MessageMatcher} to the security
@@ -44,6 +50,8 @@ public class MessageSecurityMetadataSourceRegistry {
 	private static final String authenticated = "authenticated";
 	private static final String fullyAuthenticated = "fullyAuthenticated";
 	private static final String rememberMe = "rememberMe";
+
+	private SecurityExpressionHandler<Message<Object>> expressionHandler = new DefaultMessageSecurityExpressionHandler<Object>();
 
 	private final LinkedHashMap<MatcherBuilder, String> matcherToExpression = new LinkedHashMap<MatcherBuilder, String>();
 
@@ -201,6 +209,20 @@ public class MessageSecurityMetadataSourceRegistry {
 	}
 
 	/**
+	 * The {@link SecurityExpressionHandler} to be used. The
+	 * default is to use {@link DefaultMessageSecurityExpressionHandler}.
+	 *
+	 * @param expressionHandler the {@link SecurityExpressionHandler} to use. Cannot be null.
+	 * @return the {@link MessageSecurityMetadataSourceRegistry} for further
+	 * customization.
+	 */
+	public MessageSecurityMetadataSourceRegistry expressionHandler(SecurityExpressionHandler<Message<Object>> expressionHandler) {
+		Assert.notNull(expressionHandler, "expressionHandler cannot be null");
+		this.expressionHandler = expressionHandler;
+		return this;
+	}
+
+	/**
 	 * Allows subclasses to create creating a {@link MessageSecurityMetadataSource}.
 	 *
 	 * <p>
@@ -217,7 +239,7 @@ public class MessageSecurityMetadataSourceRegistry {
 			matcherToExpression.put(entry.getKey().build(), entry.getValue());
 		}
 		return ExpressionBasedMessageSecurityMetadataSourceFactory
-				.createExpressionMessageMetadataSource(matcherToExpression);
+				.createExpressionMessageMetadataSource(matcherToExpression, expressionHandler);
 	}
 
 	/**

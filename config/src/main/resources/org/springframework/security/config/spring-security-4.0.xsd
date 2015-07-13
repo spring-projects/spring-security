@@ -851,9 +851,20 @@
                 </xs:documentation>
       </xs:annotation>
       <xs:complexType>
-         <xs:sequence>
-            <xs:element minOccurs="0" maxOccurs="unbounded" ref="security:intercept-message"/>
-         </xs:sequence>
+         <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element ref="security:intercept-message"/>
+            <xs:element name="expression-handler">
+               <xs:annotation>
+                  <xs:documentation>Defines the SecurityExpressionHandler instance which will be used if expression-based
+                access-control is enabled. A default implementation (with no ACL support) will be used if
+                not supplied.
+                </xs:documentation>
+               </xs:annotation>
+               <xs:complexType>
+                  <xs:attributeGroup ref="security:ref"/>
+               </xs:complexType>
+            </xs:element>
+         </xs:choice>
          <xs:attributeGroup ref="security:websocket-message-broker.attrlist"/>
       </xs:complexType>
    </xs:element>

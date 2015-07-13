@@ -25,11 +25,14 @@ import org.springframework.messaging.support.GenericMessage
 import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.mock.web.MockHttpServletResponse
 import org.springframework.security.access.AccessDeniedException
+import org.springframework.security.access.expression.SecurityExpressionOperations;
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.config.AbstractXmlConfigTests
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.messaging.access.expression.DefaultMessageSecurityExpressionHandler;
+import org.springframework.security.messaging.access.expression.MessageSecurityExpressionRoot;
 import org.springframework.security.web.csrf.CsrfToken
 import org.springframework.security.web.csrf.DefaultCsrfToken
 import org.springframework.security.web.csrf.InvalidCsrfTokenException
@@ -432,6 +435,29 @@ class WebSocketMessageBrokerConfigTests extends AbstractXmlConfigTests {
 		createAppContext()
 	}
 
+	def 'custom expressions'() {
+		setup:
+		bean('expressionHandler', DenyRobMessageSecurityExpressionHandler)
+		websocket {
+			'expression-handler' (ref: 'expressionHandler') {}
+			'intercept-message'(pattern:'/**',access:'denyRob()')
+		}
+
+		when: 'message is sent with user'
+		clientInboundChannel.send(message('/message'))
+
+		then: 'access is allowed to custom expression'
+		noExceptionThrown()
+
+		when:
+		messageUser = new TestingAuthenticationToken('rob', 'pass', 'ROLE_USER')
+		clientInboundChannel.send(message('/message'))
+
+		then:
+		def e = thrown(MessageDeliveryException)
+		e.cause instanceof AccessDeniedException
+	}
+
 	def getClientInboundChannel() {
 		appContext.getBean("clientInboundChannel")
 	}
@@ -442,7 +468,6 @@ class WebSocketMessageBrokerConfigTests extends AbstractXmlConfigTests {
 	}
 
 	def message(SimpMessageHeaderAccessor headers, String destination) {
-		messageUser = new TestingAuthenticationToken('user','pass','ROLE_USER')
 		headers.sessionId = '123'
 		headers.sessionAttributes = [:]
 		headers.destination = destination
@@ -516,6 +541,20 @@ class WebSocketMessageBrokerConfigTests extends AbstractXmlConfigTests {
 		@Override
 		void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
 
+		}
+	}
+
+	static class DenyRobMessageSecurityExpressionHandler extends DefaultMessageSecurityExpressionHandler<Object> {
+		@Override
+		protected SecurityExpressionOperations createSecurityExpressionRoot(
+				Authentication authentication,
+				Message<Object> invocation) {
+			return new MessageSecurityExpressionRoot(authentication, invocation) {
+				public boolean denyRob() {
+					Authentication auth = getAuthentication();
+					return auth != null && !"rob".equals(auth.getName());
+				}
+			};
 		}
 	}
 }

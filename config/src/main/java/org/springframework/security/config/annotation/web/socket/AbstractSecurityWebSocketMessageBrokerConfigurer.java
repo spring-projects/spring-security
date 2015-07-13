@@ -26,10 +26,12 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.invocation.HandlerMethodArgumentResolver;
 import org.springframework.messaging.simp.annotation.support.SimpAnnotationMethodMessageHandler;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.security.access.AccessDecisionVoter;
+import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.access.vote.AffirmativeBased;
 import org.springframework.security.config.annotation.web.messaging.MessageSecurityMetadataSourceRegistry;
 import org.springframework.security.messaging.access.expression.MessageExpressionVoter;
@@ -79,6 +81,8 @@ import org.springframework.web.socket.sockjs.transport.TransportHandlingSockJsSe
 public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends
 		AbstractWebSocketMessageBrokerConfigurer implements SmartInitializingSingleton {
 	private final WebSocketMessageSecurityMetadataSourceRegistry inboundRegistry = new WebSocketMessageSecurityMetadataSourceRegistry();
+
+	private SecurityExpressionHandler<Message<Object>> expressionHandler;
 
 	private ApplicationContext context;
 
@@ -145,8 +149,14 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends
 	public ChannelSecurityInterceptor inboundChannelSecurity() {
 		ChannelSecurityInterceptor channelSecurityInterceptor = new ChannelSecurityInterceptor(
 				inboundMessageSecurityMetadataSource());
+		MessageExpressionVoter<Object> voter = new MessageExpressionVoter<Object>();
+		if(expressionHandler != null) {
+			voter.setExpressionHandler(expressionHandler);
+		}
+
 		List<AccessDecisionVoter<? extends Object>> voters = new ArrayList<AccessDecisionVoter<? extends Object>>();
-		voters.add(new MessageExpressionVoter<Object>());
+		voters.add(voter);
+
 		AffirmativeBased manager = new AffirmativeBased(voters);
 		channelSecurityInterceptor.setAccessDecisionManager(manager);
 		return channelSecurityInterceptor;
@@ -159,6 +169,9 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends
 
 	@Bean
 	public MessageSecurityMetadataSource inboundMessageSecurityMetadataSource() {
+		if(expressionHandler != null) {
+			inboundRegistry.expressionHandler(expressionHandler);
+		}
 		configureInbound(inboundRegistry);
 		return inboundRegistry.createMetadataSource();
 	}
@@ -191,6 +204,13 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends
 	@Autowired
 	public void setApplicationContext(ApplicationContext context) {
 		this.context = context;
+	}
+
+	@Autowired(required = false)
+	public void setMessageExpessionHandler(List<SecurityExpressionHandler<Message<Object>>> expressionHandlers) {
+		if(expressionHandlers.size() == 1) {
+			this.expressionHandler = expressionHandlers.get(0);
+		}
 	}
 
 	public void afterSingletonsInstantiated() {

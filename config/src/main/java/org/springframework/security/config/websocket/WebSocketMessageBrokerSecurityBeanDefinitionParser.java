@@ -15,6 +15,8 @@
  */
 package org.springframework.security.config.websocket;
 
+import static org.springframework.security.config.Elements.*;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -117,6 +119,11 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 		ManagedMap<BeanDefinition, String> matcherToExpression = new ManagedMap<BeanDefinition, String>();
 
 		String id = element.getAttribute(ID_ATTR);
+		Element expressionHandlerElt = DomUtils.getChildElementByTagName(element,
+				EXPRESSION_HANDLER);
+		String expressionHandlerRef = expressionHandlerElt == null ? null : expressionHandlerElt.getAttribute("ref");
+		boolean expressionHandlerDefined = StringUtils.hasText(expressionHandlerRef);
+
 		boolean sameOriginDisabled = Boolean.parseBoolean(element
 				.getAttribute(DISABLED_ATTR));
 
@@ -136,11 +143,18 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 				.rootBeanDefinition(ExpressionBasedMessageSecurityMetadataSourceFactory.class);
 		mds.setFactoryMethod("createExpressionMessageMetadataSource");
 		mds.addConstructorArgValue(matcherToExpression);
+		if(expressionHandlerDefined) {
+			mds.addConstructorArgReference(expressionHandlerRef);
+		}
 
 		String mdsId = context.registerWithGeneratedName(mds.getBeanDefinition());
 
 		ManagedList<BeanDefinition> voters = new ManagedList<BeanDefinition>();
-		voters.add(new RootBeanDefinition(MessageExpressionVoter.class));
+		BeanDefinitionBuilder messageExpressionVoterBldr = BeanDefinitionBuilder.rootBeanDefinition(MessageExpressionVoter.class);
+		if(expressionHandlerDefined) {
+			messageExpressionVoterBldr.addPropertyReference("expressionHandler", expressionHandlerRef);
+		}
+		voters.add(messageExpressionVoterBldr.getBeanDefinition());
 		BeanDefinitionBuilder adm = BeanDefinitionBuilder
 				.rootBeanDefinition(ConsensusBased.class);
 		adm.addConstructorArgValue(voters);

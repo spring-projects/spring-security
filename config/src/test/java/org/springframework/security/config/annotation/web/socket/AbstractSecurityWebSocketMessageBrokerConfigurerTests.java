@@ -14,6 +14,14 @@
  */
 package org.springframework.security.config.annotation.web.socket;
 
+import static org.fest.assertions.Assertions.assertThat;
+import static org.junit.Assert.fail;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,9 +44,14 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletConfig;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.expression.SecurityExpressionHandler;
+import org.springframework.security.access.expression.SecurityExpressionOperations;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.web.messaging.MessageSecurityMetadataSourceRegistry;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.messaging.access.expression.DefaultMessageSecurityExpressionHandler;
+import org.springframework.security.messaging.access.expression.MessageSecurityExpressionRoot;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
 import org.springframework.security.web.csrf.MissingCsrfTokenException;
@@ -56,14 +69,6 @@ import org.springframework.web.socket.server.HandshakeHandler;
 import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
 import org.springframework.web.socket.sockjs.transport.handler.SockJsWebSocketHandler;
 import org.springframework.web.socket.sockjs.transport.session.WebSocketServerSockJsSession;
-
-import javax.servlet.http.HttpServletRequest;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.fest.assertions.Assertions.assertThat;
-import static org.junit.Assert.fail;
 
 public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 	AnnotationConfigWebApplicationContext context;
@@ -389,6 +394,74 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 		}
 	}
 
+	@Test
+	public void customExpression()
+			throws Exception {
+		loadConfig(CustomExpressionConfig.class);
+
+		clientInboundChannel().send(message("/denyRob"));
+
+		this.messageUser = new TestingAuthenticationToken("rob", "password", "ROLE_USER");
+		try {
+			clientInboundChannel().send(message("/denyRob"));
+			fail("Expected Exception");
+		}
+		catch (MessageDeliveryException expected) {
+			assertThat(expected.getCause()).isInstanceOf(AccessDeniedException.class);
+		}
+	}
+
+	@Configuration
+	@EnableWebSocketMessageBroker
+	@Import(SyncExecutorConfig.class)
+	static class CustomExpressionConfig extends
+			AbstractSecurityWebSocketMessageBrokerConfigurer {
+
+		// @formatter:off
+		public void registerStompEndpoints(StompEndpointRegistry registry) {
+			registry
+				.addEndpoint("/other")
+				.setHandshakeHandler(testHandshakeHandler());
+		}
+		// @formatter:on
+
+		// @formatter:off
+		@Override
+		protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
+			messages
+				.anyMessage().access("denyRob()");
+		}
+		// @formatter:on
+
+		@Bean
+		public SecurityExpressionHandler<Message<Object>> messageSecurityExpressionHandler() {
+			return new DefaultMessageSecurityExpressionHandler<Object>() {
+				@Override
+				protected SecurityExpressionOperations createSecurityExpressionRoot(
+						Authentication authentication,
+						Message<Object> invocation) {
+					return new MessageSecurityExpressionRoot(authentication, invocation) {
+						public boolean denyRob() {
+							Authentication auth = getAuthentication();
+							return auth != null && !"rob".equals(auth.getName());
+						}
+					};
+				}
+			};
+		}
+
+		@Override
+		public void configureMessageBroker(MessageBrokerRegistry registry) {
+			registry.enableSimpleBroker("/queue/", "/topic/");
+			registry.setApplicationDestinationPrefixes("/app");
+		}
+
+		@Bean
+		public TestHandshakeHandler testHandshakeHandler() {
+			return new TestHandshakeHandler();
+		}
+	}
+
 	private void assertHandshake(HttpServletRequest request) {
 		TestHandshakeHandler handshakeHandler = context
 				.getBean(TestHandshakeHandler.class);
@@ -597,6 +670,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 		protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
 			messages
 				.simpDestMatchers("/permitAll/**").permitAll()
+				.simpDestMatchers("/customExpression/**").access("denyRob")
 				.anyMessage().denyAll();
 		}
 		// @formatter:on

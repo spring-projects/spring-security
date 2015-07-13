@@ -274,7 +274,7 @@ protect-pointcut.attlist &=
 
 websocket-message-broker =
 	## Allows securing a Message Broker. There are two modes. If no id is specified: ensures that any SimpAnnotationMethodMessageHandler has the AuthenticationPrincipalArgumentResolver registered as a custom argument resolver; ensures that the SecurityContextChannelInterceptor is automatically registered for the clientInboundChannel; and that a ChannelSecurityInterceptor is registered with the clientInboundChannel. If the id is specified, creates a ChannelSecurityInterceptor that can be manually registered with the clientInboundChannel.
-	element websocket-message-broker { websocket-message-broker.attrlist, (intercept-message*) }
+	element websocket-message-broker { websocket-message-broker.attrlist, (intercept-message* & expression-handler?) }
 
 websocket-message-broker.attrlist &=
 	## A bean identifier, used for referring to the bean elsewhere in the context. If specified, explicit configuration within clientInboundChannel is required. If not specified, ensures that any SimpAnnotationMethodMessageHandler has the AuthenticationPrincipalArgumentResolver registered as a custom argument resolver; ensures that the SecurityContextChannelInterceptor is automatically registered for the clientInboundChannel; and that a ChannelSecurityInterceptor is registered with the clientInboundChannel.
@@ -291,10 +291,10 @@ intercept-message.attrlist &=
 	## The destination ant pattern which will be mapped to the access attribute. For example, /** matches any message with a destination, /admin/** matches any message that has a destination that starts with admin.
 	attribute pattern {xsd:token}?
 intercept-message.attrlist &=
-	 ## The access configuration attributes that apply for the configured message. For example, permitAll grants access to anyone, hasRole('ROLE_ADMIN') requires the user have the role 'ROLE_ADMIN'.
+	## The access configuration attributes that apply for the configured message. For example, permitAll grants access to anyone, hasRole('ROLE_ADMIN') requires the user have the role 'ROLE_ADMIN'.
 	attribute access {xsd:token}?
 intercept-message.attrlist &=
-	 ## The type of message to match on. Valid values are defined in SimpMessageType (i.e. CONNECT, CONNECT_ACK, HEARTBEAT, MESSAGE, SUBSCRIBE, UNSUBSCRIBE, DISCONNECT, DISCONNECT_ACK, OTHER).
+	## The type of message to match on. Valid values are defined in SimpMessageType (i.e. CONNECT, CONNECT_ACK, HEARTBEAT, MESSAGE, SUBSCRIBE, UNSUBSCRIBE, DISCONNECT, DISCONNECT_ACK, OTHER).
 	attribute type {"CONNECT" | "CONNECT_ACK" | "HEARTBEAT" | "MESSAGE" | "SUBSCRIBE"| "UNSUBSCRIBE" | "DISCONNECT" | "DISCONNECT_ACK" | "OTHER"}?
 
 http-firewall =
@@ -704,7 +704,7 @@ user.attlist &=
 	## Can be set to "true" to mark an account as locked and unusable.
 	attribute locked {xsd:boolean}?
 user.attlist &=
-	 ## Can be set to "true" to mark an account as disabled and unusable.
+	## Can be set to "true" to mark an account as disabled and unusable.
 	attribute disabled {xsd:boolean}?
 
 jdbc-user-service =
