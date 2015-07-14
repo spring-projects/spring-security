@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,12 +15,11 @@
  */
 package org.springframework.security.config.annotation.web.configuration;
 
+import java.util.Map;
+
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.context.annotation.ConfigurationCondition;
 import org.springframework.core.type.AnnotatedTypeMetadata;
-import org.springframework.util.ClassUtils;
-
-import java.util.Map;
 
 /**
  * @author Rob Winch
@@ -34,7 +33,7 @@ class OnMissingBeanCondition implements ConfigurationCondition {
 		Map<String, Object> attrs = metadata
 				.getAnnotationAttributes(ConditionalOnMissingBean.class.getName());
 
-		Class<?> type = (Class) attrs.get("value");
+		Class<?> type = (Class<?>) attrs.get("value");
 		final Map<String, ?> beans = context.getBeanFactory().getBeansOfType(type);
 		return beans.isEmpty();
 	}
