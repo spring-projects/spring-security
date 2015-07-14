@@ -51,4 +51,21 @@ public class SpringSecurityMessageSourceTests extends TestCase {
 		// Revert to original Locale
 		LocaleContextHolder.setLocale(before);
 	}
+
+	// SEC-3013
+	public void germanSystemLocaleWithEnglishLocaleContextHolder() {
+		Locale beforeSystem = Locale.getDefault();
+		Locale.setDefault(Locale.GERMAN);
+
+		Locale beforeHolder = LocaleContextHolder.getLocale();
+		LocaleContextHolder.setLocale(Locale.US);
+
+		MessageSourceAccessor msgs = SpringSecurityMessageSource.getAccessor();
+		assertEquals("Access is denied", msgs.getMessage(
+				"AbstractAccessDecisionManager.accessDenied", "Ooops"));
+
+		// Revert to original Locale
+		Locale.setDefault(beforeSystem);
+		LocaleContextHolder.setLocale(beforeHolder);
+	}
 }
