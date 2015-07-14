@@ -72,12 +72,12 @@ import java.util.Set;
  * The configuration below shows how the group search might be performed with the above schema.
  * <pre>
  * &lt;bean id="ldapAuthoritiesPopulator"
- *       class="org.springframework.security.authentication.ldap.populator.DefaultLdapAuthoritiesPopulator">
+ *       class="org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator">
  *   &lt;constructor-arg ref="contextSource"/>
  *   &lt;constructor-arg value="ou=groups"/>
  *   &lt;property name="groupRoleAttribute" value="ou"/>
  * &lt;!-- the following properties are shown with their default values -->
- *   &lt;property name="searchSubTree" value="false"/>
+ *   &lt;property name="searchSubtree" value="false"/>
  *   &lt;property name="rolePrefix" value="ROLE_"/>
  *   &lt;property name="convertToUpperCase" value="true"/>
  * &lt;/bean>
