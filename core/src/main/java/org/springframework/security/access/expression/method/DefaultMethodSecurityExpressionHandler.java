@@ -37,10 +37,10 @@ public class DefaultMethodSecurityExpressionHandler extends
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
-	private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
-	private ParameterNameDiscoverer parameterNameDiscoverer = new DefaultSecurityParameterNameDiscoverer();
-	private PermissionCacheOptimizer permissionCacheOptimizer = null;
-	private String defaultRolePrefix = "ROLE_";
+	protected AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
+	protected ParameterNameDiscoverer parameterNameDiscoverer = new DefaultSecurityParameterNameDiscoverer();
+	protected PermissionCacheOptimizer permissionCacheOptimizer = null;
+	protected String defaultRolePrefix = "ROLE_";
 
 	public DefaultMethodSecurityExpressionHandler() {
 	}
