@@ -30,7 +30,6 @@ import javax.naming.directory.SearchControls;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -46,13 +45,13 @@ import java.util.Set;
  * that they should be assigned that role. The following LDIF sample has the groups stored
  * under the DN <tt>ou=groups,dc=springframework,dc=org</tt> and a group called
  * "developers" with "ben" and "luke" as members:
- * 
+ *
  * <pre>
  * dn: ou=groups,dc=springframework,dc=org
  * objectClass: top
  * objectClass: organizationalUnit
  * ou: groups
- * 
+ *
  * dn: cn=developers,ou=groups,dc=springframework,dc=org
  * objectClass: groupOfNames
  * objectClass: top
@@ -73,20 +72,20 @@ import java.util.Set;
  * <p>
  * The configuration below shows how the group search might be performed with the above
  * schema.
- * 
+ *
  * <pre>
  * &lt;bean id="ldapAuthoritiesPopulator"
- *       class="org.springframework.security.authentication.ldap.populator.DefaultLdapAuthoritiesPopulator">
+ *       class="org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator">
  *   &lt;constructor-arg ref="contextSource"/>
  *   &lt;constructor-arg value="ou=groups"/>
  *   &lt;property name="groupRoleAttribute" value="ou"/>
  * &lt;!-- the following properties are shown with their default values -->
- *   &lt;property name="searchSubTree" value="false"/>
+ *   &lt;property name="searchSubtree" value="false"/>
  *   &lt;property name="rolePrefix" value="ROLE_"/>
  *   &lt;property name="convertToUpperCase" value="true"/>
  * &lt;/bean>
  * </pre>
- * 
+ *
  * A search for roles for user "uid=ben,ou=people,dc=springframework,dc=org" would return
  * the single granted authority "ROLE_DEVELOPER".
  * <p>
