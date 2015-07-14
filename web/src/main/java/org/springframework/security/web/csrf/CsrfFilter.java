@@ -48,7 +48,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * Typically the {@link CsrfTokenRepository} implementation chooses to store the
  * {@link CsrfToken} in {@link HttpSession} with
  * {@link HttpSessionCsrfTokenRepository}. This is preferred to storing the
- * token in a cookie which.
+ * token in a cookie which can be modified by a client.
  * </p>
  *
  * @author Rob Winch
