@@ -3,6 +3,7 @@ package org.springframework.security.acls;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -131,7 +132,7 @@ public class AclPermissionEvaluator implements PermissionEvaluator {
 				p = permissionFactory.buildFromName(permString);
 			}
 			catch (IllegalArgumentException notfound) {
-				p = permissionFactory.buildFromName(permString.toUpperCase());
+				p = permissionFactory.buildFromName(permString.toUpperCase(Locale.ENGLISH));
 			}
 
 			if (p != null) {
