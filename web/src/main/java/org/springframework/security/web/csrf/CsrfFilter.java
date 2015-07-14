@@ -46,7 +46,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * <p>
  * Typically the {@link CsrfTokenRepository} implementation chooses to store the
  * {@link CsrfToken} in {@link HttpSession} with {@link HttpSessionCsrfTokenRepository}.
- * This is preferred to storing the token in a cookie which.
+ * This is preferred to storing the token in a cookie which can be modified by a client application.
  * </p>
  *
  * @author Rob Winch
@@ -72,7 +72,7 @@ public final class CsrfFilter extends OncePerRequestFilter {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.springframework.web.filter.OncePerRequestFilter#doFilterInternal(javax.servlet
 	 * .http.HttpServletRequest, javax.servlet.http.HttpServletResponse,
@@ -239,7 +239,7 @@ public final class CsrfFilter extends OncePerRequestFilter {
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see
 		 * org.springframework.security.web.util.matcher.RequestMatcher#matches(javax.
 		 * servlet.http.HttpServletRequest)
