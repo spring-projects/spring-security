@@ -24,6 +24,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.web.AuthenticationEntryPoint
 import org.springframework.security.web.access.ExceptionTranslationFilter
+import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
 
@@ -122,6 +123,31 @@ class HttpBasicConfigurerTests extends BaseSpringSpec {
 					.authenticationEntryPoint(ENTRY_POINT)
 					.and()
 				.httpBasic()
+		}
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.inMemoryAuthentication()
+		}
+	}
+
+	def "SEC-3019: Basic Authentication uses RememberMe Config"() {
+		when:
+			loadConfig(BasicUsesRememberMeConfig)
+		then:
+			findFilter(BasicAuthenticationFilter).rememberMeServices == findFilter(RememberMeAuthenticationFilter).rememberMeServices
+	}
+
+	@EnableWebSecurity
+	@Configuration
+	static class BasicUsesRememberMeConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.httpBasic().and()
+				.rememberMe()
 		}
 
 		@Override

@@ -29,6 +29,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
@@ -65,6 +66,7 @@ import org.springframework.web.accept.HeaderContentNegotiationStrategy;
  *
  * <ul>
  * <li>{@link AuthenticationManager}</li>
+ * <li>{@link RememberMeServices}</li>
  * </ul>
  *
  * @author Rob Winch
@@ -176,6 +178,10 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>> extends
 		if (authenticationDetailsSource != null) {
 			basicAuthenticationFilter
 					.setAuthenticationDetailsSource(authenticationDetailsSource);
+		}
+		RememberMeServices rememberMeServices = http.getSharedObject(RememberMeServices.class);
+		if(rememberMeServices != null) {
+			basicAuthenticationFilter.setRememberMeServices(rememberMeServices);
 		}
 		basicAuthenticationFilter = postProcess(basicAuthenticationFilter);
 		http.addFilter(basicAuthenticationFilter);
