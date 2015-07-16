@@ -47,6 +47,7 @@ public class WithMockUserSecurityContextFactoryTests {
 		when(withUser.value()).thenReturn("valueUser");
 		when(withUser.password()).thenReturn("password");
 		when(withUser.roles()).thenReturn(new String[] { "USER" });
+		when(withUser.authorities()).thenReturn(new String[] {});
 
 		assertThat(factory.createSecurityContext(withUser).getAuthentication().getName())
 				.isEqualTo(withUser.value());
@@ -58,6 +59,7 @@ public class WithMockUserSecurityContextFactoryTests {
 		when(withUser.username()).thenReturn("customUser");
 		when(withUser.password()).thenReturn("password");
 		when(withUser.roles()).thenReturn(new String[] { "USER" });
+		when(withUser.authorities()).thenReturn(new String[] {});
 
 		assertThat(factory.createSecurityContext(withUser).getAuthentication().getName())
 				.isEqualTo(withUser.username());
@@ -68,6 +70,7 @@ public class WithMockUserSecurityContextFactoryTests {
 		when(withUser.value()).thenReturn("valueUser");
 		when(withUser.password()).thenReturn("password");
 		when(withUser.roles()).thenReturn(new String[] { "USER", "CUSTOM" });
+		when(withUser.authorities()).thenReturn(new String[] {});
 
 		assertThat(
 				factory.createSecurityContext(withUser).getAuthentication()
@@ -75,11 +78,35 @@ public class WithMockUserSecurityContextFactoryTests {
 				"ROLE_USER", "ROLE_CUSTOM");
 	}
 
+	@Test
+	public void authoritiesWorks() {
+		when(withUser.value()).thenReturn("valueUser");
+		when(withUser.password()).thenReturn("password");
+		when(withUser.roles()).thenReturn(new String[] { "USER" });
+		when(withUser.authorities()).thenReturn(new String[] { "USER", "CUSTOM" });
+
+		assertThat(
+				factory.createSecurityContext(withUser).getAuthentication()
+						.getAuthorities()).onProperty("authority").containsOnly(
+				"USER", "CUSTOM");
+	}
+
+	@Test(expected = IllegalStateException.class)
+	public void authoritiesAndRolesInvalid() {
+		when(withUser.value()).thenReturn("valueUser");
+		when(withUser.password()).thenReturn("password");
+		when(withUser.roles()).thenReturn(new String[] { "CUSTOM" });
+		when(withUser.authorities()).thenReturn(new String[] { "USER", "CUSTOM" });
+
+		factory.createSecurityContext(withUser);
+	}
+
 	@Test(expected = IllegalArgumentException.class)
 	public void rolesWithRolePrefixFails() {
 		when(withUser.value()).thenReturn("valueUser");
 		when(withUser.password()).thenReturn("password");
 		when(withUser.roles()).thenReturn(new String[] { "ROLE_FAIL" });
+		when(withUser.authorities()).thenReturn(new String[] {});
 
 		factory.createSecurityContext(withUser);
 	}

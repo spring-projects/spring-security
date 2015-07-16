@@ -67,6 +67,13 @@ public class WithMockUserTests {
 				.contains("ROLE_ADMIN");
 	}
 
+	@Test
+	@WithMockUser(username = "admin", authorities = { "ADMIN", "USER" })
+	public void getMessageWithMockUserCustomAuthorities() {
+		String message = messageService.getMessage();
+		assertThat(message).contains("admin").contains("ADMIN").contains("USER").doesNotContain("ROLE_");
+	}
+
 	@EnableGlobalMethodSecurity(prePostEnabled = true)
 	@ComponentScan(basePackageClasses = HelloMessageService.class)
 	static class Config {
