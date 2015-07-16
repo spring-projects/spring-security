@@ -5075,7 +5075,7 @@ Often a more complicated strategy than simple DN-matching is required to locate 
 
 [[ldap-searchobjects-filter]]
 ===== FilterBasedLdapUserSearch
-This bean uses an LDAP filter to match the user object in the directory. The process is explained in the Javadoc for the corresponding search method on the http://java.sun.com/j2se/1.4.2/docs/api/javax/naming/directory/DirContext.html#search(javax.naming.Name,%20java.lang.String,%20java.lang.Object[],%20javax.naming.directory.SearchControls)[JDK DirContext class]. As explained there, the search filter can be supplied with parameters. For this class, the only valid parameter is `{0}` which will be replaced with the user's login name.
+This bean uses an LDAP filter to match the user object in the directory. The process is explained in the Javadoc for the corresponding search method on the http://java.sun.com/j2se/1.4.2/docs/api/javax/naming/directory/DirContext.html#search(javax.naming.Name%2C%2520java.lang.String%2C%2520java.lang.Object%5B%5D%2C%2520javax.naming.directory.SearchControls)[JDK DirContext class]. As explained there, the search filter can be supplied with parameters. For this class, the only valid parameter is `{0}` which will be replaced with the user's login name.
 
 
 [[ldap-authorities]]
