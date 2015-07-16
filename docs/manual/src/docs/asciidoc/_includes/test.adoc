@@ -45,9 +45,10 @@ This is a basic example of how to setup Spring Security Test. The highlights are
 <1> `@RunWith` instructs the spring-test module that it should create an ApplicationContext This is no different than using the existing Spring Test support. For additional information, refer to the http://docs.spring.io/spring-framework/docs/4.0.x/spring-framework-reference/htmlsingle/#integration-testing-annotations-standard[Spring Reference]
 <2> `@ContextConfiguration` instructs the spring-test the configuration to use to create the `ApplicationContext`. Since no configuration is specified, the default configuration locations will be tried. This is no different than using the existing Spring Test support. For additional information, refer to the http://docs.spring.io/spring-framework/docs/4.0.x/spring-framework-reference/htmlsingle/#testcontext-ctx-management[Spring Reference]
 
-NOTE: Spring Security hooks into Spring Test support using the  `WithSecurityContextTestExcecutionListener` which will ensure our tests are ran with the correct user.
+NOTE: Spring Security hooks into Spring Test support using the  `WithSecurityContextTestExecutionListener` which will ensure our tests are ran with the correct user.
 It does this by populating the `SecurityContextHolder` prior to running our tests.
 After the test is done, it will clear out the `SecurityContextHolder`.
+If you only need Spring Security related support, you can replace `@ContextConfiguration` with `@SecurityExecutionListeners`.
 
 Remember we added the `@PreAuthorize` annotation to our `HelloMessageService` and so it requires an authenticated user to invoke it.
 If we ran the following test, we would expect the following test will pass:
@@ -204,7 +205,7 @@ You can find our `WithMockCustomUserSecurityContextFactory` implementation below
 [source,java]
 ----
 public class WithMockCustomUserSecurityContextFactory
-	  implements WithSecurityContextFactory<WithMockCustomUser> {
+	implements WithSecurityContextFactory<WithMockCustomUser> {
 	@Override
 	public SecurityContext createSecurityContext(WithMockCustomUser customUser) {
 		SecurityContext context = SecurityContextHolder.createEmptyContext();
