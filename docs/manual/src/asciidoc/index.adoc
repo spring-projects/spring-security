@@ -3569,7 +3569,7 @@ public class WebSecurityConfig extends
 
 [[headers-frame-options]]
 ==== X-Frame-Options
-Allowing your website to be added to a frame can be a security issue. For example, using clever CSS styling users could be tricked into clicking on something that they were not intending (http://www.youtube.com/watch?v=3mk0RySeNsU[video demo]). For example, a user that is logged into their bank might click a button that grants access to other users. This sort of attack is known ashttp://en.wikipedia.org/wiki/Clickjacking[Clickjacking].
+Allowing your website to be added to a frame can be a security issue. For example, using clever CSS styling users could be tricked into clicking on something that they were not intending (http://www.youtube.com/watch?v=3mk0RySeNsU[video demo]). For example, a user that is logged into their bank might click a button that grants access to other users. This sort of attack is known as http://en.wikipedia.org/wiki/Clickjacking[Clickjacking].
 
 [NOTE]
 ====
@@ -4860,7 +4860,7 @@ Often a more complicated strategy than simple DN-matching is required to locate 
 
 [[ldap-searchobjects-filter]]
 ===== FilterBasedLdapUserSearch
-This bean uses an LDAP filter to match the user object in the directory. The process is explained in the Javadoc for the corresponding search method on thehttp://java.sun.com/j2se/1.4.2/docs/api/javax/naming/directory/DirContext.html#search(javax.naming.Name,%20java.lang.String,%20java.lang.Object[],%20javax.naming.directory.SearchControls)[JDK DirContext class]. As explained there, the search filter can be supplied with parameters. For this class, the only valid parameter is `{0}` which will be replaced with the user's login name.
+This bean uses an LDAP filter to match the user object in the directory. The process is explained in the Javadoc for the corresponding search method on the http://java.sun.com/j2se/1.4.2/docs/api/javax/naming/directory/DirContext.html#search(javax.naming.Name,%20java.lang.String,%20java.lang.Object[],%20javax.naming.directory.SearchControls)[JDK DirContext class]. As explained there, the search filter can be supplied with parameters. For this class, the only valid parameter is `{0}` which will be replaced with the user's login name.
 
 
 [[ldap-authorities]]
@@ -6064,7 +6064,9 @@ public Callable<String> processUpload(final MultipartFile file) {
 More technically speaking, Spring Security integrates with `WebAsyncManager`. The `SecurityContext` that is used to process the `Callable` is the `SecurityContext` that exists on the `SecurityContextHolder` at the time `startCallableProcessing` is invoked.
 ====
 
-There is no automatic integration with a `DeferredResult` that is returned by controllers. This is because `DeferredResult` is processed by the users and thus there is no way of automatically integrating with it. However, you can still use <<concurrency-support>> to provide transparent integration with Spring Security.
+There is no automatic integration with a `DeferredResult` that is returned by controllers.
+This is because `DeferredResult` is processed by the users and thus there is no way of automatically integrating with it.
+However, you can still use <<concurrency,Concurrency Support>> to provide transparent integration with Spring Security.
 
 [[mvc-csrf]]
 === Spring MVC and CSRF Integration
