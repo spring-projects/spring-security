@@ -14,7 +14,7 @@ public class HelloMessageService implements MessageService {
 	@PreAuthorize("authenticated")
 	public String getMessage() {
 		Authentication authentication = SecurityContextHolder.getContext()
-                                                             .getAuthentication();
+															 .getAuthentication();
 		return "Hello " + authentication;
 	}
 }
@@ -56,7 +56,7 @@ If we ran the following test, we would expect the following test will pass:
 ----
 @Test(expected = AuthenticationCredentialsNotFoundException.class)
 public void getMessageUnauthenticated() {
-    messageService.getMessage();
+	messageService.getMessage();
 }
 ----
 
@@ -72,8 +72,8 @@ The following test will be ran as a user with the username "user", the password 
 @Test
 @WithMockUser
 public void getMessageWithMockUser() {
-  String message = messageService.getMessage();
-  ...
+String message = messageService.getMessage();
+...
 }
 ----
 
@@ -94,7 +94,7 @@ The following test would run with the username "customUser". Again, the user doe
 @WithMockUser("customUsername")
 public void getMessageWithMockUserCustomUsername() {
 	String message = messageService.getMessage();
-  ...
+...
 }
 ----
 
@@ -106,6 +106,19 @@ For example, this test will be invoked with the username "admin" and the roles "
 @Test
 @WithMockUser(username="admin",roles={"USER","ADMIN"})
 public void getMessageWithMockUserCustomUser() {
+	String message = messageService.getMessage();
+	...
+}
+----
+
+If we do not want the value to automatically be prefixed with ROLE_ we can leverage the authorities attribute.
+For example, this test will be invoked with the username "admin" and the authorities "USER" and "ADMIN".
+
+[source,java]
+----
+@Test
+@WithMockUser(username = "admin", authorities = { "ADMIN", "USER" })
+public void getMessageWithMockUserCustomAuthorities() {
 	String message = messageService.getMessage();
 	...
 }
@@ -191,7 +204,7 @@ You can find our `WithMockCustomUserSecurityContextFactory` implementation below
 [source,java]
 ----
 public class WithMockCustomUserSecurityContextFactory
-      implements WithSecurityContextFactory<WithMockCustomUser> {
+	  implements WithSecurityContextFactory<WithMockCustomUser> {
 	@Override
 	public SecurityContext createSecurityContext(WithMockCustomUser customUser) {
 		SecurityContext context = SecurityContextHolder.createEmptyContext();
@@ -214,24 +227,24 @@ For example, the `WithUserDetailsSecurityContextFactory` uses the `@Autowired` a
 [source,java]
 ----
 final class WithUserDetailsSecurityContextFactory
-	  implements WithSecurityContextFactory<WithUserDetails> {
+	implements WithSecurityContextFactory<WithUserDetails> {
 
-    private UserDetailsService userDetailsService;
+	private UserDetailsService userDetailsService;
 
-    @Autowired
-    public WithUserDetailsSecurityContextFactory(UserDetailsService userDetailsService) {
-        this.userDetailsService = userDetailsService;
-    }
+	@Autowired
+	public WithUserDetailsSecurityContextFactory(UserDetailsService userDetailsService) {
+		this.userDetailsService = userDetailsService;
+	}
 
-    public SecurityContext createSecurityContext(WithUserDetails withUser) {
-        String username = withUser.value();
-        Assert.hasLength(username, "value() must be non empty String");
-        UserDetails principal = userDetailsService.loadUserByUsername(username);
-        Authentication authentication = new UsernamePasswordAuthenticationToken(principal, principal.getPassword(), principal.getAuthorities());
-        SecurityContext context = SecurityContextHolder.createEmptyContext();
-        context.setAuthentication(authentication);
-        return context;
-    }
+	public SecurityContext createSecurityContext(WithUserDetails withUser) {
+		String username = withUser.value();
+		Assert.hasLength(username, "value() must be non empty String");
+		UserDetails principal = userDetailsService.loadUserByUsername(username);
+		Authentication authentication = new UsernamePasswordAuthenticationToken(principal, principal.getPassword(), principal.getAuthorities());
+		SecurityContext context = SecurityContextHolder.createEmptyContext();
+		context.setAuthentication(authentication);
+		return context;
+	}
 }
 ----
 
@@ -260,20 +273,20 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 @WebAppConfiguration
 public class CsrfShowcaseTests {
 
-    @Autowired
-    private WebApplicationContext context;
+	@Autowired
+	private WebApplicationContext context;
 
-    private MockMvc mvc;
+	private MockMvc mvc;
 
-    @Before
-    public void setup() {
-        mvc = MockMvcBuilders
-                .webAppContextSetup(context)
-                .apply(springSecurity()) // <1>
-                .build();
-    }
+	@Before
+	public void setup() {
+		mvc = MockMvcBuilders
+				.webAppContextSetup(context)
+				.apply(springSecurity()) // <1>
+				.build();
+	}
 
-  ...
+...
 ----
 
 <1> `SecurityMockMvcConfigurers.springSecurity()` will perform all of the initial setup we need to integrate Spring Security with Spring MVC Test
@@ -299,7 +312,7 @@ To specify a valid CSRF token as a request parameter using the following:
 [source,java]
 ----
 mvc
-    .perform(post("/").with(csrf()))
+	.perform(post("/").with(csrf()))
 ----
 
 If you like you can include CSRF token in the header instead:
@@ -307,7 +320,7 @@ If you like you can include CSRF token in the header instead:
 [source,java]
 ----
 mvc
-    .perform(post("/").with(csrf().asHeader()))
+	.perform(post("/").with(csrf().asHeader()))
 ----
 
 You can also test providing an invalid CSRF token using the following:
@@ -315,7 +328,7 @@ You can also test providing an invalid CSRF token using the following:
 [source,java]
 ----
 mvc
-    .perform(post("/").with(csrf().useInvalidToken()))
+	.perform(post("/").with(csrf().useInvalidToken()))
 ----
 
 [[test-mockmvc-securitycontextholder]]
@@ -336,7 +349,7 @@ For example, the following will run as a user (which does not need to exist) wit
 [source,java]
 ----
 mvc
-    .perform(get("/").with(user("user")))
+	.perform(get("/").with(user("user")))
 ----
 
 You can easily make customizations.
@@ -345,7 +358,7 @@ For example, the following will run as a user (which does not need to exist) wit
 [source,java]
 ----
 mvc
-    .perform(get("/admin").with(user("admin").password("pass").roles("USER","ADMIN")))
+	.perform(get("/admin").with(user("admin").password("pass").roles("USER","ADMIN")))
 ----
 
 If you have a custom `UserDetails` that you would like to use, you can easily specify that as well.
@@ -354,7 +367,7 @@ For example, the following will use the specified `UserDetails` (which does not 
 [source,java]
 ----
 mvc
-    .perform(get("/").with(user(userDetails)))
+	.perform(get("/").with(user(userDetails)))
 ----
 
 If you want a custom `Authentication` (which does not need to exist) you can do so using the following:
@@ -362,7 +375,7 @@ If you want a custom `Authentication` (which does not need to exist) you can do 
 [source,java]
 ----
 mvc
-    .perform(get("/").with(authentication(authentication)))
+	.perform(get("/").with(authentication(authentication)))
 ----
 
 You can even customize the `SecurityContext` using the following:
@@ -370,7 +383,7 @@ You can even customize the `SecurityContext` using the following:
 [source,java]
 ----
 mvc
-    .perform(get("/").with(securityContext(securityContext)))
+	.perform(get("/").with(securityContext(securityContext)))
 ----
 
 We can also ensure to run as a specific user for every request by using `MockMvcBuilders`'s default request.
@@ -379,10 +392,10 @@ For example, the following will run as a user (which does not need to exist) wit
 [source,java]
 ----
 mvc = MockMvcBuilders
-        .webAppContextSetup(context)
-        .defaultRequest(get("/").with(user("user").roles("ADMIN")))
-        .apply(springSecurity())
-        .build();
+		.webAppContextSetup(context)
+		.defaultRequest(get("/").with(user("user").roles("ADMIN")))
+		.apply(springSecurity())
+		.build();
 ----
 
 If you find you are using the same user in many of your tests, it is recommended to move the user to a method.
@@ -404,7 +417,7 @@ import static sample.CustomSecurityMockMvcRequestPostProcessors.*;
 ...
 
 mvc
-    .perform(get("/").with(rob()))
+	.perform(get("/").with(rob()))
 ----
 
 ===== Running as a User in Spring MVC Test with Annotations
@@ -417,9 +430,9 @@ For example, the following will run the test with the user with username "user",
 @Test
 @WithMockUser
 public void requestProtectedUrlWithUser() throws Exception {
-  mvc
-      .perform(get("/"))
-      ...
+mvc
+	  .perform(get("/"))
+	  ...
 }
 ----
 
@@ -430,9 +443,9 @@ Alternatively, the following will run the test with the user with username "user
 @Test
 @WithMockUser(roles="ADMIN")
 public void requestProtectedUrlWithUser() throws Exception {
-  mvc
-      .perform(get("/"))
-      ...
+mvc
+	  .perform(get("/"))
+	  ...
 }
 ----
 
@@ -445,7 +458,7 @@ For example, the snippet below:
 [source,java]
 ----
 mvc
-    .perform(get("/").with(httpBasic("user","password")))
+	.perform(get("/").with(httpBasic("user","password")))
 ----
 
 will attempt to use HTTP Basic to authenticate a user with the username "user" and the password "password" by ensuring the following header is populated on the HTTP Request:
@@ -474,7 +487,7 @@ For example, the following will submit a POST to "/login" with the username "use
 [source,java]
 ----
 mvc
-    .perform(formLogin())
+	.perform(formLogin())
 ----
 
 It is easy to customize the request.
@@ -483,7 +496,7 @@ For example, the following will submit a POST to "/auth" with the username "admi
 [source,java]
 ----
 mvc
-    .perform(formLogin("/auth").user("admin").password("pass"))
+	.perform(formLogin("/auth").user("admin").password("pass"))
 ----
 
 We can also customize the parameters names that the username and password are included on.
@@ -492,7 +505,7 @@ For example, this is the above request modified to include the username on the H
 [source,java]
 ----
 mvc
-    .perform(formLogin("/auth").user("a","admin").password("p","pass"))
+	.perform(formLogin("/auth").user("a","admin").password("p","pass"))
 ----
 
 [[test-logout]]
@@ -504,7 +517,7 @@ For example, the following will submit a POST to "/logout" with a valid CSRF tok
 [source,java]
 ----
 mvc
-    .perform(logout())
+	.perform(logout())
 ----
 
 You can also customize the URL to post to.
@@ -513,7 +526,7 @@ For example, the snippet below will submit a POST to "/signout" with a valid CSR
 [source,java]
 ----
 mvc
-    .perform(logout("/signout"))
+	.perform(logout("/signout"))
 ----
 
 === SecurityMockMvcResultMatchers
@@ -536,8 +549,8 @@ You can easily do this with Spring Security's testing support using something li
 [source,java]
 ----
 mvc
-    .perform(formLogin().password("invalid"))
-    .andExpect(unauthenticated());
+	.perform(formLogin().password("invalid"))
+	.andExpect(unauthenticated());
 ----
 
 ==== Authenticated Assertion
@@ -549,8 +562,8 @@ We could verify that a form based login was successful with the following snippe
 [source,java]
 ----
 mvc
-    .perform(formLogin())
-    .andExpect(authenticated());
+	.perform(formLogin())
+	.andExpect(authenticated());
 ----
 
 If we wanted to assert the roles of the user, we could refine our previous code as shown below:
@@ -558,8 +571,8 @@ If we wanted to assert the roles of the user, we could refine our previous code 
 [source,java]
 ----
 mvc
-    .perform(formLogin().user("admin"))
-    .andExpect(authenticated().withRoles("USER","ADMIN"));
+	.perform(formLogin().user("admin"))
+	.andExpect(authenticated().withRoles("USER","ADMIN"));
 ----
 
 Alternatively, we could verify the username:
@@ -567,8 +580,8 @@ Alternatively, we could verify the username:
 [source,java]
 ----
 mvc
-    .perform(formLogin().user("admin"))
-    .andExpect(authenticated().withUsername("admin"));
+	.perform(formLogin().user("admin"))
+	.andExpect(authenticated().withUsername("admin"));
 ----
 
 We can also combine the assertions:
@@ -576,6 +589,6 @@ We can also combine the assertions:
 [source,java]
 ----
 mvc
-    .perform(formLogin().user("admin").roles("USER","ADMIN"))
-    .andExpect(authenticated().withUsername("admin"));
+	.perform(formLogin().user("admin").roles("USER","ADMIN"))
+	.andExpect(authenticated().withUsername("admin"));
 ----
