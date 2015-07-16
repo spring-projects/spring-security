@@ -2902,7 +2902,10 @@ create table persistent_logins (username varchar(64) not null,
 
 [[remember-me-impls]]
 === Remember-Me Interfaces and Implementations
-Remember-me authentication is not used with basic authentication, given it is often not used with `HttpSession` s. Remember-me is used with `UsernamePasswordAuthenticationFilter`, and is implemented via hooks in the `AbstractAuthenticationProcessingFilter` superclass. The hooks will invoke a concrete `RememberMeServices` at the appropriate times. The interface looks like this:
+Remember-me is used with `UsernamePasswordAuthenticationFilter`, and is implemented via hooks in the `AbstractAuthenticationProcessingFilter` superclass.
+It is also used within `BasicAuthenticationFilter`.
+The hooks will invoke a concrete `RememberMeServices` at the appropriate times.
+The interface looks like this:
 
 [source,java]
 ----

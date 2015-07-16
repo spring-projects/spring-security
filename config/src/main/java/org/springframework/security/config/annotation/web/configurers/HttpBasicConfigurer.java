@@ -32,12 +32,13 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
+import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.accept.ContentNegotiationStrategy;
 import org.springframework.web.accept.HeaderContentNegotiationStrategy;
 
@@ -166,6 +167,10 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>> extends
         BasicAuthenticationFilter basicAuthenticationFilter = new BasicAuthenticationFilter(authenticationManager, authenticationEntryPoint);
         if(authenticationDetailsSource != null) {
             basicAuthenticationFilter.setAuthenticationDetailsSource(authenticationDetailsSource);
+        }
+        RememberMeServices rememberMeServices = http.getSharedObject(RememberMeServices.class);
+        if(rememberMeServices != null) {
+            basicAuthenticationFilter.setRememberMeServices(rememberMeServices);
         }
         basicAuthenticationFilter = postProcess(basicAuthenticationFilter);
         http.addFilter(basicAuthenticationFilter);
