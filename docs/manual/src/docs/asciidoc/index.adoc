@@ -7413,6 +7413,7 @@ Lists the access attributes which will be stored in the `FilterInvocationSecurit
 * **filters**
 Can only take the value "none". This will cause any matching request to bypass the Spring Security filter chain entirely. None of the rest of the `<http>` configuration will have any effect on the request and there will be no security context available for its duration. Access to secured methods during the request will fail.
 
+NOTE: This property is invalid for <<nsa-filter-security-metadata-source,filter-security-metadata-source>>
 
 [[nsa-intercept-url-method]]
 * **method**
@@ -7429,6 +7430,8 @@ The pattern which defines the URL path. The content will depend on the `request-
 Can be "http" or "https" depending on whether a particular URL pattern should be accessed over HTTP or HTTPS respectively. Alternatively the value "any" can be used when there is no preference. If this attribute is present on any `<intercept-url>` element, then a `ChannelProcessingFilter` will be added to the filter stack and its additional dependencies added to the application context.
 
 If a `<port-mappings>` configuration is added, this will be used to by the `SecureChannelProcessor` and `InsecureChannelProcessor` beans to determine the ports used for redirecting to HTTP/HTTPS.
+
+NOTE: This property is invalid for <<nsa-filter-security-metadata-source,filter-security-metadata-source>>
 
 
 [[nsa-jee]]
