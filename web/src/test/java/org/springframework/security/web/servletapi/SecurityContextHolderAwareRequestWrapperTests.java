@@ -114,4 +114,33 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
 		assertFalse(wrapper.isUserInRole("ROLE_FOOBAR")); // principal is null, so reject
 		assertNull(wrapper.getUserPrincipal());
 	}
+
+	public void testRolePrefix() {
+		Authentication auth = new TestingAuthenticationToken("user", "koala", "ROLE_HELLO",
+				"ROLE_FOOBAR");
+		SecurityContextHolder.getContext().setAuthentication(auth);
+
+		MockHttpServletRequest request = new MockHttpServletRequest();
+
+		SecurityContextHolderAwareRequestWrapper wrapper = new SecurityContextHolderAwareRequestWrapper(
+				request, "ROLE_");
+
+		assertTrue(wrapper.isUserInRole("HELLO"));
+		assertTrue(wrapper.isUserInRole("FOOBAR"));
+	}
+
+	// SEC-3020
+	public void testRolePrefixNotAppliedIfRoleStartsWith() {
+		Authentication auth = new TestingAuthenticationToken("user", "koala", "ROLE_HELLO",
+				"ROLE_FOOBAR");
+		SecurityContextHolder.getContext().setAuthentication(auth);
+
+		MockHttpServletRequest request = new MockHttpServletRequest();
+
+		SecurityContextHolderAwareRequestWrapper wrapper = new SecurityContextHolderAwareRequestWrapper(
+				request, "ROLE_");
+
+		assertTrue(wrapper.isUserInRole("ROLE_HELLO"));
+		assertTrue(wrapper.isUserInRole("ROLE_FOOBAR"));
+	}
 }

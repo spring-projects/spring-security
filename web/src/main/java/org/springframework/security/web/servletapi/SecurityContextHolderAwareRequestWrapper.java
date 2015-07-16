@@ -150,7 +150,7 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
 	private boolean isGranted(String role) {
 		Authentication auth = getAuthentication();
 
-		if (rolePrefix != null) {
+		if (rolePrefix != null && role != null && !role.startsWith(rolePrefix)) {
 			role = rolePrefix + role;
 		}
 
