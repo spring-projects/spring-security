@@ -15,6 +15,8 @@
  */
 package org.springframework.security.test.context.support;
 
+import static org.fest.assertions.Assertions.*;
+
 import static org.mockito.Mockito.when;
 
 import org.junit.After;
@@ -27,6 +29,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.test.context.TestSecurityContextHolder;
+import org.springframework.test.AssertThrows;
 import org.springframework.test.context.TestContext;
 import org.springframework.util.ReflectionUtils;
 
@@ -65,8 +68,27 @@ public class WithSecurityContextTestExcecutionListenerTests {
 		listener.beforeTestMethod(testContext);
 	}
 
+	@Test
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void beforeTestMethodNoApplicationContext() throws Exception {
+		Class testClass = FakeTest.class;
+		when(testContext.getApplicationContext()).thenThrow(new IllegalStateException());
+		when(testContext.getTestClass()).thenReturn(testClass);
+		when(testContext.getTestMethod()).thenReturn(
+				ReflectionUtils.findMethod(testClass, "testWithMockUser"));
+
+		listener.beforeTestMethod(testContext);
+
+		assertThat(TestSecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("user");
+	}
+
 	static class FakeTest {
 		public void testNoAnnotation() {
+		}
+
+		@WithMockUser
+		public void testWithMockUser() {
+
 		}
 	}
 
