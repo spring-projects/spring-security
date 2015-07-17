@@ -15,6 +15,9 @@
  */
 package org.springframework.security.config.annotation.method.configuration
 
+import java.lang.reflect.Proxy;
+
+import org.junit.After;
 import org.springframework.beans.BeansException
 import org.springframework.beans.factory.config.BeanPostProcessor
 import org.springframework.security.config.annotation.authentication.configurers.GlobalAuthenticationConfigurerAdapter
@@ -29,6 +32,7 @@ import org.aopalliance.intercept.MethodInterceptor
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationListener
+import org.springframework.context.annotation.AdviceMode
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -48,6 +52,7 @@ import org.springframework.security.config.method.TestPermissionEvaluator;
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.authority.AuthorityUtils
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 /**
  *
@@ -396,6 +401,31 @@ public class GlobalMethodSecurityConfigurationTests extends BaseSpringSpec {
 		Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
 			afterInit[beanName] = bean
 			bean
+		}
+	}
+
+	def "SEC-3045: Global Security proxies security"() {
+		setup:
+		when: 'load a Configuration that uses a Bean (DataSource) in a GlobalAuthenticationConfigurerAdapter'
+		loadConfig(Sec3005Config)
+		MethodSecurityService service = context.getBean(MethodSecurityService)
+		then: 'The Bean (DataSource) is still properly post processed with all BeanPostProcessor'
+		!Proxy.isProxyClass(service.getClass())
+	}
+
+	@EnableGlobalMethodSecurity(prePostEnabled = true, mode= AdviceMode.ASPECTJ)
+	@EnableTransactionManagement
+	static class Sec3005Config {
+		static DataSource dataSource;
+
+		@Bean
+		public MethodSecurityService service() {
+			new MethodSecurityServiceImpl()
+		}
+
+		@Autowired
+		public void configureGlobal(AuthenticationManagerBuilder auth) {
+			auth.inMemoryAuthentication()
 		}
 	}
 }

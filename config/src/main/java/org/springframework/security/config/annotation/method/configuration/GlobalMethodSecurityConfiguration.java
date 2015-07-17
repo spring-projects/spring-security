@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,11 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.AdviceMode;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ImportAware;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.type.AnnotationMetadata;
@@ -45,7 +47,6 @@ import org.springframework.security.access.intercept.AfterInvocationManager;
 import org.springframework.security.access.intercept.AfterInvocationProviderManager;
 import org.springframework.security.access.intercept.RunAsManager;
 import org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor;
-import org.springframework.security.access.intercept.aopalliance.MethodSecurityMetadataSourceAdvisor;
 import org.springframework.security.access.intercept.aspectj.AspectJMethodSecurityInterceptor;
 import org.springframework.security.access.method.DelegatingMethodSecurityMetadataSource;
 import org.springframework.security.access.method.MethodSecurityMetadataSource;
@@ -315,21 +316,6 @@ public class GlobalMethodSecurityConfiguration implements ImportAware {
 		ExpressionBasedPreInvocationAdvice preInvocationAdvice = new ExpressionBasedPreInvocationAdvice();
 		preInvocationAdvice.setExpressionHandler(getExpressionHandler());
 		return preInvocationAdvice;
-	}
-
-	/**
-	 * Obtains the {@link MethodSecurityMetadataSourceAdvisor} to be used.
-	 *
-	 * @return
-	 */
-	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	@Bean
-	public MethodSecurityMetadataSourceAdvisor metaDataSourceAdvisor() {
-		MethodSecurityMetadataSourceAdvisor methodAdvisor = new MethodSecurityMetadataSourceAdvisor(
-				"methodSecurityInterceptor", methodSecurityMetadataSource(),
-				"methodSecurityMetadataSource");
-		methodAdvisor.setOrder(order());
-		return methodAdvisor;
 	}
 
 	/**

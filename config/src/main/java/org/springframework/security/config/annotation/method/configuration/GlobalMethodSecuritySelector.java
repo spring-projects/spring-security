@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,13 +54,18 @@ final class GlobalMethodSecuritySelector implements ImportSelector {
 				.isAssignableFrom(importingClass);
 
 		AdviceMode mode = attributes.getEnum("mode");
-		String autoProxyClassName = AdviceMode.PROXY == mode ? AutoProxyRegistrar.class
+		boolean isProxy = AdviceMode.PROXY == mode;
+		String autoProxyClassName = isProxy ? AutoProxyRegistrar.class
 				.getName() : GlobalMethodSecurityAspectJAutoProxyRegistrar.class
 				.getName();
 
 		boolean jsr250Enabled = attributes.getBoolean("jsr250Enabled");
 
 		List<String> classNames = new ArrayList<String>(4);
+		if(isProxy) {
+			classNames.add(MethodSecurityMetadataSourceAdvisorRegistrar.class.getName());
+		}
+
 		classNames.add(autoProxyClassName);
 
 		if (!skipMethodSecurityConfiguration) {
