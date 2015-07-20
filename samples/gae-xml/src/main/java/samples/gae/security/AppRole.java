@@ -27,6 +27,6 @@ public enum AppRole implements GrantedAuthority {
 	}
 
 	public String getAuthority() {
-		return toString();
+		return "ROLE_"+toString();
 	}
 }

@@ -6,6 +6,7 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
 	http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
 
+	<http pattern="/_ah/**" security="none"/>
 	<http pattern="/static/**" security="none" />
 	<http pattern="/favicon.ico" security="none" />
 	<http pattern="/loggedout.htm" security="none" />

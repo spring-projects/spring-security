@@ -1,26 +1,28 @@
 apply plugin: 'war'
 apply plugin: 'jetty'
-apply plugin: 'gae'
+apply plugin: 'appengine'
 
-def gaeVersion="1.4.2"
+def gaeVersion="1.9.23"
 
-repositories {
-	maven {
-		// Hibernate Validator
-		name =	'JBoss'
-		url = 'https://repository.jboss.org/nexus/content/repositories/releases'
+buildscript {
+	repositories {
+		mavenCentral()
 	}
-	maven {
-		// GAE Jars
-		name =	'GAE'
-		url = 'http://maven-gae-plugin.googlecode.com/svn/repository'
+	dependencies {
+		classpath 'com.google.appengine:gradle-appengine-plugin:1.9.23'
 	}
+}
+
+appengine {
+	downloadSdk = true
 }
 
 // Remove logback as it causes security issues with GAE.
 configurations.runtime.exclude(group: 'ch.qos.logback')
 
 dependencies {
+	appengineSdk "com.google.appengine:appengine-java-sdk:$gaeVersion"
+
 	providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion"
 
 	compile project(':spring-security-core'),

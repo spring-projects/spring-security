@@ -3,6 +3,7 @@
 	<application>gaespringsec</application>
 	<version>1</version>
 	<sessions-enabled>true</sessions-enabled>
+	<threadsafe>true</threadsafe>
 
 	<system-properties>
 		<property name="java.util.logging.config.file" value="WEB-INF/logging.properties"/>
