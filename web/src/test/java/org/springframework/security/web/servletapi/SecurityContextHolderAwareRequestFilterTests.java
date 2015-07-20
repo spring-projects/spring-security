@@ -379,6 +379,16 @@ public class SecurityContextHolderAwareRequestFilterTests {
 				.isEqualTo(runnable);
 	}
 
+	// SEC-3047
+	@Test
+	public void updateRequestFactory() throws Exception {
+		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("user",
+				"password", "PREFIX_USER"));
+		filter.setRolePrefix("PREFIX_");
+
+		assertThat(wrappedRequest().isUserInRole("PREFIX_USER")).isTrue();;
+	}
+
 	private HttpServletRequest wrappedRequest() throws Exception {
 		filter.doFilter(request, response, filterChain);
 		verify(filterChain).doFilter(requestCaptor.capture(),

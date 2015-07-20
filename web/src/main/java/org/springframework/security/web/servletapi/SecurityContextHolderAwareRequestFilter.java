@@ -94,6 +94,7 @@ public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
 	public void setRolePrefix(String rolePrefix) {
 		Assert.notNull(rolePrefix, "Role prefix must not be null");
 		this.rolePrefix = rolePrefix;
+		updateFactory();
 	}
 
 	/**
@@ -172,6 +173,10 @@ public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
 	@Override
 	public void afterPropertiesSet() throws ServletException {
 		super.afterPropertiesSet();
+		updateFactory();
+	}
+
+	private void updateFactory() {
 		requestFactory = isServlet3() ? createServlet3Factory(rolePrefix)
 				: new HttpServlet25RequestFactory(trustResolver, rolePrefix);
 	}
@@ -186,6 +191,7 @@ public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
 	public void setTrustResolver(AuthenticationTrustResolver trustResolver) {
 		Assert.notNull(trustResolver, "trustResolver cannot be null");
 		this.trustResolver = trustResolver;
+		updateFactory();
 	}
 
 	private HttpServletRequestFactory createServlet3Factory(String rolePrefix) {
