@@ -15,7 +15,7 @@ public class AppRoleTests {
 	public void getAuthorityReturnsRoleName() {
 		GrantedAuthority admin = ADMIN;
 
-		assertEquals("ADMIN", admin.getAuthority());
+		assertEquals("ROLE_ADMIN", admin.getAuthority());
 	}
 
 	@Test
