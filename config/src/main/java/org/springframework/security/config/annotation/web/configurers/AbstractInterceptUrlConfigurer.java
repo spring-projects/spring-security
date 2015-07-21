@@ -156,7 +156,8 @@ abstract class AbstractInterceptUrlConfigurer<C extends AbstractInterceptUrlConf
 	 * @return the default {@code AccessDecisionManager}
 	 */
 	private AccessDecisionManager createDefaultAccessDecisionManager(H http) {
-		return new AffirmativeBased(getDecisionVoters(http));
+		AffirmativeBased result = new AffirmativeBased(getDecisionVoters(http));
+		return postProcess(result);
 	}
 
 	/**
