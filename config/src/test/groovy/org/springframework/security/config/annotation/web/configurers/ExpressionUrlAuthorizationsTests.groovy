@@ -19,8 +19,12 @@ import static org.springframework.security.config.annotation.web.configurers.Exp
 
 import javax.servlet.http.HttpServletResponse
 
+import org.springframework.beans.BeansException
 import org.springframework.beans.factory.BeanCreationException
+import org.springframework.beans.factory.config.BeanPostProcessor
 import org.springframework.context.ApplicationListener
+import org.springframework.context.annotation.Bean
+import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.access.event.AuthorizedEvent
 import org.springframework.security.access.vote.AffirmativeBased
@@ -31,7 +35,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
-import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurerConfigs.CustomExpressionRootConfig;
+import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurerConfigs.CustomExpressionRootConfig
 import org.springframework.security.core.authority.AuthorityUtils
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor
 
@@ -539,5 +543,49 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
             springSecurityFilterChain.doFilter(request, response, chain)
         then: "custom bean expression denies access"
             response.status == HttpServletResponse.SC_FORBIDDEN
+    }
+
+    def "SEC-3011: Default AccessDecisionManager postProcessed"() {
+        when:
+        loadConfig(Sec3011Config)
+        then:
+        context.getBean(MockBeanPostProcessor).beans.find { it instanceof AccessDecisionManager }
+    }
+
+    @EnableWebSecurity
+    static class Sec3011Config extends WebSecurityConfigurerAdapter {
+        protected void configure(HttpSecurity http) throws Exception {
+            http
+                .authorizeRequests()
+                    .anyRequest().authenticated();
+        }
+
+        @Override
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+            auth
+                .inMemoryAuthentication();
+        }
+
+        @Bean
+        static MockBeanPostProcessor mbpp() {
+            return new MockBeanPostProcessor();
+        }
+    }
+
+    static class MockBeanPostProcessor implements BeanPostProcessor {
+        List<Object> beans = new ArrayList<Object>();
+
+        public Object postProcessBeforeInitialization(Object bean,
+                String beanName) throws BeansException {
+            beans.add(bean);
+            return bean;
+        }
+
+        public Object postProcessAfterInitialization(Object bean,
+                String beanName) throws BeansException {
+
+            return bean;
+        }
+
     }
 }
