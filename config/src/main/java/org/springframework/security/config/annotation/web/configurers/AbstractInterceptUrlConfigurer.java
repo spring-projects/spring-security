@@ -108,7 +108,6 @@ abstract class AbstractInterceptUrlConfigurer<C extends AbstractInterceptUrlConf
 	 * @return the {@link AccessDecisionVoter} instances used to create the default
 	 * {@link AccessDecisionManager}
 	 */
-	@SuppressWarnings("rawtypes")
 	abstract List<AccessDecisionVoter<? extends Object>> getDecisionVoters(H http);
 
 	abstract class AbstractInterceptUrlRegistry<R extends AbstractInterceptUrlRegistry<R, T>, T>
