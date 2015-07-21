@@ -10,12 +10,11 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
 						http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
 
-	<http pattern="/openidlogin.jsp*" security="none" />
-	<http pattern="/images/*" security="none" />
-	<http pattern="/css/*" security="none" />
-	<http pattern="/js/*" security="none" />
-
 	<http>
+		<intercept-url pattern="/openidlogin.jsp*" access="permitAll"/>
+		<intercept-url pattern="/images/*" access="permitAll"/>
+		<intercept-url pattern="/css/*" access="permitAll"/>
+		<intercept-url pattern="/js/*" access="permitAll"/>
 		<intercept-url pattern="/**" access="authenticated"/>
 		<logout/>
 		<openid-login login-page="/openidlogin.jsp" user-service-ref="registeringUserService"

@@ -5,7 +5,8 @@ apply plugin: 'jetty'
 
 dependencies {
 	compile project(':spring-security-core'),
-			project(':spring-security-openid')
+			project(':spring-security-openid'),
+			"org.springframework:spring-webmvc:$springVersion"
 
 	providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion"
 
