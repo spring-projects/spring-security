@@ -32,7 +32,8 @@ project('manual') {
 			  numbered: '',
 			  'spring-security-version' : project.version,
 			  'spring-version' : springVersion,
-			  revnumber : project.version
+			  revnumber : project.version,
+			  docinfo : ""
 		  ]
 		]
 	}
