@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-taglibs</artifactId>
-  <version>4.0.1.CI-SNAPSHOT</version>
+  <version>4.0.2.CI-SNAPSHOT</version>
   <name>spring-security-taglibs</name>
   <description>spring-security-taglibs</description>
   <url>http://spring.io/spring-security</url>
@@ -40,19 +40,19 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-acl</artifactId>
-      <version>4.0.1.CI-SNAPSHOT</version>
+      <version>4.0.2.CI-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <version>4.0.1.CI-SNAPSHOT</version>
+      <version>4.0.2.CI-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
-      <version>4.0.1.CI-SNAPSHOT</version>
+      <version>4.0.2.CI-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -143,7 +143,7 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
-      <version>1.9.5</version>
+      <version>1.10.19</version>
       <scope>test</scope>
     </dependency>
     <dependency>

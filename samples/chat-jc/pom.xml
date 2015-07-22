@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-samples-chat-jc</artifactId>
-  <version>4.0.1.CI-SNAPSHOT</version>
+  <version>4.0.2.CI-SNAPSHOT</version>
   <packaging>war</packaging>
   <name>spring-security-samples-chat-jc</name>
   <description>spring-security-samples-chat-jc</description>
@@ -125,25 +125,25 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
-      <version>4.0.1.CI-SNAPSHOT</version>
+      <version>4.0.2.CI-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-data</artifactId>
-      <version>4.0.1.CI-SNAPSHOT</version>
+      <version>4.0.2.CI-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-messaging</artifactId>
-      <version>4.0.1.CI-SNAPSHOT</version>
+      <version>4.0.2.CI-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
-      <version>4.0.1.CI-SNAPSHOT</version>
+      <version>4.0.2.CI-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -219,7 +219,7 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
-      <version>1.9.5</version>
+      <version>1.10.19</version>
       <scope>test</scope>
     </dependency>
     <dependency>
