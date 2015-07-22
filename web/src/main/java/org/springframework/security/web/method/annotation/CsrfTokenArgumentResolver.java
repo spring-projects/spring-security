@@ -28,12 +28,15 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * {@link RestController} will resolve the current {@link CsrfToken}:
  *
  * <pre>
- * @RestController
+ * <code>
+ * &#064;RestController
  * public class MyController {
- *     @MessageMapping("/im")
+ *     &#064;MessageMapping("/im")
  *     public CsrfToken csrf(CsrfToken token) {
  *         return token;
  *     }
+ * }
+ * </code>
  * </pre>
  *
  *
@@ -44,7 +47,7 @@ public final class CsrfTokenArgumentResolver implements HandlerMethodArgumentRes
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.springframework.web.method.support.HandlerMethodArgumentResolver#supportsParameter
 	 * (org.springframework.core.MethodParameter)
@@ -55,7 +58,7 @@ public final class CsrfTokenArgumentResolver implements HandlerMethodArgumentRes
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.springframework.web.method.support.HandlerMethodArgumentResolver#resolveArgument
 	 * (org.springframework.core.MethodParameter,
