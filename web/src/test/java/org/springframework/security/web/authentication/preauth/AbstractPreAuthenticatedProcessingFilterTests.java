@@ -254,6 +254,60 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
         verify(am).authenticate(any(PreAuthenticatedAuthenticationToken.class));
     }
 
+    @Test
+    public void requiresAuthenticationOverridePrincipalChangedTrue() throws Exception {
+        Object principal = new Object();
+        SecurityContextHolder.getContext().setAuthentication(
+                new TestingAuthenticationToken(principal, "something", "ROLE_USER"));
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockFilterChain chain = new MockFilterChain();
+
+        ConcretePreAuthenticatedProcessingFilter filter = new ConcretePreAuthenticatedProcessingFilter() {
+            @Override
+            protected boolean principalChanged(HttpServletRequest request,
+                    Authentication currentAuthentication) {
+                return true;
+            }
+        };
+        filter.setCheckForPrincipalChanges(true);
+        filter.principal = principal;
+        AuthenticationManager am = mock(AuthenticationManager.class);
+        filter.setAuthenticationManager(am);
+        filter.afterPropertiesSet();
+
+        filter.doFilter(request, response, chain);
+
+        verify(am).authenticate(any(PreAuthenticatedAuthenticationToken.class));
+    }
+
+    @Test
+    public void requiresAuthenticationOverridePrincipalChangedFalse() throws Exception {
+        Object principal = new Object();
+        SecurityContextHolder.getContext().setAuthentication(
+                new TestingAuthenticationToken(principal, "something", "ROLE_USER"));
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockFilterChain chain = new MockFilterChain();
+
+        ConcretePreAuthenticatedProcessingFilter filter = new ConcretePreAuthenticatedProcessingFilter() {
+            @Override
+            protected boolean principalChanged(HttpServletRequest request,
+                    Authentication currentAuthentication) {
+                return false;
+            }
+        };
+        filter.setCheckForPrincipalChanges(true);
+        filter.principal = principal;
+        AuthenticationManager am = mock(AuthenticationManager.class);
+        filter.setAuthenticationManager(am);
+        filter.afterPropertiesSet();
+
+        filter.doFilter(request, response, chain);
+
+        verifyZeroInteractions(am);
+    }
+
     private void testDoFilter(boolean grantAccess) throws Exception {
         MockHttpServletRequest req = new MockHttpServletRequest();
         MockHttpServletResponse res = new MockHttpServletResponse();

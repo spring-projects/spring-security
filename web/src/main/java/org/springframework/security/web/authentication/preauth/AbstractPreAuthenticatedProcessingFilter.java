@@ -108,6 +108,40 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
     }
 
     /**
+     * Determines if the current principal has changed. The default implementation tries
+     *
+     * <ul>
+     * <li>If the {@link #getPreAuthenticatedPrincipal(HttpServletRequest)} is a String, the {@link Authentication#getName()} is compared against the pre authenticated principal</li>
+     * <li>Otherwise, the {@link #getPreAuthenticatedPrincipal(HttpServletRequest)} is compared against the {@link Authentication#getPrincipal()}
+     * </ul>
+     *
+     * <p>
+     * Subclasses can override this method to determine when a principal has changed.
+     * </p>
+     *
+     * @param request
+     * @param currentAuthentication
+     * @return true if the principal has changed, else false
+     */
+    protected boolean principalChanged(HttpServletRequest request, Authentication currentAuthentication) {
+
+        Object principal = getPreAuthenticatedPrincipal(request);
+
+        if ((principal instanceof String) && currentAuthentication.getName().equals(principal)) {
+            return false;
+        }
+
+        if (principal != null && principal.equals(currentAuthentication.getPrincipal())) {
+            return false;
+        }
+
+        if(logger.isDebugEnabled()) {
+            logger.debug("Pre-authenticated principal has changed to " + principal + " and will be reauthenticated");
+        }
+        return true;
+    }
+
+    /**
      * Do the actual authentication for a pre-authenticated user.
      */
     private void doAuthenticate(HttpServletRequest request, HttpServletResponse response) {
@@ -153,17 +187,11 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
             return false;
         }
 
-        Object principal = getPreAuthenticatedPrincipal(request);
-
-        if ((principal instanceof String) && currentUser.getName().equals(principal)) {
+        if(!principalChanged(request, currentUser)) {
             return false;
         }
 
-        if(principal != null && principal.equals(currentUser.getPrincipal())) {
-            return false;
-        }
-
-        logger.debug("Pre-authenticated principal has changed to " + principal + " and will be reauthenticated");
+        logger.debug("Pre-authenticated principal has changed and will be reauthenticated");
 
         if (invalidateSessionOnPrincipalChange) {
             SecurityContextHolder.clearContext();
