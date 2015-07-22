@@ -29,7 +29,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.test.context.TestSecurityContextHolder;
-import org.springframework.test.AssertThrows;
 import org.springframework.test.context.TestContext;
 import org.springframework.util.ReflectionUtils;
 
