@@ -1355,7 +1355,7 @@
       <xs:attribute name="logout-success-url" type="xs:token">
          <xs:annotation>
             <xs:documentation>Specifies the URL to display once the user has logged out. If not specified, defaults to
-                /.
+                &lt;form-login-login-page&gt;/?logout (i.e. /login?logout).
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>

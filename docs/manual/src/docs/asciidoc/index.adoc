@@ -7492,7 +7492,7 @@ Maps to the `invalidateHttpSession` of the `SecurityContextLogoutHandler`. Defau
 
 [[nsa-logout-logout-success-url]]
 * **logout-success-url**
-The destination URL which the user will be taken to after logging out. Defaults to "/".
+The destination URL which the user will be taken to after logging out. Defaults to <form-login-login-page>/?logout (i.e. /login?logout)
 
 +
 

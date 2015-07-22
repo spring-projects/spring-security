@@ -389,7 +389,7 @@ logout.attlist &=
 	## Specifies the URL that will cause a logout. Spring Security will initialize a filter that responds to this particular URL. Defaults to /logout if unspecified.
 	attribute logout-url {xsd:token}?
 logout.attlist &=
-	## Specifies the URL to display once the user has logged out. If not specified, defaults to /.
+	## Specifies the URL to display once the user has logged out. If not specified, defaults to <form-login-login-page>/?logout (i.e. /login?logout).
 	attribute logout-success-url {xsd:token}?
 logout.attlist &=
 	## Specifies whether a logout also causes HttpSession invalidation, which is generally desirable. If unspecified, defaults to true.
