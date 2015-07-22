@@ -22,7 +22,7 @@ dependencies {
 			"ch.qos.logback:logback-classic:$logbackVersion",
 			apachedsDependencies
 
-	provided "javax.servlet:javax.servlet-api:$servletApiVersion"
+	providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion"
 
 	integrationTestCompile gebDependencies
 }
