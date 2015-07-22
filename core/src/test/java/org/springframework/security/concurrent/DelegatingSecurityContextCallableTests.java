@@ -17,6 +17,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.junit.After;
 import org.junit.Before;
@@ -45,6 +48,8 @@ public class DelegatingSecurityContextCallableTests {
 
     private Callable<Object> callable;
 
+    private ExecutorService executor;
+
     @Before
     @SuppressWarnings("serial")
     public void setUp() throws Exception {
@@ -55,6 +60,7 @@ public class DelegatingSecurityContextCallableTests {
                 return super.answer(invocation);
             }
         });
+        executor = Executors.newFixedThreadPool(1);
     }
 
     @After
@@ -88,15 +94,34 @@ public class DelegatingSecurityContextCallableTests {
 
     @Test
     public void call() throws Exception {
-        callable = new DelegatingSecurityContextCallable<Object>(delegate, securityContext);
-        assertWrapped(callable.call());
+        callable = new DelegatingSecurityContextCallable<Object>(delegate,
+                securityContext);
+        assertWrapped(callable);
     }
 
     @Test
     public void callDefaultSecurityContext() throws Exception {
         SecurityContextHolder.setContext(securityContext);
         callable = new DelegatingSecurityContextCallable<Object>(delegate);
-        SecurityContextHolder.clearContext(); // ensure callable is what sets up the SecurityContextHolder
+        SecurityContextHolder.clearContext(); // ensure callable is what sets up the
+                                                // SecurityContextHolder
+        assertWrapped(callable);
+    }
+
+    // SEC-3031
+    @Test
+    public void callOnSameThread() throws Exception {
+        callable = new DelegatingSecurityContextCallable<Object>(delegate,
+                securityContext);
+        securityContext = SecurityContextHolder.createEmptyContext();
+        assertWrapped(callable.call());
+    }
+
+    @Test
+    public void callOnSameThreadExplicitlyEnabled() throws Exception {
+        DelegatingSecurityContextCallable<Object> callable = new DelegatingSecurityContextCallable<Object>(delegate,
+                securityContext);
+        callable.setEnableOnOriginalThread(true);
         assertWrapped(callable.call());
     }
 
@@ -116,14 +141,15 @@ public class DelegatingSecurityContextCallableTests {
     public void createNullSecurityContext() throws Exception {
         SecurityContextHolder.setContext(securityContext);
         callable = DelegatingSecurityContextCallable.create(delegate, null);
-        SecurityContextHolder.clearContext(); // ensure callable is what sets up the SecurityContextHolder
-        assertWrapped(callable.call());
+        SecurityContextHolder.clearContext(); // ensure callable is what sets up the
+                                                // SecurityContextHolder
+        assertWrapped(callable);
     }
 
     @Test
     public void create() throws Exception {
         callable = DelegatingSecurityContextCallable.create(delegate, securityContext);
-        assertWrapped(callable.call());
+        assertWrapped(callable);
     }
 
     // --- toString
@@ -131,13 +157,19 @@ public class DelegatingSecurityContextCallableTests {
     // SEC-2682
     @Test
     public void toStringDelegates() {
-        callable = new DelegatingSecurityContextCallable<Object>(delegate, securityContext);
+        callable = new DelegatingSecurityContextCallable<Object>(delegate,
+                securityContext);
         assertThat(callable.toString()).isEqualTo(delegate.toString());
     }
 
-    private void assertWrapped(Object actualResult) throws Exception {
-        assertThat(actualResult).isEqualTo(callableResult);
+    private void assertWrapped(Callable<Object> callable) throws Exception {
+        Future<Object> submit = executor.submit(callable);
+        assertWrapped(submit.get());
+    }
+
+    private void assertWrapped(Object callableResult) throws Exception {
         verify(delegate).call();
-        assertThat(SecurityContextHolder.getContext()).isEqualTo(SecurityContextHolder.createEmptyContext());
+        assertThat(SecurityContextHolder.getContext()).isEqualTo(
+                SecurityContextHolder.createEmptyContext());
     }
 }
