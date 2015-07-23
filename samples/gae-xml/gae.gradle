@@ -48,3 +48,5 @@ dependencies {
 				"com.google.appengine:appengine-api-stubs:$gaeVersion"
 
 }
+
+project.tasks.appengineFunctionalTest.enabled = false
