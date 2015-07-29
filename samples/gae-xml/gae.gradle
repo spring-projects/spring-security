@@ -49,4 +49,14 @@ dependencies {
 
 }
 
-project.tasks.appengineFunctionalTest.enabled = false
+appengine.httpPort = reservePorts(1)[0]
+
+def reservePorts(int count) {
+	def sockets = []
+	for(int i in 1..count) {
+		sockets << new ServerSocket(0)
+	}
+	def result = sockets*.localPort
+	sockets*.close()
+	result
+}
