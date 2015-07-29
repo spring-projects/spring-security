@@ -39,12 +39,11 @@ public interface DnsResolver {
 	/**
 	 * <p>
 	 * Resolves the host name for the specified service in the specified domain
-	 * </p>
+	 *
 	 * <p>
 	 * For example, if you need the host name for an LDAP server running in the domain
 	 * springsource.com, you would call <b>resolveServiceEntry("ldap",
 	 * "springsource.com")</b>.
-	 * </p>
 	 *
 	 * <p>
 	 * The DNS server needs to provide the service records for this, in the example above,
@@ -59,7 +58,6 @@ public interface DnsResolver {
 	 * priority, it will return the one with the highest weight. You will find more
 	 * informatione about DNS service records at <a
 	 * href="http://en.wikipedia.org/wiki/SRV_record">Wikipedia</a>.
-	 * </p>
 	 *
 	 * @param serviceType The service type you are searching for, e.g. ldap, kerberos, ...
 	 * @param domain The domain, in which you are searching for the service

@@ -43,7 +43,6 @@ import org.apache.commons.logging.LogFactory;
  * wrapper. Nevertheless, the important data from the original request is emulated and
  * this should prove adequate for most purposes (in particular standard HTTP GET and POST
  * operations).
- * </p>
  *
  * <p>
  * Added into a request by

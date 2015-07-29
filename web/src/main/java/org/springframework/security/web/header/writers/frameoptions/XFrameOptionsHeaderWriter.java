@@ -50,7 +50,7 @@ public final class XFrameOptionsHeaderWriter implements HeaderWriter {
 	 *
 	 * @param frameOptionsMode the {@link XFrameOptionsMode} to use. If using
 	 * {@link XFrameOptionsMode#ALLOW_FROM}, use
-	 * {@link #FrameOptionsHeaderWriter(AllowFromStrategy)} instead.
+	 * {@link #XFrameOptionsHeaderWriter(AllowFromStrategy)} instead.
 	 */
 	public XFrameOptionsHeaderWriter(XFrameOptionsMode frameOptionsMode) {
 		Assert.notNull(frameOptionsMode, "frameOptionsMode cannot be null");

@@ -50,30 +50,30 @@ import org.springframework.web.filter.GenericFilterBean;
  * 
  * <pre>
  *
- * &lt;bean id="channelProcessingFilter" class="org.springframework.security.web.access.channel.ChannelProcessingFilter">
- *   &lt;property name="channelDecisionManager" ref="channelDecisionManager"/>
- *   &lt;property name="securityMetadataSource">
- *     &lt;security:filter-security-metadata-source request-matcher="regex">
- *       &lt;security:intercept-url pattern="\A/secure/.*\Z" access="REQUIRES_SECURE_CHANNEL"/>
- *       &lt;security:intercept-url pattern="\A/login.jsp.*\Z" access="REQUIRES_SECURE_CHANNEL"/>
- *       &lt;security:intercept-url pattern="\A/.*\Z" access="ANY_CHANNEL"/>
- *     &lt;/security:filter-security-metadata-source>
- *   &lt;/property>
- * &lt;/bean>
+ * &lt;bean id="channelProcessingFilter" class="org.springframework.security.web.access.channel.ChannelProcessingFilter"&gt;
+ *   &lt;property name="channelDecisionManager" ref="channelDecisionManager"/&gt;
+ *   &lt;property name="securityMetadataSource"&gt;
+ *     &lt;security:filter-security-metadata-source request-matcher="regex"&gt;
+ *       &lt;security:intercept-url pattern="\A/secure/.*\Z" access="REQUIRES_SECURE_CHANNEL"/&gt;
+ *       &lt;security:intercept-url pattern="\A/login.jsp.*\Z" access="REQUIRES_SECURE_CHANNEL"/&gt;
+ *       &lt;security:intercept-url pattern="\A/.*\Z" access="ANY_CHANNEL"/&gt;
+ *     &lt;/security:filter-security-metadata-source&gt;
+ *   &lt;/property&gt;
+ * &lt;/bean&gt;
  * 
- * &lt;bean id="channelDecisionManager" class="org.springframework.security.web.access.channel.ChannelDecisionManagerImpl">
- *   &lt;property name="channelProcessors">
- *     &lt;list>
- *     &lt;ref bean="secureChannelProcessor"/>
- *     &lt;ref bean="insecureChannelProcessor"/>
- *     &lt;/list>
- *   &lt;/property>
- * &lt;/bean>
+ * &lt;bean id="channelDecisionManager" class="org.springframework.security.web.access.channel.ChannelDecisionManagerImpl"&gt;
+ *   &lt;property name="channelProcessors"&gt;
+ *     &lt;list&gt;
+ *     &lt;ref bean="secureChannelProcessor"/&gt;
+ *     &lt;ref bean="insecureChannelProcessor"/&gt;
+ *     &lt;/list&gt;
+ *   &lt;/property&gt;
+ * &lt;/bean&gt;
  * 
  * &lt;bean id="secureChannelProcessor"
- *   class="org.springframework.security.web.access.channel.SecureChannelProcessor"/>
+ *   class="org.springframework.security.web.access.channel.SecureChannelProcessor"/&gt;
  * &lt;bean id="insecureChannelProcessor"
- *   class="org.springframework.security.web.access.channel.InsecureChannelProcessor"/>
+ *   class="org.springframework.security.web.access.channel.InsecureChannelProcessor"/&gt;
  * 
  * </pre>
  * 

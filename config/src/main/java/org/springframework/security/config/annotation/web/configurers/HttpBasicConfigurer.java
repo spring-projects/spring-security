@@ -83,7 +83,7 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>> extends
 	/**
 	 * Creates a new instance
 	 * @throws Exception
-	 * @see {@link HttpSecurity#httpBasic()}
+	 * @see HttpSecurity#httpBasic()
 	 */
 	public HttpBasicConfigurer() throws Exception {
 		realmName(DEFAULT_REALM);

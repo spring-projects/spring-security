@@ -45,7 +45,7 @@ public final class ExpressionBasedMessageSecurityMetadataSourceFactory {
 	 * For example:
 	 *
 	 * <pre>
-	 *     LinkedHashMap<MessageMatcher<?> matcherToExpression = new LinkedHashMap<MessageMatcher<Object>();
+	 *     LinkedHashMap&lt;MessageMatcher&lt;?&gt;,String&gt; matcherToExpression = new LinkedHashMap&lt;MessageMatcher&lt;Object&gt;,String&gt;();
 	 *     matcherToExpression.put(new SimDestinationMessageMatcher("/public/**"), "permitAll");
 	 *     matcherToExpression.put(new SimDestinationMessageMatcher("/admin/**"), "hasRole('ROLE_ADMIN')");
 	 *     matcherToExpression.put(new SimDestinationMessageMatcher("/**"), "authenticated");
@@ -57,11 +57,9 @@ public final class ExpressionBasedMessageSecurityMetadataSourceFactory {
 	 * If our destination is "/public/hello", it would match on "/public/**" and on "/**".
 	 * However, only "/public/**" would be used since it is the first entry. That means
 	 * that a destination of "/public/hello" will be mapped to "permitAll".
-	 * </p>
 	 *
 	 * <p>
 	 * For a complete listing of expressions see {@link MessageSecurityExpressionRoot}
-	 * </p>
 	 *
 	 * @param matcherToExpression an ordered mapping of {@link MessageMatcher} to Strings
 	 * that are turned into an Expression using
@@ -81,7 +79,7 @@ public final class ExpressionBasedMessageSecurityMetadataSourceFactory {
 	 * For example:
 	 *
 	 * <pre>
-	 *     LinkedHashMap<MessageMatcher<?> matcherToExpression = new LinkedHashMap<MessageMatcher<Object>();
+	 *     LinkedHashMap&lt;MessageMatcher&lt;?&gt;,String&gt; matcherToExpression = new LinkedHashMap&lt;MessageMatcher&lt;Object&gt;,String&gt;();
 	 *     matcherToExpression.put(new SimDestinationMessageMatcher("/public/**"), "permitAll");
 	 *     matcherToExpression.put(new SimDestinationMessageMatcher("/admin/**"), "hasRole('ROLE_ADMIN')");
 	 *     matcherToExpression.put(new SimDestinationMessageMatcher("/**"), "authenticated");

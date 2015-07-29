@@ -23,7 +23,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 /**
- * Used by {@link InMemoryDaoImpl} to temporarily store the attributes associated with a
+ * Used by {@link org.springframework.security.provisioning.InMemoryUserDetailsManager} to temporarily store the attributes associated with a
  * user.
  *
  * @author Ben Alex
@@ -50,7 +50,7 @@ public class UserAttribute {
 	/**
 	 * Set all authorities for this user.
 	 *
-	 * @param authorities {@link List} &lt;{@link GrantedAuthority}>
+	 * @param authorities {@link List} &lt;{@link GrantedAuthority}&gt;
 	 * @since 1.1
 	 */
 	public void setAuthorities(List<GrantedAuthority> authorities) {
@@ -61,7 +61,7 @@ public class UserAttribute {
 	 * Set all authorities for this user from String values. It will create the necessary
 	 * {@link GrantedAuthority} objects.
 	 *
-	 * @param authoritiesAsStrings {@link List} &lt;{@link String}>
+	 * @param authoritiesAsStrings {@link List} &lt;{@link String}&gt;
 	 * @since 1.1
 	 */
 	public void setAuthoritiesAsString(List<String> authoritiesAsStrings) {

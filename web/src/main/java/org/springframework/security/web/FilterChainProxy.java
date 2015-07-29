@@ -59,14 +59,14 @@ import java.util.*;
  * requests which match the pattern. An example configuration might look like this:
  *
  * <pre>
- *  &lt;bean id="myfilterChainProxy" class="org.springframework.security.util.FilterChainProxy">
- *      &lt;constructor-arg>
- *          &lt;util:list>
- *              &lt;security:filter-chain pattern="/do/not/filter*" filters="none"/>
- *              &lt;security:filter-chain pattern="/**" filters="filter1,filter2,filter3"/>
- *          &lt;/util:list>
- *      &lt;/constructor-arg>
- *  &lt;/bean>
+ *  &lt;bean id="myfilterChainProxy" class="org.springframework.security.util.FilterChainProxy"&gt;
+ *      &lt;constructor-arg&gt;
+ *          &lt;util:list&gt;
+ *              &lt;security:filter-chain pattern="/do/not/filter*" filters="none"/&gt;
+ *              &lt;security:filter-chain pattern="/**" filters="filter1,filter2,filter3"/&gt;
+ *          &lt;/util:list&gt;
+ *      &lt;/constructor-arg&gt;
+ *  &lt;/bean&gt;
  * </pre>
  *
  * The names "filter1", "filter2", "filter3" should be the bean names of {@code Filter}

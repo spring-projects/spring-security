@@ -40,7 +40,7 @@ import org.springframework.util.ReflectionUtils;
  * <pre>
  * import org.springframework.security.access.method.P;
  * 
- * @PostAuthorize("#to == returnObject.to")
+ * {@code @PostAuthorize("#to == returnObject.to")}
  * public Message findMessageByTo(@P("to") String to);
  * </pre>
  *
@@ -70,7 +70,7 @@ import org.springframework.util.ReflectionUtils;
  * <pre>
  * import org.springframework.security.access.method.P;
  * 
- * @PostAuthorize("#to == returnObject.to")
+ * {@code @PostAuthorize("#to == returnObject.to")}
  * public Message findMessageByToAndFrom(@P("to") User to, User from);
  * </pre>
  *

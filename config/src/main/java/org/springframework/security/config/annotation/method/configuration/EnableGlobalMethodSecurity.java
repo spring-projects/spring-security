@@ -29,9 +29,8 @@ import org.springframework.security.config.annotation.configuration.ObjectPostPr
 
 /**
  * <p>
- * Enables Spring Security global method security similar to the <global-method-security>
+ * Enables Spring Security global method security similar to the &lt;global-method-security&gt;
  * xml support.
- * </p>
  *
  * <p>
  * More advanced configurations may wish to extend

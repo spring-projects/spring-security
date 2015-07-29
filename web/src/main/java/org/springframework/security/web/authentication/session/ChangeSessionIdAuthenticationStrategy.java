@@ -23,7 +23,7 @@ import javax.servlet.http.HttpSession;
 import org.springframework.util.ReflectionUtils;
 
 /**
- * Uses {@link HttpServletRequest#changeSessionId()} to protect against session fixation
+ * Uses {@code HttpServletRequest.changeSessionId()} to protect against session fixation
  * attacks. This is the default implementation for Servlet 3.1+.
  *
  * @author Rob Winch

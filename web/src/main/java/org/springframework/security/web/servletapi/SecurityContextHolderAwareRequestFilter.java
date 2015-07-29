@@ -155,7 +155,7 @@ public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
 	 * when invoking {@link HttpServletRequest#logout()}.
 	 * </p>
 	 *
-	 * @param logoutHandlers the {@link List<LogoutHandler>}s when invoking
+	 * @param logoutHandlers the {@code List&lt;LogoutHandler&gt;}s when invoking
 	 * {@link HttpServletRequest#logout()}.
 	 *
 	 * @throws IllegalStateException if the Servlet 3 APIs are not found on the classpath

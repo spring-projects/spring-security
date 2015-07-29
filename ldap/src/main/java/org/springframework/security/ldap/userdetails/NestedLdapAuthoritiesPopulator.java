@@ -110,9 +110,6 @@ import java.util.*;
  *  ou: jdeveloper
  *  member: uid=scaladude,ou=people,dc=springframework,dc=org *
  * </pre>
- * 
- * </pre>
- * </p>
  *
  * @author Filip Hanik
  */

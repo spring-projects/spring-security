@@ -58,7 +58,7 @@ public abstract class SecurityConfigurerAdapter<O, B extends SecurityBuilder<O>>
 	 * Gets the {@link SecurityBuilder}. Cannot be null.
 	 *
 	 * @return the {@link SecurityBuilder}
-	 * @throw {@link IllegalStateException} if {@link SecurityBuilder} is null
+	 * @throws IllegalStateException if {@link SecurityBuilder} is null
 	 */
 	protected final B getBuilder() {
 		if (securityBuilder == null) {

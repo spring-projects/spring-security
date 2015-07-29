@@ -51,7 +51,7 @@ import org.springframework.util.ObjectUtils;
  * This <code>AuthenticationProvider</code> is capable of validating
  * {@link org.springframework.security.authentication.UsernamePasswordAuthenticationToken}
  * requests contain the correct username and password.
- * </p>
+ *
  * <p>
  * This implementation is backed by a <a
  * href="http://java.sun.com/j2se/1.5.0/docs/guide/security/jaas/JAASRefGuide.html"
@@ -68,7 +68,7 @@ import org.springframework.util.ObjectUtils;
  * in the ApplicationContext. When the LoginContext calls the internal CallbackHandler,
  * control is passed to each {@link JaasAuthenticationCallbackHandler} for each Callback
  * passed.
- * </p>
+ *
  * <p>
  * {@link JaasAuthenticationCallbackHandler}s are passed to the
  * AbstractJaasAuthenticationProvider through the
@@ -84,8 +84,7 @@ import org.springframework.util.ObjectUtils;
  *  &lt;/list&gt;
  * &lt;/property&gt;
  * </pre>
- * 
- * </p>
+ *
  * <p>
  * After calling LoginContext.login(), the AbstractJaasAuthenticationProvider will
  * retrieve the returned Principals from the Subject
@@ -95,7 +94,7 @@ import org.springframework.util.ObjectUtils;
  * Authorization a role, it returns that role name from it's
  * {@link AuthorityGranter#grant(java.security.Principal)} method. The returned role will
  * be applied to the Authorization object as a {@link GrantedAuthority}.
- * </p>
+ *
  * <p>
  * AuthorityGranters are configured in spring xml as follows...
  * 

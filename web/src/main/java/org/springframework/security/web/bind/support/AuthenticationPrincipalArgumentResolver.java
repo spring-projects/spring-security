@@ -34,13 +34,14 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * {@link Controller}:
  *
  * <pre>
- * @Controller
+ * &#64;Controller
  * public class MyController {
- *     @RequestMapping("/user/current/show")
+ *     &#64;RequestMapping("/user/current/show")
  *     public String show(@AuthenticationPrincipal CustomUser customUser) {
  *         // do something with CustomUser
  *         return "view";
  *     }
+ * }
  * </pre>
  *
  * <p>
@@ -50,11 +51,9 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * match, null will be returned unless
  * {@link AuthenticationPrincipal#errorOnInvalidType()} is true in which case a
  * {@link ClassCastException} will be thrown.
- * </p>
  *
  * <p>
  * Alternatively, users can create a custom meta annotation as shown below:
- * </p>
  *
  * <pre>
  * &#064;Target({ ElementType.PARAMETER })
@@ -66,16 +65,16 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  *
  * <p>
  * The custom annotation can then be used instead. For example:
- * </p>
  *
  * <pre>
- * @Controller
+ * &#64;Controller
  * public class MyController {
- *     @RequestMapping("/user/current/show")
+ *     &#64;RequestMapping("/user/current/show")
  *     public String show(@CurrentUser CustomUser customUser) {
  *         // do something with CustomUser
  *         return "view";
  *     }
+ * }
  * </pre>
  *
  * @deprecated use org.springframework.security.web.method.annotation.

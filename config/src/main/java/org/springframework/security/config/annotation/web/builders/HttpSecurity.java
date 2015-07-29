@@ -71,7 +71,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 
 /**
- * A {@link HttpSecurity} is similar to Spring Security's XML <http> element in the
+ * A {@link HttpSecurity} is similar to Spring Security's XML &lt;http&gt; element in the
  * namespace configuration. It allows configuring web based security for specific http
  * requests. By default it will be applied to all requests, but can be restricted using
  * {@link #requestMatcher(RequestMatcher)} or other similar methods.
@@ -283,7 +283,7 @@ public final class HttpSecurity extends
 	 *
 	 * @return
 	 * @throws Exception
-	 * @see {@link HeadersConfigurer}
+	 * @see HeadersConfigurer
 	 */
 	public HeadersConfigurer<HttpSecurity> headers() throws Exception {
 		return getOrApply(new HeadersConfigurer<HttpSecurity>());
@@ -326,8 +326,8 @@ public final class HttpSecurity extends
 	 *
 	 * <pre>
 	 * &lt;listener&gt;
-	 *      &ltlistener-class&gt;org.springframework.security.web.session.HttpSessionEventPublisher&lt;/listener-class&gt;
-	 * &lt/listener>
+	 *      &lt;listener-class&gt;org.springframework.security.web.session.HttpSessionEventPublisher&lt;/listener-class&gt;
+	 * &lt;/listener&gt;
 	 * </pre>
 	 *
 	 * Alternatively,
@@ -378,7 +378,7 @@ public final class HttpSecurity extends
 	 *
 	 * @return the {@link PortMapperConfigurer} for further customizations
 	 * @throws Exception
-	 * @see {@link #requiresChannel()}
+	 * @see #requiresChannel()
 	 */
 	public PortMapperConfigurer<HttpSecurity> portMapper() throws Exception {
 		return getOrApply(new PortMapperConfigurer<HttpSecurity>());
@@ -716,7 +716,7 @@ public final class HttpSecurity extends
 	 * {@link org.springframework.security.authentication.AnonymousAuthenticationToken}
 	 * and contain the role "ROLE_ANONYMOUS".
 	 *
-	 * <h2>Example Configuration</h2
+	 * <h2>Example Configuration</h2>
 	 *
 	 * The following configuration demonstrates how to specify that anonymous users should
 	 * contain the role "ROLE_ANON" instead.
@@ -906,6 +906,10 @@ public final class HttpSecurity extends
 	 */
 	public HttpBasicConfigurer<HttpSecurity> httpBasic() throws Exception {
 		return getOrApply(new HttpBasicConfigurer<HttpSecurity>());
+	}
+
+	public <C> void setSharedObject(Class<C> sharedType, C object) {
+		super.setSharedObject(sharedType, object);
 	}
 
 	@Override

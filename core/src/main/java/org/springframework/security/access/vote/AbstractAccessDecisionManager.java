@@ -33,11 +33,11 @@ import org.springframework.util.Assert;
 
 /**
  * Abstract implementation of {@link AccessDecisionManager}.
- * <p/>
+ *
+ * <p>
  * Handles configuration of a bean context defined list of {@link AccessDecisionVoter}s
  * and the access control behaviour if all voters abstain from voting (defaults to deny
  * access).
- * </p>
  */
 public abstract class AbstractAccessDecisionManager implements AccessDecisionManager,
 		InitializingBean, MessageSourceAware {
@@ -101,10 +101,9 @@ public abstract class AbstractAccessDecisionManager implements AccessDecisionMan
 	/**
 	 * Iterates through all <code>AccessDecisionVoter</code>s and ensures each can support
 	 * the presented class.
-	 * <p/>
+	 * <p>
 	 * If one or more voters cannot support the presented class, <code>false</code> is
 	 * returned.
-	 * </p>
 	 *
 	 * @param clazz the type of secured object being presented
 	 * @return true if this type is supported

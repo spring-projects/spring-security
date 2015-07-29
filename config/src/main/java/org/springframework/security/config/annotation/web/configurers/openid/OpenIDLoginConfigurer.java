@@ -199,7 +199,7 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>>
 	 * {@link HttpServletRequest} matches this URL the {@link OpenIDAuthenticationFilter}
 	 * will attempt to authenticate the request. The default is "/login/openid".
 	 *
-	 * @param loginUrl the URL used to perform authentication
+	 * @param loginProcessingUrl the URL used to perform authentication
 	 * @return the {@link OpenIDLoginConfigurer} for additional customization
 	 */
 	public OpenIDLoginConfigurer<H> loginProcessingUrl(String loginProcessingUrl) {

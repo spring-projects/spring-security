@@ -69,8 +69,6 @@ public abstract class WebTestUtils {
 	 * @param request the {@link HttpServletRequest} to obtain the
 	 * {@link SecurityContextRepository}
 	 * @param securityContextRepository the {@link SecurityContextRepository} to set
-	 * @return the {@link SecurityContextRepository} for the specified
-	 * {@link HttpServletRequest}
 	 */
 	public static void setSecurityContextRepository(HttpServletRequest request,
 			SecurityContextRepository securityContextRepository) {

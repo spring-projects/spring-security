@@ -29,41 +29,39 @@ import java.util.Map;
  * <p>
  * By defining this object as a Bean, Spring Security is exposed as SpEL expressions for
  * creating Spring Data queries.
- * </p>
  *
  * <p>
  * With Java based configuration, we can define the bean using the following:
- * </p>
  *
  * <p>
  * For example, if you return a UserDetails that extends the following User object:
- * </p>
  *
  * <pre>
- * @Entity
+ * &#064;Entity
  * public class User {
- *     @GeneratedValue(strategy = GenerationType.AUTO)
- *     @Id
+ *     &#064;GeneratedValue(strategy = GenerationType.AUTO)
+ *     &#064;Id
  *     private Long id;
  * 
  *     ...
+ * }
  * </pre>
  *
  * <p>
  * And you have a Message object that looks like the following:
- * </p>
  *
  * <pre>
- * @Entity
+ * &#064;Entity
  * public class Message {
- *     @Id
- *     @GeneratedValue(strategy = GenerationType.AUTO)
+ *     &#064;Id
+ *     &#064;GeneratedValue(strategy = GenerationType.AUTO)
  *     private Long id;
  * 
- *     @OneToOne
+ *     &#064;OneToOne
  *     private User to;
  * 
  *     ...
+ * }
  * </pre>
  *
  * You can use the following {@code Query} annotation to search for only messages that are

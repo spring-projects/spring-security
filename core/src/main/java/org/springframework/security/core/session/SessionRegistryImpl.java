@@ -32,9 +32,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * SessionDestroyedEvent}s published in the Spring application context.
  * <p>
  * For this class to function correctly in a web application, it is important that you
- * register an {@link org.springframework.security.web.session.HttpSessionEventPublisher
- * HttpSessionEventPublisher} in the <tt>web.xml</tt> file so that this class is notified
- * of sessions that expire.
+ * register an <a href="{@docRoot}/org/springframework/security/web/session/HttpSessionEventPublisher.html">HttpSessionEventPublisher</a>
+ * in the <tt>web.xml</tt> file so that this class is notified of sessions that expire.
  *
  * @author Ben Alex
  * @author Luke Taylor

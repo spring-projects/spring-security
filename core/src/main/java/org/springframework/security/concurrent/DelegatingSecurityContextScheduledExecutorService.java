@@ -51,7 +51,7 @@ public final class DelegatingSecurityContextScheduledExecutorService extends
 	 * Creates a new {@link DelegatingSecurityContextScheduledExecutorService} that uses
 	 * the current {@link SecurityContext} from the {@link SecurityContextHolder}.
 	 *
-	 * @param delegateTaskExecutor the {@link TaskExecutor} to delegate to. Cannot be
+	 * @param delegate the {@link ScheduledExecutorService} to delegate to. Cannot be
 	 * null.
 	 */
 	public DelegatingSecurityContextScheduledExecutorService(

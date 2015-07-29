@@ -80,9 +80,6 @@ public class UserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B>, C
 	/**
 	 * Builds the user to be added. At minimum the username, password, and authorities
 	 * should provided. The remaining attributes have reasonable defaults.
-	 *
-	 * @param <T> the type of {@link UserDetailsManagerConfigurer} to return for chaining
-	 * methods.
 	 */
 	public class UserDetailsBuilder {
 		private String username;
@@ -103,11 +100,10 @@ public class UserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B>, C
 		}
 
 		/**
-		 * Returns the {@link UserDetailsManagerRegistry} for method chaining (i.e. to add
+		 * Returns the {@link UserDetailsManagerConfigurer} for method chaining (i.e. to add
 		 * another user)
 		 *
-		 * @return the {@link UserDetailsManagerRegistry} for method chaining (i.e. to add
-		 * another user)
+		 * @return the {@link UserDetailsManagerConfigurer} for method chaining
 		 */
 		public C and() {
 			return builder;

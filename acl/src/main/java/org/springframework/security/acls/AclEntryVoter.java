@@ -83,14 +83,14 @@ import org.springframework.util.StringUtils;
  * Alternatively, you could have used a common superclass or interface for the
  * {@link #processDomainObjectClass} if both <code>BankAccount</code> and
  * <code>Customer</code> had common parents.
- * </p>
+ *
  * <p>
  * If the principal does not have sufficient permissions, the voter will vote to deny
  * access.
- * </p>
+ *
  * <p>
  * All comparisons and prefixes are case sensitive.
- * </p>
+ *
  *
  * @author Ben Alex
  */

@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 /**
  * <p>
  * This class defines a role hierarchy for use with the UserDetailsServiceWrapper.
- * </p>
+ *
  * <p>
  * Here is an example configuration of a role hierarchy (hint: read the "&gt;" sign as
  * "includes"):
@@ -41,19 +41,18 @@ import java.util.regex.Pattern;
  *             &lt;/value&gt;
  *         &lt;/property&gt;
  * </pre>
- * 
- * </p>
+ *
  * <p>
  * Explanation of the above:<br>
  * In effect every user with ROLE_A also has ROLE_B, ROLE_AUTHENTICATED and
  * ROLE_UNAUTHENTICATED;<br>
  * every user with ROLE_B also has ROLE_AUTHENTICATED and ROLE_UNAUTHENTICATED;<br>
  * every user with ROLE_AUTHENTICATED also has ROLE_UNAUTHENTICATED.
- * </p>
+ *
  * <p>
  * Hierarchical Roles will dramatically shorten your access rules (and also make the
  * access rules much more elegant).
- * </p>
+ *
  * <p>
  * Consider this access rule for Spring Security's RoleVoter (background: every user that
  * is authenticated should be able to log out):<br>
@@ -62,10 +61,8 @@ import java.util.regex.Pattern;
  * /logout.html=ROLE_AUTHENTICATED<br>
  * In addition to shorter rules this will also make your access rules more readable and
  * your intentions clearer.
- * </p>
  *
  * @author Michael Mayr
- *
  */
 public class RoleHierarchyImpl implements RoleHierarchy {
 

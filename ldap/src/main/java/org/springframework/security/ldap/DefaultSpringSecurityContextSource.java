@@ -40,7 +40,7 @@ public class DefaultSpringSecurityContextSource extends LdapContextSource {
 	 * you want to use more than one server for fail-over, rather use the
 	 * {@link #DefaultSpringSecurityContextSource(List, String)} constructor.
 	 *
-	 * @param providerUrl an LDAP URL of the form <code>ldap://localhost:389/base_dn<code>
+	 * @param providerUrl an LDAP URL of the form <code>ldap://localhost:389/base_dn</code>
 	 */
 	public DefaultSpringSecurityContextSource(String providerUrl) {
 		Assert.hasLength(providerUrl, "An LDAP connection URL must be supplied.");

@@ -50,7 +50,7 @@ public class PortMapperImpl implements PortMapper {
 	// ========================================================================================================
 
 	/**
-	 * Returns the translated (Integer -> Integer) version of the original port mapping
+	 * Returns the translated (Integer -&gt; Integer) version of the original port mapping
 	 * specified via setHttpsPortMapping()
 	 */
 	public Map<Integer, Integer> getTranslatedPortMappings() {
@@ -77,12 +77,12 @@ public class PortMapperImpl implements PortMapper {
 	 * like this:
 	 * 
 	 * <pre>
-	 *  &lt;property name="portMappings">
-	 *      &lt;map>
-	 *          &lt;entry key="80">&lt;value>443&lt;/value>&lt;/entry>
-	 *          &lt;entry key="8080">&lt;value>8443&lt;/value>&lt;/entry>
-	 *      &lt;/map>
-	 * &lt;/property>
+	 *  &lt;property name="portMappings"&gt;
+	 *      &lt;map&gt;
+	 *          &lt;entry key="80"&gt;&lt;value&gt;443&lt;/value&gt;&lt;/entry&gt;
+	 *          &lt;entry key="8080"&gt;&lt;value&gt;8443&lt;/value&gt;&lt;/entry&gt;
+	 *      &lt;/map&gt;
+	 * &lt;/property&gt;
 	 * </pre>
 	 *
 	 * @param newMappings A Map consisting of String keys and String values, where for

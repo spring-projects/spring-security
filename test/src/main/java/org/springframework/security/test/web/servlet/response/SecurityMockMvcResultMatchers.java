@@ -202,7 +202,7 @@ public final class SecurityMockMvcResultMatchers {
 		/**
 		 * Specifies the {@link Authentication#getAuthorities()}
 		 *
-		 * @param expected the roles. Each value is automatically prefixed with "ROLE_"
+		 * @param roles the roles. Each value is automatically prefixed with "ROLE_"
 		 * @return the {@link AuthenticatedMatcher} for further customization
 		 */
 		public AuthenticatedMatcher withRoles(String... roles) {

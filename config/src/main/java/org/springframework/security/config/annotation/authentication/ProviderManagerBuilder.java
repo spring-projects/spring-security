@@ -36,9 +36,10 @@ public interface ProviderManagerBuilder<B extends ProviderManagerBuilder<B>> ext
 	 * customizations must be done externally and the {@link ProviderManagerBuilder} is
 	 * returned immediately.
 	 *
+	 * Note that an Exception is thrown if an error occurs when adding the {@link AuthenticationProvider}.
+	 *
 	 * @return a {@link ProviderManagerBuilder} to allow further authentication to be
 	 * provided to the {@link ProviderManagerBuilder}
-	 * @throws Exception if an error occurs when adding the {@link AuthenticationProvider}
 	 */
 	B authenticationProvider(AuthenticationProvider authenticationProvider);
 }

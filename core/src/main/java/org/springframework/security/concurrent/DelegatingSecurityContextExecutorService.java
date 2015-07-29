@@ -55,7 +55,7 @@ public class DelegatingSecurityContextExecutorService extends
 	 * Creates a new {@link DelegatingSecurityContextExecutorService} that uses the
 	 * current {@link SecurityContext} from the {@link SecurityContextHolder}.
 	 *
-	 * @param delegateTaskExecutor the {@link TaskExecutor} to delegate to. Cannot be
+	 * @param delegate the {@link ExecutorService} to delegate to. Cannot be
 	 * null.
 	 */
 	public DelegatingSecurityContextExecutorService(ExecutorService delegate) {

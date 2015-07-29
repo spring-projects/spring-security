@@ -27,7 +27,7 @@ import javax.servlet.http.HttpSession;
 import org.springframework.util.Assert;
 
 /**
- * The default implementation of {@link SessionAuthenticationStrategy} when using <
+ * The default implementation of {@link SessionAuthenticationStrategy} when using &lt;
  * Servlet 3.1.
  * <p>
  * Creates a new session for the newly authenticated user if they already have a session

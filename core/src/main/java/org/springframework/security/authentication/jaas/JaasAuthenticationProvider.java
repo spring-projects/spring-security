@@ -61,8 +61,7 @@ import java.security.Security;
  *   &lt;value&gt;/WEB-INF/login.conf&lt;/value&gt;
  * &lt;/property&gt;
  * </pre>
- * 
- * </p>
+ *
  * <p>
  * The loginContextName should coincide with a given index in the loginConfig specifed.
  * The loginConfig file used in the JUnit tests appears as the following...
@@ -80,7 +79,6 @@ import java.security.Security;
  *  &lt;property name="loginContextName"&gt; &lt;value&gt;JAASTest&lt;/value&gt; &lt;/property&gt;
  * </pre>
  * 
- * </p>
  * <p>
  * When using JAAS login modules as the authentication source, sometimes the <a href=
  * "http://java.sun.com/j2se/1.5.0/docs/api/javax/security/auth/login/LoginContext.html"
@@ -91,7 +89,7 @@ import java.security.Security;
  * in the ApplicationContext. When the LoginContext calls the internal CallbackHandler,
  * control is passed to each {@link JaasAuthenticationCallbackHandler} for each Callback
  * passed.
- * </p>
+ *
  * <p>
  * {@link JaasAuthenticationCallbackHandler}s are passed to the JaasAuthenticationProvider
  * through the
@@ -108,7 +106,6 @@ import java.security.Security;
  * &lt;/property&gt;
  * </pre>
  * 
- * </p>
  * <p>
  * After calling LoginContext.login(), the JaasAuthenticationProvider will retrieve the
  * returned Principals from the Subject (LoginContext.getSubject().getPrincipals). Each
@@ -130,10 +127,9 @@ import java.security.Security;
  * </pre>
  * 
  * A configuration note: The JaasAuthenticationProvider uses the security properites
- * &quote;login.config.url.X&quote; to configure jaas. If you would like to customize the
+ * "login.config.url.X" to configure jaas. If you would like to customize the
  * way Jaas gets configured, create a subclass of this and override the
  * {@link #configureJaas(Resource)} method.
- * </p>
  *
  * @author Ray Krueger
  * @author Rob Winch

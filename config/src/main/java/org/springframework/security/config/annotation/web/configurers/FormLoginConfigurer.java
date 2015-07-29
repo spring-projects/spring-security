@@ -53,7 +53,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * The following shared objects are used:
  *
  * <ul>
- * <li>{@link AuthenticationManager}</li>
+ * <li>{@link org.springframework.security.authentication.AuthenticationManager}</li>
  * <li>{@link RememberMeServices} - is optionally used. See {@link RememberMeConfigurer}</li>
  * <li>{@link SessionAuthenticationStrategy} - is optionally used. See
  * {@link SessionManagementConfigurer}</li>

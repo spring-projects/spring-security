@@ -46,8 +46,8 @@ public class DefaultWebSecurityExpressionHandler extends
 
 	/**
 	 * <p>
-	 * Sets the default prefix to be added to {@link #hasAnyRole(String...)} or
-	 * {@link #hasRole(String)}. For example, if hasRole("ADMIN") or hasRole("ROLE_ADMIN")
+	 * Sets the default prefix to be added to {@link org.springframework.security.access.expression.SecurityExpressionRoot#hasAnyRole(String...)} or
+	 * {@link org.springframework.security.access.expression.SecurityExpressionRoot#hasRole(String)}. For example, if hasRole("ADMIN") or hasRole("ROLE_ADMIN")
 	 * is passed in, then the role ROLE_ADMIN will be used when the defaultRolePrefix is
 	 * "ROLE_" (default).
 	 * </p>

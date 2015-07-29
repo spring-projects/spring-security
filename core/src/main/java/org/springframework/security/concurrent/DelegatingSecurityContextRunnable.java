@@ -70,13 +70,13 @@ public final class DelegatingSecurityContextRunnable implements Runnable {
 	}
 
 	/**
-	 * Determines if the SecurityContext should be transfered if {@link #call()}
+	 * Determines if the SecurityContext should be transfered if {@link #run()}
 	 * is invoked on the same {@link Thread} the
 	 * {@link DelegatingSecurityContextCallable} was created on.
 	 *
 	 * @param enableOnOriginalThread
 	 *            if false (default), will only transfer the
-	 *            {@link SecurityContext} if {@link #call()} is invoked on a
+	 *            {@link SecurityContext} if {@link #run()} is invoked on a
 	 *            different {@link Thread} than the
 	 *            {@link DelegatingSecurityContextCallable} was created on.
 	 * @since 4.0.2

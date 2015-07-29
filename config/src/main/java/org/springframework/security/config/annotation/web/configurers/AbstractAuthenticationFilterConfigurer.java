@@ -178,8 +178,8 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	}
 
 	/**
-	 * Ensures the urls for {@link #failureUrl(String)} and
-	 * {@link #authenticationUrls(String)} are granted access to any user.
+	 * Ensures the urls for {@link #failureUrl(String)} as well as for the {@link HttpSecurityBuilder}, the
+	 * {@link #getLoginPage} and {@link #getLoginProcessingUrl} are granted access to any user.
 	 *
 	 * @param permitAll true to grant access to the URLs false to skip this step
 	 * @return the {@link FormLoginConfigurer} for additional customization

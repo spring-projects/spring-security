@@ -16,13 +16,12 @@ import org.springframework.util.Assert;
  * {@link RegisterSessionAuthenticationStrategy} is typically used in combination with
  * {@link CompositeSessionAuthenticationStrategy} and
  * {@link ConcurrentSessionControlAuthenticationStrategy}, but can be used on its own if
- * tracking of sessions is desired but no need to control concurrency.</P
+ * tracking of sessions is desired but no need to control concurrency.
  *
  * <p>
  * NOTE: When using a {@link SessionRegistry} it is important that all sessions (including
  * timed out sessions) are removed. This is typically done by adding
  * {@link HttpSessionEventPublisher}.
- * </p>
  *
  * @see CompositeSessionAuthenticationStrategy
  *

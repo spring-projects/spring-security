@@ -32,12 +32,13 @@ import org.springframework.stereotype.Controller;
  * {@link Controller}:
  *
  * <pre>
- * @Controller
+ * &#64;Controller
  * public class MyController {
- *     @MessageMapping("/im")
+ *     &#64;MessageMapping("/im")
  *     public void im(@AuthenticationPrincipal CustomUser customUser) {
  *         // do something with CustomUser
  *     }
+ * }
  * </pre>
  *
  * <p>
@@ -47,11 +48,9 @@ import org.springframework.stereotype.Controller;
  * match, null will be returned unless
  * {@link AuthenticationPrincipal#errorOnInvalidType()} is true in which case a
  * {@link ClassCastException} will be thrown.
- * </p>
  *
  * <p>
  * Alternatively, users can create a custom meta annotation as shown below:
- * </p>
  *
  * <pre>
  * &#064;Target({ ElementType.PARAMETER })
@@ -63,15 +62,15 @@ import org.springframework.stereotype.Controller;
  *
  * <p>
  * The custom annotation can then be used instead. For example:
- * </p>
  *
  * <pre>
- * @Controller
+ * &#64;Controller
  * public class MyController {
- *     @MessageMapping("/im")
+ *     &#64;MessageMapping("/im")
  *     public void im(@CurrentUser CustomUser customUser) {
  *         // do something with CustomUser
  *     }
+ * }
  * </pre>
  *
  * @author Rob Winch
