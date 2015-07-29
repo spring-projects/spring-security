@@ -47,7 +47,7 @@ import org.springframework.util.Assert;
  *
  * This table contains the login name, password and enabled status of the user.
  *
- * <table>
+ * <table summary="The Users Table">
  * <tr>
  * <th>Column</th>
  * </tr>
@@ -64,7 +64,7 @@ import org.springframework.util.Assert;
  *
  * <h4>The Authorities Table</h4>
  *
- * <table>
+ * <table summary="The Authorities Table">
  * <tr>
  * <th>Column</th>
  * </tr>

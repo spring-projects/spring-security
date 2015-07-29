@@ -107,7 +107,7 @@ public class MapBasedMethodSecurityMetadataSource extends
 
 	/**
 	 * Add configuration attributes for a secure method. Method names can end or start
-	 * with <code>&#42</code> for matching multiple methods.
+	 * with <code>*</code> for matching multiple methods.
 	 *
 	 * @param name type and method name, separated by a dot
 	 * @param attr the security attributes associated with the method
@@ -131,7 +131,7 @@ public class MapBasedMethodSecurityMetadataSource extends
 
 	/**
 	 * Add configuration attributes for a secure method. Mapped method names can end or
-	 * start with <code>&#42</code> for matching multiple methods.
+	 * start with <code>*</code> for matching multiple methods.
 	 *
 	 * @param javaType target interface or class the security configuration attribute
 	 * applies to

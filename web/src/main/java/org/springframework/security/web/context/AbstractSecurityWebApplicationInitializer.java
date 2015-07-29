@@ -267,7 +267,7 @@ public abstract class AbstractSecurityWebApplicationInitializer implements
 	}
 
 	/**
-	 * Return the <servlet-name> to use the DispatcherServlet's
+	 * Return the &lt;servlet-name&gt; to use the DispatcherServlet's
 	 * {@link WebApplicationContext} to find the {@link DelegatingFilterProxy} or null to
 	 * use the parent {@link ApplicationContext}.
 	 *
@@ -278,7 +278,7 @@ public abstract class AbstractSecurityWebApplicationInitializer implements
 	 * {@link WebApplicationContext}.
 	 * </p>
 	 *
-	 * @return the <servlet-name> of the DispatcherServlet to use its
+	 * @return the &lt;servlet-name&gt; of the DispatcherServlet to use its
 	 * {@link WebApplicationContext} or null (default) to use the parent
 	 * {@link ApplicationContext}.
 	 */

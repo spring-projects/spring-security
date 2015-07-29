@@ -45,7 +45,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  * technology (JSP, Facelets). It treats tag attributes as simple strings rather than
  * strings that may contain expressions with the exception of the "access" attribute,
  * which is always expected to contain a Spring EL expression.
- * <p/>
+ * <p>
  * Subclasses are expected to extract tag attribute values from the specific rendering
  * technology, evaluate them as expressions if necessary, and set the String-based
  * attributes of this class.

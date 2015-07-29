@@ -85,7 +85,7 @@ public final class XXssProtectionHeaderWriter implements HeaderWriter {
 	 * If false, will not specify the mode as blocked. In this instance, any content will
 	 * be attempted to be fixed. If true, the content will be replaced with "#".
 	 *
-	 * @param enabled the new value
+	 * @param block the new value
 	 */
 	public void setBlock(boolean block) {
 		if (!enabled && block) {

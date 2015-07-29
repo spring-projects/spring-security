@@ -187,7 +187,7 @@ public final class JeeConfigurer<H extends HttpSecurityBuilder<H>> extends
 	 * Populates a {@link PreAuthenticatedAuthenticationProvider} into
 	 * {@link HttpSecurity#authenticationProvider(org.springframework.security.authentication.AuthenticationProvider)}
 	 * and a {@link Http403ForbiddenEntryPoint} into
-	 * {@link HttpSecurity#authenticationEntryPoint(org.springframework.security.web.AuthenticationEntryPoint)}
+	 * {@link HttpSecurityBuilder#setSharedObject(Class, Object)}
 	 *
 	 * @see org.springframework.security.config.annotation.SecurityConfigurerAdapter#init(org.springframework.security.config.annotation.SecurityBuilder)
 	 */

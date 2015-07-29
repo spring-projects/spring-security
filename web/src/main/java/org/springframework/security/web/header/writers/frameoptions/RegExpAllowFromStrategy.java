@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 /**
  * Implementation which uses a regular expression to validate the supplied origin. If the
  * value of the HTTP parameter matches the pattern, then the the result will be ALLOW-FROM
- * <paramter-value>.
+ * &lt;paramter-value&gt;.
  *
  * @author Marten Deinum
  * @since 3.2

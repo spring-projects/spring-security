@@ -55,7 +55,6 @@ public final class SimpDestinationMessageMatcher implements MessageMatcher<Objec
 	 * Creates a new instance with the specified pattern, null {@link SimpMessageType}
 	 * (matches any type), and a {@link AntPathMatcher} created from the default
 	 * constructor.
-	 * </p>
 	 *
 	 * <p>
 	 * The mapping matches destinations despite the using the following rules:
@@ -87,7 +86,6 @@ public final class SimpDestinationMessageMatcher implements MessageMatcher<Objec
 	/**
 	 * <p>
 	 * Creates a new instance with the specified pattern and {@link PathMatcher}.
-	 * </p>
 	 *
 	 * @param pattern the pattern to use
 	 * @param pathMatcher the {@link PathMatcher} to use.
@@ -100,7 +98,6 @@ public final class SimpDestinationMessageMatcher implements MessageMatcher<Objec
 	 * <p>
 	 * Creates a new instance with the specified pattern, {@link SimpMessageType}, and
 	 * {@link PathMatcher}.
-	 * </p>
 	 *
 	 * @param pattern the pattern to use
 	 * @param type the {@link SimpMessageType} to match on or null if any
@@ -155,10 +152,9 @@ public final class SimpDestinationMessageMatcher implements MessageMatcher<Objec
 	 * <p>
 	 * Creates a new instance with the specified pattern,
 	 * {@code SimpMessageType.SUBSCRIBE}, and {@link PathMatcher}.
-	 * </p>
 	 *
 	 * @param pattern the pattern to use
-	 * @param pathMatcher the {@link PathMatcher} to use.
+	 * @param matcher the {@link PathMatcher} to use.
 	 */
 	public static SimpDestinationMessageMatcher createSubscribeMatcher(String pattern,
 			PathMatcher matcher) {
@@ -170,10 +166,9 @@ public final class SimpDestinationMessageMatcher implements MessageMatcher<Objec
 	 * <p>
 	 * Creates a new instance with the specified pattern, {@code SimpMessageType.MESSAGE},
 	 * and {@link PathMatcher}.
-	 * </p>
 	 *
 	 * @param pattern the pattern to use
-	 * @param pathMatcher the {@link PathMatcher} to use.
+	 * @param matcher the {@link PathMatcher} to use.
 	 */
 	public static SimpDestinationMessageMatcher createMessageMatcher(String pattern,
 			PathMatcher matcher) {

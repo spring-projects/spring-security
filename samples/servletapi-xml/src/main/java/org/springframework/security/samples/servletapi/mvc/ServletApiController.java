@@ -41,7 +41,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * {@link HttpServletRequest#authenticate(HttpServletResponse)}</li>
  * <li>{@link #login(HttpServletRequest, HttpServletResponse, LoginForm, BindingResult)} -
  * Integration with {@link HttpServletRequest#login(String, String)}</li>
- * <li>{@link #logout(HttpServletRequest, HttpServletResponse)} - Integration with
+ * <li>{@link #logout(HttpServletRequest, HttpServletResponse, RedirectAttributes)} - Integration with
  * {@link HttpServletRequest#logout()}</li>
  * <li>{@link #remoteUser(HttpServletRequest)} - Integration with
  * {@link HttpServletRequest#getRemoteUser()}</li>

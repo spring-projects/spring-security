@@ -84,7 +84,7 @@ public final class ExceptionHandlingConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @param accessDeniedUrl the URL to the access denied page (i.e. /errors/401)
 	 * @return the {@link ExceptionHandlingConfigurer} for further customization
 	 * @see AccessDeniedHandlerImpl
-	 * @see {@link #accessDeniedHandler(org.springframework.security.web.access.AccessDeniedHandler)}
+	 * @see #accessDeniedHandler(org.springframework.security.web.access.AccessDeniedHandler)
 	 */
 	public ExceptionHandlingConfigurer<H> accessDeniedPage(String accessDeniedUrl) {
 		AccessDeniedHandlerImpl accessDeniedHandler = new AccessDeniedHandlerImpl();

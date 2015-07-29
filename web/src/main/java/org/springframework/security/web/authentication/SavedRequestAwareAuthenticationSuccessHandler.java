@@ -10,15 +10,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
-import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
-import org.springframework.security.web.savedrequest.RequestCache;
-import org.springframework.security.web.savedrequest.SavedRequest;
-import org.springframework.security.web.savedrequest.DefaultSavedRequest;
 import org.springframework.util.StringUtils;
+import org.springframework.security.web.savedrequest.SavedRequest;
+import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 
 /**
  * An authentication success strategy which can make use of the
- * {@link DefaultSavedRequest} which may have been stored in the session by the
+ * {@link org.springframework.security.web.savedrequest.DefaultSavedRequest} which may have been stored in the session by the
  * {@link ExceptionTranslationFilter}. When such a request is intercepted and requires
  * authentication, the request data is stored to record the original destination before
  * the authentication process commenced, and to allow the request to be reconstructed when
@@ -36,15 +35,15 @@ import org.springframework.util.StringUtils;
  * If the {@code targetUrlParameter} has been set on the request, the value will be used
  * as the destination. Any {@code DefaultSavedRequest} will again be removed.</li>
  * <li>
- * If a {@link SavedRequest} is found in the {@code RequestCache} (as set by the
+ * If a {@link org.springframework.security.web.savedrequest.SavedRequest} is found in the {@code RequestCache} (as set by the
  * {@link ExceptionTranslationFilter} to record the original destination before the
  * authentication process commenced), a redirect will be performed to the Url of that
  * original destination. The {@code SavedRequest} object will remain cached and be picked
  * up when the redirected request is received (See
- * {@link org.springframework.security.web.savedrequest.SavedRequestAwareWrapper
- * SavedRequestAwareWrapper}).</li>
+ * <a href="{@docRoot}/org/springframework/security/web/savedrequest/SavedRequestAwareWrapper.html">SavedRequestAwareWrapper</a>).
+ * </li>
  * <li>
- * If no {@code SavedRequest} is found, it will delegate to the base class.</li>
+ * If no {@link org.springframework.security.web.savedrequest.SavedRequest} is found, it will delegate to the base class.</li>
  * </ul>
  *
  * @author Luke Taylor

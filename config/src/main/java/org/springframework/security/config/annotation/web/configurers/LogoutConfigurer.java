@@ -35,7 +35,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 
 /**
  * Adds logout support. Other {@link SecurityConfigurer} instances may invoke
- * {@link #addLogoutHandler(LogoutHandler)} in the {@link #init(HttpSecurity)} phase.
+ * {@link #addLogoutHandler(LogoutHandler)} in the {@link #init(HttpSecurityBuilder)} phase.
  *
  * <h2>Security Filters</h2>
  *

@@ -28,7 +28,8 @@ import javax.servlet.http.HttpServletRequest;
 public class InvalidCsrfTokenException extends CsrfException {
 
 	/**
-	 * @param msg
+	 * @param expectedAccessToken
+	 * @param actualAccessToken
 	 */
 	public InvalidCsrfTokenException(CsrfToken expectedAccessToken,
 			String actualAccessToken) {

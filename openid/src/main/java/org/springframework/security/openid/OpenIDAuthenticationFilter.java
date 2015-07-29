@@ -246,17 +246,17 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 
 	/**
 	 * Maps the <tt>return_to url</tt> to a realm, for example:
-	 * 
+	 *
 	 * <pre>
-	 * http://www.example.com/login/openid -> http://www.example.com/realm</tt>
+	 * http://www.example.com/login/openid -&gt; http://www.example.com/realm
 	 * </pre>
-	 * 
+	 *
 	 * If no mapping is provided then the returnToUrl will be parsed to extract the
 	 * protocol, hostname and port followed by a trailing slash. This means that
 	 * <tt>http://www.example.com/login/openid</tt> will automatically become
 	 * <tt>http://www.example.com:80/</tt>
 	 *
-	 * @param realmMapping containing returnToUrl -> realm mappings
+	 * @param realmMapping containing returnToUrl -&gt; realm mappings
 	 */
 	public void setRealmMapping(Map<String, String> realmMapping) {
 		this.realmMapping = realmMapping;

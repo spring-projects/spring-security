@@ -51,7 +51,7 @@ import org.springframework.security.web.access.intercept.FilterSecurityIntercept
  *
  * <ul>
  * <li>
- * {@link org.springframework.security.config.annotation.web.builders.HttpSecurity#getAuthenticationManager()}
+ * {@link AuthenticationManager}
  * </li>
  * </ul>
  *
@@ -115,7 +115,7 @@ abstract class AbstractInterceptUrlConfigurer<C extends AbstractInterceptUrlConf
 
 		/**
 		 * Allows setting the {@link AccessDecisionManager}. If none is provided, a
-		 * default {@l AccessDecisionManager} is created.
+		 * default {@link AccessDecisionManager} is created.
 		 *
 		 * @param accessDecisionManager the {@link AccessDecisionManager} to use
 		 * @return the {@link AbstractInterceptUrlConfigurer} for further customization
@@ -162,7 +162,7 @@ abstract class AbstractInterceptUrlConfigurer<C extends AbstractInterceptUrlConf
 
 	/**
 	 * If currently null, creates a default {@link AccessDecisionManager} using
-	 * {@link #createDefaultAccessDecisionManager()}. Otherwise returns the
+	 * {@link #createDefaultAccessDecisionManager(HttpSecurityBuilder)}. Otherwise returns the
 	 * {@link AccessDecisionManager}.
 	 *
 	 * @param http the builder to use

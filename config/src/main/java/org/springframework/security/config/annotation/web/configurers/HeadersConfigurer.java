@@ -186,7 +186,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 		 * X-XSS-Protection: 1
 		 * </pre>
 		 *
-		 * or if {@link #setBlock(boolean)} is true
+		 * or if {@link XXssProtectionHeaderWriter#setBlock(boolean)} of the given {@link XXssProtectionHeaderWriter} is true
 		 *
 		 *
 		 * <pre>

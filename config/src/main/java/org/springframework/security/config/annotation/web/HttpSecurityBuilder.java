@@ -142,11 +142,11 @@ public interface HttpSecurityBuilder<H extends HttpSecurityBuilder<H>> extends
 	 * <li>{@link LogoutFilter}</li>
 	 * <li>{@link X509AuthenticationFilter}</li>
 	 * <li>{@link AbstractPreAuthenticatedProcessingFilter}</li>
-	 * <li>{@link org.springframework.security.cas.web.CasAuthenticationFilter}</li>
+	 * <li><a href="{@docRoot}/org/springframework/security/cas/web/CasAuthenticationFilter.html">CasAuthenticationFilter</a></li>
 	 * <li>{@link UsernamePasswordAuthenticationFilter}</li>
 	 * <li>{@link ConcurrentSessionFilter}</li>
 	 * <li>{@link OpenIDAuthenticationFilter}</li>
-	 * <li>{@link DefaultLoginPageGeneratingFilter}</li>
+	 * <li>{@link org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter}</li>
 	 * <li>{@link ConcurrentSessionFilter}</li>
 	 * <li>{@link DigestAuthenticationFilter}</li>
 	 * <li>{@link BasicAuthenticationFilter}</li>

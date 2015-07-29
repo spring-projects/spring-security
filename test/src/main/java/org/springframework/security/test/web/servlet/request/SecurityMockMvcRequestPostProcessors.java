@@ -168,7 +168,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 * for the {@link Authentication#getPrincipal()} and a custom {@link UserDetails}. All
 	 * details are declarative and do not require that the user actually exists.
 	 *
-	 * @param user the UserDetails to populate
+	 * @param authentication the Authentication to populate
 	 * @return the {@link RequestPostProcessor} to use
 	 */
 	public static RequestPostProcessor authentication(Authentication authentication) {
@@ -635,10 +635,10 @@ public final class SecurityMockMvcRequestPostProcessors {
 		 * {@link #authorities(GrantedAuthority...)}, but just not as flexible.
 		 *
 		 * @param roles The roles to populate. Note that if the role does not start with
-		 * {@link #rolePrefix(String)} it will automatically be prepended. This means by
+		 * {@link #ROLE_PREFIX} it will automatically be prepended. This means by
 		 * default {@code roles("ROLE_USER")} and {@code roles("USER")} are equivalent.
 		 * @see #authorities(GrantedAuthority...)
-		 * @see #rolePrefix(String)
+		 * @see #ROLE_PREFIX
 		 * @return the UserRequestPostProcessor for further customizations
 		 */
 		public UserRequestPostProcessor roles(String... roles) {

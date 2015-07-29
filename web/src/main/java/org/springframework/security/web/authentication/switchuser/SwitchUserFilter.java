@@ -92,12 +92,12 @@ import org.springframework.web.filter.GenericFilterBean;
  * correct constraints to the <tt>switchUserUrl</tt>. Example:
  * 
  * <pre>
- * &lt;bean id="switchUserProcessingFilter" class="org.springframework.security.web.authentication.switchuser.SwitchUserFilter">
- *    &lt;property name="userDetailsService" ref="userDetailsService" />
- *    &lt;property name="switchUserUrl" value="/login/impersonate" />
- *    &lt;property name="exitUserUrl" value="/logout/impersonate" />
- *    &lt;property name="targetUrl" value="/index.jsp" />
- * &lt;/bean>
+ * &lt;bean id="switchUserProcessingFilter" class="org.springframework.security.web.authentication.switchuser.SwitchUserFilter"&gt;
+ *    &lt;property name="userDetailsService" ref="userDetailsService" /&gt;
+ *    &lt;property name="switchUserUrl" value="/login/impersonate" /&gt;
+ *    &lt;property name="exitUserUrl" value="/logout/impersonate" /&gt;
+ *    &lt;property name="targetUrl" value="/index.jsp" /&gt;
+ * &lt;/bean&gt;
  * </pre>
  *
  * @author Mark St.Godard

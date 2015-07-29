@@ -38,7 +38,7 @@ public interface TokenService {
 	Token allocateToken(String extendedInformation);
 
 	/**
-	 * Permits verification the <{@link Token#getKey()} was issued by this
+	 * Permits verification the {@link Token#getKey()} was issued by this
 	 * <code>TokenService</code> and reconstructs the corresponding <code>Token</code>.
 	 *
 	 * @param key as obtained from {@link Token#getKey()} and created by this

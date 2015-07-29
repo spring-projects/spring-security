@@ -24,7 +24,7 @@ package org.springframework.security.authentication.encoding;
  * </p>
  * <p>
  * As SHA is a one-way hash, the salt can contain any characters. The default strength for
- * the SHA encoding is SHA-1. If you wish to use higher strengths use the argumented
+ * the SHA encoding is SHA-1. If you wish to use higher strengths use the parametrised
  * constructor. {@link #ShaPasswordEncoder(int strength)}
  * </p>
  * <p>
@@ -32,7 +32,7 @@ package org.springframework.security.authentication.encoding;
  * 
  * <pre>
  * &lt;bean id="passwordEncoder" class="org.springframework.security.authentication.encoding.ShaPasswordEncoder"&gt;
- *     &lt;constructor-arg value="256"/>
+ *     &lt;constructor-arg value="256"/&gt;
  * &lt;/bean&gt;
  * </pre>
  *

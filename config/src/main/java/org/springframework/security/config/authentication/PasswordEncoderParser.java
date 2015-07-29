@@ -25,7 +25,7 @@ import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
 
 /**
- * Stateful parser for the <password-encoder> element.
+ * Stateful parser for the &lt;password-encoder&gt; element.
  *
  * Will produce a PasswordEncoder and (optionally) a SaltSource.
  *

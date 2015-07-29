@@ -30,12 +30,10 @@ import org.springframework.util.Assert;
  * <p>
  * The <code>SecurityMetadataSource</code> required by this security interceptor is of
  * type {@link MessageSecurityMetadataSource}.
- * </p>
  * <p>
  * Refer to {@link AbstractSecurityInterceptor} for details on the workflow.
- * </p>
  *
- * @see 4.0
+ * @since 4.0
  * @author Rob Winch
  */
 public final class ChannelSecurityInterceptor extends AbstractSecurityInterceptor

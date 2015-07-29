@@ -45,7 +45,7 @@ public interface SecurityExpressionOperations {
 	 * is converted may depend on the implementation settings.
 	 * </p>
 	 *
-	 * @param authority the authority to test (i.e. "USER")
+	 * @param role the authority to test (i.e. "USER")
 	 * @return true if the authority is found, else false
 	 */
 	boolean hasRole(String role);
@@ -62,7 +62,7 @@ public interface SecurityExpressionOperations {
 	 * is converted may depend on the implementation settings.
 	 * </p>
 	 *
-	 * @param authorities the authorities to test (i.e. "USER", "ADMIN")
+	 * @param roles the authorities to test (i.e. "USER", "ADMIN")
 	 * @return true if any of the authorities is found, else false
 	 */
 	boolean hasAnyRole(String... roles);

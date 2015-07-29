@@ -30,7 +30,9 @@ import org.springframework.security.core.Authentication;
  * @author Rob Winch
  * @since 4.0
  *
- * @see org.springframework.security.messaging.context.AuthenticationPrincipalArgumentResolver
+ *  See: <a href="{@docRoot}/org/springframework/security/messaging/context/AuthenticationPrincipalArgumentResolver.html">
+ *  AuthenticationPrincipalArgumentResolver
+ *  </a>
  */
 @Target({ ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)

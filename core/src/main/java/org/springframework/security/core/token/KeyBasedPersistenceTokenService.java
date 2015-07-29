@@ -145,7 +145,7 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
 	}
 
 	/**
-	 * @param pseudoRandomNumberBytes changes the number of bytes issued (must be >= 0;
+	 * @param pseudoRandomNumberBytes changes the number of bytes issued (must be &gt;= 0;
 	 * defaults to 256)
 	 */
 	public void setPseudoRandomNumberBytes(int pseudoRandomNumberBytes) {

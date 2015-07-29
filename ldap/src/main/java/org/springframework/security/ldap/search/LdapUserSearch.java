@@ -22,8 +22,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
  * Obtains a user's information from the LDAP directory given a login name.
  * <p>
  * May be optionally used to configure the LDAP authentication implementation when a more
- * sophisticated approach is required than just using a simple username->DN mapping.
- * </p>
+ * sophisticated approach is required than just using a simple username-&gt;DN mapping.
  *
  * @author Luke Taylor
  */

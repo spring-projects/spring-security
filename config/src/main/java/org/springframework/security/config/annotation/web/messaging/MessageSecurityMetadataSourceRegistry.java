@@ -105,7 +105,7 @@ public class MessageSecurityMetadataSourceRegistry {
 	 * {@link MessageSecurityMetadataSourceRegistry#simpDestPathMatcher(PathMatcher)} .
 	 *
 	 * @return the {@link Constraint} that is associated to the {@link MessageMatcher}
-	 * @see {@link MessageSecurityMetadataSourceRegistry#simpDestPathMatcher(PathMatcher)}
+	 * @see MessageSecurityMetadataSourceRegistry#simpDestPathMatcher(PathMatcher)
 	 */
 	public Constraint simpDestMatchers(String... patterns) {
 		return simpDestMatchers(null, patterns);
@@ -122,7 +122,7 @@ public class MessageSecurityMetadataSourceRegistry {
 	 * {@link MessageSecurityMetadataSourceRegistry#simpDestPathMatcher(PathMatcher)}.
 	 *
 	 * @return the {@link Constraint} that is associated to the {@link MessageMatcher}
-	 * @see {@link MessageSecurityMetadataSourceRegistry#simpDestPathMatcher(PathMatcher)}
+	 * @see MessageSecurityMetadataSourceRegistry#simpDestPathMatcher(PathMatcher)
 	 */
 	public Constraint simpMessageDestMatchers(String... patterns) {
 		return simpDestMatchers(SimpMessageType.MESSAGE, patterns);
@@ -139,7 +139,7 @@ public class MessageSecurityMetadataSourceRegistry {
 	 * {@link MessageSecurityMetadataSourceRegistry#simpDestPathMatcher(PathMatcher)}.
 	 *
 	 * @return the {@link Constraint} that is associated to the {@link MessageMatcher}
-	 * @see {@link MessageSecurityMetadataSourceRegistry#simpDestPathMatcher(PathMatcher)}
+	 * @see MessageSecurityMetadataSourceRegistry#simpDestPathMatcher(PathMatcher)
 	 */
 	public Constraint simpSubscribeDestMatchers(String... patterns) {
 		return simpDestMatchers(SimpMessageType.SUBSCRIBE, patterns);
@@ -353,7 +353,7 @@ public class MessageSecurityMetadataSourceRegistry {
 		 *
 		 * @return the {@link MessageSecurityMetadataSourceRegistry} for further
 		 * customization
-		 * @see {@link RememberMeConfigurer}
+		 * @see RememberMeConfigurer
 		 */
 		public MessageSecurityMetadataSourceRegistry rememberMe() {
 			return access(rememberMe);
@@ -385,7 +385,7 @@ public class MessageSecurityMetadataSourceRegistry {
 		 *
 		 * @return the {@link MessageSecurityMetadataSourceRegistry} for further
 		 * customization
-		 * @see {@link RememberMeConfigurer}
+		 * @see RememberMeConfigurer
 		 */
 		public MessageSecurityMetadataSourceRegistry fullyAuthenticated() {
 			return access(fullyAuthenticated);

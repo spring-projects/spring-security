@@ -61,7 +61,7 @@ public class AuthenticationManagerBuilder
 
 	/**
 	 * Creates a new instance
-	 * @param the {@link ObjectPostProcessor} instance to use.
+	 * @param objectPostProcessor the {@link ObjectPostProcessor} instance to use.
 	 */
 	public AuthenticationManagerBuilder(ObjectPostProcessor<Object> objectPostProcessor) {
 		super(objectPostProcessor, true);
@@ -196,7 +196,6 @@ public class AuthenticationManagerBuilder
 	 * <p>
 	 * This method <b>does NOT</b> ensure that a {@link UserDetailsService} is available
 	 * for the {@link #getDefaultUserDetailsService()} method.
-	 * </p>
 	 *
 	 * @return a {@link LdapAuthenticationProviderConfigurer} to allow customization of
 	 * the LDAP authentication
@@ -216,11 +215,11 @@ public class AuthenticationManagerBuilder
 	 * <p>
 	 * This method <b>does NOT</b> ensure that the {@link UserDetailsService} is available
 	 * for the {@link #getDefaultUserDetailsService()} method.
-	 * </p>
+	 *
+	 * Note that an {@link Exception} might be thrown if an error occurs when adding the {@link AuthenticationProvider}.
 	 *
 	 * @return a {@link AuthenticationManagerBuilder} to allow further authentication to
 	 * be provided to the {@link AuthenticationManagerBuilder}
-	 * @throws Exception if an error occurs when adding the {@link AuthenticationProvider}
 	 */
 	public AuthenticationManagerBuilder authenticationProvider(
 			AuthenticationProvider authenticationProvider) {

@@ -70,7 +70,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Rob Winch
  * @since 3.2
- * @see {@link org.springframework.security.config.annotation.web.builders.HttpSecurity#authorizeRequests()}
+ * @see org.springframework.security.config.annotation.web.builders.HttpSecurity#authorizeRequests()
  */
 public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>>
 		extends
@@ -339,7 +339,7 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 		 *
 		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
 		 * customization
-		 * @see {@link RememberMeConfigurer}
+		 * @see RememberMeConfigurer
 		 */
 		public ExpressionInterceptUrlRegistry rememberMe() {
 			return access(rememberMe);
@@ -371,7 +371,7 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 		 *
 		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
 		 * customization
-		 * @see {@link RememberMeConfigurer}
+		 * @see RememberMeConfigurer
 		 */
 		public ExpressionInterceptUrlRegistry fullyAuthenticated() {
 			return access(fullyAuthenticated);

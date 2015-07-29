@@ -40,9 +40,7 @@ import org.springframework.test.web.servlet.MockMvc;
  * <li>The {@link SecurityContext} created with be that of
  * {@link SecurityContextHolder#createEmptyContext()}</li>
  * <li>It will be populated with an {@link UsernamePasswordAuthenticationToken} that uses
- * the username of either {@link #value()} or {@link #username()},
- * {@link GrantedAuthority} that are specified by {@link #roles()}, and a password
- * specified by {@link #password()}.
+ * the username of {@link #value()}.
  * </ul>
  *
  * @see WithMockUser

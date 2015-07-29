@@ -75,15 +75,15 @@ import java.util.Set;
  *
  * <pre>
  * &lt;bean id="ldapAuthoritiesPopulator"
- *       class="org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator">
- *   &lt;constructor-arg ref="contextSource"/>
- *   &lt;constructor-arg value="ou=groups"/>
- *   &lt;property name="groupRoleAttribute" value="ou"/>
- * &lt;!-- the following properties are shown with their default values -->
- *   &lt;property name="searchSubtree" value="false"/>
- *   &lt;property name="rolePrefix" value="ROLE_"/>
- *   &lt;property name="convertToUpperCase" value="true"/>
- * &lt;/bean>
+ *       class="org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator"&gt;
+ *   &lt;constructor-arg ref="contextSource"/&gt;
+ *   &lt;constructor-arg value="ou=groups"/&gt;
+ *   &lt;property name="groupRoleAttribute" value="ou"/&gt;
+ * &lt;!-- the following properties are shown with their default values --&gt;
+ *   &lt;property name="searchSubtree" value="false"/&gt;
+ *   &lt;property name="rolePrefix" value="ROLE_"/&gt;
+ *   &lt;property name="convertToUpperCase" value="true"/&gt;
+ * &lt;/bean&gt;
  * </pre>
  *
  * A search for roles for user "uid=ben,ou=people,dc=springframework,dc=org" would return
@@ -292,7 +292,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 
 	/**
 	 * Sets the prefix which will be prepended to the values loaded from the directory.
-	 * Defaults to "ROLE_" for compatibility with <tt>RoleVoter/tt>.
+	 * Defaults to "ROLE_" for compatibility with <tt>RoleVoter</tt>.
 	 */
 	public void setRolePrefix(String rolePrefix) {
 		Assert.notNull(rolePrefix, "rolePrefix must not be null");
@@ -326,7 +326,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 	 * Returns the current LDAP template. Method available so that classes extending this
 	 * can override the template used
 	 * @return the LDAP template
-	 * @see {@link org.springframework.security.ldap.SpringSecurityLdapTemplate}
+	 * @see org.springframework.security.ldap.SpringSecurityLdapTemplate
 	 */
 	protected SpringSecurityLdapTemplate getLdapTemplate() {
 		return ldapTemplate;
@@ -336,7 +336,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 	 * Returns the attribute name of the LDAP attribute that will be mapped to the role
 	 * name Method available so that classes extending this can override
 	 * @return the attribute name used for role mapping
-	 * @see {@link #setGroupRoleAttribute(String)}
+	 * @see #setGroupRoleAttribute(String)
 	 */
 	protected final String getGroupRoleAttribute() {
 		return groupRoleAttribute;
@@ -346,7 +346,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 	 * Returns the search filter configured for this populator Method available so that
 	 * classes extending this can override
 	 * @return the search filter
-	 * @see {@link #setGroupSearchFilter(String)}
+	 * @see #setGroupSearchFilter(String)
 	 */
 	protected final String getGroupSearchFilter() {
 		return groupSearchFilter;
@@ -356,7 +356,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 	 * Returns the role prefix used by this populator Method available so that classes
 	 * extending this can override
 	 * @return the role prefix
-	 * @see {@link #setRolePrefix(String)}
+	 * @see #setRolePrefix(String)
 	 */
 	protected final String getRolePrefix() {
 		return rolePrefix;
@@ -366,7 +366,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 	 * Returns true if role names are converted to uppercase Method available so that
 	 * classes extending this can override
 	 * @return true if role names are converted to uppercase.
-	 * @see {@link #setConvertToUpperCase(boolean)}
+	 * @see #setConvertToUpperCase(boolean)
 	 */
 	protected final boolean isConvertToUpperCase() {
 		return convertToUpperCase;
@@ -376,7 +376,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 	 * Returns the default role Method available so that classes extending this can
 	 * override
 	 * @return the default role used
-	 * @see {@link #setDefaultRole(String)}
+	 * @see #setDefaultRole(String)
 	 */
 	private GrantedAuthority getDefaultRole() {
 		return defaultRole;

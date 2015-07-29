@@ -102,8 +102,11 @@ public class ThrowableAnalyzer {
 	/**
 	 * Initializes associations between <code>Throwable</code>s and
 	 * <code>ThrowableCauseExtractor</code>s. The default implementation performs the
-	 * following registrations: <li>{@link #DEFAULT_EXTRACTOR} for {@link Throwable}</li>
-	 * <li>{@link #INVOCATIONTARGET_EXTRACTOR} for {@link InvocationTargetException}</li> <br>
+	 * following registrations:
+	 * <ul>
+	 * <li>{@link #DEFAULT_EXTRACTOR} for {@link Throwable}</li>
+	 * <li>{@link #INVOCATIONTARGET_EXTRACTOR} for {@link InvocationTargetException}</li>
+	 * </ul><br>
 	 * Subclasses overriding this method are encouraged to invoke the super method to
 	 * perform the default registrations. They can register additional extractors as
 	 * required.

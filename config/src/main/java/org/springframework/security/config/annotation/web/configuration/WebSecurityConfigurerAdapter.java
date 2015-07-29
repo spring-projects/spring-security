@@ -262,7 +262,7 @@ public abstract class WebSecurityConfigurerAdapter implements
 	 * {@link #userDetailsService()} instead
 	 * @return
 	 * @throws Exception
-	 * @see {@link #userDetailsService()}
+	 * @see #userDetailsService()
 	 */
 	public UserDetailsService userDetailsServiceBean() throws Exception {
 		AuthenticationManagerBuilder globalAuthBuilder = context
@@ -273,7 +273,7 @@ public abstract class WebSecurityConfigurerAdapter implements
 
 	/**
 	 * Allows modifying and accessing the {@link UserDetailsService} from
-	 * {@link #userDetailsServiceBean()()} without interacting with the
+	 * {@link #userDetailsServiceBean()} without interacting with the
 	 * {@link ApplicationContext}. Developers should override this method when changing
 	 * the instance of {@link #userDetailsServiceBean()}.
 	 *

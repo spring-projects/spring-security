@@ -38,7 +38,6 @@ import org.springframework.security.provisioning.JdbcUserDetailsManager;
  * <p>
  * The only required method is the {@link #dataSource(javax.sql.DataSource)} all other
  * methods have reasonable defaults.
- * </p>
  *
  * @param <B> the type of the {@link ProviderManagerBuilder} that is being configured
  *
@@ -82,7 +81,7 @@ public class JdbcUserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B
 	 * </code>
 	 * @param query The query to use for selecting the username, password, and if the user
 	 * is enabled by username. Must contain a single parameter for the username.
-	 * @return The {@link JdbcUserDetailsManagerRegistry} used for additional
+	 * @return The {@link JdbcUserDetailsManagerConfigurer} used for additional
 	 * customizations
 	 * @throws Exception
 	 */
@@ -102,7 +101,7 @@ public class JdbcUserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B
 	 *
 	 * @param query The query to use for selecting the username, authority by username.
 	 * Must contain a single parameter for the username.
-	 * @return The {@link JdbcUserDetailsManagerRegistry} used for additional
+	 * @return The {@link JdbcUserDetailsManagerConfigurer} used for additional
 	 * customizations
 	 * @throws Exception
 	 */
@@ -126,7 +125,7 @@ public class JdbcUserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B
 	 *
 	 * @param query The query to use for selecting the authorities by group. Must contain
 	 * a single parameter for the username.
-	 * @return The {@link JdbcUserDetailsManagerRegistry} used for additional
+	 * @return The {@link JdbcUserDetailsManagerConfigurer} used for additional
 	 * customizations
 	 * @throws Exception
 	 */
@@ -181,7 +180,7 @@ public class JdbcUserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B
 	/**
 	 * Populates the default schema that allows users and authorities to be stored.
 	 *
-	 * @return The {@link JdbcUserDetailsManagerRegistry} used for additional
+	 * @return The {@link JdbcUserDetailsManagerConfigurer} used for additional
 	 * customizations
 	 */
 	public JdbcUserDetailsManagerConfigurer<B> withDefaultSchema() {

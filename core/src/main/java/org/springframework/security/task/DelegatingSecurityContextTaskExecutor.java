@@ -45,7 +45,7 @@ public class DelegatingSecurityContextTaskExecutor extends
 	 * Creates a new {@link DelegatingSecurityContextTaskExecutor} that uses the current
 	 * {@link SecurityContext} from the {@link SecurityContextHolder}.
 	 *
-	 * @param delegateTaskExecutor the {@link TaskExecutor} to delegate to. Cannot be
+	 * @param delegate the {@link TaskExecutor} to delegate to. Cannot be
 	 * null.
 	 */
 	public DelegatingSecurityContextTaskExecutor(TaskExecutor delegate) {
