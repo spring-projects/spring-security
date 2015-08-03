@@ -310,36 +310,36 @@ class CsrfConfigTests extends AbstractHttpConfigTests {
 			verify(repo).saveToken(eq(null),any(HttpServletRequest), any(HttpServletResponse))
 	}
 
-		def "SEC-2495: csrf disables logout on GET"() {
-			setup:
-				httpAutoConfig {
-					'csrf'()
-				}
-				createAppContext()
-				login()
-				request.method = "GET"
-				request.requestURI = "/logout"
-			when:
-				springSecurityFilterChain.doFilter(request,response,chain)
-			then:
-				getAuthentication(request) != null
-		}
+	def "SEC-2495: csrf disables logout on GET"() {
+		setup:
+			httpAutoConfig {
+				'csrf'()
+			}
+			createAppContext()
+			login()
+			request.method = "GET"
+			request.requestURI = "/logout"
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			getAuthentication(request) != null
+	}
 
 
-		def login(String username="user", String role="ROLE_USER") {
-			login(new UsernamePasswordAuthenticationToken(username, null, AuthorityUtils.createAuthorityList(role)))
-		}
+	def login(String username="user", String role="ROLE_USER") {
+		login(new UsernamePasswordAuthenticationToken(username, null, AuthorityUtils.createAuthorityList(role)))
+	}
 
-		def login(Authentication auth) {
-			HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository()
-			HttpRequestResponseHolder requestResponseHolder = new HttpRequestResponseHolder(request, response)
-			repo.loadContext(requestResponseHolder)
-			repo.saveContext(new SecurityContextImpl(authentication:auth), requestResponseHolder.request, requestResponseHolder.response)
-		}
+	def login(Authentication auth) {
+		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository()
+		HttpRequestResponseHolder requestResponseHolder = new HttpRequestResponseHolder(request, response)
+		repo.loadContext(requestResponseHolder)
+		repo.saveContext(new SecurityContextImpl(authentication:auth), requestResponseHolder.request, requestResponseHolder.response)
+	}
 
-		def getAuthentication(HttpServletRequest request) {
-			HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository()
-			HttpRequestResponseHolder requestResponseHolder = new HttpRequestResponseHolder(request, response)
-			repo.loadContext(requestResponseHolder)?.authentication
-		}
+	def getAuthentication(HttpServletRequest request) {
+		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository()
+		HttpRequestResponseHolder requestResponseHolder = new HttpRequestResponseHolder(request, response)
+		repo.loadContext(requestResponseHolder)?.authentication
+	}
 }
