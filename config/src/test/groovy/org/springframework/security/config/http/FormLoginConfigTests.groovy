@@ -1,14 +1,19 @@
 package org.springframework.security.config.http
 
+import javax.servlet.http.HttpServletResponse
+
 import org.springframework.beans.factory.BeanCreationException
+import org.springframework.mock.web.MockFilterChain
+import org.springframework.mock.web.MockHttpServletRequest
+import org.springframework.mock.web.MockHttpServletResponse
 import org.springframework.security.util.FieldUtils
 import org.springframework.security.web.access.ExceptionTranslationFilter
-import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
+import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
-import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
-import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.util.ReflectionUtils;
+import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter
+
+import spock.lang.Unroll;
 
 /**
  *
@@ -115,5 +120,28 @@ class FormLoginConfigTests extends AbstractHttpConfigTests {
 
 		then:
 		getFilter(DefaultLoginPageGeneratingFilter) == null
+	}
+
+	@Unroll
+	def 'Form Login requires CSRF Token #csrfDisabled'(int status, boolean csrfDisabled) {
+		setup:
+			MockHttpServletRequest request = new MockHttpServletRequest(method:'POST',servletPath:'/login')
+			request.setParameter('username','user')
+			request.setParameter('password','password')
+			MockHttpServletResponse response = new MockHttpServletResponse()
+			MockFilterChain chain = new MockFilterChain()
+			httpAutoConfig {
+				'form-login'()
+				csrf(disabled:csrfDisabled) {}
+			}
+			createAppContext()
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			response.status == status
+		where:
+		status | csrfDisabled
+		HttpServletResponse.SC_FORBIDDEN | false
+		HttpServletResponse.SC_MOVED_TEMPORARILY | true
 	}
 }
