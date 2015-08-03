@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-samples-ldap-jc</artifactId>
-  <version>4.0.2.CI-SNAPSHOT</version>
+  <version>4.0.3.CI-SNAPSHOT</version>
   <packaging>war</packaging>
   <name>spring-security-samples-ldap-jc</name>
   <description>spring-security-samples-ldap-jc</description>
@@ -119,31 +119,31 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
-      <version>4.0.2.CI-SNAPSHOT</version>
+      <version>4.0.3.CI-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <version>4.0.2.CI-SNAPSHOT</version>
+      <version>4.0.3.CI-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-ldap</artifactId>
-      <version>4.0.2.CI-SNAPSHOT</version>
+      <version>4.0.3.CI-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-samples-messages-jc</artifactId>
-      <version>4.0.2.CI-SNAPSHOT</version>
+      <version>4.0.3.CI-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
-      <version>4.0.2.CI-SNAPSHOT</version>
+      <version>4.0.3.CI-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>

@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-samples-data-jc</artifactId>
-  <version>4.0.2.CI-SNAPSHOT</version>
+  <version>4.0.3.CI-SNAPSHOT</version>
   <name>spring-security-samples-data-jc</name>
   <description>spring-security-samples-data-jc</description>
   <url>http://spring.io/spring-security</url>
@@ -76,13 +76,13 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
-      <version>4.0.2.CI-SNAPSHOT</version>
+      <version>4.0.3.CI-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-data</artifactId>
-      <version>4.0.2.CI-SNAPSHOT</version>
+      <version>4.0.3.CI-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
