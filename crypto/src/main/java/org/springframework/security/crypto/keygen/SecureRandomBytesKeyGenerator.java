@@ -15,8 +15,6 @@
  */
 package org.springframework.security.crypto.keygen;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 
 /**
