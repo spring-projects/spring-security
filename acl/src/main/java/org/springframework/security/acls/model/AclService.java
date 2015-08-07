@@ -115,4 +115,11 @@ public interface AclService {
 	 */
 	Map<ObjectIdentity, Acl> readAclsById(List<ObjectIdentity> objects, List<Sid> sids)
 			throws NotFoundException;
+
+	/**
+	 * As Above but does not throw an Exception is an ACL is not found
+	 */
+	Map<ObjectIdentity, Acl> getPresentAclsById(List<ObjectIdentity> objects,	List<Sid> sids);
+
+
 }

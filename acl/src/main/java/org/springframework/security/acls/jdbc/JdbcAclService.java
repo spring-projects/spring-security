@@ -114,7 +114,7 @@ public class JdbcAclService implements AclService {
 
 	public Map<ObjectIdentity, Acl> readAclsById(List<ObjectIdentity> objects,
 			List<Sid> sids) throws NotFoundException {
-		Map<ObjectIdentity, Acl> result = lookupStrategy.readAclsById(objects, sids);
+		Map<ObjectIdentity, Acl> result = getPresentAclsById(objects, sids);
 
 		// Check every requested object identity was found (throw NotFoundException if
 		// needed)
@@ -127,6 +127,11 @@ public class JdbcAclService implements AclService {
 		}
 
 		return result;
+	}
+
+	public Map<ObjectIdentity, Acl> getPresentAclsById(List<ObjectIdentity> objects,
+			List<Sid> sids) {
+		return lookupStrategy.readAclsById(objects, sids);
 	}
 
 	/**
