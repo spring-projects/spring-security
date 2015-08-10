@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  - Sample namespace-based configuration
-  -
-  -->
+- Sample namespace-based configuration
+-
+-->
 
 <beans:beans xmlns="http://www.springframework.org/schema/security"
 	xmlns:beans="http://www.springframework.org/schema/beans"
@@ -19,12 +19,12 @@
 	<http pattern="/loggedout.jsp" security="none"/>
 
 	<http>
-		<intercept-url pattern="/secure/extreme/**" access="hasRole('supervisor')"/>
-		<intercept-url pattern="/secure/**" access="isAuthenticated()" />
+		<intercept-url pattern="/secure/extreme/**" access="hasAuthority('supervisor')"/>
+		<intercept-url pattern="/secure/**" access="authenticated" />
 		<!--
-			 Allow all other requests. In a real application you should
-			 adopt a whitelisting approach where access is not allowed by default
-		  -->
+			Allow all other requests. In a real application you should
+			adopt a whitelisting approach where access is not allowed by default
+		-->
 		<intercept-url pattern="/**" access="permitAll" />
 		<form-login />
 		<logout logout-success-url="/loggedout.jsp" delete-cookies="JSESSIONID"/>

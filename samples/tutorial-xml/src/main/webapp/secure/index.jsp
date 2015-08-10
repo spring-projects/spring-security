@@ -4,11 +4,11 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 
 <html>
-  <head>
-      <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-      <link rel="stylesheet" href="<c:url value='/static/css/tutorial.css'/>" type="text/css" />
-      <title>Secure Page</title>
-  </head>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<link rel="stylesheet" href="<c:url value='/static/css/tutorial.css'/>" type="text/css" />
+	<title>Secure Page</title>
+</head>
 <body>
 <div id="content">
 
@@ -19,7 +19,7 @@ or if you've authenticated this session.
 </p>
 <p>
 <sec:authorize access="hasRole('supervisor')">
-    You are a supervisor! You can therefore see the <a href="extreme/index.jsp">extremely secure page</a>.<br/><br/>
+	You are a supervisor! You can therefore see the <a href="extreme/index.jsp">extremely secure page</a>.<br/><br/>
 </sec:authorize>
 </p>
 <h3>Properties obtained using &lt;sec:authentication /&gt; tag</h3>
@@ -43,7 +43,11 @@ or if you've authenticated this session.
 
 
 <p><a href="../">Home</a></p>
-<p><a href="../logout">Logout</a></p>
+
+<form action="../logout" method="post">
+	<sec:csrfInput />
+	<input type="submit" value="Logout"/>
+</form>
 </div>
 </body>
 </html>
