@@ -369,7 +369,9 @@ This will give you access to the entire project history (including all releases 
 [[new]]
 == What's new in Spring Security 4.1
 
-* <<test-method-meta-annotations>>
+* Meta Annotation Support
+** <<test-method-meta-annotations>>
+** <<method-security-meta-annotations>>
 
 === What's new in Spring Security 4.0
 
@@ -4726,6 +4728,29 @@ To use `hasPermission()` expressions, you have to explicitly configure a `Permis
 ----
 
 Where `myPermissionEvaluator` is the bean which implements `PermissionEvaluator`. Usually this will be the implementation from the ACL module which is called`AclPermissionEvaluator`. See the "Contacts" sample application configuration for more details.
+
+===== Method Security Meta Annotations
+
+You can make use of meta annotations for method security to make your code more readable.
+This is especially convenient if you find that you are repeating the same complex expression throughout your code base.
+For example, consider the following:
+
+[source,java]
+----
+@PreAuthorize("#contact.name == authentication.name")
+----
+
+Instead of repeating this everywhere, we can create a meta annotation that can be used instead.
+
+[source,java]
+----
+@Retention(RetentionPolicy.RUNTIME)
+@PreAuthorize("#contact.name == authentication.name")
+public @interface ContactPermission {}
+----
+
+Meta annotations can be used for any of the Spring Security method security annotations.
+In order to remain compliant with the specification JSR-250 annotations do not support meta annotations.
 
 [[advanced-topics]]
 = Additional Topics
