@@ -65,6 +65,16 @@ public class WithUserAuthenticationTests {
 	}
 
 	@Test
+	@WithAdminRob
+	public void requestProtectedUrlWithAdminRob() throws Exception {
+		mvc.perform(get("/"))
+		// Ensure we got past Security
+				.andExpect(status().isNotFound())
+				// Ensure it appears we are authenticated with user
+				.andExpect(authenticated().withUsername("rob").withRoles("ADMIN"));
+	}
+
+	@Test
 	@WithMockUser(roles = "ADMIN")
 	public void requestProtectedUrlWithAdmin() throws Exception {
 		mvc.perform(get("/admin"))

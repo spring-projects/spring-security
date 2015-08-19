@@ -367,7 +367,11 @@ git clone https://github.com/spring-projects/spring-security.git
 This will give you access to the entire project history (including all releases and branches) on your local machine.
 
 [[new]]
-== What's new in Spring Security 4.0
+== What's new in Spring Security 4.1
+
+* <<test-method-meta-annotations>>
+
+=== What's new in Spring Security 4.0
 
 There are http://goo.gl/ui9GCl[175+ tickets resolved] with the Spring Security 4.0 release.
 

@@ -249,6 +249,33 @@ final class WithUserDetailsSecurityContextFactory
 }
 ----
 
+[[test-method-meta-annotations]]
+=== Test Meta Annotations
+
+If you reuse the same user within your tests often, it is not ideal to have to repeatedly specify the attributes.
+For example, if there are many tests related to an administrative user with the username "admin" and the roles `ROLE_USER` and `ROLE_ADMIN` you would have to write:
+
+[source,java]
+----
+@WithMockUser(username="admin",roles={"USER","ADMIN"})
+----
+
+Rather than repeating this everywhere, we can use a meta annotation.
+For example, we could create a meta annotation named `WithMockAdmin`:
+
+[source,java]
+----
+@Retention(RetentionPolicy.RUNTIME)
+@WithMockUser(value="rob",roles="ADMIN")
+public @interface WithMockAdmin { }
+----
+
+Now we can use `@WithMockAdmin` in the same way as the more verbose `@WithMockUser`.
+
+Meta annotations work with any of the testing annotations described above.
+For example, this means we could create a meta annotation for `@WithUserDetails("admin")` as well.
+
+
 [[test-mockmvc]]
 == Spring MVC Test Integration
 
