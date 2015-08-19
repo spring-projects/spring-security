@@ -39,7 +39,7 @@ import org.springframework.util.ReflectionUtils;
  *
  * <pre>
  * import org.springframework.security.access.method.P;
- * 
+ *
  * {@code @PostAuthorize("#to == returnObject.to")}
  * public Message findMessageByTo(@P("to") String to);
  * </pre>
@@ -69,7 +69,7 @@ import org.springframework.util.ReflectionUtils;
  *
  * <pre>
  * import org.springframework.security.access.method.P;
- * 
+ *
  * {@code @PostAuthorize("#to == returnObject.to")}
  * public Message findMessageByToAndFrom(@P("to") User to, User from);
  * </pre>
@@ -102,7 +102,7 @@ public class AnnotationParameterNameDiscoverer implements ParameterNameDiscovere
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.springframework.core.ParameterNameDiscoverer#getParameterNames(java
 	 * .lang.reflect.Method)
 	 */
@@ -127,7 +127,7 @@ public class AnnotationParameterNameDiscoverer implements ParameterNameDiscovere
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.springframework.core.ParameterNameDiscoverer#getParameterNames(java
 	 * .lang.reflect.Constructor)
 	 */
@@ -145,11 +145,12 @@ public class AnnotationParameterNameDiscoverer implements ParameterNameDiscovere
 	 */
 	private <T extends AccessibleObject> String[] lookupParameterNames(
 			ParameterNameFactory<T> parameterNameFactory, T t) {
-		int parameterCount = parameterNameFactory.getParamCount(t);
+		Annotation[][] parameterAnnotations = parameterNameFactory.findParameterAnnotations(t);
+		int parameterCount = parameterAnnotations.length;
 		String[] paramNames = new String[parameterCount];
 		boolean found = false;
 		for (int i = 0; i < parameterCount; i++) {
-			Annotation[] annotations = parameterNameFactory.findAnnotationsAt(t, i);
+			Annotation[] annotations = parameterAnnotations[i];
 			String parameterName = findParameterName(annotations);
 			if (parameterName != null) {
 				found = true;
@@ -178,22 +179,16 @@ public class AnnotationParameterNameDiscoverer implements ParameterNameDiscovere
 	}
 
 	private static final ParameterNameFactory<Constructor<?>> CONSTRUCTOR_METHODPARAM_FACTORY = new ParameterNameFactory<Constructor<?>>() {
-		public int getParamCount(Constructor<?> constructor) {
-			return constructor.getParameterTypes().length;
-		}
 
-		public Annotation[] findAnnotationsAt(Constructor<?> constructor, int index) {
-			return constructor.getParameterAnnotations()[index];
+		public Annotation[][] findParameterAnnotations(Constructor<?> constructor) {
+			return constructor.getParameterAnnotations();
 		}
 	};
 
 	private static final ParameterNameFactory<Method> METHOD_METHODPARAM_FACTORY = new ParameterNameFactory<Method>() {
-		public int getParamCount(Method method) {
-			return method.getParameterTypes().length;
-		}
 
-		public Annotation[] findAnnotationsAt(Method method, int index) {
-			return method.getParameterAnnotations()[index];
+		public Annotation[][] findParameterAnnotations(Method method) {
+			return method.getParameterAnnotations();
 		}
 	};
 
@@ -206,12 +201,6 @@ public class AnnotationParameterNameDiscoverer implements ParameterNameDiscovere
 	 * @param <T> the type to inspect (i.e. {@link Method} or {@link Constructor})
 	 */
 	private interface ParameterNameFactory<T extends AccessibleObject> {
-		/**
-		 * Gets the parameter count
-		 * @param t
-		 * @return
-		 */
-		int getParamCount(T t);
 
 		/**
 		 * Gets the {@link Annotation}s at a specified index
@@ -219,6 +208,6 @@ public class AnnotationParameterNameDiscoverer implements ParameterNameDiscovere
 		 * @param index
 		 * @return
 		 */
-		Annotation[] findAnnotationsAt(T t, int index);
+		Annotation[][] findParameterAnnotations(T t);
 	}
 }
