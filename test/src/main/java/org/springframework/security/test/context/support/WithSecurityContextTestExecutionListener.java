@@ -17,14 +17,10 @@ package org.springframework.security.test.context.support;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.TypeVariable;
 
 import org.springframework.beans.BeanUtils;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.StaticApplicationContext;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.core.annotation.AnnotationUtils;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.TestSecurityContextHolder;
@@ -32,11 +28,7 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.context.TestContext;
 import org.springframework.test.context.TestExecutionListener;
 import org.springframework.test.context.support.AbstractTestExecutionListener;
-import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.util.ClassUtils;
-import org.springframework.util.ReflectionUtils;
 
 /**
  * A {@link TestExecutionListener} that will find annotations that are annotated with
@@ -49,7 +41,6 @@ import org.springframework.util.ReflectionUtils;
  * @author Rob Winch
  * @since 4.0
  */
-@Order(1000)
 public class WithSecurityContextTestExecutionListener extends
 		AbstractTestExecutionListener {
 
@@ -114,5 +105,13 @@ public class WithSecurityContextTestExecutionListener extends
 	@Override
 	public void afterTestMethod(TestContext testContext) throws Exception {
 		TestSecurityContextHolder.clearContext();
+	}
+
+	/**
+	 * Returns {@code 1000}.
+	 */
+	@Override
+	public int getOrder() {
+		return 1000;
 	}
 }
