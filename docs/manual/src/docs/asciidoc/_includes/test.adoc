@@ -371,8 +371,19 @@ There are two simple ways of populating the user:
 [[test-mockmvc-securitycontextholder-rpp]]
 ==== Running as a User in Spring MVC Test with RequestPostProcessor
 
-There are a number of options available to populate a test user.
+There are a number of options available to associate a user to the current `HttpServletRequest`.
 For example, the following will run as a user (which does not need to exist) with the username "user", the password "password", and the role "ROLE_USER":
+
+[NOTE]
+====
+The support works by associating the user to the `HttpServletRequest`.
+To associate the request to the `SecurityContextHolder` you need to ensure that the `SecurityContextPersistenceFilter` is associated with the `MockMvc` instance.
+A few ways to do this are:
+
+* Invoking <<test-mockmvc-setup,apply(springSecurity())>>
+* Adding Spring Security's `FilterChainProxy` to `MockMvc`
+* Manually adding `SecurityContextPersistenceFilter` to the `MockMvc` instance may make sense when using `MockMvcBuilders.standaloneSetup`
+====
 
 [source,java]
 ----
