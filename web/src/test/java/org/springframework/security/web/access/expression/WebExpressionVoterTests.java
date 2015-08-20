@@ -4,11 +4,12 @@ import static org.fest.assertions.Assertions.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.security.access.AccessDecisionVoter;
@@ -35,7 +36,7 @@ public class WebExpressionVoterTests {
 	public void supportsWebConfigAttributeAndFilterInvocation() throws Exception {
 		WebExpressionVoter voter = new WebExpressionVoter();
 		assertTrue(voter
-				.supports(new WebExpressionConfigAttribute(mock(Expression.class))));
+				.supports(new WebExpressionConfigAttribute(mock(Expression.class), mock(SecurityEvaluationContextPostProcessor.class))));
 		assertTrue(voter.supports(FilterInvocation.class));
 		assertFalse(voter.supports(MethodInvocation.class));
 
@@ -54,7 +55,13 @@ public class WebExpressionVoterTests {
 	public void grantsAccessIfExpressionIsTrueDeniesIfFalse() {
 		WebExpressionVoter voter = new WebExpressionVoter();
 		Expression ex = mock(Expression.class);
-		WebExpressionConfigAttribute weca = new WebExpressionConfigAttribute(ex);
+		SecurityEvaluationContextPostProcessor postProcessor = mock(SecurityEvaluationContextPostProcessor.class);
+		when(postProcessor.postProcess(any(EvaluationContext.class), any(FilterInvocation.class))).thenAnswer(new Answer<EvaluationContext>() {
+			public EvaluationContext answer(InvocationOnMock invocation) throws Throwable {
+				return invocation.getArgumentAt(0, EvaluationContext.class);
+			}
+		});
+		WebExpressionConfigAttribute weca = new WebExpressionConfigAttribute(ex,postProcessor);
 		EvaluationContext ctx = mock(EvaluationContext.class);
 		SecurityExpressionHandler eh = mock(SecurityExpressionHandler.class);
 		FilterInvocation fi = new FilterInvocation("/path", "GET");

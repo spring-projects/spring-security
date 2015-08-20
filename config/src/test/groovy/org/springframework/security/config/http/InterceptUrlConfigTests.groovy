@@ -157,6 +157,65 @@ class InterceptUrlConfigTests extends AbstractHttpConfigTests {
 
 	}
 
+	def "SEC-2256: intercept-url supports path variables"() {
+		setup:
+			MockHttpServletRequest request = new MockHttpServletRequest(method:'GET')
+			MockHttpServletResponse response = new MockHttpServletResponse()
+			MockFilterChain chain = new MockFilterChain()
+			xml.http('use-expressions':true) {
+				'http-basic'()
+				'intercept-url'(pattern: '/user/{un}/**', access: "#un == authentication.name")
+				'intercept-url'(pattern: '/**', access: "denyAll")
+			}
+			createAppContext()
+			login(request, 'user', 'password')
+		when: 'user can access'
+			request.servletPath = '/user/user/abc'
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then: 'The response is OK'
+			response.status == HttpServletResponse.SC_OK
+		when: 'user cannot access otheruser'
+			request = new MockHttpServletRequest(method:'GET', servletPath : '/user/otheruser/abc')
+			login(request, 'user', 'password')
+			chain.reset()
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then: 'The response is OK'
+			response.status == HttpServletResponse.SC_FORBIDDEN
+	}
+
+	def "SEC-2256: intercept-url supports path variable type conversion"() {
+		setup:
+			MockHttpServletRequest request = new MockHttpServletRequest(method:'GET')
+			MockHttpServletResponse response = new MockHttpServletResponse()
+			MockFilterChain chain = new MockFilterChain()
+			xml.http('use-expressions':true) {
+				'http-basic'()
+				'intercept-url'(pattern: '/user/{un}/**', access: "@id.isOne(#un)")
+				'intercept-url'(pattern: '/**', access: "denyAll")
+			}
+			bean('id', Id)
+			createAppContext()
+			login(request, 'user', 'password')
+		when: 'can access id == 1'
+			request.servletPath = '/user/1/abc'
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then: 'The response is OK'
+			response.status == HttpServletResponse.SC_OK
+		when: 'user cannot access 2'
+			request = new MockHttpServletRequest(method:'GET', servletPath : '/user/2/abc')
+			login(request, 'user', 'password')
+			chain.reset()
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then: 'The response is OK'
+			response.status == HttpServletResponse.SC_FORBIDDEN
+	}
+
+	public static class Id {
+		public boolean isOne(int i) {
+			return i == 1;
+		}
+	}
+
 	def login(MockHttpServletRequest request, String username, String password) {
 		String toEncode = username + ':' + password
 		request.addHeader('Authorization','Basic ' + new String(Base64.encode(toEncode.getBytes('UTF-8'))))
