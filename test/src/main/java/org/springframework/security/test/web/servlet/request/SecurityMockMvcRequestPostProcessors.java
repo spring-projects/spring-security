@@ -45,8 +45,10 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.test.context.TestSecurityContextHolder;
+import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.security.test.web.support.WebTestUtils;
 import org.springframework.security.web.context.HttpRequestResponseHolder;
+import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
@@ -139,10 +141,24 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 * Establish a {@link SecurityContext} that has a
 	 * {@link UsernamePasswordAuthenticationToken} for the
 	 * {@link Authentication#getPrincipal()} and a {@link User} for the
-	 * {@link UsernamePasswordAuthenticationToken#getPrincipal()}. All details are
-	 * declarative and do not require that the user actually exists.
+	 * {@link UsernamePasswordAuthenticationToken#getPrincipal()}. All details
+	 * are declarative and do not require that the user actually exists.
 	 *
-	 * @param username the username to populate
+	 * <p>
+	 * The support works by associating the user to the HttpServletRequest. To
+	 * associate the request to the SecurityContextHolder you need to ensure
+	 * that the SecurityContextPersistenceFilter is associated with the
+	 * MockMvc instance. A few ways to do this are:
+	 * </p>
+	 *
+	 * <ul>
+	 * <li>Invoking apply {@link SecurityMockMvcConfigurers#springSecurity()}</li>
+	 * <li>Adding Spring Security's FilterChainProxy to MockMvc</li>
+	 * <li>Manually adding {@link SecurityContextPersistenceFilter} to the MockMvc instance may make sense when using MockMvcBuilders standaloneSetup</li>
+	 * </ul>
+	 *
+	 * @param username
+	 *            the username to populate
 	 * @return the {@link UserRequestPostProcessor} for additional customization
 	 */
 	public static UserRequestPostProcessor user(String username) {
@@ -156,6 +172,19 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 * {@link UsernamePasswordAuthenticationToken#getPrincipal()}. All details are
 	 * declarative and do not require that the user actually exists.
 	 *
+	 * <p>
+	 * The support works by associating the user to the HttpServletRequest. To
+	 * associate the request to the SecurityContextHolder you need to ensure
+	 * that the SecurityContextPersistenceFilter is associated with the
+	 * MockMvc instance. A few ways to do this are:
+	 * </p>
+	 *
+	 * <ul>
+	 * <li>Invoking apply {@link SecurityMockMvcConfigurers#springSecurity()}</li>
+	 * <li>Adding Spring Security's FilterChainProxy to MockMvc</li>
+	 * <li>Manually adding {@link SecurityContextPersistenceFilter} to the MockMvc instance may make sense when using MockMvcBuilders standaloneSetup</li>
+	 * </ul>
+	 *
 	 * @param user the UserDetails to populate
 	 * @return the {@link RequestPostProcessor} to use
 	 */
@@ -168,6 +197,19 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 * for the {@link Authentication#getPrincipal()} and a custom {@link UserDetails}. All
 	 * details are declarative and do not require that the user actually exists.
 	 *
+	 * <p>
+	 * The support works by associating the user to the HttpServletRequest. To
+	 * associate the request to the SecurityContextHolder you need to ensure
+	 * that the SecurityContextPersistenceFilter is associated with the
+	 * MockMvc instance. A few ways to do this are:
+	 * </p>
+	 *
+	 * <ul>
+	 * <li>Invoking apply {@link SecurityMockMvcConfigurers#springSecurity()}</li>
+	 * <li>Adding Spring Security's FilterChainProxy to MockMvc</li>
+	 * <li>Manually adding {@link SecurityContextPersistenceFilter} to the MockMvc instance may make sense when using MockMvcBuilders standaloneSetup</li>
+	 * </ul>
+	 *
 	 * @param authentication the Authentication to populate
 	 * @return the {@link RequestPostProcessor} to use
 	 */
@@ -177,6 +219,14 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 	/**
 	 * Establish the specified {@link SecurityContext} to be used.
+	 *
+	 * <p>
+	 * This works by associating the user to the {@link HttpServletRequest}. To
+	 * associate the request to the {@link SecurityContextHolder} you need to
+	 * ensure that the {@link SecurityContextPersistenceFilter} (i.e. Spring
+	 * Security's FilterChainProxy will typically do this) is associated with
+	 * the {@link MockMvc} instance.
+	 * </p>
 	 */
 	public static RequestPostProcessor securityContext(SecurityContext securityContext) {
 		return new SecurityContextRequestPostProcessor(securityContext);
