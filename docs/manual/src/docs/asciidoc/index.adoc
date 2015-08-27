@@ -373,6 +373,7 @@ This will give you access to the entire project history (including all releases 
 ** <<test-method-meta-annotations,Test Meta Annotations>>
 ** <<method-security-meta-annotations,Method Security Meta Annotations>>
 * <<el-access-web-path-variables,Path Variables in Web Security Expressions>>
+* <<test-method-withanonymoususer,@WithAnonymousUser>>
 
 === What's new in Spring Security 4.0
 

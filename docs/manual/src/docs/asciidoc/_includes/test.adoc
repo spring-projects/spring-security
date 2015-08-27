@@ -137,6 +137,37 @@ For example, the following would run every test with a user with the username "a
 public class WithMockUserTests {
 ----
 
+
+[[test-method-withanonymoususer]]
+=== @WithAnonymousUser
+
+Using `@WithAnonymousUser` allows running as an anonymous user.
+This is especially convenient when you wish to run most of your tests with a specific user, but want to run a few tests as an anonymous user.
+For example, the following will run withMockUser1 and withMockUser2 using <<test-method-withmockuser,@WithMockUser>> and anonymous as an anonymous user.
+
+[source,java]
+----
+@RunWith(SpringJUnit4ClassRunner.class)
+@WithMockUser
+public class WithUserClassLevelAuthenticationTests {
+
+	@Test
+	public void withMockUser1() {
+	}
+
+	@Test
+	public void withMockUser2() {
+	}
+
+	@Test
+	@WithAnonymousUser
+	public void anonymous() throws Exception {
+		// override default to run as anonymous user
+	}
+}
+----
+
+
 [[test-method-withuserdetails]]
 === @WithUserDetails
 
@@ -408,6 +439,16 @@ For example, the following will use the specified `UserDetails` (which does not 
 mvc
 	.perform(get("/").with(user(userDetails)))
 ----
+
+You can run as anonymous user using the following:
+
+[source,java]
+----
+mvc
+	.perform(get("/").with(anonymous()))
+----
+
+This is especially useful if you are running with a default user and wish to execute a few requests as an anonymous user.
 
 If you want a custom `Authentication` (which does not need to exist) you can do so using the following:
 

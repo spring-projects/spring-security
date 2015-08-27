@@ -34,6 +34,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -215,6 +216,38 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 */
 	public static RequestPostProcessor authentication(Authentication authentication) {
 		return new AuthenticationRequestPostProcessor(authentication);
+	}
+
+	/**
+	 * Establish a {@link SecurityContext} that uses an
+	 * {@link AnonymousAuthenticationToken}. This is useful when a user wants to
+	 * run a majority of tests as a specific user and wishes to override a few
+	 * methods to be anonymous. For example:
+	 *
+	 * <pre>
+	 * <code>
+	 * public class SecurityTests {
+	 *     &#064;Before
+	 *     public void setup() {
+	 *         mockMvc = MockMvcBuilders
+	 *             .webAppContextSetup(context)
+	 *             .defaultRequest(get("/").with(user("user")))
+	 *             .build();
+	 *     }
+	 *
+	 *     &#064;Test
+	 *     public void anonymous() {
+	 *         mockMvc.perform(get("anonymous").with(anonymous()));
+	 *     }
+	 *     // ... lots of tests ran with a default user ...
+	 * }
+	 * </code>
+	 * </pre>
+	 *
+	 * @return the {@link RequestPostProcessor} to use
+	 */
+	public static RequestPostProcessor anonymous() {
+		return new AnonymousRequestPostProcessor();
 	}
 
 	/**
@@ -758,6 +791,17 @@ public final class SecurityMockMvcRequestPostProcessors {
 		private User createUser() {
 			return new User(username, password, enabled, accountNonExpired,
 					credentialsNonExpired, accountNonLocked, authorities);
+		}
+	}
+
+	private static class AnonymousRequestPostProcessor extends SecurityContextRequestPostProcessorSupport implements RequestPostProcessor {
+		private AuthenticationRequestPostProcessor delegate = new AuthenticationRequestPostProcessor(new AnonymousAuthenticationToken("key", "anonymous", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS")));
+
+		/* (non-Javadoc)
+		 * @see org.springframework.test.web.servlet.request.RequestPostProcessor#postProcessRequest(org.springframework.mock.web.MockHttpServletRequest)
+		 */
+		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+			return delegate.postProcessRequest(request);
 		}
 	}
 
