@@ -68,6 +68,11 @@ public class AuthenticationConfiguration {
 		return new EnableGlobalAuthenticationAutowiredConfigurer(context);
 	}
 
+	@Bean
+	public static InitializeUserDetailsBeanManagerConfigurer initializeUserDetailsBeanManagerConfigurer(ApplicationContext context) {
+		return new InitializeUserDetailsBeanManagerConfigurer(context);
+	}
+
 	public AuthenticationManager getAuthenticationManager() throws Exception {
 		if (authenticationManagerInitialized) {
 			return authenticationManager;
