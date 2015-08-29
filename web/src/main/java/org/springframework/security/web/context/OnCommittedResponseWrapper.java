@@ -180,6 +180,7 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 	}
 
 	private void trackContentLength(String content) {
+	        if(content == null)content="null";
 		checkContentLength(content.length());
 	}
 
@@ -545,5 +546,11 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 		public String toString() {
 			return getClass().getName() + "[delegate=" + delegate.toString() + "]";
 		}
+
+	        public void setWriteListener(javax.servlet.WriteListener listener){
+		        delegate.setWriteListener(listener);
+	        }
+
+	        public boolean isReady(){return delegate.isReady();}
 	}
 }
