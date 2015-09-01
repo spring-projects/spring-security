@@ -17,6 +17,8 @@ package org.springframework.security.web.access.expression;
 
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.expression.EvaluationContext;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.util.AntPathMatcher;
@@ -51,11 +53,22 @@ class PathVariableSecurityEvaluationContextPostProcessor implements SecurityEval
 		if(antPattern == null) {
 			return context;
 		}
-		Map<String, String> variables = matcher.extractUriTemplateVariables(antPattern, invocation.getRequestUrl());
+
+		String path = getRequestPath(invocation.getHttpRequest());
+		Map<String, String> variables = matcher.extractUriTemplateVariables(antPattern, path);
 		for(Map.Entry<String, String> entry : variables.entrySet()) {
 			context.setVariable(entry.getKey(), entry.getValue());
 		}
 		return context;
 	}
 
+	private String getRequestPath(HttpServletRequest request) {
+		String url = request.getServletPath();
+
+		if (request.getPathInfo() != null) {
+			url += request.getPathInfo();
+		}
+
+		return url;
+	}
 }
