@@ -21,12 +21,22 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.io.IOException;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -40,6 +50,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
@@ -86,6 +97,20 @@ public class SecurityMockMvcRequestPostProcessorsCsrfTests {
 			.andExpect(csrfAsHeader());
 	}
 
+	// SEC-3097
+	@Test
+	public void csrfWithWrappedRequest() throws Exception {
+		mockMvc = MockMvcBuilders
+				.webAppContextSetup(wac)
+				.addFilter(new SessionRepositoryFilter())
+				.apply(springSecurity())
+				.build();
+
+		mockMvc.perform(post("/").with(csrf()))
+				.andExpect(status().is2xxSuccessful())
+				.andExpect(csrfAsParam());
+	}
+
 	public static ResultMatcher csrfAsParam() {
 		return new CsrfParamResultMatcher();
 	}
@@ -109,6 +134,33 @@ public class SecurityMockMvcRequestPostProcessorsCsrfTests {
 			MockHttpServletRequest request = result.getRequest();
 			assertThat(request.getParameter("_csrf")).isNull();
 			assertThat(request.getHeader("X-CSRF-TOKEN")).isNotNull();
+		}
+	}
+
+	static class SessionRepositoryFilter extends OncePerRequestFilter {
+
+		@Override
+		protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+				throws ServletException, IOException {
+			filterChain.doFilter(new SessionRequestWrapper(request) , response);
+		}
+
+		static class SessionRequestWrapper extends HttpServletRequestWrapper {
+			HttpSession session = new MockHttpSession();
+
+			public SessionRequestWrapper(HttpServletRequest request) {
+				super(request);
+			}
+
+			@Override
+			public HttpSession getSession(boolean create) {
+				return session;
+			}
+
+			@Override
+			public HttpSession getSession() {
+				return session;
+			}
 		}
 	}
 

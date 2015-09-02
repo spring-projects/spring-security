@@ -316,6 +316,10 @@ public final class SecurityMockMvcRequestPostProcessors {
 		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
 
 			CsrfTokenRepository repository = WebTestUtils.getCsrfTokenRepository(request);
+			if(!(repository instanceof TestCsrfTokenRepository)) {
+				repository = new TestCsrfTokenRepository(repository);
+				WebTestUtils.setCsrfTokenRepository(request, repository);
+			}
 			CsrfToken token = repository.generateToken(request);
 			repository.saveToken(token, request, new MockHttpServletResponse());
 			String tokenValue = useInvalidToken ? "invalid" + token.getToken() : token
@@ -351,6 +355,36 @@ public final class SecurityMockMvcRequestPostProcessors {
 		}
 
 		private CsrfRequestPostProcessor() {
+		}
+
+
+
+		/**
+		 * Used to wrap the CsrfTokenRepository to provide support for testing
+		 * when the request is wrapped (i.e. Spring Session is in use).
+		 */
+		static class TestCsrfTokenRepository implements
+				CsrfTokenRepository {
+			final static String ATTR_NAME = TestCsrfTokenRepository.class
+					.getName().concat(".TOKEN");
+
+			private final CsrfTokenRepository delegate;
+
+			private TestCsrfTokenRepository(CsrfTokenRepository delegate) {
+				this.delegate = delegate;
+			}
+
+			public CsrfToken generateToken(HttpServletRequest request) {
+				return delegate.generateToken(request);
+			}
+
+			public void saveToken(CsrfToken token, HttpServletRequest request, HttpServletResponse response) {
+				request.setAttribute(ATTR_NAME, token);
+			}
+
+			public CsrfToken loadToken(HttpServletRequest request) {
+				return (CsrfToken) request.getAttribute(ATTR_NAME);
+			}
 		}
 	}
 
