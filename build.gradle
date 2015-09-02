@@ -132,6 +132,10 @@ task coreBuild {
 	dependsOn coreModuleProjects*.tasks*.matching { task -> task.name == 'build' }
 }
 
+task coreInstall {
+	dependsOn coreModuleProjects*.tasks*.matching { task -> task.name == 'install' }
+}
+
 // Task for creating the distro zip
 
 task dist(type: Zip) {
