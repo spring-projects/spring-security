@@ -310,7 +310,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 		private HstsHeaderWriter writer;
 
 		private HstsConfig() {
-			enable();
+			disable();
 		}
 
 		/**

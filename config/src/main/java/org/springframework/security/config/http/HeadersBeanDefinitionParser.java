@@ -91,7 +91,7 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 		boolean addIfNotPresent = element == null || !disabled && !defaultsDisabled;
 
 		parseCacheControlElement(addIfNotPresent, element);
-		parseHstsElement(addIfNotPresent, element, parserContext);
+		parseHstsElement(false, element, parserContext);
 		parseXssElement(addIfNotPresent, element, parserContext);
 		parseFrameOptionsElement(addIfNotPresent, element, parserContext);
 		parseContentTypeOptionsElement(addIfNotPresent, element);

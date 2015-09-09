@@ -48,7 +48,6 @@ class HeadersConfigurerTests extends BaseSpringSpec {
 		then:
 			responseHeaders == ['X-Content-Type-Options':'nosniff',
 						 'X-Frame-Options':'DENY',
-						 'Strict-Transport-Security': 'max-age=31536000 ; includeSubDomains',
 						 'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate',
 						 'Expires' : '0',
 						 'Pragma':'no-cache',
@@ -181,7 +180,6 @@ class HeadersConfigurerTests extends BaseSpringSpec {
 		then:
 			responseHeaders == ['X-Content-Type-Options':'nosniff',
 						 'X-Frame-Options':'SAMEORIGIN',
-						 'Strict-Transport-Security': 'max-age=31536000 ; includeSubDomains',
 						 'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate',
 						 'Expires' : '0',
 						 'Pragma':'no-cache',

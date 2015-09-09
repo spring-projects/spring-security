@@ -235,7 +235,6 @@ public final class HttpSecurity extends
 	 *                 .contentTypeOptions();
 	 *                 .xssProtection()
 	 *                 .cacheControl()
-	 *                 .httpStrictTransportSecurity()
 	 *                 .frameOptions()
 	 *                 .and()
 	 *             ...;
