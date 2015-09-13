@@ -1,4 +1,4 @@
-/* Copyright 2002-2012 the original author or authors.
+/* Copyright 2002-2015 the original author or authors.
  * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,9 +18,11 @@ package org.springframework.security.web.servletapi;
 
 import static junit.framework.Assert.fail;
 import static org.fest.assertions.Assertions.assertThat;
+import static org.hamcrest.core.Is.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.doThrow;
@@ -49,12 +51,14 @@ import org.mockito.Mock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.internal.WhiteboxImpl;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.event.LogoutSuccessEvent;
 import org.springframework.security.concurrent.DelegatingSecurityContextRunnable;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
@@ -68,6 +72,7 @@ import org.springframework.util.ClassUtils;
  *
  * @author Ben Alex
  * @author Rob Winch
+ * @author Kazuki Shimizu
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(ClassUtils.class)
@@ -86,6 +91,8 @@ public class SecurityContextHolderAwareRequestFilterTests {
 	private HttpServletRequest request;
 	@Mock
 	private HttpServletResponse response;
+	@Mock
+	private ApplicationEventPublisher applicationEventPublisher;
 
 	private List<LogoutHandler> logoutHandlers;
 
@@ -98,6 +105,7 @@ public class SecurityContextHolderAwareRequestFilterTests {
 		filter.setAuthenticationEntryPoint(authenticationEntryPoint);
 		filter.setAuthenticationManager(authenticationManager);
 		filter.setLogoutHandlers(logoutHandlers);
+		filter.setApplicationEventPublisher(applicationEventPublisher);
 		filter.afterPropertiesSet();
 	}
 
@@ -278,11 +286,35 @@ public class SecurityContextHolderAwareRequestFilterTests {
 				"password", "ROLE_USER");
 		SecurityContextHolder.getContext().setAuthentication(expectedAuth);
 
+		ArgumentCaptor<LogoutSuccessEvent> eventCaptor = ArgumentCaptor.forClass(LogoutSuccessEvent.class);
+		doNothing().when(applicationEventPublisher).publishEvent(eventCaptor.capture());
+
 		HttpServletRequest wrappedRequest = wrappedRequest();
 		wrappedRequest.logout();
 
 		verify(logoutHandler).logout(wrappedRequest, response, expectedAuth);
+		LogoutSuccessEvent actualLogoutSuccessEvent = eventCaptor.getValue();
+		org.junit.Assert.assertThat(actualLogoutSuccessEvent.isExpired(), is(false));
+
 		verifyZeroInteractions(authenticationManager, logoutHandler);
+		verify(request, times(0)).logout();
+	}
+
+	@Test
+	public void logoutWithoutApplicationEventPublisher() throws Exception {
+		TestingAuthenticationToken expectedAuth = new TestingAuthenticationToken("user",
+				"password", "ROLE_USER");
+		SecurityContextHolder.getContext().setAuthentication(expectedAuth);
+
+		filter.setApplicationEventPublisher(null);
+		filter.afterPropertiesSet();
+
+		HttpServletRequest wrappedRequest = wrappedRequest();
+		wrappedRequest.logout();
+
+		verify(logoutHandler).logout(wrappedRequest, response, expectedAuth);
+
+		verifyZeroInteractions(authenticationManager, logoutHandler, applicationEventPublisher);
 		verify(request, times(0)).logout();
 	}
 
