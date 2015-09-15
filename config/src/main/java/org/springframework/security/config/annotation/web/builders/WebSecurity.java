@@ -137,8 +137,6 @@ public final class WebSecurity extends
 	 * Multiple invocations of ignoring() are also additive, so the following is also
 	 * equivalent to the previous two examples:
 	 *
-	 * Alternatively this will accomplish the same result:
-	 *
 	 * <pre>
 	 * webSecurityBuilder.ignoring()
 	 * // ignore all URLs that start with /resources/
