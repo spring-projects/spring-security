@@ -33,7 +33,7 @@
   </scm>
   <repositories>
     <repository>
-      <id>spring-snasphot</id>
+      <id>spring-snapshot</id>
       <url>https://repo.spring.io/snapshot</url>
     </repository>
   </repositories>
