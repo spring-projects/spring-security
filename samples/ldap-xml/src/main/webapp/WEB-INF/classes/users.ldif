@@ -51,7 +51,7 @@ objectclass: top
 objectclass: groupOfNames
 cn: teller
 member: uid=rod,ou=people,dc=springframework,dc=org
-member: dianne=rod,ou=people,dc=springframework,dc=org
+member: uid=dianne,ou=people,dc=springframework,dc=org
 
 dn: cn=supervisor,ou=groups,dc=springframework,dc=org
 objectclass: top
