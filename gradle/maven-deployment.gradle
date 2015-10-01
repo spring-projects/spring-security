@@ -92,7 +92,7 @@ def customizePom(pom, gradleProject) {
 		if(project.snapshotBuild) {
 			repositories {
 				repository {
-					id 'spring-snasphot'
+					id 'spring-snapshot'
 					url 'https://repo.spring.io/snapshot'
 				}
 			}

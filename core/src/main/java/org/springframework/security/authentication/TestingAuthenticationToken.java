@@ -15,7 +15,6 @@
 
 package org.springframework.security.authentication;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;

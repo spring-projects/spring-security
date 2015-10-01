@@ -34,6 +34,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -45,8 +46,10 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.test.context.TestSecurityContextHolder;
+import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.security.test.web.support.WebTestUtils;
 import org.springframework.security.web.context.HttpRequestResponseHolder;
+import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
@@ -139,10 +142,24 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 * Establish a {@link SecurityContext} that has a
 	 * {@link UsernamePasswordAuthenticationToken} for the
 	 * {@link Authentication#getPrincipal()} and a {@link User} for the
-	 * {@link UsernamePasswordAuthenticationToken#getPrincipal()}. All details are
-	 * declarative and do not require that the user actually exists.
+	 * {@link UsernamePasswordAuthenticationToken#getPrincipal()}. All details
+	 * are declarative and do not require that the user actually exists.
 	 *
-	 * @param username the username to populate
+	 * <p>
+	 * The support works by associating the user to the HttpServletRequest. To
+	 * associate the request to the SecurityContextHolder you need to ensure
+	 * that the SecurityContextPersistenceFilter is associated with the
+	 * MockMvc instance. A few ways to do this are:
+	 * </p>
+	 *
+	 * <ul>
+	 * <li>Invoking apply {@link SecurityMockMvcConfigurers#springSecurity()}</li>
+	 * <li>Adding Spring Security's FilterChainProxy to MockMvc</li>
+	 * <li>Manually adding {@link SecurityContextPersistenceFilter} to the MockMvc instance may make sense when using MockMvcBuilders standaloneSetup</li>
+	 * </ul>
+	 *
+	 * @param username
+	 *            the username to populate
 	 * @return the {@link UserRequestPostProcessor} for additional customization
 	 */
 	public static UserRequestPostProcessor user(String username) {
@@ -156,6 +173,19 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 * {@link UsernamePasswordAuthenticationToken#getPrincipal()}. All details are
 	 * declarative and do not require that the user actually exists.
 	 *
+	 * <p>
+	 * The support works by associating the user to the HttpServletRequest. To
+	 * associate the request to the SecurityContextHolder you need to ensure
+	 * that the SecurityContextPersistenceFilter is associated with the
+	 * MockMvc instance. A few ways to do this are:
+	 * </p>
+	 *
+	 * <ul>
+	 * <li>Invoking apply {@link SecurityMockMvcConfigurers#springSecurity()}</li>
+	 * <li>Adding Spring Security's FilterChainProxy to MockMvc</li>
+	 * <li>Manually adding {@link SecurityContextPersistenceFilter} to the MockMvc instance may make sense when using MockMvcBuilders standaloneSetup</li>
+	 * </ul>
+	 *
 	 * @param user the UserDetails to populate
 	 * @return the {@link RequestPostProcessor} to use
 	 */
@@ -168,6 +198,19 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 * for the {@link Authentication#getPrincipal()} and a custom {@link UserDetails}. All
 	 * details are declarative and do not require that the user actually exists.
 	 *
+	 * <p>
+	 * The support works by associating the user to the HttpServletRequest. To
+	 * associate the request to the SecurityContextHolder you need to ensure
+	 * that the SecurityContextPersistenceFilter is associated with the
+	 * MockMvc instance. A few ways to do this are:
+	 * </p>
+	 *
+	 * <ul>
+	 * <li>Invoking apply {@link SecurityMockMvcConfigurers#springSecurity()}</li>
+	 * <li>Adding Spring Security's FilterChainProxy to MockMvc</li>
+	 * <li>Manually adding {@link SecurityContextPersistenceFilter} to the MockMvc instance may make sense when using MockMvcBuilders standaloneSetup</li>
+	 * </ul>
+	 *
 	 * @param authentication the Authentication to populate
 	 * @return the {@link RequestPostProcessor} to use
 	 */
@@ -176,7 +219,47 @@ public final class SecurityMockMvcRequestPostProcessors {
 	}
 
 	/**
+	 * Establish a {@link SecurityContext} that uses an
+	 * {@link AnonymousAuthenticationToken}. This is useful when a user wants to
+	 * run a majority of tests as a specific user and wishes to override a few
+	 * methods to be anonymous. For example:
+	 *
+	 * <pre>
+	 * <code>
+	 * public class SecurityTests {
+	 *     &#064;Before
+	 *     public void setup() {
+	 *         mockMvc = MockMvcBuilders
+	 *             .webAppContextSetup(context)
+	 *             .defaultRequest(get("/").with(user("user")))
+	 *             .build();
+	 *     }
+	 *
+	 *     &#064;Test
+	 *     public void anonymous() {
+	 *         mockMvc.perform(get("anonymous").with(anonymous()));
+	 *     }
+	 *     // ... lots of tests ran with a default user ...
+	 * }
+	 * </code>
+	 * </pre>
+	 *
+	 * @return the {@link RequestPostProcessor} to use
+	 */
+	public static RequestPostProcessor anonymous() {
+		return new AnonymousRequestPostProcessor();
+	}
+
+	/**
 	 * Establish the specified {@link SecurityContext} to be used.
+	 *
+	 * <p>
+	 * This works by associating the user to the {@link HttpServletRequest}. To
+	 * associate the request to the {@link SecurityContextHolder} you need to
+	 * ensure that the {@link SecurityContextPersistenceFilter} (i.e. Spring
+	 * Security's FilterChainProxy will typically do this) is associated with
+	 * the {@link MockMvc} instance.
+	 * </p>
 	 */
 	public static RequestPostProcessor securityContext(SecurityContext securityContext) {
 		return new SecurityContextRequestPostProcessor(securityContext);
@@ -233,6 +316,10 @@ public final class SecurityMockMvcRequestPostProcessors {
 		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
 
 			CsrfTokenRepository repository = WebTestUtils.getCsrfTokenRepository(request);
+			if(!(repository instanceof TestCsrfTokenRepository)) {
+				repository = new TestCsrfTokenRepository(repository);
+				WebTestUtils.setCsrfTokenRepository(request, repository);
+			}
 			CsrfToken token = repository.generateToken(request);
 			repository.saveToken(token, request, new MockHttpServletResponse());
 			String tokenValue = useInvalidToken ? "invalid" + token.getToken() : token
@@ -268,6 +355,36 @@ public final class SecurityMockMvcRequestPostProcessors {
 		}
 
 		private CsrfRequestPostProcessor() {
+		}
+
+
+
+		/**
+		 * Used to wrap the CsrfTokenRepository to provide support for testing
+		 * when the request is wrapped (i.e. Spring Session is in use).
+		 */
+		static class TestCsrfTokenRepository implements
+				CsrfTokenRepository {
+			final static String ATTR_NAME = TestCsrfTokenRepository.class
+					.getName().concat(".TOKEN");
+
+			private final CsrfTokenRepository delegate;
+
+			private TestCsrfTokenRepository(CsrfTokenRepository delegate) {
+				this.delegate = delegate;
+			}
+
+			public CsrfToken generateToken(HttpServletRequest request) {
+				return delegate.generateToken(request);
+			}
+
+			public void saveToken(CsrfToken token, HttpServletRequest request, HttpServletResponse response) {
+				request.setAttribute(ATTR_NAME, token);
+			}
+
+			public CsrfToken loadToken(HttpServletRequest request) {
+				return (CsrfToken) request.getAttribute(ATTR_NAME);
+			}
 		}
 	}
 
@@ -708,6 +825,17 @@ public final class SecurityMockMvcRequestPostProcessors {
 		private User createUser() {
 			return new User(username, password, enabled, accountNonExpired,
 					credentialsNonExpired, accountNonLocked, authorities);
+		}
+	}
+
+	private static class AnonymousRequestPostProcessor extends SecurityContextRequestPostProcessorSupport implements RequestPostProcessor {
+		private AuthenticationRequestPostProcessor delegate = new AuthenticationRequestPostProcessor(new AnonymousAuthenticationToken("key", "anonymous", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS")));
+
+		/* (non-Javadoc)
+		 * @see org.springframework.test.web.servlet.request.RequestPostProcessor#postProcessRequest(org.springframework.mock.web.MockHttpServletRequest)
+		 */
+		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+			return delegate.postProcessRequest(request);
 		}
 	}
 

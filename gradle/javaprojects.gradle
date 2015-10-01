@@ -21,7 +21,7 @@ ext.commonsCollectionsVersion = '3.2.1'
 ext.commonsLoggingVersion = '1.2'
 ext.ehcacheVersion = '2.9.0'
 ext.gebVersion = '0.10.0'
-ext.groovyVersion = '2.3.8'
+ext.groovyVersion = '2.4.4'
 ext.hsqlVersion = '2.3.2'
 ext.jacksonDatavindVersion = '2.4.4'
 ext.jettyVersion = '6.1.26'
@@ -52,7 +52,8 @@ ext.gebDependencies = spockDependencies + [
 	"org.seleniumhq.selenium:selenium-htmlunit-driver:$seleniumVersion",
 	"org.gebish:geb-spock:$gebVersion",
 	'commons-httpclient:commons-httpclient:3.1',
-	"org.codehaus.groovy:groovy:$groovyVersion"
+	"org.codehaus.groovy:groovy:$groovyVersion",
+	"org.codehaus.groovy:groovy-all:$groovyVersion"
 ]
 
 ext.powerMockDependencies = [

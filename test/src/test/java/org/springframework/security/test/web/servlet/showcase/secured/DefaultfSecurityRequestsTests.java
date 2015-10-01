@@ -18,20 +18,17 @@ package org.springframework.security.test.web.servlet.showcase.secured;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-import javax.servlet.Filter;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -47,9 +44,6 @@ public class DefaultfSecurityRequestsTests {
 
 	@Autowired
 	private WebApplicationContext context;
-
-	@Autowired
-	private Filter springSecurityFilterChain;
 
 	private MockMvc mvc;
 
@@ -78,6 +72,15 @@ public class DefaultfSecurityRequestsTests {
 				.andExpect(authenticated().withUsername("user"));
 	}
 
+	@Test
+	public void requestProtectedUrlWithAnonymous() throws Exception {
+		mvc.perform(get("/admin").with(anonymous()))
+				// Ensure we got past Security
+				.andExpect(status().isUnauthorized())
+				// Ensure it appears we are authenticated with user
+				.andExpect(unauthenticated());
+	}
+
 	@EnableWebSecurity
 	@EnableWebMvc
 	static class Config extends WebSecurityConfigurerAdapter {
@@ -90,7 +93,7 @@ public class DefaultfSecurityRequestsTests {
 					.antMatchers("/admin/**").hasRole("ADMIN")
 					.anyRequest().authenticated()
 					.and()
-				.formLogin();
+				.httpBasic();
 		}
 		// @formatter:on
 

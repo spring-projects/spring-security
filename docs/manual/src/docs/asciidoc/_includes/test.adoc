@@ -137,6 +137,37 @@ For example, the following would run every test with a user with the username "a
 public class WithMockUserTests {
 ----
 
+
+[[test-method-withanonymoususer]]
+=== @WithAnonymousUser
+
+Using `@WithAnonymousUser` allows running as an anonymous user.
+This is especially convenient when you wish to run most of your tests with a specific user, but want to run a few tests as an anonymous user.
+For example, the following will run withMockUser1 and withMockUser2 using <<test-method-withmockuser,@WithMockUser>> and anonymous as an anonymous user.
+
+[source,java]
+----
+@RunWith(SpringJUnit4ClassRunner.class)
+@WithMockUser
+public class WithUserClassLevelAuthenticationTests {
+
+	@Test
+	public void withMockUser1() {
+	}
+
+	@Test
+	public void withMockUser2() {
+	}
+
+	@Test
+	@WithAnonymousUser
+	public void anonymous() throws Exception {
+		// override default to run as anonymous user
+	}
+}
+----
+
+
 [[test-method-withuserdetails]]
 === @WithUserDetails
 
@@ -249,6 +280,33 @@ final class WithUserDetailsSecurityContextFactory
 }
 ----
 
+[[test-method-meta-annotations]]
+=== Test Meta Annotations
+
+If you reuse the same user within your tests often, it is not ideal to have to repeatedly specify the attributes.
+For example, if there are many tests related to an administrative user with the username "admin" and the roles `ROLE_USER` and `ROLE_ADMIN` you would have to write:
+
+[source,java]
+----
+@WithMockUser(username="admin",roles={"USER","ADMIN"})
+----
+
+Rather than repeating this everywhere, we can use a meta annotation.
+For example, we could create a meta annotation named `WithMockAdmin`:
+
+[source,java]
+----
+@Retention(RetentionPolicy.RUNTIME)
+@WithMockUser(value="rob",roles="ADMIN")
+public @interface WithMockAdmin { }
+----
+
+Now we can use `@WithMockAdmin` in the same way as the more verbose `@WithMockUser`.
+
+Meta annotations work with any of the testing annotations described above.
+For example, this means we could create a meta annotation for `@WithUserDetails("admin")` as well.
+
+
 [[test-mockmvc]]
 == Spring MVC Test Integration
 
@@ -344,8 +402,19 @@ There are two simple ways of populating the user:
 [[test-mockmvc-securitycontextholder-rpp]]
 ==== Running as a User in Spring MVC Test with RequestPostProcessor
 
-There are a number of options available to populate a test user.
+There are a number of options available to associate a user to the current `HttpServletRequest`.
 For example, the following will run as a user (which does not need to exist) with the username "user", the password "password", and the role "ROLE_USER":
+
+[NOTE]
+====
+The support works by associating the user to the `HttpServletRequest`.
+To associate the request to the `SecurityContextHolder` you need to ensure that the `SecurityContextPersistenceFilter` is associated with the `MockMvc` instance.
+A few ways to do this are:
+
+* Invoking <<test-mockmvc-setup,apply(springSecurity())>>
+* Adding Spring Security's `FilterChainProxy` to `MockMvc`
+* Manually adding `SecurityContextPersistenceFilter` to the `MockMvc` instance may make sense when using `MockMvcBuilders.standaloneSetup`
+====
 
 [source,java]
 ----
@@ -370,6 +439,16 @@ For example, the following will use the specified `UserDetails` (which does not 
 mvc
 	.perform(get("/").with(user(userDetails)))
 ----
+
+You can run as anonymous user using the following:
+
+[source,java]
+----
+mvc
+	.perform(get("/").with(anonymous()))
+----
+
+This is especially useful if you are running with a default user and wish to execute a few requests as an anonymous user.
 
 If you want a custom `Authentication` (which does not need to exist) you can do so using the following:
 

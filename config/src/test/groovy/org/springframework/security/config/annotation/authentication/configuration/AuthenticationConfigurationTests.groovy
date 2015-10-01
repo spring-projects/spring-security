@@ -16,13 +16,7 @@
 package org.springframework.security.config.annotation.authentication.configuration;
 
 import org.springframework.aop.framework.ProxyFactoryBean
-import org.springframework.beans.BeansException
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.config.BeanPostProcessor
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory
-import org.springframework.beans.factory.support.BeanDefinitionRegistry
-import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor
-import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -41,11 +35,13 @@ import org.springframework.security.config.annotation.configuration.ObjectPostPr
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
-import org.springframework.security.config.annotation.web.servlet.configuration.EnableWebMvcSecurity
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.core.authority.AuthorityUtils
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.User
+import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.provisioning.InMemoryUserDetailsManager
 
 class AuthenticationConfigurationTests extends BaseSpringSpec {
@@ -365,5 +361,66 @@ class AuthenticationConfigurationTests extends BaseSpringSpec {
 		}
 
 		static class BootGlobalAuthenticationConfigurerAdapter extends GlobalAuthenticationConfigurerAdapter { }
+	}
+
+	def 'SEC-2868: Allow Configure UserDetailsService'() {
+		setup:
+		UserDetailsService uds = Mock()
+		UserDetailsServiceBeanConfig.UDS = uds
+		loadConfig(UserDetailsServiceBeanConfig)
+		AuthenticationManager am = context.getBean(AuthenticationConfiguration).getAuthenticationManager()
+		when:
+		am.authenticate(new UsernamePasswordAuthenticationToken("user", "password"))
+		then:
+		1 * uds.loadUserByUsername("user") >> new User("user","password",AuthorityUtils.createAuthorityList("ROLE_USER"))
+		when:
+		am.authenticate(new UsernamePasswordAuthenticationToken("user", "invalid"))
+		then:
+		1 * uds.loadUserByUsername("user") >> new User("user","password",AuthorityUtils.createAuthorityList("ROLE_USER"))
+		thrown(AuthenticationException.class)
+	}
+
+	@Configuration
+	@Import([AuthenticationConfiguration, ObjectPostProcessorConfiguration])
+	static class UserDetailsServiceBeanConfig {
+		static UserDetailsService UDS
+
+		@Bean
+		UserDetailsService userDetailsService() {
+			UDS
+		}
+	}
+
+	def 'SEC-2868: Allow Configure UserDetailsService with PasswordEncoder'() {
+		setup:
+		UserDetailsService uds = Mock()
+		UserDetailsServiceBeanWithPasswordEncoderConfig.UDS = uds
+		loadConfig(UserDetailsServiceBeanWithPasswordEncoderConfig)
+		AuthenticationManager am = context.getBean(AuthenticationConfiguration).getAuthenticationManager()
+		when:
+		am.authenticate(new UsernamePasswordAuthenticationToken("user", "password"))
+		then:
+		1 * uds.loadUserByUsername("user") >> new User("user",'$2a$10$FBAKClV1zBIOOC9XMXf3AO8RoGXYVYsfvUdoLxGkd/BnXEn4tqT3u',AuthorityUtils.createAuthorityList("ROLE_USER"))
+		when:
+		am.authenticate(new UsernamePasswordAuthenticationToken("user", "invalid"))
+		then:
+		1 * uds.loadUserByUsername("user") >> new User("user",'$2a$10$FBAKClV1zBIOOC9XMXf3AO8RoGXYVYsfvUdoLxGkd/BnXEn4tqT3u',AuthorityUtils.createAuthorityList("ROLE_USER"))
+		thrown(AuthenticationException.class)
+	}
+
+	@Configuration
+	@Import([AuthenticationConfiguration, ObjectPostProcessorConfiguration])
+	static class UserDetailsServiceBeanWithPasswordEncoderConfig {
+		static UserDetailsService UDS
+
+		@Bean
+		UserDetailsService userDetailsService() {
+			UDS
+		}
+
+		@Bean
+		PasswordEncoder passwordEncoder() {
+			new BCryptPasswordEncoder()
+		}
 	}
 }

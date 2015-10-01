@@ -13,6 +13,7 @@ import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 
@@ -53,9 +54,14 @@ public final class ExpressionBasedFilterInvocationSecurityMetadataSource extends
 					.getAttribute();
 			logger.debug("Adding web access control expression '" + expression
 					+ "', for " + request);
+
+			String pattern = null;
+			if(request instanceof AntPathRequestMatcher) {
+				pattern = ((AntPathRequestMatcher)request).getPattern();
+			}
 			try {
 				attributes.add(new WebExpressionConfigAttribute(parser
-						.parseExpression(expression)));
+						.parseExpression(expression), new PathVariableSecurityEvaluationContextPostProcessor(pattern)));
 			}
 			catch (ParseException e) {
 				throw new IllegalArgumentException("Failed to parse expression '"

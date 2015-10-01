@@ -97,6 +97,22 @@ public abstract class WebTestUtils {
 				"tokenRepository");
 	}
 
+	/**
+	 * Sets the {@link CsrfTokenRepository} for the specified
+	 * {@link HttpServletRequest}.
+	 *
+	 * @param request the {@link HttpServletRequest} to obtain the
+	 * {@link CsrfTokenRepository}
+	 * @param repository the {@link CsrfTokenRepository} to set
+	 */
+	public static void setCsrfTokenRepository(HttpServletRequest request,
+			CsrfTokenRepository repository) {
+		CsrfFilter filter = findFilter(request, CsrfFilter.class);
+		if (filter != null) {
+			ReflectionTestUtils.setField(filter, "tokenRepository", repository);
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	private static <T extends Filter> T findFilter(HttpServletRequest request,
 			Class<T> filterClass) {

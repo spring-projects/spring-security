@@ -25,7 +25,7 @@ allprojects {
 
 	ext.releaseBuild = version.endsWith('RELEASE')
 	ext.snapshotBuild = version.endsWith('SNAPSHOT')
-	ext.springVersion = '4.1.6.RELEASE'
+	ext.springVersion = '4.2.1.RELEASE'
 	ext.springLdapVersion = '2.0.2.RELEASE'
 
 	group = 'org.springframework.security'
@@ -37,7 +37,7 @@ allprojects {
 	maven { url "http://repo.terracotta.org/maven2/" }
 	}
 
-	eclipse.project.name = "${project.name}-4.0.x"
+	eclipse.project.name = "${project.name}-4.1.x"
 }
 
 sonarRunner {
@@ -130,6 +130,10 @@ configure (aspectjProjects) {
 
 task coreBuild {
 	dependsOn coreModuleProjects*.tasks*.matching { task -> task.name == 'build' }
+}
+
+task coreInstall {
+	dependsOn coreModuleProjects*.tasks*.matching { task -> task.name == 'install' }
 }
 
 // Task for creating the distro zip

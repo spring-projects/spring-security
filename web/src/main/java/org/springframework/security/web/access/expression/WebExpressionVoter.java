@@ -1,6 +1,7 @@
 package org.springframework.security.web.access.expression;
 
 import java.util.Collection;
+import java.util.Map;
 
 import org.springframework.expression.EvaluationContext;
 import org.springframework.security.access.AccessDecisionVoter;
@@ -9,6 +10,7 @@ import org.springframework.security.access.expression.ExpressionUtils;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.FilterInvocation;
+import org.springframework.util.AntPathMatcher;
 
 /**
  * Voter which handles web authorisation decisions.
@@ -32,6 +34,7 @@ public class WebExpressionVoter implements AccessDecisionVoter<FilterInvocation>
 
 		EvaluationContext ctx = expressionHandler.createEvaluationContext(authentication,
 				fi);
+		ctx = weca.postProcess(ctx, fi);
 
 		return ExpressionUtils.evaluateAsBoolean(weca.getAuthorizeExpression(), ctx) ? ACCESS_GRANTED
 				: ACCESS_DENIED;

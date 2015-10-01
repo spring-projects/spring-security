@@ -24,7 +24,7 @@ Finally, welcome to the Spring Security <<community,community>>.
 
 [[getting-started]]
 = Getting Started
-The later parts of this guide provide an in-depth discussion of the framework architecture and implementation classes, which you need to understand if you want to do any serious customization. In this part, we'll introduce Spring Security 3.0, give a brief overview of the project's history and take a slightly gentler look at how to get started using the framework. In particular, we'll look at namespace configuration which provides a much simpler way of securing your application compared to the traditional Spring bean approach where you have to wire up all the implementation classes individually.
+The later parts of this guide provide an in-depth discussion of the framework architecture and implementation classes, which you need to understand if you want to do any serious customization. In this part, we'll introduce Spring Security 4.0, give a brief overview of the project's history and take a slightly gentler look at how to get started using the framework. In particular, we'll look at namespace configuration which provides a much simpler way of securing your application compared to the traditional Spring bean approach where you have to wire up all the implementation classes individually.
 
 We'll also take a look at the sample applications that are available. It's worth trying to run these and experimenting with them a bit even before you read the later sections - you can dip back into them as your understanding of the framework increases. Please also check out the http://static.springsource.org/spring-security/site/index.html[project website] as it has useful information on building the project, plus links to articles, videos and tutorials.
 
@@ -367,7 +367,16 @@ git clone https://github.com/spring-projects/spring-security.git
 This will give you access to the entire project history (including all releases and branches) on your local machine.
 
 [[new]]
-== What's new in Spring Security 4.0
+== What's new in Spring Security 4.1
+
+* Meta Annotation Support
+** <<test-method-meta-annotations,Test Meta Annotations>>
+** <<method-security-meta-annotations,Method Security Meta Annotations>>
+* <<el-access-web-path-variables,Path Variables in Web Security Expressions>>
+* <<test-method-withanonymoususer,@WithAnonymousUser>>
+* <<jc-authentication-userdetailsservice,Simplified UserDetailsService Java Configuration>>
+
+=== What's new in Spring Security 4.0
 
 There are http://goo.gl/ui9GCl[175+ tickets resolved] with the Spring Security 4.0 release.
 
@@ -904,6 +913,33 @@ cn: admin
 uniqueMember: uid=admin,ou=people,dc=springframework,dc=org
 ----
 
+[[jc-authentication-userdetailsservice]]
+==== UserDetailsService
+
+You can define custom authentication by exposing a custom `UserDetailsService` as a bean.
+For example, the following will customize authentication assuming that `SpringDataUserDetailsService` implements `UserDetailsService`:
+
+[source,java]
+----
+@Bean
+public SpringDataUserDetailsService springDataUserDetailsService() {
+    return new SpringDataUserDetailsService();
+}
+----
+
+You can also customize how passwords are encoded by exposing a `PasswordEncoder` as a bean.
+For example, if you use bcrypt you can add a bean definition as shown below:
+
+[source,java]
+----
+@Bean
+public BCryptPasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+}
+----
+
+==== LDAP Authentication
+
 === Multiple HttpSecurity
 
 We can configure multiple HttpSecurity instances just as we can have multiple `<http>` blocks. The key is to extend the `WebSecurityConfigurationAdapter` multiple times. For example, the following is an example of having a different configuration for URL's that start with `/api/`.
@@ -957,7 +993,7 @@ public class MultiHttpSecurityConfig {
 [[jc-method]]
 === Method Security
 
-From version 2.0 onwards Spring Security has improved support substantially for adding security to your service layer methods. It provides support for JSR-250 annotation security as well as the framework���s original @Secured annotation. From 3.0 you can also make use of new <<el-access,expression-based annotations>>. You can apply security to a single bean, using the intercept-methods element to decorate the bean declaration, or you can secure multiple beans across the entire service layer using the AspectJ style pointcuts.
+From version 2.0 onwards Spring Security has improved support substantially for adding security to your service layer methods. It provides support for JSR-250 annotation security as well as the framework's original `@Secured` annotation. From 3.0 you can also make use of new <<el-access,expression-based annotations>>. You can apply security to a single bean, using the intercept-methods element to decorate the bean declaration, or you can secure multiple beans across the entire service layer using the AspectJ style pointcuts.
 
 ==== EnableGlobalMethodSecurity
 
@@ -2700,7 +2736,7 @@ The default implementation is `HttpSessionSecurityContextRepository`, which stor
 </bean>
 ----
 
-Alternatively you could provide an instance of `NullSecurityContextRepository`, a "http://en.wikipedia.org/wiki/Null_Object_pattern[null object]" implementation, which will prevent the security context from being stored, even if a session has already been created during the request.
+Alternatively you could provide an instance of `NullSecurityContextRepository`, a http://en.wikipedia.org/wiki/Null_Object_pattern[null object] implementation, which will prevent the security context from being stored, even if a session has already been created during the request.
 
 
 [[form-login-filter]]
@@ -4563,7 +4599,10 @@ The base class for expression root objects is `SecurityExpressionRoot`. This pro
 
 [[el-access-web]]
 === Web Security Expressions
-To use expressions to secure individual URLs, you would first need to set the `use-expressions` attribute in the `<http>` element to `true`. Spring Security will then expect the `access` attributes of the `<intercept-url>` elements to contain Spring EL expressions. The expressions should evaluate to a boolean, defining whether access should be allowed or not. For example:
+To use expressions to secure individual URLs, you would first need to set the `use-expressions` attribute in the `<http>` element to `true`.
+Spring Security will then expect the `access` attributes of the `<intercept-url>` elements to contain Spring EL expressions.
+The expressions should evaluate to a boolean, defining whether access should be allowed or not.
+For example:
 
 [source,xml]
 ----
@@ -4576,9 +4615,92 @@ To use expressions to secure individual URLs, you would first need to set the `u
 
 ----
 
-Here we have defined that the "admin" area of an application (defined by the URL pattern) should only be available to users who have the granted authority "admin" and whose IP address matches a local subnet. We've already seen the built-in `hasRole` expression in the previous section. The expression `hasIpAddress` is an additional built-in expression which is specific to web security. It is defined by the `WebSecurityExpressionRoot` class, an instance of which is used as the expression root object when evaluation web-access expressions. This object also directly exposed the `HttpServletRequest` object under the name `request` so you can invoke the request directly in an expressio
-If expressions are being used, a `WebExpressionVoter` will be added to the `AccessDecisionManager` which is used by the namespace. So if you aren't using the namespace and want to use expressions, you will have to add one of these to your configuration.
+Here we have defined that the "admin" area of an application (defined by the URL pattern) should only be available to users who have the granted authority "admin" and whose IP address matches a local subnet.
+We've already seen the built-in `hasRole` expression in the previous section.
+The expression `hasIpAddress` is an additional built-in expression which is specific to web security.
+It is defined by the `WebSecurityExpressionRoot` class, an instance of which is used as the expression root object when evaluation web-access expressions.
+This object also directly exposed the `HttpServletRequest` object under the name `request` so you can invoke the request directly in an expression.
+If expressions are being used, a `WebExpressionVoter` will be added to the `AccessDecisionManager` which is used by the namespace.
+So if you aren't using the namespace and want to use expressions, you will have to add one of these to your configuration.
 
+[[el-access-web-beans]]
+==== Referring to Beans in Web Security Expressions
+
+If you wish to extend the expressions that are available, you can easily refer to any Spring Bean you expose.
+For example, assumming you have a Bean with the name of `webSecurity` that contains the following method signature:
+
+[source,java]
+----
+public class WebSecurity {
+    public boolean check(Authentication authentication, HttpServletRequest request) {
+        ...
+    }
+}
+----
+
+You could refer to the method using:
+
+[source,xml]
+----
+<http>
+	<intercept-url pattern="/user/**"
+		access="@webSecurity.check(authentication,request)"/>
+	...
+</http>
+----
+
+or in Java configuration
+
+
+[source,java]
+----
+http
+    .authorizeUrls()
+        .antMatchers("/user/**").access("@webSecurity.check(authentication,request)")
+        ...
+----
+
+[[el-access-web-path-variables]]
+==== Path Variables in Web Security Expressions
+
+At times it is nice to be able to refer to path variables within a URL.
+For example, consider a RESTful application that looks up a user by id from the URL path in the format `/user/{userId}`.
+
+You can easily refer to the path variable by placing it in the pattern.
+For example, if you had a Bean with the name of `webSecurity` that contains the following method signature:
+
+[source,java]
+----
+public class WebSecurity {
+    public boolean checkUserId(Authentication authentication, int id) {
+        ...
+    }
+}
+----
+
+You could refer to the method using:
+
+[source,xml]
+----
+<http>
+	<intercept-url pattern="/user/{userId}/**"
+		access="@webSecurity.checkUserId(authentication,userId)"/>
+	...
+</http>
+----
+
+or in Java configuration
+
+[source,java]
+----
+http
+    .authorizeUrls()
+        .antMatchers("/user/{userId}/**").access("@webSecurity.checkUserId(authentication,userId)")
+        ...
+----
+
+In both configurations URLs that match would pass in the path variable (and convert it) into checkUserId method.
+For example, if the URL were `/user/123/resource`, then the id passed in would be `123`.
 
 === Method Security Expressions
 Method security is a bit more complicated than a simple allow or deny rule. Spring Security 3.0 introduced some new annotations in order to allow comprehensive support for the use of expressions.
@@ -4722,6 +4844,29 @@ To use `hasPermission()` expressions, you have to explicitly configure a `Permis
 ----
 
 Where `myPermissionEvaluator` is the bean which implements `PermissionEvaluator`. Usually this will be the implementation from the ACL module which is called`AclPermissionEvaluator`. See the "Contacts" sample application configuration for more details.
+
+===== Method Security Meta Annotations
+
+You can make use of meta annotations for method security to make your code more readable.
+This is especially convenient if you find that you are repeating the same complex expression throughout your code base.
+For example, consider the following:
+
+[source,java]
+----
+@PreAuthorize("#contact.name == authentication.name")
+----
+
+Instead of repeating this everywhere, we can create a meta annotation that can be used instead.
+
+[source,java]
+----
+@Retention(RetentionPolicy.RUNTIME)
+@PreAuthorize("#contact.name == authentication.name")
+public @interface ContactPermission {}
+----
+
+Meta annotations can be used for any of the Spring Security method security annotations.
+In order to remain compliant with the specification JSR-250 annotations do not support meta annotations.
 
 [[advanced-topics]]
 = Additional Topics
