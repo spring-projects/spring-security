@@ -657,7 +657,7 @@ authman.attlist &=
     ## An alias you wish to use for the AuthenticationManager bean (not required it you are using a specific id)
     attribute alias {xsd:token}?
 authman.attlist &=
-    ## If set to true, the AuthenticationManger will attempt to clear any credentials data in the returned Authentication object, once the user has been authenticated.
+    ## If set to true, the AuthenticationManager will attempt to clear any credentials data in the returned Authentication object, once the user has been authenticated.
     attribute erase-credentials {xsd:boolean}?
 
 authentication-provider =
