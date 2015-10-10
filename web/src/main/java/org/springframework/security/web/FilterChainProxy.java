@@ -41,7 +41,7 @@ import java.util.*;
  * version 2.0, you shouldn't need to explicitly configure a {@code FilterChainProxy} bean
  * in your application context unless you need very fine control over the filter chain
  * contents. Most cases should be adequately covered by the default
- * {@code &lt;security:http /&gt;} namespace configuration options.
+ * {@code <security:http />} namespace configuration options.
  * <p>
  * The {@code FilterChainProxy} is linked into the servlet container filter chain by
  * adding a standard Spring {@link DelegatingFilterProxy} declaration in the application
@@ -54,7 +54,7 @@ import java.util.*;
  * and a list of filters which should be applied to matching requests. Most applications
  * will only contain a single filter chain, and if you are using the namespace, you don't
  * have to set the chains explicitly. If you require finer-grained control, you can make
- * use of the {@code &lt;filter-chain&gt;} namespace element. This defines a URI pattern
+ * use of the {@code <filter-chain>} namespace element. This defines a URI pattern
  * and the list of filters (as comma-separated bean names) which should be applied to
  * requests which match the pattern. An example configuration might look like this:
  *
