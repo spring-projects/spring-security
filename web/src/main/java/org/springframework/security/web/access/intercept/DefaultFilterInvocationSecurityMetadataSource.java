@@ -43,7 +43,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * <p>
  * The most common method creating an instance is using the Spring Security namespace. For
  * example, the {@code pattern} and {@code access} attributes of the
- * {@code &lt;intercept-url&gt;} elements defined as children of the {@code &lt;http&gt;}
+ * {@code <intercept-url>} elements defined as children of the {@code <http>}
  * element are combined to build the instance used by the
  * {@code FilterSecurityInterceptor}.
  *
