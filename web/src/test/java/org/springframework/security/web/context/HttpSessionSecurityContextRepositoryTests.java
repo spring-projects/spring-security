@@ -429,6 +429,25 @@ public class HttpSessionSecurityContextRepositoryTests {
         assertSame(ctxInSession,request.getSession().getAttribute(SPRING_SECURITY_CONTEXT_KEY));
     }
 
+
+    // SEC-3070
+    @Test
+    public void logoutInvalidateSessionFalseFails() throws Exception {
+        HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        SecurityContext ctxInSession = SecurityContextHolder.createEmptyContext();
+        ctxInSession.setAuthentication(testToken);
+        request.getSession().setAttribute(SPRING_SECURITY_CONTEXT_KEY, ctxInSession);
+
+        HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, new MockHttpServletResponse());
+        repo.loadContext(holder);
+
+        ctxInSession.setAuthentication(null);
+        repo.saveContext(ctxInSession, holder.getRequest(), holder.getResponse());
+
+        assertNull(request.getSession().getAttribute(SPRING_SECURITY_CONTEXT_KEY));
+    }
+
     @Test
     @SuppressWarnings("deprecation")
     public void sessionDisableUrlRewritingPreventsSessionIdBeingWrittenToUrl() throws Exception {
