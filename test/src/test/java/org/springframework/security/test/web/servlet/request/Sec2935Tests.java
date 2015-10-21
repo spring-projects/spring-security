@@ -103,7 +103,7 @@ public class Sec2935Tests {
 			.andExpect(authenticated().withUsername("user"));
 	}
 
-	@Ignore
+	// SEC-2941
 	@Test
 	public void defaultRequest() throws Exception {
 		mvc = MockMvcBuilders.webAppContextSetup(context)
