@@ -47,7 +47,6 @@ class WebMvcSecurityConfiguration extends WebMvcConfigurerAdapter {
 		argumentResolvers.add(new CsrfTokenArgumentResolver());
 	}
 
-	@ConditionalOnMissingBean(RequestDataValueProcessor.class)
 	@Bean
 	public RequestDataValueProcessor requestDataValueProcessor() {
 		return new CsrfRequestDataValueProcessor();
