@@ -388,7 +388,7 @@ For example:
 
 <b:bean id="csrfMatcher"
     class="AndRequestMatcher">
-    <b:constructor-arg value="#{T(org.springframework.security.web.csrf.CsrfFilter).DEFAULT_MATCHER}"/>
+    <b:constructor-arg value="#{T(org.springframework.security.web.csrf.CsrfFilter).DEFAULT_CSRF_MATCHER}"/>
     <b:constructor-arg>
         <b:bean class="org.springframework.security.web.util.matcher.NegatedRequestMatcher">
           <b:bean class="org.springframework.security.web.util.matcher.AntPathRequestMatcher">
