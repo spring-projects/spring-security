@@ -55,6 +55,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	private final Log logger = LogFactory.getLog(getClass());
 
 	private final LinkedHashMap<Class<? extends SecurityConfigurer<O, B>>, List<SecurityConfigurer<O, B>>> configurers = new LinkedHashMap<Class<? extends SecurityConfigurer<O, B>>, List<SecurityConfigurer<O, B>>>();
+	private final List<SecurityConfigurer<O, B>> configurersAddedInInitializing = new ArrayList<SecurityConfigurer<O, B>>();
 
 	private final Map<Class<Object>, Object> sharedObjects = new HashMap<Class<Object>, Object>();
 
@@ -126,9 +127,9 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	@SuppressWarnings("unchecked")
 	public <C extends SecurityConfigurerAdapter<O, B>> C apply(C configurer)
 			throws Exception {
-		add(configurer);
 		configurer.addObjectPostProcessor(objectPostProcessor);
 		configurer.setBuilder((B) this);
+		add(configurer);
 		return configurer;
 	}
 
@@ -202,7 +203,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 			configs.add(configurer);
 			this.configurers.put(clazz, configs);
 			if (buildState.isInitializing()) {
-				configurer.init((B) this);
+				this.configurersAddedInInitializing.add(configurer);
 			}
 		}
 	}
@@ -366,6 +367,10 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 		Collection<SecurityConfigurer<O, B>> configurers = getConfigurers();
 
 		for (SecurityConfigurer<O, B> configurer : configurers) {
+			configurer.init((B) this);
+		}
+
+		for (SecurityConfigurer<O, B> configurer : configurersAddedInInitializing) {
 			configurer.init((B) this);
 		}
 	}
