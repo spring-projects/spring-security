@@ -506,7 +506,7 @@ For example, this is the above request modified to include the username on the H
 [source,java]
 ----
 mvc
-	.perform(formLogin("/auth").user("a","admin").password("p","pass"))
+	.perform(formLogin("/auth").user("u","admin").password("p","pass"))
 ----
 
 [[test-logout]]
