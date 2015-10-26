@@ -22,11 +22,10 @@ import org.springframework.util.Assert;
  * before invoking the delegate {@link Runnable} and then removing the
  * {@link SecurityContext} after the delegate has completed.
  * </p>
+ *
  * <p>
- * By default the {@link SecurityContext} is only setup if {@link #run()} is
- * invoked on a separate {@link Thread} than the
- * {@link DelegatingSecurityContextRunnable} was created on. This can be
- * overridden by setting {@link #setEnableOnOriginalThread(boolean)} to true.
+ * If there is a {@link SecurityContext} that already exists, it will be
+ * restored after the {@link #run()} method is invoked.
  * </p>
  *
  * @author Rob Winch
@@ -36,62 +35,59 @@ public final class DelegatingSecurityContextRunnable implements Runnable {
 
     private final Runnable delegate;
 
-    private final SecurityContext securityContext;
-
-    private final Thread originalThread;
-
-    private boolean enableOnOriginalThread;
+    /**
+     * The {@link SecurityContext} that the delegate {@link Runnable} will be
+     * ran as.
+     */
+    private final SecurityContext delegateSecurityContext;
 
     /**
-     * Creates a new {@link DelegatingSecurityContextRunnable} with a specific {@link SecurityContext}.
-     * @param delegate the delegate {@link Runnable} to run with the specified {@link SecurityContext}. Cannot be null.
-     * @param securityContext the {@link SecurityContext} to establish for the delegate {@link Runnable}. Cannot be
-     * null.
+     * The {@link SecurityContext} that was on the {@link SecurityContextHolder}
+     * prior to being set to the delegateSecurityContext.
      */
-    public DelegatingSecurityContextRunnable(Runnable delegate, SecurityContext securityContext) {
+    private SecurityContext originalSecurityContext;
+
+    /**
+     * Creates a new {@link DelegatingSecurityContextRunnable} with a specific
+     * {@link SecurityContext}.
+     * @param delegate the delegate {@link Runnable} to run with the specified
+     * {@link SecurityContext}. Cannot be null.
+     * @param securityContext the {@link SecurityContext} to establish for the delegate
+     * {@link Runnable}. Cannot be null.
+     */
+    public DelegatingSecurityContextRunnable(Runnable delegate,
+            SecurityContext securityContext) {
         Assert.notNull(delegate, "delegate cannot be null");
         Assert.notNull(securityContext, "securityContext cannot be null");
         this.delegate = delegate;
-        this.securityContext = securityContext;
-        this.originalThread = Thread.currentThread();
+        this.delegateSecurityContext = securityContext;
     }
 
     /**
-     * Creates a new {@link DelegatingSecurityContextRunnable} with the {@link SecurityContext} from the
-     * {@link SecurityContextHolder}.
-     * @param delegate the delegate {@link Runnable} to run under the current {@link SecurityContext}. Cannot be null.
+     * Creates a new {@link DelegatingSecurityContextRunnable} with the
+     * {@link SecurityContext} from the {@link SecurityContextHolder}.
+     * @param delegate the delegate {@link Runnable} to run under the current
+     * {@link SecurityContext}. Cannot be null.
      */
     public DelegatingSecurityContextRunnable(Runnable delegate) {
         this(delegate, SecurityContextHolder.getContext());
     }
 
-    /**
-     * Determines if the SecurityContext should be transfered if {@link #call()}
-     * is invoked on the same {@link Thread} the
-     * {@link DelegatingSecurityContextCallable} was created on.
-     *
-     * @param enableOnOriginalThread
-     *            if false (default), will only transfer the
-     *            {@link SecurityContext} if {@link #call()} is invoked on a
-     *            different {@link Thread} than the
-     *            {@link DelegatingSecurityContextCallable} was created on.
-     * @since 4.0.2
-     */
-    public void setEnableOnOriginalThread(boolean enableOnOriginalThread) {
-        this.enableOnOriginalThread = enableOnOriginalThread;
-    }
-
     public void run() {
-        if(!enableOnOriginalThread && originalThread == Thread.currentThread()) {
-            delegate.run();
-            return;
-        }
+        this.originalSecurityContext = SecurityContextHolder.getContext();
+
         try {
-            SecurityContextHolder.setContext(securityContext);
+            SecurityContextHolder.setContext(delegateSecurityContext);
             delegate.run();
         }
         finally {
-            SecurityContextHolder.clearContext();
+            SecurityContext emptyContext = SecurityContextHolder.createEmptyContext();
+            if(emptyContext.equals(originalSecurityContext)) {
+                SecurityContextHolder.clearContext();
+            } else {
+                SecurityContextHolder.setContext(originalSecurityContext);
+            }
+            this.originalSecurityContext = null;
         }
     }
 

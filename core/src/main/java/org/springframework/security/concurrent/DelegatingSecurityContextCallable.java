@@ -25,10 +25,8 @@ import org.springframework.util.Assert;
  * then removing the {@link SecurityContext} after the delegate has completed.
  * </p>
  * <p>
- * By default the {@link SecurityContext} is only setup if {@link #call()} is
- * invoked on a separate {@link Thread} than the
- * {@link DelegatingSecurityContextCallable} was created on. This can be
- * overridden by setting {@link #setEnableOnOriginalThread(boolean)} to true.
+ * If there is a {@link SecurityContext} that already exists, it will be
+ * restored after the {@link #call()} method is invoked.
  * </p>
  *
  * @author Rob Winch
@@ -38,63 +36,60 @@ public final class DelegatingSecurityContextCallable<V> implements Callable<V> {
 
     private final Callable<V> delegate;
 
-    private final SecurityContext securityContext;
-
-    private final Thread originalThread;
-
-    private boolean enableOnOriginalThread;
 
     /**
-     * Creates a new {@link DelegatingSecurityContextCallable} with a specific {@link SecurityContext}.
-     * @param delegate the delegate {@link DelegatingSecurityContextCallable} to run with the specified
-     * {@link SecurityContext}. Cannot be null.
-     * @param securityContext the {@link SecurityContext} to establish for the delegate {@link Callable}. Cannot be
-     * null.
+     * The {@link SecurityContext} that the delegate {@link Callable} will be
+     * ran as.
      */
-    public DelegatingSecurityContextCallable(Callable<V> delegate, SecurityContext securityContext) {
+    private final SecurityContext delegateSecurityContext;
+
+    /**
+     * The {@link SecurityContext} that was on the {@link SecurityContextHolder}
+     * prior to being set to the delegateSecurityContext.
+     */
+    private SecurityContext originalSecurityContext;
+
+    /**
+     * Creates a new {@link DelegatingSecurityContextCallable} with a specific
+     * {@link SecurityContext}.
+     * @param delegate the delegate {@link DelegatingSecurityContextCallable} to run with
+     * the specified {@link SecurityContext}. Cannot be null.
+     * @param securityContext the {@link SecurityContext} to establish for the delegate
+     * {@link Callable}. Cannot be null.
+     */
+    public DelegatingSecurityContextCallable(Callable<V> delegate,
+            SecurityContext securityContext) {
         Assert.notNull(delegate, "delegate cannot be null");
         Assert.notNull(securityContext, "securityContext cannot be null");
         this.delegate = delegate;
-        this.securityContext = securityContext;
-        this.originalThread = Thread.currentThread();
+        this.delegateSecurityContext = securityContext;
     }
 
     /**
-     * Creates a new {@link DelegatingSecurityContextCallable} with the {@link SecurityContext} from the
-     * {@link SecurityContextHolder}.
-     * @param delegate the delegate {@link Callable} to run under the current {@link SecurityContext}. Cannot be null.
+     * Creates a new {@link DelegatingSecurityContextCallable} with the
+     * {@link SecurityContext} from the {@link SecurityContextHolder}.
+     * @param delegate the delegate {@link Callable} to run under the current
+     * {@link SecurityContext}. Cannot be null.
      */
     public DelegatingSecurityContextCallable(Callable<V> delegate) {
         this(delegate, SecurityContextHolder.getContext());
     }
 
-    /**
-     * Determines if the SecurityContext should be transfered if {@link #call()}
-     * is invoked on the same {@link Thread} the
-     * {@link DelegatingSecurityContextCallable} was created on.
-     *
-     * @param enableOnOriginalThread
-     *            if false (default), will only transfer the
-     *            {@link SecurityContext} if {@link #call()} is invoked on a
-     *            different {@link Thread} than the
-     *            {@link DelegatingSecurityContextCallable} was created on.
-     *
-     * @since 4.0.2
-     */
-    public void setEnableOnOriginalThread(boolean enableOnOriginalThread) {
-        this.enableOnOriginalThread = enableOnOriginalThread;
-    }
-
     public V call() throws Exception {
-        if(!enableOnOriginalThread && originalThread == Thread.currentThread()) {
-            return delegate.call();
-        }
+        this.originalSecurityContext = SecurityContextHolder.getContext();
+
         try {
-            SecurityContextHolder.setContext(securityContext);
+            SecurityContextHolder.setContext(delegateSecurityContext);
             return delegate.call();
         }
         finally {
-            SecurityContextHolder.clearContext();
+            SecurityContext emptyContext = SecurityContextHolder.createEmptyContext();
+            if(emptyContext.equals(originalSecurityContext)) {
+                SecurityContextHolder.clearContext();
+            } else {
+                SecurityContextHolder.setContext(originalSecurityContext);
+            }
+            this.originalSecurityContext = null;
         }
     }
 
