@@ -146,6 +146,7 @@ task dist(type: Zip) {
     into(zipRootDir) {
         from(rootDir) {
             include '*.adoc'
+            include '*.txt'
         }
         into('docs') {
             with(project(':docs').apiSpec)
