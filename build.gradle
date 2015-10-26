@@ -135,7 +135,7 @@ task coreBuild {
 // Task for creating the distro zip
 
 task dist(type: Zip) {
-	dependsOn subprojects*.tasks*.matching { task -> task.name == 'assemble' || task.name.endsWith('Zip') || task.name.endsWith('generatePom') }
+	dependsOn { subprojects*.tasks*.matching { task -> task.name.endsWith('generatePom') } }
 	classifier = 'dist'
 
 	evaluationDependsOn(':docs')
@@ -145,14 +145,19 @@ task dist(type: Zip) {
 	into(zipRootDir) {
 		from(rootDir) {
 			include '*.adoc'
+			include '*.txt'
 		}
 		into('docs') {
 			with(project(':docs').apiSpec)
 			with(project(':docs:manual').spec)
 			with(project(':docs:guides').spec)
 		}
-		into('dist') {
-			from coreModuleProjects.collect {project -> project.libsDir }
+		project.coreModuleProjects*.tasks*.withType(AbstractArchiveTask).flatten().each{ archiveTask ->
+			if(archiveTask!=dist){
+				into("$zipRootDir/dist") {
+					from archiveTask.outputs.files
+				}
+			}
 		}
 		sampleProjects.each { project->
 			into("$zipRootDir/samples/$project.name") {
