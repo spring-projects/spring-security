@@ -51,8 +51,11 @@ public class DelegatingSecurityContextRunnableTests {
 
 	private ExecutorService executor;
 
+	private SecurityContext originalSecurityContext;
+
 	@Before
 	public void setUp() throws Exception {
+		originalSecurityContext = SecurityContextHolder.createEmptyContext();
 		doAnswer(new Answer<Object>() {
 			public Object answer(InvocationOnMock invocation) throws Throwable {
 				assertThat(SecurityContextHolder.getContext()).isEqualTo(securityContext);
@@ -110,19 +113,11 @@ public class DelegatingSecurityContextRunnableTests {
 	// SEC-3031
 	@Test
 	public void callOnSameThread() throws Exception {
+		originalSecurityContext = securityContext;
+		SecurityContextHolder.setContext(originalSecurityContext);
 		executor = synchronousExecutor();
 		runnable = new DelegatingSecurityContextRunnable(delegate,
 				securityContext);
-		securityContext = SecurityContextHolder.createEmptyContext();
-		assertWrapped(runnable);
-	}
-
-	@Test
-	public void callOnSameThreadExplicitlyEnabled() throws Exception {
-		executor = synchronousExecutor();
-		DelegatingSecurityContextRunnable runnable = new DelegatingSecurityContextRunnable(delegate,
-				securityContext);
-		runnable.setEnableOnOriginalThread(true);
 		assertWrapped(runnable);
 	}
 
@@ -167,7 +162,7 @@ public class DelegatingSecurityContextRunnableTests {
 		submit.get();
 		verify(delegate).run();
 		assertThat(SecurityContextHolder.getContext()).isEqualTo(
-				SecurityContextHolder.createEmptyContext());
+				originalSecurityContext);
 	}
 
 	private static ExecutorService synchronousExecutor() {
