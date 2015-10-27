@@ -17,19 +17,19 @@ package org.springframework.security.crypto.password;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 
 /**
  * Helper for working with the MessageDigest API.
  *
- * Performs the configured number of iterations of the hashing algorithm per digest to aid in protecting against brute force attacks.
+ * Performs the configured number of iterations of the hashing algorithm per digest to aid
+ * in protecting against brute force attacks.
  *
  * @author Keith Donald
  * @author Luke Taylor
  */
 final class Digester {
 
-    private final MessageDigest messageDigest;
+    private final String algorithm;
 
     private final int iterations;
 
@@ -39,21 +39,26 @@ final class Digester {
      * @param iterations the number of times to apply the digest algorithm to the input
      */
     public Digester(String algorithm, int iterations) {
-        try {
-            messageDigest = MessageDigest.getInstance(algorithm);
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("No such hashing algorithm", e);
-        }
-
+        // eagerly validate the algorithm
+        createDigest(algorithm);
+        this.algorithm = algorithm;
         this.iterations = iterations;
     }
 
     public byte[] digest(byte[] value) {
-        synchronized (messageDigest) {
-            for (int i = 0; i < iterations; i++) {
-                value = messageDigest.digest(value);
-            }
-            return value;
+        MessageDigest messageDigest = createDigest(algorithm);
+        for (int i = 0; i < iterations; i++) {
+            value = messageDigest.digest(value);
+        }
+        return value;
+    }
+
+    private static MessageDigest createDigest(String algorithm) {
+        try {
+            return MessageDigest.getInstance(algorithm);
+        }
+        catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("No such hashing algorithm", e);
         }
     }
 }
