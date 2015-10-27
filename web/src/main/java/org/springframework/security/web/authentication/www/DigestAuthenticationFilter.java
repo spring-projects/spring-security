@@ -38,6 +38,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.crypto.codec.Base64;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserCache;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -224,8 +225,10 @@ public class DigestAuthenticationFilter extends GenericFilterBean implements
 					+ "' with response: '" + digestAuth.getResponse() + "'");
 		}
 
-		SecurityContextHolder.getContext().setAuthentication(
-				createSuccessfulAuthentication(request, user));
+		Authentication authentication = createSuccessfulAuthentication(request, user);
+		SecurityContext context = SecurityContextHolder.createEmptyContext();
+		context.setAuthentication(authentication);
+		SecurityContextHolder.setContext(context);
 
 		chain.doFilter(request, response);
 	}
