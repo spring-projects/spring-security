@@ -15,11 +15,20 @@
 
 package org.springframework.security.web.authentication.www;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.fest.assertions.Assertions.*;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Map;
+
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -32,7 +41,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -472,5 +483,28 @@ public class DigestAuthenticationFilterTests {
 
 		assertNull(SecurityContextHolder.getContext().getAuthentication());
 		assertEquals(401, response.getStatus());
+	}
+
+	// SEC-3108
+	@Test
+	public void authenticationCreatesEmptyContext() throws Exception {
+		SecurityContext existingContext = SecurityContextHolder.createEmptyContext();
+		TestingAuthenticationToken existingAuthentication = new TestingAuthenticationToken("existingauthenitcated", "pass", "ROLE_USER");
+		existingContext.setAuthentication(existingAuthentication);
+
+		SecurityContextHolder.setContext(existingContext);
+
+		String responseDigest = DigestAuthUtils.generateDigest(false, USERNAME, REALM,
+				PASSWORD, "GET", REQUEST_URI, QOP, NONCE, NC, CNONCE);
+
+		request.addHeader(
+				"Authorization",
+				createAuthorizationHeader(USERNAME, REALM, NONCE, REQUEST_URI,
+						responseDigest, QOP, NC, CNONCE));
+
+		filter.setCreateAuthenticatedToken(true);
+		executeFilterInContainerSimulator(filter, request, true);
+
+		assertThat(existingAuthentication).isSameAs(existingContext.getAuthentication());
 	}
 }
