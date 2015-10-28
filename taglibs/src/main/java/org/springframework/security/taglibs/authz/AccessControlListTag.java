@@ -14,6 +14,16 @@
  */
 package org.springframework.security.taglibs.authz;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.ServletContext;
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.PageContext;
+import javax.servlet.jsp.tagext.Tag;
+import javax.servlet.jsp.tagext.TagSupport;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
@@ -21,14 +31,8 @@ import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.taglibs.TagLibConfig;
+import org.springframework.security.web.context.support.SecurityWebApplicationContextUtils;
 import org.springframework.web.context.support.WebApplicationContextUtils;
-
-import javax.servlet.ServletContext;
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.PageContext;
-import javax.servlet.jsp.tagext.Tag;
-import javax.servlet.jsp.tagext.TagSupport;
-import java.util.*;
 
 /**
  * An implementation of {@link Tag} that allows its body through if all authorizations are
@@ -142,8 +146,7 @@ public class AccessControlListTag extends TagSupport {
 	protected ApplicationContext getContext(PageContext pageContext) {
 		ServletContext servletContext = pageContext.getServletContext();
 
-		return WebApplicationContextUtils
-				.getRequiredWebApplicationContext(servletContext);
+		return SecurityWebApplicationContextUtils.findRequiredWebApplicationContext(servletContext);
 	}
 
 	public Object getDomainObject() {

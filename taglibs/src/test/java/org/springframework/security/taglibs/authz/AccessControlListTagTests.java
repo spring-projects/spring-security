@@ -26,6 +26,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.context.WebApplicationContext;
 
+import javax.servlet.ServletContext;
 import javax.servlet.jsp.tagext.Tag;
 import java.util.*;
 
@@ -70,6 +71,27 @@ public class AccessControlListTagTests {
 
 	@Test
 	public void bodyIsEvaluatedIfAclGrantsAccess() throws Exception {
+		Object domainObject = new Object();
+		when(pe.hasPermission(bob, domainObject, "READ")).thenReturn(true);
+
+		tag.setDomainObject(domainObject);
+		tag.setHasPermission("READ");
+		tag.setVar("allowed");
+		assertSame(domainObject, tag.getDomainObject());
+		assertEquals("READ", tag.getHasPermission());
+
+		assertEquals(Tag.EVAL_BODY_INCLUDE, tag.doStartTag());
+		assertTrue((Boolean) pageContext.getAttribute("allowed"));
+	}
+
+	@Test
+	public void childContext() throws Exception {
+		ServletContext servletContext = pageContext.getServletContext();
+		WebApplicationContext wac = (WebApplicationContext) servletContext
+				.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
+		servletContext.removeAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
+		servletContext.setAttribute("org.springframework.web.servlet.FrameworkServlet.CONTEXT.dispatcher", wac);
+
 		Object domainObject = new Object();
 		when(pe.hasPermission(bob, domainObject, "READ")).thenReturn(true);
 

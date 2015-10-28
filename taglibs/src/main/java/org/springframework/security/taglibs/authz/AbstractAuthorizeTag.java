@@ -37,6 +37,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
+import org.springframework.security.web.context.support.SecurityWebApplicationContextUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -201,8 +202,7 @@ public abstract class AbstractAuthorizeTag {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private SecurityExpressionHandler<FilterInvocation> getExpressionHandler()
 			throws IOException {
-		ApplicationContext appContext = WebApplicationContextUtils
-				.getRequiredWebApplicationContext(getServletContext());
+		ApplicationContext appContext = SecurityWebApplicationContextUtils.findRequiredWebApplicationContext(getServletContext());
 		Map<String, SecurityExpressionHandler> handlers = appContext
 				.getBeansOfType(SecurityExpressionHandler.class);
 
@@ -225,8 +225,7 @@ public abstract class AbstractAuthorizeTag {
 			return privEvaluatorFromRequest;
 		}
 
-		ApplicationContext ctx = WebApplicationContextUtils
-				.getRequiredWebApplicationContext(getServletContext());
+		ApplicationContext ctx = SecurityWebApplicationContextUtils.findRequiredWebApplicationContext(getServletContext());
 		Map<String, WebInvocationPrivilegeEvaluator> wipes = ctx
 				.getBeansOfType(WebInvocationPrivilegeEvaluator.class);
 
