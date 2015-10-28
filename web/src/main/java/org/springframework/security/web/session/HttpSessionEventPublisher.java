@@ -19,7 +19,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.context.ApplicationContext;
-
+import org.springframework.security.web.context.support.SecurityWebApplicationContextUtils;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import javax.servlet.ServletContext;
@@ -28,7 +28,7 @@ import javax.servlet.http.HttpSessionListener;
 
 /**
  * Declared in web.xml as
- * 
+ *
  * <pre>
  * &lt;listener&gt;
  *     &lt;listener-class&gt;org.springframework.security.web.session.HttpSessionEventPublisher&lt;/listener-class&gt;
@@ -53,8 +53,7 @@ public class HttpSessionEventPublisher implements HttpSessionListener {
 	// ========================================================================================================
 
 	ApplicationContext getContext(ServletContext servletContext) {
-		return WebApplicationContextUtils
-				.getRequiredWebApplicationContext(servletContext);
+		return SecurityWebApplicationContextUtils.findRequiredWebApplicationContext(servletContext);
 	}
 
 	/**
