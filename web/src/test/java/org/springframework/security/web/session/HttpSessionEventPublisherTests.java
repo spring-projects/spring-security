@@ -44,7 +44,45 @@ public class HttpSessionEventPublisherTests {
         StaticWebApplicationContext context = new StaticWebApplicationContext();
 
         MockServletContext servletContext = new MockServletContext();
-        servletContext.setAttribute(StaticWebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, context);
+        servletContext.setAttribute(
+                StaticWebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE,
+                context);
+
+        context.setServletContext(servletContext);
+        context.registerSingleton("listener", MockApplicationListener.class, null);
+        context.refresh();
+
+        MockHttpSession session = new MockHttpSession(servletContext);
+        MockApplicationListener listener = (MockApplicationListener) context
+                .getBean("listener");
+
+        HttpSessionEvent event = new HttpSessionEvent(session);
+
+        publisher.sessionCreated(event);
+
+        assertNotNull(listener.getCreatedEvent());
+        assertNull(listener.getDestroyedEvent());
+        assertEquals(session, listener.getCreatedEvent().getSession());
+
+        listener.setCreatedEvent(null);
+        listener.setDestroyedEvent(null);
+
+        publisher.sessionDestroyed(event);
+        assertNotNull(listener.getDestroyedEvent());
+        assertNull(listener.getCreatedEvent());
+        assertEquals(session, listener.getDestroyedEvent().getSession());
+    }
+
+    @Test
+    public void publishedEventIsReceivedbyListenerChildContext() {
+        HttpSessionEventPublisher publisher = new HttpSessionEventPublisher();
+
+        StaticWebApplicationContext context = new StaticWebApplicationContext();
+
+        MockServletContext servletContext = new MockServletContext();
+        servletContext.setAttribute(
+                "org.springframework.web.servlet.FrameworkServlet.CONTEXT.dispatcher",
+                context);
 
         context.setServletContext(servletContext);
         context.registerSingleton("listener", MockApplicationListener.class, null);

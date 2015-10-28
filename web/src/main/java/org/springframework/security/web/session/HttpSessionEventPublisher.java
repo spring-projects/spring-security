@@ -19,6 +19,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.context.ApplicationContext;
+import org.springframework.security.web.context.support.SecurityWebApplicationContextUtils;
 
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -49,7 +50,7 @@ public class HttpSessionEventPublisher implements HttpSessionListener {
     //~ Methods ========================================================================================================
 
     ApplicationContext getContext(ServletContext servletContext) {
-        return WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
+        return SecurityWebApplicationContextUtils.findRequiredWebApplicationContext(servletContext);
     }
 
     /**

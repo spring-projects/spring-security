@@ -21,6 +21,7 @@ import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.taglibs.TagLibConfig;
+import org.springframework.security.web.context.support.SecurityWebApplicationContextUtils;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import javax.servlet.ServletContext;
@@ -136,7 +137,7 @@ public class AccessControlListTag extends TagSupport {
     protected ApplicationContext getContext(PageContext pageContext) {
         ServletContext servletContext = pageContext.getServletContext();
 
-        return WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
+        return SecurityWebApplicationContextUtils.findRequiredWebApplicationContext(servletContext);
     }
 
     public Object getDomainObject() {

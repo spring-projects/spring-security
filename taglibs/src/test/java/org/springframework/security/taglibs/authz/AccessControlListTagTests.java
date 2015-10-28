@@ -26,6 +26,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.context.WebApplicationContext;
 
+import javax.servlet.ServletContext;
 import javax.servlet.jsp.tagext.Tag;
 import java.util.*;
 
@@ -40,7 +41,7 @@ public class AccessControlListTagTests {
     AccessControlListTag tag;
     PermissionEvaluator pe;
     MockPageContext pageContext;
-    Authentication bob = new TestingAuthenticationToken("bob","bobspass","A");
+    Authentication bob = new TestingAuthenticationToken("bob", "bobspass", "A");
 
     @Before
     @SuppressWarnings("rawtypes")
@@ -56,8 +57,10 @@ public class AccessControlListTagTests {
         when(ctx.getBeansOfType(PermissionEvaluator.class)).thenReturn(beanMap);
 
         MockServletContext servletCtx = new MockServletContext();
-        servletCtx.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, ctx);
-        pageContext = new MockPageContext(servletCtx, new MockHttpServletRequest(), new MockHttpServletResponse());
+        servletCtx.setAttribute(
+                WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, ctx);
+        pageContext = new MockPageContext(servletCtx, new MockHttpServletRequest(),
+                new MockHttpServletResponse());
         tag.setPageContext(pageContext);
     }
 
@@ -78,7 +81,28 @@ public class AccessControlListTagTests {
         assertEquals("READ", tag.getHasPermission());
 
         assertEquals(Tag.EVAL_BODY_INCLUDE, tag.doStartTag());
-        assertTrue((Boolean)pageContext.getAttribute("allowed"));
+        assertTrue((Boolean) pageContext.getAttribute("allowed"));
+    }
+
+    @Test
+    public void childContext() throws Exception {
+        ServletContext servletContext = pageContext.getServletContext();
+        WebApplicationContext wac = (WebApplicationContext) servletContext
+                .getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
+        servletContext.removeAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
+        servletContext.setAttribute("org.springframework.web.servlet.FrameworkServlet.CONTEXT.dispatcher", wac);
+
+        Object domainObject = new Object();
+        when(pe.hasPermission(bob, domainObject, "READ")).thenReturn(true);
+
+        tag.setDomainObject(domainObject);
+        tag.setHasPermission("READ");
+        tag.setVar("allowed");
+        assertSame(domainObject, tag.getDomainObject());
+        assertEquals("READ", tag.getHasPermission());
+
+        assertEquals(Tag.EVAL_BODY_INCLUDE, tag.doStartTag());
+        assertTrue((Boolean) pageContext.getAttribute("allowed"));
     }
 
     // SEC-2022
@@ -95,7 +119,7 @@ public class AccessControlListTagTests {
         assertEquals("READ,WRITE", tag.getHasPermission());
 
         assertEquals(Tag.EVAL_BODY_INCLUDE, tag.doStartTag());
-        assertTrue((Boolean)pageContext.getAttribute("allowed"));
+        assertTrue((Boolean) pageContext.getAttribute("allowed"));
         verify(pe).hasPermission(bob, domainObject, "READ");
         verify(pe).hasPermission(bob, domainObject, "WRITE");
         verifyNoMoreInteractions(pe);
@@ -115,7 +139,7 @@ public class AccessControlListTagTests {
         assertEquals("1,2", tag.getHasPermission());
 
         assertEquals(Tag.EVAL_BODY_INCLUDE, tag.doStartTag());
-        assertTrue((Boolean)pageContext.getAttribute("allowed"));
+        assertTrue((Boolean) pageContext.getAttribute("allowed"));
         verify(pe).hasPermission(bob, domainObject, 1);
         verify(pe).hasPermission(bob, domainObject, 2);
         verifyNoMoreInteractions(pe);
@@ -134,7 +158,7 @@ public class AccessControlListTagTests {
         assertEquals("1,WRITE", tag.getHasPermission());
 
         assertEquals(Tag.EVAL_BODY_INCLUDE, tag.doStartTag());
-        assertTrue((Boolean)pageContext.getAttribute("allowed"));
+        assertTrue((Boolean) pageContext.getAttribute("allowed"));
         verify(pe).hasPermission(bob, domainObject, 1);
         verify(pe).hasPermission(bob, domainObject, "WRITE");
         verifyNoMoreInteractions(pe);
@@ -150,6 +174,6 @@ public class AccessControlListTagTests {
         tag.setVar("allowed");
 
         assertEquals(Tag.SKIP_BODY, tag.doStartTag());
-        assertFalse((Boolean)pageContext.getAttribute("allowed"));
+        assertFalse((Boolean) pageContext.getAttribute("allowed"));
     }
 }
