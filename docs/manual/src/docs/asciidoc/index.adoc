@@ -923,7 +923,7 @@ For example, the following will customize authentication assuming that `SpringDa
 ----
 @Bean
 public SpringDataUserDetailsService springDataUserDetailsService() {
-    return new SpringDataUserDetailsService();
+		return new SpringDataUserDetailsService();
 }
 ----
 
@@ -934,7 +934,7 @@ For example, if you use bcrypt you can add a bean definition as shown below:
 ----
 @Bean
 public BCryptPasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder();
+		return new BCryptPasswordEncoder();
 }
 ----
 
@@ -3548,16 +3548,16 @@ You can easily do this with the following Java Configuration:
 public class WebSecurityConfig extends
 WebSecurityConfigurerAdapter {
 
-@Override
-protected void configure(HttpSecurity http) throws Exception {
-	http
-	// ...
-	.headers()
-		.frameOptions()
-			.sameOrigin()
-			.and()
-		.hsts().disable();
-}
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http
+		// ...
+		.headers()
+			.frameOptions()
+				.sameOrigin()
+				.and()
+			.httpStrictTransportSecurity().disable();
+	}
 }
 ----
 
@@ -4632,9 +4632,9 @@ For example, assumming you have a Bean with the name of `webSecurity` that conta
 [source,java]
 ----
 public class WebSecurity {
-    public boolean check(Authentication authentication, HttpServletRequest request) {
-        ...
-    }
+		public boolean check(Authentication authentication, HttpServletRequest request) {
+				...
+		}
 }
 ----
 
@@ -4655,9 +4655,9 @@ or in Java configuration
 [source,java]
 ----
 http
-    .authorizeUrls()
-        .antMatchers("/user/**").access("@webSecurity.check(authentication,request)")
-        ...
+		.authorizeUrls()
+				.antMatchers("/user/**").access("@webSecurity.check(authentication,request)")
+				...
 ----
 
 [[el-access-web-path-variables]]
@@ -4672,9 +4672,9 @@ For example, if you had a Bean with the name of `webSecurity` that contains the 
 [source,java]
 ----
 public class WebSecurity {
-    public boolean checkUserId(Authentication authentication, int id) {
-        ...
-    }
+		public boolean checkUserId(Authentication authentication, int id) {
+				...
+		}
 }
 ----
 
@@ -4694,9 +4694,9 @@ or in Java configuration
 [source,java]
 ----
 http
-    .authorizeUrls()
-        .antMatchers("/user/{userId}/**").access("@webSecurity.checkUserId(authentication,userId)")
-        ...
+		.authorizeUrls()
+				.antMatchers("/user/{userId}/**").access("@webSecurity.checkUserId(authentication,userId)")
+				...
 ----
 
 In both configurations URLs that match would pass in the path variable (and convert it) into checkUserId method.
