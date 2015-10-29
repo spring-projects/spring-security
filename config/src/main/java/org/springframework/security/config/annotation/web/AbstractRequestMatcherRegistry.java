@@ -25,6 +25,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.util.ObjectUtils;
 
 /**
  * A base class for registering {@link RequestMatcher}'s. For example, it might allow for
@@ -151,6 +152,9 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 		public static List<RequestMatcher> antMatchers(HttpMethod httpMethod,
 				String... antPatterns) {
 			String method = httpMethod == null ? null : httpMethod.toString();
+			if(ObjectUtils.isEmpty(antPatterns)) {
+				antPatterns = new String[] { "/**" };
+			}
 			List<RequestMatcher> matchers = new ArrayList<RequestMatcher>();
 			for (String pattern : antPatterns) {
 				matchers.add(new AntPathRequestMatcher(pattern, method));
