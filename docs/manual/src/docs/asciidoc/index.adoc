@@ -3512,16 +3512,16 @@ You can easily do this with the following Java Configuration:
 public class WebSecurityConfig extends
 WebSecurityConfigurerAdapter {
 
-@Override
-protected void configure(HttpSecurity http) throws Exception {
-	http
-	// ...
-	.headers()
-		.frameOptions()
-			.sameOrigin()
-			.and()
-		.hsts().disable();
-}
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http
+		// ...
+		.headers()
+			.frameOptions()
+				.sameOrigin()
+				.and()
+			.httpStrictTransportSecurity().disable();
+	}
 }
 ----
 
