@@ -92,6 +92,9 @@ public class RoleVoter implements AccessDecisionVoter<Object> {
     }
 
     public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> attributes) {
+        if(authentication == null) {
+            return ACCESS_DENIED;
+        }
         int result = ACCESS_ABSTAIN;
         Collection<? extends GrantedAuthority> authorities = extractAuthorities(authentication);
 
