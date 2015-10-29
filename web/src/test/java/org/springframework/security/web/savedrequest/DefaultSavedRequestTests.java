@@ -32,13 +32,15 @@ public class DefaultSavedRequestTests {
 		assertTrue(saved.getHeaderValues("if-none-match").isEmpty());
 	}
 
-	// TODO: Why are parameters case insensitive. I think this is a mistake
+	// SEC-3082
 	@Test
-	public void parametersAreCaseInsensitive() throws Exception {
+	public void parametersAreCaseSensitive() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addParameter("ThisIsATest", "Hi mom");
+		request.addParameter("AnotHerTest", "Hi dad");
+		request.addParameter("thisisatest", "Hi mom");
 		DefaultSavedRequest saved = new DefaultSavedRequest(request,
 				new MockPortResolver(8080, 8443));
 		assertEquals("Hi mom", saved.getParameterValues("thisisatest")[0]);
+		assertNull(saved.getParameterValues("anothertest"));
 	}
 }
