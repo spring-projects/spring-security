@@ -57,7 +57,7 @@ public class DefaultSavedRequest implements SavedRequest {
     private final ArrayList<SavedCookie> cookies = new ArrayList<SavedCookie>();
     private final ArrayList<Locale> locales = new ArrayList<Locale>();
     private final Map<String, List<String>> headers = new TreeMap<String, List<String>>(String.CASE_INSENSITIVE_ORDER);
-    private final Map<String, String[]> parameters = new TreeMap<String, String[]>(String.CASE_INSENSITIVE_ORDER);
+    private final Map<String, String[]> parameters = new TreeMap<String, String[]>();
     private final String contextPath;
     private final String method;
     private final String pathInfo;
