@@ -36,7 +36,7 @@ public abstract class SecurityWebApplicationContextUtils extends WebApplicationC
 	 * controlled through its {@code publishContext} property, which is {@code true}
 	 * by default but can be selectively switched to only publish a single context
 	 * despite multiple {@code DispatcherServlet} registrations in the web app.
-	 * @param sc ServletContext to find the web application context for
+	 * @param servletContext ServletContext to find the web application context for
 	 * @return the desired WebApplicationContext for this web app
 	 * @see #getWebApplicationContext(ServletContext)
 	 * @see ServletContext#getAttributeNames()
