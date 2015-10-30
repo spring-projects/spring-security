@@ -39,7 +39,7 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
  * @author Rob Winch
  *
  */
-public class AuthorizeRequestsTests {
+public class HttpSecurityAntMatchersTests {
 	AnnotationConfigWebApplicationContext context;
 
 	MockHttpServletRequest request;
@@ -79,8 +79,42 @@ public class AuthorizeRequestsTests {
 	static class AntMatchersNoPatternsConfig extends WebSecurityConfigurerAdapter {
 		protected void configure(HttpSecurity http) throws Exception {
 			http
+				.requestMatchers()
+					.antMatchers(HttpMethod.POST)
+					.and()
 				.authorizeRequests()
-					.antMatchers(HttpMethod.POST).denyAll();
+					.anyRequest().denyAll();
+		}
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.inMemoryAuthentication();
+		}
+	}
+
+	// SEC-3135
+	@Test
+	public void antMatchersMethodAndEmptyPatterns() throws Exception {
+		loadConfig(AntMatchersEmptyPatternsConfig.class);
+		request.setMethod("POST");
+
+		springSecurityFilterChain.doFilter(request, response, chain);
+
+		assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
+	}
+
+	@EnableWebSecurity
+	@Configuration
+	static class AntMatchersEmptyPatternsConfig extends WebSecurityConfigurerAdapter {
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.requestMatchers()
+					.antMatchers("/never/")
+					.antMatchers(HttpMethod.POST, new String[0])
+					.and()
+				.authorizeRequests()
+					.anyRequest().denyAll();
 		}
 
 		@Override
@@ -97,4 +131,6 @@ public class AuthorizeRequestsTests {
 
 		context.getAutowireCapableBeanFactory().autowireBean(this);
 	}
+
+
 }
