@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>itest-context</artifactId>
-  <version>3.2.9.RELEASE</version>
+  <version>3.2.10.CI-SNAPSHOT</version>
   <name>itest-context</name>
   <description>itest-context</description>
   <url>http://spring.io/spring-security</url>
@@ -42,6 +42,12 @@
       </plugin>
     </plugins>
   </build>
+  <repositories>
+    <repository>
+      <id>spring-snasphot</id>
+      <url>https://repo.spring.io/snapshot</url>
+    </repository>
+  </repositories>
   <dependencies>
     <dependency>
       <groupId>aopalliance</groupId>
@@ -58,7 +64,7 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <version>3.2.9.RELEASE</version>
+      <version>3.2.10.CI-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -137,13 +143,13 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
-      <version>3.2.9.RELEASE</version>
+      <version>3.2.10.CI-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
-      <version>3.2.9.RELEASE</version>
+      <version>3.2.10.CI-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
     <dependency>
