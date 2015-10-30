@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-samples-hellomvc-jc</artifactId>
-  <version>4.0.3.CI-SNAPSHOT</version>
+  <version>4.0.3.RELEASE</version>
   <packaging>war</packaging>
   <name>spring-security-samples-hellomvc-jc</name>
   <description>spring-security-samples-hellomvc-jc</description>
@@ -31,12 +31,6 @@
     <developerConnection>scm:git:git://github.com/spring-projects/spring-security</developerConnection>
     <url>https://github.com/spring-projects/spring-security</url>
   </scm>
-  <repositories>
-    <repository>
-      <id>spring-snasphot</id>
-      <url>https://repo.spring.io/snapshot</url>
-    </repository>
-  </repositories>
   <dependencies>
     <dependency>
       <groupId>javax.servlet.jsp.jstl</groupId>
@@ -83,25 +77,25 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
-      <version>4.0.3.CI-SNAPSHOT</version>
+      <version>4.0.3.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <version>4.0.3.CI-SNAPSHOT</version>
+      <version>4.0.3.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-samples-messages-jc</artifactId>
-      <version>4.0.3.CI-SNAPSHOT</version>
+      <version>4.0.3.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
-      <version>4.0.3.CI-SNAPSHOT</version>
+      <version>4.0.3.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -178,7 +172,7 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-test</artifactId>
-      <version>4.0.3.CI-SNAPSHOT</version>
+      <version>4.0.3.RELEASE</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -192,7 +186,7 @@
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-framework-bom</artifactId>
-        <version>4.1.6.RELEASE</version>
+        <version>4.2.2.RELEASE</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
