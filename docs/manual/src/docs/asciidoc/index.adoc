@@ -3510,17 +3510,15 @@ You can easily do this with the following Java Configuration:
 ----
 @EnableWebSecurity
 public class WebSecurityConfig extends
-WebSecurityConfigurerAdapter {
+		WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-		// ...
-		.headers()
-			.frameOptions()
-				.sameOrigin()
-				.and()
-			.httpStrictTransportSecurity().disable();
+			// ...
+			.headers()
+				.frameOptions().sameOrigin()
+				.httpStrictTransportSecurity().disable();
 	}
 }
 ----
