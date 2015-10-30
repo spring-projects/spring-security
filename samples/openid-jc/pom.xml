@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-samples-openid-jc</artifactId>
-  <version>3.2.7.CI-SNAPSHOT</version>
+  <version>3.2.9.RELEASE</version>
   <packaging>war</packaging>
   <name>spring-security-samples-openid-jc</name>
   <description>spring-security-samples-openid-jc</description>
@@ -50,12 +50,6 @@
       </plugin>
     </plugins>
   </build>
-  <repositories>
-    <repository>
-      <id>spring-snasphot</id>
-      <url>https://repo.spring.io/snapshot</url>
-    </repository>
-  </repositories>
   <dependencies>
     <dependency>
       <groupId>javax.servlet.jsp.jstl</groupId>
@@ -102,31 +96,31 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
-      <version>3.2.7.CI-SNAPSHOT</version>
+      <version>3.2.9.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <version>3.2.7.CI-SNAPSHOT</version>
+      <version>3.2.9.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-openid</artifactId>
-      <version>3.2.7.CI-SNAPSHOT</version>
+      <version>3.2.9.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-samples-messages-jc</artifactId>
-      <version>3.2.7.CI-SNAPSHOT</version>
+      <version>3.2.9.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
-      <version>3.2.7.CI-SNAPSHOT</version>
+      <version>3.2.9.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -205,7 +199,7 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
-      <version>1.9.5</version>
+      <version>1.10.19</version>
       <scope>test</scope>
     </dependency>
     <dependency>
