@@ -15,7 +15,7 @@ public class CachingUserDetailsService implements UserDetailsService {
 	private UserCache userCache = new NullUserCache();
 	private final UserDetailsService delegate;
 
-	CachingUserDetailsService(UserDetailsService delegate) {
+	public CachingUserDetailsService(UserDetailsService delegate) {
 		this.delegate = delegate;
 	}
 
