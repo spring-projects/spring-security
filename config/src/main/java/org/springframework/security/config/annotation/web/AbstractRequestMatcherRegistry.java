@@ -53,6 +53,20 @@ public abstract class AbstractRequestMatcherRegistry<C> {
     }
 
     /**
+     * Maps a {@link List} of
+     * {@link org.springframework.security.web.util.matcher.AntPathRequestMatcher}
+     * instances.
+     *
+     * @param method the {@link HttpMethod} to use for any
+     * {@link HttpMethod}.
+     *
+     * @return the object that is chained after creating the {@link RequestMatcher}
+     */
+    public C antMatchers(HttpMethod method) {
+        return antMatchers(method, new String[] { "/**" });
+    }
+
+    /**
      * Maps a {@link List} of {@link org.springframework.security.web.util.matcher.AntPathRequestMatcher} instances.
      *
      * @param method the {@link HttpMethod} to use or {@code null} for any {@link HttpMethod}.
@@ -144,9 +158,6 @@ public abstract class AbstractRequestMatcherRegistry<C> {
          */
         public static List<RequestMatcher> antMatchers(HttpMethod httpMethod, String...antPatterns) {
             String method = httpMethod == null ? null : httpMethod.toString();
-            if(ObjectUtils.isEmpty(antPatterns)) {
-                antPatterns = new String[] { "/**" };
-            }
             List<RequestMatcher> matchers = new ArrayList<RequestMatcher>();
             for(String pattern : antPatterns) {
                 matchers.add(new AntPathRequestMatcher(pattern, method));

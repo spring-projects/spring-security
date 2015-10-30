@@ -39,7 +39,7 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
  * @author Rob Winch
  *
  */
-public class AuthorizeRequestsTests {
+public class HttpSecurityAntMatchersTests {
     AnnotationConfigWebApplicationContext context;
 
     MockHttpServletRequest request;
@@ -79,8 +79,11 @@ public class AuthorizeRequestsTests {
     static class AntMatchersNoPatternsConfig extends WebSecurityConfigurerAdapter {
         protected void configure(HttpSecurity http) throws Exception {
             http
+                .requestMatchers()
+                    .antMatchers(HttpMethod.POST)
+                    .and()
                 .authorizeRequests()
-                    .antMatchers(HttpMethod.POST).denyAll();
+                    .anyRequest().denyAll();
         }
 
         @Override
@@ -97,4 +100,6 @@ public class AuthorizeRequestsTests {
 
         context.getAutowireCapableBeanFactory().autowireBean(this);
     }
+
+
 }
