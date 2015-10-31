@@ -32,13 +32,13 @@ public class CachingUserDetailsService implements UserDetailsService {
 
 		if (user == null) {
 			user = delegate.loadUserByUsername(username);
+
+			Assert.notNull(user, "UserDetailsService " + delegate
+					+ " returned null for username " + username + ". "
+					+ "This is an interface contract violation");
+	
+			userCache.putUserInCache(user);
 		}
-
-		Assert.notNull(user, "UserDetailsService " + delegate
-				+ " returned null for username " + username + ". "
-				+ "This is an interface contract violation");
-
-		userCache.putUserInCache(user);
 
 		return user;
 	}
