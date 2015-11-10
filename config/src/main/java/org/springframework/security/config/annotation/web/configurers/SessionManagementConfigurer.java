@@ -201,7 +201,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	 */
 	public SessionManagementConfigurer<H> sessionAuthenticationStrategy(
 			SessionAuthenticationStrategy sessionAuthenticationStrategy) {
-		this.sessionFixationAuthenticationStrategy = sessionAuthenticationStrategy;
+		this.sessionAuthenticationStrategy = sessionAuthenticationStrategy;
 		return this;
 	}
 
