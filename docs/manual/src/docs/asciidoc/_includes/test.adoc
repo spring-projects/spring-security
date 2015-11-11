@@ -188,6 +188,7 @@ For example, we might create an annotation named `@WithMockCustomUser` as shown 
 
 [source,java]
 ----
+@Retention(RetentionPolicy.RUNTIME)
 @WithSecurityContext(factory = WithMockCustomUserSecurityContextFactory.class)
 public @interface WithMockCustomUser {
 
