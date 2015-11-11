@@ -26,7 +26,7 @@ Finally, welcome to the Spring Security <<community,community>>.
 = Getting Started
 The later parts of this guide provide an in-depth discussion of the framework architecture and implementation classes, which you need to understand if you want to do any serious customization. In this part, we'll introduce Spring Security 4.0, give a brief overview of the project's history and take a slightly gentler look at how to get started using the framework. In particular, we'll look at namespace configuration which provides a much simpler way of securing your application compared to the traditional Spring bean approach where you have to wire up all the implementation classes individually.
 
-We'll also take a look at the sample applications that are available. It's worth trying to run these and experimenting with them a bit even before you read the later sections - you can dip back into them as your understanding of the framework increases. Please also check out the http://static.springsource.org/spring-security/site/index.html[project website] as it has useful information on building the project, plus links to articles, videos and tutorials.
+We'll also take a look at the sample applications that are available. It's worth trying to run these and experimenting with them a bit even before you read the later sections - you can dip back into them as your understanding of the framework increases. Please also check out the http://spring.io/spring-security[project website] as it has useful information on building the project, plus links to articles, videos and tutorials.
 
 
 [[introduction]]
@@ -137,7 +137,7 @@ You should always test your application thoroughly before rolling out a new vers
 
 [[get-spring-security]]
 === Getting Spring Security
-You can get hold of Spring Security in several ways. You can download a packaged distribution from the main http://spring.io/spring-security[Spring Security] page, download individual jars from the Maven Central repository (or a SpringSource Maven repository for snapshot and milestone releases) or, alternatively, you can build the project from source yourself.
+You can get hold of Spring Security in several ways. You can download a packaged distribution from the main http://spring.io/spring-security[Spring Security] page, download individual jars from the Maven Central repository (or a Spring Maven repository for snapshot and milestone releases) or, alternatively, you can build the project from source yourself.
 
 [[maven]]
 ==== Usage with Maven
@@ -179,7 +179,7 @@ If you are using a SNAPSHOT version, you will need to ensure you have the Spring
 <repository>
 	<id>spring-snapshot</id>
 	<name>Spring Snapshot Repository</name>
-	<url>http://repo.springsource.org/snapshot</url>
+	<url>http://repo.spring.io/snapshot</url>
 </repository>
 </repositories>
 ----
@@ -194,7 +194,7 @@ If you are using a milestone or release candidate version, you will need to ensu
 <repository>
 	<id>spring-milestone</id>
 	<name>Spring Milestone Repository</name>
-	<url>http://repo.springsource.org/milestone</url>
+	<url>http://repo.spring.io/milestone</url>
 </repository>
 </repositories>
 ----
@@ -1107,7 +1107,7 @@ protected void configure(HttpSecurity http) throws Exception {
 
 
 === Introduction
-Namespace configuration has been available since version 2.0 of the Spring framework. It allows you to supplement the traditional Spring beans application context syntax with elements from additional XML schema. You can find more information in the Spring http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/htmlsingle/spring-framework-reference.html[Reference Documentation]. A namespace element can be used simply to allow a more concise way of configuring an individual bean or, more powerfully, to define an alternative configuration syntax which more closely matches the problem domain and hides the underlying complexity from the user. A simple element may conceal the fact that multiple beans and processing steps are being added to the application context. For example, adding the following element from the security namespace to an application context will start up an embedded LDAP server for testing use within the application:
+Namespace configuration has been available since version 2.0 of the Spring framework. It allows you to supplement the traditional Spring beans application context syntax with elements from additional XML schema. You can find more information in the Spring http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/[Reference Documentation]. A namespace element can be used simply to allow a more concise way of configuring an individual bean or, more powerfully, to define an alternative configuration syntax which more closely matches the problem domain and hides the underlying complexity from the user. A simple element may conceal the fact that multiple beans and processing steps are being added to the application context. For example, adding the following element from the security namespace to an application context will start up an embedded LDAP server for testing use within the application:
 
 [source,xml]
 ----
@@ -1117,7 +1117,7 @@ Namespace configuration has been available since version 2.0 of the Spring frame
 This is much simpler than wiring up the equivalent Apache Directory Server beans. The most common alternative configuration requirements are supported by attributes on the `ldap-server` element and the user is isolated
 from worrying about which beans they need to create and what the bean property names are. footnote:[You can find out more about the use of the `ldap-server` element in the chapter on pass:specialcharacters,macros[<<ldap>>]. ]. Use of a good XML
 editor while editing the application context file should provide information on the attributes and elements that are available. We would recommend that you try out the
-http://www.springsource.com/products/sts[SpringSource Tool Suite] as it has special features for working with standard Spring namespaces.
+http://spring.io/tools/sts[Spring Tool Suite] as it has special features for working with standard Spring namespaces.
 
 
 To start using the security namespace in your application context, you need to have the `spring-security-config` jar on your classpath. Then all you need to do is add the schema declaration to your application context file:
@@ -1959,7 +1959,7 @@ Spring Security uses JIRA to manage bug reports and enhancement requests. If you
 
 If possible, in your issue report please provide a JUnit test that demonstrates any incorrect behaviour. Or, better yet, provide a patch that corrects the issue. Similarly, enhancements are welcome to be logged in the issue tracker, although we only accept enhancement requests if you include corresponding unit tests. This is necessary to ensure project test coverage is adequately maintained.
 
-You can access the issue tracker at http://jira.springsource.org/browse/SEC[http://jira.springsource.org/browse/SEC].
+You can access the issue tracker at https://jira.spring.io/browse/SEC[https://jira.spring.io/browse/SEC].
 
 
 [[becoming-involved]]
@@ -1969,7 +1969,7 @@ We welcome your involvement in the Spring Security project. There are many ways 
 
 [[further-info]]
 === Further Information
-Questions and comments on Spring Security are welcome. You can use the Spring Community Forum web site at http://forum.springsource.org[http://forum.springsource.org] to discuss Spring Security with other users of the framework. Remember to use JIRA for bug reports, as explained above.
+Questions and comments on Spring Security are welcome. You can use the Spring at StackOverflow web site at http://spring.io/questions[http://spring.io/questions] to discuss Spring Security with other users of the framework. Remember to use JIRA for bug reports, as explained above.
 
 [[overall-architecture]]
 = Architecture and Implementation
@@ -2773,7 +2773,7 @@ If authentication fails, the configured `AuthenticationFailureHandler` will be i
 
 [[servletapi]]
 == Servlet API integration
-This section describes how Spring Security is integrated with the Servlet API. The https://github.com/SpringSource/spring-security/blob/master/samples/servletapi-xml[servletapi-xml] sample application demonstrates the usage of each of these methods.
+This section describes how Spring Security is integrated with the Servlet API. The https://github.com/spring-projects/spring-security/tree/master/samples/servletapi-xml[servletapi-xml] sample application demonstrates the usage of each of these methods.
 
 
 [[servletapi-25]]
@@ -3815,7 +3815,7 @@ Allowing your website to be added to a frame can be a security issue. For exampl
 
 [NOTE]
 ====
-Another modern approach to dealing with clickjacking is using a http://www.w3.org/TR/CSP/[Content Security Policy]. Spring Security does not provide support for this as the specification is not released and it is quite a bit more complicated. However, you could use the <<headers-static,static headers>> feature to implement this. To stay up to date with this issue and to see how you can implement it with Spring Security refer to https://jira.springsource.org/browse/SEC-2117[SEC-2117]
+Another modern approach to dealing with clickjacking is using a http://www.w3.org/TR/CSP/[Content Security Policy]. Spring Security does not provide support for this as the specification is not released and it is quite a bit more complicated. However, you could use the <<headers-static,static headers>> feature to implement this. To stay up to date with this issue and to see how you can implement it with Spring Security refer to https://jira.spring.io/browse/SEC-2117[SEC-2117]
 ====
 
 There are a number ways to mitigate clickjacking attacks. For example, to protect legacy browsers from clickjacking attacks you can use https://www.owasp.org/index.php/Clickjacking_Defense_Cheat_Sheet#Best-for-now_Legacy_Browser_Frame_Breaking_Script[frame breaking code]. While not perfect, the frame breaking code is the best you can do for the legacy browsers.
@@ -3974,7 +3974,7 @@ Let's take a look at an example of using an custom instance of `XFrameOptionsHea
 	</headers>
 </http>
 <!-- Requires the c-namespace.
-See http://static.springsource.org/spring/docs/3.2.x/spring-framework-reference/html/beans.html#beans-c-namespace
+See http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#beans-c-namespace
 -->
 <beans:bean id="frameOptionsWriter"
 	class="org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter"
@@ -4359,7 +4359,7 @@ When we've used the attribute `IS_AUTHENTICATED_ANONYMOUSLY` to grant anonymous 
 
 [[authz-custom-voter]]
 ===== Custom Voters
-Obviously, you can also implement a custom `AccessDecisionVoter` and you can put just about any access-control logic you want in it. It might be specific to your application (business-logic related) or it might implement some security administration logic. For example, you'll find a http://blog.springsource.com/2009/01/02/spring-security-customization-part-2-adjusting-secured-session-in-real-time/[ blog article] on the SpringSource web site which describes how to use a voter to deny access in real-time to users whose accounts have been suspended.
+Obviously, you can also implement a custom `AccessDecisionVoter` and you can put just about any access-control logic you want in it. It might be specific to your application (business-logic related) or it might implement some security administration logic. For example, you'll find a http://spring.io/blog/2009/01/03/spring-security-customization-part-2-adjusting-secured-session-in-real-time[ blog article] on the Spring web site which describes how to use a voter to deny access in real-time to users whose accounts have been suspended.
 
 
 [[authz-after-invocation-handling]]
@@ -5103,7 +5103,7 @@ When using LDAP authentication, it is important to ensure that you configure LDA
 === Using LDAP with Spring Security
 LDAP authentication in Spring Security can be roughly divided into the following stages.
 
-* Obtaining the unique LDAP "Distinguished Name", or DN, from the login name. This will often mean performing a search in the directory, unless the exact mapping of usernames to DNs is known in advance. So a user might enter the name "joe" when logging in, but the actual name used to authenticate to LDAP will be the full DN, such as`uid=joe,ou=users,dc=springsource,dc=com`.
+* Obtaining the unique LDAP "Distinguished Name", or DN, from the login name. This will often mean performing a search in the directory, unless the exact mapping of usernames to DNs is known in advance. So a user might enter the name "joe" when logging in, but the actual name used to authenticate to LDAP will be the full DN, such as`uid=joe,ou=users,dc=spring,dc=io`.
 
 * Authenticating the user, either by "binding" as that user or by performing a remote "compare" operation of the user's password against the password attribute in the directory entry for the DN.
 
@@ -6894,7 +6894,7 @@ END;
 
 [[appendix-namespace]]
 == The Security Namespace
-This appendix provides a reference to the elements available in the security namespace and information on the underlying beans they create (a knowledge of the individual classes and how they work together is assumed - you can find more information in the project Javadoc and elsewhere in this document). If you haven't used the namespace before, please read the <<ns-config,introductory chapter>> on namespace configuration, as this is intended as a supplement to the information there. Using a good quality XML editor while editing a configuration based on the schema is recommended as this will provide contextual information on which elements and attributes are available as well as comments explaining their purpose. The namespace is written in http://www.relaxng.org/[RELAX NG] Compact format and later converted into an XSD schema. If you are familiar with this format, you may wish to examine the https://fisheye.springsource.org/browse/spring-security/config/src/main/resources/org/springframework/security/config/spring-security-3.2.rnc[schema file] directly.
+This appendix provides a reference to the elements available in the security namespace and information on the underlying beans they create (a knowledge of the individual classes and how they work together is assumed - you can find more information in the project Javadoc and elsewhere in this document). If you haven't used the namespace before, please read the <<ns-config,introductory chapter>> on namespace configuration, as this is intended as a supplement to the information there. Using a good quality XML editor while editing a configuration based on the schema is recommended as this will provide contextual information on which elements and attributes are available as well as comments explaining their purpose. The namespace is written in http://www.relaxng.org/[RELAX NG] Compact format and later converted into an XSD schema. If you are familiar with this format, you may wish to examine the https://raw.githubusercontent.com/spring-projects/spring-security/master/config/src/main/resources/org/springframework/security/config/spring-security-4.0.rnc[schema file] directly.
 
 [[nsa-web]]
 === Web Application Security
