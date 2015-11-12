@@ -144,4 +144,18 @@ class FormLoginConfigTests extends AbstractHttpConfigTests {
 		HttpServletResponse.SC_FORBIDDEN | false
 		HttpServletResponse.SC_MOVED_TEMPORARILY | true
 	}
+
+	def 'SEC-3147: authentication-failure-url should be contained "error" parameter if login-page="/login"'() {
+		xml.http {
+			'form-login'('login-page':'/login')
+		}
+		createAppContext()
+
+		def apf = getFilter(UsernamePasswordAuthenticationFilter.class);
+
+		expect:
+		apf.failureHandler.defaultFailureUrl == '/login?error'
+	}
+
+
 }
