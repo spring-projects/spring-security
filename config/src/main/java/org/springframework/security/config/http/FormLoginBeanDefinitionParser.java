@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import org.w3c.dom.Element;
  * @author Luke Taylor
  * @author Ben Alex
  * @author Rob Winch
+ * @author Kazuki Shimizu
  */
 public class FormLoginBeanDefinitionParser {
 	protected final Log logger = LogFactory.getLog(getClass());
@@ -209,9 +210,9 @@ public class FormLoginBeanDefinitionParser {
 			BeanDefinitionBuilder failureHandler = BeanDefinitionBuilder
 					.rootBeanDefinition(SimpleUrlAuthenticationFailureHandler.class);
 			if (!StringUtils.hasText(authenticationFailureUrl)) {
-				// Fall back to redisplaying the custom login page, if one was specified.
+				// Fall back to re-displaying the custom login page, if one was specified.
 				if (StringUtils.hasText(loginPage)) {
-					authenticationFailureUrl = loginPage;
+					authenticationFailureUrl = loginPage + "?" + DefaultLoginPageGeneratingFilter.ERROR_PARAMETER_NAME;
 				}
 				else {
 					authenticationFailureUrl = DEF_FORM_LOGIN_AUTHENTICATION_FAILURE_URL;
