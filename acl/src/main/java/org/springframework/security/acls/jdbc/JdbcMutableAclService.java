@@ -62,6 +62,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 
 	private boolean foreignKeysInDatabase = true;
 	private final AclCache aclCache;
+	private String getEntryCountByObjectIdentity = "select count(1) from acl_entry where acl_object_identity=?";
 	private String deleteEntryByObjectIdentityForeignKey = "delete from acl_entry where acl_object_identity=?";
 	private String deleteObjectIdentityByPrimaryKey = "delete from acl_object_identity where id=?";
 	private String classIdentityQuery = "call identity()";
@@ -348,9 +349,13 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 	 */
 	public MutableAcl updateAcl(MutableAcl acl) throws NotFoundException {
 		Assert.notNull(acl.getId(), "Object Identity doesn't provide an identifier");
+		
+		Long oidPrimaryKey = retrieveObjectIdentityPrimaryKey(acl.getObjectIdentity());
 
-		// Delete this ACL's ACEs in the acl_entry table
-		deleteEntries(retrieveObjectIdentityPrimaryKey(acl.getObjectIdentity()));
+		// Delete this ACL's ACEs in the acl_entry table if any exist
+		if(getEntryCount(oidPrimaryKey) > 0) {
+			deleteEntries(oidPrimaryKey);
+		}
 
 		// Create this ACL's ACEs in the acl_entry table
 		createEntries(acl);
@@ -420,6 +425,11 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 	public void setClassIdentityQuery(String classIdentityQuery) {
 		Assert.hasText(classIdentityQuery, "New classIdentityQuery query is required");
 		this.classIdentityQuery = classIdentityQuery;
+	}
+	
+	private Integer getEntryCount(Long oidPrimaryKey) {
+		return jdbcTemplate.queryForObject(getEntryCountByObjectIdentity, 
+			Integer.class, oidPrimaryKey);
 	}
 
 	/**
