@@ -61,6 +61,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.PortMapper;
 import org.springframework.security.web.PortMapperImpl;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -834,6 +835,18 @@ public final class HttpSecurity extends
 	 */
 	public FormLoginConfigurer<HttpSecurity> formLogin() throws Exception {
 		return getOrApply(new FormLoginConfigurer<HttpSecurity>());
+	}
+
+	/**
+	 * Specifies to support form based authentication with custom authentication processing filter.
+	 * For more info see {@link HttpSecurity#formLogin()}
+	 *
+	 * @param authenticationProcessingFilter custom authentication processing filter
+	 * @return
+	 * @throws Exception
+     */
+	public FormLoginConfigurer<HttpSecurity> formLogin(UsernamePasswordAuthenticationFilter authenticationProcessingFilter) throws Exception {
+		return getOrApply(new FormLoginConfigurer<HttpSecurity>(authenticationProcessingFilter));
 	}
 
 	/**
