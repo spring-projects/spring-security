@@ -33,6 +33,7 @@ import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuc
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.util.Assert;
 
 /**
  * Adds logout support. Other {@link SecurityConfigurer} instances may invoke
@@ -85,6 +86,7 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>> extends
 	 * @return the {@link LogoutConfigurer} for further customization
 	 */
 	public LogoutConfigurer<H> addLogoutHandler(LogoutHandler logoutHandler) {
+		Assert.notNull(logoutHandler, "logoutHandler cannot be null");
 		this.logoutHandlers.add(logoutHandler);
 		return this;
 	}

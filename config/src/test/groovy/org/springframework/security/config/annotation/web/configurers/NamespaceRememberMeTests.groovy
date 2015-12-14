@@ -19,7 +19,8 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.BaseWebConfig;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
+import org.springframework.security.web.authentication.logout.LogoutHandler;
 
 import javax.servlet.http.Cookie
 
@@ -112,9 +113,12 @@ public class NamespaceRememberMeTests extends BaseSpringSpec {
 		}
 	}
 
+	// See SEC-3170
+	static interface RememberMeServicesLogoutHandler extends RememberMeServices, LogoutHandler{}
+
 	def "http/remember-me@services-ref"() {
 		setup:
-			RememberMeServicesRefConfig.REMEMBER_ME_SERVICES = Mock(RememberMeServices)
+			RememberMeServicesRefConfig.REMEMBER_ME_SERVICES = Mock(RememberMeServicesLogoutHandler)
 		when: "use custom remember-me services"
 			loadConfig(RememberMeServicesRefConfig)
 		then: "custom remember-me services used"
