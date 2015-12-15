@@ -230,7 +230,7 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>> extend
 		RememberMeServices rememberMeServices = getRememberMeServices(http, key);
 		http.setSharedObject(RememberMeServices.class, rememberMeServices);
 		LogoutConfigurer<H> logoutConfigurer = http.getConfigurer(LogoutConfigurer.class);
-		if (logoutConfigurer != null) {
+		if (logoutConfigurer != null && logoutHandler != null) {
 			logoutConfigurer.addLogoutHandler(logoutHandler);
 		}
 

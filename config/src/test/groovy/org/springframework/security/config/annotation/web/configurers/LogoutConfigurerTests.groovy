@@ -23,6 +23,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
+import org.springframework.security.config.annotation.web.configurers.LogoutConfigurerTests.RememberMeNoLogoutHandler;
 import org.springframework.security.web.authentication.RememberMeServices
 import org.springframework.security.web.authentication.logout.LogoutFilter
 
@@ -114,24 +115,34 @@ class LogoutConfigurerTests extends BaseSpringSpec {
 		}
 	}
 
-	def "SEC-3170: LogoutConfigurer allows null LogoutHandler"() {
-		when:
+	def "SEC-3170: LogoutConfigurer RememberMeService not LogoutHandler"() {
+		setup:
+			RememberMeNoLogoutHandler.REMEMBER_ME = Mock(RememberMeServices)
 			loadConfig(RememberMeNoLogoutHandler)
-			request.method = "GET"
+			request.method = "POST"
 			request.servletPath = "/logout"
-			findFilter(LogoutFilter).doFilter(request, response, chain)
+		when:
+			findFilter(LogoutFilter).doFilter(request,response,chain)
 		then:
-			thrown(BeanCreationException)
+			response.redirectedUrl == "/login?logout"
+	}
+
+	def "SEC-3170: LogoutConfigurer prevents null LogoutHandler"() {
+		when:
+			new LogoutConfigurer().addLogoutHandler(null)
+		then:
+			thrown(IllegalArgumentException)
 	}
 
 	@EnableWebSecurity
 	static class RememberMeNoLogoutHandler extends WebSecurityConfigurerAdapter {
+		static RememberMeServices REMEMBER_ME
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			http
 					.rememberMe()
-					.rememberMeServices(Mock(RememberMeServices))
+					.rememberMeServices(REMEMBER_ME)
 		}
 	}
 }
