@@ -42,7 +42,7 @@ public class PasswordPolicyAwareContextSourceTests {
 	@Test
 	public void contextIsReturnedWhenNoControlsAreSetAndReconnectIsSuccessful()
 			throws Exception {
-		assertNotNull(ctxSource.getContext("user", "ignored"));
+		assertThat(ctxSource.getContext("user", "ignored")).isNotNull();
 	}
 
 	@Test(expected = UncategorizedLdapException.class)

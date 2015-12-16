@@ -58,14 +58,14 @@ public class BasicAuthenticationEntryPointTests extends TestCase {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertEquals("realmName must be specified", expected.getMessage());
+			assertThat(expected.getMessage()).isEqualTo("realmName must be specified");
 		}
 	}
 
 	public void testGettersSetters() {
 		BasicAuthenticationEntryPoint ep = new BasicAuthenticationEntryPoint();
 		ep.setRealmName("realm");
-		assertEquals("realm", ep.getRealmName());
+		assertThat(ep.getRealmName()).isEqualTo("realm");
 	}
 
 	public void testNormalOperation() throws Exception {
@@ -83,9 +83,9 @@ public class BasicAuthenticationEntryPointTests extends TestCase {
 		String msg = "These are the jokes kid";
 		ep.commence(request, response, new DisabledException(msg));
 
-		assertEquals(401, response.getStatus());
-		assertEquals(msg, response.getErrorMessage());
+		assertThat(response.getStatus()).isEqualTo(401);
+		assertThat(response.getErrorMessage()).isEqualTo(msg);
 
-		assertEquals("Basic realm=\"hello\"", response.getHeader("WWW-Authenticate"));
+		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo("Basic realm=\"hello\"");
 	}
 }

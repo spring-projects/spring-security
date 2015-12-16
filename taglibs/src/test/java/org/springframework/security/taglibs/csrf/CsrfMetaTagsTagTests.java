@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * @author Nick Williams
@@ -26,7 +26,7 @@ public class CsrfMetaTagsTagTests {
 
 		String value = this.tag.handleToken(token);
 
-		assertNotNull("The returned value should not be null.", value);
+		assertThat(value).as("The returned value should not be null.").isNotNull();
 		assertEquals("The output is not correct.",
 				"<meta name=\"_csrf_parameter\" content=\"_csrf\" />"
 						+ "<meta name=\"_csrf_header\" content=\"X-Csrf-Token\" />"
@@ -40,7 +40,7 @@ public class CsrfMetaTagsTagTests {
 
 		String value = this.tag.handleToken(token);
 
-		assertNotNull("The returned value should not be null.", value);
+		assertThat(value).as("The returned value should not be null.").isNotNull();
 		assertEquals("The output is not correct.",
 				"<meta name=\"_csrf_parameter\" content=\"csrfParameter\" />"
 						+ "<meta name=\"_csrf_header\" content=\"csrfHeader\" />"

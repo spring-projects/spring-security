@@ -1,6 +1,6 @@
 package org.springframework.security.openid;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -59,16 +59,16 @@ public class OpenIDAuthenticationFilterTests {
 			public String beginConsumption(HttpServletRequest req,
 					String claimedIdentity, String returnToUrl, String realm)
 					throws OpenIDConsumerException {
-				assertEquals(CLAIMED_IDENTITY_URL, claimedIdentity);
-				assertEquals(DEFAULT_TARGET_URL, returnToUrl);
-				assertEquals("http://localhost:8080/", realm);
+				assertThat(claimedIdentity).isEqualTo(CLAIMED_IDENTITY_URL);
+				assertThat(returnToUrl).isEqualTo(DEFAULT_TARGET_URL);
+				assertThat(realm).isEqualTo("http://localhost:8080/");
 				return REDIRECT_URL;
 			}
 		});
 
 		FilterChain fc = mock(FilterChain.class);
 		filter.doFilter(req, response, fc);
-		assertEquals(REDIRECT_URL, response.getRedirectedUrl());
+		assertThat(response.getRedirectedUrl()).isEqualTo(REDIRECT_URL);
 		// Filter chain shouldn't proceed
 		verify(fc, never()).doFilter(any(HttpServletRequest.class),
 				any(HttpServletResponse.class));
@@ -88,8 +88,8 @@ public class OpenIDAuthenticationFilterTests {
 
 		URI returnTo = new URI(filter.buildReturnToUrl(req));
 		String query = returnTo.getRawQuery();
-		assertEquals(1, count(query, '='));
-		assertEquals(0, count(query, '&'));
+		assertThat(count(query).isCloseTo(1, within('=')));
+		assertThat(count(query).isCloseTo(0, within('&')));
 	}
 
 	/**

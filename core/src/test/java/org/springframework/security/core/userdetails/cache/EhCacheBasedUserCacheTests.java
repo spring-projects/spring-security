@@ -15,7 +15,7 @@
 
 package org.springframework.security.core.userdetails.cache;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
@@ -75,11 +75,11 @@ public class EhCacheBasedUserCacheTests {
 
 		// Check it gets removed from the cache
 		cache.removeUserFromCache(getUser());
-		assertNull(cache.getUserFromCache(getUser().getUsername()));
+		assertThat(cache.getUserFromCache(getUser().getUsername())).isNull();
 
 		// Check it doesn't return values for null or unknown users
-		assertNull(cache.getUserFromCache(null));
-		assertNull(cache.getUserFromCache("UNKNOWN_USER"));
+		assertThat(cache.getUserFromCache(null)).isNull();
+		assertThat(cache.getUserFromCache("UNKNOWN_USER")).isNull();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -91,6 +91,6 @@ public class EhCacheBasedUserCacheTests {
 
 		Ehcache myCache = getCache();
 		cache.setCache(myCache);
-		assertEquals(myCache, cache.getCache());
+		assertThat(cache.getCache()).isEqualTo(myCache);
 	}
 }

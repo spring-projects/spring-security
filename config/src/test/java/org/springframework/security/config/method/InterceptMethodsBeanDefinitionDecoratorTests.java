@@ -1,6 +1,6 @@
 package org.springframework.security.config.method;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -50,12 +50,12 @@ public class InterceptMethodsBeanDefinitionDecoratorTests implements
 
 	@Test
 	public void targetDoesntLoseApplicationListenerInterface() {
-		assertEquals(1, appContext.getBeansOfType(ApplicationListener.class).size());
-		assertEquals(1, appContext.getBeanNamesForType(ApplicationListener.class).length);
+		assertThat(appContext.getBeansOfType(ApplicationListener.class)).hasSize(1);
+		assertThat(appContext.getBeanNamesForType(ApplicationListener.class).length).isEqualTo(1);
 		appContext.publishEvent(new AuthenticationSuccessEvent(
 				new TestingAuthenticationToken("user", "")));
 
-		assertTrue(target instanceof ApplicationListener<?>);
+		assertThat(target instanceof ApplicationListener<?>).isTrue();
 	}
 
 	@Test

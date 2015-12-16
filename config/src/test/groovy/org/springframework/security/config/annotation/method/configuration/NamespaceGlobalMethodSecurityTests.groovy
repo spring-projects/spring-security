@@ -17,7 +17,7 @@ package org.springframework.security.config.annotation.method.configuration
 
 import org.springframework.security.access.intercept.aspectj.AspectJMethodSecurityInterceptor
 
-import static org.fest.assertions.Assertions.assertThat
+import static org.assertj.core.api.Assertions.assertThat
 import static org.junit.Assert.fail
 
 import java.lang.reflect.Method

@@ -27,7 +27,7 @@ public class LogoutHandlerTests extends TestCase {
 		request.setQueryString("otherparam=blah");
 
 		DefaultHttpFirewall fw = new DefaultHttpFirewall();
-		assertTrue(filter.requiresLogout(fw.getFirewalledRequest(request), response));
+		assertThat(filter.requiresLogout(fw.getFirewalledRequest(request), response)).isTrue();
 	}
 
 	public void testRequiresLogoutUrlWorksWithQueryParams() {
@@ -39,7 +39,7 @@ public class LogoutHandlerTests extends TestCase {
 		request.setRequestURI("/context/logout?param=blah");
 		request.setQueryString("otherparam=blah");
 
-		assertTrue(filter.requiresLogout(request, response));
+		assertThat(filter.requiresLogout(request, response)).isTrue();
 	}
 
 }

@@ -15,7 +15,7 @@
  */
 package org.springframework.security.test.context.support;
 
-import static org.fest.assertions.Assertions.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.List;

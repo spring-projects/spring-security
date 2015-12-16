@@ -1,6 +1,6 @@
 package org.springframework.security.config;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Matchers.*;
 import static org.powermock.api.mockito.PowerMockito.*;
 
@@ -57,7 +57,7 @@ public class SecurityNamespaceHandlerTests {
 			fail("Expected BeanDefinitionParsingException");
 		}
 		catch (BeanDefinitionParsingException expected) {
-			assertTrue(expected.getMessage().contains(
+			assertThat(expected.getMessage().contains(
 					"You cannot use a spring-security-2.0.xsd"));
 		}
 	}

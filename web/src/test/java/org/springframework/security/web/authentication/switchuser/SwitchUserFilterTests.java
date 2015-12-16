@@ -15,7 +15,7 @@
 
 package org.springframework.security.web.authentication.switchuser;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import org.junit.*;
@@ -108,7 +108,7 @@ public class SwitchUserFilterTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setRequestURI("/j_spring_security_my_exit_user");
 
-		assertTrue(filter.requiresExitUser(request));
+		assertThat(filter.requiresExitUser(request)).isTrue();
 	}
 
 	@Test
@@ -119,7 +119,7 @@ public class SwitchUserFilterTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setRequestURI("/j_spring_security_my_switch_user");
 
-		assertTrue(filter.requiresSwitchUser(request));
+		assertThat(filter.requiresSwitchUser(request)).isTrue();
 	}
 
 	@Test(expected = UsernameNotFoundException.class)
@@ -156,7 +156,7 @@ public class SwitchUserFilterTests {
 
 	@Test
 	public void attemptSwitchUserIsSuccessfulWithValidUser() throws Exception {
-		assertNotNull(switchToUser("jacklord"));
+		assertThat(switchToUser("jacklord")).isNotNull();
 	}
 
 	@Test
@@ -176,7 +176,7 @@ public class SwitchUserFilterTests {
 		filter.doFilter(request, response, chain);
 		verify(chain, never()).doFilter(request, response);
 
-		assertNotNull(response.getErrorMessage());
+		assertThat(response.getErrorMessage()).isNotNull();
 
 		// Now check for the redirect
 		request.setContextPath("/mywebapp");
@@ -192,8 +192,8 @@ public class SwitchUserFilterTests {
 		filter.doFilter(request, response, chain);
 		verify(chain, never()).doFilter(request, response);
 
-		assertEquals("/mywebapp/switchfailed", response.getRedirectedUrl());
-		assertEquals("/switchfailed",
+		assertThat(response.getRedirectedUrl()).isEqualTo("/mywebapp/switchfailed");
+		assertThat("/switchfailed").isEqualTo(
 				FieldUtils.getFieldValue(filter, "switchFailureUrl"));
 	}
 
@@ -222,7 +222,7 @@ public class SwitchUserFilterTests {
 		filter.setSwitchUserUrl("/login/impersonate");
 
 		request.setRequestURI("/webapp/login/impersonate;jsessionid=8JHDUD723J8");
-		assertTrue(filter.requiresSwitchUser(request));
+		assertThat(filter.requiresSwitchUser(request)).isTrue();
 	}
 
 	@Test
@@ -260,8 +260,8 @@ public class SwitchUserFilterTests {
 		// check current user, should be back to original user (dano)
 		Authentication targetAuth = SecurityContextHolder.getContext()
 				.getAuthentication();
-		assertNotNull(targetAuth);
-		assertEquals("dano", targetAuth.getPrincipal());
+		assertThat(targetAuth).isNotNull();
+		assertThat(targetAuth.getPrincipal()).isEqualTo("dano");
 	}
 
 	@Test(expected = AuthenticationException.class)
@@ -305,7 +305,7 @@ public class SwitchUserFilterTests {
 
 		verify(chain, never()).doFilter(request, response);
 
-		assertEquals("/webapp/someOtherUrl", response.getRedirectedUrl());
+		assertThat(response.getRedirectedUrl()).isEqualTo("/webapp/someOtherUrl");
 	}
 
 	@Test
@@ -338,7 +338,7 @@ public class SwitchUserFilterTests {
 
 		verify(chain, never()).doFilter(request, response);
 
-		assertEquals("/someOtherUrl", response.getRedirectedUrl());
+		assertThat(response.getRedirectedUrl()).isEqualTo("/someOtherUrl");
 	}
 
 	@Test
@@ -373,9 +373,9 @@ public class SwitchUserFilterTests {
 		// check current user
 		Authentication targetAuth = SecurityContextHolder.getContext()
 				.getAuthentication();
-		assertNotNull(targetAuth);
-		assertTrue(targetAuth.getPrincipal() instanceof UserDetails);
-		assertEquals("jacklord", ((User) targetAuth.getPrincipal()).getUsername());
+		assertThat(targetAuth).isNotNull();
+		assertThat(targetAuth.getPrincipal() instanceof UserDetails).isTrue();
+		assertThat(((User) targetAuth.getPrincipal()).getUsername()).isEqualTo("jacklord");
 	}
 
 	@Test
@@ -401,9 +401,9 @@ public class SwitchUserFilterTests {
 		});
 
 		Authentication result = filter.attemptSwitchUser(request);
-		assertTrue(result != null);
-		assertEquals(2, result.getAuthorities().size());
-		assertTrue(AuthorityUtils.authorityListToSet(result.getAuthorities()).contains(
+		assertThat(result != null).isTrue();
+		assertThat(result.getAuthorities()).hasSize(2);
+		assertThat(AuthorityUtils.authorityListToSet(result.getAuthorities()).contains(
 				"ROLE_NEW"));
 	}
 
@@ -426,8 +426,8 @@ public class SwitchUserFilterTests {
 			}
 		}
 
-		assertNotNull(switchedFrom);
-		assertSame(source, switchedFrom.getSource());
+		assertThat(switchedFrom).isNotNull();
+		assertThat(source).isSameAs(switchedFrom.getSource());
 	}
 
 	// gh-3697
@@ -459,9 +459,9 @@ public class SwitchUserFilterTests {
 			}
 		}
 
-		assertNotNull(switchedFrom);
-		assertSame(source, switchedFrom.getSource());
-		assertEquals(switchAuthorityRole, switchedFrom.getAuthority());
+		assertThat(switchedFrom).isNotNull();
+		assertThat(switchedFrom.getSource()).isSameAs(source);
+		assertThat(switchAuthorityRole).isEqualTo(switchedFrom.getAuthority());
 	}
 
 	// ~ Inner Classes

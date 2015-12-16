@@ -1,6 +1,6 @@
 package org.springframework.security.crypto.codec;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.*;
 
@@ -15,11 +15,11 @@ public class Utf8Tests {
 	@Test
 	public void utf8EncodesAndDecodesCorrectly() throws Exception {
 		byte[] bytes = Utf8.encode("6048b75ed560785c");
-		assertEquals(16, bytes.length);
-		assertTrue(Arrays.equals("6048b75ed560785c".getBytes("UTF-8"), bytes));
+		assertThat(bytes.length).isEqualTo(16);
+		assertThat(Arrays.equals("6048b75ed560785c".getBytes("UTF-8"), bytes)).isTrue();
 
 		String decoded = Utf8.decode(bytes);
 
-		assertEquals("6048b75ed560785c", decoded);
+		assertThat(decoded).isEqualTo("6048b75ed560785c");
 	}
 }

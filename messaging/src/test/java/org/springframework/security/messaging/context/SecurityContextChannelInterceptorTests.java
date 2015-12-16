@@ -20,7 +20,7 @@ import org.springframework.security.messaging.context.SecurityContextChannelInte
 
 import java.security.Principal;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.core.context.SecurityContextHolder.*;
 
 @RunWith(MockitoJUnitRunner.class)

@@ -17,7 +17,7 @@ package org.springframework.security.crypto.bcrypt;
 import java.util.Arrays;
 
 import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * JUnit unit tests for BCrypt routines
@@ -86,7 +86,7 @@ public class BCryptTests {
 			String salt = test_vectors[i][1];
 			String expected = test_vectors[i][2];
 			String hashed = BCrypt.hashpw(plain, salt);
-			assertEquals(hashed, expected);
+			assertThat(expected).isEqualTo(hashed);
 			print(".");
 		}
 		println("");
@@ -105,7 +105,7 @@ public class BCryptTests {
 				String salt = BCrypt.gensalt(i);
 				String hashed1 = BCrypt.hashpw(plain, salt);
 				String hashed2 = BCrypt.hashpw(plain, hashed1);
-				assertEquals(hashed1, hashed2);
+				assertThat(hashed2).isEqualTo(hashed1);
 				print(".");
 			}
 		}
@@ -123,7 +123,7 @@ public class BCryptTests {
 			String salt = BCrypt.gensalt();
 			String hashed1 = BCrypt.hashpw(plain, salt);
 			String hashed2 = BCrypt.hashpw(plain, hashed1);
-			assertEquals(hashed1, hashed2);
+			assertThat(hashed2).isEqualTo(hashed1);
 			print(".");
 		}
 		println("");
@@ -138,7 +138,7 @@ public class BCryptTests {
 		for (int i = 0; i < test_vectors.length; i++) {
 			String plain = test_vectors[i][0];
 			String expected = test_vectors[i][2];
-			assertTrue(BCrypt.checkpw(plain, expected));
+			assertThat(BCrypt.checkpw(plain, expected)).isTrue();
 			print(".");
 		}
 		println("");
@@ -154,7 +154,7 @@ public class BCryptTests {
 			int broken_index = (i + 4) % test_vectors.length;
 			String plain = test_vectors[i][0];
 			String expected = test_vectors[broken_index][2];
-			assertFalse(BCrypt.checkpw(plain, expected));
+			assertThat(BCrypt.checkpw(plain, expected)).isFalse();
 			print(".");
 		}
 		println("");
@@ -170,19 +170,19 @@ public class BCryptTests {
 		String pw2 = "????????";
 
 		String h1 = BCrypt.hashpw(pw1, BCrypt.gensalt());
-		assertFalse(BCrypt.checkpw(pw2, h1));
+		assertThat(BCrypt.checkpw(pw2, h1)).isFalse();
 		print(".");
 
 		String h2 = BCrypt.hashpw(pw2, BCrypt.gensalt());
-		assertFalse(BCrypt.checkpw(pw1, h2));
+		assertThat(BCrypt.checkpw(pw1, h2)).isFalse();
 		print(".");
 		println("");
 	}
 
 	@Test
 	public void roundsForDoesNotOverflow() {
-		assertEquals(1024, BCrypt.roundsForLogRounds(10));
-		assertEquals(0x80000000L, BCrypt.roundsForLogRounds(31));
+		assertThat(BCrypt.roundsForLogRounds(10)).isEqualTo(1024);
+		assertThat(BCrypt.roundsForLogRounds(31)).isEqualTo(0x80000000L);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -209,29 +209,29 @@ public class BCryptTests {
 
 	@Test
 	public void testBase64EncodeSimpleByteArrays() {
-		assertEquals("..", encode_base64(new byte[] { 0 }, 1));
-		assertEquals("...", encode_base64(new byte[] { 0, 0 }, 2));
-		assertEquals("....", encode_base64(new byte[] { 0, 0, 0 }, 3));
+		assertThat(1)).as("..").isEqualTo(encode_base64(new byte[] { 0 });
+		assertThat(0 }).as("...").isCloseTo(encode_base64(new byte[] { 0, within(2)));
+		assertThat(0 }).as("....").isCloseTo(encode_base64(new byte[] { 0, 0, within(3)));
 	}
 
 	@Test
 	public void decodingCharsOutsideAsciiGivesNoResults() {
 		byte[] ba = BCrypt.decode_base64("ππππππππ", 1);
-		assertEquals(0, ba.length);
+		assertThat(ba.length).isEqualTo(0);
 	}
 
 	@Test
 	public void decodingStopsWithFirstInvalidCharacter() {
-		assertEquals(1, BCrypt.decode_base64("....", 1).length);
-		assertEquals(0, BCrypt.decode_base64(" ....", 1).length);
+		assertThat(1).length).isEqualTo(1, BCrypt.decode_base64("....");
+		assertThat(1).length).isEqualTo(0, BCrypt.decode_base64(" ....");
 	}
 
 	@Test
 	public void decodingOnlyProvidesAvailableBytes() {
-		assertEquals(0, BCrypt.decode_base64("", 1).length);
-		assertEquals(3, BCrypt.decode_base64("......", 3).length);
-		assertEquals(4, BCrypt.decode_base64("......", 4).length);
-		assertEquals(4, BCrypt.decode_base64("......", 5).length);
+		assertThat(1).length).isEqualTo(0, BCrypt.decode_base64("");
+		assertThat(3).length).isEqualTo(3, BCrypt.decode_base64("......");
+		assertThat(4).length).isEqualTo(4, BCrypt.decode_base64("......");
+		assertThat(5).length).isEqualTo(4, BCrypt.decode_base64("......");
 	}
 
 	/**
@@ -247,10 +247,10 @@ public class BCryptTests {
 				ba[i] = (byte) b;
 
 				String s = encode_base64(ba, 3);
-				assertEquals(4, s.length());
+				assertThat(s.length()).isEqualTo(4);
 
 				byte[] decoded = BCrypt.decode_base64(s, 3);
-				assertArrayEquals(ba, decoded);
+				assertThat(decoded).isEqualTo(ba);
 			}
 		}
 	}
@@ -267,8 +267,8 @@ public class BCryptTests {
 
 	@Test
 	public void genSaltGeneratesCorrectSaltPrefix() {
-		assertTrue(BCrypt.gensalt(4).startsWith("$2a$04$"));
-		assertTrue(BCrypt.gensalt(31).startsWith("$2a$31$"));
+		assertThat(BCrypt.gensalt(4).startsWith("$2a$04$")).isTrue();
+		assertThat(BCrypt.gensalt(31).startsWith("$2a$31$")).isTrue();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -294,12 +294,12 @@ public class BCryptTests {
 
 	@Test
 	public void equalsOnStringsIsCorrect() {
-		assertTrue(BCrypt.equalsNoEarlyReturn("", ""));
-		assertTrue(BCrypt.equalsNoEarlyReturn("test", "test"));
+		assertThat(BCrypt.equalsNoEarlyReturn("", "")).isTrue();
+		assertThat(BCrypt.equalsNoEarlyReturn("test", "test")).isTrue();
 
-		assertFalse(BCrypt.equalsNoEarlyReturn("test", ""));
-		assertFalse(BCrypt.equalsNoEarlyReturn("", "test"));
+		assertThat(BCrypt.equalsNoEarlyReturn("test", "")).isFalse();
+		assertThat(BCrypt.equalsNoEarlyReturn("", "test")).isFalse();
 
-		assertFalse(BCrypt.equalsNoEarlyReturn("test", "pass"));
+		assertThat(BCrypt.equalsNoEarlyReturn("test", "pass")).isFalse();
 	}
 }

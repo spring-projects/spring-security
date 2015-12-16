@@ -1,6 +1,6 @@
 package org.springframework.security.authentication.encoding;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Test;
 
@@ -11,24 +11,24 @@ public class PasswordEncoderUtilsTests {
 
 	@Test
 	public void differentLength() {
-		assertFalse(PasswordEncoderUtils.equals("abc", "a"));
-		assertFalse(PasswordEncoderUtils.equals("a", "abc"));
+		assertThat(PasswordEncoderUtils.equals("abc", "a")).isFalse();
+		assertThat(PasswordEncoderUtils.equals("a", "abc")).isFalse();
 	}
 
 	@Test
 	public void equalsNull() {
-		assertFalse(PasswordEncoderUtils.equals(null, "a"));
-		assertFalse(PasswordEncoderUtils.equals("a", null));
-		assertTrue(PasswordEncoderUtils.equals(null, null));
+		assertThat(PasswordEncoderUtils.equals(null, "a")).isFalse();
+		assertThat(PasswordEncoderUtils.equals("a", null)).isFalse();
+		assertThat(PasswordEncoderUtils.equals(null, null)).isTrue();
 	}
 
 	@Test
 	public void equalsCaseSensitive() {
-		assertFalse(PasswordEncoderUtils.equals("aBc", "abc"));
+		assertThat(PasswordEncoderUtils.equals("aBc", "abc")).isFalse();
 	}
 
 	@Test
 	public void equalsSuccess() {
-		assertTrue(PasswordEncoderUtils.equals("abcdef", "abcdef"));
+		assertThat(PasswordEncoderUtils.equals("abcdef", "abcdef")).isTrue();
 	}
 }

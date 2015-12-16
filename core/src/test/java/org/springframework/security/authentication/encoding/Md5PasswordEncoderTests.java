@@ -15,7 +15,7 @@
 
 package org.springframework.security.authentication.encoding;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Test;
 
@@ -40,10 +40,10 @@ public class Md5PasswordEncoderTests {
 		String badRaw = "abc321";
 		String salt = "THIS_IS_A_SALT";
 		String encoded = pe.encodePassword(raw, salt);
-		assertTrue(pe.isPasswordValid(encoded, raw, salt));
-		assertFalse(pe.isPasswordValid(encoded, badRaw, salt));
-		assertEquals("a68aafd90299d0b137de28fb4bb68573", encoded);
-		assertEquals("MD5", pe.getAlgorithm());
+		assertThat(pe.isPasswordValid(encoded, raw, salt)).isTrue();
+		assertThat(pe.isPasswordValid(encoded, badRaw, salt)).isFalse();
+		assertThat(encoded).isEqualTo("a68aafd90299d0b137de28fb4bb68573");
+		assertThat(pe.getAlgorithm()).isEqualTo("MD5");
 	}
 
 	@Test
@@ -52,7 +52,7 @@ public class Md5PasswordEncoderTests {
 		// $ echo -n "你好" | md5
 		// 7eca689f0d3389d9dea66ae112e5cfd7
 		String encodedPassword = md5.encodePassword("\u4F60\u597d", null);
-		assertEquals("7eca689f0d3389d9dea66ae112e5cfd7", encodedPassword);
+		assertThat(encodedPassword).isEqualTo("7eca689f0d3389d9dea66ae112e5cfd7");
 	}
 
 	@Test
@@ -63,9 +63,9 @@ public class Md5PasswordEncoderTests {
 		String badRaw = "abc321";
 		String salt = "THIS_IS_A_SALT";
 		String encoded = pe.encodePassword(raw, salt);
-		assertTrue(pe.isPasswordValid(encoded, raw, salt));
-		assertFalse(pe.isPasswordValid(encoded, badRaw, salt));
-		assertTrue(encoded.length() != 32);
+		assertThat(pe.isPasswordValid(encoded, raw, salt)).isTrue();
+		assertThat(pe.isPasswordValid(encoded, badRaw, salt)).isFalse();
+		assertThat(encoded.length() != 32).isTrue();
 	}
 
 	@Test

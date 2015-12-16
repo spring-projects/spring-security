@@ -1,6 +1,6 @@
 package org.springframework.security.config.method;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.springframework.security.config.ConfigTestUtils.AUTH_PROVIDER_XML;
 
 import java.util.ArrayList;
@@ -93,8 +93,8 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 
 		// SEC-1213. Check the order
 		Advisor[] advisors = ((Advised) target).getAdvisors();
-		assertEquals(1, advisors.length);
-		assertEquals(1001, ((MethodSecurityMetadataSourceAdvisor) advisors[0]).getOrder());
+		assertThat(advisors.length).isEqualTo(1);
+		assertThat(((MethodSecurityMetadataSourceAdvisor) advisors[0]).getOrder()).isEqualTo(1001);
 	}
 
 	@Test(expected = AccessDeniedException.class)
@@ -121,7 +121,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 		PostProcessedMockUserDetailsService service = (PostProcessedMockUserDetailsService) appContext
 				.getBean("myUserService");
 
-		assertEquals("Hello from the post processor!", service.getPostProcessorWasHere());
+		assertThat(service.getPostProcessorWasHere()).isEqualTo("Hello from the post processor!");
 	}
 
 	@Test(expected = AccessDeniedException.class)
@@ -237,7 +237,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 				.getAdvice()).getAfterInvocationManager();
 		PostInvocationAdviceProvider aip = (PostInvocationAdviceProvider) pm
 				.getProviders().get(0);
-		assertTrue(FieldUtils.getFieldValue(mev, "preAdvice.expressionHandler") == FieldUtils
+		assertThat(FieldUtils.getFieldValue(mev, "preAdvice.expressionHandler")).isSameAs(FieldUtils
 				.getFieldValue(aip, "postAdvice.expressionHandler"));
 	}
 
@@ -280,8 +280,8 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 		// Expression is (filterObject == name or filterObject == 'sam'), so "joe" should
 		// be gone after pre-filter
 		// PostFilter should remove sam from the return object
-		assertEquals(1, result.size());
-		assertEquals("bob", result.get(0));
+		assertThat(result).hasSize(1);
+		assertThat(result.get(0)).isEqualTo("bob");
 	}
 
 	@Test
@@ -293,8 +293,8 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 		target = (BusinessService) appContext.getBean("target");
 		Object[] arg = new String[] { "joe", "bob", "sam" };
 		Object[] result = target.methodReturningAnArray(arg);
-		assertEquals(1, result.length);
-		assertEquals("bob", result[0]);
+		assertThat(result.length).isEqualTo(1);
+		assertThat(result[0]).isEqualTo("bob");
 	}
 
 	// SEC-1392
@@ -348,7 +348,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 		MethodSecurityMetadataSourceAdvisor msi = (MethodSecurityMetadataSourceAdvisor) appContext
 				.getBeansOfType(MethodSecurityMetadataSourceAdvisor.class).values()
 				.toArray()[0];
-		assertSame(ram, FieldUtils.getFieldValue(msi.getAdvice(), "runAsManager"));
+		assertThat(ram).isSameAs(FieldUtils.getFieldValue(msi.getAdvice(), "runAsManager"));
 	}
 
 	@Test
@@ -421,7 +421,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see
 		 * org.springframework.context.ApplicationContextAware#setApplicationContext(org
 		 * .springframework.context.ApplicationContext)

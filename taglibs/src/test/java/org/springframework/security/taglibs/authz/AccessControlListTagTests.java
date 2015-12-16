@@ -12,7 +12,7 @@
  */
 package org.springframework.security.taglibs.authz;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import org.junit.*;
@@ -77,11 +77,11 @@ public class AccessControlListTagTests {
 		tag.setDomainObject(domainObject);
 		tag.setHasPermission("READ");
 		tag.setVar("allowed");
-		assertSame(domainObject, tag.getDomainObject());
-		assertEquals("READ", tag.getHasPermission());
+		assertThat(tag.getDomainObject()).isSameAs(domainObject);
+		assertThat(tag.getHasPermission()).isEqualTo("READ");
 
-		assertEquals(Tag.EVAL_BODY_INCLUDE, tag.doStartTag());
-		assertTrue((Boolean) pageContext.getAttribute("allowed"));
+		assertThat(tag.doStartTag()).isEqualTo(Tag.EVAL_BODY_INCLUDE);
+		assertThat((Boolean) pageContext.getAttribute("allowed")).isTrue();
 	}
 
 	@Test
@@ -98,11 +98,11 @@ public class AccessControlListTagTests {
 		tag.setDomainObject(domainObject);
 		tag.setHasPermission("READ");
 		tag.setVar("allowed");
-		assertSame(domainObject, tag.getDomainObject());
-		assertEquals("READ", tag.getHasPermission());
+		assertThat(tag.getDomainObject()).isSameAs(domainObject);
+		assertThat(tag.getHasPermission()).isEqualTo("READ");
 
-		assertEquals(Tag.EVAL_BODY_INCLUDE, tag.doStartTag());
-		assertTrue((Boolean) pageContext.getAttribute("allowed"));
+		assertThat(tag.doStartTag()).isEqualTo(Tag.EVAL_BODY_INCLUDE);
+		assertThat((Boolean) pageContext.getAttribute("allowed")).isTrue();
 	}
 
 	// SEC-2022
@@ -115,11 +115,11 @@ public class AccessControlListTagTests {
 		tag.setDomainObject(domainObject);
 		tag.setHasPermission("READ,WRITE");
 		tag.setVar("allowed");
-		assertSame(domainObject, tag.getDomainObject());
-		assertEquals("READ,WRITE", tag.getHasPermission());
+		assertThat(tag.getDomainObject()).isSameAs(domainObject);
+		assertThat(tag.getHasPermission()).isEqualTo("READ,WRITE");
 
-		assertEquals(Tag.EVAL_BODY_INCLUDE, tag.doStartTag());
-		assertTrue((Boolean) pageContext.getAttribute("allowed"));
+		assertThat(tag.doStartTag()).isEqualTo(Tag.EVAL_BODY_INCLUDE);
+		assertThat((Boolean) pageContext.getAttribute("allowed")).isTrue();
 		verify(pe).hasPermission(bob, domainObject, "READ");
 		verify(pe).hasPermission(bob, domainObject, "WRITE");
 		verifyNoMoreInteractions(pe);
@@ -135,11 +135,11 @@ public class AccessControlListTagTests {
 		tag.setDomainObject(domainObject);
 		tag.setHasPermission("1,2");
 		tag.setVar("allowed");
-		assertSame(domainObject, tag.getDomainObject());
-		assertEquals("1,2", tag.getHasPermission());
+		assertThat(tag.getDomainObject()).isSameAs(domainObject);
+		assertThat(tag.getHasPermission()).isEqualTo("1,2");
 
-		assertEquals(Tag.EVAL_BODY_INCLUDE, tag.doStartTag());
-		assertTrue((Boolean) pageContext.getAttribute("allowed"));
+		assertThat(tag.doStartTag()).isEqualTo(Tag.EVAL_BODY_INCLUDE);
+		assertThat((Boolean) pageContext.getAttribute("allowed")).isTrue();
 		verify(pe).hasPermission(bob, domainObject, 1);
 		verify(pe).hasPermission(bob, domainObject, 2);
 		verifyNoMoreInteractions(pe);
@@ -154,11 +154,11 @@ public class AccessControlListTagTests {
 		tag.setDomainObject(domainObject);
 		tag.setHasPermission("1,WRITE");
 		tag.setVar("allowed");
-		assertSame(domainObject, tag.getDomainObject());
-		assertEquals("1,WRITE", tag.getHasPermission());
+		assertThat(tag.getDomainObject()).isSameAs(domainObject);
+		assertThat(tag.getHasPermission()).isEqualTo("1,WRITE");
 
-		assertEquals(Tag.EVAL_BODY_INCLUDE, tag.doStartTag());
-		assertTrue((Boolean) pageContext.getAttribute("allowed"));
+		assertThat(tag.doStartTag()).isEqualTo(Tag.EVAL_BODY_INCLUDE);
+		assertThat((Boolean) pageContext.getAttribute("allowed")).isTrue();
 		verify(pe).hasPermission(bob, domainObject, 1);
 		verify(pe).hasPermission(bob, domainObject, "WRITE");
 		verifyNoMoreInteractions(pe);
@@ -173,7 +173,7 @@ public class AccessControlListTagTests {
 		tag.setHasPermission("READ");
 		tag.setVar("allowed");
 
-		assertEquals(Tag.SKIP_BODY, tag.doStartTag());
-		assertFalse((Boolean) pageContext.getAttribute("allowed"));
+		assertThat(tag.doStartTag()).isEqualTo(Tag.SKIP_BODY);
+		assertThat((Boolean) pageContext.getAttribute("allowed")).isFalse();
 	}
 }

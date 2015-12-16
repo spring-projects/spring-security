@@ -15,7 +15,7 @@
 
 package org.springframework.security.access;
 
-import static org.junit.Assert.assertSame;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 import org.springframework.security.access.event.AuthorizationFailureEvent;
@@ -61,8 +61,8 @@ public class AuthorizationFailureEventTests {
 	public void gettersReturnCtorSuppliedData() throws Exception {
 		AuthorizationFailureEvent event = new AuthorizationFailureEvent(new Object(),
 				attributes, foo, exception);
-		assertSame(attributes, event.getConfigAttributes());
-		assertSame(exception, event.getAccessDeniedException());
-		assertSame(foo, event.getAuthentication());
+		assertThat(event.getConfigAttributes()).isSameAs(attributes);
+		assertThat(event.getAccessDeniedException()).isSameAs(exception);
+		assertThat(event.getAuthentication()).isSameAs(foo);
 	}
 }

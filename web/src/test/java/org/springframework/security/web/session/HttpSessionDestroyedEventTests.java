@@ -1,6 +1,6 @@
 package org.springframework.security.web.session;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.mock;
 
@@ -34,22 +34,22 @@ public class HttpSessionDestroyedEventTests {
 	@Test
 	public void getSecurityContexts() {
 		List<SecurityContext> securityContexts = destroyedEvent.getSecurityContexts();
-		assertEquals(1, securityContexts.size());
-		assertSame(session.getAttribute("context"), securityContexts.get(0));
+		assertThat(securityContexts).hasSize(1);
+		assertThat(securityContexts.get(0)).isSameAs(session.getAttribute("context"));
 	}
 
 	@Test
 	public void getSecurityContextsMulti() {
 		session.setAttribute("another", new SecurityContextImpl());
 		List<SecurityContext> securityContexts = destroyedEvent.getSecurityContexts();
-		assertEquals(2, securityContexts.size());
+		assertThat(securityContexts).hasSize(2);
 	}
 
 	@Test
 	public void getSecurityContextsDiffImpl() {
 		session.setAttribute("context", mock(SecurityContext.class));
 		List<SecurityContext> securityContexts = destroyedEvent.getSecurityContexts();
-		assertEquals(1, securityContexts.size());
-		assertSame(session.getAttribute("context"), securityContexts.get(0));
+		assertThat(securityContexts).hasSize(1);
+		assertThat(securityContexts.get(0)).isSameAs(session.getAttribute("context"));
 	}
 }

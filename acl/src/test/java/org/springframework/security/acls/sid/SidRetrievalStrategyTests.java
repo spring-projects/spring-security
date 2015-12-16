@@ -1,6 +1,6 @@
 package org.springframework.security.acls.sid;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
@@ -38,19 +38,19 @@ public class SidRetrievalStrategyTests {
 		SidRetrievalStrategy retrStrategy = new SidRetrievalStrategyImpl();
 		List<Sid> sids = retrStrategy.getSids(authentication);
 
-		assertNotNull(sids);
-		assertEquals(4, sids.size());
-		assertNotNull(sids.get(0));
-		assertTrue(sids.get(0) instanceof PrincipalSid);
+		assertThat(sids).isNotNull();
+		assertThat(sids).hasSize(4);
+		assertThat(sids.get(0)).isNotNull();
+		assertThat(sids.get(0) instanceof PrincipalSid).isTrue();
 
 		for (int i = 1; i < sids.size(); i++) {
-			assertTrue(sids.get(i) instanceof GrantedAuthoritySid);
+			assertThat(sids.get(i) instanceof GrantedAuthoritySid).isTrue();
 		}
 
-		assertEquals("scott", ((PrincipalSid) sids.get(0)).getPrincipal());
-		assertEquals("A", ((GrantedAuthoritySid) sids.get(1)).getGrantedAuthority());
-		assertEquals("B", ((GrantedAuthoritySid) sids.get(2)).getGrantedAuthority());
-		assertEquals("C", ((GrantedAuthoritySid) sids.get(3)).getGrantedAuthority());
+		assertThat(((PrincipalSid) sids.get(0)).getPrincipal()).isEqualTo("scott");
+		assertThat(((GrantedAuthoritySid) sids.get(1)).getGrantedAuthority()).isEqualTo("A");
+		assertThat(((GrantedAuthoritySid) sids.get(2)).getGrantedAuthority()).isEqualTo("B");
+		assertThat(((GrantedAuthoritySid) sids.get(3)).getGrantedAuthority()).isEqualTo("C");
 	}
 
 	@Test
@@ -62,9 +62,9 @@ public class SidRetrievalStrategyTests {
 		SidRetrievalStrategy strat = new SidRetrievalStrategyImpl(rh);
 
 		List<Sid> sids = strat.getSids(authentication);
-		assertEquals(2, sids.size());
-		assertNotNull(sids.get(0));
-		assertTrue(sids.get(0) instanceof PrincipalSid);
-		assertEquals("D", ((GrantedAuthoritySid) sids.get(1)).getGrantedAuthority());
+		assertThat(sids).hasSize(2);
+		assertThat(sids.get(0)).isNotNull();
+		assertThat(sids.get(0) instanceof PrincipalSid).isTrue();
+		assertThat(((GrantedAuthoritySid) sids.get(1)).getGrantedAuthority()).isEqualTo("D");
 	}
 }

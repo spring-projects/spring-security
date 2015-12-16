@@ -1,5 +1,8 @@
 package org.springframework.security.acls.domain;
 
+
+import static org.assertj.core.api.Assertions.*;
+
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.domain.ObjectIdentityRetrievalStrategyImpl;
 import org.springframework.security.acls.model.ObjectIdentity;
@@ -23,8 +26,8 @@ public class ObjectIdentityRetrievalStrategyImplTests extends TestCase {
 		ObjectIdentityRetrievalStrategy retStrategy = new ObjectIdentityRetrievalStrategyImpl();
 		ObjectIdentity identity = retStrategy.getObjectIdentity(domain);
 
-		assertNotNull(identity);
-		assertEquals(identity, new ObjectIdentityImpl(domain));
+		assertThat(identity).isNotNull();
+		assertThat(new ObjectIdentityImpl(domain)).isEqualTo(identity);
 	}
 
 	// ~ Inner Classes

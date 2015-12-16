@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -31,9 +31,9 @@ public class LdapAuthorityTests {
 
 	@Test
 	public void testGetDn() throws Exception {
-		assertEquals(DN, authority.getDn());
-		assertNotNull(authority.getAttributeValues(SpringSecurityLdapTemplate.DN_KEY));
-		assertEquals(1, authority.getAttributeValues(SpringSecurityLdapTemplate.DN_KEY)
+		assertThat(authority.getDn()).isEqualTo(DN);
+		assertThat(authority.getAttributeValues(SpringSecurityLdapTemplate.DN_KEY)).isNotNull();
+		assertThat(authority.getAttributeValues(SpringSecurityLdapTemplate.DN_KEY).isEqualTo(1)
 				.size());
 		assertEquals(DN,
 				authority.getFirstAttributeValue(SpringSecurityLdapTemplate.DN_KEY));
@@ -41,17 +41,17 @@ public class LdapAuthorityTests {
 
 	@Test
 	public void testGetAttributes() throws Exception {
-		assertNotNull(authority.getAttributes());
-		assertNotNull(authority.getAttributeValues("mail"));
-		assertEquals(2, authority.getAttributeValues("mail").size());
-		assertEquals("filip@ldap.test.org", authority.getFirstAttributeValue("mail"));
-		assertEquals("filip@ldap.test.org", authority.getAttributeValues("mail").get(0));
-		assertEquals("filip@ldap.test2.org", authority.getAttributeValues("mail").get(1));
+		assertThat(authority.getAttributes()).isNotNull();
+		assertThat(authority.getAttributeValues("mail")).isNotNull();
+		assertThat(authority.getAttributeValues("mail")).hasSize(2);
+		assertThat(authority.getFirstAttributeValue("mail")).isEqualTo("filip@ldap.test.org");
+		assertThat(authority.getAttributeValues("mail").get(0)).isEqualTo("filip@ldap.test.org");
+		assertThat(authority.getAttributeValues("mail").get(1)).isEqualTo("filip@ldap.test2.org");
 	}
 
 	@Test
 	public void testGetAuthority() throws Exception {
-		assertNotNull(authority.getAuthority());
-		assertEquals("testRole", authority.getAuthority());
+		assertThat(authority.getAuthority()).isNotNull();
+		assertThat(authority.getAuthority()).isEqualTo("testRole");
 	}
 }

@@ -1,6 +1,6 @@
 package org.springframework.security.util;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.*;
@@ -21,14 +21,14 @@ public class MethodInvocationUtilsTests {
 
 		MethodInvocation mi = MethodInvocationUtils.createFromClass(String.class,
 				"length");
-		assertNotNull(mi);
+		assertThat(mi).isNotNull();
 	}
 
 	@Test
 	public void createFromClassReturnsMethodIfArgInfoOmittedAndMethodNameIsUnique() {
 		MethodInvocation mi = MethodInvocationUtils.createFromClass(
 				BusinessServiceImpl.class, "methodReturningAnArray");
-		assertNotNull(mi);
+		assertThat(mi).isNotNull();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -41,7 +41,7 @@ public class MethodInvocationUtilsTests {
 	public void createFromClassReturnsMethodIfGivenArgInfoForMethodWithArgs() {
 		MethodInvocation mi = MethodInvocationUtils.createFromClass(null, String.class,
 				"compareTo", new Class<?>[] { String.class }, new Object[] { "" });
-		assertNotNull(mi);
+		assertThat(mi).isNotNull();
 	}
 
 	@Test
@@ -52,13 +52,13 @@ public class MethodInvocationUtilsTests {
 				Blah.class });
 
 		MethodInvocation mi = MethodInvocationUtils.create(t, "blah");
-		assertNotNull(mi);
+		assertThat(mi).isNotNull();
 
 		t.setProxyTargetClass(true);
 		mi = MethodInvocationUtils.create(t, "blah");
-		assertNotNull(mi);
+		assertThat(mi).isNotNull();
 
-		assertNull(MethodInvocationUtils.create(t, "blah", "non-existent arg"));
+		assertThat(MethodInvocationUtils.create(t, "blah", "non-existent arg")).isNull();
 	}
 
 	interface Blah {

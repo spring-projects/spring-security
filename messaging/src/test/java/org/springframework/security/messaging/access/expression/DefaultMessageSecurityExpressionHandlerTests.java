@@ -15,7 +15,7 @@
  */
 package org.springframework.security.messaging.access.expression;
 
-import static org.fest.assertions.Assertions.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import org.junit.Before;

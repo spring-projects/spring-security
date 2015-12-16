@@ -15,6 +15,8 @@
 
 package org.springframework.security.access.vote;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import junit.framework.TestCase;
 
 import org.springframework.security.access.AccessDecisionVoter;
@@ -45,9 +47,9 @@ public class AbstractAccessDecisionManagerTests extends TestCase {
 		DenyAgainVoter denyVoter = new DenyAgainVoter();
 		list.add(denyVoter);
 		MockDecisionManagerImpl mock = new MockDecisionManagerImpl(list);
-		assertTrue(!mock.isAllowIfAllAbstainDecisions()); // default
+		assertThat(!mock.isAllowIfAllAbstainDecisions()).isTrue(); // default
 		mock.setAllowIfAllAbstainDecisions(true);
-		assertTrue(mock.isAllowIfAllAbstainDecisions()); // changed
+		assertThat(mock.isAllowIfAllAbstainDecisions()).isTrue(); // changed
 	}
 
 	public void testDelegatesSupportsClassRequests() throws Exception {
@@ -57,8 +59,8 @@ public class AbstractAccessDecisionManagerTests extends TestCase {
 
 		MockDecisionManagerImpl mock = new MockDecisionManagerImpl(list);
 
-		assertTrue(mock.supports(String.class));
-		assertTrue(!mock.supports(Integer.class));
+		assertThat(mock.supports(String.class)).isTrue();
+		assertThat(!mock.supports(Integer.class)).isTrue();
 	}
 
 	public void testDelegatesSupportsRequests() throws Exception {
@@ -71,10 +73,10 @@ public class AbstractAccessDecisionManagerTests extends TestCase {
 		MockDecisionManagerImpl mock = new MockDecisionManagerImpl(list);
 
 		ConfigAttribute attr = new SecurityConfig("DENY_AGAIN_FOR_SURE");
-		assertTrue(mock.supports(attr));
+		assertThat(mock.supports(attr)).isTrue();
 
 		ConfigAttribute badAttr = new SecurityConfig("WE_DONT_SUPPORT_THIS");
-		assertTrue(!mock.supports(badAttr));
+		assertThat(!mock.supports(badAttr)).isTrue();
 	}
 
 	public void testProperlyStoresListOfVoters() throws Exception {
@@ -84,7 +86,7 @@ public class AbstractAccessDecisionManagerTests extends TestCase {
 		list.add(voter);
 		list.add(denyVoter);
 		MockDecisionManagerImpl mock = new MockDecisionManagerImpl(list);
-		assertEquals(list.size(), mock.getDecisionVoters().size());
+		assertThat(mock.getDecisionVoters().size()).isEqualTo(list.size());
 	}
 
 	public void testRejectsEmptyList() throws Exception {
@@ -95,7 +97,7 @@ public class AbstractAccessDecisionManagerTests extends TestCase {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertTrue(true);
+
 		}
 	}
 
@@ -105,13 +107,13 @@ public class AbstractAccessDecisionManagerTests extends TestCase {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertTrue(true);
+
 		}
 	}
 
 	public void testRoleVoterAlwaysReturnsTrueToSupports() {
 		RoleVoter rv = new RoleVoter();
-		assertTrue(rv.supports(String.class));
+		assertThat(rv.supports(String.class)).isTrue();
 	}
 
 	public void testWillNotStartIfDecisionVotersNotSet() throws Exception {
@@ -120,7 +122,7 @@ public class AbstractAccessDecisionManagerTests extends TestCase {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertTrue(true);
+
 		}
 	}
 

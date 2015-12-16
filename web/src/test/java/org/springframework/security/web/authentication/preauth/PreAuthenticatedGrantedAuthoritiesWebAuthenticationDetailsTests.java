@@ -24,8 +24,8 @@ public class PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetailsTests {
 		PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails details = new PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails(
 				getRequest("testUser", new String[] {}), gas);
 		String toString = details.toString();
-		assertTrue("toString should contain Role1", toString.contains("Role1"));
-		assertTrue("toString should contain Role2", toString.contains("Role2"));
+		assertThat(toString.contains("Role1")).as("toString should contain Role1").isTrue();
+		assertThat(toString.contains("Role2")).as("toString should contain Role2").isTrue();
 	}
 
 	@Test

@@ -1,6 +1,6 @@
 package org.springframework.security.web.authentication.logout;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
 import javax.servlet.http.Cookie;
@@ -23,10 +23,10 @@ public class CookieClearingLogoutHandlerTests {
 		request.setContextPath("");
 		CookieClearingLogoutHandler handler = new CookieClearingLogoutHandler("my_cookie");
 		handler.logout(request, response, mock(Authentication.class));
-		assertEquals(1, response.getCookies().length);
+		assertThat(response.getCookies().length).isEqualTo(1);
 		for (Cookie c : response.getCookies()) {
-			assertEquals("/", c.getPath());
-			assertEquals(0, c.getMaxAge());
+			assertThat(c.getPath()).isEqualTo("/");
+			assertThat(c.getMaxAge()).isEqualTo(0);
 		}
 	}
 
@@ -38,10 +38,10 @@ public class CookieClearingLogoutHandlerTests {
 		CookieClearingLogoutHandler handler = new CookieClearingLogoutHandler(
 				"my_cookie", "my_cookie_too");
 		handler.logout(request, response, mock(Authentication.class));
-		assertEquals(2, response.getCookies().length);
+		assertThat(response.getCookies().length).isEqualTo(2);
 		for (Cookie c : response.getCookies()) {
-			assertEquals("/app", c.getPath());
-			assertEquals(0, c.getMaxAge());
+			assertThat(c.getPath()).isEqualTo("/app");
+			assertThat(c.getMaxAge()).isEqualTo(0);
 		}
 	}
 }

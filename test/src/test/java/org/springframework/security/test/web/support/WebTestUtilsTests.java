@@ -15,7 +15,7 @@
  */
 package org.springframework.security.test.web.support;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.support.WebTestUtils.getCsrfTokenRepository;
 import static org.springframework.security.test.web.support.WebTestUtils.getSecurityContextRepository;
 

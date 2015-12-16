@@ -15,7 +15,7 @@
 
 package org.springframework.security.web.authentication;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import org.junit.*;
@@ -84,7 +84,7 @@ public class AnonymousAuthenticationFilterTests {
 				new MockHttpServletResponse(), new MockFilterChain(true));
 
 		// Ensure filter didn't change our original object
-		assertEquals(originalAuth, SecurityContextHolder.getContext().getAuthentication());
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isEqualTo(originalAuth);
 	}
 
 	@Test
@@ -101,8 +101,8 @@ public class AnonymousAuthenticationFilterTests {
 				new MockHttpServletResponse(), new MockFilterChain(true));
 
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		assertEquals("anonymousUsername", auth.getPrincipal());
-		assertTrue(AuthorityUtils.authorityListToSet(auth.getAuthorities()).contains(
+		assertThat(auth.getPrincipal()).isEqualTo("anonymousUsername");
+		assertThat(AuthorityUtils.authorityListToSet(auth.getAuthorities()).isTrue().contains(
 				"ROLE_ANONYMOUS"));
 		SecurityContextHolder.getContext().setAuthentication(null); // so anonymous fires
 																	// again

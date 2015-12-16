@@ -63,8 +63,8 @@ public class RetryWithHttpsEntryPointTests extends TestCase {
 		RetryWithHttpsEntryPoint ep = new RetryWithHttpsEntryPoint();
 		ep.setPortMapper(new PortMapperImpl());
 		ep.setPortResolver(new MockPortResolver(8080, 8443));
-		assertTrue(ep.getPortMapper() != null);
-		assertTrue(ep.getPortResolver() != null);
+		assertThat(ep.getPortMapper() != null).isTrue();
+		assertThat(ep.getPortResolver() != null).isTrue();
 	}
 
 	public void testNormalOperation() throws Exception {
@@ -118,7 +118,7 @@ public class RetryWithHttpsEntryPointTests extends TestCase {
 		ep.setPortResolver(new MockPortResolver(8768, 1234));
 
 		ep.commence(request, response);
-		assertEquals("/bigWebApp?open=true", response.getRedirectedUrl());
+		assertThat(response.getRedirectedUrl()).isEqualTo("/bigWebApp?open=true");
 	}
 
 	public void testOperationWithNonStandardPort() throws Exception {

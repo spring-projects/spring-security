@@ -46,7 +46,7 @@ public class LdapUserDetailsMapperTests extends TestCase {
 		LdapUserDetailsImpl user = (LdapUserDetailsImpl) mapper.mapUserFromContext(ctx,
 				"ani", AuthorityUtils.NO_AUTHORITIES);
 
-		assertEquals(3, user.getAuthorities().size());
+		assertThat(user.getAuthorities()).hasSize(3);
 	}
 
 	/**
@@ -67,8 +67,8 @@ public class LdapUserDetailsMapperTests extends TestCase {
 		LdapUserDetailsImpl user = (LdapUserDetailsImpl) mapper.mapUserFromContext(ctx,
 				"ani", AuthorityUtils.NO_AUTHORITIES);
 
-		assertEquals(1, user.getAuthorities().size());
-		assertTrue(AuthorityUtils.authorityListToSet(user.getAuthorities()).contains(
+		assertThat(user.getAuthorities()).hasSize(1);
+		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities()).isTrue().contains(
 				"ROLE_X"));
 	}
 
@@ -86,6 +86,6 @@ public class LdapUserDetailsMapperTests extends TestCase {
 		LdapUserDetails user = (LdapUserDetailsImpl) mapper.mapUserFromContext(ctx,
 				"ani", AuthorityUtils.NO_AUTHORITIES);
 
-		assertEquals("mypassword", user.getPassword());
+		assertThat(user.getPassword()).isEqualTo("mypassword");
 	}
 }

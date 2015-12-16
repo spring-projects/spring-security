@@ -1,6 +1,6 @@
 package samples.gae.users;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.EnumSet;
 import java.util.Set;
@@ -43,12 +43,12 @@ public class GaeDataStoreUserRegistryTests {
 
 		GaeUser loadedUser = registry.findUser(userId);
 
-		assertEquals(loadedUser.getUserId(), origUser.getUserId());
-		assertEquals(true, loadedUser.isEnabled());
-		assertEquals(roles, loadedUser.getAuthorities());
-		assertEquals("nick", loadedUser.getNickname());
-		assertEquals("nick@blah.com", loadedUser.getEmail());
-		assertEquals("Forename", loadedUser.getForename());
-		assertEquals("Surname", loadedUser.getSurname());
+		assertThat(origUser.getUserId()).isEqualTo(loadedUser.getUserId());
+		assertThat(loadedUser.isEnabled()).isEqualTo(true);
+		assertThat(loadedUser.getAuthorities()).isEqualTo(roles);
+		assertThat(loadedUser.getNickname()).isEqualTo("nick");
+		assertThat(loadedUser.getEmail()).isEqualTo("nick@blah.com");
+		assertThat(loadedUser.getForename()).isEqualTo("Forename");
+		assertThat(loadedUser.getSurname()).isEqualTo("Surname");
 	}
 }

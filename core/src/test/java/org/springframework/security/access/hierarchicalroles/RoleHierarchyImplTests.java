@@ -14,6 +14,9 @@
 
 package org.springframework.security.access.hierarchicalroles;
 
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,12 +41,10 @@ public class RoleHierarchyImplTests extends TestCase {
 		RoleHierarchyImpl roleHierarchyImpl = new RoleHierarchyImpl();
 		roleHierarchyImpl.setHierarchy("ROLE_A > ROLE_B");
 
-		assertNotNull(roleHierarchyImpl.getReachableGrantedAuthorities(authorities0));
-		assertEquals(0, roleHierarchyImpl.getReachableGrantedAuthorities(authorities0)
-				.size());
-		assertNotNull(roleHierarchyImpl.getReachableGrantedAuthorities(authorities1));
-		assertEquals(0, roleHierarchyImpl.getReachableGrantedAuthorities(authorities1)
-				.size());
+		assertThat(roleHierarchyImpl.getReachableGrantedAuthorities(authorities0)).isNotNull();
+		assertThat(roleHierarchyImpl.getReachableGrantedAuthorities(authorities0)).isEmpty();;
+		assertThat(roleHierarchyImpl.getReachableGrantedAuthorities(authorities1)).isNotNull();
+		assertThat(roleHierarchyImpl.getReachableGrantedAuthorities(authorities1)).isEmpty();;
 	}
 
 	public void testSimpleRoleHierarchy() {

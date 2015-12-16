@@ -53,6 +53,6 @@ public class LoggerListenerTests extends TestCase {
 				getAuthentication(), new LockedException("TEST"));
 		LoggerListener listener = new LoggerListener();
 		listener.onApplicationEvent(event);
-		assertTrue(true);
+
 	}
 }

@@ -54,7 +54,7 @@ public class AuthenticationEventTests extends TestCase {
 	public void testAbstractAuthenticationEvent() {
 		Authentication auth = getAuthentication();
 		AbstractAuthenticationEvent event = new AuthenticationSuccessEvent(auth);
-		assertEquals(auth, event.getAuthentication());
+		assertThat(event.getAuthentication()).isEqualTo(auth);
 	}
 
 	public void testAbstractAuthenticationFailureEvent() {
@@ -62,8 +62,8 @@ public class AuthenticationEventTests extends TestCase {
 		AuthenticationException exception = new DisabledException("TEST");
 		AbstractAuthenticationFailureEvent event = new AuthenticationFailureDisabledEvent(
 				auth, exception);
-		assertEquals(auth, event.getAuthentication());
-		assertEquals(exception, event.getException());
+		assertThat(event.getAuthentication()).isEqualTo(auth);
+		assertThat(event.getException()).isEqualTo(exception);
 	}
 
 	public void testRejectsNullAuthentication() {
@@ -74,7 +74,7 @@ public class AuthenticationEventTests extends TestCase {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertTrue(true);
+
 		}
 	}
 
@@ -84,7 +84,7 @@ public class AuthenticationEventTests extends TestCase {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertTrue(true);
+
 		}
 	}
 }

@@ -1,6 +1,6 @@
 package org.springframework.security.web.authentication;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
 import org.junit.Test;
@@ -21,13 +21,13 @@ public class SimpleUrlAuthenticationFailureHandlerTests {
 		SimpleUrlAuthenticationFailureHandler afh = new SimpleUrlAuthenticationFailureHandler();
 		RedirectStrategy rs = mock(RedirectStrategy.class);
 		afh.setRedirectStrategy(rs);
-		assertSame(rs, afh.getRedirectStrategy());
+		assertThat(afh.getRedirectStrategy()).isSameAs(rs);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
 		afh.onAuthenticationFailure(request, response,
 				mock(AuthenticationException.class));
-		assertEquals(401, response.getStatus());
+		assertThat(response.getStatus()).isEqualTo(401);
 	}
 
 	@Test
@@ -42,7 +42,7 @@ public class SimpleUrlAuthenticationFailureHandlerTests {
 		afh.onAuthenticationFailure(request, response, e);
 		assertSame(e,
 				request.getSession().getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION));
-		assertEquals("/target", response.getRedirectedUrl());
+		assertThat(response.getRedirectedUrl()).isEqualTo("/target");
 	}
 
 	@Test
@@ -50,13 +50,13 @@ public class SimpleUrlAuthenticationFailureHandlerTests {
 		SimpleUrlAuthenticationFailureHandler afh = new SimpleUrlAuthenticationFailureHandler(
 				"/target");
 		afh.setAllowSessionCreation(false);
-		assertFalse(afh.isAllowSessionCreation());
+		assertThat(afh.isAllowSessionCreation()).isFalse();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
 		afh.onAuthenticationFailure(request, response,
 				mock(AuthenticationException.class));
-		assertNull(request.getSession(false));
+		assertThat(request.getSession(false)).isNull();
 	}
 
 	// SEC-462
@@ -65,18 +65,18 @@ public class SimpleUrlAuthenticationFailureHandlerTests {
 		SimpleUrlAuthenticationFailureHandler afh = new SimpleUrlAuthenticationFailureHandler(
 				"/target");
 		afh.setUseForward(true);
-		assertTrue(afh.isUseForward());
+		assertThat(afh.isUseForward()).isTrue();
 
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		AuthenticationException e = mock(AuthenticationException.class);
 
 		afh.onAuthenticationFailure(request, response, e);
-		assertNull(request.getSession(false));
-		assertNull(response.getRedirectedUrl());
-		assertEquals("/target", response.getForwardedUrl());
+		assertThat(request.getSession(false)).isNull();
+		assertThat(response.getRedirectedUrl()).isNull();
+		assertThat(response.getForwardedUrl()).isEqualTo("/target");
 		// Request scope should be used for forward
-		assertSame(e, request.getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION));
+		assertThat(request.getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION)).isSameAs(e);
 	}
 
 }

@@ -1,6 +1,6 @@
 package org.springframework.security.web.savedrequest;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
@@ -33,14 +33,14 @@ public class HttpSessionRequestCacheTests {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/destination");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		cache.saveRequest(request, response);
-		assertNotNull(request.getSession().getAttribute(
+		assertThat(request.getSession().isNotNull().getAttribute(
 				HttpSessionRequestCache.SAVED_REQUEST));
-		assertNotNull(cache.getRequest(request, response));
+		assertThat(cache.getRequest(request, response)).isNotNull();
 
 		MockHttpServletRequest newRequest = new MockHttpServletRequest("POST",
 				"/destination");
 		newRequest.setSession(request.getSession());
-		assertNull(cache.getMatchingRequest(newRequest, response));
+		assertThat(cache.getMatchingRequest(newRequest, response)).isNull();
 
 	}
 
@@ -57,10 +57,10 @@ public class HttpSessionRequestCacheTests {
 				"/destination");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		cache.saveRequest(request, response);
-		assertNull(cache.getRequest(request, response));
-		assertNull(cache.getRequest(new MockHttpServletRequest(),
+		assertThat(cache.getRequest(request, response)).isNull();
+		assertThat(cache.getRequest(new MockHttpServletRequest().isNull(),
 				new MockHttpServletResponse()));
-		assertNull(cache.getMatchingRequest(request, response));
+		assertThat(cache.getMatchingRequest(request, response)).isNull();
 	}
 
 	// SEC-2246

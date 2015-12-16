@@ -43,10 +43,10 @@ public class UserDetailsByNameServiceWrapperTests extends TestCase {
 		svc.afterPropertiesSet();
 		UserDetails result1 = svc.loadUserDetails(new TestingAuthenticationToken("dummy",
 				"dummy"));
-		assertEquals("Result doesn't match original user", user, result1);
+		assertThat(result1).as("Result doesn't match original user").isEqualTo(user);
 		UserDetails result2 = svc.loadUserDetails(new TestingAuthenticationToken(
 				"dummy2", "dummy"));
-		assertNull("Result should have been null", result2);
+		assertThat(result2).as("Result should have been null").isNull();
 	}
 
 }

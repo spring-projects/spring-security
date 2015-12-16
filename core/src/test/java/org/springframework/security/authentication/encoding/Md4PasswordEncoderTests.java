@@ -24,45 +24,45 @@ public class Md4PasswordEncoderTests extends TestCase {
 		Md4PasswordEncoder md4 = new Md4PasswordEncoder();
 		md4.setEncodeHashAsBase64(true);
 		String encodedPassword = md4.encodePassword("ww_uni123", null);
-		assertEquals("8zobtq72iAt0W6KNqavGwg==", encodedPassword);
+		assertThat(encodedPassword).isEqualTo("8zobtq72iAt0W6KNqavGwg==");
 	}
 
 	public void testEncodeSaltedPassword() {
 		Md4PasswordEncoder md4 = new Md4PasswordEncoder();
 		md4.setEncodeHashAsBase64(true);
 		String encodedPassword = md4.encodePassword("ww_uni123", "Alan K Stewart");
-		assertEquals("ZplT6P5Kv6Rlu6W4FIoYNA==", encodedPassword);
+		assertThat(encodedPassword).isEqualTo("ZplT6P5Kv6Rlu6W4FIoYNA==");
 	}
 
 	public void testEncodeNullPassword() {
 		Md4PasswordEncoder md4 = new Md4PasswordEncoder();
 		md4.setEncodeHashAsBase64(true);
 		String encodedPassword = md4.encodePassword(null, null);
-		assertEquals("MdbP4NFq6TG3PFnX4MCJwA==", encodedPassword);
+		assertThat(encodedPassword).isEqualTo("MdbP4NFq6TG3PFnX4MCJwA==");
 	}
 
 	public void testEncodeEmptyPassword() {
 		Md4PasswordEncoder md4 = new Md4PasswordEncoder();
 		md4.setEncodeHashAsBase64(true);
 		String encodedPassword = md4.encodePassword("", null);
-		assertEquals("MdbP4NFq6TG3PFnX4MCJwA==", encodedPassword);
+		assertThat(encodedPassword).isEqualTo("MdbP4NFq6TG3PFnX4MCJwA==");
 	}
 
 	public void testNonAsciiPasswordHasCorrectHash() {
 		Md4PasswordEncoder md4 = new Md4PasswordEncoder();
 		String encodedPassword = md4.encodePassword("\u4F60\u597d", null);
-		assertEquals("a7f1196539fd1f85f754ffd185b16e6e", encodedPassword);
+		assertThat(encodedPassword).isEqualTo("a7f1196539fd1f85f754ffd185b16e6e");
 	}
 
 	public void testIsHexPasswordValid() {
 		Md4PasswordEncoder md4 = new Md4PasswordEncoder();
-		assertTrue(md4.isPasswordValid("31d6cfe0d16ae931b73c59d7e0c089c0", "", null));
+		assertThat(md4.isPasswordValid("31d6cfe0d16ae931b73c59d7e0c089c0", "", null)).isTrue();
 	}
 
 	public void testIsPasswordValid() {
 		Md4PasswordEncoder md4 = new Md4PasswordEncoder();
 		md4.setEncodeHashAsBase64(true);
-		assertTrue(md4.isPasswordValid("8zobtq72iAt0W6KNqavGwg==", "ww_uni123", null));
+		assertThat(md4.isPasswordValid("8zobtq72iAt0W6KNqavGwg==", "ww_uni123", null)).isTrue();
 	}
 
 	public void testIsSaltedPasswordValid() {

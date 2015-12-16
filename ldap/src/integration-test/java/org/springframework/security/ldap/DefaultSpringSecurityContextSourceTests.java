@@ -1,6 +1,6 @@
 package org.springframework.security.ldap;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -21,8 +21,8 @@ public class DefaultSpringSecurityContextSourceTests extends AbstractLdapIntegra
 	public void instantiationSucceedsWithExpectedProperties() {
 		DefaultSpringSecurityContextSource ctxSrc = new DefaultSpringSecurityContextSource(
 				"ldap://blah:789/dc=springframework,dc=org");
-		assertFalse(ctxSrc.isAnonymousReadOnly());
-		assertTrue(ctxSrc.isPooled());
+		assertThat(ctxSrc.isAnonymousReadOnly()).isFalse();
+		assertThat(ctxSrc.isPooled()).isTrue();
 	}
 
 	@Test
@@ -39,7 +39,7 @@ public class DefaultSpringSecurityContextSourceTests extends AbstractLdapIntegra
 		ctxSrc.setUserDn("manager");
 		ctxSrc.setPassword("password");
 		ctxSrc.afterPropertiesSet();
-		assertTrue(ctxSrc.getAuthenticatedEnvForTest("manager", "password").containsKey(
+		assertThat(ctxSrc.getAuthenticatedEnvForTest("manager", "password").isTrue().containsKey(
 				AbstractContextSource.SUN_LDAP_POOLING_FLAG));
 	}
 
@@ -51,7 +51,7 @@ public class DefaultSpringSecurityContextSourceTests extends AbstractLdapIntegra
 		ctxSrc.setUserDn("manager");
 		ctxSrc.setPassword("password");
 		ctxSrc.afterPropertiesSet();
-		assertFalse(ctxSrc.getAuthenticatedEnvForTest("user", "password").containsKey(
+		assertThat(ctxSrc.getAuthenticatedEnvForTest("user", "password").isFalse().containsKey(
 				AbstractContextSource.SUN_LDAP_POOLING_FLAG));
 	}
 
@@ -66,7 +66,7 @@ public class DefaultSpringSecurityContextSourceTests extends AbstractLdapIntegra
 		}
 		catch (Exception e) {
 		}
-		assertNotNull(ctx);
+		assertThat(ctx).isNotNull();
 		// com.sun.jndi.ldap.LdapPoolManager.showStats(System.out);
 		ctx.close();
 		// com.sun.jndi.ldap.LdapPoolManager.showStats(System.out);
@@ -104,8 +104,8 @@ public class DefaultSpringSecurityContextSourceTests extends AbstractLdapIntegra
 		DefaultSpringSecurityContextSource ctxSrc = new DefaultSpringSecurityContextSource(
 				serverUrls, "dc=springframework,dc=org");
 
-		assertFalse(ctxSrc.isAnonymousReadOnly());
-		assertTrue(ctxSrc.isPooled());
+		assertThat(ctxSrc.isAnonymousReadOnly()).isFalse();
+		assertThat(ctxSrc.isPooled()).isTrue();
 	}
 
 	// SEC-2308
@@ -119,8 +119,8 @@ public class DefaultSpringSecurityContextSourceTests extends AbstractLdapIntegra
 		DefaultSpringSecurityContextSource ctxSrc = new DefaultSpringSecurityContextSource(
 				serverUrls, baseDn);
 
-		assertFalse(ctxSrc.isAnonymousReadOnly());
-		assertTrue(ctxSrc.isPooled());
+		assertThat(ctxSrc.isAnonymousReadOnly()).isFalse();
+		assertThat(ctxSrc.isPooled()).isTrue();
 	}
 
 	@Test(expected = IllegalArgumentException.class)

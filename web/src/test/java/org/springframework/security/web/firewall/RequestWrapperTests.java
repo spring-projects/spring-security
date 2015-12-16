@@ -1,6 +1,6 @@
 package org.springframework.security.web.firewall;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.util.LinkedHashMap;
@@ -40,9 +40,9 @@ public class RequestWrapperTests {
 			String expectedResult = entry.getValue();
 			request.setServletPath(path);
 			RequestWrapper wrapper = new RequestWrapper(request);
-			assertEquals(expectedResult, wrapper.getServletPath());
+			assertThat(wrapper.getServletPath()).isEqualTo(expectedResult);
 			wrapper.reset();
-			assertEquals(path, wrapper.getServletPath());
+			assertThat(wrapper.getServletPath()).isEqualTo(path);
 		}
 	}
 
@@ -59,9 +59,9 @@ public class RequestWrapperTests {
 			}
 			request.setPathInfo(path);
 			RequestWrapper wrapper = new RequestWrapper(request);
-			assertEquals(expectedResult, wrapper.getPathInfo());
+			assertThat(wrapper.getPathInfo()).isEqualTo(expectedResult);
 			wrapper.reset();
-			assertEquals(path, wrapper.getPathInfo());
+			assertThat(wrapper.getPathInfo()).isEqualTo(path);
 		}
 	}
 
@@ -82,7 +82,7 @@ public class RequestWrapperTests {
 
 		verify(mockRequest).getRequestDispatcher(forwardPath);
 		verify(mockDispatcher).forward(mockRequest, mockResponse);
-		assertEquals(denormalizedPath, wrapper.getPathInfo());
+		assertThat(wrapper.getPathInfo()).isEqualTo(denormalizedPath);
 		verify(mockRequest, times(2)).getPathInfo();
 		// validate wrapper.getServletPath() delegates to the mock
 		wrapper.getServletPath();
@@ -98,6 +98,6 @@ public class RequestWrapperTests {
 		when(request.getRequestDispatcher(path)).thenReturn(dispatcher);
 		RequestWrapper wrapper = new RequestWrapper(request);
 		wrapper.reset();
-		assertSame(dispatcher, wrapper.getRequestDispatcher(path));
+		assertThat(wrapper.getRequestDispatcher(path)).isSameAs(dispatcher);
 	}
 }

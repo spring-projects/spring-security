@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * @author Nick Williams
@@ -26,7 +26,7 @@ public class CsrfInputTagTests {
 
 		String value = this.tag.handleToken(token);
 
-		assertNotNull("The returned value should not be null.", value);
+		assertThat(value).as("The returned value should not be null.").isNotNull();
 		assertEquals("The output is not correct.",
 				"<input type=\"hidden\" name=\"_csrf\" value=\"abc123def456ghi789\" />",
 				value);
@@ -39,7 +39,7 @@ public class CsrfInputTagTests {
 
 		String value = this.tag.handleToken(token);
 
-		assertNotNull("The returned value should not be null.", value);
+		assertThat(value).as("The returned value should not be null.").isNotNull();
 		assertEquals(
 				"The output is not correct.",
 				"<input type=\"hidden\" name=\"csrfParameter\" value=\"fooBarBazQux\" />",

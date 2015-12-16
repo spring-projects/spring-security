@@ -1,7 +1,7 @@
 package org.springframework.security.web.access.expression;
 
-import static org.fest.assertions.Assertions.*;
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
@@ -37,8 +37,8 @@ public class WebExpressionVoterTests {
 		WebExpressionVoter voter = new WebExpressionVoter();
 		assertTrue(voter
 				.supports(new WebExpressionConfigAttribute(mock(Expression.class), mock(SecurityEvaluationContextPostProcessor.class))));
-		assertTrue(voter.supports(FilterInvocation.class));
-		assertFalse(voter.supports(MethodInvocation.class));
+		assertThat(voter.supports(FilterInvocation.class)).isTrue();
+		assertThat(voter.supports(MethodInvocation.class)).isFalse();
 
 	}
 
@@ -73,10 +73,10 @@ public class WebExpressionVoterTests {
 		attributes.addAll(SecurityConfig.createList("A", "B", "C"));
 		attributes.add(weca);
 
-		assertEquals(AccessDecisionVoter.ACCESS_GRANTED, voter.vote(user, fi, attributes));
+		assertThat(fi).isCloseTo(AccessDecisionVoter.ACCESS_GRANTED, voter.vote(user, within(attributes)));
 
 		// Second time false
-		assertEquals(AccessDecisionVoter.ACCESS_DENIED, voter.vote(user, fi, attributes));
+		assertThat(fi).isCloseTo(AccessDecisionVoter.ACCESS_DENIED, voter.vote(user, within(attributes)));
 	}
 
 	// SEC-2507

@@ -54,7 +54,7 @@ public class Sec760Tests {
 						"ROLE_TWO"));
 
 		Authentication auth = p1.authenticate(token);
-		Assert.assertNotNull(auth);
+		Assert.assertThat(auth).isNotNull();
 	}
 
 	@Test

@@ -1,6 +1,6 @@
 package org.springframework.security.acls.afterinvocation;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -50,8 +50,9 @@ public class AclEntryAfterInvocationProviderTests {
 		provider.setSidRetrievalStrategy(mock(SidRetrievalStrategy.class));
 		Object returned = new Object();
 
-		assertSame(
-				returned,
+		assertThat(
+				returned)
+			.isSameAs(
 				provider.decide(mock(Authentication.class), new Object(),
 						SecurityConfig.createList("AFTER_ACL_READ"), returned));
 	}
@@ -62,8 +63,9 @@ public class AclEntryAfterInvocationProviderTests {
 				mock(AclService.class), Arrays.asList(mock(Permission.class)));
 		Object returned = new Object();
 
-		assertSame(
-				returned,
+		assertThat(
+				returned)
+			.isSameAs(
 				provider.decide(mock(Authentication.class), new Object(),
 						Collections.<ConfigAttribute> emptyList(), returned));
 	}
@@ -76,8 +78,9 @@ public class AclEntryAfterInvocationProviderTests {
 		// Not a String
 		Object returned = new Object();
 
-		assertSame(
-				returned,
+		assertThat(
+				returned)
+			.isSameAs(
 				provider.decide(mock(Authentication.class), new Object(),
 						SecurityConfig.createList("AFTER_ACL_READ"), returned));
 	}
@@ -104,7 +107,7 @@ public class AclEntryAfterInvocationProviderTests {
 			provider.decide(mock(Authentication.class), new Object(),
 					SecurityConfig.createList("UNSUPPORTED", "MY_ATTRIBUTE"),
 					new Object());
-			fail();
+			fail("Expected Exception");
 		}
 		catch (AccessDeniedException expected) {
 		}
@@ -119,8 +122,9 @@ public class AclEntryAfterInvocationProviderTests {
 		AclEntryAfterInvocationProvider provider = new AclEntryAfterInvocationProvider(
 				service, Arrays.asList(mock(Permission.class)));
 
-		assertNull(provider.decide(mock(Authentication.class), new Object(),
-				SecurityConfig.createList("AFTER_ACL_COLLECTION_READ"), null));
+		assertThat(provider.decide(mock(Authentication.class), new Object(),
+				SecurityConfig.createList("AFTER_ACL_COLLECTION_READ"), null))
+			.isNull();;
 		verify(service, never()).readAclById(any(ObjectIdentity.class), any(List.class));
 	}
 }

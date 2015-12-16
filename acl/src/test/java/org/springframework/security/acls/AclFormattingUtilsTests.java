@@ -1,9 +1,10 @@
 package org.springframework.security.acls;
 
+import static org.assertj.core.api.Assertions.*;
+
 import org.springframework.security.acls.domain.AclFormattingUtils;
 import org.springframework.security.acls.model.Permission;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
 
 /**
@@ -19,126 +20,116 @@ public class AclFormattingUtilsTests extends TestCase {
 	public final void testDemergePatternsParametersConstraints() throws Exception {
 		try {
 			AclFormattingUtils.demergePatterns(null, "SOME STRING");
-			Assert.fail("It should have thrown IllegalArgumentException");
+			fail("It should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			Assert.assertTrue(true);
 		}
 
 		try {
 			AclFormattingUtils.demergePatterns("SOME STRING", null);
-			Assert.fail("It should have thrown IllegalArgumentException");
+			fail("It should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			Assert.assertTrue(true);
 		}
 
 		try {
 			AclFormattingUtils.demergePatterns("SOME STRING", "LONGER SOME STRING");
-			Assert.fail("It should have thrown IllegalArgumentException");
+			fail("It should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			Assert.assertTrue(true);
 		}
 
 		try {
 			AclFormattingUtils.demergePatterns("SOME STRING", "SAME LENGTH");
-			Assert.assertTrue(true);
 		}
 		catch (IllegalArgumentException notExpected) {
-			Assert.fail("It shouldn't have thrown IllegalArgumentException");
+			fail("It shouldn't have thrown IllegalArgumentException");
 		}
 	}
 
 	public final void testDemergePatterns() throws Exception {
 		String original = "...........................A...R";
 		String removeBits = "...............................R";
-		Assert.assertEquals("...........................A....",
-				AclFormattingUtils.demergePatterns(original, removeBits));
+		assertThat(AclFormattingUtils.demergePatterns(original, removeBits)).isEqualTo("...........................A....");
 
-		Assert.assertEquals("ABCDEF",
-				AclFormattingUtils.demergePatterns("ABCDEF", "......"));
-		Assert.assertEquals("......",
-				AclFormattingUtils.demergePatterns("ABCDEF", "GHIJKL"));
+		assertThat(AclFormattingUtils.demergePatterns("ABCDEF", "......")).isEqualTo("ABCDEF");
+		assertThat(AclFormattingUtils.demergePatterns("ABCDEF", "GHIJKL")).isEqualTo("......");
 	}
 
 	public final void testMergePatternsParametersConstraints() throws Exception {
 		try {
 			AclFormattingUtils.mergePatterns(null, "SOME STRING");
-			Assert.fail("It should have thrown IllegalArgumentException");
+			fail("It should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			Assert.assertTrue(true);
 		}
 
 		try {
 			AclFormattingUtils.mergePatterns("SOME STRING", null);
-			Assert.fail("It should have thrown IllegalArgumentException");
+			fail("It should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			Assert.assertTrue(true);
 		}
 
 		try {
 			AclFormattingUtils.mergePatterns("SOME STRING", "LONGER SOME STRING");
-			Assert.fail("It should have thrown IllegalArgumentException");
+			fail("It should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			Assert.assertTrue(true);
 		}
 
 		try {
 			AclFormattingUtils.mergePatterns("SOME STRING", "SAME LENGTH");
-			Assert.assertTrue(true);
 		}
 		catch (IllegalArgumentException notExpected) {
-			Assert.fail("It shouldn't have thrown IllegalArgumentException");
 		}
 	}
 
 	public final void testMergePatterns() throws Exception {
 		String original = "...............................R";
 		String extraBits = "...........................A....";
-		Assert.assertEquals("...........................A...R",
-				AclFormattingUtils.mergePatterns(original, extraBits));
+		assertThat(
+				AclFormattingUtils.mergePatterns(original, extraBits)).isEqualTo("...........................A...R");
 
-		Assert.assertEquals("ABCDEF",
-				AclFormattingUtils.mergePatterns("ABCDEF", "......"));
-		Assert.assertEquals("GHIJKL",
-				AclFormattingUtils.mergePatterns("ABCDEF", "GHIJKL"));
+		assertThat(AclFormattingUtils.mergePatterns("ABCDEF", "......"))
+			.isEqualTo("ABCDEF");
+		assertThat(AclFormattingUtils.mergePatterns("ABCDEF", "GHIJKL"))
+			.isEqualTo("GHIJKL");
 	}
 
 	public final void testBinaryPrints() throws Exception {
-		Assert.assertEquals("............................****",
-				AclFormattingUtils.printBinary(15));
+		assertThat(
+				AclFormattingUtils.printBinary(15))
+				.isEqualTo("............................****");
 
 		try {
 			AclFormattingUtils.printBinary(15, Permission.RESERVED_ON);
-			Assert.fail("It should have thrown IllegalArgumentException");
+			fail("It should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException notExpected) {
-			Assert.assertTrue(true);
 		}
 
 		try {
 			AclFormattingUtils.printBinary(15, Permission.RESERVED_OFF);
-			Assert.fail("It should have thrown IllegalArgumentException");
+			fail("It should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException notExpected) {
-			Assert.assertTrue(true);
 		}
 
-		Assert.assertEquals("............................xxxx",
-				AclFormattingUtils.printBinary(15, 'x'));
+		assertThat(
+				AclFormattingUtils.printBinary(15, 'x'))
+			.isEqualTo("............................xxxx");
 	}
 
 	public void testPrintBinaryNegative() {
-		Assert.assertEquals("*...............................",
-				AclFormattingUtils.printBinary(0x80000000));
+		assertThat(
+				AclFormattingUtils.printBinary(0x80000000))
+				.isEqualTo("*...............................");
 	}
 
 	public void testPrintBinaryMinusOne() {
-		Assert.assertEquals("********************************",
-				AclFormattingUtils.printBinary(0xffffffff));
+		assertThat(
+				AclFormattingUtils.printBinary(0xffffffff))
+				.isEqualTo("********************************");
 	}
 }

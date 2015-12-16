@@ -15,6 +15,8 @@
 
 package org.springframework.security.authentication;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import junit.framework.TestCase;
 
 import org.springframework.security.authentication.TestingAuthenticationProvider;
@@ -35,20 +37,17 @@ public class TestingAuthenticationProviderTests extends TestCase {
 				"Password", "ROLE_ONE", "ROLE_TWO");
 		Authentication result = provider.authenticate(token);
 
-		assertTrue(result instanceof TestingAuthenticationToken);
+		assertThat(result instanceof TestingAuthenticationToken).isTrue();
 
 		TestingAuthenticationToken castResult = (TestingAuthenticationToken) result;
-		assertEquals("Test", castResult.getPrincipal());
-		assertEquals("Password", castResult.getCredentials());
-		assertTrue(AuthorityUtils.authorityListToSet(castResult.getAuthorities())
-				.contains("ROLE_ONE"));
-		assertTrue(AuthorityUtils.authorityListToSet(castResult.getAuthorities())
-				.contains("ROLE_TWO"));
+		assertThat(castResult.getPrincipal()).isEqualTo("Test");
+		assertThat(castResult.getCredentials()).isEqualTo("Password");
+		assertThat(AuthorityUtils.authorityListToSet(castResult.getAuthorities())).contains("ROLE_ONE","ROLE_TWO");
 	}
 
 	public void testSupports() {
 		TestingAuthenticationProvider provider = new TestingAuthenticationProvider();
-		assertTrue(provider.supports(TestingAuthenticationToken.class));
-		assertTrue(!provider.supports(String.class));
+		assertThat(provider.supports(TestingAuthenticationToken.class)).isTrue();
+		assertThat(!provider.supports(String.class)).isTrue();
 	}
 }

@@ -54,7 +54,7 @@ public class SecureChannelProcessorTests extends TestCase {
 		processor.decide(fi, SecurityConfig.createList("SOME_IGNORED_ATTRIBUTE",
 				"REQUIRES_SECURE_CHANNEL"));
 
-		assertFalse(fi.getResponse().isCommitted());
+		assertThat(fi.getResponse().isCommitted()).isFalse();
 	}
 
 	public void testDecideDetectsUnacceptableChannel() throws Exception {
@@ -76,7 +76,7 @@ public class SecureChannelProcessorTests extends TestCase {
 				SecurityConfig.createList(new String[] { "SOME_IGNORED_ATTRIBUTE",
 						"REQUIRES_SECURE_CHANNEL" }));
 
-		assertTrue(fi.getResponse().isCommitted());
+		assertThat(fi.getResponse().isCommitted()).isTrue();
 	}
 
 	public void testDecideRejectsNulls() throws Exception {
@@ -88,19 +88,19 @@ public class SecureChannelProcessorTests extends TestCase {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertTrue(true);
+
 		}
 	}
 
 	public void testGettersSetters() {
 		SecureChannelProcessor processor = new SecureChannelProcessor();
-		assertEquals("REQUIRES_SECURE_CHANNEL", processor.getSecureKeyword());
+		assertThat(processor.getSecureKeyword()).isEqualTo("REQUIRES_SECURE_CHANNEL");
 		processor.setSecureKeyword("X");
-		assertEquals("X", processor.getSecureKeyword());
+		assertThat(processor.getSecureKeyword()).isEqualTo("X");
 
-		assertTrue(processor.getEntryPoint() != null);
+		assertThat(processor.getEntryPoint() != null).isTrue();
 		processor.setEntryPoint(null);
-		assertTrue(processor.getEntryPoint() == null);
+		assertThat(processor.getEntryPoint() == null).isTrue();
 	}
 
 	public void testMissingEntryPoint() throws Exception {
@@ -112,7 +112,7 @@ public class SecureChannelProcessorTests extends TestCase {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertEquals("entryPoint required", expected.getMessage());
+			assertThat(expected.getMessage()).isEqualTo("entryPoint required");
 		}
 	}
 
@@ -125,7 +125,7 @@ public class SecureChannelProcessorTests extends TestCase {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertEquals("secureKeyword required", expected.getMessage());
+			assertThat(expected.getMessage()).isEqualTo("secureKeyword required");
 		}
 
 		processor.setSecureKeyword("");
@@ -135,14 +135,14 @@ public class SecureChannelProcessorTests extends TestCase {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertEquals("secureKeyword required", expected.getMessage());
+			assertThat(expected.getMessage()).isEqualTo("secureKeyword required");
 		}
 	}
 
 	public void testSupports() {
 		SecureChannelProcessor processor = new SecureChannelProcessor();
-		assertTrue(processor.supports(new SecurityConfig("REQUIRES_SECURE_CHANNEL")));
-		assertFalse(processor.supports(null));
-		assertFalse(processor.supports(new SecurityConfig("NOT_SUPPORTED")));
+		assertThat(processor.supports(new SecurityConfig("REQUIRES_SECURE_CHANNEL"))).isTrue();
+		assertThat(processor.supports(null)).isFalse();
+		assertThat(processor.supports(new SecurityConfig("NOT_SUPPORTED"))).isFalse();
 	}
 }

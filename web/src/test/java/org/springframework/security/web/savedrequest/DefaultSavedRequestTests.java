@@ -1,6 +1,6 @@
 package org.springframework.security.web.savedrequest;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Test;
 import org.springframework.security.MockPortResolver;
@@ -19,7 +19,7 @@ public class DefaultSavedRequestTests {
 		request.addHeader("USER-aGenT", "Mozilla");
 		DefaultSavedRequest saved = new DefaultSavedRequest(request,
 				new MockPortResolver(8080, 8443));
-		assertEquals("Mozilla", saved.getHeaderValues("user-agent").get(0));
+		assertThat(saved.getHeaderValues("user-agent").get(0)).isEqualTo("Mozilla");
 	}
 
 	// SEC-1412
@@ -29,7 +29,7 @@ public class DefaultSavedRequestTests {
 		request.addHeader("If-None-Match", "somehashvalue");
 		DefaultSavedRequest saved = new DefaultSavedRequest(request,
 				new MockPortResolver(8080, 8443));
-		assertTrue(saved.getHeaderValues("if-none-match").isEmpty());
+		assertThat(saved.getHeaderValues("if-none-match").isEmpty()).isTrue();
 	}
 
 	// SEC-3082
@@ -40,7 +40,7 @@ public class DefaultSavedRequestTests {
 		request.addParameter("thisisatest", "Hi mom");
 		DefaultSavedRequest saved = new DefaultSavedRequest(request,
 				new MockPortResolver(8080, 8443));
-		assertEquals("Hi mom", saved.getParameterValues("thisisatest")[0]);
-		assertNull(saved.getParameterValues("anothertest"));
+		assertThat(saved.getParameterValues("thisisatest")[0]).isEqualTo("Hi mom");
+		assertThat(saved.getParameterValues("anothertest")).isNull();
 	}
 }

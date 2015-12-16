@@ -59,11 +59,11 @@ public class SecurityContextLoginModuleTests extends TestCase {
 	}
 
 	public void testAbort() throws Exception {
-		assertFalse("Should return false, no auth is set", module.abort());
+		assertThat(module.abort()).as("Should return false, no auth is set").isFalse();
 		SecurityContextHolder.getContext().setAuthentication(auth);
 		module.login();
 		module.commit();
-		assertTrue(module.abort());
+		assertThat(module.abort()).isTrue();
 	}
 
 	public void testLoginException() throws Exception {
@@ -77,7 +77,7 @@ public class SecurityContextLoginModuleTests extends TestCase {
 
 	public void testLoginSuccess() throws Exception {
 		SecurityContextHolder.getContext().setAuthentication(auth);
-		assertTrue("Login should succeed, there is an authentication set", module.login());
+		assertThat(module.login()).as("Login should succeed, there is an authentication set").isTrue();
 		assertTrue("The authentication is not null, this should return true",
 				module.commit());
 		assertTrue("Principals should contain the authentication", subject
@@ -87,8 +87,8 @@ public class SecurityContextLoginModuleTests extends TestCase {
 	public void testLogout() throws Exception {
 		SecurityContextHolder.getContext().setAuthentication(auth);
 		module.login();
-		assertTrue("Should return true as it succeeds", module.logout());
-		assertEquals("Authentication should be null", null, module.getAuthentication());
+		assertThat(module.logout()).as("Should return true as it succeeds").isTrue();
+		assertThat(module.getAuthentication()).as("Authentication should be null").isEqualTo(null);
 
 		assertFalse("Principals should not contain the authentication after logout",
 				subject.getPrincipals().contains(auth));
@@ -112,10 +112,10 @@ public class SecurityContextLoginModuleTests extends TestCase {
 
 		module.initialize(subject, null, null, options);
 		SecurityContextHolder.getContext().setAuthentication(null);
-		assertFalse("Should return false and ask to be ignored", module.login());
+		assertThat(module.login()).as("Should return false and ask to be ignored").isFalse();
 	}
 
 	public void testNullLogout() throws Exception {
-		assertFalse(module.logout());
+		assertThat(module.logout()).isFalse();
 	}
 }

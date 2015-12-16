@@ -15,7 +15,7 @@
 
 package org.springframework.security.authentication;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -59,12 +59,12 @@ public class ProviderManagerTests {
 				"Test", "Password");
 		ProviderManager mgr = makeProviderManager();
 		Authentication result = mgr.authenticate(token);
-		assertNull(result.getCredentials());
+		assertThat(result.getCredentials()).isNull();
 
 		mgr.setEraseCredentialsAfterAuthentication(false);
 		token = new UsernamePasswordAuthenticationToken("Test", "Password");
 		result = mgr.authenticate(token);
-		assertNotNull(result.getCredentials());
+		assertThat(result.getCredentials()).isNotNull();
 	}
 
 	@Test
@@ -77,7 +77,7 @@ public class ProviderManagerTests {
 		mgr.setAuthenticationEventPublisher(publisher);
 
 		Authentication result = mgr.authenticate(a);
-		assertEquals(a, result);
+		assertThat(result).isEqualTo(a);
 		verify(publisher).publishAuthenticationSuccess(result);
 	}
 
@@ -90,7 +90,7 @@ public class ProviderManagerTests {
 		mgr.setAuthenticationEventPublisher(publisher);
 
 		Authentication result = mgr.authenticate(a);
-		assertSame(a, result);
+		assertThat(result).isSameAs(a);
 		verify(publisher).publishAuthenticationSuccess(result);
 	}
 
@@ -124,7 +124,7 @@ public class ProviderManagerTests {
 		request.setDetails(requestDetails);
 
 		Authentication result = authMgr.authenticate(request);
-		assertEquals(resultDetails, result.getDetails());
+		assertThat(result.getDetails()).isEqualTo(resultDetails);
 	}
 
 	@Test
@@ -137,8 +137,8 @@ public class ProviderManagerTests {
 		request.setDetails(details);
 
 		Authentication result = authMgr.authenticate(request);
-		assertNotNull(result.getCredentials());
-		assertSame(details, result.getDetails());
+		assertThat(result.getCredentials()).isNotNull();
+		assertThat(result.getDetails()).isSameAs(details);
 	}
 
 	@Test
@@ -148,7 +148,7 @@ public class ProviderManagerTests {
 		ProviderManager mgr = new ProviderManager(
 				Arrays.asList(createProviderWhichThrows(new BadCredentialsException("",
 						new Throwable())), createProviderWhichReturns(authReq)));
-		assertSame(authReq, mgr.authenticate(mock(Authentication.class)));
+		assertThat(mgr.authenticate(mock(Authentication.class))).isSameAs(authReq);
 	}
 
 	@Test
@@ -194,7 +194,7 @@ public class ProviderManagerTests {
 		when(parent.authenticate(authReq)).thenReturn(authReq);
 		ProviderManager mgr = new ProviderManager(
 				Arrays.asList(mock(AuthenticationProvider.class)), parent);
-		assertSame(authReq, mgr.authenticate(authReq));
+		assertThat(mgr.authenticate(authReq)).isSameAs(authReq);
 	}
 
 	@Test
@@ -256,7 +256,7 @@ public class ProviderManagerTests {
 			fail("Expected exception");
 		}
 		catch (BadCredentialsException e) {
-			assertSame(expected, e);
+			assertThat(e).isSameAs(expected);
 		}
 		verify(publisher).publishAuthenticationFailure(expected, authReq);
 	}
@@ -276,7 +276,7 @@ public class ProviderManagerTests {
 			fail("Expected exception");
 		}
 		catch (LockedException e) {
-			assertSame(expected, e);
+			assertThat(e).isSameAs(expected);
 		}
 		verify(publisher).publishAuthenticationFailure(expected, authReq);
 	}

@@ -1,4 +1,4 @@
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.After;
 import org.junit.Test;
@@ -40,9 +40,9 @@ public class DmsIntegrationTests extends AbstractTransactionalJUnit4SpringContex
 
 	@Test
 	public void testBasePopulation() {
-		assertEquals(9, (int) jdbcTemplate.queryForObject("select count(id) from DIRECTORY", Integer.class));
-		assertEquals(90, (int) jdbcTemplate.queryForObject("select count(id) from FILE", Integer.class));
-		assertEquals(3, documentDao.findElements(Directory.ROOT_DIRECTORY).length);
+		assertThat(Integer.class)).isEqualTo(9, (int) jdbcTemplate.queryForObject("select count(id) from DIRECTORY");
+		assertThat(Integer.class)).isEqualTo(90, (int) jdbcTemplate.queryForObject("select count(id) from FILE");
+		assertThat(documentDao.findElements(Directory.ROOT_DIRECTORY).length).isEqualTo(3);
 	}
 
 	@Test
@@ -66,7 +66,7 @@ public class DmsIntegrationTests extends AbstractTransactionalJUnit4SpringContex
 		System.out.println("------ Test for username: " + username + " ------");
 		AbstractElement[] rootElements = documentDao
 				.findElements(Directory.ROOT_DIRECTORY);
-		assertEquals(3, rootElements.length);
+		assertThat(rootElements.length).isEqualTo(3);
 		Directory homeDir = null;
 		Directory nonHomeDir = null;
 		for (int i = 0; i < rootElements.length; i++) {
@@ -81,11 +81,11 @@ public class DmsIntegrationTests extends AbstractTransactionalJUnit4SpringContex
 		System.out.println("Non-home directory..: " + nonHomeDir.getFullName());
 
 		AbstractElement[] homeElements = documentDao.findElements(homeDir);
-		assertEquals(12, homeElements.length); // confidential and shared directories,
+		assertThat(homeElements.length).isEqualTo(12); // confidential and shared directories,
 												// plus 10 files
 
 		AbstractElement[] nonHomeElements = documentDao.findElements(nonHomeDir);
-		assertEquals(shouldBeFiltered ? 11 : 12, nonHomeElements.length); // cannot see
+		assertThat(nonHomeElements.length).isEqualTo(shouldBeFiltered ? 11 : 12); // cannot see
 																			// the user's
 																			// "confidential"
 																			// sub-directory
@@ -110,7 +110,7 @@ public class DmsIntegrationTests extends AbstractTransactionalJUnit4SpringContex
 		else {
 			System.out.println("Inaccessible dir....: "
 					+ nonHomeConfidentialDir.getFullName());
-			assertEquals(10, documentDao.findElements(nonHomeConfidentialDir).length); // 10
+			assertThat(documentDao.findElements(nonHomeConfidentialDir).length).isEqualTo(10); // 10
 																						// files
 																						// (no
 																						// sub-directories)

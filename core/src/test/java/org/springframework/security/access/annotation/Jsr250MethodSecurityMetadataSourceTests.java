@@ -15,8 +15,7 @@
  */
 package org.springframework.security.access.annotation;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collection;
 
@@ -53,38 +52,37 @@ public class Jsr250MethodSecurityMetadataSourceTests {
 	@Test
 	public void methodWithRolesAllowedHasCorrectAttribute() throws Exception {
 		ConfigAttribute[] accessAttributes = findAttributes("adminMethod");
-		assertEquals(1, accessAttributes.length);
-		assertEquals("ROLE_ADMIN", accessAttributes[0].toString());
+		assertThat(accessAttributes.length).isEqualTo(1);
+		assertThat(accessAttributes[0].toString()).isEqualTo("ROLE_ADMIN");
 	}
 
 	@Test
 	public void permitAllMethodHasPermitAllAttribute() throws Exception {
 		ConfigAttribute[] accessAttributes = findAttributes("permitAllMethod");
-		assertEquals(1, accessAttributes.length);
-		assertEquals("javax.annotation.security.PermitAll",
-				accessAttributes[0].toString());
+		assertThat(accessAttributes).hasSize(1);
+		assertThat(accessAttributes[0].toString()).isEqualTo("javax.annotation.security.PermitAll");
 	}
 
 	@Test
 	public void noRoleMethodHasNoAttributes() throws Exception {
 		Collection<ConfigAttribute> accessAttributes = mds.findAttributes(a.getClass()
 				.getMethod("noRoleMethod"), null);
-		Assert.assertNull(accessAttributes);
+		assertThat(accessAttributes).isNull();
 	}
 
 	@Test
 	public void classRoleIsAppliedToNoRoleMethod() throws Exception {
 		Collection<ConfigAttribute> accessAttributes = mds.findAttributes(userAllowed
 				.getClass().getMethod("noRoleMethod"), null);
-		Assert.assertNull(accessAttributes);
+		assertThat(accessAttributes).isNull();
 	}
 
 	@Test
 	public void methodRoleOverridesClassRole() throws Exception {
 		Collection<ConfigAttribute> accessAttributes = mds.findAttributes(userAllowed
 				.getClass().getMethod("adminMethod"), null);
-		assertEquals(1, accessAttributes.size());
-		assertEquals("ROLE_ADMIN", accessAttributes.toArray()[0].toString());
+		assertThat(accessAttributes).hasSize(1);
+		assertThat(accessAttributes.toArray()[0].toString()).isEqualTo("ROLE_ADMIN");
 	}
 
 	@Test
@@ -92,8 +90,8 @@ public class Jsr250MethodSecurityMetadataSourceTests {
 		mds.setDefaultRolePrefix("CUSTOMPREFIX_");
 
 		ConfigAttribute[] accessAttributes = findAttributes("adminMethod");
-		assertEquals(1, accessAttributes.length);
-		assertEquals("CUSTOMPREFIX_ADMIN", accessAttributes[0].toString());
+		assertThat(accessAttributes.length).isEqualTo(1);
+		assertThat(accessAttributes[0].toString()).isEqualTo("CUSTOMPREFIX_ADMIN");
 	}
 
 	@Test
@@ -101,8 +99,8 @@ public class Jsr250MethodSecurityMetadataSourceTests {
 		mds.setDefaultRolePrefix("");
 
 		ConfigAttribute[] accessAttributes = findAttributes("adminMethod");
-		assertEquals(1, accessAttributes.length);
-		assertEquals("ADMIN", accessAttributes[0].toString());
+		assertThat(accessAttributes.length).isEqualTo(1);
+		assertThat(accessAttributes[0].toString()).isEqualTo("ADMIN");
 	}
 
 	@Test
@@ -110,15 +108,15 @@ public class Jsr250MethodSecurityMetadataSourceTests {
 		mds.setDefaultRolePrefix(null);
 
 		ConfigAttribute[] accessAttributes = findAttributes("adminMethod");
-		assertEquals(1, accessAttributes.length);
-		assertEquals("ADMIN", accessAttributes[0].toString());
+		assertThat(accessAttributes.length).isEqualTo(1);
+		assertThat(accessAttributes[0].toString()).isEqualTo("ADMIN");
 	}
 
 	@Test
 	public void alreadyHasDefaultPrefix() throws Exception {
 		ConfigAttribute[] accessAttributes = findAttributes("roleAdminMethod");
-		assertEquals(1, accessAttributes.length);
-		assertEquals("ROLE_ADMIN", accessAttributes[0].toString());
+		assertThat(accessAttributes.length).isEqualTo(1);
+		assertThat(accessAttributes[0].toString()).isEqualTo("ROLE_ADMIN");
 	}
 
 	// JSR-250 Spec Tests
@@ -148,8 +146,8 @@ public class Jsr250MethodSecurityMetadataSourceTests {
 				"overriden");
 
 		Collection<ConfigAttribute> accessAttributes = mds.getAttributes(mi);
-		assertEquals(1, accessAttributes.size());
-		assertEquals("ROLE_DERIVED", accessAttributes.toArray()[0].toString());
+		assertThat(accessAttributes).hasSize(1);
+		assertThat(accessAttributes.toArray()[0].toString()).isEqualTo("ROLE_DERIVED");
 	}
 
 	@Test
@@ -159,8 +157,8 @@ public class Jsr250MethodSecurityMetadataSourceTests {
 				"defaults");
 
 		Collection<ConfigAttribute> accessAttributes = mds.getAttributes(mi);
-		assertEquals(1, accessAttributes.size());
-		assertEquals("ROLE_DERIVED", accessAttributes.toArray()[0].toString());
+		assertThat(accessAttributes).hasSize(1);
+		assertThat(accessAttributes.toArray()[0].toString()).isEqualTo("ROLE_DERIVED");
 	}
 
 	@Test
@@ -170,8 +168,8 @@ public class Jsr250MethodSecurityMetadataSourceTests {
 				"explicitMethod");
 
 		Collection<ConfigAttribute> accessAttributes = mds.getAttributes(mi);
-		assertEquals(1, accessAttributes.size());
-		assertEquals("ROLE_EXPLICIT", accessAttributes.toArray()[0].toString());
+		assertThat(accessAttributes).hasSize(1);
+		assertThat(accessAttributes.toArray()[0].toString()).isEqualTo("ROLE_EXPLICIT");
 	}
 
 	/**
@@ -206,8 +204,8 @@ public class Jsr250MethodSecurityMetadataSourceTests {
 				"overridenIgnored");
 
 		Collection<ConfigAttribute> accessAttributes = mds.getAttributes(mi);
-		assertEquals(1, accessAttributes.size());
-		assertEquals("ROLE_DERIVED", accessAttributes.toArray()[0].toString());
+		assertThat(accessAttributes).hasSize(1);
+		assertThat(accessAttributes.toArray()[0].toString()).isEqualTo("ROLE_DERIVED");
 	}
 
 	// ~ Inner Classes

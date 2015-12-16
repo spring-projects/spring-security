@@ -57,7 +57,7 @@ public class UsernamePasswordAuthenticationFilterTests extends TestCase {
 
 		Authentication result = filter.attemptAuthentication(request,
 				new MockHttpServletResponse());
-		assertTrue(result != null);
+		assertThat(result != null).isTrue();
 		assertEquals("127.0.0.1",
 				((WebAuthenticationDetails) result.getDetails()).getRemoteAddress());
 	}
@@ -101,7 +101,7 @@ public class UsernamePasswordAuthenticationFilterTests extends TestCase {
 
 		Authentication result = filter.attemptAuthentication(request,
 				new MockHttpServletResponse());
-		assertNotNull(result);
+		assertThat(result).isNotNull();
 		assertEquals("127.0.0.1",
 				((WebAuthenticationDetails) result.getDetails()).getRemoteAddress());
 	}
@@ -121,7 +121,7 @@ public class UsernamePasswordAuthenticationFilterTests extends TestCase {
 
 		Authentication result = filter.attemptAuthentication(request,
 				new MockHttpServletResponse());
-		assertEquals("rod", result.getName());
+		assertThat(result.getName()).isEqualTo("rod");
 	}
 
 	@Test
@@ -158,7 +158,7 @@ public class UsernamePasswordAuthenticationFilterTests extends TestCase {
 
 		filter.attemptAuthentication(request, new MockHttpServletResponse());
 
-		assertNull(request.getSession(false));
+		assertThat(request.getSession(false)).isNull();
 	}
 
 	private AuthenticationManager createAuthenticationManager() {

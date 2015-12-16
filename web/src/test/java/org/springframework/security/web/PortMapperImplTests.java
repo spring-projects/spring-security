@@ -15,6 +15,8 @@
 
 package org.springframework.security.web;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import junit.framework.TestCase;
 
 import java.util.HashMap;
@@ -33,7 +35,7 @@ public class PortMapperImplTests extends TestCase {
 
 	public void testDefaultMappingsAreKnown() throws Exception {
 		PortMapperImpl portMapper = new PortMapperImpl();
-		assertEquals(Integer.valueOf(80), portMapper.lookupHttpPort(Integer.valueOf(443)));
+		assertThat(portMapper.lookupHttpPort(Integer.valueOf(443))).isEqualTo(Integer.valueOf(80));
 		assertEquals(Integer.valueOf(8080),
 				portMapper.lookupHttpPort(Integer.valueOf(8443)));
 		assertEquals(Integer.valueOf(443),
@@ -50,7 +52,7 @@ public class PortMapperImplTests extends TestCase {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertTrue(true);
+
 		}
 	}
 
@@ -62,13 +64,13 @@ public class PortMapperImplTests extends TestCase {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertTrue(true);
+
 		}
 	}
 
 	public void testGetTranslatedPortMappings() {
 		PortMapperImpl portMapper = new PortMapperImpl();
-		assertEquals(2, portMapper.getTranslatedPortMappings().size());
+		assertThat(portMapper.getTranslatedPortMappings()).hasSize(2);
 	}
 
 	public void testRejectsOutOfRangeMappings() {
@@ -81,13 +83,13 @@ public class PortMapperImplTests extends TestCase {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertTrue(true);
+
 		}
 	}
 
 	public void testReturnsNullIfHttpPortCannotBeFound() {
 		PortMapperImpl portMapper = new PortMapperImpl();
-		assertTrue(portMapper.lookupHttpPort(Integer.valueOf("34343")) == null);
+		assertThat(portMapper.lookupHttpPort(Integer.valueOf("34343")) == null).isTrue();
 	}
 
 	public void testSupportsCustomMappings() {
@@ -97,7 +99,7 @@ public class PortMapperImplTests extends TestCase {
 
 		portMapper.setPortMappings(map);
 
-		assertEquals(Integer.valueOf(79), portMapper.lookupHttpPort(Integer.valueOf(442)));
+		assertThat(portMapper.lookupHttpPort(Integer.valueOf(442))).isEqualTo(Integer.valueOf(79));
 		assertEquals(Integer.valueOf(442),
 				portMapper.lookupHttpsPort(Integer.valueOf(79)));
 	}

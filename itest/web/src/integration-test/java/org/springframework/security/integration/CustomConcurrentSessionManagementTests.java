@@ -2,7 +2,8 @@ package org.springframework.security.integration;
 
 import net.sourceforge.jwebunit.junit.WebTester;
 
-import org.junit.Assert;
+import static org.assertj.core.api.Assertions.*;
+
 import org.springframework.security.core.session.SessionRegistry;
 import org.testng.annotations.Test;
 
@@ -29,8 +30,8 @@ public class CustomConcurrentSessionManagementTests extends
 		tester2.setTextField("password", "jimispassword");
 		tester2.setIgnoreFailingStatusCodes(true);
 		tester2.submit();
-		Assert.assertTrue(tester2.getServerResponse().contains(
-				"Maximum sessions of 1 for this principal exceeded"));
+		assertThat(tester2.getServerResponse()).contains(
+				"Maximum sessions of 1 for this principal exceeded");
 	}
 
 	@Test
@@ -50,6 +51,6 @@ public class CustomConcurrentSessionManagementTests extends
 		tester2.setTextField("password", "bessiespassword");
 		tester2.setIgnoreFailingStatusCodes(true);
 		tester2.submit();
-		Assert.assertTrue(tester2.getServerResponse().contains("A secure page"));
+		assertThat(tester2.getServerResponse()).contains("A secure page");
 	}
 }

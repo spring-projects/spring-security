@@ -1,6 +1,7 @@
 package org.springframework.security.acls;
 
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.*;
+
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
@@ -36,7 +37,7 @@ public class AclPermissionEvaluatorTests {
 		when(service.readAclById(any(ObjectIdentity.class), anyList())).thenReturn(acl);
 		when(acl.isGranted(anyList(), anyList(), eq(false))).thenReturn(true);
 
-		assertTrue(pe.hasPermission(mock(Authentication.class), new Object(), "READ"));
+		assertThat(pe.hasPermission(mock(Authentication.class), new Object(), "READ")).isTrue();
 	}
 
 	@Test
@@ -56,7 +57,7 @@ public class AclPermissionEvaluatorTests {
 		when(service.readAclById(any(ObjectIdentity.class), anyList())).thenReturn(acl);
 		when(acl.isGranted(anyList(), anyList(), eq(false))).thenReturn(true);
 
-		assertTrue(pe.hasPermission(mock(Authentication.class), new Object(), "write"));
+		assertThat(pe.hasPermission(mock(Authentication.class), new Object(), "write")).isTrue();
 
 		Locale.setDefault(systemLocale);
 	}

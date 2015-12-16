@@ -22,7 +22,7 @@ public class DefaultTokenTests {
 
 		DefaultToken t1 = new DefaultToken(key, created, extendedInformation);
 		DefaultToken t2 = new DefaultToken(key, created, extendedInformation);
-		Assert.assertEquals(t1, t2);
+		Assert.assertThat(t2).isEqualTo(t1);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -39,6 +39,6 @@ public class DefaultTokenTests {
 
 		DefaultToken t1 = new DefaultToken(key, created, "length1");
 		DefaultToken t2 = new DefaultToken(key, created, "longerLength2");
-		Assert.assertFalse(t1.equals(t2));
+		Assert.assertThat(t1.equals(t2)).isFalse();
 	}
 }

@@ -12,7 +12,7 @@
  */
 package org.springframework.security.core;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.DataInputStream;
 import java.io.InputStream;

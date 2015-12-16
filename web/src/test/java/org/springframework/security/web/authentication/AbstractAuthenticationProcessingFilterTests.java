@@ -15,11 +15,11 @@
 
 package org.springframework.security.web.authentication;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -110,7 +110,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 
 		// the firewall ensures that path parameters are ignored
 		HttpServletRequest firewallRequest = firewall.getFirewalledRequest(request);
-		assertTrue(filter.requiresAuthentication(firewallRequest, response));
+		assertThat(filter.requiresAuthentication(firewallRequest, response)).isTrue();
 	}
 
 	@Test
@@ -135,9 +135,9 @@ public class AbstractAuthenticationProcessingFilterTests {
 
 		// Test
 		filter.doFilter(request, response, chain);
-		assertEquals("/mycontext/logged_in.jsp", response.getRedirectedUrl());
-		assertNotNull(SecurityContextHolder.getContext().getAuthentication());
-		assertEquals("test", SecurityContextHolder.getContext().getAuthentication()
+		assertThat(response.getRedirectedUrl()).isEqualTo("/mycontext/logged_in.jsp");
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
+		assertThat(SecurityContextHolder.getContext().getAuthentication().isEqualTo("test")
 				.getPrincipal().toString());
 	}
 
@@ -148,12 +148,12 @@ public class AbstractAuthenticationProcessingFilterTests {
 		filter.setFilterProcessesUrl("/p");
 		filter.afterPropertiesSet();
 
-		assertNotNull(filter.getRememberMeServices());
+		assertThat(filter.getRememberMeServices()).isNotNull();
 		filter.setRememberMeServices(new TokenBasedRememberMeServices("key",
 				new AbstractRememberMeServicesTests.MockUserDetailsService()));
-		assertEquals(TokenBasedRememberMeServices.class, filter.getRememberMeServices()
+		assertThat(filter.getRememberMeServices().isEqualTo(TokenBasedRememberMeServices.class)
 				.getClass());
-		assertTrue(filter.getAuthenticationManager() != null);
+		assertThat(filter.getAuthenticationManager() != null).isTrue();
 	}
 
 	@Test
@@ -204,12 +204,12 @@ public class AbstractAuthenticationProcessingFilterTests {
 
 		// Test
 		filter.doFilter(request, response, chain);
-		assertEquals("/mycontext/logged_in.jsp", response.getRedirectedUrl());
-		assertNotNull(SecurityContextHolder.getContext().getAuthentication());
-		assertEquals("test", SecurityContextHolder.getContext().getAuthentication()
+		assertThat(response.getRedirectedUrl()).isEqualTo("/mycontext/logged_in.jsp");
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
+		assertThat(SecurityContextHolder.getContext().getAuthentication().isEqualTo("test")
 				.getPrincipal().toString());
 		// Should still have the same session
-		assertEquals(sessionPreAuth, request.getSession());
+		assertThat(request.getSession()).isEqualTo(sessionPreAuth);
 	}
 
 	@Test
@@ -225,7 +225,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertEquals("authenticationManager must be specified", expected.getMessage());
+			assertThat(expected.getMessage()).isEqualTo("authenticationManager must be specified");
 		}
 	}
 
@@ -241,7 +241,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertEquals("Pattern cannot be null or empty", expected.getMessage());
+			assertThat(expected.getMessage()).isEqualTo("Pattern cannot be null or empty");
 		}
 	}
 
@@ -266,9 +266,9 @@ public class AbstractAuthenticationProcessingFilterTests {
 
 		// Test
 		filter.doFilter(request, response, chain);
-		assertEquals("/mycontext/logged_in.jsp", response.getRedirectedUrl());
-		assertNotNull(SecurityContextHolder.getContext().getAuthentication());
-		assertEquals("test", SecurityContextHolder.getContext().getAuthentication()
+		assertThat(response.getRedirectedUrl()).isEqualTo("/mycontext/logged_in.jsp");
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
+		assertThat(SecurityContextHolder.getContext().getAuthentication().isEqualTo("test")
 				.getPrincipal().toString());
 
 		// Now try again but this time have filter deny access
@@ -285,7 +285,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 
 		// Test
 		filter.doFilter(request, response, chain);
-		assertNull(SecurityContextHolder.getContext().getAuthentication());
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
 
 	@Test
@@ -314,7 +314,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 		verify(successHandler).onAuthenticationSuccess(any(HttpServletRequest.class),
 				any(HttpServletResponse.class), any(Authentication.class));
 
-		assertNotNull(SecurityContextHolder.getContext().getAuthentication());
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
 	}
 
 	@Test
@@ -341,7 +341,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 		verify(failureHandler).onAuthenticationFailure(any(HttpServletRequest.class),
 				any(HttpServletResponse.class), any(AuthenticationException.class));
 
-		assertNull(SecurityContextHolder.getContext().getAuthentication());
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
 
 	/**
@@ -362,7 +362,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 
 		filter.doFilter(request, response, chain);
 
-		assertNull(request.getSession(false));
+		assertThat(request.getSession(false)).isNull();
 	}
 
 	/**
@@ -382,7 +382,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 
 		filter.doFilter(request, response, chain);
 
-		assertEquals(HttpServletResponse.SC_UNAUTHORIZED, response.getStatus());
+		assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 	}
 
 	/**
@@ -407,7 +407,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 		filter.doFilter(request, response, chain);
 
 		verify(logger).error(anyString(), eq(filter.exceptionToThrow));
-		assertEquals(HttpServletResponse.SC_UNAUTHORIZED, response.getStatus());
+		assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 	}
 
 	// ~ Inner Classes
@@ -450,7 +450,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 		public void doFilter(ServletRequest request, ServletResponse response)
 				throws IOException, ServletException {
 			if (expectToProceed) {
-				assertTrue(true);
+
 			}
 			else {
 				fail("Did not expect filter chain to proceed");

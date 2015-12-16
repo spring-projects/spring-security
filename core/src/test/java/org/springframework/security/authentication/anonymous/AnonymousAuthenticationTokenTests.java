@@ -15,6 +15,8 @@
 
 package org.springframework.security.authentication.anonymous;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -73,21 +75,19 @@ public class AnonymousAuthenticationTokenTests extends TestCase {
 		AnonymousAuthenticationToken token2 = new AnonymousAuthenticationToken("key",
 				"Test", ROLES_12);
 
-		assertEquals(token1, token2);
+		assertThat(token2).isEqualTo(token1);
 	}
 
 	public void testGetters() {
 		AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("key",
 				"Test", ROLES_12);
 
-		assertEquals("key".hashCode(), token.getKeyHash());
-		assertEquals("Test", token.getPrincipal());
-		assertEquals("", token.getCredentials());
-		assertTrue(AuthorityUtils.authorityListToSet(token.getAuthorities()).contains(
-				"ROLE_ONE"));
-		assertTrue(AuthorityUtils.authorityListToSet(token.getAuthorities()).contains(
-				"ROLE_TWO"));
-		assertTrue(token.isAuthenticated());
+		assertThat(token.getKeyHash()).isEqualTo("key".hashCode());
+		assertThat(token.getPrincipal()).isEqualTo("Test");
+		assertThat(token.getCredentials()).isEqualTo("");
+		assertThat(AuthorityUtils.authorityListToSet(token.getAuthorities())).contains(
+				"ROLE_ONE","ROLE_TWO");
+		assertThat(token.isAuthenticated()).isTrue();
 	}
 
 	public void testNoArgConstructorDoesntExist() {
@@ -107,7 +107,7 @@ public class AnonymousAuthenticationTokenTests extends TestCase {
 		AnonymousAuthenticationToken token2 = new AnonymousAuthenticationToken("key",
 				"DIFFERENT_PRINCIPAL", ROLES_12);
 
-		assertFalse(token1.equals(token2));
+		assertThat(token1.equals(token2)).isFalse();
 	}
 
 	public void testNotEqualsDueToDifferentAuthenticationClass() {
@@ -116,7 +116,7 @@ public class AnonymousAuthenticationTokenTests extends TestCase {
 		UsernamePasswordAuthenticationToken token2 = new UsernamePasswordAuthenticationToken(
 				"Test", "Password", ROLES_12);
 
-		assertFalse(token1.equals(token2));
+		assertThat(token1.equals(token2)).isFalse();
 	}
 
 	public void testNotEqualsDueToKey() {
@@ -126,14 +126,14 @@ public class AnonymousAuthenticationTokenTests extends TestCase {
 		AnonymousAuthenticationToken token2 = new AnonymousAuthenticationToken(
 				"DIFFERENT_KEY", "Test", ROLES_12);
 
-		assertFalse(token1.equals(token2));
+		assertThat(token1.equals(token2)).isFalse();
 	}
 
 	public void testSetAuthenticatedIgnored() {
 		AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("key",
 				"Test", ROLES_12);
-		assertTrue(token.isAuthenticated());
+		assertThat(token.isAuthenticated()).isTrue();
 		token.setAuthenticated(false);
-		assertTrue(!token.isAuthenticated());
+		assertThat(!token.isAuthenticated()).isTrue();
 	}
 }

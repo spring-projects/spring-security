@@ -15,7 +15,7 @@
 
 package org.springframework.security.access.intercept.aopalliance;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -100,11 +100,11 @@ public class MethodSecurityInterceptorTests {
 		AfterInvocationManager aim = mock(AfterInvocationManager.class);
 		interceptor.setRunAsManager(runAs);
 		interceptor.setAfterInvocationManager(aim);
-		assertEquals(adm, interceptor.getAccessDecisionManager());
-		assertEquals(runAs, interceptor.getRunAsManager());
-		assertEquals(authman, interceptor.getAuthenticationManager());
-		assertEquals(mds, interceptor.getSecurityMetadataSource());
-		assertEquals(aim, interceptor.getAfterInvocationManager());
+		assertThat(interceptor.getAccessDecisionManager()).isEqualTo(adm);
+		assertThat(interceptor.getRunAsManager()).isEqualTo(runAs);
+		assertThat(interceptor.getAuthenticationManager()).isEqualTo(authman);
+		assertThat(interceptor.getSecurityMetadataSource()).isEqualTo(mds);
+		assertThat(interceptor.getAfterInvocationManager()).isEqualTo(aim);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -198,17 +198,15 @@ public class MethodSecurityInterceptorTests {
 	public void callingAPublicMethodFacadeWillNotRepeatSecurityChecksWhenPassedToTheSecuredMethodItFronts() {
 		mdsReturnsNull();
 		String result = advisedTarget.publicMakeLowerCase("HELLO");
-		assertEquals("hello Authentication empty", result);
+		assertThat(result).isEqualTo("hello Authentication empty");
 	}
 
 	@Test
 	public void callingAPublicMethodWhenPresentingAnAuthenticationObjectDoesntChangeItsAuthenticatedProperty() {
 		mdsReturnsNull();
 		SecurityContextHolder.getContext().setAuthentication(token);
-		assertEquals(
-				"hello org.springframework.security.authentication.TestingAuthenticationToken false",
-				advisedTarget.publicMakeLowerCase("HELLO"));
-		assertTrue(!token.isAuthenticated());
+		assertThat(advisedTarget.publicMakeLowerCase("HELLO")).isEqualTo("hello org.springframework.security.authentication.TestingAuthenticationToken false");
+		assertThat(!token.isAuthenticated()).isTrue();
 	}
 
 	@Test(expected = AuthenticationException.class)
@@ -235,9 +233,7 @@ public class MethodSecurityInterceptorTests {
 		String result = advisedTarget.makeLowerCase("HELLO");
 
 		// Note we check the isAuthenticated remained true in following line
-		assertEquals(
-				"hello org.springframework.security.authentication.TestingAuthenticationToken true",
-				result);
+		assertThat(result).isEqualTo("hello org.springframework.security.authentication.TestingAuthenticationToken true");
 		verify(eventPublisher).publishEvent(any(AuthorizedEvent.class));
 	}
 
@@ -254,7 +250,7 @@ public class MethodSecurityInterceptorTests {
 
 		try {
 			advisedTarget.makeUpperCase("HELLO");
-			fail();
+			fail("Expected Exception");
 		}
 		catch (AccessDeniedException expected) {
 		}
@@ -280,12 +276,10 @@ public class MethodSecurityInterceptorTests {
 				.thenReturn(runAsToken);
 
 		String result = advisedTarget.makeUpperCase("hello");
-		assertEquals(
-				"HELLO org.springframework.security.access.intercept.RunAsUserToken true",
-				result);
+		assertThat(result).isEqualTo("HELLO org.springframework.security.access.intercept.RunAsUserToken true");
 		// Check we've changed back
-		assertSame(ctx, SecurityContextHolder.getContext());
-		assertSame(token, SecurityContextHolder.getContext().getAuthentication());
+		assertThat(SecurityContextHolder.getContext()).isSameAs(ctx);
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(token);
 	}
 
 	// SEC-1967
@@ -312,8 +306,8 @@ public class MethodSecurityInterceptorTests {
 		}
 
 		// Check we've changed back
-		assertSame(ctx, SecurityContextHolder.getContext());
-		assertSame(token, SecurityContextHolder.getContext().getAuthentication());
+		assertThat(SecurityContextHolder.getContext()).isSameAs(ctx);
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(token);
 	}
 
 	@Test(expected = AuthenticationCredentialsNotFoundException.class)

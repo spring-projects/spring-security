@@ -1,6 +1,6 @@
 package org.springframework.security.crypto.encrypt;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -20,10 +20,10 @@ public class EncryptorsTests {
 
 		BytesEncryptor encryptor = Encryptors.stronger("password", "5c0744940b5c369b");
 		byte[] result = encryptor.encrypt("text".getBytes("UTF-8"));
-		assertNotNull(result);
-		assertFalse(new String(result).equals("text"));
-		assertEquals("text", new String(encryptor.decrypt(result)));
-		assertFalse(new String(result).equals(new String(encryptor.encrypt("text"
+		assertThat(result).isNotNull();
+		assertThat(new String(result).equals("text")).isFalse();
+		assertThat(new String(encryptor.decrypt(result))).isEqualTo("text");
+		assertThat(new String(result).isFalse().equals(new String(encryptor.encrypt("text"
 				.getBytes()))));
 	}
 
@@ -31,10 +31,10 @@ public class EncryptorsTests {
 	public void standard() throws Exception {
 		BytesEncryptor encryptor = Encryptors.standard("password", "5c0744940b5c369b");
 		byte[] result = encryptor.encrypt("text".getBytes("UTF-8"));
-		assertNotNull(result);
-		assertFalse(new String(result).equals("text"));
-		assertEquals("text", new String(encryptor.decrypt(result)));
-		assertFalse(new String(result).equals(new String(encryptor.encrypt("text"
+		assertThat(result).isNotNull();
+		assertThat(new String(result).equals("text")).isFalse();
+		assertThat(new String(encryptor.decrypt(result))).isEqualTo("text");
+		assertThat(new String(result).isFalse().equals(new String(encryptor.encrypt("text"
 				.getBytes()))));
 	}
 
@@ -44,20 +44,20 @@ public class EncryptorsTests {
 
 		TextEncryptor encryptor = Encryptors.delux("password", "5c0744940b5c369b");
 		String result = encryptor.encrypt("text");
-		assertNotNull(result);
-		assertFalse(result.equals("text"));
-		assertEquals("text", encryptor.decrypt(result));
-		assertFalse(result.equals(encryptor.encrypt("text")));
+		assertThat(result).isNotNull();
+		assertThat(result.equals("text")).isFalse();
+		assertThat(encryptor.decrypt(result)).isEqualTo("text");
+		assertThat(result.equals(encryptor.encrypt("text"))).isFalse();
 	}
 
 	@Test
 	public void text() {
 		TextEncryptor encryptor = Encryptors.text("password", "5c0744940b5c369b");
 		String result = encryptor.encrypt("text");
-		assertNotNull(result);
-		assertFalse(result.equals("text"));
-		assertEquals("text", encryptor.decrypt(result));
-		assertFalse(result.equals(encryptor.encrypt("text")));
+		assertThat(result).isNotNull();
+		assertThat(result.equals("text")).isFalse();
+		assertThat(encryptor.decrypt(result)).isEqualTo("text");
+		assertThat(result.equals(encryptor.encrypt("text"))).isFalse();
 	}
 
 	@Test
@@ -65,17 +65,17 @@ public class EncryptorsTests {
 		TextEncryptor encryptor = Encryptors
 				.queryableText("password", "5c0744940b5c369b");
 		String result = encryptor.encrypt("text");
-		assertNotNull(result);
-		assertFalse(result.equals("text"));
-		assertEquals("text", encryptor.decrypt(result));
-		assertTrue(result.equals(encryptor.encrypt("text")));
+		assertThat(result).isNotNull();
+		assertThat(result.equals("text")).isFalse();
+		assertThat(encryptor.decrypt(result)).isEqualTo("text");
+		assertThat(result.equals(encryptor.encrypt("text"))).isTrue();
 	}
 
 	@Test
 	public void noOpText() {
 		TextEncryptor encryptor = Encryptors.noOpText();
-		assertEquals("text", encryptor.encrypt("text"));
-		assertEquals("text", encryptor.decrypt("text"));
+		assertThat(encryptor.encrypt("text")).isEqualTo("text");
+		assertThat(encryptor.decrypt("text")).isEqualTo("text");
 	}
 
 	private boolean isAesGcmAvailable() {

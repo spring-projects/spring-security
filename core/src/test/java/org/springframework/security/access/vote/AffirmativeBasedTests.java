@@ -15,7 +15,8 @@
 
 package org.springframework.security.access.vote;
 
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -97,7 +98,7 @@ public class AffirmativeBasedTests {
 	public void onlyAbstainVotesDeniesAccessWithDefault() throws Exception {
 		mgr = new AffirmativeBased(Arrays.<AccessDecisionVoter<? extends Object>> asList(
 				abstain, abstain, abstain));
-		assertTrue(!mgr.isAllowIfAllAbstainDecisions()); // check default
+		assertThat(!mgr.isAllowIfAllAbstainDecisions()).isTrue(); // check default
 
 		mgr.decide(user, new Object(), attrs);
 	}
@@ -108,7 +109,7 @@ public class AffirmativeBasedTests {
 		mgr = new AffirmativeBased(Arrays.<AccessDecisionVoter<? extends Object>> asList(
 				abstain, abstain, abstain));
 		mgr.setAllowIfAllAbstainDecisions(true);
-		assertTrue(mgr.isAllowIfAllAbstainDecisions()); // check changed
+		assertThat(mgr.isAllowIfAllAbstainDecisions()).isTrue(); // check changed
 
 		mgr.decide(user, new Object(), attrs);
 	}

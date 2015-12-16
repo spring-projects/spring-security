@@ -25,46 +25,46 @@ public class SavedCookieTests extends TestCase {
 	}
 
 	public void testGetName() throws Exception {
-		assertEquals(cookie.getName(), savedCookie.getName());
+		assertThat(savedCookie.getName()).isEqualTo(cookie.getName());
 	}
 
 	public void testGetValue() throws Exception {
-		assertEquals(cookie.getValue(), savedCookie.getValue());
+		assertThat(savedCookie.getValue()).isEqualTo(cookie.getValue());
 	}
 
 	public void testGetComment() throws Exception {
-		assertEquals(cookie.getComment(), savedCookie.getComment());
+		assertThat(savedCookie.getComment()).isEqualTo(cookie.getComment());
 	}
 
 	public void testGetDomain() throws Exception {
-		assertEquals(cookie.getDomain(), savedCookie.getDomain());
+		assertThat(savedCookie.getDomain()).isEqualTo(cookie.getDomain());
 	}
 
 	public void testGetMaxAge() throws Exception {
-		assertEquals(cookie.getMaxAge(), savedCookie.getMaxAge());
+		assertThat(savedCookie.getMaxAge()).isEqualTo(cookie.getMaxAge());
 	}
 
 	public void testGetPath() throws Exception {
-		assertEquals(cookie.getPath(), savedCookie.getPath());
+		assertThat(savedCookie.getPath()).isEqualTo(cookie.getPath());
 	}
 
 	public void testGetVersion() throws Exception {
-		assertEquals(cookie.getVersion(), savedCookie.getVersion());
+		assertThat(savedCookie.getVersion()).isEqualTo(cookie.getVersion());
 	}
 
 	public void testGetCookie() throws Exception {
 		Cookie other = savedCookie.getCookie();
-		assertEquals(cookie.getComment(), other.getComment());
-		assertEquals(cookie.getDomain(), other.getDomain());
-		assertEquals(cookie.getMaxAge(), other.getMaxAge());
-		assertEquals(cookie.getName(), other.getName());
-		assertEquals(cookie.getPath(), other.getPath());
-		assertEquals(cookie.getSecure(), other.getSecure());
-		assertEquals(cookie.getValue(), other.getValue());
-		assertEquals(cookie.getVersion(), other.getVersion());
+		assertThat(other.getComment()).isEqualTo(cookie.getComment());
+		assertThat(other.getDomain()).isEqualTo(cookie.getDomain());
+		assertThat(other.getMaxAge()).isEqualTo(cookie.getMaxAge());
+		assertThat(other.getName()).isEqualTo(cookie.getName());
+		assertThat(other.getPath()).isEqualTo(cookie.getPath());
+		assertThat(other.getSecure()).isEqualTo(cookie.getSecure());
+		assertThat(other.getValue()).isEqualTo(cookie.getValue());
+		assertThat(other.getVersion()).isEqualTo(cookie.getVersion());
 	}
 
 	public void testSerializable() throws Exception {
-		assertTrue(savedCookie instanceof Serializable);
+		assertThat(savedCookie instanceof Serializable).isTrue();
 	}
 }

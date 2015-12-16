@@ -15,7 +15,7 @@
 
 package org.springframework.security.ldap.authentication;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.util.*;
@@ -52,7 +52,7 @@ public class LdapAuthenticationProviderTests {
 		LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(
 				new MockAuthenticator(), new MockAuthoritiesPopulator());
 
-		assertTrue(ldapProvider.supports(UsernamePasswordAuthenticationToken.class));
+		assertThat(ldapProvider.supports(UsernamePasswordAuthenticationToken.class)).isTrue();
 	}
 
 	@Test
@@ -60,7 +60,7 @@ public class LdapAuthenticationProviderTests {
 		LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(
 				new MockAuthenticator(), new MockAuthoritiesPopulator());
 
-		assertTrue(ldapProvider.getUserDetailsContextMapper() instanceof LdapUserDetailsMapper);
+		assertThat(ldapProvider.getUserDetailsContextMapper() instanceof LdapUserDetailsMapper).isTrue();
 	}
 
 	@Test
@@ -121,24 +121,24 @@ public class LdapAuthenticationProviderTests {
 		userMapper.setRoleAttributes(new String[] { "ou" });
 		ldapProvider.setUserDetailsContextMapper(userMapper);
 
-		assertNotNull(ldapProvider.getAuthoritiesPopulator());
+		assertThat(ldapProvider.getAuthoritiesPopulator()).isNotNull();
 
 		UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(
 				"ben", "benspassword");
 		Object authDetails = new Object();
 		authRequest.setDetails(authDetails);
 		Authentication authResult = ldapProvider.authenticate(authRequest);
-		assertEquals("benspassword", authResult.getCredentials());
-		assertSame(authDetails, authResult.getDetails());
+		assertThat(authResult.getCredentials()).isEqualTo("benspassword");
+		assertThat(authResult.getDetails()).isSameAs(authDetails);
 		UserDetails user = (UserDetails) authResult.getPrincipal();
-		assertEquals(2, user.getAuthorities().size());
-		assertEquals("{SHA}nFCebWjxfaLbHHG1Qk5UU4trbvQ=", user.getPassword());
-		assertEquals("ben", user.getUsername());
-		assertEquals("ben", populator.getRequestedUsername());
+		assertThat(user.getAuthorities()).hasSize(2);
+		assertThat(user.getPassword()).isEqualTo("{SHA}nFCebWjxfaLbHHG1Qk5UU4trbvQ=");
+		assertThat(user.getUsername()).isEqualTo("ben");
+		assertThat(populator.getRequestedUsername()).isEqualTo("ben");
 
-		assertTrue(AuthorityUtils.authorityListToSet(user.getAuthorities()).contains(
+		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities()).isTrue().contains(
 				"ROLE_FROM_ENTRY"));
-		assertTrue(AuthorityUtils.authorityListToSet(user.getAuthorities()).contains(
+		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities()).isTrue().contains(
 				"ROLE_FROM_POPULATOR"));
 	}
 
@@ -151,7 +151,7 @@ public class LdapAuthenticationProviderTests {
 		UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(
 				"ben", "benspassword");
 		Authentication authResult = ldapProvider.authenticate(authRequest);
-		assertEquals("{SHA}nFCebWjxfaLbHHG1Qk5UU4trbvQ=", authResult.getCredentials());
+		assertThat(authResult.getCredentials()).isEqualTo("{SHA}nFCebWjxfaLbHHG1Qk5UU4trbvQ=");
 
 	}
 
@@ -166,8 +166,8 @@ public class LdapAuthenticationProviderTests {
 				"ben", "benspassword");
 		UserDetails user = (UserDetails) ldapProvider.authenticate(authRequest)
 				.getPrincipal();
-		assertEquals(1, user.getAuthorities().size());
-		assertTrue(AuthorityUtils.authorityListToSet(user.getAuthorities()).contains(
+		assertThat(user.getAuthorities()).hasSize(1);
+		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities()).isTrue().contains(
 				"ROLE_FROM_ENTRY"));
 	}
 
@@ -187,7 +187,7 @@ public class LdapAuthenticationProviderTests {
 			fail("Expected Exception");
 		}
 		catch (InternalAuthenticationServiceException success) {
-			assertSame(expectedCause, success.getCause());
+			assertThat(success.getCause()).isSameAs(expectedCause);
 		}
 	}
 

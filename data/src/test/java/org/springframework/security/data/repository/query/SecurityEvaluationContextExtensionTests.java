@@ -22,7 +22,7 @@ import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SecurityEvaluationContextExtensionTests {
 	SecurityEvaluationContextExtension securityExtension;

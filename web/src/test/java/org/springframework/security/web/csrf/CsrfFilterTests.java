@@ -15,7 +15,7 @@
  */
 package org.springframework.security.web.csrf;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
@@ -31,8 +31,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.fest.assertions.GenericAssert;
-import org.fest.assertions.ObjectAssert;
+import org.assertj.core.api.AbstractObjectAssert;
+import org.assertj.core.api.ObjectAssert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -361,7 +361,7 @@ public class CsrfFilterTests {
 	}
 
 	private static class CsrfTokenAssert extends
-			GenericAssert<CsrfTokenAssert, CsrfToken> {
+		AbstractObjectAssert<CsrfTokenAssert, CsrfToken> {
 
 		/**
 		 * Creates a new </code>{@link ObjectAssert}</code>.
@@ -369,7 +369,7 @@ public class CsrfFilterTests {
 		 * @param actual the target to verify.
 		 */
 		protected CsrfTokenAssert(CsrfToken actual) {
-			super(CsrfTokenAssert.class, actual);
+			super(actual,CsrfTokenAssert.class);
 		}
 
 		public CsrfTokenAssert isEqualTo(CsrfToken expected) {

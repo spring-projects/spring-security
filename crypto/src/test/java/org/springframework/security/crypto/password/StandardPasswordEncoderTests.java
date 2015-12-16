@@ -12,20 +12,20 @@ public class StandardPasswordEncoderTests {
 	@Test
 	public void matches() {
 		String result = encoder.encode("password");
-		assertFalse(result.equals("password"));
-		assertTrue(encoder.matches("password", result));
+		assertThat(result.equals("password")).isFalse();
+		assertThat(encoder.matches("password", result)).isTrue();
 	}
 
 	@Test
 	public void matchesLengthChecked() {
 		String result = encoder.encode("password");
-		assertFalse(encoder.matches("password", result.substring(0, result.length() - 2)));
+		assertThat(encoder.matches("password", result.substring(0, result.length() - 2))).isFalse();
 	}
 
 	@Test
 	public void notMatches() {
 		String result = encoder.encode("password");
-		assertFalse(encoder.matches("bogus", result));
+		assertThat(encoder.matches("bogus", result)).isFalse();
 	}
 
 }

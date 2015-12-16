@@ -71,7 +71,7 @@ public class ContextPropagatingRemoteInvocationTests extends TestCase {
 			// expected
 		}
 
-		assertNull("Authentication must be null ", SecurityContextHolder.getContext()
+		assertThat(SecurityContextHolder.getContext().as("Authentication must be null ").isNull()
 				.getAuthentication());
 	}
 
@@ -112,6 +112,6 @@ public class ContextPropagatingRemoteInvocationTests extends TestCase {
 		SecurityContextHolder.getContext().setAuthentication(clientSideAuthentication);
 
 		ContextPropagatingRemoteInvocation remoteInvocation = getRemoteInvocation();
-		assertEquals(null, ReflectionTestUtils.getField(remoteInvocation, "credentials"));
+		assertThat("credentials")).isEqualTo(null, ReflectionTestUtils.getField(remoteInvocation);
 	}
 }

@@ -1,7 +1,6 @@
 package org.springframework.security.access.vote;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Test;
 import org.springframework.security.access.AccessDecisionVoter;
@@ -20,8 +19,7 @@ public class RoleVoterTests {
 		voter.setRolePrefix("");
 		Authentication userAB = new TestingAuthenticationToken("user", "pass", "A", "B");
 		// Vote on attribute list that has two attributes A and C (i.e. only one matching)
-		assertEquals(AccessDecisionVoter.ACCESS_GRANTED,
-				voter.vote(userAB, this, SecurityConfig.createList("A", "C")));
+		assertThat(voter.vote(userAB, this, SecurityConfig.createList("A", "C"))).isEqualTo(AccessDecisionVoter.ACCESS_GRANTED);
 	}
 
 	// SEC-3128

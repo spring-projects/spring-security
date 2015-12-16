@@ -78,7 +78,7 @@ public class AuthenticationSimpleHttpInvokerRequestExecutorTests extends TestCas
 		executor.prepareConnection(conn, 10);
 
 		// Check connection properties (shouldn't be an Authorization header)
-		assertNull(conn.getRequestProperty("Authorization"));
+		assertThat(conn.getRequestProperty("Authorization")).isNull();
 	}
 
 	// SEC-1975
@@ -94,7 +94,7 @@ public class AuthenticationSimpleHttpInvokerRequestExecutorTests extends TestCas
 		executor.prepareConnection(conn, 10);
 
 		// Check connection properties (shouldn't be an Authorization header)
-		assertNull(conn.getRequestProperty("Authorization"));
+		assertThat(conn.getRequestProperty("Authorization")).isNull();
 	}
 
 	// ~ Inner Classes

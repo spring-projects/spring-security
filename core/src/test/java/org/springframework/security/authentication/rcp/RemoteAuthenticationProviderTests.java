@@ -44,14 +44,14 @@ public class RemoteAuthenticationProviderTests extends TestCase {
 			fail("Should have thrown RemoteAuthenticationException");
 		}
 		catch (RemoteAuthenticationException expected) {
-			assertTrue(true);
+
 		}
 	}
 
 	public void testGettersSetters() {
 		RemoteAuthenticationProvider provider = new RemoteAuthenticationProvider();
 		provider.setRemoteAuthenticationManager(new MockRemoteAuthenticationManager(true));
-		assertNotNull(provider.getRemoteAuthenticationManager());
+		assertThat(provider.getRemoteAuthenticationManager()).isNotNull();
 	}
 
 	public void testStartupChecksAuthenticationManagerSet() throws Exception {
@@ -62,12 +62,12 @@ public class RemoteAuthenticationProviderTests extends TestCase {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertTrue(true);
+
 		}
 
 		provider.setRemoteAuthenticationManager(new MockRemoteAuthenticationManager(true));
 		provider.afterPropertiesSet();
-		assertTrue(true);
+
 	}
 
 	public void testSuccessfulAuthenticationCreatesObject() {
@@ -76,9 +76,9 @@ public class RemoteAuthenticationProviderTests extends TestCase {
 
 		Authentication result = provider
 				.authenticate(new UsernamePasswordAuthenticationToken("rod", "password"));
-		assertEquals("rod", result.getPrincipal());
-		assertEquals("password", result.getCredentials());
-		assertTrue(AuthorityUtils.authorityListToSet(result.getAuthorities()).contains(
+		assertThat(result.getPrincipal()).isEqualTo("rod");
+		assertThat(result.getCredentials()).isEqualTo("password");
+		assertThat(AuthorityUtils.authorityListToSet(result.getAuthorities()).isTrue().contains(
 				"foo"));
 	}
 
@@ -97,7 +97,7 @@ public class RemoteAuthenticationProviderTests extends TestCase {
 
 	public void testSupports() {
 		RemoteAuthenticationProvider provider = new RemoteAuthenticationProvider();
-		assertTrue(provider.supports(UsernamePasswordAuthenticationToken.class));
+		assertThat(provider.supports(UsernamePasswordAuthenticationToken.class)).isTrue();
 	}
 
 	// ~ Inner Classes

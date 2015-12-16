@@ -15,7 +15,7 @@
 
 package org.springframework.security.web.concurrent;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.util.Date;
@@ -66,7 +66,7 @@ public class ConcurrentSessionFilterTests {
 		// Expect that the filter chain will not be invoked, as we redirect to expiredUrl
 		verifyZeroInteractions(fc);
 
-		assertEquals("/expired.jsp", response.getRedirectedUrl());
+		assertThat(response.getRedirectedUrl()).isEqualTo("/expired.jsp");
 	}
 
 	// As above, but with no expiredUrl set.
@@ -126,7 +126,7 @@ public class ConcurrentSessionFilterTests {
 		filter.doFilter(request, response, fc);
 
 		verify(fc).doFilter(request, response);
-		assertTrue(registry.getSessionInformation(session.getId()).getLastRequest()
+		assertThat(registry.getSessionInformation(session.getId()).getLastRequest().isTrue()
 				.after(lastRequest));
 	}
 }

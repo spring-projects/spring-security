@@ -15,7 +15,7 @@
 
 package org.springframework.security.ldap.authentication;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.*;
 import org.springframework.ldap.core.DirContextOperations;
@@ -60,7 +60,7 @@ public class BindAuthenticatorTests extends AbstractLdapIntegrationTests {
 				"cn={0},ou=people" });
 
 		DirContextOperations user = authenticator.authenticate(bob);
-		assertEquals("bob", user.getStringAttribute("uid"));
+		assertThat(user.getStringAttribute("uid")).isEqualTo("bob");
 		authenticator.authenticate(new UsernamePasswordAuthenticationToken(
 				"mouse, jerry", "jerryspassword"));
 	}
@@ -141,6 +141,6 @@ public class BindAuthenticatorTests extends AbstractLdapIntegrationTests {
 	@Test
 	public void testUserDnPatternReturnsCorrectDn() {
 		authenticator.setUserDnPatterns(new String[] { "cn={0},ou=people" });
-		assertEquals("cn=Joe,ou=people", authenticator.getUserDns("Joe").get(0));
+		assertThat(authenticator.getUserDns("Joe").get(0)).isEqualTo("cn=Joe,ou=people");
 	}
 }

@@ -1,6 +1,6 @@
 package org.springframework.security.access.prepost;
 
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.Before;
@@ -24,17 +24,17 @@ public class PreInvocationAuthorizationAdviceVoterTests {
 
 	@Test
 	public void supportsMethodInvocation() {
-		assertTrue(voter.supports(MethodInvocation.class));
+		assertThat(voter.supports(MethodInvocation.class)).isTrue();
 	}
 
 	// SEC-2031
 	@Test
 	public void supportsProxyMethodInvocation() {
-		assertTrue(voter.supports(ProxyMethodInvocation.class));
+		assertThat(voter.supports(ProxyMethodInvocation.class)).isTrue();
 	}
 
 	@Test
 	public void supportsMethodInvocationAdapter() {
-		assertTrue(voter.supports(MethodInvocationAdapter.class));
+		assertThat(voter.supports(MethodInvocationAdapter.class)).isTrue();
 	}
 }

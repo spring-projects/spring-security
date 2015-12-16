@@ -40,18 +40,18 @@ public class DigestAuthUtilsTests extends TestCase {
 		Map<String, String> headerMap = DigestAuthUtils
 				.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
 
-		assertEquals("rod", headerMap.get("username"));
-		assertEquals("Contacts Realm", headerMap.get("realm"));
+		assertThat(headerMap.get("username")).isEqualTo("rod");
+		assertThat(headerMap.get("realm")).isEqualTo("Contacts Realm");
 		assertEquals("MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==",
 				headerMap.get("nonce"));
 		assertEquals(
 				"/spring-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4",
 				headerMap.get("uri"));
-		assertEquals("38644211cf9ac3da63ab639807e2baff", headerMap.get("response"));
-		assertEquals("auth", headerMap.get("qop"));
-		assertEquals("00000004", headerMap.get("nc"));
-		assertEquals("2b8d329a8571b99a", headerMap.get("cnonce"));
-		assertEquals(8, headerMap.size());
+		assertThat(headerMap.get("response")).isEqualTo("38644211cf9ac3da63ab639807e2baff");
+		assertThat(headerMap.get("qop")).isEqualTo("auth");
+		assertThat(headerMap.get("nc")).isEqualTo("00000004");
+		assertThat(headerMap.get("cnonce")).isEqualTo("2b8d329a8571b99a");
+		assertThat(headerMap).hasSize(8);
 	}
 
 	public void testSplitEachArrayElementAndCreateMapRespectsInstructionNotToRemoveCharacters() {
@@ -60,31 +60,31 @@ public class DigestAuthUtilsTests extends TestCase {
 		Map<String, String> headerMap = DigestAuthUtils
 				.splitEachArrayElementAndCreateMap(headerEntries, "=", null);
 
-		assertEquals("\"rod\"", headerMap.get("username"));
-		assertEquals("\"Contacts Realm\"", headerMap.get("realm"));
+		assertThat(headerMap.get("username")).isEqualTo("\"rod\"");
+		assertThat(headerMap.get("realm")).isEqualTo("\"Contacts Realm\"");
 		assertEquals(
 				"\"MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==\"",
 				headerMap.get("nonce"));
 		assertEquals(
 				"\"/spring-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4\"",
 				headerMap.get("uri"));
-		assertEquals("\"38644211cf9ac3da63ab639807e2baff\"", headerMap.get("response"));
-		assertEquals("auth", headerMap.get("qop"));
-		assertEquals("00000004", headerMap.get("nc"));
-		assertEquals("\"2b8d329a8571b99a\"", headerMap.get("cnonce"));
-		assertEquals(8, headerMap.size());
+		assertThat(headerMap.get("response")).isEqualTo("\"38644211cf9ac3da63ab639807e2baff\"");
+		assertThat(headerMap.get("qop")).isEqualTo("auth");
+		assertThat(headerMap.get("nc")).isEqualTo("00000004");
+		assertThat(headerMap.get("cnonce")).isEqualTo("\"2b8d329a8571b99a\"");
+		assertThat(headerMap).hasSize(8);
 	}
 
 	public void testSplitEachArrayElementAndCreateMapReturnsNullIfArrayEmptyOrNull() {
-		assertNull(DigestAuthUtils.splitEachArrayElementAndCreateMap(null, "=", "\""));
+		assertThat(DigestAuthUtils.splitEachArrayElementAndCreateMap(null, "=", "\"")).isNull();
 		assertNull(DigestAuthUtils.splitEachArrayElementAndCreateMap(new String[] {},
 				"=", "\""));
 	}
 
 	public void testSplitNormalOperation() {
 		String unsplit = "username=\"rod==\"";
-		assertEquals("username", DigestAuthUtils.split(unsplit, "=")[0]);
-		assertEquals("\"rod==\"", DigestAuthUtils.split(unsplit, "=")[1]); // should not
+		assertThat("=")[0]).as("username").isEqualTo(DigestAuthUtils.split(unsplit);
+		assertThat("=")[1]).as("\"rod==\"").isEqualTo(DigestAuthUtils.split(unsplit); // should not
 																			// remove
 																			// quotes or
 																			// extra
@@ -97,7 +97,7 @@ public class DigestAuthUtilsTests extends TestCase {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertTrue(true);
+
 		}
 
 		try {
@@ -105,7 +105,7 @@ public class DigestAuthUtilsTests extends TestCase {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertTrue(true);
+
 		}
 
 		try {
@@ -113,7 +113,7 @@ public class DigestAuthUtilsTests extends TestCase {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertTrue(true);
+
 		}
 
 		try {
@@ -121,7 +121,7 @@ public class DigestAuthUtilsTests extends TestCase {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertTrue(true);
+
 		}
 
 		try {
@@ -129,16 +129,16 @@ public class DigestAuthUtilsTests extends TestCase {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertTrue(true);
+
 		}
 	}
 
 	public void testSplitWorksWithDifferentDelimiters() {
-		assertEquals(2, DigestAuthUtils.split("18/rod", "/").length);
-		assertNull(DigestAuthUtils.split("18/rod", "!"));
+		assertThat("/").length).isEqualTo(2, DigestAuthUtils.split("18/rod");
+		assertThat(DigestAuthUtils.split("18/rod", "!")).isNull();
 
 		// only guarantees to split at FIRST delimiter, not EACH delimiter
-		assertEquals(2, DigestAuthUtils.split("18|rod|foo|bar", "|").length);
+		assertThat("|").length).isEqualTo(2, DigestAuthUtils.split("18|rod|foo|bar");
 	}
 
 	public void testAuthorizationHeaderWithCommasIsSplitCorrectly() {
@@ -147,6 +147,6 @@ public class DigestAuthUtilsTests extends TestCase {
 
 		String[] parts = DigestAuthUtils.splitIgnoringQuotes(header, ',');
 
-		assertEquals(8, parts.length);
+		assertThat(parts.length).isEqualTo(8);
 	}
 }

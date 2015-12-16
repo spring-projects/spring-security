@@ -15,7 +15,7 @@
 
 package org.springframework.security.web.access;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
@@ -67,8 +67,8 @@ public class DefaultWebInvocationPrivilegeEvaluatorTests {
 		DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(
 				interceptor);
 		when(ods.getAttributes(anyObject())).thenReturn(null);
-		assertTrue(wipe.isAllowed("/context", "/foo/index.jsp", "GET",
-				mock(Authentication.class)));
+		assertThat(wipe.isAllowed("/context", "/foo/index.jsp", "GET",
+				mock(Authentication.class))).isTrue();
 	}
 
 	@Test
@@ -78,15 +78,15 @@ public class DefaultWebInvocationPrivilegeEvaluatorTests {
 				interceptor);
 		when(ods.getAttributes(anyObject())).thenReturn(null);
 		interceptor.setRejectPublicInvocations(true);
-		assertFalse(wipe.isAllowed("/context", "/foo/index.jsp", "GET",
-				mock(Authentication.class)));
+		assertThat(wipe.isAllowed("/context", "/foo/index.jsp", "GET",
+				mock(Authentication.class))).isFalse();
 	}
 
 	@Test
 	public void deniesAccessIfAuthenticationIsNull() throws Exception {
 		DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(
 				interceptor);
-		assertFalse(wipe.isAllowed("/foo/index.jsp", null));
+		assertThat(wipe.isAllowed("/foo/index.jsp", null)).isFalse();
 	}
 
 	@Test
@@ -95,7 +95,7 @@ public class DefaultWebInvocationPrivilegeEvaluatorTests {
 				"MOCK_INDEX");
 		DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(
 				interceptor);
-		assertTrue(wipe.isAllowed("/foo/index.jsp", token));
+		assertThat(wipe.isAllowed("/foo/index.jsp", token)).isTrue();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -109,6 +109,6 @@ public class DefaultWebInvocationPrivilegeEvaluatorTests {
 		doThrow(new AccessDeniedException("")).when(adm).decide(
 				any(Authentication.class), anyObject(), anyList());
 
-		assertFalse(wipe.isAllowed("/foo/index.jsp", token));
+		assertThat(wipe.isAllowed("/foo/index.jsp", token)).isFalse();
 	}
 }

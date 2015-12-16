@@ -15,7 +15,7 @@
  */
 package org.springframework.security.web.session;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -58,7 +58,7 @@ public class SessionManagementFilterTests {
 
 		filter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
 
-		assertEquals(sessionId, request.getSession().getId());
+		assertThat(request.getSession().getId()).isEqualTo(sessionId);
 	}
 
 	@Test
@@ -144,7 +144,7 @@ public class SessionManagementFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
 		filter.doFilter(request, response, new MockFilterChain());
-		assertNull(response.getRedirectedUrl());
+		assertThat(response.getRedirectedUrl()).isNull();
 
 		// Now set a redirect URL
 		request = new MockHttpServletRequest();
@@ -158,7 +158,7 @@ public class SessionManagementFilterTests {
 		filter.doFilter(request, response, fc);
 		verifyZeroInteractions(fc);
 
-		assertEquals("/timedOut", response.getRedirectedUrl());
+		assertThat(response.getRedirectedUrl()).isEqualTo("/timedOut");
 	}
 
 	@Test

@@ -1,6 +1,6 @@
 package org.springframework.security.access.intercept.aspectj.aspect;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -129,9 +129,9 @@ public class AnnotationSecurityAspectTests {
 		configureForElAnnotations();
 		SecurityContextHolder.getContext().setAuthentication(anne);
 		List<String> objects = prePostSecured.postFilterMethod();
-		assertEquals(2, objects.size());
-		assertTrue(objects.contains("apple"));
-		assertTrue(objects.contains("aubergine"));
+		assertThat(objects).hasSize(2);
+		assertThat(objects.contains("apple")).isTrue();
+		assertThat(objects.contains("aubergine")).isTrue();
 	}
 
 	private void configureForElAnnotations() {

@@ -30,7 +30,7 @@ import samples.DataConfig;
 
 import java.util.List;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Rob Winch

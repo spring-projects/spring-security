@@ -1,6 +1,6 @@
 package org.springframework.security.openid;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -113,7 +113,7 @@ public class OpenID4JavaConsumerTests {
 
 		OpenIDAuthenticationToken auth = consumer.endConsumption(request);
 
-		assertEquals(OpenIDAuthenticationStatus.FAILURE, auth.getStatus());
+		assertThat(auth.getStatus()).isEqualTo(OpenIDAuthenticationStatus.FAILURE);
 	}
 
 	@Test
@@ -184,7 +184,7 @@ public class OpenID4JavaConsumerTests {
 
 		OpenIDAuthenticationToken auth = consumer.endConsumption(request);
 
-		assertEquals(OpenIDAuthenticationStatus.SUCCESS, auth.getStatus());
+		assertThat(auth.getStatus()).isEqualTo(OpenIDAuthenticationStatus.SUCCESS);
 	}
 
 	@Test
@@ -199,8 +199,8 @@ public class OpenID4JavaConsumerTests {
 
 		List<OpenIDAttribute> fetched = consumer.fetchAxAttributes(msg, attributes);
 
-		assertEquals(1, fetched.size());
-		assertEquals(2, fetched.get(0).getValues().size());
+		assertThat(fetched).hasSize(1);
+		assertThat(fetched.get(0).getValues()).hasSize(2);
 	}
 
 	@Test(expected = OpenIDConsumerException.class)

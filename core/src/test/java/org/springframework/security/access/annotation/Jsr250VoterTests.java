@@ -1,6 +1,6 @@
 package org.springframework.security.access.annotation;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,19 +27,19 @@ public class Jsr250VoterTests {
 		attrs.add(new Jsr250SecurityConfig("B"));
 		attrs.add(new Jsr250SecurityConfig("C"));
 
-		assertEquals(AccessDecisionVoter.ACCESS_GRANTED, voter.vote(
-				new TestingAuthenticationToken("user", "pwd", "A"), new Object(), attrs));
-		assertEquals(AccessDecisionVoter.ACCESS_GRANTED, voter.vote(
-				new TestingAuthenticationToken("user", "pwd", "B"), new Object(), attrs));
-		assertEquals(AccessDecisionVoter.ACCESS_GRANTED, voter.vote(
-				new TestingAuthenticationToken("user", "pwd", "C"), new Object(), attrs));
+		assertThat(voter.vote(
+				new TestingAuthenticationToken("user", "pwd", "A"), new Object(), attrs)).isEqualTo(AccessDecisionVoter.ACCESS_GRANTED);
+		assertThat(voter.vote(
+				new TestingAuthenticationToken("user", "pwd", "B"), new Object(), attrs)).isEqualTo(AccessDecisionVoter.ACCESS_GRANTED);
+		assertThat(voter.vote(
+				new TestingAuthenticationToken("user", "pwd", "C"), new Object(), attrs)).isEqualTo(AccessDecisionVoter.ACCESS_GRANTED);
 
-		assertEquals(AccessDecisionVoter.ACCESS_DENIED, voter.vote(
+		assertThat(voter.vote(
 				new TestingAuthenticationToken("user", "pwd", "NONE"), new Object(),
-				attrs));
+				attrs)).isEqualTo(AccessDecisionVoter.ACCESS_DENIED);
 
-		assertEquals(AccessDecisionVoter.ACCESS_ABSTAIN, voter.vote(
+		assertThat(voter.vote(
 				new TestingAuthenticationToken("user", "pwd", "A"), new Object(),
-				SecurityConfig.createList("A", "B", "C")));
+				SecurityConfig.createList("A", "B", "C"))).isEqualTo(AccessDecisionVoter.ACCESS_ABSTAIN);
 	}
 }

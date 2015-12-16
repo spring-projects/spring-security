@@ -91,15 +91,15 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests extend
 			String[] expectedRoles) {
 		J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource src = getJ2eeBasedPreAuthenticatedWebAuthenticationDetailsSource(mappedRoles);
 		Object o = src.buildDetails(getRequest("testUser", userRoles));
-		assertNotNull(o);
+		assertThat(o).isNotNull();
 		assertTrue(
 				"Returned object not of type PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails, actual type: "
 						+ o.getClass(),
 				o instanceof PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails);
 		PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails details = (PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails) o;
 		List<GrantedAuthority> gas = details.getGrantedAuthorities();
-		assertNotNull("Granted authorities should not be null", gas);
-		assertEquals(expectedRoles.length, gas.size());
+		assertThat(gas).as("Granted authorities should not be null").isNotNull();
+		assertThat(gas.size()).isEqualTo(expectedRoles.length);
 
 		Collection<String> expectedRolesColl = Arrays.asList(expectedRoles);
 		Collection<String> gasRolesSet = new HashSet<String>();

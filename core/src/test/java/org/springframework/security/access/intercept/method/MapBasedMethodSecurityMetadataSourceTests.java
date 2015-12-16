@@ -1,6 +1,6 @@
 package org.springframework.security.access.intercept.method;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -35,7 +35,7 @@ public class MapBasedMethodSecurityMetadataSourceTests {
 	public void wildcardedMatchIsOverwrittenByMoreSpecificMatch() {
 		mds.addSecureMethod(MockService.class, "some*", ROLE_A);
 		mds.addSecureMethod(MockService.class, "someMethod*", ROLE_B);
-		assertEquals(ROLE_B, mds.getAttributes(someMethodInteger, MockService.class));
+		assertThat(mds.getAttributes(someMethodInteger, MockService.class)).isEqualTo(ROLE_B);
 	}
 
 	@Test
@@ -43,8 +43,8 @@ public class MapBasedMethodSecurityMetadataSourceTests {
 		mds.addSecureMethod(MockService.class, someMethodInteger, ROLE_A);
 		mds.addSecureMethod(MockService.class, someMethodString, ROLE_B);
 
-		assertEquals(ROLE_A, mds.getAttributes(someMethodInteger, MockService.class));
-		assertEquals(ROLE_B, mds.getAttributes(someMethodString, MockService.class));
+		assertThat(mds.getAttributes(someMethodInteger, MockService.class)).isEqualTo(ROLE_A);
+		assertThat(mds.getAttributes(someMethodString, MockService.class)).isEqualTo(ROLE_B);
 	}
 
 	@SuppressWarnings("unused")
