@@ -15,6 +15,8 @@
 
 package org.springframework.security.authentication;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import junit.framework.TestCase;
 
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -56,11 +58,11 @@ public class AuthenticationTrustResolverImplTests extends TestCase {
 		assertEquals(AnonymousAuthenticationToken.class,
 				trustResolver.getAnonymousClass());
 		trustResolver.setAnonymousClass(TestingAuthenticationToken.class);
-		assertEquals(TestingAuthenticationToken.class, trustResolver.getAnonymousClass());
+		assertThat(trustResolver.getAnonymousClass()).isEqualTo(TestingAuthenticationToken.class);
 
 		assertEquals(RememberMeAuthenticationToken.class,
 				trustResolver.getRememberMeClass());
 		trustResolver.setRememberMeClass(TestingAuthenticationToken.class);
-		assertEquals(TestingAuthenticationToken.class, trustResolver.getRememberMeClass());
+		assertThat(trustResolver.getRememberMeClass()).isEqualTo(TestingAuthenticationToken.class);
 	}
 }

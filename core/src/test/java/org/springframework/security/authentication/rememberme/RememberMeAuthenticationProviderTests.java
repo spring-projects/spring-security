@@ -55,7 +55,7 @@ public class RememberMeAuthenticationProviderTests extends TestCase {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertTrue(true);
+
 		}
 	}
 
@@ -63,7 +63,7 @@ public class RememberMeAuthenticationProviderTests extends TestCase {
 		RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider(
 				"qwerty");
 		aap.afterPropertiesSet();
-		assertEquals("qwerty", aap.getKey());
+		assertThat(aap.getKey()).isEqualTo("qwerty");
 	}
 
 	public void testIgnoresClassesItDoesNotSupport() throws Exception {
@@ -72,10 +72,10 @@ public class RememberMeAuthenticationProviderTests extends TestCase {
 
 		TestingAuthenticationToken token = new TestingAuthenticationToken("user",
 				"password", "ROLE_A");
-		assertFalse(aap.supports(TestingAuthenticationToken.class));
+		assertThat(aap.supports(TestingAuthenticationToken.class)).isFalse();
 
 		// Try it anyway
-		assertNull(aap.authenticate(token));
+		assertThat(aap.authenticate(token)).isNull();
 	}
 
 	public void testNormalOperation() throws Exception {
@@ -87,13 +87,13 @@ public class RememberMeAuthenticationProviderTests extends TestCase {
 
 		Authentication result = aap.authenticate(token);
 
-		assertEquals(result, token);
+		assertThat(token).isEqualTo(result);
 	}
 
 	public void testSupports() {
 		RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider(
 				"qwerty");
-		assertTrue(aap.supports(RememberMeAuthenticationToken.class));
-		assertFalse(aap.supports(TestingAuthenticationToken.class));
+		assertThat(aap.supports(RememberMeAuthenticationToken.class)).isTrue();
+		assertThat(aap.supports(TestingAuthenticationToken.class)).isFalse();
 	}
 }

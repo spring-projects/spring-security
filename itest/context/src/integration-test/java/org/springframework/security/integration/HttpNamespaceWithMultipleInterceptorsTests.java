@@ -1,6 +1,6 @@
 package org.springframework.security.integration;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import javax.servlet.http.HttpSession;
 
@@ -33,7 +33,7 @@ public class HttpNamespaceWithMultipleInterceptorsTests {
 		request.setSession(createAuthenticatedSession("ROLE_0", "ROLE_1", "ROLE_2"));
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		fcp.doFilter(request, response, new MockFilterChain());
-		assertEquals(200, response.getStatus());
+		assertThat(response.getStatus()).isEqualTo(200);
 	}
 
 	@Test
@@ -45,7 +45,7 @@ public class HttpNamespaceWithMultipleInterceptorsTests {
 		request.setSession(createAuthenticatedSession("ROLE_0"));
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		fcp.doFilter(request, response, new MockFilterChain());
-		assertEquals(403, response.getStatus());
+		assertThat(response.getStatus()).isEqualTo(403);
 	}
 
 	public HttpSession createAuthenticatedSession(String... roles) {

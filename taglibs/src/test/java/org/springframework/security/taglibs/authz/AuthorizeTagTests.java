@@ -16,7 +16,7 @@
 package org.springframework.security.taglibs.authz;
 
 import static org.mockito.Mockito.*;
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.Tag;
@@ -96,33 +96,33 @@ public class AuthorizeTagTests {
 		when(permissionEvaluator.hasPermission(eq(currentUser), eq(domain), anyString()))
 				.thenReturn(true);
 
-		assertEquals(Tag.EVAL_BODY_INCLUDE, authorizeTag.doStartTag());
+		assertThat(authorizeTag.doStartTag()).isEqualTo(Tag.EVAL_BODY_INCLUDE);
 	}
 
 	@Test
 	public void skipsBodyIfNoAuthenticationPresent() throws Exception {
 		SecurityContextHolder.clearContext();
 		authorizeTag.setAccess("permitAll");
-		assertEquals(Tag.SKIP_BODY, authorizeTag.doStartTag());
+		assertThat(authorizeTag.doStartTag()).isEqualTo(Tag.SKIP_BODY);
 	}
 
 	@Test
 	public void skipsBodyIfAccessExpressionDeniesAccess() throws Exception {
 		authorizeTag.setAccess("denyAll");
-		assertEquals(Tag.SKIP_BODY, authorizeTag.doStartTag());
+		assertThat(authorizeTag.doStartTag()).isEqualTo(Tag.SKIP_BODY);
 	}
 
 	@Test
 	public void showsBodyIfAccessExpressionAllowsAccess() throws Exception {
 		authorizeTag.setAccess("permitAll");
-		assertEquals(Tag.EVAL_BODY_INCLUDE, authorizeTag.doStartTag());
+		assertThat(authorizeTag.doStartTag()).isEqualTo(Tag.EVAL_BODY_INCLUDE);
 	}
 
 	@Test
 	public void requestAttributeIsResolvedAsElVariable() throws JspException {
 		request.setAttribute("blah", "blah");
 		authorizeTag.setAccess("#blah == 'blah'");
-		assertEquals(Tag.EVAL_BODY_INCLUDE, authorizeTag.doStartTag());
+		assertThat(authorizeTag.doStartTag()).isEqualTo(Tag.EVAL_BODY_INCLUDE);
 	}
 
 	// url attribute tests
@@ -130,27 +130,27 @@ public class AuthorizeTagTests {
 	public void skipsBodyWithUrlSetIfNoAuthenticationPresent() throws Exception {
 		SecurityContextHolder.clearContext();
 		authorizeTag.setUrl("/something");
-		assertEquals(Tag.SKIP_BODY, authorizeTag.doStartTag());
+		assertThat(authorizeTag.doStartTag()).isEqualTo(Tag.SKIP_BODY);
 	}
 
 	@Test
 	public void skipsBodyIfUrlIsNotAllowed() throws Exception {
 		authorizeTag.setUrl("/notallowed");
-		assertEquals(Tag.SKIP_BODY, authorizeTag.doStartTag());
+		assertThat(authorizeTag.doStartTag()).isEqualTo(Tag.SKIP_BODY);
 	}
 
 	@Test
 	public void evaluatesBodyIfUrlIsAllowed() throws Exception {
 		authorizeTag.setUrl("/allowed");
 		authorizeTag.setMethod("GET");
-		assertEquals(Tag.EVAL_BODY_INCLUDE, authorizeTag.doStartTag());
+		assertThat(authorizeTag.doStartTag()).isEqualTo(Tag.EVAL_BODY_INCLUDE);
 	}
 
 	@Test
 	public void skipsBodyIfMethodIsNotAllowed() throws Exception {
 		authorizeTag.setUrl("/allowed");
 		authorizeTag.setMethod("POST");
-		assertEquals(Tag.SKIP_BODY, authorizeTag.doStartTag());
+		assertThat(authorizeTag.doStartTag()).isEqualTo(Tag.SKIP_BODY);
 	}
 
 	public static class MockWebInvocationPrivilegeEvaluator implements

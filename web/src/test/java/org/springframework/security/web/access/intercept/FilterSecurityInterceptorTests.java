@@ -15,7 +15,7 @@
 
 package org.springframework.security.web.access.intercept;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -174,8 +174,8 @@ public class FilterSecurityInterceptorTests {
 		}
 
 		// Check we've changed back
-		assertSame(ctx, SecurityContextHolder.getContext());
-		assertSame(token, SecurityContextHolder.getContext().getAuthentication());
+		assertThat(SecurityContextHolder.getContext()).isSameAs(ctx);
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(token);
 	}
 
 	private FilterInvocation createinvocation() {

@@ -34,14 +34,14 @@ public class BasePasswordEncoderTests extends TestCase {
 		String merged = pwd.nowMergePasswordAndSalt("password", null, true);
 
 		String[] demerged = pwd.nowDemergePasswordAndSalt(merged);
-		assertEquals("password", demerged[0]);
-		assertEquals("", demerged[1]);
+		assertThat(demerged[0]).isEqualTo("password");
+		assertThat(demerged[1]).isEqualTo("");
 
 		merged = pwd.nowMergePasswordAndSalt("password", "", true);
 
 		demerged = pwd.nowDemergePasswordAndSalt(merged);
-		assertEquals("password", demerged[0]);
-		assertEquals("", demerged[1]);
+		assertThat(demerged[0]).isEqualTo("password");
+		assertThat(demerged[1]).isEqualTo("");
 	}
 
 	public void testDemergeWithEmptyStringIsRejected() {
@@ -52,7 +52,7 @@ public class BasePasswordEncoderTests extends TestCase {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertEquals("Cannot pass a null or empty String", expected.getMessage());
+			assertThat(expected.getMessage()).isEqualTo("Cannot pass a null or empty String");
 		}
 	}
 
@@ -64,7 +64,7 @@ public class BasePasswordEncoderTests extends TestCase {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertEquals("Cannot pass a null or empty String", expected.getMessage());
+			assertThat(expected.getMessage()).isEqualTo("Cannot pass a null or empty String");
 		}
 	}
 
@@ -72,34 +72,34 @@ public class BasePasswordEncoderTests extends TestCase {
 		MockPasswordEncoder pwd = new MockPasswordEncoder();
 
 		String merged = pwd.nowMergePasswordAndSalt("password", "foo", true);
-		assertEquals("password{foo}", merged);
+		assertThat(merged).isEqualTo("password{foo}");
 
 		String[] demerged = pwd.nowDemergePasswordAndSalt(merged);
-		assertEquals("password", demerged[0]);
-		assertEquals("foo", demerged[1]);
+		assertThat(demerged[0]).isEqualTo("password");
+		assertThat(demerged[1]).isEqualTo("foo");
 	}
 
 	public void testMergeDemergeWithDelimitersInPassword() {
 		MockPasswordEncoder pwd = new MockPasswordEncoder();
 
 		String merged = pwd.nowMergePasswordAndSalt("p{ass{w{o}rd", "foo", true);
-		assertEquals("p{ass{w{o}rd{foo}", merged);
+		assertThat(merged).isEqualTo("p{ass{w{o}rd{foo}");
 
 		String[] demerged = pwd.nowDemergePasswordAndSalt(merged);
 
-		assertEquals("p{ass{w{o}rd", demerged[0]);
-		assertEquals("foo", demerged[1]);
+		assertThat(demerged[0]).isEqualTo("p{ass{w{o}rd");
+		assertThat(demerged[1]).isEqualTo("foo");
 	}
 
 	public void testMergeDemergeWithNullAsPassword() {
 		MockPasswordEncoder pwd = new MockPasswordEncoder();
 
 		String merged = pwd.nowMergePasswordAndSalt(null, "foo", true);
-		assertEquals("{foo}", merged);
+		assertThat(merged).isEqualTo("{foo}");
 
 		String[] demerged = pwd.nowDemergePasswordAndSalt(merged);
-		assertEquals("", demerged[0]);
-		assertEquals("foo", demerged[1]);
+		assertThat(demerged[0]).isEqualTo("");
+		assertThat(demerged[1]).isEqualTo("foo");
 	}
 
 	public void testStrictMergeRejectsDelimitersInSalt1() {
@@ -110,7 +110,7 @@ public class BasePasswordEncoderTests extends TestCase {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertEquals("Cannot use { or } in salt.toString()", expected.getMessage());
+			assertThat(expected.getMessage()).isEqualTo("Cannot use { or } in salt.toString()");
 		}
 	}
 
@@ -122,7 +122,7 @@ public class BasePasswordEncoderTests extends TestCase {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertEquals("Cannot use { or } in salt.toString()", expected.getMessage());
+			assertThat(expected.getMessage()).isEqualTo("Cannot use { or } in salt.toString()");
 		}
 	}
 

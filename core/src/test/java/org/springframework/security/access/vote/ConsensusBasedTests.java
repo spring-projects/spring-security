@@ -15,7 +15,7 @@
 
 package org.springframework.security.access.vote;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.*;
 import org.springframework.security.access.AccessDecisionVoter;
@@ -39,7 +39,7 @@ public class ConsensusBasedTests {
 		TestingAuthenticationToken auth = makeTestToken();
 		ConsensusBased mgr = makeDecisionManager();
 		mgr.setAllowIfEqualGrantedDeniedDecisions(false);
-		assertTrue(!mgr.isAllowIfEqualGrantedDeniedDecisions()); // check changed
+		assertThat(!mgr.isAllowIfEqualGrantedDeniedDecisions()).isTrue(); // check changed
 
 		List<ConfigAttribute> config = SecurityConfig.createList("ROLE_1",
 				"DENY_FOR_SURE");
@@ -53,13 +53,13 @@ public class ConsensusBasedTests {
 		TestingAuthenticationToken auth = makeTestToken();
 		ConsensusBased mgr = makeDecisionManager();
 
-		assertTrue(mgr.isAllowIfEqualGrantedDeniedDecisions()); // check default
+		assertThat(mgr.isAllowIfEqualGrantedDeniedDecisions()).isTrue(); // check default
 
 		List<ConfigAttribute> config = SecurityConfig.createList("ROLE_1",
 				"DENY_FOR_SURE");
 
 		mgr.decide(auth, new Object(), config);
-		assertTrue(true);
+
 	}
 
 	@Test
@@ -68,7 +68,7 @@ public class ConsensusBasedTests {
 		ConsensusBased mgr = makeDecisionManager();
 
 		mgr.decide(auth, new Object(), SecurityConfig.createList("ROLE_2"));
-		assertTrue(true);
+
 	}
 
 	@Test(expected = AccessDeniedException.class)
@@ -85,7 +85,7 @@ public class ConsensusBasedTests {
 		TestingAuthenticationToken auth = makeTestToken();
 		ConsensusBased mgr = makeDecisionManager();
 
-		assertTrue(!mgr.isAllowIfAllAbstainDecisions()); // check default
+		assertThat(!mgr.isAllowIfAllAbstainDecisions()).isTrue(); // check default
 
 		mgr.decide(auth, new Object(), SecurityConfig.createList("IGNORED_BY_ALL"));
 	}
@@ -95,7 +95,7 @@ public class ConsensusBasedTests {
 		TestingAuthenticationToken auth = makeTestToken();
 		ConsensusBased mgr = makeDecisionManager();
 		mgr.setAllowIfAllAbstainDecisions(true);
-		assertTrue(mgr.isAllowIfAllAbstainDecisions()); // check changed
+		assertThat(mgr.isAllowIfAllAbstainDecisions()).isTrue(); // check changed
 
 		mgr.decide(auth, new Object(), SecurityConfig.createList("IGNORED_BY_ALL"));
 	}

@@ -15,6 +15,8 @@
 
 package org.springframework.security.web;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import junit.framework.TestCase;
 
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -51,7 +53,7 @@ public class PortResolverImplTests extends TestCase {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setServerPort(8443);
 		request.setScheme("HTtP"); // proves case insensitive handling
-		assertEquals(8080, pr.getServerPort(request));
+		assertThat(pr.getServerPort(request)).isEqualTo(8080);
 	}
 
 	public void testDetectsBuggyIeHttpsRequest() throws Exception {
@@ -60,7 +62,7 @@ public class PortResolverImplTests extends TestCase {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setServerPort(8080);
 		request.setScheme("HTtPs"); // proves case insensitive handling
-		assertEquals(8443, pr.getServerPort(request));
+		assertThat(pr.getServerPort(request)).isEqualTo(8443);
 	}
 
 	public void testDetectsEmptyPortMapper() throws Exception {
@@ -71,15 +73,15 @@ public class PortResolverImplTests extends TestCase {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertTrue(true);
+
 		}
 	}
 
 	public void testGettersSetters() throws Exception {
 		PortResolverImpl pr = new PortResolverImpl();
-		assertTrue(pr.getPortMapper() != null);
+		assertThat(pr.getPortMapper() != null).isTrue();
 		pr.setPortMapper(new PortMapperImpl());
-		assertTrue(pr.getPortMapper() != null);
+		assertThat(pr.getPortMapper() != null).isTrue();
 	}
 
 	public void testNormalOperation() throws Exception {
@@ -88,6 +90,6 @@ public class PortResolverImplTests extends TestCase {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setScheme("http");
 		request.setServerPort(1021);
-		assertEquals(1021, pr.getServerPort(request));
+		assertThat(pr.getServerPort(request)).isEqualTo(1021);
 	}
 }

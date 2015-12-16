@@ -10,7 +10,7 @@ import org.springframework.ldap.core.AuthenticationSource;
 import org.springframework.ldap.core.DistinguishedName;
 
 import org.junit.After;
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -27,8 +27,8 @@ public class SpringSecurityAuthenticationSourceTests {
 	@Test
 	public void principalAndCredentialsAreEmptyWithNoAuthentication() {
 		AuthenticationSource source = new SpringSecurityAuthenticationSource();
-		assertEquals("", source.getPrincipal());
-		assertEquals("", source.getCredentials());
+		assertThat(source.getPrincipal()).isEqualTo("");
+		assertThat(source.getCredentials()).isEqualTo("");
 	}
 
 	@Test
@@ -38,7 +38,7 @@ public class SpringSecurityAuthenticationSourceTests {
 		SecurityContextHolder.getContext().setAuthentication(
 				new AnonymousAuthenticationToken("key", "anonUser", AuthorityUtils
 						.createAuthorityList("ignored")));
-		assertEquals("", source.getPrincipal());
+		assertThat(source.getPrincipal()).isEqualTo("");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -56,7 +56,7 @@ public class SpringSecurityAuthenticationSourceTests {
 		SecurityContextHolder.getContext().setAuthentication(
 				new TestingAuthenticationToken(new Object(), "password"));
 
-		assertEquals("password", source.getCredentials());
+		assertThat(source.getCredentials()).isEqualTo("password");
 	}
 
 	@Test
@@ -68,6 +68,6 @@ public class SpringSecurityAuthenticationSourceTests {
 		SecurityContextHolder.getContext().setAuthentication(
 				new TestingAuthenticationToken(user.createUserDetails(), null));
 
-		assertEquals("uid=joe,ou=users", source.getPrincipal());
+		assertThat(source.getPrincipal()).isEqualTo("uid=joe,ou=users");
 	}
 }

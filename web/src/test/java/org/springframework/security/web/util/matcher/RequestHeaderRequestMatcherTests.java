@@ -15,7 +15,7 @@
  */
 package org.springframework.security.web.util.matcher;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Before;
 import org.junit.Test;

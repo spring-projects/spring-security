@@ -1,6 +1,6 @@
 package org.springframework.security.web;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import org.junit.After;
@@ -75,8 +75,8 @@ public class FilterChainProxyTests {
 	public void securityFilterChainIsNotInvokedIfMatchFails() throws Exception {
 		when(matcher.matches(any(HttpServletRequest.class))).thenReturn(false);
 		fcp.doFilter(request, response, chain);
-		assertEquals(1, fcp.getFilterChains().size());
-		assertSame(filter, fcp.getFilterChains().get(0).getFilters().get(0));
+		assertThat(fcp.getFilterChains()).hasSize(1);
+		assertThat(fcp.getFilterChains().get(0).getFilters().get(0)).isSameAs(filter);
 
 		verifyZeroInteractions(filter);
 		// The actual filter chain should be invoked though
@@ -183,7 +183,7 @@ public class FilterChainProxyTests {
 
 		fcp.doFilter(request, response, chain);
 
-		assertNull(SecurityContextHolder.getContext().getAuthentication());
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
 
 	@Test
@@ -205,7 +205,7 @@ public class FilterChainProxyTests {
 		catch (ServletException success) {
 		}
 
-		assertNull(SecurityContextHolder.getContext().getAuthentication());
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
 
 	// SEC-2027
@@ -227,8 +227,7 @@ public class FilterChainProxyTests {
 						any(HttpServletResponse.class), any(FilterChain.class));
 				;
 				fcp.doFilter(request, response, innerChain);
-				assertSame(expected, SecurityContextHolder.getContext()
-						.getAuthentication());
+				assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(expected);
 				return null;
 			}
 		}).when(filter).doFilter(any(HttpServletRequest.class),
@@ -238,6 +237,6 @@ public class FilterChainProxyTests {
 
 		verify(innerChain).doFilter(any(HttpServletRequest.class),
 				any(HttpServletResponse.class));
-		assertNull(SecurityContextHolder.getContext().getAuthentication());
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
 }

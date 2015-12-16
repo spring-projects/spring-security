@@ -1,6 +1,6 @@
 package org.springframework.security.core.authority.mapping;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -26,8 +26,8 @@ public class SimpleAuthoritiesMapperTests {
 		SimpleAuthorityMapper mapper = new SimpleAuthorityMapper();
 		Set<String> mapped = AuthorityUtils.authorityListToSet(mapper
 				.mapAuthorities(AuthorityUtils.createAuthorityList("AaA", "ROLE_bbb")));
-		assertTrue(mapped.contains("ROLE_AaA"));
-		assertTrue(mapped.contains("ROLE_bbb"));
+		assertThat(mapped.contains("ROLE_AaA")).isTrue();
+		assertThat(mapped.contains("ROLE_bbb")).isTrue();
 	}
 
 	@Test
@@ -37,22 +37,22 @@ public class SimpleAuthoritiesMapperTests {
 		List<GrantedAuthority> toMap = AuthorityUtils.createAuthorityList("AaA", "Bbb");
 		Set<String> mapped = AuthorityUtils.authorityListToSet(mapper
 				.mapAuthorities(toMap));
-		assertEquals(2, mapped.size());
-		assertTrue(mapped.contains("AaA"));
-		assertTrue(mapped.contains("Bbb"));
+		assertThat(mapped).hasSize(2);
+		assertThat(mapped.contains("AaA")).isTrue();
+		assertThat(mapped.contains("Bbb")).isTrue();
 
 		mapper.setConvertToLowerCase(true);
 		mapped = AuthorityUtils.authorityListToSet(mapper.mapAuthorities(toMap));
-		assertEquals(2, mapped.size());
-		assertTrue(mapped.contains("aaa"));
-		assertTrue(mapped.contains("bbb"));
+		assertThat(mapped).hasSize(2);
+		assertThat(mapped.contains("aaa")).isTrue();
+		assertThat(mapped.contains("bbb")).isTrue();
 
 		mapper.setConvertToLowerCase(false);
 		mapper.setConvertToUpperCase(true);
 		mapped = AuthorityUtils.authorityListToSet(mapper.mapAuthorities(toMap));
-		assertEquals(2, mapped.size());
-		assertTrue(mapped.contains("AAA"));
-		assertTrue(mapped.contains("BBB"));
+		assertThat(mapped).hasSize(2);
+		assertThat(mapped.contains("AAA")).isTrue();
+		assertThat(mapped.contains("BBB")).isTrue();
 	}
 
 	@Test
@@ -62,7 +62,7 @@ public class SimpleAuthoritiesMapperTests {
 
 		Set<String> mapped = AuthorityUtils.authorityListToSet(mapper
 				.mapAuthorities(AuthorityUtils.createAuthorityList("AaA", "AAA")));
-		assertEquals(1, mapped.size());
+		assertThat(mapped).hasSize(1);
 	}
 
 	@Test
@@ -71,7 +71,7 @@ public class SimpleAuthoritiesMapperTests {
 		mapper.setDefaultAuthority("ROLE_USER");
 		Set<String> mapped = AuthorityUtils.authorityListToSet(mapper
 				.mapAuthorities(AuthorityUtils.NO_AUTHORITIES));
-		assertEquals(1, mapped.size());
-		assertTrue(mapped.contains("ROLE_USER"));
+		assertThat(mapped).hasSize(1);
+		assertThat(mapped.contains("ROLE_USER")).isTrue();
 	}
 }

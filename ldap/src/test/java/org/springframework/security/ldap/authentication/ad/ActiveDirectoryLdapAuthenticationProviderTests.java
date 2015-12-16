@@ -45,10 +45,10 @@ import javax.naming.directory.SearchResult;
 
 import java.util.Hashtable;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider.ContextFactory;
 
@@ -72,8 +72,8 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 
 	@Test
 	public void bindPrincipalIsCreatedCorrectly() throws Exception {
-		assertEquals("joe@mydomain.eu", provider.createBindPrincipal("joe"));
-		assertEquals("joe@mydomain.eu", provider.createBindPrincipal("joe@mydomain.eu"));
+		assertThat(provider.createBindPrincipal("joe")).isEqualTo("joe@mydomain.eu");
+		assertThat(provider.createBindPrincipal("joe@mydomain.eu")).isEqualTo("joe@mydomain.eu");
 	}
 
 	@Test
@@ -107,7 +107,7 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 		Authentication result = customProvider.authenticate(joe);
 
 		// then
-		assertTrue(result.isAuthenticated());
+		assertThat(result.isAuthenticated()).isTrue();
 	}
 
 	@Test
@@ -134,7 +134,7 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 		Authentication result = customProvider.authenticate(joe);
 
 		// then
-		assertTrue(result.isAuthenticated());
+		assertThat(result.isAuthenticated()).isTrue();
 		verify(ctx).search(any(DistinguishedName.class), eq(defaultSearchFilter),
 				any(Object[].class), any(SearchControls.class));
 	}
@@ -166,7 +166,7 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 
 		// then
 		assertThat(captor.getValue()).containsOnly("joe@mydomain.eu");
-		assertTrue(result.isAuthenticated());
+		assertThat(result.isAuthenticated()).isTrue();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -429,13 +429,13 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 
 		Authentication result = provider.authenticate(joe);
 
-		assertEquals(0, result.getAuthorities().size());
+		assertThat(result.getAuthorities()).isEmpty();
 
 		dca.addAttributeValue("memberOf", "CN=Admin,CN=Users,DC=mydomain,DC=eu");
 
 		result = provider.authenticate(joe);
 
-		assertEquals(1, result.getAuthorities().size());
+		assertThat(result.getAuthorities()).hasSize(1);
 	}
 
 	static class MockNamingEnumeration implements NamingEnumeration<SearchResult> {

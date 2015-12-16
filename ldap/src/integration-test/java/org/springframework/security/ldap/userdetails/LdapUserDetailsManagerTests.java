@@ -14,10 +14,10 @@
  */
 package org.springframework.security.ldap.userdetails;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.fail;
 
 import java.util.List;
 
@@ -100,11 +100,11 @@ public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
 		mgr.setUsernameMapper(new DefaultLdapUsernameToDnMapper("ou=people", "uid"));
 		mgr.setGroupSearchBase("ou=groups");
 		LdapUserDetails bob = (LdapUserDetails) mgr.loadUserByUsername("bob");
-		assertEquals("bob", bob.getUsername());
-		assertEquals("uid=bob,ou=people,dc=springframework,dc=org", bob.getDn());
-		assertEquals("bobspassword", bob.getPassword());
+		assertThat(bob.getUsername()).isEqualTo("bob");
+		assertThat(bob.getDn()).isEqualTo("uid=bob,ou=people,dc=springframework,dc=org");
+		assertThat(bob.getPassword()).isEqualTo("bobspassword");
 
-		assertEquals(1, bob.getAuthorities().size());
+		assertThat(bob.getAuthorities()).hasSize(1);
 	}
 
 	@Test(expected = UsernameNotFoundException.class)
@@ -115,12 +115,12 @@ public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
 	@Test
 	public void testUserExistsReturnsTrueForValidUser() {
 		mgr.setUsernameMapper(new DefaultLdapUsernameToDnMapper("ou=people", "uid"));
-		assertTrue(mgr.userExists("bob"));
+		assertThat(mgr.userExists("bob")).isTrue();
 	}
 
 	@Test
 	public void testUserExistsReturnsFalseForInValidUser() {
-		assertFalse(mgr.userExists("jim"));
+		assertThat(mgr.userExists("jim")).isFalse();
 	}
 
 	@Test
@@ -160,7 +160,7 @@ public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
 
 		InetOrgPerson don = (InetOrgPerson) mgr.loadUserByUsername("don");
 
-		assertEquals(2, don.getAuthorities().size());
+		assertThat(don.getAuthorities()).hasSize(2);
 
 		mgr.deleteUser("don");
 
@@ -173,7 +173,7 @@ public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
 		}
 
 		// Check that no authorities are left
-		assertEquals(0, mgr.getUserAuthorities(mgr.usernameMapper.buildDn("don"), "don")
+		assertThat("don").isEqualTo(0, mgr.getUserAuthorities(mgr.usernameMapper.buildDn("don"))
 				.size());
 	}
 

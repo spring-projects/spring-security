@@ -16,7 +16,7 @@
 package org.springframework.security.authentication.jaas.memory;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNull;
 
 import java.lang.reflect.Method;
@@ -54,7 +54,7 @@ public class InMemoryConfigurationTests {
 
 	@Test
 	public void constructorNullDefault() {
-		assertNull(new InMemoryConfiguration((AppConfigurationEntry[]) null)
+		assertThat(new InMemoryConfiguration((AppConfigurationEntry[]) null).isNull()
 				.getAppConfigurationEntry("name"));
 	}
 
@@ -85,7 +85,7 @@ public class InMemoryConfigurationTests {
 	@Test
 	public void nonnullDefault() {
 		InMemoryConfiguration configuration = new InMemoryConfiguration(defaultEntries);
-		assertArrayEquals(defaultEntries, configuration.getAppConfigurationEntry("name"));
+		assertThat(configuration.getAppConfigurationEntry("name")).isEqualTo(defaultEntries);
 	}
 
 	@Test
@@ -101,6 +101,6 @@ public class InMemoryConfigurationTests {
 	@Test
 	public void jdk5Compatable() throws Exception {
 		Method method = InMemoryConfiguration.class.getDeclaredMethod("refresh");
-		assertEquals(InMemoryConfiguration.class, method.getDeclaringClass());
+		assertThat(method.getDeclaringClass()).isEqualTo(InMemoryConfiguration.class);
 	}
 }

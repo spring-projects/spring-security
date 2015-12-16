@@ -1,6 +1,6 @@
 package org.springframework.security.web;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -23,7 +23,7 @@ public class DefaultRedirectStrategyTests {
 
 		rds.sendRedirect(request, response, "http://context.blah.com/context/remainder");
 
-		assertEquals("remainder", response.getRedirectedUrl());
+		assertThat(response.getRedirectedUrl()).isEqualTo("remainder");
 	}
 
 	// SEC-2177
@@ -39,6 +39,6 @@ public class DefaultRedirectStrategyTests {
 		rds.sendRedirect(request, response,
 				"http://http://context.blah.com/context/remainder");
 
-		assertEquals("remainder", response.getRedirectedUrl());
+		assertThat(response.getRedirectedUrl()).isEqualTo("remainder");
 	}
 }

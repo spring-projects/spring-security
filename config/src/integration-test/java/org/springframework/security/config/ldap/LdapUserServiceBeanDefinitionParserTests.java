@@ -12,7 +12,7 @@
  */
 package org.springframework.security.config.ldap;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.config.ldap.LdapUserServiceBeanDefinitionParser.*;
 
@@ -50,16 +50,12 @@ public class LdapUserServiceBeanDefinitionParserTests {
 
 	@Test
 	public void beanClassNamesAreCorrect() throws Exception {
-		assertEquals(LDAP_SEARCH_CLASS, FilterBasedLdapUserSearch.class.getName());
-		assertEquals(PERSON_MAPPER_CLASS, PersonContextMapper.class.getName());
-		assertEquals(INET_ORG_PERSON_MAPPER_CLASS,
-				InetOrgPersonContextMapper.class.getName());
-		assertEquals(LDAP_USER_MAPPER_CLASS, LdapUserDetailsMapper.class.getName());
-		assertEquals(LDAP_AUTHORITIES_POPULATOR_CLASS,
-				DefaultLdapAuthoritiesPopulator.class.getName());
-		assertEquals(LdapUserDetailsService.class.getName(),
-				new LdapUserServiceBeanDefinitionParser()
-						.getBeanClassName(mock(Element.class)));
+		assertThat(FilterBasedLdapUserSearch.class.getName()).isEqualTo(LDAP_SEARCH_CLASS);
+		assertThat(PersonContextMapper.class.getName()).isEqualTo(PERSON_MAPPER_CLASS);
+		assertThat(InetOrgPersonContextMapper.class.getName()).isEqualTo(INET_ORG_PERSON_MAPPER_CLASS);
+		assertThat(LdapUserDetailsMapper.class.getName()).isEqualTo(LDAP_USER_MAPPER_CLASS);
+		assertThat(DefaultLdapAuthoritiesPopulator.class.getName()).isEqualTo(LDAP_AUTHORITIES_POPULATOR_CLASS);
+		assertThat(new LdapUserServiceBeanDefinitionParser().getBeanClassName(mock(Element.class))).isEqualTo(LdapUserDetailsService.class.getName());
 	}
 
 	@Test
@@ -75,8 +71,8 @@ public class LdapUserServiceBeanDefinitionParserTests {
 		UserDetails ben = uds.loadUserByUsername("ben");
 
 		Set<String> authorities = AuthorityUtils.authorityListToSet(ben.getAuthorities());
-		assertEquals(3, authorities.size());
-		assertTrue(authorities.contains("ROLE_DEVELOPERS"));
+		assertThat(authorities).hasSize(3);
+		assertThat(authorities.contains("ROLE_DEVELOPERS")).isTrue();
 	}
 
 	@Test
@@ -89,7 +85,7 @@ public class LdapUserServiceBeanDefinitionParserTests {
 		UserDetailsService uds = (UserDetailsService) appCtx.getBean("ldapUDS");
 		UserDetails joe = uds.loadUserByUsername("Joe Smeth");
 
-		assertEquals("Joe Smeth", joe.getUsername());
+		assertThat(joe.getUsername()).isEqualTo("Joe Smeth");
 	}
 
 	@Test
@@ -103,12 +99,12 @@ public class LdapUserServiceBeanDefinitionParserTests {
 
 		UserDetailsService uds = (UserDetailsService) appCtx.getBean("ldapUDS");
 		UserDetails ben = uds.loadUserByUsername("ben");
-		assertTrue(AuthorityUtils.authorityListToSet(ben.getAuthorities()).contains(
+		assertThat(AuthorityUtils.authorityListToSet(ben.getAuthorities()).contains(
 				"PREFIX_DEVELOPERS"));
 
 		uds = (UserDetailsService) appCtx.getBean("ldapUDSNoPrefix");
 		ben = uds.loadUserByUsername("ben");
-		assertTrue(AuthorityUtils.authorityListToSet(ben.getAuthorities()).contains(
+		assertThat(AuthorityUtils.authorityListToSet(ben.getAuthorities()).contains(
 				"DEVELOPERS"));
 	}
 
@@ -120,8 +116,8 @@ public class LdapUserServiceBeanDefinitionParserTests {
 		UserDetails ben = uds.loadUserByUsername("ben");
 
 		Set<String> authorities = AuthorityUtils.authorityListToSet(ben.getAuthorities());
-		assertEquals(3, authorities.size());
-		assertTrue(authorities.contains("ROLE_DEVELOPER"));
+		assertThat(authorities).hasSize(3);
+		assertThat(authorities.contains("ROLE_DEVELOPER")).isTrue();
 
 	}
 
@@ -140,7 +136,7 @@ public class LdapUserServiceBeanDefinitionParserTests {
 				+ "<ldap-user-service id='ldapUDS' user-search-filter='(uid={0})' user-details-class='person'/>");
 		UserDetailsService uds = (UserDetailsService) appCtx.getBean("ldapUDS");
 		UserDetails ben = uds.loadUserByUsername("ben");
-		assertTrue(ben instanceof Person);
+		assertThat(ben instanceof Person).isTrue();
 	}
 
 	@Test
@@ -149,7 +145,7 @@ public class LdapUserServiceBeanDefinitionParserTests {
 				+ "<ldap-user-service id='ldapUDS' user-search-filter='(uid={0})' user-details-class='inetOrgPerson'/>");
 		UserDetailsService uds = (UserDetailsService) appCtx.getBean("ldapUDS");
 		UserDetails ben = uds.loadUserByUsername("ben");
-		assertTrue(ben instanceof InetOrgPerson);
+		assertThat(ben instanceof InetOrgPerson).isTrue();
 	}
 
 	@Test
@@ -161,7 +157,7 @@ public class LdapUserServiceBeanDefinitionParserTests {
 
 		UserDetailsService uds = (UserDetailsService) appCtx.getBean("ldapUDS");
 		UserDetails ben = uds.loadUserByUsername("ben");
-		assertTrue(ben instanceof InetOrgPerson);
+		assertThat(ben instanceof InetOrgPerson).isTrue();
 	}
 
 	private void setContext(String context) {

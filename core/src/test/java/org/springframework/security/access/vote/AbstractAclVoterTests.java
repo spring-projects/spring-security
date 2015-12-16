@@ -1,6 +1,6 @@
 package org.springframework.security.access.vote;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.*;
 
@@ -28,8 +28,8 @@ public class AbstractAclVoterTests {
 
 	@Test
 	public void supportsMethodInvocations() throws Exception {
-		assertTrue(voter.supports(MethodInvocation.class));
-		assertFalse(voter.supports(String.class));
+		assertThat(voter.supports(MethodInvocation.class)).isTrue();
+		assertThat(voter.supports(String.class)).isFalse();
 	}
 
 	@Test
@@ -38,7 +38,7 @@ public class AbstractAclVoterTests {
 		voter.setProcessDomainObjectClass(String.class);
 		MethodInvocation mi = MethodInvocationUtils.create(new TestClass(),
 				"methodTakingAString", "The Argument");
-		assertEquals("The Argument", voter.getDomainObjectInstance(mi));
+		assertThat(voter.getDomainObjectInstance(mi)).isEqualTo("The Argument");
 	}
 
 	@Test
@@ -46,7 +46,7 @@ public class AbstractAclVoterTests {
 		voter.setProcessDomainObjectClass(String.class);
 		MethodInvocation mi = MethodInvocationUtils.create(new TestClass(),
 				"methodTakingAListAndAString", new ArrayList<Object>(), "The Argument");
-		assertEquals("The Argument", voter.getDomainObjectInstance(mi));
+		assertThat(voter.getDomainObjectInstance(mi)).isEqualTo("The Argument");
 	}
 
 	@SuppressWarnings("unused")

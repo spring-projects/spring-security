@@ -39,7 +39,7 @@ public class NullUserCacheTests extends TestCase {
 	public void testCacheOperation() throws Exception {
 		NullUserCache cache = new NullUserCache();
 		cache.putUserInCache(getUser());
-		assertNull(cache.getUserFromCache(null));
+		assertThat(cache.getUserFromCache(null)).isNull();
 		cache.removeUserFromCache(null);
 	}
 }

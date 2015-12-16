@@ -55,7 +55,7 @@ public class ChannelDecisionManagerImplTests extends TestCase {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertEquals("A list of ChannelProcessors is required", expected.getMessage());
+			assertThat(expected.getMessage()).isEqualTo("A list of ChannelProcessors is required");
 		}
 	}
 
@@ -70,7 +70,7 @@ public class ChannelDecisionManagerImplTests extends TestCase {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertTrue(true);
+
 		}
 	}
 
@@ -83,7 +83,7 @@ public class ChannelDecisionManagerImplTests extends TestCase {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertEquals("A list of ChannelProcessors is required", expected.getMessage());
+			assertThat(expected.getMessage()).isEqualTo("A list of ChannelProcessors is required");
 		}
 	}
 
@@ -105,7 +105,7 @@ public class ChannelDecisionManagerImplTests extends TestCase {
 		List<ConfigAttribute> cad = SecurityConfig.createList("xyz");
 
 		cdm.decide(fi, cad);
-		assertTrue(fi.getResponse().isCommitted());
+		assertThat(fi.getResponse().isCommitted()).isTrue();
 	}
 
 	public void testAnyChannelAttributeCausesProcessorsToBeSkipped() throws Exception {
@@ -122,7 +122,7 @@ public class ChannelDecisionManagerImplTests extends TestCase {
 				mock(FilterChain.class));
 
 		cdm.decide(fi, SecurityConfig.createList(new String[] { "abc", "ANY_CHANNEL" }));
-		assertFalse(fi.getResponse().isCommitted());
+		assertThat(fi.getResponse().isCommitted()).isFalse();
 	}
 
 	public void testDecideIteratesAllProcessorsIfNoneCommitAResponse() throws Exception {
@@ -141,7 +141,7 @@ public class ChannelDecisionManagerImplTests extends TestCase {
 				mock(FilterChain.class));
 
 		cdm.decide(fi, SecurityConfig.createList("SOME_ATTRIBUTE_NO_PROCESSORS_SUPPORT"));
-		assertFalse(fi.getResponse().isCommitted());
+		assertThat(fi.getResponse().isCommitted()).isFalse();
 	}
 
 	public void testDelegatesSupports() throws Exception {
@@ -154,14 +154,14 @@ public class ChannelDecisionManagerImplTests extends TestCase {
 		cdm.setChannelProcessors(list);
 		cdm.afterPropertiesSet();
 
-		assertTrue(cdm.supports(new SecurityConfig("xyz")));
-		assertTrue(cdm.supports(new SecurityConfig("abc")));
-		assertFalse(cdm.supports(new SecurityConfig("UNSUPPORTED")));
+		assertThat(cdm.supports(new SecurityConfig("xyz"))).isTrue();
+		assertThat(cdm.supports(new SecurityConfig("abc"))).isTrue();
+		assertThat(cdm.supports(new SecurityConfig("UNSUPPORTED"))).isFalse();
 	}
 
 	public void testGettersSetters() {
 		ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
-		assertNull(cdm.getChannelProcessors());
+		assertThat(cdm.getChannelProcessors()).isNull();
 
 		MockChannelProcessor cpXyz = new MockChannelProcessor("xyz", false);
 		MockChannelProcessor cpAbc = new MockChannelProcessor("abc", false);
@@ -170,7 +170,7 @@ public class ChannelDecisionManagerImplTests extends TestCase {
 		list.add(cpAbc);
 		cdm.setChannelProcessors(list);
 
-		assertEquals(list, cdm.getChannelProcessors());
+		assertThat(cdm.getChannelProcessors()).isEqualTo(list);
 	}
 
 	public void testStartupFailsWithEmptyChannelProcessorsList() throws Exception {
@@ -181,7 +181,7 @@ public class ChannelDecisionManagerImplTests extends TestCase {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertEquals("A list of ChannelProcessors is required", expected.getMessage());
+			assertThat(expected.getMessage()).isEqualTo("A list of ChannelProcessors is required");
 		}
 	}
 

@@ -6,7 +6,7 @@ import org.springframework.security.web.header.writers.frameoptions.StaticAllowF
 
 import java.net.URI;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Test for the StaticAllowFromStrategy.
@@ -20,6 +20,6 @@ public class StaticAllowFromStrategyTests {
 	public void shouldReturnUri() {
 		String uri = "http://www.test.com";
 		StaticAllowFromStrategy strategy = new StaticAllowFromStrategy(URI.create(uri));
-		assertEquals(uri, strategy.getAllowFromValue(new MockHttpServletRequest()));
+		assertThat(strategy.getAllowFromValue(new MockHttpServletRequest())).isEqualTo(uri);
 	}
 }

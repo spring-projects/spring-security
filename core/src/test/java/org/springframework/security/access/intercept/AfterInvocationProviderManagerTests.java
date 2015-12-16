@@ -15,6 +15,8 @@
 
 package org.springframework.security.access.intercept;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
@@ -51,7 +53,7 @@ public class AfterInvocationProviderManagerTests extends TestCase {
 		list.add(new MockAfterInvocationProvider("swap3", MethodInvocation.class,
 				new SecurityConfig("GIVE_ME_SWAP3")));
 		manager.setProviders(list);
-		assertEquals(list, manager.getProviders());
+		assertThat(manager.getProviders()).isEqualTo(list);
 		manager.afterPropertiesSet();
 
 		List<ConfigAttribute> attr1 = SecurityConfig
@@ -65,20 +67,20 @@ public class AfterInvocationProviderManagerTests extends TestCase {
 		List<ConfigAttribute> attr4 = SecurityConfig
 				.createList(new String[] { "NEVER_CAUSES_SWAP" });
 
-		assertEquals("swap1", manager.decide(null, new SimpleMethodInvocation(), attr1,
-				"content-before-swapping"));
+		assertThat(manager.decide(null, new SimpleMethodInvocation(), attr1,
+				"content-before-swapping")).isEqualTo("swap1");
 
-		assertEquals("swap2", manager.decide(null, new SimpleMethodInvocation(), attr2,
-				"content-before-swapping"));
+		assertThat(manager.decide(null, new SimpleMethodInvocation(), attr2,
+				"content-before-swapping")).isEqualTo("swap2");
 
-		assertEquals("swap3", manager.decide(null, new SimpleMethodInvocation(), attr3,
-				"content-before-swapping"));
+		assertThat(manager.decide(null, new SimpleMethodInvocation(), attr3,
+				"content-before-swapping")).isEqualTo("swap3");
 
-		assertEquals("content-before-swapping", manager.decide(null,
-				new SimpleMethodInvocation(), attr4, "content-before-swapping"));
+		assertThat(manager.decide(null,
+				new SimpleMethodInvocation(), attr4, "content-before-swapping")).isEqualTo("content-before-swapping");
 
-		assertEquals("swap3", manager.decide(null, new SimpleMethodInvocation(),
-				attr2and3, "content-before-swapping"));
+		assertThat(manager.decide(null, new SimpleMethodInvocation(),
+				attr2and3, "content-before-swapping")).isEqualTo("swap3");
 	}
 
 	public void testRejectsEmptyProvidersList() {

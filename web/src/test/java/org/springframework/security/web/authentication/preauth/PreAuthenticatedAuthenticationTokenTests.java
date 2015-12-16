@@ -23,10 +23,10 @@ public class PreAuthenticatedAuthenticationTokenTests extends TestCase {
 		PreAuthenticatedAuthenticationToken token = new PreAuthenticatedAuthenticationToken(
 				principal, credentials);
 		token.setDetails(details);
-		assertEquals(principal, token.getPrincipal());
-		assertEquals(credentials, token.getCredentials());
-		assertEquals(details, token.getDetails());
-		assertTrue(token.getAuthorities().isEmpty());
+		assertThat(token.getPrincipal()).isEqualTo(principal);
+		assertThat(token.getCredentials()).isEqualTo(credentials);
+		assertThat(token.getDetails()).isEqualTo(details);
+		assertThat(token.getAuthorities().isEmpty()).isTrue();
 	}
 
 	public void testPreAuthenticatedAuthenticationTokenRequestWithoutDetails() {
@@ -34,10 +34,10 @@ public class PreAuthenticatedAuthenticationTokenTests extends TestCase {
 		Object credentials = "dummyCredentials";
 		PreAuthenticatedAuthenticationToken token = new PreAuthenticatedAuthenticationToken(
 				principal, credentials);
-		assertEquals(principal, token.getPrincipal());
-		assertEquals(credentials, token.getCredentials());
-		assertNull(token.getDetails());
-		assertTrue(token.getAuthorities().isEmpty());
+		assertThat(token.getPrincipal()).isEqualTo(principal);
+		assertThat(token.getCredentials()).isEqualTo(credentials);
+		assertThat(token.getDetails()).isNull();
+		assertThat(token.getAuthorities().isEmpty()).isTrue();
 	}
 
 	public void testPreAuthenticatedAuthenticationTokenResponse() {
@@ -46,10 +46,10 @@ public class PreAuthenticatedAuthenticationTokenTests extends TestCase {
 		List<GrantedAuthority> gas = AuthorityUtils.createAuthorityList("Role1");
 		PreAuthenticatedAuthenticationToken token = new PreAuthenticatedAuthenticationToken(
 				principal, credentials, gas);
-		assertEquals(principal, token.getPrincipal());
-		assertEquals(credentials, token.getCredentials());
-		assertNull(token.getDetails());
-		assertNotNull(token.getAuthorities());
+		assertThat(token.getPrincipal()).isEqualTo(principal);
+		assertThat(token.getCredentials()).isEqualTo(credentials);
+		assertThat(token.getDetails()).isNull();
+		assertThat(token.getAuthorities()).isNotNull();
 		Collection<GrantedAuthority> resultColl = token.getAuthorities();
 		assertTrue("GrantedAuthority collections do not match; result: " + resultColl
 				+ ", expected: " + gas,

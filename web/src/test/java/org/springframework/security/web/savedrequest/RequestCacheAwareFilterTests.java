@@ -1,6 +1,6 @@
 package org.springframework.security.web.savedrequest;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Test;
 import org.springframework.mock.web.MockFilterChain;
@@ -18,11 +18,11 @@ public class RequestCacheAwareFilterTests {
 				"/destination");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		cache.saveRequest(request, response);
-		assertNotNull(request.getSession().getAttribute(
+		assertThat(request.getSession().isNotNull().getAttribute(
 				HttpSessionRequestCache.SAVED_REQUEST));
 
 		filter.doFilter(request, response, new MockFilterChain());
-		assertNull(request.getSession().getAttribute(
+		assertThat(request.getSession().isNull().getAttribute(
 				HttpSessionRequestCache.SAVED_REQUEST));
 	}
 }

@@ -54,14 +54,14 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
 		Authentication preAuth = new OpenIDAuthenticationToken(
 				OpenIDAuthenticationStatus.CANCELLED, USERNAME, "", null);
 
-		assertFalse(preAuth.isAuthenticated());
+		assertThat(preAuth.isAuthenticated()).isFalse();
 
 		try {
 			provider.authenticate(preAuth);
 			fail("Should throw an AuthenticationException");
 		}
 		catch (AuthenticationCancelledException expected) {
-			assertEquals("Log in cancelled", expected.getMessage());
+			assertThat(expected.getMessage()).isEqualTo("Log in cancelled");
 		}
 	}
 
@@ -76,14 +76,14 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
 		Authentication preAuth = new OpenIDAuthenticationToken(
 				OpenIDAuthenticationStatus.ERROR, USERNAME, "", null);
 
-		assertFalse(preAuth.isAuthenticated());
+		assertThat(preAuth.isAuthenticated()).isFalse();
 
 		try {
 			provider.authenticate(preAuth);
 			fail("Should throw an AuthenticationException");
 		}
 		catch (AuthenticationServiceException expected) {
-			assertEquals("Error message from server: ", expected.getMessage());
+			assertThat(expected.getMessage()).isEqualTo("Error message from server: ");
 		}
 	}
 
@@ -99,7 +99,7 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
 		Authentication preAuth = new OpenIDAuthenticationToken(
 				OpenIDAuthenticationStatus.FAILURE, USERNAME, "", null);
 
-		assertFalse(preAuth.isAuthenticated());
+		assertThat(preAuth.isAuthenticated()).isFalse();
 
 		try {
 			provider.authenticate(preAuth);
@@ -122,7 +122,7 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
 		Authentication preAuth = new OpenIDAuthenticationToken(
 				OpenIDAuthenticationStatus.SETUP_NEEDED, USERNAME, "", null);
 
-		assertFalse(preAuth.isAuthenticated());
+		assertThat(preAuth.isAuthenticated()).isFalse();
 
 		try {
 			provider.authenticate(preAuth);
@@ -145,19 +145,19 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
 		Authentication preAuth = new OpenIDAuthenticationToken(
 				OpenIDAuthenticationStatus.SUCCESS, USERNAME, "", null);
 
-		assertFalse(preAuth.isAuthenticated());
+		assertThat(preAuth.isAuthenticated()).isFalse();
 
 		Authentication postAuth = provider.authenticate(preAuth);
 
-		assertNotNull(postAuth);
-		assertTrue(postAuth instanceof OpenIDAuthenticationToken);
-		assertTrue(postAuth.isAuthenticated());
-		assertNotNull(postAuth.getPrincipal());
-		assertTrue(postAuth.getPrincipal() instanceof UserDetails);
-		assertNotNull(postAuth.getAuthorities());
-		assertTrue(postAuth.getAuthorities().size() > 0);
-		assertTrue(((OpenIDAuthenticationToken) postAuth).getStatus() == OpenIDAuthenticationStatus.SUCCESS);
-		assertTrue(((OpenIDAuthenticationToken) postAuth).getMessage() == null);
+		assertThat(postAuth).isNotNull();
+		assertThat(postAuth instanceof OpenIDAuthenticationToken).isTrue();
+		assertThat(postAuth.isAuthenticated()).isTrue();
+		assertThat(postAuth.getPrincipal()).isNotNull();
+		assertThat(postAuth.getPrincipal() instanceof UserDetails).isTrue();
+		assertThat(postAuth.getAuthorities()).isNotNull();
+		assertThat(postAuth.getAuthorities().size() > 0).isTrue();
+		assertThat(((OpenIDAuthenticationToken) postAuth).getStatus() == OpenIDAuthenticationStatus.SUCCESS).isTrue();
+		assertThat(((OpenIDAuthenticationToken) postAuth).getMessage() == null).isTrue();
 	}
 
 	public void testDetectsMissingAuthoritiesPopulator() throws Exception {
@@ -180,7 +180,7 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
 		OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
 		provider.setUserDetailsService(new MockUserDetailsService());
 
-		assertFalse(provider.supports(UsernamePasswordAuthenticationToken.class));
+		assertThat(provider.supports(UsernamePasswordAuthenticationToken.class)).isFalse();
 	}
 
 	/*
@@ -193,7 +193,7 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
 
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
 				USERNAME, "password");
-		assertEquals(null, provider.authenticate(token));
+		assertThat(provider.authenticate(token)).isEqualTo(null);
 	}
 
 	/*
@@ -204,7 +204,7 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
 		OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
 		provider.setUserDetailsService(new MockUserDetailsService());
 
-		assertTrue(provider.supports(OpenIDAuthenticationToken.class));
+		assertThat(provider.supports(OpenIDAuthenticationToken.class)).isTrue();
 	}
 
 	public void testValidation() throws Exception {

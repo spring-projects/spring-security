@@ -15,7 +15,7 @@
  */
 package org.springframework.security.core;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -64,7 +64,7 @@ public class SpringSecurityCoreVersionTests {
 		// Property is set by the build script
 		String springVersion = System.getProperty("springVersion");
 
-		assertEquals(springVersion, SpringSecurityCoreVersion.MIN_SPRING_VERSION);
+		assertThat(SpringSecurityCoreVersion.MIN_SPRING_VERSION).isEqualTo(springVersion);
 	}
 
 	@Test
@@ -75,8 +75,8 @@ public class SpringSecurityCoreVersionTests {
 		String serialVersion = String.valueOf(
 				SpringSecurityCoreVersion.SERIAL_VERSION_UID).substring(0, 2);
 
-		assertEquals(version.charAt(0), serialVersion.charAt(0));
-		assertEquals(version.charAt(2), serialVersion.charAt(1));
+		assertThat(serialVersion.charAt(0)).isEqualTo(version.charAt(0));
+		assertThat(serialVersion.charAt(1)).isEqualTo(version.charAt(2));
 
 	}
 

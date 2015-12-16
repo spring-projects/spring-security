@@ -1,6 +1,6 @@
 package org.springframework.security.web.authentication.preauth.header;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -50,10 +50,10 @@ public class RequestHeaderAuthenticationFilterTests {
 		filter.setAuthenticationManager(createAuthenticationManager());
 
 		filter.doFilter(request, response, chain);
-		assertNotNull(SecurityContextHolder.getContext().getAuthentication());
-		assertEquals("cat", SecurityContextHolder.getContext().getAuthentication()
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
+		assertThat(SecurityContextHolder.getContext().getAuthentication().isEqualTo("cat")
 				.getName());
-		assertEquals("N/A", SecurityContextHolder.getContext().getAuthentication()
+		assertThat(SecurityContextHolder.getContext().getAuthentication().isEqualTo("N/A")
 				.getCredentials());
 	}
 
@@ -68,8 +68,8 @@ public class RequestHeaderAuthenticationFilterTests {
 		filter.setPrincipalRequestHeader("myUsernameHeader");
 
 		filter.doFilter(request, response, chain);
-		assertNotNull(SecurityContextHolder.getContext().getAuthentication());
-		assertEquals("wolfman", SecurityContextHolder.getContext().getAuthentication()
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
+		assertThat(SecurityContextHolder.getContext().getAuthentication().isEqualTo("wolfman")
 				.getName());
 	}
 
@@ -85,8 +85,8 @@ public class RequestHeaderAuthenticationFilterTests {
 		request.addHeader("myCredentialsHeader", "catspassword");
 
 		filter.doFilter(request, response, chain);
-		assertNotNull(SecurityContextHolder.getContext().getAuthentication());
-		assertEquals("catspassword", SecurityContextHolder.getContext()
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
+		assertThat(SecurityContextHolder.getContext().isEqualTo("catspassword")
 				.getAuthentication().getCredentials());
 	}
 
@@ -104,13 +104,13 @@ public class RequestHeaderAuthenticationFilterTests {
 		request.addHeader("SM_USER", "dog");
 		filter.doFilter(request, response, new MockFilterChain());
 		Authentication dog = SecurityContextHolder.getContext().getAuthentication();
-		assertNotNull(dog);
-		assertEquals("dog", dog.getName());
+		assertThat(dog).isNotNull();
+		assertThat(dog.getName()).isEqualTo("dog");
 		// Make sure authentication doesn't occur every time (i.e. if the header *doesn't
 		// change)
 		filter.setAuthenticationManager(mock(AuthenticationManager.class));
 		filter.doFilter(request, response, new MockFilterChain());
-		assertSame(dog, SecurityContextHolder.getContext().getAuthentication());
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(dog);
 	}
 
 	@Test(expected = PreAuthenticatedCredentialsNotFoundException.class)

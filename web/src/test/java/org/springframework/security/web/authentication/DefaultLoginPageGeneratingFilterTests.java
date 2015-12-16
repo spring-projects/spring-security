@@ -1,6 +1,6 @@
 package org.springframework.security.web.authentication;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.util.Locale;

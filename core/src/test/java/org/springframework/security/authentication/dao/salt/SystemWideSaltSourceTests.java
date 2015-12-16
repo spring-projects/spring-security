@@ -15,7 +15,7 @@
 
 package org.springframework.security.authentication.dao.salt;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.springframework.security.authentication.dao.SystemWideSaltSource;
 
@@ -57,21 +57,21 @@ public class SystemWideSaltSourceTests extends TestCase {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertEquals("A systemWideSalt must be set", expected.getMessage());
+			assertThat(expected.getMessage()).isEqualTo("A systemWideSalt must be set");
 		}
 	}
 
 	public void testGettersSetters() {
 		SystemWideSaltSource saltSource = new SystemWideSaltSource();
 		saltSource.setSystemWideSalt("helloWorld");
-		assertEquals("helloWorld", saltSource.getSystemWideSalt());
+		assertThat(saltSource.getSystemWideSalt()).isEqualTo("helloWorld");
 	}
 
 	public void testNormalOperation() throws Exception {
 		SystemWideSaltSource saltSource = new SystemWideSaltSource();
 		saltSource.setSystemWideSalt("helloWorld");
 		saltSource.afterPropertiesSet();
-		assertEquals("helloWorld", saltSource.getSalt(null));
+		assertThat(saltSource.getSalt(null)).isEqualTo("helloWorld");
 	}
 
 	// SEC-2173

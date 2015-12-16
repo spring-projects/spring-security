@@ -1,6 +1,7 @@
 package org.springframework.security.util;
 
-import static org.junit.Assert.*;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.*;
 
@@ -15,10 +16,10 @@ public class FieldUtilsTests {
 
 		Object tc = new TestClass();
 
-		assertEquals("x", FieldUtils.getProtectedFieldValue("protectedField", tc));
-		assertEquals("z", FieldUtils.getFieldValue(tc, "nested.protectedField"));
+		assertThat(FieldUtils.getProtectedFieldValue("protectedField", tc)).isEqualTo("x");
+		assertThat(FieldUtils.getFieldValue(tc, "nested.protectedField")).isEqualTo("z");
 		FieldUtils.setProtectedFieldValue("protectedField", tc, "y");
-		assertEquals("y", FieldUtils.getProtectedFieldValue("protectedField", tc));
+		assertThat(FieldUtils.getProtectedFieldValue("protectedField", tc)).isEqualTo("y");
 
 		try {
 			FieldUtils.getProtectedFieldValue("nonExistentField", tc);

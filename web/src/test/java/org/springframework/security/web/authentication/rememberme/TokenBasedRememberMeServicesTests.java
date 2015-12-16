@@ -15,7 +15,7 @@
 
 package org.springframework.security.web.authentication.rememberme;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices.*;
@@ -103,9 +103,9 @@ public class TokenBasedRememberMeServicesTests {
 
 		Authentication result = services
 				.autoLogin(new MockHttpServletRequest(), response);
-		assertNull(result);
+		assertThat(result).isNull();
 		// No cookie set
-		assertNull(response.getCookie(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY));
+		assertThat(response.getCookie(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY)).isNull();
 	}
 
 	@Test
@@ -117,8 +117,8 @@ public class TokenBasedRememberMeServicesTests {
 
 		Authentication result = services.autoLogin(request, response);
 
-		assertNull(result);
-		assertNull(response.getCookie(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY));
+		assertThat(result).isNull();
+		assertThat(response.getCookie(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY)).isNull();
 	}
 
 	@Test
@@ -132,11 +132,11 @@ public class TokenBasedRememberMeServicesTests {
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
-		assertNull(services.autoLogin(request, response));
+		assertThat(services.autoLogin(request, response)).isNull();
 		Cookie returnedCookie = response
 				.getCookie(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
-		assertNotNull(returnedCookie);
-		assertEquals(0, returnedCookie.getMaxAge());
+		assertThat(returnedCookie).isNotNull();
+		assertThat(returnedCookie.getMaxAge()).isEqualTo(0);
 	}
 
 	@Test
@@ -148,12 +148,12 @@ public class TokenBasedRememberMeServicesTests {
 		request.setCookies(cookie);
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		assertNull(services.autoLogin(request, response));
+		assertThat(services.autoLogin(request, response)).isNull();
 
 		Cookie returnedCookie = response
 				.getCookie(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
-		assertNotNull(returnedCookie);
-		assertEquals(0, returnedCookie.getMaxAge());
+		assertThat(returnedCookie).isNotNull();
+		assertThat(returnedCookie.getMaxAge()).isEqualTo(0);
 	}
 
 	@Test
@@ -164,12 +164,12 @@ public class TokenBasedRememberMeServicesTests {
 		request.setCookies(cookie);
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		assertNull(services.autoLogin(request, response));
+		assertThat(services.autoLogin(request, response)).isNull();
 
 		Cookie returnedCookie = response
 				.getCookie(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
-		assertNotNull(returnedCookie);
-		assertEquals(0, returnedCookie.getMaxAge());
+		assertThat(returnedCookie).isNotNull();
+		assertThat(returnedCookie.getMaxAge()).isEqualTo(0);
 	}
 
 	@Test
@@ -185,12 +185,12 @@ public class TokenBasedRememberMeServicesTests {
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
-		assertNull(services.autoLogin(request, response));
+		assertThat(services.autoLogin(request, response)).isNull();
 
 		Cookie returnedCookie = response
 				.getCookie(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
-		assertNotNull(returnedCookie);
-		assertEquals(0, returnedCookie.getMaxAge());
+		assertThat(returnedCookie).isNotNull();
+		assertThat(returnedCookie.getMaxAge()).isEqualTo(0);
 	}
 
 	@Test
@@ -202,12 +202,12 @@ public class TokenBasedRememberMeServicesTests {
 		request.setCookies(cookie);
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		assertNull(services.autoLogin(request, response));
+		assertThat(services.autoLogin(request, response)).isNull();
 
 		Cookie returnedCookie = response
 				.getCookie(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
-		assertNotNull(returnedCookie);
-		assertEquals(0, returnedCookie.getMaxAge());
+		assertThat(returnedCookie).isNotNull();
+		assertThat(returnedCookie.getMaxAge()).isEqualTo(0);
 	}
 
 	@Test
@@ -222,12 +222,12 @@ public class TokenBasedRememberMeServicesTests {
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
-		assertNull(services.autoLogin(request, response));
+		assertThat(services.autoLogin(request, response)).isNull();
 
 		Cookie returnedCookie = response
 				.getCookie(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
-		assertNotNull(returnedCookie);
-		assertEquals(0, returnedCookie.getMaxAge());
+		assertThat(returnedCookie).isNotNull();
+		assertThat(returnedCookie.getMaxAge()).isEqualTo(0);
 	}
 
 	@Test
@@ -244,22 +244,22 @@ public class TokenBasedRememberMeServicesTests {
 
 		Authentication result = services.autoLogin(request, response);
 
-		assertNotNull(result);
-		assertEquals(user, result.getPrincipal());
+		assertThat(result).isNotNull();
+		assertThat(result.getPrincipal()).isEqualTo(user);
 	}
 
 	@Test
 	public void testGettersSetters() {
-		assertEquals(uds, services.getUserDetailsService());
+		assertThat(services.getUserDetailsService()).isEqualTo(uds);
 
-		assertEquals("key", services.getKey());
+		assertThat(services.getKey()).isEqualTo("key");
 
-		assertEquals(DEFAULT_PARAMETER, services.getParameter());
+		assertThat(services.getParameter()).isEqualTo(DEFAULT_PARAMETER);
 		services.setParameter("some_param");
-		assertEquals("some_param", services.getParameter());
+		assertThat(services.getParameter()).isEqualTo("some_param");
 
 		services.setTokenValiditySeconds(12);
-		assertEquals(12, services.getTokenValiditySeconds());
+		assertThat(services.getTokenValiditySeconds()).isEqualTo(12);
 	}
 
 	@Test
@@ -269,8 +269,8 @@ public class TokenBasedRememberMeServicesTests {
 		services.loginFail(request, response);
 
 		Cookie cookie = response.getCookie(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
-		assertNotNull(cookie);
-		assertEquals(0, cookie.getMaxAge());
+		assertThat(cookie).isNotNull();
+		assertThat(cookie.getMaxAge()).isEqualTo(0);
 	}
 
 	@Test
@@ -285,7 +285,7 @@ public class TokenBasedRememberMeServicesTests {
 				"someone", "password", "ROLE_ABC"));
 
 		Cookie cookie = response.getCookie(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
-		assertNull(cookie);
+		assertThat(cookie).isNull();
 	}
 
 	@Test
@@ -303,11 +303,11 @@ public class TokenBasedRememberMeServicesTests {
 		String expiryTime = services.decodeCookie(cookie.getValue())[1];
 		long expectedExpiryTime = 1000L * 500000000;
 		expectedExpiryTime += System.currentTimeMillis();
-		assertTrue(Long.parseLong(expiryTime) > expectedExpiryTime - 10000);
-		assertNotNull(cookie);
-		assertEquals(services.getTokenValiditySeconds(), cookie.getMaxAge());
-		assertTrue(Base64.isArrayByteBase64(cookie.getValue().getBytes()));
-		assertTrue(new Date().before(new Date(
+		assertThat(Long.parseLong(expiryTime) > expectedExpiryTime - 10000).isTrue();
+		assertThat(cookie).isNotNull();
+		assertThat(cookie.getMaxAge()).isEqualTo(services.getTokenValiditySeconds());
+		assertThat(Base64.isArrayByteBase64(cookie.getValue().getBytes())).isTrue();
+		assertThat(new Date().isTrue().before(new Date(
 				determineExpiryTimeFromBased64EncodedToken(cookie.getValue()))));
 	}
 
@@ -321,10 +321,10 @@ public class TokenBasedRememberMeServicesTests {
 				"someone", "password", "ROLE_ABC"));
 
 		Cookie cookie = response.getCookie(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
-		assertNotNull(cookie);
-		assertEquals(services.getTokenValiditySeconds(), cookie.getMaxAge());
-		assertTrue(Base64.isArrayByteBase64(cookie.getValue().getBytes()));
-		assertTrue(new Date().before(new Date(
+		assertThat(cookie).isNotNull();
+		assertThat(cookie.getMaxAge()).isEqualTo(services.getTokenValiditySeconds());
+		assertThat(Base64.isArrayByteBase64(cookie.getValue().getBytes())).isTrue();
+		assertThat(new Date().isTrue().before(new Date(
 				determineExpiryTimeFromBased64EncodedToken(cookie.getValue()))));
 	}
 
@@ -333,7 +333,7 @@ public class TokenBasedRememberMeServicesTests {
 	public void obtainPasswordReturnsNullForTokenWithNullCredentials() throws Exception {
 		TestingAuthenticationToken token = new TestingAuthenticationToken("username",
 				null);
-		assertNull(services.retrievePassword(token));
+		assertThat(services.retrievePassword(token)).isNull();
 	}
 
 	// SEC-949
@@ -349,11 +349,11 @@ public class TokenBasedRememberMeServicesTests {
 				"someone", "password", "ROLE_ABC"));
 
 		Cookie cookie = response.getCookie(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
-		assertNotNull(cookie);
+		assertThat(cookie).isNotNull();
 		// Check the expiry time is within 50ms of two weeks from current time
-		assertTrue(determineExpiryTimeFromBased64EncodedToken(cookie.getValue())
+		assertThat(determineExpiryTimeFromBased64EncodedToken(cookie.getValue()).isTrue()
 				- System.currentTimeMillis() > TWO_WEEKS_S - 50);
-		assertEquals(-1, cookie.getMaxAge());
-		assertTrue(Base64.isArrayByteBase64(cookie.getValue().getBytes()));
+		assertThat(cookie.getMaxAge()).isEqualTo(-1);
+		assertThat(Base64.isArrayByteBase64(cookie.getValue().getBytes())).isTrue();
 	}
 }

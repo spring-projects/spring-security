@@ -12,8 +12,8 @@
  */
 package org.springframework.security.web.util.matcher;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
@@ -40,75 +40,75 @@ public class AntPathRequestMatcherTests {
 	@Test
 	public void singleWildcardMatchesAnyPath() {
 		AntPathRequestMatcher matcher = new AntPathRequestMatcher("/**");
-		assertEquals("/**", matcher.getPattern());
+		assertThat(matcher.getPattern()).isEqualTo("/**");
 
-		assertTrue(matcher.matches(createRequest("/blah")));
+		assertThat(matcher.matches(createRequest("/blah"))).isTrue();
 
 		matcher = new AntPathRequestMatcher("**");
-		assertTrue(matcher.matches(createRequest("/blah")));
-		assertTrue(matcher.matches(createRequest("")));
+		assertThat(matcher.matches(createRequest("/blah"))).isTrue();
+		assertThat(matcher.matches(createRequest(""))).isTrue();
 	}
 
 	@Test
 	public void trailingWildcardMatchesCorrectly() {
 		AntPathRequestMatcher matcher = new AntPathRequestMatcher("/blah/blAh/**");
-		assertTrue(matcher.matches(createRequest("/BLAH/blah")));
-		assertFalse(matcher.matches(createRequest("/blah/bleh")));
-		assertTrue(matcher.matches(createRequest("/blah/blah/")));
-		assertTrue(matcher.matches(createRequest("/blah/blah/xxx")));
-		assertFalse(matcher.matches(createRequest("/blah/blaha")));
-		assertFalse(matcher.matches(createRequest("/blah/bleh/")));
+		assertThat(matcher.matches(createRequest("/BLAH/blah"))).isTrue();
+		assertThat(matcher.matches(createRequest("/blah/bleh"))).isFalse();
+		assertThat(matcher.matches(createRequest("/blah/blah/"))).isTrue();
+		assertThat(matcher.matches(createRequest("/blah/blah/xxx"))).isTrue();
+		assertThat(matcher.matches(createRequest("/blah/blaha"))).isFalse();
+		assertThat(matcher.matches(createRequest("/blah/bleh/"))).isFalse();
 		MockHttpServletRequest request = createRequest("/blah/");
 
 		request.setPathInfo("blah/bleh");
-		assertTrue(matcher.matches(request));
+		assertThat(matcher.matches(request)).isTrue();
 
 		matcher = new AntPathRequestMatcher("/bl?h/blAh/**");
-		assertTrue(matcher.matches(createRequest("/BLAH/Blah/aaa/")));
-		assertTrue(matcher.matches(createRequest("/bleh/Blah")));
+		assertThat(matcher.matches(createRequest("/BLAH/Blah/aaa/"))).isTrue();
+		assertThat(matcher.matches(createRequest("/bleh/Blah"))).isTrue();
 
 		matcher = new AntPathRequestMatcher("/blAh/**/blah/**");
-		assertTrue(matcher.matches(createRequest("/blah/blah")));
-		assertFalse(matcher.matches(createRequest("/blah/bleh")));
-		assertTrue(matcher.matches(createRequest("/blah/aaa/blah/bbb")));
+		assertThat(matcher.matches(createRequest("/blah/blah"))).isTrue();
+		assertThat(matcher.matches(createRequest("/blah/bleh"))).isFalse();
+		assertThat(matcher.matches(createRequest("/blah/aaa/blah/bbb"))).isTrue();
 
 		matcher = new AntPathRequestMatcher("/{id}/blAh/**");
-		assertTrue(matcher.matches(createRequest("/1234/blah")));
-		assertFalse(matcher.matches(createRequest("/4567/bleh")));
-		assertTrue(matcher.matches(createRequest("/paskos/blah/")));
-		assertTrue(matcher.matches(createRequest("/12345/blah/xxx")));
-		assertFalse(matcher.matches(createRequest("/12345/blaha")));
-		assertFalse(matcher.matches(createRequest("/paskos/bleh/")));
+		assertThat(matcher.matches(createRequest("/1234/blah"))).isTrue();
+		assertThat(matcher.matches(createRequest("/4567/bleh"))).isFalse();
+		assertThat(matcher.matches(createRequest("/paskos/blah/"))).isTrue();
+		assertThat(matcher.matches(createRequest("/12345/blah/xxx"))).isTrue();
+		assertThat(matcher.matches(createRequest("/12345/blaha"))).isFalse();
+		assertThat(matcher.matches(createRequest("/paskos/bleh/"))).isFalse();
 
 	}
 
 	@Test
 	public void trailingWildcardWithVariableMatchesCorrectly() {
 		AntPathRequestMatcher matcher = new AntPathRequestMatcher("/{id}/blAh/**");
-		assertTrue(matcher.matches(createRequest("/1234/blah")));
-		assertFalse(matcher.matches(createRequest("/4567/bleh")));
-		assertTrue(matcher.matches(createRequest("/paskos/blah/")));
-		assertTrue(matcher.matches(createRequest("/12345/blah/xxx")));
-		assertFalse(matcher.matches(createRequest("/12345/blaha")));
-		assertFalse(matcher.matches(createRequest("/paskos/bleh/")));
+		assertThat(matcher.matches(createRequest("/1234/blah"))).isTrue();
+		assertThat(matcher.matches(createRequest("/4567/bleh"))).isFalse();
+		assertThat(matcher.matches(createRequest("/paskos/blah/"))).isTrue();
+		assertThat(matcher.matches(createRequest("/12345/blah/xxx"))).isTrue();
+		assertThat(matcher.matches(createRequest("/12345/blaha"))).isFalse();
+		assertThat(matcher.matches(createRequest("/paskos/bleh/"))).isFalse();
 	}
 
 	@Test
 	public void nontrailingWildcardWithVariableMatchesCorrectly() {
 		AntPathRequestMatcher matcher = new AntPathRequestMatcher("/**/{id}");
-		assertTrue(matcher.matches(createRequest("/blah/1234")));
-		assertTrue(matcher.matches(createRequest("/bleh/4567")));
-		assertTrue(matcher.matches(createRequest("/paskos/blah/")));
-		assertTrue(matcher.matches(createRequest("/12345/blah/xxx")));
-		assertTrue(matcher.matches(createRequest("/12345/blaha")));
-		assertTrue(matcher.matches(createRequest("/paskos/bleh/")));
+		assertThat(matcher.matches(createRequest("/blah/1234"))).isTrue();
+		assertThat(matcher.matches(createRequest("/bleh/4567"))).isTrue();
+		assertThat(matcher.matches(createRequest("/paskos/blah/"))).isTrue();
+		assertThat(matcher.matches(createRequest("/12345/blah/xxx"))).isTrue();
+		assertThat(matcher.matches(createRequest("/12345/blaha"))).isTrue();
+		assertThat(matcher.matches(createRequest("/paskos/bleh/"))).isTrue();
 	}
 
 	@Test
 	public void requestHasNullMethodMatches() {
 		AntPathRequestMatcher matcher = new AntPathRequestMatcher("/something/*", "GET");
 		HttpServletRequest request = createRequestWithNullMethod("/something/here");
-		assertTrue(matcher.matches(request));
+		assertThat(matcher.matches(request)).isTrue();
 	}
 
 	// SEC-2084
@@ -116,7 +116,7 @@ public class AntPathRequestMatcherTests {
 	public void requestHasNullMethodNoMatch() {
 		AntPathRequestMatcher matcher = new AntPathRequestMatcher("/something/*", "GET");
 		HttpServletRequest request = createRequestWithNullMethod("/nomatch");
-		assertFalse(matcher.matches(request));
+		assertThat(matcher.matches(request)).isFalse();
 	}
 
 	@Test
@@ -124,7 +124,7 @@ public class AntPathRequestMatcherTests {
 		AntPathRequestMatcher matcher = new AntPathRequestMatcher("/something/*");
 		MockHttpServletRequest request = createRequest("/something/here");
 		request.setMethod(null);
-		assertTrue(matcher.matches(request));
+		assertThat(matcher.matches(request)).isTrue();
 	}
 
 	@Test
@@ -132,15 +132,15 @@ public class AntPathRequestMatcherTests {
 		AntPathRequestMatcher matcher = new AntPathRequestMatcher("/something/*");
 		MockHttpServletRequest request = createRequest("/nomatch");
 		request.setMethod(null);
-		assertFalse(matcher.matches(request));
+		assertThat(matcher.matches(request)).isFalse();
 	}
 
 	@Test
 	public void exactMatchOnlyMatchesIdenticalPath() throws Exception {
 		AntPathRequestMatcher matcher = new AntPathRequestMatcher("/login.html");
-		assertTrue(matcher.matches(createRequest("/login.html")));
-		assertFalse(matcher.matches(createRequest("/login.html/")));
-		assertFalse(matcher.matches(createRequest("/login.html/blah")));
+		assertThat(matcher.matches(createRequest("/login.html"))).isTrue();
+		assertThat(matcher.matches(createRequest("/login.html/"))).isFalse();
+		assertThat(matcher.matches(createRequest("/login.html/blah"))).isFalse();
 	}
 
 	@Test
@@ -149,9 +149,9 @@ public class AntPathRequestMatcherTests {
 		AntPathRequestMatcher matcher = new AntPathRequestMatcher("/blah", "GET");
 		MockHttpServletRequest request = createRequest("/blah");
 		request.setMethod("GET");
-		assertTrue(matcher.matches(request));
+		assertThat(matcher.matches(request)).isTrue();
 		request.setMethod("POST");
-		assertFalse(matcher.matches(request));
+		assertThat(matcher.matches(request)).isFalse();
 	}
 
 	@Test
@@ -173,16 +173,16 @@ public class AntPathRequestMatcherTests {
 	@Test
 	public void equalsBehavesCorrectly() throws Exception {
 		// Both universal wildcard options should be equal
-		assertEquals(new AntPathRequestMatcher("/**"), new AntPathRequestMatcher("**"));
-		assertEquals(new AntPathRequestMatcher("/xyz"), new AntPathRequestMatcher("/xyz"));
-		assertEquals(new AntPathRequestMatcher("/xyz", "POST"),
+		assertThat(new AntPathRequestMatcher("**")).isEqualTo(new AntPathRequestMatcher("/**"));
+		assertThat(new AntPathRequestMatcher("/xyz")).isEqualTo(new AntPathRequestMatcher("/xyz"));
+		assertThat("POST").isEqualTo(new AntPathRequestMatcher("/xyz"),
 				new AntPathRequestMatcher("/xyz", "POST"));
-		assertFalse(new AntPathRequestMatcher("/xyz", "POST")
+		assertThat(new AntPathRequestMatcher("/xyz", "POST").isFalse()
 				.equals(new AntPathRequestMatcher("/xyz", "GET")));
-		assertFalse(new AntPathRequestMatcher("/xyz").equals(new AntPathRequestMatcher(
+		assertThat(new AntPathRequestMatcher("/xyz").isFalse().equals(new AntPathRequestMatcher(
 				"/xxx")));
-		assertFalse(new AntPathRequestMatcher("/xyz").equals(AnyRequestMatcher.INSTANCE));
-		assertFalse(new AntPathRequestMatcher("/xyz", "GET", false)
+		assertThat(new AntPathRequestMatcher("/xyz").equals(AnyRequestMatcher.INSTANCE)).isFalse();
+		assertThat(new AntPathRequestMatcher("/xyz", "GET", false).isFalse()
 				.equals(new AntPathRequestMatcher("/xyz", "GET", true)));
 	}
 

@@ -1,6 +1,6 @@
 package org.springframework.security.config.http;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -49,8 +49,8 @@ public class FilterSecurityMetadataSourceBeanDefinitionParserTests {
 				.getBean("fids");
 		Collection<ConfigAttribute> cad = fids.getAttributes(createFilterInvocation(
 				"/anything", "GET"));
-		assertNotNull(cad);
-		assertTrue(cad.contains(new SecurityConfig("ROLE_A")));
+		assertThat(cad).isNotNull();
+		assertThat(cad.contains(new SecurityConfig("ROLE_A"))).isTrue();
 	}
 
 	@Test
@@ -64,8 +64,8 @@ public class FilterSecurityMetadataSourceBeanDefinitionParserTests {
 		ConfigAttribute[] cad = fids.getAttributes(
 				createFilterInvocation("/anything", "GET")).toArray(
 				new ConfigAttribute[0]);
-		assertEquals(1, cad.length);
-		assertEquals("hasRole('ROLE_A')", cad[0].toString());
+		assertThat(cad.length).isEqualTo(1);
+		assertThat(cad[0].toString()).isEqualTo("hasRole('ROLE_A')");
 	}
 
 	// SEC-1201
@@ -81,9 +81,9 @@ public class FilterSecurityMetadataSourceBeanDefinitionParserTests {
 				.getBean("fids");
 		Collection<ConfigAttribute> cad = fids.getAttributes(createFilterInvocation(
 				"/secure", "GET"));
-		assertNotNull(cad);
-		assertEquals(1, cad.size());
-		assertTrue(cad.contains(new SecurityConfig("ROLE_A")));
+		assertThat(cad).isNotNull();
+		assertThat(cad).hasSize(1);
+		assertThat(cad.contains(new SecurityConfig("ROLE_A"))).isTrue();
 	}
 
 	@Test

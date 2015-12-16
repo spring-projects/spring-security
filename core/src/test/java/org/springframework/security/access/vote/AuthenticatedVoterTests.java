@@ -15,6 +15,8 @@
 
 package org.springframework.security.access.vote;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -95,19 +97,19 @@ public class AuthenticatedVoterTests extends TestCase {
 			fail("Expected IAE");
 		}
 		catch (IllegalArgumentException expected) {
-			assertTrue(true);
+
 		}
 	}
 
 	public void testSupports() {
 		AuthenticatedVoter voter = new AuthenticatedVoter();
-		assertTrue(voter.supports(String.class));
+		assertThat(voter.supports(String.class)).isTrue();
 		assertTrue(voter.supports(new SecurityConfig(
 				AuthenticatedVoter.IS_AUTHENTICATED_ANONYMOUSLY)));
 		assertTrue(voter.supports(new SecurityConfig(
 				AuthenticatedVoter.IS_AUTHENTICATED_FULLY)));
 		assertTrue(voter.supports(new SecurityConfig(
 				AuthenticatedVoter.IS_AUTHENTICATED_REMEMBERED)));
-		assertFalse(voter.supports(new SecurityConfig("FOO")));
+		assertThat(voter.supports(new SecurityConfig("FOO"))).isFalse();
 	}
 }

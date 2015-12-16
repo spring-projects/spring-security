@@ -44,14 +44,14 @@ public class SecurityContextImplTests extends TestCase {
 	public void testEmptyObjectsAreEquals() {
 		SecurityContextImpl obj1 = new SecurityContextImpl();
 		SecurityContextImpl obj2 = new SecurityContextImpl();
-		assertTrue(obj1.equals(obj2));
+		assertThat(obj1.equals(obj2)).isTrue();
 	}
 
 	public void testSecurityContextCorrectOperation() {
 		SecurityContext context = new SecurityContextImpl();
 		Authentication auth = new UsernamePasswordAuthenticationToken("rod", "koala");
 		context.setAuthentication(auth);
-		assertEquals(auth, context.getAuthentication());
-		assertTrue(context.toString().lastIndexOf("rod") != -1);
+		assertThat(context.getAuthentication()).isEqualTo(auth);
+		assertThat(context.toString().lastIndexOf("rod") != -1).isTrue();
 	}
 }

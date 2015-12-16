@@ -14,7 +14,7 @@
  */
 package org.springframework.security.acls.jdbc;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.util.Arrays;
@@ -147,7 +147,7 @@ public class JdbcMutableAclServiceTests extends
 		// Let's check if we can read them back correctly
 		Map<ObjectIdentity, Acl> map = jdbcMutableAclService.readAclsById(Arrays.asList(
 				topParentOid, middleParentOid, childOid));
-		assertEquals(3, map.size());
+		assertThat(map).hasSize(3);
 
 		// Replace our current objects with their retrieved versions
 		topParent = (MutableAcl) map.get(topParentOid);
@@ -155,19 +155,19 @@ public class JdbcMutableAclServiceTests extends
 		child = (MutableAcl) map.get(childOid);
 
 		// Check the retrieved versions has IDs
-		assertNotNull(topParent.getId());
-		assertNotNull(middleParent.getId());
-		assertNotNull(child.getId());
+		assertThat(topParent.getId()).isNotNull();
+		assertThat(middleParent.getId()).isNotNull();
+		assertThat(child.getId()).isNotNull();
 
 		// Check their parents were correctly persisted
-		assertNull(topParent.getParentAcl());
-		assertEquals(topParentOid, middleParent.getParentAcl().getObjectIdentity());
-		assertEquals(middleParentOid, child.getParentAcl().getObjectIdentity());
+		assertThat(topParent.getParentAcl()).isNull();
+		assertThat(middleParent.getParentAcl().getObjectIdentity()).isEqualTo(topParentOid);
+		assertThat(child.getParentAcl().getObjectIdentity()).isEqualTo(middleParentOid);
 
 		// Check their ACEs were correctly persisted
-		assertEquals(2, topParent.getEntries().size());
-		assertEquals(1, middleParent.getEntries().size());
-		assertEquals(1, child.getEntries().size());
+		assertThat(topParent.getEntries()).hasSize(2);
+		assertThat(middleParent.getEntries()).hasSize(1);
+		assertThat(child.getEntries()).hasSize(1);
 
 		// Check the retrieved rights are correct
 		List<Permission> read = Arrays.asList(BasePermission.READ);
@@ -175,39 +175,39 @@ public class JdbcMutableAclServiceTests extends
 		List<Permission> delete = Arrays.asList(BasePermission.DELETE);
 		List<Sid> pSid = Arrays.asList((Sid) new PrincipalSid(auth));
 
-		assertTrue(topParent.isGranted(read, pSid, false));
-		assertFalse(topParent.isGranted(write, pSid, false));
-		assertTrue(middleParent.isGranted(delete, pSid, false));
-		assertFalse(child.isGranted(delete, pSid, false));
+		assertThat(topParent.isGranted(read, pSid, false)).isTrue();
+		assertThat(topParent.isGranted(write, pSid, false)).isFalse();
+		assertThat(middleParent.isGranted(delete, pSid, false)).isTrue();
+		assertThat(child.isGranted(delete, pSid, false)).isFalse();
 
 		try {
 			child.isGranted(Arrays.asList(BasePermission.ADMINISTRATION), pSid, false);
 			fail("Should have thrown NotFoundException");
 		}
 		catch (NotFoundException expected) {
-			assertTrue(true);
+
 		}
 
 		// Now check the inherited rights (when not explicitly overridden) also look OK
-		assertTrue(child.isGranted(read, pSid, false));
-		assertFalse(child.isGranted(write, pSid, false));
-		assertFalse(child.isGranted(delete, pSid, false));
+		assertThat(child.isGranted(read, pSid, false)).isTrue();
+		assertThat(child.isGranted(write, pSid, false)).isFalse();
+		assertThat(child.isGranted(delete, pSid, false)).isFalse();
 
 		// Next change the child so it doesn't inherit permissions from above
 		child.setEntriesInheriting(false);
 		jdbcMutableAclService.updateAcl(child);
 		child = (MutableAcl) jdbcMutableAclService.readAclById(childOid);
-		assertFalse(child.isEntriesInheriting());
+		assertThat(child.isEntriesInheriting()).isFalse();
 
 		// Check the child permissions no longer inherit
-		assertFalse(child.isGranted(delete, pSid, true));
+		assertThat(child.isGranted(delete, pSid, true)).isFalse();
 
 		try {
 			child.isGranted(read, pSid, true);
 			fail("Should have thrown NotFoundException");
 		}
 		catch (NotFoundException expected) {
-			assertTrue(true);
+
 		}
 
 		try {
@@ -215,7 +215,7 @@ public class JdbcMutableAclServiceTests extends
 			fail("Should have thrown NotFoundException");
 		}
 		catch (NotFoundException expected) {
-			assertTrue(true);
+
 		}
 
 		// Let's add an identical permission to the child, but it'll appear AFTER the
@@ -228,7 +228,7 @@ public class JdbcMutableAclServiceTests extends
 		// Save the changed child
 		jdbcMutableAclService.updateAcl(child);
 		child = (MutableAcl) jdbcMutableAclService.readAclById(childOid);
-		assertEquals(3, child.getEntries().size());
+		assertThat(child.getEntries()).hasSize(3);
 
 		// Output permissions
 		for (int i = 0; i < child.getEntries().size(); i++) {
@@ -236,25 +236,25 @@ public class JdbcMutableAclServiceTests extends
 		}
 
 		// Check the permissions are as they should be
-		assertFalse(child.isGranted(delete, pSid, true)); // as earlier permission
+		assertThat(child.isGranted(delete, pSid, true)).isFalse(); // as earlier permission
 															// overrode
-		assertTrue(child.isGranted(Arrays.asList(BasePermission.CREATE), pSid, true));
+		assertThat(child.isGranted(Arrays.asList(BasePermission.CREATE), pSid, true)).isTrue();
 
 		// Now check the first ACE (index 0) really is DELETE for our Sid and is
 		// non-granting
 		AccessControlEntry entry = child.getEntries().get(0);
-		assertEquals(BasePermission.DELETE.getMask(), entry.getPermission().getMask());
-		assertEquals(new PrincipalSid(auth), entry.getSid());
-		assertFalse(entry.isGranting());
-		assertNotNull(entry.getId());
+		assertThat(entry.getPermission().getMask()).isEqualTo(BasePermission.DELETE.getMask());
+		assertThat(entry.getSid()).isEqualTo(new PrincipalSid(auth));
+		assertThat(entry.isGranting()).isFalse();
+		assertThat(entry.getId()).isNotNull();
 
 		// Now delete that first ACE
 		child.deleteAce(0);
 
 		// Save and check it worked
 		child = jdbcMutableAclService.updateAcl(child);
-		assertEquals(2, child.getEntries().size());
-		assertTrue(child.isGranted(delete, pSid, false));
+		assertThat(child.getEntries()).hasSize(2);
+		assertThat(child.isGranted(delete, pSid, false)).isTrue();
 
 		SecurityContextHolder.clearContext();
 	}
@@ -276,7 +276,7 @@ public class JdbcMutableAclServiceTests extends
 		// Check the childOid really is a child of middleParentOid
 		Acl childAcl = jdbcMutableAclService.readAclById(childOid);
 
-		assertEquals(middleParentOid, childAcl.getParentAcl().getObjectIdentity());
+		assertThat(childAcl.getParentAcl().getObjectIdentity()).isEqualTo(middleParentOid);
 
 		// Delete the mid-parent and test if the child was deleted, as well
 		jdbcMutableAclService.deleteAcl(middleParentOid, true);
@@ -286,19 +286,19 @@ public class JdbcMutableAclServiceTests extends
 			fail("It should have thrown NotFoundException");
 		}
 		catch (NotFoundException expected) {
-			assertTrue(true);
+
 		}
 		try {
 			jdbcMutableAclService.readAclById(childOid);
 			fail("It should have thrown NotFoundException");
 		}
 		catch (NotFoundException expected) {
-			assertTrue(true);
+
 		}
 
 		Acl acl = jdbcMutableAclService.readAclById(topParentOid);
-		assertNotNull(acl);
-		assertEquals(((MutableAcl) acl).getObjectIdentity(), topParentOid);
+		assertThat(acl).isNotNull();
+		assertThat(topParentOid).isEqualTo(((MutableAcl) acl).getObjectIdentity());
 	}
 
 	@Test
@@ -398,17 +398,16 @@ public class JdbcMutableAclServiceTests extends
 
 		// Remove the child and check all related database rows were removed accordingly
 		jdbcMutableAclService.deleteAcl(childOid, false);
-		assertEquals(
-				1,
+		assertThat(
 				jdbcTemplate.queryForList(SELECT_ALL_CLASSES,
-						new Object[] { TARGET_CLASS }).size());
-		assertEquals(0, jdbcTemplate.queryForList("select * from acl_object_identity")
-				.size());
-		assertEquals(0, jdbcTemplate.queryForList("select * from acl_entry").size());
+						new Object[] { TARGET_CLASS })).hasSize(1);
+		assertThat(jdbcTemplate.queryForList("select * from acl_object_identity")
+				).isEmpty();
+		assertThat(jdbcTemplate.queryForList("select * from acl_entry")).isEmpty();
 
 		// Check the cache
-		assertNull(aclCache.getFromCache(childOid));
-		assertNull(aclCache.getFromCache(Long.valueOf(102)));
+		assertThat(aclCache.getFromCache(childOid)).isNull();
+		assertThat(aclCache.getFromCache(Long.valueOf(102))).isNull();
 	}
 
 	/** SEC-1107 */
@@ -419,8 +418,8 @@ public class JdbcMutableAclServiceTests extends
 		ObjectIdentity oid = new ObjectIdentityImpl(TARGET_CLASS, Integer.valueOf(101));
 		jdbcMutableAclService.createAcl(oid);
 
-		assertNotNull(jdbcMutableAclService.readAclById(new ObjectIdentityImpl(
-				TARGET_CLASS, Long.valueOf(101))));
+		assertThat(jdbcMutableAclService.readAclById(new ObjectIdentityImpl(
+				TARGET_CLASS, Long.valueOf(101)))).isNotNull();
 	}
 
 	/**
@@ -454,12 +453,11 @@ public class JdbcMutableAclServiceTests extends
 		child = (MutableAcl) jdbcMutableAclService.readAclById(childOid);
 		parent = (MutableAcl) child.getParentAcl();
 
-		assertEquals("Fails because child has a stale reference to its parent", 2, parent
-				.getEntries().size());
-		assertEquals(1, parent.getEntries().get(0).getPermission().getMask());
-		assertEquals(new PrincipalSid("ben"), parent.getEntries().get(0).getSid());
-		assertEquals(1, parent.getEntries().get(1).getPermission().getMask());
-		assertEquals(new PrincipalSid("scott"), parent.getEntries().get(1).getSid());
+		assertThat(parent.getEntries()).hasSize(2).withFailMessage("Fails because child has a stale reference to its parent");
+		assertThat(parent.getEntries().get(0).getPermission().getMask()).isEqualTo(1);
+		assertThat(parent.getEntries().get(0).getSid()).isEqualTo(new PrincipalSid("ben"));
+		assertThat(parent.getEntries().get(1).getPermission().getMask()).isEqualTo(1);
+		assertThat(parent.getEntries().get(1).getSid()).isEqualTo(new PrincipalSid("scott"));
 	}
 
 	/**
@@ -492,12 +490,12 @@ public class JdbcMutableAclServiceTests extends
 
 		parent = (MutableAcl) child.getParentAcl();
 
-		assertEquals(2, parent.getEntries().size());
-		assertEquals(16, parent.getEntries().get(0).getPermission().getMask());
-		assertEquals(new GrantedAuthoritySid("ROLE_ADMINISTRATOR"), parent.getEntries()
-				.get(0).getSid());
-		assertEquals(8, parent.getEntries().get(1).getPermission().getMask());
-		assertEquals(new PrincipalSid("terry"), parent.getEntries().get(1).getSid());
+		assertThat(parent.getEntries()).hasSize(2);
+		assertThat(parent.getEntries().get(0).getPermission().getMask()).isEqualTo(16);
+		assertThat(parent.getEntries()
+				.get(0).getSid()).isEqualTo(new GrantedAuthoritySid("ROLE_ADMINISTRATOR"));
+		assertThat(parent.getEntries().get(1).getPermission().getMask()).isEqualTo(8);
+		assertThat(parent.getEntries().get(1).getSid()).isEqualTo(new PrincipalSid("terry"));
 	}
 
 	@Test
@@ -515,17 +513,17 @@ public class JdbcMutableAclServiceTests extends
 		// Add an ACE permission entry
 		Permission cm = new CumulativePermission().set(BasePermission.READ).set(
 				BasePermission.ADMINISTRATION);
-		assertEquals(17, cm.getMask());
+		assertThat(cm.getMask()).isEqualTo(17);
 		Sid benSid = new PrincipalSid(auth);
 		topParent.insertAce(0, cm, benSid, true);
-		assertEquals(1, topParent.getEntries().size());
+		assertThat(topParent.getEntries()).hasSize(1);
 
 		// Explicitly save the changed ACL
 		topParent = jdbcMutableAclService.updateAcl(topParent);
 
 		// Check the mask was retrieved correctly
-		assertEquals(17, topParent.getEntries().get(0).getPermission().getMask());
-		assertTrue(topParent.isGranted(Arrays.asList(cm), Arrays.asList(benSid), true));
+		assertThat(topParent.getEntries().get(0).getPermission().getMask()).isEqualTo(17);
+		assertThat(topParent.isGranted(Arrays.asList(cm), Arrays.asList(benSid), true)).isTrue();
 
 		SecurityContextHolder.clearContext();
 	}
@@ -542,7 +540,7 @@ public class JdbcMutableAclServiceTests extends
 		Long result = customJdbcMutableAclService.createOrRetrieveSidPrimaryKey(
 				customSid, false);
 
-		assertEquals(result, new Long(1L));
+		assertThat(new Long(1L)).isEqualTo(result);
 	}
 
 	/**

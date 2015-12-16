@@ -30,7 +30,7 @@ public class SubjectDnX509PrincipalExtractorTests {
 	public void defaultCNPatternReturnsExcpectedPrincipal() throws Exception {
 		Object principal = extractor.extractPrincipal(X509TestUtils
 				.buildTestCertificate());
-		assertEquals("Luke Taylor", principal);
+		assertThat(principal).isEqualTo("Luke Taylor");
 	}
 
 	@Test
@@ -38,7 +38,7 @@ public class SubjectDnX509PrincipalExtractorTests {
 		extractor.setSubjectDnRegex("emailAddress=(.*?),");
 		Object principal = extractor.extractPrincipal(X509TestUtils
 				.buildTestCertificate());
-		assertEquals("luke@monkeymachine", principal);
+		assertThat(principal).isEqualTo("luke@monkeymachine");
 	}
 
 	@Test(expected = BadCredentialsException.class)
@@ -51,6 +51,6 @@ public class SubjectDnX509PrincipalExtractorTests {
 	public void defaultCNPatternReturnsPrincipalAtEndOfDNString() throws Exception {
 		Object principal = extractor.extractPrincipal(X509TestUtils
 				.buildTestCertificateWithCnAtEnd());
-		assertEquals("Duke", principal);
+		assertThat(principal).isEqualTo("Duke");
 	}
 }

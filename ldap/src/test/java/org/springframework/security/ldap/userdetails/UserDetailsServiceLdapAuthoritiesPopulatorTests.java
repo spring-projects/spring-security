@@ -1,6 +1,6 @@
 package org.springframework.security.ldap.userdetails;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.util.Collection;
@@ -32,7 +32,7 @@ public class UserDetailsServiceLdapAuthoritiesPopulatorTests {
 		Collection<? extends GrantedAuthority> auths = populator.getGrantedAuthorities(
 				new DirContextAdapter(), "joe");
 
-		assertEquals(1, auths.size());
-		assertTrue(AuthorityUtils.authorityListToSet(auths).contains("ROLE_USER"));
+		assertThat(auths).hasSize(1);
+		assertThat(AuthorityUtils.authorityListToSet(auths).contains("ROLE_USER")).isTrue();
 	}
 }

@@ -15,6 +15,8 @@
 
 package org.springframework.security.cas.authentication;
 
+import static org.assertj.core.api.Assertions.*;
+
 import junit.framework.TestCase;
 import org.jasig.cas.client.validation.Assertion;
 import org.jasig.cas.client.validation.AssertionImpl;
@@ -97,7 +99,6 @@ public class CasAuthenticationTokenTests extends TestCase {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertTrue(true);
 		}
 	}
 
@@ -110,7 +111,7 @@ public class CasAuthenticationTokenTests extends TestCase {
 		CasAuthenticationToken token2 = new CasAuthenticationToken("key",
 				makeUserDetails(), "Password", ROLES, makeUserDetails(), assertion);
 
-		assertEquals(token1, token2);
+		assertThat(token2).isEqualTo(token1);
 	}
 
 	public void testGetters() {
@@ -118,16 +119,15 @@ public class CasAuthenticationTokenTests extends TestCase {
 		final Assertion assertion = new AssertionImpl("test");
 		CasAuthenticationToken token = new CasAuthenticationToken("key",
 				makeUserDetails(), "Password", ROLES, makeUserDetails(), assertion);
-		assertEquals("key".hashCode(), token.getKeyHash());
-		assertEquals(makeUserDetails(), token.getPrincipal());
-		assertEquals("Password", token.getCredentials());
-		assertTrue(token.getAuthorities()
-				.contains(new SimpleGrantedAuthority("ROLE_ONE")));
-		assertTrue(token.getAuthorities()
-				.contains(new SimpleGrantedAuthority("ROLE_TWO")));
-		assertEquals(assertion, token.getAssertion());
-		assertEquals(makeUserDetails().getUsername(), token.getUserDetails()
-				.getUsername());
+		assertThat(token.getKeyHash()).isEqualTo("key".hashCode());
+		assertThat(token.getPrincipal()).isEqualTo(makeUserDetails());
+		assertThat(token.getCredentials()).isEqualTo("Password");
+		assertThat(token.getAuthorities())
+				.contains(new SimpleGrantedAuthority("ROLE_ONE"));
+		assertThat(token.getAuthorities())
+				.contains(new SimpleGrantedAuthority("ROLE_TWO"));
+		assertThat(token.getAssertion()).isEqualTo(assertion);
+		assertThat(token.getUserDetails().getUsername()).isEqualTo(makeUserDetails().getUsername());
 	}
 
 	public void testNoArgConstructorDoesntExist() {
@@ -136,7 +136,7 @@ public class CasAuthenticationTokenTests extends TestCase {
 			fail("Should have thrown NoSuchMethodException");
 		}
 		catch (NoSuchMethodException expected) {
-			assertTrue(true);
+
 		}
 	}
 
@@ -150,7 +150,7 @@ public class CasAuthenticationTokenTests extends TestCase {
 				makeUserDetails("OTHER_NAME"), "Password", ROLES, makeUserDetails(),
 				assertion);
 
-		assertTrue(!token1.equals(token2));
+		assertThat(!token1.equals(token2)).isTrue();
 	}
 
 	public void testNotEqualsDueToDifferentAuthenticationClass() {
@@ -161,7 +161,7 @@ public class CasAuthenticationTokenTests extends TestCase {
 
 		UsernamePasswordAuthenticationToken token2 = new UsernamePasswordAuthenticationToken(
 				"Test", "Password", ROLES);
-		assertTrue(!token1.equals(token2));
+		assertThat(!token1.equals(token2)).isTrue();
 	}
 
 	public void testNotEqualsDueToKey() {
@@ -173,7 +173,7 @@ public class CasAuthenticationTokenTests extends TestCase {
 		CasAuthenticationToken token2 = new CasAuthenticationToken("DIFFERENT_KEY",
 				makeUserDetails(), "Password", ROLES, makeUserDetails(), assertion);
 
-		assertTrue(!token1.equals(token2));
+		assertThat(!token1.equals(token2)).isTrue();
 	}
 
 	public void testNotEqualsDueToAssertion() {
@@ -186,16 +186,16 @@ public class CasAuthenticationTokenTests extends TestCase {
 		CasAuthenticationToken token2 = new CasAuthenticationToken("key",
 				makeUserDetails(), "Password", ROLES, makeUserDetails(), assertion2);
 
-		assertTrue(!token1.equals(token2));
+		assertThat(!token1.equals(token2)).isTrue();
 	}
 
 	public void testSetAuthenticated() {
 		final Assertion assertion = new AssertionImpl("test");
 		CasAuthenticationToken token = new CasAuthenticationToken("key",
 				makeUserDetails(), "Password", ROLES, makeUserDetails(), assertion);
-		assertTrue(token.isAuthenticated());
+		assertThat(token.isAuthenticated()).isTrue();
 		token.setAuthenticated(false);
-		assertTrue(!token.isAuthenticated());
+		assertThat(!token.isAuthenticated()).isTrue();
 	}
 
 	public void testToString() {
@@ -203,6 +203,6 @@ public class CasAuthenticationTokenTests extends TestCase {
 		CasAuthenticationToken token = new CasAuthenticationToken("key",
 				makeUserDetails(), "Password", ROLES, makeUserDetails(), assertion);
 		String result = token.toString();
-		assertTrue(result.lastIndexOf("Credentials (Service/Proxy Ticket):") != -1);
+		assertThat(result.lastIndexOf("Credentials (Service/Proxy Ticket):") != -1).isTrue();
 	}
 }

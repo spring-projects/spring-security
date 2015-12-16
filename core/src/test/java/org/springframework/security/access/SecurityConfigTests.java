@@ -15,7 +15,8 @@
 
 package org.springframework.security.access;
 
-import junit.framework.Assert;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 import org.springframework.security.access.ConfigAttribute;
@@ -34,7 +35,7 @@ public class SecurityConfigTests {
 	@Test
 	public void testHashCode() {
 		SecurityConfig config = new SecurityConfig("TEST");
-		Assert.assertEquals("TEST".hashCode(), config.hashCode());
+		assertThat(config.hashCode()).isEqualTo("TEST".hashCode());
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -56,32 +57,32 @@ public class SecurityConfigTests {
 	public void testObjectEquals() throws Exception {
 		SecurityConfig security1 = new SecurityConfig("TEST");
 		SecurityConfig security2 = new SecurityConfig("TEST");
-		Assert.assertEquals(security1, security2);
+		assertThat(security2).isEqualTo(security1);
 
 		// SEC-311: Must observe symmetry requirement of Object.equals(Object) contract
 		String securityString1 = "TEST";
-		Assert.assertNotSame(security1, securityString1);
+		assertThat(securityString1).isNotSameAs(security1);
 
 		String securityString2 = "NOT_EQUAL";
-		Assert.assertTrue(!security1.equals(securityString2));
+		assertThat(!security1.equals(securityString2)).isTrue();
 
 		SecurityConfig security3 = new SecurityConfig("NOT_EQUAL");
-		Assert.assertTrue(!security1.equals(security3));
+		assertThat(!security1.equals(security3)).isTrue();
 
 		MockConfigAttribute mock1 = new MockConfigAttribute("TEST");
-		Assert.assertEquals(security1, mock1);
+		assertThat(mock1).isEqualTo(security1);
 
 		MockConfigAttribute mock2 = new MockConfigAttribute("NOT_EQUAL");
-		Assert.assertTrue(!security1.equals(mock2));
+		assertThat(!security1.equals(mock2)).isTrue();
 
 		Integer int1 = Integer.valueOf(987);
-		Assert.assertTrue(!security1.equals(int1));
+		assertThat(!security1.equals(int1)).isTrue();
 	}
 
 	@Test
 	public void testToString() {
 		SecurityConfig config = new SecurityConfig("TEST");
-		Assert.assertEquals("TEST", config.toString());
+		assertThat(config.toString()).isEqualTo("TEST");
 	}
 
 	// ~ Inner Classes

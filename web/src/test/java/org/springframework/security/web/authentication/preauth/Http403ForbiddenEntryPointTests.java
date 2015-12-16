@@ -22,7 +22,7 @@ public class Http403ForbiddenEntryPointTests extends TestCase {
 		try {
 			fep.commence(req, resp,
 					new AuthenticationCredentialsNotFoundException("test"));
-			assertEquals("Incorrect status", resp.getStatus(),
+			assertThat(resp.getStatus().isEqualTo("Incorrect status"),
 					HttpServletResponse.SC_FORBIDDEN);
 		}
 		catch (IOException e) {

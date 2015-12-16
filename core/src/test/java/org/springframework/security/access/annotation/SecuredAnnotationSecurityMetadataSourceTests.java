@@ -14,11 +14,11 @@
  */
 package org.springframework.security.access.annotation;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.fail;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -71,14 +71,14 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 		Collection<ConfigAttribute> attrs = mds.findAttributes(method,
 				DepartmentServiceImpl.class);
 
-		assertNotNull(attrs);
+		assertThat(attrs).isNotNull();
 
 		// expect 1 attribute
-		assertTrue("Did not find 1 attribute", attrs.size() == 1);
+		assertThat(attrs.size() == 1).as("Did not find 1 attribute").isTrue();
 
 		// should have 1 SecurityConfig
 		for (ConfigAttribute sc : attrs) {
-			assertEquals("Found an incorrect role", "ROLE_ADMIN", sc.getAttribute());
+			assertThat(sc.getAttribute()).as("Found an incorrect role").isEqualTo("ROLE_ADMIN");
 		}
 
 		Method superMethod = null;
@@ -94,14 +94,14 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 		Collection<ConfigAttribute> superAttrs = this.mds.findAttributes(superMethod,
 				DepartmentServiceImpl.class);
 
-		assertNotNull(superAttrs);
+		assertThat(superAttrs).isNotNull();
 
 		// This part of the test relates to SEC-274
 		// expect 1 attribute
-		assertEquals("Did not find 1 attribute", 1, superAttrs.size());
+		assertThat(superAttrs).as("Did not find 1 attribute").hasSize(1);
 		// should have 1 SecurityConfig
 		for (ConfigAttribute sc : superAttrs) {
-			assertEquals("Found an incorrect role", "ROLE_ADMIN", sc.getAttribute());
+			assertThat(sc.getAttribute()).as("Found an incorrect role").isEqualTo("ROLE_ADMIN");
 		}
 	}
 
@@ -110,15 +110,15 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 		Collection<ConfigAttribute> attrs = this.mds
 				.findAttributes(BusinessService.class);
 
-		assertNotNull(attrs);
+		assertThat(attrs).isNotNull();
 
 		// expect 1 annotation
-		assertEquals(1, attrs.size());
+		assertThat(attrs).hasSize(1);
 
 		// should have 1 SecurityConfig
 		SecurityConfig sc = (SecurityConfig) attrs.toArray()[0];
 
-		assertEquals("ROLE_USER", sc.getAttribute());
+		assertThat(sc.getAttribute()).isEqualTo("ROLE_USER");
 	}
 
 	@Test
@@ -136,17 +136,17 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 		Collection<ConfigAttribute> attrs = this.mds.findAttributes(method,
 				BusinessService.class);
 
-		assertNotNull(attrs);
+		assertThat(attrs).isNotNull();
 
 		// expect 2 attributes
-		assertEquals(2, attrs.size());
+		assertThat(attrs).hasSize(2);
 
 		boolean user = false;
 		boolean admin = false;
 
 		// should have 2 SecurityConfigs
 		for (ConfigAttribute sc : attrs) {
-			assertTrue(sc instanceof SecurityConfig);
+			assertThat(sc instanceof SecurityConfig).isTrue();
 
 			if (sc.getAttribute().equals("ROLE_USER")) {
 				user = true;
@@ -157,7 +157,7 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 		}
 
 		// expect to have ROLE_USER and ROLE_ADMIN
-		assertTrue(user && admin);
+		assertThat(user && admin).isTrue();
 	}
 
 	// SEC-1491
@@ -167,8 +167,8 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 				new CustomSecurityAnnotationMetadataExtractor());
 		Collection<ConfigAttribute> attrs = mds
 				.findAttributes(CustomAnnotatedService.class);
-		assertEquals(1, attrs.size());
-		assertEquals(SecurityEnum.ADMIN, attrs.toArray()[0]);
+		assertThat(attrs).hasSize(1);
+		assertThat(attrs.toArray()[0]).isEqualTo(SecurityEnum.ADMIN);
 	}
 
 	@Test
@@ -180,8 +180,8 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 		ConfigAttribute[] attrs = mds.getAttributes(annotatedAtClassLevel).toArray(
 				new ConfigAttribute[0]);
 
-		assertEquals(1, attrs.length);
-		assertEquals("CUSTOM", attrs[0].getAttribute());
+		assertThat(attrs.length).isEqualTo(1);
+		assertThat(attrs[0].getAttribute()).isEqualTo("CUSTOM");
 	}
 
 	@Test
@@ -193,8 +193,8 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 		ConfigAttribute[] attrs = mds.getAttributes(annotatedAtInterfaceLevel).toArray(
 				new ConfigAttribute[0]);
 
-		assertEquals(1, attrs.length);
-		assertEquals("CUSTOM", attrs[0].getAttribute());
+		assertThat(attrs.length).isEqualTo(1);
+		assertThat(attrs[0].getAttribute()).isEqualTo("CUSTOM");
 	}
 
 	@Test
@@ -205,8 +205,8 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 		ConfigAttribute[] attrs = mds.getAttributes(annotatedAtMethodLevel).toArray(
 				new ConfigAttribute[0]);
 
-		assertEquals(1, attrs.length);
-		assertEquals("CUSTOM", attrs[0].getAttribute());
+		assertThat(attrs.length).isEqualTo(1);
+		assertThat(attrs[0].getAttribute()).isEqualTo("CUSTOM");
 	}
 
 	@Test
@@ -214,7 +214,7 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 		MockMethodInvocation mi = MethodInvocationFactory.createSec2150MethodInvocation();
 		Collection<ConfigAttribute> attributes = mds.getAttributes(mi);
 		assertThat(attributes.size()).isEqualTo(1);
-		assertThat(attributes).onProperty("attribute").containsOnly("ROLE_PERSON");
+		assertThat(attributes).extracting("attribute").containsOnly("ROLE_PERSON");
 	}
 
 	// Inner classes

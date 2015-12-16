@@ -15,6 +15,9 @@
 
 package org.springframework.security.access.intercept.aopalliance;
 
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 import static org.mockito.Mockito.*;
 
 import java.lang.reflect.Method;
@@ -42,7 +45,7 @@ public class MethodSecurityMetadataSourceAdvisorTests extends TestCase {
 		when(mds.getAttributes(method, clazz)).thenReturn(null);
 		MethodSecurityMetadataSourceAdvisor advisor = new MethodSecurityMetadataSourceAdvisor(
 				"", mds, "");
-		assertFalse(advisor.getPointcut().getMethodMatcher().matches(method, clazz));
+		assertThat(advisor.getPointcut().getMethodMatcher().matches(method, clazz)).isFalse();
 	}
 
 	public void testAdvisorReturnsTrueWhenMethodInvocationIsDefined() throws Exception {
@@ -54,6 +57,6 @@ public class MethodSecurityMetadataSourceAdvisorTests extends TestCase {
 				SecurityConfig.createList("ROLE_A"));
 		MethodSecurityMetadataSourceAdvisor advisor = new MethodSecurityMetadataSourceAdvisor(
 				"", mds, "");
-		assertTrue(advisor.getPointcut().getMethodMatcher().matches(method, clazz));
+		assertThat(advisor.getPointcut().getMethodMatcher().matches(method, clazz)).isTrue();
 	}
 }

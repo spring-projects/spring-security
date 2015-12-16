@@ -24,7 +24,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 
 import java.security.cert.X509Certificate;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.x509;
 
 @RunWith(MockitoJUnitRunner.class)

@@ -15,7 +15,7 @@
 
 package org.springframework.security.access.intercept.aspectj;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -134,10 +134,10 @@ public class AspectJMethodSecurityInterceptorTests {
 		when(joinPoint.getTarget()).thenReturn(to);
 		when(joinPoint.getArgs()).thenReturn(new Object[] { "Hi" });
 		MethodInvocationAdapter mia = new MethodInvocationAdapter(joinPoint);
-		assertEquals("Hi", mia.getArguments()[0]);
-		assertEquals(m, mia.getStaticPart());
-		assertEquals(m, mia.getMethod());
-		assertSame(to, mia.getThis());
+		assertThat(mia.getArguments()[0]).isEqualTo("Hi");
+		assertThat(mia.getStaticPart()).isEqualTo(m);
+		assertThat(mia.getMethod()).isEqualTo(m);
+		assertThat(mia.getThis()).isSameAs(to);
 	}
 
 	@Test
@@ -184,8 +184,8 @@ public class AspectJMethodSecurityInterceptorTests {
 		}
 
 		// Check we've changed back
-		assertSame(ctx, SecurityContextHolder.getContext());
-		assertSame(token, SecurityContextHolder.getContext().getAuthentication());
+		assertThat(SecurityContextHolder.getContext()).isSameAs(ctx);
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(token);
 	}
 
 	// SEC-1967
@@ -211,7 +211,7 @@ public class AspectJMethodSecurityInterceptorTests {
 		}
 
 		// Check we've changed back
-		assertSame(ctx, SecurityContextHolder.getContext());
-		assertSame(token, SecurityContextHolder.getContext().getAuthentication());
+		assertThat(SecurityContextHolder.getContext()).isSameAs(ctx);
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(token);
 	}
 }

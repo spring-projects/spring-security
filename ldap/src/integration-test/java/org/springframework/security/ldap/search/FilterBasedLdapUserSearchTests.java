@@ -15,7 +15,7 @@
 
 package org.springframework.security.ldap.search;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import javax.naming.ldap.LdapName;
 
@@ -41,9 +41,9 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapIntegrationTests
 		locator.setDerefLinkFlag(false);
 
 		DirContextOperations bob = locator.searchForUser("bob");
-		assertEquals("bob", bob.getStringAttribute("uid"));
+		assertThat(bob.getStringAttribute("uid")).isEqualTo("bob");
 
-		assertEquals(new LdapName("uid=bob,ou=people"), bob.getDn());
+		assertThat(bob.getDn()).isEqualTo(new LdapName("uid=bob,ou=people"));
 	}
 
 	@Test
@@ -53,9 +53,9 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapIntegrationTests
 		locator.setSearchSubtree(false);
 
 		DirContextOperations jerry = locator.searchForUser("jerry");
-		assertEquals("jerry", jerry.getStringAttribute("uid"));
+		assertThat(jerry.getStringAttribute("uid")).isEqualTo("jerry");
 
-		assertEquals(new LdapName("cn=mouse\\, jerry,ou=people"), jerry.getDn());
+		assertThat(jerry.getDn()).isEqualTo(new LdapName("cn=mouse\\, jerry,ou=people"));
 	}
 
 	// Try some funny business with filters.
@@ -68,7 +68,7 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapIntegrationTests
 
 		// Search for bob, get back ben...
 		DirContextOperations ben = locator.searchForUser("bob");
-		assertEquals("Ben Alex", ben.getStringAttribute("cn"));
+		assertThat(ben.getStringAttribute("cn")).isEqualTo("Ben Alex");
 	}
 
 	@Test(expected = IncorrectResultSizeDataAccessException.class)
@@ -93,9 +93,9 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapIntegrationTests
 		locator.setSearchSubtree(true);
 
 		DirContextOperations ben = locator.searchForUser("Ben Alex");
-		assertEquals("ben", ben.getStringAttribute("uid"));
+		assertThat(ben.getStringAttribute("uid")).isEqualTo("ben");
 
-		assertEquals(new LdapName("uid=ben,ou=people"), ben.getDn());
+		assertThat(ben.getDn()).isEqualTo(new LdapName("uid=ben,ou=people"));
 	}
 
 	@Test
@@ -103,7 +103,7 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapIntegrationTests
 		FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch(
 				"ou=otherpeople", "(cn={0})", getContextSource());
 		DirContextOperations joe = locator.searchForUser("Joe Smeth");
-		assertEquals("Joe Smeth", joe.getStringAttribute("cn"));
+		assertThat(joe.getStringAttribute("cn")).isEqualTo("Joe Smeth");
 	}
 
 }

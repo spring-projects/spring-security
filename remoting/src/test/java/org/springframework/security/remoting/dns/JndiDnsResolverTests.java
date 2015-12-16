@@ -16,7 +16,7 @@
 
 package org.springframework.security.remoting.dns;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import javax.naming.NameNotFoundException;
@@ -57,7 +57,7 @@ public class JndiDnsResolverTests {
 				.thenReturn(records);
 
 		String ipAddress = dnsResolver.resolveIpAddress("www.springsource.com");
-		assertEquals("63.246.7.80", ipAddress);
+		assertThat(ipAddress).isEqualTo("63.246.7.80");
 	}
 
 	@Test(expected = DnsEntryNotFoundException.class)
@@ -76,7 +76,7 @@ public class JndiDnsResolverTests {
 				.thenReturn(records);
 
 		String hostname = dnsResolver.resolveServiceEntry("ldap", "springsource.com");
-		assertEquals("kdc.springsource.com", hostname);
+		assertThat(hostname).isEqualTo("kdc.springsource.com");
 	}
 
 	@Test(expected = DnsEntryNotFoundException.class)
@@ -98,7 +98,7 @@ public class JndiDnsResolverTests {
 
 		String ipAddress = dnsResolver
 				.resolveServiceIpAddress("ldap", "springsource.com");
-		assertEquals("63.246.7.80", ipAddress);
+		assertThat(ipAddress).isEqualTo("63.246.7.80");
 	}
 
 	@Test(expected = DnsLookupException.class)

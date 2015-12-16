@@ -12,8 +12,8 @@
  */
 package org.springframework.security.web.context;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
@@ -119,9 +119,9 @@ public class HttpSessionSecurityContextRepositoryTests {
 		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
 				response);
 		SecurityContext context = repo.loadContext(holder);
-		assertNull(request.getSession(false));
+		assertThat(request.getSession(false)).isNull();
 		repo.saveContext(context, holder.getRequest(), holder.getResponse());
-		assertNull(request.getSession(false));
+		assertThat(request.getSession(false)).isNull();
 	}
 
 	@Test
@@ -136,7 +136,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 		// Change context
 		context.setAuthentication(testToken);
 		repo.saveContext(context, holder.getRequest(), holder.getResponse());
-		assertNull(request.getSession(false));
+		assertThat(request.getSession(false)).isNull();
 	}
 
 	@Test
@@ -152,12 +152,12 @@ public class HttpSessionSecurityContextRepositoryTests {
 		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
 				response);
 		SecurityContext context = repo.loadContext(holder);
-		assertNotNull(context);
-		assertEquals(testToken, context.getAuthentication());
+		assertThat(context).isNotNull();
+		assertThat(context.getAuthentication()).isEqualTo(testToken);
 		// Won't actually be saved as it hasn't changed, but go through the use case
 		// anyway
 		repo.saveContext(context, holder.getRequest(), holder.getResponse());
-		assertEquals(context, request.getSession().getAttribute("imTheContext"));
+		assertThat(request.getSession().getAttribute("imTheContext")).isEqualTo(context);
 	}
 
 	// SEC-1528
@@ -175,7 +175,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 		request.setSession(session);
 		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
 				new MockHttpServletResponse());
-		assertSame(ctx, repo.loadContext(holder));
+		assertThat(repo.loadContext(holder)).isSameAs(ctx);
 
 		// Modify context contents. Same user, different role
 		SecurityContextHolder.getContext().setAuthentication(
@@ -197,8 +197,8 @@ public class HttpSessionSecurityContextRepositoryTests {
 		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
 				response);
 		SecurityContext context = repo.loadContext(holder);
-		assertNotNull(context);
-		assertNull(context.getAuthentication());
+		assertThat(context).isNotNull();
+		assertThat(context.getAuthentication()).isNull();
 	}
 
 	@Test
@@ -209,11 +209,11 @@ public class HttpSessionSecurityContextRepositoryTests {
 		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
 				response);
 		SecurityContext context = repo.loadContext(holder);
-		assertNull(request.getSession(false));
+		assertThat(request.getSession(false)).isNull();
 		// Simulate authentication during the request
 		context.setAuthentication(testToken);
 		repo.saveContext(context, holder.getRequest(), holder.getResponse());
-		assertNotNull(request.getSession(false));
+		assertThat(request.getSession(false)).isNotNull();
 		assertEquals(context,
 				request.getSession().getAttribute(SPRING_SECURITY_CONTEXT_KEY));
 	}
@@ -229,14 +229,14 @@ public class HttpSessionSecurityContextRepositoryTests {
 		SecurityContextHolder.setContext(repo.loadContext(holder));
 		SecurityContextHolder.getContext().setAuthentication(testToken);
 		holder.getResponse().sendRedirect("/doesntmatter");
-		assertEquals(SecurityContextHolder.getContext(), request.getSession()
+		assertThat(request.getSession().isEqualTo(SecurityContextHolder.getContext())
 				.getAttribute("imTheContext"));
-		assertTrue(((SaveContextOnUpdateOrErrorResponseWrapper) holder.getResponse())
+		assertThat(((SaveContextOnUpdateOrErrorResponseWrapper) holder.getResponse()).isTrue()
 				.isContextSaved());
 		repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(),
 				holder.getResponse());
 		// Check it's still the same
-		assertEquals(SecurityContextHolder.getContext(), request.getSession()
+		assertThat(request.getSession().isEqualTo(SecurityContextHolder.getContext())
 				.getAttribute("imTheContext"));
 	}
 
@@ -251,14 +251,14 @@ public class HttpSessionSecurityContextRepositoryTests {
 		SecurityContextHolder.setContext(repo.loadContext(holder));
 		SecurityContextHolder.getContext().setAuthentication(testToken);
 		holder.getResponse().sendError(404);
-		assertEquals(SecurityContextHolder.getContext(), request.getSession()
+		assertThat(request.getSession().isEqualTo(SecurityContextHolder.getContext())
 				.getAttribute("imTheContext"));
-		assertTrue(((SaveContextOnUpdateOrErrorResponseWrapper) holder.getResponse())
+		assertThat(((SaveContextOnUpdateOrErrorResponseWrapper) holder.getResponse()).isTrue()
 				.isContextSaved());
 		repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(),
 				holder.getResponse());
 		// Check it's still the same
-		assertEquals(SecurityContextHolder.getContext(), request.getSession()
+		assertThat(request.getSession().isEqualTo(SecurityContextHolder.getContext())
 				.getAttribute("imTheContext"));
 	}
 
@@ -274,14 +274,14 @@ public class HttpSessionSecurityContextRepositoryTests {
 		SecurityContextHolder.setContext(repo.loadContext(holder));
 		SecurityContextHolder.getContext().setAuthentication(testToken);
 		holder.getResponse().flushBuffer();
-		assertEquals(SecurityContextHolder.getContext(), request.getSession()
+		assertThat(request.getSession().isEqualTo(SecurityContextHolder.getContext())
 				.getAttribute("imTheContext"));
-		assertTrue(((SaveContextOnUpdateOrErrorResponseWrapper) holder.getResponse())
+		assertThat(((SaveContextOnUpdateOrErrorResponseWrapper) holder.getResponse()).isTrue()
 				.isContextSaved());
 		repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(),
 				holder.getResponse());
 		// Check it's still the same
-		assertEquals(SecurityContextHolder.getContext(), request.getSession()
+		assertThat(request.getSession().isEqualTo(SecurityContextHolder.getContext())
 				.getAttribute("imTheContext"));
 	}
 
@@ -297,14 +297,14 @@ public class HttpSessionSecurityContextRepositoryTests {
 		SecurityContextHolder.setContext(repo.loadContext(holder));
 		SecurityContextHolder.getContext().setAuthentication(testToken);
 		holder.getResponse().getWriter().flush();
-		assertEquals(SecurityContextHolder.getContext(), request.getSession()
+		assertThat(request.getSession().isEqualTo(SecurityContextHolder.getContext())
 				.getAttribute("imTheContext"));
-		assertTrue(((SaveContextOnUpdateOrErrorResponseWrapper) holder.getResponse())
+		assertThat(((SaveContextOnUpdateOrErrorResponseWrapper) holder.getResponse()).isTrue()
 				.isContextSaved());
 		repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(),
 				holder.getResponse());
 		// Check it's still the same
-		assertEquals(SecurityContextHolder.getContext(), request.getSession()
+		assertThat(request.getSession().isEqualTo(SecurityContextHolder.getContext())
 				.getAttribute("imTheContext"));
 	}
 
@@ -320,14 +320,14 @@ public class HttpSessionSecurityContextRepositoryTests {
 		SecurityContextHolder.setContext(repo.loadContext(holder));
 		SecurityContextHolder.getContext().setAuthentication(testToken);
 		holder.getResponse().getWriter().close();
-		assertEquals(SecurityContextHolder.getContext(), request.getSession()
+		assertThat(request.getSession().isEqualTo(SecurityContextHolder.getContext())
 				.getAttribute("imTheContext"));
-		assertTrue(((SaveContextOnUpdateOrErrorResponseWrapper) holder.getResponse())
+		assertThat(((SaveContextOnUpdateOrErrorResponseWrapper) holder.getResponse()).isTrue()
 				.isContextSaved());
 		repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(),
 				holder.getResponse());
 		// Check it's still the same
-		assertEquals(SecurityContextHolder.getContext(), request.getSession()
+		assertThat(request.getSession().isEqualTo(SecurityContextHolder.getContext())
 				.getAttribute("imTheContext"));
 	}
 
@@ -343,14 +343,14 @@ public class HttpSessionSecurityContextRepositoryTests {
 		SecurityContextHolder.setContext(repo.loadContext(holder));
 		SecurityContextHolder.getContext().setAuthentication(testToken);
 		holder.getResponse().getOutputStream().flush();
-		assertEquals(SecurityContextHolder.getContext(), request.getSession()
+		assertThat(request.getSession().isEqualTo(SecurityContextHolder.getContext())
 				.getAttribute("imTheContext"));
-		assertTrue(((SaveContextOnUpdateOrErrorResponseWrapper) holder.getResponse())
+		assertThat(((SaveContextOnUpdateOrErrorResponseWrapper) holder.getResponse()).isTrue()
 				.isContextSaved());
 		repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(),
 				holder.getResponse());
 		// Check it's still the same
-		assertEquals(SecurityContextHolder.getContext(), request.getSession()
+		assertThat(request.getSession().isEqualTo(SecurityContextHolder.getContext())
 				.getAttribute("imTheContext"));
 	}
 
@@ -366,14 +366,14 @@ public class HttpSessionSecurityContextRepositoryTests {
 		SecurityContextHolder.setContext(repo.loadContext(holder));
 		SecurityContextHolder.getContext().setAuthentication(testToken);
 		holder.getResponse().getOutputStream().close();
-		assertEquals(SecurityContextHolder.getContext(), request.getSession()
+		assertThat(request.getSession().isEqualTo(SecurityContextHolder.getContext())
 				.getAttribute("imTheContext"));
-		assertTrue(((SaveContextOnUpdateOrErrorResponseWrapper) holder.getResponse())
+		assertThat(((SaveContextOnUpdateOrErrorResponseWrapper) holder.getResponse()).isTrue()
 				.isContextSaved());
 		repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(),
 				holder.getResponse());
 		// Check it's still the same
-		assertEquals(SecurityContextHolder.getContext(), request.getSession()
+		assertThat(request.getSession().isEqualTo(SecurityContextHolder.getContext())
 				.getAttribute("imTheContext"));
 	}
 
@@ -425,7 +425,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 		request.getSession().invalidate();
 		repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(),
 				holder.getResponse());
-		assertNull(request.getSession(false));
+		assertThat(request.getSession(false)).isNull();
 	}
 
 	// SEC-1315
@@ -442,7 +442,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 						.createAuthorityList("ANON")));
 		repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(),
 				holder.getResponse());
-		assertNull(request.getSession(false));
+		assertThat(request.getSession(false)).isNull();
 	}
 
 	// SEC-1587
@@ -460,7 +460,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 				new AnonymousAuthenticationToken("x", "x", testToken.getAuthorities()));
 		repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(),
 				holder.getResponse());
-		assertNull(request.getSession().getAttribute(SPRING_SECURITY_CONTEXT_KEY));
+		assertThat(request.getSession().getAttribute(SPRING_SECURITY_CONTEXT_KEY)).isNull();
 	}
 
 	@Test
@@ -477,7 +477,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 		// Save an empty context
 		repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(),
 				holder.getResponse());
-		assertNull(request.getSession().getAttribute("imTheContext"));
+		assertThat(request.getSession().getAttribute("imTheContext")).isNull();
 	}
 
 	// SEC-1735
@@ -516,7 +516,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 		ctxInSession.setAuthentication(null);
 		repo.saveContext(ctxInSession, holder.getRequest(), holder.getResponse());
 
-		assertNull(request.getSession().getAttribute(SPRING_SECURITY_CONTEXT_KEY));
+		assertThat(request.getSession().getAttribute(SPRING_SECURITY_CONTEXT_KEY)).isNull();
 	}
 
 	@Test
@@ -551,17 +551,17 @@ public class HttpSessionSecurityContextRepositoryTests {
 				response);
 		repo.loadContext(holder);
 		String url = "/aUrl";
-		assertEquals(url + sessionId, holder.getResponse().encodeRedirectUrl(url));
-		assertEquals(url + sessionId, holder.getResponse().encodeRedirectURL(url));
-		assertEquals(url + sessionId, holder.getResponse().encodeUrl(url));
-		assertEquals(url + sessionId, holder.getResponse().encodeURL(url));
+		assertThat(holder.getResponse().encodeRedirectUrl(url)).isEqualTo(url + sessionId);
+		assertThat(holder.getResponse().encodeRedirectURL(url)).isEqualTo(url + sessionId);
+		assertThat(holder.getResponse().encodeUrl(url)).isEqualTo(url + sessionId);
+		assertThat(holder.getResponse().encodeURL(url)).isEqualTo(url + sessionId);
 		repo.setDisableUrlRewriting(true);
 		holder = new HttpRequestResponseHolder(request, response);
 		repo.loadContext(holder);
-		assertEquals(url, holder.getResponse().encodeRedirectUrl(url));
-		assertEquals(url, holder.getResponse().encodeRedirectURL(url));
-		assertEquals(url, holder.getResponse().encodeUrl(url));
-		assertEquals(url, holder.getResponse().encodeURL(url));
+		assertThat(holder.getResponse().encodeRedirectUrl(url)).isEqualTo(url);
+		assertThat(holder.getResponse().encodeRedirectURL(url)).isEqualTo(url);
+		assertThat(holder.getResponse().encodeUrl(url)).isEqualTo(url);
+		assertThat(holder.getResponse().encodeURL(url)).isEqualTo(url);
 	}
 
 	@Test
@@ -596,14 +596,14 @@ public class HttpSessionSecurityContextRepositoryTests {
 		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
 				response);
 		SecurityContext context = repo.loadContext(holder);
-		assertNull(request.getSession(false));
+		assertThat(request.getSession(false)).isNull();
 		// Simulate authentication during the request
 		context.setAuthentication(testToken);
 
 		repo.saveContext(context, new HttpServletRequestWrapper(holder.getRequest()),
 				new HttpServletResponseWrapper(holder.getResponse()));
 
-		assertNotNull(request.getSession(false));
+		assertThat(request.getSession(false)).isNotNull();
 		assertEquals(context,
 				request.getSession().getAttribute(SPRING_SECURITY_CONTEXT_KEY));
 	}

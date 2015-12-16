@@ -64,8 +64,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 public class AbstractSecurityWebSocketMessageBrokerConfigurerDocTests {
 	AnnotationConfigWebApplicationContext context;

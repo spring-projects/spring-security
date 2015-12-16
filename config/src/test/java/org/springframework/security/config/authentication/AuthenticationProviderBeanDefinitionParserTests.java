@@ -1,6 +1,6 @@
 package org.springframework.security.config.authentication;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
@@ -118,7 +118,7 @@ public class AuthenticationProviderBeanDefinitionParserTests {
 
 		ShaPasswordEncoder encoder = (ShaPasswordEncoder) FieldUtils.getFieldValue(
 				getProvider(), "passwordEncoder");
-		assertEquals("SHA-256", encoder.getAlgorithm());
+		assertThat(encoder.getAlgorithm()).isEqualTo("SHA-256");
 	}
 
 	@Test

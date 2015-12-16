@@ -1,6 +1,7 @@
 package org.springframework.security.integration;
 
-import static org.testng.Assert.*;
+
+import static org.assertj.core.api.Assertions.*;
 
 import org.testng.annotations.Test;
 
@@ -20,14 +21,14 @@ public final class JspTaglibTests extends AbstractWebServerIntegrationTests {
 		beginAt("secure/authenticationTagTestPage.jsp");
 		login("theescapist<>&.", "theescapistspassword");
 		String response = tester.getServerResponse();
-		assertTrue(response
-				.contains("This is the unescaped authentication name: theescapist<>&."));
-		assertTrue(response
-				.contains("This is the unescaped principal.username: theescapist<>&."));
-		assertTrue(response
-				.contains("This is the authentication name: theescapist&lt;&gt;&amp;&#46;"));
-		assertTrue(response
-				.contains("This is the principal.username: theescapist&lt;&gt;&amp;&#46;"));
+		assertThat(response)
+				.contains("This is the unescaped authentication name: theescapist<>&.");
+		assertThat(response)
+				.contains("This is the unescaped principal.username: theescapist<>&.");
+		assertThat(response)
+				.contains("This is the authentication name: theescapist&lt;&gt;&amp;&#46;");
+		assertThat(response)
+				.contains("This is the principal.username: theescapist&lt;&gt;&amp;&#46;");
 	}
 
 	@Test
@@ -35,10 +36,10 @@ public final class JspTaglibTests extends AbstractWebServerIntegrationTests {
 		beginAt("secure/authorizationTagTestPage.jsp");
 		login("bessie", "bessiespassword");
 		String response = tester.getServerResponse();
-		assertTrue(response
-				.contains("Users can see this and 'allowed' variable is true."));
-		assertFalse(response.contains("Role X users (nobody) can see this."));
-		assertTrue(response.contains("Role X expression evaluates to false"));
+		assertThat(response)
+				.contains("Users can see this and 'allowed' variable is true.");
+		assertThat(response).doesNotContain("Role X users (nobody) can see this.");
+		assertThat(response).contains("Role X expression evaluates to false");
 	}
 
 }

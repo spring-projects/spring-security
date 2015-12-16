@@ -37,14 +37,14 @@ public class SessionInformationTests extends TestCase {
 
 		SessionInformation info = new SessionInformation(principal, sessionId,
 				currentDate);
-		assertEquals(principal, info.getPrincipal());
-		assertEquals(sessionId, info.getSessionId());
-		assertEquals(currentDate, info.getLastRequest());
+		assertThat(info.getPrincipal()).isEqualTo(principal);
+		assertThat(info.getSessionId()).isEqualTo(sessionId);
+		assertThat(info.getLastRequest()).isEqualTo(currentDate);
 
 		Thread.sleep(10);
 
 		info.refreshLastRequest();
 
-		assertTrue(info.getLastRequest().after(currentDate));
+		assertThat(info.getLastRequest().after(currentDate)).isTrue();
 	}
 }

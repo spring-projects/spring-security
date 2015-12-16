@@ -15,6 +15,8 @@
 
 package org.springframework.security.cas.web;
 
+import static org.assertj.core.api.Assertions.*;
+
 import junit.framework.TestCase;
 
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -42,7 +44,7 @@ public class CasAuthenticationEntryPointTests extends TestCase {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertEquals("loginUrl must be specified", expected.getMessage());
+			assertThat(expected.getMessage()).isEqualTo("loginUrl must be specified");
 		}
 	}
 
@@ -55,17 +57,17 @@ public class CasAuthenticationEntryPointTests extends TestCase {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertEquals("serviceProperties must be specified", expected.getMessage());
+			assertThat(expected.getMessage()).isEqualTo("serviceProperties must be specified");
 		}
 	}
 
 	public void testGettersSetters() {
 		CasAuthenticationEntryPoint ep = new CasAuthenticationEntryPoint();
 		ep.setLoginUrl("https://cas/login");
-		assertEquals("https://cas/login", ep.getLoginUrl());
+		assertThat(ep.getLoginUrl()).isEqualTo("https://cas/login");
 
 		ep.setServiceProperties(new ServiceProperties());
-		assertTrue(ep.getServiceProperties() != null);
+		assertThat(ep.getServiceProperties() != null).isTrue();
 	}
 
 	public void testNormalOperationWithRenewFalse() throws Exception {

@@ -1,6 +1,6 @@
 package org.springframework.security.access.vote;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 import org.springframework.security.access.SecurityConfig;
@@ -20,7 +20,6 @@ public class RoleHierarchyVoterTests {
 				"password", "ROLE_A");
 		RoleHierarchyVoter voter = new RoleHierarchyVoter(roleHierarchyImpl);
 
-		assertEquals(RoleHierarchyVoter.ACCESS_GRANTED,
-				voter.vote(auth, new Object(), SecurityConfig.createList("ROLE_B")));
+		assertThat(voter.vote(auth, new Object(), SecurityConfig.createList("ROLE_B"))).isEqualTo(RoleHierarchyVoter.ACCESS_GRANTED);
 	}
 }

@@ -15,7 +15,7 @@
  */
 package org.springframework.security.web.jaasapi;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
@@ -137,7 +137,7 @@ public class JaasApiIntegrationFilterTests {
 	 */
 	@Test
 	public void currentSubjectNull() {
-		assertNull(Subject.getSubject(AccessController.getContext()));
+		assertThat(Subject.getSubject(AccessController.getContext())).isNull();
 	}
 
 	@Test
@@ -165,7 +165,7 @@ public class JaasApiIntegrationFilterTests {
 	public void obtainSubjectNullSubject() throws Exception {
 		LoginContext ctx = new LoginContext("obtainSubjectNullSubject", null,
 				callbackHandler, testConfiguration);
-		assertNull(ctx.getSubject());
+		assertThat(ctx.getSubject()).isNull();
 		token = new JaasAuthenticationToken("un", "pwd",
 				AuthorityUtils.createAuthorityList("ROLE_ADMIN"), ctx);
 		SecurityContextHolder.getContext().setAuthentication(token);
@@ -175,7 +175,7 @@ public class JaasApiIntegrationFilterTests {
 	@Test
 	public void obtainSubject() throws Exception {
 		SecurityContextHolder.getContext().setAuthentication(token);
-		assertEquals(authenticatedSubject, filter.obtainSubject(request));
+		assertThat(filter.obtainSubject(request)).isEqualTo(authenticatedSubject);
 	}
 
 	@Test
@@ -211,7 +211,7 @@ public class JaasApiIntegrationFilterTests {
 				// See if the subject was updated
 				Subject currentSubject = Subject
 						.getSubject(AccessController.getContext());
-				assertEquals(expectedValue, currentSubject);
+				assertThat(currentSubject).isEqualTo(expectedValue);
 
 				// run so we know the chain was executed
 				super.doFilter(request, response);
@@ -219,10 +219,10 @@ public class JaasApiIntegrationFilterTests {
 		};
 		filter.doFilter(request, response, chain);
 		// ensure that the chain was actually invoked
-		assertNotNull(chain.getRequest());
+		assertThat(chain.getRequest()).isNotNull();
 	}
 
 	private void assertNullSubject(Subject subject) {
-		assertNull("Subject is expected to be null, but is not. Got " + subject, subject);
+		assertThat("Subject is expected to be null, but is not. Got " + subject, subject).isNull();
 	}
 }

@@ -44,7 +44,7 @@ public class ProtectPointcutPerformanceTests implements ApplicationContextAware 
 			}
 		}
 		sw.stop();
-		// assertTrue(sw.getTotalTimeMillis() < 1000);
+		// assertThat(sw.getTotalTimeMillis() < 1000).isTrue();
 
 	}
 

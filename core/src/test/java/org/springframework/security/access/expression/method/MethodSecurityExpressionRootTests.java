@@ -1,6 +1,6 @@
 package org.springframework.security.access.expression.method;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
@@ -44,19 +44,19 @@ public class MethodSecurityExpressionRootTests {
 		ctx.setVariable("var", "somestring");
 		Expression e = parser.parseExpression("#var.length() == 10");
 
-		assertTrue(ExpressionUtils.evaluateAsBoolean(e, ctx));
+		assertThat(ExpressionUtils.evaluateAsBoolean(e, ctx)).isTrue();
 	}
 
 	@Test
 	public void isAnonymousReturnsTrueIfTrustResolverReportsAnonymous() {
 		when(trustResolver.isAnonymous(user)).thenReturn(true);
-		assertTrue(root.isAnonymous());
+		assertThat(root.isAnonymous()).isTrue();
 	}
 
 	@Test
 	public void isAnonymousReturnsFalseIfTrustResolverReportsNonAnonymous() {
 		when(trustResolver.isAnonymous(user)).thenReturn(false);
-		assertFalse(root.isAnonymous());
+		assertThat(root.isAnonymous()).isFalse();
 	}
 
 	@Test
@@ -68,7 +68,7 @@ public class MethodSecurityExpressionRootTests {
 		root.setPermissionEvaluator(pe);
 		when(pe.hasPermission(user, dummyDomainObject, "ignored")).thenReturn(false);
 
-		assertFalse(root.hasPermission(dummyDomainObject, "ignored"));
+		assertThat(root.hasPermission(dummyDomainObject, "ignored")).isFalse();
 
 	}
 
@@ -81,7 +81,7 @@ public class MethodSecurityExpressionRootTests {
 		root.setPermissionEvaluator(pe);
 		when(pe.hasPermission(user, dummyDomainObject, "ignored")).thenReturn(true);
 
-		assertTrue(root.hasPermission(dummyDomainObject, "ignored"));
+		assertThat(root.hasPermission(dummyDomainObject, "ignored")).isTrue();
 	}
 
 	@Test
@@ -95,13 +95,13 @@ public class MethodSecurityExpressionRootTests {
 
 		Expression e = parser.parseExpression("hasPermission(#domainObject, 0xA)");
 		// evaluator returns true
-		assertTrue(ExpressionUtils.evaluateAsBoolean(e, ctx));
+		assertThat(ExpressionUtils.evaluateAsBoolean(e, ctx)).isTrue();
 		e = parser.parseExpression("hasPermission(#domainObject, 10)");
 		// evaluator returns true
-		assertTrue(ExpressionUtils.evaluateAsBoolean(e, ctx));
+		assertThat(ExpressionUtils.evaluateAsBoolean(e, ctx)).isTrue();
 		e = parser.parseExpression("hasPermission(#domainObject, 0xFF)");
 		// evaluator returns false, make sure return value matches
-		assertFalse(ExpressionUtils.evaluateAsBoolean(e, ctx));
+		assertThat(ExpressionUtils.evaluateAsBoolean(e, ctx)).isFalse();
 	}
 
 	@Test
@@ -119,11 +119,11 @@ public class MethodSecurityExpressionRootTests {
 		when(pe.hasPermission(user, "x", i)).thenReturn(true);
 
 		Expression e = parser.parseExpression("hasPermission(this, 2)");
-		assertTrue(ExpressionUtils.evaluateAsBoolean(e, ctx));
+		assertThat(ExpressionUtils.evaluateAsBoolean(e, ctx)).isTrue();
 		e = parser.parseExpression("hasPermission(this, 2)");
-		assertFalse(ExpressionUtils.evaluateAsBoolean(e, ctx));
+		assertThat(ExpressionUtils.evaluateAsBoolean(e, ctx)).isFalse();
 
 		e = parser.parseExpression("hasPermission(this.x, 2)");
-		assertTrue(ExpressionUtils.evaluateAsBoolean(e, ctx));
+		assertThat(ExpressionUtils.evaluateAsBoolean(e, ctx)).isTrue();
 	}
 }

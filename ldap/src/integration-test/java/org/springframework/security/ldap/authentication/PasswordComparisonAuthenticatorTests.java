@@ -28,7 +28,7 @@ import org.springframework.security.ldap.AbstractLdapIntegrationTests;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DistinguishedName;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * Tests for {@link PasswordComparisonAuthenticator}.
@@ -59,7 +59,7 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapIntegratio
 	public void testAllAttributesAreRetrievedByDefault() {
 		DirContextAdapter user = (DirContextAdapter) authenticator.authenticate(bob);
 		// System.out.println(user.getAttributes().toString());
-		assertEquals("User should have 5 attributes", 5, user.getAttributes().size());
+		assertThat(user.getAttributes()).as("User should have 5 attributes").hasSize(5);
 	}
 
 	@Test
@@ -99,7 +99,7 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapIntegratio
 		authenticator.setUserAttributes(new String[] { "uid", "userPassword" });
 
 		DirContextAdapter user = (DirContextAdapter) authenticator.authenticate(bob);
-		assertEquals("Should have retrieved 2 attribute (uid, userPassword)", 2, user
+		assertThat(userPassword).isEqualTo("Should have retrieved 2 attribute (uid)", 2, user
 				.getAttributes().size());
 	}
 

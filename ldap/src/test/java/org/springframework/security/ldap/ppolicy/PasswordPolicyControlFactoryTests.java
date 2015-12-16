@@ -1,6 +1,6 @@
 package org.springframework.security.ldap.ppolicy;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import org.junit.*;
@@ -19,7 +19,7 @@ public class PasswordPolicyControlFactoryTests {
 		Control wrongCtrl = mock(Control.class);
 
 		when(wrongCtrl.getID()).thenReturn("wrongId");
-		assertNull(ctrlFactory.getControlInstance(wrongCtrl));
+		assertThat(ctrlFactory.getControlInstance(wrongCtrl)).isNull();
 	}
 
 	@Test
@@ -31,7 +31,7 @@ public class PasswordPolicyControlFactoryTests {
 		when(control.getEncodedValue()).thenReturn(
 				PasswordPolicyResponseControlTests.OPENLDAP_LOCKED_CTRL);
 		Control result = ctrlFactory.getControlInstance(control);
-		assertNotNull(result);
+		assertThat(result).isNotNull();
 		assertTrue(Arrays.equals(PasswordPolicyResponseControlTests.OPENLDAP_LOCKED_CTRL,
 				result.getEncodedValue()));
 	}

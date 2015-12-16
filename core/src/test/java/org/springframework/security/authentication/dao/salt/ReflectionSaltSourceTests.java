@@ -55,13 +55,13 @@ public class ReflectionSaltSourceTests {
 		ReflectionSaltSource saltSource = new ReflectionSaltSource();
 		saltSource.setUserPropertyToUse("getUsername");
 
-		assertEquals("scott", saltSource.getSalt(user));
+		assertThat(saltSource.getSalt(user)).isEqualTo("scott");
 	}
 
 	@Test
 	public void propertyNameAsPropertyToUseReturnsCorrectSaltValue() {
 		ReflectionSaltSource saltSource = new ReflectionSaltSource();
 		saltSource.setUserPropertyToUse("password");
-		assertEquals("wombat", saltSource.getSalt(user));
+		assertThat(saltSource.getSalt(user)).isEqualTo("wombat");
 	}
 }

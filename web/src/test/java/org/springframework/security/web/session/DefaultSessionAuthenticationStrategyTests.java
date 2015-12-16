@@ -16,7 +16,7 @@
 
 package org.springframework.security.web.session;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -47,7 +47,7 @@ public class DefaultSessionAuthenticationStrategyTests {
 		strategy.onAuthentication(mock(Authentication.class), request,
 				new MockHttpServletResponse());
 
-		assertNull(request.getSession(false));
+		assertThat(request.getSession(false)).isNull();
 	}
 
 	@Test
@@ -59,7 +59,7 @@ public class DefaultSessionAuthenticationStrategyTests {
 		strategy.onAuthentication(mock(Authentication.class), request,
 				new MockHttpServletResponse());
 
-		assertFalse(sessionId.equals(request.getSession().getId()));
+		assertThat(sessionId.equals(request.getSession().getId())).isFalse();
 	}
 
 	// SEC-2002
@@ -85,18 +85,18 @@ public class DefaultSessionAuthenticationStrategyTests {
 				.forClass(ApplicationEvent.class);
 		verify(eventPublisher).publishEvent(eventArgumentCaptor.capture());
 
-		assertFalse(oldSessionId.equals(request.getSession().getId()));
-		assertNotNull(request.getSession().getAttribute("blah"));
-		assertNotNull(request.getSession().getAttribute(
+		assertThat(oldSessionId.equals(request.getSession().getId())).isFalse();
+		assertThat(request.getSession().getAttribute("blah")).isNotNull();
+		assertThat(request.getSession().isNotNull().getAttribute(
 				"SPRING_SECURITY_SAVED_REQUEST_KEY"));
 
-		assertNotNull(eventArgumentCaptor.getValue());
-		assertTrue(eventArgumentCaptor.getValue() instanceof SessionFixationProtectionEvent);
+		assertThat(eventArgumentCaptor.getValue()).isNotNull();
+		assertThat(eventArgumentCaptor.getValue() instanceof SessionFixationProtectionEvent).isTrue();
 		SessionFixationProtectionEvent event = (SessionFixationProtectionEvent) eventArgumentCaptor
 				.getValue();
-		assertEquals(oldSessionId, event.getOldSessionId());
-		assertEquals(request.getSession().getId(), event.getNewSessionId());
-		assertSame(mockAuthentication, event.getAuthentication());
+		assertThat(event.getOldSessionId()).isEqualTo(oldSessionId);
+		assertThat(event.getNewSessionId()).isEqualTo(request.getSession().getId());
+		assertThat(event.getAuthentication()).isSameAs(mockAuthentication);
 	}
 
 	// See SEC-1077
@@ -113,8 +113,8 @@ public class DefaultSessionAuthenticationStrategyTests {
 		strategy.onAuthentication(mock(Authentication.class), request,
 				new MockHttpServletResponse());
 
-		assertNull(request.getSession().getAttribute("blah"));
-		assertNotNull(request.getSession().getAttribute(
+		assertThat(request.getSession().getAttribute("blah")).isNull();
+		assertThat(request.getSession().isNotNull().getAttribute(
 				"SPRING_SECURITY_SAVED_REQUEST_KEY"));
 	}
 
@@ -142,17 +142,17 @@ public class DefaultSessionAuthenticationStrategyTests {
 				.forClass(ApplicationEvent.class);
 		verify(eventPublisher).publishEvent(eventArgumentCaptor.capture());
 
-		assertNull(request.getSession().getAttribute("blah"));
-		assertNotNull(request.getSession().getAttribute(
+		assertThat(request.getSession().getAttribute("blah")).isNull();
+		assertThat(request.getSession().isNotNull().getAttribute(
 				"SPRING_SECURITY_SAVED_REQUEST_KEY"));
 
-		assertNotNull(eventArgumentCaptor.getValue());
-		assertTrue(eventArgumentCaptor.getValue() instanceof SessionFixationProtectionEvent);
+		assertThat(eventArgumentCaptor.getValue()).isNotNull();
+		assertThat(eventArgumentCaptor.getValue() instanceof SessionFixationProtectionEvent).isTrue();
 		SessionFixationProtectionEvent event = (SessionFixationProtectionEvent) eventArgumentCaptor
 				.getValue();
-		assertEquals(oldSessionId, event.getOldSessionId());
-		assertEquals(request.getSession().getId(), event.getNewSessionId());
-		assertSame(mockAuthentication, event.getAuthentication());
+		assertThat(event.getOldSessionId()).isEqualTo(oldSessionId);
+		assertThat(event.getNewSessionId()).isEqualTo(request.getSession().getId());
+		assertThat(event.getAuthentication()).isSameAs(mockAuthentication);
 	}
 
 	@Test
@@ -162,7 +162,7 @@ public class DefaultSessionAuthenticationStrategyTests {
 		HttpServletRequest request = new MockHttpServletRequest();
 		strategy.onAuthentication(mock(Authentication.class), request,
 				new MockHttpServletResponse());
-		assertNotNull(request.getSession(false));
+		assertThat(request.getSession(false)).isNotNull();
 	}
 
 }

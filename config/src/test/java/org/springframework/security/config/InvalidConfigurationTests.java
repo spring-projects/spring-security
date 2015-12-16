@@ -1,6 +1,6 @@
 package org.springframework.security.config;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.After;
 import org.junit.Test;
@@ -45,10 +45,10 @@ public class InvalidConfigurationTests {
 		}
 		catch (BeanCreationException e) {
 			Throwable cause = ultimateCause(e);
-			assertTrue(cause instanceof NoSuchBeanDefinitionException);
+			assertThat(cause instanceof NoSuchBeanDefinitionException).isTrue();
 			NoSuchBeanDefinitionException nsbe = (NoSuchBeanDefinitionException) cause;
-			assertEquals(BeanIds.AUTHENTICATION_MANAGER, nsbe.getBeanName());
-			assertTrue(nsbe.getMessage().endsWith(
+			assertThat(nsbe.getBeanName()).isEqualTo(BeanIds.AUTHENTICATION_MANAGER);
+			assertThat(nsbe.getMessage().endsWith(
 					AuthenticationManagerFactoryBean.MISSING_BEAN_ERROR_MESSAGE));
 		}
 	}

@@ -21,10 +21,10 @@ public class AuthorityUtilsTests {
 
 		Set<String> authorities = AuthorityUtils.authorityListToSet(authorityArray);
 
-		assertTrue(authorities.contains("B"));
-		assertTrue(authorities.contains("C"));
-		assertTrue(authorities.contains("E"));
-		assertTrue(authorities.contains("ROLE_A"));
-		assertTrue(authorities.contains("ROLE_D"));
+		assertThat(authorities.contains("B")).isTrue();
+		assertThat(authorities.contains("C")).isTrue();
+		assertThat(authorities.contains("E")).isTrue();
+		assertThat(authorities.contains("ROLE_A")).isTrue();
+		assertThat(authorities.contains("ROLE_D")).isTrue();
 	}
 }

@@ -39,14 +39,14 @@ public class SecurityContextHolderTests extends TestCase {
 		SecurityContext sc = new SecurityContextImpl();
 		sc.setAuthentication(new UsernamePasswordAuthenticationToken("Foobar", "pass"));
 		SecurityContextHolder.setContext(sc);
-		assertEquals(sc, SecurityContextHolder.getContext());
+		assertThat(SecurityContextHolder.getContext()).isEqualTo(sc);
 		SecurityContextHolder.clearContext();
-		assertNotSame(sc, SecurityContextHolder.getContext());
+		assertThat(SecurityContextHolder.getContext()).isNotSameAs(sc);
 		SecurityContextHolder.clearContext();
 	}
 
 	public void testNeverReturnsNull() {
-		assertNotNull(SecurityContextHolder.getContext());
+		assertThat(SecurityContextHolder.getContext()).isNotNull();
 		SecurityContextHolder.clearContext();
 	}
 
@@ -56,7 +56,7 @@ public class SecurityContextHolderTests extends TestCase {
 			fail("Should have rejected null");
 		}
 		catch (IllegalArgumentException expected) {
-			assertTrue(true);
+
 		}
 	}
 }

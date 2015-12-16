@@ -1,6 +1,6 @@
 package org.springframework.security.ldap.userdetails;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.Collection;
 import java.util.Set;
@@ -45,8 +45,8 @@ public class LdapUserDetailsServiceTests {
 
 		Set<String> authorities = AuthorityUtils
 				.authorityListToSet(user.getAuthorities());
-		assertEquals(1, authorities.size());
-		assertTrue(authorities.contains("ROLE_FROM_POPULATOR"));
+		assertThat(authorities).hasSize(1);
+		assertThat(authorities.contains("ROLE_FROM_POPULATOR")).isTrue();
 	}
 
 	@Test
@@ -57,7 +57,7 @@ public class LdapUserDetailsServiceTests {
 		LdapUserDetailsService service = new LdapUserDetailsService(new MockUserSearch(
 				userData));
 		UserDetails user = service.loadUserByUsername("doesntmatterwegetjoeanyway");
-		assertEquals(0, user.getAuthorities().size());
+		assertThat(user.getAuthorities()).isEmpty();
 	}
 
 	class MockAuthoritiesPopulator implements LdapAuthoritiesPopulator {

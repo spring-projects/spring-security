@@ -15,7 +15,7 @@
 
 package org.springframework.security.web.authentication;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.*;
 
@@ -60,17 +60,17 @@ public class LoginUrlAuthenticationEntryPointTests {
 				"/hello");
 		ep.setPortMapper(new PortMapperImpl());
 		ep.setPortResolver(new MockPortResolver(8080, 8443));
-		assertEquals("/hello", ep.getLoginFormUrl());
-		assertTrue(ep.getPortMapper() != null);
-		assertTrue(ep.getPortResolver() != null);
+		assertThat(ep.getLoginFormUrl()).isEqualTo("/hello");
+		assertThat(ep.getPortMapper() != null).isTrue();
+		assertThat(ep.getPortResolver() != null).isTrue();
 
 		ep.setForceHttps(false);
-		assertFalse(ep.isForceHttps());
+		assertThat(ep.isForceHttps()).isFalse();
 		ep.setForceHttps(true);
-		assertTrue(ep.isForceHttps());
-		assertFalse(ep.isUseForward());
+		assertThat(ep.isForceHttps()).isTrue();
+		assertThat(ep.isUseForward()).isFalse();
 		ep.setUseForward(true);
-		assertTrue(ep.isUseForward());
+		assertThat(ep.isUseForward()).isTrue();
 	}
 
 	@Test
@@ -227,7 +227,7 @@ public class LoginUrlAuthenticationEntryPointTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
 		ep.commence(request, response, null);
-		assertEquals("/hello", response.getForwardedUrl());
+		assertThat(response.getForwardedUrl()).isEqualTo("/hello");
 	}
 
 	@Test
@@ -263,7 +263,7 @@ public class LoginUrlAuthenticationEntryPointTests {
 		ep.afterPropertiesSet();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		ep.commence(new MockHttpServletRequest("GET", "/someUrl"), response, null);
-		assertEquals(loginFormUrl, response.getRedirectedUrl());
+		assertThat(response.getRedirectedUrl()).isEqualTo(loginFormUrl);
 	}
 
 	@Test(expected = IllegalArgumentException.class)

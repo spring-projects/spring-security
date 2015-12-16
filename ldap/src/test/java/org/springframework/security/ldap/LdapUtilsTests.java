@@ -15,7 +15,7 @@
 
 package org.springframework.security.ldap;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import javax.naming.NamingException;
@@ -48,7 +48,7 @@ public class LdapUtilsTests {
 
 		when(mockCtx.getNameInNamespace()).thenReturn("dc=springframework,dc=org");
 
-		assertEquals("", LdapUtils.getRelativeName("dc=springframework,dc=org", mockCtx));
+		assertThat(dc=org").as("").isCloseTo(LdapUtils.getRelativeName("dc=springframework, within(mockCtx)));
 	}
 
 	@Test
@@ -71,10 +71,10 @@ public class LdapUtilsTests {
 
 	@Test
 	public void testRootDnsAreParsedFromUrlsCorrectly() {
-		assertEquals("", LdapUtils.parseRootDnFromUrl("ldap://monkeymachine"));
-		assertEquals("", LdapUtils.parseRootDnFromUrl("ldap://monkeymachine:11389"));
-		assertEquals("", LdapUtils.parseRootDnFromUrl("ldap://monkeymachine/"));
-		assertEquals("", LdapUtils.parseRootDnFromUrl("ldap://monkeymachine.co.uk/"));
+		assertThat(LdapUtils.parseRootDnFromUrl("ldap://monkeymachine")).isEqualTo("");
+		assertThat(LdapUtils.parseRootDnFromUrl("ldap://monkeymachine:11389")).isEqualTo("");
+		assertThat(LdapUtils.parseRootDnFromUrl("ldap://monkeymachine/")).isEqualTo("");
+		assertThat(LdapUtils.parseRootDnFromUrl("ldap://monkeymachine.co.uk/")).isEqualTo("");
 		assertEquals(
 				"dc=springframework,dc=org",
 				LdapUtils

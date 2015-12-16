@@ -15,7 +15,7 @@
 
 package org.springframework.security.ldap.userdetails;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.*;
 import org.springframework.ldap.core.DirContextAdapter;
@@ -47,15 +47,15 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegratio
 	@Test
 	public void defaultRoleIsAssignedWhenSet() {
 		populator.setDefaultRole("ROLE_USER");
-		assertSame(getContextSource(), populator.getContextSource());
+		assertThat(populator.getContextSource()).isSameAs(getContextSource());
 
 		DirContextAdapter ctx = new DirContextAdapter(
 				new DistinguishedName("cn=notfound"));
 
 		Collection<GrantedAuthority> authorities = populator.getGrantedAuthorities(ctx,
 				"notfound");
-		assertEquals(1, authorities.size());
-		assertTrue(AuthorityUtils.authorityListToSet(authorities).contains("ROLE_USER"));
+		assertThat(authorities).hasSize(1);
+		assertThat(AuthorityUtils.authorityListToSet(authorities).contains("ROLE_USER")).isTrue();
 	}
 
 	@Test
@@ -65,8 +65,8 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegratio
 
 		Collection<GrantedAuthority> authorities = populator.getGrantedAuthorities(
 				new DirContextAdapter(new DistinguishedName("cn=notused")), "notused");
-		assertEquals(1, authorities.size());
-		assertTrue(AuthorityUtils.authorityListToSet(authorities).contains("ROLE_USER"));
+		assertThat(authorities).hasSize(1);
+		assertThat(AuthorityUtils.authorityListToSet(authorities).contains("ROLE_USER")).isTrue();
 	}
 
 	@Test
@@ -84,10 +84,10 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegratio
 		Set<String> authorities = AuthorityUtils.authorityListToSet(populator
 				.getGrantedAuthorities(ctx, "ben"));
 
-		assertEquals("Should have 2 roles", 2, authorities.size());
+		assertThat(authorities).as("Should have 2 roles").hasSize(2);
 
-		assertTrue(authorities.contains("ROLE_DEVELOPER"));
-		assertTrue(authorities.contains("ROLE_MANAGER"));
+		assertThat(authorities.contains("ROLE_DEVELOPER")).isTrue();
+		assertThat(authorities.contains("ROLE_MANAGER")).isTrue();
 	}
 
 	@Test
@@ -102,8 +102,8 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegratio
 		Set<String> authorities = AuthorityUtils.authorityListToSet(populator
 				.getGrantedAuthorities(ctx, "manager"));
 
-		assertEquals("Should have 1 role", 1, authorities.size());
-		assertTrue(authorities.contains("ROLE_MANAGER"));
+		assertThat(authorities).as("Should have 1 role").hasSize(1);
+		assertThat(authorities.contains("ROLE_MANAGER")).isTrue();
 	}
 
 	@Test
@@ -117,9 +117,9 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegratio
 		Set<String> authorities = AuthorityUtils.authorityListToSet(populator
 				.getGrantedAuthorities(ctx, "manager"));
 
-		assertEquals("Should have 2 roles", 2, authorities.size());
-		assertTrue(authorities.contains("ROLE_MANAGER"));
-		assertTrue(authorities.contains("ROLE_DEVELOPER"));
+		assertThat(authorities).as("Should have 2 roles").hasSize(2);
+		assertThat(authorities.contains("ROLE_MANAGER")).isTrue();
+		assertThat(authorities.contains("ROLE_DEVELOPER")).isTrue();
 	}
 
 	@Test
@@ -134,10 +134,10 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegratio
 		Set<String> authorities = AuthorityUtils.authorityListToSet(populator
 				.getGrantedAuthorities(ctx, "manager"));
 
-		assertEquals("Should have 3 roles", 3, authorities.size());
-		assertTrue(authorities.contains("ROLE_MANAGER"));
-		assertTrue(authorities.contains("ROLE_SUBMANAGER"));
-		assertTrue(authorities.contains("ROLE_DEVELOPER"));
+		assertThat(authorities).as("Should have 3 roles").hasSize(3);
+		assertThat(authorities.contains("ROLE_MANAGER")).isTrue();
+		assertThat(authorities.contains("ROLE_SUBMANAGER")).isTrue();
+		assertThat(authorities.contains("ROLE_DEVELOPER")).isTrue();
 	}
 
 	@Test
@@ -153,8 +153,8 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegratio
 
 		Collection<GrantedAuthority> authorities = populator.getGrantedAuthorities(
 				new DirContextAdapter(new DistinguishedName("cn=notused")), "notused");
-		assertEquals(1, authorities.size());
-		assertTrue(AuthorityUtils.authorityListToSet(authorities).contains("ROLE_EXTRA"));
+		assertThat(authorities).hasSize(1);
+		assertThat(AuthorityUtils.authorityListToSet(authorities).contains("ROLE_EXTRA")).isTrue();
 	}
 
 	@Test
@@ -169,7 +169,7 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegratio
 		Set<String> authorities = AuthorityUtils.authorityListToSet(populator
 				.getGrantedAuthorities(ctx, "notused"));
 
-		assertEquals("Should have 1 role", 1, authorities.size());
-		assertTrue(authorities.contains("ROLE_MANAGER"));
+		assertThat(authorities).as("Should have 1 role").hasSize(1);
+		assertThat(authorities.contains("ROLE_MANAGER")).isTrue();
 	}
 }

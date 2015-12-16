@@ -1,6 +1,6 @@
 package org.springframework.security.web.authentication;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -24,7 +24,7 @@ public class ExceptionMappingAuthenticationFailureHandlerTests {
 		fh.onAuthenticationFailure(new MockHttpServletRequest(), response,
 				new BadCredentialsException(""));
 
-		assertEquals("/failed", response.getRedirectedUrl());
+		assertThat(response.getRedirectedUrl()).isEqualTo("/failed");
 	}
 
 	@Test
@@ -40,7 +40,7 @@ public class ExceptionMappingAuthenticationFailureHandlerTests {
 		fh.onAuthenticationFailure(new MockHttpServletRequest(), response,
 				new BadCredentialsException(""));
 
-		assertEquals("/badcreds", response.getRedirectedUrl());
+		assertThat(response.getRedirectedUrl()).isEqualTo("/badcreds");
 	}
 
 }

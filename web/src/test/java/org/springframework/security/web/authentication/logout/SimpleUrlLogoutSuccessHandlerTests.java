@@ -1,6 +1,6 @@
 package org.springframework.security.web.authentication.logout;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
 import org.junit.Test;
@@ -22,9 +22,9 @@ public class SimpleUrlLogoutSuccessHandlerTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		response.setCommitted(true);
 		lsh.onLogoutSuccess(request, response, mock(Authentication.class));
-		assertNull(request.getSession(false));
-		assertNull(response.getRedirectedUrl());
-		assertNull(response.getForwardedUrl());
+		assertThat(request.getSession(false)).isNull();
+		assertThat(response.getRedirectedUrl()).isNull();
+		assertThat(response.getForwardedUrl()).isNull();
 	}
 
 	@Test
@@ -34,7 +34,7 @@ public class SimpleUrlLogoutSuccessHandlerTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		lsh.onLogoutSuccess(request, response, mock(Authentication.class));
-		assertEquals("http://someurl.com/", response.getRedirectedUrl());
+		assertThat(response.getRedirectedUrl()).isEqualTo("http://someurl.com/");
 	}
 
 }

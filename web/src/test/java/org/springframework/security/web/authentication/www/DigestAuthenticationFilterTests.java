@@ -15,9 +15,9 @@
 
 package org.springframework.security.web.authentication.www;
 
-import static org.fest.assertions.Assertions.*;
+import static org.assertj.core.api.Assertions.*;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -160,14 +160,14 @@ public class DigestAuthenticationFilterTests {
 		MockHttpServletResponse response = executeFilterInContainerSimulator(filter,
 				request, false);
 
-		assertNull(SecurityContextHolder.getContext().getAuthentication());
-		assertEquals(401, response.getStatus());
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+		assertThat(response.getStatus()).isEqualTo(401);
 
 		String header = response.getHeader("WWW-Authenticate").toString().substring(7);
 		String[] headerEntries = StringUtils.commaDelimitedListToStringArray(header);
 		Map<String, String> headerMap = DigestAuthUtils
 				.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
-		assertEquals("true", headerMap.get("stale"));
+		assertThat(headerMap.get("stale")).isEqualTo("true");
 	}
 
 	@Test
@@ -175,22 +175,22 @@ public class DigestAuthenticationFilterTests {
 			throws Exception {
 		executeFilterInContainerSimulator(filter, request, true);
 
-		assertNull(SecurityContextHolder.getContext().getAuthentication());
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
 
 	@Test
 	public void testGettersSetters() {
 		DigestAuthenticationFilter filter = new DigestAuthenticationFilter();
 		filter.setUserDetailsService(mock(UserDetailsService.class));
-		assertTrue(filter.getUserDetailsService() != null);
+		assertThat(filter.getUserDetailsService() != null).isTrue();
 
 		filter.setAuthenticationEntryPoint(new DigestAuthenticationEntryPoint());
-		assertTrue(filter.getAuthenticationEntryPoint() != null);
+		assertThat(filter.getAuthenticationEntryPoint() != null).isTrue();
 
 		filter.setUserCache(null);
-		assertNull(filter.getUserCache());
+		assertThat(filter.getUserCache()).isNull();
 		filter.setUserCache(new NullUserCache());
-		assertNotNull(filter.getUserCache());
+		assertThat(filter.getUserCache()).isNotNull();
 	}
 
 	@Test
@@ -203,8 +203,8 @@ public class DigestAuthenticationFilterTests {
 		MockHttpServletResponse response = executeFilterInContainerSimulator(filter,
 				request, false);
 
-		assertEquals(401, response.getStatus());
-		assertNull(SecurityContextHolder.getContext().getAuthentication());
+		assertThat(response.getStatus()).isEqualTo(401);
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
 
 	@Test
@@ -214,8 +214,8 @@ public class DigestAuthenticationFilterTests {
 		MockHttpServletResponse response = executeFilterInContainerSimulator(filter,
 				request, false);
 
-		assertNull(SecurityContextHolder.getContext().getAuthentication());
-		assertEquals(401, response.getStatus());
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+		assertThat(response.getStatus()).isEqualTo(401);
 	}
 
 	@Test
@@ -233,8 +233,8 @@ public class DigestAuthenticationFilterTests {
 		MockHttpServletResponse response = executeFilterInContainerSimulator(filter,
 				request, false);
 
-		assertNull(SecurityContextHolder.getContext().getAuthentication());
-		assertEquals(401, response.getStatus());
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+		assertThat(response.getStatus()).isEqualTo(401);
 	}
 
 	@Test
@@ -253,8 +253,8 @@ public class DigestAuthenticationFilterTests {
 		MockHttpServletResponse response = executeFilterInContainerSimulator(filter,
 				request, false);
 
-		assertNull(SecurityContextHolder.getContext().getAuthentication());
-		assertEquals(401, response.getStatus());
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+		assertThat(response.getStatus()).isEqualTo(401);
 	}
 
 	@Test
@@ -272,8 +272,8 @@ public class DigestAuthenticationFilterTests {
 		MockHttpServletResponse response = executeFilterInContainerSimulator(filter,
 				request, false);
 
-		assertNull(SecurityContextHolder.getContext().getAuthentication());
-		assertEquals(401, response.getStatus());
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+		assertThat(response.getStatus()).isEqualTo(401);
 	}
 
 	@Test
@@ -292,8 +292,8 @@ public class DigestAuthenticationFilterTests {
 		MockHttpServletResponse response = executeFilterInContainerSimulator(filter,
 				request, false);
 
-		assertNull(SecurityContextHolder.getContext().getAuthentication());
-		assertEquals(401, response.getStatus());
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+		assertThat(response.getStatus()).isEqualTo(401);
 	}
 
 	@Test
@@ -310,8 +310,8 @@ public class DigestAuthenticationFilterTests {
 
 		executeFilterInContainerSimulator(filter, request, true);
 
-		assertNotNull(SecurityContextHolder.getContext().getAuthentication());
-		assertEquals(USERNAME, ((UserDetails) SecurityContextHolder.getContext()
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
+		assertThat(((UserDetails) SecurityContextHolder.getContext().isEqualTo(USERNAME)
 				.getAuthentication().getPrincipal()).getUsername());
 	}
 
@@ -327,10 +327,10 @@ public class DigestAuthenticationFilterTests {
 
 		executeFilterInContainerSimulator(filter, request, true);
 
-		assertNotNull(SecurityContextHolder.getContext().getAuthentication());
-		assertEquals(USERNAME, ((UserDetails) SecurityContextHolder.getContext()
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
+		assertThat(((UserDetails) SecurityContextHolder.getContext().isEqualTo(USERNAME)
 				.getAuthentication().getPrincipal()).getUsername());
-		assertFalse(SecurityContextHolder.getContext().getAuthentication()
+		assertThat(SecurityContextHolder.getContext().getAuthentication().isFalse()
 				.isAuthenticated());
 	}
 
@@ -348,12 +348,12 @@ public class DigestAuthenticationFilterTests {
 		filter.setCreateAuthenticatedToken(true);
 		executeFilterInContainerSimulator(filter, request, true);
 
-		assertNotNull(SecurityContextHolder.getContext().getAuthentication());
-		assertEquals(USERNAME, ((UserDetails) SecurityContextHolder.getContext()
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
+		assertThat(((UserDetails) SecurityContextHolder.getContext().isEqualTo(USERNAME)
 				.getAuthentication().getPrincipal()).getUsername());
-		assertTrue(SecurityContextHolder.getContext().getAuthentication()
+		assertThat(SecurityContextHolder.getContext().getAuthentication().isTrue()
 				.isAuthenticated());
-		assertEquals(AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"),
+		assertThat("ROLE_TWO").isEqualTo(AuthorityUtils.createAuthorityList("ROLE_ONE"),
 				SecurityContextHolder.getContext().getAuthentication().getAuthorities());
 	}
 
@@ -363,7 +363,7 @@ public class DigestAuthenticationFilterTests {
 
 		executeFilterInContainerSimulator(filter, request, true);
 
-		assertNull(SecurityContextHolder.getContext().getAuthentication());
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -393,7 +393,7 @@ public class DigestAuthenticationFilterTests {
 
 		executeFilterInContainerSimulator(filter, request, true);
 
-		assertNotNull(SecurityContextHolder.getContext().getAuthentication());
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
 
 		// Now retry, giving an invalid nonce
 		responseDigest = DigestAuthUtils.generateDigest(false, USERNAME, REALM,
@@ -409,8 +409,8 @@ public class DigestAuthenticationFilterTests {
 				request, false);
 
 		// Check we lost our previous authentication
-		assertNull(SecurityContextHolder.getContext().getAuthentication());
-		assertEquals(401, response.getStatus());
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+		assertThat(response.getStatus()).isEqualTo(401);
 	}
 
 	@Test
@@ -428,8 +428,8 @@ public class DigestAuthenticationFilterTests {
 		MockHttpServletResponse response = executeFilterInContainerSimulator(filter,
 				request, false);
 
-		assertNull(SecurityContextHolder.getContext().getAuthentication());
-		assertEquals(401, response.getStatus());
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+		assertThat(response.getStatus()).isEqualTo(401);
 	}
 
 	@Test
@@ -446,8 +446,8 @@ public class DigestAuthenticationFilterTests {
 		MockHttpServletResponse response = executeFilterInContainerSimulator(filter,
 				request, false);
 
-		assertNull(SecurityContextHolder.getContext().getAuthentication());
-		assertEquals(401, response.getStatus());
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+		assertThat(response.getStatus()).isEqualTo(401);
 	}
 
 	@Test
@@ -464,8 +464,8 @@ public class DigestAuthenticationFilterTests {
 		MockHttpServletResponse response = executeFilterInContainerSimulator(filter,
 				request, false);
 
-		assertNull(SecurityContextHolder.getContext().getAuthentication());
-		assertEquals(401, response.getStatus());
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+		assertThat(response.getStatus()).isEqualTo(401);
 	}
 
 	@Test
@@ -481,8 +481,8 @@ public class DigestAuthenticationFilterTests {
 		MockHttpServletResponse response = executeFilterInContainerSimulator(filter,
 				request, false);
 
-		assertNull(SecurityContextHolder.getContext().getAuthentication());
-		assertEquals(401, response.getStatus());
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+		assertThat(response.getStatus()).isEqualTo(401);
 	}
 
 	// SEC-3108

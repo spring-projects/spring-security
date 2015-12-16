@@ -1,6 +1,6 @@
 package org.springframework.security.web.authentication.rememberme;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -81,12 +81,12 @@ public class PersistentTokenBasedRememberMeServicesTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		services.processAutoLoginCookie(new String[] { "series", "token" },
 				new MockHttpServletRequest(), response);
-		assertEquals("series", repo.getStoredToken().getSeries());
-		assertEquals(16, repo.getStoredToken().getTokenValue().length());
+		assertThat(repo.getStoredToken().getSeries()).isEqualTo("series");
+		assertThat(repo.getStoredToken().getTokenValue().length()).isEqualTo(16);
 		String[] cookie = services.decodeCookie(response.getCookie("mycookiename")
 				.getValue());
-		assertEquals("series", cookie[0]);
-		assertEquals(repo.getStoredToken().getTokenValue(), cookie[1]);
+		assertThat(cookie[0]).isEqualTo("series");
+		assertThat(cookie[1]).isEqualTo(repo.getStoredToken().getTokenValue());
 	}
 
 	@Test
@@ -98,14 +98,14 @@ public class PersistentTokenBasedRememberMeServicesTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		services.loginSuccess(new MockHttpServletRequest(), response,
 				new UsernamePasswordAuthenticationToken("joe", "password"));
-		assertEquals(16, repo.getStoredToken().getSeries().length());
-		assertEquals(16, repo.getStoredToken().getTokenValue().length());
+		assertThat(repo.getStoredToken().getSeries().length()).isEqualTo(16);
+		assertThat(repo.getStoredToken().getTokenValue().length()).isEqualTo(16);
 
 		String[] cookie = services.decodeCookie(response.getCookie("mycookiename")
 				.getValue());
 
-		assertEquals(repo.getStoredToken().getSeries(), cookie[0]);
-		assertEquals(repo.getStoredToken().getTokenValue(), cookie[1]);
+		assertThat(cookie[0]).isEqualTo(repo.getStoredToken().getSeries());
+		assertThat(cookie[1]).isEqualTo(repo.getStoredToken().getTokenValue());
 	}
 
 	@Test
@@ -119,8 +119,8 @@ public class PersistentTokenBasedRememberMeServicesTests {
 		services.logout(request, response, new TestingAuthenticationToken("joe",
 				"somepass", "SOME_AUTH"));
 		Cookie returnedCookie = response.getCookie("mycookiename");
-		assertNotNull(returnedCookie);
-		assertEquals(0, returnedCookie.getMaxAge());
+		assertThat(returnedCookie).isNotNull();
+		assertThat(returnedCookie.getMaxAge()).isEqualTo(0);
 
 		// SEC-1280
 		services.logout(request, response, null);

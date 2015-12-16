@@ -1,6 +1,6 @@
 package org.springframework.security.web.firewall;
 
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.fail;
 
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;

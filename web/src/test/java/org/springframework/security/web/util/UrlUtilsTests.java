@@ -1,6 +1,6 @@
 package org.springframework.security.web.util;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Test;
 
@@ -12,12 +12,12 @@ public class UrlUtilsTests {
 
 	@Test
 	public void absoluteUrlsAreMatchedAsAbsolute() throws Exception {
-		assertTrue(UrlUtils.isAbsoluteUrl("http://something/"));
-		assertTrue(UrlUtils.isAbsoluteUrl("http1://something/"));
-		assertTrue(UrlUtils.isAbsoluteUrl("HTTP://something/"));
-		assertTrue(UrlUtils.isAbsoluteUrl("https://something/"));
-		assertTrue(UrlUtils.isAbsoluteUrl("a://something/"));
-		assertTrue(UrlUtils.isAbsoluteUrl("zz+zz.zz-zz://something/"));
+		assertThat(UrlUtils.isAbsoluteUrl("http://something/")).isTrue();
+		assertThat(UrlUtils.isAbsoluteUrl("http1://something/")).isTrue();
+		assertThat(UrlUtils.isAbsoluteUrl("HTTP://something/")).isTrue();
+		assertThat(UrlUtils.isAbsoluteUrl("https://something/")).isTrue();
+		assertThat(UrlUtils.isAbsoluteUrl("a://something/")).isTrue();
+		assertThat(UrlUtils.isAbsoluteUrl("zz+zz.zz-zz://something/")).isTrue();
 	}
 
 }

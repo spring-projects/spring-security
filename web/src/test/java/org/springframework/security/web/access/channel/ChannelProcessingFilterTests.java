@@ -15,7 +15,7 @@
 
 package org.springframework.security.web.access.channel;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
@@ -150,13 +150,13 @@ public class ChannelProcessingFilterTests {
 	public void testGetterSetters() throws Exception {
 		ChannelProcessingFilter filter = new ChannelProcessingFilter();
 		filter.setChannelDecisionManager(new MockChannelDecisionManager(false, "MOCK"));
-		assertTrue(filter.getChannelDecisionManager() != null);
+		assertThat(filter.getChannelDecisionManager() != null).isTrue();
 
 		MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap(
 				"/path", false, "MOCK");
 
 		filter.setSecurityMetadataSource(fids);
-		assertSame(fids, filter.getSecurityMetadataSource());
+		assertThat(filter.getSecurityMetadataSource()).isSameAs(fids);
 
 		filter.afterPropertiesSet();
 	}

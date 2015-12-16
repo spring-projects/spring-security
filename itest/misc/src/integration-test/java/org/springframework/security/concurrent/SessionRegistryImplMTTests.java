@@ -69,7 +69,7 @@ public class SessionRegistryImplMTTests extends TestCase {
 			pause(250);
 		}
 
-		assertFalse("Thread errors detected; review log output for details", errorOccurred);
+		assertThat(errorOccurred).as("Thread errors detected; review log output for details").isFalse();
 	}
 
 	public void testConcurrentRemovalIsSafe() {

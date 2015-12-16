@@ -38,9 +38,9 @@ public class ShaPasswordEncoderTests extends TestCase {
 		String badRaw = "abc321";
 		String salt = "THIS_IS_A_SALT";
 		String encoded = pe.encodePassword(raw, salt);
-		assertTrue(pe.isPasswordValid(encoded, raw, salt));
-		assertFalse(pe.isPasswordValid(encoded, badRaw, salt));
-		assertEquals("b2f50ffcbd3407fe9415c062d55f54731f340d32", encoded);
+		assertThat(pe.isPasswordValid(encoded, raw, salt)).isTrue();
+		assertThat(pe.isPasswordValid(encoded, badRaw, salt)).isFalse();
+		assertThat(encoded).isEqualTo("b2f50ffcbd3407fe9415c062d55f54731f340d32");
 
 	}
 
@@ -51,9 +51,9 @@ public class ShaPasswordEncoderTests extends TestCase {
 		String badRaw = "abc321";
 		String salt = "THIS_IS_A_SALT";
 		String encoded = pe.encodePassword(raw, salt);
-		assertTrue(pe.isPasswordValid(encoded, raw, salt));
-		assertFalse(pe.isPasswordValid(encoded, badRaw, salt));
-		assertTrue(encoded.length() != 40);
+		assertThat(pe.isPasswordValid(encoded, raw, salt)).isTrue();
+		assertThat(pe.isPasswordValid(encoded, badRaw, salt)).isFalse();
+		assertThat(encoded.length() != 40).isTrue();
 	}
 
 	public void test256() throws Exception {

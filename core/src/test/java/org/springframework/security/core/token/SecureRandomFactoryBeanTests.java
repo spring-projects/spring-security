@@ -19,22 +19,22 @@ public class SecureRandomFactoryBeanTests {
 	@Test
 	public void testObjectType() {
 		SecureRandomFactoryBean factory = new SecureRandomFactoryBean();
-		Assert.assertEquals(SecureRandom.class, factory.getObjectType());
+		Assert.assertThat(factory.getObjectType()).isEqualTo(SecureRandom.class);
 	}
 
 	@Test
 	public void testIsSingleton() {
 		SecureRandomFactoryBean factory = new SecureRandomFactoryBean();
-		Assert.assertFalse(factory.isSingleton());
+		Assert.assertThat(factory.isSingleton()).isFalse();
 	}
 
 	@Test
 	public void testCreatesUsingDefaults() throws Exception {
 		SecureRandomFactoryBean factory = new SecureRandomFactoryBean();
 		Object result = factory.getObject();
-		Assert.assertTrue(result instanceof SecureRandom);
+		Assert.assertThat(result instanceof SecureRandom).isTrue();
 		int rnd = ((SecureRandom) result).nextInt();
-		Assert.assertTrue(rnd != 0);
+		Assert.assertThat(rnd != 0).isTrue();
 	}
 
 	@Test
@@ -42,12 +42,12 @@ public class SecureRandomFactoryBeanTests {
 		SecureRandomFactoryBean factory = new SecureRandomFactoryBean();
 		Resource resource = new ClassPathResource(
 				"org/springframework/security/core/token/SecureRandomFactoryBeanTests.class");
-		Assert.assertNotNull(resource);
+		Assert.assertThat(resource).isNotNull();
 		factory.setSeed(resource);
 		Object result = factory.getObject();
-		Assert.assertTrue(result instanceof SecureRandom);
+		Assert.assertThat(result instanceof SecureRandom).isTrue();
 		int rnd = ((SecureRandom) result).nextInt();
-		Assert.assertTrue(rnd != 0);
+		Assert.assertThat(rnd != 0).isTrue();
 	}
 
 }

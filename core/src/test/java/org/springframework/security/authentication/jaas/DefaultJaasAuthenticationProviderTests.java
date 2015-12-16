@@ -15,8 +15,8 @@
  */
 package org.springframework.security.authentication.jaas;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
@@ -101,10 +101,10 @@ public class DefaultJaasAuthenticationProviderTests {
 	@Test
 	public void authenticateSuccess() throws Exception {
 		Authentication auth = provider.authenticate(token);
-		assertEquals(token.getPrincipal(), auth.getPrincipal());
-		assertEquals(token.getCredentials(), auth.getCredentials());
-		assertEquals(true, auth.isAuthenticated());
-		assertEquals(false, auth.getAuthorities().isEmpty());
+		assertThat(auth.getPrincipal()).isEqualTo(token.getPrincipal());
+		assertThat(auth.getCredentials()).isEqualTo(token.getCredentials());
+		assertThat(auth.isAuthenticated()).isEqualTo(true);
+		assertThat(auth.getAuthorities().isEmpty()).isEqualTo(false);
 		verify(publisher).publishEvent(isA(JaasAuthenticationSuccessEvent.class));
 		verifyNoMoreInteractions(publisher);
 	}
@@ -254,8 +254,8 @@ public class DefaultJaasAuthenticationProviderTests {
 		try {
 			provider = context.getBean(DefaultJaasAuthenticationProvider.class);
 			Authentication auth = provider.authenticate(token);
-			assertEquals(true, auth.isAuthenticated());
-			assertEquals(token.getPrincipal(), auth.getPrincipal());
+			assertThat(auth.isAuthenticated()).isEqualTo(true);
+			assertThat(auth.getPrincipal()).isEqualTo(token.getPrincipal());
 		}
 		finally {
 			context.close();

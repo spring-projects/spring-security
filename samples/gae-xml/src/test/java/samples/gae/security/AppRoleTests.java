@@ -1,6 +1,6 @@
 package samples.gae.security;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static samples.gae.security.AppRole.*;
 
 import org.junit.Test;
@@ -15,15 +15,15 @@ public class AppRoleTests {
 	public void getAuthorityReturnsRoleName() {
 		GrantedAuthority admin = ADMIN;
 
-		assertEquals("ROLE_ADMIN", admin.getAuthority());
+		assertThat(admin.getAuthority()).isEqualTo("ROLE_ADMIN");
 	}
 
 	@Test
 	public void bitsAreCorrect() throws Exception {
 		// If this fails, someone has modified the Enum and the Datastore is probably
 		// corrupt!
-		assertEquals(0, ADMIN.getBit());
-		assertEquals(1, NEW_USER.getBit());
-		assertEquals(2, USER.getBit());
+		assertThat(ADMIN.getBit()).isEqualTo(0);
+		assertThat(NEW_USER.getBit()).isEqualTo(1);
+		assertThat(USER.getBit()).isEqualTo(2);
 	}
 }

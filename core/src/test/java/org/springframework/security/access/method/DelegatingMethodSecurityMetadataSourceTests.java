@@ -1,6 +1,6 @@
 package org.springframework.security.access.method;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import org.aopalliance.intercept.MethodInvocation;
@@ -27,13 +27,13 @@ public class DelegatingMethodSecurityMetadataSourceTests {
 				.thenReturn(null);
 		sources.add(delegate);
 		mds = new DelegatingMethodSecurityMetadataSource(sources);
-		assertSame(sources, mds.getMethodSecurityMetadataSources());
-		assertTrue(mds.getAllConfigAttributes().isEmpty());
+		assertThat(mds.getMethodSecurityMetadataSources()).isSameAs(sources);
+		assertThat(mds.getAllConfigAttributes().isEmpty()).isTrue();
 		MethodInvocation mi = new SimpleMethodInvocation(null,
 				String.class.getMethod("toString"));
-		assertEquals(Collections.emptyList(), mds.getAttributes(mi));
+		assertThat(mds.getAttributes(mi)).isEqualTo(Collections.emptyList());
 		// Exercise the cached case
-		assertEquals(Collections.emptyList(), mds.getAttributes(mi));
+		assertThat(mds.getAttributes(mi)).isEqualTo(Collections.emptyList());
 	}
 
 	@Test
@@ -46,15 +46,14 @@ public class DelegatingMethodSecurityMetadataSourceTests {
 		when(delegate.getAttributes(toString, String.class)).thenReturn(attributes);
 		sources.add(delegate);
 		mds = new DelegatingMethodSecurityMetadataSource(sources);
-		assertSame(sources, mds.getMethodSecurityMetadataSources());
-		assertTrue(mds.getAllConfigAttributes().isEmpty());
+		assertThat(mds.getMethodSecurityMetadataSources()).isSameAs(sources);
+		assertThat(mds.getAllConfigAttributes().isEmpty()).isTrue();
 		MethodInvocation mi = new SimpleMethodInvocation("", toString);
-		assertSame(attributes, mds.getAttributes(mi));
+		assertThat(mds.getAttributes(mi)).isSameAs(attributes);
 		// Exercise the cached case
-		assertSame(attributes, mds.getAttributes(mi));
-		assertTrue(mds.getAttributes(
-				new SimpleMethodInvocation(null, String.class.getMethod("length")))
-				.isEmpty());
+		assertThat(mds.getAttributes(mi)).isSameAs(attributes);
+		assertThat(mds.getAttributes(
+				new SimpleMethodInvocation(null, String.class.getMethod("length")))).isEmpty();;
 	}
 
 }

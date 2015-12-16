@@ -15,7 +15,7 @@
  */
 package org.springframework.security.web.servlet.support.csrf;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;

@@ -30,9 +30,9 @@ public class NullRememberMeServicesTests extends TestCase {
 
 	public void testAlwaysReturnsNull() {
 		NullRememberMeServices services = new NullRememberMeServices();
-		assertNull(services.autoLogin(null, null));
+		assertThat(services.autoLogin(null, null)).isNull();
 		services.loginFail(null, null);
 		services.loginSuccess(null, null, null);
-		assertTrue(true);
+
 	}
 }

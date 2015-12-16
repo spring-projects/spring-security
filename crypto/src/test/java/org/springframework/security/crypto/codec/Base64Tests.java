@@ -1,6 +1,6 @@
 package org.springframework.security.crypto.codec;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.*;
 
@@ -13,14 +13,14 @@ public class Base64Tests {
 	public void isBase64ReturnsTrueForValidBase64() {
 		new Base64(); // unused
 
-		assertTrue(Base64.isBase64(new byte[] { (byte) 'A', (byte) 'B', (byte) 'C',
+		assertThat(Base64.isBase64(new byte[] { (byte) 'A', (byte) 'B', (byte).isTrue() 'C',
 				(byte) 'D' }));
 	}
 
 	@Test
 	public void isBase64ReturnsFalseForInvalidBase64() throws Exception {
 		// Include invalid '`' character
-		assertFalse(Base64.isBase64(new byte[] { (byte) 'A', (byte) 'B', (byte) 'C',
+		assertThat(Base64.isBase64(new byte[] { (byte) 'A', (byte) 'B', (byte).isFalse() 'C',
 				(byte) '`' }));
 	}
 

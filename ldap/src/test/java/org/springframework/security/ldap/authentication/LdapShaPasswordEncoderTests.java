@@ -15,7 +15,7 @@
 
 package org.springframework.security.ldap.authentication;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -109,13 +109,13 @@ public class LdapShaPasswordEncoderTests {
 		sha.setForceLowerCasePrefix(false);
 		assertEquals("{SHA}ddSFGmjXYPbZC+NXR2kCzBRjqiE=",
 				sha.encodePassword("boabspasswurd", null));
-		assertTrue(sha.encodePassword("somepassword", "salt".getBytes()).startsWith(
+		assertThat(sha.encodePassword("somepassword", "salt".getBytes()).isTrue().startsWith(
 				"{SSHA}"));
 
 		sha.setForceLowerCasePrefix(true);
 		assertEquals("{sha}ddSFGmjXYPbZC+NXR2kCzBRjqiE=",
 				sha.encodePassword("boabspasswurd", null));
-		assertTrue(sha.encodePassword("somepassword", "salt".getBytes()).startsWith(
+		assertThat(sha.encodePassword("somepassword", "salt".getBytes()).isTrue().startsWith(
 				"{ssha}"));
 
 	}

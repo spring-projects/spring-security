@@ -15,7 +15,7 @@
  */
 package org.springframework.security.web.authentication.rememberme;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
@@ -90,10 +90,10 @@ public class JdbcTokenRepositoryImplTests {
 		Map<String, Object> results = template
 				.queryForMap("select * from persistent_logins");
 
-		assertEquals(currentDate, results.get("last_used"));
-		assertEquals("joeuser", results.get("username"));
-		assertEquals("joesseries", results.get("series"));
-		assertEquals("atoken", results.get("token"));
+		assertThat(results.get("last_used")).isEqualTo(currentDate);
+		assertThat(results.get("username")).isEqualTo("joeuser");
+		assertThat(results.get("series")).isEqualTo("joesseries");
+		assertThat(results.get("token")).isEqualTo("atoken");
 	}
 
 	@Test
@@ -103,10 +103,10 @@ public class JdbcTokenRepositoryImplTests {
 				+ "('joesseries', 'joeuser', 'atoken', '2007-10-09 18:19:25.000000000')");
 		PersistentRememberMeToken token = repo.getTokenForSeries("joesseries");
 
-		assertEquals("joeuser", token.getUsername());
-		assertEquals("joesseries", token.getSeries());
-		assertEquals("atoken", token.getTokenValue());
-		assertEquals(Timestamp.valueOf("2007-10-09 18:19:25.000000000"), token.getDate());
+		assertThat(token.getUsername()).isEqualTo("joeuser");
+		assertThat(token.getSeries()).isEqualTo("joesseries");
+		assertThat(token.getTokenValue()).isEqualTo("atoken");
+		assertThat(token.getDate()).isEqualTo(Timestamp.valueOf("2007-10-09 18:19:25.000000000"));
 	}
 
 	@Test
@@ -119,7 +119,7 @@ public class JdbcTokenRepositoryImplTests {
 		// List results =
 		// template.queryForList("select * from persistent_logins where series = 'joesseries'");
 
-		assertNull(repo.getTokenForSeries("joesseries"));
+		assertThat(repo.getTokenForSeries("joesseries")).isNull();
 	}
 
 	// SEC-1964
@@ -127,7 +127,7 @@ public class JdbcTokenRepositoryImplTests {
 	public void retrievingTokenWithNoSeriesReturnsNull() {
 		when(logger.isDebugEnabled()).thenReturn(true);
 
-		assertNull(repo.getTokenForSeries("missingSeries"));
+		assertThat(repo.getTokenForSeries("missingSeries")).isNull();
 
 		verify(logger).isDebugEnabled();
 		verify(logger).debug(
@@ -151,7 +151,7 @@ public class JdbcTokenRepositoryImplTests {
 		List<Map<String, Object>> results = template
 				.queryForList("select * from persistent_logins where username = 'joeuser'");
 
-		assertEquals(0, results.size());
+		assertThat(results).isEmpty();
 	}
 
 	@Test
@@ -164,11 +164,11 @@ public class JdbcTokenRepositoryImplTests {
 		Map<String, Object> results = template
 				.queryForMap("select * from persistent_logins where series = 'joesseries'");
 
-		assertEquals("joeuser", results.get("username"));
-		assertEquals("joesseries", results.get("series"));
-		assertEquals("newtoken", results.get("token"));
+		assertThat(results.get("username")).isEqualTo("joeuser");
+		assertThat(results.get("series")).isEqualTo("joesseries");
+		assertThat(results.get("token")).isEqualTo("newtoken");
 		Date lastUsed = (Date) results.get("last_used");
-		assertTrue(lastUsed.getTime() > ts.getTime());
+		assertThat(lastUsed.getTime() > ts.getTime()).isTrue();
 	}
 
 	@Test

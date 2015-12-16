@@ -15,7 +15,7 @@
 
 package org.springframework.security.ldap;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.List;
 import java.util.Map;
@@ -51,7 +51,7 @@ public class SpringSecurityLdapTemplateITests extends AbstractLdapIntegrationTes
 
 	@Test
 	public void compareOfCorrectValueSucceeds() {
-		assertTrue(template.compare("uid=bob,ou=people", "uid", "bob"));
+		assertThat(template.compare("uid=bob,ou=people", "uid", "bob")).isTrue();
 	}
 
 	@Test
@@ -68,17 +68,17 @@ public class SpringSecurityLdapTemplateITests extends AbstractLdapIntegrationTes
 
 	@Test
 	public void compareOfWrongValueFails() {
-		assertFalse(template.compare("uid=bob,ou=people", "uid", "wrongvalue"));
+		assertThat(template.compare("uid=bob,ou=people", "uid", "wrongvalue")).isFalse();
 	}
 
 	// @Test
 	// public void testNameExistsForInValidNameFails() {
-	// assertFalse(template.nameExists("ou=doesntexist,dc=springframework,dc=org"));
+	// assertThat(template.nameExists("ou=doesntexist,dc=springframework,dc=org")).isFalse();
 	// }
 	//
 	// @Test
 	// public void testNameExistsForValidNameSucceeds() {
-	// assertTrue(template.nameExists("ou=groups,dc=springframework,dc=org"));
+	// assertThat(template.nameExists("ou=groups,dc=springframework,dc=org")).isTrue();
 	// }
 
 	@Test
@@ -103,10 +103,10 @@ public class SpringSecurityLdapTemplateITests extends AbstractLdapIntegrationTes
 		Set<String> values = template.searchForSingleAttributeValues("ou=groups",
 				"(member={0})", new String[] { param }, "ou");
 
-		assertEquals("Expected 3 results from search", 3, values.size());
-		assertTrue(values.contains("developer"));
-		assertTrue(values.contains("manager"));
-		assertTrue(values.contains("submanager"));
+		assertThat(values).as("Expected 3 results from search").hasSize(3);
+		assertThat(values.contains("developer")).isTrue();
+		assertThat(values.contains("manager")).isTrue();
+		assertThat(values.contains("submanager")).isTrue();
 	}
 
 	@Test
@@ -114,14 +114,14 @@ public class SpringSecurityLdapTemplateITests extends AbstractLdapIntegrationTes
 		Set<Map<String, List<String>>> values = template
 				.searchForMultipleAttributeValues("ou=people", "(uid={0})",
 						new String[] { "bob" }, null);
-		assertEquals(1, values.size());
+		assertThat(values).hasSize(1);
 		Map<String, List<String>> record = values.iterator().next();
 		assertAttributeValue(record, "uid", "bob");
 		assertAttributeValue(record, "objectclass", "top", "person",
 				"organizationalPerson", "inetOrgPerson");
 		assertAttributeValue(record, "cn", "Bob Hamilton");
 		assertAttributeValue(record, "sn", "Hamilton");
-		assertFalse(record.containsKey("userPassword"));
+		assertThat(record.containsKey("userPassword")).isFalse();
 	}
 
 	@Test
@@ -129,14 +129,14 @@ public class SpringSecurityLdapTemplateITests extends AbstractLdapIntegrationTes
 		Set<Map<String, List<String>>> values = template
 				.searchForMultipleAttributeValues("ou=people", "(uid={0})",
 						new String[] { "bob" }, new String[0]);
-		assertEquals(1, values.size());
+		assertThat(values).hasSize(1);
 		Map<String, List<String>> record = values.iterator().next();
 		assertAttributeValue(record, "uid", "bob");
 		assertAttributeValue(record, "objectclass", "top", "person",
 				"organizationalPerson", "inetOrgPerson");
 		assertAttributeValue(record, "cn", "Bob Hamilton");
 		assertAttributeValue(record, "sn", "Hamilton");
-		assertFalse(record.containsKey("userPassword"));
+		assertThat(record.containsKey("userPassword")).isFalse();
 	}
 
 	@Test
@@ -144,21 +144,21 @@ public class SpringSecurityLdapTemplateITests extends AbstractLdapIntegrationTes
 		Set<Map<String, List<String>>> values = template
 				.searchForMultipleAttributeValues("ou=people", "(uid={0})",
 						new String[] { "bob" }, new String[] { "uid", "cn", "sn" });
-		assertEquals(1, values.size());
+		assertThat(values).hasSize(1);
 		Map<String, List<String>> record = values.iterator().next();
 		assertAttributeValue(record, "uid", "bob");
 		assertAttributeValue(record, "cn", "Bob Hamilton");
 		assertAttributeValue(record, "sn", "Hamilton");
-		assertFalse(record.containsKey("userPassword"));
-		assertFalse(record.containsKey("objectclass"));
+		assertThat(record.containsKey("userPassword")).isFalse();
+		assertThat(record.containsKey("objectclass")).isFalse();
 	}
 
 	protected void assertAttributeValue(Map<String, List<String>> record,
 			String attributeName, String... values) {
-		assertTrue(record.containsKey(attributeName));
-		assertEquals(values.length, record.get(attributeName).size());
+		assertThat(record.containsKey(attributeName)).isTrue();
+		assertThat(record.get(attributeName).size()).isEqualTo(values.length);
 		for (int i = 0; i < values.length; i++) {
-			assertEquals(values[i], record.get(attributeName).get(i));
+			assertThat(record.get(attributeName).get(i)).isEqualTo(values[i]);
 		}
 	}
 
@@ -169,7 +169,7 @@ public class SpringSecurityLdapTemplateITests extends AbstractLdapIntegrationTes
 		Set<String> values = template.searchForSingleAttributeValues("ou=groups",
 				"(member={0})", new String[] { param }, "mail");
 
-		assertEquals(0, values.size());
+		assertThat(values).isEmpty();
 	}
 
 	@Test
@@ -179,7 +179,7 @@ public class SpringSecurityLdapTemplateITests extends AbstractLdapIntegrationTes
 		Set<String> values = template.searchForSingleAttributeValues("ou=groups",
 				"(member={0})", new String[] { param }, "cn");
 
-		assertEquals(1, values.size());
+		assertThat(values).hasSize(1);
 	}
 
 	@Test
@@ -202,7 +202,7 @@ public class SpringSecurityLdapTemplateITests extends AbstractLdapIntegrationTes
 				"ou=groups,dc=springframework,dc=org", "(member={0})",
 				new String[] { param }, controls);
 
-		assertTrue("Expected a result", results.hasMore());
+		assertThat(results.hasMore()).as("Expected a result").isTrue();
 	}
 
 	@Test

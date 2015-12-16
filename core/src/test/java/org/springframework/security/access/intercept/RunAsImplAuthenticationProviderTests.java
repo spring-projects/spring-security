@@ -15,7 +15,7 @@
 
 package org.springframework.security.access.intercept;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.*;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -54,7 +54,7 @@ public class RunAsImplAuthenticationProviderTests {
 				result instanceof RunAsUserToken);
 
 		RunAsUserToken resultCast = (RunAsUserToken) result;
-		assertEquals("my_password".hashCode(), resultCast.getKeyHash());
+		assertThat(resultCast.getKeyHash()).isEqualTo("my_password".hashCode());
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -68,14 +68,14 @@ public class RunAsImplAuthenticationProviderTests {
 	public void testStartupSuccess() throws Exception {
 		RunAsImplAuthenticationProvider provider = new RunAsImplAuthenticationProvider();
 		provider.setKey("hello_world");
-		assertEquals("hello_world", provider.getKey());
+		assertThat(provider.getKey()).isEqualTo("hello_world");
 		provider.afterPropertiesSet();
 	}
 
 	@Test
 	public void testSupports() {
 		RunAsImplAuthenticationProvider provider = new RunAsImplAuthenticationProvider();
-		assertTrue(provider.supports(RunAsUserToken.class));
-		assertTrue(!provider.supports(TestingAuthenticationToken.class));
+		assertThat(provider.supports(RunAsUserToken.class)).isTrue();
+		assertThat(!provider.supports(TestingAuthenticationToken.class)).isTrue();
 	}
 }
