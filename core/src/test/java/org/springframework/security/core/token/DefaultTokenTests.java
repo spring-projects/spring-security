@@ -2,7 +2,7 @@ package org.springframework.security.core.token;
 
 import java.util.Date;
 
-import junit.framework.Assert;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Test;
 import org.springframework.security.core.token.DefaultToken;
@@ -22,7 +22,7 @@ public class DefaultTokenTests {
 
 		DefaultToken t1 = new DefaultToken(key, created, extendedInformation);
 		DefaultToken t2 = new DefaultToken(key, created, extendedInformation);
-		Assert.assertThat(t2).isEqualTo(t1);
+		assertThat(t2).isEqualTo(t1);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -39,6 +39,6 @@ public class DefaultTokenTests {
 
 		DefaultToken t1 = new DefaultToken(key, created, "length1");
 		DefaultToken t2 = new DefaultToken(key, created, "longerLength2");
-		Assert.assertThat(t1.equals(t2)).isFalse();
+		assertThat(t1).isNotEqualTo(t2);
 	}
 }

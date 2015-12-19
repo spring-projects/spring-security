@@ -15,6 +15,8 @@
 
 package org.springframework.security.core.context;
 
+import static org.assertj.core.api.Assertions.*;
+
 import junit.framework.TestCase;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

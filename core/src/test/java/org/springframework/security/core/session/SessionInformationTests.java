@@ -15,6 +15,8 @@
 
 package org.springframework.security.core.session;
 
+import static org.assertj.core.api.Assertions.*;
+
 import junit.framework.TestCase;
 
 import java.util.Date;

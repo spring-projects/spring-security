@@ -1,7 +1,8 @@
 package org.springframework.security.core.userdetails;
 
-import junit.framework.TestCase;
+import static org.assertj.core.api.Assertions.*;
 
+import org.junit.Test;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
 
@@ -11,8 +12,9 @@ import org.springframework.security.core.authority.AuthorityUtils;
  * @since 18-okt-2007
  */
 @SuppressWarnings("unchecked")
-public class UserDetailsByNameServiceWrapperTests extends TestCase {
+public class UserDetailsByNameServiceWrapperTests  {
 
+	@Test
 	public final void testAfterPropertiesSet() {
 		UserDetailsByNameServiceWrapper svc = new UserDetailsByNameServiceWrapper();
 		try {
@@ -26,6 +28,7 @@ public class UserDetailsByNameServiceWrapperTests extends TestCase {
 		}
 	}
 
+	@Test
 	public final void testGetUserDetails() throws Exception {
 		UserDetailsByNameServiceWrapper svc = new UserDetailsByNameServiceWrapper();
 		final User user = new User("dummy", "dummy", true, true, true, true,

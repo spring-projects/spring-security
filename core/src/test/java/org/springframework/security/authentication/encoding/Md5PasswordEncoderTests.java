@@ -74,7 +74,6 @@ public class Md5PasswordEncoderTests {
 		pe.setIterations(2);
 		// Calculate value using:
 		// echo -n password{salt} | openssl md5 -binary | openssl md5
-		assertEquals("eb753fb0c370582b4ee01b30f304b9fc",
-				pe.encodePassword("password", "salt"));
+		assertThat(pe.encodePassword("password", "salt")).isEqualTo("eb753fb0c370582b4ee01b30f304b9fc");
 	}
 }

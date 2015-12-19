@@ -15,7 +15,10 @@
 
 package org.springframework.security.authentication.encoding;
 
-import junit.framework.TestCase;
+import static org.assertj.core.api.Assertions.*;
+
+import org.junit.Test;
+
 
 /**
  * <p>
@@ -24,10 +27,11 @@ import junit.framework.TestCase;
  *
  * @author Ben Alex
  */
-public class BasePasswordEncoderTests extends TestCase {
+public class BasePasswordEncoderTests  {
 	// ~ Methods
 	// ========================================================================================================
 
+	@Test
 	public void testDemergeHandlesEmptyAndNullSalts() {
 		MockPasswordEncoder pwd = new MockPasswordEncoder();
 
@@ -43,7 +47,7 @@ public class BasePasswordEncoderTests extends TestCase {
 		assertThat(demerged[0]).isEqualTo("password");
 		assertThat(demerged[1]).isEqualTo("");
 	}
-
+	@Test
 	public void testDemergeWithEmptyStringIsRejected() {
 		MockPasswordEncoder pwd = new MockPasswordEncoder();
 
@@ -55,7 +59,7 @@ public class BasePasswordEncoderTests extends TestCase {
 			assertThat(expected.getMessage()).isEqualTo("Cannot pass a null or empty String");
 		}
 	}
-
+	@Test
 	public void testDemergeWithNullIsRejected() {
 		MockPasswordEncoder pwd = new MockPasswordEncoder();
 
@@ -67,7 +71,7 @@ public class BasePasswordEncoderTests extends TestCase {
 			assertThat(expected.getMessage()).isEqualTo("Cannot pass a null or empty String");
 		}
 	}
-
+	@Test
 	public void testMergeDemerge() {
 		MockPasswordEncoder pwd = new MockPasswordEncoder();
 
@@ -78,7 +82,7 @@ public class BasePasswordEncoderTests extends TestCase {
 		assertThat(demerged[0]).isEqualTo("password");
 		assertThat(demerged[1]).isEqualTo("foo");
 	}
-
+	@Test
 	public void testMergeDemergeWithDelimitersInPassword() {
 		MockPasswordEncoder pwd = new MockPasswordEncoder();
 
@@ -90,7 +94,7 @@ public class BasePasswordEncoderTests extends TestCase {
 		assertThat(demerged[0]).isEqualTo("p{ass{w{o}rd");
 		assertThat(demerged[1]).isEqualTo("foo");
 	}
-
+	@Test
 	public void testMergeDemergeWithNullAsPassword() {
 		MockPasswordEncoder pwd = new MockPasswordEncoder();
 
@@ -101,7 +105,7 @@ public class BasePasswordEncoderTests extends TestCase {
 		assertThat(demerged[0]).isEqualTo("");
 		assertThat(demerged[1]).isEqualTo("foo");
 	}
-
+	@Test
 	public void testStrictMergeRejectsDelimitersInSalt1() {
 		MockPasswordEncoder pwd = new MockPasswordEncoder();
 
@@ -113,7 +117,7 @@ public class BasePasswordEncoderTests extends TestCase {
 			assertThat(expected.getMessage()).isEqualTo("Cannot use { or } in salt.toString()");
 		}
 	}
-
+	@Test
 	public void testStrictMergeRejectsDelimitersInSalt2() {
 		MockPasswordEncoder pwd = new MockPasswordEncoder();
 
@@ -147,3 +151,4 @@ public class BasePasswordEncoderTests extends TestCase {
 		}
 	}
 }
+

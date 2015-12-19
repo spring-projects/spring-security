@@ -15,7 +15,7 @@
 
 package org.springframework.security.authentication.dao.salt;
 
-import static junit.framework.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Test;
 import org.springframework.security.authentication.AuthenticationServiceException;

@@ -15,6 +15,8 @@
 
 package org.springframework.security.core.userdetails.cache;
 
+import static org.assertj.core.api.Assertions.*;
+
 import junit.framework.TestCase;
 
 import org.springframework.security.core.authority.AuthorityUtils;

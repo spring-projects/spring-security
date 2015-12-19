@@ -193,8 +193,7 @@ public class JdbcUserDetailsManagerTests {
 		// Check password hasn't changed.
 		UserDetails newJoe = manager.loadUserByUsername("joe");
 		assertThat(newJoe.getPassword()).isEqualTo("password");
-		assertThat(SecurityContextHolder.getContext().getAuthentication().isEqualTo("password")
-				.getCredentials());
+		assertThat(SecurityContextHolder.getContext().getAuthentication().getCredentials()).isEqualTo("password");
 		assertThat(cache.getUserMap().containsKey("joe")).isTrue();
 	}
 
@@ -248,37 +247,31 @@ public class JdbcUserDetailsManagerTests {
 	public void renameGroupIsSuccessful() throws Exception {
 		manager.renameGroup("GROUP_0", "GROUP_X");
 
-		assertEquals(
-				0,
-				(int) template.queryForObject("select id from groups where group_name = 'GROUP_X'",
-						Integer.class));
+		assertThat(template.queryForObject("select id from groups where group_name = 'GROUP_X'",
+				Integer.class)).isEqualTo(0);
 	}
 
 	@Test
 	public void addingGroupUserSetsCorrectData() throws Exception {
 		manager.addUserToGroup("tom", "GROUP_0");
 
-		assertEquals(
-				2,
+		assertThat(
 				template.queryForList(
-						"select username from group_members where group_id = 0").size());
+						"select username from group_members where group_id = 0")).hasSize(2);
 	}
 
 	@Test
 	public void removeUserFromGroupDeletesGroupMemberRow() throws Exception {
 		manager.removeUserFromGroup("jerry", "GROUP_1");
 
-		assertEquals(
-				1,
-				template.queryForList(
-						"select group_id from group_members where username = 'jerry'")
-						.size());
+		assertThat(
+								template.queryForList(
+						"select group_id from group_members where username = 'jerry'")).hasSize(1);
 	}
 
 	@Test
 	public void findGroupAuthoritiesReturnsCorrectAuthorities() throws Exception {
-		assertEquals(AuthorityUtils.createAuthorityList("ROLE_A"),
-				manager.findGroupAuthorities("GROUP_0"));
+		assertThat(AuthorityUtils.createAuthorityList("ROLE_A")).isEqualTo(manager.findGroupAuthorities("GROUP_0"));
 	}
 
 	@Test
@@ -295,18 +288,14 @@ public class JdbcUserDetailsManagerTests {
 	public void deleteGroupAuthorityRemovesCorrectRows() throws Exception {
 		GrantedAuthority auth = new SimpleGrantedAuthority("ROLE_A");
 		manager.removeGroupAuthority("GROUP_0", auth);
-		assertEquals(
-				0,
+		assertThat(
 				template.queryForList(
-						"select authority from group_authorities where group_id = 0")
-						.size());
+						"select authority from group_authorities where group_id = 0")).isEmpty();
 
 		manager.removeGroupAuthority("GROUP_2", auth);
-		assertEquals(
-				2,
+		assertThat(
 				template.queryForList(
-						"select authority from group_authorities where group_id = 2")
-						.size());
+						"select authority from group_authorities where group_id = 2")).hasSize(2);
 	}
 
 	// SEC-1156

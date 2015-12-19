@@ -15,8 +15,9 @@
 
 package org.springframework.security.authentication.rememberme;
 
-import junit.framework.TestCase;
+import static org.assertj.core.api.Assertions.*;
 
+import org.junit.Test;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.RememberMeAuthenticationProvider;
 import org.springframework.security.authentication.RememberMeAuthenticationToken;
@@ -29,10 +30,10 @@ import org.springframework.security.core.authority.AuthorityUtils;
  *
  * @author Ben Alex
  */
-public class RememberMeAuthenticationProviderTests extends TestCase {
+public class RememberMeAuthenticationProviderTests {
 	// ~ Methods
 	// ========================================================================================================
-
+	@Test
 	public void testDetectsAnInvalidKey() throws Exception {
 		RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider(
 				"qwerty");
@@ -48,7 +49,8 @@ public class RememberMeAuthenticationProviderTests extends TestCase {
 		catch (BadCredentialsException expected) {
 		}
 	}
-
+	
+	@Test
 	public void testDetectsMissingKey() throws Exception {
 		try {
 			new RememberMeAuthenticationProvider(null);
@@ -58,7 +60,8 @@ public class RememberMeAuthenticationProviderTests extends TestCase {
 
 		}
 	}
-
+	
+	@Test
 	public void testGettersSetters() throws Exception {
 		RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider(
 				"qwerty");
@@ -66,6 +69,7 @@ public class RememberMeAuthenticationProviderTests extends TestCase {
 		assertThat(aap.getKey()).isEqualTo("qwerty");
 	}
 
+	@Test
 	public void testIgnoresClassesItDoesNotSupport() throws Exception {
 		RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider(
 				"qwerty");
@@ -78,6 +82,7 @@ public class RememberMeAuthenticationProviderTests extends TestCase {
 		assertThat(aap.authenticate(token)).isNull();
 	}
 
+	@Test
 	public void testNormalOperation() throws Exception {
 		RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider(
 				"qwerty");
@@ -90,6 +95,7 @@ public class RememberMeAuthenticationProviderTests extends TestCase {
 		assertThat(token).isEqualTo(result);
 	}
 
+	@Test
 	public void testSupports() {
 		RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider(
 				"qwerty");

@@ -15,6 +15,8 @@
 
 package org.springframework.security.authentication.encoding;
 
+import static org.assertj.core.api.Assertions.*;
+
 import org.springframework.security.authentication.encoding.PlaintextPasswordEncoder;
 
 import junit.framework.TestCase;

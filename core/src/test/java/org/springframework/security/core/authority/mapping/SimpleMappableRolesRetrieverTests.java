@@ -1,5 +1,7 @@
 package org.springframework.security.core.authority.mapping;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.util.Set;
 
 import junit.framework.TestCase;
@@ -19,8 +21,7 @@ public class SimpleMappableRolesRetrieverTests extends TestCase {
 		SimpleMappableAttributesRetriever r = new SimpleMappableAttributesRetriever();
 		r.setMappableAttributes(roles);
 		Set<String> result = r.getMappableAttributes();
-		assertTrue("Role collections do not match; result: " + result + ", expected: "
-				+ roles, roles.containsAll(result) && result.containsAll(roles));
+		assertThat(roles.containsAll(result) && result.containsAll(roles)).withFailMessage("Role collections do not match; result: " + result + ", expected: " + roles).isTrue();
 	}
 
 }

@@ -15,13 +15,13 @@
 
 package org.springframework.security.authentication.rcp;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.util.Collection;
 
-import junit.framework.TestCase;
-
+import org.junit.Test;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 
@@ -30,10 +30,11 @@ import org.springframework.security.core.authority.AuthorityUtils;
  *
  * @author Ben Alex
  */
-public class RemoteAuthenticationProviderTests extends TestCase {
+public class RemoteAuthenticationProviderTests {
 	// ~ Methods
 	// ========================================================================================================
 
+	@Test
 	public void testExceptionsGetPassedBackToCaller() {
 		RemoteAuthenticationProvider provider = new RemoteAuthenticationProvider();
 		provider.setRemoteAuthenticationManager(new MockRemoteAuthenticationManager(false));
@@ -47,13 +48,15 @@ public class RemoteAuthenticationProviderTests extends TestCase {
 
 		}
 	}
-
+	
+	@Test
 	public void testGettersSetters() {
 		RemoteAuthenticationProvider provider = new RemoteAuthenticationProvider();
 		provider.setRemoteAuthenticationManager(new MockRemoteAuthenticationManager(true));
 		assertThat(provider.getRemoteAuthenticationManager()).isNotNull();
 	}
 
+	@Test
 	public void testStartupChecksAuthenticationManagerSet() throws Exception {
 		RemoteAuthenticationProvider provider = new RemoteAuthenticationProvider();
 
@@ -70,6 +73,7 @@ public class RemoteAuthenticationProviderTests extends TestCase {
 
 	}
 
+	@Test
 	public void testSuccessfulAuthenticationCreatesObject() {
 		RemoteAuthenticationProvider provider = new RemoteAuthenticationProvider();
 		provider.setRemoteAuthenticationManager(new MockRemoteAuthenticationManager(true));
@@ -78,10 +82,10 @@ public class RemoteAuthenticationProviderTests extends TestCase {
 				.authenticate(new UsernamePasswordAuthenticationToken("rod", "password"));
 		assertThat(result.getPrincipal()).isEqualTo("rod");
 		assertThat(result.getCredentials()).isEqualTo("password");
-		assertThat(AuthorityUtils.authorityListToSet(result.getAuthorities()).isTrue().contains(
-				"foo"));
+		assertThat(AuthorityUtils.authorityListToSet(result.getAuthorities()).contains("foo"));
 	}
 
+	@Test
 	public void testNullCredentialsDoesNotCauseNullPointerException() {
 		RemoteAuthenticationProvider provider = new RemoteAuthenticationProvider();
 		provider.setRemoteAuthenticationManager(new MockRemoteAuthenticationManager(false));
@@ -95,6 +99,7 @@ public class RemoteAuthenticationProviderTests extends TestCase {
 
 	}
 
+	@Test
 	public void testSupports() {
 		RemoteAuthenticationProvider provider = new RemoteAuthenticationProvider();
 		assertThat(provider.supports(UsernamePasswordAuthenticationToken.class)).isTrue();
