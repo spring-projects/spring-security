@@ -15,6 +15,8 @@
 
 package org.springframework.security.remoting.httpinvoker;
 
+import static org.assertj.core.api.Assertions.*;
+
 import junit.framework.TestCase;
 
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -64,8 +66,7 @@ public class AuthenticationSimpleHttpInvokerRequestExecutorTests extends TestCas
 		// Check connection properties
 		// See http://www.faqs.org/rfcs/rfc1945.html section 11.1 for example
 		// we are comparing against
-		assertEquals("Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==",
-				conn.getRequestProperty("Authorization"));
+		assertThat(conn.getRequestProperty("Authorization")).isEqualTo("Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==");
 	}
 
 	public void testNullContextHolderIsNull() throws Exception {
