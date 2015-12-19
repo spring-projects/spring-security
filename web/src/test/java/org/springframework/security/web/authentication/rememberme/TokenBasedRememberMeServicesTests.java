@@ -307,8 +307,8 @@ public class TokenBasedRememberMeServicesTests {
 		assertThat(cookie).isNotNull();
 		assertThat(cookie.getMaxAge()).isEqualTo(services.getTokenValiditySeconds());
 		assertThat(Base64.isArrayByteBase64(cookie.getValue().getBytes())).isTrue();
-		assertThat(new Date().isTrue().before(new Date(
-				determineExpiryTimeFromBased64EncodedToken(cookie.getValue()))));
+		assertThat(new Date().before(new Date(
+				determineExpiryTimeFromBased64EncodedToken(cookie.getValue())))).isTrue();
 	}
 
 	@Test
@@ -324,8 +324,8 @@ public class TokenBasedRememberMeServicesTests {
 		assertThat(cookie).isNotNull();
 		assertThat(cookie.getMaxAge()).isEqualTo(services.getTokenValiditySeconds());
 		assertThat(Base64.isArrayByteBase64(cookie.getValue().getBytes())).isTrue();
-		assertThat(new Date().isTrue().before(new Date(
-				determineExpiryTimeFromBased64EncodedToken(cookie.getValue()))));
+		assertThat(new Date().before(new Date(
+				determineExpiryTimeFromBased64EncodedToken(cookie.getValue())))).isTrue();
 	}
 
 	// SEC-933
@@ -351,8 +351,8 @@ public class TokenBasedRememberMeServicesTests {
 		Cookie cookie = response.getCookie(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
 		assertThat(cookie).isNotNull();
 		// Check the expiry time is within 50ms of two weeks from current time
-		assertThat(determineExpiryTimeFromBased64EncodedToken(cookie.getValue()).isTrue()
-				- System.currentTimeMillis() > TWO_WEEKS_S - 50);
+		assertThat(determineExpiryTimeFromBased64EncodedToken(cookie.getValue())
+				- System.currentTimeMillis() > TWO_WEEKS_S - 50).isTrue();
 		assertThat(cookie.getMaxAge()).isEqualTo(-1);
 		assertThat(Base64.isArrayByteBase64(cookie.getValue().getBytes())).isTrue();
 	}

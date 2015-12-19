@@ -16,11 +16,9 @@
 package org.springframework.security.authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.assertj.core.api.Assertions.fail;
 
 import org.junit.Test;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
 
 /**
@@ -69,8 +67,8 @@ public class UsernamePasswordAuthenticationTokenTests {
 	@Test
 	public void gettersReturnCorrectData() {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				"Test", "Password", AuthorityUtils.createAuthorityList("ROLE_ONE",
-						"ROLE_TWO"));
+				"Test", "Password",
+				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
 		assertThat(token.getPrincipal()).isEqualTo("Test");
 		assertThat(token.getCredentials()).isEqualTo("Password");
 		assertThat(AuthorityUtils.authorityListToSet(token.getAuthorities()).contains(

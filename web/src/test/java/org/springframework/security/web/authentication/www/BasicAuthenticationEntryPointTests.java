@@ -15,10 +15,12 @@
 
 package org.springframework.security.web.authentication.www;
 
-import junit.framework.TestCase;
+import static org.assertj.core.api.Assertions.*;
 
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
+import org.junit.Before;
+import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
@@ -27,29 +29,9 @@ import org.springframework.mock.web.MockHttpServletResponse;
  *
  * @author Ben Alex
  */
-public class BasicAuthenticationEntryPointTests extends TestCase {
-	// ~ Constructors
-	// ===================================================================================================
+public class BasicAuthenticationEntryPointTests {
 
-	public BasicAuthenticationEntryPointTests() {
-		super();
-	}
-
-	public BasicAuthenticationEntryPointTests(String arg0) {
-		super(arg0);
-	}
-
-	// ~ Methods
-	// ========================================================================================================
-
-	public static void main(String[] args) {
-		junit.textui.TestRunner.run(BasicAuthenticationEntryPointTests.class);
-	}
-
-	public final void setUp() throws Exception {
-		super.setUp();
-	}
-
+	@Test
 	public void testDetectsMissingRealmName() throws Exception {
 		BasicAuthenticationEntryPoint ep = new BasicAuthenticationEntryPoint();
 
@@ -61,13 +43,15 @@ public class BasicAuthenticationEntryPointTests extends TestCase {
 			assertThat(expected.getMessage()).isEqualTo("realmName must be specified");
 		}
 	}
-
+	
+	@Test
 	public void testGettersSetters() {
 		BasicAuthenticationEntryPoint ep = new BasicAuthenticationEntryPoint();
 		ep.setRealmName("realm");
 		assertThat(ep.getRealmName()).isEqualTo("realm");
 	}
-
+	
+	@Test
 	public void testNormalOperation() throws Exception {
 		BasicAuthenticationEntryPoint ep = new BasicAuthenticationEntryPoint();
 

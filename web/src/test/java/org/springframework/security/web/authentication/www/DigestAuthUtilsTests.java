@@ -15,82 +15,90 @@
 
 package org.springframework.security.web.authentication.www;
 
-import junit.framework.TestCase;
-
-import org.springframework.util.StringUtils;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 import java.util.Map;
+
+import org.junit.Test;
+import org.springframework.util.StringUtils;
 
 /**
  * Tests {@link org.springframework.security.util.StringSplitUtils}.
  *
  * @author Ben Alex
  */
-public class DigestAuthUtilsTests extends TestCase {
+public class DigestAuthUtilsTests {
 	// ~ Constructors
 	// ===================================================================================================
 
 	// ~ Methods
 	// ========================================================================================================
-
+	@Test
 	public void testSplitEachArrayElementAndCreateMapNormalOperation() {
 		// note it ignores malformed entries (ie those without an equals sign)
 		String unsplit = "username=\"rod\", invalidEntryThatHasNoEqualsSign, realm=\"Contacts Realm\", nonce=\"MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==\", uri=\"/spring-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4\", response=\"38644211cf9ac3da63ab639807e2baff\", qop=auth, nc=00000004, cnonce=\"2b8d329a8571b99a\"";
 		String[] headerEntries = StringUtils.commaDelimitedListToStringArray(unsplit);
-		Map<String, String> headerMap = DigestAuthUtils
-				.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
+		Map<String, String> headerMap = DigestAuthUtils.splitEachArrayElementAndCreateMap(
+				headerEntries, "=", "\"");
 
 		assertThat(headerMap.get("username")).isEqualTo("rod");
 		assertThat(headerMap.get("realm")).isEqualTo("Contacts Realm");
-		assertEquals("MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==",
-				headerMap.get("nonce"));
-		assertEquals(
-				"/spring-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4",
-				headerMap.get("uri"));
-		assertThat(headerMap.get("response")).isEqualTo("38644211cf9ac3da63ab639807e2baff");
+		assertThat(headerMap.get("nonce")).isEqualTo(
+				"MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==");
+		assertThat(headerMap.get("uri")).isEqualTo(
+				"/spring-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4");
+		assertThat(headerMap.get("response")).isEqualTo(
+				"38644211cf9ac3da63ab639807e2baff");
 		assertThat(headerMap.get("qop")).isEqualTo("auth");
 		assertThat(headerMap.get("nc")).isEqualTo("00000004");
 		assertThat(headerMap.get("cnonce")).isEqualTo("2b8d329a8571b99a");
 		assertThat(headerMap).hasSize(8);
 	}
 
+	@Test
 	public void testSplitEachArrayElementAndCreateMapRespectsInstructionNotToRemoveCharacters() {
 		String unsplit = "username=\"rod\", realm=\"Contacts Realm\", nonce=\"MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==\", uri=\"/spring-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4\", response=\"38644211cf9ac3da63ab639807e2baff\", qop=auth, nc=00000004, cnonce=\"2b8d329a8571b99a\"";
 		String[] headerEntries = StringUtils.commaDelimitedListToStringArray(unsplit);
-		Map<String, String> headerMap = DigestAuthUtils
-				.splitEachArrayElementAndCreateMap(headerEntries, "=", null);
+		Map<String, String> headerMap = DigestAuthUtils.splitEachArrayElementAndCreateMap(
+				headerEntries, "=", null);
 
 		assertThat(headerMap.get("username")).isEqualTo("\"rod\"");
 		assertThat(headerMap.get("realm")).isEqualTo("\"Contacts Realm\"");
-		assertEquals(
-				"\"MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==\"",
-				headerMap.get("nonce"));
-		assertEquals(
-				"\"/spring-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4\"",
-				headerMap.get("uri"));
-		assertThat(headerMap.get("response")).isEqualTo("\"38644211cf9ac3da63ab639807e2baff\"");
+		assertThat(headerMap.get("nonce")).isEqualTo(
+				"\"MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==\"");
+		assertThat(headerMap.get("uri")).isEqualTo(
+				"\"/spring-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4\"");
+		assertThat(headerMap.get("response")).isEqualTo(
+				"\"38644211cf9ac3da63ab639807e2baff\"");
 		assertThat(headerMap.get("qop")).isEqualTo("auth");
 		assertThat(headerMap.get("nc")).isEqualTo("00000004");
 		assertThat(headerMap.get("cnonce")).isEqualTo("\"2b8d329a8571b99a\"");
 		assertThat(headerMap).hasSize(8);
 	}
 
+	@Test
 	public void testSplitEachArrayElementAndCreateMapReturnsNullIfArrayEmptyOrNull() {
-		assertThat(DigestAuthUtils.splitEachArrayElementAndCreateMap(null, "=", "\"")).isNull();
-		assertNull(DigestAuthUtils.splitEachArrayElementAndCreateMap(new String[] {},
-				"=", "\""));
+		assertThat(DigestAuthUtils.splitEachArrayElementAndCreateMap(null, "=",
+				"\"")).isNull();
+		assertThat(DigestAuthUtils.splitEachArrayElementAndCreateMap(new String[] {}, "=",
+				"\"")).isNull();
 	}
 
+	@Test
 	public void testSplitNormalOperation() {
 		String unsplit = "username=\"rod==\"";
-		assertThat("=")[0]).as("username").isEqualTo(DigestAuthUtils.split(unsplit);
-		assertThat("=")[1]).as("\"rod==\"").isEqualTo(DigestAuthUtils.split(unsplit); // should not
-																			// remove
-																			// quotes or
-																			// extra
-																			// equals
+		assertThat(DigestAuthUtils.split(unsplit, "=")[0]).isEqualTo("username");
+		assertThat(DigestAuthUtils.split(unsplit, "=")[1]).isEqualTo("\"rod==\"");// should
+																					// not
+																					// remove
+																					// quotes
+																					// or
+																					// extra
+																					// equals
 	}
 
+	@Test
 	public void testSplitRejectsNullsAndIncorrectLengthStrings() {
 		try {
 			DigestAuthUtils.split(null, "="); // null
@@ -133,12 +141,13 @@ public class DigestAuthUtilsTests extends TestCase {
 		}
 	}
 
+	@Test
 	public void testSplitWorksWithDifferentDelimiters() {
-		assertThat("/").length).isEqualTo(2, DigestAuthUtils.split("18/rod");
+		assertThat(DigestAuthUtils.split("18/rod", "/").length).isEqualTo(2);
 		assertThat(DigestAuthUtils.split("18/rod", "!")).isNull();
 
 		// only guarantees to split at FIRST delimiter, not EACH delimiter
-		assertThat("|").length).isEqualTo(2, DigestAuthUtils.split("18|rod|foo|bar");
+		assertThat(DigestAuthUtils.split("18|rod|foo|bar", "|").length).isEqualTo(2);
 	}
 
 	public void testAuthorizationHeaderWithCommasIsSplitCorrectly() {

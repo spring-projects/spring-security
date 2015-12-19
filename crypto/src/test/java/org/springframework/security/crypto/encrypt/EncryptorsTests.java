@@ -1,9 +1,7 @@
+
 package org.springframework.security.crypto.encrypt;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 import java.security.GeneralSecurityException;
 
@@ -23,8 +21,8 @@ public class EncryptorsTests {
 		assertThat(result).isNotNull();
 		assertThat(new String(result).equals("text")).isFalse();
 		assertThat(new String(encryptor.decrypt(result))).isEqualTo("text");
-		assertThat(new String(result).isFalse().equals(new String(encryptor.encrypt("text"
-				.getBytes()))));
+		assertThat(new String(result)).isNotEqualTo(
+				new String(encryptor.encrypt("text".getBytes())));
 	}
 
 	@Test
@@ -34,8 +32,8 @@ public class EncryptorsTests {
 		assertThat(result).isNotNull();
 		assertThat(new String(result).equals("text")).isFalse();
 		assertThat(new String(encryptor.decrypt(result))).isEqualTo("text");
-		assertThat(new String(result).isFalse().equals(new String(encryptor.encrypt("text"
-				.getBytes()))));
+		assertThat(new String(result)).isNotEqualTo(
+				new String(encryptor.encrypt("text".getBytes())));
 	}
 
 	@Test
@@ -62,8 +60,8 @@ public class EncryptorsTests {
 
 	@Test
 	public void queryableText() {
-		TextEncryptor encryptor = Encryptors
-				.queryableText("password", "5c0744940b5c369b");
+		TextEncryptor encryptor = Encryptors.queryableText("password",
+				"5c0744940b5c369b");
 		String result = encryptor.encrypt("text");
 		assertThat(result).isNotNull();
 		assertThat(result.equals("text")).isFalse();
@@ -82,7 +80,8 @@ public class EncryptorsTests {
 		try {
 			Cipher.getInstance("AES/GCM/NoPadding");
 			return true;
-		} catch (GeneralSecurityException e) {
+		}
+		catch (GeneralSecurityException e) {
 			return false;
 		}
 	}

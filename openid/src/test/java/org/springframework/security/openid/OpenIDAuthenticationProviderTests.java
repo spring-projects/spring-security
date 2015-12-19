@@ -12,10 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.openid;
 
-import junit.framework.TestCase;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
+import org.junit.Test;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -33,7 +36,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
  *
  * @author Robin Bramley, Opsera Ltd
  */
-public class OpenIDAuthenticationProviderTests extends TestCase {
+public class OpenIDAuthenticationProviderTests {
 	// ~ Static fields/initializers
 	// =====================================================================================
 
@@ -44,8 +47,10 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
 
 	/*
 	 * Test method for
-	 * 'org.springframework.security.authentication.openid.OpenIDAuthenticationProvider.authenticate(Authentication)'
+	 * 'org.springframework.security.authentication.openid.OpenIDAuthenticationProvider.
+	 * authenticate(Authentication)'
 	 */
+	@Test
 	public void testAuthenticateCancel() {
 		OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
 		provider.setUserDetailsService(new MockUserDetailsService());
@@ -67,8 +72,10 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
 
 	/*
 	 * Test method for
-	 * 'org.springframework.security.authentication.openid.OpenIDAuthenticationProvider.authenticate(Authentication)'
+	 * 'org.springframework.security.authentication.openid.OpenIDAuthenticationProvider.
+	 * authenticate(Authentication)'
 	 */
+	@Test
 	public void testAuthenticateError() {
 		OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
 		provider.setUserDetailsService(new MockUserDetailsService());
@@ -89,12 +96,15 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
 
 	/*
 	 * Test method for
-	 * 'org.springframework.security.authentication.openid.OpenIDAuthenticationProvider.authenticate(Authentication)'
+	 * 'org.springframework.security.authentication.openid.OpenIDAuthenticationProvider.
+	 * authenticate(Authentication)'
 	 */
+	@Test
 	public void testAuthenticateFailure() {
 		OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
-		provider.setAuthenticationUserDetailsService(new UserDetailsByNameServiceWrapper<OpenIDAuthenticationToken>(
-				new MockUserDetailsService()));
+		provider.setAuthenticationUserDetailsService(
+				new UserDetailsByNameServiceWrapper<OpenIDAuthenticationToken>(
+						new MockUserDetailsService()));
 
 		Authentication preAuth = new OpenIDAuthenticationToken(
 				OpenIDAuthenticationStatus.FAILURE, USERNAME, "", null);
@@ -106,15 +116,17 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
 			fail("Should throw an AuthenticationException");
 		}
 		catch (BadCredentialsException expected) {
-			assertEquals("Log in failed - identity could not be verified",
+			assertThat("Log in failed - identity could not be verified").isEqualTo(
 					expected.getMessage());
 		}
 	}
 
 	/*
 	 * Test method for
-	 * 'org.springframework.security.authentication.openid.OpenIDAuthenticationProvider.authenticate(Authentication)'
+	 * 'org.springframework.security.authentication.openid.OpenIDAuthenticationProvider.
+	 * authenticate(Authentication)'
 	 */
+	@Test
 	public void testAuthenticateSetupNeeded() {
 		OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
 		provider.setUserDetailsService(new MockUserDetailsService());
@@ -129,15 +141,18 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
 			fail("Should throw an AuthenticationException");
 		}
 		catch (AuthenticationServiceException expected) {
-			assertEquals("The server responded setup was needed, which shouldn't happen",
-					expected.getMessage());
+			assertThat(
+					"The server responded setup was needed, which shouldn't happen").isEqualTo(
+							expected.getMessage());
 		}
 	}
 
 	/*
 	 * Test method for
-	 * 'org.springframework.security.authentication.openid.OpenIDAuthenticationProvider.authenticate(Authentication)'
+	 * 'org.springframework.security.authentication.openid.OpenIDAuthenticationProvider.
+	 * authenticate(Authentication)'
 	 */
+	@Test
 	public void testAuthenticateSuccess() {
 		OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
 		provider.setUserDetailsService(new MockUserDetailsService());
@@ -156,10 +171,12 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
 		assertThat(postAuth.getPrincipal() instanceof UserDetails).isTrue();
 		assertThat(postAuth.getAuthorities()).isNotNull();
 		assertThat(postAuth.getAuthorities().size() > 0).isTrue();
-		assertThat(((OpenIDAuthenticationToken) postAuth).getStatus() == OpenIDAuthenticationStatus.SUCCESS).isTrue();
+		assertThat(
+				((OpenIDAuthenticationToken) postAuth).getStatus() == OpenIDAuthenticationStatus.SUCCESS).isTrue();
 		assertThat(((OpenIDAuthenticationToken) postAuth).getMessage() == null).isTrue();
 	}
 
+	@Test
 	public void testDetectsMissingAuthoritiesPopulator() throws Exception {
 		OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
 
@@ -174,19 +191,24 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
 
 	/*
 	 * Test method for
-	 * 'org.springframework.security.authentication.openid.OpenIDAuthenticationProvider.supports(Class)'
+	 * 'org.springframework.security.authentication.openid.OpenIDAuthenticationProvider.
+	 * supports(Class)'
 	 */
+	@Test
 	public void testDoesntSupport() {
 		OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
 		provider.setUserDetailsService(new MockUserDetailsService());
 
-		assertThat(provider.supports(UsernamePasswordAuthenticationToken.class)).isFalse();
+		assertThat(
+				provider.supports(UsernamePasswordAuthenticationToken.class)).isFalse();
 	}
 
 	/*
 	 * Test method for
-	 * 'org.springframework.security.authentication.openid.OpenIDAuthenticationProvider.authenticate(Authentication)'
+	 * 'org.springframework.security.authentication.openid.OpenIDAuthenticationProvider.
+	 * authenticate(Authentication)'
 	 */
+	@Test
 	public void testIgnoresUserPassAuthToken() {
 		OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
 		provider.setUserDetailsService(new MockUserDetailsService());
@@ -198,8 +220,10 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
 
 	/*
 	 * Test method for
-	 * 'org.springframework.security.authentication.openid.OpenIDAuthenticationProvider.supports(Class)'
+	 * 'org.springframework.security.authentication.openid.OpenIDAuthenticationProvider.
+	 * supports(Class)'
 	 */
+	@Test
 	public void testSupports() {
 		OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
 		provider.setUserDetailsService(new MockUserDetailsService());
@@ -207,6 +231,7 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
 		assertThat(provider.supports(OpenIDAuthenticationToken.class)).isTrue();
 	}
 
+	@Test
 	public void testValidation() throws Exception {
 		OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
 		try {
@@ -223,6 +248,7 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
 	}
 
 	static class MockUserDetailsService implements UserDetailsService {
+
 		public UserDetails loadUserByUsername(String ssoUserId)
 				throws AuthenticationException {
 			return new User(ssoUserId, "password", true, true, true, true,

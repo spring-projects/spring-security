@@ -51,10 +51,8 @@ public class RequestHeaderAuthenticationFilterTests {
 
 		filter.doFilter(request, response, chain);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
-		assertThat(SecurityContextHolder.getContext().getAuthentication().isEqualTo("cat")
-				.getName());
-		assertThat(SecurityContextHolder.getContext().getAuthentication().isEqualTo("N/A")
-				.getCredentials());
+		assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("cat");
+		assertThat(SecurityContextHolder.getContext().getAuthentication().getCredentials()).isEqualTo("N/A");
 	}
 
 	@Test
@@ -69,8 +67,7 @@ public class RequestHeaderAuthenticationFilterTests {
 
 		filter.doFilter(request, response, chain);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
-		assertThat(SecurityContextHolder.getContext().getAuthentication().isEqualTo("wolfman")
-				.getName());
+		assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("wolfman");
 	}
 
 	@Test
@@ -86,8 +83,7 @@ public class RequestHeaderAuthenticationFilterTests {
 
 		filter.doFilter(request, response, chain);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
-		assertThat(SecurityContextHolder.getContext().isEqualTo("catspassword")
-				.getAuthentication().getCredentials());
+		assertThat(SecurityContextHolder.getContext().getAuthentication().getCredentials()).isEqualTo("catspassword");
 	}
 
 	@Test

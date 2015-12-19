@@ -1,7 +1,6 @@
 package org.springframework.security.crypto.password;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 
@@ -12,7 +11,7 @@ public class StandardPasswordEncoderTests {
 	@Test
 	public void matches() {
 		String result = encoder.encode("password");
-		assertThat(result.equals("password")).isFalse();
+		assertThat(result).isNotEqualTo("password");
 		assertThat(encoder.matches("password", result)).isTrue();
 	}
 

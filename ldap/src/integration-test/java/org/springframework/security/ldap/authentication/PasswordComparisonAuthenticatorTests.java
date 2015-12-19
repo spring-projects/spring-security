@@ -59,14 +59,13 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapIntegratio
 	public void testAllAttributesAreRetrievedByDefault() {
 		DirContextAdapter user = (DirContextAdapter) authenticator.authenticate(bob);
 		// System.out.println(user.getAttributes().toString());
-		assertThat(user.getAttributes()).as("User should have 5 attributes").hasSize(5);
+		assertThat(user.getAttributes().size()).withFailMessage("User should have 5 attributes").isEqualTo(5);
 	}
 
 	@Test
 	public void testFailedSearchGivesUserNotFoundException() throws Exception {
 		authenticator = new PasswordComparisonAuthenticator(getContextSource());
-		assertTrue("User DN matches shouldn't be available",
-				authenticator.getUserDns("Bob").isEmpty());
+		assertThat(authenticator.getUserDns("Bob")).withFailMessage("User DN matches shouldn't be available").isEmpty();
 		authenticator.setUserSearch(new MockUserSearch(null));
 		authenticator.afterPropertiesSet();
 
@@ -99,8 +98,8 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapIntegratio
 		authenticator.setUserAttributes(new String[] { "uid", "userPassword" });
 
 		DirContextAdapter user = (DirContextAdapter) authenticator.authenticate(bob);
-		assertThat(userPassword).isEqualTo("Should have retrieved 2 attribute (uid)", 2, user
-				.getAttributes().size());
+		assertThat(user
+				.getAttributes().size()).withFailMessage("Should have retrieved 2 attribute (uid)").isEqualTo(2);
 	}
 
 	@Test
@@ -141,8 +140,7 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapIntegratio
 	public void testWithUserSearch() {
 		authenticator = new PasswordComparisonAuthenticator(getContextSource());
 		authenticator.setPasswordEncoder(new PlaintextPasswordEncoder());
-		assertTrue("User DN matches shouldn't be available",
-				authenticator.getUserDns("Bob").isEmpty());
+		assertThat(authenticator.getUserDns("Bob")).withFailMessage("User DN matches shouldn't be available").isEmpty();
 
 		DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName(
 				"uid=Bob,ou=people"));

@@ -94,8 +94,7 @@ public class DefaultJaasAuthenticationProviderTests {
 
 	@Test
 	public void authenticateUnsupportedAuthentication() {
-		assertEquals(null,
-				provider.authenticate(new TestingAuthenticationToken("user", "password")));
+		assertThat(provider.authenticate(new TestingAuthenticationToken("user", "password"))).isNull();
 	}
 
 	@Test

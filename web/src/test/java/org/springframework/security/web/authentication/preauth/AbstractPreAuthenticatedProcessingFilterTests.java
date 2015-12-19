@@ -13,8 +13,6 @@
 package org.springframework.security.web.authentication.preauth;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -158,8 +156,8 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(),
 				new MockFilterChain());
 
-		assertThat(SecurityContextHolder.getContext().isEqualTo(authentication)
-				.getAuthentication());
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isEqualTo(
+				authentication);
 	}
 
 	@Test
@@ -332,8 +330,8 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		MockHttpServletRequest req = new MockHttpServletRequest();
 		MockHttpServletResponse res = new MockHttpServletResponse();
 		getFilter(grantAccess).doFilter(req, res, new MockFilterChain());
-		assertThat(null != SecurityContextHolder.getContext().isEqualTo(grantAccess)
-				.getAuthentication());
+		assertThat(null != SecurityContextHolder.getContext().getAuthentication()).isEqualTo(
+				grantAccess);
 	}
 
 	private static ConcretePreAuthenticatedProcessingFilter getFilter(boolean grantAccess)

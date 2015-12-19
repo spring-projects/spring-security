@@ -15,9 +15,7 @@
  */
 package org.springframework.security.authentication.jaas.memory;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertNull;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
@@ -54,8 +52,7 @@ public class InMemoryConfigurationTests {
 
 	@Test
 	public void constructorNullDefault() {
-		assertThat(new InMemoryConfiguration((AppConfigurationEntry[]) null).isNull()
-				.getAppConfigurationEntry("name"));
+		assertThat(new InMemoryConfiguration((AppConfigurationEntry[]) null).getAppConfigurationEntry("name")).isNull();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -65,16 +62,16 @@ public class InMemoryConfigurationTests {
 
 	@Test
 	public void constructorEmptyMap() {
-		assertNull(new InMemoryConfiguration(
+		assertThat(new InMemoryConfiguration(
 				Collections.<String, AppConfigurationEntry[]> emptyMap())
-				.getAppConfigurationEntry("name"));
+				.getAppConfigurationEntry("name")).isNull();
 	}
 
 	@Test
 	public void constructorEmptyMapNullDefault() {
-		assertNull(new InMemoryConfiguration(
+		assertThat(new InMemoryConfiguration(
 				Collections.<String, AppConfigurationEntry[]> emptyMap(), null)
-				.getAppConfigurationEntry("name"));
+				.getAppConfigurationEntry("name")).isNull();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -92,10 +89,8 @@ public class InMemoryConfigurationTests {
 	public void mappedNonnullDefault() {
 		InMemoryConfiguration configuration = new InMemoryConfiguration(mappedEntries,
 				defaultEntries);
-		assertArrayEquals(defaultEntries,
-				configuration.getAppConfigurationEntry("missing"));
-		assertArrayEquals(mappedEntries.get("name"),
-				configuration.getAppConfigurationEntry("name"));
+		assertThat(defaultEntries).isEqualTo(configuration.getAppConfigurationEntry("missing"));
+		assertThat(mappedEntries.get("name")).isEqualTo(configuration.getAppConfigurationEntry("name"));
 	}
 
 	@Test

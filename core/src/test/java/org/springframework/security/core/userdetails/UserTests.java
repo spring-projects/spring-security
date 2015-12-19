@@ -44,10 +44,10 @@ public class UserTests {
 	public void equalsReturnsTrueIfUsernamesAreTheSame() {
 		User user1 = new User("rod", "koala", true, true, true, true, ROLE_12);
 
-		assertThat(user1.equals(null)).isFalse();
-		assertThat(user1.equals("A STRING")).isFalse();
-		assertThat(user1.equals(user1)).isTrue();
-		assertTrue(user1.equals(new User("rod", "notthesame", true, true, true, true,
+		assertThat(user1).isNotNull();
+		assertThat(user1).isNotEqualTo("A STRING");
+		assertThat(user1).isEqualTo(user1);
+		assertThat(user1).isEqualTo((new User("rod", "notthesame", true, true, true, true,
 				ROLE_12)));
 	}
 
@@ -57,12 +57,12 @@ public class UserTests {
 		Set<UserDetails> users = new HashSet<UserDetails>();
 		users.add(user1);
 
-		assertTrue(users.contains(new User("rod", "koala", true, true, true, true,
-				ROLE_12)));
-		assertTrue(users.contains(new User("rod", "anotherpass", false, false, false,
-				false, AuthorityUtils.createAuthorityList("ROLE_X"))));
-		assertFalse(users.contains(new User("bod", "koala", true, true, true, true,
-				ROLE_12)));
+		assertThat(users).contains(new User("rod", "koala", true, true, true, true,
+				ROLE_12));
+		assertThat(users).contains(new User("rod", "anotherpass", false, false, false,
+				false, AuthorityUtils.createAuthorityList("ROLE_X")));
+		assertThat(users).doesNotContain(new User("bod", "koala", true, true, true, true,
+				ROLE_12));
 	}
 
 	@Test
@@ -123,10 +123,10 @@ public class UserTests {
 		assertThat(user.getUsername()).isEqualTo("rod");
 		assertThat(user.getPassword()).isEqualTo("koala");
 		assertThat(user.isEnabled()).isTrue();
-		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities()).isTrue().contains(
-				"ROLE_ONE"));
-		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities()).isTrue().contains(
-				"ROLE_TWO"));
+		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities())).contains(
+				"ROLE_ONE");
+		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities())).contains(
+				"ROLE_TWO");
 		assertThat(user.toString().indexOf("rod") != -1).isTrue();
 	}
 

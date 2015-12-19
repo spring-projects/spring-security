@@ -136,9 +136,9 @@ public class LdapAuthenticationProviderTests {
 		assertThat(user.getUsername()).isEqualTo("ben");
 		assertThat(populator.getRequestedUsername()).isEqualTo("ben");
 
-		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities()).isTrue().contains(
+		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities()).contains(
 				"ROLE_FROM_ENTRY"));
-		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities()).isTrue().contains(
+		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities()).contains(
 				"ROLE_FROM_POPULATOR"));
 	}
 
@@ -167,7 +167,7 @@ public class LdapAuthenticationProviderTests {
 		UserDetails user = (UserDetails) ldapProvider.authenticate(authRequest)
 				.getPrincipal();
 		assertThat(user.getAuthorities()).hasSize(1);
-		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities()).isTrue().contains(
+		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities()).contains(
 				"ROLE_FROM_ENTRY"));
 	}
 

@@ -13,10 +13,10 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
+
 package org.springframework.security.web.access.expression;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -39,6 +39,7 @@ import org.springframework.security.web.FilterInvocation;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultWebSecurityExpressionHandlerTests {
+
 	@Mock
 	private AuthenticationTrustResolver trustResolver;
 
@@ -71,10 +72,10 @@ public class DefaultWebSecurityExpressionHandlerTests {
 		EvaluationContext ctx = handler.createEvaluationContext(
 				mock(Authentication.class), mock(FilterInvocation.class));
 		ExpressionParser parser = handler.getExpressionParser();
-		assertThat(parser.parseExpression("@role.getAttribute() == 'ROLE_A'").isTrue().getValue(
-				ctx, Boolean.class));
-		assertThat(parser.parseExpression("@role.attribute == 'ROLE_A'").isTrue().getValue(ctx,
-				Boolean.class));
+		assertThat(parser.parseExpression("@role.getAttribute() == 'ROLE_A'").getValue(
+				ctx, Boolean.class)).isTrue();
+		assertThat(parser.parseExpression("@role.attribute == 'ROLE_A'").getValue(ctx,
+				Boolean.class)).isTrue();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -86,8 +87,8 @@ public class DefaultWebSecurityExpressionHandlerTests {
 	public void createEvaluationContextCustomTrustResolver() {
 		handler.setTrustResolver(trustResolver);
 
-		Expression expression = handler.getExpressionParser()
-				.parseExpression("anonymous");
+		Expression expression = handler.getExpressionParser().parseExpression(
+				"anonymous");
 		EvaluationContext context = handler.createEvaluationContext(authentication,
 				invocation);
 		assertThat(expression.getValue(context, Boolean.class)).isFalse();

@@ -1,9 +1,9 @@
 package org.springframework.security.core.token;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.security.SecureRandom;
 import java.util.Date;
-
-import junit.framework.Assert;
 
 import org.junit.Test;
 import org.springframework.security.core.token.DefaultToken;
@@ -40,7 +40,7 @@ public class KeyBasedPersistenceTokenServiceTests {
 		KeyBasedPersistenceTokenService service = getService();
 		Token token = service.allocateToken("Hello world");
 		Token result = service.verifyToken(token.getKey());
-		Assert.assertThat(result).isEqualTo(token);
+		assertThat(result).isEqualTo(token);
 	}
 
 	@Test
@@ -48,7 +48,7 @@ public class KeyBasedPersistenceTokenServiceTests {
 		KeyBasedPersistenceTokenService service = getService();
 		Token token = service.allocateToken("Hello:world:::");
 		Token result = service.verifyToken(token.getKey());
-		Assert.assertThat(result).isEqualTo(token);
+		assertThat(result).isEqualTo(token);
 	}
 
 	@Test
@@ -57,7 +57,7 @@ public class KeyBasedPersistenceTokenServiceTests {
 		service.setPseudoRandomNumberBytes(0);
 		Token token = service.allocateToken("Hello:world:::");
 		Token result = service.verifyToken(token.getKey());
-		Assert.assertThat(result).isEqualTo(token);
+		assertThat(result).isEqualTo(token);
 	}
 
 	@Test
@@ -65,7 +65,7 @@ public class KeyBasedPersistenceTokenServiceTests {
 		KeyBasedPersistenceTokenService service = getService();
 		Token token = service.allocateToken("");
 		Token result = service.verifyToken(token.getKey());
-		Assert.assertThat(result).isEqualTo(token);
+		assertThat(result).isEqualTo(token);
 	}
 
 	@Test(expected = IllegalArgumentException.class)

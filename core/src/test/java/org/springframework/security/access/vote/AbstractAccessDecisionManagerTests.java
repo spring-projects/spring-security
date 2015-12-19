@@ -16,20 +16,17 @@
 package org.springframework.security.access.vote;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
-import junit.framework.TestCase;
-
-import org.springframework.security.access.AccessDecisionVoter;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.ConfigAttribute;
-import org.springframework.security.access.SecurityConfig;
-import org.springframework.security.access.vote.AbstractAccessDecisionManager;
-import org.springframework.security.access.vote.RoleVoter;
-import org.springframework.security.core.Authentication;
+import static org.assertj.core.api.Assertions.fail;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
+
+import org.junit.Test;
+import org.springframework.security.access.AccessDecisionVoter;
+import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.access.SecurityConfig;
+import org.springframework.security.core.Authentication;
 
 /**
  * Tests {@link AbstractAccessDecisionManager}.
@@ -37,11 +34,11 @@ import java.util.Vector;
  * @author Ben Alex
  */
 @SuppressWarnings("unchecked")
-public class AbstractAccessDecisionManagerTests extends TestCase {
+public class AbstractAccessDecisionManagerTests {
 
 	// ~ Methods
 	// ========================================================================================================
-
+	@Test
 	public void testAllowIfAccessDecisionManagerDefaults() {
 		List list = new Vector();
 		DenyAgainVoter denyVoter = new DenyAgainVoter();
@@ -52,6 +49,7 @@ public class AbstractAccessDecisionManagerTests extends TestCase {
 		assertThat(mock.isAllowIfAllAbstainDecisions()).isTrue(); // changed
 	}
 
+	@Test
 	public void testDelegatesSupportsClassRequests() throws Exception {
 		List list = new Vector();
 		list.add(new DenyVoter());
@@ -63,6 +61,7 @@ public class AbstractAccessDecisionManagerTests extends TestCase {
 		assertThat(!mock.supports(Integer.class)).isTrue();
 	}
 
+	@Test
 	public void testDelegatesSupportsRequests() throws Exception {
 		List list = new Vector();
 		DenyVoter voter = new DenyVoter();
@@ -79,6 +78,7 @@ public class AbstractAccessDecisionManagerTests extends TestCase {
 		assertThat(!mock.supports(badAttr)).isTrue();
 	}
 
+	@Test
 	public void testProperlyStoresListOfVoters() throws Exception {
 		List list = new Vector();
 		DenyVoter voter = new DenyVoter();
@@ -89,6 +89,7 @@ public class AbstractAccessDecisionManagerTests extends TestCase {
 		assertThat(mock.getDecisionVoters().size()).isEqualTo(list.size());
 	}
 
+	@Test
 	public void testRejectsEmptyList() throws Exception {
 		List list = new Vector();
 
@@ -101,6 +102,7 @@ public class AbstractAccessDecisionManagerTests extends TestCase {
 		}
 	}
 
+	@Test
 	public void testRejectsNullVotersList() throws Exception {
 		try {
 			new MockDecisionManagerImpl(null);
@@ -111,11 +113,13 @@ public class AbstractAccessDecisionManagerTests extends TestCase {
 		}
 	}
 
+	@Test
 	public void testRoleVoterAlwaysReturnsTrueToSupports() {
 		RoleVoter rv = new RoleVoter();
 		assertThat(rv.supports(String.class)).isTrue();
 	}
 
+	@Test
 	public void testWillNotStartIfDecisionVotersNotSet() throws Exception {
 		try {
 			new MockDecisionManagerImpl(null);
@@ -130,6 +134,7 @@ public class AbstractAccessDecisionManagerTests extends TestCase {
 	// ==================================================================================================
 
 	private class MockDecisionManagerImpl extends AbstractAccessDecisionManager {
+
 		protected MockDecisionManagerImpl(
 				List<AccessDecisionVoter<? extends Object>> decisionVoters) {
 			super(decisionVoters);
@@ -141,6 +146,7 @@ public class AbstractAccessDecisionManagerTests extends TestCase {
 	}
 
 	private class MockStringOnlyVoter implements AccessDecisionVoter<Object> {
+
 		public boolean supports(Class<?> clazz) {
 			return String.class.isAssignableFrom(clazz);
 		}

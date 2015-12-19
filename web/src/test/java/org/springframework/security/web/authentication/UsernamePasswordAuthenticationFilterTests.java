@@ -17,10 +17,9 @@ package org.springframework.security.web.authentication;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.*;
 
 import javax.servlet.ServletException;
-
-import junit.framework.TestCase;
 
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
@@ -37,7 +36,7 @@ import org.springframework.security.core.AuthenticationException;
  *
  * @author Ben Alex
  */
-public class UsernamePasswordAuthenticationFilterTests extends TestCase {
+public class UsernamePasswordAuthenticationFilterTests {
 	// ~ Methods
 	// ========================================================================================================
 
@@ -58,8 +57,7 @@ public class UsernamePasswordAuthenticationFilterTests extends TestCase {
 		Authentication result = filter.attemptAuthentication(request,
 				new MockHttpServletResponse());
 		assertThat(result != null).isTrue();
-		assertEquals("127.0.0.1",
-				((WebAuthenticationDetails) result.getDetails()).getRemoteAddress());
+		assertThat(((WebAuthenticationDetails) result.getDetails()).getRemoteAddress()).isEqualTo("127.0.0.1");
 	}
 
 	@Test
@@ -71,8 +69,8 @@ public class UsernamePasswordAuthenticationFilterTests extends TestCase {
 
 		UsernamePasswordAuthenticationFilter filter = new UsernamePasswordAuthenticationFilter();
 		filter.setAuthenticationManager(createAuthenticationManager());
-		assertNotNull(filter
-				.attemptAuthentication(request, new MockHttpServletResponse()));
+		assertThat(filter
+				.attemptAuthentication(request, new MockHttpServletResponse())).isNotNull();
 	}
 
 	@Test
@@ -84,8 +82,8 @@ public class UsernamePasswordAuthenticationFilterTests extends TestCase {
 
 		UsernamePasswordAuthenticationFilter filter = new UsernamePasswordAuthenticationFilter();
 		filter.setAuthenticationManager(createAuthenticationManager());
-		assertNotNull(filter
-				.attemptAuthentication(request, new MockHttpServletResponse()));
+		assertThat(filter
+				.attemptAuthentication(request, new MockHttpServletResponse())).isNotNull();
 	}
 
 	@Test
@@ -102,8 +100,7 @@ public class UsernamePasswordAuthenticationFilterTests extends TestCase {
 		Authentication result = filter.attemptAuthentication(request,
 				new MockHttpServletResponse());
 		assertThat(result).isNotNull();
-		assertEquals("127.0.0.1",
-				((WebAuthenticationDetails) result.getDetails()).getRemoteAddress());
+		assertThat(((WebAuthenticationDetails) result.getDetails()).getRemoteAddress()).isEqualTo("127.0.0.1");
 	}
 
 	@Test

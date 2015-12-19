@@ -1,4 +1,4 @@
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Test;
 import org.springframework.test.context.ContextConfiguration;
@@ -14,24 +14,16 @@ import org.springframework.test.context.ContextConfiguration;
 public class SecureDmsIntegrationTests extends DmsIntegrationTests {
 
 	@Test
-	public void testBasePopulation() {
-		assertEquals(9,
-				(int) jdbcTemplate.queryForObject("select count(id) from DIRECTORY", Integer.class));
-		assertEquals(90,
-				(int) jdbcTemplate.queryForObject("select count(id) from FILE", Integer.class));
-		assertEquals(4,
-				(int) jdbcTemplate.queryForObject("select count(id) from ACL_SID", Integer.class));	// 3
-																							// users
-																							// + 1
-																							// role
-		assertEquals(2,
-				(int) jdbcTemplate.queryForObject("select count(id) from ACL_CLASS", Integer.class)); // Directory
-																							// and
-																							// File
-		assertEquals(100,
-				(int) jdbcTemplate.queryForObject("select count(id) from ACL_OBJECT_IDENTITY", Integer.class));
-		assertEquals(115,
-				(int) jdbcTemplate.queryForObject("select count(id) from ACL_ENTRY", Integer.class));
+	public void testBasePopulation() { 
+		assertThat(jdbcTemplate.queryForObject("select count(id) from DIRECTORY", Integer.class)).isEqualTo(9);
+		assertThat(jdbcTemplate.queryForObject("select count(id) from FILE", Integer.class)).isEqualTo(90);
+		assertThat(jdbcTemplate.queryForObject("select count(id) from ACL_SID", Integer.class)).isEqualTo(4); // 3 users + 1 role
+		assertThat(jdbcTemplate.queryForObject("select count(id) from ACL_CLASS", Integer.class)).isEqualTo(2); // Directory
+																												// and
+																												// File
+		assertThat(jdbcTemplate.queryForObject("select count(id) from ACL_OBJECT_IDENTITY", Integer.class))
+				.isEqualTo(100);
+		assertThat(jdbcTemplate.queryForObject("select count(id) from ACL_ENTRY", Integer.class)).isEqualTo(115);
 	}
 
 	public void testMarissaRetrieval() {

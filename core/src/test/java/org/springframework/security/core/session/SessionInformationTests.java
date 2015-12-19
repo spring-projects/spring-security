@@ -15,21 +15,22 @@
 
 package org.springframework.security.core.session;
 
-import junit.framework.TestCase;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Date;
 
-import org.springframework.security.core.session.SessionInformation;
+import org.junit.Test;
 
 /**
  * Tests {@link SessionInformation}.
  *
  * @author Ben Alex
  */
-public class SessionInformationTests extends TestCase {
+public class SessionInformationTests {
+
 	// ~ Methods
 	// ========================================================================================================
-
+	@Test
 	public void testObject() throws Exception {
 		Object principal = "Some principal object";
 		String sessionId = "1234567890";

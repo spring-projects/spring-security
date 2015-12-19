@@ -12,8 +12,8 @@ public class TextEscapeUtilsTests {
 	 */
 	@Test
 	public void charactersAreEscapedCorrectly() {
-		assertEquals("&amp;&#32;a&lt;script&gt;&#34;&#39;",
-				TextEscapeUtils.escapeEntities("& a<script>\"'"));
+		assertThat(TextEscapeUtils.escapeEntities("& a<script>\"'")).isEqualTo(
+				"&amp;&#32;a&lt;script&gt;&#34;&#39;");
 	}
 
 	@Test

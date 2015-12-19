@@ -1,4 +1,8 @@
+
 package org.springframework.security.web.authentication.preauth.j2ee;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -8,8 +12,7 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import junit.framework.TestCase;
-
+import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.mapping.Attributes2GrantedAuthoritiesMapper;
@@ -22,9 +25,9 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedG
  *
  * @author TSARDD
  */
-public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests extends
-		TestCase {
+public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests {
 
+	@Test
 	public final void testAfterPropertiesSetException() {
 		J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource t = new J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource();
 		try {
@@ -38,6 +41,7 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests extend
 		}
 	}
 
+	@Test
 	public final void testBuildDetailsHttpServletRequestNoMappedNoUserRoles() {
 		String[] mappedRoles = new String[] {};
 		String[] roles = new String[] {};
@@ -45,6 +49,7 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests extend
 		testDetails(mappedRoles, roles, expectedRoles);
 	}
 
+	@Test
 	public final void testBuildDetailsHttpServletRequestNoMappedUnmappedUserRoles() {
 		String[] mappedRoles = new String[] {};
 		String[] roles = new String[] { "Role1", "Role2" };
@@ -52,6 +57,7 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests extend
 		testDetails(mappedRoles, roles, expectedRoles);
 	}
 
+	@Test
 	public final void testBuildDetailsHttpServletRequestNoUserRoles() {
 		String[] mappedRoles = new String[] { "Role1", "Role2", "Role3", "Role4" };
 		String[] roles = new String[] {};
@@ -59,6 +65,7 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests extend
 		testDetails(mappedRoles, roles, expectedRoles);
 	}
 
+	@Test
 	public final void testBuildDetailsHttpServletRequestAllUserRoles() {
 		String[] mappedRoles = new String[] { "Role1", "Role2", "Role3", "Role4" };
 		String[] roles = new String[] { "Role1", "Role2", "Role3", "Role4" };
@@ -66,6 +73,7 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests extend
 		testDetails(mappedRoles, roles, expectedRoles);
 	}
 
+	@Test
 	public final void testBuildDetailsHttpServletRequestUnmappedUserRoles() {
 		String[] mappedRoles = new String[] { "Role1", "Role2", "Role3", "Role4" };
 		String[] roles = new String[] { "Role1", "Role2", "Role3", "Role4", "Role5" };
@@ -73,6 +81,7 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests extend
 		testDetails(mappedRoles, roles, expectedRoles);
 	}
 
+	@Test
 	public final void testBuildDetailsHttpServletRequestPartialUserRoles() {
 		String[] mappedRoles = new String[] { "Role1", "Role2", "Role3", "Role4" };
 		String[] roles = new String[] { "Role2", "Role3" };
@@ -80,6 +89,7 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests extend
 		testDetails(mappedRoles, roles, expectedRoles);
 	}
 
+	@Test
 	public final void testBuildDetailsHttpServletRequestPartialAndUnmappedUserRoles() {
 		String[] mappedRoles = new String[] { "Role1", "Role2", "Role3", "Role4" };
 		String[] roles = new String[] { "Role2", "Role3", "Role5" };
@@ -89,13 +99,14 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests extend
 
 	private void testDetails(String[] mappedRoles, String[] userRoles,
 			String[] expectedRoles) {
-		J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource src = getJ2eeBasedPreAuthenticatedWebAuthenticationDetailsSource(mappedRoles);
+		J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource src = getJ2eeBasedPreAuthenticatedWebAuthenticationDetailsSource(
+				mappedRoles);
 		Object o = src.buildDetails(getRequest("testUser", userRoles));
 		assertThat(o).isNotNull();
-		assertTrue(
-				"Returned object not of type PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails, actual type: "
-						+ o.getClass(),
-				o instanceof PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails);
+		assertThat(
+				o instanceof PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails).withFailMessage(
+						"Returned object not of type PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails, actual type: "
+								+ o.getClass()).isTrue();
 		PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails details = (PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails) o;
 		List<GrantedAuthority> gas = details.getGrantedAuthorities();
 		assertThat(gas).as("Granted authorities should not be null").isNotNull();
@@ -106,17 +117,17 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests extend
 		for (int i = 0; i < gas.size(); i++) {
 			gasRolesSet.add(gas.get(i).getAuthority());
 		}
-		assertTrue(
-				"Granted Authorities do not match expected roles",
-				expectedRolesColl.containsAll(gasRolesSet)
-						&& gasRolesSet.containsAll(expectedRolesColl));
+		assertThat(expectedRolesColl.containsAll(gasRolesSet)
+				&& gasRolesSet.containsAll(expectedRolesColl)).withFailMessage(
+						"Granted Authorities do not match expected roles").isTrue();
 	}
 
 	private J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource getJ2eeBasedPreAuthenticatedWebAuthenticationDetailsSource(
 			String[] mappedRoles) {
 		J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource result = new J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource();
 		result.setMappableRolesRetriever(getMappableRolesRetriever(mappedRoles));
-		result.setUserRoles2GrantedAuthoritiesMapper(getJ2eeUserRoles2GrantedAuthoritiesMapper());
+		result.setUserRoles2GrantedAuthoritiesMapper(
+				getJ2eeUserRoles2GrantedAuthoritiesMapper());
 
 		try {
 			result.afterPropertiesSet();
@@ -144,6 +155,7 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests extend
 
 	private HttpServletRequest getRequest(final String userName, final String[] aRoles) {
 		MockHttpServletRequest req = new MockHttpServletRequest() {
+
 			private Set<String> roles = new HashSet<String>(Arrays.asList(aRoles));
 
 			public boolean isUserInRole(String arg0) {

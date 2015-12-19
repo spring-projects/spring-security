@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Filip Hanik
@@ -33,10 +32,8 @@ public class LdapAuthorityTests {
 	public void testGetDn() throws Exception {
 		assertThat(authority.getDn()).isEqualTo(DN);
 		assertThat(authority.getAttributeValues(SpringSecurityLdapTemplate.DN_KEY)).isNotNull();
-		assertThat(authority.getAttributeValues(SpringSecurityLdapTemplate.DN_KEY).isEqualTo(1)
-				.size());
-		assertEquals(DN,
-				authority.getFirstAttributeValue(SpringSecurityLdapTemplate.DN_KEY));
+		assertThat(authority.getAttributeValues(SpringSecurityLdapTemplate.DN_KEY)).hasSize(1);
+		assertThat(authority.getFirstAttributeValue(SpringSecurityLdapTemplate.DN_KEY)).isEqualTo(DN);
 	}
 
 	@Test

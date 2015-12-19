@@ -15,14 +15,12 @@
 
 package org.springframework.security.authentication.event;
 
-import junit.framework.TestCase;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
+import org.junit.Test;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.authentication.event.AbstractAuthenticationEvent;
-import org.springframework.security.authentication.event.AbstractAuthenticationFailureEvent;
-import org.springframework.security.authentication.event.AuthenticationFailureDisabledEvent;
-import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 
@@ -31,7 +29,7 @@ import org.springframework.security.core.AuthenticationException;
  *
  * @author Ben Alex
  */
-public class AuthenticationEventTests extends TestCase {
+public class AuthenticationEventTests {
 	// ~ Methods
 	// ========================================================================================================
 
@@ -43,20 +41,14 @@ public class AuthenticationEventTests extends TestCase {
 		return authentication;
 	}
 
-	public static void main(String[] args) {
-		junit.textui.TestRunner.run(AuthenticationEventTests.class);
-	}
-
-	public final void setUp() throws Exception {
-		super.setUp();
-	}
-
+	@Test
 	public void testAbstractAuthenticationEvent() {
 		Authentication auth = getAuthentication();
 		AbstractAuthenticationEvent event = new AuthenticationSuccessEvent(auth);
 		assertThat(event.getAuthentication()).isEqualTo(auth);
 	}
 
+	@Test
 	public void testAbstractAuthenticationFailureEvent() {
 		Authentication auth = getAuthentication();
 		AuthenticationException exception = new DisabledException("TEST");
@@ -66,6 +58,7 @@ public class AuthenticationEventTests extends TestCase {
 		assertThat(event.getException()).isEqualTo(exception);
 	}
 
+	@Test
 	public void testRejectsNullAuthentication() {
 		AuthenticationException exception = new DisabledException("TEST");
 
@@ -78,6 +71,7 @@ public class AuthenticationEventTests extends TestCase {
 		}
 	}
 
+	@Test
 	public void testRejectsNullAuthenticationException() {
 		try {
 			new AuthenticationFailureDisabledEvent(getAuthentication(), null);

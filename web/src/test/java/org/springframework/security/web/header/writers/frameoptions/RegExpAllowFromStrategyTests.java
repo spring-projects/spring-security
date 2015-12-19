@@ -1,13 +1,12 @@
+
 package org.springframework.security.web.header.writers.frameoptions;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.regex.PatternSyntaxException;
 
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.security.web.header.writers.frameoptions.RegExpAllowFromStrategy;
 
 /**
  *
@@ -34,15 +33,15 @@ public class RegExpAllowFromStrategyTests {
 
 		request.setParameter("from", "http://abc.test.com");
 		String result1 = strategy.getAllowFromValue(request);
-		assertThat(result1, is("http://abc.test.com"));
+		assertThat(result1).isEqualTo("http://abc.test.com");
 
 		request.setParameter("from", "http://foo.test.com");
 		String result2 = strategy.getAllowFromValue(request);
-		assertThat(result2, is("http://foo.test.com"));
+		assertThat(result2).isEqualTo("http://foo.test.com");
 
 		request.setParameter("from", "http://test.foobar.com");
 		String result3 = strategy.getAllowFromValue(request);
-		assertThat(result3, is("DENY"));
+		assertThat(result3).isEqualTo("DENY");
 	}
 
 	@Test
@@ -51,6 +50,6 @@ public class RegExpAllowFromStrategyTests {
 				"^http://([a-z0-9]*?\\.)test\\.com");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		String result1 = strategy.getAllowFromValue(request);
-		assertThat(result1, is("DENY"));
+		assertThat(result1).isEqualTo("DENY");
 	}
 }

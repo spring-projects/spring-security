@@ -87,9 +87,8 @@ public class ConcurrentSessionFilterTests {
 		filter.doFilter(request, response, fc);
 		verifyZeroInteractions(fc);
 
-		assertEquals(
-				"This session has been expired (possibly due to multiple concurrent logins being "
-						+ "attempted as the same user).", response.getContentAsString());
+		assertThat(response.getContentAsString()).isEqualTo("This session has been expired (possibly due to multiple concurrent logins being "
+						+ "attempted as the same user).");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -126,7 +125,6 @@ public class ConcurrentSessionFilterTests {
 		filter.doFilter(request, response, fc);
 
 		verify(fc).doFilter(request, response);
-		assertThat(registry.getSessionInformation(session.getId()).getLastRequest().isTrue()
-				.after(lastRequest));
+		assertThat(registry.getSessionInformation(session.getId()).getLastRequest().after(lastRequest)).isTrue();
 	}
 }

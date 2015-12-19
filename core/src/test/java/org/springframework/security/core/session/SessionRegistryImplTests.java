@@ -95,10 +95,8 @@ public class SessionRegistryImplTests {
 		// Retrieve existing session by session ID
 		Date currentDateTime = sessionRegistry.getSessionInformation(sessionId)
 				.getLastRequest();
-		assertThat(sessionRegistry.getSessionInformation(sessionId).isEqualTo(principal)
-				.getPrincipal());
-		assertThat(sessionRegistry.getSessionInformation(sessionId).isEqualTo(sessionId)
-				.getSessionId());
+		assertThat(sessionRegistry.getSessionInformation(sessionId).getPrincipal()).isEqualTo(principal);
+		assertThat(sessionRegistry.getSessionInformation(sessionId).getSessionId()).isEqualTo(sessionId);
 		assertThat(sessionRegistry.getSessionInformation(sessionId).getLastRequest()).isNotNull();
 
 		// Retrieve existing session by principal
@@ -115,8 +113,7 @@ public class SessionRegistryImplTests {
 		assertThat(retrieved.after(currentDateTime)).isTrue();
 
 		// Check it retrieves correctly when looked up via principal
-		assertThat(sessionRegistry.getAllSessions(principal).isCloseTo(retrieved, within(false).get(0))
-				.getLastRequest());
+		assertThat(sessionRegistry.getAllSessions(principal, false).get(0).getLastRequest()).isCloseTo(retrieved, 2000L);
 
 		// Clear session information
 		sessionRegistry.removeSessionInformation(sessionId);

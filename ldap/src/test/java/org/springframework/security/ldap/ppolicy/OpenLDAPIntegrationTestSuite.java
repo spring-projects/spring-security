@@ -1,26 +1,17 @@
+
 package org.springframework.security.ldap.ppolicy;
-
-import static org.junit.Assert.*;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.LockedException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.ldap.authentication.BindAuthenticator;
-import org.springframework.security.ldap.authentication.LdapAuthenticationProvider;
-import org.springframework.security.ldap.userdetails.LdapUserDetailsImpl;
 
 /**
  * Test cases which run against an OpenLDAP server.
  * <p>
  * Run the script in the module root to start the server and import the data before
  * running.
+ * 
  * @author Luke Taylor
  * @since 3.0
  */
 public class OpenLDAPIntegrationTestSuite {
+
 	PasswordPolicyAwareContextSource cs;
 	/*
 	 * @Before public void createContextSource() throws Exception { cs = new

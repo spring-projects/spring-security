@@ -56,14 +56,14 @@ public class SpringSecurityLdapTemplateITests extends AbstractLdapIntegrationTes
 
 	@Test
 	public void compareOfCorrectByteValueSucceeds() {
-		assertTrue(template.compare("uid=bob,ou=people", "userPassword",
-				Utf8.encode("bobspassword")));
+		assertThat(template.compare("uid=bob,ou=people", "userPassword",
+				Utf8.encode("bobspassword"))).isTrue();
 	}
 
 	@Test
 	public void compareOfWrongByteValueFails() {
-		assertFalse(template.compare("uid=bob,ou=people", "userPassword",
-				Utf8.encode("wrongvalue")));
+		assertThat(template.compare("uid=bob,ou=people", "userPassword",
+				Utf8.encode("wrongvalue"))).isFalse();
 	}
 
 	@Test

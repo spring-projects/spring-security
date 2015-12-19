@@ -1,6 +1,6 @@
 package org.springframework.security.ldap.ppolicy;
 
-import static org.junit.Assert.assertNotNull;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import org.junit.*;

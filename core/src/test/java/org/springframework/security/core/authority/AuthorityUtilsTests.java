@@ -1,6 +1,6 @@
 package org.springframework.security.core.authority;
 
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.List;
 import java.util.Set;

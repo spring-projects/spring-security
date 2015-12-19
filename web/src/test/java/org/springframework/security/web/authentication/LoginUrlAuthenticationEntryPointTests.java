@@ -93,22 +93,19 @@ public class LoginUrlAuthenticationEntryPointTests {
 		ep.afterPropertiesSet();
 
 		ep.commence(request, response, null);
-		assertEquals("https://www.example.com/bigWebApp/hello",
-				response.getRedirectedUrl());
+		assertThat(response.getRedirectedUrl()).isEqualTo("https://www.example.com/bigWebApp/hello");
 
 		request.setServerPort(8080);
 		response = new MockHttpServletResponse();
 		ep.setPortResolver(new MockPortResolver(8080, 8443));
 		ep.commence(request, response, null);
-		assertEquals("https://www.example.com:8443/bigWebApp/hello",
-				response.getRedirectedUrl());
+		assertThat(response.getRedirectedUrl()).isEqualTo("https://www.example.com:8443/bigWebApp/hello");
 
 		// Now test an unusual custom HTTP:HTTPS is handled properly
 		request.setServerPort(8888);
 		response = new MockHttpServletResponse();
 		ep.commence(request, response, null);
-		assertEquals("https://www.example.com:8443/bigWebApp/hello",
-				response.getRedirectedUrl());
+		assertThat(response.getRedirectedUrl()).isEqualTo("https://www.example.com:8443/bigWebApp/hello");
 
 		PortMapperImpl portMapper = new PortMapperImpl();
 		Map<String, String> map = new HashMap<String, String>();
@@ -124,8 +121,7 @@ public class LoginUrlAuthenticationEntryPointTests {
 		ep.afterPropertiesSet();
 
 		ep.commence(request, response, null);
-		assertEquals("https://www.example.com:9999/bigWebApp/hello",
-				response.getRedirectedUrl());
+		assertThat(response.getRedirectedUrl()).isEqualTo("https://www.example.com:9999/bigWebApp/hello");
 	}
 
 	@Test
@@ -148,15 +144,13 @@ public class LoginUrlAuthenticationEntryPointTests {
 		ep.afterPropertiesSet();
 
 		ep.commence(request, response, null);
-		assertEquals("https://www.example.com/bigWebApp/hello",
-				response.getRedirectedUrl());
+		assertThat(response.getRedirectedUrl()).isEqualTo("https://www.example.com/bigWebApp/hello");
 
 		request.setServerPort(8443);
 		response = new MockHttpServletResponse();
 		ep.setPortResolver(new MockPortResolver(8080, 8443));
 		ep.commence(request, response, null);
-		assertEquals("https://www.example.com:8443/bigWebApp/hello",
-				response.getRedirectedUrl());
+		assertThat(response.getRedirectedUrl()).isEqualTo("https://www.example.com:8443/bigWebApp/hello");
 	}
 
 	@Test
@@ -178,8 +172,7 @@ public class LoginUrlAuthenticationEntryPointTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
 		ep.commence(request, response, null);
-		assertEquals("http://www.example.com/bigWebApp/hello",
-				response.getRedirectedUrl());
+		assertThat(response.getRedirectedUrl()).isEqualTo("http://www.example.com/bigWebApp/hello");
 	}
 
 	@Test
@@ -204,8 +197,7 @@ public class LoginUrlAuthenticationEntryPointTests {
 
 		// Response doesn't switch to HTTPS, as we didn't know HTTP port 8888 to HTTP port
 		// mapping
-		assertEquals("http://www.example.com:8888/bigWebApp/hello",
-				response.getRedirectedUrl());
+		assertThat(response.getRedirectedUrl()).isEqualTo("http://www.example.com:8888/bigWebApp/hello");
 	}
 
 	@Test
@@ -250,8 +242,7 @@ public class LoginUrlAuthenticationEntryPointTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
 		ep.commence(request, response, null);
-		assertEquals("https://www.example.com/bigWebApp/some_path",
-				response.getRedirectedUrl());
+		assertThat(response.getRedirectedUrl()).isEqualTo("https://www.example.com/bigWebApp/some_path");
 	}
 
 	// SEC-1498

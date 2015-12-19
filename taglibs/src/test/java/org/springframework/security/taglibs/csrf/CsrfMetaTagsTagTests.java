@@ -27,10 +27,9 @@ public class CsrfMetaTagsTagTests {
 		String value = this.tag.handleToken(token);
 
 		assertThat(value).as("The returned value should not be null.").isNotNull();
-		assertEquals("The output is not correct.",
-				"<meta name=\"_csrf_parameter\" content=\"_csrf\" />"
-						+ "<meta name=\"_csrf_header\" content=\"X-Csrf-Token\" />"
-						+ "<meta name=\"_csrf\" content=\"abc123def456ghi789\" />", value);
+		assertThat(value).withFailMessage("The output is not correct.").isEqualTo("<meta name=\"_csrf_parameter\" content=\"_csrf\" />"
+				+ "<meta name=\"_csrf_header\" content=\"X-Csrf-Token\" />"
+				+ "<meta name=\"_csrf\" content=\"abc123def456ghi789\" />");
 	}
 
 	@Test
@@ -41,9 +40,8 @@ public class CsrfMetaTagsTagTests {
 		String value = this.tag.handleToken(token);
 
 		assertThat(value).as("The returned value should not be null.").isNotNull();
-		assertEquals("The output is not correct.",
-				"<meta name=\"_csrf_parameter\" content=\"csrfParameter\" />"
-						+ "<meta name=\"_csrf_header\" content=\"csrfHeader\" />"
-						+ "<meta name=\"_csrf\" content=\"fooBarBazQux\" />", value);
+		assertThat(value).withFailMessage("The output is not correct.").isEqualTo("<meta name=\"_csrf_parameter\" content=\"csrfParameter\" />"
+				+ "<meta name=\"_csrf_header\" content=\"csrfHeader\" />"
+				+ "<meta name=\"_csrf\" content=\"fooBarBazQux\" />");
 	}
 }

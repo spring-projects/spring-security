@@ -1,6 +1,6 @@
 package org.springframework.security.authentication.jaas;
 
-import junit.framework.Assert;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
@@ -54,7 +54,7 @@ public class Sec760Tests {
 						"ROLE_TWO"));
 
 		Authentication auth = p1.authenticate(token);
-		Assert.assertThat(auth).isNotNull();
+		assertThat(auth).isNotNull();
 	}
 
 	@Test

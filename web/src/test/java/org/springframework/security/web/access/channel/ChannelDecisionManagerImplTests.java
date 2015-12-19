@@ -16,6 +16,7 @@
 package org.springframework.security.web.access.channel;
 
 import static org.mockito.Mockito.mock;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -26,8 +27,7 @@ import java.util.Vector;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 
-import junit.framework.TestCase;
-
+import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.access.ConfigAttribute;
@@ -42,10 +42,10 @@ import org.springframework.security.web.access.channel.ChannelProcessor;
  * @author Ben Alex
  */
 @SuppressWarnings("unchecked")
-public class ChannelDecisionManagerImplTests extends TestCase {
+public class ChannelDecisionManagerImplTests {
 	// ~ Methods
 	// ========================================================================================================
-
+	@Test
 	public void testCannotSetEmptyChannelProcessorsList() throws Exception {
 		ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
 
@@ -58,7 +58,8 @@ public class ChannelDecisionManagerImplTests extends TestCase {
 			assertThat(expected.getMessage()).isEqualTo("A list of ChannelProcessors is required");
 		}
 	}
-
+	
+	@Test
 	public void testCannotSetIncorrectObjectTypesIntoChannelProcessorsList()
 			throws Exception {
 		ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
@@ -73,7 +74,8 @@ public class ChannelDecisionManagerImplTests extends TestCase {
 
 		}
 	}
-
+	
+	@Test
 	public void testCannotSetNullChannelProcessorsList() throws Exception {
 		ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
 
@@ -86,7 +88,8 @@ public class ChannelDecisionManagerImplTests extends TestCase {
 			assertThat(expected.getMessage()).isEqualTo("A list of ChannelProcessors is required");
 		}
 	}
-
+	
+	@Test
 	public void testDecideIsOperational() throws Exception {
 		ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
 		MockChannelProcessor cpXyz = new MockChannelProcessor("xyz", false);
@@ -107,7 +110,8 @@ public class ChannelDecisionManagerImplTests extends TestCase {
 		cdm.decide(fi, cad);
 		assertThat(fi.getResponse().isCommitted()).isTrue();
 	}
-
+	
+	@Test
 	public void testAnyChannelAttributeCausesProcessorsToBeSkipped() throws Exception {
 		ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
 		MockChannelProcessor cpAbc = new MockChannelProcessor("abc", true);
@@ -124,7 +128,8 @@ public class ChannelDecisionManagerImplTests extends TestCase {
 		cdm.decide(fi, SecurityConfig.createList(new String[] { "abc", "ANY_CHANNEL" }));
 		assertThat(fi.getResponse().isCommitted()).isFalse();
 	}
-
+	
+	@Test
 	public void testDecideIteratesAllProcessorsIfNoneCommitAResponse() throws Exception {
 		ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
 		MockChannelProcessor cpXyz = new MockChannelProcessor("xyz", false);
@@ -143,7 +148,8 @@ public class ChannelDecisionManagerImplTests extends TestCase {
 		cdm.decide(fi, SecurityConfig.createList("SOME_ATTRIBUTE_NO_PROCESSORS_SUPPORT"));
 		assertThat(fi.getResponse().isCommitted()).isFalse();
 	}
-
+	
+	@Test
 	public void testDelegatesSupports() throws Exception {
 		ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
 		MockChannelProcessor cpXyz = new MockChannelProcessor("xyz", false);
@@ -158,7 +164,8 @@ public class ChannelDecisionManagerImplTests extends TestCase {
 		assertThat(cdm.supports(new SecurityConfig("abc"))).isTrue();
 		assertThat(cdm.supports(new SecurityConfig("UNSUPPORTED"))).isFalse();
 	}
-
+	
+	@Test
 	public void testGettersSetters() {
 		ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
 		assertThat(cdm.getChannelProcessors()).isNull();
@@ -172,7 +179,8 @@ public class ChannelDecisionManagerImplTests extends TestCase {
 
 		assertThat(cdm.getChannelProcessors()).isEqualTo(list);
 	}
-
+	
+	@Test
 	public void testStartupFailsWithEmptyChannelProcessorsList() throws Exception {
 		ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
 

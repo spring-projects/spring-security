@@ -34,10 +34,10 @@ public class WebSpherePreAuthenticatedProcessingFilterTests {
 		when(helper.getCurrentUserName()).thenReturn("jerry");
 		WebSpherePreAuthenticatedProcessingFilter filter = new WebSpherePreAuthenticatedProcessingFilter(
 				helper);
-		assertEquals("jerry",
-				filter.getPreAuthenticatedPrincipal(new MockHttpServletRequest()));
-		assertEquals("N/A",
-				filter.getPreAuthenticatedCredentials(new MockHttpServletRequest()));
+		assertThat(filter.getPreAuthenticatedPrincipal(new MockHttpServletRequest())).isEqualTo(
+				"jerry");
+		assertThat(filter.getPreAuthenticatedCredentials(new MockHttpServletRequest())).isEqualTo(
+				"N/A");
 
 		AuthenticationManager am = mock(AuthenticationManager.class);
 		when(am.authenticate(any(Authentication.class))).thenAnswer(

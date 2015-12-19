@@ -1,8 +1,7 @@
+
 package org.springframework.security.web.savedrequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 import java.util.Collection;
 import java.util.List;
@@ -30,11 +29,12 @@ public class HttpSessionRequestCacheTests {
 	public void originalGetRequestDoesntMatchIncomingPost() {
 		HttpSessionRequestCache cache = new HttpSessionRequestCache();
 
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/destination");
+		MockHttpServletRequest request = new MockHttpServletRequest("GET",
+				"/destination");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		cache.saveRequest(request, response);
-		assertThat(request.getSession().isNotNull().getAttribute(
-				HttpSessionRequestCache.SAVED_REQUEST));
+		assertThat(request.getSession().getAttribute(
+				HttpSessionRequestCache.SAVED_REQUEST)).isNotNull();
 		assertThat(cache.getRequest(request, response)).isNotNull();
 
 		MockHttpServletRequest newRequest = new MockHttpServletRequest("POST",
@@ -48,6 +48,7 @@ public class HttpSessionRequestCacheTests {
 	public void requestMatcherDefinesCorrectSubsetOfCachedRequests() throws Exception {
 		HttpSessionRequestCache cache = new HttpSessionRequestCache();
 		cache.setRequestMatcher(new RequestMatcher() {
+
 			public boolean matches(HttpServletRequest request) {
 				return request.getMethod().equals("GET");
 			}
@@ -58,8 +59,8 @@ public class HttpSessionRequestCacheTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		cache.saveRequest(request, response);
 		assertThat(cache.getRequest(request, response)).isNull();
-		assertThat(cache.getRequest(new MockHttpServletRequest().isNull(),
-				new MockHttpServletResponse()));
+		assertThat(cache.getRequest(new MockHttpServletRequest(),
+				new MockHttpServletResponse())).isNull();
 		assertThat(cache.getMatchingRequest(request, response)).isNull();
 	}
 
@@ -74,10 +75,8 @@ public class HttpSessionRequestCacheTests {
 			@Override
 			public void saveRequest(HttpServletRequest request,
 					HttpServletResponse response) {
-				request.getSession().setAttribute(
-						SAVED_REQUEST,
-						new CustomSavedRequest(new DefaultSavedRequest(request,
-								new PortResolverImpl())));
+				request.getSession().setAttribute(SAVED_REQUEST, new CustomSavedRequest(
+						new DefaultSavedRequest(request, new PortResolverImpl())));
 			}
 
 		};
@@ -89,6 +88,7 @@ public class HttpSessionRequestCacheTests {
 	}
 
 	private static final class CustomSavedRequest implements SavedRequest {
+
 		private final SavedRequest delegate;
 
 		private CustomSavedRequest(SavedRequest delegate) {

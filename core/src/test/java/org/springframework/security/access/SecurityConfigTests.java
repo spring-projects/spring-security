@@ -70,13 +70,13 @@ public class SecurityConfigTests {
 		assertThat(!security1.equals(security3)).isTrue();
 
 		MockConfigAttribute mock1 = new MockConfigAttribute("TEST");
-		assertThat(mock1).isEqualTo(security1);
+		assertThat(security1).isEqualTo(mock1);
 
 		MockConfigAttribute mock2 = new MockConfigAttribute("NOT_EQUAL");
-		assertThat(!security1.equals(mock2)).isTrue();
+		assertThat(security1).isNotEqualTo(mock2);
 
 		Integer int1 = Integer.valueOf(987);
-		assertThat(!security1.equals(int1)).isTrue();
+		assertThat(security1).isNotEqualTo(int1);
 	}
 
 	@Test

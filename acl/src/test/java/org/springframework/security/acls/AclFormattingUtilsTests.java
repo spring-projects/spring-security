@@ -1,22 +1,23 @@
+
 package org.springframework.security.acls;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
+import org.junit.Test;
 import org.springframework.security.acls.domain.AclFormattingUtils;
 import org.springframework.security.acls.model.Permission;
-
-import junit.framework.TestCase;
 
 /**
  * Tests for {@link AclFormattingUtils}.
  *
  * @author Andrei Stefan
  */
-public class AclFormattingUtilsTests extends TestCase {
+public class AclFormattingUtilsTests {
 
 	// ~ Methods
 	// ========================================================================================================
-
+	@Test
 	public final void testDemergePatternsParametersConstraints() throws Exception {
 		try {
 			AclFormattingUtils.demergePatterns(null, "SOME STRING");
@@ -47,15 +48,20 @@ public class AclFormattingUtilsTests extends TestCase {
 		}
 	}
 
+	@Test
 	public final void testDemergePatterns() throws Exception {
 		String original = "...........................A...R";
 		String removeBits = "...............................R";
-		assertThat(AclFormattingUtils.demergePatterns(original, removeBits)).isEqualTo("...........................A....");
+		assertThat(AclFormattingUtils.demergePatterns(original, removeBits)).isEqualTo(
+				"...........................A....");
 
-		assertThat(AclFormattingUtils.demergePatterns("ABCDEF", "......")).isEqualTo("ABCDEF");
-		assertThat(AclFormattingUtils.demergePatterns("ABCDEF", "GHIJKL")).isEqualTo("......");
+		assertThat(AclFormattingUtils.demergePatterns("ABCDEF", "......")).isEqualTo(
+				"ABCDEF");
+		assertThat(AclFormattingUtils.demergePatterns("ABCDEF", "GHIJKL")).isEqualTo(
+				"......");
 	}
 
+	@Test
 	public final void testMergePatternsParametersConstraints() throws Exception {
 		try {
 			AclFormattingUtils.mergePatterns(null, "SOME STRING");
@@ -85,22 +91,23 @@ public class AclFormattingUtilsTests extends TestCase {
 		}
 	}
 
+	@Test
 	public final void testMergePatterns() throws Exception {
 		String original = "...............................R";
 		String extraBits = "...........................A....";
-		assertThat(
-				AclFormattingUtils.mergePatterns(original, extraBits)).isEqualTo("...........................A...R");
+		assertThat(AclFormattingUtils.mergePatterns(original, extraBits)).isEqualTo(
+				"...........................A...R");
 
-		assertThat(AclFormattingUtils.mergePatterns("ABCDEF", "......"))
-			.isEqualTo("ABCDEF");
-		assertThat(AclFormattingUtils.mergePatterns("ABCDEF", "GHIJKL"))
-			.isEqualTo("GHIJKL");
+		assertThat(AclFormattingUtils.mergePatterns("ABCDEF", "......")).isEqualTo(
+				"ABCDEF");
+		assertThat(AclFormattingUtils.mergePatterns("ABCDEF", "GHIJKL")).isEqualTo(
+				"GHIJKL");
 	}
 
+	@Test
 	public final void testBinaryPrints() throws Exception {
-		assertThat(
-				AclFormattingUtils.printBinary(15))
-				.isEqualTo("............................****");
+		assertThat(AclFormattingUtils.printBinary(15)).isEqualTo(
+				"............................****");
 
 		try {
 			AclFormattingUtils.printBinary(15, Permission.RESERVED_ON);
@@ -116,20 +123,19 @@ public class AclFormattingUtilsTests extends TestCase {
 		catch (IllegalArgumentException notExpected) {
 		}
 
-		assertThat(
-				AclFormattingUtils.printBinary(15, 'x'))
-			.isEqualTo("............................xxxx");
+		assertThat(AclFormattingUtils.printBinary(15, 'x')).isEqualTo(
+				"............................xxxx");
 	}
 
+	@Test
 	public void testPrintBinaryNegative() {
-		assertThat(
-				AclFormattingUtils.printBinary(0x80000000))
-				.isEqualTo("*...............................");
+		assertThat(AclFormattingUtils.printBinary(0x80000000)).isEqualTo(
+				"*...............................");
 	}
 
+	@Test
 	public void testPrintBinaryMinusOne() {
-		assertThat(
-				AclFormattingUtils.printBinary(0xffffffff))
-				.isEqualTo("********************************");
+		assertThat(AclFormattingUtils.printBinary(0xffffffff)).isEqualTo(
+				"********************************");
 	}
 }

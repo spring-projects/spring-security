@@ -15,8 +15,10 @@
 
 package org.springframework.security.core.context;
 
-import junit.framework.TestCase;
+import static org.assertj.core.api.Assertions.*;
 
+import org.junit.Before;
+import org.junit.Test;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextImpl;
 
@@ -25,16 +27,17 @@ import org.springframework.security.core.context.SecurityContextImpl;
  *
  * @author Ben Alex
  */
-public class SecurityContextHolderTests extends TestCase {
+public class SecurityContextHolderTests {
 
 	// ~ Methods
 	// ========================================================================================================
-
+	@Before
 	public final void setUp() throws Exception {
 		SecurityContextHolder
 				.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
 	}
 
+	@Test
 	public void testContextHolderGetterSetterClearer() {
 		SecurityContext sc = new SecurityContextImpl();
 		sc.setAuthentication(new UsernamePasswordAuthenticationToken("Foobar", "pass"));
@@ -45,11 +48,13 @@ public class SecurityContextHolderTests extends TestCase {
 		SecurityContextHolder.clearContext();
 	}
 
+	@Test
 	public void testNeverReturnsNull() {
 		assertThat(SecurityContextHolder.getContext()).isNotNull();
 		SecurityContextHolder.clearContext();
 	}
 
+	@Test
 	public void testRejectsNulls() {
 		try {
 			SecurityContextHolder.setContext(null);

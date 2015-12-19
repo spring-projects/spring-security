@@ -15,7 +15,9 @@
 
 package org.springframework.security.core.userdetails.jdbc;
 
-import junit.framework.TestCase;
+import static org.assertj.core.api.Assertions.*;
+
+import org.junit.Test;
 
 import org.springframework.security.PopulatedDatabase;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -27,7 +29,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
  *
  * @author Ben Alex
  */
-public class JdbcDaoImplTests extends TestCase {
+public class JdbcDaoImplTests {
 
 	// ~ Methods
 	// ========================================================================================================
@@ -49,6 +51,7 @@ public class JdbcDaoImplTests extends TestCase {
 		return dao;
 	}
 
+	@Test
 	public void testCheckDaoAccessUserSuccess() throws Exception {
 		JdbcDaoImpl dao = makePopulatedJdbcDao();
 		UserDetails user = dao.loadUserByUsername("rod");
@@ -56,26 +59,29 @@ public class JdbcDaoImplTests extends TestCase {
 		assertThat(user.getPassword()).isEqualTo("koala");
 		assertThat(user.isEnabled()).isTrue();
 
-		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities()).isTrue().contains(
+		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities()).contains(
 				"ROLE_TELLER"));
-		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities()).isTrue().contains(
+		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities()).contains(
 				"ROLE_SUPERVISOR"));
 	}
 
+	@Test
 	public void testCheckDaoOnlyReturnsGrantedAuthoritiesGrantedToUser() throws Exception {
 		JdbcDaoImpl dao = makePopulatedJdbcDao();
 		UserDetails user = dao.loadUserByUsername("scott");
 		assertThat(user.getAuthorities()).hasSize(1);
-		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities()).isTrue().contains(
+		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities()).contains(
 				"ROLE_TELLER"));
 	}
 
+	@Test
 	public void testCheckDaoReturnsCorrectDisabledProperty() throws Exception {
 		JdbcDaoImpl dao = makePopulatedJdbcDao();
 		UserDetails user = dao.loadUserByUsername("peter");
-		assertThat(!user.isEnabled()).isTrue();
+		assertThat(user.isEnabled()).isFalse();
 	}
 
+	@Test
 	public void testGettersSetters() {
 		JdbcDaoImpl dao = new JdbcDaoImpl();
 		dao.setAuthoritiesByUsernameQuery("SELECT * FROM FOO");
@@ -85,6 +91,7 @@ public class JdbcDaoImplTests extends TestCase {
 		assertThat(dao.getUsersByUsernameQuery()).isEqualTo("SELECT USERS FROM FOO");
 	}
 
+	@Test
 	public void testLookupFailsIfUserHasNoGrantedAuthorities() throws Exception {
 		JdbcDaoImpl dao = makePopulatedJdbcDao();
 
@@ -96,6 +103,7 @@ public class JdbcDaoImplTests extends TestCase {
 		}
 	}
 
+	@Test
 	public void testLookupFailsWithWrongUsername() throws Exception {
 		JdbcDaoImpl dao = makePopulatedJdbcDao();
 
@@ -108,12 +116,14 @@ public class JdbcDaoImplTests extends TestCase {
 		}
 	}
 
+	@Test
 	public void testLookupSuccessWithMixedCase() throws Exception {
 		JdbcDaoImpl dao = makePopulatedJdbcDao();
 		assertThat(dao.loadUserByUsername("rod").getPassword()).isEqualTo("koala");
 		assertThat(dao.loadUserByUsername("ScOTt").getPassword()).isEqualTo("wombat");
 	}
 
+	@Test
 	public void testRolePrefixWorks() throws Exception {
 		JdbcDaoImpl dao = makePopulatedJdbcDaoWithRolePrefix();
 		assertThat(dao.getRolePrefix()).isEqualTo("ARBITRARY_PREFIX_");
@@ -122,12 +132,13 @@ public class JdbcDaoImplTests extends TestCase {
 		assertThat(user.getUsername()).isEqualTo("rod");
 		assertThat(user.getAuthorities()).hasSize(2);
 
-		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities()).isTrue().contains(
+		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities()).contains(
 				"ARBITRARY_PREFIX_ROLE_TELLER"));
-		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities()).isTrue().contains(
+		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities()).contains(
 				"ARBITRARY_PREFIX_ROLE_SUPERVISOR"));
 	}
 
+	@Test
 	public void testGroupAuthoritiesAreLoadedCorrectly() throws Exception {
 		JdbcDaoImpl dao = makePopulatedJdbcDao();
 		dao.setEnableAuthorities(false);
@@ -137,6 +148,7 @@ public class JdbcDaoImplTests extends TestCase {
 		assertThat(jerry.getAuthorities()).hasSize(3);
 	}
 
+	@Test
 	public void testDuplicateGroupAuthoritiesAreRemoved() throws Exception {
 		JdbcDaoImpl dao = makePopulatedJdbcDao();
 		dao.setEnableAuthorities(false);
@@ -146,6 +158,7 @@ public class JdbcDaoImplTests extends TestCase {
 		assertThat(tom.getAuthorities()).hasSize(3);
 	}
 
+	@Test
 	public void testStartupFailsIfDataSourceNotSet() throws Exception {
 		JdbcDaoImpl dao = new JdbcDaoImpl();
 
@@ -158,6 +171,7 @@ public class JdbcDaoImplTests extends TestCase {
 		}
 	}
 
+	@Test
 	public void testStartupFailsIfUserMapSetToNull() throws Exception {
 		JdbcDaoImpl dao = new JdbcDaoImpl();
 

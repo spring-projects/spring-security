@@ -15,9 +15,9 @@
 
 package org.springframework.security.authentication.encoding;
 
-import org.springframework.security.authentication.encoding.PlaintextPasswordEncoder;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /**
  * <p>
@@ -27,10 +27,11 @@ import junit.framework.TestCase;
  * @author colin sampaleanu
  * @author Ben Alex
  */
-public class PlaintextPasswordEncoderTests extends TestCase {
+public class PlaintextPasswordEncoderTests {
+
 	// ~ Methods
 	// ========================================================================================================
-
+	@Test
 	public void testBasicFunctionality() {
 		PlaintextPasswordEncoder pe = new PlaintextPasswordEncoder();
 
@@ -59,6 +60,7 @@ public class PlaintextPasswordEncoderTests extends TestCase {
 		assertThat(pe.isPasswordValid(encoded, badRaw, salt)).isFalse();
 	}
 
+	@Test
 	public void testMergeDemerge() {
 		PlaintextPasswordEncoder pwd = new PlaintextPasswordEncoder();
 

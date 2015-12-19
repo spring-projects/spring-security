@@ -1,8 +1,10 @@
+
 package org.springframework.security.acls.sid;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.Sid;
@@ -11,11 +13,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-public class SidTests extends TestCase {
+public class SidTests {
 
 	// ~ Methods
 	// ========================================================================================================
-
+	@Test
 	public void testPrincipalSidConstructorsRequiredFields() throws Exception {
 		// Check one String-argument constructor
 		try {
@@ -60,6 +62,7 @@ public class SidTests extends TestCase {
 		// throws no exception
 	}
 
+	@Test
 	public void testGrantedAuthoritySidConstructorsRequiredFields() throws Exception {
 		// Check one String-argument constructor
 		try {
@@ -116,6 +119,7 @@ public class SidTests extends TestCase {
 		}
 	}
 
+	@Test
 	public void testPrincipalSidEquals() throws Exception {
 		Authentication authentication = new TestingAuthenticationToken("johndoe",
 				"password");
@@ -125,14 +129,15 @@ public class SidTests extends TestCase {
 		assertThat(principalSid.equals("DIFFERENT_TYPE_OBJECT")).isFalse();
 		assertThat(principalSid.equals(principalSid)).isTrue();
 		assertThat(principalSid.equals(new PrincipalSid(authentication))).isTrue();
-		assertTrue(principalSid.equals(new PrincipalSid(
-				new TestingAuthenticationToken("johndoe", null))));
-		assertFalse(principalSid.equals(new PrincipalSid(
-				new TestingAuthenticationToken("scott", null))));
+		assertThat(principalSid.equals(new PrincipalSid(
+				new TestingAuthenticationToken("johndoe", null)))).isTrue();
+		assertThat(principalSid.equals(new PrincipalSid(
+				new TestingAuthenticationToken("scott", null)))).isFalse();
 		assertThat(principalSid.equals(new PrincipalSid("johndoe"))).isTrue();
 		assertThat(principalSid.equals(new PrincipalSid("scott"))).isFalse();
 	}
 
+	@Test
 	public void testGrantedAuthoritySidEquals() throws Exception {
 		GrantedAuthority ga = new SimpleGrantedAuthority("ROLE_TEST");
 		Sid gaSid = new GrantedAuthoritySid(ga);
@@ -141,39 +146,44 @@ public class SidTests extends TestCase {
 		assertThat(gaSid.equals("DIFFERENT_TYPE_OBJECT")).isFalse();
 		assertThat(gaSid.equals(gaSid)).isTrue();
 		assertThat(gaSid.equals(new GrantedAuthoritySid(ga))).isTrue();
-		assertTrue(gaSid.equals(new GrantedAuthoritySid(
-				new SimpleGrantedAuthority("ROLE_TEST"))));
-		assertFalse(gaSid.equals(new GrantedAuthoritySid(
-				new SimpleGrantedAuthority("ROLE_NOT_EQUAL"))));
+		assertThat(gaSid.equals(new GrantedAuthoritySid(
+				new SimpleGrantedAuthority("ROLE_TEST")))).isTrue();
+		assertThat(gaSid.equals(new GrantedAuthoritySid(
+				new SimpleGrantedAuthority("ROLE_NOT_EQUAL")))).isFalse();
 		assertThat(gaSid.equals(new GrantedAuthoritySid("ROLE_TEST"))).isTrue();
 		assertThat(gaSid.equals(new GrantedAuthoritySid("ROLE_NOT_EQUAL"))).isFalse();
 	}
 
+	@Test
 	public void testPrincipalSidHashCode() throws Exception {
 		Authentication authentication = new TestingAuthenticationToken("johndoe",
 				"password");
 		Sid principalSid = new PrincipalSid(authentication);
 
-		assertThat(principalSid.hashCode()).isSameAs("johndoe".hashCode());
-		assertThat(principalSid.hashCode()).isSameAs(new PrincipalSid("johndoe").hashCode());
-		assertThat(principalSid.hashCode()).isNotEqualTo(new PrincipalSid("scott").hashCode());
+		assertThat(principalSid.hashCode()).isEqualTo("johndoe".hashCode());
+		assertThat(principalSid.hashCode()).isEqualTo(
+				new PrincipalSid("johndoe").hashCode());
+		assertThat(principalSid.hashCode()).isNotEqualTo(
+				new PrincipalSid("scott").hashCode());
 		assertThat(principalSid.hashCode()).isNotEqualTo(new PrincipalSid(
 				new TestingAuthenticationToken("scott", "password")).hashCode());
 	}
 
+	@Test
 	public void testGrantedAuthoritySidHashCode() throws Exception {
 		GrantedAuthority ga = new SimpleGrantedAuthority("ROLE_TEST");
 		Sid gaSid = new GrantedAuthoritySid(ga);
 
 		assertThat(gaSid.hashCode()).isEqualTo("ROLE_TEST".hashCode());
-		assertThat(gaSid.hashCode()).isEqualTo(new GrantedAuthoritySid("ROLE_TEST")
-				.hashCode());
-		assertThat(gaSid.hashCode()).isNotEqualTo(new GrantedAuthoritySid("ROLE_TEST_2")
-				.hashCode());
+		assertThat(gaSid.hashCode()).isEqualTo(
+				new GrantedAuthoritySid("ROLE_TEST").hashCode());
+		assertThat(gaSid.hashCode()).isNotEqualTo(
+				new GrantedAuthoritySid("ROLE_TEST_2").hashCode());
 		assertThat(gaSid.hashCode()).isNotEqualTo(new GrantedAuthoritySid(
 				new SimpleGrantedAuthority("ROLE_TEST_2")).hashCode());
 	}
 
+	@Test
 	public void testGetters() throws Exception {
 		Authentication authentication = new TestingAuthenticationToken("johndoe",
 				"password");

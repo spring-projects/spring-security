@@ -52,7 +52,7 @@ public class SecurityContextPersistenceFilterTests {
 				any(ServletResponse.class));
 		try {
 			filter.doFilter(request, response, chain);
-			fail();
+			fail("IOException should have been thrown");
 		}
 		catch (IOException expected) {
 		}
@@ -80,8 +80,7 @@ public class SecurityContextPersistenceFilterTests {
 		final FilterChain chain = new FilterChain() {
 			public void doFilter(ServletRequest request, ServletResponse response)
 					throws IOException, ServletException {
-				assertThat(SecurityContextHolder.getContext().isEqualTo(beforeAuth)
-						.getAuthentication());
+				assertThat(SecurityContextHolder.getContext().getAuthentication()).isEqualTo(beforeAuth);
 				// Change the context here
 				SecurityContextHolder.setContext(scExpectedAfter);
 			}

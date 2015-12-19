@@ -72,8 +72,8 @@ public class NestedLdapAuthoritiesPopulatorTests extends AbstractLdapIntegration
 		Collection<GrantedAuthority> authorities = populator.getGrantedAuthorities(ctx,
 				"scaladude");
 		assertThat(authorities).hasSize(5);
-		assertEquals(Arrays.asList(javaDevelopers, scalaDevelopers,
-				circularJavaDevelopers, jDevelopers, groovyDevelopers), authorities);
+		assertThat(Arrays.asList(javaDevelopers, scalaDevelopers,
+				circularJavaDevelopers, jDevelopers, groovyDevelopers)).isEqualTo(authorities);
 	}
 
 	@Test
@@ -83,8 +83,7 @@ public class NestedLdapAuthoritiesPopulatorTests extends AbstractLdapIntegration
 		Collection<GrantedAuthority> authorities = populator.getGrantedAuthorities(ctx,
 				"javadude");
 		assertThat(authorities).hasSize(3);
-		assertThat(circularJavaDevelopers).isCloseTo(Arrays.asList(javaDevelopers, within(jDevelopers)),
-				authorities);
+		assertThat(authorities).contains(javaDevelopers);
 	}
 
 	@Test
@@ -105,8 +104,8 @@ public class NestedLdapAuthoritiesPopulatorTests extends AbstractLdapIntegration
 		Collection<GrantedAuthority> authorities = populator.getGrantedAuthorities(ctx,
 				"groovydude");
 		assertThat(authorities).hasSize(4);
-		assertEquals(Arrays.asList(javaDevelopers, circularJavaDevelopers, jDevelopers,
-				groovyDevelopers), authorities);
+		assertThat(authorities).isEqualTo(Arrays.asList(javaDevelopers, circularJavaDevelopers, jDevelopers,
+				groovyDevelopers));
 	}
 
 	@Test
@@ -118,8 +117,8 @@ public class NestedLdapAuthoritiesPopulatorTests extends AbstractLdapIntegration
 		Collection<GrantedAuthority> authorities = populator.getGrantedAuthorities(ctx,
 				"closuredude");
 		assertThat(authorities).hasSize(5);
-		assertEquals(Arrays.asList(closureDevelopers, javaDevelopers,
-				circularJavaDevelopers, jDevelopers, groovyDevelopers), authorities);
+		assertThat(authorities).isEqualTo(Arrays.asList(closureDevelopers, javaDevelopers,
+				circularJavaDevelopers, jDevelopers, groovyDevelopers));
 
 		LdapAuthority[] ldapAuthorities = authorities.toArray(new LdapAuthority[0]);
 		assertThat(ldapAuthorities.length).isEqualTo(5);
@@ -127,17 +126,14 @@ public class NestedLdapAuthoritiesPopulatorTests extends AbstractLdapIntegration
 		assertThat(ldapAuthorities[0].getAttributes().containsKey("member")).isTrue();
 		assertThat(ldapAuthorities[0].getAttributes().get("member")).isNotNull();
 		assertThat(ldapAuthorities[0].getAttributes().get("member")).hasSize(1);
-		assertEquals("uid=closuredude,ou=people,dc=springframework,dc=org",
-				ldapAuthorities[0].getFirstAttributeValue("member"));
+		assertThat(ldapAuthorities[0].getFirstAttributeValue("member")).isEqualTo("uid=closuredude,ou=people,dc=springframework,dc=org");
 
 		// java group
 		assertThat(ldapAuthorities[1].getAttributes().containsKey("member")).isTrue();
 		assertThat(ldapAuthorities[1].getAttributes().get("member")).isNotNull();
 		assertThat(ldapAuthorities[1].getAttributes().get("member")).hasSize(3);
-		assertEquals(groovyDevelopers.getDn(),
-				ldapAuthorities[1].getFirstAttributeValue("member"));
-		assertThat(scalaDevelopers.getDn().isEqualTo(new String[] { groovyDevelopers.getDn()),
-				"uid=javadude,ou=people,dc=springframework,dc=org" }, ldapAuthorities[1]
+		assertThat(groovyDevelopers.getDn()).isEqualTo(ldapAuthorities[1].getFirstAttributeValue("member"));
+		assertThat(scalaDevelopers.getDn()).isEqualTo(ldapAuthorities[2]
 				.getAttributes().get("member"));
 
 		// test non existent attribute

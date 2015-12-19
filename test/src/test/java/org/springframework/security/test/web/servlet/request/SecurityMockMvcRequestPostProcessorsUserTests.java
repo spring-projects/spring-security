@@ -83,7 +83,7 @@ public class SecurityMockMvcRequestPostProcessorsUserTests {
 				UsernamePasswordAuthenticationToken.class);
 		assertThat(context.getAuthentication().getName()).isEqualTo(username);
 		assertThat(context.getAuthentication().getCredentials()).isEqualTo("password");
-		assertThat(context.getAuthentication().getAuthorities()).onProperty("authority")
+		assertThat(context.getAuthentication().getAuthorities()).extracting("authority")
 				.containsOnly("ROLE_USER");
 	}
 
@@ -101,7 +101,7 @@ public class SecurityMockMvcRequestPostProcessorsUserTests {
 				UsernamePasswordAuthenticationToken.class);
 		assertThat(context.getAuthentication().getName()).isEqualTo(username);
 		assertThat(context.getAuthentication().getCredentials()).isEqualTo("newpass");
-		assertThat(context.getAuthentication().getAuthorities()).onProperty("authority")
+		assertThat(context.getAuthentication().getAuthorities()).extracting("authority")
 				.containsOnly("ROLE_CUSTOM", "ROLE_ADMIN");
 	}
 

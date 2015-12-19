@@ -66,8 +66,7 @@ public class SpringCacheBasedUserCacheTests {
 
 		// Check it gets stored in the cache
 		cache.putUserInCache(getUser());
-		assertEquals(getUser().getPassword(),
-				cache.getUserFromCache(getUser().getUsername()).getPassword());
+		assertThat(getUser().getPassword()).isEqualTo(cache.getUserFromCache(getUser().getUsername()).getPassword());
 
 		// Check it gets removed from the cache
 		cache.removeUserFromCache(getUser());

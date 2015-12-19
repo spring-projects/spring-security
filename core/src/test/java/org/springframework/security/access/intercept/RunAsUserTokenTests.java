@@ -15,7 +15,10 @@
 
 package org.springframework.security.access.intercept;
 
-import junit.framework.TestCase;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+
+import org.junit.Test;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
 
@@ -24,28 +27,31 @@ import org.springframework.security.core.authority.AuthorityUtils;
  *
  * @author Ben Alex
  */
-public class RunAsUserTokenTests extends TestCase {
+public class RunAsUserTokenTests {
 
+	@Test
 	public void testAuthenticationSetting() {
 		RunAsUserToken token = new RunAsUserToken("my_password", "Test", "Password",
 				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"),
 				UsernamePasswordAuthenticationToken.class);
-		assertTrue(token.isAuthenticated());
+		assertThat(token.isAuthenticated()).isTrue();
 		token.setAuthenticated(false);
-		assertTrue(!token.isAuthenticated());
+		assertThat(!token.isAuthenticated()).isTrue();
 	}
 
+	@Test
 	public void testGetters() {
 		RunAsUserToken token = new RunAsUserToken("my_password", "Test", "Password",
 				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"),
 				UsernamePasswordAuthenticationToken.class);
-		assertEquals("Test", token.getPrincipal());
-		assertEquals("Password", token.getCredentials());
-		assertEquals("my_password".hashCode(), token.getKeyHash());
-		assertEquals(UsernamePasswordAuthenticationToken.class,
+		assertThat("Test").isEqualTo(token.getPrincipal());
+		assertThat("Password").isEqualTo(token.getCredentials());
+		assertThat("my_password".hashCode()).isEqualTo(token.getKeyHash());
+		assertThat(UsernamePasswordAuthenticationToken.class).isEqualTo(
 				token.getOriginalAuthentication());
 	}
 
+	@Test
 	public void testNoArgConstructorDoesntExist() {
 		Class<RunAsUserToken> clazz = RunAsUserToken.class;
 
@@ -54,23 +60,24 @@ public class RunAsUserTokenTests extends TestCase {
 			fail("Should have thrown NoSuchMethodException");
 		}
 		catch (NoSuchMethodException expected) {
-			assertTrue(true);
+			assertThat(true).isTrue();
 		}
 	}
 
+	@Test
 	public void testToString() {
 		RunAsUserToken token = new RunAsUserToken("my_password", "Test", "Password",
 				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"),
 				UsernamePasswordAuthenticationToken.class);
-		assertTrue(token.toString().lastIndexOf(
-				"Original Class: "
-						+ UsernamePasswordAuthenticationToken.class.getName().toString()) != -1);
+		assertThat(token.toString().lastIndexOf("Original Class: "
+				+ UsernamePasswordAuthenticationToken.class.getName().toString()) != -1).isTrue();
 	}
 
 	// SEC-1792
+	@Test
 	public void testToStringNullOriginalAuthentication() {
 		RunAsUserToken token = new RunAsUserToken("my_password", "Test", "Password",
 				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"), null);
-		assertTrue(token.toString().lastIndexOf("Original Class: null") != -1);
+		assertThat(token.toString().lastIndexOf("Original Class: null") != -1).isTrue();
 	}
 }

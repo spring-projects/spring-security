@@ -16,17 +16,17 @@
 package org.springframework.security.authentication.dao.salt;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
+import org.junit.Test;
 import org.springframework.security.authentication.dao.SystemWideSaltSource;
-
-import junit.framework.TestCase;
 
 /**
  * Tests {@link SystemWideSaltSource}.
  *
  * @author Ben Alex
  */
-public class SystemWideSaltSourceTests extends TestCase {
+public class SystemWideSaltSourceTests {
 	// ~ Constructors
 	// ===================================================================================================
 
@@ -34,21 +34,9 @@ public class SystemWideSaltSourceTests extends TestCase {
 		super();
 	}
 
-	public SystemWideSaltSourceTests(String arg0) {
-		super(arg0);
-	}
-
 	// ~ Methods
 	// ========================================================================================================
-
-	public static void main(String[] args) {
-		junit.textui.TestRunner.run(SystemWideSaltSourceTests.class);
-	}
-
-	public final void setUp() throws Exception {
-		super.setUp();
-	}
-
+	@Test
 	public void testDetectsMissingSystemWideSalt() throws Exception {
 		SystemWideSaltSource saltSource = new SystemWideSaltSource();
 
@@ -61,12 +49,14 @@ public class SystemWideSaltSourceTests extends TestCase {
 		}
 	}
 
+	@Test
 	public void testGettersSetters() {
 		SystemWideSaltSource saltSource = new SystemWideSaltSource();
 		saltSource.setSystemWideSalt("helloWorld");
 		assertThat(saltSource.getSystemWideSalt()).isEqualTo("helloWorld");
 	}
 
+	@Test
 	public void testNormalOperation() throws Exception {
 		SystemWideSaltSource saltSource = new SystemWideSaltSource();
 		saltSource.setSystemWideSalt("helloWorld");
@@ -75,6 +65,7 @@ public class SystemWideSaltSourceTests extends TestCase {
 	}
 
 	// SEC-2173
+	@Test
 	public void testToString() {
 		String systemWideSalt = "helloWorld";
 		SystemWideSaltSource saltSource = new SystemWideSaltSource();

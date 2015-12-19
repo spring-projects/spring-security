@@ -1,7 +1,7 @@
+
 package org.springframework.security.web.session;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.mock;
 
 import java.util.List;
@@ -18,7 +18,9 @@ import org.springframework.security.core.context.SecurityContextImpl;
  *
  */
 public class HttpSessionDestroyedEventTests {
+
 	private MockHttpSession session;
+
 	private HttpSessionDestroyedEvent destroyedEvent;
 
 	@Before

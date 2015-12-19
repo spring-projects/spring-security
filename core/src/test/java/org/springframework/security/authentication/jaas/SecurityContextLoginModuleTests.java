@@ -15,8 +15,11 @@
 
 package org.springframework.security.authentication.jaas;
 
-import junit.framework.TestCase;
+import static org.assertj.core.api.Assertions.*;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.jaas.SecurityContextLoginModule;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,30 +37,33 @@ import javax.security.auth.login.LoginException;
  *
  * @author Ray Krueger
  */
-public class SecurityContextLoginModuleTests extends TestCase {
+public class SecurityContextLoginModuleTests {
 	// ~ Instance fields
 	// ================================================================================================
 
 	private SecurityContextLoginModule module = null;
-	private Subject subject = new Subject(false, new HashSet<Principal>(),
-			new HashSet<Object>(), new HashSet<Object>());
-	private UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-			"principal", "credentials");
+	private Subject subject = new Subject(false, new HashSet<Principal>(), new HashSet<Object>(),
+			new HashSet<Object>());
+	private UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("principal",
+			"credentials");
 
 	// ~ Methods
 	// ========================================================================================================
 
-	protected void setUp() throws Exception {
+	@Before
+	public void setUp() throws Exception {
 		module = new SecurityContextLoginModule();
 		module.initialize(subject, null, null, null);
 		SecurityContextHolder.clearContext();
 	}
 
-	protected void tearDown() throws Exception {
+	@After
+	public void tearDown() throws Exception {
 		SecurityContextHolder.clearContext();
 		module = null;
 	}
 
+	@Test
 	public void testAbort() throws Exception {
 		assertThat(module.abort()).as("Should return false, no auth is set").isFalse();
 		SecurityContextHolder.getContext().setAuthentication(auth);
@@ -65,45 +71,46 @@ public class SecurityContextLoginModuleTests extends TestCase {
 		module.commit();
 		assertThat(module.abort()).isTrue();
 	}
-
+	
+	@Test
 	public void testLoginException() throws Exception {
 		try {
 			module.login();
 			fail("LoginException expected, there is no Authentication in the SecurityContext");
-		}
-		catch (LoginException e) {
+		} catch (LoginException e) {
 		}
 	}
 
+	@Test
 	public void testLoginSuccess() throws Exception {
 		SecurityContextHolder.getContext().setAuthentication(auth);
 		assertThat(module.login()).as("Login should succeed, there is an authentication set").isTrue();
-		assertTrue("The authentication is not null, this should return true",
-				module.commit());
-		assertTrue("Principals should contain the authentication", subject
-				.getPrincipals().contains(auth));
+		assertThat(module.commit()).withFailMessage("The authentication is not null, this should return true").isTrue();
+		assertThat(subject.getPrincipals().contains(auth))
+				.withFailMessage("Principals should contain the authentication").isTrue();
 	}
-
+	
+	@Test
 	public void testLogout() throws Exception {
 		SecurityContextHolder.getContext().setAuthentication(auth);
 		module.login();
 		assertThat(module.logout()).as("Should return true as it succeeds").isTrue();
 		assertThat(module.getAuthentication()).as("Authentication should be null").isEqualTo(null);
 
-		assertFalse("Principals should not contain the authentication after logout",
-				subject.getPrincipals().contains(auth));
+		assertThat(subject.getPrincipals().contains(auth)).withFailMessage("Principals should not contain the authentication after logout").isFalse();
 	}
-
+	
+	@Test
 	public void testNullAuthenticationInSecurityContext() throws Exception {
 		try {
 			SecurityContextHolder.getContext().setAuthentication(null);
 			module.login();
 			fail("LoginException expected, the authentication is null in the SecurityContext");
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 		}
 	}
-
+	
+	@Test
 	public void testNullAuthenticationInSecurityContextIgnored() throws Exception {
 		module = new SecurityContextLoginModule();
 
@@ -114,7 +121,8 @@ public class SecurityContextLoginModuleTests extends TestCase {
 		SecurityContextHolder.getContext().setAuthentication(null);
 		assertThat(module.login()).as("Should return false and ask to be ignored").isFalse();
 	}
-
+	
+	@Test
 	public void testNullLogout() throws Exception {
 		assertThat(module.logout()).isFalse();
 	}

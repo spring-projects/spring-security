@@ -12,16 +12,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.ldap.userdetails;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.assertj.core.api.Assertions.fail;
 
 import java.util.List;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -32,19 +33,17 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.ldap.AbstractLdapIntegrationTests;
 import org.springframework.security.ldap.DefaultLdapUsernameToDnMapper;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
-import org.springframework.security.ldap.userdetails.InetOrgPerson;
-import org.springframework.security.ldap.userdetails.InetOrgPersonContextMapper;
-import org.springframework.security.ldap.userdetails.LdapUserDetails;
-import org.springframework.security.ldap.userdetails.LdapUserDetailsManager;
-import org.springframework.security.ldap.userdetails.PersonContextMapper;
 
 /**
  * @author Luke Taylor
  */
 public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
-	private static final List<GrantedAuthority> TEST_AUTHORITIES = AuthorityUtils
-			.createAuthorityList("ROLE_CLOWNS", "ROLE_ACROBATS");
+
+	private static final List<GrantedAuthority> TEST_AUTHORITIES = AuthorityUtils.createAuthorityList(
+			"ROLE_CLOWNS", "ROLE_ACROBATS");
+
 	private LdapUserDetailsManager mgr;
+
 	private SpringSecurityLdapTemplate template;
 
 	@Before
@@ -173,8 +172,9 @@ public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
 		}
 
 		// Check that no authorities are left
-		assertThat("don").isEqualTo(0, mgr.getUserAuthorities(mgr.usernameMapper.buildDn("don"))
-				.size());
+		assertThat(
+				mgr.getUserAuthorities(mgr.usernameMapper.buildDn("don"), "don")).hasSize(
+						0);
 	}
 
 	@Test
@@ -195,8 +195,8 @@ public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
 
 		mgr.changePassword("yossarianspassword", "yossariansnewpassword");
 
-		assertTrue(template.compare("uid=johnyossarian,ou=test people", "userPassword",
-				"yossariansnewpassword"));
+		assertThat(template.compare("uid=johnyossarian,ou=test people", "userPassword",
+				"yossariansnewpassword")).isTrue();
 	}
 
 	@Test(expected = BadCredentialsException.class)

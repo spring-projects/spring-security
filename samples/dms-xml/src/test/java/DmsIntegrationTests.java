@@ -40,8 +40,8 @@ public class DmsIntegrationTests extends AbstractTransactionalJUnit4SpringContex
 
 	@Test
 	public void testBasePopulation() {
-		assertThat(Integer.class)).isEqualTo(9, (int) jdbcTemplate.queryForObject("select count(id) from DIRECTORY");
-		assertThat(Integer.class)).isEqualTo(90, (int) jdbcTemplate.queryForObject("select count(id) from FILE");
+		assertThat(jdbcTemplate.queryForObject("select count(id) from DIRECTORY", Integer.class)).isEqualTo(9);
+		assertThat((int) jdbcTemplate.queryForObject("select count(id) from FILE", Integer.class)).isEqualTo(90);
 		assertThat(documentDao.findElements(Directory.ROOT_DIRECTORY).length).isEqualTo(3);
 	}
 
@@ -104,8 +104,7 @@ public class DmsIntegrationTests extends AbstractTransactionalJUnit4SpringContex
 		}
 
 		if (shouldBeFiltered) {
-			assertNull("Found confidential directory when we should not have",
-					nonHomeConfidentialDir);
+			assertThat(nonHomeConfidentialDir).withFailMessage("Found confidential directory when we should not have").isNull();
 		}
 		else {
 			System.out.println("Inaccessible dir....: "
