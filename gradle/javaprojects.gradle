@@ -143,7 +143,6 @@ task springSnapshotTest(type: Test) {
 		junitXml.destination = project.file("$buildDir/reports/spring-snapshot-tests/")
 	}
 }
-check.dependsOn springSnapshotTest
 
 dependencies {
 	optional "commons-logging:commons-logging:$commonsLoggingVersion"
