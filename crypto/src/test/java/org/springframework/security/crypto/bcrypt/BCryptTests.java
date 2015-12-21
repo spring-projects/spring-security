@@ -209,9 +209,9 @@ public class BCryptTests {
 
 	@Test
 	public void testBase64EncodeSimpleByteArrays() {
-		assertThat(1)).as("..").isEqualTo(encode_base64(new byte[] { 0 });
-		assertThat(0 }).as("...").isCloseTo(encode_base64(new byte[] { 0, within(2)));
-		assertThat(0 }).as("....").isCloseTo(encode_base64(new byte[] { 0, 0, within(3)));
+		assertThat(encode_base64(new byte[] { 0 }, 1)).isEqualTo("..");
+		assertThat(encode_base64(new byte[] { 0, 0 }, 2)).isEqualTo("...");
+		assertThat(encode_base64(new byte[] { 0, 0 , 0 }, 3)).isEqualTo("....");
 	}
 
 	@Test
@@ -222,16 +222,16 @@ public class BCryptTests {
 
 	@Test
 	public void decodingStopsWithFirstInvalidCharacter() {
-		assertThat(1).length).isEqualTo(1, BCrypt.decode_base64("....");
-		assertThat(1).length).isEqualTo(0, BCrypt.decode_base64(" ....");
+		assertThat(BCrypt.decode_base64("....", 1).length).isEqualTo(1);
+		assertThat(BCrypt.decode_base64(" ....", 1).length).isEqualTo(0);
 	}
 
 	@Test
 	public void decodingOnlyProvidesAvailableBytes() {
-		assertThat(1).length).isEqualTo(0, BCrypt.decode_base64("");
-		assertThat(3).length).isEqualTo(3, BCrypt.decode_base64("......");
-		assertThat(4).length).isEqualTo(4, BCrypt.decode_base64("......");
-		assertThat(5).length).isEqualTo(4, BCrypt.decode_base64("......");
+		assertThat(BCrypt.decode_base64("", 1).length).isEqualTo(0);
+		assertThat(BCrypt.decode_base64("......", 3).length).isEqualTo(3);
+		assertThat(BCrypt.decode_base64("......", 4).length).isEqualTo(4);
+		assertThat(BCrypt.decode_base64("......", 5).length).isEqualTo(4);
 	}
 
 	/**
@@ -288,8 +288,8 @@ public class BCryptTests {
 
 	@Test
 	public void hashpwWorksWithOldRevision() {
-		assertEquals("$2$05$......................bvpG2UfzdyW/S0ny/4YyEZrmczoJfVm",
-				BCrypt.hashpw("password", "$2$05$......................"));
+		assertThat(BCrypt.hashpw("password", "$2$05$......................")).isEqualTo(
+				"$2$05$......................bvpG2UfzdyW/S0ny/4YyEZrmczoJfVm");
 	}
 
 	@Test

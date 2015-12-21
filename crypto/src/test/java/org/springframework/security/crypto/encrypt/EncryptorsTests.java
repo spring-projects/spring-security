@@ -23,8 +23,8 @@ public class EncryptorsTests {
 		assertThat(result).isNotNull();
 		assertThat(new String(result).equals("text")).isFalse();
 		assertThat(new String(encryptor.decrypt(result))).isEqualTo("text");
-		assertThat(new String(result).isFalse().equals(new String(encryptor.encrypt("text"
-				.getBytes()))));
+		assertThat(new String(result)).isNotEqualTo(new String(encryptor.encrypt("text"
+				.getBytes())));
 	}
 
 	@Test
@@ -34,8 +34,8 @@ public class EncryptorsTests {
 		assertThat(result).isNotNull();
 		assertThat(new String(result).equals("text")).isFalse();
 		assertThat(new String(encryptor.decrypt(result))).isEqualTo("text");
-		assertThat(new String(result).isFalse().equals(new String(encryptor.encrypt("text"
-				.getBytes()))));
+		assertThat(new String(result)).isNotEqualTo(new String(encryptor.encrypt("text"
+				.getBytes())));
 	}
 
 	@Test
