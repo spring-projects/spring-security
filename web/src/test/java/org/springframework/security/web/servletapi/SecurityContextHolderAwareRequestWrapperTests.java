@@ -15,8 +15,10 @@
 
 package org.springframework.security.web.servletapi;
 
-import junit.framework.TestCase;
+import static org.assertj.core.api.Assertions.*;
 
+import org.junit.Before;
+import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -30,12 +32,14 @@ import org.springframework.security.web.servletapi.SecurityContextHolderAwareReq
  *
  * @author Ben Alex
  */
-public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
-
-	protected void tearDown() throws Exception {
+public class SecurityContextHolderAwareRequestWrapperTests {
+	
+	@Before
+	public void tearDown() throws Exception {
 		SecurityContextHolder.clearContext();
 	}
 
+	@Test
 	public void testCorrectOperationWithStringBasedPrincipal() throws Exception {
 		Authentication auth = new TestingAuthenticationToken("rod", "koala", "ROLE_FOO");
 		SecurityContextHolder.getContext().setAuthentication(auth);
@@ -52,6 +56,7 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
 		assertThat(wrapper.getUserPrincipal()).isEqualTo(auth);
 	}
 
+	@Test
 	public void testUseOfRolePrefixMeansItIsntNeededWhenCallngIsUserInRole() {
 		Authentication auth = new TestingAuthenticationToken("rod", "koala", "ROLE_FOO");
 		SecurityContextHolder.getContext().setAuthentication(auth);
@@ -65,6 +70,7 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
 		assertThat(wrapper.isUserInRole("FOO")).isTrue();
 	}
 
+	@Test
 	public void testCorrectOperationWithUserDetailsBasedPrincipal() throws Exception {
 		Authentication auth = new TestingAuthenticationToken(new User("rodAsUserDetails",
 				"koala", true, true, true, true, AuthorityUtils.NO_AUTHORITIES), "koala",
@@ -85,6 +91,7 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
 		assertThat(wrapper.getUserPrincipal()).isEqualTo(auth);
 	}
 
+	@Test
 	public void testRoleIsntHeldIfAuthenticationIsNull() throws Exception {
 		SecurityContextHolder.getContext().setAuthentication(null);
 
@@ -98,6 +105,7 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
 		assertThat(wrapper.getUserPrincipal()).isNull();
 	}
 
+	@Test
 	public void testRolesArentHeldIfAuthenticationPrincipalIsNull() throws Exception {
 		Authentication auth = new TestingAuthenticationToken(null, "koala", "ROLE_HELLO",
 				"ROLE_FOOBAR");
@@ -115,6 +123,7 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
 		assertThat(wrapper.getUserPrincipal()).isNull();
 	}
 
+	@Test
 	public void testRolePrefix() {
 		Authentication auth = new TestingAuthenticationToken("user", "koala", "ROLE_HELLO",
 				"ROLE_FOOBAR");
@@ -130,6 +139,7 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
 	}
 
 	// SEC-3020
+	@Test
 	public void testRolePrefixNotAppliedIfRoleStartsWith() {
 		Authentication auth = new TestingAuthenticationToken("user", "koala", "ROLE_HELLO",
 				"ROLE_FOOBAR");

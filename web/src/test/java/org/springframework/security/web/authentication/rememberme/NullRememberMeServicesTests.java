@@ -15,10 +15,10 @@
 
 package org.springframework.security.web.authentication.rememberme;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.Test;
 import org.springframework.security.web.authentication.NullRememberMeServices;
-
-import junit.framework.TestCase;
 
 /**
  * Tests {@link org.springframework.security.web.authentication.NullRememberMeServices}.

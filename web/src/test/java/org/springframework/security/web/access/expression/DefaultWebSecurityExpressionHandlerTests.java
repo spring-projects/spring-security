@@ -71,10 +71,10 @@ public class DefaultWebSecurityExpressionHandlerTests {
 		EvaluationContext ctx = handler.createEvaluationContext(
 				mock(Authentication.class), mock(FilterInvocation.class));
 		ExpressionParser parser = handler.getExpressionParser();
-		assertThat(parser.parseExpression("@role.getAttribute() == 'ROLE_A'").isTrue().getValue(
-				ctx, Boolean.class));
-		assertThat(parser.parseExpression("@role.attribute == 'ROLE_A'").isTrue().getValue(ctx,
-				Boolean.class));
+		assertThat(parser.parseExpression("@role.getAttribute() == 'ROLE_A'").getValue(
+				ctx, Boolean.class)).isTrue();
+		assertThat(parser.parseExpression("@role.attribute == 'ROLE_A'").getValue(ctx,
+				Boolean.class)).isTrue();
 	}
 
 	@Test(expected = IllegalArgumentException.class)

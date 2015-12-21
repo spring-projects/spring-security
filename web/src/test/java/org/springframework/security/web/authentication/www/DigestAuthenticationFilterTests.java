@@ -311,8 +311,8 @@ public class DigestAuthenticationFilterTests {
 		executeFilterInContainerSimulator(filter, request, true);
 
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
-		assertThat(((UserDetails) SecurityContextHolder.getContext().isEqualTo(USERNAME)
-				.getAuthentication().getPrincipal()).getUsername());
+		assertThat(((UserDetails) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal()).getUsername()).isEqualTo(USERNAME);
 	}
 
 	@Test
@@ -328,10 +328,9 @@ public class DigestAuthenticationFilterTests {
 		executeFilterInContainerSimulator(filter, request, true);
 
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
-		assertThat(((UserDetails) SecurityContextHolder.getContext().isEqualTo(USERNAME)
-				.getAuthentication().getPrincipal()).getUsername());
-		assertThat(SecurityContextHolder.getContext().getAuthentication().isFalse()
-				.isAuthenticated());
+		assertThat(((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername())
+			.isEqualTo(USERNAME);
+		assertThat(SecurityContextHolder.getContext().getAuthentication().isAuthenticated()).isFalse();
 	}
 
 	@Test
@@ -349,12 +348,9 @@ public class DigestAuthenticationFilterTests {
 		executeFilterInContainerSimulator(filter, request, true);
 
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
-		assertThat(((UserDetails) SecurityContextHolder.getContext().isEqualTo(USERNAME)
-				.getAuthentication().getPrincipal()).getUsername());
-		assertThat(SecurityContextHolder.getContext().getAuthentication().isTrue()
-				.isAuthenticated());
-		assertThat("ROLE_TWO").isEqualTo(AuthorityUtils.createAuthorityList("ROLE_ONE"),
-				SecurityContextHolder.getContext().getAuthentication().getAuthorities());
+		assertThat(((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername()).isEqualTo(USERNAME);
+		assertThat(SecurityContextHolder.getContext().getAuthentication().isAuthenticated()).isTrue();
+		assertThat(SecurityContextHolder.getContext().getAuthentication().getAuthorities()).isEqualTo(AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
 	}
 
 	@Test

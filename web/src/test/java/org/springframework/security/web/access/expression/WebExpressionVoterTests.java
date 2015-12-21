@@ -45,10 +45,8 @@ public class WebExpressionVoterTests {
 	@Test
 	public void abstainsIfNoAttributeFound() {
 		WebExpressionVoter voter = new WebExpressionVoter();
-		assertEquals(
-				AccessDecisionVoter.ACCESS_ABSTAIN,
-				voter.vote(user, new FilterInvocation("/path", "GET"),
-						SecurityConfig.createList("A", "B", "C")));
+		assertThat(voter.vote(user, new FilterInvocation("/path", "GET"),
+						SecurityConfig.createList("A", "B", "C"))).isEqualTo(AccessDecisionVoter.ACCESS_ABSTAIN);
 	}
 
 	@Test
@@ -73,10 +71,10 @@ public class WebExpressionVoterTests {
 		attributes.addAll(SecurityConfig.createList("A", "B", "C"));
 		attributes.add(weca);
 
-		assertThat(fi).isCloseTo(AccessDecisionVoter.ACCESS_GRANTED, voter.vote(user, within(attributes)));
+		assertThat(voter.vote(user, fi, attributes)).isEqualTo(AccessDecisionVoter.ACCESS_GRANTED);
 
 		// Second time false
-		assertThat(fi).isCloseTo(AccessDecisionVoter.ACCESS_DENIED, voter.vote(user, within(attributes)));
+		assertThat(voter.vote(user, fi,attributes)).isEqualTo(AccessDecisionVoter.ACCESS_DENIED);
 	}
 
 	// SEC-2507

@@ -40,8 +40,7 @@ public class SimpleUrlAuthenticationFailureHandlerTests {
 		AuthenticationException e = mock(AuthenticationException.class);
 
 		afh.onAuthenticationFailure(request, response, e);
-		assertSame(e,
-				request.getSession().getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION));
+		assertThat(request.getSession().getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION)).isSameAs(e);
 		assertThat(response.getRedirectedUrl()).isEqualTo("/target");
 	}
 

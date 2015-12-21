@@ -179,8 +179,7 @@ public class SwitchUserFilterTests {
 		verify(chain, never()).doFilter(request, response);
 
 		assertThat(response.getRedirectedUrl()).isEqualTo("/mywebapp/switchfailed");
-		assertEquals("/switchfailed",
-				FieldUtils.getFieldValue(filter, "switchFailureUrl"));
+		assertThat(FieldUtils.getFieldValue(filter, "switchFailureUrl")).isEqualTo("/switchfailed");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -389,8 +388,8 @@ public class SwitchUserFilterTests {
 		Authentication result = filter.attemptSwitchUser(request);
 		assertThat(result != null).isTrue();
 		assertThat(result.getAuthorities()).hasSize(2);
-		assertThat(AuthorityUtils.authorityListToSet(result.getAuthorities()).isTrue().contains(
-				"ROLE_NEW"));
+		assertThat(AuthorityUtils.authorityListToSet(result.getAuthorities())).contains(
+				"ROLE_NEW");
 	}
 
 	// SEC-1763

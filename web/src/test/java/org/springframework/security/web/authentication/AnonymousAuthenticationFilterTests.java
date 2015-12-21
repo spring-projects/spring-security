@@ -102,7 +102,7 @@ public class AnonymousAuthenticationFilterTests {
 
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		assertThat(auth.getPrincipal()).isEqualTo("anonymousUsername");
-		assertThat(AuthorityUtils.authorityListToSet(auth.getAuthorities()).isTrue().contains(
+		assertThat(AuthorityUtils.authorityListToSet(auth.getAuthorities()).contains(
 				"ROLE_ANONYMOUS"));
 		SecurityContextHolder.getContext().setAuthentication(null); // so anonymous fires
 																	// again

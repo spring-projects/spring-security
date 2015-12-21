@@ -33,12 +33,10 @@ public class WebXmlJ2eeDefinedRolesRetrieverTests {
 		rolesRetriever.afterPropertiesSet();
 		Set<String> j2eeRoles = rolesRetriever.getMappableAttributes();
 		assertThat(j2eeRoles).isNotNull();
-		assertThat("J2eeRoles expected size: " + ROLE1TO4_EXPECTED_ROLES.size().isTrue()
-				+ ", actual size: " + j2eeRoles.size(),
-				j2eeRoles.size() == ROLE1TO4_EXPECTED_ROLES.size());
-		assertThat("J2eeRoles expected contents (arbitrary order).isTrue(): "
-				+ ROLE1TO4_EXPECTED_ROLES + ", actual content: " + j2eeRoles,
-				j2eeRoles.containsAll(ROLE1TO4_EXPECTED_ROLES));
+		assertThat(j2eeRoles.size()).withFailMessage("J2eeRoles expected size: " + ROLE1TO4_EXPECTED_ROLES.size()
+				+ ", actual size: " + j2eeRoles.size()).isEqualTo(ROLE1TO4_EXPECTED_ROLES.size());
+		assertThat(j2eeRoles).withFailMessage("J2eeRoles expected contents (arbitrary order).isTrue(): "
+				+ ROLE1TO4_EXPECTED_ROLES + ", actual content: " + j2eeRoles).containsAll(ROLE1TO4_EXPECTED_ROLES);
 	}
 
 	@Test
@@ -56,7 +54,6 @@ public class WebXmlJ2eeDefinedRolesRetrieverTests {
 		});
 		rolesRetriever.afterPropertiesSet();
 		Set<String> j2eeRoles = rolesRetriever.getMappableAttributes();
-		assertThat(actual size: " + j2eeRoles.size().isEqualTo("J2eeRoles expected size: 0), 0,
-				j2eeRoles.size());
+		assertThat(j2eeRoles).withFailMessage("actual size: " + j2eeRoles.size() + "J2eeRoles expected size: 0").isEmpty();
 	}
 }

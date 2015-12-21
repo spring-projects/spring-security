@@ -117,8 +117,7 @@ public class SavedRequestAwareWrapperTests {
 
 		assertThat(wrapper.getParameterValues("action")).isEqualTo(new Object[] { "foo" });
 		wrappedRequest.setParameter("action", "bar");
-		assertArrayEquals(new Object[] { "bar", "foo" },
-				wrapper.getParameterValues("action"));
+		assertThat(wrapper.getParameterValues("action")).isEqualTo(new Object[] { "bar", "foo" });
 		// Check map is consistent
 		String[] valuesFromMap = (String[]) wrapper.getParameterMap().get("action");
 		assertThat(valuesFromMap.length).isEqualTo(2);

@@ -21,20 +21,20 @@ public class FirewalledResponseTests {
 
 		try {
 			fwResponse.sendRedirect("/theURL\r\nsomething");
-			fail();
+			fail("IllegalArgumentException should have thrown");
 		}
 		catch (IllegalArgumentException expected) {
 		}
 		try {
 			fwResponse.sendRedirect("/theURL\rsomething");
-			fail();
+			fail("IllegalArgumentException should have thrown");
 		}
 		catch (IllegalArgumentException expected) {
 		}
 
 		try {
 			fwResponse.sendRedirect("/theURL\nsomething");
-			fail();
+			fail("IllegalArgumentException should have thrown");
 		}
 		catch (IllegalArgumentException expected) {
 		}

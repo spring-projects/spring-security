@@ -18,11 +18,11 @@ public class RequestCacheAwareFilterTests {
 				"/destination");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		cache.saveRequest(request, response);
-		assertThat(request.getSession().isNotNull().getAttribute(
-				HttpSessionRequestCache.SAVED_REQUEST));
+		assertThat(request.getSession().getAttribute(
+				HttpSessionRequestCache.SAVED_REQUEST)).isNotNull();
 
 		filter.doFilter(request, response, new MockFilterChain());
-		assertThat(request.getSession().isNull().getAttribute(
-				HttpSessionRequestCache.SAVED_REQUEST));
+		assertThat(request.getSession().getAttribute(
+				HttpSessionRequestCache.SAVED_REQUEST)).isNull();
 	}
 }

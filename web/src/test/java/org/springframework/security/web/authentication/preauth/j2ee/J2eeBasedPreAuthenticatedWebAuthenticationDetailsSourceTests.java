@@ -1,5 +1,7 @@
 package org.springframework.security.web.authentication.preauth.j2ee;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;

@@ -87,8 +87,8 @@ public class DefaultSessionAuthenticationStrategyTests {
 
 		assertThat(oldSessionId.equals(request.getSession().getId())).isFalse();
 		assertThat(request.getSession().getAttribute("blah")).isNotNull();
-		assertThat(request.getSession().isNotNull().getAttribute(
-				"SPRING_SECURITY_SAVED_REQUEST_KEY"));
+		assertThat(request.getSession().getAttribute(
+				"SPRING_SECURITY_SAVED_REQUEST_KEY")).isNotNull();
 
 		assertThat(eventArgumentCaptor.getValue()).isNotNull();
 		assertThat(eventArgumentCaptor.getValue() instanceof SessionFixationProtectionEvent).isTrue();
@@ -114,8 +114,8 @@ public class DefaultSessionAuthenticationStrategyTests {
 				new MockHttpServletResponse());
 
 		assertThat(request.getSession().getAttribute("blah")).isNull();
-		assertThat(request.getSession().isNotNull().getAttribute(
-				"SPRING_SECURITY_SAVED_REQUEST_KEY"));
+		assertThat(request.getSession().getAttribute(
+				"SPRING_SECURITY_SAVED_REQUEST_KEY")).isNotNull();
 	}
 
 	// SEC-2002
@@ -143,8 +143,8 @@ public class DefaultSessionAuthenticationStrategyTests {
 		verify(eventPublisher).publishEvent(eventArgumentCaptor.capture());
 
 		assertThat(request.getSession().getAttribute("blah")).isNull();
-		assertThat(request.getSession().isNotNull().getAttribute(
-				"SPRING_SECURITY_SAVED_REQUEST_KEY"));
+		assertThat(request.getSession().getAttribute(
+				"SPRING_SECURITY_SAVED_REQUEST_KEY")).isNotNull();
 
 		assertThat(eventArgumentCaptor.getValue()).isNotNull();
 		assertThat(eventArgumentCaptor.getValue() instanceof SessionFixationProtectionEvent).isTrue();

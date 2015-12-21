@@ -1,19 +1,22 @@
 package org.springframework.security.web.savedrequest;
 
-import junit.framework.TestCase;
+import static org.assertj.core.api.Assertions.*;
 
 import javax.servlet.http.Cookie;
 
+import org.junit.Before;
+import org.junit.Test;
 import org.springframework.security.web.savedrequest.SavedCookie;
 
 import java.io.Serializable;
 
-public class SavedCookieTests extends TestCase {
+public class SavedCookieTests {
 
 	Cookie cookie;
 	SavedCookie savedCookie;
 
-	protected void setUp() throws Exception {
+	@Before
+	public void setUp() throws Exception {
 		cookie = new Cookie("name", "value");
 		cookie.setComment("comment");
 		cookie.setDomain("domain");
@@ -24,34 +27,42 @@ public class SavedCookieTests extends TestCase {
 		savedCookie = new SavedCookie(cookie);
 	}
 
+	@Test
 	public void testGetName() throws Exception {
 		assertThat(savedCookie.getName()).isEqualTo(cookie.getName());
 	}
 
+	@Test
 	public void testGetValue() throws Exception {
 		assertThat(savedCookie.getValue()).isEqualTo(cookie.getValue());
 	}
 
+	@Test
 	public void testGetComment() throws Exception {
 		assertThat(savedCookie.getComment()).isEqualTo(cookie.getComment());
 	}
 
+	@Test
 	public void testGetDomain() throws Exception {
 		assertThat(savedCookie.getDomain()).isEqualTo(cookie.getDomain());
 	}
 
+	@Test
 	public void testGetMaxAge() throws Exception {
 		assertThat(savedCookie.getMaxAge()).isEqualTo(cookie.getMaxAge());
 	}
 
+	@Test
 	public void testGetPath() throws Exception {
 		assertThat(savedCookie.getPath()).isEqualTo(cookie.getPath());
 	}
 
+	@Test
 	public void testGetVersion() throws Exception {
 		assertThat(savedCookie.getVersion()).isEqualTo(cookie.getVersion());
 	}
 
+	@Test
 	public void testGetCookie() throws Exception {
 		Cookie other = savedCookie.getCookie();
 		assertThat(other.getComment()).isEqualTo(cookie.getComment());
@@ -64,6 +75,7 @@ public class SavedCookieTests extends TestCase {
 		assertThat(other.getVersion()).isEqualTo(cookie.getVersion());
 	}
 
+	@Test
 	public void testSerializable() throws Exception {
 		assertThat(savedCookie instanceof Serializable).isTrue();
 	}

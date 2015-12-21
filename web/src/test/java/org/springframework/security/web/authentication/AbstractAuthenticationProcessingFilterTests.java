@@ -137,8 +137,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 		filter.doFilter(request, response, chain);
 		assertThat(response.getRedirectedUrl()).isEqualTo("/mycontext/logged_in.jsp");
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
-		assertThat(SecurityContextHolder.getContext().getAuthentication().isEqualTo("test")
-				.getPrincipal().toString());
+		assertThat(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()).isEqualTo("test");
 	}
 
 	@Test
@@ -151,8 +150,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 		assertThat(filter.getRememberMeServices()).isNotNull();
 		filter.setRememberMeServices(new TokenBasedRememberMeServices("key",
 				new AbstractRememberMeServicesTests.MockUserDetailsService()));
-		assertThat(filter.getRememberMeServices().isEqualTo(TokenBasedRememberMeServices.class)
-				.getClass());
+		assertThat(filter.getRememberMeServices().getClass()).isEqualTo(TokenBasedRememberMeServices.class);
 		assertThat(filter.getAuthenticationManager() != null).isTrue();
 	}
 
@@ -206,8 +204,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 		filter.doFilter(request, response, chain);
 		assertThat(response.getRedirectedUrl()).isEqualTo("/mycontext/logged_in.jsp");
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
-		assertThat(SecurityContextHolder.getContext().getAuthentication().isEqualTo("test")
-				.getPrincipal().toString());
+		assertThat(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()).isEqualTo("test");
 		// Should still have the same session
 		assertThat(request.getSession()).isEqualTo(sessionPreAuth);
 	}
@@ -268,8 +265,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 		filter.doFilter(request, response, chain);
 		assertThat(response.getRedirectedUrl()).isEqualTo("/mycontext/logged_in.jsp");
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
-		assertThat(SecurityContextHolder.getContext().getAuthentication().isEqualTo("test")
-				.getPrincipal().toString());
+		assertThat(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()).isEqualTo("test");
 
 		// Now try again but this time have filter deny access
 		// Setup our HTTP request

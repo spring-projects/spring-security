@@ -175,15 +175,12 @@ public class AntPathRequestMatcherTests {
 		// Both universal wildcard options should be equal
 		assertThat(new AntPathRequestMatcher("**")).isEqualTo(new AntPathRequestMatcher("/**"));
 		assertThat(new AntPathRequestMatcher("/xyz")).isEqualTo(new AntPathRequestMatcher("/xyz"));
-		assertThat("POST").isEqualTo(new AntPathRequestMatcher("/xyz"),
-				new AntPathRequestMatcher("/xyz", "POST"));
-		assertThat(new AntPathRequestMatcher("/xyz", "POST").isFalse()
-				.equals(new AntPathRequestMatcher("/xyz", "GET")));
-		assertThat(new AntPathRequestMatcher("/xyz").isFalse().equals(new AntPathRequestMatcher(
-				"/xxx")));
+		assertThat(new AntPathRequestMatcher("/xyz","POST")).isEqualTo(new AntPathRequestMatcher("/xyz", "POST"));
+		assertThat(new AntPathRequestMatcher("/xyz", "POST")).isNotEqualTo(new AntPathRequestMatcher("/xyz", "GET"));
+		assertThat(new AntPathRequestMatcher("/xyz")).isNotEqualTo(new AntPathRequestMatcher("/xxx"));
 		assertThat(new AntPathRequestMatcher("/xyz").equals(AnyRequestMatcher.INSTANCE)).isFalse();
-		assertThat(new AntPathRequestMatcher("/xyz", "GET", false).isFalse()
-				.equals(new AntPathRequestMatcher("/xyz", "GET", true)));
+		assertThat(new AntPathRequestMatcher("/xyz", "GET", false)).isNotEqualTo(
+				new AntPathRequestMatcher("/xyz", "GET", true));
 	}
 
 	@Test

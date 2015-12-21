@@ -33,8 +33,8 @@ public class HttpSessionRequestCacheTests {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/destination");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		cache.saveRequest(request, response);
-		assertThat(request.getSession().isNotNull().getAttribute(
-				HttpSessionRequestCache.SAVED_REQUEST));
+		assertThat(request.getSession().getAttribute(
+				HttpSessionRequestCache.SAVED_REQUEST)).isNotNull();
 		assertThat(cache.getRequest(request, response)).isNotNull();
 
 		MockHttpServletRequest newRequest = new MockHttpServletRequest("POST",
@@ -58,8 +58,7 @@ public class HttpSessionRequestCacheTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		cache.saveRequest(request, response);
 		assertThat(cache.getRequest(request, response)).isNull();
-		assertThat(cache.getRequest(new MockHttpServletRequest().isNull(),
-				new MockHttpServletResponse()));
+		assertThat(cache.getRequest(new MockHttpServletRequest(), new MockHttpServletResponse())).isNull();
 		assertThat(cache.getMatchingRequest(request, response)).isNull();
 	}
 

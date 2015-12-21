@@ -223,6 +223,6 @@ public class JaasApiIntegrationFilterTests {
 	}
 
 	private void assertNullSubject(Subject subject) {
-		assertThat("Subject is expected to be null, but is not. Got " + subject, subject).isNull();
+		assertThat(subject).withFailMessage("Subject is expected to be null, but is not. Got " + subject).isNull();
 	}
 }
