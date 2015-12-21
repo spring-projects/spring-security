@@ -150,6 +150,7 @@ public class UsernamePasswordAuthenticationFilterTests extends TestCase {
 	@Test
 	public void noSessionIsCreatedIfAllowSessionCreationIsFalse() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setMethod("POST");
 
 		UsernamePasswordAuthenticationFilter filter = new UsernamePasswordAuthenticationFilter();
 		filter.setAllowSessionCreation(false);
