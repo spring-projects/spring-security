@@ -39,8 +39,8 @@ public class DefaultSpringSecurityContextSourceTests extends AbstractLdapIntegra
 		ctxSrc.setUserDn("manager");
 		ctxSrc.setPassword("password");
 		ctxSrc.afterPropertiesSet();
-		assertThat(ctxSrc.getAuthenticatedEnvForTest("manager", "password").isTrue().containsKey(
-				AbstractContextSource.SUN_LDAP_POOLING_FLAG));
+		assertThat(ctxSrc.getAuthenticatedEnvForTest("manager", "password")).containsKey(
+				AbstractContextSource.SUN_LDAP_POOLING_FLAG);
 	}
 
 	@Test
@@ -51,8 +51,8 @@ public class DefaultSpringSecurityContextSourceTests extends AbstractLdapIntegra
 		ctxSrc.setUserDn("manager");
 		ctxSrc.setPassword("password");
 		ctxSrc.afterPropertiesSet();
-		assertThat(ctxSrc.getAuthenticatedEnvForTest("user", "password").isFalse().containsKey(
-				AbstractContextSource.SUN_LDAP_POOLING_FLAG));
+		assertThat(ctxSrc.getAuthenticatedEnvForTest("user", "password")).doesNotContainKey(
+				AbstractContextSource.SUN_LDAP_POOLING_FLAG);
 	}
 
 	// SEC-1145. Confirms that there is no issue here with pooling.
