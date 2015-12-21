@@ -250,8 +250,8 @@ public class SecurityContextChannelInterceptorTests {
 
 		AnonymousAuthenticationToken anonymous = (AnonymousAuthenticationToken) currentAuthentication;
 		assertThat(anonymous.getName()).isEqualTo(expectedAnonymous.getName());
-		assertThat(anonymous.getAuthorities()).containsOnly(
-				expectedAnonymous.getAuthorities().toArray());
+		assertThat(anonymous.getAuthorities()).containsOnlyElementsOf(
+				expectedAnonymous.getAuthorities());
 		assertThat(anonymous.getKeyHash()).isEqualTo(expectedAnonymous.getKeyHash());
 	}
 }
