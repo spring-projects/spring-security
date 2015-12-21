@@ -15,6 +15,7 @@
 
 package org.springframework.security.web.authentication.rememberme;
 
+import org.junit.Test;
 import org.springframework.security.web.authentication.NullRememberMeServices;
 
 import junit.framework.TestCase;
@@ -24,10 +25,10 @@ import junit.framework.TestCase;
  *
  * @author Ben Alex
  */
-public class NullRememberMeServicesTests extends TestCase {
+public class NullRememberMeServicesTests {
 	// ~ Methods
 	// ========================================================================================================
-
+	@Test
 	public void testAlwaysReturnsNull() {
 		NullRememberMeServices services = new NullRememberMeServices();
 		assertThat(services.autoLogin(null, null)).isNull();
