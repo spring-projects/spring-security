@@ -32,7 +32,6 @@ public class PasswordPolicyControlFactoryTests {
 				PasswordPolicyResponseControlTests.OPENLDAP_LOCKED_CTRL);
 		Control result = ctrlFactory.getControlInstance(control);
 		assertThat(result).isNotNull();
-		assertTrue(Arrays.equals(PasswordPolicyResponseControlTests.OPENLDAP_LOCKED_CTRL,
-				result.getEncodedValue()));
+		assertThat(PasswordPolicyResponseControlTests.OPENLDAP_LOCKED_CTRL).isEqualTo(result.getEncodedValue());
 	}
 }

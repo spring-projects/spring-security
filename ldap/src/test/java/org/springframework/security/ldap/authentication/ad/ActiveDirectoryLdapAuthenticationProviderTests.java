@@ -46,8 +46,6 @@ import javax.naming.directory.SearchResult;
 import java.util.Hashtable;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider.ContextFactory;
@@ -327,7 +325,7 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 
 		try {
 			provider.authenticate(joe);
-			fail();
+			fail("BadCredentialsException should had been thrown");
 		}
 		catch (BadCredentialsException expected) {
 		}

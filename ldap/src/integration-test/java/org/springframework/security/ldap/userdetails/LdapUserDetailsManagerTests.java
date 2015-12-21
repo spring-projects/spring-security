@@ -173,8 +173,7 @@ public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
 		}
 
 		// Check that no authorities are left
-		assertThat("don").isEqualTo(0, mgr.getUserAuthorities(mgr.usernameMapper.buildDn("don"))
-				.size());
+		assertThat(mgr.getUserAuthorities(mgr.usernameMapper.buildDn("don"), "don")).hasSize(0);
 	}
 
 	@Test
@@ -195,8 +194,8 @@ public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
 
 		mgr.changePassword("yossarianspassword", "yossariansnewpassword");
 
-		assertTrue(template.compare("uid=johnyossarian,ou=test people", "userPassword",
-				"yossariansnewpassword"));
+		assertThat(template.compare("uid=johnyossarian,ou=test people", "userPassword",
+				"yossariansnewpassword")).isTrue();
 	}
 
 	@Test(expected = BadCredentialsException.class)
