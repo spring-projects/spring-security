@@ -47,12 +47,10 @@ public class OpenID4JavaConsumerTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		consumer.beginConsumption(request, "", "", "");
 
-		assertEquals(
-				attributes,
-				request.getSession().getAttribute(
-						"SPRING_SECURITY_OPEN_ID_ATTRIBUTES_FETCH_LIST"));
-		assertSame(di,
-				request.getSession().getAttribute(DiscoveryInformation.class.getName()));
+		assertThat(request.getSession().getAttribute(
+				"SPRING_SECURITY_OPEN_ID_ATTRIBUTES_FETCH_LIST")).isEqualTo(attributes);
+		assertThat(
+				request.getSession().getAttribute(DiscoveryInformation.class.getName())).isEqualTo(di);
 
 		// Check with empty attribute fetch list
 		consumer = new OpenID4JavaConsumer(mgr, new NullAxFetchListFactory());
@@ -82,14 +80,14 @@ public class OpenID4JavaConsumerTests {
 
 		try {
 			consumer.beginConsumption(new MockHttpServletRequest(), "", "", "");
-			fail();
+			fail("OpenIDConsumerException was not thrown");
 		}
 		catch (OpenIDConsumerException expected) {
 		}
 
 		try {
 			consumer.beginConsumption(new MockHttpServletRequest(), "", "", "");
-			fail();
+			fail("OpenIDConsumerException was not thrown");
 		}
 		catch (OpenIDConsumerException expected) {
 		}
@@ -134,21 +132,21 @@ public class OpenID4JavaConsumerTests {
 
 		try {
 			consumer.endConsumption(request);
-			fail();
+			fail("OpenIDConsumerException was not thrown");
 		}
 		catch (OpenIDConsumerException expected) {
 		}
 
 		try {
 			consumer.endConsumption(request);
-			fail();
+			fail("OpenIDConsumerException was not thrown");
 		}
 		catch (OpenIDConsumerException expected) {
 		}
 
 		try {
 			consumer.endConsumption(request);
-			fail();
+			fail("OpenIDConsumerException was not thrown");
 		}
 		catch (OpenIDConsumerException expected) {
 		}

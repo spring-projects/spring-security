@@ -14,6 +14,8 @@
  */
 package org.springframework.security.openid;
 
+import static org.assertj.core.api.Assertions.*;
+
 import junit.framework.TestCase;
 
 import org.springframework.security.authentication.AuthenticationServiceException;

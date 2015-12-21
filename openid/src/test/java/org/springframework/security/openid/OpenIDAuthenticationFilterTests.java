@@ -88,8 +88,8 @@ public class OpenIDAuthenticationFilterTests {
 
 		URI returnTo = new URI(filter.buildReturnToUrl(req));
 		String query = returnTo.getRawQuery();
-		assertThat(count(query).isCloseTo(1, within('=')));
-		assertThat(count(query).isCloseTo(0, within('&')));
+		assertThat(count(query, '=')).isEqualTo(1);
+		assertThat(count(query, '&')).isEqualTo(0);
 	}
 
 	/**
