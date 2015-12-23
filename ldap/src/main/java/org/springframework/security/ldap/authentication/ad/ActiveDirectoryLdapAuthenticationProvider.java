@@ -309,7 +309,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends
 		try {
 			return SpringSecurityLdapTemplate.searchForSingleEntryInternal(context,
 					searchControls, searchRoot, searchFilter,
-					new Object[] { bindPrincipal });
+					new Object[] { bindPrincipal, username });
 		}
 		catch (IncorrectResultSizeDataAccessException incorrectResults) {
 			// Search should never return multiple results if properly configured - just
