@@ -26,7 +26,7 @@ ext.hsqlVersion = '2.3.2'
 ext.jacksonDatavindVersion = '2.4.4'
 ext.jettyVersion = '6.1.26'
 ext.jstlVersion = '1.2.1'
-ext.junitVersion = '4.11'
+ext.junitVersion = '4.12'
 ext.logbackVersion = '1.1.2'
 ext.powerMockVersion = '1.6.2'
 ext.seleniumVersion = '2.44.0'
@@ -144,7 +144,6 @@ task springSnapshotTest(type: Test) {
 		junitXml.destination = project.file("$buildDir/reports/spring-snapshot-tests/")
 	}
 }
-check.dependsOn springSnapshotTest
 
 dependencies {
 	optional "commons-logging:commons-logging:$commonsLoggingVersion"
