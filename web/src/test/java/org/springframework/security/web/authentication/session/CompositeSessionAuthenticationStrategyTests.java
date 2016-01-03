@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.authentication.session;
 
-import static junit.framework.Assert.fail;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -38,14 +39,19 @@ import org.springframework.security.core.Authentication;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class CompositeSessionAuthenticationStrategyTests {
+
 	@Mock
 	private SessionAuthenticationStrategy strategy1;
+
 	@Mock
 	private SessionAuthenticationStrategy strategy2;
+
 	@Mock
 	private Authentication authentication;
+
 	@Mock
 	private HttpServletRequest request;
+
 	@Mock
 	private HttpServletResponse response;
 
@@ -78,8 +84,8 @@ public class CompositeSessionAuthenticationStrategyTests {
 
 	@Test
 	public void delegateShortCircuits() {
-		doThrow(new SessionAuthenticationException("oops")).when(strategy1)
-				.onAuthentication(authentication, request, response);
+		doThrow(new SessionAuthenticationException("oops")).when(
+				strategy1).onAuthentication(authentication, request, response);
 
 		CompositeSessionAuthenticationStrategy strategy = new CompositeSessionAuthenticationStrategy(
 				Arrays.asList(strategy1, strategy2));

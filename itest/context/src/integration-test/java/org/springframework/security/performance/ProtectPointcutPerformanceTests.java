@@ -1,6 +1,7 @@
+
 package org.springframework.security.performance;
 
-import static junit.framework.Assert.fail;
+import static org.junit.Assert.fail;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -21,6 +22,7 @@ import org.springframework.util.StopWatch;
 @ContextConfiguration(locations = { "/protect-pointcut-performance-app-context.xml" })
 @RunWith(SpringJUnit4ClassRunner.class)
 public class ProtectPointcutPerformanceTests implements ApplicationContextAware {
+
 	ApplicationContext ctx;
 
 	@Before
@@ -35,8 +37,8 @@ public class ProtectPointcutPerformanceTests implements ApplicationContextAware 
 		sw.start();
 		for (int i = 0; i < 1000; i++) {
 			try {
-				SessionRegistry reg = (SessionRegistry) ctx
-						.getBean("sessionRegistryPrototype");
+				SessionRegistry reg = (SessionRegistry) ctx.getBean(
+						"sessionRegistryPrototype");
 				reg.getAllPrincipals();
 				fail("Expected AuthenticationCredentialsNotFoundException");
 			}

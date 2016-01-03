@@ -15,18 +15,12 @@
 
 package org.springframework.security.authentication.event;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 import org.junit.Test;
-
-import junit.framework.TestCase;
-
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.authentication.event.AbstractAuthenticationEvent;
-import org.springframework.security.authentication.event.AbstractAuthenticationFailureEvent;
-import org.springframework.security.authentication.event.AuthenticationFailureDisabledEvent;
-import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 
