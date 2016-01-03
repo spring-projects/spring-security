@@ -14,16 +14,14 @@
 
 package org.springframework.security.access.hierarchicalroles;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
-
-import org.springframework.security.access.hierarchicalroles.CycleInRoleHierarchyException;
-import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
+import org.junit.Test;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 
@@ -32,8 +30,9 @@ import org.springframework.security.core.authority.AuthorityUtils;
  *
  * @author Michael Mayr
  */
-public class RoleHierarchyImplTests extends TestCase {
+public class RoleHierarchyImplTests {
 
+	@Test
 	public void testRoleHierarchyWithNullOrEmptyAuthorities() {
 		List<GrantedAuthority> authorities0 = null;
 		List<GrantedAuthority> authorities1 = new ArrayList<GrantedAuthority>();
@@ -41,20 +40,27 @@ public class RoleHierarchyImplTests extends TestCase {
 		RoleHierarchyImpl roleHierarchyImpl = new RoleHierarchyImpl();
 		roleHierarchyImpl.setHierarchy("ROLE_A > ROLE_B");
 
-		assertThat(roleHierarchyImpl.getReachableGrantedAuthorities(authorities0)).isNotNull();
-		assertThat(roleHierarchyImpl.getReachableGrantedAuthorities(authorities0)).isEmpty();;
-		assertThat(roleHierarchyImpl.getReachableGrantedAuthorities(authorities1)).isNotNull();
-		assertThat(roleHierarchyImpl.getReachableGrantedAuthorities(authorities1)).isEmpty();;
+		assertThat(roleHierarchyImpl.getReachableGrantedAuthorities(
+				authorities0)).isNotNull();
+		assertThat(
+				roleHierarchyImpl.getReachableGrantedAuthorities(authorities0)).isEmpty();
+		;
+		assertThat(roleHierarchyImpl.getReachableGrantedAuthorities(
+				authorities1)).isNotNull();
+		assertThat(
+				roleHierarchyImpl.getReachableGrantedAuthorities(authorities1)).isEmpty();
+		;
 	}
 
+	@Test
 	public void testSimpleRoleHierarchy() {
 
-		List<GrantedAuthority> authorities0 = AuthorityUtils
-				.createAuthorityList("ROLE_0");
-		List<GrantedAuthority> authorities1 = AuthorityUtils
-				.createAuthorityList("ROLE_A");
-		List<GrantedAuthority> authorities2 = AuthorityUtils.createAuthorityList(
-				"ROLE_A", "ROLE_B");
+		List<GrantedAuthority> authorities0 = AuthorityUtils.createAuthorityList(
+				"ROLE_0");
+		List<GrantedAuthority> authorities1 = AuthorityUtils.createAuthorityList(
+				"ROLE_A");
+		List<GrantedAuthority> authorities2 = AuthorityUtils.createAuthorityList("ROLE_A",
+				"ROLE_B");
 
 		RoleHierarchyImpl roleHierarchyImpl = new RoleHierarchyImpl();
 		roleHierarchyImpl.setHierarchy("ROLE_A > ROLE_B");
@@ -70,13 +76,14 @@ public class RoleHierarchyImplTests extends TestCase {
 				authorities2));
 	}
 
+	@Test
 	public void testTransitiveRoleHierarchies() {
-		List<GrantedAuthority> authorities1 = AuthorityUtils
-				.createAuthorityList("ROLE_A");
-		List<GrantedAuthority> authorities2 = AuthorityUtils.createAuthorityList(
-				"ROLE_A", "ROLE_B", "ROLE_C");
-		List<GrantedAuthority> authorities3 = AuthorityUtils.createAuthorityList(
-				"ROLE_A", "ROLE_B", "ROLE_C", "ROLE_D");
+		List<GrantedAuthority> authorities1 = AuthorityUtils.createAuthorityList(
+				"ROLE_A");
+		List<GrantedAuthority> authorities2 = AuthorityUtils.createAuthorityList("ROLE_A",
+				"ROLE_B", "ROLE_C");
+		List<GrantedAuthority> authorities3 = AuthorityUtils.createAuthorityList("ROLE_A",
+				"ROLE_B", "ROLE_C", "ROLE_D");
 
 		RoleHierarchyImpl roleHierarchyImpl = new RoleHierarchyImpl();
 
@@ -85,34 +92,35 @@ public class RoleHierarchyImplTests extends TestCase {
 				roleHierarchyImpl.getReachableGrantedAuthorities(authorities1),
 				authorities2));
 
-		roleHierarchyImpl
-				.setHierarchy("ROLE_A > ROLE_B\nROLE_B > ROLE_C\nROLE_C > ROLE_D");
+		roleHierarchyImpl.setHierarchy(
+				"ROLE_A > ROLE_B\nROLE_B > ROLE_C\nROLE_C > ROLE_D");
 		assertTrue(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
 				roleHierarchyImpl.getReachableGrantedAuthorities(authorities1),
 				authorities3));
 	}
 
+	@Test
 	public void testComplexRoleHierarchy() {
-		List<GrantedAuthority> authoritiesInput1 = AuthorityUtils
-				.createAuthorityList("ROLE_A");
+		List<GrantedAuthority> authoritiesInput1 = AuthorityUtils.createAuthorityList(
+				"ROLE_A");
 		List<GrantedAuthority> authoritiesOutput1 = AuthorityUtils.createAuthorityList(
 				"ROLE_A", "ROLE_B", "ROLE_C", "ROLE_D");
-		List<GrantedAuthority> authoritiesInput2 = AuthorityUtils
-				.createAuthorityList("ROLE_B");
+		List<GrantedAuthority> authoritiesInput2 = AuthorityUtils.createAuthorityList(
+				"ROLE_B");
 		List<GrantedAuthority> authoritiesOutput2 = AuthorityUtils.createAuthorityList(
 				"ROLE_B", "ROLE_D");
-		List<GrantedAuthority> authoritiesInput3 = AuthorityUtils
-				.createAuthorityList("ROLE_C");
+		List<GrantedAuthority> authoritiesInput3 = AuthorityUtils.createAuthorityList(
+				"ROLE_C");
 		List<GrantedAuthority> authoritiesOutput3 = AuthorityUtils.createAuthorityList(
 				"ROLE_C", "ROLE_D");
-		List<GrantedAuthority> authoritiesInput4 = AuthorityUtils
-				.createAuthorityList("ROLE_D");
-		List<GrantedAuthority> authoritiesOutput4 = AuthorityUtils
-				.createAuthorityList("ROLE_D");
+		List<GrantedAuthority> authoritiesInput4 = AuthorityUtils.createAuthorityList(
+				"ROLE_D");
+		List<GrantedAuthority> authoritiesOutput4 = AuthorityUtils.createAuthorityList(
+				"ROLE_D");
 
 		RoleHierarchyImpl roleHierarchyImpl = new RoleHierarchyImpl();
-		roleHierarchyImpl
-				.setHierarchy("ROLE_A > ROLE_B\nROLE_A > ROLE_C\nROLE_C > ROLE_D\nROLE_B > ROLE_D");
+		roleHierarchyImpl.setHierarchy(
+				"ROLE_A > ROLE_B\nROLE_A > ROLE_C\nROLE_C > ROLE_D\nROLE_B > ROLE_D");
 
 		assertTrue(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
 				roleHierarchyImpl.getReachableGrantedAuthorities(authoritiesInput1),
@@ -128,6 +136,7 @@ public class RoleHierarchyImplTests extends TestCase {
 				authoritiesOutput4));
 	}
 
+	@Test
 	public void testCyclesInRoleHierarchy() {
 		RoleHierarchyImpl roleHierarchyImpl = new RoleHierarchyImpl();
 
@@ -146,28 +155,29 @@ public class RoleHierarchyImplTests extends TestCase {
 		}
 
 		try {
-			roleHierarchyImpl
-					.setHierarchy("ROLE_A > ROLE_B\nROLE_B > ROLE_C\nROLE_C > ROLE_A");
+			roleHierarchyImpl.setHierarchy(
+					"ROLE_A > ROLE_B\nROLE_B > ROLE_C\nROLE_C > ROLE_A");
 			fail("Cycle in role hierarchy was not detected!");
 		}
 		catch (CycleInRoleHierarchyException e) {
 		}
 
 		try {
-			roleHierarchyImpl
-					.setHierarchy("ROLE_A > ROLE_B\nROLE_B > ROLE_C\nROLE_C > ROLE_E\nROLE_E > ROLE_D\nROLE_D > ROLE_B");
+			roleHierarchyImpl.setHierarchy(
+					"ROLE_A > ROLE_B\nROLE_B > ROLE_C\nROLE_C > ROLE_E\nROLE_E > ROLE_D\nROLE_D > ROLE_B");
 			fail("Cycle in role hierarchy was not detected!");
 		}
 		catch (CycleInRoleHierarchyException e) {
 		}
 	}
 
+	@Test
 	public void testNoCyclesInRoleHierarchy() {
 		RoleHierarchyImpl roleHierarchyImpl = new RoleHierarchyImpl();
 
 		try {
-			roleHierarchyImpl
-					.setHierarchy("ROLE_A > ROLE_B\nROLE_A > ROLE_C\nROLE_C > ROLE_D\nROLE_B > ROLE_D");
+			roleHierarchyImpl.setHierarchy(
+					"ROLE_A > ROLE_B\nROLE_A > ROLE_C\nROLE_C > ROLE_D\nROLE_B > ROLE_D");
 		}
 		catch (CycleInRoleHierarchyException e) {
 			fail("A cycle in role hierarchy was incorrectly detected!");
@@ -175,28 +185,29 @@ public class RoleHierarchyImplTests extends TestCase {
 	}
 
 	// SEC-863
+	@Test
 	public void testSimpleRoleHierarchyWithCustomGrantedAuthorityImplementation() {
 
-		List<GrantedAuthority> authorities0 = HierarchicalRolesTestHelper
-				.createAuthorityList("ROLE_0");
-		List<GrantedAuthority> authorities1 = HierarchicalRolesTestHelper
-				.createAuthorityList("ROLE_A");
-		List<GrantedAuthority> authorities2 = HierarchicalRolesTestHelper
-				.createAuthorityList("ROLE_A", "ROLE_B");
+		List<GrantedAuthority> authorities0 = HierarchicalRolesTestHelper.createAuthorityList(
+				"ROLE_0");
+		List<GrantedAuthority> authorities1 = HierarchicalRolesTestHelper.createAuthorityList(
+				"ROLE_A");
+		List<GrantedAuthority> authorities2 = HierarchicalRolesTestHelper.createAuthorityList(
+				"ROLE_A", "ROLE_B");
 
 		RoleHierarchyImpl roleHierarchyImpl = new RoleHierarchyImpl();
 		roleHierarchyImpl.setHierarchy("ROLE_A > ROLE_B");
 
-		assertTrue(HierarchicalRolesTestHelper
-				.containTheSameGrantedAuthoritiesCompareByAuthorityString(
+		assertTrue(
+				HierarchicalRolesTestHelper.containTheSameGrantedAuthoritiesCompareByAuthorityString(
 						roleHierarchyImpl.getReachableGrantedAuthorities(authorities0),
 						authorities0));
-		assertTrue(HierarchicalRolesTestHelper
-				.containTheSameGrantedAuthoritiesCompareByAuthorityString(
+		assertTrue(
+				HierarchicalRolesTestHelper.containTheSameGrantedAuthoritiesCompareByAuthorityString(
 						roleHierarchyImpl.getReachableGrantedAuthorities(authorities1),
 						authorities2));
-		assertTrue(HierarchicalRolesTestHelper
-				.containTheSameGrantedAuthoritiesCompareByAuthorityString(
+		assertTrue(
+				HierarchicalRolesTestHelper.containTheSameGrantedAuthoritiesCompareByAuthorityString(
 						roleHierarchyImpl.getReachableGrantedAuthorities(authorities2),
 						authorities2));
 	}

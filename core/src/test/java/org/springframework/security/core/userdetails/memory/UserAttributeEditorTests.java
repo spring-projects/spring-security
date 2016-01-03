@@ -15,20 +15,18 @@
 
 package org.springframework.security.core.userdetails.memory;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import junit.framework.TestCase;
-
-import org.springframework.security.core.userdetails.memory.UserAttribute;
-import org.springframework.security.core.userdetails.memory.UserAttributeEditor;
+import org.junit.Test;
 
 /**
  * Tests {@link UserAttributeEditor} and associated {@link UserAttribute}.
  *
  * @author Ben Alex
  */
-public class UserAttributeEditorTests extends TestCase {
+public class UserAttributeEditorTests {
 
+	@Test
 	public void testCorrectOperationWithTrailingSpaces() {
 		UserAttributeEditor editor = new UserAttributeEditor();
 		editor.setAsText("password ,ROLE_ONE,ROLE_TWO ");
@@ -40,6 +38,7 @@ public class UserAttributeEditorTests extends TestCase {
 		assertThat(user.getAuthorities().get(1).getAuthority()).isEqualTo("ROLE_TWO");
 	}
 
+	@Test
 	public void testCorrectOperationWithoutEnabledDisabledKeyword() {
 		UserAttributeEditor editor = new UserAttributeEditor();
 		editor.setAsText("password,ROLE_ONE,ROLE_TWO");
@@ -53,6 +52,7 @@ public class UserAttributeEditorTests extends TestCase {
 		assertThat(user.getAuthorities().get(1).getAuthority()).isEqualTo("ROLE_TWO");
 	}
 
+	@Test
 	public void testDisabledKeyword() {
 		UserAttributeEditor editor = new UserAttributeEditor();
 		editor.setAsText("password,disabled,ROLE_ONE,ROLE_TWO");
@@ -66,6 +66,7 @@ public class UserAttributeEditorTests extends TestCase {
 		assertThat(user.getAuthorities().get(1).getAuthority()).isEqualTo("ROLE_TWO");
 	}
 
+	@Test
 	public void testEmptyStringReturnsNull() {
 		UserAttributeEditor editor = new UserAttributeEditor();
 		editor.setAsText("");
@@ -74,6 +75,7 @@ public class UserAttributeEditorTests extends TestCase {
 		assertThat(user == null).isTrue();
 	}
 
+	@Test
 	public void testEnabledKeyword() {
 		UserAttributeEditor editor = new UserAttributeEditor();
 		editor.setAsText("password,ROLE_ONE,enabled,ROLE_TWO");
@@ -87,6 +89,7 @@ public class UserAttributeEditorTests extends TestCase {
 		assertThat(user.getAuthorities().get(1).getAuthority()).isEqualTo("ROLE_TWO");
 	}
 
+	@Test
 	public void testMalformedStringReturnsNull() {
 		UserAttributeEditor editor = new UserAttributeEditor();
 		editor.setAsText("MALFORMED_STRING");
@@ -95,6 +98,7 @@ public class UserAttributeEditorTests extends TestCase {
 		assertThat(user == null).isTrue();
 	}
 
+	@Test
 	public void testNoPasswordOrRolesReturnsNull() {
 		UserAttributeEditor editor = new UserAttributeEditor();
 		editor.setAsText("disabled");
@@ -103,6 +107,7 @@ public class UserAttributeEditorTests extends TestCase {
 		assertThat(user == null).isTrue();
 	}
 
+	@Test
 	public void testNoRolesReturnsNull() {
 		UserAttributeEditor editor = new UserAttributeEditor();
 		editor.setAsText("password,enabled");
@@ -111,6 +116,7 @@ public class UserAttributeEditorTests extends TestCase {
 		assertThat(user == null).isTrue();
 	}
 
+	@Test
 	public void testNullReturnsNull() {
 		UserAttributeEditor editor = new UserAttributeEditor();
 		editor.setAsText(null);

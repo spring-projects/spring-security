@@ -15,25 +15,21 @@
 
 package org.springframework.security.remoting.httpinvoker;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import junit.framework.TestCase;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.junit.After;
+import org.junit.Test;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
-
-import org.springframework.security.remoting.httpinvoker.AuthenticationSimpleHttpInvokerRequestExecutor;
-
-import java.io.IOException;
-
-import java.net.HttpURLConnection;
-import java.net.URL;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Tests {@link AuthenticationSimpleHttpInvokerRequestExecutor}.
@@ -41,16 +37,16 @@ import java.util.Map;
  * @author Ben Alex
  * @author Rob Winch
  */
-public class AuthenticationSimpleHttpInvokerRequestExecutorTests extends TestCase {
+public class AuthenticationSimpleHttpInvokerRequestExecutorTests {
 
 	// ~ Methods
 	// ========================================================================================================
-
-	protected void tearDown() throws Exception {
-		super.tearDown();
+	@After
+	public void tearDown() throws Exception {
 		SecurityContextHolder.clearContext();
 	}
 
+	@Test
 	public void testNormalOperation() throws Exception {
 		// Setup client-side context
 		Authentication clientSideAuthentication = new UsernamePasswordAuthenticationToken(
@@ -66,9 +62,11 @@ public class AuthenticationSimpleHttpInvokerRequestExecutorTests extends TestCas
 		// Check connection properties
 		// See http://www.faqs.org/rfcs/rfc1945.html section 11.1 for example
 		// we are comparing against
-		assertThat(conn.getRequestProperty("Authorization")).isEqualTo("Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==");
+		assertThat(conn.getRequestProperty("Authorization")).isEqualTo(
+				"Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==");
 	}
 
+	@Test
 	public void testNullContextHolderIsNull() throws Exception {
 		SecurityContextHolder.getContext().setAuthentication(null);
 
@@ -83,6 +81,7 @@ public class AuthenticationSimpleHttpInvokerRequestExecutorTests extends TestCas
 	}
 
 	// SEC-1975
+	@Test
 	public void testNullContextHolderWhenAnonymous() throws Exception {
 		AnonymousAuthenticationToken anonymous = new AnonymousAuthenticationToken("key",
 				"principal", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
@@ -102,6 +101,7 @@ public class AuthenticationSimpleHttpInvokerRequestExecutorTests extends TestCas
 	// ==================================================================================================
 
 	private class MockHttpURLConnection extends HttpURLConnection {
+
 		private Map<String, String> requestProperties = new HashMap<String, String>();
 
 		public MockHttpURLConnection(URL u) {

@@ -16,15 +16,16 @@
 package org.springframework.security.access.vote;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.List;
 
-import junit.framework.TestCase;
-
+import org.junit.Test;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
-import org.springframework.security.access.vote.AuthenticatedVoter;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.RememberMeAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -36,7 +37,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
  *
  * @author Ben Alex
  */
-public class AuthenticatedVoterTests extends TestCase {
+public class AuthenticatedVoterTests {
 
 	private Authentication createAnonymous() {
 		return new AnonymousAuthenticationToken("ignored", "ignored",
@@ -53,10 +54,11 @@ public class AuthenticatedVoterTests extends TestCase {
 				AuthorityUtils.createAuthorityList("ignored"));
 	}
 
+	@Test
 	public void testAnonymousWorks() {
 		AuthenticatedVoter voter = new AuthenticatedVoter();
-		List<ConfigAttribute> def = SecurityConfig
-				.createList(AuthenticatedVoter.IS_AUTHENTICATED_ANONYMOUSLY);
+		List<ConfigAttribute> def = SecurityConfig.createList(
+				AuthenticatedVoter.IS_AUTHENTICATED_ANONYMOUSLY);
 		assertEquals(AccessDecisionVoter.ACCESS_GRANTED,
 				voter.vote(createAnonymous(), null, def));
 		assertEquals(AccessDecisionVoter.ACCESS_GRANTED,
@@ -65,10 +67,11 @@ public class AuthenticatedVoterTests extends TestCase {
 				voter.vote(createFullyAuthenticated(), null, def));
 	}
 
+	@Test
 	public void testFullyWorks() {
 		AuthenticatedVoter voter = new AuthenticatedVoter();
-		List<ConfigAttribute> def = SecurityConfig
-				.createList(AuthenticatedVoter.IS_AUTHENTICATED_FULLY);
+		List<ConfigAttribute> def = SecurityConfig.createList(
+				AuthenticatedVoter.IS_AUTHENTICATED_FULLY);
 		assertEquals(AccessDecisionVoter.ACCESS_DENIED,
 				voter.vote(createAnonymous(), null, def));
 		assertEquals(AccessDecisionVoter.ACCESS_DENIED,
@@ -77,10 +80,11 @@ public class AuthenticatedVoterTests extends TestCase {
 				voter.vote(createFullyAuthenticated(), null, def));
 	}
 
+	@Test
 	public void testRememberMeWorks() {
 		AuthenticatedVoter voter = new AuthenticatedVoter();
-		List<ConfigAttribute> def = SecurityConfig
-				.createList(AuthenticatedVoter.IS_AUTHENTICATED_REMEMBERED);
+		List<ConfigAttribute> def = SecurityConfig.createList(
+				AuthenticatedVoter.IS_AUTHENTICATED_REMEMBERED);
 		assertEquals(AccessDecisionVoter.ACCESS_DENIED,
 				voter.vote(createAnonymous(), null, def));
 		assertEquals(AccessDecisionVoter.ACCESS_GRANTED,
@@ -89,6 +93,7 @@ public class AuthenticatedVoterTests extends TestCase {
 				voter.vote(createFullyAuthenticated(), null, def));
 	}
 
+	@Test
 	public void testSetterRejectsNull() {
 		AuthenticatedVoter voter = new AuthenticatedVoter();
 
@@ -101,15 +106,16 @@ public class AuthenticatedVoterTests extends TestCase {
 		}
 	}
 
+	@Test
 	public void testSupports() {
 		AuthenticatedVoter voter = new AuthenticatedVoter();
 		assertThat(voter.supports(String.class)).isTrue();
-		assertTrue(voter.supports(new SecurityConfig(
-				AuthenticatedVoter.IS_AUTHENTICATED_ANONYMOUSLY)));
-		assertTrue(voter.supports(new SecurityConfig(
-				AuthenticatedVoter.IS_AUTHENTICATED_FULLY)));
-		assertTrue(voter.supports(new SecurityConfig(
-				AuthenticatedVoter.IS_AUTHENTICATED_REMEMBERED)));
+		assertTrue(voter.supports(
+				new SecurityConfig(AuthenticatedVoter.IS_AUTHENTICATED_ANONYMOUSLY)));
+		assertTrue(voter.supports(
+				new SecurityConfig(AuthenticatedVoter.IS_AUTHENTICATED_FULLY)));
+		assertTrue(voter.supports(
+				new SecurityConfig(AuthenticatedVoter.IS_AUTHENTICATED_REMEMBERED)));
 		assertThat(voter.supports(new SecurityConfig("FOO"))).isFalse();
 	}
 }

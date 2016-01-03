@@ -15,26 +15,27 @@
 
 package org.springframework.security.cas.web;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+import static org.junit.Assert.assertEquals;
 
-import junit.framework.TestCase;
+import java.net.URLEncoder;
 
+import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.cas.ServiceProperties;
-import org.springframework.security.cas.web.CasAuthenticationEntryPoint;
-
-import java.net.URLEncoder;
 
 /**
  * Tests {@link CasAuthenticationEntryPoint}.
  *
  * @author Ben Alex
  */
-public class CasAuthenticationEntryPointTests extends TestCase {
+public class CasAuthenticationEntryPointTests {
+
 	// ~ Methods
 	// ========================================================================================================
-
+	@Test
 	public void testDetectsMissingLoginFormUrl() throws Exception {
 		CasAuthenticationEntryPoint ep = new CasAuthenticationEntryPoint();
 		ep.setServiceProperties(new ServiceProperties());
@@ -48,6 +49,7 @@ public class CasAuthenticationEntryPointTests extends TestCase {
 		}
 	}
 
+	@Test
 	public void testDetectsMissingServiceProperties() throws Exception {
 		CasAuthenticationEntryPoint ep = new CasAuthenticationEntryPoint();
 		ep.setLoginUrl("https://cas/login");
@@ -57,10 +59,12 @@ public class CasAuthenticationEntryPointTests extends TestCase {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertThat(expected.getMessage()).isEqualTo("serviceProperties must be specified");
+			assertThat(expected.getMessage()).isEqualTo(
+					"serviceProperties must be specified");
 		}
 	}
 
+	@Test
 	public void testGettersSetters() {
 		CasAuthenticationEntryPoint ep = new CasAuthenticationEntryPoint();
 		ep.setLoginUrl("https://cas/login");
@@ -70,6 +74,7 @@ public class CasAuthenticationEntryPointTests extends TestCase {
 		assertThat(ep.getServiceProperties() != null).isTrue();
 	}
 
+	@Test
 	public void testNormalOperationWithRenewFalse() throws Exception {
 		ServiceProperties sp = new ServiceProperties();
 		sp.setSendRenew(false);
@@ -88,11 +93,12 @@ public class CasAuthenticationEntryPointTests extends TestCase {
 		ep.commence(request, response, null);
 
 		assertEquals(
-				"https://cas/login?service="
-						+ URLEncoder.encode("https://mycompany.com/bigWebApp/login/cas",
-								"UTF-8"), response.getRedirectedUrl());
+				"https://cas/login?service=" + URLEncoder.encode(
+						"https://mycompany.com/bigWebApp/login/cas", "UTF-8"),
+				response.getRedirectedUrl());
 	}
 
+	@Test
 	public void testNormalOperationWithRenewTrue() throws Exception {
 		ServiceProperties sp = new ServiceProperties();
 		sp.setSendRenew(true);
@@ -109,9 +115,8 @@ public class CasAuthenticationEntryPointTests extends TestCase {
 
 		ep.afterPropertiesSet();
 		ep.commence(request, response, null);
-		assertEquals(
-				"https://cas/login?service="
-						+ URLEncoder.encode("https://mycompany.com/bigWebApp/login/cas",
-								"UTF-8") + "&renew=true", response.getRedirectedUrl());
+		assertEquals("https://cas/login?service="
+				+ URLEncoder.encode("https://mycompany.com/bigWebApp/login/cas", "UTF-8")
+				+ "&renew=true", response.getRedirectedUrl());
 	}
 }

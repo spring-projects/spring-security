@@ -1,4 +1,7 @@
+
 package org.springframework.security.web.authentication.preauth.j2ee;
+
+import static org.junit.Assert.assertEquals;
 
 import java.security.Principal;
 import java.util.Arrays;
@@ -7,35 +10,35 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import junit.framework.TestCase;
-
+import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.security.web.authentication.preauth.j2ee.J2eePreAuthenticatedProcessingFilter;
 
 /**
  *
  * @author TSARDD
  * @since 18-okt-2007
  */
-public class J2eePreAuthenticatedProcessingFilterTests extends TestCase {
+public class J2eePreAuthenticatedProcessingFilterTests {
 
+	@Test
 	public final void testGetPreAuthenticatedPrincipal() {
 		String user = "testUser";
 		assertEquals(user,
-				new J2eePreAuthenticatedProcessingFilter()
-						.getPreAuthenticatedPrincipal(getRequest(user, new String[] {})));
+				new J2eePreAuthenticatedProcessingFilter().getPreAuthenticatedPrincipal(
+						getRequest(user, new String[] {})));
 	}
 
+	@Test
 	public final void testGetPreAuthenticatedCredentials() {
 		assertEquals("N/A",
-				new J2eePreAuthenticatedProcessingFilter()
-						.getPreAuthenticatedCredentials(getRequest("testUser",
-								new String[] {})));
+				new J2eePreAuthenticatedProcessingFilter().getPreAuthenticatedCredentials(
+						getRequest("testUser", new String[] {})));
 	}
 
 	private final HttpServletRequest getRequest(final String aUserName,
 			final String[] aRoles) {
 		MockHttpServletRequest req = new MockHttpServletRequest() {
+
 			private Set<String> roles = new HashSet<String>(Arrays.asList(aRoles));
 
 			public boolean isUserInRole(String arg0) {
@@ -44,6 +47,7 @@ public class J2eePreAuthenticatedProcessingFilterTests extends TestCase {
 		};
 		req.setRemoteUser(aUserName);
 		req.setUserPrincipal(new Principal() {
+
 			public String getName() {
 				return aUserName;
 			}

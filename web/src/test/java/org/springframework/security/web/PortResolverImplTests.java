@@ -16,19 +16,17 @@
 package org.springframework.security.web;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 
-import junit.framework.TestCase;
-
+import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.security.web.PortMapperImpl;
-import org.springframework.security.web.PortResolverImpl;
 
 /**
  * Tests {@link PortResolverImpl}.
  *
  * @author Ben Alex
  */
-public class PortResolverImplTests extends TestCase {
+public class PortResolverImplTests {
 	// ~ Constructors
 	// ===================================================================================================
 
@@ -36,17 +34,9 @@ public class PortResolverImplTests extends TestCase {
 		super();
 	}
 
-	public PortResolverImplTests(String arg0) {
-		super(arg0);
-	}
-
 	// ~ Methods
 	// ========================================================================================================
-
-	public final void setUp() throws Exception {
-		super.setUp();
-	}
-
+	@Test
 	public void testDetectsBuggyIeHttpRequest() throws Exception {
 		PortResolverImpl pr = new PortResolverImpl();
 
@@ -56,6 +46,7 @@ public class PortResolverImplTests extends TestCase {
 		assertThat(pr.getServerPort(request)).isEqualTo(8080);
 	}
 
+	@Test
 	public void testDetectsBuggyIeHttpsRequest() throws Exception {
 		PortResolverImpl pr = new PortResolverImpl();
 
@@ -65,6 +56,7 @@ public class PortResolverImplTests extends TestCase {
 		assertThat(pr.getServerPort(request)).isEqualTo(8443);
 	}
 
+	@Test
 	public void testDetectsEmptyPortMapper() throws Exception {
 		PortResolverImpl pr = new PortResolverImpl();
 
@@ -77,6 +69,7 @@ public class PortResolverImplTests extends TestCase {
 		}
 	}
 
+	@Test
 	public void testGettersSetters() throws Exception {
 		PortResolverImpl pr = new PortResolverImpl();
 		assertThat(pr.getPortMapper() != null).isTrue();
@@ -84,6 +77,7 @@ public class PortResolverImplTests extends TestCase {
 		assertThat(pr.getPortMapper() != null).isTrue();
 	}
 
+	@Test
 	public void testNormalOperation() throws Exception {
 		PortResolverImpl pr = new PortResolverImpl();
 

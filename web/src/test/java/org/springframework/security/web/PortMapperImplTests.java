@@ -16,26 +16,28 @@
 package org.springframework.security.web;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.security.web.PortMapperImpl;
+import org.junit.Test;
 
 /**
  * Tests {@link PortMapperImpl}.
  *
  * @author Ben Alex
  */
-public class PortMapperImplTests extends TestCase {
+public class PortMapperImplTests {
+
 	// ~ Methods
 	// ========================================================================================================
-
+	@Test
 	public void testDefaultMappingsAreKnown() throws Exception {
 		PortMapperImpl portMapper = new PortMapperImpl();
-		assertThat(portMapper.lookupHttpPort(Integer.valueOf(443))).isEqualTo(Integer.valueOf(80));
+		assertThat(portMapper.lookupHttpPort(Integer.valueOf(443))).isEqualTo(
+				Integer.valueOf(80));
 		assertEquals(Integer.valueOf(8080),
 				portMapper.lookupHttpPort(Integer.valueOf(8443)));
 		assertEquals(Integer.valueOf(443),
@@ -44,6 +46,7 @@ public class PortMapperImplTests extends TestCase {
 				portMapper.lookupHttpsPort(Integer.valueOf(8080)));
 	}
 
+	@Test
 	public void testDetectsEmptyMap() throws Exception {
 		PortMapperImpl portMapper = new PortMapperImpl();
 
@@ -56,6 +59,7 @@ public class PortMapperImplTests extends TestCase {
 		}
 	}
 
+	@Test
 	public void testDetectsNullMap() throws Exception {
 		PortMapperImpl portMapper = new PortMapperImpl();
 
@@ -68,11 +72,13 @@ public class PortMapperImplTests extends TestCase {
 		}
 	}
 
+	@Test
 	public void testGetTranslatedPortMappings() {
 		PortMapperImpl portMapper = new PortMapperImpl();
 		assertThat(portMapper.getTranslatedPortMappings()).hasSize(2);
 	}
 
+	@Test
 	public void testRejectsOutOfRangeMappings() {
 		PortMapperImpl portMapper = new PortMapperImpl();
 		Map<String, String> map = new HashMap<String, String>();
@@ -87,11 +93,13 @@ public class PortMapperImplTests extends TestCase {
 		}
 	}
 
+	@Test
 	public void testReturnsNullIfHttpPortCannotBeFound() {
 		PortMapperImpl portMapper = new PortMapperImpl();
 		assertThat(portMapper.lookupHttpPort(Integer.valueOf("34343")) == null).isTrue();
 	}
 
+	@Test
 	public void testSupportsCustomMappings() {
 		PortMapperImpl portMapper = new PortMapperImpl();
 		Map<String, String> map = new HashMap<String, String>();
@@ -99,7 +107,8 @@ public class PortMapperImplTests extends TestCase {
 
 		portMapper.setPortMappings(map);
 
-		assertThat(portMapper.lookupHttpPort(Integer.valueOf(442))).isEqualTo(Integer.valueOf(79));
+		assertThat(portMapper.lookupHttpPort(Integer.valueOf(442))).isEqualTo(
+				Integer.valueOf(79));
 		assertEquals(Integer.valueOf(442),
 				portMapper.lookupHttpsPort(Integer.valueOf(79)));
 	}

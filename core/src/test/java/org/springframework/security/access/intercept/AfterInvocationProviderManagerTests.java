@@ -16,19 +16,20 @@
 package org.springframework.security.access.intercept;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
 
-import junit.framework.TestCase;
-
 import org.aopalliance.intercept.MethodInvocation;
+import org.junit.Test;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.AfterInvocationProvider;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
-import org.springframework.security.access.intercept.AfterInvocationProviderManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.util.SimpleMethodInvocation;
 
@@ -38,11 +39,11 @@ import org.springframework.security.util.SimpleMethodInvocation;
  * @author Ben Alex
  */
 @SuppressWarnings("unchecked")
-public class AfterInvocationProviderManagerTests extends TestCase {
+public class AfterInvocationProviderManagerTests {
 
 	// ~ Methods
 	// ========================================================================================================
-
+	@Test
 	public void testCorrectOperation() throws Exception {
 		AfterInvocationProviderManager manager = new AfterInvocationProviderManager();
 		List list = new Vector();
@@ -56,16 +57,16 @@ public class AfterInvocationProviderManagerTests extends TestCase {
 		assertThat(manager.getProviders()).isEqualTo(list);
 		manager.afterPropertiesSet();
 
-		List<ConfigAttribute> attr1 = SecurityConfig
-				.createList(new String[] { "GIVE_ME_SWAP1" });
-		List<ConfigAttribute> attr2 = SecurityConfig
-				.createList(new String[] { "GIVE_ME_SWAP2" });
-		List<ConfigAttribute> attr3 = SecurityConfig
-				.createList(new String[] { "GIVE_ME_SWAP3" });
-		List<ConfigAttribute> attr2and3 = SecurityConfig.createList(new String[] {
-				"GIVE_ME_SWAP2", "GIVE_ME_SWAP3" });
-		List<ConfigAttribute> attr4 = SecurityConfig
-				.createList(new String[] { "NEVER_CAUSES_SWAP" });
+		List<ConfigAttribute> attr1 = SecurityConfig.createList(
+				new String[] { "GIVE_ME_SWAP1" });
+		List<ConfigAttribute> attr2 = SecurityConfig.createList(
+				new String[] { "GIVE_ME_SWAP2" });
+		List<ConfigAttribute> attr3 = SecurityConfig.createList(
+				new String[] { "GIVE_ME_SWAP3" });
+		List<ConfigAttribute> attr2and3 = SecurityConfig.createList(
+				new String[] { "GIVE_ME_SWAP2", "GIVE_ME_SWAP3" });
+		List<ConfigAttribute> attr4 = SecurityConfig.createList(
+				new String[] { "NEVER_CAUSES_SWAP" });
 
 		assertThat(manager.decide(null, new SimpleMethodInvocation(), attr1,
 				"content-before-swapping")).isEqualTo("swap1");
@@ -76,13 +77,14 @@ public class AfterInvocationProviderManagerTests extends TestCase {
 		assertThat(manager.decide(null, new SimpleMethodInvocation(), attr3,
 				"content-before-swapping")).isEqualTo("swap3");
 
-		assertThat(manager.decide(null,
-				new SimpleMethodInvocation(), attr4, "content-before-swapping")).isEqualTo("content-before-swapping");
+		assertThat(manager.decide(null, new SimpleMethodInvocation(), attr4,
+				"content-before-swapping")).isEqualTo("content-before-swapping");
 
-		assertThat(manager.decide(null, new SimpleMethodInvocation(),
-				attr2and3, "content-before-swapping")).isEqualTo("swap3");
+		assertThat(manager.decide(null, new SimpleMethodInvocation(), attr2and3,
+				"content-before-swapping")).isEqualTo("swap3");
 	}
 
+	@Test
 	public void testRejectsEmptyProvidersList() {
 		AfterInvocationProviderManager manager = new AfterInvocationProviderManager();
 		List list = new Vector();
@@ -96,6 +98,7 @@ public class AfterInvocationProviderManagerTests extends TestCase {
 		}
 	}
 
+	@Test
 	public void testRejectsNonAfterInvocationProviders() {
 		AfterInvocationProviderManager manager = new AfterInvocationProviderManager();
 		List list = new Vector();
@@ -114,6 +117,7 @@ public class AfterInvocationProviderManagerTests extends TestCase {
 		}
 	}
 
+	@Test
 	public void testRejectsNullProvidersList() throws Exception {
 		AfterInvocationProviderManager manager = new AfterInvocationProviderManager();
 
@@ -126,6 +130,7 @@ public class AfterInvocationProviderManagerTests extends TestCase {
 		}
 	}
 
+	@Test
 	public void testSupportsConfigAttributeIteration() throws Exception {
 		AfterInvocationProviderManager manager = new AfterInvocationProviderManager();
 		List list = new Vector();
@@ -142,6 +147,7 @@ public class AfterInvocationProviderManagerTests extends TestCase {
 		assertTrue(manager.supports(new SecurityConfig("GIVE_ME_SWAP2")));
 	}
 
+	@Test
 	public void testSupportsSecureObjectIteration() throws Exception {
 		AfterInvocationProviderManager manager = new AfterInvocationProviderManager();
 		List list = new Vector();
@@ -167,8 +173,11 @@ public class AfterInvocationProviderManagerTests extends TestCase {
 	 * supports.
 	 */
 	private class MockAfterInvocationProvider implements AfterInvocationProvider {
+
 		private Class secureObject;
+
 		private ConfigAttribute configAttribute;
+
 		private Object forceReturnObject;
 
 		public MockAfterInvocationProvider(Object forceReturnObject, Class secureObject,
@@ -180,7 +189,7 @@ public class AfterInvocationProviderManagerTests extends TestCase {
 
 		public Object decide(Authentication authentication, Object object,
 				Collection<ConfigAttribute> config, Object returnedObject)
-				throws AccessDeniedException {
+						throws AccessDeniedException {
 			if (config.contains(configAttribute)) {
 				return forceReturnObject;
 			}

@@ -15,10 +15,14 @@
 
 package org.springframework.security.remoting.rmi;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
-import junit.framework.TestCase;
+import java.lang.reflect.Method;
+
 import org.aopalliance.intercept.MethodInvocation;
+import org.junit.After;
+import org.junit.Test;
 import org.springframework.security.TargetObject;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -26,37 +30,37 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.util.SimpleMethodInvocation;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.lang.reflect.Method;
-
 /**
  * Tests {@link ContextPropagatingRemoteInvocation} and
  * {@link ContextPropagatingRemoteInvocationFactory}.
  *
  * @author Ben Alex
  */
-public class ContextPropagatingRemoteInvocationTests extends TestCase {
+public class ContextPropagatingRemoteInvocationTests {
 
 	// ~ Methods
 	// ========================================================================================================
-
-	protected void tearDown() throws Exception {
-		super.tearDown();
+	@After
+	public void tearDown() throws Exception {
 		SecurityContextHolder.clearContext();
 	}
 
 	private ContextPropagatingRemoteInvocation getRemoteInvocation() throws Exception {
 		Class<TargetObject> clazz = TargetObject.class;
 		Method method = clazz.getMethod("makeLowerCase", new Class[] { String.class });
-		MethodInvocation mi = new SimpleMethodInvocation(new TargetObject(), method, "SOME_STRING");
+		MethodInvocation mi = new SimpleMethodInvocation(new TargetObject(), method,
+				"SOME_STRING");
 
 		ContextPropagatingRemoteInvocationFactory factory = new ContextPropagatingRemoteInvocationFactory();
 
 		return (ContextPropagatingRemoteInvocation) factory.createRemoteInvocation(mi);
 	}
 
+	@Test
 	public void testContextIsResetEvenIfExceptionOccurs() throws Exception {
 		// Setup client-side context
-		Authentication clientSideAuthentication = new UsernamePasswordAuthenticationToken("rod", "koala");
+		Authentication clientSideAuthentication = new UsernamePasswordAuthenticationToken(
+				"rod", "koala");
 		SecurityContextHolder.getContext().setAuthentication(clientSideAuthentication);
 
 		ContextPropagatingRemoteInvocation remoteInvocation = getRemoteInvocation();
@@ -66,17 +70,21 @@ public class ContextPropagatingRemoteInvocationTests extends TestCase {
 			remoteInvocation.setArguments(new Object[] {});
 			remoteInvocation.invoke(TargetObject.class.newInstance());
 			fail("Expected IllegalArgumentException");
-		} catch (IllegalArgumentException e) {
+		}
+		catch (IllegalArgumentException e) {
 			// expected
 		}
 
-		assertThat(SecurityContextHolder.getContext().getAuthentication())
-				.withFailMessage("Authentication must be null").isNull();
+		assertThat(
+				SecurityContextHolder.getContext().getAuthentication()).withFailMessage(
+						"Authentication must be null").isNull();
 	}
 
+	@Test
 	public void testNormalOperation() throws Exception {
 		// Setup client-side context
-		Authentication clientSideAuthentication = new UsernamePasswordAuthenticationToken("rod", "koala");
+		Authentication clientSideAuthentication = new UsernamePasswordAuthenticationToken(
+				"rod", "koala");
 		SecurityContextHolder.getContext().setAuthentication(clientSideAuthentication);
 
 		ContextPropagatingRemoteInvocation remoteInvocation = getRemoteInvocation();
@@ -92,6 +100,7 @@ public class ContextPropagatingRemoteInvocationTests extends TestCase {
 				"some_string org.springframework.security.authentication.UsernamePasswordAuthenticationToken false");
 	}
 
+	@Test
 	public void testNullContextHolderDoesNotCauseInvocationProblems() throws Exception {
 		SecurityContextHolder.clearContext(); // just to be explicit
 
@@ -99,15 +108,19 @@ public class ContextPropagatingRemoteInvocationTests extends TestCase {
 		SecurityContextHolder.clearContext(); // unnecessary, but for
 												// explicitness
 
-		assertThat(remoteInvocation.invoke(new TargetObject())).isEqualTo("some_string Authentication empty");
+		assertThat(remoteInvocation.invoke(new TargetObject())).isEqualTo(
+				"some_string Authentication empty");
 	}
 
 	// SEC-1867
+	@Test
 	public void testNullCredentials() throws Exception {
-		Authentication clientSideAuthentication = new UsernamePasswordAuthenticationToken("rod", null);
+		Authentication clientSideAuthentication = new UsernamePasswordAuthenticationToken(
+				"rod", null);
 		SecurityContextHolder.getContext().setAuthentication(clientSideAuthentication);
 
 		ContextPropagatingRemoteInvocation remoteInvocation = getRemoteInvocation();
-		assertThat(ReflectionTestUtils.getField(remoteInvocation, "credentials")).isNull();
+		assertThat(
+				ReflectionTestUtils.getField(remoteInvocation, "credentials")).isNull();
 	}
 }

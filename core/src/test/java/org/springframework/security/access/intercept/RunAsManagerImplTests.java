@@ -16,11 +16,12 @@
 package org.springframework.security.access.intercept;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.Set;
 
-import junit.framework.TestCase;
-
+import org.junit.Test;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -31,17 +32,20 @@ import org.springframework.security.core.authority.AuthorityUtils;
  *
  * @author Ben Alex
  */
-public class RunAsManagerImplTests extends TestCase {
+public class RunAsManagerImplTests {
+
+	@Test
 	public void testAlwaysSupportsClass() {
 		RunAsManagerImpl runAs = new RunAsManagerImpl();
 		assertThat(runAs.supports(String.class)).isTrue();
 	}
 
+	@Test
 	public void testDoesNotReturnAdditionalAuthoritiesIfCalledWithoutARunAsSetting()
 			throws Exception {
 		UsernamePasswordAuthenticationToken inputToken = new UsernamePasswordAuthenticationToken(
-				"Test", "Password", AuthorityUtils.createAuthorityList("ROLE_ONE",
-						"ROLE_TWO"));
+				"Test", "Password",
+				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
 
 		RunAsManagerImpl runAs = new RunAsManagerImpl();
 		runAs.setKey("my_password");
@@ -51,6 +55,7 @@ public class RunAsManagerImplTests extends TestCase {
 		assertThat(resultingToken).isEqualTo(null);
 	}
 
+	@Test
 	public void testRespectsRolePrefix() throws Exception {
 		UsernamePasswordAuthenticationToken inputToken = new UsernamePasswordAuthenticationToken(
 				"Test", "Password", AuthorityUtils.createAuthorityList("ONE", "TWO"));
@@ -66,8 +71,8 @@ public class RunAsManagerImplTests extends TestCase {
 				result instanceof RunAsUserToken);
 		assertThat(result.getPrincipal()).isEqualTo(inputToken.getPrincipal());
 		assertThat(result.getCredentials()).isEqualTo(inputToken.getCredentials());
-		Set<String> authorities = AuthorityUtils.authorityListToSet(result
-				.getAuthorities());
+		Set<String> authorities = AuthorityUtils.authorityListToSet(
+				result.getAuthorities());
 
 		assertThat(authorities.contains("FOOBAR_RUN_AS_SOMETHING")).isTrue();
 		assertThat(authorities.contains("ONE")).isTrue();
@@ -77,10 +82,11 @@ public class RunAsManagerImplTests extends TestCase {
 		assertThat(resultCast.getKeyHash()).isEqualTo("my_password".hashCode());
 	}
 
+	@Test
 	public void testReturnsAdditionalGrantedAuthorities() throws Exception {
 		UsernamePasswordAuthenticationToken inputToken = new UsernamePasswordAuthenticationToken(
-				"Test", "Password", AuthorityUtils.createAuthorityList("ROLE_ONE",
-						"ROLE_TWO"));
+				"Test", "Password",
+				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
 
 		RunAsManagerImpl runAs = new RunAsManagerImpl();
 		runAs.setKey("my_password");
@@ -95,8 +101,8 @@ public class RunAsManagerImplTests extends TestCase {
 		assertThat(result.getPrincipal()).isEqualTo(inputToken.getPrincipal());
 		assertThat(result.getCredentials()).isEqualTo(inputToken.getCredentials());
 
-		Set<String> authorities = AuthorityUtils.authorityListToSet(result
-				.getAuthorities());
+		Set<String> authorities = AuthorityUtils.authorityListToSet(
+				result.getAuthorities());
 		assertThat(authorities.contains("ROLE_RUN_AS_SOMETHING")).isTrue();
 		assertThat(authorities.contains("ROLE_ONE")).isTrue();
 		assertThat(authorities.contains("ROLE_TWO")).isTrue();
@@ -105,6 +111,7 @@ public class RunAsManagerImplTests extends TestCase {
 		assertThat(resultCast.getKeyHash()).isEqualTo("my_password".hashCode());
 	}
 
+	@Test
 	public void testStartupDetectsMissingKey() throws Exception {
 		RunAsManagerImpl runAs = new RunAsManagerImpl();
 
@@ -117,6 +124,7 @@ public class RunAsManagerImplTests extends TestCase {
 		}
 	}
 
+	@Test
 	public void testStartupSuccessfulWithKey() throws Exception {
 		RunAsManagerImpl runAs = new RunAsManagerImpl();
 		runAs.setKey("hello_world");
@@ -124,6 +132,7 @@ public class RunAsManagerImplTests extends TestCase {
 		assertThat(runAs.getKey()).isEqualTo("hello_world");
 	}
 
+	@Test
 	public void testSupports() throws Exception {
 		RunAsManager runAs = new RunAsManagerImpl();
 		assertThat(runAs.supports(new SecurityConfig("RUN_AS_SOMETHING"))).isTrue();

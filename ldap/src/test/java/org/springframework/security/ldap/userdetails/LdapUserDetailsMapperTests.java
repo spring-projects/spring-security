@@ -15,13 +15,12 @@
 
 package org.springframework.security.ldap.userdetails;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 
-import junit.framework.TestCase;
-
+import org.junit.Test;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -31,8 +30,9 @@ import org.springframework.security.core.authority.AuthorityUtils;
  *
  * @author Luke Taylor
  */
-public class LdapUserDetailsMapperTests extends TestCase {
+public class LdapUserDetailsMapperTests {
 
+	@Test
 	public void testMultipleRoleAttributeValuesAreMappedToAuthorities() throws Exception {
 		LdapUserDetailsMapper mapper = new LdapUserDetailsMapper();
 		mapper.setConvertToUpperCase(false);
@@ -54,6 +54,7 @@ public class LdapUserDetailsMapperTests extends TestCase {
 	/**
 	 * SEC-303. Non-retrieved role attribute causes NullPointerException
 	 */
+	@Test
 	public void testNonRetrievedRoleAttributeIsIgnored() throws Exception {
 		LdapUserDetailsMapper mapper = new LdapUserDetailsMapper();
 
@@ -62,8 +63,8 @@ public class LdapUserDetailsMapperTests extends TestCase {
 		BasicAttributes attrs = new BasicAttributes();
 		attrs.put(new BasicAttribute("userRole", "x"));
 
-		DirContextAdapter ctx = new DirContextAdapter(attrs, new DistinguishedName(
-				"cn=someName"));
+		DirContextAdapter ctx = new DirContextAdapter(attrs,
+				new DistinguishedName("cn=someName"));
 		ctx.setAttributeValue("uid", "ani");
 
 		LdapUserDetailsImpl user = (LdapUserDetailsImpl) mapper.mapUserFromContext(ctx,
@@ -74,6 +75,7 @@ public class LdapUserDetailsMapperTests extends TestCase {
 				"ROLE_X"));
 	}
 
+	@Test
 	public void testPasswordAttributeIsMappedCorrectly() throws Exception {
 		LdapUserDetailsMapper mapper = new LdapUserDetailsMapper();
 
@@ -81,12 +83,12 @@ public class LdapUserDetailsMapperTests extends TestCase {
 		BasicAttributes attrs = new BasicAttributes();
 		attrs.put(new BasicAttribute("myappsPassword", "mypassword".getBytes()));
 
-		DirContextAdapter ctx = new DirContextAdapter(attrs, new DistinguishedName(
-				"cn=someName"));
+		DirContextAdapter ctx = new DirContextAdapter(attrs,
+				new DistinguishedName("cn=someName"));
 		ctx.setAttributeValue("uid", "ani");
 
-		LdapUserDetails user = (LdapUserDetailsImpl) mapper.mapUserFromContext(ctx,
-				"ani", AuthorityUtils.NO_AUTHORITIES);
+		LdapUserDetails user = (LdapUserDetailsImpl) mapper.mapUserFromContext(ctx, "ani",
+				AuthorityUtils.NO_AUTHORITIES);
 
 		assertThat(user.getPassword()).isEqualTo("mypassword");
 	}

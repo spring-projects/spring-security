@@ -15,7 +15,11 @@
 
 package org.springframework.security.access.intercept;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import org.junit.Test;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
 
@@ -24,8 +28,9 @@ import org.springframework.security.core.authority.AuthorityUtils;
  *
  * @author Ben Alex
  */
-public class RunAsUserTokenTests extends TestCase {
+public class RunAsUserTokenTests {
 
+	@Test
 	public void testAuthenticationSetting() {
 		RunAsUserToken token = new RunAsUserToken("my_password", "Test", "Password",
 				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"),
@@ -35,6 +40,7 @@ public class RunAsUserTokenTests extends TestCase {
 		assertTrue(!token.isAuthenticated());
 	}
 
+	@Test
 	public void testGetters() {
 		RunAsUserToken token = new RunAsUserToken("my_password", "Test", "Password",
 				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"),
@@ -46,6 +52,7 @@ public class RunAsUserTokenTests extends TestCase {
 				token.getOriginalAuthentication());
 	}
 
+	@Test
 	public void testNoArgConstructorDoesntExist() {
 		Class<RunAsUserToken> clazz = RunAsUserToken.class;
 
@@ -58,16 +65,17 @@ public class RunAsUserTokenTests extends TestCase {
 		}
 	}
 
+	@Test
 	public void testToString() {
 		RunAsUserToken token = new RunAsUserToken("my_password", "Test", "Password",
 				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"),
 				UsernamePasswordAuthenticationToken.class);
-		assertTrue(token.toString().lastIndexOf(
-				"Original Class: "
-						+ UsernamePasswordAuthenticationToken.class.getName().toString()) != -1);
+		assertTrue(token.toString().lastIndexOf("Original Class: "
+				+ UsernamePasswordAuthenticationToken.class.getName().toString()) != -1);
 	}
 
 	// SEC-1792
+	@Test
 	public void testToStringNullOriginalAuthentication() {
 		RunAsUserToken token = new RunAsUserToken("my_password", "Test", "Password",
 				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"), null);

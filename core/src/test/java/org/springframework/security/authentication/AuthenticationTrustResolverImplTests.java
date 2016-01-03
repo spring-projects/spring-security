@@ -16,13 +16,11 @@
 package org.springframework.security.authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-import junit.framework.TestCase;
-
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
-import org.springframework.security.authentication.RememberMeAuthenticationToken;
-import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.junit.Test;
 import org.springframework.security.core.authority.AuthorityUtils;
 
 /**
@@ -31,11 +29,11 @@ import org.springframework.security.core.authority.AuthorityUtils;
  *
  * @author Ben Alex
  */
-public class AuthenticationTrustResolverImplTests extends TestCase {
+public class AuthenticationTrustResolverImplTests {
 
 	// ~ Methods
 	// ========================================================================================================
-
+	@Test
 	public void testCorrectOperationIsAnonymous() {
 		AuthenticationTrustResolverImpl trustResolver = new AuthenticationTrustResolverImpl();
 		assertTrue(trustResolver.isAnonymous(new AnonymousAuthenticationToken("ignored",
@@ -44,25 +42,29 @@ public class AuthenticationTrustResolverImplTests extends TestCase {
 				"ignored", AuthorityUtils.createAuthorityList("ignored"))));
 	}
 
+	@Test
 	public void testCorrectOperationIsRememberMe() {
 		AuthenticationTrustResolverImpl trustResolver = new AuthenticationTrustResolverImpl();
-		assertTrue(trustResolver.isRememberMe(new RememberMeAuthenticationToken(
-				"ignored", "ignored", AuthorityUtils.createAuthorityList("ignored"))));
+		assertTrue(trustResolver.isRememberMe(new RememberMeAuthenticationToken("ignored",
+				"ignored", AuthorityUtils.createAuthorityList("ignored"))));
 		assertFalse(trustResolver.isAnonymous(new TestingAuthenticationToken("ignored",
 				"ignored", AuthorityUtils.createAuthorityList("ignored"))));
 	}
 
+	@Test
 	public void testGettersSetters() {
 		AuthenticationTrustResolverImpl trustResolver = new AuthenticationTrustResolverImpl();
 
 		assertEquals(AnonymousAuthenticationToken.class,
 				trustResolver.getAnonymousClass());
 		trustResolver.setAnonymousClass(TestingAuthenticationToken.class);
-		assertThat(trustResolver.getAnonymousClass()).isEqualTo(TestingAuthenticationToken.class);
+		assertThat(trustResolver.getAnonymousClass()).isEqualTo(
+				TestingAuthenticationToken.class);
 
 		assertEquals(RememberMeAuthenticationToken.class,
 				trustResolver.getRememberMeClass());
 		trustResolver.setRememberMeClass(TestingAuthenticationToken.class);
-		assertThat(trustResolver.getRememberMeClass()).isEqualTo(TestingAuthenticationToken.class);
+		assertThat(trustResolver.getRememberMeClass()).isEqualTo(
+				TestingAuthenticationToken.class);
 	}
 }

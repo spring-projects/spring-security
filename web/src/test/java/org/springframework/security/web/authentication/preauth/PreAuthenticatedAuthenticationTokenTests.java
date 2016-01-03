@@ -1,23 +1,24 @@
+
 package org.springframework.security.web.authentication.preauth;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
 import java.util.List;
 
-import junit.framework.TestCase;
-
+import org.junit.Test;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
 /**
  *
  * @author TSARDD
  * @since 18-okt-2007
  */
-public class PreAuthenticatedAuthenticationTokenTests extends TestCase {
+public class PreAuthenticatedAuthenticationTokenTests {
 
+	@Test
 	public void testPreAuthenticatedAuthenticationTokenRequestWithDetails() {
 		Object principal = "dummyUser";
 		Object credentials = "dummyCredentials";
@@ -31,6 +32,7 @@ public class PreAuthenticatedAuthenticationTokenTests extends TestCase {
 		assertThat(token.getAuthorities().isEmpty()).isTrue();
 	}
 
+	@Test
 	public void testPreAuthenticatedAuthenticationTokenRequestWithoutDetails() {
 		Object principal = "dummyUser";
 		Object credentials = "dummyCredentials";
@@ -42,6 +44,7 @@ public class PreAuthenticatedAuthenticationTokenTests extends TestCase {
 		assertThat(token.getAuthorities().isEmpty()).isTrue();
 	}
 
+	@Test
 	public void testPreAuthenticatedAuthenticationTokenResponse() {
 		Object principal = "dummyUser";
 		Object credentials = "dummyCredentials";
@@ -53,8 +56,9 @@ public class PreAuthenticatedAuthenticationTokenTests extends TestCase {
 		assertThat(token.getDetails()).isNull();
 		assertThat(token.getAuthorities()).isNotNull();
 		Collection<GrantedAuthority> resultColl = token.getAuthorities();
-		assertTrue("GrantedAuthority collections do not match; result: " + resultColl
-				+ ", expected: " + gas,
+		assertTrue(
+				"GrantedAuthority collections do not match; result: " + resultColl
+						+ ", expected: " + gas,
 				gas.containsAll(resultColl) && resultColl.containsAll(gas));
 
 	}
