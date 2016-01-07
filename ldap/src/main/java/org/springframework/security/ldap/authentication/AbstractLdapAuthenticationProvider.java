@@ -121,6 +121,10 @@ public abstract class AbstractLdapAuthenticationProvider implements
 		return UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);
 	}
 
+	public boolean supports(Authentication authentication) {
+		return true;
+	}
+
 	/**
 	 * Determines whether the supplied password will be used as the credentials in the
 	 * successful authentication token. If set to false, then the password will be

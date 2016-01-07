@@ -59,6 +59,10 @@ public class GoogleAccountsAuthenticationProvider implements AuthenticationProvi
 		return PreAuthenticatedAuthenticationToken.class.isAssignableFrom(authentication);
 	}
 
+	public boolean supports(Authentication authentication) {
+		return true;
+	}
+
 	public void setUserRegistry(UserRegistry userRegistry) {
 		this.userRegistry = userRegistry;
 	}

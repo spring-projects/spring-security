@@ -320,6 +320,10 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements
 				.isAssignableFrom(authentication));
 	}
 
+	public boolean supports(Authentication authentication) {
+		return true;
+	}
+
 	protected UserDetailsChecker getPreAuthenticationChecks() {
 		return preAuthenticationChecks;
 	}

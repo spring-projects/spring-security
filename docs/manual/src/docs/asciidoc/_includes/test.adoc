@@ -252,7 +252,7 @@ public class WithMockCustomUserSecurityContextFactory
 }
 ----
 
-We can now annotate a test class or a test method with our new annotation and Spring Security's `WithSecurityContextTestExcecutionListener` will ensure that our `SecurityContext` is populated appropriately.
+We can now annotate a test class or a test method with our new annotation and Spring Security's `WithSecurityContextTestExecutionListener` will ensure that our `SecurityContext` is populated appropriately.
 
 When creating your own `WithSecurityContextFactory` implementations, it is nice to know that they can be annotated with standard Spring annotations.
 For example, the `WithUserDetailsSecurityContextFactory` uses the `@Autowired` annotation to acquire the `UserDetailsService`:

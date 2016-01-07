@@ -104,6 +104,10 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
 		return PreAuthenticatedAuthenticationToken.class.isAssignableFrom(authentication);
 	}
 
+	public boolean supports(Authentication authentication) {
+		return true;
+	}
+
 	/**
 	 * Set the AuthenticatedUserDetailsService to be used to load the {@code UserDetails}
 	 * for the authenticated user.

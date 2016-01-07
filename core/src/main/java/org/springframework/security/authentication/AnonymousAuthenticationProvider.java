@@ -77,4 +77,8 @@ public class AnonymousAuthenticationProvider implements AuthenticationProvider,
 	public boolean supports(Class<?> authentication) {
 		return (AnonymousAuthenticationToken.class.isAssignableFrom(authentication));
 	}
+
+	public boolean supports(Authentication authentication) {
+		return true;
+	}
 }
