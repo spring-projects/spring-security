@@ -15,7 +15,11 @@
  */
 package org.springframework.security.web.authentication.rememberme;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -226,13 +230,14 @@ public abstract class AbstractRememberMeServices implements RememberMeServices,
 		String[] tokens = StringUtils.delimitedListToStringArray(cookieAsPlainText,
 				DELIMITER);
 
-		if ((tokens[0].equalsIgnoreCase("http") || tokens[0].equalsIgnoreCase("https"))
-				&& tokens[1].startsWith("//")) {
-			// Assume we've accidentally split a URL (OpenID identifier)
-			String[] newTokens = new String[tokens.length - 1];
-			newTokens[0] = tokens[0] + ":" + tokens[1];
-			System.arraycopy(tokens, 2, newTokens, 1, newTokens.length - 1);
-			tokens = newTokens;
+		for (int i = 0; i < tokens.length; i++) {
+			try {
+				tokens[i] = URLDecoder.decode(tokens[i], StandardCharsets.UTF_8.name());
+			} catch (UnsupportedEncodingException uee) {
+				throw new InvalidCookieException(
+					"Unable to decode Cookie token using UTF-8; value was '" + tokens[i]
+						+ "'");
+			}
 		}
 
 		return tokens;
@@ -247,8 +252,13 @@ public abstract class AbstractRememberMeServices implements RememberMeServices,
 	protected String encodeCookie(String[] cookieTokens) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < cookieTokens.length; i++) {
-			sb.append(cookieTokens[i]);
-
+			try {
+				sb.append(URLEncoder.encode(cookieTokens[i], StandardCharsets.UTF_8.name()));
+			} catch (UnsupportedEncodingException uee) {
+				throw new InvalidCookieException(
+					"Unable to encode Cookie token using UTF-8; value was '" + cookieTokens[i]
+						+ "'");
+			}
 			if (i < cookieTokens.length - 1) {
 				sb.append(DELIMITER);
 			}

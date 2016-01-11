@@ -88,7 +88,7 @@ public class AbstractRememberMeServicesTests {
 
 	@Test
 	public void cookieShouldBeCorrectlyEncodedAndDecoded() throws Exception {
-		String[] cookie = new String[] { "name", "cookie", "tokens", "blah" };
+		String[] cookie = new String[] { "name:with:colon", "cookie", "tokens", "blah" };
 		MockRememberMeServices services = new MockRememberMeServices(uds);
 
 		String encoded = services.encodeCookie(cookie);
@@ -97,7 +97,7 @@ public class AbstractRememberMeServicesTests {
 		String[] decoded = services.decodeCookie(encoded);
 
 		assertThat(decoded.length).isEqualTo(4);
-		assertThat(decoded[0]).isEqualTo("name");
+		assertThat(decoded[0]).isEqualTo("name:with:colon");
 		assertThat(decoded[1]).isEqualTo("cookie");
 		assertThat(decoded[2]).isEqualTo("tokens");
 		assertThat(decoded[3]).isEqualTo("blah");
