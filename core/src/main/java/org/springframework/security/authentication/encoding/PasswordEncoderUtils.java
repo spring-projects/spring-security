@@ -22,13 +22,10 @@ class PasswordEncoderUtils {
 		byte[] actualBytes = bytesUtf8(actual);
 		int expectedLength = expectedBytes == null ? -1 : expectedBytes.length;
 		int actualLength = actualBytes == null ? -1 : actualBytes.length;
-		if (expectedLength != actualLength) {
-			return false;
-		}
 
-		int result = 0;
-		for (int i = 0; i < expectedLength; i++) {
-			result |= expectedBytes[i] ^ actualBytes[i];
+		int result = expectedLength != actualLength ? 1 : 0;
+		for (int i = 0; i < actualLength; i++) {
+			result |= expectedBytes[i % expectedLength] ^ actualBytes[i % actualLength];
 		}
 		return result == 0;
 	}
