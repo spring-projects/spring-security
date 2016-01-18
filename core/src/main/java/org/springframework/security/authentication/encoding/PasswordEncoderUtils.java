@@ -33,15 +33,18 @@ class PasswordEncoderUtils {
 	static boolean equals(String expected, String actual) {
 		byte[] expectedBytes = bytesUtf8(expected);
 		byte[] actualBytes = bytesUtf8(actual);
-		int expectedLength = expectedBytes == null ? -1 : expectedBytes.length;
-		int actualLength = actualBytes == null ? -1 : actualBytes.length;
-		if (expectedLength != actualLength) {
-			return false;
-		}
+		int expectedLength = expectedBytes == null ? 0 : expectedBytes.length;
+		int actualLength = actualBytes == null ? 0 : actualBytes.length;
+		byte[] tmpBytes = new byte[1];
+		int result = (expectedLength != actualLength) ? 1 : 0;
+		
+		tmpBytes[0] = (byte) 0xFF; // value is ignored, just initializing.
+		result |= ((expectedBytes == null && actualBytes != null) || (expectedBytes != null && actualBytes == null)) ? 1 : 0;
+		
+		expectedBytes = (expectedBytes == null ? expectedBytes : tmpBytes);
 
-		int result = 0;
-		for (int i = 0; i < expectedLength; i++) {
-			result |= expectedBytes[i] ^ actualBytes[i];
+		for (int i = 0; i < actualLength; i++) {
+			result |= expectedBytes[i % (expectedLength!=0?expectedLength:1)] ^ actualBytes[i % actualLength];
 		}
 		return result == 0;
 	}
@@ -51,7 +54,7 @@ class PasswordEncoderUtils {
 			return null;
 		}
 
-		return Utf8.encode(s);
+		return Utf8.encode(s); // need to check if Utf8.encode() runs in constant time (probably not). This may leak length of string.
 	}
 
 	private PasswordEncoderUtils() {
