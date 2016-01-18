@@ -21,10 +21,16 @@ class PasswordEncoderUtils {
 		byte[] expectedBytes = bytesUtf8(expected);
 		byte[] actualBytes = bytesUtf8(actual);
 		int expectedLength = expectedBytes == null ? 0 : expectedBytes.length;
-		int actualLength = actualBytes == null ? -1 : actualBytes.length;
+		int actualLength = actualBytes == null ? 0 : actualBytes.length;
 
 		int result = expectedLength != actualLength ? 1 : 0;
 		result |= ((expectedBytes == null && actualBytes != null) || (expectedBytes != null && actualBytes == null)) ? 1 : 0;
+		
+		if (expectedBytes == null) {
+			expectedBytes = new byte[1];
+			expectedBytes[0] = (byte) 0xFF; // value is ignored, just initializing.
+		}
+			
 		for (int i = 0; i < actualLength; i++) {
 			result |= expectedBytes[i % expectedLength] ^ actualBytes[i % actualLength];
 		}
