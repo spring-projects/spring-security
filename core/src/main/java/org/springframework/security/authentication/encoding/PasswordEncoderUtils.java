@@ -32,7 +32,7 @@ class PasswordEncoderUtils {
 		}
 			
 		for (int i = 0; i < actualLength; i++) {
-			result |= expectedBytes[i % expectedLength] ^ actualBytes[i % actualLength];
+			result |= expectedBytes[i % (expectedLength!=0?expectedLength:1)] ^ actualBytes[i % actualLength];
 		}
 		return result == 0;
 	}
