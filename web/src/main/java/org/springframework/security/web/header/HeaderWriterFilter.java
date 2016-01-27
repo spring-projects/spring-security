@@ -58,8 +58,8 @@ public class HeaderWriterFilter extends OncePerRequestFilter {
 			HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 
-		for (HeaderWriter factory : headerWriters) {
-			factory.writeHeaders(request, response);
+		for (HeaderWriter headerWriter : headerWriters) {
+			headerWriter.writeHeaders(request, response);
 		}
 		filterChain.doFilter(request, response);
 	}
