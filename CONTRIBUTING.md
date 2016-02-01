@@ -2,6 +2,10 @@ _Have something you'd like to contribute to the framework? We welcome pull reque
 
 _Please refer back to this document as a checklist before issuing any pull request; this will save time for everyone!_
 
+# Code of Conduct
+This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.adoc).
+By participating, you  are expected to uphold this code. Please report unacceptable behavior to spring-code-of-conduct@pivotal.io.
+
 # Similar but different
 
 Each Spring module is slightly different than another in terms of team size, number of issues, etc. Therefore each project is managed slightly different. You will notice that this document is very similar to the [Spring Framework Contributor guidelines](https://github.com/SpringSource/spring-framework/wiki/Contributor-guidelines). However, there are some subtle differences between the two documents, so please be sure to read this document thoroughly.
