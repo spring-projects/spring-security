@@ -75,12 +75,19 @@ public class SwitchUserFilterTests {
 	}
 
 	private Authentication switchToUser(String name) {
+		return switchToUser(name, null);
+	}
+
+	private Authentication switchToUser(String name, String switchAuthorityRole) {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addParameter("myUsernameParameter", name);
 
 		SwitchUserFilter filter = new SwitchUserFilter();
 		filter.setUsernameParameter("myUsernameParameter");
 		filter.setUserDetailsService(new MockUserDetailsService());
+		if (switchAuthorityRole != null) {
+			filter.setSwitchAuthorityRole(switchAuthorityRole);
+		}
 
 		return filter.attemptSwitchUser(request);
 
@@ -396,12 +403,14 @@ public class SwitchUserFilterTests {
 	// SEC-1763
 	@Test
 	public void nestedSwitchesAreNotAllowed() throws Exception {
+		String switchAuthorityRole = "PREVIOUS_ADMINISTRATOR";
+
 		// original user
 		UsernamePasswordAuthenticationToken source = new UsernamePasswordAuthenticationToken(
 				"orig", "hawaii50", ROLES_12);
 		SecurityContextHolder.getContext().setAuthentication(source);
 		SecurityContextHolder.getContext().setAuthentication(switchToUser("jacklord"));
-		Authentication switched = switchToUser("dano");
+		Authentication switched = switchToUser("dano", switchAuthorityRole);
 
 		SwitchUserGrantedAuthority switchedFrom = null;
 
@@ -412,7 +421,9 @@ public class SwitchUserFilterTests {
 			}
 		}
 
+		assertNotNull(switchedFrom);
 		assertSame(source, switchedFrom.getSource());
+		assertEquals(switchAuthorityRole, switchedFrom.getAuthority());
 	}
 
 	// ~ Inner Classes

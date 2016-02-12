@@ -123,6 +123,7 @@ public class SwitchUserFilter extends GenericFilterBean implements
 	private String targetUrl;
 	private String switchFailureUrl;
 	private String usernameParameter = SPRING_SECURITY_SWITCH_USERNAME_KEY;
+	private String switchAuthorityRole = ROLE_PREVIOUS_ADMINISTRATOR;
 	private SwitchUserAuthorityChanger switchUserAuthorityChanger;
 	private UserDetailsService userDetailsService;
 	private UserDetailsChecker userDetailsChecker = new AccountStatusUserDetailsChecker();
@@ -319,7 +320,7 @@ public class SwitchUserFilter extends GenericFilterBean implements
 		}
 
 		GrantedAuthority switchAuthority = new SwitchUserGrantedAuthority(
-				ROLE_PREVIOUS_ADMINISTRATOR, currentAuth);
+				switchAuthorityRole, currentAuth);
 
 		// get the original authorities
 		Collection<? extends GrantedAuthority> orig = targetUser.getAuthorities();
@@ -525,6 +526,15 @@ public class SwitchUserFilter extends GenericFilterBean implements
 	 */
 	public void setUsernameParameter(String usernameParameter) {
 		this.usernameParameter = usernameParameter;
+	}
+
+	/**
+	 * Allows the role of the switchAuthority to be customized.
+	 * 
+	 * @param switchAuthorityRole the role name. Defaults to {@link #ROLE_PREVIOUS_ADMINISTRATOR}
+	 */
+	public void setSwitchAuthorityRole(String switchAuthorityRole) {
+		this.switchAuthorityRole = switchAuthorityRole;
 	}
 
 	/**
