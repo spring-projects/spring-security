@@ -2496,7 +2496,7 @@ When using `DelegatingFilterProxy`, you will see something like this in the `web
 </filter-mapping>
 ----
 
-Notice that the filter is actually a `DelegatingFilterProxy`, and not the class that will actually implement the logic of the filter. What `DelegatingFilterProxy` does is delegate the `Filter`'s methods through to a bean which is obtained from the Spring application context. This enables the bean to benefit from the Spring web application context lifecycle support and configuration flexibility. The bean must implement `javax.servlet.Filter` and it must have the same name as that in the `filter-name` element. Read the Javadoc for `DelegatingFilterProxy` for more information
+Notice that the filter is actually a `DelegatingFilterProxy`, and not the class that will actually implement the logic of the filter. What `DelegatingFilterProxy` does is delegate the `Filter` methods through to a bean which is obtained from the Spring application context. This enables the bean to benefit from the Spring web application context lifecycle support and configuration flexibility. The bean must implement `javax.servlet.Filter` and it must have the same name as that in the `filter-name` element. Read the Javadoc for `DelegatingFilterProxy` for more information
 
 
 [[filter-chain-proxy]]
@@ -2685,7 +2685,7 @@ It's also possible to supply a custom `AccessDeniedHandler` when you're using th
 
 [[request-caching]]
 ==== SavedRequest s and the RequestCache Interface
-Another of `ExceptionTranslationFilter`'s responsibilities is to save the current request before invoking the `AuthenticationEntryPoint`. This allows the request to be restored after the use has authenticated (see previous overview of <<tech-intro-web-authentication,web authentication>>). A typical example would be where the user logs in with a form, and is then redirected to the original URL by the default `SavedRequestAwareAuthenticationSuccessHandler` (see <<form-login-flow-handling,below>>).
+Another responsibility of `ExceptionTranslationFilter` responsibilities is to save the current request before invoking the `AuthenticationEntryPoint`. This allows the request to be restored after the use has authenticated (see previous overview of <<tech-intro-web-authentication,web authentication>>). A typical example would be where the user logs in with a form, and is then redirected to the original URL by the default `SavedRequestAwareAuthenticationSuccessHandler` (see <<form-login-flow-handling,below>>).
 
 The `RequestCache` encapsulates the functionality required for storing and retrieving `HttpServletRequest` instances. By default the `HttpSessionRequestCache` is used, which stores the request in the `HttpSession`. The `RequestCacheFilter` has the job of actually restoring the saved request from the cache when the user is redirected to the original URL.
 
@@ -2986,7 +2986,7 @@ key:              A private key to prevent modification of the nonce token
 
 The `DigestAuthenticatonEntryPoint` has a property specifying the `key` used for generating the nonce tokens, along with a `nonceValiditySeconds` property for determining the expiration time (default 300, which equals five minutes). Whist ever the nonce is valid, the digest is computed by concatenating various strings including the username, password, nonce, URI being requested, a client-generated nonce (merely a random value which the user agent generates each request), the realm name etc, then performing an MD5 hash. Both the server and user agent perform this digest computation, resulting in different hash codes if they disagree on an included value (eg password). In Spring Security implementation, if the server-generated nonce has merely expired (but the digest was otherwise valid), the `DigestAuthenticationEntryPoint` will send a `"stale=true"` header. This tells the user agent there is no need to disturb the user (as the password and username etc is correct), but simply to try again using a new nonce.
 
-An appropriate value for `DigestAuthenticationEntryPoint`'s `nonceValiditySeconds` parameter will depend on your application. Extremely secure applications should note that an intercepted authentication header can be used to impersonate the principal until the `expirationTime` contained in the nonce is reached. This is the key principle when selecting an appropriate setting, but it would be unusual for immensely secure applications to not be running over TLS/HTTPS in the first instance.
+An appropriate value for the `nonceValiditySeconds` parameter of `DigestAuthenticationEntryPoint` depends on your application. Extremely secure applications should note that an intercepted authentication header can be used to impersonate the principal until the `expirationTime` contained in the nonce is reached. This is the key principle when selecting an appropriate setting, but it would be unusual for immensely secure applications to not be running over TLS/HTTPS in the first instance.
 
 Because of the more complex implementation of Digest Authentication, there are often user agent issues. For example, Internet Explorer fails to present an "`opaque`" token on subsequent requests in the same session. Spring Security filters therefore encapsulate all state information into the "`nonce`" token instead. In our testing, Spring Security's implementation works reliably with FireFox and Internet Explorer, correctly handling nonce timeouts etc.
 
@@ -4222,7 +4222,7 @@ Three classes that together provide the anonymous authentication feature. `Anony
 
 The `key` is shared between the filter and authentication provider, so that tokens created by the former are accepted by the latter footnote:[
 The use of the `key` property should not be regarded as providing any real security here. It is merely a book-keeping exercise. If you are sharing a `ProviderManager` which contains an `AnonymousAuthenticationProvider` in a scenario where it is possible for an authenticating client to construct the `Authentication` object (such as with RMI invocations), then a malicious client could submit an `AnonymousAuthenticationToken` which it had created itself (with chosen username and authority list). If the `key` is guessable or can be found out, then the token would be accepted by the anonymous provider. This isn't a problem with normal usage but if you are using RMI you would be best to use a customized `ProviderManager` which omits the anonymous provider rather than sharing the one you use for your HTTP authentication mechanisms.
-]. The `userAttribute` is expressed in the form of `usernameInTheAuthenticationToken,grantedAuthority[,grantedAuthority]`. This is the same syntax as used after the equals sign for`InMemoryDaoImpl`'s `userMap` property.
+]. The `userAttribute` is expressed in the form of `usernameInTheAuthenticationToken,grantedAuthority[,grantedAuthority]`. This is the same syntax as used after the equals sign for the `userMap` property of `InMemoryDaoImpl`.
 
 As explained earlier, the benefit of anonymous authentication is that all URI patterns can have security applied to them. For example:
 
@@ -8102,7 +8102,7 @@ Used within to define a specific URL pattern and the list of filters which apply
 
 [[nsa-filter-chain-filters]]
 * **filters**
-A comma separated list of references to Spring beans that implement `Filter`. The value "none" means that no `Filter`'s should be used for this `FilterChain`.
+A comma separated list of references to Spring beans that implement `Filter`. The value "none" means that no `Filter` should be used for this `FilterChain`.
 
 
 [[nsa-filter-chain-pattern]]
@@ -8112,7 +8112,7 @@ A-pattern that creates RequestMatcher in combination with the <<nsa-filter-chain
 
 [[nsa-filter-chain-request-matcher-ref]]
 * **request-matcher-ref**
-A reference to a `RequestMatcher` that will be used to determine if the `Filter`'s from the `filters` attribute should be invoked.
+A reference to a `RequestMatcher` that will be used to determine if any `Filter` from the `filters` attribute should be invoked.
 
 
 [[nsa-filter-security-metadata-source]]
@@ -8271,7 +8271,7 @@ Unless used with a `ref` attribute, this element is shorthand for configuring a 
 * **ref**
 Defines a reference to a Spring bean that implements `AuthenticationProvider `.
 
-If you have written your own `AuthenticationProvider` implementation (or want to configure one of Spring Security's own implementations as a traditional bean for some reason, then you can use the following syntax to add it to the internal `ProviderManager`'s list:
+If you have written your own `AuthenticationProvider` implementation (or want to configure one of Spring Security's own implementations as a traditional bean for some reason, then you can use the following syntax to add it to the internal list of `ProviderManager`:
 
 [source,xml]
 ----
