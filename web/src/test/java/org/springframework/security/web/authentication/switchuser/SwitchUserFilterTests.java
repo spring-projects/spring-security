@@ -19,6 +19,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import org.junit.*;
+import org.junit.rules.ExpectedException;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AccountExpiredException;
@@ -52,6 +53,8 @@ import java.util.*;
 public class SwitchUserFilterTests {
 	private final static List<GrantedAuthority> ROLES_12 = AuthorityUtils
 			.createAuthorityList("ROLE_ONE", "ROLE_TWO");
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
 
 	@Before
 	public void authenticateCurrentUser() {
@@ -84,6 +87,17 @@ public class SwitchUserFilterTests {
 
 		return filter.attemptSwitchUser(request);
 
+	}
+
+	private Authentication switchToUserWithAuthorityRole(String name, String switchAuthorityRole) {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addParameter(SwitchUserFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, name);
+
+		SwitchUserFilter filter = new SwitchUserFilter();
+		filter.setUserDetailsService(new MockUserDetailsService());
+		filter.setSwitchAuthorityRole(switchAuthorityRole);
+
+		return filter.attemptSwitchUser(request);
 	}
 
 	@Test
@@ -412,7 +426,42 @@ public class SwitchUserFilterTests {
 			}
 		}
 
+		assertNotNull(switchedFrom);
 		assertSame(source, switchedFrom.getSource());
+	}
+
+	// gh-3697
+	@Test
+	public void switchAuthorityRoleCannotBeNull() throws Exception {
+		thrown.expect(IllegalArgumentException.class);
+		thrown.expectMessage("switchAuthorityRole cannot be null");
+		switchToUserWithAuthorityRole("dano", null);
+	}
+
+	// gh-3697
+	@Test
+	public void switchAuthorityRoleCanBeChanged() throws Exception {
+		String switchAuthorityRole = "PREVIOUS_ADMINISTRATOR";
+
+		// original user
+		UsernamePasswordAuthenticationToken source = new UsernamePasswordAuthenticationToken(
+				"orig", "hawaii50", ROLES_12);
+		SecurityContextHolder.getContext().setAuthentication(source);
+		SecurityContextHolder.getContext().setAuthentication(switchToUser("jacklord"));
+		Authentication switched = switchToUserWithAuthorityRole("dano", switchAuthorityRole);
+
+		SwitchUserGrantedAuthority switchedFrom = null;
+
+		for (GrantedAuthority ga : switched.getAuthorities()) {
+			if (ga instanceof SwitchUserGrantedAuthority) {
+				switchedFrom = (SwitchUserGrantedAuthority) ga;
+				break;
+			}
+		}
+
+		assertNotNull(switchedFrom);
+		assertSame(source, switchedFrom.getSource());
+		assertEquals(switchAuthorityRole, switchedFrom.getAuthority());
 	}
 
 	// ~ Inner Classes
