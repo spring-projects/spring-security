@@ -50,6 +50,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Luke Taylor
  * @author Rob Winch
+ * @author Eddú Meléndez
  * @since 2.0
  */
 public abstract class AbstractRememberMeServices implements RememberMeServices,
@@ -75,6 +76,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices,
 	private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
 
 	private String cookieName = SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY;
+	private String cookieDomain;
 	private String parameter = DEFAULT_PARAMETER;
 	private boolean alwaysRemember;
 	private String key;
@@ -385,7 +387,9 @@ public abstract class AbstractRememberMeServices implements RememberMeServices,
 		Cookie cookie = new Cookie(cookieName, cookieValue);
 		cookie.setMaxAge(maxAge);
 		cookie.setPath(getCookiePath(request));
-
+		if (cookieDomain != null) {
+			cookie.setDomain(cookieDomain);
+		}
 		if (maxAge < 1) {
 			cookie.setVersion(1);
 		}
@@ -428,6 +432,11 @@ public abstract class AbstractRememberMeServices implements RememberMeServices,
 	public void setCookieName(String cookieName) {
 		Assert.hasLength(cookieName, "Cookie name cannot be empty or null");
 		this.cookieName = cookieName;
+	}
+
+	public void setCookieDomain(String cookieDomain) {
+		Assert.hasLength(cookieDomain, "Cookie domain cannot be empty or null");
+		this.cookieDomain = cookieDomain;
 	}
 
 	protected String getCookieName() {

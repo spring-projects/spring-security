@@ -18,7 +18,6 @@ package org.springframework.security.config.annotation.web.configurers
 import javax.servlet.http.Cookie
 
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.annotation.Configuration
 import org.springframework.mock.web.MockFilterChain
 import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.mock.web.MockHttpServletResponse
@@ -28,7 +27,6 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.AnyObjectPostProcessor
 import org.springframework.security.config.annotation.BaseSpringSpec
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
-import org.springframework.security.config.annotation.authentication.configurers.provisioning.InMemoryUserDetailsManagerConfigurer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
@@ -157,6 +155,23 @@ public class RememberMeConfigurerTests extends BaseSpringSpec {
 			response.getRedirectedUrl() == "http://localhost/login"
 	}
 
+	def "http/remember-me with cookied domain"() {
+		setup:
+			loadConfig(RememberMeCookieDomainConfig)
+		when:
+			super.setup()
+			request.servletPath = "/login"
+			request.method = "POST"
+			request.parameters.username = ["user"] as String[]
+			request.parameters.password = ["password"] as String[]
+			request.parameters.'remember-me' = ["true"] as String[]
+			springSecurityFilterChain.doFilter(request,response,chain)
+			Cookie rememberMeCookie = getRememberMeCookie()
+		then: "response contains remember me cookie"
+			rememberMeCookie != null
+			rememberMeCookie.domain == "spring.io"
+	}
+
 	@EnableWebSecurity
 	static class RememberMeConfig extends WebSecurityConfigurerAdapter {
 		protected void configure(HttpSecurity http) throws Exception {
@@ -173,6 +188,27 @@ public class RememberMeConfigurerTests extends BaseSpringSpec {
 		public void configureGlobal(AuthenticationManagerBuilder auth) {
 			auth
 				.inMemoryAuthentication()
+					.withUser("user").password("password").roles("USER");
+		}
+	}
+
+	@EnableWebSecurity
+	static class RememberMeCookieDomainConfig extends WebSecurityConfigurerAdapter {
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+					.authorizeRequests()
+					.anyRequest().hasRole("USER")
+					.and()
+					.formLogin()
+					.and()
+					.rememberMe()
+					.rememberMeCookieDomain("spring.io")
+		}
+
+		@Autowired
+		public void configureGlobal(AuthenticationManagerBuilder auth) {
+			auth
+					.inMemoryAuthentication()
 					.withUser("user").password("password").roles("USER");
 		}
 	}

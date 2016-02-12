@@ -74,6 +74,7 @@ import org.springframework.security.web.authentication.ui.DefaultLoginPageGenera
  * </ul>
  *
  * @author Rob Winch
+ * @author Eddú Meléndez
  * @since 3.2
  */
 public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>> extends
@@ -84,6 +85,7 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>> extend
 	private LogoutHandler logoutHandler;
 	private String rememberMeParameter = "remember-me";
 	private String rememberMeCookieName = "remember-me";
+	private String rememberMeCookieDomain;
 	private PersistentTokenRepository tokenRepository;
 	private UserDetailsService userDetailsService;
 	private Integer tokenValiditySeconds;
@@ -193,6 +195,18 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>> extend
 	}
 
 	/**
+	 * The domain name within which the remember me cookie is visible.
+	 *
+	 * @param rememberMeCookieDomain the domain name within which the remember me cookie is visible.
+	 * @return the {@link RememberMeConfigurer} for further customization
+	 * @since 4.1.0
+	 */
+	public RememberMeConfigurer<H> rememberMeCookieDomain(String rememberMeCookieDomain) {
+		this.rememberMeCookieDomain = rememberMeCookieDomain;
+		return this;
+	}
+
+	/**
 	 * Allows control over the destination a remembered user is sent to when they are
 	 * successfully authenticated. By default, the filter will just allow the current
 	 * request to proceed, but if an {@code AuthenticationSuccessHandler} is set, it will
@@ -294,6 +308,9 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>> extend
 				http, key);
 		tokenRememberMeServices.setParameter(rememberMeParameter);
 		tokenRememberMeServices.setCookieName(rememberMeCookieName);
+		if (rememberMeCookieDomain != null) {
+			tokenRememberMeServices.setCookieDomain(rememberMeCookieDomain);
+		}
 		if (tokenValiditySeconds != null) {
 			tokenRememberMeServices.setTokenValiditySeconds(tokenValiditySeconds);
 		}

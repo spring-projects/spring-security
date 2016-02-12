@@ -420,6 +420,21 @@ public class AbstractRememberMeServicesTests {
 		assertThat(cookie.getVersion()).isEqualTo(0);
 	}
 
+	@Test
+	public void setCookieDomainValue() {
+		MockRememberMeServices services = new MockRememberMeServices();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+
+		services.setCookieName("mycookiename");
+		services.setCookieDomain("spring.io");
+		services.setCookie(new String[] { "mycookie" }, 1000, request, response);
+		Cookie cookie = response.getCookie("mycookiename");
+
+		assertThat(cookie).isNotNull();
+		assertThat(cookie.getDomain()).isEqualTo("spring.io");
+	}
+
 	private Cookie[] createLoginCookie(String cookieToken) {
 		MockRememberMeServices services = new MockRememberMeServices(uds);
 		Cookie cookie = new Cookie(
