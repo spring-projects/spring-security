@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.jaasapi;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
 import java.security.AccessController;
@@ -51,7 +50,6 @@ import org.springframework.security.authentication.jaas.TestLoginModule;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.jaasapi.JaasApiIntegrationFilter;
 
 /**
  * Tests the JaasApiIntegrationFilter.
@@ -59,14 +57,21 @@ import org.springframework.security.web.jaasapi.JaasApiIntegrationFilter;
  * @author Rob Winch
  */
 public class JaasApiIntegrationFilterTests {
+
 	// ~ Instance fields
 	// ================================================================================================
 	private JaasApiIntegrationFilter filter;
+
 	private MockHttpServletRequest request;
+
 	private MockHttpServletResponse response;
+
 	private Authentication token;
+
 	private Subject authenticatedSubject;
+
 	private Configuration testConfiguration;
+
 	private CallbackHandler callbackHandler;
 
 	// ~ Methods
@@ -80,6 +85,7 @@ public class JaasApiIntegrationFilterTests {
 
 		authenticatedSubject = new Subject();
 		authenticatedSubject.getPrincipals().add(new Principal() {
+
 			public String getName() {
 				return "principal";
 			}
@@ -87,15 +93,16 @@ public class JaasApiIntegrationFilterTests {
 		authenticatedSubject.getPrivateCredentials().add("password");
 		authenticatedSubject.getPublicCredentials().add("username");
 		callbackHandler = new CallbackHandler() {
-			public void handle(Callback[] callbacks) throws IOException,
-					UnsupportedCallbackException {
+
+			public void handle(Callback[] callbacks)
+					throws IOException, UnsupportedCallbackException {
 				for (Callback callback : callbacks) {
 					if (callback instanceof NameCallback) {
 						((NameCallback) callback).setName("user");
 					}
 					else if (callback instanceof PasswordCallback) {
-						((PasswordCallback) callback).setPassword("password"
-								.toCharArray());
+						((PasswordCallback) callback).setPassword(
+								"password".toCharArray());
 					}
 					else if (callback instanceof TextInputCallback) {
 						// ignore
@@ -108,6 +115,7 @@ public class JaasApiIntegrationFilterTests {
 			}
 		};
 		testConfiguration = new Configuration() {
+
 			public void refresh() {
 			}
 
@@ -117,8 +125,8 @@ public class JaasApiIntegrationFilterTests {
 						new HashMap<String, String>()) };
 			}
 		};
-		LoginContext ctx = new LoginContext("SubjectDoAsFilterTest",
-				authenticatedSubject, callbackHandler, testConfiguration);
+		LoginContext ctx = new LoginContext("SubjectDoAsFilterTest", authenticatedSubject,
+				callbackHandler, testConfiguration);
 		ctx.login();
 		token = new JaasAuthenticationToken("username", "password",
 				AuthorityUtils.createAuthorityList("ROLE_ADMIN"), ctx);
@@ -206,11 +214,12 @@ public class JaasApiIntegrationFilterTests {
 
 	private void assertJaasSubjectEquals(final Subject expectedValue) throws Exception {
 		MockFilterChain chain = new MockFilterChain() {
+
 			public void doFilter(ServletRequest request, ServletResponse response)
 					throws IOException, ServletException {
 				// See if the subject was updated
-				Subject currentSubject = Subject
-						.getSubject(AccessController.getContext());
+				Subject currentSubject = Subject.getSubject(
+						AccessController.getContext());
 				assertThat(currentSubject).isEqualTo(expectedValue);
 
 				// run so we know the chain was executed
@@ -223,6 +232,7 @@ public class JaasApiIntegrationFilterTests {
 	}
 
 	private void assertNullSubject(Subject subject) {
-		assertThat(subject).withFailMessage("Subject is expected to be null, but is not. Got " + subject).isNull();
+		assertThat(subject).withFailMessage(
+				"Subject is expected to be null, but is not. Got " + subject).isNull();
 	}
 }

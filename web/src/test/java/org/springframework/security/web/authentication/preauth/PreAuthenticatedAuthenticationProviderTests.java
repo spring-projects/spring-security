@@ -1,10 +1,7 @@
+
 package org.springframework.security.web.authentication.preauth;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -14,8 +11,6 @@ import org.springframework.security.core.userdetails.AuthenticationUserDetailsSe
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
 /**
  *
@@ -45,7 +40,8 @@ public class PreAuthenticatedAuthenticationProviderTests {
 	@Test
 	public final void nullPrincipalReturnsNullAuthentication() throws Exception {
 		PreAuthenticatedAuthenticationProvider provider = new PreAuthenticatedAuthenticationProvider();
-		Authentication request = new PreAuthenticatedAuthenticationToken(null, "dummyPwd");
+		Authentication request = new PreAuthenticatedAuthenticationToken(null,
+				"dummyPwd");
 		Authentication result = provider.authenticate(request);
 		assertThat(result).isNull();
 	}
@@ -108,7 +104,8 @@ public class PreAuthenticatedAuthenticationProviderTests {
 	private PreAuthenticatedAuthenticationProvider getProvider(UserDetails aUserDetails)
 			throws Exception {
 		PreAuthenticatedAuthenticationProvider result = new PreAuthenticatedAuthenticationProvider();
-		result.setPreAuthenticatedUserDetailsService(getPreAuthenticatedUserDetailsService(aUserDetails));
+		result.setPreAuthenticatedUserDetailsService(
+				getPreAuthenticatedUserDetailsService(aUserDetails));
 		result.afterPropertiesSet();
 		return result;
 	}
@@ -116,6 +113,7 @@ public class PreAuthenticatedAuthenticationProviderTests {
 	private AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> getPreAuthenticatedUserDetailsService(
 			final UserDetails aUserDetails) {
 		return new AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken>() {
+
 			public UserDetails loadUserDetails(PreAuthenticatedAuthenticationToken token)
 					throws UsernameNotFoundException {
 				if (aUserDetails != null

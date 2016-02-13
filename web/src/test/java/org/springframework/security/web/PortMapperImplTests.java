@@ -16,8 +16,7 @@
 package org.springframework.security.web;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.fail;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,11 +37,11 @@ public class PortMapperImplTests {
 		PortMapperImpl portMapper = new PortMapperImpl();
 		assertThat(portMapper.lookupHttpPort(Integer.valueOf(443))).isEqualTo(
 				Integer.valueOf(80));
-		assertEquals(Integer.valueOf(8080),
+		assertThat(Integer.valueOf(8080)).isEqualTo(
 				portMapper.lookupHttpPort(Integer.valueOf(8443)));
-		assertEquals(Integer.valueOf(443),
+		assertThat(Integer.valueOf(443)).isEqualTo(
 				portMapper.lookupHttpsPort(Integer.valueOf(80)));
-		assertEquals(Integer.valueOf(8443),
+		assertThat(Integer.valueOf(8443)).isEqualTo(
 				portMapper.lookupHttpsPort(Integer.valueOf(8080)));
 	}
 
@@ -109,7 +108,7 @@ public class PortMapperImplTests {
 
 		assertThat(portMapper.lookupHttpPort(Integer.valueOf(442))).isEqualTo(
 				Integer.valueOf(79));
-		assertEquals(Integer.valueOf(442),
+		assertThat(Integer.valueOf(442)).isEqualTo(
 				portMapper.lookupHttpsPort(Integer.valueOf(79)));
 	}
 }

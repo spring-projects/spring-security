@@ -16,7 +16,7 @@
 package org.springframework.security.authentication.dao.salt;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.fail;
 
 import org.junit.Test;
 import org.springframework.security.authentication.dao.SystemWideSaltSource;

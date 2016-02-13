@@ -17,7 +17,6 @@ package org.springframework.security.cas.web;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.junit.Assert.assertEquals;
 
 import java.net.URLEncoder;
 
@@ -92,10 +91,9 @@ public class CasAuthenticationEntryPointTests {
 		ep.afterPropertiesSet();
 		ep.commence(request, response, null);
 
-		assertEquals(
-				"https://cas/login?service=" + URLEncoder.encode(
-						"https://mycompany.com/bigWebApp/login/cas", "UTF-8"),
-				response.getRedirectedUrl());
+		assertThat("https://cas/login?service=" + URLEncoder.encode(
+				"https://mycompany.com/bigWebApp/login/cas", "UTF-8")).isEqualTo(
+						response.getRedirectedUrl());
 	}
 
 	@Test
@@ -115,8 +113,8 @@ public class CasAuthenticationEntryPointTests {
 
 		ep.afterPropertiesSet();
 		ep.commence(request, response, null);
-		assertEquals("https://cas/login?service="
+		assertThat("https://cas/login?service="
 				+ URLEncoder.encode("https://mycompany.com/bigWebApp/login/cas", "UTF-8")
-				+ "&renew=true", response.getRedirectedUrl());
+				+ "&renew=true").isEqualTo(response.getRedirectedUrl());
 	}
 }

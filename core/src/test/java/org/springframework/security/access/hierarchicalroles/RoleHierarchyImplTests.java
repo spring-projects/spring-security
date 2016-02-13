@@ -15,8 +15,7 @@
 package org.springframework.security.access.hierarchicalroles;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,15 +64,15 @@ public class RoleHierarchyImplTests {
 		RoleHierarchyImpl roleHierarchyImpl = new RoleHierarchyImpl();
 		roleHierarchyImpl.setHierarchy("ROLE_A > ROLE_B");
 
-		assertTrue(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
+		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
 				roleHierarchyImpl.getReachableGrantedAuthorities(authorities0),
-				authorities0));
-		assertTrue(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
+				authorities0)).isTrue();
+		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
 				roleHierarchyImpl.getReachableGrantedAuthorities(authorities1),
-				authorities2));
-		assertTrue(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
+				authorities2)).isTrue();
+		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
 				roleHierarchyImpl.getReachableGrantedAuthorities(authorities2),
-				authorities2));
+				authorities2)).isTrue();
 	}
 
 	@Test
@@ -88,15 +87,15 @@ public class RoleHierarchyImplTests {
 		RoleHierarchyImpl roleHierarchyImpl = new RoleHierarchyImpl();
 
 		roleHierarchyImpl.setHierarchy("ROLE_A > ROLE_B\nROLE_B > ROLE_C");
-		assertTrue(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
+		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
 				roleHierarchyImpl.getReachableGrantedAuthorities(authorities1),
-				authorities2));
+				authorities2)).isTrue();
 
 		roleHierarchyImpl.setHierarchy(
 				"ROLE_A > ROLE_B\nROLE_B > ROLE_C\nROLE_C > ROLE_D");
-		assertTrue(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
+		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
 				roleHierarchyImpl.getReachableGrantedAuthorities(authorities1),
-				authorities3));
+				authorities3)).isTrue();
 	}
 
 	@Test
@@ -122,18 +121,18 @@ public class RoleHierarchyImplTests {
 		roleHierarchyImpl.setHierarchy(
 				"ROLE_A > ROLE_B\nROLE_A > ROLE_C\nROLE_C > ROLE_D\nROLE_B > ROLE_D");
 
-		assertTrue(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
+		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
 				roleHierarchyImpl.getReachableGrantedAuthorities(authoritiesInput1),
-				authoritiesOutput1));
-		assertTrue(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
+				authoritiesOutput1)).isTrue();
+		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
 				roleHierarchyImpl.getReachableGrantedAuthorities(authoritiesInput2),
-				authoritiesOutput2));
-		assertTrue(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
+				authoritiesOutput2)).isTrue();
+		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
 				roleHierarchyImpl.getReachableGrantedAuthorities(authoritiesInput3),
-				authoritiesOutput3));
-		assertTrue(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
+				authoritiesOutput3)).isTrue();
+		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
 				roleHierarchyImpl.getReachableGrantedAuthorities(authoritiesInput4),
-				authoritiesOutput4));
+				authoritiesOutput4)).isTrue();
 	}
 
 	@Test
@@ -198,17 +197,17 @@ public class RoleHierarchyImplTests {
 		RoleHierarchyImpl roleHierarchyImpl = new RoleHierarchyImpl();
 		roleHierarchyImpl.setHierarchy("ROLE_A > ROLE_B");
 
-		assertTrue(
+		assertThat(
 				HierarchicalRolesTestHelper.containTheSameGrantedAuthoritiesCompareByAuthorityString(
 						roleHierarchyImpl.getReachableGrantedAuthorities(authorities0),
-						authorities0));
-		assertTrue(
+						authorities0)).isTrue();
+		assertThat(
 				HierarchicalRolesTestHelper.containTheSameGrantedAuthoritiesCompareByAuthorityString(
 						roleHierarchyImpl.getReachableGrantedAuthorities(authorities1),
-						authorities2));
-		assertTrue(
+						authorities2)).isTrue();
+		assertThat(
 				HierarchicalRolesTestHelper.containTheSameGrantedAuthoritiesCompareByAuthorityString(
 						roleHierarchyImpl.getReachableGrantedAuthorities(authorities2),
-						authorities2));
+						authorities2)).isTrue();
 	}
 }

@@ -13,12 +13,13 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
+
 package org.springframework.security.web.authentication.logout;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -47,7 +48,8 @@ public class HttpStatusReturningLogoutSuccessHandlerTests {
 
 	@Test
 	public void testCustomHttpStatusBeingReturned() throws Exception {
-		final HttpStatusReturningLogoutSuccessHandler lsh = new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT);
+		final HttpStatusReturningLogoutSuccessHandler lsh = new HttpStatusReturningLogoutSuccessHandler(
+				HttpStatus.NO_CONTENT);
 
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -71,7 +73,7 @@ public class HttpStatusReturningLogoutSuccessHandlerTests {
 			return;
 		}
 
-		Assert.fail("Expected an IllegalArgumentException to be thrown.");
+		fail("Expected an IllegalArgumentException to be thrown.");
 	}
 
 }

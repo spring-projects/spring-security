@@ -1,7 +1,7 @@
 
 package org.springframework.security.web.authentication.preauth.j2ee;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.security.Principal;
 import java.util.Arrays;
@@ -23,14 +23,14 @@ public class J2eePreAuthenticatedProcessingFilterTests {
 	@Test
 	public final void testGetPreAuthenticatedPrincipal() {
 		String user = "testUser";
-		assertEquals(user,
+		assertThat(user).isEqualTo(
 				new J2eePreAuthenticatedProcessingFilter().getPreAuthenticatedPrincipal(
 						getRequest(user, new String[] {})));
 	}
 
 	@Test
 	public final void testGetPreAuthenticatedCredentials() {
-		assertEquals("N/A",
+		assertThat("N/A").isEqualTo(
 				new J2eePreAuthenticatedProcessingFilter().getPreAuthenticatedCredentials(
 						getRequest("testUser", new String[] {})));
 	}

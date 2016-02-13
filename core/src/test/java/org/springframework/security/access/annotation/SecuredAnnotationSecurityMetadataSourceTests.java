@@ -12,12 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.access.annotation;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.assertj.core.api.Assertions.fail;
 
 import java.lang.annotation.ElementType;
@@ -78,7 +76,8 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 
 		// should have 1 SecurityConfig
 		for (ConfigAttribute sc : attrs) {
-			assertThat(sc.getAttribute()).as("Found an incorrect role").isEqualTo("ROLE_ADMIN");
+			assertThat(sc.getAttribute()).as("Found an incorrect role").isEqualTo(
+					"ROLE_ADMIN");
 		}
 
 		Method superMethod = null;
@@ -101,14 +100,15 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 		assertThat(superAttrs).as("Did not find 1 attribute").hasSize(1);
 		// should have 1 SecurityConfig
 		for (ConfigAttribute sc : superAttrs) {
-			assertThat(sc.getAttribute()).as("Found an incorrect role").isEqualTo("ROLE_ADMIN");
+			assertThat(sc.getAttribute()).as("Found an incorrect role").isEqualTo(
+					"ROLE_ADMIN");
 		}
 	}
 
 	@Test
 	public void classLevelAttributesAreFound() {
-		Collection<ConfigAttribute> attrs = this.mds
-				.findAttributes(BusinessService.class);
+		Collection<ConfigAttribute> attrs = this.mds.findAttributes(
+				BusinessService.class);
 
 		assertThat(attrs).isNotNull();
 
@@ -165,8 +165,8 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 	public void customAnnotationAttributesAreFound() throws Exception {
 		SecuredAnnotationSecurityMetadataSource mds = new SecuredAnnotationSecurityMetadataSource(
 				new CustomSecurityAnnotationMetadataExtractor());
-		Collection<ConfigAttribute> attrs = mds
-				.findAttributes(CustomAnnotatedService.class);
+		Collection<ConfigAttribute> attrs = mds.findAttributes(
+				CustomAnnotatedService.class);
 		assertThat(attrs).hasSize(1);
 		assertThat(attrs.toArray()[0]).isEqualTo(SecurityEnum.ADMIN);
 	}
@@ -219,19 +219,22 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 
 	// Inner classes
 	class Department extends Entity {
+
 		public Department(String name) {
 			super(name);
 		}
 	}
 
 	interface DepartmentService extends BusinessService {
+
 		@Secured({ "ROLE_USER" })
 		Department someUserMethod3(Department dept);
 	}
 
 	@SuppressWarnings("serial")
-	class DepartmentServiceImpl extends BusinessServiceImpl<Department> implements
-			DepartmentService {
+	class DepartmentServiceImpl extends BusinessServiceImpl<Department>
+			implements DepartmentService {
+
 		@Secured({ "ROLE_ADMIN" })
 		public Department someUserMethod3(final Department dept) {
 			return super.someUserMethod3(dept);
@@ -247,7 +250,7 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 	class CustomAnnotatedServiceImpl implements CustomAnnotatedService {
 	}
 
-	enum SecurityEnum implements ConfigAttribute, GrantedAuthority {
+	enum SecurityEnum implements ConfigAttribute,GrantedAuthority {
 		ADMIN, USER;
 
 		public String getAttribute() {
@@ -262,11 +265,13 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 	@Target({ ElementType.METHOD, ElementType.TYPE })
 	@Retention(RetentionPolicy.RUNTIME)
 	@interface CustomSecurityAnnotation {
-		SecurityEnum[] value();
+
+		SecurityEnum[]value();
 	}
 
-	class CustomSecurityAnnotationMetadataExtractor implements
-			AnnotationMetadataExtractor<CustomSecurityAnnotation> {
+	class CustomSecurityAnnotationMetadataExtractor
+			implements AnnotationMetadataExtractor<CustomSecurityAnnotation> {
+
 		public Collection<? extends ConfigAttribute> extractAttributes(
 				CustomSecurityAnnotation securityAnnotation) {
 			SecurityEnum[] values = securityAnnotation.value();
@@ -283,26 +288,31 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 	}
 
 	public static interface ReturnVoid {
+
 		public void doSomething(List<?> param);
 	}
 
 	@AnnotatedAnnotation
 	public static interface ReturnVoid2 {
+
 		public void doSomething(List<?> param);
 	}
 
 	@AnnotatedAnnotation
 	public static class AnnotatedAnnotationAtClassLevel implements ReturnVoid {
+
 		public void doSomething(List<?> param) {
 		}
 	}
 
 	public static class AnnotatedAnnotationAtInterfaceLevel implements ReturnVoid2 {
+
 		public void doSomething(List<?> param) {
 		}
 	}
 
 	public static class AnnotatedAnnotationAtMethodLevel implements ReturnVoid {
+
 		@AnnotatedAnnotation
 		public void doSomething(List<?> param) {
 		}

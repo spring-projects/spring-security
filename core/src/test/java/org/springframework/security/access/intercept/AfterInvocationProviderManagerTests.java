@@ -16,9 +16,7 @@
 package org.springframework.security.access.intercept;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.fail;
 
 import java.util.Collection;
 import java.util.List;
@@ -94,7 +92,7 @@ public class AfterInvocationProviderManagerTests {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertTrue(true);
+			assertThat(true).isTrue();
 		}
 	}
 
@@ -113,7 +111,7 @@ public class AfterInvocationProviderManagerTests {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertTrue(true);
+			assertThat(true).isTrue();
 		}
 	}
 
@@ -126,7 +124,7 @@ public class AfterInvocationProviderManagerTests {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertTrue(true);
+			assertThat(true).isTrue();
 		}
 	}
 
@@ -143,8 +141,8 @@ public class AfterInvocationProviderManagerTests {
 		manager.setProviders(list);
 		manager.afterPropertiesSet();
 
-		assertFalse(manager.supports(new SecurityConfig("UNKNOWN_ATTRIB")));
-		assertTrue(manager.supports(new SecurityConfig("GIVE_ME_SWAP2")));
+		assertThat(manager.supports(new SecurityConfig("UNKNOWN_ATTRIB"))).isFalse();
+		assertThat(manager.supports(new SecurityConfig("GIVE_ME_SWAP2"))).isTrue();
 	}
 
 	@Test
@@ -161,7 +159,7 @@ public class AfterInvocationProviderManagerTests {
 		manager.afterPropertiesSet();
 
 		// assertFalse(manager.supports(FilterInvocation.class));
-		assertTrue(manager.supports(MethodInvocation.class));
+		assertThat(manager.supports(MethodInvocation.class)).isTrue();
 	}
 
 	// ~ Inner Classes

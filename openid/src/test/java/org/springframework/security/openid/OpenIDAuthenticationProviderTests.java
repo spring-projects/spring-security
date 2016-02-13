@@ -17,7 +17,6 @@ package org.springframework.security.openid;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 import org.springframework.security.authentication.AuthenticationServiceException;
@@ -117,7 +116,7 @@ public class OpenIDAuthenticationProviderTests {
 			fail("Should throw an AuthenticationException");
 		}
 		catch (BadCredentialsException expected) {
-			assertEquals("Log in failed - identity could not be verified",
+			assertThat("Log in failed - identity could not be verified").isEqualTo(
 					expected.getMessage());
 		}
 	}
@@ -142,8 +141,9 @@ public class OpenIDAuthenticationProviderTests {
 			fail("Should throw an AuthenticationException");
 		}
 		catch (AuthenticationServiceException expected) {
-			assertEquals("The server responded setup was needed, which shouldn't happen",
-					expected.getMessage());
+			assertThat(
+					"The server responded setup was needed, which shouldn't happen").isEqualTo(
+							expected.getMessage());
 		}
 	}
 

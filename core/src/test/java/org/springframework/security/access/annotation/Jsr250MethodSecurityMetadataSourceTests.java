@@ -13,6 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
+
 package org.springframework.security.access.annotation;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,7 +23,6 @@ import java.util.Collection;
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.access.ConfigAttribute;
@@ -33,8 +33,11 @@ import org.springframework.security.access.intercept.method.MockMethodInvocation
  * @author Ben Alex
  */
 public class Jsr250MethodSecurityMetadataSourceTests {
+
 	Jsr250MethodSecurityMetadataSource mds;
+
 	A a;
+
 	UserAllowedClass userAllowed;
 
 	@Before
@@ -60,27 +63,28 @@ public class Jsr250MethodSecurityMetadataSourceTests {
 	public void permitAllMethodHasPermitAllAttribute() throws Exception {
 		ConfigAttribute[] accessAttributes = findAttributes("permitAllMethod");
 		assertThat(accessAttributes).hasSize(1);
-		assertThat(accessAttributes[0].toString()).isEqualTo("javax.annotation.security.PermitAll");
+		assertThat(accessAttributes[0].toString()).isEqualTo(
+				"javax.annotation.security.PermitAll");
 	}
 
 	@Test
 	public void noRoleMethodHasNoAttributes() throws Exception {
-		Collection<ConfigAttribute> accessAttributes = mds.findAttributes(a.getClass()
-				.getMethod("noRoleMethod"), null);
+		Collection<ConfigAttribute> accessAttributes = mds.findAttributes(
+				a.getClass().getMethod("noRoleMethod"), null);
 		assertThat(accessAttributes).isNull();
 	}
 
 	@Test
 	public void classRoleIsAppliedToNoRoleMethod() throws Exception {
-		Collection<ConfigAttribute> accessAttributes = mds.findAttributes(userAllowed
-				.getClass().getMethod("noRoleMethod"), null);
+		Collection<ConfigAttribute> accessAttributes = mds.findAttributes(
+				userAllowed.getClass().getMethod("noRoleMethod"), null);
 		assertThat(accessAttributes).isNull();
 	}
 
 	@Test
 	public void methodRoleOverridesClassRole() throws Exception {
-		Collection<ConfigAttribute> accessAttributes = mds.findAttributes(userAllowed
-				.getClass().getMethod("adminMethod"), null);
+		Collection<ConfigAttribute> accessAttributes = mds.findAttributes(
+				userAllowed.getClass().getMethod("adminMethod"), null);
 		assertThat(accessAttributes).hasSize(1);
 		assertThat(accessAttributes.toArray()[0].toString()).isEqualTo("ROLE_ADMIN");
 	}
@@ -125,6 +129,7 @@ public class Jsr250MethodSecurityMetadataSourceTests {
 	 * Class-level annotations only affect the class they annotate and their members, that
 	 * is, its methods and fields. They never affect a member declared by a superclass,
 	 * even if it is not hidden or overridden by the class in question.
+	 * 
 	 * @throws Exception
 	 */
 	@Test
@@ -162,7 +167,8 @@ public class Jsr250MethodSecurityMetadataSourceTests {
 	}
 
 	@Test
-	public void classLevelAnnotationsIgnoredByExplicitMemberAnnotation() throws Exception {
+	public void classLevelAnnotationsIgnoredByExplicitMemberAnnotation()
+			throws Exception {
 		Child target = new Child();
 		MockMethodInvocation mi = new MockMethodInvocation(target, target.getClass(),
 				"explicitMethod");
@@ -175,6 +181,7 @@ public class Jsr250MethodSecurityMetadataSourceTests {
 	/**
 	 * The interfaces implemented by a class never contribute annotations to the class
 	 * itself or any of its members.
+	 * 
 	 * @throws Exception
 	 */
 	@Test
@@ -231,6 +238,7 @@ public class Jsr250MethodSecurityMetadataSourceTests {
 
 	@RolesAllowed("USER")
 	public static class UserAllowedClass {
+
 		public void noRoleMethod() {
 		}
 
@@ -243,11 +251,13 @@ public class Jsr250MethodSecurityMetadataSourceTests {
 
 	@RolesAllowed("IPARENT")
 	interface IParent {
+
 		@RolesAllowed("INTERFACEMETHOD")
 		void interfaceMethod();
 	}
 
 	static class Parent implements IParent {
+
 		public void interfaceMethod() {
 		}
 
@@ -264,6 +274,7 @@ public class Jsr250MethodSecurityMetadataSourceTests {
 
 	@RolesAllowed("DERIVED")
 	class Child extends Parent {
+
 		public void overriden() {
 		}
 

@@ -1,8 +1,7 @@
+
 package org.springframework.security.config.http;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
 
@@ -23,9 +22,11 @@ import org.springframework.security.web.access.intercept.DefaultFilterInvocation
 
 /**
  * Tests for {@link FilterInvocationSecurityMetadataSourceParser}.
+ * 
  * @author Luke Taylor
  */
 public class FilterSecurityMetadataSourceBeanDefinitionParserTests {
+
 	private AbstractXmlApplicationContext appContext;
 
 	@After
@@ -45,10 +46,10 @@ public class FilterSecurityMetadataSourceBeanDefinitionParserTests {
 		setContext("<filter-security-metadata-source id='fids' use-expressions='false'>"
 				+ "   <intercept-url pattern='/**' access='ROLE_A'/>"
 				+ "</filter-security-metadata-source>");
-		DefaultFilterInvocationSecurityMetadataSource fids = (DefaultFilterInvocationSecurityMetadataSource) appContext
-				.getBean("fids");
-		Collection<ConfigAttribute> cad = fids.getAttributes(createFilterInvocation(
-				"/anything", "GET"));
+		DefaultFilterInvocationSecurityMetadataSource fids = (DefaultFilterInvocationSecurityMetadataSource) appContext.getBean(
+				"fids");
+		Collection<ConfigAttribute> cad = fids.getAttributes(
+				createFilterInvocation("/anything", "GET"));
 		assertThat(cad).isNotNull();
 		assertThat(cad.contains(new SecurityConfig("ROLE_A"))).isTrue();
 	}
@@ -59,11 +60,11 @@ public class FilterSecurityMetadataSourceBeanDefinitionParserTests {
 				+ "   <intercept-url pattern='/**' access=\"hasRole('ROLE_A')\" />"
 				+ "</filter-security-metadata-source>");
 
-		ExpressionBasedFilterInvocationSecurityMetadataSource fids = (ExpressionBasedFilterInvocationSecurityMetadataSource) appContext
-				.getBean("fids");
+		ExpressionBasedFilterInvocationSecurityMetadataSource fids = (ExpressionBasedFilterInvocationSecurityMetadataSource) appContext.getBean(
+				"fids");
 		ConfigAttribute[] cad = fids.getAttributes(
 				createFilterInvocation("/anything", "GET")).toArray(
-				new ConfigAttribute[0]);
+						new ConfigAttribute[0]);
 		assertThat(cad.length).isEqualTo(1);
 		assertThat(cad[0].toString()).isEqualTo("hasRole('ROLE_A')");
 	}
@@ -73,14 +74,15 @@ public class FilterSecurityMetadataSourceBeanDefinitionParserTests {
 	public void interceptUrlsSupportPropertyPlaceholders() {
 		System.setProperty("secure.url", "/secure");
 		System.setProperty("secure.role", "ROLE_A");
-		setContext("<b:bean class='org.springframework.beans.factory.config.PropertyPlaceholderConfigurer'/>"
-				+ "<filter-security-metadata-source id='fids' use-expressions='false'>"
-				+ "   <intercept-url pattern='${secure.url}' access='${secure.role}'/>"
-				+ "</filter-security-metadata-source>");
-		DefaultFilterInvocationSecurityMetadataSource fids = (DefaultFilterInvocationSecurityMetadataSource) appContext
-				.getBean("fids");
-		Collection<ConfigAttribute> cad = fids.getAttributes(createFilterInvocation(
-				"/secure", "GET"));
+		setContext(
+				"<b:bean class='org.springframework.beans.factory.config.PropertyPlaceholderConfigurer'/>"
+						+ "<filter-security-metadata-source id='fids' use-expressions='false'>"
+						+ "   <intercept-url pattern='${secure.url}' access='${secure.role}'/>"
+						+ "</filter-security-metadata-source>");
+		DefaultFilterInvocationSecurityMetadataSource fids = (DefaultFilterInvocationSecurityMetadataSource) appContext.getBean(
+				"fids");
+		Collection<ConfigAttribute> cad = fids.getAttributes(
+				createFilterInvocation("/secure", "GET"));
 		assertThat(cad).isNotNull();
 		assertThat(cad).hasSize(1);
 		assertThat(cad.contains(new SecurityConfig("ROLE_A"))).isTrue();

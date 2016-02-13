@@ -16,7 +16,6 @@
 package org.springframework.security.authentication.encoding;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -80,7 +79,7 @@ public class Md4PasswordEncoderTests {
 	public void testIsSaltedPasswordValid() {
 		Md4PasswordEncoder md4 = new Md4PasswordEncoder();
 		md4.setEncodeHashAsBase64(true);
-		assertTrue(md4.isPasswordValid("ZplT6P5Kv6Rlu6W4FIoYNA==", "ww_uni123",
-				"Alan K Stewart"));
+		assertThat(md4.isPasswordValid("ZplT6P5Kv6Rlu6W4FIoYNA==", "ww_uni123",
+				"Alan K Stewart")).isTrue();
 	}
 }

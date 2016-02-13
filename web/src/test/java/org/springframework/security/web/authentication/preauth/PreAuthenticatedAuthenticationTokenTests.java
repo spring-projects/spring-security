@@ -2,7 +2,6 @@
 package org.springframework.security.web.authentication.preauth;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
 import java.util.List;
@@ -56,10 +55,11 @@ public class PreAuthenticatedAuthenticationTokenTests {
 		assertThat(token.getDetails()).isNull();
 		assertThat(token.getAuthorities()).isNotNull();
 		Collection<GrantedAuthority> resultColl = token.getAuthorities();
-		assertTrue(
+		assertThat(
+
+		gas.containsAll(resultColl) && resultColl.containsAll(gas)).withFailMessage(
 				"GrantedAuthority collections do not match; result: " + resultColl
-						+ ", expected: " + gas,
-				gas.containsAll(resultColl) && resultColl.containsAll(gas));
+						+ ", expected: " + gas).isTrue();
 
 	}
 

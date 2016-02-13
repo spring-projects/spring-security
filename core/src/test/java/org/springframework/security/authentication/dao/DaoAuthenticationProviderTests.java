@@ -16,9 +16,7 @@
 package org.springframework.security.authentication.dao;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
@@ -410,9 +408,9 @@ public class DaoAuthenticationProviderTests {
 			fail("Should have thrown AuthenticationServiceException");
 		}
 		catch (AuthenticationServiceException expected) {
-			assertEquals(
-					"UserDetailsService returned null, which is an interface contract violation",
-					expected.getMessage());
+			assertThat(
+					"UserDetailsService returned null, which is an interface contract violation").isEqualTo(
+							expected.getMessage());
 		}
 	}
 
@@ -613,10 +611,10 @@ public class DaoAuthenticationProviderTests {
 
 		double userFoundAvg = avg(userFoundTimes);
 		double userNotFoundAvg = avg(userNotFoundTimes);
-		assertTrue(
+		assertThat(Math.abs(userNotFoundAvg - userFoundAvg) <= 3).withFailMessage(
 				"User not found average " + userNotFoundAvg
-						+ " should be within 3ms of user found average " + userFoundAvg,
-				Math.abs(userNotFoundAvg - userFoundAvg) <= 3);
+						+ " should be within 3ms of user found average "
+						+ userFoundAvg).isTrue();
 	}
 
 	private double avg(List<Long> counts) {

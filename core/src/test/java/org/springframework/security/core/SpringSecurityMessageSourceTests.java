@@ -15,7 +15,7 @@
 
 package org.springframework.security.core;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Locale;
 
@@ -33,7 +33,7 @@ public class SpringSecurityMessageSourceTests {
 	@Test
 	public void testOperation() {
 		SpringSecurityMessageSource msgs = new SpringSecurityMessageSource();
-		assertEquals("\u4E0D\u5141\u8BB8\u8BBF\u95EE",
+		assertThat("\u4E0D\u5141\u8BB8\u8BBF\u95EE").isEqualTo(
 				msgs.getMessage("AbstractAccessDecisionManager.accessDenied", null,
 						Locale.SIMPLIFIED_CHINESE));
 	}
@@ -46,7 +46,7 @@ public class SpringSecurityMessageSourceTests {
 
 		// Cause a message to be generated
 		MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
-		assertEquals("Le jeton nonce est compromis FOOBAR",
+		assertThat("Le jeton nonce est compromis FOOBAR").isEqualTo(
 				messages.getMessage("DigestAuthenticationFilter.nonceCompromised",
 						new Object[] { "FOOBAR" }, "ERROR - FAILED TO LOOKUP"));
 
@@ -64,7 +64,7 @@ public class SpringSecurityMessageSourceTests {
 		LocaleContextHolder.setLocale(Locale.US);
 
 		MessageSourceAccessor msgs = SpringSecurityMessageSource.getAccessor();
-		assertEquals("Access is denied",
+		assertThat("Access is denied").isEqualTo(
 				msgs.getMessage("AbstractAccessDecisionManager.accessDenied", "Ooops"));
 
 		// Revert to original Locale

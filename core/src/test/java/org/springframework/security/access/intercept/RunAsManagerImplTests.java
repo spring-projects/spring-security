@@ -16,8 +16,7 @@
 package org.springframework.security.access.intercept;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.fail;
 
 import java.util.Set;
 
@@ -67,8 +66,8 @@ public class RunAsManagerImplTests {
 		Authentication result = runAs.buildRunAs(inputToken, new Object(),
 				SecurityConfig.createList("RUN_AS_SOMETHING"));
 
-		assertTrue("Should have returned a RunAsUserToken",
-				result instanceof RunAsUserToken);
+		assertThat(result instanceof RunAsUserToken).withFailMessage(
+				"Should have returned a RunAsUserToken").isTrue();
 		assertThat(result.getPrincipal()).isEqualTo(inputToken.getPrincipal());
 		assertThat(result.getCredentials()).isEqualTo(inputToken.getCredentials());
 		Set<String> authorities = AuthorityUtils.authorityListToSet(

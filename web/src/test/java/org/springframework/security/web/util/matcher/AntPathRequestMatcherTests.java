@@ -10,12 +10,10 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
+
 package org.springframework.security.web.util.matcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 import javax.servlet.http.HttpServletRequest;
@@ -25,8 +23,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 
 /**
  * @author Luke Taylor
@@ -34,6 +30,7 @@ import org.springframework.security.web.util.matcher.AnyRequestMatcher;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class AntPathRequestMatcherTests {
+
 	@Mock
 	private HttpServletRequest request;
 
@@ -157,28 +154,34 @@ public class AntPathRequestMatcherTests {
 	@Test
 	public void caseSensitive() throws Exception {
 		MockHttpServletRequest request = createRequest("/UPPER");
-		assertThat(new AntPathRequestMatcher("/upper", null, true).matches(request))
-				.isFalse();
-		assertThat(new AntPathRequestMatcher("/upper", "POST", true).matches(request))
-				.isFalse();
-		assertThat(new AntPathRequestMatcher("/upper", "GET", true).matches(request))
-				.isFalse();
+		assertThat(new AntPathRequestMatcher("/upper", null, true).matches(
+				request)).isFalse();
+		assertThat(new AntPathRequestMatcher("/upper", "POST", true).matches(
+				request)).isFalse();
+		assertThat(new AntPathRequestMatcher("/upper", "GET", true).matches(
+				request)).isFalse();
 
-		assertThat(new AntPathRequestMatcher("/upper", null, false).matches(request))
-				.isTrue();
-		assertThat(new AntPathRequestMatcher("/upper", "POST", false).matches(request))
-				.isTrue();
+		assertThat(new AntPathRequestMatcher("/upper", null, false).matches(
+				request)).isTrue();
+		assertThat(new AntPathRequestMatcher("/upper", "POST", false).matches(
+				request)).isTrue();
 	}
 
 	@Test
 	public void equalsBehavesCorrectly() throws Exception {
 		// Both universal wildcard options should be equal
-		assertThat(new AntPathRequestMatcher("**")).isEqualTo(new AntPathRequestMatcher("/**"));
-		assertThat(new AntPathRequestMatcher("/xyz")).isEqualTo(new AntPathRequestMatcher("/xyz"));
-		assertThat(new AntPathRequestMatcher("/xyz","POST")).isEqualTo(new AntPathRequestMatcher("/xyz", "POST"));
-		assertThat(new AntPathRequestMatcher("/xyz", "POST")).isNotEqualTo(new AntPathRequestMatcher("/xyz", "GET"));
-		assertThat(new AntPathRequestMatcher("/xyz")).isNotEqualTo(new AntPathRequestMatcher("/xxx"));
-		assertThat(new AntPathRequestMatcher("/xyz").equals(AnyRequestMatcher.INSTANCE)).isFalse();
+		assertThat(new AntPathRequestMatcher("**")).isEqualTo(
+				new AntPathRequestMatcher("/**"));
+		assertThat(new AntPathRequestMatcher("/xyz")).isEqualTo(
+				new AntPathRequestMatcher("/xyz"));
+		assertThat(new AntPathRequestMatcher("/xyz", "POST")).isEqualTo(
+				new AntPathRequestMatcher("/xyz", "POST"));
+		assertThat(new AntPathRequestMatcher("/xyz", "POST")).isNotEqualTo(
+				new AntPathRequestMatcher("/xyz", "GET"));
+		assertThat(new AntPathRequestMatcher("/xyz")).isNotEqualTo(
+				new AntPathRequestMatcher("/xxx"));
+		assertThat(new AntPathRequestMatcher("/xyz").equals(
+				AnyRequestMatcher.INSTANCE)).isFalse();
 		assertThat(new AntPathRequestMatcher("/xyz", "GET", false)).isNotEqualTo(
 				new AntPathRequestMatcher("/xyz", "GET", true));
 	}

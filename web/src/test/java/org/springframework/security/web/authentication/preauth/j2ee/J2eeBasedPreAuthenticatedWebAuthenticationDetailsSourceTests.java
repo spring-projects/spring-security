@@ -3,7 +3,6 @@ package org.springframework.security.web.authentication.preauth.j2ee;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -104,10 +103,10 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests {
 				mappedRoles);
 		Object o = src.buildDetails(getRequest("testUser", userRoles));
 		assertThat(o).isNotNull();
-		assertTrue(
-				"Returned object not of type PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails, actual type: "
-						+ o.getClass(),
-				o instanceof PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails);
+		assertThat(
+				o instanceof PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails).withFailMessage(
+						"Returned object not of type PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails, actual type: "
+								+ o.getClass()).isTrue();
 		PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails details = (PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails) o;
 		List<GrantedAuthority> gas = details.getGrantedAuthorities();
 		assertThat(gas).as("Granted authorities should not be null").isNotNull();
@@ -118,9 +117,9 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests {
 		for (int i = 0; i < gas.size(); i++) {
 			gasRolesSet.add(gas.get(i).getAuthority());
 		}
-		assertTrue("Granted Authorities do not match expected roles",
-				expectedRolesColl.containsAll(gasRolesSet)
-						&& gasRolesSet.containsAll(expectedRolesColl));
+		assertThat(expectedRolesColl.containsAll(gasRolesSet)
+				&& gasRolesSet.containsAll(expectedRolesColl)).withFailMessage(
+						"Granted Authorities do not match expected roles").isTrue();
 	}
 
 	private J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource getJ2eeBasedPreAuthenticatedWebAuthenticationDetailsSource(

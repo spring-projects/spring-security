@@ -3,8 +3,6 @@ package org.springframework.security.acls.sid;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
@@ -131,10 +129,10 @@ public class SidTests {
 		assertThat(principalSid.equals("DIFFERENT_TYPE_OBJECT")).isFalse();
 		assertThat(principalSid.equals(principalSid)).isTrue();
 		assertThat(principalSid.equals(new PrincipalSid(authentication))).isTrue();
-		assertTrue(principalSid.equals(
-				new PrincipalSid(new TestingAuthenticationToken("johndoe", null))));
-		assertFalse(principalSid.equals(
-				new PrincipalSid(new TestingAuthenticationToken("scott", null))));
+		assertThat(principalSid.equals(new PrincipalSid(
+				new TestingAuthenticationToken("johndoe", null)))).isTrue();
+		assertThat(principalSid.equals(new PrincipalSid(
+				new TestingAuthenticationToken("scott", null)))).isFalse();
 		assertThat(principalSid.equals(new PrincipalSid("johndoe"))).isTrue();
 		assertThat(principalSid.equals(new PrincipalSid("scott"))).isFalse();
 	}
@@ -148,10 +146,10 @@ public class SidTests {
 		assertThat(gaSid.equals("DIFFERENT_TYPE_OBJECT")).isFalse();
 		assertThat(gaSid.equals(gaSid)).isTrue();
 		assertThat(gaSid.equals(new GrantedAuthoritySid(ga))).isTrue();
-		assertTrue(gaSid.equals(
-				new GrantedAuthoritySid(new SimpleGrantedAuthority("ROLE_TEST"))));
-		assertFalse(gaSid.equals(
-				new GrantedAuthoritySid(new SimpleGrantedAuthority("ROLE_NOT_EQUAL"))));
+		assertThat(gaSid.equals(new GrantedAuthoritySid(
+				new SimpleGrantedAuthority("ROLE_TEST")))).isTrue();
+		assertThat(gaSid.equals(new GrantedAuthoritySid(
+				new SimpleGrantedAuthority("ROLE_NOT_EQUAL")))).isFalse();
 		assertThat(gaSid.equals(new GrantedAuthoritySid("ROLE_TEST"))).isTrue();
 		assertThat(gaSid.equals(new GrantedAuthoritySid("ROLE_NOT_EQUAL"))).isFalse();
 	}

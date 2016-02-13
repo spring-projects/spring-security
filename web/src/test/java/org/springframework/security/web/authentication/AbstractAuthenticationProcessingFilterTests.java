@@ -16,9 +16,6 @@
 package org.springframework.security.web.authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -66,7 +63,9 @@ import org.springframework.test.util.ReflectionTestUtils;
  */
 @SuppressWarnings("deprecation")
 public class AbstractAuthenticationProcessingFilterTests {
+
 	SavedRequestAwareAuthenticationSuccessHandler successHandler;
+
 	SimpleUrlAuthenticationFailureHandler failureHandler;
 
 	// ~ Methods
@@ -137,7 +136,9 @@ public class AbstractAuthenticationProcessingFilterTests {
 		filter.doFilter(request, response, chain);
 		assertThat(response.getRedirectedUrl()).isEqualTo("/mycontext/logged_in.jsp");
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
-		assertThat(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()).isEqualTo("test");
+		assertThat(
+				SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()).isEqualTo(
+						"test");
 	}
 
 	@Test
@@ -150,7 +151,8 @@ public class AbstractAuthenticationProcessingFilterTests {
 		assertThat(filter.getRememberMeServices()).isNotNull();
 		filter.setRememberMeServices(new TokenBasedRememberMeServices("key",
 				new AbstractRememberMeServicesTests.MockUserDetailsService()));
-		assertThat(filter.getRememberMeServices().getClass()).isEqualTo(TokenBasedRememberMeServices.class);
+		assertThat(filter.getRememberMeServices().getClass()).isEqualTo(
+				TokenBasedRememberMeServices.class);
 		assertThat(filter.getAuthenticationManager() != null).isTrue();
 	}
 
@@ -194,7 +196,8 @@ public class AbstractAuthenticationProcessingFilterTests {
 		MockAuthenticationFilter filter = new MockAuthenticationFilter(true);
 
 		filter.setFilterProcessesUrl("/j_mock_post");
-		filter.setSessionAuthenticationStrategy(mock(SessionAuthenticationStrategy.class));
+		filter.setSessionAuthenticationStrategy(
+				mock(SessionAuthenticationStrategy.class));
 		filter.setAuthenticationSuccessHandler(successHandler);
 		filter.setAuthenticationFailureHandler(failureHandler);
 		filter.setAuthenticationManager(mock(AuthenticationManager.class));
@@ -204,7 +207,9 @@ public class AbstractAuthenticationProcessingFilterTests {
 		filter.doFilter(request, response, chain);
 		assertThat(response.getRedirectedUrl()).isEqualTo("/mycontext/logged_in.jsp");
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
-		assertThat(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()).isEqualTo("test");
+		assertThat(
+				SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()).isEqualTo(
+						"test");
 		// Should still have the same session
 		assertThat(request.getSession()).isEqualTo(sessionPreAuth);
 	}
@@ -222,7 +227,8 @@ public class AbstractAuthenticationProcessingFilterTests {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertThat(expected.getMessage()).isEqualTo("authenticationManager must be specified");
+			assertThat(expected.getMessage()).isEqualTo(
+					"authenticationManager must be specified");
 		}
 	}
 
@@ -238,7 +244,8 @@ public class AbstractAuthenticationProcessingFilterTests {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertThat(expected.getMessage()).isEqualTo("Pattern cannot be null or empty");
+			assertThat(expected.getMessage()).isEqualTo(
+					"Pattern cannot be null or empty");
 		}
 	}
 
@@ -265,7 +272,9 @@ public class AbstractAuthenticationProcessingFilterTests {
 		filter.doFilter(request, response, chain);
 		assertThat(response.getRedirectedUrl()).isEqualTo("/mycontext/logged_in.jsp");
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
-		assertThat(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()).isEqualTo("test");
+		assertThat(
+				SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()).isEqualTo(
+						"test");
 
 		// Now try again but this time have filter deny access
 		// Setup our HTTP request
@@ -301,7 +310,8 @@ public class AbstractAuthenticationProcessingFilterTests {
 		// Setup our test object, to grant access
 		MockAuthenticationFilter filter = new MockAuthenticationFilter(true);
 		filter.setFilterProcessesUrl("/j_mock_post");
-		AuthenticationSuccessHandler successHandler = mock(AuthenticationSuccessHandler.class);
+		AuthenticationSuccessHandler successHandler = mock(
+				AuthenticationSuccessHandler.class);
 		filter.setAuthenticationSuccessHandler(successHandler);
 
 		// Test
@@ -328,7 +338,8 @@ public class AbstractAuthenticationProcessingFilterTests {
 
 		// Setup our test object, to deny access
 		MockAuthenticationFilter filter = new MockAuthenticationFilter(false);
-		AuthenticationFailureHandler failureHandler = mock(AuthenticationFailureHandler.class);
+		AuthenticationFailureHandler failureHandler = mock(
+				AuthenticationFailureHandler.class);
 		filter.setAuthenticationFailureHandler(failureHandler);
 
 		// Test
@@ -409,15 +420,19 @@ public class AbstractAuthenticationProcessingFilterTests {
 	// ~ Inner Classes
 	// ==================================================================================================
 
-	private class MockAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
+	private class MockAuthenticationFilter
+			extends AbstractAuthenticationProcessingFilter {
+
 		private AuthenticationException exceptionToThrow;
+
 		private boolean grantAccess;
 
 		public MockAuthenticationFilter(boolean grantAccess) {
 			this();
 			setRememberMeServices(new NullRememberMeServices());
 			this.grantAccess = grantAccess;
-			this.exceptionToThrow = new BadCredentialsException("Mock requested to do so");
+			this.exceptionToThrow = new BadCredentialsException(
+					"Mock requested to do so");
 		}
 
 		private MockAuthenticationFilter() {
@@ -437,6 +452,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 	}
 
 	private class MockFilterChain implements FilterChain {
+
 		private boolean expectToProceed;
 
 		public MockFilterChain(boolean expectToProceed) {
