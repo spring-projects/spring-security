@@ -15,6 +15,8 @@
 
 package org.springframework.security.authentication.dao;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
@@ -26,8 +28,7 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
-
+import org.junit.Test;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AuthenticationServiceException;
@@ -57,13 +58,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  * @author Ben Alex
  * @author Rob Winch
  */
-public class DaoAuthenticationProviderTests extends TestCase {
-	private static final List<GrantedAuthority> ROLES_12 = AuthorityUtils
-			.createAuthorityList("ROLE_ONE", "ROLE_TWO");
+public class DaoAuthenticationProviderTests {
+
+	private static final List<GrantedAuthority> ROLES_12 = AuthorityUtils.createAuthorityList(
+			"ROLE_ONE", "ROLE_TWO");
 
 	// ~ Methods
 	// ========================================================================================================
-
+	@Test
 	public void testAuthenticateFailsForIncorrectPasswordCase() {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
 				"rod", "KOala");
@@ -77,10 +79,11 @@ public class DaoAuthenticationProviderTests extends TestCase {
 			fail("Should have thrown BadCredentialsException");
 		}
 		catch (BadCredentialsException expected) {
-			assertTrue(true);
+
 		}
 	}
 
+	@Test
 	public void testReceivedBadCredentialsWhenCredentialsNotProvided() {
 		// Test related to SEC-434
 		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
@@ -94,16 +97,18 @@ public class DaoAuthenticationProviderTests extends TestCase {
 			fail("Expected BadCredenialsException");
 		}
 		catch (BadCredentialsException expected) {
-			assertTrue(true);
+
 		}
 	}
 
+	@Test
 	public void testAuthenticateFailsIfAccountExpired() {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
 				"peter", "opal");
 
 		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-		provider.setUserDetailsService(new MockAuthenticationDaoUserPeterAccountExpired());
+		provider.setUserDetailsService(
+				new MockAuthenticationDaoUserPeterAccountExpired());
 		provider.setUserCache(new MockUserCache());
 
 		try {
@@ -111,10 +116,11 @@ public class DaoAuthenticationProviderTests extends TestCase {
 			fail("Should have thrown AccountExpiredException");
 		}
 		catch (AccountExpiredException expected) {
-			assertTrue(true);
+
 		}
 	}
 
+	@Test
 	public void testAuthenticateFailsIfAccountLocked() {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
 				"peter", "opal");
@@ -128,16 +134,18 @@ public class DaoAuthenticationProviderTests extends TestCase {
 			fail("Should have thrown LockedException");
 		}
 		catch (LockedException expected) {
-			assertTrue(true);
+
 		}
 	}
 
+	@Test
 	public void testAuthenticateFailsIfCredentialsExpired() {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
 				"peter", "opal");
 
 		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-		provider.setUserDetailsService(new MockAuthenticationDaoUserPeterCredentialsExpired());
+		provider.setUserDetailsService(
+				new MockAuthenticationDaoUserPeterCredentialsExpired());
 		provider.setUserCache(new MockUserCache());
 
 		try {
@@ -145,7 +153,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
 			fail("Should have thrown CredentialsExpiredException");
 		}
 		catch (CredentialsExpiredException expected) {
-			assertTrue(true);
+
 		}
 
 		// Check that wrong password causes BadCredentialsException, rather than
@@ -157,10 +165,11 @@ public class DaoAuthenticationProviderTests extends TestCase {
 			fail("Should have thrown BadCredentialsException");
 		}
 		catch (BadCredentialsException expected) {
-			assertTrue(true);
+
 		}
 	}
 
+	@Test
 	public void testAuthenticateFailsIfUserDisabled() {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
 				"peter", "opal");
@@ -174,10 +183,11 @@ public class DaoAuthenticationProviderTests extends TestCase {
 			fail("Should have thrown DisabledException");
 		}
 		catch (DisabledException expected) {
-			assertTrue(true);
+
 		}
 	}
 
+	@Test
 	public void testAuthenticateFailsWhenAuthenticationDaoHasBackendFailure() {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
 				"rod", "koala");
@@ -194,6 +204,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
 		}
 	}
 
+	@Test
 	public void testAuthenticateFailsWithEmptyUsername() {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
 				null, "koala");
@@ -207,10 +218,11 @@ public class DaoAuthenticationProviderTests extends TestCase {
 			fail("Should have thrown BadCredentialsException");
 		}
 		catch (BadCredentialsException expected) {
-			assertTrue(true);
+
 		}
 	}
 
+	@Test
 	public void testAuthenticateFailsWithInvalidPassword() {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
 				"rod", "INVALID_PASSWORD");
@@ -224,10 +236,11 @@ public class DaoAuthenticationProviderTests extends TestCase {
 			fail("Should have thrown BadCredentialsException");
 		}
 		catch (BadCredentialsException expected) {
-			assertTrue(true);
+
 		}
 	}
 
+	@Test
 	public void testAuthenticateFailsWithInvalidUsernameAndHideUserNotFoundExceptionFalse() {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
 				"INVALID_USER", "koala");
@@ -243,16 +256,17 @@ public class DaoAuthenticationProviderTests extends TestCase {
 			fail("Should have thrown UsernameNotFoundException");
 		}
 		catch (UsernameNotFoundException expected) {
-			assertTrue(true);
+
 		}
 	}
 
+	@Test
 	public void testAuthenticateFailsWithInvalidUsernameAndHideUserNotFoundExceptionsWithDefaultOfTrue() {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
 				"INVALID_USER", "koala");
 
 		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-		assertTrue(provider.isHideUserNotFoundExceptions());
+		assertThat(provider.isHideUserNotFoundExceptions()).isTrue();
 		provider.setUserDetailsService(new MockAuthenticationDaoUserrod());
 		provider.setUserCache(new MockUserCache());
 
@@ -261,10 +275,11 @@ public class DaoAuthenticationProviderTests extends TestCase {
 			fail("Should have thrown BadCredentialsException");
 		}
 		catch (BadCredentialsException expected) {
-			assertTrue(true);
+
 		}
 	}
 
+	@Test
 	public void testAuthenticateFailsWithMixedCaseUsernameIfDefaultChanged() {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
 				"RoD", "koala");
@@ -278,10 +293,11 @@ public class DaoAuthenticationProviderTests extends TestCase {
 			fail("Should have thrown BadCredentialsException");
 		}
 		catch (BadCredentialsException expected) {
-			assertTrue(true);
+
 		}
 	}
 
+	@Test
 	public void testAuthenticates() {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
 				"rod", "koala");
@@ -298,15 +314,15 @@ public class DaoAuthenticationProviderTests extends TestCase {
 		}
 
 		UsernamePasswordAuthenticationToken castResult = (UsernamePasswordAuthenticationToken) result;
-		assertEquals(User.class, castResult.getPrincipal().getClass());
-		assertEquals("koala", castResult.getCredentials());
-		assertTrue(AuthorityUtils.authorityListToSet(castResult.getAuthorities())
-				.contains("ROLE_ONE"));
-		assertTrue(AuthorityUtils.authorityListToSet(castResult.getAuthorities())
-				.contains("ROLE_TWO"));
-		assertEquals("192.168.0.1", castResult.getDetails());
+		assertThat(castResult.getPrincipal().getClass()).isEqualTo(User.class);
+		assertThat(castResult.getCredentials()).isEqualTo("koala");
+		assertThat(
+				AuthorityUtils.authorityListToSet(castResult.getAuthorities())).contains(
+						"ROLE_ONE", "ROLE_TWO");
+		assertThat(castResult.getDetails()).isEqualTo("192.168.0.1");
 	}
 
+	@Test
 	public void testAuthenticatesASecondTime() {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
 				"rod", "koala");
@@ -328,9 +344,10 @@ public class DaoAuthenticationProviderTests extends TestCase {
 			fail("Should have returned instance of UsernamePasswordAuthenticationToken");
 		}
 
-		assertEquals(result.getCredentials(), result2.getCredentials());
+		assertThat(result2.getCredentials()).isEqualTo(result.getCredentials());
 	}
 
+	@Test
 	public void testAuthenticatesWhenASaltIsUsed() {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
 				"rod", "koala");
@@ -349,16 +366,15 @@ public class DaoAuthenticationProviderTests extends TestCase {
 			fail("Should have returned instance of UsernamePasswordAuthenticationToken");
 		}
 
-		assertEquals(User.class, result.getPrincipal().getClass());
+		assertThat(result.getPrincipal().getClass()).isEqualTo(User.class);
 
 		// We expect original credentials user submitted to be returned
-		assertEquals("koala", result.getCredentials());
-		assertTrue(AuthorityUtils.authorityListToSet(result.getAuthorities()).contains(
-				"ROLE_ONE"));
-		assertTrue(AuthorityUtils.authorityListToSet(result.getAuthorities()).contains(
-				"ROLE_TWO"));
+		assertThat(result.getCredentials()).isEqualTo("koala");
+		assertThat(AuthorityUtils.authorityListToSet(result.getAuthorities())).contains(
+				"ROLE_ONE", "ROLE_TWO");
 	}
 
+	@Test
 	public void testAuthenticatesWithForcePrincipalAsString() {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
 				"rod", "koala");
@@ -375,10 +391,11 @@ public class DaoAuthenticationProviderTests extends TestCase {
 		}
 
 		UsernamePasswordAuthenticationToken castResult = (UsernamePasswordAuthenticationToken) result;
-		assertEquals(String.class, castResult.getPrincipal().getClass());
-		assertEquals("rod", castResult.getPrincipal());
+		assertThat(castResult.getPrincipal().getClass()).isEqualTo(String.class);
+		assertThat(castResult.getPrincipal()).isEqualTo("rod");
 	}
 
+	@Test
 	public void testDetectsNullBeingReturnedFromAuthenticationDao() {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
 				"rod", "koala");
@@ -391,28 +408,33 @@ public class DaoAuthenticationProviderTests extends TestCase {
 			fail("Should have thrown AuthenticationServiceException");
 		}
 		catch (AuthenticationServiceException expected) {
-			assertEquals(
-					"UserDetailsService returned null, which is an interface contract violation",
-					expected.getMessage());
+			assertThat(
+					"UserDetailsService returned null, which is an interface contract violation").isEqualTo(
+							expected.getMessage());
 		}
 	}
 
+	@Test
 	public void testGettersSetters() {
 		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
 		provider.setPasswordEncoder(new ShaPasswordEncoder());
-		assertEquals(ShaPasswordEncoder.class, provider.getPasswordEncoder().getClass());
+		assertThat(provider.getPasswordEncoder().getClass()).isEqualTo(
+				ShaPasswordEncoder.class);
 
 		provider.setSaltSource(new SystemWideSaltSource());
-		assertEquals(SystemWideSaltSource.class, provider.getSaltSource().getClass());
+		assertThat(provider.getSaltSource().getClass()).isEqualTo(
+				SystemWideSaltSource.class);
 
 		provider.setUserCache(new EhCacheBasedUserCache());
-		assertEquals(EhCacheBasedUserCache.class, provider.getUserCache().getClass());
+		assertThat(provider.getUserCache().getClass()).isEqualTo(
+				EhCacheBasedUserCache.class);
 
-		assertFalse(provider.isForcePrincipalAsString());
+		assertThat(provider.isForcePrincipalAsString()).isFalse();
 		provider.setForcePrincipalAsString(true);
-		assertTrue(provider.isForcePrincipalAsString());
+		assertThat(provider.isForcePrincipalAsString()).isTrue();
 	}
 
+	@Test
 	public void testGoesBackToAuthenticationDaoToObtainLatestPasswordIfCachedPasswordSeemsIncorrect() {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
 				"rod", "koala");
@@ -427,7 +449,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
 		provider.authenticate(token);
 
 		// Check "rod = koala" ended up in the cache
-		assertEquals("koala", cache.getUserFromCache("rod").getPassword());
+		assertThat(cache.getUserFromCache("rod").getPassword()).isEqualTo("koala");
 
 		// Now change the password the AuthenticationDao will return
 		authenticationDao.setPassword("easternLongNeckTurtle");
@@ -438,9 +460,11 @@ public class DaoAuthenticationProviderTests extends TestCase {
 
 		// To get this far, the new password was accepted
 		// Check the cache was updated
-		assertEquals("easternLongNeckTurtle", cache.getUserFromCache("rod").getPassword());
+		assertThat(cache.getUserFromCache("rod").getPassword()).isEqualTo(
+				"easternLongNeckTurtle");
 	}
 
+	@Test
 	public void testStartupFailsIfNoAuthenticationDao() throws Exception {
 		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
 
@@ -449,14 +473,15 @@ public class DaoAuthenticationProviderTests extends TestCase {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertTrue(true);
+
 		}
 	}
 
+	@Test
 	public void testStartupFailsIfNoUserCacheSet() throws Exception {
 		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
 		provider.setUserDetailsService(new MockAuthenticationDaoUserrod());
-		assertEquals(NullUserCache.class, provider.getUserCache().getClass());
+		assertThat(provider.getUserCache().getClass()).isEqualTo(NullUserCache.class);
 		provider.setUserCache(null);
 
 		try {
@@ -464,27 +489,30 @@ public class DaoAuthenticationProviderTests extends TestCase {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertTrue(true);
+
 		}
 	}
 
+	@Test
 	public void testStartupSuccess() throws Exception {
 		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
 		UserDetailsService userDetailsService = new MockAuthenticationDaoUserrod();
 		provider.setUserDetailsService(userDetailsService);
 		provider.setUserCache(new MockUserCache());
-		assertEquals(userDetailsService, provider.getUserDetailsService());
+		assertThat(provider.getUserDetailsService()).isEqualTo(userDetailsService);
 		provider.afterPropertiesSet();
-		assertTrue(true);
+
 	}
 
+	@Test
 	public void testSupports() {
 		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-		assertTrue(provider.supports(UsernamePasswordAuthenticationToken.class));
-		assertTrue(!provider.supports(TestingAuthenticationToken.class));
+		assertThat(provider.supports(UsernamePasswordAuthenticationToken.class)).isTrue();
+		assertThat(!provider.supports(TestingAuthenticationToken.class)).isTrue();
 	}
 
 	// SEC-2056
+	@Test
 	public void testUserNotFoundEncodesPassword() {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
 				"missing", "koala");
@@ -506,6 +534,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
 		verify(encoder).matches(isA(String.class), isA(String.class));
 	}
 
+	@Test
 	public void testUserNotFoundBCryptPasswordEncoder() {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
 				"missing", "koala");
@@ -514,8 +543,8 @@ public class DaoAuthenticationProviderTests extends TestCase {
 		provider.setHideUserNotFoundExceptions(false);
 		provider.setPasswordEncoder(encoder);
 		MockAuthenticationDaoUserrod userDetailsService = new MockAuthenticationDaoUserrod();
-		userDetailsService.password = encoder.encode((CharSequence) token
-				.getCredentials());
+		userDetailsService.password = encoder.encode(
+				(CharSequence) token.getCredentials());
 		provider.setUserDetailsService(userDetailsService);
 		try {
 			provider.authenticate(token);
@@ -525,6 +554,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
 		}
 	}
 
+	@Test
 	public void testUserNotFoundDefaultEncoder() {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
 				"missing", null);
@@ -554,8 +584,8 @@ public class DaoAuthenticationProviderTests extends TestCase {
 		provider.setHideUserNotFoundExceptions(false);
 		provider.setPasswordEncoder(encoder);
 		MockAuthenticationDaoUserrod userDetailsService = new MockAuthenticationDaoUserrod();
-		userDetailsService.password = encoder.encode((CharSequence) foundUser
-				.getCredentials());
+		userDetailsService.password = encoder.encode(
+				(CharSequence) foundUser.getCredentials());
 		provider.setUserDetailsService(userDetailsService);
 
 		int sampleSize = 100;
@@ -581,9 +611,10 @@ public class DaoAuthenticationProviderTests extends TestCase {
 
 		double userFoundAvg = avg(userFoundTimes);
 		double userNotFoundAvg = avg(userNotFoundTimes);
-		assertTrue("User not found average " + userNotFoundAvg
-				+ " should be within 3ms of user found average " + userFoundAvg,
-				Math.abs(userNotFoundAvg - userFoundAvg) <= 3);
+		assertThat(Math.abs(userNotFoundAvg - userFoundAvg) <= 3).withFailMessage(
+				"User not found average " + userNotFoundAvg
+						+ " should be within 3ms of user found average "
+						+ userFoundAvg).isTrue();
 	}
 
 	private double avg(List<Long> counts) {
@@ -594,6 +625,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
 		return sum / counts.size();
 	}
 
+	@Test
 	public void testUserNotFoundNullCredentials() {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
 				"missing", null);
@@ -616,12 +648,15 @@ public class DaoAuthenticationProviderTests extends TestCase {
 	// ==================================================================================================
 
 	private class MockAuthenticationDaoReturnsNull implements UserDetailsService {
+
 		public UserDetails loadUserByUsername(String username) {
 			return null;
 		}
 	}
 
-	private class MockAuthenticationDaoSimulateBackendError implements UserDetailsService {
+	private class MockAuthenticationDaoSimulateBackendError
+			implements UserDetailsService {
+
 		public UserDetails loadUserByUsername(String username) {
 			throw new DataRetrievalFailureException(
 					"This mock simulator is designed to fail");
@@ -629,6 +664,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
 	}
 
 	private class MockAuthenticationDaoUserrod implements UserDetailsService {
+
 		private String password = "koala";
 
 		public UserDetails loadUserByUsername(String username) {
@@ -646,10 +682,11 @@ public class DaoAuthenticationProviderTests extends TestCase {
 	}
 
 	private class MockAuthenticationDaoUserrodWithSalt implements UserDetailsService {
+
 		public UserDetails loadUserByUsername(String username) {
 			if ("rod".equals(username)) {
-				return new User("rod", "koala{SYSTEM_SALT_VALUE}", true, true, true,
-						true, ROLES_12);
+				return new User("rod", "koala{SYSTEM_SALT_VALUE}", true, true, true, true,
+						ROLES_12);
 			}
 			else {
 				throw new UsernameNotFoundException("Could not find: " + username);
@@ -658,6 +695,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
 	}
 
 	private class MockAuthenticationDaoUserPeter implements UserDetailsService {
+
 		public UserDetails loadUserByUsername(String username) {
 			if ("peter".equals(username)) {
 				return new User("peter", "opal", false, true, true, true, ROLES_12);
@@ -668,8 +706,9 @@ public class DaoAuthenticationProviderTests extends TestCase {
 		}
 	}
 
-	private class MockAuthenticationDaoUserPeterAccountExpired implements
-			UserDetailsService {
+	private class MockAuthenticationDaoUserPeterAccountExpired
+			implements UserDetailsService {
+
 		public UserDetails loadUserByUsername(String username) {
 			if ("peter".equals(username)) {
 				return new User("peter", "opal", true, false, true, true, ROLES_12);
@@ -680,8 +719,9 @@ public class DaoAuthenticationProviderTests extends TestCase {
 		}
 	}
 
-	private class MockAuthenticationDaoUserPeterAccountLocked implements
-			UserDetailsService {
+	private class MockAuthenticationDaoUserPeterAccountLocked
+			implements UserDetailsService {
+
 		public UserDetails loadUserByUsername(String username) {
 			if ("peter".equals(username)) {
 				return new User("peter", "opal", true, true, true, false, ROLES_12);
@@ -692,8 +732,9 @@ public class DaoAuthenticationProviderTests extends TestCase {
 		}
 	}
 
-	private class MockAuthenticationDaoUserPeterCredentialsExpired implements
-			UserDetailsService {
+	private class MockAuthenticationDaoUserPeterCredentialsExpired
+			implements UserDetailsService {
+
 		public UserDetails loadUserByUsername(String username) {
 			if ("peter".equals(username)) {
 				return new User("peter", "opal", true, true, false, true, ROLES_12);

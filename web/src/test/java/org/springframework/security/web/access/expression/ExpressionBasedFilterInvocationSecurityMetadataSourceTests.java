@@ -1,6 +1,6 @@
 package org.springframework.security.web.access.expression;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Test;
 import org.springframework.security.access.ConfigAttribute;
@@ -24,15 +24,15 @@ public class ExpressionBasedFilterInvocationSecurityMetadataSourceTests {
 		requestMap.put(AnyRequestMatcher.INSTANCE, SecurityConfig.createList(expression));
 		ExpressionBasedFilterInvocationSecurityMetadataSource mds = new ExpressionBasedFilterInvocationSecurityMetadataSource(
 				requestMap, new DefaultWebSecurityExpressionHandler());
-		assertEquals(1, mds.getAllConfigAttributes().size());
+		assertThat(mds.getAllConfigAttributes()).hasSize(1);
 		Collection<ConfigAttribute> attrs = mds.getAttributes(new FilterInvocation(
 				"/path", "GET"));
-		assertEquals(1, attrs.size());
+		assertThat(attrs).hasSize(1);
 		WebExpressionConfigAttribute attribute = (WebExpressionConfigAttribute) attrs
 				.toArray()[0];
-		assertNull(attribute.getAttribute());
-		assertEquals(expression, attribute.getAuthorizeExpression().getExpressionString());
-		assertEquals(expression, attribute.toString());
+		assertThat(attribute.getAttribute()).isNull();
+		assertThat(attribute.getAuthorizeExpression().getExpressionString()).isEqualTo(expression);
+		assertThat(attribute.toString()).isEqualTo(expression);
 	}
 
 	@Test(expected = IllegalArgumentException.class)

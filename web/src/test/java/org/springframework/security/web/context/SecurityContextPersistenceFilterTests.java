@@ -1,6 +1,6 @@
 package org.springframework.security.web.context;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -38,7 +38,7 @@ public class SecurityContextPersistenceFilterTests {
 
 		filter.doFilter(request, response, chain);
 		verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
-		assertNull(SecurityContextHolder.getContext().getAuthentication());
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
 
 	@Test
@@ -52,12 +52,12 @@ public class SecurityContextPersistenceFilterTests {
 				any(ServletResponse.class));
 		try {
 			filter.doFilter(request, response, chain);
-			fail();
+			fail("IOException should have been thrown");
 		}
 		catch (IOException expected) {
 		}
 
-		assertNull(SecurityContextHolder.getContext().getAuthentication());
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
 
 	@Test
@@ -80,8 +80,7 @@ public class SecurityContextPersistenceFilterTests {
 		final FilterChain chain = new FilterChain() {
 			public void doFilter(ServletRequest request, ServletResponse response)
 					throws IOException, ServletException {
-				assertEquals(beforeAuth, SecurityContextHolder.getContext()
-						.getAuthentication());
+				assertThat(SecurityContextHolder.getContext().getAuthentication()).isEqualTo(beforeAuth);
 				// Change the context here
 				SecurityContextHolder.setContext(scExpectedAfter);
 			}
@@ -114,7 +113,7 @@ public class SecurityContextPersistenceFilterTests {
 		SecurityContextPersistenceFilter filter = new SecurityContextPersistenceFilter();
 		filter.setForceEagerSessionCreation(true);
 		filter.doFilter(request, response, chain);
-		assertNotNull(request.getSession(false));
+		assertThat(request.getSession(false)).isNotNull();
 	}
 
 	@Test
@@ -127,7 +126,7 @@ public class SecurityContextPersistenceFilterTests {
 		SecurityContextPersistenceFilter filter = new SecurityContextPersistenceFilter(
 				repo);
 		filter.doFilter(request, response, chain);
-		assertFalse(repo.containsContext(request));
-		assertNull(request.getSession(false));
+		assertThat(repo.containsContext(request)).isFalse();
+		assertThat(request.getSession(false)).isNull();
 	}
 }

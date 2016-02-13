@@ -15,7 +15,7 @@
 
 package org.springframework.security.access.intercept;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.List;
 
@@ -41,9 +41,9 @@ public class InterceptorStatusTokenTests {
 		SecurityContext ctx = SecurityContextHolder.createEmptyContext();
 		InterceptorStatusToken token = new InterceptorStatusToken(ctx, true, attr, mi);
 
-		assertTrue(token.isContextHolderRefreshRequired());
-		assertEquals(attr, token.getAttributes());
-		assertEquals(mi, token.getSecureObject());
-		assertSame(ctx, token.getSecurityContext());
+		assertThat(token.isContextHolderRefreshRequired()).isTrue();
+		assertThat(token.getAttributes()).isEqualTo(attr);
+		assertThat(token.getSecureObject()).isEqualTo(mi);
+		assertThat(token.getSecurityContext()).isSameAs(ctx);
 	}
 }

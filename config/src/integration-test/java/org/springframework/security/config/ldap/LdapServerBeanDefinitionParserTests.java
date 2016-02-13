@@ -12,7 +12,7 @@
  */
 package org.springframework.security.config.ldap;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -92,8 +92,7 @@ public class LdapServerBeanDefinitionParserTests {
 		appCtx = new InMemoryXmlApplicationContext("<ldap-server/>");
 		ApacheDSContainer dsContainer = appCtx.getBean(ApacheDSContainer.class);
 
-		assertEquals("classpath*:*.ldif",
-				ReflectionTestUtils.getField(dsContainer, "ldifResources"));
+		assertThat(ReflectionTestUtils.getField(dsContainer, "ldifResources")).isEqualTo("classpath*:*.ldif");
 	}
 
 	private int getDefaultPort() throws IOException {

@@ -15,12 +15,13 @@
 
 package org.springframework.security.web.authentication.www;
 
-import java.util.Map;
+import static org.assertj.core.api.Assertions.*;
 
-import junit.framework.TestCase;
+import java.util.Map;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.DisabledException;
@@ -31,7 +32,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Ben Alex
  */
-public class DigestAuthenticationEntryPointTests extends TestCase {
+public class DigestAuthenticationEntryPointTests {
 	// ~ Methods
 	// ========================================================================================================
 
@@ -39,16 +40,17 @@ public class DigestAuthenticationEntryPointTests extends TestCase {
 		// Check the nonce seems to be generated correctly
 		// format of nonce is:
 		// base64(expirationTime + ":" + md5Hex(expirationTime + ":" + key))
-		assertTrue(Base64.isArrayByteBase64(nonce.getBytes()));
+		assertThat(Base64.isArrayByteBase64(nonce.getBytes())).isTrue();
 
 		String decodedNonce = new String(Base64.decodeBase64(nonce.getBytes()));
 		String[] nonceTokens = StringUtils.delimitedListToStringArray(decodedNonce, ":");
-		assertEquals(2, nonceTokens.length);
+		assertThat(nonceTokens.length).isEqualTo(2);
 
 		String expectedNonceSignature = DigestUtils.md5Hex(nonceTokens[0] + ":" + "key");
-		assertEquals(expectedNonceSignature, nonceTokens[1]);
+		assertThat(nonceTokens[1]).isEqualTo(expectedNonceSignature);
 	}
 
+	@Test
 	public void testDetectsMissingKey() throws Exception {
 		DigestAuthenticationEntryPoint ep = new DigestAuthenticationEntryPoint();
 		ep.setRealmName("realm");
@@ -58,10 +60,11 @@ public class DigestAuthenticationEntryPointTests extends TestCase {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertEquals("key must be specified", expected.getMessage());
+			assertThat(expected.getMessage()).isEqualTo("key must be specified");
 		}
 	}
-
+	
+	@Test
 	public void testDetectsMissingRealmName() throws Exception {
 		DigestAuthenticationEntryPoint ep = new DigestAuthenticationEntryPoint();
 		ep.setKey("dcdc");
@@ -72,21 +75,23 @@ public class DigestAuthenticationEntryPointTests extends TestCase {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertEquals("realmName must be specified", expected.getMessage());
+			assertThat(expected.getMessage()).isEqualTo("realmName must be specified");
 		}
 	}
-
+	
+	@Test
 	public void testGettersSetters() {
 		DigestAuthenticationEntryPoint ep = new DigestAuthenticationEntryPoint();
-		assertEquals(300, ep.getNonceValiditySeconds()); // 5 mins default
+		assertThat(ep.getNonceValiditySeconds()).isEqualTo(300); // 5 mins default
 		ep.setRealmName("realm");
-		assertEquals("realm", ep.getRealmName());
+		assertThat(ep.getRealmName()).isEqualTo("realm");
 		ep.setKey("dcdc");
-		assertEquals("dcdc", ep.getKey());
+		assertThat(ep.getKey()).isEqualTo("dcdc");
 		ep.setNonceValiditySeconds(12);
-		assertEquals(12, ep.getNonceValiditySeconds());
+		assertThat(ep.getNonceValiditySeconds()).isEqualTo(12);
 	}
-
+	
+	@Test
 	public void testNormalOperation() throws Exception {
 		DigestAuthenticationEntryPoint ep = new DigestAuthenticationEntryPoint();
 		ep.setRealmName("hello");
@@ -102,9 +107,8 @@ public class DigestAuthenticationEntryPointTests extends TestCase {
 		ep.commence(request, response, new DisabledException("foobar"));
 
 		// Check response is properly formed
-		assertEquals(401, response.getStatus());
-		assertEquals(true,
-				response.getHeader("WWW-Authenticate").toString().startsWith("Digest "));
+		assertThat(response.getStatus()).isEqualTo(401);
+		assertThat(response.getHeader("WWW-Authenticate").toString()).startsWith("Digest ");
 
 		// Break up response header
 		String header = response.getHeader("WWW-Authenticate").toString().substring(7);
@@ -112,13 +116,14 @@ public class DigestAuthenticationEntryPointTests extends TestCase {
 		Map<String, String> headerMap = DigestAuthUtils
 				.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
 
-		assertEquals("hello", headerMap.get("realm"));
-		assertEquals("auth", headerMap.get("qop"));
-		assertNull(headerMap.get("stale"));
+		assertThat(headerMap.get("realm")).isEqualTo("hello");
+		assertThat(headerMap.get("qop")).isEqualTo("auth");
+		assertThat(headerMap.get("stale")).isNull();
 
 		checkNonceValid((String) headerMap.get("nonce"));
 	}
-
+	
+	@Test
 	public void testOperationIfDueToStaleNonce() throws Exception {
 		DigestAuthenticationEntryPoint ep = new DigestAuthenticationEntryPoint();
 		ep.setRealmName("hello");
@@ -134,9 +139,9 @@ public class DigestAuthenticationEntryPointTests extends TestCase {
 		ep.commence(request, response, new NonceExpiredException("expired nonce"));
 
 		// Check response is properly formed
-		assertEquals(401, response.getStatus());
-		assertTrue(response.getHeader("WWW-Authenticate").toString()
-				.startsWith("Digest "));
+		assertThat(response.getStatus()).isEqualTo(401);
+		assertThat(response.getHeader("WWW-Authenticate").toString())
+				.startsWith("Digest ");
 
 		// Break up response header
 		String header = response.getHeader("WWW-Authenticate").toString().substring(7);
@@ -144,9 +149,9 @@ public class DigestAuthenticationEntryPointTests extends TestCase {
 		Map<String, String> headerMap = DigestAuthUtils
 				.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
 
-		assertEquals("hello", headerMap.get("realm"));
-		assertEquals("auth", headerMap.get("qop"));
-		assertEquals("true", headerMap.get("stale"));
+		assertThat(headerMap.get("realm")).isEqualTo("hello");
+		assertThat(headerMap.get("qop")).isEqualTo("auth");
+		assertThat(headerMap.get("stale")).isEqualTo("true");
 
 		checkNonceValid((String) headerMap.get("nonce"));
 	}

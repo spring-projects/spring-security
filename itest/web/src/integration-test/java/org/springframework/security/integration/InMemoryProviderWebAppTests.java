@@ -1,10 +1,9 @@
 package org.springframework.security.integration;
 
-import static org.testng.Assert.*;
+
+import static org.assertj.core.api.Assertions.*;
 
 import javax.servlet.http.Cookie;
-
-import net.sourceforge.jwebunit.junit.WebTester;
 
 import org.testng.annotations.Test;
 
@@ -65,7 +64,7 @@ public class InMemoryProviderWebAppTests extends AbstractWebServerIntegrationTes
 		tester.checkCheckbox("remember-me");
 		login("jimi", "jimispassword");
 		Cookie rememberMe = getRememberMeCookie();
-		assertNotNull(rememberMe);
+		assertThat(rememberMe).isNotNull();
 		tester.closeBrowser();
 
 		tester.getTestContext().addCookie(rememberMe);

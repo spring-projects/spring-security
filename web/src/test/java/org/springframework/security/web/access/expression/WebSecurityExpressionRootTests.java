@@ -1,6 +1,6 @@
 package org.springframework.security.web.access.expression;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
 import javax.servlet.FilterChain;
@@ -30,11 +30,11 @@ public class WebSecurityExpressionRootTests {
 				mock(Authentication.class), new FilterInvocation(request,
 						mock(HttpServletResponse.class), mock(FilterChain.class)));
 
-		assertTrue(root.hasIpAddress("192.168.1.1"));
+		assertThat(root.hasIpAddress("192.168.1.1")).isTrue();
 
 		// IPv6 Address
 		request.setRemoteAddr("fa:db8:85a3::8a2e:370:7334");
-		assertTrue(root.hasIpAddress("fa:db8:85a3::8a2e:370:7334"));
+		assertThat(root.hasIpAddress("fa:db8:85a3::8a2e:370:7334")).isTrue();
 	}
 
 	@Test
@@ -46,28 +46,28 @@ public class WebSecurityExpressionRootTests {
 						mock(HttpServletResponse.class), mock(FilterChain.class)));
 		for (int i = 0; i < 255; i++) {
 			request.setRemoteAddr("192.168.1." + i);
-			assertTrue(root.hasIpAddress("192.168.1.0/24"));
+			assertThat(root.hasIpAddress("192.168.1.0/24")).isTrue();
 		}
 
 		request.setRemoteAddr("192.168.1.127");
 		// 25 = FF FF FF 80
-		assertTrue(root.hasIpAddress("192.168.1.0/25"));
+		assertThat(root.hasIpAddress("192.168.1.0/25")).isTrue();
 		// encroach on the mask
 		request.setRemoteAddr("192.168.1.128");
-		assertFalse(root.hasIpAddress("192.168.1.0/25"));
+		assertThat(root.hasIpAddress("192.168.1.0/25")).isFalse();
 		request.setRemoteAddr("192.168.1.255");
-		assertTrue(root.hasIpAddress("192.168.1.128/25"));
-		assertTrue(root.hasIpAddress("192.168.1.192/26"));
-		assertTrue(root.hasIpAddress("192.168.1.224/27"));
-		assertTrue(root.hasIpAddress("192.168.1.240/27"));
-		assertTrue(root.hasIpAddress("192.168.1.255/32"));
+		assertThat(root.hasIpAddress("192.168.1.128/25")).isTrue();
+		assertThat(root.hasIpAddress("192.168.1.192/26")).isTrue();
+		assertThat(root.hasIpAddress("192.168.1.224/27")).isTrue();
+		assertThat(root.hasIpAddress("192.168.1.240/27")).isTrue();
+		assertThat(root.hasIpAddress("192.168.1.255/32")).isTrue();
 
 		request.setRemoteAddr("202.24.199.127");
-		assertTrue(root.hasIpAddress("202.24.0.0/14"));
+		assertThat(root.hasIpAddress("202.24.0.0/14")).isTrue();
 		request.setRemoteAddr("202.25.179.135");
-		assertTrue(root.hasIpAddress("202.24.0.0/14"));
+		assertThat(root.hasIpAddress("202.24.0.0/14")).isTrue();
 		request.setRemoteAddr("202.26.179.135");
-		assertTrue(root.hasIpAddress("202.24.0.0/14"));
+		assertThat(root.hasIpAddress("202.24.0.0/14")).isTrue();
 	}
 
 }

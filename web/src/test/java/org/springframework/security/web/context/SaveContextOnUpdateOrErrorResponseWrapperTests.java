@@ -12,7 +12,7 @@
  */
 package org.springframework.security.web.context;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import javax.servlet.http.HttpServletResponse;
 

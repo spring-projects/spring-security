@@ -12,7 +12,7 @@
  */
 package org.springframework.security.web.authentication.logout;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.After;
 import org.junit.Before;
@@ -59,7 +59,7 @@ public class SecurityContextLogoutHandlerTests {
 		SecurityContext beforeContext = SecurityContextHolder.getContext();
 		handler.logout(request, response, SecurityContextHolder.getContext()
 				.getAuthentication());
-		assertNull(beforeContext.getAuthentication());
+		assertThat(beforeContext.getAuthentication()).isNull();
 	}
 
 	@Test
@@ -70,7 +70,7 @@ public class SecurityContextLogoutHandlerTests {
 		handler.logout(request, response, SecurityContextHolder.getContext()
 				.getAuthentication());
 
-		assertNotNull(beforeContext.getAuthentication());
-		assertSame(beforeAuthentication, beforeContext.getAuthentication());
+		assertThat(beforeContext.getAuthentication()).isNotNull();
+		assertThat(beforeContext.getAuthentication()).isSameAs(beforeAuthentication);
 	}
 }

@@ -2,8 +2,7 @@ package org.springframework.security.acls.jdbc;
 
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
-import static org.junit.Assert.*;
-import static org.fest.assertions.Assertions.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -94,7 +93,6 @@ public class EhCacheBasedAclCacheTests {
 			fail("It should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertTrue(true);
 		}
 
 		try {
@@ -103,7 +101,6 @@ public class EhCacheBasedAclCacheTests {
 			fail("It should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertTrue(true);
 		}
 
 		try {
@@ -112,7 +109,6 @@ public class EhCacheBasedAclCacheTests {
 			fail("It should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertTrue(true);
 		}
 
 		try {
@@ -121,7 +117,6 @@ public class EhCacheBasedAclCacheTests {
 			fail("It should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertTrue(true);
 		}
 
 		try {
@@ -130,7 +125,6 @@ public class EhCacheBasedAclCacheTests {
 			fail("It should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertTrue(true);
 		}
 	}
 
@@ -149,15 +143,15 @@ public class EhCacheBasedAclCacheTests {
 		MutableAcl retrieved = (MutableAcl) ois.readObject();
 		ois.close();
 
-		assertEquals(acl, retrieved);
+		assertThat(retrieved).isEqualTo(acl);
 
 		Object retrieved1 = FieldUtils.getProtectedFieldValue("aclAuthorizationStrategy",
 				retrieved);
-		assertEquals(null, retrieved1);
+		assertThat(retrieved1).isEqualTo(null);
 
 		Object retrieved2 = FieldUtils.getProtectedFieldValue(
 				"permissionGrantingStrategy", retrieved);
-		assertEquals(null, retrieved2);
+		assertThat(retrieved2).isEqualTo(null);
 	}
 
 	@Test

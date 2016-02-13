@@ -28,7 +28,7 @@ import org.springframework.security.ldap.AbstractLdapIntegrationTests;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DistinguishedName;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * Tests for {@link PasswordComparisonAuthenticator}.
@@ -59,14 +59,13 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapIntegratio
 	public void testAllAttributesAreRetrievedByDefault() {
 		DirContextAdapter user = (DirContextAdapter) authenticator.authenticate(bob);
 		// System.out.println(user.getAttributes().toString());
-		assertEquals("User should have 5 attributes", 5, user.getAttributes().size());
+		assertThat(user.getAttributes().size()).withFailMessage("User should have 5 attributes").isEqualTo(5);
 	}
 
 	@Test
 	public void testFailedSearchGivesUserNotFoundException() throws Exception {
 		authenticator = new PasswordComparisonAuthenticator(getContextSource());
-		assertTrue("User DN matches shouldn't be available",
-				authenticator.getUserDns("Bob").isEmpty());
+		assertThat(authenticator.getUserDns("Bob")).withFailMessage("User DN matches shouldn't be available").isEmpty();
 		authenticator.setUserSearch(new MockUserSearch(null));
 		authenticator.afterPropertiesSet();
 
@@ -99,8 +98,8 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapIntegratio
 		authenticator.setUserAttributes(new String[] { "uid", "userPassword" });
 
 		DirContextAdapter user = (DirContextAdapter) authenticator.authenticate(bob);
-		assertEquals("Should have retrieved 2 attribute (uid, userPassword)", 2, user
-				.getAttributes().size());
+		assertThat(user
+				.getAttributes().size()).withFailMessage("Should have retrieved 2 attribute (uid)").isEqualTo(2);
 	}
 
 	@Test
@@ -141,8 +140,7 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapIntegratio
 	public void testWithUserSearch() {
 		authenticator = new PasswordComparisonAuthenticator(getContextSource());
 		authenticator.setPasswordEncoder(new PlaintextPasswordEncoder());
-		assertTrue("User DN matches shouldn't be available",
-				authenticator.getUserDns("Bob").isEmpty());
+		assertThat(authenticator.getUserDns("Bob")).withFailMessage("User DN matches shouldn't be available").isEmpty();
 
 		DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName(
 				"uid=Bob,ou=people"));

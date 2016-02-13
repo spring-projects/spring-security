@@ -1,9 +1,9 @@
 package org.springframework.security.access.expression;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.fest.assertions.Assertions.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.Collection;
 
@@ -35,10 +35,10 @@ public class SecurityExpressionRootTests {
 
 	@Test
 	public void denyAllIsFalsePermitAllTrue() throws Exception {
-		assertFalse(root.denyAll());
-		assertFalse(root.denyAll);
-		assertTrue(root.permitAll());
-		assertTrue(root.permitAll);
+		assertThat(root.denyAll()).isFalse();
+		assertThat(root.denyAll).isFalse();
+		assertThat(root.permitAll()).isTrue();
+		assertThat(root.permitAll).isTrue();
 	}
 
 	@Test
@@ -46,8 +46,8 @@ public class SecurityExpressionRootTests {
 		AuthenticationTrustResolver atr = mock(AuthenticationTrustResolver.class);
 		root.setTrustResolver(atr);
 		when(atr.isRememberMe(JOE)).thenReturn(true);
-		assertTrue(root.isRememberMe());
-		assertFalse(root.isFullyAuthenticated());
+		assertThat(root.isRememberMe()).isTrue();
+		assertThat(root.isFullyAuthenticated()).isFalse();
 	}
 
 	@Test
@@ -59,13 +59,13 @@ public class SecurityExpressionRootTests {
 			}
 		});
 
-		assertTrue(root.hasRole("C"));
-		assertTrue(root.hasAuthority("ROLE_C"));
-		assertFalse(root.hasRole("A"));
-		assertFalse(root.hasRole("B"));
-		assertTrue(root.hasAnyRole("C", "A", "B"));
-		assertTrue(root.hasAnyAuthority("ROLE_C", "ROLE_A", "ROLE_B"));
-		assertFalse(root.hasAnyRole("A", "B"));
+		assertThat(root.hasRole("C")).isTrue();
+		assertThat(root.hasAuthority("ROLE_C")).isTrue();
+		assertThat(root.hasRole("A")).isFalse();
+		assertThat(root.hasRole("B")).isFalse();
+		assertThat(root.hasAnyRole("C", "A", "B")).isTrue();
+		assertThat(root.hasAnyAuthority("ROLE_C", "ROLE_A", "ROLE_B")).isTrue();
+		assertThat(root.hasAnyRole("A", "B")).isFalse();
 	}
 
 	@Test

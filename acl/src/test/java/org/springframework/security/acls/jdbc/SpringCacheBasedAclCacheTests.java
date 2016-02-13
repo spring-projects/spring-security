@@ -18,7 +18,7 @@ import org.springframework.security.util.FieldUtils;
 
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * Tests {@link org.springframework.security.acls.domain.SpringCacheBasedAclCache}
@@ -72,12 +72,12 @@ public class SpringCacheBasedAclCacheTests {
 		MutableAcl acl = new AclImpl(identity, Long.valueOf(1), aclAuthorizationStrategy,
 				auditLogger);
 
-		assertEquals(0, realCache.size());
+		assertThat(realCache).isEmpty();
 		myCache.putInCache(acl);
 
 		// Check we can get from cache the same objects we put in
-		assertEquals(myCache.getFromCache(Long.valueOf(1)), acl);
-		assertEquals(myCache.getFromCache(identity), acl);
+		assertThat(acl).isEqualTo(myCache.getFromCache(Long.valueOf(1)));
+		assertThat(acl).isEqualTo(myCache.getFromCache(identity));
 
 		// Put another object in cache
 		ObjectIdentity identity2 = new ObjectIdentityImpl(TARGET_CLASS, Long.valueOf(101));
@@ -89,17 +89,17 @@ public class SpringCacheBasedAclCacheTests {
 		// Try to evict an entry that doesn't exist
 		myCache.evictFromCache(Long.valueOf(3));
 		myCache.evictFromCache(new ObjectIdentityImpl(TARGET_CLASS, Long.valueOf(102)));
-		assertEquals(realCache.size(), 4);
+		assertThat(4).isEqualTo(realCache.size());
 
 		myCache.evictFromCache(Long.valueOf(1));
-		assertEquals(realCache.size(), 2);
+		assertThat(2).isEqualTo(realCache.size());
 
 		// Check the second object inserted
-		assertEquals(myCache.getFromCache(Long.valueOf(2)), acl2);
-		assertEquals(myCache.getFromCache(identity2), acl2);
+		assertThat(acl2).isEqualTo(myCache.getFromCache(Long.valueOf(2)));
+		assertThat(acl2).isEqualTo(myCache.getFromCache(identity2));
 
 		myCache.evictFromCache(identity2);
-		assertEquals(realCache.size(), 0);
+		assertThat(0).isEqualTo(realCache.size());
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -133,24 +133,24 @@ public class SpringCacheBasedAclCacheTests {
 
 		acl.setParent(parentAcl);
 
-		assertEquals(0, realCache.size());
+		assertThat(realCache).isEmpty();
 		myCache.putInCache(acl);
-		assertEquals(realCache.size(), 4);
+		assertThat(4).isEqualTo(realCache.size());
 
 		// Check we can get from cache the same objects we put in
 		AclImpl aclFromCache = (AclImpl) myCache.getFromCache(Long.valueOf(1));
-		assertEquals(acl, aclFromCache);
+		assertThat(aclFromCache).isEqualTo(acl);
 		// SEC-951 check transient fields are set on parent
-		assertNotNull(FieldUtils.getFieldValue(aclFromCache.getParentAcl(),
-				"aclAuthorizationStrategy"));
-		assertNotNull(FieldUtils.getFieldValue(aclFromCache.getParentAcl(),
-				"permissionGrantingStrategy"));
-		assertEquals(acl, myCache.getFromCache(identity));
-		assertNotNull(FieldUtils.getFieldValue(aclFromCache, "aclAuthorizationStrategy"));
+		assertThat(FieldUtils.getFieldValue(aclFromCache.getParentAcl(),
+				"aclAuthorizationStrategy")).isNotNull();
+		assertThat(FieldUtils.getFieldValue(aclFromCache.getParentAcl(),
+				"permissionGrantingStrategy")).isNotNull();
+		assertThat(myCache.getFromCache(identity)).isEqualTo(acl);
+		assertThat(FieldUtils.getFieldValue(aclFromCache, "aclAuthorizationStrategy")).isNotNull();
 		AclImpl parentAclFromCache = (AclImpl) myCache.getFromCache(Long.valueOf(2));
-		assertEquals(parentAcl, parentAclFromCache);
-		assertNotNull(FieldUtils.getFieldValue(parentAclFromCache,
-				"aclAuthorizationStrategy"));
-		assertEquals(parentAcl, myCache.getFromCache(identityParent));
+		assertThat(parentAclFromCache).isEqualTo(parentAcl);
+		assertThat(FieldUtils.getFieldValue(parentAclFromCache,
+				"aclAuthorizationStrategy")).isNotNull();
+		assertThat(myCache.getFromCache(identityParent)).isEqualTo(parentAcl);
 	}
 }

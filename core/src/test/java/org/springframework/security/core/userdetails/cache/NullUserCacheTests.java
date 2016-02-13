@@ -15,18 +15,18 @@
 
 package org.springframework.security.core.userdetails.cache;
 
-import junit.framework.TestCase;
+import static org.assertj.core.api.Assertions.assertThat;
 
+import org.junit.Test;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.cache.NullUserCache;
 
 /**
  * Tests {@link NullUserCache}.
  *
  * @author Ben Alex
  */
-public class NullUserCacheTests extends TestCase {
+public class NullUserCacheTests {
 
 	// ~ Methods
 	// ========================================================================================================
@@ -36,10 +36,11 @@ public class NullUserCacheTests extends TestCase {
 				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
 	}
 
+	@Test
 	public void testCacheOperation() throws Exception {
 		NullUserCache cache = new NullUserCache();
 		cache.putUserInCache(getUser());
-		assertNull(cache.getUserFromCache(null));
+		assertThat(cache.getUserFromCache(null)).isNull();
 		cache.removeUserFromCache(null);
 	}
 }

@@ -15,7 +15,7 @@
 
 package org.springframework.security.authentication.anonymous;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.*;
 import org.springframework.security.authentication.AnonymousAuthenticationProvider;
@@ -59,7 +59,7 @@ public class AnonymousAuthenticationProviderTests {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertTrue(true);
+
 		}
 	}
 
@@ -67,7 +67,7 @@ public class AnonymousAuthenticationProviderTests {
 	public void testGettersSetters() throws Exception {
 		AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider(
 				"qwerty");
-		assertEquals("qwerty", aap.getKey());
+		assertThat(aap.getKey()).isEqualTo("qwerty");
 	}
 
 	@Test
@@ -77,10 +77,10 @@ public class AnonymousAuthenticationProviderTests {
 
 		TestingAuthenticationToken token = new TestingAuthenticationToken("user",
 				"password", "ROLE_A");
-		assertFalse(aap.supports(TestingAuthenticationToken.class));
+		assertThat(aap.supports(TestingAuthenticationToken.class)).isFalse();
 
 		// Try it anyway
-		assertNull(aap.authenticate(token));
+		assertThat(aap.authenticate(token)).isNull();
 	}
 
 	@Test
@@ -93,14 +93,14 @@ public class AnonymousAuthenticationProviderTests {
 
 		Authentication result = aap.authenticate(token);
 
-		assertEquals(result, token);
+		assertThat(token).isEqualTo(result);
 	}
 
 	@Test
 	public void testSupports() {
 		AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider(
 				"qwerty");
-		assertTrue(aap.supports(AnonymousAuthenticationToken.class));
-		assertFalse(aap.supports(TestingAuthenticationToken.class));
+		assertThat(aap.supports(AnonymousAuthenticationToken.class)).isTrue();
+		assertThat(aap.supports(TestingAuthenticationToken.class)).isFalse();
 	}
 }

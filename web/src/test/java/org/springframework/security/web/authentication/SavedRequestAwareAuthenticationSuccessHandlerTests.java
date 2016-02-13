@@ -1,6 +1,6 @@
 package org.springframework.security.web.authentication;
 
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
 import org.junit.Test;

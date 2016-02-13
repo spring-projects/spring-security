@@ -20,7 +20,7 @@ import org.springframework.security.messaging.context.SecurityContextChannelInte
 
 import java.security.Principal;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.core.context.SecurityContextHolder.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -250,8 +250,8 @@ public class SecurityContextChannelInterceptorTests {
 
 		AnonymousAuthenticationToken anonymous = (AnonymousAuthenticationToken) currentAuthentication;
 		assertThat(anonymous.getName()).isEqualTo(expectedAnonymous.getName());
-		assertThat(anonymous.getAuthorities()).containsOnly(
-				expectedAnonymous.getAuthorities().toArray());
+		assertThat(anonymous.getAuthorities()).containsOnlyElementsOf(
+				expectedAnonymous.getAuthorities());
 		assertThat(anonymous.getKeyHash()).isEqualTo(expectedAnonymous.getKeyHash());
 	}
 }

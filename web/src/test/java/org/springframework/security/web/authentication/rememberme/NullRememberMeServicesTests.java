@@ -15,24 +15,25 @@
 
 package org.springframework.security.web.authentication.rememberme;
 
-import org.springframework.security.web.authentication.NullRememberMeServices;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import org.springframework.security.web.authentication.NullRememberMeServices;
 
 /**
  * Tests {@link org.springframework.security.web.authentication.NullRememberMeServices}.
  *
  * @author Ben Alex
  */
-public class NullRememberMeServicesTests extends TestCase {
+public class NullRememberMeServicesTests {
 	// ~ Methods
 	// ========================================================================================================
-
+	@Test
 	public void testAlwaysReturnsNull() {
 		NullRememberMeServices services = new NullRememberMeServices();
-		assertNull(services.autoLogin(null, null));
+		assertThat(services.autoLogin(null, null)).isNull();
 		services.loginFail(null, null);
 		services.loginSuccess(null, null, null);
-		assertTrue(true);
+
 	}
 }

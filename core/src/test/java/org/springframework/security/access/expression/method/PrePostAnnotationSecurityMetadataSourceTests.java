@@ -1,10 +1,6 @@
 package org.springframework.security.access.expression.method;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -78,12 +74,12 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 		ConfigAttribute[] attrs = mds.getAttributes(voidImpl1).toArray(
 				new ConfigAttribute[0]);
 
-		assertEquals(1, attrs.length);
-		assertTrue(attrs[0] instanceof PreInvocationExpressionAttribute);
+		assertThat(attrs.length).isEqualTo(1);
+		assertThat(attrs[0] instanceof PreInvocationExpressionAttribute).isTrue();
 		PreInvocationExpressionAttribute pre = (PreInvocationExpressionAttribute) attrs[0];
-		assertNotNull(pre.getAuthorizeExpression());
-		assertEquals("someExpression", pre.getAuthorizeExpression().getExpressionString());
-		assertNull(pre.getFilterExpression());
+		assertThat(pre.getAuthorizeExpression()).isNotNull();
+		assertThat(pre.getAuthorizeExpression().getExpressionString()).isEqualTo("someExpression");
+		assertThat(pre.getFilterExpression()).isNull();
 	}
 
 	@Test
@@ -91,13 +87,12 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 		ConfigAttribute[] attrs = mds.getAttributes(voidImpl2).toArray(
 				new ConfigAttribute[0]);
 
-		assertEquals(1, attrs.length);
-		assertTrue(attrs[0] instanceof PreInvocationExpressionAttribute);
+		assertThat(attrs.length).isEqualTo(1);
+		assertThat(attrs[0] instanceof PreInvocationExpressionAttribute).isTrue();
 		PreInvocationExpressionAttribute pre = (PreInvocationExpressionAttribute) attrs[0];
-		assertEquals("someExpression", pre.getAuthorizeExpression().getExpressionString());
-		assertNotNull(pre.getFilterExpression());
-		assertEquals("somePreFilterExpression", pre.getFilterExpression()
-				.getExpressionString());
+		assertThat(pre.getAuthorizeExpression().getExpressionString()).isEqualTo("someExpression");
+		assertThat(pre.getFilterExpression()).isNotNull();
+		assertThat(pre.getFilterExpression().getExpressionString()).isEqualTo("somePreFilterExpression");
 	}
 
 	@Test
@@ -105,13 +100,12 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 		ConfigAttribute[] attrs = mds.getAttributes(voidImpl3).toArray(
 				new ConfigAttribute[0]);
 
-		assertEquals(1, attrs.length);
-		assertTrue(attrs[0] instanceof PreInvocationExpressionAttribute);
+		assertThat(attrs.length).isEqualTo(1);
+		assertThat(attrs[0] instanceof PreInvocationExpressionAttribute).isTrue();
 		PreInvocationExpressionAttribute pre = (PreInvocationExpressionAttribute) attrs[0];
-		assertEquals("permitAll", pre.getAuthorizeExpression().getExpressionString());
-		assertNotNull(pre.getFilterExpression());
-		assertEquals("somePreFilterExpression", pre.getFilterExpression()
-				.getExpressionString());
+		assertThat(pre.getAuthorizeExpression().getExpressionString()).isEqualTo("permitAll");
+		assertThat(pre.getFilterExpression()).isNotNull();
+		assertThat(pre.getFilterExpression().getExpressionString()).isEqualTo("somePreFilterExpression");
 	}
 
 	@Test
@@ -119,15 +113,14 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 		ConfigAttribute[] attrs = mds.getAttributes(listImpl1).toArray(
 				new ConfigAttribute[0]);
 
-		assertEquals(2, attrs.length);
-		assertTrue(attrs[0] instanceof PreInvocationExpressionAttribute);
-		assertTrue(attrs[1] instanceof PostInvocationExpressionAttribute);
+		assertThat(attrs.length).isEqualTo(2);
+		assertThat(attrs[0] instanceof PreInvocationExpressionAttribute).isTrue();
+		assertThat(attrs[1] instanceof PostInvocationExpressionAttribute).isTrue();
 		PreInvocationExpressionAttribute pre = (PreInvocationExpressionAttribute) attrs[0];
 		PostInvocationExpressionAttribute post = (PostInvocationExpressionAttribute) attrs[1];
-		assertEquals("permitAll", pre.getAuthorizeExpression().getExpressionString());
-		assertNotNull(post.getFilterExpression());
-		assertEquals("somePostFilterExpression", post.getFilterExpression()
-				.getExpressionString());
+		assertThat(pre.getAuthorizeExpression().getExpressionString()).isEqualTo("permitAll");
+		assertThat(post.getFilterExpression()).isNotNull();
+		assertThat(post.getFilterExpression().getExpressionString()).isEqualTo("somePostFilterExpression");
 	}
 
 	@Test
@@ -135,15 +128,13 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 		ConfigAttribute[] attrs = mds.getAttributes(notherListImpl1).toArray(
 				new ConfigAttribute[0]);
 
-		assertEquals(1, attrs.length);
-		assertTrue(attrs[0] instanceof PreInvocationExpressionAttribute);
+		assertThat(attrs.length).isEqualTo(1);
+		assertThat(attrs[0] instanceof PreInvocationExpressionAttribute).isTrue();
 		PreInvocationExpressionAttribute pre = (PreInvocationExpressionAttribute) attrs[0];
-		assertNotNull(pre.getFilterExpression());
-		assertNotNull(pre.getAuthorizeExpression());
-		assertEquals("interfaceMethodAuthzExpression", pre.getAuthorizeExpression()
-				.getExpressionString());
-		assertEquals("interfacePreFilterExpression", pre.getFilterExpression()
-				.getExpressionString());
+		assertThat(pre.getFilterExpression()).isNotNull();
+		assertThat(pre.getAuthorizeExpression()).isNotNull();
+		assertThat(pre.getAuthorizeExpression().getExpressionString()).isEqualTo("interfaceMethodAuthzExpression");
+		assertThat(pre.getFilterExpression().getExpressionString()).isEqualTo("interfacePreFilterExpression");
 	}
 
 	@Test
@@ -151,15 +142,13 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 		ConfigAttribute[] attrs = mds.getAttributes(notherListImpl2).toArray(
 				new ConfigAttribute[0]);
 
-		assertEquals(1, attrs.length);
-		assertTrue(attrs[0] instanceof PreInvocationExpressionAttribute);
+		assertThat(attrs.length).isEqualTo(1);
+		assertThat(attrs[0] instanceof PreInvocationExpressionAttribute).isTrue();
 		PreInvocationExpressionAttribute pre = (PreInvocationExpressionAttribute) attrs[0];
-		assertNotNull(pre.getFilterExpression());
-		assertNotNull(pre.getAuthorizeExpression());
-		assertEquals("interfaceMethodAuthzExpression", pre.getAuthorizeExpression()
-				.getExpressionString());
-		assertEquals("classMethodPreFilterExpression", pre.getFilterExpression()
-				.getExpressionString());
+		assertThat(pre.getFilterExpression()).isNotNull();
+		assertThat(pre.getAuthorizeExpression()).isNotNull();
+		assertThat(pre.getAuthorizeExpression().getExpressionString()).isEqualTo("interfaceMethodAuthzExpression");
+		assertThat(pre.getFilterExpression().getExpressionString()).isEqualTo("classMethodPreFilterExpression");
 	}
 
 	@Test
@@ -167,7 +156,7 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 		ConfigAttribute[] attrs = mds.getAttributes(annotatedAtClassLevel).toArray(
 				new ConfigAttribute[0]);
 
-		assertEquals(1, attrs.length);
+		assertThat(attrs.length).isEqualTo(1);
 	}
 
 	@Test
@@ -175,7 +164,7 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 		ConfigAttribute[] attrs = mds.getAttributes(annotatedAtInterfaceLevel).toArray(
 				new ConfigAttribute[0]);
 
-		assertEquals(1, attrs.length);
+		assertThat(attrs.length).isEqualTo(1);
 	}
 
 	@Test
@@ -183,7 +172,7 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 		ConfigAttribute[] attrs = mds.getAttributes(annotatedAtMethodLevel).toArray(
 				new ConfigAttribute[0]);
 
-		assertEquals(1, attrs.length);
+		assertThat(attrs.length).isEqualTo(1);
 	}
 
 	@Test

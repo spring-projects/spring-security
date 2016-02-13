@@ -1,7 +1,7 @@
 package org.springframework.security.web.debug;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
@@ -73,7 +73,7 @@ public class DebugFilterTest {
 		verify(logger).info(anyString());
 		verify(request).setAttribute(requestAttr, Boolean.TRUE);
 		verify(fcp).doFilter(requestCaptor.capture(), eq(response), eq(filterChain));
-		assertEquals(DebugRequestWrapper.class, requestCaptor.getValue().getClass());
+		assertThat(requestCaptor.getValue().getClass()).isEqualTo(DebugRequestWrapper.class);
 		verify(request).removeAttribute(requestAttr);
 	}
 

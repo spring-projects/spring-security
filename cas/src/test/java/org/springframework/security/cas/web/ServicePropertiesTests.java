@@ -15,7 +15,7 @@
 
 package org.springframework.security.cas.web;
 
-import static junit.framework.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Test;
 import org.springframework.security.cas.SamlServiceProperties;
@@ -60,16 +60,16 @@ public class ServicePropertiesTests {
 		ServiceProperties[] sps = { new ServiceProperties(), new SamlServiceProperties() };
 		for (ServiceProperties sp : sps) {
 			sp.setSendRenew(false);
-			assertFalse(sp.isSendRenew());
+			assertThat(sp.isSendRenew()).isFalse();
 			sp.setSendRenew(true);
-			assertTrue(sp.isSendRenew());
+			assertThat(sp.isSendRenew()).isTrue();
 			sp.setArtifactParameter("notticket");
-			assertEquals("notticket", sp.getArtifactParameter());
+			assertThat(sp.getArtifactParameter()).isEqualTo("notticket");
 			sp.setServiceParameter("notservice");
-			assertEquals("notservice", sp.getServiceParameter());
+			assertThat(sp.getServiceParameter()).isEqualTo("notservice");
 
 			sp.setService("https://mycompany.com/service");
-			assertEquals("https://mycompany.com/service", sp.getService());
+			assertThat(sp.getService()).isEqualTo("https://mycompany.com/service");
 
 			sp.afterPropertiesSet();
 		}

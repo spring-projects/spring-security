@@ -1,6 +1,6 @@
 package org.springframework.security.acls.domain;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Test;
 import org.springframework.security.acls.domain.IdentityUnavailableException;
@@ -66,8 +66,8 @@ public class ObjectIdentityImplTests {
 	@Test
 	public void gettersReturnExpectedValues() throws Exception {
 		ObjectIdentity obj = new ObjectIdentityImpl(DOMAIN_CLASS, Long.valueOf(1));
-		assertEquals(Long.valueOf(1), obj.getIdentifier());
-		assertEquals(MockIdDomainObject.class.getName(), obj.getType());
+		assertThat(obj.getIdentifier()).isEqualTo(Long.valueOf(1));
+		assertThat(obj.getType()).isEqualTo(MockIdDomainObject.class.getName());
 	}
 
 	@Test
@@ -121,23 +121,22 @@ public class ObjectIdentityImplTests {
 		mockObj.setId(Long.valueOf(1));
 
 		String string = "SOME_STRING";
-		assertNotSame(obj, string);
-		assertFalse(obj.equals(null));
-		assertFalse(obj.equals("DIFFERENT_OBJECT_TYPE"));
-		assertFalse(obj.equals(new ObjectIdentityImpl(DOMAIN_CLASS, Long.valueOf(2))));
-		assertFalse(obj
-				.equals(new ObjectIdentityImpl(
+		assertThat(string).isNotSameAs(obj);
+		assertThat(obj.equals(null)).isFalse();
+		assertThat(obj.equals("DIFFERENT_OBJECT_TYPE")).isFalse();
+		assertThat(obj.equals(new ObjectIdentityImpl(DOMAIN_CLASS, Long.valueOf(2)))).isFalse();
+		assertThat(obj).isNotEqualTo(new ObjectIdentityImpl(
 						"org.springframework.security.acls.domain.ObjectIdentityImplTests$MockOtherIdDomainObject",
-						Long.valueOf(1))));
-		assertEquals(new ObjectIdentityImpl(DOMAIN_CLASS, Long.valueOf(1)), obj);
-		assertEquals(obj, new ObjectIdentityImpl(mockObj));
+						Long.valueOf(1)));
+		assertThat(new ObjectIdentityImpl(DOMAIN_CLASS, 1L)).isEqualTo(obj);
+		assertThat(new ObjectIdentityImpl(mockObj)).isEqualTo(obj);
 	}
 
 	@Test
 	public void hashcodeIsDifferentForDifferentJavaTypes() throws Exception {
 		ObjectIdentity obj = new ObjectIdentityImpl(Object.class, Long.valueOf(1));
 		ObjectIdentity obj2 = new ObjectIdentityImpl(String.class, Long.valueOf(1));
-		assertFalse(obj.hashCode() == obj2.hashCode());
+		assertThat(obj.hashCode() == obj2.hashCode()).isFalse();
 	}
 
 	@Test
@@ -145,23 +144,23 @@ public class ObjectIdentityImplTests {
 		ObjectIdentity obj = new ObjectIdentityImpl(Object.class, new Long(5));
 		ObjectIdentity obj2 = new ObjectIdentityImpl(Object.class, Integer.valueOf(5));
 
-		assertEquals(obj, obj2);
-		assertEquals(obj.hashCode(), obj2.hashCode());
+		assertThat(obj2).isEqualTo(obj);
+		assertThat(obj2.hashCode()).isEqualTo(obj.hashCode());
 	}
 
 	@Test
 	public void equalStringIdsAreEqualAndHaveSameHashcode() throws Exception {
 		ObjectIdentity obj = new ObjectIdentityImpl(Object.class, "1000");
 		ObjectIdentity obj2 = new ObjectIdentityImpl(Object.class, "1000");
-		assertEquals(obj, obj2);
-		assertEquals(obj.hashCode(), obj2.hashCode());
+		assertThat(obj2).isEqualTo(obj);
+		assertThat(obj2.hashCode()).isEqualTo(obj.hashCode());
 	}
 
 	@Test
 	public void stringAndNumericIdsAreNotEqual() throws Exception {
 		ObjectIdentity obj = new ObjectIdentityImpl(Object.class, "1000");
 		ObjectIdentity obj2 = new ObjectIdentityImpl(Object.class, Long.valueOf(1000));
-		assertFalse(obj.equals(obj2));
+		assertThat(obj.equals(obj2)).isFalse();
 	}
 
 	// ~ Inner Classes

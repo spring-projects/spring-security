@@ -15,7 +15,7 @@
 
 package org.springframework.security.access.intercept.method;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.util.*;
@@ -80,7 +80,7 @@ public class MethodInvocationPrivilegeEvaluatorTests {
 		mipe.setSecurityInterceptor(interceptor);
 		mipe.afterPropertiesSet();
 
-		assertTrue(mipe.isAllowed(mi, token));
+		assertThat(mipe.isAllowed(mi, token)).isTrue();
 	}
 
 	@Test
@@ -92,7 +92,7 @@ public class MethodInvocationPrivilegeEvaluatorTests {
 		mipe.setSecurityInterceptor(interceptor);
 		when(mds.getAttributes(mi)).thenReturn(role);
 
-		assertTrue(mipe.isAllowed(mi, token));
+		assertThat(mipe.isAllowed(mi, token)).isTrue();
 	}
 
 	@Test
@@ -105,7 +105,7 @@ public class MethodInvocationPrivilegeEvaluatorTests {
 		when(mds.getAttributes(mi)).thenReturn(role);
 		doThrow(new AccessDeniedException("rejected")).when(adm).decide(token, mi, role);
 
-		assertFalse(mipe.isAllowed(mi, token));
+		assertThat(mipe.isAllowed(mi, token)).isFalse();
 	}
 
 	@Test
@@ -119,6 +119,6 @@ public class MethodInvocationPrivilegeEvaluatorTests {
 		when(mds.getAttributes(mi)).thenReturn(role);
 		doThrow(new AccessDeniedException("rejected")).when(adm).decide(token, mi, role);
 
-		assertFalse(mipe.isAllowed(mi, token));
+		assertThat(mipe.isAllowed(mi, token)).isFalse();
 	}
 }

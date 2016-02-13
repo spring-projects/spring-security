@@ -1,10 +1,7 @@
+
 package org.springframework.security.web.authentication.preauth;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -14,8 +11,6 @@ import org.springframework.security.core.userdetails.AuthenticationUserDetailsSe
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
 /**
  *
@@ -39,15 +34,16 @@ public class PreAuthenticatedAuthenticationProviderTests {
 		Authentication request = new UsernamePasswordAuthenticationToken("dummyUser",
 				"dummyPwd");
 		Authentication result = provider.authenticate(request);
-		assertNull(result);
+		assertThat(result).isNull();
 	}
 
 	@Test
 	public final void nullPrincipalReturnsNullAuthentication() throws Exception {
 		PreAuthenticatedAuthenticationProvider provider = new PreAuthenticatedAuthenticationProvider();
-		Authentication request = new PreAuthenticatedAuthenticationToken(null, "dummyPwd");
+		Authentication request = new PreAuthenticatedAuthenticationToken(null,
+				"dummyPwd");
 		Authentication result = provider.authenticate(request);
-		assertNull(result);
+		assertThat(result).isNull();
 	}
 
 	@Test
@@ -58,8 +54,8 @@ public class PreAuthenticatedAuthenticationProviderTests {
 		Authentication request = new PreAuthenticatedAuthenticationToken("dummyUser",
 				"dummyPwd");
 		Authentication result = provider.authenticate(request);
-		assertNotNull(result);
-		assertEquals(result.getPrincipal(), ud);
+		assertThat(result).isNotNull();
+		assertThat(ud).isEqualTo(result.getPrincipal());
 		// @TODO: Add more asserts?
 	}
 
@@ -71,8 +67,8 @@ public class PreAuthenticatedAuthenticationProviderTests {
 		Authentication request = new PreAuthenticatedAuthenticationToken("dummyUser1",
 				"dummyPwd2");
 		Authentication result = provider.authenticate(request);
-		assertNotNull(result);
-		assertEquals(result.getPrincipal(), ud);
+		assertThat(result).isNotNull();
+		assertThat(ud).isEqualTo(result.getPrincipal());
 		// @TODO: Add more asserts?
 	}
 
@@ -89,26 +85,27 @@ public class PreAuthenticatedAuthenticationProviderTests {
 	@Test
 	public final void supportsArbitraryObject() throws Exception {
 		PreAuthenticatedAuthenticationProvider provider = getProvider(null);
-		assertFalse(provider.supports(Authentication.class));
+		assertThat(provider.supports(Authentication.class)).isFalse();
 	}
 
 	@Test
 	public final void supportsPreAuthenticatedAuthenticationToken() throws Exception {
 		PreAuthenticatedAuthenticationProvider provider = getProvider(null);
-		assertTrue(provider.supports(PreAuthenticatedAuthenticationToken.class));
+		assertThat(provider.supports(PreAuthenticatedAuthenticationToken.class)).isTrue();
 	}
 
 	@Test
 	public void getSetOrder() throws Exception {
 		PreAuthenticatedAuthenticationProvider provider = getProvider(null);
 		provider.setOrder(333);
-		assertEquals(provider.getOrder(), 333);
+		assertThat(333).isEqualTo(provider.getOrder());
 	}
 
 	private PreAuthenticatedAuthenticationProvider getProvider(UserDetails aUserDetails)
 			throws Exception {
 		PreAuthenticatedAuthenticationProvider result = new PreAuthenticatedAuthenticationProvider();
-		result.setPreAuthenticatedUserDetailsService(getPreAuthenticatedUserDetailsService(aUserDetails));
+		result.setPreAuthenticatedUserDetailsService(
+				getPreAuthenticatedUserDetailsService(aUserDetails));
 		result.afterPropertiesSet();
 		return result;
 	}
@@ -116,6 +113,7 @@ public class PreAuthenticatedAuthenticationProviderTests {
 	private AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> getPreAuthenticatedUserDetailsService(
 			final UserDetails aUserDetails) {
 		return new AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken>() {
+
 			public UserDetails loadUserDetails(PreAuthenticatedAuthenticationToken token)
 					throws UsernameNotFoundException {
 				if (aUserDetails != null

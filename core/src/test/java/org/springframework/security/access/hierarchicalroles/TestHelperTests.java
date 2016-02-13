@@ -14,7 +14,7 @@
 
 package org.springframework.security.access.hierarchicalroles;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -45,29 +45,29 @@ public class TestHelperTests {
 		List<GrantedAuthority> authorities5 = AuthorityUtils.createAuthorityList(
 				"ROLE_A", "ROLE_A");
 
-		assertTrue(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(null,
-				null));
-		assertTrue(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
-				authorities1, authorities1));
-		assertTrue(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
-				authorities1, authorities2));
-		assertTrue(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
-				authorities2, authorities1));
+		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(null,
+				null)).isTrue();
+		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
+				authorities1, authorities1)).isTrue();
+		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
+				authorities1, authorities2)).isTrue();
+		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
+				authorities2, authorities1)).isTrue();
 
-		assertFalse(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(null,
-				authorities1));
-		assertFalse(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
-				authorities1, null));
-		assertFalse(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
-				authorities1, authorities3));
-		assertFalse(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
-				authorities3, authorities1));
-		assertFalse(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
-				authorities1, authorities4));
-		assertFalse(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
-				authorities4, authorities1));
-		assertFalse(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
-				authorities4, authorities5));
+		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(null,
+				authorities1)).isFalse();
+		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
+				authorities1, null)).isFalse();
+		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
+				authorities1, authorities3)).isFalse();
+		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
+				authorities3, authorities1)).isFalse();
+		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
+				authorities1, authorities4)).isFalse();
+		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
+				authorities4, authorities1)).isFalse();
+		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
+				authorities4, authorities5)).isFalse();
 	}
 
 	// SEC-863
@@ -103,25 +103,25 @@ public class TestHelperTests {
 		authoritiesStrings5.add("ROLE_A");
 		authoritiesStrings5.add("ROLE_A");
 
-		assertTrue(CollectionUtils.isEqualCollection(
+		assertThat(CollectionUtils.isEqualCollection(
 				HierarchicalRolesTestHelper.toCollectionOfAuthorityStrings(authorities1),
-				authoritiesStrings1));
+				authoritiesStrings1)).isTrue();
 
-		assertTrue(CollectionUtils.isEqualCollection(
+		assertThat(CollectionUtils.isEqualCollection(
 				HierarchicalRolesTestHelper.toCollectionOfAuthorityStrings(authorities2),
-				authoritiesStrings2));
+				authoritiesStrings2)).isTrue();
 
-		assertTrue(CollectionUtils.isEqualCollection(
+		assertThat(CollectionUtils.isEqualCollection(
 				HierarchicalRolesTestHelper.toCollectionOfAuthorityStrings(authorities3),
-				authoritiesStrings3));
+				authoritiesStrings3)).isTrue();
 
-		assertTrue(CollectionUtils.isEqualCollection(
+		assertThat(CollectionUtils.isEqualCollection(
 				HierarchicalRolesTestHelper.toCollectionOfAuthorityStrings(authorities4),
-				authoritiesStrings4));
+				authoritiesStrings4)).isTrue();
 
-		assertTrue(CollectionUtils.isEqualCollection(
+		assertThat(CollectionUtils.isEqualCollection(
 				HierarchicalRolesTestHelper.toCollectionOfAuthorityStrings(authorities5),
-				authoritiesStrings5));
+				authoritiesStrings5)).isTrue();
 	}
 
 	// SEC-863
@@ -138,29 +138,29 @@ public class TestHelperTests {
 		List<GrantedAuthority> authorities5 = AuthorityUtils.createAuthorityList(
 				"ROLE_A", "ROLE_A");
 
-		assertTrue(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(null,
-				null));
-		assertTrue(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
-				authorities1, authorities1));
-		assertTrue(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
-				authorities1, authorities2));
-		assertTrue(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
-				authorities2, authorities1));
+		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(null,
+				null)).isTrue();
+		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
+				authorities1, authorities1)).isTrue();
+		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
+				authorities1, authorities2)).isTrue();
+		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
+				authorities2, authorities1)).isTrue();
 
-		assertFalse(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(null,
-				authorities1));
-		assertFalse(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
-				authorities1, null));
-		assertFalse(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
-				authorities1, authorities3));
-		assertFalse(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
-				authorities3, authorities1));
-		assertFalse(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
-				authorities1, authorities4));
-		assertFalse(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
-				authorities4, authorities1));
-		assertFalse(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
-				authorities4, authorities5));
+		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(null,
+				authorities1)).isFalse();
+		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
+				authorities1, null)).isFalse();
+		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
+				authorities1, authorities3)).isFalse();
+		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
+				authorities3, authorities1)).isFalse();
+		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
+				authorities1, authorities4)).isFalse();
+		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
+				authorities4, authorities1)).isFalse();
+		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
+				authorities4, authorities5)).isFalse();
 	}
 
 	// SEC-863
@@ -170,9 +170,9 @@ public class TestHelperTests {
 				.createAuthorityList("ROLE_A", "ROLE_B");
 		List<GrantedAuthority> authorities2 = AuthorityUtils.createAuthorityList(
 				"ROLE_A", "ROLE_B");
-		assertTrue(HierarchicalRolesTestHelper
+		assertThat(HierarchicalRolesTestHelper
 				.containTheSameGrantedAuthoritiesCompareByAuthorityString(authorities1,
-						authorities2));
+						authorities2)).isTrue();
 	}
 
 	// SEC-863
@@ -180,13 +180,13 @@ public class TestHelperTests {
 	public void testCreateAuthorityList() {
 		List<GrantedAuthority> authorities1 = HierarchicalRolesTestHelper
 				.createAuthorityList("ROLE_A");
-		assertEquals(authorities1.size(), 1);
-		assertEquals("ROLE_A", authorities1.get(0).getAuthority());
+		assertThat(1).isEqualTo(authorities1.size());
+		assertThat(authorities1.get(0).getAuthority()).isEqualTo("ROLE_A");
 
 		List<GrantedAuthority> authorities2 = HierarchicalRolesTestHelper
 				.createAuthorityList("ROLE_A", "ROLE_C");
-		assertEquals(authorities2.size(), 2);
-		assertEquals("ROLE_A", authorities2.get(0).getAuthority());
-		assertEquals("ROLE_C", authorities2.get(1).getAuthority());
+		assertThat(2).isEqualTo(authorities2.size());
+		assertThat(authorities2.get(0).getAuthority()).isEqualTo("ROLE_A");
+		assertThat(authorities2.get(1).getAuthority()).isEqualTo("ROLE_C");
 	}
 }

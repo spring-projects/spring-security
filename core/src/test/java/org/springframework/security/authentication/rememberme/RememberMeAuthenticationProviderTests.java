@@ -15,8 +15,9 @@
 
 package org.springframework.security.authentication.rememberme;
 
-import junit.framework.TestCase;
+import static org.assertj.core.api.Assertions.*;
 
+import org.junit.Test;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.RememberMeAuthenticationProvider;
 import org.springframework.security.authentication.RememberMeAuthenticationToken;
@@ -29,10 +30,10 @@ import org.springframework.security.core.authority.AuthorityUtils;
  *
  * @author Ben Alex
  */
-public class RememberMeAuthenticationProviderTests extends TestCase {
+public class RememberMeAuthenticationProviderTests {
 	// ~ Methods
 	// ========================================================================================================
-
+	@Test
 	public void testDetectsAnInvalidKey() throws Exception {
 		RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider(
 				"qwerty");
@@ -48,36 +49,40 @@ public class RememberMeAuthenticationProviderTests extends TestCase {
 		catch (BadCredentialsException expected) {
 		}
 	}
-
+	
+	@Test
 	public void testDetectsMissingKey() throws Exception {
 		try {
 			new RememberMeAuthenticationProvider(null);
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertTrue(true);
+
 		}
 	}
-
+	
+	@Test
 	public void testGettersSetters() throws Exception {
 		RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider(
 				"qwerty");
 		aap.afterPropertiesSet();
-		assertEquals("qwerty", aap.getKey());
+		assertThat(aap.getKey()).isEqualTo("qwerty");
 	}
 
+	@Test
 	public void testIgnoresClassesItDoesNotSupport() throws Exception {
 		RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider(
 				"qwerty");
 
 		TestingAuthenticationToken token = new TestingAuthenticationToken("user",
 				"password", "ROLE_A");
-		assertFalse(aap.supports(TestingAuthenticationToken.class));
+		assertThat(aap.supports(TestingAuthenticationToken.class)).isFalse();
 
 		// Try it anyway
-		assertNull(aap.authenticate(token));
+		assertThat(aap.authenticate(token)).isNull();
 	}
 
+	@Test
 	public void testNormalOperation() throws Exception {
 		RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider(
 				"qwerty");
@@ -87,13 +92,14 @@ public class RememberMeAuthenticationProviderTests extends TestCase {
 
 		Authentication result = aap.authenticate(token);
 
-		assertEquals(result, token);
+		assertThat(token).isEqualTo(result);
 	}
 
+	@Test
 	public void testSupports() {
 		RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider(
 				"qwerty");
-		assertTrue(aap.supports(RememberMeAuthenticationToken.class));
-		assertFalse(aap.supports(TestingAuthenticationToken.class));
+		assertThat(aap.supports(RememberMeAuthenticationToken.class)).isTrue();
+		assertThat(aap.supports(TestingAuthenticationToken.class)).isFalse();
 	}
 }

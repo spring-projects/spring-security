@@ -16,7 +16,7 @@
 package org.springframework.security.cas.authentication;
 
 import static org.mockito.Mockito.*;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.jasig.cas.client.validation.Assertion;
 import org.jasig.cas.client.validation.AssertionImpl;
@@ -90,28 +90,28 @@ public class CasAuthenticationProviderTests {
 		Authentication result = cap.authenticate(token);
 
 		// Confirm ST-123 was NOT added to the cache
-		assertTrue(cache.getByTicketId("ST-456") == null);
+		assertThat(cache.getByTicketId("ST-456") == null).isTrue();
 
 		if (!(result instanceof CasAuthenticationToken)) {
 			fail("Should have returned a CasAuthenticationToken");
 		}
 
 		CasAuthenticationToken casResult = (CasAuthenticationToken) result;
-		assertEquals(makeUserDetailsFromAuthoritiesPopulator(), casResult.getPrincipal());
-		assertEquals("ST-123", casResult.getCredentials());
-		assertTrue(casResult.getAuthorities().contains(
-				new SimpleGrantedAuthority("ROLE_A")));
-		assertTrue(casResult.getAuthorities().contains(
-				new SimpleGrantedAuthority("ROLE_B")));
-		assertEquals(cap.getKey().hashCode(), casResult.getKeyHash());
-		assertEquals("details", casResult.getDetails());
+		assertThat(casResult.getPrincipal()).isEqualTo(makeUserDetailsFromAuthoritiesPopulator());
+		assertThat(casResult.getCredentials()).isEqualTo("ST-123");
+		assertThat(casResult.getAuthorities()).contains(
+				new SimpleGrantedAuthority("ROLE_A"));
+		assertThat(casResult.getAuthorities()).contains(
+				new SimpleGrantedAuthority("ROLE_B"));
+		assertThat(casResult.getKeyHash()).isEqualTo(cap.getKey().hashCode());
+		assertThat(casResult.getDetails()).isEqualTo("details");
 
 		// Now confirm the CasAuthenticationToken is automatically re-accepted.
 		// To ensure TicketValidator not called again, set it to deliver an exception...
 		cap.setTicketValidator(new MockTicketValidator(false));
 
 		Authentication laterResult = cap.authenticate(result);
-		assertEquals(result, laterResult);
+		assertThat(laterResult).isEqualTo(result);
 	}
 
 	@Test
@@ -133,15 +133,15 @@ public class CasAuthenticationProviderTests {
 		Authentication result = cap.authenticate(token);
 
 		// Confirm ST-456 was added to the cache
-		assertTrue(cache.getByTicketId("ST-456") != null);
+		assertThat(cache.getByTicketId("ST-456") != null).isTrue();
 
 		if (!(result instanceof CasAuthenticationToken)) {
 			fail("Should have returned a CasAuthenticationToken");
 		}
 
-		assertEquals(makeUserDetailsFromAuthoritiesPopulator(), result.getPrincipal());
-		assertEquals("ST-456", result.getCredentials());
-		assertEquals("details", result.getDetails());
+		assertThat(result.getPrincipal()).isEqualTo(makeUserDetailsFromAuthoritiesPopulator());
+		assertThat(result.getCredentials()).isEqualTo("ST-456");
+		assertThat(result.getDetails()).isEqualTo("details");
 
 		// Now try to authenticate again. To ensure TicketValidator not
 		// called again, set it to deliver an exception...
@@ -149,8 +149,8 @@ public class CasAuthenticationProviderTests {
 
 		// Previously created UsernamePasswordAuthenticationToken is OK
 		Authentication newResult = cap.authenticate(token);
-		assertEquals(makeUserDetailsFromAuthoritiesPopulator(), newResult.getPrincipal());
-		assertEquals("ST-456", newResult.getCredentials());
+		assertThat(newResult.getPrincipal()).isEqualTo(makeUserDetailsFromAuthoritiesPopulator());
+		assertThat(newResult.getCredentials()).isEqualTo("ST-456");
 	}
 
 	@Test
@@ -331,10 +331,10 @@ public class CasAuthenticationProviderTests {
 		cap.afterPropertiesSet();
 
 		// TODO disabled because why do we need to expose this?
-		// assertTrue(cap.getUserDetailsService() != null);
-		assertEquals("qwerty", cap.getKey());
-		assertTrue(cap.getStatelessTicketCache() != null);
-		assertTrue(cap.getTicketValidator() != null);
+		// assertThat(cap.getUserDetailsService() != null).isTrue();
+		assertThat(cap.getKey()).isEqualTo("qwerty");
+		assertThat(cap.getStatelessTicketCache() != null).isTrue();
+		assertThat(cap.getTicketValidator() != null).isTrue();
 	}
 
 	@Test
@@ -349,10 +349,10 @@ public class CasAuthenticationProviderTests {
 
 		TestingAuthenticationToken token = new TestingAuthenticationToken("user",
 				"password", "ROLE_A");
-		assertFalse(cap.supports(TestingAuthenticationToken.class));
+		assertThat(cap.supports(TestingAuthenticationToken.class)).isFalse();
 
 		// Try it anyway
-		assertEquals(null, cap.authenticate(token));
+		assertThat(cap.authenticate(token)).isEqualTo(null);
 	}
 
 	@Test
@@ -369,14 +369,14 @@ public class CasAuthenticationProviderTests {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
 				"some_normal_user", "password",
 				AuthorityUtils.createAuthorityList("ROLE_A"));
-		assertEquals(null, cap.authenticate(token));
+		assertThat(cap.authenticate(token)).isEqualTo(null);
 	}
 
 	@Test
 	public void supportsRequiredTokens() {
 		CasAuthenticationProvider cap = new CasAuthenticationProvider();
-		assertTrue(cap.supports(UsernamePasswordAuthenticationToken.class));
-		assertTrue(cap.supports(CasAuthenticationToken.class));
+		assertThat(cap.supports(UsernamePasswordAuthenticationToken.class)).isTrue();
+		assertThat(cap.supports(CasAuthenticationToken.class)).isTrue();
 	}
 
 	// ~ Inner Classes

@@ -15,7 +15,7 @@
 
 package org.springframework.security.web.authentication.rememberme;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -88,7 +88,7 @@ public class RememberMeAuthenticationFilterTests {
 		filter.doFilter(request, new MockHttpServletResponse(), fc);
 
 		// Ensure filter didn't change our original object
-		assertSame(originalAuth, SecurityContextHolder.getContext().getAuthentication());
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(originalAuth);
 		verify(fc)
 				.doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
@@ -108,7 +108,7 @@ public class RememberMeAuthenticationFilterTests {
 		filter.doFilter(request, new MockHttpServletResponse(), fc);
 
 		// Ensure filter setup with our remembered authentication object
-		assertSame(remembered, SecurityContextHolder.getContext().getAuthentication());
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(remembered);
 		verify(fc)
 				.doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
@@ -136,7 +136,7 @@ public class RememberMeAuthenticationFilterTests {
 		request.setRequestURI("x");
 		filter.doFilter(request, new MockHttpServletResponse(), fc);
 
-		assertSame(failedAuth, SecurityContextHolder.getContext().getAuthentication());
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(failedAuth);
 		verify(fc)
 				.doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
@@ -156,7 +156,7 @@ public class RememberMeAuthenticationFilterTests {
 		request.setRequestURI("x");
 		filter.doFilter(request, response, fc);
 
-		assertEquals("/target", response.getRedirectedUrl());
+		assertThat(response.getRedirectedUrl()).isEqualTo("/target");
 
 		// Should return after success handler is invoked, so chain should not proceed
 		verifyZeroInteractions(fc);

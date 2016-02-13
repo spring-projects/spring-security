@@ -12,10 +12,8 @@
  */
 package org.springframework.security.web.authentication.preauth;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -79,7 +77,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		filter.afterPropertiesSet();
 		filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(),
 				mock(FilterChain.class));
-		assertNull(SecurityContextHolder.getContext().getAuthentication());
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
 
 	/* SEC-881 */
@@ -94,7 +92,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		filter.afterPropertiesSet();
 		filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(),
 				mock(FilterChain.class));
-		assertNull(SecurityContextHolder.getContext().getAuthentication());
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
 
 	@Test
@@ -118,7 +116,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		AuthenticationManager am = mock(AuthenticationManager.class);
 		filter.setAuthenticationManager(am);
 		filter.afterPropertiesSet();
-		assertTrue(filter.initFilterBeanInvoked);
+		assertThat(filter.initFilterBeanInvoked).isTrue();
 	}
 
 	@Test
@@ -143,7 +141,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(),
 				new MockFilterChain());
 
-		assertEquals(null, SecurityContextHolder.getContext().getAuthentication());
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isEqualTo(null);
 	}
 
 	@Test
@@ -158,8 +156,8 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(),
 				new MockFilterChain());
 
-		assertEquals(authentication, SecurityContextHolder.getContext()
-				.getAuthentication());
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isEqualTo(
+				authentication);
 	}
 
 	@Test
@@ -332,8 +330,8 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		MockHttpServletRequest req = new MockHttpServletRequest();
 		MockHttpServletResponse res = new MockHttpServletResponse();
 		getFilter(grantAccess).doFilter(req, res, new MockFilterChain());
-		assertEquals(grantAccess, null != SecurityContextHolder.getContext()
-				.getAuthentication());
+		assertThat(null != SecurityContextHolder.getContext().getAuthentication()).isEqualTo(
+				grantAccess);
 	}
 
 	private static ConcretePreAuthenticatedProcessingFilter getFilter(boolean grantAccess)

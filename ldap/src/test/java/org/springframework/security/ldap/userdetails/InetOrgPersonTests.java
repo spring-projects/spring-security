@@ -1,6 +1,6 @@
 package org.springframework.security.ldap.userdetails;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -19,7 +19,7 @@ public class InetOrgPersonTests {
 		InetOrgPerson.Essence essence = new InetOrgPerson.Essence(createUserContext());
 		InetOrgPerson p = (InetOrgPerson) essence.createUserDetails();
 
-		assertEquals("ghengis", p.getUsername());
+		assertThat(p.getUsername()).isEqualTo("ghengis");
 	}
 
 	@Test
@@ -30,7 +30,7 @@ public class InetOrgPersonTests {
 		InetOrgPerson p2 = (InetOrgPerson) essence.createUserDetails();
 		Set<InetOrgPerson> set = new HashSet<InetOrgPerson>();
 		set.add(p);
-		assertTrue(set.contains(p2));
+		assertThat(set.contains(p2)).isTrue();
 	}
 
 	@Test
@@ -39,8 +39,8 @@ public class InetOrgPersonTests {
 		essence.setUsername("joe");
 		InetOrgPerson p = (InetOrgPerson) essence.createUserDetails();
 
-		assertEquals("joe", p.getUsername());
-		assertEquals("ghengis", p.getUid());
+		assertThat(p.getUsername()).isEqualTo("joe");
+		assertThat(p.getUid()).isEqualTo("ghengis");
 	}
 
 	@Test
@@ -48,24 +48,24 @@ public class InetOrgPersonTests {
 		InetOrgPerson.Essence essence = new InetOrgPerson.Essence(createUserContext());
 		InetOrgPerson p = (InetOrgPerson) essence.createUserDetails();
 
-		assertEquals("HORS1", p.getCarLicense());
-		assertEquals("ghengis@mongolia", p.getMail());
-		assertEquals("Ghengis", p.getGivenName());
-		assertEquals("Khan", p.getSn());
-		assertEquals("Ghengis Khan", p.getCn()[0]);
-		assertEquals("00001", p.getEmployeeNumber());
-		assertEquals("+442075436521", p.getTelephoneNumber());
-		assertEquals("Steppes", p.getHomePostalAddress());
-		assertEquals("+467575436521", p.getHomePhone());
-		assertEquals("Hordes", p.getO());
-		assertEquals("Horde1", p.getOu());
-		assertEquals("On the Move", p.getPostalAddress());
-		assertEquals("Changes Frequently", p.getPostalCode());
-		assertEquals("Yurt 1", p.getRoomNumber());
-		assertEquals("Westward Avenue", p.getStreet());
-		assertEquals("Scary", p.getDescription());
-		assertEquals("Ghengis McCann", p.getDisplayName());
-		assertEquals("G", p.getInitials());
+		assertThat(p.getCarLicense()).isEqualTo("HORS1");
+		assertThat(p.getMail()).isEqualTo("ghengis@mongolia");
+		assertThat(p.getGivenName()).isEqualTo("Ghengis");
+		assertThat(p.getSn()).isEqualTo("Khan");
+		assertThat(p.getCn()[0]).isEqualTo("Ghengis Khan");
+		assertThat(p.getEmployeeNumber()).isEqualTo("00001");
+		assertThat(p.getTelephoneNumber()).isEqualTo("+442075436521");
+		assertThat(p.getHomePostalAddress()).isEqualTo("Steppes");
+		assertThat(p.getHomePhone()).isEqualTo("+467575436521");
+		assertThat(p.getO()).isEqualTo("Hordes");
+		assertThat(p.getOu()).isEqualTo("Horde1");
+		assertThat(p.getPostalAddress()).isEqualTo("On the Move");
+		assertThat(p.getPostalCode()).isEqualTo("Changes Frequently");
+		assertThat(p.getRoomNumber()).isEqualTo("Yurt 1");
+		assertThat(p.getStreet()).isEqualTo("Westward Avenue");
+		assertThat(p.getDescription()).isEqualTo("Scary");
+		assertThat(p.getDisplayName()).isEqualTo("Ghengis McCann");
+		assertThat(p.getInitials()).isEqualTo("G");
 	}
 
 	@Test
@@ -73,7 +73,7 @@ public class InetOrgPersonTests {
 		InetOrgPerson.Essence essence = new InetOrgPerson.Essence(createUserContext());
 		InetOrgPerson p = (InetOrgPerson) essence.createUserDetails();
 
-		assertEquals("pillage", p.getPassword());
+		assertThat(p.getPassword()).isEqualTo("pillage");
 	}
 
 	@Test
@@ -87,7 +87,7 @@ public class InetOrgPersonTests {
 				.createUserDetails();
 		p.populateContext(ctx2);
 
-		assertEquals(ctx1, ctx2);
+		assertThat(ctx2).isEqualTo(ctx1);
 	}
 
 	@Test
@@ -103,7 +103,7 @@ public class InetOrgPersonTests {
 				.createUserDetails();
 		p2.populateContext(ctx2);
 
-		assertEquals(ctx1, ctx2);
+		assertThat(ctx2).isEqualTo(ctx1);
 	}
 
 	private DirContextAdapter createUserContext() {

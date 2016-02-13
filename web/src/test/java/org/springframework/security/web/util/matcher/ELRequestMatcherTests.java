@@ -15,7 +15,7 @@
  */
 package org.springframework.security.web.util.matcher;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -33,7 +33,7 @@ public class ELRequestMatcherTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setRemoteAddr("1.1.1.1");
 
-		assertTrue(requestMatcher.matches(request));
+		assertThat(requestMatcher.matches(request)).isTrue();
 	}
 
 	@Test
@@ -42,7 +42,7 @@ public class ELRequestMatcherTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setRemoteAddr("1.1.1.2");
 
-		assertFalse(requestMatcher.matches(request));
+		assertThat(requestMatcher.matches(request)).isFalse();
 	}
 
 	@Test
@@ -52,7 +52,7 @@ public class ELRequestMatcherTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("User-Agent", "MSIE");
 
-		assertTrue(requestMatcher.matches(request));
+		assertThat(requestMatcher.matches(request)).isTrue();
 	}
 
 	@Test
@@ -62,12 +62,12 @@ public class ELRequestMatcherTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("User-Agent", "MSIE");
 
-		assertTrue(requestMatcher.matches(request));
+		assertThat(requestMatcher.matches(request)).isTrue();
 
 		request = new MockHttpServletRequest();
 		request.addHeader("User-Agent", "Mozilla");
 
-		assertTrue(requestMatcher.matches(request));
+		assertThat(requestMatcher.matches(request)).isTrue();
 
 	}
 
@@ -78,7 +78,7 @@ public class ELRequestMatcherTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("User-Agent", "wrong");
 
-		assertFalse(requestMatcher.matches(request));
+		assertThat(requestMatcher.matches(request)).isFalse();
 	}
 
 	@Test
@@ -87,7 +87,7 @@ public class ELRequestMatcherTests {
 				"hasHeader('User-Agent','MSIE')");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 
-		assertFalse(requestMatcher.matches(request));
+		assertThat(requestMatcher.matches(request)).isFalse();
 	}
 
 }

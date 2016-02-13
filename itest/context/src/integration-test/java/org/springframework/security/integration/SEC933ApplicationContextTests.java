@@ -1,6 +1,6 @@
 package org.springframework.security.integration;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,6 +18,6 @@ public class SEC933ApplicationContextTests {
 
 	@Test
 	public void testSimpleApplicationContextBootstrap() throws Exception {
-		assertNotNull(userDetailsService);
+		assertThat(userDetailsService).isNotNull();
 	}
 }

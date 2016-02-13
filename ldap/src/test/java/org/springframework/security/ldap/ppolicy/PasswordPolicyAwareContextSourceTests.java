@@ -1,6 +1,6 @@
 package org.springframework.security.ldap.ppolicy;
 
-import static org.junit.Assert.assertNotNull;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import org.junit.*;
@@ -42,7 +42,7 @@ public class PasswordPolicyAwareContextSourceTests {
 	@Test
 	public void contextIsReturnedWhenNoControlsAreSetAndReconnectIsSuccessful()
 			throws Exception {
-		assertNotNull(ctxSource.getContext("user", "ignored"));
+		assertThat(ctxSource.getContext("user", "ignored")).isNotNull();
 	}
 
 	@Test(expected = UncategorizedLdapException.class)

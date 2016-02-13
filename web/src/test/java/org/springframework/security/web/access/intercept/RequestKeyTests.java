@@ -1,6 +1,6 @@
 package org.springframework.security.web.access.intercept;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Test;
 import org.springframework.security.web.access.intercept.RequestKey;
@@ -17,10 +17,10 @@ public class RequestKeyTests {
 		RequestKey key1 = new RequestKey("/someurl");
 		RequestKey key2 = new RequestKey("/someurl");
 
-		assertEquals(key1, key2);
+		assertThat(key2).isEqualTo(key1);
 		key1 = new RequestKey("/someurl", "GET");
-		assertFalse(key1.equals(key2));
-		assertFalse(key2.equals(key1));
+		assertThat(key1.equals(key2)).isFalse();
+		assertThat(key2.equals(key1)).isFalse();
 	}
 
 	@Test
@@ -28,7 +28,7 @@ public class RequestKeyTests {
 		RequestKey key1 = new RequestKey("/someurl", "GET");
 		RequestKey key2 = new RequestKey("/someurl", "GET");
 
-		assertEquals(key1, key2);
+		assertThat(key2).isEqualTo(key1);
 	}
 
 	@Test
@@ -36,8 +36,8 @@ public class RequestKeyTests {
 		RequestKey key1 = new RequestKey("/someurl", "GET");
 		RequestKey key2 = new RequestKey("/someurl", "POST");
 
-		assertFalse(key1.equals(key2));
-		assertFalse(key2.equals(key1));
+		assertThat(key1.equals(key2)).isFalse();
+		assertThat(key2.equals(key1)).isFalse();
 	}
 
 	@Test
@@ -45,7 +45,7 @@ public class RequestKeyTests {
 		RequestKey key1 = new RequestKey("/someurl", "GET");
 		RequestKey key2 = new RequestKey("/anotherurl", "GET");
 
-		assertFalse(key1.equals(key2));
-		assertFalse(key2.equals(key1));
+		assertThat(key1.equals(key2)).isFalse();
+		assertThat(key2.equals(key1)).isFalse();
 	}
 }

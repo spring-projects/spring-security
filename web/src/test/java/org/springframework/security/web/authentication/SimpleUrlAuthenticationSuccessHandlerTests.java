@@ -1,6 +1,6 @@
 package org.springframework.security.web.authentication;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import org.junit.Test;
@@ -22,7 +22,7 @@ public class SimpleUrlAuthenticationSuccessHandlerTests {
 
 		ash.onAuthenticationSuccess(request, response, mock(Authentication.class));
 
-		assertEquals("/", response.getRedirectedUrl());
+		assertThat(response.getRedirectedUrl()).isEqualTo("/");
 	}
 
 	// SEC-1428
@@ -35,7 +35,7 @@ public class SimpleUrlAuthenticationSuccessHandlerTests {
 		response.setCommitted(true);
 
 		ash.onAuthenticationSuccess(request, response, mock(Authentication.class));
-		assertNull(response.getRedirectedUrl());
+		assertThat(response.getRedirectedUrl()).isNull();
 	}
 
 	/**
@@ -50,13 +50,13 @@ public class SimpleUrlAuthenticationSuccessHandlerTests {
 		request.setParameter("targetUrl", "/target");
 
 		ash.onAuthenticationSuccess(request, response, mock(Authentication.class));
-		assertEquals("/defaultTarget", response.getRedirectedUrl());
+		assertThat(response.getRedirectedUrl()).isEqualTo("/defaultTarget");
 
 		// Try with parameter set
 		ash.setTargetUrlParameter("targetUrl");
 		response = new MockHttpServletResponse();
 		ash.onAuthenticationSuccess(request, response, mock(Authentication.class));
-		assertEquals("/target", response.getRedirectedUrl());
+		assertThat(response.getRedirectedUrl()).isEqualTo("/target");
 	}
 
 	@Test
@@ -69,7 +69,7 @@ public class SimpleUrlAuthenticationSuccessHandlerTests {
 		request.addHeader("Referer", "http://www.springsource.com/");
 
 		ash.onAuthenticationSuccess(request, response, mock(Authentication.class));
-		assertEquals("http://www.springsource.com/", response.getRedirectedUrl());
+		assertThat(response.getRedirectedUrl()).isEqualTo("http://www.springsource.com/");
 	}
 
 	/**
@@ -85,7 +85,7 @@ public class SimpleUrlAuthenticationSuccessHandlerTests {
 
 		ash.onAuthenticationSuccess(request, response, mock(Authentication.class));
 
-		assertEquals("https://monkeymachine.co.uk/", response.getRedirectedUrl());
+		assertThat(response.getRedirectedUrl()).isEqualTo("https://monkeymachine.co.uk/");
 	}
 
 	@Test
@@ -93,7 +93,7 @@ public class SimpleUrlAuthenticationSuccessHandlerTests {
 		SimpleUrlAuthenticationSuccessHandler ash = new SimpleUrlAuthenticationSuccessHandler();
 		ash.setTargetUrlParameter("targetUrl");
 		ash.setTargetUrlParameter(null);
-		assertEquals(null, ash.getTargetUrlParameter());
+		assertThat(ash.getTargetUrlParameter()).isEqualTo(null);
 	}
 
 	@Test

@@ -19,7 +19,7 @@ import org.springframework.security.cas.authentication.CasAuthenticationToken;
 import org.springframework.security.cas.authentication.NullStatelessTicketCache;
 import org.springframework.security.cas.authentication.StatelessTicketCache;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * Test cases for the @link {@link NullStatelessTicketCache}
@@ -33,14 +33,14 @@ public class NullStatelessTicketCacheTests extends AbstractStatelessTicketCacheT
 
 	@Test
 	public void testGetter() {
-		assertNull(cache.getByTicketId(null));
-		assertNull(cache.getByTicketId("test"));
+		assertThat(cache.getByTicketId(null)).isNull();
+		assertThat(cache.getByTicketId("test")).isNull();
 	}
 
 	@Test
 	public void testInsertAndGet() {
 		final CasAuthenticationToken token = getToken();
 		cache.putTicketInCache(token);
-		assertNull(cache.getByTicketId((String) token.getCredentials()));
+		assertThat(cache.getByTicketId((String) token.getCredentials())).isNull();
 	}
 }

@@ -15,8 +15,14 @@
 
 package org.springframework.security.remoting.rmi;
 
-import junit.framework.TestCase;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+
+import java.lang.reflect.Method;
+
 import org.aopalliance.intercept.MethodInvocation;
+import org.junit.After;
+import org.junit.Test;
 import org.springframework.security.TargetObject;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -24,21 +30,18 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.util.SimpleMethodInvocation;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.lang.reflect.Method;
-
 /**
  * Tests {@link ContextPropagatingRemoteInvocation} and
  * {@link ContextPropagatingRemoteInvocationFactory}.
  *
  * @author Ben Alex
  */
-public class ContextPropagatingRemoteInvocationTests extends TestCase {
+public class ContextPropagatingRemoteInvocationTests {
 
 	// ~ Methods
 	// ========================================================================================================
-
-	protected void tearDown() throws Exception {
-		super.tearDown();
+	@After
+	public void tearDown() throws Exception {
 		SecurityContextHolder.clearContext();
 	}
 
@@ -53,6 +56,7 @@ public class ContextPropagatingRemoteInvocationTests extends TestCase {
 		return (ContextPropagatingRemoteInvocation) factory.createRemoteInvocation(mi);
 	}
 
+	@Test
 	public void testContextIsResetEvenIfExceptionOccurs() throws Exception {
 		// Setup client-side context
 		Authentication clientSideAuthentication = new UsernamePasswordAuthenticationToken(
@@ -71,10 +75,12 @@ public class ContextPropagatingRemoteInvocationTests extends TestCase {
 			// expected
 		}
 
-		assertNull("Authentication must be null ", SecurityContextHolder.getContext()
-				.getAuthentication());
+		assertThat(
+				SecurityContextHolder.getContext().getAuthentication()).withFailMessage(
+						"Authentication must be null").isNull();
 	}
 
+	@Test
 	public void testNormalOperation() throws Exception {
 		// Setup client-side context
 		Authentication clientSideAuthentication = new UsernamePasswordAuthenticationToken(
@@ -90,28 +96,31 @@ public class ContextPropagatingRemoteInvocationTests extends TestCase {
 
 		// The result from invoking the TargetObject should contain the
 		// Authentication class delivered via the SecurityContextHolder
-		assertEquals(
-				"some_string org.springframework.security.authentication.UsernamePasswordAuthenticationToken false",
-				remoteInvocation.invoke(new TargetObject()));
+		assertThat(remoteInvocation.invoke(new TargetObject())).isEqualTo(
+				"some_string org.springframework.security.authentication.UsernamePasswordAuthenticationToken false");
 	}
 
+	@Test
 	public void testNullContextHolderDoesNotCauseInvocationProblems() throws Exception {
 		SecurityContextHolder.clearContext(); // just to be explicit
 
 		ContextPropagatingRemoteInvocation remoteInvocation = getRemoteInvocation();
-		SecurityContextHolder.clearContext(); // unnecessary, but for explicitness
+		SecurityContextHolder.clearContext(); // unnecessary, but for
+												// explicitness
 
-		assertEquals("some_string Authentication empty",
-				remoteInvocation.invoke(new TargetObject()));
+		assertThat(remoteInvocation.invoke(new TargetObject())).isEqualTo(
+				"some_string Authentication empty");
 	}
 
 	// SEC-1867
+	@Test
 	public void testNullCredentials() throws Exception {
 		Authentication clientSideAuthentication = new UsernamePasswordAuthenticationToken(
 				"rod", null);
 		SecurityContextHolder.getContext().setAuthentication(clientSideAuthentication);
 
 		ContextPropagatingRemoteInvocation remoteInvocation = getRemoteInvocation();
-		assertEquals(null, ReflectionTestUtils.getField(remoteInvocation, "credentials"));
+		assertThat(
+				ReflectionTestUtils.getField(remoteInvocation, "credentials")).isNull();
 	}
 }

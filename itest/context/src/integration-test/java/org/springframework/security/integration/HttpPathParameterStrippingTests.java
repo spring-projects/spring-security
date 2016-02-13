@@ -1,6 +1,6 @@
 package org.springframework.security.integration;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,7 +33,7 @@ public class HttpPathParameterStrippingTests {
 		request.setSession(createAuthenticatedSession("ROLE_USER"));
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		fcp.doFilter(request, response, new MockFilterChain());
-		assertEquals(403, response.getStatus());
+		assertThat(response.getStatus()).isEqualTo(403);
 	}
 
 	@Test
@@ -43,7 +43,7 @@ public class HttpPathParameterStrippingTests {
 		request.setSession(createAuthenticatedSession("ROLE_USER"));
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		fcp.doFilter(request, response, new MockFilterChain());
-		assertEquals(403, response.getStatus());
+		assertThat(response.getStatus()).isEqualTo(403);
 
 		// Try with pathInfo
 		request = new MockHttpServletRequest();
@@ -52,7 +52,7 @@ public class HttpPathParameterStrippingTests {
 		request.setSession(createAuthenticatedSession("ROLE_USER"));
 		response = new MockHttpServletResponse();
 		fcp.doFilter(request, response, new MockFilterChain());
-		assertEquals(403, response.getStatus());
+		assertThat(response.getStatus()).isEqualTo(403);
 	}
 
 	public HttpSession createAuthenticatedSession(String... roles) {

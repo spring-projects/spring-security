@@ -1,8 +1,7 @@
+
 package org.springframework.security.web.savedrequest;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collection;
 import java.util.List;
@@ -30,17 +29,18 @@ public class HttpSessionRequestCacheTests {
 	public void originalGetRequestDoesntMatchIncomingPost() {
 		HttpSessionRequestCache cache = new HttpSessionRequestCache();
 
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/destination");
+		MockHttpServletRequest request = new MockHttpServletRequest("GET",
+				"/destination");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		cache.saveRequest(request, response);
-		assertNotNull(request.getSession().getAttribute(
-				HttpSessionRequestCache.SAVED_REQUEST));
-		assertNotNull(cache.getRequest(request, response));
+		assertThat(request.getSession().getAttribute(
+				HttpSessionRequestCache.SAVED_REQUEST)).isNotNull();
+		assertThat(cache.getRequest(request, response)).isNotNull();
 
 		MockHttpServletRequest newRequest = new MockHttpServletRequest("POST",
 				"/destination");
 		newRequest.setSession(request.getSession());
-		assertNull(cache.getMatchingRequest(newRequest, response));
+		assertThat(cache.getMatchingRequest(newRequest, response)).isNull();
 
 	}
 
@@ -48,6 +48,7 @@ public class HttpSessionRequestCacheTests {
 	public void requestMatcherDefinesCorrectSubsetOfCachedRequests() throws Exception {
 		HttpSessionRequestCache cache = new HttpSessionRequestCache();
 		cache.setRequestMatcher(new RequestMatcher() {
+
 			public boolean matches(HttpServletRequest request) {
 				return request.getMethod().equals("GET");
 			}
@@ -57,10 +58,10 @@ public class HttpSessionRequestCacheTests {
 				"/destination");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		cache.saveRequest(request, response);
-		assertNull(cache.getRequest(request, response));
-		assertNull(cache.getRequest(new MockHttpServletRequest(),
-				new MockHttpServletResponse()));
-		assertNull(cache.getMatchingRequest(request, response));
+		assertThat(cache.getRequest(request, response)).isNull();
+		assertThat(cache.getRequest(new MockHttpServletRequest(),
+				new MockHttpServletResponse())).isNull();
+		assertThat(cache.getMatchingRequest(request, response)).isNull();
 	}
 
 	// SEC-2246
@@ -74,10 +75,8 @@ public class HttpSessionRequestCacheTests {
 			@Override
 			public void saveRequest(HttpServletRequest request,
 					HttpServletResponse response) {
-				request.getSession().setAttribute(
-						SAVED_REQUEST,
-						new CustomSavedRequest(new DefaultSavedRequest(request,
-								new PortResolverImpl())));
+				request.getSession().setAttribute(SAVED_REQUEST, new CustomSavedRequest(
+						new DefaultSavedRequest(request, new PortResolverImpl())));
 			}
 
 		};
@@ -89,6 +88,7 @@ public class HttpSessionRequestCacheTests {
 	}
 
 	private static final class CustomSavedRequest implements SavedRequest {
+
 		private final SavedRequest delegate;
 
 		private CustomSavedRequest(SavedRequest delegate) {

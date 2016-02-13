@@ -1,6 +1,7 @@
 package org.springframework.security.cas.userdetails;
 
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.*;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -41,10 +42,10 @@ public class GrantedAuthorityFromAssertionAttributesUserDetailsServiceTests {
 				assertion, "ticket");
 		UserDetails user = uds.loadUserDetails(token);
 		Set<String> roles = AuthorityUtils.authorityListToSet(user.getAuthorities());
-		assertTrue(roles.size() == 4);
-		assertTrue(roles.contains("role_a1"));
-		assertTrue(roles.contains("role_a2"));
-		assertTrue(roles.contains("role_b"));
-		assertTrue(roles.contains("role_c"));
+		assertThat(roles.size()).isEqualTo(4);
+		assertThat(roles).contains("role_a1");
+		assertThat(roles).contains("role_a2");
+		assertThat(roles).contains("role_b");
+		assertThat(roles).contains("role_c");
 	}
 }

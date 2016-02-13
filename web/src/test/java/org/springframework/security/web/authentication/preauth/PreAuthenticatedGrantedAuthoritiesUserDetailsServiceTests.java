@@ -1,6 +1,6 @@
 package org.springframework.security.web.authentication.preauth;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.*;
 
@@ -58,21 +58,18 @@ public class PreAuthenticatedGrantedAuthoritiesUserDetailsServiceTests {
 			}
 		});
 		UserDetails ud = svc.loadUserDetails(token);
-		assertTrue(ud.isAccountNonExpired());
-		assertTrue(ud.isAccountNonLocked());
-		assertTrue(ud.isCredentialsNonExpired());
-		assertTrue(ud.isEnabled());
-		assertEquals(ud.getUsername(), userName);
+		assertThat(ud.isAccountNonExpired()).isTrue();
+		assertThat(ud.isAccountNonLocked()).isTrue();
+		assertThat(ud.isCredentialsNonExpired()).isTrue();
+		assertThat(ud.isEnabled()).isTrue();
+		assertThat(userName).isEqualTo(ud.getUsername());
 
 		// Password is not saved by
 		// PreAuthenticatedGrantedAuthoritiesUserDetailsService
-		// assertEquals(ud.getPassword(),password);
+		// assertThat(password).isEqualTo(ud.getPassword());
 
-		assertTrue(
-				"GrantedAuthority collections do not match; result: "
-						+ ud.getAuthorities() + ", expected: " + gas,
-				gas.containsAll(ud.getAuthorities())
-						&& ud.getAuthorities().containsAll(gas));
+		assertThat(gas.containsAll(ud.getAuthorities())
+						&& ud.getAuthorities().containsAll(gas)).withFailMessage("GrantedAuthority collections do not match; result: "+ ud.getAuthorities() + ", expected: " + gas).isTrue();
 	}
 
 }

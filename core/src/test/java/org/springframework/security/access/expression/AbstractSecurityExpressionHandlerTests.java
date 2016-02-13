@@ -1,6 +1,7 @@
 package org.springframework.security.access.expression;
 
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import static org.mockito.Mockito.mock;
 
 import org.junit.Before;
@@ -37,8 +38,8 @@ public class AbstractSecurityExpressionHandlerTests {
 
 		Expression expression = handler.getExpressionParser().parseExpression(
 				"@number10.compareTo(@number20) < 0");
-		assertTrue((Boolean) expression.getValue(handler.createEvaluationContext(
-				mock(Authentication.class), new Object())));
+		assertThat(expression.getValue(handler.createEvaluationContext(
+				mock(Authentication.class), new Object()))).isEqualTo(true);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -50,7 +51,7 @@ public class AbstractSecurityExpressionHandlerTests {
 	public void setExpressionParser() {
 		SpelExpressionParser parser = new SpelExpressionParser();
 		handler.setExpressionParser(parser);
-		assertTrue(parser == handler.getExpressionParser());
+		assertThat(parser == handler.getExpressionParser()).isTrue();
 	}
 }
 

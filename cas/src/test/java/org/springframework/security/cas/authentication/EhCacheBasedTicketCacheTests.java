@@ -25,7 +25,7 @@ import org.junit.AfterClass;
 import org.springframework.security.cas.authentication.CasAuthenticationToken;
 import org.springframework.security.cas.authentication.EhCacheBasedTicketCache;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * Tests {@link EhCacheBasedTicketCache}.
@@ -59,15 +59,15 @@ public class EhCacheBasedTicketCacheTests extends AbstractStatelessTicketCacheTe
 
 		// Check it gets stored in the cache
 		cache.putTicketInCache(token);
-		assertEquals(token, cache.getByTicketId("ST-0-ER94xMJmn6pha35CQRoZ"));
+		assertThat(cache.getByTicketId("ST-0-ER94xMJmn6pha35CQRoZ")).isEqualTo(token);
 
 		// Check it gets removed from the cache
 		cache.removeTicketFromCache(getToken());
-		assertNull(cache.getByTicketId("ST-0-ER94xMJmn6pha35CQRoZ"));
+		assertThat(cache.getByTicketId("ST-0-ER94xMJmn6pha35CQRoZ")).isNull();
 
 		// Check it doesn't return values for null or unknown service tickets
-		assertNull(cache.getByTicketId(null));
-		assertNull(cache.getByTicketId("UNKNOWN_SERVICE_TICKET"));
+		assertThat(cache.getByTicketId(null)).isNull();
+		assertThat(cache.getByTicketId("UNKNOWN_SERVICE_TICKET")).isNull();
 	}
 
 	@Test
@@ -79,11 +79,11 @@ public class EhCacheBasedTicketCacheTests extends AbstractStatelessTicketCacheTe
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertTrue(true);
+
 		}
 
 		Ehcache myCache = cacheManager.getCache("castickets");
 		cache.setCache(myCache);
-		assertEquals(myCache, cache.getCache());
+		assertThat(cache.getCache()).isEqualTo(myCache);
 	}
 }

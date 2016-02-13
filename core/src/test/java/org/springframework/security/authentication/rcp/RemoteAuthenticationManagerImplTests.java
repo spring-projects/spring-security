@@ -15,7 +15,7 @@
 
 package org.springframework.security.authentication.rcp;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -58,7 +58,7 @@ public class RemoteAuthenticationManagerImplTests {
 
 		manager.setAuthenticationManager(mock(AuthenticationManager.class));
 		manager.afterPropertiesSet();
-		assertTrue(true);
+
 	}
 
 	@Test

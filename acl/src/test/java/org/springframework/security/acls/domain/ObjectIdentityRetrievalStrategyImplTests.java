@@ -1,21 +1,22 @@
+
 package org.springframework.security.acls.domain;
 
-import org.springframework.security.acls.domain.ObjectIdentityImpl;
-import org.springframework.security.acls.domain.ObjectIdentityRetrievalStrategyImpl;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.Test;
 import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.acls.model.ObjectIdentityRetrievalStrategy;
-
-import junit.framework.TestCase;
 
 /**
  * Tests for {@link ObjectIdentityRetrievalStrategyImpl}
  *
  * @author Andrei Stefan
  */
-public class ObjectIdentityRetrievalStrategyImplTests extends TestCase {
+public class ObjectIdentityRetrievalStrategyImplTests {
+
 	// ~ Methods
 	// ========================================================================================================
-
+	@Test
 	public void testObjectIdentityCreation() throws Exception {
 		MockIdDomainObject domain = new MockIdDomainObject();
 		domain.setId(Integer.valueOf(1));
@@ -23,14 +24,15 @@ public class ObjectIdentityRetrievalStrategyImplTests extends TestCase {
 		ObjectIdentityRetrievalStrategy retStrategy = new ObjectIdentityRetrievalStrategyImpl();
 		ObjectIdentity identity = retStrategy.getObjectIdentity(domain);
 
-		assertNotNull(identity);
-		assertEquals(identity, new ObjectIdentityImpl(domain));
+		assertThat(identity).isNotNull();
+		assertThat(new ObjectIdentityImpl(domain)).isEqualTo(identity);
 	}
 
 	// ~ Inner Classes
 	// ==================================================================================================
 	@SuppressWarnings("unused")
 	private class MockIdDomainObject {
+
 		private Object id;
 
 		public Object getId() {

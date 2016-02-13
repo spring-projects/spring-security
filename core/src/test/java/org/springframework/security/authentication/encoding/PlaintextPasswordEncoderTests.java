@@ -15,9 +15,9 @@
 
 package org.springframework.security.authentication.encoding;
 
-import org.springframework.security.authentication.encoding.PlaintextPasswordEncoder;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /**
  * <p>
@@ -27,10 +27,11 @@ import junit.framework.TestCase;
  * @author colin sampaleanu
  * @author Ben Alex
  */
-public class PlaintextPasswordEncoderTests extends TestCase {
+public class PlaintextPasswordEncoderTests {
+
 	// ~ Methods
 	// ========================================================================================================
-
+	@Test
 	public void testBasicFunctionality() {
 		PlaintextPasswordEncoder pe = new PlaintextPasswordEncoder();
 
@@ -40,14 +41,14 @@ public class PlaintextPasswordEncoderTests extends TestCase {
 		String salt = "THIS_IS_A_SALT";
 
 		String encoded = pe.encodePassword(raw, salt);
-		assertEquals("abc123{THIS_IS_A_SALT}", encoded);
-		assertTrue(pe.isPasswordValid(encoded, raw, salt));
-		assertFalse(pe.isPasswordValid(encoded, badRaw, salt));
+		assertThat(encoded).isEqualTo("abc123{THIS_IS_A_SALT}");
+		assertThat(pe.isPasswordValid(encoded, raw, salt)).isTrue();
+		assertThat(pe.isPasswordValid(encoded, badRaw, salt)).isFalse();
 
 		// make sure default is not to ignore password case
-		assertFalse(pe.isIgnorePasswordCase());
+		assertThat(pe.isIgnorePasswordCase()).isFalse();
 		encoded = pe.encodePassword(rawDiffCase, salt);
-		assertFalse(pe.isPasswordValid(encoded, raw, salt));
+		assertThat(pe.isPasswordValid(encoded, raw, salt)).isFalse();
 
 		// now check for ignore password case
 		pe = new PlaintextPasswordEncoder();
@@ -55,16 +56,17 @@ public class PlaintextPasswordEncoderTests extends TestCase {
 
 		// should be able to validate even without encoding
 		encoded = pe.encodePassword(rawDiffCase, salt);
-		assertTrue(pe.isPasswordValid(encoded, raw, salt));
-		assertFalse(pe.isPasswordValid(encoded, badRaw, salt));
+		assertThat(pe.isPasswordValid(encoded, raw, salt)).isTrue();
+		assertThat(pe.isPasswordValid(encoded, badRaw, salt)).isFalse();
 	}
 
+	@Test
 	public void testMergeDemerge() {
 		PlaintextPasswordEncoder pwd = new PlaintextPasswordEncoder();
 
 		String merged = pwd.encodePassword("password", "foo");
 		String[] demerged = pwd.obtainPasswordAndSalt(merged);
-		assertEquals("password", demerged[0]);
-		assertEquals("foo", demerged[1]);
+		assertThat(demerged[0]).isEqualTo("password");
+		assertThat(demerged[1]).isEqualTo("foo");
 	}
 }

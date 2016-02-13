@@ -15,8 +15,10 @@
 
 package org.springframework.security.web.servletapi;
 
-import junit.framework.TestCase;
+import static org.assertj.core.api.Assertions.*;
 
+import org.junit.Before;
+import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -30,12 +32,14 @@ import org.springframework.security.web.servletapi.SecurityContextHolderAwareReq
  *
  * @author Ben Alex
  */
-public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
-
-	protected void tearDown() throws Exception {
+public class SecurityContextHolderAwareRequestWrapperTests {
+	
+	@Before
+	public void tearDown() throws Exception {
 		SecurityContextHolder.clearContext();
 	}
 
+	@Test
 	public void testCorrectOperationWithStringBasedPrincipal() throws Exception {
 		Authentication auth = new TestingAuthenticationToken("rod", "koala", "ROLE_FOO");
 		SecurityContextHolder.getContext().setAuthentication(auth);
@@ -46,12 +50,13 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
 		SecurityContextHolderAwareRequestWrapper wrapper = new SecurityContextHolderAwareRequestWrapper(
 				request, "");
 
-		assertEquals("rod", wrapper.getRemoteUser());
-		assertTrue(wrapper.isUserInRole("ROLE_FOO"));
-		assertFalse(wrapper.isUserInRole("ROLE_NOT_GRANTED"));
-		assertEquals(auth, wrapper.getUserPrincipal());
+		assertThat(wrapper.getRemoteUser()).isEqualTo("rod");
+		assertThat(wrapper.isUserInRole("ROLE_FOO")).isTrue();
+		assertThat(wrapper.isUserInRole("ROLE_NOT_GRANTED")).isFalse();
+		assertThat(wrapper.getUserPrincipal()).isEqualTo(auth);
 	}
 
+	@Test
 	public void testUseOfRolePrefixMeansItIsntNeededWhenCallngIsUserInRole() {
 		Authentication auth = new TestingAuthenticationToken("rod", "koala", "ROLE_FOO");
 		SecurityContextHolder.getContext().setAuthentication(auth);
@@ -62,9 +67,10 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
 		SecurityContextHolderAwareRequestWrapper wrapper = new SecurityContextHolderAwareRequestWrapper(
 				request, "ROLE_");
 
-		assertTrue(wrapper.isUserInRole("FOO"));
+		assertThat(wrapper.isUserInRole("FOO")).isTrue();
 	}
 
+	@Test
 	public void testCorrectOperationWithUserDetailsBasedPrincipal() throws Exception {
 		Authentication auth = new TestingAuthenticationToken(new User("rodAsUserDetails",
 				"koala", true, true, true, true, AuthorityUtils.NO_AUTHORITIES), "koala",
@@ -77,14 +83,15 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
 		SecurityContextHolderAwareRequestWrapper wrapper = new SecurityContextHolderAwareRequestWrapper(
 				request, "");
 
-		assertEquals("rodAsUserDetails", wrapper.getRemoteUser());
-		assertFalse(wrapper.isUserInRole("ROLE_FOO"));
-		assertFalse(wrapper.isUserInRole("ROLE_NOT_GRANTED"));
-		assertTrue(wrapper.isUserInRole("ROLE_FOOBAR"));
-		assertTrue(wrapper.isUserInRole("ROLE_HELLO"));
-		assertEquals(auth, wrapper.getUserPrincipal());
+		assertThat(wrapper.getRemoteUser()).isEqualTo("rodAsUserDetails");
+		assertThat(wrapper.isUserInRole("ROLE_FOO")).isFalse();
+		assertThat(wrapper.isUserInRole("ROLE_NOT_GRANTED")).isFalse();
+		assertThat(wrapper.isUserInRole("ROLE_FOOBAR")).isTrue();
+		assertThat(wrapper.isUserInRole("ROLE_HELLO")).isTrue();
+		assertThat(wrapper.getUserPrincipal()).isEqualTo(auth);
 	}
 
+	@Test
 	public void testRoleIsntHeldIfAuthenticationIsNull() throws Exception {
 		SecurityContextHolder.getContext().setAuthentication(null);
 
@@ -93,11 +100,12 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
 
 		SecurityContextHolderAwareRequestWrapper wrapper = new SecurityContextHolderAwareRequestWrapper(
 				request, "");
-		assertNull(wrapper.getRemoteUser());
-		assertFalse(wrapper.isUserInRole("ROLE_ANY"));
-		assertNull(wrapper.getUserPrincipal());
+		assertThat(wrapper.getRemoteUser()).isNull();
+		assertThat(wrapper.isUserInRole("ROLE_ANY")).isFalse();
+		assertThat(wrapper.getUserPrincipal()).isNull();
 	}
 
+	@Test
 	public void testRolesArentHeldIfAuthenticationPrincipalIsNull() throws Exception {
 		Authentication auth = new TestingAuthenticationToken(null, "koala", "ROLE_HELLO",
 				"ROLE_FOOBAR");
@@ -109,12 +117,13 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
 		SecurityContextHolderAwareRequestWrapper wrapper = new SecurityContextHolderAwareRequestWrapper(
 				request, "");
 
-		assertNull(wrapper.getRemoteUser());
-		assertFalse(wrapper.isUserInRole("ROLE_HELLO")); // principal is null, so reject
-		assertFalse(wrapper.isUserInRole("ROLE_FOOBAR")); // principal is null, so reject
-		assertNull(wrapper.getUserPrincipal());
+		assertThat(wrapper.getRemoteUser()).isNull();
+		assertThat(wrapper.isUserInRole("ROLE_HELLO")).isFalse(); // principal is null, so reject
+		assertThat(wrapper.isUserInRole("ROLE_FOOBAR")).isFalse(); // principal is null, so reject
+		assertThat(wrapper.getUserPrincipal()).isNull();
 	}
 
+	@Test
 	public void testRolePrefix() {
 		Authentication auth = new TestingAuthenticationToken("user", "koala", "ROLE_HELLO",
 				"ROLE_FOOBAR");
@@ -125,11 +134,12 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
 		SecurityContextHolderAwareRequestWrapper wrapper = new SecurityContextHolderAwareRequestWrapper(
 				request, "ROLE_");
 
-		assertTrue(wrapper.isUserInRole("HELLO"));
-		assertTrue(wrapper.isUserInRole("FOOBAR"));
+		assertThat(wrapper.isUserInRole("HELLO")).isTrue();
+		assertThat(wrapper.isUserInRole("FOOBAR")).isTrue();
 	}
 
 	// SEC-3020
+	@Test
 	public void testRolePrefixNotAppliedIfRoleStartsWith() {
 		Authentication auth = new TestingAuthenticationToken("user", "koala", "ROLE_HELLO",
 				"ROLE_FOOBAR");
@@ -140,7 +150,7 @@ public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
 		SecurityContextHolderAwareRequestWrapper wrapper = new SecurityContextHolderAwareRequestWrapper(
 				request, "ROLE_");
 
-		assertTrue(wrapper.isUserInRole("ROLE_HELLO"));
-		assertTrue(wrapper.isUserInRole("ROLE_FOOBAR"));
+		assertThat(wrapper.isUserInRole("ROLE_HELLO")).isTrue();
+		assertThat(wrapper.isUserInRole("ROLE_FOOBAR")).isTrue();
 	}
 }

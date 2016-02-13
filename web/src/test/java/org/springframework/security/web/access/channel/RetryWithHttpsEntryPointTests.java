@@ -15,13 +15,13 @@
 
 package org.springframework.security.web.access.channel;
 
-import junit.framework.TestCase;
+import static org.assertj.core.api.Assertions.*;
 
 import org.springframework.security.MockPortResolver;
 
 import org.springframework.security.web.PortMapperImpl;
 import org.springframework.security.web.access.channel.RetryWithHttpsEntryPoint;
-
+import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
@@ -33,10 +33,10 @@ import java.util.Map;
  *
  * @author Ben Alex
  */
-public class RetryWithHttpsEntryPointTests extends TestCase {
+public class RetryWithHttpsEntryPointTests {
 	// ~ Methods
 	// ========================================================================================================
-
+	@Test
 	public void testDetectsMissingPortMapper() throws Exception {
 		RetryWithHttpsEntryPoint ep = new RetryWithHttpsEntryPoint();
 
@@ -48,6 +48,7 @@ public class RetryWithHttpsEntryPointTests extends TestCase {
 		}
 	}
 
+	@Test
 	public void testDetectsMissingPortResolver() throws Exception {
 		RetryWithHttpsEntryPoint ep = new RetryWithHttpsEntryPoint();
 
@@ -59,14 +60,16 @@ public class RetryWithHttpsEntryPointTests extends TestCase {
 		}
 	}
 
+	@Test
 	public void testGettersSetters() {
 		RetryWithHttpsEntryPoint ep = new RetryWithHttpsEntryPoint();
 		ep.setPortMapper(new PortMapperImpl());
 		ep.setPortResolver(new MockPortResolver(8080, 8443));
-		assertTrue(ep.getPortMapper() != null);
-		assertTrue(ep.getPortResolver() != null);
+		assertThat(ep.getPortMapper() != null).isTrue();
+		assertThat(ep.getPortResolver() != null).isTrue();
 	}
 
+	@Test
 	public void testNormalOperation() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET",
 				"/bigWebApp/hello/pathInfo.html");
@@ -82,10 +85,11 @@ public class RetryWithHttpsEntryPointTests extends TestCase {
 		ep.setPortResolver(new MockPortResolver(80, 443));
 
 		ep.commence(request, response);
-		assertEquals("https://www.example.com/bigWebApp/hello/pathInfo.html?open=true",
-				response.getRedirectedUrl());
+		assertThat(response.getRedirectedUrl()).isEqualTo(
+				"https://www.example.com/bigWebApp/hello/pathInfo.html?open=true");
 	}
 
+	@Test
 	public void testNormalOperationWithNullQueryString() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET",
 				"/bigWebApp/hello");
@@ -100,10 +104,10 @@ public class RetryWithHttpsEntryPointTests extends TestCase {
 		ep.setPortResolver(new MockPortResolver(80, 443));
 
 		ep.commence(request, response);
-		assertEquals("https://www.example.com/bigWebApp/hello",
-				response.getRedirectedUrl());
+		assertThat(response.getRedirectedUrl()).isEqualTo("https://www.example.com/bigWebApp/hello");
 	}
 
+	@Test
 	public void testOperationWhenTargetPortIsUnknown() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/bigWebApp");
 		request.setQueryString("open=true");
@@ -118,9 +122,10 @@ public class RetryWithHttpsEntryPointTests extends TestCase {
 		ep.setPortResolver(new MockPortResolver(8768, 1234));
 
 		ep.commence(request, response);
-		assertEquals("/bigWebApp?open=true", response.getRedirectedUrl());
+		assertThat(response.getRedirectedUrl()).isEqualTo("/bigWebApp?open=true");
 	}
 
+	@Test
 	public void testOperationWithNonStandardPort() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET",
 				"/bigWebApp/hello/pathInfo.html");
@@ -141,8 +146,7 @@ public class RetryWithHttpsEntryPointTests extends TestCase {
 		ep.setPortMapper(portMapper);
 
 		ep.commence(request, response);
-		assertEquals(
-				"https://www.example.com:9999/bigWebApp/hello/pathInfo.html?open=true",
-				response.getRedirectedUrl());
+		assertThat(response.getRedirectedUrl()).isEqualTo(
+				"https://www.example.com:9999/bigWebApp/hello/pathInfo.html?open=true");
 	}
 }

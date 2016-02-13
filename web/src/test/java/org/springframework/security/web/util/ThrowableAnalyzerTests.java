@@ -1,11 +1,13 @@
+
 package org.springframework.security.web.util;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 import java.lang.reflect.InvocationTargetException;
 
-import org.springframework.security.web.util.ThrowableAnalyzer;
-import org.springframework.security.web.util.ThrowableCauseExtractor;
-
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Test cases for {@link ThrowableAnalyzer}.
@@ -13,7 +15,7 @@ import junit.framework.TestCase;
  * @author Andreas Senft
  */
 @SuppressWarnings("unchecked")
-public class ThrowableAnalyzerTests extends TestCase {
+public class ThrowableAnalyzerTests {
 
 	/**
 	 * Exception for testing purposes. The cause is not retrievable by {@link #getCause()}
@@ -37,8 +39,8 @@ public class ThrowableAnalyzerTests extends TestCase {
 	 * <code>ThrowableCauseExtractor</code> for handling <code>NonStandardException</code>
 	 * instances.
 	 */
-	public static final class NonStandardExceptionCauseExtractor implements
-			ThrowableCauseExtractor {
+	public static final class NonStandardExceptionCauseExtractor
+			implements ThrowableCauseExtractor {
 
 		public Throwable extractCause(Throwable throwable) {
 			ThrowableAnalyzer.verifyThrowableHierarchy(throwable,
@@ -65,12 +67,8 @@ public class ThrowableAnalyzerTests extends TestCase {
 	 */
 	private ThrowableAnalyzer nonstandardAnalyzer;
 
-	/**
-	 * @see junit.framework.TestCase#setUp()
-	 */
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+	@Before
+	public void setUp() throws Exception {
 
 		// Set up test trace
 		this.testTrace = new Throwable[7];
@@ -87,6 +85,7 @@ public class ThrowableAnalyzerTests extends TestCase {
 
 		// Set up nonstandard analyzer
 		this.nonstandardAnalyzer = new ThrowableAnalyzer() {
+
 			/**
 			 * @see org.springframework.security.web.util.ThrowableAnalyzer#initExtractorMap()
 			 */
@@ -100,14 +99,7 @@ public class ThrowableAnalyzerTests extends TestCase {
 		};
 	}
 
-	/**
-	 * @see junit.framework.TestCase#tearDown()
-	 */
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
-	}
-
+	@Test
 	public void testRegisterExtractorWithInvalidExtractor() {
 		try {
 			new ThrowableAnalyzer() {
@@ -129,6 +121,7 @@ public class ThrowableAnalyzerTests extends TestCase {
 		}
 	}
 
+	@Test
 	public void testGetRegisteredTypes() {
 
 		Class[] registeredTypes = this.nonstandardAnalyzer.getRegisteredTypes();
@@ -140,13 +133,14 @@ public class ThrowableAnalyzerTests extends TestCase {
 			for (int j = 0; j < i; ++j) {
 				Class prevClazz = registeredTypes[j];
 
-				assertFalse("Unexpected order of registered classes: " + prevClazz
-						+ " is assignable from " + clazz,
-						prevClazz.isAssignableFrom(clazz));
+				assertThat(prevClazz.isAssignableFrom(clazz)).withFailMessage(
+						"Unexpected order of registered classes: " + prevClazz
+								+ " is assignable from " + clazz).isFalse();
 			}
 		}
 	}
 
+	@Test
 	public void testDetermineCauseChainWithNoExtractors() {
 		ThrowableAnalyzer analyzer = new ThrowableAnalyzer() {
 
@@ -159,43 +153,49 @@ public class ThrowableAnalyzerTests extends TestCase {
 			}
 		};
 
-		assertEquals("Unexpected number of registered types", 0,
-				analyzer.getRegisteredTypes().length);
+		assertThat(analyzer.getRegisteredTypes().length).withFailMessage(
+				"Unexpected number of registered types").isEqualTo(0);
 
 		Throwable t = this.testTrace[0];
 		Throwable[] chain = analyzer.determineCauseChain(t);
 		// Without extractors only the root throwable is available
-		assertEquals("Unexpected chain size", 1, chain.length);
-		assertEquals("Unexpected chain entry", t, chain[0]);
+		assertThat(chain.length).as("Unexpected chain size").isEqualTo(1);
+		assertThat(chain[0]).as("Unexpected chain entry").isEqualTo(t);
 	}
 
+	@Test
 	public void testDetermineCauseChainWithDefaultExtractors() {
 		ThrowableAnalyzer analyzer = this.standardAnalyzer;
 
-		assertEquals("Unexpected number of registered types", 2,
-				analyzer.getRegisteredTypes().length);
+		assertThat(analyzer.getRegisteredTypes().length).withFailMessage(
+				"Unexpected number of registered types").isEqualTo(2);
 
 		Throwable[] chain = analyzer.determineCauseChain(this.testTrace[0]);
 
 		// Element at index 2 is a NonStandardException which cannot be analyzed further
 		// by default
-		assertEquals("Unexpected chain size", 3, chain.length);
+		assertThat(chain.length).as("Unexpected chain size").isEqualTo(3);
 		for (int i = 0; i < 3; ++i) {
-			assertEquals("Unexpected chain entry: " + i, this.testTrace[i], chain[i]);
+			assertThat(chain[i]).withFailMessage(
+					"Unexpected chain entry: " + i).isEqualTo(this.testTrace[i]);
 		}
 	}
 
+	@Test
 	public void testDetermineCauseChainWithCustomExtractors() {
 		ThrowableAnalyzer analyzer = this.nonstandardAnalyzer;
 
 		Throwable[] chain = analyzer.determineCauseChain(this.testTrace[0]);
 
-		assertEquals("Unexpected chain size", this.testTrace.length, chain.length);
+		assertThat(chain.length).as("Unexpected chain size").isEqualTo(
+				this.testTrace.length);
 		for (int i = 0; i < chain.length; ++i) {
-			assertEquals("Unexpected chain entry: " + i, this.testTrace[i], chain[i]);
+			assertThat(chain[i]).withFailMessage(
+					"Unexpected chain entry: " + i).isEqualTo(this.testTrace[i]);
 		}
 	}
 
+	@Test
 	public void testGetFirstThrowableOfTypeWithSuccess1() {
 		ThrowableAnalyzer analyzer = this.nonstandardAnalyzer;
 
@@ -203,10 +203,11 @@ public class ThrowableAnalyzerTests extends TestCase {
 
 		Throwable result = analyzer.getFirstThrowableOfType(Exception.class, chain);
 
-		assertNotNull("null not expected", result);
-		assertEquals("Unexpected throwable found", this.testTrace[0], result);
+		assertThat(result).as("null not expected").isNotNull();
+		assertThat(result).as("Unexpected throwable found").isEqualTo(this.testTrace[0]);
 	}
 
+	@Test
 	public void testGetFirstThrowableOfTypeWithSuccess2() {
 		ThrowableAnalyzer analyzer = this.nonstandardAnalyzer;
 
@@ -215,10 +216,11 @@ public class ThrowableAnalyzerTests extends TestCase {
 		Throwable result = analyzer.getFirstThrowableOfType(NonStandardException.class,
 				chain);
 
-		assertNotNull("null not expected", result);
-		assertEquals("Unexpected throwable found", this.testTrace[2], result);
+		assertThat(result).as("null not expected").isNotNull();
+		assertThat(result).as("Unexpected throwable found").isEqualTo(this.testTrace[2]);
 	}
 
+	@Test
 	public void testGetFirstThrowableOfTypeWithFailure() {
 		ThrowableAnalyzer analyzer = this.nonstandardAnalyzer;
 
@@ -228,17 +230,19 @@ public class ThrowableAnalyzerTests extends TestCase {
 		Throwable result = analyzer.getFirstThrowableOfType(IllegalStateException.class,
 				chain);
 
-		assertNull("null expected", result);
+		assertThat(result).as("null expected").isNull();
 	}
 
+	@Test
 	public void testVerifyThrowableHierarchyWithExactType() {
 
 		Throwable throwable = new IllegalStateException("Test");
-		ThrowableAnalyzer
-				.verifyThrowableHierarchy(throwable, IllegalStateException.class);
+		ThrowableAnalyzer.verifyThrowableHierarchy(throwable,
+				IllegalStateException.class);
 		// No exception expected
 	}
 
+	@Test
 	public void testVerifyThrowableHierarchyWithCompatibleType() {
 
 		Throwable throwable = new IllegalStateException("Test");
@@ -246,6 +250,7 @@ public class ThrowableAnalyzerTests extends TestCase {
 		// No exception expected
 	}
 
+	@Test
 	public void testVerifyThrowableHierarchyWithNull() {
 		try {
 			ThrowableAnalyzer.verifyThrowableHierarchy(null, Throwable.class);
@@ -256,6 +261,7 @@ public class ThrowableAnalyzerTests extends TestCase {
 		}
 	}
 
+	@Test
 	public void testVerifyThrowableHierarchyWithNonmatchingType() {
 
 		Throwable throwable = new IllegalStateException("Test");

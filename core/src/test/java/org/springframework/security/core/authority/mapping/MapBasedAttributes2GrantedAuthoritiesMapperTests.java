@@ -1,6 +1,6 @@
 package org.springframework.security.core.authority.mapping;
 
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Test;
 import org.springframework.security.core.GrantedAuthority;
@@ -192,8 +192,7 @@ public class MapBasedAttributes2GrantedAuthoritiesMapperTests {
 			resultColl.add(auth.getAuthority());
 		}
 		Collection expectedColl = Arrays.asList(expectedGas);
-		assertTrue("Role collections should match; result: " + resultColl
-				+ ", expected: " + expectedColl, expectedColl.containsAll(resultColl)
-				&& resultColl.containsAll(expectedColl));
+		assertThat(resultColl.containsAll(expectedColl)).withFailMessage("Role collections should match; result: " + resultColl
+				+ ", expected: " + expectedColl).isTrue();
 	}
 }

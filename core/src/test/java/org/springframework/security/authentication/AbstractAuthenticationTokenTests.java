@@ -15,7 +15,7 @@
 
 package org.springframework.security.authentication;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -49,7 +49,7 @@ public class AbstractAuthenticationTokenTests {
 				authorities);
 		List<GrantedAuthority> gotAuthorities = (List<GrantedAuthority>) token
 				.getAuthorities();
-		assertNotSame(authorities, gotAuthorities);
+		assertThat(gotAuthorities).isNotSameAs(authorities);
 
 		gotAuthorities.set(0, new SimpleGrantedAuthority("ROLE_SUPER_USER"));
 	}
@@ -58,9 +58,9 @@ public class AbstractAuthenticationTokenTests {
 	public void testGetters() throws Exception {
 		MockAuthenticationImpl token = new MockAuthenticationImpl("Test", "Password",
 				authorities);
-		assertEquals("Test", token.getPrincipal());
-		assertEquals("Password", token.getCredentials());
-		assertEquals("Test", token.getName());
+		assertThat(token.getPrincipal()).isEqualTo("Test");
+		assertThat(token.getCredentials()).isEqualTo("Password");
+		assertThat(token.getName()).isEqualTo("Test");
 	}
 
 	@Test
@@ -71,12 +71,12 @@ public class AbstractAuthenticationTokenTests {
 				authorities);
 		MockAuthenticationImpl token3 = new MockAuthenticationImpl(null, null,
 				AuthorityUtils.NO_AUTHORITIES);
-		assertEquals(token1.hashCode(), token2.hashCode());
-		assertTrue(token1.hashCode() != token3.hashCode());
+		assertThat(token2.hashCode()).isEqualTo(token1.hashCode());
+		assertThat(token1.hashCode() != token3.hashCode()).isTrue();
 
 		token2.setAuthenticated(true);
 
-		assertTrue(token1.hashCode() != token2.hashCode());
+		assertThat(token1.hashCode() != token2.hashCode()).isTrue();
 	}
 
 	@Test
@@ -85,53 +85,53 @@ public class AbstractAuthenticationTokenTests {
 				authorities);
 		MockAuthenticationImpl token2 = new MockAuthenticationImpl("Test", "Password",
 				authorities);
-		assertEquals(token1, token2);
+		assertThat(token2).isEqualTo(token1);
 
 		MockAuthenticationImpl token3 = new MockAuthenticationImpl("Test",
 				"Password_Changed", authorities);
-		assertTrue(!token1.equals(token3));
+		assertThat(!token1.equals(token3)).isTrue();
 
 		MockAuthenticationImpl token4 = new MockAuthenticationImpl("Test_Changed",
 				"Password", authorities);
-		assertTrue(!token1.equals(token4));
+		assertThat(!token1.equals(token4)).isTrue();
 
 		MockAuthenticationImpl token5 = new MockAuthenticationImpl("Test", "Password",
 				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO_CHANGED"));
-		assertTrue(!token1.equals(token5));
+		assertThat(!token1.equals(token5)).isTrue();
 
 		MockAuthenticationImpl token6 = new MockAuthenticationImpl("Test", "Password",
 				AuthorityUtils.createAuthorityList("ROLE_ONE"));
-		assertTrue(!token1.equals(token6));
+		assertThat(!token1.equals(token6)).isTrue();
 
 		MockAuthenticationImpl token7 = new MockAuthenticationImpl("Test", "Password",
 				null);
-		assertTrue(!token1.equals(token7));
-		assertTrue(!token7.equals(token1));
+		assertThat(!token1.equals(token7)).isTrue();
+		assertThat(!token7.equals(token1)).isTrue();
 
-		assertTrue(!token1.equals(Integer.valueOf(100)));
+		assertThat(!token1.equals(Integer.valueOf(100))).isTrue();
 	}
 
 	@Test
 	public void testSetAuthenticated() throws Exception {
 		MockAuthenticationImpl token = new MockAuthenticationImpl("Test", "Password",
 				authorities);
-		assertTrue(!token.isAuthenticated());
+		assertThat(!token.isAuthenticated()).isTrue();
 		token.setAuthenticated(true);
-		assertTrue(token.isAuthenticated());
+		assertThat(token.isAuthenticated()).isTrue();
 	}
 
 	@Test
 	public void testToStringWithAuthorities() {
 		MockAuthenticationImpl token = new MockAuthenticationImpl("Test", "Password",
 				authorities);
-		assertTrue(token.toString().lastIndexOf("ROLE_TWO") != -1);
+		assertThat(token.toString().lastIndexOf("ROLE_TWO") != -1).isTrue();
 	}
 
 	@Test
 	public void testToStringWithNullAuthorities() {
 		MockAuthenticationImpl token = new MockAuthenticationImpl("Test", "Password",
 				null);
-		assertTrue(token.toString().lastIndexOf("Not granted any authorities") != -1);
+		assertThat(token.toString().lastIndexOf("Not granted any authorities") != -1).isTrue();
 	}
 
 	// ~ Inner Classes

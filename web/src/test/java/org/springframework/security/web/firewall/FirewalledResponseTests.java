@@ -1,7 +1,7 @@
 package org.springframework.security.web.firewall;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 import org.junit.*;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -17,24 +17,24 @@ public class FirewalledResponseTests {
 		FirewalledResponse fwResponse = new FirewalledResponse(response);
 
 		fwResponse.sendRedirect("/theURL");
-		assertEquals("/theURL", response.getRedirectedUrl());
+		assertThat(response.getRedirectedUrl()).isEqualTo("/theURL");
 
 		try {
 			fwResponse.sendRedirect("/theURL\r\nsomething");
-			fail();
+			fail("IllegalArgumentException should have thrown");
 		}
 		catch (IllegalArgumentException expected) {
 		}
 		try {
 			fwResponse.sendRedirect("/theURL\rsomething");
-			fail();
+			fail("IllegalArgumentException should have thrown");
 		}
 		catch (IllegalArgumentException expected) {
 		}
 
 		try {
 			fwResponse.sendRedirect("/theURL\nsomething");
-			fail();
+			fail("IllegalArgumentException should have thrown");
 		}
 		catch (IllegalArgumentException expected) {
 		}

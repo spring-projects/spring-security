@@ -1,6 +1,6 @@
 package org.springframework.security.web.authentication.preauth;
 
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -24,8 +24,8 @@ public class PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetailsTests {
 		PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails details = new PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails(
 				getRequest("testUser", new String[] {}), gas);
 		String toString = details.toString();
-		assertTrue("toString should contain Role1", toString.contains("Role1"));
-		assertTrue("toString should contain Role2", toString.contains("Role2"));
+		assertThat(toString.contains("Role1")).as("toString should contain Role1").isTrue();
+		assertThat(toString.contains("Role2")).as("toString should contain Role2").isTrue();
 	}
 
 	@Test
@@ -33,9 +33,9 @@ public class PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetailsTests {
 		PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails details = new PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails(
 				getRequest("testUser", new String[] {}), gas);
 		List<GrantedAuthority> returnedGas = details.getGrantedAuthorities();
-		assertTrue("Collections do not contain same elements; expected: " + gas
-				+ ", returned: " + returnedGas, gas.containsAll(returnedGas)
-				&& returnedGas.containsAll(gas));
+		assertThat(gas.containsAll(returnedGas) && returnedGas.containsAll(gas))
+			.withFailMessage("Collections do not contain same elements; expected: " + gas
+				+ ", returned: " + returnedGas).isTrue();
 	}
 
 	private HttpServletRequest getRequest(final String userName, final String[] aRoles) {

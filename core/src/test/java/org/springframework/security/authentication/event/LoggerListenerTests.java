@@ -15,12 +15,9 @@
 
 package org.springframework.security.authentication.event;
 
-import junit.framework.TestCase;
-
+import org.junit.Test;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.authentication.event.AuthenticationFailureDisabledEvent;
-import org.springframework.security.authentication.event.LoggerListener;
 import org.springframework.security.core.Authentication;
 
 /**
@@ -28,7 +25,7 @@ import org.springframework.security.core.Authentication;
  *
  * @author Ben Alex
  */
-public class LoggerListenerTests extends TestCase {
+public class LoggerListenerTests {
 	// ~ Methods
 	// ========================================================================================================
 
@@ -40,19 +37,12 @@ public class LoggerListenerTests extends TestCase {
 		return authentication;
 	}
 
-	public static void main(String[] args) {
-		junit.textui.TestRunner.run(LoggerListenerTests.class);
-	}
-
-	public final void setUp() throws Exception {
-		super.setUp();
-	}
-
+	@Test
 	public void testLogsEvents() {
 		AuthenticationFailureDisabledEvent event = new AuthenticationFailureDisabledEvent(
 				getAuthentication(), new LockedException("TEST"));
 		LoggerListener listener = new LoggerListener();
 		listener.onApplicationEvent(event);
-		assertTrue(true);
+
 	}
 }

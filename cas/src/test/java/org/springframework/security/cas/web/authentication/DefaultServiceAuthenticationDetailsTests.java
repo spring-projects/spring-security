@@ -15,7 +15,7 @@
  */
 package org.springframework.security.cas.web.authentication;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.regex.Pattern;
 
@@ -71,7 +71,7 @@ public class DefaultServiceAuthenticationDetailsTests {
 	public void getServiceUrlNullQuery() throws Exception {
 		details = new DefaultServiceAuthenticationDetails(casServiceUrl, request,
 				artifactPattern);
-		assertEquals(UrlUtils.buildFullRequestUrl(request), details.getServiceUrl());
+		assertThat(details.getServiceUrl()).isEqualTo(UrlUtils.buildFullRequestUrl(request));
 	}
 
 	@Test
@@ -81,7 +81,7 @@ public class DefaultServiceAuthenticationDetailsTests {
 				artifactPattern);
 		String serviceUrl = details.getServiceUrl();
 		request.setQueryString(null);
-		assertEquals(UrlUtils.buildFullRequestUrl(request), serviceUrl);
+		assertThat(serviceUrl).isEqualTo(UrlUtils.buildFullRequestUrl(request));
 	}
 
 	@Test
@@ -91,7 +91,7 @@ public class DefaultServiceAuthenticationDetailsTests {
 				artifactPattern);
 		String serviceUrl = details.getServiceUrl();
 		request.setQueryString("other=value");
-		assertEquals(UrlUtils.buildFullRequestUrl(request), serviceUrl);
+		assertThat(serviceUrl).isEqualTo(UrlUtils.buildFullRequestUrl(request));
 	}
 
 	@Test
@@ -101,7 +101,7 @@ public class DefaultServiceAuthenticationDetailsTests {
 				artifactPattern);
 		String serviceUrl = details.getServiceUrl();
 		request.setQueryString("other=value");
-		assertEquals(UrlUtils.buildFullRequestUrl(request), serviceUrl);
+		assertThat(serviceUrl).isEqualTo(UrlUtils.buildFullRequestUrl(request));
 	}
 
 	@Test
@@ -111,7 +111,7 @@ public class DefaultServiceAuthenticationDetailsTests {
 				artifactPattern);
 		String serviceUrl = details.getServiceUrl();
 		request.setQueryString("other=value&last=this");
-		assertEquals(UrlUtils.buildFullRequestUrl(request), serviceUrl);
+		assertThat(serviceUrl).isEqualTo(UrlUtils.buildFullRequestUrl(request));
 	}
 
 	@Test
@@ -120,7 +120,7 @@ public class DefaultServiceAuthenticationDetailsTests {
 		request.setServerName("evil.com");
 		details = new DefaultServiceAuthenticationDetails(casServiceUrl, request,
 				artifactPattern);
-		assertEquals("https://example.com/cas-sample/secure/", details.getServiceUrl());
+		assertThat(details.getServiceUrl()).isEqualTo("https://example.com/cas-sample/secure/");
 	}
 
 	@Test
@@ -128,7 +128,7 @@ public class DefaultServiceAuthenticationDetailsTests {
 		casServiceUrl = "https://example.com/j_spring_security_cas";
 		request.setServerName("evil.com");
 		ServiceAuthenticationDetails details = loadServiceAuthenticationDetails("defaultserviceauthenticationdetails-explicit.xml");
-		assertEquals("https://example.com/cas-sample/secure/", details.getServiceUrl());
+		assertThat(details.getServiceUrl()).isEqualTo("https://example.com/cas-sample/secure/");
 	}
 
 	private ServiceAuthenticationDetails loadServiceAuthenticationDetails(

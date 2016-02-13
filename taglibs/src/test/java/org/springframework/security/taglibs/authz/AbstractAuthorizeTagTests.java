@@ -12,7 +12,7 @@
  */
 package org.springframework.security.taglibs.authz;
 
-import static org.fest.assertions.Assertions.*;
+import static org.assertj.core.api.Assertions.*;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;

@@ -15,7 +15,7 @@
 
 package org.springframework.security.core.userdetails;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
@@ -44,10 +44,10 @@ public class UserTests {
 	public void equalsReturnsTrueIfUsernamesAreTheSame() {
 		User user1 = new User("rod", "koala", true, true, true, true, ROLE_12);
 
-		assertFalse(user1.equals(null));
-		assertFalse(user1.equals("A STRING"));
-		assertTrue(user1.equals(user1));
-		assertTrue(user1.equals(new User("rod", "notthesame", true, true, true, true,
+		assertThat(user1).isNotNull();
+		assertThat(user1).isNotEqualTo("A STRING");
+		assertThat(user1).isEqualTo(user1);
+		assertThat(user1).isEqualTo((new User("rod", "notthesame", true, true, true, true,
 				ROLE_12)));
 	}
 
@@ -57,12 +57,12 @@ public class UserTests {
 		Set<UserDetails> users = new HashSet<UserDetails>();
 		users.add(user1);
 
-		assertTrue(users.contains(new User("rod", "koala", true, true, true, true,
-				ROLE_12)));
-		assertTrue(users.contains(new User("rod", "anotherpass", false, false, false,
-				false, AuthorityUtils.createAuthorityList("ROLE_X"))));
-		assertFalse(users.contains(new User("bod", "koala", true, true, true, true,
-				ROLE_12)));
+		assertThat(users).contains(new User("rod", "koala", true, true, true, true,
+				ROLE_12));
+		assertThat(users).contains(new User("rod", "anotherpass", false, false, false,
+				false, AuthorityUtils.createAuthorityList("ROLE_X")));
+		assertThat(users).doesNotContain(new User("bod", "koala", true, true, true, true,
+				ROLE_12));
 	}
 
 	@Test
@@ -120,20 +120,20 @@ public class UserTests {
 	public void testUserGettersSetter() throws Exception {
 		UserDetails user = new User("rod", "koala", true, true, true, true,
 				AuthorityUtils.createAuthorityList("ROLE_TWO", "ROLE_ONE"));
-		assertEquals("rod", user.getUsername());
-		assertEquals("koala", user.getPassword());
-		assertTrue(user.isEnabled());
-		assertTrue(AuthorityUtils.authorityListToSet(user.getAuthorities()).contains(
-				"ROLE_ONE"));
-		assertTrue(AuthorityUtils.authorityListToSet(user.getAuthorities()).contains(
-				"ROLE_TWO"));
-		assertTrue(user.toString().indexOf("rod") != -1);
+		assertThat(user.getUsername()).isEqualTo("rod");
+		assertThat(user.getPassword()).isEqualTo("koala");
+		assertThat(user.isEnabled()).isTrue();
+		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities())).contains(
+				"ROLE_ONE");
+		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities())).contains(
+				"ROLE_TWO");
+		assertThat(user.toString().indexOf("rod") != -1).isTrue();
 	}
 
 	@Test
 	public void enabledFlagIsFalseForDisabledAccount() throws Exception {
 		UserDetails user = new User("rod", "koala", false, true, true, true, ROLE_12);
-		assertFalse(user.isEnabled());
+		assertThat(user.isEnabled()).isFalse();
 	}
 
 	@Test

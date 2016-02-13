@@ -79,12 +79,12 @@ ext.jstlDependencies = [
 ]
 
 ext.apachedsDependencies = [
-		 "org.apache.directory.server:apacheds-core:$apacheDsVersion",
-		 "org.apache.directory.server:apacheds-core-entry:$apacheDsVersion",
-		 "org.apache.directory.server:apacheds-protocol-shared:$apacheDsVersion",
-		 "org.apache.directory.server:apacheds-protocol-ldap:$apacheDsVersion",
-		 "org.apache.directory.server:apacheds-server-jndi:$apacheDsVersion",
-		 'org.apache.directory.shared:shared-ldap:0.9.15'
+		"org.apache.directory.server:apacheds-core:$apacheDsVersion",
+		"org.apache.directory.server:apacheds-core-entry:$apacheDsVersion",
+		"org.apache.directory.server:apacheds-protocol-shared:$apacheDsVersion",
+		"org.apache.directory.server:apacheds-protocol-ldap:$apacheDsVersion",
+		"org.apache.directory.server:apacheds-server-jndi:$apacheDsVersion",
+		'org.apache.directory.shared:shared-ldap:0.9.15'
 ]
 
 // Integration test setup
@@ -151,7 +151,7 @@ dependencies {
 	testCompile "junit:junit:$junitVersion",
 			'org.mockito:mockito-core:1.10.19',
 			"org.springframework:spring-test:$springVersion",
-			'org.easytesting:fest-assert:1.4'
+			'org.assertj:assertj-core:2.2.0'
 
 	// Use slf4j/logback for logging
 	testRuntime "org.slf4j:jcl-over-slf4j:$slf4jVersion",
@@ -245,19 +245,19 @@ project.eclipse.classpath.file.whenMerged { classpath ->
 
 // GRADLE-1422
 project.eclipseClasspath.doFirst {
-   // delay adding whenMerged till the entryAttributes are added (must be the last whenMerged)
-   project.eclipse.classpath.file.whenMerged { classpath ->
-	   def includeDeps = project.configurations.getByName('runtime').collect {f -> f.absolutePath } as Set
-	   classpath.entries.each { cp ->
-		   if(cp instanceof org.gradle.plugins.ide.eclipse.model.Library) {
-			   def include = includeDeps.contains(cp.path)
-			   def attr = 'org.eclipse.jst.component.dependency'
-			   if(!include) {
-				   cp.entryAttributes.remove(attr)
-			   }
-		   }
-	   }
-   }
+	 // delay adding whenMerged till the entryAttributes are added (must be the last whenMerged)
+	 project.eclipse.classpath.file.whenMerged { classpath ->
+		 def includeDeps = project.configurations.getByName('runtime').collect {f -> f.absolutePath } as Set
+		 classpath.entries.each { cp ->
+			 if(cp instanceof org.gradle.plugins.ide.eclipse.model.Library) {
+				 def include = includeDeps.contains(cp.path)
+				 def attr = 'org.eclipse.jst.component.dependency'
+				 if(!include) {
+					 cp.entryAttributes.remove(attr)
+				 }
+			 }
+		 }
+	 }
 }
 
 project.idea.module {

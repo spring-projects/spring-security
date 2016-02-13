@@ -1,6 +1,6 @@
 package org.springframework.security.web.authentication.preauth.websphere;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -34,10 +34,10 @@ public class WebSpherePreAuthenticatedProcessingFilterTests {
 		when(helper.getCurrentUserName()).thenReturn("jerry");
 		WebSpherePreAuthenticatedProcessingFilter filter = new WebSpherePreAuthenticatedProcessingFilter(
 				helper);
-		assertEquals("jerry",
-				filter.getPreAuthenticatedPrincipal(new MockHttpServletRequest()));
-		assertEquals("N/A",
-				filter.getPreAuthenticatedCredentials(new MockHttpServletRequest()));
+		assertThat(filter.getPreAuthenticatedPrincipal(new MockHttpServletRequest())).isEqualTo(
+				"jerry");
+		assertThat(filter.getPreAuthenticatedCredentials(new MockHttpServletRequest())).isEqualTo(
+				"N/A");
 
 		AuthenticationManager am = mock(AuthenticationManager.class);
 		when(am.authenticate(any(Authentication.class))).thenAnswer(

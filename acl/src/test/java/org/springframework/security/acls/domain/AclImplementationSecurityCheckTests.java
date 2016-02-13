@@ -1,6 +1,6 @@
 package org.springframework.security.acls.domain;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.*;
 import org.springframework.security.access.AccessDeniedException;
@@ -162,7 +162,7 @@ public class AclImplementationSecurityCheckTests {
 		try {
 			aclAuthorizationStrategy.securityCheck(aclFirstAllow,
 					AclAuthorizationStrategy.CHANGE_AUDITING);
-			assertTrue(true);
+
 		}
 		catch (AccessDeniedException notExpected) {
 			fail("It shouldn't have thrown AccessDeniedException");
@@ -177,13 +177,13 @@ public class AclImplementationSecurityCheckTests {
 			fail("It should have thrown NotFoundException");
 		}
 		catch (NotFoundException expected) {
-			assertTrue(true);
+
 		}
 		// and still grant access for CHANGE_GENERAL
 		try {
 			aclAuthorizationStrategy.securityCheck(aclNoACE,
 					AclAuthorizationStrategy.CHANGE_GENERAL);
-			assertTrue(true);
+
 		}
 		catch (NotFoundException expected) {
 			fail("It shouldn't have thrown NotFoundException");
@@ -221,7 +221,7 @@ public class AclImplementationSecurityCheckTests {
 			fail("It should have thrown NotFoundException");
 		}
 		catch (NotFoundException expected) {
-			assertTrue(true);
+
 		}
 
 		// Link the child with its parent and test again against the
@@ -231,7 +231,7 @@ public class AclImplementationSecurityCheckTests {
 		try {
 			aclAuthorizationStrategy.securityCheck(childAcl,
 					AclAuthorizationStrategy.CHANGE_OWNERSHIP);
-			assertTrue(true);
+
 		}
 		catch (NotFoundException expected) {
 			fail("It shouldn't have thrown NotFoundException");
@@ -250,7 +250,7 @@ public class AclImplementationSecurityCheckTests {
 		try {
 			aclAuthorizationStrategy.securityCheck(childAcl,
 					AclAuthorizationStrategy.CHANGE_OWNERSHIP);
-			assertTrue(true);
+
 		}
 		catch (NotFoundException expected) {
 			fail("It shouldn't have thrown NotFoundException");

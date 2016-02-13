@@ -1,6 +1,6 @@
 package org.springframework.security.access.hierarchicalroles;
 
-import static junit.framework.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -22,13 +22,13 @@ public class RoleHierarchyAuthoritiesMapperTests {
 		Collection<? extends GrantedAuthority> authorities = mapper
 				.mapAuthorities(AuthorityUtils.createAuthorityList("ROLE_A", "ROLE_D"));
 
-		assertEquals(4, authorities.size());
+		assertThat(authorities).hasSize(4);
 
 		mapper = new RoleHierarchyAuthoritiesMapper(new NullRoleHierarchy());
 
 		authorities = mapper.mapAuthorities(AuthorityUtils.createAuthorityList("ROLE_A",
 				"ROLE_D"));
 
-		assertEquals(2, authorities.size());
+		assertThat(authorities).hasSize(2);
 	}
 }

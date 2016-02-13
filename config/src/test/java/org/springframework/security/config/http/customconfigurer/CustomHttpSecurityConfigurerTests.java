@@ -15,7 +15,7 @@
  */
 package org.springframework.security.config.http.customconfigurer;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.config.http.customconfigurer.CustomConfigurer.customConfigurer;
 
 import java.util.Properties;

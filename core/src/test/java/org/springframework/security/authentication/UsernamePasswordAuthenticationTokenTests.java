@@ -15,12 +15,10 @@
 
 package org.springframework.security.authentication;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 import org.junit.Test;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
 
 /**
@@ -40,22 +38,22 @@ public class UsernamePasswordAuthenticationTokenTests {
 
 		// check default given we passed some GrantedAuthorty[]s (well, we passed empty
 		// list)
-		assertTrue(token.isAuthenticated());
+		assertThat(token.isAuthenticated()).isTrue();
 
 		// check explicit set to untrusted (we can safely go from trusted to untrusted,
 		// but not the reverse)
 		token.setAuthenticated(false);
-		assertTrue(!token.isAuthenticated());
+		assertThat(!token.isAuthenticated()).isTrue();
 
 		// Now let's create a UsernamePasswordAuthenticationToken without any
 		// GrantedAuthorty[]s (different constructor)
 		token = new UsernamePasswordAuthenticationToken("Test", "Password");
 
-		assertTrue(!token.isAuthenticated());
+		assertThat(!token.isAuthenticated()).isTrue();
 
 		// check we're allowed to still set it to untrusted
 		token.setAuthenticated(false);
-		assertTrue(!token.isAuthenticated());
+		assertThat(!token.isAuthenticated()).isTrue();
 
 		// check denied changing it to trusted
 		try {
@@ -69,13 +67,13 @@ public class UsernamePasswordAuthenticationTokenTests {
 	@Test
 	public void gettersReturnCorrectData() {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				"Test", "Password", AuthorityUtils.createAuthorityList("ROLE_ONE",
-						"ROLE_TWO"));
-		assertEquals("Test", token.getPrincipal());
-		assertEquals("Password", token.getCredentials());
-		assertTrue(AuthorityUtils.authorityListToSet(token.getAuthorities()).contains(
+				"Test", "Password",
+				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
+		assertThat(token.getPrincipal()).isEqualTo("Test");
+		assertThat(token.getCredentials()).isEqualTo("Password");
+		assertThat(AuthorityUtils.authorityListToSet(token.getAuthorities()).contains(
 				"ROLE_ONE"));
-		assertTrue(AuthorityUtils.authorityListToSet(token.getAuthorities()).contains(
+		assertThat(AuthorityUtils.authorityListToSet(token.getAuthorities()).contains(
 				"ROLE_TWO"));
 	}
 

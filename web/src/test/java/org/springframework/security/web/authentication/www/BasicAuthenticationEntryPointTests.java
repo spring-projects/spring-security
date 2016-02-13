@@ -15,10 +15,12 @@
 
 package org.springframework.security.web.authentication.www;
 
-import junit.framework.TestCase;
+import static org.assertj.core.api.Assertions.*;
 
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
+import org.junit.Before;
+import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
@@ -27,29 +29,9 @@ import org.springframework.mock.web.MockHttpServletResponse;
  *
  * @author Ben Alex
  */
-public class BasicAuthenticationEntryPointTests extends TestCase {
-	// ~ Constructors
-	// ===================================================================================================
+public class BasicAuthenticationEntryPointTests {
 
-	public BasicAuthenticationEntryPointTests() {
-		super();
-	}
-
-	public BasicAuthenticationEntryPointTests(String arg0) {
-		super(arg0);
-	}
-
-	// ~ Methods
-	// ========================================================================================================
-
-	public static void main(String[] args) {
-		junit.textui.TestRunner.run(BasicAuthenticationEntryPointTests.class);
-	}
-
-	public final void setUp() throws Exception {
-		super.setUp();
-	}
-
+	@Test
 	public void testDetectsMissingRealmName() throws Exception {
 		BasicAuthenticationEntryPoint ep = new BasicAuthenticationEntryPoint();
 
@@ -58,16 +40,18 @@ public class BasicAuthenticationEntryPointTests extends TestCase {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertEquals("realmName must be specified", expected.getMessage());
+			assertThat(expected.getMessage()).isEqualTo("realmName must be specified");
 		}
 	}
-
+	
+	@Test
 	public void testGettersSetters() {
 		BasicAuthenticationEntryPoint ep = new BasicAuthenticationEntryPoint();
 		ep.setRealmName("realm");
-		assertEquals("realm", ep.getRealmName());
+		assertThat(ep.getRealmName()).isEqualTo("realm");
 	}
-
+	
+	@Test
 	public void testNormalOperation() throws Exception {
 		BasicAuthenticationEntryPoint ep = new BasicAuthenticationEntryPoint();
 
@@ -83,9 +67,9 @@ public class BasicAuthenticationEntryPointTests extends TestCase {
 		String msg = "These are the jokes kid";
 		ep.commence(request, response, new DisabledException(msg));
 
-		assertEquals(401, response.getStatus());
-		assertEquals(msg, response.getErrorMessage());
+		assertThat(response.getStatus()).isEqualTo(401);
+		assertThat(response.getErrorMessage()).isEqualTo(msg);
 
-		assertEquals("Basic realm=\"hello\"", response.getHeader("WWW-Authenticate"));
+		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo("Basic realm=\"hello\"");
 	}
 }

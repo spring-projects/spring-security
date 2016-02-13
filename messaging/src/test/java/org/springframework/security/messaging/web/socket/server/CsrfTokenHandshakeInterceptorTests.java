@@ -31,7 +31,7 @@ import org.springframework.web.socket.WebSocketHandler;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  *

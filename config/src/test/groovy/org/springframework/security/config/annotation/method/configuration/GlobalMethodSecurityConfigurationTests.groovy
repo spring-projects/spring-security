@@ -25,7 +25,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 
 import javax.sql.DataSource
 
-import static org.fest.assertions.Assertions.assertThat
+import static org.assertj.core.api.Assertions.*
 import static org.junit.Assert.fail
 
 import org.aopalliance.intercept.MethodInterceptor

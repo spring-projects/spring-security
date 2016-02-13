@@ -15,7 +15,7 @@
 
 package org.springframework.security.cas.web;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -81,11 +81,11 @@ public class CasAuthenticationFilterTests {
 			}
 		});
 
-		assertTrue(filter.requiresAuthentication(request, new MockHttpServletResponse()));
+		assertThat(filter.requiresAuthentication(request, new MockHttpServletResponse())).isTrue();
 
 		Authentication result = filter.attemptAuthentication(request,
 				new MockHttpServletResponse());
-		assertTrue(result != null);
+		assertThat(result != null).isTrue();
 	}
 
 	@Test(expected = AuthenticationException.class)
@@ -110,7 +110,7 @@ public class CasAuthenticationFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
 		request.setServletPath(url);
-		assertTrue(filter.requiresAuthentication(request, response));
+		assertThat(filter.requiresAuthentication(request, response)).isTrue();
 	}
 
 	@Test
@@ -120,13 +120,13 @@ public class CasAuthenticationFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
 		request.setServletPath("/pgtCallback");
-		assertFalse(filter.requiresAuthentication(request, response));
+		assertThat(filter.requiresAuthentication(request, response)).isFalse();
 		filter.setProxyReceptorUrl(request.getServletPath());
-		assertFalse(filter.requiresAuthentication(request, response));
+		assertThat(filter.requiresAuthentication(request, response)).isFalse();
 		filter.setProxyGrantingTicketStorage(mock(ProxyGrantingTicketStorage.class));
-		assertTrue(filter.requiresAuthentication(request, response));
+		assertThat(filter.requiresAuthentication(request, response)).isTrue();
 		request.setServletPath("/other");
-		assertFalse(filter.requiresAuthentication(request, response));
+		assertThat(filter.requiresAuthentication(request, response)).isFalse();
 	}
 
 	@Test
@@ -142,23 +142,23 @@ public class CasAuthenticationFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
 		request.setServletPath(url);
-		assertTrue(filter.requiresAuthentication(request, response));
+		assertThat(filter.requiresAuthentication(request, response)).isTrue();
 
 		request.setServletPath("/other");
-		assertFalse(filter.requiresAuthentication(request, response));
+		assertThat(filter.requiresAuthentication(request, response)).isFalse();
 		request.setParameter(properties.getArtifactParameter(), "value");
-		assertTrue(filter.requiresAuthentication(request, response));
+		assertThat(filter.requiresAuthentication(request, response)).isTrue();
 		SecurityContextHolder.getContext().setAuthentication(
 				new AnonymousAuthenticationToken("key", "principal", AuthorityUtils
 						.createAuthorityList("ROLE_ANONYMOUS")));
-		assertTrue(filter.requiresAuthentication(request, response));
+		assertThat(filter.requiresAuthentication(request, response)).isTrue();
 		SecurityContextHolder.getContext().setAuthentication(
 				new TestingAuthenticationToken("un", "principal", AuthorityUtils
 						.createAuthorityList("ROLE_ANONYMOUS")));
-		assertTrue(filter.requiresAuthentication(request, response));
+		assertThat(filter.requiresAuthentication(request, response)).isTrue();
 		SecurityContextHolder.getContext().setAuthentication(
 				new TestingAuthenticationToken("un", "principal", "ROLE_ANONYMOUS"));
-		assertFalse(filter.requiresAuthentication(request, response));
+		assertThat(filter.requiresAuthentication(request, response)).isFalse();
 	}
 
 	@Test
@@ -170,7 +170,7 @@ public class CasAuthenticationFilterTests {
 		request.setServletPath("/pgtCallback");
 		filter.setProxyGrantingTicketStorage(mock(ProxyGrantingTicketStorage.class));
 		filter.setProxyReceptorUrl(request.getServletPath());
-		assertNull(filter.attemptAuthentication(request, response));
+		assertThat(filter.attemptAuthentication(request, response)).isNull();
 	}
 
 	@Test
@@ -196,8 +196,8 @@ public class CasAuthenticationFilterTests {
 		filter.afterPropertiesSet();
 
 		filter.doFilter(request, response, chain);
-		assertFalse("Authentication should not be null", SecurityContextHolder
-				.getContext().getAuthentication() == null);
+		assertThat(SecurityContextHolder
+				.getContext().getAuthentication()).isNotNull().withFailMessage("Authentication should not be null");
 		verify(chain).doFilter(request, response);
 		verifyZeroInteractions(successHandler);
 

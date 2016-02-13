@@ -14,7 +14,7 @@ import javax.servlet.jsp.tagext.TagSupport;
 
 import java.io.UnsupportedEncodingException;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * @author Nick Williams
@@ -43,9 +43,8 @@ public class AbstractCsrfTagTests {
 
 		int returned = this.tag.doEndTag();
 
-		assertEquals("The returned value is not correct.", TagSupport.EVAL_PAGE, returned);
-		assertEquals("The output value is not correct.", "",
-				this.response.getContentAsString());
+		assertThat(returned).as("The returned value is not correct.").isEqualTo(TagSupport.EVAL_PAGE);
+		assertThat(this.response.getContentAsString()).withFailMessage("The output value is not correct.").isEqualTo("");
 	}
 
 	@Test
@@ -60,10 +59,9 @@ public class AbstractCsrfTagTests {
 
 		int returned = this.tag.doEndTag();
 
-		assertEquals("The returned value is not correct.", TagSupport.EVAL_PAGE, returned);
-		assertEquals("The output value is not correct.", "fooBarBazQux",
-				this.response.getContentAsString());
-		assertSame("The token is not correct.", token, this.tag.token);
+		assertThat(returned).as("The returned value is not correct.").isEqualTo(TagSupport.EVAL_PAGE);
+		assertThat(this.response.getContentAsString()).withFailMessage("The output value is not correct.").isEqualTo("fooBarBazQux");
+		assertThat(this.tag.token).as("The token is not correct.").isSameAs(token);
 	}
 
 	@Test
@@ -78,10 +76,9 @@ public class AbstractCsrfTagTests {
 
 		int returned = this.tag.doEndTag();
 
-		assertEquals("The returned value is not correct.", TagSupport.EVAL_PAGE, returned);
-		assertEquals("The output value is not correct.", "<input type=\"hidden\" />",
-				this.response.getContentAsString());
-		assertSame("The token is not correct.", token, this.tag.token);
+		assertThat(returned).as("The returned value is not correct.").isEqualTo(TagSupport.EVAL_PAGE);
+		assertThat(this.response.getContentAsString()).withFailMessage("The output value is not correct.").isEqualTo("<input type=\"hidden\" />");
+		assertThat(this.tag.token).as("The token is not correct.").isSameAs(token);
 	}
 
 	private static class MockTag extends AbstractCsrfTag {
