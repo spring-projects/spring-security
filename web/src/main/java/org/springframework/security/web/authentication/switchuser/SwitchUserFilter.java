@@ -534,6 +534,7 @@ public class SwitchUserFilter extends GenericFilterBean implements
 	 * @param switchAuthorityRole the role name. Defaults to {@link #ROLE_PREVIOUS_ADMINISTRATOR}
 	 */
 	public void setSwitchAuthorityRole(String switchAuthorityRole) {
+		Assert.notNull(switchAuthorityRole, "switchAuthorityRole cannot be null");
 		this.switchAuthorityRole = switchAuthorityRole;
 	}
 
