@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 the original author or authors.
+ * Copyright 2011-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -33,7 +33,7 @@ class XsdDocumentedTests extends Specification {
 	@Shared def reference = new File('../docs/manual/src/docs/asciidoc/index.adoc')
 
 	@Shared File schema31xDocument = new File('src/main/resources/org/springframework/security/config/spring-security-3.1.xsd')
-	@Shared File schemaDocument = new File('src/main/resources/org/springframework/security/config/spring-security-4.0.xsd')
+	@Shared File schemaDocument = new File('src/main/resources/org/springframework/security/config/spring-security-4.1.xsd')
 	@Shared Map<String,Element> elementNameToElement
 	@Shared GPathResult schemaRootElement
 
@@ -90,7 +90,7 @@ class XsdDocumentedTests extends Specification {
 		when: 'all the schemas are found'
 		def schemas = schemaDocument.getParentFile().list().findAll { it.endsWith('.xsd') }
 		then: 'the count is equal to 8, if not then schemaDocument needs updated'
-		schemas.size() == 9
+		schemas.size() == 10
 	}
 
 	/**
