@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,27 +15,15 @@
  */
 package org.springframework.security.config.annotation.web.configurers
 
-import javax.servlet.http.HttpServletResponse
-
-import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.BaseSpringSpec
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
-import org.springframework.security.web.access.AccessDeniedHandler
-import org.springframework.security.web.csrf.CsrfFilter;
-import org.springframework.security.web.csrf.CsrfTokenRepository;
-import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter.XFrameOptionsMode;
-import org.springframework.security.web.servlet.support.csrf.CsrfRequestDataValueProcessor;
-import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.web.servlet.support.RequestDataValueProcessor;
-
-import spock.lang.Unroll;
 
 /**
  *
  * @author Rob Winch
+ * @author Tim Ysewyn
  */
 class HeadersConfigurerTests extends BaseSpringSpec {
 
@@ -196,6 +184,207 @@ class HeadersConfigurerTests extends BaseSpringSpec {
 			http
 				.headers()
 					.frameOptions().sameOrigin()
+		}
+	}
+
+	def "headers.hpkp no pins"() {
+		setup:
+			loadConfig(HpkpConfigNoPins)
+			request.secure = true
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			responseHeaders == [:]
+	}
+
+	@EnableWebSecurity
+	static class HpkpConfigNoPins extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+					.headers()
+					.defaultsDisabled()
+					.httpPublicKeyPinning()
+		}
+	}
+
+	def "headers.hpkp"() {
+		setup:
+			loadConfig(HpkpConfig)
+			request.secure = true
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			responseHeaders == ['Public-Key-Pins-Report-Only' : 'max-age=5184000 ; pin-sha256="d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM="']
+	}
+
+	def "headers.hpkp no secure request"() {
+		setup:
+			loadConfig(HpkpConfig)
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+			then:
+			responseHeaders == [:]
+	}
+
+	@EnableWebSecurity
+	static class HpkpConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+					.headers()
+					.defaultsDisabled()
+					.httpPublicKeyPinning()
+					.addSha256Pins("d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=")
+		}
+	}
+
+	def "headers.hpkp with pins"() {
+		setup:
+			loadConfig(HpkpConfigWithPins)
+			request.secure = true
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			responseHeaders == ['Public-Key-Pins-Report-Only' : 'max-age=5184000 ; pin-sha256="d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=" ; pin-sha256="E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g="']
+	}
+
+	@EnableWebSecurity
+	static class HpkpConfigWithPins extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			Map<String, String> pins = new LinkedHashMap<>();
+			pins.put("d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=", "sha256");
+			pins.put("E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=", "sha256");
+
+			http
+					.headers()
+					.defaultsDisabled()
+					.httpPublicKeyPinning()
+					.withPins(pins)
+		}
+	}
+
+	def "headers.hpkp custom age"() {
+		setup:
+			loadConfig(HpkpConfigCustomAge)
+			request.secure = true
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			responseHeaders == ['Public-Key-Pins-Report-Only' : 'max-age=604800 ; pin-sha256="d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM="']
+	}
+
+	@EnableWebSecurity
+	static class HpkpConfigCustomAge extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+					.headers()
+					.defaultsDisabled()
+					.httpPublicKeyPinning()
+					.addSha256Pins("d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=")
+					.maxAgeInSeconds(604800)
+		}
+	}
+
+	def "headers.hpkp terminate connection"() {
+		setup:
+			loadConfig(HpkpConfigTerminateConnection)
+			request.secure = true
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			responseHeaders == ['Public-Key-Pins' : 'max-age=5184000 ; pin-sha256="d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM="']
+	}
+
+	@EnableWebSecurity
+	static class HpkpConfigTerminateConnection extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+					.headers()
+					.defaultsDisabled()
+					.httpPublicKeyPinning()
+					.addSha256Pins("d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=")
+					.reportOnly(false)
+		}
+	}
+
+	def "headers.hpkp include subdomains"() {
+		setup:
+			loadConfig(HpkpConfigIncludeSubDomains)
+			request.secure = true
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			responseHeaders == ['Public-Key-Pins-Report-Only' : 'max-age=5184000 ; pin-sha256="d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=" ; includeSubDomains']
+	}
+
+	@EnableWebSecurity
+	static class HpkpConfigIncludeSubDomains extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+					.headers()
+					.defaultsDisabled()
+					.httpPublicKeyPinning()
+					.addSha256Pins("d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=")
+					.includeSubDomains(true)
+		}
+	}
+
+	def "headers.hpkp with report URI"() {
+		setup:
+			loadConfig(HpkpConfigWithReportURI)
+			request.secure = true
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			responseHeaders == ['Public-Key-Pins-Report-Only' : 'max-age=5184000 ; pin-sha256="d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=" ; report-uri="http://example.net/pkp-report"']
+	}
+
+	@EnableWebSecurity
+	static class HpkpConfigWithReportURI extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+					.headers()
+					.defaultsDisabled()
+					.httpPublicKeyPinning()
+					.addSha256Pins("d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=")
+					.reportUri(new URI("http://example.net/pkp-report"))
+		}
+	}
+
+	def "headers.hpkp with report URI as String"() {
+		setup:
+			loadConfig(HpkpConfigWithReportURIAsString)
+			request.secure = true
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			responseHeaders == ['Public-Key-Pins-Report-Only' : 'max-age=5184000 ; pin-sha256="d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=" ; report-uri="http://example.net/pkp-report"']
+	}
+
+	@EnableWebSecurity
+	static class HpkpConfigWithReportURIAsString extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+					.headers()
+					.defaultsDisabled()
+					.httpPublicKeyPinning()
+					.addSha256Pins("d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=")
+					.reportUri("http://example.net/pkp-report")
 		}
 	}
 }

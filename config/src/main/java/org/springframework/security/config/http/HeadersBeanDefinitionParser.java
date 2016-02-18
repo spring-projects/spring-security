@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 the original author or authors.
+ * Copyright 2002-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,9 @@ package org.springframework.security.config.http;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -28,11 +30,7 @@ import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.web.header.HeaderWriterFilter;
-import org.springframework.security.web.header.writers.CacheControlHeadersWriter;
-import org.springframework.security.web.header.writers.HstsHeaderWriter;
-import org.springframework.security.web.header.writers.StaticHeadersWriter;
-import org.springframework.security.web.header.writers.XContentTypeOptionsHeaderWriter;
-import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
+import org.springframework.security.web.header.writers.*;
 import org.springframework.security.web.header.writers.frameoptions.RegExpAllowFromStrategy;
 import org.springframework.security.web.header.writers.frameoptions.StaticAllowFromStrategy;
 import org.springframework.security.web.header.writers.frameoptions.WhiteListedAllowFromStrategy;
@@ -40,11 +38,13 @@ import org.springframework.security.web.header.writers.frameoptions.XFrameOption
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 /**
  * Parser for the {@code HeadersFilter}.
  *
  * @author Marten Deinum
+ * @author Tim Ysewyn
  * @since 3.2
  */
 public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
@@ -64,8 +64,14 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 	private static final String ATT_INCLUDE_SUBDOMAINS = "include-subdomains";
 	private static final String ATT_MAX_AGE_SECONDS = "max-age-seconds";
 	private static final String ATT_REQUEST_MATCHER_REF = "request-matcher-ref";
+	private static final String ATT_REPORT_ONLY = "report-only";
+	private static final String ATT_REPORT_URI = "report-uri";
+	private static final String ATT_ALGORITHM = "algorithm";
 
 	private static final String CACHE_CONTROL_ELEMENT = "cache-control";
+
+	private static final String HPKP_ELEMENT = "hpkp";
+	private static final String PINS_ELEMENT = "pins";
 
 	private static final String HSTS_ELEMENT = "hsts";
 
@@ -95,6 +101,8 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 		parseXssElement(addIfNotPresent, element, parserContext);
 		parseFrameOptionsElement(addIfNotPresent, element, parserContext);
 		parseContentTypeOptionsElement(addIfNotPresent, element);
+
+		parseHpkpElement(element == null || !disabled, element, parserContext);
 
 		parseHeaderElements(element);
 
@@ -178,6 +186,75 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 		}
 		if (addIfNotPresent || hstsElement != null) {
 			headerWriters.add(headersWriter.getBeanDefinition());
+		}
+	}
+
+	private void parseHpkpElement(boolean addIfNotPresent, Element element, ParserContext context) {
+		Element hpkpElement = element == null ? null : DomUtils.getChildElementByTagName(element, HPKP_ELEMENT);
+		if (addIfNotPresent || hpkpElement != null) {
+			addHpkp(addIfNotPresent, hpkpElement, context);
+		}
+	}
+
+	private void addHpkp(boolean addIfNotPresent, Element hpkpElement, ParserContext context) {
+		if (hpkpElement != null) {
+			boolean disabled = "true".equals(getAttribute(hpkpElement, ATT_DISABLED, "false"));
+
+			if (disabled) {
+				return;
+			}
+
+			BeanDefinitionBuilder headersWriter = BeanDefinitionBuilder.genericBeanDefinition(HpkpHeaderWriter.class);
+
+			Element pinsElement = DomUtils.getChildElementByTagName(hpkpElement, PINS_ELEMENT);
+			if (pinsElement != null) {
+				List<Element> pinElements = DomUtils.getChildElements(pinsElement);
+
+				Map<String, String> pins = new LinkedHashMap<String, String>();
+
+				for (Element pinElement : pinElements) {
+					String hash = pinElement.getAttribute(ATT_ALGORITHM);
+					if (!StringUtils.hasText(hash)) {
+						hash = "sha256";
+					}
+
+                    Node pinValueNode = pinElement.getFirstChild();
+                    if (pinValueNode == null) {
+                        context.getReaderContext().warning("Missing value for pin entry.", hpkpElement);
+                        continue;
+                    }
+
+					String fingerprint = pinElement.getFirstChild().getTextContent();
+
+					pins.put(fingerprint, hash);
+				}
+
+				headersWriter.addPropertyValue("pins", pins);
+			}
+
+			String includeSubDomains = hpkpElement.getAttribute(ATT_INCLUDE_SUBDOMAINS);
+			if (StringUtils.hasText(includeSubDomains)) {
+				headersWriter.addPropertyValue("includeSubDomains", includeSubDomains);
+			}
+
+			String maxAgeSeconds = hpkpElement.getAttribute(ATT_MAX_AGE_SECONDS);
+			if (StringUtils.hasText(maxAgeSeconds)) {
+				headersWriter.addPropertyValue("maxAgeInSeconds", maxAgeSeconds);
+			}
+
+			String reportOnly = hpkpElement.getAttribute(ATT_REPORT_ONLY);
+			if (StringUtils.hasText(reportOnly)) {
+				headersWriter.addPropertyValue("reportOnly", reportOnly);
+			}
+
+			String reportUri = hpkpElement.getAttribute(ATT_REPORT_URI);
+			if (StringUtils.hasText(reportUri)) {
+				headersWriter.addPropertyValue("reportUri", reportUri);
+			}
+
+			if (addIfNotPresent) {
+				headerWriters.add(headersWriter.getBeanDefinition());
+			}
 		}
 	}
 
