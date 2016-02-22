@@ -71,8 +71,8 @@ public class DefaultPermissionGrantingStrategy implements PermissionGrantingStra
 				boolean scanNextSid = true;
 
 				for (AccessControlEntry ace : aces) {
-					int targetMask = ace.getPermission().getMask();
-                    			if ((targetMask & p.getMask()) == targetMask && 
+					int targetMask = p.getMask();
+                    			if ((targetMask & ace.getPermission().getMask()) == targetMask && 
 							&& ace.getSid().equals(sid)) {
 						// Found a matching ACE, so its authorization decision will
 						// prevail
