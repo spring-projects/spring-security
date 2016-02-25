@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-samples-ldap-xml</artifactId>
-  <version>4.0.4.CI-SNAPSHOT</version>
+  <version>4.0.4.RELEASE</version>
   <packaging>war</packaging>
   <name>spring-security-samples-ldap-xml</name>
   <description>spring-security-samples-ldap-xml</description>
@@ -31,12 +31,6 @@
     <developerConnection>scm:git:git://github.com/spring-projects/spring-security</developerConnection>
     <url>https://github.com/spring-projects/spring-security</url>
   </scm>
-  <repositories>
-    <repository>
-      <id>spring-snasphot</id>
-      <url>https://repo.spring.io/snapshot</url>
-    </repository>
-  </repositories>
   <dependencies>
     <dependency>
       <groupId>javax.servlet.jsp.jstl</groupId>
@@ -53,7 +47,7 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-taglibs</artifactId>
-      <version>4.0.4.CI-SNAPSHOT</version>
+      <version>4.0.4.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -120,19 +114,19 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
-      <version>4.0.4.CI-SNAPSHOT</version>
+      <version>4.0.4.RELEASE</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-ldap</artifactId>
-      <version>4.0.4.CI-SNAPSHOT</version>
+      <version>4.0.4.RELEASE</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
-      <version>4.0.4.CI-SNAPSHOT</version>
+      <version>4.0.4.RELEASE</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -212,7 +206,7 @@
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-framework-bom</artifactId>
-        <version>4.2.2.RELEASE</version>
+        <version>4.2.5.RELEASE</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>

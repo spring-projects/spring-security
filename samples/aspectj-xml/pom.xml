@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-samples-aspectj-xml</artifactId>
-  <version>4.0.4.CI-SNAPSHOT</version>
+  <version>4.0.4.RELEASE</version>
   <name>spring-security-samples-aspectj-xml</name>
   <description>spring-security-samples-aspectj-xml</description>
   <url>http://spring.io/spring-security</url>
@@ -30,17 +30,11 @@
     <developerConnection>scm:git:git://github.com/spring-projects/spring-security</developerConnection>
     <url>https://github.com/spring-projects/spring-security</url>
   </scm>
-  <repositories>
-    <repository>
-      <id>spring-snasphot</id>
-      <url>https://repo.spring.io/snapshot</url>
-    </repository>
-  </repositories>
   <dependencies>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <version>4.0.4.CI-SNAPSHOT</version>
+      <version>4.0.4.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -60,13 +54,13 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-aspects</artifactId>
-      <version>4.0.4.CI-SNAPSHOT</version>
+      <version>4.0.4.RELEASE</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
-      <version>4.0.4.CI-SNAPSHOT</version>
+      <version>4.0.4.RELEASE</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -110,7 +104,7 @@
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-framework-bom</artifactId>
-        <version>4.2.2.RELEASE</version>
+        <version>4.2.5.RELEASE</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
