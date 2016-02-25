@@ -207,8 +207,6 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 		if(!disableOnCommitted) {
 			onResponseCommitted();
 			disableOnResponseCommitted();
-		} else if(logger.isDebugEnabled()){
-			logger.debug("Skip invoking on");
 		}
 	}
 
