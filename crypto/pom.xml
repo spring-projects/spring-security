@@ -45,11 +45,6 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>com.lambdaworks</groupId>
-      <artifactId>scrypt</artifactId>
-      <version>1.4.0</version>
-    </dependency>
-    <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
       <version>1.1.2</version>

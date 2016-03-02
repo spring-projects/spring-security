@@ -18,6 +18,8 @@ package org.springframework.security.crypto.scrypt;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.UUID;
+
 import org.junit.Test;
 
 /**
@@ -51,7 +53,7 @@ public class SCryptPasswordEncoderTests {
     
     @Test
     public void customParameters() {
-        SCryptPasswordEncoder encoder = new SCryptPasswordEncoder(512, 8, 4);
+        SCryptPasswordEncoder encoder = new SCryptPasswordEncoder(UUID.randomUUID().toString(), 512, 8, 4);
         String result = encoder.encode("password");
         assertFalse(result.equals("password"));
         assertTrue(encoder.matches("password", result));
@@ -76,18 +78,23 @@ public class SCryptPasswordEncoderTests {
     }
     
     @Test(expected = IllegalArgumentException.class)
+    public void invalidSaltParameter() {
+        new SCryptPasswordEncoder(null, Integer.MIN_VALUE, 16, 2);     
+    } 
+    
+    @Test(expected = IllegalArgumentException.class)
     public void invalidCpuCostParameter() {
-        new SCryptPasswordEncoder(1234, 16, 2);     
+        new SCryptPasswordEncoder(UUID.randomUUID().toString(), Integer.MIN_VALUE, 16, 2);     
     }   
     
     @Test(expected = IllegalArgumentException.class)
     public void invalidMemoryCostParameter() {
-        new SCryptPasswordEncoder(2, Integer.MAX_VALUE, 2);     
+        new SCryptPasswordEncoder(UUID.randomUUID().toString(), 2, Integer.MAX_VALUE, 2);     
     }
     
     @Test(expected = IllegalArgumentException.class)
     public void invalidParallelizationParameter() {
-        new SCryptPasswordEncoder(2, 8, Integer.MAX_VALUE);     
+        new SCryptPasswordEncoder(UUID.randomUUID().toString(), 2, 8, Integer.MAX_VALUE);     
     }
 
 }

@@ -15,13 +15,14 @@
  */
 package org.springframework.security.crypto.scrypt;
 
-import static java.lang.Integer.MAX_VALUE;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.security.crypto.codec.Hex;
+import org.springframework.security.crypto.codec.Utf8;
+import org.springframework.security.crypto.keygen.KeyGenerators;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.bouncycastle.crypto.generators.SCrypt;
 
-import com.lambdaworks.crypto.SCryptUtil;
 
 /**
  * Implementation of PasswordEncoder that uses the SCrypt hashing function. Clients
@@ -38,32 +39,40 @@ public class SCryptPasswordEncoder implements PasswordEncoder {
     
     private final int memoryCost;
     
-    private final int parallelization;  
+    private final int parallelization;
+    
+    private final byte[] saltBytes;
     
     public SCryptPasswordEncoder() {
-        this(16384, 8, 1);
+        this(new String(KeyGenerators.secureRandom().generateKey()), 16384, 8, 1);
     }
     
     /**
+     * @param salt value for the algorithm
      * @param cpu cost of the algorithm. must be power of 2 greater than 1
      * @param memory cost of the algorithm
      * @param parallelization of the algorithm
      */
-    public SCryptPasswordEncoder(int cpuCost, int memoryCost, int parallelization) {
-        /*
-         * These validations are required to guarantee correct functioning of the
-         * SCrypt algorithm. Good to check at initialization than fail later.
-         */
-        if (cpuCost < 2 || (cpuCost & (cpuCost - 1)) != 0) {
-            throw new IllegalArgumentException("Cpu cost must be a power of 2 greater than 1");
-        }        
-        if (cpuCost > MAX_VALUE / 128 / memoryCost) {
-            throw new IllegalArgumentException("Parameter cpu cost is too large");
+    public SCryptPasswordEncoder(CharSequence salt, int cpuCost, int memoryCost, int parallelization) {
+        if(salt == null || salt.length() == 0) {
+            throw new IllegalArgumentException("Secret is required to get salt value");
         }
-        if (memoryCost > MAX_VALUE / 128 / parallelization) {
-            throw new IllegalArgumentException("Parameter memory cost is too large");
+        if (cpuCost <= 1) {
+            throw new IllegalArgumentException("Cpu cost parameter must be > 1.");
+        }
+        if (memoryCost == 1 && cpuCost > 65536) {
+            throw new IllegalArgumentException("Cpu cost parameter must be > 1 and < 65536.");
+        }
+        if (memoryCost < 1) {
+            throw new IllegalArgumentException("Memory cost must be >= 1.");
+        }
+        int maxParallel = Integer.MAX_VALUE / (128 * memoryCost * 8);
+        if (parallelization < 1 || parallelization > maxParallel) {
+            throw new IllegalArgumentException("Parallelisation parameter p must be >= 1 and <= " + maxParallel
+                + " (based on block size r of " + memoryCost + ")");
         }
         
+        this.saltBytes = Utf8.encode(salt);
         this.cpuCost = cpuCost;
         this.memoryCost = memoryCost;
         this.parallelization = parallelization;
@@ -71,7 +80,7 @@ public class SCryptPasswordEncoder implements PasswordEncoder {
 
 	@Override
 	public String encode(CharSequence rawPassword) {
-        return SCryptUtil.scrypt(rawPassword.toString(), cpuCost, memoryCost, parallelization);
+        return new String(Hex.encode(SCrypt.generate(Utf8.encode(rawPassword), saltBytes, cpuCost, memoryCost, parallelization, saltBytes.length)));
 	}
 
 	@Override
@@ -80,11 +89,16 @@ public class SCryptPasswordEncoder implements PasswordEncoder {
 		    logger.warn("Empty encoded password");
 		    return false;		           
 		}
-		try {
-		    return SCryptUtil.check(rawPassword.toString(), encodedPassword);
-		} catch(IllegalArgumentException e) {
-		    logger.warn("Invalid encoded password");
-		    return false;		            
+		final String actualPassword = encode(rawPassword);
+		if(actualPassword.length() != encodedPassword.length()) {
+		    return false;
 		}
+		int matches = 0;
+		for(int i=0;i<actualPassword.length();i++) {
+		    matches = actualPassword.charAt(i) ^ encodedPassword.charAt(i);
+		}
+		
+		return matches == 0;
 	}
+	
 }

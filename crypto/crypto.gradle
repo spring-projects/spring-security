@@ -10,3 +10,7 @@ configure(project.tasks.withType(Test)) {
 		exclude '**/EncryptorsTests.class'
 	}
 }
+
+dependencies {
+    compile 'org.bouncycastle:bcprov-jdk15on:1.54'
+}
