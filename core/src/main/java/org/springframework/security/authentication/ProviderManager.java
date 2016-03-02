@@ -136,9 +136,15 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 	 * attempted with that <code>AuthenticationProvider</code>.
 	 * <p>
 	 * If more than one <code>AuthenticationProvider</code> supports the passed
-	 * <code>Authentication</code> object, only the first
-	 * <code>AuthenticationProvider</code> tried will determine the result. No subsequent
-	 * <code>AuthenticationProvider</code>s will be tried.
+	 * <code>Authentication</code> object, the first one able to successfully
+	 * authenticate the <code>Authentication</code> object determines the
+	 * <code>result</code>, overriding any possible <code>AuthenticationException</code>
+	 * thrown by earlier supporting <code>AuthenticationProvider</code>s.
+	 * On successful authentication, no subsequent <code>AuthenticationProvider</code>s
+	 * will be tried.
+	 * If authentication was not successful by any supporting
+	 * <code>AuthenticationProvider</code> the last thrown
+	 * <code>AuthenticationException</code> will be rethrown.
 	 *
 	 * @param authentication the authentication request object.
 	 *
