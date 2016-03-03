@@ -12,6 +12,5 @@ configure(project.tasks.withType(Test)) {
 }
 
 dependencies {
-    optional 'org.bouncycastle:bcprov-jdk15on:1.54'
-    testCompile 'org.assertj:assertj-core:3.3.0'
+	optional 'org.bouncycastle:bcprov-jdk15on:1.54'
 }
