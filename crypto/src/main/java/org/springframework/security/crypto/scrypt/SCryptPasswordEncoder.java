@@ -58,8 +58,8 @@ public class SCryptPasswordEncoder implements PasswordEncoder {
      * @param cpu cost of the algorithm. must be power of 2 greater than 1
      * @param memory cost of the algorithm
      * @param parallelization of the algorithm
-     * @param salt length
      * @param key length for the algorithm
+     * @param salt length
      */
     public SCryptPasswordEncoder(int cpuCost, int memoryCost, int parallelization, int keyLength, int saltLength) {
         if (cpuCost <= 1) {
