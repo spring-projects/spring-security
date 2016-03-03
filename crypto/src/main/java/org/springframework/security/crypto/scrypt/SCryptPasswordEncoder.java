@@ -24,14 +24,12 @@ import org.springframework.security.crypto.keygen.BytesKeyGenerator;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-
-
 /**
  * <p>
  * Implementation of PasswordEncoder that uses the SCrypt hashing function.
  * Clients can optionally supply a cpu cost parameter, a memory cost parameter
  * and a parallelization parameter.
- *</p>
+ * </p>
  *
  * <p>
  * A few <a href=
@@ -45,9 +43,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  * unnecessary asymmetry between attacker and defender.</li>
  * <li>Scrypt is based on Salsa20 which performs poorly in Java (on par with
  * AES) but performs awesome (~4-5x faster) on SIMD capable platforms</li>
- * <li>While there are some that would disagree, consider reading "<a href="
- * http://blog.ircmaxell.com/2014/03/why-i-dont-recommend-scrypt.html
- * ">Why I Don't Recommend Scrypt</a> (for password storage)"</li>
+ * <li>While there are some that would disagree, consider reading -
+ * <a href="http://blog.ircmaxell.com/2014/03/why-i-dont-recommend-scrypt.html">
+ * Why I Don't Recommend Scrypt</a> (for password storage)</li>
  * </ul>
  *
  * @author Shazin Sadakath
@@ -75,11 +73,24 @@ public class SCryptPasswordEncoder implements PasswordEncoder {
 	/**
 	 * Creates a new instance
 	 *
-	 * @param cpuCost cpu cost of the algorithm (as defined in scrypt this is N). must be power of 2 greater than 1. Default is currently 16,348 or 2^14)
-	 * @param memoryCost memory cost of the algorithm (as defined in scrypt this is r) Default is currently 8.
-	 * @param parallelization the parallelization of the algorithm (as defined in scrypt this is p) Default is currently 1. Note that the implementation does not currently take advantage of parallelization.
-	 * @param key length for the algorithm (as defined in scrypt this is dkLen). The default is currently 32.
-	 * @param salt length (as defined in scrypt this is the length of S). The default is currently 64.
+	 * @param cpuCost
+	 *            cpu cost of the algorithm (as defined in scrypt this is N).
+	 *            must be power of 2 greater than 1. Default is currently 16,348
+	 *            or 2^14)
+	 * @param memoryCost
+	 *            memory cost of the algorithm (as defined in scrypt this is r)
+	 *            Default is currently 8.
+	 * @param parallelization
+	 *            the parallelization of the algorithm (as defined in scrypt
+	 *            this is p) Default is currently 1. Note that the
+	 *            implementation does not currently take advantage of
+	 *            parallelization.
+	 * @param keyLength
+	 *            key length for the algorithm (as defined in scrypt this is
+	 *            dkLen). The default is currently 32.
+	 * @param saltLength
+	 *            salt length (as defined in scrypt this is the length of S).
+	 *            The default is currently 64.
 	 */
 	public SCryptPasswordEncoder(int cpuCost, int memoryCost, int parallelization, int keyLength, int saltLength) {
 		if (cpuCost <= 1) {
@@ -94,13 +105,13 @@ public class SCryptPasswordEncoder implements PasswordEncoder {
 		int maxParallel = Integer.MAX_VALUE / (128 * memoryCost * 8);
 		if (parallelization < 1 || parallelization > maxParallel) {
 			throw new IllegalArgumentException("Parallelisation parameter p must be >= 1 and <= " + maxParallel
-				+ " (based on block size r of " + memoryCost + ")");
+					+ " (based on block size r of " + memoryCost + ")");
 		}
 		if (keyLength < 1 || keyLength > Integer.MAX_VALUE) {
-			throw new IllegalArgumentException("Key length must be >= 1 and <= "+Integer.MAX_VALUE);
+			throw new IllegalArgumentException("Key length must be >= 1 and <= " + Integer.MAX_VALUE);
 		}
 		if (saltLength < 1 || saltLength > Integer.MAX_VALUE) {
-			throw new IllegalArgumentException("Salt length must be >= 1 and <= "+Integer.MAX_VALUE);
+			throw new IllegalArgumentException("Salt length must be >= 1 and <= " + Integer.MAX_VALUE);
 		}
 
 		this.cpuCost = cpuCost;
@@ -115,7 +126,7 @@ public class SCryptPasswordEncoder implements PasswordEncoder {
 	}
 
 	public boolean matches(CharSequence rawPassword, String encodedPassword) {
-		if(encodedPassword == null || encodedPassword.length() < keyLength) {
+		if (encodedPassword == null || encodedPassword.length() < keyLength) {
 			logger.warn("Empty encoded password");
 			return false;
 		}
@@ -137,7 +148,8 @@ public class SCryptPasswordEncoder implements PasswordEncoder {
 		int memoryCost = (int) params >> 8 & 0xff;
 		int parallelization = (int) params & 0xff;
 
-		byte[] generated = SCrypt.generate(Utf8.encode(rawPassword), salt, cpuCost, memoryCost, parallelization, keyLength);
+		byte[] generated = SCrypt.generate(Utf8.encode(rawPassword), salt, cpuCost, memoryCost, parallelization,
+				keyLength);
 
 		if (derived.length != generated.length) {
 			return false;
@@ -153,7 +165,8 @@ public class SCryptPasswordEncoder implements PasswordEncoder {
 	private String digest(CharSequence rawPassword, byte[] salt) {
 		byte[] derived = SCrypt.generate(Utf8.encode(rawPassword), salt, cpuCost, memoryCost, parallelization, 32);
 
-		String params = Long.toString(((int) (Math.log(cpuCost) / Math.log(2)) << 16L) | memoryCost << 8 | parallelization, 16);
+		String params = Long
+				.toString(((int) (Math.log(cpuCost) / Math.log(2)) << 16L) | memoryCost << 8 | parallelization, 16);
 
 		StringBuilder sb = new StringBuilder((salt.length + derived.length) * 2);
 		sb.append("$").append(params).append('$');
