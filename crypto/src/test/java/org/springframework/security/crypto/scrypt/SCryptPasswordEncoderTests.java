@@ -15,10 +15,7 @@
  */
 package org.springframework.security.crypto.scrypt;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.util.UUID;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Test;
 
@@ -32,69 +29,91 @@ public class SCryptPasswordEncoderTests {
     public void matches() {
         SCryptPasswordEncoder encoder = new SCryptPasswordEncoder();
         String result = encoder.encode("password");
-        assertFalse(result.equals("password"));
-        assertTrue(encoder.matches("password", result));
+        assertThat(result).isNotEqualTo("password");
+        assertThat(encoder.matches("password", result)).isTrue();        
     }
 
     @Test
     public void unicode() {
         SCryptPasswordEncoder encoder = new SCryptPasswordEncoder();
         String result = encoder.encode("passw\u9292rd");
-        assertFalse(encoder.matches("pass\u9292\u9292rd", result));
-        assertTrue(encoder.matches("passw\u9292rd", result));
+        assertThat(encoder.matches("pass\u9292\u9292rd", result)).isFalse();        
+        assertThat(encoder.matches("passw\u9292rd", result)).isTrue();
     }
 
     @Test
     public void notMatches() {
         SCryptPasswordEncoder encoder = new SCryptPasswordEncoder();
         String result = encoder.encode("password");
-        assertFalse(encoder.matches("bogus", result));
+        assertThat(encoder.matches("bogus", result)).isFalse();
     }
     
     @Test
     public void customParameters() {
-        SCryptPasswordEncoder encoder = new SCryptPasswordEncoder(UUID.randomUUID().toString(), 512, 8, 4);
+        SCryptPasswordEncoder encoder = new SCryptPasswordEncoder(512, 8, 4, 32, 16);
         String result = encoder.encode("password");
-        assertFalse(result.equals("password"));
-        assertTrue(encoder.matches("password", result));
+        assertThat(result).isNotEqualTo("password");
+        assertThat(encoder.matches("password", result)).isTrue();
+    }
+    
+    @Test
+    public void differentPasswordHashes() {
+        SCryptPasswordEncoder encoder = new SCryptPasswordEncoder();
+        String password = "secret";
+        assertThat(encoder.encode(password)).isNotEqualTo(encoder.encode(password));
+    }
+    
+    @Test
+    public void samePasswordWithDifferentParams() {
+        SCryptPasswordEncoder oldEncoder = new SCryptPasswordEncoder(512, 8, 4, 32, 16);
+        SCryptPasswordEncoder newEncoder = new SCryptPasswordEncoder();
+
+        String password = "secret";
+        String oldEncodedPassword = oldEncoder.encode(password);
+        assertThat(newEncoder.matches(password, oldEncodedPassword)).isTrue();
     }
 
     @Test
     public void doesntMatchNullEncodedValue() {
         SCryptPasswordEncoder encoder = new SCryptPasswordEncoder();
-        assertFalse(encoder.matches("password", null));
+        assertThat(encoder.matches("password", null)).isFalse();
     }
 
     @Test
     public void doesntMatchEmptyEncodedValue() {
         SCryptPasswordEncoder encoder = new SCryptPasswordEncoder();
-        assertFalse(encoder.matches("password", ""));
+        assertThat(encoder.matches("password", "")).isFalse();
     }
 
     @Test
     public void doesntMatchBogusEncodedValue() {
         SCryptPasswordEncoder encoder = new SCryptPasswordEncoder();
-        assertFalse(encoder.matches("password", "012345678901234567890123456789"));
+        assertThat(encoder.matches("password", "012345678901234567890123456789")).isFalse();
     }
     
     @Test(expected = IllegalArgumentException.class)
-    public void invalidSaltParameter() {
-        new SCryptPasswordEncoder(null, Integer.MIN_VALUE, 16, 2);     
-    } 
-    
-    @Test(expected = IllegalArgumentException.class)
     public void invalidCpuCostParameter() {
-        new SCryptPasswordEncoder(UUID.randomUUID().toString(), Integer.MIN_VALUE, 16, 2);     
+        new SCryptPasswordEncoder(Integer.MIN_VALUE, 16, 2, 32, 16);     
     }   
     
     @Test(expected = IllegalArgumentException.class)
     public void invalidMemoryCostParameter() {
-        new SCryptPasswordEncoder(UUID.randomUUID().toString(), 2, Integer.MAX_VALUE, 2);     
+        new SCryptPasswordEncoder(2, Integer.MAX_VALUE, 2, 32, 16);     
     }
     
     @Test(expected = IllegalArgumentException.class)
     public void invalidParallelizationParameter() {
-        new SCryptPasswordEncoder(UUID.randomUUID().toString(), 2, 8, Integer.MAX_VALUE);     
+        new SCryptPasswordEncoder(2, 8, Integer.MAX_VALUE, 32, 16);     
+    }
+    
+    @Test(expected = IllegalArgumentException.class)
+    public void invalidSaltLengthParameter() {
+        new SCryptPasswordEncoder(2, 8, 1, 16, -1);     
+    }
+    
+    @Test(expected = IllegalArgumentException.class)
+    public void invalidKeyLengthParameter() {
+        new SCryptPasswordEncoder(2, 8, 1, -1, 16);     
     }
 
 }

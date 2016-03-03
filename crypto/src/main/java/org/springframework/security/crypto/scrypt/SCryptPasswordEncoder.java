@@ -15,13 +15,18 @@
  */
 package org.springframework.security.crypto.scrypt;
 
+import java.util.Base64;
+import java.util.Base64.Decoder;
+import java.util.Base64.Encoder;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.codec.Utf8;
+import org.springframework.security.crypto.keygen.BytesKeyGenerator;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.bouncycastle.crypto.generators.SCrypt;
+
 
 
 /**
@@ -39,24 +44,24 @@ public class SCryptPasswordEncoder implements PasswordEncoder {
     
     private final int memoryCost;
     
-    private final int parallelization;
+    private final int parallelization;  
     
-    private final byte[] saltBytes;
+    private final int keyLength;
+    
+    private final BytesKeyGenerator saltGenerator;
     
     public SCryptPasswordEncoder() {
-        this(new String(KeyGenerators.secureRandom().generateKey()), 16384, 8, 1);
+        this(16384, 8, 1, 32, 64);
     }
     
     /**
-     * @param salt value for the algorithm
      * @param cpu cost of the algorithm. must be power of 2 greater than 1
      * @param memory cost of the algorithm
      * @param parallelization of the algorithm
+     * @param salt length
+     * @param key length for the algorithm
      */
-    public SCryptPasswordEncoder(CharSequence salt, int cpuCost, int memoryCost, int parallelization) {
-        if(salt == null || salt.length() == 0) {
-            throw new IllegalArgumentException("Secret is required to get salt value");
-        }
+    public SCryptPasswordEncoder(int cpuCost, int memoryCost, int parallelization, int keyLength, int saltLength) {
         if (cpuCost <= 1) {
             throw new IllegalArgumentException("Cpu cost parameter must be > 1.");
         }
@@ -71,34 +76,75 @@ public class SCryptPasswordEncoder implements PasswordEncoder {
             throw new IllegalArgumentException("Parallelisation parameter p must be >= 1 and <= " + maxParallel
                 + " (based on block size r of " + memoryCost + ")");
         }
+        if (keyLength < 1 || keyLength > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException("Key length must be >= 1 and <= "+Integer.MAX_VALUE);
+        }
+        if (saltLength < 1 || saltLength > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException("Salt length must be >= 1 and <= "+Integer.MAX_VALUE);
+        }
         
-        this.saltBytes = Utf8.encode(salt);
         this.cpuCost = cpuCost;
         this.memoryCost = memoryCost;
         this.parallelization = parallelization;
+        this.keyLength = keyLength;
+        this.saltGenerator = KeyGenerators.secureRandom(saltLength);
     }
 
 	@Override
-	public String encode(CharSequence rawPassword) {
-        return new String(Hex.encode(SCrypt.generate(Utf8.encode(rawPassword), saltBytes, cpuCost, memoryCost, parallelization, saltBytes.length)));
+	public String encode(CharSequence rawPassword) {	    
+        return digest(rawPassword, saltGenerator.generateKey());
 	}
 
 	@Override
 	public boolean matches(CharSequence rawPassword, String encodedPassword) {
-		if(encodedPassword == null || encodedPassword.length() == 0) {
+		if(encodedPassword == null || encodedPassword.length() < keyLength) {
 		    logger.warn("Empty encoded password");
 		    return false;		           
 		}
-		final String actualPassword = encode(rawPassword);
-		if(actualPassword.length() != encodedPassword.length()) {
-		    return false;
-		}
-		int matches = 0;
-		for(int i=0;i<actualPassword.length();i++) {
-		    matches = actualPassword.charAt(i) ^ encodedPassword.charAt(i);
-		}
-		
-		return matches == 0;
+		return decodeAndCheckMatches(rawPassword, encodedPassword);		
+	}    
+	
+	private boolean decodeAndCheckMatches(CharSequence rawPassword, String encodedPassword) {
+	    String[] parts = encodedPassword.split("\\$");
+
+        if (parts.length != 4) {
+            return false;
+        }
+
+        Decoder decoder = Base64.getDecoder();
+        long params = Long.parseLong(parts[1], 16);        
+        byte[] salt = decoder.decode(parts[2]);
+        byte[] derived = decoder.decode(parts[3]);
+
+        int cpuCost = (int) Math.pow(2, params >> 16 & 0xffff);
+        int memoryCost = (int) params >> 8 & 0xff;
+        int parallelization = (int) params & 0xff;
+
+        byte[] generated = SCrypt.generate(Utf8.encode(rawPassword), salt, cpuCost, memoryCost, parallelization, keyLength);
+
+        if (derived.length != generated.length) {
+            return false;
+        }
+
+        int result = 0;
+        for (int i = 0; i < derived.length; i++) {
+            result |= derived[i] ^ generated[i];
+        }
+        return result == 0;
+	}
+	
+	private String digest(CharSequence rawPassword, byte[] salt) {	    
+	    byte[] derived = SCrypt.generate(Utf8.encode(rawPassword), salt, cpuCost, memoryCost, parallelization, 32);
+
+        String params = Long.toString(((int) (Math.log(cpuCost) / Math.log(2)) << 16L) | memoryCost << 8 | parallelization, 16);
+        Encoder encoder = Base64.getEncoder();
+        
+        StringBuilder sb = new StringBuilder((salt.length + derived.length) * 2);
+        sb.append("$").append(params).append('$');
+        sb.append(encoder.encodeToString(salt)).append('$');
+        sb.append(encoder.encodeToString(derived));
+
+        return sb.toString();  
 	}
 	
 }
