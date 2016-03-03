@@ -12,5 +12,5 @@ configure(project.tasks.withType(Test)) {
 }
 
 dependencies {
-	optional 'org.bouncycastle:bcprov-jdk15on:1.54'
+	optional 'org.bouncycastle:bcpkix-jdk15on:1.54'
 }
