@@ -166,7 +166,6 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
 		loadParsers();
 	}
 
-	@SuppressWarnings("deprecation")
 	private void loadParsers() {
 		// Parsers
 		parsers.put(Elements.LDAP_PROVIDER, new LdapProviderBeanDefinitionParser());

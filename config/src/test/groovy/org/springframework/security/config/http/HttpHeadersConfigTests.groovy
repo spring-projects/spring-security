@@ -30,12 +30,12 @@ import org.springframework.security.web.util.matcher.AnyRequestMatcher
  */
 class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 	def defaultHeaders = ['X-Content-Type-Options':'nosniff',
-								 'X-Frame-Options':'DENY',
-								 'Strict-Transport-Security': 'max-age=31536000 ; includeSubDomains',
-								 'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate',
-								 'Expires' : '0',
-								 'Pragma':'no-cache',
-								 'X-XSS-Protection' : '1; mode=block']
+								'X-Frame-Options':'DENY',
+								'Strict-Transport-Security': 'max-age=31536000 ; includeSubDomains',
+								'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate',
+								'Expires' : '0',
+								'Pragma':'no-cache',
+								'X-XSS-Protection' : '1; mode=block']
 	def 'headers disabled'() {
 		setup:
 			httpAutoConfig {
@@ -294,7 +294,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 			MockHttpServletResponse response = new MockHttpServletResponse()
 			hf.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
 		then:
-			 assertHeaders(response, ['abc':'def'])
+			assertHeaders(response, ['abc':'def'])
 	}
 
 	def 'http headers header no name produces error'() {
@@ -404,8 +404,8 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 			springSecurityFilterChain.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
 		then:
 			assertHeaders(response, ['Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate',
-									 'Expires' : '0',
-									 'Pragma':'no-cache'])
+									'Expires' : '0',
+									'Pragma':'no-cache'])
 	}
 
 	def 'http headers hsts'() {
@@ -458,35 +458,35 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 			assertHeaders(response, ['Strict-Transport-Security': 'max-age=1'])
 	}
 
-    def 'http headers hpkp no pins'() {
-        setup:
-            httpAutoConfig {
-                'headers'('defaults-disabled':true) {
-                    'hpkp'()
-                }
-            }
-        when:
-            createAppContext()
-        then:
-            XmlBeanDefinitionStoreException expected = thrown()
-            expected.message.contains 'The content of element \'hpkp\' is not complete'
-    }
+		def 'http headers hpkp no pins'() {
+				setup:
+						httpAutoConfig {
+								'headers'('defaults-disabled':true) {
+										'hpkp'()
+								}
+						}
+				when:
+						createAppContext()
+				then:
+						XmlBeanDefinitionStoreException expected = thrown()
+						expected.message.contains 'The content of element \'hpkp\' is not complete'
+		}
 
-    def 'http headers hpkp no pin'() {
-        setup:
-            httpAutoConfig {
-                'headers'('defaults-disabled':true) {
-                    'hpkp'() {
-                        'pins'()
-                    }
-                }
-            }
-        when:
-            createAppContext()
-        then:
-            XmlBeanDefinitionStoreException expected = thrown()
-            expected.message.contains 'The content of element \'pins\' is not complete'
-    }
+		def 'http headers hpkp no pin'() {
+				setup:
+						httpAutoConfig {
+								'headers'('defaults-disabled':true) {
+										'hpkp'() {
+												'pins'()
+										}
+								}
+						}
+				when:
+						createAppContext()
+				then:
+						XmlBeanDefinitionStoreException expected = thrown()
+						expected.message.contains 'The content of element \'pins\' is not complete'
+		}
 
 	def 'http headers hpkp'() {
 		setup:
@@ -508,125 +508,125 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 			assertHeaders(response, ['Public-Key-Pins-Report-Only': 'max-age=5184000 ; pin-sha256="d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM="'])
 	}
 
-    def 'http headers hpkp with default algorithm'() {
-        setup:
-            httpAutoConfig {
-                'headers'('defaults-disabled':true) {
-                    'hpkp'() {
-                        'pins'() {
-                            'pin'('d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=')
-                        }
-                    }
-                }
-            }
-            createAppContext()
-            def springSecurityFilterChain = appContext.getBean(FilterChainProxy)
-            MockHttpServletResponse response = new MockHttpServletResponse()
-        when:
-            springSecurityFilterChain.doFilter(new MockHttpServletRequest(secure:true), response, new MockFilterChain())
-        then:
-            assertHeaders(response, ['Public-Key-Pins-Report-Only': 'max-age=5184000 ; pin-sha256="d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM="'])
-    }
+		def 'http headers hpkp with default algorithm'() {
+				setup:
+						httpAutoConfig {
+								'headers'('defaults-disabled':true) {
+										'hpkp'() {
+												'pins'() {
+														'pin'('d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=')
+												}
+										}
+								}
+						}
+						createAppContext()
+						def springSecurityFilterChain = appContext.getBean(FilterChainProxy)
+						MockHttpServletResponse response = new MockHttpServletResponse()
+				when:
+						springSecurityFilterChain.doFilter(new MockHttpServletRequest(secure:true), response, new MockFilterChain())
+				then:
+						assertHeaders(response, ['Public-Key-Pins-Report-Only': 'max-age=5184000 ; pin-sha256="d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM="'])
+		}
 
 	def 'http headers hpkp only invokes on HttpServletRequest.isSecure = true'() {
 		setup:
-            httpAutoConfig {
-                'headers'('defaults-disabled':true) {
-                    'hpkp'() {
-                        'pins'() {
-                            'pin'('algorithm':'sha256', 'E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=')
-                        }
-                    }
-                }
-            }
-            createAppContext()
-            def springSecurityFilterChain = appContext.getBean(FilterChainProxy)
-            MockHttpServletResponse response = new MockHttpServletResponse()
+						httpAutoConfig {
+								'headers'('defaults-disabled':true) {
+										'hpkp'() {
+												'pins'() {
+														'pin'('algorithm':'sha256', 'E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=')
+												}
+										}
+								}
+						}
+						createAppContext()
+						def springSecurityFilterChain = appContext.getBean(FilterChainProxy)
+						MockHttpServletResponse response = new MockHttpServletResponse()
 		when:
-		    springSecurityFilterChain.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
+				springSecurityFilterChain.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
 		then:
-		    response.headerNames.empty
+				response.headerNames.empty
 	}
 
-    def 'http headers hpkp with custom max age'() {
-        setup:
-            httpAutoConfig {
-                'headers'('defaults-disabled':true) {
-                    'hpkp'('max-age-seconds':'604800') {
-                        'pins'() {
-                            'pin'('algorithm':'sha256', 'd6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=')
-                        }
-                    }
-                }
-            }
-            createAppContext()
-            def springSecurityFilterChain = appContext.getBean(FilterChainProxy)
-            MockHttpServletResponse response = new MockHttpServletResponse()
-        when:
-            springSecurityFilterChain.doFilter(new MockHttpServletRequest(secure:true), response, new MockFilterChain())
-        then:
-            assertHeaders(response, ['Public-Key-Pins-Report-Only': 'max-age=604800 ; pin-sha256="d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM="'])
-    }
+		def 'http headers hpkp with custom max age'() {
+				setup:
+						httpAutoConfig {
+								'headers'('defaults-disabled':true) {
+										'hpkp'('max-age-seconds':'604800') {
+												'pins'() {
+														'pin'('algorithm':'sha256', 'd6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=')
+												}
+										}
+								}
+						}
+						createAppContext()
+						def springSecurityFilterChain = appContext.getBean(FilterChainProxy)
+						MockHttpServletResponse response = new MockHttpServletResponse()
+				when:
+						springSecurityFilterChain.doFilter(new MockHttpServletRequest(secure:true), response, new MockFilterChain())
+				then:
+						assertHeaders(response, ['Public-Key-Pins-Report-Only': 'max-age=604800 ; pin-sha256="d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM="'])
+		}
 
-    def 'http headers hpkp@reportOnly=false'() {
-        setup:
-            httpAutoConfig {
-                'headers'('defaults-disabled':true) {
-                    'hpkp'('report-only':'false') {
-                        'pins'() {
-                            'pin'('algorithm':'sha256', 'E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=')
-                        }
-                    }
-                }
-            }
-            createAppContext()
-            def springSecurityFilterChain = appContext.getBean(FilterChainProxy)
-            MockHttpServletResponse response = new MockHttpServletResponse()
-        when:
-            springSecurityFilterChain.doFilter(new MockHttpServletRequest(secure: true), response, new MockFilterChain())
-        then:
-            assertHeaders(response, ['Public-Key-Pins': 'max-age=5184000 ; pin-sha256="E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g="'])
-    }
+		def 'http headers hpkp@reportOnly=false'() {
+				setup:
+						httpAutoConfig {
+								'headers'('defaults-disabled':true) {
+										'hpkp'('report-only':'false') {
+												'pins'() {
+														'pin'('algorithm':'sha256', 'E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=')
+												}
+										}
+								}
+						}
+						createAppContext()
+						def springSecurityFilterChain = appContext.getBean(FilterChainProxy)
+						MockHttpServletResponse response = new MockHttpServletResponse()
+				when:
+						springSecurityFilterChain.doFilter(new MockHttpServletRequest(secure: true), response, new MockFilterChain())
+				then:
+						assertHeaders(response, ['Public-Key-Pins': 'max-age=5184000 ; pin-sha256="E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g="'])
+		}
 
-    def 'http headers hpkp@includeSubDomains=true'() {
-        setup:
-            httpAutoConfig {
-                'headers'('defaults-disabled':true) {
-                    'hpkp'('include-subdomains':'true') {
-                        'pins'() {
-                            'pin'('algorithm':'sha256', 'E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=')
-                        }
-                    }
-                }
-            }
-            createAppContext()
-            def springSecurityFilterChain = appContext.getBean(FilterChainProxy)
-            MockHttpServletResponse response = new MockHttpServletResponse()
-        when:
-            springSecurityFilterChain.doFilter(new MockHttpServletRequest(secure: true), response, new MockFilterChain())
-        then:
-            assertHeaders(response, ['Public-Key-Pins-Report-Only': 'max-age=5184000 ; pin-sha256="E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=" ; includeSubDomains'])
-    }
+		def 'http headers hpkp@includeSubDomains=true'() {
+				setup:
+						httpAutoConfig {
+								'headers'('defaults-disabled':true) {
+										'hpkp'('include-subdomains':'true') {
+												'pins'() {
+														'pin'('algorithm':'sha256', 'E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=')
+												}
+										}
+								}
+						}
+						createAppContext()
+						def springSecurityFilterChain = appContext.getBean(FilterChainProxy)
+						MockHttpServletResponse response = new MockHttpServletResponse()
+				when:
+						springSecurityFilterChain.doFilter(new MockHttpServletRequest(secure: true), response, new MockFilterChain())
+				then:
+						assertHeaders(response, ['Public-Key-Pins-Report-Only': 'max-age=5184000 ; pin-sha256="E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=" ; includeSubDomains'])
+		}
 
-    def 'http headers hpkp with report-uri'() {
-        setup:
-            httpAutoConfig {
-                'headers'('defaults-disabled':true) {
-                    'hpkp'('report-uri':'http://example.net/pkp-report') {
-                        'pins'() {
-                            'pin'('algorithm':'sha256', 'E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=')
-                        }
-                    }
-                }
-            }
-            createAppContext()
-            def springSecurityFilterChain = appContext.getBean(FilterChainProxy)
-            MockHttpServletResponse response = new MockHttpServletResponse()
-        when:
-            springSecurityFilterChain.doFilter(new MockHttpServletRequest(secure: true), response, new MockFilterChain())
-        then:
-            assertHeaders(response, ['Public-Key-Pins-Report-Only': 'max-age=5184000 ; pin-sha256="E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=" ; report-uri="http://example.net/pkp-report"'])
-    }
+		def 'http headers hpkp with report-uri'() {
+				setup:
+						httpAutoConfig {
+								'headers'('defaults-disabled':true) {
+										'hpkp'('report-uri':'http://example.net/pkp-report') {
+												'pins'() {
+														'pin'('algorithm':'sha256', 'E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=')
+												}
+										}
+								}
+						}
+						createAppContext()
+						def springSecurityFilterChain = appContext.getBean(FilterChainProxy)
+						MockHttpServletResponse response = new MockHttpServletResponse()
+				when:
+						springSecurityFilterChain.doFilter(new MockHttpServletRequest(secure: true), response, new MockFilterChain())
+				then:
+						assertHeaders(response, ['Public-Key-Pins-Report-Only': 'max-age=5184000 ; pin-sha256="E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=" ; report-uri="http://example.net/pkp-report"'])
+		}
 
 	// --- disable single default header ---
 
@@ -688,23 +688,23 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 
 	def 'http headers hpkp@disabled=true'() {
 		setup:
-            httpAutoConfig {
-                'headers'() {
-                    'hpkp'(disabled:true) {
-                        'pins'() {
-                            'pin'('algorithm':'sha256', 'E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=')
-                        }
-                    }
-                }
-            }
-            createAppContext()
-            def springSecurityFilterChain = appContext.getBean(FilterChainProxy)
-            MockHttpServletResponse response = new MockHttpServletResponse()
-            def expectedHeaders = [:] << defaultHeaders
+						httpAutoConfig {
+								'headers'() {
+										'hpkp'(disabled:true) {
+												'pins'() {
+														'pin'('algorithm':'sha256', 'E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=')
+												}
+										}
+								}
+						}
+						createAppContext()
+						def springSecurityFilterChain = appContext.getBean(FilterChainProxy)
+						MockHttpServletResponse response = new MockHttpServletResponse()
+						def expectedHeaders = [:] << defaultHeaders
 		when:
-		    springSecurityFilterChain.doFilter(new MockHttpServletRequest(secure:true), response, new MockFilterChain())
+				springSecurityFilterChain.doFilter(new MockHttpServletRequest(secure:true), response, new MockFilterChain())
 		then:
-		    assertHeaders(response, expectedHeaders)
+				assertHeaders(response, expectedHeaders)
 	}
 
 	def 'http headers frame-options@disabled=true'() {

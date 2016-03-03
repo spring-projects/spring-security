@@ -35,12 +35,12 @@ class HeadersConfigurerTests extends BaseSpringSpec {
 			springSecurityFilterChain.doFilter(request,response,chain)
 		then:
 			responseHeaders == ['X-Content-Type-Options':'nosniff',
-						 'X-Frame-Options':'DENY',
-						 'Strict-Transport-Security': 'max-age=31536000 ; includeSubDomains',
-						 'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate',
-						 'Expires' : '0',
-						 'Pragma':'no-cache',
-						 'X-XSS-Protection' : '1; mode=block']
+						'X-Frame-Options':'DENY',
+						'Strict-Transport-Security': 'max-age=31536000 ; includeSubDomains',
+						'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate',
+						'Expires' : '0',
+						'Pragma':'no-cache',
+						'X-XSS-Protection' : '1; mode=block']
 	}
 
 	@EnableWebSecurity
@@ -123,8 +123,8 @@ class HeadersConfigurerTests extends BaseSpringSpec {
 			springSecurityFilterChain.doFilter(request,response,chain)
 		then:
 			responseHeaders == ['Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate',
-						 'Expires' : '0',
-						 'Pragma':'no-cache']
+						'Expires' : '0',
+						'Pragma':'no-cache']
 	}
 
 	@EnableWebSecurity
@@ -168,12 +168,12 @@ class HeadersConfigurerTests extends BaseSpringSpec {
 			springSecurityFilterChain.doFilter(request,response,chain)
 		then:
 			responseHeaders == ['X-Content-Type-Options':'nosniff',
-						 'X-Frame-Options':'SAMEORIGIN',
-						 'Strict-Transport-Security': 'max-age=31536000 ; includeSubDomains',
-						 'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate',
-						 'Expires' : '0',
-						 'Pragma':'no-cache',
-						 'X-XSS-Protection' : '1; mode=block']
+						'X-Frame-Options':'SAMEORIGIN',
+						'Strict-Transport-Security': 'max-age=31536000 ; includeSubDomains',
+						'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate',
+						'Expires' : '0',
+						'Pragma':'no-cache',
+						'X-XSS-Protection' : '1; mode=block']
 	}
 
 	@EnableWebSecurity

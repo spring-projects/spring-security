@@ -3844,8 +3844,8 @@ Opposed to the other headers, Spring Security does not add HPKP by default. You 
 			include-subdomains="true"
 			report-uri="http://example.net/pkp-report">
 			<pins>
-			    <pin algorithm="sha256">d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=</pin>
-			    <pin algorithm="sha256">E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=</pin>
+					<pin algorithm="sha256">d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=</pin>
+					<pin algorithm="sha256">E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=</pin>
 			</pins>
 		</hpkp>
 	</headers>
@@ -3860,16 +3860,16 @@ Similarly, you can enable HPKP headers with Java Configuration:
 public class WebSecurityConfig extends
 WebSecurityConfigurerAdapter {
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http
-        // ...
-        .headers()
-            .httpPublicKeyPinning()
-                .includeSubdomains(true)
-                .reportUri("http://example.net/pkp-report")
-                .addSha256Pins("d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=", "E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=";
-    }
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+				http
+				// ...
+				.headers()
+						.httpPublicKeyPinning()
+								.includeSubdomains(true)
+								.reportUri("http://example.net/pkp-report")
+								.addSha256Pins("d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=", "E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=";
+		}
 }
 ----
 

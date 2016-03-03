@@ -162,7 +162,7 @@ public final class HpkpHeaderWriter implements HeaderWriter {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.springframework.security.web.headers.HeaderWriter#writeHeaders(javax
 	 * .servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
 	 */
@@ -199,9 +199,11 @@ public final class HpkpHeaderWriter implements HeaderWriter {
 	 *
 	 * Use
 	 *
-	 * Map<String, String> pins = new HashMap<String, String>();
+	 * <code>
+	 * Map&lt;String, String&gt; pins = new HashMap&lt;String, String&gt;();
 	 * pins.put("d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=", "sha256");
 	 * pins.put("E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=", "sha256");
+	 * </code>
 	 * </p>
 	 *
 	 * @param pins the map of base64-encoded SPKI fingerprint &amp; cryptographic hash algorithm pairs.

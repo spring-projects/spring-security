@@ -218,11 +218,11 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 						hash = "sha256";
 					}
 
-                    Node pinValueNode = pinElement.getFirstChild();
-                    if (pinValueNode == null) {
-                        context.getReaderContext().warning("Missing value for pin entry.", hpkpElement);
-                        continue;
-                    }
+					Node pinValueNode = pinElement.getFirstChild();
+					if (pinValueNode == null) {
+						context.getReaderContext().warning("Missing value for pin entry.", hpkpElement);
+						continue;
+					}
 
 					String fingerprint = pinElement.getFirstChild().getTextContent();
 
