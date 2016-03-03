@@ -57,7 +57,7 @@ Remember each ticket should be focused on a single item of interest since the ti
 # Mind the whitespace
 Please carefully follow the whitespace and formatting conventions already present in the framework. 
 
-1. Spaces, not tabs
+1. Tabs, not spaces
 1. Unix (LF), not dos (CRLF) line endings
 1. Eliminate all trailing whitespace
 1. Aim to wrap code at 120 characters, but favor readability over wrapping
