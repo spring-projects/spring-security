@@ -15,13 +15,16 @@
  */
 package org.springframework.security.config.annotation
 
+import java.util.ArrayList;
+import java.util.List;
+
 import spock.lang.Specification
 
 /**
  * @author Rob Winch
  *
  */
-class SecurityConfigurerAdapterTests extends Specification {
+class SecurityConfigurerAdapterClosureTests extends Specification {
 	ConcereteSecurityConfigurerAdapter conf = new ConcereteSecurityConfigurerAdapter()
 
 	def "addPostProcessor closure"() {
@@ -36,5 +39,20 @@ class SecurityConfigurerAdapterTests extends Specification {
 			conf.configure(builder)
 		then:
 			conf.list.contains("a")
+	}
+
+	class ConcereteSecurityConfigurerAdapter extends
+			SecurityConfigurerAdapter<Object, SecurityBuilder<Object>> {
+		private List<Object> list = new ArrayList<Object>();
+
+		@Override
+		public void configure(SecurityBuilder<Object> builder) throws Exception {
+			list = postProcess(list);
+		}
+
+		public ConcereteSecurityConfigurerAdapter list(List<Object> l) {
+			this.list = l;
+			return this;
+		}
 	}
 }

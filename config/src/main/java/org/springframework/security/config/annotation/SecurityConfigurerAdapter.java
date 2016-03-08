@@ -15,12 +15,12 @@
  */
 package org.springframework.security.config.annotation;
 
-import org.springframework.core.GenericTypeResolver;
-import org.springframework.core.annotation.AnnotationAwareOrderComparator;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import org.springframework.core.GenericTypeResolver;
+import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 
 /**
  * A base class for {@link SecurityConfigurer} that allows subclasses to only implement
@@ -115,7 +115,6 @@ public abstract class SecurityConfigurerAdapter<O, B extends SecurityBuilder<O>>
 
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		public Object postProcess(Object object) {
-			Collections.sort(postProcessors, AnnotationAwareOrderComparator.INSTANCE);
 			for (ObjectPostProcessor opp : postProcessors) {
 				Class<?> oppClass = opp.getClass();
 				Class<?> oppType = GenericTypeResolver.resolveTypeArgument(oppClass,
@@ -134,7 +133,9 @@ public abstract class SecurityConfigurerAdapter<O, B extends SecurityBuilder<O>>
 		 */
 		private boolean addObjectPostProcessor(
 				ObjectPostProcessor<? extends Object> objectPostProcessor) {
-			return this.postProcessors.add(objectPostProcessor);
+			boolean result = this.postProcessors.add(objectPostProcessor);
+			Collections.sort(postProcessors, AnnotationAwareOrderComparator.INSTANCE);
+			return result;
 		}
 	}
 }
