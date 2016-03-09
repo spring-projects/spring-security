@@ -1034,7 +1034,7 @@ public final class HttpSecurity extends
 	 * {@link #requestMatcher(RequestMatcher)}.
 	 *
 	 * <p>
-	 * Invoking {@link #requestMatchers()} will override previous invocations of
+	 * Invoking {@link #requestMatchers()} will not override previous invocations of
 	 * {@link #requestMatchers()}, {@link #antMatcher(String)},
 	 * {@link #regexMatcher(String)}, and {@link #requestMatcher(RequestMatcher)}.
 	 * </p>
