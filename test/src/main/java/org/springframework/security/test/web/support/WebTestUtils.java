@@ -114,7 +114,7 @@ public abstract class WebTestUtils {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static <T extends Filter> T findFilter(HttpServletRequest request,
+	static <T extends Filter> T findFilter(HttpServletRequest request,
 			Class<T> filterClass) {
 		WebApplicationContext webApplicationContext = WebApplicationContextUtils
 				.getWebApplicationContext(request.getServletContext());
@@ -131,6 +131,9 @@ public abstract class WebTestUtils {
 		}
 		List<Filter> filters = (List<Filter>) ReflectionTestUtils.invokeMethod(
 				springSecurityFilterChain, "getFilters", request);
+		if(filters == null) {
+			return null;
+		}
 		for (Filter filter : filters) {
 			if (filterClass.isAssignableFrom(filter.getClass())) {
 				return (T) filter;

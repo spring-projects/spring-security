@@ -32,6 +32,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
@@ -118,6 +119,14 @@ public class WebTestUtilsTests {
 		assertThat(getSecurityContextRepository(request)).isSameAs(contextRepo);
 	}
 
+	// gh-3343
+	@Test
+	public void findFilterNoMatchingFilters() {
+		loadConfig(PartialSecurityConfig.class);
+
+		assertThat(WebTestUtils.findFilter(request, SecurityContextPersistenceFilter.class)).isNull();
+	}
+
 	private void loadConfig(Class<?> config) {
 		AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
 		context.register(config);
@@ -154,6 +163,20 @@ public class WebTestUtilsTests {
 					.and()
 				.securityContext()
 					.securityContextRepository(CONTEXT_REPO);
+		}
+		// @formatter:on
+	}
+
+
+
+	@EnableWebSecurity
+	static class PartialSecurityConfig extends WebSecurityConfigurerAdapter {
+
+		// @formatter:off
+		@Override
+		public void configure(HttpSecurity http) throws Exception {
+			http
+				.antMatcher("/willnotmatchthis");
 		}
 		// @formatter:on
 	}
