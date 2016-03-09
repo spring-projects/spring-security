@@ -25,6 +25,6 @@ package org.springframework.security.web.csrf;
 public class MissingCsrfTokenException extends CsrfException {
 
 	public MissingCsrfTokenException(String actualToken) {
-		super("Expected CSRF token not found. Has your session expired?");
+		super("Could not verify the provided CSRF token because your session was not found.");
 	}
 }
