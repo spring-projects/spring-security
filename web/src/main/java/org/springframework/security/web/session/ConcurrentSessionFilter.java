@@ -1,4 +1,5 @@
-/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+/* Copyright 2002-2015 the original author or authors.
+ * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +26,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.security.authentication.event.LogoutSuccessEvent;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.session.SessionInformation;
@@ -58,8 +62,9 @@ import org.springframework.web.filter.GenericFilterBean;
  * </p>
  *
  * @author Ben Alex
+ * @author Kazuki Shimizu
  */
-public class ConcurrentSessionFilter extends GenericFilterBean {
+public class ConcurrentSessionFilter extends GenericFilterBean implements ApplicationEventPublisherAware {
 	// ~ Instance fields
 	// ================================================================================================
 
@@ -67,6 +72,7 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
 	private String expiredUrl;
 	private LogoutHandler[] handlers = new LogoutHandler[] { new SecurityContextLogoutHandler() };
 	private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
+	private ApplicationEventPublisher applicationEventPublisher;
 
 	// ~ Methods
 	// ========================================================================================================
@@ -144,6 +150,10 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
 		for (LogoutHandler handler : handlers) {
 			handler.logout(request, response, auth);
 		}
+
+		if (applicationEventPublisher != null && auth != null) {
+			applicationEventPublisher.publishEvent(new LogoutSuccessEvent(auth, true));
+		}
 	}
 
 	public void setLogoutHandlers(LogoutHandler[] handlers) {
@@ -154,4 +164,14 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
 	public void setRedirectStrategy(RedirectStrategy redirectStrategy) {
 		this.redirectStrategy = redirectStrategy;
 	}
+
+	/**
+	 * {@inheritDoc}
+	 * @since 4.0.3
+	 */
+	@Override
+	public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+		this.applicationEventPublisher = applicationEventPublisher;
+	}
+
 }

@@ -1,4 +1,5 @@
-/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+/* Copyright 2002-2015 the original author or authors.
+ * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +27,9 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.security.authentication.event.LogoutSuccessEvent;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -48,13 +52,15 @@ import org.springframework.web.filter.GenericFilterBean;
  * which constructor was used.
  *
  * @author Ben Alex
+ * @author Kazuki Shimizu
  */
-public class LogoutFilter extends GenericFilterBean {
+public class LogoutFilter extends GenericFilterBean implements ApplicationEventPublisherAware {
 
 	// ~ Instance fields
 	// ================================================================================================
 
 	private RequestMatcher logoutRequestMatcher;
+	private ApplicationEventPublisher applicationEventPublisher;
 
 	private final List<LogoutHandler> handlers;
 	private final LogoutSuccessHandler logoutSuccessHandler;
@@ -112,6 +118,10 @@ public class LogoutFilter extends GenericFilterBean {
 				handler.logout(request, response, auth);
 			}
 
+			if (applicationEventPublisher != null && auth != null) {
+				applicationEventPublisher.publishEvent(new LogoutSuccessEvent(auth, false));
+			}
+
 			logoutSuccessHandler.onLogoutSuccess(request, response, auth);
 
 			return;
@@ -141,4 +151,14 @@ public class LogoutFilter extends GenericFilterBean {
 	public void setFilterProcessesUrl(String filterProcessesUrl) {
 		this.logoutRequestMatcher = new AntPathRequestMatcher(filterProcessesUrl);
 	}
+
+	/**
+	 * {@inheritDoc }
+	 * @since 4.0.3
+	 */
+	@Override
+	public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+		this.applicationEventPublisher = applicationEventPublisher;
+	}
+
 }

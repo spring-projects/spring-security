@@ -1,4 +1,4 @@
-/* Copyright 2002-2012 the original author or authors.
+/* Copyright 2002-2015 the original author or authors.
  * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,6 +27,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
@@ -71,8 +73,9 @@ import org.springframework.web.filter.GenericFilterBean;
  * @author Ben Alex
  * @author Luke Taylor
  * @author Rob Winch
+ * @author Kazuki Shimizu
  */
-public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
+public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean implements ApplicationEventPublisherAware {
 	// ~ Instance fields
 	// ================================================================================================
 
@@ -87,6 +90,8 @@ public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
 	private List<LogoutHandler> logoutHandlers;
 
 	private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
+
+	private ApplicationEventPublisher applicationEventPublisher;
 
 	// ~ Methods
 	// ========================================================================================================
@@ -200,6 +205,7 @@ public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
 		factory.setAuthenticationEntryPoint(authenticationEntryPoint);
 		factory.setAuthenticationManager(authenticationManager);
 		factory.setLogoutHandlers(logoutHandlers);
+		factory.setApplicationEventPublisher(applicationEventPublisher);
 		return factory;
 	}
 
@@ -210,4 +216,14 @@ public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
 	private boolean isServlet3() {
 		return ClassUtils.hasMethod(ServletRequest.class, "startAsync");
 	}
+
+	/**
+	 * {@inheritDoc}
+	 * @since 4.0.3
+	 */
+	@Override
+	public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+		this.applicationEventPublisher = applicationEventPublisher;
+	}
+
 }

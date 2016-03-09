@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -27,11 +27,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.event.LogoutSuccessEvent;
 import org.springframework.security.concurrent.DelegatingSecurityContextRunnable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -63,6 +65,7 @@ import org.springframework.util.Assert;
  * </ul>
  *
  * @author Rob Winch
+ * @author Kazuki Shimizu
  *
  * @see SecurityContextHolderAwareRequestFilter
  * @see HttpServlet25RequestFactory
@@ -77,6 +80,7 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 	private AuthenticationEntryPoint authenticationEntryPoint;
 	private AuthenticationManager authenticationManager;
 	private List<LogoutHandler> logoutHandlers;
+	private ApplicationEventPublisher applicationEventPublisher;
 
 	HttpServlet3RequestFactory(String rolePrefix) {
 		this.rolePrefix = rolePrefix;
@@ -155,6 +159,16 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 		this.trustResolver = trustResolver;
 	}
 
+	/**
+	 * Set the {@link ApplicationEventPublisher}.
+	 * @param applicationEventPublisher event publisher to be used by this object
+	 * @since 4.0.3
+	 */
+	public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher){
+		this.applicationEventPublisher = applicationEventPublisher;
+	}
+
+
 	public HttpServletRequest create(HttpServletRequest request,
 			HttpServletResponse response) {
 		return new Servlet3SecurityContextHolderAwareRequestWrapper(request, rolePrefix,
@@ -230,15 +244,17 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 
 		public void logout() throws ServletException {
 			List<LogoutHandler> handlers = logoutHandlers;
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 			if (handlers == null) {
 				logger.debug("logoutHandlers is null, so allowing original HttpServletRequest to handle logout");
 				super.logout();
-				return;
+			} else {
+				for (LogoutHandler logoutHandler : handlers) {
+					logoutHandler.logout(this, response, authentication);
+				}
 			}
-			Authentication authentication = SecurityContextHolder.getContext()
-					.getAuthentication();
-			for (LogoutHandler logoutHandler : handlers) {
-				logoutHandler.logout(this, response, authentication);
+			if (applicationEventPublisher != null && authentication != null) {
+				applicationEventPublisher.publishEvent(new LogoutSuccessEvent(authentication, false));
 			}
 		}
 
