@@ -15,6 +15,7 @@
  */
 package org.springframework.security.test.context.support;
 
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -23,6 +24,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * A {@link WithUserDetailsSecurityContextFactory} that works with {@link WithUserDetails}
@@ -37,14 +39,18 @@ import org.springframework.util.Assert;
 final class WithUserDetailsSecurityContextFactory implements
 		WithSecurityContextFactory<WithUserDetails> {
 
-	private UserDetailsService userDetailsService;
+	private BeanFactory beans;
 
 	@Autowired
-	public WithUserDetailsSecurityContextFactory(UserDetailsService userDetailsService) {
-		this.userDetailsService = userDetailsService;
+	public WithUserDetailsSecurityContextFactory(BeanFactory beans) {
+		this.beans = beans;
 	}
 
 	public SecurityContext createSecurityContext(WithUserDetails withUser) {
+		String beanName = withUser.userDetailsServiceBeanName();
+		UserDetailsService userDetailsService = StringUtils.hasLength(beanName)
+				? this.beans.getBean(beanName, UserDetailsService.class)
+				: this.beans.getBean(UserDetailsService.class);
 		String username = withUser.value();
 		Assert.hasLength(username, "value() must be non empty String");
 		UserDetails principal = userDetailsService.loadUserByUsername(username);

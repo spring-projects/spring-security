@@ -66,6 +66,14 @@ public class WithUserDetailsTests {
 		assertThat(getPrincipal()).isInstanceOf(CustomUserDetails.class);
 	}
 
+	@Test
+	@WithUserDetails(value="customUsername", userDetailsServiceBeanName="myUserDetailsService")
+	public void getMessageWithUserDetailsServiceBeanName() {
+		String message = messageService.getMessage();
+		assertThat(message).contains("customUsername");
+		assertThat(getPrincipal()).isInstanceOf(CustomUserDetails.class);
+	}
+
 	@EnableGlobalMethodSecurity(prePostEnabled = true)
 	@ComponentScan(basePackageClasses = HelloMessageService.class)
 	static class Config {
@@ -73,12 +81,12 @@ public class WithUserDetailsTests {
 		@Autowired
 		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 			auth
-					.userDetailsService(userDetailsService());
+					.userDetailsService(myUserDetailsService());
 		}
 		// @formatter:on
 
 		@Bean
-		public UserDetailsService userDetailsService() {
+		public UserDetailsService myUserDetailsService() {
 			return new CustomUserDetailsService();
 		}
 	}

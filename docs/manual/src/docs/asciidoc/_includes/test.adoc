@@ -204,6 +204,19 @@ public void getMessageWithUserDetailsCustomUsername() {
 }
 ----
 
+We can also provide an explicit bean name to look up the `UserDetailsService`.
+For example, this test would look up the username of "customUsername" using the `UserDetailsService` with the bean name "myUserDetailsService".
+
+[source,java]
+----
+@T@Test
+@WithUserDetails(value="customUsername", userDetailsServiceBeanName="myUserDetailsService")
+public void getMessageWithUserDetailsServiceBeanName() {
+	String message = messageService.getMessage();
+	...
+}
+----
+
 Like `@WithMockUser` we can also place our annotation at the class level so that every test uses the same user.
 However unlike `@WithMockUser`, `@WithUserDetails` requires the user to exist.
 

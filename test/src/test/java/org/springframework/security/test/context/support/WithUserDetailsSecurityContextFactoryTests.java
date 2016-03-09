@@ -16,13 +16,14 @@
 package org.springframework.security.test.context.support;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -35,6 +36,8 @@ public class WithUserDetailsSecurityContextFactoryTests {
 	private UserDetailsService userDetailsService;
 	@Mock
 	private UserDetails userDetails;
+	@Mock
+	private BeanFactory beans;
 
 	@Mock
 	private WithUserDetails withUserDetails;
@@ -43,7 +46,8 @@ public class WithUserDetailsSecurityContextFactoryTests {
 
 	@Before
 	public void setup() {
-		factory = new WithUserDetailsSecurityContextFactory(userDetailsService);
+		when(beans.getBean(UserDetailsService.class)).thenReturn(userDetailsService);
+		factory = new WithUserDetailsSecurityContextFactory(beans);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -67,5 +71,25 @@ public class WithUserDetailsSecurityContextFactoryTests {
 		assertThat(context.getAuthentication()).isInstanceOf(
 				UsernamePasswordAuthenticationToken.class);
 		assertThat(context.getAuthentication().getPrincipal()).isEqualTo(userDetails);
+		verify(beans).getBean(UserDetailsService.class);
+		verifyNoMoreInteractions(beans);
+	}
+
+	// gh-3346
+	@Test
+	public void createSecurityContextWithUserDetailsServiceName() {
+		String beanName = "secondUserDetailsServiceBean";
+		String username = "user";
+		when(withUserDetails.value()).thenReturn(username);
+		when(withUserDetails.userDetailsServiceBeanName()).thenReturn(beanName);
+		when(userDetailsService.loadUserByUsername(username)).thenReturn(userDetails);
+		when(beans.getBean(beanName, UserDetailsService.class)).thenReturn(userDetailsService);
+
+		SecurityContext context = factory.createSecurityContext(withUserDetails);
+		assertThat(context.getAuthentication()).isInstanceOf(
+				UsernamePasswordAuthenticationToken.class);
+		assertThat(context.getAuthentication().getPrincipal()).isEqualTo(userDetails);
+		verify(beans).getBean(beanName, UserDetailsService.class);
+		verifyNoMoreInteractions(beans);
 	}
 }
