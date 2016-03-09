@@ -88,12 +88,12 @@ import org.springframework.util.Assert;
  * &#064;Configuration
  * &#064;EnableWebSecurity
  * public class FormLoginSecurityConfig extends WebSecurityConfigurerAdapter {
- * 
+ *
  * 	&#064;Override
  * 	protected void configure(HttpSecurity http) throws Exception {
  * 		http.authorizeRequests().antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and().formLogin();
  * 	}
- * 
+ *
  * 	&#064;Override
  * 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
  * 		auth.inMemoryAuthentication().withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;);
@@ -144,13 +144,13 @@ public final class HttpSecurity extends
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
 	 * public class OpenIDLoginConfig extends WebSecurityConfigurerAdapter {
-	 * 
+	 *
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) {
 	 * 		http.authorizeRequests().antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and().openidLogin()
 	 * 				.permitAll();
 	 * 	}
-	 * 
+	 *
 	 * 	&#064;Override
 	 * 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 	 * 		auth.inMemoryAuthentication()
@@ -171,7 +171,7 @@ public final class HttpSecurity extends
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
 	 * public class OpenIDLoginConfig extends WebSecurityConfigurerAdapter {
-	 * 
+	 *
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) {
 	 * 		http.authorizeRequests()
@@ -197,7 +197,7 @@ public final class HttpSecurity extends
 	 * 				.type(&quot;http://schema.openid.net/namePerson&quot;).required(true);
 	 * 	}
 	 * }
-	 * 
+	 *
 	 * public class AutoProvisioningUserDetailsService implements
 	 * 		AuthenticationUserDetailsService&lt;OpenIDAuthenticationToken&gt; {
 	 * 	public UserDetails loadUserDetails(OpenIDAuthenticationToken token)
@@ -227,7 +227,7 @@ public final class HttpSecurity extends
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
 	 * public class CsrfSecurityConfig extends WebSecurityConfigurerAdapter {
-	 * 
+	 *
 	 * 	&#064;Override
 	 *     protected void configure(HttpSecurity http) throws Exception {
 	 *         http
@@ -253,7 +253,7 @@ public final class HttpSecurity extends
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
 	 * public class CsrfSecurityConfig extends WebSecurityConfigurerAdapter {
-	 * 
+	 *
 	 * 	&#064;Override
 	 *     protected void configure(HttpSecurity http) throws Exception {
 	 *         http
@@ -273,7 +273,7 @@ public final class HttpSecurity extends
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
 	 * public class CsrfSecurityConfig extends WebSecurityConfigurerAdapter {
-	 * 
+	 *
 	 * 	&#064;Override
 	 *     protected void configure(HttpSecurity http) throws Exception {
 	 *         http
@@ -331,14 +331,14 @@ public final class HttpSecurity extends
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
 	 * public class SessionManagementSecurityConfig extends WebSecurityConfigurerAdapter {
-	 * 
+	 *
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http.authorizeRequests().anyRequest().hasRole(&quot;USER&quot;).and().formLogin()
 	 * 				.permitAll().and().sessionManagement().maximumSessions(1)
 	 * 				.expiredUrl(&quot;/login?expired&quot;);
 	 * 	}
-	 * 
+	 *
 	 * 	&#064;Override
 	 * 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 	 * 		auth.inMemoryAuthentication().withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;);
@@ -388,7 +388,7 @@ public final class HttpSecurity extends
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
 	 * public class PortMapperSecurityConfig extends WebSecurityConfigurerAdapter {
-	 * 
+	 *
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http.authorizeRequests().antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and().formLogin()
@@ -396,7 +396,7 @@ public final class HttpSecurity extends
 	 * 				// Example portMapper() configuration
 	 * 				.portMapper().http(9090).mapsTo(9443).http(80).mapsTo(443);
 	 * 	}
-	 * 
+	 *
 	 * 	&#064;Override
 	 * 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 	 * 		auth.inMemoryAuthentication().withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;);
@@ -426,7 +426,7 @@ public final class HttpSecurity extends
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
 	 * public class JeeSecurityConfig extends WebSecurityConfigurerAdapter {
-	 * 
+	 *
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http.authorizeRequests().antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and()
@@ -449,7 +449,7 @@ public final class HttpSecurity extends
 	 *         &lt;form-error-page&gt;/login?error&lt;/form-error-page&gt;
 	 *     &lt;/form-login-config&gt;
 	 * &lt;/login-config&gt;
-	 * 
+	 *
 	 * &lt;security-role&gt;
 	 *     &lt;role-name&gt;ROLE_USER&lt;/role-name&gt;
 	 * &lt;/security-role&gt;
@@ -497,7 +497,7 @@ public final class HttpSecurity extends
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
 	 * public class X509SecurityConfig extends WebSecurityConfigurerAdapter {
-	 * 
+	 *
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http.authorizeRequests().antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and()
@@ -528,12 +528,12 @@ public final class HttpSecurity extends
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
 	 * public class RememberMeSecurityConfig extends WebSecurityConfigurerAdapter {
-	 * 
+	 *
 	 * 	&#064;Override
 	 * 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 	 * 		auth.inMemoryAuthentication().withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;);
 	 * 	}
-	 * 
+	 *
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http.authorizeRequests().antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and().formLogin()
@@ -564,12 +564,12 @@ public final class HttpSecurity extends
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
 	 * public class AuthorizeUrlsSecurityConfig extends WebSecurityConfigurerAdapter {
-	 * 
+	 *
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http.authorizeRequests().antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and().formLogin();
 	 * 	}
-	 * 
+	 *
 	 * 	&#064;Override
 	 * 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 	 * 		auth.inMemoryAuthentication().withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;)
@@ -586,13 +586,13 @@ public final class HttpSecurity extends
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
 	 * public class AuthorizeUrlsSecurityConfig extends WebSecurityConfigurerAdapter {
-	 * 
+	 *
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http.authorizeRequests().antMatchers(&quot;/admin/**&quot;).hasRole(&quot;ADMIN&quot;)
 	 * 				.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and().formLogin();
 	 * 	}
-	 * 
+	 *
 	 * 	&#064;Override
 	 * 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 	 * 		auth.inMemoryAuthentication().withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;)
@@ -679,7 +679,7 @@ public final class HttpSecurity extends
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
 	 * public class CsrfSecurityConfig extends WebSecurityConfigurerAdapter {
-	 * 
+	 *
 	 * 	&#064;Override
 	 *     protected void configure(HttpSecurity http) throws Exception {
 	 *         http
@@ -713,7 +713,7 @@ public final class HttpSecurity extends
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
 	 * public class LogoutSecurityConfig extends WebSecurityConfigurerAdapter {
-	 * 
+	 *
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http.authorizeRequests().antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and().formLogin()
@@ -722,7 +722,7 @@ public final class HttpSecurity extends
 	 * 				.logout().logout().deleteCookies(&quot;remove&quot;).invalidateHttpSession(false)
 	 * 				.logoutUrl(&quot;/custom-logout&quot;).logoutSuccessUrl(&quot;/logout-success&quot;);
 	 * 	}
-	 * 
+	 *
 	 * 	&#064;Override
 	 * 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 	 * 		auth.inMemoryAuthentication().withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;);
@@ -753,7 +753,7 @@ public final class HttpSecurity extends
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
 	 * public class AnononymousSecurityConfig extends WebSecurityConfigurerAdapter {
-	 * 
+	 *
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http.authorizeRequests().antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and().formLogin()
@@ -761,7 +761,7 @@ public final class HttpSecurity extends
 	 * 				// sample anonymous customization
 	 * 				.anonymous().authorities(&quot;ROLE_ANON&quot;);
 	 * 	}
-	 * 
+	 *
 	 * 	&#064;Override
 	 * 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 	 * 		auth.inMemoryAuthentication().withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;);
@@ -777,7 +777,7 @@ public final class HttpSecurity extends
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
 	 * public class AnononymousSecurityConfig extends WebSecurityConfigurerAdapter {
-	 * 
+	 *
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http.authorizeRequests().antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and().formLogin()
@@ -785,7 +785,7 @@ public final class HttpSecurity extends
 	 * 				// sample anonymous customization
 	 * 				.anonymous().disabled();
 	 * 	}
-	 * 
+	 *
 	 * 	&#064;Override
 	 * 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 	 * 		auth.inMemoryAuthentication().withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;);
@@ -816,12 +816,12 @@ public final class HttpSecurity extends
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
 	 * public class FormLoginSecurityConfig extends WebSecurityConfigurerAdapter {
-	 * 
+	 *
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http.authorizeRequests().antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and().formLogin();
 	 * 	}
-	 * 
+	 *
 	 * 	&#064;Override
 	 * 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 	 * 		auth.inMemoryAuthentication().withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;);
@@ -835,7 +835,7 @@ public final class HttpSecurity extends
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
 	 * public class FormLoginSecurityConfig extends WebSecurityConfigurerAdapter {
-	 * 
+	 *
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http.authorizeRequests().antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and().formLogin()
@@ -847,7 +847,7 @@ public final class HttpSecurity extends
 	 * 																		// with an HTTP
 	 * 																		// post
 	 * 	}
-	 * 
+	 *
 	 * 	&#064;Override
 	 * 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 	 * 		auth.inMemoryAuthentication().withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;);
@@ -880,13 +880,13 @@ public final class HttpSecurity extends
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
 	 * public class ChannelSecurityConfig extends WebSecurityConfigurerAdapter {
-	 * 
+	 *
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http.authorizeRequests().antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and().formLogin()
 	 * 				.and().requiresChannel().anyRequest().requiresSecure();
 	 * 	}
-	 * 
+	 *
 	 * 	&#064;Override
 	 * 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 	 * 		auth.inMemoryAuthentication().withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;);
@@ -916,12 +916,12 @@ public final class HttpSecurity extends
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
 	 * public class HttpBasicSecurityConfig extends WebSecurityConfigurerAdapter {
-	 * 
+	 *
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http.authorizeRequests().antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and().httpBasic();
 	 * 	}
-	 * 
+	 *
 	 * 	&#064;Override
 	 * 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 	 * 		auth.inMemoryAuthentication().withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;);
@@ -953,7 +953,7 @@ public final class HttpSecurity extends
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.springframework.security.config.annotation.web.HttpBuilder#authenticationProvider
 	 * (org.springframework.security.authentication.AuthenticationProvider)
@@ -966,7 +966,7 @@ public final class HttpSecurity extends
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.springframework.security.config.annotation.web.HttpBuilder#userDetailsService
 	 * (org.springframework.security.core.userdetails.UserDetailsService)
@@ -983,7 +983,7 @@ public final class HttpSecurity extends
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.springframework.security.config.annotation.web.HttpBuilder#addFilterAfter(javax
 	 * .servlet.Filter, java.lang.Class)
@@ -995,7 +995,7 @@ public final class HttpSecurity extends
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.springframework.security.config.annotation.web.HttpBuilder#addFilterBefore(
 	 * javax.servlet.Filter, java.lang.Class)
@@ -1008,7 +1008,7 @@ public final class HttpSecurity extends
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.springframework.security.config.annotation.web.HttpBuilder#addFilter(javax.
 	 * servlet.Filter)
@@ -1048,16 +1048,24 @@ public final class HttpSecurity extends
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
 	 * public class RequestMatchersSecurityConfig extends WebSecurityConfigurerAdapter {
-	 * 
+	 *
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
-	 * 		http.requestMatchers().antMatchers(&quot;/api/**&quot;, &quot;/oauth/**&quot;).and()
-	 * 				.authorizeRequests().antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and().httpBasic();
+	 * 		http
+	 * 			.requestMatchers()
+	 * 				.antMatchers(&quot;/api/**&quot;, &quot;/oauth/**&quot;)
+	 * 				.and()
+	 * 			.authorizeRequests()
+	 * 				.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 				.and()
+	 * 			.httpBasic();
 	 * 	}
-	 * 
+	 *
 	 * 	&#064;Override
 	 * 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-	 * 		auth.inMemoryAuthentication().withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;);
+	 * 		auth
+	 * 			.inMemoryAuthentication()
+	 * 				.withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;);
 	 * 	}
 	 * }
 	 * </pre>
@@ -1068,16 +1076,25 @@ public final class HttpSecurity extends
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
 	 * public class RequestMatchersSecurityConfig extends WebSecurityConfigurerAdapter {
-	 * 
+	 *
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
-	 * 		http.requestMatchers().antMatchers(&quot;/api/**&quot;).antMatchers(&quot;/oauth/**&quot;).and()
-	 * 				.authorizeRequests().antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and().httpBasic();
+	 * 		http
+	 * 			.requestMatchers()
+	 * 				.antMatchers(&quot;/api/**&quot;)
+	 * 				.antMatchers(&quot;/oauth/**&quot;)
+	 * 				.and()
+	 * 			.authorizeRequests()
+	 * 				.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 				.and()
+	 * 			.httpBasic();
 	 * 	}
-	 * 
+	 *
 	 * 	&#064;Override
 	 * 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-	 * 		auth.inMemoryAuthentication().withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;);
+	 * 		auth
+	 * 			.inMemoryAuthentication()
+	 * 				.withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;);
 	 * 	}
 	 * }
 	 * </pre>
@@ -1088,17 +1105,27 @@ public final class HttpSecurity extends
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
 	 * public class RequestMatchersSecurityConfig extends WebSecurityConfigurerAdapter {
-	 * 
+	 *
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
-	 * 		http.requestMatchers().antMatchers(&quot;/api/**&quot;).and().requestMatchers()
-	 * 				.antMatchers(&quot;/oauth/**&quot;).and().authorizeRequests().antMatchers(&quot;/**&quot;)
-	 * 				.hasRole(&quot;USER&quot;).and().httpBasic();
+	 * 		http
+	 * 			.requestMatchers()
+	 * 				.antMatchers(&quot;/api/**&quot;)
+	 * 				.and()
+	 *			 .requestMatchers()
+	 * 				.antMatchers(&quot;/oauth/**&quot;)
+	 * 				.and()
+	 * 			.authorizeRequests()
+	 * 				.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 				.and()
+	 * 			.httpBasic();
 	 * 	}
-	 * 
+	 *
 	 * 	&#064;Override
 	 * 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-	 * 		auth.inMemoryAuthentication().withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;);
+	 * 		auth
+	 * 			.inMemoryAuthentication()
+	 * 				.withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;);
 	 * 	}
 	 * }
 	 * </pre>
