@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.*;
  * </p>
  *
  * @author Shazin Sadakath
- *
+ * @since 4.1
  */
 public class ForwardAuthenticaionSuccessHandlerTests {
 

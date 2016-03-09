@@ -30,6 +30,7 @@ import java.io.IOException;
  * </p>
  *
  * @author Shazin Sadakath
+ * @since 4.1
  *
  */
 public class ForwardAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
@@ -40,13 +41,12 @@ public class ForwardAuthenticationSuccessHandler implements AuthenticationSucces
 	 * @param forwardUrl
 	 */
 	public ForwardAuthenticationSuccessHandler(String forwardUrl) {
-        Assert.isTrue(UrlUtils.isValidRedirectUrl(forwardUrl), "'"
-                + forwardUrl + "' is not a valid forward URL");
-        this.forwardUrl = forwardUrl;
+		Assert.isTrue(UrlUtils.isValidRedirectUrl(forwardUrl), "'"
+				+ forwardUrl + "' is not a valid forward URL");
+		this.forwardUrl = forwardUrl;
 	}
 
-	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
 		request.getRequestDispatcher(forwardUrl).forward(request, response);
-    }
+	}
 }
