@@ -31,7 +31,7 @@ import java.io.IOException;
  * </p>
  *
  * @author Shazin Sadakath
- *
+ * @since 4.1
  */
 public class ForwardAuthenticationFailureHandler implements AuthenticationFailureHandler {
 
@@ -41,12 +41,11 @@ public class ForwardAuthenticationFailureHandler implements AuthenticationFailur
 	 * @param forwardUrl
 	 */
 	public ForwardAuthenticationFailureHandler(String forwardUrl) {
-        Assert.isTrue(UrlUtils.isValidRedirectUrl(forwardUrl), "'"
-                + forwardUrl + "' is not a valid forward URL");
+		Assert.isTrue(UrlUtils.isValidRedirectUrl(forwardUrl), "'"
+				+ forwardUrl + "' is not a valid forward URL");
 		this.forwardUrl = forwardUrl;
 	}
 
-	@Override
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
 		request.setAttribute(WebAttributes.AUTHENTICATION_EXCEPTION, exception);
 		request.getRequestDispatcher(forwardUrl).forward(request, response);

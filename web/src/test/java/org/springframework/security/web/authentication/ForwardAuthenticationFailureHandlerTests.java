@@ -30,7 +30,7 @@ import static org.mockito.Mockito.mock;
  * </p>
  *
  * @author Shazin Sadakath
- *
+ * @since4.1
  */
 public class ForwardAuthenticationFailureHandlerTests {
 
@@ -55,6 +55,6 @@ public class ForwardAuthenticationFailureHandlerTests {
 		fafh.onAuthenticationFailure(request, response, e);
 
 		assertThat(response.getForwardedUrl()).isEqualTo("/forwardUrl");
-        assertThat(request.getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION)).isEqualTo(e);
+		assertThat(request.getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION)).isEqualTo(e);
 	}
 }
