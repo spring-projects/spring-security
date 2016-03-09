@@ -426,7 +426,7 @@ public class DigestAuthenticationFilter extends GenericFilterBean implements
 					+ entryPointKey);
 
 			if (!expectedNonceSignature.equals(nonceTokens[1])) {
-				new BadCredentialsException(messages.getMessage(
+				throw new BadCredentialsException(messages.getMessage(
 						"DigestAuthenticationFilter.nonceCompromised",
 						new Object[] { nonceAsPlainText }, "Nonce token compromised {0}"));
 			}
