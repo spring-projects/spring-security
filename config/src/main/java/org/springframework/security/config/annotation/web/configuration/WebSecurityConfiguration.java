@@ -197,7 +197,7 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.springframework.context.annotation.ImportAware#setImportMetadata(org.
 	 * springframework.core.type.AnnotationMetadata)
 	 */
@@ -206,23 +206,6 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 				.getAnnotationAttributes(EnableWebSecurity.class.getName());
 		AnnotationAttributes enableWebSecurityAttrs = AnnotationAttributes
 				.fromMap(enableWebSecurityAttrMap);
-		if (enableWebSecurityAttrs == null) {
-			// search parent classes
-			Class<?> currentClass = ClassUtils.resolveClassName(
-					importMetadata.getClassName(), beanClassLoader);
-			for (Class<?> classToInspect = currentClass; classToInspect != null; classToInspect = classToInspect
-					.getSuperclass()) {
-				EnableWebSecurity enableWebSecurityAnnotation = AnnotationUtils
-						.findAnnotation(classToInspect, EnableWebSecurity.class);
-				if (enableWebSecurityAnnotation == null) {
-					continue;
-				}
-				enableWebSecurityAttrMap = AnnotationUtils
-						.getAnnotationAttributes(enableWebSecurityAnnotation);
-				enableWebSecurityAttrs = AnnotationAttributes
-						.fromMap(enableWebSecurityAttrMap);
-			}
-		}
 		debugEnabled = enableWebSecurityAttrs.getBoolean("debug");
 		if (webSecurity != null) {
 			webSecurity.debug(debugEnabled);
@@ -231,7 +214,7 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.springframework.beans.factory.BeanClassLoaderAware#setBeanClassLoader(java.
 	 * lang.ClassLoader)
