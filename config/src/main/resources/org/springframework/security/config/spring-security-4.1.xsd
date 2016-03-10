@@ -1465,6 +1465,18 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="authentication-failure-forward-url" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The URL for the ForwardAuthenticationFailureHandler
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="authentication-success-forward-url" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The URL for the ForwardAuthenticationSuccessHandler
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
   </xs:attributeGroup>
   
   <xs:element name="attribute-exchange">

@@ -7626,6 +7626,14 @@ The name of the request parameter which contains the password. Defaults to "pass
 * **username-parameter**
 The name of the request parameter which contains the username. Defaults to "username".
 
+[[nsa-form-login-authentication-success-forward-url]]
+* **authentication-success-forward-url**
+Maps a `ForwardAuthenticationSuccessHandler` to `authenticationSuccessHandler` property of `UsernamePasswordAuthenticationFilter`.
+
+
+[[nsa-form-login-authentication-failure-forward-url]]
+* **authentication-failure-forward-url**
+Maps a `ForwardAuthenticationFailureHandler` to `authenticationFailureHandler` property of `UsernamePasswordAuthenticationFilter`.
 
 [[nsa-http-basic]]
 ==== <http-basic>
@@ -7824,6 +7832,16 @@ Reference to an AuthenticationFailureHandler bean which should be used to handle
 [[nsa-openid-login-authentication-failure-url]]
 * **authentication-failure-url**
 The URL for the login failure page. If no login failure URL is specified, Spring Security will automatically create a failure login URL at /login?login_error and a corresponding filter to render that login failure URL when requested.
+
+
+[[nsa-openid-login-authentication-success-forward-url]]
+* **authentication-success-forward-url**
+Maps a `ForwardAuthenticationSuccessHandler` to `authenticationSuccessHandler` property of `UsernamePasswordAuthenticationFilter`.
+
+
+[[nsa-openid-login-authentication-failure-forward-url]]
+* **authentication-failure-forward-url**
+Maps a `ForwardAuthenticationFailureHandler` to `authenticationFailureHandler` property of `UsernamePasswordAuthenticationFilter`.
 
 
 [[nsa-openid-login-authentication-success-handler-ref]]

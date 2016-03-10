@@ -19,6 +19,8 @@ import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.authentication.ForwardAuthenticationFailureHandler;
+import org.springframework.security.web.authentication.ForwardAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
@@ -62,6 +64,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * </ul>
  *
  * @author Rob Winch
+ * @author Shazin Sadakath
  * @since 3.2
  */
 public final class FormLoginConfigurer<H extends HttpSecurityBuilder<H>>
@@ -203,6 +206,28 @@ public final class FormLoginConfigurer<H extends HttpSecurityBuilder<H>>
 	 */
 	public FormLoginConfigurer<H> passwordParameter(String passwordParameter) {
 		getAuthenticationFilter().setPasswordParameter(passwordParameter);
+		return this;
+	}
+
+	/**
+	 * Forward Authentication Failure Handler
+	 *
+	 * @param forwardUrl the target URL in case of failure
+	 * @return he {@link FormLoginConfigurer} for additional customization
+	 */
+	public FormLoginConfigurer<H> failureForwardUrl(String forwardUrl) {
+		failureHandler(new ForwardAuthenticationFailureHandler(forwardUrl));
+		return this;
+	}
+
+	/**
+	 * Forward Authentication Success Handler
+	 *
+	 * @param forwardUrl the target URL in case of success
+	 * @return he {@link FormLoginConfigurer} for additional customization
+	 */
+	public FormLoginConfigurer<H> successForwardUrl(String forwardUrl) {
+		successHandler(new ForwardAuthenticationSuccessHandler(forwardUrl));
 		return this;
 	}
 

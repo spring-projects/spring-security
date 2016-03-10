@@ -17,6 +17,7 @@ package org.springframework.security.config.annotation.web.configurers
 
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpMethod
 import org.springframework.mock.web.MockFilterChain
 import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.mock.web.MockHttpServletResponse
@@ -31,6 +32,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.web.AuthenticationEntryPoint
 import org.springframework.security.web.FilterChainProxy
 import org.springframework.security.web.PortMapper
+import org.springframework.security.web.WebAttributes
 import org.springframework.security.web.access.ExceptionTranslationFilter
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter
@@ -279,6 +281,55 @@ class FormLoginConfigurerTests extends BaseSpringSpec {
 			loadConfig(DuplicateInvocationsDoesNotOverrideConfig)
 		then:
 			findFilter(UsernamePasswordAuthenticationFilter).usernameParameter == "custom-username"
+	}
+
+	def "FormLogin permitAll uses Failure Forward Url when ForwardAuthenticationFailureHandler set"() {
+		setup:
+		loadConfig(FormLoginUserForwardAuthenticationSuccessAndFailureConfig)
+		FilterChainProxy springSecurityFilterChain = context.getBean(FilterChainProxy)
+		when: "access configured explicit ForwardFailureFailureHandler"
+		MockHttpServletRequest request = new MockHttpServletRequest(servletPath:"/login",method:"POST")
+		request.setParameter("username", "user");
+		request.setParameter("password", "invalidpassword");
+		MockHttpServletResponse response = new MockHttpServletResponse()
+		springSecurityFilterChain.doFilter(request,response,new MockFilterChain())
+		then: "access is granted to the failure handler"
+		response.status == 200
+		response.forwardedUrl == "/failure_forward_url"
+		request.getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION) != null
+	}
+
+	def "FormLogin permitAll uses Success Forward Url when ForwardAuthenticationSuccessHandler set"() {
+		setup:
+		loadConfig(FormLoginUserForwardAuthenticationSuccessAndFailureConfig)
+		FilterChainProxy springSecurityFilterChain = context.getBean(FilterChainProxy)
+		when: "access configured explicit ForwardSuccessAuthenticationHandler"
+		MockHttpServletRequest request = new MockHttpServletRequest(servletPath:"/login",method:"POST")
+		request.setParameter("username", "user");
+		request.setParameter("password", "password");
+		MockHttpServletResponse response = new MockHttpServletResponse()
+		springSecurityFilterChain.doFilter(request,response,new MockFilterChain())
+		then: "access is granted to the success handler"
+		response.status == 200
+		response.forwardedUrl == "/success_forward_url"
+	}
+
+	@EnableWebSecurity
+	static class FormLoginUserForwardAuthenticationSuccessAndFailureConfig extends BaseWebConfig {
+
+		@Override
+		protected void configure(HttpSecurity http) {
+			http.csrf()
+					.disable()
+					.authorizeRequests()
+					.anyRequest().authenticated()
+					.and()
+					.formLogin()
+					.failureForwardUrl("/failure_forward_url")
+					.successForwardUrl("/success_forward_url")
+					.permitAll()
+
+		}
 	}
 
 	@EnableWebSecurity

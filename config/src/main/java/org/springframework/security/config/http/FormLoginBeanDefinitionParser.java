@@ -22,9 +22,7 @@ import org.springframework.beans.factory.config.BeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
-import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
+import org.springframework.security.web.authentication.*;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
@@ -34,6 +32,7 @@ import org.w3c.dom.Element;
  * @author Ben Alex
  * @author Rob Winch
  * @author Kazuki Shimizu
+ * @author Shazin Sadakath
  */
 public class FormLoginBeanDefinitionParser {
 	protected final Log logger = LogFactory.getLog(getClass());
@@ -55,6 +54,8 @@ public class FormLoginBeanDefinitionParser {
 
 	private static final String ATT_SUCCESS_HANDLER_REF = "authentication-success-handler-ref";
 	private static final String ATT_FAILURE_HANDLER_REF = "authentication-failure-handler-ref";
+	private static final String ATT_FORM_LOGIN_AUTHENTICATION_FAILURE_FORWARD_URL = "authentication-failure-forward-url";
+	private static final String ATT_FORM_LOGIN_AUTHENTICATION_SUCCESS_FORWARD_URL = "authentication-success-forward-url";
 
 	private final String defaultLoginProcessingUrl;
 	private final String filterClassName;
@@ -95,6 +96,8 @@ public class FormLoginBeanDefinitionParser {
 		String usernameParameter = null;
 		String passwordParameter = null;
 		String authDetailsSourceRef = null;
+		String authenticationFailureForwardUrl = null;
+		String authenticationSuccessForwardUrl = null;
 
 		Object source = null;
 
@@ -113,6 +116,10 @@ public class FormLoginBeanDefinitionParser {
 			failureHandlerRef = elt.getAttribute(ATT_FAILURE_HANDLER_REF);
 			authDetailsSourceRef = elt
 					.getAttribute(AuthenticationConfigBuilder.ATT_AUTH_DETAILS_SOURCE_REF);
+			authenticationFailureForwardUrl = elt.getAttribute(ATT_FORM_LOGIN_AUTHENTICATION_FAILURE_FORWARD_URL);
+			WebConfigUtils.validateHttpRedirect(authenticationFailureForwardUrl, pc, source);
+			authenticationSuccessForwardUrl = elt.getAttribute(ATT_FORM_LOGIN_AUTHENTICATION_SUCCESS_FORWARD_URL);
+			WebConfigUtils.validateHttpRedirect(authenticationSuccessForwardUrl, pc, source);
 
 			if (!StringUtils.hasText(loginPage)) {
 				loginPage = null;
@@ -124,7 +131,7 @@ public class FormLoginBeanDefinitionParser {
 
 		filterBean = createFilterBean(loginUrl, defaultTargetUrl, alwaysUseDefault,
 				loginPage, authenticationFailureUrl, successHandlerRef,
-				failureHandlerRef, authDetailsSourceRef);
+				failureHandlerRef, authDetailsSourceRef, authenticationFailureForwardUrl, authenticationSuccessForwardUrl);
 
 		if (StringUtils.hasText(usernameParameter)) {
 			filterBean.getPropertyValues().addPropertyValue("usernameParameter",
@@ -152,7 +159,7 @@ public class FormLoginBeanDefinitionParser {
 	private RootBeanDefinition createFilterBean(String loginUrl, String defaultTargetUrl,
 			String alwaysUseDefault, String loginPage, String authenticationFailureUrl,
 			String successHandlerRef, String failureHandlerRef,
-			String authDetailsSourceRef) {
+			String authDetailsSourceRef, String authenticationFailureForwardUrl, String authenticationSuccessForwardUrl) {
 
 		BeanDefinitionBuilder filterBuilder = BeanDefinitionBuilder
 				.rootBeanDefinition(filterClassName);
@@ -176,8 +183,12 @@ public class FormLoginBeanDefinitionParser {
 		if (StringUtils.hasText(successHandlerRef)) {
 			filterBuilder.addPropertyReference("authenticationSuccessHandler",
 					successHandlerRef);
-		}
-		else {
+		} else if(StringUtils.hasText(authenticationSuccessForwardUrl)) {
+			BeanDefinitionBuilder forwardSuccessHandler = BeanDefinitionBuilder
+					.rootBeanDefinition(ForwardAuthenticationSuccessHandler.class);
+			forwardSuccessHandler.addConstructorArgValue(authenticationSuccessForwardUrl);
+			filterBuilder.addPropertyValue("authenticationSuccessHandler", forwardSuccessHandler.getBeanDefinition());
+		} else {
 			BeanDefinitionBuilder successHandler = BeanDefinitionBuilder
 					.rootBeanDefinition(SavedRequestAwareAuthenticationSuccessHandler.class);
 			if ("true".equals(alwaysUseDefault)) {
@@ -205,8 +216,12 @@ public class FormLoginBeanDefinitionParser {
 		if (StringUtils.hasText(failureHandlerRef)) {
 			filterBuilder.addPropertyReference("authenticationFailureHandler",
 					failureHandlerRef);
-		}
-		else {
+		} else if(StringUtils.hasText(authenticationFailureForwardUrl)) {
+			BeanDefinitionBuilder forwardFailureHandler = BeanDefinitionBuilder
+					.rootBeanDefinition(ForwardAuthenticationFailureHandler.class);
+			forwardFailureHandler.addConstructorArgValue(authenticationFailureForwardUrl);
+			filterBuilder.addPropertyValue("authenticationFailureHandler", forwardFailureHandler.getBeanDefinition());
+		} else {
 			BeanDefinitionBuilder failureHandler = BeanDefinitionBuilder
 					.rootBeanDefinition(SimpleUrlAuthenticationFailureHandler.class);
 			if (!StringUtils.hasText(authenticationFailureUrl)) {

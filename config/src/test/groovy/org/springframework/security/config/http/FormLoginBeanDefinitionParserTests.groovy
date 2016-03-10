@@ -3,6 +3,7 @@ package org.springframework.security.config.http
 import org.springframework.mock.web.MockFilterChain
 import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.mock.web.MockHttpServletResponse
+import org.springframework.security.web.WebAttributes
 
 /**
  *
@@ -109,5 +110,44 @@ class FormLoginBeanDefinitionParserTests extends AbstractHttpConfigTests {
 	<tr><td colspan='2'><input name="submit" type="submit" value="Login"/></td></tr>
 </table>
 </form></body></html>"""
+	}
+
+	def 'form-login forward authentication failure handler'() {
+		setup:
+		MockHttpServletRequest request = new MockHttpServletRequest(method:'POST',servletPath:'/login')
+		request.setParameter("username", "bob")
+		request.setParameter("password", "invalidpassword")
+		MockHttpServletResponse response = new MockHttpServletResponse()
+		MockFilterChain chain = new MockFilterChain()
+		httpAutoConfig {
+			'form-login'('authentication-failure-forward-url':'/failure_forward_url')
+			csrf(disabled:true)
+		}
+		createAppContext()
+		when:
+		springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+		response.getStatus() == 200
+		response.forwardedUrl == "/failure_forward_url"
+		request.getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION) != null;
+	}
+
+	def 'form-login forward authentication success handler'() {
+		setup:
+		MockHttpServletRequest request = new MockHttpServletRequest(method:'POST',servletPath:'/login')
+		request.setParameter("username", "bob")
+		request.setParameter("password", "bobspassword")
+		MockHttpServletResponse response = new MockHttpServletResponse()
+		MockFilterChain chain = new MockFilterChain()
+		httpAutoConfig {
+			'form-login'('authentication-success-forward-url':'/success_forward_url')
+			csrf(disabled:true)
+		}
+		createAppContext()
+		when:
+		springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+		response.getStatus() == 200
+		response.forwardedUrl == "/success_forward_url"
 	}
 }
