@@ -438,6 +438,12 @@ form-login.attlist &=
 form-login.attlist &=
 	## Reference to an AuthenticationDetailsSource which will be used by the authentication filter
 	attribute authentication-details-source-ref {xsd:token}?
+form-login.attlist &=
+	## The URL for the ForwardAuthenticationFailureHandler
+	attribute authentication-failure-forward-url {xsd:token}?
+form-login.attlist &=
+	## The URL for the ForwardAuthenticationSuccessHandler
+	attribute authentication-success-forward-url {xsd:token}?
 
 
 openid-login =
