@@ -330,7 +330,10 @@ Contains filters and related web-security infrastructure code. Anything with a s
 
 [[spring-security-config]]
 ===== Config - spring-security-config.jar
-Contains the security namespace parsing code. You need it if you are using the Spring Security XML namespace for configuration. The main package is `org.springframework.security.config`. None of the classes are intended for direct use in an application.
+Contains the security namespace parsing code & Java configuration code.
+You need it if you are using the Spring Security XML namespace for configuration or Spring Security's Java Configuration support.
+The main package is `org.springframework.security.config`.
+None of the classes are intended for direct use in an application.
 
 
 [[spring-security-ldap]]
