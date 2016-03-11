@@ -146,5 +146,9 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
 		public boolean supports(Class<?> authentication) {
 			return false;
 		}
+
+		public boolean supports(Authentication authentication) {
+			return true;
+		}
 	}
 }

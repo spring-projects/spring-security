@@ -88,4 +88,8 @@ public class RemoteAuthenticationProvider implements AuthenticationProvider,
 		return (UsernamePasswordAuthenticationToken.class
 				.isAssignableFrom(authentication));
 	}
+
+	public boolean supports(Authentication authentication) {
+		return true;
+	}
 }

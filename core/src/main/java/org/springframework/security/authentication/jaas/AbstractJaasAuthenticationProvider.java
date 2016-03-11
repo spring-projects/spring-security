@@ -376,6 +376,10 @@ public abstract class AbstractJaasAuthenticationProvider implements
 		return UsernamePasswordAuthenticationToken.class.isAssignableFrom(aClass);
 	}
 
+	public boolean supports(Authentication authentication) {
+		return true;
+	}
+
 	public void setApplicationEventPublisher(
 			ApplicationEventPublisher applicationEventPublisher) {
 		this.applicationEventPublisher = applicationEventPublisher;

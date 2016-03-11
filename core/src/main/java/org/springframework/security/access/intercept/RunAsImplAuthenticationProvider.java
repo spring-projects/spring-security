@@ -87,4 +87,8 @@ public class RunAsImplAuthenticationProvider implements InitializingBean,
 	public boolean supports(Class<?> authentication) {
 		return RunAsUserToken.class.isAssignableFrom(authentication);
 	}
+
+	public boolean supports(Authentication authentication) {
+		return true;
+	}
 }

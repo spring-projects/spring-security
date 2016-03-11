@@ -54,6 +54,46 @@ public class ProviderManagerTests {
 	}
 
 	@Test
+	public void authenticationWithSupportedToken() throws Exception {
+		Authentication token = new AbstractAuthenticationToken(null) {
+			public Object getCredentials() {
+				return "";
+			}
+
+			public Object getPrincipal() {
+				return "";
+			}
+		};
+
+		AuthenticationProvider accepts = createProviderWhichReturns(token);
+
+		AuthenticationProvider doesNotSupportClass = mock(AuthenticationProvider.class);
+		when(doesNotSupportClass.supports(any(Class.class))).thenReturn(false);
+		when(doesNotSupportClass.supports(any(Authentication.class))).thenReturn(false);
+
+		AuthenticationProvider doesNotSupportAuthentication = mock(AuthenticationProvider.class);
+		when(doesNotSupportAuthentication.supports(any(Class.class))).thenReturn(true);
+		when(doesNotSupportAuthentication.supports(any(Authentication.class))).thenReturn(false);
+
+		ProviderManager mgr = new ProviderManager(Arrays.asList(doesNotSupportClass, doesNotSupportAuthentication, accepts));
+		mgr.setMessageSource(mock(MessageSource.class));
+		mgr.authenticate(token);
+
+		verify(doesNotSupportClass).supports(token.getClass());
+		verify(doesNotSupportClass, never()).supports(token);
+		verify(doesNotSupportClass, never()).authenticate(token);
+
+		verify(doesNotSupportAuthentication).supports(token.getClass());
+		verify(doesNotSupportAuthentication).supports(token);
+		verify(doesNotSupportAuthentication, never()).authenticate(token);
+
+		verify(accepts).supports(token.getClass());
+		verify(accepts).supports(token);
+		// Authentication is only tried with the supporting provider
+		verify(accepts).authenticate(token);
+	}
+
+	@Test
 	public void credentialsAreClearedByDefault() throws Exception {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
 				"Test", "Password");
@@ -114,6 +154,10 @@ public class ProviderManagerTests {
 			}
 
 			public boolean supports(Class<?> authentication) {
+				return true;
+			}
+
+			public boolean supports(Authentication authentication) {
 				return true;
 			}
 		};
@@ -303,6 +347,7 @@ public class ProviderManagerTests {
 			final AuthenticationException e) {
 		AuthenticationProvider provider = mock(AuthenticationProvider.class);
 		when(provider.supports(any(Class.class))).thenReturn(true);
+		when(provider.supports(any(Authentication.class))).thenReturn(true);
 		when(provider.authenticate(any(Authentication.class))).thenThrow(e);
 
 		return provider;
@@ -311,6 +356,7 @@ public class ProviderManagerTests {
 	private AuthenticationProvider createProviderWhichReturns(final Authentication a) {
 		AuthenticationProvider provider = mock(AuthenticationProvider.class);
 		when(provider.supports(any(Class.class))).thenReturn(true);
+		when(provider.supports(any(Authentication.class))).thenReturn(true);
 		when(provider.authenticate(any(Authentication.class))).thenReturn(a);
 
 		return provider;
@@ -347,6 +393,10 @@ public class ProviderManagerTests {
 			return TestingAuthenticationToken.class.isAssignableFrom(authentication)
 					|| UsernamePasswordAuthenticationToken.class
 							.isAssignableFrom(authentication);
+		}
+
+		public boolean supports(Authentication authentication) {
+			return true;
 		}
 	}
 }

@@ -76,6 +76,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				return true;
 			}
 
+			public boolean supports(Authentication authentication) {
+				return true;
+			}
+
 			public Authentication authenticate(Authentication authentication)
 					throws AuthenticationException {
 				Object principal = authentication.getPrincipal();

@@ -78,4 +78,8 @@ public class RememberMeAuthenticationProvider implements AuthenticationProvider,
 	public boolean supports(Class<?> authentication) {
 		return (RememberMeAuthenticationToken.class.isAssignableFrom(authentication));
 	}
+
+	public boolean supports(Authentication authentication) {
+		return true;
+	}
 }

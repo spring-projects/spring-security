@@ -157,6 +157,10 @@ public class OpenIDAuthenticationProvider implements AuthenticationProvider,
 		return OpenIDAuthenticationToken.class.isAssignableFrom(authentication);
 	}
 
+	public boolean supports(Authentication authentication) {
+		return true;
+	}
+
 	public void setAuthoritiesMapper(GrantedAuthoritiesMapper authoritiesMapper) {
 		this.authoritiesMapper = authoritiesMapper;
 	}

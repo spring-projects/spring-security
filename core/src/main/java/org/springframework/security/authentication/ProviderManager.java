@@ -163,6 +163,9 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 			if (!provider.supports(toTest)) {
 				continue;
 			}
+			if (!provider.supports(authentication)) {
+				continue;
+			}
 
 			if (debug) {
 				logger.debug("Authentication attempt using "

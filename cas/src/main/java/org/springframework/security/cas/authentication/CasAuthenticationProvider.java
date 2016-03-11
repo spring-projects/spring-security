@@ -93,6 +93,10 @@ public class CasAuthenticationProvider implements AuthenticationProvider,
 			return null;
 		}
 
+		if (!supports(authentication)) {
+			return null;
+		}
+
 		if (authentication instanceof UsernamePasswordAuthenticationToken
 				&& (!CasAuthenticationFilter.CAS_STATEFUL_IDENTIFIER
 						.equals(authentication.getPrincipal().toString()) && !CasAuthenticationFilter.CAS_STATELESS_IDENTIFIER
@@ -270,5 +274,9 @@ public class CasAuthenticationProvider implements AuthenticationProvider,
 				|| (CasAuthenticationToken.class.isAssignableFrom(authentication))
 				|| (CasAssertionAuthenticationToken.class
 						.isAssignableFrom(authentication));
+	}
+
+	public boolean supports(Authentication authentication) {
+		return true;
 	}
 }
