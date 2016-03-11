@@ -142,15 +142,17 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 		Collections.sort(webSecurityConfigurers, AnnotationAwareOrderComparator.INSTANCE);
 
 		Integer previousOrder = null;
+		Object previousConfig = null;
 		for (SecurityConfigurer<Filter, WebSecurity> config : webSecurityConfigurers) {
 			Integer order = AnnotationAwareOrderComparator.lookupOrder(config);
 			if (previousOrder != null && previousOrder.equals(order)) {
 				throw new IllegalStateException(
 						"@Order on WebSecurityConfigurers must be unique. Order of "
-								+ order + " was already used, so it cannot be used on "
+								+ order + " was already used on " + previousConfig + ", so it cannot be used on "
 								+ config + " too.");
 			}
 			previousOrder = order;
+			previousConfig = config;
 		}
 		for (SecurityConfigurer<Filter, WebSecurity> webSecurityConfigurer : webSecurityConfigurers) {
 			webSecurity.apply(webSecurityConfigurer);

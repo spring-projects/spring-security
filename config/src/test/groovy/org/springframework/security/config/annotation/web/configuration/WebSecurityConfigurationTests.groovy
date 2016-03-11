@@ -33,6 +33,7 @@ import org.springframework.security.config.annotation.BaseSpringSpec
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.builders.WebSecurity
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurationTests.DuplicateOrderConfig;
 import org.springframework.security.web.FilterChainProxy
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.access.DefaultWebInvocationPrivilegeEvaluator
@@ -136,6 +137,8 @@ class WebSecurityConfigurationTests extends BaseSpringSpec {
 		then:
 			BeanCreationException e = thrown()
 			e.message.contains "@Order on WebSecurityConfigurers must be unique"
+			e.message.contains DuplicateOrderConfig.WebConfigurer1.class.name
+			e.message.contains DuplicateOrderConfig.WebConfigurer2.class.name
 	}
 
 
