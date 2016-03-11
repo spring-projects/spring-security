@@ -216,7 +216,7 @@ public final class FormLoginConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return he {@link FormLoginConfigurer} for additional customization
 	 */
 	public FormLoginConfigurer<H> failureForwardUrl(String forwardUrl) {
-		getAuthenticationFilter().setAuthenticationFailureHandler(new ForwardAuthenticationFailureHandler(forwardUrl));
+		failureHandler(new ForwardAuthenticationFailureHandler(forwardUrl));
 		return this;
 	}
 
@@ -227,7 +227,7 @@ public final class FormLoginConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return he {@link FormLoginConfigurer} for additional customization
 	 */
 	public FormLoginConfigurer<H> successForwardUrl(String forwardUrl) {
-		getAuthenticationFilter().setAuthenticationSuccessHandler(new ForwardAuthenticationSuccessHandler(forwardUrl));
+		successHandler(new ForwardAuthenticationSuccessHandler(forwardUrl));
 		return this;
 	}
 
