@@ -15,7 +15,7 @@
  */
 package org.springframework.security.crypto.bcrypt;
 
-import java.security.SecureRandom;
+import java.util.Random;
 import java.util.regex.Pattern;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -38,7 +38,7 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 
 	private final int strength;
 
-	private final SecureRandom random;
+	private final Random random;
 
 	public BCryptPasswordEncoder() {
 		this(-1);
@@ -56,7 +56,7 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 	 * @param random the secure random instance to use
 	 *
 	 */
-	public BCryptPasswordEncoder(int strength, SecureRandom random) {
+	public BCryptPasswordEncoder(int strength, Random random) {
 		this.strength = strength;
 		this.random = random;
 	}
