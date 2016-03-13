@@ -46,29 +46,28 @@ public final class HttpSessionCsrfTokenRepository implements CsrfTokenRepository
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.springframework.security.web.csrf.CsrfTokenRepository#saveToken(org.springframework
-	 * .security.web.csrf.CsrfToken, javax.servlet.http.HttpServletRequest,
-	 * javax.servlet.http.HttpServletResponse)
+	 *
+	 * @see org.springframework.security.web.csrf.CsrfTokenRepository#saveToken(org.
+	 * springframework .security.web.csrf.CsrfToken,
+	 * javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
 	 */
 	public void saveToken(CsrfToken token, HttpServletRequest request,
 			HttpServletResponse response) {
 		if (token == null) {
 			HttpSession session = request.getSession(false);
 			if (session != null) {
-				session.removeAttribute(sessionAttributeName);
+				session.removeAttribute(this.sessionAttributeName);
 			}
 		}
 		else {
 			HttpSession session = request.getSession();
-			session.setAttribute(sessionAttributeName, token);
+			session.setAttribute(this.sessionAttributeName, token);
 		}
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.springframework.security.web.csrf.CsrfTokenRepository#loadToken(javax.servlet
 	 * .http.HttpServletRequest)
@@ -78,18 +77,18 @@ public final class HttpSessionCsrfTokenRepository implements CsrfTokenRepository
 		if (session == null) {
 			return null;
 		}
-		return (CsrfToken) session.getAttribute(sessionAttributeName);
+		return (CsrfToken) session.getAttribute(this.sessionAttributeName);
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.springframework.security.web.csrf.CsrfTokenRepository#generateToken(javax.servlet
-	 * .http.HttpServletRequest)
+	 *
+	 * @see org.springframework.security.web.csrf.CsrfTokenRepository#generateToken(javax.
+	 * servlet .http.HttpServletRequest)
 	 */
 	public CsrfToken generateToken(HttpServletRequest request) {
-		return new DefaultCsrfToken(headerName, parameterName, createNewToken());
+		return new DefaultCsrfToken(this.headerName, this.parameterName,
+				createNewToken());
 	}
 
 	/**

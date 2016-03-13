@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 the original author or authors.
+ * Copyright 2009-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,8 @@
 
 package org.springframework.security.remoting.dns;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Hashtable;
 
 import javax.naming.Context;
 import javax.naming.NameNotFoundException;
@@ -56,35 +57,35 @@ public class JndiDnsResolver implements DnsResolver {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.springframework.security.remoting.dns.DnsResolver#resolveIpAddress(java.lang
 	 * .String)
 	 */
 	public String resolveIpAddress(String hostname) {
-		return resolveIpAddress(hostname, ctxFactory.getCtx());
+		return resolveIpAddress(hostname, this.ctxFactory.getCtx());
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.springframework.security.remoting.dns.DnsResolver#resolveServiceEntry(java.
 	 * lang.String, java.lang.String)
 	 */
 	public String resolveServiceEntry(String serviceType, String domain) {
-		return resolveServiceEntry(serviceType, domain, ctxFactory.getCtx());
+		return resolveServiceEntry(serviceType, domain, this.ctxFactory.getCtx());
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.springframework.security.remoting.dns.DnsResolver#resolveServiceIpAddress(java
 	 * .lang.String, java.lang.String)
 	 */
 	public String resolveServiceIpAddress(String serviceType, String domain) {
-		DirContext ctx = ctxFactory.getCtx();
+		DirContext ctx = this.ctxFactory.getCtx();
 		String hostname = resolveServiceEntry(serviceType, domain, ctx);
 		return resolveIpAddress(hostname, ctx);
 	}
@@ -106,7 +107,8 @@ public class JndiDnsResolver implements DnsResolver {
 
 	// This method is needed, so that we can use only one DirContext for
 	// resolveServiceIpAddress().
-	private String resolveServiceEntry(String serviceType, String domain, DirContext ctx) {
+	private String resolveServiceEntry(String serviceType, String domain,
+			DirContext ctx) {
 		String result = null;
 		try {
 			String query = new StringBuilder("_").append(serviceType).append("._tcp.")
@@ -122,8 +124,8 @@ public class JndiDnsResolver implements DnsResolver {
 					.hasMoreElements();) {
 				String[] record = recordEnum.next().toString().split(" ");
 				if (record.length != 4) {
-					throw new DnsLookupException("Wrong service record for query "
-							+ query + ": [" + Arrays.toString(record) + "]");
+					throw new DnsLookupException("Wrong service record for query " + query
+							+ ": [" + Arrays.toString(record) + "]");
 				}
 				int priority = Integer.parseInt(record[0]);
 				int weight = Integer.parseInt(record[1]);
@@ -141,8 +143,8 @@ public class JndiDnsResolver implements DnsResolver {
 			}
 		}
 		catch (NamingException e) {
-			throw new DnsLookupException("DNS lookup failed for service " + serviceType
-					+ " at " + domain, e);
+			throw new DnsLookupException(
+					"DNS lookup failed for service " + serviceType + " at " + domain, e);
 		}
 
 		// remove the "." at the end
@@ -160,7 +162,8 @@ public class JndiDnsResolver implements DnsResolver {
 		}
 		catch (NamingException e) {
 			if (e instanceof NameNotFoundException) {
-				throw new DnsEntryNotFoundException("DNS entry not found for:" + query, e);
+				throw new DnsEntryNotFoundException("DNS entry not found for:" + query,
+						e);
 			}
 			throw new DnsLookupException("DNS lookup failed for: " + query, e);
 		}
@@ -170,7 +173,8 @@ public class JndiDnsResolver implements DnsResolver {
 
 		public DirContext getCtx() {
 			Hashtable<String, String> env = new Hashtable<String, String>();
-			env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.dns.DnsContextFactory");
+			env.put(Context.INITIAL_CONTEXT_FACTORY,
+					"com.sun.jndi.dns.DnsContextFactory");
 			env.put(Context.PROVIDER_URL, "dns:"); // This is needed for IBM JDK/JRE
 			InitialDirContext ictx;
 			try {

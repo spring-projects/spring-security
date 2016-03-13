@@ -1,11 +1,11 @@
-/* Copyright 2002-2012 the original author or authors.
+/*
  * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -49,8 +49,8 @@ public class FilterInvocation {
 	// ~ Static fields
 	// ==================================================================================================
 	static final FilterChain DUMMY_CHAIN = new FilterChain() {
-		public void doFilter(ServletRequest req, ServletResponse res) throws IOException,
-				ServletException {
+		public void doFilter(ServletRequest req, ServletResponse res)
+				throws IOException, ServletException {
 			throw new UnsupportedOperationException("Dummy filter chain");
 		}
 	};
@@ -92,8 +92,8 @@ public class FilterInvocation {
 		}
 		request.setContextPath(contextPath);
 		request.setServletPath(servletPath);
-		request.setRequestURI(contextPath + servletPath
-				+ (pathInfo == null ? "" : pathInfo));
+		request.setRequestURI(
+				contextPath + servletPath + (pathInfo == null ? "" : pathInfo));
 		request.setPathInfo(pathInfo);
 		request.setQueryString(query);
 		request.setMethod(method);
@@ -104,7 +104,7 @@ public class FilterInvocation {
 	// ========================================================================================================
 
 	public FilterChain getChain() {
-		return chain;
+		return this.chain;
 	}
 
 	/**
@@ -116,15 +116,15 @@ public class FilterInvocation {
 	 * @return the full URL of this request
 	 */
 	public String getFullRequestUrl() {
-		return UrlUtils.buildFullRequestUrl(request);
+		return UrlUtils.buildFullRequestUrl(this.request);
 	}
 
 	public HttpServletRequest getHttpRequest() {
-		return request;
+		return this.request;
 	}
 
 	public HttpServletResponse getHttpResponse() {
-		return response;
+		return this.response;
 	}
 
 	/**
@@ -133,7 +133,7 @@ public class FilterInvocation {
 	 * @return the URL, excluding any server name, context path or servlet path
 	 */
 	public String getRequestUrl() {
-		return UrlUtils.buildRequestUrl(request);
+		return UrlUtils.buildRequestUrl(this.request);
 	}
 
 	public HttpServletRequest getRequest() {
@@ -144,6 +144,7 @@ public class FilterInvocation {
 		return getHttpResponse();
 	}
 
+	@Override
 	public String toString() {
 		return "FilterInvocation: URL: " + getRequestUrl();
 	}
@@ -174,40 +175,46 @@ class DummyRequest extends HttpServletRequestWrapper {
 		this.pathInfo = pathInfo;
 	}
 
+	@Override
 	public String getRequestURI() {
-		return requestURI;
+		return this.requestURI;
 	}
 
 	public void setContextPath(String contextPath) {
 		this.contextPath = contextPath;
 	}
 
+	@Override
 	public String getContextPath() {
-		return contextPath;
+		return this.contextPath;
 	}
 
 	public void setServletPath(String servletPath) {
 		this.servletPath = servletPath;
 	}
 
+	@Override
 	public String getServletPath() {
-		return servletPath;
+		return this.servletPath;
 	}
 
 	public void setMethod(String method) {
 		this.method = method;
 	}
 
+	@Override
 	public String getMethod() {
-		return method;
+		return this.method;
 	}
 
+	@Override
 	public String getPathInfo() {
-		return pathInfo;
+		return this.pathInfo;
 	}
 
+	@Override
 	public String getQueryString() {
-		return queryString;
+		return this.queryString;
 	}
 
 	public void setQueryString(String queryString) {

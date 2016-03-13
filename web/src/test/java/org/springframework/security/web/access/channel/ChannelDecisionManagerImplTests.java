@@ -1,10 +1,11 @@
-/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+/*
+ * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,9 +15,6 @@
  */
 
 package org.springframework.security.web.access.channel;
-
-import static org.mockito.Mockito.mock;
-import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -28,13 +26,16 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 
 import org.junit.Test;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.web.FilterInvocation;
-import org.springframework.security.web.access.channel.ChannelDecisionManagerImpl;
-import org.springframework.security.web.access.channel.ChannelProcessor;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.Mockito.mock;
 
 /**
  * Tests {@link ChannelDecisionManagerImpl}.
@@ -55,10 +56,11 @@ public class ChannelDecisionManagerImplTests {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertThat(expected.getMessage()).isEqualTo("A list of ChannelProcessors is required");
+			assertThat(expected.getMessage())
+					.isEqualTo("A list of ChannelProcessors is required");
 		}
 	}
-	
+
 	@Test
 	public void testCannotSetIncorrectObjectTypesIntoChannelProcessorsList()
 			throws Exception {
@@ -74,7 +76,7 @@ public class ChannelDecisionManagerImplTests {
 
 		}
 	}
-	
+
 	@Test
 	public void testCannotSetNullChannelProcessorsList() throws Exception {
 		ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
@@ -85,10 +87,11 @@ public class ChannelDecisionManagerImplTests {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertThat(expected.getMessage()).isEqualTo("A list of ChannelProcessors is required");
+			assertThat(expected.getMessage())
+					.isEqualTo("A list of ChannelProcessors is required");
 		}
 	}
-	
+
 	@Test
 	public void testDecideIsOperational() throws Exception {
 		ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
@@ -110,7 +113,7 @@ public class ChannelDecisionManagerImplTests {
 		cdm.decide(fi, cad);
 		assertThat(fi.getResponse().isCommitted()).isTrue();
 	}
-	
+
 	@Test
 	public void testAnyChannelAttributeCausesProcessorsToBeSkipped() throws Exception {
 		ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
@@ -128,7 +131,7 @@ public class ChannelDecisionManagerImplTests {
 		cdm.decide(fi, SecurityConfig.createList(new String[] { "abc", "ANY_CHANNEL" }));
 		assertThat(fi.getResponse().isCommitted()).isFalse();
 	}
-	
+
 	@Test
 	public void testDecideIteratesAllProcessorsIfNoneCommitAResponse() throws Exception {
 		ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
@@ -148,7 +151,7 @@ public class ChannelDecisionManagerImplTests {
 		cdm.decide(fi, SecurityConfig.createList("SOME_ATTRIBUTE_NO_PROCESSORS_SUPPORT"));
 		assertThat(fi.getResponse().isCommitted()).isFalse();
 	}
-	
+
 	@Test
 	public void testDelegatesSupports() throws Exception {
 		ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
@@ -164,7 +167,7 @@ public class ChannelDecisionManagerImplTests {
 		assertThat(cdm.supports(new SecurityConfig("abc"))).isTrue();
 		assertThat(cdm.supports(new SecurityConfig("UNSUPPORTED"))).isFalse();
 	}
-	
+
 	@Test
 	public void testGettersSetters() {
 		ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
@@ -179,7 +182,7 @@ public class ChannelDecisionManagerImplTests {
 
 		assertThat(cdm.getChannelProcessors()).isEqualTo(list);
 	}
-	
+
 	@Test
 	public void testStartupFailsWithEmptyChannelProcessorsList() throws Exception {
 		ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
@@ -189,7 +192,8 @@ public class ChannelDecisionManagerImplTests {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-			assertThat(expected.getMessage()).isEqualTo("A list of ChannelProcessors is required");
+			assertThat(expected.getMessage())
+					.isEqualTo("A list of ChannelProcessors is required");
 		}
 	}
 
@@ -205,18 +209,19 @@ public class ChannelDecisionManagerImplTests {
 			this.failIfCalled = failIfCalled;
 		}
 
-		public void decide(FilterInvocation invocation, Collection<ConfigAttribute> config)
-				throws IOException, ServletException {
+		public void decide(FilterInvocation invocation,
+				Collection<ConfigAttribute> config) throws IOException, ServletException {
 			Iterator iter = config.iterator();
 
-			if (failIfCalled) {
-				fail("Should not have called this channel processor: " + configAttribute);
+			if (this.failIfCalled) {
+				fail("Should not have called this channel processor: "
+						+ this.configAttribute);
 			}
 
 			while (iter.hasNext()) {
 				ConfigAttribute attr = (ConfigAttribute) iter.next();
 
-				if (attr.getAttribute().equals(configAttribute)) {
+				if (attr.getAttribute().equals(this.configAttribute)) {
 					invocation.getHttpResponse().sendRedirect("/redirected");
 
 					return;
@@ -225,7 +230,7 @@ public class ChannelDecisionManagerImplTests {
 		}
 
 		public boolean supports(ConfigAttribute attribute) {
-			if (attribute.getAttribute().equals(configAttribute)) {
+			if (attribute.getAttribute().equals(this.configAttribute)) {
 				return true;
 			}
 			else {

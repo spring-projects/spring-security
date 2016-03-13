@@ -1,12 +1,12 @@
 /*
- * Copyright 2011 the original author or authors.
- * 
+ * Copyright 2011-2016 the original author or authors.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,25 +15,19 @@
  */
 package org.springframework.security.cas.web.authentication;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.regex.Pattern;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
+
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.web.util.UrlUtils;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  *
@@ -49,93 +43,97 @@ public class DefaultServiceAuthenticationDetailsTests {
 
 	@Before
 	public void setUp() {
-		casServiceUrl = "https://localhost:8443/j_spring_security_cas";
-		request = new MockHttpServletRequest();
-		request.setScheme("https");
-		request.setServerName("localhost");
-		request.setServerPort(8443);
-		request.setRequestURI("/cas-sample/secure/");
-		artifactPattern = DefaultServiceAuthenticationDetails
+		this.casServiceUrl = "https://localhost:8443/j_spring_security_cas";
+		this.request = new MockHttpServletRequest();
+		this.request.setScheme("https");
+		this.request.setServerName("localhost");
+		this.request.setServerPort(8443);
+		this.request.setRequestURI("/cas-sample/secure/");
+		this.artifactPattern = DefaultServiceAuthenticationDetails
 				.createArtifactPattern(ServiceProperties.DEFAULT_CAS_ARTIFACT_PARAMETER);
 
 	}
 
 	@After
 	public void cleanup() {
-		if (context != null) {
-			context.close();
+		if (this.context != null) {
+			this.context.close();
 		}
 	}
 
 	@Test
 	public void getServiceUrlNullQuery() throws Exception {
-		details = new DefaultServiceAuthenticationDetails(casServiceUrl, request,
-				artifactPattern);
-		assertThat(details.getServiceUrl()).isEqualTo(UrlUtils.buildFullRequestUrl(request));
+		this.details = new DefaultServiceAuthenticationDetails(this.casServiceUrl,
+				this.request, this.artifactPattern);
+		assertThat(this.details.getServiceUrl())
+				.isEqualTo(UrlUtils.buildFullRequestUrl(this.request));
 	}
 
 	@Test
 	public void getServiceUrlTicketOnlyParam() throws Exception {
-		request.setQueryString("ticket=123");
-		details = new DefaultServiceAuthenticationDetails(casServiceUrl, request,
-				artifactPattern);
-		String serviceUrl = details.getServiceUrl();
-		request.setQueryString(null);
-		assertThat(serviceUrl).isEqualTo(UrlUtils.buildFullRequestUrl(request));
+		this.request.setQueryString("ticket=123");
+		this.details = new DefaultServiceAuthenticationDetails(this.casServiceUrl,
+				this.request, this.artifactPattern);
+		String serviceUrl = this.details.getServiceUrl();
+		this.request.setQueryString(null);
+		assertThat(serviceUrl).isEqualTo(UrlUtils.buildFullRequestUrl(this.request));
 	}
 
 	@Test
 	public void getServiceUrlTicketFirstMultiParam() throws Exception {
-		request.setQueryString("ticket=123&other=value");
-		details = new DefaultServiceAuthenticationDetails(casServiceUrl, request,
-				artifactPattern);
-		String serviceUrl = details.getServiceUrl();
-		request.setQueryString("other=value");
-		assertThat(serviceUrl).isEqualTo(UrlUtils.buildFullRequestUrl(request));
+		this.request.setQueryString("ticket=123&other=value");
+		this.details = new DefaultServiceAuthenticationDetails(this.casServiceUrl,
+				this.request, this.artifactPattern);
+		String serviceUrl = this.details.getServiceUrl();
+		this.request.setQueryString("other=value");
+		assertThat(serviceUrl).isEqualTo(UrlUtils.buildFullRequestUrl(this.request));
 	}
 
 	@Test
 	public void getServiceUrlTicketLastMultiParam() throws Exception {
-		request.setQueryString("other=value&ticket=123");
-		details = new DefaultServiceAuthenticationDetails(casServiceUrl, request,
-				artifactPattern);
-		String serviceUrl = details.getServiceUrl();
-		request.setQueryString("other=value");
-		assertThat(serviceUrl).isEqualTo(UrlUtils.buildFullRequestUrl(request));
+		this.request.setQueryString("other=value&ticket=123");
+		this.details = new DefaultServiceAuthenticationDetails(this.casServiceUrl,
+				this.request, this.artifactPattern);
+		String serviceUrl = this.details.getServiceUrl();
+		this.request.setQueryString("other=value");
+		assertThat(serviceUrl).isEqualTo(UrlUtils.buildFullRequestUrl(this.request));
 	}
 
 	@Test
 	public void getServiceUrlTicketMiddleMultiParam() throws Exception {
-		request.setQueryString("other=value&ticket=123&last=this");
-		details = new DefaultServiceAuthenticationDetails(casServiceUrl, request,
-				artifactPattern);
-		String serviceUrl = details.getServiceUrl();
-		request.setQueryString("other=value&last=this");
-		assertThat(serviceUrl).isEqualTo(UrlUtils.buildFullRequestUrl(request));
+		this.request.setQueryString("other=value&ticket=123&last=this");
+		this.details = new DefaultServiceAuthenticationDetails(this.casServiceUrl,
+				this.request, this.artifactPattern);
+		String serviceUrl = this.details.getServiceUrl();
+		this.request.setQueryString("other=value&last=this");
+		assertThat(serviceUrl).isEqualTo(UrlUtils.buildFullRequestUrl(this.request));
 	}
 
 	@Test
 	public void getServiceUrlDoesNotUseHostHeader() throws Exception {
-		casServiceUrl = "https://example.com/j_spring_security_cas";
-		request.setServerName("evil.com");
-		details = new DefaultServiceAuthenticationDetails(casServiceUrl, request,
-				artifactPattern);
-		assertThat(details.getServiceUrl()).isEqualTo("https://example.com/cas-sample/secure/");
+		this.casServiceUrl = "https://example.com/j_spring_security_cas";
+		this.request.setServerName("evil.com");
+		this.details = new DefaultServiceAuthenticationDetails(this.casServiceUrl,
+				this.request, this.artifactPattern);
+		assertThat(this.details.getServiceUrl())
+				.isEqualTo("https://example.com/cas-sample/secure/");
 	}
 
 	@Test
 	public void getServiceUrlDoesNotUseHostHeaderExplicit() {
-		casServiceUrl = "https://example.com/j_spring_security_cas";
-		request.setServerName("evil.com");
-		ServiceAuthenticationDetails details = loadServiceAuthenticationDetails("defaultserviceauthenticationdetails-explicit.xml");
-		assertThat(details.getServiceUrl()).isEqualTo("https://example.com/cas-sample/secure/");
+		this.casServiceUrl = "https://example.com/j_spring_security_cas";
+		this.request.setServerName("evil.com");
+		ServiceAuthenticationDetails details = loadServiceAuthenticationDetails(
+				"defaultserviceauthenticationdetails-explicit.xml");
+		assertThat(details.getServiceUrl())
+				.isEqualTo("https://example.com/cas-sample/secure/");
 	}
 
 	private ServiceAuthenticationDetails loadServiceAuthenticationDetails(
 			String resourceName) {
-		context = new GenericXmlApplicationContext(getClass(), resourceName);
-		ServiceAuthenticationDetailsSource source = context
+		this.context = new GenericXmlApplicationContext(getClass(), resourceName);
+		ServiceAuthenticationDetailsSource source = this.context
 				.getBean(ServiceAuthenticationDetailsSource.class);
-		return source.buildDetails(request);
+		return source.buildDetails(this.request);
 	}
 }

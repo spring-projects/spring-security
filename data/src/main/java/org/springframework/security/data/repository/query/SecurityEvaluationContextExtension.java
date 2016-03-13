@@ -1,29 +1,25 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2002-2016 the original author or authors.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.springframework.security.data.repository.query;
 
-import org.springframework.data.repository.query.spi.EvaluationContextExtension;
 import org.springframework.data.repository.query.spi.EvaluationContextExtensionSupport;
-import org.springframework.data.repository.query.spi.Function;
 import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-
-import java.util.Map;
 
 /**
  * <p>
@@ -42,7 +38,7 @@ import java.util.Map;
  *     &#064;GeneratedValue(strategy = GenerationType.AUTO)
  *     &#064;Id
  *     private Long id;
- * 
+ *
  *     ...
  * }
  * </pre>
@@ -56,10 +52,10 @@ import java.util.Map;
  *     &#064;Id
  *     &#064;GeneratedValue(strategy = GenerationType.AUTO)
  *     private Long id;
- * 
+ *
  *     &#064;OneToOne
  *     private User to;
- * 
+ *
  *     ...
  * }
  * </pre>
@@ -70,7 +66,7 @@ import java.util.Map;
  * <pre>
  * &#064;Repository
  * public interface SecurityMessageRepository extends MessageRepository {
- * 
+ *
  * 	&#064;Query(&quot;select m from Message m where m.to.id = ?#{ principal?.id }&quot;)
  * 	List&lt;Message&gt; findAll();
  * }
@@ -82,7 +78,8 @@ import java.util.Map;
  * @since 4.0
  * @author Rob Winch
  */
-public class SecurityEvaluationContextExtension extends EvaluationContextExtensionSupport {
+public class SecurityEvaluationContextExtension
+		extends EvaluationContextExtensionSupport {
 	private Authentication authentication;
 
 	/**
@@ -113,8 +110,8 @@ public class SecurityEvaluationContextExtension extends EvaluationContextExtensi
 	}
 
 	private Authentication getAuthentication() {
-		if (authentication != null) {
-			return authentication;
+		if (this.authentication != null) {
+			return this.authentication;
 		}
 
 		SecurityContext context = SecurityContextHolder.getContext();

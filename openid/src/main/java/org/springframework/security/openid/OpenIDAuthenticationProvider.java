@@ -1,10 +1,11 @@
-/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+/*
+ * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -46,8 +47,8 @@ import org.springframework.util.Assert;
  * @author Robin Bramley, Opsera Ltd.
  * @author Luke Taylor
  */
-public class OpenIDAuthenticationProvider implements AuthenticationProvider,
-		InitializingBean {
+public class OpenIDAuthenticationProvider
+		implements AuthenticationProvider, InitializingBean {
 	// ~ Instance fields
 	// ================================================================================================
 
@@ -63,7 +64,7 @@ public class OpenIDAuthenticationProvider implements AuthenticationProvider,
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.springframework.security.authentication.AuthenticationProvider#authenticate
 	 * (org.springframework.security.Authentication)
@@ -82,7 +83,8 @@ public class OpenIDAuthenticationProvider implements AuthenticationProvider,
 			// handle the various possibilities
 			if (status == OpenIDAuthenticationStatus.SUCCESS) {
 				// Lookup user details
-				UserDetails userDetails = userDetailsService.loadUserDetails(response);
+				UserDetails userDetails = this.userDetailsService
+						.loadUserDetails(response);
 
 				return createSuccessfulAuthentication(userDetails, response);
 
@@ -91,8 +93,8 @@ public class OpenIDAuthenticationProvider implements AuthenticationProvider,
 				throw new AuthenticationCancelledException("Log in cancelled");
 			}
 			else if (status == OpenIDAuthenticationStatus.ERROR) {
-				throw new AuthenticationServiceException("Error message from server: "
-						+ response.getMessage());
+				throw new AuthenticationServiceException(
+						"Error message from server: " + response.getMessage());
 			}
 			else if (status == OpenIDAuthenticationStatus.FAILURE) {
 				throw new BadCredentialsException(
@@ -103,8 +105,8 @@ public class OpenIDAuthenticationProvider implements AuthenticationProvider,
 						"The server responded setup was needed, which shouldn't happen");
 			}
 			else {
-				throw new AuthenticationServiceException("Unrecognized return value "
-						+ status.toString());
+				throw new AuthenticationServiceException(
+						"Unrecognized return value " + status.toString());
 			}
 		}
 
@@ -126,7 +128,7 @@ public class OpenIDAuthenticationProvider implements AuthenticationProvider,
 	protected Authentication createSuccessfulAuthentication(UserDetails userDetails,
 			OpenIDAuthenticationToken auth) {
 		return new OpenIDAuthenticationToken(userDetails,
-				authoritiesMapper.mapAuthorities(userDetails.getAuthorities()),
+				this.authoritiesMapper.mapAuthorities(userDetails.getAuthorities()),
 				auth.getIdentityUrl(), auth.getAttributes());
 	}
 
@@ -148,7 +150,7 @@ public class OpenIDAuthenticationProvider implements AuthenticationProvider,
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.springframework.security.authentication.AuthenticationProvider#supports(java
 	 * .lang.Class)

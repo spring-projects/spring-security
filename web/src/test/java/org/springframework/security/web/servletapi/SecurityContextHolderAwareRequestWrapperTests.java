@@ -1,10 +1,11 @@
-/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+/*
+ * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,17 +16,17 @@
 
 package org.springframework.security.web.servletapi;
 
-import static org.assertj.core.api.Assertions.*;
-
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestWrapper;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests {@link SecurityContextHolderAwareRequestWrapper}.
@@ -33,7 +34,7 @@ import org.springframework.security.web.servletapi.SecurityContextHolderAwareReq
  * @author Ben Alex
  */
 public class SecurityContextHolderAwareRequestWrapperTests {
-	
+
 	@Before
 	public void tearDown() throws Exception {
 		SecurityContextHolder.clearContext();
@@ -72,9 +73,10 @@ public class SecurityContextHolderAwareRequestWrapperTests {
 
 	@Test
 	public void testCorrectOperationWithUserDetailsBasedPrincipal() throws Exception {
-		Authentication auth = new TestingAuthenticationToken(new User("rodAsUserDetails",
-				"koala", true, true, true, true, AuthorityUtils.NO_AUTHORITIES), "koala",
-				"ROLE_HELLO", "ROLE_FOOBAR");
+		Authentication auth = new TestingAuthenticationToken(
+				new User("rodAsUserDetails", "koala", true, true, true, true,
+						AuthorityUtils.NO_AUTHORITIES),
+				"koala", "ROLE_HELLO", "ROLE_FOOBAR");
 		SecurityContextHolder.getContext().setAuthentication(auth);
 
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -118,15 +120,17 @@ public class SecurityContextHolderAwareRequestWrapperTests {
 				request, "");
 
 		assertThat(wrapper.getRemoteUser()).isNull();
-		assertThat(wrapper.isUserInRole("ROLE_HELLO")).isFalse(); // principal is null, so reject
-		assertThat(wrapper.isUserInRole("ROLE_FOOBAR")).isFalse(); // principal is null, so reject
+		assertThat(wrapper.isUserInRole("ROLE_HELLO")).isFalse(); // principal is null, so
+																	// reject
+		assertThat(wrapper.isUserInRole("ROLE_FOOBAR")).isFalse(); // principal is null,
+																	// so reject
 		assertThat(wrapper.getUserPrincipal()).isNull();
 	}
 
 	@Test
 	public void testRolePrefix() {
-		Authentication auth = new TestingAuthenticationToken("user", "koala", "ROLE_HELLO",
-				"ROLE_FOOBAR");
+		Authentication auth = new TestingAuthenticationToken("user", "koala",
+				"ROLE_HELLO", "ROLE_FOOBAR");
 		SecurityContextHolder.getContext().setAuthentication(auth);
 
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -141,8 +145,8 @@ public class SecurityContextHolderAwareRequestWrapperTests {
 	// SEC-3020
 	@Test
 	public void testRolePrefixNotAppliedIfRoleStartsWith() {
-		Authentication auth = new TestingAuthenticationToken("user", "koala", "ROLE_HELLO",
-				"ROLE_FOOBAR");
+		Authentication auth = new TestingAuthenticationToken("user", "koala",
+				"ROLE_HELLO", "ROLE_FOOBAR");
 		SecurityContextHolder.getContext().setAuthentication(auth);
 
 		MockHttpServletRequest request = new MockHttpServletRequest();

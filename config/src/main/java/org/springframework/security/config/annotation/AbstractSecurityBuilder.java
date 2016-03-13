@@ -33,13 +33,13 @@ public abstract class AbstractSecurityBuilder<O> implements SecurityBuilder<O> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.springframework.security.config.annotation.SecurityBuilder#build()
 	 */
 	public final O build() throws Exception {
-		if (building.compareAndSet(false, true)) {
-			object = doBuild();
-			return object;
+		if (this.building.compareAndSet(false, true)) {
+			this.object = doBuild();
+			return this.object;
 		}
 		throw new AlreadyBuiltException("This object has already been built");
 	}
@@ -51,10 +51,10 @@ public abstract class AbstractSecurityBuilder<O> implements SecurityBuilder<O> {
 	 * @return the Object that was built
 	 */
 	public final O getObject() {
-		if (!building.get()) {
+		if (!this.building.get()) {
 			throw new IllegalStateException("This object has not been built");
 		}
-		return object;
+		return this.object;
 	}
 
 	/**

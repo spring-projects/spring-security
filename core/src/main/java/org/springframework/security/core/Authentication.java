@@ -1,10 +1,11 @@
-/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+/*
+ * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +17,6 @@
 package org.springframework.security.core;
 
 import java.io.Serializable;
-
 import java.security.Principal;
 import java.util.Collection;
 
@@ -38,7 +38,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * <pre>
  * SecurityContextHolder.getContext().setAuthentication(anAuthentication);
  * </pre>
- * 
+ *
  * Note that unless the <tt>Authentication</tt> has the <tt>authenticated</tt> property
  * set to <tt>true</tt>, it will still be authenticated by any security interceptor (for
  * method or web invocations) which encounters it.

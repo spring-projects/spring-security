@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.openid4java.consumer.ConsumerException;
 import org.openid4java.consumer.ConsumerManager;
+
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
@@ -33,7 +34,6 @@ import org.springframework.security.config.annotation.web.configurers.AbstractAu
 import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer;
 import org.springframework.security.config.annotation.web.configurers.RememberMeConfigurer;
 import org.springframework.security.config.annotation.web.configurers.SessionManagementConfigurer;
-import org.springframework.security.config.annotation.web.configurers.openid.OpenIDLoginConfigurer;
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -63,7 +63,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * &#064;Configuration
  * &#064;EnableWebSecurity
  * public class OpenIDLoginConfig extends WebSecurityConfigurerAdapter {
- * 
+ *
  * 	&#064;Override
  * 	protected void configure(HttpSecurity http) {
  * 		http
@@ -73,7 +73,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * 			.openidLogin()
  * 				.permitAll();
  * 	}
- * 
+ *
  * 	&#064;Override
  * 	protected void configure(AuthenticationManagerBuilder auth)(
  * 			AuthenticationManagerBuilder auth) throws Exception {
@@ -91,15 +91,13 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * The following Filters are populated
  *
  * <ul>
- * <li>
- * {@link OpenIDAuthenticationFilter}</li>
+ * <li>{@link OpenIDAuthenticationFilter}</li>
  * </ul>
  *
  * <h2>Shared Objects Created</h2>
  *
  * <ul>
- * <li>
- * {@link AuthenticationEntryPoint} is populated with a
+ * <li>{@link AuthenticationEntryPoint} is populated with a
  * {@link LoginUrlAuthenticationEntryPoint}</li>
  * <li>A {@link OpenIDAuthenticationProvider} is populated into
  * {@link HttpSecurity#authenticationProvider(org.springframework.security.authentication.AuthenticationProvider)}
@@ -112,7 +110,8 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  *
  * <ul>
  * <li>{@link AuthenticationManager}</li>
- * <li>{@link RememberMeServices} - is optionally used. See {@link RememberMeConfigurer}</li>
+ * <li>{@link RememberMeServices} - is optionally used. See {@link RememberMeConfigurer}
+ * </li>
  * <li>{@link SessionAuthenticationStrategy} - is optionally used. See
  * {@link SessionManagementConfigurer}</li>
  * </ul>
@@ -120,8 +119,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * @author Rob Winch
  * @since 3.2
  */
-public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>>
-		extends
+public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
 		AbstractAuthenticationFilterConfigurer<H, OpenIDLoginConfigurer<H>, OpenIDAuthenticationFilter> {
 	private OpenIDConsumer openIDConsumer;
 	private ConsumerManager consumerManager;
@@ -202,6 +200,7 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @param loginProcessingUrl the URL used to perform authentication
 	 * @return the {@link OpenIDLoginConfigurer} for additional customization
 	 */
+	@Override
 	public OpenIDLoginConfigurer<H> loginProcessingUrl(String loginProcessingUrl) {
 		return super.loginProcessingUrl(loginProcessingUrl);
 	}
@@ -253,6 +252,7 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>>
 	 * "/login")
 	 * @return the {@link FormLoginConfigurer} for additional customization
 	 */
+	@Override
 	public OpenIDLoginConfigurer<H> loginPage(String loginPage) {
 		return super.loginPage(loginPage);
 	}
@@ -262,8 +262,8 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>>
 		super.init(http);
 
 		OpenIDAuthenticationProvider authenticationProvider = new OpenIDAuthenticationProvider();
-		authenticationProvider
-				.setAuthenticationUserDetailsService(getAuthenticationUserDetailsService(http));
+		authenticationProvider.setAuthenticationUserDetailsService(
+				getAuthenticationUserDetailsService(http));
 		authenticationProvider = postProcess(authenticationProvider);
 		http.authenticationProvider(authenticationProvider);
 
@@ -278,7 +278,7 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>>
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.springframework.security.config.annotation.web.configurers.
 	 * AbstractAuthenticationFilterConfigurer
 	 * #createLoginProcessingUrlMatcher(java.lang.String)
@@ -295,11 +295,11 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @throws ConsumerException
 	 */
 	private OpenIDConsumer getConsumer() throws ConsumerException {
-		if (openIDConsumer == null) {
-			openIDConsumer = new OpenID4JavaConsumer(getConsumerManager(),
+		if (this.openIDConsumer == null) {
+			this.openIDConsumer = new OpenID4JavaConsumer(getConsumerManager(),
 					attributesToFetchFactory());
 		}
-		return openIDConsumer;
+		return this.openIDConsumer;
 	}
 
 	/**
@@ -322,7 +322,7 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>>
 	 */
 	private AxFetchListFactory attributesToFetchFactory() {
 		Map<String, List<OpenIDAttribute>> identityToAttrs = new HashMap<String, List<OpenIDAttribute>>();
-		for (AttributeExchangeConfigurer conf : attributeExchangeConfigurers) {
+		for (AttributeExchangeConfigurer conf : this.attributeExchangeConfigurers) {
 			identityToAttrs.put(conf.identifier, conf.getAttributes());
 		}
 		return new RegexBasedAxFetchListFactory(identityToAttrs);
@@ -338,8 +338,8 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>>
 	 */
 	private AuthenticationUserDetailsService<OpenIDAuthenticationToken> getAuthenticationUserDetailsService(
 			H http) {
-		if (authenticationUserDetailsService != null) {
-			return authenticationUserDetailsService;
+		if (this.authenticationUserDetailsService != null) {
+			return this.authenticationUserDetailsService;
 		}
 		return new UserDetailsByNameServiceWrapper<OpenIDAuthenticationToken>(
 				http.getSharedObject(UserDetailsService.class));
@@ -362,8 +362,8 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>>
 				loginPageGeneratingFilter.setLoginPageUrl(getLoginPage());
 				loginPageGeneratingFilter.setFailureUrl(getFailureUrl());
 			}
-			loginPageGeneratingFilter
-					.setOpenIDusernameParameter(OpenIDAuthenticationFilter.DEFAULT_CLAIMED_IDENTITY_FIELD);
+			loginPageGeneratingFilter.setOpenIDusernameParameter(
+					OpenIDAuthenticationFilter.DEFAULT_CLAIMED_IDENTITY_FIELD);
 		}
 	}
 
@@ -424,11 +424,11 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>>
 		 * @return
 		 */
 		private List<OpenIDAttribute> getAttributes() {
-			for (AttributeConfigurer config : attributeConfigurers) {
-				attributes.add(config.build());
+			for (AttributeConfigurer config : this.attributeConfigurers) {
+				this.attributes.add(config.build());
 			}
-			attributeConfigurers.clear();
-			return attributes;
+			this.attributeConfigurers.clear();
+			return this.attributes;
 		}
 
 		/**
@@ -501,9 +501,9 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>>
 			 * @return
 			 */
 			private OpenIDAttribute build() {
-				OpenIDAttribute attribute = new OpenIDAttribute(name, type);
-				attribute.setCount(count);
-				attribute.setRequired(required);
+				OpenIDAttribute attribute = new OpenIDAttribute(this.name, this.type);
+				attribute.setCount(this.count);
+				attribute.setRequired(this.required);
 				return attribute;
 			}
 		}

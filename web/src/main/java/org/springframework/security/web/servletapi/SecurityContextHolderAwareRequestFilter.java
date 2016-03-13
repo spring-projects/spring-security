@@ -1,11 +1,11 @@
-/* Copyright 2002-2012 the original author or authors.
+/*
  * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -51,16 +51,16 @@ import org.springframework.web.filter.GenericFilterBean;
  * to provide the following additional methods:
  * </p>
  * <ul>
- * <li> {@link HttpServletRequest#authenticate(HttpServletResponse)} - Allows the user to
+ * <li>{@link HttpServletRequest#authenticate(HttpServletResponse)} - Allows the user to
  * determine if they are authenticated and if not send the user to the login page. See
  * {@link #setAuthenticationEntryPoint(AuthenticationEntryPoint)}.</li>
- * <li> {@link HttpServletRequest#login(String, String)} - Allows the user to authenticate
+ * <li>{@link HttpServletRequest#login(String, String)} - Allows the user to authenticate
  * using the {@link AuthenticationManager}. See
  * {@link #setAuthenticationManager(AuthenticationManager)}.</li>
- * <li> {@link HttpServletRequest#logout()} - Allows the user to logout using the
+ * <li>{@link HttpServletRequest#logout()} - Allows the user to logout using the
  * {@link LogoutHandler}s configured in Spring Security. See
  * {@link #setLogoutHandlers(List)}.</li>
- * <li> {@link AsyncContext#start(Runnable)} - Automatically copy the
+ * <li>{@link AsyncContext#start(Runnable)} - Automatically copy the
  * {@link SecurityContext} from the {@link SecurityContextHolder} found on the Thread that
  * invoked {@link AsyncContext#start(Runnable)} to the Thread that processes the
  * {@link Runnable}.</li>
@@ -166,7 +166,7 @@ public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
 
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
 			throws IOException, ServletException {
-		chain.doFilter(requestFactory.create((HttpServletRequest) req,
+		chain.doFilter(this.requestFactory.create((HttpServletRequest) req,
 				(HttpServletResponse) res), res);
 	}
 
@@ -177,8 +177,8 @@ public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
 	}
 
 	private void updateFactory() {
-		requestFactory = isServlet3() ? createServlet3Factory(rolePrefix)
-				: new HttpServlet25RequestFactory(trustResolver, rolePrefix);
+		this.requestFactory = isServlet3() ? createServlet3Factory(this.rolePrefix)
+				: new HttpServlet25RequestFactory(this.trustResolver, this.rolePrefix);
 	}
 
 	/**
@@ -196,10 +196,10 @@ public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
 
 	private HttpServletRequestFactory createServlet3Factory(String rolePrefix) {
 		HttpServlet3RequestFactory factory = new HttpServlet3RequestFactory(rolePrefix);
-		factory.setTrustResolver(trustResolver);
-		factory.setAuthenticationEntryPoint(authenticationEntryPoint);
-		factory.setAuthenticationManager(authenticationManager);
-		factory.setLogoutHandlers(logoutHandlers);
+		factory.setTrustResolver(this.trustResolver);
+		factory.setAuthenticationEntryPoint(this.authenticationEntryPoint);
+		factory.setAuthenticationManager(this.authenticationManager);
+		factory.setLogoutHandlers(this.logoutHandlers);
 		return factory;
 	}
 

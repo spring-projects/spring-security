@@ -71,8 +71,8 @@ import org.springframework.web.filter.DelegatingFilterProxy;
  * @author Rob Winch
  * @author Keesun Baik
  */
-public abstract class AbstractSecurityWebApplicationInitializer implements
-		WebApplicationInitializer {
+public abstract class AbstractSecurityWebApplicationInitializer
+		implements WebApplicationInitializer {
 
 	private static final String SERVLET_CONTEXT_PREFIX = "org.springframework.web.servlet.FrameworkServlet.CONTEXT.";
 
@@ -98,26 +98,27 @@ public abstract class AbstractSecurityWebApplicationInitializer implements
 	 *
 	 * @param configurationClasses
 	 */
-	protected AbstractSecurityWebApplicationInitializer(Class<?>... configurationClasses) {
+	protected AbstractSecurityWebApplicationInitializer(
+			Class<?>... configurationClasses) {
 		this.configurationClasses = configurationClasses;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.springframework.web.WebApplicationInitializer#onStartup(javax.servlet.
 	 * ServletContext)
 	 */
 	public final void onStartup(ServletContext servletContext) throws ServletException {
 		beforeSpringSecurityFilterChain(servletContext);
-		if (configurationClasses != null) {
+		if (this.configurationClasses != null) {
 			AnnotationConfigWebApplicationContext rootAppContext = new AnnotationConfigWebApplicationContext();
-			rootAppContext.register(configurationClasses);
+			rootAppContext.register(this.configurationClasses);
 			servletContext.addListener(new ContextLoaderListener(rootAppContext));
 		}
 		if (enableHttpSessionEventPublisher()) {
-			servletContext
-					.addListener("org.springframework.security.web.session.HttpSessionEventPublisher");
+			servletContext.addListener(
+					"org.springframework.security.web.session.HttpSessionEventPublisher");
 		}
 		servletContext.setSessionTrackingModes(getSessionTrackingModes());
 		insertSpringSecurityFilterChain(servletContext);
@@ -213,9 +214,9 @@ public abstract class AbstractSecurityWebApplicationInitializer implements
 			boolean insertBeforeOtherFilters, String filterName, Filter filter) {
 		Dynamic registration = servletContext.addFilter(filterName, filter);
 		if (registration == null) {
-			throw new IllegalStateException("Duplicate Filter registration for '"
-					+ filterName
-					+ "'. Check to ensure the Filter is only configured once.");
+			throw new IllegalStateException(
+					"Duplicate Filter registration for '" + filterName
+							+ "'. Check to ensure the Filter is only configured once.");
 		}
 		registration.setAsyncSupported(isAsyncSecuritySupported());
 		EnumSet<DispatcherType> dispatcherTypes = getSecurityDispatcherTypes();

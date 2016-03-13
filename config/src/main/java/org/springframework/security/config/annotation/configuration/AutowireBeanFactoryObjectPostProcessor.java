@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.beans.factory.Aware;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -35,8 +36,8 @@ import org.springframework.util.Assert;
  * @author Rob Winch
  * @since 3.2
  */
-final class AutowireBeanFactoryObjectPostProcessor implements
-		ObjectPostProcessor<Object>, DisposableBean {
+final class AutowireBeanFactoryObjectPostProcessor
+		implements ObjectPostProcessor<Object>, DisposableBean {
 	private final Log logger = LogFactory.getLog(getClass());
 	private final AutowireCapableBeanFactory autowireBeanFactory;
 	private final List<DisposableBean> disposableBeans = new ArrayList<DisposableBean>();
@@ -49,7 +50,7 @@ final class AutowireBeanFactoryObjectPostProcessor implements
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.springframework.security.config.annotation.web.Initializer#initialize(java.
 	 * lang.Object)
@@ -61,32 +62,33 @@ final class AutowireBeanFactoryObjectPostProcessor implements
 		}
 		T result = null;
 		try {
-			result = (T) autowireBeanFactory.initializeBean(object, object.toString());
+			result = (T) this.autowireBeanFactory.initializeBean(object,
+					object.toString());
 		}
 		catch (RuntimeException e) {
 			Class<?> type = object.getClass();
-			throw new RuntimeException("Could not postProcess " + object + " of type "
-					+ type, e);
+			throw new RuntimeException(
+					"Could not postProcess " + object + " of type " + type, e);
 		}
-		autowireBeanFactory.autowireBean(object);
+		this.autowireBeanFactory.autowireBean(object);
 		if (result instanceof DisposableBean) {
-			disposableBeans.add((DisposableBean) result);
+			this.disposableBeans.add((DisposableBean) result);
 		}
 		return result;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.springframework.beans.factory.DisposableBean#destroy()
 	 */
 	public void destroy() throws Exception {
-		for (DisposableBean disposable : disposableBeans) {
+		for (DisposableBean disposable : this.disposableBeans) {
 			try {
 				disposable.destroy();
 			}
 			catch (Exception error) {
-				logger.error(error);
+				this.logger.error(error);
 			}
 		}
 	}

@@ -1,10 +1,11 @@
-/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+/*
+ * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,11 +16,10 @@
 
 package org.springframework.security.web;
 
-import org.springframework.util.Assert;
-
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
+
+import org.springframework.util.Assert;
 
 /**
  * Concrete implementation of {@link PortMapper} that obtains HTTP:HTTPS pairs from the
@@ -41,9 +41,9 @@ public class PortMapperImpl implements PortMapper {
 	// ===================================================================================================
 
 	public PortMapperImpl() {
-		httpsPortMappings = new HashMap<Integer, Integer>();
-		httpsPortMappings.put(Integer.valueOf(80), Integer.valueOf(443));
-		httpsPortMappings.put(Integer.valueOf(8080), Integer.valueOf(8443));
+		this.httpsPortMappings = new HashMap<Integer, Integer>();
+		this.httpsPortMappings.put(Integer.valueOf(80), Integer.valueOf(443));
+		this.httpsPortMappings.put(Integer.valueOf(8080), Integer.valueOf(8443));
 	}
 
 	// ~ Methods
@@ -54,12 +54,12 @@ public class PortMapperImpl implements PortMapper {
 	 * specified via setHttpsPortMapping()
 	 */
 	public Map<Integer, Integer> getTranslatedPortMappings() {
-		return httpsPortMappings;
+		return this.httpsPortMappings;
 	}
 
 	public Integer lookupHttpPort(Integer httpsPort) {
-		for (Integer httpPort : httpsPortMappings.keySet()) {
-			if (httpsPortMappings.get(httpPort).equals(httpsPort)) {
+		for (Integer httpPort : this.httpsPortMappings.keySet()) {
+			if (this.httpsPortMappings.get(httpPort).equals(httpsPort)) {
 				return httpPort;
 			}
 		}
@@ -68,14 +68,14 @@ public class PortMapperImpl implements PortMapper {
 	}
 
 	public Integer lookupHttpsPort(Integer httpPort) {
-		return httpsPortMappings.get(httpPort);
+		return this.httpsPortMappings.get(httpPort);
 	}
 
 	/**
 	 * Set to override the default HTTP port to HTTPS port mappings of 80:443, and
 	 * 8080:8443. In a Spring XML ApplicationContext, a definition would look something
 	 * like this:
-	 * 
+	 *
 	 * <pre>
 	 *  &lt;property name="portMappings"&gt;
 	 *      &lt;map&gt;
@@ -98,7 +98,7 @@ public class PortMapperImpl implements PortMapper {
 		Assert.notNull(newMappings,
 				"A valid list of HTTPS port mappings must be provided");
 
-		httpsPortMappings.clear();
+		this.httpsPortMappings.clear();
 
 		for (Map.Entry<String, String> entry : newMappings.entrySet()) {
 			Integer httpPort = Integer.valueOf(entry.getKey());
@@ -111,10 +111,10 @@ public class PortMapperImpl implements PortMapper {
 								+ httpsPort);
 			}
 
-			httpsPortMappings.put(httpPort, httpsPort);
+			this.httpsPortMappings.put(httpPort, httpsPort);
 		}
 
-		if (httpsPortMappings.size() < 1) {
+		if (this.httpsPortMappings.size() < 1) {
 			throw new IllegalArgumentException("must map at least one port");
 		}
 	}

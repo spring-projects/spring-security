@@ -1,10 +1,11 @@
-/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+/*
+ * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -60,7 +61,7 @@ public class ServiceProperties implements InitializingBean {
 	 * <p>
 	 * This service is the callback URL belonging to the local Spring Security System for
 	 * Spring secured application. For example,
-	 * 
+	 *
 	 * <pre>
 	 * https://www.mycompany.com/application/login/cas
 	 * </pre>
@@ -116,7 +117,7 @@ public class ServiceProperties implements InitializingBean {
 	 * @return the service parameter to use. Default is "service".
 	 */
 	public final String getServiceParameter() {
-		return serviceParameter;
+		return this.serviceParameter;
 	}
 
 	public final void setServiceParameter(final String serviceParameter) {
@@ -124,7 +125,7 @@ public class ServiceProperties implements InitializingBean {
 	}
 
 	public final boolean isAuthenticateAllArtifacts() {
-		return authenticateAllArtifacts;
+		return this.authenticateAllArtifacts;
 	}
 
 	/**
@@ -134,7 +135,8 @@ public class ServiceProperties implements InitializingBean {
 	 *
 	 * @param authenticateAllArtifacts
 	 */
-	public final void setAuthenticateAllArtifacts(final boolean authenticateAllArtifacts) {
+	public final void setAuthenticateAllArtifacts(
+			final boolean authenticateAllArtifacts) {
 		this.authenticateAllArtifacts = authenticateAllArtifacts;
 	}
 }

@@ -17,14 +17,15 @@ package sample.security;
 
 import java.util.Collection;
 
+import sample.data.User;
+import sample.data.UserRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import sample.data.User;
-import sample.data.UserRepository;
 import org.springframework.stereotype.Service;
 
 /**
@@ -42,14 +43,14 @@ public class UserRepositoryUserDetailsService implements UserDetailsService {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.springframework.security.core.userdetails.UserDetailsService#loadUserByUsername
 	 * (java.lang.String)
 	 */
 	public UserDetails loadUserByUsername(String username)
 			throws UsernameNotFoundException {
-		User user = userRepository.findByEmail(username);
+		User user = this.userRepository.findByEmail(username);
 		if (user == null) {
 			throw new UsernameNotFoundException("Could not find user " + username);
 		}

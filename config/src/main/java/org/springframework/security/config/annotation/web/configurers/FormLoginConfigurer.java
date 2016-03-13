@@ -38,8 +38,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * The following Filters are populated
  *
  * <ul>
- * <li>
- * {@link UsernamePasswordAuthenticationFilter}</li>
+ * <li>{@link UsernamePasswordAuthenticationFilter}</li>
  * </ul>
  *
  * <h2>Shared Objects Created</h2>
@@ -47,7 +46,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * The following shared objects are populated
  *
  * <ul>
- * <li> {@link AuthenticationEntryPoint}</li>
+ * <li>{@link AuthenticationEntryPoint}</li>
  * </ul>
  *
  * <h2>Shared Objects Used</h2>
@@ -56,7 +55,8 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  *
  * <ul>
  * <li>{@link org.springframework.security.authentication.AuthenticationManager}</li>
- * <li>{@link RememberMeServices} - is optionally used. See {@link RememberMeConfigurer}</li>
+ * <li>{@link RememberMeServices} - is optionally used. See {@link RememberMeConfigurer}
+ * </li>
  * <li>{@link SessionAuthenticationStrategy} - is optionally used. See
  * {@link SessionManagementConfigurer}</li>
  * <li>{@link DefaultLoginPageGeneratingFilter} - if present will be populated with
@@ -67,8 +67,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * @author Shazin Sadakath
  * @since 3.2
  */
-public final class FormLoginConfigurer<H extends HttpSecurityBuilder<H>>
-		extends
+public final class FormLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
 		AbstractAuthenticationFilterConfigurer<H, FormLoginConfigurer<H>, UsernamePasswordAuthenticationFilter> {
 
 	/**
@@ -179,6 +178,7 @@ public final class FormLoginConfigurer<H extends HttpSecurityBuilder<H>>
 	 * "/login")
 	 * @return the {@link FormLoginConfigurer} for additional customization
 	 */
+	@Override
 	public FormLoginConfigurer<H> loginPage(String loginPage) {
 		return super.loginPage(loginPage);
 	}
@@ -239,7 +239,7 @@ public final class FormLoginConfigurer<H extends HttpSecurityBuilder<H>>
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.springframework.security.config.annotation.web.configurers.
 	 * AbstractAuthenticationFilterConfigurer
 	 * #createLoginProcessingUrlMatcher(java.lang.String)

@@ -46,22 +46,22 @@ public final class CsrfAuthenticationStrategy implements SessionAuthenticationSt
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.springframework.security.web.authentication.session.SessionAuthenticationStrategy
+	 *
+	 * @see org.springframework.security.web.authentication.session.
+	 * SessionAuthenticationStrategy
 	 * #onAuthentication(org.springframework.security.core.Authentication,
 	 * javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
 	 */
 	public void onAuthentication(Authentication authentication,
 			HttpServletRequest request, HttpServletResponse response)
-			throws SessionAuthenticationException {
+					throws SessionAuthenticationException {
 		boolean containsToken = this.csrfTokenRepository.loadToken(request) != null;
 		if (containsToken) {
 			this.csrfTokenRepository.saveToken(null, request, response);
 
 			CsrfToken newToken = this.csrfTokenRepository.generateToken(request);
-			CsrfToken tokenForRequest = new SaveOnAccessCsrfToken(csrfTokenRepository,
-					request, response, newToken);
+			CsrfToken tokenForRequest = new SaveOnAccessCsrfToken(
+					this.csrfTokenRepository, request, response, newToken);
 
 			request.setAttribute(CsrfToken.class.getName(), tokenForRequest);
 			request.setAttribute(newToken.getParameterName(), tokenForRequest);
@@ -86,46 +86,52 @@ public final class CsrfAuthenticationStrategy implements SessionAuthenticationSt
 		}
 
 		public String getHeaderName() {
-			return delegate.getHeaderName();
+			return this.delegate.getHeaderName();
 		}
 
 		public String getParameterName() {
-			return delegate.getParameterName();
+			return this.delegate.getParameterName();
 		}
 
 		public String getToken() {
 			saveTokenIfNecessary();
-			return delegate.getToken();
+			return this.delegate.getToken();
 		}
 
 		@Override
 		public String toString() {
-			return "SaveOnAccessCsrfToken [delegate=" + delegate + "]";
+			return "SaveOnAccessCsrfToken [delegate=" + this.delegate + "]";
 		}
 
 		@Override
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + ((delegate == null) ? 0 : delegate.hashCode());
+			result = prime * result
+					+ ((this.delegate == null) ? 0 : this.delegate.hashCode());
 			return result;
 		}
 
 		@Override
 		public boolean equals(Object obj) {
-			if (this == obj)
+			if (this == obj) {
 				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			SaveOnAccessCsrfToken other = (SaveOnAccessCsrfToken) obj;
-			if (delegate == null) {
-				if (other.delegate != null)
-					return false;
 			}
-			else if (!delegate.equals(other.delegate))
+			if (obj == null) {
 				return false;
+			}
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+			SaveOnAccessCsrfToken other = (SaveOnAccessCsrfToken) obj;
+			if (this.delegate == null) {
+				if (other.delegate != null) {
+					return false;
+				}
+			}
+			else if (!this.delegate.equals(other.delegate)) {
+				return false;
+			}
 			return true;
 		}
 
@@ -135,8 +141,9 @@ public final class CsrfAuthenticationStrategy implements SessionAuthenticationSt
 			}
 
 			synchronized (this) {
-				if (tokenRepository != null) {
-					this.tokenRepository.saveToken(delegate, request, response);
+				if (this.tokenRepository != null) {
+					this.tokenRepository.saveToken(this.delegate, this.request,
+							this.response);
 					this.tokenRepository = null;
 					this.request = null;
 					this.response = null;

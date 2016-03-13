@@ -35,7 +35,7 @@ import org.springframework.security.config.annotation.web.servlet.configuration.
  * &#064;Configuration
  * &#064;EnableGlobalAuthentication
  * public class MyGlobalAuthenticationConfiguration {
- * 
+ *
  * 	&#064;Autowired
  * 	public void configureGlobal(AuthenticationManagerBuilder auth) {
  * 		auth.inMemoryAuthentication().withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;)
@@ -52,13 +52,13 @@ import org.springframework.security.config.annotation.web.servlet.configuration.
  * &#064;Configuration
  * &#064;EnableWebSecurity
  * public class MyWebSecurityConfiguration extends WebSecurityConfigurerAdapter {
- * 
+ *
  * 	&#064;Autowired
  * 	public void configureGlobal(AuthenticationManagerBuilder auth) {
  * 		auth.inMemoryAuthentication().withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;)
  * 				.and().withUser(&quot;admin&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;, &quot;ADMIN&quot;);
  * 	}
- * 
+ *
  * 	// Possibly overridden methods ...
  * }
  * </pre>
@@ -66,9 +66,9 @@ import org.springframework.security.config.annotation.web.servlet.configuration.
  * The following annotations are annotated with {@link EnableGlobalAuthentication}
  *
  * <ul>
- * <li> {@link EnableWebSecurity}</li>
- * <li> {@link EnableWebMvcSecurity}</li>
- * <li> {@link EnableGlobalMethodSecurity}</li>
+ * <li>{@link EnableWebSecurity}</li>
+ * <li>{@link EnableWebMvcSecurity}</li>
+ * <li>{@link EnableGlobalMethodSecurity}</li>
  * </ul>
  *
  * Configuring {@link AuthenticationManagerBuilder} in a class without the

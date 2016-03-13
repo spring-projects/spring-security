@@ -76,12 +76,12 @@ import org.springframework.stereotype.Controller;
  * @author Rob Winch
  * @since 4.0
  */
-public final class AuthenticationPrincipalArgumentResolver implements
-		HandlerMethodArgumentResolver {
+public final class AuthenticationPrincipalArgumentResolver
+		implements HandlerMethodArgumentResolver {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.springframework.messaging.handler.invocation.HandlerMethodArgumentResolver#
 	 * supportsParameter(org.springframework.core.MethodParameter)
@@ -92,7 +92,7 @@ public final class AuthenticationPrincipalArgumentResolver implements
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.springframework.messaging.handler.invocation.HandlerMethodArgumentResolver#
 	 * resolveArgument(org.springframework.core.MethodParameter,

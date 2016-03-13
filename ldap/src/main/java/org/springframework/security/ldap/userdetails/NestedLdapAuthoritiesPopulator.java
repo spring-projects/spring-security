@@ -15,23 +15,27 @@
  */
 package org.springframework.security.ldap.userdetails;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.util.StringUtils;
 
-import java.util.*;
-
 /**
  * A LDAP authority populator that can recursively search static nested groups.
  * <p>
  * An example of nested groups can be
- * 
+ *
  * <pre>
  *  #Nested groups data
- * 
+ *
  *  dn: uid=javadude,ou=people,dc=springframework,dc=org
  *  objectclass: top
  *  objectclass: person
@@ -41,7 +45,7 @@ import java.util.*;
  *  sn: Dude
  *  uid: javadude
  *  userPassword: javadudespassword
- * 
+ *
  *  dn: uid=groovydude,ou=people,dc=springframework,dc=org
  *  objectclass: top
  *  objectclass: person
@@ -51,7 +55,7 @@ import java.util.*;
  *  sn: Dude
  *  uid: groovydude
  *  userPassword: groovydudespassword
- * 
+ *
  *  dn: uid=closuredude,ou=people,dc=springframework,dc=org
  *  objectclass: top
  *  objectclass: person
@@ -61,7 +65,7 @@ import java.util.*;
  *  sn: Dude
  *  uid: closuredude
  *  userPassword: closuredudespassword
- * 
+ *
  *  dn: uid=scaladude,ou=people,dc=springframework,dc=org
  *  objectclass: top
  *  objectclass: person
@@ -71,14 +75,14 @@ import java.util.*;
  *  sn: Dude
  *  uid: scaladude
  *  userPassword: scaladudespassword
- * 
+ *
  *  dn: cn=j-developers,ou=jdeveloper,dc=springframework,dc=org
  *  objectclass: top
  *  objectclass: groupOfNames
  *  cn: j-developers
  *  ou: jdeveloper
  *  member: cn=java-developers,ou=groups,dc=springframework,dc=org
- * 
+ *
  *  dn: cn=java-developers,ou=jdeveloper,dc=springframework,dc=org
  *  objectclass: top
  *  objectclass: groupOfNames
@@ -87,7 +91,7 @@ import java.util.*;
  *  member: cn=groovy-developers,ou=groups,dc=springframework,dc=org
  *  member: cn=scala-developers,ou=groups,dc=springframework,dc=org
  *  member: uid=javadude,ou=people,dc=springframework,dc=org
- * 
+ *
  *  dn: cn=groovy-developers,ou=jdeveloper,dc=springframework,dc=org
  *  objectclass: top
  *  objectclass: groupOfNames
@@ -95,14 +99,14 @@ import java.util.*;
  *  ou: jdeveloper
  *  member: cn=closure-developers,ou=groups,dc=springframework,dc=org
  *  member: uid=groovydude,ou=people,dc=springframework,dc=org
- * 
+ *
  *  dn: cn=closure-developers,ou=jdeveloper,dc=springframework,dc=org
  *  objectclass: top
  *  objectclass: groupOfNames
  *  cn: java-developers
  *  ou: jdeveloper
  *  member: uid=closuredude,ou=people,dc=springframework,dc=org
- * 
+ *
  *  dn: cn=scala-developers,ou=jdeveloper,dc=springframework,dc=org
  *  objectclass: top
  *  objectclass: groupOfNames
@@ -173,8 +177,8 @@ public class NestedLdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopula
 			if (logger.isDebugEnabled()) {
 				logger.debug("Search aborted, max depth reached,"
 						+ " for roles for user '" + username + "', DN = " + "'" + userDn
-						+ "', with filter " + getGroupSearchFilter()
-						+ " in search base '" + getGroupSearchBase() + "'");
+						+ "', with filter " + getGroupSearchFilter() + " in search base '"
+						+ getGroupSearchBase() + "'");
 			}
 			return;
 		}
@@ -194,12 +198,10 @@ public class NestedLdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopula
 		}
 
 		Set<Map<String, List<String>>> userRoles = getLdapTemplate()
-				.searchForMultipleAttributeValues(
-						getGroupSearchBase(),
-						getGroupSearchFilter(),
-						new String[] { userDn, username },
-						getAttributeNames().toArray(
-								new String[getAttributeNames().size()]));
+				.searchForMultipleAttributeValues(getGroupSearchBase(),
+						getGroupSearchFilter(), new String[] { userDn, username },
+						getAttributeNames()
+								.toArray(new String[getAttributeNames().size()]));
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("Roles from search: " + userRoles);
@@ -238,7 +240,7 @@ public class NestedLdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopula
 	 * @return the attribute names or null for all
 	 */
 	private Set<String> getAttributeNames() {
-		return attributeNames;
+		return this.attributeNames;
 	}
 
 	/**
@@ -257,7 +259,7 @@ public class NestedLdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopula
 	 * @return the max search depth, default is 10
 	 */
 	private int getMaxSearchDepth() {
-		return maxSearchDepth;
+		return this.maxSearchDepth;
 	}
 
 	/**

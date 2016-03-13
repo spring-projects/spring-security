@@ -34,14 +34,14 @@ import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
  * &#064;Configuration
  * &#064;EnableWebSecurity
  * public class MyWebSecurityConfiguration extends WebSecurityConfigurerAdapter {
- * 
+ *
  * 	&#064;Override
  * 	public void configure(WebSecurity web) throws Exception {
  * 		web.ignoring()
  * 		// Spring Security should completely ignore URLs starting with /resources/
  * 				.antMatchers(&quot;/resources/**&quot;);
  * 	}
- * 
+ *
  * 	&#064;Override
  * 	protected void configure(HttpSecurity http) throws Exception {
  * 		http.authorizeRequests().antMatchers(&quot;/public/**&quot;).permitAll().anyRequest()
@@ -51,7 +51,7 @@ import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
  * 				// set permitAll for all URLs associated with Form Login
  * 				.permitAll();
  * 	}
- * 
+ *
  * 	&#064;Override
  * 	protected void configure(AuthenticationManagerBuilder auth) {
  * 		auth
@@ -59,7 +59,7 @@ import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
  * 		.inMemoryAuthentication().withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;)
  * 				.and().withUser(&quot;admin&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;, &quot;ADMIN&quot;);
  * 	}
- * 
+ *
  * 	// Possibly more overridden methods ...
  * }
  * </pre>

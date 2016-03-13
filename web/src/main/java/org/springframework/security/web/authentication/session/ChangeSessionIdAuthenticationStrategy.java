@@ -29,13 +29,13 @@ import org.springframework.util.ReflectionUtils;
  * @author Rob Winch
  * @since 3.2
  */
-public final class ChangeSessionIdAuthenticationStrategy extends
-		AbstractSessionFixationProtectionStrategy {
+public final class ChangeSessionIdAuthenticationStrategy
+		extends AbstractSessionFixationProtectionStrategy {
 	private final Method changeSessionIdMethod;
 
 	public ChangeSessionIdAuthenticationStrategy() {
-		Method changeSessionIdMethod = ReflectionUtils.findMethod(
-				HttpServletRequest.class, "changeSessionId");
+		Method changeSessionIdMethod = ReflectionUtils
+				.findMethod(HttpServletRequest.class, "changeSessionId");
 		if (changeSessionIdMethod == null) {
 			throw new IllegalStateException(
 					"HttpServletRequest.changeSessionId is undefined. Are you using a Servlet 3.1+ environment?");
@@ -45,14 +45,14 @@ public final class ChangeSessionIdAuthenticationStrategy extends
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.springframework.security.web.authentication.session.
 	 * AbstractSessionFixationProtectionStrategy
 	 * #applySessionFixation(javax.servlet.http.HttpServletRequest)
 	 */
 	@Override
 	HttpSession applySessionFixation(HttpServletRequest request) {
-		ReflectionUtils.invokeMethod(changeSessionIdMethod, request);
+		ReflectionUtils.invokeMethod(this.changeSessionIdMethod, request);
 		return request.getSession();
 	}
 }

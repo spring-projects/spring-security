@@ -1,10 +1,11 @@
-/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+/*
+ * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +17,6 @@
 package org.springframework.security.web.authentication.preauth.x509;
 
 import java.io.ByteArrayInputStream;
-
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 
@@ -31,7 +31,7 @@ public class X509TestUtils {
 
 	/**
 	 * Builds an X.509 certificate. In human-readable form it is:
-	 * 
+	 *
 	 * <pre>
 	 * Certificate:
 	 *  Data:
@@ -104,7 +104,7 @@ public class X509TestUtils {
 	/**
 	 * Builds an X.509 certificate with a subject DN where the CN field is at the end of
 	 * the line. The actual DN line is:
-	 * 
+	 *
 	 * <pre>
 	 *  L=Cupertino,C=US,ST=CA,OU=Java Software,O=Sun Microsystems\, Inc,CN=Duke
 	 * </pre>

@@ -50,28 +50,28 @@ public final class DefaultCsrfToken implements CsrfToken {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.springframework.security.web.csrf.CsrfToken#getHeaderName()
 	 */
 	public String getHeaderName() {
-		return headerName;
+		return this.headerName;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.springframework.security.web.csrf.CsrfToken#getParameterName()
 	 */
 	public String getParameterName() {
-		return parameterName;
+		return this.parameterName;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.springframework.security.web.csrf.CsrfToken#getToken()
 	 */
 	public String getToken() {
-		return token;
+		return this.token;
 	}
 }

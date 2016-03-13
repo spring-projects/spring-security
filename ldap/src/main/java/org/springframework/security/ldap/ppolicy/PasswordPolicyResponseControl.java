@@ -1,10 +1,11 @@
-/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+/*
+ * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,9 +28,9 @@ import netscape.ldap.ber.stream.BERIntegral;
 import netscape.ldap.ber.stream.BERSequence;
 import netscape.ldap.ber.stream.BERTag;
 import netscape.ldap.ber.stream.BERTagDecoder;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.dao.DataRetrievalFailureException;
 
 /**
@@ -70,7 +71,7 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 
 	/**
 	 * Decodes the Ber encoded control data. The ASN.1 value of the control data is:
-	 * 
+	 *
 	 * <pre>
 	 *    PasswordPolicyResponseValue ::= SEQUENCE {       warning [0] CHOICE {
 	 *           timeBeforeExpiration [0] INTEGER (0 .. maxInt),
@@ -104,12 +105,13 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 	 * Returns the unchanged value of the response control. Returns the unchanged value of
 	 * the response control as byte array.
 	 */
+	@Override
 	public byte[] getEncodedValue() {
-		return encodedValue;
+		return this.encodedValue;
 	}
 
 	public PasswordPolicyErrorStatus getErrorStatus() {
-		return errorStatus;
+		return this.errorStatus;
 	}
 
 	/**
@@ -118,7 +120,7 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 	 * @return Returns the graceLoginsRemaining.
 	 */
 	public int getGraceLoginsRemaining() {
-		return graceLoginsRemaining;
+		return this.graceLoginsRemaining;
 	}
 
 	/**
@@ -127,7 +129,7 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 	 * @return Returns the time before expiration in seconds
 	 */
 	public int getTimeBeforeExpiration() {
-		return timeBeforeExpiration;
+		return this.timeBeforeExpiration;
 	}
 
 	/**
@@ -136,7 +138,7 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 	 * @return true, if an error is present
 	 */
 	public boolean hasError() {
-		return errorStatus != null;
+		return this.errorStatus != null;
 	}
 
 	/**
@@ -145,20 +147,20 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 	 * @return true, if a warning is present
 	 */
 	public boolean hasWarning() {
-		return (graceLoginsRemaining != Integer.MAX_VALUE)
-				|| (timeBeforeExpiration != Integer.MAX_VALUE);
+		return (this.graceLoginsRemaining != Integer.MAX_VALUE)
+				|| (this.timeBeforeExpiration != Integer.MAX_VALUE);
 	}
 
 	public boolean isExpired() {
-		return errorStatus == PasswordPolicyErrorStatus.PASSWORD_EXPIRED;
+		return this.errorStatus == PasswordPolicyErrorStatus.PASSWORD_EXPIRED;
 	}
 
 	public boolean isChangeAfterReset() {
-		return errorStatus == PasswordPolicyErrorStatus.CHANGE_AFTER_RESET;
+		return this.errorStatus == PasswordPolicyErrorStatus.CHANGE_AFTER_RESET;
 	}
 
 	public boolean isUsingGraceLogins() {
-		return graceLoginsRemaining < Integer.MAX_VALUE;
+		return this.graceLoginsRemaining < Integer.MAX_VALUE;
 	}
 
 	/**
@@ -167,7 +169,7 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 	 * @return true if the account is locked.
 	 */
 	public boolean isLocked() {
-		return errorStatus == PasswordPolicyErrorStatus.ACCOUNT_LOCKED;
+		return this.errorStatus == PasswordPolicyErrorStatus.ACCOUNT_LOCKED;
 	}
 
 	/**
@@ -176,21 +178,22 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 	 *
 	 * @return error and warning messages
 	 */
+	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder("PasswordPolicyResponseControl");
 
 		if (hasError()) {
-			sb.append(", error: ").append(errorStatus.getDefaultMessage());
+			sb.append(", error: ").append(this.errorStatus.getDefaultMessage());
 		}
 
-		if (graceLoginsRemaining != Integer.MAX_VALUE) {
-			sb.append(", warning: ").append(graceLoginsRemaining)
+		if (this.graceLoginsRemaining != Integer.MAX_VALUE) {
+			sb.append(", warning: ").append(this.graceLoginsRemaining)
 					.append(" grace logins remain");
 		}
 
-		if (timeBeforeExpiration != Integer.MAX_VALUE) {
-			sb.append(", warning: time before expiration is ").append(
-					timeBeforeExpiration);
+		if (this.timeBeforeExpiration != Integer.MAX_VALUE) {
+			sb.append(", warning: time before expiration is ")
+					.append(this.timeBeforeExpiration);
 		}
 
 		if (!hasError() && !hasWarning()) {
@@ -216,9 +219,11 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 	private class NetscapeDecoder implements PPolicyDecoder {
 		public void decode() throws IOException {
 			int[] bread = { 0 };
-			BERSequence seq = (BERSequence) BERElement.getElement(
-					new SpecificTagDecoder(), new ByteArrayInputStream(encodedValue),
-					bread);
+			BERSequence seq = (BERSequence) BERElement
+					.getElement(new SpecificTagDecoder(),
+							new ByteArrayInputStream(
+									PasswordPolicyResponseControl.this.encodedValue),
+							bread);
 
 			int size = seq.size();
 
@@ -239,15 +244,16 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 					int value = ((BERInteger) content.getValue()).getValue();
 
 					if ((content.getTag() & 0x1F) == 0) {
-						timeBeforeExpiration = value;
+						PasswordPolicyResponseControl.this.timeBeforeExpiration = value;
 					}
 					else {
-						graceLoginsRemaining = value;
+						PasswordPolicyResponseControl.this.graceLoginsRemaining = value;
 					}
 				}
 				else if (tag == 1) {
 					BERIntegral error = (BERIntegral) elt.getValue();
-					errorStatus = PasswordPolicyErrorStatus.values()[error.getValue()];
+					PasswordPolicyResponseControl.this.errorStatus = PasswordPolicyErrorStatus
+							.values()[error.getValue()];
 				}
 			}
 		}
@@ -256,15 +262,16 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 			/** Allows us to remember which of the two options we're decoding */
 			private Boolean inChoice = null;
 
+			@Override
 			public BERElement getElement(BERTagDecoder decoder, int tag,
 					InputStream stream, int[] bytesRead, boolean[] implicit)
-					throws IOException {
+							throws IOException {
 				tag &= 0x1F;
 				implicit[0] = false;
 
 				if (tag == 0) {
 					// Either the choice or the time before expiry within it
-					if (inChoice == null) {
+					if (this.inChoice == null) {
 						setInChoice(true);
 
 						// Read the choice length from the stream (ignored)
@@ -285,14 +292,14 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 				}
 				else if (tag == 1) {
 					// Either the graceLogins or the error enumeration.
-					if (inChoice == null) {
+					if (this.inChoice == null) {
 						// The enumeration
 						setInChoice(false);
 
 						return new BEREnumerated(stream, bytesRead);
 					}
 					else {
-						if (inChoice.booleanValue()) {
+						if (this.inChoice.booleanValue()) {
 							// graceLogins
 							return new BERInteger(stream, bytesRead);
 						}

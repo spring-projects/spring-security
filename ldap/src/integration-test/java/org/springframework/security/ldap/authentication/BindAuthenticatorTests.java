@@ -1,10 +1,11 @@
-/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+/*
+ * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,9 +16,9 @@
 
 package org.springframework.security.ldap.authentication;
 
-import static org.assertj.core.api.Assertions.*;
+import org.junit.Before;
+import org.junit.Test;
 
-import org.junit.*;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,6 +26,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.ldap.AbstractLdapIntegrationTests;
 import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * Tests for {@link BindAuthenticator}.
@@ -43,34 +47,35 @@ public class BindAuthenticatorTests extends AbstractLdapIntegrationTests {
 
 	@Before
 	public void setUp() {
-		authenticator = new BindAuthenticator(getContextSource());
-		authenticator.setMessageSource(new SpringSecurityMessageSource());
-		bob = new UsernamePasswordAuthenticationToken("bob", "bobspassword");
+		this.authenticator = new BindAuthenticator(getContextSource());
+		this.authenticator.setMessageSource(new SpringSecurityMessageSource());
+		this.bob = new UsernamePasswordAuthenticationToken("bob", "bobspassword");
 
 	}
 
 	@Test(expected = BadCredentialsException.class)
 	public void emptyPasswordIsRejected() {
-		authenticator.authenticate(new UsernamePasswordAuthenticationToken("jen", ""));
+		this.authenticator
+				.authenticate(new UsernamePasswordAuthenticationToken("jen", ""));
 	}
 
 	@Test
 	public void testAuthenticationWithCorrectPasswordSucceeds() {
-		authenticator.setUserDnPatterns(new String[] { "uid={0},ou=people",
-				"cn={0},ou=people" });
+		this.authenticator.setUserDnPatterns(
+				new String[] { "uid={0},ou=people", "cn={0},ou=people" });
 
-		DirContextOperations user = authenticator.authenticate(bob);
+		DirContextOperations user = this.authenticator.authenticate(this.bob);
 		assertThat(user.getStringAttribute("uid")).isEqualTo("bob");
-		authenticator.authenticate(new UsernamePasswordAuthenticationToken(
+		this.authenticator.authenticate(new UsernamePasswordAuthenticationToken(
 				"mouse, jerry", "jerryspassword"));
 	}
 
 	@Test
 	public void testAuthenticationWithInvalidUserNameFails() {
-		authenticator.setUserDnPatterns(new String[] { "uid={0},ou=people" });
+		this.authenticator.setUserDnPatterns(new String[] { "uid={0},ou=people" });
 
 		try {
-			authenticator.authenticate(new UsernamePasswordAuthenticationToken(
+			this.authenticator.authenticate(new UsernamePasswordAuthenticationToken(
 					"nonexistentsuser", "password"));
 			fail("Shouldn't be able to bind with invalid username");
 		}
@@ -82,26 +87,26 @@ public class BindAuthenticatorTests extends AbstractLdapIntegrationTests {
 	public void testAuthenticationWithUserSearch() throws Exception {
 		// DirContextAdapter ctx = new DirContextAdapter(new
 		// DistinguishedName("uid=bob,ou=people"));
-		authenticator.setUserSearch(new FilterBasedLdapUserSearch("ou=people",
+		this.authenticator.setUserSearch(new FilterBasedLdapUserSearch("ou=people",
 				"(uid={0})", getContextSource()));
-		authenticator.afterPropertiesSet();
-		authenticator.authenticate(bob);
+		this.authenticator.afterPropertiesSet();
+		this.authenticator.authenticate(this.bob);
 		// SEC-1444
-		authenticator.setUserSearch(new FilterBasedLdapUserSearch("ou=people",
+		this.authenticator.setUserSearch(new FilterBasedLdapUserSearch("ou=people",
 				"(cn={0})", getContextSource()));
-		authenticator.authenticate(new UsernamePasswordAuthenticationToken(
+		this.authenticator.authenticate(new UsernamePasswordAuthenticationToken(
 				"mouse, jerry", "jerryspassword"));
-		authenticator.authenticate(new UsernamePasswordAuthenticationToken("slash/guy",
-				"slashguyspassword"));
+		this.authenticator.authenticate(new UsernamePasswordAuthenticationToken(
+				"slash/guy", "slashguyspassword"));
 		// SEC-1661
-		authenticator.setUserSearch(new FilterBasedLdapUserSearch(
+		this.authenticator.setUserSearch(new FilterBasedLdapUserSearch(
 				"ou=\\\"quoted people\\\"", "(cn={0})", getContextSource()));
-		authenticator.authenticate(new UsernamePasswordAuthenticationToken("quote\"guy",
-				"quoteguyspassword"));
-		authenticator.setUserSearch(new FilterBasedLdapUserSearch("", "(cn={0})",
-				getContextSource()));
-		authenticator.authenticate(new UsernamePasswordAuthenticationToken("quote\"guy",
-				"quoteguyspassword"));
+		this.authenticator.authenticate(new UsernamePasswordAuthenticationToken(
+				"quote\"guy", "quoteguyspassword"));
+		this.authenticator.setUserSearch(
+				new FilterBasedLdapUserSearch("", "(cn={0})", getContextSource()));
+		this.authenticator.authenticate(new UsernamePasswordAuthenticationToken(
+				"quote\"guy", "quoteguyspassword"));
 	}
 
 	/*
@@ -112,26 +117,26 @@ public class BindAuthenticatorTests extends AbstractLdapIntegrationTests {
 	 * env.put(Context.SECURITY_AUTHENTICATION, "simple");
 	 * env.put(Context.SECURITY_PRINCIPAL, "cn=admin,dc=springsource,dc=com");
 	 * env.put(Context.SECURITY_CREDENTIALS, "password");
-	 * 
+	 *
 	 * InitialDirContext idc = new InitialDirContext(env); SearchControls searchControls =
 	 * new SearchControls(); searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 	 * DistinguishedName baseDn = new DistinguishedName("ou=\\\"quoted people\\\"");
 	 * NamingEnumeration<SearchResult> matches = idc.search(baseDn, "(cn=*)", new Object[]
 	 * {"quoteguy"}, searchControls);
-	 * 
+	 *
 	 * while(matches.hasMore()) { SearchResult match = matches.next(); DistinguishedName
 	 * dn = new DistinguishedName(match.getName()); System.out.println("**** Match: " +
 	 * match.getName() + " ***** " + dn);
-	 * 
+	 *
 	 * } }
 	 */
 	@Test
 	public void testAuthenticationWithWrongPasswordFails() {
-		authenticator.setUserDnPatterns(new String[] { "uid={0},ou=people" });
+		this.authenticator.setUserDnPatterns(new String[] { "uid={0},ou=people" });
 
 		try {
-			authenticator.authenticate(new UsernamePasswordAuthenticationToken("bob",
-					"wrongpassword"));
+			this.authenticator.authenticate(
+					new UsernamePasswordAuthenticationToken("bob", "wrongpassword"));
 			fail("Shouldn't be able to bind with wrong password");
 		}
 		catch (BadCredentialsException expected) {
@@ -140,7 +145,8 @@ public class BindAuthenticatorTests extends AbstractLdapIntegrationTests {
 
 	@Test
 	public void testUserDnPatternReturnsCorrectDn() {
-		authenticator.setUserDnPatterns(new String[] { "cn={0},ou=people" });
-		assertThat(authenticator.getUserDns("Joe").get(0)).isEqualTo("cn=Joe,ou=people");
+		this.authenticator.setUserDnPatterns(new String[] { "cn={0},ou=people" });
+		assertThat(this.authenticator.getUserDns("Joe").get(0))
+				.isEqualTo("cn=Joe,ou=people");
 	}
 }

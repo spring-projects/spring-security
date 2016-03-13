@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 the original author or authors.
+ * Copyright 2010-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,17 +36,17 @@ import org.springframework.util.Assert;
  * <p>
  * The following JAAS configuration:
  * </p>
- * 
+ *
  * <pre>
  * SPRINGSECURITY {
  *    sample.SampleLoginModule required;
  *  };
  * </pre>
- * 
+ *
  * <p>
  * Can be represented as follows:
  * </p>
- * 
+ *
  * <pre>
  * &lt;bean id=&quot;jaasAuthProvider&quot; class=&quot;org.springframework.security.authentication.jaas.DefaultJaasAuthenticationProvider&quot;&gt;
  *   &lt;property name=&quot;configuration&quot;&gt;
@@ -79,12 +79,13 @@ import org.springframework.util.Assert;
  *   &lt;/property&gt;
  * &lt;/bean&gt;
  * </pre>
- * 
+ *
  * @author Rob Winch
  * @see AbstractJaasAuthenticationProvider
  * @see InMemoryConfiguration
  */
-public class DefaultJaasAuthenticationProvider extends AbstractJaasAuthenticationProvider {
+public class DefaultJaasAuthenticationProvider
+		extends AbstractJaasAuthenticationProvider {
 	// ~ Instance fields
 	// ================================================================================================
 
@@ -96,7 +97,7 @@ public class DefaultJaasAuthenticationProvider extends AbstractJaasAuthenticatio
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		super.afterPropertiesSet();
-		Assert.notNull(configuration, "configuration cannot be null.");
+		Assert.notNull(this.configuration, "configuration cannot be null.");
 	}
 
 	/**
@@ -110,12 +111,12 @@ public class DefaultJaasAuthenticationProvider extends AbstractJaasAuthenticatio
 	}
 
 	protected Configuration getConfiguration() {
-		return configuration;
+		return this.configuration;
 	}
 
 	/**
 	 * Sets the Configuration to use for Authentication.
-	 * 
+	 *
 	 * @param configuration the Configuration that is used when
 	 * {@link #createLoginContext(CallbackHandler)} is called.
 	 */

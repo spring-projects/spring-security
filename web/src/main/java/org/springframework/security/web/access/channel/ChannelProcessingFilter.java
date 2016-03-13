@@ -1,10 +1,11 @@
-/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+/*
+ * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -47,7 +48,7 @@ import org.springframework.web.filter.GenericFilterBean;
  * The most common usage is to ensure that a request takes place over HTTPS, where the
  * {@link ChannelDecisionManagerImpl} is configured with a {@link SecureChannelProcessor}
  * and an {@link InsecureChannelProcessor}. A typical configuration would be
- * 
+ *
  * <pre>
  *
  * &lt;bean id="channelProcessingFilter" class="org.springframework.security.web.access.channel.ChannelProcessingFilter"&gt;
@@ -60,7 +61,7 @@ import org.springframework.web.filter.GenericFilterBean;
  *     &lt;/security:filter-security-metadata-source&gt;
  *   &lt;/property&gt;
  * &lt;/bean&gt;
- * 
+ *
  * &lt;bean id="channelDecisionManager" class="org.springframework.security.web.access.channel.ChannelDecisionManagerImpl"&gt;
  *   &lt;property name="channelProcessors"&gt;
  *     &lt;list&gt;
@@ -69,14 +70,14 @@ import org.springframework.web.filter.GenericFilterBean;
  *     &lt;/list&gt;
  *   &lt;/property&gt;
  * &lt;/bean&gt;
- * 
+ *
  * &lt;bean id="secureChannelProcessor"
  *   class="org.springframework.security.web.access.channel.SecureChannelProcessor"/&gt;
  * &lt;bean id="insecureChannelProcessor"
  *   class="org.springframework.security.web.access.channel.InsecureChannelProcessor"/&gt;
- * 
+ *
  * </pre>
- * 
+ *
  * which would force the login form and any access to the {@code /secure} path to be made
  * over HTTPS.
  *
@@ -95,16 +96,19 @@ public class ChannelProcessingFilter extends GenericFilterBean {
 
 	@Override
 	public void afterPropertiesSet() {
-		Assert.notNull(securityMetadataSource, "securityMetadataSource must be specified");
-		Assert.notNull(channelDecisionManager, "channelDecisionManager must be specified");
+		Assert.notNull(this.securityMetadataSource,
+				"securityMetadataSource must be specified");
+		Assert.notNull(this.channelDecisionManager,
+				"channelDecisionManager must be specified");
 
 		Collection<ConfigAttribute> attrDefs = this.securityMetadataSource
 				.getAllConfigAttributes();
 
 		if (attrDefs == null) {
-			if (logger.isWarnEnabled()) {
-				logger.warn("Could not validate configuration attributes as the FilterInvocationSecurityMetadataSource did "
-						+ "not return any attributes");
+			if (this.logger.isWarnEnabled()) {
+				this.logger
+						.warn("Could not validate configuration attributes as the FilterInvocationSecurityMetadataSource did "
+								+ "not return any attributes");
 			}
 
 			return;
@@ -119,13 +123,13 @@ public class ChannelProcessingFilter extends GenericFilterBean {
 		}
 
 		if (unsupportedAttributes.size() == 0) {
-			if (logger.isInfoEnabled()) {
-				logger.info("Validated configuration attributes");
+			if (this.logger.isInfoEnabled()) {
+				this.logger.info("Validated configuration attributes");
 			}
 		}
 		else {
-			throw new IllegalArgumentException("Unsupported configuration attributes: "
-					+ unsupportedAttributes);
+			throw new IllegalArgumentException(
+					"Unsupported configuration attributes: " + unsupportedAttributes);
 		}
 	}
 
@@ -138,11 +142,12 @@ public class ChannelProcessingFilter extends GenericFilterBean {
 		Collection<ConfigAttribute> attr = this.securityMetadataSource.getAttributes(fi);
 
 		if (attr != null) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Request: " + fi.toString() + "; ConfigAttributes: " + attr);
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug(
+						"Request: " + fi.toString() + "; ConfigAttributes: " + attr);
 			}
 
-			channelDecisionManager.decide(fi, attr);
+			this.channelDecisionManager.decide(fi, attr);
 
 			if (fi.getResponse().isCommitted()) {
 				return;
@@ -153,11 +158,11 @@ public class ChannelProcessingFilter extends GenericFilterBean {
 	}
 
 	protected ChannelDecisionManager getChannelDecisionManager() {
-		return channelDecisionManager;
+		return this.channelDecisionManager;
 	}
 
 	protected FilterInvocationSecurityMetadataSource getSecurityMetadataSource() {
-		return securityMetadataSource;
+		return this.securityMetadataSource;
 	}
 
 	public void setChannelDecisionManager(ChannelDecisionManager channelDecisionManager) {

@@ -1,10 +1,11 @@
-/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+/*
+ * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -88,14 +89,14 @@ import org.springframework.util.Assert;
  * to a <tt>boolean</tt> type in the result set (the SQL type will depend on the database
  * you are using). All the other columns map to <tt>String</tt>s.
  *
- * <h3>Group Support</h3>
- * Support for group-based authorities can be enabled by setting the <tt>enableGroups</tt>
- * property to <tt>true</tt> (you may also then wish to set <tt>enableAuthorities</tt> to
- * <tt>false</tt> to disable loading of authorities directly). With this approach,
- * authorities are allocated to groups and a user's authorities are determined based on
- * the groups they are a member of. The net result is the same (a UserDetails containing a
- * set of <tt>GrantedAuthority</tt>s is loaded), but the different persistence strategy
- * may be more suitable for the administration of some applications.
+ * <h3>Group Support</h3> Support for group-based authorities can be enabled by setting
+ * the <tt>enableGroups</tt> property to <tt>true</tt> (you may also then wish to set
+ * <tt>enableAuthorities</tt> to <tt>false</tt> to disable loading of authorities
+ * directly). With this approach, authorities are allocated to groups and a user's
+ * authorities are determined based on the groups they are a member of. The net result is
+ * the same (a UserDetails containing a set of <tt>GrantedAuthority</tt>s is loaded), but
+ * the different persistence strategy may be more suitable for the administration of some
+ * applications.
  * <p>
  * When groups are being used, the tables "groups", "group_members" and
  * "group_authorities" are used. See {@link #DEF_GROUP_AUTHORITIES_BY_USERNAME_QUERY} for
@@ -117,8 +118,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
 			+ "from authorities " + "where username = ?";
 	public static final String DEF_GROUP_AUTHORITIES_BY_USERNAME_QUERY = "select g.id, g.group_name, ga.authority "
 			+ "from groups g, group_members gm, group_authorities ga "
-			+ "where gm.username = ? "
-			+ "and g.id = ga.group_id "
+			+ "where gm.username = ? " + "and g.id = ga.group_id "
 			+ "and g.id = gm.group_id";
 
 	// ~ Instance fields
@@ -139,9 +139,9 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
 	// ===================================================================================================
 
 	public JdbcDaoImpl() {
-		usersByUsernameQuery = DEF_USERS_BY_USERNAME_QUERY;
-		authoritiesByUsernameQuery = DEF_AUTHORITIES_BY_USERNAME_QUERY;
-		groupAuthoritiesByUsernameQuery = DEF_GROUP_AUTHORITIES_BY_USERNAME_QUERY;
+		this.usersByUsernameQuery = DEF_USERS_BY_USERNAME_QUERY;
+		this.authoritiesByUsernameQuery = DEF_AUTHORITIES_BY_USERNAME_QUERY;
+		this.groupAuthoritiesByUsernameQuery = DEF_GROUP_AUTHORITIES_BY_USERNAME_QUERY;
 	}
 
 	// ~ Methods
@@ -160,11 +160,12 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
 	}
 
 	public String getUsersByUsernameQuery() {
-		return usersByUsernameQuery;
+		return this.usersByUsernameQuery;
 	}
 
+	@Override
 	protected void initDao() throws ApplicationContextException {
-		Assert.isTrue(enableAuthorities || enableGroups,
+		Assert.isTrue(this.enableAuthorities || this.enableGroups,
 				"Use of either authorities or groups must be enabled");
 	}
 
@@ -173,22 +174,22 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
 		List<UserDetails> users = loadUsersByUsername(username);
 
 		if (users.size() == 0) {
-			logger.debug("Query returned no results for user '" + username + "'");
+			this.logger.debug("Query returned no results for user '" + username + "'");
 
-			throw new UsernameNotFoundException(messages.getMessage(
-					"JdbcDaoImpl.notFound", new Object[] { username },
-					"Username {0} not found"));
+			throw new UsernameNotFoundException(
+					this.messages.getMessage("JdbcDaoImpl.notFound",
+							new Object[] { username }, "Username {0} not found"));
 		}
 
 		UserDetails user = users.get(0); // contains no GrantedAuthority[]
 
 		Set<GrantedAuthority> dbAuthsSet = new HashSet<GrantedAuthority>();
 
-		if (enableAuthorities) {
+		if (this.enableAuthorities) {
 			dbAuthsSet.addAll(loadUserAuthorities(user.getUsername()));
 		}
 
-		if (enableGroups) {
+		if (this.enableGroups) {
 			dbAuthsSet.addAll(loadGroupAuthorities(user.getUsername()));
 		}
 
@@ -197,10 +198,10 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
 		addCustomAuthorities(user.getUsername(), dbAuths);
 
 		if (dbAuths.size() == 0) {
-			logger.debug("User '" + username
+			this.logger.debug("User '" + username
 					+ "' has no authorities and will be treated as 'not found'");
 
-			throw new UsernameNotFoundException(messages.getMessage(
+			throw new UsernameNotFoundException(this.messages.getMessage(
 					"JdbcDaoImpl.noAuthority", new Object[] { username },
 					"User {0} has no GrantedAuthority"));
 		}
@@ -213,8 +214,8 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
 	 * objects. There should normally only be one matching user.
 	 */
 	protected List<UserDetails> loadUsersByUsername(String username) {
-		return getJdbcTemplate().query(usersByUsernameQuery, new String[] { username },
-				new RowMapper<UserDetails>() {
+		return getJdbcTemplate().query(this.usersByUsernameQuery,
+				new String[] { username }, new RowMapper<UserDetails>() {
 					public UserDetails mapRow(ResultSet rs, int rowNum)
 							throws SQLException {
 						String username = rs.getString(1);
@@ -233,11 +234,11 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
 	 * @return a list of GrantedAuthority objects for the user
 	 */
 	protected List<GrantedAuthority> loadUserAuthorities(String username) {
-		return getJdbcTemplate().query(authoritiesByUsernameQuery,
+		return getJdbcTemplate().query(this.authoritiesByUsernameQuery,
 				new String[] { username }, new RowMapper<GrantedAuthority>() {
 					public GrantedAuthority mapRow(ResultSet rs, int rowNum)
 							throws SQLException {
-						String roleName = rolePrefix + rs.getString(2);
+						String roleName = JdbcDaoImpl.this.rolePrefix + rs.getString(2);
 
 						return new SimpleGrantedAuthority(roleName);
 					}
@@ -251,7 +252,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
 	 * @return a list of GrantedAuthority objects for the user
 	 */
 	protected List<GrantedAuthority> loadGroupAuthorities(String username) {
-		return getJdbcTemplate().query(groupAuthoritiesByUsernameQuery,
+		return getJdbcTemplate().query(this.groupAuthoritiesByUsernameQuery,
 				new String[] { username }, new RowMapper<GrantedAuthority>() {
 					public GrantedAuthority mapRow(ResultSet rs, int rowNum)
 							throws SQLException {
@@ -276,7 +277,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
 			UserDetails userFromUserQuery, List<GrantedAuthority> combinedAuthorities) {
 		String returnUsername = userFromUserQuery.getUsername();
 
-		if (!usernameBasedPrimaryKey) {
+		if (!this.usernameBasedPrimaryKey) {
 			returnUsername = username;
 		}
 
@@ -294,11 +295,11 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
 	 * @param queryString The SQL query string to set
 	 */
 	public void setAuthoritiesByUsernameQuery(String queryString) {
-		authoritiesByUsernameQuery = queryString;
+		this.authoritiesByUsernameQuery = queryString;
 	}
 
 	protected String getAuthoritiesByUsernameQuery() {
-		return authoritiesByUsernameQuery;
+		return this.authoritiesByUsernameQuery;
 	}
 
 	/**
@@ -311,7 +312,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
 	 * @param queryString The SQL query string to set
 	 */
 	public void setGroupAuthoritiesByUsernameQuery(String queryString) {
-		groupAuthoritiesByUsernameQuery = queryString;
+		this.groupAuthoritiesByUsernameQuery = queryString;
 	}
 
 	/**
@@ -328,7 +329,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
 	}
 
 	protected String getRolePrefix() {
-		return rolePrefix;
+		return this.rolePrefix;
 	}
 
 	/**
@@ -349,7 +350,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
 	}
 
 	protected boolean isUsernameBasedPrimaryKey() {
-		return usernameBasedPrimaryKey;
+		return this.usernameBasedPrimaryKey;
 	}
 
 	/**
@@ -359,7 +360,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
 	 * returned columns are mapped back to the same column names as in the default query.
 	 * If the 'enabled' column does not exist in the source database, a permanent true
 	 * value for this column may be returned by using a query similar to
-	 * 
+	 *
 	 * <pre>
 	 * &quot;select username,password,'true' as enabled from users where username = ?&quot;
 	 * </pre>
@@ -371,7 +372,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
 	}
 
 	protected boolean getEnableAuthorities() {
-		return enableAuthorities;
+		return this.enableAuthorities;
 	}
 
 	/**
@@ -382,7 +383,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
 	}
 
 	protected boolean getEnableGroups() {
-		return enableGroups;
+		return this.enableGroups;
 	}
 
 	/**

@@ -25,8 +25,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.http.MediaType;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.accept.ContentNegotiationStrategy;
@@ -54,7 +54,7 @@ import org.springframework.web.context.request.ServletWebRequest;
  * <pre>
  * GET /
  * Accept: application/json
- * 
+ *
  * ContentNegotiationStrategy negotiationStrategy = new HeaderContentNegotiationStrategy()
  * MediaTypeRequestMatcher matcher = new MediaTypeRequestMatcher(negotiationStrategy, MediaType.APPLICATION_JSON);
  * assert matcher.matches(request) == true // returns true
@@ -65,7 +65,7 @@ import org.springframework.web.context.request.ServletWebRequest;
  * <pre>
  * GET /
  * Accept: *&#47;*
- * 
+ *
  * ContentNegotiationStrategy negotiationStrategy = new HeaderContentNegotiationStrategy()
  * MediaTypeRequestMatcher matcher = new MediaTypeRequestMatcher(negotiationStrategy, MediaType.APPLICATION_JSON);
  * assert matcher.matches(request) == true // returns true
@@ -79,7 +79,7 @@ import org.springframework.web.context.request.ServletWebRequest;
  * <pre>
  * GET /
  * Accept: *&#47;*
- * 
+ *
  * ContentNegotiationStrategy negotiationStrategy = new HeaderContentNegotiationStrategy()
  * MediaTypeRequestMatcher matcher = new MediaTypeRequestMatcher(negotiationStrategy, MediaType.APPLICATION_JSON);
  * matcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
@@ -89,7 +89,7 @@ import org.springframework.web.context.request.ServletWebRequest;
  * <pre>
  * GET /
  * Accept: application/json
- * 
+ *
  * ContentNegotiationStrategy negotiationStrategy = new HeaderContentNegotiationStrategy()
  * MediaTypeRequestMatcher matcher = new MediaTypeRequestMatcher(negotiationStrategy, MediaType.APPLICATION_JSON);
  * matcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
@@ -107,7 +107,7 @@ import org.springframework.web.context.request.ServletWebRequest;
  * <pre>
  * GET /
  * Accept: application/json
- * 
+ *
  * ContentNegotiationStrategy negotiationStrategy = new HeaderContentNegotiationStrategy()
  * MediaTypeRequestMatcher matcher = new MediaTypeRequestMatcher(negotiationStrategy, MediaType.APPLICATION_JSON);
  * matcher.setUseEquals(true);
@@ -117,7 +117,7 @@ import org.springframework.web.context.request.ServletWebRequest;
  * <pre>
  * GET /
  * Accept: application/*
- * 
+ *
  * ContentNegotiationStrategy negotiationStrategy = new HeaderContentNegotiationStrategy()
  * MediaTypeRequestMatcher matcher = new MediaTypeRequestMatcher(negotiationStrategy, MediaType.APPLICATION_JSON);
  * matcher.setUseEquals(true);
@@ -127,7 +127,7 @@ import org.springframework.web.context.request.ServletWebRequest;
  * <pre>
  * GET /
  * Accept: *&#47;*
- * 
+ *
  * ContentNegotiationStrategy negotiationStrategy = new HeaderContentNegotiationStrategy()
  * MediaTypeRequestMatcher matcher = new MediaTypeRequestMatcher(negotiationStrategy, MediaType.APPLICATION_JSON);
  * matcher.setUseEquals(true);
@@ -174,34 +174,35 @@ public final class MediaTypeRequestMatcher implements RequestMatcher {
 	public boolean matches(HttpServletRequest request) {
 		List<MediaType> httpRequestMediaTypes;
 		try {
-			httpRequestMediaTypes = contentNegotiationStrategy
+			httpRequestMediaTypes = this.contentNegotiationStrategy
 					.resolveMediaTypes(new ServletWebRequest(request));
 		}
 		catch (HttpMediaTypeNotAcceptableException e) {
-			logger.debug("Failed to parse MediaTypes, returning false", e);
+			this.logger.debug("Failed to parse MediaTypes, returning false", e);
 			return false;
 		}
-		if (logger.isDebugEnabled()) {
-			logger.debug("httpRequestMediaTypes=" + httpRequestMediaTypes);
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("httpRequestMediaTypes=" + httpRequestMediaTypes);
 		}
 		for (MediaType httpRequestMediaType : httpRequestMediaTypes) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Processing " + httpRequestMediaType);
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("Processing " + httpRequestMediaType);
 			}
 			if (shouldIgnore(httpRequestMediaType)) {
-				logger.debug("Ignoring");
+				this.logger.debug("Ignoring");
 				continue;
 			}
-			if (useEquals) {
-				boolean isEqualTo = matchingMediaTypes.contains(httpRequestMediaType);
-				logger.debug("isEqualTo " + isEqualTo);
+			if (this.useEquals) {
+				boolean isEqualTo = this.matchingMediaTypes
+						.contains(httpRequestMediaType);
+				this.logger.debug("isEqualTo " + isEqualTo);
 				return isEqualTo;
 			}
-			for (MediaType matchingMediaType : matchingMediaTypes) {
+			for (MediaType matchingMediaType : this.matchingMediaTypes) {
 				boolean isCompatibleWith = matchingMediaType
 						.isCompatibleWith(httpRequestMediaType);
-				if (logger.isDebugEnabled()) {
-					logger.debug(matchingMediaType + " .isCompatibleWith "
+				if (this.logger.isDebugEnabled()) {
+					this.logger.debug(matchingMediaType + " .isCompatibleWith "
 							+ httpRequestMediaType + " = " + isCompatibleWith);
 				}
 				if (isCompatibleWith) {
@@ -209,12 +210,12 @@ public final class MediaTypeRequestMatcher implements RequestMatcher {
 				}
 			}
 		}
-		logger.debug("Did not match any media types");
+		this.logger.debug("Did not match any media types");
 		return false;
 	}
 
 	private boolean shouldIgnore(MediaType httpRequestMediaType) {
-		for (MediaType ignoredMediaType : ignoredMediaTypes) {
+		for (MediaType ignoredMediaType : this.ignoredMediaTypes) {
 			if (httpRequestMediaType.includes(ignoredMediaType)) {
 				return true;
 			}
@@ -247,8 +248,8 @@ public final class MediaTypeRequestMatcher implements RequestMatcher {
 	@Override
 	public String toString() {
 		return "MediaTypeRequestMatcher [contentNegotiationStrategy="
-				+ contentNegotiationStrategy + ", matchingMediaTypes="
-				+ matchingMediaTypes + ", useEquals=" + useEquals
-				+ ", ignoredMediaTypes=" + ignoredMediaTypes + "]";
+				+ this.contentNegotiationStrategy + ", matchingMediaTypes="
+				+ this.matchingMediaTypes + ", useEquals=" + this.useEquals
+				+ ", ignoredMediaTypes=" + this.ignoredMediaTypes + "]";
 	}
 }

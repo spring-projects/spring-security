@@ -1,3 +1,18 @@
+/*
+ * Copyright 2002-2016 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.springframework.security.ldap;
 
 import java.util.ArrayList;
@@ -7,6 +22,7 @@ import java.util.StringTokenizer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.ldap.core.support.DirContextAuthenticationStrategy;
 import org.springframework.ldap.core.support.LdapContextSource;
 import org.springframework.ldap.core.support.SimpleDirContextAuthenticationStrategy;
@@ -40,7 +56,8 @@ public class DefaultSpringSecurityContextSource extends LdapContextSource {
 	 * you want to use more than one server for fail-over, rather use the
 	 * {@link #DefaultSpringSecurityContextSource(List, String)} constructor.
 	 *
-	 * @param providerUrl an LDAP URL of the form <code>ldap://localhost:389/base_dn</code>
+	 * @param providerUrl an LDAP URL of the form
+	 * <code>ldap://localhost:389/base_dn</code>
 	 */
 	public DefaultSpringSecurityContextSource(String providerUrl) {
 		Assert.hasLength(providerUrl, "An LDAP connection URL must be supplied.");
@@ -56,19 +73,19 @@ public class DefaultSpringSecurityContextSource extends LdapContextSource {
 
 			urls.add(url.substring(0, url.lastIndexOf(urlRootDn)));
 
-			logger.info(" URL '" + url + "', root DN is '" + urlRootDn + "'");
+			this.logger.info(" URL '" + url + "', root DN is '" + urlRootDn + "'");
 
-			if (rootDn == null) {
-				rootDn = urlRootDn;
+			if (this.rootDn == null) {
+				this.rootDn = urlRootDn;
 			}
-			else if (!rootDn.equals(urlRootDn)) {
+			else if (!this.rootDn.equals(urlRootDn)) {
 				throw new IllegalArgumentException(
 						"Root DNs must be the same when using multiple URLs");
 			}
 		}
 
 		setUrls(urls.toArray(new String[urls.size()]));
-		setBase(rootDn);
+		setBase(this.rootDn);
 		setPooled(true);
 		setAuthenticationStrategy(new SimpleDirContextAuthenticationStrategy() {
 			@Override
@@ -77,8 +94,10 @@ public class DefaultSpringSecurityContextSource extends LdapContextSource {
 				super.setupEnvironment(env, dn, password);
 				// Remove the pooling flag unless we are authenticating as the 'manager'
 				// user.
-				if (!userDn.equals(dn) && env.containsKey(SUN_LDAP_POOLING_FLAG)) {
-					logger.debug("Removing pooling flag for user " + dn);
+				if (!DefaultSpringSecurityContextSource.this.userDn.equals(dn)
+						&& env.containsKey(SUN_LDAP_POOLING_FLAG)) {
+					DefaultSpringSecurityContextSource.this.logger
+							.debug("Removing pooling flag for user " + dn);
 					env.remove(SUN_LDAP_POOLING_FLAG);
 				}
 			}
@@ -94,11 +113,11 @@ public class DefaultSpringSecurityContextSource extends LdapContextSource {
 	 * well, given that Spring Security is able to connect to the server. Note that these
 	 * <b>URLs must not include the base DN</b>!
 	 * @param baseDn The common Base DN for all provided servers, e.g.
-	 * 
+	 *
 	 * <pre>
 	 * dc=company,dc=com
 	 * </pre>
-	 * 
+	 *
 	 * .
 	 */
 	public DefaultSpringSecurityContextSource(List<String> urls, String baseDn) {
@@ -111,19 +130,19 @@ public class DefaultSpringSecurityContextSource extends LdapContextSource {
 	 * it needs to be supplied only once.
 	 *
 	 * @param urls A list of string values which are LDAP server URLs. An example would be
-	 * 
+	 *
 	 * <pre>
 	 * ldap://ldap.company.com:389
 	 * </pre>
-	 * 
+	 *
 	 * . LDAPS URLs may be used as well, given that Spring Security is able to connect to
 	 * the server.
 	 * @param baseDn The common Base DN for all provided servers, e.g.
-	 * 
+	 *
 	 * <pre>
 	 * dc=company,dc=com
 	 * </pre>
-	 * 
+	 *
 	 * .
 	 * @return A Spring Security/Spring LDAP-compliant Provider URL string.
 	 */

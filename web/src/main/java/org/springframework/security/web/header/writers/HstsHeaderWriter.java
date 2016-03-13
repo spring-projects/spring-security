@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
@@ -116,17 +117,18 @@ public final class HstsHeaderWriter implements HeaderWriter {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.springframework.security.web.headers.HeaderWriter#writeHeaders(javax
 	 * .servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
 	 */
 	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
-		if (requestMatcher.matches(request)) {
-			response.setHeader(HSTS_HEADER_NAME, hstsHeaderValue);
+		if (this.requestMatcher.matches(request)) {
+			response.setHeader(HSTS_HEADER_NAME, this.hstsHeaderValue);
 		}
-		else if (logger.isDebugEnabled()) {
-			logger.debug("Not injecting HSTS header since it did not match the requestMatcher "
-					+ requestMatcher);
+		else if (this.logger.isDebugEnabled()) {
+			this.logger
+					.debug("Not injecting HSTS header since it did not match the requestMatcher "
+							+ this.requestMatcher);
 		}
 	}
 
@@ -187,8 +189,8 @@ public final class HstsHeaderWriter implements HeaderWriter {
 	}
 
 	private void updateHstsHeaderValue() {
-		String headerValue = "max-age=" + maxAgeInSeconds;
-		if (includeSubDomains) {
+		String headerValue = "max-age=" + this.maxAgeInSeconds;
+		if (this.includeSubDomains) {
 			headerValue += " ; includeSubDomains";
 		}
 		this.hstsHeaderValue = headerValue;

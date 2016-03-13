@@ -1,10 +1,11 @@
-/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+/*
+ * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,14 +32,14 @@ import java.lang.annotation.Target;
  * XML configuration.
  * <p>
  * For example:
- * 
+ *
  * <pre>
  * &#064;Secured({ &quot;ROLE_USER&quot; })
  * public void create(Contact contact);
- * 
+ *
  * &#064;Secured({ &quot;ROLE_USER&quot;, &quot;ROLE_ADMIN&quot; })
  * public void update(Contact contact);
- * 
+ *
  * &#064;Secured({ &quot;ROLE_ADMIN&quot; })
  * public void delete(Contact contact);
  * </pre>
@@ -54,5 +55,5 @@ public @interface Secured {
 	 *
 	 * @return String[] The secure method attributes
 	 */
-	public String[] value();
+	public String[]value();
 }

@@ -20,12 +20,12 @@ import org.springframework.ldap.BadLdapGrammarException;
 
 /**
  * Helper class to encode and decode ldap names and values.
- * 
+ *
  * <p>
  * NOTE: This is a copy from Spring LDAP so that both Spring LDAP 1.x and 2.x can be
  * supported without reflection.
  * </p>
- * 
+ *
  * @author Adam Skogman
  * @author Mattias Hellborg Arthursson
  */
@@ -91,14 +91,15 @@ final class LdapEncoder {
 
 	/**
 	 * Escape a value for use in a filter.
-	 * 
+	 *
 	 * @param value the value to escape.
 	 * @return a properly escaped representation of the supplied value.
 	 */
 	public static String filterEncode(String value) {
 
-		if (value == null)
+		if (value == null) {
 			return null;
+		}
 
 		// make buffer roomy
 		StringBuilder encodedValue = new StringBuilder(value.length() * 2);
@@ -123,7 +124,7 @@ final class LdapEncoder {
 
 	/**
 	 * LDAP Encodes a value for use with a DN. Escapes for LDAP, not JNDI!
-	 * 
+	 *
 	 * <br/>
 	 * Escapes:<br/>
 	 * ' ' [space] - "\ " [if first or last] <br/>
@@ -136,14 +137,15 @@ final class LdapEncoder {
 	 * '&gt;' [greater than] - "\&gt;" <br/>
 	 * '"' [double quote] - "\"" <br/>
 	 * '\' [backslash] - "\\" <br/>
-	 * 
+	 *
 	 * @param value the value to escape.
 	 * @return The escaped value.
 	 */
 	public static String nameEncode(String value) {
 
-		if (value == null)
+		if (value == null) {
 			return null;
+		}
 
 		// make buffer roomy
 		StringBuilder encodedValue = new StringBuilder(value.length() * 2);
@@ -181,7 +183,7 @@ final class LdapEncoder {
 
 	/**
 	 * Decodes a value. Converts escaped chars to ordinary chars.
-	 * 
+	 *
 	 * @param value Trimmed value, so no leading an trailing blanks, except an escaped
 	 * space last.
 	 * @return The decoded value as a string.
@@ -189,8 +191,9 @@ final class LdapEncoder {
 	 */
 	static public String nameDecode(String value) throws BadLdapGrammarException {
 
-		if (value == null)
+		if (value == null) {
 			return null;
+		}
 
 		// make buffer same size
 		StringBuilder decoded = new StringBuilder(value.length());
@@ -201,8 +204,8 @@ final class LdapEncoder {
 			if (currentChar == '\\') {
 				if (value.length() <= i + 1) {
 					// Ending with a single backslash is not allowed
-					throw new BadLdapGrammarException("Unexpected end of value "
-							+ "unterminated '\\'");
+					throw new BadLdapGrammarException(
+							"Unexpected end of value " + "unterminated '\\'");
 				}
 				else {
 					char nextChar = value.charAt(i + 1);
@@ -217,7 +220,8 @@ final class LdapEncoder {
 					else {
 						if (value.length() <= i + 2) {
 							throw new BadLdapGrammarException("Unexpected end of value "
-									+ "expected special or hex, found '" + nextChar + "'");
+									+ "expected special or hex, found '" + nextChar
+									+ "'");
 						}
 						else {
 							// This should be a hex value

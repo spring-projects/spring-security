@@ -78,15 +78,14 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * @author Rob Winch
  * @since 4.0
  */
-public final class AuthenticationPrincipalArgumentResolver implements
-		HandlerMethodArgumentResolver {
+public final class AuthenticationPrincipalArgumentResolver
+		implements HandlerMethodArgumentResolver {
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.springframework.web.method.support.HandlerMethodArgumentResolver#supportsParameter
-	 * (org.springframework.core.MethodParameter)
+	 *
+	 * @see org.springframework.web.method.support.HandlerMethodArgumentResolver#
+	 * supportsParameter (org.springframework.core.MethodParameter)
 	 */
 	public boolean supportsParameter(MethodParameter parameter) {
 		return findMethodAnnotation(AuthenticationPrincipal.class, parameter) != null;
@@ -94,10 +93,9 @@ public final class AuthenticationPrincipalArgumentResolver implements
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.springframework.web.method.support.HandlerMethodArgumentResolver#resolveArgument
-	 * (org.springframework.core.MethodParameter,
+	 *
+	 * @see org.springframework.web.method.support.HandlerMethodArgumentResolver#
+	 * resolveArgument (org.springframework.core.MethodParameter,
 	 * org.springframework.web.method.support.ModelAndViewContainer,
 	 * org.springframework.web.context.request.NativeWebRequest,
 	 * org.springframework.web.bind.support.WebDataBinderFactory)

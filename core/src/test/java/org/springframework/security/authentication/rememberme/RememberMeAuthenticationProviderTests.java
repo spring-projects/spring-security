@@ -1,10 +1,11 @@
-/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+/*
+ * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,15 +16,17 @@
 
 package org.springframework.security.authentication.rememberme;
 
-import static org.assertj.core.api.Assertions.*;
-
 import org.junit.Test;
+
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.RememberMeAuthenticationProvider;
 import org.springframework.security.authentication.RememberMeAuthenticationToken;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * Tests {@link RememberMeAuthenticationProvider}.
@@ -39,8 +42,8 @@ public class RememberMeAuthenticationProviderTests {
 				"qwerty");
 
 		RememberMeAuthenticationToken token = new RememberMeAuthenticationToken(
-				"WRONG_KEY", "Test", AuthorityUtils.createAuthorityList("ROLE_ONE",
-						"ROLE_TWO"));
+				"WRONG_KEY", "Test",
+				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
 
 		try {
 			aap.authenticate(token);
@@ -49,7 +52,7 @@ public class RememberMeAuthenticationProviderTests {
 		catch (BadCredentialsException expected) {
 		}
 	}
-	
+
 	@Test
 	public void testDetectsMissingKey() throws Exception {
 		try {
@@ -60,7 +63,7 @@ public class RememberMeAuthenticationProviderTests {
 
 		}
 	}
-	
+
 	@Test
 	public void testGettersSetters() throws Exception {
 		RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider(

@@ -1,10 +1,11 @@
-/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+/*
+ * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,17 +16,18 @@
 
 package org.springframework.security.web.access.channel;
 
-import static org.mockito.Mockito.mock;
-import static org.assertj.core.api.Assertions.*;
-
 import javax.servlet.FilterChain;
 
 import org.junit.Test;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.web.FilterInvocation;
-import org.springframework.security.web.access.channel.InsecureChannelProcessor;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.Mockito.mock;
 
 /**
  * Tests {@link InsecureChannelProcessor}.
@@ -33,7 +35,7 @@ import org.springframework.security.web.access.channel.InsecureChannelProcessor;
  * @author Ben Alex
  */
 public class InsecureChannelProcessorTests {
-	
+
 	@Test
 	public void testDecideDetectsAcceptableChannel() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -54,7 +56,7 @@ public class InsecureChannelProcessorTests {
 
 		assertThat(fi.getResponse().isCommitted()).isFalse();
 	}
-	
+
 	@Test
 	public void testDecideDetectsUnacceptableChannel() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -71,14 +73,12 @@ public class InsecureChannelProcessorTests {
 				mock(FilterChain.class));
 
 		InsecureChannelProcessor processor = new InsecureChannelProcessor();
-		processor.decide(
-				fi,
-				SecurityConfig.createList(new String[] { "SOME_IGNORED_ATTRIBUTE",
-						"REQUIRES_INSECURE_CHANNEL" }));
+		processor.decide(fi, SecurityConfig.createList(
+				new String[] { "SOME_IGNORED_ATTRIBUTE", "REQUIRES_INSECURE_CHANNEL" }));
 
 		assertThat(fi.getResponse().isCommitted()).isTrue();
 	}
-	
+
 	@Test
 	public void testDecideRejectsNulls() throws Exception {
 		InsecureChannelProcessor processor = new InsecureChannelProcessor();
@@ -92,7 +92,7 @@ public class InsecureChannelProcessorTests {
 
 		}
 	}
-	
+
 	@Test
 	public void testGettersSetters() {
 		InsecureChannelProcessor processor = new InsecureChannelProcessor();
@@ -104,7 +104,7 @@ public class InsecureChannelProcessorTests {
 		processor.setEntryPoint(null);
 		assertThat(processor.getEntryPoint() == null).isTrue();
 	}
-	
+
 	@Test
 	public void testMissingEntryPoint() throws Exception {
 		InsecureChannelProcessor processor = new InsecureChannelProcessor();
@@ -118,7 +118,7 @@ public class InsecureChannelProcessorTests {
 			assertThat(expected.getMessage()).isEqualTo("entryPoint required");
 		}
 	}
-	
+
 	@Test
 	public void testMissingSecureChannelKeyword() throws Exception {
 		InsecureChannelProcessor processor = new InsecureChannelProcessor();
@@ -142,11 +142,12 @@ public class InsecureChannelProcessorTests {
 			assertThat(expected.getMessage()).isEqualTo("insecureKeyword required");
 		}
 	}
-	
+
 	@Test
 	public void testSupports() {
 		InsecureChannelProcessor processor = new InsecureChannelProcessor();
-		assertThat(processor.supports(new SecurityConfig("REQUIRES_INSECURE_CHANNEL"))).isTrue();
+		assertThat(processor.supports(new SecurityConfig("REQUIRES_INSECURE_CHANNEL")))
+				.isTrue();
 		assertThat(processor.supports(null)).isFalse();
 		assertThat(processor.supports(new SecurityConfig("NOT_SUPPORTED"))).isFalse();
 	}

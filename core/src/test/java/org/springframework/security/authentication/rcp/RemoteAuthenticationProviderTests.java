@@ -1,10 +1,11 @@
-/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+/*
+ * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,15 +16,17 @@
 
 package org.springframework.security.authentication.rcp;
 
-import static org.assertj.core.api.Assertions.*;
-
 import java.util.Collection;
 
 import org.junit.Test;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * Tests {@link RemoteAuthenticationProvider}.
@@ -37,22 +40,24 @@ public class RemoteAuthenticationProviderTests {
 	@Test
 	public void testExceptionsGetPassedBackToCaller() {
 		RemoteAuthenticationProvider provider = new RemoteAuthenticationProvider();
-		provider.setRemoteAuthenticationManager(new MockRemoteAuthenticationManager(false));
+		provider.setRemoteAuthenticationManager(
+				new MockRemoteAuthenticationManager(false));
 
 		try {
-			provider.authenticate(new UsernamePasswordAuthenticationToken("rod",
-					"password"));
+			provider.authenticate(
+					new UsernamePasswordAuthenticationToken("rod", "password"));
 			fail("Should have thrown RemoteAuthenticationException");
 		}
 		catch (RemoteAuthenticationException expected) {
 
 		}
 	}
-	
+
 	@Test
 	public void testGettersSetters() {
 		RemoteAuthenticationProvider provider = new RemoteAuthenticationProvider();
-		provider.setRemoteAuthenticationManager(new MockRemoteAuthenticationManager(true));
+		provider.setRemoteAuthenticationManager(
+				new MockRemoteAuthenticationManager(true));
 		assertThat(provider.getRemoteAuthenticationManager()).isNotNull();
 	}
 
@@ -68,7 +73,8 @@ public class RemoteAuthenticationProviderTests {
 
 		}
 
-		provider.setRemoteAuthenticationManager(new MockRemoteAuthenticationManager(true));
+		provider.setRemoteAuthenticationManager(
+				new MockRemoteAuthenticationManager(true));
 		provider.afterPropertiesSet();
 
 	}
@@ -76,19 +82,22 @@ public class RemoteAuthenticationProviderTests {
 	@Test
 	public void testSuccessfulAuthenticationCreatesObject() {
 		RemoteAuthenticationProvider provider = new RemoteAuthenticationProvider();
-		provider.setRemoteAuthenticationManager(new MockRemoteAuthenticationManager(true));
+		provider.setRemoteAuthenticationManager(
+				new MockRemoteAuthenticationManager(true));
 
 		Authentication result = provider
 				.authenticate(new UsernamePasswordAuthenticationToken("rod", "password"));
 		assertThat(result.getPrincipal()).isEqualTo("rod");
 		assertThat(result.getCredentials()).isEqualTo("password");
-		assertThat(AuthorityUtils.authorityListToSet(result.getAuthorities()).contains("foo"));
+		assertThat(AuthorityUtils.authorityListToSet(result.getAuthorities())
+				.contains("foo"));
 	}
 
 	@Test
 	public void testNullCredentialsDoesNotCauseNullPointerException() {
 		RemoteAuthenticationProvider provider = new RemoteAuthenticationProvider();
-		provider.setRemoteAuthenticationManager(new MockRemoteAuthenticationManager(false));
+		provider.setRemoteAuthenticationManager(
+				new MockRemoteAuthenticationManager(false));
 
 		try {
 			provider.authenticate(new UsernamePasswordAuthenticationToken("rod", null));
@@ -117,7 +126,7 @@ public class RemoteAuthenticationProviderTests {
 
 		public Collection<? extends GrantedAuthority> attemptAuthentication(
 				String username, String password) throws RemoteAuthenticationException {
-			if (grantAccess) {
+			if (this.grantAccess) {
 				return AuthorityUtils.createAuthorityList("foo");
 			}
 			else {

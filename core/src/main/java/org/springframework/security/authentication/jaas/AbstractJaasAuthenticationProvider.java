@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 the original author or authors.
+ * Copyright 2010-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,10 @@ package org.springframework.security.authentication.jaas;
 
 import java.io.IOException;
 import java.security.Principal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -27,6 +30,7 @@ import javax.security.auth.login.LoginException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
@@ -53,15 +57,15 @@ import org.springframework.util.ObjectUtils;
  * requests contain the correct username and password.
  *
  * <p>
- * This implementation is backed by a <a
- * href="http://java.sun.com/j2se/1.5.0/docs/guide/security/jaas/JAASRefGuide.html"
- * >JAAS</a> configuration that is provided by a subclass's implementation of
+ * This implementation is backed by a
+ * <a href="http://java.sun.com/j2se/1.5.0/docs/guide/security/jaas/JAASRefGuide.html" >
+ * JAAS</a> configuration that is provided by a subclass's implementation of
  * {@link #createLoginContext(CallbackHandler)}.
  *
  * <p>
  * When using JAAS login modules as the authentication source, sometimes the <a href=
- * "http://java.sun.com/j2se/1.5.0/docs/api/javax/security/auth/login/LoginContext.html"
- * >LoginContext</a> will require <i>CallbackHandler</i>s. The
+ * "http://java.sun.com/j2se/1.5.0/docs/api/javax/security/auth/login/LoginContext.html" >
+ * LoginContext</a> will require <i>CallbackHandler</i>s. The
  * AbstractJaasAuthenticationProvider uses an internal <a href=
  * "http://java.sun.com/j2se/1.5.0/docs/api/javax/security/auth/callback/CallbackHandler.html"
  * >CallbackHandler </a> to wrap the {@link JaasAuthenticationCallbackHandler}s configured
@@ -74,7 +78,7 @@ import org.springframework.util.ObjectUtils;
  * AbstractJaasAuthenticationProvider through the
  * {@link #setCallbackHandlers(org.springframework.security.authentication.jaas.JaasAuthenticationCallbackHandler[])
  * callbackHandlers} property.
- * 
+ *
  * <pre>
  * &lt;property name="callbackHandlers"&gt;
  *   &lt;list&gt;
@@ -97,7 +101,7 @@ import org.springframework.util.ObjectUtils;
  *
  * <p>
  * AuthorityGranters are configured in spring xml as follows...
- * 
+ *
  * <pre>
  * &lt;property name="authorityGranters"&gt;
  *   &lt;list&gt;
@@ -109,9 +113,9 @@ import org.springframework.util.ObjectUtils;
  * @author Ray Krueger
  * @author Rob Winch
  */
-public abstract class AbstractJaasAuthenticationProvider implements
-		AuthenticationProvider, ApplicationEventPublisherAware, InitializingBean,
-		ApplicationListener<SessionDestroyedEvent> {
+public abstract class AbstractJaasAuthenticationProvider
+		implements AuthenticationProvider, ApplicationEventPublisherAware,
+		InitializingBean, ApplicationListener<SessionDestroyedEvent> {
 	// ~ Instance fields
 	// ================================================================================================
 
@@ -132,13 +136,16 @@ public abstract class AbstractJaasAuthenticationProvider implements
 	 * {@link JaasPasswordCallbackHandler}.
 	 */
 	public void afterPropertiesSet() throws Exception {
-		Assert.hasLength(loginContextName, "loginContextName cannot be null or empty");
-		Assert.notEmpty(authorityGranters, "authorityGranters cannot be null or empty");
-		if (ObjectUtils.isEmpty(callbackHandlers)) {
+		Assert.hasLength(this.loginContextName,
+				"loginContextName cannot be null or empty");
+		Assert.notEmpty(this.authorityGranters,
+				"authorityGranters cannot be null or empty");
+		if (ObjectUtils.isEmpty(this.callbackHandlers)) {
 			setCallbackHandlers(new JaasAuthenticationCallbackHandler[] {
 					new JaasNameCallbackHandler(), new JaasPasswordCallbackHandler() });
 		}
-		Assert.notNull(loginExceptionResolver, "loginExceptionResolver cannot be null");
+		Assert.notNull(this.loginExceptionResolver,
+				"loginExceptionResolver cannot be null");
 	}
 
 	/**
@@ -165,8 +172,8 @@ public abstract class AbstractJaasAuthenticationProvider implements
 
 		try {
 			// Create the LoginContext object, and pass our InternallCallbackHandler
-			LoginContext loginContext = createLoginContext(new InternalCallbackHandler(
-					auth));
+			LoginContext loginContext = createLoginContext(
+					new InternalCallbackHandler(auth));
 
 			// Attempt to login the user, the LoginContext will call our
 			// InternalCallbackHandler at this point.
@@ -180,7 +187,7 @@ public abstract class AbstractJaasAuthenticationProvider implements
 			Set<Principal> principals = loginContext.getSubject().getPrincipals();
 
 			for (Principal principal : principals) {
-				for (AuthorityGranter granter : authorityGranters) {
+				for (AuthorityGranter granter : this.authorityGranters) {
 					Set<String> roles = granter.grant(principal);
 
 					// If the granter doesn't wish to grant any authorities, it should
@@ -206,7 +213,7 @@ public abstract class AbstractJaasAuthenticationProvider implements
 
 		}
 		catch (LoginException loginException) {
-			AuthenticationException ase = loginExceptionResolver
+			AuthenticationException ase = this.loginExceptionResolver
 					.resolveException(loginException);
 
 			publishFailureEvent(request, ase);
@@ -237,7 +244,7 @@ public abstract class AbstractJaasAuthenticationProvider implements
 		List<SecurityContext> contexts = event.getSecurityContexts();
 
 		if (contexts.isEmpty()) {
-			log.debug("The destroyed session has no SecurityContexts");
+			this.log.debug("The destroyed session has no SecurityContexts");
 
 			return;
 		}
@@ -250,22 +257,22 @@ public abstract class AbstractJaasAuthenticationProvider implements
 
 				try {
 					LoginContext loginContext = token.getLoginContext();
-					boolean debug = log.isDebugEnabled();
+					boolean debug = this.log.isDebugEnabled();
 					if (loginContext != null) {
 						if (debug) {
-							log.debug("Logging principal: [" + token.getPrincipal()
+							this.log.debug("Logging principal: [" + token.getPrincipal()
 									+ "] out of LoginContext");
 						}
 						loginContext.logout();
 					}
 					else if (debug) {
-						log.debug("Cannot logout principal: [" + token.getPrincipal()
+						this.log.debug("Cannot logout principal: [" + token.getPrincipal()
 								+ "] from LoginContext. "
 								+ "The LoginContext is unavailable");
 					}
 				}
 				catch (LoginException e) {
-					log.warn("Error error logging out of LoginContext", e);
+					this.log.warn("Error error logging out of LoginContext", e);
 				}
 			}
 		}
@@ -284,9 +291,9 @@ public abstract class AbstractJaasAuthenticationProvider implements
 	 */
 	protected void publishFailureEvent(UsernamePasswordAuthenticationToken token,
 			AuthenticationException ase) {
-		if (applicationEventPublisher != null) {
-			applicationEventPublisher.publishEvent(new JaasAuthenticationFailedEvent(
-					token, ase));
+		if (this.applicationEventPublisher != null) {
+			this.applicationEventPublisher
+					.publishEvent(new JaasAuthenticationFailedEvent(token, ase));
 		}
 	}
 
@@ -297,9 +304,9 @@ public abstract class AbstractJaasAuthenticationProvider implements
 	 * @param token The token being processed
 	 */
 	protected void publishSuccessEvent(UsernamePasswordAuthenticationToken token) {
-		if (applicationEventPublisher != null) {
-			applicationEventPublisher.publishEvent(new JaasAuthenticationSuccessEvent(
-					token));
+		if (this.applicationEventPublisher != null) {
+			this.applicationEventPublisher
+					.publishEvent(new JaasAuthenticationSuccessEvent(token));
 		}
 	}
 
@@ -313,7 +320,7 @@ public abstract class AbstractJaasAuthenticationProvider implements
 	 * @see #setAuthorityGranters(AuthorityGranter[])
 	 */
 	AuthorityGranter[] getAuthorityGranters() {
-		return authorityGranters;
+		return this.authorityGranters;
 	}
 
 	/**
@@ -337,7 +344,7 @@ public abstract class AbstractJaasAuthenticationProvider implements
 	 * @see #setCallbackHandlers(JaasAuthenticationCallbackHandler[])
 	 */
 	JaasAuthenticationCallbackHandler[] getCallbackHandlers() {
-		return callbackHandlers;
+		return this.callbackHandlers;
 	}
 
 	/**
@@ -346,12 +353,13 @@ public abstract class AbstractJaasAuthenticationProvider implements
 	 *
 	 * @param callbackHandlers Array of JAASAuthenticationCallbackHandlers
 	 */
-	public void setCallbackHandlers(JaasAuthenticationCallbackHandler[] callbackHandlers) {
+	public void setCallbackHandlers(
+			JaasAuthenticationCallbackHandler[] callbackHandlers) {
 		this.callbackHandlers = callbackHandlers;
 	}
 
 	String getLoginContextName() {
-		return loginContextName;
+		return this.loginContextName;
 	}
 
 	/**
@@ -365,7 +373,7 @@ public abstract class AbstractJaasAuthenticationProvider implements
 	}
 
 	LoginExceptionResolver getLoginExceptionResolver() {
-		return loginExceptionResolver;
+		return this.loginExceptionResolver;
 	}
 
 	public void setLoginExceptionResolver(LoginExceptionResolver loginExceptionResolver) {
@@ -382,7 +390,7 @@ public abstract class AbstractJaasAuthenticationProvider implements
 	}
 
 	protected ApplicationEventPublisher getApplicationEventPublisher() {
-		return applicationEventPublisher;
+		return this.applicationEventPublisher;
 	}
 
 	// ~ Inner Classes
@@ -398,11 +406,11 @@ public abstract class AbstractJaasAuthenticationProvider implements
 			this.authentication = authentication;
 		}
 
-		public void handle(Callback[] callbacks) throws IOException,
-				UnsupportedCallbackException {
-			for (JaasAuthenticationCallbackHandler handler : callbackHandlers) {
+		public void handle(Callback[] callbacks)
+				throws IOException, UnsupportedCallbackException {
+			for (JaasAuthenticationCallbackHandler handler : AbstractJaasAuthenticationProvider.this.callbackHandlers) {
 				for (Callback callback : callbacks) {
-					handler.handle(callback, authentication);
+					handler.handle(callback, this.authentication);
 				}
 			}
 		}
