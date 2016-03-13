@@ -16,6 +16,7 @@ package org.springframework.security.crypto.bcrypt;
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 
+import java.util.Random;
 import java.security.SecureRandom;
 
 /**
@@ -604,7 +605,7 @@ public class BCrypt {
 	 * @param random an instance of SecureRandom to use
 	 * @return an encoded salt value
 	 */
-	public static String gensalt(int log_rounds, SecureRandom random) {
+	public static String gensalt(int log_rounds, Random random) {
 		if (log_rounds < 4 || log_rounds > 31) {
 			throw new IllegalArgumentException("Bad number of rounds");
 		}
