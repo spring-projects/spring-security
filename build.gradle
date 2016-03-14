@@ -91,6 +91,9 @@ configure(javaProjects) {
 	ext.TOMCAT_GRADLE = "$rootDir/gradle/tomcat.gradle"
 	ext.WAR_SAMPLE_GRADLE = "$rootDir/gradle/war-sample.gradle"
 	apply from: "$rootDir/gradle/javaprojects.gradle"
+	if(!project.name.contains('gae')) {
+		apply from: "$rootDir/gradle/checkstyle.gradle"
+	}
 	apply from: "$rootDir/gradle/release-checks.gradle"
 	apply from: "$rootDir/gradle/maven-deployment.gradle"
 }

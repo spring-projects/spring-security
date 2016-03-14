@@ -1,0 +1,12 @@
+apply plugin: 'checkstyle'
+
+checkstyle {
+	configFile = rootProject.file('etc/checkstyle/checkstyle.xml')
+	configProperties.configDir = configFile.parentFile
+	toolVersion = '6.16.1'
+}
+task checkstyle {
+	dependsOn project.tasks.findAll { task -> task.name.matches('checkstyle\\w+') }
+}
+
+check.dependsOn tasks.checkstyle
