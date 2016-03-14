@@ -1,13 +1,9 @@
-import org.gradle.plugins.ide.eclipse.model.SourceFolder
 
 apply plugin: 'java'
 apply plugin: 'groovy'
 apply plugin: 'javadocHotfix'
-apply plugin: 'eclipse-wtp'
 apply plugin: 'propdeps'
 apply plugin: 'propdeps-maven'
-apply plugin: 'propdeps-idea'
-apply plugin: 'propdeps-eclipse'
 
 sourceCompatibility = 1.5
 targetCompatibility = 1.5
@@ -127,11 +123,6 @@ task integrationTest(type: Test, dependsOn: jar) {
 	}
 }
 
-eclipse {
-	classpath {
-		plusConfigurations += [ configurations.integrationTestCompile ]
-	}
-}
 project.conf2ScopeMappings.addMapping(MavenPlugin.TEST_COMPILE_PRIORITY + 1, project.configurations.getByName("integrationTestCompile"), Conf2ScopeMappingContainer.TEST)
 project.conf2ScopeMappings.addMapping(MavenPlugin.TEST_COMPILE_PRIORITY + 2, project.configurations.getByName("integrationTestRuntime"), Conf2ScopeMappingContainer.TEST)
 check.dependsOn integrationTest
@@ -223,46 +214,6 @@ javadoc {
 			'Spring Security Taglibs':['org.springframework.security.taglibs*'],
 		]
 	}
-}
-
-eclipse.classpath.downloadSources = true
-
-// http://forums.gradle.org/gradle/topics/eclipse_wtp_deploys_testcode_to_server_example_provided
-eclipse.classpath {
-	defaultOutputDir = file('bin/main')
-	file.whenMerged { cp ->
-		cp.entries.findAll { it instanceof SourceFolder && (it.path.contains("test") || it.path.contains("Test")) }*.output = "bin/test"
-	}
-}
-
-// GRADLE-1116
-project.eclipse.classpath.file.whenMerged { classpath ->
-	classpath.entries.removeAll { entry -> entry.path.endsWith('/build/resources/test') }
-	classpath.entries.removeAll { entry -> entry.path.endsWith('/build/classes/test') }
-	classpath.entries.removeAll { entry -> entry.path.endsWith('/build/resources/main') }
-	classpath.entries.removeAll { entry -> entry.path.endsWith('/build/classes/main') }
-}
-
-// GRADLE-1422
-project.eclipseClasspath.doFirst {
-	// delay adding whenMerged till the entryAttributes are added (must be the last whenMerged)
-	project.eclipse.classpath.file.whenMerged { classpath ->
-		def includeDeps = project.configurations.getByName('runtime').collect {f -> f.absolutePath } as Set
-		classpath.entries.each { cp ->
-			if(cp instanceof org.gradle.plugins.ide.eclipse.model.Library) {
-				def include = includeDeps.contains(cp.path)
-				def attr = 'org.eclipse.jst.component.dependency'
-				if(!include) {
-					cp.entryAttributes.remove(attr)
-				}
-			}
-		}
-	}
-}
-
-project.idea.module {
-	scopes.TEST.plus += [project.configurations.integrationTestRuntime]
-	testSourceDirs += sourceSets.integrationTest.resources.srcDirs
 }
 
 task javadocJar(type: Jar) {

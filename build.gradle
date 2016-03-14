@@ -94,6 +94,7 @@ configure(javaProjects) {
 	if(!project.name.contains('gae')) {
 		apply from: "$rootDir/gradle/checkstyle.gradle"
 	}
+	apply from: "$rootDir/gradle/ide.gradle"
 	apply from: "$rootDir/gradle/release-checks.gradle"
 	apply from: "$rootDir/gradle/maven-deployment.gradle"
 }
