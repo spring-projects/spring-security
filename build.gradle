@@ -14,7 +14,10 @@ buildscript {
 	}
 }
 
-apply plugin: 'sonar-runner'
+plugins {
+	id "org.sonarqube" version "1.2"
+}
+
 apply plugin: 'base'
 
 description = 'Spring Security'
@@ -40,8 +43,8 @@ allprojects {
 	eclipse.project.name = "${project.name}-4.1.x"
 }
 
-sonarRunner {
-	sonarProperties {
+sonarqube {
+	properties {
 		property "sonar.java.coveragePlugin", "jacoco"
 		property "sonar.projectName", "Spring Security"
 		property "sonar.jacoco.reportPath", "${buildDir.name}/jacoco.exec"
@@ -82,7 +85,7 @@ configure(allprojects - javaProjects) {
 
 configure(subprojects - coreModuleProjects - project(':spring-security-samples-messages-jc') - project(':spring-security-bom')) {
 	tasks.findByPath("artifactoryPublish")?.enabled = false
-	sonarRunner {
+	sonarqube {
 		skipProject = true
 	}
 }
