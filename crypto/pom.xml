@@ -51,7 +51,7 @@
     </dependency>
     <dependency>
       <groupId>org.bouncycastle</groupId>
-      <artifactId>bcprov-jdk15on</artifactId>
+      <artifactId>bcpkix-jdk15on</artifactId>
       <version>1.54</version>
       <scope>compile</scope>
       <optional>true</optional>
@@ -71,13 +71,7 @@
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
-      <version>3.3.0</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.easytesting</groupId>
-      <artifactId>fest-assert</artifactId>
-      <version>1.4</version>
+      <version>2.2.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
