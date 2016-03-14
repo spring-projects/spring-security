@@ -7,6 +7,50 @@ apply plugin: 'propdeps-eclipse'
 eclipse.classpath.downloadSources = true
 
 
+eclipse.project.buildCommand "net.sf.eclipsecs.core.CheckstyleBuilder"
+eclipse.project.natures "net.sf.eclipsecs.core.CheckstyleNature"
+
+// Include project specific settings
+task eclipseCheckstyle(type: Copy) {
+	from rootProject.files(
+		"etc/eclipse/.checkstyle")
+	into project.projectDir
+	expand(configDir: rootProject.file('config/checkstyle').absolutePath)
+}
+task eclipseSettings(type: Copy) {
+	from rootProject.files(
+		"etc/eclipse/org.eclipse.jdt.ui.prefs",
+		"etc/eclipse/org.eclipse.wst.common.project.facet.core.xml")
+	into project.file('.settings/')
+	outputs.upToDateWhen { false }
+}
+
+task eclipseWstComponent(type: Copy) {
+	from rootProject.files(
+		"etc/eclipse/org.eclipse.wst.common.component")
+	into project.file('.settings/')
+	expand(deployname: project.name)
+	outputs.upToDateWhen { false }
+}
+
+task eclipseJdtPrepare(type: Copy) {
+	from rootProject.file("etc/eclipse/org.eclipse.jdt.core.prefs")
+	into project.file(".settings/")
+	outputs.upToDateWhen { false }
+}
+
+task cleanEclipseJdtUi(type: Delete) {
+	delete project.file(".settings/org.eclipse.jdt.core.prefs")
+	delete project.file(".settings/org.eclipse.jdt.ui.prefs")
+	delete project.file(".settings/org.eclipse.wst.common.component")
+	delete project.file(".settings/org.eclipse.wst.common.project.facet.core.xml")
+}
+
+tasks["eclipseJdt"].dependsOn(eclipseJdtPrepare)
+tasks["cleanEclipse"].dependsOn(cleanEclipseJdtUi)
+tasks["eclipse"].dependsOn(eclipseCheckstyle, eclipseSettings, eclipseWstComponent)
+
+
 eclipse {
 	classpath {
 		plusConfigurations += [ configurations.integrationTestCompile ]

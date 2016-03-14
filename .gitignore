@@ -19,3 +19,5 @@ build/
 *.iws
 .gradle/
 atlassian-ide-plugin.xml
+!eclipse/.checkstyle
+.checkstyle
