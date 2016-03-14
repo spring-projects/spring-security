@@ -5,6 +5,6 @@ war {
 	baseName = "sample"
 }
 
-sonarRunner {
+sonarqube {
 	skipProject = true
 }
