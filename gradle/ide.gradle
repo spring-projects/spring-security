@@ -15,7 +15,7 @@ task eclipseCheckstyle(type: Copy) {
 	from rootProject.files(
 		"etc/eclipse/.checkstyle")
 	into project.projectDir
-	expand(configDir: rootProject.file('config/checkstyle').absolutePath)
+	expand(configDir: rootProject.file('etc/checkstyle').absolutePath)
 }
 task eclipseSettings(type: Copy) {
 	from rootProject.files(
