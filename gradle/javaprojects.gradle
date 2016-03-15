@@ -162,7 +162,7 @@ configurations.all {
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 project.tasks.matching { it instanceof Test && it.name != 'integrationTest' }.all {
-	jvmArgs = ['-ea', '-Xmx500m', '-XX:MaxPermSize=256M']
+	jvmArgs = ['-ea', '-Xmx500m']
 	maxParallelForks = guessMaxForks()
 	logging.captureStandardOutput(LogLevel.INFO)
 }
