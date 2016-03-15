@@ -5,8 +5,8 @@ apply plugin: 'javadocHotfix'
 apply plugin: 'propdeps'
 apply plugin: 'propdeps-maven'
 
-sourceCompatibility = 1.5
-targetCompatibility = 1.5
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
 
 ext.apacheDsVersion = '1.5.5'
 ext.aspectjVersion = '1.8.4'
