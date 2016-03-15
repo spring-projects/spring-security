@@ -17,10 +17,9 @@ package org.springframework.security.web.context;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.util.OnCommittedResponseWrapper;
 
 /**
  * Base class for response wrappers which encapsulate the logic for storing a security
@@ -40,10 +39,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * @author Rob Winch
  * @since 3.0
  */
-public abstract class SaveContextOnUpdateOrErrorResponseWrapper extends
-		OnCommittedResponseWrapper {
-	private final Log logger = LogFactory.getLog(getClass());
-
+public abstract class SaveContextOnUpdateOrErrorResponseWrapper
+		extends OnCommittedResponseWrapper {
 
 	private boolean contextSaved = false;
 	/* See SEC-1052 */
@@ -86,12 +83,12 @@ public abstract class SaveContextOnUpdateOrErrorResponseWrapper extends
 	@Override
 	protected void onResponseCommitted() {
 		saveContext(SecurityContextHolder.getContext());
-		contextSaved = true;
+		this.contextSaved = true;
 	}
 
 	@Override
 	public final String encodeRedirectUrl(String url) {
-		if (disableUrlRewriting) {
+		if (this.disableUrlRewriting) {
 			return url;
 		}
 		return super.encodeRedirectUrl(url);
@@ -99,7 +96,7 @@ public abstract class SaveContextOnUpdateOrErrorResponseWrapper extends
 
 	@Override
 	public final String encodeRedirectURL(String url) {
-		if (disableUrlRewriting) {
+		if (this.disableUrlRewriting) {
 			return url;
 		}
 		return super.encodeRedirectURL(url);
@@ -107,7 +104,7 @@ public abstract class SaveContextOnUpdateOrErrorResponseWrapper extends
 
 	@Override
 	public final String encodeUrl(String url) {
-		if (disableUrlRewriting) {
+		if (this.disableUrlRewriting) {
 			return url;
 		}
 		return super.encodeUrl(url);
@@ -115,7 +112,7 @@ public abstract class SaveContextOnUpdateOrErrorResponseWrapper extends
 
 	@Override
 	public final String encodeURL(String url) {
-		if (disableUrlRewriting) {
+		if (this.disableUrlRewriting) {
 			return url;
 		}
 		return super.encodeURL(url);
@@ -126,6 +123,6 @@ public abstract class SaveContextOnUpdateOrErrorResponseWrapper extends
 	 * wrapper.
 	 */
 	public final boolean isContextSaved() {
-		return contextSaved;
+		return this.contextSaved;
 	}
 }

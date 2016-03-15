@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.web.context;
+package org.springframework.security.web.util;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -24,6 +24,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import org.springframework.security.web.util.OnCommittedResponseWrapper;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
