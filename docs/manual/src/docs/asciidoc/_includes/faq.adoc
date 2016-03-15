@@ -121,7 +121,7 @@ It is normal and shouldn't be anything to worry about.
 [[appendix-faq-cached-secure-page]]
 ==== Why can I still see a secured page even after I've logged out of my application?
 
-The most common reason for this is that your browser has cached the page and you are seeing a copy which is being retrieved from the browsers cache. Verify this by checking whether the browser is actually sending the request (check your server access logs, the debug log or use a suitable browser debugging plugin such as "Tamper Data" for Firefox). This has nothing to do with Spring Security and you should configure your application or server to set the appropriate`Cache-Control` response headers. Note that SSL requests are never cached.
+The most common reason for this is that your browser has cached the page and you are seeing a copy which is being retrieved from the browsers cache. Verify this by checking whether the browser is actually sending the request (check your server access logs, the debug log or use a suitable browser debugging plugin such as "Tamper Data" for Firefox). This has nothing to do with Spring Security and you should configure your application or server to set the appropriate `Cache-Control` response headers. Note that SSL requests are never cached.
 
 
 [[auth-exception-credentials-not-found]]
@@ -214,7 +214,7 @@ This usually means that the user's application is creating a session somewhere, 
 
 If you are having trouble working out where a session is being created, you can add some debugging code to track down the location(s). One way to do this would be to add a `javax.servlet.http.HttpSessionListener` to your application, which calls `Thread.dumpStack()` in the `sessionCreated` method.
 
-[[forbidden-csrf]]
+[[appendix-faq-forbidden-csrf]]
 ==== I get a 403 Forbidden when performing a POST
 
 If an HTTP 403 Forbidden is returned for HTTP POST, but works for HTTP GET then the issue is most likely related to http://docs.spring.io/spring-security/site/docs/3.2.x/reference/htmlsingle/#csrf[CSRF]. Either provide the CSRF Token or disable CSRF protection (not recommended).
@@ -308,7 +308,7 @@ The other required jars should be pulled in transitively.
 [[appendix-faq-what-is-userdetailservice]]
 ==== What is a UserDetailsService and do I need one?
 
-`UserDetailsService` is a DAO interface for loading data that is specific to a user account. It has no other function other to load that data for use by other components within the framework. It is not responsible for authenticating the user. Authenticating a user with a username/password combination is most commonly performed by the`DaoAuthenticationProvider`, which is injected with a `UserDetailsService` to allow it to load the password (and other data) for a user in order to compare it with the submitted value. Note that if you are using LDAP, <<appendix-faq-ldap-authentication,this approach may not work>>.
+`UserDetailsService` is a DAO interface for loading data that is specific to a user account. It has no other function other to load that data for use by other components within the framework. It is not responsible for authenticating the user. Authenticating a user with a username/password combination is most commonly performed by the `DaoAuthenticationProvider`, which is injected with a `UserDetailsService` to allow it to load the password (and other data) for a user in order to compare it with the submitted value. Note that if you are using LDAP, <<appendix-faq-ldap-authentication,this approach may not work>>.
 
 If you want to customize the authentication process then you should implement `AuthenticationProvider` yourself. See this http://blog.springsource.com/2010/08/02/spring-security-in-google-app-engine/[ blog article] for an example integrating Spring Security authentication with Google App Engine.
 
@@ -330,9 +330,9 @@ If you want to customize the authentication process then you should implement `A
 
 This question comes up repeatedly in the Spring Security forum so you                           will find more information there by searching the archives (or through google).
 
-The submitted login information is processed by an instance of `UsernamePasswordAuthenticationFilter`. You will need to customize this class to handle the extra data field(s). One option is to use your own customized authentication token class (rather than the standard`UsernamePasswordAuthenticationToken`), another is simply to concatenate the extra fields with the username (for example, using a ":" as the separator) and pass them in the username property of `UsernamePasswordAuthenticationToken`.
+The submitted login information is processed by an instance of `UsernamePasswordAuthenticationFilter`. You will need to customize this class to handle the extra data field(s). One option is to use your own customized authentication token class (rather than the standard `UsernamePasswordAuthenticationToken`), another is simply to concatenate the extra fields with the username (for example, using a ":" as the separator) and pass them in the username property of `UsernamePasswordAuthenticationToken`.
 
-You will also need to customize the actual authentication process. If you are using a custom authentication token class, for example, you will have to write an `AuthenticationProvider` to handle it (or extend the standard`DaoAuthenticationProvider`). If you have concatenated the fields, you can implement your own`UserDetailsService` which splits them up and loads the appropriate user data for authentication.
+You will also need to customize the actual authentication process. If you are using a custom authentication token class, for example, you will have to write an `AuthenticationProvider` to handle it (or extend the standard `DaoAuthenticationProvider`). If you have concatenated the fields, you can implement your own `UserDetailsService` which splits them up and loads the appropriate user data for authentication.
 
 [[appendix-faq-matching-url-fragments]]
 ==== How do I apply different intercept-url constraints where only the fragment value of the requested URLs differs (e.g./foo#bar and /foo#blah?
@@ -342,15 +342,15 @@ You can't do this, since the fragment is not transmitted from the browser to the
 [[appendix-faq-request-details-in-user-service]]
 ==== How do I access the user's IP Address (or other web-request data) in a UserDetailsService?
 
-Obviously you can't (without resorting to something like thread-local variables) since the only information supplied to the interface is the username. Instead of implementing `UserDetailsService`, you should implement `AuthenticationProvider` directly and extract the information from the supplied`Authentication` token.
+Obviously you can't (without resorting to something like thread-local variables) since the only information supplied to the interface is the username. Instead of implementing `UserDetailsService`, you should implement `AuthenticationProvider` directly and extract the information from the supplied `Authentication` token.
 
-In a standard web setup, the `getDetails()` method on the `Authentication` object will return an instance of `WebAuthenticationDetails`. If you need additional information, you can inject a custom`AuthenticationDetailsSource` into the authentication filter you are using. If you are using the namespace, for example with the `<form-login>` element, then you should remove this element and replace it with a`<custom-filter>` declaration pointing to an explicitly configured`UsernamePasswordAuthenticationFilter`.
+In a standard web setup, the `getDetails()` method on the `Authentication` object will return an instance of `WebAuthenticationDetails`. If you need additional information, you can inject a custom `AuthenticationDetailsSource` into the authentication filter you are using. If you are using the namespace, for example with the `<form-login>` element, then you should remove this element and replace it with a `<custom-filter>` declaration pointing to an explicitly configured `UsernamePasswordAuthenticationFilter`.
 
 
 [[appendix-faq-access-session-from-user-service]]
 ==== How do I access the HttpSession from a UserDetailsService?
 
-You can't, since the `UserDetailsService` has no awareness of the servlet API. If you want to store custom user data, then you should customize the`UserDetails` object which is returned. This can then be accessed at any point, via the thread-local`SecurityContextHolder`. A call to `SecurityContextHolder.getContext().getAuthentication().getPrincipal()` will return this custom object.
+You can't, since the `UserDetailsService` has no awareness of the servlet API. If you want to store custom user data, then you should customize the `UserDetails` object which is returned. This can then be accessed at any point, via the thread-local `SecurityContextHolder`. A call to `SecurityContextHolder.getContext().getAuthentication().getPrincipal()` will return this custom object.
 
 If you really need to access the session, then it must be done by customizing the web tier.
 
@@ -368,9 +368,9 @@ People often ask about how to store the mapping between secured URLs and securit
 
 The first thing you should ask yourself is if you really need to do this. If an application requires securing, then it also requires that the security be tested thoroughly based on a defined policy. It may require auditing and acceptance testing before being rolled out into a production environment. A security-conscious organization should be aware that the benefits of their diligent testing process could be wiped out instantly by allowing the security settings to be modified at runtime by changing a row or two in a configuration database. If you have taken this into account (perhaps using multiple layers of security within your application) then Spring Security allows you to fully customize the source of security metadata. You can make it fully dynamic if you choose.
 
-Both method and web security are protected by subclasses of `AbstractSecurityInterceptor` which is configured with a `SecurityMetadataSource` from which it obtains the metadata for a particular method or filter invocation. For web security, the interceptor class is `FilterSecurityInterceptor` and it uses the marker interface`FilterInvocationSecurityMetadataSource`. The "secured object" type it operates on is a `FilterInvocation`. The default implementation which is used (both in the namespace `<http>` and when configuring the interceptor explicitly, stores the list of URL patterns and their corresponding list of "configuration attributes" (instances of `ConfigAttribute`) in an in-memory map.
+Both method and web security are protected by subclasses of `AbstractSecurityInterceptor` which is configured with a `SecurityMetadataSource` from which it obtains the metadata for a particular method or filter invocation. For web security, the interceptor class is `FilterSecurityInterceptor` and it uses the marker interface `FilterInvocationSecurityMetadataSource`. The "secured object" type it operates on is a `FilterInvocation`. The default implementation which is used (both in the namespace `<http>` and when configuring the interceptor explicitly, stores the list of URL patterns and their corresponding list of "configuration attributes" (instances of `ConfigAttribute`) in an in-memory map.
 
-To load the data from an alternative source, you must be using an explicitly declared security filter chain (typically Spring Security's`FilterChainProxy`) in order to customize the `FilterSecurityInterceptor` bean. You can't use the namespace. You would then implement`FilterInvocationSecurityMetadataSource` to load the data as you please for a particular`FilterInvocation` footnote:[The `FilterInvocation` object contains the `HttpServletRequest`, so you can obtain the URL or any other relevant information on which to base your decision on what the list of returned attributes will contain.]. A very basic outline would look something like this:
+To load the data from an alternative source, you must be using an explicitly declared security filter chain (typically Spring Security's `FilterChainProxy`) in order to customize the `FilterSecurityInterceptor` bean. You can't use the namespace. You would then implement `FilterInvocationSecurityMetadataSource` to load the data as you please for a particular `FilterInvocation` footnote:[The `FilterInvocation` object contains the `HttpServletRequest`, so you can obtain the URL or any other relevant information on which to base your decision on what the list of returned attributes will contain.]. A very basic outline would look something like this:
 
 [source,java]
 ----
@@ -406,7 +406,7 @@ For more information, look at the code for `DefaultFilterInvocationSecurityMetad
 [[appendix-faq-ldap-authorities]]
 ==== How do I authenticate against LDAP but load user roles from a database?
 
-The `LdapAuthenticationProvider` bean (which handles normal LDAP authentication in Spring Security) is configured with two separate strategy interfaces, one which performs the authenticatation and one which loads the user authorities, called`LdapAuthenticator` and `LdapAuthoritiesPopulator` respectively. The `DefaultLdapAuthoritiesPopulator` loads the user authorities from the LDAP directory and has various configuration parameters to allow you to specify how these should be retrieved.
+The `LdapAuthenticationProvider` bean (which handles normal LDAP authentication in Spring Security) is configured with two separate strategy interfaces, one which performs the authentication and one which loads the user authorities, called `LdapAuthenticator` and `LdapAuthoritiesPopulator` respectively. The `DefaultLdapAuthoritiesPopulator` loads the user authorities from the LDAP directory and has various configuration parameters to allow you to specify how these should be retrieved.
 
 To use JDBC instead, you can implement the interface yourself, using whatever SQL is appropriate for your schema:
 
@@ -440,9 +440,9 @@ You would then add a bean of this type to your application context and inject it
 [[appendix-faq-namespace-post-processor]]
 ==== I want to modify the property of a bean that is created by the namespace, but there is nothing in the schema to support it. What can I do short of abandoning namespace use?
 
-The namespace functionality is intentionally limited, so it doesn't cover everything that you can do with plain beans. If you want to do something simple, like modify a bean, or inject a different dependency, you can do this by adding a`BeanPostProcessor` to your configuration. More information can be found in the http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/htmlsingle/spring-framework-reference.html#beans-factory-extension-bpp[Spring Reference Manual]. In order to do this, you need to know a bit about which beans are created, so you should also read the blog article in the above question on <<appendix-faq-namespace-to-bean-mapping,how the namespace maps to Spring beans>>.
+The namespace functionality is intentionally limited, so it doesn't cover everything that you can do with plain beans. If you want to do something simple, like modify a bean, or inject a different dependency, you can do this by adding a `BeanPostProcessor` to your configuration. More information can be found in the http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/htmlsingle/spring-framework-reference.html#beans-factory-extension-bpp[Spring Reference Manual]. In order to do this, you need to know a bit about which beans are created, so you should also read the blog article in the above question on <<appendix-faq-namespace-to-bean-mapping,how the namespace maps to Spring beans>>.
 
-Normally, you would add the functionality you require to the `postProcessBeforeInitialization` method of`BeanPostProcessor`. Let's say that you want to customize the`AuthenticationDetailsSource` used by the `UsernamePasswordAuthenticationFilter`, (created by the `form-login` element). You want to extract a particular header called `CUSTOM_HEADER`from the request and make use of it while authenticating the user. The processor class would look like this:
+Normally, you would add the functionality you require to the `postProcessBeforeInitialization` method of `BeanPostProcessor`. Let's say that you want to customize the `AuthenticationDetailsSource` used by the `UsernamePasswordAuthenticationFilter`, (created by the `form-login` element). You want to extract a particular header called `CUSTOM_HEADER` from the request and make use of it while authenticating the user. The processor class would look like this:
 
 [source,java]
 ----

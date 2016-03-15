@@ -14,7 +14,7 @@ public class HelloMessageService implements MessageService {
 	@PreAuthorize("authenticated")
 	public String getMessage() {
 		Authentication authentication = SecurityContextHolder.getContext()
-															 .getAuthentication();
+															.getAuthentication();
 		return "Hello " + authentication;
 	}
 }
@@ -480,7 +480,7 @@ mvc
 	.perform(get("/").with(securityContext(securityContext)))
 ----
 
-We can also ensure to run as a specific user for every request by using `MockMvcBuilders`'s default request.
+We can also ensure to run as a specific user for every request by using ``MockMvcBuilders``'s default request.
 For example, the following will run as a user (which does not need to exist) with the username "admin", the password "password", and the role "ROLE_ADMIN":
 
 [source,java]
@@ -525,8 +525,8 @@ For example, the following will run the test with the user with username "user",
 @WithMockUser
 public void requestProtectedUrlWithUser() throws Exception {
 mvc
-	  .perform(get("/"))
-	  ...
+		.perform(get("/"))
+		...
 }
 ----
 
@@ -538,8 +538,8 @@ Alternatively, the following will run the test with the user with username "user
 @WithMockUser(roles="ADMIN")
 public void requestProtectedUrlWithUser() throws Exception {
 mvc
-	  .perform(get("/"))
-	  ...
+		.perform(get("/"))
+		...
 }
 ----
 
