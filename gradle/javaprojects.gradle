@@ -128,7 +128,7 @@ project.conf2ScopeMappings.addMapping(MavenPlugin.TEST_COMPILE_PRIORITY + 2, pro
 check.dependsOn integrationTest
 
 task springSnapshotTest(type: Test) {
-	jvmArgs = ['-ea', '-Xmx500m', '-XX:MaxPermSize=128M']
+	jvmArgs = ['-ea', '-Xmx500m']
 	classpath = sourceSets.test.output + sourceSets.main.output + configurations.springSnapshotTestRuntime
 	reports {
 		html.destination = project.file("$buildDir/spring-snapshot-test-results/")
