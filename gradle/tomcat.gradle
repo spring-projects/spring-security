@@ -3,26 +3,22 @@ buildscript {
 		maven { url "https://repo.spring.io/plugins-release" }
 	}
 	dependencies {
-		classpath("org.gradle.api.plugins:gradle-tomcat-plugin:1.2.5")
+		classpath("com.bmuschko:gradle-tomcat-plugin:2.2.4")
 	}
 }
 
-apply plugin: 'tomcat'
+apply plugin: 'com.bmuschko.tomcat'
 
 dependencies {
 	def tomcatVersion = '7.0.54'
 	tomcat "org.apache.tomcat.embed:tomcat-embed-core:${tomcatVersion}",
-		   "org.apache.tomcat.embed:tomcat-embed-logging-juli:${tomcatVersion}",
-		   "org.apache.tomcat.embed:tomcat-embed-websocket:${tomcatVersion}"
-	tomcat("org.apache.tomcat.embed:tomcat-embed-jasper:${tomcatVersion}") {
-		exclude group: 'org.eclipse.jdt.core.compiler', module: 'ecj'
-	}
+			"org.apache.tomcat.embed:tomcat-embed-logging-juli:${tomcatVersion}",
+			"org.apache.tomcat.embed:tomcat-embed-websocket:${tomcatVersion}",
+			"org.apache.tomcat.embed:tomcat-embed-jasper:${tomcatVersion}"
 }
 
-task integrationTomcatRun(type: org.gradle.api.plugins.tomcat.tasks.TomcatRun) {
+task integrationTomcatRun(type: com.bmuschko.gradle.tomcat.tasks.TomcatRun) {
 	onlyIf { !sourceSets.integrationTest.allSource.empty }
-	buildscriptClasspath = tomcatRun.buildscriptClasspath
-	contextPath = tomcatRun.contextPath
 	daemon = true
 	tomcatClasspath = tomcatRun.tomcatClasspath
 	webAppClasspath = tomcatRun.webAppClasspath
@@ -32,6 +28,7 @@ task integrationTomcatRun(type: org.gradle.api.plugins.tomcat.tasks.TomcatRun) {
 		if(mainOutputDir) {
 			classesDirectory = mainOutputDir
 		}
+		contextPath = tomcatRun.contextPath
 		// delay reserving ports to ensure they are still available
 		def ports = reservePorts(3)
 		httpPort = ports[0]
@@ -40,7 +37,7 @@ task integrationTomcatRun(type: org.gradle.api.plugins.tomcat.tasks.TomcatRun) {
 	}
 }
 
-task integrationTomcatStop(type: org.gradle.api.plugins.tomcat.tasks.TomcatStop) {
+task integrationTomcatStop(type: com.bmuschko.gradle.tomcat.tasks.TomcatStop) {
 	onlyIf { !sourceSets.integrationTest.allSource.empty }
 	doFirst {
 		stopPort = integrationTomcatRun.stopPort

@@ -7,7 +7,7 @@ buildscript {
 	dependencies {
 		classpath("org.springframework.build.gradle:propdeps-plugin:0.0.7")
 		classpath("io.spring.gradle:spring-io-plugin:0.0.4.RELEASE")
-		classpath("org.gradle.api.plugins:gradle-tomcat-plugin:1.2.5")
+		classpath("com.bmuschko:gradle-tomcat-plugin:2.2.4")
 		classpath('me.champeau.gradle:gradle-javadoc-hotfix-plugin:0.1')
 		classpath('org.asciidoctor:asciidoctor-gradle-plugin:1.5.1')
 		classpath("io.spring.gradle:docbook-reference-plugin:0.3.1")
