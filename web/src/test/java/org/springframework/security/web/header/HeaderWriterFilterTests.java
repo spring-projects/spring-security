@@ -15,21 +15,32 @@
  */
 package org.springframework.security.web.header;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
-
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.web.header.HeaderWriter;
-import org.springframework.security.web.header.HeaderWriterFilter;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 /**
  * Tests for the {@code HeadersFilter}
@@ -60,8 +71,8 @@ public class HeaderWriterFilterTests {
 	@Test
 	public void additionalHeadersShouldBeAddedToTheResponse() throws Exception {
 		List<HeaderWriter> headerWriters = new ArrayList<HeaderWriter>();
-		headerWriters.add(writer1);
-		headerWriters.add(writer2);
+		headerWriters.add(this.writer1);
+		headerWriters.add(this.writer2);
 
 		HeaderWriterFilter filter = new HeaderWriterFilter(headerWriters);
 
@@ -71,9 +82,34 @@ public class HeaderWriterFilterTests {
 
 		filter.doFilter(request, response, filterChain);
 
-		verify(writer1).writeHeaders(request, response);
-		verify(writer2).writeHeaders(request, response);
+		verify(this.writer1).writeHeaders(request, response);
+		verify(this.writer2).writeHeaders(request, response);
 		assertThat(filterChain.getRequest()).isEqualTo(request); // verify the filterChain
 																	// continued
+	}
+
+	// gh-2953
+	@Test
+	public void headersDelayed() throws Exception {
+		HeaderWriterFilter filter = new HeaderWriterFilter(
+				Arrays.<HeaderWriter>asList(this.writer1));
+
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+
+		filter.doFilter(request, response, new FilterChain() {
+			@Override
+			public void doFilter(ServletRequest request, ServletResponse response)
+					throws IOException, ServletException {
+				verifyZeroInteractions(HeaderWriterFilterTests.this.writer1);
+
+				response.flushBuffer();
+
+				verify(HeaderWriterFilterTests.this.writer1).writeHeaders(
+						any(HttpServletRequest.class), any(HttpServletResponse.class));
+			}
+		});
+
+		verifyNoMoreInteractions(this.writer1);
 	}
 }

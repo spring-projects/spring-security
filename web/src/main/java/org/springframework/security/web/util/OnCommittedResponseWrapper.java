@@ -13,33 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.web.context;
+package org.springframework.security.web.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletResponseWrapper;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Locale;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponseWrapper;
+
 /**
- * Base class for response wrappers which encapsulate the logic for handling an event when the
- * {@link javax.servlet.http.HttpServletResponse} is committed.
+ * Base class for response wrappers which encapsulate the logic for handling an event when
+ * the {@link javax.servlet.http.HttpServletResponse} is committed.
  *
  * @since 4.0.2
  * @author Rob Winch
  */
-abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
-	private final Log logger = LogFactory.getLog(getClass());
+public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 
 	private boolean disableOnCommitted;
 
 	/**
-	 * The Content-Length response header. If this is greater than 0, then once {@link #contentWritten} is larger than
-	 * or equal the response is considered committed.
+	 * The Content-Length response header. If this is greater than 0, then once
+	 * {@link #contentWritten} is larger than or equal the response is considered
+	 * committed.
 	 */
 	private long contentLength;
 
@@ -57,7 +55,7 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 
 	@Override
 	public void addHeader(String name, String value) {
-		if("Content-Length".equalsIgnoreCase(name)) {
+		if ("Content-Length".equalsIgnoreCase(name)) {
 			setContentLength(Long.parseLong(value));
 		}
 		super.addHeader(name, value);
@@ -75,22 +73,33 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 	}
 
 	/**
-	 * Invoke this method to disable invoking {@link OnCommittedResponseWrapper#onResponseCommitted()} when the {@link javax.servlet.http.HttpServletResponse} is
-	 * committed. This can be useful in the event that Async Web Requests are
-	 * made.
+	 * Invoke this method to disable invoking
+	 * {@link OnCommittedResponseWrapper#onResponseCommitted()} when the
+	 * {@link javax.servlet.http.HttpServletResponse} is committed. This can be useful in
+	 * the event that Async Web Requests are made.
 	 */
-	public void disableOnResponseCommitted() {
+	protected void disableOnResponseCommitted() {
 		this.disableOnCommitted = true;
 	}
 
 	/**
-	 * Implement the logic for handling the {@link javax.servlet.http.HttpServletResponse} being committed
+	 * Returns true if {@link #onResponseCommitted()} will be invoked when the response is
+	 * committed, else false.
+	 * @return if {@link #onResponseCommitted()} is enabled
+	 */
+	protected boolean isDisableOnResponseCommitted() {
+		return this.disableOnCommitted;
+	}
+
+	/**
+	 * Implement the logic for handling the {@link javax.servlet.http.HttpServletResponse}
+	 * being committed
 	 */
 	protected abstract void onResponseCommitted();
 
 	/**
-	 * Makes sure {@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked before calling the
-	 * superclass <code>sendError()</code>
+	 * Makes sure {@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked
+	 * before calling the superclass <code>sendError()</code>
 	 */
 	@Override
 	public final void sendError(int sc) throws IOException {
@@ -99,8 +108,8 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 	}
 
 	/**
-	 * Makes sure {@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked before calling the
-	 * superclass <code>sendError()</code>
+	 * Makes sure {@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked
+	 * before calling the superclass <code>sendError()</code>
 	 */
 	@Override
 	public final void sendError(int sc, String msg) throws IOException {
@@ -109,8 +118,8 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 	}
 
 	/**
-	 * Makes sure {@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked before calling the
-	 * superclass <code>sendRedirect()</code>
+	 * Makes sure {@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked
+	 * before calling the superclass <code>sendRedirect()</code>
 	 */
 	@Override
 	public final void sendRedirect(String location) throws IOException {
@@ -119,8 +128,9 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 	}
 
 	/**
-	 * Makes sure {@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked before calling the calling
-	 * <code>getOutputStream().close()</code> or <code>getOutputStream().flush()</code>
+	 * Makes sure {@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked
+	 * before calling the calling <code>getOutputStream().close()</code> or
+	 * <code>getOutputStream().flush()</code>
 	 */
 	@Override
 	public ServletOutputStream getOutputStream() throws IOException {
@@ -128,8 +138,9 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 	}
 
 	/**
-	 * Makes sure {@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked before calling the
-	 * <code>getWriter().close()</code> or <code>getWriter().flush()</code>
+	 * Makes sure {@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked
+	 * before calling the <code>getWriter().close()</code> or
+	 * <code>getWriter().flush()</code>
 	 */
 	@Override
 	public PrintWriter getWriter() throws IOException {
@@ -137,8 +148,8 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 	}
 
 	/**
-	 * Makes sure {@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked before calling the
-	 * superclass <code>flushBuffer()</code>
+	 * Makes sure {@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked
+	 * before calling the superclass <code>flushBuffer()</code>
 	 */
 	@Override
 	public void flushBuffer() throws IOException {
@@ -187,36 +198,38 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 	}
 
 	/**
-	 * Adds the contentLengthToWrite to the total contentWritten size and checks to see if the response should be
-	 * written.
+	 * Adds the contentLengthToWrite to the total contentWritten size and checks to see if
+	 * the response should be written.
 	 *
 	 * @param contentLengthToWrite the size of the content that is about to be written.
 	 */
 	private void checkContentLength(long contentLengthToWrite) {
-		contentWritten += contentLengthToWrite;
-		boolean isBodyFullyWritten = contentLength > 0  && contentWritten >= contentLength;
+		this.contentWritten += contentLengthToWrite;
+		boolean isBodyFullyWritten = this.contentLength > 0
+				&& this.contentWritten >= this.contentLength;
 		int bufferSize = getBufferSize();
-		boolean requiresFlush = bufferSize > 0 && contentWritten >= bufferSize;
-		if(isBodyFullyWritten || requiresFlush) {
+		boolean requiresFlush = bufferSize > 0 && this.contentWritten >= bufferSize;
+		if (isBodyFullyWritten || requiresFlush) {
 			doOnResponseCommitted();
 		}
 	}
 
 	/**
 	 * Calls <code>onResponseCommmitted()</code> with the current contents as long as
-	 * {@link #disableOnResponseCommitted()()} was not invoked.
+	 * {@link #disableOnResponseCommitted()} was not invoked.
 	 */
 	private void doOnResponseCommitted() {
-		if(!disableOnCommitted) {
+		if (!this.disableOnCommitted) {
 			onResponseCommitted();
 			disableOnResponseCommitted();
 		}
 	}
 
 	/**
-	 * Ensures {@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked before calling the prior to methods that commit the response. We delegate all methods
-	 * to the original {@link java.io.PrintWriter} to ensure that the behavior is as close to the original {@link java.io.PrintWriter}
-	 * as possible. See SEC-2039
+	 * Ensures {@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked before
+	 * calling the prior to methods that commit the response. We delegate all methods to
+	 * the original {@link java.io.PrintWriter} to ensure that the behavior is as close to
+	 * the original {@link java.io.PrintWriter} as possible. See SEC-2039
 	 * @author Rob Winch
 	 */
 	private class SaveContextPrintWriter extends PrintWriter {
@@ -227,197 +240,235 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 			this.delegate = delegate;
 		}
 
+		@Override
 		public void flush() {
 			doOnResponseCommitted();
-			delegate.flush();
+			this.delegate.flush();
 		}
 
+		@Override
 		public void close() {
 			doOnResponseCommitted();
-			delegate.close();
+			this.delegate.close();
 		}
 
+		@Override
 		public int hashCode() {
-			return delegate.hashCode();
+			return this.delegate.hashCode();
 		}
 
+		@Override
 		public boolean equals(Object obj) {
-			return delegate.equals(obj);
+			return this.delegate.equals(obj);
 		}
 
+		@Override
 		public String toString() {
-			return getClass().getName() + "[delegate=" + delegate.toString() + "]";
+			return getClass().getName() + "[delegate=" + this.delegate.toString() + "]";
 		}
 
+		@Override
 		public boolean checkError() {
-			return delegate.checkError();
+			return this.delegate.checkError();
 		}
 
+		@Override
 		public void write(int c) {
 			trackContentLength(c);
-			delegate.write(c);
+			this.delegate.write(c);
 		}
 
+		@Override
 		public void write(char[] buf, int off, int len) {
 			checkContentLength(len);
-			delegate.write(buf, off, len);
+			this.delegate.write(buf, off, len);
 		}
 
+		@Override
 		public void write(char[] buf) {
 			trackContentLength(buf);
-			delegate.write(buf);
+			this.delegate.write(buf);
 		}
 
+		@Override
 		public void write(String s, int off, int len) {
 			checkContentLength(len);
-			delegate.write(s, off, len);
+			this.delegate.write(s, off, len);
 		}
 
+		@Override
 		public void write(String s) {
 			trackContentLength(s);
-			delegate.write(s);
+			this.delegate.write(s);
 		}
 
+		@Override
 		public void print(boolean b) {
 			trackContentLength(b);
-			delegate.print(b);
+			this.delegate.print(b);
 		}
 
+		@Override
 		public void print(char c) {
 			trackContentLength(c);
-			delegate.print(c);
+			this.delegate.print(c);
 		}
 
+		@Override
 		public void print(int i) {
 			trackContentLength(i);
-			delegate.print(i);
+			this.delegate.print(i);
 		}
 
+		@Override
 		public void print(long l) {
 			trackContentLength(l);
-			delegate.print(l);
+			this.delegate.print(l);
 		}
 
+		@Override
 		public void print(float f) {
 			trackContentLength(f);
-			delegate.print(f);
+			this.delegate.print(f);
 		}
 
+		@Override
 		public void print(double d) {
 			trackContentLength(d);
-			delegate.print(d);
+			this.delegate.print(d);
 		}
 
+		@Override
 		public void print(char[] s) {
 			trackContentLength(s);
-			delegate.print(s);
+			this.delegate.print(s);
 		}
 
+		@Override
 		public void print(String s) {
 			trackContentLength(s);
-			delegate.print(s);
+			this.delegate.print(s);
 		}
 
+		@Override
 		public void print(Object obj) {
 			trackContentLength(obj);
-			delegate.print(obj);
+			this.delegate.print(obj);
 		}
 
+		@Override
 		public void println() {
 			trackContentLengthLn();
-			delegate.println();
+			this.delegate.println();
 		}
 
+		@Override
 		public void println(boolean x) {
 			trackContentLength(x);
 			trackContentLengthLn();
-			delegate.println(x);
+			this.delegate.println(x);
 		}
 
+		@Override
 		public void println(char x) {
 			trackContentLength(x);
 			trackContentLengthLn();
-			delegate.println(x);
+			this.delegate.println(x);
 		}
 
+		@Override
 		public void println(int x) {
 			trackContentLength(x);
 			trackContentLengthLn();
-			delegate.println(x);
+			this.delegate.println(x);
 		}
 
+		@Override
 		public void println(long x) {
 			trackContentLength(x);
 			trackContentLengthLn();
-			delegate.println(x);
+			this.delegate.println(x);
 		}
 
+		@Override
 		public void println(float x) {
 			trackContentLength(x);
 			trackContentLengthLn();
-			delegate.println(x);
+			this.delegate.println(x);
 		}
 
+		@Override
 		public void println(double x) {
 			trackContentLength(x);
 			trackContentLengthLn();
-			delegate.println(x);
+			this.delegate.println(x);
 		}
 
+		@Override
 		public void println(char[] x) {
 			trackContentLength(x);
 			trackContentLengthLn();
-			delegate.println(x);
+			this.delegate.println(x);
 		}
 
+		@Override
 		public void println(String x) {
 			trackContentLength(x);
 			trackContentLengthLn();
-			delegate.println(x);
+			this.delegate.println(x);
 		}
 
+		@Override
 		public void println(Object x) {
 			trackContentLength(x);
 			trackContentLengthLn();
-			delegate.println(x);
+			this.delegate.println(x);
 		}
 
+		@Override
 		public PrintWriter printf(String format, Object... args) {
-			return delegate.printf(format, args);
+			return this.delegate.printf(format, args);
 		}
 
+		@Override
 		public PrintWriter printf(Locale l, String format, Object... args) {
-			return delegate.printf(l, format, args);
+			return this.delegate.printf(l, format, args);
 		}
 
+		@Override
 		public PrintWriter format(String format, Object... args) {
-			return delegate.format(format, args);
+			return this.delegate.format(format, args);
 		}
 
+		@Override
 		public PrintWriter format(Locale l, String format, Object... args) {
-			return delegate.format(l, format, args);
+			return this.delegate.format(l, format, args);
 		}
 
+		@Override
 		public PrintWriter append(CharSequence csq) {
 			checkContentLength(csq.length());
-			return delegate.append(csq);
+			return this.delegate.append(csq);
 		}
 
+		@Override
 		public PrintWriter append(CharSequence csq, int start, int end) {
 			checkContentLength(end - start);
-			return delegate.append(csq, start, end);
+			return this.delegate.append(csq, start, end);
 		}
 
+		@Override
 		public PrintWriter append(char c) {
 			trackContentLength(c);
-			return delegate.append(c);
+			return this.delegate.append(c);
 		}
 	}
 
 	/**
-	 * Ensures{@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked before calling methods that commit the response. We delegate all methods
-	 * to the original {@link javax.servlet.ServletOutputStream} to ensure that the behavior is as close to the original {@link javax.servlet.ServletOutputStream}
-	 * as possible. See SEC-2039
+	 * Ensures{@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked before
+	 * calling methods that commit the response. We delegate all methods to the original
+	 * {@link javax.servlet.ServletOutputStream} to ensure that the behavior is as close
+	 * to the original {@link javax.servlet.ServletOutputStream} as possible. See SEC-2039
 	 *
 	 * @author Rob Winch
 	 */
@@ -428,123 +479,146 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 			this.delegate = delegate;
 		}
 
+		@Override
 		public void write(int b) throws IOException {
 			trackContentLength(b);
 			this.delegate.write(b);
 		}
 
+		@Override
 		public void flush() throws IOException {
 			doOnResponseCommitted();
-			delegate.flush();
+			this.delegate.flush();
 		}
 
+		@Override
 		public void close() throws IOException {
 			doOnResponseCommitted();
-			delegate.close();
+			this.delegate.close();
 		}
 
+		@Override
 		public int hashCode() {
-			return delegate.hashCode();
+			return this.delegate.hashCode();
 		}
 
+		@Override
 		public boolean equals(Object obj) {
-			return delegate.equals(obj);
+			return this.delegate.equals(obj);
 		}
 
+		@Override
 		public void print(boolean b) throws IOException {
 			trackContentLength(b);
-			delegate.print(b);
+			this.delegate.print(b);
 		}
 
+		@Override
 		public void print(char c) throws IOException {
 			trackContentLength(c);
-			delegate.print(c);
+			this.delegate.print(c);
 		}
 
+		@Override
 		public void print(double d) throws IOException {
 			trackContentLength(d);
-			delegate.print(d);
+			this.delegate.print(d);
 		}
 
+		@Override
 		public void print(float f) throws IOException {
 			trackContentLength(f);
-			delegate.print(f);
+			this.delegate.print(f);
 		}
 
+		@Override
 		public void print(int i) throws IOException {
 			trackContentLength(i);
-			delegate.print(i);
+			this.delegate.print(i);
 		}
 
+		@Override
 		public void print(long l) throws IOException {
 			trackContentLength(l);
-			delegate.print(l);
+			this.delegate.print(l);
 		}
 
+		@Override
 		public void print(String s) throws IOException {
 			trackContentLength(s);
-			delegate.print(s);
+			this.delegate.print(s);
 		}
 
+		@Override
 		public void println() throws IOException {
 			trackContentLengthLn();
-			delegate.println();
+			this.delegate.println();
 		}
 
+		@Override
 		public void println(boolean b) throws IOException {
 			trackContentLength(b);
 			trackContentLengthLn();
-			delegate.println(b);
+			this.delegate.println(b);
 		}
 
+		@Override
 		public void println(char c) throws IOException {
 			trackContentLength(c);
 			trackContentLengthLn();
-			delegate.println(c);
+			this.delegate.println(c);
 		}
 
+		@Override
 		public void println(double d) throws IOException {
 			trackContentLength(d);
 			trackContentLengthLn();
-			delegate.println(d);
+			this.delegate.println(d);
 		}
 
+		@Override
 		public void println(float f) throws IOException {
 			trackContentLength(f);
 			trackContentLengthLn();
-			delegate.println(f);
+			this.delegate.println(f);
 		}
 
+		@Override
 		public void println(int i) throws IOException {
 			trackContentLength(i);
 			trackContentLengthLn();
-			delegate.println(i);
+			this.delegate.println(i);
 		}
 
+		@Override
 		public void println(long l) throws IOException {
 			trackContentLength(l);
 			trackContentLengthLn();
-			delegate.println(l);
+			this.delegate.println(l);
 		}
 
+		@Override
 		public void println(String s) throws IOException {
 			trackContentLength(s);
 			trackContentLengthLn();
-			delegate.println(s);
+			this.delegate.println(s);
 		}
 
+		@Override
 		public void write(byte[] b) throws IOException {
 			trackContentLength(b);
-			delegate.write(b);
+			this.delegate.write(b);
 		}
 
+		@Override
 		public void write(byte[] b, int off, int len) throws IOException {
 			checkContentLength(len);
-			delegate.write(b, off, len);
+			this.delegate.write(b, off, len);
 		}
 
+		@Override
 		public String toString() {
-			return getClass().getName() + "[delegate=" + delegate.toString() + "]";
+			return getClass().getName() + "[delegate=" + this.delegate.toString() + "]";
 		}
 	}
 }
