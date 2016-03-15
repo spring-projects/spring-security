@@ -15,14 +15,20 @@
  */
 package org.springframework.security.web.header.writers;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.security.web.header.Header;
+import org.springframework.security.web.header.HeaderWriter;
+import org.springframework.util.ReflectionUtils;
 
 /**
- * A {@link StaticHeadersWriter} that inserts headers to prevent caching. Specifically it
- * adds the following headers:
+ * Inserts headers to prevent caching if no cache control headers have been specified.
+ * Specifically it adds the following headers:
  * <ul>
  * <li>Cache-Control: no-cache, no-store, max-age=0, must-revalidate</li>
  * <li>Pragma: no-cache</li>
@@ -32,21 +38,47 @@ import org.springframework.security.web.header.Header;
  * @author Rob Winch
  * @since 3.2
  */
-public final class CacheControlHeadersWriter extends StaticHeadersWriter {
+public final class CacheControlHeadersWriter implements HeaderWriter {
+	private static final String EXPIRES = "Expires";
+	private static final String PRAGMA = "Pragma";
+	private static final String CACHE_CONTROL = "Cache-Control";
+
+	private final Method getHeaderMethod;
+
+	private final HeaderWriter delegate;
 
 	/**
 	 * Creates a new instance
 	 */
 	public CacheControlHeadersWriter() {
-		super(createHeaders());
+		this.delegate = new StaticHeadersWriter(createHeaders());
+		this.getHeaderMethod = ReflectionUtils.findMethod(HttpServletResponse.class,
+				"getHeader", String.class);
+	}
+
+	@Override
+	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
+		if (hasHeader(response, CACHE_CONTROL) || hasHeader(response, EXPIRES)
+				|| hasHeader(response, PRAGMA)) {
+			return;
+		}
+		this.delegate.writeHeaders(request, response);
+	}
+
+	private boolean hasHeader(HttpServletResponse response, String headerName) {
+		if (this.getHeaderMethod == null) {
+			return false;
+		}
+		return ReflectionUtils.invokeMethod(this.getHeaderMethod, response,
+				headerName) != null;
 	}
 
 	private static List<Header> createHeaders() {
 		List<Header> headers = new ArrayList<Header>(2);
-		headers.add(new Header("Cache-Control",
+		headers.add(new Header(CACHE_CONTROL,
 				"no-cache, no-store, max-age=0, must-revalidate"));
-		headers.add(new Header("Pragma", "no-cache"));
-		headers.add(new Header("Expires", "0"));
+		headers.add(new Header(PRAGMA, "no-cache"));
+		headers.add(new Header(EXPIRES, "0"));
 		return headers;
 	}
 }
