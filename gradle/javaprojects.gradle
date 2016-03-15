@@ -186,6 +186,8 @@ jar {
 javadoc {
 	title = "Spring Security $version API"
 	source = sourceSets.main.allJava
+	logging.captureStandardError LogLevel.INFO
+	logging.captureStandardOutput LogLevel.INFO
 	options {
 		memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PROTECTED
 		author = true
@@ -213,6 +215,7 @@ javadoc {
 			'Spring Security Config':['org.springframework.security.config*'],
 			'Spring Security Taglibs':['org.springframework.security.taglibs*'],
 		]
+		addStringOption('-quiet')
 	}
 }
 
