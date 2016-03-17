@@ -15,6 +15,7 @@
  */
 package org.springframework.security.config.annotation.web.configurers
 
+import org.springframework.beans.factory.BeanCreationException
 import org.springframework.security.config.annotation.BaseSpringSpec
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
@@ -24,6 +25,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
  *
  * @author Rob Winch
  * @author Tim Ysewyn
+ * @author Joe Grandja
  */
 class HeadersConfigurerTests extends BaseSpringSpec {
 
@@ -387,4 +389,68 @@ class HeadersConfigurerTests extends BaseSpringSpec {
 					.reportUri("http://example.net/pkp-report")
 		}
 	}
+
+	def "headers.contentSecurityPolicy default header"() {
+		setup:
+			loadConfig(ContentSecurityPolicyDefaultConfig)
+			request.secure = true
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			responseHeaders == ['Content-Security-Policy': 'default-src \'self\'']
+	}
+
+	@EnableWebSecurity
+	static class ContentSecurityPolicyDefaultConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+					.headers()
+					.defaultsDisabled()
+					.contentSecurityPolicy("default-src 'self'");
+		}
+	}
+
+	def "headers.contentSecurityPolicy report-only header"() {
+		setup:
+			loadConfig(ContentSecurityPolicyReportOnlyConfig)
+			request.secure = true
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			responseHeaders == ['Content-Security-Policy-Report-Only': 'default-src \'self\'; script-src trustedscripts.example.com']
+	}
+
+	@EnableWebSecurity
+	static class ContentSecurityPolicyReportOnlyConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+					.headers()
+					.defaultsDisabled()
+					.contentSecurityPolicy("default-src 'self'; script-src trustedscripts.example.com").reportOnly();
+		}
+	}
+
+	def "headers.contentSecurityPolicy empty policyDirectives"() {
+		when:
+			loadConfig(ContentSecurityPolicyInvalidConfig)
+		then:
+			thrown(BeanCreationException)
+	}
+
+	@EnableWebSecurity
+	static class ContentSecurityPolicyInvalidConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+					.headers()
+					.defaultsDisabled()
+					.contentSecurityPolicy("");
+		}
+	}
+
 }

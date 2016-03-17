@@ -748,7 +748,7 @@ csrf-options.attlist &=
 
 headers =
 ## Element for configuration of the HeaderWritersFilter. Enables easy setting for the X-Frame-Options, X-XSS-Protection and X-Content-Type-Options headers.
-element headers { headers-options.attlist, (cache-control? & xss-protection? & hsts? & frame-options? & content-type-options? & hpkp? & header*)}
+element headers { headers-options.attlist, (cache-control? & xss-protection? & hsts? & frame-options? & content-type-options? & hpkp? & content-security-policy? & header*)}
 headers-options.attlist &=
 	## Specifies if the default headers should be disabled. Default false.
 	attribute defaults-disabled {xsd:boolean}?
@@ -799,6 +799,16 @@ hpkp.attlist &=
 hpkp.attlist &=
 	## Specifies the URI to which the browser should report pin validation failures.
 	attribute report-uri {xsd:string}?
+
+content-security-policy =
+	## Adds support for Content Security Policy (CSP)
+	element content-security-policy {csp-options.attlist}
+csp-options.attlist &=
+	## The security policy directive(s) for the Content-Security-Policy header or if report-only is set to true, then the Content-Security-Policy-Report-Only header is used.
+	attribute policy-directives {xsd:token}?
+csp-options.attlist &=
+	## Set to true, to enable the Content-Security-Policy-Report-Only header for reporting policy violations only. Defaults to false.
+	attribute report-only {xsd:boolean}?
 
 cache-control =
 	## Adds Cache-Control no-cache, no-store, must-revalidate, Pragma no-cache, and Expires 0 for every request
