@@ -33,7 +33,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.WebAttributes;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.security.web.authentication.*;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
 
@@ -84,6 +84,8 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 	private boolean continueFilterChainOnUnsuccessfulAuthentication = true;
 	private boolean checkForPrincipalChanges;
 	private boolean invalidateSessionOnPrincipalChange = true;
+	private AuthenticationSuccessHandler authenticationSuccessHandler = new SavedRequestAwareAuthenticationSuccessHandler();
+	private AuthenticationFailureHandler authenticationFailureHandler = new SimpleUrlAuthenticationFailureHandler();
 
 	/**
 	 * Check whether all required properties have been set.
@@ -156,7 +158,7 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 	/**
 	 * Do the actual authentication for a pre-authenticated user.
 	 */
-	private void doAuthenticate(HttpServletRequest request, HttpServletResponse response) {
+	private void doAuthenticate(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 		Authentication authResult;
 
 		Object principal = getPreAuthenticatedPrincipal(request);
@@ -229,7 +231,7 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 	 * manager into the secure context.
 	 */
 	protected void successfulAuthentication(HttpServletRequest request,
-			HttpServletResponse response, Authentication authResult) {
+			HttpServletResponse response, Authentication authResult) throws IOException, ServletException {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Authentication success: " + authResult);
 		}
@@ -239,6 +241,8 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 			eventPublisher.publishEvent(new InteractiveAuthenticationSuccessEvent(
 					authResult, this.getClass()));
 		}
+
+		authenticationSuccessHandler.onAuthenticationSuccess(request, response, authResult);
 	}
 
 	/**
@@ -248,13 +252,14 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 	 * Caches the failure exception as a request attribute
 	 */
 	protected void unsuccessfulAuthentication(HttpServletRequest request,
-			HttpServletResponse response, AuthenticationException failed) {
+			HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
 		SecurityContextHolder.clearContext();
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("Cleared security context due to exception", failed);
 		}
 		request.setAttribute(WebAttributes.AUTHENTICATION_EXCEPTION, failed);
+		authenticationFailureHandler.onAuthenticationFailure(request, response, failed);
 	}
 
 	/**
@@ -322,6 +327,24 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 	public void setInvalidateSessionOnPrincipalChange(
 			boolean invalidateSessionOnPrincipalChange) {
 		this.invalidateSessionOnPrincipalChange = invalidateSessionOnPrincipalChange;
+	}
+
+	/**
+	 * Sets the strategy used to handle a successful authentication. By default a
+	 * {@link SavedRequestAwareAuthenticationSuccessHandler} is used.
+	 */
+	public void setAuthenticationSuccessHandler(AuthenticationSuccessHandler authenticationSuccessHandler) {
+		Assert.notNull(authenticationSuccessHandler, "successHandler cannot be null");
+		this.authenticationSuccessHandler = authenticationSuccessHandler;
+	}
+
+	/**
+	 * Sets the strategy used to handle a failed authentication. By default a
+	 * {@link SimpleUrlAuthenticationFailureHandler} is used.
+	 */
+	public void setAuthenticationFailureHandler(AuthenticationFailureHandler authenticationFailureHandler) {
+		Assert.notNull(authenticationFailureHandler, "failureHandler cannot be null");
+		this.authenticationFailureHandler = authenticationFailureHandler;
 	}
 
 	/**
