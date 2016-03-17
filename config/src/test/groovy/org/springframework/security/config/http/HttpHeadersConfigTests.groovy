@@ -830,6 +830,84 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 			expected.message.contains 'policy'
 	}
 
+	def 'http headers defaults : content-security-policy'() {
+		setup:
+			httpAutoConfig {
+				'headers'() {
+					'content-security-policy'('policy-directives':'default-src \'self\'')
+				}
+			}
+			createAppContext()
+		when:
+			def hf = getFilter(HeaderWriterFilter)
+			MockHttpServletResponse response = new MockHttpServletResponse()
+			hf.doFilter(new MockHttpServletRequest(secure:true), response, new MockFilterChain())
+			def expectedHeaders = [:] << defaultHeaders
+			expectedHeaders['Content-Security-Policy'] = 'default-src \'self\''
+		then:
+			assertHeaders(response, expectedHeaders)
+	}
+
+	def 'http headers disabled : content-security-policy not included'() {
+		setup:
+			httpAutoConfig {
+				'headers'(disabled:true) {
+					'content-security-policy'('policy-directives':'default-src \'self\'')
+				}
+			}
+			createAppContext()
+		when:
+			def hf = getFilter(HeaderWriterFilter)
+		then:
+			!hf
+	}
+
+	def 'http headers defaults disabled : content-security-policy only'() {
+		setup:
+			httpAutoConfig {
+				'headers'('defaults-disabled':true) {
+					'content-security-policy'('policy-directives':'default-src \'self\'')
+				}
+			}
+			createAppContext()
+		when:
+			def hf = getFilter(HeaderWriterFilter)
+			MockHttpServletResponse response = new MockHttpServletResponse()
+			hf.doFilter(new MockHttpServletRequest(secure:true), response, new MockFilterChain())
+		then:
+			assertHeaders(response, ['Content-Security-Policy':'default-src \'self\''])
+	}
+
+	def 'http headers defaults : content-security-policy with empty directives'() {
+		when:
+			httpAutoConfig {
+				'headers'() {
+					'content-security-policy'('policy-directives':'')
+				}
+			}
+			createAppContext()
+		then:
+			thrown(BeanDefinitionParsingException)
+	}
+
+	def 'http headers defaults : content-security-policy report-only=true'() {
+		setup:
+			httpAutoConfig {
+				'headers'() {
+					'content-security-policy'('policy-directives':'default-src https:; report-uri https://example.com/', 'report-only':true)
+				}
+			}
+			createAppContext()
+		when:
+			def hf = getFilter(HeaderWriterFilter)
+			MockHttpServletResponse response = new MockHttpServletResponse()
+			hf.doFilter(new MockHttpServletRequest(secure:true), response, new MockFilterChain())
+			def expectedHeaders = [:] << defaultHeaders
+			expectedHeaders['Content-Security-Policy-Report-Only'] = 'default-src https:; report-uri https://example.com/'
+		then:
+			assertHeaders(response, expectedHeaders)
+	}
+
 	def assertHeaders(MockHttpServletResponse response, Map<String,String> expected) {
 		assert response.headerNames == expected.keySet()
 		expected.each { headerName, value ->

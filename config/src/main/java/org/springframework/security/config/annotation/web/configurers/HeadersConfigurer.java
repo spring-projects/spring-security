@@ -27,11 +27,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.security.web.header.HeaderWriterFilter;
-import org.springframework.security.web.header.writers.CacheControlHeadersWriter;
-import org.springframework.security.web.header.writers.HpkpHeaderWriter;
-import org.springframework.security.web.header.writers.HstsHeaderWriter;
-import org.springframework.security.web.header.writers.XContentTypeOptionsHeaderWriter;
-import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
+import org.springframework.security.web.header.writers.*;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter.XFrameOptionsMode;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -59,6 +55,7 @@ import org.springframework.util.Assert;
  *
  * @author Rob Winch
  * @author Tim Ysewyn
+ * @author Joe Grandja
  * @since 3.2
  */
 public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
@@ -78,6 +75,8 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 	private final FrameOptionsConfig frameOptions = new FrameOptionsConfig();
 
 	private final HpkpConfig hpkp = new HpkpConfig();
+
+	private final ContentSecurityPolicyConfig contentSecurityPolicy = new ContentSecurityPolicyConfig();
 
 	/**
 	 * Creates a new instance
@@ -658,6 +657,64 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 	}
 
 	/**
+	 * <p>
+	 * Allows configuration for <a href="https://www.w3.org/TR/CSP2/">Content Security Policy (CSP) Level 2</a>.
+	 * </p>
+	 *
+	 * <p>
+	 * Calling this method automatically enables (includes) the Content-Security-Policy header in the response
+	 * using the supplied security policy directive(s).
+	 * </p>
+	 *
+	 * <p>
+	 * Configuration is provided to the {@link ContentSecurityPolicyHeaderWriter} which supports the writing
+	 * of the two headers as detailed in the W3C Candidate Recommendation:
+	 * </p>
+	 * <ul>
+	 * 	<li>Content-Security-Policy</li>
+	 * 	<li>Content-Security-Policy-Report-Only</li>
+	 * </ul>
+	 *
+	 * @see ContentSecurityPolicyHeaderWriter
+	 * @since 4.1
+	 * @return the ContentSecurityPolicyConfig for additional configuration
+	 * @throws IllegalArgumentException if policyDirectives is null or empty
+	 */
+	public ContentSecurityPolicyConfig contentSecurityPolicy(String policyDirectives) {
+		this.contentSecurityPolicy.writer =
+				new ContentSecurityPolicyHeaderWriter(policyDirectives);
+		return contentSecurityPolicy;
+	}
+
+	public final class ContentSecurityPolicyConfig {
+		private ContentSecurityPolicyHeaderWriter writer;
+
+		private ContentSecurityPolicyConfig() {
+		}
+
+		/**
+		 * Enables (includes) the Content-Security-Policy-Report-Only header in the response.
+		 *
+		 * @return the {@link ContentSecurityPolicyConfig} for additional configuration
+		 */
+		public ContentSecurityPolicyConfig reportOnly() {
+			this.writer.setReportOnly(true);
+			return this;
+		}
+
+		/**
+		 * Allows completing configuration of Content Security Policy and continuing
+		 * configuration of headers.
+		 *
+		 * @return the {@link HeadersConfigurer} for additional configuration
+		 */
+		public HeadersConfigurer<H> and() {
+			return HeadersConfigurer.this;
+		}
+
+	}
+
+	/**
 	 * Clears all of the default headers from the response. After doing so, one can add
 	 * headers back. For example, if you only want to use Spring Security's cache control
 	 * you can use the following:
@@ -712,6 +769,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 		addIfNotNull(writers, hsts.writer);
 		addIfNotNull(writers, frameOptions.writer);
 		addIfNotNull(writers, hpkp.writer);
+		addIfNotNull(writers, contentSecurityPolicy.writer);
 		writers.addAll(headerWriters);
 		return writers;
 	}

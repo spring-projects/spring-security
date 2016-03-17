@@ -67,6 +67,7 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 	private static final String ATT_REPORT_ONLY = "report-only";
 	private static final String ATT_REPORT_URI = "report-uri";
 	private static final String ATT_ALGORITHM = "algorithm";
+	private static final String ATT_POLICY_DIRECTIVES = "policy-directives";
 
 	private static final String CACHE_CONTROL_ELEMENT = "cache-control";
 
@@ -79,6 +80,8 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 	private static final String CONTENT_TYPE_ELEMENT = "content-type-options";
 	private static final String FRAME_OPTIONS_ELEMENT = "frame-options";
 	private static final String GENERIC_HEADER_ELEMENT = "header";
+
+	private static final String CONTENT_SECURITY_POLICY_ELEMENT = "content-security-policy";
 
 	private static final String ALLOW_FROM = "ALLOW-FROM";
 
@@ -103,6 +106,8 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 		parseContentTypeOptionsElement(addIfNotPresent, element);
 
 		parseHpkpElement(element == null || !disabled, element, parserContext);
+
+		parseContentSecurityPolicyElement(disabled, element, parserContext);
 
 		parseHeaderElements(element);
 
@@ -256,6 +261,34 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 				headerWriters.add(headersWriter.getBeanDefinition());
 			}
 		}
+	}
+
+	private void parseContentSecurityPolicyElement(boolean elementDisabled, Element element, ParserContext context) {
+		Element contentSecurityPolicyElement = (elementDisabled || element == null) ? null : DomUtils.getChildElementByTagName(
+				element, CONTENT_SECURITY_POLICY_ELEMENT);
+		if (contentSecurityPolicyElement != null) {
+			addContentSecurityPolicy(contentSecurityPolicyElement, context);
+		}
+	}
+
+	private void addContentSecurityPolicy(Element contentSecurityPolicyElement, ParserContext context) {
+		BeanDefinitionBuilder headersWriter = BeanDefinitionBuilder
+				.genericBeanDefinition(ContentSecurityPolicyHeaderWriter.class);
+
+		String policyDirectives = contentSecurityPolicyElement.getAttribute(ATT_POLICY_DIRECTIVES);
+		if (!StringUtils.hasText(policyDirectives)) {
+			context.getReaderContext().error(
+					ATT_POLICY_DIRECTIVES + " requires a 'value' to be set.", contentSecurityPolicyElement);
+		} else {
+			headersWriter.addConstructorArgValue(policyDirectives);
+		}
+
+		String reportOnly = contentSecurityPolicyElement.getAttribute(ATT_REPORT_ONLY);
+		if (StringUtils.hasText(reportOnly)) {
+			headersWriter.addPropertyValue("reportOnly", reportOnly);
+		}
+
+		headerWriters.add(headersWriter.getBeanDefinition());
 	}
 
 	private void attrNotAllowed(ParserContext context, String attrName,

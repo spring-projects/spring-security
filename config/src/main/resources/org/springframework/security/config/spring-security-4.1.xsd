@@ -2328,6 +2328,7 @@
             <xs:element ref="security:frame-options"/>
             <xs:element ref="security:content-type-options"/>
             <xs:element ref="security:hpkp"/>
+            <xs:element ref="security:content-security-policy"/>
             <xs:element ref="security:header"/>
          </xs:choice>
          <xs:attributeGroup ref="security:headers-options.attlist"/>
@@ -2456,6 +2457,31 @@
       <xs:attribute name="report-uri" type="xs:string">
          <xs:annotation>
             <xs:documentation>Specifies the URI to which the browser should report pin validation failures.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="content-security-policy">
+      <xs:annotation>
+         <xs:documentation>Adds support for Content Security Policy (CSP)
+                </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attributeGroup ref="security:csp-options.attlist"/>
+      </xs:complexType>
+   </xs:element>
+  <xs:attributeGroup name="csp-options.attlist">
+      <xs:attribute name="policy-directives" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The security policy directive(s) for the Content-Security-Policy header or if report-only
+                is set to true, then the Content-Security-Policy-Report-Only header is used.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="report-only" type="xs:boolean">
+         <xs:annotation>
+            <xs:documentation>Set to true, to enable the Content-Security-Policy-Report-Only header for reporting policy
+                violations only. Defaults to false.
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>

@@ -3825,7 +3825,7 @@ Allowing your website to be added to a frame can be a security issue. For exampl
 
 [NOTE]
 ====
-Another modern approach to dealing with clickjacking is using a http://www.w3.org/TR/CSP/[Content Security Policy]. Spring Security does not provide support for this as the specification is not released and it is quite a bit more complicated. However, you could use the <<headers-static,static headers>> feature to implement this. To stay up to date with this issue and to see how you can implement it with Spring Security refer to https://jira.spring.io/browse/SEC-2117[SEC-2117]
+Another modern approach to dealing with clickjacking is to use <<headers-content-security-policy>>.
 ====
 
 There are a number ways to mitigate clickjacking attacks. For example, to protect legacy browsers from clickjacking attacks you can use https://www.owasp.org/index.php/Clickjacking_Defense_Cheat_Sheet#Best-for-now_Legacy_Browser_Frame_Breaking_Script[frame breaking code]. While not perfect, the frame breaking code is the best you can do for the legacy browsers.
@@ -3917,6 +3917,153 @@ protected void configure(HttpSecurity http) throws Exception {
 }
 ----
 
+[[headers-content-security-policy]]
+==== Content Security Policy (CSP)
+
+https://www.w3.org/TR/CSP2/[Content Security Policy (CSP)] is a mechanism that web applications can leverage to mitigate content injection vulnerabilities,
+such as cross-site scripting (XSS). CSP is a declarative policy that provides a facility for web application authors to declare and ultimately inform
+the client (user-agent) about the sources from which the web application expects to load resources.
+
+[NOTE]
+====
+Content Security Policy is not intended to solve all content injection vulnerabilities.
+Instead, CSP can be leveraged to help reduce the harm caused by content injection attacks.
+As a first line of defense, web application authors should validate their input and encode their output.
+====
+
+A web application may employ the use of CSP by including one of the following HTTP headers in the response:
+
+* *_Content-Security-Policy_*
+* *_Content-Security-Policy-Report-Only_*
+
+Each of these headers are used as a mechanism to deliver a *_security policy_* to the client.
+A security policy contains a set of *_security policy directives_* (for example, _script-src_ and _object-src_),
+each responsible for declaring the restrictions for a particular resource representation.
+
+For example, a web application can declare that it expects to load scripts from specific, trusted sources,
+by including the following header in the response:
+
+[source]
+----
+Content-Security-Policy: script-src https://trustedscripts.example.com
+----
+
+An attempt to load a script from another source other than what is declared in the _script-src_ directive will be blocked by the user-agent.
+Additionally, if the https://www.w3.org/TR/CSP2/#directive-report-uri[*_report-uri_*] directive is declared in the security policy,
+then the violation will be reported by the user-agent to the declared URL.
+
+For example, if a web application violates the declared security policy,
+the following response header will instruct the user-agent to send violation reports to the URL specified in the policy’s _report-uri_ directive.
+
+[source]
+----
+Content-Security-Policy: script-src https://trustedscripts.example.com; report-uri /csp-report-endpoint/
+----
+
+The *_Content-Security-Policy-Report-Only_* header provides the capability for web application authors and administrators to monitor security policies, rather than enforce them.
+This header is typically used when experimenting and/or developing security policies for a site.
+When a policy is deemed effective, it can be enforced by using the _Content-Security-Policy_ header field instead.
+
+Given the following response header, the policy declares that scripts may be loaded from one of two possible sources.
+
+[source]
+----
+Content-Security-Policy-Report-Only: script-src 'self' https://trustedscripts.example.com; report-uri /csp-report-endpoint/
+----
+
+If the site violates this policy, by attempting to load a script from _evil.com_,
+the user-agent will send a violation report to the declared URL specified by the _report-uri_ directive,
+but still allow the violating resource to load nevertheless.
+
+===== Configuring Content Security Policy
+
+It's important to note that Spring Security *_does not add_* Content Security Policy by default.
+The web application author must declare the security policy(s) to enforce and/or monitor for the protected resources.
+
+For example, given the following security policy:
+
+[source]
+----
+script-src 'self' https://trustedscripts.example.com; object-src https://trustedplugins.example.com; report-uri /csp-report-endpoint/
+----
+
+You can enable the CSP header using XML configuration with the <<nsa-content-security-policy,<content-security-policy>>> element as shown below:
+
+[source,xml]
+----
+<http>
+	<!-- ... -->
+
+	<headers>
+		<content-security-policy
+			policy-directives="script-src 'self' https://trustedscripts.example.com; object-src https://trustedplugins.example.com; report-uri /csp-report-endpoint/" />
+	</headers>
+</http>
+----
+
+To enable the CSP _'report-only'_ header, configure the element as follows:
+
+[source,xml]
+----
+<http>
+	<!-- ... -->
+
+	<headers>
+		<content-security-policy
+			policy-directives="script-src 'self' https://trustedscripts.example.com; object-src https://trustedplugins.example.com; report-uri /csp-report-endpoint/"
+			report-only="true" />
+	</headers>
+</http>
+----
+
+Similarly, you can enable the CSP header using Java configuration as shown below:
+
+[source,java]
+----
+@EnableWebSecurity
+public class WebSecurityConfig extends
+WebSecurityConfigurerAdapter {
+
+@Override
+protected void configure(HttpSecurity http) throws Exception {
+	http
+	// ...
+	.headers()
+		.contentSecurityPolicy("script-src 'self' https://trustedscripts.example.com; object-src https://trustedplugins.example.com; report-uri /csp-report-endpoint/");
+}
+}
+----
+
+To enable the CSP _'report-only'_ header, provide the following Java configuration:
+
+[source,java]
+----
+@EnableWebSecurity
+public class WebSecurityConfig extends
+WebSecurityConfigurerAdapter {
+
+@Override
+protected void configure(HttpSecurity http) throws Exception {
+	http
+	// ...
+	.headers()
+		.contentSecurityPolicy("script-src 'self' https://trustedscripts.example.com; object-src https://trustedplugins.example.com; report-uri /csp-report-endpoint/")
+		.reportOnly();
+}
+}
+----
+
+===== Additional Resources
+
+Applying Content Security Policy to a web application is often a non-trivial undertaking.
+The following resources may provide further assistance in developing effective security policies for your site.
+
+http://www.html5rocks.com/en/tutorials/security/content-security-policy/[An Introduction to Content Security Policy]
+
+https://developer.mozilla.org/en-US/docs/Web/Security/CSP[CSP Guide - Mozilla Developer Network]
+
+https://www.w3.org/TR/CSP2/[W3C Candidate Recommendation]
+
 [[headers-custom]]
 === Custom Headers
 Spring Security has mechanisms to make it convenient to add the more common security headers to your application. However, it also provides hooks to enable adding custom headers.
@@ -3924,15 +4071,11 @@ Spring Security has mechanisms to make it convenient to add the more common secu
 [[headers-static]]
 ==== Static Headers
 There may be times you wish to inject custom security headers into your application that are not supported out of the box.
-For example, perhaps you wish to have early support for http://www.w3.org/TR/CSP/[Content Security Policy] in order to ensure that resources are only loaded from the same origin.
-Since support for Content Security Policy has not been finalized, browsers use one of two common extension headers to implement the feature.
-This means we will need to inject the policy twice.
-An example of the headers can be seen below:
+For example, given the following custom security header:
 
 [source]
 ----
-X-Content-Security-Policy: default-src 'self'
-X-WebKit-CSP: default-src 'self'
+X-Custom-Security-Header: header-value
 ----
 
 When using the XML namespace, these headers can be added to the response using the <<nsa-header,<header>>> element as shown below:
@@ -3943,8 +4086,7 @@ When using the XML namespace, these headers can be added to the response using t
 	<!-- ... -->
 
 	<headers>
-		<header name="X-Content-Security-Policy" value="default-src 'self'"/>
-		<header name="X-WebKit-CSP" value="default-src 'self'"/>
+		<header name="X-Custom-Security-Header" value="header-value"/>
 	</headers>
 </http>
 ----
@@ -3962,8 +4104,7 @@ protected void configure(HttpSecurity http) throws Exception {
 	http
 	// ...
 	.headers()
-		.addHeaderWriter(new StaticHeadersWriter("X-Content-Security-Policy","default-src 'self'"))
-		.addHeaderWriter(new StaticHeadersWriter("X-WebKit-CSP","default-src 'self'"));
+		.addHeaderWriter(new StaticHeadersWriter("X-Custom-Security-Header","header-value"));
 }
 }
 ----
@@ -7076,6 +7217,7 @@ This element allows for configuring additional (security) headers to be send wit
 ** `X-XSS-Protection` - Can be set using the <<nsa-xss-protection,xss-protection>> element. The http://en.wikipedia.org/wiki/Cross-site_scripting[X-XSS-Protection ] header can be used by browser to do basic control.
 ** `X-Content-Type-Options` - Can be set using the <<nsa-content-type-options,content-type-options>> element. The http://blogs.msdn.com/b/ie/archive/2008/09/02/ie8-security-part-vi-beta-2-update.aspx[X-Content-Type-Options] header prevents Internet Explorer from MIME-sniffing a response away from the declared content-type. This also applies to Google Chrome, when downloading extensions.
 ** `Public-Key-Pinning` or `Public-Key-Pinning-Report-Only` - Can be set using the <<nsa-hpkp,hpkp>> element. This allows HTTPS websites to resist impersonation by attackers using mis-issued or otherwise fraudulent certificates.
+** `Content-Security-Policy` or `Content-Security-Policy-Report-Only` - Can be set using the <<nsa-content-security-policy,content-security-policy>> element. https://www.w3.org/TR/CSP2/[Content Security Policy (CSP)] is a mechanism that web applications can leverage to mitigate content injection vulnerabilities, such as cross-site scripting (XSS).
 
 [[nsa-headers-attributes]]
 ===== <headers> Attributes
@@ -7103,6 +7245,7 @@ Optional attribute that specifies to disable Spring Security's HTTP response hea
 
 
 * <<nsa-cache-control,cache-control>>
+* <<nsa-content-security-policy,content-security-policy>>
 * <<nsa-content-type-options,content-type-options>>
 * <<nsa-frame-options,frame-options>>
 * <<nsa-header,header>>
@@ -7232,6 +7375,28 @@ The cryptographic hash algorithm. Default is SHA256.
 ===== Parent Elements of <pin>
 
 * <<nsa-pins,pins>>
+
+
+
+[[nsa-content-security-policy]]
+==== <content-security-policy>
+When enabled adds the https://www.w3.org/TR/CSP2/[Content Security Policy (CSP)] header to the response. CSP is a mechanism that web applications can leverage to mitigate content injection vulnerabilities, such as cross-site scripting (XSS).
+
+[[nsa-content-security-policy-attributes]]
+===== <content-security-policy> Attributes
+
+[[nsa-content-security-policy-policy-directives]]
+* **policy-directives**
+The security policy directive(s) for the Content-Security-Policy header or if report-only is set to true, then the Content-Security-Policy-Report-Only header is used.
+
+[[nsa-content-security-policy-report-only]]
+* **report-only**
+Set to true, to enable the Content-Security-Policy-Report-Only header for reporting policy violations only. Defaults to false.
+
+[[nsa-content-security-policy-parents]]
+===== Parent Elements of <content-security-policy>
+
+* <<nsa-headers,headers>>
 
 
 
