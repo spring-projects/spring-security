@@ -15,20 +15,28 @@
  */
 package org.springframework.security.web.access.expression;
 
+import java.util.Collections;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.web.FilterInvocation;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author Rob Winch
  *
  */
-public class PathVariableSecurityEvaluationContextPostProcessorTests {
-	PathVariableSecurityEvaluationContextPostProcessor processor;
+public class AbstractVariableEvaluationContextPostProcessorTests {
+	AbstractVariableEvaluationContextPostProcessor processor;
 
 	FilterInvocation invocation;
 
@@ -38,19 +46,34 @@ public class PathVariableSecurityEvaluationContextPostProcessorTests {
 
 	@Before
 	public void setup() {
-		processor = new PathVariableSecurityEvaluationContextPostProcessor("/");
+		this.processor = new VariableEvaluationContextPostProcessor();
 
-		request = new MockHttpServletRequest();
-		request.setServletPath("/");
-		response = new MockHttpServletResponse();
-		invocation = new FilterInvocation(request,response, new MockFilterChain());
-		context = new StandardEvaluationContext();
+		this.request = new MockHttpServletRequest();
+		this.request.setServletPath("/");
+		this.response = new MockHttpServletResponse();
+		this.invocation = new FilterInvocation(this.request, this.response,
+				new MockFilterChain());
+		this.context = new StandardEvaluationContext();
 	}
 
 	@Test
-	public void queryIgnored() {
-		request.setQueryString("logout");
-		processor.postProcess(context, invocation);
+	public void postProcess() {
+		this.processor.postProcess(this.context, this.invocation);
+
+		for (String key : VariableEvaluationContextPostProcessor.RESULTS.keySet()) {
+			assertThat(this.context.lookupVariable(key))
+					.isEqualTo(VariableEvaluationContextPostProcessor.RESULTS.get(key));
+		}
 	}
 
+	static class VariableEvaluationContextPostProcessor
+			extends AbstractVariableEvaluationContextPostProcessor {
+		static final Map<String, String> RESULTS = Collections.singletonMap("a", "b");
+
+		@Override
+		protected Map<String, String> extractVariables(HttpServletRequest request) {
+			return RESULTS;
+		}
+
+	}
 }

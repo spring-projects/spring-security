@@ -20,8 +20,11 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.ParseException;
 import org.springframework.security.access.ConfigAttribute;
@@ -38,8 +41,8 @@ import org.springframework.util.Assert;
  * @author Luke Taylor
  * @since 3.0
  */
-public final class ExpressionBasedFilterInvocationSecurityMetadataSource extends
-		DefaultFilterInvocationSecurityMetadataSource {
+public final class ExpressionBasedFilterInvocationSecurityMetadataSource
+		extends DefaultFilterInvocationSecurityMetadataSource {
 	private final static Log logger = LogFactory
 			.getLog(ExpressionBasedFilterInvocationSecurityMetadataSource.class);
 
@@ -67,26 +70,49 @@ public final class ExpressionBasedFilterInvocationSecurityMetadataSource extends
 			ArrayList<ConfigAttribute> attributes = new ArrayList<ConfigAttribute>(1);
 			String expression = entry.getValue().toArray(new ConfigAttribute[1])[0]
 					.getAttribute();
-			logger.debug("Adding web access control expression '" + expression
-					+ "', for " + request);
+			logger.debug("Adding web access control expression '" + expression + "', for "
+					+ request);
 
-			String pattern = null;
-			if(request instanceof AntPathRequestMatcher) {
-				pattern = ((AntPathRequestMatcher)request).getPattern();
-			}
+			AbstractVariableEvaluationContextPostProcessor postProcessor = createPostProcessor(
+					request);
 			try {
-				attributes.add(new WebExpressionConfigAttribute(parser
-						.parseExpression(expression), new PathVariableSecurityEvaluationContextPostProcessor(pattern)));
+				attributes.add(new WebExpressionConfigAttribute(
+						parser.parseExpression(expression), postProcessor));
 			}
 			catch (ParseException e) {
-				throw new IllegalArgumentException("Failed to parse expression '"
-						+ expression + "'");
+				throw new IllegalArgumentException(
+						"Failed to parse expression '" + expression + "'");
 			}
 
 			requestToExpressionAttributesMap.put(request, attributes);
 		}
 
 		return requestToExpressionAttributesMap;
+	}
+
+	private static AbstractVariableEvaluationContextPostProcessor createPostProcessor(
+			Object request) {
+		if (request instanceof AntPathRequestMatcher) {
+			return new AntPathMatcherEvaluationContextPostProcessor(
+					(AntPathRequestMatcher) request);
+		}
+		return null;
+	}
+
+	static class AntPathMatcherEvaluationContextPostProcessor
+			extends AbstractVariableEvaluationContextPostProcessor {
+		private final AntPathRequestMatcher matcher;
+
+		public AntPathMatcherEvaluationContextPostProcessor(
+				AntPathRequestMatcher matcher) {
+			this.matcher = matcher;
+		}
+
+		@Override
+		protected Map<String, String> extractVariables(
+				HttpServletRequest request) {
+			return this.matcher.extractUriTemplateVariables(request);
+		}
 	}
 
 }

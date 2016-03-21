@@ -51,7 +51,7 @@ public class WebExpressionVoterTests {
 	public void supportsWebConfigAttributeAndFilterInvocation() throws Exception {
 		WebExpressionVoter voter = new WebExpressionVoter();
 		assertThat(voter.supports(new WebExpressionConfigAttribute(mock(Expression.class),
-				mock(SecurityEvaluationContextPostProcessor.class)))).isTrue();
+				mock(EvaluationContextPostProcessor.class)))).isTrue();
 		assertThat(voter.supports(FilterInvocation.class)).isTrue();
 		assertThat(voter.supports(MethodInvocation.class)).isFalse();
 
@@ -69,8 +69,8 @@ public class WebExpressionVoterTests {
 	public void grantsAccessIfExpressionIsTrueDeniesIfFalse() {
 		WebExpressionVoter voter = new WebExpressionVoter();
 		Expression ex = mock(Expression.class);
-		SecurityEvaluationContextPostProcessor postProcessor = mock(
-				SecurityEvaluationContextPostProcessor.class);
+		EvaluationContextPostProcessor postProcessor = mock(
+				EvaluationContextPostProcessor.class);
 		when(postProcessor.postProcess(any(EvaluationContext.class),
 				any(FilterInvocation.class))).thenAnswer(new Answer<EvaluationContext>() {
 

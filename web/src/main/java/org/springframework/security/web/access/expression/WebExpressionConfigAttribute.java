@@ -26,29 +26,34 @@ import org.springframework.security.web.FilterInvocation;
  * @author Luke Taylor
  * @since 3.0
  */
-class WebExpressionConfigAttribute implements ConfigAttribute, SecurityEvaluationContextPostProcessor<FilterInvocation> {
+class WebExpressionConfigAttribute implements ConfigAttribute,
+		EvaluationContextPostProcessor<FilterInvocation> {
 	private final Expression authorizeExpression;
-	private final SecurityEvaluationContextPostProcessor<FilterInvocation> postProcessor;
+	private final EvaluationContextPostProcessor<FilterInvocation> postProcessor;
 
-	public WebExpressionConfigAttribute(Expression authorizeExpression, SecurityEvaluationContextPostProcessor<FilterInvocation> postProcessor) {
+	public WebExpressionConfigAttribute(Expression authorizeExpression,
+			EvaluationContextPostProcessor<FilterInvocation> postProcessor) {
 		this.authorizeExpression = authorizeExpression;
 		this.postProcessor = postProcessor;
 	}
 
 	Expression getAuthorizeExpression() {
-		return authorizeExpression;
+		return this.authorizeExpression;
 	}
 
+	@Override
 	public EvaluationContext postProcess(EvaluationContext context, FilterInvocation fi) {
-		return postProcessor.postProcess(context, fi);
+		return this.postProcessor == null ? context
+				: this.postProcessor.postProcess(context, fi);
 	}
 
+	@Override
 	public String getAttribute() {
 		return null;
 	}
 
 	@Override
 	public String toString() {
-		return authorizeExpression.getExpressionString();
+		return this.authorizeExpression.getExpressionString();
 	}
 }

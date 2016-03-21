@@ -116,6 +116,25 @@ public class AuthorizeRequestsTests {
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_FORBIDDEN);
 	}
 
+	// SEC-2256
+	@Test
+	public void antMatchersPathVariablesCaseInsensitive() throws Exception {
+		loadConfig(AntPatchersPathVariables.class);
+
+		this.request.setServletPath("/USER/user");
+
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
+
+		this.setup();
+		this.request.setServletPath("/USER/deny");
+
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_FORBIDDEN);
+	}
+
 	@EnableWebSecurity
 	@Configuration
 	static class AntPatchersPathVariables extends WebSecurityConfigurerAdapter {

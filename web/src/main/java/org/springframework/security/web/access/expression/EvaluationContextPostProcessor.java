@@ -29,7 +29,7 @@ import org.springframework.expression.EvaluationContext;
  * @since 4.1
  * @param <I> the invocation to use for post processing
  */
-interface SecurityEvaluationContextPostProcessor<I> {
+interface EvaluationContextPostProcessor<I> {
 
 	/**
 	 * Allows post processing of the {@link EvaluationContext}. Implementations
