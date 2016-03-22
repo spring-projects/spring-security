@@ -73,6 +73,11 @@ public class AuthenticationConfiguration {
 		return new InitializeUserDetailsBeanManagerConfigurer(context);
 	}
 
+	@Bean
+	public static InitializeAuthenticationProviderBeanManagerConfigurer initializeAuthenticationProviderBeanManagerConfigurer(ApplicationContext context) {
+		return new InitializeAuthenticationProviderBeanManagerConfigurer(context);
+	}
+
 	public AuthenticationManager getAuthenticationManager() throws Exception {
 		if (authenticationManagerInitialized) {
 			return authenticationManager;

@@ -16,9 +16,8 @@
 package org.springframework.security.config.annotation.authentication.configuration;
 
 import org.springframework.context.ApplicationContext;
-import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configurers.GlobalAuthenticationConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -32,18 +31,20 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  * @author Rob Winch
  * @since 4.1
  */
-@Order(InitializeUserDetailsBeanManagerConfigurer.DEFAULT_ORDER)
-class InitializeUserDetailsBeanManagerConfigurer
+@Order(InitializeAuthenticationProviderBeanManagerConfigurer.DEFAULT_ORDER)
+class InitializeAuthenticationProviderBeanManagerConfigurer
 		extends GlobalAuthenticationConfigurerAdapter {
 
-	static final int DEFAULT_ORDER = Ordered.LOWEST_PRECEDENCE - 5000;
+	static final int DEFAULT_ORDER = InitializeUserDetailsBeanManagerConfigurer.DEFAULT_ORDER
+			- 100;
 
 	private final ApplicationContext context;
 
 	/**
-	 * @param context
+	 * @param context the ApplicationContext to look up beans.
 	 */
-	public InitializeUserDetailsBeanManagerConfigurer(ApplicationContext context) {
+	public InitializeAuthenticationProviderBeanManagerConfigurer(
+			ApplicationContext context) {
 		this.context = context;
 	}
 
@@ -59,34 +60,27 @@ class InitializeUserDetailsBeanManagerConfigurer
 			if (auth.isConfigured()) {
 				return;
 			}
-			UserDetailsService userDetailsService = getBeanOrNull(
-					UserDetailsService.class);
-			if (userDetailsService == null) {
+			AuthenticationProvider authenticationProvider = getBeanOrNull(
+					AuthenticationProvider.class);
+			if (authenticationProvider == null) {
 				return;
 			}
 
-			PasswordEncoder passwordEncoder = getBeanOrNull(PasswordEncoder.class);
 
-			DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-			provider.setUserDetailsService(userDetailsService);
-			if (passwordEncoder != null) {
-				provider.setPasswordEncoder(passwordEncoder);
-			}
-
-			auth.authenticationProvider(provider);
+			auth.authenticationProvider(authenticationProvider);
 		}
 
 		/**
 		 * @return
 		 */
 		private <T> T getBeanOrNull(Class<T> type) {
-			String[] userDetailsBeanNames = InitializeUserDetailsBeanManagerConfigurer.this.context
+			String[] userDetailsBeanNames = InitializeAuthenticationProviderBeanManagerConfigurer.this.context
 					.getBeanNamesForType(type);
 			if (userDetailsBeanNames.length != 1) {
 				return null;
 			}
 
-			return InitializeUserDetailsBeanManagerConfigurer.this.context
+			return InitializeAuthenticationProviderBeanManagerConfigurer.this.context
 					.getBean(userDetailsBeanNames[0], type);
 		}
 	}
