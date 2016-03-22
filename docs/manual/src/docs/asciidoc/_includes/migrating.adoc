@@ -1,0 +1,17 @@
+[[m3to4]]
+== Migrating from 3.x to 4.x
+
+NOTE: Upgrading from Spring Security 4.0.x is passive.
+These instructions are for users who are updating from Spring Security 3.2.x to 4.1.x.
+
+As exploits against applications evolve, so must Spring Security.
+As a major release version, the Spring Security team took the opportunity to make some non-passive changes which focus on:
+
+* Ensuring Spring Security is more https://www.owasp.org/index.php/Establish_secure_defaults[secure by default]
+* Minimizing https://www.owasp.org/index.php/Information_Leakage[Information Leakage]
+* Removing deprecated APIs
+
+For complete details on migrating from Spring Security 3 to Spring Security 4 refer to one of the guides below:
+
+* http://docs.spring.io/spring-security/site/migrate/current/3-to-4/html5/migrate-3-to-4-xml.html[Migrating from Spring Security 3.x to 4.x (XML Configuration)]
+* http://docs.spring.io/spring-security/site/migrate/current/3-to-4/html5/migrate-3-to-4-jc.html[Migrating from Spring Security 3.x to 4.x (Java Configuration)]

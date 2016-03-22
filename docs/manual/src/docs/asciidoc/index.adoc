@@ -370,92 +370,16 @@ git clone https://github.com/spring-projects/spring-security.git
 This will give you access to the entire project history (including all releases and branches) on your local machine.
 
 [[new]]
-== What's new in Spring Security 4.1
+== What's New in Spring Security 4.1
 
+* <<el-access-web-path-variables,Path Variables in Web Security Expressions>>
 * Meta Annotation Support
 ** <<test-method-meta-annotations,Test Meta Annotations>>
 ** <<method-security-meta-annotations,Method Security Meta Annotations>>
-* <<el-access-web-path-variables,Path Variables in Web Security Expressions>>
 * <<test-method-withanonymoususer,@WithAnonymousUser>>
 * <<jc-authentication-userdetailsservice,Simplified UserDetailsService Java Configuration>>
 * <<jc-authentication-authenticationprovider,Simplified AuthenticationProvider Java Configuration>>
 
-=== What's new in Spring Security 4.0
-
-There are http://goo.gl/ui9GCl[175+ tickets resolved] with the Spring Security 4.0 release.
-
-[[new-features]]
-=== Features
-
-Below are the highlights of the new features found in Spring Security 4.0.
-
-* <<websocket,Web Socket Support>>
-* <<test,Test Support>>
-* <<data,Spring Data Integration>>
-* <<mvc-csrf-resolver,CSRF Token Argument Resolver>>
-* More Secure Defaults
-* Methods with role in them do not require ROLE_
-For example, previously the following would be required within XML configuration:
-
-+
-
-[source,xml]
-----
-<intercept-url pattern="/**" access="hasRole('ROLE_USER')"/>
-----
-
-+
-
-Now you can optionally omit the ROLE_ prefix.
-We do this to remove duplication.
-Specifically, since the expression hasRole already defines the value as a role it automatically adds the prefix if it is not there.
-For example, the following is the same as the previous configuration:
-
-+
-
-[source,xml]
-----
-<intercept-url pattern="/**" access="hasRole('USER')"/>
-----
-
-+
-
-Similarly, the following configuration:
-
-+
-
-[source,java]
-----
-@PreAuthorize("hasRole('ROLE_USER')")
-----
-+
-
-is the same as this more concise configuration:
-+
-
-[source,java]
-----
-@PreAuthorize("hasRole('USER')")
-----
-
-* Many Integration Tests Added to Samples
-* https://jira.spring.io/browse/SEC-2790[Deprecate @EnableWebMvcSecurity] - by updating the minimum Spring Version, we can now allow defaulting MVC integration with `@EnableWebSecurity` but still allow it to be overridden
-
-
-[[m3to4]]
-=== Migrating from 3.x to 4.x
-
-As exploits against applications evolve, so must Spring Security.
-As a major release version, the Spring Security team took the opportunity to make some non-passive changes which focus on:
-
-* Ensuring Spring Security is more https://www.owasp.org/index.php/Establish_secure_defaults[secure by default]
-* Minimizing https://www.owasp.org/index.php/Information_Leakage[Information Leakage]
-* Removing deprecated APIs
-
-For complete details on migrating from Spring Security 3 to Spring Security 4 refer to one of the guides below:
-
-* http://docs.spring.io/spring-security/site/migrate/current/3-to-4/html5/migrate-3-to-4-xml.html[Migrating from Spring Security 3.x to 4.x (XML Configuration)]
-* http://docs.spring.io/spring-security/site/migrate/current/3-to-4/html5/migrate-3-to-4-jc.html[Migrating from Spring Security 3.x to 4.x (Java Configuration)]
 
 [[jc]]
 == Java Configuration
@@ -9487,3 +9411,5 @@ Provides Spring Security's JSP tag implementations.
 |===
 
 include::{include-dir}/faq.adoc[]
+
+include::{include-dir}/migrating.adoc[]
