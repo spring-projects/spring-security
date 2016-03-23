@@ -3917,7 +3917,7 @@ protected void configure(HttpSecurity http) throws Exception {
 }
 ----
 
-[[headers-content-security-policy]]
+[[headers-csp]]
 ==== Content Security Policy (CSP)
 
 https://www.w3.org/TR/CSP2/[Content Security Policy (CSP)] is a mechanism that web applications can leverage to mitigate content injection vulnerabilities,
@@ -3975,6 +3975,7 @@ If the site violates this policy, by attempting to load a script from _evil.com_
 the user-agent will send a violation report to the declared URL specified by the _report-uri_ directive,
 but still allow the violating resource to load nevertheless.
 
+[[headers-csp-configure]]
 ===== Configuring Content Security Policy
 
 It's important to note that Spring Security *_does not add_* Content Security Policy by default.
@@ -4053,6 +4054,7 @@ protected void configure(HttpSecurity http) throws Exception {
 }
 ----
 
+[[headers-csp-links]]
 ===== Additional Resources
 
 Applying Content Security Policy to a web application is often a non-trivial undertaking.
