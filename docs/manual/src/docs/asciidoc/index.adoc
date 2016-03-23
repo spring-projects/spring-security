@@ -373,12 +373,18 @@ This will give you access to the entire project history (including all releases 
 == What's New in Spring Security 4.1
 
 * <<el-access-web-path-variables,Path Variables in Web Security Expressions>>
+* <<headers-csp,Content Security Policy (CSP)>>
+* <<headers-hpkp,HTTP Public Key Pinning (HPKP)>>
+* Added `ForwardAuthenticationFailureHandler` & `ForwardAuthenticationSuccessHandler`
+* SCrypt support with `SCryptPasswordEncoder`
 * Meta Annotation Support
 ** <<test-method-meta-annotations,Test Meta Annotations>>
 ** <<method-security-meta-annotations,Method Security Meta Annotations>>
 * <<test-method-withanonymoususer,@WithAnonymousUser>>
+* <<test-method-withuserdetails,@WithUserDetails>> allows specifying the `UserDetailsService` bean name
 * <<jc-authentication-userdetailsservice,Simplified UserDetailsService Java Configuration>>
 * <<jc-authentication-authenticationprovider,Simplified AuthenticationProvider Java Configuration>>
+* Moved to GitHub issues
 
 
 [[jc]]
