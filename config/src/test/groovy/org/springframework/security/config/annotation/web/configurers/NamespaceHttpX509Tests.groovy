@@ -63,7 +63,7 @@ public class NamespaceHttpX509Tests extends BaseSpringSpec {
 			request.setAttribute("javax.servlet.request.X509Certificate", [certificate] as X509Certificate[] )
 			springSecurityFilterChain.doFilter(request, response, chain);
 		then:
-			response.status == 302
+			response.status == 200
 			authentication().name == 'rod'
 	}
 
@@ -138,7 +138,7 @@ public class NamespaceHttpX509Tests extends BaseSpringSpec {
 			request.setAttribute("javax.servlet.request.X509Certificate", [certificate] as X509Certificate[] )
 			springSecurityFilterChain.doFilter(request, response, chain);
 		then:
-			response.status == 302
+			response.status == 200
 			authentication().name == 'rod'
 	}
 
@@ -170,7 +170,7 @@ public class NamespaceHttpX509Tests extends BaseSpringSpec {
 			request.setAttribute("javax.servlet.request.X509Certificate", [certificate] as X509Certificate[] )
 			springSecurityFilterChain.doFilter(request, response, chain);
 		then:
-			response.status == 302
+			response.status == 200
 			authentication().name == 'customuser'
 	}
 
@@ -202,7 +202,7 @@ public class NamespaceHttpX509Tests extends BaseSpringSpec {
 			request.setAttribute("javax.servlet.request.X509Certificate", [certificate] as X509Certificate[] )
 			springSecurityFilterChain.doFilter(request, response, chain);
 		then:
-			response.status == 302
+			response.status == 200
 			authentication().name == 'customuser'
 	}
 

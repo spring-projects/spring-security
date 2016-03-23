@@ -84,8 +84,8 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 	private boolean continueFilterChainOnUnsuccessfulAuthentication = true;
 	private boolean checkForPrincipalChanges;
 	private boolean invalidateSessionOnPrincipalChange = true;
-	private AuthenticationSuccessHandler authenticationSuccessHandler = new SavedRequestAwareAuthenticationSuccessHandler();
-	private AuthenticationFailureHandler authenticationFailureHandler = new SimpleUrlAuthenticationFailureHandler();
+	private AuthenticationSuccessHandler authenticationSuccessHandler = null;
+	private AuthenticationFailureHandler authenticationFailureHandler = null;
 
 	/**
 	 * Check whether all required properties have been set.
@@ -242,7 +242,9 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 					authResult, this.getClass()));
 		}
 
-		authenticationSuccessHandler.onAuthenticationSuccess(request, response, authResult);
+		if(authenticationSuccessHandler != null) {
+			authenticationSuccessHandler.onAuthenticationSuccess(request, response, authResult);
+		}
 	}
 
 	/**
@@ -259,7 +261,10 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 			logger.debug("Cleared security context due to exception", failed);
 		}
 		request.setAttribute(WebAttributes.AUTHENTICATION_EXCEPTION, failed);
-		authenticationFailureHandler.onAuthenticationFailure(request, response, failed);
+
+		if(authenticationFailureHandler != null) {
+			authenticationFailureHandler.onAuthenticationFailure(request, response, failed);
+		}
 	}
 
 	/**
@@ -330,20 +335,16 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 	}
 
 	/**
-	 * Sets the strategy used to handle a successful authentication. By default a
-	 * {@link SavedRequestAwareAuthenticationSuccessHandler} is used.
+	 * Sets the strategy used to handle a successful authentication.
 	 */
 	public void setAuthenticationSuccessHandler(AuthenticationSuccessHandler authenticationSuccessHandler) {
-		Assert.notNull(authenticationSuccessHandler, "successHandler cannot be null");
 		this.authenticationSuccessHandler = authenticationSuccessHandler;
 	}
 
 	/**
-	 * Sets the strategy used to handle a failed authentication. By default a
-	 * {@link SimpleUrlAuthenticationFailureHandler} is used.
+	 * Sets the strategy used to handle a failed authentication.
 	 */
 	public void setAuthenticationFailureHandler(AuthenticationFailureHandler authenticationFailureHandler) {
-		Assert.notNull(authenticationFailureHandler, "failureHandler cannot be null");
 		this.authenticationFailureHandler = authenticationFailureHandler;
 	}
 
