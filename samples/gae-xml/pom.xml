@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-samples-gae-xml</artifactId>
-  <version>4.1.0.BUILD-SNAPSHOT</version>
+  <version>4.1.0.RC1</version>
   <packaging>war</packaging>
   <name>spring-security-samples-gae-xml</name>
   <description>spring-security-samples-gae-xml</description>
@@ -73,13 +73,13 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <version>4.1.0.BUILD-SNAPSHOT</version>
+      <version>4.1.0.RC1</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
-      <version>4.1.0.BUILD-SNAPSHOT</version>
+      <version>4.1.0.RC1</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -147,13 +147,13 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
-      <version>4.1.0.BUILD-SNAPSHOT</version>
+      <version>4.1.0.RC1</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-taglibs</artifactId>
-      <version>4.1.0.BUILD-SNAPSHOT</version>
+      <version>4.1.0.RC1</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -206,8 +206,8 @@
   </dependencies>
   <repositories>
     <repository>
-      <id>spring-snapshot</id>
-      <url>https://repo.spring.io/snapshot</url>
+      <id>spring-milestone</id>
+      <url>https://repo.spring.io/milestone</url>
     </repository>
   </repositories>
   <build>
