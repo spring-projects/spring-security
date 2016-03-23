@@ -209,7 +209,7 @@ For example, this test would look up the username of "customUsername" using the 
 
 [source,java]
 ----
-@T@Test
+@Test
 @WithUserDetails(value="customUsername", userDetailsServiceBeanName="myUserDetailsService")
 public void getMessageWithUserDetailsServiceBeanName() {
 	String message = messageService.getMessage();
