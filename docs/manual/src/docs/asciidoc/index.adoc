@@ -1905,7 +1905,7 @@ Spring Security uses JIRA to manage bug reports and enhancement requests. If you
 
 If possible, in your issue report please provide a JUnit test that demonstrates any incorrect behaviour. Or, better yet, provide a patch that corrects the issue. Similarly, enhancements are welcome to be logged in the issue tracker, although we only accept enhancement requests if you include corresponding unit tests. This is necessary to ensure project test coverage is adequately maintained.
 
-You can access the issue tracker at https://jira.spring.io/browse/SEC[https://jira.spring.io/browse/SEC].
+You can access the issue tracker at https://github.com/spring-projects/spring-security/issues.
 
 
 [[becoming-involved]]
