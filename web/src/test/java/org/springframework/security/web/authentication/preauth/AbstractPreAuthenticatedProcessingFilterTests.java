@@ -40,9 +40,13 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.web.WebAttributes;
+import org.springframework.security.web.authentication.ForwardAuthenticationFailureHandler;
+import org.springframework.security.web.authentication.ForwardAuthenticationSuccessHandler;
 
 /**
  *
@@ -204,6 +208,51 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		filter.doFilter(request, response, chain);
 
 		verify(am).authenticate(any(PreAuthenticatedAuthenticationToken.class));
+	}
+
+	@Test
+	public void callsAuthenticationSuccessHandlerOnSuccessfulAuthentication() throws Exception {
+		Object currentPrincipal = "currentUser";
+		TestingAuthenticationToken authRequest = new TestingAuthenticationToken(
+				currentPrincipal, "something", "ROLE_USER");
+		SecurityContextHolder.getContext().setAuthentication(authRequest);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockFilterChain chain = new MockFilterChain();
+
+		ConcretePreAuthenticatedProcessingFilter filter = new ConcretePreAuthenticatedProcessingFilter();
+		filter.setAuthenticationSuccessHandler(new ForwardAuthenticationSuccessHandler("/forwardUrl"));
+		filter.setCheckForPrincipalChanges(true);
+		filter.principal = "newUser";
+		AuthenticationManager am = mock(AuthenticationManager.class);
+		filter.setAuthenticationManager(am);
+		filter.afterPropertiesSet();
+
+		filter.doFilter(request, response, chain);
+
+		verify(am).authenticate(any(PreAuthenticatedAuthenticationToken.class));
+		assertThat(response.getForwardedUrl()).isEqualTo("/forwardUrl");
+	}
+
+	@Test
+	public void callsAuthenticationFailureHandlerOnFailedAuthentication() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockFilterChain chain = new MockFilterChain();
+
+		ConcretePreAuthenticatedProcessingFilter filter = new ConcretePreAuthenticatedProcessingFilter();
+		filter.setAuthenticationFailureHandler(new ForwardAuthenticationFailureHandler("/forwardUrl"));
+		filter.setCheckForPrincipalChanges(true);
+		AuthenticationManager am = mock(AuthenticationManager.class);
+		when(am.authenticate(any(PreAuthenticatedAuthenticationToken.class))).thenThrow(new PreAuthenticatedCredentialsNotFoundException("invalid"));
+		filter.setAuthenticationManager(am);
+		filter.afterPropertiesSet();
+
+		filter.doFilter(request, response, chain);
+
+		verify(am).authenticate(any(PreAuthenticatedAuthenticationToken.class));
+		assertThat(response.getForwardedUrl()).isEqualTo("/forwardUrl");
+		assertThat(request.getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION)).isNotNull();
 	}
 
 	// SEC-2078
