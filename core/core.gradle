@@ -24,14 +24,16 @@ dependencies {
 			 'javax.annotation:jsr250-api:1.0',
 			 "org.aspectj:aspectjrt:$aspectjVersion",
 			 "org.springframework:spring-jdbc:$springVersion",
-			 "org.springframework:spring-tx:$springVersion"
+			 "org.springframework:spring-tx:$springVersion",
+			 "com.fasterxml.jackson.core:jackson-databind:$jacksonDatavindVersion"
 
 	included cryptoProject
 
 	testCompile "commons-collections:commons-collections:$commonsCollectionsVersion",
 				"org.springframework:spring-test:$springVersion",
 				"org.slf4j:jcl-over-slf4j:$slf4jVersion",
-				powerMockDependencies
+				powerMockDependencies,
+				"org.skyscreamer:jsonassert:$jsonassertVersion"
 
 	testRuntime "org.hsqldb:hsqldb:$hsqlVersion"
 }

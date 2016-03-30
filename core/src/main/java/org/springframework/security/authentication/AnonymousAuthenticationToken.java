@@ -41,30 +41,51 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken im
 	/**
 	 * Constructor.
 	 *
-	 * @param key to identify if this object made by an authorised client
-	 * @param principal the principal (typically a <code>UserDetails</code>)
+	 * @param key         to identify if this object made by an authorised client
+	 * @param principal   the principal (typically a <code>UserDetails</code>)
 	 * @param authorities the authorities granted to the principal
-	 *
 	 * @throws IllegalArgumentException if a <code>null</code> was passed
 	 */
 	public AnonymousAuthenticationToken(String key, Object principal,
-			Collection<? extends GrantedAuthority> authorities) {
+										Collection<? extends GrantedAuthority> authorities) {
+		this(extractKeyHash(key), nullSafeValue(principal), authorities);
+	}
+
+	/**
+	 * Constructor helps in Jackson Deserialization
+	 *
+	 * @param keyHash     hashCode of provided Key, constructed by above constructor
+	 * @param principal   the principal (typically a <code>UserDetails</code>)
+	 * @param authorities the authorities granted to the principal
+	 * @since 4.2
+	 */
+	private AnonymousAuthenticationToken(Integer keyHash, Object principal,
+										Collection<? extends GrantedAuthority> authorities) {
 		super(authorities);
 
-		if ((key == null) || ("".equals(key)) || (principal == null)
-				|| "".equals(principal) || (authorities == null)
-				|| (authorities.isEmpty())) {
-			throw new IllegalArgumentException(
-					"Cannot pass null or empty values to constructor");
+		if (authorities == null || authorities.isEmpty()) {
+			throw new IllegalArgumentException("Cannot pass null or empty values to constructor");
 		}
 
-		this.keyHash = key.hashCode();
+		this.keyHash = keyHash;
 		this.principal = principal;
 		setAuthenticated(true);
 	}
 
 	// ~ Methods
 	// ========================================================================================================
+
+	private static Integer extractKeyHash(String key) {
+		Object value = nullSafeValue(key);
+		return value.hashCode();
+	}
+
+	private static Object nullSafeValue(Object value) {
+		if (value == null || "".equals(value)) {
+			throw new IllegalArgumentException("Cannot pass null or empty values to constructor");
+		}
+		return value;
+	}
 
 	public boolean equals(Object obj) {
 		if (!super.equals(obj)) {
