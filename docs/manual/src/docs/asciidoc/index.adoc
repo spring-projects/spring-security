@@ -3775,15 +3775,19 @@ When the client visits the server again, it expects a certificate containing a p
 
 [NOTE]
 ====
-Because the UA needs to validate the pins against the SSL certificate chain, the HPKP header is only injected into HTTPS responses.
+Because the user-agent needs to validate the pins against the SSL certificate chain, the HPKP header is only injected into HTTPS responses.
 ====
 
-Enabling this feature for your site is as simple as returning the Public-Key-Pins HTTP header when your site is accessed over HTTPS. For example the following would instruct the browser to only report pin validation failures to a given URI for 2 pins:
+Enabling this feature for your site is as simple as returning the Public-Key-Pins HTTP header when your site is accessed over HTTPS.
+For example, the following would instruct the user-agent to only report pin validation failures to a given URI (via the https://tools.ietf.org/html/rfc7469#section-2.1.4[*_report-uri_*] directive) for 2 pins:
 
 [source]
 ----
 Public-Key-Pins-Report-Only: max-age=5184000 ; pin-sha256="d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=" ; pin-sha256="E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=" ; report-uri="http://example.net/pkp-report" ; includeSubDomains
 ----
+
+A https://tools.ietf.org/html/rfc7469#section-3[*_pin validation failure report_*] is a standard JSON structure that can be captured
+either by the web application's own API or by a publicly hosted HPKP reporting service, such as, https://report-uri.io/[*_REPORT-URI_*].
 
 The optional includeSubDomains directive instructs the browser to also validate subdomains with the given pins.
 
@@ -3968,6 +3972,9 @@ the following response header will instruct the user-agent to send violation rep
 ----
 Content-Security-Policy: script-src https://trustedscripts.example.com; report-uri /csp-report-endpoint/
 ----
+
+https://www.w3.org/TR/CSP2/#violation-reports[*_Violation reports_*] are standard JSON structures that can be captured
+either by the web application's own API or by a publicly hosted CSP violation reporting service, such as, https://report-uri.io/[*_REPORT-URI_*].
 
 The *_Content-Security-Policy-Report-Only_* header provides the capability for web application authors and administrators to monitor security policies, rather than enforce them.
 This header is typically used when experimenting and/or developing security policies for a site.
