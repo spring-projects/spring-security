@@ -4851,7 +4851,7 @@ You could refer to the method using:
 ----
 <http>
 	<intercept-url pattern="/user/{userId}/**"
-		access="@webSecurity.checkUserId(authentication,userId)"/>
+		access="@webSecurity.checkUserId(authentication,#userId)"/>
 	...
 </http>
 ----
@@ -4862,7 +4862,7 @@ or in Java configuration
 ----
 http
 		.authorizeUrls()
-				.antMatchers("/user/{userId}/**").access("@webSecurity.checkUserId(authentication,userId)")
+				.antMatchers("/user/{userId}/**").access("@webSecurity.checkUserId(authentication,#userId)")
 				...
 ----
 
