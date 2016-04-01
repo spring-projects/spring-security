@@ -177,6 +177,9 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 
 		public AsyncContext getAsyncContext() {
 			AsyncContext asyncContext = super.getAsyncContext();
+			if (asyncContext == null) {
+				return null;
+			}
 			return new SecurityContextAsyncContext(asyncContext);
 		}
 

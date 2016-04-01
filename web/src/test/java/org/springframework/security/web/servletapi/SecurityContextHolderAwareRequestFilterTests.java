@@ -300,6 +300,12 @@ public class SecurityContextHolderAwareRequestFilterTests {
 				this.logoutHandler);
 	}
 
+	// gh-3780
+	@Test
+	public void getAsyncContextNullFromSuper() throws Exception {
+		assertThat(wrappedRequest().getAsyncContext()).isNull();
+	}
+
 	@Test
 	public void getAsyncContextStart() throws Exception {
 		ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
