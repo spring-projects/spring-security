@@ -66,10 +66,10 @@ public class WithSecurityContextTestExecutionListener extends
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private SecurityContext createSecurityContext(AnnotatedElement annotated,
 			TestContext context) {
-		WithSecurityContext withUser = AnnotationUtils.findAnnotation(
+		WithSecurityContext withSecurityContext = AnnotationUtils.findAnnotation(
 				annotated, WithSecurityContext.class);
-		if (withUser != null) {
-			WithSecurityContextFactory factory = createFactory(withUser, context);
+		if (withSecurityContext != null) {
+			WithSecurityContextFactory factory = createFactory(withSecurityContext, context);
 			Class<? extends Annotation> type = (Class<? extends Annotation>) GenericTypeResolver.resolveTypeArgument(factory.getClass(), WithSecurityContextFactory.class);
 			Annotation annotation  = AnnotationUtils.findAnnotation(annotated, type);
 			try {
@@ -84,8 +84,8 @@ public class WithSecurityContextTestExecutionListener extends
 	}
 
 	private WithSecurityContextFactory<? extends Annotation> createFactory(
-			WithSecurityContext withUser, TestContext testContext) {
-		Class<? extends WithSecurityContextFactory<? extends Annotation>> clazz = withUser
+			WithSecurityContext withSecurityContext, TestContext testContext) {
+		Class<? extends WithSecurityContextFactory<? extends Annotation>> clazz = withSecurityContext
 				.factory();
 		try {
 			return testContext.getApplicationContext().getAutowireCapableBeanFactory().createBean(clazz);
