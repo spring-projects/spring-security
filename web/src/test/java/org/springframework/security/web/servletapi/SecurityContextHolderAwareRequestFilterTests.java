@@ -318,6 +318,7 @@ public class SecurityContextHolderAwareRequestFilterTests {
 		when(this.request.getAsyncContext()).thenReturn(asyncContext);
 		Runnable runnable = new Runnable() {
 
+			@Override
 			public void run() {
 			}
 		};
@@ -347,6 +348,7 @@ public class SecurityContextHolderAwareRequestFilterTests {
 		when(this.request.startAsync()).thenReturn(asyncContext);
 		Runnable runnable = new Runnable() {
 
+			@Override
 			public void run() {
 			}
 		};
@@ -377,6 +379,7 @@ public class SecurityContextHolderAwareRequestFilterTests {
 				.thenReturn(asyncContext);
 		Runnable runnable = new Runnable() {
 
+			@Override
 			public void run() {
 			}
 		};
