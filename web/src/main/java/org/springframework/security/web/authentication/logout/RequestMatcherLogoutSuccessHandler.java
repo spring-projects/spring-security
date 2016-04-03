@@ -48,6 +48,7 @@ public class RequestMatcherLogoutSuccessHandler implements LogoutSuccessHandler 
 		for(Map.Entry<RequestMatcher, LogoutSuccessHandler> entry : requestMatcherLogoutSuccessHandlers.entrySet()) {
 			if(entry.getKey().matches(request)) {
 				entry.getValue().onLogoutSuccess(request, response, authentication);
+				break;
 			}
 		}
 	}

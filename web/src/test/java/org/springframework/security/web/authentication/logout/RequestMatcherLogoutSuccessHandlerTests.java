@@ -101,4 +101,17 @@ public class RequestMatcherLogoutSuccessHandlerTests {
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED.value());
 	}
 
+	@Test
+	public void customRequestMatcherHandlerMap_IPAddressAndAcceptHeader() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setRemoteAddr("192.168.1.5");
+		request.addHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+
+		customLogoutSuccessHandler.onLogoutSuccess(request, response, mock(Authentication.class));
+
+		// IPAddressRequestMatcher -> SimpleUrlLogoutSuccessHandler will be invoked first
+		assertThat(response.getStatus()).isEqualTo(HttpStatus.FOUND.value());
+	}
+
 }
