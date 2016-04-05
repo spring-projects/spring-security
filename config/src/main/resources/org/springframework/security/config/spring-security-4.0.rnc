@@ -319,7 +319,7 @@ http.attlist &=
 http.attlist &=
 	use-expressions?
 http.attlist &=
-	## Controls the eagerness with which an HTTP session is created by Spring Security classes. If not set, defaults to "ifRequired". If "stateless" is used, this implies that the application guarantees that it will not create a session. This differs from the use of "never" which mans that Spring Security will not create a session, but will make use of one if the application does.
+	## Controls the eagerness with which an HTTP session is created by Spring Security classes. If not set, defaults to "ifRequired". If "stateless" is used, this implies that the application guarantees that it will not create a session. This differs from the use of "never" which means that Spring Security will not create a session, but will make use of one if the application does.
 	attribute create-session {"ifRequired" | "always" | "never" | "stateless"}?
 http.attlist &=
 	## A reference to a SecurityContextRepository bean. This can be used to customize how the SecurityContext is stored between requests.
