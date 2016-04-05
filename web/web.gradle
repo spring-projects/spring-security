@@ -11,7 +11,8 @@ dependencies {
 
 	optional "org.springframework:spring-webmvc:$springVersion",
 			"org.springframework:spring-jdbc:$springVersion",
-			"org.springframework:spring-tx:$springVersion"
+			"org.springframework:spring-tx:$springVersion",
+			"com.fasterxml.jackson.core:jackson-databind:$jacksonDatavindVersion"
 
 	provided "javax.servlet:javax.servlet-api:$servletApiVersion"
 
@@ -20,7 +21,8 @@ dependencies {
 				"org.slf4j:jcl-over-slf4j:$slf4jVersion",
 				"org.codehaus.groovy:groovy-all:$groovyVersion",
 				powerMockDependencies,
-				spockDependencies
+				spockDependencies,
+				"org.skyscreamer:jsonassert:$jsonassertVersion"
 
 	testRuntime "org.hsqldb:hsqldb:$hsqlVersion"
 }
