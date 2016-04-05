@@ -1079,7 +1079,7 @@
             <xs:documentation>Controls the eagerness with which an HTTP session is created by Spring Security classes.
                 If not set, defaults to "ifRequired". If "stateless" is used, this implies that the
                 application guarantees that it will not create a session. This differs from the use of
-                "never" which mans that Spring Security will not create a session, but will make use of
+                "never" which means that Spring Security will not create a session, but will make use of
                 one if the application does.
                 </xs:documentation>
          </xs:annotation>
