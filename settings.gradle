@@ -1,3 +1,10 @@
+rootProject.name = 'spring-security'
+
+rootProject.children.each {project ->
+	//assert project.projectDir.isDirectory()
+	//assert project.buildFile.isFile()
+}
+
 def String[] modules = [
 	'core',
 	'data',
@@ -15,45 +22,6 @@ def String[] modules = [
 	'test'
 ]
 
-def String[] samples = [
-	'tutorial-xml',
-	'contacts-xml',
-	'chat-jc',
-	'openid-xml',
-	'aspectj-xml',
-	'aspectj-jc',
-	'data-jc',
-	'gae-xml',
-	'dms-xml',
-	'preauth-xml',
-	'cas/server',
-	'cas/sample-xml',
-	'ldap-xml',
-	'jaas-xml',
-	'servletapi-xml',
-	'concurrency-jc',
-	'form-jc',
-	'helloworld-jc',
-	'helloworld-xml',
-	'hellomvc-jc',
-	'hellojs-jc',
-	'insecure',
-	'insecuremvc',
-	'inmemory-jc',
-	'jdbc-jc',
-	'ldap-jc',
-	'messages-jc',
-	'openid-jc',
-	'preauth-jc',
-	'rememberme-jc',
-	'x509-jc'
-]
-
-def String[] itest = [
-	'web',
-	'context'
-]
-
 include modules
 
 modules.each {name ->
@@ -62,18 +30,10 @@ modules.each {name ->
 	p.buildFileName = "${name}.gradle"
 }
 
-include samples
-
-samples.each {name ->
-	def p = findProject(":${name}")
-	def fullName = name.replaceAll('/','')
-	p.name = "spring-security-samples-${fullName}"
-	p.projectDir = new File(settingsDir, "samples/${name}");
-	if(!p.buildFile.exists()) {
-		def buildFile = fullName.replaceFirst("-xml","")
-		p.buildFileName = "${buildFile}.gradle"
-	}
-}
+def String[] itest = [
+	'web',
+	'context'
+]
 
 include itest
 
@@ -89,12 +49,31 @@ include 'docs', 'docs:manual', 'docs:guides'
 def docs = findProject(':docs')
 docs.buildFileName = 'docs.gradle'
 
-rootProject.name = 'spring-security'
-
-rootProject.children.each {project ->
-	//assert project.projectDir.isDirectory()
-	//assert project.buildFile.isFile()
-}
-
 include 'bom'
+
 findProject(':bom').name = 'spring-security-bom'
+
+includeSamples("samples/xml")
+includeSamples("samples/javaconfig")
+
+void includeSamples(String samplesDir) {
+	FileTree tree = fileTree(samplesDir) {
+		include '**/*.gradle'
+	}
+	tree.each {File file ->
+		String projectDir = file.path.substring(file.path.indexOf(samplesDir), file.path.lastIndexOf('/'))
+		String projectPath = projectDir.substring(projectDir.lastIndexOf('/') + 1)
+		String projectNamePrefix = samplesDir.substring(samplesDir.lastIndexOf('/') + 1).toLowerCase();
+
+		include projectPath
+
+		def project = findProject(":${projectPath}")
+
+		project.name = "spring-security-samples-${projectNamePrefix}-${project.name}"
+		project.projectDir = new File(settingsDir, projectDir)
+
+		if (!project.buildFile.exists()) {
+			project.buildFileName = file.path.substring(file.path.lastIndexOf('/') + 1)
+		}
+	}
+}
