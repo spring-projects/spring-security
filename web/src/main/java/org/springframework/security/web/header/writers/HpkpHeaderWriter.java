@@ -53,21 +53,26 @@ import java.util.Map;
  * and encode them using Base64. The following commands will help you extract the Base64 encoded information
  * from a key file, a certificate signing request, or a certificate.
  *
+ * <pre>
  * openssl rsa -in my-key-file.key -outform der -pubout | openssl dgst -sha256 -binary | openssl enc -base64
  *
  * openssl req -in my-signing-request.csr -pubkey -noout | openssl rsa -pubin -outform der | openssl dgst -sha256 -binary | openssl enc -base64
  *
  * openssl x509 -in my-certificate.crt -pubkey -noout | openssl rsa -pubin -outform der | openssl dgst -sha256 -binary | openssl enc -base64
+ * </pre>
  *
  *
  * The following command will extract the Base64 encoded information for a website.
  *
+ * <pre>
  * openssl s_client -servername www.example.com -connect www.example.com:443 | openssl x509 -pubkey -noout | openssl rsa -pubin -outform der | openssl dgst -sha256 -binary | openssl enc -base64
+ * </pre>
  * </p>
  *
  * <p>
  * Some examples:
  *
+ * <pre>
  * Public-Key-Pins: max-age=3000;
  * 		pin-sha256="d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=";
  * 		pin-sha256="E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g="
@@ -91,6 +96,7 @@ import java.util.Map;
  * 		pin-sha256="E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=";
  * 		pin-sha256="LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ=";
  * 		includeSubDomains
+ * </pre>
  * </p>
  *
  * @author Tim Ysewyn
