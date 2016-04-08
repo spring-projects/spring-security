@@ -36,6 +36,7 @@ import org.springframework.test.web.servlet.ResultMatcher;
  * Security related {@link MockMvc} {@link ResultMatcher}s.
  *
  * @author Rob Winch
+ * @author Eddú Meléndez
  * @since 4.0
  */
 public final class SecurityMockMvcResultMatchers {
@@ -84,7 +85,7 @@ public final class SecurityMockMvcResultMatchers {
 		private Authentication expectedAuthentication;
 		private Object expectedAuthenticationPrincipal;
 		private String expectedAuthenticationName;
-		private Collection<GrantedAuthority> expectedGrantedAuthorities;
+		private Collection<? extends GrantedAuthority> expectedGrantedAuthorities;
 
 		public void match(MvcResult result) throws Exception {
 			SecurityContext context = load(result);
@@ -194,7 +195,7 @@ public final class SecurityMockMvcResultMatchers {
 		 * @param expected the {@link Authentication#getAuthorities()}
 		 * @return the {@link AuthenticatedMatcher} for further customization
 		 */
-		public AuthenticatedMatcher withAuthorities(Collection<GrantedAuthority> expected) {
+		public AuthenticatedMatcher withAuthorities(Collection<? extends GrantedAuthority> expected) {
 			this.expectedGrantedAuthorities = expected;
 			return this;
 		}
