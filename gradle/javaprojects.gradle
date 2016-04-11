@@ -219,6 +219,13 @@ javadoc {
 	}
 }
 
+if (JavaVersion.current().isJava8Compatible()) {
+	tasks.withType(Javadoc) {
+		// Turn off doclint in JDK 8 Javadoc (too strict on checks)
+		options.addStringOption('Xdoclint:none', '-quiet')
+	}
+}
+
 task javadocJar(type: Jar) {
 	classifier = 'javadoc'
 	from javadoc

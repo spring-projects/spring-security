@@ -99,6 +99,11 @@ task apidocs(type: Javadoc) {
 	}
 }
 
+if (JavaVersion.current().isJava8Compatible()) {
+	// Turn off doclint in JDK 8 Javadoc (too strict on checks)
+	apidocs.options.addStringOption('Xdoclint:none', '-quiet')
+}
+
 ext.apiSpec = copySpec {
 	into('apidocs') {
 		from(apidocs.destinationDir)
