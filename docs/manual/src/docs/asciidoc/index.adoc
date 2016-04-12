@@ -8294,6 +8294,9 @@ Session-management related functionality is implemented by the addition of a `Se
 * **invalid-session-url**
 Setting this attribute will inject the `SessionManagementFilter` with a `SimpleRedirectInvalidSessionStrategy` configured with the attribute value. When an invalid session ID is submitted, the strategy will be invoked, redirecting to the configured URL.
 
+[[nsa-session-management-invalid-session-strategy-ref]]
+* **invalid-session-url**
+Allows injection of the InvalidSessionStrategy instance used by the SessionManagementFilter. Use either this or the `invalid-session-url` attribute but not both.
 
 [[nsa-session-management-session-authentication-error-url]]
 * **session-authentication-error-url**
@@ -8348,6 +8351,9 @@ If set to "true" a `SessionAuthenticationException` will be raised when a user a
 * **expired-url**
 The URL a user will be redirected to if they attempt to use a session which has been "expired" by the concurrent session controller because the user has exceeded the number of allowed sessions and has logged in again elsewhere. Should be set unless `exception-if-maximum-exceeded` is set. If no value is supplied, an expiry message will just be written directly back to the response.
 
+[[nsa-concurrency-control-expired-session-strategy-ref]]
+* **expired-url**
+Allows injection of the ExpiredSessionStrategy instance used by the ConcurrentSessionFilter
 
 [[nsa-concurrency-control-max-sessions]]
 * **max-sessions**

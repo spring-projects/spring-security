@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,8 +47,10 @@ import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.savedrequest.NullRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.session.ConcurrentSessionFilter;
+import org.springframework.security.web.session.ExpiredSessionStrategy;
 import org.springframework.security.web.session.InvalidSessionStrategy;
 import org.springframework.security.web.session.SessionManagementFilter;
+import org.springframework.security.web.session.SimpleRedirectExpiredSessionStrategy;
 import org.springframework.security.web.session.SimpleRedirectInvalidSessionStrategy;
 import org.springframework.util.Assert;
 
@@ -95,6 +97,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	private SessionAuthenticationStrategy sessionFixationAuthenticationStrategy = DEFAULT_SESSION_FIXATION_STRATEGY;
 	private SessionAuthenticationStrategy sessionAuthenticationStrategy;
 	private InvalidSessionStrategy invalidSessionStrategy;
+	private ExpiredSessionStrategy expiredSessionStrategy;
 	private List<SessionAuthenticationStrategy> sessionAuthenticationStrategies = new ArrayList<SessionAuthenticationStrategy>();
 	private SessionRegistry sessionRegistry;
 	private Integer maximumSessions;
@@ -123,6 +126,11 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	 */
 	public SessionManagementConfigurer<H> invalidSessionUrl(String invalidSessionUrl) {
 		this.invalidSessionUrl = invalidSessionUrl;
+		return this;
+	}
+
+	public SessionManagementConfigurer<H> invalidSessionStrategy(InvalidSessionStrategy invalidSessionStrategy) {
+		this.invalidSessionStrategy=invalidSessionStrategy;
 		return this;
 	}
 
@@ -309,6 +317,11 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 			return this;
 		}
 
+		public ConcurrencyControlConfigurer expiredSessionStrategy(ExpiredSessionStrategy expiredSessionStrategy) {
+			SessionManagementConfigurer.this.expiredSessionStrategy = expiredSessionStrategy;
+			return this;
+		}
+
 		/**
 		 * If true, prevents a user from authenticating when the
 		 * {@link #maximumSessions(int)} has been reached. Otherwise (default), the user
@@ -401,10 +414,9 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 					.setAuthenticationFailureHandler(new SimpleUrlAuthenticationFailureHandler(
 							sessionAuthenticationErrorUrl));
 		}
-		if (invalidSessionUrl != null) {
-			sessionManagementFilter
+		sessionManagementFilter
 					.setInvalidSessionStrategy(getInvalidSessionStrategy());
-		}
+
 		AuthenticationTrustResolver trustResolver = http
 				.getSharedObject(AuthenticationTrustResolver.class);
 		if (trustResolver != null) {
@@ -414,8 +426,9 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 
 		http.addFilter(sessionManagementFilter);
 		if (isConcurrentSessionControlEnabled()) {
-			ConcurrentSessionFilter concurrentSessionFilter = new ConcurrentSessionFilter(
-					getSessionRegistry(http), expiredUrl);
+			ConcurrentSessionFilter concurrentSessionFilter = new ConcurrentSessionFilter(getSessionRegistry(http));
+			concurrentSessionFilter.setExpiredSessionStrategy(getExpiredSessionStrategy());
+
 			concurrentSessionFilter = postProcess(concurrentSessionFilter);
 			http.addFilter(concurrentSessionFilter);
 		}
@@ -428,6 +441,10 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link InvalidSessionStrategy} to use
 	 */
 	InvalidSessionStrategy getInvalidSessionStrategy() {
+		if (this.invalidSessionStrategy != null) {
+			return this.invalidSessionStrategy;
+		}
+
 		if (invalidSessionUrl == null) {
 			return null;
 		}
@@ -436,6 +453,21 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 					invalidSessionUrl);
 		}
 		return invalidSessionStrategy;
+	}
+
+	ExpiredSessionStrategy getExpiredSessionStrategy() {
+		if (this.expiredSessionStrategy != null) {
+			return this.expiredSessionStrategy;
+		}
+
+		if (this.expiredUrl == null) {
+			return null;
+		}
+
+		if (this.expiredSessionStrategy == null) {
+			this.expiredSessionStrategy = new SimpleRedirectExpiredSessionStrategy(this.expiredUrl);
+		}
+		return this.expiredSessionStrategy;
 	}
 
 	/**
