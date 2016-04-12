@@ -20,7 +20,7 @@ import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.util.ClassUtils;
 
 /**
- * Used by {@link EnableWebSecurity} to conditionaly import
+ * Used by {@link EnableWebSecurity} to conditionally import
  * {@link WebMvcSecurityConfiguration} when the DispatcherServlet is present on the
  * classpath.
  *

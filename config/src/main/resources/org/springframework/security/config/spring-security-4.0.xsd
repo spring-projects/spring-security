@@ -2114,7 +2114,7 @@
       </xs:attribute>
       <xs:attribute name="erase-credentials" type="xs:boolean">
          <xs:annotation>
-            <xs:documentation>If set to true, the AuthenticationManger will attempt to clear any credentials data in the
+            <xs:documentation>If set to true, the AuthenticationManager will attempt to clear any credentials data in the
                 returned Authentication object, once the user has been authenticated.
                 </xs:documentation>
          </xs:annotation>

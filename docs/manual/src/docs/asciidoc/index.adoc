@@ -8514,7 +8514,7 @@ This attribute allows you to define an alias name for the internal instance for 
 
 [[nsa-authentication-manager-erase-credentials]]
 * **erase-credentials**
-If set to true, the AuthenticationManger will attempt to clear any credentials data in the returned Authentication object, once the user has been authenticated. Literally it maps to the `eraseCredentialsAfterAuthentication` property of the `ProviderManager`. This is discussed in the <<core-services-erasing-credentials,Core Services>> chapter.
+If set to true, the AuthenticationManager will attempt to clear any credentials data in the returned Authentication object, once the user has been authenticated. Literally it maps to the `eraseCredentialsAfterAuthentication` property of the `ProviderManager`. This is discussed in the <<core-services-erasing-credentials,Core Services>> chapter.
 
 
 [[nsa-authentication-manager-id]]

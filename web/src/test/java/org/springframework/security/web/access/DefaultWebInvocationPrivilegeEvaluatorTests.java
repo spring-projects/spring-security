@@ -91,7 +91,7 @@ public class DefaultWebInvocationPrivilegeEvaluatorTests {
 	}
 
 	@Test
-	public void allowsAccessIfAccessDecisionMangerDoes() throws Exception {
+	public void allowsAccessIfAccessDecisionManagerDoes() throws Exception {
 		Authentication token = new TestingAuthenticationToken("test", "Password",
 				"MOCK_INDEX");
 		DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(
@@ -101,7 +101,7 @@ public class DefaultWebInvocationPrivilegeEvaluatorTests {
 
 	@SuppressWarnings("unchecked")
 	@Test
-	public void deniesAccessIfAccessDecisionMangerDoes() throws Exception {
+	public void deniesAccessIfAccessDecisionManagerDoes() throws Exception {
 		Authentication token = new TestingAuthenticationToken("test", "Password",
 				"MOCK_INDEX");
 		DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(

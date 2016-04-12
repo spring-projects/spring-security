@@ -1203,7 +1203,7 @@
     </xs:attribute>
     <xs:attribute name="erase-credentials" type="security:boolean">
       <xs:annotation>
-        <xs:documentation>If set to true, the AuthenticationManger will attempt to clear any credentials data in the returned Authentication object, once the user has been authenticated. Defaults to false.</xs:documentation>
+        <xs:documentation>If set to true, the AuthenticationManager will attempt to clear any credentials data in the returned Authentication object, once the user has been authenticated. Defaults to false.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>

@@ -51,7 +51,7 @@ public class AuthenticationConfiguration {
 
 	private boolean authenticationManagerInitialized;
 
-	private List<GlobalAuthenticationConfigurerAdapter> globalAuthConfigures = Collections
+	private List<GlobalAuthenticationConfigurerAdapter> globalAuthConfigurers = Collections
 			.emptyList();
 
 	private ObjectPostProcessor<Object> objectPostProcessor;
@@ -84,14 +84,14 @@ public class AuthenticationConfiguration {
 		}
 
 		AuthenticationManagerBuilder authBuilder = authenticationManagerBuilder(objectPostProcessor);
-		for (GlobalAuthenticationConfigurerAdapter config : globalAuthConfigures) {
+		for (GlobalAuthenticationConfigurerAdapter config : globalAuthConfigurers) {
 			authBuilder.apply(config);
 		}
 
 		authenticationManager = authBuilder.build();
 
 		if (authenticationManager == null) {
-			authenticationManager = getAuthenticationMangerBean();
+			authenticationManager = getAuthenticationManagerBean();
 		}
 
 		this.authenticationManagerInitialized = true;
@@ -102,7 +102,7 @@ public class AuthenticationConfiguration {
 	public void setGlobalAuthenticationConfigurers(
 			List<GlobalAuthenticationConfigurerAdapter> configurers) throws Exception {
 		Collections.sort(configurers, AnnotationAwareOrderComparator.INSTANCE);
-		this.globalAuthConfigures = configurers;
+		this.globalAuthConfigurers = configurers;
 	}
 
 	@Autowired
@@ -134,7 +134,7 @@ public class AuthenticationConfiguration {
 		return (T) proxyFactory.getObject();
 	}
 
-	private AuthenticationManager getAuthenticationMangerBean() {
+	private AuthenticationManager getAuthenticationManagerBean() {
 		return lazyBean(AuthenticationManager.class);
 	}
 
