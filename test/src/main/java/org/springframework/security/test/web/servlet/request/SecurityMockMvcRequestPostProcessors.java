@@ -53,6 +53,7 @@ import org.springframework.security.web.context.SecurityContextPersistenceFilter
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
+import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.util.Assert;
@@ -107,8 +108,8 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 * @throws IOException
 	 * @throws CertificateException
 	 */
-	public static RequestPostProcessor x509(String resourceName) throws IOException,
-			CertificateException {
+	public static RequestPostProcessor x509(String resourceName)
+			throws IOException, CertificateException {
 		ResourceLoader loader = new DefaultResourceLoader();
 		Resource resource = loader.getResource(resourceName);
 		InputStream inputStream = resource.getInputStream();
@@ -142,24 +143,24 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 * Establish a {@link SecurityContext} that has a
 	 * {@link UsernamePasswordAuthenticationToken} for the
 	 * {@link Authentication#getPrincipal()} and a {@link User} for the
-	 * {@link UsernamePasswordAuthenticationToken#getPrincipal()}. All details
-	 * are declarative and do not require that the user actually exists.
+	 * {@link UsernamePasswordAuthenticationToken#getPrincipal()}. All details are
+	 * declarative and do not require that the user actually exists.
 	 *
 	 * <p>
-	 * The support works by associating the user to the HttpServletRequest. To
-	 * associate the request to the SecurityContextHolder you need to ensure
-	 * that the SecurityContextPersistenceFilter is associated with the
-	 * MockMvc instance. A few ways to do this are:
+	 * The support works by associating the user to the HttpServletRequest. To associate
+	 * the request to the SecurityContextHolder you need to ensure that the
+	 * SecurityContextPersistenceFilter is associated with the MockMvc instance. A few
+	 * ways to do this are:
 	 * </p>
 	 *
 	 * <ul>
 	 * <li>Invoking apply {@link SecurityMockMvcConfigurers#springSecurity()}</li>
 	 * <li>Adding Spring Security's FilterChainProxy to MockMvc</li>
-	 * <li>Manually adding {@link SecurityContextPersistenceFilter} to the MockMvc instance may make sense when using MockMvcBuilders standaloneSetup</li>
+	 * <li>Manually adding {@link SecurityContextPersistenceFilter} to the MockMvc
+	 * instance may make sense when using MockMvcBuilders standaloneSetup</li>
 	 * </ul>
 	 *
-	 * @param username
-	 *            the username to populate
+	 * @param username the username to populate
 	 * @return the {@link UserRequestPostProcessor} for additional customization
 	 */
 	public static UserRequestPostProcessor user(String username) {
@@ -174,16 +175,17 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 * declarative and do not require that the user actually exists.
 	 *
 	 * <p>
-	 * The support works by associating the user to the HttpServletRequest. To
-	 * associate the request to the SecurityContextHolder you need to ensure
-	 * that the SecurityContextPersistenceFilter is associated with the
-	 * MockMvc instance. A few ways to do this are:
+	 * The support works by associating the user to the HttpServletRequest. To associate
+	 * the request to the SecurityContextHolder you need to ensure that the
+	 * SecurityContextPersistenceFilter is associated with the MockMvc instance. A few
+	 * ways to do this are:
 	 * </p>
 	 *
 	 * <ul>
 	 * <li>Invoking apply {@link SecurityMockMvcConfigurers#springSecurity()}</li>
 	 * <li>Adding Spring Security's FilterChainProxy to MockMvc</li>
-	 * <li>Manually adding {@link SecurityContextPersistenceFilter} to the MockMvc instance may make sense when using MockMvcBuilders standaloneSetup</li>
+	 * <li>Manually adding {@link SecurityContextPersistenceFilter} to the MockMvc
+	 * instance may make sense when using MockMvcBuilders standaloneSetup</li>
 	 * </ul>
 	 *
 	 * @param user the UserDetails to populate
@@ -199,16 +201,17 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 * details are declarative and do not require that the user actually exists.
 	 *
 	 * <p>
-	 * The support works by associating the user to the HttpServletRequest. To
-	 * associate the request to the SecurityContextHolder you need to ensure
-	 * that the SecurityContextPersistenceFilter is associated with the
-	 * MockMvc instance. A few ways to do this are:
+	 * The support works by associating the user to the HttpServletRequest. To associate
+	 * the request to the SecurityContextHolder you need to ensure that the
+	 * SecurityContextPersistenceFilter is associated with the MockMvc instance. A few
+	 * ways to do this are:
 	 * </p>
 	 *
 	 * <ul>
 	 * <li>Invoking apply {@link SecurityMockMvcConfigurers#springSecurity()}</li>
 	 * <li>Adding Spring Security's FilterChainProxy to MockMvc</li>
-	 * <li>Manually adding {@link SecurityContextPersistenceFilter} to the MockMvc instance may make sense when using MockMvcBuilders standaloneSetup</li>
+	 * <li>Manually adding {@link SecurityContextPersistenceFilter} to the MockMvc
+	 * instance may make sense when using MockMvcBuilders standaloneSetup</li>
 	 * </ul>
 	 *
 	 * @param authentication the Authentication to populate
@@ -220,9 +223,9 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 	/**
 	 * Establish a {@link SecurityContext} that uses an
-	 * {@link AnonymousAuthenticationToken}. This is useful when a user wants to
-	 * run a majority of tests as a specific user and wishes to override a few
-	 * methods to be anonymous. For example:
+	 * {@link AnonymousAuthenticationToken}. This is useful when a user wants to run a
+	 * majority of tests as a specific user and wishes to override a few methods to be
+	 * anonymous. For example:
 	 *
 	 * <pre>
 	 * <code>
@@ -241,8 +244,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 *     }
 	 *     // ... lots of tests ran with a default user ...
 	 * }
-	 * </code>
-	 * </pre>
+	 * </code> </pre>
 	 *
 	 * @return the {@link RequestPostProcessor} to use
 	 */
@@ -254,11 +256,10 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 * Establish the specified {@link SecurityContext} to be used.
 	 *
 	 * <p>
-	 * This works by associating the user to the {@link HttpServletRequest}. To
-	 * associate the request to the {@link SecurityContextHolder} you need to
-	 * ensure that the {@link SecurityContextPersistenceFilter} (i.e. Spring
-	 * Security's FilterChainProxy will typically do this) is associated with
-	 * the {@link MockMvc} instance.
+	 * This works by associating the user to the {@link HttpServletRequest}. To associate
+	 * the request to the {@link SecurityContextHolder} you need to ensure that the
+	 * {@link SecurityContextPersistenceFilter} (i.e. Spring Security's FilterChainProxy
+	 * will typically do this) is associated with the {@link MockMvc} instance.
 	 * </p>
 	 */
 	public static RequestPostProcessor securityContext(SecurityContext securityContext) {
@@ -289,8 +290,10 @@ public final class SecurityMockMvcRequestPostProcessors {
 			this.certificates = certificates;
 		}
 
+		@Override
 		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
-			request.setAttribute("javax.servlet.request.X509Certificate", certificates);
+			request.setAttribute("javax.servlet.request.X509Certificate",
+					this.certificates);
 			return request;
 		}
 	}
@@ -313,18 +316,20 @@ public final class SecurityMockMvcRequestPostProcessors {
 		 * @see org.springframework.test.web.servlet.request.RequestPostProcessor
 		 * #postProcessRequest (org.springframework.mock.web.MockHttpServletRequest)
 		 */
+		@Override
 		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
 
 			CsrfTokenRepository repository = WebTestUtils.getCsrfTokenRepository(request);
-			if(!(repository instanceof TestCsrfTokenRepository)) {
-				repository = new TestCsrfTokenRepository(repository);
+			if (!(repository instanceof TestCsrfTokenRepository)) {
+				repository = new TestCsrfTokenRepository(
+						new HttpSessionCsrfTokenRepository());
 				WebTestUtils.setCsrfTokenRepository(request, repository);
 			}
 			CsrfToken token = repository.generateToken(request);
 			repository.saveToken(token, request, new MockHttpServletResponse());
-			String tokenValue = useInvalidToken ? "invalid" + token.getToken() : token
-					.getToken();
-			if (asHeader) {
+			String tokenValue = this.useInvalidToken ? "invalid" + token.getToken()
+					: token.getToken();
+			if (this.asHeader) {
 				request.addHeader(token.getHeaderName(), tokenValue);
 			}
 			else {
@@ -357,16 +362,13 @@ public final class SecurityMockMvcRequestPostProcessors {
 		private CsrfRequestPostProcessor() {
 		}
 
-
-
 		/**
-		 * Used to wrap the CsrfTokenRepository to provide support for testing
-		 * when the request is wrapped (i.e. Spring Session is in use).
+		 * Used to wrap the CsrfTokenRepository to provide support for testing when the
+		 * request is wrapped (i.e. Spring Session is in use).
 		 */
-		static class TestCsrfTokenRepository implements
-				CsrfTokenRepository {
-			final static String ATTR_NAME = TestCsrfTokenRepository.class
-					.getName().concat(".TOKEN");
+		static class TestCsrfTokenRepository implements CsrfTokenRepository {
+			final static String ATTR_NAME = TestCsrfTokenRepository.class.getName()
+					.concat(".TOKEN");
 
 			private final CsrfTokenRepository delegate;
 
@@ -374,14 +376,18 @@ public final class SecurityMockMvcRequestPostProcessors {
 				this.delegate = delegate;
 			}
 
+			@Override
 			public CsrfToken generateToken(HttpServletRequest request) {
-				return delegate.generateToken(request);
+				return this.delegate.generateToken(request);
 			}
 
-			public void saveToken(CsrfToken token, HttpServletRequest request, HttpServletResponse response) {
+			@Override
+			public void saveToken(CsrfToken token, HttpServletRequest request,
+					HttpServletResponse response) {
 				request.setAttribute(ATTR_NAME, token);
 			}
 
+			@Override
 			public CsrfToken loadToken(HttpServletRequest request) {
 				return (CsrfToken) request.getAttribute(ATTR_NAME);
 			}
@@ -447,14 +453,16 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 		private String createAuthorizationHeader(MockHttpServletRequest request) {
 			String uri = request.getRequestURI();
-			String responseDigest = generateDigest(username, realm, password,
-					request.getMethod(), uri, qop, nonce, nc, cnonce);
-			return "Digest username=\"" + username + "\", realm=\"" + realm
-					+ "\", nonce=\"" + nonce + "\", uri=\"" + uri + "\", response=\""
-					+ responseDigest + "\", qop=" + qop + ", nc=" + nc + ", cnonce=\""
-					+ cnonce + "\"";
+			String responseDigest = generateDigest(this.username, this.realm,
+					this.password, request.getMethod(), uri, this.qop, this.nonce,
+					this.nc, this.cnonce);
+			return "Digest username=\"" + this.username + "\", realm=\"" + this.realm
+					+ "\", nonce=\"" + this.nonce + "\", uri=\"" + uri + "\", response=\""
+					+ responseDigest + "\", qop=" + this.qop + ", nc=" + this.nc
+					+ ", cnonce=\"" + this.cnonce + "\"";
 		}
 
+		@Override
 		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
 
 			request.addHeader("Authorization", createAuthorizationHeader(request));
@@ -574,8 +582,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		 * Used to wrap the SecurityContextRepository to provide support for testing in
 		 * stateless mode
 		 */
-		static class TestSecurityContextRepository implements
-				SecurityContextRepository {
+		static class TestSecurityContextRepository implements SecurityContextRepository {
 			private final static String ATTR_NAME = TestSecurityContextRepository.class
 					.getName().concat(".REPO");
 
@@ -585,6 +592,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 				this.delegate = delegate;
 			}
 
+			@Override
 			public SecurityContext loadContext(
 					HttpRequestResponseHolder requestResponseHolder) {
 				SecurityContext result = getContext(requestResponseHolder.getRequest());
@@ -592,19 +600,22 @@ public final class SecurityMockMvcRequestPostProcessors {
 				// holder are updated
 				// remember the SecurityContextRepository is used in many different
 				// locations
-				SecurityContext delegateResult = delegate
+				SecurityContext delegateResult = this.delegate
 						.loadContext(requestResponseHolder);
 				return result == null ? delegateResult : result;
 			}
 
+			@Override
 			public void saveContext(SecurityContext context, HttpServletRequest request,
 					HttpServletResponse response) {
 				request.setAttribute(ATTR_NAME, context);
-				delegate.saveContext(context, request, response);
+				this.delegate.saveContext(context, request, response);
 			}
 
+			@Override
 			public boolean containsContext(HttpServletRequest request) {
-				return getContext(request) != null || delegate.containsContext(request);
+				return getContext(request) != null
+						|| this.delegate.containsContext(request);
 			}
 
 			private static SecurityContext getContext(HttpServletRequest request) {
@@ -625,15 +636,17 @@ public final class SecurityMockMvcRequestPostProcessors {
 			SecurityContextRequestPostProcessorSupport implements RequestPostProcessor {
 		private SecurityContext EMPTY = SecurityContextHolder.createEmptyContext();
 
+		@Override
 		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
 			// TestSecurityContextHolder is only a default value
-			SecurityContext existingContext = TestSecurityContextRepository.getContext(request);
-			if(existingContext != null) {
+			SecurityContext existingContext = TestSecurityContextRepository
+					.getContext(request);
+			if (existingContext != null) {
 				return request;
 			}
 
 			SecurityContext context = TestSecurityContextHolder.getContext();
-			if(!EMPTY.equals(context)) {
+			if (!this.EMPTY.equals(context)) {
 				save(context, request);
 			}
 
@@ -657,6 +670,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 			this.securityContext = securityContext;
 		}
 
+		@Override
 		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
 			save(this.securityContext, request);
 			return request;
@@ -679,10 +693,11 @@ public final class SecurityMockMvcRequestPostProcessors {
 			this.authentication = authentication;
 		}
 
+		@Override
 		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
 			SecurityContext context = SecurityContextHolder.createEmptyContext();
-			context.setAuthentication(authentication);
-			save(authentication, request);
+			context.setAuthentication(this.authentication);
+			save(this.authentication, request);
 			return request;
 		}
 	}
@@ -695,19 +710,20 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 * @author Rob Winch
 	 * @since 4.0
 	 */
-	private final static class UserDetailsRequestPostProcessor implements
-			RequestPostProcessor {
+	private final static class UserDetailsRequestPostProcessor
+			implements RequestPostProcessor {
 		private final RequestPostProcessor delegate;
 
 		public UserDetailsRequestPostProcessor(UserDetails user) {
 			Authentication token = new UsernamePasswordAuthenticationToken(user,
 					user.getPassword(), user.getAuthorities());
 
-			delegate = new AuthenticationRequestPostProcessor(token);
+			this.delegate = new AuthenticationRequestPostProcessor(token);
 		}
 
+		@Override
 		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
-			return delegate.postProcessRequest(request);
+			return this.delegate.postProcessRequest(request);
 		}
 	}
 
@@ -752,8 +768,8 @@ public final class SecurityMockMvcRequestPostProcessors {
 		 * {@link #authorities(GrantedAuthority...)}, but just not as flexible.
 		 *
 		 * @param roles The roles to populate. Note that if the role does not start with
-		 * {@link #ROLE_PREFIX} it will automatically be prepended. This means by
-		 * default {@code roles("ROLE_USER")} and {@code roles("USER")} are equivalent.
+		 * {@link #ROLE_PREFIX} it will automatically be prepended. This means by default
+		 * {@code roles("ROLE_USER")} and {@code roles("USER")} are equivalent.
 		 * @see #authorities(GrantedAuthority...)
 		 * @see #ROLE_PREFIX
 		 * @return the UserRequestPostProcessor for further customizations
@@ -764,8 +780,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 			for (String role : roles) {
 				if (role.startsWith(ROLE_PREFIX)) {
 					throw new IllegalArgumentException(
-							"Role should not start with "
-									+ ROLE_PREFIX
+							"Role should not start with " + ROLE_PREFIX
 									+ " since this method automatically prefixes with this value. Got "
 									+ role);
 				}
@@ -812,6 +827,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 			return this;
 		}
 
+		@Override
 		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
 			UserDetailsRequestPostProcessor delegate = new UserDetailsRequestPostProcessor(
 					createUser());
@@ -823,19 +839,27 @@ public final class SecurityMockMvcRequestPostProcessors {
 		 * @return the {@link User} for the principal
 		 */
 		private User createUser() {
-			return new User(username, password, enabled, accountNonExpired,
-					credentialsNonExpired, accountNonLocked, authorities);
+			return new User(this.username, this.password, this.enabled,
+					this.accountNonExpired, this.credentialsNonExpired,
+					this.accountNonLocked, this.authorities);
 		}
 	}
 
-	private static class AnonymousRequestPostProcessor extends SecurityContextRequestPostProcessorSupport implements RequestPostProcessor {
-		private AuthenticationRequestPostProcessor delegate = new AuthenticationRequestPostProcessor(new AnonymousAuthenticationToken("key", "anonymous", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS")));
+	private static class AnonymousRequestPostProcessor extends
+			SecurityContextRequestPostProcessorSupport implements RequestPostProcessor {
+		private AuthenticationRequestPostProcessor delegate = new AuthenticationRequestPostProcessor(
+				new AnonymousAuthenticationToken("key", "anonymous",
+						AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS")));
 
-		/* (non-Javadoc)
-		 * @see org.springframework.test.web.servlet.request.RequestPostProcessor#postProcessRequest(org.springframework.mock.web.MockHttpServletRequest)
+		/*
+		 * (non-Javadoc)
+		 *
+		 * @see org.springframework.test.web.servlet.request.RequestPostProcessor#
+		 * postProcessRequest(org.springframework.mock.web.MockHttpServletRequest)
 		 */
+		@Override
 		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
-			return delegate.postProcessRequest(request);
+			return this.delegate.postProcessRequest(request);
 		}
 	}
 
@@ -853,8 +877,9 @@ public final class SecurityMockMvcRequestPostProcessors {
 			this.headerValue = "Basic " + new String(Base64.encode(toEncode));
 		}
 
+		@Override
 		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
-			request.addHeader("Authorization", headerValue);
+			request.addHeader("Authorization", this.headerValue);
 			return request;
 		}
 	}
