@@ -206,8 +206,13 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends
 		this.context = context;
 	}
 
-	@Autowired(required = false)
+	@Deprecated
 	public void setMessageExpessionHandler(List<SecurityExpressionHandler<Message<Object>>> expressionHandlers) {
+		setMessageExpressionHandler(expressionHandlers);
+	}
+
+	@Autowired(required = false)
+	public void setMessageExpressionHandler(List<SecurityExpressionHandler<Message<Object>>> expressionHandlers) {
 		if(expressionHandlers.size() == 1) {
 			this.expressionHandler = expressionHandlers.get(0);
 		}
