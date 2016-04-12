@@ -381,6 +381,7 @@ You can find the highlights below:
 * <<csrf-cookie,CookieCsrfTokenRepository>> provides simple AngularJS & CSRF integration
 * Added `ForwardAuthenticationFailureHandler` & `ForwardAuthenticationSuccessHandler`
 * SCrypt support with `SCryptPasswordEncoder`
+* PBKDF2 support with <<spring-security-crypto-passwordencoders,Pbkdf2PasswordEncoder>>
 * Meta Annotation Support
 ** <<test-method-meta-annotations,Test Meta Annotations>>
 ** <<method-security-meta-annotations,Method Security Meta Annotations>>
@@ -6397,6 +6398,19 @@ The `BCryptPasswordEncoder` implementation uses the widely supported "bcrypt" al
 
 // Create an encoder with strength 16
 BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(16);
+String result = encoder.encode("myPassword");
+assertTrue(encoder.matches("myPassword", result));
+----
+
+The `Pbkdf2PasswordEncoder` implementation uses PBKDF2 algorithm to hash the passwords.
+In order to defeat password cracking PBKDF2 is a deliberately slow algorithm and should be tuned to take about .5 seconds to verify a password on your system.
+
+
+[source,java]
+----
+
+// Create an encoder with all the defaults
+Pbkdf2PasswordEncoder encoder = new Pbkdf2PasswordEncoder();
 String result = encoder.encode("myPassword");
 assertTrue(encoder.matches("myPassword", result));
 ----
