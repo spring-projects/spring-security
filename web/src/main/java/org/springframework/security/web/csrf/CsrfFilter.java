@@ -27,27 +27,29 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.UrlUtils;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
  * <p>
- * Applies <a href="https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)"
- * >CSRF</a> protection using a synchronizer token pattern. Developers are required to
- * ensure that {@link CsrfFilter} is invoked for any request that allows state to change.
- * Typically this just means that they should ensure their web application follows proper
- * REST semantics (i.e. do not change state with the HTTP methods GET, HEAD, TRACE,
- * OPTIONS).
+ * Applies
+ * <a href="https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)" >CSRF</a>
+ * protection using a synchronizer token pattern. Developers are required to ensure that
+ * {@link CsrfFilter} is invoked for any request that allows state to change. Typically
+ * this just means that they should ensure their web application follows proper REST
+ * semantics (i.e. do not change state with the HTTP methods GET, HEAD, TRACE, OPTIONS).
  * </p>
  *
  * <p>
  * Typically the {@link CsrfTokenRepository} implementation chooses to store the
- * {@link CsrfToken} in {@link HttpSession} with {@link HttpSessionCsrfTokenRepository}.
- * This is preferred to storing the token in a cookie which can be modified by a client application.
+ * {@link CsrfToken} in {@link HttpSession} with {@link HttpSessionCsrfTokenRepository}
+ * wrapped by a {@link LazyCsrfTokenRepository}. This is preferred to storing the token in
+ * a cookie which can be modified by a client application.
  * </p>
  *
  * @author Rob Winch
@@ -82,18 +84,19 @@ public final class CsrfFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request,
 			HttpServletResponse response, FilterChain filterChain)
-			throws ServletException, IOException {
-		CsrfToken csrfToken = tokenRepository.loadToken(request);
+					throws ServletException, IOException {
+		request.setAttribute(HttpServletResponse.class.getName(), response);
+
+		CsrfToken csrfToken = this.tokenRepository.loadToken(request);
 		final boolean missingToken = csrfToken == null;
 		if (missingToken) {
-			CsrfToken generatedToken = tokenRepository.generateToken(request);
-			csrfToken = new SaveOnAccessCsrfToken(tokenRepository, request, response,
-					generatedToken);
+			csrfToken = this.tokenRepository.generateToken(request);
+			this.tokenRepository.saveToken(csrfToken, request, response);
 		}
 		request.setAttribute(CsrfToken.class.getName(), csrfToken);
 		request.setAttribute(csrfToken.getParameterName(), csrfToken);
 
-		if (!requireCsrfProtectionMatcher.matches(request)) {
+		if (!this.requireCsrfProtectionMatcher.matches(request)) {
 			filterChain.doFilter(request, response);
 			return;
 		}
@@ -103,16 +106,16 @@ public final class CsrfFilter extends OncePerRequestFilter {
 			actualToken = request.getParameter(csrfToken.getParameterName());
 		}
 		if (!csrfToken.getToken().equals(actualToken)) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Invalid CSRF token found for "
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("Invalid CSRF token found for "
 						+ UrlUtils.buildFullRequestUrl(request));
 			}
 			if (missingToken) {
-				accessDeniedHandler.handle(request, response,
+				this.accessDeniedHandler.handle(request, response,
 						new MissingCsrfTokenException(actualToken));
 			}
 			else {
-				accessDeniedHandler.handle(request, response,
+				this.accessDeniedHandler.handle(request, response,
 						new InvalidCsrfTokenException(csrfToken, actualToken));
 			}
 			return;
@@ -156,87 +159,9 @@ public final class CsrfFilter extends OncePerRequestFilter {
 		this.accessDeniedHandler = accessDeniedHandler;
 	}
 
-	@SuppressWarnings("serial")
-	private static final class SaveOnAccessCsrfToken implements CsrfToken {
-		private transient CsrfTokenRepository tokenRepository;
-		private transient HttpServletRequest request;
-		private transient HttpServletResponse response;
-
-		private final CsrfToken delegate;
-
-		public SaveOnAccessCsrfToken(CsrfTokenRepository tokenRepository,
-				HttpServletRequest request, HttpServletResponse response,
-				CsrfToken delegate) {
-			super();
-			this.tokenRepository = tokenRepository;
-			this.request = request;
-			this.response = response;
-			this.delegate = delegate;
-		}
-
-		public String getHeaderName() {
-			return delegate.getHeaderName();
-		}
-
-		public String getParameterName() {
-			return delegate.getParameterName();
-		}
-
-		public String getToken() {
-			saveTokenIfNecessary();
-			return delegate.getToken();
-		}
-
-		@Override
-		public String toString() {
-			return "SaveOnAccessCsrfToken [delegate=" + delegate + "]";
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((delegate == null) ? 0 : delegate.hashCode());
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			SaveOnAccessCsrfToken other = (SaveOnAccessCsrfToken) obj;
-			if (delegate == null) {
-				if (other.delegate != null)
-					return false;
-			}
-			else if (!delegate.equals(other.delegate))
-				return false;
-			return true;
-		}
-
-		private void saveTokenIfNecessary() {
-			if (this.tokenRepository == null) {
-				return;
-			}
-
-			synchronized (this) {
-				if (tokenRepository != null) {
-					this.tokenRepository.saveToken(delegate, request, response);
-					this.tokenRepository = null;
-					this.request = null;
-					this.response = null;
-				}
-			}
-		}
-
-	}
-
 	private static final class DefaultRequiresCsrfMatcher implements RequestMatcher {
-		private final HashSet<String> allowedMethods = new HashSet<String>(Arrays.asList("GET", "HEAD", "TRACE", "OPTIONS"));
+		private final HashSet<String> allowedMethods = new HashSet<String>(
+				Arrays.asList("GET", "HEAD", "TRACE", "OPTIONS"));
 
 		/*
 		 * (non-Javadoc)
@@ -245,8 +170,9 @@ public final class CsrfFilter extends OncePerRequestFilter {
 		 * org.springframework.security.web.util.matcher.RequestMatcher#matches(javax.
 		 * servlet.http.HttpServletRequest)
 		 */
+		@Override
 		public boolean matches(HttpServletRequest request) {
-			return !allowedMethods.contains(request.getMethod());
+			return !this.allowedMethods.contains(request.getMethod());
 		}
 	}
 }
