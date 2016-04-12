@@ -719,7 +719,7 @@ public final class HttpSecurity extends
 	 * 		http.authorizeRequests().antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and().formLogin()
 	 * 				.and()
 	 * 				// sample logout customization
-	 * 				.logout().logout().deleteCookies(&quot;remove&quot;).invalidateHttpSession(false)
+	 * 				.logout().deleteCookies(&quot;remove&quot;).invalidateHttpSession(false)
 	 * 				.logoutUrl(&quot;/custom-logout&quot;).logoutSuccessUrl(&quot;/logout-success&quot;);
 	 * 	}
 	 *
