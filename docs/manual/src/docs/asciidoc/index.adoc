@@ -378,6 +378,7 @@ You can find the highlights below:
 * <<el-access-web-path-variables,Path Variables in Web Security Expressions>>
 * <<headers-csp,Content Security Policy (CSP)>>
 * <<headers-hpkp,HTTP Public Key Pinning (HPKP)>>
+* <<csrf-cookie,CookieCsrfTokenRepository>> provides simple AngularJS & CSRF integration
 * Added `ForwardAuthenticationFailureHandler` & `ForwardAuthenticationSuccessHandler`
 * SCrypt support with `SCryptPasswordEncoder`
 * Meta Annotation Support
@@ -3252,6 +3253,7 @@ protected void configure(HttpSecurity http) throws Exception {
 }
 ----
 
+
 [[csrf-include-csrf-token]]
 ==== Include the CSRF Token
 
@@ -3324,6 +3326,41 @@ name: $("meta[name='_csrf_header']").attr("content")
 
 The configured client can be shared with any component of the application that needs to make a request to the CSRF protected resource. One significant different between rest.js and jQuery is that only requests made with the configured client will contain the CSRF token, vs jQuery where __all__ requests will include the token. The ability to scope which requests receive the token helps guard against leaking the CSRF token to a third party. Please refer to the https://github.com/cujojs/rest/tree/master/docs[rest.js reference documentation] for more information on rest.js.
 
+[[csrf-cookie]]
+===== CookieCsrfTokenRepository
+
+There can be cases where users will want to persist the `CsrfToken` in a cookie.
+By default the `CookieCsrfTokenRepository` will write to a cookie named `XSRF-TOKEN` and read it from a header named `X-XSRF-TOKEN` or the HTTP parameter `_csrf`.
+These defaults come from https://docs.angularjs.org/api/ng/service/$http#cross-site-request-forgery-xsrf-protection[AngularJS]
+
+You can configure `CookieCsrfTokenRepository` in XML using the following:
+
+[source,xml]
+----
+<http>
+	<!-- ... -->
+	<csrf token-repository-ref="tokenRepository"/>
+</http>
+<b:bean id="tokenRepository" class="org.springframework.security.web.csrf.CookieCsrfTokenRepository"/>
+----
+
+You can configure `CookieCsrfTokenRepository` in Java Configuration using:
+
+[source,java]
+----
+@EnableWebSecurity
+public class WebSecurityConfig extends
+		WebSecurityConfigurerAdapter {
+
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http
+			.csrf()
+				.csrfTokenRepository(new CookieCsrfTokenRepository());
+	}
+}
+----
+
 
 [[csrf-caveats]]
 === CSRF Caveats
@@ -3336,12 +3373,15 @@ One issue is that the expected CSRF token is stored in the HttpSession, so as so
 
 [NOTE]
 ====
-One might ask why the expected `CsrfToken` isn't stored in a cookie. This is because there are known exploits in which headers (i.e. specify the cookies) can be set by another domain. This is the same reason Ruby on Rails http://weblog.rubyonrails.org/2011/2/8/csrf-protection-bypass-in-ruby-on-rails/[no longer skips CSRF checks when the header X-Requested-With is present]. See http://lists.webappsec.org/pipermail/websecurity_lists.webappsec.org/2011-February/007533.html[this webappsec.org thread] for details on how to perform the exploit. Another disadvantage is that by removing the state (i.e. the timeout) you lose the ability to forcibly terminate the token if it is compromised.
+One might ask why the expected `CsrfToken` isn't stored in a cookie by default. This is because there are known exploits in which headers (i.e. specify the cookies) can be set by another domain. This is the same reason Ruby on Rails http://weblog.rubyonrails.org/2011/2/8/csrf-protection-bypass-in-ruby-on-rails/[no longer skips CSRF checks when the header X-Requested-With is present]. See http://lists.webappsec.org/pipermail/websecurity_lists.webappsec.org/2011-February/007533.html[this webappsec.org thread] for details on how to perform the exploit. Another disadvantage is that by removing the state (i.e. the timeout) you lose the ability to forcibly terminate the token if it is compromised.
 ====
 
 A simple way to mitigate an active user experiencing a timeout is to have some JavaScript that lets the user know their session is about to expire. The user can click a button to continue and refresh the session.
 
 Alternatively, specifying a custom `AccessDeniedHandler` allows you to process the `InvalidCsrfTokenException` any way you like. For an example of how to customize the `AccessDeniedHandler` refer to the provided links for both <<nsa-access-denied-handler,xml>> and https://github.com/spring-projects/spring-security/blob/3.2.0.RC1/config/src/test/groovy/org/springframework/security/config/annotation/web/configurers/NamespaceHttpAccessDeniedHandlerTests.groovy#L64[Java configuration].
+
+Finally, the application can be configured to use <<csrf-cookie,CookieCsrfTokenRepository>> which will not expire.
+As previously mentioned, this is not as secure as using a session, but in many cases can be good enough.
 
 
 [[csrf-login]]
