@@ -1743,6 +1743,13 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="invalid-session-strategy-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Allows injection of the InvalidSessionStrategy instance used by the
+                SessionManagementFilter
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
       <xs:attribute name="session-authentication-strategy-ref" type="xs:token">
          <xs:annotation>
             <xs:documentation>Allows injection of the SessionAuthenticationStrategy instance used by the
@@ -1774,6 +1781,13 @@
          <xs:annotation>
             <xs:documentation>The URL a user will be redirected to if they attempt to use a session which has been
                 "expired" because they have logged in again.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="expired-session-strategy-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Allows injection of the ExpiredSessionStrategy instance used by the
+                ConcurrentSessionFilter
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
