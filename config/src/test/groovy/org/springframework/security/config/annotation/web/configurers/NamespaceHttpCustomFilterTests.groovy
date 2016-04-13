@@ -17,6 +17,7 @@ package org.springframework.security.config.annotation.web.configurers;
 
 import java.io.IOException;
 
+import javax.servlet.FilterChain
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -55,6 +56,7 @@ import org.springframework.security.web.servletapi.SecurityContextHolderAwareReq
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher
+import org.springframework.web.filter.OncePerRequestFilter
 
 import spock.lang.Ignore;
 
@@ -127,7 +129,26 @@ public class NamespaceHttpCustomFilterTests extends BaseSpringSpec {
 				// if not, use addFilterBefore or addFilterAfter
 				.addFilter(new CustomFilter())
 		}
+	}
 
+	def "http/custom-filter@position at"() {
+		when:
+		loadConfig(CustomFilterPositionAtConfig)
+		then:
+		filterChain().filters.collect { it.class } == [OtherCustomFilter]
+	}
+
+	@Configuration
+	static class CustomFilterPositionAtConfig extends BaseWebConfig {
+		CustomFilterPositionAtConfig() {
+			// do not add the default filters to make testing easier
+			super(true)
+		}
+
+		protected void configure(HttpSecurity http) {
+			http
+				.addFilterAt(new OtherCustomFilter(), UsernamePasswordAuthenticationFilter.class)
+		}
 	}
 
 	def "http/custom-filter no AuthenticationManager in HttpSecurity"() {
@@ -159,6 +180,13 @@ public class NamespaceHttpCustomFilterTests extends BaseSpringSpec {
 	}
 
 	static class CustomFilter extends UsernamePasswordAuthenticationFilter {}
+	static class OtherCustomFilter extends OncePerRequestFilter {
+		protected void doFilterInternal(
+				HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+		throws ServletException, IOException {
+			filterChain.doFilter(request,response);
+		}
+	}
 
 	static class CustomAuthenticationManager implements AuthenticationManager {
 		public Authentication authenticate(Authentication authentication)

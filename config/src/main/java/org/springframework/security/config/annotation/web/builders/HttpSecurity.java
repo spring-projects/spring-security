@@ -1026,6 +1026,25 @@ public final class HttpSecurity extends
 	}
 
 	/**
+	 * Adds the Filter at the location of the specified Filter class. For example, if you
+	 * want the filter CustomFilter to be registered in the same position as
+	 * {@link UsernamePasswordAuthenticationFilter}, you can invoke:
+	 *
+	 * <pre>
+	 * addFilterAt(new CustomFilter(), UsernamePasswordAuthenticationFilter.class)
+	 * </pre>
+	 *
+	 * @param filter the Filter to register
+	 * @param atFilter the location of another {@link Filter} that is already registered
+	 * (i.e. known) with Spring Security.
+	 * @return the {@link HttpSecurity} for further customizations
+	 */
+	public HttpSecurity addFilterAt(Filter filter, Class<? extends Filter> atFilter) {
+		this.comparitor.registerAt(filter.getClass(), atFilter);
+		return addFilter(filter);
+	}
+
+	/**
 	 * Allows specifying which {@link HttpServletRequest} instances this
 	 * {@link HttpSecurity} will be invoked on. This method allows for easily invoking the
 	 * {@link HttpSecurity} for multiple different {@link RequestMatcher} instances. If
