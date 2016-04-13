@@ -77,8 +77,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * }
  * </pre>
  *
- * @deprecated use org.springframework.security.web.method.annotation.
- * AuthenticationPrincipalArgumentResolver
+ * @deprecated Use {@link org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver} instead.
  *
  * @author Rob Winch
  * @since 3.2

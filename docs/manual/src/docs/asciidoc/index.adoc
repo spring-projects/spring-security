@@ -6572,7 +6572,13 @@ NOTE: Spring Security provides the configuration using Spring MVC's http://docs.
 [[mvc-authentication-principal]]
 === @AuthenticationPrincipal
 
-Spring Security provides `AuthenticationPrincipalArgumentResolver` which can automatically resolve the current `Authentication.getPrincipal()` for Spring MVC arguments. By using <<mvc-enablewebmvcsecurity>> you will automatically have this added to your Spring MVC configuration. If you use XML based configuraiton, you must add this yourself.
+Spring Security provides `AuthenticationPrincipalArgumentResolver` which can automatically resolve the current `Authentication.getPrincipal()` for Spring MVC arguments. By using `@EnableWebSecurity` you will automatically have this added to your Spring MVC configuration. If you use XML based configuration, you must add this yourself. For example:
+
+[source,xml]
+----
+<bean class="org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver" />
+----
+
 
 Once `AuthenticationPrincipalArgumentResolver` is properly configured, you can be entirely decoupled from Spring Security in your Spring MVC layer.
 
@@ -6580,10 +6586,6 @@ Consider a situation where a custom `UserDetailsService` that returns an `Object
 
 [source,java]
 ----
-import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
-
-// ...
-
 @RequestMapping("/messages/inbox")
 public ModelAndView findMessagesForUser() {
 	Authentication authentication =
@@ -6598,6 +6600,10 @@ As of Spring Security 3.2 we can resolve the argument more directly by adding an
 
 [source,java]
 ----
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+
+// ...
+
 @RequestMapping("/messages/inbox")
 public ModelAndView findMessagesForUser(@AuthenticationPrincipal CustomUser customUser) {
 

@@ -30,7 +30,7 @@ import org.springframework.security.core.Authentication;
  * @author Rob Winch
  * @since 4.0
  *
- *  See: <a href="{@docRoot}/org/springframework/security/messaging/context/AuthenticationPrincipalArgumentResolver.html">
+ *  See: <a href="{@docRoot}/org/springframework/security/web/method/annotation/AuthenticationPrincipalArgumentResolver.html">
  *  AuthenticationPrincipalArgumentResolver
  *  </a>
  */
