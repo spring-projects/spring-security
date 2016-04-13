@@ -150,6 +150,23 @@ final class FilterComparator implements Comparator<Filter>, Serializable {
 	}
 
 	/**
+	 * Registers a {@link Filter} to exist at a particular {@link Filter} position
+	 * @param filter the {@link Filter} to register
+	 * @param atFilter the {@link Filter} that is already registered and that
+	 * {@code filter} should be placed at.
+	 */
+	public void registerAt(Class<? extends Filter> filter,
+			Class<? extends Filter> atFilter) {
+		Integer position = getOrder(atFilter);
+		if (position == null) {
+			throw new IllegalArgumentException(
+					"Cannot register after unregistered Filter " + atFilter);
+		}
+
+		put(filter, position);
+	}
+
+	/**
 	 * Registers a {@link Filter} to exist before a particular {@link Filter} that is
 	 * already registered.
 	 * @param filter the {@link Filter} to register
