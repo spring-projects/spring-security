@@ -112,7 +112,7 @@ public final class HttpSecurity extends
 	private final RequestMatcherConfigurer requestMatcherConfigurer = new RequestMatcherConfigurer();
 	private List<Filter> filters = new ArrayList<Filter>();
 	private RequestMatcher requestMatcher = AnyRequestMatcher.INSTANCE;
-	private FilterComparator comparitor = new FilterComparator();
+	private FilterComparator comparator = new FilterComparator();
 
 	/**
 	 * Creates a new instance
@@ -947,7 +947,7 @@ public final class HttpSecurity extends
 
 	@Override
 	protected DefaultSecurityFilterChain performBuild() throws Exception {
-		Collections.sort(filters, comparitor);
+		Collections.sort(filters, comparator);
 		return new DefaultSecurityFilterChain(requestMatcher, filters);
 	}
 
@@ -989,7 +989,7 @@ public final class HttpSecurity extends
 	 * .servlet.Filter, java.lang.Class)
 	 */
 	public HttpSecurity addFilterAfter(Filter filter, Class<? extends Filter> afterFilter) {
-		comparitor.registerAfter(filter.getClass(), afterFilter);
+		comparator.registerAfter(filter.getClass(), afterFilter);
 		return addFilter(filter);
 	}
 
@@ -1002,7 +1002,7 @@ public final class HttpSecurity extends
 	 */
 	public HttpSecurity addFilterBefore(Filter filter,
 			Class<? extends Filter> beforeFilter) {
-		comparitor.registerBefore(filter.getClass(), beforeFilter);
+		comparator.registerBefore(filter.getClass(), beforeFilter);
 		return addFilter(filter);
 	}
 
@@ -1015,7 +1015,7 @@ public final class HttpSecurity extends
 	 */
 	public HttpSecurity addFilter(Filter filter) {
 		Class<? extends Filter> filterClass = filter.getClass();
-		if (!comparitor.isRegistered(filterClass)) {
+		if (!comparator.isRegistered(filterClass)) {
 			throw new IllegalArgumentException(
 					"The Filter class "
 							+ filterClass.getName()
@@ -1040,7 +1040,7 @@ public final class HttpSecurity extends
 	 * @return the {@link HttpSecurity} for further customizations
 	 */
 	public HttpSecurity addFilterAt(Filter filter, Class<? extends Filter> atFilter) {
-		this.comparitor.registerAt(filter.getClass(), atFilter);
+		this.comparator.registerAt(filter.getClass(), atFilter);
 		return addFilter(filter);
 	}
 
