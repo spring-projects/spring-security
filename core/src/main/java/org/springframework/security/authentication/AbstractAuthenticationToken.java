@@ -222,4 +222,16 @@ public abstract class AbstractAuthenticationToken implements Authentication,
 
 		return sb.toString();
 	}
+
+	protected static Integer extractKeyHash(String key) {
+		Object value = nullSafeValue(key);
+		return value.hashCode();
+	}
+
+	protected static Object nullSafeValue(Object value){
+		if(value == null || "".equals(value)) {
+			throw new IllegalArgumentException("Cannot pass null or empty values to constructor");
+		}
+		return value;
+	}
 }
