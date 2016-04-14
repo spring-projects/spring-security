@@ -21,6 +21,7 @@ import org.junit.After;
 import org.springframework.beans.BeansException
 import org.springframework.beans.factory.config.BeanPostProcessor
 import org.springframework.security.config.annotation.authentication.configurers.GlobalAuthenticationConfigurerAdapter
+import org.springframework.security.config.annotation.method.configuration.NamespaceGlobalMethodSecurityTests.BaseMethodConfig;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 
 import javax.sql.DataSource
@@ -426,6 +427,47 @@ public class GlobalMethodSecurityConfigurationTests extends BaseSpringSpec {
 		@Autowired
 		public void configureGlobal(AuthenticationManagerBuilder auth) {
 			auth.inMemoryAuthentication()
+		}
+	}
+
+	// gh-3797
+	def preAuthorizeBeanSpel() {
+		setup:
+			SecurityContextHolder.getContext().setAuthentication(
+				new TestingAuthenticationToken("user", "password","ROLE_USER"))
+			context = new AnnotationConfigApplicationContext(PreAuthorizeBeanSpelConfig)
+			BeanSpelService service = context.getBean(BeanSpelService)
+		when:
+			service.run(true)
+		then:
+			noExceptionThrown()
+		when:
+			service.run(false)
+		then:
+			thrown(AccessDeniedException)
+	}
+
+	@EnableGlobalMethodSecurity(prePostEnabled = true)
+	@Configuration
+	public static class PreAuthorizeBeanSpelConfig extends BaseMethodConfig {
+		@Bean
+		BeanSpelService service() {
+			return new BeanSpelService();
+		}
+		@Bean
+		BeanSpelSecurity security() {
+			return new BeanSpelSecurity();
+		}
+	}
+
+	static class BeanSpelService {
+		@PreAuthorize("@security.check(#arg)")
+		void run(boolean arg) {}
+	}
+
+	static class BeanSpelSecurity {
+		public boolean check(boolean arg) {
+			return arg;
 		}
 	}
 }
