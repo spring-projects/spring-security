@@ -18,7 +18,6 @@ package org.springframework.security.authentication;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
 
@@ -50,16 +49,25 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken im
 	 */
 	public AnonymousAuthenticationToken(String key, Object principal,
 			Collection<? extends GrantedAuthority> authorities) {
+		this(extractKeyHash(key), nullSafeValue(principal), authorities);
+	}
+
+	/**
+	 * Constructor helps in Jackson Deserialization
+	 *
+	 * @param keyHash hashCode of provided Key, constructed by above constructor
+	 * @param principal the principal (typically a <code>UserDetails</code>)
+	 * @param authorities the authorities granted to the principal
+     */
+	private AnonymousAuthenticationToken(Integer keyHash, Object principal,
+										 Collection<? extends GrantedAuthority> authorities) {
 		super(authorities);
 
-		if ((key == null) || ("".equals(key)) || (principal == null)
-				|| "".equals(principal) || (authorities == null)
-				|| (authorities.isEmpty())) {
-			throw new IllegalArgumentException(
-					"Cannot pass null or empty values to constructor");
+		if(authorities == null || authorities.isEmpty()) {
+			throw new IllegalArgumentException("Cannot pass null or empty values to constructor");
 		}
 
-		this.keyHash = key.hashCode();
+		this.keyHash = keyHash;
 		this.principal = principal;
 		setAuthenticated(true);
 	}
