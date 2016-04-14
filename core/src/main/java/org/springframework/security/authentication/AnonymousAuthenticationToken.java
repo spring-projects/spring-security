@@ -60,7 +60,7 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken im
 	 * @param authorities the authorities granted to the principal
      */
 	private AnonymousAuthenticationToken(Integer keyHash, Object principal,
-										 Collection<? extends GrantedAuthority> authorities) {
+										Collection<? extends GrantedAuthority> authorities) {
 		super(authorities);
 
 		if(authorities == null || authorities.isEmpty()) {

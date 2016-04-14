@@ -91,11 +91,11 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
 	 * principal and how to obtain a proxy ticket for the user.
 	 *
 	 * @throws IllegalArgumentException if a <code>null</code> was passed
-     */
+	 */
 	private CasAuthenticationToken(final Integer keyHash, final Object principal,
-								   final Object credentials,
-								   final Collection<? extends GrantedAuthority> authorities,
-								   final UserDetails userDetails, final Assertion assertion) {
+									final Object credentials,
+									final Collection<? extends GrantedAuthority> authorities,
+									final UserDetails userDetails, final Assertion assertion) {
 		super(authorities);
 
 		if ((principal == null)
