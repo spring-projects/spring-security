@@ -8,7 +8,10 @@ dependencies {
 			"org.springframework:spring-web:$springVersion",
 			"org.jasig.cas.client:cas-client-core:$casClientVersion"
 
-	optional "net.sf.ehcache:ehcache:$ehcacheVersion"
+	optional "net.sf.ehcache:ehcache:$ehcacheVersion",
+			"com.fasterxml.jackson.core:jackson-databind:$jacksonDatavindVersion"
+
+	testCompile "org.skyscreamer:jsonassert:$jsonassertVersion"
 
 	provided "javax.servlet:javax.servlet-api:$servletApiVersion"
 }
