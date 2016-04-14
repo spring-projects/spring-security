@@ -70,9 +70,35 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
 			final Object credentials,
 			final Collection<? extends GrantedAuthority> authorities,
 			final UserDetails userDetails, final Assertion assertion) {
+		this(extractKeyHash(key), principal, credentials, authorities, userDetails, assertion);
+	}
+
+	/**
+	 * Private constructor for Jackson Deserialization support
+	 *
+	 * @param keyHash hashCode of provided key to identify if this object made by a given
+	 * {@link CasAuthenticationProvider}
+	 * @param principal typically the UserDetails object (cannot be <code>null</code>)
+	 * @param credentials the service/proxy ticket ID from CAS (cannot be
+	 * <code>null</code>)
+	 * @param authorities the authorities granted to the user (from the
+	 * {@link org.springframework.security.core.userdetails.UserDetailsService}) (cannot
+	 * be <code>null</code>)
+	 * @param userDetails the user details (from the
+	 * {@link org.springframework.security.core.userdetails.UserDetailsService}) (cannot
+	 * be <code>null</code>)
+	 * @param assertion the assertion returned from the CAS servers. It contains the
+	 * principal and how to obtain a proxy ticket for the user.
+	 *
+	 * @throws IllegalArgumentException if a <code>null</code> was passed
+     */
+	private CasAuthenticationToken(final Integer keyHash, final Object principal,
+								   final Object credentials,
+								   final Collection<? extends GrantedAuthority> authorities,
+								   final UserDetails userDetails, final Assertion assertion) {
 		super(authorities);
 
-		if ((key == null) || ("".equals(key)) || (principal == null)
+		if ((principal == null)
 				|| "".equals(principal) || (credentials == null)
 				|| "".equals(credentials) || (authorities == null)
 				|| (userDetails == null) || (assertion == null)) {
@@ -80,7 +106,7 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
 					"Cannot pass null or empty values to constructor");
 		}
 
-		this.keyHash = key.hashCode();
+		this.keyHash = keyHash;
 		this.principal = principal;
 		this.credentials = credentials;
 		this.userDetails = userDetails;
