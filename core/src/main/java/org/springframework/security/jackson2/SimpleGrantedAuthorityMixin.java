@@ -1,13 +1,16 @@
 package org.springframework.security.jackson2;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.springframework.security.core.GrantedAuthority;
+
+import java.util.Collection;
 
 /**
- * @author jitendra
+ * @author Jitendra Singh
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class SimpleGrantedAuthorityMixin {
 
     @JsonCreator
