@@ -15,12 +15,17 @@
  */
 package org.springframework.security.crypto.encrypt;
 
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Random;
 import java.util.UUID;
 
+import javax.crypto.Cipher;
+import javax.crypto.NoSuchPaddingException;
+
 import org.junit.Assert;
 import org.junit.Assume;
+import org.junit.AssumptionViolatedException;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.crypto.codec.Hex;
@@ -36,10 +41,6 @@ public class BouncyCastleAesBytesEncryptorEquivalencyTest {
 
 	@Before
 	public void setup() {
-		Assume.assumeTrue(
-				"couldn't create AesBytesEncryptor, is JCE unlimited strength enabled?",
-				isAes256Available());
-
 		// generate random password, salt, and test data
 		SecureRandom secureRandom = new SecureRandom();
 		password = UUID.randomUUID().toString();
@@ -52,6 +53,7 @@ public class BouncyCastleAesBytesEncryptorEquivalencyTest {
 
 	@Test
 	public void bouncyCastleAesCbcWithPredictableIvEquvalent() throws Exception {
+		assumeAes256Available(CipherAlgorithm.CBC);
 		BytesEncryptor bcEncryptor = new BouncyCastleAesCbcBytesEncryptor(password, salt,
 				new PredictableRandomBytesKeyGenerator(16));
 		BytesEncryptor jceEncryptor = new AesBytesEncryptor(password, salt,
@@ -61,6 +63,7 @@ public class BouncyCastleAesBytesEncryptorEquivalencyTest {
 
 	@Test
 	public void bouncyCastleAesCbcWithSecureIvCompatible() throws Exception {
+		assumeAes256Available(CipherAlgorithm.CBC);
 		BytesEncryptor bcEncryptor = new BouncyCastleAesCbcBytesEncryptor(password, salt,
 				KeyGenerators.secureRandom(16));
 		BytesEncryptor jceEncryptor = new AesBytesEncryptor(password, salt,
@@ -70,6 +73,7 @@ public class BouncyCastleAesBytesEncryptorEquivalencyTest {
 
 	@Test
 	public void bouncyCastleAesGcmWithPredictableIvEquvalent() throws Exception {
+		assumeAes256Available(CipherAlgorithm.GCM);
 		BytesEncryptor bcEncryptor = new BouncyCastleAesGcmBytesEncryptor(password, salt,
 				new PredictableRandomBytesKeyGenerator(16));
 		BytesEncryptor jceEncryptor = new AesBytesEncryptor(password, salt,
@@ -79,6 +83,7 @@ public class BouncyCastleAesBytesEncryptorEquivalencyTest {
 
 	@Test
 	public void bouncyCastleAesGcmWithSecureIvCompatible() throws Exception {
+		assumeAes256Available(CipherAlgorithm.GCM);
 		BytesEncryptor bcEncryptor = new BouncyCastleAesGcmBytesEncryptor(password, salt,
 				KeyGenerators.secureRandom(16));
 		BytesEncryptor jceEncryptor = new AesBytesEncryptor(password, salt,
@@ -111,13 +116,23 @@ public class BouncyCastleAesBytesEncryptorEquivalencyTest {
 		Assert.assertArrayEquals(testData, rightDecrypted);
 	}
 
-	private boolean isAes256Available() {
+	private void assumeAes256Available(CipherAlgorithm cipherAlgorithm) {
+		boolean aes256Available = false;
 		try {
-			return javax.crypto.Cipher.getMaxAllowedKeyLength("AES") >= 256;
+			Cipher.getInstance(cipherAlgorithm.toString());
+			aes256Available = Cipher.getMaxAllowedKeyLength("AES") >= 256;
 		}
-		catch (Exception e) {
-			return false;
+		catch (NoSuchAlgorithmException e) {
+			throw new AssumptionViolatedException(
+					cipherAlgorithm + " not available, skipping test", e);
 		}
+		catch (NoSuchPaddingException e) {
+			throw new AssumptionViolatedException(
+					cipherAlgorithm + " padding not available, skipping test", e);
+		}
+		Assume.assumeTrue(
+				"AES key length of 256 not allowed, skipping test",
+				aes256Available);
 
 	}
 
