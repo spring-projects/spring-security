@@ -172,6 +172,10 @@ public final class AntPathRequestMatcher implements RequestMatcher {
 		return this.matcher.extractUriTemplateVariables(url);
 	}
 
+	public String postProcessVariableName(String variableName) {
+		return this.caseSensitive ? variableName : variableName.toLowerCase();
+	}
+
 	private String getRequestPath(HttpServletRequest request) {
 		String url = request.getServletPath();
 

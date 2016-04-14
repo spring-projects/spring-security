@@ -41,15 +41,28 @@ abstract class AbstractVariableEvaluationContextPostProcessor
 	@Override
 	public final EvaluationContext postProcess(EvaluationContext context,
 			FilterInvocation invocation) {
-		HttpServletRequest request = invocation.getHttpRequest();
-		Map<String, String> variables = extractVariables(request);
-		for (Map.Entry<String, String> entry : variables.entrySet()) {
-			context.setVariable(entry.getKey(), entry.getValue());
-		}
-		return context;
+		final HttpServletRequest request = invocation.getHttpRequest();
+		return new DelegatingEvaluationContext(context) {
+			private Map<String, String> variables;
+
+			@Override
+			public Object lookupVariable(String name) {
+				Object result = super.lookupVariable(name);
+				if (result != null) {
+					return result;
+				}
+				if (this.variables == null) {
+					this.variables = extractVariables(request);
+				}
+				name = postProcessVariableName(name);
+				return this.variables.get(name);
+			}
+
+		};
 	}
 
-	protected abstract Map<String, String> extractVariables(
-			HttpServletRequest request);
+	abstract Map<String, String> extractVariables(HttpServletRequest request);
+
+	abstract String postProcessVariableName(String variableName);
 
 }

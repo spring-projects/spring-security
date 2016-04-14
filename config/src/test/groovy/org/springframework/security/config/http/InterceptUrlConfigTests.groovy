@@ -137,6 +137,39 @@ class InterceptUrlConfigTests extends AbstractHttpConfigTests {
 		response.status == HttpServletResponse.SC_FORBIDDEN
 	}
 
+	def "gh-3786 intercept-url supports cammel case path variables"() {
+		setup:
+		MockHttpServletRequest request = new MockHttpServletRequest(method:'GET')
+		MockHttpServletResponse response = new MockHttpServletResponse()
+		MockFilterChain chain = new MockFilterChain()
+		xml.http('use-expressions':true) {
+			'http-basic'()
+			'intercept-url'(pattern: '/user/{userName}/**', access: "#userName == authentication.name")
+			'intercept-url'(pattern: '/**', access: "denyAll")
+		}
+		createAppContext()
+		login(request, 'user', 'password')
+		when: 'user can access'
+		request.servletPath = '/user/user/abc'
+		springSecurityFilterChain.doFilter(request,response,chain)
+		then: 'The response is OK'
+		response.status == HttpServletResponse.SC_OK
+		when: 'user cannot access otheruser'
+		request = new MockHttpServletRequest(method:'GET', servletPath : '/user/otheruser/abc')
+		login(request, 'user', 'password')
+		chain.reset()
+		springSecurityFilterChain.doFilter(request,response,chain)
+		then: 'The response is OK'
+		response.status == HttpServletResponse.SC_FORBIDDEN
+		when: 'user can access case insensitive URL'
+		request = new MockHttpServletRequest(method:'GET', servletPath : '/USER/user/abc')
+		login(request, 'user', 'password')
+		chain.reset()
+		springSecurityFilterChain.doFilter(request,response,chain)
+		then: 'The response is OK'
+		response.status == HttpServletResponse.SC_FORBIDDEN
+	}
+
 	def "SEC-2256: intercept-url supports path variable type conversion"() {
 		setup:
 		MockHttpServletRequest request = new MockHttpServletRequest(method:'GET')
