@@ -1,16 +1,3 @@
-// crypto module build file
-
-// jdkVersion = System.properties['java.version']
-// isJdk6 = jdkVersion >= '1.6'
-int maxAESKeySize = javax.crypto.Cipher.getMaxAllowedKeyLength('AES')
-
-configure(project.tasks.withType(Test)) {
-	if (maxAESKeySize < 256) {
-		println "AES keysize limited to $maxAESKeySize, skipping EncryptorsTests"
-		exclude '**/EncryptorsTests.class'
-	}
-}
-
 dependencies {
 	optional 'org.bouncycastle:bcpkix-jdk15on:1.54'
 }
