@@ -84,13 +84,7 @@ public class DefaultSavedRequest implements SavedRequest {
 		Assert.notNull(portResolver, "PortResolver required");
 
 		// Cookies
-		Cookie[] cookies = request.getCookies();
-
-		if (cookies != null) {
-			for (Cookie cookie : cookies) {
-				this.addCookie(cookie);
-			}
-		}
+        addCookies(request.getCookies());
 
 		// Headers
 		Enumeration<String> names = request.getHeaderNames();
@@ -110,27 +104,10 @@ public class DefaultSavedRequest implements SavedRequest {
 		}
 
 		// Locales
-		Enumeration<Locale> locales = request.getLocales();
-
-		while (locales.hasMoreElements()) {
-			Locale locale = (Locale) locales.nextElement();
-			this.addLocale(locale);
-		}
+        addLocales(request.getLocales());
 
 		// Parameters
-		Map<String, String[]> parameters = request.getParameterMap();
-
-		for (String paramName : parameters.keySet()) {
-			Object paramValues = parameters.get(paramName);
-			if (paramValues instanceof String[]) {
-				this.addParameter(paramName, (String[]) paramValues);
-			}
-			else {
-				if (logger.isWarnEnabled()) {
-					logger.warn("ServletRequest.getParameterMap() returned non-String array");
-				}
-			}
-		}
+        addParameters(request.getParameterMap());
 
 		// Primitives
 		this.method = request.getMethod();
@@ -145,8 +122,34 @@ public class DefaultSavedRequest implements SavedRequest {
 		this.servletPath = request.getServletPath();
 	}
 
+    /**
+     * Private constructor invoked through Builder
+     */
+    private DefaultSavedRequest(String contextPath, String method, String pathInfo, String queryString, String requestURI,
+                                String requestURL, String scheme, String serverName, String servletPath, int serverPort) {
+
+        this.contextPath = contextPath;
+        this.method = method;
+        this.pathInfo = pathInfo;
+        this.queryString = queryString;
+        this.requestURI = requestURI;
+        this.requestURL = requestURL;
+        this.scheme = scheme;
+        this.serverName = serverName;
+        this.servletPath = servletPath;
+        this.serverPort = serverPort;
+    }
+
 	// ~ Methods
 	// ========================================================================================================
+
+    private void addCookies(Cookie[] cookies) {
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                this.addCookie(cookie);
+            }
+        }
+    }
 
 	private void addCookie(Cookie cookie) {
 		cookies.add(new SavedCookie(cookie));
@@ -163,9 +166,29 @@ public class DefaultSavedRequest implements SavedRequest {
 		values.add(value);
 	}
 
+    private void addLocales(Enumeration<Locale> locales) {
+        while (locales.hasMoreElements()) {
+            Locale locale = locales.nextElement();
+            this.addLocale(locale);
+        }
+    }
+
 	private void addLocale(Locale locale) {
 		locales.add(locale);
 	}
+
+    private void addParameters(Map<String, String[]> parameters) {
+        for (String paramName : parameters.keySet()) {
+            Object paramValues = parameters.get(paramName);
+            if (paramValues instanceof String[]) {
+                this.addParameter(paramName, (String[]) paramValues);
+            } else {
+                if (logger.isWarnEnabled()) {
+                    logger.warn("ServletRequest.getParameterMap() returned non-String array");
+                }
+            }
+        }
+    }
 
 	private void addParameter(String name, String[] values) {
 		parameters.put(name, values);
@@ -315,6 +338,109 @@ public class DefaultSavedRequest implements SavedRequest {
 	public String getServletPath() {
 		return servletPath;
 	}
+
+    public static class Builder {
+
+        private List<Cookie> cookies = null;
+        private List<Locale> locales = null;
+        private Map<String, List<String>> headers = new TreeMap<String, List<String>>(String.CASE_INSENSITIVE_ORDER);
+        private Map<String, String[]> parameters = new TreeMap<String, String[]>();
+        private String contextPath;
+        private String method;
+        private String pathInfo;
+        private String queryString;
+        private String requestURI;
+        private String requestURL;
+        private String scheme;
+        private String serverName;
+        private String servletPath;
+        private int serverPort = 80;
+
+        public Builder setCookies(List<Cookie> cookies) {
+            this.cookies = cookies;
+            return this;
+        }
+
+        public Builder setLocales(List<Locale> locales) {
+            this.locales = locales;
+            return this;
+        }
+
+        public Builder setHeaders(Map<String, List<String>> header) {
+            this.headers.putAll(header);
+            return this;
+        }
+
+        public Builder setParameters(Map<String, String[]> parameters) {
+            this.parameters = parameters;
+            return this;
+        }
+
+        public Builder setContextPath(String contextPath) {
+            this.contextPath = contextPath;
+            return this;
+        }
+
+        public Builder setMethod(String method) {
+            this.method = method;
+            return this;
+        }
+
+        public Builder setPathInfo(String pathInfo) {
+            this.pathInfo = pathInfo;
+            return this;
+        }
+
+        public Builder setQueryString(String queryString) {
+            this.queryString = queryString;
+            return this;
+        }
+
+        public Builder setRequestURI(String requestURI) {
+            this.requestURI = requestURI;
+            return this;
+        }
+
+        public Builder setRequestURL(String requestURL) {
+            this.requestURL = requestURL;
+            return this;
+        }
+
+        public Builder setScheme(String scheme) {
+            this.scheme = scheme;
+            return this;
+        }
+
+        public Builder setServerName(String serverName) {
+            this.serverName = serverName;
+            return this;
+        }
+
+        public Builder setServletPath(String servletPath) {
+            this.servletPath = servletPath;
+            return this;
+        }
+
+        public Builder setServerPort(int serverPort) {
+            this.serverPort = serverPort;
+            return this;
+        }
+
+        public DefaultSavedRequest build() {
+            DefaultSavedRequest savedRequest = new DefaultSavedRequest(
+                    this.contextPath, this.method, this.pathInfo, this.queryString, this.requestURI,
+                    this.requestURL, this.scheme, this.serverName, this.servletPath, this.serverPort
+            );
+            savedRequest.addCookies(this.cookies.toArray(new Cookie[]{}));
+            savedRequest.locales.addAll(this.locales);
+            savedRequest.addParameters(this.parameters);
+
+            this.headers.remove(HEADER_IF_MODIFIED_SINCE);
+            this.headers.remove(HEADER_IF_NONE_MATCH);
+            savedRequest.headers.putAll(this.headers);
+            return savedRequest;
+        }
+    }
 
 	private boolean propertyEquals(String log, Object arg1, Object arg2) {
 		if ((arg1 == null) && (arg2 == null)) {
