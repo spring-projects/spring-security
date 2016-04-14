@@ -18,6 +18,8 @@ package org.springframework.security.test.web.servlet.response;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -229,13 +231,18 @@ public final class SecurityMockMvcResultMatchers {
 	 * @author Rob Winch
 	 * @since 4.0
 	 */
-	private static final class UnAuthenticatedMatcher extends
-			AuthenticationMatcher<UnAuthenticatedMatcher> {
+	private static final class UnAuthenticatedMatcher
+			extends AuthenticationMatcher<UnAuthenticatedMatcher> {
+		private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
 
+		@Override
 		public void match(MvcResult result) throws Exception {
 			SecurityContext context = load(result);
 
-			assertEquals("", null, context.getAuthentication());
+			Authentication authentication = context.getAuthentication();
+			assertTrue("Expected anonymous Authentication got " + context,
+					authentication == null
+							|| this.trustResolver.isAnonymous(authentication));
 		}
 
 		private UnAuthenticatedMatcher() {
