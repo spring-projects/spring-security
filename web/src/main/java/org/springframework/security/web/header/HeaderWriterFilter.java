@@ -28,7 +28,7 @@ import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
- * Filter implementation to add headers to the current request. Can be useful to add
+ * Filter implementation to add headers to the current response. Can be useful to add
  * certain headers which enable browser protection. Like X-Frame-Options, X-XSS-Protection
  * and X-Content-Type-Options.
  *
@@ -40,7 +40,7 @@ public class HeaderWriterFilter extends OncePerRequestFilter {
 
 	/**
 	 * Collection of {@link HeaderWriter} instances to write out the headers to the
-	 * response .
+	 * response.
 	 */
 	private final List<HeaderWriter> headerWriters;
 
