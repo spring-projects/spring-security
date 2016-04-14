@@ -15,13 +15,10 @@
  */
 package org.springframework.security.test.web.servlet.response;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
-import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -36,6 +33,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
+import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = SecurityMockMvcResultMatchersTests.Config.class)
 @WebAppConfiguration
@@ -47,21 +48,32 @@ public class SecurityMockMvcResultMatchersTests {
 
 	@Before
 	public void setup() {
-		mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity())
-				.build();
+		// @formatter:off
+		this.mockMvc = MockMvcBuilders
+			.webAppContextSetup(this.context)
+			.apply(springSecurity())
+			.build();
+		// @formatter:on
 	}
 
 	// SEC-2719
 	@Test
 	public void withRolesNotOrderSensitive() throws Exception {
-		mockMvc.perform(formLogin())
-				.andExpect(authenticated().withRoles("USER", "SELLER"))
-				.andExpect(authenticated().withRoles("SELLER", "USER"));
+		// @formatter:off
+		this.mockMvc
+			.perform(formLogin())
+			.andExpect(authenticated().withRoles("USER", "SELLER"))
+			.andExpect(authenticated().withRoles("SELLER", "USER"));
+		// @formatter:on
 	}
 
 	@Test(expected = AssertionError.class)
 	public void withRolesFailsIfNotAllRoles() throws Exception {
-		mockMvc.perform(formLogin()).andExpect(authenticated().withRoles("USER"));
+		// @formatter:off
+		this.mockMvc
+			.perform(formLogin())
+			.andExpect(authenticated().withRoles("USER"));
+		// @formatter:on
 	}
 
 	@EnableWebSecurity
