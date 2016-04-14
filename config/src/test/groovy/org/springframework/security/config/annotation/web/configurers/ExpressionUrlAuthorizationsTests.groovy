@@ -97,7 +97,7 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
 			loadConfig(NoRequestsConfig)
 		then: "A meaningful exception is thrown"
 			BeanCreationException success = thrown()
-			success.message.contains "At least one mapping is required (i.e. authorizeRequests().anyRequest.authenticated())"
+			success.message.contains "At least one mapping is required (i.e. authorizeRequests().anyRequest().authenticated())"
 	}
 
 	@EnableWebSecurity

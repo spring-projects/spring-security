@@ -174,7 +174,7 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 				.createRequestMap();
 		if (requestMap.isEmpty()) {
 			throw new IllegalStateException(
-					"At least one mapping is required (i.e. authorizeRequests().anyRequest.authenticated())");
+					"At least one mapping is required (i.e. authorizeRequests().anyRequest().authenticated())");
 		}
 		return new ExpressionBasedFilterInvocationSecurityMetadataSource(requestMap,
 				getExpressionHandler(http));
