@@ -32,8 +32,6 @@ import java.util.Collection;
 public class RememberMeAuthenticationTokenMixin {
 
 	@JsonCreator
-	public RememberMeAuthenticationTokenMixin(@JsonProperty("keyHash") Integer keyHash,
-											  @JsonProperty("principal") Object principal,
-											  @JsonProperty("authorities") Collection<? extends GrantedAuthority> authorities) {
+	public RememberMeAuthenticationTokenMixin(@JsonProperty("keyHash") Integer keyHash, @JsonProperty("principal") Object principal, @JsonProperty("authorities") Collection<? extends GrantedAuthority> authorities) {
 	}
 }
