@@ -73,7 +73,7 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken {
 	 * @param keyHash hashCode of above given key.
 	 * @param principal the principal (typically a <code>UserDetails</code>)
 	 * @param authorities the authorities granted to the principal
-     */
+	 */
 	private RememberMeAuthenticationToken(Integer keyHash, Object principal,
 										 Collection<? extends GrantedAuthority> authorities) {
 		super(authorities);
