@@ -117,6 +117,15 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 		clientInboundChannel().send(message("/permitAll"));
 	}
 
+	// gh-3797
+	@Test
+	public void beanResolver() {
+		loadConfig(SockJsSecurityConfig.class);
+
+		messageUser = null;
+		clientInboundChannel().send(message("/beanResolver"));
+	}
+
 	@Test
 	public void addsAuthenticationPrincipalResolver() throws InterruptedException {
 		loadConfig(SockJsSecurityConfig.class);
@@ -594,6 +603,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 		protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
 			messages
 				.simpDestMatchers("/permitAll/**").permitAll()
+				.simpDestMatchers("/beanResolver/**").access("@security.check()")
 				.anyMessage().denyAll();
 		}
 		// @formatter:on
@@ -612,6 +622,20 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 		@Bean
 		public TestHandshakeHandler testHandshakeHandler() {
 			return new TestHandshakeHandler();
+		}
+
+		@Bean
+		public SecurityCheck security() {
+			return new SecurityCheck();
+		}
+
+		static class SecurityCheck {
+			private boolean check;
+
+			public boolean check() {
+				check = !check;
+				return check;
+			}
 		}
 	}
 
