@@ -31,9 +31,9 @@ import java.util.Collection;
 public abstract class UserMixin {
 
 	public UserMixin(@JsonProperty("username") String username, @JsonProperty("password") String password,
-		@JsonProperty("enabled") boolean enabled, @JsonProperty("accountNonExpired") boolean accountNonExpired,
-		@JsonProperty("credentialsNonExpired") boolean credentialsNonExpired,
-		@JsonProperty("accountNonLocked") boolean accountNonLocked,
-		@JsonProperty("authorities") Collection<? extends GrantedAuthority> authorities) {
+					@JsonProperty("enabled") boolean enabled, @JsonProperty("accountNonExpired") boolean accountNonExpired,
+					@JsonProperty("credentialsNonExpired") boolean credentialsNonExpired,
+					@JsonProperty("accountNonLocked") boolean accountNonLocked,
+					@JsonProperty("authorities") Collection<? extends GrantedAuthority> authorities) {
 	}
 }

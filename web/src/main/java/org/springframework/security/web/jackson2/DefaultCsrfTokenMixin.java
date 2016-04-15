@@ -37,6 +37,6 @@ public class DefaultCsrfTokenMixin {
 	 */
 	@JsonCreator
 	public DefaultCsrfTokenMixin(@JsonProperty("headerName") String headerName,
-								 @JsonProperty("parameterName") String parameterName, @JsonProperty("token") String token) {
+								@JsonProperty("parameterName") String parameterName, @JsonProperty("token") String token) {
 	}
 }

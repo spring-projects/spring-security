@@ -28,6 +28,6 @@ public class WebAuthenticationDetailsMixin {
 
 	@JsonCreator
 	WebAuthenticationDetailsMixin(@JsonProperty("remoteAddress") String remoteAddress,
-								  @JsonProperty("sessionId") String sessionId) {
+									@JsonProperty("sessionId") String sessionId) {
 	}
 }
