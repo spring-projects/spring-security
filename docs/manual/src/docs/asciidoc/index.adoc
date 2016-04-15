@@ -6576,9 +6576,12 @@ Spring Security provides `AuthenticationPrincipalArgumentResolver` which can aut
 
 [source,xml]
 ----
-<bean class="org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver" />
+<mvc:annotation-driven>
+    <mvc:argument-resolvers>
+        <bean class="org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver" />
+    </mvc:argument-resolvers>
+</mvc:annotation-driven>
 ----
-
 
 Once `AuthenticationPrincipalArgumentResolver` is properly configured, you can be entirely decoupled from Spring Security in your Spring MVC layer.
 
