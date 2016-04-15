@@ -32,17 +32,15 @@ public class BouncyCastleAesBytesEncryptorEquivalencyTest {
 	private byte[] testData;
 	private String password;
 	private String salt;
+	private SecureRandom secureRandom = new SecureRandom();
 
 	@Before
 	public void setup() {
 		// generate random password, salt, and test data
-		SecureRandom secureRandom = new SecureRandom();
 		password = UUID.randomUUID().toString();
 		byte[] saltBytes = new byte[16];
 		secureRandom.nextBytes(saltBytes);
 		salt = new String(Hex.encode(saltBytes));
-		testData = new byte[1024 * 1024];
-		secureRandom.nextBytes(testData);
 	}
 
 	@Test
@@ -87,29 +85,37 @@ public class BouncyCastleAesBytesEncryptorEquivalencyTest {
 
 	private void testEquivalence(BytesEncryptor left, BytesEncryptor right)
 			throws Exception {
-		// tests that right and left generate the same encrypted bytes
-		// and can decrypt back to the original input
-		byte[] leftEncrypted = left.encrypt(testData);
-		byte[] rightEncrypted = right.encrypt(testData);
-		Assert.assertArrayEquals(leftEncrypted, rightEncrypted);
-		byte[] leftDecrypted = left.decrypt(leftEncrypted);
-		byte[] rightDecrypted = right.decrypt(rightEncrypted);
-		Assert.assertArrayEquals(testData, leftDecrypted);
-		Assert.assertArrayEquals(testData, rightDecrypted);
+		for (int size = 1; size < 2048; size++) {
+			testData = new byte[size];
+			secureRandom.nextBytes(testData);
+			// tests that right and left generate the same encrypted bytes
+			// and can decrypt back to the original input
+			byte[] leftEncrypted = left.encrypt(testData);
+			byte[] rightEncrypted = right.encrypt(testData);
+			Assert.assertArrayEquals(leftEncrypted, rightEncrypted);
+			byte[] leftDecrypted = left.decrypt(leftEncrypted);
+			byte[] rightDecrypted = right.decrypt(rightEncrypted);
+			Assert.assertArrayEquals(testData, leftDecrypted);
+			Assert.assertArrayEquals(testData, rightDecrypted);
+		}
+
 	}
 
 	private void testCompatibility(BytesEncryptor left, BytesEncryptor right)
 			throws Exception {
 		// tests that right can decrypt what left encrypted and vice versa
 		// and that the decypted data is the same as the original
-		byte[] leftEncrypted = left.encrypt(testData);
-		byte[] rightEncrypted = right.encrypt(testData);
-		byte[] leftDecrypted = left.decrypt(rightEncrypted);
-		byte[] rightDecrypted = right.decrypt(leftEncrypted);
-		Assert.assertArrayEquals(testData, leftDecrypted);
-		Assert.assertArrayEquals(testData, rightDecrypted);
+		for (int size = 1; size < 2048; size++) {
+			testData = new byte[size];
+			secureRandom.nextBytes(testData);
+			byte[] leftEncrypted = left.encrypt(testData);
+			byte[] rightEncrypted = right.encrypt(testData);
+			byte[] leftDecrypted = left.decrypt(rightEncrypted);
+			byte[] rightDecrypted = right.decrypt(leftEncrypted);
+			Assert.assertArrayEquals(testData, leftDecrypted);
+			Assert.assertArrayEquals(testData, rightDecrypted);
+		}
 	}
-
 
 	/**
 	 * A BytesKeyGenerator that always generates the same sequence of values
