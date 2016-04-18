@@ -18,10 +18,9 @@ package org.springframework.security.crypto.encrypt;
 import static org.springframework.security.crypto.util.EncodingUtils.concatenate;
 import static org.springframework.security.crypto.util.EncodingUtils.subArray;
 
-import java.io.ByteArrayOutputStream;
-
+import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.bouncycastle.crypto.engines.AESFastEngine;
-import org.bouncycastle.crypto.io.CipherOutputStream;
+import org.bouncycastle.crypto.modes.AEADBlockCipher;
 import org.bouncycastle.crypto.modes.GCMBlockCipher;
 import org.bouncycastle.crypto.params.AEADParameters;
 import org.springframework.security.crypto.encrypt.AesBytesEncryptor.CipherAlgorithm;
@@ -51,13 +50,9 @@ public class BouncyCastleAesGcmBytesEncryptor extends BouncyCastleAesBytesEncryp
 		byte[] iv = this.ivGenerator.generateKey();
 
 		GCMBlockCipher blockCipher = new GCMBlockCipher(new AESFastEngine());
-		blockCipher.init(true, new AEADParameters(secretKey, 128, iv));
-		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(
-				blockCipher.getOutputSize(bytes.length));
-		CipherOutputStream cipherOutputStream = new CipherOutputStream(byteArrayOutputStream,
-				blockCipher);
+		blockCipher.init(true, new AEADParameters(secretKey, 128, iv, null));
 
-		byte[] encrypted = process(cipherOutputStream, byteArrayOutputStream, bytes);
+		byte[] encrypted = process(blockCipher, bytes);
 		return iv != null ? concatenate(iv, encrypted) : encrypted;
 	}
 
@@ -68,13 +63,25 @@ public class BouncyCastleAesGcmBytesEncryptor extends BouncyCastleAesBytesEncryp
 				encryptedBytes.length);
 
 		GCMBlockCipher blockCipher = new GCMBlockCipher(new AESFastEngine());
-		blockCipher.init(false, new AEADParameters(secretKey, 128, iv));
-		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(
-				blockCipher.getOutputSize(encryptedBytes.length));
-		CipherOutputStream cipherOutputStream = new CipherOutputStream(
-				byteArrayOutputStream, blockCipher);
+		blockCipher.init(false, new AEADParameters(secretKey, 128, iv, null));
+		return process(blockCipher, encryptedBytes);
+	}
 
-		return process(cipherOutputStream, byteArrayOutputStream, encryptedBytes);
+	private byte[] process(AEADBlockCipher blockCipher, byte[] in) {
+		byte[] buf = new byte[blockCipher.getOutputSize(in.length)];
+		int bytesWritten = blockCipher.processBytes(in, 0, in.length, buf, 0);
+		try {
+			bytesWritten += blockCipher.doFinal(buf, bytesWritten);
+		}
+		catch (InvalidCipherTextException e) {
+			throw new IllegalStateException("unable to encrypt/decrypt", e);
+		}
+		if (bytesWritten == buf.length) {
+			return buf;
+		}
+		byte[] out = new byte[bytesWritten];
+		System.arraycopy(buf, 0, out, 0, bytesWritten);
+		return out;
 	}
 
 }

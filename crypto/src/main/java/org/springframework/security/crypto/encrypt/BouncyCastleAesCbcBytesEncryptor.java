@@ -18,10 +18,9 @@ package org.springframework.security.crypto.encrypt;
 import static org.springframework.security.crypto.util.EncodingUtils.concatenate;
 import static org.springframework.security.crypto.util.EncodingUtils.subArray;
 
-import java.io.ByteArrayOutputStream;
-
+import org.bouncycastle.crypto.BufferedBlockCipher;
+import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.bouncycastle.crypto.engines.AESFastEngine;
-import org.bouncycastle.crypto.io.CipherOutputStream;
 import org.bouncycastle.crypto.modes.CBCBlockCipher;
 import org.bouncycastle.crypto.paddings.PKCS7Padding;
 import org.bouncycastle.crypto.paddings.PaddedBufferedBlockCipher;
@@ -55,12 +54,7 @@ public class BouncyCastleAesCbcBytesEncryptor extends BouncyCastleAesBytesEncryp
 		PaddedBufferedBlockCipher blockCipher = new PaddedBufferedBlockCipher(
 				new CBCBlockCipher(new AESFastEngine()), new PKCS7Padding());
 		blockCipher.init(true, new ParametersWithIV(secretKey, iv));
-		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(
-				blockCipher.getOutputSize(bytes.length));
-		CipherOutputStream cipherOutputStream = new CipherOutputStream(
-				byteArrayOutputStream, blockCipher);
-
-		byte[] encrypted = process(cipherOutputStream, byteArrayOutputStream, bytes);
+		byte[] encrypted = process(blockCipher, bytes);
 		return iv != null ? concatenate(iv, encrypted) : encrypted;
 	}
 
@@ -73,11 +67,23 @@ public class BouncyCastleAesCbcBytesEncryptor extends BouncyCastleAesBytesEncryp
 		PaddedBufferedBlockCipher blockCipher = new PaddedBufferedBlockCipher(
 				new CBCBlockCipher(new AESFastEngine()), new PKCS7Padding());
 		blockCipher.init(false, new ParametersWithIV(secretKey, iv));
-		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(
-				blockCipher.getOutputSize(encryptedBytes.length));
-		CipherOutputStream cipherOutputStream = new CipherOutputStream(
-				byteArrayOutputStream, blockCipher);
+		return process(blockCipher, encryptedBytes);
+	}
 
-		return process(cipherOutputStream, byteArrayOutputStream, encryptedBytes);
+	private byte[] process(BufferedBlockCipher blockCipher, byte[] in) {
+		byte[] buf = new byte[blockCipher.getOutputSize(in.length)];
+		int bytesWritten = blockCipher.processBytes(in, 0, in.length, buf, 0);
+		try {
+			bytesWritten += blockCipher.doFinal(buf, bytesWritten);
+		}
+		catch (InvalidCipherTextException e) {
+			throw new IllegalStateException("unable to encrypt/decrypt", e);
+		}
+		if (bytesWritten == buf.length) {
+			return buf;
+		}
+		byte[] out = new byte[bytesWritten];
+		System.arraycopy(buf, 0, out, 0, bytesWritten);
+		return out;
 	}
 }

@@ -15,11 +15,8 @@
  */
 package org.springframework.security.crypto.encrypt;
 
-import java.io.ByteArrayOutputStream;
-
 import org.bouncycastle.crypto.PBEParametersGenerator;
 import org.bouncycastle.crypto.generators.PKCS5S2ParametersGenerator;
-import org.bouncycastle.crypto.io.CipherOutputStream;
 import org.bouncycastle.crypto.params.KeyParameter;
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
@@ -52,26 +49,4 @@ abstract class BouncyCastleAesBytesEncryptor implements BytesEncryptor {
 		keyGenerator.init(pkcs12PasswordBytes, Hex.decode(salt), 1024);
 		this.secretKey = (KeyParameter) keyGenerator.generateDerivedParameters(256);
 	}
-
-	byte[] process(CipherOutputStream cipherOutputStream,
-			ByteArrayOutputStream byteArrayOutputStream, byte[] bytes) {
-		try {
-			cipherOutputStream.write(bytes);
-			// close() invokes the  doFinal method of the encapsulated cipher object
-			// and flushes to the underlying outputStream. It must be called before
-			// we get the output.
-			cipherOutputStream.close();
-			return byteArrayOutputStream.toByteArray();
-		}
-		catch (Throwable e) {
-			try {
-				// attempt release of resources
-				cipherOutputStream.close();
-			}
-			catch (Throwable e1) {
-			}
-			throw new IllegalStateException("unable to encrypt/decrypt", e);
-		}
-	}
-
 }
