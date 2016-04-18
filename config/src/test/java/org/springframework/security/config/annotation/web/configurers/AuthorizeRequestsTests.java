@@ -157,6 +157,47 @@ public class AuthorizeRequestsTests {
 		}
 	}
 
+	// gh-3786
+	@Test
+	public void antMatchersPathVariablesCaseInsensitiveCamelCaseVariables() throws Exception {
+		loadConfig(AntMatchersPathVariablesCamelCaseVariables.class);
+
+		this.request.setServletPath("/USER/user");
+
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
+
+		this.setup();
+		this.request.setServletPath("/USER/deny");
+
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_FORBIDDEN);
+	}
+
+	@EnableWebSecurity
+	@Configuration
+	static class AntMatchersPathVariablesCamelCaseVariables extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+				.antMatchers("/user/{userName}").access("#userName == 'user'")
+				.anyRequest().denyAll();
+			// @formatter:on
+		}
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.inMemoryAuthentication();
+			// @formatter:on
+		}
+	}
+
 	public void loadConfig(Class<?>... configs) {
 		this.context = new AnnotationConfigWebApplicationContext();
 		this.context.register(configs);

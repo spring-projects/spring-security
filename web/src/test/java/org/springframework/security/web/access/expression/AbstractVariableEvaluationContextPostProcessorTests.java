@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -36,18 +37,19 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  */
 public class AbstractVariableEvaluationContextPostProcessorTests {
-	AbstractVariableEvaluationContextPostProcessor processor;
+	static final String KEY = "a";
+	static final String VALUE = "b";
+	VariableEvaluationContextPostProcessor processor;
 
 	FilterInvocation invocation;
 
 	MockHttpServletRequest request;
 	MockHttpServletResponse response;
-	StandardEvaluationContext context;
+	EvaluationContext context;
 
 	@Before
 	public void setup() {
 		this.processor = new VariableEvaluationContextPostProcessor();
-
 		this.request = new MockHttpServletRequest();
 		this.request.setServletPath("/");
 		this.response = new MockHttpServletResponse();
@@ -57,23 +59,40 @@ public class AbstractVariableEvaluationContextPostProcessorTests {
 	}
 
 	@Test
-	public void postProcess() {
-		this.processor.postProcess(this.context, this.invocation);
+	public void extractVariables() {
+		this.context = this.processor.postProcess(this.context, this.invocation);
 
-		for (String key : VariableEvaluationContextPostProcessor.RESULTS.keySet()) {
-			assertThat(this.context.lookupVariable(key))
-					.isEqualTo(VariableEvaluationContextPostProcessor.RESULTS.get(key));
-		}
+		assertThat(this.context.lookupVariable(KEY)).isEqualTo(VALUE);
+	}
+
+	@Test
+	public void postProcessVariableName() {
+		this.context = this.processor.postProcess(this.context, this.invocation);
+
+		assertThat(this.context.lookupVariable("nothing")).isEqualTo(VALUE);
+	}
+
+	@Test
+	public void extractVariablesOnlyUsedOnce() {
+		this.context = this.processor.postProcess(this.context, this.invocation);
+
+		assertThat(this.context.lookupVariable(KEY)).isEqualTo(VALUE);
+		this.processor.results = Collections.emptyMap();
+		assertThat(this.context.lookupVariable(KEY)).isEqualTo(VALUE);
 	}
 
 	static class VariableEvaluationContextPostProcessor
 			extends AbstractVariableEvaluationContextPostProcessor {
-		static final Map<String, String> RESULTS = Collections.singletonMap("a", "b");
+		Map<String, String> results = Collections.singletonMap(KEY, VALUE);
 
 		@Override
 		protected Map<String, String> extractVariables(HttpServletRequest request) {
-			return RESULTS;
+			return this.results;
 		}
 
+		@Override
+		String postProcessVariableName(String variableName) {
+			return KEY;
+		}
 	}
 }

@@ -109,9 +109,13 @@ public final class ExpressionBasedFilterInvocationSecurityMetadataSource
 		}
 
 		@Override
-		protected Map<String, String> extractVariables(
-				HttpServletRequest request) {
+		Map<String, String> extractVariables(HttpServletRequest request) {
 			return this.matcher.extractUriTemplateVariables(request);
+		}
+
+		@Override
+		String postProcessVariableName(String variableName) {
+			return this.matcher.postProcessVariableName(variableName);
 		}
 	}
 
