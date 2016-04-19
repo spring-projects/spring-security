@@ -56,6 +56,10 @@ public class MethodSecurityServiceImpl implements MethodSecurityService {
 	}
 
 	@Override
+	public void preAuthorizeAdmin() {
+	}
+
+	@Override
 	public String preAuthorizePermitAll() {
 		return null;
 	}
