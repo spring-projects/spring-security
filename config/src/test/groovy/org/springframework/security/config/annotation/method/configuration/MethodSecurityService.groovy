@@ -51,6 +51,9 @@ public interface MethodSecurityService {
 	@PreAuthorize("permitAll")
 	public String preAuthorizePermitAll();
 
+	@PreAuthorize("hasRole('ADMIN')")
+	public void preAuthorizeAdmin();
+
 	@PreAuthorize("hasPermission(#object,'read')")
 	public String hasPermission(String object);
 

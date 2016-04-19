@@ -15,6 +15,10 @@
  */
 package org.springframework.security.config.annotation.method.configuration
 
+
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
+
 import java.lang.reflect.Proxy;
 
 import org.junit.After;
@@ -468,6 +472,28 @@ public class GlobalMethodSecurityConfigurationTests extends BaseSpringSpec {
 	static class BeanSpelSecurity {
 		public boolean check(boolean arg) {
 			return arg;
+		}
+	}
+
+	// gh-3394
+	def roleHierarchy() {
+		setup:
+			SecurityContextHolder.getContext().setAuthentication(
+				new TestingAuthenticationToken("user", "password","ROLE_USER"))
+			context = new AnnotationConfigApplicationContext(RoleHierarchyConfig)
+			MethodSecurityService service = context.getBean(MethodSecurityService)
+		when:
+			service.preAuthorizeAdmin()
+		then:
+			noExceptionThrown()
+	}
+
+	@EnableGlobalMethodSecurity(prePostEnabled = true)
+	@Configuration
+	public static class RoleHierarchyConfig extends BaseMethodConfig {
+		@Bean
+		RoleHierarchy roleHierarchy() {
+			return new RoleHierarchyImpl(hierarchy:"ROLE_USER > ROLE_ADMIN")
 		}
 	}
 }

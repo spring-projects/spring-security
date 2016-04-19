@@ -20,10 +20,12 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import org.springframework.context.ApplicationContext;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
@@ -188,6 +190,14 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 			if (trustResolver != null) {
 				defaultHandler.setTrustResolver(trustResolver);
 			}
+			ApplicationContext context = http.getSharedObject(ApplicationContext.class);
+			if(context != null) {
+				String[] roleHiearchyBeanNames = context.getBeanNamesForType(RoleHierarchy.class);
+				if(roleHiearchyBeanNames.length == 1) {
+					defaultHandler.setRoleHierarchy(context.getBean(roleHiearchyBeanNames[0], RoleHierarchy.class));
+				}
+			}
+
 			expressionHandler = postProcess(defaultHandler);
 		}
 

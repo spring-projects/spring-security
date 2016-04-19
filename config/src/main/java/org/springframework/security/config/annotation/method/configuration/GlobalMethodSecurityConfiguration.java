@@ -43,6 +43,7 @@ import org.springframework.security.access.expression.method.ExpressionBasedAnno
 import org.springframework.security.access.expression.method.ExpressionBasedPostInvocationAdvice;
 import org.springframework.security.access.expression.method.ExpressionBasedPreInvocationAdvice;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.intercept.AfterInvocationManager;
 import org.springframework.security.access.intercept.AfterInvocationProviderManager;
 import org.springframework.security.access.intercept.RunAsManager;
@@ -331,6 +332,11 @@ public class GlobalMethodSecurityConfiguration implements ImportAware {
 	@Autowired(required = false)
 	public void setAuthenticationTrustResolver(AuthenticationTrustResolver trustResolver) {
 		this.defaultMethodExpressionHandler.setTrustResolver(trustResolver);
+	}
+
+	@Autowired(required = false)
+	public void setRoleHierarchy(RoleHierarchy roleHierarchy){
+		this.defaultMethodExpressionHandler.setRoleHierarchy(roleHierarchy);
 	}
 
 	@Autowired(required = false)
