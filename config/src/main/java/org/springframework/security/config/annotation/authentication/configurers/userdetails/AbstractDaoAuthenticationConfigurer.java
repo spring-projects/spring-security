@@ -63,7 +63,7 @@ abstract class AbstractDaoAuthenticationConfigurer<B extends ProviderManagerBuil
 
 	/**
 	 * Allows specifying the {@link PasswordEncoder} to use with the
-	 * {@link DaoAuthenticationProvider}. The default is is to use plain text.
+	 * {@link DaoAuthenticationProvider}. The default is to use plain text.
 	 *
 	 * @param passwordEncoder The {@link PasswordEncoder} to use.
 	 * @return
@@ -77,7 +77,7 @@ abstract class AbstractDaoAuthenticationConfigurer<B extends ProviderManagerBuil
 	/**
 	 * Allows specifying the
 	 * {@link org.springframework.security.authentication.encoding.PasswordEncoder} to use
-	 * with the {@link DaoAuthenticationProvider}. The default is is to use plain text.
+	 * with the {@link DaoAuthenticationProvider}. The default is to use plain text.
 	 *
 	 * @param passwordEncoder The
 	 * {@link org.springframework.security.authentication.encoding.PasswordEncoder} to

@@ -43,7 +43,7 @@ interface Filterer<T> extends Iterable<T> {
 	Iterator<T> iterator();
 
 	/**
-	 * Removes the the given object from the resulting list.
+	 * Removes the given object from the resulting list.
 	 *
 	 * @param object the object to be removed
 	 */

@@ -181,7 +181,7 @@ It is important to note that Spring Security only secures the `clientInboundChan
 Spring Security does not attempt to secure the `clientOutboundChannel`.
 
 The most important reason for this is performance.
-For every message that goes in, there are typically many many more that go out.
+For every message that goes in, there are typically many more that go out.
 Instead of securing the outbound messages, we encourage securing the subscription to the endpoints.
 
 [[websocket-sameorigin]]

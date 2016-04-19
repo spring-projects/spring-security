@@ -413,7 +413,7 @@ public final class HttpSecurity extends
 	}
 
 	/**
-	 * Configures container based based pre authentication. In this case, authentication
+	 * Configures container based pre authentication. In this case, authentication
 	 * is managed by the Servlet Container.
 	 *
 	 * <h2>Example Configuration</h2>
