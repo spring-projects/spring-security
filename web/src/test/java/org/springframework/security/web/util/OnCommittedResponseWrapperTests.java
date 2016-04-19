@@ -545,6 +545,21 @@ public class OnCommittedResponseWrapperTests {
 	// The amount of content specified in the setContentLength method of the response
 	// has been greater than zero and has been written to the response.
 
+	// gh-3823
+	@Test
+	public void contentLengthPrintWriterWriteNullCommits() throws Exception {
+		String expected = null;
+		this.response.setContentLength(String.valueOf(expected).length() + 1);
+
+		this.response.getWriter().write(expected);
+
+		assertThat(this.committed).isFalse();
+
+		this.response.getWriter().write("a");
+
+		assertThat(this.committed).isTrue();
+	}
+
 	@Test
 	public void contentLengthPrintWriterWriteIntCommits() throws Exception {
 		int expected = 1;

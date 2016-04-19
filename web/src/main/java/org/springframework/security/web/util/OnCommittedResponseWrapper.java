@@ -194,7 +194,8 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 	}
 
 	private void trackContentLength(String content) {
-		checkContentLength(content.length());
+		int contentLength = content == null ? 4 : content.length();
+		checkContentLength(contentLength);
 	}
 
 	/**
