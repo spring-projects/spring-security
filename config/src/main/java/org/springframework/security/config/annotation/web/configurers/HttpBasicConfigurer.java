@@ -31,6 +31,8 @@ import org.springframework.security.web.authentication.DelegatingAuthenticationE
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
@@ -143,16 +145,11 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>> extends
 	}
 
 	public void init(B http) throws Exception {
-		registerDefaultAuthenticationEntryPoint(http);
+		registerDefaults(http);
 	}
 
 	@SuppressWarnings("unchecked")
-	private void registerDefaultAuthenticationEntryPoint(B http) {
-		ExceptionHandlingConfigurer<B> exceptionHandling = http
-				.getConfigurer(ExceptionHandlingConfigurer.class);
-		if (exceptionHandling == null) {
-			return;
-		}
+	private void registerDefaults(B http) {
 		ContentNegotiationStrategy contentNegotiationStrategy = http
 				.getSharedObject(ContentNegotiationStrategy.class);
 		if (contentNegotiationStrategy == null) {
@@ -164,9 +161,29 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>> extends
 				MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_XML,
 				MediaType.MULTIPART_FORM_DATA, MediaType.TEXT_XML);
 		preferredMatcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
+
+		registerDefaultEntryPoint(http, preferredMatcher);
+		registerDefaultLogoutSuccessHandler(http, preferredMatcher);
+	}
+
+	private void registerDefaultEntryPoint(B http, RequestMatcher preferredMatcher) {
+		ExceptionHandlingConfigurer<B> exceptionHandling = http
+				.getConfigurer(ExceptionHandlingConfigurer.class);
+		if (exceptionHandling == null) {
+			return;
+		}
 		exceptionHandling.defaultAuthenticationEntryPointFor(
 				postProcess(authenticationEntryPoint), preferredMatcher);
+	}
 
+	private void registerDefaultLogoutSuccessHandler(B http, RequestMatcher preferredMatcher) {
+		LogoutConfigurer<B> logout = http
+				.getConfigurer(LogoutConfigurer.class);
+		if (logout == null) {
+			return;
+		}
+		LogoutConfigurer<B> handler = logout.defaultLogoutSuccessHandlerFor(
+				postProcess(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT)), preferredMatcher);
 	}
 
 	@Override

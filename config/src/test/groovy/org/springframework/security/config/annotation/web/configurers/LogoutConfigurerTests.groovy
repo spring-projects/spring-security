@@ -26,12 +26,33 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.annotation.web.configurers.LogoutConfigurerTests.RememberMeNoLogoutHandler;
 import org.springframework.security.web.authentication.RememberMeServices
 import org.springframework.security.web.authentication.logout.LogoutFilter
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
+import org.springframework.security.web.util.matcher.RequestMatcher
 
 /**
  *
  * @author Rob Winch
  */
 class LogoutConfigurerTests extends BaseSpringSpec {
+
+	def defaultLogoutSuccessHandlerForNullLogoutHandler() {
+		setup:
+		LogoutConfigurer config = new LogoutConfigurer();
+		when:
+		config.defaultLogoutSuccessHandlerFor(null, Mock(RequestMatcher))
+		then:
+		thrown(IllegalArgumentException)
+	}
+
+	def defaultLogoutSuccessHandlerForNullMatcher() {
+		setup:
+		LogoutConfigurer config = new LogoutConfigurer();
+		when:
+		config.defaultLogoutSuccessHandlerFor(Mock(LogoutSuccessHandler), null)
+		then:
+		thrown(IllegalArgumentException)
+	}
 
 	def "logout ObjectPostProcessor"() {
 		setup:
@@ -144,5 +165,36 @@ class LogoutConfigurerTests extends BaseSpringSpec {
 					.rememberMe()
 					.rememberMeServices(REMEMBER_ME)
 		}
+	}
+
+	def "LogoutConfigurer content negotiation default redirects"() {
+		setup:
+			loadConfig(LogoutHandlerContentNegotiation)
+		when:
+			login()
+			request.method = 'POST'
+			request.servletPath = '/logout'
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			response.status == 302
+			response.redirectedUrl == '/login?logout'
+	}
+
+	// gh-3282
+	def "LogoutConfigurer content negotiation json 201"() {
+		setup:
+			loadConfig(LogoutHandlerContentNegotiation)
+		when:
+			login()
+			request.method = 'POST'
+			request.servletPath = '/logout'
+			request.addHeader('Accept', 'application/json')
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			response.status == 204
+	}
+
+	@EnableWebSecurity
+	static class LogoutHandlerContentNegotiation extends WebSecurityConfigurerAdapter {
 	}
 }

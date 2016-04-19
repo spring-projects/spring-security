@@ -16,6 +16,7 @@
 package org.springframework.security.config.annotation.web.configurers;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
@@ -24,7 +25,9 @@ import org.springframework.security.config.annotation.SecurityConfigurer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler;
+import org.springframework.security.web.authentication.logout.DelegatingLogoutSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
@@ -70,6 +73,9 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>> extends
 	private RequestMatcher logoutRequestMatcher;
 	private boolean permitAll;
 	private boolean customLogoutSuccess;
+
+	private LinkedHashMap<RequestMatcher, LogoutSuccessHandler> defaultLogoutSuccessHandlerMappings =
+			new LinkedHashMap<RequestMatcher, LogoutSuccessHandler>();
 
 	/**
 	 * Creates a new instance
@@ -206,6 +212,27 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>> extends
 	}
 
 	/**
+	 * Sets a default {@link LogoutSuccessHandler} to be used which prefers being invoked
+	 * for the provided {@link RequestMatcher}. If no {@link LogoutSuccessHandler} is
+	 * specified a {@link SimpleUrlLogoutSuccessHandler} will be used.
+	 * If any default {@link LogoutSuccessHandler} instances are configured, then a
+	 * {@link DelegatingLogoutSuccessHandler} will be used that defaults to a
+	 * {@link SimpleUrlLogoutSuccessHandler}.
+	 *
+	 * @param handler the {@link LogoutSuccessHandler} to use
+	 * @param preferredMatcher the {@link RequestMatcher} for this default
+	 * {@link LogoutSuccessHandler}
+	 * @return the {@link LogoutConfigurer} for further customizations
+	 */
+	public LogoutConfigurer<H> defaultLogoutSuccessHandlerFor(
+			LogoutSuccessHandler handler, RequestMatcher preferredMatcher) {
+		Assert.notNull(handler, "handler cannot be null");
+		Assert.notNull(preferredMatcher, "preferredMatcher cannot be null");
+		this.defaultLogoutSuccessHandlerMappings.put(preferredMatcher, handler);
+		return this;
+	}
+
+	/**
 	 * Grants access to the {@link #logoutSuccessUrl(String)} and the
 	 * {@link #logoutUrl(String)} for every user.
 	 *
@@ -224,12 +251,22 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>> extends
 	 * @return the {@link LogoutSuccessHandler} to use
 	 */
 	private LogoutSuccessHandler getLogoutSuccessHandler() {
-		if (logoutSuccessHandler != null) {
-			return logoutSuccessHandler;
+		LogoutSuccessHandler handler = this.logoutSuccessHandler;
+		if (handler == null) {
+			handler = createDefaultSuccessHandler();
 		}
-		SimpleUrlLogoutSuccessHandler logoutSuccessHandler = new SimpleUrlLogoutSuccessHandler();
-		logoutSuccessHandler.setDefaultTargetUrl(logoutSuccessUrl);
-		return logoutSuccessHandler;
+		return handler;
+	}
+
+	private LogoutSuccessHandler createDefaultSuccessHandler() {
+		SimpleUrlLogoutSuccessHandler urlLogoutHandler = new SimpleUrlLogoutSuccessHandler();
+		urlLogoutHandler.setDefaultTargetUrl(logoutSuccessUrl);
+		if(defaultLogoutSuccessHandlerMappings.isEmpty()) {
+			return urlLogoutHandler;
+		}
+		DelegatingLogoutSuccessHandler successHandler = new DelegatingLogoutSuccessHandler(defaultLogoutSuccessHandlerMappings);
+		successHandler.setDefaultLogoutSuccessHandler(urlLogoutHandler);
+		return successHandler;
 	}
 
 	@Override
