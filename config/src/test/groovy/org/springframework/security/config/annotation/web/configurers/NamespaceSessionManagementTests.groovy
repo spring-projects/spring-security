@@ -32,6 +32,7 @@ import org.springframework.security.web.authentication.session.SessionFixationPr
 import org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy
 import org.springframework.security.web.session.ConcurrentSessionFilter
 import org.springframework.security.web.session.SessionManagementFilter
+import org.springframework.security.web.session.InvalidSessionStrategy
 
 /**
  *
@@ -82,6 +83,28 @@ class NamespaceSessionManagementTests extends BaseSpringSpec {
 						.maxSessionsPreventsLogin(true) // session-management/concurrency-control@error-if-maximum-exceeded
 						.expiredUrl("/expired-session") // session-management/concurrency-control@expired-url
 						.sessionRegistry(SR) // session-management/concurrency-control@session-registry-ref
+		}
+	}
+
+	// gh-3371
+	def "http/session-management custom invalidationstrategy"() {
+		setup:
+			InvalidSessionStrategyConfig.ISS = Mock(InvalidSessionStrategy)
+		when:
+			loadConfig(InvalidSessionStrategyConfig)
+		then:
+			findFilter(SessionManagementFilter).invalidSessionStrategy == InvalidSessionStrategyConfig.ISS
+	}
+
+	@EnableWebSecurity
+	static class InvalidSessionStrategyConfig extends WebSecurityConfigurerAdapter {
+		static InvalidSessionStrategy ISS
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.sessionManagement()
+					.invalidSessionStrategy(ISS)
 		}
 	}
 

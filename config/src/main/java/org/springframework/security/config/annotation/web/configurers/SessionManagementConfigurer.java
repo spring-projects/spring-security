@@ -127,6 +127,19 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
+	 * Setting this attribute will inject the provided invalidSessionStrategy into the
+	 * {@link SessionManagementFilter}. When an invalid session ID is submitted, the
+	 * strategy will be invoked, redirecting to the configured URL.
+	 * @param invalidSessionStrategy the strategy to use when an invalid session ID is submitted.
+	 * @return the {@link SessionManagementConfigurer} for further customization
+	 */
+	public SessionManagementConfigurer<H> invalidSessionStrategy(InvalidSessionStrategy invalidSessionStrategy) {
+		Assert.notNull(invalidSessionStrategy, "invalidSessionStrategy");
+		this.invalidSessionStrategy = invalidSessionStrategy;
+		return this;
+	}
+
+	/**
 	 * Defines the URL of the error page which should be shown when the
 	 * SessionAuthenticationStrategy raises an exception. If not set, an unauthorized
 	 * (402) error code will be returned to the client. Note that this attribute doesn't
@@ -401,9 +414,10 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 					.setAuthenticationFailureHandler(new SimpleUrlAuthenticationFailureHandler(
 							sessionAuthenticationErrorUrl));
 		}
-		if (invalidSessionUrl != null) {
+		InvalidSessionStrategy strategy = getInvalidSessionStrategy();
+		if (strategy != null) {
 			sessionManagementFilter
-					.setInvalidSessionStrategy(getInvalidSessionStrategy());
+					.setInvalidSessionStrategy(strategy);
 		}
 		AuthenticationTrustResolver trustResolver = http
 				.getSharedObject(AuthenticationTrustResolver.class);
@@ -422,16 +436,17 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
-	 * Gets the {@link InvalidSessionStrategy} to use. If {@link #invalidSessionUrl} is
-	 * null, returns null otherwise {@link SimpleRedirectInvalidSessionStrategy} is used.
+	 * Gets the {@link InvalidSessionStrategy} to use. If null and
+	 * {@link #invalidSessionUrl} is not null defaults to
+	 * {@link SimpleRedirectInvalidSessionStrategy}.
 	 *
 	 * @return the {@link InvalidSessionStrategy} to use
 	 */
 	InvalidSessionStrategy getInvalidSessionStrategy() {
-		if (invalidSessionUrl == null) {
-			return null;
+		if(invalidSessionStrategy != null) {
+			return invalidSessionStrategy;
 		}
-		if (invalidSessionStrategy == null) {
+		if (invalidSessionUrl != null) {
 			invalidSessionStrategy = new SimpleRedirectInvalidSessionStrategy(
 					invalidSessionUrl);
 		}
