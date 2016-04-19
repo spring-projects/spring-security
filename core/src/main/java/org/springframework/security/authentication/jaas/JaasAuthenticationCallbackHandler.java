@@ -27,7 +27,7 @@ import javax.security.auth.callback.UnsupportedCallbackException;
  * The JaasAuthenticationCallbackHandler is similar to the
  * javax.security.auth.callback.CallbackHandler interface in that it defines a handle
  * method. The JaasAuthenticationCallbackHandler is only asked to handle one Callback
- * instance at at time rather than an array of all Callbacks, as the javax...
+ * instance at time rather than an array of all Callbacks, as the javax...
  * CallbackHandler defines.
  *
  * <p>

@@ -91,7 +91,7 @@ public interface StatelessTicketCache {
 	 *
 	 * <P>
 	 * Implementations should use {@link CasAuthenticationToken#getCredentials()} to
-	 * obtain the ticket and then delegate to to the
+	 * obtain the ticket and then delegate to the
 	 * {@link #removeTicketFromCache(String)} method.
 	 * </p>
 	 *

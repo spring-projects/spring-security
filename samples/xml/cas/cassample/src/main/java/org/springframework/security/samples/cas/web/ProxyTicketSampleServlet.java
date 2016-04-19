@@ -50,7 +50,7 @@ public final class ProxyTicketSampleServlet extends HttpServlet {
 		// SecurityContextHolder.getContext().getAuthentication()
 		final CasAuthenticationToken token = (CasAuthenticationToken) request
 				.getUserPrincipal();
-		// proxyTicket could be reused to make calls to to the CAS service even if the
+		// proxyTicket could be reused to make calls to the CAS service even if the
 		// target url differs
 		final String proxyTicket = token.getAssertion().getPrincipal()
 				.getProxyTicketFor(targetUrl);

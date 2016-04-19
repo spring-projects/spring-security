@@ -58,7 +58,7 @@ public class OpenIDAuthenticationToken extends AbstractAuthenticationToken {
 	/**
 	 * Created by the <tt>OpenIDAuthenticationProvider</tt> on successful authentication.
 	 *
-	 * @param principal usually the <tt>UserDetails</tt> returned by the the configured
+	 * @param principal usually the <tt>UserDetails</tt> returned by the configured
 	 * <tt>UserDetailsService</tt> used by the <tt>OpenIDAuthenticationProvider</tt>.
 	 *
 	 */
