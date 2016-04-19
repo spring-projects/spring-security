@@ -163,6 +163,17 @@ public class AntPathRequestMatcherTests {
 	}
 
 	@Test
+	public void spacesInPathSegmentsAreNotIgnored() {
+		AntPathRequestMatcher matcher = new AntPathRequestMatcher("/path/*/bar");
+		MockHttpServletRequest request = createRequest("/path /foo/bar");
+		assertThat(matcher.matches(request)).isFalse();
+
+		matcher = new AntPathRequestMatcher("/path/foo");
+		request = createRequest("/path /foo");
+		assertThat(matcher.matches(request)).isFalse();
+	}
+
+	@Test
 	public void equalsBehavesCorrectly() throws Exception {
 		// Both universal wildcard options should be equal
 		assertThat(new AntPathRequestMatcher("**"))

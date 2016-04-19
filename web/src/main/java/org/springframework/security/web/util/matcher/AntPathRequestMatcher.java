@@ -253,7 +253,7 @@ public final class AntPathRequestMatcher implements RequestMatcher {
 	}
 
 	private static class SpringAntMatcher implements Matcher {
-		private static final AntPathMatcher antMatcher = new AntPathMatcher();
+		private static final AntPathMatcher antMatcher = createMatcher();
 
 		private final String pattern;
 
@@ -269,6 +269,12 @@ public final class AntPathRequestMatcher implements RequestMatcher {
 		@Override
 		public Map<String, String> extractUriTemplateVariables(String path) {
 			return antMatcher.extractUriTemplateVariables(this.pattern, path);
+		}
+
+		private static AntPathMatcher createMatcher() {
+			AntPathMatcher matcher = new AntPathMatcher();
+			matcher.setTrimTokens(false);
+			return matcher;
 		}
 	}
 
