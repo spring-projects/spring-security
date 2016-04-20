@@ -376,35 +376,35 @@ There were https://github.com/spring-projects/spring-security/milestones/4.1.0%2
 
 Here is the list of improvements:
 
-==== Java Configuration
+=== Java Configuration Improvements
 * <<jc-authentication-userdetailsservice,Simplified UserDetailsService Java Configuration>>
 * <<jc-authentication-authenticationprovider,Simplified AuthenticationProvider Java Configuration>>
 * Configurable Content Negotiating `LogoutSuccessHandler`(s) via `LogoutConfigurer`
 * Configurable `InvalidSessionStrategy` via `SessionManagementConfigurer`
 * Ability to add a `Filter` at a specific location in the chain using `HttpSecurity.addFilterAt`
 
-==== Web Application Security
+=== Web Application Security Improvements
 * <<headers-csp,Content Security Policy (CSP)>>
 * <<headers-hpkp,HTTP Public Key Pinning (HPKP)>>
 * <<csrf-cookie,CookieCsrfTokenRepository>> provides simple AngularJS & CSRF integration
 * Added `ForwardAuthenticationFailureHandler` & `ForwardAuthenticationSuccessHandler`
 
-==== Authorization
+=== Authorization Improvements
 * <<el-access-web-path-variables,Path Variables in Web Security Expressions>>
 * <<method-security-meta-annotations,Method Security Meta Annotations>>
 
-==== Crypto Module
+=== Crypto Module Improvements
 * SCrypt support with `SCryptPasswordEncoder`
 * PBKDF2 support with <<spring-security-crypto-passwordencoders,Pbkdf2PasswordEncoder>>
 * New `BytesEncryptor` implementation for BouncyCastle using _AES/CBC/PKCS5Padding_ and _AES/GCM/NoPadding_ algorithms
 
-==== Testing
+=== Testing Improvements
 * <<test-method-withanonymoususer,@WithAnonymousUser>>
 * <<test-method-withuserdetails,@WithUserDetails>> allows specifying the `UserDetailsService` bean name
 * <<test-method-meta-annotations,Test Meta Annotations>>
 * Ability to mock a list of `GrantedAuthority` using `SecurityMockMvcResultMatchers.withAuthorities`
 
-==== General Improvements
+=== General Improvements
 * Re-organization of sample projects
 * Moved to GitHub issues
 
