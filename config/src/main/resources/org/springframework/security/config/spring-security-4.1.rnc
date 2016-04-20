@@ -533,6 +533,9 @@ session-management.attlist &=
 	## The URL to which a user will be redirected if they submit an invalid session indentifier. Typically used to detect session timeouts.
 	attribute invalid-session-url {xsd:token}?
 session-management.attlist &=
+	## Allows injection of the InvalidSessionStrategy instance used by the SessionManagementFilter
+	attribute invalid-session-strategy-ref {xsd:token}?
+session-management.attlist &=
 	## Allows injection of the SessionAuthenticationStrategy instance used by the SessionManagementFilter
 	attribute session-authentication-strategy-ref {xsd:token}?
 session-management.attlist &=
@@ -550,6 +553,9 @@ concurrency-control.attlist &=
 concurrency-control.attlist &=
 	## The URL a user will be redirected to if they attempt to use a session which has been "expired" because they have logged in again.
 	attribute expired-url {xsd:token}?
+concurrency-control.attlist &=
+	## Allows injection of the ExpiredSessionStrategy instance used by the ConcurrentSessionFilter
+	attribute expired-session-strategy-ref {xsd:token}?
 concurrency-control.attlist &=
 	## Specifies that an unauthorized error should be reported when a user attempts to login when they already have the maximum configured sessions open. The default behaviour is to expire the original session. If the session-authentication-error-url attribute is set on the session-management URL, the user will be redirected to this URL.
 	attribute error-if-maximum-exceeded {xsd:boolean}?

@@ -16,11 +16,7 @@
 
 package org.springframework.security.web.concurrent;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 import java.util.Date;
-
 import javax.servlet.FilterChain;
 
 import org.junit.Test;
@@ -29,10 +25,13 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
-import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.web.session.ConcurrentSessionFilter;
+import org.springframework.security.web.session.SimpleRedirectExpiredSessionStrategy;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests {@link ConcurrentSessionFilter}.
@@ -56,9 +55,10 @@ public class ConcurrentSessionFilterTests {
 		registry.getSessionInformation(session.getId()).expireNow();
 
 		// Setup our test fixture and registry to want this session to be expired
-		ConcurrentSessionFilter filter = new ConcurrentSessionFilter(registry,
-				"/expired.jsp");
-		filter.setRedirectStrategy(new DefaultRedirectStrategy());
+
+		SimpleRedirectExpiredSessionStrategy expiredSessionStrategy = new SimpleRedirectExpiredSessionStrategy("/expired.jsp");
+		ConcurrentSessionFilter filter = new ConcurrentSessionFilter(registry);
+		filter.setExpiredSessionStrategy(expiredSessionStrategy);
 		filter.setLogoutHandlers(new LogoutHandler[] { new SecurityContextLogoutHandler() });
 		filter.afterPropertiesSet();
 
@@ -97,11 +97,6 @@ public class ConcurrentSessionFilterTests {
 		new ConcurrentSessionFilter(null);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void detectsInvalidUrl() throws Exception {
-		new ConcurrentSessionFilter(new SessionRegistryImpl(), "ImNotValid");
-	}
-
 	@Test
 	public void lastRequestTimeUpdatesCorrectly() throws Exception {
 		// Setup our HTTP request
@@ -115,11 +110,11 @@ public class ConcurrentSessionFilterTests {
 		// Setup our test fixture
 		SessionRegistry registry = new SessionRegistryImpl();
 		registry.registerNewSession(session.getId(), "principal");
-		ConcurrentSessionFilter filter = new ConcurrentSessionFilter(registry,
-				"/expired.jsp");
+		SimpleRedirectExpiredSessionStrategy expiredSessionStrategy = new SimpleRedirectExpiredSessionStrategy("/expired.jsp");
+		ConcurrentSessionFilter filter = new ConcurrentSessionFilter(registry);
+		filter.setExpiredSessionStrategy(expiredSessionStrategy);
 
-		Date lastRequest = registry.getSessionInformation(session.getId())
-				.getLastRequest();
+		Date lastRequest = registry.getSessionInformation(session.getId()).getLastRequest();
 
 		Thread.sleep(1000);
 

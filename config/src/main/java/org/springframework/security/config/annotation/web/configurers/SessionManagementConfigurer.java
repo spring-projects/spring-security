@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.context.DelegatingApplicationListener;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.session.ChangeSessionIdAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy;
@@ -47,8 +48,10 @@ import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.savedrequest.NullRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.session.ConcurrentSessionFilter;
+import org.springframework.security.web.session.ExpiredSessionStrategy;
 import org.springframework.security.web.session.InvalidSessionStrategy;
 import org.springframework.security.web.session.SessionManagementFilter;
+import org.springframework.security.web.session.SimpleRedirectExpiredSessionStrategy;
 import org.springframework.security.web.session.SimpleRedirectInvalidSessionStrategy;
 import org.springframework.util.Assert;
 
@@ -95,6 +98,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	private SessionAuthenticationStrategy sessionFixationAuthenticationStrategy = DEFAULT_SESSION_FIXATION_STRATEGY;
 	private SessionAuthenticationStrategy sessionAuthenticationStrategy;
 	private InvalidSessionStrategy invalidSessionStrategy;
+	private ExpiredSessionStrategy expiredSessionStrategy;
 	private List<SessionAuthenticationStrategy> sessionAuthenticationStrategies = new ArrayList<SessionAuthenticationStrategy>();
 	private SessionRegistry sessionRegistry;
 	private Integer maximumSessions;
@@ -104,6 +108,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	private boolean enableSessionUrlRewriting;
 	private String invalidSessionUrl;
 	private String sessionAuthenticationErrorUrl;
+	private AuthenticationFailureHandler sessionAuthenticationFailureHandler;
 
 	/**
 	 * Creates a new instance
@@ -126,6 +131,11 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		return this;
 	}
 
+	public SessionManagementConfigurer<H> invalidSessionStrategy(InvalidSessionStrategy invalidSessionStrategy) {
+		this.invalidSessionStrategy=invalidSessionStrategy;
+		return this;
+	}
+
 	/**
 	 * Defines the URL of the error page which should be shown when the
 	 * SessionAuthenticationStrategy raises an exception. If not set, an unauthorized
@@ -141,7 +151,21 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		this.sessionAuthenticationErrorUrl = sessionAuthenticationErrorUrl;
 		return this;
 	}
-
+	/**
+	 * Defines the {@code AuthenticationFailureHandler} which will be used when the
+	 * SessionAuthenticationStrategy raises an exception. If not set, an unauthorized
+	 * (402) error code will be returned to the client. Note that this attribute doesn't
+	 * apply if the error occurs during a form-based login, where the URL for
+	 * authentication failure will take precedence.
+	 *
+	 * @param sessionAuthenticationFailureHandler the handler to use
+	 * @return the {@link SessionManagementConfigurer} for further customization
+	 */
+	public SessionManagementConfigurer<H> sessionAuthenticationFailureHandler(
+			AuthenticationFailureHandler sessionAuthenticationFailureHandler) {
+		this.sessionAuthenticationFailureHandler = sessionAuthenticationFailureHandler;
+		return this;
+	}
 	/**
 	 * If set to true, allows HTTP sessions to be rewritten in the URLs when using
 	 * {@link HttpServletResponse#encodeRedirectURL(String)} or
@@ -309,6 +333,11 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 			return this;
 		}
 
+		public ConcurrencyControlConfigurer expiredSessionStrategy(ExpiredSessionStrategy expiredSessionStrategy) {
+			SessionManagementConfigurer.this.expiredSessionStrategy = expiredSessionStrategy;
+			return this;
+		}
+
 		/**
 		 * If true, prevents a user from authenticating when the
 		 * {@link #maximumSessions(int)} has been reached. Otherwise (default), the user
@@ -396,15 +425,15 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 				.getSharedObject(SecurityContextRepository.class);
 		SessionManagementFilter sessionManagementFilter = new SessionManagementFilter(
 				securityContextRepository, getSessionAuthenticationStrategy(http));
-		if (sessionAuthenticationErrorUrl != null) {
+
+		AuthenticationFailureHandler failureHandler = getSessionAuthenticationFailureHandler();
+		if (failureHandler != null) {
 			sessionManagementFilter
-					.setAuthenticationFailureHandler(new SimpleUrlAuthenticationFailureHandler(
-							sessionAuthenticationErrorUrl));
+					.setAuthenticationFailureHandler(failureHandler);
 		}
-		if (invalidSessionUrl != null) {
-			sessionManagementFilter
+		sessionManagementFilter
 					.setInvalidSessionStrategy(getInvalidSessionStrategy());
-		}
+
 		AuthenticationTrustResolver trustResolver = http
 				.getSharedObject(AuthenticationTrustResolver.class);
 		if (trustResolver != null) {
@@ -414,8 +443,9 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 
 		http.addFilter(sessionManagementFilter);
 		if (isConcurrentSessionControlEnabled()) {
-			ConcurrentSessionFilter concurrentSessionFilter = new ConcurrentSessionFilter(
-					getSessionRegistry(http), expiredUrl);
+			ConcurrentSessionFilter concurrentSessionFilter = new ConcurrentSessionFilter(getSessionRegistry(http));
+			concurrentSessionFilter.setExpiredSessionStrategy(getExpiredSessionStrategy());
+
 			concurrentSessionFilter = postProcess(concurrentSessionFilter);
 			http.addFilter(concurrentSessionFilter);
 		}
@@ -428,14 +458,49 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link InvalidSessionStrategy} to use
 	 */
 	InvalidSessionStrategy getInvalidSessionStrategy() {
-		if (invalidSessionUrl == null) {
+		if (this.invalidSessionStrategy != null) {
+			return this.invalidSessionStrategy;
+		}
+
+		if (this.invalidSessionUrl == null) {
 			return null;
 		}
-		if (invalidSessionStrategy == null) {
+		if (this.invalidSessionStrategy == null) {
 			invalidSessionStrategy = new SimpleRedirectInvalidSessionStrategy(
 					invalidSessionUrl);
 		}
 		return invalidSessionStrategy;
+	}
+
+	ExpiredSessionStrategy getExpiredSessionStrategy() {
+		if (this.expiredSessionStrategy != null) {
+			return this.expiredSessionStrategy;
+		}
+
+		if (this.expiredUrl == null) {
+			return null;
+		}
+
+		if (this.expiredSessionStrategy == null) {
+			this.expiredSessionStrategy = new SimpleRedirectExpiredSessionStrategy(this.expiredUrl);
+		}
+		return this.expiredSessionStrategy;
+	}
+
+	AuthenticationFailureHandler getSessionAuthenticationFailureHandler() {
+		if (this.sessionAuthenticationFailureHandler != null) {
+			return this.sessionAuthenticationFailureHandler;
+		}
+
+		if (this.sessionAuthenticationErrorUrl == null) {
+			return null;
+		}
+
+		if (this.sessionAuthenticationFailureHandler == null) {
+			this.sessionAuthenticationFailureHandler =
+					new SimpleUrlAuthenticationFailureHandler(this.sessionAuthenticationErrorUrl);
+		}
+		return this.sessionAuthenticationFailureHandler;
 	}
 
 	/**

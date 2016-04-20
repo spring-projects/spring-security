@@ -17,7 +17,6 @@
 package org.springframework.security.web.session;
 
 import java.io.IOException;
-
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -30,11 +29,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
-import org.springframework.security.web.DefaultRedirectStrategy;
-import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
-import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
 
@@ -50,8 +46,8 @@ import org.springframework.web.filter.GenericFilterBean;
  * as expired. If it has been marked as expired, the configured logout handlers will be
  * called (as happens with
  * {@link org.springframework.security.web.authentication.logout.LogoutFilter}), typically
- * to invalidate the session. A redirect to the expiredURL specified will be performed,
- * and the session invalidation will cause an
+ * to invalidate the session. To handle the expired session a call to the {@link ExpiredSessionStrategy} is made.
+ * The session invalidation will cause an
  * {@link org.springframework.security.web.session.HttpSessionDestroyedEvent} to be
  * published via the
  * {@link org.springframework.security.web.session.HttpSessionEventPublisher} registered
@@ -59,15 +55,15 @@ import org.springframework.web.filter.GenericFilterBean;
  * </p>
  *
  * @author Ben Alex
+ * @author Marten Deinum
  */
 public class ConcurrentSessionFilter extends GenericFilterBean {
 	// ~ Instance fields
 	// ================================================================================================
 
-	private SessionRegistry sessionRegistry;
-	private String expiredUrl;
+	private final SessionRegistry sessionRegistry;
 	private LogoutHandler[] handlers = new LogoutHandler[] { new SecurityContextLogoutHandler() };
-	private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
+	private ExpiredSessionStrategy expiredSessionStrategy;
 
 	// ~ Methods
 	// ========================================================================================================
@@ -79,17 +75,13 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
 
 	public ConcurrentSessionFilter(SessionRegistry sessionRegistry, String expiredUrl) {
 		Assert.notNull(sessionRegistry, "SessionRegistry required");
-		Assert.isTrue(expiredUrl == null || UrlUtils.isValidRedirectUrl(expiredUrl),
-				expiredUrl + " isn't a valid redirect URL");
 		this.sessionRegistry = sessionRegistry;
-		this.expiredUrl = expiredUrl;
+		this.expiredSessionStrategy = new SimpleRedirectExpiredSessionStrategy(expiredUrl);
 	}
 
 	@Override
 	public void afterPropertiesSet() {
 		Assert.notNull(sessionRegistry, "SessionRegistry required");
-		Assert.isTrue(expiredUrl == null || UrlUtils.isValidRedirectUrl(expiredUrl),
-				expiredUrl + " isn't a valid redirect URL");
 	}
 
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
@@ -106,12 +98,14 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
 			if (info != null) {
 				if (info.isExpired()) {
 					// Expired - abort processing
+					if (logger.isDebugEnabled()) {
+						logger.debug("Requested session ID "
+								+ request.getRequestedSessionId() + " has expired.");
+					}
 					doLogout(request, response);
 
-					String targetUrl = determineExpiredUrl(request, info);
-
-					if (targetUrl != null) {
-						redirectStrategy.sendRedirect(request, response, targetUrl);
+					if (this.expiredSessionStrategy != null) {
+						this.expiredSessionStrategy.onExpiredSessionDetected(request, response);
 
 						return;
 					}
@@ -134,10 +128,6 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
 		chain.doFilter(request, response);
 	}
 
-	protected String determineExpiredUrl(HttpServletRequest request,
-			SessionInformation info) {
-		return expiredUrl;
-	}
 
 	private void doLogout(HttpServletRequest request, HttpServletResponse response) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -152,7 +142,7 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
 		this.handlers = handlers;
 	}
 
-	public void setRedirectStrategy(RedirectStrategy redirectStrategy) {
-		this.redirectStrategy = redirectStrategy;
+	public void setExpiredSessionStrategy(ExpiredSessionStrategy expiredSessionStrategy) {
+		this.expiredSessionStrategy=expiredSessionStrategy;
 	}
 }
