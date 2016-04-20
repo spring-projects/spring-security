@@ -389,6 +389,12 @@ You can find the highlights below:
 * <<test-method-withuserdetails,@WithUserDetails>> allows specifying the `UserDetailsService` bean name
 * <<jc-authentication-userdetailsservice,Simplified UserDetailsService Java Configuration>>
 * <<jc-authentication-authenticationprovider,Simplified AuthenticationProvider Java Configuration>>
+* Configurable Content Negotiating `LogoutSuccessHandler`(s) via `LogoutConfigurer`
+* Configurable `InvalidSessionStrategy` via `SessionManagementConfigurer`
+* Ability to add a `Filter` at a specific location in the chain using `HttpSecurity.addFilterAt`
+* New `BytesEncryptor` implementation for BouncyCastle using _AES/CBC/PKCS5Padding_ and _AES/GCM/NoPadding_ algorithms
+* Ability to mock a list of `GrantedAuthority` using `SecurityMockMvcResultMatchers.withAuthorities`
+* Re-organization of samples projects
 * Moved to GitHub issues
 
 
