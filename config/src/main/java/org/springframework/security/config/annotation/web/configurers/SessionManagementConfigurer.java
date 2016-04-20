@@ -33,6 +33,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.context.DelegatingApplicationListener;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.session.ChangeSessionIdAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy;
@@ -108,6 +109,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	private boolean enableSessionUrlRewriting;
 	private String invalidSessionUrl;
 	private String sessionAuthenticationErrorUrl;
+	private AuthenticationFailureHandler sessionAuthenticationFailureHandler;
 
 	/**
 	 * Creates a new instance
@@ -158,6 +160,22 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	public SessionManagementConfigurer<H> sessionAuthenticationErrorUrl(
 			String sessionAuthenticationErrorUrl) {
 		this.sessionAuthenticationErrorUrl = sessionAuthenticationErrorUrl;
+		return this;
+	}
+
+	/**
+	 * Defines the {@code AuthenticationFailureHandler} which will be used when the
+	 * SessionAuthenticationStrategy raises an exception. If not set, an unauthorized
+	 * (402) error code will be returned to the client. Note that this attribute doesn't
+	 * apply if the error occurs during a form-based login, where the URL for
+	 * authentication failure will take precedence.
+	 *
+	 * @param sessionAuthenticationFailureHandler the handler to use
+	 * @return the {@link SessionManagementConfigurer} for further customization
+	 */
+	public SessionManagementConfigurer<H> sessionAuthenticationFailureHandler(
+			AuthenticationFailureHandler sessionAuthenticationFailureHandler) {
+		this.sessionAuthenticationFailureHandler = sessionAuthenticationFailureHandler;
 		return this;
 	}
 
@@ -439,6 +457,10 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		if (strategy != null) {
 			sessionManagementFilter.setInvalidSessionStrategy(strategy);
 		}
+		AuthenticationFailureHandler failureHandler = getSessionAuthenticationFailureHandler();
+		if (failureHandler != null) {
+			sessionManagementFilter.setAuthenticationFailureHandler(failureHandler);
+		}
 		AuthenticationTrustResolver trustResolver = http
 				.getSharedObject(AuthenticationTrustResolver.class);
 		if (trustResolver != null) {
@@ -473,6 +495,13 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 			this.invalidSessionStrategy = new SimpleRedirectInvalidSessionStrategy(
 					this.invalidSessionUrl);
 		}
+		if (this.invalidSessionUrl == null) {
+			return null;
+		}
+		if (this.invalidSessionStrategy == null) {
+			this.invalidSessionStrategy = new SimpleRedirectInvalidSessionStrategy(
+					this.invalidSessionUrl);
+		}
 		return this.invalidSessionStrategy;
 	}
 
@@ -490,6 +519,22 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 					this.expiredUrl);
 		}
 		return this.expiredSessionStrategy;
+	}
+
+	AuthenticationFailureHandler getSessionAuthenticationFailureHandler() {
+		if (this.sessionAuthenticationFailureHandler != null) {
+			return this.sessionAuthenticationFailureHandler;
+		}
+
+		if (this.sessionAuthenticationErrorUrl == null) {
+			return null;
+		}
+
+		if (this.sessionAuthenticationFailureHandler == null) {
+			this.sessionAuthenticationFailureHandler = new SimpleUrlAuthenticationFailureHandler(
+					this.sessionAuthenticationErrorUrl);
+		}
+		return this.sessionAuthenticationFailureHandler;
 	}
 
 	/**
