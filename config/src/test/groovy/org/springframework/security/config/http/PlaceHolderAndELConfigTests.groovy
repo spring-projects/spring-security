@@ -39,7 +39,7 @@ class PlaceHolderAndELConfigTests extends AbstractHttpConfigTests {
 
 	// SEC-1201
 	def interceptUrlsAndFormLoginSupportPropertyPlaceholders() {
-		System.setProperty("secure.Url", "/Secure");
+		System.setProperty("secure.Url", "/secure");
 		System.setProperty("secure.role", "ROLE_A");
 		System.setProperty("login.page", "/loginPage");
 		System.setProperty("default.target", "/defaultTarget");
@@ -60,7 +60,7 @@ class PlaceHolderAndELConfigTests extends AbstractHttpConfigTests {
 
 	// SEC-1309
 	def interceptUrlsAndFormLoginSupportEL() {
-		System.setProperty("secure.url", "/Secure");
+		System.setProperty("secure.url", "/secure");
 		System.setProperty("secure.role", "ROLE_A");
 		System.setProperty("login.page", "/loginPage");
 		System.setProperty("default.target", "/defaultTarget");

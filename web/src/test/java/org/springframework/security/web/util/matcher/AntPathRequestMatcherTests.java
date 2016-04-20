@@ -52,7 +52,8 @@ public class AntPathRequestMatcherTests {
 
 	@Test
 	public void trailingWildcardMatchesCorrectly() {
-		AntPathRequestMatcher matcher = new AntPathRequestMatcher("/blah/blAh/**");
+		AntPathRequestMatcher matcher = new AntPathRequestMatcher("/blah/blAh/**", null,
+				false);
 		assertThat(matcher.matches(createRequest("/BLAH/blah"))).isTrue();
 		assertThat(matcher.matches(createRequest("/blah/bleh"))).isFalse();
 		assertThat(matcher.matches(createRequest("/blah/blah/"))).isTrue();
@@ -64,11 +65,11 @@ public class AntPathRequestMatcherTests {
 		request.setPathInfo("blah/bleh");
 		assertThat(matcher.matches(request)).isTrue();
 
-		matcher = new AntPathRequestMatcher("/bl?h/blAh/**");
+		matcher = new AntPathRequestMatcher("/bl?h/blAh/**", null, false);
 		assertThat(matcher.matches(createRequest("/BLAH/Blah/aaa/"))).isTrue();
 		assertThat(matcher.matches(createRequest("/bleh/Blah"))).isTrue();
 
-		matcher = new AntPathRequestMatcher("/blAh/**/blah/**");
+		matcher = new AntPathRequestMatcher("/blAh/**/blah/**", null, false);
 		assertThat(matcher.matches(createRequest("/blah/blah"))).isTrue();
 		assertThat(matcher.matches(createRequest("/blah/bleh"))).isFalse();
 		assertThat(matcher.matches(createRequest("/blah/aaa/blah/bbb"))).isTrue();
@@ -76,7 +77,8 @@ public class AntPathRequestMatcherTests {
 
 	@Test
 	public void trailingWildcardWithVariableMatchesCorrectly() {
-		AntPathRequestMatcher matcher = new AntPathRequestMatcher("/{id}/blAh/**");
+		AntPathRequestMatcher matcher = new AntPathRequestMatcher("/{id}/blAh/**", null,
+				false);
 		assertThat(matcher.matches(createRequest("/1234/blah"))).isTrue();
 		assertThat(matcher.matches(createRequest("/4567/bleh"))).isFalse();
 		assertThat(matcher.matches(createRequest("/paskos/blah/"))).isTrue();
@@ -210,7 +212,7 @@ public class AntPathRequestMatcherTests {
 
 	@Test
 	public void postProcessVariableNameCaseInsensitive() {
-		AntPathRequestMatcher matcher = new AntPathRequestMatcher("/**");
+		AntPathRequestMatcher matcher = new AntPathRequestMatcher("/**", null, false);
 		String variableName = "userName";
 		assertThat(matcher.postProcessVariableName(variableName))
 				.isEqualTo(variableName.toLowerCase());

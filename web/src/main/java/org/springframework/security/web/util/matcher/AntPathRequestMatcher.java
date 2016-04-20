@@ -80,7 +80,7 @@ public final class AntPathRequestMatcher implements RequestMatcher {
 	 * the incoming request doesn't have the same method.
 	 */
 	public AntPathRequestMatcher(String pattern, String httpMethod) {
-		this(pattern, httpMethod, false);
+		this(pattern, httpMethod, true);
 	}
 
 	/**

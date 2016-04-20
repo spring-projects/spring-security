@@ -16,15 +16,13 @@
 
 package org.springframework.security.web.access.intercept;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-
 import java.util.Collection;
 import java.util.LinkedHashMap;
 
 import javax.servlet.FilterChain;
 
 import org.junit.Test;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.access.ConfigAttribute;
@@ -32,6 +30,9 @@ import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 /**
  * Tests {@link DefaultFilterInvocationSecurityMetadataSource}.
@@ -46,18 +47,18 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 	// ========================================================================================================
 	private void createFids(String pattern, String method) {
 		LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = new LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>>();
-		requestMap.put(new AntPathRequestMatcher(pattern, method), def);
-		fids = new DefaultFilterInvocationSecurityMetadataSource(requestMap);
+		requestMap.put(new AntPathRequestMatcher(pattern, method), this.def);
+		this.fids = new DefaultFilterInvocationSecurityMetadataSource(requestMap);
 	}
 
 	@Test
 	public void lookupNotRequiringExactMatchSucceedsIfNotMatching() {
 		createFids("/secure/super/**", null);
 
-		FilterInvocation fi = createFilterInvocation("/SeCuRE/super/somefile.html", null,
+		FilterInvocation fi = createFilterInvocation("/secure/super/somefile.html", null,
 				null, null);
 
-		assertThat(fids.getAttributes(fi)).isEqualTo(def);
+		assertThat(this.fids.getAttributes(fi)).isEqualTo(this.def);
 	}
 
 	/**
@@ -66,13 +67,13 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 	 */
 	@Test
 	public void lookupNotRequiringExactMatchSucceedsIfSecureUrlPathContainsUpperCase() {
-		createFids("/SeCuRE/super/**", null);
+		createFids("/secure/super/**", null);
 
 		FilterInvocation fi = createFilterInvocation("/secure", "/super/somefile.html",
 				null, null);
 
-		Collection<ConfigAttribute> response = fids.getAttributes(fi);
-		assertThat(response).isEqualTo(def);
+		Collection<ConfigAttribute> response = this.fids.getAttributes(fi);
+		assertThat(response).isEqualTo(this.def);
 	}
 
 	@Test
@@ -82,8 +83,8 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 		FilterInvocation fi = createFilterInvocation("/SeCurE/super/somefile.html", null,
 				null, null);
 
-		Collection<ConfigAttribute> response = fids.getAttributes(fi);
-		assertThat(response).isEqualTo(def);
+		Collection<ConfigAttribute> response = this.fids.getAttributes(fi);
+		assertThat(response).isEqualTo(this.def);
 	}
 
 	@Test
@@ -93,8 +94,9 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 		FilterInvocation fi = createFilterInvocation("/someAdminPage.html", null,
 				"a=/test", null);
 
-		Collection<ConfigAttribute> response = fids.getAttributes(fi);
-		assertThat(response); // see SEC-161 (it should truncate after ? sign).isEqualTo(def)
+		Collection<ConfigAttribute> response = this.fids.getAttributes(fi);
+		assertThat(response); // see SEC-161 (it should truncate after ?
+								// sign).isEqualTo(def)
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -107,8 +109,8 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 		createFids("/somepage**", "GET");
 
 		FilterInvocation fi = createFilterInvocation("/somepage", null, null, "GET");
-		Collection<ConfigAttribute> attrs = fids.getAttributes(fi);
-		assertThat(attrs).isEqualTo(def);
+		Collection<ConfigAttribute> attrs = this.fids.getAttributes(fi);
+		assertThat(attrs).isEqualTo(this.def);
 	}
 
 	@Test
@@ -116,8 +118,8 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 		createFids("/somepage**", null);
 
 		FilterInvocation fi = createFilterInvocation("/somepage", null, null, "GET");
-		Collection<ConfigAttribute> attrs = fids.getAttributes(fi);
-		assertThat(attrs).isEqualTo(def);
+		Collection<ConfigAttribute> attrs = this.fids.getAttributes(fi);
+		assertThat(attrs).isEqualTo(this.def);
 	}
 
 	@Test
@@ -125,7 +127,7 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 		createFids("/somepage**", "GET");
 
 		FilterInvocation fi = createFilterInvocation("/somepage", null, null, "POST");
-		Collection<ConfigAttribute> attrs = fids.getAttributes(fi);
+		Collection<ConfigAttribute> attrs = this.fids.getAttributes(fi);
 		assertThat(attrs).isNull();
 	}
 
@@ -138,10 +140,10 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 		requestMap.put(new AntPathRequestMatcher("/user/**", null), userAttrs);
 		requestMap.put(new AntPathRequestMatcher("/teller/**", "GET"),
 				SecurityConfig.createList("B"));
-		fids = new DefaultFilterInvocationSecurityMetadataSource(requestMap);
+		this.fids = new DefaultFilterInvocationSecurityMetadataSource(requestMap);
 
 		FilterInvocation fi = createFilterInvocation("/user", null, null, "GET");
-		Collection<ConfigAttribute> attrs = fids.getAttributes(fi);
+		Collection<ConfigAttribute> attrs = this.fids.getAttributes(fi);
 		assertThat(attrs).isEqualTo(userAttrs);
 	}
 
@@ -155,13 +157,13 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 		FilterInvocation fi = createFilterInvocation("/someAdminPage.html", null, null,
 				null);
 
-		Collection<ConfigAttribute> response = fids.getAttributes(fi);
-		assertThat(response).isEqualTo(def);
+		Collection<ConfigAttribute> response = this.fids.getAttributes(fi);
+		assertThat(response).isEqualTo(this.def);
 
 		fi = createFilterInvocation("/someAdminPage.html", null, "?", null);
 
-		response = fids.getAttributes(fi);
-		assertThat(response).isEqualTo(def);
+		response = this.fids.getAttributes(fi);
+		assertThat(response).isEqualTo(this.def);
 	}
 
 	private FilterInvocation createFilterInvocation(String servletPath, String pathInfo,

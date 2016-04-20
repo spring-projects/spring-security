@@ -136,17 +136,17 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
 	}
 
 	def debugFilterHandlesMissingAndEmptyFilterChains() {
-	  when:
-	  xml.debug()
-	  xml.http(pattern: '/unprotected', security: 'none')
-	  createAppContext()
-	  then:
-	  Filter debugFilter = appContext.getBean(BeanIds.SPRING_SECURITY_FILTER_CHAIN);
-	  MockHttpServletRequest request = new MockHttpServletRequest()
-	  request.setServletPath("/unprotected");
-	  debugFilter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
-	  request.setServletPath("/nomatch");
-	  debugFilter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
+		when:
+		xml.debug()
+		xml.http(pattern: '/unprotected', security: 'none')
+		createAppContext()
+		then:
+		Filter debugFilter = appContext.getBean(BeanIds.SPRING_SECURITY_FILTER_CHAIN);
+		MockHttpServletRequest request = new MockHttpServletRequest()
+		request.setServletPath("/unprotected");
+		debugFilter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
+		request.setServletPath("/nomatch");
+		debugFilter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
 	}
 
 	def regexPathsWorkCorrectly() {
@@ -254,39 +254,39 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
 		attrs.contains(new SecurityConfig("ROLE_B"))
 	}
 
-   def httpMethodMatchIsSupportedForRequiresChannel() {
-	   httpAutoConfig {
-		   'intercept-url'(pattern: '/anyurl')
-		   'intercept-url'(pattern: '/anyurl', 'method':'GET',access: 'ROLE_ADMIN', 'requires-channel': 'https')
-	   }
-	   createAppContext()
+	 def httpMethodMatchIsSupportedForRequiresChannel() {
+		 httpAutoConfig {
+			 'intercept-url'(pattern: '/anyurl')
+			 'intercept-url'(pattern: '/anyurl', 'method':'GET',access: 'ROLE_ADMIN', 'requires-channel': 'https')
+		 }
+		 createAppContext()
 
-	   def fids = getFilter(ChannelProcessingFilter).getSecurityMetadataSource();
-	   def attrs = fids.getAttributes(createFilterinvocation("/anyurl", "GET"));
-	   def attrsPost = fids.getAttributes(createFilterinvocation("/anyurl", "POST"));
+		 def fids = getFilter(ChannelProcessingFilter).getSecurityMetadataSource();
+		 def attrs = fids.getAttributes(createFilterinvocation("/anyurl", "GET"));
+		 def attrsPost = fids.getAttributes(createFilterinvocation("/anyurl", "POST"));
 
-	   expect:
-	   attrs.size() == 1
-	   attrs.contains(new SecurityConfig("REQUIRES_SECURE_CHANNEL"))
-	   attrsPost == null
-   }
+		 expect:
+		 attrs.size() == 1
+		 attrs.contains(new SecurityConfig("REQUIRES_SECURE_CHANNEL"))
+		 attrsPost == null
+	 }
 
-   def httpMethodMatchIsSupportedForRequiresChannelAny() {
-	   httpAutoConfig {
-		   'intercept-url'(pattern: '/**')
-		   'intercept-url'(pattern: '/**', 'method':'GET',access: 'ROLE_ADMIN', 'requires-channel': 'https')
-	   }
-	   createAppContext()
+	 def httpMethodMatchIsSupportedForRequiresChannelAny() {
+		 httpAutoConfig {
+			 'intercept-url'(pattern: '/**')
+			 'intercept-url'(pattern: '/**', 'method':'GET',access: 'ROLE_ADMIN', 'requires-channel': 'https')
+		 }
+		 createAppContext()
 
-	   def fids = getFilter(ChannelProcessingFilter).getSecurityMetadataSource();
-	   def attrs = fids.getAttributes(createFilterinvocation("/anyurl", "GET"));
-	   def attrsPost = fids.getAttributes(createFilterinvocation("/anyurl", "POST"));
+		 def fids = getFilter(ChannelProcessingFilter).getSecurityMetadataSource();
+		 def attrs = fids.getAttributes(createFilterinvocation("/anyurl", "GET"));
+		 def attrsPost = fids.getAttributes(createFilterinvocation("/anyurl", "POST"));
 
-	   expect:
-	   attrs.size() == 1
-	   attrs.contains(new SecurityConfig("REQUIRES_SECURE_CHANNEL"))
-	   attrsPost == null
-   }
+		 expect:
+		 attrs.size() == 1
+		 attrs.contains(new SecurityConfig("REQUIRES_SECURE_CHANNEL"))
+		 attrsPost == null
+	 }
 
 	def oncePerRequestAttributeIsSupported() {
 		xml.http('once-per-request': 'false') {
@@ -498,7 +498,7 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
 		createAppContext()
 		def fis = getFilter(FilterSecurityInterceptor)
 		def fids = fis.securityMetadataSource
-		Collection attrs = fids.getAttributes(createFilterinvocation("/someurl", null));
+		Collection attrs = fids.getAttributes(createFilterinvocation("/someUrl", null));
 
 		expect:
 		attrs.size() == 1
@@ -716,7 +716,7 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
 	def httpFirewallInjectionIsSupported() {
 		xml.'http-firewall'(ref: 'fw')
 		xml.http() {
-		   'form-login'()
+			 'form-login'()
 		}
 		bean('fw', DefaultHttpFirewall)
 		createAppContext()

@@ -40,6 +40,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -151,7 +152,7 @@ public class AuthorizeRequestsTests {
 			// @formatter:off
 			http
 				.authorizeRequests()
-				.antMatchers("/user/{user}").access("#user == 'user'")
+				.requestMatchers(new AntPathRequestMatcher("/user/{user}", null, false)).access("#user == 'user'")
 				.anyRequest().denyAll();
 			// @formatter:on
 		}
@@ -192,7 +193,7 @@ public class AuthorizeRequestsTests {
 			// @formatter:off
 			http
 				.authorizeRequests()
-				.antMatchers("/user/{userName}").access("#userName == 'user'")
+				.requestMatchers(new AntPathRequestMatcher("/user/{userName}", null, false)).access("#userName == 'user'")
 				.anyRequest().denyAll();
 			// @formatter:on
 		}
