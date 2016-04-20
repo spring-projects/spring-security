@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.config.annotation.web.configurers;
+package org.springframework.security.config.annotation.web.configurers
+
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
 import static org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurerConfigs.*
 
@@ -293,7 +295,7 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
 			response.status == HttpServletResponse.SC_UNAUTHORIZED
 		when:
 			super.setup()
-			login(new RememberMeAuthenticationToken("key", "user", AuthorityUtils.createAuthorityList("ROLE_USER")))
+			login(new UsernamePasswordAuthenticationToken("key", "user", AuthorityUtils.createAuthorityList("ROLE_USER")))
 			springSecurityFilterChain.doFilter(request,response,chain)
 		then:
 			response.status == HttpServletResponse.SC_FORBIDDEN
@@ -340,15 +342,11 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
 		setup:
 			loadConfig(FullyAuthenticatedConfig)
 		when:
-			springSecurityFilterChain.doFilter(request,response,chain)
+		super.setup()
+		login(new RememberMeAuthenticationToken("key", "user", AuthorityUtils.createAuthorityList("ROLE_USER")))
+		springSecurityFilterChain.doFilter(request,response,chain)
 		then:
 			response.status == HttpServletResponse.SC_UNAUTHORIZED
-		when:
-			super.setup()
-			login(new RememberMeAuthenticationToken("key", "user", AuthorityUtils.createAuthorityList("ROLE_USER")))
-			springSecurityFilterChain.doFilter(request,response,chain)
-		then:
-			response.status == HttpServletResponse.SC_FORBIDDEN
 		when:
 			super.setup()
 			login()

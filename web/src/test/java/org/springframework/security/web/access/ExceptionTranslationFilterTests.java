@@ -16,10 +16,12 @@
 
 package org.springframework.security.web.access;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
+import java.io.IOException;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.junit.After;
 import org.junit.Before;
@@ -31,6 +33,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.RememberMeAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -38,14 +41,12 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
-import org.springframework.security.web.util.ThrowableAnalyzer;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import java.io.IOException;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 
 /**
  * Tests {@link ExceptionTranslationFilter}.
@@ -105,6 +106,40 @@ public class ExceptionTranslationFilterTests {
 		assertThat(response.getRedirectedUrl()).isEqualTo("/mycontext/login.jsp");
 		assertThat(getSavedRequestUrl(request)).isEqualTo("http://www.example.com/mycontext/secure/page.html");
 	}
+
+	@Test
+	public void testAccessDeniedWithRememberMe() throws Exception {
+		// Setup our HTTP request
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setServletPath("/secure/page.html");
+		request.setServerPort(80);
+		request.setScheme("http");
+		request.setServerName("www.example.com");
+		request.setContextPath("/mycontext");
+		request.setRequestURI("/mycontext/secure/page.html");
+
+		// Setup the FilterChain to thrown an access denied exception
+		FilterChain fc = mock(FilterChain.class);
+		doThrow(new AccessDeniedException("")).when(fc).doFilter(
+				any(HttpServletRequest.class), any(HttpServletResponse.class));
+
+		// Setup SecurityContextHolder, as filter needs to check if user is
+		// anonymous
+		SecurityContextHolder.getContext().setAuthentication(
+				new RememberMeAuthenticationToken("ignored", "ignored", AuthorityUtils
+						.createAuthorityList("IGNORED")));
+
+		// Test
+		ExceptionTranslationFilter filter = new ExceptionTranslationFilter(mockEntryPoint);
+		filter.setAuthenticationTrustResolver(new AuthenticationTrustResolverImpl());
+		assertThat(filter.getAuthenticationTrustResolver()).isNotNull();
+
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		filter.doFilter(request, response, fc);
+		assertThat(response.getRedirectedUrl()).isEqualTo("/mycontext/login.jsp");
+		assertThat(getSavedRequestUrl(request)).isEqualTo("http://www.example.com/mycontext/secure/page.html");
+	}
+
 
 	@Test
 	public void testAccessDeniedWhenNonAnonymous() throws Exception {
