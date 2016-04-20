@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+ * Copyright 2004-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.security.web.access;
-
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
 
 import org.junit.After;
 import org.junit.Before;
@@ -31,8 +25,10 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.RememberMeAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.WebAttributes;
@@ -45,6 +41,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 
 /**
  * Tests {@link ExceptionTranslationFilter}.
@@ -104,6 +106,37 @@ public class ExceptionTranslationFilterTests {
 		assertThat(response.getRedirectedUrl()).isEqualTo("/mycontext/login.jsp");
 		assertThat(getSavedRequestUrl(request)).isEqualTo("http://www.example.com/mycontext/secure/page.html");
 	}
+
+	@Test
+	public void testAccessDeniedWithRememberMe() throws Exception {
+		// Setup our HTTP request
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setServletPath("/secure/page.html");
+		request.setServerPort(80);
+		request.setScheme("http");
+		request.setServerName("www.example.com");
+		request.setContextPath("/mycontext");
+		request.setRequestURI("/mycontext/secure/page.html");
+
+		// Setup the FilterChain to thrown an access denied exception
+		FilterChain fc = mock(FilterChain.class);
+		doThrow(new AccessDeniedException("")).when(fc).doFilter(
+				any(HttpServletRequest.class), any(HttpServletResponse.class));
+
+		// Setup SecurityContextHolder, as filter needs to check if user is remembered
+		SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+		securityContext.setAuthentication(new RememberMeAuthenticationToken("ignored", "ignored", AuthorityUtils
+						.createAuthorityList("IGNORED")));
+		SecurityContextHolder.setContext(securityContext);
+
+		// Test
+		ExceptionTranslationFilter filter = new ExceptionTranslationFilter(mockEntryPoint);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		filter.doFilter(request, response, fc);
+		assertThat(response.getRedirectedUrl()).isEqualTo("/mycontext/login.jsp");
+		assertThat(getSavedRequestUrl(request)).isEqualTo("http://www.example.com/mycontext/secure/page.html");
+	}
+
 
 	@Test
 	public void testAccessDeniedWhenNonAnonymous() throws Exception {
