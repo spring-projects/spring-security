@@ -21,7 +21,7 @@ import javax.servlet.Filter;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.context.SecurityContextRepository;
@@ -98,8 +98,7 @@ public abstract class WebTestUtils {
 	}
 
 	/**
-	 * Sets the {@link CsrfTokenRepository} for the specified
-	 * {@link HttpServletRequest}.
+	 * Sets the {@link CsrfTokenRepository} for the specified {@link HttpServletRequest}.
 	 *
 	 * @param request the {@link HttpServletRequest} to obtain the
 	 * {@link CsrfTokenRepository}
@@ -121,17 +120,17 @@ public abstract class WebTestUtils {
 		if (webApplicationContext == null) {
 			return null;
 		}
-		FilterChainProxy springSecurityFilterChain = null;
+		Filter springSecurityFilterChain = null;
 		try {
-			springSecurityFilterChain = webApplicationContext
-					.getBean(FilterChainProxy.class);
+			springSecurityFilterChain = webApplicationContext.getBean(
+					AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME, Filter.class);
 		}
 		catch (NoSuchBeanDefinitionException notFound) {
 			return null;
 		}
 		List<Filter> filters = (List<Filter>) ReflectionTestUtils.invokeMethod(
 				springSecurityFilterChain, "getFilters", request);
-		if(filters == null) {
+		if (filters == null) {
 			return null;
 		}
 		for (Filter filter : filters) {
