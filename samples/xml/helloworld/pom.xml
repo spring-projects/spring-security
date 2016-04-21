@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-samples-xml-helloworld</artifactId>
-  <version>4.1.0.BUILD-SNAPSHOT</version>
+  <version>4.1.0.RC2</version>
   <packaging>war</packaging>
   <name>spring-security-samples-xml-helloworld</name>
   <description>spring-security-samples-xml-helloworld</description>
@@ -67,13 +67,13 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
-      <version>4.1.0.BUILD-SNAPSHOT</version>
+      <version>4.1.0.RC2</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
-      <version>4.1.0.BUILD-SNAPSHOT</version>
+      <version>4.1.0.RC2</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -181,8 +181,8 @@
   </dependencies>
   <repositories>
     <repository>
-      <id>spring-snapshot</id>
-      <url>https://repo.spring.io/snapshot</url>
+      <id>spring-milestone</id>
+      <url>https://repo.spring.io/milestone</url>
     </repository>
   </repositories>
   <build>
