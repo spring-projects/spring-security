@@ -372,25 +372,41 @@ This will give you access to the entire project history (including all releases 
 [[new]]
 == What's New in Spring Security 4.1
 
-There were https://github.com/spring-projects/spring-security/milestones/4.1.0%20RC1[100+ issues] fixed in Spring Security 4.1.
-You can find the highlights below:
+There were https://github.com/spring-projects/spring-security/milestones/4.1.0%20RC1[100+ RC1 issues] and https://github.com/spring-projects/spring-security/milestones/4.1.0%20RC2[60+ RC2 issues] fixed in Spring Security 4.1.
 
-* <<el-access-web-path-variables,Path Variables in Web Security Expressions>>
+Here is the list of improvements:
+
+=== Java Configuration Improvements
+* <<jc-authentication-userdetailsservice,Simplified UserDetailsService Java Configuration>>
+* <<jc-authentication-authenticationprovider,Simplified AuthenticationProvider Java Configuration>>
+* Configurable Content Negotiating `LogoutSuccessHandler`(s) via `LogoutConfigurer`
+* Configurable `InvalidSessionStrategy` via `SessionManagementConfigurer`
+* Ability to add a `Filter` at a specific location in the chain using `HttpSecurity.addFilterAt`
+
+=== Web Application Security Improvements
 * <<headers-csp,Content Security Policy (CSP)>>
 * <<headers-hpkp,HTTP Public Key Pinning (HPKP)>>
 * <<csrf-cookie,CookieCsrfTokenRepository>> provides simple AngularJS & CSRF integration
 * Added `ForwardAuthenticationFailureHandler` & `ForwardAuthenticationSuccessHandler`
+
+=== Authorization Improvements
+* <<el-access-web-path-variables,Path Variables in Web Security Expressions>>
+* <<method-security-meta-annotations,Method Security Meta Annotations>>
+
+=== Crypto Module Improvements
 * SCrypt support with `SCryptPasswordEncoder`
 * PBKDF2 support with <<spring-security-crypto-passwordencoders,Pbkdf2PasswordEncoder>>
-* Meta Annotation Support
-** <<test-method-meta-annotations,Test Meta Annotations>>
-** <<method-security-meta-annotations,Method Security Meta Annotations>>
+* New `BytesEncryptor` implementation for BouncyCastle using _AES/CBC/PKCS5Padding_ and _AES/GCM/NoPadding_ algorithms
+
+=== Testing Improvements
 * <<test-method-withanonymoususer,@WithAnonymousUser>>
 * <<test-method-withuserdetails,@WithUserDetails>> allows specifying the `UserDetailsService` bean name
-* <<jc-authentication-userdetailsservice,Simplified UserDetailsService Java Configuration>>
-* <<jc-authentication-authenticationprovider,Simplified AuthenticationProvider Java Configuration>>
-* Moved to GitHub issues
+* <<test-method-meta-annotations,Test Meta Annotations>>
+* Ability to mock a list of `GrantedAuthority` using `SecurityMockMvcResultMatchers.withAuthorities`
 
+=== General Improvements
+* Re-organization of sample projects
+* Moved to GitHub issues
 
 [[jc]]
 == Java Configuration
