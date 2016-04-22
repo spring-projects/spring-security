@@ -22,11 +22,23 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.util.Set;
 
 /**
+ * This mixin class used to deserialize java.util.Collections$UnmodifiableSet and used with various AuthenticationToken
+ * implementation's mixin classes.
+ *
+ * <pre>
+ *     ObjectMapper mapper = new ObjectMapper();
+ *     mapper.addMixIn(Collections.unmodifiableSet(Collections.EMPTY_SET).getClass(), UnmodifiableSetMixin.class);
+ * </pre>
+ *
  * @author Jitendra Singh
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
 public class UnmodifiableSetMixin {
 
+	/**
+	 * Mixin Constructor
+	 * @param s
+	 */
 	@JsonCreator
 	UnmodifiableSetMixin(Set s) {}
 }

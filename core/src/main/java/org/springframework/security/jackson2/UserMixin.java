@@ -20,7 +20,21 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 /**
+ * This mixin class helps in serialize/deserialize {@link org.springframework.security.core.userdetails.User}.
+ * This class also register a custom deserializer {@link UserDeserializer} to deserialize User object successfully.
+ * In order to use this mixin you need to register two more mixin classes in your ObjectMapper configuration.
+ * <ol>
+ *     <li>{@link SimpleGrantedAuthorityMixin}</li>
+ *     <li>{@link UnmodifiableSetMixin}</li>
+ * </ol>
+ * <pre>
+ *     ObjectMapper mapper = new ObjectMapper();
+ *     mapper.addMixIn(SimpleGrantedAuthority.class, SimpleGrantedAuthorityMixin.class);
+ *     mapper.addMixIn(Collections.unmodifiableSet(Collections.EMPTY_SET).getClass(), UnmodifiableSetMixin.class);
+ * </pre>
+ *
  * @author Jitendra Singh
+ * @see UserDeserializer
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
 @JsonDeserialize(using = UserDeserializer.class)

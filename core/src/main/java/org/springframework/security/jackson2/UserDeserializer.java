@@ -32,10 +32,25 @@ import java.io.IOException;
 import java.util.Set;
 
 /**
+ * Custom Deserializer for {@link User} class. This is already registered with {@link UserMixin}.
+ * You can also use it directly with your mixin class.
+ *
  * @author Jitendra Singh
+ * @see UserMixin
  */
 public class UserDeserializer extends JsonDeserializer<User> {
 
+	/**
+	 * This method will create {@link User} object. It will ensure successful object creation even if password key is null in
+	 * serialized json, because credentials may be removed from the {@link User} by invoking {@link User#eraseCredentials()}.
+	 * In that case there won't be any password key in serialized json.
+	 *
+	 * @param jp
+	 * @param ctxt
+	 * @return
+	 * @throws IOException
+	 * @throws JsonProcessingException
+	 */
 	@Override
 	public User deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
 		ObjectMapper mapper = (ObjectMapper) jp.getCodec();

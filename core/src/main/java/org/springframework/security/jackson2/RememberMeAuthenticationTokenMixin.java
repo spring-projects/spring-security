@@ -25,12 +25,40 @@ import org.springframework.security.core.GrantedAuthority;
 import java.util.Collection;
 
 /**
+ * This mixin class helps in serialize/deserialize
+ * {@link org.springframework.security.authentication.RememberMeAuthenticationToken} class. To use this class you need to register it
+ * with {@link com.fasterxml.jackson.databind.ObjectMapper} and 2 more mixin classes.
+ *
+ * <ol>
+ *     <li>{@link SimpleGrantedAuthorityMixin}</li>
+ *     <li>{@link UserMixin}</li>
+ *     <li>{@link UnmodifiableSetMixin}</li>
+ * </ol>
+ *
+ * <pre>
+ *     ObjectMapper mapper = new ObjectMapper();
+ *     mapper.addMixIn(SimpleGrantedAuthority.class, SimpleGrantedAuthorityMixin.class);
+ *     mapper.addMixIn({@link org.springframework.security.core.userdetails.User}.class, UserMixin.class);
+ *     mapper.addMixIn(Collections.unmodifiableSet(Collections.EMPTY_SET).getClass(), UnmodifiableSetMixin.class);
+ *     mapper.addMixIn(AnonymousAuthenticationToken.class, AnonymousAuthenticationTokenMixin.class);
+ * </pre>
+ *
+ * <i>Note: This class will save TypeInfo (full class name) into a property called @class</i>
+ *
  * @author Jitendra Singh
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RememberMeAuthenticationTokenMixin {
 
+	/**
+	 * Constructor used by Jackson to create
+	 * {@link org.springframework.security.authentication.RememberMeAuthenticationToken} object.
+	 *
+	 * @param keyHash hashCode of above given key.
+	 * @param principal the principal (typically a <code>UserDetails</code>)
+	 * @param authorities the authorities granted to the principal
+	 */
 	@JsonCreator
 	public RememberMeAuthenticationTokenMixin(@JsonProperty("keyHash") Integer keyHash,
 												@JsonProperty("principal") Object principal,

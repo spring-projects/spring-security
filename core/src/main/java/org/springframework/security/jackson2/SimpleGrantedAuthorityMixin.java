@@ -23,16 +23,33 @@ import org.springframework.security.core.GrantedAuthority;
 import java.util.Collection;
 
 /**
+ * Jackson Mixin class helps in serialize/deserialize
+ * {@link org.springframework.security.core.authority.SimpleGrantedAuthority}.
+ *
+ * <pre>
+ *     ObjectMapper mapper = new ObjectMapper();
+ *     mapper.addMixIn(SimpleGrantedAuthority.class, SimpleGrantedAuthorityMixin.class);
+ * </pre>
  * @author Jitendra Singh
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class SimpleGrantedAuthorityMixin {
 
+	/**
+	 * Mixin Constructor.
+	 * @param role
+	 */
 	@JsonCreator
 	public SimpleGrantedAuthorityMixin(@JsonProperty("role") String role) {
 	}
 
+	/**
+	 * This method will ensure that getAuthority() doesn't serialized to <b>authority</b> key, it will be serialized
+	 * as <b>role</b> key. Because above mixin constructor will look for role key to properly deserialize.
+	 *
+	 * @return
+	 */
 	@JsonProperty("role")
 	public abstract String getAuthority();
 }

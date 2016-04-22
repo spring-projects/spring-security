@@ -32,10 +32,27 @@ import java.io.IOException;
 import java.util.List;
 
 /**
+ * Custom deserializer for {@link UsernamePasswordAuthenticationToken}. At the time of deserialization
+ * it will invoke suitable constructor depending on the value of <b>authenticated</b> property.
+ * It will ensure that the token's state must not change.
+ * <p>
+ * This deserializer is already registered with {@link UsernamePasswordAuthenticationTokenMixin} but
+ * you can also registered it with your own mixin class.
+ *
  * @author Jitendra Singh
+ * @see UsernamePasswordAuthenticationTokenMixin
  */
 public class UsernamePasswordAuthenticationTokenDeserializer extends JsonDeserializer<UsernamePasswordAuthenticationToken> {
 
+	/**
+	 * This method construct {@link UsernamePasswordAuthenticationToken} object from serialized json.
+	 * 
+	 * @param jp
+	 * @param ctxt
+	 * @return
+	 * @throws IOException
+	 * @throws JsonProcessingException
+	 */
 	@Override
 	public UsernamePasswordAuthenticationToken deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
 		UsernamePasswordAuthenticationToken token = null;

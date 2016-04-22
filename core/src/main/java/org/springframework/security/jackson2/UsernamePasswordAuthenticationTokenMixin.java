@@ -20,6 +20,24 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 /**
+ * This mixin class is used to serialize / deserialize
+ * {@link org.springframework.security.authentication.UsernamePasswordAuthenticationToken}. This class register
+ * a custom deserializer {@link UsernamePasswordAuthenticationTokenDeserializer}.
+ *
+ * In order to use this mixin you'll need to add 3 more mixin classes.
+ * <ol>
+ *     <li>{@link UnmodifiableSetMixin}</li>
+ *     <li>{@link SimpleGrantedAuthorityMixin}</li>
+ *     <li>{@link UserMixin}</li>
+ * </ol>
+ *
+ * <pre>
+ *     ObjectMapper mapper = new ObjectMapper();
+ *     mapper.addMixIn(Collections.unmodifiableSet(Collections.EMPTY_SET).getClass(), UnmodifiableSetMixin.class);
+ *     mapper.addMixIn(SimpleGrantedAuthority.class, SimpleGrantedAuthorityMixin.class);
+ *     mapper.addMixIn(User.class, UserMixin.class);
+ *     mapper.addMixIn(UsernamePasswordAuthenticationToken.class, UsernamePasswordAuthenticationTokenMixin.class);
+ * </pre>
  * @author Jitendra Singh
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")

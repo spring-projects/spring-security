@@ -17,3 +17,7 @@
  * Mix-in classes to add Jackson serialization support.
  */
 package org.springframework.security.jackson2;
+
+/**
+ * Package contains Jackson mixin classes.
+ */
