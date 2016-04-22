@@ -29,8 +29,4 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @JsonDeserialize(using = CookieDeserializer.class)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, isGetterVisibility = JsonAutoDetect.Visibility.NONE)
 public abstract class CookieMixin {
-
-	@JsonCreator
-	public CookieMixin(@JsonProperty("name") String name, @JsonProperty("value") String value) {
-	}
 }
