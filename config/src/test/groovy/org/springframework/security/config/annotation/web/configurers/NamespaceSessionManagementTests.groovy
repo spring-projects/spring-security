@@ -114,7 +114,7 @@ class NamespaceSessionManagementTests extends BaseSpringSpec {
 		when:
 			loadConfig(RefsSessionManagementConfig)
 		then:
-			findFilter(SessionManagementFilter).sessionAuthenticationStrategy ==  RefsSessionManagementConfig.SAS
+			findFilter(SessionManagementFilter).sessionAuthenticationStrategy.delegateStrategies.find { it ==  RefsSessionManagementConfig.SAS }
 	}
 
 	@EnableWebSecurity
@@ -132,7 +132,7 @@ class NamespaceSessionManagementTests extends BaseSpringSpec {
 		when:
 			loadConfig(SFPNoneSessionManagementConfig)
 		then:
-			findFilter(SessionManagementFilter).sessionAuthenticationStrategy instanceof  NullAuthenticatedSessionStrategy
+			findFilter(SessionManagementFilter).sessionAuthenticationStrategy.delegateStrategies.find { it instanceof  NullAuthenticatedSessionStrategy }
 	}
 
 	@EnableWebSecurity
