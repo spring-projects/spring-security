@@ -16,6 +16,7 @@
 
 package org.springframework.security.web.csrf;
 
+import java.lang.reflect.Method;
 import java.util.UUID;
 
 import javax.servlet.http.Cookie;
@@ -23,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.util.Assert;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.WebUtils;
 
@@ -47,6 +49,14 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 
 	private String cookieName = DEFAULT_CSRF_COOKIE_NAME;
 
+	private Method setHttpOnlyMethod;
+
+	private boolean cookieHttpOnly = true;
+
+	public CookieCsrfTokenRepository() {
+		this.setHttpOnlyMethod = ReflectionUtils.findMethod(Cookie.class, "setHttpOnly", boolean.class);
+	}
+
 	@Override
 	public CsrfToken generateToken(HttpServletRequest request) {
 		return new DefaultCsrfToken(this.headerName, this.parameterName,
@@ -66,6 +76,10 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 		else {
 			cookie.setMaxAge(-1);
 		}
+		if (cookieHttpOnly && setHttpOnlyMethod != null) {
+			ReflectionUtils.invokeMethod(setHttpOnlyMethod, cookie, Boolean.TRUE);
+		}
+
 		response.addCookie(cookie);
 	}
 
@@ -94,7 +108,7 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	}
 
 	/**
-	 * Sets the name of the HTTP header that should be used to provide the token
+	 * Sets the name of the HTTP header that should be used to provide the token.
 	 *
 	 * @param headerName the name of the HTTP header that should be used to provide the
 	 * token
@@ -105,7 +119,7 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	}
 
 	/**
-	 * Sets the name of the cookie that the expected CSRF token is saved to and read from
+	 * Sets the name of the cookie that the expected CSRF token is saved to and read from.
 	 *
 	 * @param cookieName the name of the cookie that the expected CSRF token is saved to
 	 * and read from
@@ -113,6 +127,15 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	public void setCookieName(String cookieName) {
 		Assert.notNull(cookieName, "cookieName is not null");
 		this.cookieName = cookieName;
+	}
+
+	/**
+	 * Sets the HttpOnly attribute on the cookie containing the CSRF token. Defaults to true.
+	 *
+	 * @param cookieHttpOnly true sets the HttpOnly attribute, false does not set it.
+	 */
+	public void setCookieHttpOnly(boolean cookieHttpOnly) {
+		this.cookieHttpOnly = cookieHttpOnly;
 	}
 
 	private String getCookiePath(HttpServletRequest request) {
