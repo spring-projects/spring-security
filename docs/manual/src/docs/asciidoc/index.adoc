@@ -372,7 +372,7 @@ This will give you access to the entire project history (including all releases 
 [[new]]
 == What's New in Spring Security 4.1
 
-There were https://github.com/spring-projects/spring-security/milestones/4.1.0%20RC1[100+ RC1 issues] and https://github.com/spring-projects/spring-security/milestones/4.1.0%20RC2[60+ RC2 issues] fixed in Spring Security 4.1.
+There were https://github.com/spring-projects/spring-security/issues?q=milestone%3A"4.1.0+RC1"+state%3Aclosed[100+ RC1 issues] and https://github.com/spring-projects/spring-security/issues?q=milestone%3A"4.1.0+RC2"+state%3Aclosed[60+ RC2 issues] fixed in Spring Security 4.1.
 
 Here is the list of improvements:
 
