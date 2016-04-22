@@ -21,18 +21,53 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.jasig.cas.client.validation.Assertion;
+import org.springframework.security.cas.authentication.CasAuthenticationProvider;
+import org.springframework.security.cas.authentication.CasAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 
 /**
+ * Mixin class which helps in deserialize {@link org.springframework.security.cas.authentication.CasAuthenticationToken}
+ * using jackson. Two more dependent classes needs to register along with this mixin class.
+ * <ol>
+ * 		<li>{@link org.springframework.security.cas.jackson2.AssertionImplMixin}</li>
+ *      <li>{@link org.springframework.security.cas.jackson2.AttributePrincipalImplMixin}</li>
+ * </ol>
+ *
+ * <p>
+ *
+ * <pre>
+ *     ObjectMapper mapper = new ObjectMapper();
+ *     mapper.addMixIn(AssertionImpl.class, AssertionImplMixin.class);
+ *     mapper.addMixIn(AttributePrincipalImpl.class, AttributePrincipalImplMixin.class);
+ *     mapper.addMixIn(CasAuthenticationToken.class, CasAuthenticationTokenMixin.class);
+ * </pre>
+ *
  * @author Jitendra Singh
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CasAuthenticationTokenMixin {
 
+	/**
+	 * Mixin Constructor helps in deserialize {@link CasAuthenticationToken}
+	 *
+	 * @param keyHash hashCode of provided key to identify if this object made by a given
+	 * {@link CasAuthenticationProvider}
+	 * @param principal typically the UserDetails object (cannot be <code>null</code>)
+	 * @param credentials the service/proxy ticket ID from CAS (cannot be
+	 * <code>null</code>)
+	 * @param authorities the authorities granted to the user (from the
+	 * {@link org.springframework.security.core.userdetails.UserDetailsService}) (cannot
+	 * be <code>null</code>)
+	 * @param userDetails the user details (from the
+	 * {@link org.springframework.security.core.userdetails.UserDetailsService}) (cannot
+	 * be <code>null</code>)
+	 * @param assertion the assertion returned from the CAS servers. It contains the
+	 * principal and how to obtain a proxy ticket for the user.
+	 */
 	@JsonCreator
 	public CasAuthenticationTokenMixin(@JsonProperty("keyHash") Integer keyHash, @JsonProperty("principal") Object principal,
 										@JsonProperty("credentials") Object credentials,

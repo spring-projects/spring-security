@@ -21,17 +21,37 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.jasig.cas.client.authentication.AttributePrincipal;
+import org.springframework.security.cas.authentication.CasAuthenticationToken;
 
 import java.util.Date;
 import java.util.Map;
 
 /**
+ * Helps in jackson deserialization of class {@link org.jasig.cas.client.validation.AssertionImpl}, which is
+ * used with {@link org.springframework.security.cas.authentication.CasAuthenticationToken}.
+ * To use this class we need to register with {@link com.fasterxml.jackson.databind.ObjectMapper}. Type information
+ * will be stored in @class property.
+ * <p>
+ * <pre>
+ *     ObjectMapper mapper = new ObjectMapper();
+ *     mapper.addMixIn(AssertionImpl.class, AssertionImplMixin.class);
+ * </pre>
+ *
  * @author Jitendra Singh
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
 @JsonIgnoreProperties(value = {"valid"})
 public class AssertionImplMixin {
 
+	/**
+	 * Mixin Constructor helps in deserialize {@link org.jasig.cas.client.validation.AssertionImpl}
+	 *
+	 * @param principal the Principal to associate with the Assertion.
+	 * @param validFromDate when the assertion is valid from.
+	 * @param validUntilDate when the assertion is valid to.
+	 * @param authenticationDate when the assertion is authenticated.
+	 * @param attributes the key/value pairs for this attribute.
+	 */
 	@JsonCreator
 	public AssertionImplMixin(@JsonProperty("principal") AttributePrincipal principal,
 								@JsonProperty("validFromDate") Date validFromDate, @JsonProperty("validUntilDate") Date validUntilDate,
