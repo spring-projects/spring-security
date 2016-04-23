@@ -42,7 +42,8 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 	private long contentLength;
 
 	/**
-	 * The size of data written to the response body.
+	 * The size of data written to the response body. The field will only be updated when
+	 * {@link #disableOnCommitted} is false.
 	 */
 	private long contentWritten;
 
@@ -158,44 +159,64 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 	}
 
 	private void trackContentLength(boolean content) {
-		checkContentLength(content ? 4 : 5); // TODO Localization
+		if (!this.disableOnCommitted) {
+			checkContentLength(content ? 4 : 5); // TODO Localization
+		}
 	}
 
 	private void trackContentLength(char content) {
-		checkContentLength(1);
+		if (!this.disableOnCommitted) {
+			checkContentLength(1);
+		}
 	}
 
 	private void trackContentLength(Object content) {
-		trackContentLength(String.valueOf(content));
+		if (!this.disableOnCommitted) {
+			trackContentLength(String.valueOf(content));
+		}
 	}
 
 	private void trackContentLength(byte[] content) {
-		checkContentLength(content == null ? 0 : content.length);
+		if (!this.disableOnCommitted) {
+			checkContentLength(content == null ? 0 : content.length);
+		}
 	}
 
 	private void trackContentLength(char[] content) {
-		checkContentLength(content == null ? 0 : content.length);
+		if (!this.disableOnCommitted) {
+			checkContentLength(content == null ? 0 : content.length);
+		}
 	}
 
 	private void trackContentLength(int content) {
-		trackContentLength(String.valueOf(content));
+		if (!this.disableOnCommitted) {
+			trackContentLength(String.valueOf(content));
+		}
 	}
 
 	private void trackContentLength(float content) {
-		trackContentLength(String.valueOf(content));
+		if (!this.disableOnCommitted) {
+			trackContentLength(String.valueOf(content));
+		}
 	}
 
 	private void trackContentLength(double content) {
-		trackContentLength(String.valueOf(content));
+		if (!this.disableOnCommitted) {
+			trackContentLength(String.valueOf(content));
+		}
 	}
 
 	private void trackContentLengthLn() {
-		trackContentLength("\r\n");
+		if (!this.disableOnCommitted) {
+			trackContentLength("\r\n");
+		}
 	}
 
 	private void trackContentLength(String content) {
-		int contentLength = content == null ? 4 : content.length();
-		checkContentLength(contentLength);
+		if (!this.disableOnCommitted) {
+			int contentLength = content == null ? 4 : content.length();
+			checkContentLength(contentLength);
+		}
 	}
 
 	/**
