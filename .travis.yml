@@ -1,3 +1,4 @@
+sudo: false
 language: java
 
 jdk:
@@ -16,5 +17,6 @@ cache:
   directories:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
+    - $HOME/.m2
 
 script: ./gradlew build
