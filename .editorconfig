@@ -1,0 +1,17 @@
+# EditorConfig for Spring Security
+# see https://github.com/spring-projects/spring-security/blob/master/CONTRIBUTING.md#mind-the-whitespace
+
+# top-most EditorConfig file
+root = true
+
+# Unix-style newlines with a newline ending every file
+[*]
+end_of_line = lf
+insert_final_newline = true
+charset = latin1
+
+# 4 tabs indentation
+indent_style = tab
+tab_width = 4
+
+trim_trailing_whitespace = true
