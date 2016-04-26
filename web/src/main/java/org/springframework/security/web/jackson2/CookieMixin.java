@@ -17,12 +17,17 @@
 package org.springframework.security.web.jackson2;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 /**
+ * Mixin class to serialize/deserialize {@link javax.servlet.http.Cookie}
+ *
+ * <pre>
+ *     ObjectMapper mapper = new ObjectMapper();
+ *     mapper.addMixIn(Cookie.class, CookieMixin.class);
+ * </pre>
+ *
  * @author Jitendra Singh
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)

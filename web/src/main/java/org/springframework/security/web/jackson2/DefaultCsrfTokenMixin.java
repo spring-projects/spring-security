@@ -19,8 +19,13 @@ package org.springframework.security.web.jackson2;
 import com.fasterxml.jackson.annotation.*;
 
 /**
- * Mix-in class for {@link org.springframework.security.web.csrf.DefaultCsrfToken} to enable Jackson
+ * Jackson mixin class to serialize/deserialize {@link org.springframework.security.web.csrf.DefaultCsrfToken}
  * serialization support.
+ *
+ * <pre>
+ * 	ObjectMapper mapper = new ObjectMapper();
+ *	mapper.addMixIn(DefaultCsrfToken.class, DefaultCsrfTokenMixin.class);
+ * </pre>
  *
  * @author Jitendra Singh
  */

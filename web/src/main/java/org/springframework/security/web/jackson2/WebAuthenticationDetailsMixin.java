@@ -21,6 +21,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
+ * Jackson mixin class to serialize/deserialize {@link org.springframework.security.web.WebAuthenticationDetails}.
+ *
+ * <pre>
+ * 	ObjectMapper mapper = new ObjectMapper();
+ *	mapper.addMixIn(WebAuthenticationDetails.class, WebAuthenticationDetailsMixin.class);
+ * </pre>
+ *
  * @author Jitendra Singh
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
