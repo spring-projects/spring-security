@@ -46,7 +46,6 @@ public class UsernamePasswordAuthenticationTokenDeserializer extends JsonDeseria
 
 	/**
 	 * This method construct {@link UsernamePasswordAuthenticationToken} object from serialized json.
-	 * 
 	 * @param jp
 	 * @param ctxt
 	 * @return
