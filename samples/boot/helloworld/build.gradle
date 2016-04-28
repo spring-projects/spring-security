@@ -1,0 +1,16 @@
+apply from: BOOT_SAMPLE_GRADLE
+
+springBoot {
+    mainClass = 'org.springframework.security.samples.HelloWorldApplication'
+}
+
+dependencies {
+    compile "org.springframework.boot:spring-boot-starter-web",
+            "org.springframework.boot:spring-boot-starter-thymeleaf",
+            "org.thymeleaf.extras:thymeleaf-extras-springsecurity4:2.1.2.RELEASE",
+            project(":spring-security-config"),
+            project(":spring-security-web")
+
+    testCompile "org.springframework.boot:spring-boot-starter-test",
+            project(":spring-security-test")
+}

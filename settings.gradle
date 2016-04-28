@@ -55,6 +55,7 @@ findProject(':bom').name = 'spring-security-bom'
 
 includeSamples("samples" + File.separator + "xml")
 includeSamples("samples" + File.separator + "javaconfig")
+includeSamples("samples" + File.separator + "boot")
 
 void includeSamples(String samplesDir) {
 	FileTree tree = fileTree(samplesDir) {

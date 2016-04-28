@@ -1,5 +1,3 @@
-import groovy.text.SimpleTemplateEngine
-
 buildscript {
 	repositories {
 		maven { url "https://repo.spring.io/plugins-release" }
@@ -11,6 +9,7 @@ buildscript {
 		classpath('me.champeau.gradle:gradle-javadoc-hotfix-plugin:0.1')
 		classpath('org.asciidoctor:asciidoctor-gradle-plugin:1.5.1')
 		classpath("io.spring.gradle:docbook-reference-plugin:0.3.1")
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:1.3.3.RELEASE")
 	}
 }
 
@@ -93,6 +92,7 @@ configure(subprojects - coreModuleProjects - project(':spring-security-samples-j
 configure(javaProjects) {
 	ext.TOMCAT_GRADLE = "$rootDir/gradle/tomcat.gradle"
 	ext.WAR_SAMPLE_GRADLE = "$rootDir/gradle/war-sample.gradle"
+	ext.BOOT_SAMPLE_GRADLE = "$rootDir/gradle/boot-sample.gradle"
 	apply from: "$rootDir/gradle/javaprojects.gradle"
 	if(!project.name.contains('gae')) {
 		apply from: "$rootDir/gradle/checkstyle.gradle"

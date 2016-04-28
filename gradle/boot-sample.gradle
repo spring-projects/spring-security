@@ -1,0 +1,5 @@
+apply plugin: 'spring-boot'
+
+sonarqube {
+	skipProject = true
+}
