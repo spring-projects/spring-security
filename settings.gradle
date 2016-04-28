@@ -53,17 +53,17 @@ include 'bom'
 
 findProject(':bom').name = 'spring-security-bom'
 
-includeSamples("samples/xml")
-includeSamples("samples/javaconfig")
+includeSamples("samples" + File.separator + "xml")
+includeSamples("samples" + File.separator + "javaconfig")
 
 void includeSamples(String samplesDir) {
 	FileTree tree = fileTree(samplesDir) {
 		include '**/*.gradle'
 	}
 	tree.each {File file ->
-		String projectDir = file.path.substring(file.path.indexOf(samplesDir), file.path.lastIndexOf('/'))
-		String projectPath = projectDir.substring(projectDir.lastIndexOf('/') + 1)
-		String projectNamePrefix = samplesDir.substring(samplesDir.lastIndexOf('/') + 1).toLowerCase();
+		String projectDir = file.path.substring(file.path.indexOf(samplesDir), file.path.lastIndexOf(File.separator))
+		String projectPath = projectDir.substring(projectDir.lastIndexOf(File.separator) + 1)
+		String projectNamePrefix = samplesDir.substring(samplesDir.lastIndexOf(File.separator) + 1).toLowerCase();
 
 		include projectPath
 
@@ -73,7 +73,7 @@ void includeSamples(String samplesDir) {
 		project.projectDir = new File(settingsDir, projectDir)
 
 		if (!project.buildFile.exists()) {
-			project.buildFileName = file.path.substring(file.path.lastIndexOf('/') + 1)
+			project.buildFileName = file.path.substring(file.path.lastIndexOf(File.separator) + 1)
 		}
 	}
 }
