@@ -1,3 +1,8 @@
+env:
+  global:
+  - MALLOC_ARENA_MAX=1
+  - GRADLE_OPTS="-Xmx512m"
+
 sudo: false
 
 language: java
