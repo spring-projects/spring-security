@@ -116,7 +116,12 @@ task integrationTest(type: Test, dependsOn: jar) {
 	testClassesDir = sourceSets.integrationTest.output.classesDir
 	logging.captureStandardOutput(LogLevel.INFO)
 	classpath = sourceSets.integrationTest.runtimeClasspath
+
 	maxParallelForks = 1
+	
+	maxHeapSize = '768m'
+	forkEvery = 100   // helps when tests leak memory
+
 	reports {
 		html.destination = project.file("$project.buildDir/reports/integration-tests/")
 		junitXml.destination = project.file("$project.buildDir/integration-test-results/")
