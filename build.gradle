@@ -30,6 +30,7 @@ allprojects {
 	ext.snapshotBuild = version.endsWith('SNAPSHOT')
 	ext.springVersion = '4.2.5.RELEASE'
 	ext.springLdapVersion = '2.0.2.RELEASE'
+	ext.isTravisBuild = System.getenv().get("TRAVIS") == 'true'
 
 	group = 'org.springframework.security'
 
@@ -100,6 +101,11 @@ configure(javaProjects) {
 	apply from: "$rootDir/gradle/ide.gradle"
 	apply from: "$rootDir/gradle/release-checks.gradle"
 	apply from: "$rootDir/gradle/maven-deployment.gradle"
+
+
+	if(ext.isTravisBuild){
+		apply from: "$rootDir/gradle/travis.gradle"
+	}
 }
 
 configure(coreModuleProjects) {

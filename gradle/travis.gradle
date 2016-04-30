@@ -1,0 +1,18 @@
+
+
+subprojects { project ->
+    test {
+
+
+        if (ext.isTravisBuild) {
+            println("Using travis")
+            maxParallelForks = 2
+            maxHeapSize = '768m'
+            forkEvery = 100   // helps when tests leak memory
+            afterSuite {
+                System.out.print('.')
+                System.out.flush()
+            }
+        }
+    }
+}
