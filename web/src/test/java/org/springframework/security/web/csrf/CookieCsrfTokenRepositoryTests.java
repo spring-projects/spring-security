@@ -16,13 +16,12 @@
 
 package org.springframework.security.web.csrf;
 
-import javax.servlet.http.Cookie;
-
 import org.junit.Before;
 import org.junit.Test;
-
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+
+import javax.servlet.http.Cookie;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -84,6 +83,7 @@ public class CookieCsrfTokenRepositoryTests {
 		assertThat(tokenCookie.getPath()).isEqualTo(this.request.getContextPath());
 		assertThat(tokenCookie.getSecure()).isEqualTo(this.request.isSecure());
 		assertThat(tokenCookie.getValue()).isEqualTo(token.getToken());
+		assertThat(tokenCookie.isHttpOnly()).isEqualTo(true);
 	}
 
 	@Test
@@ -112,6 +112,30 @@ public class CookieCsrfTokenRepositoryTests {
 		assertThat(tokenCookie.getPath()).isEqualTo(this.request.getContextPath());
 		assertThat(tokenCookie.getSecure()).isEqualTo(this.request.isSecure());
 		assertThat(tokenCookie.getValue()).isEmpty();
+	}
+
+	@Test
+	public void saveTokenHttpOnlyTrue() {
+		this.repository.setCookieHttpOnly(true);
+		CsrfToken token = this.repository.generateToken(this.request);
+		this.repository.saveToken(token, this.request, this.response);
+
+		Cookie tokenCookie = this.response
+				.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
+
+		assertThat(tokenCookie.isHttpOnly()).isTrue();
+	}
+
+	@Test
+	public void saveTokenHttpOnlyFalse() {
+		this.repository.setCookieHttpOnly(false);
+		CsrfToken token = this.repository.generateToken(this.request);
+		this.repository.saveToken(token, this.request, this.response);
+
+		Cookie tokenCookie = this.response
+				.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
+
+		assertThat(tokenCookie.isHttpOnly()).isFalse();
 	}
 
 	@Test
