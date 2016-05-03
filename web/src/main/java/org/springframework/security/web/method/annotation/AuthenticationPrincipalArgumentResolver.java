@@ -19,10 +19,15 @@ import java.lang.annotation.Annotation;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.expression.Expression;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -81,6 +86,8 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 public final class AuthenticationPrincipalArgumentResolver
 		implements HandlerMethodArgumentResolver {
 
+	private ExpressionParser parser = new SpelExpressionParser();
+
 	/*
 	 * (non-Javadoc)
 	 *
@@ -109,10 +116,23 @@ public final class AuthenticationPrincipalArgumentResolver
 			return null;
 		}
 		Object principal = authentication.getPrincipal();
+
+		AuthenticationPrincipal authPrincipal = findMethodAnnotation(
+				AuthenticationPrincipal.class, parameter);
+
+		String expressionToParse = authPrincipal.expression();
+		if (StringUtils.hasLength(expressionToParse)) {
+			StandardEvaluationContext context = new StandardEvaluationContext();
+			context.setRootObject(principal);
+			context.setVariable("this", principal);
+
+			Expression expression = this.parser.parseExpression(expressionToParse);
+			principal = expression.getValue(context);
+		}
+
 		if (principal != null
 				&& !parameter.getParameterType().isAssignableFrom(principal.getClass())) {
-			AuthenticationPrincipal authPrincipal = findMethodAnnotation(
-					AuthenticationPrincipal.class, parameter);
+
 			if (authPrincipal.errorOnInvalidType()) {
 				throw new ClassCastException(principal + " is not assignable to "
 						+ parameter.getParameterType());

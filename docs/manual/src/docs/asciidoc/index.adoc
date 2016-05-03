@@ -388,6 +388,7 @@ Here is the list of improvements:
 * <<headers-hpkp,HTTP Public Key Pinning (HPKP)>>
 * <<csrf-cookie,CookieCsrfTokenRepository>> provides simple AngularJS & CSRF integration
 * Added `ForwardAuthenticationFailureHandler` & `ForwardAuthenticationSuccessHandler`
+* <<mvc-authentication-principal,AuthenticationPrincipal>> supports expression attribute to support transforming the `Authentication.getPrincipal()` object (i.e. handling immutable custom `User` domain objects)
 
 === Authorization Improvements
 * <<el-access-web-path-variables,Path Variables in Web Security Expressions>>
@@ -6625,6 +6626,36 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 @RequestMapping("/messages/inbox")
 public ModelAndView findMessagesForUser(@AuthenticationPrincipal CustomUser customUser) {
+
+	// .. find messags for this user and return them ...
+}
+----
+
+Sometimes it may be necessary to transform the principal in some way.
+For example, if `CustomUser` needed to be final it could not be extended.
+In this situation the `UserDetailsService` might returns an `Object` that implements `UserDetails` and provides a method named `getCustomUser` to access `CustomUser`.
+For example, it might look like:
+
+[source,java]
+----
+public class CustomUserUserDetails extends User {
+		// ...
+		public CustomUser getCustomUser() {
+				return customUser;
+		}
+}
+----
+
+We could then access the `CustomUser` using a https://docs.spring.io/spring/docs/current/spring-framework-reference/html/expressions.html[SpEL expression] that uses `Authentication.getPrincipal()` as the root object:
+
+[source,java]
+----
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+
+// ...
+
+@RequestMapping("/messages/inbox")
+public ModelAndView findMessagesForUser(@AuthenticationPrincipal(expression = "customUser") CustomUser customUser) {
 
 	// .. find messags for this user and return them ...
 }

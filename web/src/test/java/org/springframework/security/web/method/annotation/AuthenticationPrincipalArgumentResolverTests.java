@@ -120,6 +120,25 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	}
 
 	@Test
+	public void resolveArgumentSpel() throws Exception {
+		CustomUserPrincipal principal = new CustomUserPrincipal();
+		setAuthenticationPrincipal(principal);
+		this.expectedPrincipal = principal.property;
+		assertThat(this.resolver.resolveArgument(showUserSpel(), null, null, null))
+				.isEqualTo(this.expectedPrincipal);
+	}
+
+	@Test
+	public void resolveArgumentSpelCopy() throws Exception {
+		CopyUserPrincipal principal = new CopyUserPrincipal("property");
+		setAuthenticationPrincipal(principal);
+		Object resolveArgument = this.resolver.resolveArgument(showUserSpelCopy(), null,
+				null, null);
+		assertThat(resolveArgument).isEqualTo(principal);
+		assertThat(resolveArgument).isNotSameAs(principal);
+	}
+
+	@Test
 	public void resolveArgumentNullOnInvalidType() throws Exception {
 		setAuthenticationPrincipal(new CustomUserPrincipal());
 		assertThat(resolver.resolveArgument(showUserAnnotationString(), null, null, null))
@@ -175,6 +194,14 @@ public class AuthenticationPrincipalArgumentResolverTests {
 		return getMethodParameter("showUserCustomAnnotation", CustomUserPrincipal.class);
 	}
 
+	private MethodParameter showUserSpel() {
+		return getMethodParameter("showUserSpel", String.class);
+	}
+
+	private MethodParameter showUserSpelCopy() {
+		return getMethodParameter("showUserSpelCopy", CopyUserPrincipal.class);
+	}
+
 	private MethodParameter showUserAnnotationObject() {
 		return getMethodParameter("showUserAnnotation", Object.class);
 	}
@@ -223,9 +250,62 @@ public class AuthenticationPrincipalArgumentResolverTests {
 
 		public void showUserAnnotation(@AuthenticationPrincipal Object user) {
 		}
+
+		public void showUserSpel(
+				@AuthenticationPrincipal(expression = "property") String user) {
+		}
+
+		public void showUserSpelCopy(
+				@AuthenticationPrincipal(expression = "new org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolverTests$CopyUserPrincipal(#this)") CopyUserPrincipal user) {
+		}
 	}
 
-	private static class CustomUserPrincipal {
+	static class CustomUserPrincipal {
+		public final String property = "property";
+	}
+
+	static class CopyUserPrincipal {
+		public final String property;
+
+		CopyUserPrincipal(String property) {
+			this.property = property;
+		}
+
+		public CopyUserPrincipal(CopyUserPrincipal toCopy) {
+			this.property = toCopy.property;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result
+					+ ((this.property == null) ? 0 : this.property.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj == null) {
+				return false;
+			}
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+			CopyUserPrincipal other = (CopyUserPrincipal) obj;
+			if (this.property == null) {
+				if (other.property != null) {
+					return false;
+				}
+			}
+			else if (!this.property.equals(other.property)) {
+				return false;
+			}
+			return true;
+		}
 	}
 
 	private void setAuthenticationPrincipal(Object principal) {
