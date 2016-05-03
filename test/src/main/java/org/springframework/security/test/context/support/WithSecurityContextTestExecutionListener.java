@@ -71,13 +71,30 @@ public class WithSecurityContextTestExecutionListener extends
 		if (withSecurityContext != null) {
 			WithSecurityContextFactory factory = createFactory(withSecurityContext, context);
 			Class<? extends Annotation> type = (Class<? extends Annotation>) GenericTypeResolver.resolveTypeArgument(factory.getClass(), WithSecurityContextFactory.class);
-			Annotation annotation  = AnnotationUtils.findAnnotation(annotated, type);
+			Annotation annotation = findAnnotation(annotated, type);
 			try {
 				return factory.createSecurityContext(annotation);
 			}
 			catch (RuntimeException e) {
 				throw new IllegalStateException(
 						"Unable to create SecurityContext using " + annotation, e);
+			}
+		}
+		return null;
+	}
+
+	private Annotation findAnnotation(AnnotatedElement annotated,
+			Class<? extends Annotation> type) {
+		Annotation findAnnotation = AnnotationUtils.findAnnotation(annotated, type);
+		if (findAnnotation != null) {
+			return findAnnotation;
+		}
+		Annotation[] allAnnotations = AnnotationUtils.getAnnotations(annotated);
+		for (Annotation annotationToTest : allAnnotations) {
+			WithSecurityContext withSecurityContext = AnnotationUtils.findAnnotation(
+					annotationToTest.annotationType(), WithSecurityContext.class);
+			if (withSecurityContext != null) {
+				return annotationToTest;
 			}
 		}
 		return null;
