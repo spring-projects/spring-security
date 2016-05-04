@@ -15,11 +15,11 @@
  */
 package org.springframework.security.crypto.bcrypt;
 
-import static org.assertj.core.api.Assertions.*;
-
 import org.junit.Test;
 
 import java.security.SecureRandom;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Dave Syer
@@ -55,6 +55,16 @@ public class BCryptPasswordEncoderTests {
 		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(8);
 		String result = encoder.encode("password");
 		assertThat(encoder.matches("password", result)).isTrue();
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void badLowCustomStrength() {
+		new BCryptPasswordEncoder(3);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void badHighCustomStrength() {
+		new BCryptPasswordEncoder(32);
 	}
 
 	@Test
