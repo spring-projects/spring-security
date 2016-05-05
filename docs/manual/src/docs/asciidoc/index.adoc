@@ -3359,8 +3359,18 @@ You can configure `CookieCsrfTokenRepository` in XML using the following:
 	<!-- ... -->
 	<csrf token-repository-ref="tokenRepository"/>
 </http>
-<b:bean id="tokenRepository" class="org.springframework.security.web.csrf.CookieCsrfTokenRepository"/>
+<b:bean id="tokenRepository"
+	class="org.springframework.security.web.csrf.CookieCsrfTokenRepository"
+	p:cookieHttpOnly="false"/>
 ----
+
+[NOTE]
+====
+The sample explicitly sets `cookieHttpOnly=false`.
+This is necessary to allow JavaScript (i.e. AngularJS) to read it.
+If you do not need the ability to read the cookie with JavaScript directly, it is recommended to omit `cookieHttpOnly=false` to improve security.
+====
+
 
 You can configure `CookieCsrfTokenRepository` in Java Configuration using:
 
@@ -3374,10 +3384,17 @@ public class WebSecurityConfig extends
 	protected void configure(HttpSecurity http) throws Exception {
 		http
 			.csrf()
-				.csrfTokenRepository(new CookieCsrfTokenRepository());
+				.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
 	}
 }
 ----
+
+[NOTE]
+====
+The sample explicitly sets `cookieHttpOnly=false`.
+This is necessary to allow JavaScript (i.e. AngularJS) to read it.
+If you do not need the ability to read the cookie with JavaScript directly, it is recommended to omit `cookieHttpOnly=false` (by using `new CookieCsrfTokenRepository()` instead) to improve security.
+====
 
 
 [[csrf-caveats]]
@@ -6594,9 +6611,9 @@ Spring Security provides `AuthenticationPrincipalArgumentResolver` which can aut
 [source,xml]
 ----
 <mvc:annotation-driven>
-    <mvc:argument-resolvers>
-        <bean class="org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver" />
-    </mvc:argument-resolvers>
+		<mvc:argument-resolvers>
+				<bean class="org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver" />
+		</mvc:argument-resolvers>
 </mvc:annotation-driven>
 ----
 
