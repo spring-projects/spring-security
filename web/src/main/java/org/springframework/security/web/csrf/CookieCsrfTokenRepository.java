@@ -31,7 +31,7 @@ import org.springframework.web.util.WebUtils;
 /**
  * A {@link CsrfTokenRepository} that persist the CSRF token in a cookie named
  * "XSRF-TOKEN" and reads from the header "X-XSRF-TOKEN" following the conventions of
- * AngularJS.
+ * AngularJS. When using with AngularJS be sure to use {@link #withHttpOnlyFalse()}.
  *
  * @author Rob Winch
  * @since 4.1
@@ -151,6 +151,19 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	private String getCookiePath(HttpServletRequest request) {
 		String contextPath = request.getContextPath();
 		return contextPath.length() > 0 ? contextPath : "/";
+	}
+
+	/**
+	 * Factory method to conveniently create an instance that has
+	 * {@link #setCookieHttpOnly(boolean)} set to false.
+	 *
+	 * @return and instance of CookieCsrfTokenRepository with
+	 * {@link #setCookieHttpOnly(boolean)} set to false
+	 */
+	public static CookieCsrfTokenRepository withHttpOnlyFalse() {
+		CookieCsrfTokenRepository result = new CookieCsrfTokenRepository();
+		result.setCookieHttpOnly(false);
+		return result;
 	}
 
 	private String createNewToken() {

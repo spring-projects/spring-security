@@ -139,6 +139,18 @@ public class CookieCsrfTokenRepositoryTests {
 	}
 
 	@Test
+	public void saveTokenWithHttpOnlyFalse() {
+		this.repository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+		CsrfToken token = this.repository.generateToken(this.request);
+		this.repository.saveToken(token, this.request, this.response);
+
+		Cookie tokenCookie = this.response
+				.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
+
+		assertThat(tokenCookie.isHttpOnly()).isFalse();
+	}
+
+	@Test
 	public void loadTokenNoCookiesNull() {
 		assertThat(this.repository.loadToken(this.request)).isNull();
 	}
