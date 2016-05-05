@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-samples-xml-dms</artifactId>
-  <version>4.1.0.RC2</version>
+  <version>4.1.0.RELEASE</version>
   <name>spring-security-samples-xml-dms</name>
   <description>spring-security-samples-xml-dms</description>
   <url>http://spring.io/spring-security</url>
@@ -45,13 +45,13 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-acl</artifactId>
-      <version>4.1.0.RC2</version>
+      <version>4.1.0.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <version>4.1.0.RC2</version>
+      <version>4.1.0.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -92,7 +92,7 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
-      <version>4.1.0.RC2</version>
+      <version>4.1.0.RELEASE</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -141,12 +141,6 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-  <repositories>
-    <repository>
-      <id>spring-milestone</id>
-      <url>https://repo.spring.io/milestone</url>
-    </repository>
-  </repositories>
   <build>
     <plugins>
       <plugin>

@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-core</artifactId>
-  <version>4.1.0.RC2</version>
+  <version>4.1.0.RELEASE</version>
   <name>spring-security-core</name>
   <description>spring-security-core</description>
   <url>http://spring.io/spring-security</url>
@@ -275,12 +275,6 @@
       </exclusions>
     </dependency>
   </dependencies>
-  <repositories>
-    <repository>
-      <id>spring-milestone</id>
-      <url>https://repo.spring.io/milestone</url>
-    </repository>
-  </repositories>
   <build>
     <plugins>
       <plugin>
