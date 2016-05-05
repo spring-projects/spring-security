@@ -1,0 +1,12 @@
+apply from: BOOT_SAMPLE_GRADLE
+
+springBoot {
+    mainClass = 'org.springframework.security.samples.InsecureApplication'
+}
+
+dependencies {
+    compile "org.springframework.boot:spring-boot-starter-web",
+            "org.springframework.boot:spring-boot-starter-thymeleaf"
+
+    testCompile "org.springframework.boot:spring-boot-starter-test"
+}
