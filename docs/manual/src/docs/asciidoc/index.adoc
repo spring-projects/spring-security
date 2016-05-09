@@ -4897,7 +4897,7 @@ or in Java configuration
 [source,java]
 ----
 http
-		.authorizeUrls()
+		.authorizeRequests()
 				.antMatchers("/user/**").access("@webSecurity.check(authentication,request)")
 				...
 ----
@@ -4936,7 +4936,7 @@ or in Java configuration
 [source,java]
 ----
 http
-		.authorizeUrls()
+		.authorizeRequests()
 				.antMatchers("/user/{userId}/**").access("@webSecurity.checkUserId(authentication,#userId)")
 				...
 ----
