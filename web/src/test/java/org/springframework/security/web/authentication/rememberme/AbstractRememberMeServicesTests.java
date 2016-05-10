@@ -253,6 +253,8 @@ public class AbstractRememberMeServicesTests {
 	@Test
 	public void logoutShouldCancelCookie() throws Exception {
 		MockRememberMeServices services = new MockRememberMeServices(uds);
+		services.setCookieDomain("spring.io");
+		
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setContextPath("contextpath");
 		request.setCookies(createLoginCookie("cookie:1:2"));
@@ -265,6 +267,10 @@ public class AbstractRememberMeServicesTests {
 		services.logout(request, response, null);
 
 		assertCookieCancelled(response);
+		
+		Cookie returnedCookie = response.getCookie(
+				AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
+		assertThat(returnedCookie.getDomain()).isEqualTo("spring.io");
 	}
 
 	@Test(expected = CookieTheftException.class)
