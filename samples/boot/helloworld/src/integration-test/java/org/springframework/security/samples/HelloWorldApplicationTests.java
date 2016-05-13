@@ -76,7 +76,7 @@ public class HelloWorldApplicationTests {
 
 	@Test
 	public void loginUser() throws Exception {
-		this.mockMvc.perform(formLogin().user("user1").password("password1"))
+		this.mockMvc.perform(formLogin().user("user").password("password"))
 				.andExpect(authenticated());
 	}
 
@@ -89,7 +89,7 @@ public class HelloWorldApplicationTests {
 
 	@Test
 	public void loginUserAccessProtected() throws Exception {
-		MvcResult mvcResult = this.mockMvc.perform(formLogin().user("user1").password("password1"))
+		MvcResult mvcResult = this.mockMvc.perform(formLogin().user("user").password("password"))
 				.andExpect(authenticated())
 				.andReturn();
 
@@ -102,7 +102,7 @@ public class HelloWorldApplicationTests {
 
 	@Test
 	public void loginUserValidateLogout() throws Exception {
-		MvcResult mvcResult = this.mockMvc.perform(formLogin().user("user1").password("password1"))
+		MvcResult mvcResult = this.mockMvc.perform(formLogin().user("user").password("password"))
 				.andExpect(authenticated())
 				.andReturn();
 
