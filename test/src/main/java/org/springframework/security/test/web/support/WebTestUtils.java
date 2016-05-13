@@ -18,9 +18,11 @@ package org.springframework.security.test.web.support;
 import java.util.List;
 
 import javax.servlet.Filter;
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.security.config.BeanIds;
 import org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
@@ -115,18 +117,9 @@ public abstract class WebTestUtils {
 	@SuppressWarnings("unchecked")
 	static <T extends Filter> T findFilter(HttpServletRequest request,
 			Class<T> filterClass) {
-		WebApplicationContext webApplicationContext = WebApplicationContextUtils
-				.getWebApplicationContext(request.getServletContext());
-		if (webApplicationContext == null) {
-			return null;
-		}
-		Filter springSecurityFilterChain = null;
-		try {
-			springSecurityFilterChain = webApplicationContext.getBean(
-					AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME,
-					Filter.class);
-		}
-		catch (NoSuchBeanDefinitionException notFound) {
+		ServletContext servletContext = request.getServletContext();
+		Filter springSecurityFilterChain = getSpringSecurityFilterChain(servletContext);
+		if (springSecurityFilterChain == null) {
 			return null;
 		}
 		List<Filter> filters = (List<Filter>) ReflectionTestUtils
@@ -137,6 +130,26 @@ public abstract class WebTestUtils {
 		for (Filter filter : filters) {
 			if (filterClass.isAssignableFrom(filter.getClass())) {
 				return (T) filter;
+			}
+		}
+		return null;
+	}
+
+	private static Filter getSpringSecurityFilterChain(ServletContext servletContext) {
+		Filter result = (Filter) servletContext
+				.getAttribute(BeanIds.SPRING_SECURITY_FILTER_CHAIN);
+		if (result != null) {
+			return result;
+		}
+		WebApplicationContext webApplicationContext = WebApplicationContextUtils
+				.getWebApplicationContext(servletContext);
+		if (webApplicationContext != null) {
+			try {
+				return webApplicationContext.getBean(
+						AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME,
+						Filter.class);
+			}
+			catch (NoSuchBeanDefinitionException notFound) {
 			}
 		}
 		return null;

@@ -16,12 +16,15 @@
 package org.springframework.security.test.web.servlet.setup;
 
 import javax.servlet.Filter;
+import javax.servlet.ServletContext;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import org.springframework.security.config.BeanIds;
 import org.springframework.test.web.servlet.setup.ConfigurableMockMvcBuilder;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -40,6 +43,13 @@ public class SecurityMockMvcConfigurerTests {
 	private ConfigurableMockMvcBuilder<?> builder;
 	@Mock
 	private WebApplicationContext context;
+	@Mock
+	private ServletContext servletContext;
+
+	@Before
+	public void setup() {
+		when(this.context.getServletContext()).thenReturn(this.servletContext);
+	}
 
 	@Test
 	public void beforeMockMvcCreatedOverrideBean() throws Exception {
@@ -49,6 +59,8 @@ public class SecurityMockMvcConfigurerTests {
 		configurer.beforeMockMvcCreated(this.builder, this.context);
 
 		verify(this.builder).addFilters(this.filter);
+		verify(this.servletContext).setAttribute(BeanIds.SPRING_SECURITY_FILTER_CHAIN,
+				this.filter);
 	}
 
 	@Test
