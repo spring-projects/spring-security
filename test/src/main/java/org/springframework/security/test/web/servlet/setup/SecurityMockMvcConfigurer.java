@@ -68,6 +68,8 @@ final class SecurityMockMvcConfigurer extends MockMvcConfigurerAdapter {
 		}
 
 		builder.addFilters(this.springSecurityFilterChain);
+		context.getServletContext().setAttribute(BeanIds.SPRING_SECURITY_FILTER_CHAIN,
+				this.springSecurityFilterChain);
 
 		return testSecurityContext();
 	}

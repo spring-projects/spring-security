@@ -27,6 +27,7 @@ import javax.servlet.http.HttpSession;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -34,6 +35,8 @@ import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessorsCsrfTests.Config.TheController;
+import org.springframework.security.web.FilterChainProxy;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -58,6 +61,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class SecurityMockMvcRequestPostProcessorsCsrfTests {
 	@Autowired
 	WebApplicationContext wac;
+	@Autowired
+	TheController controller;
+	@Autowired
+	FilterChainProxy springSecurityFilterChain;
 
 	MockMvc mockMvc;
 
@@ -69,7 +76,20 @@ public class SecurityMockMvcRequestPostProcessorsCsrfTests {
 			.apply(springSecurity())
 			.build();
 		// @formatter:on
+	}
+
+	// gh-3881
+	@Test
+	public void csrfWithStandalone() throws Exception {
+		// @formatter:off
+		this.mockMvc = MockMvcBuilders
+				.standaloneSetup(this.controller)
+				.apply(springSecurity(this.springSecurityFilterChain))
 				.build();
+		this.mockMvc.perform(post("/").with(csrf()))
+			.andExpect(status().is2xxSuccessful())
+			.andExpect(csrfAsParam());
+		// @formatter:on
 	}
 
 	@Test
