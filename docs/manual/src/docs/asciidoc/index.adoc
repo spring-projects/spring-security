@@ -356,6 +356,11 @@ Spring Security's CAS client integration. If you want to use Spring Security web
 OpenID web authentication support. Used to authenticate users against an external OpenID server. `org.springframework.security.openid`. Requires OpenID4Java.
 
 
+[[spring-security-test]]
+===== Test - spring-security-test.jar
+Support for testing with Spring Security.
+
+
 [[get-source]]
 ==== Checking out the Source
 Since Spring Security is an Open Source project, we'd strongly encourage you to check out the source code using git. This will give you full access to all the sample applications and you can build the most up to date version of the project easily. Having the source for a project is also a huge help in debugging. Exception stack traces are no longer obscure black-box issues but you can get straight to the line that's causing the problem and work out what's happening. The source is the ultimate documentation for a project and often the simplest place to find out how something actually works.
