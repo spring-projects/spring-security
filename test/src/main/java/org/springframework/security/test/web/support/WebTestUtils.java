@@ -123,13 +123,14 @@ public abstract class WebTestUtils {
 		Filter springSecurityFilterChain = null;
 		try {
 			springSecurityFilterChain = webApplicationContext.getBean(
-					AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME, Filter.class);
+					AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME,
+					Filter.class);
 		}
 		catch (NoSuchBeanDefinitionException notFound) {
 			return null;
 		}
-		List<Filter> filters = (List<Filter>) ReflectionTestUtils.invokeMethod(
-				springSecurityFilterChain, "getFilters", request);
+		List<Filter> filters = (List<Filter>) ReflectionTestUtils
+				.invokeMethod(springSecurityFilterChain, "getFilters", request);
 		if (filters == null) {
 			return null;
 		}
