@@ -364,7 +364,9 @@ public abstract class AbstractRememberMeServices implements RememberMeServices,
 		Cookie cookie = new Cookie(cookieName, null);
 		cookie.setMaxAge(0);
 		cookie.setPath(getCookiePath(request));
-
+		if (cookieDomain != null) {
+			cookie.setDomain(cookieDomain);
+		}
 		response.addCookie(cookie);
 	}
 
