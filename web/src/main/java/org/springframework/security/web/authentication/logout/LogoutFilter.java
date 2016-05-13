@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+ * Copyright 2002-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -50,15 +52,17 @@ import org.springframework.web.filter.GenericFilterBean;
  *
  * @author Ben Alex
  */
-public class LogoutFilter extends GenericFilterBean {
+public class LogoutFilter extends GenericFilterBean implements ApplicationEventPublisherAware {
 
 	// ~ Instance fields
 	// ================================================================================================
 
 	private RequestMatcher logoutRequestMatcher;
+	private ApplicationEventPublisher applicationEventPublisher;
 
 	private final List<LogoutHandler> handlers;
 	private final LogoutSuccessHandler logoutSuccessHandler;
+
 
 	// ~ Constructors
 	// ===================================================================================================
@@ -113,13 +117,21 @@ public class LogoutFilter extends GenericFilterBean {
 				handler.logout(request, response, auth);
 			}
 
-			logoutSuccessHandler.onLogoutSuccess(request, response, auth);
+			onSuccessfulLogout(request, response, auth);
 
 			return;
 		}
 
 		chain.doFilter(request, response);
 	}
+
+	protected void onSuccessfulLogout(HttpServletRequest request, HttpServletResponse response, Authentication auth) throws IOException, ServletException {
+		if (this.applicationEventPublisher != null && auth != null) {
+			this.applicationEventPublisher.publishEvent(new LogoutSuccessEvent(auth));
+		}
+		logoutSuccessHandler.onLogoutSuccess(request, response, auth);
+	}
+
 
 	/**
 	 * Allow subclasses to modify when a logout should take place.
@@ -141,5 +153,10 @@ public class LogoutFilter extends GenericFilterBean {
 
 	public void setFilterProcessesUrl(String filterProcessesUrl) {
 		this.logoutRequestMatcher = new AntPathRequestMatcher(filterProcessesUrl);
+	}
+
+	@Override
+	public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+		this.applicationEventPublisher=applicationEventPublisher;
 	}
 }

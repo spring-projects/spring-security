@@ -16,23 +16,29 @@
 
 package org.springframework.security.web.concurrent;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 import java.util.Date;
-
 import javax.servlet.FilterChain;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.security.web.authentication.logout.LogoutSuccessEvent;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.web.session.ConcurrentSessionFilter;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests {@link ConcurrentSessionFilter}.
@@ -41,6 +47,16 @@ import org.springframework.security.web.session.ConcurrentSessionFilter;
  * @author Luke Taylor
  */
 public class ConcurrentSessionFilterTests {
+
+	@Before
+	public void setup() {
+		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("test", "test"));
+	}
+
+	@After
+	public void cleanUp() {
+		SecurityContextHolder.clearContext();
+	}
 
 	@Test
 	public void detectsExpiredSessions() throws Exception {
@@ -55,17 +71,25 @@ public class ConcurrentSessionFilterTests {
 		registry.registerNewSession(session.getId(), "principal");
 		registry.getSessionInformation(session.getId()).expireNow();
 
+		ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
+		ArgumentCaptor<LogoutSuccessEvent> captor = ArgumentCaptor.forClass(LogoutSuccessEvent.class);
+
 		// Setup our test fixture and registry to want this session to be expired
 		ConcurrentSessionFilter filter = new ConcurrentSessionFilter(registry,
 				"/expired.jsp");
 		filter.setRedirectStrategy(new DefaultRedirectStrategy());
 		filter.setLogoutHandlers(new LogoutHandler[] { new SecurityContextLogoutHandler() });
+		filter.setApplicationEventPublisher(eventPublisher);
 		filter.afterPropertiesSet();
 
 		FilterChain fc = mock(FilterChain.class);
 		filter.doFilter(request, response, fc);
 		// Expect that the filter chain will not be invoked, as we redirect to expiredUrl
 		verifyZeroInteractions(fc);
+
+		verify(eventPublisher, times(1)).publishEvent(captor.capture());
+		LogoutSuccessEvent event = captor.getValue();
+		assertThat(event.wasForcedLogout()).isTrue();
 
 		assertThat(response.getRedirectedUrl()).isEqualTo("/expired.jsp");
 	}
@@ -82,11 +106,22 @@ public class ConcurrentSessionFilterTests {
 		SessionRegistry registry = new SessionRegistryImpl();
 		registry.registerNewSession(session.getId(), "principal");
 		registry.getSessionInformation(session.getId()).expireNow();
+
+		ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
+		ArgumentCaptor<LogoutSuccessEvent> captor = ArgumentCaptor.forClass(LogoutSuccessEvent.class);
+
+
 		ConcurrentSessionFilter filter = new ConcurrentSessionFilter(registry);
+		filter.setApplicationEventPublisher(eventPublisher);
+		filter.afterPropertiesSet();
 
 		FilterChain fc = mock(FilterChain.class);
 		filter.doFilter(request, response, fc);
 		verifyZeroInteractions(fc);
+
+		verify(eventPublisher, times(1)).publishEvent(captor.capture());
+		LogoutSuccessEvent event = captor.getValue();
+		assertThat(event.wasForcedLogout()).isTrue();
 
 		assertThat(response.getContentAsString()).isEqualTo("This session has been expired (possibly due to multiple concurrent logins being "
 						+ "attempted as the same user).");
