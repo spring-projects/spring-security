@@ -6816,11 +6816,11 @@ Will output HTML that is similar to the following:
 [[mvc-csrf-resolver]]
 ==== Resolving the CsrfToken
 
-Spring Security provides `CsrfTokenResolver` which can automatically resolve the current `CsrfToken` for Spring MVC arguments.
+Spring Security provides `CsrfTokenArgumentResolver` which can automatically resolve the current `CsrfToken` for Spring MVC arguments.
 By using <<jc-hello-wsca,@EnableWebSecurity>> you will automatically have this added to your Spring MVC configuration.
 If you use XML based configuraiton, you must add this yourself.
 
-Once `CsrfTokenResolver` is properly configured, you can expose the `CsrfToken` to your static HTML based application.
+Once `CsrfTokenArgumentResolver` is properly configured, you can expose the `CsrfToken` to your static HTML based application.
 
 [source,java]
 ----
