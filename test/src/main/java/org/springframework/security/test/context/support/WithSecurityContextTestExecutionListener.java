@@ -43,9 +43,8 @@ import org.springframework.test.web.servlet.MockMvc;
  * @author Eddú Meléndez
  * @since 4.0
  */
-public class WithSecurityContextTestExecutionListener extends
-		AbstractTestExecutionListener {
-
+public class WithSecurityContextTestExecutionListener
+		extends AbstractTestExecutionListener {
 
 	/**
 	 * Sets up the {@link SecurityContext} for each test method. First the specific method
@@ -55,10 +54,11 @@ public class WithSecurityContextTestExecutionListener extends
 	 */
 	@Override
 	public void beforeTestMethod(TestContext testContext) throws Exception {
-		SecurityContext securityContext = createSecurityContext(testContext.getTestMethod(),
-				testContext);
+		SecurityContext securityContext = createSecurityContext(
+				testContext.getTestMethod(), testContext);
 		if (securityContext == null) {
-			securityContext = createSecurityContext(testContext.getTestClass(), testContext);
+			securityContext = createSecurityContext(testContext.getTestClass(),
+					testContext);
 		}
 		if (securityContext != null) {
 			TestSecurityContextHolder.setContext(securityContext);
@@ -123,7 +123,8 @@ public class WithSecurityContextTestExecutionListener extends
 		Class<? extends WithSecurityContextFactory<? extends Annotation>> clazz = withSecurityContext
 				.factory();
 		try {
-			return testContext.getApplicationContext().getAutowireCapableBeanFactory().createBean(clazz);
+			return testContext.getApplicationContext().getAutowireCapableBeanFactory()
+					.createBean(clazz);
 		}
 		catch (IllegalStateException e) {
 			return BeanUtils.instantiateClass(clazz);
