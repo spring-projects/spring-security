@@ -65,45 +65,40 @@ public class WithSecurityContextTestExecutionListener extends
 		}
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private SecurityContext createSecurityContext(AnnotatedElement annotated,
 			TestContext context) {
-		WithSecurityContext withSecurityContext = AnnotationUtils.findAnnotation(
-				annotated, WithSecurityContext.class);
-		if (withSecurityContext != null) {
-			WithSecurityContextFactory factory = createFactory(withSecurityContext, context);
-			Class<? extends Annotation> type = (Class<? extends Annotation>) GenericTypeResolver.resolveTypeArgument(factory.getClass(), WithSecurityContextFactory.class);
-			Annotation annotation = findAnnotation(annotated, type);
-			try {
-				return factory.createSecurityContext(annotation);
-			}
-			catch (RuntimeException e) {
-				throw new IllegalStateException(
-						"Unable to create SecurityContext using " + annotation, e);
-			}
-		}
-		return null;
+		WithSecurityContext withSecurityContext = AnnotationUtils
+				.findAnnotation(annotated, WithSecurityContext.class);
+		return createSecurityContext(annotated, withSecurityContext, context);
+	}
+
+	private SecurityContext createSecurityContext(Class<?> annotated,
+			TestContext context) {
+		MetaAnnotationUtils.AnnotationDescriptor<WithSecurityContext> withSecurityContextDescriptor = MetaAnnotationUtils
+				.findAnnotationDescriptor(annotated, WithSecurityContext.class);
+		WithSecurityContext withSecurityContext = withSecurityContextDescriptor == null
+				? null : withSecurityContextDescriptor.getAnnotation();
+		return createSecurityContext(annotated, withSecurityContext, context);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private SecurityContext createSecurityContext(Class<?> annotated,
-		TestContext context) {
-		MetaAnnotationUtils.AnnotationDescriptor<WithSecurityContext>
-				withSecurityContext = MetaAnnotationUtils.findAnnotationDescriptor(
-				annotated, WithSecurityContext.class);
-		if (withSecurityContext != null) {
-			WithSecurityContextFactory factory = createFactory(withSecurityContext.getAnnotation(), context);
-			Class<? extends Annotation> type = (Class<? extends Annotation>) GenericTypeResolver.resolveTypeArgument(factory.getClass(), WithSecurityContextFactory.class);
-			Annotation annotation = findAnnotation(annotated, type);
-			try {
-				return factory.createSecurityContext(annotation);
-			}
-			catch (RuntimeException e) {
-				throw new IllegalStateException(
-						"Unable to create SecurityContext using " + annotation, e);
-			}
+	private SecurityContext createSecurityContext(AnnotatedElement annotated,
+			WithSecurityContext withSecurityContext, TestContext context) {
+		if (withSecurityContext == null) {
+			return null;
 		}
-		return null;
+		WithSecurityContextFactory factory = createFactory(withSecurityContext, context);
+		Class<? extends Annotation> type = (Class<? extends Annotation>) GenericTypeResolver
+				.resolveTypeArgument(factory.getClass(),
+						WithSecurityContextFactory.class);
+		Annotation annotation = findAnnotation(annotated, type);
+		try {
+			return factory.createSecurityContext(annotation);
+		}
+		catch (RuntimeException e) {
+			throw new IllegalStateException(
+					"Unable to create SecurityContext using " + annotation, e);
+		}
 	}
 
 	private Annotation findAnnotation(AnnotatedElement annotated,
