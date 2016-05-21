@@ -103,7 +103,7 @@ public abstract class WebSecurityConfigurerAdapter implements
 	 * enabled. Disabling the default configuration should be considered more advanced
 	 * usage as it requires more understanding of how the framework is implemented.
 	 *
-	 * @param disableDefaults true if the default configuration should be enabled, else
+	 * @param disableDefaults true if the default configuration should be disabled, else
 	 * false
 	 */
 	protected WebSecurityConfigurerAdapter(boolean disableDefaults) {
