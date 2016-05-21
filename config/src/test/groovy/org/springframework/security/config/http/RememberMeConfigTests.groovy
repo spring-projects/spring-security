@@ -101,7 +101,7 @@ class RememberMeConfigTests extends AbstractHttpConfigTests {
 
 		createAppContext(AUTH_PROVIDER_XML)
 
-		List logoutHandlers = FieldUtils.getFieldValue(getFilter(LogoutFilter.class), "handlers");
+		List logoutHandlers = FieldUtils.getFieldValue(getFilter(LogoutFilter.class), "handler").logoutHandlers;
 		Map ams = appContext.getBeansOfType(ProviderManager.class);
 		ProviderManager am = (ams.values() as List).find { it instanceof ProviderManager && it.providers.size() == 2}
 		RememberMeAuthenticationProvider rmp = am.providers.find { it instanceof RememberMeAuthenticationProvider}
@@ -124,7 +124,7 @@ class RememberMeConfigTests extends AbstractHttpConfigTests {
 		createAppContext(AUTH_PROVIDER_XML)
 
 		def rememberMeServices = rememberMeServices()
-		List logoutHandlers = getFilter(LogoutFilter.class).handlers
+		List logoutHandlers = getFilter(LogoutFilter.class).handler.logoutHandlers
 
 		expect:
 		rememberMeServices

@@ -419,7 +419,7 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
 			'form-login'()
 		}
 		createAppContext()
-		def handlers = getFilter(LogoutFilter).handlers
+		def handlers = getFilter(LogoutFilter).handler.logoutHandlers
 
 		expect:
 		handlers[2] instanceof CookieClearingLogoutHandler
