@@ -17,8 +17,6 @@
 package org.springframework.security.web.authentication.logout;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -49,6 +47,7 @@ import org.springframework.web.filter.GenericFilterBean;
  * which constructor was used.
  *
  * @author Ben Alex
+ * @author Eddú Meléndez
  */
 public class LogoutFilter extends GenericFilterBean {
 
@@ -57,7 +56,7 @@ public class LogoutFilter extends GenericFilterBean {
 
 	private RequestMatcher logoutRequestMatcher;
 
-	private final List<LogoutHandler> handlers;
+	private LogoutHandler handler;
 	private final LogoutSuccessHandler logoutSuccessHandler;
 
 	// ~ Constructors
@@ -71,16 +70,14 @@ public class LogoutFilter extends GenericFilterBean {
 	 */
 	public LogoutFilter(LogoutSuccessHandler logoutSuccessHandler,
 			LogoutHandler... handlers) {
-		Assert.notEmpty(handlers, "LogoutHandlers are required");
-		this.handlers = Arrays.asList(handlers);
+		this.handler = new CompositeLogoutHandler(handlers);
 		Assert.notNull(logoutSuccessHandler, "logoutSuccessHandler cannot be null");
 		this.logoutSuccessHandler = logoutSuccessHandler;
 		setFilterProcessesUrl("/logout");
 	}
 
 	public LogoutFilter(String logoutSuccessUrl, LogoutHandler... handlers) {
-		Assert.notEmpty(handlers, "LogoutHandlers are required");
-		this.handlers = Arrays.asList(handlers);
+		this.handler = new CompositeLogoutHandler(handlers);
 		Assert.isTrue(
 				!StringUtils.hasLength(logoutSuccessUrl)
 						|| UrlUtils.isValidRedirectUrl(logoutSuccessUrl),
@@ -109,9 +106,7 @@ public class LogoutFilter extends GenericFilterBean {
 						+ "' and transferring to logout destination");
 			}
 
-			for (LogoutHandler handler : handlers) {
-				handler.logout(request, response, auth);
-			}
+			this.handler.logout(request, response, auth);
 
 			logoutSuccessHandler.onLogoutSuccess(request, response, auth);
 
