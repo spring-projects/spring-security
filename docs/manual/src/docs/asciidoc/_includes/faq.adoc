@@ -81,6 +81,7 @@ From a Spring Security perspective, the first thing you should do is follow the 
 .. <<appendix-faq-no-security-on-forward>>
 .. <<appendix-faq-method-security-in-web-context>>
 .. <<appendix-faq-no-filters-no-context>>
+.. <<appendix-faq-method-security-with-taglib>>
 
 [[appendix-faq-bad-credentials]]
 ==== When I try to log in, I get an error message that says "Bad Credentials". What's wrong?
@@ -238,6 +239,10 @@ Generally we would recommend applying method security at the service layer rathe
 
 If you have excluded the request from the security filter chain using the attribute `filters='none'` in the `<intercept-url>` element that matches the URL pattern, then the `SecurityContextHolder` will not be populated for that request. Check the debug log to see whether the request is passing through the filter chain. (You are reading the debug log, right?).
 
+[[appendix-faq-method-security-with-taglib]]
+==== The authorize JSP Tag doesn't respect my method security annotations when using a the URL attribute.
+
+Method security will not hide links when using the `url` attribute in `<sec:authorize>` because we cannot readily reverse engineer what URL is mapped to what controller endpoint as controllers can rely on headers, current user, etc to determine what method to invoke.
 
 [[appendix-faq-architecture]]
 === Spring Security Architecture Questions
