@@ -18,8 +18,6 @@ project('manual') {
 
 	asciidoctor {
 		backends = ['docbook5']
-		def ghTag = snapshotBuild ? 'master' : project.version
-		def ghUrl = "https://github.com/spring-projects/spring-security/tree/$ghTag"
 		options = [
 		  eruby: 'erubis',
 		  attributes: [
@@ -35,8 +33,6 @@ project('manual') {
 			  'spring-security-version' : project.version,
 			  'spring-version' : springVersion,
 			  revnumber : project.version,
-			  'gh-url': ghUrl,
-			  'gh-samples-url': "$ghUrl/samples",
 			  docinfo : ""
 		  ]
 		]

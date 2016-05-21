@@ -15,13 +15,13 @@
  */
 package org.springframework.security.test.web.servlet.setup;
 
-import javax.servlet.Filter;
-
 import org.springframework.security.config.BeanIds;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.setup.ConfigurableMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcConfigurerAdapter;
 import org.springframework.web.context.WebApplicationContext;
+
+import javax.servlet.Filter;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.testSecurityContext;
 
@@ -54,22 +54,18 @@ final class SecurityMockMvcConfigurer extends MockMvcConfigurerAdapter {
 	public RequestPostProcessor beforeMockMvcCreated(
 			ConfigurableMockMvcBuilder<?> builder, WebApplicationContext context) {
 		String securityBeanId = BeanIds.SPRING_SECURITY_FILTER_CHAIN;
-		if (this.springSecurityFilterChain == null
-				&& context.containsBean(securityBeanId)) {
-			this.springSecurityFilterChain = context.getBean(securityBeanId,
-					Filter.class);
+		if (springSecurityFilterChain == null && context.containsBean(securityBeanId)) {
+			springSecurityFilterChain = context.getBean(securityBeanId, Filter.class);
 		}
 
-		if (this.springSecurityFilterChain == null) {
+		if (springSecurityFilterChain == null) {
 			throw new IllegalStateException(
 					"springSecurityFilterChain cannot be null. Ensure a Bean with the name "
 							+ securityBeanId
 							+ " implementing Filter is present or inject the Filter to be used.");
 		}
 
-		builder.addFilters(this.springSecurityFilterChain);
-		context.getServletContext().setAttribute(BeanIds.SPRING_SECURITY_FILTER_CHAIN,
-				this.springSecurityFilterChain);
+		builder.addFilters(springSecurityFilterChain);
 
 		return testSecurityContext();
 	}

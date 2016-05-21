@@ -9,4 +9,4 @@ logging:
 
 spring:
   thymeleaf:
-    cache: false
+    cache: true

@@ -15,12 +15,12 @@
  */
 package org.springframework.security.crypto.bcrypt;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
 import java.security.SecureRandom;
 import java.util.regex.Pattern;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * Implementation of PasswordEncoder that uses the BCrypt strong hashing function. Clients
@@ -45,21 +45,18 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 	}
 
 	/**
-	 * @param strength the log rounds to use, between 4 and 31
+	 * @param strength the log rounds to use
 	 */
 	public BCryptPasswordEncoder(int strength) {
 		this(strength, null);
 	}
 
 	/**
-	 * @param strength the log rounds to use, between 4 and 31
+	 * @param strength the log rounds to use
 	 * @param random the secure random instance to use
 	 *
 	 */
 	public BCryptPasswordEncoder(int strength, SecureRandom random) {
-		if (strength != -1 && (strength < BCrypt.MIN_LOG_ROUNDS || strength > BCrypt.MAX_LOG_ROUNDS)) {
-			throw new IllegalArgumentException("Bad strength");
-		}
 		this.strength = strength;
 		this.random = random;
 	}

@@ -356,11 +356,6 @@ Spring Security's CAS client integration. If you want to use Spring Security web
 OpenID web authentication support. Used to authenticate users against an external OpenID server. `org.springframework.security.openid`. Requires OpenID4Java.
 
 
-[[spring-security-test]]
-===== Test - spring-security-test.jar
-Support for testing with Spring Security.
-
-
 [[get-source]]
 ==== Checking out the Source
 Since Spring Security is an Open Source project, we'd strongly encourage you to check out the source code using git. This will give you full access to all the sample applications and you can build the most up to date version of the project easily. Having the source for a project is also a huge help in debugging. Exception stack traces are no longer obscure black-box issues but you can get straight to the line that's causing the problem and work out what's happening. The source is the ultimate documentation for a project and often the simplest place to find out how something actually works.
@@ -413,37 +408,6 @@ Here is the list of improvements:
 === General Improvements
 * Re-organization of sample projects
 * Moved to GitHub issues
-
-[[samples]]
-== Samples and Guides (Start Here)
-
-If you are looking to get started with Spring Security, the best place to start is our Sample Applications.
-
-.Sample Applications
-|===
-| Source | Description | Guide
-
-| {gh-samples-url}/javaconfig/helloworld[Hello Spring Security]
-| Demonstrates how to integrate Spring Security with an existing application using Java-based configuration.
-| link:../../guides/html5/helloworld-javaconfig.html[Hello Spring Security Guide]
-
-| {gh-samples-url}/boot/helloworld[Hello Spring Security Boot]
-| Demonstrates how to integrate Spring Security with an existing Spring Boot application.
-| link:../../guides/html5/helloworld-boot.html[Hello Spring Security Boot Guide]
-
-| {gh-samples-url}/xml/helloworld[Hello Spring Security XML]
-| Demonstrates how to integrate Spring Security with an existing application using XML-based configuration.
-| link:../../guides/html5/helloworld-xml.html[Hello Spring Security XML Guide]
-
-| {gh-samples-url}/javaconfig/hellomvc[Hello Spring MVC Security]
-| Demonstrates how to integrate Spring Security with an existing Spring MVC application.
-| link:../../guides/html5/hellomvc-javaconfig.html[Hello Spring MVC Security Guide]
-
-| {gh-samples-url}/javaconfig/form[Custom Login Form]
-| Demonstrates how to create a custom login form.
-| link:../../guides/html5/form-javaconfig.html[Custom Login Form Guide]
-
-|===
 
 [[jc]]
 == Java Configuration
@@ -6816,11 +6780,11 @@ Will output HTML that is similar to the following:
 [[mvc-csrf-resolver]]
 ==== Resolving the CsrfToken
 
-Spring Security provides `CsrfTokenArgumentResolver` which can automatically resolve the current `CsrfToken` for Spring MVC arguments.
+Spring Security provides `CsrfTokenResolver` which can automatically resolve the current `CsrfToken` for Spring MVC arguments.
 By using <<jc-hello-wsca,@EnableWebSecurity>> you will automatically have this added to your Spring MVC configuration.
 If you use XML based configuraiton, you must add this yourself.
 
-Once `CsrfTokenArgumentResolver` is properly configured, you can expose the `CsrfToken` to your static HTML based application.
+Once `CsrfTokenResolver` is properly configured, you can expose the `CsrfToken` to your static HTML based application.
 
 [source,java]
 ----

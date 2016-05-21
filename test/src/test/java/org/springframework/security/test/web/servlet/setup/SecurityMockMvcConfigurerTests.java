@@ -15,18 +15,14 @@
  */
 package org.springframework.security.test.web.servlet.setup;
 
-import javax.servlet.Filter;
-import javax.servlet.ServletContext;
-
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import org.springframework.security.config.BeanIds;
 import org.springframework.test.web.servlet.setup.ConfigurableMockMvcBuilder;
 import org.springframework.web.context.WebApplicationContext;
+
+import javax.servlet.Filter;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -40,27 +36,18 @@ public class SecurityMockMvcConfigurerTests {
 	@Mock
 	private Filter beanFilter;
 	@Mock
-	private ConfigurableMockMvcBuilder<?> builder;
+	private ConfigurableMockMvcBuilder builder;
 	@Mock
 	private WebApplicationContext context;
-	@Mock
-	private ServletContext servletContext;
-
-	@Before
-	public void setup() {
-		when(this.context.getServletContext()).thenReturn(this.servletContext);
-	}
 
 	@Test
 	public void beforeMockMvcCreatedOverrideBean() throws Exception {
 		returnFilterBean();
-		SecurityMockMvcConfigurer configurer = new SecurityMockMvcConfigurer(this.filter);
+		SecurityMockMvcConfigurer configurer = new SecurityMockMvcConfigurer(filter);
 
-		configurer.beforeMockMvcCreated(this.builder, this.context);
+		configurer.beforeMockMvcCreated(builder, context);
 
-		verify(this.builder).addFilters(this.filter);
-		verify(this.servletContext).setAttribute(BeanIds.SPRING_SECURITY_FILTER_CHAIN,
-				this.filter);
+		verify(builder).addFilters(filter);
 	}
 
 	@Test
@@ -68,30 +55,29 @@ public class SecurityMockMvcConfigurerTests {
 		returnFilterBean();
 		SecurityMockMvcConfigurer configurer = new SecurityMockMvcConfigurer();
 
-		configurer.beforeMockMvcCreated(this.builder, this.context);
+		configurer.beforeMockMvcCreated(builder, context);
 
-		verify(this.builder).addFilters(this.beanFilter);
+		verify(builder).addFilters(beanFilter);
 	}
 
 	@Test
 	public void beforeMockMvcCreatedNoBean() throws Exception {
-		SecurityMockMvcConfigurer configurer = new SecurityMockMvcConfigurer(this.filter);
+		SecurityMockMvcConfigurer configurer = new SecurityMockMvcConfigurer(filter);
 
-		configurer.beforeMockMvcCreated(this.builder, this.context);
+		configurer.beforeMockMvcCreated(builder, context);
 
-		verify(this.builder).addFilters(this.filter);
+		verify(builder).addFilters(filter);
 	}
 
 	@Test(expected = IllegalStateException.class)
 	public void beforeMockMvcCreatedNoFilter() throws Exception {
 		SecurityMockMvcConfigurer configurer = new SecurityMockMvcConfigurer();
 
-		configurer.beforeMockMvcCreated(this.builder, this.context);
+		configurer.beforeMockMvcCreated(builder, context);
 	}
 
 	private void returnFilterBean() {
-		when(this.context.containsBean(anyString())).thenReturn(true);
-		when(this.context.getBean(anyString(), eq(Filter.class)))
-				.thenReturn(this.beanFilter);
+		when(context.containsBean(anyString())).thenReturn(true);
+		when(context.getBean(anyString(), eq(Filter.class))).thenReturn(beanFilter);
 	}
 }
