@@ -33,6 +33,7 @@ import org.springframework.security.authentication.AuthenticationTrustResolverIm
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.authentication.logout.CompositeLogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
@@ -71,6 +72,7 @@ import org.springframework.web.filter.GenericFilterBean;
  * @author Ben Alex
  * @author Luke Taylor
  * @author Rob Winch
+ * @author Eddú Meléndez
  */
 public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
 	// ~ Instance fields
@@ -84,7 +86,7 @@ public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
 
 	private AuthenticationManager authenticationManager;
 
-	private List<LogoutHandler> logoutHandlers;
+	private CompositeLogoutHandler compositeLogoutHandler;
 
 	private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
 
@@ -161,7 +163,7 @@ public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
 	 * @throws IllegalStateException if the Servlet 3 APIs are not found on the classpath
 	 */
 	public void setLogoutHandlers(List<LogoutHandler> logoutHandlers) {
-		this.logoutHandlers = logoutHandlers;
+		this.compositeLogoutHandler = new CompositeLogoutHandler(logoutHandlers);
 	}
 
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
@@ -199,7 +201,9 @@ public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
 		factory.setTrustResolver(this.trustResolver);
 		factory.setAuthenticationEntryPoint(this.authenticationEntryPoint);
 		factory.setAuthenticationManager(this.authenticationManager);
-		factory.setLogoutHandlers(this.logoutHandlers);
+		if (this.compositeLogoutHandler != null) {
+			factory.setLogoutHandlers(this.compositeLogoutHandler.getLogoutHandlers());
+		}
 		return factory;
 	}
 

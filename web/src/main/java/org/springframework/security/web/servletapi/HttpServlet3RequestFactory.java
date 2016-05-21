@@ -42,6 +42,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.authentication.logout.CompositeLogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.util.Assert;
 
@@ -67,6 +68,7 @@ import org.springframework.util.Assert;
  * </ul>
  *
  * @author Rob Winch
+ * @author Eddú Meléndez
  *
  * @see SecurityContextHolderAwareRequestFilter
  * @see HttpServlet25RequestFactory
@@ -80,7 +82,7 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 	private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
 	private AuthenticationEntryPoint authenticationEntryPoint;
 	private AuthenticationManager authenticationManager;
-	private List<LogoutHandler> logoutHandlers;
+	private CompositeLogoutHandler compositeLogoutHandler;
 
 	HttpServlet3RequestFactory(String rolePrefix) {
 		this.rolePrefix = rolePrefix;
@@ -144,7 +146,7 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 	 * {@link HttpServletRequest#logout()}.
 	 */
 	public void setLogoutHandlers(List<LogoutHandler> logoutHandlers) {
-		this.logoutHandlers = logoutHandlers;
+		this.compositeLogoutHandler = new CompositeLogoutHandler(logoutHandlers);
 	}
 
 	/**
@@ -244,7 +246,8 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 
 		@Override
 		public void logout() throws ServletException {
-			List<LogoutHandler> handlers = HttpServlet3RequestFactory.this.logoutHandlers;
+			List<LogoutHandler> handlers = HttpServlet3RequestFactory.this
+					.compositeLogoutHandler.getLogoutHandlers();
 			if (handlers == null) {
 				HttpServlet3RequestFactory.this.logger.debug(
 						"logoutHandlers is null, so allowing original HttpServletRequest to handle logout");
