@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,6 +55,7 @@ import org.springframework.security.web.session.SessionManagementFilter
  *
  * @author Luke Taylor
  * @author Rob Winch
+ * @author Eddú Meléndez
  */
 class SessionManagementConfigTests extends AbstractHttpConfigTests {
 
@@ -169,8 +170,8 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
 		getFilter(SessionManagementFilter.class) != null
 		sessionRegistryIsValid();
 
-		concurrentSessionFilter.handlers.size() == 1
-		def logoutHandler = concurrentSessionFilter.handlers[0]
+		concurrentSessionFilter.compositeLogoutHandler.logoutHandlers.size() == 1
+		def logoutHandler = concurrentSessionFilter.compositeLogoutHandler.logoutHandlers.get(0)
 		logoutHandler instanceof SecurityContextLogoutHandler
 		logoutHandler.invalidateHttpSession
 
@@ -190,7 +191,7 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
 
 		List filters = getFilters("/someurl")
 		ConcurrentSessionFilter concurrentSessionFilter = filters.get(1)
-		def logoutHandlers = concurrentSessionFilter.handlers
+		def logoutHandlers = concurrentSessionFilter.compositeLogoutHandler.logoutHandlers
 
 		then: 'ConcurrentSessionFilter contains the customized LogoutHandlers'
 		logoutHandlers.size() == 3
@@ -216,7 +217,7 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
 
 		List filters = getFilters("/someurl")
 		ConcurrentSessionFilter concurrentSessionFilter = filters.get(1)
-		def logoutHandlers = concurrentSessionFilter.handlers
+		def logoutHandlers = concurrentSessionFilter.compositeLogoutHandler.logoutHandlers
 
 		then: 'SecurityContextLogoutHandler and RememberMeServices are in ConcurrentSessionFilter logoutHandlers'
 		!filters.find { it instanceof LogoutFilter }
@@ -238,7 +239,7 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
 
 		List filters = getFilters("/someurl")
 		ConcurrentSessionFilter concurrentSessionFilter = filters.get(1)
-		def logoutHandlers = concurrentSessionFilter.handlers
+		def logoutHandlers = concurrentSessionFilter.compositeLogoutHandler.logoutHandlers
 
 		then: 'Only SecurityContextLogoutHandler is found in ConcurrentSessionFilter logoutHandlers'
 		!filters.find { it instanceof LogoutFilter }
