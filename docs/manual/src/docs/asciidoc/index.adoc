@@ -7597,7 +7597,7 @@ If disabled, the X-Frame-Options header will not be included. Default false.
 * **policy**
 ** `DENY` The page cannot be displayed in a frame, regardless of the site attempting to do so. This is the default when frame-options-policy is specified.
 ** `SAMEORIGIN` The page can only be displayed in a frame on the same origin as the page itself
-** `ALLOW-FROM` <<nsa-frame-options-origin,origin>> The page can only be displayed in a frame on the specified origin.
+** `ALLOW-FROM origin` The page can only be displayed in a frame on the specified origin.
 
 +
 
