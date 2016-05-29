@@ -1357,7 +1357,7 @@ If you want to use a database, then you can use
 </authentication-manager>
 ----
 
-Where "securityDataSource" is the name of a `DataSource` bean in the application context, pointing at a database containing the standard Spring Security <<db_schema_users_authorities,user data tables>>. Alternatively, you could configure a Spring Security `JdbcDaoImpl` bean and point at that using the `user-service-ref` attribute:
+Where "securityDataSource" is the name of a `DataSource` bean in the application context, pointing at a database containing the standard Spring Security <<user-schema,user data tables>>. Alternatively, you could configure a Spring Security `JdbcDaoImpl` bean and point at that using the `user-service-ref` attribute:
 
 [source,xml]
 ----
