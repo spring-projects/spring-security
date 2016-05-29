@@ -3328,7 +3328,7 @@ The last step is to ensure that you include the CSRF token in all PATCH, POST, P
 </form>
 ----
 
-An easier approach is to use <<the-csrfInput-tag,the csrfInput tag>> from the Spring Security JSP tag library.
+An easier approach is to use <<the-csrfinput-tag,the csrfInput tag>> from the Spring Security JSP tag library.
 
 [NOTE]
 ====
