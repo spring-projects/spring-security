@@ -164,10 +164,6 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	@Override
 	public void afterPropertiesSet() {
 		Assert.notNull(authenticationManager, "authenticationManager must be specified");
-
-		if (rememberMeServices == null) {
-			rememberMeServices = new NullRememberMeServices();
-		}
 	}
 
 	/**
