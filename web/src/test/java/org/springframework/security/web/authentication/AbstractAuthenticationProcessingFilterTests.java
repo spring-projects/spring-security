@@ -418,6 +418,15 @@ public class AbstractAuthenticationProcessingFilterTests {
 		assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 	}
 
+	/**
+	 * https://github.com/spring-projects/spring-security/pull/3905
+	 */
+	@Test(expected = IllegalArgumentException.class)
+	public void setRememberMeServicesShouldntAllowNulls() {
+		AbstractAuthenticationProcessingFilter filter = new MockAuthenticationFilter();
+		filter.setRememberMeServices(null);
+	}
+
 	// ~ Inner Classes
 	// ==================================================================================================
 
