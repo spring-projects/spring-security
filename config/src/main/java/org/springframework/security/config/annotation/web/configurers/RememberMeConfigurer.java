@@ -79,12 +79,13 @@ import org.springframework.security.web.authentication.ui.DefaultLoginPageGenera
  */
 public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 		extends AbstractHttpConfigurer<RememberMeConfigurer<H>, H> {
+	public static final String REMEMBER_ME = "remember-me";
 	private AuthenticationSuccessHandler authenticationSuccessHandler;
 	private String key;
 	private RememberMeServices rememberMeServices;
 	private LogoutHandler logoutHandler;
-	private String rememberMeParameter = "remember-me";
-	private String rememberMeCookieName = "remember-me";
+	private String rememberMeParameter = REMEMBER_ME;
+	private String rememberMeCookieName = REMEMBER_ME;
 	private String rememberMeCookieDomain;
 	private PersistentTokenRepository tokenRepository;
 	private UserDetailsService userDetailsService;
@@ -244,6 +245,7 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 	@SuppressWarnings("unchecked")
 	@Override
 	public void init(H http) throws Exception {
+		validateInput();
 		String key = getKey();
 		RememberMeServices rememberMeServices = getRememberMeServices(http, key);
 		http.setSharedObject(RememberMeServices.class, rememberMeServices);
@@ -271,6 +273,17 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 		}
 		rememberMeFilter = postProcess(rememberMeFilter);
 		http.addFilter(rememberMeFilter);
+	}
+
+	/**
+	 * Validate rememberMeServices and rememberMeCookieName have not been set at
+	 * the same time.
+	 */
+	private void validateInput() {
+		if (this.rememberMeServices != null && this.rememberMeCookieName != REMEMBER_ME) {
+			throw new IllegalArgumentException("Can not set rememberMeCookieName " +
+					"and custom rememberMeServices.");
+		}
 	}
 
 	/**
