@@ -30,6 +30,7 @@ import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
+
 /**
  * Tests for {@link BindAuthenticator}.
  *
@@ -90,7 +91,9 @@ public class BindAuthenticatorTests extends AbstractLdapIntegrationTests {
 		this.authenticator.setUserSearch(new FilterBasedLdapUserSearch("ou=people",
 				"(uid={0})", getContextSource()));
 		this.authenticator.afterPropertiesSet();
-		this.authenticator.authenticate(this.bob);
+		DirContextOperations result = this.authenticator.authenticate(this.bob);
+		//ensure we are getting the same attributes back
+		assertThat(result.getStringAttribute("cn")).isEqualTo("Bob Hamilton");
 		// SEC-1444
 		this.authenticator.setUserSearch(new FilterBasedLdapUserSearch("ou=people",
 				"(cn={0})", getContextSource()));
