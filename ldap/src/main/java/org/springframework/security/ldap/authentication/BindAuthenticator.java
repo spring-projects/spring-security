@@ -16,9 +16,6 @@
 
 package org.springframework.security.ldap.authentication;
 
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.ldap.NamingException;
@@ -34,6 +31,9 @@ import org.springframework.security.ldap.ppolicy.PasswordPolicyControl;
 import org.springframework.security.ldap.ppolicy.PasswordPolicyControlExtractor;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
 
 /**
  * An authenticator which binds as a user.
@@ -93,7 +93,8 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 		// with the returned DN.
 		if (user == null && getUserSearch() != null) {
 			DirContextOperations userFromSearch = getUserSearch().searchForUser(username);
-			user = bindWithDn(userFromSearch.getDn().toString(), username, password);
+			user = bindWithDn(userFromSearch.getDn().toString(), username, password,
+					userFromSearch.getAttributes());
 		}
 
 		if (user == null) {
@@ -106,6 +107,11 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 
 	private DirContextOperations bindWithDn(String userDnStr, String username,
 			String password) {
+		return bindWithDn(userDnStr, username, password, null);
+	}
+
+	private DirContextOperations bindWithDn(String userDnStr, String username,
+			String password, Attributes attrs) {
 		BaseLdapPathContextSource ctxSource = (BaseLdapPathContextSource) getContextSource();
 		DistinguishedName userDn = new DistinguishedName(userDnStr);
 		DistinguishedName fullDn = new DistinguishedName(userDn);
@@ -121,8 +127,9 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 					.extractControl(ctx);
 
 			logger.debug("Retrieving attributes...");
-
-			Attributes attrs = ctx.getAttributes(userDn, getUserAttributes());
+			if (attrs == null || attrs.size()==0) {
+				attrs = ctx.getAttributes(userDn, getUserAttributes());
+			}
 
 			DirContextAdapter result = new DirContextAdapter(attrs, userDn,
 					ctxSource.getBaseLdapPath());
