@@ -32,17 +32,9 @@ Is there already an issue that addresses your concern? Do a bit of searching in 
 If you're considering anything more than correcting a typo or fixing a minor bug , please discuss it on the [Spring Security Gitter](https://gitter.im/spring-projects/spring-security) before submitting a pull request. We're happy to provide guidance but please spend an hour or two researching the subject on your own including searching the forums for prior discussions.
 
 # Sign the Contributor License Agreement
-If you have not previously done so, please fill out and submit the [SpringSource CLA form](https://support.springsource.com/spring_committer_signup). You'll receive a token when this process is complete. Keep track of this, you may be asked for it later!
 
-* For **Project** select _Spring Security_
-* For **Project Lead** enter _Rob Winch_
-* Note that emailing/postal mailing a signed copy is not necessary. Submission of the web form is all that is required.
-
-When you've completed the web form, simply add the following in a comment on your pull request:
-
-> I have signed and agree to the terms of the SpringSource Individual Contributor License Agreement.
-
-You do not need to include your token/id. Please add the statement above to all future pull requests as well, simply so the Spring Security team knows immediately that this process is complete.
+If you have not previously done so, please fill out and
+submit the [Contributor License Agreement](https://cla.pivotal.io/sign/spring).
 
 # Create your branch from master
 Create your topic branch to be submitted as a pull request from master. The Spring team will consider your pull request for backporting on a case-by-case basis; you don't need to worry about submitting anything for backporting.
