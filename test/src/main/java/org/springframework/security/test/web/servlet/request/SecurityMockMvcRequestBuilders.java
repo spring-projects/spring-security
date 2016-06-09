@@ -20,6 +20,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 import javax.servlet.ServletContext;
 
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.test.web.servlet.MockMvc;
@@ -118,10 +119,13 @@ public final class SecurityMockMvcRequestBuilders {
 		private String username = "user";
 		private String password = "password";
 		private String loginProcessingUrl = "/login";
+		private MediaType acceptMediaType = MediaType.APPLICATION_FORM_URLENCODED;
+
 		private RequestPostProcessor postProcessor = csrf();
 
 		public MockHttpServletRequest buildRequest(ServletContext servletContext) {
 			MockHttpServletRequest request = post(loginProcessingUrl)
+					.accept(acceptMediaType)
 					.param(usernameParam, username).param(passwordParam, password)
 					.buildRequest(servletContext);
 			return postProcessor.postProcessRequest(request);
@@ -207,6 +211,18 @@ public final class SecurityMockMvcRequestBuilders {
 			this.username = username;
 			return this;
 		}
+
+        /**
+         * Specify a media type to to set as the Accept header in the request.
+         *
+         * @param acceptMediaType the {@link MediaType} to set the Accept header to.
+         * Default is: MediaType.APPLICATION_FORM_URLENCODED
+         * @return the {@link FormLoginRequestBuilder} for additional customizations
+         */
+        public FormLoginRequestBuilder acceptMediaType(MediaType acceptMediaType) {
+            this.acceptMediaType = acceptMediaType;
+            return this;
+        }
 
 		private FormLoginRequestBuilder() {
 		}
