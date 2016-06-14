@@ -197,4 +197,21 @@ class LogoutConfigurerTests extends BaseSpringSpec {
 	@EnableWebSecurity
 	static class LogoutHandlerContentNegotiation extends WebSecurityConfigurerAdapter {
 	}
+	// gh-3902
+	def "logout in chrome is 302"() {
+		setup:
+		loadConfig(LogoutHandlerContentNegotiationForChrome)
+		when:
+		login()
+		request.method = 'POST'
+		request.servletPath = '/logout'
+		request.addHeader('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8')
+		springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+		response.status == 302
+	}
+
+	@EnableWebSecurity
+	static class LogoutHandlerContentNegotiationForChrome extends WebSecurityConfigurerAdapter {
+	}
 }
