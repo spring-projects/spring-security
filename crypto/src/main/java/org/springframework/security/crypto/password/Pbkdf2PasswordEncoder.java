@@ -101,7 +101,7 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 	}
 
 	private byte[] encodeAndConcatenate(CharSequence rawPassword, byte[] salt) {
-		return concatenate(salt, encode(rawPassword, salt));
+		return encode(rawPassword, salt);
 	}
 
 	/**
