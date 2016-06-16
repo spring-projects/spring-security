@@ -107,6 +107,8 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends
 	private final String url;
 	private boolean convertSubErrorCodesToExceptions;
 	private String searchFilter = "(&(objectClass=user)(userPrincipalName={0}))";
+	private String bindUser;
+	private String bindPassword;
 
 	// Only used to allow tests to substitute a mock LdapContext
 	ContextFactory contextFactory = new ContextFactory();
@@ -141,10 +143,25 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends
 		String username = auth.getName();
 		String password = (String) auth.getCredentials();
 
-		DirContext ctx = bindAsUser(username, password);
+		DirContext ctx;
+		if (StringUtils.hasText(bindUser) && StringUtils.hasText(bindPassword)) {
+			ctx = bindAsUser(bindUser, bindPassword);
+		} else {
+			ctx = bindAsUser(username, password);
+		}
 
 		try {
-			return searchForUser(ctx, username);
+			DirContextOperations result = searchForUser(ctx, username);
+			if (StringUtils.hasText(bindUser) && StringUtils.hasText(bindPassword)) {
+				// attempt another authentication, now with the user's password
+				Hashtable<String, String> authEnv = new Hashtable<String, String>();
+				authEnv.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+				authEnv.put(Context.PROVIDER_URL, url);
+				authEnv.put(Context.SECURITY_PRINCIPAL, result.getNameInNamespace());
+				authEnv.put(Context.SECURITY_CREDENTIALS, password);
+				contextFactory.createContext(authEnv);
+			}
+			return result;
 		}
 		catch (NamingException e) {
 			logger.error("Failed to locate directory entry for authenticated user: "
@@ -395,6 +412,19 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends
 	public void setSearchFilter(String searchFilter) {
 		Assert.hasText(searchFilter, "searchFilter must have text");
 		this.searchFilter = searchFilter;
+	}
+
+	/**
+	 * By default, the connection to the AD server will use the credentials being authenticated.
+	 * If another M2M AD account shall be used for connecting to the AD server, these credentials
+	 * can be provided here.
+	 *
+	 * @param userName the name of the M2M user
+	 * @param password the password of the M2M user
+	 */
+	public void setBindUser(String userName, String password) {
+		this.bindUser = userName;
+		this.bindPassword = password;
 	}
 
 	static class ContextFactory {

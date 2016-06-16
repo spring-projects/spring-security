@@ -25,6 +25,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DistinguishedName;
@@ -36,12 +38,7 @@ import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 
-import javax.naming.AuthenticationException;
-import javax.naming.CommunicationException;
-import javax.naming.Name;
-import javax.naming.NameNotFoundException;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
+import javax.naming.*;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -391,6 +388,44 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 				"mydomain.eu", "ldap://192.168.1.200/", "dc=ad,dc=eu,dc=mydomain");
 		checkAuthentication("dc=ad,dc=eu,dc=mydomain", provider);
 
+	}
+
+	@Test
+	public void differentUserForBindOperation() throws Exception {
+		// given
+		ArgumentCaptor<Hashtable> bindCapture = ArgumentCaptor.forClass(Hashtable.class);
+		ArgumentCaptor<Object[]> userCapture = ArgumentCaptor.forClass(Object[].class);
+
+		final DirContext ctx = mock(DirContext.class);
+		when(ctx.getNameInNamespace()).thenReturn("");
+
+		DirContextAdapter dca = new DirContextAdapter();
+		SearchResult sr = new SearchResult("CN=Joe Jannsen,CN=Users", dca,
+			dca.getAttributes());
+		when(
+			ctx.search(any(Name.class), any(String.class), userCapture.capture(),
+				any(SearchControls.class))).thenReturn(
+			new MockNamingEnumeration(sr));
+		ContextFactory contextFactory = mock(ContextFactory.class);
+		when(contextFactory.createContext(bindCapture.capture())).thenAnswer(new Answer<DirContext>() {
+			@Override
+			public DirContext answer(final InvocationOnMock invocation) throws Throwable {
+				Hashtable args = (Hashtable) invocation.getArguments()[0];
+				assertThat(args.get(Context.SECURITY_PRINCIPAL)).isIn("bindUser@mydomain.eu", "");
+				return ctx;
+			}
+		});
+
+		ActiveDirectoryLdapAuthenticationProvider customProvider = new ActiveDirectoryLdapAuthenticationProvider(
+			"mydomain.eu", "ldap://192.168.1.200/");
+		customProvider.contextFactory = contextFactory;
+		customProvider.setBindUser("bindUser", "bindPassword");
+
+		// when
+		Authentication result = customProvider.authenticate(joe);
+
+		// then
+		assertThat(result.isAuthenticated()).isTrue();
 	}
 
 	ContextFactory createContextFactoryThrowing(final NamingException e) {
