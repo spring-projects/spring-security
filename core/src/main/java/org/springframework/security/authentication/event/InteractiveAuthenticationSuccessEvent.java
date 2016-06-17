@@ -26,6 +26,10 @@ import org.springframework.util.Assert;
  * The <code>ApplicationEvent</code>'s <code>source</code> will be the
  * <code>Authentication</code> object.
  * </p>
+ * <p>
+ * This does not extend from <code>AuthenticationSuccessEvent</code> to avoid duplicate
+ * <code>AuthenticationSuccessEvent</code>s being sent to any listeners.
+ * </p>
  *
  * @author Ben Alex
  */
