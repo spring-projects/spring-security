@@ -22,6 +22,8 @@ import java.util.Map;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AdviceMode;
@@ -76,7 +78,8 @@ import org.springframework.util.Assert;
  * @see EnableGlobalMethodSecurity
  */
 @Configuration
-public class GlobalMethodSecurityConfiguration implements ImportAware {
+public class GlobalMethodSecurityConfiguration
+		implements ImportAware, SmartInitializingSingleton {
 	private static final Log logger = LogFactory
 			.getLog(GlobalMethodSecurityConfiguration.class);
 	private ObjectPostProcessor<Object> objectPostProcessor = new ObjectPostProcessor<Object>() {
@@ -94,6 +97,7 @@ public class GlobalMethodSecurityConfiguration implements ImportAware {
 	private ApplicationContext context;
 	private MethodSecurityExpressionHandler expressionHandler;
 	private Jsr250MethodSecurityMetadataSource jsr250MethodSecurityMetadataSource;
+	private MethodSecurityInterceptor methodSecurityInterceptor;
 
 	/**
 	 * Creates the default MethodInterceptor which is a MethodSecurityInterceptor using
@@ -117,18 +121,42 @@ public class GlobalMethodSecurityConfiguration implements ImportAware {
 	 */
 	@Bean
 	public MethodInterceptor methodSecurityInterceptor() throws Exception {
-		MethodSecurityInterceptor methodSecurityInterceptor = isAspectJ() ? new AspectJMethodSecurityInterceptor()
+		this.methodSecurityInterceptor = isAspectJ()
+				? new AspectJMethodSecurityInterceptor()
 				: new MethodSecurityInterceptor();
 		methodSecurityInterceptor.setAccessDecisionManager(accessDecisionManager());
 		methodSecurityInterceptor.setAfterInvocationManager(afterInvocationManager());
-		methodSecurityInterceptor.setAuthenticationManager(authenticationManager());
 		methodSecurityInterceptor
 				.setSecurityMetadataSource(methodSecurityMetadataSource());
 		RunAsManager runAsManager = runAsManager();
 		if (runAsManager != null) {
 			methodSecurityInterceptor.setRunAsManager(runAsManager);
 		}
-		return methodSecurityInterceptor;
+
+		return this.methodSecurityInterceptor;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.springframework.beans.factory.SmartInitializingSingleton#
+	 * afterSingletonsInstantiated()
+	 */
+	@Override
+	public void afterSingletonsInstantiated() {
+		try {
+			initializeMethodSecurityInterceptor();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private void initializeMethodSecurityInterceptor() throws Exception {
+		if(this.methodSecurityInterceptor == null) {
+			return;
+		}
+		this.methodSecurityInterceptor.setAuthenticationManager(authenticationManager());
 	}
 
 	/**

@@ -23,6 +23,7 @@ import org.springframework.context.annotation.Import
 import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
 import org.springframework.security.access.annotation.Secured
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.authentication.TestingAuthenticationToken
@@ -484,5 +485,34 @@ class AuthenticationConfigurationTests extends BaseSpringSpec {
 		UserDetailsService uds() {
 			UDS
 		}
+	}
+
+	def 'EnableGlobalMethodSecurity configuration uses PreAuthorize does not cause BeanCurrentlyInCreationException'() {
+		when:
+		loadConfig(UsesPreAuthorizeMethodSecurityConfig,AuthenticationManagerBeanConfig)
+		then:
+		noExceptionThrown()
+	}
+
+	@Configuration
+	@EnableGlobalMethodSecurity(prePostEnabled = true)
+	static class UsesPreAuthorizeMethodSecurityConfig {
+		@PreAuthorize("denyAll")
+		void run() {}
+	}
+
+
+	def 'EnableGlobalMethodSecurity uses method security service'() {
+		when:
+		loadConfig(ServicesConfig,UsesPreAuthorizeMethodSecurityConfig,AuthenticationManagerBeanConfig)
+		then:
+		noExceptionThrown()
+	}
+
+	@Configuration
+	@EnableGlobalMethodSecurity(securedEnabled = true)
+	static class UsesServiceMethodSecurityConfig {
+		@Autowired
+		Service service
 	}
 }
