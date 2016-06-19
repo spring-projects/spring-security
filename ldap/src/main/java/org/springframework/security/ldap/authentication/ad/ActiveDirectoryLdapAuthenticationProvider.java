@@ -32,6 +32,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.security.ldap.authentication.AbstractLdapAuthenticationProvider;
+import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -58,8 +59,9 @@ import java.util.regex.Pattern;
  * domain name to the username supplied in the authentication request. If no domain name
  * is configured, it is assumed that the username will always contain the domain name.
  * <p>
- * The user authorities are obtained from the data contained in the {@code memberOf}
- * attribute.
+ * If a custom {@link #setAuthoritiesPopulator(LdapAuthoritiesPopulator) authoritiesPopulator}
+ * is not specified, the user authorities are obtained from the data contained in the
+ * {@code memberOf} attribute.
  *
  * <h3>Active Directory Sub-Error Codes</h3>
  *
@@ -107,6 +109,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends
 	private final String url;
 	private boolean convertSubErrorCodesToExceptions;
 	private String searchFilter = "(&(objectClass=user)(userPrincipalName={0}))";
+	private LdapAuthoritiesPopulator authoritiesPopulator;
 
 	// Only used to allow tests to substitute a mock LdapContext
 	ContextFactory contextFactory = new ContextFactory();
@@ -122,6 +125,22 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends
 		this.domain = StringUtils.hasText(domain) ? domain.toLowerCase() : null;
 		this.url = url;
 		this.rootDn = StringUtils.hasText(rootDn) ? rootDn.toLowerCase() : null;
+		this.authoritiesPopulator = null;
+	}
+
+	/**
+	 * @param domain the domain name (may be null or empty)
+	 * @param url an LDAP url (or multiple URLs)
+	 * @param rootDn the root DN (may be null or empty)
+	 * @param authoritiesPopulator (may be null or empty)
+	 */
+	public ActiveDirectoryLdapAuthenticationProvider(String domain, String url,
+			String rootDn, LdapAuthoritiesPopulator authoritiesPopulator) {
+		Assert.isTrue(StringUtils.hasText(url), "Url cannot be empty");
+		this.domain = StringUtils.hasText(domain) ? domain.toLowerCase() : null;
+		this.url = url;
+		this.rootDn = StringUtils.hasText(rootDn) ? rootDn.toLowerCase() : null;
+		this.authoritiesPopulator = authoritiesPopulator;
 	}
 
 	/**
@@ -133,6 +152,31 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends
 		this.domain = StringUtils.hasText(domain) ? domain.toLowerCase() : null;
 		this.url = url;
 		rootDn = this.domain == null ? null : rootDnFromDomain(this.domain);
+		this.authoritiesPopulator = null;
+	}
+
+	/**
+	 * @param domain the domain name (may be null or empty)
+	 * @param url an LDAP url (or multiple URLs)
+	 * @param authoritiesPopulator (may be null or empty)
+	 */
+	public ActiveDirectoryLdapAuthenticationProvider(String domain, String url,
+			LdapAuthoritiesPopulator authoritiesPopulator) {
+		Assert.isTrue(StringUtils.hasText(url), "Url cannot be empty");
+		this.domain = StringUtils.hasText(domain) ? domain.toLowerCase() : null;
+		this.url = url;
+		rootDn = this.domain == null ? null : rootDnFromDomain(this.domain);
+		this.authoritiesPopulator = authoritiesPopulator;
+	}
+
+	private void setAuthoritiesPopulator(LdapAuthoritiesPopulator authoritiesPopulator) {
+		Assert.notNull(authoritiesPopulator,
+				"An LdapAuthoritiesPopulator must be supplied");
+		this.authoritiesPopulator = authoritiesPopulator;
+	}
+
+	protected LdapAuthoritiesPopulator getAuthoritiesPopulator() {
+		return this.authoritiesPopulator;
 	}
 
 	@Override
@@ -163,6 +207,9 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends
 	@Override
 	protected Collection<? extends GrantedAuthority> loadUserAuthorities(
 			DirContextOperations userData, String username, String password) {
+		if (authoritiesPopulator != null) {
+			return getAuthoritiesPopulator().getGrantedAuthorities(userData, username);
+		}
 		String[] groups = userData.getStringAttributes("memberOf");
 
 		if (groups == null) {

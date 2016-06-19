@@ -27,13 +27,18 @@ import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.ldap.core.DirContextAdapter;
+import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.DistinguishedName;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
 import org.springframework.security.core.Authentication;
 
 import javax.naming.AuthenticationException;
@@ -46,6 +51,8 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Hashtable;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -391,6 +398,56 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 				"mydomain.eu", "ldap://192.168.1.200/", "dc=ad,dc=eu,dc=mydomain");
 		checkAuthentication("dc=ad,dc=eu,dc=mydomain", provider);
 
+	}
+
+	// SEC-2163
+	@Test
+	public void customAuthoritiesPopulatorWorks() throws Exception {
+		ActiveDirectoryLdapAuthenticationProvider customProvider = new ActiveDirectoryLdapAuthenticationProvider(
+				"mydomain.eu", "ldap://192.168.1.200/", new LdapAuthoritiesPopulator() {
+					@Override
+					public Collection<? extends GrantedAuthority> getGrantedAuthorities(
+							DirContextOperations userData, String username) {
+						String[] groups = userData.getStringAttributes("customGroups");
+
+						if (groups == null) {
+							return AuthorityUtils.NO_AUTHORITIES;
+						}
+						ArrayList<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>(
+								groups.length);
+
+						for (String group : groups) {
+							authorities.add(new SimpleGrantedAuthority(new DistinguishedName(group)
+								.removeLast().getValue()));
+						}
+
+						return authorities;
+					}
+				});
+		DirContext ctx = mock(DirContext.class);
+		when(ctx.getNameInNamespace()).thenReturn("");
+
+		DirContextAdapter dca = new DirContextAdapter();
+		SearchResult sr = new SearchResult("CN=Joe Jannsen,CN=Users", dca,
+				dca.getAttributes());
+		@SuppressWarnings("deprecation")
+		DistinguishedName searchBaseDn = new DistinguishedName("DC=mydomain,DC=eu");
+		when(
+				ctx.search(eq(searchBaseDn), any(String.class), any(Object[].class),
+						any(SearchControls.class))).thenReturn(
+				new MockNamingEnumeration(sr)).thenReturn(new MockNamingEnumeration(sr));
+
+		customProvider.contextFactory = createContextFactoryReturning(ctx);
+
+		Authentication result = customProvider.authenticate(joe);
+
+		assertThat(result.getAuthorities()).isEmpty();
+
+		dca.addAttributeValue("customGroups", "CN=Admin,CN=Users,DC=mydomain,DC=eu");
+
+		result = customProvider.authenticate(joe);
+
+		assertThat(result.getAuthorities()).hasSize(1);
 	}
 
 	ContextFactory createContextFactoryThrowing(final NamingException e) {
