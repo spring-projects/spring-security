@@ -39,7 +39,6 @@ import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.context.support.SecurityWebApplicationContextUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
  * A base class for an &lt;authorize&gt; tag that is independent of the tag rendering

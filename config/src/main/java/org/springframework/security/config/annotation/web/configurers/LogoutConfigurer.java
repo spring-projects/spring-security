@@ -25,7 +25,6 @@ import org.springframework.security.config.annotation.SecurityConfigurer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler;
 import org.springframework.security.web.authentication.logout.DelegatingLogoutSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutFilter;

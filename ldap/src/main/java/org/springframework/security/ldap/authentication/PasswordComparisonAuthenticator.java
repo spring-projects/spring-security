@@ -19,7 +19,6 @@ package org.springframework.security.ldap.authentication;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.ldap.NameNotFoundException;
-import org.springframework.ldap.NamingException;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.support.BaseLdapPathContextSource;
 import org.springframework.security.authentication.BadCredentialsException;

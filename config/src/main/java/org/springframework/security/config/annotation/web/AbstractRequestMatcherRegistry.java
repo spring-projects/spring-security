@@ -25,7 +25,6 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.util.ObjectUtils;
 
 /**
  * A base class for registering {@link RequestMatcher}'s. For example, it might allow for

@@ -16,7 +16,6 @@
 package org.springframework.security.core.authority.mapping;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
 

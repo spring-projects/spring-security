@@ -19,7 +19,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.authentication.AuthenticationTrustResolver;
-import org.springframework.util.Assert;
 
 /**
  * Creates a {@link SecurityContextHolderAwareRequestWrapper}

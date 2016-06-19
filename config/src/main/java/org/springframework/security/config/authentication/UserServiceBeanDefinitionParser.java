@@ -17,7 +17,6 @@ package org.springframework.security.config.authentication;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.util.Iterator;
 import java.util.List;
 
 import org.springframework.beans.factory.BeanDefinitionStoreException;

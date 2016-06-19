@@ -18,7 +18,6 @@ package org.springframework.security.config.annotation.web.servlet.configuration
 import java.util.List;
 
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver;
 import org.springframework.security.web.servlet.support.csrf.CsrfRequestDataValueProcessor;

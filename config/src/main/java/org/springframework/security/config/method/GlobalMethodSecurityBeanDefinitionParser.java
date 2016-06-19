@@ -46,7 +46,6 @@ import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.access.ConfigAttribute;
-import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.annotation.Jsr250MethodSecurityMetadataSource;
 import org.springframework.security.access.annotation.Jsr250Voter;

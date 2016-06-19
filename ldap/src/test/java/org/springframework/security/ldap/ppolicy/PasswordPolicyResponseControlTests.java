@@ -20,9 +20,6 @@ import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Test;
 
-import javax.naming.ldap.Control;
-import java.util.*;
-
 /**
  * Tests for <tt>PasswordPolicyResponse</tt>.
  *

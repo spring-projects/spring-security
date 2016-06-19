@@ -30,7 +30,6 @@ import org.springframework.security.authentication.encoding.BaseDigestPasswordEn
 import org.springframework.security.authentication.encoding.LdapShaPasswordEncoder;
 import org.springframework.security.authentication.encoding.Md4PasswordEncoder;
 import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
-import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.security.authentication.encoding.PlaintextPasswordEncoder;
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.security.config.Elements;

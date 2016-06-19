@@ -17,8 +17,6 @@ package org.springframework.security.authentication.encoding;
 
 import org.springframework.security.crypto.codec.Utf8;
 
-import java.io.UnsupportedEncodingException;
-
 /**
  * Utility for constant time comparison to prevent against timing attacks.
  *

@@ -15,7 +15,6 @@
  */
 package org.springframework.security.config.annotation.authentication.configurers.userdetails;
 
-import org.springframework.security.config.annotation.SecurityConfigurer;
 import org.springframework.security.config.annotation.authentication.ProviderManagerBuilder;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.userdetails.UserDetailsService;

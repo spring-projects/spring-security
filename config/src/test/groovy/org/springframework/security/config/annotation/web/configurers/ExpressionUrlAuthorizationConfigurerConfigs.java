@@ -19,7 +19,6 @@ import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.access.expression.SecurityExpressionOperations;

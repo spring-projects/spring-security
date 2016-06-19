@@ -18,8 +18,6 @@ package org.springframework.security.samples.config;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import javax.servlet.Filter;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

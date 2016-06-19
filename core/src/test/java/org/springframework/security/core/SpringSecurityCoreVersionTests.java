@@ -34,7 +34,6 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 import org.springframework.core.SpringVersion;
-import org.springframework.test.util.ReflectionTestUtils;
 
 /**
  * Checks that the embedded version information is up to date.

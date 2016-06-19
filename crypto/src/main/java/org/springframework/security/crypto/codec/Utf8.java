@@ -19,7 +19,6 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
-import java.util.*;
 
 /**
  * UTF-8 Charset encoder/decoder.

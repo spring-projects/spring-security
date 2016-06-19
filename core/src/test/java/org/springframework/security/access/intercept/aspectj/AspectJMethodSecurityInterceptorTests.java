@@ -17,7 +17,6 @@
 package org.springframework.security.access.intercept.aspectj;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 import org.aopalliance.intercept.MethodInvocation;

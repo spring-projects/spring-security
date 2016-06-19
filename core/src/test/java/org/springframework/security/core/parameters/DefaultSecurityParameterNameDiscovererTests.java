@@ -21,13 +21,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
-import org.springframework.core.SpringVersion;
 import org.springframework.security.access.method.P;
 import org.springframework.test.util.ReflectionTestUtils;
 

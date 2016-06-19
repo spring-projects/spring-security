@@ -17,8 +17,6 @@ package org.springframework.security.config.annotation.web.configurers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

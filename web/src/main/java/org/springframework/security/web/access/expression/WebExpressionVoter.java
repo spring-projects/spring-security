@@ -16,7 +16,6 @@
 package org.springframework.security.web.access.expression;
 
 import java.util.Collection;
-import java.util.Map;
 
 import org.springframework.expression.EvaluationContext;
 import org.springframework.security.access.AccessDecisionVoter;
@@ -25,7 +24,6 @@ import org.springframework.security.access.expression.ExpressionUtils;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.FilterInvocation;
-import org.springframework.util.AntPathMatcher;
 
 /**
  * Voter which handles web authorisation decisions.

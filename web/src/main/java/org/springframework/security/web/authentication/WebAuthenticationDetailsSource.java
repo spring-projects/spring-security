@@ -17,11 +17,6 @@
 package org.springframework.security.web.authentication;
 
 import org.springframework.security.authentication.AuthenticationDetailsSource;
-import org.springframework.util.Assert;
-import org.springframework.util.ReflectionUtils;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 
 import javax.servlet.http.HttpServletRequest;
 

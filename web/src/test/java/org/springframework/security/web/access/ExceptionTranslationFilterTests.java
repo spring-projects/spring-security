@@ -38,7 +38,6 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
-import org.springframework.security.web.util.ThrowableAnalyzer;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;

@@ -15,7 +15,6 @@
  */
 package samples.gae.web;
 
-import org.hibernate.validator.constraints.NotBlank;
 import samples.gae.validation.Forename;
 import samples.gae.validation.Surname;
 

@@ -15,10 +15,9 @@
  */
 package samples.gae.web;
 
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Set;
-import javax.servlet.http.HttpServletRequest;
+
 import javax.validation.Valid;
 
 import com.google.appengine.api.users.UserServiceFactory;
