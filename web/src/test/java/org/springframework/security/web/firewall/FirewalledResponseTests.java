@@ -15,19 +15,21 @@
  */
 package org.springframework.security.web.firewall;
 
+import org.junit.Test;
+
+import org.springframework.mock.web.MockHttpServletResponse;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
-import org.junit.*;
-import org.springframework.mock.web.MockHttpServletResponse;
-
 /**
  * @author Luke Taylor
+ * @author Eddú Meléndez
  */
 public class FirewalledResponseTests {
 
 	@Test
-	public void rejectsRedirectLocationContaingCRLF() throws Exception {
+	public void rejectsRedirectLocationContainingCRLF() throws Exception {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FirewalledResponse fwResponse = new FirewalledResponse(response);
 
@@ -54,4 +56,24 @@ public class FirewalledResponseTests {
 		catch (IllegalArgumentException expected) {
 		}
 	}
+
+	@Test
+	public void rejectHeaderContainingCRLF() {
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		FirewalledResponse fwResponse = new FirewalledResponse(response);
+
+		try {
+			fwResponse.addHeader("foo", "abc\r\nContent-Length:100");
+			fail("IllegalArgumentException should have thrown");
+		}
+		catch (IllegalArgumentException expected) {
+		}
+		try {
+			fwResponse.setHeader("foo", "abc\r\nContent-Length:100");
+			fail("IllegalArgumentException should have thrown");
+		}
+		catch (IllegalArgumentException expected) {
+		}
+	}
+
 }

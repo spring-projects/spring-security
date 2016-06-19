@@ -22,8 +22,10 @@ import java.util.regex.Pattern;
 
 /**
  * @author Luke Taylor
+ * @author Eddú Meléndez
  */
 class FirewalledResponse extends HttpServletResponseWrapper {
+
 	private static final Pattern CR_OR_LF = Pattern.compile("\\r|\\n");
 
 	public FirewalledResponse(HttpServletResponse response) {
@@ -34,10 +36,27 @@ class FirewalledResponse extends HttpServletResponseWrapper {
 	public void sendRedirect(String location) throws IOException {
 		// TODO: implement pluggable validation, instead of simple blacklisting.
 		// SEC-1790. Prevent redirects containing CRLF
-		if (CR_OR_LF.matcher(location).find()) {
-			throw new IllegalArgumentException(
-					"Invalid characters (CR/LF) in redirect location");
-		}
+		validateCRLF("Location", location);
 		super.sendRedirect(location);
 	}
+
+	@Override
+	public void setHeader(String name, String value) {
+		validateCRLF(name, value);
+		super.setHeader(name, value);
+	}
+
+	@Override
+	public void addHeader(String name, String value) {
+		validateCRLF(name, value);
+		super.addHeader(name, value);
+	}
+
+	private void validateCRLF(String name, String value) {
+		if (CR_OR_LF.matcher(value).find()) {
+			throw new IllegalArgumentException(
+					"Invalid characters (CR/LF) in header " + name);
+		}
+	}
+
 }
