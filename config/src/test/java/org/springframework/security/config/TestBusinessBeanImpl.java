@@ -17,7 +17,6 @@ package org.springframework.security.config;
 
 import org.springframework.context.ApplicationListener;
 import org.springframework.security.core.session.SessionCreationEvent;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Luke Taylor

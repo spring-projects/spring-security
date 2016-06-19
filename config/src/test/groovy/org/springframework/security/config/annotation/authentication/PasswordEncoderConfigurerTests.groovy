@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,28 +15,12 @@
  */
 package org.springframework.security.config.annotation.authentication
 
-import static org.springframework.security.config.annotation.authentication.PasswordEncoderConfigurerConfigs.*
-
-import org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
-import org.springframework.ldap.core.ContextSource;
-import org.springframework.ldap.core.support.BaseLdapPathContextSource;
 import org.springframework.security.authentication.AuthenticationManager
-import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.config.annotation.BaseSpringSpec
-import org.springframework.security.config.annotation.SecurityBuilder;
-import org.springframework.security.config.annotation.authentication.AuthenticationManagerBuilder
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.FilterChainProxy;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.test.util.ReflectionTestUtils;
+
+import static org.springframework.security.config.annotation.authentication.PasswordEncoderConfigurerConfigs.PasswordEncoderConfig
+import static org.springframework.security.config.annotation.authentication.PasswordEncoderConfigurerConfigs.PasswordEncoderNoAuthManagerLoadsConfig;
 
 /**
  *

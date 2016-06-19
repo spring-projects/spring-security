@@ -16,7 +16,6 @@
 
 package org.springframework.security.web.authentication;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 import static org.assertj.core.api.Assertions.*;
 

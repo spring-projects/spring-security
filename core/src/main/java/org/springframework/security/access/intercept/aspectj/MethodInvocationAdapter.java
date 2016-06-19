@@ -22,8 +22,6 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.CodeSignature;
-import org.springframework.util.Assert;
-import org.springframework.util.ClassUtils;
 
 /**
  * Decorates a JoinPoint to allow it to be used with method-security infrastructure

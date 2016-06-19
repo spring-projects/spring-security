@@ -17,7 +17,6 @@ package org.springframework.security.config.annotation.web;
 
 import javax.servlet.Filter;
 
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.SecurityBuilder;
 import org.springframework.security.config.annotation.SecurityConfigurer;

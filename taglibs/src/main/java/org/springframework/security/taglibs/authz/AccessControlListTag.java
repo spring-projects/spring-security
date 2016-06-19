@@ -33,7 +33,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.taglibs.TagLibConfig;
 import org.springframework.security.web.context.support.SecurityWebApplicationContextUtils;
-import org.springframework.web.context.support.WebApplicationContextUtils;
+
 
 /**
  * An implementation of {@link Tag} that allows its body through if all authorizations are

@@ -16,8 +16,6 @@
 package org.springframework.security.access.expression.method;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 import org.junit.Before;
@@ -29,8 +27,6 @@ import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.expression.ExpressionUtils;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.core.Authentication;
-
-import java.util.*;
 
 /**
  * Tests for {@link MethodSecurityExpressionRoot}

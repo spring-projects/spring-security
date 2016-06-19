@@ -16,12 +16,10 @@
 package samples.gae.users;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Set;
 
-import org.springframework.security.core.GrantedAuthority;
 import samples.gae.security.AppRole;
 
 /**

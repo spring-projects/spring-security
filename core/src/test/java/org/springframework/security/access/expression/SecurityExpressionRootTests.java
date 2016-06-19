@@ -15,7 +15,6 @@
  */
 package org.springframework.security.access.expression;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.assertj.core.api.Assertions.*;

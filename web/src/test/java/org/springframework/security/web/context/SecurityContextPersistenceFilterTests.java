@@ -16,7 +16,6 @@
 package org.springframework.security.web.context;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 import java.io.IOException;

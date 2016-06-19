@@ -17,7 +17,6 @@ package org.springframework.security.acls;
 
 import static org.assertj.core.api.Assertions.*;
 
-import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
 import java.util.Locale;

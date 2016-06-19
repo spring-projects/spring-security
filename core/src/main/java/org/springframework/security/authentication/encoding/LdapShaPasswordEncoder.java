@@ -16,7 +16,6 @@
 
 package org.springframework.security.authentication.encoding;
 
-import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 
 import org.springframework.security.crypto.codec.Base64;

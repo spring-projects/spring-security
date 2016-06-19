@@ -24,8 +24,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.springframework.util.Assert;
-
 /**
  * The default implementation of {@link SessionAuthenticationStrategy} when using &lt;
  * Servlet 3.1.

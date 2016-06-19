@@ -21,7 +21,6 @@ import static org.mockito.Mockito.*;
 import org.junit.*;
 
 import javax.naming.ldap.Control;
-import java.util.*;
 
 /**
  * @author Luke Taylor

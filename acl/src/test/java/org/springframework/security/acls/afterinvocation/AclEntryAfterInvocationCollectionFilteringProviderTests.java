@@ -18,17 +18,13 @@ package org.springframework.security.acls.afterinvocation;
 
 import static org.assertj.core.api.Assertions.*;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.when;
 
 import org.junit.Test;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.acls.model.*;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.SpringSecurityMessageSource;
 
 import java.util.ArrayList;
 import java.util.Arrays;
