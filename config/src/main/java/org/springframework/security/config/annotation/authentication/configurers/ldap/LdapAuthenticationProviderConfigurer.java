@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,6 +51,7 @@ import java.net.ServerSocket;
  * @param <B> the {@link ProviderManagerBuilder} type that this is configuring.
  *
  * @author Rob Winch
+ * @author Eddú Meléndez
  * @since 3.2
  */
 public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuilder<B>>
@@ -128,6 +129,7 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 				contextSource, groupSearchBase);
 		defaultAuthoritiesPopulator.setGroupRoleAttribute(groupRoleAttribute);
 		defaultAuthoritiesPopulator.setGroupSearchFilter(groupSearchFilter);
+		defaultAuthoritiesPopulator.setRolePrefix(rolePrefix);
 
 		this.ldapAuthoritiesPopulator = defaultAuthoritiesPopulator;
 		return defaultAuthoritiesPopulator;
