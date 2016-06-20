@@ -15,6 +15,7 @@
  */
 package org.springframework.security.config.annotation.web.configurers;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 import javax.servlet.http.HttpServletRequest;
@@ -37,7 +38,10 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationFa
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
+import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
 import org.springframework.web.accept.ContentNegotiationStrategy;
 import org.springframework.web.accept.HeaderContentNegotiationStrategy;
 
@@ -243,10 +247,17 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 		if (contentNegotiationStrategy == null) {
 			contentNegotiationStrategy = new HeaderContentNegotiationStrategy();
 		}
-		MediaTypeRequestMatcher preferredMatcher = new MediaTypeRequestMatcher(
+
+		MediaTypeRequestMatcher mediaMatcher = new MediaTypeRequestMatcher(
 				contentNegotiationStrategy, MediaType.APPLICATION_XHTML_XML,
 				new MediaType("image", "*"), MediaType.TEXT_HTML, MediaType.TEXT_PLAIN);
-		preferredMatcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
+		mediaMatcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
+
+		RequestMatcher notXRequestedWith = new NegatedRequestMatcher(
+				new RequestHeaderRequestMatcher("X-Requested-With", "XMLHttpRequest"));
+
+		RequestMatcher preferredMatcher = new AndRequestMatcher(Arrays.asList(notXRequestedWith, mediaMatcher));
+
 		exceptionHandling.defaultAuthenticationEntryPointFor(
 				postProcess(authenticationEntryPoint), preferredMatcher);
 	}

@@ -93,7 +93,18 @@ class ExceptionHandlingConfigurerTests extends BaseSpringSpec {
 		then:
 			def entryPoints = delegateEntryPoint.entryPoints.keySet() as List
 			entryPoints[0].requestMatchers[1].contentNegotiationStrategy.class == HeaderContentNegotiationStrategy
-			entryPoints[1].contentNegotiationStrategy.class == HeaderContentNegotiationStrategy
+			entryPoints[1].requestMatchers[1].contentNegotiationStrategy.class == HeaderContentNegotiationStrategy
+	}
+
+	def "401 for text/plain and X-Requested-With:XMLHttpRequest"() {
+		setup:
+			loadConfig(HttpBasicAndFormLoginEntryPointsConfig)
+		when:
+			request.addHeader("Accept", MediaType.TEXT_PLAIN_VALUE)
+			request.addHeader("X-Requested-With", "XMLHttpRequest")
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			response.status == HttpServletResponse.SC_UNAUTHORIZED
 	}
 
 	@EnableWebSecurity
@@ -126,7 +137,7 @@ class ExceptionHandlingConfigurerTests extends BaseSpringSpec {
 			DelegatingAuthenticationEntryPoint delegateEntryPoint = findFilter(ExceptionTranslationFilter).authenticationEntryPoint
 		then:
 			def entryPoints = delegateEntryPoint.entryPoints.keySet() as List
-			entryPoints[0].contentNegotiationStrategy == OverrideContentNegotiationStrategySharedObjectConfig.CNS
+			entryPoints[0].requestMatchers[1].contentNegotiationStrategy == OverrideContentNegotiationStrategySharedObjectConfig.CNS
 			entryPoints[1].requestMatchers[1].contentNegotiationStrategy == OverrideContentNegotiationStrategySharedObjectConfig.CNS
 	}
 
