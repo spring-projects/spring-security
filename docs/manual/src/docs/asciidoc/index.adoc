@@ -2985,7 +2985,15 @@ If the authentication event was successful, or authentication was not attempted 
 === DigestAuthenticationFilter
 `DigestAuthenticationFilter` is capable of processing digest authentication credentials presented in HTTP headers. Digest Authentication attempts to solve many of the weaknesses of Basic authentication, specifically by ensuring credentials are never sent in clear text across the wire. Many user agents support Digest Authentication, including FireFox and Internet Explorer. The standard governing HTTP Digest Authentication is defined by RFC 2617, which updates an earlier version of the Digest Authentication standard prescribed by RFC 2069. Most user agents implement RFC 2617. Spring Security's `DigestAuthenticationFilter` is compatible with the "`auth`" quality of protection (`qop`) prescribed by RFC 2617, which also provides backward compatibility with RFC 2069. Digest Authentication is a more attractive option if you need to use unencrypted HTTP (i.e. no TLS/HTTPS) and wish to maximise security of the authentication process. Indeed Digest Authentication is a mandatory requirement for the WebDAV protocol, as noted by RFC 2518 Section 17.1.
 
-Digest Authentication is definitely the most secure choice between Form Authentication, Basic Authentication and Digest Authentication, although extra security also means more complex user agent implementations. Central to Digest Authentication is a "nonce". This is a value the server generates. Spring Security's nonce adopts the following format:
+[NOTE]
+====
+You should not use Digest in modern applications because it is not considered secure.
+The most obvious problem is that you must store your passwords in plaintext, encrpted, or an MD5 format.
+All of these storage formats are considered insecure.
+Instead, you should use a one way adaptive password hash (i.e. BCrypt, PBKDF2, SCrypt, etc).
+====
+
+Central to Digest Authentication is a "nonce". This is a value the server generates. Spring Security's nonce adopts the following format:
 
 [source,txt]
 ----
