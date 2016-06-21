@@ -36,6 +36,9 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.internal.WhiteboxImpl;
 
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -43,11 +46,13 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.concurrent.DelegatingSecurityContextRunnable;
+import org.springframework.security.config.GrantedAuthorityDefaults;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.ClassUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -67,6 +72,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
  *
  * @author Ben Alex
  * @author Rob Winch
+ * @author Eddú Meléndez
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(ClassUtils.class)
@@ -195,7 +201,7 @@ public class SecurityContextHolderAwareRequestFilterTests {
 
 	// SEC-2296
 	@Test
-	public void loginWithExstingUser() throws Exception {
+	public void loginWithExistingUser() throws Exception {
 		TestingAuthenticationToken expectedAuth = new TestingAuthenticationToken("user",
 				"password", "ROLE_USER");
 		when(this.authenticationManager
@@ -415,4 +421,31 @@ public class SecurityContextHolderAwareRequestFilterTests {
 
 		return this.requestCaptor.getValue();
 	}
+
+	@Test
+	public void testDefaultRolePrefix() {
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+		context.register(FilterConfiguration.class);
+		context.refresh();
+
+		SecurityContextHolderAwareRequestFilter filter = context.getBean(SecurityContextHolderAwareRequestFilter.class);
+		GrantedAuthorityDefaults authorityDefaults = (GrantedAuthorityDefaults) ReflectionTestUtils.getField(filter, "rolePrefix");
+		assertThat(authorityDefaults.getRolePrefix()).isEqualTo("ROL_");
+	}
+
+	@Configuration
+	static class FilterConfiguration {
+
+		@Bean
+		public GrantedAuthorityDefaults authorityDefaults() {
+			return new GrantedAuthorityDefaults("ROL_");
+		}
+
+		@Bean
+		public SecurityContextHolderAwareRequestFilter requestFilter() {
+			return new SecurityContextHolderAwareRequestFilter();
+		}
+
+	}
+
 }

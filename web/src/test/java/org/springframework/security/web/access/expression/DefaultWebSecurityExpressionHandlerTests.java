@@ -33,6 +33,7 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.config.GrantedAuthorityDefaults;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.FilterInvocation;
@@ -62,7 +63,7 @@ public class DefaultWebSecurityExpressionHandlerTests {
 	}
 
 	@Test
-	public void expressionPropertiesAreResolvedAgainsAppContextBeans() throws Exception {
+	public void expressionPropertiesAreResolvedAgainstAppContextBeans() throws Exception {
 		StaticApplicationContext appContext = new StaticApplicationContext();
 		RootBeanDefinition bean = new RootBeanDefinition(SecurityConfig.class);
 		bean.getConstructorArgumentValues().addGenericArgumentValue("ROLE_A");
@@ -95,4 +96,22 @@ public class DefaultWebSecurityExpressionHandlerTests {
 
 		verify(trustResolver).isAnonymous(authentication);
 	}
+
+	@Test
+	public void testDefaultRolePrefix() {
+		StaticApplicationContext appContext = new StaticApplicationContext();
+		RootBeanDefinition bean = new RootBeanDefinition(GrantedAuthorityDefaults.class);
+		bean.getConstructorArgumentValues().addGenericArgumentValue("ROL_");
+		appContext.registerBeanDefinition("authorityDefaults", bean);
+		handler.setApplicationContext(appContext);
+
+		EvaluationContext ctx = handler.createEvaluationContext(
+				mock(Authentication.class), mock(FilterInvocation.class));
+		ExpressionParser parser = handler.getExpressionParser();
+		assertThat(parser.parseExpression("@authorityDefaults.getRolePrefix() == 'ROL_'").getValue(
+				ctx, Boolean.class)).isTrue();
+		assertThat(parser.parseExpression("@authorityDefaults.rolePrefix == 'ROL_'").getValue(ctx,
+				Boolean.class)).isTrue();
+	}
+
 }

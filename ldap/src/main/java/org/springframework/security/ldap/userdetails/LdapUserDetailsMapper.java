@@ -20,8 +20,13 @@ import java.util.Collection;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
+import org.springframework.security.config.GrantedAuthorityDefaults;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -34,14 +39,15 @@ import org.springframework.util.Assert;
  * object.
  *
  * @author Luke Taylor
+ * @author Eddú Meléndez
  */
-public class LdapUserDetailsMapper implements UserDetailsContextMapper {
+public class LdapUserDetailsMapper implements UserDetailsContextMapper, ApplicationContextAware {
 	// ~ Instance fields
 	// ================================================================================================
 
 	private final Log logger = LogFactory.getLog(LdapUserDetailsMapper.class);
 	private String passwordAttributeName = "userPassword";
-	private String rolePrefix = "ROLE_";
+	private GrantedAuthorityDefaults rolePrefix = new GrantedAuthorityDefaults("ROLE_");
 	private String[] roleAttributes = null;
 	private boolean convertToUpperCase = true;
 
@@ -146,7 +152,7 @@ public class LdapUserDetailsMapper implements UserDetailsContextMapper {
 			if (convertToUpperCase) {
 				role = ((String) role).toUpperCase();
 			}
-			return new SimpleGrantedAuthority(rolePrefix + role);
+			return new SimpleGrantedAuthority(this.rolePrefix.getRolePrefix() + role);
 		}
 		return null;
 	}
@@ -188,6 +194,16 @@ public class LdapUserDetailsMapper implements UserDetailsContextMapper {
 	 * @param rolePrefix the prefix (defaults to "ROLE_").
 	 */
 	public void setRolePrefix(String rolePrefix) {
-		this.rolePrefix = rolePrefix;
+		this.rolePrefix = new GrantedAuthorityDefaults(rolePrefix);
 	}
+
+	@Override
+	public void setApplicationContext(ApplicationContext context) throws
+			BeansException {
+		String[] beanNames = context.getBeanNamesForType(GrantedAuthorityDefaults.class);
+		if (beanNames.length == 1) {
+			this.rolePrefix = context.getBean(beanNames[0], GrantedAuthorityDefaults.class);
+		}
+	}
+
 }

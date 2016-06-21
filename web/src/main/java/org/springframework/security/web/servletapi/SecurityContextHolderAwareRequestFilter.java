@@ -27,9 +27,13 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
+import org.springframework.security.config.GrantedAuthorityDefaults;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -71,12 +75,13 @@ import org.springframework.web.filter.GenericFilterBean;
  * @author Ben Alex
  * @author Luke Taylor
  * @author Rob Winch
+ * @author Eddú Meléndez
  */
-public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
+public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean implements ApplicationContextAware {
 	// ~ Instance fields
 	// ================================================================================================
 
-	private String rolePrefix = "ROLE_";
+	private GrantedAuthorityDefaults rolePrefix = new GrantedAuthorityDefaults("ROLE_");
 
 	private HttpServletRequestFactory requestFactory;
 
@@ -93,7 +98,7 @@ public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
 
 	public void setRolePrefix(String rolePrefix) {
 		Assert.notNull(rolePrefix, "Role prefix must not be null");
-		this.rolePrefix = rolePrefix;
+		this.rolePrefix = new GrantedAuthorityDefaults(rolePrefix);
 		updateFactory();
 	}
 
@@ -177,8 +182,9 @@ public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
 	}
 
 	private void updateFactory() {
-		this.requestFactory = isServlet3() ? createServlet3Factory(this.rolePrefix)
-				: new HttpServlet25RequestFactory(this.trustResolver, this.rolePrefix);
+		String rolePrefix = this.rolePrefix.getRolePrefix();
+		this.requestFactory = isServlet3() ? createServlet3Factory(rolePrefix)
+				: new HttpServlet25RequestFactory(this.trustResolver, rolePrefix);
 	}
 
 	/**
@@ -210,4 +216,14 @@ public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
 	private boolean isServlet3() {
 		return ClassUtils.hasMethod(ServletRequest.class, "startAsync");
 	}
+
+	@Override
+	public void setApplicationContext(ApplicationContext context) throws
+			BeansException {
+		String[] beanNames = context.getBeanNamesForType(GrantedAuthorityDefaults.class);
+		if (beanNames.length == 1) {
+			this.rolePrefix = context.getBean(beanNames[0], GrantedAuthorityDefaults.class);
+		}
+	}
+
 }
