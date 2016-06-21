@@ -79,13 +79,16 @@ import org.springframework.security.web.authentication.ui.DefaultLoginPageGenera
  */
 public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 		extends AbstractHttpConfigurer<RememberMeConfigurer<H>, H> {
-	public static final String REMEMBER_ME = "remember-me";
+	/**
+	 * The default name for remember me parameter name and remember me cookie name
+	 */
+	private static final String DEFAULT_REMEMBER_ME_NAME = "remember-me";
 	private AuthenticationSuccessHandler authenticationSuccessHandler;
 	private String key;
 	private RememberMeServices rememberMeServices;
 	private LogoutHandler logoutHandler;
-	private String rememberMeParameter = REMEMBER_ME;
-	private String rememberMeCookieName = REMEMBER_ME;
+	private String rememberMeParameter = DEFAULT_REMEMBER_ME_NAME;
+	private String rememberMeCookieName = DEFAULT_REMEMBER_ME_NAME;
 	private String rememberMeCookieDomain;
 	private PersistentTokenRepository tokenRepository;
 	private UserDetailsService userDetailsService;
@@ -280,7 +283,7 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 	 * the same time.
 	 */
 	private void validateInput() {
-		if (this.rememberMeServices != null && this.rememberMeCookieName != REMEMBER_ME) {
+		if (this.rememberMeServices != null && this.rememberMeCookieName != DEFAULT_REMEMBER_ME_NAME) {
 			throw new IllegalArgumentException("Can not set rememberMeCookieName " +
 					"and custom rememberMeServices.");
 		}
