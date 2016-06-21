@@ -15,7 +15,12 @@
  */
 package org.springframework.security.crypto.password;
 
+import java.util.Arrays;
+
 import org.junit.Test;
+
+import org.springframework.security.crypto.codec.Hex;
+import org.springframework.security.crypto.keygen.KeyGenerators;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -48,6 +53,26 @@ public class Pbkdf2PasswordEncoderTests {
 		String encodeFirst = this.encoder.encode(password);
 		String encodeSecond = this.encoder.encode(password);
 		assertThat(encodeFirst).isNotEqualTo(encodeSecond);
+	}
+
+	@Test
+	public void passivity() {
+		String encodedPassword = "ab1146a8458d4ce4e65789e5a3f60e423373cfa10b01abd23739e5ae2fdc37f8e9ede4ae6da65264";
+		String rawPassword = "password";
+		assertThat(this.encoder.matches(rawPassword, encodedPassword)).isTrue();
+	}
+
+	@Test
+	public void migrate() {
+		final int saltLength = KeyGenerators.secureRandom().getKeyLength();
+		String encodedPassword = "ab1146a8458d4ce4e65789e5a3f60e423373cfa10b01abd23739e5ae2fdc37f8e9ede4ae6da65264";
+		String originalEncodedPassword = "ab1146a8458d4ce4ab1146a8458d4ce4e65789e5a3f60e423373cfa10b01abd23739e5ae2fdc37f8e9ede4ae6da65264";
+		byte[] originalBytes = Hex.decode(originalEncodedPassword);
+		byte[] fixedBytes = Arrays.copyOfRange(originalBytes, saltLength,
+				originalBytes.length);
+		String fixedHex = String.valueOf(Hex.encode(fixedBytes));
+
+		assertThat(fixedHex).isEqualTo(encodedPassword);
 	}
 
 	/**

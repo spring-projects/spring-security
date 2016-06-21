@@ -89,7 +89,7 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 	@Override
 	public String encode(CharSequence rawPassword) {
 		byte[] salt = this.saltGenerator.generateKey();
-		byte[] encoded = encodeAndConcatenate(rawPassword, salt);
+		byte[] encoded = encode(rawPassword, salt);
 		return String.valueOf(Hex.encode(encoded));
 	}
 
@@ -97,11 +97,7 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 	public boolean matches(CharSequence rawPassword, String encodedPassword) {
 		byte[] digested = Hex.decode(encodedPassword);
 		byte[] salt = subArray(digested, 0, this.saltGenerator.getKeyLength());
-		return matches(digested, encodeAndConcatenate(rawPassword, salt));
-	}
-
-	private byte[] encodeAndConcatenate(CharSequence rawPassword, byte[] salt) {
-		return encode(rawPassword, salt);
+		return matches(digested, encode(rawPassword, salt));
 	}
 
 	/**
