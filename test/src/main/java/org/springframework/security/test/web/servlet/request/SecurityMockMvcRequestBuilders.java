@@ -15,9 +15,6 @@
  */
 package org.springframework.security.test.web.servlet.request;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-
 import javax.servlet.ServletContext;
 
 import org.springframework.http.MediaType;
@@ -26,6 +23,9 @@ import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
+
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 /**
  * Contains Spring Security related {@link MockMvc} {@link RequestBuilder}s.
@@ -87,9 +87,11 @@ public final class SecurityMockMvcRequestBuilders {
 		private String logoutUrl = "/logout";
 		private RequestPostProcessor postProcessor = csrf();
 
+		@Override
 		public MockHttpServletRequest buildRequest(ServletContext servletContext) {
-			MockHttpServletRequest request = post(logoutUrl).buildRequest(servletContext);
-			return postProcessor.postProcessRequest(request);
+			MockHttpServletRequest request = post(this.logoutUrl)
+					.buildRequest(servletContext);
+			return this.postProcessor.postProcessRequest(request);
 		}
 
 		/**
@@ -123,12 +125,13 @@ public final class SecurityMockMvcRequestBuilders {
 
 		private RequestPostProcessor postProcessor = csrf();
 
+		@Override
 		public MockHttpServletRequest buildRequest(ServletContext servletContext) {
-			MockHttpServletRequest request = post(loginProcessingUrl)
-					.accept(acceptMediaType)
-					.param(usernameParam, username).param(passwordParam, password)
+			MockHttpServletRequest request = post(this.loginProcessingUrl)
+					.accept(this.acceptMediaType).param(this.usernameParam, this.username)
+					.param(this.passwordParam, this.password)
 					.buildRequest(servletContext);
-			return postProcessor.postProcessRequest(request);
+			return this.postProcessor.postProcessRequest(request);
 		}
 
 		/**
@@ -192,7 +195,8 @@ public final class SecurityMockMvcRequestBuilders {
 		 * @param password the value of the password parameter. Default is "password".
 		 * @return the {@link FormLoginRequestBuilder} for additional customizations
 		 */
-		public FormLoginRequestBuilder password(String passwordParameter, String password) {
+		public FormLoginRequestBuilder password(String passwordParameter,
+				String password) {
 			passwordParam(passwordParameter);
 			this.password = password;
 			return this;
@@ -212,17 +216,17 @@ public final class SecurityMockMvcRequestBuilders {
 			return this;
 		}
 
-        /**
-         * Specify a media type to to set as the Accept header in the request.
-         *
-         * @param acceptMediaType the {@link MediaType} to set the Accept header to.
-         * Default is: MediaType.APPLICATION_FORM_URLENCODED
-         * @return the {@link FormLoginRequestBuilder} for additional customizations
-         */
-        public FormLoginRequestBuilder acceptMediaType(MediaType acceptMediaType) {
-            this.acceptMediaType = acceptMediaType;
-            return this;
-        }
+		/**
+		 * Specify a media type to to set as the Accept header in the request.
+		 *
+		 * @param acceptMediaType the {@link MediaType} to set the Accept header to.
+		 * Default is: MediaType.APPLICATION_FORM_URLENCODED
+		 * @return the {@link FormLoginRequestBuilder} for additional customizations
+		 */
+		public FormLoginRequestBuilder acceptMediaType(MediaType acceptMediaType) {
+			this.acceptMediaType = acceptMediaType;
+			return this;
+		}
 
 		private FormLoginRequestBuilder() {
 		}
