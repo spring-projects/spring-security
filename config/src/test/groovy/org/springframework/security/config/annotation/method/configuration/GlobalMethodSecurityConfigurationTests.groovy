@@ -17,7 +17,8 @@ package org.springframework.security.config.annotation.method.configuration
 
 
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
-import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl
+import org.springframework.security.config.GrantedAuthorityDefaults;
 
 import java.lang.reflect.Proxy;
 
@@ -494,6 +495,29 @@ public class GlobalMethodSecurityConfigurationTests extends BaseSpringSpec {
 		@Bean
 		RoleHierarchy roleHierarchy() {
 			return new RoleHierarchyImpl(hierarchy:"ROLE_USER > ROLE_ADMIN")
+		}
+	}
+
+	def "GrantedAuthorityDefaults autowires"() {
+		when:
+			loadConfig(CustomGrantedAuthorityConfig)
+			def preAdviceVoter = context.getBean(MethodInterceptor).accessDecisionManager.decisionVoters.find { it instanceof PreInvocationAuthorizationAdviceVoter}
+		then:
+		preAdviceVoter.preAdvice.expressionHandler.defaultRolePrefix == "ROLE:"
+	}
+
+	@EnableGlobalMethodSecurity(prePostEnabled = true)
+	static class CustomGrantedAuthorityConfig extends GlobalMethodSecurityConfiguration {
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.inMemoryAuthentication()
+		}
+
+		@Bean
+		public GrantedAuthorityDefaults ga() {
+			return new GrantedAuthorityDefaults("ROLE:")
 		}
 	}
 }
