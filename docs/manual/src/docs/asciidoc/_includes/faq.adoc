@@ -193,7 +193,7 @@ This happens because sessions created under HTTPS, for which the session cookie 
 
 ==== I'm not switching between HTTP and HTTPS but my session is still getting lost
 
-Sessions are maintained either by exchanging a session cookie or by adding the a `jsessionid` parameter to URLs (this happens automatically if you are using JSTL to output URLs, or if you call `HttpServletResponse.encodeUrl` on URLs (before a redirect, for example). If clients have cookies disabled, and you are not rewriting URLs to include the `jsessionid`, then the session will be lost. Note that the use of cookies is preferred for security reasons, as it does not expose the session information in the URL.
+Sessions are maintained either by exchanging a session cookie or by adding a `jsessionid` parameter to URLs (this happens automatically if you are using JSTL to output URLs, or if you call `HttpServletResponse.encodeUrl` on URLs (before a redirect, for example). If clients have cookies disabled, and you are not rewriting URLs to include the `jsessionid`, then the session will be lost. Note that the use of cookies is preferred for security reasons, as it does not expose the session information in the URL.
 
 [[appendix-faq-session-listener-missing]]
 ==== I'm trying to use the concurrent session-control support but it won't let me log back in, even if I'm sure I've logged out and haven't exceeded the allowed sessions.
@@ -240,7 +240,7 @@ Generally we would recommend applying method security at the service layer rathe
 If you have excluded the request from the security filter chain using the attribute `filters='none'` in the `<intercept-url>` element that matches the URL pattern, then the `SecurityContextHolder` will not be populated for that request. Check the debug log to see whether the request is passing through the filter chain. (You are reading the debug log, right?).
 
 [[appendix-faq-method-security-with-taglib]]
-==== The authorize JSP Tag doesn't respect my method security annotations when using a the URL attribute.
+==== The authorize JSP Tag doesn't respect my method security annotations when using the URL attribute.
 
 Method security will not hide links when using the `url` attribute in `<sec:authorize>` because we cannot readily reverse engineer what URL is mapped to what controller endpoint as controllers can rely on headers, current user, etc to determine what method to invoke.
 

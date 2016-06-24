@@ -8692,7 +8692,7 @@ If set to true, the AuthenticationManager will attempt to clear any credentials 
 
 [[nsa-authentication-manager-id]]
 * **id**
-This attribute allows you to define an id for the internal instance for use in your own configuration. It is the same a the alias element, but provides a more consistent experience with elements that use the id attribute.
+This attribute allows you to define an id for the internal instance for use in your own configuration. It is the same as the alias element, but provides a more consistent experience with elements that use the id attribute.
 
 
 [[nsa-authentication-manager-children]]

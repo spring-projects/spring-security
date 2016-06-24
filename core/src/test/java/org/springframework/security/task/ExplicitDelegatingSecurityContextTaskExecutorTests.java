@@ -24,7 +24,7 @@ import org.springframework.security.concurrent.DelegatingSecurityContextExecutor
 import org.springframework.security.concurrent.AbstractDelegatingSecurityContextExecutorTests;
 
 /**
- * Tests using the an explicit {@link SecurityContext} on
+ * Tests using an explicit {@link SecurityContext} on
  * {@link DelegatingSecurityContextExecutor}
  *
  * @author Rob Winch

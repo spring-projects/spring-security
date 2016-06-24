@@ -46,7 +46,7 @@ public interface AccessControlEntry extends Serializable {
 	Sid getSid();
 
 	/**
-	 * Indicates the a Permission is being granted to the relevant Sid. If false,
+	 * Indicates the permission is being granted to the relevant Sid. If false,
 	 * indicates the permission is being revoked/blocked.
 	 *
 	 * @return true if being granted, false otherwise
