@@ -15,19 +15,15 @@
  */
 package org.springframework.security.config.annotation.web.configurers
 
-import org.springframework.beans.factory.BeanCreationException
-import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpStatus
 import org.springframework.security.config.annotation.AnyObjectPostProcessor
 import org.springframework.security.config.annotation.BaseSpringSpec
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
-import org.springframework.security.config.annotation.web.configurers.LogoutConfigurerTests.RememberMeNoLogoutHandler;
 import org.springframework.security.web.authentication.RememberMeServices
 import org.springframework.security.web.authentication.logout.LogoutFilter
-import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
-import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler
 import org.springframework.security.web.util.matcher.RequestMatcher
 
 /**
@@ -91,14 +87,25 @@ class LogoutConfigurerTests extends BaseSpringSpec {
 		}
 	}
 
-	def "SEC-2311: Logout allows other methods if CSRF is disabled"() {
+	def "Logout allows other methods if CSRF is disabled"() {
 		when:
 			loadConfig(CsrfDisabledConfig)
-			request.method = "GET"
+			request.method = method
 			request.servletPath = "/logout"
 			findFilter(LogoutFilter).doFilter(request,response,chain)
 		then:
-			response.redirectedUrl == "/login?logout"
+			response.status == httpStatus.value()
+			response.redirectedUrl == url
+		where:
+			method    | httpStatus       | url
+			"GET"     | HttpStatus.FOUND | "/login?logout"
+			"POST"    | HttpStatus.FOUND | "/login?logout"
+			"PUT"     | HttpStatus.FOUND | "/login?logout"
+			"DELETE"  | HttpStatus.FOUND | "/login?logout"
+			"OPTIONS" | HttpStatus.OK    | null
+			"HEAD"    | HttpStatus.OK    | null
+			"TRACE"   | HttpStatus.OK    | null
+
 	}
 
 	@EnableWebSecurity
@@ -113,14 +120,25 @@ class LogoutConfigurerTests extends BaseSpringSpec {
 	}
 
 
-	def "SEC-2311: Logout allows other methods if CSRF is disabled with custom logout URL"() {
+	def "Logout allows other methods if CSRF is disabled with custom logout URL"() {
 		when:
 			loadConfig(CsrfDisabledCustomLogoutUrlConfig)
-			request.method = "GET"
+			request.method = method
 			request.servletPath = "/custom/logout"
 			findFilter(LogoutFilter).doFilter(request,response,chain)
 		then:
-			response.redirectedUrl == "/login?logout"
+			response.status == httpStatus.value()
+			response.redirectedUrl == url
+		where:
+			method    | httpStatus       | url
+			"GET"     | HttpStatus.FOUND | "/login?logout"
+			"POST"    | HttpStatus.FOUND | "/login?logout"
+			"PUT"     | HttpStatus.FOUND | "/login?logout"
+			"DELETE"  | HttpStatus.FOUND | "/login?logout"
+			"OPTIONS" | HttpStatus.OK    | null
+			"HEAD"    | HttpStatus.OK    | null
+			"TRACE"   | HttpStatus.OK    | null
+
 	}
 
 	@EnableWebSecurity
