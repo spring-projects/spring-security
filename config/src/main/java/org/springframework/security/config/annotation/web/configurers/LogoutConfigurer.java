@@ -34,6 +34,7 @@ import org.springframework.security.web.authentication.logout.SecurityContextLog
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 
@@ -345,7 +346,12 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>> extends
 			this.logoutRequestMatcher = new AntPathRequestMatcher(this.logoutUrl, "POST");
 		}
 		else {
-			this.logoutRequestMatcher = new AntPathRequestMatcher(this.logoutUrl);
+			this.logoutRequestMatcher = new OrRequestMatcher(
+				new AntPathRequestMatcher(this.logoutUrl, "GET"),
+				new AntPathRequestMatcher(this.logoutUrl, "POST"),
+				new AntPathRequestMatcher(this.logoutUrl, "PUT"),
+				new AntPathRequestMatcher(this.logoutUrl, "DELETE")
+			);
 		}
 		return this.logoutRequestMatcher;
 	}
