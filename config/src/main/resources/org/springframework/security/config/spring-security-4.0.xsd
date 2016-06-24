@@ -2440,7 +2440,7 @@
       </xs:attribute>
       <xs:attribute name="value" type="xs:string">
          <xs:annotation>
-            <xs:documentation>Specify the a value to use for the chosen strategy.
+            <xs:documentation>Specify a value to use for the chosen strategy.
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
