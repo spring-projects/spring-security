@@ -17,6 +17,7 @@ package org.springframework.security.core;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.core.SpringVersion;
 
 /**
@@ -39,7 +40,7 @@ public class SpringSecurityCoreVersion {
 	 */
 	public static final long SERIAL_VERSION_UID = 410L;
 
-	static final String MIN_SPRING_VERSION = "4.2.5.RELEASE";
+	static final String MIN_SPRING_VERSION = "4.3.1.BUILD-SNAPSHOT";
 
 	static {
 		performVersionChecks();

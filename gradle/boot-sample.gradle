@@ -3,3 +3,11 @@ apply plugin: 'spring-boot'
 sonarqube {
 	skipProject = true
 }
+
+configurations.all {
+	resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+		if (details.requested.group == 'org.springframework') {
+			details.useVersion springVersion
+		}
+	}
+}
