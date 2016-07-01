@@ -84,7 +84,7 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 	private static final String fullyAuthenticated = "fullyAuthenticated";
 	private static final String rememberMe = "rememberMe";
 
-	private final ExpressionInterceptUrlRegistry REGISTRY = new ExpressionInterceptUrlRegistry();
+	private final ExpressionInterceptUrlRegistry REGISTRY;
 
 	private SecurityExpressionHandler<FilterInvocation> expressionHandler;
 
@@ -92,7 +92,8 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 	 * Creates a new instance
 	 * @see HttpSecurity#authorizeRequests()
 	 */
-	public ExpressionUrlAuthorizationConfigurer() {
+	public ExpressionUrlAuthorizationConfigurer(ApplicationContext context) {
+		this.REGISTRY = new ExpressionInterceptUrlRegistry(context);
 	}
 
 	public ExpressionInterceptUrlRegistry getRegistry() {
@@ -102,6 +103,13 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 	public class ExpressionInterceptUrlRegistry
 			extends
 			ExpressionUrlAuthorizationConfigurer<H>.AbstractInterceptUrlRegistry<ExpressionInterceptUrlRegistry, AuthorizedUrl> {
+
+		/**
+		 * @param context
+		 */
+		private ExpressionInterceptUrlRegistry(ApplicationContext context) {
+			setApplicationContext(context);
+		}
 
 		@Override
 		protected final AuthorizedUrl chainRequestMatchersInternal(

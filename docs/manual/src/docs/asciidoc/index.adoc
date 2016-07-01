@@ -389,6 +389,7 @@ Here is the list of improvements:
 * Ability to add a `Filter` at a specific location in the chain using `HttpSecurity.addFilterAt`
 
 === Web Application Security Improvements
+* <<mvc-requestmatcher,MvcRequestMatcher>>
 * <<headers-csp,Content Security Policy (CSP)>>
 * <<headers-hpkp,HTTP Public Key Pinning (HPKP)>>
 * <<cors,CORS>>
@@ -6726,6 +6727,77 @@ To enable Spring Security integration with Spring MVC add the `@EnableWebSecurit
 
 NOTE: Spring Security provides the configuration using Spring MVC's http://docs.spring.io/spring-framework/docs/4.1.x/spring-framework-reference/htmlsingle/#mvc-config-customize[WebMvcConfigurerAdapter]. This means that if you are using more advanced options, like integrating with `WebMvcConfigurationSupport` directly, then you will need to manually provide the Spring Security configuration.
 
+[[mvc-requestmatcher]]
+=== MvcRequestMatcher
+
+Spring Security provides deep integration with how Spring MVC matches on URLs with `MvcRequestMatcher`.
+This is helpful to ensure your Security rules match the logic used to handle your requests.
+
+[NOTE]
+====
+It is always recommended to provide authorization rules by matching on the `HttpServletRequest` and method security.
+
+Providing authorization rules by matching on `HttpServletRequest` is good because it happens very early in the code path and helps reduce the https://en.wikipedia.org/wiki/Attack_surface[attack surface].
+Method security ensures that if someone has bypassed the web authorization rules, that your application is still secured.
+This is what is known as https://en.wikipedia.org/wiki/Defense_in_depth_(computing)[Defence in Depth]
+====
+
+Consider a controller that is mapped as follows:
+
+[source,java]
+----
+@RequestMapping("/admin")
+public String admin() {
+----
+
+If we wanted to restrict access to this controller method to admin users, a developer can provide authorization rules by matching on the `HttpServletRequest` with the following:
+
+[source,java]
+----
+protected configure(HttpSecurity http) throws Exception {
+	http
+		.authorizeRequests()
+			.antMatchers("/admin").hasRole("ADMIN");
+}
+----
+
+or in XML
+
+[source,xml]
+----
+<http>
+	<intercept-url pattern="/admin" access="hasRole('ADMIN')"/>
+</http>
+----
+
+With either configuration, the URL `/admin` will require the authenticated user to be an admin user.
+However, depending on our Spring MVC configuration, the URL `/admin.html` will also map to our `admin()` method.
+Additionally, depending on our Spring MVC configuration, the URL `/admin/` will also map to our `admin()` method.
+
+The problem is that our security rule is only protecting `/admin`.
+We could add additional rules for all the permutations of Spring MVC, but this would be quite verbose and tedious.
+
+Instead, we can leverage Spring Security's `MvcRequestMatcher`.
+The following configuration will protect the same URLs that Spring MVC will match on by using Spring MVC to match on the URL.
+
+
+[source,java]
+----
+protected configure(HttpSecurity http) throws Exception {
+	http
+		.authorizeRequests()
+			.mvcMatchers("/admin").hasRole("ADMIN");
+}
+----
+
+or in XML
+
+[source,xml]
+----
+<http request-matcher="mvc">
+	<intercept-url pattern="/admin" access="hasRole('ADMIN')"/>
+</http>
+----
 
 [[mvc-authentication-principal]]
 === @AuthenticationPrincipal
@@ -7403,7 +7475,7 @@ Sets the realm name used for basic authentication (if enabled). Corresponds to t
 
 [[nsa-http-request-matcher]]
 * **request-matcher**
-Defines the `RequestMatcher` strategy used in the `FilterChainProxy` and the beans created by the `intercept-url` to match incoming requests. Options are currently `ant`, `regex` and `ciRegex`, for ant, regular-expression and case-insensitive regular-expression repsectively. A separate instance is created for each<<nsa-intercept-url,intercept-url>> element using its <<nsa-intercept-url-pattern,pattern>> and <<nsa-intercept-url-method,method>> attributes. Ant paths are matched using an `AntPathRequestMatcher` and regular expressions are matched using a `RegexRequestMatcher`. See the Javadoc for these classes for more details on exactly how the matching is preformed. Ant paths are the default strategy.
+Defines the `RequestMatcher` strategy used in the `FilterChainProxy` and the beans created by the `intercept-url` to match incoming requests. Options are currently `mvc`, `ant`, `regex` and `ciRegex`, for Spring MVC, ant, regular-expression and case-insensitive regular-expression respectively. A separate instance is created for each<<nsa-intercept-url,intercept-url>> element using its <<nsa-intercept-url-pattern,pattern>> and <<nsa-intercept-url-method,method>> attributes. Ant paths are matched using an `AntPathRequestMatcher` and regular expressions are matched using a `RegexRequestMatcher`. See the Javadoc for these classes for more details on exactly how the matching is performed. Ant paths are the default strategy.
 
 
 [[nsa-http-request-matcher-ref]]

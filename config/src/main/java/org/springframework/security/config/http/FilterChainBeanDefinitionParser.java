@@ -45,7 +45,7 @@ public class FilterChainBeanDefinitionParser implements BeanDefinitionParser {
 
 		if (StringUtils.hasText(path)) {
 			Assert.isTrue(!StringUtils.hasText(requestMatcher), "");
-			builder.addConstructorArgValue(matcherType.createMatcher(path, null));
+			builder.addConstructorArgValue(matcherType.createMatcher(pc, path, null));
 		}
 		else {
 			Assert.isTrue(StringUtils.hasText(requestMatcher), "");

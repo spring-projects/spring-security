@@ -329,6 +329,14 @@ public abstract class WebSecurityConfigurerAdapter implements
 	}
 	// @formatter:on
 
+	/**
+	 * Gets the ApplicationContext
+	 * @return the context
+	 */
+	protected final ApplicationContext getApplicationContext() {
+		return this.context;
+	}
+
 	@Autowired
 	public void setApplicationContext(ApplicationContext context) {
 		this.context = context;

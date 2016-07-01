@@ -33,6 +33,7 @@ import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.security.web.util.matcher.RequestVariablesExtractor;
 import org.springframework.util.Assert;
 
 /**
@@ -96,6 +97,10 @@ public final class ExpressionBasedFilterInvocationSecurityMetadataSource
 			return new AntPathMatcherEvaluationContextPostProcessor(
 					(AntPathRequestMatcher) request);
 		}
+		if (request instanceof RequestVariablesExtractor) {
+			return new RequestVariablesExtractorEvaluationContextPostProcessor(
+					(RequestVariablesExtractor) request);
+		}
 		return null;
 	}
 
@@ -116,6 +121,26 @@ public final class ExpressionBasedFilterInvocationSecurityMetadataSource
 		@Override
 		String postProcessVariableName(String variableName) {
 			return this.matcher.postProcessVariableName(variableName);
+		}
+	}
+
+	static class RequestVariablesExtractorEvaluationContextPostProcessor
+			extends AbstractVariableEvaluationContextPostProcessor {
+		private final RequestVariablesExtractor matcher;
+
+		public RequestVariablesExtractorEvaluationContextPostProcessor(
+				RequestVariablesExtractor matcher) {
+			this.matcher = matcher;
+		}
+
+		@Override
+		Map<String, String> extractVariables(HttpServletRequest request) {
+			return this.matcher.extractUriTemplateVariables(request);
+		}
+
+		@Override
+		String postProcessVariableName(String variableName) {
+			return variableName;
 		}
 	}
 

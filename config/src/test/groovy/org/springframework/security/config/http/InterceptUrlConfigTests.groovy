@@ -24,6 +24,8 @@ import org.springframework.mock.web.MockHttpServletResponse
 import org.springframework.security.access.SecurityConfig
 import org.springframework.security.crypto.codec.Base64
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 
 /**
@@ -197,6 +199,73 @@ class InterceptUrlConfigTests extends AbstractHttpConfigTests {
 		response.status == HttpServletResponse.SC_FORBIDDEN
 	}
 
+	def "intercept-url supports mvc matchers"() {
+		setup:
+		MockHttpServletRequest request = new MockHttpServletRequest(method:'GET')
+		MockHttpServletResponse response = new MockHttpServletResponse()
+		MockFilterChain chain = new MockFilterChain()
+		xml.http('request-matcher':'mvc') {
+			'http-basic'()
+			'intercept-url'(pattern: '/path', access: "denyAll")
+		}
+		bean('pathController',PathController)
+		xml.'mvc:annotation-driven'()
+
+		createAppContext()
+		when:
+		request.servletPath = "/path"
+		springSecurityFilterChain.doFilter(request, response, chain)
+		then:
+		response.status == HttpServletResponse.SC_UNAUTHORIZED
+		when:
+		request = new MockHttpServletRequest(method:'GET')
+		response = new MockHttpServletResponse()
+		chain = new MockFilterChain()
+		request.servletPath = "/path.html"
+		springSecurityFilterChain.doFilter(request, response, chain)
+		then:
+		response.status == HttpServletResponse.SC_UNAUTHORIZED
+		when:
+		request = new MockHttpServletRequest(method:'GET')
+		response = new MockHttpServletResponse()
+		chain = new MockFilterChain()
+		request.servletPath = "/path/"
+		springSecurityFilterChain.doFilter(request, response, chain)
+		then:
+		response.status == HttpServletResponse.SC_UNAUTHORIZED
+	}
+
+	def "intercept-url mvc supports path variables"() {
+		setup:
+		MockHttpServletRequest request = new MockHttpServletRequest(method:'GET')
+		MockHttpServletResponse response = new MockHttpServletResponse()
+		MockFilterChain chain = new MockFilterChain()
+		xml.http('request-matcher':'mvc') {
+			'http-basic'()
+			'intercept-url'(pattern: '/user/{un}/**', access: "#un == 'user'")
+		}
+		createAppContext()
+		when: 'user can access'
+		request.servletPath = '/user/user/abc'
+		springSecurityFilterChain.doFilter(request,response,chain)
+		then: 'The response is OK'
+		response.status == HttpServletResponse.SC_OK
+		when: 'cannot access otheruser'
+		request = new MockHttpServletRequest(method:'GET', servletPath : '/user/otheruser/abc')
+		login(request, 'user', 'password')
+		chain.reset()
+		springSecurityFilterChain.doFilter(request,response,chain)
+		then: 'The response is OK'
+		response.status == HttpServletResponse.SC_FORBIDDEN
+		when: 'user can access case insensitive URL'
+		request = new MockHttpServletRequest(method:'GET', servletPath : '/USER/user/abc')
+		login(request, 'user', 'password')
+		chain.reset()
+		springSecurityFilterChain.doFilter(request,response,chain)
+		then: 'The response is OK'
+		response.status == HttpServletResponse.SC_FORBIDDEN
+	}
+
 	public static class Id {
 		public boolean isOne(int i) {
 			return i == 1;
@@ -206,5 +275,13 @@ class InterceptUrlConfigTests extends AbstractHttpConfigTests {
 	def login(MockHttpServletRequest request, String username, String password) {
 		String toEncode = username + ':' + password
 		request.addHeader('Authorization','Basic ' + new String(Base64.encode(toEncode.getBytes('UTF-8'))))
+	}
+
+	@RestController
+	static class PathController {
+		@RequestMapping("/path")
+		public String path() {
+			return "path";
+		}
 	}
 }

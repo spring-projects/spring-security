@@ -613,7 +613,7 @@ class HttpConfigurationBuilder {
 			String requiredChannel = urlElt.getAttribute(ATT_REQUIRES_CHANNEL);
 
 			if (StringUtils.hasText(requiredChannel)) {
-				BeanDefinition matcher = matcherType.createMatcher(path, method);
+				BeanDefinition matcher = matcherType.createMatcher(pc, path, method);
 
 				RootBeanDefinition channelAttributes = new RootBeanDefinition(
 						ChannelAttributeFactory.class);

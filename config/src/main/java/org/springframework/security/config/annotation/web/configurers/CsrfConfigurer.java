@@ -21,6 +21,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.context.ApplicationContext;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.annotation.web.AbstractRequestMatcherRegistry;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
@@ -78,12 +79,14 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 			new HttpSessionCsrfTokenRepository());
 	private RequestMatcher requireCsrfProtectionMatcher = CsrfFilter.DEFAULT_CSRF_MATCHER;
 	private List<RequestMatcher> ignoredCsrfProtectionMatchers = new ArrayList<RequestMatcher>();
+	private final ApplicationContext context;
 
 	/**
 	 * Creates a new instance
 	 * @see HttpSecurity#csrf()
 	 */
-	public CsrfConfigurer() {
+	public CsrfConfigurer(ApplicationContext context) {
+		this.context = context;
 	}
 
 	/**
@@ -141,7 +144,8 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @since 4.0
 	 */
 	public CsrfConfigurer<H> ignoringAntMatchers(String... antPatterns) {
-		return new IgnoreCsrfProtectionRegistry().antMatchers(antPatterns).and();
+		return new IgnoreCsrfProtectionRegistry(this.context).antMatchers(antPatterns)
+				.and();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -264,6 +268,13 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	 */
 	private class IgnoreCsrfProtectionRegistry
 			extends AbstractRequestMatcherRegistry<IgnoreCsrfProtectionRegistry> {
+
+		/**
+		 * @param context
+		 */
+		private IgnoreCsrfProtectionRegistry(ApplicationContext context) {
+			setApplicationContext(context);
+		}
 
 		public CsrfConfigurer<H> and() {
 			return CsrfConfigurer.this;
