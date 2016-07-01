@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -80,7 +81,7 @@ public final class WebSecurity extends
 
 	private final List<SecurityBuilder<? extends SecurityFilterChain>> securityFilterChainBuilders = new ArrayList<SecurityBuilder<? extends SecurityFilterChain>>();
 
-	private final IgnoredRequestConfigurer ignoredRequestRegistry = new IgnoredRequestConfigurer();
+	private IgnoredRequestConfigurer ignoredRequestRegistry;
 
 	private FilterSecurityInterceptor filterSecurityInterceptor;
 
@@ -316,6 +317,10 @@ public final class WebSecurity extends
 	public final class IgnoredRequestConfigurer extends
 			AbstractRequestMatcherRegistry<IgnoredRequestConfigurer> {
 
+		private IgnoredRequestConfigurer(ApplicationContext context) {
+			setApplicationContext(context);
+		}
+
 		@Override
 		protected IgnoredRequestConfigurer chainRequestMatchers(
 				List<RequestMatcher> requestMatchers) {
@@ -329,13 +334,13 @@ public final class WebSecurity extends
 		public WebSecurity and() {
 			return WebSecurity.this;
 		}
-
-		private IgnoredRequestConfigurer() {
-		}
 	}
 
+	@Override
 	public void setApplicationContext(ApplicationContext applicationContext)
 			throws BeansException {
-		defaultWebSecurityExpressionHandler.setApplicationContext(applicationContext);
+		this.defaultWebSecurityExpressionHandler
+				.setApplicationContext(applicationContext);
+		this.ignoredRequestRegistry = new IgnoredRequestConfigurer(applicationContext);
 	}
 }

@@ -165,7 +165,8 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
 				method = null;
 			}
 
-			BeanDefinition matcher = matcherType.createMatcher(path, method);
+			BeanDefinition matcher = matcherType.createMatcher(parserContext, path,
+					method);
 			BeanDefinitionBuilder attributeBuilder = BeanDefinitionBuilder
 					.rootBeanDefinition(SecurityConfig.class);
 
@@ -194,7 +195,8 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
 
 		if (addAuthenticatedAll && filterInvocationDefinitionMap.isEmpty()) {
 
-			BeanDefinition matcher = matcherType.createMatcher("/**", null);
+			BeanDefinition matcher = matcherType.createMatcher(parserContext, "/**",
+					null);
 			BeanDefinitionBuilder attributeBuilder = BeanDefinitionBuilder
 					.rootBeanDefinition(SecurityConfig.class);
 			attributeBuilder.addConstructorArgValue(new String[] { "authenticated" });

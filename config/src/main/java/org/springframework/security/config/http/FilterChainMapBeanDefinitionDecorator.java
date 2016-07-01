@@ -71,7 +71,7 @@ public class FilterChainMapBeanDefinitionDecorator implements BeanDefinitionDeco
 								+ "'must not be empty", elt);
 			}
 
-			BeanDefinition matcher = matcherType.createMatcher(path, null);
+			BeanDefinition matcher = matcherType.createMatcher(parserContext, path, null);
 
 			if (filters.equals(HttpSecurityBeanDefinitionParser.OPT_FILTERS_NONE)) {
 				securityFilterChains.add(createSecurityFilterChain(matcher,

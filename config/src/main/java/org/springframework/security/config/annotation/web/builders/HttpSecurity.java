@@ -23,6 +23,7 @@ import java.util.Map;
 import javax.servlet.Filter;
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.AbstractConfiguredSecurityBuilder;
@@ -62,6 +63,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.PortMapper;
 import org.springframework.security.web.PortMapperImpl;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -113,7 +115,7 @@ public final class HttpSecurity extends
 		AbstractConfiguredSecurityBuilder<DefaultSecurityFilterChain, HttpSecurity>
 		implements SecurityBuilder<DefaultSecurityFilterChain>,
 		HttpSecurityBuilder<HttpSecurity> {
-	private final RequestMatcherConfigurer requestMatcherConfigurer = new RequestMatcherConfigurer();
+	private final RequestMatcherConfigurer requestMatcherConfigurer;
 	private List<Filter> filters = new ArrayList<Filter>();
 	private RequestMatcher requestMatcher = AnyRequestMatcher.INSTANCE;
 	private FilterComparator comparator = new FilterComparator();
@@ -126,15 +128,24 @@ public final class HttpSecurity extends
 	 * @param sharedObjects the shared Objects to initialize the {@link HttpSecurity} with
 	 * @see WebSecurityConfiguration
 	 */
+	@SuppressWarnings("unchecked")
 	public HttpSecurity(ObjectPostProcessor<Object> objectPostProcessor,
 			AuthenticationManagerBuilder authenticationBuilder,
-			Map<Class<Object>, Object> sharedObjects) {
+			Map<Class<? extends Object>, Object> sharedObjects) {
 		super(objectPostProcessor);
 		Assert.notNull(authenticationBuilder, "authenticationBuilder cannot be null");
 		setSharedObject(AuthenticationManagerBuilder.class, authenticationBuilder);
-		for (Map.Entry<Class<Object>, Object> entry : sharedObjects.entrySet()) {
-			setSharedObject(entry.getKey(), entry.getValue());
+		for (Map.Entry<Class<? extends Object>, Object> entry : sharedObjects
+				.entrySet()) {
+			setSharedObject((Class<Object>) entry.getKey(), entry.getValue());
 		}
+		ApplicationContext context = (ApplicationContext) sharedObjects
+				.get(ApplicationContext.class);
+		this.requestMatcherConfigurer = new RequestMatcherConfigurer(context);
+	}
+
+	private ApplicationContext getContext() {
+		return getSharedObject(ApplicationContext.class);
 	}
 
 	/**
@@ -634,7 +645,8 @@ public final class HttpSecurity extends
 	 */
 	public ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry authorizeRequests()
 			throws Exception {
-		return getOrApply(new ExpressionUrlAuthorizationConfigurer<HttpSecurity>())
+		ApplicationContext context = getContext();
+		return getOrApply(new ExpressionUrlAuthorizationConfigurer<HttpSecurity>(context))
 				.getRegistry();
 	}
 
@@ -710,7 +722,8 @@ public final class HttpSecurity extends
 	 * @throws Exception
 	 */
 	public CsrfConfigurer<HttpSecurity> csrf() throws Exception {
-		return getOrApply(new CsrfConfigurer<HttpSecurity>());
+		ApplicationContext context = getContext();
+		return getOrApply(new CsrfConfigurer<HttpSecurity>(context));
 	}
 
 	/**
@@ -917,7 +930,9 @@ public final class HttpSecurity extends
 	 */
 	public ChannelSecurityConfigurer<HttpSecurity>.ChannelRequestMatcherRegistry requiresChannel()
 			throws Exception {
-		return getOrApply(new ChannelSecurityConfigurer<HttpSecurity>()).getRegistry();
+		ApplicationContext context = getContext();
+		return getOrApply(new ChannelSecurityConfigurer<HttpSecurity>(context))
+				.getRegistry();
 	}
 
 	/**
@@ -1241,7 +1256,15 @@ public final class HttpSecurity extends
 	 */
 	public final class RequestMatcherConfigurer extends
 			AbstractRequestMatcherRegistry<RequestMatcherConfigurer> {
+
 		private List<RequestMatcher> matchers = new ArrayList<RequestMatcher>();
+
+		/**
+		 * @param context
+		 */
+		private RequestMatcherConfigurer(ApplicationContext context) {
+			setApplicationContext(context);
+		}
 
 		protected RequestMatcherConfigurer chainRequestMatchers(
 				List<RequestMatcher> requestMatchers) {
@@ -1259,8 +1282,6 @@ public final class HttpSecurity extends
 			return HttpSecurity.this;
 		}
 
-		private RequestMatcherConfigurer() {
-		}
 	}
 
 	/**

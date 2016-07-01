@@ -25,6 +25,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.DelegatingFilterProxy;
@@ -57,7 +58,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	private final LinkedHashMap<Class<? extends SecurityConfigurer<O, B>>, List<SecurityConfigurer<O, B>>> configurers = new LinkedHashMap<Class<? extends SecurityConfigurer<O, B>>, List<SecurityConfigurer<O, B>>>();
 	private final List<SecurityConfigurer<O, B>> configurersAddedInInitializing = new ArrayList<SecurityConfigurer<O, B>>();
 
-	private final Map<Class<Object>, Object> sharedObjects = new HashMap<Class<Object>, Object>();
+	private final Map<Class<? extends Object>, Object> sharedObjects = new HashMap<Class<? extends Object>, Object>();
 
 	private final boolean allowConfigurersOfSameType;
 
@@ -155,7 +156,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 */
 	@SuppressWarnings("unchecked")
 	public <C> void setSharedObject(Class<C> sharedType, C object) {
-		this.sharedObjects.put((Class<Object>) sharedType, object);
+		this.sharedObjects.put(sharedType, object);
 	}
 
 	/**
@@ -173,7 +174,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 * Gets the shared objects
 	 * @return
 	 */
-	public Map<Class<Object>, Object> getSharedObjects() {
+	public Map<Class<? extends Object>, Object> getSharedObjects() {
 		return Collections.unmodifiableMap(this.sharedObjects);
 	}
 
@@ -300,7 +301,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 * @return the possibly modified Object to use
 	 */
 	protected <P> P postProcess(P object) {
-		return (P) this.objectPostProcessor.postProcess(object);
+		return this.objectPostProcessor.postProcess(object);
 	}
 
 	/**

@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import org.springframework.context.ApplicationContext;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
@@ -80,13 +81,14 @@ public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>> e
 	private LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = new LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>>();
 	private List<ChannelProcessor> channelProcessors;
 
-	private final ChannelRequestMatcherRegistry REGISTRY = new ChannelRequestMatcherRegistry();
+	private final ChannelRequestMatcherRegistry REGISTRY;
 
 	/**
 	 * Creates a new instance
 	 * @see HttpSecurity#requiresChannel()
 	 */
-	public ChannelSecurityConfigurer() {
+	public ChannelSecurityConfigurer(ApplicationContext context) {
+		this.REGISTRY = new ChannelRequestMatcherRegistry(context);
 	}
 
 	public ChannelRequestMatcherRegistry getRegistry() {
@@ -146,6 +148,10 @@ public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>> e
 	public final class ChannelRequestMatcherRegistry extends
 			AbstractConfigAttributeRequestMatcherRegistry<RequiresChannelUrl> {
 
+		private ChannelRequestMatcherRegistry(ApplicationContext context) {
+			setApplicationContext(context);
+		}
+
 		@Override
 		protected RequiresChannelUrl chainRequestMatchersInternal(
 				List<RequestMatcher> requestMatchers) {
@@ -184,9 +190,6 @@ public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>> e
 		 */
 		public H and() {
 			return ChannelSecurityConfigurer.this.and();
-		}
-
-		private ChannelRequestMatcherRegistry() {
 		}
 	}
 

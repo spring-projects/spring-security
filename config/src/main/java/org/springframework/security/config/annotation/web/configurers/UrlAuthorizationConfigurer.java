@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.springframework.context.ApplicationContext;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
@@ -86,7 +87,11 @@ import org.springframework.util.Assert;
  */
 public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>> extends
 		AbstractInterceptUrlConfigurer<UrlAuthorizationConfigurer<H>, H> {
-	private final StandardInterceptUrlRegistry REGISTRY = new StandardInterceptUrlRegistry();
+	private final StandardInterceptUrlRegistry REGISTRY;
+
+	public UrlAuthorizationConfigurer(ApplicationContext context) {
+		this.REGISTRY = new StandardInterceptUrlRegistry(context);
+	}
 
 	/**
 	 * The StandardInterceptUrlRegistry is what users will interact with after applying
@@ -113,6 +118,13 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>> 
 	public class StandardInterceptUrlRegistry
 			extends
 			ExpressionUrlAuthorizationConfigurer<H>.AbstractInterceptUrlRegistry<StandardInterceptUrlRegistry, AuthorizedUrl> {
+
+		/**
+		 * @param context
+		 */
+		private StandardInterceptUrlRegistry(ApplicationContext context) {
+			setApplicationContext(context);
+		}
 
 		@Override
 		protected final AuthorizedUrl chainRequestMatchersInternal(

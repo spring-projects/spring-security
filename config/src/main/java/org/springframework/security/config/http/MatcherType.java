@@ -18,6 +18,8 @@ package org.springframework.security.config.http;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.RootBeanDefinition;
+import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
@@ -33,17 +35,20 @@ import org.w3c.dom.Element;
  */
 public enum MatcherType {
 	ant(AntPathRequestMatcher.class), regex(RegexRequestMatcher.class), ciRegex(
-			RegexRequestMatcher.class);
+			RegexRequestMatcher.class), mvc(MvcRequestMatcher.class);
+
+	private static final String HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME = "org.springframework.web.servlet.handler.HandlerMappingIntrospector";
+	private static final String HANDLER_MAPPING_INTROSPECTOR_FACTORY_BEAN_NAME = "org.springframework.security.config.http.HandlerMappingIntrospectorFactoryBean";
 
 	private static final String ATT_MATCHER_TYPE = "request-matcher";
 
-	private final Class<? extends RequestMatcher> type;
+	final Class<? extends RequestMatcher> type;
 
 	MatcherType(Class<? extends RequestMatcher> type) {
 		this.type = type;
 	}
 
-	public BeanDefinition createMatcher(String path, String method) {
+	public BeanDefinition createMatcher(ParserContext pc, String path, String method) {
 		if (("/**".equals(path) || "**".equals(path)) && method == null) {
 			return new RootBeanDefinition(AnyRequestMatcher.class);
 		}
@@ -51,8 +56,28 @@ public enum MatcherType {
 		BeanDefinitionBuilder matcherBldr = BeanDefinitionBuilder
 				.rootBeanDefinition(type);
 
+		if (this == mvc) {
+			if (!pc.getRegistry().isBeanNameInUse(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME)) {
+				BeanDefinitionBuilder hmifb = BeanDefinitionBuilder
+						.rootBeanDefinition(HandlerMappingIntrospectorFactoryBean.class);
+				pc.getRegistry().registerBeanDefinition(HANDLER_MAPPING_INTROSPECTOR_FACTORY_BEAN_NAME,
+						hmifb.getBeanDefinition());
+
+				RootBeanDefinition hmi = new RootBeanDefinition(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME);
+				hmi.setFactoryBeanName(HANDLER_MAPPING_INTROSPECTOR_FACTORY_BEAN_NAME);
+				hmi.setFactoryMethodName("createHandlerMappingIntrospector");
+				pc.getRegistry().registerBeanDefinition(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME, hmi);
+			}
+			matcherBldr.addConstructorArgReference(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME);
+		}
+
 		matcherBldr.addConstructorArgValue(path);
-		matcherBldr.addConstructorArgValue(method);
+		if (this == mvc) {
+			matcherBldr.addPropertyValue("method", method);
+		}
+		else {
+			matcherBldr.addConstructorArgValue(method);
+		}
 
 		if (this == ciRegex) {
 			matcherBldr.addConstructorArgValue(true);

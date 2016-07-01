@@ -198,7 +198,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
 		}
 		else if (StringUtils.hasText(filterChainPattern)) {
-			filterChainMatcher = MatcherType.fromElement(element).createMatcher(
+			filterChainMatcher = MatcherType.fromElement(element).createMatcher(pc,
 					filterChainPattern, null);
 		}
 		else {
