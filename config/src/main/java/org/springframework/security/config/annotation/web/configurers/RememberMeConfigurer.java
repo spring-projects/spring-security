@@ -245,6 +245,22 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 		return this;
 	}
 
+	/**
+	 * Whether the cookie should always be created even if the remember-me parameter is
+	 * not set.
+	 * <p>
+	 * By default this will be set to {@code false}.
+	 *
+	 * @param alwaysRemember set to {@code true} to always trigger remember me,
+	 * {@code false} to use the remember-me parameter.
+	 * @return the {@link RememberMeConfigurer} for further customization
+	 * @see AbstractRememberMeServices#setAlwaysRemember(boolean)
+	 */
+	public RememberMeConfigurer<H> alwaysRemember(boolean alwaysRemember) {
+		this.alwaysRemember = alwaysRemember;
+		return this;
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public void init(H http) throws Exception {
