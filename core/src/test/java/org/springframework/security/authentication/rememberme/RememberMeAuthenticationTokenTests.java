@@ -86,10 +86,8 @@ public class RememberMeAuthenticationTokenTests {
 		assertThat(token.getKeyHash()).isEqualTo("key".hashCode());
 		assertThat(token.getPrincipal()).isEqualTo("Test");
 		assertThat(token.getCredentials()).isEqualTo("");
-		assertThat(AuthorityUtils.authorityListToSet(token.getAuthorities()).contains(
-				"ROLE_ONE"));
-		assertThat(AuthorityUtils.authorityListToSet(token.getAuthorities()).contains(
-				"ROLE_TWO"));
+		assertThat(AuthorityUtils.authorityListToSet(token.getAuthorities())).contains("ROLE_ONE");
+		assertThat(AuthorityUtils.authorityListToSet(token.getAuthorities())).contains("ROLE_TWO");
 		assertThat(token.isAuthenticated()).isTrue();
 	}
 

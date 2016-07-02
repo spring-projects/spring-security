@@ -72,10 +72,8 @@ public class UsernamePasswordAuthenticationTokenTests {
 				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
 		assertThat(token.getPrincipal()).isEqualTo("Test");
 		assertThat(token.getCredentials()).isEqualTo("Password");
-		assertThat(AuthorityUtils.authorityListToSet(token.getAuthorities()).contains(
-				"ROLE_ONE"));
-		assertThat(AuthorityUtils.authorityListToSet(token.getAuthorities()).contains(
-				"ROLE_TWO"));
+		assertThat(AuthorityUtils.authorityListToSet(token.getAuthorities())).contains("ROLE_ONE");
+		assertThat(AuthorityUtils.authorityListToSet(token.getAuthorities())).contains("ROLE_TWO");
 	}
 
 	@Test(expected = NoSuchMethodException.class)

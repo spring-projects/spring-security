@@ -15,29 +15,29 @@
  */
 package org.springframework.security.config.authentication;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 import org.junit.After;
 import org.junit.Test;
+import org.w3c.dom.Element;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication
+		.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.BeanIds;
-import org.springframework.security.config.authentication.AbstractUserDetailsServiceBeanDefinitionParser;
-import org.springframework.security.config.authentication.CachingUserDetailsService;
-import org.springframework.security.config.authentication.JdbcUserServiceBeanDefinitionParser;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.util.FieldUtils;
-import org.w3c.dom.Element;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author Ben Alex
  * @author Luke Taylor
+ * @author Eddú Meléndez
  */
 public class JdbcUserServiceBeanDefinitionParserTests {
 	private static String USER_CACHE_XML = "<b:bean id='userCache' class='org.springframework.security.authentication.dao.MockUserCache'/>";
@@ -154,8 +154,8 @@ public class JdbcUserServiceBeanDefinitionParserTests {
 		JdbcUserDetailsManager mgr = (JdbcUserDetailsManager) appContext
 				.getBean("myUserService");
 		UserDetails rod = mgr.loadUserByUsername("rod");
-		assertThat(AuthorityUtils.authorityListToSet(rod.getAuthorities()).contains(
-				"PREFIX_ROLE_SUPERVISOR"));
+		assertThat(AuthorityUtils.authorityListToSet(rod.getAuthorities()))
+				.contains("PREFIX_ROLE_SUPERVISOR");
 	}
 
 	private void setContext(String context) {

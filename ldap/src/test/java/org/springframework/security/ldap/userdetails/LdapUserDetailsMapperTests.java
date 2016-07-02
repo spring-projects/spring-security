@@ -16,20 +16,22 @@
 
 package org.springframework.security.ldap.userdetails;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 
 import org.junit.Test;
+
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.security.core.authority.AuthorityUtils;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests {@link LdapUserDetailsMapper}.
  *
  * @author Luke Taylor
+ * @author Eddú Meléndez
  */
 public class LdapUserDetailsMapperTests {
 
@@ -72,8 +74,7 @@ public class LdapUserDetailsMapperTests {
 				"ani", AuthorityUtils.NO_AUTHORITIES);
 
 		assertThat(user.getAuthorities()).hasSize(1);
-		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities()).contains(
-				"ROLE_X"));
+		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities())).contains("ROLE_X");
 	}
 
 	@Test
