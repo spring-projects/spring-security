@@ -89,8 +89,7 @@ public class RemoteAuthenticationProviderTests {
 				.authenticate(new UsernamePasswordAuthenticationToken("rod", "password"));
 		assertThat(result.getPrincipal()).isEqualTo("rod");
 		assertThat(result.getCredentials()).isEqualTo("password");
-		assertThat(AuthorityUtils.authorityListToSet(result.getAuthorities())
-				.contains("foo"));
+		assertThat(AuthorityUtils.authorityListToSet(result.getAuthorities())).contains("foo");
 	}
 
 	@Test

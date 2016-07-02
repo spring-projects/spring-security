@@ -15,11 +15,12 @@
  */
 package org.springframework.security.config.ldap;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
-import static org.springframework.security.config.ldap.LdapUserServiceBeanDefinitionParser.*;
+import java.util.Set;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.Test;
+import org.w3c.dom.Element;
+
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -32,13 +33,19 @@ import org.springframework.security.ldap.userdetails.LdapUserDetailsMapper;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsService;
 import org.springframework.security.ldap.userdetails.Person;
 import org.springframework.security.ldap.userdetails.PersonContextMapper;
-import org.w3c.dom.Element;
 
-import java.util.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.springframework.security.config.ldap.LdapUserServiceBeanDefinitionParser.INET_ORG_PERSON_MAPPER_CLASS;
+import static org.springframework.security.config.ldap.LdapUserServiceBeanDefinitionParser.LDAP_AUTHORITIES_POPULATOR_CLASS;
+import static org.springframework.security.config.ldap.LdapUserServiceBeanDefinitionParser.LDAP_SEARCH_CLASS;
+import static org.springframework.security.config.ldap.LdapUserServiceBeanDefinitionParser.LDAP_USER_MAPPER_CLASS;
+import static org.springframework.security.config.ldap.LdapUserServiceBeanDefinitionParser.PERSON_MAPPER_CLASS;
 
 /**
  * @author Luke Taylor
  * @author Rob Winch
+ * @author Eddú Meléndez
  */
 public class LdapUserServiceBeanDefinitionParserTests {
 	private InMemoryXmlApplicationContext appCtx;
@@ -102,13 +109,11 @@ public class LdapUserServiceBeanDefinitionParserTests {
 
 		UserDetailsService uds = (UserDetailsService) appCtx.getBean("ldapUDS");
 		UserDetails ben = uds.loadUserByUsername("ben");
-		assertThat(AuthorityUtils.authorityListToSet(ben.getAuthorities()).contains(
-				"PREFIX_DEVELOPERS"));
+		assertThat(AuthorityUtils.authorityListToSet(ben.getAuthorities())).contains("PREFIX_DEVELOPERS");
 
 		uds = (UserDetailsService) appCtx.getBean("ldapUDSNoPrefix");
 		ben = uds.loadUserByUsername("ben");
-		assertThat(AuthorityUtils.authorityListToSet(ben.getAuthorities()).contains(
-				"DEVELOPERS"));
+		assertThat(AuthorityUtils.authorityListToSet(ben.getAuthorities())).contains("DEVELOPERS");
 	}
 
 	@Test

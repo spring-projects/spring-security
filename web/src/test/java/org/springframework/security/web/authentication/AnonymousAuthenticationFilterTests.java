@@ -16,16 +16,7 @@
 
 package org.springframework.security.web.authentication;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-import org.junit.*;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.authentication.TestingAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.context.SecurityContextHolder;
+import java.io.IOException;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -33,12 +24,27 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import java.io.IOException;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContextHolder;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.Mockito.mock;
 
 /**
  * Tests {@link AnonymousAuthenticationFilter}.
  *
  * @author Ben Alex
+ * @author Eddú Meléndez
  */
 public class AnonymousAuthenticationFilterTests {
 
@@ -103,8 +109,7 @@ public class AnonymousAuthenticationFilterTests {
 
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		assertThat(auth.getPrincipal()).isEqualTo("anonymousUsername");
-		assertThat(AuthorityUtils.authorityListToSet(auth.getAuthorities()).contains(
-				"ROLE_ANONYMOUS"));
+		assertThat(AuthorityUtils.authorityListToSet(auth.getAuthorities())).contains("ROLE_ANONYMOUS");
 		SecurityContextHolder.getContext().setAuthentication(null); // so anonymous fires
 																	// again
 	}
