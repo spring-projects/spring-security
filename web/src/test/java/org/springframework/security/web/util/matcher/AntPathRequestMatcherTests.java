@@ -210,21 +210,6 @@ public class AntPathRequestMatcherTests {
 		assertThat(matcher.matches(request)).isFalse();
 	}
 
-	@Test
-	public void postProcessVariableNameCaseInsensitive() {
-		AntPathRequestMatcher matcher = new AntPathRequestMatcher("/**", null, false);
-		String variableName = "userName";
-		assertThat(matcher.postProcessVariableName(variableName))
-				.isEqualTo(variableName.toLowerCase());
-	}
-
-	@Test
-	public void postProcessVariableNameCaseSensitive() {
-		AntPathRequestMatcher matcher = new AntPathRequestMatcher("/**", null, true);
-		String variableName = "userName";
-		assertThat(matcher.postProcessVariableName(variableName)).isEqualTo(variableName);
-	}
-
 	private HttpServletRequest createRequestWithNullMethod(String path) {
 		when(this.request.getQueryString()).thenReturn("doesntMatter");
 		when(this.request.getServletPath()).thenReturn(path);

@@ -52,7 +52,8 @@ import org.springframework.util.StringUtils;
  *
  * @see org.springframework.util.AntPathMatcher
  */
-public final class AntPathRequestMatcher implements RequestMatcher {
+public final class AntPathRequestMatcher
+		implements RequestMatcher, RequestVariablesExtractor {
 	private static final Log logger = LogFactory.getLog(AntPathRequestMatcher.class);
 	private static final String MATCH_ALL = "/**";
 
@@ -102,10 +103,6 @@ public final class AntPathRequestMatcher implements RequestMatcher {
 			this.matcher = null;
 		}
 		else {
-			if (!caseSensitive) {
-				pattern = pattern.toLowerCase();
-			}
-
 			// If the pattern ends with {@code /**} and has no other wildcards or path
 			// variables, then optimize to a sub-path match
 			if (pattern.endsWith(MATCH_ALL)
@@ -113,10 +110,10 @@ public final class AntPathRequestMatcher implements RequestMatcher {
 							&& pattern.indexOf('}') == -1)
 					&& pattern.indexOf("*") == pattern.length() - 2) {
 				this.matcher = new SubpathMatcher(
-						pattern.substring(0, pattern.length() - 3));
+						pattern.substring(0, pattern.length() - 3), caseSensitive);
 			}
 			else {
-				this.matcher = new SpringAntMatcher(pattern);
+				this.matcher = new SpringAntMatcher(pattern, caseSensitive);
 			}
 		}
 
@@ -164,6 +161,7 @@ public final class AntPathRequestMatcher implements RequestMatcher {
 		return this.matcher.matches(url);
 	}
 
+	@Override
 	public Map<String, String> extractUriTemplateVariables(HttpServletRequest request) {
 		if (this.matcher == null || !matches(request)) {
 			return Collections.emptyMap();
@@ -172,19 +170,11 @@ public final class AntPathRequestMatcher implements RequestMatcher {
 		return this.matcher.extractUriTemplateVariables(url);
 	}
 
-	public String postProcessVariableName(String variableName) {
-		return this.caseSensitive ? variableName : variableName.toLowerCase();
-	}
-
 	private String getRequestPath(HttpServletRequest request) {
 		String url = request.getServletPath();
 
 		if (request.getPathInfo() != null) {
 			url += request.getPathInfo();
-		}
-
-		if (!this.caseSensitive) {
-			url = url.toLowerCase();
 		}
 
 		return url;
@@ -253,27 +243,29 @@ public final class AntPathRequestMatcher implements RequestMatcher {
 	}
 
 	private static class SpringAntMatcher implements Matcher {
-		private static final AntPathMatcher antMatcher = createMatcher();
+		private final AntPathMatcher antMatcher;
 
 		private final String pattern;
 
-		private SpringAntMatcher(String pattern) {
+		private SpringAntMatcher(String pattern, boolean caseSensitive) {
 			this.pattern = pattern;
+			this.antMatcher = createMatcher(caseSensitive);
 		}
 
 		@Override
 		public boolean matches(String path) {
-			return antMatcher.match(this.pattern, path);
+			return this.antMatcher.match(this.pattern, path);
 		}
 
 		@Override
 		public Map<String, String> extractUriTemplateVariables(String path) {
-			return antMatcher.extractUriTemplateVariables(this.pattern, path);
+			return this.antMatcher.extractUriTemplateVariables(this.pattern, path);
 		}
 
-		private static AntPathMatcher createMatcher() {
+		private static AntPathMatcher createMatcher(boolean caseSensitive) {
 			AntPathMatcher matcher = new AntPathMatcher();
 			matcher.setTrimTokens(false);
+			matcher.setCaseSensitive(caseSensitive);
 			return matcher;
 		}
 	}
@@ -284,15 +276,20 @@ public final class AntPathRequestMatcher implements RequestMatcher {
 	private static class SubpathMatcher implements Matcher {
 		private final String subpath;
 		private final int length;
+		private final boolean caseSensitive;
 
-		private SubpathMatcher(String subpath) {
+		private SubpathMatcher(String subpath, boolean caseSensitive) {
 			assert!subpath.contains("*");
-			this.subpath = subpath;
+			this.subpath = caseSensitive ? subpath : subpath.toLowerCase();
 			this.length = subpath.length();
+			this.caseSensitive = caseSensitive;
 		}
 
 		@Override
 		public boolean matches(String path) {
+			if (!this.caseSensitive) {
+				path = path.toLowerCase();
+			}
 			return path.startsWith(this.subpath)
 					&& (path.length() == this.length || path.charAt(this.length) == '/');
 		}
