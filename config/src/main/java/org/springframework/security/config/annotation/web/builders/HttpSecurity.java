@@ -38,6 +38,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.configurers.AnonymousConfigurer;
 import org.springframework.security.config.annotation.web.configurers.ChannelSecurityConfigurer;
+import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.annotation.web.configurers.ExceptionHandlingConfigurer;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
@@ -69,6 +70,9 @@ import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 /**
  * A {@link HttpSecurity} is similar to Spring Security's XML &lt;http&gt; element in the
@@ -315,6 +319,19 @@ public final class HttpSecurity extends
 	 */
 	public HeadersConfigurer<HttpSecurity> headers() throws Exception {
 		return getOrApply(new HeadersConfigurer<HttpSecurity>());
+	}
+
+	/**
+	 * Adds a {@link CorsFilter} to be used. If a bean by the name of corsFilter is
+	 * provided, that {@link CorsFilter} is used. Else if corsConfigurationSource is
+	 * defined, then that {@link CorsConfiguration} is used. Otherwise, if Spring MVC is
+	 * on the classpath a {@link HandlerMappingIntrospector} is used.
+	 *
+	 * @return the {@link CorsConfigurer} for customizations
+	 * @throws Exception
+	 */
+	public CorsConfigurer<HttpSecurity> cors() throws Exception {
+		return getOrApply(new CorsConfigurer<HttpSecurity>());
 	}
 
 	/**

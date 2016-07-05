@@ -17,20 +17,22 @@ package org.springframework.security.config.annotation;
 
 import javax.servlet.Filter
 
+import spock.lang.AutoCleanup
+import spock.lang.Specification
+
 import org.springframework.beans.factory.NoSuchBeanDefinitionException
 import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
-import org.springframework.context.annotation.Configuration;
 import org.springframework.mock.web.MockFilterChain
 import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.mock.web.MockHttpServletResponse
+import org.springframework.mock.web.MockServletContext
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.configuration.AutowireBeanFactoryObjectPostProcessor;
-import org.springframework.security.config.annotation.configuration.ObjectPostProcessorConfiguration;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration
+import org.springframework.security.config.annotation.configuration.ObjectPostProcessorConfiguration
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.authority.AuthorityUtils
 import org.springframework.security.core.context.SecurityContextHolder
@@ -40,11 +42,9 @@ import org.springframework.security.web.access.intercept.FilterSecurityIntercept
 import org.springframework.security.web.context.HttpRequestResponseHolder
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository
 import org.springframework.security.web.csrf.CsrfToken
-import org.springframework.security.web.csrf.DefaultCsrfToken;
+import org.springframework.security.web.csrf.DefaultCsrfToken
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository
-
-import spock.lang.AutoCleanup
-import spock.lang.Specification
+import org.springframework.web.context.support.AnnotationConfigWebApplicationContext
 
 /**
  *
@@ -88,7 +88,10 @@ abstract class BaseSpringSpec extends Specification {
 	}
 
 	def loadConfig(Class<?>... configs) {
-		context = new AnnotationConfigApplicationContext(configs)
+		context = new AnnotationConfigWebApplicationContext()
+		context.register(configs)
+		context.setServletContext(new MockServletContext())
+		context.refresh()
 		context
 	}
 

@@ -127,6 +127,7 @@ class HttpConfigurationBuilder {
 	private BeanReference fsi;
 	private BeanReference requestCache;
 	private BeanDefinition addHeadersFilter;
+	private BeanMetadataElement corsFilter;
 	private BeanDefinition csrfFilter;
 	private BeanMetadataElement csrfLogoutHandler;
 	private BeanMetadataElement csrfAuthStrategy;
@@ -176,6 +177,7 @@ class HttpConfigurationBuilder {
 		createChannelProcessingFilter();
 		createFilterSecurityInterceptor(authenticationManager);
 		createAddHeadersFilter();
+		createCorsFilter();
 	}
 
 	private SessionCreationPolicy createPolicy(String createSession) {
@@ -737,6 +739,11 @@ class HttpConfigurationBuilder {
 	private void createAddHeadersFilter() {
 		Element elmt = DomUtils.getChildElementByTagName(httpElt, Elements.HEADERS);
 		this.addHeadersFilter = new HeadersBeanDefinitionParser().parse(elmt, pc);
+	}
+
+	private void createCorsFilter() {
+		Element elmt = DomUtils.getChildElementByTagName(this.httpElt, Elements.CORS);
+		this.corsFilter = new CorsBeanDefinitionParser().parse(elmt, this.pc);
 
 	}
 
@@ -806,6 +813,10 @@ class HttpConfigurationBuilder {
 
 		if (sessionPolicy != SessionCreationPolicy.STATELESS) {
 			filters.add(new OrderDecorator(requestCacheAwareFilter, REQUEST_CACHE_FILTER));
+		}
+
+		if (this.corsFilter != null) {
+			filters.add(new OrderDecorator(this.corsFilter, CORS_FILTER));
 		}
 
 		if (addHeadersFilter != null) {

@@ -68,6 +68,7 @@ public abstract class Elements {
 	public static final String DEBUG = "debug";
 	public static final String HTTP_FIREWALL = "http-firewall";
 	public static final String HEADERS = "headers";
+	public static final String CORS = "cors";
 	public static final String CSRF = "csrf";
 
 	public static final String WEBSOCKET_MESSAGE_BROKER = "websocket-message-broker";

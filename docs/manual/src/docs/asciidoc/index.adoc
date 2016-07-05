@@ -391,6 +391,7 @@ Here is the list of improvements:
 === Web Application Security Improvements
 * <<headers-csp,Content Security Policy (CSP)>>
 * <<headers-hpkp,HTTP Public Key Pinning (HPKP)>>
+* <<cors,CORS>>
 * <<csrf-cookie,CookieCsrfTokenRepository>> provides simple AngularJS & CSRF integration
 * Added `ForwardAuthenticationFailureHandler` & `ForwardAuthenticationSuccessHandler`
 * <<mvc-authentication-principal,AuthenticationPrincipal>> supports expression attribute to support transforming the `Authentication.getPrincipal()` object (i.e. handling immutable custom `User` domain objects)
@@ -3566,6 +3567,83 @@ Spring Security's goal is to provide defaults that protect your users from explo
 For example, you can provide a custom CsrfTokenRepository to override the way in which the `CsrfToken` is stored.
 
 You can also specify a custom RequestMatcher to determine which requests are protected by CSRF (i.e. perhaps you don't care if log out is exploited). In short, if Spring Security's CSRF protection doesn't behave exactly as you want it, you are able to customize the behavior. Refer to the <<nsa-csrf>> documentation for details on how to make these customizations with XML and the `CsrfConfigurer` javadoc for details on how to make these customizations when using Java configuration.
+
+[[cors]]
+== CORS
+
+Spring Framework provides http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#cors[first class support for CORS].
+CORS must be processed before Spring Security because the preflight request will not contain any cookies (i.e. the `JSESSIONID`).
+If the request does not contain any cookies and Spring Security is first, the request will determine the user is not authenticated (since there are no cookies in the request) and reject it.
+
+The easiest way to ensure that CORS is handled first is to use the `CorsFilter`.
+Users can integrate the `CorsFilter` with Spring Security by providing a `CorsConfigurationSource` using the following:
+
+[source,java]
+----
+@EnableWebSecurity
+public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http
+			// by default uses a Bean by the name of corsConfigurationSource
+			.cors().and()
+			...
+	}
+
+	@Bean
+	CorsConfigurationSource corsConfigurationSource() {
+		CorsConfiguration configuration = new CorsConfiguration();
+		configuration.setAllowedOrigins(Arrays.asList("https://example.com"));
+		configuration.setAllowedMethods(Arrays.asList("GET","POST"));
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", configuration);
+		return source;
+	}
+}
+----
+
+or in XML
+
+[source,xml]
+----
+<http>
+	<cors configuration-source-ref="corsSource"/>
+	...
+</http>
+<b:bean id="corsSource" class="org.springframework.web.cors.UrlBasedCorsConfigurationSource">
+	...
+</b:bean>
+----
+
+If you are using Spring MVC's CORS support, you can omit specifying the `CorsConfigurationSource` and Spring Security will leverage the CORS configuration provided to Spring MVC.
+
+[source,java]
+----
+@EnableWebSecurity
+public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http
+			// if Spring MVC is on classpath and no CorsConfigurationSource is provided,
+			// Spring Security will use CORS configuration provided to Spring MVC
+			.cors().and()
+			...
+	}
+}
+----
+
+or in XML
+
+[source,xml]
+----
+<http>
+	<!-- Default to Spring MVC's CORS configuraiton -->
+	<cors />
+	...
+</http>
+----
 
 [[headers]]
 == Security HTTP Response Headers
@@ -7357,6 +7435,7 @@ Enables EL-expressions in the `access` attribute, as described in the chapter on
 ===== Child Elements of <http>
 * <<nsa-access-denied-handler,access-denied-handler>>
 * <<nsa-anonymous,anonymous>>
+* <<nsa-cors,cors>>
 * <<nsa-csrf,csrf>>
 * <<nsa-custom-filter,custom-filter>>
 * <<nsa-expression-handler,expression-handler>>
@@ -7397,6 +7476,28 @@ The access denied page that an authenticated user will be redirected to if they 
 * **ref**
 Defines a reference to a Spring bean of type `AccessDeniedHandler`.
 
+
+[[nsa-cors]]
+==== <cors>
+This element allows for configuring a `CorsFilter`.
+If no `CorsFilter` or `CorsConfigurationSource` is specified and Spring MVC is on the classpath, a `HandlerMappingIntrospector` is used as the `CorsConfigurationSource`.
+
+[[nsa-cors-attributes]]
+===== <cors> Attributes
+The attributes on the `<cors>` element control the headers element.
+
+[[nsa-cors-ref]]
+* **ref**
+Optional attribute that specifies the bean name of a `CorsFilter`.
+
+[[nsa-cors-configuration-source-ref]]
+* **ref**
+Optional attribute that specifies the bean name of a `CorsConfigurationSource` to be injected into a `CorsFilter` created by the XML namespace.
+
+[[nsa-cors-parents]]
+===== Parent Elements of <cors>
+
+* <<nsa-http,http>>
 
 [[nsa-headers]]
 ==== <headers>

@@ -44,6 +44,7 @@ import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
 import org.springframework.security.web.session.ConcurrentSessionFilter;
 import org.springframework.security.web.session.SessionManagementFilter;
+import org.springframework.web.filter.CorsFilter;
 
 /**
  * An internal use only {@link Comparator} that sorts the Security {@link Filter}
@@ -69,6 +70,8 @@ final class FilterComparator implements Comparator<Filter>, Serializable {
 		put(SecurityContextPersistenceFilter.class, order);
 		order += STEP;
 		put(HeaderWriterFilter.class, order);
+		order += STEP;
+		put(CorsFilter.class, order);
 		order += STEP;
 		put(CsrfFilter.class, order);
 		order += STEP;

@@ -303,7 +303,7 @@ http-firewall =
 
 http =
 	## Container element for HTTP security configuration. Multiple elements can now be defined, each with a specific pattern to which the enclosed security configuration applies. A pattern can also be configured to bypass Spring Security's filters completely by setting the "security" attribute to "none".
-	element http {http.attlist, (intercept-url* & access-denied-handler? & form-login? & openid-login? & x509? & jee? & http-basic? & logout? & session-management & remember-me? & anonymous? & port-mappings & custom-filter* & request-cache? & expression-handler? & headers? & csrf?) }
+	element http {http.attlist, (intercept-url* & access-denied-handler? & form-login? & openid-login? & x509? & jee? & http-basic? & logout? & session-management & remember-me? & anonymous? & port-mappings & custom-filter* & request-cache? & expression-handler? & headers? & csrf? & cors?) }
 http.attlist &=
 	## The request URL pattern which will be mapped to the filter chain created by this <http> element. If omitted, the filter chain will match all requests.
 	attribute pattern {xsd:token}?
@@ -771,12 +771,21 @@ hsts-options.attlist &=
 	## The RequestMatcher instance to be used to determine if the header should be set. Default is if HttpServletRequest.isSecure() is true.
 	attribute request-matcher-ref { xsd:token }?
 
+cors =
+## Element for configuration of CorsFilter. If no CorsFilter or CorsConfigurationSource is specified a HandlerMappingIntrospector is used as the CorsConfigurationSource
+element cors { cors-options.attlist }
+cors-options.attlist &=
+	ref?
+cors-options.attlist &=
+	## Specifies a bean id that is a CorsConfigurationSource used to construct the CorsFilter to use
+	attribute configuration-source-ref {xsd:token}?
+
 hpkp =
 	## Adds support for HTTP Public Key Pinning (HPKP).
 	element hpkp {hpkp.pins,hpkp.attlist}
 hpkp.pins =
 	## The list with pins
- 	element pins {hpkp.pin+}
+	element pins {hpkp.pin+}
 hpkp.pin =
 	## A pin is specified using the base64-encoded SPKI fingerprint as value and the cryptographic hash algorithm as attribute
 	element pin {
@@ -895,4 +904,4 @@ position =
 	## The explicit position at which the custom-filter should be placed in the chain. Use if you are replacing a standard filter.
 	attribute position {named-security-filter}
 
-named-security-filter = "FIRST" | "CHANNEL_FILTER" | "SECURITY_CONTEXT_FILTER" | "CONCURRENT_SESSION_FILTER" | "WEB_ASYNC_MANAGER_FILTER" | "HEADERS_FILTER" | "CSRF_FILTER" | "LOGOUT_FILTER" | "X509_FILTER" | "PRE_AUTH_FILTER" | "CAS_FILTER" | "FORM_LOGIN_FILTER" | "OPENID_FILTER" | "LOGIN_PAGE_FILTER" | "DIGEST_AUTH_FILTER" | "BASIC_AUTH_FILTER" | "REQUEST_CACHE_FILTER" | "SERVLET_API_SUPPORT_FILTER" | "JAAS_API_SUPPORT_FILTER" | "REMEMBER_ME_FILTER" | "ANONYMOUS_FILTER" | "SESSION_MANAGEMENT_FILTER" | "EXCEPTION_TRANSLATION_FILTER" | "FILTER_SECURITY_INTERCEPTOR" | "SWITCH_USER_FILTER" | "LAST"
+named-security-filter = "FIRST" | "CHANNEL_FILTER" | "SECURITY_CONTEXT_FILTER" | "CONCURRENT_SESSION_FILTER" | "WEB_ASYNC_MANAGER_FILTER" | "HEADERS_FILTER" | "CORS_FILTER" | "CSRF_FILTER" | "LOGOUT_FILTER" | "X509_FILTER" | "PRE_AUTH_FILTER" | "CAS_FILTER" | "FORM_LOGIN_FILTER" | "OPENID_FILTER" | "LOGIN_PAGE_FILTER" | "DIGEST_AUTH_FILTER" | "BASIC_AUTH_FILTER" | "REQUEST_CACHE_FILTER" | "SERVLET_API_SUPPORT_FILTER" | "JAAS_API_SUPPORT_FILTER" | "REMEMBER_ME_FILTER" | "ANONYMOUS_FILTER" | "SESSION_MANAGEMENT_FILTER" | "EXCEPTION_TRANSLATION_FILTER" | "FILTER_SECURITY_INTERCEPTOR" | "SWITCH_USER_FILTER" | "LAST"
