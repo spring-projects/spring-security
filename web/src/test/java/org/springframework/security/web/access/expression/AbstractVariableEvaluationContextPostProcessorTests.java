@@ -66,13 +66,6 @@ public class AbstractVariableEvaluationContextPostProcessorTests {
 	}
 
 	@Test
-	public void postProcessVariableName() {
-		this.context = this.processor.postProcess(this.context, this.invocation);
-
-		assertThat(this.context.lookupVariable("nothing")).isEqualTo(VALUE);
-	}
-
-	@Test
 	public void extractVariablesOnlyUsedOnce() {
 		this.context = this.processor.postProcess(this.context, this.invocation);
 
@@ -88,11 +81,6 @@ public class AbstractVariableEvaluationContextPostProcessorTests {
 		@Override
 		protected Map<String, String> extractVariables(HttpServletRequest request) {
 			return this.results;
-		}
-
-		@Override
-		String postProcessVariableName(String variableName) {
-			return KEY;
 		}
 	}
 }

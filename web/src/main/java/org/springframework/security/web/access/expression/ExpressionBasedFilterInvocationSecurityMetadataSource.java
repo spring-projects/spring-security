@@ -93,10 +93,6 @@ public final class ExpressionBasedFilterInvocationSecurityMetadataSource
 
 	private static AbstractVariableEvaluationContextPostProcessor createPostProcessor(
 			Object request) {
-		if (request instanceof AntPathRequestMatcher) {
-			return new AntPathMatcherEvaluationContextPostProcessor(
-					(AntPathRequestMatcher) request);
-		}
 		if (request instanceof RequestVariablesExtractor) {
 			return new RequestVariablesExtractorEvaluationContextPostProcessor(
 					(RequestVariablesExtractor) request);
@@ -117,11 +113,6 @@ public final class ExpressionBasedFilterInvocationSecurityMetadataSource
 		Map<String, String> extractVariables(HttpServletRequest request) {
 			return this.matcher.extractUriTemplateVariables(request);
 		}
-
-		@Override
-		String postProcessVariableName(String variableName) {
-			return this.matcher.postProcessVariableName(variableName);
-		}
 	}
 
 	static class RequestVariablesExtractorEvaluationContextPostProcessor
@@ -136,11 +127,6 @@ public final class ExpressionBasedFilterInvocationSecurityMetadataSource
 		@Override
 		Map<String, String> extractVariables(HttpServletRequest request) {
 			return this.matcher.extractUriTemplateVariables(request);
-		}
-
-		@Override
-		String postProcessVariableName(String variableName) {
-			return variableName;
 		}
 	}
 

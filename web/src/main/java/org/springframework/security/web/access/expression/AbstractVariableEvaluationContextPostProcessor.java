@@ -54,7 +54,6 @@ abstract class AbstractVariableEvaluationContextPostProcessor
 				if (this.variables == null) {
 					this.variables = extractVariables(request);
 				}
-				name = postProcessVariableName(name);
 				return this.variables.get(name);
 			}
 
@@ -62,7 +61,5 @@ abstract class AbstractVariableEvaluationContextPostProcessor
 	}
 
 	abstract Map<String, String> extractVariables(HttpServletRequest request);
-
-	abstract String postProcessVariableName(String variableName);
 
 }
