@@ -15,9 +15,13 @@
  */
 package org.springframework.security.test.context.support;
 
-import static org.assertj.core.api.Assertions.*;
-
-import static org.mockito.Mockito.when;
+import java.lang.annotation.Annotation;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
@@ -25,12 +29,24 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.AnnotationAwareOrderComparator;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.TestSecurityContextHolder;
 import org.springframework.test.context.TestContext;
+import org.springframework.test.context.TestExecutionListener;
+import org.springframework.test.context.jdbc.SqlScriptsTestExecutionListener;
+import org.springframework.test.context.support.AbstractTestExecutionListener;
 import org.springframework.util.ReflectionUtils;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WithSecurityContextTestExcecutionListenerTests {
@@ -78,7 +94,73 @@ public class WithSecurityContextTestExcecutionListenerTests {
 
 		listener.beforeTestMethod(testContext);
 
-		assertThat(TestSecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("user");
+		assertThat(TestSecurityContextHolder.getContext().getAuthentication().getName())
+				.isEqualTo("user");
+	}
+	// gh-3962
+	@Test
+	public void withSecurityContextAfterSqlScripts() {
+		SqlScriptsTestExecutionListener sql = new SqlScriptsTestExecutionListener();
+		WithSecurityContextTestExecutionListener security = new WithSecurityContextTestExecutionListener();
+
+		List<? extends TestExecutionListener> listeners = Arrays.asList(security, sql);
+
+		AnnotationAwareOrderComparator.sort(listeners);
+
+		assertThat(listeners).containsExactly(sql, security);
+	}
+
+	// SEC-2709
+	@Test
+	public void orderOverridden() {
+		AbstractTestExecutionListener otherListener = new AbstractTestExecutionListener() {
+		};
+
+		List<TestExecutionListener> listeners = new ArrayList<TestExecutionListener>();
+		listeners.add(otherListener);
+		listeners.add(this.listener);
+
+		AnnotationAwareOrderComparator.sort(listeners);
+
+		assertThat(listeners).containsSequence(this.listener, otherListener);
+	}
+
+	@Test
+	// gh-3837
+	public void handlesGenericAnnotation() throws Exception {
+		Method method = ReflectionUtils.findMethod(
+				WithSecurityContextTestExcecutionListenerTests.class,
+				"handlesGenericAnnotationTestMethod");
+		TestContext testContext = mock(TestContext.class);
+		when(testContext.getTestMethod()).thenReturn(method);
+		when(testContext.getApplicationContext())
+				.thenThrow(new IllegalStateException(""));
+
+		this.listener.beforeTestMethod(testContext);
+
+		assertThat(SecurityContextHolder.getContext().getAuthentication().getPrincipal())
+				.isInstanceOf(WithSuperClassWithSecurityContext.class);
+	}
+
+	@WithSuperClassWithSecurityContext
+	public void handlesGenericAnnotationTestMethod() {
+	}
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@WithSecurityContext(factory = SuperClassWithSecurityContextFactory.class)
+	@interface WithSuperClassWithSecurityContext {
+		String username() default "WithSuperClassWithSecurityContext";
+	}
+
+	static class SuperClassWithSecurityContextFactory
+			implements WithSecurityContextFactory<Annotation> {
+
+		@Override
+		public SecurityContext createSecurityContext(Annotation annotation) {
+			SecurityContext context = SecurityContextHolder.createEmptyContext();
+			context.setAuthentication(new TestingAuthenticationToken(annotation, "NA"));
+			return context;
+		}
 	}
 
 	static class FakeTest {

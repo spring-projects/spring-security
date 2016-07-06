@@ -144,10 +144,10 @@ public class WithSecurityContextTestExecutionListener
 	}
 
 	/**
-	 * Returns {@code 1000}.
+	 * Returns {@code 10000}.
 	 */
 	@Override
 	public int getOrder() {
-		return 1000;
+		return 10000;
 	}
 }

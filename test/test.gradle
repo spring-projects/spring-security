@@ -11,5 +11,6 @@ dependencies {
 	provided "javax.servlet:javax.servlet-api:$servletApiVersion"
 
 	testCompile "org.springframework:spring-webmvc:$springVersion",
+				"org.springframework:spring-tx:$springVersion",
 				powerMockDependencies
 }
