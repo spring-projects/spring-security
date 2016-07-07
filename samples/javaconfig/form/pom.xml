@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-samples-javaconfig-form</artifactId>
-  <version>4.1.1.BUILD-SNAPSHOT</version>
+  <version>4.1.1.RELEASE</version>
   <packaging>war</packaging>
   <name>spring-security-samples-javaconfig-form</name>
   <description>spring-security-samples-javaconfig-form</description>
@@ -39,7 +39,7 @@
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-framework-bom</artifactId>
-        <version>4.2.5.RELEASE</version>
+        <version>4.3.1.RELEASE</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -91,25 +91,25 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
-      <version>4.1.1.BUILD-SNAPSHOT</version>
+      <version>4.1.1.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <version>4.1.1.BUILD-SNAPSHOT</version>
+      <version>4.1.1.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-samples-javaconfig-messages</artifactId>
-      <version>4.1.1.BUILD-SNAPSHOT</version>
+      <version>4.1.1.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
-      <version>4.1.1.BUILD-SNAPSHOT</version>
+      <version>4.1.1.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -150,7 +150,7 @@
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <version>0.9.30</version>
+      <version>1.1.2</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -158,12 +158,6 @@
       <artifactId>sitemesh</artifactId>
       <version>2.4.2</version>
       <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-      <version>1.1.2</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>commons-httpclient</groupId>
@@ -243,12 +237,6 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-  <repositories>
-    <repository>
-      <id>spring-snapshot</id>
-      <url>https://repo.spring.io/snapshot</url>
-    </repository>
-  </repositories>
   <build>
     <plugins>
       <plugin>
