@@ -1753,7 +1753,7 @@
   </xs:attributeGroup>
   
   <xs:attributeGroup name="concurrency-control.attlist">
-      <xs:attribute name="max-sessions" type="xs:positiveInteger">
+      <xs:attribute name="max-sessions" type="xs:integer">
          <xs:annotation>
             <xs:documentation>The maximum number of sessions a single authenticated user can have open at the same time.
                 Defaults to "1".
