@@ -29,7 +29,7 @@ Not sure what a pull request is, or how to submit one? Take a look at GitHub's e
 Is there already an issue that addresses your concern? Do a bit of searching in our [GitHub issues ](https://github.com/spring-projects/spring-security/issues) to see if you can find something similar. If not, please create a new issue before submitting a pull request unless the change is not a user facing issue.
 
 # Discuss non-trivial contribution ideas with committers
-If you're considering anything more than correcting a typo or fixing a minor bug , please discuss it on the [Spring Security Gitter](https://gitter.im/spring-projects/spring-security) before submitting a pull request. We're happy to provide guidance but please spend an hour or two researching the subject on your own including searching the forums for prior discussions.
+If you're considering anything more than correcting a typo or fixing a minor bug, please discuss it on the [Spring Security Gitter](https://gitter.im/spring-projects/spring-security) before submitting a pull request. We're happy to provide guidance but please spend an hour or two researching the subject on your own including searching the forums for prior discussions.
 
 # Sign the Contributor License Agreement
 
@@ -104,11 +104,20 @@ e.g.
  */
 </pre>
 
-#Submit JUnit test cases for all behavior changes
+# Submit JUnit test cases for all behavior changes
 Search the codebase to find related unit tests and add additional `@Test` methods within. 
 
 1. Any new tests should end in the name Tests (note this is plural). For example, a valid name would be `FilterChainProxyTests`. An invalid name would be `FilterChainProxyTest`.
 2. New test methods should not start with test. This is an old JUnit3 convention and is not necessary since the method is annotated with @Test.
+
+# Update spring-security-x.y.rnc for schema changes
+Update the [RELAX NG](http://www.relaxng.org) schema `spring-security-x.y.rnc` instead of `spring-security-x.y.xsd` if you contribute changes to supported XML configuration. The XML schema file can be generated the following Gradle task:
+
+<pre>
+./gradlew spring-security-config:rncToXsd
+</pre>
+
+Changes to the XML schema will be overwritten by the Gradle build task.
 
 # Squash commits
 Use git rebase --interactive, git add --patch and other tools to "squash" multiple commits into atomic changes. In addition to the man pages for git, there are many resources online to help you understand how these tools work. Here is one: http://book.git-scm.com/4_interactive_rebasing.html.
