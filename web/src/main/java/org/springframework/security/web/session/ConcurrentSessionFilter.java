@@ -32,6 +32,7 @@ import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
+import org.springframework.security.web.authentication.logout.CompositeLogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.web.util.UrlUtils;
@@ -59,6 +60,7 @@ import org.springframework.web.filter.GenericFilterBean;
  * </p>
  *
  * @author Ben Alex
+ * @author Eddú Meléndez
  */
 public class ConcurrentSessionFilter extends GenericFilterBean {
 	// ~ Instance fields
@@ -66,8 +68,8 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
 
 	private SessionRegistry sessionRegistry;
 	private String expiredUrl;
-	private LogoutHandler[] handlers = new LogoutHandler[] { new SecurityContextLogoutHandler() };
 	private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
+	private LogoutHandler handlers = new CompositeLogoutHandler(new SecurityContextLogoutHandler());
 
 	// ~ Methods
 	// ========================================================================================================
@@ -142,14 +144,11 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
 	private void doLogout(HttpServletRequest request, HttpServletResponse response) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-		for (LogoutHandler handler : handlers) {
-			handler.logout(request, response, auth);
-		}
+		this.handlers.logout(request, response, auth);
 	}
 
 	public void setLogoutHandlers(LogoutHandler[] handlers) {
-		Assert.notNull(handlers);
-		this.handlers = handlers;
+		this.handlers = new CompositeLogoutHandler(handlers);
 	}
 
 	public void setRedirectStrategy(RedirectStrategy redirectStrategy) {

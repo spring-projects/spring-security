@@ -42,6 +42,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.authentication.logout.CompositeLogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.util.Assert;
 
@@ -81,6 +82,7 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 	private AuthenticationEntryPoint authenticationEntryPoint;
 	private AuthenticationManager authenticationManager;
 	private List<LogoutHandler> logoutHandlers;
+	private LogoutHandler logoutHandler;
 
 	HttpServlet3RequestFactory(String rolePrefix) {
 		this.rolePrefix = rolePrefix;
@@ -250,12 +252,13 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 						"logoutHandlers is null, so allowing original HttpServletRequest to handle logout");
 				super.logout();
 				return;
+			} else {
+				HttpServlet3RequestFactory.this.logoutHandler = new
+						CompositeLogoutHandler(handlers);
 			}
 			Authentication authentication = SecurityContextHolder.getContext()
 					.getAuthentication();
-			for (LogoutHandler logoutHandler : handlers) {
-				logoutHandler.logout(this, this.response, authentication);
-			}
+			HttpServlet3RequestFactory.this.logoutHandler.logout(this, this.response, authentication);
 		}
 
 		private boolean isAuthenticated() {
