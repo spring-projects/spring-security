@@ -45,6 +45,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.logout.CompositeLogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 /**
  * Provides integration with the Servlet 3 APIs in addition to the ones found in
@@ -81,7 +82,6 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 	private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
 	private AuthenticationEntryPoint authenticationEntryPoint;
 	private AuthenticationManager authenticationManager;
-	private List<LogoutHandler> logoutHandlers;
 	private LogoutHandler logoutHandler;
 
 	HttpServlet3RequestFactory(String rolePrefix) {
@@ -146,7 +146,7 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 	 * {@link HttpServletRequest#logout()}.
 	 */
 	public void setLogoutHandlers(List<LogoutHandler> logoutHandlers) {
-		this.logoutHandlers = logoutHandlers;
+		this.logoutHandler = CollectionUtils.isEmpty(logoutHandlers) ? null : new CompositeLogoutHandler(logoutHandlers);
 	}
 
 	/**
@@ -246,19 +246,16 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 
 		@Override
 		public void logout() throws ServletException {
-			List<LogoutHandler> handlers = HttpServlet3RequestFactory.this.logoutHandlers;
-			if (handlers == null) {
+			LogoutHandler handler = HttpServlet3RequestFactory.this.logoutHandler;
+			if (handler == null) {
 				HttpServlet3RequestFactory.this.logger.debug(
 						"logoutHandlers is null, so allowing original HttpServletRequest to handle logout");
 				super.logout();
 				return;
-			} else {
-				HttpServlet3RequestFactory.this.logoutHandler = new
-						CompositeLogoutHandler(handlers);
 			}
 			Authentication authentication = SecurityContextHolder.getContext()
 					.getAuthentication();
-			HttpServlet3RequestFactory.this.logoutHandler.logout(this, this.response, authentication);
+			handler.logout(this, this.response, authentication);
 		}
 
 		private boolean isAuthenticated() {

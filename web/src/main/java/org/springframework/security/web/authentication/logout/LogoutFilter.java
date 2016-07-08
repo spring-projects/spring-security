@@ -56,7 +56,7 @@ public class LogoutFilter extends GenericFilterBean {
 
 	private RequestMatcher logoutRequestMatcher;
 
-	private LogoutHandler handler;
+	private final LogoutHandler handler;
 	private final LogoutSuccessHandler logoutSuccessHandler;
 
 	// ~ Constructors
