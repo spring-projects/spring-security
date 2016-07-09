@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.jasig.cas.client.authentication.AttributePrincipal;
-import org.springframework.security.cas.authentication.CasAuthenticationToken;
 
 import java.util.Date;
 import java.util.Map;
