@@ -16,6 +16,7 @@
 
 package org.springframework.security.web.savedrequest;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.web.PortResolver;
@@ -379,6 +380,7 @@ public class DefaultSavedRequest implements SavedRequest {
 		return "DefaultSavedRequest[" + getRedirectUrl() + "]";
 	}
 
+	@JsonIgnoreProperties(ignoreUnknown = true)
 	public static class Builder {
 
 		private List<Cookie> cookies = null;
