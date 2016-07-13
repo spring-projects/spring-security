@@ -29,6 +29,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -169,10 +170,10 @@ public class ExceptionTranslationFilter extends GenericFilterBean {
 					(AuthenticationException) exception);
 		}
 		else if (exception instanceof AccessDeniedException) {
-			if (authenticationTrustResolver.isAnonymous(SecurityContextHolder
-					.getContext().getAuthentication())) {
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			if (authenticationTrustResolver.isAnonymous(auth) || authenticationTrustResolver.isRememberMe(auth)) {
 				logger.debug(
-						"Access is denied (user is anonymous); redirecting to authentication entry point",
+						"Access is denied (user is "+ (authenticationTrustResolver.isAnonymous(auth) ? "anonymous" : "not fully authenticated")+"); redirecting to authentication entry point",
 						exception);
 
 				sendStartAuthentication(
