@@ -167,6 +167,14 @@ class DummyRequest extends HttpServletRequestWrapper {
 		super(UNSUPPORTED_REQUEST);
 	}
 
+	public String getCharacterEncoding() {
+		return "UTF-8";
+	}
+
+	public Object getAttribute(String attributeName) {
+		return null;
+	}
+
 	public void setRequestURI(String requestURI) {
 		this.requestURI = requestURI;
 	}

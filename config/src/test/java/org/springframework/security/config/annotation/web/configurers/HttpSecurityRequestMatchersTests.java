@@ -95,6 +95,13 @@ public class HttpSecurityRequestMatchersTests {
 				.isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 	}
 
+	@Test
+	public void mvcMatcherGetFiltersNoUnsupportedMethodExceptionFromDummyRequest() {
+		loadConfig(MvcMatcherConfig.class);
+
+		assertThat(springSecurityFilterChain.getFilters("/path")).isNotEmpty();
+	}
+
 	@EnableWebSecurity
 	@Configuration
 	@EnableWebMvc
