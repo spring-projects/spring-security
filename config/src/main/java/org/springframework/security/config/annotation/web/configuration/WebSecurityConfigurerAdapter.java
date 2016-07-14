@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,10 @@ package org.springframework.security.config.annotation.web.configuration;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -174,12 +176,10 @@ public abstract class WebSecurityConfigurerAdapter implements
 
 		AuthenticationManager authenticationManager = authenticationManager();
 		authenticationBuilder.parentAuthenticationManager(authenticationManager);
+		Map<Class<? extends Object>, Object> sharedObjects = createSharedObjects();
+
 		http = new HttpSecurity(objectPostProcessor, authenticationBuilder,
-				localConfigureAuthenticationBldr.getSharedObjects());
-		http.setSharedObject(UserDetailsService.class, userDetailsService());
-		http.setSharedObject(ApplicationContext.class, context);
-		http.setSharedObject(ContentNegotiationStrategy.class, contentNegotiationStrategy);
-		http.setSharedObject(AuthenticationTrustResolver.class, trustResolver);
+				sharedObjects);
 		if (!disableDefaults) {
 			// @formatter:off
 			http
@@ -376,6 +376,21 @@ public abstract class WebSecurityConfigurerAdapter implements
 	}
 
 	/**
+	 * Creates the shared objects
+	 *
+	 * @return the shared Objects
+	 */
+	private Map<Class<? extends Object>, Object> createSharedObjects() {
+		Map<Class<? extends Object>, Object> sharedObjects = new HashMap<Class<? extends Object>, Object>();
+		sharedObjects.putAll(localConfigureAuthenticationBldr.getSharedObjects());
+		sharedObjects.put(UserDetailsService.class, userDetailsService());
+		sharedObjects.put(ApplicationContext.class, context);
+		sharedObjects.put(ContentNegotiationStrategy.class, contentNegotiationStrategy);
+		sharedObjects.put(AuthenticationTrustResolver.class, trustResolver);
+		return sharedObjects;
+	}
+
+	/**
 	 * Delays the use of the {@link UserDetailsService} from the
 	 * {@link AuthenticationManagerBuilder} to ensure that it has been fully configured.
 	 *
@@ -489,4 +504,5 @@ public abstract class WebSecurityConfigurerAdapter implements
 			}
 		}
 	}
+
 }
