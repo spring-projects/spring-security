@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,6 +65,7 @@ import org.springframework.security.web.PortMapper;
 import org.springframework.security.web.PortMapperImpl;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer;
+import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
@@ -1080,12 +1081,12 @@ public final class HttpSecurity extends
 	 * Allows specifying which {@link HttpServletRequest} instances this
 	 * {@link HttpSecurity} will be invoked on. This method allows for easily invoking the
 	 * {@link HttpSecurity} for multiple different {@link RequestMatcher} instances. If
-	 * only a single {@link RequestMatcher} is necessary consider using
+	 * only a single {@link RequestMatcher} is necessary consider using {@link #mvcMatcher(String)},
 	 * {@link #antMatcher(String)}, {@link #regexMatcher(String)}, or
 	 * {@link #requestMatcher(RequestMatcher)}.
 	 *
 	 * <p>
-	 * Invoking {@link #requestMatchers()} will not override previous invocations of
+	 * Invoking {@link #requestMatchers()} will not override previous invocations of {@link #mvcMatcher(String)}},
 	 * {@link #requestMatchers()}, {@link #antMatcher(String)},
 	 * {@link #regexMatcher(String)}, and {@link #requestMatcher(RequestMatcher)}.
 	 * </p>
@@ -1194,7 +1195,7 @@ public final class HttpSecurity extends
 	 *
 	 * <p>
 	 * Invoking {@link #requestMatcher(RequestMatcher)} will override previous invocations
-	 * of {@link #requestMatchers()}, {@link #antMatcher(String)},
+	 * of {@link #requestMatchers()}, {@link #mvcMatcher(String)}, {@link #antMatcher(String)},
 	 * {@link #regexMatcher(String)}, and {@link #requestMatcher(RequestMatcher)}.
 	 * </p>
 	 *
@@ -1216,7 +1217,7 @@ public final class HttpSecurity extends
 	 * {@link #requestMatchers()} or {@link #requestMatcher(RequestMatcher)}.
 	 *
 	 * <p>
-	 * Invoking {@link #antMatcher(String)} will override previous invocations of
+	 * Invoking {@link #antMatcher(String)} will override previous invocations of {@link #mvcMatcher(String)}},
 	 * {@link #requestMatchers()}, {@link #antMatcher(String)},
 	 * {@link #regexMatcher(String)}, and {@link #requestMatcher(RequestMatcher)}.
 	 * </p>
@@ -1231,11 +1232,31 @@ public final class HttpSecurity extends
 
 	/**
 	 * Allows configuring the {@link HttpSecurity} to only be invoked when matching the
+	 * provided Spring MVC pattern. If more advanced configuration is necessary, consider using
+	 * {@link #requestMatchers()} or {@link #requestMatcher(RequestMatcher)}.
+	 *
+	 * <p>
+	 * Invoking {@link #mvcMatcher(String)} will override previous invocations of {@link #mvcMatcher(String)}},
+	 * {@link #requestMatchers()}, {@link #antMatcher(String)},
+	 * {@link #regexMatcher(String)}, and {@link #requestMatcher(RequestMatcher)}.
+	 * </p>
+	 *
+	 * @param mvcPattern the Spring MVC Pattern to match on (i.e. "/admin/**")
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @see MvcRequestMatcher
+	 */
+	public HttpSecurity mvcMatcher(String mvcPattern) {
+		HandlerMappingIntrospector introspector = new HandlerMappingIntrospector(getContext());
+		return requestMatcher(new MvcRequestMatcher(introspector, mvcPattern));
+	}
+
+	/**
+	 * Allows configuring the {@link HttpSecurity} to only be invoked when matching the
 	 * provided regex pattern. If more advanced configuration is necessary, consider using
 	 * {@link #requestMatchers()} or {@link #requestMatcher(RequestMatcher)}.
 	 *
 	 * <p>
-	 * Invoking {@link #regexMatcher(String)} will override previous invocations of
+	 * Invoking {@link #regexMatcher(String)} will override previous invocations of {@link #mvcMatcher(String)}},
 	 * {@link #requestMatchers()}, {@link #antMatcher(String)},
 	 * {@link #regexMatcher(String)}, and {@link #requestMatcher(RequestMatcher)}.
 	 * </p>
