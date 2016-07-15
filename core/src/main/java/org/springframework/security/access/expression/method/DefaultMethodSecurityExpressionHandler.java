@@ -37,10 +37,10 @@ public class DefaultMethodSecurityExpressionHandler extends
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
-	protected AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
-	protected ParameterNameDiscoverer parameterNameDiscoverer = new DefaultSecurityParameterNameDiscoverer();
-	protected PermissionCacheOptimizer permissionCacheOptimizer = null;
-	protected String defaultRolePrefix = "ROLE_";
+	private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
+	private ParameterNameDiscoverer parameterNameDiscoverer = new DefaultSecurityParameterNameDiscoverer();
+	private PermissionCacheOptimizer permissionCacheOptimizer = null;
+	private String defaultRolePrefix = "ROLE_";
 
 	public DefaultMethodSecurityExpressionHandler() {
 	}
@@ -51,7 +51,7 @@ public class DefaultMethodSecurityExpressionHandler extends
 	 */
 	public StandardEvaluationContext createEvaluationContextInternal(Authentication auth,
 			MethodInvocation mi) {
-		return new MethodSecurityEvaluationContext(auth, mi, parameterNameDiscoverer);
+		return new MethodSecurityEvaluationContext(auth, mi, getParameterNameDiscoverer());
 	}
 
 	/**
@@ -63,9 +63,9 @@ public class DefaultMethodSecurityExpressionHandler extends
 				authentication);
 		root.setThis(invocation.getThis());
 		root.setPermissionEvaluator(getPermissionEvaluator());
-		root.setTrustResolver(trustResolver);
+		root.setTrustResolver(getTrustResolver());
 		root.setRoleHierarchy(getRoleHierarchy());
-		root.setDefaultRolePrefix(defaultRolePrefix);
+		root.setDefaultRolePrefix(getDefaultRolePrefix());
 
 		return root;
 	}
@@ -175,12 +175,26 @@ public class DefaultMethodSecurityExpressionHandler extends
 	}
 
 	/**
+	 * @return The current {@link AuthenticationTrustResolver}
+     */
+	protected AuthenticationTrustResolver getTrustResolver() {
+		return trustResolver;
+	}
+
+	/**
 	 * Sets the {@link ParameterNameDiscoverer} to use. The default is
 	 * {@link DefaultSecurityParameterNameDiscoverer}.
 	 * @param parameterNameDiscoverer
 	 */
 	public void setParameterNameDiscoverer(ParameterNameDiscoverer parameterNameDiscoverer) {
 		this.parameterNameDiscoverer = parameterNameDiscoverer;
+	}
+
+	/**
+	 * @return The current {@link ParameterNameDiscoverer}
+     */
+	protected ParameterNameDiscoverer getParameterNameDiscoverer() {
+		return parameterNameDiscoverer;
 	}
 
 	public void setPermissionCacheOptimizer(
@@ -209,5 +223,12 @@ public class DefaultMethodSecurityExpressionHandler extends
 	 */
 	public void setDefaultRolePrefix(String defaultRolePrefix) {
 		this.defaultRolePrefix = defaultRolePrefix;
+	}
+
+	/**
+	 * @return The default role prefix
+     */
+	protected String getDefaultRolePrefix() {
+		return defaultRolePrefix;
 	}
 }
