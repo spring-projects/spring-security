@@ -126,19 +126,17 @@ public class DefaultSavedRequest implements SavedRequest {
 	/**
 	 * Private constructor invoked through Builder
 	 */
-	private DefaultSavedRequest(String contextPath, String method, String pathInfo, String queryString, String requestURI,
-								String requestURL, String scheme, String serverName, String servletPath, int serverPort) {
-
-		this.contextPath = contextPath;
-		this.method = method;
-		this.pathInfo = pathInfo;
-		this.queryString = queryString;
-		this.requestURI = requestURI;
-		this.requestURL = requestURL;
-		this.scheme = scheme;
-		this.serverName = serverName;
-		this.servletPath = servletPath;
-		this.serverPort = serverPort;
+	private DefaultSavedRequest(Builder builder) {
+		this.contextPath = builder.contextPath;
+		this.method = builder.method;
+		this.pathInfo = builder.pathInfo;
+		this.queryString = builder.queryString;
+		this.requestURI = builder.requestURI;
+		this.requestURL = builder.requestURL;
+		this.scheme = builder.scheme;
+		this.serverName = builder.serverName;
+		this.servletPath = builder.servletPath;
+		this.serverPort = builder.serverPort;
 	}
 
 	// ~ Methods
@@ -206,13 +204,12 @@ public class DefaultSavedRequest implements SavedRequest {
 
 	/**
 	 * Determines if the current request matches the <code>DefaultSavedRequest</code>.
-	 * <p>
+	 * <p/>
 	 * All URL arguments are considered but not cookies, locales, headers or parameters.
 	 *
-	 * @param request the actual request to be matched against this one
+	 * @param request      the actual request to be matched against this one
 	 * @param portResolver used to obtain the server port of the request
 	 * @return true if the request is deemed to match this one.
-	 *
 	 */
 	public boolean doesRequestMatch(HttpServletRequest request, PortResolver portResolver) {
 
@@ -374,8 +371,7 @@ public class DefaultSavedRequest implements SavedRequest {
 			}
 
 			return true;
-		}
-		else {
+		} else {
 			if (logger.isDebugEnabled()) {
 				logger.debug(log + ": arg1=" + arg1 + "; arg2=" + arg2
 						+ " (property not equals)");
@@ -481,10 +477,7 @@ public class DefaultSavedRequest implements SavedRequest {
 		}
 
 		public DefaultSavedRequest build() {
-			DefaultSavedRequest savedRequest = new DefaultSavedRequest(
-					this.contextPath, this.method, this.pathInfo, this.queryString, this.requestURI,
-					this.requestURL, this.scheme, this.serverName, this.servletPath, this.serverPort
-			);
+			DefaultSavedRequest savedRequest = new DefaultSavedRequest(this);
 			savedRequest.addCookies(this.cookies.toArray(new Cookie[]{}));
 			savedRequest.locales.addAll(this.locales);
 			savedRequest.addParameters(this.parameters);
