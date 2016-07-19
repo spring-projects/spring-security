@@ -37,6 +37,7 @@ import java.util.Set;
  *
  * @author Jitendra Singh
  * @see UserMixin
+ * @since 4.2
  */
 public class UserDeserializer extends JsonDeserializer<User> {
 

@@ -23,7 +23,7 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
 
 /**
  * Represents a remembered <code>Authentication</code>.
- * <p>
+ * <p/>
  * A remembered <code>Authentication</code> must provide a fully valid
  * <code>Authentication</code>, including the <code>GrantedAuthority</code>s that apply.
  *
@@ -46,14 +46,13 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken {
 	/**
 	 * Constructor.
 	 *
-	 * @param key to identify if this object made by an authorised client
-	 * @param principal the principal (typically a <code>UserDetails</code>)
+	 * @param key         to identify if this object made by an authorised client
+	 * @param principal   the principal (typically a <code>UserDetails</code>)
 	 * @param authorities the authorities granted to the principal
-	 *
 	 * @throws IllegalArgumentException if a <code>null</code> was passed
 	 */
 	public RememberMeAuthenticationToken(String key, Object principal,
-			Collection<? extends GrantedAuthority> authorities) {
+										 Collection<? extends GrantedAuthority> authorities) {
 		super(authorities);
 
 		if ((key == null) || ("".equals(key)) || (principal == null)
@@ -70,9 +69,10 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken {
 	/**
 	 * Private Constructor to help in Jackson deserialization.
 	 *
-	 * @param keyHash hashCode of above given key.
-	 * @param principal the principal (typically a <code>UserDetails</code>)
+	 * @param keyHash     hashCode of above given key.
+	 * @param principal   the principal (typically a <code>UserDetails</code>)
 	 * @param authorities the authorities granted to the principal
+	 * @since 4.2
 	 */
 	private RememberMeAuthenticationToken(Integer keyHash, Object principal, Collection<? extends GrantedAuthority> authorities) {
 		super(authorities);

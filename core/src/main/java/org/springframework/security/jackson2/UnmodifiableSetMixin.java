@@ -31,6 +31,7 @@ import java.util.Set;
  * </pre>
  *
  * @author Jitendra Singh
+ * @since 4.2
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
 public class UnmodifiableSetMixin {

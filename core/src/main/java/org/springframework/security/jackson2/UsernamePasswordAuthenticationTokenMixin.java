@@ -39,6 +39,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
  *     mapper.addMixIn(UsernamePasswordAuthenticationToken.class, UsernamePasswordAuthenticationTokenMixin.class);
  * </pre>
  * @author Jitendra Singh
+ * @since 4.2
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 @JsonDeserialize(using = UsernamePasswordAuthenticationTokenDeserializer.class)

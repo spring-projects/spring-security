@@ -25,6 +25,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 /**
  * @author Jitenra Singh
+ * @since 4.2
  */
 @RunWith(MockitoJUnitRunner.class)
 public abstract class AbstractMixinTests {

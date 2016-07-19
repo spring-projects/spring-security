@@ -144,6 +144,9 @@ public class DefaultSavedRequest implements SavedRequest {
 	// ~ Methods
 	// ========================================================================================================
 
+	/**
+	 * @since 4.2
+	 */
 	private void addCookies(Cookie[] cookies) {
 		if (cookies != null) {
 			for (Cookie cookie : cookies) {
@@ -167,6 +170,9 @@ public class DefaultSavedRequest implements SavedRequest {
 		values.add(value);
 	}
 
+	/**
+	 * @since 4.2
+	 */
 	private void addLocales(Enumeration<Locale> locales) {
 		while (locales.hasMoreElements()) {
 			Locale locale = locales.nextElement();
@@ -178,6 +184,9 @@ public class DefaultSavedRequest implements SavedRequest {
 		locales.add(locale);
 	}
 
+	/**
+	 * @since 4.2
+	 */
 	private void addParameters(Map<String, String[]> parameters) {
 		for (String paramName : parameters.keySet()) {
 			Object paramValues = parameters.get(paramName);
@@ -380,6 +389,9 @@ public class DefaultSavedRequest implements SavedRequest {
 		return "DefaultSavedRequest[" + getRedirectUrl() + "]";
 	}
 
+	/**
+	 * @since 4.2
+	 */
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	public static class Builder {
 

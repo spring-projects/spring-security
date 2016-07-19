@@ -46,6 +46,7 @@ import static org.assertj.core.api.Assertions.*;
 
 /**
  * @author Jitendra Singh
+ * @since 4.2
  */
 @RunWith(MockitoJUnitRunner.class)
 public class CasAuthenticationTokenMixinTest {

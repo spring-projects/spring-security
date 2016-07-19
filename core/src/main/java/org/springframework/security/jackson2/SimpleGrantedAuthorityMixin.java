@@ -31,6 +31,7 @@ import java.util.Collection;
  *     mapper.addMixIn(SimpleGrantedAuthority.class, SimpleGrantedAuthorityMixin.class);
  * </pre>
  * @author Jitendra Singh
+ * @since 4.2
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
 @JsonIgnoreProperties(ignoreUnknown = true)

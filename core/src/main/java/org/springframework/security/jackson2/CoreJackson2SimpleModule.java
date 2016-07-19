@@ -38,6 +38,7 @@ import java.util.Collections;
  * </pre>
  *
  * @author Jitendra Singh.
+ * @since 4.2
  */
 public class CoreJackson2SimpleModule extends SimpleModule {
 

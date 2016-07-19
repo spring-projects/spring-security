@@ -28,6 +28,7 @@ import com.fasterxml.jackson.annotation.*;
  * </pre>
  *
  * @author Jitendra Singh
+ * @since 4.2
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public class DefaultCsrfTokenMixin {

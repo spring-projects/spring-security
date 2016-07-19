@@ -34,7 +34,8 @@ import javax.servlet.http.Cookie;
  *     mapper.registerModule(new WebJackson2SimpleModule());
  * </pre>
  *
- * @author Jitendra Singh.
+ * @author Jitendra Singh
+ * @since 4.2
  */
 public class WebJackson2SimpleModule extends SimpleModule {
 

@@ -38,6 +38,7 @@ import java.util.Map;
  * </pre>
  *
  * @author Jitendra Singh
+ * @since 4.2
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
 @JsonDeserialize(builder = DefaultSavedRequest.Builder.class)

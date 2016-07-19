@@ -32,6 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Jitendra Singh
+ * @since 4.2
  */
 public class UserDeserializerTests extends AbstractMixinTests {
 

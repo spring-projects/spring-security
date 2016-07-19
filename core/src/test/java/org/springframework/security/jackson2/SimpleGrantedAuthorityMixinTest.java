@@ -32,7 +32,8 @@ import java.io.IOException;
 import static org.assertj.core.api.Assertions.*;
 
 /**
- * @author Jitendra Singh.
+ * @author Jitendra Singh
+ * @since 4.2
  */
 public class SimpleGrantedAuthorityMixinTest {
 

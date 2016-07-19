@@ -41,6 +41,7 @@ import java.util.List;
  *
  * @author Jitendra Singh
  * @see UsernamePasswordAuthenticationTokenMixin
+ * @since 4.2
  */
 public class UsernamePasswordAuthenticationTokenDeserializer extends JsonDeserializer<UsernamePasswordAuthenticationToken> {
 

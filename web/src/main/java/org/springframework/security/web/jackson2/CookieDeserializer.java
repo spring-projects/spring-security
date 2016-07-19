@@ -36,6 +36,7 @@ import java.io.IOException;
  *
  * @author Jitendra Singh
  * @see CookieMixin
+ * @since 4.2
  */
 public class CookieDeserializer extends JsonDeserializer<Cookie> {
 

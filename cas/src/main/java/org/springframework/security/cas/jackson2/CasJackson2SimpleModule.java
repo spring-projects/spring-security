@@ -33,6 +33,7 @@ import org.springframework.security.cas.authentication.CasAuthenticationToken;
  * </pre>
  *
  * @author Jitendra Singh.
+ * @since 4.2
  */
 public class CasJackson2SimpleModule extends SimpleModule {
 

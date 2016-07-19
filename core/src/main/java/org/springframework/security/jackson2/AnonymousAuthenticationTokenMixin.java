@@ -35,6 +35,7 @@ import java.util.Collection;
  * <i>Note: This class will save full class name into a property called @class</i>
  *
  * @author Jitendra Singh
+ * @since 4.2
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
 @JsonIgnoreProperties(ignoreUnknown = true)

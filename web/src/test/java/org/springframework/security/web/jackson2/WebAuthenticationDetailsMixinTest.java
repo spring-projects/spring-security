@@ -35,6 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Jitendra Singh
+ * @since 4.2
  */
 @RunWith(MockitoJUnitRunner.class)
 public class WebAuthenticationDetailsMixinTest {
