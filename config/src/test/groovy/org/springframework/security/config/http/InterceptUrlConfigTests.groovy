@@ -15,19 +15,17 @@
  */
 package org.springframework.security.config.http
 
-import javax.servlet.Filter
-import javax.servlet.http.HttpServletResponse
-
+import org.springframework.beans.factory.parsing.BeanDefinitionParsingException
 import org.springframework.mock.web.MockFilterChain
 import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.mock.web.MockHttpServletResponse
 import org.springframework.security.access.SecurityConfig
 import org.springframework.security.crypto.codec.Base64
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 
-
+import javax.servlet.http.HttpServletResponse
 /**
  *
  * @author Rob Winch
@@ -264,6 +262,88 @@ class InterceptUrlConfigTests extends AbstractHttpConfigTests {
 		springSecurityFilterChain.doFilter(request,response,chain)
 		then: 'The response is OK'
 		response.status == HttpServletResponse.SC_FORBIDDEN
+	}
+
+	def "intercept-url mvc matchers with servlet path"() {
+		setup:
+		MockHttpServletRequest request = new MockHttpServletRequest(method:'GET')
+		MockHttpServletResponse response = new MockHttpServletResponse()
+		MockFilterChain chain = new MockFilterChain()
+		xml.http('request-matcher':'mvc') {
+			'http-basic'()
+			'intercept-url'(pattern: '/path', access: "denyAll", 'servlet-path': "/spring")
+		}
+		bean('pathController',PathController)
+		xml.'mvc:annotation-driven'()
+		createAppContext()
+		when:
+		request.servletPath = "/spring"
+		request.requestURI = "/spring/path"
+		springSecurityFilterChain.doFilter(request, response, chain)
+		then:
+		response.status == HttpServletResponse.SC_UNAUTHORIZED
+		when:
+		request = new MockHttpServletRequest(method:'GET')
+		response = new MockHttpServletResponse()
+		chain = new MockFilterChain()
+		request.servletPath = "/spring"
+		request.requestURI = "/spring/path.html"
+		springSecurityFilterChain.doFilter(request, response, chain)
+		then:
+		response.status == HttpServletResponse.SC_UNAUTHORIZED
+		when:
+		request = new MockHttpServletRequest(method:'GET')
+		response = new MockHttpServletResponse()
+		chain = new MockFilterChain()
+		request.servletPath = "/spring"
+		request.requestURI = "/spring/path/"
+		springSecurityFilterChain.doFilter(request, response, chain)
+		then:
+		response.status == HttpServletResponse.SC_UNAUTHORIZED
+	}
+
+	def "intercept-url ant matcher with servlet path fails"() {
+		when:
+		xml.http('request-matcher':'ant') {
+			'http-basic'()
+			'intercept-url'(pattern: '/path', access: "denyAll", 'servlet-path': "/spring")
+		}
+		createAppContext()
+		then:
+		thrown(BeanDefinitionParsingException)
+	}
+
+	def "intercept-url regex matcher with servlet path fails"() {
+		when:
+		xml.http('request-matcher':'regex') {
+			'http-basic'()
+			'intercept-url'(pattern: '/path', access: "denyAll", 'servlet-path': "/spring")
+		}
+		createAppContext()
+		then:
+		thrown(BeanDefinitionParsingException)
+	}
+
+	def "intercept-url ciRegex matcher with servlet path fails"() {
+		when:
+		xml.http('request-matcher':'ciRegex') {
+			'http-basic'()
+			'intercept-url'(pattern: '/path', access: "denyAll", 'servlet-path': "/spring")
+		}
+		createAppContext()
+		then:
+		thrown(BeanDefinitionParsingException)
+	}
+
+	def "intercept-url default matcher with servlet path fails"() {
+		when:
+		xml.http() {
+			'http-basic'()
+			'intercept-url'(pattern: '/path', access: "denyAll", 'servlet-path': "/spring")
+		}
+		createAppContext()
+		then:
+		thrown(BeanDefinitionParsingException)
 	}
 
 	public static class Id {

@@ -109,6 +109,31 @@ public class MvcRequestMatcherTests {
 	}
 
 	@Test
+	public void matchesServletPathTrue() throws Exception {
+		when(this.introspector.getMatchableHandlerMapping(this.request))
+				.thenReturn(this.mapping);
+		when(this.mapping.match(eq(this.request), this.pattern.capture()))
+				.thenReturn(this.result);
+		this.matcher.setServletPath("/spring");
+		this.request.setServletPath("/spring");
+
+		assertThat(this.matcher.matches(this.request)).isTrue();
+		assertThat(this.pattern.getValue()).isEqualTo("/path");
+	}
+
+	@Test
+	public void matchesServletPathFalse() throws Exception {
+		when(this.introspector.getMatchableHandlerMapping(this.request))
+				.thenReturn(this.mapping);
+		when(this.mapping.match(eq(this.request), this.pattern.capture()))
+				.thenReturn(this.result);
+		this.matcher.setServletPath("/spring");
+		this.request.setServletPath("/");
+
+		assertThat(this.matcher.matches(this.request)).isFalse();
+	}
+
+	@Test
 	public void matchesPathOnlyTrue() throws Exception {
 		when(this.introspector.getMatchableHandlerMapping(this.request))
 				.thenReturn(this.mapping);

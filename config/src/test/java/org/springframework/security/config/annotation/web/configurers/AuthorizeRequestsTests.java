@@ -15,11 +15,17 @@
  */
 package org.springframework.security.config.annotation.web.configurers;
 
+import java.util.Collections;
+import java.util.Map;
+
+import javax.servlet.ServletRegistration;
 import javax.servlet.http.HttpServletResponse;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -48,6 +54,9 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -59,12 +68,14 @@ public class AuthorizeRequestsTests {
 	MockHttpServletRequest request;
 	MockHttpServletResponse response;
 	MockFilterChain chain;
+	MockServletContext servletContext;
 
 	@Autowired
 	FilterChainProxy springSecurityFilterChain;
 
 	@Before
 	public void setup() {
+		this.servletContext = spy(new MockServletContext());
 		this.request = new MockHttpServletRequest();
 		this.request.setMethod("GET");
 		this.response = new MockHttpServletResponse();
@@ -257,7 +268,7 @@ public class AuthorizeRequestsTests {
 	public void mvcMatcher() throws Exception {
 		loadConfig(MvcMatcherConfig.class);
 
-		this.request.setServletPath("/path");
+		this.request.setRequestURI("/path");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 
 		assertThat(this.response.getStatus())
@@ -265,7 +276,7 @@ public class AuthorizeRequestsTests {
 
 		setup();
 
-		this.request.setServletPath("/path.html");
+		this.request.setRequestURI("/path.html");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 
 		assertThat(this.response.getStatus())
@@ -312,21 +323,99 @@ public class AuthorizeRequestsTests {
 	}
 
 	@Test
+	public void mvcMatcherServletPath() throws Exception {
+		loadConfig(MvcMatcherServletPathConfig.class);
+
+		this.request.setServletPath("/spring");
+		this.request.setRequestURI("/spring/path");
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+
+		assertThat(this.response.getStatus())
+				.isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
+
+		setup();
+
+		this.request.setServletPath("/spring");
+		this.request.setRequestURI("/spring/path.html");
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+
+		assertThat(this.response.getStatus())
+				.isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
+
+		setup();
+
+		this.request.setServletPath("/spring");
+		this.request.setRequestURI("/spring/path/");
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+
+		assertThat(this.response.getStatus())
+				.isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
+
+		setup();
+
+		this.request.setServletPath("/foo");
+		this.request.setRequestURI("/foo/path");
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
+
+		setup();
+
+		this.request.setServletPath("/");
+		this.request.setRequestURI("/path");
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
+	}
+
+	@EnableWebSecurity
+	@Configuration
+	@EnableWebMvc
+	static class MvcMatcherServletPathConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.httpBasic().and()
+				.authorizeRequests()
+					.mvcMatchers("/path").servletPath("/spring").denyAll();
+			// @formatter:on
+		}
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.inMemoryAuthentication();
+			// @formatter:on
+		}
+
+		@RestController
+		static class PathController {
+			@RequestMapping("/path")
+			public String path() {
+				return "path";
+			}
+		}
+	}
+
+	@Test
 	public void mvcMatcherPathVariables() throws Exception {
 		loadConfig(MvcMatcherPathVariablesConfig.class);
 
-		this.request.setServletPath("/user/user");
+		this.request.setRequestURI("/user/user");
 
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
 
 		this.setup();
-		this.request.setServletPath("/user/deny");
+		this.request.setRequestURI("/user/deny");
 
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 
-		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
+		assertThat(this.response.getStatus())
+				.isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 	}
 
 	@EnableWebSecurity
@@ -360,10 +449,55 @@ public class AuthorizeRequestsTests {
 		}
 	}
 
+	@Test(expected = IllegalStateException.class)
+	public void mvcMatcherServletPathRequired() throws Exception {
+		final ServletRegistration registration = mock(ServletRegistration.class);
+		when(registration.getMappings()).thenReturn(Collections.singleton("/spring"));
+		Answer<Map<String, ? extends ServletRegistration>> answer = new Answer<Map<String, ? extends ServletRegistration>>() {
+			@Override
+			public Map<String, ? extends ServletRegistration> answer(InvocationOnMock invocation) throws Throwable {
+				return Collections.<String, ServletRegistration>singletonMap("spring", registration);
+			}
+		};
+		when(servletContext.getServletRegistrations()).thenAnswer(answer);
+		loadConfig(MvcMatcherPathServletPathRequiredConfig.class);
+	}
+
+	@EnableWebSecurity
+	@Configuration
+	@EnableWebMvc
+	static class MvcMatcherPathServletPathRequiredConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.httpBasic().and()
+				.authorizeRequests()
+					.mvcMatchers("/user").denyAll();
+			// @formatter:on
+		}
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.inMemoryAuthentication();
+			// @formatter:on
+		}
+
+		@RestController
+		static class PathController {
+			@RequestMapping("/path")
+			public String path() {
+				return "path";
+			}
+		}
+	}
+
 	public void loadConfig(Class<?>... configs) {
 		this.context = new AnnotationConfigWebApplicationContext();
 		this.context.register(configs);
-		this.context.setServletContext(new MockServletContext());
+		this.context.setServletContext(this.servletContext);
 		this.context.refresh();
 
 		this.context.getAutowireCapableBeanFactory().autowireBean(this);

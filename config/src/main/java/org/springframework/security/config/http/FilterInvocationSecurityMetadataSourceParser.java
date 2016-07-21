@@ -15,8 +15,6 @@
  */
 package org.springframework.security.config.http;
 
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -37,6 +35,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
 
+import java.util.List;
+
 /**
  * Allows for convenient creation of a {@link FilterInvocationSecurityMetadataSource} bean
  * for use with a FilterSecurityInterceptor.
@@ -48,12 +48,13 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
 	private static final String ATT_HTTP_METHOD = "method";
 	private static final String ATT_PATTERN = "pattern";
 	private static final String ATT_ACCESS = "access";
+	private static final String ATT_SERVLET_PATH = "servlet-path";
 	private static final Log logger = LogFactory
 			.getLog(FilterInvocationSecurityMetadataSourceParser.class);
 
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
 		List<Element> interceptUrls = DomUtils.getChildElementsByTagName(element,
-				"intercept-url");
+			Elements.INTERCEPT_URL);
 
 		// Check for attributes that aren't allowed in this context
 		for (Element elt : interceptUrls) {
@@ -70,6 +71,12 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
 				parserContext.getReaderContext().error(
 						"The attribute '" + HttpSecurityBeanDefinitionParser.ATT_FILTERS
 								+ "' isn't allowed here.", elt);
+			}
+
+			if (StringUtils.hasLength(elt.getAttribute(ATT_SERVLET_PATH))) {
+				parserContext.getReaderContext().error(
+					"The attribute '" + ATT_SERVLET_PATH
+						+ "' isn't allowed here.", elt);
 			}
 		}
 
@@ -165,8 +172,16 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
 				method = null;
 			}
 
+			String servletPath = urlElt.getAttribute(ATT_SERVLET_PATH);
+			if (!StringUtils.hasText(servletPath)) {
+				servletPath = null;
+			} else if (!MatcherType.mvc.equals(matcherType)) {
+				parserContext.getReaderContext().error(
+					ATT_SERVLET_PATH + " is not applicable for request-matcher: '" + matcherType.name() + "'", urlElt);
+			}
+
 			BeanDefinition matcher = matcherType.createMatcher(parserContext, path,
-					method);
+					method, servletPath);
 			BeanDefinitionBuilder attributeBuilder = BeanDefinitionBuilder
 					.rootBeanDefinition(SecurityConfig.class);
 

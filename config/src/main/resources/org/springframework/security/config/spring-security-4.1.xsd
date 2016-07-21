@@ -1345,6 +1345,16 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="servlet-path" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The path to the servlet. This attribute is only applicable when 'request-matcher' is
+                'mvc'. In addition, the value is only required in the following 2 use cases: 1) There are
+                2 or more HttpServlet's registered in the ServletContext that have mappings starting with
+                '/' and are different; 2) The pattern starts with the same value of a registered
+                HttpServlet path, excluding the default (root) HttpServlet '/'
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
   </xs:attributeGroup>
   
   <xs:attributeGroup name="logout.attlist">
