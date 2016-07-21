@@ -17,16 +17,24 @@ package org.springframework.security.config.annotation.web;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
+import javax.servlet.ServletContext;
+import javax.servlet.ServletRegistration;
+
+import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.configurers.AbstractConfigAttributeRequestMatcherRegistry;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.util.ClassUtils;
+import org.springframework.web.context.ServletContextAware;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 /**
@@ -46,6 +54,15 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 
 	protected final void setApplicationContext(ApplicationContext context) {
 		this.context = context;
+	}
+
+	/**
+	 * Gets the {@link ApplicationContext}
+	 *
+	 * @return the {@link ApplicationContext}
+	 */
+	protected final ApplicationContext getApplicationContext() {
+		return this.context;
 	}
 
 	/**
@@ -117,9 +134,7 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	 * Spring MVC
 	 * @return the object that is chained after creating the {@link RequestMatcher}.
 	 */
-	public C mvcMatchers(String... mvcPatterns) {
-		return mvcMatchers(null, mvcPatterns);
-	}
+	public abstract C mvcMatchers(String... mvcPatterns);
 
 	/**
 	 * <p>
@@ -138,18 +153,37 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	 * Spring MVC
 	 * @return the object that is chained after creating the {@link RequestMatcher}.
 	 */
-	public C mvcMatchers(HttpMethod method, String... mvcPatterns) {
+	public abstract C mvcMatchers(HttpMethod method, String... mvcPatterns);
+
+	/**
+	 * Creates {@link MvcRequestMatcher} instances for the method and patterns passed in
+	 *
+	 * @param method the HTTP method to use or null if any should be used
+	 * @param mvcPatterns the Spring MVC patterns to match on
+	 * @return a List of {@link MvcRequestMatcher} instances
+	 */
+	protected final List<MvcRequestMatcher> createMvcMatchers(HttpMethod method,
+			String... mvcPatterns) {
+		boolean isServlet30 = ClassUtils.isPresent("javax.servlet.ServletRegistration", getClass().getClassLoader());
+		ObjectPostProcessor<Object> opp = this.context.getBean(ObjectPostProcessor.class);
 		HandlerMappingIntrospector introspector = new HandlerMappingIntrospector(
 				this.context);
-		List<RequestMatcher> matchers = new ArrayList<RequestMatcher>(mvcPatterns.length);
+		List<MvcRequestMatcher> matchers = new ArrayList<MvcRequestMatcher>(
+				mvcPatterns.length);
 		for (String mvcPattern : mvcPatterns) {
-			MvcRequestMatcher matcher = new MvcRequestMatcher(introspector, mvcPattern);
+			MvcRequestMatcher matcher;
+			if(isServlet30) {
+				matcher = new ServletPathValidatingtMvcRequestMatcher(introspector, mvcPattern);
+				opp.postProcess(matcher);
+			} else {
+				matcher = new MvcRequestMatcher(introspector, mvcPattern);
+			}
 			if (method != null) {
 				matcher.setMethod(method);
 			}
 			matchers.add(matcher);
 		}
-		return chainRequestMatchers(matchers);
+		return matchers;
 	}
 
 	/**
@@ -280,5 +314,50 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 
 		private RequestMatchers() {
 		}
+	}
+
+	static class ServletPathValidatingtMvcRequestMatcher extends MvcRequestMatcher implements SmartInitializingSingleton, ServletContextAware {
+		private ServletContext servletContext;
+
+		/**
+		 * @param introspector
+		 * @param pattern
+		 */
+		public ServletPathValidatingtMvcRequestMatcher(HandlerMappingIntrospector introspector,
+				String pattern) {
+			super(introspector, pattern);
+		}
+
+		/* (non-Javadoc)
+		 * @see org.springframework.beans.factory.SmartInitializingSingleton#afterSingletonsInstantiated()
+		 */
+		@Override
+		public void afterSingletonsInstantiated() {
+			if(getServletPath() != null) {
+				return;
+			}
+			Collection<? extends ServletRegistration> registrations = servletContext.getServletRegistrations().values();
+			for(ServletRegistration registration : registrations) {
+				Collection<String> mappings = registration.getMappings();
+				for(String mapping : mappings) {
+					if(mapping.startsWith("/") && mapping.length() > 1) {
+						throw new IllegalStateException(
+								"servletPath must not be null for mvcPattern \"" + getMvcPattern()
+										+ "\" when providing a servlet mapping of "
+										+ mapping + " for servlet "
+										+ registration.getClassName());
+					}
+				}
+			}
+		}
+
+		/* (non-Javadoc)
+		 * @see org.springframework.web.context.ServletContextAware#setServletContext(javax.servlet.ServletContext)
+		 */
+		@Override
+		public void setServletContext(ServletContext servletContext) {
+			this.servletContext = servletContext;
+		}
+
 	}
 }

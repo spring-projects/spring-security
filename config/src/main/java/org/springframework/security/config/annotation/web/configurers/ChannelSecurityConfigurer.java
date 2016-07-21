@@ -21,6 +21,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.springframework.context.ApplicationContext;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
@@ -37,6 +38,7 @@ import org.springframework.security.web.access.channel.RetryWithHttpEntryPoint;
 import org.springframework.security.web.access.channel.RetryWithHttpsEntryPoint;
 import org.springframework.security.web.access.channel.SecureChannelProcessor;
 import org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource;
+import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 /**
@@ -136,7 +138,7 @@ public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>> e
 	}
 
 	private ChannelRequestMatcherRegistry addAttribute(String attribute,
-			List<RequestMatcher> matchers) {
+			List<? extends RequestMatcher> matchers) {
 		for (RequestMatcher matcher : matchers) {
 			Collection<ConfigAttribute> attrs = Arrays
 					.<ConfigAttribute> asList(new SecurityConfig(attribute));
@@ -145,11 +147,23 @@ public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>> e
 		return REGISTRY;
 	}
 
-	public final class ChannelRequestMatcherRegistry extends
-			AbstractConfigAttributeRequestMatcherRegistry<RequiresChannelUrl> {
+	public final class ChannelRequestMatcherRegistry
+			extends AbstractConfigAttributeRequestMatcherRegistry<RequiresChannelUrl> {
 
 		private ChannelRequestMatcherRegistry(ApplicationContext context) {
 			setApplicationContext(context);
+		}
+
+		@Override
+		public MvcMatchersRequiresChannelUrl mvcMatchers(HttpMethod method,
+				String... mvcPatterns) {
+			List<MvcRequestMatcher> mvcMatchers = createMvcMatchers(method, mvcPatterns);
+			return new MvcMatchersRequiresChannelUrl(mvcMatchers);
+		}
+
+		@Override
+		public MvcMatchersRequiresChannelUrl mvcMatchers(String... patterns) {
+			return mvcMatchers(null, patterns);
 		}
 
 		@Override
@@ -193,10 +207,24 @@ public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>> e
 		}
 	}
 
-	public final class RequiresChannelUrl {
-		private List<RequestMatcher> requestMatchers;
+	public final class MvcMatchersRequiresChannelUrl extends RequiresChannelUrl {
 
-		private RequiresChannelUrl(List<RequestMatcher> requestMatchers) {
+		private MvcMatchersRequiresChannelUrl(List<MvcRequestMatcher> matchers) {
+			super(matchers);
+		}
+
+		public RequiresChannelUrl servletPath(String servletPath) {
+			for (RequestMatcher matcher : this.requestMatchers) {
+				((MvcRequestMatcher) matcher).setServletPath(servletPath);
+			}
+			return this;
+		}
+	}
+
+	public class RequiresChannelUrl {
+		protected List<? extends RequestMatcher> requestMatchers;
+
+		private RequiresChannelUrl(List<? extends RequestMatcher> requestMatchers) {
 			this.requestMatchers = requestMatchers;
 		}
 

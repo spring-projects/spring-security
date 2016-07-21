@@ -49,6 +49,10 @@ public enum MatcherType {
 	}
 
 	public BeanDefinition createMatcher(ParserContext pc, String path, String method) {
+		return createMatcher(pc, path, method, null);
+	}
+
+	public BeanDefinition createMatcher(ParserContext pc, String path, String method, String servletPath) {
 		if (("/**".equals(path) || "**".equals(path)) && method == null) {
 			return new RootBeanDefinition(AnyRequestMatcher.class);
 		}
@@ -74,6 +78,7 @@ public enum MatcherType {
 		matcherBldr.addConstructorArgValue(path);
 		if (this == mvc) {
 			matcherBldr.addPropertyValue("method", method);
+			matcherBldr.addPropertyValue("servletPath", servletPath);
 		}
 		else {
 			matcherBldr.addConstructorArgValue(method);

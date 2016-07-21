@@ -4166,7 +4166,7 @@ Additionally, if the https://www.w3.org/TR/CSP2/#directive-report-uri[*_report-u
 then the violation will be reported by the user-agent to the declared URL.
 
 For example, if a web application violates the declared security policy,
-the following response header will instruct the user-agent to send violation reports to the URL specified in the policy’s _report-uri_ directive.
+the following response header will instruct the user-agent to send violation reports to the URL specified in the policy's _report-uri_ directive.
 
 [source]
 ----
@@ -5786,7 +5786,7 @@ If CSRF protection is enabled, this tag inserts a hidden form field with the cor
 
 Normally Spring Security automatically inserts a CSRF form field for any `<form:form>` tags you use, but if for some reason you cannot use `<form:form>`, `csrfInput` is a handy replacement.
 
-You should place this tag within an HTML `<form></form>` block, where you would normally place other input fields. Do NOT place this tag within a Spring `<form:form></form:form>` block—Spring Security handles Spring forms automatically.
+You should place this tag within an HTML `<form></form>` block, where you would normally place other input fields. Do NOT place this tag within a Spring `<form:form></form:form>` block. Spring Security handles Spring forms automatically.
 
 [source,xml]
 ----
@@ -7475,12 +7475,12 @@ Sets the realm name used for basic authentication (if enabled). Corresponds to t
 
 [[nsa-http-request-matcher]]
 * **request-matcher**
-Defines the `RequestMatcher` strategy used in the `FilterChainProxy` and the beans created by the `intercept-url` to match incoming requests. Options are currently `mvc`, `ant`, `regex` and `ciRegex`, for Spring MVC, ant, regular-expression and case-insensitive regular-expression respectively. A separate instance is created for each<<nsa-intercept-url,intercept-url>> element using its <<nsa-intercept-url-pattern,pattern>> and <<nsa-intercept-url-method,method>> attributes. Ant paths are matched using an `AntPathRequestMatcher` and regular expressions are matched using a `RegexRequestMatcher`. See the Javadoc for these classes for more details on exactly how the matching is performed. Ant paths are the default strategy.
+Defines the `RequestMatcher` strategy used in the `FilterChainProxy` and the beans created by the `intercept-url` to match incoming requests. Options are currently `mvc`, `ant`, `regex` and `ciRegex`, for Spring MVC, ant, regular-expression and case-insensitive regular-expression respectively. A separate instance is created for each <<nsa-intercept-url,intercept-url>> element using its <<nsa-intercept-url-pattern,pattern>>, <<nsa-intercept-url-method,method>> and <<nsa-intercept-url-servlet-path,servlet-path>> attributes. Ant paths are matched using an `AntPathRequestMatcher`, regular expressions are matched using a `RegexRequestMatcher` and for Spring MVC path matching the `MvcRequestMatcher` is used. See the Javadoc for these classes for more details on exactly how the matching is performed. Ant paths are the default strategy.
 
 
 [[nsa-http-request-matcher-ref]]
 * **request-matcher-ref**
-A referenece to a bean that implements `RequestMatcher` that will determine if this `FilterChain` should be used. This is a more powerful alternative to <<nsa-http-pattern,pattern>>.
+A reference to a bean that implements `RequestMatcher` that will determine if this `FilterChain` should be used. This is a more powerful alternative to <<nsa-http-pattern,pattern>>.
 
 
 [[nsa-http-security]]
@@ -8150,7 +8150,7 @@ Defines a reference to a Spring bean that implements `HttpFirewall`.
 
 [[nsa-intercept-url]]
 ==== <intercept-url>
-This element is used to define the set of URL patterns that the application is interested in and to configure how they should be handled. It is used to construct the `FilterInvocationSecurityMetadataSource` used by the `FilterSecurityInterceptor`. It is also responsible for configuring a `ChannelProcessingFilter` if particular URLs need to be accessed by HTTPS, for example. When matching the specified patterns against an incoming request, the matching is done in the order in which the elements are declared. So the most specific matches patterns should come first and the most general should come last.
+This element is used to define the set of URL patterns that the application is interested in and to configure how they should be handled. It is used to construct the `FilterInvocationSecurityMetadataSource` used by the `FilterSecurityInterceptor`. It is also responsible for configuring a `ChannelProcessingFilter` if particular URLs need to be accessed by HTTPS, for example. When matching the specified patterns against an incoming request, the matching is done in the order in which the elements are declared. So the most specific patterns should come first and the most general should come last.
 
 
 [[nsa-intercept-url-parents]]
@@ -8179,7 +8179,7 @@ NOTE: This property is invalid for <<nsa-filter-security-metadata-source,filter-
 
 [[nsa-intercept-url-method]]
 * **method**
-The HTTP Method which will be used in combination with the pattern to match an incoming request. If omitted, any method will match. If an identical pattern is specified with and without a method, the method-specific match will take precedence.
+The HTTP Method which will be used in combination with the pattern and servlet path (optional) to match an incoming request. If omitted, any method will match. If an identical pattern is specified with and without a method, the method-specific match will take precedence.
 
 
 [[nsa-intercept-url-pattern]]
@@ -8192,6 +8192,12 @@ The pattern which defines the URL path. The content will depend on the `request-
 Can be "http" or "https" depending on whether a particular URL pattern should be accessed over HTTP or HTTPS respectively. Alternatively the value "any" can be used when there is no preference. If this attribute is present on any `<intercept-url>` element, then a `ChannelProcessingFilter` will be added to the filter stack and its additional dependencies added to the application context.
 
 If a `<port-mappings>` configuration is added, this will be used to by the `SecureChannelProcessor` and `InsecureChannelProcessor` beans to determine the ports used for redirecting to HTTP/HTTPS.
+
+NOTE: This property is invalid for <<nsa-filter-security-metadata-source,filter-security-metadata-source>>
+
+[[nsa-intercept-url-servlet-path]]
+* **servlet-path**
+The servlet path which will be used in combination with the pattern and HTTP method to match an incoming request. This attribute is only applicable when <<nsa-http-request-matcher,request-matcher>> is 'mvc'. In addition, the value is only required in the following 2 use cases: 1) There are 2 or more `HttpServlet` 's registered in the `ServletContext` that have mappings starting with `'/'` and are different;  2) The pattern starts with the same value of a registered `HttpServlet` path, excluding the default (root) `HttpServlet` `'/'`.
 
 NOTE: This property is invalid for <<nsa-filter-security-metadata-source,filter-security-metadata-source>>
 
@@ -8699,7 +8705,7 @@ Used to explicitly configure a FilterChainProxy instance with a FilterChainMap
 
 [[nsa-filter-chain-map-request-matcher]]
 * **request-matcher**
-Defines the strategy use for matching incoming requests. Currently the options are 'ant' (for ant path patterns), 'regex' for regular expressions and 'ciRegex' for case-insensitive regular expressions.
+Defines the strategy to use for matching incoming requests. Currently the options are 'ant' (for ant path patterns), 'regex' for regular expressions and 'ciRegex' for case-insensitive regular expressions.
 
 
 [[nsa-filter-chain-map-children]]
@@ -8734,7 +8740,7 @@ A comma separated list of references to Spring beans that implement `Filter`. Th
 
 [[nsa-filter-chain-pattern]]
 * **pattern**
-A-pattern that creates RequestMatcher in combination with the <<nsa-filter-chain-map-request-matcher,request-matcher>>
+A pattern that creates RequestMatcher in combination with the <<nsa-filter-chain-map-request-matcher,request-matcher>>
 
 
 [[nsa-filter-chain-request-matcher-ref]]

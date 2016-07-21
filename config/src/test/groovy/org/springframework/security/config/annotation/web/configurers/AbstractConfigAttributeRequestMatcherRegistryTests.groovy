@@ -67,5 +67,13 @@ class AbstractConfigAttributeRequestMatcherRegistryTests extends Specification {
 		List<RequestMatcher> chainRequestMatchersInternal(List<RequestMatcher> requestMatchers) {
 			return requestMatchers;
 		}
+
+		List<RequestMatcher> mvcMatchers(String... mvcPatterns) {
+			null
+		}
+
+		List<RequestMatcher> mvcMatchers(HttpMethod method, String... mvcPatterns) {
+			null
+		}
 	}
 }
