@@ -18,6 +18,7 @@ package org.springframework.security.config.annotation.configuration
 import org.springframework.beans.factory.BeanClassLoaderAware
 import org.springframework.beans.factory.BeanFactoryAware
 import org.springframework.beans.factory.DisposableBean
+import org.springframework.beans.factory.SmartInitializingSingleton
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory
 import org.springframework.beans.factory.support.BeanNameGenerator;
@@ -136,6 +137,38 @@ class AutowireBeanFactoryObjectPostProcessorTests extends BaseSpringSpec {
 		@Autowired
 		public void configure(ObjectPostProcessor<Object> p) {
 			p.postProcess(new Object())
+		}
+	}
+
+	def "SmartInitializingSingleton"() {
+		when:
+			context = new AnnotationConfigWebApplicationContext([servletConfig:new MockServletConfig(),servletContext:new MockServletContext()])
+			context.register(SmartConfig)
+			context.refresh()
+			context.start()
+		then:
+			context.getBean(SmartConfig).smart.instantiated
+	}
+
+	@Configuration
+	static class SmartConfig {
+		SmartInitializingSingleton smart = new SmartInitializingSingletonStub()
+
+		@Bean
+		public static ObjectPostProcessor objectPostProcessor(AutowireCapableBeanFactory beanFactory) {
+			return new AutowireBeanFactoryObjectPostProcessor(beanFactory)
+		}
+
+		@Autowired
+		public void configure(ObjectPostProcessor<Object> p) {
+			p.postProcess(smart)
+		}
+	}
+
+	static class SmartInitializingSingletonStub implements SmartInitializingSingleton {
+		boolean instantiated
+		void afterSingletonsInstantiated() {
+			instantiated = true
 		}
 	}
 }

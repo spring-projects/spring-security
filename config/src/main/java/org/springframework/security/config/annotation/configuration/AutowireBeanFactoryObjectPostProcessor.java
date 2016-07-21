@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.Aware;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.util.Assert;
@@ -37,10 +38,11 @@ import org.springframework.util.Assert;
  * @since 3.2
  */
 final class AutowireBeanFactoryObjectPostProcessor
-		implements ObjectPostProcessor<Object>, DisposableBean {
+		implements ObjectPostProcessor<Object>, DisposableBean, SmartInitializingSingleton {
 	private final Log logger = LogFactory.getLog(getClass());
 	private final AutowireCapableBeanFactory autowireBeanFactory;
 	private final List<DisposableBean> disposableBeans = new ArrayList<DisposableBean>();
+	private final List<SmartInitializingSingleton> smartSingletons = new ArrayList<SmartInitializingSingleton>();
 
 	public AutowireBeanFactoryObjectPostProcessor(
 			AutowireCapableBeanFactory autowireBeanFactory) {
@@ -74,7 +76,20 @@ final class AutowireBeanFactoryObjectPostProcessor
 		if (result instanceof DisposableBean) {
 			this.disposableBeans.add((DisposableBean) result);
 		}
+		if (result instanceof SmartInitializingSingleton) {
+			this.smartSingletons.add((SmartInitializingSingleton) result);
+		}
 		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.springframework.beans.factory.SmartInitializingSingleton#afterSingletonsInstantiated()
+	 */
+	@Override
+	public void afterSingletonsInstantiated() {
+		for(SmartInitializingSingleton singleton : smartSingletons) {
+			singleton.afterSingletonsInstantiated();
+		}
 	}
 
 	/*
