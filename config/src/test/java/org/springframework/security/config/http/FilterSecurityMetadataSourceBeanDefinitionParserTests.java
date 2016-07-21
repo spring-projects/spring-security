@@ -15,11 +15,9 @@
  */
 package org.springframework.security.config.http;
 
-import java.util.Collection;
-
 import org.junit.After;
 import org.junit.Test;
-
+import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
 import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -32,6 +30,8 @@ import org.springframework.security.config.util.InMemoryXmlApplicationContext;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.expression.ExpressionBasedFilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource;
+
+import java.util.Collection;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -116,6 +116,13 @@ public class FilterSecurityMetadataSourceBeanDefinitionParserTests {
 				+ "   <b:property name='authenticationManager' ref='"
 				+ BeanIds.AUTHENTICATION_MANAGER + "'/>" + "</b:bean>"
 				+ ConfigTestUtils.AUTH_PROVIDER_XML);
+	}
+
+	@Test(expected = BeanDefinitionParsingException.class)
+	public void parsingInterceptUrlServletPathFails() {
+		setContext("<filter-security-metadata-source id='fids' use-expressions='false'>"
+			+ "   <intercept-url pattern='/secure' access='ROLE_USER' servlet-path='/spring' />"
+			+ "</filter-security-metadata-source>");
 	}
 
 	private FilterInvocation createFilterInvocation(String path, String method) {

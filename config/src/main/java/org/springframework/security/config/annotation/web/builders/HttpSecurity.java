@@ -24,6 +24,7 @@ import javax.servlet.Filter;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.context.ApplicationContext;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.AbstractConfiguredSecurityBuilder;
@@ -1270,15 +1271,44 @@ public final class HttpSecurity extends
 	}
 
 	/**
+	 * An extension to {@link RequestMatcherConfigurer} that allows optionally configuring
+	 * the servlet path.
+	 *
+	 * @author Rob Winch
+	 */
+	public final class MvcMatchersRequestMatcherConfigurer extends RequestMatcherConfigurer {
+
+		/**
+		 * Creates a new instance
+		 * @param context the {@link ApplicationContext} to use
+		 * @param matchers the {@link MvcRequestMatcher} instances to set the servlet path
+		 * on if {@link #servletPath(String)} is set.
+		 */
+		private MvcMatchersRequestMatcherConfigurer(ApplicationContext context,
+				List<MvcRequestMatcher> matchers) {
+			super(context);
+			this.matchers = new ArrayList<RequestMatcher>(matchers);
+		}
+
+		public RequestMatcherConfigurer servletPath(String servletPath) {
+			for (RequestMatcher matcher : this.matchers) {
+				((MvcRequestMatcher) matcher).setServletPath(servletPath);
+			}
+			return this;
+		}
+
+	}
+
+	/**
 	 * Allows mapping HTTP requests that this {@link HttpSecurity} will be used for
 	 *
 	 * @author Rob Winch
 	 * @since 3.2
 	 */
-	public final class RequestMatcherConfigurer extends
-			AbstractRequestMatcherRegistry<RequestMatcherConfigurer> {
+	public class RequestMatcherConfigurer
+			extends AbstractRequestMatcherRegistry<RequestMatcherConfigurer> {
 
-		private List<RequestMatcher> matchers = new ArrayList<RequestMatcher>();
+		protected List<RequestMatcher> matchers = new ArrayList<RequestMatcher>();
 
 		/**
 		 * @param context
@@ -1287,11 +1317,29 @@ public final class HttpSecurity extends
 			setApplicationContext(context);
 		}
 
+		@Override
+		public MvcMatchersRequestMatcherConfigurer mvcMatchers(HttpMethod method,
+				String... mvcPatterns) {
+			List<MvcRequestMatcher> mvcMatchers = createMvcMatchers(method, mvcPatterns);
+			setMatchers(mvcMatchers);
+			return new MvcMatchersRequestMatcherConfigurer(getContext(), mvcMatchers);
+		}
+
+		@Override
+		public MvcMatchersRequestMatcherConfigurer mvcMatchers(String... patterns) {
+			return mvcMatchers(null, patterns);
+		}
+
+		@Override
 		protected RequestMatcherConfigurer chainRequestMatchers(
 				List<RequestMatcher> requestMatchers) {
-			matchers.addAll(requestMatchers);
-			requestMatcher(new OrRequestMatcher(matchers));
+			setMatchers(requestMatchers);
 			return this;
+		}
+
+		private void setMatchers(List<? extends RequestMatcher> requestMatchers) {
+			this.matchers.addAll(requestMatchers);
+			requestMatcher(new OrRequestMatcher(this.matchers));
 		}
 
 		/**
