@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -449,7 +450,7 @@ public class AuthorizeRequestsTests {
 		}
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test(expected = BeanCreationException.class)
 	public void mvcMatcherServletPathRequired() throws Exception {
 		final ServletRegistration registration = mock(ServletRegistration.class);
 		when(registration.getMappings()).thenReturn(Collections.singleton("/spring"));

@@ -25,7 +25,7 @@ import org.springframework.security.util.InMemoryResource;
  * @author Luke Taylor
  */
 public class InMemoryXmlApplicationContext extends AbstractXmlApplicationContext {
-	private static final String BEANS_OPENING = "<b:beans xmlns='http://www.springframework.org/schema/security'\n"
+	static final String BEANS_OPENING = "<b:beans xmlns='http://www.springframework.org/schema/security'\n"
 			+ "    xmlns:context='http://www.springframework.org/schema/context'\n"
 			+ "    xmlns:b='http://www.springframework.org/schema/beans'\n"
 			+ "    xmlns:aop='http://www.springframework.org/schema/aop'\n"
@@ -38,16 +38,18 @@ public class InMemoryXmlApplicationContext extends AbstractXmlApplicationContext
 			+ "http://www.springframework.org/schema/websocket http://www.springframework.org/schema/websocket/spring-websocket.xsd\n"
 			+ "http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd\n"
 			+ "http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-";
-	private static final String BEANS_CLOSE = "</b:beans>\n";
+	static final String BEANS_CLOSE = "</b:beans>\n";
+
+	static final String SPRING_SECURITY_VERSION = "4.1";
 
 	Resource inMemoryXml;
 
 	public InMemoryXmlApplicationContext(String xml) {
-		this(xml, "4.1", null);
+		this(xml, SPRING_SECURITY_VERSION, null);
 	}
 
 	public InMemoryXmlApplicationContext(String xml, ApplicationContext parent) {
-		this(xml, "4.1", parent);
+		this(xml, SPRING_SECURITY_VERSION, parent);
 	}
 
 	public InMemoryXmlApplicationContext(String xml, String secVersion,

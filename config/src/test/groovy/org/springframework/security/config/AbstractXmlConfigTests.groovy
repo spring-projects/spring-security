@@ -1,26 +1,25 @@
 package org.springframework.security.config
 
 import groovy.xml.MarkupBuilder
-
-import org.mockito.Mockito;
-import org.springframework.context.support.AbstractXmlApplicationContext
+import org.mockito.Mockito
+import org.springframework.context.ApplicationListener
+import org.springframework.context.support.AbstractRefreshableApplicationContext
+import org.springframework.mock.web.MockServletContext
+import org.springframework.security.CollectingAppListener
 import org.springframework.security.config.util.InMemoryXmlApplicationContext
+import org.springframework.security.config.util.InMemoryXmlWebApplicationContext
 import org.springframework.security.core.context.SecurityContextHolder
 import spock.lang.Specification
-import static org.springframework.security.config.ConfigTestUtils.AUTH_PROVIDER_XML
-import org.springframework.context.ApplicationListener
-import org.springframework.context.ApplicationEvent
-import org.springframework.security.authentication.event.AbstractAuthenticationEvent
-import org.springframework.security.authentication.event.AbstractAuthenticationFailureEvent
-import org.springframework.security.access.event.AbstractAuthorizationEvent
-import org.springframework.security.CollectingAppListener
 
+import javax.servlet.ServletContext
+
+import static org.springframework.security.config.ConfigTestUtils.AUTH_PROVIDER_XML
 /**
  *
  * @author Luke Taylor
  */
 abstract class AbstractXmlConfigTests extends Specification {
-	AbstractXmlApplicationContext appContext;
+	AbstractRefreshableApplicationContext appContext;
 	Writer writer;
 	MarkupBuilder xml;
 	ApplicationListener appListener;
@@ -80,5 +79,28 @@ abstract class AbstractXmlConfigTests extends Specification {
 	def createAppContext(String extraXml) {
 		appContext = new InMemoryXmlApplicationContext(writer.toString() + extraXml);
 		appContext.addApplicationListener(appListener);
+	}
+
+	def createWebAppContext() {
+		createWebAppContext(AUTH_PROVIDER_XML);
+	}
+
+	def createWebAppContext(ServletContext servletContext) {
+		createWebAppContext(AUTH_PROVIDER_XML, servletContext);
+	}
+
+	def createWebAppContext(String extraXml) {
+		createWebAppContext(extraXml, null);
+	}
+
+	def createWebAppContext(String extraXml, ServletContext servletContext) {
+		appContext = new InMemoryXmlWebApplicationContext(writer.toString() + extraXml);
+		appContext.addApplicationListener(appListener);
+		if (servletContext != null) {
+			appContext.setServletContext(servletContext);
+		} else {
+			appContext.setServletContext(new MockServletContext());
+		}
+		appContext.refresh();
 	}
 }
