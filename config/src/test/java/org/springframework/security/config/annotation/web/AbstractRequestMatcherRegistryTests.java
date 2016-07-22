@@ -16,14 +16,6 @@
 
 package org.springframework.security.config.annotation.web;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
-
-import javax.servlet.Registration;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletRegistration;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,14 +23,17 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
-
 import org.springframework.mock.web.MockServletContext;
-import org.springframework.security.config.annotation.web.AbstractRequestMatcherRegistry.ServletPathValidatingtMvcRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletRegistration;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
+
+import static org.mockito.Mockito.*;
 
 /**
  * @author Rob Winch
@@ -49,34 +44,34 @@ public class AbstractRequestMatcherRegistryTests {
 	@Mock
 	HandlerMappingIntrospector introspector;
 
-	ServletPathValidatingtMvcRequestMatcher matcher;
+	MvcRequestMatcher matcher;
 
 	ServletContext servletContext;
 
 	@Before
 	public void setup() {
 		servletContext = spy(new MockServletContext());
-		matcher = new ServletPathValidatingtMvcRequestMatcher(introspector, "/foo");
+		matcher = new MvcRequestMatcher(introspector, "/foo");
 		matcher.setServletContext(servletContext);
 	}
 
 	@Test(expected = IllegalStateException.class)
-	public void servletPathValidatingtMvcRequestMatcherAfterSingletonsIntantiatedFailsWithSpringServlet() {
+	public void servletPathValidatingMvcRequestMatcherAfterPropertiesSetFailsWithSpringServlet() throws Exception {
 		setMappings("/spring");
-		matcher.afterSingletonsInstantiated();
+		matcher.afterPropertiesSet();
 	}
 
 	@Test
-	public void servletPathValidatingtMvcRequestMatcherAfterSingletonsIntantiatedWithSpringServlet() {
+	public void servletPathValidatingMvcRequestMatcherAfterPropertiesSetWithSpringServlet() throws Exception {
 		matcher.setServletPath("/spring");
 		setMappings("/spring");
-		matcher.afterSingletonsInstantiated();
+		matcher.afterPropertiesSet();
 	}
 
 	@Test
-	public void servletPathValidatingtMvcRequestMatcherAfterSingletonsIntantiatedDefaultServlet() {
+	public void servletPathValidatingMvcRequestMatcherAfterPropertiesSetDefaultServlet() throws Exception {
 		setMappings("/");
-		matcher.afterSingletonsInstantiated();
+		matcher.afterPropertiesSet();
 	}
 
 	private void setMappings(String... mappings) {

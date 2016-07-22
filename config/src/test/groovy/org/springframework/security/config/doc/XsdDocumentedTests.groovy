@@ -16,7 +16,6 @@
 package org.springframework.security.config.doc
 
 import groovy.util.slurpersupport.GPathResult;
-import groovy.util.slurpersupport.NodeChild
 
 import org.springframework.security.config.http.SecurityFilters
 
@@ -89,7 +88,7 @@ class XsdDocumentedTests extends Specification {
 	def 'the latest schema is being validated'() {
 		when: 'all the schemas are found'
 		def schemas = schemaDocument.getParentFile().list().findAll { it.endsWith('.xsd') }
-		then: 'the count is equal to 8, if not then schemaDocument needs updated'
+		then: 'the count is equal to 10, if not then schemaDocument needs updated'
 		schemas.size() == 10
 	}
 
