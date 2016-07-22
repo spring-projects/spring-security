@@ -15,12 +15,10 @@
  */
 package org.springframework.security.config.doc
 
-import groovy.util.slurpersupport.GPathResult;
-import groovy.util.slurpersupport.NodeChild
+import groovy.util.slurpersupport.GPathResult
+import spock.lang.*
 
 import org.springframework.security.config.http.SecurityFilters
-
-import spock.lang.*
 
 /**
  * Tests to ensure that the xsd is properly documented.
@@ -29,7 +27,15 @@ import spock.lang.*
  */
 class XsdDocumentedTests extends Specification {
 
-	def ignoredIds = ['nsa-any-user-service','nsa-any-user-service-parents','nsa-authentication','nsa-websocket-security','nsa-ldap','nsa-method-security','nsa-web']
+	def ignoredIds = [
+		'nsa-any-user-service',
+		'nsa-any-user-service-parents',
+		'nsa-authentication',
+		'nsa-websocket-security',
+		'nsa-ldap',
+		'nsa-method-security',
+		'nsa-web'
+	]
 	@Shared def reference = new File('../docs/manual/src/docs/asciidoc/index.adoc')
 
 	@Shared File schema31xDocument = new File('src/main/resources/org/springframework/security/config/spring-security-3.1.xsd')
@@ -52,32 +58,53 @@ class XsdDocumentedTests extends Specification {
 
 	def 'SEC-2139: named-security-filter are all defined and ordered properly'() {
 		setup:
-			def expectedFilters = (EnumSet.allOf(SecurityFilters) as List).sort { it.order }
+		def expectedFilters = (EnumSet.allOf(SecurityFilters) as List).sort { it.order }
 		when:
-			def nsf = schemaRootElement.simpleType.find { it.@name == 'named-security-filter' }
-			def nsfValues = nsf.children().children().collect { c ->
-				Enum.valueOf(SecurityFilters, c.@value.toString())
-			}
+		def nsf = schemaRootElement.simpleType.find { it.@name == 'named-security-filter' }
+		def nsfValues = nsf.children().children().collect { c ->
+			Enum.valueOf(SecurityFilters, c.@value.toString())
+		}
 		then:
-			expectedFilters == nsfValues
+		expectedFilters == nsfValues
 	}
 
 	def 'SEC-2139: 3.1.x named-security-filter are all defined and ordered properly'() {
 		setup:
-			def expectedFilters = ["FIRST", "CHANNEL_FILTER", "SECURITY_CONTEXT_FILTER", "CONCURRENT_SESSION_FILTER", "LOGOUT_FILTER", "X509_FILTER",
-				"PRE_AUTH_FILTER", "CAS_FILTER", "FORM_LOGIN_FILTER", "OPENID_FILTER", "LOGIN_PAGE_FILTER", "DIGEST_AUTH_FILTER","BASIC_AUTH_FILTER",
-				"REQUEST_CACHE_FILTER", "SERVLET_API_SUPPORT_FILTER", "JAAS_API_SUPPORT_FILTER", "REMEMBER_ME_FILTER", "ANONYMOUS_FILTER",
-				"SESSION_MANAGEMENT_FILTER", "EXCEPTION_TRANSLATION_FILTER", "FILTER_SECURITY_INTERCEPTOR", "SWITCH_USER_FILTER", "LAST"].collect {
-				Enum.valueOf(SecurityFilters, it)
-			}
-			def schema31xRootElement = new XmlSlurper().parse(schema31xDocument)
+		def expectedFilters = [
+			"FIRST",
+			"CHANNEL_FILTER",
+			"SECURITY_CONTEXT_FILTER",
+			"CONCURRENT_SESSION_FILTER",
+			"LOGOUT_FILTER",
+			"X509_FILTER",
+			"PRE_AUTH_FILTER",
+			"CAS_FILTER",
+			"FORM_LOGIN_FILTER",
+			"OPENID_FILTER",
+			"LOGIN_PAGE_FILTER",
+			"DIGEST_AUTH_FILTER",
+			"BASIC_AUTH_FILTER",
+			"REQUEST_CACHE_FILTER",
+			"SERVLET_API_SUPPORT_FILTER",
+			"JAAS_API_SUPPORT_FILTER",
+			"REMEMBER_ME_FILTER",
+			"ANONYMOUS_FILTER",
+			"SESSION_MANAGEMENT_FILTER",
+			"EXCEPTION_TRANSLATION_FILTER",
+			"FILTER_SECURITY_INTERCEPTOR",
+			"SWITCH_USER_FILTER",
+			"LAST"
+		].collect {
+			Enum.valueOf(SecurityFilters, it)
+		}
+		def schema31xRootElement = new XmlSlurper().parse(schema31xDocument)
 		when:
-			def nsf = schema31xRootElement.simpleType.find { it.@name == 'named-security-filter' }
-			def nsfValues = nsf.children().children().collect { c ->
-				Enum.valueOf(SecurityFilters, c.@value.toString())
-			}
+		def nsf = schema31xRootElement.simpleType.find { it.@name == 'named-security-filter' }
+		def nsfValues = nsf.children().children().collect { c ->
+			Enum.valueOf(SecurityFilters, c.@value.toString())
+		}
 		then:
-			expectedFilters == nsfValues
+		expectedFilters == nsfValues
 	}
 
 	/**
@@ -100,22 +127,22 @@ class XsdDocumentedTests extends Specification {
 	 */
 	def 'the entire schema is included in the appendix documentation'() {
 		setup: 'get all the documented ids and the expected ids'
-			def documentedIds = []
-			reference.eachLine { line ->
-				if(line.matches("\\[\\[(nsa-.*)\\]\\]")) {
-					documentedIds.add(line.substring(2,line.length() - 2))
-				}
+		def documentedIds = []
+		reference.eachLine { line ->
+			if(line.matches("\\[\\[(nsa-.*)\\]\\]")) {
+				documentedIds.add(line.substring(2,line.length() - 2))
 			}
+		}
 		when: 'the schema is compared to the appendix documentation'
-			def expectedIds = [] as Set
-			elementNameToElement*.value*.ids*.each { expectedIds.addAll it }
-			documentedIds.removeAll ignoredIds
-			expectedIds.removeAll ignoredIds
-			def undocumentedIds = (expectedIds - documentedIds)
-			def shouldNotBeDocumented = (documentedIds - expectedIds)
+		def expectedIds = [] as Set
+		elementNameToElement*.value*.ids*.each { expectedIds.addAll it }
+		documentedIds.removeAll ignoredIds
+		expectedIds.removeAll ignoredIds
+		def undocumentedIds = (expectedIds - documentedIds)
+		def shouldNotBeDocumented = (documentedIds - expectedIds)
 		then: 'all the elements and attributes are documented'
-			shouldNotBeDocumented.empty
-			undocumentedIds.empty
+		shouldNotBeDocumented.empty
+		undocumentedIds.empty
 	}
 
 	/**
@@ -125,55 +152,55 @@ class XsdDocumentedTests extends Specification {
 	 */
 	def 'validate parents and children are linked in the appendix documentation'() {
 		when: "get all the links for each element's children and parents"
-			def docAttrNameToChildren = [:]
-			def docAttrNameToParents = [:]
+		def docAttrNameToChildren = [:]
+		def docAttrNameToParents = [:]
 
-			def currentDocAttrNameToElmt
-			def docAttrName
+		def currentDocAttrNameToElmt
+		def docAttrName
 
-			reference.eachLine { line ->
-				if(line.matches('^\\[\\[.*\\]\\]$')) {
-					def id = line.substring(2,line.length() - 2)
-					if(id.endsWith("-children")) {
-						docAttrName = id.substring(0,id.length() - 9)
-						currentDocAttrNameToElmt = docAttrNameToChildren
-					} else if(id.endsWith("-parents")) {
-						docAttrName = id.substring(0,id.length() - 8)
-						currentDocAttrNameToElmt = docAttrNameToParents
-					} else if(docAttrName && !id.startsWith(docAttrName)) {
-						currentDocAttrNameToElmt = null
-						docAttrName = null
-					}
-				}
-
-				if(docAttrName) {
-					def expression = '^\\* <<(nsa-.*),.*>>$'
-					if(line.matches(expression)) {
-						String elmtId = line.replaceAll(expression, '$1')
-						currentDocAttrNameToElmt.get(docAttrName, []).add(elmtId)
-					}
+		reference.eachLine { line ->
+			if(line.matches('^\\[\\[.*\\]\\]$')) {
+				def id = line.substring(2,line.length() - 2)
+				if(id.endsWith("-children")) {
+					docAttrName = id.substring(0,id.length() - 9)
+					currentDocAttrNameToElmt = docAttrNameToChildren
+				} else if(id.endsWith("-parents")) {
+					docAttrName = id.substring(0,id.length() - 8)
+					currentDocAttrNameToElmt = docAttrNameToParents
+				} else if(docAttrName && !id.startsWith(docAttrName)) {
+					currentDocAttrNameToElmt = null
+					docAttrName = null
 				}
 			}
 
-			def schemaAttrNameToParents = [:]
-			def schemaAttrNameToChildren = [:]
-			elementNameToElement.each { entry ->
-				def key = 'nsa-'+entry.key
-				if(ignoredIds.contains(key)) {
-					return
-				}
-				def parentIds = entry.value.allParentElmts.values()*.id.findAll { !ignoredIds.contains(it) }.sort()
-				if(parentIds) {
-					schemaAttrNameToParents.put(key,parentIds)
-				}
-				def childIds = entry.value.allChildElmts.values()*.id.findAll { !ignoredIds.contains(it) }.sort()
-				if(childIds) {
-					schemaAttrNameToChildren.put(key,childIds)
+			if(docAttrName) {
+				def expression = '^\\* <<(nsa-.*),.*>>$'
+				if(line.matches(expression)) {
+					String elmtId = line.replaceAll(expression, '$1')
+					currentDocAttrNameToElmt.get(docAttrName, []).add(elmtId)
 				}
 			}
+		}
+
+		def schemaAttrNameToParents = [:]
+		def schemaAttrNameToChildren = [:]
+		elementNameToElement.each { entry ->
+			def key = 'nsa-'+entry.key
+			if(ignoredIds.contains(key)) {
+				return
+			}
+			def parentIds = entry.value.allParentElmts.values()*.id.findAll { !ignoredIds.contains(it) }.sort()
+			if(parentIds) {
+				schemaAttrNameToParents.put(key,parentIds)
+			}
+			def childIds = entry.value.allChildElmts.values()*.id.findAll { !ignoredIds.contains(it) }.sort()
+			if(childIds) {
+				schemaAttrNameToChildren.put(key,childIds)
+			}
+		}
 		then: "the expected parents and children are all documented"
-			schemaAttrNameToChildren.sort() == docAttrNameToChildren.sort()
-			schemaAttrNameToParents.sort() == docAttrNameToParents.sort()
+		schemaAttrNameToChildren.sort() == docAttrNameToChildren.sort()
+		schemaAttrNameToParents.sort() == docAttrNameToParents.sort()
 	}
 
 	/**
