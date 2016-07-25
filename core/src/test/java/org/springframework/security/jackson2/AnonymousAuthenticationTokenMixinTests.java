@@ -24,6 +24,7 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -78,5 +79,23 @@ public class AnonymousAuthenticationTokenMixinTests extends AbstractMixinTests {
 				"\"principal\": \"user\", \"authenticated\": true, \"keyHash\": "+key.hashCode()+","+
 				"\"authorities\": [\"java.util.ArrayList\", []]}";
 		buildObjectMapper().readValue(jsonString, AnonymousAuthenticationToken.class);
+	}
+
+	@Test
+	public void serializeAnonymousAuthenticationTokenMixinAfterEraseCredentialTest() throws JsonProcessingException, JSONException {
+		String key = "key";
+		GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_USER");
+		User user = new User("user", "password", Collections.singleton(authority));
+		String expectedJson = "{\"@class\": \"org.springframework.security.authentication.AnonymousAuthenticationToken\", \"details\": null,"+
+				"\"principal\": {\"@class\": \"org.springframework.security.core.userdetails.User\", \"username\": \"user\", \"password\": null, \"accountNonExpired\": true, \"enabled\": true, " +
+				"\"accountNonLocked\": true, \"credentialsNonExpired\": true, \"authorities\": [\"java.util.Collections$UnmodifiableSet\"," +
+				"[{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]}, \"authenticated\": true, \"keyHash\": "+key.hashCode()+","+
+				"\"authorities\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]}";
+		AnonymousAuthenticationToken token = new AnonymousAuthenticationToken(
+				key, user, Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"))
+		);
+		token.eraseCredentials();
+		String actualJson = buildObjectMapper().writeValueAsString(token);
+		JSONAssert.assertEquals(expectedJson, actualJson, true);
 	}
 }

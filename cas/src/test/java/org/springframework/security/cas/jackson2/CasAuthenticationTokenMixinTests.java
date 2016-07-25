@@ -48,11 +48,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class CasAuthenticationTokenMixinTests {
 
+	Date startDate = new Date();
+	Date endDate = new Date();
+	private String key = "casKey";
+
 	ObjectMapper buildObjectMapper() {
 		ObjectMapper mapper = new ObjectMapper();
 		SecurityJacksonModules.registerModules(mapper);
 		mapper.setVisibility(PropertyAccessor.CREATOR, JsonAutoDetect.Visibility.NON_PRIVATE);
 		return mapper;
+	}
+
+	private CasAuthenticationToken createCasAuthenticationToken(Object principal, Object credentials) {
+		Collection<? extends GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+		Assertion assertion = new AssertionImpl(new AttributePrincipalImpl("assertName"), startDate, endDate, startDate, Collections.<String, Object>emptyMap());
+		return new CasAuthenticationToken(key, principal, credentials, authorities,
+				new User("user", "pass", authorities), assertion);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -69,14 +80,7 @@ public class CasAuthenticationTokenMixinTests {
 
 	@Test
 	public void serializeCasAuthenticationTest() throws JsonProcessingException, JSONException {
-		String key = "casKey";
-		Date startDate = new Date();
-		Date endDate = new Date();
-		Collection<? extends GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
-		Assertion assertion = new AssertionImpl(new AttributePrincipalImpl("assertName"), startDate, endDate, startDate, Collections.<String, Object>emptyMap());
-		CasAuthenticationToken token = new CasAuthenticationToken(key, "user", "pass", authorities,
-				new User("user", "pass", authorities), assertion);
-
+		CasAuthenticationToken token = createCasAuthenticationToken("user", "pass");
 		String expectedJson = "{\"@class\": \"org.springframework.security.cas.authentication.CasAuthenticationToken\", \"keyHash\": "+key.hashCode()+"," +
 				"\"principal\": \"user\", \"credentials\": \"pass\", \"authorities\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]," +
 				"\"userDetails\": {\"@class\": \"org.springframework.security.core.userdetails.User\",\"username\": \"user\", \"password\": \"pass\", \"enabled\": true, \"accountNonExpired\": true, \"accountNonLocked\": true, \"credentialsNonExpired\": true, \"authorities\": [\"java.util.Collections$UnmodifiableSet\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]}," +
@@ -91,11 +95,27 @@ public class CasAuthenticationTokenMixinTests {
 	}
 
 	@Test
-	public void deserializeCasAuthenticationTest() throws IOException, JSONException {
-		String key = "casKey";
-		Date startDate = new Date();
-		Date endDate = new Date();
+	public void serializeCasAuthenticationTestAfterEraseCredentialInvoked() throws JsonProcessingException, JSONException {
+		User user = new User("username", "password", Collections.singletonList(new SimpleGrantedAuthority("USER")));
+		CasAuthenticationToken token = createCasAuthenticationToken(user, "password");
+		String expectedJson = "{\"@class\": \"org.springframework.security.cas.authentication.CasAuthenticationToken\", \"keyHash\": "+key.hashCode()+"," +
+				"\"principal\": {\"@class\": \"org.springframework.security.core.userdetails.User\", \"username\": \"username\", \"password\": null, \"accountNonExpired\": true, \"enabled\": true," +
+				"\"accountNonLocked\": true, \"credentialsNonExpired\": true, \"authorities\": [\"java.util.Collections$UnmodifiableSet\"," +
+				"[{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"USER\"}]]}, \"credentials\": \"password\", \"authorities\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]," +
+				"\"userDetails\": {\"@class\": \"org.springframework.security.core.userdetails.User\",\"username\": \"user\", \"password\": \"pass\", \"enabled\": true, \"accountNonExpired\": true, \"accountNonLocked\": true, \"credentialsNonExpired\": true, \"authorities\": [\"java.util.Collections$UnmodifiableSet\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]}," +
+				"\"authenticated\": true, \"details\": null," +
+				"\"assertion\": {" +
+				"\"@class\": \"org.jasig.cas.client.validation.AssertionImpl\", \"principal\": {\"@class\": \"org.jasig.cas.client.authentication.AttributePrincipalImpl\", \"name\": \"assertName\", \"attributes\": {\"@class\": \"java.util.Collections$EmptyMap\"}, \"proxyGrantingTicket\": null, \"proxyRetriever\": null}, " +
+				"\"validFromDate\": [\"java.util.Date\", "+startDate.getTime()+"], \"validUntilDate\": [\"java.util.Date\", "+endDate.getTime()+"]," +
+				"\"authenticationDate\": [\"java.util.Date\", "+startDate.getTime()+"], \"attributes\": {\"@class\": \"java.util.Collections$EmptyMap\"}" +
+				"}}";
+		token.eraseCredentials();
+		String actualJson = buildObjectMapper().writeValueAsString(token);
+		JSONAssert.assertEquals(expectedJson, actualJson, true);
+	}
 
+	@Test
+	public void deserializeCasAuthenticationTest() throws IOException, JSONException {
 		String expectedJson = "{\"@class\": \"org.springframework.security.cas.authentication.CasAuthenticationToken\", \"keyHash\": "+key.hashCode()+"," +
 				"\"principal\": \"user\", \"credentials\": \"pass\", \"authorities\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]," +
 				"\"userDetails\": {\"@class\": \"org.springframework.security.core.userdetails.User\",\"username\": \"user\", \"password\": \"pass\", \"enabled\": true, \"accountNonExpired\": true, \"accountNonLocked\": true, \"credentialsNonExpired\": true, \"authorities\": [\"java.util.Collections$UnmodifiableSet\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]}," +

@@ -110,4 +110,20 @@ public class UsernamePasswordAuthenticationTokenMixinTests extends AbstractMixin
 		assertThat(token.isAuthenticated()).isEqualTo(true);
 		assertThat(token.getAuthorities()).hasSize(1).contains(new SimpleGrantedAuthority("ROLE_USER"));
 	}
+
+	@Test
+	public void serializeAuthenticatedUsernamePasswordAuthenticationTokenMixinAfterEraseCredentialInvoked() throws JsonProcessingException, JSONException {
+		GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_USER");
+		User user = new User("user", "password", Collections.singleton(authority));
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(user, "password", Collections.singleton(authority));
+		String expectedJson = "{\"@class\": \"org.springframework.security.authentication.UsernamePasswordAuthenticationToken\"," +
+				"\"principal\": {\"@class\": \"org.springframework.security.core.userdetails.User\", \"username\": \"user\", \"password\": null, \"accountNonExpired\": true, \"enabled\": true, " +
+				"\"accountNonLocked\": true, \"credentialsNonExpired\": true, \"authorities\": [\"java.util.Collections$UnmodifiableSet\"," +
+				"[{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]}, \"credentials\": null," +
+				"\"details\": null, \"authenticated\": true," +
+				"\"authorities\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]}";
+		token.eraseCredentials();
+		String actualJson = buildObjectMapper().writeValueAsString(token);
+		JSONAssert.assertEquals(expectedJson, actualJson, true);
+	}
 }
