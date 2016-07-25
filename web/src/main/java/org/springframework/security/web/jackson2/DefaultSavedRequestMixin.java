@@ -26,11 +26,11 @@ import org.springframework.security.web.savedrequest.DefaultSavedRequest;
 import java.util.Map;
 
 /**
-` * Jackson mixin class to serialize/deserialize {@link DefaultSavedRequest}. This mixin use
+ * ` * Jackson mixin class to serialize/deserialize {@link DefaultSavedRequest}. This mixin use
  * {@link org.springframework.security.web.savedrequest.DefaultSavedRequest.Builder} to
  * deserialized josn.In order to use this mixin class you also need to register
  * {@link CookieMixin}.
- *
+ * <p/>
  * <pre>
  *     ObjectMapper mapper = new ObjectMapper();
  *     mapper.addMixIn(Cookie.class, CookieMixin.class);
@@ -42,16 +42,6 @@ import java.util.Map;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
 @JsonDeserialize(builder = DefaultSavedRequest.Builder.class)
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY)
-@JsonIgnoreProperties(
-		value = {"headerNames", "headerValues", "parameterNames", "redirectUrl"}
-)
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE)
 public abstract class DefaultSavedRequestMixin {
-
-	/**
-	 * This method will ensure that all the request parameters will must in 'parameters' key.
-	 * @return
-	 */
-	@JsonProperty("parameters")
-	public abstract Map<String, String[]> getParameterMap();
 }
