@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
 import org.springframework.security.web.savedrequest.DefaultSavedRequest;
+import org.springframework.security.web.savedrequest.SavedCookie;
 
 import javax.servlet.http.Cookie;
 
@@ -46,6 +47,7 @@ public class WebJackson2SimpleModule extends SimpleModule {
 	@Override
 	public void setupModule(SetupContext context) {
 		context.setMixInAnnotations(Cookie.class, CookieMixin.class);
+		context.setMixInAnnotations(SavedCookie.class, SavedCookieMixin.class);
 		context.setMixInAnnotations(DefaultCsrfToken.class, DefaultCsrfTokenMixin.class);
 		context.setMixInAnnotations(DefaultSavedRequest.class, DefaultSavedRequestMixin.class);
 		context.setMixInAnnotations(WebAuthenticationDetails.class, WebAuthenticationDetailsMixin.class);
