@@ -17,7 +17,6 @@
 package org.springframework.security.jackson2;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONException;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -29,7 +28,7 @@ import org.springframework.security.core.context.SecurityContextImpl;
 import java.io.IOException;
 import java.util.Collections;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Jitendra Singh
@@ -37,18 +36,11 @@ import static org.assertj.core.api.Assertions.*;
  */
 public class SecurityContextMixinTest extends AbstractMixinTests {
 
-	@Override
-	protected ObjectMapper buildObjectMapper() {
-		return super.buildObjectMapper()
-				.addMixIn(UsernamePasswordAuthenticationToken.class, UsernamePasswordAuthenticationTokenMixin.class)
-				.addMixIn(SimpleGrantedAuthority.class, SimpleGrantedAuthorityMixin.class);
-	}
-
 	@Test
 	public void securityContextSerializeTest() throws JsonProcessingException, JSONException {
 		String expectedJson = "{\"@class\": \"org.springframework.security.core.context.SecurityContextImpl\", \"authentication\": " +
 					"{\"@class\": \"org.springframework.security.authentication.UsernamePasswordAuthenticationToken\"," +
-						"\"principal\": \"user\", \"credentials\": \"password\", \"authenticated\": true, \"details\": null, \"name\": \"user\"," +
+						"\"principal\": \"user\", \"credentials\": \"password\", \"authenticated\": true, \"details\": null," +
 						"\"authorities\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]" +
 					"}" +
 				"}";
@@ -62,7 +54,7 @@ public class SecurityContextMixinTest extends AbstractMixinTests {
 	public void securityContextDeserializeTest() throws IOException {
 		String contextJson = "{\"@class\": \"org.springframework.security.core.context.SecurityContextImpl\", \"authentication\": " +
 				"{\"@class\": \"org.springframework.security.authentication.UsernamePasswordAuthenticationToken\"," +
-					"\"principal\": \"user\", \"credentials\": \"password\", \"authenticated\": true, \"details\": null, \"name\": \"user\"," +
+					"\"principal\": \"user\", \"credentials\": \"password\", \"authenticated\": true, \"details\": null," +
 					"\"authorities\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]" +
 					"}" +
 				"}";

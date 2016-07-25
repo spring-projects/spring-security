@@ -36,13 +36,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class UserDeserializerTests extends AbstractMixinTests {
 
-	protected ObjectMapper buildObjectMapper() {
-		return super.buildObjectMapper()
-				.addMixIn(SimpleGrantedAuthority.class, SimpleGrantedAuthorityMixin.class)
-				.addMixIn(Collections.unmodifiableSet(Collections.EMPTY_SET).getClass(), UnmodifiableSetMixin.class)
-				.addMixIn(User.class, UserMixin.class);
-	}
-
 	@Test
 	public void serializeUserTest() throws JsonProcessingException, JSONException {
 		ObjectMapper mapper = buildObjectMapper();

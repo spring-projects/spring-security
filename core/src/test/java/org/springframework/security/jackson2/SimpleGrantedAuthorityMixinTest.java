@@ -35,20 +35,12 @@ import static org.assertj.core.api.Assertions.*;
  * @author Jitendra Singh
  * @since 4.2
  */
-public class SimpleGrantedAuthorityMixinTest {
-
-	ObjectMapper mapper;
-
-	@Before
-	public void setup() {
-		mapper = new ObjectMapper();
-		mapper.addMixIn(SimpleGrantedAuthority.class, SimpleGrantedAuthorityMixin.class);
-	}
+public class SimpleGrantedAuthorityMixinTest extends AbstractMixinTests {
 
 	@Test
 	public void serializeSimpleGrantedAuthorityTest() throws JsonProcessingException, JSONException {
 		SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_USER");
-		String serializeJson = mapper.writeValueAsString(authority);
+		String serializeJson = buildObjectMapper().writeValueAsString(authority);
 		String expectedJson = "{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}";
 		JSONAssert.assertEquals(expectedJson, serializeJson, true);
 	}
@@ -56,7 +48,7 @@ public class SimpleGrantedAuthorityMixinTest {
 	@Test
 	public void deserializeGrantedAuthorityTest() throws IOException {
 		String json = "{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}";
-		SimpleGrantedAuthority authority = mapper.readValue(json, SimpleGrantedAuthority.class);
+		SimpleGrantedAuthority authority = buildObjectMapper().readValue(json, SimpleGrantedAuthority.class);
 		assertThat(authority).isNotNull();
 		assertThat(authority.getAuthority()).isNotNull().isEqualTo("ROLE_USER");
 	}
@@ -64,6 +56,6 @@ public class SimpleGrantedAuthorityMixinTest {
 	@Test(expected = JsonMappingException.class)
 	public void deserializeGrantedAuthorityWithoutRoleTest() throws IOException {
 		String json = "{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\"}";
-		mapper.readValue(json, SimpleGrantedAuthority.class);
+		buildObjectMapper().readValue(json, SimpleGrantedAuthority.class);
 	}
 }
