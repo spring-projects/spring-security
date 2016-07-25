@@ -38,10 +38,10 @@ import javax.servlet.http.Cookie;
  * @author Jitendra Singh
  * @since 4.2
  */
-public class WebJackson2SimpleModule extends SimpleModule {
+public class WebJackson2Module extends SimpleModule {
 
-	public WebJackson2SimpleModule() {
-		super(WebJackson2SimpleModule.class.getName(), new Version(1, 0, 0, null, null, null));
+	public WebJackson2Module() {
+		super(WebJackson2Module.class.getName(), new Version(1, 0, 0, null, null, null));
 	}
 
 	@Override

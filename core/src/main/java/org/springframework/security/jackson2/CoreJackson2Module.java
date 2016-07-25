@@ -40,10 +40,10 @@ import java.util.Collections;
  * @author Jitendra Singh.
  * @since 4.2
  */
-public class CoreJackson2SimpleModule extends SimpleModule {
+public class CoreJackson2Module extends SimpleModule {
 
-	public CoreJackson2SimpleModule() {
-		super(CoreJackson2SimpleModule.class.getName(), new Version(1, 0, 0, null, null, null));
+	public CoreJackson2Module() {
+		super(CoreJackson2Module.class.getName(), new Version(1, 0, 0, null, null, null));
 	}
 
 	@Override
