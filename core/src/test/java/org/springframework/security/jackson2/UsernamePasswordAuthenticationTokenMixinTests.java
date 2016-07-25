@@ -37,32 +37,39 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class UsernamePasswordAuthenticationTokenMixinTests extends AbstractMixinTests {
 
+	String unauthenticatedTokenWithoutUserPrincipal = "{\"@class\": \"org.springframework.security.authentication.UsernamePasswordAuthenticationToken\"," +
+			" \"principal\": \"user1\", \"credentials\": \"password\", \"authenticated\": false, \"details\": null, " +
+			"\"authorities\": [\"java.util.ArrayList\", []]}";
+
+	String authenticatedTokenWithoutUserPrincipal = "{\"@class\": \"org.springframework.security.authentication.UsernamePasswordAuthenticationToken\"," +
+			" \"principal\": \"user1\", \"credentials\": \"password\", \"authenticated\": true, \"details\": null, " +
+			"\"authorities\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]}";
+
+	String authenticatedTokenWithUserPrincipal = "{\"@class\": \"org.springframework.security.authentication.UsernamePasswordAuthenticationToken\"," +
+			"\"principal\": {\"@class\": \"org.springframework.security.core.userdetails.User\", \"username\": \"user\", \"password\": %s, \"accountNonExpired\": true, \"enabled\": true, " +
+			"\"accountNonLocked\": true, \"credentialsNonExpired\": true, \"authorities\": [\"java.util.Collections$UnmodifiableSet\"," +
+			"[{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]}, \"credentials\": %s," +
+			"\"details\": null, \"authenticated\": true," +
+			"\"authorities\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]}";
+
 	@Test
 	public void serializeUnauthenticatedUsernamePasswordAuthenticationTokenMixinTest() throws JsonProcessingException, JSONException {
-		String expectedJson = "{\"@class\": \"org.springframework.security.authentication.UsernamePasswordAuthenticationToken\"," +
-				" \"principal\": \"user1\", \"credentials\": \"password\", \"authenticated\": false, \"details\": null, " +
-				"\"authorities\": [\"java.util.ArrayList\", []]}";
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("user1", "password");
 		String serializedJson = buildObjectMapper().writeValueAsString(token);
-		JSONAssert.assertEquals(expectedJson, serializedJson, true);
+		JSONAssert.assertEquals(unauthenticatedTokenWithoutUserPrincipal, serializedJson, true);
 	}
 
 	@Test
 	public void serializeAuthenticatedUsernamePasswordAuthenticationTokenMixinTest() throws JsonProcessingException, JSONException {
-		String expectedJson = "{\"@class\": \"org.springframework.security.authentication.UsernamePasswordAuthenticationToken\"," +
-				" \"principal\": \"user1\", \"credentials\": \"password\", \"authenticated\": true, \"details\": null, " +
-				"\"authorities\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]}";
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("user1", "password", Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
 		String serializedJson = buildObjectMapper().writeValueAsString(token);
-		JSONAssert.assertEquals(expectedJson, serializedJson, true);
+		JSONAssert.assertEquals(authenticatedTokenWithoutUserPrincipal, serializedJson, true);
 	}
 
 	@Test
 	public void deserializeUnauthenticatedUsernamePasswordAuthenticationTokenMixinTest() throws IOException, JSONException {
-		String tokenJson = "{\"@class\": \"org.springframework.security.authentication.UsernamePasswordAuthenticationToken\"," +
-				" \"principal\": \"user1\", \"credentials\": \"password\", \"authenticated\": false, \"details\": null, " +
-				"\"authorities\": [\"java.util.ArrayList\", []], \"name\": \"user1\"}";
-		UsernamePasswordAuthenticationToken token = buildObjectMapper().readValue(tokenJson, UsernamePasswordAuthenticationToken.class);
+		UsernamePasswordAuthenticationToken token = buildObjectMapper()
+				.readValue(unauthenticatedTokenWithoutUserPrincipal, UsernamePasswordAuthenticationToken.class);
 		assertThat(token).isNotNull();
 		assertThat(token.isAuthenticated()).isEqualTo(false);
 		assertThat(token.getAuthorities()).isNotNull().hasSize(0);
@@ -70,10 +77,8 @@ public class UsernamePasswordAuthenticationTokenMixinTests extends AbstractMixin
 
 	@Test
 	public void deserializeAuthenticatedUsernamePasswordAuthenticationTokenMixinTest() throws IOException {
-		String tokenJson = "{\"@class\": \"org.springframework.security.authentication.UsernamePasswordAuthenticationToken\"," +
-				"\"principal\": \"user1\", \"credentials\": \"password\", \"authenticated\": true, \"details\": null, " +
-				"\"authorities\" : [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]}";
-		UsernamePasswordAuthenticationToken token = buildObjectMapper().readValue(tokenJson, UsernamePasswordAuthenticationToken.class);
+		UsernamePasswordAuthenticationToken token = buildObjectMapper()
+				.readValue(authenticatedTokenWithoutUserPrincipal, UsernamePasswordAuthenticationToken.class);
 		assertThat(token).isNotNull();
 		assertThat(token.isAuthenticated()).isEqualTo(true);
 		assertThat(token.getAuthorities()).isNotNull().hasSize(1).contains(new SimpleGrantedAuthority("ROLE_USER"));
@@ -82,28 +87,17 @@ public class UsernamePasswordAuthenticationTokenMixinTests extends AbstractMixin
 	@Test
 	public void serializeAuthenticatedUsernamePasswordAuthenticationTokenMixinWithUserTest() throws JsonProcessingException, JSONException {
 		GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_USER");
-		User user = new User("user", "pass", Collections.singleton(authority));
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(user, "pass", Collections.singleton(authority));
-		String expectedJson = "{\"@class\": \"org.springframework.security.authentication.UsernamePasswordAuthenticationToken\"," +
-				"\"principal\": {\"@class\": \"org.springframework.security.core.userdetails.User\", \"username\": \"user\", \"password\": \"pass\", \"accountNonExpired\": true, \"enabled\": true, " +
-				"\"accountNonLocked\": true, \"credentialsNonExpired\": true, \"authorities\": [\"java.util.Collections$UnmodifiableSet\"," +
-				"[{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]}, \"credentials\": \"pass\"," +
-				"\"details\": null, \"authenticated\": true," +
-				"\"authorities\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]}";
+		User user = new User("user", "password", Collections.singleton(authority));
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(user, "password", Collections.singleton(authority));
 		String actualJson = buildObjectMapper().writeValueAsString(token);
-		JSONAssert.assertEquals(expectedJson, actualJson, true);
+		JSONAssert.assertEquals(String.format(authenticatedTokenWithUserPrincipal, "password", "password"), actualJson, true);
 	}
 
 	@Test
 	public void deserializeAuthenticatedUsernamePasswordAuthenticationTokenWithUserTest() throws IOException {
-		String tokenJson = "{\"@class\": \"org.springframework.security.authentication.UsernamePasswordAuthenticationToken\"," +
-				"\"principal\": {\"@class\": \"org.springframework.security.core.userdetails.User\", \"username\": \"user\", \"password\": \"pass\", \"accountNonExpired\": true, \"enabled\": true, " +
-				"\"accountNonLocked\": true, \"credentialsNonExpired\": true, \"authorities\": [\"java.util.Collections$UnmodifiableSet\"," +
-				"[{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]}, \"credentials\": \"pass\"," +
-				"\"details\": null, \"name\": \"user\", \"authenticated\": true," +
-				"\"authorities\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]}";
 		ObjectMapper mapper = buildObjectMapper();
-		UsernamePasswordAuthenticationToken token = mapper.readValue(tokenJson, UsernamePasswordAuthenticationToken.class);
+		UsernamePasswordAuthenticationToken token = mapper
+				.readValue(String.format(authenticatedTokenWithUserPrincipal, "\"password\"", "\"password\""), UsernamePasswordAuthenticationToken.class);
 		assertThat(token).isNotNull();
 		assertThat(token.getPrincipal()).isNotNull().isInstanceOf(User.class);
 		assertThat(((User)token.getPrincipal()).getAuthorities()).isNotNull().hasSize(1).contains(new SimpleGrantedAuthority("ROLE_USER"));
@@ -116,14 +110,8 @@ public class UsernamePasswordAuthenticationTokenMixinTests extends AbstractMixin
 		GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_USER");
 		User user = new User("user", "password", Collections.singleton(authority));
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(user, "password", Collections.singleton(authority));
-		String expectedJson = "{\"@class\": \"org.springframework.security.authentication.UsernamePasswordAuthenticationToken\"," +
-				"\"principal\": {\"@class\": \"org.springframework.security.core.userdetails.User\", \"username\": \"user\", \"password\": null, \"accountNonExpired\": true, \"enabled\": true, " +
-				"\"accountNonLocked\": true, \"credentialsNonExpired\": true, \"authorities\": [\"java.util.Collections$UnmodifiableSet\"," +
-				"[{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]}, \"credentials\": null," +
-				"\"details\": null, \"authenticated\": true," +
-				"\"authorities\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]}";
 		token.eraseCredentials();
 		String actualJson = buildObjectMapper().writeValueAsString(token);
-		JSONAssert.assertEquals(expectedJson, actualJson, true);
+		JSONAssert.assertEquals(String.format(authenticatedTokenWithUserPrincipal, "null", "null"), actualJson, true);
 	}
 }

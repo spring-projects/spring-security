@@ -34,6 +34,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class CookieMixinTests {
 
+	String cookieJson = "{\"@class\": \"javax.servlet.http.Cookie\", \"name\": \"demo\", \"value\": \"cookie1\"," +
+			"\"comment\": null, \"maxAge\": -1, \"path\": null, \"secure\": false, \"version\": 0, \"isHttpOnly\": false, \"domain\": null}";
+
 	ObjectMapper buildObjectMapper() {
 		ObjectMapper mapper = new ObjectMapper();
 		SecurityJacksonModules.registerModules(mapper);
@@ -43,17 +46,13 @@ public class CookieMixinTests {
 	@Test
 	public void serializeCookie() throws JsonProcessingException, JSONException {
 		Cookie cookie = new Cookie("demo", "cookie1");
-		String expectedString = "{\"@class\": \"javax.servlet.http.Cookie\", \"name\": \"demo\", \"value\": \"cookie1\"," +
-				"\"comment\": null, \"maxAge\": -1, \"path\": null, \"secure\": false, \"version\": 0, \"isHttpOnly\": false, \"domain\": null}";
 		String actualString = buildObjectMapper().writeValueAsString(cookie);
-		JSONAssert.assertEquals(expectedString, actualString, true);
+		JSONAssert.assertEquals(cookieJson, actualString, true);
 	}
 
 	@Test
 	public void deserializeCookie() throws IOException {
-		String cookieString = "{\"@class\": \"javax.servlet.http.Cookie\", \"name\": \"demo\", \"value\": \"cookie1\"," +
-				"\"comment\": null, \"maxAge\": -1, \"path\": null, \"secure\": false, \"version\": 0, \"isHttpOnly\": false, \"domain\": null}";
-		Cookie cookie = buildObjectMapper().readValue(cookieString, Cookie.class);
+		Cookie cookie = buildObjectMapper().readValue(cookieJson, Cookie.class);
 		assertThat(cookie).isNotNull();
 		assertThat(cookie.getName()).isEqualTo("demo");
 		assertThat(cookie.getDomain()).isEqualTo("");

@@ -42,6 +42,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class WebAuthenticationDetailsMixinTests {
 
 	ObjectMapper mapper;
+	String webAuthenticationDetailsJson = "{\"@class\": \"org.springframework.security.web.authentication.WebAuthenticationDetails\","
+			+ "\"sessionId\": \"1\", \"remoteAddress\": \"/localhost\"}";
 
 	@Before
 	public void setup() {
@@ -57,9 +59,8 @@ public class WebAuthenticationDetailsMixinTests {
 		request.setSession(new MockHttpSession(null, "1"));
 
 		WebAuthenticationDetails details = new WebAuthenticationDetails(request);
-		String jsonString = "{\"@class\": \"org.springframework.security.web.authentication.WebAuthenticationDetails\","
-				+ "\"sessionId\": \"1\", \"remoteAddress\": \"/localhost\"}";
-		WebAuthenticationDetails authenticationDetails = this.mapper.readValue(jsonString,
+
+		WebAuthenticationDetails authenticationDetails = this.mapper.readValue(webAuthenticationDetailsJson,
 				WebAuthenticationDetails.class);
 		assertThat(details.equals(authenticationDetails));
 	}
@@ -71,18 +72,14 @@ public class WebAuthenticationDetailsMixinTests {
 		request.setRemoteAddr("/home");
 		request.setSession(new MockHttpSession(null, "1"));
 		WebAuthenticationDetails details = new WebAuthenticationDetails(request);
-		String expectedJson = "{\"@class\": \"org.springframework.security.web.authentication.WebAuthenticationDetails\","
-				+ "\"sessionId\": \"1\", \"remoteAddress\": \"/home\"}";
 		String actualJson = this.mapper.writeValueAsString(details);
-		JSONAssert.assertEquals(expectedJson, actualJson, true);
+		JSONAssert.assertEquals(webAuthenticationDetailsJson, actualJson, true);
 	}
 
 	@Test
 	public void webAuthenticationDetailsDeserializeTest()
 			throws IOException, JSONException {
-		String actualJson = "{\"@class\": \"org.springframework.security.web.authentication.WebAuthenticationDetails\","
-				+ "\"sessionId\": \"1\", \"remoteAddress\": \"/home\"}";
-		WebAuthenticationDetails details = this.mapper.readValue(actualJson,
+		WebAuthenticationDetails details = this.mapper.readValue(webAuthenticationDetailsJson,
 				WebAuthenticationDetails.class);
 		assertThat(details).isNotNull();
 		assertThat(details.getRemoteAddress()).isEqualTo("/home");

@@ -36,13 +36,20 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class UserDeserializerTests extends AbstractMixinTests {
 
+	String userWithAuthoritiesJson = "{\"@class\": \"org.springframework.security.core.userdetails.User\", \"username\": \"admin\"," +
+			" \"password\": %s, \"accountNonExpired\": true, \"accountNonLocked\": true, \"credentialsNonExpired\": true, " +
+			"\"enabled\": true, \"authorities\": [\"java.util.Collections$UnmodifiableSet\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]}";
+
+	String userWithoutAuthoritiesJson = "{\"@class\": \"org.springframework.security.core.userdetails.User\", \"username\": \"admin\"," +
+			" \"password\": \"1234\", \"accountNonExpired\": true, \"accountNonLocked\": true, \"credentialsNonExpired\": true," +
+			" \"enabled\": true, \"authorities\": [\"java.util.Collections$UnmodifiableSet\", []]}";
+
 	@Test
 	public void serializeUserTest() throws JsonProcessingException, JSONException {
 		ObjectMapper mapper = buildObjectMapper();
-		User user = new User("admin", "1234", Collections.singletonList(new SimpleGrantedAuthority("USER_ROLE")));
+		User user = new User("admin", "1234", Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
 		String userJson = mapper.writeValueAsString(user);
-		String expectedJson = "{\"@class\": \"org.springframework.security.core.userdetails.User\", \"username\": \"admin\", \"password\": \"1234\", \"accountNonExpired\": true, \"accountNonLocked\": true, \"credentialsNonExpired\": true, \"enabled\": true, \"authorities\": [\"java.util.Collections$UnmodifiableSet\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"USER_ROLE\"}]]}";
-		JSONAssert.assertEquals(expectedJson, userJson, true);
+		JSONAssert.assertEquals(String.format(userWithAuthoritiesJson, "\"1234\""), userJson, true);
 	}
 
 	@Test
@@ -50,8 +57,7 @@ public class UserDeserializerTests extends AbstractMixinTests {
 		ObjectMapper mapper = buildObjectMapper();
 		User user = new User("admin", "1234", Collections.<GrantedAuthority>emptyList());
 		String userJson = mapper.writeValueAsString(user);
-		String expectedJson = "{\"@class\": \"org.springframework.security.core.userdetails.User\", \"username\": \"admin\", \"password\": \"1234\", \"accountNonExpired\": true, \"accountNonLocked\": true, \"credentialsNonExpired\": true, \"enabled\": true, \"authorities\": [\"java.util.Collections$UnmodifiableSet\", []]}";
-		JSONAssert.assertEquals(expectedJson, userJson, true);
+		JSONAssert.assertEquals(userWithoutAuthoritiesJson, userJson, true);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -67,13 +73,13 @@ public class UserDeserializerTests extends AbstractMixinTests {
 	@Test
 	public void deserializeUserWithNullPasswordNoAuthorityTest() throws IOException {
 		String userJsonWithoutPasswordString = "{\"@class\": \"org.springframework.security.core.userdetails.User\", " +
-				"\"username\": \"user\", \"accountNonExpired\": true, " +
+				"\"username\": \"admin\", \"accountNonExpired\": true, " +
 				"\"accountNonLocked\": true, \"credentialsNonExpired\": true, \"enabled\": true, " +
 				"\"authorities\": [\"java.util.HashSet\", []]}";
 		ObjectMapper mapper = buildObjectMapper();
 		User user = mapper.readValue(userJsonWithoutPasswordString, User.class);
 		assertThat(user).isNotNull();
-		assertThat(user.getUsername()).isEqualTo("user");
+		assertThat(user.getUsername()).isEqualTo("admin");
 		assertThat(user.getPassword()).isEqualTo("");
 		assertThat(user.getAuthorities()).hasSize(0);
 		assertThat(user.isEnabled()).isEqualTo(true);
@@ -90,13 +96,10 @@ public class UserDeserializerTests extends AbstractMixinTests {
 
 	@Test
 	public void deserializeUserWithClassIdInAuthoritiesTest() throws IOException {
-		String userJson = "{\"@class\": \"org.springframework.security.core.userdetails.User\", " +
-				"\"username\": \"user\", \"password\": \"pass\", \"accountNonExpired\": true, " +
-				"\"accountNonLocked\": true, \"credentialsNonExpired\": true, \"enabled\": true, " +
-				"\"authorities\": [\"java.util.Collections$UnmodifiableSet\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]}";
-		User user = buildObjectMapper().readValue(userJson, User.class);
+		User user = buildObjectMapper().readValue(String.format(userWithAuthoritiesJson, "\"1234\""), User.class);
 		assertThat(user).isNotNull();
-		assertThat(user.getUsername()).isEqualTo("user");
+		assertThat(user.getUsername()).isEqualTo("admin");
+		assertThat(user.getPassword()).isEqualTo("1234");
 		assertThat(user.getAuthorities()).hasSize(1).contains(new SimpleGrantedAuthority("ROLE_USER"));
 	}
 }

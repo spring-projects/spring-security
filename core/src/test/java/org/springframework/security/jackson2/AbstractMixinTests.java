@@ -19,7 +19,11 @@ package org.springframework.security.jackson2;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.util.ObjectUtils;
+
+import java.util.Collections;
 
 /**
  * @author Jitenra Singh
@@ -36,5 +40,13 @@ public abstract class AbstractMixinTests {
 			SecurityJacksonModules.registerModules(mapper);
 		}
 		return mapper;
+	}
+
+	User createDefaultUser() {
+		return createUser("dummy", "password", "ROLE_USER");
+	}
+
+	User createUser(String username, String password, String authority) {
+		return new User(username, password, Collections.singletonList(new SimpleGrantedAuthority(authority)));
 	}
 }

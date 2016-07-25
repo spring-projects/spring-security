@@ -37,18 +37,18 @@ import static org.assertj.core.api.Assertions.*;
  */
 public class SimpleGrantedAuthorityMixinTests extends AbstractMixinTests {
 
+	String simpleGrantedAuthorityJson = "{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}";
+
 	@Test
 	public void serializeSimpleGrantedAuthorityTest() throws JsonProcessingException, JSONException {
 		SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_USER");
 		String serializeJson = buildObjectMapper().writeValueAsString(authority);
-		String expectedJson = "{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}";
-		JSONAssert.assertEquals(expectedJson, serializeJson, true);
+		JSONAssert.assertEquals(simpleGrantedAuthorityJson, serializeJson, true);
 	}
 
 	@Test
 	public void deserializeGrantedAuthorityTest() throws IOException {
-		String json = "{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}";
-		SimpleGrantedAuthority authority = buildObjectMapper().readValue(json, SimpleGrantedAuthority.class);
+		SimpleGrantedAuthority authority = buildObjectMapper().readValue(simpleGrantedAuthorityJson, SimpleGrantedAuthority.class);
 		assertThat(authority).isNotNull();
 		assertThat(authority.getAuthority()).isNotNull().isEqualTo("ROLE_USER");
 	}

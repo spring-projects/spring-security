@@ -16,8 +16,6 @@
 
 package org.springframework.security.cas.jackson2;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jasig.cas.client.authentication.AttributePrincipalImpl;
@@ -48,88 +46,73 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class CasAuthenticationTokenMixinTests {
 
+	private final String KEY = "casKey";
+	private final String PASSWORD = "pass";
 	Date startDate = new Date();
 	Date endDate = new Date();
-	private String key = "casKey";
+	String expectedJson = "{\"@class\": \"org.springframework.security.cas.authentication.CasAuthenticationToken\", \"keyHash\": " + KEY.hashCode() + "," +
+			"\"principal\": {\"@class\": \"org.springframework.security.core.userdetails.User\", \"username\": \"username\", \"password\": %s, \"accountNonExpired\": true, \"enabled\": true," +
+			"\"accountNonLocked\": true, \"credentialsNonExpired\": true, \"authorities\": [\"java.util.Collections$UnmodifiableSet\"," +
+			"[{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"USER\"}]]}, \"credentials\": \"" + PASSWORD + "\", \"authorities\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]," +
+			"\"userDetails\": {\"@class\": \"org.springframework.security.core.userdetails.User\",\"username\": \"user\", \"password\": \"" + PASSWORD + "\", \"enabled\": true, \"accountNonExpired\": true, \"accountNonLocked\": true, \"credentialsNonExpired\": true, \"authorities\": [\"java.util.Collections$UnmodifiableSet\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]}," +
+			"\"authenticated\": true, \"details\": null," +
+			"\"assertion\": {" +
+			"\"@class\": \"org.jasig.cas.client.validation.AssertionImpl\", \"principal\": {\"@class\": \"org.jasig.cas.client.authentication.AttributePrincipalImpl\", \"name\": \"assertName\", \"attributes\": {\"@class\": \"java.util.Collections$EmptyMap\"}, \"proxyGrantingTicket\": null, \"proxyRetriever\": null}, " +
+			"\"validFromDate\": [\"java.util.Date\", " + startDate.getTime() + "], \"validUntilDate\": [\"java.util.Date\", " + endDate.getTime() + "]," +
+			"\"authenticationDate\": [\"java.util.Date\", " + startDate.getTime() + "], \"attributes\": {\"@class\": \"java.util.Collections$EmptyMap\"}" +
+			"}}";
+
+	private CasAuthenticationToken createCasAuthenticationToken() {
+		User principal = new User("username", PASSWORD, Collections.singletonList(new SimpleGrantedAuthority("USER")));
+		Collection<? extends GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+		Assertion assertion = new AssertionImpl(new AttributePrincipalImpl("assertName"), startDate, endDate, startDate, Collections.<String, Object>emptyMap());
+		return new CasAuthenticationToken(KEY, principal, principal.getPassword(), authorities,
+				new User("user", PASSWORD, authorities), assertion);
+	}
 
 	ObjectMapper buildObjectMapper() {
 		ObjectMapper mapper = new ObjectMapper();
 		SecurityJacksonModules.registerModules(mapper);
-		mapper.setVisibility(PropertyAccessor.CREATOR, JsonAutoDetect.Visibility.NON_PRIVATE);
 		return mapper;
-	}
-
-	private CasAuthenticationToken createCasAuthenticationToken(Object principal, Object credentials) {
-		Collection<? extends GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
-		Assertion assertion = new AssertionImpl(new AttributePrincipalImpl("assertName"), startDate, endDate, startDate, Collections.<String, Object>emptyMap());
-		return new CasAuthenticationToken(key, principal, credentials, authorities,
-				new User("user", "pass", authorities), assertion);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void nullKeyTest() {
-		new CasAuthenticationToken(null, "user", "pass", Collections.<GrantedAuthority>emptyList(),
-				new User("user", "pass", Collections.<GrantedAuthority>emptyList()), null);
+		new CasAuthenticationToken(null, "user", PASSWORD, Collections.<GrantedAuthority>emptyList(),
+				new User("user", PASSWORD, Collections.<GrantedAuthority>emptyList()), null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void blankKeyTest() {
-		new CasAuthenticationToken("", "user", "pass", Collections.<GrantedAuthority>emptyList(),
-				new User("user", "pass", Collections.<GrantedAuthority>emptyList()), null);
+		new CasAuthenticationToken("", "user", PASSWORD, Collections.<GrantedAuthority>emptyList(),
+				new User("user", PASSWORD, Collections.<GrantedAuthority>emptyList()), null);
 	}
 
 	@Test
 	public void serializeCasAuthenticationTest() throws JsonProcessingException, JSONException {
-		CasAuthenticationToken token = createCasAuthenticationToken("user", "pass");
-		String expectedJson = "{\"@class\": \"org.springframework.security.cas.authentication.CasAuthenticationToken\", \"keyHash\": "+key.hashCode()+"," +
-				"\"principal\": \"user\", \"credentials\": \"pass\", \"authorities\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]," +
-				"\"userDetails\": {\"@class\": \"org.springframework.security.core.userdetails.User\",\"username\": \"user\", \"password\": \"pass\", \"enabled\": true, \"accountNonExpired\": true, \"accountNonLocked\": true, \"credentialsNonExpired\": true, \"authorities\": [\"java.util.Collections$UnmodifiableSet\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]}," +
-				"\"authenticated\": true, \"details\": null," +
-				"\"assertion\": {" +
-					"\"@class\": \"org.jasig.cas.client.validation.AssertionImpl\", \"principal\": {\"@class\": \"org.jasig.cas.client.authentication.AttributePrincipalImpl\", \"name\": \"assertName\", \"attributes\": {\"@class\": \"java.util.Collections$EmptyMap\"}, \"proxyGrantingTicket\": null, \"proxyRetriever\": null}, " +
-					"\"validFromDate\": [\"java.util.Date\", "+startDate.getTime()+"], \"validUntilDate\": [\"java.util.Date\", "+endDate.getTime()+"]," +
-					"\"authenticationDate\": [\"java.util.Date\", "+startDate.getTime()+"], \"attributes\": {\"@class\": \"java.util.Collections$EmptyMap\"}" +
-				"}}";
+		CasAuthenticationToken token = createCasAuthenticationToken();
 		String actualJson = buildObjectMapper().writeValueAsString(token);
-		JSONAssert.assertEquals(expectedJson, actualJson, true);
+		JSONAssert.assertEquals(String.format(expectedJson, "\"" + PASSWORD + "\""), actualJson, true);
 	}
 
 	@Test
 	public void serializeCasAuthenticationTestAfterEraseCredentialInvoked() throws JsonProcessingException, JSONException {
-		User user = new User("username", "password", Collections.singletonList(new SimpleGrantedAuthority("USER")));
-		CasAuthenticationToken token = createCasAuthenticationToken(user, "password");
-		String expectedJson = "{\"@class\": \"org.springframework.security.cas.authentication.CasAuthenticationToken\", \"keyHash\": "+key.hashCode()+"," +
-				"\"principal\": {\"@class\": \"org.springframework.security.core.userdetails.User\", \"username\": \"username\", \"password\": null, \"accountNonExpired\": true, \"enabled\": true," +
-				"\"accountNonLocked\": true, \"credentialsNonExpired\": true, \"authorities\": [\"java.util.Collections$UnmodifiableSet\"," +
-				"[{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"USER\"}]]}, \"credentials\": \"password\", \"authorities\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]," +
-				"\"userDetails\": {\"@class\": \"org.springframework.security.core.userdetails.User\",\"username\": \"user\", \"password\": \"pass\", \"enabled\": true, \"accountNonExpired\": true, \"accountNonLocked\": true, \"credentialsNonExpired\": true, \"authorities\": [\"java.util.Collections$UnmodifiableSet\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]}," +
-				"\"authenticated\": true, \"details\": null," +
-				"\"assertion\": {" +
-				"\"@class\": \"org.jasig.cas.client.validation.AssertionImpl\", \"principal\": {\"@class\": \"org.jasig.cas.client.authentication.AttributePrincipalImpl\", \"name\": \"assertName\", \"attributes\": {\"@class\": \"java.util.Collections$EmptyMap\"}, \"proxyGrantingTicket\": null, \"proxyRetriever\": null}, " +
-				"\"validFromDate\": [\"java.util.Date\", "+startDate.getTime()+"], \"validUntilDate\": [\"java.util.Date\", "+endDate.getTime()+"]," +
-				"\"authenticationDate\": [\"java.util.Date\", "+startDate.getTime()+"], \"attributes\": {\"@class\": \"java.util.Collections$EmptyMap\"}" +
-				"}}";
+		CasAuthenticationToken token = createCasAuthenticationToken();
 		token.eraseCredentials();
 		String actualJson = buildObjectMapper().writeValueAsString(token);
-		JSONAssert.assertEquals(expectedJson, actualJson, true);
+		JSONAssert.assertEquals(String.format(expectedJson, "null"), actualJson, true);
 	}
 
 	@Test
 	public void deserializeCasAuthenticationTest() throws IOException, JSONException {
-		String expectedJson = "{\"@class\": \"org.springframework.security.cas.authentication.CasAuthenticationToken\", \"keyHash\": "+key.hashCode()+"," +
-				"\"principal\": \"user\", \"credentials\": \"pass\", \"authorities\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]," +
-				"\"userDetails\": {\"@class\": \"org.springframework.security.core.userdetails.User\",\"username\": \"user\", \"password\": \"pass\", \"enabled\": true, \"accountNonExpired\": true, \"accountNonLocked\": true, \"credentialsNonExpired\": true, \"authorities\": [\"java.util.Collections$UnmodifiableSet\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]}," +
-				"\"authenticated\": true, \"details\": null, \"name\": \"user\"," +
-				"\"assertion\": {" +
-				"\"@class\": \"org.jasig.cas.client.validation.AssertionImpl\", \"principal\": {\"@class\": \"org.jasig.cas.client.authentication.AttributePrincipalImpl\", \"name\": \"assertName\", \"attributes\": {\"@class\": \"java.util.Collections$EmptyMap\"}, \"proxyGrantingTicket\": null, \"proxyRetriever\": null}, " +
-				"\"validFromDate\": [\"java.util.Date\", "+startDate.getTime()+"], \"validUntilDate\": [\"java.util.Date\", "+endDate.getTime()+"]," +
-				"\"authenticationDate\": [\"java.util.Date\", "+startDate.getTime()+"], \"attributes\": {\"@class\": \"java.util.Collections$EmptyMap\"}" +
-				"}}";
-		CasAuthenticationToken token = buildObjectMapper().readValue(expectedJson, CasAuthenticationToken.class);
+		CasAuthenticationToken token = buildObjectMapper().readValue(String.format(expectedJson, "\"" + PASSWORD + "\""), CasAuthenticationToken.class);
 		assertThat(token).isNotNull();
+		assertThat(token.getPrincipal()).isNotNull().isInstanceOf(User.class);
+		assertThat(((User) token.getPrincipal()).getUsername()).isEqualTo("username");
+		assertThat(((User) token.getPrincipal()).getPassword()).isEqualTo(PASSWORD);
 		assertThat(token.getUserDetails()).isNotNull().isInstanceOf(User.class);
 		assertThat(token.getAssertion()).isNotNull().isInstanceOf(AssertionImpl.class);
-		assertThat(token.getKeyHash()).isEqualTo(key.hashCode());
+		assertThat(token.getKeyHash()).isEqualTo(KEY.hashCode());
 		assertThat(token.getUserDetails().getAuthorities()).hasSize(1).contains(new SimpleGrantedAuthority("ROLE_USER"));
 		assertThat(token.getAssertion().getAuthenticationDate()).isEqualTo(startDate);
 		assertThat(token.getAssertion().getValidFromDate()).isEqualTo(startDate);

@@ -36,32 +36,27 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class SecurityContextMixinTests extends AbstractMixinTests {
 
+	String securityContextJson = "{\"@class\": \"org.springframework.security.core.context.SecurityContextImpl\", \"authentication\": " +
+				"{\"@class\": \"org.springframework.security.authentication.UsernamePasswordAuthenticationToken\"," +
+					"\"principal\": \"dummy\", \"credentials\": \"password\", \"authenticated\": true, \"details\": null," +
+					"\"authorities\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]" +
+				"}" +
+			"}";
+
 	@Test
 	public void securityContextSerializeTest() throws JsonProcessingException, JSONException {
-		String expectedJson = "{\"@class\": \"org.springframework.security.core.context.SecurityContextImpl\", \"authentication\": " +
-					"{\"@class\": \"org.springframework.security.authentication.UsernamePasswordAuthenticationToken\"," +
-						"\"principal\": \"user\", \"credentials\": \"password\", \"authenticated\": true, \"details\": null," +
-						"\"authorities\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]" +
-					"}" +
-				"}";
 		SecurityContext context = new SecurityContextImpl();
-		context.setAuthentication(new UsernamePasswordAuthenticationToken("user", "password", Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"))));
+		context.setAuthentication(new UsernamePasswordAuthenticationToken("dummy", "password", Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"))));
 		String actualJson = buildObjectMapper().writeValueAsString(context);
-		JSONAssert.assertEquals(expectedJson, actualJson, true);
+		JSONAssert.assertEquals(securityContextJson, actualJson, true);
 	}
 
 	@Test
 	public void securityContextDeserializeTest() throws IOException {
-		String contextJson = "{\"@class\": \"org.springframework.security.core.context.SecurityContextImpl\", \"authentication\": " +
-				"{\"@class\": \"org.springframework.security.authentication.UsernamePasswordAuthenticationToken\"," +
-					"\"principal\": \"user\", \"credentials\": \"password\", \"authenticated\": true, \"details\": null," +
-					"\"authorities\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]" +
-					"}" +
-				"}";
-		SecurityContext context = buildObjectMapper().readValue(contextJson, SecurityContextImpl.class);
+		SecurityContext context = buildObjectMapper().readValue(securityContextJson, SecurityContextImpl.class);
 		assertThat(context).isNotNull();
 		assertThat(context.getAuthentication()).isNotNull().isInstanceOf(UsernamePasswordAuthenticationToken.class);
-		assertThat(context.getAuthentication().getPrincipal()).isEqualTo("user");
+		assertThat(context.getAuthentication().getPrincipal()).isEqualTo("dummy");
 		assertThat(context.getAuthentication().getCredentials()).isEqualTo("password");
 		assertThat(context.getAuthentication().isAuthenticated()).isEqualTo(true);
 		assertThat(context.getAuthentication().getAuthorities()).hasSize(1).contains(new SimpleGrantedAuthority("ROLE_USER"));

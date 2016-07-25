@@ -16,7 +16,6 @@
 
 package org.springframework.security.web.jackson2;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.json.JSONException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,6 +40,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultSavedRequestMixinTests extends AbstractMixinTests {
 
+	String defaultSavedRequestJson = "{" +
+			"\"@class\": \"org.springframework.security.web.savedrequest.DefaultSavedRequest\", \"cookies\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.web.savedrequest.SavedCookie\", \"name\": \"SESSION\", \"value\": \"123456789\", \"comment\": null, \"maxAge\": -1, \"path\": null, \"secure\":false, \"version\": 0, \"domain\": null}]]," +
+			"\"locales\": [\"java.util.ArrayList\", [\"en\"]], \"headers\": {\"@class\": \"java.util.TreeMap\", \"x-auth-token\": [\"java.util.ArrayList\", [\"12\"]]}, \"parameters\": {\"@class\": \"java.util.TreeMap\"}," +
+			"\"contextPath\": \"\", \"method\": \"\", \"pathInfo\": null, \"queryString\": null, \"requestURI\": \"\", \"requestURL\": \"http://localhost\", \"scheme\": \"http\", " +
+			"\"serverName\": \"localhost\", \"servletPath\": \"\", \"serverPort\": 80"+
+			"}";
+
 	@Test
 	public void matchRequestBuildWithConstructorAndBuilder() {
 		DefaultSavedRequest request = new DefaultSavedRequest.Builder()
@@ -57,38 +63,12 @@ public class DefaultSavedRequestMixinTests extends AbstractMixinTests {
 	}
 
 	@Test
-	public void expectedSerializeTest() throws JsonProcessingException, JSONException {
-		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/login");
-		request.setServerPort(8080);
-		request.setContextPath("/app");
-		request.setCookies(new Cookie("SESSION", "123456789"));
-		request.addHeader("x-auth-token", "12");
-
-		DefaultSavedRequest savedRequest = new DefaultSavedRequest(request, new PortResolverImpl());
-
-		String actualString = buildObjectMapper().writeValueAsString(savedRequest);
-		String expectedJson = "{\"@class\":\"org.springframework.security.web.savedrequest.DefaultSavedRequest\",\"contextPath\": \"/app\", \"cookies\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.web.savedrequest.SavedCookie\", \"name\": \"SESSION\", \"value\": \"123456789\", \"secure\": false, \"version\": 0, \"maxAge\": -1, \"comment\": null, \"domain\": null, \"path\": null}]],\n" +
-				"\"locales\": [\"java.util.ArrayList\", [\"en\"]], \"method\": \"POST\", \"pathInfo\": null, \"queryString\": null, \"requestURI\": \"/login\", \"requestURL\": \"http://localhost:8080/login\",\n" +
-				"\"scheme\": \"http\",  \"serverName\": \"localhost\", \"serverPort\": 8080, \"servletPath\": \"\", \"parameters\": {\"@class\": \"java.util.TreeMap\"}," +
-				"\"headers\": {\"@class\": \"java.util.TreeMap\", \"x-auth-token\": [\"java.util.ArrayList\", [\"12\"]]}}";
-		JSONAssert.assertEquals(expectedJson, actualString, true);
-	}
-
-
-	@Test
 	public void serializeDefaultRequestBuildWithConstructorTest() throws IOException, JSONException {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setCookies(new Cookie("SESSION", "123456789"));
 		request.addHeader("x-auth-token", "12");
-
-		String expectedJsonString = "{" +
-					"\"@class\": \"org.springframework.security.web.savedrequest.DefaultSavedRequest\", \"cookies\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.web.savedrequest.SavedCookie\", \"name\": \"SESSION\", \"value\": \"123456789\", \"comment\": null, \"maxAge\": -1, \"path\": null, \"secure\":false, \"version\": 0, \"domain\": null}]]," +
-					"\"locales\": [\"java.util.ArrayList\", [\"en\"]], \"headers\": {\"@class\": \"java.util.TreeMap\", \"x-auth-token\": [\"java.util.ArrayList\", [\"12\"]]}, \"parameters\": {\"@class\": \"java.util.TreeMap\"}," +
-					"\"contextPath\": \"\", \"method\": \"\", \"pathInfo\": null, \"queryString\": null, \"requestURI\": \"\", \"requestURL\": \"http://localhost\", \"scheme\": \"http\", " +
-					"\"serverName\": \"localhost\", \"servletPath\": \"\", \"serverPort\": 80"+
-				"}";
 		String actualString = buildObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(new DefaultSavedRequest(request, new PortResolverImpl()));
-		JSONAssert.assertEquals(expectedJsonString, actualString, true);
+		JSONAssert.assertEquals(defaultSavedRequestJson, actualString, true);
 	}
 
 	@Test
@@ -99,26 +79,13 @@ public class DefaultSavedRequestMixinTests extends AbstractMixinTests {
 				.setScheme("http").setRequestURL("http://localhost").setServerName("localhost").setRequestURI("")
 				.setLocales(Collections.singletonList(new Locale("en"))).setContextPath("").setMethod("")
 				.setServletPath("").build();
-
-		String expectedJsonString = "{" +
-					"\"@class\": \"org.springframework.security.web.savedrequest.DefaultSavedRequest\", \"cookies\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.web.savedrequest.SavedCookie\", \"name\": \"SESSION\", \"value\": \"123456789\", \"comment\": null, \"maxAge\": -1, \"path\": null, \"secure\":false, \"version\": 0, \"domain\": null}]]," +
-					"\"locales\": [\"java.util.ArrayList\", [\"en\"]], \"headers\": {\"@class\": \"java.util.TreeMap\", \"x-auth-token\": [\"java.util.ArrayList\", [\"12\"]]}, \"parameters\": {\"@class\": \"java.util.TreeMap\"}," +
-					"\"contextPath\": \"\", \"method\": \"\", \"pathInfo\": null, \"queryString\": null, \"requestURI\": \"\", \"requestURL\": \"http://localhost\", \"scheme\": \"http\", " +
-					"\"serverName\": \"localhost\", \"servletPath\": \"\", \"serverPort\": 80"+
-				"}";
 		String actualString = buildObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(request);
-		JSONAssert.assertEquals(expectedJsonString, actualString, true);
+		JSONAssert.assertEquals(defaultSavedRequestJson, actualString, true);
 	}
 
 	@Test
 	public void deserializeDefaultSavedRequest() throws IOException {
-		String jsonString = "{" +
-				"\"@class\": \"org.springframework.security.web.savedrequest.DefaultSavedRequest\", \"cookies\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.web.savedrequest.SavedCookie\", \"name\": \"SESSION\", \"value\": \"123456789\", \"comment\": null, \"maxAge\": -1, \"path\": null, \"secure\":false, \"version\": 0, \"isHttpOnly\": false, \"domain\": null}]]," +
-				"\"locales\": [\"java.util.ArrayList\", [\"en\"]], \"headers\": {\"@class\": \"java.util.TreeMap\", \"x-auth-token\": [\"java.util.ArrayList\", [\"12\"]]}, \"parameters\": {\"@class\": \"java.util.TreeMap\"}," +
-				"\"contextPath\": \"\", \"method\": \"\", \"pathInfo\": null, \"queryString\": null, \"requestURI\": \"\", \"requestURL\": \"http://localhost\", \"scheme\": \"http\", " +
-				"\"serverName\": \"localhost\", \"servletPath\": \"\", \"serverPort\": 80" +
-				"}";
-		DefaultSavedRequest request = (DefaultSavedRequest) buildObjectMapper().readValue(jsonString, Object.class);
+		DefaultSavedRequest request = (DefaultSavedRequest) buildObjectMapper().readValue(defaultSavedRequestJson, Object.class);
 		assertThat(request).isNotNull();
 		assertThat(request.getCookies()).hasSize(1);
 		assertThat(request.getLocales()).hasSize(1).contains(new Locale("en"));
