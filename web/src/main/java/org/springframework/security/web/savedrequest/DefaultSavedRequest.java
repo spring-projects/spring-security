@@ -17,11 +17,13 @@
 package org.springframework.security.web.savedrequest;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.web.PortResolver;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
+import org.springframework.util.ObjectUtils;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -29,18 +31,18 @@ import java.util.*;
 
 /**
  * Represents central information from a {@code HttpServletRequest}.
- * <p>
+ * <p/>
  * This class is used by
  * {@link org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter}
  * and {@link org.springframework.security.web.savedrequest.SavedRequestAwareWrapper} to
  * reproduce the request after successful authentication. An instance of this class is
  * stored at the time of an authentication exception by
  * {@link org.springframework.security.web.access.ExceptionTranslationFilter}.
- * <p>
+ * <p/>
  * <em>IMPLEMENTATION NOTE</em>: It is assumed that this object is accessed only from the
  * context of a single thread, so no synchronization around internal collection classes is
  * performed.
- * <p>
+ * <p/>
  * This class is based on code in Apache Tomcat.
  *
  * @author Craig McClanahan
@@ -186,13 +188,15 @@ public class DefaultSavedRequest implements SavedRequest {
 	 * @since 4.2
 	 */
 	private void addParameters(Map<String, String[]> parameters) {
-		for (String paramName : parameters.keySet()) {
-			Object paramValues = parameters.get(paramName);
-			if (paramValues instanceof String[]) {
-				this.addParameter(paramName, (String[]) paramValues);
-			} else {
-				if (logger.isWarnEnabled()) {
-					logger.warn("ServletRequest.getParameterMap() returned non-String array");
+		if (!ObjectUtils.isEmpty(parameters)) {
+			for (String paramName : parameters.keySet()) {
+				Object paramValues = parameters.get(paramName);
+				if (paramValues instanceof String[]) {
+					this.addParameter(paramName, (String[]) paramValues);
+				} else {
+					if (logger.isWarnEnabled()) {
+						logger.warn("ServletRequest.getParameterMap() returned non-String array");
+					}
 				}
 			}
 		}
@@ -389,9 +393,10 @@ public class DefaultSavedRequest implements SavedRequest {
 	 * @since 4.2
 	 */
 	@JsonIgnoreProperties(ignoreUnknown = true)
+	@JsonPOJOBuilder(withPrefix = "set")
 	public static class Builder {
 
-		private List<Cookie> cookies = null;
+		private List<SavedCookie> cookies = null;
 		private List<Locale> locales = null;
 		private Map<String, List<String>> headers = new TreeMap<String, List<String>>(String.CASE_INSENSITIVE_ORDER);
 		private Map<String, String[]> parameters = new TreeMap<String, String[]>();
@@ -406,7 +411,7 @@ public class DefaultSavedRequest implements SavedRequest {
 		private String servletPath;
 		private int serverPort = 80;
 
-		public Builder setCookies(List<Cookie> cookies) {
+		public Builder setCookies(List<SavedCookie> cookies) {
 			this.cookies = cookies;
 			return this;
 		}
@@ -476,15 +481,43 @@ public class DefaultSavedRequest implements SavedRequest {
 			return this;
 		}
 
+		@Override
+		public String toString() {
+			return "Builder{" +
+					"cookies=" + cookies +
+					", locales=" + locales +
+					", headers=" + headers +
+					", parameters=" + parameters +
+					", contextPath='" + contextPath + '\'' +
+					", method='" + method + '\'' +
+					", pathInfo='" + pathInfo + '\'' +
+					", queryString='" + queryString + '\'' +
+					", requestURI='" + requestURI + '\'' +
+					", requestURL='" + requestURL + '\'' +
+					", scheme='" + scheme + '\'' +
+					", serverName='" + serverName + '\'' +
+					", servletPath='" + servletPath + '\'' +
+					", serverPort=" + serverPort +
+					'}';
+		}
+
 		public DefaultSavedRequest build() {
 			DefaultSavedRequest savedRequest = new DefaultSavedRequest(this);
-			savedRequest.addCookies(this.cookies.toArray(new Cookie[]{}));
-			savedRequest.locales.addAll(this.locales);
+			System.out.println("Building Default Saved request object");
+			System.out.println(this.toString());
+			if(!ObjectUtils.isEmpty(this.cookies)) {
+				for (SavedCookie cookie : this.cookies) {
+					savedRequest.addCookie(cookie.getCookie());
+				}
+			}
+			if (!ObjectUtils.isEmpty(this.locales))
+				savedRequest.locales.addAll(this.locales);
 			savedRequest.addParameters(this.parameters);
 
 			this.headers.remove(HEADER_IF_MODIFIED_SINCE);
 			this.headers.remove(HEADER_IF_NONE_MATCH);
-			savedRequest.headers.putAll(this.headers);
+			if (!ObjectUtils.isEmpty(this.headers))
+				savedRequest.headers.putAll(this.headers);
 			return savedRequest;
 		}
 	}

@@ -17,7 +17,6 @@
 package org.springframework.security.cas.jackson2;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,16 +32,14 @@ import org.springframework.security.cas.authentication.CasAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.security.jackson2.SimpleGrantedAuthorityMixin;
-import org.springframework.security.jackson2.UnmodifiableSetMixin;
-import org.springframework.security.jackson2.UserMixin;
+import org.springframework.security.jackson2.SecurityJacksonModules;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Jitendra Singh
@@ -52,15 +49,9 @@ import static org.assertj.core.api.Assertions.*;
 public class CasAuthenticationTokenMixinTest {
 
 	ObjectMapper buildObjectMapper() {
-		ObjectMapper mapper = new ObjectMapper()
-				.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
-		mapper.setVisibilityChecker(mapper.getVisibilityChecker().withVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY));
-		mapper.addMixIn(CasAuthenticationToken.class, CasAuthenticationTokenMixin.class)
-				.addMixIn(SimpleGrantedAuthority.class, SimpleGrantedAuthorityMixin.class)
-				.addMixIn(Collections.unmodifiableSet(Collections.EMPTY_SET).getClass(), UnmodifiableSetMixin.class)
-				.addMixIn(User.class, UserMixin.class)
-				.addMixIn(AssertionImpl.class, AssertionImplMixin.class)
-				.addMixIn(AttributePrincipalImpl.class, AttributePrincipalImplMixin.class);
+		ObjectMapper mapper = new ObjectMapper();
+		SecurityJacksonModules.registerModules(mapper);
+		mapper.setVisibility(PropertyAccessor.CREATOR, JsonAutoDetect.Visibility.NON_PRIVATE);
 		return mapper;
 	}
 
@@ -89,7 +80,7 @@ public class CasAuthenticationTokenMixinTest {
 		String expectedJson = "{\"@class\": \"org.springframework.security.cas.authentication.CasAuthenticationToken\", \"keyHash\": "+key.hashCode()+"," +
 				"\"principal\": \"user\", \"credentials\": \"pass\", \"authorities\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]," +
 				"\"userDetails\": {\"@class\": \"org.springframework.security.core.userdetails.User\",\"username\": \"user\", \"password\": \"pass\", \"enabled\": true, \"accountNonExpired\": true, \"accountNonLocked\": true, \"credentialsNonExpired\": true, \"authorities\": [\"java.util.Collections$UnmodifiableSet\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]}," +
-				"\"authenticated\": true, \"details\": null, \"name\": \"user\"," +
+				"\"authenticated\": true, \"details\": null," +
 				"\"assertion\": {" +
 					"\"@class\": \"org.jasig.cas.client.validation.AssertionImpl\", \"principal\": {\"@class\": \"org.jasig.cas.client.authentication.AttributePrincipalImpl\", \"name\": \"assertName\", \"attributes\": {\"@class\": \"java.util.Collections$EmptyMap\"}, \"proxyGrantingTicket\": null, \"proxyRetriever\": null}, " +
 					"\"validFromDate\": [\"java.util.Date\", "+startDate.getTime()+"], \"validUntilDate\": [\"java.util.Date\", "+endDate.getTime()+"]," +

@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.skyscreamer.jsonassert.JSONAssert;
+import org.springframework.security.jackson2.SecurityJacksonModules;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
 
 import java.io.IOException;
@@ -44,7 +45,7 @@ public class DefaultCsrfTokenMixinTests {
 	@Before
 	public void setup() {
 		objectMapper = new ObjectMapper();
-		objectMapper.addMixIn(DefaultCsrfToken.class, DefaultCsrfTokenMixin.class);
+		SecurityJacksonModules.registerModules(objectMapper);
 		defaultCsrfTokenJson = "{\"@class\": \"org.springframework.security.web.csrf.DefaultCsrfToken\", " +
 				"\"headerName\": \"csrf-header\", \"parameterName\": \"_csrf\", \"token\": \"1\"}";
 	}

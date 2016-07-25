@@ -29,6 +29,7 @@ import org.skyscreamer.jsonassert.JSONAssert;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.security.jackson2.SecurityJacksonModules;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,8 +45,8 @@ public class WebAuthenticationDetailsMixinTest {
 
 	@Before
 	public void setup() {
-		this.mapper = new ObjectMapper().addMixIn(WebAuthenticationDetails.class,
-				WebAuthenticationDetailsMixin.class);
+		this.mapper = new ObjectMapper();
+		SecurityJacksonModules.registerModules(mapper);
 	}
 
 	@Test

@@ -37,20 +37,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class UsernamePasswordAuthenticationTokenMixinTest extends AbstractMixinTests {
 
-	@Override
-	protected ObjectMapper buildObjectMapper() {
-		return super.buildObjectMapper()
-				.addMixIn(Collections.unmodifiableSet(Collections.EMPTY_SET).getClass(), UnmodifiableSetMixin.class)
-				.addMixIn(SimpleGrantedAuthority.class, SimpleGrantedAuthorityMixin.class)
-				.addMixIn(User.class, UserMixin.class)
-				.addMixIn(UsernamePasswordAuthenticationToken.class, UsernamePasswordAuthenticationTokenMixin.class);
-	}
-
 	@Test
 	public void serializeUnauthenticatedUsernamePasswordAuthenticationTokenMixinTest() throws JsonProcessingException, JSONException {
 		String expectedJson = "{\"@class\": \"org.springframework.security.authentication.UsernamePasswordAuthenticationToken\"," +
 				" \"principal\": \"user1\", \"credentials\": \"password\", \"authenticated\": false, \"details\": null, " +
-				"\"authorities\": [\"java.util.ArrayList\", []], \"name\": \"user1\"}";
+				"\"authorities\": [\"java.util.ArrayList\", []]}";
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("user1", "password");
 		String serializedJson = buildObjectMapper().writeValueAsString(token);
 		JSONAssert.assertEquals(expectedJson, serializedJson, true);
@@ -60,7 +51,7 @@ public class UsernamePasswordAuthenticationTokenMixinTest extends AbstractMixinT
 	public void serializeAuthenticatedUsernamePasswordAuthenticationTokenMixinTest() throws JsonProcessingException, JSONException {
 		String expectedJson = "{\"@class\": \"org.springframework.security.authentication.UsernamePasswordAuthenticationToken\"," +
 				" \"principal\": \"user1\", \"credentials\": \"password\", \"authenticated\": true, \"details\": null, " +
-				"\"authorities\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]], \"name\": \"user1\"}";
+				"\"authorities\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]}";
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("user1", "password", Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
 		String serializedJson = buildObjectMapper().writeValueAsString(token);
 		JSONAssert.assertEquals(expectedJson, serializedJson, true);
@@ -97,7 +88,7 @@ public class UsernamePasswordAuthenticationTokenMixinTest extends AbstractMixinT
 				"\"principal\": {\"@class\": \"org.springframework.security.core.userdetails.User\", \"username\": \"user\", \"password\": \"pass\", \"accountNonExpired\": true, \"enabled\": true, " +
 				"\"accountNonLocked\": true, \"credentialsNonExpired\": true, \"authorities\": [\"java.util.Collections$UnmodifiableSet\"," +
 				"[{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]}, \"credentials\": \"pass\"," +
-				"\"details\": null, \"name\": \"user\", \"authenticated\": true," +
+				"\"details\": null, \"authenticated\": true," +
 				"\"authorities\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]}";
 		String actualJson = buildObjectMapper().writeValueAsString(token);
 		JSONAssert.assertEquals(expectedJson, actualJson, true);

@@ -21,11 +21,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONException;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
+import org.springframework.security.jackson2.SecurityJacksonModules;
 
 import javax.servlet.http.Cookie;
 import java.io.IOException;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Jitendra Singh
@@ -34,8 +35,9 @@ import static org.assertj.core.api.Assertions.*;
 public class CookieMixinTest {
 
 	ObjectMapper buildObjectMapper() {
-		return new ObjectMapper()
-				.addMixIn(Cookie.class, CookieMixin.class);
+		ObjectMapper mapper = new ObjectMapper();
+		SecurityJacksonModules.registerModules(mapper);
+		return mapper;
 	}
 
 	@Test
