@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Jitendra Singh
  * @since 4.2
  */
-public class SecurityContextMixinTest extends AbstractMixinTests {
+public class SecurityContextMixinTests extends AbstractMixinTests {
 
 	@Test
 	public void securityContextSerializeTest() throws JsonProcessingException, JSONException {

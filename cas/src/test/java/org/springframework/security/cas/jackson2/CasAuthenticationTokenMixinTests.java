@@ -46,7 +46,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 4.2
  */
 @RunWith(MockitoJUnitRunner.class)
-public class CasAuthenticationTokenMixinTest {
+public class CasAuthenticationTokenMixinTests {
 
 	ObjectMapper buildObjectMapper() {
 		ObjectMapper mapper = new ObjectMapper();

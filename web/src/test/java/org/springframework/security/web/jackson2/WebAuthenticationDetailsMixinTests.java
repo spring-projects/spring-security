@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 4.2
  */
 @RunWith(MockitoJUnitRunner.class)
-public class WebAuthenticationDetailsMixinTest {
+public class WebAuthenticationDetailsMixinTests {
 
 	ObjectMapper mapper;
 

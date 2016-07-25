@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Jitendra Singh
  * @since 4.2
  */
-public class UsernamePasswordAuthenticationTokenMixinTest extends AbstractMixinTests {
+public class UsernamePasswordAuthenticationTokenMixinTests extends AbstractMixinTests {
 
 	@Test
 	public void serializeUnauthenticatedUsernamePasswordAuthenticationTokenMixinTest() throws JsonProcessingException, JSONException {

@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Jitendra Singh
  * @since 4.2
  */
-public class RememberMeAuthenticationTokenMixinTest extends AbstractMixinTests {
+public class RememberMeAuthenticationTokenMixinTests extends AbstractMixinTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testWithNullPrincipal() throws JsonProcessingException, JSONException {

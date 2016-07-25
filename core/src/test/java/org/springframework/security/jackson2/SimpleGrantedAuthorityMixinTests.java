@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.*;
  * @author Jitendra Singh
  * @since 4.2
  */
-public class SimpleGrantedAuthorityMixinTest extends AbstractMixinTests {
+public class SimpleGrantedAuthorityMixinTests extends AbstractMixinTests {
 
 	@Test
 	public void serializeSimpleGrantedAuthorityTest() throws JsonProcessingException, JSONException {
