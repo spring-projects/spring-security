@@ -17,13 +17,9 @@
 package org.springframework.security.web.jackson2;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.springframework.security.web.savedrequest.DefaultSavedRequest;
-
-import java.util.Map;
 
 /**
  * Jackson mixin class to serialize/deserialize {@link DefaultSavedRequest}. This mixin use

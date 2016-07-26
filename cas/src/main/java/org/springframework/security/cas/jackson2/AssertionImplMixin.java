@@ -17,7 +17,6 @@
 package org.springframework.security.cas.jackson2;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jasig.cas.client.authentication.AttributePrincipal;
 
 import java.util.Date;
