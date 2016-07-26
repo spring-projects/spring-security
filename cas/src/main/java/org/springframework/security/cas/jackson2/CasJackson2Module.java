@@ -17,10 +17,12 @@
 package org.springframework.security.cas.jackson2;
 
 import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.jasig.cas.client.authentication.AttributePrincipalImpl;
 import org.jasig.cas.client.validation.AssertionImpl;
 import org.springframework.security.cas.authentication.CasAuthenticationToken;
+import org.springframework.security.jackson2.SecurityJacksonModules;
 
 /**
  * Jackson module for spring-security-cas. This module register {@link AssertionImplMixin},
@@ -29,10 +31,13 @@ import org.springframework.security.cas.authentication.CasAuthenticationToken;
  *
  * <pre>
  *     ObjectMapper mapper = new ObjectMapper();
- *     mapper.registerModule(new CasJackson2SimpleModule());
+ *     mapper.registerModule(new CasJackson2Module());
  * </pre>
+ *  <b>Note: use {@link org.springframework.security.jackson2.SecurityJacksonModules#registerModules(ObjectMapper)}
+ *  it'll register all security modules along with basic configuration</b>
  *
  * @author Jitendra Singh.
+ * @see org.springframework.security.jackson2.SecurityJacksonModules
  * @since 4.2
  */
 public class CasJackson2Module extends SimpleModule {
@@ -43,6 +48,7 @@ public class CasJackson2Module extends SimpleModule {
 
 	@Override
 	public void setupModule(SetupContext context) {
+		SecurityJacksonModules.enableDefaultTyping((ObjectMapper) context.getOwner());
 		context.setMixInAnnotations(AssertionImpl.class, AssertionImplMixin.class);
 		context.setMixInAnnotations(AttributePrincipalImpl.class, AttributePrincipalImplMixin.class);
 		context.setMixInAnnotations(CasAuthenticationToken.class, CasAuthenticationTokenMixin.class);

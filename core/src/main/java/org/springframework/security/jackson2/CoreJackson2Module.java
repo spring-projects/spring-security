@@ -17,6 +17,7 @@
 package org.springframework.security.jackson2;
 
 import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.RememberMeAuthenticationToken;
@@ -34,10 +35,13 @@ import java.util.Collections;
  *
  * <pre>
  *     ObjectMapper mapper = new ObjectMapper();
- *     mapper.registerModule(new CoreJackson2SimpleModule());
+ *     mapper.registerModule(new CoreJackson2Module());
  * </pre>
+ * <b>Note: use {@link org.springframework.security.jackson2.SecurityJacksonModules#registerModules(ObjectMapper)}
+ *  it'll register all security modules along with basic configuration</b>
  *
  * @author Jitendra Singh.
+ * @see SecurityJacksonModules
  * @since 4.2
  */
 public class CoreJackson2Module extends SimpleModule {
@@ -48,6 +52,7 @@ public class CoreJackson2Module extends SimpleModule {
 
 	@Override
 	public void setupModule(SetupContext context) {
+		SecurityJacksonModules.enableDefaultTyping((ObjectMapper) context.getOwner());
 		context.setMixInAnnotations(AnonymousAuthenticationToken.class, AnonymousAuthenticationTokenMixin.class);
 		context.setMixInAnnotations(RememberMeAuthenticationToken.class, RememberMeAuthenticationTokenMixin.class);
 		context.setMixInAnnotations(SimpleGrantedAuthority.class, SimpleGrantedAuthorityMixin.class);

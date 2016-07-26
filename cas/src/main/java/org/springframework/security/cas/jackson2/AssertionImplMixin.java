@@ -17,6 +17,7 @@
 package org.springframework.security.cas.jackson2;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jasig.cas.client.authentication.AttributePrincipal;
 
 import java.util.Date;
@@ -30,10 +31,13 @@ import java.util.Map;
  * <p>
  * <pre>
  *     ObjectMapper mapper = new ObjectMapper();
- *     mapper.addMixIn(AssertionImpl.class, AssertionImplMixin.class);
+ *     mapper.registerModule(new CasJackson2Module());
  * </pre>
  *
+ *
  * @author Jitendra Singh
+ * @see CasJackson2Module
+ * @see org.springframework.security.jackson2.SecurityJacksonModules
  * @since 4.2
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)

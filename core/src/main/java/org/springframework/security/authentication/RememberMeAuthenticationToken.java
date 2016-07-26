@@ -23,7 +23,7 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
 
 /**
  * Represents a remembered <code>Authentication</code>.
- * <p/>
+ * <p>
  * A remembered <code>Authentication</code> must provide a fully valid
  * <code>Authentication</code>, including the <code>GrantedAuthority</code>s that apply.
  *
@@ -52,7 +52,7 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken {
 	 * @throws IllegalArgumentException if a <code>null</code> was passed
 	 */
 	public RememberMeAuthenticationToken(String key, Object principal,
-										 Collection<? extends GrantedAuthority> authorities) {
+										Collection<? extends GrantedAuthority> authorities) {
 		super(authorities);
 
 		if ((key == null) || ("".equals(key)) || (principal == null)

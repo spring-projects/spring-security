@@ -69,7 +69,7 @@ public class WebAuthenticationDetailsMixinTests {
 	public void webAuthenticationDetailsSerializeTest()
 			throws JsonProcessingException, JSONException {
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setRemoteAddr("/home");
+		request.setRemoteAddr("/localhost");
 		request.setSession(new MockHttpSession(null, "1"));
 		WebAuthenticationDetails details = new WebAuthenticationDetails(request);
 		String actualJson = this.mapper.writeValueAsString(details);
@@ -82,7 +82,7 @@ public class WebAuthenticationDetailsMixinTests {
 		WebAuthenticationDetails details = this.mapper.readValue(webAuthenticationDetailsJson,
 				WebAuthenticationDetails.class);
 		assertThat(details).isNotNull();
-		assertThat(details.getRemoteAddress()).isEqualTo("/home");
+		assertThat(details.getRemoteAddress()).isEqualTo("/localhost");
 		assertThat(details.getSessionId()).isEqualTo("1");
 	}
 }

@@ -34,15 +34,14 @@ import java.util.Collection;
  *
  * <pre>
  *     ObjectMapper mapper = new ObjectMapper();
- *     mapper.addMixIn(SimpleGrantedAuthority.class, SimpleGrantedAuthorityMixin.class);
- *     mapper.addMixIn({@link org.springframework.security.core.userdetails.User}.class, UserMixin.class);
- *     mapper.addMixIn(Collections.unmodifiableSet(Collections.EMPTY_SET).getClass(), UnmodifiableSetMixin.class);
- *     mapper.addMixIn(AnonymousAuthenticationToken.class, AnonymousAuthenticationTokenMixin.class);
+ *     mapper.registerModule(new CoreJackson2Module());
  * </pre>
  *
  * <i>Note: This class will save TypeInfo (full class name) into a property called @class</i>
  *
  * @author Jitendra Singh
+ * @see CoreJackson2Module
+ * @see SecurityJacksonModules
  * @since 4.2
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)

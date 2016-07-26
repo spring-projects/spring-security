@@ -31,18 +31,18 @@ import java.util.*;
 
 /**
  * Represents central information from a {@code HttpServletRequest}.
- * <p/>
+ * <p>
  * This class is used by
  * {@link org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter}
  * and {@link org.springframework.security.web.savedrequest.SavedRequestAwareWrapper} to
  * reproduce the request after successful authentication. An instance of this class is
  * stored at the time of an authentication exception by
  * {@link org.springframework.security.web.access.ExceptionTranslationFilter}.
- * <p/>
+ * <p>
  * <em>IMPLEMENTATION NOTE</em>: It is assumed that this object is accessed only from the
  * context of a single thread, so no synchronization around internal collection classes is
  * performed.
- * <p/>
+ * <p>
  * This class is based on code in Apache Tomcat.
  *
  * @author Craig McClanahan
@@ -208,7 +208,7 @@ public class DefaultSavedRequest implements SavedRequest {
 
 	/**
 	 * Determines if the current request matches the <code>DefaultSavedRequest</code>.
-	 * <p/>
+	 * <p>
 	 * All URL arguments are considered but not cookies, locales, headers or parameters.
 	 *
 	 * @param request      the actual request to be matched against this one
@@ -479,26 +479,6 @@ public class DefaultSavedRequest implements SavedRequest {
 		public Builder setServerPort(int serverPort) {
 			this.serverPort = serverPort;
 			return this;
-		}
-
-		@Override
-		public String toString() {
-			return "Builder{" +
-					"cookies=" + cookies +
-					", locales=" + locales +
-					", headers=" + headers +
-					", parameters=" + parameters +
-					", contextPath='" + contextPath + '\'' +
-					", method='" + method + '\'' +
-					", pathInfo='" + pathInfo + '\'' +
-					", queryString='" + queryString + '\'' +
-					", requestURI='" + requestURI + '\'' +
-					", requestURL='" + requestURL + '\'' +
-					", scheme='" + scheme + '\'' +
-					", serverName='" + serverName + '\'' +
-					", servletPath='" + servletPath + '\'' +
-					", serverPort=" + serverPort +
-					'}';
 		}
 
 		public DefaultSavedRequest build() {

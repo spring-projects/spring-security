@@ -28,13 +28,14 @@ import java.util.Collection;
  * AnonymousAuthenticationToken contains SimpleGrantedAuthority.
  * <pre>
  *     ObjectMapper mapper = new ObjectMapper();
- *     mapper.addMixIn(SimpleGrantedAuthority.class, SimpleGrantedAuthorityMixin.class);
- *     mapper.addMixIn(AnonymousAuthenticationToken.class, AnonymousAuthenticationTokenMixin.class);
+ *     mapper.registerModule(new CoreJackson2Module());
  * </pre>
  *
  * <i>Note: This class will save full class name into a property called @class</i>
  *
  * @author Jitendra Singh
+ * @see CoreJackson2Module
+ * @see SecurityJacksonModules
  * @since 4.2
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)

@@ -16,18 +16,23 @@
 
 package org.springframework.security.web.jackson2;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
  * Jackson mixin class to serialize/deserialize {@link org.springframework.security.web.csrf.DefaultCsrfToken}
  * serialization support.
  *
  * <pre>
- * 	ObjectMapper mapper = new ObjectMapper();
- *	mapper.addMixIn(DefaultCsrfToken.class, DefaultCsrfTokenMixin.class);
+ * 		ObjectMapper mapper = new ObjectMapper();
+ *		mapper.registerModule(new WebJackson2Module());
  * </pre>
  *
  * @author Jitendra Singh
+ * @see WebJackson2Module
+ * @see org.springframework.security.jackson2.SecurityJacksonModules
  * @since 4.2
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")

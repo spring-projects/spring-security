@@ -27,10 +27,12 @@ import java.util.Set;
  *
  * <pre>
  *     ObjectMapper mapper = new ObjectMapper();
- *     mapper.addMixIn(Collections.unmodifiableSet(Collections.EMPTY_SET).getClass(), UnmodifiableSetMixin.class);
+ *     mapper.registerModule(new CoreJackson2Module());
  * </pre>
  *
  * @author Jitendra Singh
+ * @see CoreJackson2Module
+ * @see SecurityJacksonModules
  * @since 4.2
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)

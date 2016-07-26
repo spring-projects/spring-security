@@ -17,7 +17,9 @@
 package org.springframework.security.web.jackson2;
 
 import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import org.springframework.security.jackson2.SecurityJacksonModules;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
 import org.springframework.security.web.savedrequest.DefaultSavedRequest;
@@ -32,10 +34,13 @@ import javax.servlet.http.Cookie;
  *
  * <pre>
  *     ObjectMapper mapper = new ObjectMapper();
- *     mapper.registerModule(new WebJackson2SimpleModule());
+ *     mapper.registerModule(new WebJackson2Module());
  * </pre>
+ * <b>Note: use {@link org.springframework.security.jackson2.SecurityJacksonModules#registerModules(ObjectMapper)}
+ *  it'll register all security modules along with basic configuration</b>
  *
  * @author Jitendra Singh
+ * @see SecurityJacksonModules
  * @since 4.2
  */
 public class WebJackson2Module extends SimpleModule {
@@ -46,6 +51,7 @@ public class WebJackson2Module extends SimpleModule {
 
 	@Override
 	public void setupModule(SetupContext context) {
+		SecurityJacksonModules.enableDefaultTyping((ObjectMapper) context.getOwner());
 		context.setMixInAnnotations(Cookie.class, CookieMixin.class);
 		context.setMixInAnnotations(SavedCookie.class, SavedCookieMixin.class);
 		context.setMixInAnnotations(DefaultCsrfToken.class, DefaultCsrfTokenMixin.class);

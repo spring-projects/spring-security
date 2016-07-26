@@ -31,12 +31,13 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
  * </ol>
  * <pre>
  *     ObjectMapper mapper = new ObjectMapper();
- *     mapper.addMixIn(SimpleGrantedAuthority.class, SimpleGrantedAuthorityMixin.class);
- *     mapper.addMixIn(Collections.unmodifiableSet(Collections.EMPTY_SET).getClass(), UnmodifiableSetMixin.class);
+ *     mapper.registerModule(new CoreJackson2Module());
  * </pre>
  *
  * @author Jitendra Singh
  * @see UserDeserializer
+ * @see CoreJackson2Module
+ * @see SecurityJacksonModules
  * @since 4.2
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)

@@ -37,12 +37,12 @@ import java.util.Collection;
  *
  * <pre>
  *     ObjectMapper mapper = new ObjectMapper();
- *     mapper.addMixIn(AssertionImpl.class, AssertionImplMixin.class);
- *     mapper.addMixIn(AttributePrincipalImpl.class, AttributePrincipalImplMixin.class);
- *     mapper.addMixIn(CasAuthenticationToken.class, CasAuthenticationTokenMixin.class);
+ *     mapper.registerModule(new CasJackson2Module());
  * </pre>
  *
  * @author Jitendra Singh
+ * @see CasJackson2Module
+ * @see org.springframework.security.jackson2.SecurityJacksonModules
  * @since 4.2
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)

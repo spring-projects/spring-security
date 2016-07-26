@@ -26,18 +26,19 @@ import org.springframework.security.web.savedrequest.DefaultSavedRequest;
 import java.util.Map;
 
 /**
- * ` * Jackson mixin class to serialize/deserialize {@link DefaultSavedRequest}. This mixin use
+ * Jackson mixin class to serialize/deserialize {@link DefaultSavedRequest}. This mixin use
  * {@link org.springframework.security.web.savedrequest.DefaultSavedRequest.Builder} to
- * deserialized josn.In order to use this mixin class you also need to register
+ * deserialized json.In order to use this mixin class you also need to register
  * {@link CookieMixin}.
- * <p/>
+ * <p>
  * <pre>
  *     ObjectMapper mapper = new ObjectMapper();
- *     mapper.addMixIn(Cookie.class, CookieMixin.class);
- *     mapper.addMixIn(DefaultSavedRequest.class, DefaultSavedRequestMixin.class);
+ *     mapper.registerModule(new WebJackson2Module());
  * </pre>
  *
  * @author Jitendra Singh
+ * @see WebJackson2Module
+ * @see org.springframework.security.jackson2.SecurityJacksonModules
  * @since 4.2
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)

@@ -33,12 +33,11 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
  *
  * <pre>
  *     ObjectMapper mapper = new ObjectMapper();
- *     mapper.addMixIn(Collections.unmodifiableSet(Collections.EMPTY_SET).getClass(), UnmodifiableSetMixin.class);
- *     mapper.addMixIn(SimpleGrantedAuthority.class, SimpleGrantedAuthorityMixin.class);
- *     mapper.addMixIn(User.class, UserMixin.class);
- *     mapper.addMixIn(UsernamePasswordAuthenticationToken.class, UsernamePasswordAuthenticationTokenMixin.class);
+ *     mapper.registerModule(new CoreJackson2Module());
  * </pre>
  * @author Jitendra Singh
+ * @see CoreJackson2Module
+ * @see SecurityJacksonModules
  * @since 4.2
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")

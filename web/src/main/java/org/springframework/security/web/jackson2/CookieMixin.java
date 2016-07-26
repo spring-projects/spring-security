@@ -25,10 +25,12 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
  *
  * <pre>
  *     ObjectMapper mapper = new ObjectMapper();
- *     mapper.addMixIn(Cookie.class, CookieMixin.class);
+ *     mapper.registerModule(new WebJackson2Module());
  * </pre>
  *
  * @author Jitendra Singh
+ * @see WebJackson2Module
+ * @see org.springframework.security.jackson2.SecurityJacksonModules
  * @since 4.2
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)

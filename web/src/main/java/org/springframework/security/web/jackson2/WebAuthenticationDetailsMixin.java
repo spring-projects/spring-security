@@ -23,10 +23,12 @@ import com.fasterxml.jackson.annotation.*;
  *
  * <pre>
  * 	ObjectMapper mapper = new ObjectMapper();
- *	mapper.addMixIn(WebAuthenticationDetails.class, WebAuthenticationDetailsMixin.class);
+ *	mapper.registerModule(new WebJackson2Module());
  * </pre>
  *
  * @author Jitendra Singh
+ * @see WebJackson2Module
+ * @see org.springframework.security.jackson2.SecurityJacksonModules
  * @since 4.2
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)

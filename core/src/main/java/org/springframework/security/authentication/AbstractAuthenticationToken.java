@@ -29,7 +29,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 /**
  * Base class for <code>Authentication</code> objects.
- * <p/>
+ * <p>
  * Implementations which use this class should be immutable.
  *
  * @author Ben Alex
