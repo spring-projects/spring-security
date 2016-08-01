@@ -38,6 +38,7 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.accept.ContentNegotiationStrategy;
@@ -78,6 +79,10 @@ import org.springframework.web.accept.HeaderContentNegotiationStrategy;
  */
 public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>> extends
 		AbstractHttpConfigurer<HttpBasicConfigurer<B>, B> {
+
+	private static final RequestHeaderRequestMatcher X_REQUESTED_WITH = new RequestHeaderRequestMatcher("X-Requested-With",
+			"XMLHttpRequest");
+
 	private static final String DEFAULT_REALM = "Realm";
 
 	private AuthenticationEntryPoint authenticationEntryPoint;
@@ -93,8 +98,7 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>> extends
 		realmName(DEFAULT_REALM);
 
 		LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints = new LinkedHashMap<RequestMatcher, AuthenticationEntryPoint>();
-		entryPoints.put(new RequestHeaderRequestMatcher("X-Requested-With",
-				"XMLHttpRequest"), new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
+		entryPoints.put(X_REQUESTED_WITH, new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
 
 		DelegatingAuthenticationEntryPoint defaultEntryPoint = new DelegatingAuthenticationEntryPoint(
 				entryPoints);
@@ -157,6 +161,7 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>> extends
 		if (contentNegotiationStrategy == null) {
 			contentNegotiationStrategy = new HeaderContentNegotiationStrategy();
 		}
+
 		MediaTypeRequestMatcher restMatcher = new MediaTypeRequestMatcher(
 				contentNegotiationStrategy, MediaType.APPLICATION_ATOM_XML,
 				MediaType.APPLICATION_FORM_URLENCODED, MediaType.APPLICATION_JSON,
@@ -167,8 +172,10 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>> extends
 		RequestMatcher notHtmlMatcher = new NegatedRequestMatcher(
 				new MediaTypeRequestMatcher(contentNegotiationStrategy,
 						MediaType.TEXT_HTML));
-		RequestMatcher preferredMatcher = new AndRequestMatcher(
+		RequestMatcher restNotHtmlMatcher = new AndRequestMatcher(
 				Arrays.<RequestMatcher>asList(notHtmlMatcher, restMatcher));
+
+		RequestMatcher preferredMatcher = new OrRequestMatcher(Arrays.asList(X_REQUESTED_WITH, restNotHtmlMatcher));
 
 		registerDefaultEntryPoint(http, preferredMatcher);
 		registerDefaultLogoutSuccessHandler(http, preferredMatcher);
