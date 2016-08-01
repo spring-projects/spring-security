@@ -232,4 +232,23 @@ class LogoutConfigurerTests extends BaseSpringSpec {
 	@EnableWebSecurity
 	static class LogoutHandlerContentNegotiationForChrome extends WebSecurityConfigurerAdapter {
 	}
+
+	// gh-3997
+	def "LogoutConfigurer for XMLHttpRequest is 204"() {
+		setup:
+			loadConfig(LogoutXMLHttpRequestConfigt)
+		when:
+			login()
+			request.method = 'POST'
+			request.servletPath = '/logout'
+			request.addHeader('Accept', 'text/html,application/json')
+			request.addHeader('X-Requested-With', 'XMLHttpRequest')
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			response.status == 204
+	}
+
+	@EnableWebSecurity
+	static class LogoutXMLHttpRequestConfig extends WebSecurityConfigurerAdapter {
+	}
 }

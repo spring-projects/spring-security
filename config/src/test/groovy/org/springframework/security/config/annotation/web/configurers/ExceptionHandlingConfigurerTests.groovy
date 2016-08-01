@@ -92,7 +92,7 @@ class ExceptionHandlingConfigurerTests extends BaseSpringSpec {
 			DelegatingAuthenticationEntryPoint delegateEntryPoint = findFilter(ExceptionTranslationFilter).authenticationEntryPoint
 		then:
 			def entryPoints = delegateEntryPoint.entryPoints.keySet() as List
-			entryPoints[0].requestMatchers[1].contentNegotiationStrategy.class == HeaderContentNegotiationStrategy
+			entryPoints[0].requestMatchers[1].requestMatchers[1].contentNegotiationStrategy.class == HeaderContentNegotiationStrategy
 			entryPoints[1].requestMatchers[1].contentNegotiationStrategy.class == HeaderContentNegotiationStrategy
 	}
 
@@ -138,7 +138,7 @@ class ExceptionHandlingConfigurerTests extends BaseSpringSpec {
 		then:
 			def entryPoints = delegateEntryPoint.entryPoints.keySet() as List
 			entryPoints[0].requestMatchers[1].contentNegotiationStrategy == OverrideContentNegotiationStrategySharedObjectConfig.CNS
-			entryPoints[1].requestMatchers[1].contentNegotiationStrategy == OverrideContentNegotiationStrategySharedObjectConfig.CNS
+			entryPoints[1].requestMatchers[1].requestMatchers[1].contentNegotiationStrategy == OverrideContentNegotiationStrategySharedObjectConfig.CNS
 	}
 
 	def "Override ContentNegotiationStrategy with @Bean"() {
