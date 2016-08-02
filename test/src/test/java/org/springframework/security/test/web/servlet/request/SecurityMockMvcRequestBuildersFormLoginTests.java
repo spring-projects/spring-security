@@ -44,8 +44,7 @@ public class SecurityMockMvcRequestBuildersFormLoginTests {
 		assertThat(request.getParameter("username")).isEqualTo("user");
 		assertThat(request.getParameter("password")).isEqualTo("password");
 		assertThat(request.getMethod()).isEqualTo("POST");
-		assertThat(request.getParameter(token.getParameterName()))
-				.isEqualTo(token.getToken());
+		assertThat(token.isValid(request.getParameter(token.getParameterName())));
 		assertThat(request.getRequestURI()).isEqualTo("/login");
 		assertThat(request.getParameter("_csrf")).isNotNull();
 	}
@@ -61,8 +60,7 @@ public class SecurityMockMvcRequestBuildersFormLoginTests {
 		assertThat(request.getParameter("username")).isEqualTo("admin");
 		assertThat(request.getParameter("password")).isEqualTo("secret");
 		assertThat(request.getMethod()).isEqualTo("POST");
-		assertThat(request.getParameter(token.getParameterName()))
-				.isEqualTo(token.getToken());
+		assertThat(token.isValid(request.getParameter(token.getParameterName())));
 		assertThat(request.getRequestURI()).isEqualTo("/login");
 	}
 

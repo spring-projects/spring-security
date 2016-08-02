@@ -46,7 +46,7 @@ public class CsrfRequestDataValueProcessorTests {
 		request = new MockHttpServletRequest();
 		processor = new CsrfRequestDataValueProcessor();
 
-		token = new DefaultCsrfToken("1", "a", "b");
+		token = new DefaultCsrfToken("1", "a");
 		request.setAttribute(CsrfToken.class.getName(), token);
 
 		expected.put(token.getParameterName(), token.getToken());
@@ -127,7 +127,7 @@ public class CsrfRequestDataValueProcessorTests {
 
 	@Test
 	public void createGetExtraHiddenFieldsHasCsrfToken() {
-		CsrfToken token = new DefaultCsrfToken("1", "a", "b");
+		CsrfToken token = new DefaultCsrfToken("1", "a");
 		request.setAttribute(CsrfToken.class.getName(), token);
 		Map<String, String> expected = new HashMap<String, String>();
 		expected.put(token.getParameterName(), token.getToken());

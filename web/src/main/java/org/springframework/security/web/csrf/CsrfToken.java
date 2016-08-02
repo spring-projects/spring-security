@@ -23,6 +23,7 @@ import java.io.Serializable;
  * @see DefaultCsrfToken
  *
  * @author Rob Winch
+ * @author John Ray
  * @since 3.2
  *
  */
@@ -49,4 +50,9 @@ public interface CsrfToken extends Serializable {
 	 */
 	String getToken();
 
+	/**
+	 * Check if a value returned by a previous call to getToken() matches this token.
+	 * @return true if the token is Valid
+	 */
+	boolean isValid(String value);
 }

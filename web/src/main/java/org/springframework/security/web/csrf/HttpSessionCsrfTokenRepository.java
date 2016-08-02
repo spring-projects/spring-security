@@ -15,8 +15,6 @@
  */
 package org.springframework.security.web.csrf;
 
-import java.util.UUID;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -87,8 +85,7 @@ public final class HttpSessionCsrfTokenRepository implements CsrfTokenRepository
 	 * servlet .http.HttpServletRequest)
 	 */
 	public CsrfToken generateToken(HttpServletRequest request) {
-		return new DefaultCsrfToken(this.headerName, this.parameterName,
-				createNewToken());
+		return new DefaultCsrfToken(this.headerName, this.parameterName);
 	}
 
 	/**
@@ -122,7 +119,4 @@ public final class HttpSessionCsrfTokenRepository implements CsrfTokenRepository
 		this.sessionAttributeName = sessionAttributeName;
 	}
 
-	private String createNewToken() {
-		return UUID.randomUUID().toString();
-	}
 }

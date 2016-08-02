@@ -55,7 +55,7 @@ public class CsrfTokenArgumentResolverTests {
 
 	@Before
 	public void setup() {
-		token = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "secret");
+		token = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf");
 		resolver = new CsrfTokenArgumentResolver();
 		request = new MockHttpServletRequest();
 		webRequest = new ServletWebRequest(request);

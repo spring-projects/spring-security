@@ -58,7 +58,7 @@ public final class CsrfChannelInterceptor extends ChannelInterceptorAdapter {
 		String actualTokenValue = SimpMessageHeaderAccessor.wrap(message)
 				.getFirstNativeHeader(expectedToken.getHeaderName());
 
-		boolean csrfCheckPassed = expectedToken.getToken().equals(actualTokenValue);
+		boolean csrfCheckPassed = expectedToken.isValid(actualTokenValue);
 		if (csrfCheckPassed) {
 			return message;
 		}

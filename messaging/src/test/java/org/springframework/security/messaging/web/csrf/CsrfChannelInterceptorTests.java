@@ -46,7 +46,7 @@ public class CsrfChannelInterceptorTests {
 
 	@Before
 	public void setup() {
-		token = new DefaultCsrfToken("header", "param", "token");
+		token = new DefaultCsrfToken("header", "param");
 		interceptor = new CsrfChannelInterceptor();
 
 		messageHeaders = SimpMessageHeaderAccessor.create(SimpMessageType.CONNECT);
@@ -126,7 +126,7 @@ public class CsrfChannelInterceptorTests {
 	@Test(expected = InvalidCsrfTokenException.class)
 	public void preSendInvalidToken() {
 		messageHeaders.setNativeHeader(token.getHeaderName(), token.getToken()
-				+ "invalid");
+			.replaceAll("^.{10}","INVALID000"));
 
 		interceptor.preSend(message(), channel);
 	}

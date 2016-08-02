@@ -82,7 +82,7 @@ public class CookieCsrfTokenRepositoryTests {
 				.isEqualTo(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
 		assertThat(tokenCookie.getPath()).isEqualTo(this.request.getContextPath());
 		assertThat(tokenCookie.getSecure()).isEqualTo(this.request.isSecure());
-		assertThat(tokenCookie.getValue()).isEqualTo(token.getToken());
+		assertThat(token.isValid(tokenCookie.getValue()));
 		assertThat(tokenCookie.isHttpOnly()).isEqualTo(true);
 	}
 
@@ -204,7 +204,7 @@ public class CookieCsrfTokenRepositoryTests {
 		assertThat(loadToken).isNotNull();
 		assertThat(loadToken.getHeaderName()).isEqualTo(headerName);
 		assertThat(loadToken.getParameterName()).isEqualTo(parameterName);
-		assertThat(loadToken.getToken()).isEqualTo(value);
+		assertThat(loadToken.isValid(value));
 	}
 
 	@Test(expected = IllegalArgumentException.class)

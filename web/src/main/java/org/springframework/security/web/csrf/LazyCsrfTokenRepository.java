@@ -130,6 +130,11 @@ public final class LazyCsrfTokenRepository implements CsrfTokenRepository {
 		}
 
 		@Override
+		public boolean isValid(String value) {
+			return delegate.isValid(value);
+		}
+
+		@Override
 		public String toString() {
 			return "SaveOnAccessCsrfToken [delegate=" + this.delegate + "]";
 		}

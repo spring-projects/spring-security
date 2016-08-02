@@ -82,7 +82,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 
 	@Before
 	public void setup() {
-		token = new DefaultCsrfToken("header", "param", "token");
+		token = new DefaultCsrfToken("header", "param");
 		sessionAttr = "sessionAttr";
 		messageUser = new TestingAuthenticationToken("user", "pass", "ROLE_USER");
 	}
