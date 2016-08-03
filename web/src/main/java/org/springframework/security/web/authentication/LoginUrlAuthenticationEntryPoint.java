@@ -35,10 +35,11 @@ import org.springframework.security.web.PortResolver;
 import org.springframework.security.web.PortResolverImpl;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
-import org.springframework.security.web.util.RedirectUrlBuilder;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * Used by the {@link ExceptionTranslationFilter} to commence a form login authentication
@@ -179,32 +180,11 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 			return loginForm;
 		}
 
-		int serverPort = portResolver.getServerPort(request);
-		String scheme = request.getScheme();
+		UriComponentsBuilder uriBuilder = ServletUriComponentsBuilder
+				.fromContextPath(request)
+				.path(loginForm);
 
-		RedirectUrlBuilder urlBuilder = new RedirectUrlBuilder();
-
-		urlBuilder.setScheme(scheme);
-		urlBuilder.setServerName(request.getServerName());
-		urlBuilder.setPort(serverPort);
-		urlBuilder.setContextPath(request.getContextPath());
-		urlBuilder.setPathInfo(loginForm);
-
-		if (forceHttps && "http".equals(scheme)) {
-			Integer httpsPort = portMapper.lookupHttpsPort(Integer.valueOf(serverPort));
-
-			if (httpsPort != null) {
-				// Overwrite scheme and port in the redirect URL
-				urlBuilder.setScheme("https");
-				urlBuilder.setPort(httpsPort.intValue());
-			}
-			else {
-				logger.warn("Unable to redirect to HTTPS as no port mapping found for HTTP port "
-						+ serverPort);
-			}
-		}
-
-		return urlBuilder.getUrl();
+        return forceHttpsIfNecessary(request, uriBuilder).toUriString();
 	}
 
 	/**
@@ -215,19 +195,10 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 			throws IOException, ServletException {
 
 		int serverPort = portResolver.getServerPort(request);
-		Integer httpsPort = portMapper.lookupHttpsPort(Integer.valueOf(serverPort));
+		Integer httpsPort = portMapper.lookupHttpsPort(serverPort);
 
 		if (httpsPort != null) {
-			RedirectUrlBuilder urlBuilder = new RedirectUrlBuilder();
-			urlBuilder.setScheme("https");
-			urlBuilder.setServerName(request.getServerName());
-			urlBuilder.setPort(httpsPort.intValue());
-			urlBuilder.setContextPath(request.getContextPath());
-			urlBuilder.setServletPath(request.getServletPath());
-			urlBuilder.setPathInfo(request.getPathInfo());
-			urlBuilder.setQuery(request.getQueryString());
-
-			return urlBuilder.getUrl();
+			return forceHttps(ServletUriComponentsBuilder.fromRequest(request), httpsPort).toUriString();
 		}
 
 		// Fall through to server-side forward with warning message
@@ -287,5 +258,31 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 
 	protected boolean isUseForward() {
 		return useForward;
+	}
+
+	private UriComponentsBuilder forceHttpsIfNecessary(HttpServletRequest request, UriComponentsBuilder uriBuilder) {
+	    UriComponentsBuilder result = uriBuilder;
+
+        if (forceHttps && "http".equals(request.getScheme())) {
+
+            int serverPort = portResolver.getServerPort(request);
+            Integer httpsPort = portMapper.lookupHttpsPort(serverPort);
+
+            if (httpsPort != null) {
+                // Overwrite scheme and port in the redirect URL
+                result = forceHttps(uriBuilder, httpsPort);
+            }
+            else {
+                logger.warn("Unable to redirect to HTTPS as no port mapping found for HTTP port "
+                        + serverPort);
+            }
+        }
+        return result;
+    }
+
+	private UriComponentsBuilder forceHttps(UriComponentsBuilder uriBuilder, Integer httpsPort) {
+		return uriBuilder
+				.scheme("https")
+				.port(httpsPort.equals(443) ? -1 : httpsPort);
 	}
 }
