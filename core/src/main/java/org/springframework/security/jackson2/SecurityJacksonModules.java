@@ -22,8 +22,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * This utility class will find and register SecurityModules and configure ObjectMapper.
@@ -34,7 +39,15 @@ import org.springframework.util.ObjectUtils;
  *     SecurityJacksonModules.registerModules(mapper);
  * </pre>
  *
+ * You can also configure ObjectMapper with your own configuration then register security modules
+ *
+ *  <pre>
+ *     ObjectMapper mapper = new ObjectMapper();
+ *     mapper.registerModules(SecurityJacksonModules.getModules());
+ * </pre>
+ *
  * Above code is equivalent to
+ *
  * <pre>
  *     ObjectMapper mapper = new ObjectMapper();
  *     mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
@@ -43,12 +56,19 @@ import org.springframework.util.ObjectUtils;
  *     mapper.registerModule(new WebJackson2Module());
  * </pre>
  *
+ * Use method {@link SecurityJacksonModules#getModules()} to list available SecurityJackson2Modules.
+ *
  * @author Jitendra Singh.
  * @since 4.2
  */
 public final class SecurityJacksonModules {
 
 	private static final Log logger = LogFactory.getLog(SecurityJacksonModules.class);
+	private static final List<String> securityJackson2ModuleClasses = Arrays.asList(
+			"org.springframework.security.jackson2.CoreJackson2Module",
+			"org.springframework.security.cas.jackson2.CasJackson2Module",
+			"org.springframework.security.web.jackson2.WebJackson2Module"
+	);
 
 	private SecurityJacksonModules() {
 	}
@@ -60,27 +80,59 @@ public final class SecurityJacksonModules {
 		}
 	}
 
-	private static void findAndRegisterSecurityModuleClass(ObjectMapper mapper, String className) {
+	private static Module loadAndGetInstance(String className) {
+		Module instance = null;
 		try {
 			logger.debug("Loading module " + className);
 			Class<? extends Module> casModuleClass = (Class<? extends Module>) ClassUtils.forName(className, ClassUtils.getDefaultClassLoader());
 			if (!ObjectUtils.isEmpty(casModuleClass)) {
 				logger.debug("Loaded module " + className + ", now registering");
-				mapper.registerModule(casModuleClass.newInstance());
+				instance = casModuleClass.newInstance();
 			}
 		} catch (ClassNotFoundException e) {
-			logger.warn("Module class not found : "+e.getMessage());
+			logger.warn("Module class not found : " + e.getMessage());
 		} catch (InstantiationException e) {
 			logger.error(e.getMessage());
 		} catch (IllegalAccessException e) {
 			logger.error(e.getMessage());
 		}
+		return instance;
 	}
 
+	private static void registerSecurityModules(ObjectMapper mapper, List<Module> securityModules) {
+		if (!ObjectUtils.isEmpty(securityModules)) {
+			mapper.registerModules(securityModules);
+		}
+	}
+
+	/**
+	 * This method will register SecurityJackson2 Modules.
+	 *
+	 * @param mapper
+	 */
 	public static void registerModules(ObjectMapper mapper) {
+		Assert.notNull(mapper);
+
 		enableDefaultTyping(mapper);
-		mapper.registerModule(new CoreJackson2Module());
-		findAndRegisterSecurityModuleClass(mapper, "org.springframework.security.cas.jackson2.CasJackson2Module");
-		findAndRegisterSecurityModuleClass(mapper, "org.springframework.security.web.jackson2.WebJackson2Module");
+		List<Module> modules = getModules();
+		if(!ObjectUtils.isEmpty(modules)) {
+			registerSecurityModules(mapper, modules);
+		}
+	}
+
+	/**
+	 * List of available security modules.
+	 *
+	 * @return
+	 */
+	public static List<Module> getModules() {
+		List<Module> modules = new ArrayList<Module>();
+		for(String className : securityJackson2ModuleClasses) {
+			Module module = loadAndGetInstance(className);
+			if(!ObjectUtils.isEmpty(module)) {
+				modules.add(module);
+			}
+		}
+		return modules;
 	}
 }
