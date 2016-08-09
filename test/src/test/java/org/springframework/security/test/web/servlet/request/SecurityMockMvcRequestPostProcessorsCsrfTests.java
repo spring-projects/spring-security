@@ -31,18 +31,22 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessorsCsrfTests.Config.TheController;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -140,6 +144,25 @@ public class SecurityMockMvcRequestPostProcessorsCsrfTests {
 		this.mockMvc.perform(post("/").with(csrf()))
 				.andExpect(status().is2xxSuccessful())
 				.andExpect(csrfAsParam());
+		// @formatter:on
+	}
+
+	// gh-4016
+	@Test
+	public void csrfWhenUsedThenDoesNotImpactOriginalRepository() throws Exception {
+		// @formatter:off
+		this.mockMvc.perform(post("/").with(csrf()));
+
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		HttpSessionCsrfTokenRepository repo = new HttpSessionCsrfTokenRepository();
+		CsrfToken token = repo.generateToken(request);
+		repo.saveToken(token, request, new MockHttpServletResponse());
+
+		MockHttpServletRequestBuilder requestWithCsrf = post("/")
+			.param(token.getParameterName(), token.getToken())
+			.session((MockHttpSession)request.getSession());
+		this.mockMvc.perform(requestWithCsrf)
+			.andExpect(status().isOk());
 		// @formatter:on
 	}
 

@@ -39,7 +39,7 @@ public class SecurityMockMvcRequestBuildersFormLoginTests {
 	public void defaults() throws Exception {
 		MockHttpServletRequest request = formLogin().buildRequest(this.servletContext);
 		CsrfToken token = (CsrfToken) request
-				.getAttribute(CsrfRequestPostProcessor.TestCsrfTokenRepository.ATTR_NAME);
+				.getAttribute(CsrfRequestPostProcessor.TestCsrfTokenRepository.TOKEN_ATTR_NAME);
 
 		assertThat(request.getParameter("username")).isEqualTo("user");
 		assertThat(request.getParameter("password")).isEqualTo("password");
@@ -56,7 +56,7 @@ public class SecurityMockMvcRequestBuildersFormLoginTests {
 				.password("password", "secret").buildRequest(this.servletContext);
 
 		CsrfToken token = (CsrfToken) request
-				.getAttribute(CsrfRequestPostProcessor.TestCsrfTokenRepository.ATTR_NAME);
+				.getAttribute(CsrfRequestPostProcessor.TestCsrfTokenRepository.TOKEN_ATTR_NAME);
 
 		assertThat(request.getParameter("username")).isEqualTo("admin");
 		assertThat(request.getParameter("password")).isEqualTo("secret");
