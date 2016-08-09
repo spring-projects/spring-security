@@ -45,7 +45,7 @@ public class DefaultCsrfTokenMixinTests {
 	@Before
 	public void setup() {
 		objectMapper = new ObjectMapper();
-		SecurityJacksonModules.registerModules(objectMapper);
+		objectMapper.registerModules(SecurityJacksonModules.getModules());
 		defaultCsrfTokenJson = "{\"@class\": \"org.springframework.security.web.csrf.DefaultCsrfToken\", " +
 				"\"headerName\": \"csrf-header\", \"parameterName\": \"_csrf\", \"token\": \"1\"}";
 	}

@@ -30,15 +30,15 @@ import java.util.Collections;
 /**
  * Jackson module for spring-security-core. This module register {@link AnonymousAuthenticationTokenMixin},
  * {@link RememberMeAuthenticationTokenMixin}, {@link SimpleGrantedAuthorityMixin}, {@link UnmodifiableSetMixin},
- * {@link UserMixin} and {@link UsernamePasswordAuthenticationTokenMixin}. In order to use this module just
+ * {@link UserMixin} and {@link UsernamePasswordAuthenticationTokenMixin}. If no default typing enabled by default then
+ * it'll enable it because typing info is needed to properly serialize/deserialize objects. In order to use this module just
  * add this module into your ObjectMapper configuration.
  *
  * <pre>
  *     ObjectMapper mapper = new ObjectMapper();
  *     mapper.registerModule(new CoreJackson2Module());
  * </pre>
- * <b>Note: use {@link org.springframework.security.jackson2.SecurityJacksonModules#registerModules(ObjectMapper)}
- *  it'll register all security modules along with basic configuration</b>
+ * <b>Note: use {@link SecurityJacksonModules#getModules()} to get list of all security modules.</b>
  *
  * @author Jitendra Singh.
  * @see SecurityJacksonModules
