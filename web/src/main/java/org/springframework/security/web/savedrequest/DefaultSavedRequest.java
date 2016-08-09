@@ -483,8 +483,6 @@ public class DefaultSavedRequest implements SavedRequest {
 
 		public DefaultSavedRequest build() {
 			DefaultSavedRequest savedRequest = new DefaultSavedRequest(this);
-			System.out.println("Building Default Saved request object");
-			System.out.println(this.toString());
 			if(!ObjectUtils.isEmpty(this.cookies)) {
 				for (SavedCookie cookie : this.cookies) {
 					savedRequest.addCookie(cookie.getCookie());

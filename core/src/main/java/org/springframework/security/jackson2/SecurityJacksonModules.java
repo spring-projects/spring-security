@@ -84,10 +84,10 @@ public final class SecurityJacksonModules {
 		Module instance = null;
 		try {
 			logger.debug("Loading module " + className);
-			Class<? extends Module> casModuleClass = (Class<? extends Module>) ClassUtils.forName(className, ClassUtils.getDefaultClassLoader());
-			if (!ObjectUtils.isEmpty(casModuleClass)) {
+			Class<? extends Module> securityModule = (Class<? extends Module>) ClassUtils.forName(className, ClassUtils.getDefaultClassLoader());
+			if (!ObjectUtils.isEmpty(securityModule)) {
 				logger.debug("Loaded module " + className + ", now registering");
-				instance = casModuleClass.newInstance();
+				instance = securityModule.newInstance();
 			}
 		} catch (ClassNotFoundException e) {
 			logger.warn("Module class not found : " + e.getMessage());
