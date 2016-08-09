@@ -29,15 +29,15 @@ import javax.servlet.http.Cookie;
 
 /**
  * Jackson module for spring-security-web. This module register {@link CookieMixin},
- * {@link DefaultCsrfTokenMixin}, {@link DefaultSavedRequestMixin} and {@link WebAuthenticationDetailsMixin}.
+ * {@link DefaultCsrfTokenMixin}, {@link DefaultSavedRequestMixin} and {@link WebAuthenticationDetailsMixin}. If no
+ * default typing enabled by default then it'll enable it because typing info is needed to properly serialize/deserialize objects.
  * In order to use this module just add this module into your ObjectMapper configuration.
  *
  * <pre>
  *     ObjectMapper mapper = new ObjectMapper();
  *     mapper.registerModule(new WebJackson2Module());
  * </pre>
- * <b>Note: use {@link org.springframework.security.jackson2.SecurityJacksonModules#registerModules(ObjectMapper)}
- *  it'll register all security modules along with basic configuration</b>
+ * <b>Note: use {@link SecurityJacksonModules#getModules()} to get list of all security modules.</b>
  *
  * @author Jitendra Singh
  * @see SecurityJacksonModules

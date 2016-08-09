@@ -37,7 +37,7 @@ public abstract class AbstractMixinTests {
 	protected ObjectMapper buildObjectMapper() {
 		if (ObjectUtils.isEmpty(mapper)) {
 			mapper = new ObjectMapper();
-			SecurityJacksonModules.registerModules(mapper);
+			mapper.registerModules(SecurityJacksonModules.getModules());
 		}
 		return mapper;
 	}

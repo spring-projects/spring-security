@@ -72,7 +72,7 @@ public class CasAuthenticationTokenMixinTests {
 
 	ObjectMapper buildObjectMapper() {
 		ObjectMapper mapper = new ObjectMapper();
-		SecurityJacksonModules.registerModules(mapper);
+		mapper.registerModules(SecurityJacksonModules.getModules());
 		return mapper;
 	}
 

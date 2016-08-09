@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
 
@@ -31,23 +30,15 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * This utility class will find and register SecurityModules and configure ObjectMapper.
- * If default typing isn't enabled, then this class will enabled default typing.
+ * This utility class will find all the SecurityModules in classpath.
  *
+ * <p>
  * <pre>
- *     ObjectMapper mapper = new ObjectMapper();
- *     SecurityJacksonModules.registerModules(mapper);
- * </pre>
- *
- * You can also configure ObjectMapper with your own configuration then register security modules
- *
- *  <pre>
  *     ObjectMapper mapper = new ObjectMapper();
  *     mapper.registerModules(SecurityJacksonModules.getModules());
  * </pre>
- *
  * Above code is equivalent to
- *
+ * <p>
  * <pre>
  *     ObjectMapper mapper = new ObjectMapper();
  *     mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
@@ -55,8 +46,6 @@ import java.util.List;
  *     mapper.registerModule(new CasJackson2Module());
  *     mapper.registerModule(new WebJackson2Module());
  * </pre>
- *
- * Use method {@link SecurityJacksonModules#getModules()} to list available SecurityJackson2Modules.
  *
  * @author Jitendra Singh.
  * @since 4.2
@@ -74,9 +63,11 @@ public final class SecurityJacksonModules {
 	}
 
 	public static void enableDefaultTyping(ObjectMapper mapper) {
-		TypeResolverBuilder<?> typeBuilder = mapper.getDeserializationConfig().getDefaultTyper(null);
-		if (ObjectUtils.isEmpty(typeBuilder)) {
-			mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
+		if(!ObjectUtils.isEmpty(mapper)) {
+			TypeResolverBuilder<?> typeBuilder = mapper.getDeserializationConfig().getDefaultTyper(null);
+			if (ObjectUtils.isEmpty(typeBuilder)) {
+				mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
+			}
 		}
 	}
 
@@ -99,37 +90,14 @@ public final class SecurityJacksonModules {
 		return instance;
 	}
 
-	private static void registerSecurityModules(ObjectMapper mapper, List<Module> securityModules) {
-		if (!ObjectUtils.isEmpty(securityModules)) {
-			mapper.registerModules(securityModules);
-		}
-	}
-
 	/**
-	 * This method will register SecurityJackson2 Modules.
-	 *
-	 * @param mapper
-	 */
-	public static void registerModules(ObjectMapper mapper) {
-		Assert.notNull(mapper);
-
-		enableDefaultTyping(mapper);
-		List<Module> modules = getModules();
-		if(!ObjectUtils.isEmpty(modules)) {
-			registerSecurityModules(mapper, modules);
-		}
-	}
-
-	/**
-	 * List of available security modules.
-	 *
-	 * @return
+	 * @return List of available security modules in classpath.
 	 */
 	public static List<Module> getModules() {
 		List<Module> modules = new ArrayList<Module>();
-		for(String className : securityJackson2ModuleClasses) {
+		for (String className : securityJackson2ModuleClasses) {
 			Module module = loadAndGetInstance(className);
-			if(!ObjectUtils.isEmpty(module)) {
+			if (!ObjectUtils.isEmpty(module)) {
 				modules.add(module);
 			}
 		}
