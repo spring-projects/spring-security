@@ -150,6 +150,32 @@ public class GlobalMethodSecurityConfiguration
 		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+
+		PermissionEvaluator permissionEvaluator = getSingleBeanOrNull(
+				PermissionEvaluator.class);
+		if (permissionEvaluator != null) {
+			this.defaultMethodExpressionHandler
+					.setPermissionEvaluator(permissionEvaluator);
+		}
+
+		RoleHierarchy roleHierarchy = getSingleBeanOrNull(RoleHierarchy.class);
+		if (roleHierarchy != null) {
+			this.defaultMethodExpressionHandler.setRoleHierarchy(roleHierarchy);
+		}
+
+		AuthenticationTrustResolver trustResolver = getSingleBeanOrNull(
+				AuthenticationTrustResolver.class);
+		if (trustResolver != null) {
+			this.defaultMethodExpressionHandler.setTrustResolver(trustResolver);
+		}
+	}
+
+	private <T> T getSingleBeanOrNull(Class<T> type) {
+		String[] beanNamesForType = this.context.getBeanNamesForType(type);
+		if (beanNamesForType == null || beanNamesForType.length != 1) {
+			return null;
+		}
+		return this.context.getBean(beanNamesForType[0], type);
 	}
 
 	private void initializeMethodSecurityInterceptor() throws Exception {
@@ -358,16 +384,6 @@ public class GlobalMethodSecurityConfiguration
 	}
 
 	@Autowired(required = false)
-	public void setAuthenticationTrustResolver(AuthenticationTrustResolver trustResolver) {
-		this.defaultMethodExpressionHandler.setTrustResolver(trustResolver);
-	}
-
-	@Autowired(required = false)
-	public void setRoleHierarchy(RoleHierarchy roleHierarchy){
-		this.defaultMethodExpressionHandler.setRoleHierarchy(roleHierarchy);
-	}
-
-	@Autowired(required = false)
 	public void setObjectPostProcessor(ObjectPostProcessor<Object> objectPostProcessor) {
 		this.objectPostProcessor = objectPostProcessor;
 		this.defaultMethodExpressionHandler = objectPostProcessor
@@ -378,16 +394,6 @@ public class GlobalMethodSecurityConfiguration
 	public void setJsr250MethodSecurityMetadataSource(
 			Jsr250MethodSecurityMetadataSource jsr250MethodSecurityMetadataSource) {
 		this.jsr250MethodSecurityMetadataSource = jsr250MethodSecurityMetadataSource;
-	}
-
-	@Autowired(required = false)
-	public void setPermissionEvaluator(List<PermissionEvaluator> permissionEvaluators) {
-		if (permissionEvaluators.size() != 1) {
-			logger.debug("Not autwiring PermissionEvaluator since size != 1. Got "
-					+ permissionEvaluators);
-		}
-		this.defaultMethodExpressionHandler.setPermissionEvaluator(permissionEvaluators
-				.get(0));
 	}
 
 	@Autowired(required = false)
