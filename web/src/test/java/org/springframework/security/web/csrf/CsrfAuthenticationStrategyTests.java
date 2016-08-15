@@ -60,8 +60,8 @@ public class CsrfAuthenticationStrategyTests {
 		this.request = new MockHttpServletRequest();
 		this.request.setAttribute(HttpServletResponse.class.getName(), this.response);
 		this.strategy = new CsrfAuthenticationStrategy(this.csrfTokenRepository);
-		this.existingToken = new DefaultCsrfToken("_csrf", "_csrf", "1");
-		this.generatedToken = new DefaultCsrfToken("_csrf", "_csrf", "2");
+		this.existingToken = new DefaultCsrfToken("_csrf", "_csrf");
+		this.generatedToken = new DefaultCsrfToken("_csrf", "_csrf");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -85,7 +85,7 @@ public class CsrfAuthenticationStrategyTests {
 		// SEC-2404, SEC-2832
 		CsrfToken tokenInRequest = (CsrfToken) this.request
 				.getAttribute(CsrfToken.class.getName());
-		assertThat(tokenInRequest.getToken()).isSameAs(this.generatedToken.getToken());
+		assertThat(tokenInRequest.isValid(this.generatedToken.getToken()));
 		assertThat(tokenInRequest.getHeaderName())
 				.isSameAs(this.generatedToken.getHeaderName());
 		assertThat(tokenInRequest.getParameterName())

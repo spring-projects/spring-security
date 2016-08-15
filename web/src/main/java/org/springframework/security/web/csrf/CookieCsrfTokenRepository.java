@@ -62,8 +62,7 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 
 	@Override
 	public CsrfToken generateToken(HttpServletRequest request) {
-		return new DefaultCsrfToken(this.headerName, this.parameterName,
-				createNewToken());
+		return new DefaultCsrfToken(this.headerName, this.parameterName);
 	}
 
 	@Override
@@ -96,7 +95,7 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 		if (!StringUtils.hasLength(token)) {
 			return null;
 		}
-		return new DefaultCsrfToken(this.headerName, this.parameterName, token);
+		return new DefaultCsrfToken(this.headerName, this.parameterName);
 	}
 
 	/**
@@ -164,9 +163,5 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 		CookieCsrfTokenRepository result = new CookieCsrfTokenRepository();
 		result.setCookieHttpOnly(false);
 		return result;
-	}
-
-	private String createNewToken() {
-		return UUID.randomUUID().toString();
 	}
 }

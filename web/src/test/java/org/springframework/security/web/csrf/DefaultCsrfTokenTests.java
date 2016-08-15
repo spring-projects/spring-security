@@ -16,6 +16,7 @@
 package org.springframework.security.web.csrf;
 
 import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Rob Winch
@@ -24,35 +25,41 @@ import org.junit.Test;
 public class DefaultCsrfTokenTests {
 	private final String headerName = "headerName";
 	private final String parameterName = "parameterName";
-	private final String tokenValue = "tokenValue";
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorNullHeaderName() {
-		new DefaultCsrfToken(null, parameterName, tokenValue);
+		new DefaultCsrfToken(null, parameterName);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorEmptyHeaderName() {
-		new DefaultCsrfToken("", parameterName, tokenValue);
+		new DefaultCsrfToken("", parameterName);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorNullParameterName() {
-		new DefaultCsrfToken(headerName, null, tokenValue);
+		new DefaultCsrfToken(headerName, null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorEmptyParameterName() {
-		new DefaultCsrfToken(headerName, "", tokenValue);
+		new DefaultCsrfToken(headerName, "");
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void constructorNullTokenValue() {
-		new DefaultCsrfToken(headerName, parameterName, null);
+	@Test
+	public void testIsValid() {
+		DefaultCsrfToken token = new DefaultCsrfToken(headerName, parameterName);
+
+		String value1 = token.getToken();
+		assertThat(value1).isNotEmpty();
+		String value2 = token.getToken();
+		assertThat(value2).isNotEmpty();
+
+		assertThat(value1).doesNotMatch(value2);
+
+		assertThat(token.isValid(value1)).isTrue();
+		assertThat(token.isValid(value2)).isTrue();
+		assertThat(token.isValid(value2.replaceAll("^.{10}","INVALID000"))).isFalse();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void constructorEmptyTokenValue() {
-		new DefaultCsrfToken(headerName, parameterName, "");
-	}
 }

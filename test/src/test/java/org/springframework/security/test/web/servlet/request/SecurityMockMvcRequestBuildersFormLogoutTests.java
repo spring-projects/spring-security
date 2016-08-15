@@ -40,8 +40,7 @@ public class SecurityMockMvcRequestBuildersFormLogoutTests {
 		CsrfToken token = (CsrfToken) request.getAttribute(CsrfRequestPostProcessor.TestCsrfTokenRepository.TOKEN_ATTR_NAME);
 
 		assertThat(request.getMethod()).isEqualTo("POST");
-		assertThat(request.getParameter(token.getParameterName())).isEqualTo(
-				token.getToken());
+		assertThat(token.isValid(request.getParameter(token.getParameterName())));
 		assertThat(request.getRequestURI()).isEqualTo("/logout");
 	}
 
@@ -53,8 +52,7 @@ public class SecurityMockMvcRequestBuildersFormLogoutTests {
 		CsrfToken token = (CsrfToken) request.getAttribute(CsrfRequestPostProcessor.TestCsrfTokenRepository.TOKEN_ATTR_NAME);
 
 		assertThat(request.getMethod()).isEqualTo("POST");
-		assertThat(request.getParameter(token.getParameterName())).isEqualTo(
-				token.getToken());
+		assertThat(token.isValid(request.getParameter(token.getParameterName())));
 		assertThat(request.getRequestURI()).isEqualTo("/admin/logout");
 	}
 

@@ -89,7 +89,7 @@ public class HttpSessionCsrfTokenRepositoryTests {
 
 	@Test
 	public void saveToken() {
-		CsrfToken tokenToSave = new DefaultCsrfToken("123", "abc", "def");
+		CsrfToken tokenToSave = new DefaultCsrfToken("123", "abc");
 		repo.saveToken(tokenToSave, request, response);
 
 		String attrName = request.getSession().getAttributeNames().nextElement();
@@ -100,7 +100,7 @@ public class HttpSessionCsrfTokenRepositoryTests {
 
 	@Test
 	public void saveTokenCustomSessionAttribute() {
-		CsrfToken tokenToSave = new DefaultCsrfToken("123", "abc", "def");
+		CsrfToken tokenToSave = new DefaultCsrfToken("123", "abc");
 		String sessionAttributeName = "custom";
 		repo.setSessionAttributeName(sessionAttributeName);
 		repo.saveToken(tokenToSave, request, response);

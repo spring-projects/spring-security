@@ -89,7 +89,7 @@ public class WebMvcSecurityConfigurationTests {
 
 	@Test
 	public void csrfToken() throws Exception {
-		CsrfToken csrfToken = new DefaultCsrfToken("headerName", "paramName", "token");
+		CsrfToken csrfToken = new DefaultCsrfToken("headerName", "paramName");
 		MockHttpServletRequestBuilder request = get("/csrf").requestAttr(
 				CsrfToken.class.getName(), csrfToken);
 

@@ -70,7 +70,7 @@ public class CsrfTokenHandshakeInterceptorTests {
 
 	@Test
 	public void beforeHandshake() throws Exception {
-		CsrfToken token = new DefaultCsrfToken("header", "param", "token");
+		CsrfToken token = new DefaultCsrfToken("header", "param");
 		httpRequest.setAttribute(CsrfToken.class.getName(), token);
 
 		interceptor.beforeHandshake(request, response, wsHandler, attributes);

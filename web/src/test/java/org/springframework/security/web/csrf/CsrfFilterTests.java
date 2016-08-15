@@ -69,7 +69,7 @@ public class CsrfFilterTests {
 
 	@Before
 	public void setup() {
-		this.token = new DefaultCsrfToken("headerName", "paramName", "csrfTokenValue");
+		this.token = new DefaultCsrfToken("headerName", "paramName");
 		resetRequestResponse();
 		this.filter = createCsrfFilter(this.tokenRepository);
 	}
@@ -140,7 +140,7 @@ public class CsrfFilterTests {
 		when(this.requestMatcher.matches(this.request)).thenReturn(true);
 		when(this.tokenRepository.loadToken(this.request)).thenReturn(this.token);
 		this.request.setParameter(this.token.getParameterName(),
-				this.token.getToken() + " INVALID");
+				this.token.getToken().replaceAll("^.{10}","INVALID000"));
 
 		this.filter.doFilter(this.request, this.response, this.filterChain);
 
@@ -160,7 +160,7 @@ public class CsrfFilterTests {
 		when(this.requestMatcher.matches(this.request)).thenReturn(true);
 		when(this.tokenRepository.loadToken(this.request)).thenReturn(this.token);
 		this.request.addHeader(this.token.getHeaderName(),
-				this.token.getToken() + " INVALID");
+			this.token.getToken().replaceAll("^.{10}","INVALID000"));
 
 		this.filter.doFilter(this.request, this.response, this.filterChain);
 
@@ -181,7 +181,7 @@ public class CsrfFilterTests {
 		when(this.tokenRepository.loadToken(this.request)).thenReturn(this.token);
 		this.request.setParameter(this.token.getParameterName(), this.token.getToken());
 		this.request.addHeader(this.token.getHeaderName(),
-				this.token.getToken() + " INVALID");
+			this.token.getToken().replaceAll("^.{10}","INVALID000"));
 
 		this.filter.doFilter(this.request, this.response, this.filterChain);
 
@@ -420,7 +420,7 @@ public class CsrfFilterTests {
 			assertThat(this.actual.getHeaderName()).isEqualTo(expected.getHeaderName());
 			assertThat(this.actual.getParameterName())
 					.isEqualTo(expected.getParameterName());
-			assertThat(this.actual.getToken()).isEqualTo(expected.getToken());
+			assertThat(this.actual.isValid(expected.getToken()));
 			return this;
 		}
 	}
