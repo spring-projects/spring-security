@@ -16,11 +16,14 @@
 
 package org.springframework.security.web.savedrequest;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.web.PortResolver;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
+import org.springframework.util.ObjectUtils;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -84,13 +87,7 @@ public class DefaultSavedRequest implements SavedRequest {
 		Assert.notNull(portResolver, "PortResolver required");
 
 		// Cookies
-		Cookie[] cookies = request.getCookies();
-
-		if (cookies != null) {
-			for (Cookie cookie : cookies) {
-				this.addCookie(cookie);
-			}
-		}
+		addCookies(request.getCookies());
 
 		// Headers
 		Enumeration<String> names = request.getHeaderNames();
@@ -110,27 +107,10 @@ public class DefaultSavedRequest implements SavedRequest {
 		}
 
 		// Locales
-		Enumeration<Locale> locales = request.getLocales();
-
-		while (locales.hasMoreElements()) {
-			Locale locale = (Locale) locales.nextElement();
-			this.addLocale(locale);
-		}
+		addLocales(request.getLocales());
 
 		// Parameters
-		Map<String, String[]> parameters = request.getParameterMap();
-
-		for (String paramName : parameters.keySet()) {
-			Object paramValues = parameters.get(paramName);
-			if (paramValues instanceof String[]) {
-				this.addParameter(paramName, (String[]) paramValues);
-			}
-			else {
-				if (logger.isWarnEnabled()) {
-					logger.warn("ServletRequest.getParameterMap() returned non-String array");
-				}
-			}
-		}
+		addParameters(request.getParameterMap());
 
 		// Primitives
 		this.method = request.getMethod();
@@ -145,8 +125,35 @@ public class DefaultSavedRequest implements SavedRequest {
 		this.servletPath = request.getServletPath();
 	}
 
+	/**
+	 * Private constructor invoked through Builder
+	 */
+	private DefaultSavedRequest(Builder builder) {
+		this.contextPath = builder.contextPath;
+		this.method = builder.method;
+		this.pathInfo = builder.pathInfo;
+		this.queryString = builder.queryString;
+		this.requestURI = builder.requestURI;
+		this.requestURL = builder.requestURL;
+		this.scheme = builder.scheme;
+		this.serverName = builder.serverName;
+		this.servletPath = builder.servletPath;
+		this.serverPort = builder.serverPort;
+	}
+
 	// ~ Methods
 	// ========================================================================================================
+
+	/**
+	 * @since 4.2
+	 */
+	private void addCookies(Cookie[] cookies) {
+		if (cookies != null) {
+			for (Cookie cookie : cookies) {
+				this.addCookie(cookie);
+			}
+		}
+	}
 
 	private void addCookie(Cookie cookie) {
 		cookies.add(new SavedCookie(cookie));
@@ -163,8 +170,36 @@ public class DefaultSavedRequest implements SavedRequest {
 		values.add(value);
 	}
 
+	/**
+	 * @since 4.2
+	 */
+	private void addLocales(Enumeration<Locale> locales) {
+		while (locales.hasMoreElements()) {
+			Locale locale = locales.nextElement();
+			this.addLocale(locale);
+		}
+	}
+
 	private void addLocale(Locale locale) {
 		locales.add(locale);
+	}
+
+	/**
+	 * @since 4.2
+	 */
+	private void addParameters(Map<String, String[]> parameters) {
+		if (!ObjectUtils.isEmpty(parameters)) {
+			for (String paramName : parameters.keySet()) {
+				Object paramValues = parameters.get(paramName);
+				if (paramValues instanceof String[]) {
+					this.addParameter(paramName, (String[]) paramValues);
+				} else {
+					if (logger.isWarnEnabled()) {
+						logger.warn("ServletRequest.getParameterMap() returned non-String array");
+					}
+				}
+			}
+		}
 	}
 
 	private void addParameter(String name, String[] values) {
@@ -176,10 +211,9 @@ public class DefaultSavedRequest implements SavedRequest {
 	 * <p>
 	 * All URL arguments are considered but not cookies, locales, headers or parameters.
 	 *
-	 * @param request the actual request to be matched against this one
+	 * @param request      the actual request to be matched against this one
 	 * @param portResolver used to obtain the server port of the request
 	 * @return true if the request is deemed to match this one.
-	 *
 	 */
 	public boolean doesRequestMatch(HttpServletRequest request, PortResolver portResolver) {
 
@@ -341,8 +375,7 @@ public class DefaultSavedRequest implements SavedRequest {
 			}
 
 			return true;
-		}
-		else {
+		} else {
 			if (logger.isDebugEnabled()) {
 				logger.debug(log + ": arg1=" + arg1 + "; arg2=" + arg2
 						+ " (property not equals)");
@@ -354,5 +387,116 @@ public class DefaultSavedRequest implements SavedRequest {
 
 	public String toString() {
 		return "DefaultSavedRequest[" + getRedirectUrl() + "]";
+	}
+
+	/**
+	 * @since 4.2
+	 */
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	@JsonPOJOBuilder(withPrefix = "set")
+	public static class Builder {
+
+		private List<SavedCookie> cookies = null;
+		private List<Locale> locales = null;
+		private Map<String, List<String>> headers = new TreeMap<String, List<String>>(String.CASE_INSENSITIVE_ORDER);
+		private Map<String, String[]> parameters = new TreeMap<String, String[]>();
+		private String contextPath;
+		private String method;
+		private String pathInfo;
+		private String queryString;
+		private String requestURI;
+		private String requestURL;
+		private String scheme;
+		private String serverName;
+		private String servletPath;
+		private int serverPort = 80;
+
+		public Builder setCookies(List<SavedCookie> cookies) {
+			this.cookies = cookies;
+			return this;
+		}
+
+		public Builder setLocales(List<Locale> locales) {
+			this.locales = locales;
+			return this;
+		}
+
+		public Builder setHeaders(Map<String, List<String>> header) {
+			this.headers.putAll(header);
+			return this;
+		}
+
+		public Builder setParameters(Map<String, String[]> parameters) {
+			this.parameters = parameters;
+			return this;
+		}
+
+		public Builder setContextPath(String contextPath) {
+			this.contextPath = contextPath;
+			return this;
+		}
+
+		public Builder setMethod(String method) {
+			this.method = method;
+			return this;
+		}
+
+		public Builder setPathInfo(String pathInfo) {
+			this.pathInfo = pathInfo;
+			return this;
+		}
+
+		public Builder setQueryString(String queryString) {
+			this.queryString = queryString;
+			return this;
+		}
+
+		public Builder setRequestURI(String requestURI) {
+			this.requestURI = requestURI;
+			return this;
+		}
+
+		public Builder setRequestURL(String requestURL) {
+			this.requestURL = requestURL;
+			return this;
+		}
+
+		public Builder setScheme(String scheme) {
+			this.scheme = scheme;
+			return this;
+		}
+
+		public Builder setServerName(String serverName) {
+			this.serverName = serverName;
+			return this;
+		}
+
+		public Builder setServletPath(String servletPath) {
+			this.servletPath = servletPath;
+			return this;
+		}
+
+		public Builder setServerPort(int serverPort) {
+			this.serverPort = serverPort;
+			return this;
+		}
+
+		public DefaultSavedRequest build() {
+			DefaultSavedRequest savedRequest = new DefaultSavedRequest(this);
+			if(!ObjectUtils.isEmpty(this.cookies)) {
+				for (SavedCookie cookie : this.cookies) {
+					savedRequest.addCookie(cookie.getCookie());
+				}
+			}
+			if (!ObjectUtils.isEmpty(this.locales))
+				savedRequest.locales.addAll(this.locales);
+			savedRequest.addParameters(this.parameters);
+
+			this.headers.remove(HEADER_IF_MODIFIED_SINCE);
+			this.headers.remove(HEADER_IF_NONE_MATCH);
+			if (!ObjectUtils.isEmpty(this.headers))
+				savedRequest.headers.putAll(this.headers);
+			return savedRequest;
+		}
 	}
 }

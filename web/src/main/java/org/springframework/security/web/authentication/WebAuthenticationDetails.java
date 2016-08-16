@@ -54,6 +54,17 @@ public class WebAuthenticationDetails implements Serializable {
 		this.sessionId = (session != null) ? session.getId() : null;
 	}
 
+	/**
+	 * Constructor to add Jackson2 serialize/deserialize support
+	 *
+	 * @param remoteAddress remote address of current request
+	 * @param sessionId session id
+	 */
+	private WebAuthenticationDetails(final String remoteAddress, final String sessionId) {
+		this.remoteAddress = remoteAddress;
+		this.sessionId = sessionId;
+	}
+
 	// ~ Methods
 	// ========================================================================================================
 
