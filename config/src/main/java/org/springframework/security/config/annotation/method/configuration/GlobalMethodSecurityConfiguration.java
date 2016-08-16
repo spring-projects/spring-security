@@ -400,7 +400,7 @@ public class GlobalMethodSecurityConfiguration
 	public void setMethodSecurityExpressionHandler(
 			List<MethodSecurityExpressionHandler> handlers) {
 		if (handlers.size() != 1) {
-			logger.debug("Not autwiring PermissionEvaluator since size != 1. Got "
+			logger.debug("Not autowiring MethodSecurityExpressionHandler since size != 1. Got "
 					+ handlers);
 			return;
 		}
