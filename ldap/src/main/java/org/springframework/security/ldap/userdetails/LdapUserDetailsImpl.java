@@ -107,6 +107,11 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
 		return enabled;
 	}
 
+	@Override
+	public void eraseCredentials() {
+		password = null;
+	}
+
 	public int getTimeBeforeExpiration() {
 		return timeBeforeExpiration;
 	}
