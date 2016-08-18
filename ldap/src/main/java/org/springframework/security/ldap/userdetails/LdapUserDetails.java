@@ -16,6 +16,7 @@
 
 package org.springframework.security.ldap.userdetails;
 
+import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.userdetails.UserDetails;
 
 /**
@@ -23,7 +24,7 @@ import org.springframework.security.core.userdetails.UserDetails;
  *
  * @author Luke Taylor
  */
-public interface LdapUserDetails extends UserDetails {
+public interface LdapUserDetails extends UserDetails, CredentialsContainer {
 	// ~ Methods
 	// ========================================================================================================
 
