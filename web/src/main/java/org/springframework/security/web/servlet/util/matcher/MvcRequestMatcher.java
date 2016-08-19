@@ -123,10 +123,6 @@ public class MvcRequestMatcher implements RequestMatcher, RequestVariablesExtrac
 		return this.servletPath;
 	}
 
-	protected final String getMvcPattern() {
-		return this.pattern;
-	}
-
 	private class DefaultMatcher implements RequestMatcher, RequestVariablesExtractor {
 
 		private final UrlPathHelper pathHelper = new UrlPathHelper();
