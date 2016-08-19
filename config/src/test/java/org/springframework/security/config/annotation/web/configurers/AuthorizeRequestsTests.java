@@ -15,19 +15,12 @@
  */
 package org.springframework.security.config.annotation.web.configurers;
 
-import java.util.Collections;
-import java.util.Map;
-
-import javax.servlet.ServletRegistration;
 import javax.servlet.http.HttpServletResponse;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
-import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -55,9 +48,7 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -448,20 +439,6 @@ public class AuthorizeRequestsTests {
 				return "path";
 			}
 		}
-	}
-
-	@Test(expected = BeanCreationException.class)
-	public void mvcMatcherServletPathRequired() throws Exception {
-		final ServletRegistration registration = mock(ServletRegistration.class);
-		when(registration.getMappings()).thenReturn(Collections.singleton("/spring"));
-		Answer<Map<String, ? extends ServletRegistration>> answer = new Answer<Map<String, ? extends ServletRegistration>>() {
-			@Override
-			public Map<String, ? extends ServletRegistration> answer(InvocationOnMock invocation) throws Throwable {
-				return Collections.<String, ServletRegistration>singletonMap("spring", registration);
-			}
-		};
-		when(servletContext.getServletRegistrations()).thenAnswer(answer);
-		loadConfig(MvcMatcherPathServletPathRequiredConfig.class);
 	}
 
 	@EnableWebSecurity
