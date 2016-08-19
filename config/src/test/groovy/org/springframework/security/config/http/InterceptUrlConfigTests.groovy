@@ -15,9 +15,13 @@
  */
 package org.springframework.security.config.http
 
+import javax.servlet.ServletContext
+import javax.servlet.ServletRegistration
+import javax.servlet.http.HttpServletResponse
+
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
-import org.springframework.beans.factory.BeanCreationException
+
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException
 import org.springframework.mock.web.MockFilterChain
 import org.springframework.mock.web.MockHttpServletRequest
@@ -28,10 +32,6 @@ import org.springframework.security.crypto.codec.Base64
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-
-import javax.servlet.ServletContext
-import javax.servlet.ServletRegistration
-import javax.servlet.http.HttpServletResponse
 
 import static org.mockito.Mockito.*
 /**
@@ -311,30 +311,6 @@ class InterceptUrlConfigTests extends AbstractHttpConfigTests {
 		springSecurityFilterChain.doFilter(request, response, chain)
 		then:
 		response.status == HttpServletResponse.SC_UNAUTHORIZED
-	}
-
-	def "intercept-url mvc matchers servlet path required"() {
-		when:
-		MockServletContext servletContext = mockServletContext("/spring");
-		xml.http('request-matcher':'mvc') {
-			'http-basic'()
-			'intercept-url'(pattern: '/path', access: "denyAll")
-		}
-		createWebAppContext(servletContext)
-		then:
-		thrown(BeanCreationException)
-	}
-
-	def "intercept-url mvc matchers servlet path NOT required"() {
-		when:
-		MockServletContext servletContext = mockServletContext();
-		xml.http('request-matcher':'mvc') {
-			'http-basic'()
-			'intercept-url'(pattern: '/path', access: "denyAll")
-		}
-		createWebAppContext(servletContext)
-		then:
-		noExceptionThrown()
 	}
 
 	def "intercept-url ant matcher with servlet path fails"() {

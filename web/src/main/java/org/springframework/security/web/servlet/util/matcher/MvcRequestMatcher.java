@@ -16,26 +16,20 @@
 
 package org.springframework.security.web.servlet.util.matcher;
 
-import org.springframework.beans.factory.InitializingBean;
+import java.util.Collections;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.http.HttpMethod;
-import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.matcher.RequestVariablesExtractor;
 import org.springframework.util.AntPathMatcher;
-import org.springframework.util.ClassUtils;
 import org.springframework.util.PathMatcher;
-import org.springframework.web.context.ServletContextAware;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 import org.springframework.web.servlet.handler.MatchableHandlerMapping;
 import org.springframework.web.servlet.handler.RequestMatchResult;
 import org.springframework.web.util.UrlPathHelper;
-
-import javax.servlet.ServletContext;
-import javax.servlet.ServletRegistration;
-import javax.servlet.http.HttpServletRequest;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
 
 /**
  * A {@link RequestMatcher} that uses Spring MVC's {@link HandlerMappingIntrospector} to
@@ -44,18 +38,14 @@ import java.util.Map;
  * <p>
  * It is important to understand that Spring MVC's matching is relative to the servlet
  * path. This means if you have mapped any servlet to a path that starts with "/" and is
- * greater than one, you should also specify the {@link #setServletPath(String)}
- * attribute to differentiate mappings.
+ * greater than one, you should also specify the {@link #setServletPath(String)} attribute
+ * to differentiate mappings.
  * </p>
  *
  * @author Rob Winch
  * @since 4.1.1
  */
-public class MvcRequestMatcher
-		implements RequestMatcher, RequestVariablesExtractor, InitializingBean, ServletContextAware {
-
-	private static final boolean isServlet30 = ClassUtils.isPresent(
-		"javax.servlet.ServletRegistration", MvcRequestMatcher.class.getClassLoader());
+public class MvcRequestMatcher implements RequestMatcher, RequestVariablesExtractor {
 
 	private final DefaultMatcher defaultMatcher = new DefaultMatcher();
 
@@ -63,7 +53,6 @@ public class MvcRequestMatcher
 	private final String pattern;
 	private HttpMethod method;
 	private String servletPath;
-	private ServletContext servletContext;
 
 	public MvcRequestMatcher(HandlerMappingIntrospector introspector, String pattern) {
 		this.introspector = introspector;
@@ -75,7 +64,8 @@ public class MvcRequestMatcher
 		if (this.method != null && !this.method.name().equals(request.getMethod())) {
 			return false;
 		}
-		if (this.servletPath != null && !this.servletPath.equals(request.getServletPath())) {
+		if (this.servletPath != null
+				&& !this.servletPath.equals(request.getServletPath())) {
 			return false;
 		}
 		MatchableHandlerMapping mapping = getMapping(request);
@@ -110,40 +100,6 @@ public class MvcRequestMatcher
 		RequestMatchResult result = mapping.match(request, this.pattern);
 		return result == null ? Collections.<String, String>emptyMap()
 				: result.extractUriTemplateVariables();
-	}
-
-	/* (non-Javadoc)
-	 * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet()
-	 */
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		// servletPath is required when at least one registered Servlet
-		// is mapped to a path other than the default (root) path '/'
-		if (this.servletContext == null || !isServlet30) {
-			return;
-		}
-		if (this.getServletPath() != null) {
-			return;
-		}
-		for (ServletRegistration registration : this.servletContext.getServletRegistrations().values()) {
-			for (String mapping : registration.getMappings()) {
-				if (mapping.startsWith("/") && mapping.length() > 1) {
-					throw new IllegalStateException(
-						"servletPath must not be null for mvcPattern \"" + this.getMvcPattern()
-							+ "\" when providing a servlet mapping of "
-							+ mapping + " for servlet "
-							+ registration.getClassName());
-				}
-			}
-		}
-	}
-
-	/* (non-Javadoc)
-	 * @see org.springframework.web.context.ServletContextAware#setServletContext(javax.servlet.ServletContext)
-	 */
-	@Override
-	public void setServletContext(ServletContext servletContext) {
-		this.servletContext = servletContext;
 	}
 
 	/**
