@@ -1,0 +1,17 @@
+.metadata/
+.recommenders/
+.settings/
+.externalToolBuilders/
+.factorypath/
+.idea/
+bin/
+tmp/
+target/
+*.tmp
+*.bak
+*.swp
+*.launch
+.classpath
+.project
+*.iml
+src/local/*

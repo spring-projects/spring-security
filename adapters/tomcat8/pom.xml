@@ -1,0 +1,17 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.acegisecurity</groupId>
+        <artifactId>acegi-security-adapters</artifactId>
+        <version>1.0.7</version>
+    </parent>
+    <artifactId>acegi-security-tomcat8</artifactId>
+    <name>Acegi Security System for Spring - Tomcat 8 adapter</name>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-catalina</artifactId>
+            <version>8.5.4</version>
+        </dependency>
+    </dependencies>
+</project>
