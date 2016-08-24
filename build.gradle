@@ -100,6 +100,8 @@ configure(javaProjects) {
 	apply from: "$rootDir/gradle/ide.gradle"
 	apply from: "$rootDir/gradle/release-checks.gradle"
 	apply from: "$rootDir/gradle/maven-deployment.gradle"
+
+
 }
 
 configure(coreModuleProjects) {

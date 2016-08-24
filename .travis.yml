@@ -1,3 +1,10 @@
+env:
+  global:
+  - MALLOC_ARENA_MAX=1
+  - GRADLE_OPTS="-Xmx512m"
+
+sudo: false
+
 language: java
 
 jdk:
@@ -12,9 +19,12 @@ branches:
 
 before_cache:
   - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
+
+
 cache:
   directories:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
-
+    - $HOME/.m2
+    
 script: ./gradlew build
