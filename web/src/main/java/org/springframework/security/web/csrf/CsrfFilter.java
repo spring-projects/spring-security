@@ -16,6 +16,7 @@
 package org.springframework.security.web.csrf;
 
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.HashSet;
 
@@ -28,6 +29,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.util.UrlUtils;
@@ -63,6 +65,8 @@ public final class CsrfFilter extends OncePerRequestFilter {
 	 */
 	public static final RequestMatcher DEFAULT_CSRF_MATCHER = new DefaultRequiresCsrfMatcher();
 
+	private static final SecureRandom secureRandom = new SecureRandom();
+
 	private final Log logger = LogFactory.getLog(getClass());
 	private final CsrfTokenRepository tokenRepository;
 	private RequestMatcher requireCsrfProtectionMatcher = DEFAULT_CSRF_MATCHER;
@@ -93,8 +97,9 @@ public final class CsrfFilter extends OncePerRequestFilter {
 			csrfToken = this.tokenRepository.generateToken(request);
 			this.tokenRepository.saveToken(csrfToken, request, response);
 		}
-		request.setAttribute(CsrfToken.class.getName(), csrfToken);
-		request.setAttribute(csrfToken.getParameterName(), csrfToken);
+		XorEncodedToken xorEncodedToken = new XorEncodedToken(csrfToken);
+		request.setAttribute(CsrfToken.class.getName(), xorEncodedToken);
+		request.setAttribute(xorEncodedToken.getParameterName(), xorEncodedToken);
 
 		if (!this.requireCsrfProtectionMatcher.matches(request)) {
 			filterChain.doFilter(request, response);
@@ -105,7 +110,7 @@ public final class CsrfFilter extends OncePerRequestFilter {
 		if (actualToken == null) {
 			actualToken = request.getParameter(csrfToken.getParameterName());
 		}
-		if (!csrfToken.getToken().equals(actualToken)) {
+		if (!csrfToken.getToken().equals(xorDecodeToken(actualToken))) {
 			if (this.logger.isDebugEnabled()) {
 				this.logger.debug("Invalid CSRF token found for "
 						+ UrlUtils.buildFullRequestUrl(request));
@@ -173,6 +178,65 @@ public final class CsrfFilter extends OncePerRequestFilter {
 		@Override
 		public boolean matches(HttpServletRequest request) {
 			return !this.allowedMethods.contains(request.getMethod());
+		}
+	}
+
+	static String xorEncodeToken(String token) {
+		// XOR the token with random values to protect against
+		// a BREACH attack
+		int tokenLength = token.length();
+		byte[] encodedToken = new byte[tokenLength*2];
+		byte[] salt = new byte[token.length()];
+		secureRandom.nextBytes(salt);
+
+		for (int i=0; i < tokenLength; i++) {
+			encodedToken[i] = salt[i];
+			encodedToken[i+tokenLength] = (byte)(token.charAt(i) ^ salt[i]);
+		}
+
+		return new String(Base64.encode(encodedToken));
+	}
+
+	static String xorDecodeToken(String encodedToken) {
+		if (encodedToken == null)
+			return null;
+
+		byte[] tokenBytes;
+		try {
+			tokenBytes = Base64.decode(encodedToken.getBytes());
+		} catch (IllegalArgumentException e) {
+			// If the Base64 decode failed then return null
+			return null;
+		}
+
+		StringBuilder builder = new StringBuilder();
+		int tokenLength = tokenBytes.length /2;
+		for (int i=0; i < tokenLength; i++)
+			builder.append((char)(tokenBytes[i] ^ tokenBytes[i+tokenLength]));
+		return builder.toString();
+	}
+
+	static class XorEncodedToken implements CsrfToken {
+
+		protected final CsrfToken delegate;
+
+		private XorEncodedToken(CsrfToken delegate) {
+			this.delegate = delegate;
+		}
+
+		@Override
+		public String getHeaderName() {
+			return delegate.getHeaderName();
+		}
+
+		@Override
+		public String getParameterName() {
+			return delegate.getParameterName();
+		}
+
+		@Override
+		public String getToken() {
+			return xorEncodeToken(delegate.getToken());
 		}
 	}
 }
