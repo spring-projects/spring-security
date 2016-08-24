@@ -26,5 +26,6 @@
     <module>jboss</module>
     <module>jetty</module>
     <module>resin</module>
+    <module>tomcat8</module>
   </modules>
 </project>
