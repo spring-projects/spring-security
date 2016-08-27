@@ -44,7 +44,8 @@ public final class Hex {
 			int lsb = Character.digit(s.charAt(i + 1), 16);
 
 			if (msb < 0 || lsb < 0) {
-				throw new IllegalArgumentException("Non-hex character in input: " + s);
+				throw new IllegalArgumentException(
+					"Detected a Non-hex character at " + (i + 1) + " or " + (i + 2) + " position");
 			}
 			result[i / 2] = (byte) ((msb << 4) | lsb);
 		}
