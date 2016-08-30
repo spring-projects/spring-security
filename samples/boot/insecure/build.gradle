@@ -5,8 +5,8 @@ springBoot {
 }
 
 dependencies {
-    compile "org.springframework.boot:spring-boot-starter-web:1.3.3.RELEASE",
-            "org.springframework.boot:spring-boot-starter-thymeleaf:1.3.3.RELEASE"
+    compile "org.springframework.boot:spring-boot-starter-web",
+            "org.springframework.boot:spring-boot-starter-thymeleaf"
 
-    testCompile "org.springframework.boot:spring-boot-starter-test:1.3.3.RELEASE"
+    testCompile "org.springframework.boot:spring-boot-starter-test"
 }
