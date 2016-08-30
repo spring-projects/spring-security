@@ -316,7 +316,7 @@ public class ConcurrentSessionFilterTests {
 	public void setLogoutHandlersWhenNullThenThrowsException() {
 		ConcurrentSessionFilter filter = new ConcurrentSessionFilter(new SessionRegistryImpl());
 
-		filter.setLogoutHandlers(null);
+		filter.setLogoutHandlers((LogoutHandler[])null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)

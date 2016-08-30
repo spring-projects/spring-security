@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 the original author or authors.
+ * Copyright 2002-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,13 @@
  */
 package org.springframework.security.config.http
 
-import static org.springframework.security.config.ConfigTestUtils.AUTH_PROVIDER_XML
+import org.springframework.security.web.authentication.logout.LogoutSuccessEventPublishingLogoutHandler
 
-import java.io.IOException;
+import static org.springframework.security.config.ConfigTestUtils.AUTH_PROVIDER_XML
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
 
 import org.springframework.mock.web.MockFilterChain
 import org.springframework.mock.web.MockHttpServletRequest
@@ -43,6 +41,7 @@ import org.springframework.security.web.servletapi.SecurityContextHolderAwareReq
 /**
  *
  * @author Rob Winch
+ * @author Kazuki Shimizu
  */
 class SecurityContextHolderAwareRequestConfigTests extends AbstractHttpConfigTests {
 
@@ -57,8 +56,10 @@ class SecurityContextHolderAwareRequestConfigTests extends AbstractHttpConfigTes
 		expect:
 		securityContextAwareFilter.authenticationEntryPoint.loginFormUrl == getFilter(ExceptionTranslationFilter).authenticationEntryPoint.loginFormUrl
 		securityContextAwareFilter.authenticationManager == getFilter(UsernamePasswordAuthenticationFilter).authenticationManager
-		securityContextAwareFilter.logoutHandlers.size() == 1
+		securityContextAwareFilter.logoutHandlers.size() == 2
 		securityContextAwareFilter.logoutHandlers[0].class == SecurityContextLogoutHandler
+		securityContextAwareFilter.logoutHandlers[1].class == LogoutSuccessEventPublishingLogoutHandler
+		securityContextAwareFilter.logoutHandlers[1].applicationEventPublisher != null
 	}
 
 	def explicitEntryPoint() {
@@ -112,16 +113,20 @@ class SecurityContextHolderAwareRequestConfigTests extends AbstractHttpConfigTes
 		securityContextAwareFilter.authenticationEntryPoint.loginFormUrl == '/login'
 		securityContextAwareFilter.authenticationManager == getFilters('/first/filters').find { it instanceof UsernamePasswordAuthenticationFilter}.authenticationManager
 		securityContextAwareFilter.authenticationManager.parent == appContext.getBean('authManager')
-		securityContextAwareFilter.logoutHandlers.size() == 1
+		securityContextAwareFilter.logoutHandlers.size() == 2
 		securityContextAwareFilter.logoutHandlers[0].class == SecurityContextLogoutHandler
 		securityContextAwareFilter.logoutHandlers[0].invalidateHttpSession == true
+		securityContextAwareFilter.logoutHandlers[1].class == LogoutSuccessEventPublishingLogoutHandler
+		securityContextAwareFilter.logoutHandlers[1].applicationEventPublisher != null
 
 		secondSecurityContextAwareFilter.authenticationEntryPoint.loginFormUrl == '/login2'
 		secondSecurityContextAwareFilter.authenticationManager == getFilter(UsernamePasswordAuthenticationFilter).authenticationManager
 		secondSecurityContextAwareFilter.authenticationManager.parent == appContext.getBean('authManager2')
-		securityContextAwareFilter.logoutHandlers.size() == 1
+		secondSecurityContextAwareFilter.logoutHandlers.size() == 2
 		secondSecurityContextAwareFilter.logoutHandlers[0].class == SecurityContextLogoutHandler
 		secondSecurityContextAwareFilter.logoutHandlers[0].invalidateHttpSession == false
+		secondSecurityContextAwareFilter.logoutHandlers[1].class == LogoutSuccessEventPublishingLogoutHandler
+		secondSecurityContextAwareFilter.logoutHandlers[1].applicationEventPublisher != null
 	}
 
 	def logoutCustom() {
@@ -137,11 +142,13 @@ class SecurityContextHolderAwareRequestConfigTests extends AbstractHttpConfigTes
 		expect:
 		securityContextAwareFilter.authenticationEntryPoint.loginFormUrl == getFilter(ExceptionTranslationFilter).authenticationEntryPoint.loginFormUrl
 		securityContextAwareFilter.authenticationManager == getFilter(UsernamePasswordAuthenticationFilter).authenticationManager
-		securityContextAwareFilter.logoutHandlers.size() == 2
+		securityContextAwareFilter.logoutHandlers.size() == 3
 		securityContextAwareFilter.logoutHandlers[0].class == SecurityContextLogoutHandler
 		securityContextAwareFilter.logoutHandlers[0].invalidateHttpSession == false
 		securityContextAwareFilter.logoutHandlers[1].class == CookieClearingLogoutHandler
 		securityContextAwareFilter.logoutHandlers[1].cookiesToClear == ['JSESSIONID']
+		securityContextAwareFilter.logoutHandlers[2].class == LogoutSuccessEventPublishingLogoutHandler
+		securityContextAwareFilter.logoutHandlers[2].applicationEventPublisher != null
 	}
 
 	def 'SEC-2926: Role Prefix is set'() {

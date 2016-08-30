@@ -42,6 +42,7 @@ import org.springframework.security.web.authentication.session.NullAuthenticated
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.NullSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
@@ -54,6 +55,7 @@ import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.security.web.session.SimpleRedirectInvalidSessionStrategy;
 import org.springframework.security.web.session.SimpleRedirectSessionInformationExpiredStrategy;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 /**
  * Allows configuring session management.
@@ -88,6 +90,7 @@ import org.springframework.util.Assert;
  * </ul>
  *
  * @author Rob Winch
+ * @author Kazuki Shimizu
  * @since 3.2
  * @see SessionManagementFilter
  * @see ConcurrentSessionFilter
@@ -471,7 +474,6 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		http.addFilter(sessionManagementFilter);
 		if (isConcurrentSessionControlEnabled()) {
 			ConcurrentSessionFilter concurrentSessionFilter = createConccurencyFilter(http);
-
 			concurrentSessionFilter = postProcess(concurrentSessionFilter);
 			http.addFilter(concurrentSessionFilter);
 		}
@@ -480,11 +482,20 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	private ConcurrentSessionFilter createConccurencyFilter(H http) {
 		SessionInformationExpiredStrategy expireStrategy = getExpiredSessionStrategy();
 		SessionRegistry sessionRegistry = getSessionRegistry(http);
+		ConcurrentSessionFilter concurrentSessionFilter;
 		if(expireStrategy == null) {
-			return new ConcurrentSessionFilter(sessionRegistry);
+			concurrentSessionFilter = new ConcurrentSessionFilter(sessionRegistry);
+		} else {
+			concurrentSessionFilter = new ConcurrentSessionFilter(sessionRegistry, expireStrategy);
 		}
-
-		return new ConcurrentSessionFilter(sessionRegistry, expireStrategy);
+		@SuppressWarnings("unchecked")
+		LogoutConfigurer<H> logoutConf = http.getConfigurer(LogoutConfigurer.class);
+		List<LogoutHandler> logoutHandlers = logoutConf == null ? null : logoutConf
+				.getLogoutHandlers();
+		if (!CollectionUtils.isEmpty(logoutHandlers)) {
+			concurrentSessionFilter.setLogoutHandlers(logoutHandlers);
+		}
+		return concurrentSessionFilter;
 	}
 
 	/**

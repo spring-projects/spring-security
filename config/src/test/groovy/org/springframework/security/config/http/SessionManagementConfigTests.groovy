@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import org.springframework.security.web.authentication.RememberMeServices
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler
 import org.springframework.security.web.authentication.logout.LogoutFilter
+import org.springframework.security.web.authentication.logout.LogoutSuccessEventPublishingLogoutHandler
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler
 import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy
@@ -54,6 +55,7 @@ import static org.mockito.Mockito.verify
  *
  * @author Luke Taylor
  * @author Rob Winch
+ * @author Kazuki Shimizu
  */
 class SessionManagementConfigTests extends AbstractHttpConfigTests {
 
@@ -168,10 +170,12 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
 		getFilter(SessionManagementFilter.class) != null
 		sessionRegistryIsValid();
 
-		concurrentSessionFilter.handlers.logoutHandlers.size() == 1
+		concurrentSessionFilter.handlers.logoutHandlers.size() == 2
 		def logoutHandler = concurrentSessionFilter.handlers.logoutHandlers[0]
 		logoutHandler instanceof SecurityContextLogoutHandler
 		logoutHandler.invalidateHttpSession
+		def publishingLogoutHandler = concurrentSessionFilter.handlers.logoutHandlers[1]
+		publishingLogoutHandler.applicationEventPublisher != null
 
 	}
 
@@ -192,13 +196,15 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
 		def logoutHandlers = concurrentSessionFilter.handlers.logoutHandlers
 
 		then: 'ConcurrentSessionFilter contains the customized LogoutHandlers'
-		logoutHandlers.size() == 3
+		logoutHandlers.size() == 4
 		def securityCtxlogoutHandler = logoutHandlers.find { it instanceof SecurityContextLogoutHandler }
 		securityCtxlogoutHandler.invalidateHttpSession == false
 		def cookieClearingLogoutHandler = logoutHandlers.find { it instanceof CookieClearingLogoutHandler }
 		cookieClearingLogoutHandler.cookiesToClear == ['testCookie']
 		def remembermeLogoutHandler = logoutHandlers.find { it instanceof RememberMeServices }
 		remembermeLogoutHandler == getFilter(RememberMeAuthenticationFilter.class).rememberMeServices
+		def publishingLogoutHandler = logoutHandlers.find { it instanceof LogoutSuccessEventPublishingLogoutHandler }
+		publishingLogoutHandler.applicationEventPublisher != null
 	}
 
 	def 'concurrency-control with remember-me and no LogoutFilter contains SecurityContextLogoutHandler and RememberMeServices as LogoutHandlers'() {

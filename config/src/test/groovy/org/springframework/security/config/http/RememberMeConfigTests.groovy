@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2002-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package org.springframework.security.config.http
+
+import org.springframework.security.web.authentication.logout.LogoutSuccessEventPublishingLogoutHandler
 
 import static org.springframework.security.config.ConfigTestUtils.AUTH_PROVIDER_XML
 
@@ -42,6 +44,7 @@ import org.springframework.security.web.authentication.rememberme.TokenBasedReme
  * @author Luke Taylor
  * @author Rob Winch
  * @author Oliver Becker
+ * @author Kazuki Shimizu
  */
 class RememberMeConfigTests extends AbstractHttpConfigTests {
 
@@ -110,8 +113,11 @@ class RememberMeConfigTests extends AbstractHttpConfigTests {
 		rmp != null
 		5000 == FieldUtils.getFieldValue(rememberMeServices(), "tokenValiditySeconds")
 		// SEC-909
-		logoutHandlers.size() == 2
+		logoutHandlers.size() == 3
+		logoutHandlers.get(0) instanceof SecurityContextLogoutHandler
 		logoutHandlers.get(1) == rememberMeServices()
+		logoutHandlers.get(2) instanceof LogoutSuccessEventPublishingLogoutHandler
+		logoutHandlers.get(2).applicationEventPublisher != null
 		// SEC-1281
 		rmp.key == "ourkey"
 	}
@@ -128,9 +134,11 @@ class RememberMeConfigTests extends AbstractHttpConfigTests {
 
 		expect:
 		rememberMeServices
-		logoutHandlers.size() == 2
+		logoutHandlers.size() == 3
 		logoutHandlers.get(0) instanceof SecurityContextLogoutHandler
 		logoutHandlers.get(1) == rememberMeServices
+		logoutHandlers.get(2) instanceof LogoutSuccessEventPublishingLogoutHandler
+		logoutHandlers.get(2).applicationEventPublisher != null
 	}
 
 	def rememberMeTokenValidityIsParsedCorrectly() {

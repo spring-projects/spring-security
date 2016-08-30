@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,13 @@
  */
 package org.springframework.security.config.annotation.web.configurers
 
+import org.springframework.security.web.authentication.logout.LogoutSuccessEventPublishingLogoutHandler
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler
+import org.springframework.security.web.csrf.CsrfLogoutHandler
+
 import javax.servlet.http.HttpServletResponse
 
 import org.springframework.mock.web.MockFilterChain
-import org.springframework.mock.web.MockHttpServletRequest
-import org.springframework.mock.web.MockHttpServletResponse
 import org.springframework.security.authentication.AuthenticationTrustResolver
 import org.springframework.security.config.annotation.AnyObjectPostProcessor
 import org.springframework.security.config.annotation.BaseSpringSpec
@@ -44,6 +46,7 @@ import org.springframework.security.web.session.SessionManagementFilter
 /**
  *
  * @author Rob Winch
+ * @author Kazuki Shimizu
  */
 class SessionManagementConfigurerTests extends BaseSpringSpec {
 
@@ -250,4 +253,26 @@ class SessionManagementConfigurerTests extends BaseSpringSpec {
 				.setSharedObject(AuthenticationTrustResolver, TR)
 		}
 	}
+
+	def "logout handler by default configuration"() {
+		when:
+		loadConfig(ConcurrencyWebSecurityConfig)
+		then:
+		def concurrentSessionFilter = findFilter(ConcurrentSessionFilter)
+		concurrentSessionFilter.handlers.logoutHandlers.size() == 3
+		concurrentSessionFilter.handlers.logoutHandlers[0].class == CsrfLogoutHandler
+		concurrentSessionFilter.handlers.logoutHandlers[1].class == SecurityContextLogoutHandler
+		concurrentSessionFilter.handlers.logoutHandlers[2].class == LogoutSuccessEventPublishingLogoutHandler
+		concurrentSessionFilter.handlers.logoutHandlers[2].applicationEventPublisher != null
+	}
+
+	@EnableWebSecurity
+	static class ConcurrencyWebSecurityConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			super.configure(http)
+			http.sessionManagement().maximumSessions(1)
+		}
+	}
+
 }

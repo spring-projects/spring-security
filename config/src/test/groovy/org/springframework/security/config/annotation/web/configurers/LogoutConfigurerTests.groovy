@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,12 +23,16 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.web.authentication.RememberMeServices
 import org.springframework.security.web.authentication.logout.LogoutFilter
+import org.springframework.security.web.authentication.logout.LogoutSuccessEventPublishingLogoutHandler
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler
+import org.springframework.security.web.csrf.CsrfLogoutHandler
 import org.springframework.security.web.util.matcher.RequestMatcher
 
 /**
  *
  * @author Rob Winch
+ * @author Kazuki Shimizu
  */
 class LogoutConfigurerTests extends BaseSpringSpec {
 
@@ -251,4 +255,21 @@ class LogoutConfigurerTests extends BaseSpringSpec {
 	@EnableWebSecurity
 	static class LogoutXMLHttpRequestConfig extends WebSecurityConfigurerAdapter {
 	}
+
+	def "LogoutConfigurer logout handler by default configuration"() {
+		when:
+			loadConfig(DefaultWebSecurityConfig)
+		then:
+			def logoutFilter = findFilter(LogoutFilter)
+			logoutFilter.handler.logoutHandlers.size() == 3
+			logoutFilter.handler.logoutHandlers[0].class == CsrfLogoutHandler
+			logoutFilter.handler.logoutHandlers[1].class == SecurityContextLogoutHandler
+			logoutFilter.handler.logoutHandlers[2].class == LogoutSuccessEventPublishingLogoutHandler
+			logoutFilter.handler.logoutHandlers[2].applicationEventPublisher != null
+
+	}
+	@EnableWebSecurity
+	static class DefaultWebSecurityConfig extends WebSecurityConfigurerAdapter {
+	}
+
 }

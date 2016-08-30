@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import org.springframework.security.web.authentication.logout.DelegatingLogoutSu
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.security.web.authentication.logout.LogoutSuccessEventPublishingLogoutHandler;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
@@ -60,6 +61,7 @@ import org.springframework.util.Assert;
  * No shared objects are used.
  *
  * @author Rob Winch
+ * @author Kazuki Shimizu
  * @since 3.2
  * @see RememberMeConfigurer
  */
@@ -85,7 +87,7 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>> extends
 	}
 
 	/**
-	 * Adds a {@link LogoutHandler}. The {@link SecurityContextLogoutHandler} is added as
+	 * Adds a {@link LogoutHandler}. {@link SecurityContextLogoutHandler} and {@link LogoutSuccessEventPublishingLogoutHandler} are added as
 	 * the last {@link LogoutHandler} by default.
 	 *
 	 * @param logoutHandler the {@link LogoutHandler} to add
@@ -329,6 +331,7 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>> extends
 	 */
 	private LogoutFilter createLogoutFilter(H http) throws Exception {
 		logoutHandlers.add(contextLogoutHandler);
+		logoutHandlers.add(postProcess(new LogoutSuccessEventPublishingLogoutHandler()));
 		LogoutHandler[] handlers = logoutHandlers
 				.toArray(new LogoutHandler[logoutHandlers.size()]);
 		LogoutFilter result = new LogoutFilter(getLogoutSuccessHandler(), handlers);
