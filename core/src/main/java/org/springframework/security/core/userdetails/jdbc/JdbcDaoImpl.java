@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.context.ApplicationContextException;
+import org.springframework.context.MessageSource;
+import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
@@ -108,7 +110,7 @@ import org.springframework.util.Assert;
  * @author colin sampaleanu
  * @author Luke Taylor
  */
-public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
+public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService, MessageSourceAware {
 	// ~ Static fields/initializers
 	// =====================================================================================
 
@@ -392,5 +394,9 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
 	 */
 	public void setEnableGroups(boolean enableGroups) {
 		this.enableGroups = enableGroups;
+	}
+	
+	public void setMessageSource(MessageSource messageSource) {
+		this.messages = new MessageSourceAccessor(messageSource);
 	}
 }
