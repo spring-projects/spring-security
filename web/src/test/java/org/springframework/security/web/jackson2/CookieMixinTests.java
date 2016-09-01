@@ -39,7 +39,8 @@ public class CookieMixinTests {
 
 	ObjectMapper buildObjectMapper() {
 		ObjectMapper mapper = new ObjectMapper();
-		mapper.registerModules(SecurityJacksonModules.getModules());
+		ClassLoader loader = getClass().getClassLoader();
+		mapper.registerModules(SecurityJacksonModules.getModules(loader));
 		return mapper;
 	}
 

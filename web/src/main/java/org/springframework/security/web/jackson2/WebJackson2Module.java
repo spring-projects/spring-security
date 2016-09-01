@@ -37,7 +37,7 @@ import javax.servlet.http.Cookie;
  *     ObjectMapper mapper = new ObjectMapper();
  *     mapper.registerModule(new WebJackson2Module());
  * </pre>
- * <b>Note: use {@link SecurityJacksonModules#getModules()} to get list of all security modules.</b>
+ * <b>Note: use {@link SecurityJacksonModules#getModules(ClassLoader)} to get list of all security modules.</b>
  *
  * @author Jitendra Singh
  * @see SecurityJacksonModules

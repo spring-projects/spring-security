@@ -23,7 +23,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.util.ClassUtils;
-import org.springframework.util.ObjectUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,41 +62,42 @@ public final class SecurityJacksonModules {
 	}
 
 	public static void enableDefaultTyping(ObjectMapper mapper) {
-		if(!ObjectUtils.isEmpty(mapper)) {
+		if(mapper != null) {
 			TypeResolverBuilder<?> typeBuilder = mapper.getDeserializationConfig().getDefaultTyper(null);
-			if (ObjectUtils.isEmpty(typeBuilder)) {
+			if (typeBuilder == null) {
 				mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
 			}
 		}
 	}
 
-	private static Module loadAndGetInstance(String className) {
+	@SuppressWarnings("unchecked")
+	private static Module loadAndGetInstance(String className, ClassLoader loader) {
 		Module instance = null;
 		try {
-			logger.debug("Loading module " + className);
-			Class<? extends Module> securityModule = (Class<? extends Module>) ClassUtils.forName(className, ClassUtils.getDefaultClassLoader());
-			if (!ObjectUtils.isEmpty(securityModule)) {
-				logger.debug("Loaded module " + className + ", now registering");
+			Class<? extends Module> securityModule = (Class<? extends Module>) ClassUtils.forName(className, loader);
+			if (securityModule != null) {
+				if(logger.isDebugEnabled()) {
+					logger.debug("Loaded module " + className + ", now registering");
+				}
 				instance = securityModule.newInstance();
 			}
-		} catch (ClassNotFoundException e) {
-			logger.warn("Module class not found : " + e.getMessage());
-		} catch (InstantiationException e) {
-			logger.error(e.getMessage());
-		} catch (IllegalAccessException e) {
-			logger.error(e.getMessage());
+		} catch (Exception e) {
+			if(logger.isDebugEnabled()) {
+				logger.debug("Cannot load module " + className, e);
+			}
 		}
 		return instance;
 	}
 
 	/**
+	 * @param loader the ClassLoader to use
 	 * @return List of available security modules in classpath.
 	 */
-	public static List<Module> getModules() {
+	public static List<Module> getModules(ClassLoader loader) {
 		List<Module> modules = new ArrayList<Module>();
 		for (String className : securityJackson2ModuleClasses) {
-			Module module = loadAndGetInstance(className);
-			if (!ObjectUtils.isEmpty(module)) {
+			Module module = loadAndGetInstance(className, loader);
+			if (module != null) {
 				modules.add(module);
 			}
 		}

@@ -48,7 +48,8 @@ public class WebAuthenticationDetailsMixinTests {
 	@Before
 	public void setup() {
 		this.mapper = new ObjectMapper();
-		this.mapper.registerModules(SecurityJacksonModules.getModules());
+		ClassLoader loader = getClass().getClassLoader();
+		this.mapper.registerModules(SecurityJacksonModules.getModules(loader));
 	}
 
 	@Test
