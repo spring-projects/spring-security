@@ -43,7 +43,7 @@ import java.util.List;
  * @see UsernamePasswordAuthenticationTokenMixin
  * @since 4.2
  */
-public class UsernamePasswordAuthenticationTokenDeserializer extends JsonDeserializer<UsernamePasswordAuthenticationToken> {
+class UsernamePasswordAuthenticationTokenDeserializer extends JsonDeserializer<UsernamePasswordAuthenticationToken> {
 
 	/**
 	 * This method construct {@link UsernamePasswordAuthenticationToken} object from serialized json.

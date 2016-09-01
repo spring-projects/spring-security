@@ -43,7 +43,7 @@ import java.util.Map;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY,
 		getterVisibility = JsonAutoDetect.Visibility.NONE, isGetterVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class AssertionImplMixin {
+class AssertionImplMixin {
 
 	/**
 	 * Mixin Constructor helps in deserialize {@link org.jasig.cas.client.validation.AssertionImpl}

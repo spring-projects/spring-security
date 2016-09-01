@@ -39,7 +39,7 @@ import java.util.Set;
  * @see UserMixin
  * @since 4.2
  */
-public class UserDeserializer extends JsonDeserializer<User> {
+class UserDeserializer extends JsonDeserializer<User> {
 
 	/**
 	 * This method will create {@link User} object. It will ensure successful object creation even if password key is null in

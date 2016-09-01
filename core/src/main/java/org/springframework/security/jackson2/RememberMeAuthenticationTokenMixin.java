@@ -48,7 +48,7 @@ import java.util.Collection;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
 		isGetterVisibility = JsonAutoDetect.Visibility.NONE, creatorVisibility = JsonAutoDetect.Visibility.ANY)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class RememberMeAuthenticationTokenMixin {
+class RememberMeAuthenticationTokenMixin {
 
 	/**
 	 * Constructor used by Jackson to create

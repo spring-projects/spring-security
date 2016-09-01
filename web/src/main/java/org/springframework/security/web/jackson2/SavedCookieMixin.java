@@ -36,7 +36,7 @@ import com.fasterxml.jackson.annotation.*;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY,
 		getterVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public abstract class SavedCookieMixin {
+abstract class SavedCookieMixin {
 
 	@JsonCreator
 	public SavedCookieMixin(@JsonProperty("name") String name, @JsonProperty("value") String value,

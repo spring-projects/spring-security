@@ -40,7 +40,7 @@ import java.util.Map;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
 		isGetterVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class AttributePrincipalImplMixin {
+class AttributePrincipalImplMixin {
 
 	/**
 	 * Mixin Constructor helps in deserialize {@link org.jasig.cas.client.authentication.AttributePrincipalImpl}

@@ -35,7 +35,7 @@ import com.fasterxml.jackson.annotation.*;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
 		isGetterVisibility = JsonAutoDetect.Visibility.NONE, creatorVisibility = JsonAutoDetect.Visibility.ANY)
-public class WebAuthenticationDetailsMixin {
+class WebAuthenticationDetailsMixin {
 
 	@JsonCreator
 	WebAuthenticationDetailsMixin(@JsonProperty("remoteAddress") String remoteAddress,

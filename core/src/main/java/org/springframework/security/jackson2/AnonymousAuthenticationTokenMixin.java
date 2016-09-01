@@ -42,7 +42,7 @@ import java.util.Collection;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, isGetterVisibility = JsonAutoDetect.Visibility.NONE,
 		getterVisibility = JsonAutoDetect.Visibility.NONE, creatorVisibility = JsonAutoDetect.Visibility.ANY)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class AnonymousAuthenticationTokenMixin {
+class AnonymousAuthenticationTokenMixin {
 
 	/**
 	 * Constructor used by Jackson to create object of {@link org.springframework.security.authentication.AnonymousAuthenticationToken}.

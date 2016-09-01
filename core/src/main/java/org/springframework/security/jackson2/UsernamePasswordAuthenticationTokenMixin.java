@@ -44,5 +44,5 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
 		isGetterVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonDeserialize(using = UsernamePasswordAuthenticationTokenDeserializer.class)
-public abstract class UsernamePasswordAuthenticationTokenMixin {
+abstract class UsernamePasswordAuthenticationTokenMixin {
 }

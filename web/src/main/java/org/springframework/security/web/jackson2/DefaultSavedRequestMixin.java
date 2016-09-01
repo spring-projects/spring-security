@@ -40,5 +40,5 @@ import org.springframework.security.web.savedrequest.DefaultSavedRequest;
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
 @JsonDeserialize(builder = DefaultSavedRequest.Builder.class)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE)
-public abstract class DefaultSavedRequestMixin {
+abstract class DefaultSavedRequestMixin {
 }

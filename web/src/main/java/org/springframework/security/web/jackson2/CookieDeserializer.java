@@ -38,7 +38,7 @@ import java.io.IOException;
  * @see CookieMixin
  * @since 4.2
  */
-public class CookieDeserializer extends JsonDeserializer<Cookie> {
+class CookieDeserializer extends JsonDeserializer<Cookie> {
 
 	@Override
 	public Cookie deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {

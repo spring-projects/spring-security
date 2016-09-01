@@ -49,7 +49,7 @@ import java.util.Collection;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, isGetterVisibility = JsonAutoDetect.Visibility.NONE,
 		getterVisibility = JsonAutoDetect.Visibility.NONE, creatorVisibility = JsonAutoDetect.Visibility.ANY)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CasAuthenticationTokenMixin {
+class CasAuthenticationTokenMixin {
 
 	/**
 	 * Mixin Constructor helps in deserialize {@link CasAuthenticationToken}

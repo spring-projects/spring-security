@@ -36,7 +36,7 @@ import java.util.Set;
  * @since 4.2
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
-public class UnmodifiableSetMixin {
+class UnmodifiableSetMixin {
 
 	/**
 	 * Mixin Constructor
