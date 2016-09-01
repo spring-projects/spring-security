@@ -38,7 +38,7 @@ public class UserDeserializerTests extends AbstractMixinTests {
 
 	String userWithAuthoritiesJson = "{\"@class\": \"org.springframework.security.core.userdetails.User\", \"username\": \"admin\"," +
 			" \"password\": %s, \"accountNonExpired\": true, \"accountNonLocked\": true, \"credentialsNonExpired\": true, " +
-			"\"enabled\": true, \"authorities\": [\"java.util.Collections$UnmodifiableSet\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]}";
+			"\"enabled\": true, \"authorities\": [\"java.util.Collections$UnmodifiableSet\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"authority\": \"ROLE_USER\"}]]}";
 
 	String userWithoutAuthoritiesJson = "{\"@class\": \"org.springframework.security.core.userdetails.User\", \"username\": \"admin\"," +
 			" \"password\": \"1234\", \"accountNonExpired\": true, \"accountNonLocked\": true, \"credentialsNonExpired\": true," +
@@ -90,7 +90,7 @@ public class UserDeserializerTests extends AbstractMixinTests {
 		String userJson = "{\"@class\": \"org.springframework.security.core.userdetails.User\", " +
 				"\"username\": \"user\", \"password\": \"pass\", \"accountNonExpired\": false, " +
 				"\"accountNonLocked\": false, \"credentialsNonExpired\": false, \"enabled\": false, " +
-				"\"authorities\": [{\"role\": \"ROLE_USER\"}]}";
+				"\"authorities\": [{\"authority\": \"ROLE_USER\"}]}";
 		buildObjectMapper().readValue(userJson, User.class);
 	}
 

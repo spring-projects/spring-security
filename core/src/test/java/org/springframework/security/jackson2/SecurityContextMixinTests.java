@@ -39,7 +39,7 @@ public class SecurityContextMixinTests extends AbstractMixinTests {
 	String securityContextJson = "{\"@class\": \"org.springframework.security.core.context.SecurityContextImpl\", \"authentication\": " +
 				"{\"@class\": \"org.springframework.security.authentication.UsernamePasswordAuthenticationToken\"," +
 					"\"principal\": \"dummy\", \"credentials\": \"password\", \"authenticated\": true, \"details\": null," +
-					"\"authorities\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]" +
+					"\"authorities\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"authority\": \"ROLE_USER\"}]]" +
 				"}" +
 			"}";
 

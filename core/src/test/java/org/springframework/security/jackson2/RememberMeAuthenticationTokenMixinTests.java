@@ -41,12 +41,12 @@ public class RememberMeAuthenticationTokenMixinTests extends AbstractMixinTests 
 			"\"keyHash\": " + rememberMeKey.hashCode() + ", \"authenticated\": true, \"details\": null," +
 			"\"principal\": {\"@class\": \"org.springframework.security.core.userdetails.User\", \"username\": \"dummy\", \"password\": %s," +
 			" \"enabled\": true, \"accountNonExpired\": true, \"accountNonLocked\": true, \"credentialsNonExpired\": true, " +
-			"\"authorities\": [\"java.util.Collections$UnmodifiableSet\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]}," +
-			"\"authorities\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]}";
+			"\"authorities\": [\"java.util.Collections$UnmodifiableSet\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"authority\": \"ROLE_USER\"}]]}," +
+			"\"authorities\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"authority\": \"ROLE_USER\"}]]}";
 
 	String rememberMeAuthTokenWithoutUserJson = "{\"@class\": \"org.springframework.security.authentication.RememberMeAuthenticationToken\"," +
 			"\"keyHash\": " + rememberMeKey.hashCode() + ", \"authenticated\": true, \"details\": null," +
-			"\"principal\": \"dummy\", \"authorities\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]}";
+			"\"principal\": \"dummy\", \"authorities\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"authority\": \"ROLE_USER\"}]]}";
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testWithNullPrincipal() throws JsonProcessingException, JSONException {

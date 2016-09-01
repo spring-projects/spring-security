@@ -43,14 +43,14 @@ public class UsernamePasswordAuthenticationTokenMixinTests extends AbstractMixin
 
 	String authenticatedTokenWithoutUserPrincipal = "{\"@class\": \"org.springframework.security.authentication.UsernamePasswordAuthenticationToken\"," +
 			" \"principal\": \"user1\", \"credentials\": \"password\", \"authenticated\": true, \"details\": null, " +
-			"\"authorities\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]}";
+			"\"authorities\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"authority\": \"ROLE_USER\"}]]}";
 
 	String authenticatedTokenWithUserPrincipal = "{\"@class\": \"org.springframework.security.authentication.UsernamePasswordAuthenticationToken\"," +
 			"\"principal\": {\"@class\": \"org.springframework.security.core.userdetails.User\", \"username\": \"user\", \"password\": %s, \"accountNonExpired\": true, \"enabled\": true, " +
 			"\"accountNonLocked\": true, \"credentialsNonExpired\": true, \"authorities\": [\"java.util.Collections$UnmodifiableSet\"," +
-			"[{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]}, \"credentials\": %s," +
+			"[{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"authority\": \"ROLE_USER\"}]]}, \"credentials\": %s," +
 			"\"details\": null, \"authenticated\": true," +
-			"\"authorities\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]}";
+			"\"authorities\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"authority\": \"ROLE_USER\"}]]}";
 
 	@Test
 	public void serializeUnauthenticatedUsernamePasswordAuthenticationTokenMixinTest() throws JsonProcessingException, JSONException {

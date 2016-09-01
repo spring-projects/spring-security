@@ -32,25 +32,16 @@ import com.fasterxml.jackson.annotation.*;
  * @since 4.2
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.NONE, getterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
 		isGetterVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class SimpleGrantedAuthorityMixin {
 
 	/**
 	 * Mixin Constructor.
-	 * @param role
+	 * @param role the role
 	 */
 	@JsonCreator
-	public SimpleGrantedAuthorityMixin(@JsonProperty("role") String role) {
+	public SimpleGrantedAuthorityMixin(@JsonProperty("authority") String role) {
 	}
-
-	/**
-	 * This method will ensure that getAuthority() doesn't serialized to <b>authority</b> key, it will be serialized
-	 * as <b>role</b> key. Because above mixin constructor will look for role key to properly deserialize.
-	 *
-	 * @return
-	 */
-	@JsonProperty("role")
-	public abstract String getAuthority();
 }

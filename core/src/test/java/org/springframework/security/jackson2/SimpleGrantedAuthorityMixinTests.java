@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.*;
  */
 public class SimpleGrantedAuthorityMixinTests extends AbstractMixinTests {
 
-	String simpleGrantedAuthorityJson = "{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}";
+	String simpleGrantedAuthorityJson = "{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"authority\": \"ROLE_USER\"}";
 
 	@Test
 	public void serializeSimpleGrantedAuthorityTest() throws JsonProcessingException, JSONException {
