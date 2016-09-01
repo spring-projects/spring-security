@@ -46,11 +46,11 @@ class UserDeserializer extends JsonDeserializer<User> {
 	 * serialized json, because credentials may be removed from the {@link User} by invoking {@link User#eraseCredentials()}.
 	 * In that case there won't be any password key in serialized json.
 	 *
-	 * @param jp
-	 * @param ctxt
-	 * @return
-	 * @throws IOException
-	 * @throws JsonProcessingException
+	 * @param jp the JsonParser
+	 * @param ctxt the DeserializationContext
+	 * @return the user
+	 * @throws IOException if a exception during IO occurs
+	 * @throws JsonProcessingException if an error during JSON processing occurs
 	 */
 	@Override
 	public User deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {

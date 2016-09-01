@@ -47,11 +47,11 @@ class UsernamePasswordAuthenticationTokenDeserializer extends JsonDeserializer<U
 
 	/**
 	 * This method construct {@link UsernamePasswordAuthenticationToken} object from serialized json.
-	 * @param jp
-	 * @param ctxt
-	 * @return
-	 * @throws IOException
-	 * @throws JsonProcessingException
+	 * @param jp the JsonParser
+	 * @param ctxt the DeserializationContext
+	 * @return the user
+	 * @throws IOException if a exception during IO occurs
+	 * @throws JsonProcessingException if an error during JSON processing occurs
 	 */
 	@Override
 	public UsernamePasswordAuthenticationToken deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {

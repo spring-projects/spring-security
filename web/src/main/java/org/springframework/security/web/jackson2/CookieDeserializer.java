@@ -30,7 +30,7 @@ import java.io.IOException;
 
 /**
  * Jackson deserializer for {@link Cookie}. This is needed because in most cases we don't
- * set {@link Cookie#domain} property. So when jackson deserialize that json {@link Cookie#setDomain(String)}
+ * set {@link Cookie#getDomain()} property. So when jackson deserialize that json {@link Cookie#setDomain(String)}
  * throws {@link NullPointerException}. This is registered with {@link CookieMixin} but you can also use it with
  * your own mixin.
  *

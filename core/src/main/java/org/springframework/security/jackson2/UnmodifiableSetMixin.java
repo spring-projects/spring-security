@@ -40,8 +40,8 @@ class UnmodifiableSetMixin {
 
 	/**
 	 * Mixin Constructor
-	 * @param s
+	 * @param s the Set
 	 */
 	@JsonCreator
-	UnmodifiableSetMixin(Set s) {}
+	UnmodifiableSetMixin(Set<?> s) {}
 }

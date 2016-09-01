@@ -43,9 +43,9 @@ class DefaultCsrfTokenMixin {
 	 * JsonCreator constructor needed by Jackson to create {@link org.springframework.security.web.csrf.DefaultCsrfToken}
 	 * object.
 	 *
-	 * @param headerName
-	 * @param parameterName
-	 * @param token
+	 * @param headerName the name of the header
+	 * @param parameterName the parameter name
+	 * @param token the CSRF token value
 	 */
 	@JsonCreator
 	public DefaultCsrfTokenMixin(@JsonProperty("headerName") String headerName,

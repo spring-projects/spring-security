@@ -75,6 +75,7 @@ public class SavedCookieMixinTests extends AbstractMixinTests {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void deserializeSavedCookieWithList() throws IOException, JSONException {
 		String expectedJson = String.format("[\"java.util.ArrayList\", [%s]]", expectedSavedCookieJson);
 		List<SavedCookie> savedCookies = (List<SavedCookie>)buildObjectMapper().readValue(expectedJson, Object.class);

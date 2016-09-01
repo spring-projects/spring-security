@@ -34,7 +34,7 @@ import org.springframework.security.jackson2.SecurityJacksonModules;
  *     ObjectMapper mapper = new ObjectMapper();
  *     mapper.registerModule(new CasJackson2Module());
  * </pre>
- *  <b>Note: use {@link SecurityJacksonModules#getModules()} to get list of all security modules.</b>
+ * <b>Note: use {@link SecurityJacksonModules#getModules(ClassLoader)} to get list of all security modules on the classpath.</b>
  *
  * @author Jitendra Singh.
  * @see org.springframework.security.jackson2.SecurityJacksonModules

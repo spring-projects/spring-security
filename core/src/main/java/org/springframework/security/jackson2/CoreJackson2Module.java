@@ -38,7 +38,7 @@ import java.util.Collections;
  *     ObjectMapper mapper = new ObjectMapper();
  *     mapper.registerModule(new CoreJackson2Module());
  * </pre>
- * <b>Note: use {@link SecurityJacksonModules#getModules()} to get list of all security modules.</b>
+ * <b>Note: use {@link SecurityJacksonModules#getModules(ClassLoader)} to get list of all security modules.</b>
  *
  * @author Jitendra Singh.
  * @see SecurityJacksonModules
@@ -56,7 +56,7 @@ public class CoreJackson2Module extends SimpleModule {
 		context.setMixInAnnotations(AnonymousAuthenticationToken.class, AnonymousAuthenticationTokenMixin.class);
 		context.setMixInAnnotations(RememberMeAuthenticationToken.class, RememberMeAuthenticationTokenMixin.class);
 		context.setMixInAnnotations(SimpleGrantedAuthority.class, SimpleGrantedAuthorityMixin.class);
-		context.setMixInAnnotations(Collections.unmodifiableSet(Collections.EMPTY_SET).getClass(), UnmodifiableSetMixin.class);
+		context.setMixInAnnotations(Collections.<Object>unmodifiableSet(Collections.emptySet()).getClass(), UnmodifiableSetMixin.class);
 		context.setMixInAnnotations(User.class, UserMixin.class);
 		context.setMixInAnnotations(UsernamePasswordAuthenticationToken.class, UsernamePasswordAuthenticationTokenMixin.class);
 	}
