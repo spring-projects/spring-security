@@ -24,6 +24,7 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.util.Assert;
 
 /**
  * Represents a successful CAS <code>Authentication</code>.
@@ -117,15 +118,8 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
 	// ========================================================================================================
 
 	private static Integer extractKeyHash(String key) {
-		Object value = nullSafeValue(key);
-		return value.hashCode();
-	}
-
-	private static Object nullSafeValue(Object value) {
-		if (value == null || "".equals(value)) {
-			throw new IllegalArgumentException("Cannot pass null or empty values to constructor");
-		}
-		return value;
+		Assert.hasLength(key, "key cannot be null or empty");
+		return key.hashCode();
 	}
 
 	public boolean equals(final Object obj) {

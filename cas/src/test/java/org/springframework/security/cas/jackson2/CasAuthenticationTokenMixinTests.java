@@ -76,18 +76,6 @@ public class CasAuthenticationTokenMixinTests {
 		return mapper;
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void nullKeyTest() {
-		new CasAuthenticationToken(null, "user", PASSWORD, Collections.<GrantedAuthority>emptyList(),
-				new User("user", PASSWORD, Collections.<GrantedAuthority>emptyList()), null);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void blankKeyTest() {
-		new CasAuthenticationToken("", "user", PASSWORD, Collections.<GrantedAuthority>emptyList(),
-				new User("user", PASSWORD, Collections.<GrantedAuthority>emptyList()), null);
-	}
-
 	@Test
 	public void serializeCasAuthenticationTest() throws JsonProcessingException, JSONException {
 		CasAuthenticationToken token = createCasAuthenticationToken();

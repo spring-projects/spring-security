@@ -16,18 +16,17 @@
 
 package org.springframework.security.jackson2;
 
+import java.io.IOException;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import org.json.JSONException;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
+
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
-
-import java.io.IOException;
-import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -45,15 +44,6 @@ public class AnonymousAuthenticationTokenMixinTests extends AbstractMixinTests {
 			"[{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]}, \"authenticated\": true, \"keyHash\": " + hashKey.hashCode() + "," +
 			"\"authorities\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]}";
 
-	@Test(expected = IllegalArgumentException.class)
-	public void testWithNullAuthorities() throws JsonProcessingException, JSONException {
-		new AnonymousAuthenticationToken("key", "principal", null);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void testWithEmptyAuthorities() throws JsonProcessingException, JSONException {
-		new AnonymousAuthenticationToken("key", "principal", Collections.<GrantedAuthority>emptyList());
-	}
 
 	@Test
 	public void serializeAnonymousAuthenticationTokenTest() throws JsonProcessingException, JSONException {

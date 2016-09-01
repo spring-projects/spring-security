@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.Collection;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.util.Assert;
 
 /**
  * Represents an anonymous <code>Authentication</code>.
@@ -48,7 +49,7 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken im
 	 */
 	public AnonymousAuthenticationToken(String key, Object principal,
 										Collection<? extends GrantedAuthority> authorities) {
-		this(extractKeyHash(key), nullSafeValue(principal), authorities);
+		this(extractKeyHash(key), principal, authorities);
 	}
 
 	/**
@@ -63,9 +64,10 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken im
 										Collection<? extends GrantedAuthority> authorities) {
 		super(authorities);
 
-		if (authorities == null || authorities.isEmpty()) {
-			throw new IllegalArgumentException("Cannot pass null or empty values to constructor");
+		if (principal == null || "".equals(principal)) {
+			throw new IllegalArgumentException("principal cannot be null or empty");
 		}
+		Assert.notEmpty(authorities, "authorities cannot be null or empty");
 
 		this.keyHash = keyHash;
 		this.principal = principal;
@@ -76,15 +78,8 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken im
 	// ========================================================================================================
 
 	private static Integer extractKeyHash(String key) {
-		Object value = nullSafeValue(key);
-		return value.hashCode();
-	}
-
-	private static Object nullSafeValue(Object value) {
-		if (value == null || "".equals(value)) {
-			throw new IllegalArgumentException("Cannot pass null or empty values to constructor");
-		}
-		return value;
+		Assert.hasLength(key, "key cannot be empty or null");
+		return key.hashCode();
 	}
 
 	public boolean equals(Object obj) {

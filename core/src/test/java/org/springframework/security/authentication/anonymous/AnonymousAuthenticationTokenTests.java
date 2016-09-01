@@ -19,6 +19,7 @@ package org.springframework.security.authentication.anonymous;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Test;
@@ -145,5 +146,20 @@ public class AnonymousAuthenticationTokenTests {
 		assertThat(token.isAuthenticated()).isTrue();
 		token.setAuthenticated(false);
 		assertThat(!token.isAuthenticated()).isTrue();
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorWhenNullAuthoritiesThenThrowIllegalArgumentException() throws Exception {
+		new AnonymousAuthenticationToken("key", "principal", null);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorWhenEmptyAuthoritiesThenThrowIllegalArgumentException() throws Exception {
+		new AnonymousAuthenticationToken("key", "principal", Collections.<GrantedAuthority>emptyList());
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorWhenPrincipalIsEmptyStringThenThrowIllegalArgumentException() throws Exception {
+		new AnonymousAuthenticationToken("key", "", ROLES_12);
 	}
 }

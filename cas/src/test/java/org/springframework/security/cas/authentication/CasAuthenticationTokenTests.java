@@ -19,6 +19,7 @@ package org.springframework.security.cas.authentication;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.jasig.cas.client.validation.Assertion;
@@ -100,6 +101,12 @@ public class CasAuthenticationTokenTests {
 		}
 		catch (IllegalArgumentException expected) {
 		}
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorWhenEmptyKeyThenThrowsException() {
+		new CasAuthenticationToken("", "user", "password", Collections.<GrantedAuthority>emptyList(),
+				new User("user", "password", Collections.<GrantedAuthority>emptyList()), null);
 	}
 
 	@Test
