@@ -80,8 +80,8 @@ public class UserDeserializerTests extends AbstractMixinTests {
 		User user = mapper.readValue(userJsonWithoutPasswordString, User.class);
 		assertThat(user).isNotNull();
 		assertThat(user.getUsername()).isEqualTo("admin");
-		assertThat(user.getPassword()).isEqualTo("");
-		assertThat(user.getAuthorities()).hasSize(0);
+		assertThat(user.getPassword()).isNull();
+		assertThat(user.getAuthorities()).isEmpty();
 		assertThat(user.isEnabled()).isEqualTo(true);
 	}
 

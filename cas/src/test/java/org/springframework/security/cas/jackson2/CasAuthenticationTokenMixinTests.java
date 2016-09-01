@@ -16,6 +16,11 @@
 
 package org.springframework.security.cas.jackson2;
 
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jasig.cas.client.authentication.AttributePrincipalImpl;
@@ -26,16 +31,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.skyscreamer.jsonassert.JSONAssert;
+
 import org.springframework.security.cas.authentication.CasAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.jackson2.SecurityJacksonModules;
-
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -90,6 +92,12 @@ public class CasAuthenticationTokenMixinTests {
 		token.eraseCredentials();
 		String actualJson = buildObjectMapper().writeValueAsString(token);
 		JSONAssert.assertEquals(String.format(expectedJson, "null"), actualJson, true);
+	}
+
+	@Test
+	public void deserializeCasAuthenticationTestAfterEraseCredentialInvoked() throws Exception {
+		CasAuthenticationToken token = buildObjectMapper().readValue(String.format(expectedJson, "null"), CasAuthenticationToken.class);
+		assertThat(((UserDetails)token.getPrincipal()).getPassword()).isNull();
 	}
 
 	@Test

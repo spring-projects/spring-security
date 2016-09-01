@@ -58,12 +58,18 @@ class UserDeserializer extends JsonDeserializer<User> {
 		JsonNode jsonNode = mapper.readTree(jp);
 		Set<GrantedAuthority> authorities = mapper.convertValue(jsonNode.get("authorities"), new TypeReference<Set<SimpleGrantedAuthority>>() {
 		});
-		return new User(
-				readJsonNode(jsonNode, "username").asText(), readJsonNode(jsonNode, "password").asText(""),
+		JsonNode password = readJsonNode(jsonNode, "password");
+		User result =  new User(
+				readJsonNode(jsonNode, "username").asText(), password.asText(""),
 				readJsonNode(jsonNode, "enabled").asBoolean(), readJsonNode(jsonNode, "accountNonExpired").asBoolean(),
 				readJsonNode(jsonNode, "credentialsNonExpired").asBoolean(),
 				readJsonNode(jsonNode, "accountNonLocked").asBoolean(), authorities
 		);
+		
+		if(password.asText(null) == null) {
+			result.eraseCredentials();
+		}
+		return result;
 	}
 
 	private JsonNode readJsonNode(JsonNode jsonNode, String field) {
