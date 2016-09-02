@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class AnonymousAuthenticationTokenMixinTests extends AbstractMixinTests {
 
 	private static final String HASH_KEY = "key";
-	
+
 	// @formatter:off
 	private static final String ANONYMOUS_JSON = "{"
 		+ "\"@class\": \"org.springframework.security.authentication.AnonymousAuthenticationToken\", "
@@ -48,7 +48,6 @@ public class AnonymousAuthenticationTokenMixinTests extends AbstractMixinTests {
 		+ "\"authorities\": " + SimpleGrantedAuthorityMixinTests.AUTHORITIES_ARRAYLIST_JSON
 	+ "}";
 	// @formatter:on
-
 
 	@Test
 	public void serializeAnonymousAuthenticationTokenTest() throws JsonProcessingException, JSONException {

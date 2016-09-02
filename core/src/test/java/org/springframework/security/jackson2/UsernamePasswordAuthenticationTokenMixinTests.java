@@ -36,12 +36,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class UsernamePasswordAuthenticationTokenMixinTests extends AbstractMixinTests {
 	// @formatter:off
 	private static final String AUTHENTICATED_JSON = "{"
-		+ "\"@class\": \"org.springframework.security.authentication.UsernamePasswordAuthenticationToken\"," 
+		+ "\"@class\": \"org.springframework.security.authentication.UsernamePasswordAuthenticationToken\","
 		+ "\"principal\": "+ UserDeserializerTests.USER_JSON + ", "
 		+ "\"credentials\": \"1234\", "
 		+ "\"authenticated\": true, "
 		+ "\"details\": null, "
-		+ "\"authorities\": "+ SimpleGrantedAuthorityMixinTests.AUTHORITIES_ARRAYLIST_JSON 
+		+ "\"authorities\": "+ SimpleGrantedAuthorityMixinTests.AUTHORITIES_ARRAYLIST_JSON
 	+ "}";
 	// @formatter:on
 

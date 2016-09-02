@@ -47,9 +47,9 @@ public class UserDeserializerTests extends AbstractMixinTests {
 		+ " \"password\": "+ USER_PASSWORD +", "
 		+ "\"accountNonExpired\": true, "
 		+ "\"accountNonLocked\": true, "
-		+ "\"credentialsNonExpired\": true, " 
+		+ "\"credentialsNonExpired\": true, "
 		+ "\"enabled\": true, "
-		+ "\"authorities\": " + SimpleGrantedAuthorityMixinTests.AUTHORITIES_SET_JSON 
+		+ "\"authorities\": " + SimpleGrantedAuthorityMixinTests.AUTHORITIES_SET_JSON
 	+ "}";
 	// @formatter:on
 
@@ -77,7 +77,7 @@ public class UserDeserializerTests extends AbstractMixinTests {
 	@Test
 	public void deserializeUserWithNullPasswordNoAuthorityTest() throws Exception {
 		String userJsonWithoutPasswordString = removeNode(userWithNoAuthoritiesJson(), mapper, "password");
-		
+
 		User user = mapper.readValue(userJsonWithoutPasswordString, User.class);
 		assertThat(user).isNotNull();
 		assertThat(user.getUsername()).isEqualTo("admin");
@@ -113,7 +113,7 @@ public class UserDeserializerTests extends AbstractMixinTests {
 	public static String userJson() {
 		return USER_JSON;
 	}
-	
+
 	public static String userWithPasswordJson(String password) {
 		return userJson().replaceAll(Pattern.quote(USER_PASSWORD), "\""+ password +"\"");
 	}

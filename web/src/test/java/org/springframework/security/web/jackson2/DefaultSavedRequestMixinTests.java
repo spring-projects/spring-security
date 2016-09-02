@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class DefaultSavedRequestMixinTests extends AbstractMixinTests {
 
-	
+
 	// @formatter:off
 	private static final String COOKIES_JSON = "[\"java.util.ArrayList\", [{"
 		+ "\"@class\": \"org.springframework.security.web.savedrequest.SavedCookie\", "

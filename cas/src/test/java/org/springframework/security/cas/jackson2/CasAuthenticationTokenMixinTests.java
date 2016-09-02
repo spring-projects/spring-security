@@ -54,7 +54,7 @@ public class CasAuthenticationTokenMixinTests {
 	public static final String AUTHORITY_JSON = "{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"authority\": \"ROLE_USER\"}";
 
 	public static final String AUTHORITIES_SET_JSON = "[\"java.util.Collections$UnmodifiableSet\", [" + AUTHORITY_JSON + "]]";
-	
+
 	public static final String AUTHORITIES_ARRAYLIST_JSON = "[\"java.util.ArrayList\", [" + AUTHORITY_JSON + "]]";
 
 	// @formatter:off
@@ -64,15 +64,15 @@ public class CasAuthenticationTokenMixinTests {
 		+ " \"password\": " + PASSWORD + ", "
 		+ "\"accountNonExpired\": true, "
 		+ "\"accountNonLocked\": true, "
-		+ "\"credentialsNonExpired\": true, " 
+		+ "\"credentialsNonExpired\": true, "
 		+ "\"enabled\": true, "
-		+ "\"authorities\": " + AUTHORITIES_SET_JSON 
+		+ "\"authorities\": " + AUTHORITIES_SET_JSON
 	+ "}";
 	// @formatter:on
-		
+
 	private static final String CAS_TOKEN_JSON = "{"
 		+ "\"@class\": \"org.springframework.security.cas.authentication.CasAuthenticationToken\", "
-		+ "\"keyHash\": " + KEY.hashCode() + "," 
+		+ "\"keyHash\": " + KEY.hashCode() + ","
 		+ "\"principal\": " + USER_JSON + ", "
 		+ "\"credentials\": " + PASSWORD + ", "
 		+ "\"authorities\": " + AUTHORITIES_ARRAYLIST_JSON + ","
@@ -87,7 +87,7 @@ public class CasAuthenticationTokenMixinTests {
 				+ "\"attributes\": {\"@class\": \"java.util.Collections$EmptyMap\"}, "
 				+ "\"proxyGrantingTicket\": null, "
 				+ "\"proxyRetriever\": null"
-			+ "}, " 
+			+ "}, "
 			+ "\"validFromDate\": [\"java.util.Date\", " + START_DATE.getTime() + "], "
 			+ "\"validUntilDate\": [\"java.util.Date\", " + END_DATE.getTime() + "],"
 			+ "\"authenticationDate\": [\"java.util.Date\", " + START_DATE.getTime() + "], "

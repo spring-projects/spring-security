@@ -52,8 +52,8 @@ public class SavedCookieMixinTests extends AbstractMixinTests {
 	// @formatter:on
 
 	// @formatter:off
-	private static final String COOKIES_JSON = "[\"java.util.ArrayList\", [" 
-		+ COOKIE_JSON 
+	private static final String COOKIES_JSON = "[\"java.util.ArrayList\", ["
+		+ COOKIE_JSON
 	+ "]]";
 	// @formatter:on
 
