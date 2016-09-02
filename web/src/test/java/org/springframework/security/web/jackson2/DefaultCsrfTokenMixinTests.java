@@ -38,27 +38,34 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class DefaultCsrfTokenMixinTests {
 
 	ObjectMapper objectMapper;
-	String defaultCsrfTokenJson;
+	
+	
+	// @formatter:off
+	public static final String CSRF_JSON = "{"
+		+ "\"@class\": \"org.springframework.security.web.csrf.DefaultCsrfToken\", "
+		+ "\"headerName\": \"csrf-header\", "
+		+ "\"parameterName\": \"_csrf\", "
+		+ "\"token\": \"1\""
+	+ "}";
+	// @formatter:on
 
 	@Before
 	public void setup() {
 		objectMapper = new ObjectMapper();
 		ClassLoader loader = getClass().getClassLoader();
 		objectMapper.registerModules(SecurityJacksonModules.getModules(loader));
-		defaultCsrfTokenJson = "{\"@class\": \"org.springframework.security.web.csrf.DefaultCsrfToken\", " +
-				"\"headerName\": \"csrf-header\", \"parameterName\": \"_csrf\", \"token\": \"1\"}";
 	}
 
 	@Test
 	public void defaultCsrfTokenSerializedTest() throws JsonProcessingException, JSONException {
 		DefaultCsrfToken token = new DefaultCsrfToken("csrf-header", "_csrf", "1");
 		String serializedJson = objectMapper.writeValueAsString(token);
-		JSONAssert.assertEquals(defaultCsrfTokenJson, serializedJson, true);
+		JSONAssert.assertEquals(CSRF_JSON, serializedJson, true);
 	}
 
 	@Test
 	public void defaultCsrfTokenDeserializeTest() throws IOException {
-		DefaultCsrfToken token = objectMapper.readValue(defaultCsrfTokenJson, DefaultCsrfToken.class);
+		DefaultCsrfToken token = objectMapper.readValue(CSRF_JSON, DefaultCsrfToken.class);
 		assertThat(token).isNotNull();
 		assertThat(token.getHeaderName()).isEqualTo("csrf-header");
 		assertThat(token.getParameterName()).isEqualTo("_csrf");

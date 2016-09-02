@@ -16,20 +16,21 @@
 
 package org.springframework.security.web.jackson2;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.http.Cookie;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONException;
-import org.junit.Before;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
-import org.springframework.security.web.savedrequest.SavedCookie;
 
-import javax.servlet.http.Cookie;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import org.springframework.security.web.savedrequest.SavedCookie;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,59 +38,66 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Jitendra Singh.
  */
 public class SavedCookieMixinTests extends AbstractMixinTests {
+	// @formatter:off
+	private static final String COOKIE_JSON = "{"
+		+ "\"@class\": \"org.springframework.security.web.savedrequest.SavedCookie\", "
+		+ "\"name\": \"SESSION\", "
+		+ "\"value\": \"123456789\", "
+		+ "\"comment\": null, "
+		+ "\"maxAge\": -1, "
+		+ "\"path\": null, "
+		+ "\"secure\":false, "
+		+ "\"version\": 0, "
+		+ "\"domain\": null"
+	+ "}";
+	// @formatter:on
 
-	private String expectedSavedCookieJson;
-
-	@Before
-	public void setup() {
-		expectedSavedCookieJson = "{\"@class\": \"org.springframework.security.web.savedrequest.SavedCookie\", " +
-				"\"name\": \"session\", \"value\": \"123456\", \"comment\": null, \"domain\": null, \"maxAge\": -1, " +
-				"\"path\": null, \"secure\": false, \"version\": 0}";
-	}
-
+	// @formatter:off
+	private static final String COOKIES_JSON = "[\"java.util.ArrayList\", [" 
+		+ COOKIE_JSON 
+	+ "]]";
+	// @formatter:on
 
 	@Test
 	public void serializeWithDefaultConfigurationTest() throws JsonProcessingException, JSONException {
-		SavedCookie savedCookie = new SavedCookie(new Cookie("session", "123456"));
+		SavedCookie savedCookie = new SavedCookie(new Cookie("SESSION", "123456789"));
 		String actualJson = buildObjectMapper().writeValueAsString(savedCookie);
-		JSONAssert.assertEquals(expectedSavedCookieJson, actualJson, true);
+		JSONAssert.assertEquals(COOKIE_JSON, actualJson, true);
 	}
 
 	@Test
 	public void serializeWithOverrideConfigurationTest() throws JsonProcessingException, JSONException {
-		SavedCookie savedCookie = new SavedCookie(new Cookie("session", "123456"));
+		SavedCookie savedCookie = new SavedCookie(new Cookie("SESSION", "123456789"));
 		ObjectMapper mapper = buildObjectMapper();
 		mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.PUBLIC_ONLY)
 				.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.ANY);
 		String actualJson = mapper.writeValueAsString(savedCookie);
-		JSONAssert.assertEquals(expectedSavedCookieJson, actualJson, true);
+		JSONAssert.assertEquals(COOKIE_JSON, actualJson, true);
 	}
 
 	@Test
 	public void serializeSavedCookieWithList() throws JsonProcessingException, JSONException {
 		List<SavedCookie> savedCookies = new ArrayList<SavedCookie>();
-		savedCookies.add(new SavedCookie(new Cookie("session", "123456")));
-		String expectedJson = String.format("[\"java.util.ArrayList\", [%s]]", expectedSavedCookieJson);
+		savedCookies.add(new SavedCookie(new Cookie("SESSION", "123456789")));
 		String actualJson = buildObjectMapper().writeValueAsString(savedCookies);
-		JSONAssert.assertEquals(expectedJson, actualJson, true);
+		JSONAssert.assertEquals(COOKIES_JSON, actualJson, true);
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void deserializeSavedCookieWithList() throws IOException, JSONException {
-		String expectedJson = String.format("[\"java.util.ArrayList\", [%s]]", expectedSavedCookieJson);
-		List<SavedCookie> savedCookies = (List<SavedCookie>)buildObjectMapper().readValue(expectedJson, Object.class);
+		List<SavedCookie> savedCookies = (List<SavedCookie>)buildObjectMapper().readValue(COOKIES_JSON, Object.class);
 		assertThat(savedCookies).isNotNull().hasSize(1);
-		assertThat(savedCookies.get(0).getName()).isEqualTo("session");
-		assertThat(savedCookies.get(0).getValue()).isEqualTo("123456");
+		assertThat(savedCookies.get(0).getName()).isEqualTo("SESSION");
+		assertThat(savedCookies.get(0).getValue()).isEqualTo("123456789");
 	}
 
 	@Test
 	public void deserializeSavedCookieJsonTest() throws IOException {
-		SavedCookie savedCookie = (SavedCookie) buildObjectMapper().readValue(expectedSavedCookieJson, Object.class);
+		SavedCookie savedCookie = (SavedCookie) buildObjectMapper().readValue(COOKIE_JSON, Object.class);
 		assertThat(savedCookie).isNotNull();
-		assertThat(savedCookie.getName()).isEqualTo("session");
-		assertThat(savedCookie.getValue()).isEqualTo("123456");
+		assertThat(savedCookie.getName()).isEqualTo("SESSION");
+		assertThat(savedCookie.getValue()).isEqualTo("123456789");
 		assertThat(savedCookie.isSecure()).isEqualTo(false);
 		assertThat(savedCookie.getVersion()).isEqualTo(0);
 		assertThat(savedCookie.getComment()).isNull();

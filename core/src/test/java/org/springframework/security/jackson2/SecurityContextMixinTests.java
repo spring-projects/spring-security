@@ -36,29 +36,29 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class SecurityContextMixinTests extends AbstractMixinTests {
 
-	String securityContextJson = "{\"@class\": \"org.springframework.security.core.context.SecurityContextImpl\", \"authentication\": " +
-				"{\"@class\": \"org.springframework.security.authentication.UsernamePasswordAuthenticationToken\"," +
-					"\"principal\": \"dummy\", \"credentials\": \"password\", \"authenticated\": true, \"details\": null," +
-					"\"authorities\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"authority\": \"ROLE_USER\"}]]" +
-				"}" +
-			"}";
+	// @formatter:off
+	public static final String SECURITY_CONTEXT_JSON = "{"
+		+ "\"@class\": \"org.springframework.security.core.context.SecurityContextImpl\", "
+		+ "\"authentication\": " + UsernamePasswordAuthenticationTokenMixinTests.AUTHENTICATED_STRINGPRINCIPAL_JSON
+	+ "}";
+	// @formatter:on
 
 	@Test
 	public void securityContextSerializeTest() throws JsonProcessingException, JSONException {
 		SecurityContext context = new SecurityContextImpl();
-		context.setAuthentication(new UsernamePasswordAuthenticationToken("dummy", "password", Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"))));
+		context.setAuthentication(new UsernamePasswordAuthenticationToken("admin", "1234", Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"))));
 		String actualJson = buildObjectMapper().writeValueAsString(context);
-		JSONAssert.assertEquals(securityContextJson, actualJson, true);
+		JSONAssert.assertEquals(SECURITY_CONTEXT_JSON, actualJson, true);
 	}
 
 	@Test
 	public void securityContextDeserializeTest() throws IOException {
-		SecurityContext context = buildObjectMapper().readValue(securityContextJson, SecurityContextImpl.class);
+		SecurityContext context = buildObjectMapper().readValue(SECURITY_CONTEXT_JSON, SecurityContextImpl.class);
 		assertThat(context).isNotNull();
 		assertThat(context.getAuthentication()).isNotNull().isInstanceOf(UsernamePasswordAuthenticationToken.class);
-		assertThat(context.getAuthentication().getPrincipal()).isEqualTo("dummy");
-		assertThat(context.getAuthentication().getCredentials()).isEqualTo("password");
-		assertThat(context.getAuthentication().isAuthenticated()).isEqualTo(true);
+		assertThat(context.getAuthentication().getPrincipal()).isEqualTo("admin");
+		assertThat(context.getAuthentication().getCredentials()).isEqualTo("1234");
+		assertThat(context.getAuthentication().isAuthenticated()).isTrue();
 		assertThat(context.getAuthentication().getAuthorities()).hasSize(1).contains(new SimpleGrantedAuthority("ROLE_USER"));
 	}
 }

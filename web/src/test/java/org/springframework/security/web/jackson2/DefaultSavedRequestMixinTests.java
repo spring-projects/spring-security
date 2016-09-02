@@ -16,6 +16,12 @@
 
 package org.springframework.security.web.jackson2;
 
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Locale;
+
+import javax.servlet.http.Cookie;
+
 import org.json.JSONException;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -25,11 +31,6 @@ import org.springframework.security.web.PortResolverImpl;
 import org.springframework.security.web.savedrequest.DefaultSavedRequest;
 import org.springframework.security.web.savedrequest.SavedCookie;
 
-import javax.servlet.http.Cookie;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Locale;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -38,12 +39,40 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class DefaultSavedRequestMixinTests extends AbstractMixinTests {
 
-	String defaultSavedRequestJson = "{" +
-			"\"@class\": \"org.springframework.security.web.savedrequest.DefaultSavedRequest\", \"cookies\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.web.savedrequest.SavedCookie\", \"name\": \"SESSION\", \"value\": \"123456789\", \"comment\": null, \"maxAge\": -1, \"path\": null, \"secure\":false, \"version\": 0, \"domain\": null}]]," +
-			"\"locales\": [\"java.util.ArrayList\", [\"en\"]], \"headers\": {\"@class\": \"java.util.TreeMap\", \"x-auth-token\": [\"java.util.ArrayList\", [\"12\"]]}, \"parameters\": {\"@class\": \"java.util.TreeMap\"}," +
-			"\"contextPath\": \"\", \"method\": \"\", \"pathInfo\": null, \"queryString\": null, \"requestURI\": \"\", \"requestURL\": \"http://localhost\", \"scheme\": \"http\", " +
-			"\"serverName\": \"localhost\", \"servletPath\": \"\", \"serverPort\": 80"+
-			"}";
+	
+	// @formatter:off
+	private static final String COOKIES_JSON = "[\"java.util.ArrayList\", [{"
+		+ "\"@class\": \"org.springframework.security.web.savedrequest.SavedCookie\", "
+		+ "\"name\": \"SESSION\", "
+		+ "\"value\": \"123456789\", "
+		+ "\"comment\": null, "
+		+ "\"maxAge\": -1, "
+		+ "\"path\": null, "
+		+ "\"secure\":false, "
+		+ "\"version\": 0, "
+		+ "\"domain\": null"
+	+ "}]]";
+	// @formatter:on
+
+	// @formatter:off
+	private static final String REQUEST_JSON = "{" +
+		"\"@class\": \"org.springframework.security.web.savedrequest.DefaultSavedRequest\", "
+		+ "\"cookies\": "+ COOKIES_JSON +","
+		+ "\"locales\": [\"java.util.ArrayList\", [\"en\"]], "
+		+ "\"headers\": {\"@class\": \"java.util.TreeMap\", \"x-auth-token\": [\"java.util.ArrayList\", [\"12\"]]}, "
+		+ "\"parameters\": {\"@class\": \"java.util.TreeMap\"},"
+		+ "\"contextPath\": \"\", "
+		+ "\"method\": \"\", "
+		+ "\"pathInfo\": null, "
+		+ "\"queryString\": null, "
+		+ "\"requestURI\": \"\", "
+		+ "\"requestURL\": \"http://localhost\", "
+		+ "\"scheme\": \"http\", "
+		+ "\"serverName\": \"localhost\", "
+		+ "\"servletPath\": \"\", "
+		+ "\"serverPort\": 80"
+	+ "}";
+	// @formatter:on
 
 	@Test
 	public void matchRequestBuildWithConstructorAndBuilder() {
@@ -66,7 +95,7 @@ public class DefaultSavedRequestMixinTests extends AbstractMixinTests {
 		request.setCookies(new Cookie("SESSION", "123456789"));
 		request.addHeader("x-auth-token", "12");
 		String actualString = buildObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(new DefaultSavedRequest(request, new PortResolverImpl()));
-		JSONAssert.assertEquals(defaultSavedRequestJson, actualString, true);
+		JSONAssert.assertEquals(REQUEST_JSON, actualString, true);
 	}
 
 	@Test
@@ -78,12 +107,12 @@ public class DefaultSavedRequestMixinTests extends AbstractMixinTests {
 				.setLocales(Collections.singletonList(new Locale("en"))).setContextPath("").setMethod("")
 				.setServletPath("").build();
 		String actualString = buildObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(request);
-		JSONAssert.assertEquals(defaultSavedRequestJson, actualString, true);
+		JSONAssert.assertEquals(REQUEST_JSON, actualString, true);
 	}
 
 	@Test
 	public void deserializeDefaultSavedRequest() throws IOException {
-		DefaultSavedRequest request = (DefaultSavedRequest) buildObjectMapper().readValue(defaultSavedRequestJson, Object.class);
+		DefaultSavedRequest request = (DefaultSavedRequest) buildObjectMapper().readValue(REQUEST_JSON, Object.class);
 		assertThat(request).isNotNull();
 		assertThat(request.getCookies()).hasSize(1);
 		assertThat(request.getLocales()).hasSize(1).contains(new Locale("en"));

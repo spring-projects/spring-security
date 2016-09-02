@@ -16,17 +16,20 @@
 
 package org.springframework.security.jackson2;
 
+import java.io.IOException;
+import java.util.Collections;
+import java.util.regex.Pattern;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.json.JSONException;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
-
-import java.io.IOException;
-import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,21 +38,27 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 4.2
  */
 public class UserDeserializerTests extends AbstractMixinTests {
+	public static final String USER_PASSWORD = "\"1234\"";
 
-	String userWithAuthoritiesJson = "{\"@class\": \"org.springframework.security.core.userdetails.User\", \"username\": \"admin\"," +
-			" \"password\": %s, \"accountNonExpired\": true, \"accountNonLocked\": true, \"credentialsNonExpired\": true, " +
-			"\"enabled\": true, \"authorities\": [\"java.util.Collections$UnmodifiableSet\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"authority\": \"ROLE_USER\"}]]}";
-
-	String userWithoutAuthoritiesJson = "{\"@class\": \"org.springframework.security.core.userdetails.User\", \"username\": \"admin\"," +
-			" \"password\": \"1234\", \"accountNonExpired\": true, \"accountNonLocked\": true, \"credentialsNonExpired\": true," +
-			" \"enabled\": true, \"authorities\": [\"java.util.Collections$UnmodifiableSet\", []]}";
+	// @formatter:off
+	public static final String USER_JSON = "{"
+		+ "\"@class\": \"org.springframework.security.core.userdetails.User\", "
+		+ "\"username\": \"admin\","
+		+ " \"password\": "+ USER_PASSWORD +", "
+		+ "\"accountNonExpired\": true, "
+		+ "\"accountNonLocked\": true, "
+		+ "\"credentialsNonExpired\": true, " 
+		+ "\"enabled\": true, "
+		+ "\"authorities\": " + SimpleGrantedAuthorityMixinTests.AUTHORITIES_SET_JSON 
+	+ "}";
+	// @formatter:on
 
 	@Test
 	public void serializeUserTest() throws JsonProcessingException, JSONException {
 		ObjectMapper mapper = buildObjectMapper();
-		User user = new User("admin", "1234", Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
+		User user = createDefaultUser();
 		String userJson = mapper.writeValueAsString(user);
-		JSONAssert.assertEquals(String.format(userWithAuthoritiesJson, "\"1234\""), userJson, true);
+		JSONAssert.assertEquals(userWithPasswordJson(user.getPassword()), userJson, true);
 	}
 
 	@Test
@@ -57,26 +66,23 @@ public class UserDeserializerTests extends AbstractMixinTests {
 		ObjectMapper mapper = buildObjectMapper();
 		User user = new User("admin", "1234", Collections.<GrantedAuthority>emptyList());
 		String userJson = mapper.writeValueAsString(user);
-		JSONAssert.assertEquals(userWithoutAuthoritiesJson, userJson, true);
+		JSONAssert.assertEquals(userWithNoAuthoritiesJson(), userJson, true);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void deserializeUserWithNullPasswordEmptyAuthorityTest() throws IOException {
-		String userJsonWithoutPasswordString = "{\"@class\": \"org.springframework.security.core.userdetails.User\", " +
-				"\"username\": \"user\", \"accountNonExpired\": true, " +
-				"\"accountNonLocked\": true, \"credentialsNonExpired\": true, \"enabled\": true, " +
-				"\"authorities\": []}";
+		String userJsonWithoutPasswordString = USER_JSON.replace(SimpleGrantedAuthorityMixinTests.AUTHORITIES_SET_JSON, "[]");
+
 		ObjectMapper mapper = buildObjectMapper();
 		mapper.readValue(userJsonWithoutPasswordString, User.class);
 	}
 
 	@Test
-	public void deserializeUserWithNullPasswordNoAuthorityTest() throws IOException {
-		String userJsonWithoutPasswordString = "{\"@class\": \"org.springframework.security.core.userdetails.User\", " +
-				"\"username\": \"admin\", \"accountNonExpired\": true, " +
-				"\"accountNonLocked\": true, \"credentialsNonExpired\": true, \"enabled\": true, " +
-				"\"authorities\": [\"java.util.HashSet\", []]}";
+	public void deserializeUserWithNullPasswordNoAuthorityTest() throws Exception {
 		ObjectMapper mapper = buildObjectMapper();
+		
+		String userJsonWithoutPasswordString = removeNode(userWithNoAuthoritiesJson(), mapper, "password");
+		
 		User user = mapper.readValue(userJsonWithoutPasswordString, User.class);
 		assertThat(user).isNotNull();
 		assertThat(user.getUsername()).isEqualTo("admin");
@@ -86,20 +92,39 @@ public class UserDeserializerTests extends AbstractMixinTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void deserializeUserWithNoClassIdInAuthoritiesTest() throws IOException {
-		String userJson = "{\"@class\": \"org.springframework.security.core.userdetails.User\", " +
-				"\"username\": \"user\", \"password\": \"pass\", \"accountNonExpired\": false, " +
-				"\"accountNonLocked\": false, \"credentialsNonExpired\": false, \"enabled\": false, " +
-				"\"authorities\": [{\"authority\": \"ROLE_USER\"}]}";
-		buildObjectMapper().readValue(userJson, User.class);
+	public void deserializeUserWithNoClassIdInAuthoritiesTest() throws Exception {
+		ObjectMapper mapper = buildObjectMapper();
+		String userJson = USER_JSON.replace(SimpleGrantedAuthorityMixinTests.AUTHORITIES_SET_JSON,  "[{\"authority\": \"ROLE_USER\"}]");
+		mapper.readValue(userJson, User.class);
 	}
 
 	@Test
 	public void deserializeUserWithClassIdInAuthoritiesTest() throws IOException {
-		User user = buildObjectMapper().readValue(String.format(userWithAuthoritiesJson, "\"1234\""), User.class);
+		User user = buildObjectMapper().readValue(userJson(), User.class);
 		assertThat(user).isNotNull();
 		assertThat(user.getUsername()).isEqualTo("admin");
 		assertThat(user.getPassword()).isEqualTo("1234");
 		assertThat(user.getAuthorities()).hasSize(1).contains(new SimpleGrantedAuthority("ROLE_USER"));
+	}
+
+	private String removeNode(String json, ObjectMapper mapper, String toRemove) throws Exception {
+		ObjectNode node = mapper.getFactory().createParser(json).readValueAsTree();
+		node.remove(toRemove);
+
+		String result = mapper.writeValueAsString(node);
+		JSONAssert.assertNotEquals(json, result, false);
+		return result;
+	}
+
+	public static String userJson() {
+		return USER_JSON;
+	}
+	
+	public static String userWithPasswordJson(String password) {
+		return userJson().replaceAll(Pattern.quote(USER_PASSWORD), "\""+ password +"\"");
+	}
+
+	public static String userWithNoAuthoritiesJson() {
+		return userJson().replace(SimpleGrantedAuthorityMixinTests.AUTHORITIES_SET_JSON, SimpleGrantedAuthorityMixinTests.NO_AUTHORITIES_SET_JSON);
 	}
 }

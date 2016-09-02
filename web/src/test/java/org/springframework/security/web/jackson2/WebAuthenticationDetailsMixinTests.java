@@ -39,8 +39,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class WebAuthenticationDetailsMixinTests {
 
 	ObjectMapper mapper;
-	String webAuthenticationDetailsJson = "{\"@class\": \"org.springframework.security.web.authentication.WebAuthenticationDetails\","
-			+ "\"sessionId\": \"1\", \"remoteAddress\": \"/localhost\"}";
+	
+	// @formatter:off
+	private static final String AUTHENTICATION_DETAILS_JSON = "{"
+		+ "\"@class\": \"org.springframework.security.web.authentication.WebAuthenticationDetails\","
+		+ "\"sessionId\": \"1\", "
+		+ "\"remoteAddress\": "
+		+ "\"/localhost\""
+	+ "}";
+	// @formatter:on
 
 	@Before
 	public void setup() {
@@ -58,7 +65,7 @@ public class WebAuthenticationDetailsMixinTests {
 
 		WebAuthenticationDetails details = new WebAuthenticationDetails(request);
 
-		WebAuthenticationDetails authenticationDetails = this.mapper.readValue(webAuthenticationDetailsJson,
+		WebAuthenticationDetails authenticationDetails = this.mapper.readValue(AUTHENTICATION_DETAILS_JSON,
 				WebAuthenticationDetails.class);
 		assertThat(details.equals(authenticationDetails));
 	}
@@ -71,13 +78,13 @@ public class WebAuthenticationDetailsMixinTests {
 		request.setSession(new MockHttpSession(null, "1"));
 		WebAuthenticationDetails details = new WebAuthenticationDetails(request);
 		String actualJson = this.mapper.writeValueAsString(details);
-		JSONAssert.assertEquals(webAuthenticationDetailsJson, actualJson, true);
+		JSONAssert.assertEquals(AUTHENTICATION_DETAILS_JSON, actualJson, true);
 	}
 
 	@Test
 	public void webAuthenticationDetailsDeserializeTest()
 			throws IOException, JSONException {
-		WebAuthenticationDetails details = this.mapper.readValue(webAuthenticationDetailsJson,
+		WebAuthenticationDetails details = this.mapper.readValue(AUTHENTICATION_DETAILS_JSON,
 				WebAuthenticationDetails.class);
 		assertThat(details).isNotNull();
 		assertThat(details.getRemoteAddress()).isEqualTo("/localhost");

@@ -36,17 +36,28 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class RememberMeAuthenticationTokenMixinTests extends AbstractMixinTests {
 
-	String rememberMeKey = "rememberMe";
-	String rememberMeAuthTokenJson = "{\"@class\": \"org.springframework.security.authentication.RememberMeAuthenticationToken\"," +
-			"\"keyHash\": " + rememberMeKey.hashCode() + ", \"authenticated\": true, \"details\": null," +
-			"\"principal\": {\"@class\": \"org.springframework.security.core.userdetails.User\", \"username\": \"dummy\", \"password\": %s," +
-			" \"enabled\": true, \"accountNonExpired\": true, \"accountNonLocked\": true, \"credentialsNonExpired\": true, " +
-			"\"authorities\": [\"java.util.Collections$UnmodifiableSet\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"authority\": \"ROLE_USER\"}]]}," +
-			"\"authorities\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"authority\": \"ROLE_USER\"}]]}";
+	private static final String REMEMBERME_KEY = "rememberMe";
 
-	String rememberMeAuthTokenWithoutUserJson = "{\"@class\": \"org.springframework.security.authentication.RememberMeAuthenticationToken\"," +
-			"\"keyHash\": " + rememberMeKey.hashCode() + ", \"authenticated\": true, \"details\": null," +
-			"\"principal\": \"dummy\", \"authorities\": [\"java.util.ArrayList\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"authority\": \"ROLE_USER\"}]]}";
+	// @formatter:off
+	private static final String REMEMBERME_AUTH_JSON = "{"
+		+ "\"@class\": \"org.springframework.security.authentication.RememberMeAuthenticationToken\", "
+		+ "\"keyHash\": " + REMEMBERME_KEY.hashCode() + ", "
+		+ "\"authenticated\": true, \"details\": null" + ", "
+		+ "\"principal\": " + UserDeserializerTests.USER_JSON + ", "
+		+ "\"authorities\": " + SimpleGrantedAuthorityMixinTests.AUTHORITIES_ARRAYLIST_JSON
+	+ "}";
+	// @formatter:on
+
+	// @formatter:off
+	private static final String REMEMBERME_AUTH_STRINGPRINCIPAL_JSON = "{"
+		+ "\"@class\": \"org.springframework.security.authentication.RememberMeAuthenticationToken\","
+		+ "\"keyHash\": " + REMEMBERME_KEY.hashCode() + ", "
+		+ "\"authenticated\": true, "
+		+ "\"details\": null,"
+		+ "\"principal\": \"admin\", "
+		+ "\"authorities\": " + SimpleGrantedAuthorityMixinTests.AUTHORITIES_ARRAYLIST_JSON
+	+ "}";
+	// @formatter:on
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testWithNullPrincipal() throws JsonProcessingException, JSONException {
@@ -60,44 +71,44 @@ public class RememberMeAuthenticationTokenMixinTests extends AbstractMixinTests 
 
 	@Test
 	public void serializeRememberMeAuthenticationToken() throws JsonProcessingException, JSONException {
-		RememberMeAuthenticationToken token = new RememberMeAuthenticationToken(rememberMeKey, "dummy", Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
+		RememberMeAuthenticationToken token = new RememberMeAuthenticationToken(REMEMBERME_KEY, "admin", Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
 		String actualJson = buildObjectMapper().writeValueAsString(token);
-		JSONAssert.assertEquals(rememberMeAuthTokenWithoutUserJson, actualJson, true);
+		JSONAssert.assertEquals(REMEMBERME_AUTH_STRINGPRINCIPAL_JSON, actualJson, true);
 	}
 
 	@Test
 	public void serializeRememberMeAuthenticationWithUserToken() throws JsonProcessingException, JSONException {
 		User user = createDefaultUser();
-		RememberMeAuthenticationToken token = new RememberMeAuthenticationToken(rememberMeKey, user, user.getAuthorities());
+		RememberMeAuthenticationToken token = new RememberMeAuthenticationToken(REMEMBERME_KEY, user, user.getAuthorities());
 		String actualJson = buildObjectMapper().writeValueAsString(token);
-		JSONAssert.assertEquals(String.format(rememberMeAuthTokenJson, "\"password\""), actualJson, true);
+		JSONAssert.assertEquals(String.format(REMEMBERME_AUTH_JSON, "\"password\""), actualJson, true);
 	}
 
 	@Test
 	public void serializeRememberMeAuthenticationWithUserTokenAfterEraseCredential() throws JsonProcessingException, JSONException {
 		User user = createDefaultUser();
-		RememberMeAuthenticationToken token = new RememberMeAuthenticationToken(rememberMeKey, user, user.getAuthorities());
+		RememberMeAuthenticationToken token = new RememberMeAuthenticationToken(REMEMBERME_KEY, user, user.getAuthorities());
 		token.eraseCredentials();
 		String actualJson = buildObjectMapper().writeValueAsString(token);
-		JSONAssert.assertEquals(String.format(rememberMeAuthTokenJson, "null"), actualJson, true);
+		JSONAssert.assertEquals(REMEMBERME_AUTH_JSON.replace(UserDeserializerTests.USER_PASSWORD, "null"), actualJson, true);
 	}
 
 	@Test
 	public void deserializeRememberMeAuthenticationToken() throws IOException {
-		RememberMeAuthenticationToken token = buildObjectMapper().readValue(rememberMeAuthTokenWithoutUserJson, RememberMeAuthenticationToken.class);
+		RememberMeAuthenticationToken token = buildObjectMapper().readValue(REMEMBERME_AUTH_STRINGPRINCIPAL_JSON, RememberMeAuthenticationToken.class);
 		assertThat(token).isNotNull();
-		assertThat(token.getPrincipal()).isNotNull().isEqualTo("dummy").isEqualTo(token.getName());
+		assertThat(token.getPrincipal()).isNotNull().isEqualTo("admin").isEqualTo(token.getName());
 		assertThat(token.getAuthorities()).hasSize(1).contains(new SimpleGrantedAuthority("ROLE_USER"));
 	}
 
 	@Test
 	public void deserializeRememberMeAuthenticationTokenWithUserTest() throws IOException {
 		RememberMeAuthenticationToken token = buildObjectMapper()
-				.readValue(String.format(rememberMeAuthTokenJson, "\"password\""), RememberMeAuthenticationToken.class);
+				.readValue(String.format(REMEMBERME_AUTH_JSON, "\"password\""), RememberMeAuthenticationToken.class);
 		assertThat(token).isNotNull();
 		assertThat(token.getPrincipal()).isNotNull().isInstanceOf(User.class);
-		assertThat(((User)token.getPrincipal()).getUsername()).isEqualTo("dummy");
-		assertThat(((User)token.getPrincipal()).getPassword()).isEqualTo("password");
+		assertThat(((User)token.getPrincipal()).getUsername()).isEqualTo("admin");
+		assertThat(((User)token.getPrincipal()).getPassword()).isEqualTo("1234");
 		assertThat(((User) token.getPrincipal()).getAuthorities()).hasSize(1).contains(new SimpleGrantedAuthority("ROLE_USER"));
 		assertThat(token.getAuthorities()).hasSize(1).contains(new SimpleGrantedAuthority("ROLE_USER"));
 		assertThat(((User) token.getPrincipal()).isEnabled()).isEqualTo(true);
