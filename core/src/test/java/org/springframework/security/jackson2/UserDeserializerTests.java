@@ -55,7 +55,6 @@ public class UserDeserializerTests extends AbstractMixinTests {
 
 	@Test
 	public void serializeUserTest() throws JsonProcessingException, JSONException {
-		ObjectMapper mapper = buildObjectMapper();
 		User user = createDefaultUser();
 		String userJson = mapper.writeValueAsString(user);
 		JSONAssert.assertEquals(userWithPasswordJson(user.getPassword()), userJson, true);
@@ -63,7 +62,6 @@ public class UserDeserializerTests extends AbstractMixinTests {
 
 	@Test
 	public void serializeUserWithoutAuthority() throws JsonProcessingException, JSONException {
-		ObjectMapper mapper = buildObjectMapper();
 		User user = new User("admin", "1234", Collections.<GrantedAuthority>emptyList());
 		String userJson = mapper.writeValueAsString(user);
 		JSONAssert.assertEquals(userWithNoAuthoritiesJson(), userJson, true);
@@ -73,14 +71,11 @@ public class UserDeserializerTests extends AbstractMixinTests {
 	public void deserializeUserWithNullPasswordEmptyAuthorityTest() throws IOException {
 		String userJsonWithoutPasswordString = USER_JSON.replace(SimpleGrantedAuthorityMixinTests.AUTHORITIES_SET_JSON, "[]");
 
-		ObjectMapper mapper = buildObjectMapper();
 		mapper.readValue(userJsonWithoutPasswordString, User.class);
 	}
 
 	@Test
 	public void deserializeUserWithNullPasswordNoAuthorityTest() throws Exception {
-		ObjectMapper mapper = buildObjectMapper();
-		
 		String userJsonWithoutPasswordString = removeNode(userWithNoAuthoritiesJson(), mapper, "password");
 		
 		User user = mapper.readValue(userJsonWithoutPasswordString, User.class);
@@ -93,14 +88,13 @@ public class UserDeserializerTests extends AbstractMixinTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void deserializeUserWithNoClassIdInAuthoritiesTest() throws Exception {
-		ObjectMapper mapper = buildObjectMapper();
 		String userJson = USER_JSON.replace(SimpleGrantedAuthorityMixinTests.AUTHORITIES_SET_JSON,  "[{\"authority\": \"ROLE_USER\"}]");
 		mapper.readValue(userJson, User.class);
 	}
 
 	@Test
 	public void deserializeUserWithClassIdInAuthoritiesTest() throws IOException {
-		User user = buildObjectMapper().readValue(userJson(), User.class);
+		User user = mapper.readValue(userJson(), User.class);
 		assertThat(user).isNotNull();
 		assertThat(user.getUsername()).isEqualTo("admin");
 		assertThat(user.getPassword()).isEqualTo("1234");

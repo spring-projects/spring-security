@@ -16,15 +16,14 @@
 
 package org.springframework.security.web.jackson2;
 
+import java.io.IOException;
+
+import javax.servlet.http.Cookie;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONException;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
-import org.springframework.security.jackson2.SecurityJacksonModules;
-
-import javax.servlet.http.Cookie;
-import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -32,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Jitendra Singh
  * @since 4.2
  */
-public class CookieMixinTests {
+public class CookieMixinTests extends AbstractMixinTests {
 
 	// @formatter:off
 	private static final String COOKIE_JSON = "{"
@@ -49,23 +48,16 @@ public class CookieMixinTests {
 	+ "}";
 	// @formatter:on
 
-	ObjectMapper buildObjectMapper() {
-		ObjectMapper mapper = new ObjectMapper();
-		ClassLoader loader = getClass().getClassLoader();
-		mapper.registerModules(SecurityJacksonModules.getModules(loader));
-		return mapper;
-	}
-
 	@Test
 	public void serializeCookie() throws JsonProcessingException, JSONException {
 		Cookie cookie = new Cookie("demo", "cookie1");
-		String actualString = buildObjectMapper().writeValueAsString(cookie);
+		String actualString = mapper.writeValueAsString(cookie);
 		JSONAssert.assertEquals(COOKIE_JSON, actualString, true);
 	}
 
 	@Test
 	public void deserializeCookie() throws IOException {
-		Cookie cookie = buildObjectMapper().readValue(COOKIE_JSON, Cookie.class);
+		Cookie cookie = mapper.readValue(COOKIE_JSON, Cookie.class);
 		assertThat(cookie).isNotNull();
 		assertThat(cookie.getName()).isEqualTo("demo");
 		assertThat(cookie.getDomain()).isEqualTo("");

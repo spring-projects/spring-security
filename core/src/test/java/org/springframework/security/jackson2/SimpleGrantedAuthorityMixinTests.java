@@ -48,13 +48,13 @@ public class SimpleGrantedAuthorityMixinTests extends AbstractMixinTests {
 	@Test
 	public void serializeSimpleGrantedAuthorityTest() throws JsonProcessingException, JSONException {
 		SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_USER");
-		String serializeJson = buildObjectMapper().writeValueAsString(authority);
+		String serializeJson = mapper.writeValueAsString(authority);
 		JSONAssert.assertEquals(AUTHORITY_JSON, serializeJson, true);
 	}
 
 	@Test
 	public void deserializeGrantedAuthorityTest() throws IOException {
-		SimpleGrantedAuthority authority = buildObjectMapper().readValue(AUTHORITY_JSON, SimpleGrantedAuthority.class);
+		SimpleGrantedAuthority authority = mapper.readValue(AUTHORITY_JSON, SimpleGrantedAuthority.class);
 		assertThat(authority).isNotNull();
 		assertThat(authority.getAuthority()).isNotNull().isEqualTo("ROLE_USER");
 	}
@@ -62,6 +62,6 @@ public class SimpleGrantedAuthorityMixinTests extends AbstractMixinTests {
 	@Test(expected = JsonMappingException.class)
 	public void deserializeGrantedAuthorityWithoutRoleTest() throws IOException {
 		String json = "{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\"}";
-		buildObjectMapper().readValue(json, SimpleGrantedAuthority.class);
+		mapper.readValue(json, SimpleGrantedAuthority.class);
 	}
 }

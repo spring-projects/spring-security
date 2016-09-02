@@ -27,6 +27,7 @@ import org.jasig.cas.client.authentication.AttributePrincipalImpl;
 import org.jasig.cas.client.validation.Assertion;
 import org.jasig.cas.client.validation.AssertionImpl;
 import org.json.JSONException;
+import org.junit.Before;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
@@ -96,10 +97,19 @@ public class CasAuthenticationTokenMixinTests {
 
 	private static final String CAS_TOKEN_CLEARED_JSON = CAS_TOKEN_JSON.replaceFirst(PASSWORD, "null");
 
+	protected ObjectMapper mapper;
+
+	@Before
+	public void setup() {
+		mapper = new ObjectMapper();
+		ClassLoader loader = getClass().getClassLoader();
+		mapper.registerModules(SecurityJacksonModules.getModules(loader));
+	}
+
 	@Test
 	public void serializeCasAuthenticationTest() throws JsonProcessingException, JSONException {
 		CasAuthenticationToken token = createCasAuthenticationToken();
-		String actualJson = buildObjectMapper().writeValueAsString(token);
+		String actualJson = mapper.writeValueAsString(token);
 		JSONAssert.assertEquals(CAS_TOKEN_JSON, actualJson, true);
 	}
 
@@ -107,19 +117,19 @@ public class CasAuthenticationTokenMixinTests {
 	public void serializeCasAuthenticationTestAfterEraseCredentialInvoked() throws JsonProcessingException, JSONException {
 		CasAuthenticationToken token = createCasAuthenticationToken();
 		token.eraseCredentials();
-		String actualJson = buildObjectMapper().writeValueAsString(token);
+		String actualJson = mapper.writeValueAsString(token);
 		JSONAssert.assertEquals(CAS_TOKEN_CLEARED_JSON, actualJson, true);
 	}
 
 	@Test
 	public void deserializeCasAuthenticationTestAfterEraseCredentialInvoked() throws Exception {
-		CasAuthenticationToken token = buildObjectMapper().readValue(CAS_TOKEN_CLEARED_JSON, CasAuthenticationToken.class);
+		CasAuthenticationToken token = mapper.readValue(CAS_TOKEN_CLEARED_JSON, CasAuthenticationToken.class);
 		assertThat(((UserDetails)token.getPrincipal()).getPassword()).isNull();
 	}
 
 	@Test
 	public void deserializeCasAuthenticationTest() throws IOException, JSONException {
-		CasAuthenticationToken token = buildObjectMapper().readValue(CAS_TOKEN_JSON, CasAuthenticationToken.class);
+		CasAuthenticationToken token = mapper.readValue(CAS_TOKEN_JSON, CasAuthenticationToken.class);
 		assertThat(token).isNotNull();
 		assertThat(token.getPrincipal()).isNotNull().isInstanceOf(User.class);
 		assertThat(((User) token.getPrincipal()).getUsername()).isEqualTo("admin");
@@ -141,12 +151,5 @@ public class CasAuthenticationTokenMixinTests {
 		Assertion assertion = new AssertionImpl(new AttributePrincipalImpl("assertName"), START_DATE, END_DATE, START_DATE, Collections.<String, Object>emptyMap());
 		return new CasAuthenticationToken(KEY, principal, principal.getPassword(), authorities,
 				new User("admin", "1234", authorities), assertion);
-	}
-
-	ObjectMapper buildObjectMapper() {
-		ClassLoader loader = getClass().getClassLoader();
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.registerModules(SecurityJacksonModules.getModules(loader));
-		return mapper;
 	}
 }

@@ -56,13 +56,13 @@ public class AnonymousAuthenticationTokenMixinTests extends AbstractMixinTests {
 		AnonymousAuthenticationToken token = new AnonymousAuthenticationToken(
 				HASH_KEY, user, user.getAuthorities()
 		);
-		String actualJson = buildObjectMapper().writeValueAsString(token);
+		String actualJson = mapper.writeValueAsString(token);
 		JSONAssert.assertEquals(ANONYMOUS_JSON, actualJson, true);
 	}
 
 	@Test
 	public void deserializeAnonymousAuthenticationTokenTest() throws IOException {
-		AnonymousAuthenticationToken token = buildObjectMapper()
+		AnonymousAuthenticationToken token = mapper
 				.readValue(ANONYMOUS_JSON, AnonymousAuthenticationToken.class);
 		assertThat(token).isNotNull();
 		assertThat(token.getKeyHash()).isEqualTo(HASH_KEY.hashCode());
@@ -74,7 +74,7 @@ public class AnonymousAuthenticationTokenMixinTests extends AbstractMixinTests {
 		String jsonString = "{\"@class\": \"org.springframework.security.authentication.AnonymousAuthenticationToken\", \"details\": null," +
 				"\"principal\": \"user\", \"authenticated\": true, \"keyHash\": " + HASH_KEY.hashCode() + "," +
 				"\"authorities\": [\"java.util.ArrayList\", []]}";
-		buildObjectMapper().readValue(jsonString, AnonymousAuthenticationToken.class);
+		mapper.readValue(jsonString, AnonymousAuthenticationToken.class);
 	}
 
 	@Test
@@ -84,7 +84,7 @@ public class AnonymousAuthenticationTokenMixinTests extends AbstractMixinTests {
 				HASH_KEY, user, user.getAuthorities()
 		);
 		token.eraseCredentials();
-		String actualJson = buildObjectMapper().writeValueAsString(token);
+		String actualJson = mapper.writeValueAsString(token);
 		JSONAssert.assertEquals(ANONYMOUS_JSON.replace(UserDeserializerTests.USER_PASSWORD, "null"), actualJson, true);
 	}
 }

@@ -19,15 +19,12 @@ package org.springframework.security.web.jackson2;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONException;
-import org.junit.Before;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpSession;
-import org.springframework.security.jackson2.SecurityJacksonModules;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,10 +33,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Jitendra Singh
  * @since 4.2
  */
-public class WebAuthenticationDetailsMixinTests {
+public class WebAuthenticationDetailsMixinTests extends AbstractMixinTests {
 
-	ObjectMapper mapper;
-	
 	// @formatter:off
 	private static final String AUTHENTICATION_DETAILS_JSON = "{"
 		+ "\"@class\": \"org.springframework.security.web.authentication.WebAuthenticationDetails\","
@@ -48,13 +43,6 @@ public class WebAuthenticationDetailsMixinTests {
 		+ "\"/localhost\""
 	+ "}";
 	// @formatter:on
-
-	@Before
-	public void setup() {
-		this.mapper = new ObjectMapper();
-		ClassLoader loader = getClass().getClassLoader();
-		this.mapper.registerModules(SecurityJacksonModules.getModules(loader));
-	}
 
 	@Test
 	public void buildWebAuthenticationDetailsUsingDifferentConstructors()
@@ -65,7 +53,7 @@ public class WebAuthenticationDetailsMixinTests {
 
 		WebAuthenticationDetails details = new WebAuthenticationDetails(request);
 
-		WebAuthenticationDetails authenticationDetails = this.mapper.readValue(AUTHENTICATION_DETAILS_JSON,
+		WebAuthenticationDetails authenticationDetails = mapper.readValue(AUTHENTICATION_DETAILS_JSON,
 				WebAuthenticationDetails.class);
 		assertThat(details.equals(authenticationDetails));
 	}
@@ -77,14 +65,14 @@ public class WebAuthenticationDetailsMixinTests {
 		request.setRemoteAddr("/localhost");
 		request.setSession(new MockHttpSession(null, "1"));
 		WebAuthenticationDetails details = new WebAuthenticationDetails(request);
-		String actualJson = this.mapper.writeValueAsString(details);
+		String actualJson = mapper.writeValueAsString(details);
 		JSONAssert.assertEquals(AUTHENTICATION_DETAILS_JSON, actualJson, true);
 	}
 
 	@Test
 	public void webAuthenticationDetailsDeserializeTest()
 			throws IOException, JSONException {
-		WebAuthenticationDetails details = this.mapper.readValue(AUTHENTICATION_DETAILS_JSON,
+		WebAuthenticationDetails details = mapper.readValue(AUTHENTICATION_DETAILS_JSON,
 				WebAuthenticationDetails.class);
 		assertThat(details).isNotNull();
 		assertThat(details.getRemoteAddress()).isEqualTo("/localhost");

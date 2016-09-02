@@ -17,26 +17,23 @@
 package org.springframework.security.jackson2;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.Before;
 
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.util.ObjectUtils;
 
 /**
  * @author Jitenra Singh
  * @since 4.2
  */
 public abstract class AbstractMixinTests {
+	protected ObjectMapper mapper;
 
-	ObjectMapper mapper;
-
-	protected ObjectMapper buildObjectMapper() {
-		if (ObjectUtils.isEmpty(mapper)) {
-			mapper = new ObjectMapper();
-			ClassLoader loader = getClass().getClassLoader();
-			mapper.registerModules(SecurityJacksonModules.getModules(loader));
-		}
-		return mapper;
+	@Before
+	public void setup() {
+		mapper = new ObjectMapper();
+		ClassLoader loader = getClass().getClassLoader();
+		mapper.registerModules(SecurityJacksonModules.getModules(loader));
 	}
 
 	User createDefaultUser() {
