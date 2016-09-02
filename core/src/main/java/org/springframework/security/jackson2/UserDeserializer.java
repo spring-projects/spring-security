@@ -65,7 +65,7 @@ class UserDeserializer extends JsonDeserializer<User> {
 				readJsonNode(jsonNode, "credentialsNonExpired").asBoolean(),
 				readJsonNode(jsonNode, "accountNonLocked").asBoolean(), authorities
 		);
-		
+
 		if(password.asText(null) == null) {
 			result.eraseCredentials();
 		}
