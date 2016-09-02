@@ -17,8 +17,6 @@
 package org.springframework.security.jackson2;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.util.ObjectUtils;
@@ -29,7 +27,6 @@ import java.util.Collections;
  * @author Jitenra Singh
  * @since 4.2
  */
-@RunWith(MockitoJUnitRunner.class)
 public abstract class AbstractMixinTests {
 
 	ObjectMapper mapper;

@@ -16,19 +16,18 @@
 
 package org.springframework.security.web.jackson2;
 
+import java.io.IOException;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.skyscreamer.jsonassert.JSONAssert;
+
 import org.springframework.security.jackson2.SecurityJacksonModules;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
-
-import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -36,7 +35,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Jitendra Singh
  * @since 4.2
  */
-@RunWith(MockitoJUnitRunner.class)
 public class DefaultCsrfTokenMixinTests {
 
 	ObjectMapper objectMapper;

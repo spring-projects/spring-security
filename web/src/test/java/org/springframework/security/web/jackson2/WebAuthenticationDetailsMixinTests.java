@@ -23,8 +23,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -38,7 +36,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Jitendra Singh
  * @since 4.2
  */
-@RunWith(MockitoJUnitRunner.class)
 public class WebAuthenticationDetailsMixinTests {
 
 	ObjectMapper mapper;

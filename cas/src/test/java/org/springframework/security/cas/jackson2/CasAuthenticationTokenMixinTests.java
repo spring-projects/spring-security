@@ -28,8 +28,6 @@ import org.jasig.cas.client.validation.Assertion;
 import org.jasig.cas.client.validation.AssertionImpl;
 import org.json.JSONException;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import org.springframework.security.cas.authentication.CasAuthenticationToken;
@@ -45,7 +43,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Jitendra Singh
  * @since 4.2
  */
-@RunWith(MockitoJUnitRunner.class)
 public class CasAuthenticationTokenMixinTests {
 
 	private final String KEY = "casKey";

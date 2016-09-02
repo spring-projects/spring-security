@@ -17,8 +17,7 @@
 package org.springframework.security.web.jackson2;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+
 import org.springframework.security.jackson2.SecurityJacksonModules;
 import org.springframework.util.ObjectUtils;
 
@@ -26,7 +25,6 @@ import org.springframework.util.ObjectUtils;
  * @author Jitenra Singh
  * @since 4.2
  */
-@RunWith(MockitoJUnitRunner.class)
 public abstract class AbstractMixinTests {
 
 	ObjectMapper mapper;
