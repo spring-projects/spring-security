@@ -65,12 +65,6 @@ public class SessionFixationProtectionStrategy extends
 	boolean migrateSessionAttributes = true;
 
 	/**
-	 * In the case where the attributes will not be migrated, this field allows a list of
-	 * named attributes which should <em>not</em> be discarded.
-	 */
-	private List<String> retainedAttributes = null;
-
-	/**
 	 * Called to extract the existing attributes from the session, prior to invalidating
 	 * it. If {@code migrateAttributes} is set to {@code false}, only Spring Security
 	 * attributes will be retained. All application attributes will be discarded.
@@ -124,36 +118,19 @@ public class SessionFixationProtectionStrategy extends
 
 	@SuppressWarnings("unchecked")
 	private HashMap<String, Object> createMigratedAttributeMap(HttpSession session) {
-		HashMap<String, Object> attributesToMigrate = null;
+		HashMap<String, Object> attributesToMigrate = new HashMap<String, Object>();
 
-		if (migrateSessionAttributes || retainedAttributes == null) {
-			attributesToMigrate = new HashMap<String, Object>();
+		Enumeration enumer = session.getAttributeNames();
 
-			Enumeration enumer = session.getAttributeNames();
-
-			while (enumer.hasMoreElements()) {
-				String key = (String) enumer.nextElement();
-				if (!migrateSessionAttributes && !key.startsWith("SPRING_SECURITY_")) {
-					// Only retain Spring Security attributes
-					continue;
-				}
-				attributesToMigrate.put(key, session.getAttribute(key));
+		while (enumer.hasMoreElements()) {
+			String key = (String) enumer.nextElement();
+			if (!migrateSessionAttributes && !key.startsWith("SPRING_SECURITY_")) {
+				// Only retain Spring Security attributes
+				continue;
 			}
+			attributesToMigrate.put(key, session.getAttribute(key));
 		}
-		else {
-			// Only retain the attributes which have been specified in the
-			// retainAttributes list
-			if (!retainedAttributes.isEmpty()) {
-				attributesToMigrate = new HashMap<String, Object>();
-				for (String name : retainedAttributes) {
-					Object value = session.getAttribute(name);
 
-					if (value != null) {
-						attributesToMigrate.put(name, value);
-					}
-				}
-			}
-		}
 		return attributesToMigrate;
 	}
 
