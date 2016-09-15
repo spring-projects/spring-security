@@ -65,7 +65,7 @@ import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
 import org.springframework.security.web.session.ConcurrentSessionFilter;
 import org.springframework.security.web.session.SessionManagementFilter;
-import org.springframework.security.web.session.SimpleRedirectExpiredSessionStrategy;
+import org.springframework.security.web.session.SimpleRedirectSessionInformationExpiredStrategy;
 import org.springframework.security.web.session.SimpleRedirectInvalidSessionStrategy;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.ClassUtils;
@@ -511,11 +511,11 @@ class HttpConfigurationBuilder {
 
 		if (StringUtils.hasText(expiryUrl)) {
 			BeanDefinitionBuilder expiredSessionBldr = BeanDefinitionBuilder
-					.rootBeanDefinition(SimpleRedirectExpiredSessionStrategy.class);
+					.rootBeanDefinition(SimpleRedirectSessionInformationExpiredStrategy.class);
 			expiredSessionBldr.addConstructorArgValue(expiryUrl);
-			filterBuilder.addPropertyValue("expiredSessionStrategy", expiredSessionBldr.getBeanDefinition());
+			filterBuilder.addConstructorArgValue(expiredSessionBldr.getBeanDefinition());
 		} else if (StringUtils.hasText(expiredSessionStrategyRef)) {
-			filterBuilder.addPropertyReference("expiredSessionStrategy", expiredSessionStrategyRef);
+			filterBuilder.addConstructorArgReference(expiredSessionStrategyRef);
 		}
 
 		pc.popAndRegisterContainingComponent();

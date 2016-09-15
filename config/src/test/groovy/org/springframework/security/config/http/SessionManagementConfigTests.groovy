@@ -163,7 +163,7 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
 
 		then:
 		concurrentSessionFilter instanceof ConcurrentSessionFilter
-		concurrentSessionFilter.expiredSessionStrategy.destinationUrl == '/expired'
+		concurrentSessionFilter.sessionInformationExpiredStrategy.destinationUrl == '/expired'
 		appContext.getBean("sr") != null
 		getFilter(SessionManagementFilter.class) != null
 		sessionRegistryIsValid();
@@ -270,7 +270,7 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
 		List filters = getFilters("/someurl");
 
 		expect:
-		filters.get(1).expiredSessionStrategy == null
+		filters.get(1).sessionInformationExpiredStrategy.class.name == 'org.springframework.security.web.session.ConcurrentSessionFilter$ResponseBodySessionInformationExpiredStrategy'
 	}
 
 	def externalSessionStrategyIsSupported() {

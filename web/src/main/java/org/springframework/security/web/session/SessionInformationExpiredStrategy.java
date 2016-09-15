@@ -16,20 +16,19 @@
 package org.springframework.security.web.session;
 
 import java.io.IOException;
+
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * Determines the behaviour of the {@code ConcurrentSessionFilter} when an expired session
  * is detected in the {@code ConcurrentSessionFilter}.
  *
  * @author Marten Deinum
- * @since 4.1.0
+ * @author Rob Winch
+ * @since 4.2.0
  */
-public interface ExpiredSessionStrategy {
+public interface SessionInformationExpiredStrategy {
 
-	void onExpiredSessionDetected(HttpServletRequest request, HttpServletResponse response)
+	void onExpiredSessionDetected(SessionInformationExpiredEvent eventØ)
 			throws IOException, ServletException;
-
 }

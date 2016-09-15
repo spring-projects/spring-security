@@ -48,11 +48,11 @@ import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.savedrequest.NullRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.session.ConcurrentSessionFilter;
-import org.springframework.security.web.session.ExpiredSessionStrategy;
 import org.springframework.security.web.session.InvalidSessionStrategy;
+import org.springframework.security.web.session.SessionInformationExpiredStrategy;
 import org.springframework.security.web.session.SessionManagementFilter;
-import org.springframework.security.web.session.SimpleRedirectExpiredSessionStrategy;
 import org.springframework.security.web.session.SimpleRedirectInvalidSessionStrategy;
+import org.springframework.security.web.session.SimpleRedirectSessionInformationExpiredStrategy;
 import org.springframework.util.Assert;
 
 /**
@@ -99,7 +99,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	private SessionAuthenticationStrategy sessionAuthenticationStrategy;
 	private SessionAuthenticationStrategy providedSessionAuthenticationStrategy;
 	private InvalidSessionStrategy invalidSessionStrategy;
-	private ExpiredSessionStrategy expiredSessionStrategy;
+	private SessionInformationExpiredStrategy expiredSessionStrategy;
 	private List<SessionAuthenticationStrategy> sessionAuthenticationStrategies = new ArrayList<SessionAuthenticationStrategy>();
 	private SessionRegistry sessionRegistry;
 	private Integer maximumSessions;
@@ -355,7 +355,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		}
 
 		public ConcurrencyControlConfigurer expiredSessionStrategy(
-				ExpiredSessionStrategy expiredSessionStrategy) {
+				SessionInformationExpiredStrategy expiredSessionStrategy) {
 			SessionManagementConfigurer.this.expiredSessionStrategy = expiredSessionStrategy;
 			return this;
 		}
@@ -470,14 +470,21 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 
 		http.addFilter(sessionManagementFilter);
 		if (isConcurrentSessionControlEnabled()) {
-			ConcurrentSessionFilter concurrentSessionFilter = new ConcurrentSessionFilter(
-					getSessionRegistry(http));
-			concurrentSessionFilter
-					.setExpiredSessionStrategy(getExpiredSessionStrategy());
+			ConcurrentSessionFilter concurrentSessionFilter = createConccurencyFilter(http);
 
 			concurrentSessionFilter = postProcess(concurrentSessionFilter);
 			http.addFilter(concurrentSessionFilter);
 		}
+	}
+
+	private ConcurrentSessionFilter createConccurencyFilter(H http) {
+		SessionInformationExpiredStrategy expireStrategy = getExpiredSessionStrategy();
+		SessionRegistry sessionRegistry = getSessionRegistry(http);
+		if(expireStrategy == null) {
+			return new ConcurrentSessionFilter(sessionRegistry);
+		}
+
+		return new ConcurrentSessionFilter(sessionRegistry, expireStrategy);
 	}
 
 	/**
@@ -505,7 +512,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		return this.invalidSessionStrategy;
 	}
 
-	ExpiredSessionStrategy getExpiredSessionStrategy() {
+	SessionInformationExpiredStrategy getExpiredSessionStrategy() {
 		if (this.expiredSessionStrategy != null) {
 			return this.expiredSessionStrategy;
 		}
@@ -515,7 +522,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		}
 
 		if (this.expiredSessionStrategy == null) {
-			this.expiredSessionStrategy = new SimpleRedirectExpiredSessionStrategy(
+			this.expiredSessionStrategy = new SimpleRedirectSessionInformationExpiredStrategy(
 					this.expiredUrl);
 		}
 		return this.expiredSessionStrategy;

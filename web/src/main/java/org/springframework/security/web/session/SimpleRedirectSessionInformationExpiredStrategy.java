@@ -16,11 +16,10 @@
 package org.springframework.security.web.session;
 
 import java.io.IOException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.util.UrlUtils;
@@ -31,28 +30,27 @@ import org.springframework.util.Assert;
  * {@code ConcurrentSessionFilter}.
  *
  * @author Marten Deinum
- * @since 4.1.0
+ * @since 4.2.0
  */
-public final class SimpleRedirectExpiredSessionStrategy implements ExpiredSessionStrategy {
+public final class SimpleRedirectSessionInformationExpiredStrategy implements SessionInformationExpiredStrategy {
 	private final Log logger = LogFactory.getLog(getClass());
 	private final String destinationUrl;
 	private final RedirectStrategy redirectStrategy;
 
-	public SimpleRedirectExpiredSessionStrategy(String invalidSessionUrl) {
+	public SimpleRedirectSessionInformationExpiredStrategy(String invalidSessionUrl) {
 		this(invalidSessionUrl, new DefaultRedirectStrategy());
 	}
 
-	public SimpleRedirectExpiredSessionStrategy(String invalidSessionUrl, RedirectStrategy redirectStrategy) {
+	public SimpleRedirectSessionInformationExpiredStrategy(String invalidSessionUrl, RedirectStrategy redirectStrategy) {
 		Assert.isTrue(UrlUtils.isValidRedirectUrl(invalidSessionUrl),
 				"url must start with '/' or with 'http(s)'");
 		this.destinationUrl=invalidSessionUrl;
 		this.redirectStrategy=redirectStrategy;
 	}
 
-	public void onExpiredSessionDetected(HttpServletRequest request,
-			HttpServletResponse response) throws IOException {
+	public void onExpiredSessionDetected(SessionInformationExpiredEvent event) throws IOException {
 		logger.debug("Redirecting to '" + destinationUrl + "'");
-		redirectStrategy.sendRedirect(request, response, destinationUrl);
+		redirectStrategy.sendRedirect(event.getRequest(), event.getResponse(), destinationUrl);
 	}
 
 }

@@ -67,7 +67,7 @@ class NamespaceSessionManagementTests extends BaseSpringSpec {
 			concurrentStrategy.maximumSessions == 1
 			concurrentStrategy.exceptionIfMaximumExceeded
 			concurrentStrategy.sessionRegistry == CustomSessionManagementConfig.SR
-			findFilter(ConcurrentSessionFilter).expiredSessionStrategy.destinationUrl == "/expired-session"
+			findFilter(ConcurrentSessionFilter).sessionInformationExpiredStrategy.destinationUrl == "/expired-session"
 	}
 
 	@EnableWebSecurity
