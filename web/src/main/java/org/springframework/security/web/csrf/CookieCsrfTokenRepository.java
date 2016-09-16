@@ -74,7 +74,7 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 		String tokenValue = token == null ? "" : token.getToken();
 		Cookie cookie = new Cookie(this.cookieName, tokenValue);
 		cookie.setSecure(request.isSecure());
-		if ( this.cookiePath != null && !this.cookiePath.isEmpty()) {
+		if (this.cookiePath != null && !this.cookiePath.isEmpty()) {
 				cookie.setPath(this.cookiePath);
 		} else {
 				cookie.setPath(this.getRequestContext(request));
@@ -176,11 +176,11 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 		return UUID.randomUUID().toString();
 	}
 
-		public void setCookiePath(String path) {
-				this.cookiePath = path;
-		}
+	public void setCookiePath(String path) {
+		this.cookiePath = path;
+	}
 
-		public void getCookiePath() {
-				return this.cookiePath;
-		}
+	public void getCookiePath() {
+		return this.cookiePath;
+	}
 }
