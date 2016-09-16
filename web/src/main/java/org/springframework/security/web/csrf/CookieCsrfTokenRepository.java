@@ -176,10 +176,21 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 		return UUID.randomUUID().toString();
 	}
 
+	/**
+	 * Set the path that the Cookie will be created with. This will will override the default functionality which uses the
+	 * request context as the path.
+	 *
+	 * @param path the path to use
+	 */
 	public void setCookiePath(String path) {
 		this.cookiePath = path;
 	}
 
+	/**
+	 * Get the path that the CSRF cookie will be set to.
+	 *
+	 * @return the path to be used.
+	 */
 	public String getCookiePath() {
 		return this.cookiePath;
 	}
