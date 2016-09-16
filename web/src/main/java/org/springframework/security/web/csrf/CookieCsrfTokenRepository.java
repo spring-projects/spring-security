@@ -180,7 +180,7 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 		this.cookiePath = path;
 	}
 
-	public void getCookiePath() {
+	public String getCookiePath() {
 		return this.cookiePath;
 	}
 }
