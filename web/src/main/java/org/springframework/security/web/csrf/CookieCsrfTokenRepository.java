@@ -53,6 +53,8 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 
 	private boolean cookieHttpOnly;
 
+	private String cookiePath;
+
 	public CookieCsrfTokenRepository() {
 		this.setHttpOnlyMethod = ReflectionUtils.findMethod(Cookie.class, "setHttpOnly", boolean.class);
 		if (this.setHttpOnlyMethod != null) {
@@ -72,7 +74,11 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 		String tokenValue = token == null ? "" : token.getToken();
 		Cookie cookie = new Cookie(this.cookieName, tokenValue);
 		cookie.setSecure(request.isSecure());
-		cookie.setPath(getCookiePath(request));
+		if (this.cookiePath != null && !this.cookiePath.isEmpty()) {
+				cookie.setPath(this.cookiePath);
+		} else {
+				cookie.setPath(this.getRequestContext(request));
+		}
 		if (token == null) {
 			cookie.setMaxAge(0);
 		}
@@ -148,7 +154,7 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 		this.cookieHttpOnly = cookieHttpOnly;
 	}
 
-	private String getCookiePath(HttpServletRequest request) {
+	private String getRequestContext(HttpServletRequest request) {
 		String contextPath = request.getContextPath();
 		return contextPath.length() > 0 ? contextPath : "/";
 	}
@@ -168,5 +174,24 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 
 	private String createNewToken() {
 		return UUID.randomUUID().toString();
+	}
+
+	/**
+	 * Set the path that the Cookie will be created with. This will will override the default functionality which uses the
+	 * request context as the path.
+	 *
+	 * @param path the path to use
+	 */
+	public void setCookiePath(String path) {
+		this.cookiePath = path;
+	}
+
+	/**
+	 * Get the path that the CSRF cookie will be set to.
+	 *
+	 * @return the path to be used.
+	 */
+	public String getCookiePath() {
+		return this.cookiePath;
 	}
 }

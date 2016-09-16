@@ -151,6 +151,45 @@ public class CookieCsrfTokenRepositoryTests {
 	}
 
 	@Test
+	public void saveTokenCustomPath() {
+		String customPath = "/custompath";
+		this.repository.setCookiePath(customPath);
+		CsrfToken token = this.repository.generateToken(this.request);
+		this.repository.saveToken(token, this.request, this.response);
+
+		Cookie tokenCookie = this.response
+				.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
+
+		assertThat(tokenCookie.getPath()).isEqualTo(this.repository.getCookiePath());
+	}
+
+	@Test
+	public void saveTokenEmptyCustomPath() {
+		String customPath = "";
+		this.repository.setCookiePath(customPath);
+		CsrfToken token = this.repository.generateToken(this.request);
+		this.repository.saveToken(token, this.request, this.response);
+
+		Cookie tokenCookie = this.response
+				.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
+
+		assertThat(tokenCookie.getPath()).isEqualTo(this.request.getContextPath());
+	}
+
+	@Test
+	public void saveTokenNullCustomPath() {
+		String customPath = null;
+		this.repository.setCookiePath(customPath);
+		CsrfToken token = this.repository.generateToken(this.request);
+		this.repository.saveToken(token, this.request, this.response);
+
+		Cookie tokenCookie = this.response
+				.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
+
+		assertThat(tokenCookie.getPath()).isEqualTo(this.request.getContextPath());
+	}
+
+	@Test
 	public void loadTokenNoCookiesNull() {
 		assertThat(this.repository.loadToken(this.request)).isNull();
 	}
