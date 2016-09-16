@@ -53,7 +53,7 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 
 	private boolean cookieHttpOnly;
 
-  private String cookiePath;
+	private String cookiePath;
 
 	public CookieCsrfTokenRepository() {
 		this.setHttpOnlyMethod = ReflectionUtils.findMethod(Cookie.class, "setHttpOnly", boolean.class);
@@ -74,11 +74,11 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 		String tokenValue = token == null ? "" : token.getToken();
 		Cookie cookie = new Cookie(this.cookieName, tokenValue);
 		cookie.setSecure(request.isSecure());
-    if ( this.cookiePath != null && !this.cookiePath.isEmpty()) {
-		  cookie.setPath(this.cookiePath);
-    } else {
-		  cookie.setPath(this.getRequestContext(request));
-    }
+		if ( this.cookiePath != null && !this.cookiePath.isEmpty()) {
+				cookie.setPath(this.cookiePath);
+		} else {
+				cookie.setPath(this.getRequestContext(request));
+		}
 		if (token == null) {
 			cookie.setMaxAge(0);
 		}
@@ -176,11 +176,11 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 		return UUID.randomUUID().toString();
 	}
 
-  public void setCookiePath(String path) {
-    this.cookiePath = path;
-  }
-  
-  public void getCookiePath() {
-    return this.cookiePath;
-  }
+		public void setCookiePath(String path) {
+				this.cookiePath = path;
+		}
+
+		public void getCookiePath() {
+				return this.cookiePath;
+		}
 }
