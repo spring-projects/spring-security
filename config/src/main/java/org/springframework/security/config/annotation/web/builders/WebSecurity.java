@@ -113,7 +113,7 @@ public final class WebSecurity extends
 
 	/**
 	 * <p>
-	 * Allows adding {@link RequestMatcher} instances that should that Spring Security
+	 * Allows adding {@link RequestMatcher} instances that Spring Security
 	 * should ignore. Web Security provided by Spring Security (including the
 	 * {@link SecurityContext}) will not be available on {@link HttpServletRequest} that
 	 * match. Typically the requests that are registered should be that of only static
