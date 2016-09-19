@@ -109,6 +109,18 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 
 	// --- defaults disabled
 
+	// gh-3986
+	def 'http headers defaults-disabled with no override'() {
+		httpAutoConfig {
+			'headers'('defaults-disabled':true) {
+			}
+		}
+		createAppContext()
+
+		expect:
+		getFilter(HeaderWriterFilter) == null
+	}
+
 	def 'http headers content-type-options'() {
 		httpAutoConfig {
 			'headers'('defaults-disabled':true) {

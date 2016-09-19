@@ -111,13 +111,13 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 
 		parseHeaderElements(element);
 
-		if (disabled) {
-			if (!headerWriters.isEmpty()) {
-				parserContext
-						.getReaderContext()
-						.error("Cannot specify <headers disabled=\"true\"> with child elements.",
-								element);
-			}
+		boolean noWriters = headerWriters.isEmpty();
+		if (disabled && !noWriters) {
+			parserContext
+				.getReaderContext()
+				.error("Cannot specify <headers disabled=\"true\"> with child elements.",
+						element);
+		} else if (noWriters) {
 			return null;
 		}
 
