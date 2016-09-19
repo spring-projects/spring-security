@@ -4038,7 +4038,7 @@ Allowing your website to be added to a frame can be a security issue. For exampl
 
 [NOTE]
 ====
-Another modern approach to dealing with clickjacking is to use <<headers-content-security-policy>>.
+Another modern approach to dealing with clickjacking is to use <<headers-csp>>.
 ====
 
 There are a number ways to mitigate clickjacking attacks. For example, to protect legacy browsers from clickjacking attacks you can use https://www.owasp.org/index.php/Clickjacking_Defense_Cheat_Sheet#Best-for-now_Legacy_Browser_Frame_Breaking_Script[frame breaking code]. While not perfect, the frame breaking code is the best you can do for the legacy browsers.
