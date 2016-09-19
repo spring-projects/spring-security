@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2012-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,84 +15,55 @@
  */
 package org.springframework.security.access.hierarchicalroles;
 
+import org.springframework.util.Assert;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Utility method for working with {@link RoleHierarchy}.
+ * Utility methods for {@link RoleHierarchy}.
  *
  * @author Thomas Darimont
- * @since
+ * @since 4.2.0
  */
-public class RoleHierarchyUtils {
+public final class RoleHierarchyUtils {
+
+	private RoleHierarchyUtils() {
+	}
 
 	/**
-	 * Builds a {@link RoleHierarchy} representation from the given {@link Map} of role name to implied roles.
-	 * The map key is the role name and the map value is a {@link List} of implied role names.
+	 * Converts the supplied {@link Map} of role name to implied role name(s) to a string
+	 * representation understood by {@link RoleHierarchyImpl#setHierarchy(String)}.
+	 * The map key is the role name and the map value is a {@link List} of implied role name(s).
 	 *
-	 * <p>
-	 *     Here is an example configuration of a role hierarchy configured via yaml.
-	 *     wich follows the pattern:
-	 *     {@code ROLE_NAME: List of implied role names}
-	 * </p>
-	 * <pre>
-	 * <code>
+	 * @param roleHierarchyMap the mapping(s) of role name to implied role name(s)
+	 * @return a string representation of a role hierarchy
+	 * @throws IllegalArgumentException if roleHierarchyMap is null or empty or if a role name is null or
+	 * empty or if an implied role name(s) is null or empty
 	 *
-	 * security:
-	 *   roles:
-	 *     hierarchy:
-	 *       ROLE_ALL: ROLE_A, ROLE_C
-	 *       ROLE_A: ROLE_B
-	 *       ROLE_B: ROLE_AUTHENTICATED
-	 *       ROLE_C: ROLE_AUTHENTICATED
-	 *       ROLE_AUTHENTICATED: ROLE_UNAUTHENTICATED
-	 * </code>
-	 * </pre>
-	 * <p>This yaml configuration could then be mapped by the following {@literal ConfigurationProperties}</p>
-	 * <pre>
-	 * <code>
-	 *   {@literal @}ConfigurationProperties("security.roles")
-	 *   class SecurityPropertiesExtension {
-	 *     Map<String, List<String>> hierarchy = new LinkedHashMap<>();
-	 *
-	 *     //getter | setter
-	 *   }
-	 * </code>
-	 * </pre>
-	 * <p>To define the role hierarchy just declare a {@link org.springframework.context.annotation.Bean} of
-	 * type {@link RoleHierarchy} as follows:</p>
-	 * <pre>
-	 * <code>
-	 *   {@literal @}Bean
-	 *   RoleHierarchy roleHierarchy(SecurityPropertiesExtension spe) {
-	 *     return RoleHierarchyUtils.roleHierarchyFromMap(spe.getHierarchy());
-	 *   }
-	 * </code>
-	 * </pre>
-	 *
-	 * @param roleHierarchyMapping the role name to implied role names mapping
-	 * @return
 	 */
-	public static RoleHierarchy roleHierarchyFromMap(Map<String, List<String>> roleHierarchyMapping) {
+	public static String roleHierarchyFromMap(Map<String, List<String>> roleHierarchyMap) {
+		Assert.notEmpty(roleHierarchyMap, "roleHierarchyMap cannot be empty");
 
-		StringWriter roleHierachyDescriptionBuffer = new StringWriter();
-		PrintWriter roleHierarchyDescriptionWriter = new PrintWriter(roleHierachyDescriptionBuffer);
+		StringWriter roleHierarchyBuffer = new StringWriter();
+		PrintWriter roleHierarchyWriter = new PrintWriter(roleHierarchyBuffer);
 
-		for (Map.Entry<String, List<String>> entry : roleHierarchyMapping.entrySet()) {
+		for (Map.Entry<String, List<String>> roleHierarchyEntry : roleHierarchyMap.entrySet()) {
+			String role = roleHierarchyEntry.getKey();
+			List<String> impliedRoles = roleHierarchyEntry.getValue();
 
-			String currentRole = entry.getKey();
-			List<String> impliedRoles = entry.getValue();
+			Assert.hasLength(role, "role name must be supplied");
+			Assert.notEmpty(impliedRoles, "implied role name(s) cannot be empty");
 
 			for (String impliedRole : impliedRoles) {
-				String roleMapping = currentRole + " > " + impliedRole;
-				roleHierarchyDescriptionWriter.println(roleMapping);
+				String roleMapping = role + " > " + impliedRole;
+				roleHierarchyWriter.println(roleMapping);
 			}
 		}
 
-		RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
-		roleHierarchy.setHierarchy(roleHierachyDescriptionBuffer.toString());
-		return roleHierarchy;
+		return roleHierarchyBuffer.toString();
 	}
+
 }
