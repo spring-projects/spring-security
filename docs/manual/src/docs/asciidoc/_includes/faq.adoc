@@ -77,7 +77,7 @@ From a Spring Security perspective, the first thing you should do is follow the 
 .. <<appendix-faq-session-listener-missing>>
 .. <<appendix-faq-unwanted-session-creation>>
 . Miscellaneous
-.. <<forbidden-csrf>>
+.. <<appendix-faq-forbidden-csrf>>
 .. <<appendix-faq-no-security-on-forward>>
 .. <<appendix-faq-method-security-in-web-context>>
 .. <<appendix-faq-no-filters-no-context>>
