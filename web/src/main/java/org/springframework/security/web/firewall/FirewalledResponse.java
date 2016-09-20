@@ -53,7 +53,7 @@ class FirewalledResponse extends HttpServletResponseWrapper {
 	}
 
 	private void validateCRLF(String name, String value) {
-		if (CR_OR_LF.matcher(value).find()) {
+		if (value != null && CR_OR_LF.matcher(value).find()) {
 			throw new IllegalArgumentException(
 					"Invalid characters (CR/LF) in header " + name);
 		}
