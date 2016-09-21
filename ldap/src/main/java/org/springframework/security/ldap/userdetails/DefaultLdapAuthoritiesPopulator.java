@@ -16,6 +16,10 @@
 
 package org.springframework.security.ldap.userdetails;
 
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.security.config.GrantedAuthorityDefaults;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
@@ -97,7 +101,7 @@ import java.util.Set;
  * @author Luke Taylor
  * @author Filip Hanik
  */
-public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator {
+public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator, ApplicationContextAware {
 	// ~ Static fields/initializers
 	// =====================================================================================
 
@@ -140,7 +144,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 	/**
 	 * The role prefix that will be prepended to each role name
 	 */
-	private String rolePrefix = "ROLE_";
+	private GrantedAuthorityDefaults rolePrefix = new GrantedAuthorityDefaults("ROLE_");
 	/**
 	 * Should we convert the role name to uppercase
 	 */
@@ -250,7 +254,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 				role = role.toUpperCase();
 			}
 
-			authorities.add(new SimpleGrantedAuthority(rolePrefix + role));
+			authorities.add(new SimpleGrantedAuthority(rolePrefix.getRolePrefix() + role));
 		}
 
 		return authorities;
@@ -297,7 +301,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 	 */
 	public void setRolePrefix(String rolePrefix) {
 		Assert.notNull(rolePrefix, "rolePrefix must not be null");
-		this.rolePrefix = rolePrefix;
+		this.rolePrefix = new GrantedAuthorityDefaults(rolePrefix);
 	}
 
 	/**
@@ -360,7 +364,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 	 * @see #setRolePrefix(String)
 	 */
 	protected final String getRolePrefix() {
-		return rolePrefix;
+		return this.rolePrefix.getRolePrefix();
 	}
 
 	/**
@@ -391,4 +395,14 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 	private SearchControls getSearchControls() {
 		return searchControls;
 	}
+
+	@Override
+	public void setApplicationContext(ApplicationContext context) throws
+			BeansException {
+		String[] beanNames = context.getBeanNamesForType(GrantedAuthorityDefaults.class);
+		if (beanNames.length == 1) {
+			this.rolePrefix = context.getBean(beanNames[0], GrantedAuthorityDefaults.class);
+		}
+	}
+
 }

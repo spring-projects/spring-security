@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2002-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,6 +49,7 @@ import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.intercept.AfterInvocationManager;
 import org.springframework.security.access.intercept.AfterInvocationProviderManager;
 import org.springframework.security.access.intercept.RunAsManager;
+import org.springframework.security.access.intercept.RunAsManagerImpl;
 import org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor;
 import org.springframework.security.access.intercept.aspectj.AspectJMethodSecurityInterceptor;
 import org.springframework.security.access.method.DelegatingMethodSecurityMetadataSource;
@@ -63,6 +64,8 @@ import org.springframework.security.access.vote.RoleVoter;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
+
+import org.springframework.security.config.GrantedAuthorityDefaults;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -74,6 +77,7 @@ import org.springframework.util.Assert;
  * {@link EnableGlobalMethodSecurity} annotation on the subclass.
  *
  * @author Rob Winch
+ * @author Eddú Meléndez
  * @since 3.2
  * @see EnableGlobalMethodSecurity
  */
@@ -130,6 +134,14 @@ public class GlobalMethodSecurityConfiguration
 				.setSecurityMetadataSource(methodSecurityMetadataSource());
 		RunAsManager runAsManager = runAsManager();
 		if (runAsManager != null) {
+			if (runAsManager instanceof RunAsManagerImpl) {
+				GrantedAuthorityDefaults grantedAuthorityDefaults =
+						getSingleBeanOrNull(GrantedAuthorityDefaults.class);
+				if (grantedAuthorityDefaults != null) {
+					((RunAsManagerImpl) runAsManager).setRolePrefix(
+							grantedAuthorityDefaults.getRolePrefix());
+				}
+			}
 			methodSecurityInterceptor.setRunAsManager(runAsManager);
 		}
 
@@ -167,6 +179,13 @@ public class GlobalMethodSecurityConfiguration
 				AuthenticationTrustResolver.class);
 		if (trustResolver != null) {
 			this.defaultMethodExpressionHandler.setTrustResolver(trustResolver);
+		}
+
+		GrantedAuthorityDefaults grantedAuthorityDefaults = getSingleBeanOrNull(
+				GrantedAuthorityDefaults.class);
+		if (grantedAuthorityDefaults != null) {
+			this.defaultMethodExpressionHandler.setDefaultRolePrefix(
+					grantedAuthorityDefaults.getRolePrefix());
 		}
 	}
 
@@ -355,6 +374,12 @@ public class GlobalMethodSecurityConfiguration
 			sources.add(new SecuredAnnotationSecurityMetadataSource());
 		}
 		if (jsr250Enabled()) {
+			GrantedAuthorityDefaults grantedAuthorityDefaults =
+					getSingleBeanOrNull(GrantedAuthorityDefaults.class);
+			if (grantedAuthorityDefaults != null) {
+				this.jsr250MethodSecurityMetadataSource.setDefaultRolePrefix(
+						grantedAuthorityDefaults.getRolePrefix());
+			}
 			sources.add(jsr250MethodSecurityMetadataSource);
 		}
 		return new DelegatingMethodSecurityMetadataSource(sources);
