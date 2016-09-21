@@ -15,18 +15,22 @@
  */
 package org.springframework.security.web.firewall;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletResponseWrapper;
 import java.io.IOException;
 import java.util.regex.Pattern;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponseWrapper;
 
 /**
  * @author Luke Taylor
  * @author Eddú Meléndez
+ * @author Gabriel Lavoie
  */
 class FirewalledResponse extends HttpServletResponseWrapper {
-
 	private static final Pattern CR_OR_LF = Pattern.compile("\\r|\\n");
+	private static final String LOCATION_HEADER = "Location";
+	private static final String SET_COOKIE_HEADER = "Set-Cookie";
 
 	public FirewalledResponse(HttpServletResponse response) {
 		super(response);
@@ -36,7 +40,7 @@ class FirewalledResponse extends HttpServletResponseWrapper {
 	public void sendRedirect(String location) throws IOException {
 		// TODO: implement pluggable validation, instead of simple blacklisting.
 		// SEC-1790. Prevent redirects containing CRLF
-		validateCRLF("Location", location);
+		validateCRLF(LOCATION_HEADER, location);
 		super.sendRedirect(location);
 	}
 
@@ -52,11 +56,20 @@ class FirewalledResponse extends HttpServletResponseWrapper {
 		super.addHeader(name, value);
 	}
 
-	private void validateCRLF(String name, String value) {
-		if (value != null && CR_OR_LF.matcher(value).find()) {
+	@Override
+	public void addCookie(Cookie cookie) {
+		validateCRLF(SET_COOKIE_HEADER, cookie.getValue());
+		validateCRLF(SET_COOKIE_HEADER, cookie.getPath());
+		validateCRLF(SET_COOKIE_HEADER, cookie.getDomain());
+		validateCRLF(SET_COOKIE_HEADER, cookie.getComment());
+		super.addCookie(cookie);
+	}
+
+	void validateCRLF(String name, String value) {
+		if (name != null && CR_OR_LF.matcher(name).find()
+				|| value != null && CR_OR_LF.matcher(value).find()) {
 			throw new IllegalArgumentException(
 					"Invalid characters (CR/LF) in header " + name);
 		}
 	}
-
 }
