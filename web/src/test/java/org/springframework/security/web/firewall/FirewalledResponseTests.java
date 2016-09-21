@@ -15,15 +15,17 @@
  */
 package org.springframework.security.web.firewall;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
-
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.springframework.mock.web.MockHttpServletResponse;
+
+import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Luke Taylor
@@ -31,116 +33,131 @@ import org.springframework.mock.web.MockHttpServletResponse;
  * @author Gabriel Lavoie
  */
 public class FirewalledResponseTests {
-	private MockHttpServletResponse response = new MockHttpServletResponse();
-	private FirewalledResponse fwResponse = new FirewalledResponse(response);
-
 	@Rule
 	public ExpectedException expectedException = ExpectedException.none();
 
+	private HttpServletResponse response;
+	private FirewalledResponse fwResponse;
+
+	@Before
+	public void setup() {
+		response = mock(HttpServletResponse.class);
+		fwResponse = new FirewalledResponse(response);
+	}
+
 	@Test
-	public void acceptRedirectLocationWithoutCRLF() throws Exception {
+	public void sendRedirectWhenValidThenNoException() throws Exception {
 		fwResponse.sendRedirect("/theURL");
-		assertThat(response.getRedirectedUrl()).isEqualTo("/theURL");
+
+		verify(response).sendRedirect("/theURL");
 	}
 
 	@Test
-	public void validateNullSafetyForRedirectLocation() throws Exception {
-		// Exception from MockHttpServletResponse, exception not described in servlet spec.
-		expectedException.expect(IllegalArgumentException.class);
-		expectedException.expectMessage("Redirect URL must not be null");
-
+	public void sendRedirectWhenNullThenDelegateInvoked() throws Exception {
 		fwResponse.sendRedirect(null);
+
+		verify(response).sendRedirect(null);
 	}
 
 	@Test
-	public void rejectsRedirectLocationContainingCRLF() throws Exception {
-		expectedException.expect(IllegalArgumentException.class);
-		expectedException.expectMessage("Invalid characters (CR/LF)");
+	public void sendRedirectWhenHasCrlfThenThrowsException() throws Exception {
+		expectCrlfValidationException();
 
 		fwResponse.sendRedirect("/theURL\r\nsomething");
 	}
 
 	@Test
-	public void acceptHeaderValueWithoutCRLF() throws Exception {
+	public void addHeaderWhenValidThenDelegateInvoked() throws Exception {
 		fwResponse.addHeader("foo", "bar");
-		assertThat(response.getHeader("foo")).isEqualTo("bar");
+
+		verify(response).addHeader("foo", "bar");
 	}
 
 	@Test
-	public void validateNullSafetyForHeaderValue() throws Exception {
-		// Exception from MockHttpServletResponse, exception not described in servlet spec.
-		expectedException.expect(IllegalArgumentException.class);
-		expectedException.expectMessage("Header value must not be null");
-
+	public void addHeaderWhenNullValueThenDelegateInvoked() throws Exception {
 		fwResponse.addHeader("foo", null);
+
+		verify(response).addHeader("foo", null);
 	}
 
 	@Test
-	public void rejectHeaderValueContainingCRLF() {
-		expectCRLFValidationException();
+	public void addHeaderWhenHeaderValueHasCrlfThenException() {
+		expectCrlfValidationException();
 
 		fwResponse.addHeader("foo", "abc\r\nContent-Length:100");
 	}
 
 	@Test
-	public void rejectHeaderNameContainingCRLF() {
-		expectCRLFValidationException();
+	public void addHeaderWhenHeaderNameHasCrlfThenException() {
+		expectCrlfValidationException();
 
 		fwResponse.addHeader("abc\r\nContent-Length:100", "bar");
 	}
 
 	@Test
-	public void acceptCookieWithoutCRLF() {
+	public void addCookieWhenValidThenDelegateInvoked() {
 		Cookie cookie = new Cookie("foo", "bar");
 		cookie.setPath("/foobar");
 		cookie.setDomain("foobar");
 		cookie.setComment("foobar");
 
 		fwResponse.addCookie(cookie);
+
+		verify(response).addCookie(cookie);
+	}
+	@Test
+	public void addCookieWhenNullThenDelegateInvoked() {
+		fwResponse.addCookie(null);
+
+		verify(response).addCookie(null);
 	}
 
 	@Test
-	public void rejectCookieNameContainingCRLF() {
-		// This one is thrown by the Cookie class constructor from javax.servlet-api,
-		// no need to cover in FirewalledResponse.
-		expectedException.expect(IllegalArgumentException.class);
-		Cookie cookie = new Cookie("foo\r\nbar", "bar");
-	}
+	public void addCookieWhenCookieNameContainsCrlfThenException() {
+		// Constructor validates the name
+		Cookie cookie = new Cookie("valid-since-constructor-validates", "bar") {
+			@Override
+			public String getName() {
+				return "foo\r\nbar";
+			}
 
-	@Test
-	public void rejectCookieValueContainingCRLF() {
-		expectCRLFValidationException();
+		};
+		expectCrlfValidationException();
 
-		Cookie cookie = new Cookie("foo", "foo\r\nbar");
 		fwResponse.addCookie(cookie);
 	}
 
 	@Test
-	public void rejectCookiePathContainingCRLF() {
-		expectCRLFValidationException();
+	public void addCookieWhenCookieValueContainsCrlfThenException() {
+		Cookie cookie = new Cookie("foo", "foo\r\nbar");
+		expectCrlfValidationException();
 
+		fwResponse.addCookie(cookie);
+	}
+
+	@Test
+	public void addCookieWhenCookiePathContainsCrlfThenException() {
 		Cookie cookie = new Cookie("foo", "bar");
 		cookie.setPath("/foo\r\nbar");
+		expectCrlfValidationException();
 
 		fwResponse.addCookie(cookie);
 	}
 
 	@Test
-	public void rejectCookieDomainContainingCRLF() {
-		expectCRLFValidationException();
-
+	public void addCookieWhenCookieDomainContainsCrlfThenException() {
 		Cookie cookie = new Cookie("foo", "bar");
 		cookie.setDomain("foo\r\nbar");
+		expectCrlfValidationException();
 
 		fwResponse.addCookie(cookie);
 	}
 
 	@Test
-	public void rejectCookieCommentContainingCRLF() {
-		expectCRLFValidationException();
-
+	public void addCookieWhenCookieCommentContainsCrlfThenException() {
 		Cookie cookie = new Cookie("foo", "bar");
 		cookie.setComment("foo\r\nbar");
+		expectCrlfValidationException();
 
 		fwResponse.addCookie(cookie);
 	}
@@ -156,7 +173,7 @@ public class FirewalledResponseTests {
 		validateLineEnding("foo\nbar", "bar");
 	}
 
-	private void expectCRLFValidationException() {
+	private void expectCrlfValidationException() {
 		expectedException.expect(IllegalArgumentException.class);
 		expectedException.expectMessage("Invalid characters (CR/LF)");
 	}

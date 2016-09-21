@@ -58,18 +58,24 @@ class FirewalledResponse extends HttpServletResponseWrapper {
 
 	@Override
 	public void addCookie(Cookie cookie) {
-		validateCRLF(SET_COOKIE_HEADER, cookie.getValue());
-		validateCRLF(SET_COOKIE_HEADER, cookie.getPath());
-		validateCRLF(SET_COOKIE_HEADER, cookie.getDomain());
-		validateCRLF(SET_COOKIE_HEADER, cookie.getComment());
+		if(cookie != null) {
+			validateCRLF(SET_COOKIE_HEADER, cookie.getName());
+			validateCRLF(SET_COOKIE_HEADER, cookie.getValue());
+			validateCRLF(SET_COOKIE_HEADER, cookie.getPath());
+			validateCRLF(SET_COOKIE_HEADER, cookie.getDomain());
+			validateCRLF(SET_COOKIE_HEADER, cookie.getComment());
+		}
 		super.addCookie(cookie);
 	}
 
 	void validateCRLF(String name, String value) {
-		if (name != null && CR_OR_LF.matcher(name).find()
-				|| value != null && CR_OR_LF.matcher(value).find()) {
+		if (hasCrlf(name) || hasCrlf(value)) {
 			throw new IllegalArgumentException(
 					"Invalid characters (CR/LF) in header " + name);
 		}
+	}
+
+	private boolean hasCrlf(String value) {
+		return value != null && CR_OR_LF.matcher(value).find();
 	}
 }
