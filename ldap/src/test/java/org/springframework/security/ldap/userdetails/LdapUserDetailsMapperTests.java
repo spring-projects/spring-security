@@ -21,14 +21,9 @@ import javax.naming.directory.BasicAttributes;
 
 import org.junit.Test;
 
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DistinguishedName;
-import org.springframework.security.config.GrantedAuthorityDefaults;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -98,33 +93,6 @@ public class LdapUserDetailsMapperTests {
 				AuthorityUtils.NO_AUTHORITIES);
 
 		assertThat(user.getPassword()).isEqualTo("mypassword");
-	}
-
-	@Test
-	public void testDefaultRolePrefix() {
-		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-		context.register(LdapUserDetailsMapperConfiguration.class);
-		context.refresh();
-
-		LdapUserDetailsMapper ldapUserDetailsMapper = context.getBean(LdapUserDetailsMapper.class);
-
-		GrantedAuthorityDefaults rolePrefix = (GrantedAuthorityDefaults) ReflectionTestUtils.getField(ldapUserDetailsMapper, "rolePrefix");
-		assertThat(rolePrefix.getRolePrefix()).isEqualTo("ROL_");
-	}
-
-	@Configuration
-	static class LdapUserDetailsMapperConfiguration {
-
-		@Bean
-		public GrantedAuthorityDefaults authorityDefaults() {
-			return new GrantedAuthorityDefaults("ROL_");
-		}
-
-		@Bean
-		public LdapUserDetailsMapper ldapUserDetailsMapper() {
-			return new LdapUserDetailsMapper();
-		}
-
 	}
 
 }

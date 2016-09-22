@@ -17,7 +17,6 @@ package org.springframework.security.config.annotation.method.configuration
 
 import org.springframework.security.access.annotation.Jsr250MethodSecurityMetadataSource
 import org.springframework.security.access.intercept.aspectj.AspectJMethodSecurityInterceptor
-import org.springframework.security.config.GrantedAuthorityDefaults
 
 import static org.assertj.core.api.Assertions.assertThat
 import static org.junit.Assert.fail
@@ -50,7 +49,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.config.annotation.BaseSpringSpec
 import org.springframework.security.config.annotation.authentication.BaseAuthenticationConfig;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
-import org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration;
+import org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 
@@ -146,39 +145,6 @@ public class NamespaceGlobalMethodSecurityTests extends BaseSpringSpec {
 	@EnableGlobalMethodSecurity(jsr250Enabled = true)
 	@Configuration
 	public static class Jsr250Config extends BaseMethodConfig {
-	}
-
-	def "enable jsr250 with custom role prefix"() {
-		when:
-		context = new AnnotationConfigApplicationContext(Jsr250WithCustomRolePrefixConfig)
-		MethodSecurityService service = context.getBean(MethodSecurityService)
-		then: "@Secured and @PreAuthorize are ignored"
-		service.secured() == null
-		service.preAuthorize() ==  null
-
-		when: "@DenyAll method invoked"
-		service.jsr250()
-		then: "access is denied"
-		thrown(AccessDeniedException)
-		when: "@PermitAll method invoked"
-		String jsr250PermitAll = service.jsr250PermitAll()
-		then: "access is allowed"
-		jsr250PermitAll == null
-		when:
-		Jsr250MethodSecurityMetadataSource jsr250MethodSecurity = context.getBean(Jsr250MethodSecurityMetadataSource)
-		then:
-		jsr250MethodSecurity.defaultRolePrefix == "ROLE:"
-	}
-
-	@EnableGlobalMethodSecurity(jsr250Enabled = true)
-	@Configuration
-	public static class Jsr250WithCustomRolePrefixConfig extends BaseMethodConfig {
-
-		@Bean
-		public GrantedAuthorityDefaults ga() {
-			return new GrantedAuthorityDefaults("ROLE:")
-		}
-
 	}
 
 	// --- metadata-source-ref ---
@@ -355,7 +321,7 @@ public class NamespaceGlobalMethodSecurityTests extends BaseSpringSpec {
 			context = new AnnotationConfigApplicationContext(BaseMethodConfig,CustomRunAsManagerConfig)
 			MethodSecurityService service = context.getBean(MethodSecurityService)
 		then:
-			service.runAs().authorities.find { it.authority == "ROLE:RUN_AS_SUPER"}
+			service.runAs().authorities.find { it.authority == "ROLE_RUN_AS_SUPER"}
 	}
 
 	@EnableGlobalMethodSecurity(securedEnabled = true)
@@ -365,11 +331,6 @@ public class NamespaceGlobalMethodSecurityTests extends BaseSpringSpec {
 			RunAsManagerImpl runAsManager = new RunAsManagerImpl()
 			runAsManager.setKey("some key")
 			return runAsManager
-		}
-
-		@Bean
-		public GrantedAuthorityDefaults ga() {
-			return new GrantedAuthorityDefaults("ROLE:")
 		}
 	}
 

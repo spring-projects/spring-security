@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<b:beans xmlns:b="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.springframework.org/schema/security"
+	xmlns:c="http://www.springframework.org/schema/c"
+	xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+	<http use-expressions="true">
+		<intercept-url access="hasRole('USER')" pattern="/**" />
+		<form-login/>
+		<logout/>
+	</http>
+
+	<authentication-manager>
+		<authentication-provider>
+			<user-service>
+				<user name="user" password="password" authorities="USER"/>
+				<user name="admin" password="password" authorities="USER,ADMIN"/>
+			</user-service>
+		</authentication-provider>
+	</authentication-manager>
+
+	<global-method-security jsr250-annotations="enabled" pre-post-annotations="enabled"/>
+
+	<b:bean class="org.springframework.security.config.core.HelloWorldMessageService"/>
+	<b:bean class="org.springframework.security.config.core.GrantedAuthorityDefaults"
+		c:rolePrefix=""/>
+</b:beans>

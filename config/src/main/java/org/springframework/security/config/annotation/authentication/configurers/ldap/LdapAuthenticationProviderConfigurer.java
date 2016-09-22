@@ -23,11 +23,11 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.security.authentication.encoding.PlaintextPasswordEncoder;
-import org.springframework.security.config.GrantedAuthorityDefaults;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.authentication.ProviderManagerBuilder;
 import org.springframework.security.config.annotation.web.configurers.ChannelSecurityConfigurer;
+import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper;
 import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
@@ -61,7 +61,7 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	private String groupRoleAttribute = "cn";
 	private String groupSearchBase = "";
 	private String groupSearchFilter = "(uniqueMember={0})";
-	private GrantedAuthorityDefaults rolePrefix = new GrantedAuthorityDefaults("ROLE_");
+	private String rolePrefix = "ROLE_";
 	private String userSearchBase = ""; // only for search
 	private String userSearchFilter = null;// "uid={0}"; // only for search
 	private String[] userDnPatterns;
@@ -129,7 +129,7 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 				contextSource, groupSearchBase);
 		defaultAuthoritiesPopulator.setGroupRoleAttribute(groupRoleAttribute);
 		defaultAuthoritiesPopulator.setGroupSearchFilter(groupSearchFilter);
-		defaultAuthoritiesPopulator.setRolePrefix(this.rolePrefix.getRolePrefix());
+		defaultAuthoritiesPopulator.setRolePrefix(this.rolePrefix);
 
 		this.ldapAuthoritiesPopulator = defaultAuthoritiesPopulator;
 		return defaultAuthoritiesPopulator;
@@ -162,7 +162,7 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 		}
 
 		SimpleAuthorityMapper simpleAuthorityMapper = new SimpleAuthorityMapper();
-		simpleAuthorityMapper.setPrefix(this.rolePrefix.getRolePrefix());
+		simpleAuthorityMapper.setPrefix(this.rolePrefix);
 		simpleAuthorityMapper.afterPropertiesSet();
 		this.authoritiesMapper = simpleAuthorityMapper;
 		return simpleAuthorityMapper;
@@ -357,7 +357,7 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	 * @see SimpleAuthorityMapper#setPrefix(String)
 	 */
 	public LdapAuthenticationProviderConfigurer<B> rolePrefix(String rolePrefix) {
-		this.rolePrefix = new GrantedAuthorityDefaults(rolePrefix);
+		this.rolePrefix = rolePrefix;
 		return this;
 	}
 

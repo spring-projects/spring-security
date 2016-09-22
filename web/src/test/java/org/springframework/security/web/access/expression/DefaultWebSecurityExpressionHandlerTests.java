@@ -16,16 +16,13 @@
 
 package org.springframework.security.web.access.expression;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.support.StaticApplicationContext;
 import org.springframework.expression.EvaluationContext;
@@ -33,10 +30,13 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
-import org.springframework.security.config.GrantedAuthorityDefaults;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.FilterInvocation;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultWebSecurityExpressionHandlerTests {
@@ -95,23 +95,6 @@ public class DefaultWebSecurityExpressionHandlerTests {
 		assertThat(expression.getValue(context, Boolean.class)).isFalse();
 
 		verify(trustResolver).isAnonymous(authentication);
-	}
-
-	@Test
-	public void testDefaultRolePrefix() {
-		StaticApplicationContext appContext = new StaticApplicationContext();
-		RootBeanDefinition bean = new RootBeanDefinition(GrantedAuthorityDefaults.class);
-		bean.getConstructorArgumentValues().addGenericArgumentValue("ROL_");
-		appContext.registerBeanDefinition("authorityDefaults", bean);
-		handler.setApplicationContext(appContext);
-
-		EvaluationContext ctx = handler.createEvaluationContext(
-				mock(Authentication.class), mock(FilterInvocation.class));
-		ExpressionParser parser = handler.getExpressionParser();
-		assertThat(parser.parseExpression("@authorityDefaults.getRolePrefix() == 'ROL_'").getValue(
-				ctx, Boolean.class)).isTrue();
-		assertThat(parser.parseExpression("@authorityDefaults.rolePrefix == 'ROL_'").getValue(ctx,
-				Boolean.class)).isTrue();
 	}
 
 }

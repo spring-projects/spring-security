@@ -64,11 +64,10 @@ import org.springframework.security.access.vote.RoleVoter;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
-
-import org.springframework.security.config.GrantedAuthorityDefaults;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.util.Assert;
 
 /**
@@ -134,14 +133,6 @@ public class GlobalMethodSecurityConfiguration
 				.setSecurityMetadataSource(methodSecurityMetadataSource());
 		RunAsManager runAsManager = runAsManager();
 		if (runAsManager != null) {
-			if (runAsManager instanceof RunAsManagerImpl) {
-				GrantedAuthorityDefaults grantedAuthorityDefaults =
-						getSingleBeanOrNull(GrantedAuthorityDefaults.class);
-				if (grantedAuthorityDefaults != null) {
-					((RunAsManagerImpl) runAsManager).setRolePrefix(
-							grantedAuthorityDefaults.getRolePrefix());
-				}
-			}
 			methodSecurityInterceptor.setRunAsManager(runAsManager);
 		}
 

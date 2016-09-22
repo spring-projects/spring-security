@@ -15,8 +15,12 @@
  */
 package org.springframework.security.config.http;
 
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.w3c.dom.Element;
+
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -33,9 +37,6 @@ import org.springframework.security.web.access.intercept.DefaultFilterInvocation
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
-import org.w3c.dom.Element;
-
-import java.util.List;
 
 /**
  * Allows for convenient creation of a {@link FilterInvocationSecurityMetadataSource} bean
@@ -133,8 +134,7 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
 	}
 
 	static String registerDefaultExpressionHandler(ParserContext pc) {
-		BeanDefinition expressionHandler = BeanDefinitionBuilder.rootBeanDefinition(
-				DefaultWebSecurityExpressionHandler.class).getBeanDefinition();
+		BeanDefinition expressionHandler = GrantedAuthorityDefaultsParserUtils.registerWithDefaultRolePrefix(pc, DefaultWebSecurityExpressionHandlerBeanFactory.class);
 		String expressionHandlerRef = pc.getReaderContext().generateBeanName(
 				expressionHandler);
 		pc.registerBeanComponent(new BeanComponentDefinition(expressionHandler,
@@ -223,4 +223,12 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
 		return filterInvocationDefinitionMap;
 	}
 
+	static class DefaultWebSecurityExpressionHandlerBeanFactory extends GrantedAuthorityDefaultsParserUtils.AbstractGrantedAuthorityDefaultsBeanFactory {
+		private DefaultWebSecurityExpressionHandler handler = new DefaultWebSecurityExpressionHandler();
+
+		public DefaultWebSecurityExpressionHandler getBean() {
+			handler.setDefaultRolePrefix(this.rolePrefix);
+			return handler;
+		}
+	}
 }

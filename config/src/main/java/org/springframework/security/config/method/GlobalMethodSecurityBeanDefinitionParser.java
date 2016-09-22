@@ -45,6 +45,8 @@ import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.annotation.Jsr250MethodSecurityMetadataSource;
@@ -71,6 +73,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.Elements;
 import org.springframework.security.config.authentication.AuthenticationManagerFactoryBean;
+import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.util.Assert;
@@ -198,8 +201,8 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 							expressionHandlerRef));
 				}
 				else {
-					BeanDefinition expressionHandler = new RootBeanDefinition(
-							DefaultMethodSecurityExpressionHandler.class);
+					RootBeanDefinition expressionHandler = registerWithDefaultRolePrefix(pc, DefaultMethodSecurityExpressionHandlerBeanFactory.class);
+
 					expressionHandlerRef = pc.getReaderContext().generateBeanName(
 							expressionHandler);
 					pc.registerBeanComponent(new BeanComponentDefinition(
@@ -240,8 +243,8 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 		}
 
 		if (jsr250Enabled) {
-			delegates.add(BeanDefinitionBuilder.rootBeanDefinition(
-					Jsr250MethodSecurityMetadataSource.class).getBeanDefinition());
+			RootBeanDefinition jsrMetadataSource = registerWithDefaultRolePrefix(pc, Jsr250MethodSecurityMetadataSourceBeanFactory.class);
+			delegates.add(jsrMetadataSource);
 		}
 
 		// Now create a Map<String, ConfigAttribute> for each <protect-pointcut>
@@ -474,6 +477,17 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 				BeanIds.METHOD_SECURITY_METADATA_SOURCE_ADVISOR, advisor);
 	}
 
+	private RootBeanDefinition registerWithDefaultRolePrefix(ParserContext pc, Class<? extends AbstractGrantedAuthorityDefaultsBeanFactory> beanFactoryClass) {
+		RootBeanDefinition beanFactoryDefinition = new RootBeanDefinition(beanFactoryClass);
+		String beanFactoryRef = pc.getReaderContext().generateBeanName(beanFactoryDefinition);
+		pc.getRegistry().registerBeanDefinition(beanFactoryRef, beanFactoryDefinition);
+
+		RootBeanDefinition bean = new RootBeanDefinition();
+		bean.setFactoryBeanName(beanFactoryRef);
+		bean.setFactoryMethodName("getBean");
+		return bean;
+	}
+
 	/**
 	 * Delays the lookup of the AuthenticationManager within MethodSecurityInterceptor, to
 	 * prevent issues like SEC-933.
@@ -519,6 +533,38 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 
 		public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
 			this.beanFactory = beanFactory;
+		}
+	}
+
+	static class Jsr250MethodSecurityMetadataSourceBeanFactory extends AbstractGrantedAuthorityDefaultsBeanFactory {
+		private Jsr250MethodSecurityMetadataSource source = new Jsr250MethodSecurityMetadataSource();
+
+		public Jsr250MethodSecurityMetadataSource getBean() {
+			source.setDefaultRolePrefix(this.rolePrefix);
+			return source;
+		}
+	}
+
+	static class DefaultMethodSecurityExpressionHandlerBeanFactory extends AbstractGrantedAuthorityDefaultsBeanFactory {
+		private DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
+
+		public DefaultMethodSecurityExpressionHandler getBean() {
+			handler.setDefaultRolePrefix(this.rolePrefix);
+			return handler;
+		}
+	}
+
+	static abstract class AbstractGrantedAuthorityDefaultsBeanFactory implements ApplicationContextAware {
+		protected String rolePrefix = "ROLE_";
+
+		@Override
+		public final void setApplicationContext(ApplicationContext applicationContext)
+				throws BeansException {
+			String[] grantedAuthorityDefaultsBeanNames = applicationContext.getBeanNamesForType(GrantedAuthorityDefaults.class);
+			if(grantedAuthorityDefaultsBeanNames.length == 1) {
+				GrantedAuthorityDefaults grantedAuthorityDefaults = applicationContext.getBean(grantedAuthorityDefaultsBeanNames[0], GrantedAuthorityDefaults.class);
+				this.rolePrefix = grantedAuthorityDefaults.getRolePrefix();
+			}
 		}
 	}
 

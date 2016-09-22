@@ -18,7 +18,6 @@ package org.springframework.security.config.annotation.method.configuration
 
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl
-import org.springframework.security.config.GrantedAuthorityDefaults;
 
 import java.lang.reflect.Proxy;
 
@@ -28,6 +27,7 @@ import org.springframework.beans.factory.config.BeanPostProcessor
 import org.springframework.security.config.annotation.authentication.configurers.GlobalAuthenticationConfigurerAdapter
 import org.springframework.security.config.annotation.method.configuration.NamespaceGlobalMethodSecurityTests.BaseMethodConfig;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
+import org.springframework.security.config.core.GrantedAuthorityDefaults;
 
 import javax.sql.DataSource
 

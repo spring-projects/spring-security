@@ -31,6 +31,7 @@ import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.security.web.access.expression.ExpressionBasedFilterInvocationSecurityMetadataSource;
@@ -215,6 +216,11 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 				String[] roleHiearchyBeanNames = context.getBeanNamesForType(RoleHierarchy.class);
 				if(roleHiearchyBeanNames.length == 1) {
 					defaultHandler.setRoleHierarchy(context.getBean(roleHiearchyBeanNames[0], RoleHierarchy.class));
+				}
+				String[] grantedAuthorityDefaultsBeanNames = context.getBeanNamesForType(GrantedAuthorityDefaults.class);
+				if(grantedAuthorityDefaultsBeanNames.length == 1) {
+					GrantedAuthorityDefaults grantedAuthorityDefaults = context.getBean(grantedAuthorityDefaultsBeanNames[0], GrantedAuthorityDefaults.class);
+					defaultHandler.setDefaultRolePrefix(grantedAuthorityDefaults.getRolePrefix());
 				}
 			}
 

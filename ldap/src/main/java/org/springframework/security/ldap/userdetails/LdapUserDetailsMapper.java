@@ -21,12 +21,8 @@ import java.util.Collection;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.security.config.GrantedAuthorityDefaults;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -41,29 +37,30 @@ import org.springframework.util.Assert;
  * @author Luke Taylor
  * @author Eddú Meléndez
  */
-public class LdapUserDetailsMapper implements UserDetailsContextMapper, ApplicationContextAware {
+public class LdapUserDetailsMapper implements UserDetailsContextMapper {
 	// ~ Instance fields
 	// ================================================================================================
 
 	private final Log logger = LogFactory.getLog(LdapUserDetailsMapper.class);
 	private String passwordAttributeName = "userPassword";
-	private GrantedAuthorityDefaults rolePrefix = new GrantedAuthorityDefaults("ROLE_");
+	private String rolePrefix = "ROLE_";
 	private String[] roleAttributes = null;
 	private boolean convertToUpperCase = true;
 
 	// ~ Methods
 	// ========================================================================================================
 
+	@Override
 	public UserDetails mapUserFromContext(DirContextOperations ctx, String username,
 			Collection<? extends GrantedAuthority> authorities) {
 		String dn = ctx.getNameInNamespace();
 
-		logger.debug("Mapping user details from context with DN: " + dn);
+		this.logger.debug("Mapping user details from context with DN: " + dn);
 
 		LdapUserDetailsImpl.Essence essence = new LdapUserDetailsImpl.Essence();
 		essence.setDn(dn);
 
-		Object passwordValue = ctx.getObjectAttribute(passwordAttributeName);
+		Object passwordValue = ctx.getObjectAttribute(this.passwordAttributeName);
 
 		if (passwordValue != null) {
 			essence.setPassword(mapPassword(passwordValue));
@@ -72,12 +69,13 @@ public class LdapUserDetailsMapper implements UserDetailsContextMapper, Applicat
 		essence.setUsername(username);
 
 		// Map the roles
-		for (int i = 0; (roleAttributes != null) && (i < roleAttributes.length); i++) {
-			String[] rolesForAttribute = ctx.getStringAttributes(roleAttributes[i]);
+		for (int i = 0; (this.roleAttributes != null)
+				&& (i < this.roleAttributes.length); i++) {
+			String[] rolesForAttribute = ctx.getStringAttributes(this.roleAttributes[i]);
 
 			if (rolesForAttribute == null) {
-				logger.debug("Couldn't read role attribute '" + roleAttributes[i]
-						+ "' for user " + dn);
+				this.logger.debug("Couldn't read role attribute '"
+						+ this.roleAttributes[i] + "' for user " + dn);
 				continue;
 			}
 
@@ -110,6 +108,7 @@ public class LdapUserDetailsMapper implements UserDetailsContextMapper, Applicat
 
 	}
 
+	@Override
 	public void mapUserToContext(UserDetails user, DirContextAdapter ctx) {
 		throw new UnsupportedOperationException(
 				"LdapUserDetailsMapper only supports reading from a context. Please"
@@ -149,10 +148,10 @@ public class LdapUserDetailsMapper implements UserDetailsContextMapper, Applicat
 	 */
 	protected GrantedAuthority createAuthority(Object role) {
 		if (role instanceof String) {
-			if (convertToUpperCase) {
+			if (this.convertToUpperCase) {
 				role = ((String) role).toUpperCase();
 			}
-			return new SimpleGrantedAuthority(this.rolePrefix.getRolePrefix() + role);
+			return new SimpleGrantedAuthority(this.rolePrefix + role);
 		}
 		return null;
 	}
@@ -194,16 +193,6 @@ public class LdapUserDetailsMapper implements UserDetailsContextMapper, Applicat
 	 * @param rolePrefix the prefix (defaults to "ROLE_").
 	 */
 	public void setRolePrefix(String rolePrefix) {
-		this.rolePrefix = new GrantedAuthorityDefaults(rolePrefix);
+		this.rolePrefix = rolePrefix;
 	}
-
-	@Override
-	public void setApplicationContext(ApplicationContext context) throws
-			BeansException {
-		String[] beanNames = context.getBeanNamesForType(GrantedAuthorityDefaults.class);
-		if (beanNames.length == 1) {
-			this.rolePrefix = context.getBean(beanNames[0], GrantedAuthorityDefaults.class);
-		}
-	}
-
 }

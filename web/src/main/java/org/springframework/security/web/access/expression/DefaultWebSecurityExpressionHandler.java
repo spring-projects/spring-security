@@ -15,14 +15,11 @@
  */
 package org.springframework.security.web.access.expression;
 
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
 import org.springframework.security.access.expression.AbstractSecurityExpressionHandler;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.access.expression.SecurityExpressionOperations;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
-import org.springframework.security.config.GrantedAuthorityDefaults;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.util.Assert;
@@ -38,7 +35,7 @@ public class DefaultWebSecurityExpressionHandler extends
 		SecurityExpressionHandler<FilterInvocation> {
 
 	private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
-	private GrantedAuthorityDefaults defaultRolePrefix = new GrantedAuthorityDefaults("ROLE_");
+	private String defaultRolePrefix = "ROLE_";
 
 	@Override
 	protected SecurityExpressionOperations createSecurityExpressionRoot(
@@ -47,7 +44,7 @@ public class DefaultWebSecurityExpressionHandler extends
 		root.setPermissionEvaluator(getPermissionEvaluator());
 		root.setTrustResolver(trustResolver);
 		root.setRoleHierarchy(getRoleHierarchy());
-		root.setDefaultRolePrefix(this.defaultRolePrefix.getRolePrefix());
+		root.setDefaultRolePrefix(this.defaultRolePrefix);
 		return root;
 	}
 
@@ -78,16 +75,6 @@ public class DefaultWebSecurityExpressionHandler extends
 	 * @param defaultRolePrefix the default prefix to add to roles. Default "ROLE_".
 	 */
 	public void setDefaultRolePrefix(String defaultRolePrefix) {
-		this.defaultRolePrefix = new GrantedAuthorityDefaults(defaultRolePrefix);
+		this.defaultRolePrefix = defaultRolePrefix;
 	}
-
-	@Override
-	public void setApplicationContext(ApplicationContext context) {
-		super.setApplicationContext(context);
-		String[] beanNames = context.getBeanNamesForType(GrantedAuthorityDefaults.class);
-		if (beanNames.length == 1) {
-			this.defaultRolePrefix = context.getBean(beanNames[0], GrantedAuthorityDefaults.class);
-		}
-	}
-
 }

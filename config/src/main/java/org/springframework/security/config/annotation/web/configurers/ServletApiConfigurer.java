@@ -19,10 +19,12 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -90,6 +92,14 @@ public final class ServletApiConfigurer<H extends HttpSecurityBuilder<H>> extend
 				.getSharedObject(AuthenticationTrustResolver.class);
 		if (trustResolver != null) {
 			securityContextRequestFilter.setTrustResolver(trustResolver);
+		}
+		ApplicationContext context = http.getSharedObject(ApplicationContext.class);
+		if(context != null) {
+			String[] grantedAuthorityDefaultsBeanNames = context.getBeanNamesForType(GrantedAuthorityDefaults.class);
+			if(grantedAuthorityDefaultsBeanNames.length == 1) {
+				GrantedAuthorityDefaults grantedAuthorityDefaults = context.getBean(grantedAuthorityDefaultsBeanNames[0], GrantedAuthorityDefaults.class);
+				securityContextRequestFilter.setRolePrefix(grantedAuthorityDefaults.getRolePrefix());
+			}
 		}
 		securityContextRequestFilter = postProcess(securityContextRequestFilter);
 		http.addFilter(securityContextRequestFilter);

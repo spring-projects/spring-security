@@ -18,8 +18,11 @@ package org.springframework.security.config.http;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
+
+import org.w3c.dom.Element;
 
 import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -37,6 +40,7 @@ import org.springframework.security.access.vote.AffirmativeBased;
 import org.springframework.security.access.vote.AuthenticatedVoter;
 import org.springframework.security.access.vote.RoleVoter;
 import org.springframework.security.config.Elements;
+import org.springframework.security.config.http.GrantedAuthorityDefaultsParserUtils.AbstractGrantedAuthorityDefaultsBeanFactory;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.web.access.DefaultWebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.access.channel.ChannelDecisionManagerImpl;
@@ -65,17 +69,30 @@ import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
 import org.springframework.security.web.session.ConcurrentSessionFilter;
 import org.springframework.security.web.session.SessionManagementFilter;
-import org.springframework.security.web.session.SimpleRedirectSessionInformationExpiredStrategy;
 import org.springframework.security.web.session.SimpleRedirectInvalidSessionStrategy;
+import org.springframework.security.web.session.SimpleRedirectSessionInformationExpiredStrategy;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
-import org.w3c.dom.Element;
 
-import static org.springframework.security.config.http.HttpSecurityBeanDefinitionParser.*;
-import static org.springframework.security.config.http.SecurityFilters.*;
+import static org.springframework.security.config.http.HttpSecurityBeanDefinitionParser.ATT_FILTERS;
+import static org.springframework.security.config.http.HttpSecurityBeanDefinitionParser.ATT_HTTP_METHOD;
+import static org.springframework.security.config.http.HttpSecurityBeanDefinitionParser.ATT_PATH_PATTERN;
+import static org.springframework.security.config.http.HttpSecurityBeanDefinitionParser.ATT_REQUIRES_CHANNEL;
+import static org.springframework.security.config.http.SecurityFilters.CHANNEL_FILTER;
+import static org.springframework.security.config.http.SecurityFilters.CONCURRENT_SESSION_FILTER;
+import static org.springframework.security.config.http.SecurityFilters.CORS_FILTER;
+import static org.springframework.security.config.http.SecurityFilters.CSRF_FILTER;
+import static org.springframework.security.config.http.SecurityFilters.FILTER_SECURITY_INTERCEPTOR;
+import static org.springframework.security.config.http.SecurityFilters.HEADERS_FILTER;
+import static org.springframework.security.config.http.SecurityFilters.JAAS_API_SUPPORT_FILTER;
+import static org.springframework.security.config.http.SecurityFilters.REQUEST_CACHE_FILTER;
+import static org.springframework.security.config.http.SecurityFilters.SECURITY_CONTEXT_FILTER;
+import static org.springframework.security.config.http.SecurityFilters.SERVLET_API_SUPPORT_FILTER;
+import static org.springframework.security.config.http.SecurityFilters.SESSION_MANAGEMENT_FILTER;
+import static org.springframework.security.config.http.SecurityFilters.WEB_ASYNC_MANAGER_FILTER;
 
 /**
  * Stateful class which helps HttpSecurityBDP to create the configuration for the
@@ -543,8 +560,7 @@ class HttpConfigurationBuilder {
 		}
 
 		if ("true".equals(provideServletApi)) {
-			servApiFilter = new RootBeanDefinition(
-					SecurityContextHolderAwareRequestFilter.class);
+			servApiFilter = GrantedAuthorityDefaultsParserUtils.registerWithDefaultRolePrefix(pc, SecurityContextHolderAwareRequestFilterBeanFactory.class);
 			servApiFilter.getPropertyValues().add("authenticationManager",
 					authenticationManager);
 		}
@@ -715,7 +731,7 @@ class HttpConfigurationBuilder {
 			voters.add(expressionVoter.getBeanDefinition());
 		}
 		else {
-			voters.add(new RootBeanDefinition(RoleVoter.class));
+			voters.add(GrantedAuthorityDefaultsParserUtils.registerWithDefaultRolePrefix(pc, RoleVoterBeanFactory.class));
 			voters.add(new RootBeanDefinition(AuthenticatedVoter.class));
 		}
 		accessDecisionMgr = new RootBeanDefinition(AffirmativeBased.class);
@@ -851,5 +867,23 @@ class HttpConfigurationBuilder {
 		}
 
 		return filters;
+	}
+
+	static class RoleVoterBeanFactory extends AbstractGrantedAuthorityDefaultsBeanFactory {
+		private RoleVoter voter = new RoleVoter();
+
+		public RoleVoter getBean() {
+			voter.setRolePrefix(this.rolePrefix);
+			return voter;
+		}
+	}
+
+	static class SecurityContextHolderAwareRequestFilterBeanFactory extends GrantedAuthorityDefaultsParserUtils.AbstractGrantedAuthorityDefaultsBeanFactory {
+		private SecurityContextHolderAwareRequestFilter filter = new SecurityContextHolderAwareRequestFilter();
+
+		public SecurityContextHolderAwareRequestFilter getBean() {
+			filter.setRolePrefix(this.rolePrefix);
+			return filter;
+		}
 	}
 }
