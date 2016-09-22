@@ -20,52 +20,53 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.util.Assert;
 
 /**
- * A simple pre-authenticated filter which obtains the username from an environment variable, for
- * use with SSO systems such as Stanford WebAuth or Shibboleth.
+ * A simple pre-authenticated filter which obtains the username from request attributes,
+ * for use with SSO systems such as Stanford WebAuth or Shibboleth.
  * <p>
  * As with most pre-authenticated scenarios, it is essential that the external
  * authentication system is set up correctly as this filter does no authentication
  * whatsoever.
  * <p>
- * The property {@code principalEnvironmentVariable} is the name of the request environment variable
- * that contains the username. It defaults to "REMOTE_USER" for compatibility with WebAuth and Shibboleth.
+ * The property {@code principalEnvironmentVariable} is the name of the request attribute
+ * that contains the username. It defaults to "REMOTE_USER" for compatibility with WebAuth
+ * and Shibboleth.
  * <p>
- * If the environment variable is missing from the request, {@code getPreAuthenticatedPrincipal} will
- * throw an exception. You can override this behaviour by setting the
- * {@code exceptionIfVariableMissing} property.
+ * If the environment variable is missing from the request,
+ * {@code getPreAuthenticatedPrincipal} will throw an exception. You can override this
+ * behaviour by setting the {@code exceptionIfVariableMissing} property.
  *
  *
  * @author Milan Sevcik
  * @since 4.2
  */
-public class EnvironmentVariableAuthenticationFilter extends
-	AbstractPreAuthenticatedProcessingFilter {
+public class RequestAttributeAuthenticationFilter
+		extends AbstractPreAuthenticatedProcessingFilter {
 	private String principalEnvironmentVariable = "REMOTE_USER";
 	private String credentialsEnvironmentVariable;
 	private boolean exceptionIfVariableMissing = true;
 
 	/**
-	 * Read and returns the variable named by {@code principalEnvironmentVariable} from the
-	 * request.
+	 * Read and returns the variable named by {@code principalEnvironmentVariable} from
+	 * the request.
 	 *
-	 * @throws PreAuthenticatedCredentialsNotFoundException if the environment variable
-	 * is missing and {@code exceptionIfVariableMissing} is set to {@code true}.
+	 * @throws PreAuthenticatedCredentialsNotFoundException if the environment variable is
+	 * missing and {@code exceptionIfVariableMissing} is set to {@code true}.
 	 */
 	protected Object getPreAuthenticatedPrincipal(HttpServletRequest request) {
-		String principal = (String)request.getAttribute(principalEnvironmentVariable);
+		String principal = (String) request.getAttribute(principalEnvironmentVariable);
 
 		if (principal == null && exceptionIfVariableMissing) {
-			throw new PreAuthenticatedCredentialsNotFoundException(principalEnvironmentVariable
-				+ " variable not found in request.");
+			throw new PreAuthenticatedCredentialsNotFoundException(
+					principalEnvironmentVariable + " variable not found in request.");
 		}
 
 		return principal;
 	}
 
 	/**
-	 * Credentials aren't usually applicable, but if a {@code credentialsEnvironmentVariable} is
-	 * set, this will be read and used as the credentials value. Otherwise a dummy value
-	 * will be used.
+	 * Credentials aren't usually applicable, but if a
+	 * {@code credentialsEnvironmentVariable} is set, this will be read and used as the
+	 * credentials value. Otherwise a dummy value will be used.
 	 */
 	protected Object getPreAuthenticatedCredentials(HttpServletRequest request) {
 		if (credentialsEnvironmentVariable != null) {
@@ -77,13 +78,13 @@ public class EnvironmentVariableAuthenticationFilter extends
 
 	public void setPrincipalEnvironmentVariable(String principalEnvironmentVariable) {
 		Assert.hasText(principalEnvironmentVariable,
-			"principalEnvironmentVariable must not be empty or null");
+				"principalEnvironmentVariable must not be empty or null");
 		this.principalEnvironmentVariable = principalEnvironmentVariable;
 	}
 
 	public void setCredentialsEnvironmentVariable(String credentialsEnvironmentVariable) {
 		Assert.hasText(credentialsEnvironmentVariable,
-			"credentialsEnvironmentVariable must not be empty or null");
+				"credentialsEnvironmentVariable must not be empty or null");
 		this.credentialsEnvironmentVariable = credentialsEnvironmentVariable;
 	}
 

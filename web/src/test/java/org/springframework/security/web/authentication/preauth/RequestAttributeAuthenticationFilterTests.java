@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.web.authentication.preauth.envvariable;
+package org.springframework.security.web.authentication.preauth;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -30,13 +30,13 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedCredentialsNotFoundException;
-import org.springframework.security.web.authentication.preauth.EnvironmentVariableAuthenticationFilter;
+import org.springframework.security.web.authentication.preauth.RequestAttributeAuthenticationFilter;
 
 /**
  *
  * @author Milan Sevcik
  */
-public class EnvironmentVariableAuthenticationFilterTests {
+public class RequestAttributeAuthenticationFilterTests {
 
 	@After
 	@Before
@@ -49,7 +49,7 @@ public class EnvironmentVariableAuthenticationFilterTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockFilterChain chain = new MockFilterChain();
-		EnvironmentVariableAuthenticationFilter filter = new EnvironmentVariableAuthenticationFilter();
+		RequestAttributeAuthenticationFilter filter = new RequestAttributeAuthenticationFilter();
 
 		filter.doFilter(request, response, chain);
 	}
@@ -60,13 +60,16 @@ public class EnvironmentVariableAuthenticationFilterTests {
 		request.setAttribute("REMOTE_USER", "cat");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockFilterChain chain = new MockFilterChain();
-		EnvironmentVariableAuthenticationFilter filter = new EnvironmentVariableAuthenticationFilter();
+		RequestAttributeAuthenticationFilter filter = new RequestAttributeAuthenticationFilter();
 		filter.setAuthenticationManager(createAuthenticationManager());
 
 		filter.doFilter(request, response, chain);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
-		assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("cat");
-		assertThat(SecurityContextHolder.getContext().getAuthentication().getCredentials()).isEqualTo("N/A");
+		assertThat(SecurityContextHolder.getContext().getAuthentication().getName())
+				.isEqualTo("cat");
+		assertThat(
+				SecurityContextHolder.getContext().getAuthentication().getCredentials())
+						.isEqualTo("N/A");
 	}
 
 	@Test
@@ -75,13 +78,14 @@ public class EnvironmentVariableAuthenticationFilterTests {
 		request.setAttribute("myUsernameVariable", "wolfman");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockFilterChain chain = new MockFilterChain();
-		EnvironmentVariableAuthenticationFilter filter = new EnvironmentVariableAuthenticationFilter();
+		RequestAttributeAuthenticationFilter filter = new RequestAttributeAuthenticationFilter();
 		filter.setAuthenticationManager(createAuthenticationManager());
 		filter.setPrincipalEnvironmentVariable("myUsernameVariable");
 
 		filter.doFilter(request, response, chain);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
-		assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("wolfman");
+		assertThat(SecurityContextHolder.getContext().getAuthentication().getName())
+				.isEqualTo("wolfman");
 	}
 
 	@Test
@@ -89,7 +93,7 @@ public class EnvironmentVariableAuthenticationFilterTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockFilterChain chain = new MockFilterChain();
-		EnvironmentVariableAuthenticationFilter filter = new EnvironmentVariableAuthenticationFilter();
+		RequestAttributeAuthenticationFilter filter = new RequestAttributeAuthenticationFilter();
 		filter.setAuthenticationManager(createAuthenticationManager());
 		filter.setCredentialsEnvironmentVariable("myCredentialsVariable");
 		request.setAttribute("REMOTE_USER", "cat");
@@ -97,7 +101,9 @@ public class EnvironmentVariableAuthenticationFilterTests {
 
 		filter.doFilter(request, response, chain);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
-		assertThat(SecurityContextHolder.getContext().getAuthentication().getCredentials()).isEqualTo("catspassword");
+		assertThat(
+				SecurityContextHolder.getContext().getAuthentication().getCredentials())
+						.isEqualTo("catspassword");
 	}
 
 	@Test
@@ -105,7 +111,7 @@ public class EnvironmentVariableAuthenticationFilterTests {
 			throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		EnvironmentVariableAuthenticationFilter filter = new EnvironmentVariableAuthenticationFilter();
+		RequestAttributeAuthenticationFilter filter = new RequestAttributeAuthenticationFilter();
 		filter.setAuthenticationManager(createAuthenticationManager());
 		filter.setCheckForPrincipalChanges(true);
 		request.setAttribute("REMOTE_USER", "cat");
@@ -116,7 +122,8 @@ public class EnvironmentVariableAuthenticationFilterTests {
 		Authentication dog = SecurityContextHolder.getContext().getAuthentication();
 		assertThat(dog).isNotNull();
 		assertThat(dog.getName()).isEqualTo("dog");
-		// Make sure authentication doesn't occur every time (i.e. if the variable *doesn't*
+		// Make sure authentication doesn't occur every time (i.e. if the variable
+		// *doesn't*
 		// change)
 		filter.setAuthenticationManager(mock(AuthenticationManager.class));
 		filter.doFilter(request, response, new MockFilterChain());
@@ -128,7 +135,7 @@ public class EnvironmentVariableAuthenticationFilterTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockFilterChain chain = new MockFilterChain();
-		EnvironmentVariableAuthenticationFilter filter = new EnvironmentVariableAuthenticationFilter();
+		RequestAttributeAuthenticationFilter filter = new RequestAttributeAuthenticationFilter();
 		filter.setAuthenticationManager(createAuthenticationManager());
 
 		filter.doFilter(request, response, chain);
@@ -140,7 +147,7 @@ public class EnvironmentVariableAuthenticationFilterTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockFilterChain chain = new MockFilterChain();
-		EnvironmentVariableAuthenticationFilter filter = new EnvironmentVariableAuthenticationFilter();
+		RequestAttributeAuthenticationFilter filter = new RequestAttributeAuthenticationFilter();
 		filter.setExceptionIfVariableMissing(false);
 		filter.setAuthenticationManager(createAuthenticationManager());
 		filter.doFilter(request, response, chain);
@@ -151,8 +158,8 @@ public class EnvironmentVariableAuthenticationFilterTests {
 	 */
 	private AuthenticationManager createAuthenticationManager() {
 		AuthenticationManager am = mock(AuthenticationManager.class);
-		when(am.authenticate(any(Authentication.class))).thenAnswer(
-				new Answer<Authentication>() {
+		when(am.authenticate(any(Authentication.class)))
+				.thenAnswer(new Answer<Authentication>() {
 					public Authentication answer(InvocationOnMock invocation)
 							throws Throwable {
 						return (Authentication) invocation.getArguments()[0];
