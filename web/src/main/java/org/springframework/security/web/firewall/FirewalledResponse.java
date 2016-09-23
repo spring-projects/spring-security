@@ -40,35 +40,35 @@ class FirewalledResponse extends HttpServletResponseWrapper {
 	public void sendRedirect(String location) throws IOException {
 		// TODO: implement pluggable validation, instead of simple blacklisting.
 		// SEC-1790. Prevent redirects containing CRLF
-		validateCRLF(LOCATION_HEADER, location);
+		validateCrlf(LOCATION_HEADER, location);
 		super.sendRedirect(location);
 	}
 
 	@Override
 	public void setHeader(String name, String value) {
-		validateCRLF(name, value);
+		validateCrlf(name, value);
 		super.setHeader(name, value);
 	}
 
 	@Override
 	public void addHeader(String name, String value) {
-		validateCRLF(name, value);
+		validateCrlf(name, value);
 		super.addHeader(name, value);
 	}
 
 	@Override
 	public void addCookie(Cookie cookie) {
 		if(cookie != null) {
-			validateCRLF(SET_COOKIE_HEADER, cookie.getName());
-			validateCRLF(SET_COOKIE_HEADER, cookie.getValue());
-			validateCRLF(SET_COOKIE_HEADER, cookie.getPath());
-			validateCRLF(SET_COOKIE_HEADER, cookie.getDomain());
-			validateCRLF(SET_COOKIE_HEADER, cookie.getComment());
+			validateCrlf(SET_COOKIE_HEADER, cookie.getName());
+			validateCrlf(SET_COOKIE_HEADER, cookie.getValue());
+			validateCrlf(SET_COOKIE_HEADER, cookie.getPath());
+			validateCrlf(SET_COOKIE_HEADER, cookie.getDomain());
+			validateCrlf(SET_COOKIE_HEADER, cookie.getComment());
 		}
 		super.addCookie(cookie);
 	}
 
-	void validateCRLF(String name, String value) {
+	void validateCrlf(String name, String value) {
 		if (hasCrlf(name) || hasCrlf(value)) {
 			throw new IllegalArgumentException(
 					"Invalid characters (CR/LF) in header " + name);

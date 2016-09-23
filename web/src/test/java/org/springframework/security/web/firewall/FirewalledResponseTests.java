@@ -180,7 +180,7 @@ public class FirewalledResponseTests {
 
 	private void validateLineEnding(String name, String value) {
 		try {
-			fwResponse.validateCRLF(name, value);
+			fwResponse.validateCrlf(name, value);
 			fail("IllegalArgumentException should have thrown");
 		}
 		catch (IllegalArgumentException expected) {
