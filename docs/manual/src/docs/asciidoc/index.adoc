@@ -375,46 +375,33 @@ git clone https://github.com/spring-projects/spring-security.git
 This will give you access to the entire project history (including all releases and branches) on your local machine.
 
 [[new]]
-== What's New in Spring Security 4.1
+== What's New in Spring Security 4.2
 
-There were https://github.com/spring-projects/spring-security/issues?utf8=%E2%9C%93&q=milestone%3A%224.1.0+RC1%22[100+ RC1 issues] and https://github.com/spring-projects/spring-security/issues?utf8=%E2%9C%93&q=milestone%3A%224.1.0+RC2%22[60+ RC2 issues] fixed in Spring Security 4.1.
+There were https://github.com/spring-projects/spring-security/milestone/86?closed=1[50+ M1 issues] closed.
+The overwhelming majority of these features were contributed by the community.
+Below you can find the highlights of this release.
 
-Here is the list of improvements:
+=== Web Improvements
 
-=== Java Configuration Improvements
-* <<jc-authentication-userdetailsservice,Simplified UserDetailsService Java Configuration>>
-* <<jc-authentication-authenticationprovider,Simplified AuthenticationProvider Java Configuration>>
-* Configurable Content Negotiating `LogoutSuccessHandler`(s) via `LogoutConfigurer`
-* Configurable `InvalidSessionStrategy` via `SessionManagementConfigurer`
-* Ability to add a `Filter` at a specific location in the chain using `HttpSecurity.addFilterAt`
+* https://github.com/spring-projects/spring-security/pull/3812[#3812] - <<jackson,Jackson Support>>
+* https://github.com/spring-projects/spring-security/pull/3938[#3938] - Add <<request-matching,HTTP response splitting prevention>>
+* https://github.com/spring-projects/spring-security/pull/3978[#3978] - Support for Standford WebAuth and Shibboleth using the newly added http://docs.spring.io/spring-security/site/docs/4.2.x-SNAPSHOT/apidocs/org/springframework/security/web/authentication/preauth/RequestAttributeAuthenticationFilter.html[RequestAttributeAuthenticationFilter].
+* https://github.com/spring-projects/spring-security/issues/3795[#3795] - `ConcurrentSessionFilter` supports `InvalidSessionStrategy`
+* https://github.com/spring-projects/spring-security/pull/3904[#3904] - Add `CompositeLogoutHandler`
 
-=== Web Application Security Improvements
-* <<mvc-requestmatcher,MvcRequestMatcher>>
-* <<headers-csp,Content Security Policy (CSP)>>
-* <<headers-hpkp,HTTP Public Key Pinning (HPKP)>>
-* <<cors,CORS>>
-* <<csrf-cookie,CookieCsrfTokenRepository>> provides simple AngularJS & CSRF integration
-* Added `ForwardAuthenticationFailureHandler` & `ForwardAuthenticationSuccessHandler`
-* <<mvc-authentication-principal,AuthenticationPrincipal>> supports expression attribute to support transforming the `Authentication.getPrincipal()` object (i.e. handling immutable custom `User` domain objects)
+=== Configuration Improvements
 
-=== Authorization Improvements
-* <<el-access-web-path-variables,Path Variables in Web Security Expressions>>
-* <<method-security-meta-annotations,Method Security Meta Annotations>>
+* https://github.com/spring-projects/spring-security/pull/3956[#3956] - Central configuration of the http://docs.spring.io/spring-security/site/migrate/current/3-to-4/html5/migrate-3-to-4-jc.html#m3to4-role-prefixing[default role prefix]. See the issue for details.
+* https://github.com/spring-projects/spring-security/issues/3899[#3899] - <<nsa-concurrency-control-max-sessions,concurrency-control@max-sessions>> supports unlimited sessions.
+* https://github.com/spring-projects/spring-security/issues/3990[#3990] - Support for constructing `RoleHierarchy` from `Map` (i.e. `yml`)
+* https://github.com/spring-projects/spring-security/pull/4062[#4062] - Custom cookiePath to `CookieCsrfTokenRepository`
+* https://github.com/spring-projects/spring-security/issues/3794[#3794] - Allow configuration of `InvalidSessionStrategy` on `SessionManagementConfigurer`
+* https://github.com/spring-projects/spring-security/issues/4020[#4020] - Fix Exposing Beans for defaultMethodExpressionHandler can prevent Method Security
 
-=== Crypto Module Improvements
-* SCrypt support with `SCryptPasswordEncoder`
-* PBKDF2 support with <<spring-security-crypto-passwordencoders,Pbkdf2PasswordEncoder>>
-* New `BytesEncryptor` implementation for BouncyCastle using _AES/CBC/PKCS5Padding_ and _AES/GCM/NoPadding_ algorithms
+=== Miscellaneous
 
-=== Testing Improvements
-* <<test-method-withanonymoususer,@WithAnonymousUser>>
-* <<test-method-withuserdetails,@WithUserDetails>> allows specifying the `UserDetailsService` bean name
-* <<test-method-meta-annotations,Test Meta Annotations>>
-* Ability to mock a list of `GrantedAuthority` using `SecurityMockMvcResultMatchers.withAuthorities`
-
-=== General Improvements
-* Re-organization of sample projects
-* Moved to GitHub issues
+* https://github.com/spring-projects/spring-security/issues/4018[#4018] - Fix after `csrf()` is invoked, future `MockMvc` infocations use original `CsrfTokenRepository`
+* Version Updates
 
 [[samples]]
 == Samples and Guides (Start Here)
@@ -2476,6 +2463,8 @@ When an authentication provider (such as Spring Security's `DaoAuthenticationPro
 
 If you want to generate encoded passwords directly in Java for storage in your user database, then you can use the `encode` method on the `PasswordEncoder`.
 
+include::{include-dir}/jackson.adoc[]
+
 include::{include-dir}/test.adoc[]
 
 [[web-app-security]]
@@ -2576,6 +2565,7 @@ In practice we recommend that you use method security at your service layer, to 
 
 Security defined at the service layer is much more robust and harder to bypass, so you should always take advantage of Spring Security's method security options.
 
+The `HttpFirewall` also prevents https://www.owasp.org/index.php/HTTP_Response_Splitting[HTTP Response Splitting] by rejecting new line characters in the HTTP Response headers.
 
 === Use with other Filter-Based Frameworks
 If you're using some other framework that is also filter-based, then you need to make sure that the Spring Security filters come first. This enables the `SecurityContextHolder` to be populated in time for use by the other filters. Examples are the use of SiteMesh to decorate your web pages or a web framework like Wicket which uses a filter to handle its requests.
@@ -8656,6 +8646,7 @@ Allows injection of the ExpiredSessionStrategy instance used by the ConcurrentSe
 [[nsa-concurrency-control-max-sessions]]
 * **max-sessions**
 Maps to the `maximumSessions` property of `ConcurrentSessionControlAuthenticationStrategy`.
+Specify `-1` as the value to support unlimitted sessions.
 
 
 [[nsa-concurrency-control-session-registry-alias]]
