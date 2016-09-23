@@ -21,7 +21,9 @@ import org.springframework.util.Assert;
 
 /**
  * A simple pre-authenticated filter which obtains the username from request attributes,
- * for use with SSO systems such as Stanford WebAuth or Shibboleth.
+ * for use with SSO systems such as
+ * <a href="http://webauth.stanford.edu/manual/mod/mod_webauth.html#java">Stanford WebAuth</a> or
+ * <a href="https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPJavaInstall">Shibboleth</a>.
  * <p>
  * As with most pre-authenticated scenarios, it is essential that the external
  * authentication system is set up correctly as this filter does no authentication
