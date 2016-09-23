@@ -400,7 +400,7 @@ Below you can find the highlights of this release.
 
 === Miscellaneous
 
-* https://github.com/spring-projects/spring-security/issues/4018[#4018] - Fix after `csrf()` is invoked, future `MockMvc` infocations use original `CsrfTokenRepository`
+* https://github.com/spring-projects/spring-security/issues/4018[#4018] - Fix after `csrf()` is invoked, future `MockMvc` invocations use original `CsrfTokenRepository`
 * Version Updates
 
 [[samples]]
