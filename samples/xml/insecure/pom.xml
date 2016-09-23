@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-samples-xml-insecure</artifactId>
-  <version>4.2.0.BUILD-SNAPSHOT</version>
+  <version>4.2.0.M1</version>
   <packaging>war</packaging>
   <name>spring-security-samples-xml-insecure</name>
   <description>spring-security-samples-xml-insecure</description>
@@ -169,8 +169,8 @@
   </dependencies>
   <repositories>
     <repository>
-      <id>spring-snapshot</id>
-      <url>https://repo.spring.io/snapshot</url>
+      <id>spring-milestone</id>
+      <url>https://repo.spring.io/milestone</url>
     </repository>
   </repositories>
   <build>

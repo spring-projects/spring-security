@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-samples-xml-insecuremvc</artifactId>
-  <version>4.2.0.BUILD-SNAPSHOT</version>
+  <version>4.2.0.M1</version>
   <packaging>war</packaging>
   <name>spring-security-samples-xml-insecuremvc</name>
   <description>spring-security-samples-xml-insecuremvc</description>
@@ -91,7 +91,7 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-samples-javaconfig-messages</artifactId>
-      <version>4.2.0.BUILD-SNAPSHOT</version>
+      <version>4.2.0.M1</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -167,8 +167,8 @@
   </dependencies>
   <repositories>
     <repository>
-      <id>spring-snapshot</id>
-      <url>https://repo.spring.io/snapshot</url>
+      <id>spring-milestone</id>
+      <url>https://repo.spring.io/milestone</url>
     </repository>
   </repositories>
   <build>
