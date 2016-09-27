@@ -192,4 +192,52 @@
         <body-content>empty</body-content>
     </tag>
 
+
+    <tag>
+        <description>
+            If Open Redirect protection is enabled, this tag calculate the signature for the redirect's target URL which
+            is specified as a value of the attribute.
+            The URL and the signature are inserted to the page as hidden form fields or query strings to the redirector.
+        </description>
+        <name>redirector</name>
+        <tag-class>org.springframework.security.taglibs.redirect.RedirectorTag</tag-class>
+        <body-content>empty</body-content>
+
+        <attribute>
+            <description>
+                A redirect's target URL. The signature calculated from this URL will be embedded in the page.
+            </description>
+            <name>targetUrl</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
+                A redirector's URL. If the "hidden" attribute is set false, the tag generate link to this URL.
+                The generated link contains the redirect's target URL and the signature as query strings.
+            </description>
+            <name>redirectorUrl</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
+                A text for a link that the tag generate. If this attribute does not be set, the value of
+                the "redirectorUrl" attribute is used as the text.
+            </description>
+            <name>text</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
+                A flag to decide whether the redirect's target URL and the signature will be embedded as hidden field.
+                If the value of this attribute is set true, the tag will not generate a link.
+                The default value is false.
+            </description>
+            <name>hidden</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
 </taglib>
