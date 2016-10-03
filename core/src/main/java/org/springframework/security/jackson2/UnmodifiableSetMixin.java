@@ -18,6 +18,7 @@ package org.springframework.security.jackson2;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.util.Set;
 
@@ -31,11 +32,13 @@ import java.util.Set;
  * </pre>
  *
  * @author Jitendra Singh
+ * @see UnmodifiableSetDeserializer
  * @see CoreJackson2Module
  * @see SecurityJacksonModules
  * @since 4.2
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
+@JsonDeserialize(using = UnmodifiableSetDeserializer.class)
 class UnmodifiableSetMixin {
 
 	/**
