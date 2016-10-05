@@ -55,7 +55,7 @@ This is a basic example of how to setup Spring Security Test. The highlights are
 NOTE: Spring Security hooks into Spring Test support using the  `WithSecurityContextTestExecutionListener` which will ensure our tests are ran with the correct user.
 It does this by populating the `SecurityContextHolder` prior to running our tests.
 After the test is done, it will clear out the `SecurityContextHolder`.
-If you only need Spring Security related support, you can replace `@ContextConfiguration` with `@SecurityExecutionListeners`.
+If you only need Spring Security related support, you can replace `@ContextConfiguration` with `@SecurityTestExecutionListeners`.
 
 Remember we added the `@PreAuthorize` annotation to our `HelloMessageService` and so it requires an authenticated user to invoke it.
 If we ran the following test, we would expect the following test will pass:
