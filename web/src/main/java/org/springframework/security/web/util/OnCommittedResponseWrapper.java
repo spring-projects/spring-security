@@ -20,6 +20,7 @@ import java.io.PrintWriter;
 import java.util.Locale;
 
 import javax.servlet.ServletOutputStream;
+import javax.servlet.WriteListener;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
@@ -636,6 +637,14 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 		public void write(byte[] b, int off, int len) throws IOException {
 			checkContentLength(len);
 			this.delegate.write(b, off, len);
+		}
+
+		public boolean isReady() {
+			return this.delegate.isReady();
+		}
+
+		public void setWriteListener(WriteListener writeListener) {
+			this.delegate.setWriteListener(writeListener);
 		}
 
 		@Override

@@ -23,7 +23,7 @@ dependencies {
 			"org.springframework:spring-webmvc:$springVersion",
 			'org.aspectj:aspectjrt:1.6.8',
 			'org.hibernate:ejb3-persistence:1.0.2.GA',
-			'javax.persistence:persistence-api:1.0',
+			"org.eclipse.persistence:javax.persistence:$javaPersistenceVersion",
 			'org.slf4j:jcl-over-slf4j:1.5.11'
 
 	providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion"

@@ -13,7 +13,6 @@ dependencies {
 				"org.mortbay.jetty:jetty-util:$jettyVersion",
 				"org.testng:testng:6.8.21"
 	testCompile ("org.mortbay.jetty:jetty:$jettyVersion") {
-		exclude group: 'org.mortbay.jetty', module: 'servlet-api'
 	}
 	testCompile ('net.sourceforge.jwebunit:jwebunit-core:2.2') {
 		exclude group: 'javax.servlet', module: 'servlet-api'
