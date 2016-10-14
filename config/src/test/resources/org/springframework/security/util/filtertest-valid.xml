@@ -131,7 +131,7 @@
 					<constructor-arg ref="fooMatcher"/>
 					<constructor-arg>
 						<list>
-						  <ref local="mockFilter"/>
+						  <ref bean="mockFilter"/>
 						</list>
 					</constructor-arg>
 				</bean>
@@ -143,9 +143,9 @@
 					</constructor-arg>
 					<constructor-arg>
 						<list>
-							<ref local="sif"/>
-							<ref local="mockFilter"/>
-							<ref local="mockFilter2"/>
+							<ref bean="sif"/>
+							<ref bean="mockFilter"/>
+							<ref bean="mockFilter2"/>
 						</list>
 					</constructor-arg>
 				</bean>
@@ -167,9 +167,9 @@
 					</constructor-arg>
 					<constructor-arg>
 						<list>
-						  <ref local="sif"/>
-						  <ref local="apf"/>
-						  <ref local="mockFilter"/>
+						  <ref bean="sif"/>
+						  <ref bean="apf"/>
+						  <ref bean="mockFilter"/>
 						</list>
 					</constructor-arg>
 				</bean>

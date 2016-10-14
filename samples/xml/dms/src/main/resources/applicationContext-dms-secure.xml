@@ -105,8 +105,8 @@
 	  <constructor-arg value="ACL_ABSTRACT_ELEMENT_WRITE_PARENT"/>
 	  <constructor-arg>
 		  <list>
-		  <ref local="org.springframework.security.acls.domain.BasePermission.ADMINISTRATION"/>
-		  <ref local="org.springframework.security.acls.domain.BasePermission.WRITE"/>
+		  <ref bean="org.springframework.security.acls.domain.BasePermission.ADMINISTRATION"/>
+		  <ref bean="org.springframework.security.acls.domain.BasePermission.WRITE"/>
 		  </list>
 	  </constructor-arg>
 	  <property name="processDomainObjectClass" value="sample.dms.AbstractElement"/>
@@ -119,8 +119,8 @@
 	  <constructor-arg value="ACL_ABSTRACT_ELEMENT_WRITE"/>
 	  <constructor-arg>
 		  <list>
-		  <ref local="org.springframework.security.acls.domain.BasePermission.ADMINISTRATION"/>
-		  <ref local="org.springframework.security.acls.domain.BasePermission.WRITE"/>
+		  <ref bean="org.springframework.security.acls.domain.BasePermission.ADMINISTRATION"/>
+		  <ref bean="org.springframework.security.acls.domain.BasePermission.WRITE"/>
 		  </list>
 	  </constructor-arg>
 	  <property name="processDomainObjectClass" value="sample.dms.AbstractElement"/>
@@ -130,9 +130,9 @@
    <bean id="businessAccessDecisionManager" class="org.springframework.security.access.vote.AffirmativeBased">
 	  <constructor-arg>
 		 <list>
-			<ref local="roleVoter"/>
-			<ref local="aclAbstractElementWriteParentVoter"/>
-			<ref local="aclAbstractElementWriteVoter"/>
+			<ref bean="roleVoter"/>
+			<ref bean="aclAbstractElementWriteParentVoter"/>
+			<ref bean="aclAbstractElementWriteVoter"/>
 		 </list>
 	  </constructor-arg>
 	  <property name="allowIfAllAbstainDecisions" value="true"/>
@@ -203,7 +203,7 @@
    <bean id="afterInvocationManager" class="org.springframework.security.access.intercept.AfterInvocationProviderManager">
 	  <property name="providers">
 		 <list>
-			<ref local="afterAclCollectionRead"/>
+			<ref bean="afterAclCollectionRead"/>
 		 </list>
 	  </property>
    </bean>
@@ -213,8 +213,8 @@
 	  <constructor-arg ref="aclService"/>
 	  <constructor-arg>
 		  <list>
-		  <ref local="org.springframework.security.acls.domain.BasePermission.ADMINISTRATION"/>
-		  <ref local="org.springframework.security.acls.domain.BasePermission.READ"/>
+		  <ref bean="org.springframework.security.acls.domain.BasePermission.ADMINISTRATION"/>
+		  <ref bean="org.springframework.security.acls.domain.BasePermission.READ"/>
 		  </list>
 	  </constructor-arg>
    </bean>

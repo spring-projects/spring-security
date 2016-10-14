@@ -48,8 +48,8 @@
 	</bean>
 
 	<bean id="basicProcessingFilter" class="org.springframework.security.ui.basicauth.BasicProcessingFilter">
-		<property name="authenticationManager"><ref local="authenticationManager"/></property>
-		<property name="authenticationEntryPoint"><ref local="basicProcessingFilterEntryPoint"/></property>
+		<property name="authenticationManager"><ref bean="authenticationManager"/></property>
+		<property name="authenticationEntryPoint"><ref bean="basicProcessingFilterEntryPoint"/></property>
 	</bean>
 
 	<bean id="basicProcessingFilterEntryPoint" class="org.springframework.security.ui.basicauth.BasicProcessingFilterEntryPoint">
@@ -114,7 +114,7 @@
 	<bean id="authenticationManager" class="org.springframework.security.authentication.ProviderManager">
 		<property name="providers">
 			<list>
-				<ref local="daoAuthenticationProvider"/>
+				<ref bean="daoAuthenticationProvider"/>
 				<bean class="org.springframework.security.authentication.AnonymousAuthenticationProvider">
 					<property name="key" value="changeThis"/>
 				</bean>
@@ -146,14 +146,14 @@
 	<bean id="attributes" class="org.springframework.security.access.annotation.SecurityAnnotationAttributes"/>
 
 	<bean id="securityMetadataSource" class="org.springframework.security.access.intercept.method.MethodDefinitionAttributes">
-		<property name="attributes"><ref local="attributes"/></property>
+		<property name="attributes"><ref bean="attributes"/></property>
 	</bean>
 
 	<bean id="securityInterceptor" class="org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor">
-		<property name="authenticationManager"><ref local="authenticationManager"/></property>
-		<property name="accessDecisionManager"><ref local="accessDecisionManager"/></property>
+		<property name="authenticationManager"><ref bean="authenticationManager"/></property>
+		<property name="accessDecisionManager"><ref bean="accessDecisionManager"/></property>
 		<property name="securityMetadataSource">
-			<ref local="securityMetadataSource"/>
+			<ref bean="securityMetadataSource"/>
 		</property>
 	</bean>
 

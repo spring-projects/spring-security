@@ -23,7 +23,7 @@
 			<value>rmi://${serverName}:${rmiPort}/contactManager</value>
 		</property>
 		<property name="remoteInvocationFactory">
-			<ref local="remoteInvocationFactory"/>
+			<ref bean="remoteInvocationFactory"/>
 		</property>
 	</bean>
 
@@ -40,7 +40,7 @@
 			<value>http://${serverName}:${httpPort}${contextPath}/remoting/ContactManager-httpinvoker</value>
 		</property>
 		<property name="httpInvokerRequestExecutor">
-			<ref local="httpInvokerRequestExecutor"/>
+			<ref bean="httpInvokerRequestExecutor"/>
 		</property>
 	</bean>
 
