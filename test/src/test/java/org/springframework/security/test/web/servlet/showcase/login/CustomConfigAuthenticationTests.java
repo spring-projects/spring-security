@@ -64,7 +64,7 @@ public class CustomConfigAuthenticationTests {
 		mvc.perform(
 				formLogin("/authenticate").user("user", "user").password("pass",
 						"password")).andExpect(status().isFound())
-				.andExpect(redirectedUrl("/"))
+				.andExpect(redirectUrl("/"))
 				.andExpect(authenticated().withUsername("user"));
 	}
 
@@ -79,7 +79,7 @@ public class CustomConfigAuthenticationTests {
 		mvc.perform(
 				formLogin("/authenticate").user("user", "notfound").password("pass",
 						"invalid")).andExpect(status().isFound())
-				.andExpect(redirectedUrl("/authenticate?error"))
+				.andExpect(redirectUrl("/authenticate?error"))
 				.andExpect(unauthenticated());
 	}
 
