@@ -63,7 +63,7 @@ public class CustomConfigAuthenticationTests {
 	public void authenticationSuccess() throws Exception {
 		mvc.perform(
 				formLogin("/authenticate").user("user", "user").password("pass",
-						"password")).andExpect(status().isMovedTemporarily())
+						"password")).andExpect(status().isFound())
 				.andExpect(redirectedUrl("/"))
 				.andExpect(authenticated().withUsername("user"));
 	}
@@ -78,7 +78,7 @@ public class CustomConfigAuthenticationTests {
 	public void authenticationFailed() throws Exception {
 		mvc.perform(
 				formLogin("/authenticate").user("user", "notfound").password("pass",
-						"invalid")).andExpect(status().isMovedTemporarily())
+						"invalid")).andExpect(status().isFound())
 				.andExpect(redirectedUrl("/authenticate?error"))
 				.andExpect(unauthenticated());
 	}
