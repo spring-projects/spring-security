@@ -22,8 +22,8 @@ import org.springframework.security.web.header.writers.frameoptions.WhiteListedA
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.is;
-import static org.springframework.test.util.MatcherAssertionErrors.assertThat;
 
 /**
  * Test for the {@code WhiteListedAllowFromStrategy}.
@@ -53,7 +53,7 @@ public class WhiteListedAllowFromStrategyTests {
 		request.setParameter("from", "http://www.test.com");
 
 		String result = strategy.getAllowFromValue(request);
-		assertThat(result, is("http://www.test.com"));
+		assertThat(result).isEqualTo("http://www.test.com");
 	}
 
 	@Test
@@ -67,7 +67,7 @@ public class WhiteListedAllowFromStrategyTests {
 		request.setParameter("from", "http://www.test.com");
 
 		String result = strategy.getAllowFromValue(request);
-		assertThat(result, is("http://www.test.com"));
+		assertThat(result).isEqualTo("http://www.test.com");
 	}
 
 	@Test
@@ -80,7 +80,7 @@ public class WhiteListedAllowFromStrategyTests {
 		request.setParameter("from", "http://www.test123.com");
 
 		String result = strategy.getAllowFromValue(request);
-		assertThat(result, is("DENY"));
+		assertThat(result).isEqualTo("DENY");
 	}
 
 	@Test
@@ -92,7 +92,7 @@ public class WhiteListedAllowFromStrategyTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 
 		String result = strategy.getAllowFromValue(request);
-		assertThat(result, is("DENY"));
+		assertThat(result).isEqualTo("DENY");
 
 	}
 
