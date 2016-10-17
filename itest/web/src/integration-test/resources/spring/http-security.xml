@@ -27,8 +27,6 @@
 		</session-management>
 
 		<remember-me key="doesntmatter" token-repository-ref="tokenRepo"/>
-
-		<csrf disabled="true"/>
 	</http>
 
 	<beans:bean name="tokenRepo" class="org.springframework.security.web.authentication.rememberme.InMemoryTokenRepositoryImpl"/>

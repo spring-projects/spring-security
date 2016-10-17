@@ -7,31 +7,18 @@ dependencies {
 
 	testCompile project(':spring-security-core'),
 				project(':spring-security-web'),
-				project(':spring-security-taglibs'),
+				project(':spring-security-test'),
 				"org.springframework:spring-beans:$springVersion",
 				"org.springframework:spring-webmvc:$springVersion",
-				"org.mortbay.jetty:jetty-util:$jettyVersion",
-				"org.testng:testng:6.8.21"
-	testCompile ("org.mortbay.jetty:jetty:$jettyVersion") {
-	}
-	testCompile ('net.sourceforge.jwebunit:jwebunit-core:2.2') {
-		exclude group: 'javax.servlet', module: 'servlet-api'
-		exclude group: 'regexp', module: 'regexp'
-	}
+				"org.springframework:spring-test:$springVersion"
 
 	testRuntime project(':spring-security-config'),
-				project(':spring-security-ldap'),
-				"org.mortbay.jetty:jsp-2.1-jetty:$jettyVersion",
-	testRuntime ('net.sourceforge.jwebunit:jwebunit-htmlunit-plugin:2.2') {
-		exclude group: 'javax.servlet', module: 'servlet-api'
-	}
+				project(':spring-security-ldap')
 }
 
 integrationTest {
-	useTestNG();
 	options {
 		jvmArgs = ["-ea", '-Xms128m', '-Xmx500m']
-		systemProperties = ['webapp.dir': "$projectDir/src/main/webapp"]
 	}
 	maxParallelForks = 1
 }

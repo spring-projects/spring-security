@@ -17,18 +17,27 @@ package org.springframework.security.itest.web;
 
 import java.io.IOException;
 
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+@RestController
 public class TestController {
 
 	@RequestMapping(value = "/secure/file?with?special?chars.htm", method = RequestMethod.GET)
-	public void sec1255TestUrl(HttpServletResponse response) throws IOException {
-		response.getWriter().append("I'm file?with?special?chars.htm");
+	public String sec1255TestUrl() throws IOException {
+		return "I'm file?with?special?chars.htm";
 	}
 
+	@RequestMapping("/")
+	public String home() {
+		return "home";
+	}
+
+	@RequestMapping("/secure/index")
+	@ResponseBody
+	public String secure() {
+		return "A Secure Page";
+	}
 }
