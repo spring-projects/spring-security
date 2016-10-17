@@ -24,7 +24,7 @@ import geb.*
  */
 class LoginPage extends Page {
 	static url = 'login'
-	static at = { assert driver.title == 'Please Login'; true}
+	static at = { assert driver.title == 'SecureMail: Please Login'; true}
 	static content = {
 		login(required:false) { user='user', password='password' ->
 			loginForm.username = user

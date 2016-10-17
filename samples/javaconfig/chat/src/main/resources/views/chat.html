@@ -1,9 +1,8 @@
-<html xmlns:th="http://www.thymeleaf.org" xmlns:tiles="http://www.thymeleaf.org">
-  <head>
-    <title tiles:fragment="title">Chat</title>
-  </head>
-  <body>
-    <div tiles:fragment="content">
+<html xmlns:th="http://www.thymeleaf.org">
+    <head th:include="layout :: head(title=~{::title},links=~{})">
+      <title>Chat</title>
+    </head>
+    <body th:include="layout :: body" th:with="content=~{::content}">
         <div class="container">
           <div id="heading" class="masthead">
             <h3 class="muted">Chat Application</h3>

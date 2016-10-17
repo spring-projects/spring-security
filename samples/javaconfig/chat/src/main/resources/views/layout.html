@@ -1,9 +1,8 @@
 <!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-3.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org"
-      xmlns:tiles="http://www.thymeleaf.org">
-  <head>
-    <title tiles:include="title">SecureMail:</title>
+      xmlns:th="http://www.thymeleaf.org">
+  <head th:fragment="head(title,links)">
+    <title>SecureMail: <th:block th:include="${title}"></th:block></title>
     <link rel="icon" type="image/x-icon" th:href="@{/resources/img/favicon.ico}" href="../resources/img/favicon.ico"/>
     <link th:href="@{/resources/css/bootstrap.css}" href="../resources/css/bootstrap.css" rel="stylesheet"></link>
     <style type="text/css">
@@ -77,7 +76,7 @@
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-    <script tiles:replace="head"></script>
+     <th:block th:replace="${links}"/>
   </head>
 
 
@@ -111,7 +110,7 @@
               th:text="${globalMessage}">
             Some Success message
         </div>
-        <div tiles:substituteby="content">
+         <div th:replace="${content}">
             Fake content
         </div>
       </div>

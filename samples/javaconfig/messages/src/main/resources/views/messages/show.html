@@ -1,9 +1,9 @@
-<html xmlns:th="http://www.thymeleaf.org" xmlns:tiles="http://www.thymeleaf.org">
-  <head>
-    <title tiles:fragment="title">Messages : Create</title>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head th:include="layout :: head(title=~{::title},links=~{})">
+      <title>Create</title>
   </head>
-  <body>
-    <div tiles:fragment="content">
+  <body th:include="layout :: body" th:with="content=~{::content}">
+    <div th:fragment="content">
         <div class="container">
             <h1>Message : <span th:text="${message.summary}">A short summary...</span></h1>
             <dl>

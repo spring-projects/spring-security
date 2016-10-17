@@ -1,9 +1,9 @@
-<html xmlns:th="http://www.thymeleaf.org" xmlns:tiles="http://www.thymeleaf.org">
-  <head>
-    <title tiles:fragment="title">Messages : View All</title>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head th:include="layout :: head(title=~{::title},links=~{})">
+      <title>View All</title>
   </head>
-  <body>
-    <div tiles:fragment="content">
+  <body th:include="layout :: body" th:with="content=~{::content}">
+    <div th:fragment="content">
         <h1>Inbox</h1>
         <table class="table table-bordered table-striped">
             <thead>

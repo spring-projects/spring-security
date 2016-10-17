@@ -24,7 +24,7 @@ import geb.*
  */
 class HomePage extends Page {
 	static url = ''
-	static at = { assert driver.title == 'Messages : View All'; true}
+	static at = { assert driver.title == 'SecureMail: View All'; true}
 	static content = {
 		user { $('p.navbar-text').text() }
 		logout { $('input', type: 'submit').click() }

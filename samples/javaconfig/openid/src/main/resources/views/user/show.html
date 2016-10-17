@@ -1,11 +1,11 @@
-<html xmlns:th="http://www.thymeleaf.org" xmlns:tiles="http://www.thymeleaf.org">
-  <head>
-    <title tiles:fragment="title">Messages : Login</title>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head th:include="layout :: head(title=~{::title},links=~{})">
+    <title>Messages : Login</title>
     <!-- /Simple OpenID Selector -->
     <link rel="stylesheet" th:href="@{/resources/css/openid.css}" />
   </head>
-  <body>
-    <div tiles:fragment="content">
+  <body th:include="layout :: body" th:with="content=~{::content}">
+     <div th:fragment="content">
         <h1>User Attributes</h1>
         <table class="table table-border">
             <thead>

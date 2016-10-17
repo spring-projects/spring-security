@@ -65,13 +65,6 @@ public class WebMvcConfiguration extends WebMvcConfigurerAdapter {
 	}
 
 	@Bean
-	public ThymeleafTilesConfigurer tilesConfigurer() {
-		ThymeleafTilesConfigurer tilesConfigurer = new ThymeleafTilesConfigurer();
-		tilesConfigurer.setDefinitions(new String[] { "classpath:tiles/tiles-def.xml" });
-		return tilesConfigurer;
-	}
-
-	@Bean
 	public SpringTemplateEngine templateEngine(
 			ClassLoaderTemplateResolver templateResolver) {
 		SpringTemplateEngine templateEngine = new SpringTemplateEngine();
