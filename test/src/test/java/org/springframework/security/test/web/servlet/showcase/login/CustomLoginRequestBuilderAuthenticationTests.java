@@ -55,7 +55,8 @@ public class CustomLoginRequestBuilderAuthenticationTests {
 
 	@Test
 	public void authenticationSuccess() throws Exception {
-		mvc.perform(login()).andExpect(status().isMovedTemporarily())
+		mvc.perform(login())
+				.andExpect(status().isFound())
 				.andExpect(redirectUrl("/"))
 				.andExpect(authenticated().withUsername("user"));
 	}
@@ -63,7 +64,7 @@ public class CustomLoginRequestBuilderAuthenticationTests {
 	@Test
 	public void authenticationFailed() throws Exception {
 		mvc.perform(login().user("notfound").password("invalid"))
-				.andExpect(status().isMovedTemporarily())
+				.andExpect(status().isFound())
 				.andExpect(redirectUrl("/authenticate?error"))
 				.andExpect(unauthenticated());
 	}

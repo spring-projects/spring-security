@@ -17,6 +17,7 @@ package org.springframework.security.test.web.servlet.showcase.login;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
+import static org.springframework.security.test.web.servlet.response.RedirectMatcher.redirectUrl;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -70,7 +71,8 @@ public class CustomConfigAuthenticationTests {
 
 	@Test
 	public void withUserSuccess() throws Exception {
-		mvc.perform(get("/").with(user("user"))).andExpect(status().isNotFound())
+		mvc.perform(get("/").with(user("user")))
+				.andExpect(status().isNotFound())
 				.andExpect(authenticated().withUsername("user"));
 	}
 
