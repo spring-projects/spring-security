@@ -228,11 +228,6 @@ public class SecurityMockMvcRequestPostProcessorsCsrfTests {
 		protected void configure(HttpSecurity http) throws Exception {
 		}
 
-		@Bean
-		public TheController controller() {
-			return new TheController();
-		}
-
 		@RestController
 		static class TheController {
 			@RequestMapping("/")
