@@ -9942,6 +9942,8 @@ Provides Spring Security's JSP tag implementations.
 | Required if you are using SPEL expressions in your tag access constraints.
 |===
 
+include::{include-dir}/proxy-server.adoc[]
+
 include::{include-dir}/faq.adoc[]
 
 include::{include-dir}/migrating.adoc[]
