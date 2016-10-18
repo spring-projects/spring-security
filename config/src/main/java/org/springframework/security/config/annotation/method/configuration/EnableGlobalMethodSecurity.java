@@ -25,7 +25,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.core.Ordered;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.config.annotation.authentication.configuration.EnableGlobalAuthentication;
-import org.springframework.security.config.annotation.configuration.ObjectPostProcessorConfiguration;
 
 /**
  * <p>
@@ -45,7 +44,7 @@ import org.springframework.security.config.annotation.configuration.ObjectPostPr
 @Retention(value = java.lang.annotation.RetentionPolicy.RUNTIME)
 @Target(value = { java.lang.annotation.ElementType.TYPE })
 @Documented
-@Import({ GlobalMethodSecuritySelector.class, ObjectPostProcessorConfiguration.class })
+@Import({ GlobalMethodSecuritySelector.class })
 @EnableGlobalAuthentication
 @Configuration
 public @interface EnableGlobalMethodSecurity {

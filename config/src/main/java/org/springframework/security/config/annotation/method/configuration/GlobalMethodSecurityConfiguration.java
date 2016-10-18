@@ -49,7 +49,6 @@ import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.intercept.AfterInvocationManager;
 import org.springframework.security.access.intercept.AfterInvocationProviderManager;
 import org.springframework.security.access.intercept.RunAsManager;
-import org.springframework.security.access.intercept.RunAsManagerImpl;
 import org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor;
 import org.springframework.security.access.intercept.aspectj.AspectJMethodSecurityInterceptor;
 import org.springframework.security.access.method.DelegatingMethodSecurityMetadataSource;
