@@ -509,9 +509,6 @@ fsmds.attlist &=
 fsmds.attlist &=
 	id?
 fsmds.attlist &=
-	## Compare after forcing to lowercase
-	attribute lowercase-comparisons {xsd:boolean}?
-fsmds.attlist &=
 	request-matcher?
 
 http-basic =

@@ -8779,11 +8779,6 @@ Used to explicitly configure a FilterSecurityMetadataSource bean for use with a 
 A bean identifier, used for referring to the bean elsewhere in the context.
 
 
-[[nsa-filter-security-metadata-source-lowercase-comparisons]]
-* **lowercase-comparisons**
-Compare after forcing to lower case
-
-
 [[nsa-filter-security-metadata-source-request-matcher]]
 * **request-matcher**
 Defines the strategy use for matching incoming requests. Currently the options are 'ant' (for ant path patterns), 'regex' for regular expressions and 'ciRegex' for case-insensitive regular expressions.

@@ -1673,12 +1673,6 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-      <xs:attribute name="lowercase-comparisons" type="xs:boolean">
-         <xs:annotation>
-            <xs:documentation>Compare after forcing to lowercase
-                </xs:documentation>
-         </xs:annotation>
-      </xs:attribute>
       <xs:attribute name="request-matcher">
          <xs:annotation>
             <xs:documentation>Defines the strategy use for matching incoming requests. Currently the options are 'mvc'
