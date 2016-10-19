@@ -34,6 +34,7 @@ import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.io.support.SpringFactoriesLoader;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
@@ -44,6 +45,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.DefaultLoginPageConfigurer;
 import org.springframework.security.config.annotation.web.configurers.SecurityContextConfigurer;
 import org.springframework.security.core.Authentication;
@@ -59,8 +61,23 @@ import org.springframework.web.accept.ContentNegotiationStrategy;
 import org.springframework.web.accept.HeaderContentNegotiationStrategy;
 
 /**
- * Provides a convenient base class for creating a {@link WebSecurityConfigurer} instance.
- * The implementation allows customization by overriding methods.
+ * Provides a convenient base class for creating a {@link WebSecurityConfigurer}
+ * instance. The implementation allows customization by overriding methods.
+ *
+ * <p>
+ * Will automatically apply the result of looking up
+ * {@link AbstractHttpConfigurer} from {@link SpringFactoriesLoader} to allow
+ * developers to extend the defaults.
+ * To do this, you must create a class that extends AbstractHttpConfigurer and then create a file in the classpath at "META-INF/spring.factories" that looks something like:
+ * </p>
+ * <pre>
+ * org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer = sample.MyClassThatExtendsAbstractHttpConfigurer
+ * </pre>
+ * If you have multiple classes that should be added you can use "," to separate the values. For example:
+ *
+ * <pre>
+ * org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer = sample.MyClassThatExtendsAbstractHttpConfigurer, sample.OtherThatExtendsAbstractHttpConfigurer
+ * </pre>
  *
  * @see EnableWebSecurity
  *
@@ -165,6 +182,7 @@ public abstract class WebSecurityConfigurerAdapter implements
 	 * ] * @return the {@link HttpSecurity}
 	 * @throws Exception
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected final HttpSecurity getHttp() throws Exception {
 		if (http != null) {
 			return http;
@@ -195,6 +213,13 @@ public abstract class WebSecurityConfigurerAdapter implements
 				.apply(new DefaultLoginPageConfigurer<HttpSecurity>()).and()
 				.logout();
 			// @formatter:on
+			ClassLoader classLoader = this.context.getClassLoader();
+			List<AbstractHttpConfigurer> defaultHttpConfigurers =
+					SpringFactoriesLoader.loadFactories(AbstractHttpConfigurer.class, classLoader);
+
+			for(AbstractHttpConfigurer configurer : defaultHttpConfigurers) {
+				http.apply(configurer);
+			}
 		}
 		configure(http);
 		return http;

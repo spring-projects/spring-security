@@ -29,7 +29,7 @@ import org.springframework.security.web.DefaultSecurityFilterChain;
  * @author Rob Winch
  *
  */
-abstract class AbstractHttpConfigurer<T extends AbstractHttpConfigurer<T, B>, B extends HttpSecurityBuilder<B>>
+public abstract class AbstractHttpConfigurer<T extends AbstractHttpConfigurer<T, B>, B extends HttpSecurityBuilder<B>>
 		extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, B> {
 
 	/**
