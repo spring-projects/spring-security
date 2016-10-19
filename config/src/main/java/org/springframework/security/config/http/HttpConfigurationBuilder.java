@@ -80,6 +80,7 @@ import org.springframework.util.xml.DomUtils;
 import static org.springframework.security.config.http.HttpSecurityBeanDefinitionParser.ATT_FILTERS;
 import static org.springframework.security.config.http.HttpSecurityBeanDefinitionParser.ATT_HTTP_METHOD;
 import static org.springframework.security.config.http.HttpSecurityBeanDefinitionParser.ATT_PATH_PATTERN;
+import static org.springframework.security.config.http.HttpSecurityBeanDefinitionParser.ATT_REQUEST_MATCHER_REF;
 import static org.springframework.security.config.http.HttpSecurityBeanDefinitionParser.ATT_REQUIRES_CHANNEL;
 import static org.springframework.security.config.http.SecurityFilters.CHANNEL_FILTER;
 import static org.springframework.security.config.http.SecurityFilters.CONCURRENT_SESSION_FILTER;
@@ -582,7 +583,7 @@ class HttpConfigurationBuilder {
 	}
 
 	private void createChannelProcessingFilter() {
-		ManagedMap<BeanDefinition, BeanDefinition> channelRequestMap = parseInterceptUrlsForChannelSecurity();
+		ManagedMap<BeanMetadataElement, BeanDefinition> channelRequestMap = parseInterceptUrlsForChannelSecurity();
 
 		if (channelRequestMap.isEmpty()) {
 			return;
@@ -636,15 +637,17 @@ class HttpConfigurationBuilder {
 	 * will be empty unless the <tt>requires-channel</tt> attribute has been used on a URL
 	 * path.
 	 */
-	private ManagedMap<BeanDefinition, BeanDefinition> parseInterceptUrlsForChannelSecurity() {
+	private ManagedMap<BeanMetadataElement, BeanDefinition> parseInterceptUrlsForChannelSecurity() {
 
-		ManagedMap<BeanDefinition, BeanDefinition> channelRequestMap = new ManagedMap<BeanDefinition, BeanDefinition>();
+		ManagedMap<BeanMetadataElement, BeanDefinition> channelRequestMap = new ManagedMap<BeanMetadataElement, BeanDefinition>();
 
 		for (Element urlElt : interceptUrls) {
 			String path = urlElt.getAttribute(ATT_PATH_PATTERN);
 			String method = urlElt.getAttribute(ATT_HTTP_METHOD);
+			String matcherRef = urlElt.getAttribute(ATT_REQUEST_MATCHER_REF);
+			boolean hasMatcherRef = StringUtils.hasText(matcherRef);
 
-			if (!StringUtils.hasText(path)) {
+			if (!hasMatcherRef && !StringUtils.hasText(path)) {
 				pc.getReaderContext().error("pattern attribute cannot be empty or null",
 						urlElt);
 			}
@@ -652,7 +655,7 @@ class HttpConfigurationBuilder {
 			String requiredChannel = urlElt.getAttribute(ATT_REQUIRES_CHANNEL);
 
 			if (StringUtils.hasText(requiredChannel)) {
-				BeanDefinition matcher = matcherType.createMatcher(pc, path, method);
+				BeanMetadataElement matcher = hasMatcherRef ? new RuntimeBeanReference(matcherRef) : matcherType.createMatcher(pc, path, method);
 
 				RootBeanDefinition channelAttributes = new RootBeanDefinition(
 						ChannelAttributeFactory.class);

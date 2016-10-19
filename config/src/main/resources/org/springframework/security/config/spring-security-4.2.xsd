@@ -1292,10 +1292,15 @@
   </xs:attributeGroup>
   
   <xs:attributeGroup name="intercept-url.attlist">
-      <xs:attribute name="pattern" use="required" type="xs:token">
+      <xs:attribute name="pattern" type="xs:token">
          <xs:annotation>
-            <xs:documentation>The pattern which defines the URL path. The content will depend on the type set in the
-                containing http element, so will default to ant path syntax.
+            <xs:documentation>The request URL pattern which will be mapped to the FilterChain.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="request-matcher-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Allows a RequestMatcher instance to be used, as an alternative to pattern-matching.
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>

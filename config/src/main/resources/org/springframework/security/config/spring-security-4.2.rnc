@@ -366,8 +366,7 @@ intercept-url =
 	## Specifies the access attributes and/or filter list for a particular set of URLs.
 	element intercept-url {intercept-url.attlist, empty}
 intercept-url.attlist &=
-	## The pattern which defines the URL path. The content will depend on the type set in the containing http element, so will default to ant path syntax.
-	attribute pattern {xsd:token}
+	(pattern | request-matcher-ref)
 intercept-url.attlist &=
 	## The access configuration attributes that apply for the configured path.
 	attribute access {xsd:token}?

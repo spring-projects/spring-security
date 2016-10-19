@@ -15,13 +15,16 @@
  */
 package org.springframework.security.config.http;
 
+import static org.springframework.security.config.http.HttpSecurityBeanDefinitionParser.ATT_REQUEST_MATCHER_REF;
+
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Element;
-
+import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.ManagedMap;
@@ -99,7 +102,7 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
 		MatcherType matcherType = MatcherType.fromElement(httpElt);
 		boolean useExpressions = isUseExpressions(httpElt);
 
-		ManagedMap<BeanDefinition, BeanDefinition> requestToAttributesMap = parseInterceptUrlsForFilterInvocationRequestMap(
+		ManagedMap<BeanMetadataElement, BeanDefinition> requestToAttributesMap = parseInterceptUrlsForFilterInvocationRequestMap(
 				matcherType, interceptUrls, useExpressions, addAllAuth, pc);
 		BeanDefinitionBuilder fidsBuilder;
 
@@ -148,11 +151,11 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
 		return !StringUtils.hasText(useExpressions) || "true".equals(useExpressions);
 	}
 
-	private static ManagedMap<BeanDefinition, BeanDefinition> parseInterceptUrlsForFilterInvocationRequestMap(
+	private static ManagedMap<BeanMetadataElement, BeanDefinition> parseInterceptUrlsForFilterInvocationRequestMap(
 			MatcherType matcherType, List<Element> urlElts, boolean useExpressions,
 			boolean addAuthenticatedAll, ParserContext parserContext) {
 
-		ManagedMap<BeanDefinition, BeanDefinition> filterInvocationDefinitionMap = new ManagedMap<BeanDefinition, BeanDefinition>();
+		ManagedMap<BeanMetadataElement, BeanDefinition> filterInvocationDefinitionMap = new ManagedMap<BeanMetadataElement, BeanDefinition>();
 
 		for (Element urlElt : urlElts) {
 			String access = urlElt.getAttribute(ATT_ACCESS);
@@ -161,8 +164,10 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
 			}
 
 			String path = urlElt.getAttribute(ATT_PATTERN);
+			String matcherRef = urlElt.getAttribute(ATT_REQUEST_MATCHER_REF);
+			boolean hasMatcherRef = StringUtils.hasText(matcherRef);
 
-			if (!StringUtils.hasText(path)) {
+			if (!hasMatcherRef && !StringUtils.hasText(path)) {
 				parserContext.getReaderContext().error(
 						"path attribute cannot be empty or null", urlElt);
 			}
@@ -180,7 +185,7 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
 					ATT_SERVLET_PATH + " is not applicable for request-matcher: '" + matcherType.name() + "'", urlElt);
 			}
 
-			BeanDefinition matcher = matcherType.createMatcher(parserContext, path,
+			BeanMetadataElement matcher = hasMatcherRef ? new RuntimeBeanReference(matcherRef) : matcherType.createMatcher(parserContext, path,
 					method, servletPath);
 			BeanDefinitionBuilder attributeBuilder = BeanDefinitionBuilder
 					.rootBeanDefinition(SecurityConfig.class);

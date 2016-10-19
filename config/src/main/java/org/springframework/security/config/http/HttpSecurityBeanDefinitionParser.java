@@ -60,7 +60,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 			.getLog(HttpSecurityBeanDefinitionParser.class);
 
 	private static final String ATT_AUTHENTICATION_MANAGER_REF = "authentication-manager-ref";
-	private static final String ATT_REQUEST_MATCHER_REF = "request-matcher-ref";
+	static final String ATT_REQUEST_MATCHER_REF = "request-matcher-ref";
 	static final String ATT_PATH_PATTERN = "pattern";
 	static final String ATT_HTTP_METHOD = "method";
 

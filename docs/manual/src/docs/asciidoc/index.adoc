@@ -8197,6 +8197,11 @@ The HTTP Method which will be used in combination with the pattern and servlet p
 The pattern which defines the URL path. The content will depend on the `request-matcher` attribute from the containing http element, so will default to ant path syntax.
 
 
+[[nsa-intercept-url-request-matcher-ref]]
+* **request-matcher-ref**
+A reference to a `RequestMatcher` that will be used to determine if this `<intercept-url>` is used.
+
+
 [[nsa-intercept-url-requires-channel]]
 * **requires-channel**
 Can be "http" or "https" depending on whether a particular URL pattern should be accessed over HTTP or HTTPS respectively. Alternatively the value "any" can be used when there is no preference. If this attribute is present on any `<intercept-url>` element, then a `ChannelProcessingFilter` will be added to the filter stack and its additional dependencies added to the application context.
