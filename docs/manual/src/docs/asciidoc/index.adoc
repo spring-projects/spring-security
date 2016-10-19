@@ -6864,6 +6864,26 @@ public ModelAndView findMessagesForUser(@AuthenticationPrincipal(expression = "c
 }
 ----
 
+We can also refer to Beans in our SpEL expressions.
+For example, the following could be used if we were using JPA to manage our Users and we wanted to modify and save a propoerty on the current user.
+
+[source,java]
+----
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+
+// ...
+
+@PutMapping("/users/self")
+public ModelAndView updateName(@AuthenticationPrincipal(expression = "@jpaEntityManager.merge(#this)") CustomUser attachedCustomUser
+		@RequestParam String firstName) {
+
+	// change the firstName on an atached instance which will be persisted to the database
+	attachedCustomUser.setFirstName(firstName);
+
+	// ...
+}
+----
+
 We can further remove our dependency on Spring Security by making `@AuthenticationPrincipal` a meta annotation on our own annotation. Below we demonstrate how we could do this on an annotation named `@CurrentUser`.
 
 NOTE: It is important to realize that in order to remove the dependency on Spring Security, it is the consuming application that would create `@CurrentUser`. This step is not strictly required, but assists in isolating your dependency to Spring Security to a more central location.

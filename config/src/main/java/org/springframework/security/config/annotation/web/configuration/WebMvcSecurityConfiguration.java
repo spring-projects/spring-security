@@ -15,7 +15,14 @@
  */
 package org.springframework.security.config.annotation.web.configuration;
 
+import java.util.List;
+
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.expression.BeanFactoryResolver;
+import org.springframework.expression.BeanResolver;
 import org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver;
 import org.springframework.security.web.method.annotation.CsrfTokenArgumentResolver;
 import org.springframework.security.web.servlet.support.csrf.CsrfRequestDataValueProcessor;
@@ -23,8 +30,6 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.support.RequestDataValueProcessor;
-
-import java.util.List;
 
 /**
  * Used to add a {@link RequestDataValueProcessor} for Spring MVC and Spring Security CSRF
@@ -36,12 +41,15 @@ import java.util.List;
  * @author Rob Winch
  * @since 3.2
  */
-class WebMvcSecurityConfiguration extends WebMvcConfigurerAdapter {
+class WebMvcSecurityConfiguration extends WebMvcConfigurerAdapter implements ApplicationContextAware {
+	private BeanResolver beanResolver;
 
 	@Override
 	@SuppressWarnings("deprecation")
 	public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
-		argumentResolvers.add(new AuthenticationPrincipalArgumentResolver());
+		AuthenticationPrincipalArgumentResolver authenticationPrincipalResolver = new AuthenticationPrincipalArgumentResolver();
+		authenticationPrincipalResolver.setBeanResolver(beanResolver);
+		argumentResolvers.add(authenticationPrincipalResolver);
 		argumentResolvers
 				.add(new org.springframework.security.web.bind.support.AuthenticationPrincipalArgumentResolver());
 		argumentResolvers.add(new CsrfTokenArgumentResolver());
@@ -50,5 +58,10 @@ class WebMvcSecurityConfiguration extends WebMvcConfigurerAdapter {
 	@Bean
 	public RequestDataValueProcessor requestDataValueProcessor() {
 		return new CsrfRequestDataValueProcessor();
+	}
+
+	@Override
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+		this.beanResolver = new BeanFactoryResolver(applicationContext.getAutowireCapableBeanFactory());
 	}
 }

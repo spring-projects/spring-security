@@ -19,6 +19,7 @@ import java.lang.annotation.Annotation;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.expression.BeanResolver;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
@@ -88,6 +89,8 @@ public final class AuthenticationPrincipalArgumentResolver
 
 	private ExpressionParser parser = new SpelExpressionParser();
 
+	private BeanResolver beanResolver;
+
 	/*
 	 * (non-Javadoc)
 	 *
@@ -125,6 +128,7 @@ public final class AuthenticationPrincipalArgumentResolver
 			StandardEvaluationContext context = new StandardEvaluationContext();
 			context.setRootObject(principal);
 			context.setVariable("this", principal);
+			context.setBeanResolver(beanResolver);
 
 			Expression expression = this.parser.parseExpression(expressionToParse);
 			principal = expression.getValue(context);
@@ -142,6 +146,14 @@ public final class AuthenticationPrincipalArgumentResolver
 			}
 		}
 		return principal;
+	}
+
+	/**
+	 * Sets the {@link BeanResolver} to be used on the expressions
+	 * @param beanResolver the {@link BeanResolver} to use
+	 */
+	public void setBeanResolver(BeanResolver beanResolver) {
+		this.beanResolver = beanResolver;
 	}
 
 	/**
