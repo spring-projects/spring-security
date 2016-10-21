@@ -52,6 +52,9 @@ public class InMemoryUserDetailsManager implements UserDetailsManager {
 
 	private AuthenticationManager authenticationManager;
 
+	public InMemoryUserDetailsManager() {
+	}
+
 	public InMemoryUserDetailsManager(Collection<UserDetails> users) {
 		for (UserDetails user : users) {
 			createUser(user);

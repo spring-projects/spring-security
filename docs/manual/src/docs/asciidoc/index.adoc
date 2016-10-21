@@ -459,16 +459,14 @@ import org.springframework.security.config.annotation.web.configuration.*;
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-	@Autowired
-	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-		auth
-			.inMemoryAuthentication()
-				.withUser("user").password("password").roles("USER");
+	@Bean
+	public UserDetailsService userDetailsService() throws Exception {
+		InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
+		manager.createUser(User.withUsername("user").password("password").roles("USER").build());
+		return manager;
 	}
 }
 ----
-
-NOTE: The name of the configureGlobal method is not important. However, it is important to only configure AuthenticationManagerBuilder in a class annotated with either `@EnableWebSecurity`, `@EnableGlobalMethodSecurity`, or `@EnableGlobalAuthentication`. Doing otherwise has unpredictable results.
 
 There really isn't much to this configuration, but it does a lot. You can find a summary of the features below:
 
@@ -798,12 +796,12 @@ We have already seen an example of configuring in memory authentication for a si
 
 [source,java]
 ----
-@Autowired
-public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-	auth
-		.inMemoryAuthentication()
-			.withUser("user").password("password").roles("USER").and()
-			.withUser("admin").password("password").roles("USER", "ADMIN");
+@Bean
+public UserDetailsService userDetailsService() throws Exception {
+	InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
+	manager.createUser(User.withUsername("user").password("password").roles("USER").build());
+	manager.createUser(User.withUsername("admin").password("password").roles("USER","ADMIN").build());
+	return manager;
 }
 ----
 
@@ -947,12 +945,12 @@ We can configure multiple HttpSecurity instances just as we can have multiple `<
 ----
 @EnableWebSecurity
 public class MultiHttpSecurityConfig {
-	@Autowired
-	public void configureGlobal(AuthenticationManagerBuilder auth) { <1>
-		auth
-			.inMemoryAuthentication()
-				.withUser("user").password("password").roles("USER").and()
-				.withUser("admin").password("password").roles("USER", "ADMIN");
+	@Bean
+	public UserDetailsService userDetailsService() throws Exception {
+		InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
+		manager.createUser(User.withUsername("user").password("password").roles("USER").build());
+		manager.createUser(User.withUsername("admin").password("password").roles("USER","ADMIN").build());
+		return manager;
 	}
 
 	@Configuration

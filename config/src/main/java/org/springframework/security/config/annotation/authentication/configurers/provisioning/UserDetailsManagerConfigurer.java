@@ -16,19 +16,16 @@
 package org.springframework.security.config.annotation.authentication.configurers.provisioning;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.security.config.annotation.SecurityBuilder;
 import org.springframework.security.config.annotation.authentication.ProviderManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configurers.userdetails.UserDetailsServiceConfigurer;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.User.UserBuilder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.provisioning.UserDetailsManager;
-import org.springframework.util.Assert;
 
 /**
  * Base class for populating an
@@ -82,13 +79,7 @@ public class UserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B>, C
 	 * should provided. The remaining attributes have reasonable defaults.
 	 */
 	public class UserDetailsBuilder {
-		private String username;
-		private String password;
-		private List<GrantedAuthority> authorities;
-		private boolean accountExpired;
-		private boolean accountLocked;
-		private boolean credentialsExpired;
-		private boolean disabled;
+		private UserBuilder user;
 		private final C builder;
 
 		/**
@@ -117,8 +108,7 @@ public class UserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B>, C
 		 * additional attributes for this user)
 		 */
 		private UserDetailsBuilder username(String username) {
-			Assert.notNull(username, "username cannot be null");
-			this.username = username;
+			this.user = User.withUsername(username);
 			return this;
 		}
 
@@ -130,8 +120,7 @@ public class UserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B>, C
 		 * additional attributes for this user)
 		 */
 		public UserDetailsBuilder password(String password) {
-			Assert.notNull(password, "password cannot be null");
-			this.password = password;
+			this.user.password(password);
 			return this;
 		}
 
@@ -161,14 +150,8 @@ public class UserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B>, C
 		 * additional attributes for this user)
 		 */
 		public UserDetailsBuilder roles(String... roles) {
-			List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>(
-					roles.length);
-			for (String role : roles) {
-				Assert.isTrue(!role.startsWith("ROLE_"), role
-						+ " cannot start with ROLE_ (it is automatically added)");
-				authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
-			}
-			return authorities(authorities);
+			this.user.roles(roles);
+			return this;
 		}
 
 		/**
@@ -181,7 +164,8 @@ public class UserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B>, C
 		 * @see #roles(String...)
 		 */
 		public UserDetailsBuilder authorities(GrantedAuthority... authorities) {
-			return authorities(Arrays.asList(authorities));
+			this.user.authorities(authorities);
+			return this;
 		}
 
 		/**
@@ -194,7 +178,7 @@ public class UserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B>, C
 		 * @see #roles(String...)
 		 */
 		public UserDetailsBuilder authorities(List<? extends GrantedAuthority> authorities) {
-			this.authorities = new ArrayList<GrantedAuthority>(authorities);
+			this.user.authorities(authorities);
 			return this;
 		}
 
@@ -208,7 +192,8 @@ public class UserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B>, C
 		 * @see #roles(String...)
 		 */
 		public UserDetailsBuilder authorities(String... authorities) {
-			return authorities(AuthorityUtils.createAuthorityList(authorities));
+			this.user.authorities(authorities);
+			return this;
 		}
 
 		/**
@@ -219,7 +204,7 @@ public class UserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B>, C
 		 * additional attributes for this user)
 		 */
 		public UserDetailsBuilder accountExpired(boolean accountExpired) {
-			this.accountExpired = accountExpired;
+			this.user.accountExpired(accountExpired);
 			return this;
 		}
 
@@ -231,7 +216,7 @@ public class UserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B>, C
 		 * additional attributes for this user)
 		 */
 		public UserDetailsBuilder accountLocked(boolean accountLocked) {
-			this.accountLocked = accountLocked;
+			this.user.accountLocked(accountLocked);
 			return this;
 		}
 
@@ -243,7 +228,7 @@ public class UserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B>, C
 		 * additional attributes for this user)
 		 */
 		public UserDetailsBuilder credentialsExpired(boolean credentialsExpired) {
-			this.credentialsExpired = credentialsExpired;
+			this.user.credentialsExpired(credentialsExpired);
 			return this;
 		}
 
@@ -255,13 +240,12 @@ public class UserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B>, C
 		 * additional attributes for this user)
 		 */
 		public UserDetailsBuilder disabled(boolean disabled) {
-			this.disabled = disabled;
+			this.user.disabled(disabled);
 			return this;
 		}
 
 		private UserDetails build() {
-			return new User(username, password, !disabled, !accountExpired,
-					!credentialsExpired, !accountLocked, authorities);
+			return this.user.build();
 		}
 	}
 }
