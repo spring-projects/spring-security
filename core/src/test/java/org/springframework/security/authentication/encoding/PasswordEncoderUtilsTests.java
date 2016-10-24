@@ -48,6 +48,12 @@ public class PasswordEncoderUtilsTests {
 	}
 
 	@Test
+	public void equalsWhenNotEmptyAndEmptyThenFalse() {
+		assertThat(PasswordEncoderUtils.equals("abc", "")).isFalse();
+		assertThat(PasswordEncoderUtils.equals("", "abc")).isFalse();
+	}
+
+	@Test
 	public void equalsWhenEmtpyAndEmptyThenTrue() {
 		assertThat(PasswordEncoderUtils.equals("", "")).isTrue();
 	}
