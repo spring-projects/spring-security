@@ -25,25 +25,40 @@ import org.junit.Test;
 public class PasswordEncoderUtilsTests {
 
 	@Test
-	public void differentLength() {
+	public void equalsWhenDifferentLengthThenFalse() {
 		assertThat(PasswordEncoderUtils.equals("abc", "a")).isFalse();
 		assertThat(PasswordEncoderUtils.equals("a", "abc")).isFalse();
 	}
 
 	@Test
-	public void equalsNull() {
+	public void equalsWhenNullAndNotEmtpyThenFalse() {
 		assertThat(PasswordEncoderUtils.equals(null, "a")).isFalse();
 		assertThat(PasswordEncoderUtils.equals("a", null)).isFalse();
+	}
+
+	@Test
+	public void equalsWhenNullAndNullThenTrue() {
 		assertThat(PasswordEncoderUtils.equals(null, null)).isTrue();
 	}
 
 	@Test
-	public void equalsCaseSensitive() {
+	public void equalsWhenNullAndEmptyThenFalse() {
+		assertThat(PasswordEncoderUtils.equals(null, "")).isFalse();
+		assertThat(PasswordEncoderUtils.equals("", null)).isFalse();
+	}
+
+	@Test
+	public void equalsWhenEmtpyAndEmptyThenTrue() {
+		assertThat(PasswordEncoderUtils.equals("", "")).isTrue();
+	}
+
+	@Test
+	public void equalsWhenDifferentCaseThenFalse() {
 		assertThat(PasswordEncoderUtils.equals("aBc", "abc")).isFalse();
 	}
 
 	@Test
-	public void equalsSuccess() {
+	public void equalsWhenSameThenTrue() {
 		assertThat(PasswordEncoderUtils.equals("abcdef", "abcdef")).isTrue();
 	}
 }
