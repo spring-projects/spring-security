@@ -33,18 +33,14 @@ class PasswordEncoderUtils {
 	static boolean equals(String expected, String actual) {
 		byte[] expectedBytes = bytesUtf8(expected);
 		byte[] actualBytes = bytesUtf8(actual);
-		int expectedLength = expectedBytes == null ? 0 : expectedBytes.length;
-		int actualLength = actualBytes == null ? 0 : actualBytes.length;
-		byte[] tmpBytes = new byte[1];
-		int result = (expectedLength != actualLength) ? 1 : 0;
-		
-		tmpBytes[0] = (byte) 0xFF; // value is ignored, just initializing.
-		result |= ((expectedBytes == null && actualBytes != null) || (expectedBytes != null && actualBytes == null)) ? 1 : 0;
-		
-		expectedBytes = (expectedBytes == null ? expectedBytes : tmpBytes);
+		int expectedLength = expectedBytes == null ? -1 : expectedBytes.length;
+		int actualLength = actualBytes == null ? -1 : actualBytes.length;
 
+		int result = expectedLength == actualLength ? 0 : 1;
 		for (int i = 0; i < actualLength; i++) {
-			result |= expectedBytes[i % (expectedLength!=0?expectedLength:1)] ^ actualBytes[i % actualLength];
+			byte expectedByte = expectedBytes == null ? 0 : expectedBytes[i % expectedLength];
+			byte actualByte = actualBytes[i % actualLength];
+			result |= expectedByte ^ actualByte;
 		}
 		return result == 0;
 	}
