@@ -16,9 +16,8 @@
 
 package org.springframework.security.ldap.server;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -119,12 +118,11 @@ public class ApacheDSContainerTests {
 
 		try {
 			server.afterPropertiesSet();
+			fail("Expected an IllegalArgumentException to be thrown.");
 		}
 		catch (IllegalArgumentException e){
-			assertEquals("When LdapOverSsl is enabled, the keyStoreFile property must be set.", e.getMessage());
-			return;
+			assertThat(e).hasMessage("When LdapOverSsl is enabled, the keyStoreFile property must be set.");
 		}
-		fail("Expected an IllegalArgumentException to be thrown.");
 	}
 
 	@Test
@@ -133,7 +131,7 @@ public class ApacheDSContainerTests {
 		final File temporaryKeyStoreFile = new File(temporaryFolder.getRoot(), "spring.keystore");
 		FileCopyUtils.copy(keyStoreResource.getInputStream(), new FileOutputStream(temporaryKeyStoreFile));
 
-		assertTrue(temporaryKeyStoreFile.isFile());
+		assertThat(temporaryKeyStoreFile).isFile();
 
 		ApacheDSContainer server = new ApacheDSContainer("dc=springframework,dc=org",
 				"classpath:test-server.ldif");
@@ -147,13 +145,12 @@ public class ApacheDSContainerTests {
 
 		try {
 			server.afterPropertiesSet();
+			fail("Expected a RuntimeException to be thrown.");
 		}
 		catch (RuntimeException e){
-			assertEquals("Server startup failed", e.getMessage());
-			assertTrue("Expected an instance of 'UnrecoverableKeyException' but got " + ExceptionUtils.getRootCause(e).getClass().getName(), ExceptionUtils.getRootCause(e) instanceof UnrecoverableKeyException);
-			return;
+			assertThat(e).hasMessage("Server startup failed");
+			assertThat(e).hasRootCauseInstanceOf(UnrecoverableKeyException.class);
 		}
-		fail("Expected a RuntimeException to be thrown.");
 	}
 
 	/**
@@ -175,7 +172,7 @@ public class ApacheDSContainerTests {
 		final File temporaryKeyStoreFile = new File(temporaryFolder.getRoot(), "spring.keystore");
 		FileCopyUtils.copy(keyStoreResource.getInputStream(), new FileOutputStream(temporaryKeyStoreFile));
 
-		assertTrue(temporaryKeyStoreFile.isFile());
+		assertThat(temporaryKeyStoreFile).isFile();
 
 		ApacheDSContainer server = new ApacheDSContainer("dc=springframework,dc=org",
 				"classpath:test-server.ldif");
