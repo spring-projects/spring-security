@@ -20,12 +20,14 @@ import org.springframework.security.config.annotation.BaseSpringSpec
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
+import static org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy
 
 /**
  *
  * @author Rob Winch
  * @author Tim Ysewyn
  * @author Joe Grandja
+ * @author Eddú Meléndez
  */
 class HeadersConfigurerTests extends BaseSpringSpec {
 
@@ -450,6 +452,48 @@ class HeadersConfigurerTests extends BaseSpringSpec {
 					.headers()
 					.defaultsDisabled()
 					.contentSecurityPolicy("");
+		}
+	}
+
+	def "headers.referrerPolicy default"() {
+		setup:
+			loadConfig(ReferrerPolicyDefaultConfig)
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			responseHeaders == ['Referrer-Policy': 'no-referrer']
+	}
+
+	@EnableWebSecurity
+	static class ReferrerPolicyDefaultConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+					.headers()
+					.defaultsDisabled()
+					.referrerPolicy();
+		}
+	}
+
+	def "headers.referrerPolicy custom"() {
+		setup:
+			loadConfig(ReferrerPolicyCustomConfig)
+		when:
+			springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+			responseHeaders == ['Referrer-Policy': 'same-origin']
+	}
+
+	@EnableWebSecurity
+	static class ReferrerPolicyCustomConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+					.headers()
+					.defaultsDisabled()
+					.referrerPolicy(ReferrerPolicy.SAME_ORIGIN);
 		}
 	}
 

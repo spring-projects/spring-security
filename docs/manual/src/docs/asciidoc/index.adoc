@@ -4353,6 +4353,57 @@ protected void configure(HttpSecurity http) throws Exception {
 }
 ----
 
+[[headers-referrer]]
+==== Referrer Policy
+
+https://www.w3.org/TR/referrer-policy[Referrer Policy] is a mechanism that web applications can leverage to manage the referrer field, which contains the last
+page the user was on.
+
+Spring Security's approach is to use https://www.w3.org/TR/referrer-policy/[Referrer Policy] header, which provides different https://www.w3.org/TR/referrer-policy/#referrer-policies[policies]:
+
+[source]
+----
+Referrer-Policy: same-origin
+----
+
+The Referrer-Policy response header instructs the browser to let the destination knows the source where the user was previously.
+
+[[headers-referrer-configure]]
+===== Configuring Referrer Policy
+
+Spring Security *_doesn't add_* Referrer Policy header by default.
+
+You can enable the Referrer-Policy header using XML configuration with the <<nsa-referrer-policy,<referrer-policy>>> element as shown below:
+
+[source,xml]
+----
+<http>
+	<!-- ... -->
+
+	<headers>
+		<referrer-policy policy="same-origin" />
+	</headers>
+</http>
+----
+
+Similarly, you can enable the Referrer Policy header using Java configuration as shown below:
+
+[source,java]
+----
+@EnableWebSecurity
+public class WebSecurityConfig extends
+WebSecurityConfigurerAdapter {
+
+@Override
+protected void configure(HttpSecurity http) throws Exception {
+	http
+	// ...
+	.headers()
+		.referrerPolicy(ReferrerPolicy.SAME_ORIGIN);
+}
+}
+----
+
 [[headers-csp-links]]
 ===== Additional Resources
 
@@ -7685,6 +7736,7 @@ This element allows for configuring additional (security) headers to be send wit
 ** `X-Content-Type-Options` - Can be set using the <<nsa-content-type-options,content-type-options>> element. The http://blogs.msdn.com/b/ie/archive/2008/09/02/ie8-security-part-vi-beta-2-update.aspx[X-Content-Type-Options] header prevents Internet Explorer from MIME-sniffing a response away from the declared content-type. This also applies to Google Chrome, when downloading extensions.
 ** `Public-Key-Pinning` or `Public-Key-Pinning-Report-Only` - Can be set using the <<nsa-hpkp,hpkp>> element. This allows HTTPS websites to resist impersonation by attackers using mis-issued or otherwise fraudulent certificates.
 ** `Content-Security-Policy` or `Content-Security-Policy-Report-Only` - Can be set using the <<nsa-content-security-policy,content-security-policy>> element. https://www.w3.org/TR/CSP2/[Content Security Policy (CSP)] is a mechanism that web applications can leverage to mitigate content injection vulnerabilities, such as cross-site scripting (XSS).
+** `Referrer-Policy` - Can be set using the <<nsa-referrer-policy,referrer-policy>> element, https://www.w3.org/TR/referrer-policy/[Referrer-Policy] is a mechanism that web applications can leverage to manage the referrer field, which contains the last page the user was on.
 
 [[nsa-headers-attributes]]
 ===== <headers> Attributes
@@ -7718,6 +7770,7 @@ Optional attribute that specifies to disable Spring Security's HTTP response hea
 * <<nsa-header,header>>
 * <<nsa-hpkp,hpkp>>
 * <<nsa-hsts,hsts>>
+* <<nsa-referrer-policy,referrer-policy>>
 * <<nsa-xss-protection,xss-protection>>
 
 
@@ -7862,6 +7915,24 @@ Set to true, to enable the Content-Security-Policy-Report-Only header for report
 
 [[nsa-content-security-policy-parents]]
 ===== Parent Elements of <content-security-policy>
+
+* <<nsa-headers,headers>>
+
+
+
+[[nsa-referrer-policy]]
+==== <referrer-policy>
+When enabled adds the https://www.w3.org/TR/referrer-policy/[Referrer Policy] header to the response.
+
+[[nsa-referrer-policy-attributes]]
+===== <referrer-policy> Attributes
+
+[[nsa-referrer-policy-policy]]
+*  **policy**
+The policy for the Referrer-Policy header. Default "no-referrer".
+
+[[nsa-referrer-policy-parents]]
+===== Parent Elements of <referrer-policy>
 
 * <<nsa-headers,headers>>
 
