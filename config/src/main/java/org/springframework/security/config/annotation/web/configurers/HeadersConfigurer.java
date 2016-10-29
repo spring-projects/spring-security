@@ -28,6 +28,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.security.web.header.HeaderWriterFilter;
 import org.springframework.security.web.header.writers.*;
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter.XFrameOptionsMode;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -56,6 +57,7 @@ import org.springframework.util.Assert;
  * @author Rob Winch
  * @author Tim Ysewyn
  * @author Joe Grandja
+ * @author Eddú Meléndez
  * @since 3.2
  */
 public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
@@ -77,6 +79,8 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 	private final HpkpConfig hpkp = new HpkpConfig();
 
 	private final ContentSecurityPolicyConfig contentSecurityPolicy = new ContentSecurityPolicyConfig();
+
+	private final ReferrerPolicyConfig referrerPolicy = new ReferrerPolicyConfig();
 
 	/**
 	 * Creates a new instance
@@ -770,6 +774,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 		addIfNotNull(writers, frameOptions.writer);
 		addIfNotNull(writers, hpkp.writer);
 		addIfNotNull(writers, contentSecurityPolicy.writer);
+		addIfNotNull(writers, referrerPolicy.writer);
 		writers.addAll(headerWriters);
 		return writers;
 	}
@@ -778,5 +783,69 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 		if (value != null) {
 			values.add(value);
 		}
+	}
+
+	/**
+	 * <p>
+	 * Allows configuration for <a href="https://www.w3.org/TR/referrer-policy/">Referrer Policy</a>.
+	 * </p>
+	 *
+	 * <p>
+	 * Configuration is provided to the {@link ReferrerPolicyHeaderWriter} which support the writing
+	 * of the header as detailed in the W3C Technical Report:
+	 * </p>
+	 * <ul>
+	 *  <li>Referrer-Policy</li>
+	 * </ul>
+	 *
+	 * <p>Default value is:</p>
+	 *
+	 * <pre>
+	 * Referrer-Policy: no-referrer
+	 * </pre>
+	 *
+	 * @see ReferrerPolicyHeaderWriter
+	 * @since 4.2
+	 * @return the ReferrerPolicyConfig for additional configuration
+	 */
+	public ReferrerPolicyConfig referrerPolicy() {
+		this.referrerPolicy.writer = new ReferrerPolicyHeaderWriter();
+		return this.referrerPolicy;
+	}
+
+	/**
+	 * <p>
+	 * Allows configuration for <a href="https://www.w3.org/TR/referrer-policy/">Referrer Policy</a>.
+	 * </p>
+	 *
+	 * <p>
+	 * Configuration is provided to the {@link ReferrerPolicyHeaderWriter} which support the writing
+	 * of the header as detailed in the W3C Technical Report:
+	 * </p>
+	 * <ul>
+	 *  <li>Referrer-Policy</li>
+	 * </ul>
+	 *
+	 * @see ReferrerPolicyHeaderWriter
+	 * @since 4.2
+	 * @return the ReferrerPolicyConfig for additional configuration
+	 * @throws IllegalArgumentException if policy is null or empty
+	 */
+	public ReferrerPolicyConfig referrerPolicy(ReferrerPolicy policy) {
+		this.referrerPolicy.writer = new ReferrerPolicyHeaderWriter(policy);
+		return this.referrerPolicy;
+	}
+
+	public final class ReferrerPolicyConfig {
+
+		private ReferrerPolicyHeaderWriter writer;
+
+		private ReferrerPolicyConfig() {
+		}
+
+		public HeadersConfigurer<H> and() {
+			return HeadersConfigurer.this;
+		}
+
 	}
 }

@@ -920,6 +920,38 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 			assertHeaders(response, expectedHeaders)
 	}
 
+	def 'http headers defaults : referrer-policy'() {
+		setup:
+			httpAutoConfig {
+				'headers'('defaults-disabled':true) {
+					'referrer-policy'()
+				}
+			}
+			createAppContext()
+		when:
+			def hf = getFilter(HeaderWriterFilter)
+			MockHttpServletResponse response = new MockHttpServletResponse()
+			hf.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
+		then:
+			assertHeaders(response, ['Referrer-Policy': 'no-referrer'])
+	}
+
+	def 'http headers defaults : referrer-policy same-origin'() {
+		setup:
+			httpAutoConfig {
+				'headers'('defaults-disabled':true) {
+					'referrer-policy'('policy': 'same-origin')
+				}
+			}
+			createAppContext()
+		when:
+			def hf = getFilter(HeaderWriterFilter)
+			MockHttpServletResponse response = new MockHttpServletResponse()
+			hf.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
+		then:
+			assertHeaders(response, ['Referrer-Policy': 'same-origin'])
+	}
+
 	def assertHeaders(MockHttpServletResponse response, Map<String,String> expected) {
 		assert response.headerNames == expected.keySet()
 		expected.each { headerName, value ->

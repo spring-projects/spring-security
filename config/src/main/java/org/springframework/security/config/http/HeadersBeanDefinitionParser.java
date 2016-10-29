@@ -31,6 +31,7 @@ import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.web.header.HeaderWriterFilter;
 import org.springframework.security.web.header.writers.*;
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy;
 import org.springframework.security.web.header.writers.frameoptions.RegExpAllowFromStrategy;
 import org.springframework.security.web.header.writers.frameoptions.StaticAllowFromStrategy;
 import org.springframework.security.web.header.writers.frameoptions.WhiteListedAllowFromStrategy;
@@ -45,6 +46,7 @@ import org.w3c.dom.Node;
  *
  * @author Marten Deinum
  * @author Tim Ysewyn
+ * @author Eddú Meléndez
  * @since 3.2
  */
 public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
@@ -82,6 +84,7 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 	private static final String GENERIC_HEADER_ELEMENT = "header";
 
 	private static final String CONTENT_SECURITY_POLICY_ELEMENT = "content-security-policy";
+	private static final String REFERRER_POLICY_ELEMENT = "referrer-policy";
 
 	private static final String ALLOW_FROM = "ALLOW-FROM";
 
@@ -108,6 +111,8 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 		parseHpkpElement(element == null || !disabled, element, parserContext);
 
 		parseContentSecurityPolicyElement(disabled, element, parserContext);
+
+		parseReferrerPolicyElement(element, parserContext);
 
 		parseHeaderElements(element);
 
@@ -288,6 +293,23 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 			headersWriter.addPropertyValue("reportOnly", reportOnly);
 		}
 
+		headerWriters.add(headersWriter.getBeanDefinition());
+	}
+
+	private void parseReferrerPolicyElement(Element element, ParserContext context) {
+		Element referrerPolicyElement = (element == null) ? null : DomUtils.getChildElementByTagName(element, REFERRER_POLICY_ELEMENT);
+		if (referrerPolicyElement != null) {
+			addReferrerPolicy(referrerPolicyElement, context);
+		}
+	}
+
+	private void addReferrerPolicy(Element referrerPolicyElement, ParserContext context) {
+		BeanDefinitionBuilder headersWriter = BeanDefinitionBuilder.genericBeanDefinition(ReferrerPolicyHeaderWriter.class);
+
+		String policy = referrerPolicyElement.getAttribute(ATT_POLICY);
+		if (StringUtils.hasLength(policy)) {
+			headersWriter.addConstructorArgValue(ReferrerPolicy.get(policy));
+		}
 		headerWriters.add(headersWriter.getBeanDefinition());
 	}
 

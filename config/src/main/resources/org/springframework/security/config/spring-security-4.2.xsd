@@ -2357,6 +2357,7 @@
             <xs:element ref="security:content-type-options"/>
             <xs:element ref="security:hpkp"/>
             <xs:element ref="security:content-security-policy"/>
+            <xs:element ref="security:referrer-policy"/>
             <xs:element ref="security:header"/>
          </xs:choice>
          <xs:attributeGroup ref="security:headers-options.attlist"/>
@@ -2537,6 +2538,35 @@
                 violations only. Defaults to false.
                 </xs:documentation>
          </xs:annotation>
+      </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="referrer-policy">
+      <xs:annotation>
+         <xs:documentation>Adds support for Referrer Policy
+                </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attributeGroup ref="security:referrer-options.attlist"/>
+      </xs:complexType>
+   </xs:element>
+  <xs:attributeGroup name="referrer-options.attlist">
+      <xs:attribute name="policy">
+         <xs:annotation>
+            <xs:documentation>The policies for the Referrer-Policy header.
+                </xs:documentation>
+         </xs:annotation>
+         <xs:simpleType>
+            <xs:restriction base="xs:token">
+               <xs:enumeration value="no-referrer"/>
+               <xs:enumeration value="no-referrer-when-downgrade"/>
+               <xs:enumeration value="same-origin"/>
+               <xs:enumeration value="origin"/>
+               <xs:enumeration value="strict-origin"/>
+               <xs:enumeration value="origin-when-cross-origin"/>
+               <xs:enumeration value="strict-origin-when-cross-origin"/>
+               <xs:enumeration value="unsafe-url"/>
+            </xs:restriction>
+         </xs:simpleType>
       </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="cache-control">
