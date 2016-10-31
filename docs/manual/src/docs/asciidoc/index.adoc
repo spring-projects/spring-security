@@ -58,7 +58,7 @@ At an authentication level, Spring Security supports a wide range of authenticat
 
 * Authentication based on pre-established request headers (such as Computer Associates Siteminder)
 
-* JA-SIG Central Authentication Service (otherwise known as CAS, which is a popular open source single sign-on system)
+* Jasig Central Authentication Service (otherwise known as CAS, which is a popular open source single sign-on system)
 
 * Transparent authentication context propagation for Remote Method Invocation (RMI) and HttpInvoker (a Spring remoting protocol)
 
@@ -70,11 +70,11 @@ At an authentication level, Spring Security supports a wide range of authenticat
 
 * Java Authentication and Authorization Service (JAAS)
 
-* JEE container autentication (so you can still use Container Managed Authentication if desired)
+* Java EE container authentication (so you can still use Container Managed Authentication if desired)
 
 * Kerberos
 
-* Java Open Source Single Sign On (JOSSO) *
+* Java Open Source Single Sign-On (JOSSO) *
 
 * OpenNMS Network Management Platform *
 
@@ -108,7 +108,7 @@ At an authentication level, Spring Security supports a wide range of authenticat
 
 Many independent software vendors (ISVs) adopt Spring Security because of this significant choice of flexible authentication models. Doing so allows them to quickly integrate their solutions with whatever their end clients need, without undertaking a lot of engineering or requiring the client to change their environment. If none of the above authentication mechanisms suit your needs, Spring Security is an open platform and it is quite simple to write your own authentication mechanism. Many corporate users of Spring Security need to integrate with "legacy" systems that don't follow any particular security standards, and Spring Security is happy to "play nicely" with such systems.
 
-Irrespective of the authentication mechanism, Spring Security provides a deep set of authorization capabilities. There are three main areas of interest  - authorizing web requests, authorizing whether methods can be invoked, and authorizing access to individual domain object instances. To help you understand the differences, consider the authorization capabilities found in the Servlet Specification web pattern security, EJB Container Managed Security and file system security respectively. Spring Security provides deep capabilities in all of these important areas, which we'll explore later in this reference guide.
+Irrespective of the authentication mechanism, Spring Security provides a deep set of authorization capabilities. There are three main areas of interest: authorizing web requests, authorizing whether methods can be invoked and authorizing access to individual domain object instances. To help you understand the differences, consider the authorization capabilities found in the Servlet Specification web pattern security, EJB Container Managed Security and file system security respectively. Spring Security provides deep capabilities in all of these important areas, which we'll explore later in this reference guide.
 
 
 [[history]]
@@ -681,7 +681,7 @@ protected void configure(HttpSecurity http) throws Exception {
 
 <1> There are multiple children to the `http.authorizeRequests()` method each matcher is considered in the order they were declared.
 <2> We specified multiple URL patterns that any user can access. Specifically, any user can access a request if the URL starts with "/resources/", equals "/signup", or equals "/about".
-<3> Any URL that starts with "/admin/" will be resticted to users who have the role "ROLE_ADMIN". You will notice that since we are invoking the `hasRole` method we do not need to specify the "ROLE_" prefix.
+<3> Any URL that starts with "/admin/" will be restricted to users who have the role "ROLE_ADMIN". You will notice that since we are invoking the `hasRole` method we do not need to specify the "ROLE_" prefix.
 <4> Any URL that starts with "/db/" requires the user to have both "ROLE_ADMIN" and "ROLE_DBA". You will notice that since we are using the `hasRole` expression we do not need to specify the "ROLE_" prefix.
 <5> Any URL that has not already been matched on only requires that the user be authenticated
 
@@ -1345,7 +1345,7 @@ The `<authentication-provider>` element creates a `DaoAuthenticationProvider` be
 
 The configuration above defines two users, their passwords and their roles within the application (which will be used for access control). It is also possible to load user information from a standard properties file using the `properties` attribute on `user-service`. See the section on <<core-services-in-memory-service,in-memory authentication>> for more details on the file format. Using the `<authentication-provider>` element means that the user information will be used by the authentication manager to process authentication requests. You can have multiple `<authentication-provider>` elements to define different authentication sources and each will be consulted in turn.
 
-At this point you should be able to start up your application and you will be required to log in to proceed. Try it out, or try experimenting with the"tutorial" sample application that comes with the project.
+At this point you should be able to start up your application and you will be required to log in to proceed. Try it out, or try experimenting with the "tutorial" sample application that comes with the project.
 
 
 [[ns-form-and-basic]]
@@ -1643,7 +1643,7 @@ You should then register yourself with an OpenID provider (such as myopenid.com)
 <user name="http://jimi.hendrix.myopenid.com/" authorities="ROLE_USER" />
 ----
 
-You should be able to login using the `myopenid.com` site to authenticate. It is also possible to select a specific `UserDetailsService` bean for use OpenID by setting the `user-service-ref` attribute on the `openid-login` element. See the previous section on <<ns-auth-providers,authentication providers>> for more information. Note that we have omitted the password attribute from the above user configuration, since this set of user data is only being used to load the authorities for the user. A random password will be generate internally, preventing you from accidentally using this user data as an authentication source elsewhere in your configuration.
+You should be able to login using the `myopenid.com` site to authenticate. It is also possible to select a specific `UserDetailsService` bean for use OpenID by setting the `user-service-ref` attribute on the `openid-login` element. See the previous section on <<ns-auth-providers,authentication providers>> for more information. Note that we have omitted the password attribute from the above user configuration, since this set of user data is only being used to load the authorities for the user. A random password will be generated internally, preventing you from accidentally using this user data as an authentication source elsewhere in your configuration.
 
 
 ===== Attribute Exchange
@@ -2061,7 +2061,7 @@ We welcome your involvement in the Spring Security project. There are many ways 
 
 [[further-info]]
 === Further Information
-Questions and comments on Spring Security are welcome. You can use the Spring at StackOverflow web site at http://spring.io/questions[http://spring.io/questions] to discuss Spring Security with other users of the framework. Remember to use JIRA for bug reports, as explained above.
+Questions and comments on Spring Security are welcome. You can use the Spring at Stack Overflow web site at http://spring.io/questions[http://spring.io/questions] to discuss Spring Security with other users of the framework. Remember to use JIRA for bug reports, as explained above.
 
 [[overall-architecture]]
 = Architecture and Implementation
@@ -2089,7 +2089,7 @@ In Spring Security 3.0, the contents of the `spring-security-core` jar were stri
 ====  SecurityContextHolder, SecurityContext and Authentication Objects
 The most fundamental object is `SecurityContextHolder`. This is where we store details of the present security context of the application, which includes details of the principal currently using the application. By default the `SecurityContextHolder` uses a `ThreadLocal` to store these details, which means that the security context is always available to methods in the same thread of execution, even if the security context is not explicitly passed around as an argument to those methods. Using a `ThreadLocal` in this way is quite safe if care is taken to clear the thread after the present principal's request is processed. Of course, Spring Security takes care of this for you automatically so there is no need to worry about it.
 
-Some applications aren't entirely suitable for using a `ThreadLocal`, because of the specific way they work with threads. For example, a Swing client might want all threads in a Java Virtual Machine to use the same security context. `SecurityContextHolder` can be configured with a strategy on startup to specify how you would like the context to be stored. For a standalone application you would use the `SecurityContextHolder.MODE_GLOBAL` strategy. Other applications might want to have threads spawned by the secure thread also assume the same security identity. This is achieved by using `SecurityContextHolder.MODE_INHERITABLETHREADLOCAL`. You can change the mode from the default `SecurityContextHolder.MODE_THREADLOCAL` in two ways. The first is to set a system property, the second is to call a static method on `SecurityContextHolder`. Most applications won't need to change from the default, but if you do, take a look at the JavaDocs for `SecurityContextHolder` to learn more.
+Some applications aren't entirely suitable for using a `ThreadLocal`, because of the specific way they work with threads. For example, a Swing client might want all threads in a Java Virtual Machine to use the same security context. `SecurityContextHolder` can be configured with a strategy on startup to specify how you would like the context to be stored. For a standalone application you would use the `SecurityContextHolder.MODE_GLOBAL` strategy. Other applications might want to have threads spawned by the secure thread also assume the same security identity. This is achieved by using `SecurityContextHolder.MODE_INHERITABLETHREADLOCAL`. You can change the mode from the default `SecurityContextHolder.MODE_THREADLOCAL` in two ways. The first is to set a system property, the second is to call a static method on `SecurityContextHolder`. Most applications won't need to change from the default, but if you do, take a look at the JavaDoc for `SecurityContextHolder` to learn more.
 
 
 ===== Obtaining information about the current user
@@ -2109,7 +2109,7 @@ String username = principal.toString();
 ----
 
 
-The object returned by the call to `getContext()` is an instance of the `SecurityContext` interface. This is the object that is kept in thread-local storage. As we'll see below, most authentication mechanisms withing Spring Security return an instance of `UserDetails` as the principal.
+The object returned by the call to `getContext()` is an instance of the `SecurityContext` interface. This is the object that is kept in thread-local storage. As we'll see below, most authentication mechanisms within Spring Security return an instance of `UserDetails` as the principal.
 
 
 [[tech-userdetailsservice]]
@@ -2423,7 +2423,7 @@ If you are using the namespace, an instance of `ProviderManager` is created and 
 </bean>
 ----
 
-In the above example we have three providers. They are tried in the order shown (which is implied by the use of a `List`), with each provider able to attempt authentication, or skip authentication by simply returning `null`. If all implementations return null, the `ProviderManager` will throw a `ProviderNotFoundException`. If you're interested in learning more about chaining providers, please refer to the `ProviderManager` JavaDocs.
+In the above example we have three providers. They are tried in the order shown (which is implied by the use of a `List`), with each provider able to attempt authentication, or skip authentication by simply returning `null`. If all implementations return null, the `ProviderManager` will throw a `ProviderNotFoundException`. If you're interested in learning more about chaining providers, please refer to the `ProviderManager` Javadoc.
 
 Authentication mechanisms such as a web form-login processing filter are injected with a reference to the `ProviderManager` and will call it to handle their authentication requests. The providers you require will sometimes be interchangeable with the authentication mechanisms, while at other times they will depend on a specific authentication mechanism. For example, `DaoAuthenticationProvider` and `LdapAuthenticationProvider` are compatible with any mechanism which submits a simple username/password authentication request and so will work with form-based logins or HTTP Basic authentication. On the other hand, some authentication mechanisms create an authentication request object which can only be interpreted by a single type of `AuthenticationProvider`. An example of this would be JA-SIG CAS, which uses the notion of a service ticket and so can therefore only be authenticated by a `CasAuthenticationProvider`. You needn't be too concerned about this, because if you forget to register a suitable provider, you'll simply receive a `ProviderNotFoundException` when an attempt to authenticate is made.
 
@@ -2542,7 +2542,7 @@ Password hashing is not unique to Spring Security but is a common source of conf
 A hash is "one-way" in the sense that it is very difficult (effectively impossible) to obtain the original input given the hash value, or indeed any possible input which would produce that hash value. This property makes hash values very useful for authentication purposes. They can be stored in your user database as an alternative to plaintext passwords and even if the values are compromised they do not immediately reveal a password which can be used to login. Note that this also means you have no way of recovering the password once it is encoded.
 
 ==== Adding Salt to a Hash
-One potential problem with the use of password hashes that it is relatively easy to get round the one-way property of the hash if a common word is used for the input. People tend to choose similar passwords and huge dictionaries of these from previously hacked sites are available online. For example, if you search for the hash value `5f4dcc3b5aa765d61d8327deb882cf99` using google, you will quickly find the original word "password". In a similar way, an attacker can build a dictionary of hashes from a standard word list and use this to lookup the original password. One way to help prevent this is to have a suitably strong password policy to try to prevent common words from being used. Another is to use a"salt" when calculating the hashes. This is an additional string of known data for each user which is combined with the password before calculating the hash. Ideally the data should be as random as possible, but in practice any salt value is usually preferable to none. Using a salt means that an attacker has to build a separate dictionary of hashes for each salt value, making the attack more complicated (but not impossible).
+One potential problem with the use of password hashes that it is relatively easy to get round the one-way property of the hash if a common word is used for the input. People tend to choose similar passwords and huge dictionaries of these from previously hacked sites are available online. For example, if you search for the hash value `5f4dcc3b5aa765d61d8327deb882cf99` using google, you will quickly find the original word "password". In a similar way, an attacker can build a dictionary of hashes from a standard word list and use this to lookup the original password. One way to help prevent this is to have a suitably strong password policy to try to prevent common words from being used. Another is to use a "salt" when calculating the hashes. This is an additional string of known data for each user which is combined with the password before calculating the hash. Ideally the data should be as random as possible, but in practice any salt value is usually preferable to none. Using a salt means that an attacker has to build a separate dictionary of hashes for each salt value, making the attack more complicated (but not impossible).
 
 Bcrypt automatically generates a random salt value for each password when it is encoded, and stores it in the bcrypt string in a standard format.
 
@@ -2619,7 +2619,7 @@ Spring Security's web infrastructure should only be used by delegating to an ins
 
 The namespace element `filter-chain` is used for convenience to set up the security filter chain(s) which are required within the application. footnote:[Note that you'll need to include the security namespace in your application context XML file in order to use this syntax. The older syntax which used a `filter-chain-map` is still supported, but is deprecated in favour of the constructor argument injection.]. It maps a particular URL pattern to a list of filters built up from the bean names specified in the `filters` element, and combines them in a bean of type `SecurityFilterChain`. The `pattern` attribute takes an Ant Paths and the most specific URIs should appear first  footnote:[Instead of a path pattern, the `request-matcher-ref` attribute can be used to specify a `RequestMatcher` instance for more powerful matching]. At runtime the `FilterChainProxy` will locate the first URI pattern that matches the current web request and the list of filter beans specified by the `filters` attribute will be applied to that request. The filters will be invoked in the order they are defined, so you have complete control over the filter chain which is applied to a particular URL.
 
-You may have noticed we have declared two `SecurityContextPersistenceFilter` s in the filter chain ( `ASC` is short for `allowSessionCreation`, a property of `SecurityContextPersistenceFilter`). As web services will never present a `jsessionid` on future requests, creating `HttpSession` s for such user agents would be wasteful. If you had a high-volume application which required maximum scalability, we recommend you use the approach shown above. For smaller applications, using a single `SecurityContextPersistenceFilter` (with its default `allowSessionCreation` as `true`) would likely be sufficient.
+You may have noticed we have declared two `SecurityContextPersistenceFilter` s in the filter chain (`ASC` is short for `allowSessionCreation`, a property of `SecurityContextPersistenceFilter`). As web services will never present a `jsessionid` on future requests, creating `HttpSession` s for such user agents would be wasteful. If you had a high-volume application which required maximum scalability, we recommend you use the approach shown above. For smaller applications, using a single `SecurityContextPersistenceFilter` (with its default `allowSessionCreation` as `true`) would likely be sufficient.
 
 Note that `FilterChainProxy` does not invoke standard filter lifecycle methods on the filters it is configured with. We recommend you use Spring's application context lifecycle interfaces as an alternative, just as you would for any other Spring bean.
 
@@ -2654,7 +2654,7 @@ As mentioned above, the default strategy is to use Ant-style paths for matching 
 
 If for some reason, you need a more powerful matching strategy, you can use regular expressions. The strategy implementation is then `RegexRequestMatcher`. See the Javadoc for this class for more information.
 
-In practice we recommend that you use method security at your service layer, to control access to your application, and do not rely entirely on the use of security constraints defined at the web-application level. URLs change and it is difficult to take account of all the possible URLs that an application might support and how requests might be manipulated. You should try and restrict yourself to using a few simple ant paths which are simple to understand. Always try to use a"deny-by-default" approach where you have a catch-all wildcard ( /** or **) defined last and denying access.
+In practice we recommend that you use method security at your service layer, to control access to your application, and do not rely entirely on the use of security constraints defined at the web-application level. URLs change and it is difficult to take account of all the possible URLs that an application might support and how requests might be manipulated. You should try and restrict yourself to using a few simple ant paths which are simple to understand. Always try to use a "deny-by-default" approach where you have a catch-all wildcard ( /** or **) defined last and denying access.
 
 Security defined at the service layer is much more robust and harder to bypass, so you should always take advantage of Spring Security's method security options.
 
@@ -2771,7 +2771,7 @@ The `AuthenticationEntryPoint` will be called if the user requests a secure HTTP
 ==== AccessDeniedHandler
 What happens if a user is already authenticated and they try to access a protected resource? In normal usage, this shouldn't happen because the application workflow should be restricted to operations to which a user has access. For example, an HTML link to an administration page might be hidden from users who do not have an admin role. You can't rely on hiding links for security though, as there's always a possibility that a user will just enter the URL directly in an attempt to bypass the restrictions. Or they might modify a RESTful URL to change some of the argument values. Your application must be protected against these scenarios or it will definitely be insecure. You will typically use simple web layer security to apply constraints to basic URLs and use more specific method-based security on your service layer interfaces to really nail down what is permissible.
 
-If an `AccessDeniedException` is thrown and a user has already been authenticated, then this means that an operation has been attempted for which they don't have enough permissions. In this case, `ExceptionTranslationFilter` will invoke a second strategy, the `AccessDeniedHandler`. By default, an `AccessDeniedHandlerImpl` is used, which just sends a 403 (Forbidden) response to the client. Alternatively you can configure an instance explicitly (as in the above example) and set an error page URL which it will forwards the request to  footnote:[
+If an `AccessDeniedException` is thrown and a user has already been authenticated, then this means that an operation has been attempted for which they don't have enough permissions. In this case, `ExceptionTranslationFilter` will invoke a second strategy, the `AccessDeniedHandler`. By default, an `AccessDeniedHandlerImpl` is used, which just sends a 403 (Forbidden) response to the client. Alternatively you can configure an instance explicitly (as in the above example) and set an error page URL which it will forwards the request to footnote:[
 We use a forward so that the SecurityContextHolder still contains details of the principal, which may be useful for displaying to the user. In old releases of Spring Security we relied upon the servlet container to handle a 403 error message, which lacked this useful contextual information.
 ]. This can be a simple "access denied" page, such as a JSP, or it could be a more complex handler such as an MVC controller. And of course, you can implement the interface yourself and use your own implementation.
 
@@ -2817,7 +2817,7 @@ void saveContext(SecurityContext context, HttpServletRequest request,
 
 The `HttpRequestResponseHolder` is simply a container for the incoming request and response objects, allowing the implementation to replace these with wrapper classes. The returned contents will be passed to the filter chain.
 
-The default implementation is `HttpSessionSecurityContextRepository`, which stores the security context as an `HttpSession` attribute  footnote:[In Spring Security 2.0 and earlier, this filter was called `HttpSessionContextIntegrationFilter` and performed all the work of storing the context was performed by the filter itself. If you were familiar with this class, then most of the configuration options which were available can now be found on `HttpSessionSecurityContextRepository`.]. The most important configuration parameter for this implementation is the `allowSessionCreation` property, which defaults to `true`, thus allowing the class to create a session if it needs one to store the security context for an authenticated user (it won't create one unless authentication has taken place and the contents of the security context have changed). If you don't want a session to be created, then you can set this property to `false`:
+The default implementation is `HttpSessionSecurityContextRepository`, which stores the security context as an `HttpSession` attribute footnote:[In Spring Security 2.0 and earlier, this filter was called `HttpSessionContextIntegrationFilter` and performed all the work of storing the context was performed by the filter itself. If you were familiar with this class, then most of the configuration options which were available can now be found on `HttpSessionSecurityContextRepository`.]. The most important configuration parameter for this implementation is the `allowSessionCreation` property, which defaults to `true`, thus allowing the class to create a session if it needs one to store the security context for an authenticated user (it won't create one unless authentication has taken place and the contents of the security context have changed). If you don't want a session to be created, then you can set this property to `false`:
 
 [source,xml]
 ----
@@ -2836,7 +2836,7 @@ Alternatively you could provide an instance of `NullSecurityContextRepository`, 
 
 [[form-login-filter]]
 === UsernamePasswordAuthenticationFilter
-We've now seen the three main filters which are always present in a Spring Security web configuration. These are also the three which are automatically created by the namespace `<http>` element and cannot be substituted with alternatives. The only thing that's missing now is an actual authentication mechanism, something that will allow a user to authenticate. This filter is the most commonly used authentication filter and the one that is most often customized  footnote:[For historical reasons, prior to Spring Security 3.0, this filter was called `AuthenticationProcessingFilter` and the entry point was called `AuthenticationProcessingFilterEntryPoint`. Since the framework now supports many different forms of authentication, they have both been given more specific names in 3.0.]. It also provides the implementation used by the `<form-login>` element from the namespace. There are three stages required to configure it.
+We've now seen the three main filters which are always present in a Spring Security web configuration. These are also the three which are automatically created by the namespace `<http>` element and cannot be substituted with alternatives. The only thing that's missing now is an actual authentication mechanism, something that will allow a user to authenticate. This filter is the most commonly used authentication filter and the one that is most often customized footnote:[For historical reasons, prior to Spring Security 3.0, this filter was called `AuthenticationProcessingFilter` and the entry point was called `AuthenticationProcessingFilterEntryPoint`. Since the framework now supports many different forms of authentication, they have both been given more specific names in 3.0.]. It also provides the implementation used by the `<form-login>` element from the namespace. There are three stages required to configure it.
 
 * Configure a `LoginUrlAuthenticationEntryPoint` with the URL of the login page, just as we did above, and set it on the `ExceptionTranslationFilter`.
 * Implement the login page (using a JSP or MVC controller).
@@ -2855,7 +2855,7 @@ The login form simply contains `username` and `password` input fields, and posts
 
 [[form-login-flow-handling]]
 ==== Application Flow on Authentication Success and Failure
-The filter calls the configured `AuthenticationManager` to process each authentication request. The destination following a successful authentication or an authentication failure is controlled by the `AuthenticationSuccessHandler` and `AuthenticationFailureHandler` strategy interfaces, respectively. The filter has properties which allow you to set these so you can customize the behaviour completely  footnote:[In versions prior to 3.0, the application flow at this point had evolved to a stage was controlled by a mix of properties on this class and strategy plugins. The decision was made for 3.0 to refactor the code to make these two strategies entirely responsible.]. Some standard implementations are supplied such as `SimpleUrlAuthenticationSuccessHandler`, `SavedRequestAwareAuthenticationSuccessHandler`, `SimpleUrlAuthenticationFailureHandler`, `ExceptionMappingAuthenticationFailureHandler` and `DelegatingAuthenticationFailureHandler`. Have a look at the Javadoc for these classes and also for `AbstractAuthenticationProcessingFilter` to get an overview of how they work and the supported features.
+The filter calls the configured `AuthenticationManager` to process each authentication request. The destination following a successful authentication or an authentication failure is controlled by the `AuthenticationSuccessHandler` and `AuthenticationFailureHandler` strategy interfaces, respectively. The filter has properties which allow you to set these so you can customize the behaviour completely footnote:[In versions prior to 3.0, the application flow at this point had evolved to a stage was controlled by a mix of properties on this class and strategy plugins. The decision was made for 3.0 to refactor the code to make these two strategies entirely responsible.]. Some standard implementations are supplied such as `SimpleUrlAuthenticationSuccessHandler`, `SavedRequestAwareAuthenticationSuccessHandler`, `SimpleUrlAuthenticationFailureHandler`, `ExceptionMappingAuthenticationFailureHandler` and `DelegatingAuthenticationFailureHandler`. Have a look at the Javadoc for these classes and also for `AbstractAuthenticationProcessingFilter` to get an overview of how they work and the supported features.
 
 If authentication is successful, the resulting `Authentication` object will be placed into the `SecurityContextHolder`. The configured `AuthenticationSuccessHandler` will then be called to either redirect or forward the user to the appropriate destination. By default a `SavedRequestAwareAuthenticationSuccessHandler` is used, which means that the user will be redirected to the original destination they requested before they were asked to login.
 
@@ -3037,7 +3037,7 @@ The http://docs.oracle.com/javaee/7/api/javax/servlet/http/HttpServletRequest.ht
 
 [[basic]]
 == Basic and Digest Authentication
-Basic and digest authentiation are alternative authentication mechanisms which are popular in web applications. Basic authentication is often used with stateless clients which pass their credentials on each request. It's quite common to use it in combination with form-based authentication where an application is used through both a browser-based user interface and as a web-service. However, basic authentication transmits the password as plain text so it should only really be used over an encrypted transport layer such as HTTPS.
+Basic and digest authentication are alternative authentication mechanisms which are popular in web applications. Basic authentication is often used with stateless clients which pass their credentials on each request. It's quite common to use it in combination with form-based authentication where an application is used through both a browser-based user interface and as a web-service. However, basic authentication transmits the password as plain text so it should only really be used over an encrypted transport layer such as HTTPS.
 
 [[basic-processing-filter]]
 === BasicAuthenticationFilter
@@ -3068,12 +3068,12 @@ If the authentication event was successful, or authentication was not attempted 
 
 [[digest-processing-filter]]
 === DigestAuthenticationFilter
-`DigestAuthenticationFilter` is capable of processing digest authentication credentials presented in HTTP headers. Digest Authentication attempts to solve many of the weaknesses of Basic authentication, specifically by ensuring credentials are never sent in clear text across the wire. Many user agents support Digest Authentication, including FireFox and Internet Explorer. The standard governing HTTP Digest Authentication is defined by RFC 2617, which updates an earlier version of the Digest Authentication standard prescribed by RFC 2069. Most user agents implement RFC 2617. Spring Security's `DigestAuthenticationFilter` is compatible with the "`auth`" quality of protection (`qop`) prescribed by RFC 2617, which also provides backward compatibility with RFC 2069. Digest Authentication is a more attractive option if you need to use unencrypted HTTP (i.e. no TLS/HTTPS) and wish to maximise security of the authentication process. Indeed Digest Authentication is a mandatory requirement for the WebDAV protocol, as noted by RFC 2518 Section 17.1.
+`DigestAuthenticationFilter` is capable of processing digest authentication credentials presented in HTTP headers. Digest Authentication attempts to solve many of the weaknesses of Basic authentication, specifically by ensuring credentials are never sent in clear text across the wire. Many user agents support Digest Authentication, including Mozilla Firefox and Internet Explorer. The standard governing HTTP Digest Authentication is defined by RFC 2617, which updates an earlier version of the Digest Authentication standard prescribed by RFC 2069. Most user agents implement RFC 2617. Spring Security's `DigestAuthenticationFilter` is compatible with the "`auth`" quality of protection (`qop`) prescribed by RFC 2617, which also provides backward compatibility with RFC 2069. Digest Authentication is a more attractive option if you need to use unencrypted HTTP (i.e. no TLS/HTTPS) and wish to maximise security of the authentication process. Indeed Digest Authentication is a mandatory requirement for the WebDAV protocol, as noted by RFC 2518 Section 17.1.
 
 [NOTE]
 ====
 You should not use Digest in modern applications because it is not considered secure.
-The most obvious problem is that you must store your passwords in plaintext, encrpted, or an MD5 format.
+The most obvious problem is that you must store your passwords in plaintext, encrypted, or an MD5 format.
 All of these storage formats are considered insecure.
 Instead, you should use a one way adaptive password hash (i.e. BCrypt, PBKDF2, SCrypt, etc).
 ====
@@ -3091,7 +3091,7 @@ The `DigestAuthenticatonEntryPoint` has a property specifying the `key` used for
 
 An appropriate value for the `nonceValiditySeconds` parameter of `DigestAuthenticationEntryPoint` depends on your application. Extremely secure applications should note that an intercepted authentication header can be used to impersonate the principal until the `expirationTime` contained in the nonce is reached. This is the key principle when selecting an appropriate setting, but it would be unusual for immensely secure applications to not be running over TLS/HTTPS in the first instance.
 
-Because of the more complex implementation of Digest Authentication, there are often user agent issues. For example, Internet Explorer fails to present an "`opaque`" token on subsequent requests in the same session. Spring Security filters therefore encapsulate all state information into the "`nonce`" token instead. In our testing, Spring Security's implementation works reliably with FireFox and Internet Explorer, correctly handling nonce timeouts etc.
+Because of the more complex implementation of Digest Authentication, there are often user agent issues. For example, Internet Explorer fails to present an "`opaque`" token on subsequent requests in the same session. Spring Security filters therefore encapsulate all state information into the "`nonce`" token instead. In our testing, Spring Security's implementation works reliably with Mozilla Firefox and Internet Explorer, correctly handling nonce timeouts etc.
 
 
 [[digest-config]]
@@ -3201,7 +3201,7 @@ void loginSuccess(HttpServletRequest request, HttpServletResponse response,
 	Authentication successfulAuthentication);
 ----
 
-Please refer to the JavaDocs for a fuller discussion on what the methods do, although note at this stage that `AbstractAuthenticationProcessingFilter` only calls the `loginFail()` and `loginSuccess()` methods. The `autoLogin()` method is called by `RememberMeAuthenticationFilter` whenever the `SecurityContextHolder` does not contain an `Authentication`. This interface therefore provides the underlying remember-me implementation with sufficient notification of authentication-related events, and delegates to the implementation whenever a candidate web request might contain a cookie and wish to be remembered. This design allows any number of remember-me implementation strategies. We've seen above that Spring Security provides two implementations. We'll look at these in turn.
+Please refer to the Javadoc for a fuller discussion on what the methods do, although note at this stage that `AbstractAuthenticationProcessingFilter` only calls the `loginFail()` and `loginSuccess()` methods. The `autoLogin()` method is called by `RememberMeAuthenticationFilter` whenever the `SecurityContextHolder` does not contain an `Authentication`. This interface therefore provides the underlying remember-me implementation with sufficient notification of authentication-related events, and delegates to the implementation whenever a candidate web request might contain a cookie and wish to be remembered. This design allows any number of remember-me implementation strategies. We've seen above that Spring Security provides two implementations. We'll look at these in turn.
 
 ==== TokenBasedRememberMeServices
 This implementation supports the simpler approach described in <<remember-me-hash-token>>. `TokenBasedRememberMeServices` generates a `RememberMeAuthenticationToken`, which is processed by `RememberMeAuthenticationProvider`. A `key` is shared between this authentication provider and the `TokenBasedRememberMeServices`. In addition, `TokenBasedRememberMeServices` requires A UserDetailsService from which it can retrieve the username and password for signature comparison purposes, and generate the `RememberMeAuthenticationToken` to contain the correct `GrantedAuthority` s. Some sort of logout command should be provided by the application that invalidates the cookie if the user requests this. `TokenBasedRememberMeServices` also implements Spring Security's `LogoutHandler` interface so can be used with `LogoutFilter` to have the cookie cleared automatically.
@@ -6243,7 +6243,7 @@ The CAS protocol supports Single Logout and can be easily added to your Spring S
 </bean>
 ----
 
-The `logout` element logs the user out of the local application, but does not terminate the session with the CAS server or any other applications that have been logged into. The `requestSingleLogoutFilter` filter will allow the url of `/spring_security_cas_logout` to be requested to redirect the application to the configured CAS Server logout url. Then the CAS Server will send a Single Logout request to all the services that were signed into. The `singleLogoutFilter` handles the Single Logout request by looking up the `HttpSession` in a static `Map` and then invalidating it.
+The `logout` element logs the user out of the local application, but does not terminate the session with the CAS server or any other applications that have been logged into. The `requestSingleLogoutFilter` filter will allow the URL of `/spring_security_cas_logout` to be requested to redirect the application to the configured CAS Server logout URL. Then the CAS Server will send a Single Logout request to all the services that were signed into. The `singleLogoutFilter` handles the Single Logout request by looking up the `HttpSession` in a static `Map` and then invalidating it.
 
 It might be confusing why both the `logout` element and the `singleLogoutFilter` are needed. It is considered best practice to logout locally first since the `SingleSignOutFilter` just stores the `HttpSession` in a static `Map` in order to call invalidate on it. With the configuration above, the flow of logout would be:
 
@@ -6365,7 +6365,7 @@ Because remoting protocols have no way of presenting themselves within the conte
 
 One obvious option is to not use CAS at all for remoting protocol clients. However, this would eliminate many of the desirable features of CAS. As a middle-ground, the `CasAuthenticationProvider` uses a `StatelessTicketCache`. This is used solely for stateless clients which use a principal equal to `CasAuthenticationFilter.CAS_STATELESS_IDENTIFIER`. What happens is the `CasAuthenticationProvider` will store the resulting `CasAuthenticationToken` in the `StatelessTicketCache`, keyed on the proxy ticket. Accordingly, remoting protocol clients can present the same proxy ticket and the `CasAuthenticationProvider` will not need to contact the CAS server for validation (aside from the first request). Once authenticated, the proxy ticket could be used for URLs other than the original target service.
 
-This section builds upon the previous sections to accomodate proxy ticket authentication. The first step is to specify to authenticate all artifacts as shown below.
+This section builds upon the previous sections to accommodate proxy ticket authentication. The first step is to specify to authenticate all artifacts as shown below.
 
 [source,xml]
 ----
