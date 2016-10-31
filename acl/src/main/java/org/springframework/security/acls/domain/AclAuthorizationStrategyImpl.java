@@ -16,17 +16,19 @@
 
 package org.springframework.security.acls.domain;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.acls.model.Acl;
 import org.springframework.security.acls.model.Sid;
 import org.springframework.security.acls.model.SidRetrievalStrategy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.Assert;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Default implementation of {@link AclAuthorizationStrategy}.
@@ -118,7 +120,8 @@ public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
 		}
 
 		// Iterate this principal's authorities to determine right
-		if (authentication.getAuthorities().contains(requiredAuthority)) {
+		Set<String> authorities = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
+		if (authorities.contains(requiredAuthority.getAuthority())) {
 			return;
 		}
 
