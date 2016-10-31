@@ -6958,7 +6958,7 @@ public ModelAndView findMessagesForUser(@AuthenticationPrincipal(expression = "c
 ----
 
 We can also refer to Beans in our SpEL expressions.
-For example, the following could be used if we were using JPA to manage our Users and we wanted to modify and save a propoerty on the current user.
+For example, the following could be used if we were using JPA to manage our Users and we wanted to modify and save a property on the current user.
 
 [source,java]
 ----
