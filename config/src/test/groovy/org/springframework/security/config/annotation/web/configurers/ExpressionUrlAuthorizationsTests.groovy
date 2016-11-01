@@ -27,6 +27,9 @@ import org.springframework.beans.factory.config.BeanPostProcessor
 import org.springframework.context.ApplicationListener
 import org.springframework.context.annotation.Bean
 import org.springframework.security.access.AccessDecisionManager;
+import org.springframework.security.access.PermissionEvaluator
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl
 import org.springframework.security.access.event.AuthorizedEvent
 import org.springframework.security.access.vote.AffirmativeBased
 import org.springframework.security.authentication.RememberMeAuthenticationToken
@@ -37,6 +40,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurerConfigs.CustomExpressionRootConfig
+import org.springframework.security.core.Authentication
 import org.springframework.security.core.authority.AuthorityUtils
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor
 
@@ -572,4 +576,119 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
 		}
 
 	}
+
+	def "permissionEvaluator autowired"() {
+		setup:
+			loadConfig(PermissionEvaluatorConfig)
+		when: "invoke hasPermission expression that allows access"
+			super.setup()
+			login()
+			request.servletPath = "/allow/1"
+			springSecurityFilterChain.doFilter(request, response, chain)
+		then: "permissionEvaluator with id and type works - allows access"
+			response.status == HttpServletResponse.SC_OK
+		when: "invoke hasPermission expression that denies access"
+			super.setup()
+			login()
+			request.servletPath = "/deny/1"
+			springSecurityFilterChain.doFilter(request, response, chain)
+		then: "permissionEvaluator with id and type works - denies access"
+			response.status == HttpServletResponse.SC_FORBIDDEN
+		when: "invoke hasPermission expression that allows access"
+			super.setup()
+			login()
+			request.servletPath = "/allowObject/1"
+			springSecurityFilterChain.doFilter(request, response, chain)
+		then: "permissionEvaluator with object works - allows access"
+			response.status == HttpServletResponse.SC_OK
+		when: "invoke hasPermission expression that denies access"
+			super.setup()
+			login()
+			request.servletPath = "/denyObject/1"
+			springSecurityFilterChain.doFilter(request, response, chain)
+		then: "permissionEvaluator with object works - denies access"
+			response.status == HttpServletResponse.SC_FORBIDDEN
+	}
+
+	@EnableWebSecurity
+	static class PermissionEvaluatorConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.authorizeRequests()
+					.antMatchers("/allow/**").access("hasPermission('ID', 'TYPE', 'PERMISSION')")
+					.antMatchers("/allowObject/**").access("hasPermission('TESTOBJ', 'PERMISSION')")
+					.antMatchers("/deny/**").access("hasPermission('ID', 'TYPE', 'NO PERMISSION')")
+					.antMatchers("/denyObject/**").access("hasPermission('TESTOBJ', 'NO PERMISSION')")
+					.anyRequest().permitAll();
+		}
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.inMemoryAuthentication()
+					.withUser("user").password("password").roles("USER")
+		}
+
+		@Bean
+		public PermissionEvaluator permissionEvaluator(){
+			return new PermissionEvaluator(){
+				@Override
+				public boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission) {
+					return "TESTOBJ".equals(targetDomainObject) && "PERMISSION".equals(permission);
+				}
+				@Override
+				public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType,
+						Object permission) {
+					return "ID".equals(targetId) && "TYPE".equals(targetType) && "PERMISSION".equals(permission);
+				}
+			};
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class RoleHierarchyConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.authorizeRequests()
+					.antMatchers("/allow/**").access("hasRole('XXX')")
+					.antMatchers("/deny/**").access("hasRole('NOPE')")
+					.anyRequest().permitAll();
+		}
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.inMemoryAuthentication()
+					.withUser("user").password("password").roles("USER")
+		}
+
+		@Bean
+		public RoleHierarchy roleHierarchy(){
+			return new RoleHierarchyImpl("USER > XXX");
+		}
+
+	}
+
+	def "roleHierarchy autowired"() {
+		setup:
+			loadConfig(PermissionEvaluatorConfig)
+		when: "invoke roleHierarchy expression that allows access"
+			super.setup()
+			login()
+			request.servletPath = "/allow/1"
+			springSecurityFilterChain.doFilter(request, response, chain)
+		then: "permissionEvaluator with id and type works - allows access"
+			response.status == HttpServletResponse.SC_OK
+		when: "invoke roleHierarchy expression that denies access"
+			super.setup()
+			login()
+			request.servletPath = "/deny/1"
+			springSecurityFilterChain.doFilter(request, response, chain)
+		then: "permissionEvaluator with id and type works - denies access"
+			response.status == HttpServletResponse.SC_FORBIDDEN
+	}
+
 }
