@@ -6541,7 +6541,7 @@ The Spring Security Crypto module provides support for symmetric encryption, key
 
 [[spring-security-crypto-encryption]]
 === Encryptors
-The Encryptors class provides factory methods for constructing symmetric encryptors. Using this class, you can create ByteEncryptors to encrypt data in raw byte[] form. You can also construct TextEncryptors to encrypt text strings. Encryptors are thread safe.
+The Encryptors class provides factory methods for constructing symmetric encryptors. Using this class, you can create ByteEncryptors to encrypt data in raw byte[] form. You can also construct TextEncryptors to encrypt text strings. Encryptors are thread-safe.
 
 [[spring-security-crypto-encryption-bytes]]
 ==== BytesEncryptor
@@ -6660,7 +6660,7 @@ assertTrue(encoder.matches("myPassword", result));
 [[concurrency]]
 == Concurrency Support
 
-In most environments, Security is stored on a per `Thread` basis. This means that when work is done on a new `Thread`, the `SecurityContext` is lost. Spring Security provides some infrastructure to help make this much easier for users. Spring Security provides low level abstractions for working with Spring Security in multi threaded environments. In fact, this is what Spring Security builds on to integration with <<servletapi-start-runnable>> and <<mvc-async>>.
+In most environments, Security is stored on a per `Thread` basis. This means that when work is done on a new `Thread`, the `SecurityContext` is lost. Spring Security provides some infrastructure to help make this much easier for users. Spring Security provides low level abstractions for working with Spring Security in multi-threaded environments. In fact, this is what Spring Security builds on to integration with <<servletapi-start-runnable>> and <<mvc-async>>.
 
 === DelegatingSecurityContextRunnable
 
@@ -6785,7 +6785,7 @@ Now anytime `executor.execute(Runnable)` is executed the `SecurityContext` is fi
 
 === Spring Security Concurrency Classes
 
-Refer to the Javadoc for additional integrations with both the Java concurrent APIs and the Spring Task abstractions. They are quite self explanatory once you understand the previous code.
+Refer to the Javadoc for additional integrations with both the Java concurrent APIs and the Spring Task abstractions. They are quite self-explanatory once you understand the previous code.
 
 * DelegatingSecurityContextCallable
 * DelegatingSecurityContextExecutor
@@ -6908,7 +6908,7 @@ public ModelAndView findMessagesForUser() {
 	SecurityContextHolder.getContext().getAuthentication();
 	CustomUser custom = (CustomUser) authentication == null ? null : authentication.getPrincipal();
 
-	// .. find messags for this user and return them ...
+	// .. find messages for this user and return them ...
 }
 ----
 
@@ -6923,7 +6923,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 @RequestMapping("/messages/inbox")
 public ModelAndView findMessagesForUser(@AuthenticationPrincipal CustomUser customUser) {
 
-	// .. find messags for this user and return them ...
+	// .. find messages for this user and return them ...
 }
 ----
 
@@ -6970,7 +6970,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 public ModelAndView updateName(@AuthenticationPrincipal(expression = "@jpaEntityManager.merge(#this)") CustomUser attachedCustomUser
 		@RequestParam String firstName) {
 
-	// change the firstName on an atached instance which will be persisted to the database
+	// change the firstName on an attached instance which will be persisted to the database
 	attachedCustomUser.setFirstName(firstName);
 
 	// ...
@@ -6997,7 +6997,7 @@ Now that `@CurrentUser` has been specified, we can use it to signal to resolve o
 @RequestMapping("/messages/inbox")
 public ModelAndView findMessagesForUser(@CurrentUser CustomUser customUser) {
 
-	// .. find messags for this user and return them ...
+	// .. find messages for this user and return them ...
 }
 ----
 
@@ -7150,7 +7150,7 @@ By exposing the `SecurityEvaluationContextExtension` bean, all of the <<common-e
 
 [[appendix-schema]]
 == Security Database Schema
-There are various database schema used by the framework and this appendix provides a single reference point to them all. You only need to provide the tables for the areas of functonality you require.
+There are various database schema used by the framework and this appendix provides a single reference point to them all. You only need to provide the tables for the areas of functionality you require.
 
 DDL statements are given for the HSQLDB database. You can use these as a guideline for defining the schema for the database you are using.
 
@@ -7680,7 +7680,7 @@ This element allows for configuring additional (security) headers to be send wit
 
 ** `Cache-Control`, `Pragma`, and `Expires` - Can be set using the <<nsa-cache-control,cache-control>> element. This ensures that the browser does not cache your secured pages.
 ** `Strict-Transport-Security` - Can be set using the <<nsa-hsts,hsts>> element. This ensures that the browser automatically requests HTTPS for future requests.
-** `X-Frame-Options` - Can be set using the <<nsa-frame-options,frame-options>> element. The http://en.wikipedia.org/wiki/Clickjacking#X-Frame-Options[X-Frame-Options ] header can be used to prevent clickjacking attacks.
+** `X-Frame-Options` - Can be set using the <<nsa-frame-options,frame-options>> element. The http://en.wikipedia.org/wiki/Clickjacking#X-Frame-Options[X-Frame-Options] header can be used to prevent clickjacking attacks.
 ** `X-XSS-Protection` - Can be set using the <<nsa-xss-protection,xss-protection>> element. The http://en.wikipedia.org/wiki/Cross-site_scripting[X-XSS-Protection ] header can be used by browser to do basic control.
 ** `X-Content-Type-Options` - Can be set using the <<nsa-content-type-options,content-type-options>> element. The http://blogs.msdn.com/b/ie/archive/2008/09/02/ie8-security-part-vi-beta-2-update.aspx[X-Content-Type-Options] header prevents Internet Explorer from MIME-sniffing a response away from the declared content-type. This also applies to Google Chrome, when downloading extensions.
 ** `Public-Key-Pinning` or `Public-Key-Pinning-Report-Only` - Can be set using the <<nsa-hpkp,hpkp>> element. This allows HTTPS websites to resist impersonation by attackers using mis-issued or otherwise fraudulent certificates.
@@ -7762,7 +7762,7 @@ Specifies if subdomains should be included. Default true.
 
 [[nsa-hsts-max-age-seconds]]
 * **max-age-seconds**
-Specifies the maximum ammount of time the host should be considered a Known HSTS Host. Default one year.
+Specifies the maximum amount of time the host should be considered a Known HSTS Host. Default one year.
 
 
 [[nsa-hsts-request-matcher-ref]]
@@ -7938,7 +7938,7 @@ Do not include the header for http://en.wikipedia.org/wiki/Cross-site_scripting#
 
 [[nsa-xss-protection-enabled]]
 * **xss-protection-enabled**
-Explicitly enable or eisable http://en.wikipedia.org/wiki/Cross-site_scripting#Non-Persistent[reflected / Type-1 Cross-Site Scripting (XSS)] protection.
+Explicitly enable or disable http://en.wikipedia.org/wiki/Cross-site_scripting#Non-Persistent[reflected / Type-1 Cross-Site Scripting (XSS)] protection.
 
 
 [[nsa-xss-protection-block]]
@@ -8884,7 +8884,7 @@ Defines the strategy use for matching incoming requests. Currently the options a
 
 [[nsa-filter-security-metadata-source-use-expressions]]
 * **use-expressions**
-Enables the use of expressions in the 'access' attributes in <intercept-url> elements rather than the traditional list of configuration attributes. Defaults to 'true'. If enabled, each attribute should contain a single boolean expression. If the expression evaluates to 'true', access will be granted.
+Enables the use of expressions in the 'access' attributes in <intercept-url> elements rather than the traditional list of configuration attributes. Defaults to 'true'. If enabled, each attribute should contain a single Boolean expression. If the expression evaluates to 'true', access will be granted.
 
 
 [[nsa-filter-security-metadata-source-children]]
@@ -8995,7 +8995,7 @@ This attribute allows you to define an id for the internal instance for use in y
 
 [[nsa-authentication-provider]]
 ==== <authentication-provider>
-Unless used with a `ref` attribute, this element is shorthand for configuring a <<core-services-dao-provider,DaoAuthenticationProvider>>. `DaoAuthenticationProvider` loads user information from a `UserDetailsService` and compares the username/password combination with the values supplied at login. The `UserDetailsService` instance can be defined either by using an available namespace element ( `jdbc-user-service` or by using the `user-service-ref` attribute to point to a bean defined elsewhere in the application context). You can find examples of these variations in the <<ns-auth-providers,namespace introduction>>.
+Unless used with a `ref` attribute, this element is shorthand for configuring a <<core-services-dao-provider,DaoAuthenticationProvider>>. `DaoAuthenticationProvider` loads user information from a `UserDetailsService` and compares the username/password combination with the values supplied at login. The `UserDetailsService` instance can be defined either by using an available namespace element (`jdbc-user-service` or by using the `user-service-ref` attribute to point to a bean defined elsewhere in the application context). You can find examples of these variations in the <<ns-auth-providers,namespace introduction>>.
 
 
 [[nsa-authentication-provider-parents]]
@@ -9309,7 +9309,7 @@ An external `MethodSecurityMetadataSource` instance can be supplied which will t
 * **mode**
 This attribute can be set to "aspectj" to specify that AspectJ should be used instead of the default Spring AOP. Secured methods must be woven with the `AnnotationSecurityAspect` from the `spring-security-aspects` module.
 
-It is important to note that AspectJ follows Java's rule that annotations on interfaces are not inherited. This means that methods that define the Security annotaitons on the interface will not be secured. Instead, you must place the Security annotation on the class when using AspectJ.
+It is important to note that AspectJ follows Java's rule that annotations on interfaces are not inherited. This means that methods that define the Security annotations on the interface will not be secured. Instead, you must place the Security annotation on the class when using AspectJ.
 
 
 [[nsa-global-method-security-order]]
@@ -9372,7 +9372,7 @@ Defines a reference to a Spring bean that implements `AfterInvocationProvider`.
 
 [[nsa-pre-post-annotation-handling]]
 ==== <pre-post-annotation-handling>
-Allows the default expression-based mechanism for handling Spring Security's pre and post invocation annotations (@PreFilter, @PreAuthorize, @PostFilter, @PostAuthorize) to be replace entirely. Only applies if these annotations are enabled.
+Allows the default expression-based mechanism for handling Spring Security's pre and post invocation annotations (@PreFilter, @PreAuthorize, @PostFilter, @PostAuthorize) to be replaced entirely. Only applies if these annotations are enabled.
 
 
 [[nsa-pre-post-annotation-handling-parents]]
@@ -9525,7 +9525,7 @@ A bean identifier, used for referring to the bean elsewhere in the context.
 
 [[nsa-method-security-metadata-source-use-expressions]]
 * **use-expressions**
-Enables the use of expressions in the 'access' attributes in <intercept-url> elements rather than the traditional list of configuration attributes. Defaults to 'false'. If enabled, each attribute should contain a single boolean expression. If the expression evaluates to 'true', access will be granted.
+Enables the use of expressions in the 'access' attributes in <intercept-url> elements rather than the traditional list of configuration attributes. Defaults to 'false'. If enabled, each attribute should contain a single Boolean expression. If the expression evaluates to 'true', access will be granted.
 
 
 [[nsa-method-security-metadata-source-children]]
@@ -9800,18 +9800,18 @@ The LDAP filter used to search for users (optional). For example "(uid={0})". Th
 
 [[appendix-dependencies]]
 == Spring Security Dependencies
-This appendix provides a reference of the modules in Spring Security and the additional dependencies that they require in order to function in a running application. We don't include dependenices that are only used when building or testing Spring Security itself. Nor do we include transitive dependencies which are required by external dependencies.
+This appendix provides a reference of the modules in Spring Security and the additional dependencies that they require in order to function in a running application. We don't include dependencies that are only used when building or testing Spring Security itself. Nor do we include transitive dependencies which are required by external dependencies.
 
-The version of Spring required is listed on the project website, so the specific versions are omitted for Spring dependencies below. Note that some of the dependencies listed as"optional" below may still be required for other non-security functionality in a Spring application. Also dependencies listed as "optional" may not actually be marked as such in the project's Maven pom files if they are used in most applications. They are"optional" only in the sense that you don't need them unless you are using the specified functionality.
+The version of Spring required is listed on the project website, so the specific versions are omitted for Spring dependencies below. Note that some of the dependencies listed as "optional" below may still be required for other non-security functionality in a Spring application. Also dependencies listed as "optional" may not actually be marked as such in the project's Maven POM files if they are used in most applications. They are "optional" only in the sense that you don't need them unless you are using the specified functionality.
 
 Where a module depends on another Spring Security module, the non-optional dependencies of the module it depends on are also assumed to be required and are not listed separately.
 
 
 === spring-security-core
 
-The core module must be included in any  project using Spring Security.
+The core module must be included in any project using Spring Security.
 
-.Core Depenendencies
+.Core Dependencies
 |===
 | Dependency | Version | Description
 
@@ -9821,7 +9821,7 @@ The core module must be included in any  project using Spring Security.
 
 | ehcache
 | 1.6.2
-| Required if the ehcache-based user cache implementation is used (optional).
+| Required if the Ehcache-based user cache implementation is used (optional).
 
 | spring-aop
 |
@@ -9968,7 +9968,7 @@ The ACL module.
 
 | ehcache
 | 1.6.2
-| Required if the ehcache-based ACL cache implementation is used (optional if you are using your own implementation).
+| Required if the Ehcache-based ACL cache implementation is used (optional if you are using your own implementation).
 
 | spring-jdbc
 |
@@ -10000,7 +10000,7 @@ The CAS module provides integration with JA-SIG CAS.
 
 | ehcache
 | 1.6.2
-| Required if you are using the ehcache-based ticket cache (optional).
+| Required if you are using the Ehcache-based ticket cache (optional).
 |===
 
 === spring-security-openid
@@ -10060,3 +10060,4 @@ include::{include-dir}/proxy-server.adoc[]
 include::{include-dir}/faq.adoc[]
 
 include::{include-dir}/migrating.adoc[]
+
