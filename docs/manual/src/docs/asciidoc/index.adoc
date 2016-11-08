@@ -385,6 +385,7 @@ Below you can find the highlights of this release.
 === Web Improvements
 
 * https://github.com/spring-projects/spring-security/pull/3812[#3812] - <<jackson,Jackson Support>>
+* https://github.com/spring-projects/spring-security/pull/4116[#4116] - <<headers-referrer,Referrer Policy>>
 * https://github.com/spring-projects/spring-security/pull/3938[#3938] - Add <<request-matching,HTTP response splitting prevention>>
 * https://github.com/spring-projects/spring-security/issues/3949[#3949] - Add <<mvc-authentication-principal,bean reference support to @AuthenticationPrincipal>>.
 * https://github.com/spring-projects/spring-security/pull/3978[#3978] - Support for Standford WebAuth and Shibboleth using the newly added http://docs.spring.io/spring-security/site/docs/4.2.x-SNAPSHOT/apidocs/org/springframework/security/web/authentication/preauth/RequestAttributeAuthenticationFilter.html[RequestAttributeAuthenticationFilter].
