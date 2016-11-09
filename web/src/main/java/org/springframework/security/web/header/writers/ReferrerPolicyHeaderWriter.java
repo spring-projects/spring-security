@@ -48,11 +48,12 @@ import org.springframework.util.Assert;
  * </p>
  *
  * @author Eddú Meléndez
+ * @author Kazuki Shimizu
  * @since 4.2
  */
 public class ReferrerPolicyHeaderWriter implements HeaderWriter {
 
-	private final String REFERER_POLICY_HEADER = "Referrer-Policy";
+	private static final String REFERRER_POLICY_HEADER = "Referrer-Policy";
 
 	private ReferrerPolicy policy;
 
@@ -66,8 +67,8 @@ public class ReferrerPolicyHeaderWriter implements HeaderWriter {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param policy
-	 * @throws IllegalArgumentException if policyDirectives is null or empty
+	 * @param policy a referrer policy
+	 * @throws IllegalArgumentException if policy is null
 	 */
 	public ReferrerPolicyHeaderWriter(ReferrerPolicy policy) {
 		setPolicy(policy);
@@ -75,7 +76,8 @@ public class ReferrerPolicyHeaderWriter implements HeaderWriter {
 
 	/**
 	 * Sets the policy to be used in the response header.
-	 * @param policy
+	 * @param policy a referrer policy
+	 * @throws IllegalArgumentException if policy is null
 	 */
 	public void setPolicy(ReferrerPolicy policy) {
 		Assert.notNull(policy, "policy can not be null");
@@ -87,7 +89,7 @@ public class ReferrerPolicyHeaderWriter implements HeaderWriter {
 	 */
 	@Override
 	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
-		response.setHeader(REFERER_POLICY_HEADER, this.policy.getPolicy());
+		response.setHeader(REFERRER_POLICY_HEADER, this.policy.getPolicy());
 	}
 
 	public enum ReferrerPolicy {
@@ -101,7 +103,7 @@ public class ReferrerPolicyHeaderWriter implements HeaderWriter {
 		STRICT_ORIGIN_WHEN_CROSS_ORIGIN("strict-origin-when-cross-origin"),
 		UNSAFE_URL("unsafe-url");
 
-		private static Map<String, ReferrerPolicy> REFERRER_POLICIES;
+		private static final Map<String, ReferrerPolicy> REFERRER_POLICIES;
 
 		static {
 			Map<String, ReferrerPolicy> referrerPolicies = new HashMap<String, ReferrerPolicy>();
@@ -113,7 +115,7 @@ public class ReferrerPolicyHeaderWriter implements HeaderWriter {
 
 		private String policy;
 
-		private ReferrerPolicy(String policy) {
+		ReferrerPolicy(String policy) {
 			this.policy = policy;
 		}
 
