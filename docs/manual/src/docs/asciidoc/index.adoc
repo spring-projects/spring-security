@@ -4354,6 +4354,18 @@ protected void configure(HttpSecurity http) throws Exception {
 }
 ----
 
+[[headers-csp-links]]
+===== Additional Resources
+
+Applying Content Security Policy to a web application is often a non-trivial undertaking.
+The following resources may provide further assistance in developing effective security policies for your site.
+
+http://www.html5rocks.com/en/tutorials/security/content-security-policy/[An Introduction to Content Security Policy]
+
+https://developer.mozilla.org/en-US/docs/Web/Security/CSP[CSP Guide - Mozilla Developer Network]
+
+https://www.w3.org/TR/CSP2/[W3C Candidate Recommendation]
+
 [[headers-referrer]]
 ==== Referrer Policy
 
@@ -4405,17 +4417,6 @@ protected void configure(HttpSecurity http) throws Exception {
 }
 ----
 
-[[headers-csp-links]]
-===== Additional Resources
-
-Applying Content Security Policy to a web application is often a non-trivial undertaking.
-The following resources may provide further assistance in developing effective security policies for your site.
-
-http://www.html5rocks.com/en/tutorials/security/content-security-policy/[An Introduction to Content Security Policy]
-
-https://developer.mozilla.org/en-US/docs/Web/Security/CSP[CSP Guide - Mozilla Developer Network]
-
-https://www.w3.org/TR/CSP2/[W3C Candidate Recommendation]
 
 [[headers-custom]]
 === Custom Headers
