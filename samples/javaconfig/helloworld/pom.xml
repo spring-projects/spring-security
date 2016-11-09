@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-samples-javaconfig-helloworld</artifactId>
-  <version>4.2.0.RC1</version>
+  <version>4.2.0.RELEASE</version>
   <packaging>war</packaging>
   <name>spring-security-samples-javaconfig-helloworld</name>
   <description>spring-security-samples-javaconfig-helloworld</description>
@@ -39,7 +39,7 @@
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-framework-bom</artifactId>
-        <version>4.3.3.RELEASE</version>
+        <version>4.3.4.RELEASE</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -67,13 +67,13 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
-      <version>4.2.0.RC1</version>
+      <version>4.2.0.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
-      <version>4.2.0.RC1</version>
+      <version>4.2.0.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -179,12 +179,6 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-  <repositories>
-    <repository>
-      <id>spring-milestone</id>
-      <url>https://repo.spring.io/milestone</url>
-    </repository>
-  </repositories>
   <build>
     <plugins>
       <plugin>
