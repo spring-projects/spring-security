@@ -9,7 +9,7 @@ dependencies {
 			"org.jasig.cas.client:cas-client-core:$casClientVersion"
 
 	optional "net.sf.ehcache:ehcache:$ehcacheVersion",
-			"com.fasterxml.jackson.core:jackson-databind:$jacksonDatavindVersion"
+			"com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion"
 
 	testCompile "org.skyscreamer:jsonassert:$jsonassertVersion"
 

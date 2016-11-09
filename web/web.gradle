@@ -12,7 +12,7 @@ dependencies {
 	optional "org.springframework:spring-webmvc:$springVersion",
 			"org.springframework:spring-jdbc:$springVersion",
 			"org.springframework:spring-tx:$springVersion",
-			"com.fasterxml.jackson.core:jackson-databind:$jacksonDatavindVersion"
+			"com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion"
 
 	provided "javax.servlet:javax.servlet-api:$servletApiVersion"
 

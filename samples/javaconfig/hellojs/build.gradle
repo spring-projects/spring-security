@@ -18,7 +18,7 @@ dependencies {
 			"javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api:$jstlVersion",
 			"javax.validation:validation-api:$validationApiVersion",
 			"org.hibernate:hibernate-validator:$hibernateValidatorVersion",
-			"com.fasterxml.jackson.core:jackson-databind:$jacksonDatavindVersion"
+			"com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion"
 
 	runtime "opensymphony:sitemesh:2.4.2",
 			"cglib:cglib-nodep:$cglibVersion",
