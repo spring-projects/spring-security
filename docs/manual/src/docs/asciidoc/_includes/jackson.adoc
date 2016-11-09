@@ -10,7 +10,7 @@ To use it, register the `JacksonJacksonModules.getModules(ClassLoader)` as http:
 ----
 ObjectMapper mapper = new ObjectMapper();
 ClassLoader loader = getClass().getClassLoader();
-List<Module> modules = SecurityJacksonModules.getModules(loader);
+List<Module> modules = SecurityJackson2Modules.getModules(loader);
 mapper.registerModules(modules);
 
 // ... use ObjectMapper as normally ...

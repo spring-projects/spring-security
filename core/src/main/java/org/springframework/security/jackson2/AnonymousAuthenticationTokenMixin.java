@@ -35,7 +35,7 @@ import java.util.Collection;
  *
  * @author Jitendra Singh
  * @see CoreJackson2Module
- * @see SecurityJacksonModules
+ * @see SecurityJackson2Modules
  * @since 4.2
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)

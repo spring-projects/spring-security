@@ -34,7 +34,7 @@ import java.util.List;
  * <p>
  * <pre>
  *     ObjectMapper mapper = new ObjectMapper();
- *     mapper.registerModules(SecurityJacksonModules.getModules());
+ *     mapper.registerModules(SecurityJackson2Modules.getModules());
  * </pre>
  * Above code is equivalent to
  * <p>
@@ -49,16 +49,16 @@ import java.util.List;
  * @author Jitendra Singh.
  * @since 4.2
  */
-public final class SecurityJacksonModules {
+public final class SecurityJackson2Modules {
 
-	private static final Log logger = LogFactory.getLog(SecurityJacksonModules.class);
+	private static final Log logger = LogFactory.getLog(SecurityJackson2Modules.class);
 	private static final List<String> securityJackson2ModuleClasses = Arrays.asList(
 			"org.springframework.security.jackson2.CoreJackson2Module",
 			"org.springframework.security.cas.jackson2.CasJackson2Module",
 			"org.springframework.security.web.jackson2.WebJackson2Module"
 	);
 
-	private SecurityJacksonModules() {
+	private SecurityJackson2Modules() {
 	}
 
 	public static void enableDefaultTyping(ObjectMapper mapper) {

@@ -38,12 +38,13 @@ import java.util.Collections;
  *     ObjectMapper mapper = new ObjectMapper();
  *     mapper.registerModule(new CoreJackson2Module());
  * </pre>
- * <b>Note: use {@link SecurityJacksonModules#getModules(ClassLoader)} to get list of all security modules.</b>
+ * <b>Note: use {@link SecurityJackson2Modules#getModules(ClassLoader)} to get list of all security modules.</b>
  *
  * @author Jitendra Singh.
- * @see SecurityJacksonModules
+ * @see SecurityJackson2Modules
  * @since 4.2
  */
+@SuppressWarnings("serial")
 public class CoreJackson2Module extends SimpleModule {
 
 	public CoreJackson2Module() {
@@ -52,7 +53,7 @@ public class CoreJackson2Module extends SimpleModule {
 
 	@Override
 	public void setupModule(SetupContext context) {
-		SecurityJacksonModules.enableDefaultTyping((ObjectMapper) context.getOwner());
+		SecurityJackson2Modules.enableDefaultTyping((ObjectMapper) context.getOwner());
 		context.setMixInAnnotations(AnonymousAuthenticationToken.class, AnonymousAuthenticationTokenMixin.class);
 		context.setMixInAnnotations(RememberMeAuthenticationToken.class, RememberMeAuthenticationTokenMixin.class);
 		context.setMixInAnnotations(SimpleGrantedAuthority.class, SimpleGrantedAuthorityMixin.class);

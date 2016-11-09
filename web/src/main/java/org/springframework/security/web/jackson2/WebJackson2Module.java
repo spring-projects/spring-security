@@ -16,16 +16,17 @@
 
 package org.springframework.security.web.jackson2;
 
-import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import org.springframework.security.jackson2.SecurityJacksonModules;
+import javax.servlet.http.Cookie;
+
+import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
 import org.springframework.security.web.savedrequest.DefaultSavedRequest;
 import org.springframework.security.web.savedrequest.SavedCookie;
 
-import javax.servlet.http.Cookie;
+import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 
 /**
  * Jackson module for spring-security-web. This module register {@link CookieMixin},
@@ -37,10 +38,10 @@ import javax.servlet.http.Cookie;
  *     ObjectMapper mapper = new ObjectMapper();
  *     mapper.registerModule(new WebJackson2Module());
  * </pre>
- * <b>Note: use {@link SecurityJacksonModules#getModules(ClassLoader)} to get list of all security modules.</b>
+ * <b>Note: use {@link SecurityJackson2Modules#getModules(ClassLoader)} to get list of all security modules.</b>
  *
  * @author Jitendra Singh
- * @see SecurityJacksonModules
+ * @see SecurityJackson2Modules
  * @since 4.2
  */
 public class WebJackson2Module extends SimpleModule {
@@ -51,7 +52,7 @@ public class WebJackson2Module extends SimpleModule {
 
 	@Override
 	public void setupModule(SetupContext context) {
-		SecurityJacksonModules.enableDefaultTyping((ObjectMapper) context.getOwner());
+		SecurityJackson2Modules.enableDefaultTyping((ObjectMapper) context.getOwner());
 		context.setMixInAnnotations(Cookie.class, CookieMixin.class);
 		context.setMixInAnnotations(SavedCookie.class, SavedCookieMixin.class);
 		context.setMixInAnnotations(DefaultCsrfToken.class, DefaultCsrfTokenMixin.class);

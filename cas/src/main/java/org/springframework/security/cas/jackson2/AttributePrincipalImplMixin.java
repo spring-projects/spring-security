@@ -33,7 +33,7 @@ import java.util.Map;
  *
  * @author Jitendra Singh
  * @see CasJackson2Module
- * @see org.springframework.security.jackson2.SecurityJacksonModules
+ * @see org.springframework.security.jackson2.SecurityJackson2Modules
  * @since 4.2
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
