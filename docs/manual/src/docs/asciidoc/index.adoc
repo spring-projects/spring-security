@@ -378,7 +378,7 @@ This will give you access to the entire project history (including all releases 
 == What's New in Spring Security 4.2
 
 Among other things, Spring Security 4.2 brings early support for Spring Framework 5.
-There were https://github.com/spring-projects/spring-security/milestone/86?closed=1[50+ M1 issues] and https://github.com/spring-projects/spring-security/milestone/91?closed=1[20+ RC1 issues] closed.
+You can find the change logs for https://github.com/spring-projects/spring-security/milestone/86?closed=1[4.2.0.M1], https://github.com/spring-projects/spring-security/milestone/91?closed=1[4.2.0.RC1], https://github.com/spring-projects/spring-security/milestone/92?closed=1[4.2.0.RELEASE] which closes over 80 issues.
 The overwhelming majority of these features were contributed by the community.
 Below you can find the highlights of this release.
 
