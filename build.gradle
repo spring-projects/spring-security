@@ -28,7 +28,7 @@ allprojects {
 	ext.releaseBuild = version.endsWith('RELEASE')
 	ext.snapshotBuild = version.endsWith('SNAPSHOT')
 	ext.springVersion = '4.3.4.RELEASE'
-	ext.springLdapVersion = '2.2.0.RC1'
+	ext.springLdapVersion = '2.2.0.RELEASE'
 
 	group = 'org.springframework.security'
 
