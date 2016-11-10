@@ -28,6 +28,7 @@ import static org.springframework.security.web.header.writers.ReferrerPolicyHead
  * @author Tim Ysewyn
  * @author Joe Grandja
  * @author Eddú Meléndez
+ * @author Kazuki Shimizu
  */
 class HeadersConfigurerTests extends BaseSpringSpec {
 
@@ -494,6 +495,174 @@ class HeadersConfigurerTests extends BaseSpringSpec {
 					.headers()
 					.defaultsDisabled()
 					.referrerPolicy(ReferrerPolicy.SAME_ORIGIN);
+		}
+	}
+
+	def "headers.referrerPolicy with noReferrer"() {
+		setup:
+		loadConfig(ReferrerPolicyNoReferrerConfig)
+		when:
+		springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+		responseHeaders == ['Referrer-Policy': 'no-referrer']
+	}
+
+	@EnableWebSecurity
+	static class ReferrerPolicyNoReferrerConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+					.headers()
+					.defaultsDisabled()
+					.referrerPolicy().noReferrer();
+		}
+	}
+
+	def "headers.referrerPolicy with noReferrerWhenDowngrade"() {
+		setup:
+		loadConfig(ReferrerPolicyNoReferrerWhenDowngradeConfig)
+		when:
+		springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+		responseHeaders == ['Referrer-Policy': 'no-referrer-when-downgrade']
+	}
+
+	@EnableWebSecurity
+	static class ReferrerPolicyNoReferrerWhenDowngradeConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+					.headers()
+					.defaultsDisabled()
+					.referrerPolicy().noReferrerWhenDowngrade();
+		}
+	}
+
+	def "headers.referrerPolicy with sameOrigin"() {
+		setup:
+		loadConfig(ReferrerPolicySameOriginConfig)
+		when:
+		springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+		responseHeaders == ['Referrer-Policy': 'same-origin']
+	}
+
+	@EnableWebSecurity
+	static class ReferrerPolicySameOriginConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+					.headers()
+					.defaultsDisabled()
+					.referrerPolicy().sameOrigin();
+		}
+	}
+
+	def "headers.referrerPolicy with origin"() {
+		setup:
+		loadConfig(ReferrerPolicyOriginConfig)
+		when:
+		springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+		responseHeaders == ['Referrer-Policy': 'origin']
+	}
+
+	@EnableWebSecurity
+	static class ReferrerPolicyOriginConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+					.headers()
+					.defaultsDisabled()
+					.referrerPolicy().origin();
+		}
+	}
+
+	def "headers.referrerPolicy with strictOrigin"() {
+		setup:
+		loadConfig(ReferrerPolicyStrictOriginConfig)
+		when:
+		springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+		responseHeaders == ['Referrer-Policy': 'strict-origin']
+	}
+
+	@EnableWebSecurity
+	static class ReferrerPolicyStrictOriginConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+					.headers()
+					.defaultsDisabled()
+					.referrerPolicy().strictOrigin();
+		}
+	}
+
+	def "headers.referrerPolicy with originWhenCrossOrigin"() {
+		setup:
+		loadConfig(ReferrerPolicyOriginWhenCrossOriginConfig)
+		when:
+		springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+		responseHeaders == ['Referrer-Policy': 'origin-when-cross-origin']
+	}
+
+	@EnableWebSecurity
+	static class ReferrerPolicyOriginWhenCrossOriginConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+					.headers()
+					.defaultsDisabled()
+					.referrerPolicy().originWhenCrossOrigin();
+		}
+	}
+
+	def "headers.referrerPolicy with strictOriginWhenCrossOrigin"() {
+		setup:
+		loadConfig(ReferrerPolicyStrictOriginWhenCrossOriginConfig)
+		when:
+		springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+		responseHeaders == ['Referrer-Policy': 'strict-origin-when-cross-origin']
+	}
+
+	@EnableWebSecurity
+	static class ReferrerPolicyStrictOriginWhenCrossOriginConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+					.headers()
+					.defaultsDisabled()
+					.referrerPolicy().strictOriginWhenCrossOrigin();
+		}
+	}
+
+	def "headers.referrerPolicy with unsafeUrl"() {
+		setup:
+		loadConfig(ReferrerPolicyUnsafeUrlConfig)
+		when:
+		springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+		responseHeaders == ['Referrer-Policy': 'unsafe-url']
+	}
+
+	@EnableWebSecurity
+	static class ReferrerPolicyUnsafeUrlConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+					.headers()
+					.defaultsDisabled()
+					.referrerPolicy().unsafeUrl();
 		}
 	}
 
