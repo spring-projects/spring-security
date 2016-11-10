@@ -299,7 +299,7 @@ NOTE: This example uses Gradle 1.9, but may need modifications to work in future
 
 [[modules]]
 ==== Project Modules
-In Spring Security 3.0, the codebase has been sub-divided into separate jars which more clearly separate different functionaltiy areas and third-party dependencies. If you are using Maven to build your project, then these are the modules you will add to your `pom.xml`. Even if you're not using Maven, we'd recommend that you consult the `pom.xml` files to get an idea of third-party dependencies and versions. Alternatively, a good idea is to examine the libraries that are included in the sample applications.
+In Spring Security 3.0, the codebase has been sub-divided into separate jars which more clearly separate different functionality areas and third-party dependencies. If you are using Maven to build your project, then these are the modules you will add to your `pom.xml`. Even if you're not using Maven, we'd recommend that you consult the `pom.xml` files to get an idea of third-party dependencies and versions. Alternatively, a good idea is to examine the libraries that are included in the sample applications.
 
 
 [[spring-security-core]]
@@ -446,7 +446,7 @@ If you are looking to get started with Spring Security, the best place to start 
 [[jc]]
 == Java Configuration
 
-General support for http://docs.spring.io/spring/docs/3.1.x/spring-framework-reference/html/beans.html#beans-java[Java Configuration] was added to Spring framework in Spring 3.1. Since Spring Security 3.2 there has been Spring Security Java Configuration support which enables users to easily configure Spring Security without the use of any XML.
+General support for http://docs.spring.io/spring/docs/3.1.x/spring-framework-reference/html/beans.html#beans-java[Java Configuration] was added to Spring Framework in Spring 3.1. Since Spring Security 3.2 there has been Spring Security Java Configuration support which enables users to easily configure Spring Security without the use of any XML.
 
 If you are familiar with the <<ns-config>> then you should find quite a few similarities between it and the Security Java Configuration support.
 
@@ -689,18 +689,14 @@ protected void configure(HttpSecurity http) throws Exception {
 [[jc-logout]]
 === Handling Logouts
 
-When using the
-`{security-api-url}org/springframework/security/config/annotation/web/configuration/WebSecurityConfigurerAdapter.html[WebSecurityConfigurerAdapter]`,
-logout capabilities are automatically applied. The default is that accessing the
-URL `/logout` will log the user out by:
+When using the `{security-api-url}org/springframework/security/config/annotation/web/configuration/WebSecurityConfigurerAdapter.html[WebSecurityConfigurerAdapter]`, logout capabilities are automatically applied. The default is that accessing the URL `/logout` will log the user out by:
 
 - Invalidating the HTTP Session
 - Cleaning up any RememberMe authentication that was configured
 - Clearing the `SecurityContextHolder`
 - Redirect to `/login?logout`
 
-Similar to configuring login capabilities, however, you also have various options
-to further customize your logout requirements:
+Similar to configuring login capabilities, however, you also have various options to further customize your logout requirements:
 
 [source,java]
 ----
@@ -722,7 +718,7 @@ protected void configure(HttpSecurity http) throws Exception {
 <2> The URL that triggers log out to occur (default is `/logout`). If CSRF protection is enabled (default), then the request must also be a POST. For more information, please consult the {security-api-url}org/springframework/security/config/annotation/web/configurers/LogoutConfigurer.html#logoutUrl-java.lang.String-[JavaDoc].
 <3> The URL to redirect to after logout has occurred. The default is `/login?logout`. For more information, please consult the {security-api-url}org/springframework/security/config/annotation/web/configurers/LogoutConfigurer.html#logoutSuccessUrl-java.lang.String-[JavaDoc].
 <4> Let's you specify a custom `LogoutSuccessHandler`. If this is specified, `logoutSuccessUrl()` is ignored. For more information, please consult the {security-api-url}org/springframework/security/config/annotation/web/configurers/LogoutConfigurer.html#logoutSuccessHandler-org.springframework.security.web.authentication.logout.LogoutSuccessHandler-[JavaDoc].
-<5> Specify whether to invalidate the `HttpSession` at the time of logout. This is *true* by default. Configures the `SecurityContextLogoutHandler` under the covers.  For more information, please consult the {security-api-url}org/springframework/security/config/annotation/web/configurers/LogoutConfigurer.html#invalidateHttpSession-boolean-[JavaDoc].
+<5> Specify whether to invalidate the `HttpSession` at the time of logout. This is *true* by default. Configures the `SecurityContextLogoutHandler` under the covers. For more information, please consult the {security-api-url}org/springframework/security/config/annotation/web/configurers/LogoutConfigurer.html#invalidateHttpSession-boolean-[JavaDoc].
 <6> Adds a `LogoutHandler`. `SecurityContextLogoutHandler` is added as the last `LogoutHandler` by default.
 <7> Allows specifying the names of cookies to be removed on logout success. This is a shortcut for adding a `CookieClearingLogoutHandler` explicitly.
 
@@ -743,7 +739,7 @@ covers when using the fluent API.
 
 Generally, `{security-api-url}org/springframework/security/web/authentication/logout/LogoutHandler.html[LogoutHandler]`
 implementations indicate classes that are able to participate in logout handling.
-They are expected to be invoked to perform necessary cleanup. As such they should
+They are expected to be invoked to perform necessary clean-up. As such they should
 not throw exceptions. Various implementations are provided:
 
 - {security-api-url}org/springframework/security/web/authentication/rememberme/PersistentTokenBasedRememberMeServices.html[PersistentTokenBasedRememberMeServices]
@@ -798,10 +794,10 @@ a status code 200 will be returned by default.
 
 Thus far we have only taken a look at the most basic authentication configuration. Let's take a look at a few slightly more advanced options for configuring authentication.
 
-[[jc-authentication-inmememory]]
-==== In Memory Authentication
+[[jc-authentication-inmemory]]
+==== In-Memory Authentication
 
-We have already seen an example of configuring in memory authentication for a single user. Below is an example to configure multiple users:
+We have already seen an example of configuring in-memory authentication for a single user. Below is an example to configure multiple users:
 
 [source,java]
 ----
@@ -817,7 +813,7 @@ public UserDetailsService userDetailsService() throws Exception {
 [[jc-authentication-jdbc]]
 ==== JDBC Authentication
 
-You can find the updates to suppport JDBC based authentication. The example below assumes that you have already defined a `DataSource` within your application. The https://github.com/spring-projects/spring-security/tree/master/samples/javaconfig/jdbc[jdbc-javaconfig] sample provides a complete example of using JDBC based authentication.
+You can find the updates to support JDBC based authentication. The example below assumes that you have already defined a `DataSource` within your application. The https://github.com/spring-projects/spring-security/tree/master/samples/javaconfig/jdbc[jdbc-javaconfig] sample provides a complete example of using JDBC based authentication.
 
 [source,java]
 ----
@@ -837,7 +833,7 @@ public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception 
 
 ==== LDAP Authentication
 
-You can find the updates to suppport LDAP based authentication. The https://github.com/spring-projects/spring-security/tree/master/samples/javaconfig/ldap[ldap-javaconfig] sample provides a complete example of using LDAP based authentication.
+You can find the updates to support LDAP based authentication. The https://github.com/spring-projects/spring-security/tree/master/samples/javaconfig/ldap[ldap-javaconfig] sample provides a complete example of using LDAP based authentication.
 
 [source,java]
 ----
@@ -1013,7 +1009,7 @@ public class MethodSecurityConfig {
 }
 ----
 
-Adding an annotation to a method (on an class or interface) would then limit the access to that method accordingly. Spring Security's native annotation support defines a set of attributes for the method. These will be passed to the AccessDecisionManager for it to make the actual decision:
+Adding an annotation to a method (on a class or interface) would then limit the access to that method accordingly. Spring Security's native annotation support defines a set of attributes for the method. These will be passed to the AccessDecisionManager for it to make the actual decision:
 
 [source,java]
 ----
@@ -1083,13 +1079,13 @@ public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
 }
 ----
 
-For additional information about methods that can be overriden, refer to the `GlobalMethodSecurityConfiguration` Javadoc.
+For additional information about methods that can be overridden, refer to the `GlobalMethodSecurityConfiguration` Javadoc.
 
 === Post Processing Configured Objects
 
 Spring Security's Java Configuration does not expose every property of every object that it configures. This simplifies the configuration for a majority of users. Afterall, if every property was exposed, users could use standard bean configuration.
 
-While there are good reasons to not directly expose every property, users may still need more advanced configuration options. To address this Spring Security introduces the concept of an `ObjectPostProcessor` which can used to modify or replace many of the Object instances created by the Java Configuration. For example, if you wanted to configure the `filterSecurityPublishAuthorizationSuccess` property on `FilterSecurityInterceptor` you could use the following:
+While there are good reasons to not directly expose every property, users may still need more advanced configuration options. To address this Spring Security introduces the concept of an `ObjectPostProcessor` which can be used to modify or replace many of the Object instances created by the Java Configuration. For example, if you wanted to configure the `filterSecurityPublishAuthorizationSuccess` property on `FilterSecurityInterceptor` you could use the following:
 
 [source,java]
 ----
@@ -1200,7 +1196,7 @@ public class Config extends WebSecurityConfigurerAdapter {
 
 
 === Introduction
-Namespace configuration has been available since version 2.0 of the Spring framework. It allows you to supplement the traditional Spring beans application context syntax with elements from additional XML schema. You can find more information in the Spring http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/[Reference Documentation]. A namespace element can be used simply to allow a more concise way of configuring an individual bean or, more powerfully, to define an alternative configuration syntax which more closely matches the problem domain and hides the underlying complexity from the user. A simple element may conceal the fact that multiple beans and processing steps are being added to the application context. For example, adding the following element from the security namespace to an application context will start up an embedded LDAP server for testing use within the application:
+Namespace configuration has been available since version 2.0 of the Spring Framework. It allows you to supplement the traditional Spring beans application context syntax with elements from additional XML schema. You can find more information in the Spring http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/[Reference Documentation]. A namespace element can be used simply to allow a more concise way of configuring an individual bean or, more powerfully, to define an alternative configuration syntax which more closely matches the problem domain and hides the underlying complexity from the user. A simple element may conceal the fact that multiple beans and processing steps are being added to the application context. For example, adding the following element from the security namespace to an application context will start up an embedded LDAP server for testing use within the application:
 
 [source,xml]
 ----
@@ -1492,7 +1488,7 @@ Passwords should always be encoded using a secure hashing algorithm designed for
 
 
 
-Bcrypt is a good choice for most cases, unless you have a legacy system which forces you to use a different algorithm. If you are using a simple hashing algorithm or, even worse, storing plain text passwords, then you should consider migrating to a more secure option like bcrypt.
+bcrypt is a good choice for most cases, unless you have a legacy system which forces you to use a different algorithm. If you are using a simple hashing algorithm or, even worse, storing plain text passwords, then you should consider migrating to a more secure option like bcrypt.
 
 [[ns-web-advanced]]
 === Advanced Web Features
@@ -1637,7 +1633,7 @@ The namespace supports http://openid.net/[OpenID] login either instead of, or in
 </http>
 ----
 
-You should then register yourself with an OpenID provider (such as myopenid.com), and add the user information to your in-memory `<user-service>` :
+You should then register yourself with an OpenID provider (such as myopenid.com), and add the user information to your in-memory `<user-service>`:
 
 [source,xml]
 ----
@@ -3003,7 +2999,7 @@ Next you need to ensure that your springSecurityFilterChain is setup for process
 
 That's it! Now Spring Security will ensure that your SecurityContext is propagated on asynchronous requests too.
 
-So how does it work? If you are not really interested, feel free to skip the remainder of this section, otherwise read on. Most of this is built into the Servlet specification, but there is a little bit of tweaking that Spring Security does to ensure things work with asynchronous requests properly. Prior to Spring Security 3.2, the SecurityContext from the SecurityContextHolder was automatically saved as soon as the HttpServletResponse was committed. This can cause issues in a Async environment. For example, consider the following:
+So how does it work? If you are not really interested, feel free to skip the remainder of this section, otherwise read on. Most of this is built into the Servlet specification, but there is a little bit of tweaking that Spring Security does to ensure things work with asynchronous requests properly. Prior to Spring Security 3.2, the SecurityContext from the SecurityContextHolder was automatically saved as soon as the HttpServletResponse was committed. This can cause issues in an Async environment. For example, consider the following:
 
 [source,java]
 ----
@@ -3076,7 +3072,7 @@ If the authentication event was successful, or authentication was not attempted 
 You should not use Digest in modern applications because it is not considered secure.
 The most obvious problem is that you must store your passwords in plaintext, encrypted, or an MD5 format.
 All of these storage formats are considered insecure.
-Instead, you should use a one way adaptive password hash (i.e. BCrypt, PBKDF2, SCrypt, etc).
+Instead, you should use a one way adaptive password hash (i.e. bCrypt, PBKDF2, SCrypt, etc).
 ====
 
 Central to Digest Authentication is a "nonce". This is a value the server generates. Spring Security's nonce adopts the following format:
@@ -3116,7 +3112,7 @@ Now that we've reviewed the theory, let's see how to use it. To implement HTTP D
 </bean>
 ----
 
-The configured `UserDetailsService` is needed because `DigestAuthenticationFilter` must have direct access to the clear text password of a user. Digest Authentication will NOT work if you are using encoded passwords in your DAO  footnote:[It is possible to encode the password in the format HEX( MD5(username:realm:password) ) provided the `DigestAuthenticationFilter.passwordAlreadyEncoded` is set to `true`. However, other password encodings will not work with digest authentication.]. The DAO collaborator, along with the `UserCache`, are typically shared directly with a `DaoAuthenticationProvider`. The `authenticationEntryPoint` property must be `DigestAuthenticationEntryPoint`, so that `DigestAuthenticationFilter` can obtain the correct `realmName` and `key` for digest calculations.
+The configured `UserDetailsService` is needed because `DigestAuthenticationFilter` must have direct access to the clear text password of a user. Digest Authentication will NOT work if you are using encoded passwords in your DAO footnote:[It is possible to encode the password in the format HEX( MD5(username:realm:password) ) provided the `DigestAuthenticationFilter.passwordAlreadyEncoded` is set to `true`. However, other password encodings will not work with digest authentication.]. The DAO collaborator, along with the `UserCache`, are typically shared directly with a `DaoAuthenticationProvider`. The `authenticationEntryPoint` property must be `DigestAuthenticationEntryPoint`, so that `DigestAuthenticationFilter` can obtain the correct `realmName` and `key` for digest calculations.
 
 Like `BasicAuthenticationFilter`, if authentication is successful an `Authentication` request token will be placed into the `SecurityContextHolder`. If the authentication event was successful, or authentication was not attempted because the HTTP header did not contain a Digest Authentication request, the filter chain will continue as normal. The only time the filter chain will be interrupted is if authentication fails and the `AuthenticationEntryPoint` is called, as discussed in the previous paragraph.
 
@@ -3131,7 +3127,7 @@ Digest Authentication's RFC offers a range of additional features to further inc
 === Overview
 Remember-me or persistent-login authentication refers to web sites being able to remember the identity of a principal between sessions. This is typically accomplished by sending a cookie to the browser, with the cookie being detected during future sessions and causing automated login to take place. Spring Security provides the necessary hooks for these operations to take place, and has two concrete remember-me implementations. One uses hashing to preserve the security of cookie-based tokens and the other uses a database or other persistent storage mechanism to store the generated tokens.
 
-Note that both implemementations require a `UserDetailsService`. If you are using an authentication provider which doesn't use a `UserDetailsService` (for example, the LDAP provider) then it won't work unless you also have a `UserDetailsService` bean in your application context.
+Note that both implementations require a `UserDetailsService`. If you are using an authentication provider which doesn't use a `UserDetailsService` (for example, the LDAP provider) then it won't work unless you also have a `UserDetailsService` bean in your application context.
 
 
 [[remember-me-hash-token]]
@@ -3553,7 +3549,7 @@ As previously mentioned, this is not as secure as using a session, but in many c
 ==== Logging In
 In order to protect against http://en.wikipedia.org/wiki/Cross-site_request_forgery#Forging_login_requests[forging log in requests] the log in form should be protected against CSRF attacks too. Since the `CsrfToken` is stored in HttpSession, this means an HttpSession will be created as soon as `CsrfToken` token attribute is accessed. While this sounds bad in a RESTful / stateless architecture the reality is that state is necessary to implement practical security. Without state, we have nothing we can do if a token is compromised. Practically speaking, the CSRF token is quite small in size and should have a negligible impact on our architecture.
 
-A common technique to protect the log in form is by using a javascript function to obtain a valid CSRF token before the form submission. By doing this, there is no need to think about session timeouts (discussed in the previous section) because the session is created right before the form submission (assuming that <<csrf-cookie,CookieCsrfTokenRepository>> isn't configured instead), so the user can stay on the login page and submit the username/password when he wants. In order to achieve this, you can take advantage of the `CsrfTokenArgumentResolver` provided by Spring Security and expose an endpoint like it's described on <<mvc-csrf-resolver,here>>.
+A common technique to protect the log in form is by using a JavaScript function to obtain a valid CSRF token before the form submission. By doing this, there is no need to think about session timeouts (discussed in the previous section) because the session is created right before the form submission (assuming that <<csrf-cookie,CookieCsrfTokenRepository>> isn't configured instead), so the user can stay on the login page and submit the username/password when he wants. In order to achieve this, you can take advantage of the `CsrfTokenArgumentResolver` provided by Spring Security and expose an endpoint like it's described on <<mvc-csrf-resolver,here>>.
 
 
 [[csrf-logout]]
@@ -3657,7 +3653,7 @@ You can also specify a custom RequestMatcher to determine which requests are pro
 == CORS
 
 Spring Framework provides http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#cors[first class support for CORS].
-CORS must be processed before Spring Security because the preflight request will not contain any cookies (i.e. the `JSESSIONID`).
+CORS must be processed before Spring Security because the pre-flight request will not contain any cookies (i.e. the `JSESSIONID`).
 If the request does not contain any cookies and Spring Security is first, the request will determine the user is not authenticated (since there are no cookies in the request) and reject it.
 
 The easiest way to ensure that CORS is handled first is to use the `CorsFilter`.
@@ -3724,7 +3720,7 @@ or in XML
 [source,xml]
 ----
 <http>
-	<!-- Default to Spring MVC's CORS configuraiton -->
+	<!-- Default to Spring MVC's CORS configuration -->
 	<cors />
 	...
 </http>
@@ -4195,7 +4191,7 @@ This header is included by default. However, we can customize it if we wanted. F
 </http>
 ----
 
-Similarly, you can customize xss protection within Java Configuration with the following:
+Similarly, you can customize XSS protection within Java Configuration with the following:
 
 [source,java]
 ----
@@ -4565,7 +4561,7 @@ protected void configure(HttpSecurity http) throws Exception {
 
 [[session-mgmt]]
 == Session Management
-HTTP session related functonality is handled by a combination of the `SessionManagementFilter` and the `SessionAuthenticationStrategy` interface, which the filter delegates to. Typical usage includes session-fixation protection attack prevention, detection of session timeouts and restrictions on how many sessions an authenticated user may have open concurrently.
+HTTP session related functionality is handled by a combination of the `SessionManagementFilter` and the `SessionAuthenticationStrategy` interface, which the filter delegates to. Typical usage includes session-fixation protection attack prevention, detection of session timeouts and restrictions on how many sessions an authenticated user may have open concurrently.
 
 
 === SessionManagementFilter
@@ -4602,7 +4598,7 @@ Note that the use of the default, `SessionFixationProtectionStrategy` may cause 
 
 [[concurrent-sessions]]
 === Concurrency Control
-Spring Security is able to prevent a principal from concurrently authenticating to the same application more than a specified number of times. Many ISVs take advantage of this to enforce licensing, whilst network administrators like this feature because it helps prevent people from sharing login names. You can, for example, stop user"Batman" from logging onto the web application from two different sessions. You can either expire their previous login or you can report an error when they try to log in again, preventing the second login. Note that if you are using the second approach, a user who has not explicitly logged out (but who has just closed their browser, for example) will not be able to log in again until their original session expires.
+Spring Security is able to prevent a principal from concurrently authenticating to the same application more than a specified number of times. Many ISVs take advantage of this to enforce licensing, whilst network administrators like this feature because it helps prevent people from sharing login names. You can, for example, stop user "Batman" from logging onto the web application from two different sessions. You can either expire their previous login or you can report an error when they try to log in again, preventing the second login. Note that if you are using the second approach, a user who has not explicitly logged out (but who has just closed their browser, for example) will not be able to log in again until their original session expires.
 
 Concurrency control is supported by the namespace, so please check the earlier namespace chapter for the simplest configuration. Sometimes you need to customize things though.
 
@@ -4759,7 +4755,7 @@ As explained earlier, the benefit of anonymous authentication is that all URI pa
 === AuthenticationTrustResolver
 Rounding out the anonymous authentication discussion is the `AuthenticationTrustResolver` interface, with its corresponding `AuthenticationTrustResolverImpl` implementation. This interface provides an `isAnonymous(Authentication)` method, which allows interested classes to take into account this special type of authentication status. The `ExceptionTranslationFilter` uses this interface in processing `AccessDeniedException` s. If an `AccessDeniedException` is thrown, and the authentication is of an anonymous type, instead of throwing a 403 (forbidden) response, the filter will instead commence the `AuthenticationEntryPoint` so the principal can authenticate properly. This is a necessary distinction, otherwise principals would always be deemed "authenticated" and never be given an opportunity to login via form, basic, digest or some other normal authentication mechanism.
 
-You will often see the `ROLE_ANONYMOUS` attribute in the above interceptor configuration replaced with `IS_AUTHENTICATED_ANONYMOUSLY`, which is effectively the same thing when defining access controls. This is an example of the use of the `AuthenticatedVoter` which we will see in the <<authz-authenticated-voter,authorization chapter>>. It uses an `AuthenticationTrustResolver` to process this particular configuration attribute and grant access to anonymous users. the `AuthenticatedVoter` approach is more powerful, since it allows you to differentiate between anonymous, remember-me and fully-authenticated users. If you don't need this functionality though, then you can stick with `ROLE_ANONYMOUS`, which will be processed by Spring Security's standard `RoleVoter`.
+You will often see the `ROLE_ANONYMOUS` attribute in the above interceptor configuration replaced with `IS_AUTHENTICATED_ANONYMOUSLY`, which is effectively the same thing when defining access controls. This is an example of the use of the `AuthenticatedVoter` which we will see in the <<authz-authenticated-voter,authorization chapter>>. It uses an `AuthenticationTrustResolver` to process this particular configuration attribute and grant access to anonymous users. The `AuthenticatedVoter` approach is more powerful, since it allows you to differentiate between anonymous, remember-me and fully-authenticated users. If you don't need this functionality though, then you can stick with `ROLE_ANONYMOUS`, which will be processed by Spring Security's standard `RoleVoter`.
 
 include::{include-dir}/websocket.adoc[]
 
@@ -4843,7 +4839,7 @@ boolean supports(Class clazz);
 
 Concrete implementations return an `int`, with possible values               being reflected in the `AccessDecisionVoter` static fields `ACCESS_ABSTAIN`, `ACCESS_DENIED` and `ACCESS_GRANTED`. A voting implementation will return `ACCESS_ABSTAIN` if it has no opinion on an authorization decision. If it does have an opinion, it must return either `ACCESS_DENIED` or `ACCESS_GRANTED`.
 
-There are three concrete `AccessDecisionManager` s provided with Spring Security that tally the votes. the `ConsensusBased` implementation will grant or deny access based on the consensus of non-abstain votes. Properties are provided to control behavior in the event of an equality of votes or if all votes are abstain. The `AffirmativeBased` implementation will grant access if one or more `ACCESS_GRANTED` votes were received (i.e. a deny vote will be ignored, provided there was at least one grant vote). Like the `ConsensusBased` implementation, there is a parameter that controls the behavior if all voters abstain. The `UnanimousBased` provider expects unanimous `ACCESS_GRANTED` votes in order to grant access, ignoring abstains. It will deny access if there is any `ACCESS_DENIED` vote. Like the other implementations, there is a parameter that controls the behaviour if all voters abstain.
+There are three concrete `AccessDecisionManager` s provided with Spring Security that tally the votes. The `ConsensusBased` implementation will grant or deny access based on the consensus of non-abstain votes. Properties are provided to control behavior in the event of an equality of votes or if all votes are abstain. The `AffirmativeBased` implementation will grant access if one or more `ACCESS_GRANTED` votes were received (i.e. a deny vote will be ignored, provided there was at least one grant vote). Like the `ConsensusBased` implementation, there is a parameter that controls the behavior if all voters abstain. The `UnanimousBased` provider expects unanimous `ACCESS_GRANTED` votes in order to grant access, ignoring abstains. It will deny access if there is any `ACCESS_DENIED` vote. Like the other implementations, there is a parameter that controls the behaviour if all voters abstain.
 
 It is possible to implement a custom `AccessDecisionManager` that tallies votes differently. For example, votes from a particular `AccessDecisionVoter` might receive additional weighting, whilst a deny vote from a particular voter may have a veto effect.
 
@@ -4864,7 +4860,7 @@ When we've used the attribute `IS_AUTHENTICATED_ANONYMOUSLY` to grant anonymous 
 
 [[authz-custom-voter]]
 ===== Custom Voters
-Obviously, you can also implement a custom `AccessDecisionVoter` and you can put just about any access-control logic you want in it. It might be specific to your application (business-logic related) or it might implement some security administration logic. For example, you'll find a http://spring.io/blog/2009/01/03/spring-security-customization-part-2-adjusting-secured-session-in-real-time[ blog article] on the Spring web site which describes how to use a voter to deny access in real-time to users whose accounts have been suspended.
+Obviously, you can also implement a custom `AccessDecisionVoter` and you can put just about any access-control logic you want in it. It might be specific to your application (business-logic related) or it might implement some security administration logic. For example, you'll find a http://spring.io/blog/2009/01/03/spring-security-customization-part-2-adjusting-secured-session-in-real-time[blog article] on the Spring web site which describes how to use a voter to deny access in real-time to users whose accounts have been suspended.
 
 
 [[authz-after-invocation-handling]]
@@ -4906,7 +4902,7 @@ The use of a role-hierarchy allows you to configure which roles (or authorities)
 </bean>
 ----
 
-Here we have four roles in a hierarchy `ROLE_ADMIN => ROLE_STAFF => ROLE_USER => ROLE_GUEST`. A user who is authenticated with `ROLE_ADMIN`, will behave as if they have all four roles when security contraints are evaluated against an `AccessDecisionManager` cconfigured with the above `RoleHierarchyVoter`. The `>` symbol can be thought of as meaning "includes".
+Here we have four roles in a hierarchy `ROLE_ADMIN => ROLE_STAFF => ROLE_USER => ROLE_GUEST`. A user who is authenticated with `ROLE_ADMIN`, will behave as if they have all four roles when security constraints are evaluated against an `AccessDecisionManager` cconfigured with the above `RoleHierarchyVoter`. The `>` symbol can be thought of as meaning "includes".
 
 Role hierarchies offer a convenient means of simplifying the access-control configuration data for your application and/or reducing the number of authorities which you need to assign to a user. For more complex requirements you may wish to define a logical mapping between the specific access-rights your application requires and the roles that are assigned to users, translating between the two when loading the user information.
 
@@ -5039,7 +5035,7 @@ That's it! Now you can create your beans from anywhere within your application, 
 
 [[el-access]]
 == Expression-Based Access Control
-Spring Security 3.0 introduced the ability to use Spring EL expressions as an authorization mechanism in addition to the simple use of configuration attributes and access-decision voters which have seen before. Expression-based access control is built on the same architecture but allows complicated boolean logic to be encapsulated in a single expression.
+Spring Security 3.0 introduced the ability to use Spring EL expressions as an authorization mechanism in addition to the simple use of configuration attributes and access-decision voters which have seen before. Expression-based access control is built on the same architecture but allows complicated Boolean logic to be encapsulated in a single expression.
 
 
 === Overview
@@ -5104,7 +5100,7 @@ The base class for expression root objects is `SecurityExpressionRoot`. This pro
 === Web Security Expressions
 To use expressions to secure individual URLs, you would first need to set the `use-expressions` attribute in the `<http>` element to `true`.
 Spring Security will then expect the `access` attributes of the `<intercept-url>` elements to contain Spring EL expressions.
-The expressions should evaluate to a boolean, defining whether access should be allowed or not.
+The expressions should evaluate to a Boolean, defining whether access should be allowed or not.
 For example:
 
 [source,xml]
@@ -5130,7 +5126,7 @@ So if you aren't using the namespace and want to use expressions, you will have 
 ==== Referring to Beans in Web Security Expressions
 
 If you wish to extend the expressions that are available, you can easily refer to any Spring Bean you expose.
-For example, assumming you have a Bean with the name of `webSecurity` that contains the following method signature:
+For example, assuming you have a Bean with the name of `webSecurity` that contains the following method signature:
 
 [source,java]
 ----
@@ -5373,7 +5369,7 @@ In order to remain compliant with the specification JSR-250 annotations do not s
 
 [[advanced-topics]]
 = Additional Topics
-In this part we cover features which require a knowledge of previous chapters as well as some of the more advanced and less-commonly used features of the framework.
+In this part we cover features which require knowledge of previous chapters as well as some of the more advanced and less-commonly used features of the framework.
 
 [[domain-acls]]
 == Domain Object Security (ACLs)
@@ -5479,7 +5475,7 @@ aclService.updateAcl(acl);
 
 
 
-In the example above, we're retrieving the ACL associated with the "Foo" domain object with identifier number 44. We're then adding an ACE so that a principal named "Samantha" can "administer" the object. The code fragment is relatively self-explanatory, except the insertAce method. The first argument to the insertAce method is determining at what position in the Acl the new entry will be inserted. In the example above, we're just putting the new ACE at the end of the existing ACEs. The final argument is a boolean indicating whether the ACE is granting or denying. Most of the time it will be granting (true), but if it is denying (false), the permissions are effectively being blocked.
+In the example above, we're retrieving the ACL associated with the "Foo" domain object with identifier number 44. We're then adding an ACE so that a principal named "Samantha" can "administer" the object. The code fragment is relatively self-explanatory, except the insertAce method. The first argument to the insertAce method is determining at what position in the Acl the new entry will be inserted. In the example above, we're just putting the new ACE at the end of the existing ACEs. The final argument is a Boolean indicating whether the ACE is granting or denying. Most of the time it will be granting (true), but if it is denying (false), the permissions are effectively being blocked.
 
 Spring Security does not provide any special integration to automatically create, update or delete ACLs as part of your DAO or repository operations. Instead, you will need to write code like shown above for your individual domain objects. It's worth considering using AOP on your services layer to automatically integrate the ACL information with your services layer operations. We've found this quite an effective approach in the past.
 
@@ -5546,7 +5542,7 @@ X.509 authentication is covered in its <<x509,own chapter>>. Here we'll look at 
 
 
 ==== Request-Header Authentication (Siteminder)
-An external authentication system may supply information to the application by setting specific headers on the HTTP request. A well known example of this is Siteminder, which passes the username in a header called `SM_USER`. This mechanism is supported by the class `RequestHeaderAuthenticationFilter` which simply extracts the username from the header. It defaults to using the name `SM_USER` as the header name. See the Javadoc for more details.
+An external authentication system may supply information to the application by setting specific headers on the HTTP request. A well-known example of this is Siteminder, which passes the username in a header called `SM_USER`. This mechanism is supported by the class `RequestHeaderAuthenticationFilter` which simply extracts the username from the header. It defaults to using the name `SM_USER` as the header name. See the Javadoc for more details.
 
 [TIP]
 ====
@@ -5799,7 +5795,7 @@ void mapUserToContext(UserDetails user, DirContextAdapter ctx);
 }
 ----
 
-Only the first method is relevant for authentication. If you provide an implementation of this interface and inject it into the `LdapAuthenticationProvider`, you have control over exactly how the UserDetails object is created. The first parameter is an instance of Spring LDAP's `DirContextOperations` which gives you access to the LDAP attributes which were loaded during authentication. the `username` parameter is the name used to authenticate and the final parameter is the collection of authorities loaded for the user by the configured `LdapAuthoritiesPopulator`.
+Only the first method is relevant for authentication. If you provide an implementation of this interface and inject it into the `LdapAuthenticationProvider`, you have control over exactly how the UserDetails object is created. The first parameter is an instance of Spring LDAP's `DirContextOperations` which gives you access to the LDAP attributes which were loaded during authentication. The `username` parameter is the name used to authenticate and the final parameter is the collection of authorities loaded for the user by the configured `LdapAuthoritiesPopulator`.
 
 The way the context data is loaded varies slightly depending on the type of authentication you are using. With the `BindAuthenticator`, the context returned from the bind operation will be used to read the attributes, otherwise the data will be read using the standard context obtained from the configured `ContextSource` (when a search is configured to locate the user, this will be the data returned by the search object).
 
@@ -5810,7 +5806,7 @@ Active Directory supports its own non-standard authentication options, and the n
 
 
 ==== ActiveDirectoryLdapAuthenticationProvider
-Configuring `ActiveDirectoryLdapAuthenticationProvider` is quite straightforward. You just need to supply the domain name and an LDAP URL supplying the address of the server  footnote:[It is also possible to obtain the server's IP address using a DNS lookup. This is not currently supported, but hopefully will be in a future version.]. An example configuration would then look like this:
+Configuring `ActiveDirectoryLdapAuthenticationProvider` is quite straightforward. You just need to supply the domain name and an LDAP URL supplying the address of the server footnote:[It is also possible to obtain the server's IP address using a DNS lookup. This is not currently supported, but hopefully will be in a future version.]. An example configuration would then look like this:
 
 [source,xml]
 ----
@@ -5846,7 +5842,7 @@ To use any of the tags, you must have the security taglib declared in your JSP:
 
 [[taglibs-authorize]]
 === The authorize Tag
-This tag is used to determine whether its contents should be evaluated or not. In Spring Security 3.0, it can be used in two ways  footnote:[
+This tag is used to determine whether its contents should be evaluated or not. In Spring Security 3.0, it can be used in two ways footnote:[
 The legacy options from Spring Security 2.0 are also supported, but discouraged.
 ]. The first approach uses a <<el-access-web,web-security expression>>, specified in the `access` attribute of the tag. The expression evaluation will be delegated to the `SecurityExpressionHandler<FilterInvocation>` defined in the application context (you should have web expressions enabled in your `<http>` namespace configuration to make sure this service is available). So, for example, you might have
 
@@ -5883,7 +5879,7 @@ This content will only be visible to users who are authorized to send requests t
 
 To use this tag there must also be an instance of `WebInvocationPrivilegeEvaluator` in your application context. If you are using the namespace, one will automatically be registered. This is an instance of `DefaultWebInvocationPrivilegeEvaluator`, which creates a dummy web request for the supplied URL and invokes the security interceptor to see whether the request would succeed or fail. This allows you to delegate to the access-control setup you defined using `intercept-url` declarations within the `<http>` namespace configuration and saves having to duplicate the information (such as the required roles) within your JSPs. This approach can also be combined with a `method` attribute, supplying the HTTP method, for a more specific match.
 
-The boolean result of evaluating the tag (whether it grants or denies access) can be stored in a page context scope variable by setting the `var` attribute to the variable name, avoiding the need for duplicating and re-evaluating the condition at other points in the page.
+The Boolean result of evaluating the tag (whether it grants or denies access) can be stored in a page context scope variable by setting the `var` attribute to the variable name, avoiding the need for duplicating and re-evaluating the condition at other points in the page.
 
 
 ==== Disabling Tag Authorization for Testing
@@ -6039,7 +6035,7 @@ The `DefaultJaasAuthenticationProvider` allows a JAAS `Configuration` object to 
 
 [[jaas-inmemoryconfiguration]]
 ==== InMemoryConfiguration
-In order to make it easy to inject a `Configuration` into `DefaultJaasAuthenticationProvider`, a default in memory implementation named `InMemoryConfiguration` is provided. The implementation constructor accepts a `Map` where each key represents a login configuration name and the value represents an `Array` of `AppConfigurationEntry` s. `InMemoryConfiguration` also supports a default `Array` of `AppConfigurationEntry` objects that will be used if no mapping is found within the provided `Map`. For details, refer to the class level javadoc of `InMemoryConfiguration`.
+In order to make it easy to inject a `Configuration` into `DefaultJaasAuthenticationProvider`, a default in-memory implementation named `InMemoryConfiguration` is provided. The implementation constructor accepts a `Map` where each key represents a login configuration name and the value represents an `Array` of `AppConfigurationEntry` s. `InMemoryConfiguration` also supports a default `Array` of `AppConfigurationEntry` objects that will be used if no mapping is found within the provided `Map`. For details, refer to the class level javadoc of `InMemoryConfiguration`.
 
 
 [[jaas-djap-config]]
@@ -6637,7 +6633,7 @@ The difference between a queryable TextEncryptor and a standard TextEncryptor ha
 
 [[spring-security-crypto-keygenerators]]
 === Key Generators
-The KeyGenerators class provides a number of convenience factory methods for constructing different types of key generators. Using this class, you can create a BytesKeyGenerator to generate byte[] keys. You can also construct a StringKeyGenerator to generate string keys. KeyGenerators are thread safe.
+The KeyGenerators class provides a number of convenience factory methods for constructing different types of key generators. Using this class, you can create a BytesKeyGenerator to generate byte[] keys. You can also construct a StringKeyGenerator to generate string keys. KeyGenerators are thread-safe.
 
 ==== BytesKeyGenerator
 Use the KeyGenerators.secureRandom factory methods to generate a BytesKeyGenerator backed by a SecureRandom instance:
@@ -7253,7 +7249,7 @@ create table group_members (
 );
 ----
 
-Remember that these tables are only required if you are using the provided JDBC `UserDetailsService` implementation. If you write your own  or choose to implement `AuthenticationProvider` without a `UserDetailsService`, then you have complete freedom over how you store the data, as long as the interface contract is satisfied.
+Remember that these tables are only required if you are using the provided JDBC `UserDetailsService` implementation. If you write your own or choose to implement `AuthenticationProvider` without a `UserDetailsService`, then you have complete freedom over how you store the data, as long as the interface contract is satisfied.
 
 
 === Persistent Login (Remember-Me) Schema
@@ -7554,7 +7550,7 @@ Enables Spring Security debugging infrastructure. This will provide human-readab
 [[nsa-http]]
 ==== <http>
 If you use an `<http>` element within your application, a `FilterChainProxy` bean named "springSecurityFilterChain" is created and the configuration within the element is used to build a filter chain within
-`FilterChainProxy`. As of Spring Security 3.1, additional `http` elements can be used to add extra filter chains footnote:[ See the pass:specialcharacters,macros[<<ns-web-xml,introductory chapter>>] for how to set up the mapping from your `web.xml` ].
+`FilterChainProxy`. As of Spring Security 3.1, additional `http` elements can be used to add extra filter chains footnote:[See the pass:specialcharacters,macros[<<ns-web-xml,introductory chapter>>] for how to set up the mapping from your `web.xml` ].
 Some core filters are always created in a filter chain and others will be added to the stack depending on the attributes and child elements which are present. The positions of the standard filters are fixed (see
 <<filter-stack,the filter order table>> in the namespace introduction), removing a common source of errors with previous versions of the framework when users had to configure the filter chain explicitly in the
 `FilterChainProxy` bean. You can, of course, still do this if you need full control of the configuration.
@@ -7930,7 +7926,7 @@ When enabled adds the https://www.w3.org/TR/referrer-policy/[Referrer Policy] he
 ===== <referrer-policy> Attributes
 
 [[nsa-referrer-policy-policy]]
-*  **policy**
+* **policy**
 The policy for the Referrer-Policy header. Default "no-referrer".
 
 [[nsa-referrer-policy-parents]]
@@ -8208,7 +8204,7 @@ Defines a reference to a Spring bean that implements `SecurityExpressionHandler`
 
 [[nsa-form-login]]
 ==== <form-login>
-Used to add an `UsernamePasswordAuthenticationFilter` to the filter stack and an `LoginUrlAuthenticationEntryPoint` to the application context to provide authentication on demand. This will always take precedence over other namespace-created entry points. If no attributes are supplied, a login page will be generated automatically at the URL "/login"  footnote:[
+Used to add an `UsernamePasswordAuthenticationFilter` to the filter stack and an `LoginUrlAuthenticationEntryPoint` to the application context to provide authentication on demand. This will always take precedence over other namespace-created entry points. If no attributes are supplied, a login page will be generated automatically at the URL "/login" footnote:[
 This feature is really just provided for convenience and is not intended for production (where a view technology will have been chosen and can be used to render a customized login page). The class `DefaultLoginPageGeneratingFilter` is responsible for rendering the login page and will provide login forms for both normal form login and/or OpenID if required.
 ] The behaviour can be customized using the <<nsa-form-login-attributes, `<form-login>` Attributes>>.
 
@@ -8237,7 +8233,7 @@ Reference to an `AuthenticationDetailsSource` which will be used by the authenti
 
 [[nsa-form-login-authentication-failure-handler-ref]]
 * **authentication-failure-handler-ref**
-Can be used as an alternative to <<nsa-form-login-authentication-failure-url,authentication-failure-url>>, giving you full control over the navigation flow after an authentication failure. The value should be he name of an `AuthenticationFailureHandler` bean in the application context.
+Can be used as an alternative to <<nsa-form-login-authentication-failure-url,authentication-failure-url>>, giving you full control over the navigation flow after an authentication failure. The value should be the name of an `AuthenticationFailureHandler` bean in the application context.
 
 
 [[nsa-form-login-authentication-failure-url]]
@@ -8378,7 +8374,7 @@ NOTE: This property is invalid for <<nsa-filter-security-metadata-source,filter-
 
 [[nsa-intercept-url-servlet-path]]
 * **servlet-path**
-The servlet path which will be used in combination with the pattern and HTTP method to match an incoming request. This attribute is only applicable when <<nsa-http-request-matcher,request-matcher>> is 'mvc'. In addition, the value is only required in the following 2 use cases: 1) There are 2 or more `HttpServlet` 's registered in the `ServletContext` that have mappings starting with `'/'` and are different;  2) The pattern starts with the same value of a registered `HttpServlet` path, excluding the default (root) `HttpServlet` `'/'`.
+The servlet path which will be used in combination with the pattern and HTTP method to match an incoming request. This attribute is only applicable when <<nsa-http-request-matcher,request-matcher>> is 'mvc'. In addition, the value is only required in the following 2 use cases: 1) There are 2 or more `HttpServlet` 's registered in the `ServletContext` that have mappings starting with `'/'` and are different; 2) The pattern starts with the same value of a registered `HttpServlet` path, excluding the default (root) `HttpServlet` `'/'`.
 
 NOTE: This property is invalid for <<nsa-filter-security-metadata-source,filter-security-metadata-source>>
 
@@ -8698,9 +8694,9 @@ The name of cookie which store the token for remember-me authentication. Default
 
 [[nsa-remember-me-key]]
 * **key**
-Maps to the "key" property of `AbstractRememberMeServices`. Should be set to a unique value to ensure that remember-me cookies are only valid within the one application  footnote:[
+Maps to the "key" property of `AbstractRememberMeServices`. Should be set to a unique value to ensure that remember-me cookies are only valid within the one application footnote:[
 This doesn't affect the use of `PersistentTokenBasedRememberMeServices`, where the tokens are stored on the server side.
-]. If this is not set a secure random value will be generated. Since generating secure random values can take a while, setting this value explicitly can help improve startup times when using the remember me functionality.
+]. If this is not set a secure random value will be generated. Since generating secure random values can take a while, setting this value explicitly can help improve startup times when using the remember-me functionality.
 
 
 [[nsa-remember-me-services-alias]]
@@ -9984,7 +9980,7 @@ This module is only required if you are using LDAP authentication.
 |
 | Data exception classes are required.
 
-| apache-ds  footnote:[The modules `apacheds-core`, `apacheds-core-entry`, `apacheds-protocol-shared`, `apacheds-protocol-ldap` and `apacheds-server-jndi` are required.
+| apache-ds footnote:[The modules `apacheds-core`, `apacheds-core-entry`, `apacheds-protocol-shared`, `apacheds-protocol-ldap` and `apacheds-server-jndi` are required.
 ]
 | 1.5.5
 | Required if you are using an embedded LDAP server (optional).
