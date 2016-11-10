@@ -11,7 +11,7 @@ To use the Spring Security test support, you must include `spring-security-test-
 [[test-method]]
 == Testing Method Security
 
-This section demonstrates how to  use Spring Security's Test support to test method based security.
+This section demonstrates how to use Spring Security's Test support to test method based security.
 We first introduce a `MessageService` that requires the user to be authenticated in order to access it.
 
 [source,java]
@@ -49,10 +49,10 @@ public class WithMockUserTests {
 
 This is a basic example of how to setup Spring Security Test. The highlights are:
 
-<1> `@RunWith` instructs the spring-test module that it should create an ApplicationContext This is no different than using the existing Spring Test support. For additional information, refer to the http://docs.spring.io/spring-framework/docs/4.0.x/spring-framework-reference/htmlsingle/#integration-testing-annotations-standard[Spring Reference]
+<1> `@RunWith` instructs the spring-test module that it should create an `ApplicationContext`. This is no different than using the existing Spring Test support. For additional information, refer to the http://docs.spring.io/spring-framework/docs/4.0.x/spring-framework-reference/htmlsingle/#integration-testing-annotations-standard[Spring Reference]
 <2> `@ContextConfiguration` instructs the spring-test the configuration to use to create the `ApplicationContext`. Since no configuration is specified, the default configuration locations will be tried. This is no different than using the existing Spring Test support. For additional information, refer to the http://docs.spring.io/spring-framework/docs/4.0.x/spring-framework-reference/htmlsingle/#testcontext-ctx-management[Spring Reference]
 
-NOTE: Spring Security hooks into Spring Test support using the  `WithSecurityContextTestExecutionListener` which will ensure our tests are ran with the correct user.
+NOTE: Spring Security hooks into Spring Test support using the `WithSecurityContextTestExecutionListener` which will ensure our tests are ran with the correct user.
 It does this by populating the `SecurityContextHolder` prior to running our tests.
 After the test is done, it will clear out the `SecurityContextHolder`.
 If you only need Spring Security related support, you can replace `@ContextConfiguration` with `@SecurityTestExecutionListeners`.
@@ -73,7 +73,7 @@ public void getMessageUnauthenticated() {
 
 The question is "How could we most easily run the test as a specific user?"
 The answer is to use `@WithMockUser`.
-The following test will be ran as a user with the username "user", the password "password", and the roles "ROLE_USER".
+The following test will be run as a user with the username "user", the password "password", and the roles "ROLE_USER".
 
 [source,java]
 ----
@@ -291,7 +291,7 @@ final class WithUserDetailsSecurityContextFactory
 
 	public SecurityContext createSecurityContext(WithUserDetails withUser) {
 		String username = withUser.value();
-		Assert.hasLength(username, "value() must be non empty String");
+		Assert.hasLength(username, "value() must be non-empty String");
 		UserDetails principal = userDetailsService.loadUserByUsername(username);
 		Authentication authentication = new UsernamePasswordAuthenticationToken(principal, principal.getPassword(), principal.getAuthorities());
 		SecurityContext context = SecurityContextHolder.createEmptyContext();
@@ -386,7 +386,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 [[test-mockmvc-csrf]]
 ==== Testing with CSRF Protection
 
-When testing any non safe HTTP methods and using Spring Security's CSRF protection, you must be sure to include a valid CSRF Token in the request.
+When testing any non-safe HTTP methods and using Spring Security's CSRF protection, you must be sure to include a valid CSRF Token in the request.
 To specify a valid CSRF token as a request parameter using the following:
 
 [source,java]
