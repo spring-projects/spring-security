@@ -45,7 +45,6 @@ public class AclAuthorizationStrategyImplTests {
 	@Before
 	public void setup() {
 		authority = new SimpleGrantedAuthority("ROLE_AUTH");
-		strategy = new AclAuthorizationStrategyImpl(authority);
 		TestingAuthenticationToken authentication = new TestingAuthenticationToken("foo", "bar", Arrays.asList(authority));
 		authentication.setAuthenticated(true);
 		SecurityContextHolder.getContext().setAuthentication(authentication);
