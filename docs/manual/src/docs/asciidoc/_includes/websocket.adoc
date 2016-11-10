@@ -93,7 +93,7 @@ public class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBro
 
 This will ensure that:
 
-<1> Any message without a destination (i.e. anything other that Message type of MESSAGE or SUBSCRIBE) will require the user to be authenticated
+<1> Any message without a destination (i.e. anything other than Message type of MESSAGE or SUBSCRIBE) will require the user to be authenticated
 <2> Anyone can subscribe to /user/queue/errors
 <3> Any message that has a destination starting with "/app/" will be require the user to have the role ROLE_USER
 <4> Any message that starts with "/user/" or "/topic/friends/" that is of type SUBSCRIBE will require ROLE_USER
@@ -162,7 +162,7 @@ It is also is important to understand how destinations are transformed.
 
 Consider a chat application.
 
-* User's can send messages to a specific user by sending a message to the destination of "/app/chat".
+* Users can send messages to a specific user by sending a message to the destination of "/app/chat".
 * The application sees the message, ensures that the "from" attribute is specified as the current user (we cannot trust the client).
 * The application then sends the message to the recipient using `SimpMessageSendingOperations.convertAndSendToUser("toUser", "/queue/messages", message)`.
 * The message gets turned into the destination of "/queue/user/messages-<sessionid>"
@@ -200,7 +200,7 @@ The Same Origin Policy ensures that evil.com cannot read or write data to bank.c
 
 With WebSockets the Same Origin Policy does not apply.
 In fact, unless bank.com explicitly forbids it, evil.com can read and write data on behalf of the user.
-This means that anything the user can do over the websocket (i.e. transfer money), evil.com can do on that users behalf.
+This means that anything the user can do over the webSocket (i.e. transfer money), evil.com can do on that users behalf.
 
 Since SockJS tries to emulate WebSockets it also bypasses the Same Origin Policy.
 This means developers need to explicitly protect their applications from external domains when using SockJS.
@@ -246,7 +246,7 @@ public class CsrfController {
 }
 ----
 
-The javascript can make a REST call to the endpoint and use the response to populate the headerName and the token.
+The JavaScript can make a REST call to the endpoint and use the response to populate the headerName and the token.
 
 We can now include the token in our Stomp client.
 For example:
