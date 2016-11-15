@@ -32,6 +32,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * The {@link DefaultSavedRequest} class is used as the implementation.
  *
  * @author Luke Taylor
+ * @author Eddú Meléndez
  * @since 3.0
  */
 public class HttpSessionRequestCache implements RequestCache {
@@ -41,6 +42,7 @@ public class HttpSessionRequestCache implements RequestCache {
 	private PortResolver portResolver = new PortResolverImpl();
 	private boolean createSessionAllowed = true;
 	private RequestMatcher requestMatcher = AnyRequestMatcher.INSTANCE;
+	private String sessionAttrName = SAVED_REQUEST;
 
 	/**
 	 * Stores the current request, provided the configuration properties allow it.
@@ -54,7 +56,7 @@ public class HttpSessionRequestCache implements RequestCache {
 				// Store the HTTP request itself. Used by
 				// AbstractAuthenticationProcessingFilter
 				// for redirection after successful authentication (SEC-29)
-				request.getSession().setAttribute(SAVED_REQUEST, savedRequest);
+				request.getSession().setAttribute(this.sessionAttrName, savedRequest);
 				logger.debug("DefaultSavedRequest added to Session: " + savedRequest);
 			}
 		}
@@ -68,7 +70,7 @@ public class HttpSessionRequestCache implements RequestCache {
 		HttpSession session = currentRequest.getSession(false);
 
 		if (session != null) {
-			return (SavedRequest) session.getAttribute(SAVED_REQUEST);
+			return (SavedRequest) session.getAttribute(this.sessionAttrName);
 		}
 
 		return null;
@@ -80,7 +82,7 @@ public class HttpSessionRequestCache implements RequestCache {
 
 		if (session != null) {
 			logger.debug("Removing DefaultSavedRequest from session if present");
-			session.removeAttribute(SAVED_REQUEST);
+			session.removeAttribute(this.sessionAttrName);
 		}
 	}
 
@@ -128,5 +130,16 @@ public class HttpSessionRequestCache implements RequestCache {
 
 	public void setPortResolver(PortResolver portResolver) {
 		this.portResolver = portResolver;
+	}
+
+	/**
+	 * If the {@code sessionAttrName} property is set, the request is stored in
+	 * the session using this attribute name. Default is
+	 * "SPRING_SECURITY_SAVED_REQUEST".
+	 *
+	 * @param sessionAttrName a new session attribute name.
+	 */
+	public void setSessionAttrName(String sessionAttrName) {
+		this.sessionAttrName = sessionAttrName;
 	}
 }
