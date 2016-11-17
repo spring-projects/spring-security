@@ -1772,7 +1772,7 @@
       <xs:attribute name="max-sessions" type="xs:integer">
          <xs:annotation>
             <xs:documentation>The maximum number of sessions a single authenticated user can have open at the same time.
-                Defaults to "1". A negative value denotes unlimitted sessions.
+                Defaults to "1". A negative value denotes unlimited sessions.
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>

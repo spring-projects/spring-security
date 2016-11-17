@@ -7020,7 +7020,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 // ...
 
 @PutMapping("/users/self")
-public ModelAndView updateName(@AuthenticationPrincipal(expression = "@jpaEntityManager.merge(#this)") CustomUser attachedCustomUser
+public ModelAndView updateName(@AuthenticationPrincipal(expression = "@jpaEntityManager.merge(#this)") CustomUser attachedCustomUser,
 		@RequestParam String firstName) {
 
 	// change the firstName on an attached instance which will be persisted to the database
