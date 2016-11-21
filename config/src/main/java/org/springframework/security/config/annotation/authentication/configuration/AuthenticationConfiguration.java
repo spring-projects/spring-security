@@ -137,9 +137,6 @@ public class AuthenticationConfiguration {
 		if (beanNamesForType.length == 0) {
 			return null;
 		}
-		Assert.isTrue(beanNamesForType.length == 1,
-				"Expecting to only find a single bean for type " + interfaceName
-						+ ", but found " + Arrays.asList(beanNamesForType));
 		lazyTargetSource.setTargetBeanName(beanNamesForType[0]);
 		lazyTargetSource.setBeanFactory(applicationContext);
 		ProxyFactoryBean proxyFactory = new ProxyFactoryBean();

@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import org.springframework.context.annotation.Primary
 import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
 import org.springframework.security.access.annotation.Secured
@@ -37,6 +38,7 @@ import org.springframework.security.config.annotation.configuration.ObjectPostPr
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
+import org.springframework.security.config.http.MockAuthenticationManager
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.core.authority.AuthorityUtils
 import org.springframework.security.core.context.SecurityContextHolder
@@ -514,5 +516,32 @@ class AuthenticationConfigurationTests extends BaseSpringSpec {
 	static class UsesServiceMethodSecurityConfig {
 		@Autowired
 		Service service
+	}
+
+	def 'gh-3912 Multiple Authentication Managers'() {
+		when:
+		loadConfig(MultipleAuthenticationManagerSecurityConfig)
+		then:
+		noExceptionThrown()
+	}
+
+	@Configuration
+	@EnableGlobalMethodSecurity(securedEnabled = true)
+	static class MultipleAuthenticationManagerSecurityConfig {
+		@Bean
+		public AuthenticationManager docAuthenticationManager() {
+			return new MockAuthenticationManager();
+		}
+
+		@Bean
+		public AuthenticationManager webAuthenticationManager() {
+			return new MockAuthenticationManager();
+		}
+
+		@Bean
+		@Primary
+		public AuthenticationManager globalAuthenticationManager() {
+			return new MockAuthenticationManager();
+		}
 	}
 }
