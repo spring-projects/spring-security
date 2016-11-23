@@ -288,7 +288,7 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 	protected boolean isUseForward() {
 		return useForward;
 	}
-	
+
 	public void setRedirectStrategy(RedirectStrategy redirectStrategy) {
 		this.redirectStrategy = redirectStrategy;
 	}
