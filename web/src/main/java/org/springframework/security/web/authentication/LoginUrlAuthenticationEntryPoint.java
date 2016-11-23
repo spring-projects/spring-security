@@ -83,7 +83,7 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 
 	private boolean useForward = false;
 
-	private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
+	protected RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
 	/**
 	 *
@@ -287,5 +287,9 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 
 	protected boolean isUseForward() {
 		return useForward;
+	}
+	
+	public void setRedirectStrategy(RedirectStrategy redirectStrategy) {
+		this.redirectStrategy = redirectStrategy;
 	}
 }
