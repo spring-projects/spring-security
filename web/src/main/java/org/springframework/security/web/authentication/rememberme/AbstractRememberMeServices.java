@@ -245,6 +245,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
 
     /**
      * Examines the incoming request and checks for the presence of the configured "remember me" parameter.
+     * This is executed after entering your credentials in the login form.
      * If it's present, or if <tt>alwaysRemember</tt> is set to true, calls <tt>onLoginSucces</tt>.
      */
     public final void loginSuccess(HttpServletRequest request, HttpServletResponse response,
