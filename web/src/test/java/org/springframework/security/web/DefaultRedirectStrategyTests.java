@@ -56,4 +56,19 @@ public class DefaultRedirectStrategyTests {
 
 		assertThat(response.getRedirectedUrl()).isEqualTo("remainder");
 	}
+
+	@Test
+	public void contextRelativeShouldRedirectToRootIfURLDoesNotContainContextPath()
+		throws Exception {
+		DefaultRedirectStrategy rds = new DefaultRedirectStrategy();
+		rds.setContextRelative(true);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setContextPath("/context");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+
+		rds.sendRedirect(request, response,
+			"https://redirectme.somewhere.else");
+
+		assertThat(response.getRedirectedUrl()).isEqualTo("");
+	}
 }
