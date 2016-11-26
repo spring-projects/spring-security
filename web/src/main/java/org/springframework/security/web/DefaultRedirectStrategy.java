@@ -73,6 +73,10 @@ public class DefaultRedirectStrategy implements RedirectStrategy {
 			return url;
 		}
 
+		if (!url.contains(contextPath)) {
+			return "";
+		}
+
 		// Calculate the relative URL from the fully qualified URL, minus the last
 		// occurrence of the scheme and base context.
 		url = url.substring(url.lastIndexOf("://") + 3); // strip off scheme
