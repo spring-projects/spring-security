@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.config.annotation.authentication.configuration;
+package org.springframework.security.config.annotation.authentication.configuration
 
 import org.springframework.aop.framework.ProxyFactoryBean
 import org.springframework.beans.factory.annotation.Autowired
@@ -24,12 +24,8 @@ import org.springframework.context.annotation.Primary
 import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
 import org.springframework.security.access.annotation.Secured
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.AuthenticationManager
-import org.springframework.security.authentication.AuthenticationProvider
-import org.springframework.security.authentication.ProviderManager
-import org.springframework.security.authentication.TestingAuthenticationToken
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.authentication.*
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.BaseSpringSpec
 import org.springframework.security.config.annotation.ObjectPostProcessor
@@ -520,18 +516,26 @@ class AuthenticationConfigurationTests extends BaseSpringSpec {
 	}
 
 	def 'gh-3912 Multiple Authentication Managers'() {
-		when:
+		setup:
+		AuthenticationProvider ap = Mock()
+		MultipleAuthenticationManagerSecurityConfig.AP = ap
 		loadConfig(MultipleAuthenticationManagerSecurityConfig)
-		then:
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("user", "password")
+		when:
 		AuthenticationConfiguration config = context.getBean(AuthenticationConfiguration)
-		(config.getAuthenticationManager() instanceof ProviderManager) >> true
+		config.getAuthenticationManager().authenticate(token)
+		then:
+		1 * ap.supports(_) >> true
+		1 * ap.authenticate(token) >> token
 		noExceptionThrown()
 	}
 
 	@Configuration
 	@Import(AuthenticationConfiguration)
-	@EnableGlobalMethodSecurity(securedEnabled = true)
 	static class MultipleAuthenticationManagerSecurityConfig {
+
+		static AuthenticationProvider AP;
+
 		@Bean
 		public AuthenticationManager docAuthenticationManager() {
 			return new MockAuthenticationManager();
@@ -545,7 +549,7 @@ class AuthenticationConfigurationTests extends BaseSpringSpec {
 		@Bean
 		@Primary
 		public AuthenticationManager globalAuthenticationManager() {
-			return new ProviderManager();
+			return new ProviderManager(Arrays.asList(AP));
 		}
 	}
 }

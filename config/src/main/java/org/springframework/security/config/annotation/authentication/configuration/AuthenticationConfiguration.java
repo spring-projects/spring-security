@@ -15,19 +15,14 @@
  */
 package org.springframework.security.config.annotation.authentication.configuration;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.aop.target.LazyInitTargetSource;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -41,6 +36,12 @@ import org.springframework.security.config.annotation.configuration.ObjectPostPr
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.util.Assert;
+import org.springframework.web.context.ConfigurableWebApplicationContext;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Exports the authentication {@link Configuration}
@@ -136,6 +137,18 @@ public class AuthenticationConfiguration {
 				applicationContext, interfaceName);
 		if (beanNamesForType.length == 0) {
 			return null;
+		} else if (beanNamesForType.length > 1) {
+			if (applicationContext instanceof ConfigurableWebApplicationContext) {
+				ConfigurableWebApplicationContext ctx = (ConfigurableWebApplicationContext) applicationContext;
+				ConfigurableListableBeanFactory clbf = ctx.getBeanFactory();
+				for (String beanName : beanNamesForType) {
+					BeanDefinition beanDefinition = clbf.getBeanDefinition(beanName);
+					if (beanDefinition.isPrimary()) {
+						beanNamesForType = new String[]{beanName};
+						break;
+					}
+				}
+			}
 		}
 		lazyTargetSource.setTargetBeanName(beanNamesForType[0]);
 		lazyTargetSource.setBeanFactory(applicationContext);
