@@ -529,6 +529,7 @@ class AuthenticationConfigurationTests extends BaseSpringSpec {
 	}
 
 	@Configuration
+	@Import(AuthenticationConfiguration)
 	@EnableGlobalMethodSecurity(securedEnabled = true)
 	static class MultipleAuthenticationManagerSecurityConfig {
 		@Bean
