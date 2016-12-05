@@ -27,6 +27,7 @@ import org.springframework.security.access.annotation.Secured
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.AuthenticationProvider
+import org.springframework.security.authentication.ProviderManager
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider
@@ -522,6 +523,8 @@ class AuthenticationConfigurationTests extends BaseSpringSpec {
 		when:
 		loadConfig(MultipleAuthenticationManagerSecurityConfig)
 		then:
+		AuthenticationConfiguration config = context.getBean(AuthenticationConfiguration)
+		(config.getAuthenticationManager() instanceof ProviderManager) >> true
 		noExceptionThrown()
 	}
 
@@ -541,7 +544,7 @@ class AuthenticationConfigurationTests extends BaseSpringSpec {
 		@Bean
 		@Primary
 		public AuthenticationManager globalAuthenticationManager() {
-			return new MockAuthenticationManager();
+			return new ProviderManager();
 		}
 	}
 }
