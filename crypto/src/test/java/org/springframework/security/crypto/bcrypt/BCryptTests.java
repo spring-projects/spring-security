@@ -14,10 +14,11 @@
 
 package org.springframework.security.crypto.bcrypt;
 
+import org.junit.Test;
+
 import java.util.Arrays;
 
-import org.junit.Test;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * JUnit unit tests for BCrypt routines
@@ -269,6 +270,11 @@ public class BCryptTests {
 	public void genSaltGeneratesCorrectSaltPrefix() {
 		assertThat(BCrypt.gensalt(4).startsWith("$2a$04$")).isTrue();
 		assertThat(BCrypt.gensalt(31).startsWith("$2a$31$")).isTrue();
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void hashpwFailsWhenSaltIsNull() {
+		BCrypt.hashpw("password", null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)

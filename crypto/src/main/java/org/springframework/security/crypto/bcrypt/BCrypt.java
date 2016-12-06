@@ -532,14 +532,19 @@ public class BCrypt {
 	 * @param password the password to hash
 	 * @param salt the salt to hash with (perhaps generated using BCrypt.gensalt)
 	 * @return the hashed password
+	 * @throws IllegalArgumentException if invalid salt is passed
 	 */
-	public static String hashpw(String password, String salt) {
+	public static String hashpw(String password, String salt) throws IllegalArgumentException {
 		BCrypt B;
 		String real_salt;
 		byte passwordb[], saltb[], hashed[];
 		char minor = (char) 0;
 		int rounds, off = 0;
 		StringBuilder rs = new StringBuilder();
+
+		if (salt == null) {
+			throw new IllegalArgumentException("Invalid salt");
+		}
 
 		int saltLength = salt.length();
 
