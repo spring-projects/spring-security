@@ -543,7 +543,7 @@ public class BCrypt {
 		StringBuilder rs = new StringBuilder();
 
 		if (salt == null) {
-			throw new IllegalArgumentException("Invalid salt");
+			throw new IllegalArgumentException("salt cannot be null");
 		}
 
 		int saltLength = salt.length();
