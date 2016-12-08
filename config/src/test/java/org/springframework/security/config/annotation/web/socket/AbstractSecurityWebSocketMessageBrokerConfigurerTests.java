@@ -444,7 +444,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 		// @formatter:on
 
 		@Bean
-		public SecurityExpressionHandler<Message<Object>> messageSecurityExpressionHandler() {
+		public static SecurityExpressionHandler<Message<Object>> messageSecurityExpressionHandler() {
 			return new DefaultMessageSecurityExpressionHandler<Object>() {
 				@Override
 				protected SecurityExpressionOperations createSecurityExpressionRoot(
