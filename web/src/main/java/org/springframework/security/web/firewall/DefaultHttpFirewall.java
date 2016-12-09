@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author Luke Taylor
  */
 public class DefaultHttpFirewall implements HttpFirewall {
+    private boolean allowUrlEncodedSlash;
 
     public FirewalledRequest getFirewalledRequest(HttpServletRequest request) throws RequestRejectedException {
         FirewalledRequest fwr = new RequestWrapper(request);
@@ -27,6 +28,11 @@ public class DefaultHttpFirewall implements HttpFirewall {
         if (!isNormalized(fwr.getServletPath()) || !isNormalized(fwr.getPathInfo())) {
             throw new RequestRejectedException("Un-normalized paths are not supported: " + fwr.getServletPath() +
                 (fwr.getPathInfo() != null ? fwr.getPathInfo() : ""));
+        }
+
+        String requestURI = fwr.getRequestURI();
+        if (containsInvalidUrlEncodedSlash(requestURI)) {
+            throw new RequestRejectedException("The requestURI cannot contain encoded slash. Got " + requestURI);
         }
 
         return fwr;
@@ -37,10 +43,43 @@ public class DefaultHttpFirewall implements HttpFirewall {
     }
 
     /**
-     * Checks whether a path is normalized (doesn't contain path traversal sequences like "./", "/../" or "/.")
+     * <p>
+     * Sets if the application should allow a URL encoded slash character.
+     * </p>
+     * <p>
+     * If true (default is false), a URL encoded slash will be allowed in the
+     * URL. Allowing encoded slashes can cause security vulnerabilities in some
+     * situations depending on how the container constructs the
+     * HttpServletRequest.
+     * </p>
      *
-     * @param path the path to test
-     * @return true if the path doesn't contain any path-traversal character sequences.
+     * @param allowUrlEncodedSlash
+     *            the new value (default false)
+     */
+    public void setAllowUrlEncodedSlash(boolean allowUrlEncodedSlash) {
+        this.allowUrlEncodedSlash = allowUrlEncodedSlash;
+    }
+
+    private boolean containsInvalidUrlEncodedSlash(String uri) {
+        if (this.allowUrlEncodedSlash || uri == null) {
+            return false;
+        }
+
+        if (uri.contains("%2f") || uri.contains("%2F")) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Checks whether a path is normalized (doesn't contain path traversal
+     * sequences like "./", "/../" or "/.")
+     *
+     * @param path
+     *            the path to test
+     * @return true if the path doesn't contain any path-traversal character
+     *         sequences.
      */
     private boolean isNormalized(String path) {
         if (path == null) {
