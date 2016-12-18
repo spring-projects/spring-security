@@ -431,7 +431,7 @@ To use JDBC instead, you can implement the interface yourself, using whatever SQ
 				 *  prefix "ROLE_" to mark attributes which are supported by Spring Security's RoleVoter.
 				 */
 				public GrantedAuthority mapRow(ResultSet rs, int rowNum) throws SQLException {
-					return new GrantedAuthorityImpl("ROLE_" + rs.getString(1);
+					return new SimpleGrantedAuthority("ROLE_" + rs.getString(1);
 				}
 			}
 		}
