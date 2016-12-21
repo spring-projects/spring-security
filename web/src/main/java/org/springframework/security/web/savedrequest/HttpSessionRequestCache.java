@@ -138,6 +138,7 @@ public class HttpSessionRequestCache implements RequestCache {
 	 * "SPRING_SECURITY_SAVED_REQUEST".
 	 *
 	 * @param sessionAttrName a new session attribute name.
+	 * @since 4.2.1
 	 */
 	public void setSessionAttrName(String sessionAttrName) {
 		this.sessionAttrName = sessionAttrName;
