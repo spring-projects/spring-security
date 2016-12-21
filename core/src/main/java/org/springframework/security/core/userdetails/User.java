@@ -200,7 +200,7 @@ public class User implements UserDetails, CredentialsContainer {
 	@Override
 	public boolean equals(Object rhs) {
 		if (rhs instanceof User) {
-			return ObjectUtils.nullSafeEquals(this.username, (User) rhs).username);
+			return ObjectUtils.nullSafeEquals(this.username, ((User) rhs).username);
 		}
 		return false;
 	}
