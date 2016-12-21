@@ -71,7 +71,7 @@ public class DefaultHttpFirewallTests {
 	public void getFirewalledRequestWhenUppercaseEncodedPathThenException() {
 		DefaultHttpFirewall fw = new DefaultHttpFirewall();
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setRequestURI("/context-root/a/b;%2f1/c");
+		request.setRequestURI("/context-root/a/b;%2F1/c");
 		request.setContextPath("/context-root");
 		request.setServletPath("");
 		request.setPathInfo("/a/b;/1/c"); // URL decoded requestURI
@@ -97,7 +97,7 @@ public class DefaultHttpFirewallTests {
 		DefaultHttpFirewall fw = new DefaultHttpFirewall();
 		fw.setAllowUrlEncodedSlash(true);
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setRequestURI("/context-root/a/b;%2f1/c");
+		request.setRequestURI("/context-root/a/b;%2F1/c");
 		request.setContextPath("/context-root");
 		request.setServletPath("");
 		request.setPathInfo("/a/b;/1/c"); // URL decoded requestURI
