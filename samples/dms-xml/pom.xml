@@ -46,19 +46,19 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-beans</artifactId>
-      <version>3.2.13.RELEASE</version>
+      <version>3.2.17.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-jdbc</artifactId>
-      <version>3.2.13.RELEASE</version>
+      <version>3.2.17.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-tx</artifactId>
-      <version>3.2.13.RELEASE</version>
+      <version>3.2.17.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -90,7 +90,7 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context-support</artifactId>
-      <version>3.2.13.RELEASE</version>
+      <version>3.2.17.RELEASE</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -126,13 +126,13 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
-      <version>3.2.13.RELEASE</version>
+      <version>3.2.17.RELEASE</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
-      <version>3.2.13.RELEASE</version>
+      <version>3.2.17.RELEASE</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

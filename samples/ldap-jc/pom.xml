@@ -146,13 +146,13 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-jdbc</artifactId>
-      <version>3.2.13.RELEASE</version>
+      <version>3.2.17.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-webmvc</artifactId>
-      <version>3.2.13.RELEASE</version>
+      <version>3.2.17.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -213,7 +213,7 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
-      <version>3.2.13.RELEASE</version>
+      <version>3.2.17.RELEASE</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
