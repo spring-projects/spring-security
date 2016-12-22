@@ -94,14 +94,14 @@ def customizePom(pom, gradleProject) {
         def plugins = asNode().appendNode('build').appendNode('plugins')
         plugins
             .appendNode('plugin')
-                .appendNode('maven-compiler-plugin').parent()
+                .appendNode('artifactId','maven-compiler-plugin').parent()
                 .appendNode('configuration')
                     .appendNode('source','1.7').parent()
                     .appendNode('target','1.7')
         if(isWar) {
             plugins
                 .appendNode('plugin')
-                    .appendNode('maven-war-plugin').parent()
+                    .appendNode('artifactId','maven-war-plugin').parent()
                     .appendNode('version','2.3').parent()
                     .appendNode('configuration')
                         .appendNode('failOnMissingWebXml','false')

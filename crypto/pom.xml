@@ -71,7 +71,7 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
-      <version>3.2.17.RELEASE</version>
+      <version>3.2.18.RELEASE</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -84,7 +84,7 @@
   <build>
     <plugins>
       <plugin>
-        <maven-compiler-plugin/>
+        <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
           <source>1.7</source>
           <target>1.7</target>

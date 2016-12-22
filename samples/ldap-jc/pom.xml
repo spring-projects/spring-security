@@ -146,13 +146,13 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-jdbc</artifactId>
-      <version>3.2.17.RELEASE</version>
+      <version>3.2.18.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-webmvc</artifactId>
-      <version>3.2.17.RELEASE</version>
+      <version>3.2.18.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -213,7 +213,7 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
-      <version>3.2.17.RELEASE</version>
+      <version>3.2.18.RELEASE</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -226,14 +226,14 @@
   <build>
     <plugins>
       <plugin>
-        <maven-compiler-plugin/>
+        <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
           <source>1.7</source>
           <target>1.7</target>
         </configuration>
       </plugin>
       <plugin>
-        <maven-war-plugin/>
+        <artifactId>maven-war-plugin</artifactId>
         <version>2.3</version>
         <configuration>
           <failOnMissingWebXml>false</failOnMissingWebXml>
