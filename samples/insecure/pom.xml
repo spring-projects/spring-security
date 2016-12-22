@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-samples-insecure</artifactId>
-  <version>3.2.10.BUILD-SNAPSHOT</version>
+  <version>3.2.10.RELEASE</version>
   <packaging>war</packaging>
   <name>spring-security-samples-insecure</name>
   <description>spring-security-samples-insecure</description>
@@ -103,12 +103,6 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-  <repositories>
-    <repository>
-      <id>spring-snasphot</id>
-      <url>https://repo.spring.io/snapshot</url>
-    </repository>
-  </repositories>
   <build>
     <plugins>
       <plugin>
