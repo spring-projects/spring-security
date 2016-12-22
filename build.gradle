@@ -24,7 +24,7 @@ allprojects {
 
     ext.releaseBuild = version.endsWith('RELEASE')
     ext.snapshotBuild = version.endsWith('SNAPSHOT')
-    ext.springVersion = '3.2.17.RELEASE'
+    ext.springVersion = '3.2.18.RELEASE'
     ext.spring4Version = '4.1.6.RELEASE'
     ext.springLdapVersion = '1.3.2.RELEASE'
     ext.springLdap2Version = '2.0.1.RELEASE'
