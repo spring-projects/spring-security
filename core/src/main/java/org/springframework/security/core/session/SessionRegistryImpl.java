@@ -48,10 +48,22 @@ public class SessionRegistryImpl implements SessionRegistry,
 	protected final Log logger = LogFactory.getLog(SessionRegistryImpl.class);
 
 	/** <principal:Object,SessionIdSet> */
-	private final ConcurrentMap<Object, Set<String>> principals = new ConcurrentHashMap<Object, Set<String>>();
+	private final ConcurrentMap<Object, Set<String>> principals;
 	/** <sessionId:Object,SessionInformation> */
-	private final Map<String, SessionInformation> sessionIds = new ConcurrentHashMap<String, SessionInformation>();
+	private final Map<String, SessionInformation> sessionIds;
 
+	public SessionRegistryImpl()
+	{
+		this.principals = new ConcurrentHashMap<Object, Set<String>>();
+		sessionIds = new ConcurrentHashMap<String, SessionInformation>();
+	}
+	public SessionRegistryImpl(ConcurrentMap<Object, Set<String>> principals,Map<String, SessionInformation> sessionIds)
+	{
+		this.principals=principals;
+		this.sessionIds=sessionIds;
+	}
+	
+	
 	// ~ Methods
 	// ========================================================================================================
 
