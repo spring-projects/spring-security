@@ -1,11 +1,17 @@
 ### Global gh-pages pre-amble
 safe: true
 lsi: false
-pygments: true
-markdown: redcarpet
-redcarpet:
-  extensions: ["no_intra_emphasis", "fenced_code_blocks", "autolink", "tables", "with_toc_data"]
-
+highlighter: rouge
+markdown: kramdown
+encoding: UTF-8
+github: [metadata]
+kramdown:
+  input: GFM
+  hard_wrap: false
+  smart_quotes: ["apos", "apos", "quot", "quot"]
+gems:
+  - jekyll-coffeescript
+  - jekyll-paginate
 
 ### The following properties will change on a project-by-project basis
 
@@ -36,6 +42,6 @@ custom_gradle_template: false
 
 ### The following properties are constant for most projects
 
-main_site_url: http://spring.io
-projects_site_url: http://projects.spring.io
-questions_url: http://spring.io/questions
+main_site_url: https://spring.io
+projects_site_url: https://projects.spring.io
+questions_url: https://spring.io/questions
