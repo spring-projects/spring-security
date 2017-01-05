@@ -50,6 +50,8 @@ tasks["eclipseJdt"].dependsOn(eclipseJdtPrepare)
 tasks["cleanEclipse"].dependsOn(cleanEclipseJdtUi)
 tasks["eclipse"].dependsOn(eclipseCheckstyle, eclipseSettings, eclipseWstComponent)
 
+task eclipseConfiguration(dependsOn: [eclipseCheckstyle, eclipseSettings, eclipseWstComponent]) {
+}
 
 eclipse {
 	classpath {
