@@ -115,7 +115,11 @@ configure(coreModuleProjects) {
 	dependencyManagement {
 		springIoTestRuntime {
 			imports {
-				mavenBom "io.spring.platform:platform-bom:${springIoVersion}"
+				mavenBom("io.spring.platform:platform-bom:${springIoVersion}") {
+					bomProperties([
+						'mockito.version': '1.10.19'
+					])
+				}
 			}
 		}
 	}
