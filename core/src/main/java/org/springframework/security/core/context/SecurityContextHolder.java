@@ -17,6 +17,7 @@
 package org.springframework.security.core.context;
 
 import org.springframework.util.ReflectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Constructor;
 
@@ -93,7 +94,7 @@ public class SecurityContextHolder {
 	}
 
 	private static void initialize() {
-		if ((strategyName == null) || "".equals(strategyName)) {
+		if (!StringUtils.hasText(strategyName)) {
 			// Set default
 			strategyName = MODE_THREADLOCAL;
 		}
