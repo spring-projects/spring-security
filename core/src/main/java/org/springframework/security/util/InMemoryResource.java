@@ -52,7 +52,7 @@ public class InMemoryResource extends AbstractResource {
 	}
 
 	public InMemoryResource(byte[] source, String description) {
-		Assert.notNull(source);
+		Assert.notNull(source, "source cannot be null");
 		this.source = source;
 		this.description = description;
 	}

@@ -45,7 +45,7 @@ public class InteractiveAuthenticationSuccessEvent extends AbstractAuthenticatio
 	public InteractiveAuthenticationSuccessEvent(Authentication authentication,
 			Class<?> generatedBy) {
 		super(authentication);
-		Assert.notNull(generatedBy);
+		Assert.notNull(generatedBy, "generatedBy cannot be null");
 		this.generatedBy = generatedBy;
 	}
 

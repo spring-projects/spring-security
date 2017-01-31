@@ -157,7 +157,7 @@ public final class LdapUtils {
 	 * @return the root DN
 	 */
 	public static String parseRootDnFromUrl(String url) {
-		Assert.hasLength(url);
+		Assert.hasLength(url, "url must have length");
 
 		String urlRootDn;
 
@@ -187,7 +187,7 @@ public final class LdapUtils {
 	 */
 
 	private static URI parseLdapUrl(String url) {
-		Assert.hasLength(url);
+		Assert.hasLength(url, "url must have length");
 
 		try {
 			return new URI(url);

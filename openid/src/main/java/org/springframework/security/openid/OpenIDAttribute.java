@@ -45,7 +45,7 @@ public class OpenIDAttribute implements Serializable {
 	}
 
 	public OpenIDAttribute(String name, String type, List<String> values) {
-		Assert.notEmpty(values);
+		Assert.notEmpty(values, "values cannot be empty");
 		this.name = name;
 		this.typeIdentifier = type;
 		this.values = values;

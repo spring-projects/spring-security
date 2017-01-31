@@ -41,7 +41,7 @@ public class RememberMeAuthenticationProvider implements AuthenticationProvider,
 	private String key;
 
 	public RememberMeAuthenticationProvider(String key) {
-		Assert.hasLength(key);
+		Assert.hasLength(key, "key must have a length");
 		this.key = key;
 	}
 

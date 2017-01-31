@@ -387,7 +387,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 	}
 
 	public void setAttributesToRetrieve(String[] attributesToRetrieve) {
-		Assert.notNull(attributesToRetrieve);
+		Assert.notNull(attributesToRetrieve, "attributesToRetrieve cannot be null");
 		this.attributesToRetrieve = attributesToRetrieve;
 	}
 
@@ -406,7 +406,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 	 * members.
 	 */
 	public void setGroupMemberAttributeName(String groupMemberAttributeName) {
-		Assert.hasText(groupMemberAttributeName);
+		Assert.hasText(groupMemberAttributeName, "groupMemberAttributeName should have text");
 		this.groupMemberAttributeName = groupMemberAttributeName;
 		this.groupSearchFilter = "(" + groupMemberAttributeName + "={0})";
 	}

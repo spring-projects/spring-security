@@ -39,7 +39,7 @@ public class InMemoryUserRegistry implements UserRegistry {
 	public void registerUser(GaeUser newUser) {
 		logger.debug("Attempting to create new user " + newUser);
 
-		Assert.state(!users.containsKey(newUser.getUserId()));
+		Assert.isTrue(!users.containsKey(newUser.getUserId()), "user should not exist");
 
 		users.put(newUser.getUserId(), newUser);
 	}

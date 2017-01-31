@@ -119,7 +119,7 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator,
 	}
 
 	public void setMessageSource(MessageSource messageSource) {
-		Assert.notNull("Message source must not be null");
+		Assert.notNull(messageSource, "Message source must not be null");
 		this.messages = new MessageSourceAccessor(messageSource);
 	}
 

@@ -286,7 +286,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		private final X509Certificate[] certificates;
 
 		private X509RequestPostProcessor(X509Certificate... certificates) {
-			Assert.notNull("X509Certificate cannot be null");
+			Assert.notNull(certificates, "X509Certificate cannot be null");
 			this.certificates = certificates;
 		}
 

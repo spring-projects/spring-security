@@ -54,7 +54,7 @@ public class PreAuthenticatedGrantedAuthoritiesUserDetailsService implements
 	 */
 	public final UserDetails loadUserDetails(PreAuthenticatedAuthenticationToken token)
 			throws AuthenticationException {
-		Assert.notNull(token.getDetails());
+		Assert.notNull(token.getDetails(), "token.getDetails() cannot be null");
 		Assert.isInstanceOf(GrantedAuthoritiesContainer.class, token.getDetails());
 		Collection<? extends GrantedAuthority> authorities = ((GrantedAuthoritiesContainer) token
 				.getDetails()).getGrantedAuthorities();

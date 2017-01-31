@@ -29,7 +29,7 @@ public class ListAccounts implements Controller {
 	private final BankService bankService;
 
 	public ListAccounts(BankService bankService) {
-		Assert.notNull(bankService);
+		Assert.notNull(bankService, "bankService cannot be null");
 		this.bankService = bankService;
 	}
 

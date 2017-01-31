@@ -139,8 +139,8 @@ public class Person extends LdapUserDetailsImpl {
 
 		public LdapUserDetails createUserDetails() {
 			Person p = (Person) super.createUserDetails();
-			Assert.notNull(p.cn);
-			Assert.notEmpty(p.cn);
+			Assert.notNull(p.cn, "person.sn cannot be null");
+			Assert.notEmpty(p.cn, "person.cn cannot be empty");
 			// TODO: Check contents for null entries
 			return p;
 		}

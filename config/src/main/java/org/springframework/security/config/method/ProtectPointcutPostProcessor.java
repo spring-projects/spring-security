@@ -163,7 +163,7 @@ final class ProtectPointcutPostProcessor implements BeanPostProcessor {
 	}
 
 	public void setPointcutMap(Map<String, List<ConfigAttribute>> map) {
-		Assert.notEmpty(map);
+		Assert.notEmpty(map, "configAttributes cannot be empty");
 		for (String expression : map.keySet()) {
 			List<ConfigAttribute> value = map.get(expression);
 			addPointcut(expression, value);

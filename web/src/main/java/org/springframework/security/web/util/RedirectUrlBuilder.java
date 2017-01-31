@@ -68,8 +68,8 @@ public class RedirectUrlBuilder {
 	public String getUrl() {
 		StringBuilder sb = new StringBuilder();
 
-		Assert.notNull(scheme);
-		Assert.notNull(serverName);
+		Assert.notNull(scheme, "scheme cannot be null");
+		Assert.notNull(serverName, "serverName cannot be null");
 
 		sb.append(scheme).append("://").append(serverName);
 

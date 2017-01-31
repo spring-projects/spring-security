@@ -22,7 +22,7 @@ public class SeedData implements InitializingBean {
 	private BankDao bankDao;
 
 	public void afterPropertiesSet() throws Exception {
-		Assert.notNull(bankDao);
+		Assert.notNull(bankDao, "bankDao cannot be null");
 		bankDao.createOrUpdateAccount(new Account("rod"));
 		bankDao.createOrUpdateAccount(new Account("dianne"));
 		bankDao.createOrUpdateAccount(new Account("scott"));

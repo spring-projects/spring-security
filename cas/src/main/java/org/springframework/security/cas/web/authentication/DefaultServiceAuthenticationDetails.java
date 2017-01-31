@@ -132,7 +132,7 @@ final class DefaultServiceAuthenticationDetails extends WebAuthenticationDetails
 	 * @return
 	 */
 	static Pattern createArtifactPattern(String artifactParameterName) {
-		Assert.hasLength(artifactParameterName);
+		Assert.hasLength(artifactParameterName, "artifactParameterName is expected to have a length");
 		return Pattern.compile("&?" + Pattern.quote(artifactParameterName) + "=[^&]*");
 	}
 

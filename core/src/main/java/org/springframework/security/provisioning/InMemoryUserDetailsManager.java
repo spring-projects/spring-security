@@ -76,7 +76,7 @@ public class InMemoryUserDetailsManager implements UserDetailsManager {
 	}
 
 	public void createUser(UserDetails user) {
-		Assert.isTrue(!userExists(user.getUsername()));
+		Assert.isTrue(!userExists(user.getUsername()), "user should not exist");
 
 		users.put(user.getUsername().toLowerCase(), new MutableUser(user));
 	}
@@ -86,7 +86,7 @@ public class InMemoryUserDetailsManager implements UserDetailsManager {
 	}
 
 	public void updateUser(UserDetails user) {
-		Assert.isTrue(userExists(user.getUsername()));
+		Assert.isTrue(userExists(user.getUsername()), "user should exist");
 
 		users.put(user.getUsername().toLowerCase(), new MutableUser(user));
 	}

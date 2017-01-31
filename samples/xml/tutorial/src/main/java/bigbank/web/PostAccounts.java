@@ -31,7 +31,7 @@ public class PostAccounts implements Controller {
 	private final BankService bankService;
 
 	public PostAccounts(BankService bankService) {
-		Assert.notNull(bankService);
+		Assert.notNull(bankService, "bankService cannot be null");
 		this.bankService = bankService;
 	}
 

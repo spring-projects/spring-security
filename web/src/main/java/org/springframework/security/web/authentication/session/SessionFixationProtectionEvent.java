@@ -48,8 +48,8 @@ public class SessionFixationProtectionEvent extends AbstractAuthenticationEvent 
 	public SessionFixationProtectionEvent(Authentication authentication,
 			String oldSessionId, String newSessionId) {
 		super(authentication);
-		Assert.hasLength(oldSessionId);
-		Assert.hasLength(newSessionId);
+		Assert.hasLength(oldSessionId, "oldSessionId must have length");
+		Assert.hasLength(newSessionId, "newSessionId must have length");
 		this.oldSessionId = oldSessionId;
 		this.newSessionId = newSessionId;
 	}

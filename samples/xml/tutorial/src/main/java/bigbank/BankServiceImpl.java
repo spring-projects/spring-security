@@ -21,7 +21,7 @@ public class BankServiceImpl implements BankService {
 	private final BankDao bankDao;
 
 	public BankServiceImpl(BankDao bankDao) {
-		Assert.notNull(bankDao);
+		Assert.notNull(bankDao, "bankDao cannot be null");
 		this.bankDao = bankDao;
 	}
 
@@ -30,7 +30,7 @@ public class BankServiceImpl implements BankService {
 	}
 
 	public Account post(Account account, double amount) {
-		Assert.notNull(account);
+		Assert.notNull(account, "account cannot be null");
 
 		// We read account back from DAO so it reflects the latest balance
 		Account a = bankDao.readAccount(account.getId());

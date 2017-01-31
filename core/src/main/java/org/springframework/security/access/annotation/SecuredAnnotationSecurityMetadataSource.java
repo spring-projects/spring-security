@@ -49,7 +49,7 @@ public class SecuredAnnotationSecurityMetadataSource extends
 
 	public SecuredAnnotationSecurityMetadataSource(
 			AnnotationMetadataExtractor annotationMetadataExtractor) {
-		Assert.notNull(annotationMetadataExtractor);
+		Assert.notNull(annotationMetadataExtractor, "annotationMetadataExtractor cannot be null");
 		annotationExtractor = annotationMetadataExtractor;
 		annotationType = (Class<? extends Annotation>) GenericTypeResolver
 				.resolveTypeArgument(annotationExtractor.getClass(),

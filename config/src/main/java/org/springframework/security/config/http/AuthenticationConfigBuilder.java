@@ -481,7 +481,7 @@ final class AuthenticationConfigBuilder {
 							SimpleAttributes2GrantedAuthoritiesMapper.class));
 
 			String roles = jeeElt.getAttribute(ATT_MAPPABLE_ROLES);
-			Assert.state(StringUtils.hasText(roles));
+			Assert.hasLength(roles, "roles is expected to have length");
 			BeanDefinitionBuilder rolesBuilder = BeanDefinitionBuilder
 					.rootBeanDefinition(StringUtils.class);
 			rolesBuilder.addConstructorArgValue(roles);
