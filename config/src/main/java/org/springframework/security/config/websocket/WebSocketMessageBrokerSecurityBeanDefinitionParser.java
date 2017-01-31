@@ -255,8 +255,8 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 			for (String beanName : beanNames) {
 				BeanDefinition bd = registry.getBeanDefinition(beanName);
 				String beanClassName = bd.getBeanClassName();
-				if (beanClassName.equals(SimpAnnotationMethodMessageHandler.class
-						.getName()) || beanClassName.equals(WEB_SOCKET_AMMH_CLASS_NAME)) {
+				if (SimpAnnotationMethodMessageHandler.class.getName().equals(beanClassName) ||
+						WEB_SOCKET_AMMH_CLASS_NAME.equals(beanClassName)) {
 					PropertyValue current = bd.getPropertyValues().getPropertyValue(
 							CUSTOM_ARG_RESOLVERS_PROP);
 					ManagedList<Object> argResolvers = new ManagedList<Object>();
@@ -275,16 +275,16 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 						}
 					}
 				}
-				else if (beanClassName
-						.equals("org.springframework.web.socket.server.support.WebSocketHttpRequestHandler")) {
+				else if ("org.springframework.web.socket.server.support.WebSocketHttpRequestHandler"
+						.equals(beanClassName)) {
 					addCsrfTokenHandshakeInterceptor(bd);
 				}
-				else if (beanClassName
-						.equals("org.springframework.web.socket.sockjs.transport.TransportHandlingSockJsService")) {
+				else if ("org.springframework.web.socket.sockjs.transport.TransportHandlingSockJsService"
+						.equals(beanClassName)) {
 					addCsrfTokenHandshakeInterceptor(bd);
 				}
-				else if (beanClassName
-						.equals("org.springframework.web.socket.sockjs.transport.handler.DefaultSockJsService")) {
+				else if ("org.springframework.web.socket.sockjs.transport.handler.DefaultSockJsService"
+						.equals(beanClassName)) {
 					addCsrfTokenHandshakeInterceptor(bd);
 				}
 			}
