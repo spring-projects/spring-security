@@ -38,7 +38,7 @@ public class RoleHierarchyUtilsTests {
 		roleHierarchyMap.put("ROLE_B", asList("ROLE_D"));
 		roleHierarchyMap.put("ROLE_C", asList("ROLE_D"));
 
-		String roleHierarchy = RoleHierarchyUtils.roleHierarchyFromMap(roleHierarchyMap);
+		String roleHierarchy = RoleHierarchyUtils.roleHierarchyFromMap(roleHierarchyMap).replace("\r", "");
 
 		assertThat(roleHierarchy).isEqualTo(expectedRoleHierarchy);
 	}
