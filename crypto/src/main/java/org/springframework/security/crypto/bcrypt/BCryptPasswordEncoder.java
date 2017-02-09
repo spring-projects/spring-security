@@ -68,16 +68,16 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 		String salt;
 		if (strength > 0) {
 			if (random != null) {
-				salt = BCrypt.gensalt(strength, random);
+				salt = BCrypt.generateSalt(strength, random);
 			}
 			else {
-				salt = BCrypt.gensalt(strength);
+				salt = BCrypt.generateSalt(strength);
 			}
 		}
 		else {
-			salt = BCrypt.gensalt();
+			salt = BCrypt.generateSalt();
 		}
-		return BCrypt.hashpw(rawPassword.toString(), salt);
+		return BCrypt.hashPassword(rawPassword.toString(), salt);
 	}
 
 	public boolean matches(CharSequence rawPassword, String encodedPassword) {
@@ -91,6 +91,6 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 			return false;
 		}
 
-		return BCrypt.checkpw(rawPassword.toString(), encodedPassword);
+		return BCrypt.checkPassword(rawPassword.toString(), encodedPassword);
 	}
 }

@@ -26,14 +26,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class BCryptTests {
 
-	private static void print(String s) {
-		// System.out.print(s);
-	}
-
-	private static void println(String s) {
-		// System.out.println(s);
-	}
-
 	String test_vectors[][] = {
 			{ "", "$2a$06$DCq7YPn5Rq63x1Lad4cll.",
 					"$2a$06$DCq7YPn5Rq63x1Lad4cll.TV4S6ytwfsfvkgY8jIucDrjc8deX1s." },
@@ -77,88 +69,72 @@ public class BCryptTests {
 					"$2a$12$WApznUOJfkEGSmYRfnkrPOr466oFDCaj4b6HY3EXGvfxm43seyhgC" } };
 
 	/**
-	 * Test method for 'BCrypt.hashpw(String, String)'
+	 * Test method for 'BCrypt.hashPassword(String, String)'
 	 */
 	@Test
-	public void testHashpw() {
-		print("BCrypt.hashpw(): ");
+	public void hashPasswordIsOk() {
 		for (int i = 0; i < test_vectors.length; i++) {
 			String plain = test_vectors[i][0];
 			String salt = test_vectors[i][1];
 			String expected = test_vectors[i][2];
-			String hashed = BCrypt.hashpw(plain, salt);
+			String hashed = BCrypt.hashPassword(plain, salt);
 			assertThat(expected).isEqualTo(hashed);
-			print(".");
 		}
-		println("");
 	}
 
 	/**
-	 * Test method for 'BCrypt.gensalt(int)'
+	 * Test method for 'BCrypt.generateSalt(int)'
 	 */
 	@Test
-	public void testGensaltInt() {
-		print("BCrypt.gensalt(log_rounds):");
+	public void generateSaltInt() {
 		for (int i = 4; i <= 12; i++) {
-			print(" " + Integer.toString(i) + ":");
 			for (int j = 0; j < test_vectors.length; j += 4) {
 				String plain = test_vectors[j][0];
-				String salt = BCrypt.gensalt(i);
-				String hashed1 = BCrypt.hashpw(plain, salt);
-				String hashed2 = BCrypt.hashpw(plain, hashed1);
+				String salt = BCrypt.generateSalt(i);
+				String hashed1 = BCrypt.hashPassword(plain, salt);
+				String hashed2 = BCrypt.hashPassword(plain, hashed1);
 				assertThat(hashed2).isEqualTo(hashed1);
-				print(".");
 			}
 		}
-		println("");
 	}
 
 	/**
-	 * Test method for 'BCrypt.gensalt()'
+	 * Test method for 'BCrypt.generateSalt()'
 	 */
 	@Test
-	public void testGensalt() {
-		print("BCrypt.gensalt(): ");
+	public void generateSalt() {
 		for (int i = 0; i < test_vectors.length; i += 4) {
 			String plain = test_vectors[i][0];
-			String salt = BCrypt.gensalt();
-			String hashed1 = BCrypt.hashpw(plain, salt);
-			String hashed2 = BCrypt.hashpw(plain, hashed1);
+			String salt = BCrypt.generateSalt();
+			String hashed1 = BCrypt.hashPassword(plain, salt);
+			String hashed2 = BCrypt.hashPassword(plain, hashed1);
 			assertThat(hashed2).isEqualTo(hashed1);
-			print(".");
 		}
-		println("");
 	}
 
 	/**
-	 * Test method for 'BCrypt.checkpw(String, String)' expecting success
+	 * Test method for 'BCrypt.checkPassword(String, String)' expecting success
 	 */
 	@Test
-	public void testCheckpw_success() {
-		print("BCrypt.checkpw w/ good passwords: ");
+	public void checkPasswordWithSuccess() {
 		for (int i = 0; i < test_vectors.length; i++) {
 			String plain = test_vectors[i][0];
 			String expected = test_vectors[i][2];
-			assertThat(BCrypt.checkpw(plain, expected)).isTrue();
-			print(".");
+			assertThat(BCrypt.checkPassword(plain, expected)).isTrue();
 		}
-		println("");
 	}
 
 	/**
-	 * Test method for 'BCrypt.checkpw(String, String)' expecting failure
+	 * Test method for 'BCrypt.checkPassword(String, String)' expecting failure
 	 */
 	@Test
-	public void testCheckpw_failure() {
-		print("BCrypt.checkpw w/ bad passwords: ");
+	public void checkingPasswordFails() {
 		for (int i = 0; i < test_vectors.length; i++) {
 			int broken_index = (i + 4) % test_vectors.length;
 			String plain = test_vectors[i][0];
 			String expected = test_vectors[broken_index][2];
-			assertThat(BCrypt.checkpw(plain, expected)).isFalse();
-			print(".");
+			assertThat(BCrypt.checkPassword(plain, expected)).isFalse();
 		}
-		println("");
 	}
 
 	/**
@@ -166,18 +142,14 @@ public class BCryptTests {
 	 */
 	@Test
 	public void testInternationalChars() {
-		print("BCrypt.hashpw w/ international chars: ");
 		String pw1 = "ππππππππ";
 		String pw2 = "????????";
 
-		String h1 = BCrypt.hashpw(pw1, BCrypt.gensalt());
-		assertThat(BCrypt.checkpw(pw2, h1)).isFalse();
-		print(".");
+		String h1 = BCrypt.hashPassword(pw1, BCrypt.generateSalt());
+		assertThat(BCrypt.checkPassword(pw2, h1)).isFalse();
 
-		String h2 = BCrypt.hashpw(pw2, BCrypt.gensalt());
-		assertThat(BCrypt.checkpw(pw1, h2)).isFalse();
-		print(".");
-		println("");
+		String h2 = BCrypt.hashPassword(pw2, BCrypt.generateSalt());
+		assertThat(BCrypt.checkPassword(pw1, h2)).isFalse();
 	}
 
 	@Test
@@ -258,43 +230,43 @@ public class BCryptTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void genSaltFailsWithTooFewRounds() {
-		BCrypt.gensalt(3);
+		BCrypt.generateSalt(3);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void genSaltFailsWithTooManyRounds() {
-		BCrypt.gensalt(32);
+		BCrypt.generateSalt(32);
 	}
 
 	@Test
 	public void genSaltGeneratesCorrectSaltPrefix() {
-		assertThat(BCrypt.gensalt(4).startsWith("$2a$04$")).isTrue();
-		assertThat(BCrypt.gensalt(31).startsWith("$2a$31$")).isTrue();
+		assertThat(BCrypt.generateSalt(4).startsWith("$2a$04$")).isTrue();
+		assertThat(BCrypt.generateSalt(31).startsWith("$2a$31$")).isTrue();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void hashpwFailsWhenSaltIsNull() {
-		BCrypt.hashpw("password", null);
+		BCrypt.hashPassword("password", null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void hashpwFailsWhenSaltSpecifiesTooFewRounds() {
-		BCrypt.hashpw("password", "$2a$03$......................");
+		BCrypt.hashPassword("password", "$2a$03$......................");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void hashpwFailsWhenSaltSpecifiesTooManyRounds() {
-		BCrypt.hashpw("password", "$2a$32$......................");
+		BCrypt.hashPassword("password", "$2a$32$......................");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void saltLengthIsChecked() {
-		BCrypt.hashpw("", "");
+		BCrypt.hashPassword("", "");
 	}
 
 	@Test
 	public void hashpwWorksWithOldRevision() {
-		assertThat(BCrypt.hashpw("password", "$2$05$......................")).isEqualTo(
+		assertThat(BCrypt.hashPassword("password", "$2$05$......................")).isEqualTo(
 				"$2$05$......................bvpG2UfzdyW/S0ny/4YyEZrmczoJfVm");
 	}
 
