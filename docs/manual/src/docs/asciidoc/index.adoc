@@ -2777,7 +2777,7 @@ It's also possible to supply a custom `AccessDeniedHandler` when you're using th
 
 [[request-caching]]
 ==== SavedRequest s and the RequestCache Interface
-Another responsibility of `ExceptionTranslationFilter` responsibilities is to save the current request before invoking the `AuthenticationEntryPoint`. This allows the request to be restored after the use has authenticated (see previous overview of <<tech-intro-web-authentication,web authentication>>). A typical example would be where the user logs in with a form, and is then redirected to the original URL by the default `SavedRequestAwareAuthenticationSuccessHandler` (see <<form-login-flow-handling,below>>).
+Another responsibility of `ExceptionTranslationFilter` responsibilities is to save the current request before invoking the `AuthenticationEntryPoint`. This allows the request to be restored after the user has authenticated (see previous overview of <<tech-intro-web-authentication,web authentication>>). A typical example would be where the user logs in with a form, and is then redirected to the original URL by the default `SavedRequestAwareAuthenticationSuccessHandler` (see <<form-login-flow-handling,below>>).
 
 The `RequestCache` encapsulates the functionality required for storing and retrieving `HttpServletRequest` instances. By default the `HttpSessionRequestCache` is used, which stores the request in the `HttpSession`. The `RequestCacheFilter` has the job of actually restoring the saved request from the cache when the user is redirected to the original URL.
 
