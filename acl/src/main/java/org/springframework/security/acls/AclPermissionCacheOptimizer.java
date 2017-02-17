@@ -68,7 +68,7 @@ public class AclPermissionCacheOptimizer implements PermissionCacheOptimizer {
 			logger.debug("Eagerly loading Acls for " + oidsToCache.size() + " objects");
 		}
 
-		aclService.readAclsById(oidsToCache, sids);
+		aclService.getPresentAclsById(oidsToCache, sids);
 	}
 
 	public void setObjectIdentityRetrievalStrategy(
