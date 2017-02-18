@@ -94,6 +94,24 @@ public class NamespaceHttpBasicTests {
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
 	}
 
+	// gh-4220
+	@Test
+	public void httpBasicUnauthorizedOnDefault() throws Exception {
+		// @formatter:off
+		loadContext("<http>\n" +
+			"		<intercept-url pattern=\"/**\" access=\"hasRole('USER')\" />\n" +
+			"		<http-basic />\n" +
+			"	</http>\n" +
+			"\n" +
+			"	<authentication-manager />");
+		// @formatter:on
+
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
+		assertThat(this.response.getHeader("WWW-Authenticate")).isEqualTo("Basic realm=\"Realm\"");
+	}
+
 	private void loadContext(String context) {
 		this.context = new InMemoryXmlApplicationContext(context);
 		this.springSecurityFilterChain = this.context.getBean("springSecurityFilterChain",

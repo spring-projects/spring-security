@@ -70,7 +70,7 @@ final class AuthenticationConfigBuilder {
 	private final Log logger = LogFactory.getLog(getClass());
 
 	private static final String ATT_REALM = "realm";
-	private static final String DEF_REALM = "Spring Security Application";
+	private static final String DEF_REALM = "Realm";
 
 	static final String OPEN_ID_AUTHENTICATION_PROCESSING_FILTER_CLASS = "org.springframework.security.openid.OpenIDAuthenticationFilter";
 	static final String OPEN_ID_AUTHENTICATION_PROVIDER_CLASS = "org.springframework.security.openid.OpenIDAuthenticationProvider";
