@@ -1228,7 +1228,7 @@
          <xs:annotation>
             <xs:documentation>Optional attribute specifying the realm name that will be used for all authentication
                 features that require a realm name (eg BASIC and Digest authentication). If unspecified,
-                defaults to "Spring Security Application".
+                defaults to "Realm".
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>

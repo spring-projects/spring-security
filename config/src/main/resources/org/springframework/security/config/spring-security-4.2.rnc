@@ -336,7 +336,7 @@ http.attlist &=
 	## Optional attribute specifying the ID of the AccessDecisionManager implementation which should be used for authorizing HTTP requests.
 	attribute access-decision-manager-ref {xsd:token}?
 http.attlist &=
-	## Optional attribute specifying the realm name that will be used for all authentication features that require a realm name (eg BASIC and Digest authentication). If unspecified, defaults to "Spring Security Application".
+	## Optional attribute specifying the realm name that will be used for all authentication features that require a realm name (eg BASIC and Digest authentication). If unspecified, defaults to "Realm".
 	attribute realm {xsd:token}?
 http.attlist &=
 	## Allows a customized AuthenticationEntryPoint to be set on the ExceptionTranslationFilter.

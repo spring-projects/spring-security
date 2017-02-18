@@ -1096,7 +1096,7 @@ public final class HttpSecurity extends
 	 * <h2>Example Configuration</h2>
 	 *
 	 * The example below demonstrates how to configure HTTP Basic authentication for an
-	 * application. The default realm is "Spring Security Application", but can be
+	 * application. The default realm is "Realm", but can be
 	 * customized using {@link HttpBasicConfigurer#realmName(String)}.
 	 *
 	 * <pre>
