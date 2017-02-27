@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@ public class SCryptPasswordEncoderTests {
 
 	@Test
 	public void samePasswordWithDifferentParams() {
-		SCryptPasswordEncoder oldEncoder = new SCryptPasswordEncoder(512, 8, 4, 64, 16);
+		SCryptPasswordEncoder oldEncoder = new SCryptPasswordEncoder(16384, 8, 1, 32,64);
 		SCryptPasswordEncoder newEncoder = new SCryptPasswordEncoder();
 
 		String password = "secret";
