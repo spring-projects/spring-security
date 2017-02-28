@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 the original author or authors.
+ * Copyright 2011-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ package org.springframework.security.crypto.util;
  * For internal use only.
  *
  * @author Keith Donald
+ * @author Guillaume Wallet
  */
 public class EncodingUtils {
 
@@ -57,4 +58,20 @@ public class EncodingUtils {
 	private EncodingUtils() {
 	}
 
+	/**
+	 * Constant time comparison to prevent against timing attacks.
+	 * @param expected the expected array
+	 * @param actual the given array to compare
+	 */
+	public static boolean timeConstantArrayEquals(byte[] expected, byte[] actual) {
+		if (expected.length != actual.length) {
+			return false;
+		}
+
+		int result = 0;
+		for (int i = 0; i < expected.length; i++) {
+			result |= expected[i] ^ actual[i];
+		}
+		return result == 0;
+	}
 }
