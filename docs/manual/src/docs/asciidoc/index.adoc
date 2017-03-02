@@ -7715,7 +7715,7 @@ The attributes on the `<cors>` element control the headers element.
 Optional attribute that specifies the bean name of a `CorsFilter`.
 
 [[nsa-cors-configuration-source-ref]]
-* **ref**
+* **cors-configuration-source-ref**
 Optional attribute that specifies the bean name of a `CorsConfigurationSource` to be injected into a `CorsFilter` created by the XML namespace.
 
 [[nsa-cors-parents]]
