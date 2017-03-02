@@ -35,4 +35,24 @@ public class UrlUtilsTests {
 		assertThat(UrlUtils.isAbsoluteUrl("zz+zz.zz-zz://something/")).isTrue();
 	}
 
+	@Test
+	public void isAbsoluteUrlWhenNullThenFalse() {
+		assertThat(UrlUtils.isAbsoluteUrl(null)).isFalse();
+	}
+
+	@Test
+	public void isAbsoluteUrlWhenEmptyThenFalse() {
+		assertThat(UrlUtils.isAbsoluteUrl("")).isFalse();
+	}
+
+	@Test
+	public void isValidRedirectUrlWhenNullThenFalse() {
+		assertThat(UrlUtils.isValidRedirectUrl(null)).isFalse();
+	}
+
+	@Test
+	public void isValidRedirectUrlWhenEmptyThenFalse() {
+		assertThat(UrlUtils.isValidRedirectUrl("")).isFalse();
+	}
+
 }

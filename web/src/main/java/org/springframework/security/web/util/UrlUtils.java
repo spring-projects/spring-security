@@ -129,7 +129,7 @@ public final class UrlUtils {
 	 * Returns true if the supplied URL starts with a "/" or is absolute.
 	 */
 	public static boolean isValidRedirectUrl(String url) {
-		return url != null && url.startsWith("/") || isAbsoluteUrl(url);
+		return url != null && (url.startsWith("/") || isAbsoluteUrl(url));
 	}
 
 	/**
@@ -137,6 +137,9 @@ public final class UrlUtils {
 	 * defined in RFC 1738.
 	 */
 	public static boolean isAbsoluteUrl(String url) {
+		if(url == null) {
+			return false;
+		}
 		final Pattern ABSOLUTE_URL = Pattern.compile("\\A[a-z0-9.+-]+://.*",
 				Pattern.CASE_INSENSITIVE);
 
