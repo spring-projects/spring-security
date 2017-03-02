@@ -86,7 +86,7 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
 		if (!namespaceMatchesVersion(element)) {
 			pc.getReaderContext()
 					.fatal("You cannot use a spring-security-2.0.xsd or spring-security-3.0.xsd or spring-security-3.1.xsd schema or spring-security-3.2.xsd schema or spring-security-4.0.xsd schema "
-							+ "with Spring Security 4.1. Please update your schema declarations to the 4.1 schema.",
+							+ "with Spring Security 4.2. Please update your schema declarations to the 4.2 schema.",
 							element);
 		}
 		String name = pc.getDelegate().getLocalName(element);
