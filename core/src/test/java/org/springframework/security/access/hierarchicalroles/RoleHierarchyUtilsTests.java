@@ -28,10 +28,16 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Joe Grandja
  */
 public class RoleHierarchyUtilsTests {
+	private static final String EOL = System.lineSeparator();
 
 	@Test
 	public void roleHierarchyFromMapWhenMapValidThenConvertsCorrectly() throws Exception {
-		String expectedRoleHierarchy = "ROLE_A > ROLE_B\nROLE_A > ROLE_C\nROLE_B > ROLE_D\nROLE_C > ROLE_D\n";
+		// @formatter:off
+		String expectedRoleHierarchy = "ROLE_A > ROLE_B" + EOL +
+				"ROLE_A > ROLE_C" + EOL +
+				"ROLE_B > ROLE_D" + EOL +
+				"ROLE_C > ROLE_D" + EOL;
+		// @formatter:on
 
 		Map<String, List<String>> roleHierarchyMap = new TreeMap<String, List<String>>();
 		roleHierarchyMap.put("ROLE_A", asList("ROLE_B", "ROLE_C"));
