@@ -464,6 +464,23 @@ public class SwitchUserFilterTests {
 		assertThat(switchAuthorityRole).isEqualTo(switchedFrom.getAuthority());
 	}
 
+	@Test(expected = IllegalArgumentException.class)
+	public void setSwitchFailureUrlWhenNullThenThrowException() {
+		SwitchUserFilter filter = new SwitchUserFilter();
+		filter.setSwitchFailureUrl(null);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void setSwitchFailureUrlWhenEmptyThenThrowException() {
+		SwitchUserFilter filter = new SwitchUserFilter();
+		filter.setSwitchFailureUrl("");
+	}
+
+	@Test
+	public void setSwitchFailureUrlWhenValidThenNoException() {
+		SwitchUserFilter filter = new SwitchUserFilter();
+		filter.setSwitchFailureUrl("/foo");
+	}
 	// ~ Inner Classes
 	// ==================================================================================================
 

@@ -58,7 +58,6 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
 
 /**
@@ -494,10 +493,8 @@ public class SwitchUserFilter extends GenericFilterBean
 	 * @param switchFailureUrl the url to redirect to.
 	 */
 	public void setSwitchFailureUrl(String switchFailureUrl) {
-		Assert.isTrue(
-				StringUtils.hasText(this.switchUserUrl)
-						&& UrlUtils.isValidRedirectUrl(switchFailureUrl),
-				"switchFailureUrl cannot be empty and must be a valid redirect URL");
+		Assert.isTrue(UrlUtils.isValidRedirectUrl(switchFailureUrl),
+				"switchFailureUrl must be a valid redirect URL");
 		this.switchFailureUrl = switchFailureUrl;
 	}
 
