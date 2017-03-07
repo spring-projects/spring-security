@@ -1,0 +1,12 @@
+
+dependencies {
+	compile project(":spring-security-core"),
+			project(":spring-security-web"),
+			project(":spring-security-config"),
+			project(":spring-security-oauth2-core"),
+			springCoreDependency,
+			"org.springframework:spring-web:$springVersion",
+			"com.nimbusds:oauth2-oidc-sdk:5.21"
+
+	provided "javax.servlet:javax.servlet-api:$servletApiVersion"
+}
