@@ -113,7 +113,7 @@ public class FrameOptionsHeaderWriterTests {
 	public void writeHeadersTwiceLastWins() {
 		writer = new XFrameOptionsHeaderWriter(XFrameOptionsMode.SAMEORIGIN);
 		writer.writeHeaders(request, response);
-		
+
 		writer = new XFrameOptionsHeaderWriter(XFrameOptionsMode.DENY);
 		writer.writeHeaders(request, response);
 
