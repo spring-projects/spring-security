@@ -159,7 +159,7 @@
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
-      <version>2.2.0</version>
+      <version>3.6.2</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -189,7 +189,7 @@
     <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-api-mockito</artifactId>
-      <version>1.6.2</version>
+      <version>1.6.5</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -201,7 +201,7 @@
     <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-api-support</artifactId>
-      <version>1.6.2</version>
+      <version>1.6.5</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -213,7 +213,7 @@
     <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-core</artifactId>
-      <version>1.6.2</version>
+      <version>1.6.5</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -225,7 +225,7 @@
     <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-module-junit4</artifactId>
-      <version>1.6.2</version>
+      <version>1.6.5</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -237,7 +237,7 @@
     <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-module-junit4-common</artifactId>
-      <version>1.6.2</version>
+      <version>1.6.5</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -249,7 +249,7 @@
     <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-reflect</artifactId>
-      <version>1.6.2</version>
+      <version>1.6.5</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
