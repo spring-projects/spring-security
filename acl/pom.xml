@@ -22,7 +22,12 @@
     <developer>
       <id>rwinch</id>
       <name>Rob Winch</name>
-      <email>rwinch@gopivotal.com</email>
+      <email>rwinch@pivotal.io</email>
+    </developer>
+    <developer>
+      <id>jgrandja</id>
+      <name>Joe Grandja</name>
+      <email>jgrandja@pivotal.io</email>
     </developer>
   </developers>
   <scm>
@@ -162,8 +167,8 @@
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
-          <source>1.7</source>
-          <target>1.7</target>
+          <source>1.8</source>
+          <target>1.8</target>
         </configuration>
       </plugin>
     </plugins>

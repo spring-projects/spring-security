@@ -67,7 +67,12 @@ def customizePom(pom, gradleProject) {
 			developer {
 				id = 'rwinch'
 				name = 'Rob Winch'
-				email = 'rwinch@gopivotal.com'
+				email = 'rwinch@pivotal.io'
+			}
+			developer {
+				id = 'jgrandja'
+				name = 'Joe Grandja'
+				email = 'jgrandja@pivotal.io'
 			}
 		}
 
@@ -113,8 +118,8 @@ def customizePom(pom, gradleProject) {
 			.appendNode('plugin')
 				.appendNode('artifactId','maven-compiler-plugin').parent()
 				.appendNode('configuration')
-					.appendNode('source','1.7').parent()
-					.appendNode('target','1.7')
+					.appendNode('source','1.8').parent()
+					.appendNode('target','1.8')
 		if(isWar) {
 			plugins
 				.appendNode('plugin')
