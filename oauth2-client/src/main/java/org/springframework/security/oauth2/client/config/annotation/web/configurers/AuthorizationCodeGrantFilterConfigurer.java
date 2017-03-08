@@ -16,7 +16,6 @@
 package org.springframework.security.oauth2.client.config.annotation.web.configurers;
 
 import org.springframework.context.ApplicationContext;
-import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeGrantAuthenticationProvider;
@@ -28,15 +27,9 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.userdetails.UserInfoUserDetailsService;
 import org.springframework.security.oauth2.client.userdetails.nimbus.NimbusUserInfoUserDetailsService;
 import org.springframework.security.oauth2.core.userdetails.OAuth2UserDetails;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -119,11 +112,6 @@ final class AuthorizationCodeGrantFilterConfigurer<H extends HttpSecurityBuilder
 	public void configure(H http) throws Exception {
 		AuthorizationCodeGrantProcessingFilter authFilter = this.getAuthenticationFilter();
 		authFilter.setClientRegistrationRepository(this.getClientRegistrationRepository());
-
-		// TODO Temporary workaround
-		// 		Remove this after we add an order in FilterComparator for AuthorizationCodeGrantProcessingFilter
-		this.addObjectPostProcessor(new OrderedFilterWrappingPostProcessor());
-
 		super.configure(http);
 	}
 
@@ -163,24 +151,5 @@ final class AuthorizationCodeGrantFilterConfigurer<H extends HttpSecurityBuilder
 					.forEach(e -> this.userInfoUserDetailsService.mapUserInfoType(e.getValue(), e.getKey()));
 		}
 		return this.userInfoUserDetailsService;
-	}
-
-	// TODO Temporary workaround
-	// 		Remove this after we add an order in FilterComparator for AuthorizationCodeGrantProcessingFilter
-	private final class OrderedFilterWrappingPostProcessor implements ObjectPostProcessor<Object> {
-
-		@SuppressWarnings({ "rawtypes", "unchecked" })
-		public Object postProcess(final Object delegateFilter) {
-			UsernamePasswordAuthenticationFilter orderedFilter = new UsernamePasswordAuthenticationFilter() {
-				@Override
-				public void doFilter(ServletRequest request, ServletResponse response,
-										FilterChain chain) throws IOException, ServletException {
-
-					((AuthorizationCodeGrantProcessingFilter)delegateFilter).doFilter(request, response, chain);
-				}
-			};
-			return orderedFilter;
-		}
-
 	}
 }

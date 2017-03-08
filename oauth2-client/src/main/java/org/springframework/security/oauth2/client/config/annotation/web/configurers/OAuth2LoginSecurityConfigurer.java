@@ -16,7 +16,6 @@
 package org.springframework.security.oauth2.client.config.annotation.web.configurers;
 
 import org.springframework.context.ApplicationContext;
-import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -29,14 +28,8 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.client.userdetails.UserInfoUserDetailsService;
 import org.springframework.security.oauth2.core.userdetails.OAuth2UserDetails;
-import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.util.Assert;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Map;
@@ -175,29 +168,6 @@ public final class OAuth2LoginSecurityConfigurer<B extends HttpSecurityBuilder<B
 				this.authorizationRequestRedirectFilterConfigurer.getAuthorizationProcessingUri());
 		loginPageGeneratingFilter.setLoginEnabled(true);
 
-		// TODO Temporary workaround
-		// 		Remove this after we add an order in FilterComparator for DefaultOAuth2LoginPageGeneratingFilter
-		this.addObjectPostProcessor(new OrderedFilterWrappingPostProcessor());
-
 		http.addFilter(this.postProcess(loginPageGeneratingFilter));
-	}
-
-	// TODO Temporary workaround
-	// 		Remove this after we add an order in FilterComparator for DefaultOAuth2LoginPageGeneratingFilter
-	private final class OrderedFilterWrappingPostProcessor implements ObjectPostProcessor<Object> {
-
-		@SuppressWarnings({ "rawtypes", "unchecked" })
-		public Object postProcess(final Object delegateFilter) {
-			DefaultLoginPageGeneratingFilter orderedFilter = new DefaultLoginPageGeneratingFilter() {
-
-				@Override
-				public void doFilter(ServletRequest request, ServletResponse response,
-										FilterChain chain) throws IOException, ServletException {
-
-					((DefaultOAuth2LoginPageGeneratingFilter)delegateFilter).doFilter(request, response, chain);
-				}
-			};
-			return orderedFilter;
-		}
 	}
 }

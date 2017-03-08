@@ -16,22 +16,13 @@
 package org.springframework.security.oauth2.client.config.annotation.web.configurers;
 
 import org.springframework.context.ApplicationContext;
-import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.oauth2.client.authorization.AuthorizationRequestRedirectFilter;
 import org.springframework.security.oauth2.client.authorization.AuthorizationRequestUriBuilder;
 import org.springframework.security.oauth2.client.authorization.DefaultAuthorizationRequestUriBuilder;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.util.Assert;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 
 import static org.springframework.security.oauth2.client.config.annotation.web.configurers.OAuth2LoginSecurityConfigurer.getDefaultClientRegistrationRepository;
 
@@ -71,10 +62,6 @@ final class AuthorizationRequestRedirectFilterConfigurer<B extends HttpSecurityB
 				this.getClientRegistrationRepository(),
 				this.getAuthorizationRequestBuilder());
 
-		// TODO Temporary workaround
-		// 		Remove this after we add an order in FilterComparator for AuthorizationRequestRedirectFilter
-		this.addObjectPostProcessor(new OrderedFilterWrappingPostProcessor());
-
 		http.addFilter(this.postProcess(filter));
 	}
 
@@ -97,34 +84,5 @@ final class AuthorizationRequestRedirectFilterConfigurer<B extends HttpSecurityB
 			this.authorizationRequestBuilder = new DefaultAuthorizationRequestUriBuilder();
 		}
 		return this.authorizationRequestBuilder;
-	}
-
-	// TODO Temporary workaround
-	// 		Remove this after we add an order in FilterComparator for AuthorizationRequestRedirectFilter
-	private final class OrderedFilterWrappingPostProcessor implements ObjectPostProcessor<Object> {
-
-		@SuppressWarnings({ "rawtypes", "unchecked" })
-		public Object postProcess(final Object delegateFilter) {
-			AbstractPreAuthenticatedProcessingFilter orderedFilter = new AbstractPreAuthenticatedProcessingFilter() {
-
-				@Override
-				public void doFilter(ServletRequest request, ServletResponse response,
-										FilterChain chain) throws IOException, ServletException {
-
-					((AuthorizationRequestRedirectFilter)delegateFilter).doFilter(request, response, chain);
-				}
-
-				@Override
-				protected Object getPreAuthenticatedPrincipal(HttpServletRequest request) {
-					return null;
-				}
-
-				@Override
-				protected Object getPreAuthenticatedCredentials(HttpServletRequest request) {
-					return null;
-				}
-			};
-			return orderedFilter;
-		}
 	}
 }
