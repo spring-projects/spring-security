@@ -106,7 +106,7 @@ configure(coreModuleProjects) {
 	apply plugin: 'emma'
 	apply plugin: 'spring-io'
 
-	ext.springIoVersion = project.hasProperty('platformVersion') ? platformVersion : 'Athens-BUILD-SNAPSHOT'
+	ext.springIoVersion = project.hasProperty('platformVersion') ? platformVersion : 'Cairo-BUILD-SNAPSHOT'
 
 	configurations {
 		jacoco //Configuration Group used by Sonar to provide Code Coverage using JaCoCo

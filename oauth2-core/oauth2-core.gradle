@@ -1,0 +1,8 @@
+
+dependencies {
+	compile project(":spring-security-core"),
+			springCoreDependency,
+			"org.springframework:spring-web:$springVersion"
+
+	provided "javax.servlet:javax.servlet-api:$servletApiVersion"
+}

@@ -331,9 +331,9 @@ public class SecurityContextHolderAwareRequestFilterTests {
 		DelegatingSecurityContextRunnable wrappedRunnable = (DelegatingSecurityContextRunnable) runnableCaptor
 				.getValue();
 		assertThat(
-				WhiteboxImpl.getInternalState(wrappedRunnable, "delegateSecurityContext"))
+				WhiteboxImpl.<SecurityContext>getInternalState(wrappedRunnable, "delegateSecurityContext"))
 						.isEqualTo(context);
-		assertThat(WhiteboxImpl.getInternalState(wrappedRunnable, "delegate"))
+		assertThat(WhiteboxImpl.<SecurityContext>getInternalState(wrappedRunnable, "delegate"))
 				.isEqualTo(runnable);
 	}
 
@@ -361,9 +361,9 @@ public class SecurityContextHolderAwareRequestFilterTests {
 		DelegatingSecurityContextRunnable wrappedRunnable = (DelegatingSecurityContextRunnable) runnableCaptor
 				.getValue();
 		assertThat(
-				WhiteboxImpl.getInternalState(wrappedRunnable, "delegateSecurityContext"))
+				WhiteboxImpl.<SecurityContext>getInternalState(wrappedRunnable, "delegateSecurityContext"))
 						.isEqualTo(context);
-		assertThat(WhiteboxImpl.getInternalState(wrappedRunnable, "delegate"))
+		assertThat(WhiteboxImpl.<SecurityContext>getInternalState(wrappedRunnable, "delegate"))
 				.isEqualTo(runnable);
 	}
 
@@ -392,9 +392,9 @@ public class SecurityContextHolderAwareRequestFilterTests {
 		DelegatingSecurityContextRunnable wrappedRunnable = (DelegatingSecurityContextRunnable) runnableCaptor
 				.getValue();
 		assertThat(
-				WhiteboxImpl.getInternalState(wrappedRunnable, "delegateSecurityContext"))
+				WhiteboxImpl.<SecurityContext>getInternalState(wrappedRunnable, "delegateSecurityContext"))
 						.isEqualTo(context);
-		assertThat(WhiteboxImpl.getInternalState(wrappedRunnable, "delegate"))
+		assertThat(WhiteboxImpl.<SecurityContext>getInternalState(wrappedRunnable, "delegate"))
 				.isEqualTo(runnable);
 	}
 

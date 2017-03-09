@@ -1,0 +1,55 @@
+server:
+  port: 8080
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: INFO
+    org.springframework.security: INFO
+
+spring:
+  profiles:
+    active: google-login
+  thymeleaf:
+    cache: false
+
+security:
+  oauth2:
+    client:
+      google:
+        client-id: your-app-client-id
+        client-secret: your-app-client-secret
+        redirect-uri: http://localhost:8080/oauth2/client/google
+        authorized-grant-type: authorization_code
+        scopes: openid, email, profile
+        authorization-uri: https://accounts.google.com/o/oauth2/auth
+        token-uri: https://accounts.google.com/o/oauth2/token
+        user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+        open-id-provider: true
+        client-name: Google Client
+        client-alias: google
+      github:
+        client-id: your-app-client-id
+        client-secret: your-app-client-secret
+        redirect-uri: http://localhost:8080/oauth2/client/github
+        authorized-grant-type: authorization_code
+        scopes: user
+        authorization-uri: https://github.com/login/oauth/authorize
+        token-uri: https://github.com/login/oauth/access_token
+        user-info-uri: https://api.github.com/user
+        open-id-provider: false
+        client-name: Github Client
+        client-alias: github
+      facebook:
+        client-id: your-app-client-id
+        client-secret: your-app-client-secret
+        redirect-uri: http://localhost:8080/oauth2/client/facebook
+        client-authentication-method: form
+        authorized-grant-type: authorization_code
+        scopes: public_profile, email
+        authorization-uri: https://www.facebook.com/v2.8/dialog/oauth
+        token-uri: https://graph.facebook.com/v2.8/oauth/access_token
+        user-info-uri: https://graph.facebook.com/me
+        open-id-provider: false
+        client-name: Facebook Client
+        client-alias: facebook

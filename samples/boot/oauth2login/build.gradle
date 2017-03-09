@@ -1,0 +1,19 @@
+apply from: BOOT_SAMPLE_GRADLE
+
+springBoot {
+    mainClass = 'org.springframework.security.samples.OAuth2LoginApplication'
+}
+
+dependencies {
+    compile "org.springframework.boot:spring-boot-starter-web",
+			"org.springframework.boot:spring-boot-starter-security",
+            "org.springframework.boot:spring-boot-starter-thymeleaf",
+			"org.thymeleaf.extras:thymeleaf-extras-springsecurity4:2.1.3.RELEASE",
+			project(":spring-security-web"),
+            project(":spring-security-config"),
+			project(":spring-security-oauth2-client")
+
+    testCompile "org.springframework.boot:spring-boot-starter-test",
+            project(":spring-security-test"),
+			"net.sourceforge.htmlunit:htmlunit:2.24"
+}
