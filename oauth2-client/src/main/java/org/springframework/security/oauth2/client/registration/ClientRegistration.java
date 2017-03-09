@@ -21,7 +21,6 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -218,7 +217,7 @@ public class ClientRegistration {
 		private URI toURI(String uriStr) {
 			try {
 				return new URI(uriStr);
-			} catch (URISyntaxException ex) {
+			} catch (Exception ex) {
 				throw new IllegalArgumentException("An error occurred parsing URI: " + uriStr, ex);
 			}
 		}
