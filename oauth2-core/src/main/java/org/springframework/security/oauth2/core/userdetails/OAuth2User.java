@@ -122,7 +122,12 @@ public class OAuth2User implements OAuth2UserDetails {
 
 	@Override
 	public String getUsername() {
-		return this.getAttributeString(this.getUserNameAttributeName());
+		String userName = this.getAttributeString(this.getUserNameAttributeName());
+		if (userName == null && !USERNAME_ATTRIBUTE_NAME_ID.equals(this.getUserNameAttributeName())) {
+			// Default to 'id' attribute
+			userName = this.getAttributeString(USERNAME_ATTRIBUTE_NAME_ID);
+		}
+		return userName;
 	}
 
 	@Override
