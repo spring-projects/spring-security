@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>itest-context</artifactId>
-  <version>4.2.3.BUILD-SNAPSHOT</version>
+  <version>5.0.0.BUILD-SNAPSHOT</version>
   <name>itest-context</name>
   <description>itest-context</description>
   <url>http://spring.io/spring-security</url>
@@ -62,7 +62,7 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <version>4.2.3.BUILD-SNAPSHOT</version>
+      <version>5.0.0.BUILD-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -137,13 +137,13 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
-      <version>4.2.3.BUILD-SNAPSHOT</version>
+      <version>5.0.0.BUILD-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
-      <version>4.2.3.BUILD-SNAPSHOT</version>
+      <version>5.0.0.BUILD-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
     <dependency>

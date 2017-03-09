@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-samples-xml-gae</artifactId>
-  <version>4.2.3.BUILD-SNAPSHOT</version>
+  <version>5.0.0.BUILD-SNAPSHOT</version>
   <packaging>war</packaging>
   <name>spring-security-samples-xml-gae</name>
   <description>spring-security-samples-xml-gae</description>
@@ -78,13 +78,13 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <version>4.2.3.BUILD-SNAPSHOT</version>
+      <version>5.0.0.BUILD-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
-      <version>4.2.3.BUILD-SNAPSHOT</version>
+      <version>5.0.0.BUILD-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -152,13 +152,13 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
-      <version>4.2.3.BUILD-SNAPSHOT</version>
+      <version>5.0.0.BUILD-SNAPSHOT</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-taglibs</artifactId>
-      <version>4.2.3.BUILD-SNAPSHOT</version>
+      <version>5.0.0.BUILD-SNAPSHOT</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
