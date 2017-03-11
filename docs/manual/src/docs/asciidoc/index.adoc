@@ -2914,8 +2914,8 @@ The following section describes the Servlet 3 methods that Spring Security integ
 
 
 [[servletapi-authenticate]]
-==== HttpServletRequest.authenticate(HttpServletRequest,HttpServletResponse)
-The http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#authenticate%28javax.servlet.http.HttpServletResponse%29[HttpServletRequest.authenticate(HttpServletRequest,HttpServletResponse)] method can be used to ensure that a user is authenticated. If they are not authenticated, the configured AuthenticationEntryPoint will be used to request the user to authenticate (i.e. redirect to the login page).
+==== HttpServletRequest.authenticate(HttpServletResponse)
+The http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#authenticate%28javax.servlet.http.HttpServletResponse%29[HttpServletRequest.authenticate(HttpServletResponse)] method can be used to ensure that a user is authenticated. If they are not authenticated, the configured AuthenticationEntryPoint will be used to request the user to authenticate (i.e. redirect to the login page).
 
 
 [[servletapi-login]]
