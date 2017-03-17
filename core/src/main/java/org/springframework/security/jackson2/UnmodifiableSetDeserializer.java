@@ -50,10 +50,10 @@ class UnmodifiableSetDeserializer extends JsonDeserializer<Set> {
 				Iterator<JsonNode> nodeIterator = arrayNode.iterator();
 				while (nodeIterator.hasNext()) {
 					JsonNode elementNode = nodeIterator.next();
-					resultSet.add(mapper.readValue(elementNode.toString(), Object.class));
+					resultSet.add(mapper.readValue(elementNode.traverse(mapper), Object.class));
 				}
 			} else {
-				resultSet.add(mapper.readValue(node.toString(), Object.class));
+				resultSet.add(mapper.readValue(node.traverse(mapper), Object.class));
 			}
 		}
 		return Collections.unmodifiableSet(resultSet);
