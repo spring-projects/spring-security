@@ -17,13 +17,16 @@
 package org.springframework.security.jackson2;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
+import com.fasterxml.jackson.annotation.JsonClassDescription;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.json.JSONException;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 
@@ -47,6 +50,20 @@ public class UsernamePasswordAuthenticationTokenMixinTests extends AbstractMixin
 
 	// @formatter:off
 	public static final String AUTHENTICATED_STRINGPRINCIPAL_JSON = AUTHENTICATED_JSON.replace( UserDeserializerTests.USER_JSON, "\"admin\"");
+	// @formatter:on
+
+	// @formatter:off
+	private static final String NON_USER_PRINCIPAL_JSON = "{"
+		+ "\"@class\": \"org.springframework.security.jackson2.UsernamePasswordAuthenticationTokenMixinTests$NonUserPrincipal\", "
+		+ "\"username\": \"admin\""
+		+ "}";
+	// @formatter:on
+
+	// @formatter:off
+	private static final String AUTHENTICATED_NON_USER_PRINCIPAL_JSON = AUTHENTICATED_JSON
+		.replace(UserDeserializerTests.USER_JSON, NON_USER_PRINCIPAL_JSON)
+		.replaceAll(UserDeserializerTests.USER_PASSWORD, "null")
+		.replace(SimpleGrantedAuthorityMixinTests.AUTHORITIES_ARRAYLIST_JSON, SimpleGrantedAuthorityMixinTests.NO_AUTHORITIES_ARRAYLIST_JSON);
 	// @formatter:on
 
 	// @formatter:off
@@ -115,9 +132,40 @@ public class UsernamePasswordAuthenticationTokenMixinTests extends AbstractMixin
 		JSONAssert.assertEquals(AUTHENTICATED_JSON.replaceAll(UserDeserializerTests.USER_PASSWORD, "null"), actualJson, true);
 	}
 
+	@Test
+	public void serializeAuthenticatedUsernamePasswordAuthenticationTokenMixinWithNonUserPrincipalTest() throws JsonProcessingException, JSONException {
+		NonUserPrincipal principal = new NonUserPrincipal();
+		principal.setUsername("admin");
+		UsernamePasswordAuthenticationToken token =
+			new UsernamePasswordAuthenticationToken(principal, null, new ArrayList<GrantedAuthority>());
+		String actualJson = mapper.writeValueAsString(token);
+		JSONAssert.assertEquals(AUTHENTICATED_NON_USER_PRINCIPAL_JSON, actualJson, true);
+	}
+
+	@Test
+	public void deserializeAuthenticatedUsernamePasswordAuthenticationTokenWithNonUserPrincipalTest() throws IOException {
+		UsernamePasswordAuthenticationToken token = mapper
+			.readValue(AUTHENTICATED_NON_USER_PRINCIPAL_JSON, UsernamePasswordAuthenticationToken.class);
+		assertThat(token).isNotNull();
+		assertThat(token.getPrincipal()).isNotNull().isInstanceOf(NonUserPrincipal.class);
+	}
+
 	private UsernamePasswordAuthenticationToken createToken() {
 		User user = createDefaultUser();
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities());
 		return token;
+	}
+
+	@JsonClassDescription
+	public static class NonUserPrincipal {
+		private String username;
+
+		public String getUsername() {
+			return username;
+		}
+
+		public void setUsername(String username) {
+			this.username = username;
+		}
 	}
 }
