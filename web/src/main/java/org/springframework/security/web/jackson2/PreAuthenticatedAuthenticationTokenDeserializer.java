@@ -63,13 +63,13 @@ class PreAuthenticatedAuthenticationTokenDeserializer extends JsonDeserializer<P
 		JsonNode principalNode = readJsonNode(jsonNode, "principal");
 		Object principal = null;
 		if(principalNode.isObject()) {
-			principal = mapper.readValue(principalNode.toString(), new TypeReference<User>() {});
+			principal = mapper.readValue(principalNode.traverse(mapper), new TypeReference<User>() {});
 		} else {
 			principal = principalNode.asText();
 		}
 		Object credentials = readJsonNode(jsonNode, "credentials").asText();
 		List<GrantedAuthority> authorities = mapper.readValue(
-				readJsonNode(jsonNode, "authorities").toString(), new TypeReference<List<GrantedAuthority>>() {
+				readJsonNode(jsonNode, "authorities").traverse(mapper), new TypeReference<List<GrantedAuthority>>() {
 		});
 		if (authenticated) {
 			token = new PreAuthenticatedAuthenticationToken(principal, credentials, authorities);
