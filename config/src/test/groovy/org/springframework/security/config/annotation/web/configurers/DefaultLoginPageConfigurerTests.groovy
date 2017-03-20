@@ -78,7 +78,7 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
 			springSecurityFilterChain.doFilter(request,response,chain)
 		then:
 			response.getContentAsString() == """<html><head><title>Login Page</title></head><body onload='document.f.username.focus();'>
-<p><font color='red'>Your login attempt was not successful, try again.<br/><br/>Reason: Bad credentials</font></p><h3>Login with Username and Password</h3><form name='f' action='/login' method='POST'>
+<p style='color:red;'>Your login attempt was not successful, try again.<br/><br/>Reason: Bad credentials</p><h3>Login with Username and Password</h3><form name='f' action='/login' method='POST'>
 <table>
 	<tr><td>User:</td><td><input type='text' name='username' value=''></td></tr>
 	<tr><td>Password:</td><td><input type='password' name='password'/></td></tr>
@@ -107,7 +107,7 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
 			springSecurityFilterChain.doFilter(request,response,chain)
 		then: "sent to default success page"
 			response.getContentAsString() == """<html><head><title>Login Page</title></head><body onload='document.f.username.focus();'>
-<p><font color='green'>You have been logged out</font></p><h3>Login with Username and Password</h3><form name='f' action='/login' method='POST'>
+<p style='color:green;'>You have been logged out</p><h3>Login with Username and Password</h3><form name='f' action='/login' method='POST'>
 <table>
 	<tr><td>User:</td><td><input type='text' name='username' value=''></td></tr>
 	<tr><td>Password:</td><td><input type='password' name='password'/></td></tr>

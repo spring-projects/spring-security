@@ -1,0 +1,12 @@
+apply plugin: 'io.spring.convention.spring-module'
+
+dependencies {
+	compile project(':spring-security-core')
+	compile project(':spring-security-oauth2-core')
+	compile project(':spring-security-web')
+	compile springCoreDependency
+	compile 'com.nimbusds:oauth2-oidc-sdk'
+	compile 'org.springframework:spring-web'
+
+	provided 'javax.servlet:javax.servlet-api'
+}

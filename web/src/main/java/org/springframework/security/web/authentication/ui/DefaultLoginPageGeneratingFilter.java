@@ -15,7 +15,13 @@
  */
 package org.springframework.security.web.authentication.ui;
 
-import java.io.IOException;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.WebAttributes;
+import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices;
+import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.web.filter.GenericFilterBean;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -24,14 +30,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.WebAttributes;
-import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices;
-import org.springframework.security.web.csrf.CsrfToken;
-import org.springframework.web.filter.GenericFilterBean;
+import java.io.IOException;
+import java.util.Map;
 
 /**
  * For internal use with namespace configuration in the case where a user doesn't
@@ -51,6 +51,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 	private String failureUrl;
 	private boolean formLoginEnabled;
 	private boolean openIdEnabled;
+	private boolean oauth2LoginEnabled;
 	private String authenticationUrl;
 	private String usernameParameter;
 	private String passwordParameter;
@@ -58,6 +59,8 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 	private String openIDauthenticationUrl;
 	private String openIDusernameParameter;
 	private String openIDrememberMeParameter;
+	private Map<String, String> oauth2AuthenticationUrlToClientName;
+
 
 	public DefaultLoginPageGeneratingFilter() {
 	}
@@ -105,7 +108,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 	}
 
 	public boolean isEnabled() {
-		return formLoginEnabled || openIdEnabled;
+		return formLoginEnabled || openIdEnabled || oauth2LoginEnabled;
 	}
 
 	public void setLogoutSuccessUrl(String logoutSuccessUrl) {
@@ -132,6 +135,10 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 		this.openIdEnabled = openIdEnabled;
 	}
 
+	public void setOauth2LoginEnabled(boolean oauth2LoginEnabled) {
+		this.oauth2LoginEnabled = oauth2LoginEnabled;
+	}
+
 	public void setAuthenticationUrl(String authenticationUrl) {
 		this.authenticationUrl = authenticationUrl;
 	}
@@ -155,6 +162,10 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 
 	public void setOpenIDusernameParameter(String openIDusernameParameter) {
 		this.openIDusernameParameter = openIDusernameParameter;
+	}
+
+	public void setOauth2AuthenticationUrlToClientName(Map<String, String> oauth2AuthenticationUrlToClientName) {
+		this.oauth2AuthenticationUrlToClientName = oauth2AuthenticationUrlToClientName;
 	}
 
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
@@ -201,13 +212,13 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 		}
 
 		if (loginError) {
-			sb.append("<p><font color='red'>Your login attempt was not successful, try again.<br/><br/>Reason: ");
+			sb.append("<p style='color:red;'>Your login attempt was not successful, try again.<br/><br/>Reason: ");
 			sb.append(errorMsg);
-			sb.append("</font></p>");
+			sb.append("</p>");
 		}
 
 		if (logoutSuccess) {
-			sb.append("<p><font color='green'>You have been logged out</font></p>");
+			sb.append("<p style='color:green;'>You have been logged out</p>");
 		}
 
 		if (formLoginEnabled) {
@@ -250,6 +261,19 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 			sb.append("</table>\n");
 			renderHiddenInputs(sb, request);
 			sb.append("</form>");
+		}
+
+		if (oauth2LoginEnabled) {
+			sb.append("<h3>Login with OAuth 2.0</h3>");
+			sb.append("<table>\n");
+			for (Map.Entry<String, String> clientAuthenticationUrlToClientName : oauth2AuthenticationUrlToClientName.entrySet()) {
+				sb.append(" <tr><td>");
+				sb.append("<a href=\"").append(clientAuthenticationUrlToClientName.getKey()).append("\">");
+				sb.append(clientAuthenticationUrlToClientName.getValue());
+				sb.append("</a>");
+				sb.append("</td></tr>\n");
+			}
+			sb.append("</table>\n");
 		}
 
 		sb.append("</body></html>");

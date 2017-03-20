@@ -375,42 +375,15 @@ git clone https://github.com/spring-projects/spring-security.git
 This will give you access to the entire project history (including all releases and branches) on your local machine.
 
 [[new]]
-== What's New in Spring Security 4.2
+== What's New in Spring Security 5.0
 
-Among other things, Spring Security 4.2 brings early support for Spring Framework 5.
-You can find the change logs for https://github.com/spring-projects/spring-security/milestone/86?closed=1[4.2.0.M1], https://github.com/spring-projects/spring-security/milestone/91?closed=1[4.2.0.RC1], https://github.com/spring-projects/spring-security/milestone/92?closed=1[4.2.0.RELEASE] which closes over 80 issues.
-The overwhelming majority of these features were contributed by the community.
-Below you can find the highlights of this release.
+Spring Security 5.0 provides a number of new features as well as support for Spring Framework 5.
+You can find the change log at https://github.com/spring-projects/spring-security/milestone/90?closed=1[5.0.0.M1].
+Below are the highlights of this milestone release.
 
-=== Web Improvements
+=== New Features
 
-* https://github.com/spring-projects/spring-security/pull/3812[#3812] - <<jackson,Jackson Support>>
-* https://github.com/spring-projects/spring-security/pull/4116[#4116] - <<headers-referrer,Referrer Policy>>
-* https://github.com/spring-projects/spring-security/pull/3938[#3938] - Add <<request-matching,HTTP response splitting prevention>>
-* https://github.com/spring-projects/spring-security/issues/3949[#3949] - Add <<mvc-authentication-principal,bean reference support to @AuthenticationPrincipal>>.
-* https://github.com/spring-projects/spring-security/pull/3978[#3978] - Support for Standford WebAuth and Shibboleth using the newly added http://docs.spring.io/spring-security/site/docs/4.2.x-SNAPSHOT/apidocs/org/springframework/security/web/authentication/preauth/RequestAttributeAuthenticationFilter.html[RequestAttributeAuthenticationFilter].
-* https://github.com/spring-projects/spring-security/issues/4076[#4076] - Document <<appendix-proxy-server,Proxy Server>> Configuration
-* https://github.com/spring-projects/spring-security/issues/3795[#3795] - `ConcurrentSessionFilter` supports `InvalidSessionStrategy`
-* https://github.com/spring-projects/spring-security/pull/3904[#3904] - Add `CompositeLogoutHandler`
-
-=== Configuration Improvements
-
-* https://github.com/spring-projects/spring-security/pull/3956[#3956] - Central configuration of the http://docs.spring.io/spring-security/site/migrate/current/3-to-4/html5/migrate-3-to-4-jc.html#m3to4-role-prefixing[default role prefix]. See the issue for details.
-* https://github.com/spring-projects/spring-security/issues/4102[#4102] - Custom default configuration in `WebSecurityConfigurerAdapter`. See <<jc-custom-dsls>>
-* https://github.com/spring-projects/spring-security/issues/3899[#3899] - <<nsa-concurrency-control-max-sessions,concurrency-control@max-sessions>> supports unlimited sessions.
-* https://github.com/spring-projects/spring-security/issues/4097[#4097] - <<nsa-intercept-url-request-matcher-ref,intercept-url@request-matcher-ref>> adds more powerful request matching support to the XML namespace.
-* https://github.com/spring-projects/spring-security/issues/3990[#3990] - Support for constructing `RoleHierarchy` from `Map` (i.e. `yml`)
-* https://github.com/spring-projects/spring-security/pull/4062[#4062] - Custom cookiePath to `CookieCsrfTokenRepository`
-* https://github.com/spring-projects/spring-security/issues/3794[#3794] - Allow configuration of `InvalidSessionStrategy` on `SessionManagementConfigurer`
-* https://github.com/spring-projects/spring-security/issues/4020[#4020] - Fix Exposing Beans for defaultMethodExpressionHandler can prevent Method Security
-
-=== Miscellaneous
-
-* https://github.com/spring-projects/spring-security/issues/4080[#4080] - Spring 5 support
-* https://github.com/spring-projects/spring-security/issues/4095[#4095] - `Add UserBuilder`
-* https://github.com/spring-projects/spring-security/issues/4018[#4018] - Fix after `csrf()` is invoked, future `MockMvc` invocations use original `CsrfTokenRepository`
-* Version Updates
-
+* https://github.com/spring-projects/spring-security/issues/3907[#3907] - Support added for OAuth 2.0 Login (start with {gh-samples-url}/boot/oauth2login/README.adoc[Sample README])
 
 [[samples]]
 == Samples and Guides (Start Here)

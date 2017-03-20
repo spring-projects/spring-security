@@ -1,0 +1,9 @@
+apply plugin: 'io.spring.convention.spring-module'
+
+dependencies {
+	compile project(':spring-security-core')
+	compile springCoreDependency
+	compile 'org.springframework:spring-web'
+
+	provided 'javax.servlet:javax.servlet-api'
+}

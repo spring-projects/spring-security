@@ -12,6 +12,7 @@ dependencies {
 
 	optional project(':spring-security-ldap')
 	optional project(':spring-security-messaging')
+	optional project(':spring-security-oauth2-client')
 	optional project(':spring-security-openid')
 	optional project(':spring-security-web')
 	optional 'org.aspectj:aspectjweaver'
