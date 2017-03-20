@@ -15,10 +15,10 @@
  */
 package org.springframework.security.core;
 
+import org.junit.Test;
+
 import java.io.DataInputStream;
 import java.io.InputStream;
-
-import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class JavaVersionTests {
 
-	private static final int JDK6_CLASS_VERSION = 50;
+	private static final int JDK8_CLASS_VERSION = 52;
 
 	@Test
 	public void authenticationCorrectJdkCompatibility() throws Exception {
@@ -45,7 +45,7 @@ public class JavaVersionTests {
 			data.readInt();
 			data.readShort(); // minor
 			int major = data.readShort();
-			assertThat(major).isEqualTo(JDK6_CLASS_VERSION);
+			assertThat(major).isEqualTo(JDK8_CLASS_VERSION);
 		}
 		finally {
 			try {

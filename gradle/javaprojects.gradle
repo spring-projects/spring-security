@@ -5,13 +5,13 @@ apply plugin: 'javadocHotfix'
 apply plugin: 'propdeps'
 apply plugin: 'propdeps-maven'
 
-sourceCompatibility = 1.6
-targetCompatibility = 1.6
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 ext.apacheDsVersion = '1.5.5'
 ext.aspectjVersion = '1.8.4'
 ext.casClientVersion = '3.4.1'
-ext.cglibVersion = '3.1'
+ext.cglibVersion = '3.2.5'
 ext.commonsCodecVersion = '1.10'
 ext.commonsCollectionsVersion = '3.2.2'
 ext.commonsLoggingVersion = '1.2'
@@ -27,7 +27,7 @@ ext.jettyVersion = '6.1.26'
 ext.jstlVersion = '1.2.1'
 ext.junitVersion = '4.12'
 ext.logbackVersion = '1.1.2'
-ext.powerMockVersion = '1.6.2'
+ext.powerMockVersion = '1.6.5'
 ext.seleniumVersion = '2.44.0'
 ext.servletApiVersion = '3.1.0'
 ext.slf4jVersion = '1.7.7'
@@ -40,6 +40,7 @@ ext.springBootVersion = '1.5.0.BUILD-SNAPSHOT'
 ext.thymeleafVersion = '3.0.2.RELEASE'
 ext.jsonassertVersion = '1.3.0'
 ext.validationApiVersion = '1.1.0.Final'
+
 
 ext.spockDependencies = [
 	dependencies.create("org.spockframework:spock-spring:$spockVersion") {
@@ -148,7 +149,7 @@ dependencies {
 	testCompile "junit:junit:$junitVersion",
 			'org.mockito:mockito-core:1.10.19',
 			"org.springframework:spring-test:$springVersion",
-			'org.assertj:assertj-core:2.2.0'
+			'org.assertj:assertj-core:3.6.2'
 
 	// Use slf4j/logback for logging
 	testRuntime "org.slf4j:jcl-over-slf4j:$slf4jVersion",
