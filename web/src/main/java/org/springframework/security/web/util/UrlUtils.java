@@ -29,6 +29,10 @@ import javax.servlet.http.HttpServletRequest;
  * @author Ben Alex
  */
 public final class UrlUtils {
+	// ~ Constants
+	private static final Pattern ABSOLUTE_URL = Pattern.compile("\\A[a-z0-9.+-]+://.*",
+	                                                            Pattern.CASE_INSENSITIVE);
+
 	// ~ Methods
 	// ========================================================================================================
 
@@ -61,7 +65,7 @@ public final class UrlUtils {
 		}
 		else if ("https".equals(scheme)) {
 			if (serverPort != 443) {
-				url.append(":").append(serverPort);
+				url.append(':').append(serverPort);
 			}
 		}
 
@@ -70,7 +74,7 @@ public final class UrlUtils {
 		url.append(requestURI);
 
 		if (queryString != null) {
-			url.append("?").append(queryString);
+			url.append('?').append(queryString);
 		}
 
 		return url.toString();
@@ -119,7 +123,7 @@ public final class UrlUtils {
 		}
 
 		if (queryString != null) {
-			url.append("?").append(queryString);
+			url.append('?').append(queryString);
 		}
 
 		return url.toString();
@@ -140,8 +144,6 @@ public final class UrlUtils {
 		if(url == null) {
 			return false;
 		}
-		final Pattern ABSOLUTE_URL = Pattern.compile("\\A[a-z0-9.+-]+://.*",
-				Pattern.CASE_INSENSITIVE);
 
 		return ABSOLUTE_URL.matcher(url).matches();
 	}
