@@ -1,0 +1,12 @@
+apply plugin: 'io.spring.convention.spring-module'
+
+dependencies {
+	compile project(':spring-security-core')
+	compile 'aopalliance:aopalliance'
+	compile 'org.springframework:spring-beans'
+	compile 'org.springframework:spring-context'
+	compile 'org.springframework:spring-core'
+	compile 'org.springframework:spring-web'
+
+	testCompile project(path: ':spring-security-core', configuration: 'tests')
+}

@@ -1,0 +1,28 @@
+apply plugin: 'io.spring.convention.spring-module'
+
+dependencies {
+	compile project(':spring-security-core')
+	compile springCoreDependency
+	compile 'aopalliance:aopalliance'
+	compile 'org.springframework:spring-beans'
+	compile 'org.springframework:spring-context'
+	compile 'org.springframework:spring-expression'
+	compile 'org.springframework:spring-web'
+
+	optional 'com.fasterxml.jackson.core:jackson-databind'
+	optional 'org.springframework:spring-jdbc'
+	optional 'org.springframework:spring-tx'
+	optional 'org.springframework:spring-webmvc'
+
+	provided 'javax.servlet:javax.servlet-api'
+
+	testCompile project(path: ':spring-security-core', configuration: 'tests')
+	testCompile 'commons-codec:commons-codec'
+	testCompile 'org.codehaus.groovy:groovy-all'
+	testCompile 'org.skyscreamer:jsonassert'
+	testCompile powerMockDependencies
+	testCompile spockDependencies
+	testCompile slf4jDependencies
+
+	testRuntime 'org.hsqldb:hsqldb'
+}

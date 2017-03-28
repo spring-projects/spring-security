@@ -1,0 +1,11 @@
+apply plugin: 'io.spring.convention.spring-sample-war'
+apply plugin: 'aspectj'
+
+dependencies {
+	compile project(':spring-security-core')
+
+	aspectpath project(':spring-security-aspects')
+
+	runtime project(':spring-security-aspects')
+	runtime project(':spring-security-config')
+}

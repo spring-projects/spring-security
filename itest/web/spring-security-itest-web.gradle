@@ -1,0 +1,25 @@
+apply plugin: 'io.spring.convention.spring-test'
+
+dependencies {
+	compile 'org.springframework:spring-context'
+	compile 'org.springframework:spring-web'
+
+	provided 'javax.servlet:javax.servlet-api'
+
+	testCompile project(':spring-security-core')
+	testCompile project(':spring-security-test')
+	testCompile project(':spring-security-web')
+	testCompile 'org.springframework:spring-beans'
+	testCompile 'org.springframework:spring-test'
+	testCompile 'org.springframework:spring-webmvc'
+
+	testRuntime project(':spring-security-config')
+	testRuntime project(':spring-security-ldap')
+}
+
+integrationTest {
+	options {
+		jvmArgs = ['-ea', '-Xms128m', '-Xmx500m']
+	}
+	maxParallelForks = 1
+}

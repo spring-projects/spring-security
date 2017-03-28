@@ -1,0 +1,69 @@
+apply plugin: 'io.spring.convention.spring-module'
+
+def includeProject = project(':spring-security-crypto')
+
+configurations {
+	tests
+	published.extendsFrom tests, archives
+
+	included
+	compile.extendsFrom included
+}
+
+dependencies {
+	compile 'aopalliance:aopalliance'
+	compile 'commons-logging:commons-logging'
+	compile 'org.springframework:spring-aop'
+	compile 'org.springframework:spring-beans'
+	compile 'org.springframework:spring-context'
+	compile 'org.springframework:spring-core'
+	compile 'org.springframework:spring-expression'
+
+	included includeProject
+
+	optional 'com.fasterxml.jackson.core:jackson-databind'
+	optional 'javax.annotation:jsr250-api'
+	optional 'net.sf.ehcache:ehcache'
+	optional 'org.aspectj:aspectjrt'
+	optional 'org.springframework:spring-jdbc'
+	optional 'org.springframework:spring-tx'
+
+	testCompile powerMockDependencies
+	testCompile 'commons-collections:commons-collections'
+	testCompile 'org.skyscreamer:jsonassert'
+	testCompile 'org.slf4j:jcl-over-slf4j'
+	testCompile 'org.springframework:spring-test'
+
+	testRuntime 'org.hsqldb:hsqldb'
+}
+
+classes.doLast {
+	copy {
+		from includeProject.sourceSets.main.output
+		into sourceSets.main.output.classesDir
+	}
+}
+
+tasks.sourcesJar.from {includeProject.sourceSets.main.java}
+
+configure(project.tasks.withType(Test)) {
+	systemProperties['springSecurityVersion'] = version
+	systemProperties['springVersion'] = project.dependencyManagement.managedVersions['org.springframework:spring-core']
+}
+
+task testJar(type: Jar) {
+	classifier = 'tests'
+	from sourceSets.test.output
+}
+
+artifacts {
+	tests testJar
+}
+
+uploadPublished {
+	// maven deployer configuration
+}
+
+install {
+	configuration = configurations.published
+}

@@ -26,15 +26,11 @@ class AspectJPlugin implements Plugin<Project> {
 	void apply(Project project) {
 		project.plugins.apply(JavaPlugin)
 
-		if (!project.hasProperty('aspectjVersion')) {
-			throw new GradleException("You must set the property 'aspectjVersion' before applying the aspectj plugin")
-		}
-
 		if (project.configurations.findByName('ajtools') == null) {
 			project.configurations.create('ajtools')
 			project.dependencies {
-				ajtools "org.aspectj:aspectjtools:${project.aspectjVersion}"
-				optional "org.aspectj:aspectjrt:${project.aspectjVersion}"
+				ajtools "org.aspectj:aspectjtools"
+				optional "org.aspectj:aspectjrt"
 			}
 		}
 

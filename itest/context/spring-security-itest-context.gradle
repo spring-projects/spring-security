@@ -1,0 +1,20 @@
+apply plugin: 'io.spring.convention.spring-test'
+
+dependencies {
+	compile project(':spring-security-core')
+	compile 'aopalliance:aopalliance'
+	compile 'org.python:jython'
+	compile 'org.springframework:spring-aop'
+	compile 'org.springframework:spring-beans'
+	compile 'org.springframework:spring-context'
+	compile 'org.springframework:spring-tx'
+
+	testCompile project(':spring-security-web')
+	testCompile 'javax.servlet:javax.servlet-api'
+	testCompile 'org.springframework:spring-web'
+
+	testRuntime project(':spring-security-config')
+	testRuntime 'org.aspectj:aspectjweaver'
+}
+
+System.setProperty('python.cachedir.skip', 'true')

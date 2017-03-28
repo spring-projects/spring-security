@@ -1,9 +1,0 @@
-
-dependencies {
-	compile project(':spring-security-core'),
-			project(':spring-security-config')
-
-	aspectpath project(':spring-security-aspects')
-
-	runtime project(':spring-security-aspects')
-}

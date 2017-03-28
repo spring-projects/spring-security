@@ -17,6 +17,7 @@ package org.springframework.security.samples.mvc;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.validation.Valid;
 
@@ -51,9 +52,9 @@ public class MessageJsonController {
 	}
 
 	@RequestMapping("{id}")
-	public ResponseEntity<Message> view(@PathVariable Long id) {
-		Message message = messageRepository.findOne(id);
-		return new ResponseEntity<Message>(message, HttpStatus.OK);
+	public ResponseEntity<Optional<Message>> view(@PathVariable Long id) {
+		Optional<Message> message = messageRepository.findOne(id);
+		return new ResponseEntity<>(message, HttpStatus.OK);
 	}
 
 	@RequestMapping(method = RequestMethod.POST, consumes = "application/json")

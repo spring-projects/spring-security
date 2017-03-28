@@ -1,0 +1,28 @@
+apply plugin: 'io.spring.convention.spring-sample-war'
+
+dependencies {
+	compile project(':spring-security-acl')
+	compile project(':spring-security-core')
+	compile slf4jDependencies
+	compile 'org.springframework:spring-aop'
+	compile 'org.springframework:spring-beans'
+	compile 'org.springframework:spring-context'
+	compile 'org.springframework:spring-jdbc'
+	compile 'org.springframework:spring-tx'
+	compile 'org.springframework:spring-web'
+	compile 'org.springframework:spring-webmvc'
+
+	providedCompile 'javax.servlet:javax.servlet-api'
+
+	runtime project(':spring-security-config')
+	runtime project(':spring-security-taglibs')
+	runtime project(':spring-security-web')
+	runtime jstlDependencies
+	runtime 'ch.qos.logback:logback-classic'
+	runtime 'net.sf.ehcache:ehcache'
+	runtime 'org.hsqldb:hsqldb'
+	runtime 'org.slf4j:jcl-over-slf4j'
+	runtime 'org.springframework:spring-context-support'
+
+	integrationTestCompile gebDependencies
+}
