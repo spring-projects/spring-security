@@ -37,9 +37,9 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.powermock.core.classloader.annotations.PrepareOnlyThisForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.reflect.internal.WhiteboxImpl;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.test.util.ReflectionTestUtils;
 
 /**
  *
@@ -75,9 +75,8 @@ public class DebugFilterTest {
 				Collections.enumeration(Collections.<String> emptyList()));
 		when(request.getServletPath()).thenReturn("/login");
 		filter = new DebugFilter(fcp);
-		WhiteboxImpl.setInternalState(filter, Logger.class, logger);
-		requestAttr = WhiteboxImpl.getInternalState(filter, "ALREADY_FILTERED_ATTR_NAME",
-				filter.getClass());
+		ReflectionTestUtils.setField(filter, "logger", logger);
+		requestAttr = DebugFilter.ALREADY_FILTERED_ATTR_NAME;
 	}
 
 	@Test

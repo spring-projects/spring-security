@@ -45,7 +45,7 @@ import java.util.*;
  * @since 3.1
  */
 public final class DebugFilter implements Filter {
-	private static final String ALREADY_FILTERED_ATTR_NAME = DebugFilter.class.getName()
+	static final String ALREADY_FILTERED_ATTR_NAME = DebugFilter.class.getName()
 			.concat(".FILTERED");
 
 	private final FilterChainProxy fcp;
