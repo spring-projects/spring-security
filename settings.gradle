@@ -12,6 +12,7 @@ def String[] modules = [
 	'web',
 	'ldap',
 	'acl',
+	'abac',
 	'config',
 	'cas',
 	'openid',
@@ -78,3 +79,4 @@ void includeSamples(String samplesDir) {
 		}
 	}
 }
+
