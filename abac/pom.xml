@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-abac</artifactId>
-  <version>4.2.3.BUILD-SNAPSHOT</version>
+  <version>5.0.0.BUILD-SNAPSHOT</version>
   <name>spring-security-abac</name>
   <description>spring-security-abac</description>
   <url>http://spring.io/spring-security</url>
@@ -49,9 +49,15 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>2.8.4</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <version>4.2.3.BUILD-SNAPSHOT</version>
+      <version>5.0.0.BUILD-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -64,10 +70,6 @@
       <artifactId>spring-context</artifactId>
       <scope>compile</scope>
     </dependency>
-	  <dependency>
-		  <groupId>org.springframework</groupId>
-		  <artifactId>spring-expression</artifactId>
-	  </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-core</artifactId>
@@ -80,17 +82,17 @@
       </exclusions>
     </dependency>
     <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-expression</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <version>1.2</version>
       <scope>compile</scope>
       <optional>true</optional>
     </dependency>
-	  <dependency>
-	  	<groupId>com.fasterxml.jackson.core</groupId>
-	  	<artifactId>jackson-databind</artifactId>
-		  <version>2.8.4</version>
-	  </dependency>
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>

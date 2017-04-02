@@ -1,0 +1,30 @@
+[
+	{
+		"name": "Default",
+		"type": "",
+		"description": "EDIT can edit evenything",
+		"applicable": "action == 'EDIT'",
+		"condition": "true"
+	},
+	{
+		"name": "Default for String",
+		"type": "String",
+		"description": "Test for String type.name",
+		"applicable": "action == 'EDIT'",
+		"condition": "true"
+	},
+	{
+		"name": "Older or equal 21",
+		"type": "TEST",
+		"description": "",
+		"applicable": "resource.age >= 21",
+		"condition": "true"
+	},
+	{
+		"name": "Older than 21",
+		"type": "TEST_FAIL",
+		"description": "",
+		"applicable": "resource.age > 21",
+		"condition": "true"
+	}
+]

@@ -1,3 +1,18 @@
+/*
+ * Copyright 2017-2017 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.springframework.security.abac;
 
 import org.springframework.security.abac.model.PolicyChecker;
@@ -6,6 +21,11 @@ import org.springframework.security.access.expression.method.MethodSecurityExpre
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 
+/**
+ *
+ * @author Renato Soppelsa
+ * @since 5.0
+ */
 public class AbacMethodSecurityExpressionRoot extends SecurityExpressionRoot implements MethodSecurityExpressionOperations {
 
 	private PolicyChecker policyChecker;
@@ -23,7 +43,7 @@ public class AbacMethodSecurityExpressionRoot extends SecurityExpressionRoot imp
 	}
 
 	public boolean ckeckPolicy(Object targetDomainObject, Object action, Object environment) {
-		return policyChecker.check(new AbacAuthenticationWrapper(authentication), targetDomainObject, action, environment);
+		return policyChecker.check(authentication, targetDomainObject, action, environment);
 	}
 
 
