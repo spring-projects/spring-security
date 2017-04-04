@@ -660,7 +660,7 @@ NOTE: The login page below represents our current configuration. We could easily
 <5> The password must be present as the HTTP parameter named __password__
 <6> We must <<csrf-include-csrf-token>> To learn more read the <<csrf>> section of the reference
 
-[jc-authorize-requests]]
+[[jc-authorize-requests]]
 === Authorize Requests
 Our examples have only required users to be authenticated and have done so for every URL in our application. We can specify custom requirements for our URLs by adding multiple children to our `http.authorizeRequests()` method. For example:
 
