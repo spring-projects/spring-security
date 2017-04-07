@@ -17,8 +17,10 @@
 package org.springframework.security.authentication;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import org.junit.*;
+import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -133,6 +135,18 @@ public class AbstractAuthenticationTokenTests {
 		MockAuthenticationImpl token = new MockAuthenticationImpl("Test", "Password",
 				null);
 		assertThat(token.toString().lastIndexOf("Not granted any authorities") != -1).isTrue();
+	}
+
+	@Test
+	public void testGetNameWhenPrincipalIsAuthenticatedPrincipal() {
+		String principalName = "test";
+
+		AuthenticatedPrincipal principal = mock(AuthenticatedPrincipal.class);
+		when(principal.getName()).thenReturn(principalName);
+
+		MockAuthenticationImpl token = new MockAuthenticationImpl(principal, "Password", authorities);
+		assertThat(token.getName()).isEqualTo(principalName);
+		verify(principal, times(1)).getName();
 	}
 
 	// ~ Inner Classes
