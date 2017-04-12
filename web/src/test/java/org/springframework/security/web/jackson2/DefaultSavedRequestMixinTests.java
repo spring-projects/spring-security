@@ -21,6 +21,8 @@ import java.util.Collections;
 import java.util.Locale;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 
 import org.json.JSONException;
 import org.junit.Test;
@@ -92,9 +94,15 @@ public class DefaultSavedRequestMixinTests extends AbstractMixinTests {
 	@Test
 	public void serializeDefaultRequestBuildWithConstructorTest() throws IOException, JSONException {
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setCookies(new Cookie("SESSION", "123456789"));
 		request.addHeader("x-auth-token", "12");
-		String actualString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(new DefaultSavedRequest(request, new PortResolverImpl()));
+		// Spring 5 MockHttpServletRequest automatically adds a header when the cookies are set. To get consistency we override the request.
+		HttpServletRequest requestToWrite = new HttpServletRequestWrapper(request) {
+			@Override
+			public Cookie[] getCookies() {
+				return new Cookie[] { new Cookie("SESSION", "123456789") };
+			}
+		};
+		String actualString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(new DefaultSavedRequest(requestToWrite, new PortResolverImpl()));
 		JSONAssert.assertEquals(REQUEST_JSON, actualString, true);
 	}
 
