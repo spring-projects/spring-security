@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -137,9 +137,9 @@ public class ObjectIdentityImplTests {
 
 		String string = "SOME_STRING";
 		assertThat(string).isNotSameAs(obj);
-		assertThat(obj.equals(null)).isFalse();
-		assertThat(obj.equals("DIFFERENT_OBJECT_TYPE")).isFalse();
-		assertThat(obj.equals(new ObjectIdentityImpl(DOMAIN_CLASS, Long.valueOf(2)))).isFalse();
+		assertThat(obj).isNotNull();
+		assertThat(obj).isNotEqualTo("DIFFERENT_OBJECT_TYPE");
+		assertThat(obj).isNotEqualTo(new ObjectIdentityImpl(DOMAIN_CLASS, Long.valueOf(2)));
 		assertThat(obj).isNotEqualTo(new ObjectIdentityImpl(
 						"org.springframework.security.acls.domain.ObjectIdentityImplTests$MockOtherIdDomainObject",
 						Long.valueOf(1)));
@@ -151,7 +151,7 @@ public class ObjectIdentityImplTests {
 	public void hashcodeIsDifferentForDifferentJavaTypes() throws Exception {
 		ObjectIdentity obj = new ObjectIdentityImpl(Object.class, Long.valueOf(1));
 		ObjectIdentity obj2 = new ObjectIdentityImpl(String.class, Long.valueOf(1));
-		assertThat(obj.hashCode() == obj2.hashCode()).isFalse();
+		assertThat(obj.hashCode()).isNotEqualTo(obj2.hashCode());
 	}
 
 	@Test
@@ -175,7 +175,7 @@ public class ObjectIdentityImplTests {
 	public void stringAndNumericIdsAreNotEqual() throws Exception {
 		ObjectIdentity obj = new ObjectIdentityImpl(Object.class, "1000");
 		ObjectIdentity obj2 = new ObjectIdentityImpl(Object.class, Long.valueOf(1000));
-		assertThat(obj.equals(obj2)).isFalse();
+		assertThat(obj).isNotEqualTo(obj2);
 	}
 
 	// ~ Inner Classes
