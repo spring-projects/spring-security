@@ -218,21 +218,21 @@ public class BCryptTests {
 	@Test
 	public void decodingCharsOutsideAsciiGivesNoResults() {
 		byte[] ba = BCrypt.decode_base64("ππππππππ", 1);
-		assertThat(ba.length).isEqualTo(0);
+		assertThat(ba).isEmpty();
 	}
 
 	@Test
 	public void decodingStopsWithFirstInvalidCharacter() {
-		assertThat(BCrypt.decode_base64("....", 1).length).isEqualTo(1);
-		assertThat(BCrypt.decode_base64(" ....", 1).length).isEqualTo(0);
+		assertThat(BCrypt.decode_base64("....", 1)).hasSize(1);
+		assertThat(BCrypt.decode_base64(" ....", 1)).isEmpty();
 	}
 
 	@Test
 	public void decodingOnlyProvidesAvailableBytes() {
-		assertThat(BCrypt.decode_base64("", 1).length).isEqualTo(0);
-		assertThat(BCrypt.decode_base64("......", 3).length).isEqualTo(3);
-		assertThat(BCrypt.decode_base64("......", 4).length).isEqualTo(4);
-		assertThat(BCrypt.decode_base64("......", 5).length).isEqualTo(4);
+		assertThat(BCrypt.decode_base64("", 1)).isEmpty();
+		assertThat(BCrypt.decode_base64("......", 3)).hasSize(3);
+		assertThat(BCrypt.decode_base64("......", 4)).hasSize(4);
+		assertThat(BCrypt.decode_base64("......", 5)).hasSize(4);
 	}
 
 	/**
@@ -268,8 +268,8 @@ public class BCryptTests {
 
 	@Test
 	public void genSaltGeneratesCorrectSaltPrefix() {
-		assertThat(BCrypt.gensalt(4).startsWith("$2a$04$")).isTrue();
-		assertThat(BCrypt.gensalt(31).startsWith("$2a$31$")).isTrue();
+		assertThat(BCrypt.gensalt(4)).startsWith("$2a$04$");
+		assertThat(BCrypt.gensalt(31)).startsWith("$2a$31$");
 	}
 
 	@Test(expected = IllegalArgumentException.class)

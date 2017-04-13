@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -124,7 +124,7 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests {
 		PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails details = (PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails) o;
 		List<GrantedAuthority> gas = details.getGrantedAuthorities();
 		assertThat(gas).as("Granted authorities should not be null").isNotNull();
-		assertThat(gas.size()).isEqualTo(expectedRoles.length);
+		assertThat(gas).hasSize(expectedRoles.length);
 
 		Collection<String> expectedRolesColl = Arrays.asList(expectedRoles);
 		Collection<String> gasRolesSet = new HashSet<String>();

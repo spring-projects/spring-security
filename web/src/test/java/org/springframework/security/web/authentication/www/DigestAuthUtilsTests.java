@@ -144,11 +144,11 @@ public class DigestAuthUtilsTests {
 
 	@Test
 	public void testSplitWorksWithDifferentDelimiters() {
-		assertThat(DigestAuthUtils.split("18/rod", "/").length).isEqualTo(2);
+		assertThat(DigestAuthUtils.split("18/rod", "/")).hasSize(2);
 		assertThat(DigestAuthUtils.split("18/rod", "!")).isNull();
 
 		// only guarantees to split at FIRST delimiter, not EACH delimiter
-		assertThat(DigestAuthUtils.split("18|rod|foo|bar", "|").length).isEqualTo(2);
+		assertThat(DigestAuthUtils.split("18|rod|foo|bar", "|")).hasSize(2);
 	}
 
 	public void testAuthorizationHeaderWithCommasIsSplitCorrectly() {
@@ -157,6 +157,6 @@ public class DigestAuthUtilsTests {
 
 		String[] parts = DigestAuthUtils.splitIgnoringQuotes(header, ',');
 
-		assertThat(parts.length).isEqualTo(8);
+		assertThat(parts).hasSize(8);
 	}
 }

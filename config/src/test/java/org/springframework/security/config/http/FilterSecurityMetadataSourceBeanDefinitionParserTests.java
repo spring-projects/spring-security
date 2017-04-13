@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,8 +65,7 @@ public class FilterSecurityMetadataSourceBeanDefinitionParserTests {
 				.getBean("fids");
 		Collection<ConfigAttribute> cad = fids
 				.getAttributes(createFilterInvocation("/anything", "GET"));
-		assertThat(cad).isNotNull();
-		assertThat(cad.contains(new SecurityConfig("ROLE_A"))).isTrue();
+		assertThat(cad).contains(new SecurityConfig("ROLE_A"));
 	}
 
 	@Test
@@ -80,7 +79,7 @@ public class FilterSecurityMetadataSourceBeanDefinitionParserTests {
 		ConfigAttribute[] cad = fids
 				.getAttributes(createFilterInvocation("/anything", "GET"))
 				.toArray(new ConfigAttribute[0]);
-		assertThat(cad.length).isEqualTo(1);
+		assertThat(cad).hasSize(1);
 		assertThat(cad[0].toString()).isEqualTo("hasRole('ROLE_A')");
 	}
 
@@ -98,9 +97,7 @@ public class FilterSecurityMetadataSourceBeanDefinitionParserTests {
 				.getBean("fids");
 		Collection<ConfigAttribute> cad = fids
 				.getAttributes(createFilterInvocation("/secure", "GET"));
-		assertThat(cad).isNotNull();
-		assertThat(cad).hasSize(1);
-		assertThat(cad.contains(new SecurityConfig("ROLE_A"))).isTrue();
+		assertThat(cad).containsExactly(new SecurityConfig("ROLE_A"));
 	}
 
 	@Test

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ public class DefaultSecurityParameterNameDiscovererTests {
 		List<ParameterNameDiscoverer> discoverers = (List<ParameterNameDiscoverer>) ReflectionTestUtils
 				.getField(discoverer, "parameterNameDiscoverers");
 
-		assertThat(discoverers.size()).isEqualTo(2);
+		assertThat(discoverers).hasSize(2);
 
 		ParameterNameDiscoverer annotationDisc = discoverers.get(0);
 		assertThat(annotationDisc).isInstanceOf(AnnotationParameterNameDiscoverer.class);
@@ -68,7 +68,7 @@ public class DefaultSecurityParameterNameDiscovererTests {
 		List<ParameterNameDiscoverer> discoverers = (List<ParameterNameDiscoverer>) ReflectionTestUtils
 				.getField(discoverer, "parameterNameDiscoverers");
 
-		assertThat(discoverers.size()).isEqualTo(3);
+		assertThat(discoverers).hasSize(3);
 		assertThat(discoverers.get(0)).isInstanceOf(
 				LocalVariableTableParameterNameDiscoverer.class);
 
@@ -78,7 +78,7 @@ public class DefaultSecurityParameterNameDiscovererTests {
 				annotationDisc, "annotationClassesToUse");
 		assertThat(annotationsToUse).containsOnly(P.class.getName());
 
-		assertThat(discoverers.get(2).getClass()).isEqualTo(
+		assertThat(discoverers.get(2)).isInstanceOf(
 				DefaultParameterNameDiscoverer.class);
 	}
 }

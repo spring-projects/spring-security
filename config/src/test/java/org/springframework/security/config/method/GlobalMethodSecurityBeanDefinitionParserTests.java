@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -108,7 +108,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 
 		// SEC-1213. Check the order
 		Advisor[] advisors = ((Advised) target).getAdvisors();
-		assertThat(advisors.length).isEqualTo(1);
+		assertThat(advisors).hasSize(1);
 		assertThat(((MethodSecurityMetadataSourceAdvisor) advisors[0]).getOrder()).isEqualTo(1001);
 	}
 
@@ -308,7 +308,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 		target = (BusinessService) appContext.getBean("target");
 		Object[] arg = new String[] { "joe", "bob", "sam" };
 		Object[] result = target.methodReturningAnArray(arg);
-		assertThat(result.length).isEqualTo(1);
+		assertThat(result).hasSize(1);
 		assertThat(result[0]).isEqualTo("bob");
 	}
 

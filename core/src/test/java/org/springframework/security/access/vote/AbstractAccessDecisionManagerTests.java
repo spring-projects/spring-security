@@ -87,7 +87,7 @@ public class AbstractAccessDecisionManagerTests {
 		list.add(voter);
 		list.add(denyVoter);
 		MockDecisionManagerImpl mock = new MockDecisionManagerImpl(list);
-		assertThat(mock.getDecisionVoters().size()).isEqualTo(list.size());
+		assertThat(mock.getDecisionVoters()).hasSize(list.size());
 	}
 
 	@Test

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -89,7 +89,7 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 		ConfigAttribute[] attrs = mds.getAttributes(voidImpl1).toArray(
 				new ConfigAttribute[0]);
 
-		assertThat(attrs.length).isEqualTo(1);
+		assertThat(attrs).hasSize(1);
 		assertThat(attrs[0] instanceof PreInvocationExpressionAttribute).isTrue();
 		PreInvocationExpressionAttribute pre = (PreInvocationExpressionAttribute) attrs[0];
 		assertThat(pre.getAuthorizeExpression()).isNotNull();
@@ -102,7 +102,7 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 		ConfigAttribute[] attrs = mds.getAttributes(voidImpl2).toArray(
 				new ConfigAttribute[0]);
 
-		assertThat(attrs.length).isEqualTo(1);
+		assertThat(attrs).hasSize(1);
 		assertThat(attrs[0] instanceof PreInvocationExpressionAttribute).isTrue();
 		PreInvocationExpressionAttribute pre = (PreInvocationExpressionAttribute) attrs[0];
 		assertThat(pre.getAuthorizeExpression().getExpressionString()).isEqualTo("someExpression");
@@ -115,7 +115,7 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 		ConfigAttribute[] attrs = mds.getAttributes(voidImpl3).toArray(
 				new ConfigAttribute[0]);
 
-		assertThat(attrs.length).isEqualTo(1);
+		assertThat(attrs).hasSize(1);
 		assertThat(attrs[0] instanceof PreInvocationExpressionAttribute).isTrue();
 		PreInvocationExpressionAttribute pre = (PreInvocationExpressionAttribute) attrs[0];
 		assertThat(pre.getAuthorizeExpression().getExpressionString()).isEqualTo("permitAll");
@@ -128,7 +128,7 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 		ConfigAttribute[] attrs = mds.getAttributes(listImpl1).toArray(
 				new ConfigAttribute[0]);
 
-		assertThat(attrs.length).isEqualTo(2);
+		assertThat(attrs).hasSize(2);
 		assertThat(attrs[0] instanceof PreInvocationExpressionAttribute).isTrue();
 		assertThat(attrs[1] instanceof PostInvocationExpressionAttribute).isTrue();
 		PreInvocationExpressionAttribute pre = (PreInvocationExpressionAttribute) attrs[0];
@@ -143,7 +143,7 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 		ConfigAttribute[] attrs = mds.getAttributes(notherListImpl1).toArray(
 				new ConfigAttribute[0]);
 
-		assertThat(attrs.length).isEqualTo(1);
+		assertThat(attrs).hasSize(1);
 		assertThat(attrs[0] instanceof PreInvocationExpressionAttribute).isTrue();
 		PreInvocationExpressionAttribute pre = (PreInvocationExpressionAttribute) attrs[0];
 		assertThat(pre.getFilterExpression()).isNotNull();
@@ -157,7 +157,7 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 		ConfigAttribute[] attrs = mds.getAttributes(notherListImpl2).toArray(
 				new ConfigAttribute[0]);
 
-		assertThat(attrs.length).isEqualTo(1);
+		assertThat(attrs).hasSize(1);
 		assertThat(attrs[0] instanceof PreInvocationExpressionAttribute).isTrue();
 		PreInvocationExpressionAttribute pre = (PreInvocationExpressionAttribute) attrs[0];
 		assertThat(pre.getFilterExpression()).isNotNull();
@@ -171,7 +171,7 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 		ConfigAttribute[] attrs = mds.getAttributes(annotatedAtClassLevel).toArray(
 				new ConfigAttribute[0]);
 
-		assertThat(attrs.length).isEqualTo(1);
+		assertThat(attrs).hasSize(1);
 	}
 
 	@Test
@@ -179,7 +179,7 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 		ConfigAttribute[] attrs = mds.getAttributes(annotatedAtInterfaceLevel).toArray(
 				new ConfigAttribute[0]);
 
-		assertThat(attrs.length).isEqualTo(1);
+		assertThat(attrs).hasSize(1);
 	}
 
 	@Test
@@ -187,14 +187,14 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 		ConfigAttribute[] attrs = mds.getAttributes(annotatedAtMethodLevel).toArray(
 				new ConfigAttribute[0]);
 
-		assertThat(attrs.length).isEqualTo(1);
+		assertThat(attrs).hasSize(1);
 	}
 
 	@Test
 	public void proxyFactoryInterfaceAttributesFound() throws Exception {
 		MockMethodInvocation mi = MethodInvocationFactory.createSec2150MethodInvocation();
 		Collection<ConfigAttribute> attributes = mds.getAttributes(mi);
-		assertThat(attributes.size()).isEqualTo(1);
+		assertThat(attributes).hasSize(1);
 		Expression expression = (Expression) ReflectionTestUtils.getField(attributes
 				.iterator().next(), "authorizeExpression");
 		assertThat(expression.getExpressionString()).isEqualTo("hasRole('ROLE_PERSON')");

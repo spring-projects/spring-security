@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ public class WebXmlJ2eeDefinedRolesRetrieverTests {
 		Set<String> j2eeRoles = rolesRetriever.getMappableAttributes();
 		assertThat(j2eeRoles).isNotNull();
 		assertThat(j2eeRoles.size()).withFailMessage("J2eeRoles expected size: " + ROLE1TO4_EXPECTED_ROLES.size()
-				+ ", actual size: " + j2eeRoles.size()).isEqualTo(ROLE1TO4_EXPECTED_ROLES.size());
+				+ ", actual size: " + j2eeRoles).hasSize(ROLE1TO4_EXPECTED_ROLES.size());
 		assertThat(j2eeRoles).withFailMessage("J2eeRoles expected contents (arbitrary order).isTrue(): "
 				+ ROLE1TO4_EXPECTED_ROLES + ", actual content: " + j2eeRoles).containsAll(ROLE1TO4_EXPECTED_ROLES);
 	}
