@@ -15,33 +15,14 @@
  */
 package org.springframework.security.abac.service.jdbc;
 
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-import org.springframework.expression.Expression;
-import org.springframework.expression.spel.standard.SpelExpression;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.security.abac.PolicyImpl;
-import org.springframework.security.abac.service.AbstractPolicyService;
-import org.springframework.security.abac.service.json.SpElDeserializer;
 import org.springframework.security.abac.model.Policy;
-import org.springframework.security.abac.model.PolicyService;
+import org.springframework.security.abac.service.AbstractPolicyService;
 import org.springframework.util.Assert;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.StringUtils;
 
 import javax.sql.DataSource;
-import java.io.IOException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**
