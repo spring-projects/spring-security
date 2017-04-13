@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,11 +98,7 @@ public class AbstractRememberMeServicesTests {
 		assertThat(encoded.endsWith("=")).isFalse();
 		String[] decoded = services.decodeCookie(encoded);
 
-		assertThat(decoded.length).isEqualTo(4);
-		assertThat(decoded[0]).isEqualTo("name");
-		assertThat(decoded[1]).isEqualTo("cookie");
-		assertThat(decoded[2]).isEqualTo("tokens");
-		assertThat(decoded[3]).isEqualTo("blah");
+		assertThat(decoded).containsExactly("name", "cookie", "tokens", "blah");
 	}
 
 	@Test
@@ -112,13 +108,13 @@ public class AbstractRememberMeServicesTests {
 		MockRememberMeServices services = new MockRememberMeServices(uds);
 
 		String[] decoded = services.decodeCookie(services.encodeCookie(cookie));
-		assertThat(decoded.length).isEqualTo(4);
+		assertThat(decoded).hasSize(4);
 		assertThat(decoded[0]).isEqualTo("http://id.openid.zz");
 
 		// Check https (SEC-1410)
 		cookie[0] = "https://id.openid.zz";
 		decoded = services.decodeCookie(services.encodeCookie(cookie));
-		assertThat(decoded.length).isEqualTo(4);
+		assertThat(decoded).hasSize(4);
 		assertThat(decoded[0]).isEqualTo("https://id.openid.zz");
 	}
 

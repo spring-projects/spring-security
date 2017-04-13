@@ -122,7 +122,7 @@ public class NestedLdapAuthoritiesPopulatorTests extends AbstractLdapIntegration
 				circularJavaDevelopers, jDevelopers, groovyDevelopers));
 
 		LdapAuthority[] ldapAuthorities = authorities.toArray(new LdapAuthority[0]);
-		assertThat(ldapAuthorities.length).isEqualTo(5);
+		assertThat(ldapAuthorities).hasSize(5);
 		// closure group
 		assertThat(ldapAuthorities[0].getAttributes().containsKey("member")).isTrue();
 		assertThat(ldapAuthorities[0].getAttributes().get("member")).isNotNull();

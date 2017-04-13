@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,13 +60,11 @@ public class CacheControlHeadersWriterTests {
 	public void writeHeaders() {
 		this.writer.writeHeaders(this.request, this.response);
 
-		assertThat(this.response.getHeaderNames().size()).isEqualTo(3);
-		assertThat(this.response.getHeaderValues("Cache-Control")).isEqualTo(
-				Arrays.asList("no-cache, no-store, max-age=0, must-revalidate"));
-		assertThat(this.response.getHeaderValues("Pragma"))
-				.isEqualTo(Arrays.asList("no-cache"));
-		assertThat(this.response.getHeaderValues("Expires"))
-				.isEqualTo(Arrays.asList("0"));
+		assertThat(this.response.getHeaderNames()).hasSize(3);
+		assertThat(this.response.getHeaderValues("Cache-Control")).containsExactly(
+				"no-cache, no-store, max-age=0, must-revalidate");
+		assertThat(this.response.getHeaderValues("Pragma")).containsOnly("no-cache");
+		assertThat(this.response.getHeaderValues("Expires")).containsOnly("0");
 	}
 
 	@Test
@@ -80,13 +78,11 @@ public class CacheControlHeadersWriterTests {
 
 		this.writer.writeHeaders(this.request, this.response);
 
-		assertThat(this.response.getHeaderNames().size()).isEqualTo(3);
-		assertThat(this.response.getHeaderValues("Cache-Control")).isEqualTo(
-				Arrays.asList("no-cache, no-store, max-age=0, must-revalidate"));
-		assertThat(this.response.getHeaderValues("Pragma"))
-				.isEqualTo(Arrays.asList("no-cache"));
-		assertThat(this.response.getHeaderValues("Expires"))
-				.isEqualTo(Arrays.asList("0"));
+		assertThat(this.response.getHeaderNames()).hasSize(3);
+		assertThat(this.response.getHeaderValues("Cache-Control")).containsExactly(
+				"no-cache, no-store, max-age=0, must-revalidate");
+		assertThat(this.response.getHeaderValues("Pragma")).containsOnly("no-cache");
+		assertThat(this.response.getHeaderValues("Expires")).containsOnly("0");
 	}
 
 	// gh-2953

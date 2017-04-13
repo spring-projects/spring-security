@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,14 +61,14 @@ public class AuditLoggerTests {
 	public void nonAuditableAceIsIgnored() {
 		AccessControlEntry ace = mock(AccessControlEntry.class);
 		logger.logIfNeeded(true, ace);
-		assertThat(bytes.size()).isEqualTo(0);
+		assertThat(bytes.size()).isZero();
 	}
 
 	@Test
 	public void successIsNotLoggedIfAceDoesntRequireSuccessAudit() throws Exception {
 		when(ace.isAuditSuccess()).thenReturn(false);
 		logger.logIfNeeded(true, ace);
-		assertThat(bytes.size()).isEqualTo(0);
+		assertThat(bytes.size()).isZero();
 	}
 
 	@Test
@@ -76,20 +76,20 @@ public class AuditLoggerTests {
 		when(ace.isAuditSuccess()).thenReturn(true);
 
 		logger.logIfNeeded(true, ace);
-		assertThat(bytes.toString().startsWith("GRANTED due to ACE")).isTrue();
+		assertThat(bytes.toString()).startsWith("GRANTED due to ACE");
 	}
 
 	@Test
 	public void failureIsntLoggedIfAceDoesntRequireFailureAudit() throws Exception {
 		when(ace.isAuditFailure()).thenReturn(false);
 		logger.logIfNeeded(false, ace);
-		assertThat(bytes.size()).isEqualTo(0);
+		assertThat(bytes.size()).isZero();
 	}
 
 	@Test
 	public void failureIsLoggedIfAceRequiresFailureAudit() throws Exception {
 		when(ace.isAuditFailure()).thenReturn(true);
 		logger.logIfNeeded(false, ace);
-		assertThat(bytes.toString().startsWith("DENIED due to ACE")).isTrue();
+		assertThat(bytes.toString()).startsWith("DENIED due to ACE");
 	}
 }

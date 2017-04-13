@@ -57,7 +57,7 @@ public class EncodingUtilsTests {
 			(byte) 67, (byte) 0xC0, (byte) 0xC1, (byte) 0xC2 };
 		byte[] two = new byte[] { (byte) 0xFF, (byte) 65, (byte) 66 };
 		byte[] subArray = EncodingUtils.subArray(bytes, 1, 4);
-		assertThat(subArray.length).isEqualTo(3);
+		assertThat(subArray).hasSize(3);
 		assertThat(Arrays.equals(two, subArray)).isTrue();
 	}
 

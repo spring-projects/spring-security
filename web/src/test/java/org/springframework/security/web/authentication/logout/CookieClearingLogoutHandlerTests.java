@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,10 +38,10 @@ public class CookieClearingLogoutHandlerTests {
 		request.setContextPath("");
 		CookieClearingLogoutHandler handler = new CookieClearingLogoutHandler("my_cookie");
 		handler.logout(request, response, mock(Authentication.class));
-		assertThat(response.getCookies().length).isEqualTo(1);
+		assertThat(response.getCookies()).hasSize(1);
 		for (Cookie c : response.getCookies()) {
 			assertThat(c.getPath()).isEqualTo("/");
-			assertThat(c.getMaxAge()).isEqualTo(0);
+			assertThat(c.getMaxAge()).isZero();
 		}
 	}
 
@@ -53,10 +53,10 @@ public class CookieClearingLogoutHandlerTests {
 		CookieClearingLogoutHandler handler = new CookieClearingLogoutHandler(
 				"my_cookie", "my_cookie_too");
 		handler.logout(request, response, mock(Authentication.class));
-		assertThat(response.getCookies().length).isEqualTo(2);
+		assertThat(response.getCookies()).hasSize(2);
 		for (Cookie c : response.getCookies()) {
 			assertThat(c.getPath()).isEqualTo("/app");
-			assertThat(c.getMaxAge()).isEqualTo(0);
+			assertThat(c.getMaxAge()).isZero();
 		}
 	}
 }

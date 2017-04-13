@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -102,7 +102,7 @@ public class DmsIntegrationTests extends AbstractTransactionalJUnit4SpringContex
 		System.out.println("------ Test for username: " + username + " ------");
 		AbstractElement[] rootElements = this.documentDao
 				.findElements(Directory.ROOT_DIRECTORY);
-		assertThat(rootElements.length).isEqualTo(3);
+		assertThat(rootElements).hasSize(3);
 		Directory homeDir = null;
 		Directory nonHomeDir = null;
 		for (int i = 0; i < rootElements.length; i++) {
@@ -117,12 +117,12 @@ public class DmsIntegrationTests extends AbstractTransactionalJUnit4SpringContex
 		System.out.println("Non-home directory..: " + nonHomeDir.getFullName());
 
 		AbstractElement[] homeElements = this.documentDao.findElements(homeDir);
-		assertThat(homeElements.length).isEqualTo(12); // confidential and shared
+		assertThat(homeElements).hasSize(12); // confidential and shared
 														// directories,
 		// plus 10 files
 
 		AbstractElement[] nonHomeElements = this.documentDao.findElements(nonHomeDir);
-		assertThat(nonHomeElements.length).isEqualTo(shouldBeFiltered ? 11 : 12); // cannot
+		assertThat(nonHomeElements).hasSize(shouldBeFiltered ? 11 : 12); // cannot
 																					// see
 		// the user's
 		// "confidential"
