@@ -47,9 +47,7 @@ public class WebXmlJ2eeDefinedRolesRetrieverTests {
 
 		rolesRetriever.afterPropertiesSet();
 		Set<String> j2eeRoles = rolesRetriever.getMappableAttributes();
-		assertThat(j2eeRoles).isNotNull()
-                .hasSameSizeAs(ROLE1TO4_EXPECTED_ROLES)
-		        .containsAll(ROLE1TO4_EXPECTED_ROLES);
+		assertThat(j2eeRoles).containsAll(ROLE1TO4_EXPECTED_ROLES);
 	}
 
 	@Test
