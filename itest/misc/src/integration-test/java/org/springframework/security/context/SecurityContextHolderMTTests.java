@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,14 +45,14 @@ public class SecurityContextHolderMTTests extends TestCase{
 		assertThat(new SecurityContextHolder().toString().isTrue()
 											.lastIndexOf("SecurityContextHolder[strategy='org.springframework.security.context.InheritableThreadLocalSecurityContextHolderStrategy'") != -1);
 		loadStartAndWaitForThreads(true, "Main_", NUM_THREADS, false, true);
-		assertThat(errors).as("Thread errors detected; review log output for details").isEqualTo(0);
+		assertThat(errors).as("Thread errors detected; review log output for details").isZero();
 	}
 
 	public void testSynchronizationGlobal() throws Exception {
 		SecurityContextHolder.clearContext();
 		SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_GLOBAL);
 		loadStartAndWaitForThreads(true, "Main_", NUM_THREADS, true, false);
-		assertThat(errors).as("Thread errors detected; review log output for details").isEqualTo(0);
+		assertThat(errors).as("Thread errors detected; review log output for details").isZero();
 	}
 
 	public void testSynchronizationInheritableThreadLocal()
@@ -60,14 +60,14 @@ public class SecurityContextHolderMTTests extends TestCase{
 		SecurityContextHolder.clearContext();
 		SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
 		loadStartAndWaitForThreads(true, "Main_", NUM_THREADS, false, true);
-		assertThat(errors).as("Thread errors detected; review log output for details").isEqualTo(0);
+		assertThat(errors).as("Thread errors detected; review log output for details").isZero();
 	}
 
 	public void testSynchronizationThreadLocal() throws Exception {
 		SecurityContextHolder.clearContext();
 		SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_THREADLOCAL);
 		loadStartAndWaitForThreads(true, "Main_", NUM_THREADS, false, false);
-		assertThat(errors).as("Thread errors detected; review log output for details").isEqualTo(0);
+		assertThat(errors).as("Thread errors detected; review log output for details").isZero();
 	}
 
 	private void startAndRun(Thread[] threads) {

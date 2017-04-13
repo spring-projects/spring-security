@@ -419,7 +419,7 @@ public class AbstractRememberMeServicesTests {
 
 		Cookie cookie = response.getCookie(
 				AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
-		assertThat(cookie.getVersion()).isEqualTo(0);
+		assertThat(cookie.getVersion()).isZero();
 	}
 
 	@Test
@@ -451,7 +451,7 @@ public class AbstractRememberMeServicesTests {
 		Cookie returnedCookie = response.getCookie(
 				AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
 		assertThat(returnedCookie).isNotNull();
-		assertThat(returnedCookie.getMaxAge()).isEqualTo(0);
+		assertThat(returnedCookie.getMaxAge()).isZero();
 	}
 
 	// ~ Inner Classes

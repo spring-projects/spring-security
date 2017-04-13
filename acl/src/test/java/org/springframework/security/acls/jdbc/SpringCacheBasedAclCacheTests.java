@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -104,17 +104,17 @@ public class SpringCacheBasedAclCacheTests {
 		// Try to evict an entry that doesn't exist
 		myCache.evictFromCache(Long.valueOf(3));
 		myCache.evictFromCache(new ObjectIdentityImpl(TARGET_CLASS, Long.valueOf(102)));
-		assertThat(4).isEqualTo(realCache.size());
+		assertThat(realCache).hasSize(4);
 
 		myCache.evictFromCache(Long.valueOf(1));
-		assertThat(2).isEqualTo(realCache.size());
+		assertThat(realCache).hasSize(2);
 
 		// Check the second object inserted
 		assertThat(acl2).isEqualTo(myCache.getFromCache(Long.valueOf(2)));
 		assertThat(acl2).isEqualTo(myCache.getFromCache(identity2));
 
 		myCache.evictFromCache(identity2);
-		assertThat(0).isEqualTo(realCache.size());
+		assertThat(realCache).isEmpty();
 	}
 
 	@SuppressWarnings("rawtypes")
