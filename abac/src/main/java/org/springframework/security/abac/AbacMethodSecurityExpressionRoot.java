@@ -31,20 +31,35 @@ public class AbacMethodSecurityExpressionRoot extends SecurityExpressionRoot imp
 	private Object returnObject;
 	private Object target;
 
+	/**
+	 * This enables 'checkPolicy' to be evaluated in Pre- and Post Filters and Authorisations, just like 'hasRole'
+	 * @param authentication Spring security Authentication
+	 * @param policyChecker PolicyChecker implemenation
+	 */
 	public AbacMethodSecurityExpressionRoot(Authentication authentication, PolicyChecker policyChecker) {
 		super(authentication);
 		this.policyChecker = policyChecker;
 	}
 
-	public boolean ckeckPolicy(Object targetDomainObject, Object action) {
-		return ckeckPolicy(targetDomainObject, action, null);
+	/**
+	 *
+	 * @param targetDomainObject
+	 * @param action
+	 * @return
+	 */
+	public boolean checkPolicy(Object targetDomainObject, Object action) {
+		return checkPolicy(targetDomainObject, action, null);
 	}
 
-	public boolean ckeckPolicy(Object action) {
-		return ckeckPolicy(null, action, null);
+	public boolean checkPolicy(Object action) {
+		return checkPolicy(null, action, null);
 	}
 
-	public boolean ckeckPolicy(Object targetDomainObject, Object action, Object environment) {
+	public boolean checkPolicy() {
+		return checkPolicy(null, null, null);
+	}
+
+	public boolean checkPolicy(Object targetDomainObject, Object action, Object environment) {
 		return policyChecker.check(authentication, targetDomainObject, action, environment);
 	}
 

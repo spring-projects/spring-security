@@ -25,6 +25,7 @@ import java.util.Set;
 
 /**
  * Convenience class for better access to roles in SpEl
+ * It wraps @Authentication
  *
  * @author Renato Soppelsa
  * @since 5.0.0
@@ -48,6 +49,11 @@ public class AbacAuththenticationWrapper implements Authentication {
 		return authentication;
 	}
 
+	/**
+	 * Convenience function for usage in ABAC policies (SpEl)
+	 * @param auth GrantedAuthority as a String
+	 * @return true if user has this Authority
+	 */
 	public boolean hasAuthority(String auth) {
 		return authSet.contains(auth);
 	}

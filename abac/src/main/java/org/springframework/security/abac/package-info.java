@@ -15,7 +15,7 @@
  */
 
 /**
- * Spring implementation for ABAC (Attribute-Based Access Control). RBAC (Role based Access Control)
+ * Spring implementation for ABAC (Attribute-Based Access Control).
  * Can be combined with:
  * - RBAC (Role Based Access Control)
  * - ACL (Access Control List)
