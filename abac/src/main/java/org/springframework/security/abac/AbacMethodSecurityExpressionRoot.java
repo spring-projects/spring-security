@@ -19,10 +19,8 @@ import org.springframework.security.abac.model.PolicyChecker;
 import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionOperations;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.User;
 
 /**
- *
  * @author Renato Soppelsa
  * @since 5.0
  */
@@ -40,6 +38,10 @@ public class AbacMethodSecurityExpressionRoot extends SecurityExpressionRoot imp
 
 	public boolean ckeckPolicy(Object targetDomainObject, Object action) {
 		return ckeckPolicy(targetDomainObject, action, null);
+	}
+
+	public boolean ckeckPolicy(Object action) {
+		return ckeckPolicy(null, action, null);
 	}
 
 	public boolean ckeckPolicy(Object targetDomainObject, Object action, Object environment) {

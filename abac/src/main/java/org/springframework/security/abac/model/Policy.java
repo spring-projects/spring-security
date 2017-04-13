@@ -26,6 +26,11 @@ import org.springframework.expression.Expression;
 public interface Policy {
 
 	/**
+	 * @return id, if applicable. i.e when stored in db
+	 */
+	public Long getId();
+
+	/**
 	 * @return human readable name for a policy
 	 */
 	String getName();

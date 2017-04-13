@@ -2,7 +2,7 @@
 	{
 		"name": "Default",
 		"type": "",
-		"description": "EDIT can edit evenything",
+		"description": "EDIT can edit everything",
 		"applicable": "action == 'EDIT'",
 		"condition": "true"
 	},

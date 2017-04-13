@@ -13,12 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.abac.json;
+package org.springframework.security.abac.service.json;
 
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -62,17 +65,9 @@ public class JsonFilePolicyServiceImplTest {
 	public void noExistingPolicyFileReadTest(){
 		JsonFilePolicyServiceImpl policyService = new JsonFilePolicyServiceImpl("I_am_for_sure_not_there_policy.abac.json");
 		//getting the default
-		assertThat(policyService.getAllPolicies()).hasSize(4);
-		assertThat(policyService.getAllPolicies().get(0).getName()).isEqualTo("Default");
+		assertThat(policyService.getAllPolicies()).hasSize(0);
 	}
 
-	@Test
-	public void typePolicyFileReadTest(){
-		JsonFilePolicyServiceImpl policyService = new JsonFilePolicyServiceImpl("I_am_for_sure_not_there_policy.abac.json");
-		//getting the default
-		assertThat(policyService.getPolicies("String")).hasSize(2);
-		assertThat(policyService.getPolicies("String").get(0).getName()).isEqualTo("Default");
-		assertThat(policyService.getPolicies("String").get(1).getName()).isEqualTo("Default for String");
-	}
+
 }
 

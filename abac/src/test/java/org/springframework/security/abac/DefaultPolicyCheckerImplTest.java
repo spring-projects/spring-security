@@ -19,7 +19,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.springframework.security.abac.json.JsonFilePolicyServiceImpl;
+import org.springframework.security.abac.service.json.JsonFilePolicyServiceImpl;
 import org.springframework.security.abac.model.PolicyService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;

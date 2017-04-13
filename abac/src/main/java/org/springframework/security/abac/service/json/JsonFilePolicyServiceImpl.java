@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.abac.json;
+package org.springframework.security.abac.service.json;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,10 +26,13 @@ import org.springframework.expression.Expression;
 import org.springframework.security.abac.PolicyImpl;
 import org.springframework.security.abac.model.Policy;
 import org.springframework.security.abac.model.PolicyService;
+import org.springframework.security.abac.service.AbstractPolicyService;
 import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -38,7 +41,7 @@ import java.util.List;
  * @author Renato Soppelsa
  * @since 5.0
  */
-public class JsonFilePolicyServiceImpl implements PolicyService {
+public class JsonFilePolicyServiceImpl extends AbstractPolicyService {
 
 	private static final Log logger = LogFactory.getLog(JsonFilePolicyServiceImpl.class);
 
@@ -46,36 +49,36 @@ public class JsonFilePolicyServiceImpl implements PolicyService {
 
 	private String policyFilePath;
 
-	private LinkedMultiValueMap<String, Policy> policies;
-
 	public JsonFilePolicyServiceImpl(String policyFilePath) {
 		this.policyFilePath = policyFilePath;
-		init();
+		loadPolicies();
 	}
 
-	private void init() {
+	private void loadPolicies() {
 		ObjectMapper mapper = new ObjectMapper();
 		SimpleModule module = new SimpleModule();
 		module.addDeserializer(Expression.class, new SpElDeserializer());
 		mapper.registerModule(module);
-		Policy[] rulesArray = null;
+		Policy[] policies = null;
 		Resource resource = null;
-		if (policyFilePath != null) {
+		if (!StringUtils.isEmpty(policyFilePath)) {
+			resource = new ClassPathResource(policyFilePath);
+		}
+		else {
+			policyFilePath = DEFAULT_POLICY_FILENAME;
 			resource = new ClassPathResource(policyFilePath);
 		}
 		if (resource != null && resource.exists()) {
-			rulesArray = loadPolicyFile(resource, mapper);
-		} else {
-			Resource defaultPolicyResource = new ClassPathResource(DEFAULT_POLICY_FILENAME);
-			if (defaultPolicyResource.exists()) {
-				rulesArray = loadPolicyFile(defaultPolicyResource, mapper);
-			}
+			policies = loadPolicyFile(resource, mapper);
 		}
-		if (rulesArray != null) {
-			policies = mapPolicyArrayToMap(rulesArray);
-			logger.info("Policies loaded successfully.");
+		else {
+			logger.info("ABAC policy file not found: " + policyFilePath);
+		}
+		if (policies != null) {
+			setPolicies(Arrays.asList(policies));
+			logger.info("ABAC policies loaded successfully.");
 		} else {
-			logger.warn("No policies were loaded.");
+			logger.warn("No ABAC policies were loaded.");
 		}
 	}
 
@@ -92,55 +95,8 @@ public class JsonFilePolicyServiceImpl implements PolicyService {
 		return rulesArray;
 	}
 
-
-	LinkedMultiValueMap<String, Policy> mapPolicyArrayToMap(Policy[] policies) {
-		LinkedMultiValueMap<String, Policy> map = new LinkedMultiValueMap<String, Policy>();
-		if (policies != null && policies.length > 0) {
-			for (Policy policy : policies) {
-				String key = policy.getType();
-				if (key == null || key.trim().length() == 0) {
-					map.add("", policy);
-				} else {
-					map.add(key.trim(), policy);
-				}
-			}
-		}
-		return map;
-	}
-
-	/**
-	 * Gets all policies defined in the json file
-	 * @return list of all available Policies
-	 */
 	@Override
-	public List<Policy> getAllPolicies() {
-		List<Policy> allPolicies = new ArrayList<Policy>();
-		if (policies != null) {
-			for (String key : policies.keySet()) {
-				allPolicies.addAll(policies.get(key));
-			}
-		}
-		return allPolicies;
-	}
-
-	/**
-	 *
-	 * @param type used to filter policies, usual the class simple name. i.e BlogEntry
-	 * @return filtered list of Policies to check
-	 */
-	@Override
-	public List<Policy> getPolicies(String type) {
-		List<Policy> allPolicies = new ArrayList<Policy>();
-		if (policies != null) {
-			//add all general policies with no specific class
-			if (policies.containsKey("")) {
-				allPolicies.addAll(policies.get(""));
-			}
-			//add specific policies for a class
-			if (type != null && type.trim().length() > 0 && policies.containsKey(type.trim())) {
-				allPolicies.addAll(policies.get(type.trim()));
-			}
-		}
-		return allPolicies;
+	public void reloadPolicies() {
+		loadPolicies();
 	}
 }
