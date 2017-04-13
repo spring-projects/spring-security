@@ -924,7 +924,7 @@ We can configure multiple HttpSecurity instances just as we can have multiple `<
 ----
 @EnableWebSecurity
 public class MultiHttpSecurityConfig {
-	@Bean
+	@Bean                                                             <1>
 	public UserDetailsService userDetailsService() throws Exception {
 		InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
 		manager.createUser(User.withUsername("user").password("password").roles("USER").build());
