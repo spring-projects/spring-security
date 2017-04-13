@@ -136,7 +136,7 @@ public class TokenBasedRememberMeServicesTests {
 		Cookie returnedCookie = response
 				.getCookie(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
 		assertThat(returnedCookie).isNotNull();
-		assertThat(returnedCookie.getMaxAge()).isEqualTo(0);
+		assertThat(returnedCookie.getMaxAge()).isZero();
 	}
 
 	@Test
@@ -153,7 +153,7 @@ public class TokenBasedRememberMeServicesTests {
 		Cookie returnedCookie = response
 				.getCookie(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
 		assertThat(returnedCookie).isNotNull();
-		assertThat(returnedCookie.getMaxAge()).isEqualTo(0);
+		assertThat(returnedCookie.getMaxAge()).isZero();
 	}
 
 	@Test
@@ -169,7 +169,7 @@ public class TokenBasedRememberMeServicesTests {
 		Cookie returnedCookie = response
 				.getCookie(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
 		assertThat(returnedCookie).isNotNull();
-		assertThat(returnedCookie.getMaxAge()).isEqualTo(0);
+		assertThat(returnedCookie.getMaxAge()).isZero();
 	}
 
 	@Test
@@ -190,7 +190,7 @@ public class TokenBasedRememberMeServicesTests {
 		Cookie returnedCookie = response
 				.getCookie(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
 		assertThat(returnedCookie).isNotNull();
-		assertThat(returnedCookie.getMaxAge()).isEqualTo(0);
+		assertThat(returnedCookie.getMaxAge()).isZero();
 	}
 
 	@Test
@@ -207,7 +207,7 @@ public class TokenBasedRememberMeServicesTests {
 		Cookie returnedCookie = response
 				.getCookie(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
 		assertThat(returnedCookie).isNotNull();
-		assertThat(returnedCookie.getMaxAge()).isEqualTo(0);
+		assertThat(returnedCookie.getMaxAge()).isZero();
 	}
 
 	@Test
@@ -227,7 +227,7 @@ public class TokenBasedRememberMeServicesTests {
 		Cookie returnedCookie = response
 				.getCookie(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
 		assertThat(returnedCookie).isNotNull();
-		assertThat(returnedCookie.getMaxAge()).isEqualTo(0);
+		assertThat(returnedCookie.getMaxAge()).isZero();
 	}
 
 	@Test
@@ -270,7 +270,7 @@ public class TokenBasedRememberMeServicesTests {
 
 		Cookie cookie = response.getCookie(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
 		assertThat(cookie).isNotNull();
-		assertThat(cookie.getMaxAge()).isEqualTo(0);
+		assertThat(cookie.getMaxAge()).isZero();
 	}
 
 	@Test

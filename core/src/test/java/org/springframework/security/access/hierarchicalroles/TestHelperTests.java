@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -181,12 +181,12 @@ public class TestHelperTests {
 	public void testCreateAuthorityList() {
 		List<GrantedAuthority> authorities1 = HierarchicalRolesTestHelper
 				.createAuthorityList("ROLE_A");
-		assertThat(1).isEqualTo(authorities1.size());
+		assertThat(authorities1).hasSize(1);
 		assertThat(authorities1.get(0).getAuthority()).isEqualTo("ROLE_A");
 
 		List<GrantedAuthority> authorities2 = HierarchicalRolesTestHelper
 				.createAuthorityList("ROLE_A", "ROLE_C");
-		assertThat(2).isEqualTo(authorities2.size());
+		assertThat(authorities2).hasSize(2);
 		assertThat(authorities2.get(0).getAuthority()).isEqualTo("ROLE_A");
 		assertThat(authorities2.get(1).getAuthority()).isEqualTo("ROLE_C");
 	}
