@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ public class SavedRequestAwareWrapperTests {
 		MockHttpServletRequest savedRequest = new MockHttpServletRequest();
 		savedRequest.setCookies(new Cookie[] { new Cookie("cookie", "fromsaved") });
 		SavedRequestAwareWrapper wrapper = createWrapper(savedRequest, newRequest);
-		assertThat(wrapper.getCookies().length).isEqualTo(1);
+		assertThat(wrapper.getCookies()).hasSize(1);
 		assertThat(wrapper.getCookies()[0].getValue()).isEqualTo("fromnew");
 	}
 
@@ -89,7 +89,7 @@ public class SavedRequestAwareWrapperTests {
 		wrappedRequest.setParameter("action", "bar");
 		assertThat(wrapper.getParameter("action")).isEqualTo("bar");
 		// Both values should be set, but "bar" should be first
-		assertThat(wrapper.getParameterValues("action").length).isEqualTo(2);
+		assertThat(wrapper.getParameterValues("action")).hasSize(2);
 		assertThat(wrapper.getParameterValues("action")[0]).isEqualTo("bar");
 	}
 
@@ -100,9 +100,9 @@ public class SavedRequestAwareWrapperTests {
 		MockHttpServletRequest wrappedRequest = new MockHttpServletRequest();
 		wrappedRequest.setParameter("action", "foo");
 		SavedRequestAwareWrapper wrapper = createWrapper(savedRequest, wrappedRequest);
-		assertThat(wrapper.getParameterValues("action").length).isEqualTo(1);
+		assertThat(wrapper.getParameterValues("action")).hasSize(1);
 		assertThat(wrapper.getParameterMap()).hasSize(1);
-		assertThat(((String[]) wrapper.getParameterMap().get("action")).length).isEqualTo(1);
+		assertThat(((String[]) wrapper.getParameterMap().get("action"))).hasSize(1);
 	}
 
 	@Test
@@ -135,7 +135,7 @@ public class SavedRequestAwareWrapperTests {
 		assertThat(wrapper.getParameterValues("action")).isEqualTo(new Object[] { "bar", "foo" });
 		// Check map is consistent
 		String[] valuesFromMap = (String[]) wrapper.getParameterMap().get("action");
-		assertThat(valuesFromMap.length).isEqualTo(2);
+		assertThat(valuesFromMap).hasSize(2);
 		assertThat(valuesFromMap[0]).isEqualTo("bar");
 	}
 

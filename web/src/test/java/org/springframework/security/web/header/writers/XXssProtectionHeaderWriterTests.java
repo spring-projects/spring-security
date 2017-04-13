@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
 package org.springframework.security.web.header.writers;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.Arrays;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -47,9 +45,8 @@ public class XXssProtectionHeaderWriterTests {
 	public void writeHeaders() {
 		writer.writeHeaders(request, response);
 
-		assertThat(response.getHeaderNames().size()).isEqualTo(1);
-		assertThat(response.getHeaderValues("X-XSS-Protection")).isEqualTo(
-				Arrays.asList("1; mode=block"));
+		assertThat(response.getHeaderNames()).hasSize(1);
+		assertThat(response.getHeaderValues("X-XSS-Protection")).containsOnly("1; mode=block");
 	}
 
 	@Test
@@ -58,9 +55,8 @@ public class XXssProtectionHeaderWriterTests {
 
 		writer.writeHeaders(request, response);
 
-		assertThat(response.getHeaderNames().size()).isEqualTo(1);
-		assertThat(response.getHeaderValues("X-XSS-Protection")).isEqualTo(
-				Arrays.asList("1"));
+		assertThat(response.getHeaderNames()).hasSize(1);
+		assertThat(response.getHeaderValues("X-XSS-Protection")).containsOnly("1");
 	}
 
 	@Test
@@ -70,9 +66,8 @@ public class XXssProtectionHeaderWriterTests {
 
 		writer.writeHeaders(request, response);
 
-		assertThat(response.getHeaderNames().size()).isEqualTo(1);
-		assertThat(response.getHeaderValues("X-XSS-Protection")).isEqualTo(
-				Arrays.asList("0"));
+		assertThat(response.getHeaderNames()).hasSize(1);
+		assertThat(response.getHeaderValues("X-XSS-Protection")).containsOnly("0");
 	}
 
 	@Test
@@ -81,9 +76,8 @@ public class XXssProtectionHeaderWriterTests {
 
 		writer.writeHeaders(request, response);
 
-		assertThat(response.getHeaderNames().size()).isEqualTo(1);
-		assertThat(response.getHeaderValues("X-XSS-Protection")).isEqualTo(
-				Arrays.asList("0"));
+		assertThat(response.getHeaderNames()).hasSize(1);
+		assertThat(response.getHeaderValues("X-XSS-Protection")).containsOnly("0");
 	}
 
 	@Test(expected = IllegalArgumentException.class)

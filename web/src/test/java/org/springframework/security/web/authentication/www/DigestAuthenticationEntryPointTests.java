@@ -47,7 +47,7 @@ public class DigestAuthenticationEntryPointTests {
 
 		String decodedNonce = new String(Base64.decodeBase64(nonce.getBytes()));
 		String[] nonceTokens = StringUtils.delimitedListToStringArray(decodedNonce, ":");
-		assertThat(nonceTokens.length).isEqualTo(2);
+		assertThat(nonceTokens).hasSize(2);
 
 		String expectedNonceSignature = DigestUtils.md5Hex(nonceTokens[0] + ":" + "key");
 		assertThat(nonceTokens[1]).isEqualTo(expectedNonceSignature);

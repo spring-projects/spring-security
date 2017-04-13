@@ -157,7 +157,7 @@ public class SpringSecurityLdapTemplateITests extends AbstractLdapIntegrationTes
 	protected void assertAttributeValue(Map<String, List<String>> record,
 			String attributeName, String... values) {
 		assertThat(record.containsKey(attributeName)).isTrue();
-		assertThat(record.get(attributeName).size()).isEqualTo(values.length);
+		assertThat(record.get(attributeName)).hasSize(values.length);
 		for (int i = 0; i < values.length; i++) {
 			assertThat(record.get(attributeName).get(i)).isEqualTo(values[i]);
 		}
