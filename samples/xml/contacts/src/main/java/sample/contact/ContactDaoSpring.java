@@ -108,7 +108,7 @@ public class ContactDaoSpring extends JdbcDaoSupport implements ContactDao {
 
 	private Contact mapContact(ResultSet rs) throws SQLException {
 		Contact contact = new Contact();
-		contact.setId(new Long(rs.getLong("id")));
+		contact.setId(rs.getLong("id"));
 		contact.setName(rs.getString("contact_name"));
 		contact.setEmail(rs.getString("email"));
 

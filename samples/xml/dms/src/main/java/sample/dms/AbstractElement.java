@@ -41,7 +41,7 @@ public abstract class AbstractElement {
 	protected AbstractElement() {
 		this.name = "/";
 		this.parent = null;
-		this.id = new Long(-1);
+		this.id = Long.valueOf(-1);
 	}
 
 	/**

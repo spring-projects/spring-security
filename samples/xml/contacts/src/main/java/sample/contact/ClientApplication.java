@@ -58,7 +58,9 @@ public class ClientApplication {
 
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 
-		for (String beanName : contactServices.keySet()) {
+		for (Map.Entry<String,ContactManager> entry : contactServices.entrySet()) {
+			String beanName = entry.getKey();
+			ContactManager remoteContactManager = entry.getValue();
 			Object object = this.beanFactory.getBean("&" + beanName);
 
 			try {
@@ -101,7 +103,6 @@ public class ClientApplication {
 			catch (InvocationTargetException ignored) {
 			}
 
-			ContactManager remoteContactManager = contactServices.get(beanName);
 			System.out.println("Calling ContactManager '" + beanName + "'");
 
 			stopWatch.start(beanName);

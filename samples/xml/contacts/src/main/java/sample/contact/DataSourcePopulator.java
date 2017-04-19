@@ -164,7 +164,7 @@ public class DataSourcePopulator implements InitializingBean {
 		// Create acl_object_identity rows (and also acl_class rows as needed
 		for (int i = 1; i < createEntities; i++) {
 			final ObjectIdentity objectIdentity = new ObjectIdentityImpl(Contact.class,
-					new Long(i));
+					Long.valueOf(i));
 			tt.execute(new TransactionCallback<Object>() {
 				public Object doInTransaction(TransactionStatus arg0) {
 					mutableAclService.createAcl(objectIdentity);
@@ -241,7 +241,7 @@ public class DataSourcePopulator implements InitializingBean {
 	private void grantPermissions(int contactNumber, String recipientUsername,
 			Permission permission) {
 		AclImpl acl = (AclImpl) mutableAclService.readAclById(new ObjectIdentityImpl(
-				Contact.class, new Long(contactNumber)));
+				Contact.class, Long.valueOf(contactNumber)));
 		acl.insertAce(acl.getEntries().size(), permission, new PrincipalSid(
 				recipientUsername), true);
 		updateAclInTransaction(acl);
