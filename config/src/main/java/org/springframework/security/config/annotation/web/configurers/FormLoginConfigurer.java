@@ -71,11 +71,19 @@ public final class FormLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
 		AbstractAuthenticationFilterConfigurer<H, FormLoginConfigurer<H>, UsernamePasswordAuthenticationFilter> {
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance with default authentication processing filter.
 	 * @see HttpSecurity#formLogin()
 	 */
 	public FormLoginConfigurer() {
-		super(new UsernamePasswordAuthenticationFilter(), null);
+		this(new UsernamePasswordAuthenticationFilter());
+	}
+
+	/**
+	 * Creates a new instance with custom authentication processing filter.
+	 * @see HttpSecurity#formLogin(UsernamePasswordAuthenticationFilter)
+	 */
+	public FormLoginConfigurer(UsernamePasswordAuthenticationFilter authenticationProcessingFilter) {
+		super(authenticationProcessingFilter, null);
 		usernameParameter("username");
 		passwordParameter("password");
 	}

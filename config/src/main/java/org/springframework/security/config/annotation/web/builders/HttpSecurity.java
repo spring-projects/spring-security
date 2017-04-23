@@ -897,6 +897,18 @@ public final class HttpSecurity extends
 	}
 
 	/**
+	 * Specifies to support form based authentication with custom authentication processing filter.
+	 * For more info see {@link HttpSecurity#formLogin()}
+	 *
+	 * @param authenticationProcessingFilter custom authentication processing filter
+	 * @return
+	 * @throws Exception
+     */
+	public FormLoginConfigurer<HttpSecurity> formLogin(UsernamePasswordAuthenticationFilter authenticationProcessingFilter) throws Exception {
+		return getOrApply(new FormLoginConfigurer<HttpSecurity>(authenticationProcessingFilter));
+	}
+
+	/**
 	 * Configures channel security. In order for this configuration to be useful at least
 	 * one mapping to a required channel must be provided.
 	 *
