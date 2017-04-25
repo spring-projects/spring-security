@@ -5,7 +5,7 @@ buildscript {
 	}
 	repositories {
 		maven { url 'https://repo.spring.io/libs-snapshot' }
-		maven { url 'https://repo.spring.io/plugins-release' }
+		maven { url 'https://repo.spring.io/plugins-snapshot' }
 	}
 }
 apply plugin: 'io.spring.convention.root'
