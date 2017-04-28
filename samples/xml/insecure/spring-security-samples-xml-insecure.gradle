@@ -1,0 +1,11 @@
+apply plugin: 'io.spring.convention.spring-sample-war'
+
+dependencies {
+	compile jstlDependencies
+	compile slf4jDependencies
+
+	providedCompile 'javax.servlet:javax.servlet-api'
+	providedCompile 'javax.servlet.jsp:javax.servlet.jsp-api'
+
+	integrationTestCompile gebDependencies
+}

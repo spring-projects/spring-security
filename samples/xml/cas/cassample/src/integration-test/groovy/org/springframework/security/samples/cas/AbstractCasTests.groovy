@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.samples.cas;
+package org.springframework.security.samples.cas
+
+import org.springframework.security.samples.cas.pages.LoginPage;
 
 import java.io.File;
 
@@ -27,4 +29,8 @@ import geb.spock.*
  */
 class AbstractCasTests extends GebReportingSpec {
 
+	def cleanupSpec() {
+		to LoginPage
+		resetBrowser()
+	}
 }

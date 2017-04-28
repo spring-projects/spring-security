@@ -6,7 +6,7 @@ import org.gradle.api.tasks.*
 
 public class MavenBomTask extends DefaultTask {
 
-	Set<Project> projects
+	Set<Project> projects = []
 
 	File bomFile
 

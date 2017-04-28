@@ -1,0 +1,65 @@
+apply plugin: 'io.spring.convention.spring-module'
+apply plugin: 'trang'
+
+dependencies {
+	// NB: Don't add other compile time dependencies to the config module as this breaks tooling
+	compile project(':spring-security-core')
+	compile 'aopalliance:aopalliance:1.0'
+	compile 'org.springframework:spring-aop'
+	compile 'org.springframework:spring-beans'
+	compile 'org.springframework:spring-context'
+	compile 'org.springframework:spring-core'
+
+	optional project(':spring-security-ldap')
+	optional project(':spring-security-messaging')
+	optional project(':spring-security-openid')
+	optional project(':spring-security-web')
+	optional 'org.aspectj:aspectjweaver'
+	optional 'org.springframework:spring-jdbc'
+	optional 'org.springframework:spring-tx'
+	optional 'org.springframework:spring-webmvc'
+	optional'org.springframework:spring-web'
+	optional'org.springframework:spring-websocket'
+
+	provided 'javax.servlet:javax.servlet-api'
+
+	testCompile project(':spring-security-aspects')
+	testCompile project(':spring-security-cas')
+	testCompile project(path : ':spring-security-core', configuration : 'tests')
+	testCompile apachedsDependencies
+	testCompile powerMockDependencies
+	testCompile spockDependencies
+	testCompile 'javax.annotation:jsr250-api:1.0'
+	testCompile 'ldapsdk:ldapsdk:4.1'
+	testCompile 'org.codehaus.groovy:groovy-all'
+	testCompile 'org.eclipse.persistence:javax.persistence'
+	testCompile 'org.hibernate:hibernate-entitymanager'
+	testCompile 'org.hsqldb:hsqldb'
+	testCompile ('org.openid4java:openid4java-nodeps') {
+		exclude group: 'com.google.code.guice', module: 'guice'
+	}
+	testCompile 'org.slf4j:jcl-over-slf4j'
+	testCompile 'org.springframework.ldap:spring-ldap-core'
+	testCompile 'org.springframework:spring-expression'
+	testCompile 'org.springframework:spring-jdbc'
+	testCompile 'org.springframework:spring-orm'
+	testCompile 'org.springframework:spring-tx'
+	testCompile ('org.springframework.data:spring-data-jpa') {
+		exclude group: 'org.aspectj', module: 'aspectjrt'
+	}
+
+	testRuntime 'cglib:cglib-nodep'
+	testRuntime 'org.hsqldb:hsqldb'
+}
+
+test {
+	inputs.file file("$rootDir/docs/manual/src/docbook/appendix-namespace.xml")
+}
+
+rncToXsd {
+	rncDir = file('src/main/resources/org/springframework/security/config/')
+	xsdDir = rncDir
+	xslFile = new File(rncDir, 'spring-security.xsl')
+}
+
+build.dependsOn rncToXsd

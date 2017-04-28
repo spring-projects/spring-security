@@ -28,8 +28,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -74,7 +74,8 @@ public class DefaultFilterChainValidatorTests {
 				AnyRequestMatcher.INSTANCE, aaf, etf, fsi);
 		fcp = new FilterChainProxy(securityChain);
 		validator = new DefaultFilterChainValidator();
-		Whitebox.setInternalState(validator, "logger", logger);
+
+		ReflectionTestUtils.setField(validator, "logger", logger);
 	}
 
 	// SEC-1878

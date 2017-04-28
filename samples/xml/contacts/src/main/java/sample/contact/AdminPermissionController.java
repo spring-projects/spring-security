@@ -83,8 +83,8 @@ public final class AdminPermissionController implements MessageSourceAware {
 	 */
 	@RequestMapping(value = "/secure/addPermission.htm", method = RequestMethod.GET)
 	public ModelAndView displayAddPermissionPageForContact(
-			@RequestParam("contactId") int contactId) {
-		Contact contact = contactManager.getById(new Long(contactId));
+			@RequestParam("contactId") long contactId) {
+		Contact contact = contactManager.getById(contactId);
 
 		AddPermission addPermission = new AddPermission();
 		addPermission.setContact(contact);
@@ -141,10 +141,10 @@ public final class AdminPermissionController implements MessageSourceAware {
 	 * Deletes a permission
 	 */
 	@RequestMapping(value = "/secure/deletePermission.htm")
-	public ModelAndView deletePermission(@RequestParam("contactId") int contactId,
+	public ModelAndView deletePermission(@RequestParam("contactId") long contactId,
 			@RequestParam("sid") String sid, @RequestParam("permission") int mask) {
 
-		Contact contact = contactManager.getById(new Long(contactId));
+		Contact contact = contactManager.getById(contactId);
 
 		Sid sidObject = new PrincipalSid(sid);
 		Permission permission = permissionFactory.buildFromMask(mask);

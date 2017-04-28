@@ -26,10 +26,10 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.reflect.internal.WhiteboxImpl;
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
 import org.springframework.messaging.Message;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.ClassUtils;
 
 /**
@@ -87,7 +87,7 @@ public class SecurityNamespaceHandlerTests {
 
 		Log logger = mock(Log.class);
 		SecurityNamespaceHandler handler = new SecurityNamespaceHandler();
-		WhiteboxImpl.setInternalState(handler, Log.class, logger);
+		ReflectionTestUtils.setField(handler, "logger", logger);
 
 		handler.init();
 

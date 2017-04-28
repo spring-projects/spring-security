@@ -1,6 +1,0 @@
-dependencies {
-	compile project(':spring-security-core'),
-			springCoreDependency,
-			"org.springframework.data:spring-data-commons:$springDataCommonsVersion"
-
-}

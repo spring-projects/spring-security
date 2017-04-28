@@ -1,0 +1,12 @@
+apply plugin: 'io.spring.convention.spring-module'
+apply plugin: 'aspectj'
+
+dependencies {
+	compile project(':spring-security-core')
+	compile 'org.springframework:spring-beans'
+	compile 'org.springframework:spring-context'
+	compile 'org.springframework:spring-core'
+
+	testCompile 'aopalliance:aopalliance'
+	testCompile 'org.springframework:spring-aop'
+}

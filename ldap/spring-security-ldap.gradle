@@ -1,0 +1,37 @@
+apply plugin: 'io.spring.convention.spring-module'
+
+dependencies {
+	compile project(':spring-security-core')
+	compile 'org.springframework:spring-beans'
+	compile 'org.springframework:spring-context'
+	compile 'org.springframework:spring-core'
+	compile 'org.springframework:spring-tx'
+
+	optional apachedsDependencies
+	optional 'ldapsdk:ldapsdk'
+	optional 'org.apache.directory.shared:shared-ldap'
+
+	compile ('org.springframework.ldap:spring-ldap-core') {
+		exclude(group: 'commons-logging', module: 'commons-logging')
+		exclude(group: 'org.springframework', module: 'spring-beans')
+		exclude(group: 'org.springframework', module: 'spring-core')
+		exclude(group: 'org.springframework', module: 'spring-tx')
+		exclude(group: 'org.springframework.data', module: 'spring-data-commons')
+	}
+
+	testCompile 'org.slf4j:jcl-over-slf4j'
+	testCompile 'org.slf4j:slf4j-api'
+}
+
+integrationTest {
+	include('**/ApacheDSServerIntegrationTests.class', '**/ApacheDSEmbeddedLdifTests.class')
+//	  exclude('**/OpenLDAPIntegrationTestSuite.class')
+	maxParallelForks = 1
+}
+
+// Runs a server for running the integration tests against (from an IDE, for example)
+task(ldapServer, dependsOn: 'integrationTestClasses', type: JavaExec) {
+	classpath = sourceSets.integrationTest.runtimeClasspath
+	main = 'org.springframework.security.ldap.ApacheDSServerIntegrationTests'
+}
+

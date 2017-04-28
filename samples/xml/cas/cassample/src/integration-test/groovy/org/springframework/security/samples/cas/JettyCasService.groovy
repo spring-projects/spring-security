@@ -13,23 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.samples.cas;
+package org.springframework.security.samples.cas
 
-import java.io.IOException
+import org.eclipse.jetty.http.HttpVersion
+import org.eclipse.jetty.server.HttpConfiguration
+import org.eclipse.jetty.server.HttpConnectionFactory
+import org.eclipse.jetty.server.SecureRequestCustomizer
+import org.eclipse.jetty.server.ServerConnector
+import org.eclipse.jetty.server.SslConnectionFactory
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 import javax.servlet.ServletException
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
-import org.apache.commons.httpclient.HttpClient
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.eclipse.jetty.server.Request
 import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.server.handler.AbstractHandler
-import org.eclipse.jetty.server.ssl.SslSelectChannelConnector
 import org.jasig.cas.client.proxy.ProxyGrantingTicketStorage;
 import org.jasig.cas.client.proxy.ProxyGrantingTicketStorageImpl;
-import org.jasig.cas.client.validation.Assertion
 import org.jasig.cas.client.validation.Cas20ProxyTicketValidator;
 
 /**
@@ -54,6 +56,7 @@ class JettyCasService extends Server {
 	 * @return
 	 */
 	def init(String casServerUrl) {
+		println "Initializing to " + casServerUrl
 		ProxyGrantingTicketStorage storage = new ProxyGrantingTicketStorageImpl()
 		validator = new Cas20ProxyTicketValidator(casServerUrl)
 		validator.setAcceptAnyProxy(true)
@@ -61,12 +64,31 @@ class JettyCasService extends Server {
 		validator.setProxyCallbackUrl(absoluteUrl('callback'))
 
 		String password = System.getProperty('javax.net.ssl.trustStorePassword','password')
-		SslSelectChannelConnector ssl_connector = new SslSelectChannelConnector()
-		ssl_connector.setPort(port)
-		ssl_connector.setKeystore(getTrustStore())
-		ssl_connector.setPassword(password)
-		ssl_connector.setKeyPassword(password)
-		addConnector(ssl_connector)
+
+
+		SslContextFactory sslContextFactory = new SslContextFactory();
+		sslContextFactory.setKeyStorePath(getTrustStore());
+		sslContextFactory.setKeyStorePassword(password);
+		sslContextFactory.setKeyManagerPassword(password);
+
+		HttpConfiguration http_config = new HttpConfiguration();
+		http_config.setSecureScheme("https");
+		http_config.setSecurePort(availablePort());
+		http_config.setOutputBufferSize(32768);
+
+		HttpConfiguration https_config = new HttpConfiguration(http_config);
+		SecureRequestCustomizer src = new SecureRequestCustomizer();
+		src.setStsMaxAge(2000);
+		src.setStsIncludeSubDomains(true);
+		https_config.addCustomizer(src);
+
+		ServerConnector https = new ServerConnector(this,
+			new SslConnectionFactory(sslContextFactory,HttpVersion.HTTP_1_1.asString()),
+			new HttpConnectionFactory(https_config));
+		https.setPort(port);
+		https.setIdleTimeout(500000);
+
+		addConnector(https)
 		setHandler(new AbstractHandler() {
 			public void handle(String target, Request baseRequest,
 					HttpServletRequest request, HttpServletResponse response)

@@ -1,0 +1,16 @@
+apply plugin: 'io.spring.convention.spring-module'
+
+dependencies {
+	compile project(':spring-security-core')
+	compile project(':spring-security-web')
+	compile 'org.springframework:spring-core'
+	compile 'org.springframework:spring-test'
+
+	optional project(':spring-security-config')
+
+	provided 'javax.servlet:javax.servlet-api'
+
+	testCompile 'org.springframework:spring-webmvc'
+	testCompile 'org.springframework:spring-tx'
+	testCompile powerMockDependencies
+}
