@@ -16,6 +16,8 @@
 
 package org.springframework.security.remoting.dns;
 
+import java.util.List;
+
 /**
  * Helper class for DNS operations.
  *
@@ -34,7 +36,48 @@ public interface DnsResolver {
 	 * @throws DnsLookupException Unknown DNS error
 	 */
 	public String resolveIpAddress(String hostname) throws DnsEntryNotFoundException,
-			DnsLookupException;
+            DnsLookupException;
+
+	/**
+	 * <p>
+	 * Resolves the host names for the specified service in the specified domain
+	 *
+	 * <p>
+	 * For example, if you need the host names for an LDAP server running in the domain
+	 * springsource.com, you would call <b>resolveAllServiceEntries("ldap",
+	 * "springsource.com")</b>.
+	 *
+	 * The method will return a list of host names ordered by priority and weight.
+	 * Records with a higher priority (which means a lower number in the DNS record)
+	 * are ordered before records with a lower priority. Records with the same priority
+	 * will be ordered by weight. You will find more information about DNS service records
+	 * at <a href="http://en.wikipedia.org/wiki/SRV_record">Wikipedia</a>.
+	 *
+	 * <p>
+	 * When the DNS server provides the following records:
+	 *
+	 * <pre>
+	 * _ldap._tcp.springsource.com IN SRV 10 40 88 ldap2.springsource.com.
+	 * _ldap._tcp.springsource.com IN SRV 10 70 88 ldap1.springsource.com.
+	 * _ldap._tcp.springsource.com IN SRV 20 50 88 ldap3.springsource.com.
+	 * </pre>
+	 *
+	 * <p>
+	 * resolveAllServiceEntries would return the following list;
+	 * <pre>
+	 * [ldap1.springsource.com, ldap2.springsource.com, ldap3.springsource.com]
+	 * </pre>
+	 *
+	 * @author Hans Van Beneden
+	 * @since 4.2
+	 * @param serviceType The service type you are searching for, e.g. ldap, kerberos, ...
+	 * @param domain The domain, in which you are searching for the service
+	 * @return A list of hostnames for the service
+	 * @throws DnsEntryNotFoundException No record found
+	 * @throws DnsLookupException Unknown DNS error
+	 */
+	public List<String> resolveAllServiceEntries(String serviceType, String domain)
+			throws DnsEntryNotFoundException, DnsLookupException;
 
 	/**
 	 * <p>
@@ -83,4 +126,18 @@ public interface DnsResolver {
 	public String resolveServiceIpAddress(String serviceType, String domain)
 			throws DnsEntryNotFoundException, DnsLookupException;
 
+	/**
+	 * Resolves the host names for the specified service and then the IP Addresses for these
+	 * hosts in one call.
+	 *
+	 * @param serviceType The service type you are searching for, e.g. ldap, kerberos, ...
+	 * @param domain The domain, in which you are searching for the service
+	 * @return List of IP Addresses for the service ordered on priority and weight
+	 * @throws DnsEntryNotFoundException No record found
+	 * @throws DnsLookupException Unknown DNS error
+	 * @see #resolveAllServiceEntries(String, String)
+	 * @see #resolveIpAddress(String)
+	 */
+	public List<String> resolveAllServiceIpAddresses(String serviceType, String domain)
+		throws DnsEntryNotFoundException, DnsLookupException;
 }

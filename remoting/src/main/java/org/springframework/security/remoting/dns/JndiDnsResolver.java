@@ -16,9 +16,6 @@
 
 package org.springframework.security.remoting.dns;
 
-import java.util.Arrays;
-import java.util.Hashtable;
-
 import javax.naming.Context;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
@@ -27,6 +24,13 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static java.util.Comparator.comparing;
 
 /**
  * Implementation of DnsResolver which uses JNDI for the DNS queries.
@@ -81,6 +85,61 @@ public class JndiDnsResolver implements DnsResolver {
 	 * (non-Javadoc)
 	 *
 	 * @see
+	 * org.springframework.security.remoting.dns.DnsResolver#resolveAllServiceEntries(java.
+	 * lang.String, java.lang.String)
+	 */
+	public List<String> resolveAllServiceEntries(String serviceType, String domain) {
+		List<DnsRecord> dnsRecords = lookupDnsRecords(serviceType, domain, this.ctxFactory.getCtx());
+		return dnsRecords
+			.stream()
+			.map(DnsRecord::getHostName)
+			.collect(Collectors.toList());
+	}
+
+	// There may be multiple records defined, we will return a list ordered on priority and weight
+	private List<DnsRecord> lookupDnsRecords(String serviceType, String domain,
+											 DirContext ctx) {
+		List<DnsRecord> records = new ArrayList<>();
+		try {
+			String query = new StringBuilder("_").append(serviceType).append("._tcp.")
+				.append(domain).toString();
+			Attribute dnsRecord = lookup(query, ctx, "SRV");
+
+			for (NamingEnumeration<?> recordEnum = dnsRecord.getAll(); recordEnum
+				.hasMoreElements();) {
+				String[] record = recordEnum.next().toString().split(" ");
+				if (record.length != 4) {
+					throw new DnsLookupException("Wrong service record for query " + query
+						+ ": [" + Arrays.toString(record) + "]");
+				}
+				int priority = Integer.parseInt(record[0]);
+				int weight = Integer.parseInt(record[1]);
+				String hostName = removeTrailingDot(record[3].trim());
+				records.add(new DnsRecord(hostName, priority, weight));
+			}
+		} catch (NamingException e) {
+			throw new DnsLookupException(
+				"DNS lookup failed for service " + serviceType + " at " + domain, e);
+		}
+
+		records.sort(
+			comparing(DnsRecord::getPriority)
+			.thenComparing((comparing(DnsRecord::getWeight)).reversed()));
+
+		return records;
+	}
+
+	private String removeTrailingDot(String hostName) {
+		if (hostName.endsWith(".")) {
+			hostName = hostName.substring(0, hostName.length() - 1);
+		}
+		return hostName;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see
 	 * org.springframework.security.remoting.dns.DnsResolver#resolveServiceIpAddress(java
 	 * .lang.String, java.lang.String)
 	 */
@@ -88,6 +147,21 @@ public class JndiDnsResolver implements DnsResolver {
 		DirContext ctx = this.ctxFactory.getCtx();
 		String hostname = resolveServiceEntry(serviceType, domain, ctx);
 		return resolveIpAddress(hostname, ctx);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see
+	 * org.springframework.security.remoting.dns.DnsResolver#resolveAllServiceIpAddresses(java
+	 * .lang.String, java.lang.String)
+	 */
+	public List<String> resolveAllServiceIpAddresses(String serviceType, String domain) {
+		List<String> hostNames = resolveAllServiceEntries(serviceType, domain);
+		return hostNames
+			.stream()
+			.map(this::resolveIpAddress)
+			.collect(Collectors.toList());
 	}
 
 	// This method is needed, so that we can use only one DirContext for
@@ -108,50 +182,10 @@ public class JndiDnsResolver implements DnsResolver {
 	// This method is needed, so that we can use only one DirContext for
 	// resolveServiceIpAddress().
 	private String resolveServiceEntry(String serviceType, String domain,
-			DirContext ctx) {
-		String result = null;
-		try {
-			String query = new StringBuilder("_").append(serviceType).append("._tcp.")
-					.append(domain).toString();
-			Attribute dnsRecord = lookup(query, ctx, "SRV");
-			// There are maybe more records defined, we will return the one
-			// with the highest priority (lowest number) and the highest weight
-			// (highest number)
-			int highestPriority = -1;
-			int highestWeight = -1;
+									   DirContext ctx) {
 
-			for (NamingEnumeration<?> recordEnum = dnsRecord.getAll(); recordEnum
-					.hasMoreElements();) {
-				String[] record = recordEnum.next().toString().split(" ");
-				if (record.length != 4) {
-					throw new DnsLookupException("Wrong service record for query " + query
-							+ ": [" + Arrays.toString(record) + "]");
-				}
-				int priority = Integer.parseInt(record[0]);
-				int weight = Integer.parseInt(record[1]);
-				// we have a new highest Priority, so forget also the highest weight
-				if (priority < highestPriority || highestPriority == -1) {
-					highestPriority = priority;
-					highestWeight = weight;
-					result = record[3].trim();
-				}
-				// same priority, but higher weight
-				if (priority == highestPriority && weight > highestWeight) {
-					highestWeight = weight;
-					result = record[3].trim();
-				}
-			}
-		}
-		catch (NamingException e) {
-			throw new DnsLookupException(
-					"DNS lookup failed for service " + serviceType + " at " + domain, e);
-		}
-
-		// remove the "." at the end
-		if (result.endsWith(".")) {
-			result = result.substring(0, result.length() - 1);
-		}
-		return result;
+		DnsRecord dnsRecord = lookupDnsRecords(serviceType, domain, ctx).get(0);
+		return dnsRecord != null ? dnsRecord.getHostName() : null;
 	}
 
 	private Attribute lookup(String query, DirContext ictx, String recordType) {
@@ -185,6 +219,30 @@ public class JndiDnsResolver implements DnsResolver {
 						"Cannot create InitialDirContext for DNS lookup", e);
 			}
 			return ictx;
+		}
+	}
+
+	private class DnsRecord {
+		private String hostName;
+		private int priority;
+		private int weight;
+
+		DnsRecord(String hostName, int priority, int weight) {
+			this.hostName = hostName;
+			this.priority = priority;
+			this.weight = weight;
+		}
+
+		String getHostName() {
+			return hostName;
+		}
+
+		int getPriority() {
+			return priority;
+		}
+
+		int getWeight() {
+			return weight;
 		}
 	}
 }

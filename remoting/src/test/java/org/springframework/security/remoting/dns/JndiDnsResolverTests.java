@@ -16,8 +16,8 @@
 
 package org.springframework.security.remoting.dns;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import org.junit.Before;
+import org.junit.Test;
 
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
@@ -25,9 +25,10 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
+import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 /**
  *
@@ -79,6 +80,17 @@ public class JndiDnsResolverTests {
 		assertThat(hostname).isEqualTo("kdc.springsource.com");
 	}
 
+	@Test
+	public void resolveAllServiceEntries() throws Exception {
+		BasicAttributes records = createSrvRecords();
+
+		when(context.getAttributes("_ldap._tcp.springsource.com", new String[] { "SRV" }))
+			.thenReturn(records);
+
+		List<String> actual = dnsResolver.resolveAllServiceEntries("ldap", "springsource.com");
+		assertThat(actual).containsExactly("kdc.springsource.com", "kdc2.springsource.com", "kdc3.springsource.com", "kdc4.springsource.com");
+	}
+
 	@Test(expected = DnsEntryNotFoundException.class)
 	public void testResolveServiceEntryNotExisting() throws Exception {
 		when(context.getAttributes(any(String.class), any(String[].class))).thenThrow(
@@ -99,6 +111,30 @@ public class JndiDnsResolverTests {
 		String ipAddress = dnsResolver
 				.resolveServiceIpAddress("ldap", "springsource.com");
 		assertThat(ipAddress).isEqualTo("63.246.7.80");
+	}
+
+	@Test
+	public void testResolveAllServiceIpAddresses() throws Exception {
+		BasicAttributes srvRecords = createSrvRecords();
+		BasicAttributes aRecords1 = new BasicAttributes("A", "63.246.7.80");
+		BasicAttributes aRecords2 = new BasicAttributes("A", "63.246.7.81");
+		BasicAttributes aRecords3 = new BasicAttributes("A", "63.246.7.82");
+		BasicAttributes aRecords4 = new BasicAttributes("A", "63.246.7.83");
+
+		when(context.getAttributes("_ldap._tcp.springsource.com", new String[] { "SRV" }))
+			.thenReturn(srvRecords);
+		when(context.getAttributes("kdc.springsource.com", new String[] { "A" }))
+			.thenReturn(aRecords1);
+		when(context.getAttributes("kdc2.springsource.com", new String[] { "A" }))
+			.thenReturn(aRecords2);
+		when(context.getAttributes("kdc3.springsource.com", new String[] { "A" }))
+			.thenReturn(aRecords3);
+		when(context.getAttributes("kdc4.springsource.com", new String[] { "A" }))
+			.thenReturn(aRecords4);
+
+		List<String> actual = dnsResolver
+			.resolveAllServiceIpAddresses("ldap", "springsource.com");
+		assertThat(actual).containsExactly("63.246.7.80", "63.246.7.81", "63.246.7.82", "63.246.7.83");
 	}
 
 	@Test(expected = DnsLookupException.class)
