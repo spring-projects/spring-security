@@ -2,20 +2,20 @@
 
 dependencies {
 	compile project(':spring-security-core'),
-		springCoreDependency,
-		'aopalliance:aopalliance:1.0',
-		"org.springframework:spring-aop:$springVersion",
-		"org.springframework:spring-context:$springVersion",
-		"org.springframework:spring-expression:$springVersion",
-		"org.springframework:spring-tx:$springVersion",
-		"org.springframework:spring-jdbc:$springVersion",
-		"com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion"
+		"org.springframework:spring-core",
+		"aopalliance:aopalliance",
+		"org.springframework:spring-aop",
+		"org.springframework:spring-context",
+		"org.springframework:spring-expression",
+		"org.springframework:spring-tx",
+		"org.springframework:spring-jdbc",
+		"com.fasterxml.jackson.core:jackson-databind"
 
 
-	testCompile "org.springframework:spring-beans:$springVersion",
-		"org.springframework:spring-context-support:$springVersion",
-		"org.springframework:spring-test:$springVersion",
-		"org.springframework:spring-web:$springVersion",
+	testCompile "org.springframework:spring-beans",
+		"org.springframework:spring-context-support",
+		"org.springframework:spring-test",
+		"org.springframework:spring-web",
 		"com.h2database:h2:1.4.194"
 
 }
