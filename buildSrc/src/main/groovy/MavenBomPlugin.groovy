@@ -13,6 +13,8 @@ public class MavenBomPlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		project.plugins.apply(JavaPlugin)
 		project.plugins.apply(MavenPlugin)
+
+		project.group = project.rootProject.group
 		project.task(MAVEN_BOM_TASK_NAME, type: MavenBomTask, group: 'Generate', description: 'Configures the pom as a Maven Build of Materials (BOM)')
 		project.install.dependsOn project.mavenBom
 	}
