@@ -14,5 +14,5 @@ dependencies {
 	testCompile 'org.springframework:spring-context-support'
 	testCompile 'org.springframework:spring-test'
 	testCompile 'org.springframework:spring-web'
-	testRuntime 'com.h2database:h2:1.4.194'
+	testCompile 'com.h2database:h2:1.4.194'
 }
