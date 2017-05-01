@@ -3,9 +3,6 @@ apply plugin: 'io.spring.convention.spring-module'
 def includeProject = project(':spring-security-crypto')
 
 configurations {
-	tests
-	published.extendsFrom tests, archives
-
 	included
 	compile.extendsFrom included
 }
@@ -48,21 +45,4 @@ tasks.sourcesJar.from {includeProject.sourceSets.main.java}
 configure(project.tasks.withType(Test)) {
 	systemProperties['springSecurityVersion'] = version
 	systemProperties['springVersion'] = project.dependencyManagement.managedVersions['org.springframework:spring-core']
-}
-
-task testJar(type: Jar) {
-	classifier = 'tests'
-	from sourceSets.test.output
-}
-
-artifacts {
-	tests testJar
-}
-
-uploadPublished {
-	// maven deployer configuration
-}
-
-install {
-	configuration = configurations.published
 }
