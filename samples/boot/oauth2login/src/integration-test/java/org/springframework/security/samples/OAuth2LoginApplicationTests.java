@@ -399,7 +399,7 @@ public class OAuth2LoginApplicationTests {
 
 	@SpringBootConfiguration
 	@EnableAutoConfiguration
-	@ComponentScan(basePackages = "org.springframework.security.samples.web")
+	@ComponentScan(basePackages = "sample.web")
 	public static class SpringBootApplicationTestConfig {
 	}
 }

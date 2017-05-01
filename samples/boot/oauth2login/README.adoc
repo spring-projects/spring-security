@@ -21,7 +21,7 @@ NOTE: The _"authentication flow"_ is realized using the *Authorization Code Gran
 
 The sample application contains the following package structure and artifacts:
 
-*org.springframework.security.samples*
+*sample*
 
 [circle]
 * _OAuth2LoginApplication_ - the main class for the _Spring application_.
@@ -100,9 +100,9 @@ Replace *${client-id}* and *${client-secret}* with the OAuth 2.0 credentials cre
 [[google-login-run-sample]]
 === Running the sample
 
-Launch the Spring Boot application by running *_org.springframework.security.samples.OAuth2LoginApplication_*.
+Launch the Spring Boot application by running *_sample.OAuth2LoginApplication_*.
 
-After the application successfully starts up, go to http://localhost:8080. You will be redirected to http://localhost:8080/login, which will display an _auto-generated login page_ with an anchor link for *Google*.
+After the application successfully starts up, go to http://localhost:8080. You'll then be redirected to http://localhost:8080/login, which will display an _auto-generated login page_ with an anchor link for *Google*.
 
 Click through on the Google link and you'll be redirected to Google for authentication.
 
@@ -111,7 +111,247 @@ The Consent screen will ask you to either *_Allow_* or *_Deny_* access to the OA
 Click *_Allow_* to authorize the OAuth Client to access your _email address_ and _basic profile_ information.
 
 At this point, the OAuth Client will retrieve your email address and basic profile information from the http://openid.net/specs/openid-connect-core-1_0.html#UserInfo[*UserInfo Endpoint*] and establish an _authenticated session_.
-The home page will then be displayed showing the user attributes retrieved from the *UserInfo Endpoint*, for example, name, email, profile, sub, etc.
+The home page will then be displayed showing the user attributes retrieved from the UserInfo Endpoint, for example, name, email, profile, sub, etc.
+
+[[github-login]]
+== Setting up *_Login with GitHub_*
+
+The goal for this section of the guide is to setup login using GitHub as the _Authentication Provider_.
+
+NOTE: https://developer.github.com/v3/oauth/[GitHub's OAuth 2.0 implementation] supports the standard
+ https://tools.ietf.org/html/rfc6749#section-4.1[authorization code grant type].
+ However, it *does not* implement the _OpenID Connect 1.0_ specification.
+
+[[github-login-register-application]]
+=== Register OAuth application
+
+In order to use GitHub's OAuth 2.0 authentication system for login, you must https://github.com/settings/applications/new[_Register a new OAuth application_].
+
+While registering your application, ensure the *Authorization callback URL* is set to *http://localhost:8080/oauth2/authorize/code/github*.
+
+NOTE: The *Authorization callback URL* (or redirect URI) is the path in the sample application that the end-user's user-agent is redirected back to after they have authenticated with GitHub
+ and have granted access to the OAuth application on the *Authorize application* page.
+
+TIP: The default redirect URI is *_"{scheme}://{serverName}:{serverPort}/oauth2/authorize/code/{clientAlias}"_*.
+ See <<oauth2-client-properties, OAuth client properties>> for more details on this default.
+
+After completing the registration, you should have created a new *OAuth Application* with credentials consisting of a *Client ID* and *Client Secret*.
+
+[[github-login-configure-application-yml]]
+=== Configuring application.yml
+
+Now that we have created a new OAuth application with GitHub, we need to configure the sample application to use this OAuth application (client) for the _authentication flow_.
+
+Go to *_src/main/resources_* and edit *application.yml*. Add the following configuration:
+
+[source,yaml]
+----
+security:
+  oauth2:
+    client:
+      github:
+        client-id: ${client-id}
+        client-secret: ${client-secret}
+----
+
+Replace *${client-id}* and *${client-secret}* with the OAuth 2.0 credentials created in the previous section <<github-login-register-application, Register OAuth application>>.
+
+[TIP]
+.OAuth client properties
+====
+. *security.oauth2.client* is the *_base property prefix_* for OAuth client properties.
+. Just below the *_base property prefix_* is the *_client property key_*, for example *security.oauth2.client.github*.
+. At the base of the *_client property key_* are the properties for specifying the configuration for an OAuth Client.
+ A list of these properties are detailed in <<oauth2-client-properties, OAuth client properties>>.
+====
+
+[[github-login-run-sample]]
+=== Running the sample
+
+Launch the Spring Boot application by running *_sample.OAuth2LoginApplication_*.
+
+After the application successfully starts up, go to http://localhost:8080. You'll then be redirected to http://localhost:8080/login, which will display an _auto-generated login page_ with an anchor link for *GitHub*.
+
+Click through on the GitHub link and you'll be redirected to GitHub for authentication.
+
+After you authenticate using your GitHub credentials, the next page presented to you is *Authorize application*.
+This page will ask you to *Authorize* the application you created in the previous step <<github-login-register-application, Register OAuth application>>.
+Click *_Authorize application_* to allow the OAuth application to access your _Personal user data_ information.
+
+At this point, the OAuth application will retrieve your personal user information from the *UserInfo Endpoint* and establish an _authenticated session_.
+The home page will then be displayed showing the user attributes retrieved from the UserInfo Endpoint, for example, id, name, email, login, etc.
+
+TIP: For detailed information returned from the *UserInfo Endpoint* see the API documentation
+ for https://developer.github.com/v3/users/#get-the-authenticated-user[_Get the authenticated user_].
+
+[[facebook-login]]
+== Setting up *_Login with Facebook_*
+
+The goal for this section of the guide is to setup login using Facebook as the _Authentication Provider_.
+
+NOTE: Facebook provides support for developers to https://developers.facebook.com/docs/facebook-login/manually-build-a-login-flow[_Manually Build a Login Flow_].
+ The _login flow_ uses browser-based redirects, which essentially implements the https://tools.ietf.org/html/rfc6749#section-4.1[authorization code grant type].
+ (NOTE: Facebook partially implements the _OAuth 2.0 Authorization Framework_, however, it *does not* implement the _OpenID Connect 1.0_ specification.)
+
+[[facebook-login-register-application]]
+=== Add a New App
+
+In order to use Facebook's OAuth 2.0 authentication system for login, you must first https://developers.facebook.com/apps[_Add a New App_].
+
+After clicking _"Create a New App"_, the _"Create a New App ID"_ page is presented. Enter the Display Name, Contact Email, Category and then click _"Create App ID"_.
+
+NOTE: The selection for the _Category_ field is not relevant but it's a required field - select _"Local"_.
+
+The next page presented is _"Product Setup"_. Click the _"Get Started"_ button for the *_Facebook Login_* product. In the left sidebar, under *_Products -> Facebook Login_*, select *_Settings_*.
+
+For the field *Valid OAuth redirect URIs*, enter *http://localhost:8080/oauth2/authorize/code/facebook* then click _"Save Changes"_.
+
+NOTE: The *OAuth redirect URI* is the path in the sample application that the end-user's user-agent is redirected back to after they have authenticated with Facebook
+ and have granted access to the application on the *Authorize application* page.
+
+TIP: The default redirect URI is *_"{scheme}://{serverName}:{serverPort}/oauth2/authorize/code/{clientAlias}"_*.
+ See <<oauth2-client-properties, OAuth client properties>> for more details on this default.
+
+Your application has now been assigned new OAuth 2.0 credentials under *App ID* and *App Secret*.
+
+[[facebook-login-configure-application-yml]]
+=== Configuring application.yml
+
+Now that we have created a new application with Facebook, we need to configure the sample application to use this application (client) for the _authentication flow_.
+
+Go to *_src/main/resources_* and edit *application.yml*. Add the following configuration:
+
+[source,yaml]
+----
+security:
+  oauth2:
+    client:
+      facebook:
+        client-id: ${app-id}
+        client-secret: ${app-secret}
+----
+
+Replace *${app-id}* and *${app-secret}* with the OAuth 2.0 credentials created in the previous section <<facebook-login-register-application, Add a New App>>.
+
+[TIP]
+.OAuth client properties
+====
+. *security.oauth2.client* is the *_base property prefix_* for OAuth client properties.
+. Just below the *_base property prefix_* is the *_client property key_*, for example *security.oauth2.client.facebook*.
+. At the base of the *_client property key_* are the properties for specifying the configuration for an OAuth Client.
+ A list of these properties are detailed in <<oauth2-client-properties, OAuth client properties>>.
+====
+
+[[facebook-login-run-sample]]
+=== Running the sample
+
+Launch the Spring Boot application by running *_sample.OAuth2LoginApplication_*.
+
+After the application successfully starts up, go to http://localhost:8080. You'll then be redirected to http://localhost:8080/login, which will display an _auto-generated login page_ with an anchor link for *Facebook*.
+
+Click through on the Facebook link and you'll be redirected to Facebook for authentication.
+
+After you authenticate using your Facebook credentials, the next page presented to you will be *Authorize application*.
+This page will ask you to *Authorize* the application you created in the previous step <<facebook-login-register-application, Add a New App>>.
+Click *_Authorize application_* to allow the OAuth application to access your _public profile_ and _email address_.
+
+At this point, the OAuth application will retrieve your personal user information from the *UserInfo Endpoint* and establish an _authenticated session_.
+The home page will then be displayed showing the user attributes retrieved from the UserInfo Endpoint, for example, id, name, etc.
+
+[[okta-login]]
+== Setting up *_Login with Okta_*
+
+The goal for this section of the guide is to setup login using Okta as the _Authentication Provider_.
+
+NOTE: http://developer.okta.com/docs/api/resources/oidc.html[Okta's OAuth 2.0 implementation] for authentication conforms to the
+ http://openid.net/connect/[OpenID Connect] specification and is http://openid.net/certification/[OpenID Certified].
+
+In order to use Okta's OAuth 2.0 authentication system for login, you must first https://www.okta.com/developer/signup[create a developer account].
+
+[[okta-login-add-auth-server]]
+=== Add Authorization Server
+
+Sign in to your account _sub-domain_ and click on the _"Admin"_ button to navigate to the administration page.
+From the top menu bar on the administration page, navigate to *_Security -> API_* and then click on the _"Add Authorization Server"_ button.
+From the _"Add Authorization Server"_ page, enter the Name, Resource URI, Description (optional) and then click _"Save"_.
+
+NOTE: The Resource URI field is not relevant but it's a required field - enter _"http://localhost:8080/oauth2/okta"_.
+
+The next page presented is the _"Settings"_ for the new Authorization Server.
+In the next step, we will create a new application that will be assigned OAuth 2.0 client credentials and registered with the Authorization Server.
+
+[[okta-login-register-application]]
+=== Add Application
+
+From the top menu bar on the administration page, navigate to *_Applications -> Applications_* and then click on the _"Add Application"_ button.
+From the _"Add Application"_ page, click on the _"Create New App"_ button and enter the following:
+
+* *Platform:* Web
+* *Sign on method:* OpenID Connect
+
+Click on the _"Create"_ button.
+On the _"General Settings"_ page, enter the Application Name (for example, _"Spring Security Okta Login"_) and then click on the _"Next"_ button.
+On the _"Configure OpenID Connect"_ page, enter *http://localhost:8080/oauth2/authorize/code/okta* for the field *Redirect URIs* and then click _"Finish"_.
+
+NOTE: The *Redirect URI* is the path in the sample application that the end-user's user-agent is redirected back to after they have authenticated with Okta
+ and have granted access to the application on the *Authorize application* page.
+
+TIP: The default redirect URI is *_"{scheme}://{serverName}:{serverPort}/oauth2/authorize/code/{clientAlias}"_*.
+ See <<oauth2-client-properties, OAuth client properties>> for more details on this default.
+
+The next page presented displays the _"General"_ tab selected for the application.
+The _"General"_ tab displays the _"Settings"_ and _"Client Credentials"_ used by the application.
+In the next step, we will _assign_ the application to _people_ in order to grant user(s) access to the application.
+
+[[okta-login-assign-application-people]]
+=== Assign Application to People
+
+From the _"General"_ tab of the application, select the _"People"_ tab and then click on the _"Assign to People"_ button.
+Assign your account to the application and then click on the _"Save and Go Back"_ button.
+
+[[okta-login-configure-application-yml]]
+=== Configuring application.yml
+
+Now that we have created a new application with Okta, we need to configure the sample application (client) for the _authentication flow_.
+
+Go to *_src/main/resources_* and edit *application.yml*. Add the following configuration:
+
+[source,yaml]
+----
+security:
+  oauth2:
+    client:
+      okta:
+        client-id: ${client-id}
+        client-secret: ${client-secret}
+        authorization-uri: https://${account-subdomain}.oktapreview.com/oauth2/v1/authorize
+        token-uri: https://${account-subdomain}.oktapreview.com/oauth2/v1/token
+        user-info-uri: https://${account-subdomain}.oktapreview.com/oauth2/v1/userinfo
+----
+
+Replace *${client-id}* and *${client-secret}* with the *client credentials* created in the previous section <<okta-login-register-application, Add Application>>.
+As well, replace *${account-subdomain}* in _authorization-uri_, _token-uri_ and _user-info-uri_ with the *sub-domain* assigned to your account during the registration process.
+
+[TIP]
+.OAuth client properties
+====
+. *security.oauth2.client* is the *_base property prefix_* for OAuth client properties.
+. Just below the *_base property prefix_* is the *_client property key_*, for example *security.oauth2.client.okta*.
+. At the base of the *_client property key_* are the properties for specifying the configuration for an OAuth Client.
+ A list of these properties are detailed in <<oauth2-client-properties, OAuth client properties>>.
+====
+
+[[okta-login-run-sample]]
+=== Running the sample
+
+Launch the Spring Boot application by running *_sample.OAuth2LoginApplication_*.
+
+After the application successfully starts up, go to http://localhost:8080. You'll then be redirected to http://localhost:8080/login, which will display an _auto-generated login page_ with an anchor link for *Okta*.
+
+Click through on the Okta link and you'll be redirected to Okta for authentication.
+
+After you authenticate using your Okta credentials, the OAuth Client (application) will retrieve your email address and basic profile information from the http://openid.net/specs/openid-connect-core-1_0.html#UserInfo[*UserInfo Endpoint*]
+and establish an _authenticated session_. The home page will then be displayed showing the user attributes retrieved from the UserInfo Endpoint, for example, name, email, profile, sub, etc.
 
 [[oauth2-login-auto-configuration]]
 == OAuth 2.0 Login auto-configuration
@@ -120,7 +360,7 @@ As you worked through this guide and setup OAuth 2.0 Login with one of the Provi
 we hope you noticed the ease in configuration and setup required in getting the sample up and running?
 And you may be asking, how does this all work? Thanks to some Spring Boot auto-configuration _magic_,
 we were able to automatically register the OAuth Client(s) configured in the `Environment`,
-as well, provide a minimal security configuration for OAuth 2.0 Login for these registered OAuth Client(s).
+as well, provide a minimal security configuration for OAuth 2.0 Login.
 
 The following provides an overview of the Spring Boot auto-configuration classes:
 
@@ -128,7 +368,7 @@ The following provides an overview of the Spring Boot auto-configuration classes
 *_org.springframework.boot.autoconfigure.security.oauth2.client.ClientRegistrationAutoConfiguration_*::
 `ClientRegistrationAutoConfiguration` is responsible for registering a `ClientRegistrationRepository` _bean_ with the `ApplicationContext`.
 The `ClientRegistrationRepository` is composed of one or more `ClientRegistration` instances, which are created from the OAuth client properties
-configured in the `Environment` that are prefixed with `security.oauth2.client.[client-alias]`, for example, `security.oauth2.client.google`.
+configured in the `Environment` that are prefixed with `security.oauth2.client.[client-key]`, for example, `security.oauth2.client.google`.
 
 NOTE: `ClientRegistrationAutoConfiguration` also loads a _resource_ named *oauth2-clients-defaults.yml*,
  which provides a set of default client property values for a number of _well-known_ Providers.
@@ -256,7 +496,7 @@ You will be required to provide your own _security configuration_ in order to en
 
 The following sample code demonstrates a minimal security configuration for enabling OAuth 2.0 Login.
 
-Assuming we have a _properties file_ named *oauth2-clients.properties* on the _classpath_ and it specifies all the _required_ properties for an OAuth Client, specifically _"Google"_:
+Let's assume we have a _properties file_ named *oauth2-clients.properties* on the _classpath_ and it specifies all the _required_ properties for an OAuth Client, specifically _Google_.
 
 .oauth2-clients.properties
 [source,properties]
@@ -275,7 +515,7 @@ security.oauth2.client.google.client-name=Google
 security.oauth2.client.google.client-alias=google
 ----
 
-The following _security configuration_ will enable OAuth 2.0 Login using _"Google"_ as the _Authentication Provider_:
+The following _security configuration_ will enable OAuth 2.0 Login using _Google_ as the _Authentication Provider_:
 
 [source,java]
 ----

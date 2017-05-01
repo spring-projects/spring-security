@@ -13,24 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.samples.web;
+package sample;
 
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
  * @author Joe Grandja
  */
-@Controller
-public class MainController {
+@SpringBootApplication
+public class OAuth2LoginApplication {
 
-	@RequestMapping("/")
-	public String index(Model model, @AuthenticationPrincipal OAuth2User user) {
-		model.addAttribute("userName", user.getName());
-		model.addAttribute("userAttributes", user.getAttributes());
-		return "index";
+	public OAuth2LoginApplication() {
 	}
+
+	public static void main(String[] args) {
+		SpringApplication.run(OAuth2LoginApplication.class, args);
+	}
+
 }
