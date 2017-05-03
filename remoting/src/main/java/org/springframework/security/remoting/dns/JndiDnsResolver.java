@@ -24,13 +24,7 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static java.util.Comparator.comparing;
+import java.util.*;
 
 /**
  * Implementation of DnsResolver which uses JNDI for the DNS queries.
@@ -90,10 +84,11 @@ public class JndiDnsResolver implements DnsResolver {
 	 */
 	public List<String> resolveAllServiceEntries(String serviceType, String domain) {
 		List<DnsRecord> dnsRecords = lookupDnsRecords(serviceType, domain, this.ctxFactory.getCtx());
-		return dnsRecords
-			.stream()
-			.map(DnsRecord::getHostName)
-			.collect(Collectors.toList());
+		List<String> hostNames = new ArrayList<>();
+		for(DnsRecord dnsRecord : dnsRecords) {
+			hostNames.add(dnsRecord.getHostName());
+		}
+		return hostNames;
 	}
 
 	// There may be multiple records defined, we will return a list ordered on priority and weight
@@ -122,11 +117,28 @@ public class JndiDnsResolver implements DnsResolver {
 				"DNS lookup failed for service " + serviceType + " at " + domain, e);
 		}
 
-		records.sort(
-			comparing(DnsRecord::getPriority)
-			.thenComparing((comparing(DnsRecord::getWeight)).reversed()));
-
+		sortDnsRecords(records);
 		return records;
+	}
+
+	private void sortDnsRecords(List<DnsRecord> records) {
+		Collections.sort(records, new Comparator<DnsRecord>() {
+
+			public int compare(DnsRecord dns1, DnsRecord dns2) {
+
+				Integer p1 = dns1.getPriority();
+				Integer p2 = dns2.getPriority();
+				int sComp = p1.compareTo(p2);
+
+				if (sComp != 0) {
+					return sComp;
+				} else {
+					Integer w1 = dns1.getWeight();
+					Integer w2 = dns2.getWeight();
+					return w2.compareTo(w1);
+				}
+			}});
+
 	}
 
 	private String removeTrailingDot(String hostName) {
@@ -158,10 +170,11 @@ public class JndiDnsResolver implements DnsResolver {
 	 */
 	public List<String> resolveAllServiceIpAddresses(String serviceType, String domain) {
 		List<String> hostNames = resolveAllServiceEntries(serviceType, domain);
-		return hostNames
-			.stream()
-			.map(this::resolveIpAddress)
-			.collect(Collectors.toList());
+		List<String> ips = new ArrayList<>();
+		for (String hostName : hostNames) {
+			ips.add(resolveIpAddress(hostName));
+		}
+		return ips;
 	}
 
 	// This method is needed, so that we can use only one DirContext for
