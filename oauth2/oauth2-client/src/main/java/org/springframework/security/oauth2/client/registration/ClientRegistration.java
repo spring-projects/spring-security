@@ -25,11 +25,12 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-
 /**
+ * A representation of a client registration with an <i>OAuth 2.0 Authorization Server</i>.
  *
  * @author Joe Grandja
  * @since 5.0
+ * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-2">Section 2 Client Registration</a>
  */
 public class ClientRegistration {
 	private String clientId;

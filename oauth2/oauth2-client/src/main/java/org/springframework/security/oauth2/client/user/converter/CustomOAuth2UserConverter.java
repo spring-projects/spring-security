@@ -24,9 +24,13 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import java.io.IOException;
 
 /**
+ * An implementation of a {@link Converter} that converts a {@link ClientHttpResponse}
+ * to a custom type of {@link OAuth2User}, as supplied via the constructor.
  *
  * @author Joe Grandja
  * @since 5.0
+ * @see OAuth2User
+ * @see ClientHttpResponse
  */
 public final class CustomOAuth2UserConverter<T extends OAuth2User> implements Converter<ClientHttpResponse, T> {
 	private final HttpMessageConverter jackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();

@@ -25,9 +25,13 @@ import java.io.IOException;
 import java.util.Map;
 
 /**
+ * Base implementation of a {@link Converter} that converts a {@link ClientHttpResponse}
+ * to a specific type of {@link OAuth2User}.
  *
  * @author Joe Grandja
  * @since 5.0
+ * @see OAuth2User
+ * @see ClientHttpResponse
  */
 public abstract class AbstractOAuth2UserConverter<T extends OAuth2User> implements Converter<ClientHttpResponse, T> {
 	private final HttpMessageConverter jackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();

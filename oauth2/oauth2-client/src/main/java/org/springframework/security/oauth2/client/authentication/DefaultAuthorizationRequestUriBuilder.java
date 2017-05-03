@@ -15,18 +15,22 @@
  */
 package org.springframework.security.oauth2.client.authentication;
 
+import org.springframework.security.oauth2.core.endpoint.AuthorizationRequestAttributes;
 import org.springframework.security.oauth2.core.endpoint.OAuth2Parameter;
 import org.springframework.security.oauth2.core.endpoint.ResponseType;
-import org.springframework.security.oauth2.core.endpoint.AuthorizationRequestAttributes;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.stream.Collectors;
 
 /**
+ * The default implementation of an {@link AuthorizationRequestUriBuilder},
+ * which internally uses an {@link UriComponentsBuilder} to construct the <i>OAuth 2.0 Authorization Request</i>.
  *
  * @author Joe Grandja
  * @since 5.0
+ * @see AuthorizationRequestAttributes
+ * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.1">Section 4.1.1 Authorization Request</a>
  */
 public class DefaultAuthorizationRequestUriBuilder implements AuthorizationRequestUriBuilder {
 

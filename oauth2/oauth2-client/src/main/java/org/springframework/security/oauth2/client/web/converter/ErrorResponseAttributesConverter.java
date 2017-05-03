@@ -23,9 +23,12 @@ import org.springframework.util.StringUtils;
 import javax.servlet.http.HttpServletRequest;
 
 /**
+ * An implementation of a {@link Converter} that converts an <i>OAuth 2.0 Error Response</i>
+ * (in the form of a {@link HttpServletRequest}) to a {@link ErrorResponseAttributes}.
  *
  * @author Joe Grandja
  * @since 5.0
+ * @see ErrorResponseAttributes
  */
 public final class ErrorResponseAttributesConverter implements Converter<HttpServletRequest, ErrorResponseAttributes> {
 

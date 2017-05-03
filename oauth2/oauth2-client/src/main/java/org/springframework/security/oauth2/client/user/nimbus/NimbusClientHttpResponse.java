@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.client.user.nimbus;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.client.AbstractClientHttpResponse;
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.util.Assert;
 
 import java.io.ByteArrayInputStream;
@@ -26,6 +27,10 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 
 /**
+ * An implementation of a {@link ClientHttpResponse} which is used by {@link NimbusOAuth2UserService}.
+ *
+ * <p>
+ * <b>NOTE:</b> This class is intended for internal use only.
  *
  * @author Joe Grandja
  * @since 5.0

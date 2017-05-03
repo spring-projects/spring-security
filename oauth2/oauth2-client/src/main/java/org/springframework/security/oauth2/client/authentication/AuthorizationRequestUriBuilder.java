@@ -21,9 +21,24 @@ import org.springframework.security.oauth2.core.endpoint.AuthorizationRequestAtt
 import java.net.URI;
 
 /**
+ * Implementations of this interface are responsible for building an <i>OAuth 2.0 Authorization Request</i>,
+ * which is used as the redirect <code>URI</code> to the <i>Authorization Endpoint</i>.
+ *
+ * <p>
+ * The returned redirect <code>URI</code> will include the following parameters as query components to the
+ * <i>Authorization Endpoint</i> (using the &quot;application/x-www-form-urlencoded&quot; format):
+ * <ul>
+ * <li>client identifier (required)</li>
+ * <li>response type (required)</li>
+ * <li>requested scope(s) (optional)</li>
+ * <li>state (recommended)</li>
+ * <li>redirection URI (optional) - the authorization server will send the user-agent back to once access is granted (or denied) by the end-user (resource owner)</li>
+ * </ul>
  *
  * @author Joe Grandja
  * @since 5.0
+ * @see AuthorizationRequestAttributes
+ * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.1">Section 4.1.1 Authorization Request</a>
  */
 public interface AuthorizationRequestUriBuilder {
 

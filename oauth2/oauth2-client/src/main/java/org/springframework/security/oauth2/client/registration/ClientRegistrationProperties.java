@@ -21,9 +21,16 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import java.util.Set;
 
 /**
+ * A convenience class that provides a <i>&quot;flattened&quot;</i> property structure for {@link ClientRegistration}.
+ *
+ * <p>
+ * This class may be used to <i>&quot;bind&quot;</i> property values located in the {@link org.springframework.core.env.Environment}
+ * and then pass it to {@link ClientRegistration.Builder#Builder(ClientRegistrationProperties)}
+ * to construct a {@link ClientRegistration} instance.
  *
  * @author Joe Grandja
  * @since 5.0
+ * @see ClientRegistration
  */
 public class ClientRegistrationProperties {
 	private String clientId;

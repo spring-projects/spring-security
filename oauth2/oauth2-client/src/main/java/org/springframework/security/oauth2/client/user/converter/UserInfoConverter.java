@@ -15,15 +15,20 @@
  */
 package org.springframework.security.oauth2.client.user.converter;
 
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.security.oauth2.oidc.user.DefaultUserInfo;
 import org.springframework.security.oauth2.oidc.user.UserInfo;
 
 import java.util.Map;
 
 /**
+ * An implementation of a {@link AbstractOAuth2UserConverter} that converts
+ * a {@link ClientHttpResponse} to a {@link UserInfo}.
  *
  * @author Joe Grandja
  * @since 5.0
+ * @see UserInfo
+ * @see ClientHttpResponse
  */
 public final class UserInfoConverter extends AbstractOAuth2UserConverter<UserInfo> {
 

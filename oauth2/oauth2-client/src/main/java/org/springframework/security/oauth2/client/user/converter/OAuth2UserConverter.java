@@ -15,6 +15,7 @@
  */
 package org.springframework.security.oauth2.client.user.converter;
 
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.Assert;
@@ -22,9 +23,13 @@ import org.springframework.util.Assert;
 import java.util.Map;
 
 /**
+ * An implementation of a {@link AbstractOAuth2UserConverter} that converts
+ * a {@link ClientHttpResponse} to a {@link OAuth2User}.
  *
  * @author Joe Grandja
  * @since 5.0
+ * @see OAuth2User
+ * @see ClientHttpResponse
  */
 public final class OAuth2UserConverter extends AbstractOAuth2UserConverter<OAuth2User> {
 	private final String nameAttributeKey;

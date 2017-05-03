@@ -18,9 +18,18 @@ package org.springframework.security.oauth2.client.registration;
 import java.util.List;
 
 /**
+ * Implementations of this interface are responsible for the management of {@link ClientRegistration}'s.
+ *
+ * <p>
+ * The <i>primary</i> client registration information is stored with the associated <i>Authorization Server</i>.
+ * However, there may be uses cases where <i>secondary</i> information may need to be managed
+ * that is not supported (or provided) by the <i>Authorization Server</i>.
+ * This interface provides this capability for managing the <i>primary</i> and <i>secondary</i>
+ * information of a client registration.
  *
  * @author Joe Grandja
  * @since 5.0
+ * @see ClientRegistration
  */
 public interface ClientRegistrationRepository {
 

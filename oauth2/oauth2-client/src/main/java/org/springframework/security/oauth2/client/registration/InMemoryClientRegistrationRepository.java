@@ -22,9 +22,12 @@ import java.util.List;
 import java.util.Optional;
 
 /**
+ * A basic implementation of a {@link ClientRegistrationRepository} that accepts
+ * a <code>List</code> of {@link ClientRegistration}(s) via it's constructor and stores it <i>in-memory</i>.
  *
  * @author Joe Grandja
  * @since 5.0
+ * @see ClientRegistration
  */
 public final class InMemoryClientRegistrationRepository implements ClientRegistrationRepository {
 	private final List<ClientRegistration> clientRegistrations;
