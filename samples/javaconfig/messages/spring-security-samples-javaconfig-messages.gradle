@@ -25,5 +25,5 @@ dependencies {
 	compile 'org.springframework:spring-webmvc'
 	compile 'org.thymeleaf:thymeleaf-spring5'
 
-	provided 'javax.servlet:javax.servlet-api'
+	providedCompile 'javax.servlet:javax.servlet-api'
 }

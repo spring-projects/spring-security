@@ -15,6 +15,7 @@ dependencies {
 	optional project(':spring-security-oauth2-client')
 	optional project(':spring-security-openid')
 	optional project(':spring-security-web')
+	optional project(':spring-security-webflux')
 	optional 'org.aspectj:aspectjweaver'
 	optional 'org.springframework:spring-jdbc'
 	optional 'org.springframework:spring-tx'
@@ -27,6 +28,7 @@ dependencies {
 	testCompile project(':spring-security-aspects')
 	testCompile project(':spring-security-cas')
 	testCompile project(path : ':spring-security-core', configuration : 'tests')
+	testCompile project(path : ':spring-security-webflux', configuration : 'tests')
 	testCompile apachedsDependencies
 	testCompile powerMockDependencies
 	testCompile spockDependencies

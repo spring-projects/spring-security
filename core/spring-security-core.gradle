@@ -18,6 +18,7 @@ dependencies {
 	included includeProject
 
 	optional 'com.fasterxml.jackson.core:jackson-databind'
+	optional 'io.projectreactor:reactor-core'
 	optional 'javax.annotation:jsr250-api'
 	optional 'net.sf.ehcache:ehcache'
 	optional 'org.aspectj:aspectjrt'
@@ -26,6 +27,7 @@ dependencies {
 
 	testCompile powerMockDependencies
 	testCompile 'commons-collections:commons-collections'
+	testCompile 'io.projectreactor.addons:reactor-test'
 	testCompile 'org.skyscreamer:jsonassert'
 	testCompile 'org.slf4j:jcl-over-slf4j'
 	testCompile 'org.springframework:spring-test'

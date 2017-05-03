@@ -1,0 +1,16 @@
+apply plugin: 'io.spring.convention.spring-sample'
+
+dependencies {
+	compile project(':spring-security-core')
+	compile project(':spring-security-config')
+	compile project(':spring-security-webflux')
+	compile 'com.fasterxml.jackson.core:jackson-databind'
+	compile 'io.netty:netty-buffer'
+	compile 'io.projectreactor.ipc:reactor-netty'
+	compile 'org.springframework:spring-context'
+	compile 'org.springframework:spring-webflux'
+
+	testCompile 'io.projectreactor.addons:reactor-test'
+	testCompile 'org.skyscreamer:jsonassert'
+	testCompile 'org.springframework:spring-test'
+}
