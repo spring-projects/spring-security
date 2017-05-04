@@ -53,7 +53,7 @@ public class MessageJsonController {
 
 	@RequestMapping("{id}")
 	public ResponseEntity<Optional<Message>> view(@PathVariable Long id) {
-		Optional<Message> message = messageRepository.findOne(id);
+		Optional<Message> message = messageRepository.findById(id);
 		return new ResponseEntity<>(message, HttpStatus.OK);
 	}
 
