@@ -17,6 +17,7 @@
 package org.springframework.security.web.authentication.www;
 
 import java.io.IOException;
+import java.util.Base64;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -31,7 +32,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.NullRememberMeServices;
 import org.springframework.security.web.authentication.RememberMeServices;
@@ -227,7 +227,7 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 		byte[] base64Token = header.substring(6).getBytes("UTF-8");
 		byte[] decoded;
 		try {
-			decoded = Base64.decode(base64Token);
+			decoded = Base64.getDecoder().decode(base64Token);
 		}
 		catch (IllegalArgumentException e) {
 			throw new BadCredentialsException(

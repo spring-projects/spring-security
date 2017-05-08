@@ -15,10 +15,11 @@
  */
 package org.springframework.security.crypto.scrypt;
 
+import java.util.Base64;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.bouncycastle.crypto.generators.SCrypt;
-import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
 import org.springframework.security.crypto.keygen.KeyGenerators;
@@ -177,10 +178,10 @@ public class SCryptPasswordEncoder implements PasswordEncoder {
 	}
 
 	private byte[] decodePart(String part) {
-		return Base64.decode(Utf8.encode(part));
+		return Base64.getDecoder().decode(Utf8.encode(part));
 	}
 
 	private String encodePart(byte[] part) {
-		return Utf8.decode(Base64.encode(part));
+		return Utf8.decode(Base64.getEncoder().encode(part));
 	}
 }

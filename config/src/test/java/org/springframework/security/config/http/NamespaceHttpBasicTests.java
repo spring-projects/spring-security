@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2016 the original author or authors.
+ * Copyright 2012-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package org.springframework.security.config.http;
 
 import java.lang.reflect.Method;
+import java.util.Base64;
 
 import javax.servlet.Filter;
 import javax.servlet.http.HttpServletResponse;
@@ -31,7 +32,6 @@ import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
-import org.springframework.security.crypto.codec.Base64;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -87,7 +87,7 @@ public class NamespaceHttpBasicTests {
 			// @formatter:on
 
 		this.request.addHeader("Authorization",
-				"Basic " + new String(Base64.encode("user:test".getBytes("UTF-8"))));
+				"Basic " + Base64.getEncoder().encodeToString("user:test".getBytes("UTF-8")));
 
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 

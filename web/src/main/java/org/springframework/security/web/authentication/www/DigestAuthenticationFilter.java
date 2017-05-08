@@ -17,6 +17,7 @@
 package org.springframework.security.web.authentication.www;
 
 import java.io.IOException;
+import java.util.Base64;
 import java.util.Map;
 
 import javax.servlet.FilterChain;
@@ -46,7 +47,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.core.userdetails.cache.NullUserCache;
-import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -390,7 +390,10 @@ public class DigestAuthenticationFilter extends GenericFilterBean
 			}
 
 			// Check nonce was Base64 encoded (as sent by DigestAuthenticationEntryPoint)
-			if (!Base64.isBase64(this.nonce.getBytes())) {
+			try {
+				Base64.getDecoder().decode(this.nonce.getBytes());
+			}
+			catch (IllegalArgumentException e) {
 				throw new BadCredentialsException(DigestAuthenticationFilter.this.messages
 						.getMessage("DigestAuthenticationFilter.nonceEncoding",
 								new Object[] { this.nonce },
@@ -400,7 +403,7 @@ public class DigestAuthenticationFilter extends GenericFilterBean
 			// Decode nonce from Base64
 			// format of nonce is:
 			// base64(expirationTime + ":" + md5Hex(expirationTime + ":" + key))
-			String nonceAsPlainText = new String(Base64.decode(this.nonce.getBytes()));
+			String nonceAsPlainText = new String(Base64.getDecoder().decode(this.nonce.getBytes()));
 			String[] nonceTokens = StringUtils
 					.delimitedListToStringArray(nonceAsPlainText, ":");
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 the original author or authors.
+ * Copyright 2002-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@ import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.mock.web.MockHttpServletResponse
 import org.springframework.mock.web.MockServletContext
 import org.springframework.security.access.SecurityConfig
-import org.springframework.security.crypto.codec.Base64
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -383,7 +382,7 @@ class InterceptUrlConfigTests extends AbstractHttpConfigTests {
 
 	def login(MockHttpServletRequest request, String username, String password) {
 		String toEncode = username + ':' + password
-		request.addHeader('Authorization','Basic ' + new String(Base64.encode(toEncode.getBytes('UTF-8'))))
+		request.addHeader('Authorization','Basic ' + Base64.encoder.encodeToString(toEncode.getBytes('UTF-8')))
 	}
 
 	@RestController
