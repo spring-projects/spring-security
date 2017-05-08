@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.springframework.security.web.authentication.rememberme;
 
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
@@ -24,7 +25,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.util.Assert;
@@ -185,13 +185,13 @@ public class PersistentTokenBasedRememberMeServices extends AbstractRememberMeSe
 	protected String generateSeriesData() {
 		byte[] newSeries = new byte[seriesLength];
 		random.nextBytes(newSeries);
-		return new String(Base64.encode(newSeries));
+		return new String(Base64.getEncoder().encode(newSeries));
 	}
 
 	protected String generateTokenData() {
 		byte[] newToken = new byte[tokenLength];
 		random.nextBytes(newToken);
-		return new String(Base64.encode(newToken));
+		return new String(Base64.getEncoder().encode(newToken));
 	}
 
 	private void addCookie(PersistentRememberMeToken token, HttpServletRequest request,

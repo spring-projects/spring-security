@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.springframework.security.web.authentication.rememberme;
 
 import java.lang.reflect.Method;
+import java.util.Base64;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -33,7 +34,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper;
-import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -50,7 +50,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Luke Taylor
  * @author Rob Winch
- * @author Eddú Meléndez
+ * @author Edd� Mel�ndez
  * @since 2.0
  */
 public abstract class AbstractRememberMeServices implements RememberMeServices,
@@ -215,13 +215,16 @@ public abstract class AbstractRememberMeServices implements RememberMeServices,
 			cookieValue = cookieValue + "=";
 		}
 
-		if (!Base64.isBase64(cookieValue.getBytes())) {
+		try {
+			Base64.getDecoder().decode(cookieValue.getBytes());
+		}
+		catch (IllegalArgumentException e) {
 			throw new InvalidCookieException(
 					"Cookie token was not Base64 encoded; value was '" + cookieValue
 							+ "'");
 		}
 
-		String cookieAsPlainText = new String(Base64.decode(cookieValue.getBytes()));
+		String cookieAsPlainText = new String(Base64.getDecoder().decode(cookieValue.getBytes()));
 
 		String[] tokens = StringUtils.delimitedListToStringArray(cookieAsPlainText,
 				DELIMITER);
@@ -256,7 +259,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices,
 
 		String value = sb.toString();
 
-		sb = new StringBuilder(new String(Base64.encode(value.getBytes())));
+		sb = new StringBuilder(new String(Base64.getEncoder().encode(value.getBytes())));
 
 		while (sb.charAt(sb.length() - 1) == '=') {
 			sb.deleteCharAt(sb.length() - 1);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@ package org.springframework.security.authentication.encoding;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 
-import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.util.Assert;
@@ -106,7 +106,7 @@ public class MessageDigestPasswordEncoder extends BaseDigestPasswordEncoder {
 		}
 
 		if (getEncodeHashAsBase64()) {
-			return Utf8.decode(Base64.encode(digest));
+			return Utf8.decode(Base64.getEncoder().encode(digest));
 		}
 		else {
 			return new String(Hex.encode(digest));

@@ -17,6 +17,7 @@
 package org.springframework.security.web.authentication.www;
 
 import java.io.IOException;
+import java.util.Base64;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -27,7 +28,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.Ordered;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.web.AuthenticationEntryPoint;
 
 /**
@@ -91,7 +91,7 @@ public class DigestAuthenticationEntryPoint implements AuthenticationEntryPoint,
 		long expiryTime = System.currentTimeMillis() + (nonceValiditySeconds * 1000);
 		String signatureValue = DigestAuthUtils.md5Hex(expiryTime + ":" + key);
 		String nonceValue = expiryTime + ":" + signatureValue;
-		String nonceValueBase64 = new String(Base64.encode(nonceValue.getBytes()));
+		String nonceValueBase64 = new String(Base64.getEncoder().encode(nonceValue.getBytes()));
 
 		// qop is quality of protection, as defined by RFC 2617.
 		// we do not use opaque due to IE violation of RFC 2617 in not

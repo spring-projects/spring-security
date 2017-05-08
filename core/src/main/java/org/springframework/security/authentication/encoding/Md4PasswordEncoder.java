@@ -15,7 +15,8 @@
  */
 package org.springframework.security.authentication.encoding;
 
-import org.springframework.security.crypto.codec.Base64;
+import java.util.Base64;
+
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.codec.Utf8;
 
@@ -57,7 +58,7 @@ public class Md4PasswordEncoder extends BaseDigestPasswordEncoder {
 		byte[] resBuf = md4.digest();
 
 		if (getEncodeHashAsBase64()) {
-			return Utf8.decode(Base64.encode(resBuf));
+			return Utf8.decode(Base64.getEncoder().encode(resBuf));
 		}
 		else {
 			return new String(Hex.encode(resBuf));

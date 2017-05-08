@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2002-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
 
@@ -44,7 +45,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.test.context.TestSecurityContextHolder;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.security.test.web.support.WebTestUtils;
@@ -469,7 +469,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 			String signatureValue = md5Hex(toDigest);
 			String nonceValue = expiryTime + ":" + signatureValue;
 
-			return new String(Base64.encode(nonceValue.getBytes()));
+			return new String(Base64.getEncoder().encode(nonceValue.getBytes()));
 		}
 
 		private String createAuthorizationHeader(MockHttpServletRequest request) {
@@ -895,7 +895,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 			catch (UnsupportedEncodingException e) {
 				throw new RuntimeException(e);
 			}
-			this.headerValue = "Basic " + new String(Base64.encode(toEncode));
+			this.headerValue = "Basic " + new String(Base64.getEncoder().encode(toEncode));
 		}
 
 		@Override
