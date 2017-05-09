@@ -26,8 +26,8 @@ dependencyManagement {
 
 dependencyManagement {
 	imports {
+		mavenBom 'org.springframework.data:spring-data-releasetrain:Kay-M3'
 		mavenBom 'org.springframework:spring-framework-bom:5.0.0.RC1'
-		mavenBom 'org.springframework.data:spring-data-releasetrain:Kay-BUILD-SNAPSHOT'
 	}
 	dependencies {
 		dependency 'antlr:antlr:2.7.7'
