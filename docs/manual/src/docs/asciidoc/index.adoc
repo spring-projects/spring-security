@@ -384,6 +384,7 @@ Below are the highlights of this milestone release.
 === New Features
 
 * https://github.com/spring-projects/spring-security/issues/3907[#3907] - Support added for OAuth 2.0 Login (start with {gh-samples-url}/boot/oauth2login/README.adoc[Sample README])
+* https://github.com/spring-projects/spring-security/issues/4128[#4128] - Initial Reactive Support (start with {gh-samples-url}/javaconfig/hellowebflux[hellowebflux])
 
 [[samples]]
 == Samples and Guides (Start Here)
