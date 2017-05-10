@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.StringUtils;
@@ -72,5 +73,9 @@ public abstract class AuthorityUtils {
 		}
 
 		return authorities;
+	}
+
+	public static List<GrantedAuthority> createAuthorityList(List<String> roles) {
+		return roles.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
 	}
 }
