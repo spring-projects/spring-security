@@ -1,11 +1,10 @@
 buildscript {
 	dependencies {
-		classpath 'io.spring.gradle:spring-build-conventions:0.0.1.BUILD-SNAPSHOT'
+		classpath 'io.spring.gradle:spring-build-conventions:0.0.1.RELEASE'
 		classpath "org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion"
 	}
 	repositories {
-		maven { url 'https://repo.spring.io/libs-snapshot' }
-		maven { url 'https://repo.spring.io/plugins-snapshot' }
+		maven { url 'https://repo.spring.io/plugins-release' }
 	}
 }
 apply plugin: 'io.spring.convention.root'
