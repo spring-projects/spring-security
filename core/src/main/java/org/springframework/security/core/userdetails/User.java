@@ -248,6 +248,16 @@ public class User implements UserDetails, CredentialsContainer {
 		return new UserBuilder().username(username);
 	}
 
+	public static UserBuilder withUserDetails(UserDetails userDetails) {
+		return withUsername(userDetails.getUsername())
+			.password(userDetails.getPassword())
+			.accountExpired(!userDetails.isAccountNonExpired())
+			.accountLocked(!userDetails.isAccountNonLocked())
+			.authorities(userDetails.getAuthorities())
+			.credentialsExpired(!userDetails.isCredentialsNonExpired())
+			.disabled(!userDetails.isEnabled());
+	}
+
 	/**
 	 * Builds the user to be added. At minimum the username, password, and authorities
 	 * should provided. The remaining attributes have reasonable defaults.
@@ -351,7 +361,7 @@ public class User implements UserDetails, CredentialsContainer {
 		 * additional attributes for this user)
 		 * @see #roles(String...)
 		 */
-		public UserBuilder authorities(List<? extends GrantedAuthority> authorities) {
+		public UserBuilder authorities(Collection<? extends GrantedAuthority> authorities) {
 			this.authorities = new ArrayList<GrantedAuthority>(authorities);
 			return this;
 		}
