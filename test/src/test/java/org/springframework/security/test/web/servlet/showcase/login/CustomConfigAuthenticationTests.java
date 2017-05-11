@@ -17,7 +17,6 @@ package org.springframework.security.test.web.servlet.showcase.login;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
-import static org.springframework.security.test.web.servlet.response.RedirectMatcher.redirectUrl;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -65,7 +64,7 @@ public class CustomConfigAuthenticationTests {
 		mvc.perform(
 				formLogin("/authenticate").user("user", "user").password("pass",
 						"password")).andExpect(status().isFound())
-				.andExpect(redirectUrl("/"))
+				.andExpect(redirectedUrl("/"))
 				.andExpect(authenticated().withUsername("user"));
 	}
 
@@ -81,7 +80,7 @@ public class CustomConfigAuthenticationTests {
 		mvc.perform(
 				formLogin("/authenticate").user("user", "notfound").password("pass",
 						"invalid")).andExpect(status().isFound())
-				.andExpect(redirectUrl("/authenticate?error"))
+				.andExpect(redirectedUrl("/authenticate?error"))
 				.andExpect(unauthenticated());
 	}
 
