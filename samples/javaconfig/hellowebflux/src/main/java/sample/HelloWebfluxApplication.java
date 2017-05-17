@@ -53,7 +53,7 @@ import static org.springframework.security.config.web.server.HttpSecurity.http;
 @Configuration
 @EnableWebFlux
 @ComponentScan
-public class Application implements WebFluxConfigurer {
+public class HelloWebfluxApplication implements WebFluxConfigurer {
 	@Value("${server.port:8080}")
 	private int port = 8080;
 
@@ -61,7 +61,7 @@ public class Application implements WebFluxConfigurer {
 	private ReactiveAdapterRegistry adapterRegistry = new ReactiveAdapterRegistry();
 
 	public static void main(String[] args) throws Exception {
-		try(AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Application.class)) {
+		try(AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(HelloWebfluxApplication.class)) {
 			context.getBean(NettyContext.class).onClose().block();
 		}
 	}

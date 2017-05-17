@@ -40,9 +40,9 @@ import static org.springframework.web.reactive.function.client.ExchangeFilterFun
  * @since 5.0
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = Application.class)
+@ContextConfiguration(classes = HelloWebfluxApplication.class)
 @TestPropertySource(properties = "server.port=0")
-public class SecurityTests {
+public class HelloWebfluxApplicationITests {
 	@Value("#{@nettyContext.address().getPort()}")
 	int port;
 

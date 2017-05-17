@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @SuppressWarnings("unused")
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = Application.class)
+@ContextConfiguration(classes = HelloWebfluxApplication.class)
 @TestPropertySource(properties = "server.port=0")
 public class UserRepositoryTests {
 
