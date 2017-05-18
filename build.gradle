@@ -117,6 +117,7 @@ configure(coreModuleProjects) {
 			imports {
 				mavenBom("io.spring.platform:platform-bom:${springIoVersion}") {
 					bomProperties([
+						'assertj.version': '2.2.0',
 						'mockito.version': '1.10.19'
 					])
 				}
