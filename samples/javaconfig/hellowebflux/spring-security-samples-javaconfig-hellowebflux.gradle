@@ -10,6 +10,7 @@ dependencies {
 	compile 'org.springframework:spring-context'
 	compile 'org.springframework:spring-webflux'
 
+	testCompile project(':spring-security-test')
 	testCompile 'io.projectreactor.addons:reactor-test'
 	testCompile 'org.skyscreamer:jsonassert'
 	testCompile 'org.springframework:spring-test'

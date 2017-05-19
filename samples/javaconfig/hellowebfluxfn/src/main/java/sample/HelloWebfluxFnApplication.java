@@ -19,10 +19,7 @@ package sample;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.*;
 import org.springframework.core.ReactiveAdapterRegistry;
 import org.springframework.http.server.reactive.HttpHandler;
 import org.springframework.http.server.reactive.ReactorHttpHandlerAdapter;
@@ -72,8 +69,16 @@ public class HelloWebfluxFnApplication {
 		}
 	}
 
+	@Profile("default")
 	@Bean
-	public NettyContext nettyContext(UserController userController, WebFilter springSecurityFilterChain) {
+	public NettyContext nettyContext(HttpHandler handler) {
+		ReactorHttpHandlerAdapter adapter = new ReactorHttpHandlerAdapter(handler);
+		HttpServer httpServer = HttpServer.create("localhost", port);
+		return httpServer.newHandler(adapter).block();
+	}
+
+	@Bean
+	public HttpHandler httpHandler(UserController userController, WebFilter springSecurityFilterChain) {
 		RouterFunction<ServerResponse> route = route(
 				GET("/principal"), userController::principal).andRoute(
 				GET("/users"), userController::users).andRoute(
@@ -82,10 +87,7 @@ public class HelloWebfluxFnApplication {
 		HandlerStrategies handlerStrategies = HandlerStrategies.builder()
 			.webFilter(springSecurityFilterChain).build();
 
-		HttpHandler handler = RouterFunctions.toHttpHandler(route, handlerStrategies);
-		ReactorHttpHandlerAdapter adapter = new ReactorHttpHandlerAdapter(handler);
-		HttpServer httpServer = HttpServer.create("localhost", port);
-		return httpServer.newHandler(adapter).block();
+		return RouterFunctions.toHttpHandler(route, handlerStrategies);
 	}
 
 	@Bean

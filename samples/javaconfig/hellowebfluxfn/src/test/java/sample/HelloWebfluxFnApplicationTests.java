@@ -1,38 +1,44 @@
 /*
- * Copyright 2002-2017 the original author or authors.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  * Copyright 2002-2017 the original author or authors.
+ *  *
+ *  * Licensed under the Apache License, Version 2.0 (the "License");
+ *  * you may not use this file except in compliance with the License.
+ *  * You may obtain a copy of the License at
+ *  *
+ *  *      http://www.apache.org/licenses/LICENSE-2.0
+ *  *
+ *  * Unless required by applicable law or agreed to in writing, software
+ *  * distributed under the License is distributed on an "AS IS" BASIS,
+ *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  * See the License for the specific language governing permissions and
+ *  * limitations under the License.
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  */
 package sample;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.server.reactive.HttpHandler;
 import org.springframework.security.web.server.header.ContentTypeOptionsHttpHeadersWriter;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.ExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 
 import java.nio.charset.Charset;
-import java.time.Duration;
 import java.util.Base64;
 
+import static org.springframework.security.test.web.reactive.server.SecurityExchangeMutators.withUser;
 import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.basicAuthentication;
 
 /**
@@ -41,19 +47,16 @@ import static org.springframework.web.reactive.function.client.ExchangeFilterFun
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = HelloWebfluxFnApplication.class)
-@TestPropertySource(properties = "server.port=0")
+@ActiveProfiles("test")
 public class HelloWebfluxFnApplicationTests {
-	@Value("#{@nettyContext.address().getPort()}")
-	int port;
+	@Autowired
+	HttpHandler handler;
 
 	WebTestClient rest;
 
 	@Before
 	public void setup() {
-		this.rest = WebTestClient.bindToServer()
-				.responseTimeout(Duration.ofDays(1))
-				.baseUrl("http://localhost:" + this.port)
-				.build();
+		this.rest = WebTestClient.bindToHttpHandler(handler).build();
 	}
 
 	@Test
@@ -141,20 +144,37 @@ public class HelloWebfluxFnApplicationTests {
 	@Test
 	public void sessionWorks() throws Exception {
 		ExchangeResult result = this.rest
-				.filter(robsCredentials())
-				.get()
-				.uri("/users")
-				.exchange()
-				.returnResult(String.class);
+			.filter(robsCredentials())
+			.get()
+			.uri("/users")
+			.exchange()
+			.returnResult(String.class);
 
-		String session = result.getResponseHeaders().getFirst("Set-Cookie");
+		ResponseCookie session = result.getResponseCookies().getFirst("SESSION");
 
 		this.rest
 			.get()
 			.uri("/users")
-			.header("Cookie", session)
+			.cookie(session.getName(), session.getValue())
 			.exchange()
 			.expectStatus().isOk();
+	}
+
+	@Ignore
+	@Test
+	public void mockSupport() throws Exception {
+		this.rest
+			.exchangeMutator( withUser() )
+			.get()
+			.uri("/users")
+			.exchange()
+			.expectStatus().isOk();
+
+		this.rest
+			.get()
+			.uri("/users")
+			.exchange()
+			.expectStatus().isUnauthorized();
 	}
 
 	@Test
@@ -171,14 +191,14 @@ public class HelloWebfluxFnApplicationTests {
 	@Test
 	public void headers() throws Exception {
 		this.rest
-				.filter(robsCredentials())
-				.get()
-				.uri("/principal")
-				.exchange()
-				.expectHeader().valueEquals(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, max-age=0, must-revalidate")
-				.expectHeader().valueEquals(HttpHeaders.EXPIRES, "0")
-				.expectHeader().valueEquals(HttpHeaders.PRAGMA, "no-cache")
-				.expectHeader().valueEquals(ContentTypeOptionsHttpHeadersWriter.X_CONTENT_OPTIONS, ContentTypeOptionsHttpHeadersWriter.NOSNIFF);
+			.filter(robsCredentials())
+			.get()
+			.uri("/principal")
+			.exchange()
+			.expectHeader().valueEquals(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, max-age=0, must-revalidate")
+			.expectHeader().valueEquals(HttpHeaders.EXPIRES, "0")
+			.expectHeader().valueEquals(HttpHeaders.PRAGMA, "no-cache")
+			.expectHeader().valueEquals(ContentTypeOptionsHttpHeadersWriter.X_CONTENT_OPTIONS, ContentTypeOptionsHttpHeadersWriter.NOSNIFF);
 	}
 
 	private ExchangeFilterFunction robsCredentials() {

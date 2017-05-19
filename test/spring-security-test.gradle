@@ -7,6 +7,7 @@ dependencies {
 	compile 'org.springframework:spring-test'
 
 	optional project(':spring-security-config')
+	optional 'io.projectreactor:reactor-core'
 
 	provided 'javax.servlet:javax.servlet-api'
 
