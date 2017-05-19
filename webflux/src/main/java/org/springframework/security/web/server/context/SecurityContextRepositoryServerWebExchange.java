@@ -43,6 +43,7 @@ final class SecurityContextRepositoryServerWebExchange extends ServerWebExchange
 			this.repository.load(this)
 				.filter(c -> c.getAuthentication() != null)
 				.flatMap(c -> Mono.just((T) c.getAuthentication()))
+				.switchIfEmpty( super.getPrincipal() )
 		);
 	}
 }
