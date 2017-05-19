@@ -33,16 +33,21 @@ import java.util.Arrays;
  * @since 5.0
  */
 public class WebTestHandler {
+	private final MockWebHandler webHandler = new MockWebHandler();
 	private final WebHandler handler;
 
-	private WebTestHandler(WebHandler handler) {
-		this.handler = handler;
+	private WebTestHandler(WebFilter... filters) {
+		this.handler = new FilteringWebHandler(webHandler, Arrays.asList(filters));
 	}
 
 	public WebHandlerResult exchange(BaseBuilder<?> baseBuilder) {
 		ServerWebExchange exchange = baseBuilder.toExchange();
+		return exchange(exchange);
+	}
+
+	public WebHandlerResult exchange(ServerWebExchange exchange) {
 		handler.handle(exchange).block();
-		return new WebHandlerResult(exchange);
+		return new WebHandlerResult(webHandler.exchange);
 	}
 
 	public static class WebHandlerResult {
@@ -58,6 +63,16 @@ public class WebTestHandler {
 	}
 
 	public static WebTestHandler bindToWebFilters(WebFilter... filters) {
-		return new WebTestHandler(new FilteringWebHandler(exchange -> Mono.empty(), Arrays.asList(filters)));
+		return new WebTestHandler(filters);
+	}
+
+	static class MockWebHandler implements WebHandler {
+		private ServerWebExchange exchange;
+
+		@Override
+		public Mono<Void> handle(ServerWebExchange exchange) {
+			this.exchange = exchange;
+			return Mono.empty();
+		}
 	}
 }
