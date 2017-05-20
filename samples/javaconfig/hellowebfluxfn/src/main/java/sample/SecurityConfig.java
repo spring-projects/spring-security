@@ -21,7 +21,6 @@ package sample;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
-import org.springframework.security.config.web.server.AuthorizeExchangeBuilder;
 import org.springframework.security.config.web.server.HttpSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.authorization.AuthorizationContext;
@@ -39,10 +38,11 @@ public class SecurityConfig {
 	WebFilter springSecurityFilterChain(HttpSecurity http) throws Exception {
 		http.httpBasic();
 
-		AuthorizeExchangeBuilder authorize = http.authorizeExchange();
-		authorize.antMatchers("/admin/**").hasRole("ADMIN");
-		authorize.antMatchers("/users/{user}/**").access(this::currentUserMatchesPath);
-		authorize.anyExchange().authenticated();
+		http.authorizeExchange()
+			.antMatchers("/admin/**").hasRole("ADMIN")
+			.antMatchers("/users/{user}/**").access(this::currentUserMatchesPath)
+			.anyExchange().authenticated();
+
 		return http.build();
 	}
 

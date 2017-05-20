@@ -63,29 +63,30 @@ public class AuthorizeExchangeBuilder extends AbstractServerWebExchangeMatcherRe
 
 	public final class Access {
 
-		public void permitAll() {
-			access( (a,e) -> Mono.just(new AuthorizationDecision(true)));
+		public AuthorizeExchangeBuilder permitAll() {
+			return access( (a,e) -> Mono.just(new AuthorizationDecision(true)));
 		}
 
-		public void denyAll() {
-			access( (a,e) -> Mono.just(new AuthorizationDecision(false)));
+		public AuthorizeExchangeBuilder denyAll() {
+			return access( (a,e) -> Mono.just(new AuthorizationDecision(false)));
 		}
 
-		public void hasRole(String role) {
-			access(AuthorityAuthorizationManager.hasRole(role));
+		public AuthorizeExchangeBuilder hasRole(String role) {
+			return access(AuthorityAuthorizationManager.hasRole(role));
 		}
 
-		public void hasAuthority(String authority) {
-			access(AuthorityAuthorizationManager.hasAuthority(authority));
+		public AuthorizeExchangeBuilder hasAuthority(String authority) {
+			return access(AuthorityAuthorizationManager.hasAuthority(authority));
 		}
 
-		public void authenticated() {
-			access(AuthenticatedAuthorizationManager.authenticated());
+		public AuthorizeExchangeBuilder authenticated() {
+			return access(AuthenticatedAuthorizationManager.authenticated());
 		}
 
-		public void access(ReactiveAuthorizationManager<AuthorizationContext> manager) {
+		public AuthorizeExchangeBuilder access(ReactiveAuthorizationManager<AuthorizationContext> manager) {
 			managerBldr.add(matcher, manager);
 			matcher = null;
+			return AuthorizeExchangeBuilder.this;
 		}
 	}
 }
