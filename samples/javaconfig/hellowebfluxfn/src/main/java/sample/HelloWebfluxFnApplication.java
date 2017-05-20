@@ -90,28 +90,4 @@ public class HelloWebfluxFnApplication {
 		return RouterFunctions.toHttpHandler(route, handlerStrategies);
 	}
 
-	@Bean
-	WebFilter springSecurityFilterChain(ReactiveAuthenticationManager manager) throws Exception {
-		HttpSecurity http = http();
-		http.securityContextRepository(new WebSessionSecurityContextRepository());
-		http.authenticationManager(manager);
-		http.httpBasic();
-
-		AuthorizeExchangeBuilder authorize = http.authorizeExchange();
-		authorize.antMatchers("/admin/**").hasRole("ADMIN");
-		authorize.antMatchers("/users/{user}/**").access(this::currentUserMatchesPath);
-		authorize.anyExchange().authenticated();
-		return http.build();
-	}
-
-	private Mono<AuthorizationDecision> currentUserMatchesPath(Mono<Authentication> authentication, AuthorizationContext context) {
-		return authentication
-			.map( a -> context.getVariables().get("user").equals(a.getName()))
-			.map( granted -> new AuthorizationDecision(granted));
-	}
-
-	@Bean
-	public ReactiveAuthenticationManager authenticationManager(UserRepositoryUserDetailsRepository udr) {
-		return new UserDetailsRepositoryAuthenticationManager(udr);
-	}
 }
