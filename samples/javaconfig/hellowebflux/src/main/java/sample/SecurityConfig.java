@@ -36,8 +36,6 @@ public class SecurityConfig {
 
 	@Bean
 	WebFilter springSecurityFilterChain(HttpSecurity http) throws Exception {
-		http.httpBasic();
-
 		http.authorizeExchange()
 			.antMatchers("/admin/**").hasRole("ADMIN")
 			.antMatchers("/users/{user}/**").access(this::currentUserMatchesPath)

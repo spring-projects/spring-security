@@ -62,6 +62,7 @@ public class WebFluxSecurityConfiguration implements WebFluxConfigurer {
 	@Bean
 	public HttpSecurity httpSecurity() {
 		HttpSecurity http = http();
+		http.httpBasic();
 		http.authenticationManager(authenticationManager());
 		http.securityContextRepository(new WebSessionSecurityContextRepository());
 		return http;

@@ -96,6 +96,12 @@ public class HttpSecurity {
 			.flatMap( r -> Optional.of(new SecurityContextRepositoryWebFilter(r)));
 	}
 
+	public class HttpBasicSpec extends HttpBasicBuilder {
+		public HttpSecurity disable() {
+			httpBasic = null;
+			return HttpSecurity.this;
+		}
+	}
 
 	private HttpSecurity() {}
 }
