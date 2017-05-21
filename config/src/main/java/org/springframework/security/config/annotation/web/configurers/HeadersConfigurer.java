@@ -227,7 +227,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 		}
 
 		/**
-		 * Allows completing configuration of Strict Transport Security and continuing
+		 * Allows completing configuration of X-XSS-Protection and continuing
 		 * configuration of headers.
 		 *
 		 * @return the {@link HeadersConfigurer} for additional configuration
@@ -282,7 +282,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 		}
 
 		/**
-		 * Allows completing configuration of Strict Transport Security and continuing
+		 * Allows completing configuration of Cache Control and continuing
 		 * configuration of headers.
 		 *
 		 * @return the {@link HeadersConfigurer} for additional configuration
