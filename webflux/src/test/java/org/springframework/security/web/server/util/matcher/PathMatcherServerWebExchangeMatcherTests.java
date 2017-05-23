@@ -75,14 +75,14 @@ public class PathMatcherServerWebExchangeMatcherTests {
 	public void matchesWhenPathMatcherTrueThenReturnTrue() {
 		when(pathMatcher.match(pattern, path)).thenReturn(true);
 
-		assertThat(matcher.matches(exchange).isMatch()).isTrue();
+		assertThat(matcher.matches(exchange).block().isMatch()).isTrue();
 	}
 
 	@Test
 	public void matchesWhenPathMatcherFalseThenReturnFalse() {
 		when(pathMatcher.match(pattern, path)).thenReturn(false);
 
-		assertThat(matcher.matches(exchange).isMatch()).isFalse();
+		assertThat(matcher.matches(exchange).block().isMatch()).isFalse();
 
 		verify(pathMatcher).match(pattern, path);
 	}
@@ -93,7 +93,7 @@ public class PathMatcherServerWebExchangeMatcherTests {
 		matcher.setPathMatcher(pathMatcher);
 		when(pathMatcher.match(pattern, path)).thenReturn(true);
 
-		assertThat(matcher.matches(exchange).isMatch()).isTrue();
+		assertThat(matcher.matches(exchange).block().isMatch()).isTrue();
 	}
 
 	@Test
@@ -103,7 +103,7 @@ public class PathMatcherServerWebExchangeMatcherTests {
 		matcher = new PathMatcherServerWebExchangeMatcher(pattern, method);
 		matcher.setPathMatcher(pathMatcher);
 
-		assertThat(matcher.matches(exchange).isMatch()).isFalse();
+		assertThat(matcher.matches(exchange).block().isMatch()).isFalse();
 
 		verifyZeroInteractions(pathMatcher);
 	}

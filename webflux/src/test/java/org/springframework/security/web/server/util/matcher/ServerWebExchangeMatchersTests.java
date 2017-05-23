@@ -39,34 +39,34 @@ public class ServerWebExchangeMatchersTests {
 
 	@Test
 	public void antMatchersWhenSingleAndSamePatternThenMatches() throws Exception {
-		assertThat(antMatchers("/").matches(exchange).isMatch()).isTrue();
+		assertThat(antMatchers("/").matches(exchange).block().isMatch()).isTrue();
 	}
 
 	@Test
 	public void antMatchersWhenSingleAndSamePatternAndMethodThenMatches() throws Exception {
-		assertThat(antMatchers(HttpMethod.GET, "/").matches(exchange).isMatch()).isTrue();
+		assertThat(antMatchers(HttpMethod.GET, "/").matches(exchange).block().isMatch()).isTrue();
 	}
 
 	@Test
 	public void antMatchersWhenSingleAndSamePatternAndDiffMethodThenDoesNotMatch() throws Exception {
-		assertThat(antMatchers(HttpMethod.POST, "/").matches(exchange).isMatch()).isFalse();
+		assertThat(antMatchers(HttpMethod.POST, "/").matches(exchange).block().isMatch()).isFalse();
 	}
 
 	@Test
 	public void antMatchersWhenSingleAndDifferentPatternThenDoesNotMatch() throws Exception {
-		assertThat(antMatchers("/foobar").matches(exchange).isMatch()).isFalse();
+		assertThat(antMatchers("/foobar").matches(exchange).block().isMatch()).isFalse();
 	}
 
 	@Test
 	public void antMatchersWhenMultiThenMatches() throws Exception {
-		assertThat(antMatchers("/foobar", "/").matches(exchange).isMatch()).isTrue();
+		assertThat(antMatchers("/foobar", "/").matches(exchange).block().isMatch()).isTrue();
 	}
 
 	@Test
 	public void anyExchangeWhenMockThenMatches() {
 		ServerWebExchange mockExchange = mock(ServerWebExchange.class);
 
-		assertThat(anyExchange().matches(mockExchange).isMatch()).isTrue();
+		assertThat(anyExchange().matches(mockExchange).block().isMatch()).isTrue();
 
 		verifyZeroInteractions(mockExchange);
 	}

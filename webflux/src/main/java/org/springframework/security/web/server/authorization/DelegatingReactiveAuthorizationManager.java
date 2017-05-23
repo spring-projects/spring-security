@@ -23,6 +23,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.web.server.ServerWebExchange;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.LinkedHashMap;
@@ -41,16 +42,12 @@ public class DelegatingReactiveAuthorizationManager implements ReactiveAuthoriza
 
 	@Override
 	public Mono<AuthorizationDecision> check(Mono<Authentication> authentication, ServerWebExchange exchange) {
-		for(Map.Entry<ServerWebExchangeMatcher, ReactiveAuthorizationManager<AuthorizationContext>> entry : mappings.entrySet()) {
-			ServerWebExchangeMatcher matcher = entry.getKey();
-			ServerWebExchangeMatcher.MatchResult match = matcher.matches(exchange);
-			if(match.isMatch()) {
-				Map<String,Object> variables = match.getVariables();
-				AuthorizationContext context = new AuthorizationContext(exchange, variables);
-				return entry.getValue().check(authentication, context);
-			}
-		}
-		return Mono.just(new AuthorizationDecision(false));
+		return Flux.fromIterable(mappings.entrySet())
+			.concatMap(entry -> entry.getKey().matches(exchange)
+			.filter(ServerWebExchangeMatcher.MatchResult::isMatch)
+			.flatMap(r -> entry.getValue().check(authentication, new AuthorizationContext(exchange, r.getVariables()))))
+			.next()
+			.defaultIfEmpty(new AuthorizationDecision(false));
 	}
 
 	public static DelegatingReactiveAuthorizationManager.Builder builder() {
