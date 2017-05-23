@@ -306,8 +306,8 @@ In the next step, we will _assign_ the application to _people_ in order to grant
 [[okta-login-assign-application-people]]
 === Assign Application to People
 
-From the _"General"_ tab of the application, select the _"People"_ tab and then click on the _"Assign to People"_ button.
-Assign your account to the application and then click on the _"Save and Go Back"_ button.
+From the _"General"_ tab of the application, select the _"Assignments"_ tab and then click the _"Assign"_ button.  
+Select _"Assign to People" and assign your account to the application. Then click the _"Save and Go Back"_ button.
 
 [[okta-login-configure-application-yml]]
 === Configuring application.yml
