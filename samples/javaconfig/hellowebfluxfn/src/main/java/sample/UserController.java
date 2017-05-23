@@ -18,6 +18,7 @@ package sample;
 
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.server.context.SecurityContextRepository;
 import org.springframework.security.web.server.context.WebSessionSecurityContextRepository;
 import org.springframework.stereotype.Component;
@@ -37,23 +38,12 @@ import java.util.Map;
 public class UserController {
 	private final SecurityContextRepository repo = new WebSessionSecurityContextRepository();
 
-	private final UserRepository users;
-
-	public UserController(UserRepository users) {
-		this.users = users;
-	}
 
 	public Mono<ServerResponse> principal(ServerRequest serverRequest) {
 		return serverRequest.principal().cast(Authentication.class).flatMap(p ->
 			ServerResponse.ok()
 				.contentType(MediaType.APPLICATION_JSON)
 				.syncBody(p.getPrincipal()));
-	}
-
-	public Mono<ServerResponse> users(ServerRequest serverRequest) {
-		return ServerResponse.ok()
-			.contentType(MediaType.APPLICATION_JSON)
-			.body(this.users.findAll(), User.class);
 	}
 
 	public Mono<ServerResponse> admin(ServerRequest serverRequest) {

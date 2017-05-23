@@ -19,10 +19,13 @@
 package sample;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.authentication.MapUserDetailsRepository;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.HttpSecurity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.server.authorization.AuthorizationContext;
 import org.springframework.web.server.WebFilter;
 import reactor.core.publisher.Mono;
@@ -49,4 +52,12 @@ public class SecurityConfig {
 			.map( a -> context.getVariables().get("user").equals(a.getName()))
 			.map( granted -> new AuthorizationDecision(granted));
 	}
+
+	@Bean
+	public MapUserDetailsRepository userDetailsRepository() {
+		UserDetails rob = User.withUsername("rob").password("rob").roles("USER").build();
+		UserDetails admin = User.withUsername("admin").password("admin").roles("USER","ADMIN").build();
+		return new MapUserDetailsRepository(rob, admin);
+	}
+
 }

@@ -16,17 +16,16 @@
 
 package sample;
 
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.WebSession;
+import reactor.core.publisher.Mono;
+
 import java.security.Principal;
 import java.util.Collections;
 import java.util.Map;
-
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import org.springframework.web.server.WebSession;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 /**
  * @author Rob Winch
@@ -34,30 +33,20 @@ import reactor.core.publisher.Mono;
  */
 @RestController
 public class UserController {
-	private final UserRepository users;
-
-	public UserController(UserRepository users) {
-		this.users = users;
-	}
 
 	@GetMapping("/me")
-	public Mono<Map<String,String>> me(@AuthenticationPrincipal User user) {
+	public Mono<Map<String,String>> me(@AuthenticationPrincipal UserDetails user) {
 		return me(Mono.just(user));
 	}
 
 	@GetMapping("/mono/me")
-	public Mono<Map<String,String>> me(@AuthenticationPrincipal Mono<User> user) {
+	public Mono<Map<String,String>> me(@AuthenticationPrincipal Mono<UserDetails> user) {
 		return user.flatMap( u -> Mono.just(Collections.singletonMap("username", u.getUsername())));
 	}
 
 	@GetMapping("/mono/session")
 	public Mono<Map<String,Object>> Session(Mono<WebSession> session) {
 		return session.flatMap( s -> Mono.just(s.getAttributes()));
-	}
-
-	@GetMapping("/users")
-	public Flux<User> users() {
-		return this.users.findAll();
 	}
 
 	@GetMapping("/principal")

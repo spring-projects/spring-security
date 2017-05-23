@@ -22,7 +22,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -59,11 +58,12 @@ public class HelloWebfluxFnApplicationTests {
 		this.rest = WebTestClient.bindToHttpHandler(handler).build();
 	}
 
+
 	@Test
 	public void basicRequired() throws Exception {
 		this.rest
 			.get()
-			.uri("/users")
+			.uri("/principal")
 			.exchange()
 			.expectStatus().isUnauthorized();
 	}
@@ -73,10 +73,10 @@ public class HelloWebfluxFnApplicationTests {
 		this.rest
 			.filter(robsCredentials())
 			.get()
-			.uri("/users")
+			.uri("/principal")
 			.exchange()
 			.expectStatus().isOk()
-			.expectBody().json("[{\"id\":null,\"username\":\"rob\",\"password\":\"rob\",\"firstname\":\"Rob\",\"lastname\":\"Winch\"},{\"id\":null,\"username\":\"admin\",\"password\":\"admin\",\"firstname\":\"Admin\",\"lastname\":\"User\"}]");
+			.expectBody().json("{\"username\":\"rob\"}");
 	}
 
 	@Test
@@ -84,7 +84,7 @@ public class HelloWebfluxFnApplicationTests {
 		this.rest
 			.filter(invalidPassword())
 			.get()
-			.uri("/users")
+			.uri("/principal")
 			.exchange()
 			.expectStatus().isUnauthorized()
 			.expectBody().isEmpty();
@@ -146,7 +146,7 @@ public class HelloWebfluxFnApplicationTests {
 		ExchangeResult result = this.rest
 			.filter(robsCredentials())
 			.get()
-			.uri("/users")
+			.uri("/principal")
 			.exchange()
 			.returnResult(String.class);
 
@@ -154,7 +154,7 @@ public class HelloWebfluxFnApplicationTests {
 
 		this.rest
 			.get()
-			.uri("/users")
+			.uri("/principal")
 			.cookie(session.getName(), session.getValue())
 			.exchange()
 			.expectStatus().isOk();
@@ -166,13 +166,13 @@ public class HelloWebfluxFnApplicationTests {
 		this.rest
 			.exchangeMutator( withUser() )
 			.get()
-			.uri("/users")
+			.uri("/principal")
 			.exchange()
 			.expectStatus().isOk();
 
 		this.rest
 			.get()
-			.uri("/users")
+			.uri("/principal")
 			.exchange()
 			.expectStatus().isUnauthorized();
 	}

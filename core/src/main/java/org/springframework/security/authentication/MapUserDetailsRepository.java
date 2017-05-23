@@ -18,6 +18,7 @@
 
 package org.springframework.security.authentication;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.function.Function;
@@ -36,6 +37,14 @@ import reactor.core.publisher.Mono;
  */
 public class MapUserDetailsRepository implements UserDetailsRepository {
 	private final Map<String,UserDetails> users;
+
+	public MapUserDetailsRepository(Map<String,UserDetails> users) {
+		this.users = users;
+	}
+
+	public MapUserDetailsRepository(UserDetails... users) {
+		this(Arrays.asList(users));
+	}
 
 	public MapUserDetailsRepository(Collection<UserDetails> users) {
 		Assert.notEmpty(users, "users cannot be null or empty");

@@ -61,7 +61,7 @@ public class HelloWebfluxApplicationTests {
 	public void basicRequired() throws Exception {
 		this.rest
 			.get()
-			.uri("/users")
+			.uri("/principal")
 			.exchange()
 			.expectStatus().isUnauthorized();
 	}
@@ -71,10 +71,10 @@ public class HelloWebfluxApplicationTests {
 		this.rest
 			.filter(robsCredentials())
 			.get()
-			.uri("/users")
+			.uri("/principal")
 			.exchange()
 			.expectStatus().isOk()
-			.expectBody().json("[{\"id\":null,\"username\":\"rob\",\"password\":\"rob\",\"firstname\":\"Rob\",\"lastname\":\"Winch\"},{\"id\":null,\"username\":\"admin\",\"password\":\"admin\",\"firstname\":\"Admin\",\"lastname\":\"User\"}]");
+			.expectBody().json("{\"username\":\"rob\"}");
 	}
 
 	@Test
@@ -82,7 +82,7 @@ public class HelloWebfluxApplicationTests {
 		this.rest
 			.filter(invalidPassword())
 			.get()
-			.uri("/users")
+			.uri("/principal")
 			.exchange()
 			.expectStatus().isUnauthorized()
 			.expectBody().isEmpty();
@@ -144,7 +144,7 @@ public class HelloWebfluxApplicationTests {
 		ExchangeResult result = this.rest
 				.filter(robsCredentials())
 				.get()
-				.uri("/users")
+				.uri("/principal")
 				.exchange()
 				.returnResult(String.class);
 
@@ -152,7 +152,7 @@ public class HelloWebfluxApplicationTests {
 
 		this.rest
 			.get()
-			.uri("/users")
+			.uri("/principal")
 			.cookie(session.getName(), session.getValue())
 			.exchange()
 			.expectStatus().isOk();
@@ -163,13 +163,13 @@ public class HelloWebfluxApplicationTests {
 		this.rest
 			.exchangeMutator( withUser() )
 			.get()
-			.uri("/users")
+			.uri("/principal")
 			.exchange()
 			.expectStatus().isOk();
 
 		this.rest
 			.get()
-			.uri("/users")
+			.uri("/principal")
 			.exchange()
 			.expectStatus().isUnauthorized();
 	}
