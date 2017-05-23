@@ -18,14 +18,13 @@
 package sample;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
-import org.springframework.http.server.reactive.HttpHandler;
+import org.springframework.security.web.server.WebFilterChainFilter;
 import org.springframework.security.web.server.header.ContentTypeOptionsHttpHeadersWriter;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -33,6 +32,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.ExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
+import org.springframework.web.reactive.function.server.RouterFunction;
 
 import java.nio.charset.Charset;
 import java.util.Base64;
@@ -49,15 +49,19 @@ import static org.springframework.web.reactive.function.client.ExchangeFilterFun
 @ActiveProfiles("test")
 public class HelloWebfluxFnApplicationTests {
 	@Autowired
-	HttpHandler handler;
+	RouterFunction<?> routerFunction;
+	@Autowired
+	WebFilterChainFilter springSecurityFilterChain;
 
 	WebTestClient rest;
 
 	@Before
 	public void setup() {
-		this.rest = WebTestClient.bindToHttpHandler(handler).build();
+		this.rest = WebTestClient
+			.bindToRouterFunction(routerFunction)
+			.webFilter(springSecurityFilterChain)
+			.build();
 	}
-
 
 	@Test
 	public void basicRequired() throws Exception {
@@ -160,7 +164,6 @@ public class HelloWebfluxFnApplicationTests {
 			.expectStatus().isOk();
 	}
 
-	@Ignore
 	@Test
 	public void mockSupport() throws Exception {
 		this.rest

@@ -58,15 +58,18 @@ public class HelloWebfluxFnApplication {
 	}
 
 	@Bean
-	public HttpHandler httpHandler(UserController userController, WebFilter springSecurityFilterChain) {
-		RouterFunction<ServerResponse> route = route(
-				GET("/principal"), userController::principal).andRoute(
-				GET("/admin"), userController::admin);
-
+	public RouterFunction<ServerResponse> routes(UserController userController) {
+		return route(
+			GET("/principal"), userController::principal).andRoute(
+			GET("/admin"), userController::admin);
+	}
+	@Bean
+	public HttpHandler httpHandler(RouterFunction<ServerResponse> routes, WebFilter springSecurityFilterChain) {
 		HandlerStrategies handlerStrategies = HandlerStrategies.builder()
-			.webFilter(springSecurityFilterChain).build();
+			.webFilter(springSecurityFilterChain)
+			.build();
 
-		return RouterFunctions.toHttpHandler(route, handlerStrategies);
+		return RouterFunctions.toHttpHandler(routes, handlerStrategies);
 	}
 
 }

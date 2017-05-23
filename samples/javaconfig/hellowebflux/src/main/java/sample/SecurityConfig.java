@@ -26,8 +26,8 @@ import org.springframework.security.config.web.server.HttpSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.server.WebFilterChainFilter;
 import org.springframework.security.web.server.authorization.AuthorizationContext;
-import org.springframework.web.server.WebFilter;
 import reactor.core.publisher.Mono;
 
 /**
@@ -38,7 +38,7 @@ import reactor.core.publisher.Mono;
 public class SecurityConfig {
 
 	@Bean
-	WebFilter springSecurityFilterChain(HttpSecurity http) throws Exception {
+	WebFilterChainFilter springSecurityFilterChain(HttpSecurity http) throws Exception {
 		http.authorizeExchange()
 			.antMatchers("/admin/**").hasRole("ADMIN")
 			.antMatchers("/users/{user}/**").access(this::currentUserMatchesPath)
