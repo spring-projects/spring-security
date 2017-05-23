@@ -83,9 +83,9 @@ public class OAuth2LoginAutoConfiguration {
 		private void registerUserInfoTypeConverters(OAuth2LoginConfigurer<HttpSecurity> oauth2LoginConfigurer) throws Exception {
 			Set<String> clientPropertyKeys = resolveClientPropertyKeys(this.environment);
 			for (String clientPropertyKey : clientPropertyKeys) {
-				String fullClientPropertyKey = CLIENT_PROPERTY_PREFIX + clientPropertyKey + ".";
-				String userInfoUriValue = this.environment.getProperty(fullClientPropertyKey + USER_INFO_URI_PROPERTY);
-				String userInfoConverterTypeValue = this.environment.getProperty(fullClientPropertyKey + USER_INFO_CONVERTER_PROPERTY);
+				String fullClientPropertyKey = CLIENT_PROPERTY_PREFIX + "." + clientPropertyKey;
+				String userInfoUriValue = this.environment.getProperty(fullClientPropertyKey + "." + USER_INFO_URI_PROPERTY);
+				String userInfoConverterTypeValue = this.environment.getProperty(fullClientPropertyKey + "." + USER_INFO_CONVERTER_PROPERTY);
 				if (userInfoUriValue != null && userInfoConverterTypeValue != null) {
 					Class<? extends Converter> userInfoConverterType = ClassUtils.resolveClassName(
 						userInfoConverterTypeValue, this.getClass().getClassLoader()).asSubclass(Converter.class);
@@ -93,7 +93,7 @@ public class OAuth2LoginAutoConfiguration {
 					if (AbstractOAuth2UserConverter.class.isAssignableFrom(userInfoConverterType)) {
 						Constructor<? extends Converter> oauth2UserConverterConstructor = ClassUtils.getConstructorIfAvailable(userInfoConverterType, String.class);
 						if (oauth2UserConverterConstructor != null) {
-							String userInfoNameAttributeKey = this.environment.getProperty(fullClientPropertyKey + USER_INFO_NAME_ATTR_KEY_PROPERTY);
+							String userInfoNameAttributeKey = this.environment.getProperty(fullClientPropertyKey + "." + USER_INFO_NAME_ATTR_KEY_PROPERTY);
 							userInfoConverter = (Converter<ClientHttpResponse, ? extends OAuth2User>)oauth2UserConverterConstructor.newInstance(userInfoNameAttributeKey);
 						}
 					}
