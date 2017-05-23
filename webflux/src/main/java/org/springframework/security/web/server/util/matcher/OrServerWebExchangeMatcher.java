@@ -23,6 +23,8 @@ import java.util.function.Predicate;
 
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Rob Winch
@@ -45,12 +47,12 @@ public class OrServerWebExchangeMatcher implements ServerWebExchangeMatcher {
 	 * @see org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher#matches(org.springframework.web.server.ServerWebExchange)
 	 */
 	@Override
-	public MatchResult matches(ServerWebExchange exchange) {
-		return matchers.stream()
-			.map(m -> m.matches(exchange))
+	public Mono<MatchResult> matches(ServerWebExchange exchange) {
+		return Flux.fromIterable(matchers)
+			.flatMap(m -> m.matches(exchange))
 			.filter(m -> m.isMatch())
-			.findFirst()
-			.orElse(MatchResult.notMatch());
+			.next()
+			.switchIfEmpty(MatchResult.notMatch());
 	}
 
 	@Override

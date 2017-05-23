@@ -19,6 +19,7 @@ package org.springframework.security.web.server.util.matcher;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +49,7 @@ public abstract class ServerWebExchangeMatchers {
 	public static ServerWebExchangeMatcher anyExchange() {
 		return new ServerWebExchangeMatcher() {
 			@Override
-			public MatchResult matches(ServerWebExchange exchange) {
+			public Mono<MatchResult> matches(ServerWebExchange exchange) {
 				return ServerWebExchangeMatcher.MatchResult.match();
 			}
 		};

@@ -61,7 +61,7 @@ public class AndServerWebExchangeMatcherTests {
 		when(matcher1.matches(exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.match(params1));
 		when(matcher2.matches(exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.match(params2));
 
-		ServerWebExchangeMatcher.MatchResult matches = matcher.matches(exchange);
+		ServerWebExchangeMatcher.MatchResult matches = matcher.matches(exchange).block();
 
 		assertThat(matches.isMatch()).isTrue();
 		assertThat(matches.getVariables()).hasSize(2);
@@ -76,7 +76,7 @@ public class AndServerWebExchangeMatcherTests {
 	public void matchesWhenFalseFalseThenFalseAndMatcher2NotInvoked() throws Exception {
 		when(matcher1.matches(exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
 
-		ServerWebExchangeMatcher.MatchResult matches = matcher.matches(exchange);
+		ServerWebExchangeMatcher.MatchResult matches = matcher.matches(exchange).block();
 
 		assertThat(matches.isMatch()).isFalse();
 		assertThat(matches.getVariables()).isEmpty();
@@ -91,7 +91,7 @@ public class AndServerWebExchangeMatcherTests {
 		when(matcher1.matches(exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.match(params));
 		when(matcher2.matches(exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
 
-		ServerWebExchangeMatcher.MatchResult matches = matcher.matches(exchange);
+		ServerWebExchangeMatcher.MatchResult matches = matcher.matches(exchange).block();
 
 		assertThat(matches.isMatch()).isFalse();
 		assertThat(matches.getVariables()).isEmpty();
@@ -104,7 +104,7 @@ public class AndServerWebExchangeMatcherTests {
 	public void matchesWhenFalseTrueThenFalse() throws Exception {
 		when(matcher1.matches(exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
 
-		ServerWebExchangeMatcher.MatchResult matches = matcher.matches(exchange);
+		ServerWebExchangeMatcher.MatchResult matches = matcher.matches(exchange).block();
 
 		assertThat(matches.isMatch()).isFalse();
 		assertThat(matches.getVariables()).isEmpty();

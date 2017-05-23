@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
 
 /**
  *
@@ -29,7 +30,7 @@ import org.springframework.web.server.ServerWebExchange;
  */
 public interface ServerWebExchangeMatcher {
 
-	MatchResult matches(ServerWebExchange exchange);
+	Mono<MatchResult> matches(ServerWebExchange exchange);
 
 	class MatchResult {
 		private final boolean match;
@@ -48,16 +49,16 @@ public interface ServerWebExchangeMatcher {
 			return variables;
 		}
 
-		public static MatchResult match() {
+		public static Mono<MatchResult> match() {
 			return match(Collections.emptyMap());
 		}
 
-		public static MatchResult match(Map<String,Object> variables) {
-			return new MatchResult(true, variables);
+		public static Mono<MatchResult> match(Map<String,Object> variables) {
+			return Mono.just(new MatchResult(true, variables));
 		}
 
-		public static MatchResult notMatch() {
-			return new MatchResult(false, Collections.emptyMap());
+		public static Mono<MatchResult> notMatch() {
+			return Mono.just(new MatchResult(false, Collections.emptyMap()));
 		}
 	}
 }

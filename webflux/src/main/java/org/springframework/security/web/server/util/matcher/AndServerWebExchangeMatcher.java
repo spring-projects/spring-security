@@ -19,6 +19,8 @@ package org.springframework.security.web.server.util.matcher;
 
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -45,12 +47,15 @@ public class AndServerWebExchangeMatcher implements ServerWebExchangeMatcher {
 	 * @see org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher#matches(org.springframework.web.server.ServerWebExchange)
 	 */
 	@Override
-	public MatchResult matches(ServerWebExchange exchange) {
-		Map<String, Object> variables = new HashMap<>();
-		return matchers.stream()
-			.map(m -> m.matches(exchange))
-			.peek( m -> variables.putAll(m.getVariables()))
-			.allMatch(m -> m.isMatch()) ? MatchResult.match(variables) : MatchResult.notMatch();
+	public Mono<MatchResult> matches(ServerWebExchange exchange) {
+		return Mono.defer(() -> {
+			Map<String, Object> variables = new HashMap<>();
+			return Flux.fromIterable(matchers)
+				.flatMap(matcher -> matcher.matches(exchange))
+				.doOnNext(matchResult -> variables.putAll(matchResult.getVariables()))
+				.all(MatchResult::isMatch)
+				.flatMap(allMatch -> allMatch ? MatchResult.match(variables) : MatchResult.notMatch());
+		});
 	}
 
 	@Override

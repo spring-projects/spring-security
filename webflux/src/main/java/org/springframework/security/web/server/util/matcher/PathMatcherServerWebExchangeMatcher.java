@@ -27,6 +27,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.PathMatcher;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.support.HttpRequestPathHelper;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Rob Winch
@@ -51,7 +52,7 @@ public final class PathMatcherServerWebExchangeMatcher implements ServerWebExcha
 	}
 
 	@Override
-	public MatchResult matches(ServerWebExchange exchange) {
+	public Mono<MatchResult> matches(ServerWebExchange exchange) {
 		ServerHttpRequest request = exchange.getRequest();
 		if(this.method != null && !this.method.equals(request.getMethod())) {
 			return MatchResult.notMatch();
