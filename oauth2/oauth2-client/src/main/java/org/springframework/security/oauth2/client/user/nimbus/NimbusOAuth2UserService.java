@@ -100,8 +100,21 @@ public class NimbusOAuth2UserService implements OAuth2UserService {
 			if (httpResponse.getStatusCode() != HTTPResponse.SC_OK) {
 				UserInfoErrorResponse userInfoErrorResponse = UserInfoErrorResponse.parse(httpResponse);
 				ErrorObject errorObject = userInfoErrorResponse.getErrorObject();
-				OAuth2Error oauth2Error = new OAuth2Error(errorObject.getCode(), errorObject.getDescription(),
-					(errorObject.getURI() != null ? errorObject.getURI().toString() : null));
+
+				StringBuilder errorDescription = new StringBuilder();
+				errorDescription.append("An error occurred while attempting to access the UserInfo Endpoint -> ");
+				errorDescription.append("Error details: [");
+				errorDescription.append("UserInfo Uri: ").append(userInfoUri.toString());
+				errorDescription.append(", Http Status: ").append(errorObject.getHTTPStatusCode());
+				if (errorObject.getCode() != null) {
+					errorDescription.append(", Error Code: ").append(errorObject.getCode());
+				}
+				if (errorObject.getDescription() != null) {
+					errorDescription.append(", Error Description: ").append(errorObject.getDescription());
+				}
+				errorDescription.append("]");
+
+				OAuth2Error oauth2Error = new OAuth2Error(INVALID_USER_INFO_RESPONSE_ERROR_CODE, errorDescription.toString(), null);
 				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 			}
 
