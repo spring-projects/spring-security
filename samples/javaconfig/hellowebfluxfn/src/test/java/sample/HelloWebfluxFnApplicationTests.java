@@ -30,6 +30,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.ExchangeResult;
+import org.springframework.test.web.reactive.server.MockServerExchangeMutator;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.server.RouterFunction;
@@ -166,8 +167,10 @@ public class HelloWebfluxFnApplicationTests {
 
 	@Test
 	public void mockSupport() throws Exception {
-		this.rest
-			.exchangeMutator( withUser() )
+		MockServerExchangeMutator exchangeMutator = new MockServerExchangeMutator(withUser());
+		WebTestClient mockRest = WebTestClient.bindToRouterFunction(this.routerFunction).webFilter(exchangeMutator).build();
+
+		exchangeMutator.filterClient(mockRest, withUser())
 			.get()
 			.uri("/principal")
 			.exchange()
