@@ -29,8 +29,8 @@ import org.springframework.security.web.server.header.ContentTypeOptionsHttpHead
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.reactive.server.ExchangeMutatorWebFilter;
 import org.springframework.test.web.reactive.server.ExchangeResult;
-import org.springframework.test.web.reactive.server.MockServerExchangeMutator;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 
@@ -161,10 +161,11 @@ public class HelloWebfluxApplicationTests {
 
 	@Test
 	public void mockSupport() throws Exception {
-		MockServerExchangeMutator exchangeMutator = new MockServerExchangeMutator(withUser());
+		ExchangeMutatorWebFilter exchangeMutator = new ExchangeMutatorWebFilter(withUser());
 		WebTestClient mockRest = WebTestClient.bindToApplicationContext(this.context).webFilter(exchangeMutator).build();
 
-		exchangeMutator.filterClient(mockRest, withUser())
+		mockRest
+			.filter(exchangeMutator.perClient(withUser()))
 			.get()
 			.uri("/principal")
 			.exchange()
