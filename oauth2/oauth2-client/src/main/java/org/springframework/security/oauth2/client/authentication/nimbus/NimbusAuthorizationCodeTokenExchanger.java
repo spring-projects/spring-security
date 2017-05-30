@@ -113,7 +113,7 @@ public class NimbusAuthorizationCodeTokenExchanger implements AuthorizationGrant
 
 		String accessToken = accessTokenResponse.getTokens().getAccessToken().getValue();
 		AccessToken.TokenType accessTokenType = null;
-		if (AccessToken.TokenType.BEARER.value().equals(accessTokenResponse.getTokens().getAccessToken().getType().getValue())) {
+		if (AccessToken.TokenType.BEARER.getValue().equalsIgnoreCase(accessTokenResponse.getTokens().getAccessToken().getType().getValue())) {
 			accessTokenType = AccessToken.TokenType.BEARER;
 		}
 		long expiresIn = accessTokenResponse.getTokens().getAccessToken().getLifetime();
