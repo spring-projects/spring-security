@@ -15,6 +15,8 @@
  */
 package org.springframework.security.oauth2.core.endpoint;
 
+import org.springframework.util.Assert;
+
 /**
  * The <i>response_type</i> parameter is consumed by the authorization endpoint which
  * is used by the authorization code grant type and implicit grant type flows.
@@ -31,16 +33,33 @@ package org.springframework.security.oauth2.core.endpoint;
  * @since 5.0
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-3.1.1">Section 3.1.1 Response Type</a>
  */
-public enum ResponseType {
-	CODE("code");
-
+public final class ResponseType {
+	public static final ResponseType CODE = new ResponseType("code");
 	private final String value;
 
-	ResponseType(String value) {
+	public ResponseType(String value) {
+		Assert.hasText(value, "value cannot be empty");
 		this.value = value;
 	}
 
-	public String value() {
+	public String getValue() {
 		return this.value;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null || this.getClass() != obj.getClass()) {
+			return false;
+		}
+		ResponseType that = (ResponseType) obj;
+		return this.getValue().equals(that.getValue());
+	}
+
+	@Override
+	public int hashCode() {
+		return this.getValue().hashCode();
 	}
 }
