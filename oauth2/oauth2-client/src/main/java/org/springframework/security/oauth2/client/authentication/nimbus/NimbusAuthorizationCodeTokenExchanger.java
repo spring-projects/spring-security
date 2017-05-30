@@ -78,7 +78,7 @@ public class NimbusAuthorizationCodeTokenExchanger implements AuthorizationGrant
 		ClientID clientId = new ClientID(clientRegistration.getClientId());
 		Secret clientSecret = new Secret(clientRegistration.getClientSecret());
 		ClientAuthentication clientAuthentication;
-		if (ClientAuthenticationMethod.FORM.equals(clientRegistration.getClientAuthenticationMethod())) {
+		if (ClientAuthenticationMethod.POST.equals(clientRegistration.getClientAuthenticationMethod())) {
 			clientAuthentication = new ClientSecretPost(clientId, clientSecret);
 		} else {
 			clientAuthentication = new ClientSecretBasic(clientId, clientSecret);

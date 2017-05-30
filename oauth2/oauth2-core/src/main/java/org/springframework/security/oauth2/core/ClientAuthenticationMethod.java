@@ -15,6 +15,8 @@
  */
 package org.springframework.security.oauth2.core;
 
+import org.springframework.util.Assert;
+
 /**
  * The available authentication methods used when authenticating the client with the authorization server.
  *
@@ -22,17 +24,34 @@ package org.springframework.security.oauth2.core;
  * @since 5.0
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-2.3">Section 2.3 Client Authentication</a>
  */
-public enum ClientAuthenticationMethod {
-	HEADER("header"),
-	FORM("form");
-
+public final class ClientAuthenticationMethod {
+	public static final ClientAuthenticationMethod BASIC = new ClientAuthenticationMethod("basic");
+	public static final ClientAuthenticationMethod POST = new ClientAuthenticationMethod("post");
 	private final String value;
 
-	ClientAuthenticationMethod(String value) {
+	public ClientAuthenticationMethod(String value) {
+		Assert.hasText(value, "value cannot be empty");
 		this.value = value;
 	}
 
-	public String value() {
+	public String getValue() {
 		return this.value;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null || this.getClass() != obj.getClass()) {
+			return false;
+		}
+		ClientAuthenticationMethod that = (ClientAuthenticationMethod) obj;
+		return this.getValue().equalsIgnoreCase(that.getValue());
+	}
+
+	@Override
+	public int hashCode() {
+		return this.getValue().hashCode();
 	}
 }

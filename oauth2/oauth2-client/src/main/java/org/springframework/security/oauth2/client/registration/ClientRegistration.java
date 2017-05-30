@@ -35,7 +35,7 @@ import java.util.Set;
 public class ClientRegistration {
 	private String clientId;
 	private String clientSecret;
-	private ClientAuthenticationMethod clientAuthenticationMethod = ClientAuthenticationMethod.HEADER;
+	private ClientAuthenticationMethod clientAuthenticationMethod = ClientAuthenticationMethod.BASIC;
 	private AuthorizationGrantType authorizedGrantType;
 	private String redirectUri;
 	private Set<String> scopes = Collections.emptySet();
@@ -154,7 +154,7 @@ public class ClientRegistration {
 	public static class Builder {
 		protected String clientId;
 		protected String clientSecret;
-		protected ClientAuthenticationMethod clientAuthenticationMethod = ClientAuthenticationMethod.HEADER;
+		protected ClientAuthenticationMethod clientAuthenticationMethod = ClientAuthenticationMethod.BASIC;
 		protected AuthorizationGrantType authorizedGrantType;
 		protected String redirectUri;
 		protected Set<String> scopes;
