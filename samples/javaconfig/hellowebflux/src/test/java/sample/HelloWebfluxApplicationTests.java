@@ -165,7 +165,6 @@ public class HelloWebfluxApplicationTests {
 		WebTestClient mockRest = WebTestClient.bindToApplicationContext(this.context).webFilter(exchangeMutator).build();
 
 		mockRest
-			.filter(exchangeMutator.perClient(withUser()))
 			.get()
 			.uri("/principal")
 			.exchange()
