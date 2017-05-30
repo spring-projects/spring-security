@@ -15,6 +15,8 @@
  */
 package org.springframework.security.oauth2.core;
 
+import org.springframework.util.Assert;
+
 /**
  * An authorization grant is a credential representing the resource owner's authorization
  * (to access it's protected resources) to the client and used by the client to obtain an access token.
@@ -31,16 +33,33 @@ package org.springframework.security.oauth2.core;
  * @since 5.0
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-1.3">Section 1.3 Authorization Grant</a>
  */
-public enum AuthorizationGrantType {
-	AUTHORIZATION_CODE("authorization_code");
-
+public final class AuthorizationGrantType {
+	public static final AuthorizationGrantType AUTHORIZATION_CODE = new AuthorizationGrantType("authorization_code");
 	private final String value;
 
-	AuthorizationGrantType(String value) {
+	public AuthorizationGrantType(String value) {
+		Assert.hasText(value, "value cannot be empty");
 		this.value = value;
 	}
 
-	public String value() {
+	public String getValue() {
 		return this.value;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null || this.getClass() != obj.getClass()) {
+			return false;
+		}
+		AuthorizationGrantType that = (AuthorizationGrantType) obj;
+		return this.getValue().equals(that.getValue());
+	}
+
+	@Override
+	public int hashCode() {
+		return this.getValue().hashCode();
 	}
 }

@@ -264,7 +264,7 @@ public class ClientRegistration {
 
 		protected void validateClientWithAuthorizationCodeGrantType() {
 			Assert.isTrue(AuthorizationGrantType.AUTHORIZATION_CODE.equals(this.authorizedGrantType),
-				"authorizedGrantType must be " + AuthorizationGrantType.AUTHORIZATION_CODE.value());
+				"authorizedGrantType must be " + AuthorizationGrantType.AUTHORIZATION_CODE.getValue());
 			Assert.hasText(this.clientId, "clientId cannot be empty");
 			Assert.hasText(this.clientSecret, "clientSecret cannot be empty");
 			Assert.notNull(this.clientAuthenticationMethod, "clientAuthenticationMethod cannot be null");
