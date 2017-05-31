@@ -167,16 +167,17 @@ public class HelloWebfluxFnApplicationTests {
 
 	@Test
 	public void mockSupport() throws Exception {
-		ExchangeMutatorWebFilter exchangeMutator = new ExchangeMutatorWebFilter(withUser());
-		WebTestClient mockRest = WebTestClient.bindToRouterFunction(this.routerFunction).webFilter(exchangeMutator).build();
+		ExchangeMutatorWebFilter exchangeMutator = new ExchangeMutatorWebFilter();
+		WebTestClient mockRest = WebTestClient.bindToRouterFunction(this.routerFunction).webFilter(exchangeMutator, springSecurityFilterChain).build();
 
 		mockRest
+			.filter(exchangeMutator.perClient(withUser()))
 			.get()
 			.uri("/principal")
 			.exchange()
 			.expectStatus().isOk();
 
-		this.rest
+		mockRest
 			.get()
 			.uri("/principal")
 			.exchange()

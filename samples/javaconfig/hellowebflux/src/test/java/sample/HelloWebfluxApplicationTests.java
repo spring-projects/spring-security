@@ -161,16 +161,17 @@ public class HelloWebfluxApplicationTests {
 
 	@Test
 	public void mockSupport() throws Exception {
-		ExchangeMutatorWebFilter exchangeMutator = new ExchangeMutatorWebFilter(withUser());
+		ExchangeMutatorWebFilter exchangeMutator = new ExchangeMutatorWebFilter();
 		WebTestClient mockRest = WebTestClient.bindToApplicationContext(this.context).webFilter(exchangeMutator).build();
 
 		mockRest
+			.filter(exchangeMutator.perClient(withUser()))
 			.get()
 			.uri("/principal")
 			.exchange()
 			.expectStatus().isOk();
 
-		this.rest
+		mockRest
 			.get()
 			.uri("/principal")
 			.exchange()
