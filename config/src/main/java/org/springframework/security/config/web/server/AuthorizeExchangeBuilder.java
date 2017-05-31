@@ -23,6 +23,7 @@ import org.springframework.security.authorization.AuthorityAuthorizationManager;
 import org.springframework.security.web.server.authorization.AuthorizationWebFilter;
 import org.springframework.security.web.server.authorization.DelegatingReactiveAuthorizationManager;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcherEntry;
 import org.springframework.web.server.WebFilter;
 import reactor.core.publisher.Mono;
 
@@ -84,7 +85,7 @@ public class AuthorizeExchangeBuilder extends AbstractServerWebExchangeMatcherRe
 		}
 
 		public AuthorizeExchangeBuilder access(ReactiveAuthorizationManager<AuthorizationContext> manager) {
-			managerBldr.add(matcher, manager);
+			managerBldr.add(new ServerWebExchangeMatcherEntry<>(matcher, manager));
 			matcher = null;
 			return AuthorizeExchangeBuilder.this;
 		}
