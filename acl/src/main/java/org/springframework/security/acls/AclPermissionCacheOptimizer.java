@@ -25,6 +25,7 @@ import org.springframework.security.access.PermissionCacheOptimizer;
 import org.springframework.security.acls.domain.ObjectIdentityRetrievalStrategyImpl;
 import org.springframework.security.acls.domain.SidRetrievalStrategyImpl;
 import org.springframework.security.acls.model.AclService;
+import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.acls.model.ObjectIdentityRetrievalStrategy;
 import org.springframework.security.acls.model.Sid;
@@ -67,8 +68,11 @@ public class AclPermissionCacheOptimizer implements PermissionCacheOptimizer {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Eagerly loading Acls for " + oidsToCache.size() + " objects");
 		}
-
-		aclService.readAclsById(oidsToCache, sids);
+		try {
+			aclService.readAclsById(oidsToCache, sids);
+		} catch (NotFoundException nfe) {
+			logger.debug("Not all ACLs are present for the listed oids");
+		}
 	}
 
 	public void setObjectIdentityRetrievalStrategy(
