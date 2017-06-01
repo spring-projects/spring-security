@@ -15,25 +15,25 @@
  */
 package org.springframework.security.oauth2.client.web.converter;
 
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.oauth2.core.endpoint.ErrorResponseAttributes;
 import org.springframework.security.oauth2.core.endpoint.OAuth2Parameter;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.function.Function;
 
 /**
- * An implementation of a {@link Converter} that converts an <i>OAuth 2.0 Error Response</i>
+ * A <code>Function</code> that converts an <i>OAuth 2.0 Error Response</i>
  * (in the form of a {@link HttpServletRequest}) to a {@link ErrorResponseAttributes}.
  *
  * @author Joe Grandja
  * @since 5.0
  * @see ErrorResponseAttributes
  */
-public final class ErrorResponseAttributesConverter implements Converter<HttpServletRequest, ErrorResponseAttributes> {
+public final class ErrorResponseAttributesConverter implements Function<HttpServletRequest, ErrorResponseAttributes> {
 
 	@Override
-	public ErrorResponseAttributes convert(HttpServletRequest request) {
+	public ErrorResponseAttributes apply(HttpServletRequest request) {
 		ErrorResponseAttributes response;
 
 		String errorCode = request.getParameter(OAuth2Parameter.ERROR);

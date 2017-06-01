@@ -410,9 +410,9 @@ NOTE: Non-standard scopes may be defined by a standard _OAuth 2.0 Provider_. Ple
 - *authorization-uri* - the URI used by the client to redirect the end-user's user-agent to the _Authorization Server_ in order to obtain authorization from the end-user (the _Resource Owner_).
 - *token-uri* - the URI used by the client when exchanging an _Authorization Grant_ (for example, Authorization Code) for an _Access Token_ at the _Authorization Server_.
 - *user-info-uri* - the URI used by the client to access the protected resource *UserInfo Endpoint*, in order to obtain attributes of the end-user.
-- *user-info-converter* - the `Converter` implementation class used to convert the *UserInfo Response* to a `UserInfo` (_OpenID Connect 1.0 Provider_) or `OAuth2User` instance (_Standard OAuth 2.0 Provider_).
+- *user-info-converter* - the `java.util.function.Function` implementation class used to convert the *UserInfo Response* to a `UserInfo` (_OpenID Connect 1.0 Provider_) or `OAuth2User` instance (_Standard OAuth 2.0 Provider_).
 
-TIP: The `Converter` implementation class for an _OpenID Connect 1.0 Provider_ is *org.springframework.security.oauth2.client.user.converter.UserInfoConverter*
+TIP: The `java.util.function.Function` implementation class for an _OpenID Connect 1.0 Provider_ is *org.springframework.security.oauth2.client.user.converter.UserInfoConverter*
  and for a standard _OAuth 2.0 Provider_ it's *org.springframework.security.oauth2.client.user.converter.OAuth2UserConverter*.
 
 - *user-info-name-attribute-key* - the _key_ used to retrieve the *Name* of the end-user from the `Map` of available attributes in `UserInfo` or `OAuth2User`.

@@ -22,7 +22,6 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.openid.connect.sdk.UserInfoErrorResponse;
 import com.nimbusds.openid.connect.sdk.UserInfoRequest;
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.security.authentication.AuthenticationServiceException;
@@ -40,13 +39,14 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * An implementation of an {@link OAuth2UserService} that uses the <b>Nimbus OAuth 2.0 SDK</b> internally.
  *
  * <p>
- * This implementation uses a <code>Map</code> of <code>Converter</code>'s <i>keyed</i> by <code>URI</code>.
- * The <code>URI</code> represents the <i>UserInfo Endpoint</i> address and the mapped <code>Converter</code>
+ * This implementation uses a <code>Map</code> of converter's <i>keyed</i> by <code>URI</code>.
+ * The <code>URI</code> represents the <i>UserInfo Endpoint</i> address and the mapped <code>Function</code>
  * is capable of converting the <i>UserInfo Response</i> to either an
  * {@link OAuth2User} (for a standard <i>OAuth 2.0 Provider</i>) or
  * {@link UserInfo} (for an <i>OpenID Connect 1.0 Provider</i>).
@@ -57,14 +57,13 @@ import java.util.Map;
  * @see AuthenticatedPrincipal
  * @see OAuth2User
  * @see UserInfo
- * @see Converter
  * @see <a target="_blank" href="https://connect2id.com/products/nimbus-oauth-openid-connect-sdk">Nimbus OAuth 2.0 SDK</a>
  */
 public class NimbusOAuth2UserService implements OAuth2UserService {
 	private static final String INVALID_USER_INFO_RESPONSE_ERROR_CODE = "invalid_user_info_response";
-	private final Map<URI, Converter<ClientHttpResponse, ? extends OAuth2User>> userInfoTypeConverters;
+	private final Map<URI, Function<ClientHttpResponse, ? extends OAuth2User>> userInfoTypeConverters;
 
-	public NimbusOAuth2UserService(Map<URI, Converter<ClientHttpResponse, ? extends OAuth2User>> userInfoTypeConverters) {
+	public NimbusOAuth2UserService(Map<URI, Function<ClientHttpResponse, ? extends OAuth2User>> userInfoTypeConverters) {
 		Assert.notEmpty(userInfoTypeConverters, "userInfoTypeConverters cannot be empty");
 		this.userInfoTypeConverters = new HashMap<>(userInfoTypeConverters);
 	}
@@ -84,7 +83,7 @@ public class NimbusOAuth2UserService implements OAuth2UserService {
 					clientRegistration.getProviderDetails().getUserInfoUri(), ex);
 			}
 
-			Converter<ClientHttpResponse, ? extends OAuth2User> userInfoConverter = this.userInfoTypeConverters.get(userInfoUri);
+			Function<ClientHttpResponse, ? extends OAuth2User> userInfoConverter = this.userInfoTypeConverters.get(userInfoUri);
 			if (userInfoConverter == null) {
 				throw new IllegalArgumentException("There is no available User Info converter for " + userInfoUri.toString());
 			}
@@ -118,7 +117,7 @@ public class NimbusOAuth2UserService implements OAuth2UserService {
 				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 			}
 
-			user = userInfoConverter.convert(new NimbusClientHttpResponse(httpResponse));
+			user = userInfoConverter.apply(new NimbusClientHttpResponse(httpResponse));
 
 		} catch (ParseException ex) {
 			// This error occurs if the User Info Response is not well-formed or invalid

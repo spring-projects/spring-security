@@ -15,15 +15,15 @@
  */
 package org.springframework.security.oauth2.client.web.converter;
 
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.oauth2.core.endpoint.AuthorizationCodeAuthorizationResponseAttributes;
 import org.springframework.security.oauth2.core.endpoint.OAuth2Parameter;
 import org.springframework.util.Assert;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.function.Function;
 
 /**
- * An implementation of a {@link Converter} that converts an <i>OAuth 2.0 Authorization Code Grant Response</i>
+ * A <code>Function</code> that converts an <i>OAuth 2.0 Authorization Code Grant Response</i>
  * (in the form of a {@link HttpServletRequest}) to a {@link AuthorizationCodeAuthorizationResponseAttributes}.
  *
  * @author Joe Grandja
@@ -31,10 +31,10 @@ import javax.servlet.http.HttpServletRequest;
  * @see AuthorizationCodeAuthorizationResponseAttributes
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.2">Section 4.1.2 Authorization Code Grant Response</a>
  */
-public final class AuthorizationCodeAuthorizationResponseAttributesConverter implements Converter<HttpServletRequest, AuthorizationCodeAuthorizationResponseAttributes> {
+public final class AuthorizationCodeAuthorizationResponseAttributesConverter implements Function<HttpServletRequest, AuthorizationCodeAuthorizationResponseAttributes> {
 
 	@Override
-	public AuthorizationCodeAuthorizationResponseAttributes convert(HttpServletRequest request) {
+	public AuthorizationCodeAuthorizationResponseAttributes apply(HttpServletRequest request) {
 		AuthorizationCodeAuthorizationResponseAttributes response;
 
 		String code = request.getParameter(OAuth2Parameter.CODE);

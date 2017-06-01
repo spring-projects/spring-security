@@ -15,7 +15,6 @@
  */
 package org.springframework.security.oauth2.client.user.converter;
 
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -23,9 +22,10 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
- * Base implementation of a {@link Converter} that converts a {@link ClientHttpResponse}
+ * Base implementation of a <code>Function</code> that converts a {@link ClientHttpResponse}
  * to a specific type of {@link OAuth2User}.
  *
  * @author Joe Grandja
@@ -33,14 +33,14 @@ import java.util.Map;
  * @see OAuth2User
  * @see ClientHttpResponse
  */
-public abstract class AbstractOAuth2UserConverter<T extends OAuth2User> implements Converter<ClientHttpResponse, T> {
+public abstract class AbstractOAuth2UserConverter<R extends OAuth2User> implements Function<ClientHttpResponse, R> {
 	private final HttpMessageConverter jackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();
 
 	protected AbstractOAuth2UserConverter() {
 	}
 
 	@Override
-	public final T convert(ClientHttpResponse clientHttpResponse) {
+	public final R apply(ClientHttpResponse clientHttpResponse) {
 		Map<String, Object> userAttributes;
 
 		try {
@@ -49,9 +49,9 @@ public abstract class AbstractOAuth2UserConverter<T extends OAuth2User> implemen
 			throw new IllegalArgumentException("An error occurred reading the UserInfo response: " + ex.getMessage(), ex);
 		}
 
-		return this.convert(userAttributes);
+		return this.apply(userAttributes);
 	}
 
-	protected abstract T convert(Map<String, Object> userAttributes);
+	protected abstract R apply(Map<String, Object> userAttributes);
 
 }

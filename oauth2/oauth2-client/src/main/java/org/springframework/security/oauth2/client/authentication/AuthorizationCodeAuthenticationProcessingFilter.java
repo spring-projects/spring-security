@@ -123,7 +123,7 @@ public class AuthorizationCodeAuthenticationProcessingFilter extends AbstractAut
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
 			throws AuthenticationException, IOException, ServletException {
 
-		ErrorResponseAttributes authorizationError = this.errorResponseConverter.convert(request);
+		ErrorResponseAttributes authorizationError = this.errorResponseConverter.apply(request);
 		if (authorizationError != null) {
 			OAuth2Error oauth2Error = new OAuth2Error(authorizationError.getErrorCode(),
 					authorizationError.getDescription(), authorizationError.getUri());
@@ -144,7 +144,7 @@ public class AuthorizationCodeAuthenticationProcessingFilter extends AbstractAut
 		}
 
 		AuthorizationCodeAuthorizationResponseAttributes authorizationCodeResponseAttributes =
-				this.authorizationCodeResponseConverter.convert(request);
+				this.authorizationCodeResponseConverter.apply(request);
 
 		AuthorizationCodeAuthenticationToken authRequest = new AuthorizationCodeAuthenticationToken(
 				authorizationCodeResponseAttributes.getCode(), clientRegistration);
