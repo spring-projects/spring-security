@@ -40,6 +40,7 @@ import java.net.URI;
 import java.util.Set;
 import java.util.function.Function;
 
+import static org.springframework.boot.autoconfigure.security.oauth2.client.ClientRegistrationAutoConfiguration.CLIENT_ID_PROPERTY;
 import static org.springframework.boot.autoconfigure.security.oauth2.client.ClientRegistrationAutoConfiguration.CLIENT_PROPERTY_PREFIX;
 import static org.springframework.boot.autoconfigure.security.oauth2.client.ClientRegistrationAutoConfiguration.resolveClientPropertyKeys;
 
@@ -84,6 +85,9 @@ public class OAuth2LoginAutoConfiguration {
 			Set<String> clientPropertyKeys = resolveClientPropertyKeys(this.environment);
 			for (String clientPropertyKey : clientPropertyKeys) {
 				String fullClientPropertyKey = CLIENT_PROPERTY_PREFIX + "." + clientPropertyKey;
+				if (!this.environment.containsProperty(fullClientPropertyKey + "." + CLIENT_ID_PROPERTY)) {
+					continue;
+				}
 				String userInfoUriValue = this.environment.getProperty(fullClientPropertyKey + "." + USER_INFO_URI_PROPERTY);
 				String userInfoConverterTypeValue = this.environment.getProperty(fullClientPropertyKey + "." + USER_INFO_CONVERTER_PROPERTY);
 				if (userInfoUriValue != null && userInfoConverterTypeValue != null) {
