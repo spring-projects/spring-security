@@ -827,6 +827,14 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 	 * </ul>
 	 *
 	 * @see ReferrerPolicyHeaderWriter
+	 * @see ReferrerPolicyConfig#noReferrer
+	 * @see ReferrerPolicyConfig#noReferrerWhenDowngrade
+	 * @see ReferrerPolicyConfig#sameOrigin
+	 * @see ReferrerPolicyConfig#origin
+	 * @see ReferrerPolicyConfig#strictOrigin
+	 * @see ReferrerPolicyConfig#originWhenCrossOrigin
+	 * @see ReferrerPolicyConfig#strictOriginWhenCrossOrigin
+	 * @see ReferrerPolicyConfig#unsafeUrl
 	 * @since 4.2
 	 * @return the ReferrerPolicyConfig for additional configuration
 	 * @throws IllegalArgumentException if policy is null or empty
@@ -843,6 +851,100 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 		private ReferrerPolicyConfig() {
 		}
 
+		/**
+		 * Specify to 'no-referrer' policy.
+		 *
+		 * @return the {@link HeadersConfigurer} for additional customization.
+		 * @since 4.2.1
+		 */
+		public HeadersConfigurer<H> noReferrer() {
+			writer = new ReferrerPolicyHeaderWriter(ReferrerPolicy.NO_REFERRER);
+			return and();
+		}
+
+		/**
+		 * Specify to 'no-referrer-when-downgrade' policy.
+		 *
+		 * @return the {@link HeadersConfigurer} for additional customization.
+		 * @since 4.2.1
+		 */
+		public HeadersConfigurer<H> noReferrerWhenDowngrade() {
+			writer = new ReferrerPolicyHeaderWriter(ReferrerPolicy.NO_REFERRER_WHEN_DOWNGRADE);
+			return and();
+		}
+
+		/**
+		 * Specify to 'same-origin' policy.
+		 *
+		 * @return the {@link HeadersConfigurer} for additional customization.
+		 * @since 4.2.1
+		 */
+		public HeadersConfigurer<H> sameOrigin() {
+			writer = new ReferrerPolicyHeaderWriter(ReferrerPolicy.SAME_ORIGIN);
+			return and();
+		}
+
+		/**
+		 * Specify to 'origin' policy.
+		 *
+		 * @return the {@link HeadersConfigurer} for additional customization.
+		 * @since 4.2.1
+		 */
+		public HeadersConfigurer<H> origin() {
+			writer = new ReferrerPolicyHeaderWriter(ReferrerPolicy.ORIGIN);
+			return and();
+		}
+
+		/**
+		 * Specify to 'strict-origin' policy.
+		 *
+		 * @return the {@link HeadersConfigurer} for additional customization.
+		 * @since 4.2.1
+		 */
+		public HeadersConfigurer<H> strictOrigin() {
+			writer = new ReferrerPolicyHeaderWriter(ReferrerPolicy.STRICT_ORIGIN);
+			return and();
+		}
+
+		/**
+		 * Specify to 'origin-when-cross-origin' policy.
+		 *
+		 * @return the {@link HeadersConfigurer} for additional customization.
+		 * @since 4.2.1
+		 */
+		public HeadersConfigurer<H> originWhenCrossOrigin() {
+			writer = new ReferrerPolicyHeaderWriter(ReferrerPolicy.ORIGIN_WHEN_CROSS_ORIGIN);
+			return and();
+		}
+
+		/**
+		 * Specify to 'strict-origin-when-cross-origin' policy.
+		 *
+		 * @return the {@link HeadersConfigurer} for additional customization.
+		 * @since 4.2.1
+		 */
+		public HeadersConfigurer<H> strictOriginWhenCrossOrigin() {
+			writer = new ReferrerPolicyHeaderWriter(ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN);
+			return and();
+		}
+
+		/**
+		 * Specify to 'unsafe-url' policy.
+		 *
+		 * @return the {@link HeadersConfigurer} for additional customization.
+		 * @since 4.2.1
+		 */
+		public HeadersConfigurer<H> unsafeUrl() {
+			writer = new ReferrerPolicyHeaderWriter(ReferrerPolicy.UNSAFE_URL);
+			return and();
+		}
+
+		/**
+		 * Allows completing configuration of Referrer Policy and continuing
+		 * configuration of headers.
+		 *
+		 * @return the {@link HeadersConfigurer} for additional configuration
+		 */
 		public HeadersConfigurer<H> and() {
 			return HeadersConfigurer.this;
 		}
