@@ -106,6 +106,11 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
 	public boolean isEnabled() {
 		return enabled;
 	}
+	
+	@Override
+	public void eraseCredentials() {
+		password = null;
+	}
 
 	@Override
 	public void eraseCredentials() {
