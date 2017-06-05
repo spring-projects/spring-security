@@ -33,6 +33,7 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.util.Assert;
+import org.springframework.util.ObjectUtils;
 
 /**
  * Models core user information retrieved by a {@link UserDetailsService}.
@@ -199,7 +200,7 @@ public class User implements UserDetails, CredentialsContainer {
 	@Override
 	public boolean equals(Object rhs) {
 		if (rhs instanceof User) {
-			return username.equals(((User) rhs).username);
+			return ObjectUtils.nullSafeEquals(this.username, ((User) rhs).username);
 		}
 		return false;
 	}
@@ -209,7 +210,7 @@ public class User implements UserDetails, CredentialsContainer {
 	 */
 	@Override
 	public int hashCode() {
-		return username.hashCode();
+		return ObjectUtils.nullSafeHashCode(this.username);
 	}
 
 	@Override
