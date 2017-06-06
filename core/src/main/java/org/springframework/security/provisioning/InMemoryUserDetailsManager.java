@@ -69,6 +69,9 @@ public class InMemoryUserDetailsManager implements UserDetailsManager {
 			String name = (String) names.nextElement();
 			editor.setAsText(users.getProperty(name));
 			UserAttribute attr = (UserAttribute) editor.getValue();
+			if (attr == null) {
+				continue;
+			}
 			UserDetails user = new User(name, attr.getPassword(), attr.isEnabled(), true,
 					true, true, attr.getAuthorities());
 			createUser(user);
