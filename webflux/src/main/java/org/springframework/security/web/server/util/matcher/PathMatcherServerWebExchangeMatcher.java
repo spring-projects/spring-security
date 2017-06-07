@@ -27,6 +27,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.PathMatcher;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.support.HttpRequestPathHelper;
+import org.springframework.web.server.support.LookupPath;
 import reactor.core.publisher.Mono;
 
 /**
@@ -57,12 +58,12 @@ public final class PathMatcherServerWebExchangeMatcher implements ServerWebExcha
 		if(this.method != null && !this.method.equals(request.getMethod())) {
 			return MatchResult.notMatch();
 		}
-		String path = helper.getLookupPathForRequest(exchange);
-		boolean match = pathMatcher.match(pattern, path);
+		LookupPath path = helper.getLookupPathForRequest(exchange);
+		boolean match = pathMatcher.match(pattern, path.getPath());
 		if(!match) {
 			return MatchResult.notMatch();
 		}
-		Map<String,String> pathVariables = pathMatcher.extractUriTemplateVariables(pattern, path);
+		Map<String,String> pathVariables = pathMatcher.extractUriTemplateVariables(pattern, path.getPath());
 		Map<String,Object> variables = new HashMap<>(pathVariables);
 		return MatchResult.match(variables);
 	}
