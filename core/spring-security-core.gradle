@@ -27,7 +27,7 @@ dependencies {
 
 	testCompile powerMockDependencies
 	testCompile 'commons-collections:commons-collections'
-	testCompile 'io.projectreactor.addons:reactor-test'
+	testCompile 'io.projectreactor:reactor-test'
 	testCompile 'org.skyscreamer:jsonassert'
 	testCompile 'org.slf4j:jcl-over-slf4j'
 	testCompile 'org.springframework:spring-test'
