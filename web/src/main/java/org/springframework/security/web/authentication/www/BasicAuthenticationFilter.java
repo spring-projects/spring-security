@@ -192,6 +192,27 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 
 		}
 		catch (AuthenticationException failed) {
+
+			/*
+			 * https://tools.ietf.org/id/draft-reschke-basicauth-enc-00.html
+			 * > On the other hand, the strategy below may already improve the user-visible behavior today:
+			 * >
+			 * > In the first authentication request, choose the character encoding based on the user's credentials: if they
+			 * > do not need any characters outside the ISO-8859-1 character set, default to ISO-8859-1, otherwise use UTF-8.
+			 * > If the first attempt failed and the encoding used was ISO-8859-1, retry once with UTF-8 encoding instead.
+			 */
+			if (failed instanceof BadCredentialsException && "UTF-8".equals(getCredentialsCharset(request))) {
+
+				try {
+					setCredentialsCharset("ISO-8859-1");
+					doFilterInternal(request, response, chain);
+					return;
+				} finally {
+					setCredentialsCharset("UTF-8");
+				}
+
+			}
+
 			SecurityContextHolder.clearContext();
 
 			if (debug) {

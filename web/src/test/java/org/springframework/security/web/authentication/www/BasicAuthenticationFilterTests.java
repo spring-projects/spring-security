@@ -20,6 +20,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.Mockito.*;
 
+import java.nio.charset.Charset;
+
 import javax.servlet.FilterChain;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -59,9 +61,9 @@ public class BasicAuthenticationFilterTests {
 	public void setUp() throws Exception {
 		SecurityContextHolder.clearContext();
 		UsernamePasswordAuthenticationToken rodRequest = new UsernamePasswordAuthenticationToken(
-				"rod", "koala");
+				"rod", "koal\u00e4");
 		rodRequest.setDetails(new WebAuthenticationDetails(new MockHttpServletRequest()));
-		Authentication rod = new UsernamePasswordAuthenticationToken("rod", "koala",
+		Authentication rod = new UsernamePasswordAuthenticationToken("rod", "koal\u00e4",
 				AuthorityUtils.createAuthorityList("ROLE_1"));
 
 		manager = mock(AuthenticationManager.class);
@@ -139,7 +141,7 @@ public class BasicAuthenticationFilterTests {
 
 	@Test
 	public void testNormalOperation() throws Exception {
-		String token = "rod:koala";
+		String token = "rod:koal\u00e4";
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization",
 				"Basic " + new String(Base64.encodeBase64(token.getBytes())));
@@ -182,7 +184,7 @@ public class BasicAuthenticationFilterTests {
 	@Test
 	public void testSuccessLoginThenFailureLoginResultsInSessionLosingToken()
 			throws Exception {
-		String token = "rod:koala";
+		String token = "rod:koal\u00e4";
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization",
 				"Basic " + new String(Base64.encodeBase64(token.getBytes())));
@@ -281,5 +283,55 @@ public class BasicAuthenticationFilterTests {
 		filter.doFilter(request, response, chain);
 
 		assertThat(response.getStatus()).isEqualTo(200);
+	}
+
+	/**
+	 * Tests that a password with umlauts works when the browser uses UTF-8.
+	 *
+	 * https://github.com/spring-projects/spring-security/issues/2969
+	 */
+	@Test
+	public void testPasswordWithUmlautsUtf8() throws Exception {
+		String token = "rod:koal\u00e4";
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("Authorization",
+				"Basic " + new String(Base64.encodeBase64(token.getBytes(Charset.forName("UTF-8")))));
+		request.setServletPath("/some_file.html");
+		final MockHttpServletResponse response1 = new MockHttpServletResponse();
+
+		FilterChain chain = mock(FilterChain.class);
+		filter.doFilter(request, response1, chain);
+
+		verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
+
+		// Test
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
+		assertThat(SecurityContextHolder.getContext().getAuthentication().getName())
+				.isEqualTo("rod");
+	}
+
+	/**
+	 * Tests that a password with umlauts works when the browser uses ISO-8859-1.
+	 *
+	 * https://github.com/spring-projects/spring-security/issues/2969
+	 */
+	@Test
+	public void testPasswordWithUmlautsIso88591() throws Exception {
+		String token = "rod:koal\u00e4";
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("Authorization",
+				"Basic " + new String(Base64.encodeBase64(token.getBytes(Charset.forName("ISO-8859-1")))));
+		request.setServletPath("/some_file.html");
+		final MockHttpServletResponse response1 = new MockHttpServletResponse();
+
+		FilterChain chain = mock(FilterChain.class);
+		filter.doFilter(request, response1, chain);
+
+		verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
+
+		// Test
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
+		assertThat(SecurityContextHolder.getContext().getAuthentication().getName())
+				.isEqualTo("rod");
 	}
 }
