@@ -46,10 +46,11 @@ public class HeaderWriterFilterTests {
 	@Mock
 	private HeaderWriter writer2;
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void noHeadersConfigured() throws Exception {
 		List<HeaderWriter> headerWriters = new ArrayList<HeaderWriter>();
 		new HeaderWriterFilter(headerWriters);
+		// empty writers list is ok ...
 	}
 
 	@Test(expected = IllegalArgumentException.class)

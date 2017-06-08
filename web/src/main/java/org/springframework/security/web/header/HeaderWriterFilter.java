@@ -49,7 +49,7 @@ public class HeaderWriterFilter extends OncePerRequestFilter {
 	 * {@link HttpServletResponse}.
 	 */
 	public HeaderWriterFilter(List<HeaderWriter> headerWriters) {
-		Assert.notEmpty(headerWriters, "headerWriters cannot be null or empty");
+		Assert.notNull(headerWriters, "headerWriters cannot be null");
 		this.headerWriters = headerWriters;
 	}
 
