@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-core</artifactId>
-  <version>4.2.3.BUILD-SNAPSHOT</version>
+  <version>4.2.3.RELEASE</version>
   <name>spring-security-core</name>
   <description>spring-security-core</description>
   <url>http://spring.io/spring-security</url>
@@ -294,12 +294,6 @@
       </exclusions>
     </dependency>
   </dependencies>
-  <repositories>
-    <repository>
-      <id>spring-snapshot</id>
-      <url>https://repo.spring.io/snapshot</url>
-    </repository>
-  </repositories>
   <build>
     <plugins>
       <plugin>

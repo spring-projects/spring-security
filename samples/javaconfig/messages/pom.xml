@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-samples-javaconfig-messages</artifactId>
-  <version>4.2.3.BUILD-SNAPSHOT</version>
+  <version>4.2.3.RELEASE</version>
   <name>spring-security-samples-javaconfig-messages</name>
   <description>spring-security-samples-javaconfig-messages</description>
   <url>http://spring.io/spring-security</url>
@@ -99,13 +99,13 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
-      <version>4.2.3.BUILD-SNAPSHOT</version>
+      <version>4.2.3.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
-      <version>4.2.3.BUILD-SNAPSHOT</version>
+      <version>4.2.3.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -208,12 +208,6 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-  <repositories>
-    <repository>
-      <id>spring-snapshot</id>
-      <url>https://repo.spring.io/snapshot</url>
-    </repository>
-  </repositories>
   <build>
     <plugins>
       <plugin>
