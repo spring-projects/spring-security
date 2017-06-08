@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 the original author or authors.
+ * Copyright 2017-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,22 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.web.session;
-
-import java.io.IOException;
-
-import javax.servlet.ServletException;
+package org.springframework.security.abac.model;
 
 /**
- * Determines the behaviour of the {@code ConcurrentSessionFilter} when an expired session
- * is detected in the {@code ConcurrentSessionFilter}.
+ * Interface for implementation how to grant access depending an on policies and the data provided
  *
- * @author Marten Deinum
- * @author Rob Winch
- * @since 4.2.0
+ * @author Renato Soppelsa
+ * @since 5.0
  */
-public interface SessionInformationExpiredStrategy {
-
-	void onExpiredSessionDetected(SessionInformationExpiredEvent event)
-			throws IOException, ServletException;
+public interface PolicyChecker {
+	boolean check(Object subject, Object resource, Object action, Object environment);
 }

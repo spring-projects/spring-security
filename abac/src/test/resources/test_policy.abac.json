@@ -1,0 +1,9 @@
+[
+	{
+		"name": "Admin can access everything",
+		"type": "",
+		"description": "Admin can access everything",
+		"applicable": "subject.role.name() == 'ADMIN' && action == 'EDIT'",
+		"condition": "true"
+	}
+]

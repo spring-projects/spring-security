@@ -345,6 +345,10 @@ LDAP authentication and provisioning code. Required if you need to use LDAP auth
 ===== ACL - spring-security-acl.jar
 Specialized domain object ACL implementation. Used to apply security to specific domain object instances within your application. The top-level package is `org.springframework.security.acls`.
 
+[[spring-security-abac]]
+===== ABAC - spring-security-abac.jar
+Specialized Attribute-Based Acess Control (ABAC) implementation. Used to enhance Role Based Access Control (RBAC) with ABAC within your application. The top-level package is `org.springframework.security.abac`.
+
 
 [[spring-security-cas]]
 ===== CAS - spring-security-cas.jar
@@ -5455,6 +5459,184 @@ Spring Security does not provide any special integration to automatically create
 
 Once you've used the above techniques to store some ACL information in the database, the next step is to actually use the ACL information as part of authorization decision logic. You have a number of choices here. You could write your own `AccessDecisionVoter` or `AfterInvocationProvider` that respectively fires before or after a method invocation. Such classes would use `AclService` to retrieve the relevant ACL and then call `Acl.isGranted(Permission[] permission, Sid[] sids, boolean administrativeMode)` to decide whether permission is granted or denied. Alternately, you could use our `AclEntryVoter`, `AclEntryAfterInvocationProvider` or `AclEntryAfterInvocationCollectionFilteringProvider` classes. All of these classes provide a declarative-based approach to evaluating ACL information at runtime, freeing you from needing to write any code. Please refer to the sample applications to learn how to use these classes.
 
+
+[[domain-abac]]
+== Attribute-Based Access Control (ABAC)
+
+[[domain-abac-overview]]
+=== Overview
+When RBAC (Role-Based Access Control) <<jc-authorize-requests>> is not enough and ACL <<domain-acls>> is too much, then ABAC might be the right solution for your access control. You can also combine all three of them.
+
+ABAC is a standard published by NIST (US National Institute od Standarts and Technology) in cooperation with industry and universities.
+
+ABAC grants access based on user attributes and policies.
+
+This is the spring implementation of it.
+
+[[domain-abac-key-concepts]]
+=== Key Concepts
+Spring Security?s ABAC services are shipped in the spring-security-abac-xxx.jar. You will need to add this JAR to your classpath to use Spring Security?s domain object instance security capabilities.
+
+==== Attributes
+*Attributes* can be about anything and anyone. They tend to fall into 4 different categories or functions (as in grammatical function):
+
+* subject: attributes that describe the user attempting the access i.e age, clearance, departement, job, title...
+* action: attributes that describe the action being attempted i.e read, review, approve...
+* resource (or object): attributes that describe the object being accessed i.e the object type (medical record, bank account...)
+* environment (centextual attributes): attributes that deal with time, location or dynamic aspects of the access control scenario
+
+==== Policies
+Policies define the conditions based on attributes to determine if access is granted or not. Policies in ABAC can be granting or denying policies.
+
+A policy in Spring ABAC has following fields:
+
+* id: to identify the policy in a technical manner i.e delete id=34
+* name: human readable name for the policy i.e "Liquor shop for adults only"
+* description: human readable description i.e "grant access to liquor store if user is older than 21"
+* type: a type that the policy can be filtered on, if empty policy will not be filtered i.e Shop(.class) or UserAccount(.class)
+* applicable: a test if the policy is applicable (SpEl) i.e resource.type=="LIQUOR_STORE"
+* condition:  a test if the access is granted (SpEl) i.e subject.principal.age>21
+
+IMPORTANT: Policies are filtered based on type and applicable!
+
+==== Storing policies
+
+There are two standard implementations available, but feel free to implement a custom  `PolicyService`.
+
+* JsonFilePolicyServiceImpl: (default) reads policies from your resource folder
+* JdbcPolicyServiceImpl: reads policies from your database
+
+[[domain-abac-getting-started]]
+=== Getting Started
+
+==== Spring Configuration - JSON
+In Java configuration we need to extend `GlobalMethodSecurityConfiguration` to override  createExpressionHandler() in order to return `AbacMethodSecurityExpressionHandler`.
+
+[source,java]
+.MethodSecurityConfig.class
+----
+@Configuration
+@EnableGlobalMethodSecurity(prePostEnabled = true) // <1>
+public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
+
+    @Autowired
+    private ApplicationContext applicationContext;
+
+    @Override
+    protected MethodSecurityExpressionHandler createExpressionHandler() { // <2>
+        AbacMethodSecurityExpressionHandler expressionHandler = new AbacMethodSecurityExpressionHandler(applicationContext)); // <3>
+        return expressionHandler;
+    }
+
+}
+----
+<1> Make sure you have @EnableGlobalMethodSecurity enabled
+<2> Override method to return ABAC handler
+<3> calling the constructor with only the ApplicationContext will default in reading policies from json file
+
+[source,json]
+./resources/policy.abac.json
+----
+[
+  {
+    "name": "Liquor shop for adults only",
+    "type": "",
+    "description": "grant access to liquor store if user is older than 21",
+    "applicable": "resource.type=='LIQUOR_STORE'",
+    "condition": "subject.principal.age>21"
+  }
+]
+----
+
+==== Spring Configuration - DB
+[source,java]
+----
+@Configuration
+@EnableGlobalMethodSecurity(prePostEnabled = true)
+public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
+
+    @Autowired
+    private ApplicationContext applicationContext;
+
+    @Bean
+    @ConfigurationProperties(prefix="spring.datasource")
+    public DataSource dataSource() {
+        return DataSourceBuilder.create().build();
+    }
+
+    @Override
+    protected MethodSecurityExpressionHandler createExpressionHandler() {
+        AbacMethodSecurityExpressionHandler expressionHandler = new AbacMethodSecurityExpressionHandler(applicationContext, new JdbcPolicyServiceImpl(dataSource()));
+        return expressionHandler;
+    }
+
+}
+----
+
+[source,sql]
+.schema-mysql.sql
+----
+CREATE TABLE abac (
+  id INTEGER PRIMARY KEY auto_increment,
+  name VARCHAR(200) NOT NULL,
+  description VARCHAR(200) NULL,
+  type VARCHAR(200) NULL,
+  applicable VARCHAR(200) NULL,
+  condition VARCHAR(200) NOT NULL
+);
+----
+
+[source,sql]
+.data-mysql.sql
+----
+INSERT INTO abac (name, description, type, applicable, condition)
+  values('Liquor shop for adults only', 'grant access to liquor store if user is older than 21', null, 'resource.type=="LIQUOR_STORE"', 'subject.principal.age>16');
+----
+
+==== Usage
+You can use `checkPolicy` the same way as `hasRole` & co. in i.e `@PreAuthorize`, `@PostFilter`, ...
+
+[source,java]
+.ShopController.class
+----
+@RequestMapping(path = "shops")
+    @PreAuthorize("checkPolicy()")
+    public List<Shop> listShops(){
+        ....
+    }
+----
+
+Feel free to combine them.
+[source,java]
+.ShopController.class
+----
+@RequestMapping(path = "shops")
+    @PreAuthorize("hasRole('USER') and checkPolicy()")
+    public List<Shop> listShops(){
+        ....
+    }
+----
+
+`checkPolicy()` can be called three different sets of parameters.
+
+* checkPolicy(): no action and no resource, policy only based on subject (`Authentication`)
+* checkPolicy(Object action): action is included i.e 'EDIT' or an `Object`
+* checkPolicy(Object resource, Object action): adding a resource i.e the Shop Object
+* checkPolicy(Object targetDomainObject, Object action, Object environment): adding environment Object i.e to get actual time
+
+
+*Call direct*
+
+As Annotations are not always matching the needs, you can check policies also "programmatically"
+
+[source,java]
+----
+  [...]
+  	PolicyChecker policyChecker = new DefaultPolicyCheckerImpl(policyService);
+  [...]
+  	policyChecker.check(subject, resource, action, environment);
+  [...]
+----
 
 [[preauth]]
 == Pre-Authentication Scenarios
