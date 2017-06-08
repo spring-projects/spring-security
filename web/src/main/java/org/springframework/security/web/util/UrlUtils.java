@@ -29,6 +29,10 @@ import javax.servlet.http.HttpServletRequest;
  * @author Ben Alex
  */
 public final class UrlUtils {
+
+	private static final Pattern ABSOLUTE_URL = Pattern.compile("\\A[a-z0-9.+-]+://.*",
+		Pattern.CASE_INSENSITIVE);
+
 	// ~ Methods
 	// ========================================================================================================
 
@@ -140,8 +144,6 @@ public final class UrlUtils {
 		if(url == null) {
 			return false;
 		}
-		final Pattern ABSOLUTE_URL = Pattern.compile("\\A[a-z0-9.+-]+://.*",
-				Pattern.CASE_INSENSITIVE);
 
 		return ABSOLUTE_URL.matcher(url).matches();
 	}
