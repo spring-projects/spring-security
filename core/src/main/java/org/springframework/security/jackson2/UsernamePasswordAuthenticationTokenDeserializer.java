@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.MissingNode;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.IOException;
 import java.util.List;
@@ -62,7 +62,7 @@ class UsernamePasswordAuthenticationTokenDeserializer extends JsonDeserializer<U
 		JsonNode principalNode = readJsonNode(jsonNode, "principal");
 		Object principal = null;
 		if(principalNode.isObject()) {
-			principal = mapper.readValue(principalNode.toString(), new TypeReference<User>() {});
+			principal = mapper.readValue(principalNode.toString(), new TypeReference<UserDetails>() {});
 		} else {
 			principal = principalNode.asText();
 		}
