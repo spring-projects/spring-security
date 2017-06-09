@@ -16,16 +16,13 @@
  *
  */
 
-package org.springframework.security.authentication;
+package org.springframework.security.core.userdetails;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;

@@ -19,7 +19,7 @@
 package sample;
 
 import org.springframework.context.annotation.Bean;
-import org.springframework.security.authentication.MapUserDetailsRepository;
+import org.springframework.security.core.userdetails.MapUserDetailsRepository;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.HttpSecurity;
