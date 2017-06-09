@@ -40,17 +40,34 @@ public class AccessToken extends AbstractToken {
 	private final Set<String> scopes;
 	private final Map<String,Object> additionalParameters;
 
-	public enum TokenType {
-		BEARER("Bearer");
-
+	public static final class TokenType {
+		public static final TokenType BEARER = new TokenType("Bearer");
 		private final String value;
 
-		TokenType(String value) {
+		public TokenType(String value) {
+			Assert.hasText(value, "value cannot be empty");
 			this.value = value;
 		}
 
-		public String value() {
+		public String getValue() {
 			return this.value;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj == null || this.getClass() != obj.getClass()) {
+				return false;
+			}
+			TokenType that = (TokenType) obj;
+			return this.getValue().equalsIgnoreCase(that.getValue());
+		}
+
+		@Override
+		public int hashCode() {
+			return this.getValue().hashCode();
 		}
 	}
 

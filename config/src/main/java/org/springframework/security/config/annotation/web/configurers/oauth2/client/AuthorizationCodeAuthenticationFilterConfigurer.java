@@ -15,7 +15,6 @@
  */
 package org.springframework.security.config.annotation.web.configurers.oauth2.client;
 
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
@@ -34,6 +33,7 @@ import org.springframework.util.Assert;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * @author Joe Grandja
@@ -43,7 +43,7 @@ final class AuthorizationCodeAuthenticationFilterConfigurer<H extends HttpSecuri
 
 	private AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger;
 	private OAuth2UserService userInfoService;
-	private Map<URI, Converter<ClientHttpResponse, ? extends OAuth2User>> userInfoTypeConverters = new HashMap<>();
+	private Map<URI, Function<ClientHttpResponse, ? extends OAuth2User>> userInfoTypeConverters = new HashMap<>();
 
 
 	AuthorizationCodeAuthenticationFilterConfigurer() {
@@ -71,7 +71,7 @@ final class AuthorizationCodeAuthenticationFilterConfigurer<H extends HttpSecuri
 		return this;
 	}
 
-	AuthorizationCodeAuthenticationFilterConfigurer<H> userInfoTypeConverter(Converter<ClientHttpResponse, ? extends OAuth2User> userInfoConverter, URI userInfoUri) {
+	AuthorizationCodeAuthenticationFilterConfigurer<H> userInfoTypeConverter(Function<ClientHttpResponse, ? extends OAuth2User> userInfoConverter, URI userInfoUri) {
 		Assert.notNull(userInfoConverter, "userInfoConverter cannot be null");
 		Assert.notNull(userInfoUri, "userInfoUri cannot be null");
 		this.userInfoTypeConverters.put(userInfoUri, userInfoConverter);

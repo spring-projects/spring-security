@@ -18,22 +18,22 @@
 package sample;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
-import org.springframework.http.server.reactive.HttpHandler;
+import org.springframework.security.web.server.WebFilterChainFilter;
 import org.springframework.security.web.server.header.ContentTypeOptionsHttpHeadersWriter;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.reactive.server.ExchangeMutatorWebFilter;
 import org.springframework.test.web.reactive.server.ExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
+import org.springframework.web.reactive.function.server.RouterFunction;
 
 import java.nio.charset.Charset;
 import java.util.Base64;
@@ -50,20 +50,25 @@ import static org.springframework.web.reactive.function.client.ExchangeFilterFun
 @ActiveProfiles("test")
 public class HelloWebfluxFnApplicationTests {
 	@Autowired
-	HttpHandler handler;
+	RouterFunction<?> routerFunction;
+	@Autowired
+	WebFilterChainFilter springSecurityFilterChain;
 
 	WebTestClient rest;
 
 	@Before
 	public void setup() {
-		this.rest = WebTestClient.bindToHttpHandler(handler).build();
+		this.rest = WebTestClient
+			.bindToRouterFunction(routerFunction)
+			.webFilter(springSecurityFilterChain)
+			.build();
 	}
 
 	@Test
 	public void basicRequired() throws Exception {
 		this.rest
 			.get()
-			.uri("/users")
+			.uri("/principal")
 			.exchange()
 			.expectStatus().isUnauthorized();
 	}
@@ -73,10 +78,10 @@ public class HelloWebfluxFnApplicationTests {
 		this.rest
 			.filter(robsCredentials())
 			.get()
-			.uri("/users")
+			.uri("/principal")
 			.exchange()
 			.expectStatus().isOk()
-			.expectBody().json("[{\"id\":null,\"username\":\"rob\",\"password\":\"rob\",\"firstname\":\"Rob\",\"lastname\":\"Winch\"},{\"id\":null,\"username\":\"admin\",\"password\":\"admin\",\"firstname\":\"Admin\",\"lastname\":\"User\"}]");
+			.expectBody().json("{\"username\":\"rob\"}");
 	}
 
 	@Test
@@ -84,7 +89,7 @@ public class HelloWebfluxFnApplicationTests {
 		this.rest
 			.filter(invalidPassword())
 			.get()
-			.uri("/users")
+			.uri("/principal")
 			.exchange()
 			.expectStatus().isUnauthorized()
 			.expectBody().isEmpty();
@@ -146,7 +151,7 @@ public class HelloWebfluxFnApplicationTests {
 		ExchangeResult result = this.rest
 			.filter(robsCredentials())
 			.get()
-			.uri("/users")
+			.uri("/principal")
 			.exchange()
 			.returnResult(String.class);
 
@@ -154,25 +159,27 @@ public class HelloWebfluxFnApplicationTests {
 
 		this.rest
 			.get()
-			.uri("/users")
+			.uri("/principal")
 			.cookie(session.getName(), session.getValue())
 			.exchange()
 			.expectStatus().isOk();
 	}
 
-	@Ignore
 	@Test
 	public void mockSupport() throws Exception {
-		this.rest
-			.exchangeMutator( withUser() )
+		ExchangeMutatorWebFilter exchangeMutator = new ExchangeMutatorWebFilter();
+		WebTestClient mockRest = WebTestClient.bindToRouterFunction(this.routerFunction).webFilter(exchangeMutator, springSecurityFilterChain).build();
+
+		mockRest
+			.filter(exchangeMutator.perClient(withUser()))
 			.get()
-			.uri("/users")
+			.uri("/principal")
 			.exchange()
 			.expectStatus().isOk();
 
-		this.rest
+		mockRest
 			.get()
-			.uri("/users")
+			.uri("/principal")
 			.exchange()
 			.expectStatus().isUnauthorized();
 	}

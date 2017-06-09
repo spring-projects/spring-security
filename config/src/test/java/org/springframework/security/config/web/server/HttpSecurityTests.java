@@ -88,14 +88,14 @@ public class HttpSecurityTests {
 
 		WebTestClient client = buildClient();
 
-		EntityExchangeResult<byte[]> result = client
+		EntityExchangeResult<String> result = client
 			.filter(basicAuthentication("rob", "rob"))
 			.get()
 			.uri("/")
 			.exchange()
 			.expectStatus().isOk()
 			.expectHeader().valueMatches(HttpHeaders.CACHE_CONTROL, ".+")
-			.expectBody().consumeAsStringWith( b-> assertThat(b).isEqualTo("ok"))
+			.expectBody(String.class).consumeWith(b -> assertThat(b.getResponseBody()).isEqualTo("ok"))
 			.returnResult();
 
 		assertThat(result.getResponseCookies().getFirst("SESSION")).isNotNull();

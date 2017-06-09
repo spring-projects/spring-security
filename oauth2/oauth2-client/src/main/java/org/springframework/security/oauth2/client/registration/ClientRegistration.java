@@ -35,7 +35,7 @@ import java.util.Set;
 public class ClientRegistration {
 	private String clientId;
 	private String clientSecret;
-	private ClientAuthenticationMethod clientAuthenticationMethod = ClientAuthenticationMethod.HEADER;
+	private ClientAuthenticationMethod clientAuthenticationMethod = ClientAuthenticationMethod.BASIC;
 	private AuthorizationGrantType authorizedGrantType;
 	private String redirectUri;
 	private Set<String> scopes = Collections.emptySet();
@@ -154,7 +154,7 @@ public class ClientRegistration {
 	public static class Builder {
 		protected String clientId;
 		protected String clientSecret;
-		protected ClientAuthenticationMethod clientAuthenticationMethod = ClientAuthenticationMethod.HEADER;
+		protected ClientAuthenticationMethod clientAuthenticationMethod = ClientAuthenticationMethod.BASIC;
 		protected AuthorizationGrantType authorizedGrantType;
 		protected String redirectUri;
 		protected Set<String> scopes;
@@ -264,7 +264,7 @@ public class ClientRegistration {
 
 		protected void validateClientWithAuthorizationCodeGrantType() {
 			Assert.isTrue(AuthorizationGrantType.AUTHORIZATION_CODE.equals(this.authorizedGrantType),
-				"authorizedGrantType must be " + AuthorizationGrantType.AUTHORIZATION_CODE.value());
+				"authorizedGrantType must be " + AuthorizationGrantType.AUTHORIZATION_CODE.getValue());
 			Assert.hasText(this.clientId, "clientId cannot be empty");
 			Assert.hasText(this.clientSecret, "clientSecret cannot be empty");
 			Assert.notNull(this.clientAuthenticationMethod, "clientAuthenticationMethod cannot be null");

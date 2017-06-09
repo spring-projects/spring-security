@@ -16,40 +16,20 @@
 
 package sample;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.*;
-import org.springframework.core.ReactiveAdapterRegistry;
 import org.springframework.http.server.reactive.HttpHandler;
 import org.springframework.http.server.reactive.ReactorHttpHandlerAdapter;
-import org.springframework.security.authentication.ReactiveAuthenticationManager;
-import org.springframework.security.authentication.UserDetailsRepositoryAuthenticationManager;
-import org.springframework.security.authorization.AuthorizationDecision;
-import org.springframework.security.config.web.server.AuthorizeExchangeBuilder;
-import org.springframework.security.config.web.server.HttpSecurity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.web.reactive.result.method.annotation.AuthenticationPrincipalArgumentResolver;
-import org.springframework.security.web.server.authorization.AuthorizationContext;
-import org.springframework.security.web.server.context.WebSessionSecurityContextRepository;
-import org.springframework.web.reactive.DispatcherHandler;
 import org.springframework.web.reactive.config.EnableWebFlux;
-import org.springframework.web.reactive.config.WebFluxConfigurer;
 import org.springframework.web.reactive.function.server.HandlerStrategies;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
-import org.springframework.web.reactive.result.method.annotation.ArgumentResolverConfigurer;
 import org.springframework.web.server.WebFilter;
-import reactor.core.publisher.Mono;
 import reactor.ipc.netty.NettyContext;
 import reactor.ipc.netty.http.server.HttpServer;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.security.config.web.server.HttpSecurity.http;
 import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
-import static org.springframework.web.reactive.function.server.RequestPredicates.accept;
-import static org.springframework.web.reactive.function.server.RequestPredicates.contentType;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
 /**
@@ -78,16 +58,18 @@ public class HelloWebfluxFnApplication {
 	}
 
 	@Bean
-	public HttpHandler httpHandler(UserController userController, WebFilter springSecurityFilterChain) {
-		RouterFunction<ServerResponse> route = route(
-				GET("/principal"), userController::principal).andRoute(
-				GET("/users"), userController::users).andRoute(
-				GET("/admin"), userController::admin);
-
+	public RouterFunction<ServerResponse> routes(UserController userController) {
+		return route(
+			GET("/principal"), userController::principal).andRoute(
+			GET("/admin"), userController::admin);
+	}
+	@Bean
+	public HttpHandler httpHandler(RouterFunction<ServerResponse> routes, WebFilter springSecurityFilterChain) {
 		HandlerStrategies handlerStrategies = HandlerStrategies.builder()
-			.webFilter(springSecurityFilterChain).build();
+			.webFilter(springSecurityFilterChain)
+			.build();
 
-		return RouterFunctions.toHttpHandler(route, handlerStrategies);
+		return RouterFunctions.toHttpHandler(routes, handlerStrategies);
 	}
 
 }

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 /**
- * {@link org.springframework.core.convert.converter.Converter} implementations
- * for {@link org.springframework.security.oauth2.core.user.OAuth2User}.
+ * Support classes for converting to {@link org.springframework.security.oauth2.core.user.OAuth2User}.
  */
 package org.springframework.security.oauth2.client.user.converter;

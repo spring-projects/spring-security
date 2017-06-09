@@ -35,7 +35,7 @@ import java.util.Set;
 public class ClientRegistrationProperties {
 	private String clientId;
 	private String clientSecret;
-	private ClientAuthenticationMethod clientAuthenticationMethod = ClientAuthenticationMethod.HEADER;
+	private ClientAuthenticationMethod clientAuthenticationMethod = ClientAuthenticationMethod.BASIC;
 	private AuthorizationGrantType authorizedGrantType;
 	private String redirectUri;
 	private Set<String> scopes;

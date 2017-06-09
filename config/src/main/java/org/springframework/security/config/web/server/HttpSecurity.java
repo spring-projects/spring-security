@@ -69,7 +69,7 @@ public class HttpSecurity {
 		return this;
 	}
 
-	public WebFilter build() {
+	public WebFilterChainFilter build() {
 		List<WebFilter> filters = new ArrayList<>();
 		if(headers != null) {
 			filters.add(headers.build());

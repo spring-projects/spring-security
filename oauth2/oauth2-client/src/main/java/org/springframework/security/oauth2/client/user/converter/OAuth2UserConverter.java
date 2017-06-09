@@ -40,7 +40,7 @@ public final class OAuth2UserConverter extends AbstractOAuth2UserConverter<OAuth
 	}
 
 	@Override
-	protected OAuth2User convert(Map<String, Object> userAttributes) {
+	protected OAuth2User apply(Map<String, Object> userAttributes) {
 		return new DefaultOAuth2User(userAttributes, this.nameAttributeKey);
 	}
 }

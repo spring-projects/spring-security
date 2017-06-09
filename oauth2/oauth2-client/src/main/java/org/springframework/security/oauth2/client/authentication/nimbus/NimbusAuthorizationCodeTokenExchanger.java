@@ -78,7 +78,7 @@ public class NimbusAuthorizationCodeTokenExchanger implements AuthorizationGrant
 		ClientID clientId = new ClientID(clientRegistration.getClientId());
 		Secret clientSecret = new Secret(clientRegistration.getClientSecret());
 		ClientAuthentication clientAuthentication;
-		if (ClientAuthenticationMethod.FORM.equals(clientRegistration.getClientAuthenticationMethod())) {
+		if (ClientAuthenticationMethod.POST.equals(clientRegistration.getClientAuthenticationMethod())) {
 			clientAuthentication = new ClientSecretPost(clientId, clientSecret);
 		} else {
 			clientAuthentication = new ClientSecretBasic(clientId, clientSecret);
@@ -113,7 +113,7 @@ public class NimbusAuthorizationCodeTokenExchanger implements AuthorizationGrant
 
 		String accessToken = accessTokenResponse.getTokens().getAccessToken().getValue();
 		AccessToken.TokenType accessTokenType = null;
-		if (AccessToken.TokenType.BEARER.value().equals(accessTokenResponse.getTokens().getAccessToken().getType().getValue())) {
+		if (AccessToken.TokenType.BEARER.getValue().equalsIgnoreCase(accessTokenResponse.getTokens().getAccessToken().getType().getValue())) {
 			accessTokenType = AccessToken.TokenType.BEARER;
 		}
 		long expiresIn = accessTokenResponse.getTokens().getAccessToken().getLifetime();

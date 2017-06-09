@@ -33,7 +33,7 @@ import java.util.Map;
 public final class UserInfoConverter extends AbstractOAuth2UserConverter<UserInfo> {
 
 	@Override
-	protected UserInfo convert(Map<String, Object> userAttributes) {
+	protected UserInfo apply(Map<String, Object> userAttributes) {
 		return new DefaultUserInfo(userAttributes);
 	}
 }

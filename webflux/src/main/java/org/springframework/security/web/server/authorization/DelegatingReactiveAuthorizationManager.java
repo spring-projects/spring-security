@@ -20,32 +20,33 @@ package org.springframework.security.web.server.authorization;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcherEntry;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.web.server.ServerWebExchange;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Rob Winch
  * @since 5.0
  */
 public class DelegatingReactiveAuthorizationManager implements ReactiveAuthorizationManager<ServerWebExchange> {
-	private final LinkedHashMap<ServerWebExchangeMatcher, ReactiveAuthorizationManager<AuthorizationContext>> mappings;
+	private final List<ServerWebExchangeMatcherEntry<ReactiveAuthorizationManager<AuthorizationContext>>> mappings;
 
-	private DelegatingReactiveAuthorizationManager(LinkedHashMap<ServerWebExchangeMatcher, ReactiveAuthorizationManager<AuthorizationContext>> mappings) {
+	private DelegatingReactiveAuthorizationManager(List<ServerWebExchangeMatcherEntry<ReactiveAuthorizationManager<AuthorizationContext>>> mappings) {
 		this.mappings = mappings;
 	}
 
 	@Override
 	public Mono<AuthorizationDecision> check(Mono<Authentication> authentication, ServerWebExchange exchange) {
-		return Flux.fromIterable(mappings.entrySet())
-			.concatMap(entry -> entry.getKey().matches(exchange)
+		return Flux.fromIterable(mappings)
+			.concatMap(mapping -> mapping.getMatcher().matches(exchange)
 			.filter(ServerWebExchangeMatcher.MatchResult::isMatch)
-			.flatMap(r -> entry.getValue().check(authentication, new AuthorizationContext(exchange, r.getVariables()))))
+			.flatMap(r -> mapping.getEntry().check(authentication, new AuthorizationContext(exchange, r.getVariables()))))
 			.next()
 			.defaultIfEmpty(new AuthorizationDecision(false));
 	}
@@ -55,13 +56,13 @@ public class DelegatingReactiveAuthorizationManager implements ReactiveAuthoriza
 	}
 
 	public static class Builder {
-		private final LinkedHashMap<ServerWebExchangeMatcher, ReactiveAuthorizationManager<AuthorizationContext>> mappings = new LinkedHashMap<>();
+		private final List<ServerWebExchangeMatcherEntry<ReactiveAuthorizationManager<AuthorizationContext>>> mappings = new ArrayList<>();
 
 		private Builder() {
 		}
 
-		public DelegatingReactiveAuthorizationManager.Builder add(ServerWebExchangeMatcher matcher, ReactiveAuthorizationManager<AuthorizationContext> manager) {
-			this.mappings.put(matcher, manager);
+		public DelegatingReactiveAuthorizationManager.Builder add(ServerWebExchangeMatcherEntry<ReactiveAuthorizationManager<AuthorizationContext>> entry) {
+			this.mappings.add(entry);
 			return this;
 		}
 

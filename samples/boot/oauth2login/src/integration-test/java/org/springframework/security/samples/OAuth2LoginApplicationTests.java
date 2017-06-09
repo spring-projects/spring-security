@@ -98,7 +98,7 @@ public class OAuth2LoginApplicationTests {
 	}
 
 	@Test
-	public void requestRootPageWhenNotAuthenticatedThenDisplayLoginPage() throws Exception {
+	public void requestIndexPageWhenNotAuthenticatedThenDisplayLoginPage() throws Exception {
 		HtmlPage page = this.webClient.getPage("/");
 		this.assertLoginPage(page);
 	}
@@ -130,7 +130,7 @@ public class OAuth2LoginApplicationTests {
 
 		Map<String, String> params = uriComponents.getQueryParams().toSingleValueMap();
 
-		assertThat(params.get(OAuth2Parameter.RESPONSE_TYPE)).isEqualTo(ResponseType.CODE.value());
+		assertThat(params.get(OAuth2Parameter.RESPONSE_TYPE)).isEqualTo(ResponseType.CODE.getValue());
 		assertThat(params.get(OAuth2Parameter.CLIENT_ID)).isEqualTo(this.githubClientRegistration.getClientId());
 		String redirectUri = AUTHORIZE_BASE_URL + "/" + this.githubClientRegistration.getClientAlias();
 		assertThat(URLDecoder.decode(params.get(OAuth2Parameter.REDIRECT_URI), "UTF-8")).isEqualTo(redirectUri);
@@ -158,7 +158,7 @@ public class OAuth2LoginApplicationTests {
 	}
 
 	@Test
-	public void requestAuthorizationCodeGrantWhenValidAuthorizationResponseThenDisplayUserInfoPage() throws Exception {
+	public void requestAuthorizationCodeGrantWhenValidAuthorizationResponseThenDisplayIndexPage() throws Exception {
 		HtmlPage page = this.webClient.getPage("/");
 
 		HtmlAnchor clientAnchorElement = this.getClientAnchorElement(page, this.githubClientRegistration);
@@ -181,7 +181,7 @@ public class OAuth2LoginApplicationTests {
 						.build().encode().toUriString();
 
 		page = this.webClient.getPage(new URL(authorizationResponseUri));
-		this.assertUserInfoPage(page);
+		this.assertIndexPage(page);
 	}
 
 	@Test
@@ -324,12 +324,12 @@ public class OAuth2LoginApplicationTests {
 		}
 	}
 
-	private void assertUserInfoPage(HtmlPage page) throws Exception {
-		assertThat(page.getTitleText()).isEqualTo("Spring Security - OAuth2 User Info");
+	private void assertIndexPage(HtmlPage page) throws Exception {
+		assertThat(page.getTitleText()).isEqualTo("Spring Security - OAuth 2.0 Login");
 
 		DomNodeList<HtmlElement> divElements = page.getBody().getElementsByTagName("div");
 		assertThat(divElements.get(1).asText()).contains("User: joeg@springsecurity.io");
-		assertThat(divElements.get(4).asText()).contains("Name: joeg@springsecurity.io");
+		assertThat(divElements.get(4).asText()).contains("You are successfully logged in joeg@springsecurity.io");
 	}
 
 	private HtmlAnchor getClientAnchorElement(HtmlPage page, ClientRegistration clientRegistration) {

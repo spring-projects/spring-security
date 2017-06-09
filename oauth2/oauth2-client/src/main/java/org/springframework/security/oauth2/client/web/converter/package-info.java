@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 /**
- * {@link org.springframework.core.convert.converter.Converter} implementations
- * for <i>OAuth 2.0 Protocol Endpoint Messages</i>.
+ * Support classes for converting <i>OAuth 2.0 Protocol Endpoint Messages</i>.
  */
 package org.springframework.security.oauth2.client.web.converter;

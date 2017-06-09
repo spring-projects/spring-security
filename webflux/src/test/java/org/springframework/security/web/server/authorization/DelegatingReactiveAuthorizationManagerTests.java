@@ -27,6 +27,7 @@ import org.springframework.security.authorization.AuthorityAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcherEntry;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
@@ -62,8 +63,8 @@ public class DelegatingReactiveAuthorizationManagerTests {
 	@Before
 	public void setup() {
 		manager = DelegatingReactiveAuthorizationManager.builder()
-			.add(match1, delegate1)
-			.add(match2, delegate2)
+			.add(new ServerWebExchangeMatcherEntry<>(match1, delegate1))
+			.add(new ServerWebExchangeMatcherEntry<>(match2, delegate2))
 			.build();
 	}
 

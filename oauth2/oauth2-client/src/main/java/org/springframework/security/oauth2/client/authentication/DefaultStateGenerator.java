@@ -50,6 +50,6 @@ public class DefaultStateGenerator implements StringKeyGenerator {
 
 	@Override
 	public String generateKey() {
-		return new String(Base64.getEncoder().encode(keyGenerator.generateKey()));
+		return new String(Base64.getUrlEncoder().encode(keyGenerator.generateKey()));
 	}
 }

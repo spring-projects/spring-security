@@ -2,7 +2,7 @@ security:
   oauth2:
     client:
       google:
-        client-authentication-method: header
+        client-authentication-method: basic
         authorized-grant-type: authorization_code
         redirect-uri: "{scheme}://{serverName}:{serverPort}{baseAuthorizeUri}/{clientAlias}"
         scopes: openid, email, profile
@@ -13,7 +13,7 @@ security:
         client-name: Google
         client-alias: google
       github:
-        client-authentication-method: header
+        client-authentication-method: basic
         authorized-grant-type: authorization_code
         redirect-uri: "{scheme}://{serverName}:{serverPort}{baseAuthorizeUri}/{clientAlias}"
         scopes: user
@@ -24,7 +24,7 @@ security:
         client-name: GitHub
         client-alias: github
       facebook:
-        client-authentication-method: form
+        client-authentication-method: post
         authorized-grant-type: authorization_code
         redirect-uri: "{scheme}://{serverName}:{serverPort}{baseAuthorizeUri}/{clientAlias}"
         scopes: public_profile, email
@@ -35,7 +35,7 @@ security:
         client-name: Facebook
         client-alias: facebook
       okta:
-        client-authentication-method: header
+        client-authentication-method: basic
         authorized-grant-type: authorization_code
         redirect-uri: "{scheme}://{serverName}:{serverPort}{baseAuthorizeUri}/{clientAlias}"
         scopes: openid, email, profile
