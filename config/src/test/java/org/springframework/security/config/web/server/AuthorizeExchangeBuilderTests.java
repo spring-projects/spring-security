@@ -33,7 +33,7 @@ public class AuthorizeExchangeBuilderTests {
 
 	@Test
 	public void antMatchersWhenMethodAndPatternsThenDiscriminatesByMethod() {
-		authorization.antMatchers(HttpMethod.POST, "/a", "/b").denyAll();
+		authorization.pathMatchers(HttpMethod.POST, "/a", "/b").denyAll();
 		authorization.anyExchange().permitAll();
 
 		WebTestClient client = buildClient();
@@ -62,7 +62,7 @@ public class AuthorizeExchangeBuilderTests {
 
 	@Test
 	public void antMatchersWhenPatternsThenAnyMethod() {
-		authorization.antMatchers("/a", "/b").denyAll();
+		authorization.pathMatchers("/a", "/b").denyAll();
 		authorization.anyExchange().permitAll();
 
 		WebTestClient client = buildClient();
@@ -90,19 +90,19 @@ public class AuthorizeExchangeBuilderTests {
 
 	@Test(expected = IllegalStateException.class)
 	public void antMatchersWhenNoAccessAndAnotherMatcherThenThrowsException() {
-		authorization.antMatchers("/incomplete");
-		authorization.antMatchers("/throws-exception");
+		authorization.pathMatchers("/incomplete");
+		authorization.pathMatchers("/throws-exception");
 	}
 
 	@Test(expected = IllegalStateException.class)
 	public void anyExchangeWhenFollowedByMatcherThenThrowsException() {
 		authorization.anyExchange().denyAll();
-		authorization.antMatchers("/never-reached");
+		authorization.pathMatchers("/never-reached");
 	}
 
 	@Test(expected = IllegalStateException.class)
 	public void buildWhenMatcherDefinedWithNoAccessThenThrowsException() {
-		authorization.antMatchers("/incomplete");
+		authorization.pathMatchers("/incomplete");
 		authorization.build();
 	}
 

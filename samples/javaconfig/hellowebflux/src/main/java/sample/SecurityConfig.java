@@ -40,8 +40,8 @@ public class SecurityConfig {
 	@Bean
 	WebFilterChainFilter springSecurityFilterChain(HttpSecurity http) throws Exception {
 		http.authorizeExchange()
-			.antMatchers("/admin/**").hasRole("ADMIN")
-			.antMatchers("/users/{user}/**").access(this::currentUserMatchesPath)
+			.pathMatchers("/admin/**").hasRole("ADMIN")
+			.pathMatchers("/users/{user}/**").access(this::currentUserMatchesPath)
 			.anyExchange().authenticated();
 
 		return http.build();

@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers.antMatchers;
+import static org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers.pathMatchers;
 import static org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers.anyExchange;
 
 /**
@@ -38,28 +38,28 @@ public class ServerWebExchangeMatchersTests {
 	ServerWebExchange exchange = MockServerHttpRequest.get("/").toExchange();
 
 	@Test
-	public void antMatchersWhenSingleAndSamePatternThenMatches() throws Exception {
-		assertThat(antMatchers("/").matches(exchange).block().isMatch()).isTrue();
+	public void pathMatchersWhenSingleAndSamePatternThenMatches() throws Exception {
+		assertThat(pathMatchers("/").matches(exchange).block().isMatch()).isTrue();
 	}
 
 	@Test
-	public void antMatchersWhenSingleAndSamePatternAndMethodThenMatches() throws Exception {
-		assertThat(antMatchers(HttpMethod.GET, "/").matches(exchange).block().isMatch()).isTrue();
+	public void pathMatchersWhenSingleAndSamePatternAndMethodThenMatches() throws Exception {
+		assertThat(ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, "/").matches(exchange).block().isMatch()).isTrue();
 	}
 
 	@Test
-	public void antMatchersWhenSingleAndSamePatternAndDiffMethodThenDoesNotMatch() throws Exception {
-		assertThat(antMatchers(HttpMethod.POST, "/").matches(exchange).block().isMatch()).isFalse();
+	public void pathMatchersWhenSingleAndSamePatternAndDiffMethodThenDoesNotMatch() throws Exception {
+		assertThat(ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, "/").matches(exchange).block().isMatch()).isFalse();
 	}
 
 	@Test
-	public void antMatchersWhenSingleAndDifferentPatternThenDoesNotMatch() throws Exception {
-		assertThat(antMatchers("/foobar").matches(exchange).block().isMatch()).isFalse();
+	public void pathMatchersWhenSingleAndDifferentPatternThenDoesNotMatch() throws Exception {
+		assertThat(pathMatchers("/foobar").matches(exchange).block().isMatch()).isFalse();
 	}
 
 	@Test
-	public void antMatchersWhenMultiThenMatches() throws Exception {
-		assertThat(antMatchers("/foobar", "/").matches(exchange).block().isMatch()).isTrue();
+	public void pathMatchersWhenMultiThenMatches() throws Exception {
+		assertThat(pathMatchers("/foobar", "/").matches(exchange).block().isMatch()).isTrue();
 	}
 
 	@Test
@@ -74,7 +74,7 @@ public class ServerWebExchangeMatchersTests {
 	/**
 	 * If a LinkedMap is used and anyRequest equals anyRequest then the following is added:
 	 * anyRequest() -> authenticated()
-	 * antMatchers("/admin/**") -> hasRole("ADMIN")
+	 * pathMatchers("/admin/**") -> hasRole("ADMIN")
 	 * anyRequest() -> permitAll
 	 *
 	 * will result in the first entry being overridden

@@ -20,10 +20,6 @@ import org.springframework.security.web.server.util.matcher.OrServerWebExchangeM
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 
-import static org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers.*;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -52,8 +48,8 @@ abstract class AbstractServerWebExchangeMatcherRegistry<T> {
 	 *
 	 * @return the object that is chained after creating the {@link ServerWebExchangeMatcher}
 	 */
-	public T antMatchers(HttpMethod method) {
-		return antMatchers(method, new String[] { "/**" });
+	public T pathMatchers(HttpMethod method) {
+		return pathMatchers(method, new String[] { "/**" });
 	}
 
 	/**
@@ -68,8 +64,8 @@ abstract class AbstractServerWebExchangeMatcherRegistry<T> {
 	 *
 	 * @return the object that is chained after creating the {@link ServerWebExchangeMatcher}
 	 */
-	public T antMatchers(HttpMethod method, String... antPatterns) {
-		return matcher(ServerWebExchangeMatchers.antMatchers(method, antPatterns));
+	public T pathMatchers(HttpMethod method, String... antPatterns) {
+		return matcher(ServerWebExchangeMatchers.pathMatchers(method, antPatterns));
 	}
 
 	/**
@@ -82,8 +78,8 @@ abstract class AbstractServerWebExchangeMatcherRegistry<T> {
 	 *
 	 * @return the object that is chained after creating the {@link ServerWebExchangeMatcher}
 	 */
-	public T antMatchers(String... antPatterns) {
-		return matcher(ServerWebExchangeMatchers.antMatchers(antPatterns));
+	public T pathMatchers(String... antPatterns) {
+		return matcher(ServerWebExchangeMatchers.pathMatchers(antPatterns));
 	}
 
 	/**

@@ -22,10 +22,10 @@ import java.util.Map;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.http.server.reactive.ServerHttpRequest;
-import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.PathMatcher;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.util.pattern.ParsingPathMatcher;
 import reactor.core.publisher.Mono;
 
 /**
@@ -33,7 +33,9 @@ import reactor.core.publisher.Mono;
  * @since 5.0
  */
 public final class PathMatcherServerWebExchangeMatcher implements ServerWebExchangeMatcher {
-	private PathMatcher pathMatcher = new AntPathMatcher();
+	private static final PathMatcher DEFAULT_PATH_MATCHER = new ParsingPathMatcher();
+
+	private PathMatcher pathMatcher = DEFAULT_PATH_MATCHER;
 
 	private final String pattern;
 	private final HttpMethod method;

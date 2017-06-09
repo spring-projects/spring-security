@@ -30,7 +30,7 @@ import java.util.List;
  */
 public abstract class ServerWebExchangeMatchers {
 
-	public static ServerWebExchangeMatcher antMatchers(HttpMethod method, String... patterns) {
+	public static ServerWebExchangeMatcher pathMatchers(HttpMethod method, String... patterns) {
 		List<ServerWebExchangeMatcher> matchers = new ArrayList<>(patterns.length);
 		for (String pattern : patterns) {
 			matchers.add(new PathMatcherServerWebExchangeMatcher(pattern, method));
@@ -38,8 +38,8 @@ public abstract class ServerWebExchangeMatchers {
 		return new OrServerWebExchangeMatcher(matchers);
 	}
 
-	public static ServerWebExchangeMatcher antMatchers(String... patterns) {
-		return antMatchers(null, patterns);
+	public static ServerWebExchangeMatcher pathMatchers(String... patterns) {
+		return pathMatchers(null, patterns);
 	}
 
 	public static ServerWebExchangeMatcher matchers(ServerWebExchangeMatcher... matchers) {
