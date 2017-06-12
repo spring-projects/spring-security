@@ -56,7 +56,7 @@ public final class PathMatcherServerWebExchangeMatcher implements ServerWebExcha
 		if(this.method != null && !this.method.equals(request.getMethod())) {
 			return MatchResult.notMatch();
 		}
-		String path = request.getPathWithinApplication();
+		String path = request.getPath().pathWithinApplication().value();
 		boolean match = pathMatcher.match(pattern, path);
 		if(!match) {
 			return MatchResult.notMatch();
