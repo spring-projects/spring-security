@@ -47,7 +47,7 @@ public class UserDetailsRepositoryResourceFactoryBeanPropertiesResourceLocationI
 	static class Config {
 		@Bean
 		public UserDetailsRepositoryResourceFactoryBean userDetailsService() {
-			return UserDetailsRepositoryResourceFactoryBean.usersFromResourceLocation("classpath:users.properties");
+			return UserDetailsRepositoryResourceFactoryBean.fromResourceLocation("classpath:users.properties");
 		}
 	}
 }

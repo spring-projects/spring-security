@@ -22,23 +22,17 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.util.InMemoryResource;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.util.Collection;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 
 /**
@@ -47,20 +41,16 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class UserDetailsResourceFactoryBeanTest {
-	String location = "classpath:users.properties";
-
 	@Mock
 	ResourceLoader resourceLoader;
 
 	UserDetailsResourceFactoryBean factory = new UserDetailsResourceFactoryBean();
 
 	@Test
-	public void getObjectWhenResourceLoaderNullThenThrowsIllegalStateException() throws Exception {
-		factory.setPropertiesResourceLocation(location);
-
-		assertThatThrownBy(() -> factory.getObject() )
+	public void setResourceLoaderWhenNullThenThrowsException() throws Exception {
+		assertThatThrownBy(() -> factory.setResourceLoader(null) )
 			.isInstanceOf(IllegalArgumentException.class)
-			.hasStackTraceContaining("resourceLoader cannot be null if propertiesResource is null");
+			.hasStackTraceContaining("resourceLoader cannot be null");
 	}
 
 	@Test
@@ -68,40 +58,29 @@ public class UserDetailsResourceFactoryBeanTest {
 		factory.setResourceLoader(resourceLoader);
 
 		assertThatThrownBy(() -> factory.getObject() )
-			.isInstanceOf(IllegalStateException.class)
-			.hasStackTraceContaining("Either propertiesResource cannot be null or both resourceLoader and propertiesResourceLocation cannot be null");
+			.isInstanceOf(IllegalArgumentException.class)
+			.hasStackTraceContaining("resource cannot be null if resourceLocation is null");
 	}
 
 	@Test
 	public void getObjectWhenPropertiesResourceLocationSingleUserThenThrowsGetsSingleUser() throws Exception {
-		setResource("user=password,ROLE_USER");
+		factory.setResourceLocation("classpath:users.properties");
 
 		Collection<UserDetails> users = factory.getObject();
 
-		UserDetails expectedUser = User.withUsername("user")
-			.password("password")
-			.authorities("ROLE_USER")
-			.build();
-		assertThat(users).containsExactly(expectedUser);
+		assertLoaded();
 	}
 
 	@Test
 	public void getObjectWhenPropertiesResourceSingleUserThenThrowsGetsSingleUser() throws Exception {
-		factory.setPropertiesResource(new InMemoryResource("user=password,ROLE_USER"));
+		factory.setResource(new InMemoryResource("user=password,ROLE_USER"));
 
-		Collection<UserDetails> users = factory.getObject();
-
-		UserDetails expectedUser = User.withUsername("user")
-			.password("password")
-			.authorities("ROLE_USER")
-			.build();
-		assertThat(users).containsExactly(expectedUser);
+		assertLoaded();
 	}
 
 	@Test
 	public void getObjectWhenInvalidUserThenThrowsMeaningfulException() throws Exception {
-		setResource("user=invalidFormatHere");
-
+		factory.setResource(new InMemoryResource("user=invalidFormatHere"));
 
 		assertThatThrownBy(() -> factory.getObject() )
 			.isInstanceOf(IllegalStateException.class)
@@ -109,11 +88,13 @@ public class UserDetailsResourceFactoryBeanTest {
 			.hasStackTraceContaining("invalidFormatHere");
 	}
 
-	private void setResource(String contents) throws IOException {
-		Resource resource = new InMemoryResource(contents);
-		when(resourceLoader.getResource(location)).thenReturn(resource);
+	private void assertLoaded() throws Exception {
+		Collection<UserDetails> users = factory.getObject();
 
-		factory.setPropertiesResourceLocation(location);
-		factory.setResourceLoader(resourceLoader);
+		UserDetails expectedUser = User.withUsername("user")
+			.password("password")
+			.authorities("ROLE_USER")
+			.build();
+		assertThat(users).containsExactly(expectedUser);
 	}
 }

@@ -24,7 +24,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.config.core.userdetails.UserDetailsResourceFactoryBean;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 import java.util.Collection;
@@ -58,32 +57,32 @@ public class UserDetailsManagerResourceFactoryBean implements ResourceLoaderAwar
 	/**
 	 * Sets a the location of a Resource that is a Properties file in the format defined in {@link UserDetailsResourceFactoryBean}
 	 *
-	 * @param propertiesResourceLocation the location of the properties file that contains the users (i.e. "classpath:users.properties")
+	 * @param resourceLocation the location of the properties file that contains the users (i.e. "classpath:users.properties")
 	 * @return the UserDetailsResourceFactoryBean
 	 */
-	public void setPropertiesResourceLocation(String propertiesResourceLocation) {
-		this.userDetails.setPropertiesResourceLocation(propertiesResourceLocation);
+	public void setResourceLocation(String resourceLocation) {
+		this.userDetails.setResourceLocation(resourceLocation);
 	}
 
 	/**
 	 * Sets a a Resource that is a Properties file in the format defined in {@link UserDetailsResourceFactoryBean}
 	 *
-	 * @param propertiesResource the Resource to use
+	 * @param resource the Resource to use
 	 */
-	public void setPropertiesResource(Resource propertiesResource) {
-		this.userDetails.setPropertiesResource(propertiesResource);
+	public void setResource(Resource resource) {
+		this.userDetails.setResource(resource);
 	}
 
 	/**
 	 * Create a UserDetailsServiceResourceFactoryBean with the location of a Resource that is a Properties file in the
 	 * format defined in {@link UserDetailsResourceFactoryBean}
 	 *
-	 * @param propertiesResourceLocation the location of the properties file that contains the users (i.e. "classpath:users.properties")
+	 * @param resourceLocation the location of the properties file that contains the users (i.e. "classpath:users.properties")
 	 * @return the UserDetailsResourceFactoryBean
 	 */
-	public static UserDetailsManagerResourceFactoryBean usersFromResourceLocation(String propertiesResourceLocation) {
+	public static UserDetailsManagerResourceFactoryBean fromResourceLocation(String resourceLocation) {
 		UserDetailsManagerResourceFactoryBean result = new UserDetailsManagerResourceFactoryBean();
-		result.setPropertiesResourceLocation(propertiesResourceLocation);
+		result.setResourceLocation(resourceLocation);
 		return result;
 	}
 
@@ -91,12 +90,12 @@ public class UserDetailsManagerResourceFactoryBean implements ResourceLoaderAwar
 	 * Create a UserDetailsServiceResourceFactoryBean with a Resource that is a Properties file in the
 	 * format defined in {@link UserDetailsResourceFactoryBean}
 	 *
-	 * @param propertiesResource the Resource that is a properties file that contains the users
+	 * @param resource the Resource that is a properties file that contains the users
 	 * @return the UserDetailsResourceFactoryBean
 	 */
-	public static UserDetailsManagerResourceFactoryBean usersFromResource(Resource propertiesResource) {
+	public static UserDetailsManagerResourceFactoryBean fromResource(Resource resource) {
 		UserDetailsManagerResourceFactoryBean result = new UserDetailsManagerResourceFactoryBean();
-		result.setPropertiesResource(propertiesResource);
+		result.setResource(resource);
 		return result;
 	}
 }

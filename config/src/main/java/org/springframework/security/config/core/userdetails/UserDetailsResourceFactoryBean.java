@@ -20,6 +20,7 @@ package org.springframework.security.config.core.userdetails;
 
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.ResourceLoaderAware;
+import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.core.userdetails.User;
@@ -28,8 +29,6 @@ import org.springframework.security.core.userdetails.memory.UserAttribute;
 import org.springframework.security.core.userdetails.memory.UserAttributeEditor;
 import org.springframework.util.Assert;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -55,14 +54,15 @@ import java.util.Properties;
  * @since 5.0
  */
 public class UserDetailsResourceFactoryBean implements ResourceLoaderAware, FactoryBean<Collection<UserDetails>> {
-	private ResourceLoader resourceLoader;
+	private ResourceLoader resourceLoader = new DefaultResourceLoader();
 
-	private String propertiesResourceLocation;
+	private String resourceLocation;
 
-	private Resource propertiesResource;
+	private Resource resource;
 
 	@Override
 	public void setResourceLoader(ResourceLoader resourceLoader) {
+		Assert.notNull(resourceLoader,"resourceLoader cannot be null");
 		this.resourceLoader = resourceLoader;
 	}
 
@@ -104,29 +104,53 @@ public class UserDetailsResourceFactoryBean implements ResourceLoaderAware, Fact
 	/**
 	 * Sets a the location of a Resource that is a Properties file in the format defined in {@link UserDetailsResourceFactoryBean}
 	 *
-	 * @param propertiesResourceLocation the location of the properties file that contains the users (i.e. "classpath:users.properties")
+	 * @param resourceLocation the location of the properties file that contains the users (i.e. "classpath:users.properties")
 	 */
-	public void setPropertiesResourceLocation(String propertiesResourceLocation) {
-		this.propertiesResourceLocation = propertiesResourceLocation;
+	public void setResourceLocation(String resourceLocation) {
+		this.resourceLocation = resourceLocation;
 	}
 
 	/**
 	 * Sets a a Resource that is a Properties file in the format defined in {@link UserDetailsResourceFactoryBean}
 	 *
-	 * @param propertiesResource the Resource to use
+	 * @param resource the Resource to use
 	 */
-	public void setPropertiesResource(Resource propertiesResource) {
-		this.propertiesResource = propertiesResource;
+	public void setResource(Resource resource) {
+		this.resource = resource;
 	}
 
 	private Resource getProperitesResource() {
-		if(propertiesResource != null) {
-			return propertiesResource;
+		Resource result = resource;
+		if(result == null && resourceLocation != null) {
+			result = resourceLoader.getResource(resourceLocation);
 		}
-		if(propertiesResourceLocation != null) {
-			Assert.notNull(resourceLoader, "resourceLoader cannot be null if propertiesResource is null");
-			return resourceLoader.getResource(propertiesResourceLocation);
-		}
-		throw new IllegalStateException("Either propertiesResource cannot be null or both resourceLoader and propertiesResourceLocation cannot be null");
+		Assert.notNull(result, "resource cannot be null if resourceLocation is null");
+		return result;
+	}
+
+	/**
+	 * Create a UserDetailsResourceFactoryBean with the location of a Resource that is a Properties file in the
+	 * format defined in {@link UserDetailsResourceFactoryBean}
+	 *
+	 * @param resourceLocatiton the location of the properties file that contains the users (i.e. "classpath:users.properties")
+	 * @return the UserDetailsResourceFactoryBean
+	 */
+	public static UserDetailsResourceFactoryBean fromResourceLocation(String resourceLocatiton) {
+		UserDetailsResourceFactoryBean result = new UserDetailsResourceFactoryBean();
+		result.setResourceLocation(resourceLocatiton);
+		return result;
+	}
+
+	/**
+	 * Create a UserDetailsResourceFactoryBean with a Resource that is a Properties file in the
+	 * format defined in {@link UserDetailsResourceFactoryBean}
+	 *
+	 * @param propertiesResource the Resource that is a properties file that contains the users
+	 * @return the UserDetailsResourceFactoryBean
+	 */
+	public static UserDetailsResourceFactoryBean fromResource(Resource propertiesResource) {
+		UserDetailsResourceFactoryBean result = new UserDetailsResourceFactoryBean();
+		result.setResource(propertiesResource);
+		return result;
 	}
 }

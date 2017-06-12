@@ -48,7 +48,7 @@ public class UserDetailsRepositoryResourceFactoryBeanPropertiesResourceITests {
 	static class Config {
 		@Bean
 		public UserDetailsRepositoryResourceFactoryBean userDetailsService() {
-			return UserDetailsRepositoryResourceFactoryBean.usersFromResource(new InMemoryResource("user=password,ROLE_USER"));
+			return UserDetailsRepositoryResourceFactoryBean.fromResource(new InMemoryResource("user=password,ROLE_USER"));
 		}
 	}
 }
