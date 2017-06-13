@@ -268,22 +268,10 @@ NOTE: http://developer.okta.com/docs/api/resources/oidc.html[Okta's OAuth 2.0 im
 
 In order to use Okta's OAuth 2.0 authentication system for login, you must first https://www.okta.com/developer/signup[create a developer account].
 
-[[okta-login-add-auth-server]]
-=== Add Authorization Server
-
-Sign in to your account _sub-domain_ and click on the _"Admin"_ button to navigate to the administration page.
-From the top menu bar on the administration page, navigate to *_Security -> API_* and then click on the _"Add Authorization Server"_ button.
-From the _"Add Authorization Server"_ page, enter the Name, Resource URI, Description (optional) and then click _"Save"_.
-
-NOTE: The Resource URI field is not relevant but it's a required field - enter _"http://localhost:8080/oauth2/okta"_.
-
-The next page presented is the _"Settings"_ for the new Authorization Server.
-In the next step, we will create a new application that will be assigned OAuth 2.0 client credentials and registered with the Authorization Server.
-
 [[okta-login-register-application]]
 === Add Application
 
-From the top menu bar on the administration page, navigate to *_Applications -> Applications_* and then click on the _"Add Application"_ button.
+Sign in to your account _sub-domain_ and navigate to *_Applications -> Applications_* and then click on the _"Add Application"_ button.
 From the _"Add Application"_ page, click on the _"Create New App"_ button and enter the following:
 
 * *Platform:* Web
