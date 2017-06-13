@@ -27,6 +27,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
 
+import org.springframework.security.core.userdetails.UserDetailsRepository;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 

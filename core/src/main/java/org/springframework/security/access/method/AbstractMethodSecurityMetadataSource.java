@@ -22,6 +22,7 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.aop.framework.AopProxyUtils;
+import org.springframework.aop.target.EmptyTargetSource;
 import org.springframework.security.access.ConfigAttribute;
 
 /**
@@ -45,7 +46,7 @@ public abstract class AbstractMethodSecurityMetadataSource implements
 			Object target = mi.getThis();
 			Class<?> targetClass = null;
 
-			if (target != null) {
+			if (target != null && target != EmptyTargetSource.INSTANCE.getTarget()) {
 				targetClass = target instanceof Class<?> ? (Class<?>) target
 						: AopProxyUtils.ultimateTargetClass(target);
 			}

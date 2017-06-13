@@ -20,6 +20,7 @@ package org.springframework.security.authentication;
 
 import org.springframework.security.core.Authentication;
 
+import org.springframework.security.core.userdetails.UserDetailsRepository;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
 

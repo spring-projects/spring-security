@@ -19,7 +19,7 @@
 package sample;
 
 import org.springframework.context.annotation.Bean;
-import org.springframework.security.authentication.MapUserDetailsRepository;
+import org.springframework.security.core.userdetails.MapUserDetailsRepository;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.HttpSecurity;
@@ -40,8 +40,8 @@ public class SecurityConfig {
 	@Bean
 	WebFilterChainFilter springSecurityFilterChain(HttpSecurity http) throws Exception {
 		http.authorizeExchange()
-			.antMatchers("/admin/**").hasRole("ADMIN")
-			.antMatchers("/users/{user}/**").access(this::currentUserMatchesPath)
+			.pathMatchers("/admin/**").hasRole("ADMIN")
+			.pathMatchers("/users/{user}/**").access(this::currentUserMatchesPath)
 			.anyExchange().authenticated();
 
 		return http.build();

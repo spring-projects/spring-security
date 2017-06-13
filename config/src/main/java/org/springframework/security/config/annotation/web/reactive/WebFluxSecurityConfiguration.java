@@ -19,12 +19,11 @@
 package org.springframework.security.config.annotation.web.reactive;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.ReactiveAdapterRegistry;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
-import org.springframework.security.authentication.UserDetailsRepository;
+import org.springframework.security.core.userdetails.UserDetailsRepository;
 import org.springframework.security.authentication.UserDetailsRepositoryAuthenticationManager;
 import org.springframework.security.config.web.server.HttpSecurity;
 import org.springframework.security.web.reactive.result.method.annotation.AuthenticationPrincipalArgumentResolver;
