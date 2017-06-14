@@ -18,62 +18,14 @@
 
 package org.springframework.security.config.annotation.web.reactive;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.ReactiveAdapterRegistry;
-import org.springframework.security.authentication.ReactiveAuthenticationManager;
-import org.springframework.security.core.userdetails.UserDetailsRepository;
-import org.springframework.security.authentication.UserDetailsRepositoryAuthenticationManager;
-import org.springframework.security.config.web.server.HttpSecurity;
-import org.springframework.security.web.reactive.result.method.annotation.AuthenticationPrincipalArgumentResolver;
-import org.springframework.security.web.server.context.WebSessionSecurityContextRepository;
-import org.springframework.web.reactive.config.WebFluxConfigurer;
-import org.springframework.web.reactive.result.method.annotation.ArgumentResolverConfigurer;
 
-import static org.springframework.security.config.web.server.HttpSecurity.http;
+import org.springframework.context.annotation.Configuration;
 
 /**
  * @author Rob Winch
  * @since 5.0
  */
 @Configuration
-public class WebFluxSecurityConfiguration implements WebFluxConfigurer {
-	@Autowired(required = false)
-	private ReactiveAdapterRegistry adapterRegistry = new ReactiveAdapterRegistry();
+public class WebFluxSecurityConfiguration {
 
-	@Autowired(required = false)
-	private ReactiveAuthenticationManager authenticationManager;
-
-	@Autowired(required = false)
-	private UserDetailsRepository userDetailsRepository;
-
-	@Override
-	public void configureArgumentResolvers(ArgumentResolverConfigurer configurer) {
-		configurer.addCustomResolver(authenticationPrincipalArgumentResolver());
-	}
-
-	@Bean
-	public AuthenticationPrincipalArgumentResolver authenticationPrincipalArgumentResolver() {
-		return new AuthenticationPrincipalArgumentResolver(adapterRegistry);
-	}
-
-	@Bean
-	public HttpSecurity httpSecurity() {
-		HttpSecurity http = http();
-		http.httpBasic();
-		http.authenticationManager(authenticationManager());
-		http.securityContextRepository(new WebSessionSecurityContextRepository());
-		return http;
-	}
-
-	private ReactiveAuthenticationManager authenticationManager() {
-		if(authenticationManager != null) {
-			return authenticationManager;
-		}
-		if(userDetailsRepository != null) {
-			return new UserDetailsRepositoryAuthenticationManager(userDetailsRepository);
-		}
-		return null;
-	}
 }

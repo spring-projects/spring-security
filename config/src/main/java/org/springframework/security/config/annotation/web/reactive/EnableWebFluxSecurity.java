@@ -21,6 +21,7 @@ package org.springframework.security.config.annotation.web.reactive;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
+import javax.servlet.http.HttpServletRequest;
 import java.lang.annotation.*;
 
 /**
@@ -30,7 +31,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@Import(WebFluxSecurityConfiguration.class)
+@Import({HttpSecurityConfiguration.class, WebFluxSecurityConfiguration.class})
 @Configuration
 public @interface EnableWebFluxSecurity {
 }
