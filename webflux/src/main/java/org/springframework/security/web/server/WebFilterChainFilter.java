@@ -24,6 +24,8 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 
+import org.springframework.web.server.handler.DefaultWebFilterChain;
+import org.springframework.web.server.handler.FilteringWebHandler;
 import reactor.core.publisher.Mono;
 
 /**
@@ -40,29 +42,7 @@ public class WebFilterChainFilter implements WebFilter {
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-		SecurityWebFilterChain delegate = new SecurityWebFilterChain(chain, filters.iterator());
+		DefaultWebFilterChain delegate = new DefaultWebFilterChain(new FilteringWebHandler(e -> chain.filter(e), filters));
 		return delegate.filter(exchange);
-	}
-
-	static class SecurityWebFilterChain implements WebFilterChain {
-		private final WebFilterChain delegate;
-		private final Iterator<WebFilter> filters;
-
-		public SecurityWebFilterChain(WebFilterChain delegate, Iterator<WebFilter> filters) {
-			super();
-			this.delegate = delegate;
-			this.filters = filters;
-		}
-
-		@Override
-		public Mono<Void> filter(ServerWebExchange exchange) {
-			if (filters.hasNext()) {
-				WebFilter filter = filters.next();
-				return filter.filter(exchange, this);
-			} else {
-				return delegate.filter(exchange);
-			}
-		}
-
 	}
 }
