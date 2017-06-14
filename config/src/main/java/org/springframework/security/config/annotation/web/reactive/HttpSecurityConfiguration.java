@@ -38,6 +38,9 @@ import static org.springframework.security.config.web.server.HttpSecurity.http;
  * @since 5.0
  */
 public class HttpSecurityConfiguration implements WebFluxConfigurer {
+	private static final String BEAN_NAME_PREFIX = "org.springframework.security.config.annotation.web.reactive.HttpSecurityConfiguration.";
+	private static final String HTTPSECURITY_BEAN_NAME = BEAN_NAME_PREFIX + "httpSecurity";
+
 	@Autowired(required = false)
 	private ReactiveAdapterRegistry adapterRegistry = new ReactiveAdapterRegistry();
 
@@ -57,7 +60,7 @@ public class HttpSecurityConfiguration implements WebFluxConfigurer {
 		return new AuthenticationPrincipalArgumentResolver(adapterRegistry);
 	}
 
-	@Bean
+	@Bean(HTTPSECURITY_BEAN_NAME)
 	@Scope("prototype")
 	public HttpSecurity httpSecurity() {
 		HttpSecurity http = http();

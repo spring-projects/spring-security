@@ -36,6 +36,9 @@ import java.util.List;
  */
 @Configuration
 public class WebFluxSecurityConfiguration {
+	private static final String BEAN_NAME_PREFIX = "org.springframework.security.config.annotation.web.reactive.WebFluxSecurityConfiguration.";
+
+	private static final String SPRING_SECURITY_WEBFILTERCHAINFILTER_BEAN_NAME = BEAN_NAME_PREFIX + "WebFilterChainFilter";
 
 	@Autowired(required = false)
 	private List<SecurityWebFilterChain> securityWebFilterChains;
@@ -43,8 +46,8 @@ public class WebFluxSecurityConfiguration {
 	@Autowired
 	ApplicationContext context;
 
-	@Bean
-	public WebFilterChainFilter springSecurityFilterChain() {
+	@Bean(SPRING_SECURITY_WEBFILTERCHAINFILTER_BEAN_NAME)
+	public WebFilterChainFilter springSecurityWebFilterChainFilter() {
 		return WebFilterChainFilter.fromSecurityWebFilterChainsList(getSecurityWebFilterChains());
 	}
 
