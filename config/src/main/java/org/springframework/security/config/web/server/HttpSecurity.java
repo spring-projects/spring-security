@@ -20,10 +20,13 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
+import org.springframework.security.web.server.MatcherSecurityWebFilterChain;
+import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.context.SecurityContextRepositoryWebFilter;
-import org.springframework.security.web.server.WebFilterChainFilter;
 import org.springframework.security.web.server.authorization.ExceptionTranslationWebFilter;
 import org.springframework.security.web.server.context.SecurityContextRepository;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.util.Assert;
 import org.springframework.web.server.WebFilter;
 
@@ -32,6 +35,8 @@ import org.springframework.web.server.WebFilter;
  * @since 5.0
  */
 public class HttpSecurity {
+	private ServerWebExchangeMatcher securityMatcher = ServerWebExchangeMatchers.anyExchange();
+
 	private AuthorizeExchangeBuilder authorizeExchangeBuilder;
 
 	private HeaderBuilder headers = new HeaderBuilder();
@@ -39,6 +44,26 @@ public class HttpSecurity {
 	private ReactiveAuthenticationManager authenticationManager;
 
 	private Optional<SecurityContextRepository> securityContextRepository = Optional.empty();
+
+	/**
+	 * The ServerExchangeMatcher that determines which requests apply to this HttpSecurity instance.
+	 *
+	 * @param matcher the ServerExchangeMatcher that determines which requests apply to this HttpSecurity instance.
+	 *                Default is all requests.
+	 */
+	public HttpSecurity securityMatcher(ServerWebExchangeMatcher matcher) {
+		Assert.notNull(matcher, "matcher cannot be null");
+		this.securityMatcher = matcher;
+		return this;
+	}
+
+	/**
+	 * Gets the ServerExchangeMatcher that determines which requests apply to this HttpSecurity instance.
+	 * @return the ServerExchangeMatcher that determines which requests apply to this HttpSecurity instance.
+	 */
+	private ServerWebExchangeMatcher getSecurityMatcher() {
+		return this.securityMatcher;
+	}
 
 	public HttpSecurity securityContextRepository(SecurityContextRepository securityContextRepository) {
 		Assert.notNull(securityContextRepository, "securityContextRepository cannot be null");
@@ -69,7 +94,7 @@ public class HttpSecurity {
 		return this;
 	}
 
-	public WebFilterChainFilter build() {
+	public SecurityWebFilterChain build() {
 		List<WebFilter> filters = new ArrayList<>();
 		if(headers != null) {
 			filters.add(headers.build());
@@ -84,7 +109,7 @@ public class HttpSecurity {
 			filters.add(new ExceptionTranslationWebFilter());
 			filters.add(authorizeExchangeBuilder.build());
 		}
-		return new WebFilterChainFilter(filters);
+		return new MatcherSecurityWebFilterChain(getSecurityMatcher(), filters);
 	}
 
 	public static HttpSecurity http() {

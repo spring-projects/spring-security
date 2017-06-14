@@ -27,12 +27,12 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
+import org.springframework.security.web.server.WebFilterChainFilter;
 import org.springframework.security.web.server.context.SecurityContextRepository;
 import org.springframework.security.web.server.context.WebSessionSecurityContextRepository;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.FluxExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.web.server.WebSession;
 import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -101,7 +101,22 @@ public class HttpSecurityTests {
 		assertThat(result.getResponseCookies().getFirst("SESSION")).isNotNull();
 	}
 
+	@Test
+	public void basicWhenNoCredentialsThenUnauthorized() {
+		http.authorizeExchange().anyExchange().authenticated();
+
+		WebTestClient client = buildClient();
+		client
+			.get()
+			.uri("/")
+			.exchange()
+			.expectStatus().isUnauthorized()
+			.expectHeader().valueMatches(HttpHeaders.CACHE_CONTROL, ".+")
+			.expectBody().isEmpty();
+	}
+
 	private WebTestClient buildClient() {
-		return WebTestClientBuilder.bindToWebFilters(http.build()).build();
+		WebFilterChainFilter springSecurityFilterChain = WebFilterChainFilter.fromSecurityWebFilterChains(http.build());
+		return WebTestClientBuilder.bindToWebFilters(springSecurityFilterChain).build();
 	}
 }

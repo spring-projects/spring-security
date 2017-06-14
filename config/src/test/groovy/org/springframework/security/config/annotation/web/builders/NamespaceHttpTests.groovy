@@ -346,7 +346,7 @@ public class NamespaceHttpTests extends BaseSpringSpec {
 		}
 	}
 
-	// http@request-matcher is not available (instead request matcher instances are used)
+	// http@request-matcher is not available (instead request securityMatcher instances are used)
 
 	def "http@request-matcher-ref ant"() {
 		when:
