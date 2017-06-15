@@ -1,4 +1,5 @@
 apply plugin: 'maven-bom'
+apply plugin: 'io.spring.convention.artifactory'
 
 sonarqube.skipProject = true
 
