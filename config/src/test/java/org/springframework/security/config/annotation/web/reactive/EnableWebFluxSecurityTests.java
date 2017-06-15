@@ -45,7 +45,34 @@ import static org.mockito.Mockito.mock;
  */
 @RunWith(Enclosed.class)
 public class EnableWebFluxSecurityTests {
+	@RunWith(SpringRunner.class)
+	public static class Defaults {
+		@Autowired
+		WebFilterChainFilter springSecurityFilterChain;
 
+		@Test
+		public void defaultRequiresAuthentication() {
+			WebTestClient client = WebTestClientBuilder.bindToWebFilters(springSecurityFilterChain).build();
+
+			client.get()
+				.uri("/")
+				.exchange()
+				.expectStatus().isUnauthorized()
+				.expectBody().isEmpty();
+		}
+
+		@EnableWebFluxSecurity
+		static class Config {
+			@Bean
+			public UserDetailsRepository userDetailsRepository() {
+				return new MapUserDetailsRepository(User.withUsername("user")
+					.password("password")
+					.roles("USER")
+					.build()
+				);
+			}
+		}
+	}
 
 	@RunWith(SpringRunner.class)
 	public static class MultiHttpSecurity {
