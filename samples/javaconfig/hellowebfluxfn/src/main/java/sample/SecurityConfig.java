@@ -40,12 +40,13 @@ public class SecurityConfig {
 
 	@Bean
 	SecurityWebFilterChain httpSecurity(HttpSecurity http) throws Exception {
-		http.authorizeExchange()
-			.pathMatchers("/admin/**").hasRole("ADMIN")
-			.pathMatchers("/users/{user}/**").access(this::currentUserMatchesPath)
-			.anyExchange().authenticated();
-
-		return http.build();
+		return http
+			.authorizeExchange()
+				.pathMatchers("/admin/**").hasRole("ADMIN")
+				.pathMatchers("/users/{user}/**").access(this::currentUserMatchesPath)
+				.anyExchange().authenticated()
+				.and()
+			.build();
 	}
 
 	private Mono<AuthorizationDecision> currentUserMatchesPath(Mono<Authentication> authentication, AuthorizationContext context) {

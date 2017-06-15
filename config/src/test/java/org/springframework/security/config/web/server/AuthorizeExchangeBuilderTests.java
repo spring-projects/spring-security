@@ -29,7 +29,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
  * @since 5.0
  */
 public class AuthorizeExchangeBuilderTests {
-	AuthorizeExchangeBuilder authorization = new AuthorizeExchangeBuilder();
+	HttpSecurity.AuthorizeExchangeBuilder authorization = HttpSecurity.http().new AuthorizeExchangeBuilder();
 
 	@Test
 	public void antMatchersWhenMethodAndPatternsThenDiscriminatesByMethod() {

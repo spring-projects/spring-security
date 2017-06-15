@@ -83,7 +83,7 @@ public class HttpSecurityTests {
 		http.securityContextRepository(new WebSessionSecurityContextRepository());
 		http.httpBasic();
 		http.authenticationManager(authenticationManager);
-		AuthorizeExchangeBuilder authorize = http.authorizeExchange();
+		HttpSecurity.AuthorizeExchangeBuilder authorize = http.authorizeExchange();
 		authorize.anyExchange().authenticated();
 
 		WebTestClient client = buildClient();
