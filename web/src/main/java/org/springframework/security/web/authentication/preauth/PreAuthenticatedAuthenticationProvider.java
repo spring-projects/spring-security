@@ -145,7 +145,7 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
 	 * @param userDetailsChecker
 	 */
 	public void setUserDetailsChecker(UserDetailsChecker userDetailsChecker) {
-		Assert.notNull(userDetailsChecker, "userDetailsChacker cannot be null");
+		Assert.notNull(userDetailsChecker, "userDetailsChecker cannot be null");
 		this.userDetailsChecker = userDetailsChecker;
 	}
 
