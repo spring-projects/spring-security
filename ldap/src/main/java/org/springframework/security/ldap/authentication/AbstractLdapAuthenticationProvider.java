@@ -80,8 +80,6 @@ public abstract class AbstractLdapAuthenticationProvider
 					"Empty Password"));
 		}
 
-		Assert.notNull(password, "Null password was supplied in authentication token");
-
 		DirContextOperations userData = doAuthentication(userToken);
 
 		UserDetails user = this.userDetailsContextMapper.mapUserFromContext(userData,
