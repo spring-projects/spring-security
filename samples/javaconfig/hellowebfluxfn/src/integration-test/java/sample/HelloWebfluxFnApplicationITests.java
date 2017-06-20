@@ -70,7 +70,9 @@ public class HelloWebfluxFnApplicationITests {
 	@Test
 	public void basicWorks() throws Exception {
 		this.rest
+			.mutate()
 			.filter(robsCredentials())
+			.build()
 			.get()
 			.uri("/principal")
 			.exchange()
@@ -81,7 +83,9 @@ public class HelloWebfluxFnApplicationITests {
 	@Test
 	public void basicWhenPasswordInvalid401() throws Exception {
 		this.rest
+			.mutate()
 			.filter(invalidPassword())
+			.build()
 			.get()
 			.uri("/principal")
 			.exchange()
@@ -92,7 +96,9 @@ public class HelloWebfluxFnApplicationITests {
 	@Test
 	public void authorizationAdmin403() throws Exception {
 		this.rest
+			.mutate()
 			.filter(robsCredentials())
+			.build()
 			.get()
 			.uri("/admin")
 			.exchange()
@@ -103,7 +109,9 @@ public class HelloWebfluxFnApplicationITests {
 	@Test
 	public void authorizationAdmin200() throws Exception {
 		this.rest
+			.mutate()
 			.filter(adminCredentials())
+			.build()
 			.get()
 			.uri("/admin")
 			.exchange()
@@ -113,7 +121,9 @@ public class HelloWebfluxFnApplicationITests {
 	@Test
 	public void basicMissingUser401() throws Exception {
 		this.rest
+			.mutate()
 			.filter(basicAuthentication("missing-user", "password"))
+			.build()
 			.get()
 			.uri("/admin")
 			.exchange()
@@ -123,7 +133,9 @@ public class HelloWebfluxFnApplicationITests {
 	@Test
 	public void basicInvalidPassword401() throws Exception {
 		this.rest
+			.mutate()
 			.filter(invalidPassword())
+			.build()
 			.get()
 			.uri("/admin")
 			.exchange()
@@ -143,7 +155,9 @@ public class HelloWebfluxFnApplicationITests {
 	@Test
 	public void sessionWorks() throws Exception {
 		ExchangeResult result = this.rest
+			.mutate()
 			.filter(robsCredentials())
+			.build()
 			.get()
 			.uri("/principal")
 			.exchange()
@@ -162,7 +176,9 @@ public class HelloWebfluxFnApplicationITests {
 	@Test
 	public void principal() throws Exception {
 		this.rest
+			.mutate()
 			.filter(robsCredentials())
+			.build()
 			.get()
 			.uri("/principal")
 			.exchange()
@@ -173,7 +189,9 @@ public class HelloWebfluxFnApplicationITests {
 	@Test
 	public void headers() throws Exception {
 		this.rest
+			.mutate()
 			.filter(robsCredentials())
+			.build()
 			.get()
 			.uri("/principal")
 			.exchange()

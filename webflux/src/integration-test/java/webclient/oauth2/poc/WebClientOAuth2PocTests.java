@@ -62,7 +62,9 @@ public class WebClientOAuth2PocTests {
 		this.server.enqueue(new MockResponse().setResponseCode(200).setBody("OK"));
 
 		ClientResponse response = this.webClient
+			.mutate()
 			.filter(basicIfNeeded("rob", "rob"))
+			.build()
 			.get()
 			.uri("/")
 			.exchange()
@@ -80,7 +82,9 @@ public class WebClientOAuth2PocTests {
 		this.server.enqueue(new MockResponse().setResponseCode(200).setBody("OK"));
 
 		ClientResponse response = this.webClient
+			.mutate()
 			.filter(basicIfNeeded("rob", "rob"))
+			.build()
 			.get()
 			.uri("/")
 			.exchange()

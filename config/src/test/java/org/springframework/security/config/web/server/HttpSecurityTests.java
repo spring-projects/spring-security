@@ -89,7 +89,9 @@ public class HttpSecurityTests {
 		WebTestClient client = buildClient();
 
 		EntityExchangeResult<String> result = client
+			.mutate()
 			.filter(basicAuthentication("rob", "rob"))
+			.build()
 			.get()
 			.uri("/")
 			.exchange()

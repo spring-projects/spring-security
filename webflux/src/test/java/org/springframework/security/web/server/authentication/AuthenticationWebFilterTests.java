@@ -99,7 +99,9 @@ public class AuthenticationWebFilterTests {
 			.build();
 
 		EntityExchangeResult<String> result = client
+			.mutate()
 			.filter(basicAuthentication("test","this"))
+			.build()
 			.get()
 			.uri("/")
 			.exchange()
@@ -120,7 +122,9 @@ public class AuthenticationWebFilterTests {
 			.build();
 
 		EntityExchangeResult<Void> result = client
+			.mutate()
 			.filter(basicAuthentication("test", "this"))
+			.build()
 			.get()
 			.uri("/")
 			.exchange()
