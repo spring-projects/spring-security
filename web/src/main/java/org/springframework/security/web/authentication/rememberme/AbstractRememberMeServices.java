@@ -50,7 +50,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Luke Taylor
  * @author Rob Winch
- * @author Eddu Melendez
+ * @author Eddú Meléndez
  * @since 2.0
  */
 public abstract class AbstractRememberMeServices implements RememberMeServices,
