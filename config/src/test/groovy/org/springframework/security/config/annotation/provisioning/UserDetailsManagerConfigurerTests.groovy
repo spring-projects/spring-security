@@ -33,7 +33,7 @@ class UserDetailsManagerConfigurerTests extends Specification {
 		setup:
 			InMemoryUserDetailsManager userDetailsManager = new InMemoryUserDetailsManager([])
 		when:
-			UserDetails userDetails = new UserDetailsManagerConfigurer<UserDetailsManagerConfigurer<InMemoryUserDetailsManager>>(userDetailsManager)
+			UserDetails userDetails = new UserDetailsManagerConfigurer<InMemoryUserDetailsManager,UserDetailsManagerConfigurer<InMemoryUserDetailsManager>>(userDetailsManager)
 				.withUser("user")
 					.password("password")
 					.roles("USER")
@@ -57,7 +57,7 @@ class UserDetailsManagerConfigurerTests extends Specification {
 			InMemoryUserDetailsManager userDetailsManager = new InMemoryUserDetailsManager([])
 			SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_USER")
 		when:
-			UserDetails userDetails = new UserDetailsManagerConfigurer<UserDetailsManagerConfigurer<InMemoryUserDetailsManager>>(userDetailsManager)
+			UserDetails userDetails = new UserDetailsManagerConfigurer<InMemoryUserDetailsManager,UserDetailsManagerConfigurer<InMemoryUserDetailsManager>>(userDetailsManager)
 				.withUser("user")
 					.password("password")
 					.authorities(authority)
@@ -71,7 +71,7 @@ class UserDetailsManagerConfigurerTests extends Specification {
 			InMemoryUserDetailsManager userDetailsManager = new InMemoryUserDetailsManager([])
 			String authority = "ROLE_USER"
 		when:
-			UserDetails userDetails = new UserDetailsManagerConfigurer<UserDetailsManagerConfigurer<InMemoryUserDetailsManager>>(userDetailsManager)
+			UserDetails userDetails = new UserDetailsManagerConfigurer<InMemoryUserDetailsManager,UserDetailsManagerConfigurer<InMemoryUserDetailsManager>>(userDetailsManager)
 				.withUser("user")
 					.password("password")
 					.authorities(authority)
@@ -86,7 +86,7 @@ class UserDetailsManagerConfigurerTests extends Specification {
 			InMemoryUserDetailsManager userDetailsManager = new InMemoryUserDetailsManager([])
 			SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_USER")
 		when:
-			UserDetails userDetails = new UserDetailsManagerConfigurer<UserDetailsManagerConfigurer<InMemoryUserDetailsManager>>(userDetailsManager)
+			UserDetails userDetails = new UserDetailsManagerConfigurer<InMemoryUserDetailsManager,UserDetailsManagerConfigurer<InMemoryUserDetailsManager>>(userDetailsManager)
 				.withUser("user")
 					.password("password")
 					.authorities([authority])
