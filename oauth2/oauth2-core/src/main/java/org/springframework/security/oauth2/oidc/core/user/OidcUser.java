@@ -13,24 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.oidc.user;
+package org.springframework.security.oauth2.oidc.core.user;
 
 import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.oidc.core.IdToken;
+import org.springframework.security.oauth2.oidc.core.IdTokenClaimAccessor;
+import org.springframework.security.oauth2.oidc.core.StandardClaimAccessor;
+import org.springframework.security.oauth2.oidc.core.UserInfo;
 
-import java.time.Instant;
+import java.util.Map;
 
 /**
  * A representation of a user <code>Principal</code>
  * that is registered with an <i>OpenID Connect 1.0 Provider</i>.
  *
  * <p>
- * The structure of the user <code>Principal</code> is defined by the
- * <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#UserInfo">UserInfo Endpoint</a>,
- * which is an <i>OAuth 2.0 Protected Resource</i> that returns a set of
- * <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#StandardClaims">Claims</a>
- * about the authenticated End-User.
+ * An <code>OidcUser</code> contains &quot;Claims&quot; about the Authentication of the End-User.
+ * The claims are aggregated from the <code>IdToken</code> and optionally the <code>UserInfo</code>.
  *
  * <p>
  * Implementation instances of this interface represent an {@link AuthenticatedPrincipal}
@@ -39,65 +40,18 @@ import java.time.Instant;
  *
  * @author Joe Grandja
  * @since 5.0
- * @see DefaultUserInfo
- * @see AuthenticatedPrincipal
+ * @see DefaultOidcUser
+ * @see OAuth2User
+ * @see IdToken
+ * @see UserInfo
+ * @see IdTokenClaimAccessor
+ * @see StandardClaimAccessor
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html">OpenID Connect Core 1.0</a>
- * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#UserInfo">UserInfo Endpoint</a>
+ * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#IDToken">ID Token</a>
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#StandardClaims">Standard Claims</a>
  */
-public interface UserInfo extends OAuth2User {
+public interface OidcUser extends OAuth2User, IdTokenClaimAccessor {
 
-	String getSubject();
+	Map<String, Object> getClaims();
 
-	String getGivenName();
-
-	String getFamilyName();
-
-	String getMiddleName();
-
-	String getNickName();
-
-	String getPreferredUsername();
-
-	String getProfile();
-
-	String getPicture();
-
-	String getWebsite();
-
-	String getEmail();
-
-	Boolean getEmailVerified();
-
-	String getGender();
-
-	String getBirthdate();
-
-	String getZoneInfo();
-
-	String getLocale();
-
-	String getPhoneNumber();
-
-	Boolean getPhoneNumberVerified();
-
-	Address getAddress();
-
-	Instant getUpdatedAt();
-
-
-	interface Address {
-
-		String getFormatted();
-
-		String getStreetAddress();
-
-		String getLocality();
-
-		String getRegion();
-
-		String getPostalCode();
-
-		String getCountry();
-	}
 }

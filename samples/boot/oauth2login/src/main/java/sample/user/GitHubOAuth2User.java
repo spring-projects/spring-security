@@ -16,17 +16,19 @@
 package sample.user;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * @author Joe Grandja
  */
 public class GitHubOAuth2User implements OAuth2User {
+	private List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_USER");
 	private String id;
 	private String name;
 	private String login;
@@ -37,7 +39,7 @@ public class GitHubOAuth2User implements OAuth2User {
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return Collections.emptyList();
+		return this.authorities;
 	}
 
 	@Override

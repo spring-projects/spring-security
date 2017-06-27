@@ -18,9 +18,7 @@ package org.springframework.security.oauth2.core.user;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
 
-import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -42,22 +40,18 @@ import java.util.stream.Collectors;
 public class DefaultOAuth2User implements OAuth2User {
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 	private final Set<GrantedAuthority> authorities;
-	private final Map<String, Object> attributes;
+	private Map<String, Object> attributes;
 	private final String nameAttributeKey;
 
-	public DefaultOAuth2User(Map<String, Object> attributes, String nameAttributeKey) {
-		this(Collections.emptySet(), attributes, nameAttributeKey);
-	}
-
 	public DefaultOAuth2User(Set<GrantedAuthority> authorities, Map<String, Object> attributes, String nameAttributeKey) {
-		Assert.notNull(authorities, "authorities cannot be null");
+		Assert.notEmpty(authorities, "authorities cannot be empty");
 		Assert.notEmpty(attributes, "attributes cannot be empty");
 		Assert.hasText(nameAttributeKey, "nameAttributeKey cannot be empty");
 		if (!attributes.containsKey(nameAttributeKey)) {
 			throw new IllegalArgumentException("Invalid nameAttributeKey: " + nameAttributeKey);
 		}
 		this.authorities = Collections.unmodifiableSet(this.sortAuthorities(authorities));
-		this.attributes = Collections.unmodifiableMap(new LinkedHashMap<>(attributes));
+		this.setAttributes(attributes);
 		this.nameAttributeKey = nameAttributeKey;
 	}
 
@@ -76,37 +70,15 @@ public class DefaultOAuth2User implements OAuth2User {
 		return this.attributes;
 	}
 
-	protected String getAttributeAsString(String key) {
-		Object value = this.getAttributes().get(key);
-		return (value != null ? value.toString() : null);
-	}
-
-	protected Boolean getAttributeAsBoolean(String key) {
-		String value = this.getAttributeAsString(key);
-		return (value != null ? Boolean.valueOf(value) : null);
-	}
-
-	protected Instant getAttributeAsInstant(String key) {
-		String value = this.getAttributeAsString(key);
-		if (value == null) {
-			return null;
-		}
-		try {
-			return Instant.ofEpochSecond(Long.valueOf(value));
-		} catch (NumberFormatException ex) {
-			throw new IllegalArgumentException("Invalid long value: " + ex.getMessage(), ex);
-		}
+	protected final void setAttributes(Map<String, Object> attributes) {
+		Assert.notEmpty(attributes, "attributes cannot be empty");
+		this.attributes = Collections.unmodifiableMap(new LinkedHashMap<>(attributes));
 	}
 
 	private Set<GrantedAuthority> sortAuthorities(Set<GrantedAuthority> authorities) {
-		if (CollectionUtils.isEmpty(authorities)) {
-			return Collections.emptySet();
-		}
-
 		SortedSet<GrantedAuthority> sortedAuthorities =
 			new TreeSet<>((g1, g2) -> g1.getAuthority().compareTo(g2.getAuthority()));
 		authorities.stream().forEach(sortedAuthorities::add);
-
 		return sortedAuthorities;
 	}
 

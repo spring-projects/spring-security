@@ -218,6 +218,7 @@ public class AuthorizationCodeAuthenticationProcessingFilter extends AbstractAut
 			this.authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri());
 			this.tokenUri(clientRegistration.getProviderDetails().getTokenUri());
 			this.userInfoUri(clientRegistration.getProviderDetails().getUserInfoUri());
+			this.jwkSetUri(clientRegistration.getProviderDetails().getJwkSetUri());
 			this.clientName(clientRegistration.getClientName());
 			this.clientAlias(clientRegistration.getClientAlias());
 		}

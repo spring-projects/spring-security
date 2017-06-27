@@ -17,8 +17,8 @@ package org.springframework.security.oauth2.core;
 
 import org.springframework.util.Assert;
 
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.Instant;
 import java.util.Map;
 
@@ -56,14 +56,14 @@ public interface ClaimAccessor {
 		}
 	}
 
-	default URI getClaimAsURI(String claim) {
+	default URL getClaimAsURL(String claim) {
 		if (!this.containsClaim(claim)) {
 			return null;
 		}
 		try {
-			return new URI(this.getClaimAsString(claim));
-		} catch (URISyntaxException ex) {
-			throw new IllegalArgumentException("Unable to convert claim '" + claim + "' to URI: " + ex.getMessage(), ex);
+			return new URL(this.getClaimAsString(claim));
+		} catch (MalformedURLException ex) {
+			throw new IllegalArgumentException("Unable to convert claim '" + claim + "' to URL: " + ex.getMessage(), ex);
 		}
 	}
 }

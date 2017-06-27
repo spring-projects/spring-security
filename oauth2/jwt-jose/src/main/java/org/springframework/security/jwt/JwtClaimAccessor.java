@@ -17,7 +17,7 @@ package org.springframework.security.jwt;
 
 import org.springframework.security.oauth2.core.ClaimAccessor;
 
-import java.net.URI;
+import java.net.URL;
 import java.time.Instant;
 
 /**
@@ -33,17 +33,17 @@ import java.time.Instant;
  */
 public interface JwtClaimAccessor extends ClaimAccessor {
 
-	default URI getIssuer() {
-		return this.getClaimAsURI(JwtClaim.ISS);
+	default URL getIssuer() {
+		return this.getClaimAsURL(JwtClaim.ISS);
 	}
 
 	default String getSubject() {
 		return this.getClaimAsString(JwtClaim.SUB);
 	}
 
-	default String getAudience() {
-		// FIXME Should return String[]
-		return this.getClaimAsString(JwtClaim.AUD);
+	default String[] getAudience() {
+		// TODO Impl JwtClaim.AUD
+		return null;
 	}
 
 	default Instant getExpiresAt() {

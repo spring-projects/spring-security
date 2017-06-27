@@ -35,6 +35,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationProcessingFilter;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeRequestRedirectFilter;
@@ -48,6 +49,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2Parameter;
 import org.springframework.security.oauth2.core.endpoint.ResponseType;
 import org.springframework.security.oauth2.core.endpoint.TokenResponseAttributes;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
+import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -389,7 +391,11 @@ public class OAuth2LoginApplicationTests {
 			attributes.put("last-name", "Grandja");
 			attributes.put("email", "joeg@springsecurity.io");
 
-			DefaultOAuth2User user = new DefaultOAuth2User(attributes, "email");
+			GrantedAuthority authority = new OAuth2UserAuthority(attributes);
+			Set<GrantedAuthority> authorities = new HashSet<>();
+			authorities.add(authority);
+
+			DefaultOAuth2User user = new DefaultOAuth2User(authorities, attributes, "email");
 
 			OAuth2UserService mock = mock(OAuth2UserService.class);
 			when(mock.loadUser(any())).thenReturn(user);

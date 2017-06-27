@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 /**
- * Core classes and interfaces providing support for <i>OpenID Connect Core 1.0</i>.
+ * Provides a model for an <i>OpenID Connect Core 1.0</i> representation of a user <code>Principal</code>.
  */
-package org.springframework.security.oauth2.oidc;
+package org.springframework.security.oauth2.oidc.core.user;

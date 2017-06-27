@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.oidc;
+package org.springframework.security.oauth2.oidc.core;
 
 /**
- * The Standard Claims defined by the <i>OpenID Connect Core 1.0</i> specification
- * and returned in either the <i>UserInfo Response</i> or in the <i>ID Token</i>.
+ * The &quot;Standard Claims&quot; defined by the <i>OpenID Connect Core 1.0</i> specification
+ * that can be returned either in the <i>UserInfo Response</i> or the <i>ID Token</i>.
  *
  * @author Joe Grandja
  * @since 5.0
@@ -25,7 +25,7 @@ package org.springframework.security.oauth2.oidc;
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#UserInfoResponse">UserInfo Response</a>
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#IDToken">ID Token</a>
  */
-public interface StandardClaimName {
+public interface StandardClaim {
 
 	String SUB = "sub";
 
@@ -66,4 +66,5 @@ public interface StandardClaimName {
 	String ADDRESS = "address";
 
 	String UPDATED_AT = "updated_at";
+
 }

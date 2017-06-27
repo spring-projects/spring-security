@@ -56,4 +56,32 @@ public abstract class AbstractToken implements Serializable {
 	public Instant getExpiresAt() {
 		return this.expiresAt;
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null || this.getClass() != obj.getClass()) {
+			return false;
+		}
+
+		AbstractToken that = (AbstractToken) obj;
+
+		if (!this.getTokenValue().equals(that.getTokenValue())) {
+			return false;
+		}
+		if (!this.getIssuedAt().equals(that.getIssuedAt())) {
+			return false;
+		}
+		return this.getExpiresAt().equals(that.getExpiresAt());
+	}
+
+	@Override
+	public int hashCode() {
+		int result = this.getTokenValue().hashCode();
+		result = 31 * result + this.getIssuedAt().hashCode();
+		result = 31 * result + this.getExpiresAt().hashCode();
+		return result;
+	}
 }

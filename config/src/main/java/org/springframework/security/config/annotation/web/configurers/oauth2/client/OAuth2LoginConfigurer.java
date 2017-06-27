@@ -16,7 +16,6 @@
 package org.springframework.security.config.annotation.web.configurers.oauth2.client;
 
 import org.springframework.context.ApplicationContext;
-import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationToken;
@@ -35,7 +34,6 @@ import org.springframework.util.CollectionUtils;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -95,10 +93,17 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 			return this.and();
 		}
 
-		public OAuth2LoginConfigurer<B> userInfoTypeConverter(Function<ClientHttpResponse, ? extends OAuth2User> userInfoConverter, URI userInfoUri) {
-			Assert.notNull(userInfoConverter, "userInfoConverter cannot be null");
+		public OAuth2LoginConfigurer<B> customUserType(Class<? extends OAuth2User> customUserType, URI userInfoUri) {
+			Assert.notNull(customUserType, "customUserType cannot be null");
 			Assert.notNull(userInfoUri, "userInfoUri cannot be null");
-			OAuth2LoginConfigurer.this.authorizationCodeAuthenticationFilterConfigurer.userInfoTypeConverter(userInfoConverter, userInfoUri);
+			OAuth2LoginConfigurer.this.authorizationCodeAuthenticationFilterConfigurer.customUserType(customUserType, userInfoUri);
+			return this.and();
+		}
+
+		public OAuth2LoginConfigurer<B> userNameAttributeName(String userNameAttributeName, URI userInfoUri) {
+			Assert.hasText(userNameAttributeName, "userNameAttributeName cannot be empty");
+			Assert.notNull(userInfoUri, "userInfoUri cannot be null");
+			OAuth2LoginConfigurer.this.authorizationCodeAuthenticationFilterConfigurer.userNameAttributeName(userNameAttributeName, userInfoUri);
 			return this.and();
 		}
 

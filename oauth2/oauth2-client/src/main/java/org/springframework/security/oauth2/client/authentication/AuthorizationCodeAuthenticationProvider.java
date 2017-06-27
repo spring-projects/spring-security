@@ -22,10 +22,16 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper;
+import org.springframework.security.jwt.Jwt;
+import org.springframework.security.jwt.JwtDecoder;
+import org.springframework.security.oauth2.client.authentication.jwt.ProviderJwtDecoderRegistry;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.user.OAuth2UserService;
 import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.security.oauth2.core.endpoint.TokenResponseAttributes;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.oidc.core.IdToken;
+import org.springframework.security.oauth2.oidc.core.endpoint.OidcParameter;
 import org.springframework.util.Assert;
 
 import java.util.Collection;
@@ -68,16 +74,20 @@ import java.util.Collection;
  */
 public class AuthorizationCodeAuthenticationProvider implements AuthenticationProvider {
 	private final AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger;
+	private final ProviderJwtDecoderRegistry providerJwtDecoderRegistry;
 	private final OAuth2UserService userInfoService;
 	private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
 
 	public AuthorizationCodeAuthenticationProvider(
 			AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger,
+			ProviderJwtDecoderRegistry providerJwtDecoderRegistry,
 			OAuth2UserService userInfoService) {
 
 		Assert.notNull(authorizationCodeTokenExchanger, "authorizationCodeTokenExchanger cannot be null");
+		Assert.notNull(providerJwtDecoderRegistry, "providerJwtDecoderRegistry cannot be null");
 		Assert.notNull(userInfoService, "userInfoService cannot be null");
 		this.authorizationCodeTokenExchanger = authorizationCodeTokenExchanger;
+		this.providerJwtDecoderRegistry = providerJwtDecoderRegistry;
 		this.userInfoService = userInfoService;
 	}
 
@@ -85,6 +95,7 @@ public class AuthorizationCodeAuthenticationProvider implements AuthenticationPr
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		AuthorizationCodeAuthenticationToken authorizationCodeAuthentication =
 				(AuthorizationCodeAuthenticationToken) authentication;
+		ClientRegistration clientRegistration = authorizationCodeAuthentication.getClientRegistration();
 
 		TokenResponseAttributes tokenResponse =
 				this.authorizationCodeTokenExchanger.exchange(authorizationCodeAuthentication);
@@ -92,8 +103,20 @@ public class AuthorizationCodeAuthenticationProvider implements AuthenticationPr
 		AccessToken accessToken = new AccessToken(tokenResponse.getTokenType(),
 				tokenResponse.getTokenValue(), tokenResponse.getIssuedAt(),
 				tokenResponse.getExpiresAt(), tokenResponse.getScopes());
-		OAuth2AuthenticationToken accessTokenAuthentication = new OAuth2AuthenticationToken(
-				authorizationCodeAuthentication.getClientRegistration(), accessToken);
+
+		IdToken idToken = null;
+		if (tokenResponse.getAdditionalParameters().containsKey(OidcParameter.ID_TOKEN)) {
+			JwtDecoder jwtDecoder = this.providerJwtDecoderRegistry.getJwtDecoder(clientRegistration.getProviderDetails().getJwkSetUri());
+			if (jwtDecoder == null) {
+				throw new IllegalArgumentException("Unable to find a registered JwtDecoder for the provider '" + clientRegistration.getProviderDetails().getTokenUri() +
+					"'. Check to ensure you have configured the JwkSet URI property.");
+			}
+			Jwt jwt = jwtDecoder.decode((String)tokenResponse.getAdditionalParameters().get(OidcParameter.ID_TOKEN));
+			idToken = new IdToken(jwt.getTokenValue(), jwt.getIssuedAt(), jwt.getExpiresAt(), jwt.getClaims());
+		}
+
+		OAuth2AuthenticationToken accessTokenAuthentication =
+			new OAuth2AuthenticationToken(clientRegistration, accessToken, idToken);
 		accessTokenAuthentication.setDetails(authorizationCodeAuthentication.getDetails());
 
 		OAuth2User user = this.userInfoService.loadUser(accessTokenAuthentication);
@@ -101,20 +124,21 @@ public class AuthorizationCodeAuthenticationProvider implements AuthenticationPr
 		Collection<? extends GrantedAuthority> authorities =
 				this.authoritiesMapper.mapAuthorities(user.getAuthorities());
 
-		OAuth2AuthenticationToken authenticationResult = new OAuth2AuthenticationToken(user, authorities,
-				accessTokenAuthentication.getClientRegistration(), accessTokenAuthentication.getAccessToken());
+		OAuth2AuthenticationToken authenticationResult = new OAuth2AuthenticationToken(
+			user, authorities, accessTokenAuthentication.getClientRegistration(),
+			accessTokenAuthentication.getAccessToken(), accessTokenAuthentication.getIdToken());
 		authenticationResult.setDetails(accessTokenAuthentication.getDetails());
 
 		return authenticationResult;
 	}
 
-	@Override
-	public boolean supports(Class<?> authentication) {
-		return AuthorizationCodeAuthenticationToken.class.isAssignableFrom(authentication);
-	}
-
 	public final void setAuthoritiesMapper(GrantedAuthoritiesMapper authoritiesMapper) {
 		Assert.notNull(authoritiesMapper, "authoritiesMapper cannot be null");
 		this.authoritiesMapper = authoritiesMapper;
+	}
+
+	@Override
+	public boolean supports(Class<?> authentication) {
+		return AuthorizationCodeAuthenticationToken.class.isAssignableFrom(authentication);
 	}
 }

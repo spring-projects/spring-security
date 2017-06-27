@@ -52,4 +52,5 @@ public interface OAuth2User extends AuthenticatedPrincipal, Serializable {
 	Collection<? extends GrantedAuthority> getAuthorities();
 
 	Map<String, Object> getAttributes();
+
 }
