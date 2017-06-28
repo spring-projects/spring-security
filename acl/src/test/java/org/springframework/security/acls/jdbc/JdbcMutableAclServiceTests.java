@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+ * Copyright 2004, 2005, 2006, 2017 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import static org.mockito.Mockito.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.sql.DataSource;
 
@@ -29,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.acls.TargetObject;
+import org.springframework.security.acls.TargetObjectWithUUID;
 import org.springframework.security.acls.domain.AclImpl;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.domain.CumulativePermission;
@@ -98,10 +100,14 @@ public class JdbcMutableAclServiceTests extends
 	// ~ Methods
 	// ========================================================================================================
 
+	protected String getSqlClassPathResource() {
+		return "createAclSchema.sql";
+	}
+
 	@BeforeTransaction
 	public void createTables() throws Exception {
 		try {
-			new DatabaseSeeder(dataSource, new ClassPathResource("createAclSchema.sql"));
+			new DatabaseSeeder(dataSource, new ClassPathResource(getSqlClassPathResource()));
 			// new DatabaseSeeder(dataSource, new
 			// ClassPathResource("createAclSchemaPostgres.sql"));
 		}
@@ -573,4 +579,11 @@ public class JdbcMutableAclServiceTests extends
 		}
 	}
 
+	protected Authentication getAuth() {
+		return auth;
+	}
+
+	protected JdbcMutableAclService getJdbcMutableAclService() {
+		return jdbcMutableAclService;
+	}
 }

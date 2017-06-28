@@ -43,7 +43,7 @@ END;
 CREATE TABLE acl_object_identity (
     id NUMBER(38) NOT NULL PRIMARY KEY,
     object_id_class NUMBER(38) NOT NULL,
-    object_id_identity NUMBER(38) NOT NULL,
+    object_id_identity NVARCHAR2(36) NOT NULL,
     parent_object NUMBER(38),
     owner_sid NUMBER(38),
     entries_inheriting NUMBER(1) NOT NULL CHECK (entries_inheriting in (0, 1)),
