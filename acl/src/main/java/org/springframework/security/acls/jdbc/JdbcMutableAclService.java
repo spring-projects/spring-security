@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+ * Copyright 2004, 2005, 2006, 2017 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,6 +58,8 @@ import org.springframework.util.Assert;
  * @author Johannes Zlattinger
  */
 public class JdbcMutableAclService extends JdbcAclService implements MutableAclService {
+	private static final String DEFAULT_INSERT_INTO_ACL_CLASS = "insert into acl_class (class) values (?)";
+	private static final String DEFAULT_INSERT_INTO_ACL_CLASS_WITH_ID = "insert into acl_class (class, class_id_type) values (?, ?)";
 	// ~ Instance fields
 	// ================================================================================================
 
@@ -67,7 +69,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 	private String deleteObjectIdentityByPrimaryKey = "delete from acl_object_identity where id=?";
 	private String classIdentityQuery = "call identity()";
 	private String sidIdentityQuery = "call identity()";
-	private String insertClass = "insert into acl_class (class) values (?)";
+	private String insertClass = DEFAULT_INSERT_INTO_ACL_CLASS;
 	private String insertEntry = "insert into acl_entry "
 			+ "(acl_object_identity, ace_order, sid, mask, granting, audit_success, audit_failure)"
 			+ "values (?, ?, ?, ?, ?, ?, ?)";
@@ -167,7 +169,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 	 */
 	protected void createObjectIdentity(ObjectIdentity object, Sid owner) {
 		Long sidId = createOrRetrieveSidPrimaryKey(owner, true);
-		Long classId = createOrRetrieveClassPrimaryKey(object.getType(), true);
+		Long classId = createOrRetrieveClassPrimaryKey(object.getType(), true, object.getIdentifier().getClass());
 		jdbcTemplate.update(insertObjectIdentity, classId, object.getIdentifier(), sidId,
 				Boolean.TRUE);
 	}
@@ -181,7 +183,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 	 *
 	 * @return the primary key or null if not found
 	 */
-	protected Long createOrRetrieveClassPrimaryKey(String type, boolean allowCreate) {
+	protected Long createOrRetrieveClassPrimaryKey(String type, boolean allowCreate, Class idType) {
 		List<Long> classIds = jdbcTemplate.queryForList(selectClassPrimaryKey,
 				new Object[] { type }, Long.class);
 
@@ -190,7 +192,11 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 		}
 
 		if (allowCreate) {
-			jdbcTemplate.update(insertClass, type);
+			if (!isAclClassIdSupported()) {
+				jdbcTemplate.update(insertClass, type);
+			} else {
+				jdbcTemplate.update(insertClass, type, idType.getCanonicalName());
+			}
 			Assert.isTrue(TransactionSynchronizationManager.isSynchronizationActive(),
 					"Transaction must be running");
 			return jdbcTemplate.queryForObject(classIdentityQuery, Long.class);
@@ -484,5 +490,18 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 	 */
 	public void setForeignKeysInDatabase(boolean foreignKeysInDatabase) {
 		this.foreignKeysInDatabase = foreignKeysInDatabase;
+	}
+
+	@Override
+	public void setAclClassIdSupported(boolean aclClassIdSupported) {
+		super.setAclClassIdSupported(aclClassIdSupported);
+		if (aclClassIdSupported) {
+			// Change the default insert if it hasn't been overridden
+			if (this.insertClass.equals(DEFAULT_INSERT_INTO_ACL_CLASS)) {
+				this.insertClass = DEFAULT_INSERT_INTO_ACL_CLASS_WITH_ID;
+			} else {
+				log.debug("Insert class statement has already been overridden, so not overridding the default");
+			}
+		}
 	}
 }

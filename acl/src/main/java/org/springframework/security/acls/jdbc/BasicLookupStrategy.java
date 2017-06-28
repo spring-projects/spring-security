@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+ * Copyright 2004, 2005, 2006, 2017 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,9 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
+import org.springframework.core.convert.ConversionException;
+import org.springframework.core.convert.ConversionService;
+import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -78,7 +81,7 @@ import org.springframework.util.Assert;
  */
 public class BasicLookupStrategy implements LookupStrategy {
 
-	public final static String DEFAULT_SELECT_CLAUSE = "select acl_object_identity.object_id_identity, "
+	private final static String DEFAULT_SELECT_CLAUSE_COLUMNS = "select acl_object_identity.object_id_identity, "
 			+ "acl_entry.ace_order,  "
 			+ "acl_object_identity.id as acl_id, "
 			+ "acl_object_identity.parent_object, "
@@ -92,12 +95,18 @@ public class BasicLookupStrategy implements LookupStrategy {
 			+ "acl_sid.sid as ace_sid,  "
 			+ "acli_sid.principal as acl_principal, "
 			+ "acli_sid.sid as acl_sid, "
-			+ "acl_class.class "
-			+ "from acl_object_identity "
+			+ "acl_class.class ";
+	private final static String DEFAULT_SELECT_CLAUSE_ACL_CLASS_ID_TYPE_COLUMN = ", acl_class.class_id_type  ";
+	private final static String DEFAULT_SELECT_CLAUSE_FROM = "from acl_object_identity "
 			+ "left join acl_sid acli_sid on acli_sid.id = acl_object_identity.owner_sid "
 			+ "left join acl_class on acl_class.id = acl_object_identity.object_id_class   "
 			+ "left join acl_entry on acl_object_identity.id = acl_entry.acl_object_identity "
 			+ "left join acl_sid on acl_entry.sid = acl_sid.id  " + "where ( ";
+
+	public final static String DEFAULT_SELECT_CLAUSE = DEFAULT_SELECT_CLAUSE_COLUMNS + DEFAULT_SELECT_CLAUSE_FROM;
+
+	public final static String DEFAULT_ACL_CLASS_ID_SELECT_CLAUSE = DEFAULT_SELECT_CLAUSE_COLUMNS +
+		DEFAULT_SELECT_CLAUSE_ACL_CLASS_ID_TYPE_COLUMN + DEFAULT_SELECT_CLAUSE_FROM;
 
 	private final static String DEFAULT_LOOKUP_KEYS_WHERE_CLAUSE = "(acl_object_identity.id = ?)";
 
@@ -125,6 +134,8 @@ public class BasicLookupStrategy implements LookupStrategy {
 	private String lookupPrimaryKeysWhereClause = DEFAULT_LOOKUP_KEYS_WHERE_CLAUSE;
 	private String lookupObjectIdentitiesWhereClause = DEFAULT_LOOKUP_IDENTITIES_WHERE_CLAUSE;
 	private String orderByClause = DEFAULT_ORDER_BY_CLAUSE;
+
+	private AclClassIdUtils aclClassIdUtils;
 
 	// ~ Constructors
 	// ===================================================================================================
@@ -161,9 +172,9 @@ public class BasicLookupStrategy implements LookupStrategy {
 		this.aclCache = aclCache;
 		this.aclAuthorizationStrategy = aclAuthorizationStrategy;
 		this.grantingStrategy = grantingStrategy;
+		this.aclClassIdUtils = new AclClassIdUtils();
 		fieldAces.setAccessible(true);
 		fieldAcl.setAccessible(true);
-
 	}
 
 	// ~ Methods
@@ -383,10 +394,9 @@ public class BasicLookupStrategy implements LookupStrategy {
 							// No need to check for nulls, as guaranteed non-null by
 							// ObjectIdentity.getIdentifier() interface contract
 							String identifier = oid.getIdentifier().toString();
-							long id = (Long.valueOf(identifier)).longValue();
 
 							// Inject values
-							ps.setLong((2 * i) + 1, id);
+							ps.setString((2 * i) + 1, identifier);
 							ps.setString((2 * i) + 2, type);
 							i++;
 						}
@@ -537,6 +547,18 @@ public class BasicLookupStrategy implements LookupStrategy {
 		this.orderByClause = orderByClause;
 	}
 
+	public final void setAclClassIdSupported(boolean aclClassIdSupported) {
+		if (aclClassIdSupported) {
+			Assert.isTrue(this.selectClause.equals(DEFAULT_SELECT_CLAUSE), "Cannot set aclClassIdSupported and override the select clause; "
+				+ "just override the select clause");
+			this.selectClause = DEFAULT_ACL_CLASS_ID_SELECT_CLAUSE;
+		}
+	}
+
+	public final void setAclClassIdUtils(AclClassIdUtils aclClassIdUtils) {
+		this.aclClassIdUtils = aclClassIdUtils;
+	}
+
 	// ~ Inner Classes
 	// ==================================================================================================
 
@@ -602,6 +624,7 @@ public class BasicLookupStrategy implements LookupStrategy {
 		 * @param rs the ResultSet focused on a current row
 		 *
 		 * @throws SQLException if something goes wrong converting values
+		 * @throws ConversionException if can't convert to the desired Java type
 		 */
 		private void convertCurrentResultIntoObject(Map<Serializable, Acl> acls,
 				ResultSet rs) throws SQLException {
@@ -612,9 +635,12 @@ public class BasicLookupStrategy implements LookupStrategy {
 
 			if (acl == null) {
 				// Make an AclImpl and pop it into the Map
+
+				// If the Java type is a String, check to see if we can convert it to the target id type, e.g. UUID.
+				Serializable identifier = (Serializable) rs.getObject("object_id_identity");
+				identifier = aclClassIdUtils.identifierFrom(identifier, rs);
 				ObjectIdentity objectIdentity = new ObjectIdentityImpl(
-						rs.getString("class"), Long.valueOf(rs
-								.getLong("object_id_identity")));
+					rs.getString("class"), identifier);
 
 				Acl parentAcl = null;
 				long parentAclId = rs.getLong("parent_object");

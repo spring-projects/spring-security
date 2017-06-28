@@ -21,7 +21,7 @@ CREATE TABLE acl_class (
 CREATE TABLE acl_object_identity (
     id BIGINT NOT NULL IDENTITY PRIMARY KEY,
     object_id_class BIGINT NOT NULL,
-    object_id_identity BIGINT NOT NULL,
+    object_id_identity VARCHAR(36) NOT NULL,
     parent_object BIGINT,
     owner_sid BIGINT,
     entries_inheriting BIT NOT NULL,

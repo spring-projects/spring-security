@@ -21,7 +21,7 @@ CREATE TABLE acl_class (
 CREATE TABLE acl_object_identity (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     object_id_class BIGINT UNSIGNED NOT NULL,
-    object_id_identity BIGINT NOT NULL,
+    object_id_identity VARCHAR(36) NOT NULL,
     parent_object BIGINT UNSIGNED,
     owner_sid BIGINT UNSIGNED,
     entries_inheriting BOOLEAN NOT NULL,
