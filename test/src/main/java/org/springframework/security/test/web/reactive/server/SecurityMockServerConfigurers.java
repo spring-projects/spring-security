@@ -46,7 +46,7 @@ import java.util.function.Supplier;
 
 /**
  * Test utilities for working with Spring Security and
- * {{@link org.springframework.test.web.reactive.server.WebTestClient.Builder#apply(WebTestClientConfigurer)}}.
+ * {@link org.springframework.test.web.reactive.server.WebTestClient.Builder#apply(WebTestClientConfigurer)}.
  *
  * @author Rob Winch
  * @since 5.0
@@ -71,7 +71,7 @@ public class SecurityMockServerConfigurers {
 	 * Updates the ServerWebExchange to use the provided Authentication as the Principal
 	 *
 	 * @param authentication the Authentication to use.
-	 * @return the {@link WebTestClientConfigurer}} to use
+	 * @return the configurer to use
 	 */
 	public static <T extends WebTestClientConfigurer & MockServerConfigurer> T mockAuthentication(Authentication authentication) {
 		return (T) new MutatorWebTestClientConfigurer(() -> Mono.just(authentication).map(SecurityContextImpl::new));
@@ -82,7 +82,7 @@ public class SecurityMockServerConfigurers {
 	 * the Principal
 	 *
 	 * @param userDetails the UserDetails to use.
-	 * @return the {@link WebTestClientConfigurer} to use
+	 * @return the configurer to use
 	 */
 	public static <T extends WebTestClientConfigurer & MockServerConfigurer> T mockUser(UserDetails userDetails) {
 		return mockAuthentication(new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(), userDetails.getAuthorities()));
