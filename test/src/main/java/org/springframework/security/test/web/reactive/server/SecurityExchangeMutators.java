@@ -33,8 +33,8 @@ import java.util.function.UnaryOperator;
 
 /**
  * Test utilities for working with Spring Security and
- * {{@link org.springframework.test.web.reactive.server.WebTestClient}} using
- * {{{@link org.springframework.test.web.reactive.server.ExchangeMutatorWebFilter}}}.
+ * {@link org.springframework.test.web.reactive.server.WebTestClient} using
+ * {@link org.springframework.test.web.reactive.server.ExchangeMutatorWebFilter}.
  *
  * @author Rob Winch
  * @since 5.0
@@ -44,9 +44,9 @@ public class SecurityExchangeMutators {
 	 * Updates the ServerWebExchange to use the provided Principal
 	 *
 	 * @param principal the principal to use.
-	 * @return the {@link  Function<ServerWebExchange, ServerWebExchange>}} to use
+	 * @return the {@code Function<ServerWebExchange, ServerWebExchange>} to use
 	 */
-	public static  Function<ServerWebExchange, ServerWebExchange> withPrincipal(Principal principal) {
+	public static Function<ServerWebExchange, ServerWebExchange> withPrincipal(Principal principal) {
 		return m -> m.mutate().principal(Mono.just(principal)).build();
 	}
 
@@ -54,7 +54,7 @@ public class SecurityExchangeMutators {
 	 * Updates the ServerWebExchange to use the provided Authentication as the Principal
 	 *
 	 * @param authentication the Authentication to use.
-	 * @return the {@link  Function<ServerWebExchange, ServerWebExchange>}} to use
+	 * @return the {@code Function<ServerWebExchange, ServerWebExchange>} to use
 	 */
 	public static Function<ServerWebExchange, ServerWebExchange> withAuthentication(Authentication authentication) {
 		return withPrincipal(authentication);
@@ -65,9 +65,9 @@ public class SecurityExchangeMutators {
 	 * the Principal
 	 *
 	 * @param userDetails the UserDetails to use.
-	 * @return the {@link  Function<ServerWebExchange, ServerWebExchange>}} to use
+	 * @return the {@code Function<ServerWebExchange, ServerWebExchange>} to use
 	 */
-	public static  Function<ServerWebExchange, ServerWebExchange> withUser(UserDetails userDetails) {
+	public static Function<ServerWebExchange, ServerWebExchange> withUser(UserDetails userDetails) {
 		return withAuthentication(new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(), userDetails.getAuthorities()));
 	}
 
@@ -76,7 +76,7 @@ public class SecurityExchangeMutators {
 	 * the Principal. This uses a default username of "user", password of "password", and granted authorities of
 	 * "ROLE_USER".
 	 *
-	 * @return the {@link  Function<ServerWebExchange, ServerWebExchange>}} to use
+	 * @return the {@link UserExchangeMutator} to use
 	 */
 	public static UserExchangeMutator withUser() {
 		return withUser("user");
@@ -88,7 +88,7 @@ public class SecurityExchangeMutators {
 	 * the Principal. This uses a default password of "password" and granted authorities of
 	 * "ROLE_USER".
 	 *
-	 * @return the {@link  Function<ServerWebExchange, ServerWebExchange>}} to use
+	 * @return the {@link UserExchangeMutator} to use
 	 */
 	public static UserExchangeMutator withUser(String username) {
 		return new UserExchangeMutator(username);
