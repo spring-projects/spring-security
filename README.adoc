@@ -4,8 +4,8 @@ image:https://travis-ci.org/spring-projects/spring-security.svg?branch=master["B
 
 = Spring Security
 
-Spring Security provides security services for the http://docs.spring.io[Spring IO Platform]. Spring Security 3.1 requires Spring 3.0.3 as
-a minimum and also requires Java 5.
+Spring Security provides security services for the http://docs.spring.io[Spring IO Platform]. Spring Security 5.0 requires Spring 5.0 as
+a minimum and also requires Java 8.
 
 For a detailed list of features and access to the latest release, please visit http://spring.io/projects[Spring projects].
 
