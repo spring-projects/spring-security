@@ -9858,10 +9858,6 @@ The core module must be included in any project using Spring Security.
 |===
 | Dependency | Version | Description
 
-| aopalliance
-| 1.0
-| Required for method security implementation.
-
 | ehcache
 | 1.6.2
 | Required if the Ehcache-based user cache implementation is used (optional).

@@ -4,7 +4,6 @@ apply plugin: 'trang'
 dependencies {
 	// NB: Don't add other compile time dependencies to the config module as this breaks tooling
 	compile project(':spring-security-core')
-	compile 'aopalliance:aopalliance:1.0'
 	compile 'org.springframework:spring-aop'
 	compile 'org.springframework:spring-beans'
 	compile 'org.springframework:spring-context'
