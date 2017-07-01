@@ -7,6 +7,5 @@ dependencies {
 	compile 'org.springframework:spring-context'
 	compile 'org.springframework:spring-core'
 
-	testCompile 'aopalliance:aopalliance'
 	testCompile 'org.springframework:spring-aop'
 }

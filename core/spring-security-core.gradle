@@ -8,7 +8,6 @@ configurations {
 }
 
 dependencies {
-	compile 'aopalliance:aopalliance'
 	compile 'org.springframework:spring-aop'
 	compile 'org.springframework:spring-beans'
 	compile 'org.springframework:spring-context'

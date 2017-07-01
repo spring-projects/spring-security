@@ -2,7 +2,6 @@ apply plugin: 'io.spring.convention.spring-test'
 
 dependencies {
 	compile project(':spring-security-core')
-	compile 'aopalliance:aopalliance'
 	compile 'org.python:jython'
 	compile 'org.springframework:spring-aop'
 	compile 'org.springframework:spring-beans'
