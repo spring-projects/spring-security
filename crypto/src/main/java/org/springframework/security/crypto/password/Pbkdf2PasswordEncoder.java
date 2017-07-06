@@ -53,7 +53,7 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 
 	/**
 	 * Constructs a PBKDF2 password encoder with no additional secret value. There will be
-	 * 360000 iterations and a hash width of 160. The default is based upon aiming for .5
+	 * {@value DEFAULT_ITERATIONS} iterations and a hash width of {@value DEFAULT_HASH_WIDTH}. The default is based upon aiming for .5
 	 * seconds to validate the password when this class was added.. Users should tune
 	 * password verification to their own systems.
 	 */
@@ -63,7 +63,7 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 
 	/**
 	 * Constructs a standard password encoder with a secret value which is also included
-	 * in the password hash. There will be 1024 iterations and a hash width of 160.
+	 * in the password hash. There will be {@value DEFAULT_ITERATIONS} iterations and a hash width of {@value DEFAULT_HASH_WIDTH}.
 	 *
 	 * @param secret the secret key used in the encoding process (should not be shared)
 	 */
