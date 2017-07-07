@@ -6640,7 +6640,7 @@ Use the KeyGenerators.secureRandom factory methods to generate a BytesKeyGenerat
 
 [source,java]
 ----
-KeyGenerator generator = KeyGenerators.secureRandom();
+BytesKeyGenerator generator = KeyGenerators.secureRandom();
 byte[] key = generator.generateKey();
 ----
 
