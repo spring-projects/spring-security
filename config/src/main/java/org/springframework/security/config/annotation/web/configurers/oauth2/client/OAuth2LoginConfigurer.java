@@ -18,6 +18,7 @@ package org.springframework.security.config.annotation.web.configurers.oauth2.cl
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeRequestRedirectFilter;
 import org.springframework.security.oauth2.client.authentication.AuthorizationGrantTokenExchanger;
@@ -75,6 +76,12 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 
 		Assert.notNull(authorizationCodeTokenExchanger, "authorizationCodeTokenExchanger cannot be null");
 		this.authorizationCodeAuthenticationFilterConfigurer.authorizationCodeTokenExchanger(authorizationCodeTokenExchanger);
+		return this;
+	}
+
+	public OAuth2LoginConfigurer<B> userAuthoritiesMapper(GrantedAuthoritiesMapper userAuthoritiesMapper) {
+		Assert.notNull(userAuthoritiesMapper, "userAuthoritiesMapper cannot be null");
+		this.authorizationCodeAuthenticationFilterConfigurer.userAuthoritiesMapper(userAuthoritiesMapper);
 		return this;
 	}
 

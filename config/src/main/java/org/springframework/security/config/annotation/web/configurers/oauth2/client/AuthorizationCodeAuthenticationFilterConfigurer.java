@@ -17,20 +17,21 @@ package org.springframework.security.config.annotation.web.configurers.oauth2.cl
 
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
+import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.jwt.JwtDecoder;
 import org.springframework.security.jwt.nimbus.NimbusJwtDecoderJwkSupport;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationProcessingFilter;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationProvider;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.AuthorizationGrantTokenExchanger;
+import org.springframework.security.oauth2.client.authentication.jwt.DefaultProviderJwtDecoderRegistry;
+import org.springframework.security.oauth2.client.authentication.jwt.ProviderJwtDecoderRegistry;
 import org.springframework.security.oauth2.client.authentication.nimbus.NimbusAuthorizationCodeTokenExchanger;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.user.OAuth2UserService;
 import org.springframework.security.oauth2.client.user.nimbus.NimbusOAuth2UserService;
-import org.springframework.security.oauth2.client.authentication.jwt.DefaultProviderJwtDecoderRegistry;
 import org.springframework.security.oauth2.core.provider.DefaultProviderMetadata;
-import org.springframework.security.oauth2.client.authentication.jwt.ProviderJwtDecoderRegistry;
 import org.springframework.security.oauth2.core.provider.ProviderMetadata;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -54,7 +55,7 @@ final class AuthorizationCodeAuthenticationFilterConfigurer<H extends HttpSecuri
 	private OAuth2UserService userInfoService;
 	private Map<URI, Class<? extends OAuth2User>> customUserTypes = new HashMap<>();
 	private Map<URI, String> userNameAttributeNames = new HashMap<>();
-
+	private GrantedAuthoritiesMapper userAuthoritiesMapper;
 
 	AuthorizationCodeAuthenticationFilterConfigurer() {
 		super(new AuthorizationCodeAuthenticationProcessingFilter(), null);
@@ -95,6 +96,12 @@ final class AuthorizationCodeAuthenticationFilterConfigurer<H extends HttpSecuri
 		return this;
 	}
 
+	AuthorizationCodeAuthenticationFilterConfigurer<H> userAuthoritiesMapper(GrantedAuthoritiesMapper userAuthoritiesMapper) {
+		Assert.notNull(userAuthoritiesMapper, "userAuthoritiesMapper cannot be null");
+		this.userAuthoritiesMapper = userAuthoritiesMapper;
+		return this;
+	}
+
 	String getLoginUrl() {
 		return super.getLoginPage();
 	}
@@ -107,6 +114,9 @@ final class AuthorizationCodeAuthenticationFilterConfigurer<H extends HttpSecuri
 	public void init(H http) throws Exception {
 		AuthorizationCodeAuthenticationProvider authenticationProvider = new AuthorizationCodeAuthenticationProvider(
 				this.getAuthorizationCodeTokenExchanger(), this.getProviderJwtDecoderRegistry(), this.getUserInfoService());
+		if (this.userAuthoritiesMapper != null) {
+			authenticationProvider.setAuthoritiesMapper(this.userAuthoritiesMapper);
+		}
 		authenticationProvider = this.postProcess(authenticationProvider);
 		http.authenticationProvider(authenticationProvider);
 		super.init(http);
