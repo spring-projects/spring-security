@@ -88,11 +88,11 @@ public class AuthorizationCodeRequestRedirectFilter extends OncePerRequestFilter
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 
-		if (this.requiresAuthorization(request, response)) {
+		if (this.shouldRequestAuthorizationCode(request, response)) {
 			try {
-				this.sendRedirectForAuthorization(request, response);
+				this.sendRedirectForAuthorizationCode(request, response);
 			} catch (Exception failed) {
-				this.unsuccessfulAuthorization(request, response, failed);
+				this.unsuccessfulRedirectForAuthorizationCode(request, response, failed);
 			}
 			return;
 		}
@@ -100,11 +100,11 @@ public class AuthorizationCodeRequestRedirectFilter extends OncePerRequestFilter
 		filterChain.doFilter(request, response);
 	}
 
-	protected boolean requiresAuthorization(HttpServletRequest request, HttpServletResponse response) {
+	protected boolean shouldRequestAuthorizationCode(HttpServletRequest request, HttpServletResponse response) {
 		return this.authorizationRequestMatcher.matches(request);
 	}
 
-	protected void sendRedirectForAuthorization(HttpServletRequest request, HttpServletResponse response)
+	protected void sendRedirectForAuthorizationCode(HttpServletRequest request, HttpServletResponse response)
 			throws IOException, ServletException {
 
 		String clientAlias = this.authorizationRequestMatcher
@@ -136,8 +136,8 @@ public class AuthorizationCodeRequestRedirectFilter extends OncePerRequestFilter
 		this.authorizationRedirectStrategy.sendRedirect(request, response, redirectUri.toString());
 	}
 
-	protected void unsuccessfulAuthorization(HttpServletRequest request, HttpServletResponse response,
-												Exception failed) throws IOException, ServletException {
+	protected void unsuccessfulRedirectForAuthorizationCode(HttpServletRequest request, HttpServletResponse response,
+															Exception failed) throws IOException, ServletException {
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("Authorization Request failed: " + failed.toString(), failed);
