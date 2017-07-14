@@ -187,9 +187,7 @@ public class HelloWebfluxFnApplicationTests {
 			.build();
 
 		mockRest
-			.mutate()
-			.apply(SecurityMockServerConfigurers.mockUser())
-			.build()
+			.mutateWith(SecurityMockServerConfigurers.mockUser())
 			.get()
 			.uri("/principal")
 			.exchange()

@@ -57,9 +57,7 @@ public class SecurityMockServerConfigurersTests {
 	public void mockPrincipalWhenLocalThenSuccess() {
 		Principal principal = () -> "principal";
 		client
-			.mutate()
-			.apply(mockPrincipal(principal))
-			.build()
+			.mutateWith(mockPrincipal(principal))
 			.get()
 			.exchange()
 			.expectStatus().isOk();
@@ -79,8 +77,6 @@ public class SecurityMockServerConfigurersTests {
 			.build();
 
 		client
-			.mutate()
-			.build()
 			.get()
 			.exchange()
 			.expectStatus().isOk();
@@ -92,10 +88,8 @@ public class SecurityMockServerConfigurersTests {
 	public void mockPrincipalWhenMultipleInvocationsThenLastInvocationWins() {
 		Principal principal = () -> "principal";
 		client
-			.mutate()
-			.apply(mockPrincipal(() -> "will be overridden"))
-			.apply(mockPrincipal(principal))
-			.build()
+			.mutateWith(mockPrincipal(() -> "will be overridden"))
+			.mutateWith(mockPrincipal(principal))
 			.get()
 			.exchange()
 			.expectStatus().isOk();
@@ -107,9 +101,7 @@ public class SecurityMockServerConfigurersTests {
 	public void mockAuthenticationWhenLocalThenSuccess() {
 		TestingAuthenticationToken authentication = new TestingAuthenticationToken("authentication", "secret", "ROLE_USER");
 		client
-			.mutate()
-			.apply(mockAuthentication(authentication))
-			.build()
+			.mutateWith(mockAuthentication(authentication))
 			.get()
 			.exchange()
 			.expectStatus().isOk();
@@ -127,8 +119,6 @@ public class SecurityMockServerConfigurersTests {
 			.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
 			.build();
 		client
-			.mutate()
-			.build()
 			.get()
 			.exchange()
 			.expectStatus().isOk();
@@ -138,9 +128,7 @@ public class SecurityMockServerConfigurersTests {
 	@Test
 	public void mockUserWhenDefaultsThenSuccess() {
 		client
-			.mutate()
-			.apply(mockUser())
-			.build()
+			.mutateWith(mockUser())
 			.get()
 			.exchange()
 			.expectStatus().isOk();
@@ -160,8 +148,6 @@ public class SecurityMockServerConfigurersTests {
 			.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
 			.build();
 		client
-			.mutate()
-			.build()
 			.get()
 			.exchange()
 			.expectStatus().isOk();
@@ -174,9 +160,7 @@ public class SecurityMockServerConfigurersTests {
 	@Test
 	public void mockUserStringWhenLocalThenSuccess() {
 		client
-			.mutate()
-			.apply(mockUser(userBuilder.build().getUsername()))
-			.build()
+			.mutateWith(mockUser(userBuilder.build().getUsername()))
 			.get()
 			.exchange()
 			.expectStatus().isOk();
@@ -190,9 +174,7 @@ public class SecurityMockServerConfigurersTests {
 	public void mockUserStringWhenCustomThenSuccess() {
 		this.userBuilder = User.withUsername("admin").password("secret").roles("USER", "ADMIN");
 		client
-			.mutate()
-			.apply(mockUser("admin").password("secret").roles("USER", "ADMIN"))
-			.build()
+			.mutateWith(mockUser("admin").password("secret").roles("USER", "ADMIN"))
 			.get()
 			.exchange()
 			.expectStatus().isOk();
@@ -206,9 +188,7 @@ public class SecurityMockServerConfigurersTests {
 	public void mockUserUserDetailsLocalThenSuccess() {
 		UserDetails userDetails = this.userBuilder.build();
 		client
-			.mutate()
-			.apply(mockUser(userDetails))
-			.build()
+			.mutateWith(mockUser(userDetails))
 			.get()
 			.exchange()
 			.expectStatus().isOk();

@@ -181,9 +181,7 @@ public class HelloWebfluxApplicationTests {
 			.build();
 
 		mockRest
-			.mutate()
-			.apply(SecurityMockServerConfigurers.mockUser())
-			.build()
+			.mutateWith(SecurityMockServerConfigurers.mockUser())
 			.get()
 			.uri("/principal")
 			.exchange()
