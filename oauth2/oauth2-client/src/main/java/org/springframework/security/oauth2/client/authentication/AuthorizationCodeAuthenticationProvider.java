@@ -39,7 +39,8 @@ import java.util.Collection;
 /**
  * An implementation of an {@link AuthenticationProvider} that is responsible for authenticating
  * an <i>authorization code</i> credential with the authorization server's <i>Token Endpoint</i>
- * and if valid, exchanging it for an <i>access token</i> credential.
+ * and if valid, exchanging it for an <i>access token</i> credential and optionally an
+ * <i>id token</i> credential (for OpenID Connect Authorization Code Flow).
  * Additionally, it will also obtain the end-user's (resource owner) attributes from the <i>UserInfo Endpoint</i>
  * (using the <i>access token</i>) and create a <code>Principal</code> in the form of an {@link OAuth2User}
  * associating it with the returned {@link OAuth2AuthenticationToken}.
@@ -51,13 +52,14 @@ import java.util.Collection;
  * If the request is valid, the authorization server will respond back with a {@link TokenResponseAttributes}.
  *
  * <p>
- * It will then create a {@link OAuth2AuthenticationToken} associating the {@link AccessToken}
- * from the {@link TokenResponseAttributes} and pass it to {@link OAuth2UserService#loadUser(OAuth2AuthenticationToken)}
- * to obtain the end-user's (resource owner) attributes in the form of an {@link OAuth2User}.
+ * It will then create an {@link OAuth2AuthenticationToken} associating the {@link AccessToken} and optionally
+ * the {@link IdToken} from the {@link TokenResponseAttributes} and pass it to
+ * {@link OAuth2UserService#loadUser(OAuth2AuthenticationToken)} to obtain the end-user's (resource owner) attributes
+ * in the form of an {@link OAuth2User}.
  *
  * <p>
  * Finally, it will create another {@link OAuth2AuthenticationToken}, this time associating
- * the {@link AccessToken} and {@link OAuth2User} and return it to the {@link AuthenticationManager},
+ * the {@link AccessToken}, {@link IdToken} and {@link OAuth2User} and return it to the {@link AuthenticationManager},
  * at which point the {@link OAuth2AuthenticationToken} is considered <i>&quot;authenticated&quot;</i>.
  *
  * @author Joe Grandja
@@ -66,11 +68,14 @@ import java.util.Collection;
  * @see AuthorizationGrantTokenExchanger
  * @see TokenResponseAttributes
  * @see AccessToken
+ * @see IdToken
  * @see OAuth2UserService
  * @see OAuth2User
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">Section 4.1 Authorization Code Grant Flow</a>
+ * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth">Section 3.1 OpenID Connect Authorization Code Flow</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.3">Section 4.1.3 Access Token Request</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.4">Section 4.1.4 Access Token Response</a>
+ * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#TokenResponse">Section 3.1.3.3 OpenID Connect Token Response</a>
  */
 public class AuthorizationCodeAuthenticationProvider implements AuthenticationProvider {
 	private final AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger;
