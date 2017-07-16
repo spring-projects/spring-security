@@ -25,6 +25,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.test.context.TestSecurityContextHolder;
 import org.springframework.test.web.reactive.server.MockServerConfigurer;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.reactive.server.WebTestClientConfigurer;
@@ -39,6 +40,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * Test utilities for working with Spring Security and
@@ -56,7 +58,10 @@ public class SecurityMockServerConfigurers {
 	public static MockServerConfigurer springSecurity() {
 		return new MockServerConfigurer() {
 			public void beforeServerCreated(WebHttpHandlerBuilder builder) {
-				builder.filters( filters -> filters.add(0, new MutatorFilter()));
+				builder.filters( filters -> {
+					filters.add(0, new MutatorFilter());
+					filters.add(0, new SetupMutatorFilter(createMutator( () -> TestSecurityContextHolder.getContext().getAuthentication())));
+				});
 			}
 		};
 	}
@@ -68,7 +73,7 @@ public class SecurityMockServerConfigurers {
 	 * @return the {@link WebTestClientConfigurer} to use
 	 */
 	public static <T extends WebTestClientConfigurer & MockServerConfigurer> T mockPrincipal(Principal principal) {
-		return (T) new MutatorWebTestClientConfigurer(m -> m.mutate().principal(Mono.just(principal)).build());
+		return (T) new MutatorWebTestClientConfigurer(createMutator(() -> principal));
 	}
 
 	/**
@@ -113,6 +118,10 @@ public class SecurityMockServerConfigurers {
 	 */
 	public static UserExchangeMutator mockUser(String username) {
 		return new UserExchangeMutator(username);
+	}
+
+	private static Function<ServerWebExchange, ServerWebExchange> createMutator(Supplier<Principal> principal) {
+		return m -> principal.get() == null ? m : m.mutate().principal(Mono.just(principal.get())).build();
 	}
 
 	/**

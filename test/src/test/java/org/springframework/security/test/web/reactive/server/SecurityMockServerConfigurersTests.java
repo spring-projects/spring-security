@@ -22,36 +22,25 @@ import org.junit.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.TestingAuthenticationToken;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.*;
 
 /**
  * @author Rob Winch
  * @since 5.0
  */
-public class SecurityMockServerConfigurersTests {
-	PrincipalController controller = new PrincipalController();
-
+public class SecurityMockServerConfigurersTests extends AbstractMockServerConfigurersTests {
 	WebTestClient client = WebTestClient
 		.bindToController(controller)
 		.apply(springSecurity())
 		.configureClient()
 		.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
 		.build();
-
-	User.UserBuilder userBuilder = User
-		.withUsername("user")
-		.password("password")
-		.roles("USER");
 
 	@Test
 	public void mockPrincipalWhenLocalThenSuccess() {
@@ -196,39 +185,5 @@ public class SecurityMockServerConfigurersTests {
 		Principal actual = controller.removePrincipal();
 
 		assertPrincipalCreatedFromUserDetails(actual, userBuilder.build());
-	}
-
-	private void assertPrincipalCreatedFromUserDetails(Principal principal, UserDetails originalUserDetails) {
-		assertThat(principal).isInstanceOf(UsernamePasswordAuthenticationToken.class);
-
-		UsernamePasswordAuthenticationToken authentication = (UsernamePasswordAuthenticationToken) principal;
-		assertThat(authentication.getCredentials()).isEqualTo(originalUserDetails.getPassword());
-		assertThat(authentication.getAuthorities()).containsOnlyElementsOf(originalUserDetails.getAuthorities());
-
-		UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-		assertThat(userDetails.getPassword()).isEqualTo(authentication.getCredentials());
-		assertThat(authentication.getAuthorities()).containsOnlyElementsOf(userDetails.getAuthorities());
-	}
-
-	@RestController
-	static class PrincipalController {
-		Principal principal;
-
-		@RequestMapping("/**")
-		public Principal get(Principal principal) {
-			this.principal = principal;
-			return principal;
-		}
-
-		public Principal removePrincipal() {
-			Principal result = this.principal;
-			this.principal = null;
-			return result;
-		}
-
-		public void assertPrincipalIsEqualTo(Principal expected) {
-			assertThat(this.principal).isEqualTo(expected);
-			this.principal = null;
-		}
 	}
 }
