@@ -312,7 +312,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends
 		try {
 			return SpringSecurityLdapTemplate.searchForSingleEntryInternal(context,
 					searchControls, searchRoot, searchFilter,
-					new Object[] { bindPrincipal });
+					new Object[] { bindPrincipal, username });
 		}
 		catch (IncorrectResultSizeDataAccessException incorrectResults) {
 			// Search should never return multiple results if properly configured - just
@@ -383,7 +383,8 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends
 
 	/**
 	 * The LDAP filter string to search for the user being authenticated. Occurrences of
-	 * {0} are replaced with the {@code username@domain}.
+	 * {0} are replaced with the {@code username@domain}. Occurrences of {1} are replaced
+	 * with the {@code username} only.
 	 * <p>
 	 * Defaults to: {@code (&(objectClass=user)(userPrincipalName= 0}))}
 	 * </p>
