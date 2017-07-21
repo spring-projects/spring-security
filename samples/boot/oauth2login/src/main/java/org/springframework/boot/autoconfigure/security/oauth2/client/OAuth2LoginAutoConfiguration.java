@@ -24,21 +24,15 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplicat
 import org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.user.converter.AbstractOAuth2UserConverter;
-import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.util.ClassUtils;
 
-import java.lang.reflect.Constructor;
 import java.net.URI;
 import java.util.Set;
-import java.util.function.Function;
 
 import static org.springframework.boot.autoconfigure.security.oauth2.client.ClientRegistrationAutoConfiguration.*;
 
@@ -54,8 +48,7 @@ import static org.springframework.boot.autoconfigure.security.oauth2.client.Clie
 @AutoConfigureAfter(ClientRegistrationAutoConfiguration.class)
 public class OAuth2LoginAutoConfiguration {
 	private static final String USER_INFO_URI_PROPERTY = "user-info-uri";
-	private static final String USER_INFO_CONVERTER_PROPERTY = "user-info-converter";
-	private static final String USER_INFO_NAME_ATTR_KEY_PROPERTY = "user-info-name-attribute-key";
+	private static final String USER_NAME_ATTR_NAME_PROPERTY = "user-name-attribute-name";
 
 	@EnableWebSecurity
 	protected static class OAuth2LoginSecurityConfiguration extends WebSecurityConfigurerAdapter {
@@ -75,11 +68,11 @@ public class OAuth2LoginAutoConfiguration {
 					.and()
 				.oauth2Login();
 
-			this.registerUserInfoTypeConverters(http.oauth2Login());
+			this.registerUserNameAttributeNames(http.oauth2Login());
 		}
 		// @formatter:on
 
-		private void registerUserInfoTypeConverters(OAuth2LoginConfigurer<HttpSecurity> oauth2LoginConfigurer) throws Exception {
+		private void registerUserNameAttributeNames(OAuth2LoginConfigurer<HttpSecurity> oauth2LoginConfigurer) throws Exception {
 			Set<String> clientPropertyKeys = resolveClientPropertyKeys(this.environment);
 			for (String clientPropertyKey : clientPropertyKeys) {
 				String fullClientPropertyKey = CLIENT_PROPERTY_PREFIX + "." + clientPropertyKey;
@@ -87,22 +80,9 @@ public class OAuth2LoginAutoConfiguration {
 					continue;
 				}
 				String userInfoUriValue = this.environment.getProperty(fullClientPropertyKey + "." + USER_INFO_URI_PROPERTY);
-				String userInfoConverterTypeValue = this.environment.getProperty(fullClientPropertyKey + "." + USER_INFO_CONVERTER_PROPERTY);
-				if (userInfoUriValue != null && userInfoConverterTypeValue != null) {
-					Class<? extends Function> userInfoConverterType = ClassUtils.resolveClassName(
-						userInfoConverterTypeValue, this.getClass().getClassLoader()).asSubclass(Function.class);
-					Function<ClientHttpResponse, ? extends OAuth2User> userInfoConverter = null;
-					if (AbstractOAuth2UserConverter.class.isAssignableFrom(userInfoConverterType)) {
-						Constructor<? extends Function> oauth2UserConverterConstructor = ClassUtils.getConstructorIfAvailable(userInfoConverterType, String.class);
-						if (oauth2UserConverterConstructor != null) {
-							String userInfoNameAttributeKey = this.environment.getProperty(fullClientPropertyKey + "." + USER_INFO_NAME_ATTR_KEY_PROPERTY);
-							userInfoConverter = (Function<ClientHttpResponse, ? extends OAuth2User>)oauth2UserConverterConstructor.newInstance(userInfoNameAttributeKey);
-						}
-					}
-					if (userInfoConverter == null) {
-						userInfoConverter = (Function<ClientHttpResponse, ? extends OAuth2User>)userInfoConverterType.newInstance();
-					}
-					oauth2LoginConfigurer.userInfoEndpoint().userInfoTypeConverter(userInfoConverter, new URI(userInfoUriValue));
+				String userNameAttributeNameValue = this.environment.getProperty(fullClientPropertyKey + "." + USER_NAME_ATTR_NAME_PROPERTY);
+				if (userInfoUriValue != null && userNameAttributeNameValue != null) {
+					oauth2LoginConfigurer.userInfoEndpoint().userNameAttributeName(userNameAttributeNameValue, URI.create(userInfoUriValue));
 				}
 			}
 		}

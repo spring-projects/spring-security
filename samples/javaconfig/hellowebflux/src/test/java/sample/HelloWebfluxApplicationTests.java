@@ -25,6 +25,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
+import org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers;
 import org.springframework.security.web.server.header.ContentTypeOptionsHttpHeadersWriter;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -36,7 +37,7 @@ import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import java.nio.charset.Charset;
 import java.util.Base64;
 
-import static org.springframework.security.test.web.reactive.server.SecurityExchangeMutators.withUser;
+import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.springSecurity;
 import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.basicAuthentication;
 
 /**
@@ -172,26 +173,27 @@ public class HelloWebfluxApplicationTests {
 			.expectStatus().isOk();
 	}
 
-//	@Test
-//	public void mockSupport() throws Exception {
-//		ExchangeMutatorWebFilter exchangeMutator = new ExchangeMutatorWebFilter();
-//		WebTestClient mockRest = WebTestClient.bindToApplicationContext(this.context).webFilter(exchangeMutator).build();
-//
-//		mockRest
-//			.mutate()
-//			.filter(exchangeMutator.perClient(withUser()))
-//			.build()
-//			.get()
-//			.uri("/principal")
-//			.exchange()
-//			.expectStatus().isOk();
-//
-//		mockRest
-//			.get()
-//			.uri("/principal")
-//			.exchange()
-//			.expectStatus().isUnauthorized();
-//	}
+	@Test
+	public void mockSupport() throws Exception {
+		WebTestClient mockRest = WebTestClient
+			.bindToApplicationContext(this.context)
+			.apply(springSecurity())
+			.build();
+
+		mockRest
+			.mutateWith(SecurityMockServerConfigurers.mockUser())
+			.get()
+			.uri("/principal")
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody(String.class).isEqualTo("{\"username\":\"user\"}");
+
+		mockRest
+			.get()
+			.uri("/principal")
+			.exchange()
+			.expectStatus().isUnauthorized();
+	}
 
 	@Test
 	public void me() throws Exception {

@@ -244,8 +244,23 @@ public class User implements UserDetails, CredentialsContainer {
 		return sb.toString();
 	}
 
+	/**
+	 * Creates a UserBuilder with a specified user name
+	 *
+	 * @param username the username to use
+	 * @return the UserBuilder
+	 */
 	public static UserBuilder withUsername(String username) {
-		return new UserBuilder().username(username);
+		return builder().username(username);
+	}
+
+	/**
+	 * Creates a UserBuilder
+	 *
+	 * @return the UserBuilder
+	 */
+	public static UserBuilder builder() {
+		return new UserBuilder();
 	}
 
 	public static UserBuilder withUserDetails(UserDetails userDetails) {
@@ -284,7 +299,7 @@ public class User implements UserDetails, CredentialsContainer {
 		 * @return the {@link UserBuilder} for method chaining (i.e. to populate
 		 * additional attributes for this user)
 		 */
-		private UserBuilder username(String username) {
+		public UserBuilder username(String username) {
 			Assert.notNull(username, "username cannot be null");
 			this.username = username;
 			return this;

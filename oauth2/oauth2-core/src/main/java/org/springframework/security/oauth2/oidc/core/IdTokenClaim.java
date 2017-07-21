@@ -13,27 +13,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.client.user.converter;
-
-import org.springframework.http.client.ClientHttpResponse;
-import org.springframework.security.oauth2.oidc.user.DefaultUserInfo;
-import org.springframework.security.oauth2.oidc.user.UserInfo;
-
-import java.util.Map;
+package org.springframework.security.oauth2.oidc.core;
 
 /**
- * An implementation of a {@link AbstractOAuth2UserConverter} that converts
- * a {@link ClientHttpResponse} to a {@link UserInfo}.
+ * The &quot;Claims&quot; defined by the <i>OpenID Connect Core 1.0</i> specification
+ * that can be returned in the <i>ID Token</i>.
  *
  * @author Joe Grandja
  * @since 5.0
- * @see UserInfo
- * @see ClientHttpResponse
+ * @see IdToken
+ * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#IDToken">ID Token</a>
  */
-public final class UserInfoConverter extends AbstractOAuth2UserConverter<UserInfo> {
 
-	@Override
-	protected UserInfo apply(Map<String, Object> userAttributes) {
-		return new DefaultUserInfo(userAttributes);
-	}
+public interface IdTokenClaim {
+
+	String ISS = "iss";
+
+	String SUB = "sub";
+
+	String AUD = "aud";
+
+	String EXP = "exp";
+
+	String IAT = "iat";
+
+	String AUTH_TIME = "auth_time";
+
+	String NONCE = "nonce";
+
+	String ACR = "acr";
+
+	String AMR = "amr";
+
+	String AZP = "azp";
+
+	String AT_HASH = "at_hash";
+
+	String C_HASH = "c_hash";
+
 }

@@ -8,9 +8,12 @@ dependencies {
 
 	optional project(':spring-security-config')
 	optional 'io.projectreactor:reactor-core'
+	optional 'org.springframework:spring-webflux'
 
 	provided 'javax.servlet:javax.servlet-api'
 
+	testCompile 'com.fasterxml.jackson.core:jackson-databind'
+	testCompile 'org.skyscreamer:jsonassert'
 	testCompile 'org.springframework:spring-webmvc'
 	testCompile 'org.springframework:spring-tx'
 	testCompile powerMockDependencies

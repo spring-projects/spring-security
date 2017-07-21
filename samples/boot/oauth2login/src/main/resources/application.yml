@@ -21,14 +21,15 @@ security:
       github:
         client-id: your-app-client-id
         client-secret: your-app-client-secret
-        user-info-name-attribute-key: "name"
+        user-name-attribute-name: "name"
       facebook:
         client-id: your-app-client-id
         client-secret: your-app-client-secret
-        user-info-name-attribute-key: "name"
+        user-name-attribute-name: "name"
       okta:
         client-id: your-app-client-id
         client-secret: your-app-client-secret
         authorization-uri: https://your-subdomain.oktapreview.com/oauth2/v1/authorize
         token-uri: https://your-subdomain.oktapreview.com/oauth2/v1/token
         user-info-uri: https://your-subdomain.oktapreview.com/oauth2/v1/userinfo
+        jwk-set-uri: https://your-subdomain.oktapreview.com/oauth2/v1/keys

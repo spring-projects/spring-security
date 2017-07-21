@@ -14,7 +14,8 @@ The following sections outline detailed steps for setting up OAuth 2.0 Login wit
 * <<facebook-login, Facebook>>
 * <<okta-login, Okta>>
 
-NOTE: The _"authentication flow"_ is realized using the *Authorization Code Grant*, as specified in the https://tools.ietf.org/html/rfc6749#section-4.1[OAuth 2.0 Authorization Framework].
+NOTE: The _"authentication flow"_ is realized using the *Authorization Code Grant*, as specified in the https://tools.ietf.org/html/rfc6749#section-4.1[OAuth 2.0 Authorization Framework]
+and http://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth[OpenID Connect Core 1.0] specifications.
 
 [[sample-app-content]]
 == Sample application content
@@ -26,7 +27,7 @@ The sample application contains the following package structure and artifacts:
 [circle]
 * _OAuth2LoginApplication_ - the main class for the _Spring application_.
 ** *user*
-*** _GitHubOAuth2User_ - a custom _UserInfo_ type for <<github-login, GitHub Login>>.
+*** _GitHubOAuth2User_ - a custom _OAuth2User_ for <<github-login, GitHub Login>>.
 ** *web*
 *** _MainController_ - the root controller that displays user information after a successful login.
 
@@ -120,7 +121,7 @@ The goal for this section of the guide is to setup login using GitHub as the _Au
 
 NOTE: https://developer.github.com/v3/oauth/[GitHub's OAuth 2.0 implementation] supports the standard
  https://tools.ietf.org/html/rfc6749#section-4.1[authorization code grant type].
- However, it *does not* implement the _OpenID Connect 1.0_ specification.
+ However, it *does not* implement the _OpenID Connect Core 1.0_ authorization code flow.
 
 [[github-login-register-application]]
 === Register OAuth application
@@ -191,7 +192,7 @@ The goal for this section of the guide is to setup login using Facebook as the _
 
 NOTE: Facebook provides support for developers to https://developers.facebook.com/docs/facebook-login/manually-build-a-login-flow[_Manually Build a Login Flow_].
  The _login flow_ uses browser-based redirects, which essentially implements the https://tools.ietf.org/html/rfc6749#section-4.1[authorization code grant type].
- (NOTE: Facebook partially implements the _OAuth 2.0 Authorization Framework_, however, it *does not* implement the _OpenID Connect 1.0_ specification.)
+ (NOTE: Facebook partially implements the _OAuth 2.0 Authorization Framework_, however, it *does not* implement the _OpenID Connect Core 1.0_ authorization code flow.)
 
 [[facebook-login-register-application]]
 === Add a New App
@@ -315,10 +316,11 @@ security:
         authorization-uri: https://${account-subdomain}.oktapreview.com/oauth2/v1/authorize
         token-uri: https://${account-subdomain}.oktapreview.com/oauth2/v1/token
         user-info-uri: https://${account-subdomain}.oktapreview.com/oauth2/v1/userinfo
+        jwk-set-uri: https://${account-subdomain}.oktapreview.com/oauth2/v1/keys
 ----
 
 Replace *${client-id}* and *${client-secret}* with the *client credentials* created in the previous section <<okta-login-register-application, Add Application>>.
-As well, replace *${account-subdomain}* in _authorization-uri_, _token-uri_ and _user-info-uri_ with the *sub-domain* assigned to your account during the registration process.
+As well, replace *${account-subdomain}* in _authorization-uri_, _token-uri_, _user-info-uri_ and _jwk-set-uri_ with the *sub-domain* assigned to your account during the registration process.
 
 [TIP]
 .OAuth client properties
@@ -340,6 +342,73 @@ Click through on the Okta link and you'll be redirected to Okta for authenticati
 
 After you authenticate using your Okta credentials, the OAuth Client (application) will retrieve your email address and basic profile information from the http://openid.net/specs/openid-connect-core-1_0.html#UserInfo[*UserInfo Endpoint*]
 and establish an _authenticated session_. The home page will then be displayed showing the user attributes retrieved from the UserInfo Endpoint, for example, name, email, profile, sub, etc.
+
+[[user-authority-mapping]]
+== Mapping User Authorities
+
+After the user successfully authenticates with the _OAuth 2.0 Provider_, the `OAuth2User.getAuthorities()` may be re-mapped to a new set of `GrantedAuthority`(s), which is then supplied to the `OAuth2AuthenticationToken`.
+The `GrantedAuthority`(s) associated to the `OAuth2AuthenticationToken` is then used for authorizing requests, such as, `hasRole('USER') or hasRole('ADMIN')`.
+
+In order to implement custom user authority mapping, you need to provide an implementation of `GrantedAuthoritiesMapper` and configure it using `OAuth2LoginConfigurer`.
+
+The following is a partial implementation of `GrantedAuthoritiesMapper` that maps an `OidcUserAuthority` or `OAuth2UserAuthority` to a set of `GrantedAuthority`(s):
+
+[source,java]
+----
+public class CustomGrantedAuthoritiesMapper implements GrantedAuthoritiesMapper {
+
+	@Override
+	public Collection<? extends GrantedAuthority> mapAuthorities(Collection<? extends GrantedAuthority> authorities) {
+		Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
+
+		for (GrantedAuthority authority : authorities) {
+			if (OidcUserAuthority.class.isInstance(authority)) {
+				OidcUserAuthority userAuthority = (OidcUserAuthority)authority;
+
+				IdToken idToken = userAuthority.getIdToken();
+				UserInfo userInfo = userAuthority.getUserInfo();
+
+				// TODO
+				// Map the claims found in IdToken and/or UserInfo
+				// to one or more GrantedAuthority's and add to mappedAuthorities
+
+
+			} else if (OAuth2UserAuthority.class.isInstance(authority)) {
+				OAuth2UserAuthority userAuthority = (OAuth2UserAuthority)authority;
+
+				Map<String, Object> userAttributes = userAuthority.getAttributes();
+
+				// TODO
+				// Map the attributes found in userAttributes
+				// to one or more GrantedAuthority's and add to mappedAuthorities
+
+
+			}
+		}
+
+		return mappedAuthorities;
+	}
+}
+----
+
+The following _security configuration_ configures a custom `GrantedAuthoritiesMapper` for OAuth 2.0 Login:
+
+[source,java]
+----
+@EnableWebSecurity
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http
+		  .authorizeRequests()
+			.anyRequest().authenticated()
+			.and()
+		  .oauth2Login()
+			.userAuthoritiesMapper(new CustomGrantedAuthoritiesMapper());
+	}
+}
+----
 
 [[oauth2-login-auto-configuration]]
 == OAuth 2.0 Login auto-configuration
@@ -391,24 +460,21 @@ NOTE: The default redirect URI is _"{scheme}://{serverName}:{serverPort}/oauth2/
 
 - *scopes* - a comma-delimited string of scope(s) requested during the _Authorization Request_ flow, for example: _openid, email, profile_
 
-NOTE: _OpenID Connect 1.0_ defines these http://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims[standard scopes]: _profile, email, address, phone_
+NOTE: _OpenID Connect Core 1.0_ defines these http://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims[standard scopes]: _profile, email, address, phone_
 
 NOTE: Non-standard scopes may be defined by a standard _OAuth 2.0 Provider_. Please consult the Provider's OAuth API documentation to learn which scopes are supported.
 
 - *authorization-uri* - the URI used by the client to redirect the end-user's user-agent to the _Authorization Server_ in order to obtain authorization from the end-user (the _Resource Owner_).
 - *token-uri* - the URI used by the client when exchanging an _Authorization Grant_ (for example, Authorization Code) for an _Access Token_ at the _Authorization Server_.
 - *user-info-uri* - the URI used by the client to access the protected resource *UserInfo Endpoint*, in order to obtain attributes of the end-user.
-- *user-info-converter* - the `java.util.function.Function` implementation class used to convert the *UserInfo Response* to a `UserInfo` (_OpenID Connect 1.0 Provider_) or `OAuth2User` instance (_Standard OAuth 2.0 Provider_).
+- *jwk-set-uri* - the URI used to retrieve the https://tools.ietf.org/html/rfc7517[JSON Web Key (JWK)] `Set`,
+ which contains cryptographic key(s) that are used to verify the https://tools.ietf.org/html/rfc7515[JSON Web Signature (JWS)] of the *ID Token* and optionally the *UserInfo Endpoint* response.
+- *user-name-attribute-name* - the name of the attribute returned in the *UserInfo Endpoint* response that references the *Name* of the end-user.
 
-TIP: The `java.util.function.Function` implementation class for an _OpenID Connect 1.0 Provider_ is *org.springframework.security.oauth2.client.user.converter.UserInfoConverter*
- and for a standard _OAuth 2.0 Provider_ it's *org.springframework.security.oauth2.client.user.converter.OAuth2UserConverter*.
-
-- *user-info-name-attribute-key* - the _key_ used to retrieve the *Name* of the end-user from the `Map` of available attributes in `UserInfo` or `OAuth2User`.
-
-NOTE: _OpenID Connect 1.0_ defines the http://openid.net/specs/openid-connect-core-1_0.html#StandardClaims[*"name"* Claim], which is the end-user's full name and is the default used for `UserInfo`.
+NOTE: _OpenID Connect Core 1.0_ defines the http://openid.net/specs/openid-connect-core-1_0.html#StandardClaims[_name_ Claim], which is the end-user's full name and is the default used for `DefaultOidcUser`.
 
 IMPORTANT: Standard _OAuth 2.0 Provider's_ may vary the naming of their *Name* attribute. Please consult the Provider's *UserInfo* API documentation.
- This is a *_required_* property when *user-info-converter* is set to `OAuth2UserConverter`.
+ This is a *_required_* property for `DefaultOAuth2User`.
 
 - *client-name* - this is a descriptive name used for the client. The name may be used in certain scenarios, for example, when displaying the name of the client in the _auto-generated login page_.
 - *client-alias* - an _alias_ which uniquely identifies the client. It *must be* unique within a `ClientRegistrationRepository`.
@@ -438,7 +504,7 @@ security:
         authorization-uri: "https://accounts.google.com/o/oauth2/auth"
         token-uri: "https://accounts.google.com/o/oauth2/token"
         user-info-uri: "https://www.googleapis.com/oauth2/v3/userinfo"
-        user-info-converter: "org.springframework.security.oauth2.client.user.converter.UserInfoConverter"
+        jwk-set-uri: https://www.googleapis.com/oauth2/v3/certs
         client-name: Google
         client-alias: google
       github:
@@ -449,7 +515,6 @@ security:
         authorization-uri: "https://github.com/login/oauth/authorize"
         token-uri: "https://github.com/login/oauth/access_token"
         user-info-uri: "https://api.github.com/user"
-        user-info-converter: "org.springframework.security.oauth2.client.user.converter.OAuth2UserConverter"
         client-name: GitHub
         client-alias: github
       facebook:
@@ -460,7 +525,6 @@ security:
         authorization-uri: "https://www.facebook.com/v2.8/dialog/oauth"
         token-uri: "https://graph.facebook.com/v2.8/oauth/access_token"
         user-info-uri: "https://graph.facebook.com/me"
-        user-info-converter: "org.springframework.security.oauth2.client.user.converter.OAuth2UserConverter"
         client-name: Facebook
         client-alias: facebook
       okta:
@@ -468,7 +532,6 @@ security:
         authorized-grant-type: authorization_code
         redirect-uri: "{scheme}://{serverName}:{serverPort}{baseAuthorizeUri}/{clientAlias}"
         scopes: openid, email, profile
-        user-info-converter: "org.springframework.security.oauth2.client.user.converter.UserInfoConverter"
         client-name: Okta
         client-alias: okta
 ----
@@ -498,7 +561,7 @@ security.oauth2.client.google.scopes=openid,email,profile
 security.oauth2.client.google.authorization-uri=https://accounts.google.com/o/oauth2/auth
 security.oauth2.client.google.token-uri=https://accounts.google.com/o/oauth2/token
 security.oauth2.client.google.user-info-uri=https://www.googleapis.com/oauth2/v3/userinfo
-security.oauth2.client.google.user-info-converter=org.springframework.security.oauth2.client.user.converter.UserInfoConverter
+security.oauth2.client.google.jwk-set-uri=https://www.googleapis.com/oauth2/v3/certs
 security.oauth2.client.google.client-name=Google
 security.oauth2.client.google.client-alias=google
 ----
@@ -523,11 +586,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .anyRequest().authenticated()
         .and()
       .oauth2Login()
-        .clients(clientRegistrationRepository())
-        .userInfoEndpoint()
-          .userInfoTypeConverter(
-            new UserInfoConverter(),
-            new URI("https://www.googleapis.com/oauth2/v3/userinfo"));
+        .clients(clientRegistrationRepository());
 	}
 
 	@Bean
@@ -550,6 +609,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		String authorizationUri = this.environment.getProperty(clientPropertyKey + "authorization-uri");
 		String tokenUri = this.environment.getProperty(clientPropertyKey + "token-uri");
 		String userInfoUri = this.environment.getProperty(clientPropertyKey + "user-info-uri");
+		String jwkSetUri = this.environment.getProperty(clientPropertyKey + "jwk-set-uri");
 		String clientName = this.environment.getProperty(clientPropertyKey + "client-name");
 		String clientAlias = this.environment.getProperty(clientPropertyKey + "client-alias");
 
@@ -562,6 +622,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.authorizationUri(authorizationUri)
 			.tokenUri(tokenUri)
 			.userInfoUri(userInfoUri)
+			.jwkSetUri(jwkSetUri)
 			.clientName(clientName)
 			.clientAlias(clientAlias)
 			.build();

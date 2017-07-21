@@ -13,7 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.springframework.security.oauth2.core.provider;
+
+import java.net.URL;
+
 /**
- * Support classes for converting to {@link org.springframework.security.oauth2.core.user.OAuth2User}.
+ * Metadata describing the configuration information for an <i>OAuth 2.0 Provider</i>.
+ *
+ * @author Joe Grandja
+ * @since 5.0
  */
-package org.springframework.security.oauth2.client.user.converter;
+public interface ProviderMetadata {
+
+	URL getIssuer();
+
+	URL getAuthorizationEndpoint();
+
+	URL getTokenEndpoint();
+
+	URL getUserInfoEndpoint();
+
+	URL getJwkSetUri();
+
+}

@@ -13,7 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.springframework.security.jwt;
+
 /**
- * Core classes and interfaces providing support for <i>OpenID Connect Core 1.0</i>.
+ * Base exception for all <i>JSON Web Token (JWT)</i> related errors.
+ *
+ * @author Joe Grandja
+ * @since 5.0
  */
-package org.springframework.security.oauth2.oidc;
+public class JwtException extends RuntimeException {
+
+	public JwtException(String message) {
+		super(message);
+	}
+
+	public JwtException(String message, Throwable cause) {
+		super(message, cause);
+	}
+}

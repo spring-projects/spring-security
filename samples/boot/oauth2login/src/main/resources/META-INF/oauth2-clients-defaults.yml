@@ -9,7 +9,7 @@ security:
         authorization-uri: "https://accounts.google.com/o/oauth2/auth"
         token-uri: "https://accounts.google.com/o/oauth2/token"
         user-info-uri: "https://www.googleapis.com/oauth2/v3/userinfo"
-        user-info-converter: "org.springframework.security.oauth2.client.user.converter.UserInfoConverter"
+        jwk-set-uri: https://www.googleapis.com/oauth2/v3/certs
         client-name: Google
         client-alias: google
       github:
@@ -20,7 +20,6 @@ security:
         authorization-uri: "https://github.com/login/oauth/authorize"
         token-uri: "https://github.com/login/oauth/access_token"
         user-info-uri: "https://api.github.com/user"
-        user-info-converter: "org.springframework.security.oauth2.client.user.converter.OAuth2UserConverter"
         client-name: GitHub
         client-alias: github
       facebook:
@@ -31,7 +30,6 @@ security:
         authorization-uri: "https://www.facebook.com/v2.8/dialog/oauth"
         token-uri: "https://graph.facebook.com/v2.8/oauth/access_token"
         user-info-uri: "https://graph.facebook.com/me"
-        user-info-converter: "org.springframework.security.oauth2.client.user.converter.OAuth2UserConverter"
         client-name: Facebook
         client-alias: facebook
       okta:
@@ -39,6 +37,5 @@ security:
         authorized-grant-type: authorization_code
         redirect-uri: "{scheme}://{serverName}:{serverPort}{baseAuthorizeUri}/{clientAlias}"
         scopes: openid, email, profile
-        user-info-converter: "org.springframework.security.oauth2.client.user.converter.UserInfoConverter"
         client-name: Okta
         client-alias: okta

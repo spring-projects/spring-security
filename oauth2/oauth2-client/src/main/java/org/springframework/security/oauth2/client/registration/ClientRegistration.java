@@ -122,6 +122,7 @@ public class ClientRegistration {
 		private String authorizationUri;
 		private String tokenUri;
 		private String userInfoUri;
+		private String jwkSetUri;
 
 		protected ProviderDetails() {
 		}
@@ -149,6 +150,14 @@ public class ClientRegistration {
 		protected void setUserInfoUri(String userInfoUri) {
 			this.userInfoUri = userInfoUri;
 		}
+
+		public String getJwkSetUri() {
+			return this.jwkSetUri;
+		}
+
+		protected void setJwkSetUri(String jwkSetUri) {
+			this.jwkSetUri = jwkSetUri;
+		}
 	}
 
 	public static class Builder {
@@ -161,6 +170,7 @@ public class ClientRegistration {
 		protected String authorizationUri;
 		protected String tokenUri;
 		protected String userInfoUri;
+		protected String jwkSetUri;
 		protected String clientName;
 		protected String clientAlias;
 
@@ -180,6 +190,7 @@ public class ClientRegistration {
 			this.authorizationUri(clientRegistrationProperties.getAuthorizationUri());
 			this.tokenUri(clientRegistrationProperties.getTokenUri());
 			this.userInfoUri(clientRegistrationProperties.getUserInfoUri());
+			this.jwkSetUri(clientRegistrationProperties.getJwkSetUri());
 			this.clientName(clientRegistrationProperties.getClientName());
 			this.clientAlias(clientRegistrationProperties.getClientAlias());
 		}
@@ -227,6 +238,11 @@ public class ClientRegistration {
 			return this;
 		}
 
+		public Builder jwkSetUri(String jwkSetUri) {
+			this.jwkSetUri = jwkSetUri;
+			return this;
+		}
+
 		public Builder clientName(String clientName) {
 			this.clientName = clientName;
 			return this;
@@ -256,6 +272,7 @@ public class ClientRegistration {
 			providerDetails.setAuthorizationUri(this.authorizationUri);
 			providerDetails.setTokenUri(this.tokenUri);
 			providerDetails.setUserInfoUri(this.userInfoUri);
+			providerDetails.setJwkSetUri(this.jwkSetUri);
 			clientRegistration.setProviderDetails(providerDetails);
 
 			clientRegistration.setClientName(this.clientName);

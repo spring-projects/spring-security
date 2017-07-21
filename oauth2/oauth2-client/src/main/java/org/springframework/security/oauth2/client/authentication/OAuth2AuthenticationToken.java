@@ -24,6 +24,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.user.OAuth2UserService;
 import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.oidc.core.IdToken;
 import org.springframework.util.Assert;
 
 import java.util.Collection;
@@ -33,7 +34,7 @@ import java.util.Collection;
  * that represents an <i>OAuth 2.0</i> {@link Authentication}.
  *
  * <p>
- * It associates an {@link OAuth2User}, {@link ClientRegistration} and an {@link AccessToken}.
+ * It associates an {@link OAuth2User}, {@link ClientRegistration}, {@link AccessToken} and optionally an {@link IdToken}.
  * This <code>Authentication</code> is considered <i>&quot;authenticated&quot;</i> if the {@link OAuth2User}
  * is provided in the respective constructor. This typically happens after the {@link OAuth2UserService}
  * retrieves the end-user's (resource owner) attributes from the <i>UserInfo Endpoint</i>.
@@ -43,19 +44,21 @@ import java.util.Collection;
  * @see OAuth2User
  * @see ClientRegistration
  * @see AccessToken
+ * @see IdToken
  */
 public class OAuth2AuthenticationToken extends AbstractAuthenticationToken {
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 	private final OAuth2User principal;
 	private final ClientRegistration clientRegistration;
 	private final AccessToken accessToken;
+	private final IdToken idToken;
 
-	public OAuth2AuthenticationToken(ClientRegistration clientRegistration, AccessToken accessToken) {
-		this(null, AuthorityUtils.NO_AUTHORITIES, clientRegistration, accessToken);
+	public OAuth2AuthenticationToken(ClientRegistration clientRegistration, AccessToken accessToken, IdToken idToken) {
+		this(null, AuthorityUtils.NO_AUTHORITIES, clientRegistration, accessToken, idToken);
 	}
 
 	public OAuth2AuthenticationToken(OAuth2User principal, Collection<? extends GrantedAuthority> authorities,
-										ClientRegistration clientRegistration, AccessToken accessToken) {
+										ClientRegistration clientRegistration, AccessToken accessToken, IdToken idToken) {
 
 		super(authorities);
 		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
@@ -63,6 +66,7 @@ public class OAuth2AuthenticationToken extends AbstractAuthenticationToken {
 		this.principal = principal;
 		this.clientRegistration = clientRegistration;
 		this.accessToken = accessToken;
+		this.idToken = idToken;
 		this.setAuthenticated(principal != null);
 	}
 
@@ -83,5 +87,9 @@ public class OAuth2AuthenticationToken extends AbstractAuthenticationToken {
 
 	public AccessToken getAccessToken() {
 		return this.accessToken;
+	}
+
+	public IdToken getIdToken() {
+		return this.idToken;
 	}
 }
