@@ -21,11 +21,9 @@ security:
       github:
         client-id: your-app-client-id
         client-secret: your-app-client-secret
-        user-name-attribute-name: "name"
       facebook:
         client-id: your-app-client-id
         client-secret: your-app-client-secret
-        user-name-attribute-name: "name"
       okta:
         client-id: your-app-client-id
         client-secret: your-app-client-secret
