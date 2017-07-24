@@ -96,7 +96,7 @@ public class NimbusJwtDecoderJwkSupport implements JwtDecoder {
 			if (jwtClaimsSet.getIssueTime() != null) {
 				issuedAt = jwtClaimsSet.getIssueTime().toInstant();
 			} else {
-				// issuedAt is required in AbstractToken so let's default to expiresAt - 1 second
+				// issuedAt is required in SecurityToken so let's default to expiresAt - 1 second
 				issuedAt = Instant.from(expiresAt).minusSeconds(1);
 			}
 

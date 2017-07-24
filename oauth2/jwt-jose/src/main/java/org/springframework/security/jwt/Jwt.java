@@ -15,7 +15,7 @@
  */
 package org.springframework.security.jwt;
 
-import org.springframework.security.oauth2.core.AbstractToken;
+import org.springframework.security.oauth2.core.SecurityToken;
 import org.springframework.util.Assert;
 
 import java.time.Instant;
@@ -24,7 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * An implementation of an {@link AbstractToken} representing a <i>JSON Web Token (JWT)</i>.
+ * An implementation of a {@link SecurityToken} representing a <i>JSON Web Token (JWT)</i>.
  *
  * <p>
  * JWTs represent a set of &quot;Claims&quot; as a JSON object that is encoded in a
@@ -34,13 +34,13 @@ import java.util.Map;
  *
  * @author Joe Grandja
  * @since 5.0
- * @see AbstractToken
+ * @see SecurityToken
  * @see JwtClaimAccessor
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7519">JSON Web Token (JWT)</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7515">JSON Web Signature (JWS)</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7516">JSON Web Encryption (JWE)</a>
  */
-public class Jwt extends AbstractToken implements JwtClaimAccessor {
+public class Jwt extends SecurityToken implements JwtClaimAccessor {
 	private final Map<String, Object> headers;
 	private final Map<String, Object> claims;
 

@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * An implementation of an {@link AbstractToken} representing an <i>OAuth 2.0 Access Token</i>.
+ * An implementation of a {@link SecurityToken} representing an <i>OAuth 2.0 Access Token</i>.
  *
  * <p>
  * An access token is a credential that represents an authorization
@@ -35,7 +35,7 @@ import java.util.Set;
  * @since 5.0
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-1.4">Section 1.4 Access Token</a>
  */
-public class AccessToken extends AbstractToken {
+public class AccessToken extends SecurityToken {
 	private final TokenType tokenType;
 	private final Set<String> scopes;
 	private final Map<String,Object> additionalParameters;

@@ -30,13 +30,13 @@ import java.time.Instant;
  * @author Joe Grandja
  * @since 5.0
  */
-public abstract class AbstractToken implements Serializable {
+public abstract class SecurityToken implements Serializable {
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 	private final String tokenValue;
 	private final Instant issuedAt;
 	private final Instant expiresAt;
 
-	protected AbstractToken(String tokenValue, Instant issuedAt, Instant expiresAt) {
+	protected SecurityToken(String tokenValue, Instant issuedAt, Instant expiresAt) {
 		Assert.hasLength(tokenValue, "tokenValue cannot be empty");
 		Assert.notNull(issuedAt, "issuedAt cannot be null");
 		Assert.notNull(expiresAt, "expiresAt cannot be null");
@@ -66,7 +66,7 @@ public abstract class AbstractToken implements Serializable {
 			return false;
 		}
 
-		AbstractToken that = (AbstractToken) obj;
+		SecurityToken that = (SecurityToken) obj;
 
 		if (!this.getTokenValue().equals(that.getTokenValue())) {
 			return false;
