@@ -239,7 +239,9 @@ public class AuthorizationCodeAuthenticationProcessingFilterTests {
 				.state(state)
 				.build();
 
-		authorizationRequestRepository.saveAuthorizationRequest(authorizationRequestAttributes, request);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+
+		authorizationRequestRepository.saveAuthorizationRequest(authorizationRequestAttributes, request, response);
 	}
 
 	private MockHttpServletRequest setupRequest(ClientRegistration clientRegistration) {
