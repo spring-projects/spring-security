@@ -106,8 +106,8 @@ public class AuthorizationCodeAuthenticationProcessingFilterTests {
 		String state = "some state";
 		request.addParameter(OAuth2Parameter.CODE, authCode);
 		request.addParameter(OAuth2Parameter.STATE, state);
-		setupAuthorizationRequest(authorizationRequestRepository, request, clientRegistration, state);
 		MockHttpServletResponse response = new MockHttpServletResponse();
+		setupAuthorizationRequest(authorizationRequestRepository, request, response, clientRegistration, state);
 		FilterChain filterChain = mock(FilterChain.class);
 
 		filter.doFilter(request, response, filterChain);
@@ -156,8 +156,8 @@ public class AuthorizationCodeAuthenticationProcessingFilterTests {
 		String state = "some other state";
 		request.addParameter(OAuth2Parameter.CODE, authCode);
 		request.addParameter(OAuth2Parameter.STATE, state);
-		setupAuthorizationRequest(authorizationRequestRepository, request, clientRegistration, "some state");
 		MockHttpServletResponse response = new MockHttpServletResponse();
+		setupAuthorizationRequest(authorizationRequestRepository, request, response, clientRegistration, "some state");
 		FilterChain filterChain = mock(FilterChain.class);
 
 		filter.doFilter(request, response, filterChain);
@@ -181,8 +181,8 @@ public class AuthorizationCodeAuthenticationProcessingFilterTests {
 		String state = "some state";
 		request.addParameter(OAuth2Parameter.CODE, authCode);
 		request.addParameter(OAuth2Parameter.STATE, state);
-		setupAuthorizationRequest(authorizationRequestRepository, request, clientRegistration, state);
 		MockHttpServletResponse response = new MockHttpServletResponse();
+		setupAuthorizationRequest(authorizationRequestRepository, request, response, clientRegistration, state);
 		FilterChain filterChain = mock(FilterChain.class);
 
 		filter.doFilter(request, response, filterChain);
@@ -227,6 +227,7 @@ public class AuthorizationCodeAuthenticationProcessingFilterTests {
 
 	private void setupAuthorizationRequest(AuthorizationRequestRepository authorizationRequestRepository,
 											HttpServletRequest request,
+										    HttpServletResponse response,
 											ClientRegistration clientRegistration,
 											String state) {
 
@@ -239,7 +240,7 @@ public class AuthorizationCodeAuthenticationProcessingFilterTests {
 				.state(state)
 				.build();
 
-		authorizationRequestRepository.saveAuthorizationRequest(authorizationRequestAttributes, request);
+		authorizationRequestRepository.saveAuthorizationRequest(authorizationRequestAttributes, request, response);
 	}
 
 	private MockHttpServletRequest setupRequest(ClientRegistration clientRegistration) {

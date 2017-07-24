@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.client.authentication;
 import org.springframework.security.oauth2.core.endpoint.AuthorizationRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 /**
@@ -44,7 +45,8 @@ public final class HttpSessionAuthorizationRequestRepository implements Authoriz
 	}
 
 	@Override
-	public void saveAuthorizationRequest(AuthorizationRequestAttributes authorizationRequest, HttpServletRequest request) {
+	public void saveAuthorizationRequest(AuthorizationRequestAttributes authorizationRequest, HttpServletRequest request,
+										 HttpServletResponse response) {
 		if (authorizationRequest == null) {
 			this.removeAuthorizationRequest(request);
 			return;
