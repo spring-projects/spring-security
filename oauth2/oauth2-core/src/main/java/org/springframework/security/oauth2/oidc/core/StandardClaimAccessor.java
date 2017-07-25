@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.oidc.core;
 import org.springframework.security.oauth2.core.ClaimAccessor;
 
 import java.time.Instant;
+import java.util.Map;
 
 /**
  * A {@link ClaimAccessor} for the &quot;Standard Claims&quot; that can be returned
@@ -107,12 +108,13 @@ public interface StandardClaimAccessor extends ClaimAccessor {
 	}
 
 	default Address getAddress() {
-		// TODO Impl StandardClaim.ADDRESS
-		return null;
+		Map<String, Object> addressFields = this.getClaimAsMap(StandardClaim.ADDRESS);
+		return (addressFields != null ?
+			new Address.Builder(addressFields).build() :
+			new Address.Builder().build());
 	}
 
 	default Instant getUpdatedAt() {
 		return this.getClaimAsInstant(StandardClaim.UPDATED_AT);
 	}
-
 }

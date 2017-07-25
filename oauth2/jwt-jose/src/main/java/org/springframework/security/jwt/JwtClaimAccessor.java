@@ -19,6 +19,7 @@ import org.springframework.security.oauth2.core.ClaimAccessor;
 
 import java.net.URL;
 import java.time.Instant;
+import java.util.List;
 
 /**
  * A {@link ClaimAccessor} for the &quot;Registered Claim Names&quot;
@@ -41,9 +42,8 @@ public interface JwtClaimAccessor extends ClaimAccessor {
 		return this.getClaimAsString(JwtClaim.SUB);
 	}
 
-	default String[] getAudience() {
-		// TODO Impl JwtClaim.AUD
-		return null;
+	default List<String> getAudience() {
+		return this.getClaimAsStringList(JwtClaim.AUD);
 	}
 
 	default Instant getExpiresAt() {

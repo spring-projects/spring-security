@@ -5,7 +5,7 @@ security:
         client-authentication-method: basic
         authorized-grant-type: authorization_code
         redirect-uri: "{scheme}://{serverName}:{serverPort}{baseAuthorizeUri}/{clientAlias}"
-        scopes: openid, email, profile
+        scopes: openid, profile, email, address, phone
         authorization-uri: "https://accounts.google.com/o/oauth2/auth"
         token-uri: "https://accounts.google.com/o/oauth2/token"
         user-info-uri: "https://www.googleapis.com/oauth2/v3/userinfo"
@@ -38,6 +38,6 @@ security:
         client-authentication-method: basic
         authorized-grant-type: authorization_code
         redirect-uri: "{scheme}://{serverName}:{serverPort}{baseAuthorizeUri}/{clientAlias}"
-        scopes: openid, email, profile
+        scopes: openid, profile, email, address, phone
         client-name: Okta
         client-alias: okta

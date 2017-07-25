@@ -15,6 +15,8 @@
  */
 package org.springframework.security.oauth2.oidc.core;
 
+import java.util.Map;
+
 /**
  * The Address Claim represents a physical mailing address defined by the <i>OpenID Connect Core 1.0</i> specification
  * that can be returned either in the <i>UserInfo Response</i> or the <i>ID Token</i>.
@@ -39,4 +41,94 @@ public interface Address {
 
 	String getCountry();
 
+	class Builder implements Address {
+		private static final String FORMATTED_FIELD_NAME = "formatted";
+		private static final String STREET_ADDRESS_FIELD_NAME = "street_address";
+		private static final String LOCALITY_FIELD_NAME = "locality";
+		private static final String REGION_FIELD_NAME = "region";
+		private static final String POSTAL_CODE_FIELD_NAME = "postal_code";
+		private static final String COUNTRY_FIELD_NAME = "country";
+		private String formatted;
+		private String streetAddress;
+		private String locality;
+		private String region;
+		private String postalCode;
+		private String country;
+
+		public Builder() {
+		}
+
+		public Builder(Map<String, Object> addressFields) {
+			this.formatted((String)addressFields.get(FORMATTED_FIELD_NAME));
+			this.streetAddress((String)addressFields.get(STREET_ADDRESS_FIELD_NAME));
+			this.locality((String)addressFields.get(LOCALITY_FIELD_NAME));
+			this.region((String)addressFields.get(REGION_FIELD_NAME));
+			this.postalCode((String)addressFields.get(POSTAL_CODE_FIELD_NAME));
+			this.country((String)addressFields.get(COUNTRY_FIELD_NAME));
+		}
+
+		public Builder formatted(String formatted) {
+			this.formatted = formatted;
+			return this;
+		}
+
+		public Builder streetAddress(String streetAddress) {
+			this.streetAddress = streetAddress;
+			return this;
+		}
+
+		public Builder locality(String locality) {
+			this.locality = locality;
+			return this;
+		}
+
+		public Builder region(String region) {
+			this.region = region;
+			return this;
+		}
+
+		public Builder postalCode(String postalCode) {
+			this.postalCode = postalCode;
+			return this;
+		}
+
+		public Builder country(String country) {
+			this.country = country;
+			return this;
+		}
+
+		public Address build() {
+			return this;
+		}
+
+		@Override
+		public String getFormatted() {
+			return this.formatted;
+		}
+
+		@Override
+		public String getStreetAddress() {
+			return this.streetAddress;
+		}
+
+		@Override
+		public String getLocality() {
+			return this.locality;
+		}
+
+		@Override
+		public String getRegion() {
+			return this.region;
+		}
+
+		@Override
+		public String getPostalCode() {
+			return this.postalCode;
+		}
+
+		@Override
+		public String getCountry() {
+			return this.country;
+		}
+	}
 }
