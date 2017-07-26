@@ -31,14 +31,11 @@ import org.springframework.security.web.authentication.AbstractAuthenticationPro
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-
-import static org.springframework.security.oauth2.client.authentication.AuthorizationCodeRequestRedirectFilter.isDefaultRedirectUri;
 
 /**
  * An implementation of an {@link AbstractAuthenticationProcessingFilter} that handles
@@ -136,12 +133,16 @@ public class AuthorizationCodeAuthenticationProcessingFilter extends AbstractAut
 		ClientRegistration clientRegistration = this.getClientRegistrationRepository().getRegistrationByClientId(
 				matchingAuthorizationRequest.getClientId());
 
-		// If clientRegistration.redirectUri is the default one (with Uri template variables)
-		// then use matchingAuthorizationRequest.redirectUri instead
-		if (isDefaultRedirectUri(clientRegistration)) {
-			clientRegistration = new ClientRegistrationBuilderWithUriOverrides(
-				clientRegistration, matchingAuthorizationRequest.getRedirectUri()).build();
-		}
+		// The clientRegistration.redirectUri may contain Uri template variables, whether it's configured by
+		// the user or configured by default. In these cases, the redirectUri will be expanded and ultimately changed
+		// (by AuthorizationCodeRequestRedirectFilter) before setting it in the authorization request.
+		// The resulting redirectUri used for the authorization request and saved within the AuthorizationRequestRepository
+		// MUST BE the same one used to complete the authorization code flow.
+		// Therefore, we'll create a copy of the clientRegistration and override the redirectUri
+		// with the one contained in matchingAuthorizationRequest.
+		clientRegistration = new ClientRegistration.Builder(clientRegistration)
+			.redirectUri(matchingAuthorizationRequest.getRedirectUri())
+			.build();
 
 		AuthorizationCodeAuthorizationResponseAttributes authorizationCodeResponseAttributes =
 				this.authorizationCodeResponseConverter.apply(request);
@@ -201,26 +202,6 @@ public class AuthorizationCodeAuthenticationProcessingFilter extends AbstractAut
 		if (!request.getRequestURL().toString().equals(authorizationRequest.getRedirectUri())) {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_REDIRECT_URI_PARAMETER_ERROR_CODE);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
-		}
-	}
-
-	private static class ClientRegistrationBuilderWithUriOverrides extends ClientRegistration.Builder {
-
-		private ClientRegistrationBuilderWithUriOverrides(ClientRegistration clientRegistration, String redirectUri) {
-			super(clientRegistration.getClientId());
-			this.clientSecret(clientRegistration.getClientSecret());
-			this.clientAuthenticationMethod(clientRegistration.getClientAuthenticationMethod());
-			this.authorizedGrantType(clientRegistration.getAuthorizedGrantType());
-			this.redirectUri(redirectUri);
-			if (!CollectionUtils.isEmpty(clientRegistration.getScopes())) {
-				this.scopes(clientRegistration.getScopes().stream().toArray(String[]::new));
-			}
-			this.authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri());
-			this.tokenUri(clientRegistration.getProviderDetails().getTokenUri());
-			this.userInfoUri(clientRegistration.getProviderDetails().getUserInfoUri());
-			this.jwkSetUri(clientRegistration.getProviderDetails().getJwkSetUri());
-			this.clientName(clientRegistration.getClientName());
-			this.clientAlias(clientRegistration.getClientAlias());
 		}
 	}
 }

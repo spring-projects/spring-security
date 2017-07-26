@@ -195,6 +195,23 @@ public class ClientRegistration {
 			this.clientAlias(clientRegistrationProperties.getClientAlias());
 		}
 
+		public Builder(ClientRegistration clientRegistration) {
+			this(clientRegistration.getClientId());
+			this.clientSecret(clientRegistration.getClientSecret());
+			this.clientAuthenticationMethod(clientRegistration.getClientAuthenticationMethod());
+			this.authorizedGrantType(clientRegistration.getAuthorizedGrantType());
+			this.redirectUri(clientRegistration.getRedirectUri());
+			if (!CollectionUtils.isEmpty(clientRegistration.getScopes())) {
+				this.scopes(clientRegistration.getScopes().stream().toArray(String[]::new));
+			}
+			this.authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri());
+			this.tokenUri(clientRegistration.getProviderDetails().getTokenUri());
+			this.userInfoUri(clientRegistration.getProviderDetails().getUserInfoUri());
+			this.jwkSetUri(clientRegistration.getProviderDetails().getJwkSetUri());
+			this.clientName(clientRegistration.getClientName());
+			this.clientAlias(clientRegistration.getClientAlias());
+		}
+
 		public Builder clientSecret(String clientSecret) {
 			this.clientSecret = clientSecret;
 			return this;

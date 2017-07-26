@@ -32,6 +32,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationProcessingFilter.AUTHORIZE_BASE_URI;
 
@@ -61,7 +63,6 @@ public class AuthorizationCodeRequestRedirectFilter extends OncePerRequestFilter
 	public static final String AUTHORIZATION_BASE_URI = "/oauth2/authorization/code";
 	private static final String CLIENT_ALIAS_VARIABLE_NAME = "clientAlias";
 	private static final String AUTHORIZATION_URI = AUTHORIZATION_BASE_URI + "/{" + CLIENT_ALIAS_VARIABLE_NAME + "}";
-	private static final String DEFAULT_REDIRECT_URI_TEMPLATE = "{scheme}://{serverName}:{serverPort}{baseAuthorizeUri}/{clientAlias}";
 	private final AntPathRequestMatcher authorizationRequestMatcher;
 	private final ClientRegistrationRepository clientRegistrationRepository;
 	private final AuthorizationRequestUriBuilder authorizationUriBuilder;
@@ -114,12 +115,7 @@ public class AuthorizationCodeRequestRedirectFilter extends OncePerRequestFilter
 			throw new IllegalArgumentException("Invalid Client Identifier (Alias): " + clientAlias);
 		}
 
-		String redirectUriStr;
-		if (isDefaultRedirectUri(clientRegistration)) {
-			redirectUriStr = this.expandDefaultRedirectUri(request, clientRegistration);
-		} else {
-			redirectUriStr = clientRegistration.getRedirectUri();
-		}
+		String redirectUriStr = this.expandRedirectUri(request, clientRegistration);
 
 		AuthorizationRequestAttributes authorizationRequestAttributes =
 			AuthorizationRequestAttributes.withAuthorizationCode()
@@ -145,15 +141,16 @@ public class AuthorizationCodeRequestRedirectFilter extends OncePerRequestFilter
 		response.sendError(HttpServletResponse.SC_BAD_REQUEST, failed.getMessage());
 	}
 
-	static boolean isDefaultRedirectUri(ClientRegistration clientRegistration) {
-		return DEFAULT_REDIRECT_URI_TEMPLATE.equals(clientRegistration.getRedirectUri());
-	}
+	private String expandRedirectUri(HttpServletRequest request, ClientRegistration clientRegistration) {
+		Map<String, String> uriVariables = new HashMap<>();
+		uriVariables.put("scheme", request.getScheme());
+		uriVariables.put("serverName", request.getServerName());
+		uriVariables.put("serverPort", String.valueOf(request.getServerPort()));
+		uriVariables.put("baseAuthorizeUri", AUTHORIZE_BASE_URI);
+		uriVariables.put("clientAlias", clientRegistration.getClientAlias());
 
-	private String expandDefaultRedirectUri(HttpServletRequest request, ClientRegistration clientRegistration) {
-		return UriComponentsBuilder.fromUriString(DEFAULT_REDIRECT_URI_TEMPLATE)
-			.buildAndExpand(request.getScheme(), request.getServerName(), request.getServerPort(),
-				AUTHORIZE_BASE_URI, clientRegistration.getClientAlias())
-			.encode()
+		return UriComponentsBuilder.fromUriString(clientRegistration.getRedirectUri())
+			.buildAndExpand(uriVariables)
 			.toUriString();
 	}
 }
