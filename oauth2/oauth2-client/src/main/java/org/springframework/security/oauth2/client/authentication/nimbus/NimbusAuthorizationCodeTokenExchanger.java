@@ -28,11 +28,13 @@ import org.springframework.security.authentication.AuthenticationServiceExceptio
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.AuthorizationGrantTokenExchanger;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.http.HttpClientConfig;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.endpoint.TokenResponseAttributes;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
@@ -61,6 +63,7 @@ import java.util.stream.Collectors;
  */
 public class NimbusAuthorizationCodeTokenExchanger implements AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> {
 	private static final String INVALID_TOKEN_RESPONSE_ERROR_CODE = "invalid_token_response";
+	private HttpClientConfig httpClientConfig = new HttpClientConfig();
 
 	@Override
 	public TokenResponseAttributes exchange(AuthorizationCodeAuthenticationToken authorizationCodeAuthenticationToken)
@@ -90,6 +93,8 @@ public class NimbusAuthorizationCodeTokenExchanger implements AuthorizationGrant
 			TokenRequest tokenRequest = new TokenRequest(tokenUri, clientAuthentication, authorizationCodeGrant);
 			HTTPRequest httpRequest = tokenRequest.toHTTPRequest();
 			httpRequest.setAccept(MediaType.APPLICATION_JSON_VALUE);
+			httpRequest.setConnectTimeout(this.httpClientConfig.getConnectTimeout());
+			httpRequest.setReadTimeout(this.httpClientConfig.getReadTimeout());
 			tokenResponse = TokenResponse.parse(httpRequest.send());
 		} catch (ParseException pe) {
 			// This error occurs if the Access Token Response is not well-formed,
@@ -130,6 +135,11 @@ public class NimbusAuthorizationCodeTokenExchanger implements AuthorizationGrant
 			.scopes(scopes)
 			.additionalParameters(additionalParameters)
 			.build();
+	}
+
+	public final void setHttpClientConfig(HttpClientConfig httpClientConfig) {
+		Assert.notNull(httpClientConfig, "httpClientConfig cannot be null");
+		this.httpClientConfig = httpClientConfig;
 	}
 
 	private URI toURI(String uriStr) {

@@ -15,9 +15,11 @@
  */
 package org.springframework.security.config.annotation.web.configurers.oauth2.client;
 
+import org.springframework.context.ApplicationContext;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.security.jose.jws.JwsAlgorithm;
 import org.springframework.security.jwt.JwtDecoder;
 import org.springframework.security.jwt.nimbus.NimbusJwtDecoderJwkSupport;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationProcessingFilter;
@@ -31,6 +33,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.user.OAuth2UserService;
 import org.springframework.security.oauth2.client.user.nimbus.NimbusOAuth2UserService;
+import org.springframework.security.oauth2.core.http.HttpClientConfig;
 import org.springframework.security.oauth2.core.provider.DefaultProviderMetadata;
 import org.springframework.security.oauth2.core.provider.ProviderMetadata;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -113,7 +116,7 @@ final class AuthorizationCodeAuthenticationFilterConfigurer<H extends HttpSecuri
 	@Override
 	public void init(H http) throws Exception {
 		AuthorizationCodeAuthenticationProvider authenticationProvider = new AuthorizationCodeAuthenticationProvider(
-				this.getAuthorizationCodeTokenExchanger(), this.getProviderJwtDecoderRegistry(), this.getUserInfoService());
+				this.getAuthorizationCodeTokenExchanger(http), this.getProviderJwtDecoderRegistry(http), this.getUserInfoService(http));
 		if (this.userAuthoritiesMapper != null) {
 			authenticationProvider.setAuthoritiesMapper(this.userAuthoritiesMapper);
 		}
@@ -134,14 +137,20 @@ final class AuthorizationCodeAuthenticationFilterConfigurer<H extends HttpSecuri
 		return this.getAuthenticationFilter().getAuthorizeRequestMatcher();
 	}
 
-	private AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> getAuthorizationCodeTokenExchanger() {
+	private AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> getAuthorizationCodeTokenExchanger(H http) {
 		if (this.authorizationCodeTokenExchanger == null) {
-			this.authorizationCodeTokenExchanger = new NimbusAuthorizationCodeTokenExchanger();
+			NimbusAuthorizationCodeTokenExchanger nimbusAuthorizationCodeTokenExchanger = new NimbusAuthorizationCodeTokenExchanger();
+			HttpClientConfig httpClientConfig = this.getHttpClientConfig(http);
+			if (httpClientConfig != null) {
+				nimbusAuthorizationCodeTokenExchanger.setHttpClientConfig(httpClientConfig);
+			}
+			this.authorizationCodeTokenExchanger = nimbusAuthorizationCodeTokenExchanger;
 		}
 		return this.authorizationCodeTokenExchanger;
 	}
 
-	private ProviderJwtDecoderRegistry getProviderJwtDecoderRegistry() {
+	private ProviderJwtDecoderRegistry getProviderJwtDecoderRegistry(H http) {
+		HttpClientConfig httpClientConfig = this.getHttpClientConfig(http);
 		Map<ProviderMetadata, JwtDecoder> jwtDecoders = new HashMap<>();
 		ClientRegistrationRepository clientRegistrationRepository = OAuth2LoginConfigurer.getClientRegistrationRepository(this.getBuilder());
 		clientRegistrationRepository.getRegistrations().stream().forEach(registration -> {
@@ -159,23 +168,36 @@ final class AuthorizationCodeAuthenticationFilterConfigurer<H extends HttpSecuri
 				providerMetadata.setTokenEndpoint(this.toURL(providerDetails.getTokenUri()));
 				providerMetadata.setUserInfoEndpoint(this.toURL(providerDetails.getUserInfoUri()));
 				providerMetadata.setJwkSetUri(this.toURL(providerDetails.getJwkSetUri()));
-				jwtDecoders.put(providerMetadata, new NimbusJwtDecoderJwkSupport(providerDetails.getJwkSetUri()));
+				NimbusJwtDecoderJwkSupport nimbusJwtDecoderJwkSupport = new NimbusJwtDecoderJwkSupport(
+					providerDetails.getJwkSetUri(), JwsAlgorithm.RS256, httpClientConfig);
+				jwtDecoders.put(providerMetadata, nimbusJwtDecoderJwkSupport);
 			}
 		});
 		return new DefaultProviderJwtDecoderRegistry(jwtDecoders);
 	}
 
-	private OAuth2UserService getUserInfoService() {
+	private OAuth2UserService getUserInfoService(H http) {
 		if (this.userInfoService == null) {
-			this.userInfoService = new NimbusOAuth2UserService();
+			NimbusOAuth2UserService nimbusOAuth2UserService = new NimbusOAuth2UserService();
 			if (!this.customUserTypes.isEmpty()) {
-				((NimbusOAuth2UserService)this.userInfoService).setCustomUserTypes(this.customUserTypes);
+				nimbusOAuth2UserService.setCustomUserTypes(this.customUserTypes);
 			}
 			if (!this.userNameAttributeNames.isEmpty()) {
-				((NimbusOAuth2UserService)this.userInfoService).setUserNameAttributeNames(this.userNameAttributeNames);
+				nimbusOAuth2UserService.setUserNameAttributeNames(this.userNameAttributeNames);
 			}
+			HttpClientConfig httpClientConfig = this.getHttpClientConfig(http);
+			if (httpClientConfig != null) {
+				nimbusOAuth2UserService.setHttpClientConfig(httpClientConfig);
+			}
+			this.userInfoService = nimbusOAuth2UserService;
 		}
 		return this.userInfoService;
+	}
+
+	private HttpClientConfig getHttpClientConfig(H http) {
+		Map<String, HttpClientConfig> httpClientConfigs =
+			http.getSharedObject(ApplicationContext.class).getBeansOfType(HttpClientConfig.class);
+		return (!httpClientConfigs.isEmpty() ? httpClientConfigs.values().iterator().next() : null);
 	}
 
 	private URL toURL(String urlStr) {

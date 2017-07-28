@@ -31,6 +31,7 @@ import org.springframework.security.authentication.AuthenticationServiceExceptio
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.http.HttpClientConfig;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.user.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2Error;
@@ -72,6 +73,7 @@ public class NimbusOAuth2UserService implements OAuth2UserService {
 	private final HttpMessageConverter jackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();
 	private Map<URI, String> userNameAttributeNames = Collections.unmodifiableMap(Collections.emptyMap());
 	private Map<URI, Class<? extends OAuth2User>> customUserTypes = Collections.unmodifiableMap(Collections.emptyMap());
+	private HttpClientConfig httpClientConfig = new HttpClientConfig();
 
 	public NimbusOAuth2UserService() {
 	}
@@ -151,6 +153,8 @@ public class NimbusOAuth2UserService implements OAuth2UserService {
 		UserInfoRequest userInfoRequest = new UserInfoRequest(userInfoUri, accessToken);
 		HTTPRequest httpRequest = userInfoRequest.toHTTPRequest();
 		httpRequest.setAccept(MediaType.APPLICATION_JSON_VALUE);
+		httpRequest.setConnectTimeout(this.httpClientConfig.getConnectTimeout());
+		httpRequest.setReadTimeout(this.httpClientConfig.getReadTimeout());
 		HTTPResponse httpResponse;
 
 		try {
@@ -213,6 +217,11 @@ public class NimbusOAuth2UserService implements OAuth2UserService {
 	public final void setCustomUserTypes(Map<URI, Class<? extends OAuth2User>> customUserTypes) {
 		Assert.notEmpty(customUserTypes, "customUserTypes cannot be empty");
 		this.customUserTypes = Collections.unmodifiableMap(new HashMap<>(customUserTypes));
+	}
+
+	public final void setHttpClientConfig(HttpClientConfig httpClientConfig) {
+		Assert.notNull(httpClientConfig, "httpClientConfig cannot be null");
+		this.httpClientConfig = httpClientConfig;
 	}
 
 	private URI getUserInfoUri(OAuth2AuthenticationToken token) {
