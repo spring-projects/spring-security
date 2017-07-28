@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.web.server.HttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.WebFilterChainFilter;
@@ -36,6 +37,8 @@ import java.util.List;
  */
 @Configuration
 public class WebFluxSecurityConfiguration {
+	public final int WEB_FILTER_CHAIN_FILTER_ORDER = 0 - 100;
+
 	private static final String BEAN_NAME_PREFIX = "org.springframework.security.config.annotation.web.reactive.WebFluxSecurityConfiguration.";
 
 	private static final String SPRING_SECURITY_WEBFILTERCHAINFILTER_BEAN_NAME = BEAN_NAME_PREFIX + "WebFilterChainFilter";
@@ -47,6 +50,7 @@ public class WebFluxSecurityConfiguration {
 	ApplicationContext context;
 
 	@Bean(SPRING_SECURITY_WEBFILTERCHAINFILTER_BEAN_NAME)
+	@Order(value = WEB_FILTER_CHAIN_FILTER_ORDER)
 	public WebFilterChainFilter springSecurityWebFilterChainFilter() {
 		return WebFilterChainFilter.fromSecurityWebFilterChainsList(getSecurityWebFilterChains());
 	}
