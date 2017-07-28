@@ -1,7 +1,9 @@
+ext.springVersion = '5.0.0.BUILD-SNAPSHOT'
+
 dependencyManagement {
 	imports {
 		mavenBom 'io.projectreactor:reactor-bom:Bismuth-BUILD-SNAPSHOT'
-		mavenBom 'org.springframework:spring-framework-bom:5.0.0.BUILD-SNAPSHOT'
+		mavenBom "org.springframework:spring-framework-bom:${springVersion}"
 		mavenBom 'org.springframework.data:spring-data-releasetrain:Kay-BUILD-SNAPSHOT'
 	}
 	dependencies {
@@ -25,6 +27,24 @@ dependencyManagement {
 		springIoTestRuntime {
 			dependencies {
 				dependency 'org.mockito:mockito-core:1.10.19'
+				dependency "org.springframework:spring-aop:${springVersion}"
+				dependency "org.springframework:spring-aspects:${springVersion}"
+				dependency "org.springframework:spring-beans:${springVersion}"
+				dependency "org.springframework:spring-context-support:${springVersion}"
+				dependency "org.springframework:spring-context:${springVersion}"
+				dependency "org.springframework:spring-core:${springVersion}"
+				dependency "org.springframework:spring-expression:${springVersion}"
+				dependency "org.springframework:spring-instrument:${springVersion}"
+				dependency "org.springframework:spring-jcl:${springVersion}"
+				dependency "org.springframework:spring-jdbc:${springVersion}"
+				dependency "org.springframework:spring-messaging:${springVersion}"
+				dependency "org.springframework:spring-orm:${springVersion}"
+				dependency "org.springframework:spring-test:${springVersion}"
+				dependency "org.springframework:spring-tx:${springVersion}"
+				dependency "org.springframework:spring-web:${springVersion}"
+				dependency "org.springframework:spring-webflux:${springVersion}"
+				dependency "org.springframework:spring-webmvc:${springVersion}"
+				dependency "org.springframework:spring-websocket:${springVersion}"
 			}
 		}
 	}
