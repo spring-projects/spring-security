@@ -17,37 +17,46 @@
  */
 package org.springframework.security.web.server.util.matcher;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.springframework.http.HttpMethod;
+import org.springframework.http.server.PathContainer;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.util.Assert;
-import org.springframework.util.PathMatcher;
 import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.util.pattern.ParsingPathMatcher;
+import org.springframework.web.util.pattern.PathPattern;
+import org.springframework.web.util.pattern.PathPatternParser;
 import reactor.core.publisher.Mono;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Rob Winch
  * @since 5.0
  */
-public final class PathMatcherServerWebExchangeMatcher implements ServerWebExchangeMatcher {
-	private static final PathMatcher DEFAULT_PATH_MATCHER = new ParsingPathMatcher();
+public final class PathPatternParserServerWebExchangeMatcher implements ServerWebExchangeMatcher {
+	private static final PathPatternParser DEFAULT_PATTERN_PARSER = new PathPatternParser();
 
-	private PathMatcher pathMatcher = DEFAULT_PATH_MATCHER;
-
-	private final String pattern;
+	private final PathPattern pattern;
 	private final HttpMethod method;
 
-	public PathMatcherServerWebExchangeMatcher(String pattern) {
+	public PathPatternParserServerWebExchangeMatcher(PathPattern pattern) {
 		this(pattern, null);
 	}
 
-	public PathMatcherServerWebExchangeMatcher(String pattern, HttpMethod method) {
+	public PathPatternParserServerWebExchangeMatcher(PathPattern pattern, HttpMethod method) {
 		Assert.notNull(pattern, "pattern cannot be null");
 		this.pattern = pattern;
 		this.method = method;
+	}
+
+	public PathPatternParserServerWebExchangeMatcher(String pattern, HttpMethod method) {
+		Assert.notNull(pattern, "pattern cannot be null");
+		this.pattern = DEFAULT_PATTERN_PARSER.parse(pattern);
+		this.method = method;
+	}
+
+	public PathPatternParserServerWebExchangeMatcher(String pattern) {
+		this(pattern, null);
 	}
 
 	@Override
@@ -56,19 +65,14 @@ public final class PathMatcherServerWebExchangeMatcher implements ServerWebExcha
 		if(this.method != null && !this.method.equals(request.getMethod())) {
 			return MatchResult.notMatch();
 		}
-		String path = request.getPath().pathWithinApplication().value();
-		boolean match = pathMatcher.match(pattern, path);
+		PathContainer path = request.getPath().pathWithinApplication();
+		boolean match = this.pattern.matches(path);
 		if(!match) {
 			return MatchResult.notMatch();
 		}
-		Map<String,String> pathVariables = pathMatcher.extractUriTemplateVariables(pattern, path);
+		Map<String,String> pathVariables = this.pattern.matchAndExtract(path).getUriVariables();
 		Map<String,Object> variables = new HashMap<>(pathVariables);
 		return MatchResult.match(variables);
-	}
-
-	public void setPathMatcher(PathMatcher pathMatcher) {
-		Assert.notNull(pathMatcher, "pathMatcher cannot be null");
-		this.pathMatcher = pathMatcher;
 	}
 
 	@Override

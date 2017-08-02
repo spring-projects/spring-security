@@ -32,8 +32,7 @@ import org.springframework.security.core.userdetails.UserDetailsRepository;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.WebFilterChainFilter;
-import org.springframework.security.web.server.util.matcher.PathMatcherServerWebExchangeMatcher;
-import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
+import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
@@ -101,7 +100,7 @@ public class EnableWebFluxSecurityTests {
 			@Bean
 			public SecurityWebFilterChain apiHttpSecurity(HttpSecurity http) {
 				http
-					.securityMatcher(new PathMatcherServerWebExchangeMatcher("/api/**"))
+					.securityMatcher(new PathPatternParserServerWebExchangeMatcher("/api/**"))
 					.authorizeExchange()
 						.anyExchange().denyAll();
 				return http.build();

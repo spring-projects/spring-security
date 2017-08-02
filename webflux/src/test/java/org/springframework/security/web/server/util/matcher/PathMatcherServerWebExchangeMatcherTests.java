@@ -17,11 +17,6 @@
  */
 package org.springframework.security.web.server.util.matcher;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,9 +26,15 @@ import org.springframework.http.HttpMethod;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.http.server.reactive.MockServerHttpResponse;
 import org.springframework.mock.http.server.reactive.MockServerWebExchange;
-import org.springframework.util.PathMatcher;
-import org.springframework.web.server.adapter.DefaultServerWebExchange;
 import org.springframework.web.server.session.DefaultWebSessionManager;
+import org.springframework.web.util.pattern.PathPattern;
+
+import java.util.HashMap;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -42,10 +43,11 @@ import org.springframework.web.server.session.DefaultWebSessionManager;
 @RunWith(MockitoJUnitRunner.class)
 public class PathMatcherServerWebExchangeMatcherTests {
 	@Mock
-	PathMatcher pathMatcher;
+	PathPattern pattern;
+	@Mock
+	PathPattern.PathMatchResult pathMatchResult;
 	MockServerWebExchange exchange;
-	PathMatcherServerWebExchangeMatcher matcher;
-	String pattern;
+	PathPatternParserServerWebExchangeMatcher matcher;
 	String path;
 
 	@Before
@@ -54,44 +56,43 @@ public class PathMatcherServerWebExchangeMatcherTests {
 		MockServerHttpResponse response = new MockServerHttpResponse();
 		DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
 		exchange = request.toExchange();
-		pattern = "/pattern";
 		path = "/path";
 
-		matcher = new PathMatcherServerWebExchangeMatcher(pattern);
-		matcher.setPathMatcher(pathMatcher);
+		matcher = new PathPatternParserServerWebExchangeMatcher(pattern);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorPatternWhenPatternNullThenThrowsException() {
-		new PathMatcherServerWebExchangeMatcher(null);
+		new PathPatternParserServerWebExchangeMatcher((PathPattern) null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorPatternAndMethodWhenPatternNullThenThrowsException() {
-		new PathMatcherServerWebExchangeMatcher(null, HttpMethod.GET);
+		new PathPatternParserServerWebExchangeMatcher((PathPattern) null, HttpMethod.GET);
 	}
 
 	@Test
 	public void matchesWhenPathMatcherTrueThenReturnTrue() {
-		when(pathMatcher.match(pattern, path)).thenReturn(true);
+		when(pattern.matches(any())).thenReturn(true);
+		when(pattern.matchAndExtract(any())).thenReturn(pathMatchResult);
+		when(pathMatchResult.getUriVariables()).thenReturn(new HashMap<>());
 
 		assertThat(matcher.matches(exchange).block().isMatch()).isTrue();
 	}
 
 	@Test
 	public void matchesWhenPathMatcherFalseThenReturnFalse() {
-		when(pathMatcher.match(pattern, path)).thenReturn(false);
+		when(pattern.matches(any())).thenReturn(false);
 
 		assertThat(matcher.matches(exchange).block().isMatch()).isFalse();
-
-		verify(pathMatcher).match(pattern, path);
 	}
 
 	@Test
 	public void matchesWhenPathMatcherTrueAndMethodTrueThenReturnTrue() {
-		matcher = new PathMatcherServerWebExchangeMatcher(pattern, exchange.getRequest().getMethod());
-		matcher.setPathMatcher(pathMatcher);
-		when(pathMatcher.match(pattern, path)).thenReturn(true);
+		matcher = new PathPatternParserServerWebExchangeMatcher(pattern, exchange.getRequest().getMethod());
+		when(pattern.matches(any())).thenReturn(true);
+		when(pattern.matchAndExtract(any())).thenReturn(pathMatchResult);
+		when(pathMatchResult.getUriVariables()).thenReturn(new HashMap<>());
 
 		assertThat(matcher.matches(exchange).block().isMatch()).isTrue();
 	}
@@ -100,16 +101,10 @@ public class PathMatcherServerWebExchangeMatcherTests {
 	public void matchesWhenPathMatcherTrueAndMethodFalseThenReturnFalse() {
 		HttpMethod method = HttpMethod.OPTIONS;
 		assertThat(exchange.getRequest().getMethod()).isNotEqualTo(method);
-		matcher = new PathMatcherServerWebExchangeMatcher(pattern, method);
-		matcher.setPathMatcher(pathMatcher);
+		matcher = new PathPatternParserServerWebExchangeMatcher(pattern, method);
 
 		assertThat(matcher.matches(exchange).block().isMatch()).isFalse();
 
-		verifyZeroInteractions(pathMatcher);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void setPathMatcherWhenNullThenThrowException() {
-		matcher.setPathMatcher(null);
+		verifyZeroInteractions(pattern);
 	}
 }

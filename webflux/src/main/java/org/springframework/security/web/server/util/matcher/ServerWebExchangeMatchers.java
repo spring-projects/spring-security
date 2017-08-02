@@ -33,7 +33,7 @@ public abstract class ServerWebExchangeMatchers {
 	public static ServerWebExchangeMatcher pathMatchers(HttpMethod method, String... patterns) {
 		List<ServerWebExchangeMatcher> matchers = new ArrayList<>(patterns.length);
 		for (String pattern : patterns) {
-			matchers.add(new PathMatcherServerWebExchangeMatcher(pattern, method));
+			matchers.add(new PathPatternParserServerWebExchangeMatcher(pattern, method));
 		}
 		return new OrServerWebExchangeMatcher(matchers);
 	}
