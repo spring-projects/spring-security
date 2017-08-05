@@ -28,7 +28,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 
 /**
- * Used by the <code>ExceptionTraslationFilter</code> to commence authentication via the
+ * Used by the <code>ExceptionTranslationFilter</code> to commence authentication via the
  * {@link BasicAuthenticationFilter}.
  * <p>
  * Once a user agent is authenticated using BASIC authentication, logout requires that the
