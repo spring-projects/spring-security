@@ -45,7 +45,7 @@ public class PathMatcherServerWebExchangeMatcherTests {
 	@Mock
 	PathPattern pattern;
 	@Mock
-	PathPattern.PathMatchResult pathMatchResult;
+	PathPattern.PathMatchInfo pathMatchInfo;
 	MockServerWebExchange exchange;
 	PathPatternParserServerWebExchangeMatcher matcher;
 	String path;
@@ -74,8 +74,8 @@ public class PathMatcherServerWebExchangeMatcherTests {
 	@Test
 	public void matchesWhenPathMatcherTrueThenReturnTrue() {
 		when(pattern.matches(any())).thenReturn(true);
-		when(pattern.matchAndExtract(any())).thenReturn(pathMatchResult);
-		when(pathMatchResult.getUriVariables()).thenReturn(new HashMap<>());
+		when(pattern.matchAndExtract(any())).thenReturn(pathMatchInfo);
+		when(pathMatchInfo.getUriVariables()).thenReturn(new HashMap<>());
 
 		assertThat(matcher.matches(exchange).block().isMatch()).isTrue();
 	}
@@ -91,8 +91,8 @@ public class PathMatcherServerWebExchangeMatcherTests {
 	public void matchesWhenPathMatcherTrueAndMethodTrueThenReturnTrue() {
 		matcher = new PathPatternParserServerWebExchangeMatcher(pattern, exchange.getRequest().getMethod());
 		when(pattern.matches(any())).thenReturn(true);
-		when(pattern.matchAndExtract(any())).thenReturn(pathMatchResult);
-		when(pathMatchResult.getUriVariables()).thenReturn(new HashMap<>());
+		when(pattern.matchAndExtract(any())).thenReturn(pathMatchInfo);
+		when(pathMatchInfo.getUriVariables()).thenReturn(new HashMap<>());
 
 		assertThat(matcher.matches(exchange).block().isMatch()).isTrue();
 	}
