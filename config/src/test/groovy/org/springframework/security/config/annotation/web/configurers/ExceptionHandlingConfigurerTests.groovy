@@ -155,7 +155,7 @@ class ExceptionHandlingConfigurerTests extends BaseSpringSpec {
 		static ContentNegotiationStrategy CNS
 
 		@Bean
-		public ContentNegotiationStrategy cns() {
+		public static ContentNegotiationStrategy cns() {
 			return CNS
 		}
 	}

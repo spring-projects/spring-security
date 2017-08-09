@@ -176,7 +176,7 @@ class WebSecurityConfigurerAdapterTests extends BaseSpringSpec {
 		static ContentNegotiationStrategy CNS
 
 		@Bean
-		public ContentNegotiationStrategy cns() {
+		public static ContentNegotiationStrategy cns() {
 			return CNS
 		}
 	}
@@ -193,6 +193,7 @@ class WebSecurityConfigurerAdapterTests extends BaseSpringSpec {
 
 	def "UserDetailsService lazy"() {
 		setup:
+			allowCircularReferences = true
 			loadConfig(RequiresUserDetailsServiceConfig,UserDetailsServiceConfig)
 		when:
 			findFilter(MyFilter).userDetailsService.loadUserByUsername("user")
@@ -274,7 +275,7 @@ class WebSecurityConfigurerAdapterTests extends BaseSpringSpec {
 		static AuthenticationTrustResolver TR
 
 		@Bean
-		public AuthenticationTrustResolver tr() {
+		public static AuthenticationTrustResolver tr() {
 			return TR
 		}
 	}

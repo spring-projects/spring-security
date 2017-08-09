@@ -160,7 +160,7 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 	}
 
 	@Bean
-	public AutowiredWebSecurityConfigurersIgnoreParents autowiredWebSecurityConfigurersIgnoreParents(
+	public static AutowiredWebSecurityConfigurersIgnoreParents autowiredWebSecurityConfigurersIgnoreParents(
 			ConfigurableListableBeanFactory beanFactory) {
 		return new AutowiredWebSecurityConfigurersIgnoreParents(beanFactory);
 	}
