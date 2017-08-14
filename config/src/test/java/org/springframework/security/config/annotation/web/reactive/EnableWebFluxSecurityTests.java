@@ -25,7 +25,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.DefaultDataBufferFactory;
+import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.web.server.HttpSecurity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.MapUserDetailsRepository;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsRepository;
@@ -35,8 +39,14 @@ import org.springframework.security.web.server.WebFilterChainFilter;
 import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import reactor.core.publisher.Mono;
 
-import static org.mockito.Mockito.mock;
+import java.nio.charset.StandardCharsets;
+import java.security.Principal;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.Credentials.basicAuthenticationCredentials;
+import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.basicAuthentication;
 
 /**
  * @author Rob Winch
@@ -58,6 +68,50 @@ public class EnableWebFluxSecurityTests {
 				.exchange()
 				.expectStatus().isUnauthorized()
 				.expectBody().isEmpty();
+		}
+
+		@Test
+		public void defaultPopulatesReactorContext() {
+			Principal currentPrincipal = new TestingAuthenticationToken("user", "password", "ROLE_USER");
+			WebTestClient client = WebTestClientBuilder.bindToWebFilters(
+				(exchange, chain) ->
+					chain.filter(exchange.mutate().principal(Mono.just(currentPrincipal)).build()),
+				springSecurityFilterChain,
+				(exchange,chain) ->
+					Mono.currentContext()
+						.flatMap( c -> c.<Mono<Principal>>get(Authentication.class))
+						.flatMap( principal -> exchange.getResponse()
+							.writeWith(Mono.just(toDataBuffer(principal.getName()))))
+			).build();
+
+			client
+				.get()
+				.uri("/")
+				.exchange()
+				.expectStatus().isOk()
+				.expectBody(String.class).consumeWith( result -> assertThat(result.getResponseBody()).isEqualTo(currentPrincipal.getName()));
+		}
+
+		@Test
+		public void defaultPopulatesReactorContextWhenAuthenticating() {
+			WebTestClient client = WebTestClientBuilder.bindToWebFilters(
+				springSecurityFilterChain,
+				(exchange,chain) ->
+					Mono.currentContext()
+						.flatMap( c -> c.<Mono<Principal>>get(Authentication.class))
+						.flatMap( principal -> exchange.getResponse()
+							.writeWith(Mono.just(toDataBuffer(principal.getName()))))
+			)
+			.filter(basicAuthentication())
+			.build();
+
+			client
+				.get()
+				.uri("/")
+				.attributes(basicAuthenticationCredentials("user","password"))
+				.exchange()
+				.expectStatus().isOk()
+				.expectBody(String.class).consumeWith( result -> assertThat(result.getResponseBody()).isEqualTo("user"));
 		}
 
 		@EnableWebFluxSecurity
@@ -120,5 +174,11 @@ public class EnableWebFluxSecurityTests {
 				);
 			}
 		}
+	}
+
+	private static DataBuffer toDataBuffer(String body) {
+		DataBuffer buffer = new DefaultDataBufferFactory().allocateBuffer();
+		buffer.write(body.getBytes(StandardCharsets.UTF_8));
+		return buffer;
 	}
 }

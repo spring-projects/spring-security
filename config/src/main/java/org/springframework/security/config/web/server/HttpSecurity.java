@@ -29,6 +29,7 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authorization.AuthorizationContext;
 import org.springframework.security.web.server.authorization.AuthorizationWebFilter;
 import org.springframework.security.web.server.authorization.DelegatingReactiveAuthorizationManager;
+import org.springframework.security.web.server.context.AuthenticationReactorContextFilter;
 import org.springframework.security.web.server.context.SecurityContextRepositoryWebFilter;
 import org.springframework.security.web.server.authorization.ExceptionTranslationWebFilter;
 import org.springframework.security.web.server.context.SecurityContextRepository;
@@ -114,6 +115,7 @@ public class HttpSecurity {
 			securityContextRepository.ifPresent( scr -> httpBasic.securityContextRepository(scr)) ;
 			filters.add(httpBasic.build());
 		}
+		filters.add(new AuthenticationReactorContextFilter());
 		if(authorizeExchangeBuilder != null) {
 			filters.add(new ExceptionTranslationWebFilter());
 			filters.add(authorizeExchangeBuilder.build());
