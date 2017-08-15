@@ -92,19 +92,16 @@ public final class AuthorizationRequestAttributes implements Serializable {
 		}
 
 		public Builder authorizeUri(String authorizeUri) {
-			Assert.hasText(authorizeUri, "authorizeUri cannot be empty");
 			this.authorizationRequest.authorizeUri = authorizeUri;
 			return this;
 		}
 
 		public Builder clientId(String clientId) {
-			Assert.hasText(clientId, "clientId cannot be empty");
 			this.authorizationRequest.clientId = clientId;
 			return this;
 		}
 
 		public Builder redirectUri(String redirectUri) {
-			Assert.hasText(redirectUri, "redirectUri cannot be empty");
 			this.authorizationRequest.redirectUri = redirectUri;
 			return this;
 		}
@@ -121,6 +118,8 @@ public final class AuthorizationRequestAttributes implements Serializable {
 		}
 
 		public AuthorizationRequestAttributes build() {
+			Assert.hasText(this.authorizationRequest.clientId, "clientId cannot be empty");
+			Assert.hasText(this.authorizationRequest.authorizeUri, "authorizeUri cannot be empty");
 			return this.authorizationRequest;
 		}
 	}
