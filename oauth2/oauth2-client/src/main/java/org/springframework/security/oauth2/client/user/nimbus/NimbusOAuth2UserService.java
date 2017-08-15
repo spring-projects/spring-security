@@ -152,7 +152,6 @@ public class NimbusOAuth2UserService implements OAuth2UserService {
 
 		UserInfoRequest userInfoRequest = new UserInfoRequest(userInfoUri, accessToken);
 		HTTPRequest httpRequest = userInfoRequest.toHTTPRequest();
-		httpRequest.setAccept(MediaType.APPLICATION_JSON_VALUE);
 		httpRequest.setConnectTimeout(this.httpClientConfig.getConnectTimeout());
 		httpRequest.setReadTimeout(this.httpClientConfig.getReadTimeout());
 		HTTPResponse httpResponse;
