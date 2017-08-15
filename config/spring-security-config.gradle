@@ -33,6 +33,7 @@ dependencies {
 	testCompile apachedsDependencies
 	testCompile powerMockDependencies
 	testCompile spockDependencies
+	testCompile 'ch.qos.logback:logback-classic'
 	testCompile 'javax.annotation:jsr250-api:1.0'
 	testCompile 'ldapsdk:ldapsdk:4.1'
 	testCompile 'org.codehaus.groovy:groovy-all'
