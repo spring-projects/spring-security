@@ -126,7 +126,7 @@ public class AuthorizationCodeRequestRedirectFilter extends OncePerRequestFilter
 				.state(this.stateGenerator.generateKey())
 				.build();
 
-		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequestAttributes, request);
+		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequestAttributes, request, response);
 
 		URI redirectUri = this.authorizationUriBuilder.build(authorizationRequestAttributes);
 		this.authorizationRedirectStrategy.sendRedirect(request, response, redirectUri.toString());

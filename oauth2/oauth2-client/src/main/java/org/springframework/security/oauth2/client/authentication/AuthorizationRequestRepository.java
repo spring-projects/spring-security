@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.client.authentication;
 import org.springframework.security.oauth2.core.endpoint.AuthorizationRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Implementations of this interface are responsible for the persistence
@@ -38,7 +39,8 @@ public interface AuthorizationRequestRepository {
 
 	AuthorizationRequestAttributes loadAuthorizationRequest(HttpServletRequest request);
 
-	void saveAuthorizationRequest(AuthorizationRequestAttributes authorizationRequest, HttpServletRequest request);
+	void saveAuthorizationRequest(AuthorizationRequestAttributes authorizationRequest, HttpServletRequest request,
+								  HttpServletResponse response);
 
 	AuthorizationRequestAttributes removeAuthorizationRequest(HttpServletRequest request);
 
