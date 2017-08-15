@@ -45,8 +45,12 @@ public class DelegatingReactiveAuthorizationManager implements ReactiveAuthoriza
 	public Mono<AuthorizationDecision> check(Mono<Authentication> authentication, ServerWebExchange exchange) {
 		return Flux.fromIterable(mappings)
 			.concatMap(mapping -> mapping.getMatcher().matches(exchange)
-			.filter(ServerWebExchangeMatcher.MatchResult::isMatch)
-			.flatMap(r -> mapping.getEntry().check(authentication, new AuthorizationContext(exchange, r.getVariables()))))
+				.filter(ServerWebExchangeMatcher.MatchResult::isMatch)
+				.map(r -> r.getVariables())
+				.flatMap(variables -> mapping.getEntry()
+					.check(authentication, new AuthorizationContext(exchange, variables))
+				)
+			)
 			.next()
 			.defaultIfEmpty(new AuthorizationDecision(false));
 	}
