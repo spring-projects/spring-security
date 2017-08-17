@@ -45,6 +45,11 @@ dependencyManagement {
 				dependency "org.springframework:spring-webflux:${springVersion}"
 				dependency "org.springframework:spring-webmvc:${springVersion}"
 				dependency "org.springframework:spring-websocket:${springVersion}"
+
+				dependency 'io.projectreactor.ipc:reactor-ipc:0.7.0.BUILD-SNAPSHOT'
+				dependency 'io.projectreactor.ipc:reactor-netty:0.7.0.BUILD-SNAPSHOT'
+				dependency 'io.projectreactor:reactor-core:3.1.0.BUILD-SNAPSHOT'
+				dependency 'io.projectreactor:reactor-test:3.1.0.BUILD-SNAPSHOT'
 			}
 		}
 	}
