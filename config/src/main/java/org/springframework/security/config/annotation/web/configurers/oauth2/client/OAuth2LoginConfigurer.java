@@ -29,6 +29,9 @@ import org.springframework.security.oauth2.client.registration.InMemoryClientReg
 import org.springframework.security.oauth2.client.user.OAuth2UserService;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.security.web.util.matcher.RequestVariablesExtractor;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
@@ -37,41 +40,41 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.springframework.security.oauth2.client.authentication.AuthorizationCodeRequestRedirectFilter.CLIENT_ALIAS_URI_VARIABLE_NAME;
+
 /**
  * @author Joe Grandja
  */
-public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> extends
-		AbstractHttpConfigurer<OAuth2LoginConfigurer<B>, B> {
+public final class OAuth2LoginConfigurer<H extends HttpSecurityBuilder<H>> extends
+		AbstractHttpConfigurer<OAuth2LoginConfigurer<H>, H> {
 
-	private final AuthorizationCodeRequestRedirectFilterConfigurer<B> authorizationCodeRequestRedirectFilterConfigurer;
-	private final AuthorizationCodeAuthenticationFilterConfigurer<B> authorizationCodeAuthenticationFilterConfigurer;
+	private final AuthorizationCodeRequestRedirectFilterConfigurer authorizationCodeRequestRedirectFilterConfigurer;
+	private final AuthorizationCodeAuthenticationFilterConfigurer authorizationCodeAuthenticationFilterConfigurer;
+	private final AuthorizationEndpointConfig authorizationEndpoint;
+	private final RedirectionEndpointConfig redirectionEndpoint;
 	private final UserInfoEndpointConfig userInfoEndpointConfig;
 
 	public OAuth2LoginConfigurer() {
 		this.authorizationCodeRequestRedirectFilterConfigurer = new AuthorizationCodeRequestRedirectFilterConfigurer<>();
 		this.authorizationCodeAuthenticationFilterConfigurer = new AuthorizationCodeAuthenticationFilterConfigurer<>();
+		this.authorizationEndpoint = new AuthorizationEndpointConfig();
+		this.redirectionEndpoint = new RedirectionEndpointConfig();
 		this.userInfoEndpointConfig = new UserInfoEndpointConfig();
 	}
 
-	public OAuth2LoginConfigurer<B> clients(ClientRegistration... clientRegistrations) {
+	public OAuth2LoginConfigurer<H> clients(ClientRegistration... clientRegistrations) {
 		Assert.notEmpty(clientRegistrations, "clientRegistrations cannot be empty");
-		return clients(new InMemoryClientRegistrationRepository(Arrays.asList(clientRegistrations)));
+		return this.clients(new InMemoryClientRegistrationRepository(Arrays.asList(clientRegistrations)));
 	}
 
-	public OAuth2LoginConfigurer<B> clients(ClientRegistrationRepository clientRegistrationRepository) {
+	public OAuth2LoginConfigurer<H> clients(ClientRegistrationRepository clientRegistrationRepository) {
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
 		Assert.notEmpty(clientRegistrationRepository.getRegistrations(), "clientRegistrationRepository cannot be empty");
 		this.getBuilder().setSharedObject(ClientRegistrationRepository.class, clientRegistrationRepository);
 		return this;
 	}
 
-	public OAuth2LoginConfigurer<B> authorizationRequestBuilder(AuthorizationRequestUriBuilder authorizationRequestBuilder) {
-		Assert.notNull(authorizationRequestBuilder, "authorizationRequestBuilder cannot be null");
-		this.authorizationCodeRequestRedirectFilterConfigurer.authorizationRequestBuilder(authorizationRequestBuilder);
-		return this;
-	}
-
-	public OAuth2LoginConfigurer<B> authorizationCodeTokenExchanger(
+	public OAuth2LoginConfigurer<H> authorizationCodeTokenExchanger(
 			AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger) {
 
 		Assert.notNull(authorizationCodeTokenExchanger, "authorizationCodeTokenExchanger cannot be null");
@@ -79,10 +82,56 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		return this;
 	}
 
-	public OAuth2LoginConfigurer<B> userAuthoritiesMapper(GrantedAuthoritiesMapper userAuthoritiesMapper) {
+	public OAuth2LoginConfigurer<H> userAuthoritiesMapper(GrantedAuthoritiesMapper userAuthoritiesMapper) {
 		Assert.notNull(userAuthoritiesMapper, "userAuthoritiesMapper cannot be null");
 		this.authorizationCodeAuthenticationFilterConfigurer.userAuthoritiesMapper(userAuthoritiesMapper);
 		return this;
+	}
+
+	public AuthorizationEndpointConfig authorizationEndpoint() {
+		return this.authorizationEndpoint;
+	}
+
+	public class AuthorizationEndpointConfig {
+
+		private AuthorizationEndpointConfig() {
+		}
+
+		public AuthorizationEndpointConfig authorizationRequestBuilder(AuthorizationRequestUriBuilder authorizationRequestBuilder) {
+			Assert.notNull(authorizationRequestBuilder, "authorizationRequestBuilder cannot be null");
+			OAuth2LoginConfigurer.this.authorizationCodeRequestRedirectFilterConfigurer.authorizationRequestBuilder(authorizationRequestBuilder);
+			return this;
+		}
+
+		public <R extends RequestMatcher & RequestVariablesExtractor> AuthorizationEndpointConfig requestMatcher(R authorizationRequestMatcher) {
+			Assert.notNull(authorizationRequestMatcher, "authorizationRequestMatcher cannot be null");
+			OAuth2LoginConfigurer.this.authorizationCodeRequestRedirectFilterConfigurer.authorizationRequestMatcher(authorizationRequestMatcher);
+			return this;
+		}
+
+		public OAuth2LoginConfigurer<H> and() {
+			return OAuth2LoginConfigurer.this;
+		}
+	}
+
+	public RedirectionEndpointConfig redirectionEndpoint() {
+		return this.redirectionEndpoint;
+	}
+
+	public class RedirectionEndpointConfig {
+
+		private RedirectionEndpointConfig() {
+		}
+
+		public <R extends RequestMatcher & RequestVariablesExtractor> RedirectionEndpointConfig requestMatcher(R authorizationResponseMatcher) {
+			Assert.notNull(authorizationResponseMatcher, "authorizationResponseMatcher cannot be null");
+			OAuth2LoginConfigurer.this.authorizationCodeAuthenticationFilterConfigurer.authorizationResponseMatcher(authorizationResponseMatcher);
+			return this;
+		}
+
+		public OAuth2LoginConfigurer<H> and() {
+			return OAuth2LoginConfigurer.this;
+		}
 	}
 
 	public UserInfoEndpointConfig userInfoEndpoint() {
@@ -94,33 +143,33 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		private UserInfoEndpointConfig() {
 		}
 
-		public OAuth2LoginConfigurer<B> userInfoService(OAuth2UserService userInfoService) {
+		public UserInfoEndpointConfig userInfoService(OAuth2UserService userInfoService) {
 			Assert.notNull(userInfoService, "userInfoService cannot be null");
 			OAuth2LoginConfigurer.this.authorizationCodeAuthenticationFilterConfigurer.userInfoService(userInfoService);
-			return this.and();
+			return this;
 		}
 
-		public OAuth2LoginConfigurer<B> customUserType(Class<? extends OAuth2User> customUserType, URI userInfoUri) {
+		public UserInfoEndpointConfig customUserType(Class<? extends OAuth2User> customUserType, URI userInfoUri) {
 			Assert.notNull(customUserType, "customUserType cannot be null");
 			Assert.notNull(userInfoUri, "userInfoUri cannot be null");
 			OAuth2LoginConfigurer.this.authorizationCodeAuthenticationFilterConfigurer.customUserType(customUserType, userInfoUri);
-			return this.and();
+			return this;
 		}
 
-		public OAuth2LoginConfigurer<B> userNameAttributeName(String userNameAttributeName, URI userInfoUri) {
+		public UserInfoEndpointConfig userNameAttributeName(String userNameAttributeName, URI userInfoUri) {
 			Assert.hasText(userNameAttributeName, "userNameAttributeName cannot be empty");
 			Assert.notNull(userInfoUri, "userInfoUri cannot be null");
 			OAuth2LoginConfigurer.this.authorizationCodeAuthenticationFilterConfigurer.userNameAttributeName(userNameAttributeName, userInfoUri);
-			return this.and();
+			return this;
 		}
 
-		public OAuth2LoginConfigurer<B> and() {
+		public OAuth2LoginConfigurer<H> and() {
 			return OAuth2LoginConfigurer.this;
 		}
 	}
 
 	@Override
-	public void init(B http) throws Exception {
+	public void init(H http) throws Exception {
 		this.authorizationCodeRequestRedirectFilterConfigurer.setBuilder(http);
 		this.authorizationCodeAuthenticationFilterConfigurer.setBuilder(http);
 
@@ -130,12 +179,12 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 	}
 
 	@Override
-	public void configure(B http) throws Exception {
+	public void configure(H http) throws Exception {
 		this.authorizationCodeRequestRedirectFilterConfigurer.configure(http);
 		this.authorizationCodeAuthenticationFilterConfigurer.configure(http);
 	}
 
-	static <B extends HttpSecurityBuilder<B>> ClientRegistrationRepository getClientRegistrationRepository(B http) {
+	static <H extends HttpSecurityBuilder<H>> ClientRegistrationRepository getClientRegistrationRepository(H http) {
 		ClientRegistrationRepository clientRegistrationRepository = http.getSharedObject(ClientRegistrationRepository.class);
 		if (clientRegistrationRepository == null) {
 			clientRegistrationRepository = getDefaultClientRegistrationRepository(http);
@@ -144,17 +193,33 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		return clientRegistrationRepository;
 	}
 
-	private static <B extends HttpSecurityBuilder<B>> ClientRegistrationRepository getDefaultClientRegistrationRepository(B http) {
+	private static <H extends HttpSecurityBuilder<H>> ClientRegistrationRepository getDefaultClientRegistrationRepository(H http) {
 		return http.getSharedObject(ApplicationContext.class).getBean(ClientRegistrationRepository.class);
 	}
 
-	private void initDefaultLoginFilter(B http) {
+	private void initDefaultLoginFilter(H http) {
 		DefaultLoginPageGeneratingFilter loginPageGeneratingFilter = http.getSharedObject(DefaultLoginPageGeneratingFilter.class);
 		if (loginPageGeneratingFilter != null && !this.authorizationCodeAuthenticationFilterConfigurer.isCustomLoginPage()) {
 			ClientRegistrationRepository clientRegistrationRepository = getClientRegistrationRepository(this.getBuilder());
 			if (!CollectionUtils.isEmpty(clientRegistrationRepository.getRegistrations())) {
+				String authorizationRequestBaseUri;
+				RequestMatcher authorizationRequestMatcher = OAuth2LoginConfigurer.this.authorizationCodeRequestRedirectFilterConfigurer.getAuthorizationRequestMatcher();
+				if (authorizationRequestMatcher != null && AntPathRequestMatcher.class.isAssignableFrom(authorizationRequestMatcher.getClass())) {
+					String authorizationRequestPattern =  ((AntPathRequestMatcher)authorizationRequestMatcher).getPattern();
+					String clientAliasTemplateVariable = "{" + CLIENT_ALIAS_URI_VARIABLE_NAME + "}";
+					if (authorizationRequestPattern.endsWith(clientAliasTemplateVariable)) {
+						authorizationRequestBaseUri = authorizationRequestPattern.substring(
+							0, authorizationRequestPattern.length() - clientAliasTemplateVariable.length() - 1);
+					} else {
+						authorizationRequestBaseUri = authorizationRequestPattern;
+					}
+				} else {
+					authorizationRequestBaseUri = AuthorizationCodeRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
+				}
+
 				Map<String, String> oauth2AuthenticationUrlToClientName = clientRegistrationRepository.getRegistrations().stream()
-					.collect(Collectors.toMap(e -> AuthorizationCodeRequestRedirectFilter.AUTHORIZATION_BASE_URI + "/" + e.getClientAlias(),
+					.collect(Collectors.toMap(
+						e -> authorizationRequestBaseUri + "/" + e.getClientAlias(),
 						e -> e.getClientName()));
 				loginPageGeneratingFilter.setOauth2LoginEnabled(true);
 				loginPageGeneratingFilter.setOauth2AuthenticationUrlToClientName(oauth2AuthenticationUrlToClientName);

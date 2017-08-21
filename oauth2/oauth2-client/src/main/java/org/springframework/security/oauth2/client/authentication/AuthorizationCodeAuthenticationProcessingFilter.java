@@ -30,6 +30,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.security.web.util.matcher.RequestVariablesExtractor;
 import org.springframework.util.Assert;
 
 import javax.servlet.ServletException;
@@ -99,21 +100,21 @@ import java.io.IOException;
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.2">Section 4.1.2 Authorization Response</a>
  */
 public class AuthorizationCodeAuthenticationProcessingFilter extends AbstractAuthenticationProcessingFilter {
-	public static final String AUTHORIZE_BASE_URI = "/oauth2/authorize/code";
-	private static final String CLIENT_ALIAS_VARIABLE_NAME = "clientAlias";
-	private static final String AUTHORIZE_URI = AUTHORIZE_BASE_URI + "/{" + CLIENT_ALIAS_VARIABLE_NAME + "}";
+	public static final String DEFAULT_AUTHORIZATION_RESPONSE_BASE_URI = "/oauth2/authorize/code";
+	public static final String CLIENT_ALIAS_URI_VARIABLE_NAME = "clientAlias";
+	public static final String DEFAULT_AUTHORIZATION_RESPONSE_URI = DEFAULT_AUTHORIZATION_RESPONSE_BASE_URI + "/{" + CLIENT_ALIAS_URI_VARIABLE_NAME + "}";
 	private static final String AUTHORIZATION_REQUEST_NOT_FOUND_ERROR_CODE = "authorization_request_not_found";
 	private static final String INVALID_STATE_PARAMETER_ERROR_CODE = "invalid_state_parameter";
 	private static final String INVALID_REDIRECT_URI_PARAMETER_ERROR_CODE = "invalid_redirect_uri_parameter";
 	private final ErrorResponseAttributesConverter errorResponseConverter = new ErrorResponseAttributesConverter();
 	private final AuthorizationCodeAuthorizationResponseAttributesConverter authorizationCodeResponseConverter =
 		new AuthorizationCodeAuthorizationResponseAttributesConverter();
-	private final RequestMatcher authorizeRequestMatcher = new AntPathRequestMatcher(AUTHORIZE_URI);
+	private RequestMatcher authorizationResponseMatcher = new AntPathRequestMatcher(DEFAULT_AUTHORIZATION_RESPONSE_URI);
 	private ClientRegistrationRepository clientRegistrationRepository;
 	private AuthorizationRequestRepository authorizationRequestRepository = new HttpSessionAuthorizationRequestRepository();
 
 	public AuthorizationCodeAuthenticationProcessingFilter() {
-		super(AUTHORIZE_URI);
+		super(DEFAULT_AUTHORIZATION_RESPONSE_URI);
 	}
 
 	@Override
@@ -157,8 +158,14 @@ public class AuthorizationCodeAuthenticationProcessingFilter extends AbstractAut
 		return authenticated;
 	}
 
-	public RequestMatcher getAuthorizeRequestMatcher() {
-		return this.authorizeRequestMatcher;
+	public RequestMatcher getAuthorizationResponseMatcher() {
+		return this.authorizationResponseMatcher;
+	}
+
+	public final <T extends RequestMatcher & RequestVariablesExtractor> void setAuthorizationResponseMatcher(T authorizationResponseMatcher) {
+		Assert.notNull(authorizationResponseMatcher, "authorizationResponseMatcher cannot be null");
+		this.authorizationResponseMatcher = authorizationResponseMatcher;
+		this.setRequiresAuthenticationRequestMatcher(authorizationResponseMatcher);
 	}
 
 	protected ClientRegistrationRepository getClientRegistrationRepository() {

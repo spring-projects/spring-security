@@ -38,6 +38,7 @@ import org.springframework.security.oauth2.core.provider.DefaultProviderMetadata
 import org.springframework.security.oauth2.core.provider.ProviderMetadata;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.security.web.util.matcher.RequestVariablesExtractor;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -51,9 +52,10 @@ import java.util.Map;
 /**
  * @author Joe Grandja
  */
-final class AuthorizationCodeAuthenticationFilterConfigurer<H extends HttpSecurityBuilder<H>> extends
-		AbstractAuthenticationFilterConfigurer<H, AuthorizationCodeAuthenticationFilterConfigurer<H>, AuthorizationCodeAuthenticationProcessingFilter> {
+final class AuthorizationCodeAuthenticationFilterConfigurer<H extends HttpSecurityBuilder<H>, R extends RequestMatcher & RequestVariablesExtractor> extends
+		AbstractAuthenticationFilterConfigurer<H, AuthorizationCodeAuthenticationFilterConfigurer<H, R>, AuthorizationCodeAuthenticationProcessingFilter> {
 
+	private R authorizationResponseMatcher;
 	private AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger;
 	private OAuth2UserService userInfoService;
 	private Map<URI, Class<? extends OAuth2User>> customUserTypes = new HashMap<>();
@@ -64,14 +66,13 @@ final class AuthorizationCodeAuthenticationFilterConfigurer<H extends HttpSecuri
 		super(new AuthorizationCodeAuthenticationProcessingFilter(), null);
 	}
 
-	AuthorizationCodeAuthenticationFilterConfigurer<H> clientRegistrationRepository(ClientRegistrationRepository clientRegistrationRepository) {
-		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
-		Assert.notEmpty(clientRegistrationRepository.getRegistrations(), "clientRegistrationRepository cannot be empty");
-		this.getBuilder().setSharedObject(ClientRegistrationRepository.class, clientRegistrationRepository);
+	AuthorizationCodeAuthenticationFilterConfigurer<H, R> authorizationResponseMatcher(R authorizationResponseMatcher) {
+		Assert.notNull(authorizationResponseMatcher, "authorizationResponseMatcher cannot be null");
+		this.authorizationResponseMatcher = authorizationResponseMatcher;
 		return this;
 	}
 
-	AuthorizationCodeAuthenticationFilterConfigurer<H> authorizationCodeTokenExchanger(
+	AuthorizationCodeAuthenticationFilterConfigurer<H, R> authorizationCodeTokenExchanger(
 			AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger) {
 
 		Assert.notNull(authorizationCodeTokenExchanger, "authorizationCodeTokenExchanger cannot be null");
@@ -79,29 +80,36 @@ final class AuthorizationCodeAuthenticationFilterConfigurer<H extends HttpSecuri
 		return this;
 	}
 
-	AuthorizationCodeAuthenticationFilterConfigurer<H> userInfoService(OAuth2UserService userInfoService) {
+	AuthorizationCodeAuthenticationFilterConfigurer<H, R> userInfoService(OAuth2UserService userInfoService) {
 		Assert.notNull(userInfoService, "userInfoService cannot be null");
 		this.userInfoService = userInfoService;
 		return this;
 	}
 
-	AuthorizationCodeAuthenticationFilterConfigurer<H> customUserType(Class<? extends OAuth2User> customUserType, URI userInfoUri) {
+	AuthorizationCodeAuthenticationFilterConfigurer<H, R> customUserType(Class<? extends OAuth2User> customUserType, URI userInfoUri) {
 		Assert.notNull(customUserType, "customUserType cannot be null");
 		Assert.notNull(userInfoUri, "userInfoUri cannot be null");
 		this.customUserTypes.put(userInfoUri, customUserType);
 		return this;
 	}
 
-	AuthorizationCodeAuthenticationFilterConfigurer<H> userNameAttributeName(String userNameAttributeName, URI userInfoUri) {
+	AuthorizationCodeAuthenticationFilterConfigurer<H, R> userNameAttributeName(String userNameAttributeName, URI userInfoUri) {
 		Assert.hasText(userNameAttributeName, "userNameAttributeName cannot be empty");
 		Assert.notNull(userInfoUri, "userInfoUri cannot be null");
 		this.userNameAttributeNames.put(userInfoUri, userNameAttributeName);
 		return this;
 	}
 
-	AuthorizationCodeAuthenticationFilterConfigurer<H> userAuthoritiesMapper(GrantedAuthoritiesMapper userAuthoritiesMapper) {
+	AuthorizationCodeAuthenticationFilterConfigurer<H, R> userAuthoritiesMapper(GrantedAuthoritiesMapper userAuthoritiesMapper) {
 		Assert.notNull(userAuthoritiesMapper, "userAuthoritiesMapper cannot be null");
 		this.userAuthoritiesMapper = userAuthoritiesMapper;
+		return this;
+	}
+
+	AuthorizationCodeAuthenticationFilterConfigurer<H, R> clientRegistrationRepository(ClientRegistrationRepository clientRegistrationRepository) {
+		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
+		Assert.notEmpty(clientRegistrationRepository.getRegistrations(), "clientRegistrationRepository cannot be empty");
+		this.getBuilder().setSharedObject(ClientRegistrationRepository.class, clientRegistrationRepository);
 		return this;
 	}
 
@@ -128,13 +136,17 @@ final class AuthorizationCodeAuthenticationFilterConfigurer<H extends HttpSecuri
 	@Override
 	public void configure(H http) throws Exception {
 		AuthorizationCodeAuthenticationProcessingFilter authFilter = this.getAuthenticationFilter();
+		if (this.authorizationResponseMatcher != null) {
+			authFilter.setAuthorizationResponseMatcher(this.authorizationResponseMatcher);
+		}
 		authFilter.setClientRegistrationRepository(OAuth2LoginConfigurer.getClientRegistrationRepository(this.getBuilder()));
 		super.configure(http);
 	}
 
 	@Override
 	protected RequestMatcher createLoginProcessingUrlMatcher(String loginProcessingUrl) {
-		return this.getAuthenticationFilter().getAuthorizeRequestMatcher();
+		return (this.authorizationResponseMatcher != null ?
+			this.authorizationResponseMatcher : this.getAuthenticationFilter().getAuthorizationResponseMatcher());
 	}
 
 	private AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> getAuthorizationCodeTokenExchanger(H http) {

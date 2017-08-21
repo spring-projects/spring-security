@@ -21,34 +21,49 @@ import org.springframework.security.oauth2.client.authentication.AuthorizationCo
 import org.springframework.security.oauth2.client.authentication.AuthorizationRequestUriBuilder;
 import org.springframework.security.oauth2.client.authentication.DefaultAuthorizationRequestUriBuilder;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.security.web.util.matcher.RequestVariablesExtractor;
 import org.springframework.util.Assert;
 
 /**
  * @author Joe Grandja
  */
-final class AuthorizationCodeRequestRedirectFilterConfigurer<B extends HttpSecurityBuilder<B>> extends
-		AbstractHttpConfigurer<AuthorizationCodeRequestRedirectFilterConfigurer<B>, B> {
+final class AuthorizationCodeRequestRedirectFilterConfigurer<H extends HttpSecurityBuilder<H>, R extends RequestMatcher & RequestVariablesExtractor> extends
+		AbstractHttpConfigurer<AuthorizationCodeRequestRedirectFilterConfigurer<H, R>, H> {
 
+	private R authorizationRequestMatcher;
 	private AuthorizationRequestUriBuilder authorizationRequestBuilder;
 
-	AuthorizationCodeRequestRedirectFilterConfigurer<B> clientRegistrationRepository(ClientRegistrationRepository clientRegistrationRepository) {
+	AuthorizationCodeRequestRedirectFilterConfigurer<H, R> authorizationRequestMatcher(R authorizationRequestMatcher) {
+		Assert.notNull(authorizationRequestMatcher, "authorizationRequestMatcher cannot be null");
+		this.authorizationRequestMatcher = authorizationRequestMatcher;
+		return this;
+	}
+
+	AuthorizationCodeRequestRedirectFilterConfigurer<H, R> authorizationRequestBuilder(AuthorizationRequestUriBuilder authorizationRequestBuilder) {
+		Assert.notNull(authorizationRequestBuilder, "authorizationRequestBuilder cannot be null");
+		this.authorizationRequestBuilder = authorizationRequestBuilder;
+		return this;
+	}
+
+	AuthorizationCodeRequestRedirectFilterConfigurer<H, R> clientRegistrationRepository(ClientRegistrationRepository clientRegistrationRepository) {
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
 		Assert.notEmpty(clientRegistrationRepository.getRegistrations(), "clientRegistrationRepository cannot be empty");
 		this.getBuilder().setSharedObject(ClientRegistrationRepository.class, clientRegistrationRepository);
 		return this;
 	}
 
-	AuthorizationCodeRequestRedirectFilterConfigurer<B> authorizationRequestBuilder(AuthorizationRequestUriBuilder authorizationRequestBuilder) {
-		Assert.notNull(authorizationRequestBuilder, "authorizationRequestBuilder cannot be null");
-		this.authorizationRequestBuilder = authorizationRequestBuilder;
-		return this;
+	R getAuthorizationRequestMatcher() {
+		return this.authorizationRequestMatcher;
 	}
 
 	@Override
-	public void configure(B http) throws Exception {
+	public void configure(H http) throws Exception {
 		AuthorizationCodeRequestRedirectFilter filter = new AuthorizationCodeRequestRedirectFilter(
-				OAuth2LoginConfigurer.getClientRegistrationRepository(this.getBuilder()),
-				this.getAuthorizationRequestBuilder());
+				OAuth2LoginConfigurer.getClientRegistrationRepository(this.getBuilder()), this.getAuthorizationRequestBuilder());
+		if (this.authorizationRequestMatcher != null) {
+			filter.setAuthorizationRequestMatcher(this.authorizationRequestMatcher);
+		}
 		http.addFilter(this.postProcess(filter));
 	}
 
