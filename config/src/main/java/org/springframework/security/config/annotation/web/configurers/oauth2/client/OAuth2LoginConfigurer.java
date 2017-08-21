@@ -28,6 +28,8 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.client.user.OAuth2UserService;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -85,6 +87,18 @@ public final class OAuth2LoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 	public OAuth2LoginConfigurer<H> userAuthoritiesMapper(GrantedAuthoritiesMapper userAuthoritiesMapper) {
 		Assert.notNull(userAuthoritiesMapper, "userAuthoritiesMapper cannot be null");
 		this.authorizationCodeAuthenticationFilterConfigurer.userAuthoritiesMapper(userAuthoritiesMapper);
+		return this;
+	}
+
+	public OAuth2LoginConfigurer<H> successHandler(AuthenticationSuccessHandler authenticationSuccessHandler) {
+		Assert.notNull(authenticationSuccessHandler, "authenticationSuccessHandler cannot be null");
+		this.authorizationCodeAuthenticationFilterConfigurer.successHandler(authenticationSuccessHandler);
+		return this;
+	}
+
+	public OAuth2LoginConfigurer<H> failureHandler(AuthenticationFailureHandler authenticationFailureHandler) {
+		Assert.notNull(authenticationFailureHandler, "authenticationFailureHandler cannot be null");
+		this.authorizationCodeAuthenticationFilterConfigurer.failureHandler(authenticationFailureHandler);
 		return this;
 	}
 
