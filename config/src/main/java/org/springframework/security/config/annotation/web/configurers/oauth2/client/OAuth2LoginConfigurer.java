@@ -52,15 +52,17 @@ public final class OAuth2LoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 
 	private final AuthorizationCodeRequestRedirectFilterConfigurer authorizationCodeRequestRedirectFilterConfigurer;
 	private final AuthorizationCodeAuthenticationFilterConfigurer authorizationCodeAuthenticationFilterConfigurer;
-	private final AuthorizationEndpointConfig authorizationEndpoint;
-	private final RedirectionEndpointConfig redirectionEndpoint;
+	private final AuthorizationEndpointConfig authorizationEndpointConfig;
+	private final TokenEndpointConfig tokenEndpointConfig;
+	private final RedirectionEndpointConfig redirectionEndpointConfig;
 	private final UserInfoEndpointConfig userInfoEndpointConfig;
 
 	public OAuth2LoginConfigurer() {
 		this.authorizationCodeRequestRedirectFilterConfigurer = new AuthorizationCodeRequestRedirectFilterConfigurer<>();
 		this.authorizationCodeAuthenticationFilterConfigurer = new AuthorizationCodeAuthenticationFilterConfigurer<>();
-		this.authorizationEndpoint = new AuthorizationEndpointConfig();
-		this.redirectionEndpoint = new RedirectionEndpointConfig();
+		this.authorizationEndpointConfig = new AuthorizationEndpointConfig();
+		this.tokenEndpointConfig = new TokenEndpointConfig();
+		this.redirectionEndpointConfig = new RedirectionEndpointConfig();
 		this.userInfoEndpointConfig = new UserInfoEndpointConfig();
 	}
 
@@ -73,14 +75,6 @@ public final class OAuth2LoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
 		Assert.notEmpty(clientRegistrationRepository.getRegistrations(), "clientRegistrationRepository cannot be empty");
 		this.getBuilder().setSharedObject(ClientRegistrationRepository.class, clientRegistrationRepository);
-		return this;
-	}
-
-	public OAuth2LoginConfigurer<H> authorizationCodeTokenExchanger(
-			AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger) {
-
-		Assert.notNull(authorizationCodeTokenExchanger, "authorizationCodeTokenExchanger cannot be null");
-		this.authorizationCodeAuthenticationFilterConfigurer.authorizationCodeTokenExchanger(authorizationCodeTokenExchanger);
 		return this;
 	}
 
@@ -103,7 +97,7 @@ public final class OAuth2LoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 	}
 
 	public AuthorizationEndpointConfig authorizationEndpoint() {
-		return this.authorizationEndpoint;
+		return this.authorizationEndpointConfig;
 	}
 
 	public class AuthorizationEndpointConfig {
@@ -128,8 +122,30 @@ public final class OAuth2LoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 		}
 	}
 
+	public TokenEndpointConfig tokenEndpoint() {
+		return this.tokenEndpointConfig;
+	}
+
+	public class TokenEndpointConfig {
+
+		private TokenEndpointConfig() {
+		}
+
+		public TokenEndpointConfig authorizationCodeTokenExchanger(
+			AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger) {
+
+			Assert.notNull(authorizationCodeTokenExchanger, "authorizationCodeTokenExchanger cannot be null");
+			OAuth2LoginConfigurer.this.authorizationCodeAuthenticationFilterConfigurer.authorizationCodeTokenExchanger(authorizationCodeTokenExchanger);
+			return this;
+		}
+
+		public OAuth2LoginConfigurer<H> and() {
+			return OAuth2LoginConfigurer.this;
+		}
+	}
+
 	public RedirectionEndpointConfig redirectionEndpoint() {
-		return this.redirectionEndpoint;
+		return this.redirectionEndpointConfig;
 	}
 
 	public class RedirectionEndpointConfig {

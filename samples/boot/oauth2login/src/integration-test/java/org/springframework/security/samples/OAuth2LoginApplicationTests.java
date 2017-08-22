@@ -366,7 +366,9 @@ public class OAuth2LoginApplicationTests {
 					.anyRequest().authenticated()
 					.and()
 				.oauth2Login()
-					.authorizationCodeTokenExchanger(this.mockAuthorizationCodeTokenExchanger())
+					.tokenEndpoint()
+						.authorizationCodeTokenExchanger(this.mockAuthorizationCodeTokenExchanger())
+						.and()
 					.userInfoEndpoint()
 						.userInfoService(this.mockUserInfoService());
 		}
