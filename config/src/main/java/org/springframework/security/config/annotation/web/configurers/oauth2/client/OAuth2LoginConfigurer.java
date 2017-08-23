@@ -26,7 +26,9 @@ import org.springframework.security.oauth2.client.authentication.AuthorizationRe
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
+import org.springframework.security.oauth2.client.token.SecurityTokenRepository;
 import org.springframework.security.oauth2.client.user.OAuth2UserService;
+import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -136,6 +138,12 @@ public final class OAuth2LoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 
 			Assert.notNull(authorizationCodeTokenExchanger, "authorizationCodeTokenExchanger cannot be null");
 			OAuth2LoginConfigurer.this.authorizationCodeAuthenticationFilterConfigurer.authorizationCodeTokenExchanger(authorizationCodeTokenExchanger);
+			return this;
+		}
+
+		public TokenEndpointConfig accessTokenRepository(SecurityTokenRepository<AccessToken> accessTokenRepository) {
+			Assert.notNull(accessTokenRepository, "accessTokenRepository cannot be null");
+			OAuth2LoginConfigurer.this.authorizationCodeAuthenticationFilterConfigurer.accessTokenRepository(accessTokenRepository);
 			return this;
 		}
 

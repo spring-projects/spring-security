@@ -26,6 +26,7 @@ import org.springframework.security.jwt.Jwt;
 import org.springframework.security.jwt.JwtDecoder;
 import org.springframework.security.oauth2.client.authentication.jwt.ProviderJwtDecoderRegistry;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.token.SecurityTokenRepository;
 import org.springframework.security.oauth2.client.user.OAuth2UserService;
 import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.security.oauth2.core.endpoint.TokenResponseAttributes;
@@ -79,19 +80,23 @@ import java.util.Collection;
  */
 public class AuthorizationCodeAuthenticationProvider implements AuthenticationProvider {
 	private final AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger;
+	private final SecurityTokenRepository<AccessToken> accessTokenRepository;
 	private final ProviderJwtDecoderRegistry providerJwtDecoderRegistry;
 	private final OAuth2UserService userInfoService;
 	private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
 
 	public AuthorizationCodeAuthenticationProvider(
 			AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger,
+			SecurityTokenRepository<AccessToken> accessTokenRepository,
 			ProviderJwtDecoderRegistry providerJwtDecoderRegistry,
 			OAuth2UserService userInfoService) {
 
 		Assert.notNull(authorizationCodeTokenExchanger, "authorizationCodeTokenExchanger cannot be null");
+		Assert.notNull(accessTokenRepository, "accessTokenRepository cannot be null");
 		Assert.notNull(providerJwtDecoderRegistry, "providerJwtDecoderRegistry cannot be null");
 		Assert.notNull(userInfoService, "userInfoService cannot be null");
 		this.authorizationCodeTokenExchanger = authorizationCodeTokenExchanger;
+		this.accessTokenRepository = accessTokenRepository;
 		this.providerJwtDecoderRegistry = providerJwtDecoderRegistry;
 		this.userInfoService = userInfoService;
 	}
@@ -133,6 +138,8 @@ public class AuthorizationCodeAuthenticationProvider implements AuthenticationPr
 			user, authorities, accessTokenAuthentication.getClientRegistration(),
 			accessTokenAuthentication.getAccessToken(), accessTokenAuthentication.getIdToken());
 		authenticationResult.setDetails(accessTokenAuthentication.getDetails());
+
+		this.accessTokenRepository.saveSecurityToken(accessToken, authenticationResult);
 
 		return authenticationResult;
 	}

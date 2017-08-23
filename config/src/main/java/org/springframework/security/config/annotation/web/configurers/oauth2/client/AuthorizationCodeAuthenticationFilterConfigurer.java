@@ -31,8 +31,11 @@ import org.springframework.security.oauth2.client.authentication.jwt.ProviderJwt
 import org.springframework.security.oauth2.client.authentication.nimbus.NimbusAuthorizationCodeTokenExchanger;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.token.InMemoryAccessTokenRepository;
+import org.springframework.security.oauth2.client.token.SecurityTokenRepository;
 import org.springframework.security.oauth2.client.user.OAuth2UserService;
 import org.springframework.security.oauth2.client.user.nimbus.NimbusOAuth2UserService;
+import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.security.oauth2.core.http.HttpClientConfig;
 import org.springframework.security.oauth2.core.provider.DefaultProviderMetadata;
 import org.springframework.security.oauth2.core.provider.ProviderMetadata;
@@ -57,6 +60,7 @@ final class AuthorizationCodeAuthenticationFilterConfigurer<H extends HttpSecuri
 
 	private R authorizationResponseMatcher;
 	private AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger;
+	private SecurityTokenRepository<AccessToken> accessTokenRepository;
 	private OAuth2UserService userInfoService;
 	private Map<URI, Class<? extends OAuth2User>> customUserTypes = new HashMap<>();
 	private Map<URI, String> userNameAttributeNames = new HashMap<>();
@@ -77,6 +81,12 @@ final class AuthorizationCodeAuthenticationFilterConfigurer<H extends HttpSecuri
 
 		Assert.notNull(authorizationCodeTokenExchanger, "authorizationCodeTokenExchanger cannot be null");
 		this.authorizationCodeTokenExchanger = authorizationCodeTokenExchanger;
+		return this;
+	}
+
+	AuthorizationCodeAuthenticationFilterConfigurer<H, R> accessTokenRepository(SecurityTokenRepository<AccessToken> accessTokenRepository) {
+		Assert.notNull(accessTokenRepository, "accessTokenRepository cannot be null");
+		this.accessTokenRepository = accessTokenRepository;
 		return this;
 	}
 
@@ -124,7 +134,8 @@ final class AuthorizationCodeAuthenticationFilterConfigurer<H extends HttpSecuri
 	@Override
 	public void init(H http) throws Exception {
 		AuthorizationCodeAuthenticationProvider authenticationProvider = new AuthorizationCodeAuthenticationProvider(
-				this.getAuthorizationCodeTokenExchanger(http), this.getProviderJwtDecoderRegistry(http), this.getUserInfoService(http));
+			this.getAuthorizationCodeTokenExchanger(http), this.getAccessTokenRepository(),
+			this.getProviderJwtDecoderRegistry(http), this.getUserInfoService(http));
 		if (this.userAuthoritiesMapper != null) {
 			authenticationProvider.setAuthoritiesMapper(this.userAuthoritiesMapper);
 		}
@@ -159,6 +170,13 @@ final class AuthorizationCodeAuthenticationFilterConfigurer<H extends HttpSecuri
 			this.authorizationCodeTokenExchanger = nimbusAuthorizationCodeTokenExchanger;
 		}
 		return this.authorizationCodeTokenExchanger;
+	}
+
+	private SecurityTokenRepository<AccessToken> getAccessTokenRepository() {
+		if (this.accessTokenRepository == null) {
+			this.accessTokenRepository = new InMemoryAccessTokenRepository();
+		}
+		return this.accessTokenRepository;
 	}
 
 	private ProviderJwtDecoderRegistry getProviderJwtDecoderRegistry(H http) {
