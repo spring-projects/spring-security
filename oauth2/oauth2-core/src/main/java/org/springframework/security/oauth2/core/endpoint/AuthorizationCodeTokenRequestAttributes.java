@@ -15,6 +15,7 @@
  */
 package org.springframework.security.oauth2.core.endpoint;
 
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.util.Assert;
 
 /**
@@ -58,18 +59,18 @@ public final class AuthorizationCodeTokenRequestAttributes {
 		}
 
 		public Builder clientId(String clientId) {
-			Assert.hasText(clientId, "clientId cannot be empty");
 			this.authorizationCodeTokenRequest.clientId = clientId;
 			return this;
 		}
 
 		public Builder redirectUri(String redirectUri) {
-			Assert.hasText(redirectUri, "redirectUri cannot be empty");
 			this.authorizationCodeTokenRequest.redirectUri = redirectUri;
 			return this;
 		}
 
 		public AuthorizationCodeTokenRequestAttributes build() {
+			Assert.hasText(this.authorizationCodeTokenRequest.clientId, "clientId cannot be empty");
+			Assert.hasText(this.authorizationCodeTokenRequest.redirectUri, "redirectUri cannot be empty");
 			return this.authorizationCodeTokenRequest;
 		}
 	}
