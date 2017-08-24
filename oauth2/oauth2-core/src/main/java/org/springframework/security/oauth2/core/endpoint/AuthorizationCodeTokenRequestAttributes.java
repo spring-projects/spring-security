@@ -29,7 +29,6 @@ public final class AuthorizationCodeTokenRequestAttributes {
 	private String code;
 	private String clientId;
 	private String redirectUri;
-	private AuthorizationGrantType grantType;
 
 	private AuthorizationCodeTokenRequestAttributes() {
 	}
@@ -46,10 +45,6 @@ public final class AuthorizationCodeTokenRequestAttributes {
 		return this.redirectUri;
 	}
 
-	public AuthorizationGrantType getGrantType() {
-		return grantType;
-	}
-
 	public static Builder withCode(String code) {
 		return new Builder(code);
 	}
@@ -61,7 +56,6 @@ public final class AuthorizationCodeTokenRequestAttributes {
 			Assert.hasText(code, "code cannot be empty");
 			this.authorizationCodeTokenRequest = new AuthorizationCodeTokenRequestAttributes();
 			this.authorizationCodeTokenRequest.code = code;
-			this.authorizationCodeTokenRequest.grantType = AuthorizationGrantType.AUTHORIZATION_CODE;
 		}
 
 		public Builder clientId(String clientId) {

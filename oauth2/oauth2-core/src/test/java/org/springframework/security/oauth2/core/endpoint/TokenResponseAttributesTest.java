@@ -21,7 +21,7 @@ import org.springframework.security.oauth2.core.AccessToken;
 import java.util.Collections;
 
 /**
- * Tests ${@link TokenResponseAttributes}
+ * Tests {@link TokenResponseAttributes}
  *
  * @author Luander Ribeiro
  */
@@ -61,7 +61,7 @@ public class TokenResponseAttributesTest {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void buildWhenTokeTypeIsNotCalledThenThrowIllegalArgumentException() {
+	public void buildWhenTokenTypeNotSetThenThrowIllegalArgumentException() {
 		TokenResponseAttributes.withToken(TOKEN)
 			.expiresIn(EXPIRES_IN)
 			.additionalParameters(Collections.emptyMap())

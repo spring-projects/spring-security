@@ -58,7 +58,7 @@ public class AuthorizationCodeTokenRequestAttributesTest {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void buildWhenClientIdIsNotCalledThenThrowIllegalArgumentException() {
+	public void buildWhenClientIdNotSetThenThrowIllegalArgumentException() {
 		AuthorizationCodeTokenRequestAttributes
 			.withCode(CODE)
 			.redirectUri(REDIRECT_URI)
@@ -66,22 +66,10 @@ public class AuthorizationCodeTokenRequestAttributesTest {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void buildWhenRedirectUriIsNotCalledThenThrowIllegalArgumentException() {
+	public void buildWhenRedirectUriNotSetThenThrowIllegalArgumentException() {
 		AuthorizationCodeTokenRequestAttributes
 			.withCode(CODE)
 			.clientId(CLIENT_ID)
 			.build();
-	}
-
-	@Test
-	public void buildWhenGetGrantTypeIsCalledThenReturnAuthorizationCodeString() {
-		AuthorizationCodeTokenRequestAttributes attributes;
-		attributes = AuthorizationCodeTokenRequestAttributes
-			.withCode(CODE)
-			.clientId(CLIENT_ID)
-			.redirectUri(REDIRECT_URI)
-			.build();
-
-		assertThat(attributes.getGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 	}
 }

@@ -47,7 +47,7 @@ public class AuthorizationRequestAttributesTest {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void buildWhenAuthorizeUriIsNotCalledThenThrowIllegalArgumentException() {
+	public void buildWhenAuthorizeUriNotSetThenThrowIllegalArgumentException() {
 		AuthorizationRequestAttributes.withAuthorizationCode()
 			.clientId(CLIENT_ID)
 			.redirectUri(REDIRECT_URI)
@@ -68,7 +68,7 @@ public class AuthorizationRequestAttributesTest {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void buildWhenClientIdIsNotCalledThenThrowIllegalArgumentException() {
+	public void buildWhenClientIdNotSetThenThrowIllegalArgumentException() {
 		AuthorizationRequestAttributes.withAuthorizationCode()
 			.authorizeUri(AUTHORIZE_URI)
 			.redirectUri(REDIRECT_URI)
@@ -103,7 +103,7 @@ public class AuthorizationRequestAttributesTest {
 	}
 
 	@Test
-	public void buildWhenRedirectUriIsNotCalledThenDoesNotThrowAnyException() {
+	public void buildWhenRedirectUriNotSetThenDoesNotThrowAnyException() {
 		assertThatCode(() -> AuthorizationRequestAttributes.withAuthorizationCode()
 			.authorizeUri(AUTHORIZE_URI)
 			.clientId(CLIENT_ID)
@@ -124,7 +124,7 @@ public class AuthorizationRequestAttributesTest {
 	}
 
 	@Test
-	public void buildWhenScopesIsNotCalledThenDoesNotThrowAnyException() {
+	public void buildWhenScopesNotSetThenDoesNotThrowAnyException() {
 		assertThatCode(() -> AuthorizationRequestAttributes.withAuthorizationCode()
 			.authorizeUri(AUTHORIZE_URI)
 			.clientId(CLIENT_ID)
@@ -145,7 +145,7 @@ public class AuthorizationRequestAttributesTest {
 	}
 
 	@Test
-	public void buildWhenStateIsNotCalledThenDoesNotThrowAnyException() {
+	public void buildWhenStateNotSetThenDoesNotThrowAnyException() {
 		assertThatCode(() -> AuthorizationRequestAttributes.withAuthorizationCode()
 			.authorizeUri(AUTHORIZE_URI)
 			.clientId(CLIENT_ID)

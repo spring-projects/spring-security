@@ -18,14 +18,14 @@ package org.springframework.security.oauth2.core.endpoint;
 import org.junit.Test;
 
 /**
- * Tests ${@link ErrorResponseAttributes}
+ * Tests {@link ErrorResponseAttributes}
  *
  * @author Luander Ribeiro
  */
 public class ErrorResponseAttributesTest {
 
 	@Test(expected = IllegalArgumentException.class)
-	public void builderWhenCodeIsNullThenThrowIllegalArgumentException() {
+	public void withErrorCodeWhenCodeIsNullThenThrowIllegalArgumentException() {
 		ErrorResponseAttributes.withErrorCode(null)
 			.build();
 	}
