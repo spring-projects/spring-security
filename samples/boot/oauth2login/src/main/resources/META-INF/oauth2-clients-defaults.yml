@@ -4,7 +4,7 @@ security:
       google:
         client-authentication-method: basic
         authorized-grant-type: authorization_code
-        redirect-uri: "{scheme}://{serverName}:{serverPort}/oauth2/authorize/code/{clientAlias}"
+        redirect-uri: "{scheme}://{serverName}:{serverPort}{contextPath}/oauth2/authorize/code/{clientAlias}"
         scopes: openid, profile, email, address, phone
         authorization-uri: "https://accounts.google.com/o/oauth2/auth"
         token-uri: "https://accounts.google.com/o/oauth2/token"
@@ -15,7 +15,7 @@ security:
       github:
         client-authentication-method: basic
         authorized-grant-type: authorization_code
-        redirect-uri: "{scheme}://{serverName}:{serverPort}/oauth2/authorize/code/{clientAlias}"
+        redirect-uri: "{scheme}://{serverName}:{serverPort}{contextPath}/oauth2/authorize/code/{clientAlias}"
         scopes: user
         authorization-uri: "https://github.com/login/oauth/authorize"
         token-uri: "https://github.com/login/oauth/access_token"
@@ -26,7 +26,7 @@ security:
       facebook:
         client-authentication-method: post
         authorized-grant-type: authorization_code
-        redirect-uri: "{scheme}://{serverName}:{serverPort}/oauth2/authorize/code/{clientAlias}"
+        redirect-uri: "{scheme}://{serverName}:{serverPort}{contextPath}/oauth2/authorize/code/{clientAlias}"
         scopes: public_profile, email
         authorization-uri: "https://www.facebook.com/v2.8/dialog/oauth"
         token-uri: "https://graph.facebook.com/v2.8/oauth/access_token"
@@ -37,7 +37,7 @@ security:
       okta:
         client-authentication-method: basic
         authorized-grant-type: authorization_code
-        redirect-uri: "{scheme}://{serverName}:{serverPort}/oauth2/authorize/code/{clientAlias}"
+        redirect-uri: "{scheme}://{serverName}:{serverPort}{contextPath}/oauth2/authorize/code/{clientAlias}"
         scopes: openid, profile, email, address, phone
         client-name: Okta
         client-alias: okta

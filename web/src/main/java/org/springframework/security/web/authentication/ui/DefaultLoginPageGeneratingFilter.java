@@ -268,7 +268,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 			sb.append("<table>\n");
 			for (Map.Entry<String, String> clientAuthenticationUrlToClientName : oauth2AuthenticationUrlToClientName.entrySet()) {
 				sb.append(" <tr><td>");
-				sb.append("<a href=\"").append(clientAuthenticationUrlToClientName.getKey()).append("\">");
+				sb.append("<a href=\"").append(request.getContextPath()).append(clientAuthenticationUrlToClientName.getKey()).append("\">");
 				sb.append(clientAuthenticationUrlToClientName.getValue());
 				sb.append("</a>");
 				sb.append("</td></tr>\n");

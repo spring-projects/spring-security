@@ -151,6 +151,7 @@ public class AuthorizationCodeRequestRedirectFilter extends OncePerRequestFilter
 		uriVariables.put("scheme", request.getScheme());
 		uriVariables.put("serverName", request.getServerName());
 		uriVariables.put("serverPort", String.valueOf(request.getServerPort()));
+		uriVariables.put("contextPath", request.getContextPath());
 		uriVariables.put("clientAlias", clientRegistration.getClientAlias());
 
 		return UriComponentsBuilder.fromUriString(clientRegistration.getRedirectUri())
