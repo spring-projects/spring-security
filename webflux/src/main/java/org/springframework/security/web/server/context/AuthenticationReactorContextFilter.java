@@ -40,6 +40,6 @@ public class AuthenticationReactorContextFilter implements WebFilter {
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 
 		return chain.filter(exchange)
-				.contextStart((Context context) -> context.put(Authentication.class, exchange.getPrincipal()));
+				.subscriberContext((Context context) -> context.put(Authentication.class, exchange.getPrincipal()));
 	}
 }

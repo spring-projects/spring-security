@@ -56,7 +56,7 @@ public class AuthenticationReactorContextFilterTests {
 				.then()
 			)
 		)
-		.contextStart( context -> context.put("foo", "bar")))
+		.subscriberContext( context -> context.put("foo", "bar")))
 		.verifyComplete();
 	}
 
