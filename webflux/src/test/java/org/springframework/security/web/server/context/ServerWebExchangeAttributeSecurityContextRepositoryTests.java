@@ -18,24 +18,31 @@
 
 package org.springframework.security.web.server.context;
 
-
+import org.junit.Test;
+import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Rob Winch
  * @since 5.0
  */
-public class ServerWebExchangeAttributeSecurityContextRepository implements SecurityContextRepository {
-	final String ATTR = "USER";
+public class ServerWebExchangeAttributeSecurityContextRepositoryTests {
+	ServerWebExchangeAttributeSecurityContextRepository repository = new ServerWebExchangeAttributeSecurityContextRepository();
+	ServerWebExchange exchange = MockServerHttpRequest.get("/").toExchange();
 
-	public Mono<ServerWebExchange> save(ServerWebExchange exchange, SecurityContext context) {
-		exchange.getAttributes().put(ATTR, context);
-		return Mono.just(new SecurityContextRepositoryServerWebExchange(exchange, this));
+	@Test
+	public void saveAndLoad() {
+		SecurityContext context = new SecurityContextImpl();
+		this.repository.save(this.exchange, context);
+
+		Mono<SecurityContext> loaded = this.repository.load(this.exchange);
+
+		assertThat(context).isSameAs(loaded.block());
 	}
 
-	public Mono<SecurityContext> load(ServerWebExchange exchange) {
-		return Mono.justOrEmpty(exchange.<SecurityContext>getAttribute(ATTR));
-	}
 }
