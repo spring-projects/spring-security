@@ -68,7 +68,7 @@ public class HttpSecurity {
 	private HttpBasicBuilder httpBasic;
 	private ReactiveAuthenticationManager authenticationManager;
 
-	private Optional<SecurityContextRepository> securityContextRepository = Optional.empty();
+	private SecurityContextRepository securityContextRepository;
 
 	/**
 	 * The ServerExchangeMatcher that determines which requests apply to this HttpSecurity instance.
@@ -92,7 +92,7 @@ public class HttpSecurity {
 
 	public HttpSecurity securityContextRepository(SecurityContextRepository securityContextRepository) {
 		Assert.notNull(securityContextRepository, "securityContextRepository cannot be null");
-		this.securityContextRepository = Optional.of(securityContextRepository);
+		this.securityContextRepository = securityContextRepository;
 		return this;
 	}
 
@@ -124,10 +124,15 @@ public class HttpSecurity {
 		if(headers != null) {
 			filters.add(headers.build());
 		}
-		securityContextRepositoryWebFilter().ifPresent( f-> filters.add(f));
+		SecurityContextRepositoryWebFilter securityContextRepositoryWebFilter = securityContextRepositoryWebFilter();
+		if(securityContextRepositoryWebFilter != null) {
+			filters.add(securityContextRepositoryWebFilter);
+		}
 		if(httpBasic != null) {
 			httpBasic.authenticationManager(authenticationManager);
-			securityContextRepository.ifPresent( scr -> httpBasic.securityContextRepository(scr)) ;
+			if(securityContextRepository != null) {
+				httpBasic.securityContextRepository(securityContextRepository);
+			}
 			filters.add(httpBasic.build());
 		}
 		filters.add(new AuthenticationReactorContextFilter());
@@ -142,9 +147,9 @@ public class HttpSecurity {
 		return new HttpSecurity();
 	}
 
-	private Optional<SecurityContextRepositoryWebFilter> securityContextRepositoryWebFilter() {
-		return securityContextRepository
-			.flatMap( r -> Optional.of(new SecurityContextRepositoryWebFilter(r)));
+	private SecurityContextRepositoryWebFilter securityContextRepositoryWebFilter() {
+		return this.securityContextRepository == null ? null :
+			new SecurityContextRepositoryWebFilter(this.securityContextRepository);
 	}
 
 	public class HttpBasicSpec extends HttpBasicBuilder {
