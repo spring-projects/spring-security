@@ -42,7 +42,8 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
  * @since 5.0
  */
 public class HeaderBuilderTests {
-	HeaderBuilder headers = new HeaderBuilder();
+
+	HttpSecurity.HeaderBuilder headers = HttpSecurity.http().headers();
 
 	HttpHeaders expectedHeaders = new HttpHeaders();
 
