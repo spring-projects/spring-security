@@ -97,21 +97,21 @@ public class HttpSecurity {
 	}
 
 	public HttpBasicBuilder httpBasic() {
-		if(httpBasic == null) {
-			httpBasic = new HttpBasicBuilder();
+		if(this.httpBasic == null) {
+			this.httpBasic = new HttpBasicBuilder();
 		}
-		return httpBasic;
+		return this.httpBasic;
 	}
 
 	public HeaderBuilder headers() {
-		return headers;
+		return this.headers;
 	}
 
 	public AuthorizeExchangeBuilder authorizeExchange() {
-		if(authorizeExchangeBuilder == null) {
-			authorizeExchangeBuilder = new AuthorizeExchangeBuilder();
+		if(this.authorizeExchangeBuilder == null) {
+			this.authorizeExchangeBuilder = new AuthorizeExchangeBuilder();
 		}
-		return authorizeExchangeBuilder;
+		return this.authorizeExchangeBuilder;
 	}
 
 	public HttpSecurity authenticationManager(ReactiveAuthenticationManager manager) {
@@ -121,24 +121,24 @@ public class HttpSecurity {
 
 	public SecurityWebFilterChain build() {
 		List<WebFilter> filters = new ArrayList<>();
-		if(headers != null) {
-			filters.add(headers.build());
+		if(this.headers != null) {
+			filters.add(this.headers.build());
 		}
 		SecurityContextRepositoryWebFilter securityContextRepositoryWebFilter = securityContextRepositoryWebFilter();
 		if(securityContextRepositoryWebFilter != null) {
 			filters.add(securityContextRepositoryWebFilter);
 		}
-		if(httpBasic != null) {
-			httpBasic.authenticationManager(authenticationManager);
-			if(securityContextRepository != null) {
-				httpBasic.securityContextRepository(securityContextRepository);
+		if(this.httpBasic != null) {
+			this.httpBasic.authenticationManager(this.authenticationManager);
+			if(this.securityContextRepository != null) {
+				this.httpBasic.securityContextRepository(this.securityContextRepository);
 			}
-			filters.add(httpBasic.build());
+			filters.add(this.httpBasic.build());
 		}
 		filters.add(new AuthenticationReactorContextFilter());
-		if(authorizeExchangeBuilder != null) {
+		if(this.authorizeExchangeBuilder != null) {
 			filters.add(new ExceptionTranslationWebFilter());
-			filters.add(authorizeExchangeBuilder.build());
+			filters.add(this.authorizeExchangeBuilder.build());
 		}
 		return new MatcherSecurityWebFilterChain(getSecurityMatcher(), filters);
 	}
@@ -150,13 +150,6 @@ public class HttpSecurity {
 	private SecurityContextRepositoryWebFilter securityContextRepositoryWebFilter() {
 		return this.securityContextRepository == null ? null :
 			new SecurityContextRepositoryWebFilter(this.securityContextRepository);
-	}
-
-	public class HttpBasicSpec extends HttpBasicBuilder {
-		public HttpSecurity disable() {
-			httpBasic = null;
-			return HttpSecurity.this;
-		}
 	}
 
 	private HttpSecurity() {}
@@ -177,13 +170,13 @@ public class HttpSecurity {
 		@Override
 		public Access anyExchange() {
 			Access result = super.anyExchange();
-			anyExchangeRegistered = true;
+			this.anyExchangeRegistered = true;
 			return result;
 		}
 
 		@Override
 		protected Access registerMatcher(ServerWebExchangeMatcher matcher) {
-			if(anyExchangeRegistered) {
+			if(this.anyExchangeRegistered) {
 				throw new IllegalStateException("Cannot register " + matcher + " which would be unreachable because anyExchange() has already been registered.");
 			}
 			if(this.matcher != null) {
@@ -195,9 +188,9 @@ public class HttpSecurity {
 
 		protected WebFilter build() {
 			if(this.matcher != null) {
-				throw new IllegalStateException("The matcher " + matcher + " does not have an access rule defined");
+				throw new IllegalStateException("The matcher " + this.matcher + " does not have an access rule defined");
 			}
-			return new AuthorizationWebFilter(managerBldr.build());
+			return new AuthorizationWebFilter(this.managerBldr.build());
 		}
 
 		public final class Access {
@@ -223,8 +216,10 @@ public class HttpSecurity {
 			}
 
 			public AuthorizeExchangeBuilder access(ReactiveAuthorizationManager<AuthorizationContext> manager) {
-				managerBldr.add(new ServerWebExchangeMatcherEntry<>(matcher, manager));
-				matcher = null;
+				AuthorizeExchangeBuilder.this.managerBldr
+					.add(new ServerWebExchangeMatcherEntry<>(
+						AuthorizeExchangeBuilder.this.matcher, manager));
+				AuthorizeExchangeBuilder.this.matcher = null;
 				return AuthorizeExchangeBuilder.this;
 			}
 		}
@@ -255,13 +250,19 @@ public class HttpSecurity {
 			return HttpSecurity.this;
 		}
 
+		public HttpSecurity disable() {
+			HttpSecurity.this.httpBasic = null;
+			return HttpSecurity.this;
+		}
+
 		protected AuthenticationWebFilter build() {
-			AuthenticationWebFilter authenticationFilter = new AuthenticationWebFilter(authenticationManager);
-			authenticationFilter.setEntryPoint(entryPoint);
+			AuthenticationWebFilter authenticationFilter = new AuthenticationWebFilter(
+				this.authenticationManager);
+			authenticationFilter.setEntryPoint(this.entryPoint);
 			authenticationFilter.setAuthenticationConverter(new HttpBasicAuthenticationConverter());
-			if(securityContextRepository != null) {
+			if(this.securityContextRepository != null) {
 				DefaultAuthenticationSuccessHandler handler = new DefaultAuthenticationSuccessHandler();
-				handler.setSecurityContextRepository(securityContextRepository);
+				handler.setSecurityContextRepository(this.securityContextRepository);
 				authenticationFilter.setAuthenticationSuccessHandler(handler);
 			}
 			return authenticationFilter;
@@ -308,7 +309,7 @@ public class HttpSecurity {
 		}
 
 		public HttpHeaderWriterWebFilter build() {
-			HttpHeadersWriter writer = new CompositeHttpHeadersWriter(writers);
+			HttpHeadersWriter writer = new CompositeHttpHeadersWriter(this.writers);
 			return new HttpHeaderWriterWebFilter(writer);
 		}
 
@@ -318,7 +319,7 @@ public class HttpSecurity {
 
 		public class CacheSpec {
 			public void disable() {
-				writers.remove(cacheControl);
+				HeaderBuilder.this.writers.remove(HeaderBuilder.this.cacheControl);
 			}
 
 			private CacheSpec() {}
@@ -326,7 +327,7 @@ public class HttpSecurity {
 
 		public class ContentTypeOptionsSpec {
 			public void disable() {
-				writers.remove(contentTypeOptions);
+				HeaderBuilder.this.writers.remove(HeaderBuilder.this.contentTypeOptions);
 			}
 
 			private ContentTypeOptionsSpec() {}
@@ -334,10 +335,10 @@ public class HttpSecurity {
 
 		public class FrameOptionsSpec {
 			public void mode(XFrameOptionsHttpHeadersWriter.Mode mode) {
-				frameOptions.setMode(mode);
+				HeaderBuilder.this.frameOptions.setMode(mode);
 			}
 			public void disable() {
-				writers.remove(frameOptions);
+				HeaderBuilder.this.writers.remove(HeaderBuilder.this.frameOptions);
 			}
 
 			private FrameOptionsSpec() {}
@@ -345,15 +346,15 @@ public class HttpSecurity {
 
 		public class HstsSpec {
 			public void maxAge(Duration maxAge) {
-				hsts.setMaxAge(maxAge);
+				HeaderBuilder.this.hsts.setMaxAge(maxAge);
 			}
 
 			public void includeSubdomains(boolean includeSubDomains) {
-				hsts.setIncludeSubDomains(includeSubDomains);
+				HeaderBuilder.this.hsts.setIncludeSubDomains(includeSubDomains);
 			}
 
 			public void disable() {
-				writers.remove(hsts);
+				HeaderBuilder.this.writers.remove(HeaderBuilder.this.hsts);
 			}
 
 			private HstsSpec() {}
@@ -361,7 +362,7 @@ public class HttpSecurity {
 
 		public class XssProtectionSpec {
 			public void disable() {
-				writers.remove(xss);
+				HeaderBuilder.this.writers.remove(HeaderBuilder.this.xss);
 			}
 
 			private XssProtectionSpec() {}
@@ -369,7 +370,8 @@ public class HttpSecurity {
 
 		private HeaderBuilder() {
 			this.writers = new ArrayList<>(
-				Arrays.asList(cacheControl, contentTypeOptions, hsts, frameOptions, xss));
+				Arrays.asList(this.cacheControl, this.contentTypeOptions, this.hsts,
+					this.frameOptions, this.xss));
 		}
 	}
 }
