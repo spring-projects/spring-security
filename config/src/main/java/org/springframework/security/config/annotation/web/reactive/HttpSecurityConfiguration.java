@@ -26,6 +26,7 @@ import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authentication.UserDetailsRepositoryAuthenticationManager;
 import org.springframework.security.config.web.server.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.reactive.result.method.annotation.AuthenticationPrincipalArgumentResolver;
 import org.springframework.security.web.server.context.WebSessionSecurityContextRepository;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
@@ -50,6 +51,9 @@ public class HttpSecurityConfiguration implements WebFluxConfigurer {
 	@Autowired(required = false)
 	private UserDetailsRepository userDetailsRepository;
 
+	@Autowired(required = false)
+	private PasswordEncoder passwordEncoder;
+
 	@Override
 	public void configureArgumentResolvers(ArgumentResolverConfigurer configurer) {
 		configurer.addCustomResolver(authenticationPrincipalArgumentResolver());
@@ -57,7 +61,7 @@ public class HttpSecurityConfiguration implements WebFluxConfigurer {
 
 	@Bean
 	public AuthenticationPrincipalArgumentResolver authenticationPrincipalArgumentResolver() {
-		return new AuthenticationPrincipalArgumentResolver(adapterRegistry);
+		return new AuthenticationPrincipalArgumentResolver(this.adapterRegistry);
 	}
 
 	@Bean(HTTPSECURITY_BEAN_NAME)
@@ -71,11 +75,16 @@ public class HttpSecurityConfiguration implements WebFluxConfigurer {
 	}
 
 	private ReactiveAuthenticationManager authenticationManager() {
-		if(authenticationManager != null) {
-			return authenticationManager;
+		if(this.authenticationManager != null) {
+			return this.authenticationManager;
 		}
-		if(userDetailsRepository != null) {
-			return new UserDetailsRepositoryAuthenticationManager(userDetailsRepository);
+		if(this.userDetailsRepository != null) {
+			UserDetailsRepositoryAuthenticationManager manager =
+				new UserDetailsRepositoryAuthenticationManager(this.userDetailsRepository);
+			if(this.passwordEncoder != null) {
+				manager.setPasswordEncoder(this.passwordEncoder);
+			}
+			return manager;
 		}
 		return null;
 	}

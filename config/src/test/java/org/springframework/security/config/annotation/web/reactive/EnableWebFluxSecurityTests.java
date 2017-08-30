@@ -33,6 +33,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.MapUserDetailsRepository;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.WebFilterChainFilter;
@@ -123,6 +125,51 @@ public class EnableWebFluxSecurityTests {
 					.roles("USER")
 					.build()
 				);
+			}
+		}
+	}
+
+	@RunWith(SpringRunner.class)
+	public static class CustomPasswordEncoder {
+		@Autowired
+		WebFilterChainFilter springSecurityFilterChain;
+
+		@Test
+		public void passwordEncoderBeanIsUsed() {
+			WebTestClient client = WebTestClientBuilder.bindToWebFilters(
+				springSecurityFilterChain,
+				(exchange,chain) ->
+					Mono.currentContext()
+						.flatMap( c -> c.<Mono<Principal>>get(Authentication.class))
+						.flatMap( principal -> exchange.getResponse()
+							.writeWith(Mono.just(toDataBuffer(principal.getName()))))
+			)
+				.filter(basicAuthentication())
+				.build();
+
+			client
+				.get()
+				.uri("/")
+				.attributes(basicAuthenticationCredentials("user","password"))
+				.exchange()
+				.expectStatus().isOk()
+				.expectBody(String.class).consumeWith( result -> assertThat(result.getResponseBody()).isEqualTo("user"));
+		}
+
+		@EnableWebFluxSecurity
+		static class Config {
+			@Bean
+			public UserDetailsRepository userDetailsRepository(PasswordEncoder encoder) {
+				return new MapUserDetailsRepository(User.withUsername("user")
+					.password(encoder.encode("password"))
+					.roles("USER")
+					.build()
+				);
+			}
+
+			@Bean
+			public PasswordEncoder passwordEncoder() {
+				return new BCryptPasswordEncoder();
 			}
 		}
 	}
