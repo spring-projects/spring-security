@@ -19,7 +19,6 @@ import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 
@@ -47,7 +46,7 @@ import java.util.Map;
  * @see DefaultOAuth2User
  * @see AuthenticatedPrincipal
  */
-public interface OAuth2User extends AuthenticatedPrincipal, Serializable {
+public interface OAuth2User extends AuthenticatedPrincipal {
 
 	Collection<? extends GrantedAuthority> getAuthorities();
 

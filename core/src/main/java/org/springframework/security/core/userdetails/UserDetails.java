@@ -20,7 +20,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.AuthenticatedPrincipal;
 
-import java.io.Serializable;
 import java.util.Collection;
 
 /**
@@ -42,7 +41,7 @@ import java.util.Collection;
  *
  * @author Ben Alex
  */
-public interface UserDetails extends AuthenticatedPrincipal, Serializable {
+public interface UserDetails extends AuthenticatedPrincipal {
 	// ~ Methods
 	// ========================================================================================================
 

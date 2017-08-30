@@ -15,6 +15,8 @@
  */
 package org.springframework.security.core;
 
+import java.io.Serializable;
+
 import org.springframework.security.authentication.AuthenticationManager;
 
 /**
@@ -34,7 +36,7 @@ import org.springframework.security.authentication.AuthenticationManager;
  * @see Authentication#getPrincipal()
  * @see org.springframework.security.core.userdetails.UserDetails
  */
-public interface AuthenticatedPrincipal {
+public interface AuthenticatedPrincipal extends Serializable {
 
 	/**
 	 * Returns the name of the authenticated <code>Principal</code>. Never <code>null</code>.
