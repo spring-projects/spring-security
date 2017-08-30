@@ -16,6 +16,7 @@
 package org.springframework.security.authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 import org.junit.Before;
@@ -28,6 +29,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
 
 import org.springframework.security.core.userdetails.UserDetailsRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -39,6 +41,8 @@ import reactor.test.StepVerifier;
 public class UserDetailsRepositoryAuthenticationManagerTests {
 	@Mock
 	UserDetailsRepository repository;
+	@Mock
+	PasswordEncoder passwordEncoder;
 	UserDetailsRepositoryAuthenticationManager manager;
 	String username;
 	String password;
@@ -94,4 +98,35 @@ public class UserDetailsRepositoryAuthenticationManagerTests {
 		assertThat(authentication).isEqualTo(authentication);
 	}
 
+	@Test
+	public void authenticateWhenPasswordEncoderAndSuccessThenSuccess() {
+		this.manager.setPasswordEncoder(this.passwordEncoder);
+		when(this.passwordEncoder.matches(any(), any())).thenReturn(true);
+		User user = new User(this.username, this.password, AuthorityUtils.createAuthorityList("ROLE_USER"));
+		when(this.repository.findByUsername(user.getUsername())).thenReturn(Mono.just(user));
+
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+			this.username, this.password);
+		Authentication authentication = this.manager.authenticate(token).block();
+
+		assertThat(authentication).isEqualTo(authentication);
+	}
+
+	@Test
+	public void authenticateWhenPasswordEncoderAndFailThenFail() {
+		this.manager.setPasswordEncoder(this.passwordEncoder);
+		when(this.passwordEncoder.matches(any(), any())).thenReturn(false);
+		User user = new User(this.username, this.password, AuthorityUtils.createAuthorityList("ROLE_USER"));
+		when(this.repository.findByUsername(user.getUsername())).thenReturn(Mono.just(user));
+
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+			this.username, this.password);
+
+		Mono<Authentication> authentication = this.manager.authenticate(token);
+
+		StepVerifier
+			.create(authentication)
+			.expectError(BadCredentialsException.class)
+			.verify();
+	}
 }

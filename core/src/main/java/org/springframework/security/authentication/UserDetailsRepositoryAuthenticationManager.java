@@ -18,9 +18,12 @@
 
 package org.springframework.security.authentication;
 
+import org.springframework.security.authentication.encoding.PlaintextPasswordEncoder;
 import org.springframework.security.core.Authentication;
 
 import org.springframework.security.core.userdetails.UserDetailsRepository;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
 
@@ -30,6 +33,8 @@ import reactor.core.publisher.Mono;
  */
 public class UserDetailsRepositoryAuthenticationManager implements ReactiveAuthenticationManager {
 	private final UserDetailsRepository repository;
+
+	private PasswordEncoder passwordEncoder = NoOpPasswordEncoder.getInstance();
 
 	public UserDetailsRepositoryAuthenticationManager(UserDetailsRepository userDetailsRepository) {
 		Assert.notNull(userDetailsRepository, "userDetailsRepository cannot be null");
@@ -41,8 +46,13 @@ public class UserDetailsRepositoryAuthenticationManager implements ReactiveAuthe
 		final String username = authentication.getName();
 		return repository
 				.findByUsername(username)
-				.filter( u -> u.getPassword().equals(authentication.getCredentials()))
+				.filter( u -> this.passwordEncoder.matches((String) authentication.getCredentials(), u.getPassword()))
 				.switchIfEmpty(  Mono.error(new BadCredentialsException("Invalid Credentials")) )
 				.map( u -> new UsernamePasswordAuthenticationToken(u, u.getPassword(), u.getAuthorities()) );
+	}
+
+	public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
+		Assert.notNull(passwordEncoder, "passwordEncoder cannot be null");
+		this.passwordEncoder = passwordEncoder;
 	}
 }
