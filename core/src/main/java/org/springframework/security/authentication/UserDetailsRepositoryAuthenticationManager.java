@@ -21,11 +21,13 @@ package org.springframework.security.authentication;
 import org.springframework.security.authentication.encoding.PlaintextPasswordEncoder;
 import org.springframework.security.core.Authentication;
 
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsRepository;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 /**
  * @author Rob Winch
@@ -44,8 +46,8 @@ public class UserDetailsRepositoryAuthenticationManager implements ReactiveAuthe
 	@Override
 	public Mono<Authentication> authenticate(Authentication authentication) {
 		final String username = authentication.getName();
-		return repository
-				.findByUsername(username)
+		return this.repository.findByUsername(username)
+				.publishOn(Schedulers.parallel())
 				.filter( u -> this.passwordEncoder.matches((String) authentication.getCredentials(), u.getPassword()))
 				.switchIfEmpty(  Mono.error(new BadCredentialsException("Invalid Credentials")) )
 				.map( u -> new UsernamePasswordAuthenticationToken(u, u.getPassword(), u.getAuthorities()) );
