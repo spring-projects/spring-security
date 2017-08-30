@@ -36,9 +36,9 @@ public class ClientRegistrationProperties {
 	private String clientId;
 	private String clientSecret;
 	private ClientAuthenticationMethod clientAuthenticationMethod = ClientAuthenticationMethod.BASIC;
-	private AuthorizationGrantType authorizedGrantType;
+	private AuthorizationGrantType authorizationGrantType;
 	private String redirectUri;
-	private Set<String> scopes;
+	private Set<String> scope;
 	private String authorizationUri;
 	private String tokenUri;
 	private String userInfoUri;
@@ -71,12 +71,12 @@ public class ClientRegistrationProperties {
 		this.clientAuthenticationMethod = clientAuthenticationMethod;
 	}
 
-	public AuthorizationGrantType getAuthorizedGrantType() {
-		return this.authorizedGrantType;
+	public AuthorizationGrantType getAuthorizationGrantType() {
+		return this.authorizationGrantType;
 	}
 
-	public void setAuthorizedGrantType(AuthorizationGrantType authorizedGrantType) {
-		this.authorizedGrantType = authorizedGrantType;
+	public void setAuthorizationGrantType(AuthorizationGrantType authorizationGrantType) {
+		this.authorizationGrantType = authorizationGrantType;
 	}
 
 	public String getRedirectUri() {
@@ -87,12 +87,12 @@ public class ClientRegistrationProperties {
 		this.redirectUri = redirectUri;
 	}
 
-	public Set<String> getScopes() {
-		return this.scopes;
+	public Set<String> getScope() {
+		return this.scope;
 	}
 
-	public void setScopes(Set<String> scopes) {
-		this.scopes = scopes;
+	public void setScope(Set<String> scope) {
+		this.scope = scope;
 	}
 
 	public String getAuthorizationUri() {

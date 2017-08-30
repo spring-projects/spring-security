@@ -32,7 +32,7 @@ public class AuthorizationRequestAttributesTest {
 	private static final String AUTHORIZE_URI = "http://authorize.uri/";
 	private static final String CLIENT_ID = "client id";
 	private static final String REDIRECT_URI = "http://redirect.uri/";
-	private static final Set<String> SCOPES = Collections.singleton("scope");
+	private static final Set<String> SCOPE = Collections.singleton("scope");
 	private static final String STATE = "xyz";
 
 	@Test(expected = IllegalArgumentException.class)
@@ -41,7 +41,7 @@ public class AuthorizationRequestAttributesTest {
 			.authorizeUri(null)
 			.clientId(CLIENT_ID)
 			.redirectUri(REDIRECT_URI)
-			.scopes(SCOPES)
+			.scope(SCOPE)
 			.state(STATE)
 			.build();
 	}
@@ -51,7 +51,7 @@ public class AuthorizationRequestAttributesTest {
 		AuthorizationRequestAttributes.withAuthorizationCode()
 			.clientId(CLIENT_ID)
 			.redirectUri(REDIRECT_URI)
-			.scopes(SCOPES)
+			.scope(SCOPE)
 			.state(STATE)
 			.build();
 	}
@@ -62,7 +62,7 @@ public class AuthorizationRequestAttributesTest {
 			.authorizeUri(AUTHORIZE_URI)
 			.clientId(null)
 			.redirectUri(REDIRECT_URI)
-			.scopes(SCOPES)
+			.scope(SCOPE)
 			.state(STATE)
 			.build();
 	}
@@ -72,7 +72,7 @@ public class AuthorizationRequestAttributesTest {
 		AuthorizationRequestAttributes.withAuthorizationCode()
 			.authorizeUri(AUTHORIZE_URI)
 			.redirectUri(REDIRECT_URI)
-			.scopes(SCOPES)
+			.scope(SCOPE)
 			.state(STATE)
 			.build();
 	}
@@ -84,7 +84,7 @@ public class AuthorizationRequestAttributesTest {
 			.authorizeUri(AUTHORIZE_URI)
 			.clientId(CLIENT_ID)
 			.redirectUri(REDIRECT_URI)
-			.scopes(SCOPES)
+			.scope(SCOPE)
 			.state(STATE)
 			.build();
 
@@ -97,7 +97,7 @@ public class AuthorizationRequestAttributesTest {
 			.authorizeUri(AUTHORIZE_URI)
 			.clientId(CLIENT_ID)
 			.redirectUri(null)
-			.scopes(SCOPES)
+			.scope(SCOPE)
 			.state(STATE)
 			.build()).doesNotThrowAnyException();
 	}
@@ -107,7 +107,7 @@ public class AuthorizationRequestAttributesTest {
 		assertThatCode(() -> AuthorizationRequestAttributes.withAuthorizationCode()
 			.authorizeUri(AUTHORIZE_URI)
 			.clientId(CLIENT_ID)
-			.scopes(SCOPES)
+			.scope(SCOPE)
 			.state(STATE)
 			.build()).doesNotThrowAnyException();
 	}
@@ -118,7 +118,7 @@ public class AuthorizationRequestAttributesTest {
 			.authorizeUri(AUTHORIZE_URI)
 			.clientId(CLIENT_ID)
 			.redirectUri(REDIRECT_URI)
-			.scopes(null)
+			.scope(null)
 			.state(STATE)
 			.build()).doesNotThrowAnyException();
 	}
@@ -139,7 +139,7 @@ public class AuthorizationRequestAttributesTest {
 			.authorizeUri(AUTHORIZE_URI)
 			.clientId(CLIENT_ID)
 			.redirectUri(REDIRECT_URI)
-			.scopes(SCOPES)
+			.scope(SCOPE)
 			.state(null)
 			.build()).doesNotThrowAnyException();
 	}
@@ -150,7 +150,7 @@ public class AuthorizationRequestAttributesTest {
 			.authorizeUri(AUTHORIZE_URI)
 			.clientId(CLIENT_ID)
 			.redirectUri(REDIRECT_URI)
-			.scopes(SCOPES)
+			.scope(SCOPE)
 			.build()).doesNotThrowAnyException();
 	}
 }

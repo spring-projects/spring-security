@@ -49,14 +49,14 @@ class TestUtil {
 		ClientRegistrationProperties clientRegistrationProperties = new ClientRegistrationProperties();
 		clientRegistrationProperties.setClientId("google-client-id");
 		clientRegistrationProperties.setClientSecret("secret");
-		clientRegistrationProperties.setAuthorizedGrantType(AuthorizationGrantType.AUTHORIZATION_CODE);
+		clientRegistrationProperties.setAuthorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE);
 		clientRegistrationProperties.setClientName("Google Client");
 		clientRegistrationProperties.setClientAlias(GOOGLE_CLIENT_ALIAS);
 		clientRegistrationProperties.setAuthorizationUri("https://accounts.google.com/o/oauth2/auth");
 		clientRegistrationProperties.setTokenUri("https://accounts.google.com/o/oauth2/token");
 		clientRegistrationProperties.setUserInfoUri("https://www.googleapis.com/oauth2/v3/userinfo");
 		clientRegistrationProperties.setRedirectUri(redirectUri);
-		clientRegistrationProperties.setScopes(Arrays.stream(new String[] {"openid", "email", "profile"}).collect(Collectors.toSet()));
+		clientRegistrationProperties.setScope(Arrays.stream(new String[] {"openid", "email", "profile"}).collect(Collectors.toSet()));
 		return new ClientRegistration.Builder(clientRegistrationProperties).build();
 	}
 
@@ -68,14 +68,14 @@ class TestUtil {
 		ClientRegistrationProperties clientRegistrationProperties = new ClientRegistrationProperties();
 		clientRegistrationProperties.setClientId("github-client-id");
 		clientRegistrationProperties.setClientSecret("secret");
-		clientRegistrationProperties.setAuthorizedGrantType(AuthorizationGrantType.AUTHORIZATION_CODE);
+		clientRegistrationProperties.setAuthorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE);
 		clientRegistrationProperties.setClientName("GitHub Client");
 		clientRegistrationProperties.setClientAlias(GITHUB_CLIENT_ALIAS);
 		clientRegistrationProperties.setAuthorizationUri("https://github.com/login/oauth/authorize");
 		clientRegistrationProperties.setTokenUri("https://github.com/login/oauth/access_token");
 		clientRegistrationProperties.setUserInfoUri("https://api.github.com/user");
 		clientRegistrationProperties.setRedirectUri(redirectUri);
-		clientRegistrationProperties.setScopes(Arrays.stream(new String[] {"user"}).collect(Collectors.toSet()));
+		clientRegistrationProperties.setScope(Arrays.stream(new String[] {"user"}).collect(Collectors.toSet()));
 		return new ClientRegistration.Builder(clientRegistrationProperties).build();
 	}
 }

@@ -236,7 +236,7 @@ public class AuthorizationCodeAuthenticationProcessingFilterTests {
 				.clientId(clientRegistration.getClientId())
 				.authorizeUri(clientRegistration.getProviderDetails().getAuthorizationUri())
 				.redirectUri(clientRegistration.getRedirectUri())
-				.scopes(clientRegistration.getScopes())
+				.scope(clientRegistration.getScope())
 				.state(state)
 				.build();
 

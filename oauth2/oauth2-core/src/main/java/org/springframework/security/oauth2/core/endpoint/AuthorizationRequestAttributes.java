@@ -41,7 +41,7 @@ public final class AuthorizationRequestAttributes implements Serializable {
 	private ResponseType responseType;
 	private String clientId;
 	private String redirectUri;
-	private Set<String> scopes;
+	private Set<String> scope;
 	private String state;
 
 	private AuthorizationRequestAttributes() {
@@ -67,8 +67,8 @@ public final class AuthorizationRequestAttributes implements Serializable {
 		return this.redirectUri;
 	}
 
-	public Set<String> getScopes() {
-		return this.scopes;
+	public Set<String> getScope() {
+		return this.scope;
 	}
 
 	public String getState() {
@@ -106,9 +106,9 @@ public final class AuthorizationRequestAttributes implements Serializable {
 			return this;
 		}
 
-		public Builder scopes(Set<String> scopes) {
-			this.authorizationRequest.scopes = Collections.unmodifiableSet(
-				CollectionUtils.isEmpty(scopes) ? Collections.emptySet() : new LinkedHashSet<>(scopes));
+		public Builder scope(Set<String> scope) {
+			this.authorizationRequest.scope = Collections.unmodifiableSet(
+				CollectionUtils.isEmpty(scope) ? Collections.emptySet() : new LinkedHashSet<>(scope));
 			return this;
 		}
 

@@ -127,7 +127,7 @@ public class AuthorizationCodeRequestRedirectFilter extends OncePerRequestFilter
 				.clientId(clientRegistration.getClientId())
 				.authorizeUri(clientRegistration.getProviderDetails().getAuthorizationUri())
 				.redirectUri(redirectUriStr)
-				.scopes(clientRegistration.getScopes())
+				.scope(clientRegistration.getScope())
 				.state(this.stateGenerator.generateKey())
 				.build();
 

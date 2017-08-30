@@ -36,9 +36,9 @@ public class ClientRegistration {
 	private String clientId;
 	private String clientSecret;
 	private ClientAuthenticationMethod clientAuthenticationMethod = ClientAuthenticationMethod.BASIC;
-	private AuthorizationGrantType authorizedGrantType;
+	private AuthorizationGrantType authorizationGrantType;
 	private String redirectUri;
-	private Set<String> scopes = Collections.emptySet();
+	private Set<String> scope = Collections.emptySet();
 	private ProviderDetails providerDetails = new ProviderDetails();
 	private String clientName;
 	private String clientAlias;
@@ -70,12 +70,12 @@ public class ClientRegistration {
 		this.clientAuthenticationMethod = clientAuthenticationMethod;
 	}
 
-	public AuthorizationGrantType getAuthorizedGrantType() {
-		return this.authorizedGrantType;
+	public AuthorizationGrantType getAuthorizationGrantType() {
+		return this.authorizationGrantType;
 	}
 
-	protected void setAuthorizedGrantType(AuthorizationGrantType authorizedGrantType) {
-		this.authorizedGrantType = authorizedGrantType;
+	protected void setAuthorizationGrantType(AuthorizationGrantType authorizationGrantType) {
+		this.authorizationGrantType = authorizationGrantType;
 	}
 
 	public String getRedirectUri() {
@@ -86,12 +86,12 @@ public class ClientRegistration {
 		this.redirectUri = redirectUri;
 	}
 
-	public Set<String> getScopes() {
-		return this.scopes;
+	public Set<String> getScope() {
+		return this.scope;
 	}
 
-	protected void setScopes(Set<String> scopes) {
-		this.scopes = scopes;
+	protected void setScope(Set<String> scope) {
+		this.scope = scope;
 	}
 
 	public ProviderDetails getProviderDetails() {
@@ -164,9 +164,9 @@ public class ClientRegistration {
 		protected String clientId;
 		protected String clientSecret;
 		protected ClientAuthenticationMethod clientAuthenticationMethod = ClientAuthenticationMethod.BASIC;
-		protected AuthorizationGrantType authorizedGrantType;
+		protected AuthorizationGrantType authorizationGrantType;
 		protected String redirectUri;
-		protected Set<String> scopes;
+		protected Set<String> scope;
 		protected String authorizationUri;
 		protected String tokenUri;
 		protected String userInfoUri;
@@ -182,10 +182,10 @@ public class ClientRegistration {
 			this(clientRegistrationProperties.getClientId());
 			this.clientSecret(clientRegistrationProperties.getClientSecret());
 			this.clientAuthenticationMethod(clientRegistrationProperties.getClientAuthenticationMethod());
-			this.authorizedGrantType(clientRegistrationProperties.getAuthorizedGrantType());
+			this.authorizationGrantType(clientRegistrationProperties.getAuthorizationGrantType());
 			this.redirectUri(clientRegistrationProperties.getRedirectUri());
-			if (!CollectionUtils.isEmpty(clientRegistrationProperties.getScopes())) {
-				this.scopes(clientRegistrationProperties.getScopes().stream().toArray(String[]::new));
+			if (!CollectionUtils.isEmpty(clientRegistrationProperties.getScope())) {
+				this.scope(clientRegistrationProperties.getScope().stream().toArray(String[]::new));
 			}
 			this.authorizationUri(clientRegistrationProperties.getAuthorizationUri());
 			this.tokenUri(clientRegistrationProperties.getTokenUri());
@@ -199,10 +199,10 @@ public class ClientRegistration {
 			this(clientRegistration.getClientId());
 			this.clientSecret(clientRegistration.getClientSecret());
 			this.clientAuthenticationMethod(clientRegistration.getClientAuthenticationMethod());
-			this.authorizedGrantType(clientRegistration.getAuthorizedGrantType());
+			this.authorizationGrantType(clientRegistration.getAuthorizationGrantType());
 			this.redirectUri(clientRegistration.getRedirectUri());
-			if (!CollectionUtils.isEmpty(clientRegistration.getScopes())) {
-				this.scopes(clientRegistration.getScopes().stream().toArray(String[]::new));
+			if (!CollectionUtils.isEmpty(clientRegistration.getScope())) {
+				this.scope(clientRegistration.getScope().stream().toArray(String[]::new));
 			}
 			this.authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri());
 			this.tokenUri(clientRegistration.getProviderDetails().getTokenUri());
@@ -222,8 +222,8 @@ public class ClientRegistration {
 			return this;
 		}
 
-		public Builder authorizedGrantType(AuthorizationGrantType authorizedGrantType) {
-			this.authorizedGrantType = authorizedGrantType;
+		public Builder authorizationGrantType(AuthorizationGrantType authorizationGrantType) {
+			this.authorizationGrantType = authorizationGrantType;
 			return this;
 		}
 
@@ -232,10 +232,10 @@ public class ClientRegistration {
 			return this;
 		}
 
-		public Builder scopes(String... scopes) {
-			if (scopes != null && scopes.length > 0) {
-				this.scopes = Collections.unmodifiableSet(
-						new LinkedHashSet<>(Arrays.asList(scopes)));
+		public Builder scope(String... scope) {
+			if (scope != null && scope.length > 0) {
+				this.scope = Collections.unmodifiableSet(
+						new LinkedHashSet<>(Arrays.asList(scope)));
 			}
 			return this;
 		}
@@ -281,9 +281,9 @@ public class ClientRegistration {
 			clientRegistration.setClientId(this.clientId);
 			clientRegistration.setClientSecret(this.clientSecret);
 			clientRegistration.setClientAuthenticationMethod(this.clientAuthenticationMethod);
-			clientRegistration.setAuthorizedGrantType(this.authorizedGrantType);
+			clientRegistration.setAuthorizationGrantType(this.authorizationGrantType);
 			clientRegistration.setRedirectUri(this.redirectUri);
-			clientRegistration.setScopes(this.scopes);
+			clientRegistration.setScope(this.scope);
 
 			ProviderDetails providerDetails = clientRegistration.new ProviderDetails();
 			providerDetails.setAuthorizationUri(this.authorizationUri);
@@ -297,13 +297,13 @@ public class ClientRegistration {
 		}
 
 		protected void validateClientWithAuthorizationCodeGrantType() {
-			Assert.isTrue(AuthorizationGrantType.AUTHORIZATION_CODE.equals(this.authorizedGrantType),
-				"authorizedGrantType must be " + AuthorizationGrantType.AUTHORIZATION_CODE.getValue());
+			Assert.isTrue(AuthorizationGrantType.AUTHORIZATION_CODE.equals(this.authorizationGrantType),
+				"authorizationGrantType must be " + AuthorizationGrantType.AUTHORIZATION_CODE.getValue());
 			Assert.hasText(this.clientId, "clientId cannot be empty");
 			Assert.hasText(this.clientSecret, "clientSecret cannot be empty");
 			Assert.notNull(this.clientAuthenticationMethod, "clientAuthenticationMethod cannot be null");
 			Assert.hasText(this.redirectUri, "redirectUri cannot be empty");
-			Assert.notEmpty(this.scopes, "scopes cannot be empty");
+			Assert.notEmpty(this.scope, "scope cannot be empty");
 			Assert.hasText(this.authorizationUri, "authorizationUri cannot be empty");
 			Assert.hasText(this.tokenUri, "tokenUri cannot be empty");
 			Assert.hasText(this.userInfoUri, "userInfoUri cannot be empty");

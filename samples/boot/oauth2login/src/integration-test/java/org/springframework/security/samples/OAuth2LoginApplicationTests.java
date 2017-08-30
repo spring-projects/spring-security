@@ -137,7 +137,7 @@ public class OAuth2LoginApplicationTests {
 		String redirectUri = AUTHORIZE_BASE_URL + "/" + this.githubClientRegistration.getClientAlias();
 		assertThat(URLDecoder.decode(params.get(OAuth2Parameter.REDIRECT_URI), "UTF-8")).isEqualTo(redirectUri);
 		assertThat(URLDecoder.decode(params.get(OAuth2Parameter.SCOPE), "UTF-8"))
-				.isEqualTo(this.githubClientRegistration.getScopes().stream().collect(Collectors.joining(" ")));
+				.isEqualTo(this.githubClientRegistration.getScope().stream().collect(Collectors.joining(" ")));
 		assertThat(params.get(OAuth2Parameter.STATE)).isNotNull();
 	}
 

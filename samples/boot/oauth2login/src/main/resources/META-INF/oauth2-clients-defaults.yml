@@ -3,9 +3,9 @@ security:
     client:
       google:
         client-authentication-method: basic
-        authorized-grant-type: authorization_code
+        authorization-grant-type: authorization_code
         redirect-uri: "{scheme}://{serverName}:{serverPort}{contextPath}/oauth2/authorize/code/{clientAlias}"
-        scopes: openid, profile, email, address, phone
+        scope: openid, profile, email, address, phone
         authorization-uri: "https://accounts.google.com/o/oauth2/auth"
         token-uri: "https://accounts.google.com/o/oauth2/token"
         user-info-uri: "https://www.googleapis.com/oauth2/v3/userinfo"
@@ -14,9 +14,9 @@ security:
         client-alias: google
       github:
         client-authentication-method: basic
-        authorized-grant-type: authorization_code
+        authorization-grant-type: authorization_code
         redirect-uri: "{scheme}://{serverName}:{serverPort}{contextPath}/oauth2/authorize/code/{clientAlias}"
-        scopes: user
+        scope: user
         authorization-uri: "https://github.com/login/oauth/authorize"
         token-uri: "https://github.com/login/oauth/access_token"
         user-info-uri: "https://api.github.com/user"
@@ -25,9 +25,9 @@ security:
         client-alias: github
       facebook:
         client-authentication-method: post
-        authorized-grant-type: authorization_code
+        authorization-grant-type: authorization_code
         redirect-uri: "{scheme}://{serverName}:{serverPort}{contextPath}/oauth2/authorize/code/{clientAlias}"
-        scopes: public_profile, email
+        scope: public_profile, email
         authorization-uri: "https://www.facebook.com/v2.8/dialog/oauth"
         token-uri: "https://graph.facebook.com/v2.8/oauth/access_token"
         user-info-uri: "https://graph.facebook.com/me"
@@ -36,8 +36,8 @@ security:
         client-alias: facebook
       okta:
         client-authentication-method: basic
-        authorized-grant-type: authorization_code
+        authorization-grant-type: authorization_code
         redirect-uri: "{scheme}://{serverName}:{serverPort}{contextPath}/oauth2/authorize/code/{clientAlias}"
-        scopes: openid, profile, email, address, phone
+        scope: openid, profile, email, address, phone
         client-name: Okta
         client-alias: okta
