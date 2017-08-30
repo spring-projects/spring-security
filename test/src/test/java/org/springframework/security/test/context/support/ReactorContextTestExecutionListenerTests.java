@@ -28,15 +28,16 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import reactor.core.publisher.Hooks;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
+
 import org.springframework.core.OrderComparator;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.test.context.TestSecurityContextHolder;
 import org.springframework.test.context.TestContext;
-import reactor.core.publisher.Hooks;
-import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -57,7 +58,7 @@ public class ReactorContextTestExecutionListenerTests {
 
 	@Test
 	public void beforeTestMethodWhenSecurityContextEmptyThenReactorContextNull() throws Exception {
-		listener.beforeTestMethod(testContext);
+		this.listener.beforeTestMethod(this.testContext);
 
 		assertThat(Mono.currentContext().block().isEmpty()).isTrue();
 	}
@@ -66,7 +67,7 @@ public class ReactorContextTestExecutionListenerTests {
 	public void beforeTestMethodWhenNullAuthenticationThenReactorContextNull() throws Exception {
 		TestSecurityContextHolder.setContext(new SecurityContextImpl());
 
-		listener.beforeTestMethod(testContext);
+		this.listener.beforeTestMethod(this.testContext);
 
 		assertThat(Mono.currentContext().block().isEmpty()).isTrue();
 	}
@@ -79,23 +80,23 @@ public class ReactorContextTestExecutionListenerTests {
 		context.setAuthentication(expectedAuthentication);
 		TestSecurityContextHolder.setContext(context);
 
-		listener.beforeTestMethod(testContext);
+		this.listener.beforeTestMethod(this.testContext);
 
 		assertAuthentication(expectedAuthentication);
 	}
 
 	@Test
 	public void afterTestMethodWhenSecurityContextEmptyThenNoError() throws Exception {
-		listener.beforeTestMethod(testContext);
+		this.listener.beforeTestMethod(this.testContext);
 
-		listener.afterTestMethod(testContext);
+		this.listener.afterTestMethod(this.testContext);
 	}
 
 	@Test
 	public void afterTestMethodWhenSetupThenReactorContextNull() throws Exception {
 		beforeTestMethodWhenAuthenticationThenReactorContextHasAuthentication();
 
-		listener.afterTestMethod(testContext);
+		this.listener.afterTestMethod(this.testContext);
 
 		assertThat(Mono.currentContext().block().isEmpty()).isTrue();
 	}
