@@ -29,5 +29,5 @@ import reactor.core.publisher.Mono;
  */
 public interface AccessDeniedHandler {
 
-	<T> Mono<T> handle(ServerWebExchange exchange, AccessDeniedException denied);
+	Mono<Void> handle(ServerWebExchange exchange, AccessDeniedException denied);
 }

@@ -18,13 +18,15 @@
 
 package org.springframework.security.web.server.authorization;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.server.WebFilter;
 import reactor.core.publisher.Mono;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.util.Assert;
+import org.springframework.web.server.ServerWebExchange;
+
 /**
+ * Sets an HTTP Status that is provided when
  * @author Rob Winch
  * @since 5.0
  */
@@ -32,12 +34,12 @@ public class HttpStatusAccessDeniedHandler implements AccessDeniedHandler {
 	private final HttpStatus httpStatus;
 
 	public HttpStatusAccessDeniedHandler(HttpStatus httpStatus) {
+		Assert.notNull(httpStatus, "httpStatus cannot be null");
 		this.httpStatus = httpStatus;
 	}
 
 	@Override
-	public <T> Mono<T> handle(ServerWebExchange exchange, AccessDeniedException e) {
-		exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
-		return Mono.empty();
+	public Mono<Void> handle(ServerWebExchange exchange, AccessDeniedException e) {
+		return Mono.fromRunnable(() -> exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN));
 	}
 }
