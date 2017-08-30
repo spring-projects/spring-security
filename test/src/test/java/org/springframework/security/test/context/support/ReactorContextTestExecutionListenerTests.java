@@ -59,7 +59,7 @@ public class ReactorContextTestExecutionListenerTests {
 	public void beforeTestMethodWhenSecurityContextEmptyThenReactorContextNull() throws Exception {
 		listener.beforeTestMethod(testContext);
 
-		assertThat(Mono.currentContext().block()).isNull();
+		assertThat(Mono.currentContext().block().isEmpty()).isTrue();
 	}
 
 	@Test
@@ -68,7 +68,7 @@ public class ReactorContextTestExecutionListenerTests {
 
 		listener.beforeTestMethod(testContext);
 
-		assertThat(Mono.currentContext().block()).isNull();
+		assertThat(Mono.currentContext().block().isEmpty()).isTrue();
 	}
 
 
@@ -97,7 +97,7 @@ public class ReactorContextTestExecutionListenerTests {
 
 		listener.afterTestMethod(testContext);
 
-		assertThat(Mono.currentContext().block()).isNull();
+		assertThat(Mono.currentContext().block().isEmpty()).isTrue();
 	}
 
 	@Test
