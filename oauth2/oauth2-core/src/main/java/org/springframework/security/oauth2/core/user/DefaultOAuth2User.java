@@ -51,7 +51,7 @@ public class DefaultOAuth2User implements OAuth2User {
 			throw new IllegalArgumentException("Invalid nameAttributeKey: " + nameAttributeKey);
 		}
 		this.authorities = Collections.unmodifiableSet(this.sortAuthorities(authorities));
-		this.setAttributes(attributes);
+		this.attributes = Collections.unmodifiableMap(new LinkedHashMap<>(attributes));
 		this.nameAttributeKey = nameAttributeKey;
 	}
 
@@ -68,11 +68,6 @@ public class DefaultOAuth2User implements OAuth2User {
 	@Override
 	public Map<String, Object> getAttributes() {
 		return this.attributes;
-	}
-
-	protected final void setAttributes(Map<String, Object> attributes) {
-		Assert.notEmpty(attributes, "attributes cannot be empty");
-		this.attributes = Collections.unmodifiableMap(new LinkedHashMap<>(attributes));
 	}
 
 	private Set<GrantedAuthority> sortAuthorities(Set<GrantedAuthority> authorities) {
