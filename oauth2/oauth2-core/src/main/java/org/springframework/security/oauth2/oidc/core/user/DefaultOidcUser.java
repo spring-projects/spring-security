@@ -13,21 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.oidc.core.user;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.oidc.core.IdToken;
 import org.springframework.security.oauth2.oidc.core.IdTokenClaim;
-import org.springframework.security.oauth2.oidc.core.StandardClaim;
 import org.springframework.security.oauth2.oidc.core.UserInfo;
-
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static org.springframework.security.oauth2.oidc.core.StandardClaim.NAME;
+import org.springframework.util.Assert;
 
 /**
  * The default implementation of an {@link OidcUser}.
@@ -35,10 +33,10 @@ import static org.springframework.security.oauth2.oidc.core.StandardClaim.NAME;
  * <p>
  * The claim used for accessing the &quot;name&quot; of the
  * user <code>Principal</code> via {@link #getClaims()}
- * is {@link StandardClaim#NAME} or if not available
- * will default to {@link IdTokenClaim#SUB}.
+ * is {@link IdTokenClaim#SUB}.
  *
  * @author Joe Grandja
+ * @author Vedran Pavic
  * @since 5.0
  * @see OidcUser
  * @see DefaultOAuth2User
@@ -50,20 +48,22 @@ public class DefaultOidcUser extends DefaultOAuth2User implements OidcUser {
 	private final UserInfo userInfo;
 
 	public DefaultOidcUser(Set<GrantedAuthority> authorities, IdToken idToken) {
-		this(authorities, idToken, null);
+		this(authorities, idToken, null, IdTokenClaim.SUB);
+	}
+
+	public DefaultOidcUser(Set<GrantedAuthority> authorities, IdToken idToken, String nameAttributeKey) {
+		this(authorities, idToken, null, nameAttributeKey);
 	}
 
 	public DefaultOidcUser(Set<GrantedAuthority> authorities, IdToken idToken, UserInfo userInfo) {
-		super(authorities, idToken.getClaims(), IdTokenClaim.SUB);
+		this(authorities, idToken, userInfo, IdTokenClaim.SUB);
+	}
+
+	public DefaultOidcUser(Set<GrantedAuthority> authorities, IdToken idToken, UserInfo userInfo,
+			String nameAttributeKey) {
+		super(authorities, resolveAttributes(idToken, userInfo), nameAttributeKey);
 		this.idToken = idToken;
 		this.userInfo = userInfo;
-		if (userInfo != null) {
-			this.setAttributes(
-				Stream.of(this.getAttributes(), userInfo.getClaims())
-					.flatMap(m -> m.entrySet().stream())
-					.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (k1, k2) -> k1))
-			);
-		}
 	}
 
 	@Override
@@ -71,9 +71,14 @@ public class DefaultOidcUser extends DefaultOAuth2User implements OidcUser {
 		return this.getAttributes();
 	}
 
-	@Override
-	public String getName() {
-		String name = this.getClaimAsString(NAME);
-		return (name != null ? name : super.getName());
+	private static Map<String, Object> resolveAttributes(IdToken idToken, UserInfo userInfo) {
+		Assert.notNull(idToken, "idToken cannot be null");
+		Map<String, Object> attributes = new HashMap<>();
+		attributes.putAll(idToken.getClaims());
+		if (userInfo != null) {
+			attributes.putAll(userInfo.getClaims());
+		}
+		return attributes;
 	}
+
 }
