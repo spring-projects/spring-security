@@ -86,7 +86,7 @@ public class PrePostAdviceMethodInterceptor implements MethodInterceptor {
 			.getAttributes(method, targetClass);
 
 		PreInvocationAttribute preAttr = findPreInvocationAttribute(attributes);
-		Mono<Authentication> toInvoke = Mono.currentContext()
+		Mono<Authentication> toInvoke = Mono.subscriberContext()
 			.defaultIfEmpty(Context.empty())
 			.flatMap( cxt -> cxt.getOrDefault(Authentication.class, Mono.just(anonymous)))
 			.filter( auth -> this.preAdvice.before(auth, invocation, preAttr))
