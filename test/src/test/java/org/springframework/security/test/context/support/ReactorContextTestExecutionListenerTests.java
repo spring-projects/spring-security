@@ -60,7 +60,7 @@ public class ReactorContextTestExecutionListenerTests {
 	public void beforeTestMethodWhenSecurityContextEmptyThenReactorContextNull() throws Exception {
 		this.listener.beforeTestMethod(this.testContext);
 
-		assertThat(Mono.currentContext().block().isEmpty()).isTrue();
+		assertThat(Mono.subscriberContext().block().isEmpty()).isTrue();
 	}
 
 	@Test
@@ -69,7 +69,7 @@ public class ReactorContextTestExecutionListenerTests {
 
 		this.listener.beforeTestMethod(this.testContext);
 
-		assertThat(Mono.currentContext().block().isEmpty()).isTrue();
+		assertThat(Mono.subscriberContext().block().isEmpty()).isTrue();
 	}
 
 
@@ -98,7 +98,7 @@ public class ReactorContextTestExecutionListenerTests {
 
 		this.listener.afterTestMethod(this.testContext);
 
-		assertThat(Mono.currentContext().block().isEmpty()).isTrue();
+		assertThat(Mono.subscriberContext().block().isEmpty()).isTrue();
 	}
 
 	@Test
@@ -110,7 +110,7 @@ public class ReactorContextTestExecutionListenerTests {
 	}
 
 	public void assertAuthentication(Authentication expected) {
-		Mono<Authentication> authentication = Mono.currentContext()
+		Mono<Authentication> authentication = Mono.subscriberContext()
 			.flatMap( context -> context.<Mono<Authentication>>get(Authentication.class));
 
 		StepVerifier.create(authentication)

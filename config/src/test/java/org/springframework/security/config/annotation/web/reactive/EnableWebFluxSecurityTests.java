@@ -80,7 +80,7 @@ public class EnableWebFluxSecurityTests {
 					chain.filter(exchange.mutate().principal(Mono.just(currentPrincipal)).build()),
 				springSecurityFilterChain,
 				(exchange,chain) ->
-					Mono.currentContext()
+					Mono.subscriberContext()
 						.flatMap( c -> c.<Mono<Principal>>get(Authentication.class))
 						.flatMap( principal -> exchange.getResponse()
 							.writeWith(Mono.just(toDataBuffer(principal.getName()))))
@@ -99,7 +99,7 @@ public class EnableWebFluxSecurityTests {
 			WebTestClient client = WebTestClientBuilder.bindToWebFilters(
 				springSecurityFilterChain,
 				(exchange,chain) ->
-					Mono.currentContext()
+					Mono.subscriberContext()
 						.flatMap( c -> c.<Mono<Principal>>get(Authentication.class))
 						.flatMap( principal -> exchange.getResponse()
 							.writeWith(Mono.just(toDataBuffer(principal.getName()))))
@@ -139,7 +139,7 @@ public class EnableWebFluxSecurityTests {
 			WebTestClient client = WebTestClientBuilder.bindToWebFilters(
 				springSecurityFilterChain,
 				(exchange,chain) ->
-					Mono.currentContext()
+					Mono.subscriberContext()
 						.flatMap( c -> c.<Mono<Principal>>get(Authentication.class))
 						.flatMap( principal -> exchange.getResponse()
 							.writeWith(Mono.just(toDataBuffer(principal.getName()))))

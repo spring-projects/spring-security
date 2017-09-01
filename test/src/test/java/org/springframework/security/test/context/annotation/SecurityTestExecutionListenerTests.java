@@ -42,7 +42,7 @@ public class SecurityTestExecutionListenerTests {
 	@WithMockUser
 	@Test
 	public void reactorContextTestSecurityContextHolderExecutionListenerTestIsRegistered() {
-		Mono<String> name = Mono.currentContext()
+		Mono<String> name = Mono.subscriberContext()
 			.flatMap( context -> context.<Mono<Authentication>>get(Authentication.class))
 			.map(Principal::getName);
 

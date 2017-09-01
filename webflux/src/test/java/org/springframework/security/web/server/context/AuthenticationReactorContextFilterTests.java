@@ -48,7 +48,7 @@ public class AuthenticationReactorContextFilterTests {
 		exchange = exchange.mutate().principal(Mono.just(principal)).build();
 		StepVerifier.create(filter.filter(exchange,
 			new DefaultWebFilterChain( e ->
-				Mono.currentContext().doOnSuccess( context -> {
+				Mono.subscriberContext().doOnSuccess( context -> {
 					Principal contextPrincipal = context.<Mono<Principal>>get(Authentication.class).block();
 					assertThat(contextPrincipal).isEqualTo(principal);
 					assertThat(context.<String>get("foo")).isEqualTo("bar");
@@ -65,7 +65,7 @@ public class AuthenticationReactorContextFilterTests {
 		exchange = exchange.mutate().principal(Mono.just(principal)).build();
 		StepVerifier.create(filter.filter(exchange,
 			new DefaultWebFilterChain( e ->
-				Mono.currentContext().doOnSuccess( context -> {
+				Mono.subscriberContext().doOnSuccess( context -> {
 					Principal contextPrincipal = context.<Mono<Principal>>get(Authentication.class).block();
 					assertThat(contextPrincipal).isEqualTo(principal);
 				})
@@ -80,7 +80,7 @@ public class AuthenticationReactorContextFilterTests {
 		Context defaultContext = Context.empty();
 		StepVerifier.create(filter.filter(exchange,
 			new DefaultWebFilterChain( e ->
-				Mono.currentContext()
+				Mono.subscriberContext()
 					.defaultIfEmpty(defaultContext)
 					.doOnSuccess( context -> {
 					Principal contextPrincipal = context.<Mono<Principal>>get(Authentication.class).block();
