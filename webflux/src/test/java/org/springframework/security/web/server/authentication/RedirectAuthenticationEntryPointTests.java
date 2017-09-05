@@ -27,10 +27,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.server.RedirectStrategy;
 import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -41,6 +45,8 @@ public class RedirectAuthenticationEntryPointTests {
 
 	@Mock
 	private ServerWebExchange exchange;
+	@Mock
+	private RedirectStrategy redirectStrategy;
 
 	private String location = "/login";
 
@@ -76,18 +82,17 @@ public class RedirectAuthenticationEntryPointTests {
 
 	@Test
 	public void commenceWhenCustomStatusThenStatusSet() {
+		Mono<Void> result = Mono.empty();
+		when(this.redirectStrategy.sendRedirect(any(), any())).thenReturn(result);
 		HttpStatus status = HttpStatus.MOVED_PERMANENTLY;
-		this.entryPoint.setHttpStatus(status);
+		this.entryPoint.setRedirectStrategy(this.redirectStrategy);
 		this.exchange = MockServerHttpRequest.get("/").toExchange();
 
-		this.entryPoint.commence(this.exchange, this.exception).block();
-
-		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(status);
-		assertThat(this.exchange.getResponse().getHeaders().getLocation()).hasPath(this.location);
+		assertThat(this.entryPoint.commence(this.exchange, this.exception)).isEqualTo(result);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void setHttpStatusWhenNullLocationThenException() {
-		this.entryPoint.setHttpStatus(null);
+	public void setRedirectStrategyWhenNullThenException() {
+		this.entryPoint.setRedirectStrategy(null);
 	}
 }

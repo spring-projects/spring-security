@@ -20,6 +20,8 @@ package org.springframework.security.web.server.authentication;
 
 import java.net.URI;
 
+import org.springframework.security.web.server.DefaultRedirectStrategy;
+import org.springframework.security.web.server.RedirectStrategy;
 import reactor.core.publisher.Mono;
 
 import org.springframework.http.HttpStatus;
@@ -38,7 +40,7 @@ import org.springframework.web.server.ServerWebExchange;
 public class RedirectAuthenticationEntryPoint implements AuthenticationEntryPoint {
 	private final URI location;
 
-	private HttpStatus httpStatus = HttpStatus.FOUND;
+	private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
 	public RedirectAuthenticationEntryPoint(String location) {
 		Assert.notNull(location, "location cannot be null");
@@ -47,20 +49,15 @@ public class RedirectAuthenticationEntryPoint implements AuthenticationEntryPoin
 
 	@Override
 	public Mono<Void> commence(ServerWebExchange exchange, AuthenticationException e) {
-		return Mono.fromRunnable(() -> {
-			ServerHttpResponse response = exchange.getResponse();
-			response.setStatusCode(this.httpStatus);
-			response.getHeaders().setLocation(this.location);
-		});
+		return this.redirectStrategy.sendRedirect(exchange, this.location);
 	}
 
 	/**
-	 * Sets the {@link HttpStatus}.
-	 *
-	 * @param httpStatus the status to use. The default is {@code HttpStatus.FOUND}
+	 * Sets the RedirectStrategy to use.
+	 * @param redirectStrategy the strategy to use. Default is DefaultRedirectStrategy.
 	 */
-	public void setHttpStatus(HttpStatus httpStatus) {
-		Assert.notNull(httpStatus, "httpStatus cannot be null");
-		this.httpStatus = httpStatus;
+	public void setRedirectStrategy(RedirectStrategy redirectStrategy) {
+		Assert.notNull(redirectStrategy, "redirectStrategy cannot be null");
+		this.redirectStrategy = redirectStrategy;
 	}
 }
