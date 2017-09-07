@@ -21,6 +21,7 @@ package org.springframework.security.web.server.authentication;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.DefaultRedirectStrategy;
 import org.springframework.security.web.server.RedirectStrategy;
+import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
@@ -38,8 +39,8 @@ public class RedirectAuthenticationSuccessHandler implements AuthenticationSucce
 	private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
 	@Override
-	public Mono<Void> success(Authentication authentication,
-		ServerWebExchange exchange, WebFilterChain chain) {
+	public Mono<Void> success(Authentication authentication, WebFilterExchange webFilterExchange) {
+		ServerWebExchange exchange = webFilterExchange.getExchange();
 		return this.redirectStrategy.sendRedirect(exchange, this.location);
 	}
 

@@ -19,8 +19,7 @@
 package org.springframework.security.web.server.authentication;
 
 import org.springframework.security.core.Authentication;
-import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.server.WebFilterChain;
+import org.springframework.security.web.server.WebFilterExchange;
 import reactor.core.publisher.Mono;
 
 /**
@@ -28,5 +27,5 @@ import reactor.core.publisher.Mono;
  * @since 5.0
  */
 public interface AuthenticationSuccessHandler {
-	Mono<Void> success(Authentication authentication, ServerWebExchange exchange, WebFilterChain chain);
+	Mono<Void> success(Authentication authentication, WebFilterExchange webFilterExchange);
 }

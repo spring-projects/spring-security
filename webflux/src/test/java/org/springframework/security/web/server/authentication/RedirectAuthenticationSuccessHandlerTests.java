@@ -28,6 +28,7 @@ import org.springframework.security.authentication.AuthenticationCredentialsNotF
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.server.RedirectStrategy;
+import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
@@ -70,8 +71,8 @@ public class RedirectAuthenticationSuccessHandlerTests {
 
 	@Test
 	public void successWhenNoSubscribersThenNoActions() {
-		this.handler.success(this.authentication, this.exchange,
-			this.chain);
+		this.handler.success(this.authentication, new WebFilterExchange(this.exchange,
+			this.chain));
 
 		verifyZeroInteractions(this.exchange);
 	}
@@ -80,8 +81,8 @@ public class RedirectAuthenticationSuccessHandlerTests {
 	public void successWhenSubscribeThenStatusAndLocationSet() {
 		this.exchange = MockServerHttpRequest.get("/").toExchange();
 
-		this.handler.success(this.authentication, this.exchange,
-			this.chain).block();
+		this.handler.success(this.authentication, new WebFilterExchange(this.exchange,
+			this.chain)).block();
 
 		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(
 			HttpStatus.FOUND);
@@ -95,8 +96,8 @@ public class RedirectAuthenticationSuccessHandlerTests {
 		this.handler.setRedirectStrategy(this.redirectStrategy);
 		this.exchange = MockServerHttpRequest.get("/").toExchange();
 
-		assertThat(this.handler.success(this.authentication, this.exchange,
-			this.chain)).isEqualTo(result);
+		assertThat(this.handler.success(this.authentication, new WebFilterExchange(this.exchange,
+			this.chain))).isEqualTo(result);
 		verify(this.redirectStrategy).sendRedirect(any(), eq(this.location));
 	}
 

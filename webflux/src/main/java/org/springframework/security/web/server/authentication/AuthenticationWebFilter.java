@@ -27,6 +27,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.web.server.AuthenticationEntryPoint;
 import org.springframework.security.web.server.HttpBasicAuthenticationConverter;
+import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.www.HttpBasicAuthenticationEntryPoint;
 import org.springframework.security.web.server.context.SecurityContextRepository;
 import org.springframework.security.web.server.context.SecurityContextRepositoryServerWebExchange;
@@ -87,7 +88,7 @@ public class AuthenticationWebFilter implements WebFilter {
 		SecurityContextImpl securityContext = new SecurityContextImpl();
 		securityContext.setAuthentication(authentication);
 		return this.securityContextRepository.save(exchange, securityContext)
-			.then(this.authenticationSuccessHandler.success(authentication, exchange, chain));
+			.then(this.authenticationSuccessHandler.success(authentication, new WebFilterExchange(exchange, chain)));
 	}
 
 	public void setSecurityContextRepository(

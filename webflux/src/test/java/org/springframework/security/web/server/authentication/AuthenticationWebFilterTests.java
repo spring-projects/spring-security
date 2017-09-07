@@ -150,7 +150,7 @@ public class AuthenticationWebFilterTests {
 			.bindToWebFilters(this.filter)
 			.build();
 
-		EntityExchangeResult<String> result = client
+		client
 			.get()
 			.uri("/")
 			.exchange()
@@ -188,7 +188,7 @@ public class AuthenticationWebFilterTests {
 		Mono<Authentication> authentication = Mono.just(new TestingAuthenticationToken("test", "this", "ROLE_USER"));
 		when(this.authenticationConverter.apply(any())).thenReturn(authentication);
 		when(this.authenticationManager.authenticate(any())).thenReturn(authentication);
-		when(this.successHandler.success(any(),any(),any())).thenReturn(Mono.empty());
+		when(this.successHandler.success(any(),any())).thenReturn(Mono.empty());
 		when(this.securityContextRepository.save(any(),any())).thenAnswer( a -> Mono.just(a.getArguments()[0]));
 
 		WebTestClient client = WebTestClientBuilder
@@ -202,7 +202,7 @@ public class AuthenticationWebFilterTests {
 			.expectStatus().isOk()
 			.expectBody().isEmpty();
 
-		verify(this.successHandler).success(eq(authentication.block()), any(), any());
+		verify(this.successHandler).success(eq(authentication.block()), any());
 		verify(this.securityContextRepository).save(any(), any());
 		verifyZeroInteractions(this.entryPoint);
 	}

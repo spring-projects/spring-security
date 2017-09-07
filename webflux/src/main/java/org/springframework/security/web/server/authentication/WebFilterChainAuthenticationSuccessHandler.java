@@ -19,6 +19,7 @@
 package org.springframework.security.web.server.authentication;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
@@ -29,7 +30,8 @@ import reactor.core.publisher.Mono;
  */
 public class WebFilterChainAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 	@Override
-	public Mono<Void> success(Authentication authentication, ServerWebExchange exchange, WebFilterChain chain) {
-		return chain.filter(exchange);
+	public Mono<Void> success(Authentication authentication, WebFilterExchange webFilterExchange) {
+		ServerWebExchange exchange = webFilterExchange.getExchange();
+		return webFilterExchange.getChain().filter(exchange);
 	}
 }
