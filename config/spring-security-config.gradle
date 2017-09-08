@@ -36,12 +36,22 @@ dependencies {
 	testCompile 'ch.qos.logback:logback-classic'
 	testCompile 'javax.annotation:jsr250-api:1.0'
 	testCompile 'ldapsdk:ldapsdk:4.1'
+	testCompile('net.sourceforge.htmlunit:htmlunit') {
+		exclude group: 'commons-logging', module: 'commons-logging'
+	}
 	testCompile 'org.codehaus.groovy:groovy-all'
 	testCompile 'org.eclipse.persistence:javax.persistence'
 	testCompile 'org.hibernate:hibernate-entitymanager'
 	testCompile 'org.hsqldb:hsqldb'
 	testCompile ('org.openid4java:openid4java-nodeps') {
 		exclude group: 'com.google.code.guice', module: 'guice'
+	}
+	testCompile('org.seleniumhq.selenium:htmlunit-driver') {
+		exclude group: 'commons-logging', module: 'commons-logging'
+	}
+	testCompile('org.seleniumhq.selenium:selenium-java') {
+		exclude group: 'commons-logging', module: 'commons-logging'
+		exclude group: 'io.netty', module: 'netty'
 	}
 	testCompile 'org.slf4j:jcl-over-slf4j'
 	testCompile 'org.springframework.ldap:spring-ldap-core'
