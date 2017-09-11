@@ -53,11 +53,11 @@ public class AuthenticationWebFilter implements WebFilter {
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-		return authenticationConverter.apply(exchange)
+		return this.authenticationConverter.apply(exchange)
 			.switchIfEmpty(Mono.defer(() -> chain.filter(exchange).cast(Authentication.class)))
-			.flatMap( token -> authenticationManager.authenticate(token)
-				.flatMap(authentication -> authenticationSuccessHandler.success(authentication, exchange, chain))
-				.onErrorResume( AuthenticationException.class, t -> entryPoint.commence(exchange, t))
+			.flatMap( token -> this.authenticationManager.authenticate(token)
+				.flatMap(authentication -> this.authenticationSuccessHandler.success(authentication, exchange, chain))
+				.onErrorResume( AuthenticationException.class, t -> this.entryPoint.commence(exchange, t))
 			);
 	}
 
