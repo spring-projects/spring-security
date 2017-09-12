@@ -52,7 +52,7 @@ public class AuthenticationWebFilter implements WebFilter {
 
 	private Function<ServerWebExchange,Mono<Authentication>> authenticationConverter = new HttpBasicAuthenticationConverter();
 
-	private AuthenticationEntryPoint entryPoint = new HttpBasicAuthenticationEntryPoint();
+	private AuthenticationFailureHandler authenticationFailureHandler = new AuthenticationEntryPointFailureHandler(new HttpBasicAuthenticationEntryPoint());
 
 	private SecurityContextRepository securityContextRepository = new ServerWebExchangeAttributeSecurityContextRepository();
 
@@ -79,16 +79,18 @@ public class AuthenticationWebFilter implements WebFilter {
 
 	private Mono<Void> authenticate(ServerWebExchange wrappedExchange,
 		WebFilterChain chain, Authentication token) {
+		WebFilterExchange webFilterExchange = new WebFilterExchange(wrappedExchange, chain);
 		return this.authenticationManager.authenticate(token)
-			.flatMap(authentication -> onAuthenticationSuccess(authentication, wrappedExchange, chain))
-			.onErrorResume(AuthenticationException.class, e -> this.entryPoint.commence(wrappedExchange, e));
+			.flatMap(authentication -> onAuthenticationSuccess(authentication, webFilterExchange))
+			.onErrorResume(AuthenticationException.class, e -> this.authenticationFailureHandler.onAuthenticationFailure(webFilterExchange, e));
 	}
 
-	private Mono<Void> onAuthenticationSuccess(Authentication authentication, ServerWebExchange exchange, WebFilterChain chain) {
+	private Mono<Void> onAuthenticationSuccess(Authentication authentication, WebFilterExchange webFilterExchange) {
+		ServerWebExchange exchange = webFilterExchange.getExchange();
 		SecurityContextImpl securityContext = new SecurityContextImpl();
 		securityContext.setAuthentication(authentication);
 		return this.securityContextRepository.save(exchange, securityContext)
-			.then(this.authenticationSuccessHandler.success(authentication, new WebFilterExchange(exchange, chain)));
+			.then(this.authenticationSuccessHandler.success(authentication, webFilterExchange));
 	}
 
 	public void setSecurityContextRepository(
@@ -105,8 +107,10 @@ public class AuthenticationWebFilter implements WebFilter {
 		this.authenticationConverter = authenticationConverter;
 	}
 
-	public void setEntryPoint(AuthenticationEntryPoint entryPoint) {
-		this.entryPoint = entryPoint;
+	public void setAuthenticationFailureHandler(
+		AuthenticationFailureHandler authenticationFailureHandler) {
+		Assert.notNull(authenticationFailureHandler, "authenticationFailureHandler cannot be null");
+		this.authenticationFailureHandler = authenticationFailureHandler;
 	}
 
 	public void setRequiresAuthenticationMatcher(

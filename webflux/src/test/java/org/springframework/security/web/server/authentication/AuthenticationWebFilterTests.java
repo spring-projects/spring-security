@@ -32,7 +32,6 @@ import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
-import org.springframework.security.web.server.AuthenticationEntryPoint;
 import org.springframework.security.web.server.context.SecurityContextRepository;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
@@ -62,7 +61,7 @@ public class AuthenticationWebFilterTests {
 	@Mock
 	private ReactiveAuthenticationManager authenticationManager;
 	@Mock
-	private AuthenticationEntryPoint entryPoint;
+	private AuthenticationFailureHandler failureHandler;
 	@Mock
 	private SecurityContextRepository securityContextRepository;
 
@@ -73,8 +72,8 @@ public class AuthenticationWebFilterTests {
 		this.filter = new AuthenticationWebFilter(this.authenticationManager);
 		this.filter.setAuthenticationSuccessHandler(this.successHandler);
 		this.filter.setAuthenticationConverter(this.authenticationConverter);
-		this.filter.setEntryPoint(this.entryPoint);
 		this.filter.setSecurityContextRepository(this.securityContextRepository);
+		this.filter.setAuthenticationFailureHandler(this.failureHandler);
 	}
 
 	@Test
@@ -160,7 +159,7 @@ public class AuthenticationWebFilterTests {
 
 		verify(this.securityContextRepository, never()).save(any(), any());
 		verifyZeroInteractions(this.authenticationManager, this.successHandler,
-			this.entryPoint);
+			this.failureHandler);
 	}
 
 	@Test
@@ -180,7 +179,7 @@ public class AuthenticationWebFilterTests {
 
 		verify(this.securityContextRepository, never()).save(any(), any());
 		verifyZeroInteractions(this.authenticationManager, this.successHandler,
-			this.entryPoint);
+			this.failureHandler);
 	}
 
 	@Test
@@ -204,7 +203,7 @@ public class AuthenticationWebFilterTests {
 
 		verify(this.successHandler).success(eq(authentication.block()), any());
 		verify(this.securityContextRepository).save(any(), any());
-		verifyZeroInteractions(this.entryPoint);
+		verifyZeroInteractions(this.failureHandler);
 	}
 
 	@Test
@@ -235,7 +234,7 @@ public class AuthenticationWebFilterTests {
 		Mono<Authentication> authentication = Mono.just(new TestingAuthenticationToken("test", "this", "ROLE_USER"));
 		when(this.authenticationConverter.apply(any())).thenReturn(authentication);
 		when(this.authenticationManager.authenticate(any())).thenReturn(Mono.error(new BadCredentialsException("Failed")));
-		when(this.entryPoint.commence(any(),any())).thenReturn(Mono.empty());
+		when(this.failureHandler.onAuthenticationFailure(any(),any())).thenReturn(Mono.empty());
 
 		WebTestClient client = WebTestClientBuilder
 			.bindToWebFilters(this.filter)
@@ -248,7 +247,7 @@ public class AuthenticationWebFilterTests {
 			.expectStatus().isOk()
 			.expectBody().isEmpty();
 
-		verify(this.entryPoint).commence(any(),any());
+		verify(this.failureHandler).onAuthenticationFailure(any(),any());
 		verify(this.securityContextRepository, never()).save(any(), any());
 		verifyZeroInteractions(this.successHandler);
 	}
@@ -258,7 +257,7 @@ public class AuthenticationWebFilterTests {
 		Mono<Authentication> authentication = Mono.just(new TestingAuthenticationToken("test", "this", "ROLE_USER"));
 		when(this.authenticationConverter.apply(any())).thenReturn(authentication);
 		when(this.authenticationManager.authenticate(any())).thenReturn(Mono.error(new RuntimeException("Failed")));
-		when(this.entryPoint.commence(any(),any())).thenReturn(Mono.empty());
+		when(this.failureHandler.onAuthenticationFailure(any(),any())).thenReturn(Mono.empty());
 
 		WebTestClient client = WebTestClientBuilder
 			.bindToWebFilters(this.filter)
@@ -272,7 +271,7 @@ public class AuthenticationWebFilterTests {
 			.expectBody().isEmpty();
 
 		verify(this.securityContextRepository, never()).save(any(), any());
-		verifyZeroInteractions(this.successHandler, this.entryPoint);
+		verifyZeroInteractions(this.successHandler, this.failureHandler);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
