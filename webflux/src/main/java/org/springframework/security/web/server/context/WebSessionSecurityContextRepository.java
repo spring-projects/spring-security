@@ -30,10 +30,10 @@ import reactor.core.publisher.Mono;
 public class WebSessionSecurityContextRepository implements SecurityContextRepository {
 	final String SESSION_ATTR = "USER";
 
-	public Mono<ServerWebExchange> save(ServerWebExchange exchange, SecurityContext context) {
+	public Mono<Void> save(ServerWebExchange exchange, SecurityContext context) {
 		return exchange.getSession()
 			.doOnNext(session -> session.getAttributes().put(SESSION_ATTR, context))
-			.flatMap( session -> Mono.just(new SecurityContextRepositoryServerWebExchange(exchange, this)));
+			.then();
 	}
 
 	public Mono<SecurityContext> load(ServerWebExchange exchange) {

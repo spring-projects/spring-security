@@ -24,7 +24,7 @@ import reactor.core.publisher.Mono;
 
 public interface SecurityContextRepository {
 
-	Mono<ServerWebExchange> save(ServerWebExchange exchange, SecurityContext context);
+	Mono<Void> save(ServerWebExchange exchange, SecurityContext context);
 
 	Mono<SecurityContext> load(ServerWebExchange exchange);
 }

@@ -38,7 +38,7 @@ public class ServerWebExchangeAttributeSecurityContextRepositoryTests {
 	@Test
 	public void saveAndLoad() {
 		SecurityContext context = new SecurityContextImpl();
-		this.repository.save(this.exchange, context);
+		this.repository.save(this.exchange, context).block();
 
 		Mono<SecurityContext> loaded = this.repository.load(this.exchange);
 

@@ -30,9 +30,9 @@ import reactor.core.publisher.Mono;
 public class ServerWebExchangeAttributeSecurityContextRepository implements SecurityContextRepository {
 	final String ATTR = "USER";
 
-	public Mono<ServerWebExchange> save(ServerWebExchange exchange, SecurityContext context) {
-		exchange.getAttributes().put(ATTR, context);
-		return Mono.just(new SecurityContextRepositoryServerWebExchange(exchange, this));
+	public Mono<Void> save(ServerWebExchange exchange, SecurityContext context) {
+		return Mono.fromRunnable(() ->exchange.getAttributes().put(ATTR, context));
+
 	}
 
 	public Mono<SecurityContext> load(ServerWebExchange exchange) {

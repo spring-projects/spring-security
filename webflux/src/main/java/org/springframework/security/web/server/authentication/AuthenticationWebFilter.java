@@ -76,7 +76,7 @@ public class AuthenticationWebFilter implements WebFilter {
 		SecurityContextImpl securityContext = new SecurityContextImpl();
 		securityContext.setAuthentication(authentication);
 		return this.securityContextRepository.save(exchange, securityContext)
-			.flatMap( wrappedExchange -> this.authenticationSuccessHandler.success(authentication, wrappedExchange, chain));
+			.then(this.authenticationSuccessHandler.success(authentication, exchange, chain));
 	}
 
 	public void setSecurityContextRepository(
