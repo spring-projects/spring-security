@@ -18,27 +18,30 @@
 
 package org.springframework.security.web.server.authentication;
 
+import java.util.function.Function;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import reactor.core.publisher.Mono;
+
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
 import org.springframework.security.web.server.AuthenticationEntryPoint;
+import org.springframework.security.web.server.context.SecurityContextRepository;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
-
-import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -59,6 +62,8 @@ public class AuthenticationWebFilterTests {
 	private ReactiveAuthenticationManager authenticationManager;
 	@Mock
 	private AuthenticationEntryPoint entryPoint;
+	@Mock
+	private SecurityContextRepository securityContextRepository;
 
 	private AuthenticationWebFilter filter;
 
@@ -68,6 +73,7 @@ public class AuthenticationWebFilterTests {
 		this.filter.setAuthenticationSuccessHandler(this.successHandler);
 		this.filter.setAuthenticationConverter(this.authenticationConverter);
 		this.filter.setEntryPoint(this.entryPoint);
+		this.filter.setSecurityContextRepository(this.securityContextRepository);
 	}
 
 	@Test
@@ -151,6 +157,7 @@ public class AuthenticationWebFilterTests {
 			.expectBody(String.class).consumeWith(b -> assertThat(b.getResponseBody()).isEqualTo("ok"))
 			.returnResult();
 
+		verify(this.securityContextRepository, never()).save(any(), any());
 		verifyZeroInteractions(this.authenticationManager, this.successHandler,
 			this.entryPoint);
 	}
@@ -170,16 +177,18 @@ public class AuthenticationWebFilterTests {
 			.expectStatus().is5xxServerError()
 			.expectBody().isEmpty();
 
+		verify(this.securityContextRepository, never()).save(any(), any());
 		verifyZeroInteractions(this.authenticationManager, this.successHandler,
 			this.entryPoint);
 	}
 
 	@Test
-	public void filterWhenConvertAndAuthenticationSuccessThenSuccessHandler() {
+	public void filterWhenConvertAndAuthenticationSuccessThenSuccess() {
 		Mono<Authentication> authentication = Mono.just(new TestingAuthenticationToken("test", "this", "ROLE_USER"));
 		when(this.authenticationConverter.apply(any())).thenReturn(authentication);
 		when(this.authenticationManager.authenticate(any())).thenReturn(authentication);
 		when(this.successHandler.success(any(),any(),any())).thenReturn(Mono.empty());
+		when(this.securityContextRepository.save(any(),any())).thenAnswer( a -> Mono.just(a.getArguments()[0]));
 
 		WebTestClient client = WebTestClientBuilder
 			.bindToWebFilters(this.filter)
@@ -193,6 +202,7 @@ public class AuthenticationWebFilterTests {
 			.expectBody().isEmpty();
 
 		verify(this.successHandler).success(eq(authentication.block()), any(), any());
+		verify(this.securityContextRepository).save(any(), any());
 		verifyZeroInteractions(this.entryPoint);
 	}
 
@@ -215,6 +225,7 @@ public class AuthenticationWebFilterTests {
 			.expectBody().isEmpty();
 
 		verify(this.entryPoint).commence(any(),any());
+		verify(this.securityContextRepository, never()).save(any(), any());
 		verifyZeroInteractions(this.successHandler);
 	}
 
@@ -236,6 +247,7 @@ public class AuthenticationWebFilterTests {
 			.expectStatus().is5xxServerError()
 			.expectBody().isEmpty();
 
+		verify(this.securityContextRepository, never()).save(any(), any());
 		verifyZeroInteractions(this.successHandler, this.entryPoint);
 	}
 }

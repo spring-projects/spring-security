@@ -20,9 +20,12 @@ package org.springframework.security.web.server.authentication;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.web.server.AuthenticationEntryPoint;
 import org.springframework.security.web.server.HttpBasicAuthenticationConverter;
 import org.springframework.security.web.server.authentication.www.HttpBasicAuthenticationEntryPoint;
+import org.springframework.security.web.server.context.SecurityContextRepository;
+import org.springframework.security.web.server.context.ServerWebExchangeAttributeSecurityContextRepository;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
@@ -40,11 +43,13 @@ public class AuthenticationWebFilter implements WebFilter {
 
 	private final ReactiveAuthenticationManager authenticationManager;
 
-	private AuthenticationSuccessHandler authenticationSuccessHandler = new DefaultAuthenticationSuccessHandler();
+	private AuthenticationSuccessHandler authenticationSuccessHandler = new WebFilterChainAuthenticationSuccessHandler();
 
 	private Function<ServerWebExchange,Mono<Authentication>> authenticationConverter = new HttpBasicAuthenticationConverter();
 
 	private AuthenticationEntryPoint entryPoint = new HttpBasicAuthenticationEntryPoint();
+
+	private SecurityContextRepository securityContextRepository = new ServerWebExchangeAttributeSecurityContextRepository();
 
 	public AuthenticationWebFilter(ReactiveAuthenticationManager authenticationManager) {
 		Assert.notNull(authenticationManager, "authenticationManager cannot be null");
@@ -56,9 +61,22 @@ public class AuthenticationWebFilter implements WebFilter {
 		return this.authenticationConverter.apply(exchange)
 			.switchIfEmpty(Mono.defer(() -> chain.filter(exchange).cast(Authentication.class)))
 			.flatMap( token -> this.authenticationManager.authenticate(token)
-				.flatMap(authentication -> this.authenticationSuccessHandler.success(authentication, exchange, chain))
+				.flatMap(authentication -> onAuthenticationSuccess(authentication, exchange, chain))
 				.onErrorResume( AuthenticationException.class, t -> this.entryPoint.commence(exchange, t))
 			);
+	}
+
+	private Mono<Void> onAuthenticationSuccess(Authentication authentication, ServerWebExchange exchange, WebFilterChain chain) {
+		SecurityContextImpl securityContext = new SecurityContextImpl();
+		securityContext.setAuthentication(authentication);
+		return this.securityContextRepository.save(exchange, securityContext)
+			.flatMap( wrappedExchange -> this.authenticationSuccessHandler.success(authentication, wrappedExchange, chain));
+	}
+
+	public void setSecurityContextRepository(
+		SecurityContextRepository securityContextRepository) {
+		Assert.notNull(securityContextRepository, "securityContextRepository cannot be null");
+		this.securityContextRepository = securityContextRepository;
 	}
 
 	public void setAuthenticationSuccessHandler(AuthenticationSuccessHandler authenticationSuccessHandler) {

@@ -31,7 +31,6 @@ import org.springframework.security.web.server.HttpBasicAuthenticationConverter;
 import org.springframework.security.web.server.MatcherSecurityWebFilterChain;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
-import org.springframework.security.web.server.authentication.DefaultAuthenticationSuccessHandler;
 import org.springframework.security.web.server.authentication.www.HttpBasicAuthenticationEntryPoint;
 import org.springframework.security.web.server.authorization.AuthorizationContext;
 import org.springframework.security.web.server.authorization.AuthorizationWebFilter;
@@ -40,6 +39,7 @@ import org.springframework.security.web.server.context.AuthenticationReactorCont
 import org.springframework.security.web.server.context.SecurityContextRepositoryWebFilter;
 import org.springframework.security.web.server.authorization.ExceptionTranslationWebFilter;
 import org.springframework.security.web.server.context.SecurityContextRepository;
+import org.springframework.security.web.server.context.ServerWebExchangeAttributeSecurityContextRepository;
 import org.springframework.security.web.server.header.CacheControlHttpHeadersWriter;
 import org.springframework.security.web.server.header.CompositeHttpHeadersWriter;
 import org.springframework.security.web.server.header.ContentTypeOptionsHttpHeadersWriter;
@@ -232,7 +232,7 @@ public class HttpSecurity {
 	public class HttpBasicBuilder {
 		private ReactiveAuthenticationManager authenticationManager;
 
-		private SecurityContextRepository securityContextRepository;
+		private SecurityContextRepository securityContextRepository = new ServerWebExchangeAttributeSecurityContextRepository();
 
 		private AuthenticationEntryPoint entryPoint = new HttpBasicAuthenticationEntryPoint();
 
@@ -261,9 +261,7 @@ public class HttpSecurity {
 			authenticationFilter.setEntryPoint(this.entryPoint);
 			authenticationFilter.setAuthenticationConverter(new HttpBasicAuthenticationConverter());
 			if(this.securityContextRepository != null) {
-				DefaultAuthenticationSuccessHandler handler = new DefaultAuthenticationSuccessHandler();
-				handler.setSecurityContextRepository(this.securityContextRepository);
-				authenticationFilter.setAuthenticationSuccessHandler(handler);
+				authenticationFilter.setSecurityContextRepository(this.securityContextRepository);
 			}
 			return authenticationFilter;
 		}
