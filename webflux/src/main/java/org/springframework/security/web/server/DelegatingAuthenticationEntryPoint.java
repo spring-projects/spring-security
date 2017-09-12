@@ -45,6 +45,7 @@ public class DelegatingAuthenticationEntryPoint implements AuthenticationEntryPo
 		DelegateEntry... entryPoints) {
 		this(Arrays.asList(entryPoints));
 	}
+
 	public DelegatingAuthenticationEntryPoint(
 		List<DelegateEntry> entryPoints) {
 		this.entryPoints = Flux.fromIterable(entryPoints);
