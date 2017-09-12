@@ -47,7 +47,7 @@ public class WebTestClientBuilder {
 	}
 
 	@RestController
-	static class Http200RestController {
+	public static class Http200RestController {
 		@RequestMapping("/**")
 		@ResponseStatus(HttpStatus.OK)
 		public String ok() {

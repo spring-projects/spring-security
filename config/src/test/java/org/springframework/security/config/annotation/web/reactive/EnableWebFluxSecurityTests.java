@@ -41,6 +41,9 @@ import org.springframework.security.web.server.WebFilterChainFilter;
 import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
@@ -144,8 +147,8 @@ public class EnableWebFluxSecurityTests {
 						.flatMap( principal -> exchange.getResponse()
 							.writeWith(Mono.just(toDataBuffer(principal.getName()))))
 			)
-				.filter(basicAuthentication())
-				.build();
+			.filter(basicAuthentication())
+			.build();
 
 			client
 				.get()
@@ -170,6 +173,49 @@ public class EnableWebFluxSecurityTests {
 			@Bean
 			public PasswordEncoder passwordEncoder() {
 				return new BCryptPasswordEncoder();
+			}
+		}
+	}
+
+
+	@RunWith(SpringRunner.class)
+	public static class FormLoginTests {
+		@Autowired
+		WebFilterChainFilter springSecurityFilterChain;
+		@Test
+		public void formLoginWorks() {
+			WebTestClient client = WebTestClientBuilder.bindToWebFilters(
+				springSecurityFilterChain,
+				(exchange,chain) ->
+					Mono.subscriberContext()
+						.flatMap( c -> c.<Mono<Principal>>get(Authentication.class))
+						.flatMap( principal -> exchange.getResponse()
+							.writeWith(Mono.just(toDataBuffer(principal.getName()))))
+			)
+			.build();
+
+
+			MultiValueMap<String, String> data = new LinkedMultiValueMap<>();
+			data.add("username", "user");
+			data.add("password", "password");
+			client
+				.post()
+				.uri("/login")
+				.body(BodyInserters.fromFormData(data))
+				.exchange()
+				.expectStatus().is3xxRedirection()
+				.expectHeader().valueMatches("Location", "/");
+		}
+
+		@EnableWebFluxSecurity
+		static class Config {
+			@Bean
+			public UserDetailsRepository userDetailsRepository() {
+				return new MapUserDetailsRepository(User.withUsername("user")
+					.password("password")
+					.roles("USER")
+					.build()
+				);
 			}
 		}
 	}

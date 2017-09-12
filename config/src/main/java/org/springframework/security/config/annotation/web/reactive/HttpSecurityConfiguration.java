@@ -69,6 +69,7 @@ public class HttpSecurityConfiguration implements WebFluxConfigurer {
 	public HttpSecurity httpSecurity() {
 		HttpSecurity http = http();
 		http.httpBasic();
+		http.formLogin();
 		http.authenticationManager(authenticationManager());
 		http.securityContextRepository(new WebSessionSecurityContextRepository());
 		return http;
