@@ -28,7 +28,7 @@ import reactor.core.publisher.Mono;
  * @author Rob Winch
  * @since 5.0
  */
-final class SecurityContextRepositoryServerWebExchange extends ServerWebExchangeDecorator {
+public class SecurityContextRepositoryServerWebExchange extends ServerWebExchangeDecorator {
 	private final SecurityContextRepository repository;
 
 	public SecurityContextRepositoryServerWebExchange(ServerWebExchange delegate, SecurityContextRepository repository) {

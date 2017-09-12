@@ -25,6 +25,7 @@ import org.springframework.security.web.server.AuthenticationEntryPoint;
 import org.springframework.security.web.server.HttpBasicAuthenticationConverter;
 import org.springframework.security.web.server.authentication.www.HttpBasicAuthenticationEntryPoint;
 import org.springframework.security.web.server.context.SecurityContextRepository;
+import org.springframework.security.web.server.context.SecurityContextRepositoryServerWebExchange;
 import org.springframework.security.web.server.context.ServerWebExchangeAttributeSecurityContextRepository;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
@@ -58,12 +59,17 @@ public class AuthenticationWebFilter implements WebFilter {
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-		return this.authenticationConverter.apply(exchange)
-			.switchIfEmpty(Mono.defer(() -> chain.filter(exchange).cast(Authentication.class)))
+		ServerWebExchange wrappedExchange = wrap(exchange);
+		return this.authenticationConverter.apply(wrappedExchange)
+			.switchIfEmpty(Mono.defer(() -> chain.filter(wrappedExchange).cast(Authentication.class)))
 			.flatMap( token -> this.authenticationManager.authenticate(token)
-				.flatMap(authentication -> onAuthenticationSuccess(authentication, exchange, chain))
-				.onErrorResume( AuthenticationException.class, t -> this.entryPoint.commence(exchange, t))
+				.flatMap(authentication -> onAuthenticationSuccess(authentication, wrappedExchange, chain))
+				.onErrorResume( AuthenticationException.class, t -> this.entryPoint.commence(wrappedExchange, t))
 			);
+	}
+
+	private ServerWebExchange wrap(ServerWebExchange exchange) {
+		return new SecurityContextRepositoryServerWebExchange(exchange, this.securityContextRepository);
 	}
 
 	private Mono<Void> onAuthenticationSuccess(Authentication authentication, ServerWebExchange exchange, WebFilterChain chain) {
