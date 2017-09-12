@@ -38,6 +38,12 @@ public class RedirectAuthenticationSuccessHandler implements AuthenticationSucce
 
 	private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
+	public RedirectAuthenticationSuccessHandler() {}
+
+	public RedirectAuthenticationSuccessHandler(String location) {
+		this.location = URI.create(location);
+	}
+
 	@Override
 	public Mono<Void> success(Authentication authentication, WebFilterExchange webFilterExchange) {
 		ServerWebExchange exchange = webFilterExchange.getExchange();
