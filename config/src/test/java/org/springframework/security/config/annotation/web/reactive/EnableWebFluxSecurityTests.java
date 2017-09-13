@@ -67,7 +67,9 @@ public class EnableWebFluxSecurityTests {
 
 		@Test
 		public void defaultRequiresAuthentication() {
-			WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.springSecurityFilterChain).build();
+			WebTestClient client = WebTestClientBuilder
+				.bindToWebFilters(this.springSecurityFilterChain)
+				.build();
 
 			client.get()
 				.uri("/")
