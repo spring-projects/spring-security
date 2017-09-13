@@ -454,7 +454,7 @@ public class HttpSecurity {
 			return new HstsSpec();
 		}
 
-		public HttpHeaderWriterWebFilter build() {
+		protected HttpHeaderWriterWebFilter build() {
 			HttpHeadersWriter writer = new CompositeHttpHeadersWriter(this.writers);
 			return new HttpHeaderWriterWebFilter(writer);
 		}
