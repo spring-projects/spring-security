@@ -22,11 +22,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseCookie;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.reactive.server.ExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 
@@ -86,28 +84,6 @@ public class HelloWebfluxFnApplicationITests {
 			.exchange()
 			.expectStatus().isUnauthorized()
 			.expectBody().isEmpty();
-	}
-
-	@Test
-	public void sessionWorks() throws Exception {
-		ExchangeResult result = this.rest
-			.mutate()
-			.filter(userCredentials())
-			.build()
-			.get()
-			.uri("/")
-			.exchange()
-			.expectStatus().isOk()
-			.returnResult(String.class);
-
-		ResponseCookie session = result.getResponseCookies().getFirst("SESSION");
-
-		this.rest
-			.get()
-			.uri("/")
-			.cookie(session.getName(), session.getValue())
-			.exchange()
-			.expectStatus().isOk();
 	}
 
 	private ExchangeFilterFunction userCredentials() {

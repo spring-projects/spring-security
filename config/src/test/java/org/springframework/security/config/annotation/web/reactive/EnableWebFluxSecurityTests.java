@@ -40,6 +40,7 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.WebFilterChainFilter;
 import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.reactive.server.FluxExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -73,6 +74,21 @@ public class EnableWebFluxSecurityTests {
 				.exchange()
 				.expectStatus().isUnauthorized()
 				.expectBody().isEmpty();
+		}
+
+		@Test
+		public void authenticateWhenBasicThenNoSession() {
+			WebTestClient client = WebTestClientBuilder
+				.bindToWebFilters(this.springSecurityFilterChain)
+				.filter(basicAuthentication())
+				.build();
+
+			FluxExchangeResult<String> result = client.get()
+				.attributes(basicAuthenticationCredentials("user", "password")).exchange()
+				.expectStatus()
+				.isOk()
+				.returnResult(String.class);
+			result.assertWithDiagnostics(() -> assertThat(result.getResponseCookies().isEmpty()));
 		}
 
 		@Test

@@ -28,7 +28,6 @@ import org.springframework.security.config.web.server.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.reactive.result.method.annotation.AuthenticationPrincipalArgumentResolver;
-import org.springframework.security.web.server.context.WebSessionSecurityContextRepository;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
 import org.springframework.web.reactive.result.method.annotation.ArgumentResolverConfigurer;
 
@@ -69,7 +68,6 @@ public class HttpSecurityConfiguration implements WebFluxConfigurer {
 	public HttpSecurity httpSecurity() {
 		return http()
 			.authenticationManager(authenticationManager())
-			.securityContextRepository(new WebSessionSecurityContextRepository())
 			.headers().and()
 			.httpBasic().and()
 			.formLogin().and();

@@ -206,16 +206,9 @@ public class HttpSecurity {
 	}
 
 	private SecurityContextRepositoryWebFilter securityContextRepositoryWebFilter() {
-		SecurityContextRepository respository = getSecurityContextRepository();
-		return respository == null ? null :
-			new SecurityContextRepositoryWebFilter(respository);
-	}
-
-	private SecurityContextRepository getSecurityContextRepository() {
-		if(this.securityContextRepository == null && this.formLogin != null) {
-			this.securityContextRepository = this.formLogin.securityContextRepository;
-		}
-		return this.securityContextRepository;
+		SecurityContextRepository repository = this.securityContextRepository;
+		return repository == null ? null :
+			new SecurityContextRepositoryWebFilter(repository);
 	}
 
 	private HttpSecurity() {}
