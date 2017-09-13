@@ -48,7 +48,6 @@ public class LogoutWebFiter implements WebFilter {
 			.filter( result -> result.isMatch())
 			.switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
 			.flatMap( result -> exchange.getPrincipal().cast(Authentication.class))
-			.defaultIfEmpty(this.anonymousAuthenticationToken)
 			.flatMap( authentication -> this.logoutHandler.logout(new WebFilterExchange(exchange, chain), authentication));
 	}
 }
