@@ -46,6 +46,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.basicAuthentication;
+import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.Credentials.basicAuthenticationCredentials;
 
 
 /**
@@ -102,14 +103,13 @@ public class AuthenticationWebFilterTests {
 
 		WebTestClient client = WebTestClientBuilder
 			.bindToWebFilters(this.filter)
+			.filter(basicAuthentication())
 			.build();
 
 		EntityExchangeResult<String> result = client
-			.mutate()
-			.filter(basicAuthentication("test","this"))
-			.build()
 			.get()
 			.uri("/")
+			.attributes(basicAuthenticationCredentials("test", "this"))
 			.exchange()
 			.expectStatus().isOk()
 			.expectBody(String.class).consumeWith(b -> assertThat(b.getResponseBody()).isEqualTo("ok"))
@@ -125,14 +125,13 @@ public class AuthenticationWebFilterTests {
 
 		WebTestClient client = WebTestClientBuilder
 			.bindToWebFilters(this.filter)
+			.filter(basicAuthentication())
 			.build();
 
 		EntityExchangeResult<Void> result = client
-			.mutate()
-			.filter(basicAuthentication("test", "this"))
-			.build()
 			.get()
 			.uri("/")
+			.attributes(basicAuthenticationCredentials("test", "this"))
 			.exchange()
 			.expectStatus().isUnauthorized()
 			.expectHeader().valueMatches("WWW-Authenticate", "Basic realm=\"Realm\"")
@@ -212,14 +211,13 @@ public class AuthenticationWebFilterTests {
 
 		WebTestClient client = WebTestClientBuilder
 			.bindToWebFilters(this.filter)
+			.filter(basicAuthentication())
 			.build();
 
 		EntityExchangeResult<String> result = client
-			.mutate()
-			.filter(basicAuthentication("test","this"))
-			.build()
 			.get()
 			.uri("/")
+			.attributes(basicAuthenticationCredentials("test", "this"))
 			.exchange()
 			.expectStatus().isOk()
 			.expectBody(String.class).consumeWith(b -> assertThat(b.getResponseBody()).isEqualTo("ok"))

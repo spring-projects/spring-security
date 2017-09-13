@@ -16,6 +16,8 @@
 package sample;
 
 import java.time.Duration;
+import java.util.Map;
+import java.util.function.Consumer;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -26,9 +28,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 
 import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.basicAuthentication;
+import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.Credentials.basicAuthenticationCredentials;
 
 /**
  * @author Rob Winch
@@ -48,6 +50,7 @@ public class HelloWebfluxFnApplicationITests {
 		this.rest = WebTestClient.bindToServer()
 				.responseTimeout(Duration.ofDays(1))
 				.baseUrl("http://localhost:" + this.port)
+				.filter(basicAuthentication())
 				.build();
 	}
 
@@ -63,11 +66,9 @@ public class HelloWebfluxFnApplicationITests {
 	@Test
 	public void basicWhenValidCredentialsThenOk() throws Exception {
 		this.rest
-			.mutate()
-			.filter(userCredentials())
-			.build()
 			.get()
 			.uri("/")
+			.attributes(userCredentials())
 			.exchange()
 			.expectStatus().isOk()
 			.expectBody().json("{\"message\":\"Hello user!\"}");
@@ -76,21 +77,19 @@ public class HelloWebfluxFnApplicationITests {
 	@Test
 	public void basicWhenInvalidCredentialsThenUnauthorized() throws Exception {
 		this.rest
-			.mutate()
-			.filter(invalidPassword())
-			.build()
 			.get()
 			.uri("/")
+			.attributes(invalidCredentials())
 			.exchange()
 			.expectStatus().isUnauthorized()
 			.expectBody().isEmpty();
 	}
 
-	private ExchangeFilterFunction userCredentials() {
-		return basicAuthentication("user","user");
+	private Consumer<Map<String, Object>> userCredentials() {
+		return basicAuthenticationCredentials("user","user");
 	}
 
-	private ExchangeFilterFunction invalidPassword() {
-		return basicAuthentication("user","INVALID");
+	private Consumer<Map<String, Object>> invalidCredentials() {
+		return basicAuthenticationCredentials("user","INVALID");
 	}
 }
