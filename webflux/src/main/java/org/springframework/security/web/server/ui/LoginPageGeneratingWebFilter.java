@@ -27,6 +27,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
@@ -50,18 +51,21 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 	}
 
 	private Mono<Void> render(ServerWebExchange exchange) {
-		boolean isError = exchange.getRequest().getQueryParams().containsKey("error");
+		MultiValueMap<String, String> queryParams = exchange.getRequest()
+			.getQueryParams();
+		boolean isError = queryParams.containsKey("error");
+		boolean isLogoutSuccess = queryParams.containsKey("logout");
 		ServerHttpResponse result = exchange.getResponse();
 		result.setStatusCode(HttpStatus.FOUND);
 		result.getHeaders().setContentType(MediaType.TEXT_HTML);
-		byte[] bytes = createPage(isError);
+		byte[] bytes = createPage(isError, isLogoutSuccess);
 		DataBufferFactory bufferFactory = exchange.getResponse().bufferFactory();
 		DataBuffer buffer = bufferFactory.wrap(bytes);
 		return result.writeWith(Mono.just(buffer))
 			.doOnError( error -> DataBufferUtils.release(buffer));
 	}
 
-	private static byte[] createPage(boolean isError) {
+	private static byte[] createPage(boolean isError, boolean isLogoutSuccess) {
 		String page =  "<!DOCTYPE html>\n"
 			+ "<html lang=\"en\">\n"
 			+ "  <head>\n"
@@ -78,6 +82,7 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 			+ "      <form class=\"form-signin\" method=\"post\" action=\"/login\">\n"
 			+ "        <h2 class=\"form-signin-heading\">Please sign in</h2>\n"
 			+ createError(isError)
+			+ createLogoutSuccess(isLogoutSuccess)
 			+ "        <p>\n"
 			+ "          <label for=\"username\" class=\"sr-only\">Username</label>\n"
 			+ "          <input type=\"text\" id=\"username\" name=\"username\" class=\"form-control\" placeholder=\"Username\" required autofocus>\n"
@@ -97,5 +102,9 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 
 	private static String createError(boolean isError) {
 		return isError ? "<div class=\"alert alert-danger\" role=\"alert\">Invalid credentials</div>" : "";
+	}
+
+	private static String createLogoutSuccess(boolean isLogoutSuccess) {
+		return isLogoutSuccess ? "<div class=\"alert alert-success\" role=\"alert\">You have been signed out</div>" : "";
 	}
 }

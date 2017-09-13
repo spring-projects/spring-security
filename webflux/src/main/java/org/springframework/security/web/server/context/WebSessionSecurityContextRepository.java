@@ -32,7 +32,13 @@ public class WebSessionSecurityContextRepository implements SecurityContextRepos
 
 	public Mono<Void> save(ServerWebExchange exchange, SecurityContext context) {
 		return exchange.getSession()
-			.doOnNext(session -> session.getAttributes().put(SESSION_ATTR, context))
+			.doOnNext(session -> {
+				if(context == null) {
+					session.getAttributes().remove(SESSION_ATTR);
+				} else {
+					session.getAttributes().put(SESSION_ATTR, context);
+				}
+			})
 			.then();
 	}
 

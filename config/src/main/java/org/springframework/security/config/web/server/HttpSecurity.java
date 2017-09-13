@@ -24,6 +24,7 @@ import java.util.List;
 import org.springframework.http.MediaType;
 import org.springframework.security.web.server.DelegatingAuthenticationEntryPoint;
 import org.springframework.security.web.server.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.server.authentication.logout.LogoutWebFiter;
 import org.springframework.security.web.server.util.matcher.MediaTypeServerWebExchangeMatcher;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 import reactor.core.publisher.Mono;
@@ -175,6 +176,7 @@ public class HttpSecurity {
 				filters.add(new LoginPageGeneratingWebFilter());
 			}
 			filters.add(this.formLogin.build());
+			filters.add(new LogoutWebFiter());
 		}
 		filters.add(new AuthenticationReactorContextFilter());
 		if(this.authorizeExchangeBuilder != null) {

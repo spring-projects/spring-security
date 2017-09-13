@@ -67,7 +67,14 @@ public class FormLoginTests {
 			.webTestClientSetup(webTestClient)
 			.build();
 
-		DefaultLoginPage loginPage = HomePage.to(driver, DefaultLoginPage.class);
+		DefaultLoginPage loginPage = HomePage.to(driver, DefaultLoginPage.class)
+			.assertAt();
+
+		loginPage = loginPage.loginForm()
+			.username("user")
+			.password("invalid")
+			.submit(DefaultLoginPage.class)
+			.assertError();
 
 		HomePage homePage = loginPage.loginForm()
 			.username("user")
@@ -75,6 +82,12 @@ public class FormLoginTests {
 			.submit(HomePage.class);
 
 		homePage.assertAt();
+
+		driver.get("http://localhost/logout");
+
+		DefaultLoginPage.create(driver)
+			.assertAt()
+			.assertLogout();
 	}
 
 	@Test
@@ -161,12 +174,33 @@ public class FormLoginTests {
 	public static class DefaultLoginPage {
 
 		private WebDriver driver;
+		@FindBy(css = "div[role=alert]")
+		private WebElement alert;
 
 		private LoginForm loginForm;
 
 		public DefaultLoginPage(WebDriver webDriver) {
 			this.driver = webDriver;
 			this.loginForm = PageFactory.initElements(webDriver, LoginForm.class);
+		}
+
+		static DefaultLoginPage create(WebDriver driver) {
+			return PageFactory.initElements(driver, DefaultLoginPage.class);
+		}
+
+		public DefaultLoginPage assertAt() {
+			assertThat(this.driver.getTitle()).isEqualTo("Please sign in");
+			return this;
+		}
+
+		public DefaultLoginPage assertError() {
+			assertThat(this.alert.getText()).isEqualTo("Invalid credentials");
+			return this;
+		}
+
+		public DefaultLoginPage assertLogout() {
+			assertThat(this.alert.getText()).isEqualTo("You have been signed out");
+			return this;
 		}
 
 		public LoginForm loginForm() {
