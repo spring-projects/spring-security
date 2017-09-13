@@ -6,10 +6,10 @@ security:
         authorization-grant-type: authorization_code
         redirect-uri: "{scheme}://{serverName}:{serverPort}{contextPath}/oauth2/authorize/code/{clientAlias}"
         scope: openid, profile, email, address, phone
-        authorization-uri: "https://accounts.google.com/o/oauth2/auth"
-        token-uri: "https://accounts.google.com/o/oauth2/token"
+        authorization-uri: "https://accounts.google.com/o/oauth2/v2/auth"
+        token-uri: "https://www.googleapis.com/oauth2/v4/token"
         user-info-uri: "https://www.googleapis.com/oauth2/v3/userinfo"
-        jwk-set-uri: https://www.googleapis.com/oauth2/v3/certs
+        jwk-set-uri: "https://www.googleapis.com/oauth2/v3/certs"
         client-name: Google
         client-alias: google
       github:
