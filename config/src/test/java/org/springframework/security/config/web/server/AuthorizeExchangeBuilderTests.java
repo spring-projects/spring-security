@@ -33,8 +33,8 @@ public class AuthorizeExchangeBuilderTests {
 
 	@Test
 	public void antMatchersWhenMethodAndPatternsThenDiscriminatesByMethod() {
-		authorization.pathMatchers(HttpMethod.POST, "/a", "/b").denyAll();
-		authorization.anyExchange().permitAll();
+		this.authorization.pathMatchers(HttpMethod.POST, "/a", "/b").denyAll();
+		this.authorization.anyExchange().permitAll();
 
 		WebTestClient client = buildClient();
 
@@ -62,8 +62,8 @@ public class AuthorizeExchangeBuilderTests {
 
 	@Test
 	public void antMatchersWhenPatternsThenAnyMethod() {
-		authorization.pathMatchers("/a", "/b").denyAll();
-		authorization.anyExchange().permitAll();
+		this.authorization.pathMatchers("/a", "/b").denyAll();
+		this.authorization.anyExchange().permitAll();
 
 		WebTestClient client = buildClient();
 
@@ -90,23 +90,24 @@ public class AuthorizeExchangeBuilderTests {
 
 	@Test(expected = IllegalStateException.class)
 	public void antMatchersWhenNoAccessAndAnotherMatcherThenThrowsException() {
-		authorization.pathMatchers("/incomplete");
-		authorization.pathMatchers("/throws-exception");
+		this.authorization.pathMatchers("/incomplete");
+		this.authorization.pathMatchers("/throws-exception");
 	}
 
 	@Test(expected = IllegalStateException.class)
 	public void anyExchangeWhenFollowedByMatcherThenThrowsException() {
-		authorization.anyExchange().denyAll();
-		authorization.pathMatchers("/never-reached");
+		this.authorization.anyExchange().denyAll();
+		this.authorization.pathMatchers("/never-reached");
 	}
 
 	@Test(expected = IllegalStateException.class)
 	public void buildWhenMatcherDefinedWithNoAccessThenThrowsException() {
-		authorization.pathMatchers("/incomplete");
-		authorization.build();
+		this.authorization.pathMatchers("/incomplete");
+		this.authorization.build();
 	}
 
 	private WebTestClient buildClient() {
-		return WebTestClientBuilder.bindToWebFilters(new ExceptionTranslationWebFilter(), authorization.build()).build();
+		return WebTestClientBuilder.bindToWebFilters(new ExceptionTranslationWebFilter(),
+			this.authorization.build()).build();
 	}
 }

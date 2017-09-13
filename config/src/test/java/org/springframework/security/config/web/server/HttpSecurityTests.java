@@ -56,12 +56,12 @@ public class HttpSecurityTests {
 
 	@Before
 	public void setup() {
-		http = HttpSecurity.http();
+		this.http = HttpSecurity.http();
 	}
 
 	@Test
 	public void defaults() {
-		http.securityContextRepository(this.contextRepository);
+		this.http.securityContextRepository(this.contextRepository);
 
 		WebTestClient client = buildClient();
 
@@ -73,17 +73,17 @@ public class HttpSecurityTests {
 
 		assertThat(result.getResponseCookies()).isEmpty();
 		// there is no need to try and load the SecurityContext by default
-		verifyZeroInteractions(contextRepository);
+		verifyZeroInteractions(this.contextRepository);
 	}
 
 	@Test
 	public void basic() {
 		given(this.authenticationManager.authenticate(any())).willReturn(Mono.just(new TestingAuthenticationToken("rob", "rob", "ROLE_USER", "ROLE_ADMIN")));
 
-		http.securityContextRepository(new WebSessionSecurityContextRepository());
-		http.httpBasic();
-		http.authenticationManager(authenticationManager);
-		HttpSecurity.AuthorizeExchangeBuilder authorize = http.authorizeExchange();
+		this.http.securityContextRepository(new WebSessionSecurityContextRepository());
+		this.http.httpBasic();
+		this.http.authenticationManager(this.authenticationManager);
+		HttpSecurity.AuthorizeExchangeBuilder authorize = this.http.authorizeExchange();
 		authorize.anyExchange().authenticated();
 
 		WebTestClient client = buildClient();
@@ -105,7 +105,7 @@ public class HttpSecurityTests {
 
 	@Test
 	public void basicWhenNoCredentialsThenUnauthorized() {
-		http.authorizeExchange().anyExchange().authenticated();
+		this.http.authorizeExchange().anyExchange().authenticated();
 
 		WebTestClient client = buildClient();
 		client
@@ -118,7 +118,8 @@ public class HttpSecurityTests {
 	}
 
 	private WebTestClient buildClient() {
-		WebFilterChainFilter springSecurityFilterChain = WebFilterChainFilter.fromSecurityWebFilterChains(http.build());
+		WebFilterChainFilter springSecurityFilterChain = WebFilterChainFilter.fromSecurityWebFilterChains(
+			this.http.build());
 		return WebTestClientBuilder.bindToWebFilters(springSecurityFilterChain).build();
 	}
 }

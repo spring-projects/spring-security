@@ -66,7 +66,7 @@ public class EnableWebFluxSecurityTests {
 
 		@Test
 		public void defaultRequiresAuthentication() {
-			WebTestClient client = WebTestClientBuilder.bindToWebFilters(springSecurityFilterChain).build();
+			WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.springSecurityFilterChain).build();
 
 			client.get()
 				.uri("/")
@@ -81,7 +81,7 @@ public class EnableWebFluxSecurityTests {
 			WebTestClient client = WebTestClientBuilder.bindToWebFilters(
 				(exchange, chain) ->
 					chain.filter(exchange.mutate().principal(Mono.just(currentPrincipal)).build()),
-				springSecurityFilterChain,
+				this.springSecurityFilterChain,
 				(exchange,chain) ->
 					Mono.subscriberContext()
 						.flatMap( c -> c.<Mono<Principal>>get(Authentication.class))
@@ -100,7 +100,7 @@ public class EnableWebFluxSecurityTests {
 		@Test
 		public void defaultPopulatesReactorContextWhenAuthenticating() {
 			WebTestClient client = WebTestClientBuilder.bindToWebFilters(
-				springSecurityFilterChain,
+				this.springSecurityFilterChain,
 				(exchange,chain) ->
 					Mono.subscriberContext()
 						.flatMap( c -> c.<Mono<Principal>>get(Authentication.class))
@@ -140,7 +140,7 @@ public class EnableWebFluxSecurityTests {
 		@Test
 		public void passwordEncoderBeanIsUsed() {
 			WebTestClient client = WebTestClientBuilder.bindToWebFilters(
-				springSecurityFilterChain,
+				this.springSecurityFilterChain,
 				(exchange,chain) ->
 					Mono.subscriberContext()
 						.flatMap( c -> c.<Mono<Principal>>get(Authentication.class))
@@ -185,7 +185,7 @@ public class EnableWebFluxSecurityTests {
 		@Test
 		public void formLoginWorks() {
 			WebTestClient client = WebTestClientBuilder.bindToWebFilters(
-				springSecurityFilterChain,
+				this.springSecurityFilterChain,
 				(exchange,chain) ->
 					Mono.subscriberContext()
 						.flatMap( c -> c.<Mono<Principal>>get(Authentication.class))
@@ -227,7 +227,7 @@ public class EnableWebFluxSecurityTests {
 
 		@Test
 		public void multiWorks() {
-			WebTestClient client = WebTestClientBuilder.bindToWebFilters(springSecurityFilterChain).build();
+			WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.springSecurityFilterChain).build();
 
 			client.get()
 				.uri("/api/test")
