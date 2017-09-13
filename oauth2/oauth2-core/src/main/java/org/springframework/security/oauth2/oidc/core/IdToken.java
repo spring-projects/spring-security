@@ -44,27 +44,11 @@ public class IdToken extends SecurityToken implements IdTokenClaimAccessor {
 	public IdToken(String tokenValue, Instant issuedAt, Instant expiresAt, Map<String, Object> claims) {
 		super(tokenValue, issuedAt, expiresAt);
 		Assert.notEmpty(claims, "claims cannot be empty");
-		this.claims = Collections.unmodifiableMap(new LinkedHashMap<>(this.sanitize(claims)));
+		this.claims = Collections.unmodifiableMap(new LinkedHashMap<>(claims));
 	}
 
 	@Override
 	public Map<String, Object> getClaims() {
 		return this.claims;
-	}
-
-	private Map<String, Object> sanitize(Map<String, Object> claims) {
-		// NOTE:
-		// Google's OpenID Connect implementation issues ID Tokens
-		// that omit the required https:// scheme prefix from the iss claim.
-		// This method will apply the required scheme prefix as a temporary workaround
-		// until Google's OpenID Connect implementation is updated.
-		// See http://openid.net/specs/openid-connect-core-1_0.html#GoogleIss
-
-		String iss = (String)claims.get(IdTokenClaim.ISS);
-		if (!iss.startsWith("https://")) {
-			claims = new LinkedHashMap<>(claims);
-			claims.put(IdTokenClaim.ISS, "https://" + iss);
-		}
-		return claims;
 	}
 }
