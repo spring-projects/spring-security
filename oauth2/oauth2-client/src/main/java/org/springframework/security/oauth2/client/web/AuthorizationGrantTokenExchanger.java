@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.client.authentication;
+package org.springframework.security.oauth2.client.web;
 
 
+import org.springframework.security.oauth2.client.authentication.AuthorizationGrantAuthenticationToken;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.endpoint.TokenResponseAttributes;
 

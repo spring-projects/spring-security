@@ -15,6 +15,6 @@
  */
 /**
  * Support classes/interfaces for authenticating an <i>end-user</i>
- * with an <i>authorization server</i> using the <i>authorization code grant flow</i>.
+ * with an <i>authorization server</i> using a specific <i>authorization grant flow</i>.
  */
 package org.springframework.security.oauth2.client.authentication;

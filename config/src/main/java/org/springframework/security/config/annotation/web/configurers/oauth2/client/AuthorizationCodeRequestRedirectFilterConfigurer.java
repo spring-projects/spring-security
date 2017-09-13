@@ -17,9 +17,9 @@ package org.springframework.security.config.annotation.web.configurers.oauth2.cl
 
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.oauth2.client.authentication.AuthorizationCodeRequestRedirectFilter;
-import org.springframework.security.oauth2.client.authentication.AuthorizationRequestUriBuilder;
-import org.springframework.security.oauth2.client.authentication.DefaultAuthorizationRequestUriBuilder;
+import org.springframework.security.oauth2.client.web.AuthorizationCodeRequestRedirectFilter;
+import org.springframework.security.oauth2.client.web.AuthorizationRequestUriBuilder;
+import org.springframework.security.oauth2.client.web.DefaultAuthorizationRequestUriBuilder;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.matcher.RequestVariablesExtractor;

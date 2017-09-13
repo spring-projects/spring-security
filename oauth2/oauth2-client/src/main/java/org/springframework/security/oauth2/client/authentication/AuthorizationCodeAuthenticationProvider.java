@@ -28,6 +28,7 @@ import org.springframework.security.oauth2.client.authentication.jwt.ProviderJwt
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.token.SecurityTokenRepository;
 import org.springframework.security.oauth2.client.user.OAuth2UserService;
+import org.springframework.security.oauth2.client.web.AuthorizationGrantTokenExchanger;
 import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.security.oauth2.core.endpoint.TokenResponseAttributes;
 import org.springframework.security.oauth2.core.user.OAuth2User;

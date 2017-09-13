@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.client.user.nimbus;
+package org.springframework.security.oauth2.client.user.web.nimbus;
 
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import org.springframework.http.HttpHeaders;

@@ -13,9 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.client.authentication;
+package org.springframework.security.oauth2.client.web;
 
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -29,7 +32,6 @@ import java.net.URI;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
-import static org.springframework.security.oauth2.client.authentication.TestUtil.*;
 
 /**
  * Tests {@link AuthorizationCodeRequestRedirectFilter}.
@@ -40,17 +42,17 @@ public class AuthorizationCodeRequestRedirectFilterTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorWhenClientRegistrationRepositoryIsNullThenThrowIllegalArgumentException() {
-		new AuthorizationCodeRequestRedirectFilter(null, mock(AuthorizationRequestUriBuilder.class));
+		new AuthorizationCodeRequestRedirectFilter(null, Mockito.mock(AuthorizationRequestUriBuilder.class));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorWhenAuthorizationRequestUriBuilderIsNullThenThrowIllegalArgumentException() {
-		new AuthorizationCodeRequestRedirectFilter(mock(ClientRegistrationRepository.class), null);
+		new AuthorizationCodeRequestRedirectFilter(Mockito.mock(ClientRegistrationRepository.class), null);
 	}
 
 	@Test
 	public void doFilterWhenRequestDoesNotMatchClientThenContinueChain() throws Exception {
-		ClientRegistration clientRegistration = googleClientRegistration();
+		ClientRegistration clientRegistration = TestUtil.googleClientRegistration();
 		String authorizationUri = clientRegistration.getProviderDetails().getAuthorizationUri().toString();
 		AuthorizationCodeRequestRedirectFilter filter =
 				setupFilter(authorizationUri, clientRegistration);
@@ -59,72 +61,72 @@ public class AuthorizationCodeRequestRedirectFilterTests {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestURI);
 		request.setServletPath(requestURI);
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		FilterChain filterChain = mock(FilterChain.class);
+		FilterChain filterChain = Mockito.mock(FilterChain.class);
 
 		filter.doFilter(request, response, filterChain);
 
-		verify(filterChain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
+		Mockito.verify(filterChain).doFilter(Matchers.any(HttpServletRequest.class), Matchers.any(HttpServletResponse.class));
 	}
 
 	@Test
 	public void doFilterWhenRequestMatchesClientThenRedirectForAuthorization() throws Exception {
-		ClientRegistration clientRegistration = googleClientRegistration();
+		ClientRegistration clientRegistration = TestUtil.googleClientRegistration();
 		String authorizationUri = clientRegistration.getProviderDetails().getAuthorizationUri().toString();
 		AuthorizationCodeRequestRedirectFilter filter =
 				setupFilter(authorizationUri, clientRegistration);
 
-		String requestUri = AUTHORIZATION_BASE_URI + "/" + clientRegistration.getClientAlias();
+		String requestUri = TestUtil.AUTHORIZATION_BASE_URI + "/" + clientRegistration.getClientAlias();
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
 		request.setServletPath(requestUri);
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		FilterChain filterChain = mock(FilterChain.class);
+		FilterChain filterChain = Mockito.mock(FilterChain.class);
 
 		filter.doFilter(request, response, filterChain);
 
-		verifyZeroInteractions(filterChain);        // Request should not proceed up the chain
+		Mockito.verifyZeroInteractions(filterChain);        // Request should not proceed up the chain
 
-		assertThat(response.getRedirectedUrl()).isEqualTo(authorizationUri);
+		Assertions.assertThat(response.getRedirectedUrl()).isEqualTo(authorizationUri);
 	}
 
 	@Test
 	public void doFilterWhenRequestMatchesClientThenAuthorizationRequestSavedInSession() throws Exception {
-		ClientRegistration clientRegistration = githubClientRegistration();
+		ClientRegistration clientRegistration = TestUtil.githubClientRegistration();
 		String authorizationUri = clientRegistration.getProviderDetails().getAuthorizationUri().toString();
 		AuthorizationCodeRequestRedirectFilter filter =
 				setupFilter(authorizationUri, clientRegistration);
 		AuthorizationRequestRepository authorizationRequestRepository = new HttpSessionAuthorizationRequestRepository();
 		filter.setAuthorizationRequestRepository(authorizationRequestRepository);
 
-		String requestUri = AUTHORIZATION_BASE_URI + "/" + clientRegistration.getClientAlias();
+		String requestUri = TestUtil.AUTHORIZATION_BASE_URI + "/" + clientRegistration.getClientAlias();
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
 		request.setServletPath(requestUri);
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		FilterChain filterChain = mock(FilterChain.class);
+		FilterChain filterChain = Mockito.mock(FilterChain.class);
 
 		filter.doFilter(request, response, filterChain);
 
-		verifyZeroInteractions(filterChain);        // Request should not proceed up the chain
+		Mockito.verifyZeroInteractions(filterChain);        // Request should not proceed up the chain
 
 		// The authorization request attributes are saved in the session before the redirect happens
 		AuthorizationRequestAttributes authorizationRequestAttributes =
 				authorizationRequestRepository.loadAuthorizationRequest(request);
-		assertThat(authorizationRequestAttributes).isNotNull();
+		Assertions.assertThat(authorizationRequestAttributes).isNotNull();
 
-		assertThat(authorizationRequestAttributes.getAuthorizeUri()).isNotNull();
-		assertThat(authorizationRequestAttributes.getGrantType()).isNotNull();
-		assertThat(authorizationRequestAttributes.getResponseType()).isNotNull();
-		assertThat(authorizationRequestAttributes.getClientId()).isNotNull();
-		assertThat(authorizationRequestAttributes.getRedirectUri()).isNotNull();
-		assertThat(authorizationRequestAttributes.getScope()).isNotNull();
-		assertThat(authorizationRequestAttributes.getState()).isNotNull();
+		Assertions.assertThat(authorizationRequestAttributes.getAuthorizeUri()).isNotNull();
+		Assertions.assertThat(authorizationRequestAttributes.getGrantType()).isNotNull();
+		Assertions.assertThat(authorizationRequestAttributes.getResponseType()).isNotNull();
+		Assertions.assertThat(authorizationRequestAttributes.getClientId()).isNotNull();
+		Assertions.assertThat(authorizationRequestAttributes.getRedirectUri()).isNotNull();
+		Assertions.assertThat(authorizationRequestAttributes.getScope()).isNotNull();
+		Assertions.assertThat(authorizationRequestAttributes.getState()).isNotNull();
 	}
 
 	private AuthorizationCodeRequestRedirectFilter setupFilter(String authorizationUri,
 																ClientRegistration... clientRegistrations) throws Exception {
 
-		AuthorizationRequestUriBuilder authorizationUriBuilder = mock(AuthorizationRequestUriBuilder.class);
+		AuthorizationRequestUriBuilder authorizationUriBuilder = Mockito.mock(AuthorizationRequestUriBuilder.class);
 		URI authorizationURI = new URI(authorizationUri);
-		when(authorizationUriBuilder.build(any(AuthorizationRequestAttributes.class))).thenReturn(authorizationURI);
+		Mockito.when(authorizationUriBuilder.build(Matchers.any(AuthorizationRequestAttributes.class))).thenReturn(authorizationURI);
 
 		return setupFilter(authorizationUriBuilder, clientRegistrations);
 	}
@@ -132,7 +134,7 @@ public class AuthorizationCodeRequestRedirectFilterTests {
 	private AuthorizationCodeRequestRedirectFilter setupFilter(AuthorizationRequestUriBuilder authorizationUriBuilder,
 																ClientRegistration... clientRegistrations) throws Exception {
 
-		ClientRegistrationRepository clientRegistrationRepository = clientRegistrationRepository(clientRegistrations);
+		ClientRegistrationRepository clientRegistrationRepository = TestUtil.clientRegistrationRepository(clientRegistrations);
 
 		AuthorizationCodeRequestRedirectFilter filter = new AuthorizationCodeRequestRedirectFilter(
 															clientRegistrationRepository, authorizationUriBuilder);

@@ -20,9 +20,9 @@ import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationToken;
-import org.springframework.security.oauth2.client.authentication.AuthorizationCodeRequestRedirectFilter;
-import org.springframework.security.oauth2.client.authentication.AuthorizationGrantTokenExchanger;
-import org.springframework.security.oauth2.client.authentication.AuthorizationRequestUriBuilder;
+import org.springframework.security.oauth2.client.web.AuthorizationCodeRequestRedirectFilter;
+import org.springframework.security.oauth2.client.web.AuthorizationGrantTokenExchanger;
+import org.springframework.security.oauth2.client.web.AuthorizationRequestUriBuilder;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
@@ -44,7 +44,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.springframework.security.oauth2.client.authentication.AuthorizationCodeRequestRedirectFilter.CLIENT_ALIAS_URI_VARIABLE_NAME;
+import static org.springframework.security.oauth2.client.web.AuthorizationCodeRequestRedirectFilter.CLIENT_ALIAS_URI_VARIABLE_NAME;
 
 /**
  * @author Joe Grandja
