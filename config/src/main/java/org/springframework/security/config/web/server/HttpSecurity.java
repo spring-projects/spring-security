@@ -79,7 +79,7 @@ public class HttpSecurity {
 
 	private AuthorizeExchangeBuilder authorizeExchangeBuilder;
 
-	private HeaderBuilder headers = new HeaderBuilder();
+	private HeaderBuilder headers;
 	private HttpBasicBuilder httpBasic;
 	private FormLoginBuilder formLogin;
 
@@ -132,6 +132,9 @@ public class HttpSecurity {
 	}
 
 	public HeaderBuilder headers() {
+		if(this.headers == null) {
+			this.headers = new HeaderBuilder();
+		}
 		return this.headers;
 	}
 

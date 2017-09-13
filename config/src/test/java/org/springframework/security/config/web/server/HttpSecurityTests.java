@@ -56,7 +56,7 @@ public class HttpSecurityTests {
 
 	@Before
 	public void setup() {
-		this.http = HttpSecurity.http();
+		this.http = HttpSecurity.http().headers().and();
 	}
 
 	@Test

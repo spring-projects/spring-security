@@ -67,12 +67,12 @@ public class HttpSecurityConfiguration implements WebFluxConfigurer {
 	@Bean(HTTPSECURITY_BEAN_NAME)
 	@Scope("prototype")
 	public HttpSecurity httpSecurity() {
-		HttpSecurity http = http();
-		http.httpBasic();
-		http.formLogin();
-		http.authenticationManager(authenticationManager());
-		http.securityContextRepository(new WebSessionSecurityContextRepository());
-		return http;
+		return http()
+			.authenticationManager(authenticationManager())
+			.securityContextRepository(new WebSessionSecurityContextRepository())
+			.headers().and()
+			.httpBasic().and()
+			.formLogin().and();
 	}
 
 	private ReactiveAuthenticationManager authenticationManager() {
