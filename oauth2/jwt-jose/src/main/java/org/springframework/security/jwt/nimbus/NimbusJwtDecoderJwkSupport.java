@@ -32,7 +32,6 @@ import org.springframework.security.jose.jws.JwsAlgorithm;
 import org.springframework.security.jwt.Jwt;
 import org.springframework.security.jwt.JwtDecoder;
 import org.springframework.security.jwt.JwtException;
-import org.springframework.security.oauth2.core.http.HttpClientConfig;
 import org.springframework.util.Assert;
 
 import java.net.MalformedURLException;
@@ -68,10 +67,6 @@ public class NimbusJwtDecoderJwkSupport implements JwtDecoder {
 	}
 
 	public NimbusJwtDecoderJwkSupport(String jwkSetUrl, String jwsAlgorithm) {
-		this(jwkSetUrl, jwsAlgorithm, null);
-	}
-
-	public NimbusJwtDecoderJwkSupport(String jwkSetUrl, String jwsAlgorithm, HttpClientConfig httpClientConfig) {
 		Assert.hasText(jwkSetUrl, "jwkSetUrl cannot be empty");
 		Assert.hasText(jwsAlgorithm, "jwsAlgorithm cannot be empty");
 		try {
@@ -81,11 +76,7 @@ public class NimbusJwtDecoderJwkSupport implements JwtDecoder {
 		}
 		this.jwsAlgorithm = JWSAlgorithm.parse(jwsAlgorithm);
 
-		int connectTimeout = (httpClientConfig != null ?
-			httpClientConfig.getConnectTimeout() : HttpClientConfig.DEFAULT_CONNECT_TIMEOUT);
-		int readTimeout = (httpClientConfig != null ?
-			httpClientConfig.getReadTimeout() : HttpClientConfig.DEFAULT_READ_TIMEOUT);
-		ResourceRetriever jwkSetRetriever = new DefaultResourceRetriever(connectTimeout, readTimeout);
+		ResourceRetriever jwkSetRetriever = new DefaultResourceRetriever(30000, 30000);
 		JWKSource jwkSource = new RemoteJWKSet(this.jwkSetUrl, jwkSetRetriever);
 		JWSKeySelector<SecurityContext> jwsKeySelector =
 			new JWSVerificationKeySelector<SecurityContext>(this.jwsAlgorithm, jwkSource);

@@ -24,14 +24,12 @@ import com.nimbusds.openid.connect.sdk.UserInfoErrorResponse;
 import com.nimbusds.openid.connect.sdk.UserInfoRequest;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
-import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.core.http.HttpClientConfig;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.user.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2Error;
@@ -46,7 +44,11 @@ import org.springframework.util.Assert;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * An implementation of an {@link OAuth2UserService} that uses the <b>Nimbus OAuth 2.0 SDK</b> internally.
@@ -73,7 +75,6 @@ public class NimbusOAuth2UserService implements OAuth2UserService {
 	private final HttpMessageConverter jackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();
 	private Map<URI, String> userNameAttributeNames = Collections.unmodifiableMap(Collections.emptyMap());
 	private Map<URI, Class<? extends OAuth2User>> customUserTypes = Collections.unmodifiableMap(Collections.emptyMap());
-	private HttpClientConfig httpClientConfig = new HttpClientConfig();
 
 	public NimbusOAuth2UserService() {
 	}
@@ -152,8 +153,8 @@ public class NimbusOAuth2UserService implements OAuth2UserService {
 
 		UserInfoRequest userInfoRequest = new UserInfoRequest(userInfoUri, accessToken);
 		HTTPRequest httpRequest = userInfoRequest.toHTTPRequest();
-		httpRequest.setConnectTimeout(this.httpClientConfig.getConnectTimeout());
-		httpRequest.setReadTimeout(this.httpClientConfig.getReadTimeout());
+		httpRequest.setConnectTimeout(30000);
+		httpRequest.setReadTimeout(30000);
 		HTTPResponse httpResponse;
 
 		try {
@@ -216,11 +217,6 @@ public class NimbusOAuth2UserService implements OAuth2UserService {
 	public final void setCustomUserTypes(Map<URI, Class<? extends OAuth2User>> customUserTypes) {
 		Assert.notEmpty(customUserTypes, "customUserTypes cannot be empty");
 		this.customUserTypes = Collections.unmodifiableMap(new HashMap<>(customUserTypes));
-	}
-
-	public final void setHttpClientConfig(HttpClientConfig httpClientConfig) {
-		Assert.notNull(httpClientConfig, "httpClientConfig cannot be null");
-		this.httpClientConfig = httpClientConfig;
 	}
 
 	private URI getUserInfoUri(OAuth2AuthenticationToken token) {
