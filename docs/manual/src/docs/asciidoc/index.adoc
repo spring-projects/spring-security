@@ -1086,7 +1086,7 @@ For example, you might have something that looks like this:
 
 [source,java]
 ----
-public class MyCustomDsl extends AbstractHttpConfigurer<CorsConfigurerMyCustomDsl, HttpSecurity> {
+public class MyCustomDsl extends AbstractHttpConfigurer<MyCustomDsl, HttpSecurity> {
 	private boolean flag;
 
 	@Override
