@@ -24,6 +24,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
@@ -221,6 +222,11 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 				if(grantedAuthorityDefaultsBeanNames.length == 1) {
 					GrantedAuthorityDefaults grantedAuthorityDefaults = context.getBean(grantedAuthorityDefaultsBeanNames[0], GrantedAuthorityDefaults.class);
 					defaultHandler.setDefaultRolePrefix(grantedAuthorityDefaults.getRolePrefix());
+				}
+				String[] permissionEvaluatorBeanNames = context.getBeanNamesForType(PermissionEvaluator.class);
+				if(permissionEvaluatorBeanNames.length == 1) {
+					PermissionEvaluator permissionEvaluator = context.getBean(permissionEvaluatorBeanNames[0], PermissionEvaluator.class);
+					defaultHandler.setPermissionEvaluator(permissionEvaluator);
 				}
 			}
 

@@ -40,12 +40,8 @@ public abstract class AbstractSecurityExpressionHandler<T> implements
 		SecurityExpressionHandler<T>, ApplicationContextAware {
 	private ExpressionParser expressionParser = new SpelExpressionParser();
 	private BeanResolver br;
-	private ApplicationContext context;
 	private RoleHierarchy roleHierarchy;
 	private PermissionEvaluator permissionEvaluator = new DenyAllPermissionEvaluator();
-	private boolean roleHierarchySet = false;
-	private boolean permissionEvaluatorSet = false;
-
 
 	public final ExpressionParser getExpressionParser() {
 		return expressionParser;
@@ -105,52 +101,23 @@ public abstract class AbstractSecurityExpressionHandler<T> implements
 	protected abstract SecurityExpressionOperations createSecurityExpressionRoot(
 			Authentication authentication, T invocation);
 
-	private boolean roleHerarchyNotSetForValidContext() {
-		return ! roleHierarchySet && context != null;
-	}
-
 	protected RoleHierarchy getRoleHierarchy() {
-		if(roleHerarchyNotSetForValidContext()) {
-			RoleHierarchy contextRoleHierarchy = getSingleBeanOrNull(RoleHierarchy.class);
-			if(contextRoleHierarchy != null){
-				roleHierarchy = contextRoleHierarchy;
-			}
-			roleHierarchySet = true;
-		}
 		return roleHierarchy;
 	}
 
 	public void setRoleHierarchy(RoleHierarchy roleHierarchy) {
-		roleHierarchySet = true;
 		this.roleHierarchy = roleHierarchy;
 	}
 
 	protected PermissionEvaluator getPermissionEvaluator() {
-		if(! permissionEvaluatorSet && context != null) {
-			PermissionEvaluator contextPermissionEvaluator = getSingleBeanOrNull(PermissionEvaluator.class);
-			if(contextPermissionEvaluator != null){
-				permissionEvaluator = contextPermissionEvaluator;
-			}
-			permissionEvaluatorSet = true;
-		}
 		return permissionEvaluator;
 	}
 
 	public void setPermissionEvaluator(PermissionEvaluator permissionEvaluator) {
-		permissionEvaluatorSet = true;
 		this.permissionEvaluator = permissionEvaluator;
 	}
 
 	public void setApplicationContext(ApplicationContext applicationContext) {
 		br = new BeanFactoryResolver(applicationContext);
-		this.context = applicationContext;
-	}
-
-	private <T> T getSingleBeanOrNull(Class<T> type) {
-		String[] beanNamesForType = context.getBeanNamesForType(type);
-		if (beanNamesForType == null || beanNamesForType.length != 1) {
-			return null;
-		}
-		return context.getBean(beanNamesForType[0], type);
 	}
 }
