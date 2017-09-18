@@ -19,7 +19,6 @@
 package org.springframework.security.web.server.authorization;
 
 import java.security.Principal;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -28,6 +27,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import reactor.test.publisher.PublisherProbe;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.http.server.reactive.MockServerHttpResponse;
@@ -57,16 +57,16 @@ public class ExceptionTranslationWebFilterTests {
 	@Mock
 	private AuthenticationEntryPoint entryPoint;
 
-	private TestMono<Void> deniedMono = TestMono.create();
-	private TestMono<Void> entryPointMono = TestMono.create();
+	private PublisherProbe<Void> deniedPublisher = PublisherProbe.empty();
+	private PublisherProbe<Void> entryPointPublisher = PublisherProbe.empty();
 
 	private ExceptionTranslationWebFilter filter = new ExceptionTranslationWebFilter();
 
 	@Before
 	public void setup() {
 		when(this.exchange.getResponse()).thenReturn(new MockServerHttpResponse());
-		when(this.deniedHandler.handle(any(), any())).thenReturn(this.deniedMono.mono());
-		when(this.entryPoint.commence(any(), any())).thenReturn(this.entryPointMono.mono());
+		when(this.deniedHandler.handle(any(), any())).thenReturn(this.deniedPublisher.mono());
+		when(this.entryPoint.commence(any(), any())).thenReturn(this.entryPointPublisher.mono());
 
 		this.filter.setAuthenticationEntryPoint(this.entryPoint);
 		this.filter.setAccessDeniedHandler(this.deniedHandler);
@@ -80,8 +80,8 @@ public class ExceptionTranslationWebFilterTests {
 			.expectComplete()
 			.verify();
 
-		assertThat(this.deniedMono.isInvoked()).isFalse();
-		assertThat(this.entryPointMono.isInvoked()).isFalse();
+		this.deniedPublisher.assertWasNotSubscribed();
+		this.entryPointPublisher.assertWasNotSubscribed();
 	}
 
 	@Test
@@ -92,8 +92,8 @@ public class ExceptionTranslationWebFilterTests {
 			.expectError(IllegalArgumentException.class)
 			.verify();
 
-		assertThat(this.deniedMono.isInvoked()).isFalse();
-		assertThat(this.entryPointMono.isInvoked()).isFalse();
+		this.deniedPublisher.assertWasNotSubscribed();
+		this.entryPointPublisher.assertWasNotSubscribed();
 	}
 
 	@Test
@@ -102,12 +102,12 @@ public class ExceptionTranslationWebFilterTests {
 		when(this.chain.filter(this.exchange)).thenReturn(Mono.error(new AccessDeniedException("Not Authorized")));
 
 		StepVerifier.create(this.filter.filter(this.exchange, this.chain))
-			.expectComplete()
-			.verify();
+			.verifyComplete();
 
-		assertThat(this.deniedMono.isInvoked()).isFalse();
-		assertThat(this.entryPointMono.isInvoked()).isTrue();
+		this.deniedPublisher.assertWasNotSubscribed();
+		this.entryPointPublisher.assertWasSubscribed();
 	}
+
 
 	@Test
 	public void filterWhenDefaultsAndAccessDeniedExceptionAndAuthenticatedThenForbidden() {
@@ -146,8 +146,8 @@ public class ExceptionTranslationWebFilterTests {
 			.expectComplete()
 			.verify();
 
-		assertThat(this.deniedMono.isInvoked()).isTrue();
-		assertThat(this.entryPointMono.isInvoked()).isFalse();
+		this.deniedPublisher.assertWasSubscribed();
+		this.entryPointPublisher.assertWasNotSubscribed();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -158,21 +158,5 @@ public class ExceptionTranslationWebFilterTests {
 	@Test(expected = IllegalArgumentException.class)
 	public void setAuthenticationEntryPointWhenNullThenException() {
 		this.filter.setAuthenticationEntryPoint(null);
-	}
-
-	static class TestMono<T> {
-		private final AtomicBoolean invoked = new AtomicBoolean();
-
-		public Mono<T> mono() {
-			return Mono.<T>empty().doOnSubscribe(s -> this.invoked.set(true));
-		}
-
-		public boolean isInvoked() {
-			return this.invoked.get();
-		}
-
-		public static <T> TestMono<T> create() {
-			return new TestMono<T>();
-		}
 	}
 }
