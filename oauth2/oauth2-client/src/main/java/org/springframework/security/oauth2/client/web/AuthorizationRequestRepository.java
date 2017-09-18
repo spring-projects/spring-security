@@ -40,7 +40,7 @@ public interface AuthorizationRequestRepository {
 	AuthorizationRequestAttributes loadAuthorizationRequest(HttpServletRequest request);
 
 	void saveAuthorizationRequest(AuthorizationRequestAttributes authorizationRequest, HttpServletRequest request,
-								  HttpServletResponse response);
+		HttpServletResponse response);
 
 	AuthorizationRequestAttributes removeAuthorizationRequest(HttpServletRequest request);
 

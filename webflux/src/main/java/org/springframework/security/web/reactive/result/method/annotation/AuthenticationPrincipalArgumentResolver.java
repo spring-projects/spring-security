@@ -94,7 +94,7 @@ public class AuthenticationPrincipalArgumentResolver extends HandlerMethodArgume
 	 * @return the {@link Annotation} that was found or null.
 	 */
 	private <T extends Annotation> T findMethodAnnotation(Class<T> annotationClass,
-														  MethodParameter parameter) {
+			MethodParameter parameter) {
 		T annotation = parameter.getParameterAnnotation(annotationClass);
 		if (annotation != null) {
 			return annotation;

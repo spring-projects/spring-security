@@ -230,7 +230,7 @@ public class AuthorizationCodeAuthenticationProcessingFilterTests {
 
 	private void setupAuthorizationRequest(AuthorizationRequestRepository authorizationRequestRepository,
 											HttpServletRequest request,
-										    HttpServletResponse response,
+											HttpServletResponse response,
 											ClientRegistration clientRegistration,
 											String state) {
 

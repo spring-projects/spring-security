@@ -438,7 +438,7 @@ public class ResolvableMethod {
 		 * @param generics optional extra generic types
 		 */
 		public MethodParameter resolveReturnType(Class<?> returnType, ResolvableType generic,
-												 ResolvableType... generics) {
+												ResolvableType... generics) {
 
 			return returning(returnType, generic, generics).build().returnType();
 		}

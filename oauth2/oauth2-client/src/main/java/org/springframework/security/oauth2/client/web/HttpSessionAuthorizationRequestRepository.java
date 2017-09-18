@@ -46,7 +46,7 @@ public final class HttpSessionAuthorizationRequestRepository implements Authoriz
 
 	@Override
 	public void saveAuthorizationRequest(AuthorizationRequestAttributes authorizationRequest, HttpServletRequest request,
-										 HttpServletResponse response) {
+			HttpServletResponse response) {
 		if (authorizationRequest == null) {
 			this.removeAuthorizationRequest(request);
 			return;
