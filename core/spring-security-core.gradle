@@ -38,7 +38,7 @@ dependencies {
 classes.doLast {
 	copy {
 		from includeProject.sourceSets.main.output
-		into sourceSets.main.output.classesDir
+		into sourceSets.main.java.outputDir
 	}
 }
 
