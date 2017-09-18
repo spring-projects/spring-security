@@ -26,6 +26,7 @@ import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -91,7 +92,7 @@ public class HelloWebfluxApplicationTests {
 	}
 
 	@Test
-	public void mockSupportWhenValidMockUserThenOk() throws Exception {
+	public void mockSupportWhenMutateWithMockUserThenOk() throws Exception {
 		this.rest
 			.mutateWith(mockUser())
 			.get()
@@ -99,12 +100,17 @@ public class HelloWebfluxApplicationTests {
 			.exchange()
 			.expectStatus().isOk()
 			.expectBody().json("{\"message\":\"Hello user!\"}");
+	}
 
+	@Test
+	@WithMockUser
+	public void mockSupportWhenWithMockUserThenOk() throws Exception {
 		this.rest
 			.get()
 			.uri("/")
 			.exchange()
-			.expectStatus().isUnauthorized();
+			.expectStatus().isOk()
+			.expectBody().json("{\"message\":\"Hello user!\"}");
 	}
 
 	private Consumer<Map<String, Object>> userCredentials() {

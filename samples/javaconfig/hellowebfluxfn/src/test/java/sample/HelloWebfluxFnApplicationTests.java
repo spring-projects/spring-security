@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.web.server.WebFilterChainFilter;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -34,8 +35,8 @@ import org.springframework.web.reactive.function.server.RouterFunction;
 
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockUser;
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.springSecurity;
-import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.Credentials.basicAuthenticationCredentials;
 import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.basicAuthentication;
+import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.Credentials.basicAuthenticationCredentials;
 
 /**
  * @author Rob Winch
@@ -95,7 +96,7 @@ public class HelloWebfluxFnApplicationTests {
 	}
 
 	@Test
-	public void mockSupportWhenValidMockUserThenOk() throws Exception {
+	public void mockSupportWhenMutateWithMockUserThenOk() throws Exception {
 		this.rest
 			.mutateWith(mockUser())
 			.get()
@@ -103,12 +104,17 @@ public class HelloWebfluxFnApplicationTests {
 			.exchange()
 			.expectStatus().isOk()
 			.expectBody().json("{\"message\":\"Hello user!\"}");
+	}
 
+	@Test
+	@WithMockUser
+	public void mockSupportWhenWithMockUserThenOk() throws Exception {
 		this.rest
 			.get()
 			.uri("/")
 			.exchange()
-			.expectStatus().isUnauthorized();
+			.expectStatus().isOk()
+			.expectBody().json("{\"message\":\"Hello user!\"}");
 	}
 
 	private Consumer<Map<String, Object>> userCredentials() {

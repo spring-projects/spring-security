@@ -17,24 +17,26 @@
  */
 package sample;
 
+import java.util.Map;
+import java.util.function.Consumer;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import java.nio.charset.Charset;
-import java.util.Base64;
-import java.util.Map;
-import java.util.function.Consumer;
-
-import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.Credentials.basicAuthenticationCredentials;
+import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockUser;
+import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.springSecurity;
 import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.basicAuthentication;
+import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.Credentials.basicAuthenticationCredentials;
 
 /**
  * @author Rob Winch
@@ -52,7 +54,8 @@ public class HelloWebfluxMethodApplicationTests {
 	@Before
 	public void setup() {
 		this.rest = WebTestClient
-			.bindToApplicationContext(context)
+			.bindToApplicationContext(this.context)
+			.apply(springSecurity())
 			.configureClient()
 			.filter(basicAuthentication())
 			.build();
@@ -66,6 +69,8 @@ public class HelloWebfluxMethodApplicationTests {
 			.exchange()
 			.expectStatus().isUnauthorized();
 	}
+
+	// --- Basic Authentication ---
 
 	@Test
 	public void messageWhenUserThenForbidden() throws Exception {
@@ -89,16 +94,59 @@ public class HelloWebfluxMethodApplicationTests {
 			.expectBody(String.class).isEqualTo("Hello World!");
 	}
 
+	// --- WithMockUser ---
+
+	@Test
+	@WithMockUser
+	public void messageWhenWithMockUserThenForbidden() throws Exception {
+		this.rest
+			.get()
+			.uri("/message")
+			.exchange()
+			.expectStatus().isEqualTo(HttpStatus.FORBIDDEN)
+			.expectBody().isEmpty();
+	}
+
+	@Test
+	@WithMockUser(roles = "ADMIN")
+	public void messageWhenWithMockAdminThenOk() throws Exception {
+		this.rest
+			.get()
+			.uri("/message")
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody(String.class).isEqualTo("Hello World!");
+	}
+
+	// --- mutateWith mockUser ---
+
+	@Test
+	public void messageWhenMutateWithMockUserThenForbidden() throws Exception {
+		this.rest
+			.mutateWith(mockUser())
+			.get()
+			.uri("/message")
+			.exchange()
+			.expectStatus().isEqualTo(HttpStatus.FORBIDDEN)
+			.expectBody().isEmpty();
+	}
+
+	@Test
+	public void messageWhenMutateWithMockAdminThenOk() throws Exception {
+		this.rest
+			.mutateWith(mockUser().roles("ADMIN"))
+			.get()
+			.uri("/message")
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody(String.class).isEqualTo("Hello World!");
+	}
+
 	private Consumer<Map<String, Object>> robsCredentials() {
 		return basicAuthenticationCredentials("rob","rob");
 	}
 
-
 	private Consumer<Map<String, Object>> adminCredentials() {
 		return basicAuthenticationCredentials("admin","admin");
-	}
-
-	private String base64Encode(String value) {
-		return Base64.getEncoder().encodeToString(value.getBytes(Charset.defaultCharset()));
 	}
 }
