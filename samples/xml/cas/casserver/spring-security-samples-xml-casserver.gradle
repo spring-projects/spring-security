@@ -1,63 +1,55 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
-apply plugin: 'io.spring.convention.spring-sample'
+apply plugin: 'io.spring.convention.spring-sample-war'
 
 def keystore = "$rootDir/samples/certificates/server.jks"
 def password = 'password'
 
-configurations {
-	casServer
-}
 dependencies {
-	casServer "org.jasig.cas:cas-server-webapp:4.0.0@war"
+	compile "org.jasig.cas:cas-server-webapp:4.0.0@war"
+	compile slf4jDependencies
 }
 
-task casServerOverlay(type: Sync) {
-	def war = configurations.casServer.resolve().toArray()[0]
-	def warName = war.name.replace('.war','-custom')
-	def overlayDir = file('src/main/webapp')
-	def explodedWar = file("$buildDir/tmp/${warName}")
-	ext.customWar = file("$buildDir/tmp/${warName}.war")
-	ext.tokens = [logLevel: 'INFO']
+project.tasks.withType(org.gradle.api.tasks.bundling.War) { war ->
+	war.duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+	project.tasks.war.doFirst {
+		war.classpath = war.classpath.filter { !it.name.endsWith(".war") }
 
-	inputs.files(war, overlayDir)
-	inputs.property('tokens',{tokens})
-	outputs.files (customWar,explodedWar,file("$buildDir/tmp/expandedArchives"))
-
-	from zipTree(war)
-	from (overlayDir) {
-		filter(ReplaceTokens,tokens: tokens)
-	}
-	into explodedWar
-
-	doLast {
-		if(customWar.exists()) {
-			customWar.delete()
+		war.project.configurations.runtime.each {
+			if (it.name.endsWith(".war")) {
+				def fileList = war.project.zipTree(it)
+				war.from fileList
+			}
 		}
-		ant.zip(destfile: customWar, baseDir: explodedWar)
 	}
 }
 
-casServerOverlay.metaClass.setLogLevel { level ->
-	tokens['logLevel'] = level
+project.tasks.withType(org.akhikhl.gretty.StartBaseTask).all { task ->
+	task.doFirst {
+		def destinationDir = project.file("$buildDir/inplaceWebapp")
+		project.configurations.runtime.each { dependency ->
+			if (dependency.name.endsWith(".war")) {
+				def warTree = project.zipTree(dependency)
+				project.copy {
+					from warTree
+					into destinationDir
+					eachFile {
+						if (it.relativePath.getFile(destinationDir).exists()) {
+							it.exclude()
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
-task casServer (type: org.gradle.api.plugins.jetty.JettyRunWar, dependsOn: 'casServerOverlay') {
-	contextPath = "/cas"
-	connectors = [casServer.class.classLoader.loadClass('org.mortbay.jetty.security.SslSocketConnector').newInstance()]
-	connectors[0].port = 9443
-	connectors[0].keystore = connectors[0].truststore = keystore
-	connectors[0].keyPassword = connectors[0].trustPassword = password
-	connectors[0].wantClientAuth = true
-	connectors[0].needClientAuth = false
-	webApp = casServerOverlay.customWar
-
-	inputs.file casServerOverlay.customWar
-
-	doFirst() {
-		System.setProperty('javax.net.ssl.trustStore', keystore)
-		System.setProperty('javax.net.ssl.trustStorePassword', password)
-		System.setProperty('java.naming.factory.url.pkgs','org.mortbay.naming')
-		System.setProperty('java.naming.factory.initial','org.mortbay.naming.InitialContextFactory')
-	}
+gretty {
+	contextPath = '/cas'
+	httpsEnabled = true
+	httpPort = 9090
+	httpsPort = 9443
+	sslKeyStorePath = keystore
+	sslKeyStorePassword = password
+	jvmArgs = ["-Djavax.net.ssl.trustStore=${keystore}", "-Djavax.net.ssl.trustStorePassword=${password}"]
 }
