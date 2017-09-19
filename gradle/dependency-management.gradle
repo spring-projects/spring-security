@@ -34,7 +34,6 @@ dependencyManagement {
 dependencyManagement {
 	dependencies {
 		dependency 'antlr:antlr:2.7.7'
-		dependency 'aopalliance:aopalliance:1.0'
 		dependency 'asm:asm:3.1'
 		dependency 'bouncycastle:bcprov-jdk15:140'
 		dependency 'ch.qos.logback:logback-classic:1.2.3'
