@@ -45,7 +45,7 @@ import java.util.Collection;
  * <i>id token</i> credential (for OpenID Connect Authorization Code Flow).
  * Additionally, it will also obtain the end-user's (resource owner) attributes from the <i>UserInfo Endpoint</i>
  * (using the <i>access token</i>) and create a <code>Principal</code> in the form of an {@link OAuth2User}
- * associating it with the returned {@link OAuth2AuthenticationToken}.
+ * associating it with the returned {@link OAuth2UserAuthenticationToken}.
  *
  * <p>
  * The {@link AuthorizationCodeAuthenticationProvider} uses an {@link AuthorizationGrantTokenExchanger}
@@ -54,19 +54,21 @@ import java.util.Collection;
  * If the request is valid, the authorization server will respond back with a {@link TokenResponseAttributes}.
  *
  * <p>
- * It will then create an {@link OAuth2AuthenticationToken} associating the {@link AccessToken} and optionally
+ * It will then create an {@link OAuth2ClientAuthenticationToken} associating the {@link AccessToken} and optionally
  * the {@link IdToken} from the {@link TokenResponseAttributes} and pass it to
- * {@link OAuth2UserService#loadUser(OAuth2AuthenticationToken)} to obtain the end-user's (resource owner) attributes
+ * {@link OAuth2UserService#loadUser(OAuth2ClientAuthenticationToken)} to obtain the end-user's (resource owner) attributes
  * in the form of an {@link OAuth2User}.
  *
  * <p>
- * Finally, it will create another {@link OAuth2AuthenticationToken}, this time associating
- * the {@link AccessToken}, {@link IdToken} and {@link OAuth2User} and return it to the {@link AuthenticationManager},
- * at which point the {@link OAuth2AuthenticationToken} is considered <i>&quot;authenticated&quot;</i>.
+ * Finally, it will create an {@link OAuth2UserAuthenticationToken}, associating the {@link OAuth2User}
+ * and {@link OAuth2ClientAuthenticationToken} and return it to the {@link AuthenticationManager},
+ * at which point the {@link OAuth2UserAuthenticationToken} is considered <i>&quot;authenticated&quot;</i>.
  *
  * @author Joe Grandja
  * @since 5.0
  * @see AuthorizationCodeAuthenticationToken
+ * @see OAuth2ClientAuthenticationToken
+ * @see OAuth2UserAuthenticationToken
  * @see AuthorizationGrantTokenExchanger
  * @see TokenResponseAttributes
  * @see AccessToken
@@ -126,23 +128,22 @@ public class AuthorizationCodeAuthenticationProvider implements AuthenticationPr
 			idToken = new IdToken(jwt.getTokenValue(), jwt.getIssuedAt(), jwt.getExpiresAt(), jwt.getClaims());
 		}
 
-		OAuth2AuthenticationToken accessTokenAuthentication =
-			new OAuth2AuthenticationToken(clientRegistration, accessToken, idToken);
-		accessTokenAuthentication.setDetails(authorizationCodeAuthentication.getDetails());
+		OAuth2ClientAuthenticationToken oauth2ClientAuthentication =
+			new OAuth2ClientAuthenticationToken(clientRegistration, accessToken, idToken);
+		oauth2ClientAuthentication.setDetails(authorizationCodeAuthentication.getDetails());
 
-		OAuth2User user = this.userInfoService.loadUser(accessTokenAuthentication);
+		OAuth2User user = this.userInfoService.loadUser(oauth2ClientAuthentication);
 
 		Collection<? extends GrantedAuthority> authorities =
 				this.authoritiesMapper.mapAuthorities(user.getAuthorities());
 
-		OAuth2AuthenticationToken authenticationResult = new OAuth2AuthenticationToken(
-			user, authorities, accessTokenAuthentication.getClientRegistration(),
-			accessTokenAuthentication.getAccessToken(), accessTokenAuthentication.getIdToken());
-		authenticationResult.setDetails(accessTokenAuthentication.getDetails());
+		OAuth2UserAuthenticationToken oauth2UserAuthentication =
+			new OAuth2UserAuthenticationToken(user, authorities, oauth2ClientAuthentication);
+		oauth2UserAuthentication.setDetails(oauth2ClientAuthentication.getDetails());
 
-		this.accessTokenRepository.saveSecurityToken(accessToken, authenticationResult);
+		this.accessTokenRepository.saveSecurityToken(accessToken, oauth2UserAuthentication);
 
-		return authenticationResult;
+		return oauth2UserAuthentication;
 	}
 
 	public final void setAuthoritiesMapper(GrantedAuthoritiesMapper authoritiesMapper) {

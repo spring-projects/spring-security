@@ -15,7 +15,7 @@
  */
 package org.springframework.security.oauth2.client.token;
 
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.client.authentication.OAuth2UserAuthenticationToken;
 import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.oidc.core.user.OidcUser;
@@ -37,25 +37,25 @@ public final class InMemoryAccessTokenRepository implements SecurityTokenReposit
 	private final Map<String, AccessToken> accessTokens = new HashMap<>();
 
 	@Override
-	public AccessToken loadSecurityToken(OAuth2AuthenticationToken authentication) {
+	public AccessToken loadSecurityToken(OAuth2UserAuthenticationToken authentication) {
 		Assert.notNull(authentication, "authentication cannot be null");
 		return this.accessTokens.get(this.resolveAuthenticationKey(authentication));
 	}
 
 	@Override
-	public void saveSecurityToken(AccessToken accessToken, OAuth2AuthenticationToken authentication) {
+	public void saveSecurityToken(AccessToken accessToken, OAuth2UserAuthenticationToken authentication) {
 		Assert.notNull(accessToken, "accessToken cannot be null");
 		Assert.notNull(authentication, "authentication cannot be null");
 		this.accessTokens.put(this.resolveAuthenticationKey(authentication), accessToken);
 	}
 
 	@Override
-	public void removeSecurityToken(OAuth2AuthenticationToken authentication) {
+	public void removeSecurityToken(OAuth2UserAuthenticationToken authentication) {
 		Assert.notNull(authentication, "authentication cannot be null");
 		this.accessTokens.remove(this.resolveAuthenticationKey(authentication));
 	}
 
-	private String resolveAuthenticationKey(OAuth2AuthenticationToken authentication) {
+	private String resolveAuthenticationKey(OAuth2UserAuthenticationToken authentication) {
 		String authenticationKey;
 
 		OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
@@ -63,8 +63,8 @@ public final class InMemoryAccessTokenRepository implements SecurityTokenReposit
 			OidcUser oidcUser = (OidcUser)oauth2User;
 			authenticationKey = oidcUser.getIssuer().toString() + "-" + oidcUser.getSubject();
 		} else {
-			authenticationKey = authentication.getClientRegistration().getProviderDetails().getUserInfoUri() +
-				"-" +  oauth2User.getName();
+			authenticationKey = authentication.getClientAuthentication().getClientRegistration()
+				.getProviderDetails().getUserInfoUri() + "-" +  oauth2User.getName();
 		}
 
 		return authenticationKey;

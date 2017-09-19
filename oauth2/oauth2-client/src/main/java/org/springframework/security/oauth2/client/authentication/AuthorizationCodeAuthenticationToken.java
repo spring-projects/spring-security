@@ -45,7 +45,7 @@ public class AuthorizationCodeAuthenticationToken extends AuthorizationGrantAuth
 
 	@Override
 	public Object getPrincipal() {
-		return null;
+		return this.getClientRegistration().getClientId();
 	}
 
 	@Override

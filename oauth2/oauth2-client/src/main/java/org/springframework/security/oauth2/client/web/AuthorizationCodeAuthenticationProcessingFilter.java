@@ -21,7 +21,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationProvider;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.client.authentication.OAuth2ClientAuthenticationToken;
+import org.springframework.security.oauth2.client.authentication.OAuth2UserAuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.user.OAuth2UserService;
@@ -29,7 +30,11 @@ import org.springframework.security.oauth2.client.web.converter.AuthorizationCod
 import org.springframework.security.oauth2.client.web.converter.ErrorResponseAttributesConverter;
 import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.security.oauth2.core.OAuth2Error;
-import org.springframework.security.oauth2.core.endpoint.*;
+import org.springframework.security.oauth2.core.endpoint.AuthorizationCodeAuthorizationResponseAttributes;
+import org.springframework.security.oauth2.core.endpoint.AuthorizationRequestAttributes;
+import org.springframework.security.oauth2.core.endpoint.ErrorResponseAttributes;
+import org.springframework.security.oauth2.core.endpoint.OAuth2Parameter;
+import org.springframework.security.oauth2.core.endpoint.TokenResponseAttributes;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -70,16 +75,16 @@ import java.io.IOException;
  *	If the request is valid, the authorization server will respond back with a {@link TokenResponseAttributes}.
  * </li>
  * <li>
- *  The {@link AuthorizationCodeAuthenticationProvider} will then create a new {@link OAuth2AuthenticationToken}
+ *  The {@link AuthorizationCodeAuthenticationProvider} will then create a new {@link OAuth2ClientAuthenticationToken}
  *  associating the {@link AccessToken} from the {@link TokenResponseAttributes} and pass it to
- *  {@link OAuth2UserService#loadUser(OAuth2AuthenticationToken)}. The {@link OAuth2UserService} will make a request
+ *  {@link OAuth2UserService#loadUser(OAuth2ClientAuthenticationToken)}. The {@link OAuth2UserService} will make a request
  *  to the authorization server's <i>UserInfo Endpoint</i> (using the {@link AccessToken})
  *  to obtain the end-user's (resource owner) attributes and return it in the form of an {@link OAuth2User}.
  * </li>
  * <li>
- *  The {@link AuthorizationCodeAuthenticationProvider} will create another new {@link OAuth2AuthenticationToken}
- *  but this time associating the {@link AccessToken} and {@link OAuth2User} returned from the {@link OAuth2UserService}.
- *  Finally, the {@link OAuth2AuthenticationToken} is returned to the {@link AuthenticationManager}
+ *  The {@link AuthorizationCodeAuthenticationProvider} will then create a {@link OAuth2UserAuthenticationToken}
+ *  associating the {@link OAuth2ClientAuthenticationToken} and {@link OAuth2User} returned from the {@link OAuth2UserService}.
+ *  Finally, the {@link OAuth2UserAuthenticationToken} is returned to the {@link AuthenticationManager}
  *  and then back to this <code>Filter</code> at which point the session is considered <i>&quot;authenticated&quot;</i>.
  * </li>
  * </ol>

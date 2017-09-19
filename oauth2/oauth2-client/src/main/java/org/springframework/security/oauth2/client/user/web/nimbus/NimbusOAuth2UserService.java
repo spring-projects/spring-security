@@ -29,7 +29,7 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.client.authentication.OAuth2ClientAuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.user.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2Error;
@@ -64,7 +64,7 @@ import java.util.Set;
  *
  * @author Joe Grandja
  * @since 5.0
- * @see OAuth2AuthenticationToken
+ * @see OAuth2ClientAuthenticationToken
  * @see OAuth2User
  * @see OidcUser
  * @see UserInfo
@@ -80,7 +80,7 @@ public class NimbusOAuth2UserService implements OAuth2UserService {
 	}
 
 	@Override
-	public final OAuth2User loadUser(OAuth2AuthenticationToken token) throws OAuth2AuthenticationException {
+	public final OAuth2User loadUser(OAuth2ClientAuthenticationToken token) throws OAuth2AuthenticationException {
 		URI userInfoUri = this.getUserInfoUri(token);
 
 		if (this.getCustomUserTypes().containsKey(userInfoUri)) {
@@ -93,7 +93,7 @@ public class NimbusOAuth2UserService implements OAuth2UserService {
 		return this.loadOAuth2User(token);
 	}
 
-	protected OAuth2User loadOidcUser(OAuth2AuthenticationToken token) throws OAuth2AuthenticationException {
+	protected OAuth2User loadOidcUser(OAuth2ClientAuthenticationToken token) throws OAuth2AuthenticationException {
 		// TODO Retrieving the UserInfo should be optional. Need to add the capability for opting in/out
 		Map<String, Object> userAttributes = this.getUserInfo(token);
 		UserInfo userInfo = new UserInfo(userAttributes);
@@ -105,7 +105,7 @@ public class NimbusOAuth2UserService implements OAuth2UserService {
 		return new DefaultOidcUser(authorities, token.getIdToken(), userInfo);
 	}
 
-	protected OAuth2User loadOAuth2User(OAuth2AuthenticationToken token) throws OAuth2AuthenticationException {
+	protected OAuth2User loadOAuth2User(OAuth2ClientAuthenticationToken token) throws OAuth2AuthenticationException {
 		URI userInfoUri = this.getUserInfoUri(token);
 		if (!this.getUserNameAttributeNames().containsKey(userInfoUri)) {
 			throw new IllegalArgumentException("The attribute name for the \"user's name\" is required for the OAuth2User " +
@@ -122,7 +122,7 @@ public class NimbusOAuth2UserService implements OAuth2UserService {
 		return new DefaultOAuth2User(authorities, userAttributes, userNameAttributeName);
 	}
 
-	protected OAuth2User loadCustomUser(OAuth2AuthenticationToken token) throws OAuth2AuthenticationException {
+	protected OAuth2User loadCustomUser(OAuth2ClientAuthenticationToken token) throws OAuth2AuthenticationException {
 		URI userInfoUri = this.getUserInfoUri(token);
 		Class<? extends OAuth2User> customUserType = this.getCustomUserTypes().get(userInfoUri);
 
@@ -146,7 +146,7 @@ public class NimbusOAuth2UserService implements OAuth2UserService {
 		return user;
 	}
 
-	protected Map<String, Object> getUserInfo(OAuth2AuthenticationToken token) throws OAuth2AuthenticationException {
+	protected Map<String, Object> getUserInfo(OAuth2ClientAuthenticationToken token) throws OAuth2AuthenticationException {
 		URI userInfoUri = this.getUserInfoUri(token);
 
 		BearerAccessToken accessToken = new BearerAccessToken(token.getAccessToken().getTokenValue());
@@ -219,7 +219,7 @@ public class NimbusOAuth2UserService implements OAuth2UserService {
 		this.customUserTypes = Collections.unmodifiableMap(new HashMap<>(customUserTypes));
 	}
 
-	private URI getUserInfoUri(OAuth2AuthenticationToken token) {
+	private URI getUserInfoUri(OAuth2ClientAuthenticationToken token) {
 		ClientRegistration clientRegistration = token.getClientRegistration();
 		try {
 			return new URI(clientRegistration.getProviderDetails().getUserInfoUri());
