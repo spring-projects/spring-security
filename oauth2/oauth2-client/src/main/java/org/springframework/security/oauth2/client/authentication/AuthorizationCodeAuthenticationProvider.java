@@ -32,8 +32,11 @@ import org.springframework.security.oauth2.client.web.AuthorizationGrantTokenExc
 import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.security.oauth2.core.endpoint.TokenResponseAttributes;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.oidc.client.authentication.OidcClientAuthenticationToken;
+import org.springframework.security.oauth2.oidc.client.authentication.OidcUserAuthenticationToken;
 import org.springframework.security.oauth2.oidc.core.IdToken;
 import org.springframework.security.oauth2.oidc.core.endpoint.OidcParameter;
+import org.springframework.security.oauth2.oidc.core.user.OidcUser;
 import org.springframework.util.Assert;
 
 import java.util.Collection;
@@ -68,6 +71,7 @@ import java.util.Collection;
  * @since 5.0
  * @see AuthorizationCodeAuthenticationToken
  * @see OAuth2ClientAuthenticationToken
+ * @see OidcClientAuthenticationToken
  * @see OAuth2UserAuthenticationToken
  * @see AuthorizationGrantTokenExchanger
  * @see TokenResponseAttributes
@@ -75,6 +79,7 @@ import java.util.Collection;
  * @see IdToken
  * @see OAuth2UserService
  * @see OAuth2User
+ * @see OidcUser
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">Section 4.1 Authorization Code Grant Flow</a>
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth">Section 3.1 OpenID Connect Authorization Code Flow</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.3">Section 4.1.3 Access Token Request</a>
@@ -128,8 +133,12 @@ public class AuthorizationCodeAuthenticationProvider implements AuthenticationPr
 			idToken = new IdToken(jwt.getTokenValue(), jwt.getIssuedAt(), jwt.getExpiresAt(), jwt.getClaims());
 		}
 
-		OAuth2ClientAuthenticationToken oauth2ClientAuthentication =
-			new OAuth2ClientAuthenticationToken(clientRegistration, accessToken, idToken);
+		OAuth2ClientAuthenticationToken oauth2ClientAuthentication;
+		if (idToken != null) {
+			oauth2ClientAuthentication = new OidcClientAuthenticationToken(clientRegistration, accessToken, idToken);
+		} else {
+			oauth2ClientAuthentication = new OAuth2ClientAuthenticationToken(clientRegistration, accessToken);
+		}
 		oauth2ClientAuthentication.setDetails(authorizationCodeAuthentication.getDetails());
 
 		OAuth2User user = this.userInfoService.loadUser(oauth2ClientAuthentication);
@@ -137,8 +146,13 @@ public class AuthorizationCodeAuthenticationProvider implements AuthenticationPr
 		Collection<? extends GrantedAuthority> authorities =
 				this.authoritiesMapper.mapAuthorities(user.getAuthorities());
 
-		OAuth2UserAuthenticationToken oauth2UserAuthentication =
-			new OAuth2UserAuthenticationToken(user, authorities, oauth2ClientAuthentication);
+		OAuth2UserAuthenticationToken oauth2UserAuthentication;
+		if (OidcUser.class.isAssignableFrom(user.getClass())) {
+			oauth2UserAuthentication = new OidcUserAuthenticationToken(
+				(OidcUser)user, authorities, (OidcClientAuthenticationToken)oauth2ClientAuthentication);
+		} else {
+			oauth2UserAuthentication = new OAuth2UserAuthenticationToken(user, authorities, oauth2ClientAuthentication);
+		}
 		oauth2UserAuthentication.setDetails(oauth2ClientAuthentication.getDetails());
 
 		this.accessTokenRepository.saveSecurityToken(accessToken, oauth2UserAuthentication);

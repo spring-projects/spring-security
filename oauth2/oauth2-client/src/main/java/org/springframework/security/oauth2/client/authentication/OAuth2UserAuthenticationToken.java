@@ -29,8 +29,8 @@ import java.util.Collection;
  * that represents an <i>OAuth 2.0 User</i> {@link Authentication}.
  *
  * <p>
- * This {@link Authentication} associates an {@link OAuth2User} principal
- * to an <i>&quot;Authorized Client&quot;</i> identified in {@link #getClientAuthentication()}.
+ * This {@link Authentication} associates an {@link OAuth2User} principal to a
+ * {@link OAuth2ClientAuthenticationToken} which represents the <i>&quot;Authorized Client&quot;</i>.
  *
  * @author Joe Grandja
  * @since 5.0

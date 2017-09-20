@@ -21,7 +21,6 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AccessToken;
-import org.springframework.security.oauth2.oidc.core.IdToken;
 import org.springframework.util.Assert;
 
 /**
@@ -38,24 +37,19 @@ import org.springframework.util.Assert;
  * @since 5.0
  * @see ClientRegistration
  * @see AccessToken
- * @see IdToken
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-5.1">Section 5.1 Access Token Response</a>
  */
 public class OAuth2ClientAuthenticationToken extends AbstractAuthenticationToken {
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 	private final ClientRegistration clientRegistration;
 	private final AccessToken accessToken;
-	private final IdToken idToken;
 
-	public OAuth2ClientAuthenticationToken(ClientRegistration clientRegistration,
-										   AccessToken accessToken, IdToken idToken) {
-
+	public OAuth2ClientAuthenticationToken(ClientRegistration clientRegistration, AccessToken accessToken) {
 		super(AuthorityUtils.NO_AUTHORITIES);
 		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
 		Assert.notNull(accessToken, "accessToken cannot be null");
 		this.clientRegistration = clientRegistration;
 		this.accessToken = accessToken;
-		this.idToken = idToken;
 		this.setAuthenticated(true);		// The Client is authenticated by the Authorization Server
 	}
 
@@ -75,9 +69,5 @@ public class OAuth2ClientAuthenticationToken extends AbstractAuthenticationToken
 
 	public AccessToken getAccessToken() {
 		return this.accessToken;
-	}
-
-	public IdToken getIdToken() {
-		return this.idToken;
 	}
 }

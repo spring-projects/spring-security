@@ -36,6 +36,7 @@ import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
+import org.springframework.security.oauth2.oidc.client.authentication.OidcClientAuthenticationToken;
 import org.springframework.security.oauth2.oidc.core.UserInfo;
 import org.springframework.security.oauth2.oidc.core.user.DefaultOidcUser;
 import org.springframework.security.oauth2.oidc.core.user.OidcUser;
@@ -65,6 +66,7 @@ import java.util.Set;
  * @author Joe Grandja
  * @since 5.0
  * @see OAuth2ClientAuthenticationToken
+ * @see OidcClientAuthenticationToken
  * @see OAuth2User
  * @see OidcUser
  * @see UserInfo
@@ -86,14 +88,14 @@ public class NimbusOAuth2UserService implements OAuth2UserService {
 		if (this.getCustomUserTypes().containsKey(userInfoUri)) {
 			return this.loadCustomUser(token);
 		}
-		if (token.getIdToken() != null) {
-			return this.loadOidcUser(token);
+		if (OidcClientAuthenticationToken.class.isAssignableFrom(token.getClass())) {
+			return this.loadOidcUser((OidcClientAuthenticationToken)token);
 		}
 
 		return this.loadOAuth2User(token);
 	}
 
-	protected OAuth2User loadOidcUser(OAuth2ClientAuthenticationToken token) throws OAuth2AuthenticationException {
+	protected OidcUser loadOidcUser(OidcClientAuthenticationToken token) throws OAuth2AuthenticationException {
 		// TODO Retrieving the UserInfo should be optional. Need to add the capability for opting in/out
 		Map<String, Object> userAttributes = this.getUserInfo(token);
 		UserInfo userInfo = new UserInfo(userAttributes);
@@ -135,10 +137,9 @@ public class NimbusOAuth2UserService implements OAuth2UserService {
 		}
 
 		Map<String, Object> userAttributes = this.getUserInfo(token);
-		if (token.getIdToken() != null) {
-			userAttributes.putAll(token.getIdToken().getClaims());
+		if (OidcClientAuthenticationToken.class.isAssignableFrom(token.getClass())) {
+			userAttributes.putAll(((OidcClientAuthenticationToken)token).getIdToken().getClaims());
 		}
-
 		BeanWrapper wrapper = PropertyAccessorFactory.forBeanPropertyAccess(user);
 		wrapper.setAutoGrowNestedPaths(true);
 		wrapper.setPropertyValues(userAttributes);
