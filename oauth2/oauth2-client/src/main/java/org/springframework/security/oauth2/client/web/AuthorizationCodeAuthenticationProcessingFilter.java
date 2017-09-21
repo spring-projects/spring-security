@@ -41,6 +41,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.matcher.RequestVariablesExtractor;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -140,8 +141,16 @@ public class AuthorizationCodeAuthenticationProcessingFilter extends AbstractAut
 
 		AuthorizationRequestAttributes matchingAuthorizationRequest = this.resolveAuthorizationRequest(request);
 
-		ClientRegistration clientRegistration = this.getClientRegistrationRepository().getRegistrationByClientId(
-				matchingAuthorizationRequest.getClientId());
+		String clientAlias = ((RequestVariablesExtractor)this.getAuthorizationResponseMatcher())
+			.extractUriTemplateVariables(request).get(CLIENT_ALIAS_URI_VARIABLE_NAME);
+		ClientRegistration clientRegistration = null;
+		if (!StringUtils.isEmpty(clientAlias)) {
+			clientRegistration = this.getClientRegistrationRepository().getRegistrationByClientAlias(clientAlias);
+		}
+		if (clientRegistration == null || !matchingAuthorizationRequest.getClientId().equals(clientRegistration.getClientId())) {
+			OAuth2Error oauth2Error = new OAuth2Error(OAuth2Error.INVALID_REQUEST_ERROR_CODE);
+			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+		}
 
 		// The clientRegistration.redirectUri may contain Uri template variables, whether it's configured by
 		// the user or configured by default. In these cases, the redirectUri will be expanded and ultimately changed

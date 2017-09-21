@@ -15,28 +15,21 @@
  */
 package org.springframework.security.oauth2.client.registration;
 
-import java.util.List;
+import org.springframework.util.Assert;
 
 /**
- * A repository for OAuth 2.0 / OpenID Connect 1.0 {@link ClientRegistration}'s.
- *
- * <p>
- * <b>NOTE:</b> The client registration information is ultimately stored and owned
- * by the associated <i>Authorization Server</i>.
- * Therefore, this repository provides the capability to store a sub-set copy
- * of the <i>primary</i> client registration information
- * externally from the <i>Authorization Server</i>.
+ * A {@link ClientRegistrationIdentifierStrategy} that identifies a {@link ClientRegistration}
+ * using the {@link ClientRegistration#getClientAlias()}.
  *
  * @author Joe Grandja
  * @since 5.0
  * @see ClientRegistration
  */
-public interface ClientRegistrationRepository {
+public class ClientAliasIdentifierStrategy implements ClientRegistrationIdentifierStrategy<String> {
 
-	List<ClientRegistration> getRegistrationsByClientId(String clientId);
-
-	ClientRegistration getRegistrationByClientAlias(String clientAlias);
-
-	List<ClientRegistration> getRegistrations();
-
+	@Override
+	public String getIdentifier(ClientRegistration clientRegistration) {
+		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
+		return clientRegistration.getClientAlias();
+	}
 }

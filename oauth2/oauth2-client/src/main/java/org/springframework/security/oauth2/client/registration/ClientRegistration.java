@@ -26,7 +26,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
- * A representation of a client registration with an <i>OAuth 2.0 Authorization Server</i>.
+ * A representation of a client registration with an OAuth 2.0 / OpenID Connect 1.0 <i>Authorization Server</i>.
  *
  * @author Joe Grandja
  * @since 5.0
