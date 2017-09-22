@@ -19,6 +19,7 @@ import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.util.Assert;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -32,6 +33,7 @@ import java.util.Set;
  */
 public final class TokenResponseAttributes {
 	private AccessToken accessToken;
+	private Map<String,Object> additionalParameters;
 
 	private TokenResponseAttributes() {
 	}
@@ -57,7 +59,7 @@ public final class TokenResponseAttributes {
 	}
 
 	public Map<String, Object> getAdditionalParameters() {
-		return this.accessToken.getAdditionalParameters();
+		return this.additionalParameters;
 	}
 
 	public static Builder withToken(String tokenValue) {
@@ -99,10 +101,11 @@ public final class TokenResponseAttributes {
 			Assert.isTrue(this.expiresIn >= 0, "expiresIn must be a positive number");
 			Instant issuedAt = Instant.now();
 			AccessToken accessToken = new AccessToken(this.tokenType, this.tokenValue, issuedAt,
-				issuedAt.plusSeconds(this.expiresIn), this.scopes, this.additionalParameters);
-
+				issuedAt.plusSeconds(this.expiresIn), this.scopes);
 			TokenResponseAttributes tokenResponse = new TokenResponseAttributes();
 			tokenResponse.accessToken = accessToken;
+			tokenResponse.additionalParameters = Collections.unmodifiableMap(
+				this.additionalParameters != null ? this.additionalParameters : Collections.emptyMap());
 			return tokenResponse;
 		}
 	}
