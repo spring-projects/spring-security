@@ -155,7 +155,7 @@ public class AuthorizationCodeAuthenticationProvider implements AuthenticationPr
 		}
 		oauth2UserAuthentication.setDetails(oauth2ClientAuthentication.getDetails());
 
-		this.accessTokenRepository.saveSecurityToken(accessToken, oauth2UserAuthentication);
+		this.accessTokenRepository.saveSecurityToken(accessToken, clientRegistration);
 
 		return oauth2UserAuthentication;
 	}

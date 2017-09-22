@@ -15,22 +15,25 @@
  */
 package org.springframework.security.oauth2.client.token;
 
-import org.springframework.security.oauth2.client.authentication.OAuth2UserAuthenticationToken;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.SecurityToken;
 
 /**
  * Implementations of this interface are responsible for the persistence
- * of {@link SecurityToken}(s) that are associated to an {@link OAuth2UserAuthenticationToken}.
+ * and association of an OAuth 2.0 / OpenID Connect 1.0
+ * {@link SecurityToken} to a {@link ClientRegistration Client}.
  *
  * @author Joe Grandja
  * @since 5.0
+ * @see SecurityToken
+ * @see ClientRegistration
  */
 public interface SecurityTokenRepository<T extends SecurityToken> {
 
-	T loadSecurityToken(OAuth2UserAuthenticationToken authentication);
+	T loadSecurityToken(ClientRegistration registration);
 
-	void saveSecurityToken(T securityToken, OAuth2UserAuthenticationToken authentication);
+	void saveSecurityToken(T securityToken, ClientRegistration registration);
 
-	void removeSecurityToken(OAuth2UserAuthenticationToken authentication);
+	void removeSecurityToken(ClientRegistration registration);
 
 }
