@@ -86,6 +86,13 @@ public class UserDetailsResourceFactoryBeanTest {
 			.hasStackTraceContaining("invalidFormatHere");
 	}
 
+	@Test
+	public void getObjectWhenStringSingleUserThenGetsSingleUser() throws Exception {
+		this.factory = UserDetailsResourceFactoryBean.fromString("user=password,ROLE_USER");
+
+		assertLoaded();
+	}
+
 	private void assertLoaded() throws Exception {
 		Collection<UserDetails> users = factory.getObject();
 

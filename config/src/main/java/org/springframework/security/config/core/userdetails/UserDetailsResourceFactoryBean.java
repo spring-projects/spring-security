@@ -25,6 +25,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.memory.UserAttribute;
 import org.springframework.security.core.userdetails.memory.UserAttributeEditor;
+import org.springframework.security.util.InMemoryResource;
 import org.springframework.util.Assert;
 
 import java.io.InputStream;
@@ -150,5 +151,16 @@ public class UserDetailsResourceFactoryBean implements ResourceLoaderAware, Fact
 		UserDetailsResourceFactoryBean result = new UserDetailsResourceFactoryBean();
 		result.setResource(propertiesResource);
 		return result;
+	}
+
+	/**
+	 * Creates a UserDetailsResourceFactoryBean with a resource from the provided String
+	 *
+	 * @param users the string representing the users
+	 * @return the UserDetailsResourceFactoryBean
+	 */
+	public static UserDetailsResourceFactoryBean fromString(String users) {
+		InMemoryResource resource = new InMemoryResource(users);
+		return fromResource(resource);
 	}
 }
