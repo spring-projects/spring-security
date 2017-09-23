@@ -22,6 +22,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.core.userdetails.MapUserDetailsRepository;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.util.InMemoryResource;
 
 import java.util.Collection;
 
@@ -93,6 +94,19 @@ public class UserDetailsRepositoryResourceFactoryBean implements ResourceLoaderA
 	public static UserDetailsRepositoryResourceFactoryBean fromResource(Resource propertiesResource) {
 		UserDetailsRepositoryResourceFactoryBean result = new UserDetailsRepositoryResourceFactoryBean();
 		result.setResource(propertiesResource);
+		return result;
+	}
+
+	/**
+	 * Create a UserDetailsRepositoryResourceFactoryBean with a String that is in the
+	 * format defined in {@link UserDetailsResourceFactoryBean}
+	 *
+	 * @param users the users in the format defined in {@link UserDetailsResourceFactoryBean}
+	 * @return the UserDetailsResourceFactoryBean
+	 */
+	public static UserDetailsRepositoryResourceFactoryBean fromString(String users) {
+		UserDetailsRepositoryResourceFactoryBean result = new UserDetailsRepositoryResourceFactoryBean();
+		result.setResource(new InMemoryResource(users));
 		return result;
 	}
 }
