@@ -23,6 +23,7 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.config.core.userdetails.UserDetailsResourceFactoryBean;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.util.InMemoryResource;
 
 import java.util.Collection;
 
@@ -94,6 +95,19 @@ public class UserDetailsManagerResourceFactoryBean implements ResourceLoaderAwar
 	public static UserDetailsManagerResourceFactoryBean fromResource(Resource resource) {
 		UserDetailsManagerResourceFactoryBean result = new UserDetailsManagerResourceFactoryBean();
 		result.setResource(resource);
+		return result;
+	}
+
+	/**
+	 * Create a UserDetailsServiceResourceFactoryBean with a String that is in the
+	 * format defined in {@link UserDetailsResourceFactoryBean}
+	 *
+	 * @param users the users in the format defined in {@link UserDetailsResourceFactoryBean}
+	 * @return the UserDetailsResourceFactoryBean
+	 */
+	public static UserDetailsManagerResourceFactoryBean fromString(String users) {
+		UserDetailsManagerResourceFactoryBean result = new UserDetailsManagerResourceFactoryBean();
+		result.setResource(new InMemoryResource(users));
 		return result;
 	}
 }
