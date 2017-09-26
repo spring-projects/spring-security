@@ -20,23 +20,26 @@ import org.springframework.security.config.annotation.web.configurers.AbstractAu
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.jwt.JwtDecoder;
 import org.springframework.security.jwt.nimbus.NimbusJwtDecoderJwkSupport;
-import org.springframework.security.oauth2.client.web.AuthorizationCodeAuthenticationProcessingFilter;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationProvider;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationToken;
-import org.springframework.security.oauth2.client.web.AuthorizationGrantTokenExchanger;
 import org.springframework.security.oauth2.client.authentication.jwt.DefaultProviderJwtDecoderRegistry;
 import org.springframework.security.oauth2.client.authentication.jwt.ProviderJwtDecoderRegistry;
-import org.springframework.security.oauth2.client.web.nimbus.NimbusAuthorizationCodeTokenExchanger;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.token.InMemoryAccessTokenRepository;
 import org.springframework.security.oauth2.client.token.SecurityTokenRepository;
+import org.springframework.security.oauth2.client.user.CustomUserTypesOAuth2UserService;
+import org.springframework.security.oauth2.client.user.DefaultOAuth2UserService;
+import org.springframework.security.oauth2.client.user.DelegatingOAuth2UserService;
 import org.springframework.security.oauth2.client.user.OAuth2UserService;
-import org.springframework.security.oauth2.client.user.web.nimbus.NimbusOAuth2UserService;
+import org.springframework.security.oauth2.client.web.AuthorizationCodeAuthenticationProcessingFilter;
+import org.springframework.security.oauth2.client.web.AuthorizationGrantTokenExchanger;
+import org.springframework.security.oauth2.client.web.nimbus.NimbusAuthorizationCodeTokenExchanger;
 import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.security.oauth2.core.provider.DefaultProviderMetadata;
 import org.springframework.security.oauth2.core.provider.ProviderMetadata;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.oidc.client.user.OidcUserService;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.matcher.RequestVariablesExtractor;
 import org.springframework.util.Assert;
@@ -46,7 +49,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -197,16 +202,28 @@ final class AuthorizationCodeAuthenticationFilterConfigurer<H extends HttpSecuri
 		return new DefaultProviderJwtDecoderRegistry(jwtDecoders);
 	}
 
+	private boolean isOidcClientRegistered() {
+		ClientRegistrationRepository clientRegistrationRepository = OAuth2LoginConfigurer.getClientRegistrationRepository(this.getBuilder());
+		return clientRegistrationRepository.getRegistrations()
+			.stream()
+			.anyMatch(registration ->
+				registration.getScope().stream().anyMatch(scope -> scope.equalsIgnoreCase("openid")));
+
+	}
+
 	private OAuth2UserService getUserInfoService() {
 		if (this.userInfoService == null) {
-			NimbusOAuth2UserService nimbusOAuth2UserService = new NimbusOAuth2UserService();
-			if (!this.customUserTypes.isEmpty()) {
-				nimbusOAuth2UserService.setCustomUserTypes(this.customUserTypes);
-			}
+			List<OAuth2UserService> oauth2UserServices = new ArrayList<>();
 			if (!this.userNameAttributeNames.isEmpty()) {
-				nimbusOAuth2UserService.setUserNameAttributeNames(this.userNameAttributeNames);
+				oauth2UserServices.add(new DefaultOAuth2UserService(this.userNameAttributeNames));
 			}
-			this.userInfoService = nimbusOAuth2UserService;
+			if (this.isOidcClientRegistered()) {
+				oauth2UserServices.add(new OidcUserService());
+			}
+			if (!this.customUserTypes.isEmpty()) {
+				oauth2UserServices.add(new CustomUserTypesOAuth2UserService(this.customUserTypes));
+			}
+			this.userInfoService = new DelegatingOAuth2UserService(oauth2UserServices);
 		}
 		return this.userInfoService;
 	}

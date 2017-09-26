@@ -22,7 +22,9 @@ import org.springframework.security.oauth2.oidc.core.IdToken;
 import org.springframework.security.oauth2.oidc.core.IdTokenClaimAccessor;
 import org.springframework.security.oauth2.oidc.core.StandardClaimAccessor;
 import org.springframework.security.oauth2.oidc.core.UserInfo;
+import org.springframework.util.Assert;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -54,4 +56,13 @@ public interface OidcUser extends OAuth2User, IdTokenClaimAccessor {
 
 	Map<String, Object> getClaims();
 
+	static Map<String, Object> collectClaims(IdToken idToken, UserInfo userInfo) {
+		Assert.notNull(idToken, "idToken cannot be null");
+		Map<String, Object> claims = new HashMap<>();
+		if (userInfo != null) {
+			claims.putAll(userInfo.getClaims());
+		}
+		claims.putAll(idToken.getClaims());
+		return claims;
+	}
 }

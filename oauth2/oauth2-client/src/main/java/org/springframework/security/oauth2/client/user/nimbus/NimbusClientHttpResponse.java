@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.client.user.web.nimbus;
+package org.springframework.security.oauth2.client.user.nimbus;
 
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import org.springframework.http.HttpHeaders;
@@ -27,7 +27,7 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 
 /**
- * An implementation of a {@link ClientHttpResponse} which is used by {@link NimbusOAuth2UserService}.
+ * An implementation of a {@link ClientHttpResponse} which is used by {@link NimbusUserInfoRetriever}.
  *
  * <p>
  * <b>NOTE:</b> This class is intended for internal use only.

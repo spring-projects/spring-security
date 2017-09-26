@@ -16,16 +16,14 @@
 
 package org.springframework.security.oauth2.oidc.core.user;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.oidc.core.IdToken;
 import org.springframework.security.oauth2.oidc.core.IdTokenClaim;
 import org.springframework.security.oauth2.oidc.core.UserInfo;
-import org.springframework.util.Assert;
+
+import java.util.Map;
+import java.util.Set;
 
 /**
  * The default implementation of an {@link OidcUser}.
@@ -61,7 +59,7 @@ public class DefaultOidcUser extends DefaultOAuth2User implements OidcUser {
 
 	public DefaultOidcUser(Set<GrantedAuthority> authorities, IdToken idToken, UserInfo userInfo,
 			String nameAttributeKey) {
-		super(authorities, resolveAttributes(idToken, userInfo), nameAttributeKey);
+		super(authorities, OidcUser.collectClaims(idToken, userInfo), nameAttributeKey);
 		this.idToken = idToken;
 		this.userInfo = userInfo;
 	}
@@ -77,15 +75,5 @@ public class DefaultOidcUser extends DefaultOAuth2User implements OidcUser {
 
 	public UserInfo getUserInfo() {
 		return this.userInfo;
-	}
-
-	private static Map<String, Object> resolveAttributes(IdToken idToken, UserInfo userInfo) {
-		Assert.notNull(idToken, "idToken cannot be null");
-		Map<String, Object> attributes = new HashMap<>();
-		attributes.putAll(idToken.getClaims());
-		if (userInfo != null) {
-			attributes.putAll(userInfo.getClaims());
-		}
-		return attributes;
 	}
 }

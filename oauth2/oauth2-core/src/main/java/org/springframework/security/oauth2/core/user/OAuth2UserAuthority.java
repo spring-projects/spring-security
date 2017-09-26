@@ -43,7 +43,7 @@ public class OAuth2UserAuthority implements GrantedAuthority {
 		Assert.hasText(authority, "authority cannot be empty");
 		Assert.notEmpty(attributes, "attributes cannot be empty");
 		this.authority = authority;
-		this.setAttributes(attributes);
+		this.attributes = Collections.unmodifiableMap(new LinkedHashMap<>(attributes));
 	}
 
 	@Override
@@ -53,11 +53,6 @@ public class OAuth2UserAuthority implements GrantedAuthority {
 
 	public Map<String, Object> getAttributes() {
 		return this.attributes;
-	}
-
-	protected final void setAttributes(Map<String, Object> attributes) {
-		Assert.notEmpty(attributes, "attributes cannot be empty");
-		this.attributes = Collections.unmodifiableMap(new LinkedHashMap<>(attributes));
 	}
 
 	@Override
