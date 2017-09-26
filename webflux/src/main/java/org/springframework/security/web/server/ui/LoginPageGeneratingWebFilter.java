@@ -41,7 +41,8 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 	private ServerWebExchangeMatcher matcher = ServerWebExchangeMatchers
 		.pathMatchers(HttpMethod.GET, "/login");
 
-	@Override public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+	@Override
+	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 		return this.matcher.matches(exchange)
 			.filter(ServerWebExchangeMatcher.MatchResult::isMatch)
 			.switchIfEmpty(chain.filter(exchange).then(Mono.empty()))

@@ -81,7 +81,9 @@ public class HttpSecurity {
 	private AuthorizeExchangeBuilder authorizeExchangeBuilder;
 
 	private HeaderBuilder headers;
+
 	private HttpBasicBuilder httpBasic;
+
 	private FormLoginBuilder formLogin;
 
 	private ReactiveAuthenticationManager authenticationManager;
