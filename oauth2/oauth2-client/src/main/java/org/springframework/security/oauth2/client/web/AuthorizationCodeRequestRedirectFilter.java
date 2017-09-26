@@ -19,6 +19,7 @@ import org.springframework.security.crypto.keygen.StringKeyGenerator;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.endpoint.AuthorizationRequestAttributes;
+import org.springframework.security.oauth2.core.endpoint.OAuth2Parameter;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -122,6 +123,9 @@ public class AuthorizationCodeRequestRedirectFilter extends OncePerRequestFilter
 
 		String redirectUriStr = this.expandRedirectUri(request, clientRegistration);
 
+		Map<String,Object> additionalParameters = new HashMap<>();
+		additionalParameters.put(OAuth2Parameter.REGISTRATION_ID, clientRegistration.getRegistrationId());
+
 		AuthorizationRequestAttributes authorizationRequestAttributes =
 			AuthorizationRequestAttributes.withAuthorizationCode()
 				.clientId(clientRegistration.getClientId())
@@ -129,6 +133,7 @@ public class AuthorizationCodeRequestRedirectFilter extends OncePerRequestFilter
 				.redirectUri(redirectUriStr)
 				.scope(clientRegistration.getScope())
 				.state(this.stateGenerator.generateKey())
+				.additionalParameters(additionalParameters)
 				.build();
 
 		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequestAttributes, request, response);

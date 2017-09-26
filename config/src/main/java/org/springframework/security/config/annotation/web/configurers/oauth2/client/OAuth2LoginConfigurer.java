@@ -166,7 +166,7 @@ public final class OAuth2LoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 		private RedirectionEndpointConfig() {
 		}
 
-		public <R extends RequestMatcher & RequestVariablesExtractor> RedirectionEndpointConfig requestMatcher(R authorizationResponseMatcher) {
+		public <R extends RequestMatcher> RedirectionEndpointConfig requestMatcher(R authorizationResponseMatcher) {
 			Assert.notNull(authorizationResponseMatcher, "authorizationResponseMatcher cannot be null");
 			OAuth2LoginConfigurer.this.authorizationCodeAuthenticationFilterConfigurer.authorizationResponseMatcher(authorizationResponseMatcher);
 			return this;

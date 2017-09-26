@@ -21,7 +21,9 @@ import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -43,6 +45,7 @@ public final class AuthorizationRequestAttributes implements Serializable {
 	private String redirectUri;
 	private Set<String> scope;
 	private String state;
+	private Map<String,Object> additionalParameters;
 
 	private AuthorizationRequestAttributes() {
 	}
@@ -73,6 +76,10 @@ public final class AuthorizationRequestAttributes implements Serializable {
 
 	public String getState() {
 		return this.state;
+	}
+
+	public Map<String, Object> getAdditionalParameters() {
+		return this.additionalParameters;
 	}
 
 	public static Builder withAuthorizationCode() {
@@ -107,8 +114,7 @@ public final class AuthorizationRequestAttributes implements Serializable {
 		}
 
 		public Builder scope(Set<String> scope) {
-			this.authorizationRequest.scope = Collections.unmodifiableSet(
-				CollectionUtils.isEmpty(scope) ? Collections.emptySet() : new LinkedHashSet<>(scope));
+			this.authorizationRequest.scope = scope;
 			return this;
 		}
 
@@ -117,9 +123,20 @@ public final class AuthorizationRequestAttributes implements Serializable {
 			return this;
 		}
 
+		public Builder additionalParameters(Map<String,Object> additionalParameters) {
+			this.authorizationRequest.additionalParameters = additionalParameters;
+			return this;
+		}
+
 		public AuthorizationRequestAttributes build() {
 			Assert.hasText(this.authorizationRequest.clientId, "clientId cannot be empty");
 			Assert.hasText(this.authorizationRequest.authorizeUri, "authorizeUri cannot be empty");
+			this.authorizationRequest.scope = Collections.unmodifiableSet(
+				CollectionUtils.isEmpty(this.authorizationRequest.scope) ?
+					Collections.emptySet() : new LinkedHashSet<>(this.authorizationRequest.scope));
+			this.authorizationRequest.additionalParameters = Collections.unmodifiableMap(
+				CollectionUtils.isEmpty(this.authorizationRequest.additionalParameters) ?
+					Collections.emptyMap() : new LinkedHashMap<>(this.authorizationRequest.additionalParameters));
 			return this.authorizationRequest;
 		}
 	}

@@ -38,9 +38,8 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Tests {@link AuthorizationCodeAuthenticationProcessingFilter}.
@@ -233,6 +232,9 @@ public class AuthorizationCodeAuthenticationProcessingFilterTests {
 											ClientRegistration clientRegistration,
 											String state) {
 
+		Map<String,Object> additionalParameters = new HashMap<>();
+		additionalParameters.put(OAuth2Parameter.REGISTRATION_ID, clientRegistration.getRegistrationId());
+
 		AuthorizationRequestAttributes authorizationRequestAttributes =
 			AuthorizationRequestAttributes.withAuthorizationCode()
 				.clientId(clientRegistration.getClientId())
@@ -240,6 +242,7 @@ public class AuthorizationCodeAuthenticationProcessingFilterTests {
 				.redirectUri(clientRegistration.getRedirectUri())
 				.scope(clientRegistration.getScope())
 				.state(state)
+				.additionalParameters(additionalParameters)
 				.build();
 
 		authorizationRequestRepository.saveAuthorizationRequest(authorizationRequestAttributes, request, response);

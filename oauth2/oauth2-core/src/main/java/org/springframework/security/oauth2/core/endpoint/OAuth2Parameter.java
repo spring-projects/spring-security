@@ -16,7 +16,7 @@
 package org.springframework.security.oauth2.core.endpoint;
 
 /**
- * Standard parameters defined in the OAuth Parameters Registry
+ * Standard and additional (custom) parameters defined in the OAuth Parameters Registry
  * and used by the authorization endpoint and token endpoint.
  *
  * @author Joe Grandja
@@ -42,5 +42,7 @@ public interface OAuth2Parameter {
 	String ERROR_DESCRIPTION = "error_description";
 
 	String ERROR_URI = "error_uri";
+
+	String REGISTRATION_ID = "registration_id";		// Non-standard additional parameter
 
 }

@@ -37,9 +37,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2Parameter;
 import org.springframework.security.oauth2.core.endpoint.TokenResponseAttributes;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.security.web.util.matcher.RequestVariablesExtractor;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -111,20 +109,18 @@ import java.io.IOException;
  */
 public class AuthorizationCodeAuthenticationProcessingFilter extends AbstractAuthenticationProcessingFilter {
 	public static final String DEFAULT_AUTHORIZATION_RESPONSE_BASE_URI = "/oauth2/authorize/code";
-	public static final String REGISTRATION_ID_URI_VARIABLE_NAME = "registrationId";
-	public static final String DEFAULT_AUTHORIZATION_RESPONSE_URI = DEFAULT_AUTHORIZATION_RESPONSE_BASE_URI + "/{" + REGISTRATION_ID_URI_VARIABLE_NAME + "}";
 	private static final String AUTHORIZATION_REQUEST_NOT_FOUND_ERROR_CODE = "authorization_request_not_found";
 	private static final String INVALID_STATE_PARAMETER_ERROR_CODE = "invalid_state_parameter";
 	private static final String INVALID_REDIRECT_URI_PARAMETER_ERROR_CODE = "invalid_redirect_uri_parameter";
 	private final ErrorResponseAttributesConverter errorResponseConverter = new ErrorResponseAttributesConverter();
 	private final AuthorizationCodeAuthorizationResponseAttributesConverter authorizationCodeResponseConverter =
 		new AuthorizationCodeAuthorizationResponseAttributesConverter();
-	private RequestMatcher authorizationResponseMatcher = new AntPathRequestMatcher(DEFAULT_AUTHORIZATION_RESPONSE_URI);
 	private ClientRegistrationRepository clientRegistrationRepository;
+	private RequestMatcher authorizationResponseMatcher = new AuthorizationResponseMatcher();
 	private AuthorizationRequestRepository authorizationRequestRepository = new HttpSessionAuthorizationRequestRepository();
 
 	public AuthorizationCodeAuthenticationProcessingFilter() {
-		super(DEFAULT_AUTHORIZATION_RESPONSE_URI);
+		super(new AuthorizationResponseMatcher());
 	}
 
 	@Override
@@ -140,17 +136,8 @@ public class AuthorizationCodeAuthenticationProcessingFilter extends AbstractAut
 		}
 
 		AuthorizationRequestAttributes matchingAuthorizationRequest = this.resolveAuthorizationRequest(request);
-
-		String registrationId = ((RequestVariablesExtractor)this.getAuthorizationResponseMatcher())
-			.extractUriTemplateVariables(request).get(REGISTRATION_ID_URI_VARIABLE_NAME);
-		ClientRegistration clientRegistration = null;
-		if (!StringUtils.isEmpty(registrationId)) {
-			clientRegistration = this.getClientRegistrationRepository().findByRegistrationId(registrationId);
-		}
-		if (clientRegistration == null || !matchingAuthorizationRequest.getClientId().equals(clientRegistration.getClientId())) {
-			OAuth2Error oauth2Error = new OAuth2Error(OAuth2Error.INVALID_REQUEST_ERROR_CODE);
-			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
-		}
+		String registrationId = (String)matchingAuthorizationRequest.getAdditionalParameters().get(OAuth2Parameter.REGISTRATION_ID);
+		ClientRegistration clientRegistration = this.getClientRegistrationRepository().findByRegistrationId(registrationId);
 
 		// The clientRegistration.redirectUri may contain Uri template variables, whether it's configured by
 		// the user or configured by default. In these cases, the redirectUri will be expanded and ultimately changed
@@ -180,7 +167,7 @@ public class AuthorizationCodeAuthenticationProcessingFilter extends AbstractAut
 		return this.authorizationResponseMatcher;
 	}
 
-	public final <T extends RequestMatcher & RequestVariablesExtractor> void setAuthorizationResponseMatcher(T authorizationResponseMatcher) {
+	public final <T extends RequestMatcher> void setAuthorizationResponseMatcher(T authorizationResponseMatcher) {
 		Assert.notNull(authorizationResponseMatcher, "authorizationResponseMatcher cannot be null");
 		this.authorizationResponseMatcher = authorizationResponseMatcher;
 		this.setRequiresAuthenticationRequestMatcher(authorizationResponseMatcher);
@@ -226,6 +213,24 @@ public class AuthorizationCodeAuthenticationProcessingFilter extends AbstractAut
 		if (!request.getRequestURL().toString().equals(authorizationRequest.getRedirectUri())) {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_REDIRECT_URI_PARAMETER_ERROR_CODE);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+		}
+	}
+
+	private static class AuthorizationResponseMatcher implements RequestMatcher {
+
+		@Override
+		public boolean matches(HttpServletRequest request) {
+			return this.successResponse(request) || this.errorResponse(request);
+		}
+
+		private boolean successResponse(HttpServletRequest request) {
+			return StringUtils.hasText(request.getParameter(OAuth2Parameter.CODE)) &&
+				StringUtils.hasText(request.getParameter(OAuth2Parameter.STATE));
+		}
+
+		private boolean errorResponse(HttpServletRequest request) {
+			return StringUtils.hasText(request.getParameter(OAuth2Parameter.ERROR)) &&
+				StringUtils.hasText(request.getParameter(OAuth2Parameter.STATE));
 		}
 	}
 }
