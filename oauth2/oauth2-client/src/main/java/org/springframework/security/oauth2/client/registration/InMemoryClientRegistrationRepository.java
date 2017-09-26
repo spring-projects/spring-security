@@ -62,7 +62,7 @@ public final class InMemoryClientRegistrationRepository implements ClientRegistr
 		return this.registrations.values().stream()
 			.filter(registration -> registration.getClientAlias().equals(clientAlias))
 			.findFirst()
-			.orElseGet(null);
+			.orElse(null);
 	}
 
 	@Override
