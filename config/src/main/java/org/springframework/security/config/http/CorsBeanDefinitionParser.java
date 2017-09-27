@@ -15,17 +15,16 @@
  */
 package org.springframework.security.config.http;
 
-import org.w3c.dom.Element;
-
 import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.factory.BeanCreationException;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.CorsFilter;
+import org.w3c.dom.Element;
 
 /**
  * Parser for the {@code CorsFilter}.
@@ -71,8 +70,6 @@ public class CorsBeanDefinitionParser {
 			return null;
 		}
 
-		BeanDefinitionBuilder configurationSourceBldr = BeanDefinitionBuilder.rootBeanDefinition(HANDLER_MAPPING_INTROSPECTOR);
-		configurationSourceBldr.setAutowireMode(AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR);
-		return configurationSourceBldr.getBeanDefinition();
+		return new RootBeanDefinition(HandlerMappingIntrospectorFactoryBean.class);
 	}
 }

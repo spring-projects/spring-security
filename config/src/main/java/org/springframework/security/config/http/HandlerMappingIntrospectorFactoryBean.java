@@ -17,8 +17,11 @@
 package org.springframework.security.config.http;
 
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.FactoryBean;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.lang.Nullable;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 /**
@@ -28,12 +31,23 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
  * @author Rob Winch
  * @since 4.1.1
  */
-class HandlerMappingIntrospectorFactoryBean implements ApplicationContextAware {
+class HandlerMappingIntrospectorFactoryBean implements FactoryBean<HandlerMappingIntrospector>, ApplicationContextAware {
+	private static final String HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME = "mvcHandlerMappingIntrospector";
 
 	private ApplicationContext context;
 
-	HandlerMappingIntrospector createHandlerMappingIntrospector() {
-		return new HandlerMappingIntrospector(this.context);
+	public HandlerMappingIntrospector getObject() {
+		if(!this.context.containsBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME)) {
+			throw new NoSuchBeanDefinitionException(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME, "A Bean named " + HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME +" of type " + HandlerMappingIntrospector.class.getName()
+				+ " is required to use MvcRequestMatcher. Please ensure Spring Security & Spring MVC are configured in a shared ApplicationContext.");
+		}
+		return this.context.getBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME, HandlerMappingIntrospector.class);
+	}
+
+	@Nullable
+	@Override
+	public Class<?> getObjectType() {
+		return HandlerMappingIntrospector.class;
 	}
 
 	/*
