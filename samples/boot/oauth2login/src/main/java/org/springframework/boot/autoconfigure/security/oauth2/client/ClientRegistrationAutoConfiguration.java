@@ -17,12 +17,21 @@ package org.springframework.boot.autoconfigure.security.oauth2.client;
 
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
-import org.springframework.boot.autoconfigure.condition.*;
+import org.springframework.boot.autoconfigure.condition.ConditionMessage;
+import org.springframework.boot.autoconfigure.condition.ConditionOutcome;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.boot.autoconfigure.condition.SpringBootCondition;
 import org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration;
 import org.springframework.boot.context.properties.bind.BindResult;
 import org.springframework.boot.context.properties.bind.Bindable;
 import org.springframework.boot.context.properties.bind.Binder;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ConditionContext;
+import org.springframework.context.annotation.Conditional;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ConfigurationCondition;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.MutablePropertySources;
@@ -35,7 +44,11 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.util.CollectionUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -49,7 +62,7 @@ import java.util.stream.Collectors;
 public class ClientRegistrationAutoConfiguration {
 	private static final String CLIENTS_DEFAULTS_RESOURCE = "META-INF/oauth2-clients-defaults.yml";
 	static final String CLIENT_ID_PROPERTY = "client-id";
-	static final String CLIENT_PROPERTY_PREFIX = "security.oauth2.client";
+	static final String REGISTRATIONS_PROPERTY_PREFIX = "security.oauth2.client.registrations";
 
 	@Configuration
 	@Conditional(ClientPropertiesAvailableCondition.class)
@@ -69,14 +82,15 @@ public class ClientRegistrationAutoConfiguration {
 			}
 			Binder binder = Binder.get(this.environment);
 			List<ClientRegistration> clientRegistrations = new ArrayList<>();
-			Set<String> clientPropertyKeys = resolveClientPropertyKeys(this.environment);
-			for (String clientPropertyKey : clientPropertyKeys) {
-				String fullClientPropertyKey = CLIENT_PROPERTY_PREFIX + "." + clientPropertyKey;
-				if (!this.environment.containsProperty(fullClientPropertyKey + "." + CLIENT_ID_PROPERTY)) {
+			Set<String> registrationIds = getRegistrationIds(this.environment);
+			for (String registrationId : registrationIds) {
+				String fullRegistrationId = REGISTRATIONS_PROPERTY_PREFIX + "." + registrationId;
+				if (!this.environment.containsProperty(fullRegistrationId + "." + CLIENT_ID_PROPERTY)) {
 					continue;
 				}
 				ClientRegistrationProperties clientRegistrationProperties = binder.bind(
-					fullClientPropertyKey, Bindable.of(ClientRegistrationProperties.class)).get();
+					fullRegistrationId, Bindable.of(ClientRegistrationProperties.class)).get();
+				clientRegistrationProperties.setRegistrationId(registrationId);
 				ClientRegistration clientRegistration = new ClientRegistration.Builder(clientRegistrationProperties).build();
 				clientRegistrations.add(clientRegistration);
 			}
@@ -95,10 +109,10 @@ public class ClientRegistrationAutoConfiguration {
 		}
 	}
 
-	static Set<String> resolveClientPropertyKeys(Environment environment) {
+	static Set<String> getRegistrationIds(Environment environment) {
 		Binder binder = Binder.get(environment);
 		BindResult<Map<String, Object>> result = binder.bind(
-			CLIENT_PROPERTY_PREFIX, Bindable.mapOf(String.class, Object.class));
+			REGISTRATIONS_PROPERTY_PREFIX, Bindable.mapOf(String.class, Object.class));
 		return result.get().keySet();
 	}
 
@@ -112,10 +126,10 @@ public class ClientRegistrationAutoConfiguration {
 		@Override
 		public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
 			ConditionMessage.Builder message = ConditionMessage.forCondition("OAuth2 Client Properties");
-			Set<String> clientPropertyKeys = resolveClientPropertyKeys(context.getEnvironment());
-			if (!CollectionUtils.isEmpty(clientPropertyKeys)) {
+			Set<String> registrationIds = getRegistrationIds(context.getEnvironment());
+			if (!CollectionUtils.isEmpty(registrationIds)) {
 				return ConditionOutcome.match(message.foundExactly("OAuth2 Client(s) -> " +
-					clientPropertyKeys.stream().collect(Collectors.joining(", "))));
+					registrationIds.stream().collect(Collectors.joining(", "))));
 			}
 			return ConditionOutcome.noMatch(message.notAvailable("OAuth2 Client(s)"));
 		}

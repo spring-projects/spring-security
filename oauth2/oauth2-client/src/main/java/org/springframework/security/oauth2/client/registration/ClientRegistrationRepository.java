@@ -33,9 +33,9 @@ import java.util.List;
  */
 public interface ClientRegistrationRepository {
 
-	List<ClientRegistration> getRegistrationsByClientId(String clientId);
+	List<ClientRegistration> findByClientId(String clientId);
 
-	ClientRegistration getRegistrationByClientAlias(String clientAlias);
+	ClientRegistration findByRegistrationId(String registrationId);
 
 	List<ClientRegistration> getRegistrations();
 

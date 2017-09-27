@@ -33,6 +33,7 @@ import java.util.Set;
  * @see ClientRegistration
  */
 public class ClientRegistrationProperties {
+	private String registrationId;
 	private String clientId;
 	private String clientSecret;
 	private ClientAuthenticationMethod clientAuthenticationMethod = ClientAuthenticationMethod.BASIC;
@@ -45,8 +46,14 @@ public class ClientRegistrationProperties {
 	private String userNameAttributeName;
 	private String jwkSetUri;
 	private String clientName;
-	private String clientAlias;
 
+	public String getRegistrationId() {
+		return this.registrationId;
+	}
+
+	public void setRegistrationId(String registrationId) {
+		this.registrationId = registrationId;
+	}
 
 	public String getClientId() {
 		return this.clientId;
@@ -142,13 +149,5 @@ public class ClientRegistrationProperties {
 
 	public void setClientName(String clientName) {
 		this.clientName = clientName;
-	}
-
-	public String getClientAlias() {
-		return this.clientAlias;
-	}
-
-	public void setClientAlias(String clientAlias) {
-		this.clientAlias = clientAlias;
 	}
 }

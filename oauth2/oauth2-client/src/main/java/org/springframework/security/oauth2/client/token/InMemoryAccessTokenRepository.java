@@ -77,9 +77,6 @@ public final class InMemoryAccessTokenRepository implements SecurityTokenReposit
 			// Access Token Response attributes
 			builder.append("[").append(clientRegistration.getScope().toString()).append("]");
 
-			// Client alias is unique as well
-			builder.append("[").append(clientRegistration.getClientAlias()).append("]");
-
 			return Base64.getEncoder().encodeToString(builder.toString().getBytes());
 		}
 	}

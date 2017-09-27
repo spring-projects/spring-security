@@ -93,10 +93,10 @@ public class OAuth2LoginApplicationTests {
 	@Before
 	public void setup() {
 		this.webClient.getCookieManager().clearCookies();
-		this.googleClientRegistration = this.clientRegistrationRepository.getRegistrationByClientAlias("google");
-		this.githubClientRegistration = this.clientRegistrationRepository.getRegistrationByClientAlias("github");
-		this.facebookClientRegistration = this.clientRegistrationRepository.getRegistrationByClientAlias("facebook");
-		this.oktaClientRegistration = this.clientRegistrationRepository.getRegistrationByClientAlias("okta");
+		this.googleClientRegistration = this.clientRegistrationRepository.findByRegistrationId("google");
+		this.githubClientRegistration = this.clientRegistrationRepository.findByRegistrationId("github");
+		this.facebookClientRegistration = this.clientRegistrationRepository.findByRegistrationId("facebook");
+		this.oktaClientRegistration = this.clientRegistrationRepository.findByRegistrationId("okta");
 	}
 
 	@Test
@@ -134,7 +134,7 @@ public class OAuth2LoginApplicationTests {
 
 		assertThat(params.get(OAuth2Parameter.RESPONSE_TYPE)).isEqualTo(ResponseType.CODE.getValue());
 		assertThat(params.get(OAuth2Parameter.CLIENT_ID)).isEqualTo(this.githubClientRegistration.getClientId());
-		String redirectUri = AUTHORIZE_BASE_URL + "/" + this.githubClientRegistration.getClientAlias();
+		String redirectUri = AUTHORIZE_BASE_URL + "/" + this.githubClientRegistration.getRegistrationId();
 		assertThat(URLDecoder.decode(params.get(OAuth2Parameter.REDIRECT_URI), "UTF-8")).isEqualTo(redirectUri);
 		assertThat(URLDecoder.decode(params.get(OAuth2Parameter.SCOPE), "UTF-8"))
 				.isEqualTo(this.githubClientRegistration.getScope().stream().collect(Collectors.joining(" ")));
@@ -194,7 +194,7 @@ public class OAuth2LoginApplicationTests {
 
 		String code = "auth-code";
 		String state = "state";
-		String redirectUri = AUTHORIZE_BASE_URL + "/" + this.googleClientRegistration.getClientAlias();
+		String redirectUri = AUTHORIZE_BASE_URL + "/" + this.googleClientRegistration.getRegistrationId();
 
 		String authorizationResponseUri =
 				UriComponentsBuilder.fromHttpUrl(redirectUri)
@@ -226,7 +226,7 @@ public class OAuth2LoginApplicationTests {
 
 		String code = "auth-code";
 		String state = "invalid-state";
-		String redirectUri = AUTHORIZE_BASE_URL + "/" + this.githubClientRegistration.getClientAlias();
+		String redirectUri = AUTHORIZE_BASE_URL + "/" + this.githubClientRegistration.getRegistrationId();
 
 		String authorizationResponseUri =
 				UriComponentsBuilder.fromHttpUrl(redirectUri)
@@ -284,7 +284,7 @@ public class OAuth2LoginApplicationTests {
 
 		String error = OAuth2Error.INVALID_CLIENT_ERROR_CODE;
 		String state = "state";
-		String redirectUri = AUTHORIZE_BASE_URL + "/" + this.githubClientRegistration.getClientAlias();
+		String redirectUri = AUTHORIZE_BASE_URL + "/" + this.githubClientRegistration.getRegistrationId();
 
 		String authorizationResponseUri =
 				UriComponentsBuilder.fromHttpUrl(redirectUri)
@@ -309,10 +309,10 @@ public class OAuth2LoginApplicationTests {
 		assertThat(clientAnchorElements.size()).isEqualTo(expectedClients);
 
 		String baseAuthorizeUri = AUTHORIZATION_BASE_URI + "/";
-		String googleClientAuthorizeUri = baseAuthorizeUri + this.googleClientRegistration.getClientAlias();
-		String githubClientAuthorizeUri = baseAuthorizeUri + this.githubClientRegistration.getClientAlias();
-		String facebookClientAuthorizeUri = baseAuthorizeUri + this.facebookClientRegistration.getClientAlias();
-		String oktaClientAuthorizeUri = baseAuthorizeUri + this.oktaClientRegistration.getClientAlias();
+		String googleClientAuthorizeUri = baseAuthorizeUri + this.googleClientRegistration.getRegistrationId();
+		String githubClientAuthorizeUri = baseAuthorizeUri + this.githubClientRegistration.getRegistrationId();
+		String facebookClientAuthorizeUri = baseAuthorizeUri + this.facebookClientRegistration.getRegistrationId();
+		String oktaClientAuthorizeUri = baseAuthorizeUri + this.oktaClientRegistration.getRegistrationId();
 
 		for (int i=0; i<expectedClients; i++) {
 			assertThat(clientAnchorElements.get(i).getAttribute("href")).isIn(

@@ -19,17 +19,17 @@ import org.springframework.util.Assert;
 
 /**
  * A {@link ClientRegistrationIdentifierStrategy} that identifies a {@link ClientRegistration}
- * using the {@link ClientRegistration#getClientAlias()}.
+ * using the {@link ClientRegistration#getRegistrationId()}.
  *
  * @author Joe Grandja
  * @since 5.0
  * @see ClientRegistration
  */
-public class ClientAliasIdentifierStrategy implements ClientRegistrationIdentifierStrategy<String> {
+public class RegistrationIdIdentifierStrategy implements ClientRegistrationIdentifierStrategy<String> {
 
 	@Override
 	public String getIdentifier(ClientRegistration clientRegistration) {
 		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
-		return clientRegistration.getClientAlias();
+		return clientRegistration.getRegistrationId();
 	}
 }

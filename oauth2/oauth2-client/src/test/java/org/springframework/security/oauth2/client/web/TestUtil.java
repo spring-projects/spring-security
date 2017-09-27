@@ -34,24 +34,24 @@ class TestUtil {
 	static final String DEFAULT_SERVER_URL = DEFAULT_SCHEME + "://" + DEFAULT_SERVER_NAME + ":" + DEFAULT_SERVER_PORT;
 	static final String AUTHORIZATION_BASE_URI = "/oauth2/authorization/code";
 	static final String AUTHORIZE_BASE_URI = "/oauth2/authorize/code";
-	static final String GOOGLE_CLIENT_ALIAS = "google";
-	static final String GITHUB_CLIENT_ALIAS = "github";
+	static final String GOOGLE_REGISTRATION_ID = "google";
+	static final String GITHUB_REGISTRATION_ID = "github";
 
 	static ClientRegistrationRepository clientRegistrationRepository(ClientRegistration... clientRegistrations) {
 		return new InMemoryClientRegistrationRepository(Arrays.asList(clientRegistrations));
 	}
 
 	static ClientRegistration googleClientRegistration() {
-		return googleClientRegistration(DEFAULT_SERVER_URL + AUTHORIZE_BASE_URI + "/" + GOOGLE_CLIENT_ALIAS);
+		return googleClientRegistration(DEFAULT_SERVER_URL + AUTHORIZE_BASE_URI + "/" + GOOGLE_REGISTRATION_ID);
 	}
 
 	static ClientRegistration googleClientRegistration(String redirectUri) {
 		ClientRegistrationProperties clientRegistrationProperties = new ClientRegistrationProperties();
+		clientRegistrationProperties.setRegistrationId(GOOGLE_REGISTRATION_ID);
 		clientRegistrationProperties.setClientId("google-client-id");
 		clientRegistrationProperties.setClientSecret("secret");
 		clientRegistrationProperties.setAuthorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE);
 		clientRegistrationProperties.setClientName("Google Client");
-		clientRegistrationProperties.setClientAlias(GOOGLE_CLIENT_ALIAS);
 		clientRegistrationProperties.setAuthorizationUri("https://accounts.google.com/o/oauth2/auth");
 		clientRegistrationProperties.setTokenUri("https://accounts.google.com/o/oauth2/token");
 		clientRegistrationProperties.setUserInfoUri("https://www.googleapis.com/oauth2/v3/userinfo");
@@ -61,16 +61,16 @@ class TestUtil {
 	}
 
 	static ClientRegistration githubClientRegistration() {
-		return githubClientRegistration(DEFAULT_SERVER_URL + AUTHORIZE_BASE_URI + "/" + GITHUB_CLIENT_ALIAS);
+		return githubClientRegistration(DEFAULT_SERVER_URL + AUTHORIZE_BASE_URI + "/" + GITHUB_REGISTRATION_ID);
 	}
 
 	static ClientRegistration githubClientRegistration(String redirectUri) {
 		ClientRegistrationProperties clientRegistrationProperties = new ClientRegistrationProperties();
+		clientRegistrationProperties.setRegistrationId(GITHUB_REGISTRATION_ID);
 		clientRegistrationProperties.setClientId("github-client-id");
 		clientRegistrationProperties.setClientSecret("secret");
 		clientRegistrationProperties.setAuthorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE);
 		clientRegistrationProperties.setClientName("GitHub Client");
-		clientRegistrationProperties.setClientAlias(GITHUB_CLIENT_ALIAS);
 		clientRegistrationProperties.setAuthorizationUri("https://github.com/login/oauth/authorize");
 		clientRegistrationProperties.setTokenUri("https://github.com/login/oauth/access_token");
 		clientRegistrationProperties.setUserInfoUri("https://api.github.com/user");

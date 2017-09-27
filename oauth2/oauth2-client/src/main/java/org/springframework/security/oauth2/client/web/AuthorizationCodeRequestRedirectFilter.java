@@ -61,8 +61,8 @@ import java.util.Map;
  */
 public class AuthorizationCodeRequestRedirectFilter extends OncePerRequestFilter {
 	public static final String DEFAULT_AUTHORIZATION_REQUEST_BASE_URI = "/oauth2/authorization/code";
-	public static final String CLIENT_ALIAS_URI_VARIABLE_NAME = "clientAlias";
-	public static final String DEFAULT_AUTHORIZATION_REQUEST_URI = DEFAULT_AUTHORIZATION_REQUEST_BASE_URI + "/{" + CLIENT_ALIAS_URI_VARIABLE_NAME + "}";
+	public static final String REGISTRATION_ID_URI_VARIABLE_NAME = "registrationId";
+	public static final String DEFAULT_AUTHORIZATION_REQUEST_URI = DEFAULT_AUTHORIZATION_REQUEST_BASE_URI + "/{" + REGISTRATION_ID_URI_VARIABLE_NAME + "}";
 	private RequestMatcher authorizationRequestMatcher;
 	private final ClientRegistrationRepository clientRegistrationRepository;
 	private final AuthorizationRequestUriBuilder authorizationUriBuilder;
@@ -113,11 +113,11 @@ public class AuthorizationCodeRequestRedirectFilter extends OncePerRequestFilter
 	protected void sendRedirectForAuthorizationCode(HttpServletRequest request, HttpServletResponse response)
 			throws IOException, ServletException {
 
-		String clientAlias = ((RequestVariablesExtractor)this.authorizationRequestMatcher)
-				.extractUriTemplateVariables(request).get(CLIENT_ALIAS_URI_VARIABLE_NAME);
-		ClientRegistration clientRegistration = this.clientRegistrationRepository.getRegistrationByClientAlias(clientAlias);
+		String registrationId = ((RequestVariablesExtractor)this.authorizationRequestMatcher)
+				.extractUriTemplateVariables(request).get(REGISTRATION_ID_URI_VARIABLE_NAME);
+		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(registrationId);
 		if (clientRegistration == null) {
-			throw new IllegalArgumentException("Invalid Client Identifier (Alias): " + clientAlias);
+			throw new IllegalArgumentException("Invalid Client Identifier (Registration Id): " + registrationId);
 		}
 
 		String redirectUriStr = this.expandRedirectUri(request, clientRegistration);
@@ -152,7 +152,7 @@ public class AuthorizationCodeRequestRedirectFilter extends OncePerRequestFilter
 		uriVariables.put("serverName", request.getServerName());
 		uriVariables.put("serverPort", String.valueOf(request.getServerPort()));
 		uriVariables.put("contextPath", request.getContextPath());
-		uriVariables.put("clientAlias", clientRegistration.getClientAlias());
+		uriVariables.put("registrationId", clientRegistration.getRegistrationId());
 
 		return UriComponentsBuilder.fromUriString(clientRegistration.getRedirectUri())
 			.buildAndExpand(uriVariables)

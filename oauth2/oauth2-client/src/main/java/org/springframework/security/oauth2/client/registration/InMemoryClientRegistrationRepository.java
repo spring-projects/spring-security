@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
  * @see ClientRegistration
  */
 public final class InMemoryClientRegistrationRepository implements ClientRegistrationRepository {
-	private final ClientRegistrationIdentifierStrategy<String> identifierStrategy = new ClientAliasIdentifierStrategy();
+	private final ClientRegistrationIdentifierStrategy<String> identifierStrategy = new RegistrationIdIdentifierStrategy();
 	private final Map<String, ClientRegistration> registrations;
 
 	public InMemoryClientRegistrationRepository(List<ClientRegistration> registrations) {
@@ -49,7 +49,7 @@ public final class InMemoryClientRegistrationRepository implements ClientRegistr
 	}
 
 	@Override
-	public List<ClientRegistration> getRegistrationsByClientId(String clientId) {
+	public List<ClientRegistration> findByClientId(String clientId) {
 		Assert.hasText(clientId, "clientId cannot be empty");
 		return this.registrations.values().stream()
 			.filter(registration -> registration.getClientId().equals(clientId))
@@ -57,10 +57,10 @@ public final class InMemoryClientRegistrationRepository implements ClientRegistr
 	}
 
 	@Override
-	public ClientRegistration getRegistrationByClientAlias(String clientAlias) {
-		Assert.hasText(clientAlias, "clientAlias cannot be empty");
+	public ClientRegistration findByRegistrationId(String registrationId) {
+		Assert.hasText(registrationId, "registrationId cannot be empty");
 		return this.registrations.values().stream()
-			.filter(registration -> registration.getClientAlias().equals(clientAlias))
+			.filter(registration -> registration.getRegistrationId().equals(registrationId))
 			.findFirst()
 			.orElse(null);
 	}

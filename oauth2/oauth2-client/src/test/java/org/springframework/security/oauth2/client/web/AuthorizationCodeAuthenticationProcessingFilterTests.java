@@ -41,7 +41,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
 
 /**
  * Tests {@link AuthorizationCodeAuthenticationProcessingFilter}.
@@ -247,7 +246,7 @@ public class AuthorizationCodeAuthenticationProcessingFilterTests {
 	}
 
 	private MockHttpServletRequest setupRequest(ClientRegistration clientRegistration) {
-		String requestURI = TestUtil.AUTHORIZE_BASE_URI + "/" + clientRegistration.getClientAlias();
+		String requestURI = TestUtil.AUTHORIZE_BASE_URI + "/" + clientRegistration.getRegistrationId();
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestURI);
 		request.setScheme(TestUtil.DEFAULT_SCHEME);
 		request.setServerName(TestUtil.DEFAULT_SERVER_NAME);

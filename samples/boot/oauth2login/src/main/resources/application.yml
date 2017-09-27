@@ -15,19 +15,20 @@ spring:
 security:
   oauth2:
     client:
-      google:
-        client-id: your-app-client-id
-        client-secret: your-app-client-secret
-      github:
-        client-id: your-app-client-id
-        client-secret: your-app-client-secret
-      facebook:
-        client-id: your-app-client-id
-        client-secret: your-app-client-secret
-      okta:
-        client-id: your-app-client-id
-        client-secret: your-app-client-secret
-        authorization-uri: https://your-subdomain.oktapreview.com/oauth2/v1/authorize
-        token-uri: https://your-subdomain.oktapreview.com/oauth2/v1/token
-        user-info-uri: https://your-subdomain.oktapreview.com/oauth2/v1/userinfo
-        jwk-set-uri: https://your-subdomain.oktapreview.com/oauth2/v1/keys
+      registrations:
+        google:
+          client-id: your-app-client-id
+          client-secret: your-app-client-secret
+        github:
+          client-id: your-app-client-id
+          client-secret: your-app-client-secret
+        facebook:
+          client-id: your-app-client-id
+          client-secret: your-app-client-secret
+        okta:
+          client-id: your-app-client-id
+          client-secret: your-app-client-secret
+          authorization-uri: https://your-subdomain.oktapreview.com/oauth2/v1/authorize
+          token-uri: https://your-subdomain.oktapreview.com/oauth2/v1/token
+          user-info-uri: https://your-subdomain.oktapreview.com/oauth2/v1/userinfo
+          jwk-set-uri: https://your-subdomain.oktapreview.com/oauth2/v1/keys

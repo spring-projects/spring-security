@@ -33,6 +33,7 @@ import java.util.Set;
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-2">Section 2 Client Registration</a>
  */
 public class ClientRegistration {
+	private String registrationId;
 	private String clientId;
 	private String clientSecret;
 	private ClientAuthenticationMethod clientAuthenticationMethod = ClientAuthenticationMethod.BASIC;
@@ -41,9 +42,16 @@ public class ClientRegistration {
 	private Set<String> scope = Collections.emptySet();
 	private ProviderDetails providerDetails = new ProviderDetails();
 	private String clientName;
-	private String clientAlias;
 
 	protected ClientRegistration() {
+	}
+
+	public String getRegistrationId() {
+		return this.registrationId;
+	}
+
+	protected void setRegistrationId(String registrationId) {
+		this.registrationId = registrationId;
 	}
 
 	public String getClientId() {
@@ -108,14 +116,6 @@ public class ClientRegistration {
 
 	protected void setClientName(String clientName) {
 		this.clientName = clientName;
-	}
-
-	public String getClientAlias() {
-		return this.clientAlias;
-	}
-
-	protected void setClientAlias(String clientAlias) {
-		this.clientAlias = clientAlias;
 	}
 
 	public class ProviderDetails {
@@ -185,6 +185,7 @@ public class ClientRegistration {
 	}
 
 	public static class Builder {
+		protected String registrationId;
 		protected String clientId;
 		protected String clientSecret;
 		protected ClientAuthenticationMethod clientAuthenticationMethod = ClientAuthenticationMethod.BASIC;
@@ -197,14 +198,14 @@ public class ClientRegistration {
 		protected String userNameAttributeName;
 		protected String jwkSetUri;
 		protected String clientName;
-		protected String clientAlias;
 
-		public Builder(String clientId) {
-			this.clientId = clientId;
+		public Builder(String registrationId) {
+			this.registrationId = registrationId;
 		}
 
 		public Builder(ClientRegistrationProperties clientRegistrationProperties) {
-			this(clientRegistrationProperties.getClientId());
+			this(clientRegistrationProperties.getRegistrationId());
+			this.clientId(clientRegistrationProperties.getClientId());
 			this.clientSecret(clientRegistrationProperties.getClientSecret());
 			this.clientAuthenticationMethod(clientRegistrationProperties.getClientAuthenticationMethod());
 			this.authorizationGrantType(clientRegistrationProperties.getAuthorizationGrantType());
@@ -218,11 +219,11 @@ public class ClientRegistration {
 			this.userNameAttributeName(clientRegistrationProperties.getUserNameAttributeName());
 			this.jwkSetUri(clientRegistrationProperties.getJwkSetUri());
 			this.clientName(clientRegistrationProperties.getClientName());
-			this.clientAlias(clientRegistrationProperties.getClientAlias());
 		}
 
 		public Builder(ClientRegistration clientRegistration) {
-			this(clientRegistration.getClientId());
+			this(clientRegistration.getRegistrationId());
+			this.clientId(clientRegistration.getClientId());
 			this.clientSecret(clientRegistration.getClientSecret());
 			this.clientAuthenticationMethod(clientRegistration.getClientAuthenticationMethod());
 			this.authorizationGrantType(clientRegistration.getAuthorizationGrantType());
@@ -236,7 +237,11 @@ public class ClientRegistration {
 			this.userNameAttributeName(clientRegistration.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName());
 			this.jwkSetUri(clientRegistration.getProviderDetails().getJwkSetUri());
 			this.clientName(clientRegistration.getClientName());
-			this.clientAlias(clientRegistration.getClientAlias());
+		}
+
+		public Builder clientId(String clientId) {
+			this.clientId = clientId;
+			return this;
 		}
 
 		public Builder clientSecret(String clientSecret) {
@@ -297,11 +302,6 @@ public class ClientRegistration {
 			return this;
 		}
 
-		public Builder clientAlias(String clientAlias) {
-			this.clientAlias = clientAlias;
-			return this;
-		}
-
 		public ClientRegistration build() {
 			this.validateClientWithAuthorizationCodeGrantType();
 			ClientRegistration clientRegistration = new ClientRegistration();
@@ -310,6 +310,7 @@ public class ClientRegistration {
 		}
 
 		protected void setProperties(ClientRegistration clientRegistration) {
+			clientRegistration.setRegistrationId(this.registrationId);
 			clientRegistration.setClientId(this.clientId);
 			clientRegistration.setClientSecret(this.clientSecret);
 			clientRegistration.setClientAuthenticationMethod(this.clientAuthenticationMethod);
@@ -326,12 +327,12 @@ public class ClientRegistration {
 			clientRegistration.setProviderDetails(providerDetails);
 
 			clientRegistration.setClientName(this.clientName);
-			clientRegistration.setClientAlias(this.clientAlias);
 		}
 
 		protected void validateClientWithAuthorizationCodeGrantType() {
 			Assert.isTrue(AuthorizationGrantType.AUTHORIZATION_CODE.equals(this.authorizationGrantType),
 				"authorizationGrantType must be " + AuthorizationGrantType.AUTHORIZATION_CODE.getValue());
+			Assert.hasText(this.registrationId, "registrationId cannot be empty");
 			Assert.hasText(this.clientId, "clientId cannot be empty");
 			Assert.hasText(this.clientSecret, "clientSecret cannot be empty");
 			Assert.notNull(this.clientAuthenticationMethod, "clientAuthenticationMethod cannot be null");
@@ -341,7 +342,7 @@ public class ClientRegistration {
 			Assert.hasText(this.tokenUri, "tokenUri cannot be empty");
 			Assert.hasText(this.userInfoUri, "userInfoUri cannot be empty");
 			Assert.hasText(this.clientName, "clientName cannot be empty");
-			Assert.hasText(this.clientAlias, "clientAlias cannot be empty");
+			Assert.hasText(this.registrationId, "registrationId cannot be empty");
 		}
 	}
 }

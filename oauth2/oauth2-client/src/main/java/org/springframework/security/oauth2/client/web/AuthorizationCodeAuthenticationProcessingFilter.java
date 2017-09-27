@@ -111,8 +111,8 @@ import java.io.IOException;
  */
 public class AuthorizationCodeAuthenticationProcessingFilter extends AbstractAuthenticationProcessingFilter {
 	public static final String DEFAULT_AUTHORIZATION_RESPONSE_BASE_URI = "/oauth2/authorize/code";
-	public static final String CLIENT_ALIAS_URI_VARIABLE_NAME = "clientAlias";
-	public static final String DEFAULT_AUTHORIZATION_RESPONSE_URI = DEFAULT_AUTHORIZATION_RESPONSE_BASE_URI + "/{" + CLIENT_ALIAS_URI_VARIABLE_NAME + "}";
+	public static final String REGISTRATION_ID_URI_VARIABLE_NAME = "registrationId";
+	public static final String DEFAULT_AUTHORIZATION_RESPONSE_URI = DEFAULT_AUTHORIZATION_RESPONSE_BASE_URI + "/{" + REGISTRATION_ID_URI_VARIABLE_NAME + "}";
 	private static final String AUTHORIZATION_REQUEST_NOT_FOUND_ERROR_CODE = "authorization_request_not_found";
 	private static final String INVALID_STATE_PARAMETER_ERROR_CODE = "invalid_state_parameter";
 	private static final String INVALID_REDIRECT_URI_PARAMETER_ERROR_CODE = "invalid_redirect_uri_parameter";
@@ -141,11 +141,11 @@ public class AuthorizationCodeAuthenticationProcessingFilter extends AbstractAut
 
 		AuthorizationRequestAttributes matchingAuthorizationRequest = this.resolveAuthorizationRequest(request);
 
-		String clientAlias = ((RequestVariablesExtractor)this.getAuthorizationResponseMatcher())
-			.extractUriTemplateVariables(request).get(CLIENT_ALIAS_URI_VARIABLE_NAME);
+		String registrationId = ((RequestVariablesExtractor)this.getAuthorizationResponseMatcher())
+			.extractUriTemplateVariables(request).get(REGISTRATION_ID_URI_VARIABLE_NAME);
 		ClientRegistration clientRegistration = null;
-		if (!StringUtils.isEmpty(clientAlias)) {
-			clientRegistration = this.getClientRegistrationRepository().getRegistrationByClientAlias(clientAlias);
+		if (!StringUtils.isEmpty(registrationId)) {
+			clientRegistration = this.getClientRegistrationRepository().findByRegistrationId(registrationId);
 		}
 		if (clientRegistration == null || !matchingAuthorizationRequest.getClientId().equals(clientRegistration.getClientId())) {
 			OAuth2Error oauth2Error = new OAuth2Error(OAuth2Error.INVALID_REQUEST_ERROR_CODE);

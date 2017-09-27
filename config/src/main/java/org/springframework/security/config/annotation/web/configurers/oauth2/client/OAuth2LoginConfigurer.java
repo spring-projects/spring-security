@@ -44,7 +44,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.springframework.security.oauth2.client.web.AuthorizationCodeRequestRedirectFilter.CLIENT_ALIAS_URI_VARIABLE_NAME;
+import static org.springframework.security.oauth2.client.web.AuthorizationCodeRequestRedirectFilter.REGISTRATION_ID_URI_VARIABLE_NAME;
 
 /**
  * @author Joe Grandja
@@ -244,10 +244,10 @@ public final class OAuth2LoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 				RequestMatcher authorizationRequestMatcher = OAuth2LoginConfigurer.this.authorizationCodeRequestRedirectFilterConfigurer.getAuthorizationRequestMatcher();
 				if (authorizationRequestMatcher != null && AntPathRequestMatcher.class.isAssignableFrom(authorizationRequestMatcher.getClass())) {
 					String authorizationRequestPattern =  ((AntPathRequestMatcher)authorizationRequestMatcher).getPattern();
-					String clientAliasTemplateVariable = "{" + CLIENT_ALIAS_URI_VARIABLE_NAME + "}";
-					if (authorizationRequestPattern.endsWith(clientAliasTemplateVariable)) {
+					String registrationIdTemplateVariable = "{" + REGISTRATION_ID_URI_VARIABLE_NAME + "}";
+					if (authorizationRequestPattern.endsWith(registrationIdTemplateVariable)) {
 						authorizationRequestBaseUri = authorizationRequestPattern.substring(
-							0, authorizationRequestPattern.length() - clientAliasTemplateVariable.length() - 1);
+							0, authorizationRequestPattern.length() - registrationIdTemplateVariable.length() - 1);
 					} else {
 						authorizationRequestBaseUri = authorizationRequestPattern;
 					}
@@ -257,7 +257,7 @@ public final class OAuth2LoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 
 				Map<String, String> oauth2AuthenticationUrlToClientName = clientRegistrationRepository.getRegistrations().stream()
 					.collect(Collectors.toMap(
-						e -> authorizationRequestBaseUri + "/" + e.getClientAlias(),
+						e -> authorizationRequestBaseUri + "/" + e.getRegistrationId(),
 						e -> e.getClientName()));
 				loginPageGeneratingFilter.setOauth2LoginEnabled(true);
 				loginPageGeneratingFilter.setOauth2AuthenticationUrlToClientName(oauth2AuthenticationUrlToClientName);

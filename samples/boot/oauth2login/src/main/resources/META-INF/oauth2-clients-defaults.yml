@@ -1,43 +1,40 @@
 security:
   oauth2:
     client:
-      google:
-        client-authentication-method: basic
-        authorization-grant-type: authorization_code
-        redirect-uri: "{scheme}://{serverName}:{serverPort}{contextPath}/oauth2/authorize/code/{clientAlias}"
-        scope: openid, profile, email, address, phone
-        authorization-uri: "https://accounts.google.com/o/oauth2/v2/auth"
-        token-uri: "https://www.googleapis.com/oauth2/v4/token"
-        user-info-uri: "https://www.googleapis.com/oauth2/v3/userinfo"
-        jwk-set-uri: "https://www.googleapis.com/oauth2/v3/certs"
-        client-name: Google
-        client-alias: google
-      github:
-        client-authentication-method: basic
-        authorization-grant-type: authorization_code
-        redirect-uri: "{scheme}://{serverName}:{serverPort}{contextPath}/oauth2/authorize/code/{clientAlias}"
-        scope: user
-        authorization-uri: "https://github.com/login/oauth/authorize"
-        token-uri: "https://github.com/login/oauth/access_token"
-        user-info-uri: "https://api.github.com/user"
-        user-name-attribute-name: "name"
-        client-name: GitHub
-        client-alias: github
-      facebook:
-        client-authentication-method: post
-        authorization-grant-type: authorization_code
-        redirect-uri: "{scheme}://{serverName}:{serverPort}{contextPath}/oauth2/authorize/code/{clientAlias}"
-        scope: public_profile, email
-        authorization-uri: "https://www.facebook.com/v2.8/dialog/oauth"
-        token-uri: "https://graph.facebook.com/v2.8/oauth/access_token"
-        user-info-uri: "https://graph.facebook.com/me"
-        user-name-attribute-name: "name"
-        client-name: Facebook
-        client-alias: facebook
-      okta:
-        client-authentication-method: basic
-        authorization-grant-type: authorization_code
-        redirect-uri: "{scheme}://{serverName}:{serverPort}{contextPath}/oauth2/authorize/code/{clientAlias}"
-        scope: openid, profile, email, address, phone
-        client-name: Okta
-        client-alias: okta
+      registrations:
+        google:
+          client-authentication-method: basic
+          authorization-grant-type: authorization_code
+          redirect-uri: "{scheme}://{serverName}:{serverPort}{contextPath}/oauth2/authorize/code/{registrationId}"
+          scope: openid, profile, email, address, phone
+          authorization-uri: "https://accounts.google.com/o/oauth2/v2/auth"
+          token-uri: "https://www.googleapis.com/oauth2/v4/token"
+          user-info-uri: "https://www.googleapis.com/oauth2/v3/userinfo"
+          jwk-set-uri: "https://www.googleapis.com/oauth2/v3/certs"
+          client-name: Google
+        github:
+          client-authentication-method: basic
+          authorization-grant-type: authorization_code
+          redirect-uri: "{scheme}://{serverName}:{serverPort}{contextPath}/oauth2/authorize/code/{registrationId}"
+          scope: user
+          authorization-uri: "https://github.com/login/oauth/authorize"
+          token-uri: "https://github.com/login/oauth/access_token"
+          user-info-uri: "https://api.github.com/user"
+          user-name-attribute-name: "name"
+          client-name: GitHub
+        facebook:
+          client-authentication-method: post
+          authorization-grant-type: authorization_code
+          redirect-uri: "{scheme}://{serverName}:{serverPort}{contextPath}/oauth2/authorize/code/{registrationId}"
+          scope: public_profile, email
+          authorization-uri: "https://www.facebook.com/v2.8/dialog/oauth"
+          token-uri: "https://graph.facebook.com/v2.8/oauth/access_token"
+          user-info-uri: "https://graph.facebook.com/me"
+          user-name-attribute-name: "name"
+          client-name: Facebook
+        okta:
+          client-authentication-method: basic
+          authorization-grant-type: authorization_code
+          redirect-uri: "{scheme}://{serverName}:{serverPort}{contextPath}/oauth2/authorize/code/{registrationId}"
+          scope: openid, profile, email, address, phone
+          client-name: Okta

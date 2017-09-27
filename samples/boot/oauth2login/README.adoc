@@ -67,7 +67,7 @@ and have granted access to the OAuth Client _(created from the <<google-login-re
 
 For the sub-section, *_"Set a redirect URI"_*, ensure the *Authorised redirect URIs* is set to *http://localhost:8080/oauth2/authorize/code/google*
 
-TIP: The default redirect URI is *_"{scheme}://{serverName}:{serverPort}/oauth2/authorize/code/{clientAlias}"_*.
+TIP: The default redirect URI is *_"{scheme}://{serverName}:{serverPort}/oauth2/authorize/code/{registrationId}"_*.
  See <<oauth2-client-properties, OAuth client properties>> for more details on this default.
 
 [[google-login-configure-application-yml]]
@@ -93,7 +93,7 @@ Replace *${client-id}* and *${client-secret}* with the OAuth 2.0 credentials cre
 .OAuth client properties
 ====
 . *security.oauth2.client* is the *_base property prefix_* for OAuth client properties.
-. Just below the *_base property prefix_* is the *_client property key_*, for example *security.oauth2.client.google*.
+. Just below the *_base property prefix_* is the *_client property key_*, for example *security.oauth2.client.registrations.google*.
 . At the base of the *_client property key_* are the properties for specifying the configuration for an OAuth Client.
  A list of these properties are detailed in <<oauth2-client-properties, OAuth client properties>>.
 ====
@@ -133,7 +133,7 @@ While registering your application, ensure the *Authorization callback URL* is s
 NOTE: The *Authorization callback URL* (or redirect URI) is the path in the sample application that the end-user's user-agent is redirected back to after they have authenticated with GitHub
  and have granted access to the OAuth application on the *Authorize application* page.
 
-TIP: The default redirect URI is *_"{scheme}://{serverName}:{serverPort}/oauth2/authorize/code/{clientAlias}"_*.
+TIP: The default redirect URI is *_"{scheme}://{serverName}:{serverPort}/oauth2/authorize/code/{registrationId}"_*.
  See <<oauth2-client-properties, OAuth client properties>> for more details on this default.
 
 After completing the registration, you should have created a new *OAuth Application* with credentials consisting of a *Client ID* and *Client Secret*.
@@ -161,7 +161,7 @@ Replace *${client-id}* and *${client-secret}* with the OAuth 2.0 credentials cre
 .OAuth client properties
 ====
 . *security.oauth2.client* is the *_base property prefix_* for OAuth client properties.
-. Just below the *_base property prefix_* is the *_client property key_*, for example *security.oauth2.client.github*.
+. Just below the *_base property prefix_* is the *_client property key_*, for example *security.oauth2.client.registrations.github*.
 . At the base of the *_client property key_* are the properties for specifying the configuration for an OAuth Client.
  A list of these properties are detailed in <<oauth2-client-properties, OAuth client properties>>.
 ====
@@ -210,7 +210,7 @@ For the field *Valid OAuth redirect URIs*, enter *http://localhost:8080/oauth2/a
 NOTE: The *OAuth redirect URI* is the path in the sample application that the end-user's user-agent is redirected back to after they have authenticated with Facebook
  and have granted access to the application on the *Authorize application* page.
 
-TIP: The default redirect URI is *_"{scheme}://{serverName}:{serverPort}/oauth2/authorize/code/{clientAlias}"_*.
+TIP: The default redirect URI is *_"{scheme}://{serverName}:{serverPort}/oauth2/authorize/code/{registrationId}"_*.
  See <<oauth2-client-properties, OAuth client properties>> for more details on this default.
 
 Your application has now been assigned new OAuth 2.0 credentials under *App ID* and *App Secret*.
@@ -238,7 +238,7 @@ Replace *${app-id}* and *${app-secret}* with the OAuth 2.0 credentials created i
 .OAuth client properties
 ====
 . *security.oauth2.client* is the *_base property prefix_* for OAuth client properties.
-. Just below the *_base property prefix_* is the *_client property key_*, for example *security.oauth2.client.facebook*.
+. Just below the *_base property prefix_* is the *_client property key_*, for example *security.oauth2.client.registrations.facebook*.
 . At the base of the *_client property key_* are the properties for specifying the configuration for an OAuth Client.
  A list of these properties are detailed in <<oauth2-client-properties, OAuth client properties>>.
 ====
@@ -285,7 +285,7 @@ On the _"Configure OpenID Connect"_ page, enter *http://localhost:8080/oauth2/au
 NOTE: The *Redirect URI* is the path in the sample application that the end-user's user-agent is redirected back to after they have authenticated with Okta
  and have granted access to the application on the *Authorize application* page.
 
-TIP: The default redirect URI is *_"{scheme}://{serverName}:{serverPort}/oauth2/authorize/code/{clientAlias}"_*.
+TIP: The default redirect URI is *_"{scheme}://{serverName}:{serverPort}/oauth2/authorize/code/{registrationId}"_*.
  See <<oauth2-client-properties, OAuth client properties>> for more details on this default.
 
 The next page presented displays the _"General"_ tab selected for the application.
@@ -326,7 +326,7 @@ As well, replace *${account-subdomain}* in _authorization-uri_, _token-uri_, _us
 .OAuth client properties
 ====
 . *security.oauth2.client* is the *_base property prefix_* for OAuth client properties.
-. Just below the *_base property prefix_* is the *_client property key_*, for example *security.oauth2.client.okta*.
+. Just below the *_base property prefix_* is the *_client property key_*, for example *security.oauth2.client.registrations.okta*.
 . At the base of the *_client property key_* are the properties for specifying the configuration for an OAuth Client.
  A list of these properties are detailed in <<oauth2-client-properties, OAuth client properties>>.
 ====
@@ -425,7 +425,7 @@ The following provides an overview of the Spring Boot auto-configuration classes
 *_org.springframework.boot.autoconfigure.security.oauth2.client.ClientRegistrationAutoConfiguration_*::
 `ClientRegistrationAutoConfiguration` is responsible for registering a `ClientRegistrationRepository` _bean_ with the `ApplicationContext`.
 The `ClientRegistrationRepository` is composed of one or more `ClientRegistration` instances, which are created from the OAuth client properties
-configured in the `Environment` that are prefixed with `security.oauth2.client.[client-key]`, for example, `security.oauth2.client.google`.
+configured in the `Environment` that are prefixed with `security.oauth2.client.registrations.[registration-id]`, for example, `security.oauth2.client.registrations.google`.
 
 NOTE: `ClientRegistrationAutoConfiguration` also loads a _resource_ named *oauth2-clients-defaults.yml*,
  which provides a set of default client property values for a number of _well-known_ Providers.
@@ -446,7 +446,7 @@ The following specifies the common set of properties available for configuring a
 [TIP]
 ====
 - *security.oauth2.client* is the *_base property prefix_* for OAuth client properties.
-- Just below the *_base property prefix_* is the *_client property key_*, for example *security.oauth2.client.google*.
+- Just below the *_base property prefix_* is the *_client property key_*, for example *security.oauth2.client.registrations.google*.
 - At the base of the *_client property key_* are the properties for specifying the configuration for an OAuth Client.
 ====
 
@@ -456,7 +456,7 @@ The following specifies the common set of properties available for configuring a
 - *redirect-uri* - this is the client's _registered_ redirect URI that the _Authorization Server_ redirects the end-user's user-agent
  to after the end-user has authenticated and authorized access for the client.
 
-NOTE: The default redirect URI is _"{scheme}://{serverName}:{serverPort}/oauth2/authorize/code/{clientAlias}"_, which leverages *URI template variables*.
+NOTE: The default redirect URI is _"{scheme}://{serverName}:{serverPort}/oauth2/authorize/code/{registrationId}"_, which leverages *URI template variables*.
 
 - *scopes* - a comma-delimited string of scope(s) requested during the _Authorization Request_ flow, for example: _openid, email, profile_
 
@@ -477,7 +477,7 @@ IMPORTANT: Standard _OAuth 2.0 Provider's_ may vary the naming of their *Name* a
  This is a *_required_* property for `DefaultOAuth2User`.
 
 - *client-name* - this is a descriptive name used for the client. The name may be used in certain scenarios, for example, when displaying the name of the client in the _auto-generated login page_.
-- *client-alias* - an _alias_ which uniquely identifies the client. It *must be* unique within a `ClientRegistrationRepository`.
+- *registration-id* - an _id_ which uniquely identifies the client registration. It *must be* unique within a `ClientRegistrationRepository`.
 
 [[oauth2-default-client-properties]]
 === Default client property values
@@ -499,41 +499,37 @@ security:
       google:
         client-authentication-method: basic
         authorized-grant-type: authorization_code
-        redirect-uri: "{scheme}://{serverName}:{serverPort}{baseAuthorizeUri}/{clientAlias}"
+        redirect-uri: "{scheme}://{serverName}:{serverPort}{baseAuthorizeUri}/{registrationId}"
         scopes: openid, email, profile
         authorization-uri: "https://accounts.google.com/o/oauth2/auth"
         token-uri: "https://accounts.google.com/o/oauth2/token"
         user-info-uri: "https://www.googleapis.com/oauth2/v3/userinfo"
         jwk-set-uri: https://www.googleapis.com/oauth2/v3/certs
         client-name: Google
-        client-alias: google
       github:
         client-authentication-method: basic
         authorized-grant-type: authorization_code
-        redirect-uri: "{scheme}://{serverName}:{serverPort}{baseAuthorizeUri}/{clientAlias}"
+        redirect-uri: "{scheme}://{serverName}:{serverPort}{baseAuthorizeUri}/{registrationId}"
         scopes: user
         authorization-uri: "https://github.com/login/oauth/authorize"
         token-uri: "https://github.com/login/oauth/access_token"
         user-info-uri: "https://api.github.com/user"
         client-name: GitHub
-        client-alias: github
       facebook:
         client-authentication-method: post
         authorized-grant-type: authorization_code
-        redirect-uri: "{scheme}://{serverName}:{serverPort}{baseAuthorizeUri}/{clientAlias}"
+        redirect-uri: "{scheme}://{serverName}:{serverPort}{baseAuthorizeUri}/{registrationId}"
         scopes: public_profile, email
         authorization-uri: "https://www.facebook.com/v2.8/dialog/oauth"
         token-uri: "https://graph.facebook.com/v2.8/oauth/access_token"
         user-info-uri: "https://graph.facebook.com/me"
         client-name: Facebook
-        client-alias: facebook
       okta:
         client-authentication-method: basic
         authorized-grant-type: authorization_code
-        redirect-uri: "{scheme}://{serverName}:{serverPort}{baseAuthorizeUri}/{clientAlias}"
+        redirect-uri: "{scheme}://{serverName}:{serverPort}{baseAuthorizeUri}/{registrationId}"
         scopes: openid, email, profile
         client-name: Okta
-        client-alias: okta
 ----
 
 = Appendix
@@ -552,18 +548,17 @@ Let's assume we have a _properties file_ named *oauth2-clients.properties* on th
 .oauth2-clients.properties
 [source,properties]
 ----
-security.oauth2.client.google.client-id=${client-id}
-security.oauth2.client.google.client-secret=${client-secret}
-security.oauth2.client.google.client-authentication-method=basic
-security.oauth2.client.google.authorized-grant-type=authorization_code
-security.oauth2.client.google.redirect-uri=http://localhost:8080/oauth2/authorize/code/google
-security.oauth2.client.google.scopes=openid,email,profile
-security.oauth2.client.google.authorization-uri=https://accounts.google.com/o/oauth2/auth
-security.oauth2.client.google.token-uri=https://accounts.google.com/o/oauth2/token
-security.oauth2.client.google.user-info-uri=https://www.googleapis.com/oauth2/v3/userinfo
-security.oauth2.client.google.jwk-set-uri=https://www.googleapis.com/oauth2/v3/certs
-security.oauth2.client.google.client-name=Google
-security.oauth2.client.google.client-alias=google
+security.oauth2.client.registrations.google.client-id=${client-id}
+security.oauth2.client.registrations.google.client-secret=${client-secret}
+security.oauth2.client.registrations.google.client-authentication-method=basic
+security.oauth2.client.registrations.google.authorized-grant-type=authorization_code
+security.oauth2.client.registrations.google.redirect-uri=http://localhost:8080/oauth2/authorize/code/google
+security.oauth2.client.registrations.google.scopes=openid,email,profile
+security.oauth2.client.registrations.google.authorization-uri=https://accounts.google.com/o/oauth2/auth
+security.oauth2.client.registrations.google.token-uri=https://accounts.google.com/o/oauth2/token
+security.oauth2.client.registrations.google.user-info-uri=https://www.googleapis.com/oauth2/v3/userinfo
+security.oauth2.client.registrations.google.jwk-set-uri=https://www.googleapis.com/oauth2/v3/certs
+security.oauth2.client.registrations.google.client-name=Google
 ----
 
 The following _security configuration_ will enable OAuth 2.0 Login using _Google_ as the _Authentication Provider_:
@@ -592,12 +587,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Bean
 	public ClientRegistrationRepository clientRegistrationRepository() {
 		List<ClientRegistration> clientRegistrations = Collections.singletonList(
-			clientRegistration("security.oauth2.client.google."));
+			clientRegistration("security.oauth2.client.registrations.google."));
 
 		return new InMemoryClientRegistrationRepository(clientRegistrations);
 	}
 
 	private ClientRegistration clientRegistration(String clientPropertyKey) {
+		String registrationId = this.environment.getProperty(clientPropertyKey + "registration-id");
 		String clientId = this.environment.getProperty(clientPropertyKey + "client-id");
 		String clientSecret = this.environment.getProperty(clientPropertyKey + "client-secret");
 		ClientAuthenticationMethod clientAuthenticationMethod = new ClientAuthenticationMethod(
@@ -611,9 +607,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		String userInfoUri = this.environment.getProperty(clientPropertyKey + "user-info-uri");
 		String jwkSetUri = this.environment.getProperty(clientPropertyKey + "jwk-set-uri");
 		String clientName = this.environment.getProperty(clientPropertyKey + "client-name");
-		String clientAlias = this.environment.getProperty(clientPropertyKey + "client-alias");
 
-		return new ClientRegistration.Builder(clientId)
+		return new ClientRegistration.Builder(registrationId)
+			.clientId(clientId)
 			.clientSecret(clientSecret)
 			.clientAuthenticationMethod(clientAuthenticationMethod)
 			.authorizedGrantType(authorizationGrantType)
@@ -624,7 +620,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.userInfoUri(userInfoUri)
 			.jwkSetUri(jwkSetUri)
 			.clientName(clientName)
-			.clientAlias(clientAlias)
 			.build();
 	}
 }
