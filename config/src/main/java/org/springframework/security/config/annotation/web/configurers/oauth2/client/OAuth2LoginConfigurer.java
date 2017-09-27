@@ -20,14 +20,14 @@ import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationToken;
-import org.springframework.security.oauth2.client.web.AuthorizationCodeRequestRedirectFilter;
-import org.springframework.security.oauth2.client.web.AuthorizationGrantTokenExchanger;
-import org.springframework.security.oauth2.client.web.AuthorizationRequestUriBuilder;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.client.token.SecurityTokenRepository;
 import org.springframework.security.oauth2.client.user.OAuth2UserService;
+import org.springframework.security.oauth2.client.web.AuthorizationCodeRequestRedirectFilter;
+import org.springframework.security.oauth2.client.web.AuthorizationGrantTokenExchanger;
+import org.springframework.security.oauth2.client.web.AuthorizationRequestUriBuilder;
 import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
@@ -191,13 +191,6 @@ public final class OAuth2LoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 			Assert.notNull(customUserType, "customUserType cannot be null");
 			Assert.notNull(userInfoUri, "userInfoUri cannot be null");
 			OAuth2LoginConfigurer.this.authorizationCodeAuthenticationFilterConfigurer.customUserType(customUserType, userInfoUri);
-			return this;
-		}
-
-		public UserInfoEndpointConfig userNameAttributeName(String userNameAttributeName, URI userInfoUri) {
-			Assert.hasText(userNameAttributeName, "userNameAttributeName cannot be empty");
-			Assert.notNull(userInfoUri, "userInfoUri cannot be null");
-			OAuth2LoginConfigurer.this.authorizationCodeAuthenticationFilterConfigurer.userNameAttributeName(userNameAttributeName, userInfoUri);
 			return this;
 		}
 

@@ -65,7 +65,6 @@ final class AuthorizationCodeAuthenticationFilterConfigurer<H extends HttpSecuri
 	private SecurityTokenRepository<AccessToken> accessTokenRepository;
 	private OAuth2UserService userInfoService;
 	private Map<URI, Class<? extends OAuth2User>> customUserTypes = new HashMap<>();
-	private Map<URI, String> userNameAttributeNames = new HashMap<>();
 	private GrantedAuthoritiesMapper userAuthoritiesMapper;
 
 	AuthorizationCodeAuthenticationFilterConfigurer() {
@@ -105,13 +104,6 @@ final class AuthorizationCodeAuthenticationFilterConfigurer<H extends HttpSecuri
 		return this;
 	}
 
-	AuthorizationCodeAuthenticationFilterConfigurer<H, R> userNameAttributeName(String userNameAttributeName, URI userInfoUri) {
-		Assert.hasText(userNameAttributeName, "userNameAttributeName cannot be empty");
-		Assert.notNull(userInfoUri, "userInfoUri cannot be null");
-		this.userNameAttributeNames.put(userInfoUri, userNameAttributeName);
-		return this;
-	}
-
 	AuthorizationCodeAuthenticationFilterConfigurer<H, R> userAuthoritiesMapper(GrantedAuthoritiesMapper userAuthoritiesMapper) {
 		Assert.notNull(userAuthoritiesMapper, "userAuthoritiesMapper cannot be null");
 		this.userAuthoritiesMapper = userAuthoritiesMapper;
@@ -135,7 +127,6 @@ final class AuthorizationCodeAuthenticationFilterConfigurer<H extends HttpSecuri
 
 	@Override
 	public void init(H http) throws Exception {
-		this.initUserNameAttributeNames();
 		AuthorizationCodeAuthenticationProvider authenticationProvider = new AuthorizationCodeAuthenticationProvider(
 			this.getAuthorizationCodeTokenExchanger(), this.getAccessTokenRepository(),
 			this.getProviderJwtDecoderRegistry(), this.getUserInfoService());
@@ -161,20 +152,6 @@ final class AuthorizationCodeAuthenticationFilterConfigurer<H extends HttpSecuri
 	protected RequestMatcher createLoginProcessingUrlMatcher(String loginProcessingUrl) {
 		return (this.authorizationResponseMatcher != null ?
 			this.authorizationResponseMatcher : this.getAuthenticationFilter().getAuthorizationResponseMatcher());
-	}
-
-	private void initUserNameAttributeNames() {
-		OAuth2LoginConfigurer.getClientRegistrationRepository(this.getBuilder()).getRegistrations().forEach(registration -> {
-			if (StringUtils.hasText(registration.getProviderDetails().getUserInfoEndpoint().getUri()) &&
-				StringUtils.hasText(registration.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName())) {
-
-				URI userInfoUri = URI.create(registration.getProviderDetails().getUserInfoEndpoint().getUri());
-				if (!this.userNameAttributeNames.containsKey(userInfoUri)) {
-					this.userNameAttributeNames.put(
-						userInfoUri, registration.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName());
-				}
-			}
-		});
 	}
 
 	private AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> getAuthorizationCodeTokenExchanger() {
@@ -229,9 +206,7 @@ final class AuthorizationCodeAuthenticationFilterConfigurer<H extends HttpSecuri
 	private OAuth2UserService getUserInfoService() {
 		if (this.userInfoService == null) {
 			List<OAuth2UserService> oauth2UserServices = new ArrayList<>();
-			if (!this.userNameAttributeNames.isEmpty()) {
-				oauth2UserServices.add(new DefaultOAuth2UserService(this.userNameAttributeNames));
-			}
+			oauth2UserServices.add(new DefaultOAuth2UserService());
 			if (this.isOidcClientRegistered()) {
 				oauth2UserServices.add(new OidcUserService());
 			}
