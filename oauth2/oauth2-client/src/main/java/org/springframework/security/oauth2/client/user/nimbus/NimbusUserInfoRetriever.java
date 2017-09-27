@@ -48,7 +48,7 @@ public class NimbusUserInfoRetriever implements UserInfoRetriever {
 
 	@Override
 	public Map<String, Object> retrieve(OAuth2ClientAuthenticationToken clientAuthentication) throws OAuth2AuthenticationException {
-		URI userInfoUri = URI.create(clientAuthentication.getClientRegistration().getProviderDetails().getUserInfoUri());
+		URI userInfoUri = URI.create(clientAuthentication.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUri());
 		BearerAccessToken accessToken = new BearerAccessToken(clientAuthentication.getAccessToken().getTokenValue());
 
 		UserInfoRequest userInfoRequest = new UserInfoRequest(userInfoUri, accessToken);

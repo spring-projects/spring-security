@@ -42,6 +42,7 @@ public class ClientRegistrationProperties {
 	private String authorizationUri;
 	private String tokenUri;
 	private String userInfoUri;
+	private String userNameAttributeName;
 	private String jwkSetUri;
 	private String clientName;
 	private String clientAlias;
@@ -117,6 +118,14 @@ public class ClientRegistrationProperties {
 
 	public void setUserInfoUri(String userInfoUri) {
 		this.userInfoUri = userInfoUri;
+	}
+
+	public String getUserNameAttributeName() {
+		return this.userNameAttributeName;
+	}
+
+	public void setUserNameAttributeName(String userNameAttributeName) {
+		this.userNameAttributeName = userNameAttributeName;
 	}
 
 	public String getJwkSetUri() {

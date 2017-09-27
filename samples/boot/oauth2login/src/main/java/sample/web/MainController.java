@@ -49,7 +49,7 @@ public class MainController {
 		Map userAttributes = this.webClient
 			.filter(oauth2Credentials(authentication))
 			.get()
-			.uri(authentication.getClientAuthentication().getClientRegistration().getProviderDetails().getUserInfoUri())
+			.uri(authentication.getClientAuthentication().getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUri())
 			.retrieve()
 			.bodyToMono(Map.class)
 			.block();

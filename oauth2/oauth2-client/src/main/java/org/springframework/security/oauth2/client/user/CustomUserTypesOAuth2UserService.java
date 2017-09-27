@@ -56,7 +56,7 @@ public class CustomUserTypesOAuth2UserService implements OAuth2UserService {
 
 	@Override
 	public OAuth2User loadUser(OAuth2ClientAuthenticationToken clientAuthentication) throws OAuth2AuthenticationException {
-		URI userInfoUri = URI.create(clientAuthentication.getClientRegistration().getProviderDetails().getUserInfoUri());
+		URI userInfoUri = URI.create(clientAuthentication.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUri());
 		Class<? extends OAuth2User> customUserType;
 		if ((customUserType = this.getCustomUserTypes().get(userInfoUri)) == null) {
 			return null;

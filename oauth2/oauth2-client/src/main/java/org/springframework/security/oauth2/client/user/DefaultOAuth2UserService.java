@@ -66,7 +66,7 @@ public class DefaultOAuth2UserService implements OAuth2UserService {
 			return null;
 		}
 
-		URI userInfoUri = URI.create(clientAuthentication.getClientRegistration().getProviderDetails().getUserInfoUri());
+		URI userInfoUri = URI.create(clientAuthentication.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUri());
 		if (!this.getUserNameAttributeNames().containsKey(userInfoUri)) {
 			throw new IllegalArgumentException(
 				"Missing required \"user name\" attribute name for UserInfo Endpoint: " + userInfoUri.toString());

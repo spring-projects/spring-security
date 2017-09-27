@@ -135,6 +135,7 @@ final class AuthorizationCodeAuthenticationFilterConfigurer<H extends HttpSecuri
 
 	@Override
 	public void init(H http) throws Exception {
+		this.initUserNameAttributeNames();
 		AuthorizationCodeAuthenticationProvider authenticationProvider = new AuthorizationCodeAuthenticationProvider(
 			this.getAuthorizationCodeTokenExchanger(), this.getAccessTokenRepository(),
 			this.getProviderJwtDecoderRegistry(), this.getUserInfoService());
@@ -160,6 +161,20 @@ final class AuthorizationCodeAuthenticationFilterConfigurer<H extends HttpSecuri
 	protected RequestMatcher createLoginProcessingUrlMatcher(String loginProcessingUrl) {
 		return (this.authorizationResponseMatcher != null ?
 			this.authorizationResponseMatcher : this.getAuthenticationFilter().getAuthorizationResponseMatcher());
+	}
+
+	private void initUserNameAttributeNames() {
+		OAuth2LoginConfigurer.getClientRegistrationRepository(this.getBuilder()).getRegistrations().forEach(registration -> {
+			if (StringUtils.hasText(registration.getProviderDetails().getUserInfoEndpoint().getUri()) &&
+				StringUtils.hasText(registration.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName())) {
+
+				URI userInfoUri = URI.create(registration.getProviderDetails().getUserInfoEndpoint().getUri());
+				if (!this.userNameAttributeNames.containsKey(userInfoUri)) {
+					this.userNameAttributeNames.put(
+						userInfoUri, registration.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName());
+				}
+			}
+		});
 	}
 
 	private AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> getAuthorizationCodeTokenExchanger() {
@@ -192,7 +207,7 @@ final class AuthorizationCodeAuthenticationFilterConfigurer<H extends HttpSecuri
 				));
 				providerMetadata.setAuthorizationEndpoint(this.toURL(providerDetails.getAuthorizationUri()));
 				providerMetadata.setTokenEndpoint(this.toURL(providerDetails.getTokenUri()));
-				providerMetadata.setUserInfoEndpoint(this.toURL(providerDetails.getUserInfoUri()));
+				providerMetadata.setUserInfoEndpoint(this.toURL(providerDetails.getUserInfoEndpoint().getUri()));
 				providerMetadata.setJwkSetUri(this.toURL(providerDetails.getJwkSetUri()));
 				NimbusJwtDecoderJwkSupport nimbusJwtDecoderJwkSupport =
 					new NimbusJwtDecoderJwkSupport(providerDetails.getJwkSetUri());
