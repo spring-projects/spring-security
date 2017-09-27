@@ -15,6 +15,9 @@
  */
 package org.springframework.security.config.annotation.web.configurers
 
+import org.springframework.beans.factory.BeanCreationException
+import org.springframework.beans.factory.NoSuchBeanDefinitionException
+
 import javax.servlet.http.HttpServletResponse
 
 import org.springframework.context.annotation.Bean
@@ -36,19 +39,12 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc
  */
 class CorsConfigurerTests extends BaseSpringSpec {
 
-	def "HandlerMappingIntrospector default"() {
-		setup:
-		loadConfig(DefaultCorsConfig)
+	def "No MVC throws meaningful error"() {
 		when:
-		addCors()
-		springSecurityFilterChain.doFilter(request,response,chain)
+		loadConfig(DefaultCorsConfig)
 		then:
-		responseHeaders == ['X-Content-Type-Options':'nosniff',
-			'X-Frame-Options':'DENY',
-			'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate',
-			'Expires' : '0',
-			'Pragma':'no-cache',
-			'X-XSS-Protection' : '1; mode=block']
+		BeanCreationException success = thrown()
+		success.message.contains("Please ensure Spring Security & Spring MVC are configured in a shared ApplicationContext")
 	}
 
 	@EnableWebSecurity
