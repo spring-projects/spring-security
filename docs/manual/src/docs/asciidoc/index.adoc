@@ -6733,6 +6733,64 @@ NOTE: Spring Security provides the configuration using Spring MVC's http://docs.
 Spring Security provides deep integration with how Spring MVC matches on URLs with `MvcRequestMatcher`.
 This is helpful to ensure your Security rules match the logic used to handle your requests.
 
+In order to use `MvcRequestMatcher` you must place the Spring Security Configuration in the same `ApplicationContext` as your `DispatcherServlet`.
+This is necessary because Spring Security's `MvcRequestMatcher` expects a `HandlerMappingIntrospector` bean with the name of `mvcHandlerMappingIntrospector` to be registered by your Spring MVC configuration that is used to perform the matching.
+
+For a `web.xml` this means that you should place your configuration in the `DispatcherServlet.xml`.
+
+[source,xml]
+----
+<listener>
+  <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+</listener>
+
+<!-- All Spring Configuration (both MVC and Security) are in /WEB-INF/spring/ -->
+<context-param>
+  <param-name>contextConfigLocation</param-name>
+  <param-value>/WEB-INF/spring/*.xml</param-value>
+</context-param>
+
+<servlet>
+  <servlet-name>spring</servlet-name>
+  <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+  <!-- Load from the ContextLoaderListener -->
+  <init-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value></param-value>
+  </init-param>
+</servlet>
+
+<servlet-mapping>
+  <servlet-name>spring</servlet-name>
+  <url-pattern>/</url-pattern>
+</servlet-mapping>
+----
+
+Below `WebSecurityConfiguration` in placed in the ``DispatcherServlet``s `ApplicationContext`.
+
+[source,java]
+----
+public class SecurityInitializer extends
+    AbstractAnnotationConfigDispatcherServletInitializer {
+
+  @Override
+  protected Class<?>[] getRootConfigClasses() {
+    return null;
+  }
+
+  @Override
+  protected Class<?>[] getServletConfigClasses() {
+    return new Class[] { RootConfiguration.class,
+        WebMvcConfiguration.class };
+  }
+
+  @Override
+  protected String[] getServletMappings() {
+    return new String[] { "/" };
+  }
+}
+----
+
 [NOTE]
 ====
 It is always recommended to provide authorization rules by matching on the `HttpServletRequest` and method security.

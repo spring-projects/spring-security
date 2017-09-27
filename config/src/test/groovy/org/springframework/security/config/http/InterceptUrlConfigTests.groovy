@@ -252,6 +252,7 @@ class InterceptUrlConfigTests extends AbstractHttpConfigTests {
 			'http-basic'()
 			'intercept-url'(pattern: '/user/{un}/**', access: "#un == 'user'")
 		}
+		xml.'mvc:annotation-driven'()
 		createWebAppContext(servletContext)
 		when: 'user can access'
 		request.servletPath = '/user/user/abc'

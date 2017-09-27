@@ -12,6 +12,8 @@
  */
 package org.springframework.security.config.http
 
+import org.springframework.beans.factory.BeanCreationException
+
 import javax.servlet.http.HttpServletResponse
 
 import org.springframework.http.*
@@ -38,24 +40,17 @@ class HttpCorsConfigTests extends AbstractHttpConfigTests {
 		chain = new MockFilterChain()
 	}
 
-	def "HandlerMappingIntrospector default"() {
-		setup:
+	def "No MVC throws meaningful error"() {
+		when:
 		xml.http('entry-point-ref' : 'ep') {
 			'cors'()
 			'intercept-url'(pattern:'/**', access: 'authenticated')
 		}
 		bean('ep', Http403ForbiddenEntryPoint)
 		createAppContext()
-		when:
-		addCors()
-		springSecurityFilterChain.doFilter(request,response,chain)
 		then:
-		responseHeaders == ['X-Content-Type-Options':'nosniff',
-			'X-Frame-Options':'DENY',
-			'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate',
-			'Expires' : '0',
-			'Pragma':'no-cache',
-			'X-XSS-Protection' : '1; mode=block']
+		BeanCreationException success = thrown()
+		success.message.contains("Please ensure Spring Security & Spring MVC are configured in a shared ApplicationContext")
 	}
 
 	def "HandlerMappingIntrospector explicit"() {

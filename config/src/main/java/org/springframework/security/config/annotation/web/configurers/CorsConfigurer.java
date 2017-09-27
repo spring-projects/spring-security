@@ -15,6 +15,7 @@
  */
 package org.springframework.security.config.annotation.web.configurers;
 
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -98,7 +99,9 @@ public class CorsConfigurer<H extends HttpSecurityBuilder<H>>
 		return null;
 	}
 
+
 	static class MvcCorsFilter {
+		private static final String HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME = "mvcHandlerMappingIntrospector";
 		/**
 		 * This needs to be isolated into a separate class as Spring MVC is an optional
 		 * dependency and will potentially cause ClassLoading issues
@@ -106,8 +109,11 @@ public class CorsConfigurer<H extends HttpSecurityBuilder<H>>
 		 * @return
 		 */
 		private static CorsFilter getMvcCorsFilter(ApplicationContext context) {
-			HandlerMappingIntrospector mappingIntrospector = new HandlerMappingIntrospector(
-					context);
+			if(!context.containsBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME)) {
+				throw new NoSuchBeanDefinitionException(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME, "A Bean named " + HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME +" of type " + HandlerMappingIntrospector.class.getName()
+						+ " is required to use MvcRequestMatcher. Please ensure Spring Security & Spring MVC are configured in a shared ApplicationContext.");
+			}
+			HandlerMappingIntrospector mappingIntrospector = context.getBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME, HandlerMappingIntrospector.class);
 			return new CorsFilter(mappingIntrospector);
 		}
 	}
