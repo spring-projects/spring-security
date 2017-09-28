@@ -64,26 +64,26 @@ public class AuthorizationCodeRequestRedirectFilter extends OncePerRequestFilter
 	public static final String DEFAULT_AUTHORIZATION_REQUEST_BASE_URI = "/oauth2/authorization/code";
 	public static final String REGISTRATION_ID_URI_VARIABLE_NAME = "registrationId";
 	public static final String DEFAULT_AUTHORIZATION_REQUEST_URI = DEFAULT_AUTHORIZATION_REQUEST_BASE_URI + "/{" + REGISTRATION_ID_URI_VARIABLE_NAME + "}";
-	private RequestMatcher authorizationRequestMatcher;
+	private RequestMatcher authorizationRequestMatcher = new AntPathRequestMatcher(DEFAULT_AUTHORIZATION_REQUEST_URI);
 	private final ClientRegistrationRepository clientRegistrationRepository;
-	private final AuthorizationRequestUriBuilder authorizationUriBuilder;
+	private AuthorizationRequestUriBuilder authorizationUriBuilder = new DefaultAuthorizationRequestUriBuilder();
 	private final RedirectStrategy authorizationRedirectStrategy = new DefaultRedirectStrategy();
 	private final StringKeyGenerator stateGenerator = new DefaultStateGenerator();
 	private AuthorizationRequestRepository authorizationRequestRepository = new HttpSessionAuthorizationRequestRepository();
 
-	public AuthorizationCodeRequestRedirectFilter(ClientRegistrationRepository clientRegistrationRepository,
-													AuthorizationRequestUriBuilder authorizationUriBuilder) {
-
+	public AuthorizationCodeRequestRedirectFilter(ClientRegistrationRepository clientRegistrationRepository) {
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
-		Assert.notNull(authorizationUriBuilder, "authorizationUriBuilder cannot be null");
-		this.authorizationRequestMatcher = new AntPathRequestMatcher(DEFAULT_AUTHORIZATION_REQUEST_URI);
 		this.clientRegistrationRepository = clientRegistrationRepository;
-		this.authorizationUriBuilder = authorizationUriBuilder;
 	}
 
 	public final <T extends RequestMatcher & RequestVariablesExtractor> void setAuthorizationRequestMatcher(T authorizationRequestMatcher) {
 		Assert.notNull(authorizationRequestMatcher, "authorizationRequestMatcher cannot be null");
 		this.authorizationRequestMatcher = authorizationRequestMatcher;
+	}
+
+	public final void setAuthorizationUriBuilder(AuthorizationRequestUriBuilder authorizationUriBuilder) {
+		Assert.notNull(authorizationUriBuilder, "authorizationUriBuilder cannot be null");
+		this.authorizationUriBuilder = authorizationUriBuilder;
 	}
 
 	public final void setAuthorizationRequestRepository(AuthorizationRequestRepository authorizationRequestRepository) {

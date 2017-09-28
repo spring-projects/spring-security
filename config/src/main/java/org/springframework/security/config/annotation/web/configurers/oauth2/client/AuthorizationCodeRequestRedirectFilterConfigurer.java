@@ -59,9 +59,12 @@ final class AuthorizationCodeRequestRedirectFilterConfigurer<H extends HttpSecur
 	@Override
 	public void configure(H http) throws Exception {
 		AuthorizationCodeRequestRedirectFilter filter = new AuthorizationCodeRequestRedirectFilter(
-				OAuth2LoginConfigurer.getClientRegistrationRepository(this.getBuilder()), this.getAuthorizationRequestBuilder());
+				OAuth2LoginConfigurer.getClientRegistrationRepository(this.getBuilder()));
 		if (this.authorizationRequestMatcher != null) {
 			filter.setAuthorizationRequestMatcher(this.authorizationRequestMatcher);
+		}
+		if (this.authorizationRequestBuilder != null) {
+			filter.setAuthorizationUriBuilder(this.authorizationRequestBuilder);
 		}
 		http.addFilter(this.postProcess(filter));
 	}

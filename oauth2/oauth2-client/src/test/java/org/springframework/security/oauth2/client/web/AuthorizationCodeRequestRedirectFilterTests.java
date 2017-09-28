@@ -30,8 +30,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 /**
  * Tests {@link AuthorizationCodeRequestRedirectFilter}.
  *
@@ -41,12 +39,7 @@ public class AuthorizationCodeRequestRedirectFilterTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorWhenClientRegistrationRepositoryIsNullThenThrowIllegalArgumentException() {
-		new AuthorizationCodeRequestRedirectFilter(null, Mockito.mock(AuthorizationRequestUriBuilder.class));
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void constructorWhenAuthorizationRequestUriBuilderIsNullThenThrowIllegalArgumentException() {
-		new AuthorizationCodeRequestRedirectFilter(Mockito.mock(ClientRegistrationRepository.class), null);
+		new AuthorizationCodeRequestRedirectFilter(null);
 	}
 
 	@Test
@@ -134,9 +127,8 @@ public class AuthorizationCodeRequestRedirectFilterTests {
 																ClientRegistration... clientRegistrations) throws Exception {
 
 		ClientRegistrationRepository clientRegistrationRepository = TestUtil.clientRegistrationRepository(clientRegistrations);
-
-		AuthorizationCodeRequestRedirectFilter filter = new AuthorizationCodeRequestRedirectFilter(
-															clientRegistrationRepository, authorizationUriBuilder);
+		AuthorizationCodeRequestRedirectFilter filter = new AuthorizationCodeRequestRedirectFilter(clientRegistrationRepository);
+		filter.setAuthorizationUriBuilder(authorizationUriBuilder);
 
 		return filter;
 	}
