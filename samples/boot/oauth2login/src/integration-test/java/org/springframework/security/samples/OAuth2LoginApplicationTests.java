@@ -36,13 +36,14 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.client.web.AuthorizationCodeAuthenticationProcessingFilter;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationToken;
-import org.springframework.security.oauth2.client.web.AuthorizationCodeRequestRedirectFilter;
-import org.springframework.security.oauth2.client.web.AuthorizationGrantTokenExchanger;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.client.user.OAuth2UserService;
+import org.springframework.security.oauth2.client.web.AuthorizationCodeAuthenticationProcessingFilter;
+import org.springframework.security.oauth2.client.web.AuthorizationCodeRequestRedirectFilter;
+import org.springframework.security.oauth2.client.web.AuthorizationGrantTokenExchanger;
 import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.endpoint.OAuth2Parameter;
@@ -57,7 +58,14 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -83,6 +91,8 @@ public class OAuth2LoginApplicationTests {
 	private WebClient webClient;
 
 	@Autowired
+	private ClientRegistration[] clientRegistrations;
+
 	private ClientRegistrationRepository clientRegistrationRepository;
 
 	private ClientRegistration googleClientRegistration;
@@ -93,6 +103,7 @@ public class OAuth2LoginApplicationTests {
 	@Before
 	public void setup() {
 		this.webClient.getCookieManager().clearCookies();
+		this.clientRegistrationRepository = new InMemoryClientRegistrationRepository(Arrays.asList(this.clientRegistrations));
 		this.googleClientRegistration = this.clientRegistrationRepository.findByRegistrationId("google");
 		this.githubClientRegistration = this.clientRegistrationRepository.findByRegistrationId("github");
 		this.facebookClientRegistration = this.clientRegistrationRepository.findByRegistrationId("facebook");

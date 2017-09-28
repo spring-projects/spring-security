@@ -37,6 +37,4 @@ public interface ClientRegistrationRepository {
 
 	ClientRegistration findByRegistrationId(String registrationId);
 
-	List<ClientRegistration> getRegistrations();
-
 }

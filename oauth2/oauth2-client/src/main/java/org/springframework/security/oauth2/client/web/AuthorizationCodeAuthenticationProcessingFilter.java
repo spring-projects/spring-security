@@ -192,7 +192,6 @@ public class AuthorizationCodeAuthenticationProcessingFilter extends AbstractAut
 
 	public final void setClientRegistrationRepository(ClientRegistrationRepository clientRegistrationRepository) {
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
-		Assert.notEmpty(clientRegistrationRepository.getRegistrations(), "clientRegistrationRepository cannot be empty");
 		this.clientRegistrationRepository = clientRegistrationRepository;
 	}
 

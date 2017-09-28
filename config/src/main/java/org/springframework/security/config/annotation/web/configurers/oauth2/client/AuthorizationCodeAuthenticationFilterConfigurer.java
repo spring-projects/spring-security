@@ -18,13 +18,10 @@ package org.springframework.security.config.annotation.web.configurers.oauth2.cl
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
-import org.springframework.security.jwt.JwtDecoder;
-import org.springframework.security.jwt.nimbus.NimbusJwtDecoderJwkSupport;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationProvider;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationToken;
-import org.springframework.security.oauth2.client.authentication.jwt.DefaultProviderJwtDecoderRegistry;
-import org.springframework.security.oauth2.client.authentication.jwt.ProviderJwtDecoderRegistry;
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.authentication.jwt.JwtDecoderRegistry;
+import org.springframework.security.oauth2.client.authentication.jwt.nimbus.NimbusJwtDecoderRegistry;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.token.InMemoryAccessTokenRepository;
 import org.springframework.security.oauth2.client.token.SecurityTokenRepository;
@@ -36,19 +33,13 @@ import org.springframework.security.oauth2.client.web.AuthorizationCodeAuthentic
 import org.springframework.security.oauth2.client.web.AuthorizationGrantTokenExchanger;
 import org.springframework.security.oauth2.client.web.nimbus.NimbusAuthorizationCodeTokenExchanger;
 import org.springframework.security.oauth2.core.AccessToken;
-import org.springframework.security.oauth2.core.provider.DefaultProviderMetadata;
-import org.springframework.security.oauth2.core.provider.ProviderMetadata;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.oidc.client.user.OidcUserService;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.matcher.RequestVariablesExtractor;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -63,6 +54,7 @@ final class AuthorizationCodeAuthenticationFilterConfigurer<H extends HttpSecuri
 	private R authorizationResponseMatcher;
 	private AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger;
 	private SecurityTokenRepository<AccessToken> accessTokenRepository;
+	private JwtDecoderRegistry jwtDecoderRegistry;
 	private OAuth2UserService userInfoService;
 	private Map<URI, Class<? extends OAuth2User>> customUserTypes = new HashMap<>();
 	private GrantedAuthoritiesMapper userAuthoritiesMapper;
@@ -91,6 +83,12 @@ final class AuthorizationCodeAuthenticationFilterConfigurer<H extends HttpSecuri
 		return this;
 	}
 
+	AuthorizationCodeAuthenticationFilterConfigurer<H, R> jwtDecoderRegistry(JwtDecoderRegistry jwtDecoderRegistry) {
+		Assert.notNull(jwtDecoderRegistry, "jwtDecoderRegistry cannot be null");
+		this.jwtDecoderRegistry = jwtDecoderRegistry;
+		return this;
+	}
+
 	AuthorizationCodeAuthenticationFilterConfigurer<H, R> userInfoService(OAuth2UserService userInfoService) {
 		Assert.notNull(userInfoService, "userInfoService cannot be null");
 		this.userInfoService = userInfoService;
@@ -112,7 +110,6 @@ final class AuthorizationCodeAuthenticationFilterConfigurer<H extends HttpSecuri
 
 	AuthorizationCodeAuthenticationFilterConfigurer<H, R> clientRegistrationRepository(ClientRegistrationRepository clientRegistrationRepository) {
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
-		Assert.notEmpty(clientRegistrationRepository.getRegistrations(), "clientRegistrationRepository cannot be empty");
 		this.getBuilder().setSharedObject(ClientRegistrationRepository.class, clientRegistrationRepository);
 		return this;
 	}
@@ -129,7 +126,7 @@ final class AuthorizationCodeAuthenticationFilterConfigurer<H extends HttpSecuri
 	public void init(H http) throws Exception {
 		AuthorizationCodeAuthenticationProvider authenticationProvider = new AuthorizationCodeAuthenticationProvider(
 			this.getAuthorizationCodeTokenExchanger(), this.getAccessTokenRepository(),
-			this.getProviderJwtDecoderRegistry(), this.getUserInfoService());
+			this.getJwtDecoderRegistry(), this.getUserInfoService());
 		if (this.userAuthoritiesMapper != null) {
 			authenticationProvider.setAuthoritiesMapper(this.userAuthoritiesMapper);
 		}
@@ -168,64 +165,23 @@ final class AuthorizationCodeAuthenticationFilterConfigurer<H extends HttpSecuri
 		return this.accessTokenRepository;
 	}
 
-	private ProviderJwtDecoderRegistry getProviderJwtDecoderRegistry() {
-		Map<ProviderMetadata, JwtDecoder> jwtDecoders = new HashMap<>();
-		ClientRegistrationRepository clientRegistrationRepository = OAuth2LoginConfigurer.getClientRegistrationRepository(this.getBuilder());
-		clientRegistrationRepository.getRegistrations().forEach(registration -> {
-			ClientRegistration.ProviderDetails providerDetails = registration.getProviderDetails();
-			if (StringUtils.hasText(providerDetails.getJwkSetUri())) {
-				DefaultProviderMetadata providerMetadata = new DefaultProviderMetadata();
-				// Default the Issuer to the host of the Authorization Endpoint
-				providerMetadata.setIssuer(this.toURL(
-					UriComponentsBuilder
-						.fromHttpUrl(providerDetails.getAuthorizationUri())
-						.replacePath(null)
-						.toUriString()
-				));
-				providerMetadata.setAuthorizationEndpoint(this.toURL(providerDetails.getAuthorizationUri()));
-				providerMetadata.setTokenEndpoint(this.toURL(providerDetails.getTokenUri()));
-				providerMetadata.setUserInfoEndpoint(this.toURL(providerDetails.getUserInfoEndpoint().getUri()));
-				providerMetadata.setJwkSetUri(this.toURL(providerDetails.getJwkSetUri()));
-				NimbusJwtDecoderJwkSupport nimbusJwtDecoderJwkSupport =
-					new NimbusJwtDecoderJwkSupport(providerDetails.getJwkSetUri());
-				jwtDecoders.put(providerMetadata, nimbusJwtDecoderJwkSupport);
-			}
-		});
-		return new DefaultProviderJwtDecoderRegistry(jwtDecoders);
-	}
-
-	private boolean isOidcClientRegistered() {
-		ClientRegistrationRepository clientRegistrationRepository = OAuth2LoginConfigurer.getClientRegistrationRepository(this.getBuilder());
-		return clientRegistrationRepository.getRegistrations()
-			.stream()
-			.anyMatch(registration ->
-				registration.getScope().stream().anyMatch(scope -> scope.equalsIgnoreCase("openid")));
-
+	private JwtDecoderRegistry getJwtDecoderRegistry() {
+		if (this.jwtDecoderRegistry == null) {
+			this.jwtDecoderRegistry = new NimbusJwtDecoderRegistry();
+		}
+		return this.jwtDecoderRegistry;
 	}
 
 	private OAuth2UserService getUserInfoService() {
 		if (this.userInfoService == null) {
 			List<OAuth2UserService> oauth2UserServices = new ArrayList<>();
 			oauth2UserServices.add(new DefaultOAuth2UserService());
-			if (this.isOidcClientRegistered()) {
-				oauth2UserServices.add(new OidcUserService());
-			}
+			oauth2UserServices.add(new OidcUserService());
 			if (!this.customUserTypes.isEmpty()) {
 				oauth2UserServices.add(new CustomUserTypesOAuth2UserService(this.customUserTypes));
 			}
 			this.userInfoService = new DelegatingOAuth2UserService(oauth2UserServices);
 		}
 		return this.userInfoService;
-	}
-
-	private URL toURL(String urlStr) {
-		if (!StringUtils.hasText(urlStr)) {
-			return null;
-		}
-		try {
-			return new URL(urlStr);
-		} catch (MalformedURLException ex) {
-			throw new IllegalArgumentException("Failed to convert '" + urlStr + "' to a URL: " + ex.getMessage(), ex);
-		}
 	}
 }

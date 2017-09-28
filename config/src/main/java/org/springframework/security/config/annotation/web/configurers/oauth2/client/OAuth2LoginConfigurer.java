@@ -15,7 +15,9 @@
  */
 package org.springframework.security.config.annotation.web.configurers.oauth2.client;
 
+import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.ResolvableType;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
@@ -40,7 +42,10 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -70,12 +75,12 @@ public final class OAuth2LoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 
 	public OAuth2LoginConfigurer<H> clients(ClientRegistration... clientRegistrations) {
 		Assert.notEmpty(clientRegistrations, "clientRegistrations cannot be empty");
+		this.getBuilder().setSharedObject(ClientRegistration[].class, clientRegistrations);
 		return this.clients(new InMemoryClientRegistrationRepository(Arrays.asList(clientRegistrations)));
 	}
 
 	public OAuth2LoginConfigurer<H> clients(ClientRegistrationRepository clientRegistrationRepository) {
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
-		Assert.notEmpty(clientRegistrationRepository.getRegistrations(), "clientRegistrationRepository cannot be empty");
 		this.getBuilder().setSharedObject(ClientRegistrationRepository.class, clientRegistrationRepository);
 		return this;
 	}
@@ -225,38 +230,81 @@ public final class OAuth2LoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 	}
 
 	private static <H extends HttpSecurityBuilder<H>> ClientRegistrationRepository getDefaultClientRegistrationRepository(H http) {
+		List<ClientRegistration> clientRegistrations = getClientRegistrations(http);
+		if (!CollectionUtils.isEmpty(clientRegistrations)) {
+			return new InMemoryClientRegistrationRepository(clientRegistrations);
+		}
 		return http.getSharedObject(ApplicationContext.class).getBean(ClientRegistrationRepository.class);
+	}
+
+	private static <H extends HttpSecurityBuilder<H>> List<ClientRegistration> getClientRegistrations(H http) {
+		ClientRegistration[] clientRegistrations = http.getSharedObject(ClientRegistration[].class);
+		if (clientRegistrations != null) {
+			return Arrays.asList(clientRegistrations);
+		}
+
+		List<ClientRegistration> clientRegistrationsList = new ArrayList<>();
+
+		// Check context for type -> Collection<ClientRegistration>
+		ResolvableType clientRegistrationsType = ResolvableType.forClassWithGenerics(
+			Collection.class, ClientRegistration.class);
+		Map<String, ?> clientRegistrationsMap = BeanFactoryUtils.beansOfTypeIncludingAncestors(
+			http.getSharedObject(ApplicationContext.class),
+			clientRegistrationsType.resolve(Collection.class));
+		clientRegistrationsMap.values().stream()
+			.filter(col -> Collection.class.isAssignableFrom(col.getClass()))
+			.filter(col -> ((Collection) col).stream()
+				.anyMatch(e -> ClientRegistration.class.isAssignableFrom(e.getClass())))
+			.flatMap(col -> ((Collection) col).stream())
+			.forEach(e -> clientRegistrationsList.add((ClientRegistration)e));
+		if (!clientRegistrationsList.isEmpty()) {
+			return clientRegistrationsList;
+		}
+
+		// Check context for type -> ClientRegistration[]
+		clientRegistrationsType = ResolvableType.forClass(ClientRegistration[].class);
+		clientRegistrationsMap = BeanFactoryUtils.beansOfTypeIncludingAncestors(
+			http.getSharedObject(ApplicationContext.class),
+			clientRegistrationsType.resolve(ClientRegistration[].class));
+		clientRegistrationsMap.values().stream()
+			.flatMap(array -> Arrays.stream((ClientRegistration[])array))
+			.forEach(clientRegistrationsList::add);
+
+		return clientRegistrationsList;
 	}
 
 	private void initDefaultLoginFilter(H http) {
 		DefaultLoginPageGeneratingFilter loginPageGeneratingFilter = http.getSharedObject(DefaultLoginPageGeneratingFilter.class);
-		if (loginPageGeneratingFilter != null && !this.authorizationCodeAuthenticationFilterConfigurer.isCustomLoginPage()) {
-			ClientRegistrationRepository clientRegistrationRepository = getClientRegistrationRepository(this.getBuilder());
-			if (!CollectionUtils.isEmpty(clientRegistrationRepository.getRegistrations())) {
-				String authorizationRequestBaseUri;
-				RequestMatcher authorizationRequestMatcher = OAuth2LoginConfigurer.this.authorizationCodeRequestRedirectFilterConfigurer.getAuthorizationRequestMatcher();
-				if (authorizationRequestMatcher != null && AntPathRequestMatcher.class.isAssignableFrom(authorizationRequestMatcher.getClass())) {
-					String authorizationRequestPattern =  ((AntPathRequestMatcher)authorizationRequestMatcher).getPattern();
-					String registrationIdTemplateVariable = "{" + REGISTRATION_ID_URI_VARIABLE_NAME + "}";
-					if (authorizationRequestPattern.endsWith(registrationIdTemplateVariable)) {
-						authorizationRequestBaseUri = authorizationRequestPattern.substring(
-							0, authorizationRequestPattern.length() - registrationIdTemplateVariable.length() - 1);
-					} else {
-						authorizationRequestBaseUri = authorizationRequestPattern;
-					}
-				} else {
-					authorizationRequestBaseUri = AuthorizationCodeRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
-				}
-
-				Map<String, String> oauth2AuthenticationUrlToClientName = clientRegistrationRepository.getRegistrations().stream()
-					.collect(Collectors.toMap(
-						e -> authorizationRequestBaseUri + "/" + e.getRegistrationId(),
-						e -> e.getClientName()));
-				loginPageGeneratingFilter.setOauth2LoginEnabled(true);
-				loginPageGeneratingFilter.setOauth2AuthenticationUrlToClientName(oauth2AuthenticationUrlToClientName);
-				loginPageGeneratingFilter.setLoginPageUrl(this.authorizationCodeAuthenticationFilterConfigurer.getLoginUrl());
-				loginPageGeneratingFilter.setFailureUrl(this.authorizationCodeAuthenticationFilterConfigurer.getLoginFailureUrl());
-			}
+		if (loginPageGeneratingFilter == null || this.authorizationCodeAuthenticationFilterConfigurer.isCustomLoginPage()) {
+			return;
 		}
+		List<ClientRegistration> clientRegistrations = getClientRegistrations(http);
+		if (CollectionUtils.isEmpty(clientRegistrations)) {
+			return;
+		}
+
+		String authorizationRequestBaseUri;
+		RequestMatcher authorizationRequestMatcher = OAuth2LoginConfigurer.this.authorizationCodeRequestRedirectFilterConfigurer.getAuthorizationRequestMatcher();
+		if (authorizationRequestMatcher != null && AntPathRequestMatcher.class.isAssignableFrom(authorizationRequestMatcher.getClass())) {
+			String authorizationRequestPattern =  ((AntPathRequestMatcher)authorizationRequestMatcher).getPattern();
+			String registrationIdTemplateVariable = "{" + REGISTRATION_ID_URI_VARIABLE_NAME + "}";
+			if (authorizationRequestPattern.endsWith(registrationIdTemplateVariable)) {
+				authorizationRequestBaseUri = authorizationRequestPattern.substring(
+					0, authorizationRequestPattern.length() - registrationIdTemplateVariable.length() - 1);
+			} else {
+				authorizationRequestBaseUri = authorizationRequestPattern;
+			}
+		} else {
+			authorizationRequestBaseUri = AuthorizationCodeRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
+		}
+
+		Map<String, String> oauth2AuthenticationUrlToClientName = clientRegistrations.stream()
+			.collect(Collectors.toMap(
+				e -> authorizationRequestBaseUri + "/" + e.getRegistrationId(),
+				e -> e.getClientName()));
+		loginPageGeneratingFilter.setOauth2LoginEnabled(true);
+		loginPageGeneratingFilter.setOauth2AuthenticationUrlToClientName(oauth2AuthenticationUrlToClientName);
+		loginPageGeneratingFilter.setLoginPageUrl(this.authorizationCodeAuthenticationFilterConfigurer.getLoginUrl());
+		loginPageGeneratingFilter.setFailureUrl(this.authorizationCodeAuthenticationFilterConfigurer.getLoginFailureUrl());
 	}
 }

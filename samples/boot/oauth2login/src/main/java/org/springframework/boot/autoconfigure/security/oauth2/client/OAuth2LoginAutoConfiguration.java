@@ -27,7 +27,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
 
 /**
  * @author Joe Grandja
@@ -36,7 +36,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 @ConditionalOnWebApplication
 @ConditionalOnClass(EnableWebSecurity.class)
 @ConditionalOnMissingBean(WebSecurityConfiguration.class)
-@ConditionalOnBean(ClientRegistrationRepository.class)
+@ConditionalOnBean(ClientRegistration[].class)
 @AutoConfigureBefore(SecurityAutoConfiguration.class)
 @AutoConfigureAfter(ClientRegistrationAutoConfiguration.class)
 public class OAuth2LoginAutoConfiguration {

@@ -17,7 +17,6 @@ package org.springframework.security.oauth2.client.registration;
 
 import org.springframework.util.Assert;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -63,10 +62,5 @@ public final class InMemoryClientRegistrationRepository implements ClientRegistr
 			.filter(registration -> registration.getRegistrationId().equals(registrationId))
 			.findFirst()
 			.orElse(null);
-	}
-
-	@Override
-	public List<ClientRegistration> getRegistrations() {
-		return new ArrayList<>(this.registrations.values());
 	}
 }
