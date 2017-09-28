@@ -15,6 +15,7 @@
  */
 package org.springframework.security.oauth2.client.web;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.keygen.StringKeyGenerator;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -148,7 +149,7 @@ public class AuthorizationCodeRequestRedirectFilter extends OncePerRequestFilter
 		if (logger.isDebugEnabled()) {
 			logger.debug("Authorization Request failed: " + failed.toString(), failed);
 		}
-		response.sendError(HttpServletResponse.SC_BAD_REQUEST, failed.getMessage());
+		response.sendError(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.getReasonPhrase());
 	}
 
 	private String expandRedirectUri(HttpServletRequest request, ClientRegistration clientRegistration) {

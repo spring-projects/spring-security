@@ -24,6 +24,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.DefaultRedirectStrategy;
@@ -74,8 +75,8 @@ public class SimpleUrlAuthenticationFailureHandler implements
 		if (defaultFailureUrl == null) {
 			logger.debug("No failure URL set, sending 401 Unauthorized error");
 
-			response.sendError(HttpServletResponse.SC_UNAUTHORIZED,
-					"Authentication Failed: " + exception.getMessage());
+			response.sendError(HttpStatus.UNAUTHORIZED.value(),
+				HttpStatus.UNAUTHORIZED.getReasonPhrase());
 		}
 		else {
 			saveException(request, exception);
