@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * A {@link ClientRegistrationRepository} that stores {@link ClientRegistration}(s) <i>in-memory</i>.
@@ -45,14 +44,6 @@ public final class InMemoryClientRegistrationRepository implements ClientRegistr
 			registrationsMap.put(identifier, registration);
 		});
 		this.registrations = Collections.unmodifiableMap(registrationsMap);
-	}
-
-	@Override
-	public List<ClientRegistration> findByClientId(String clientId) {
-		Assert.hasText(clientId, "clientId cannot be empty");
-		return this.registrations.values().stream()
-			.filter(registration -> registration.getClientId().equals(clientId))
-			.collect(Collectors.toList());
 	}
 
 	@Override

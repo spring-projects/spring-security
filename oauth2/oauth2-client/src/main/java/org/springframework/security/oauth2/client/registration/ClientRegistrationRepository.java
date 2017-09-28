@@ -15,8 +15,6 @@
  */
 package org.springframework.security.oauth2.client.registration;
 
-import java.util.List;
-
 /**
  * A repository for OAuth 2.0 / OpenID Connect 1.0 {@link ClientRegistration}'s.
  *
@@ -32,8 +30,6 @@ import java.util.List;
  * @see ClientRegistration
  */
 public interface ClientRegistrationRepository {
-
-	List<ClientRegistration> findByClientId(String clientId);
 
 	ClientRegistration findByRegistrationId(String registrationId);
 
