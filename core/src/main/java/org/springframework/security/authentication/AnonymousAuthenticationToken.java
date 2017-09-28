@@ -100,6 +100,13 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken im
 		return false;
 	}
 
+	@Override
+	public int hashCode() {
+		int result = super.hashCode();
+		result = 31 * result + this.keyHash;
+		return result;
+	}
+
 	/**
 	 * Always returns an empty <code>String</code>
 	 *

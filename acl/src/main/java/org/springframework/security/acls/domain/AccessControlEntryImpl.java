@@ -128,6 +128,18 @@ public class AccessControlEntryImpl implements AccessControlEntry,
 		return true;
 	}
 
+	@Override
+	public int hashCode() {
+		int result = this.acl.hashCode();
+		result = 31 * result + this.permission.hashCode();
+		result = 31 * result + (this.id != null ? this.id.hashCode() : 0);
+		result = 31 * result + this.sid.hashCode();
+		result = 31 * result + (this.auditFailure ? 1 : 0);
+		result = 31 * result + (this.auditSuccess ? 1 : 0);
+		result = 31 * result + (this.granting ? 1 : 0);
+		return result;
+	}
+
 	public Acl getAcl() {
 		return acl;
 	}
