@@ -17,6 +17,7 @@ package org.springframework.security.oauth2.client.registration;
 
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.security.oauth2.oidc.core.OidcScope;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
@@ -340,7 +341,10 @@ public class ClientRegistration {
 			Assert.notEmpty(this.scope, "scope cannot be empty");
 			Assert.hasText(this.authorizationUri, "authorizationUri cannot be empty");
 			Assert.hasText(this.tokenUri, "tokenUri cannot be empty");
-			Assert.hasText(this.userInfoUri, "userInfoUri cannot be empty");
+			if (!this.scope.contains(OidcScope.OPENID)) {
+				// userInfoUri is optional for OIDC Clients
+				Assert.hasText(this.userInfoUri, "userInfoUri cannot be empty");
+			}
 			Assert.hasText(this.clientName, "clientName cannot be empty");
 			Assert.hasText(this.registrationId, "registrationId cannot be empty");
 		}
