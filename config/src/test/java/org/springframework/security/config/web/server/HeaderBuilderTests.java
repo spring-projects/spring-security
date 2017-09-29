@@ -142,6 +142,6 @@ public class HeaderBuilderTests {
 	}
 
 	private WebTestClient buildClient() {
-		return WebTestClientBuilder.bindToWebFilters(this.headers.build()).build();
+		return WebTestClientBuilder.bindToWebFilters(this.headers.and().build()).build();
 	}
 }

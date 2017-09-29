@@ -165,7 +165,7 @@ public class HttpSecurity {
 
 	public SecurityWebFilterChain build() {
 		if(this.headers != null) {
-			this.webFilters.add(this.headers.build());
+			this.headers.configure(this);
 		}
 		WebFilter securityContextRepositoryWebFilter = securityContextRepositoryWebFilter();
 		if(securityContextRepositoryWebFilter != null) {
@@ -176,7 +176,7 @@ public class HttpSecurity {
 			if(this.securityContextRepository != null) {
 				this.httpBasic.securityContextRepository(this.securityContextRepository);
 			}
-			this.webFilters.add(this.httpBasic.build());
+			this.httpBasic.configure(this);
 		}
 		if(this.formLogin != null) {
 			this.formLogin.authenticationManager(this.authenticationManager);
@@ -186,19 +186,18 @@ public class HttpSecurity {
 			if(this.formLogin.authenticationEntryPoint == null) {
 				this.webFilters.add(new OrderedWebFilter(new LoginPageGeneratingWebFilter(), SecurityWebFiltersOrder.LOGIN_PAGE_GENERATING.getOrder()));
 			}
-			this.webFilters.add(this.formLogin.build());
-			this.webFilters
-				.add(new OrderedWebFilter(new LogoutWebFiter(), SecurityWebFiltersOrder.LOGOUT.getOrder()));
+			this.formLogin.configure(this);
+			this.addFilterAt(new LogoutWebFiter(), SecurityWebFiltersOrder.LOGOUT);
 		}
-		this.webFilters.add(new OrderedWebFilter(new AuthenticationReactorContextFilter(), SecurityWebFiltersOrder.AUTHENTICATION_CONTEXT.getOrder()));
+		this.addFilterAt(new AuthenticationReactorContextFilter(), SecurityWebFiltersOrder.AUTHENTICATION_CONTEXT);
 		if(this.authorizeExchangeBuilder != null) {
 			AuthenticationEntryPoint authenticationEntryPoint = getAuthenticationEntryPoint();
 			ExceptionTranslationWebFilter exceptionTranslationWebFilter = new ExceptionTranslationWebFilter();
 			if(authenticationEntryPoint != null) {
 				exceptionTranslationWebFilter.setAuthenticationEntryPoint(authenticationEntryPoint);
 			}
-			this.webFilters.add(new OrderedWebFilter(exceptionTranslationWebFilter, SecurityWebFiltersOrder.EXCEPTION_TRANSLATION.getOrder()));
-			this.webFilters.add(this.authorizeExchangeBuilder.build());
+			this.addFilterAt(exceptionTranslationWebFilter, SecurityWebFiltersOrder.EXCEPTION_TRANSLATION);
+			this.authorizeExchangeBuilder.configure(this);
 		}
 		AnnotationAwareOrderComparator.sort(this.webFilters);
 		return new MatcherSecurityWebFilterChain(getSecurityMatcher(), this.webFilters);
@@ -263,12 +262,12 @@ public class HttpSecurity {
 			return new Access();
 		}
 
-		protected WebFilter build() {
+		protected void configure(HttpSecurity http) {
 			if(this.matcher != null) {
 				throw new IllegalStateException("The matcher " + this.matcher + " does not have an access rule defined");
 			}
 			AuthorizationWebFilter result = new AuthorizationWebFilter(this.managerBldr.build());
-			return new OrderedWebFilter(result, SecurityWebFiltersOrder.AUTHORIZATION.getOrder());
+			http.addFilterAt(result, SecurityWebFiltersOrder.AUTHORIZATION);
 		}
 
 		public final class Access {
@@ -333,7 +332,7 @@ public class HttpSecurity {
 			return HttpSecurity.this;
 		}
 
-		protected WebFilter build() {
+		protected void configure(HttpSecurity http) {
 			MediaTypeServerWebExchangeMatcher restMatcher = new MediaTypeServerWebExchangeMatcher(
 				MediaType.APPLICATION_ATOM_XML,
 				MediaType.APPLICATION_FORM_URLENCODED, MediaType.APPLICATION_JSON,
@@ -348,7 +347,7 @@ public class HttpSecurity {
 			if(this.securityContextRepository != null) {
 				authenticationFilter.setSecurityContextRepository(this.securityContextRepository);
 			}
-			return new OrderedWebFilter(authenticationFilter, SecurityWebFiltersOrder.HTTP_BASIC.getOrder());
+			http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.HTTP_BASIC);
 		}
 
 		private HttpBasicBuilder() {}
@@ -410,7 +409,7 @@ public class HttpSecurity {
 			return HttpSecurity.this;
 		}
 
-		protected WebFilter build() {
+		protected void configure(HttpSecurity http) {
 			if(this.authenticationEntryPoint == null) {
 				loginPage("/login");
 			}
@@ -425,7 +424,7 @@ public class HttpSecurity {
 			authenticationFilter.setAuthenticationConverter(new FormLoginAuthenticationConverter());
 			authenticationFilter.setAuthenticationSuccessHandler(new RedirectAuthenticationSuccessHandler("/"));
 			authenticationFilter.setSecurityContextRepository(this.securityContextRepository);
-			return new OrderedWebFilter(authenticationFilter, SecurityWebFiltersOrder.FORM_LOGIN.getOrder());
+			http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.FORM_LOGIN);
 		}
 
 		private FormLoginBuilder() {
@@ -469,10 +468,10 @@ public class HttpSecurity {
 			return new HstsSpec();
 		}
 
-		protected WebFilter build() {
+		protected void configure(HttpSecurity http) {
 			HttpHeadersWriter writer = new CompositeHttpHeadersWriter(this.writers);
 			HttpHeaderWriterWebFilter result = new HttpHeaderWriterWebFilter(writer);
-			return new OrderedWebFilter(result, SecurityWebFiltersOrder.HTTP_HEADERS_WRITER.getOrder());
+			http.addFilterAt(result, SecurityWebFiltersOrder.HTTP_HEADERS_WRITER);
 		}
 
 		public XssProtectionSpec xssProtection() {

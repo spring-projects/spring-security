@@ -27,7 +27,8 @@ import org.springframework.test.web.reactive.server.WebTestClient;
  * @since 5.0
  */
 public class AuthorizeExchangeBuilderTests {
-	HttpSecurity.AuthorizeExchangeBuilder authorization = HttpSecurity.http().new AuthorizeExchangeBuilder();
+	HttpSecurity http = HttpSecurity.http();
+	HttpSecurity.AuthorizeExchangeBuilder authorization = this.http.authorizeExchange();
 
 	@Test
 	public void antMatchersWhenMethodAndPatternsThenDiscriminatesByMethod() {
@@ -101,11 +102,10 @@ public class AuthorizeExchangeBuilderTests {
 	@Test(expected = IllegalStateException.class)
 	public void buildWhenMatcherDefinedWithNoAccessThenThrowsException() {
 		this.authorization.pathMatchers("/incomplete");
-		this.authorization.build();
+		this.http.build();
 	}
 
 	private WebTestClient buildClient() {
-		return WebTestClientBuilder.bindToWebFilters(new ExceptionTranslationWebFilter(),
-			this.authorization.build()).build();
+		return WebTestClientBuilder.bindToWebFilters(this.http.build()).build();
 	}
 }
