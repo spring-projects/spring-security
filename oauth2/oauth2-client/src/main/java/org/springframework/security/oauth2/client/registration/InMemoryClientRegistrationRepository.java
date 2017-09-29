@@ -19,6 +19,7 @@ import org.springframework.util.Assert;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +30,7 @@ import java.util.Map;
  * @since 5.0
  * @see ClientRegistration
  */
-public final class InMemoryClientRegistrationRepository implements ClientRegistrationRepository {
+public final class InMemoryClientRegistrationRepository implements ClientRegistrationRepository, Iterable<ClientRegistration> {
 	private final ClientRegistrationIdentifierStrategy<String> identifierStrategy = new RegistrationIdIdentifierStrategy();
 	private final Map<String, ClientRegistration> registrations;
 
@@ -53,5 +54,10 @@ public final class InMemoryClientRegistrationRepository implements ClientRegistr
 			.filter(registration -> registration.getRegistrationId().equals(registrationId))
 			.findFirst()
 			.orElse(null);
+	}
+
+	@Override
+	public Iterator<ClientRegistration> iterator() {
+		return Collections.unmodifiableCollection(this.registrations.values()).iterator();
 	}
 }

@@ -40,6 +40,8 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationProperties;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
@@ -54,8 +56,8 @@ import java.util.stream.Collectors;
  */
 @Configuration
 @ConditionalOnWebApplication
-@ConditionalOnClass(ClientRegistration.class)
-@ConditionalOnMissingBean(ClientRegistration.class)
+@ConditionalOnClass(ClientRegistrationRepository.class)
+@ConditionalOnMissingBean(ClientRegistrationRepository.class)
 @AutoConfigureBefore(SecurityAutoConfiguration.class)
 public class ClientRegistrationAutoConfiguration {
 	private static final String CLIENTS_DEFAULTS_RESOURCE = "META-INF/oauth2-clients-defaults.yml";
@@ -72,7 +74,7 @@ public class ClientRegistrationAutoConfiguration {
 		}
 
 		@Bean
-		public ClientRegistration[] clientRegistrations() {
+		public ClientRegistrationRepository clientRegistrations() {
 			MutablePropertySources propertySources = ((ConfigurableEnvironment) this.environment).getPropertySources();
 			Properties clientsDefaultProperties = this.getClientsDefaultProperties();
 			if (clientsDefaultProperties != null) {
@@ -93,7 +95,7 @@ public class ClientRegistrationAutoConfiguration {
 				clientRegistrations.add(clientRegistration);
 			}
 
-			return clientRegistrations.toArray(new ClientRegistration[0]);
+			return new InMemoryClientRegistrationRepository(clientRegistrations);
 		}
 
 		private Properties getClientsDefaultProperties() {
