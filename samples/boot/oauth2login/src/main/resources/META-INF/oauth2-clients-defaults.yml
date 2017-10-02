@@ -15,7 +15,7 @@ security:
         github:
           client-authentication-method: basic
           authorization-grant-type: authorization_code
-          redirect-uri: "{scheme}://{serverName}:{serverPort}{contextPath}/oauth2/authorize/code/{registrationId}"
+          redirect-uri: "{baseRedirectUrl}/oauth2/authorize/code/{registrationId}"
           scope: user
           authorization-uri: "https://github.com/login/oauth/authorize"
           token-uri: "https://github.com/login/oauth/access_token"

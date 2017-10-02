@@ -160,6 +160,15 @@ public class AuthorizationCodeRequestRedirectFilter extends OncePerRequestFilter
 		uriVariables.put("contextPath", request.getContextPath());
 		uriVariables.put("registrationId", clientRegistration.getRegistrationId());
 
+		String baseRedirectUrl = UriComponentsBuilder.newInstance()
+			.scheme(request.getScheme())
+			.host(request.getServerName())
+			.port(request.getServerPort())
+			.path(request.getContextPath())
+			.build()
+			.toUriString();
+		uriVariables.put("baseRedirectUrl", baseRedirectUrl);
+
 		return UriComponentsBuilder.fromUriString(clientRegistration.getRedirectUri())
 			.buildAndExpand(uriVariables)
 			.toUriString();
