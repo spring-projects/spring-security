@@ -120,7 +120,7 @@ public class AuthorizationCodeAuthenticationProvider implements AuthenticationPr
 
 		AccessToken accessToken = new AccessToken(tokenResponse.getTokenType(),
 				tokenResponse.getTokenValue(), tokenResponse.getIssuedAt(),
-				tokenResponse.getExpiresAt(), tokenResponse.getScopes());
+				tokenResponse.getExpiresAt(), tokenResponse.getScope());
 
 		IdToken idToken = null;
 		if (tokenResponse.getAdditionalParameters().containsKey(OidcParameter.ID_TOKEN)) {

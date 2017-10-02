@@ -384,7 +384,7 @@ public class OAuth2LoginApplicationTests {
 			TokenResponseAttributes tokenResponse = TokenResponseAttributes.withToken("access-token-1234")
 				.tokenType(AccessToken.TokenType.BEARER)
 				.expiresIn(60 * 1000)
-				.scopes(Collections.singleton("openid"))
+				.scope(Collections.singleton("openid"))
 				.build();
 
 			AuthorizationGrantTokenExchanger mock = mock(AuthorizationGrantTokenExchanger.class);

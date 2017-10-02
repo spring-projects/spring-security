@@ -127,9 +127,9 @@ public class NimbusAuthorizationCodeTokenExchanger implements AuthorizationGrant
 			accessTokenType = AccessToken.TokenType.BEARER;
 		}
 		long expiresIn = accessTokenResponse.getTokens().getAccessToken().getLifetime();
-		Set<String> scopes = Collections.emptySet();
+		Set<String> scope = Collections.emptySet();
 		if (!CollectionUtils.isEmpty(accessTokenResponse.getTokens().getAccessToken().getScope())) {
-			scopes = new HashSet<>(accessTokenResponse.getTokens().getAccessToken().getScope().toStringList());
+			scope = new HashSet<>(accessTokenResponse.getTokens().getAccessToken().getScope().toStringList());
 		}
 		Map<String, Object> additionalParameters = accessTokenResponse.getCustomParameters().entrySet().stream()
 				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
@@ -137,7 +137,7 @@ public class NimbusAuthorizationCodeTokenExchanger implements AuthorizationGrant
 		return TokenResponseAttributes.withToken(accessToken)
 			.tokenType(accessTokenType)
 			.expiresIn(expiresIn)
-			.scopes(scopes)
+			.scope(scope)
 			.additionalParameters(additionalParameters)
 			.build();
 	}

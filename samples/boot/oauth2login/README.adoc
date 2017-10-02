@@ -458,11 +458,11 @@ The following specifies the common set of properties available for configuring a
 
 NOTE: The default redirect URI is _"{scheme}://{serverName}:{serverPort}/oauth2/authorize/code/{registrationId}"_, which leverages *URI template variables*.
 
-- *scopes* - a comma-delimited string of scope(s) requested during the _Authorization Request_ flow, for example: _openid, email, profile_
+- *scope* - a comma-delimited string of scope(s) requested during the _Authorization Request_ flow, for example: _openid, email, profile_
 
-NOTE: _OpenID Connect Core 1.0_ defines these http://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims[standard scopes]: _profile, email, address, phone_
+NOTE: _OpenID Connect Core 1.0_ defines these http://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims[standard scope]: _profile, email, address, phone_
 
-NOTE: Non-standard scopes may be defined by a standard _OAuth 2.0 Provider_. Please consult the Provider's OAuth API documentation to learn which scopes are supported.
+NOTE: Non-standard scope may be defined by a standard _OAuth 2.0 Provider_. Please consult the Provider's OAuth API documentation to learn which scope are supported.
 
 - *authorization-uri* - the URI used by the client to redirect the end-user's user-agent to the _Authorization Server_ in order to obtain authorization from the end-user (the _Resource Owner_).
 - *token-uri* - the URI used by the client when exchanging an _Authorization Grant_ (for example, Authorization Code) for an _Access Token_ at the _Authorization Server_.
@@ -500,7 +500,7 @@ security:
         client-authentication-method: basic
         authorized-grant-type: authorization_code
         redirect-uri: "{scheme}://{serverName}:{serverPort}{baseAuthorizeUri}/{registrationId}"
-        scopes: openid, email, profile
+        scope: openid, email, profile
         authorization-uri: "https://accounts.google.com/o/oauth2/auth"
         token-uri: "https://accounts.google.com/o/oauth2/token"
         user-info-uri: "https://www.googleapis.com/oauth2/v3/userinfo"
@@ -510,7 +510,7 @@ security:
         client-authentication-method: basic
         authorized-grant-type: authorization_code
         redirect-uri: "{scheme}://{serverName}:{serverPort}{baseAuthorizeUri}/{registrationId}"
-        scopes: user
+        scope: user
         authorization-uri: "https://github.com/login/oauth/authorize"
         token-uri: "https://github.com/login/oauth/access_token"
         user-info-uri: "https://api.github.com/user"
@@ -519,7 +519,7 @@ security:
         client-authentication-method: post
         authorized-grant-type: authorization_code
         redirect-uri: "{scheme}://{serverName}:{serverPort}{baseAuthorizeUri}/{registrationId}"
-        scopes: public_profile, email
+        scope: public_profile, email
         authorization-uri: "https://www.facebook.com/v2.8/dialog/oauth"
         token-uri: "https://graph.facebook.com/v2.8/oauth/access_token"
         user-info-uri: "https://graph.facebook.com/me"
@@ -528,7 +528,7 @@ security:
         client-authentication-method: basic
         authorized-grant-type: authorization_code
         redirect-uri: "{scheme}://{serverName}:{serverPort}{baseAuthorizeUri}/{registrationId}"
-        scopes: openid, email, profile
+        scope: openid, email, profile
         client-name: Okta
 ----
 
@@ -553,7 +553,7 @@ security.oauth2.client.registrations.google.client-secret=${client-secret}
 security.oauth2.client.registrations.google.client-authentication-method=basic
 security.oauth2.client.registrations.google.authorized-grant-type=authorization_code
 security.oauth2.client.registrations.google.redirect-uri=http://localhost:8080/oauth2/authorize/code/google
-security.oauth2.client.registrations.google.scopes=openid,email,profile
+security.oauth2.client.registrations.google.scope=openid,email,profile
 security.oauth2.client.registrations.google.authorization-uri=https://accounts.google.com/o/oauth2/auth
 security.oauth2.client.registrations.google.token-uri=https://accounts.google.com/o/oauth2/token
 security.oauth2.client.registrations.google.user-info-uri=https://www.googleapis.com/oauth2/v3/userinfo
@@ -601,7 +601,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		AuthorizationGrantType authorizationGrantType = AuthorizationGrantType.valueOf(
 			this.environment.getProperty(clientPropertyKey + "authorized-grant-type").toUpperCase());
 		String redirectUri = this.environment.getProperty(clientPropertyKey + "redirect-uri");
-		String[] scopes = this.environment.getProperty(clientPropertyKey + "scopes").split(",");
+		String[] scope = this.environment.getProperty(clientPropertyKey + "scope").split(",");
 		String authorizationUri = this.environment.getProperty(clientPropertyKey + "authorization-uri");
 		String tokenUri = this.environment.getProperty(clientPropertyKey + "token-uri");
 		String userInfoUri = this.environment.getProperty(clientPropertyKey + "user-info-uri");
@@ -614,7 +614,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.clientAuthenticationMethod(clientAuthenticationMethod)
 			.authorizedGrantType(authorizationGrantType)
 			.redirectUri(redirectUri)
-			.scopes(scopes)
+			.scope(scope)
 			.authorizationUri(authorizationUri)
 			.tokenUri(tokenUri)
 			.userInfoUri(userInfoUri)

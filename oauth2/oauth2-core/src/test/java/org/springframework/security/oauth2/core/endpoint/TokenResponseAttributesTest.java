@@ -36,7 +36,7 @@ public class TokenResponseAttributesTest {
 		TokenResponseAttributes.withToken(null)
 			.expiresIn(EXPIRES_IN)
 			.additionalParameters(Collections.emptyMap())
-			.scopes(Collections.emptySet())
+			.scope(Collections.emptySet())
 			.tokenType(AccessToken.TokenType.BEARER)
 			.build();
 	}
@@ -46,7 +46,7 @@ public class TokenResponseAttributesTest {
 		TokenResponseAttributes.withToken(TOKEN)
 			.expiresIn(INVALID_EXPIRES_IN)
 			.additionalParameters(Collections.emptyMap())
-			.scopes(Collections.emptySet())
+			.scope(Collections.emptySet())
 			.tokenType(AccessToken.TokenType.BEARER)
 			.build();
 	}

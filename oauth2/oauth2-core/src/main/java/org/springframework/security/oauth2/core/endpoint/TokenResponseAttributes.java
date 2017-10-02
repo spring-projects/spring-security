@@ -54,8 +54,8 @@ public final class TokenResponseAttributes {
 		return this.accessToken.getExpiresAt();
 	}
 
-	public Set<String> getScopes() {
-		return this.accessToken.getScopes();
+	public Set<String> getScope() {
+		return this.accessToken.getScope();
 	}
 
 	public Map<String, Object> getAdditionalParameters() {
@@ -70,7 +70,7 @@ public final class TokenResponseAttributes {
 		private String tokenValue;
 		private AccessToken.TokenType tokenType;
 		private long expiresIn;
-		private Set<String> scopes;
+		private Set<String> scope;
 		private Map<String,Object> additionalParameters;
 
 		private Builder(String tokenValue) {
@@ -87,8 +87,8 @@ public final class TokenResponseAttributes {
 			return this;
 		}
 
-		public Builder scopes(Set<String> scopes) {
-			this.scopes = scopes;
+		public Builder scope(Set<String> scope) {
+			this.scope = scope;
 			return this;
 		}
 
@@ -101,7 +101,7 @@ public final class TokenResponseAttributes {
 			Assert.isTrue(this.expiresIn >= 0, "expiresIn must be a positive number");
 			Instant issuedAt = Instant.now();
 			AccessToken accessToken = new AccessToken(this.tokenType, this.tokenValue, issuedAt,
-				issuedAt.plusSeconds(this.expiresIn), this.scopes);
+				issuedAt.plusSeconds(this.expiresIn), this.scope);
 			TokenResponseAttributes tokenResponse = new TokenResponseAttributes();
 			tokenResponse.accessToken = accessToken;
 			tokenResponse.additionalParameters = Collections.unmodifiableMap(

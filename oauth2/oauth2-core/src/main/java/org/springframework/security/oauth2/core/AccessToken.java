@@ -36,7 +36,7 @@ import java.util.Set;
  */
 public class AccessToken extends SecurityToken {
 	private final TokenType tokenType;
-	private final Set<String> scopes;
+	private final Set<String> scope;
 
 	public static final class TokenType {
 		public static final TokenType BEARER = new TokenType("Bearer");
@@ -73,19 +73,19 @@ public class AccessToken extends SecurityToken {
 		this(tokenType, tokenValue, issuedAt, expiresAt, Collections.emptySet());
 	}
 
-	public AccessToken(TokenType tokenType, String tokenValue, Instant issuedAt, Instant expiresAt, Set<String> scopes) {
+	public AccessToken(TokenType tokenType, String tokenValue, Instant issuedAt, Instant expiresAt, Set<String> scope) {
 		super(tokenValue, issuedAt, expiresAt);
 		Assert.notNull(tokenType, "tokenType cannot be null");
 		this.tokenType = tokenType;
-		this.scopes = Collections.unmodifiableSet(
-			scopes != null ? scopes : Collections.emptySet());
+		this.scope = Collections.unmodifiableSet(
+			scope != null ? scope : Collections.emptySet());
 	}
 
 	public TokenType getTokenType() {
 		return this.tokenType;
 	}
 
-	public Set<String> getScopes() {
-		return this.scopes;
+	public Set<String> getScope() {
+		return this.scope;
 	}
 }
