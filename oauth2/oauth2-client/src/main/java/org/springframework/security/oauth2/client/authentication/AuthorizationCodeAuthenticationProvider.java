@@ -165,7 +165,7 @@ public class AuthorizationCodeAuthenticationProvider implements AuthenticationPr
 	}
 
 	public final void setAccessTokenRepository(SecurityTokenRepository<AccessToken> accessTokenRepository) {
-		Assert.notNull(authoritiesMapper, "accessTokenRepository cannot be null");
+		Assert.notNull(accessTokenRepository, "accessTokenRepository cannot be null");
 		this.accessTokenRepository = accessTokenRepository;
 	}
 
