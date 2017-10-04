@@ -21,21 +21,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
-import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper;
-import org.springframework.security.jwt.Jwt;
-import org.springframework.security.jwt.JwtDecoder;
-import org.springframework.security.oauth2.client.authentication.jwt.JwtDecoderRegistry;
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.token.SecurityTokenRepository;
 import org.springframework.security.oauth2.client.user.OAuth2UserService;
-import org.springframework.security.oauth2.client.web.AuthorizationGrantTokenExchanger;
 import org.springframework.security.oauth2.core.AccessToken;
-import org.springframework.security.oauth2.core.endpoint.TokenResponseAttributes;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.oidc.client.authentication.OidcClientAuthenticationToken;
 import org.springframework.security.oauth2.oidc.client.authentication.OidcUserAuthenticationToken;
-import org.springframework.security.oauth2.oidc.core.IdToken;
-import org.springframework.security.oauth2.oidc.core.endpoint.OidcParameter;
 import org.springframework.security.oauth2.oidc.core.user.OidcUser;
 import org.springframework.util.Assert;
 
@@ -51,16 +42,13 @@ import java.util.Collection;
  * associating it with the returned {@link OAuth2UserAuthenticationToken}.
  *
  * <p>
- * The {@link AuthorizationCodeAuthenticationProvider} uses an {@link AuthorizationGrantTokenExchanger}
- * to make a request to the authorization server's <i>Token Endpoint</i>
- * to verify the {@link AuthorizationCodeAuthenticationToken#getAuthorizationCode()}.
- * If the request is valid, the authorization server will respond back with a {@link TokenResponseAttributes}.
+ * The {@link AuthorizationCodeAuthenticationProvider} uses an {@link AuthorizationGrantAuthenticator}
+ * to authenticate the {@link AuthorizationCodeAuthenticationToken#getAuthorizationCode()} and ultimately
+ * return an <i>&quot;Authorized Client&quot;</i> as an {@link OAuth2ClientAuthenticationToken}.
  *
  * <p>
- * It will then create an {@link OAuth2ClientAuthenticationToken} associating the {@link AccessToken} and optionally
- * the {@link IdToken} from the {@link TokenResponseAttributes} and pass it to
- * {@link OAuth2UserService#loadUser(OAuth2ClientAuthenticationToken)} to obtain the end-user's (resource owner) attributes
- * in the form of an {@link OAuth2User}.
+ * It will then call {@link OAuth2UserService#loadUser(OAuth2ClientAuthenticationToken)}
+ * to obtain the end-user's (resource owner) attributes in the form of an {@link OAuth2User}.
  *
  * <p>
  * Finally, it will create an {@link OAuth2UserAuthenticationToken}, associating the {@link OAuth2User}
@@ -73,10 +61,8 @@ import java.util.Collection;
  * @see OAuth2ClientAuthenticationToken
  * @see OidcClientAuthenticationToken
  * @see OAuth2UserAuthenticationToken
- * @see AuthorizationGrantTokenExchanger
- * @see TokenResponseAttributes
- * @see AccessToken
- * @see IdToken
+ * @see OidcUserAuthenticationToken
+ * @see AuthorizationGrantAuthenticator
  * @see OAuth2UserService
  * @see OAuth2User
  * @see OidcUser
@@ -87,75 +73,50 @@ import java.util.Collection;
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#TokenResponse">Section 3.1.3.3 OpenID Connect Token Response</a>
  */
 public class AuthorizationCodeAuthenticationProvider implements AuthenticationProvider {
-	private final AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger;
+	private final AuthorizationGrantAuthenticator<AuthorizationCodeAuthenticationToken> authorizationCodeAuthenticator;
 	private final SecurityTokenRepository<AccessToken> accessTokenRepository;
-	private final JwtDecoderRegistry jwtDecoderRegistry;
-	private final OAuth2UserService userInfoService;
-	private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
+	private final OAuth2UserService userService;
+	private GrantedAuthoritiesMapper authoritiesMapper = (authorities -> authorities);
 
 	public AuthorizationCodeAuthenticationProvider(
-			AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger,
+			AuthorizationGrantAuthenticator<AuthorizationCodeAuthenticationToken> authorizationCodeAuthenticator,
 			SecurityTokenRepository<AccessToken> accessTokenRepository,
-			JwtDecoderRegistry jwtDecoderRegistry,
-			OAuth2UserService userInfoService) {
+			OAuth2UserService userService) {
 
-		Assert.notNull(authorizationCodeTokenExchanger, "authorizationCodeTokenExchanger cannot be null");
+		Assert.notNull(authorizationCodeAuthenticator, "authorizationCodeAuthenticator cannot be null");
 		Assert.notNull(accessTokenRepository, "accessTokenRepository cannot be null");
-		Assert.notNull(jwtDecoderRegistry, "jwtDecoderRegistry cannot be null");
-		Assert.notNull(userInfoService, "userInfoService cannot be null");
-		this.authorizationCodeTokenExchanger = authorizationCodeTokenExchanger;
+		Assert.notNull(userService, "userService cannot be null");
+		this.authorizationCodeAuthenticator = authorizationCodeAuthenticator;
 		this.accessTokenRepository = accessTokenRepository;
-		this.jwtDecoderRegistry = jwtDecoderRegistry;
-		this.userInfoService = userInfoService;
+		this.userService = userService;
 	}
 
 	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		AuthorizationCodeAuthenticationToken authorizationCodeAuthentication =
 				(AuthorizationCodeAuthenticationToken) authentication;
-		ClientRegistration clientRegistration = authorizationCodeAuthentication.getClientRegistration();
 
-		TokenResponseAttributes tokenResponse =
-				this.authorizationCodeTokenExchanger.exchange(authorizationCodeAuthentication);
+		OAuth2ClientAuthenticationToken oauth2ClientAuthentication =
+			this.authorizationCodeAuthenticator.authenticate(authorizationCodeAuthentication);
 
-		AccessToken accessToken = new AccessToken(tokenResponse.getTokenType(),
-				tokenResponse.getTokenValue(), tokenResponse.getIssuedAt(),
-				tokenResponse.getExpiresAt(), tokenResponse.getScope());
+		this.accessTokenRepository.saveSecurityToken(
+			oauth2ClientAuthentication.getAccessToken(),
+			oauth2ClientAuthentication.getClientRegistration());
 
-		IdToken idToken = null;
-		if (tokenResponse.getAdditionalParameters().containsKey(OidcParameter.ID_TOKEN)) {
-			JwtDecoder jwtDecoder = this.jwtDecoderRegistry.getJwtDecoder(clientRegistration);
-			if (jwtDecoder == null) {
-				throw new IllegalArgumentException("Unable to find a registered JwtDecoder for Client Registration: '" + clientRegistration.getRegistrationId() +
-					"'. Check to ensure you have configured the JwkSet URI property.");
-			}
-			Jwt jwt = jwtDecoder.decode((String)tokenResponse.getAdditionalParameters().get(OidcParameter.ID_TOKEN));
-			idToken = new IdToken(jwt.getTokenValue(), jwt.getIssuedAt(), jwt.getExpiresAt(), jwt.getClaims());
-		}
+		OAuth2User oauth2User = this.userService.loadUser(oauth2ClientAuthentication);
 
-		OAuth2ClientAuthenticationToken oauth2ClientAuthentication;
-		if (idToken != null) {
-			oauth2ClientAuthentication = new OidcClientAuthenticationToken(clientRegistration, accessToken, idToken);
-		} else {
-			oauth2ClientAuthentication = new OAuth2ClientAuthenticationToken(clientRegistration, accessToken);
-		}
-		oauth2ClientAuthentication.setDetails(authorizationCodeAuthentication.getDetails());
-
-		OAuth2User user = this.userInfoService.loadUser(oauth2ClientAuthentication);
-
-		Collection<? extends GrantedAuthority> authorities =
-				this.authoritiesMapper.mapAuthorities(user.getAuthorities());
+		Collection<? extends GrantedAuthority> mappedAuthorities =
+				this.authoritiesMapper.mapAuthorities(oauth2User.getAuthorities());
 
 		OAuth2UserAuthenticationToken oauth2UserAuthentication;
-		if (OidcUser.class.isAssignableFrom(user.getClass())) {
+		if (OidcUser.class.isAssignableFrom(oauth2User.getClass())) {
 			oauth2UserAuthentication = new OidcUserAuthenticationToken(
-				(OidcUser)user, authorities, (OidcClientAuthenticationToken)oauth2ClientAuthentication);
+				(OidcUser)oauth2User, mappedAuthorities, (OidcClientAuthenticationToken)oauth2ClientAuthentication);
 		} else {
-			oauth2UserAuthentication = new OAuth2UserAuthenticationToken(user, authorities, oauth2ClientAuthentication);
+			oauth2UserAuthentication = new OAuth2UserAuthenticationToken(
+				oauth2User, mappedAuthorities, oauth2ClientAuthentication);
 		}
 		oauth2UserAuthentication.setDetails(oauth2ClientAuthentication.getDetails());
-
-		this.accessTokenRepository.saveSecurityToken(accessToken, clientRegistration);
 
 		return oauth2UserAuthentication;
 	}

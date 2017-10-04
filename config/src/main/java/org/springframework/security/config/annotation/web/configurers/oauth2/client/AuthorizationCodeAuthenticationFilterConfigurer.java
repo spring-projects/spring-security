@@ -20,6 +20,9 @@ import org.springframework.security.config.annotation.web.configurers.AbstractAu
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationProvider;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationToken;
+import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticator;
+import org.springframework.security.oauth2.client.authentication.AuthorizationGrantAuthenticator;
+import org.springframework.security.oauth2.client.authentication.DelegatingAuthorizationGrantAuthenticator;
 import org.springframework.security.oauth2.client.authentication.jwt.JwtDecoderRegistry;
 import org.springframework.security.oauth2.client.authentication.jwt.nimbus.NimbusJwtDecoderRegistry;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -34,6 +37,7 @@ import org.springframework.security.oauth2.client.web.AuthorizationGrantTokenExc
 import org.springframework.security.oauth2.client.web.nimbus.NimbusAuthorizationCodeTokenExchanger;
 import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.oidc.client.authentication.OidcAuthorizationCodeAuthenticator;
 import org.springframework.security.oauth2.oidc.client.user.OidcUserService;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
@@ -51,6 +55,7 @@ final class AuthorizationCodeAuthenticationFilterConfigurer<H extends HttpSecuri
 		AbstractAuthenticationFilterConfigurer<H, AuthorizationCodeAuthenticationFilterConfigurer<H, R>, AuthorizationCodeAuthenticationProcessingFilter> {
 
 	private R authorizationResponseMatcher;
+	private AuthorizationGrantAuthenticator<AuthorizationCodeAuthenticationToken> authorizationCodeAuthenticator;
 	private AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger;
 	private SecurityTokenRepository<AccessToken> accessTokenRepository;
 	private JwtDecoderRegistry jwtDecoderRegistry;
@@ -124,8 +129,7 @@ final class AuthorizationCodeAuthenticationFilterConfigurer<H extends HttpSecuri
 	@Override
 	public void init(H http) throws Exception {
 		AuthorizationCodeAuthenticationProvider authenticationProvider = new AuthorizationCodeAuthenticationProvider(
-			this.getAuthorizationCodeTokenExchanger(), this.getAccessTokenRepository(),
-			this.getJwtDecoderRegistry(), this.getUserInfoService());
+			this.getAuthorizationCodeAuthenticator(), this.getAccessTokenRepository(), this.getUserInfoService());
 		if (this.userAuthoritiesMapper != null) {
 			authenticationProvider.setAuthoritiesMapper(this.userAuthoritiesMapper);
 		}
@@ -148,6 +152,17 @@ final class AuthorizationCodeAuthenticationFilterConfigurer<H extends HttpSecuri
 	protected RequestMatcher createLoginProcessingUrlMatcher(String loginProcessingUrl) {
 		return (this.authorizationResponseMatcher != null ?
 			this.authorizationResponseMatcher : this.getAuthenticationFilter().getAuthorizationResponseMatcher());
+	}
+
+	private AuthorizationGrantAuthenticator<AuthorizationCodeAuthenticationToken> getAuthorizationCodeAuthenticator() {
+		if (this.authorizationCodeAuthenticator == null) {
+			List<AuthorizationGrantAuthenticator<AuthorizationCodeAuthenticationToken>> authenticators = new ArrayList<>();
+			authenticators.add(new AuthorizationCodeAuthenticator(this.getAuthorizationCodeTokenExchanger()));
+			authenticators.add(new OidcAuthorizationCodeAuthenticator(
+				this.getAuthorizationCodeTokenExchanger(), this.getJwtDecoderRegistry()));
+			this.authorizationCodeAuthenticator = new DelegatingAuthorizationGrantAuthenticator<>(authenticators);;
+		}
+		return this.authorizationCodeAuthenticator;
 	}
 
 	private AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> getAuthorizationCodeTokenExchanger() {

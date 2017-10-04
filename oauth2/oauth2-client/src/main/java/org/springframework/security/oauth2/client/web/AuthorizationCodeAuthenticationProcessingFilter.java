@@ -21,21 +21,15 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationProvider;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.client.authentication.OAuth2ClientAuthenticationToken;
-import org.springframework.security.oauth2.client.authentication.OAuth2UserAuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.user.OAuth2UserService;
 import org.springframework.security.oauth2.client.web.converter.AuthorizationCodeAuthorizationResponseAttributesConverter;
 import org.springframework.security.oauth2.client.web.converter.ErrorResponseAttributesConverter;
-import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.endpoint.AuthorizationCodeAuthorizationResponseAttributes;
 import org.springframework.security.oauth2.core.endpoint.AuthorizationRequestAttributes;
 import org.springframework.security.oauth2.core.endpoint.ErrorResponseAttributes;
 import org.springframework.security.oauth2.core.endpoint.OAuth2Parameter;
-import org.springframework.security.oauth2.core.endpoint.TokenResponseAttributes;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
@@ -51,9 +45,9 @@ import java.io.IOException;
  * the processing of an <i>OAuth 2.0 Authorization Response</i> for the authorization code grant flow.
  *
  * <p>
- * This <code>Filter</code> processes the <i>Authorization Response</i> in the following step sequence:
+ * This <code>Filter</code> processes the <i>Authorization Response</i> as follows:
  *
- * <ol>
+ * <ul>
  * <li>
  *	Assuming the resource owner (end-user) has granted access to the client, the authorization server will append the
  *	{@link OAuth2Parameter#CODE} and {@link OAuth2Parameter#STATE} (if provided in the <i>Authorization Request</i>) parameters
@@ -62,47 +56,19 @@ import java.io.IOException;
  * </li>
  * <li>
  *  This <code>Filter</code> will then create an {@link AuthorizationCodeAuthenticationToken} with
- *  the {@link OAuth2Parameter#CODE} received in the previous step and pass it to
+ *  the {@link OAuth2Parameter#CODE} received in the previous step and delegate it to
  *  {@link AuthorizationCodeAuthenticationProvider#authenticate(Authentication)} (indirectly via {@link AuthenticationManager}).
- *  The {@link AuthorizationCodeAuthenticationProvider} will use an {@link AuthorizationGrantTokenExchanger} to make a request
- *  to the authorization server's <i>Token Endpoint</i> for exchanging the {@link OAuth2Parameter#CODE} for an {@link AccessToken}.
  * </li>
- * <li>
- *  Upon receiving the <i>Access Token Request</i>, the authorization server will authenticate the client,
- *  verify the {@link OAuth2Parameter#CODE}, and ensure that the {@link OAuth2Parameter#REDIRECT_URI}
- *	received matches the <code>URI</code> originally provided in the <i>Authorization Request</i>.
- *	If the request is valid, the authorization server will respond back with a {@link TokenResponseAttributes}.
- * </li>
- * <li>
- *  The {@link AuthorizationCodeAuthenticationProvider} will then create a new {@link OAuth2ClientAuthenticationToken}
- *  associating the {@link AccessToken} from the {@link TokenResponseAttributes} and pass it to
- *  {@link OAuth2UserService#loadUser(OAuth2ClientAuthenticationToken)}. The {@link OAuth2UserService} will make a request
- *  to the authorization server's <i>UserInfo Endpoint</i> (using the {@link AccessToken})
- *  to obtain the end-user's (resource owner) attributes and return it in the form of an {@link OAuth2User}.
- * </li>
- * <li>
- *  The {@link AuthorizationCodeAuthenticationProvider} will then create a {@link OAuth2UserAuthenticationToken}
- *  associating the {@link OAuth2ClientAuthenticationToken} and {@link OAuth2User} returned from the {@link OAuth2UserService}.
- *  Finally, the {@link OAuth2UserAuthenticationToken} is returned to the {@link AuthenticationManager}
- *  and then back to this <code>Filter</code> at which point the session is considered <i>&quot;authenticated&quot;</i>.
- * </li>
- * </ol>
- *
- * <p>
- * <b>NOTE:</b> Steps 4-5 are <b>not</b> part of the authorization code grant flow and instead are
- * <i>&quot;authentication flow&quot;</i> steps that are required in order to authenticate the end-user with the system.
+ * </ul>
  *
  * @author Joe Grandja
  * @since 5.0
  * @see AbstractAuthenticationProcessingFilter
  * @see AuthorizationCodeAuthenticationToken
  * @see AuthorizationCodeAuthenticationProvider
- * @see AuthorizationGrantTokenExchanger
- * @see AuthorizationCodeAuthorizationResponseAttributes
+ * @see AuthorizationCodeRequestRedirectFilter
  * @see AuthorizationRequestAttributes
  * @see AuthorizationRequestRepository
- * @see AuthorizationCodeRequestRedirectFilter
- * @see ClientRegistration
  * @see ClientRegistrationRepository
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">Section 4.1 Authorization Code Grant Flow</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.2">Section 4.1.2 Authorization Response</a>
@@ -154,7 +120,7 @@ public class AuthorizationCodeAuthenticationProcessingFilter extends AbstractAut
 				this.authorizationCodeResponseConverter.apply(request);
 
 		AuthorizationCodeAuthenticationToken authRequest = new AuthorizationCodeAuthenticationToken(
-				authorizationCodeResponseAttributes.getCode(), clientRegistration);
+				authorizationCodeResponseAttributes.getCode(), clientRegistration, matchingAuthorizationRequest);
 
 		authRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));
 
