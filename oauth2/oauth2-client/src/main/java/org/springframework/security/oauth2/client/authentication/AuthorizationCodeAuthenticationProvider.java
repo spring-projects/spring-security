@@ -26,6 +26,7 @@ import org.springframework.security.jwt.Jwt;
 import org.springframework.security.jwt.JwtDecoder;
 import org.springframework.security.oauth2.client.authentication.jwt.JwtDecoderRegistry;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.token.InMemoryAccessTokenRepository;
 import org.springframework.security.oauth2.client.token.SecurityTokenRepository;
 import org.springframework.security.oauth2.client.user.OAuth2UserService;
 import org.springframework.security.oauth2.client.web.AuthorizationGrantTokenExchanger;
@@ -88,23 +89,21 @@ import java.util.Collection;
  */
 public class AuthorizationCodeAuthenticationProvider implements AuthenticationProvider {
 	private final AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger;
-	private final SecurityTokenRepository<AccessToken> accessTokenRepository;
+	private SecurityTokenRepository<AccessToken> accessTokenRepository;
 	private final JwtDecoderRegistry jwtDecoderRegistry;
 	private final OAuth2UserService userInfoService;
 	private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
 
 	public AuthorizationCodeAuthenticationProvider(
 			AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger,
-			SecurityTokenRepository<AccessToken> accessTokenRepository,
 			JwtDecoderRegistry jwtDecoderRegistry,
 			OAuth2UserService userInfoService) {
 
 		Assert.notNull(authorizationCodeTokenExchanger, "authorizationCodeTokenExchanger cannot be null");
-		Assert.notNull(accessTokenRepository, "accessTokenRepository cannot be null");
 		Assert.notNull(jwtDecoderRegistry, "jwtDecoderRegistry cannot be null");
 		Assert.notNull(userInfoService, "userInfoService cannot be null");
 		this.authorizationCodeTokenExchanger = authorizationCodeTokenExchanger;
-		this.accessTokenRepository = accessTokenRepository;
+		this.accessTokenRepository = new InMemoryAccessTokenRepository();
 		this.jwtDecoderRegistry = jwtDecoderRegistry;
 		this.userInfoService = userInfoService;
 	}
@@ -163,6 +162,11 @@ public class AuthorizationCodeAuthenticationProvider implements AuthenticationPr
 	public final void setAuthoritiesMapper(GrantedAuthoritiesMapper authoritiesMapper) {
 		Assert.notNull(authoritiesMapper, "authoritiesMapper cannot be null");
 		this.authoritiesMapper = authoritiesMapper;
+	}
+
+	public final void setAccessTokenRepository(SecurityTokenRepository<AccessToken> accessTokenRepository) {
+		Assert.notNull(authoritiesMapper, "accessTokenRepository cannot be null");
+		this.accessTokenRepository = accessTokenRepository;
 	}
 
 	@Override

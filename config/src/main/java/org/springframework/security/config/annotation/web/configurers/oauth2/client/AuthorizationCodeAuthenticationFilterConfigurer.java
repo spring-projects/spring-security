@@ -124,10 +124,13 @@ final class AuthorizationCodeAuthenticationFilterConfigurer<H extends HttpSecuri
 	@Override
 	public void init(H http) throws Exception {
 		AuthorizationCodeAuthenticationProvider authenticationProvider = new AuthorizationCodeAuthenticationProvider(
-			this.getAuthorizationCodeTokenExchanger(), this.getAccessTokenRepository(),
+			this.getAuthorizationCodeTokenExchanger(),
 			this.getJwtDecoderRegistry(), this.getUserInfoService());
 		if (this.userAuthoritiesMapper != null) {
 			authenticationProvider.setAuthoritiesMapper(this.userAuthoritiesMapper);
+		}
+		if (this.accessTokenRepository != null) {
+			authenticationProvider.setAccessTokenRepository(this.accessTokenRepository);
 		}
 		authenticationProvider = this.postProcess(authenticationProvider);
 		http.authenticationProvider(authenticationProvider);
