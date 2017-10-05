@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.client.authentication;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.oauth2.client.token.InMemoryAccessTokenRepository;
 import org.springframework.security.oauth2.client.token.SecurityTokenRepository;
 import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.security.oauth2.oidc.client.authentication.OidcClientAuthenticationToken;
@@ -49,16 +50,13 @@ import org.springframework.util.Assert;
  */
 public class AuthorizationCodeAuthenticationProvider implements AuthenticationProvider {
 	private final AuthorizationGrantAuthenticator<AuthorizationCodeAuthenticationToken> authorizationCodeAuthenticator;
-	private final SecurityTokenRepository<AccessToken> accessTokenRepository;
+	private SecurityTokenRepository<AccessToken> accessTokenRepository = new InMemoryAccessTokenRepository();
 
 	public AuthorizationCodeAuthenticationProvider(
-			AuthorizationGrantAuthenticator<AuthorizationCodeAuthenticationToken> authorizationCodeAuthenticator,
-			SecurityTokenRepository<AccessToken> accessTokenRepository) {
+		AuthorizationGrantAuthenticator<AuthorizationCodeAuthenticationToken> authorizationCodeAuthenticator) {
 
 		Assert.notNull(authorizationCodeAuthenticator, "authorizationCodeAuthenticator cannot be null");
-		Assert.notNull(accessTokenRepository, "accessTokenRepository cannot be null");
 		this.authorizationCodeAuthenticator = authorizationCodeAuthenticator;
-		this.accessTokenRepository = accessTokenRepository;
 	}
 
 	@Override
@@ -74,6 +72,11 @@ public class AuthorizationCodeAuthenticationProvider implements AuthenticationPr
 			oauth2ClientAuthentication.getClientRegistration());
 
 		return oauth2ClientAuthentication;
+	}
+
+	public final void setAccessTokenRepository(SecurityTokenRepository<AccessToken> accessTokenRepository) {
+		Assert.notNull(accessTokenRepository, "accessTokenRepository cannot be null");
+		this.accessTokenRepository = accessTokenRepository;
 	}
 
 	@Override

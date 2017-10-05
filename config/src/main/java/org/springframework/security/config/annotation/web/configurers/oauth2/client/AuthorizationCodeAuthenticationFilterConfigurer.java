@@ -27,7 +27,6 @@ import org.springframework.security.oauth2.client.authentication.OAuth2UserAuthe
 import org.springframework.security.oauth2.client.authentication.jwt.JwtDecoderRegistry;
 import org.springframework.security.oauth2.client.authentication.jwt.nimbus.NimbusJwtDecoderRegistry;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.token.InMemoryAccessTokenRepository;
 import org.springframework.security.oauth2.client.token.SecurityTokenRepository;
 import org.springframework.security.oauth2.client.user.CustomUserTypesOAuth2UserService;
 import org.springframework.security.oauth2.client.user.DefaultOAuth2UserService;
@@ -130,8 +129,10 @@ final class AuthorizationCodeAuthenticationFilterConfigurer<H extends HttpSecuri
 	@Override
 	public void init(H http) throws Exception {
 		AuthorizationCodeAuthenticationProvider authorizationCodeAuthenticationProvider =
-			new AuthorizationCodeAuthenticationProvider(
-				this.getAuthorizationCodeAuthenticator(), this.getAccessTokenRepository());
+			new AuthorizationCodeAuthenticationProvider(this.getAuthorizationCodeAuthenticator());
+		if (this.accessTokenRepository != null) {
+			authorizationCodeAuthenticationProvider.setAccessTokenRepository(this.accessTokenRepository);
+		}
 		authorizationCodeAuthenticationProvider = this.postProcess(authorizationCodeAuthenticationProvider);
 		http.authenticationProvider(authorizationCodeAuthenticationProvider);
 
@@ -178,13 +179,6 @@ final class AuthorizationCodeAuthenticationFilterConfigurer<H extends HttpSecuri
 			this.authorizationCodeTokenExchanger = new NimbusAuthorizationCodeTokenExchanger();
 		}
 		return this.authorizationCodeTokenExchanger;
-	}
-
-	private SecurityTokenRepository<AccessToken> getAccessTokenRepository() {
-		if (this.accessTokenRepository == null) {
-			this.accessTokenRepository = new InMemoryAccessTokenRepository();
-		}
-		return this.accessTokenRepository;
 	}
 
 	private JwtDecoderRegistry getJwtDecoderRegistry() {
