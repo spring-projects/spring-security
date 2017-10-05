@@ -28,6 +28,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -40,7 +41,7 @@ public class HttpPathParameterStrippingTests {
 	@Autowired
 	private FilterChainProxy fcp;
 
-	@Test
+	@Test(expected = RequestRejectedException.class)
 	public void securedFilterChainCannotBeBypassedByAddingPathParameters()
 			throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -48,24 +49,25 @@ public class HttpPathParameterStrippingTests {
 		request.setSession(createAuthenticatedSession("ROLE_USER"));
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		fcp.doFilter(request, response, new MockFilterChain());
-		assertThat(response.getStatus()).isEqualTo(403);
 	}
 
-	@Test
+	@Test(expected = RequestRejectedException.class)
 	public void adminFilePatternCannotBeBypassedByAddingPathParameters() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setServletPath("/secured/admin.html;x=user.html");
 		request.setSession(createAuthenticatedSession("ROLE_USER"));
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		fcp.doFilter(request, response, new MockFilterChain());
-		assertThat(response.getStatus()).isEqualTo(403);
+	}
 
-		// Try with pathInfo
-		request = new MockHttpServletRequest();
+
+	@Test(expected = RequestRejectedException.class)
+	public void adminFilePatternCannotBeBypassedByAddingPathParametersWithPathInfo() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setServletPath("/secured");
 		request.setPathInfo("/admin.html;x=user.html");
 		request.setSession(createAuthenticatedSession("ROLE_USER"));
-		response = new MockHttpServletResponse();
+		MockHttpServletResponse response = new MockHttpServletResponse();
 		fcp.doFilter(request, response, new MockFilterChain());
 		assertThat(response.getStatus()).isEqualTo(403);
 	}

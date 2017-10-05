@@ -19,9 +19,9 @@ package org.springframework.security.web;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.firewall.DefaultHttpFirewall;
 import org.springframework.security.web.firewall.FirewalledRequest;
 import org.springframework.security.web.firewall.HttpFirewall;
+import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.web.filter.DelegatingFilterProxy;
@@ -96,7 +96,7 @@ import java.util.*;
  *
  * An {@link HttpFirewall} instance is used to validate incoming requests and create a
  * wrapped request which provides consistent path values for matching against. See
- * {@link DefaultHttpFirewall}, for more information on the type of attacks which the
+ * {@link StrictHttpFirewall}, for more information on the type of attacks which the
  * default implementation protects against. A custom implementation can be injected to
  * provide stricter control over the request contents or if an application needs to
  * support certain types of request which are rejected by default.
@@ -147,7 +147,7 @@ public class FilterChainProxy extends GenericFilterBean {
 
 	private FilterChainValidator filterChainValidator = new NullFilterChainValidator();
 
-	private HttpFirewall firewall = new DefaultHttpFirewall();
+	private HttpFirewall firewall = new StrictHttpFirewall();
 
 	// ~ Methods
 	// ========================================================================================================

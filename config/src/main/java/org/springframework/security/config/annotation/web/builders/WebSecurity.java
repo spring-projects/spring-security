@@ -47,7 +47,7 @@ import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.debug.DebugFilter;
-import org.springframework.security.web.firewall.DefaultHttpFirewall;
+import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -159,7 +159,7 @@ public final class WebSecurity extends
 
 	/**
 	 * Allows customizing the {@link HttpFirewall}. The default is
-	 * {@link DefaultHttpFirewall}.
+	 * {@link StrictHttpFirewall}.
 	 *
 	 * @param httpFirewall the custom {@link HttpFirewall}
 	 * @return the {@link WebSecurity} for further customizations
