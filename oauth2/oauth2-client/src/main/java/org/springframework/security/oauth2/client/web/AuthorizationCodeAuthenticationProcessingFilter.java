@@ -18,10 +18,14 @@ package org.springframework.security.oauth2.client.web;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationProvider;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.client.authentication.OAuth2ClientAuthenticationToken;
+import org.springframework.security.oauth2.client.authentication.OAuth2UserAuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationIdentifierStrategy;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.converter.AuthorizationCodeAuthorizationResponseAttributesConverter;
 import org.springframework.security.oauth2.client.web.converter.ErrorResponseAttributesConverter;
@@ -30,6 +34,10 @@ import org.springframework.security.oauth2.core.endpoint.AuthorizationCodeAuthor
 import org.springframework.security.oauth2.core.endpoint.AuthorizationRequestAttributes;
 import org.springframework.security.oauth2.core.endpoint.ErrorResponseAttributes;
 import org.springframework.security.oauth2.core.endpoint.OAuth2Parameter;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.oidc.client.authentication.OidcClientAuthenticationToken;
+import org.springframework.security.oauth2.oidc.client.authentication.OidcUserAuthenticationToken;
+import org.springframework.security.oauth2.oidc.core.user.OidcUser;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
@@ -84,6 +92,7 @@ public class AuthorizationCodeAuthenticationProcessingFilter extends AbstractAut
 	private ClientRegistrationRepository clientRegistrationRepository;
 	private RequestMatcher authorizationResponseMatcher = new AuthorizationResponseMatcher();
 	private AuthorizationRequestRepository authorizationRequestRepository = new HttpSessionAuthorizationRequestRepository();
+	private final ClientRegistrationIdentifierStrategy<String> providerIdentifierStrategy = new ProviderIdentifierStrategy();
 
 	public AuthorizationCodeAuthenticationProcessingFilter() {
 		super(new AuthorizationResponseMatcher());
@@ -119,14 +128,27 @@ public class AuthorizationCodeAuthenticationProcessingFilter extends AbstractAut
 		AuthorizationCodeAuthorizationResponseAttributes authorizationCodeResponseAttributes =
 				this.authorizationCodeResponseConverter.apply(request);
 
-		AuthorizationCodeAuthenticationToken authRequest = new AuthorizationCodeAuthenticationToken(
+		AuthorizationCodeAuthenticationToken authorizationCodeAuthentication = new AuthorizationCodeAuthenticationToken(
 				authorizationCodeResponseAttributes.getCode(), clientRegistration, matchingAuthorizationRequest);
+		authorizationCodeAuthentication.setDetails(this.authenticationDetailsSource.buildDetails(request));
 
-		authRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));
+		OAuth2ClientAuthenticationToken oauth2ClientAuthentication =
+			(OAuth2ClientAuthenticationToken)this.getAuthenticationManager().authenticate(authorizationCodeAuthentication);
 
-		Authentication authenticated = this.getAuthenticationManager().authenticate(authRequest);
+		OAuth2UserAuthenticationToken oauth2UserAuthentication;
+		if (this.authenticated() && this.authenticatedSameProviderAs(oauth2ClientAuthentication)) {
+			// Create a new user authentication (using same principal)
+			// but with a different client authentication association
+			oauth2UserAuthentication = (OAuth2UserAuthenticationToken)SecurityContextHolder.getContext().getAuthentication();
+			oauth2UserAuthentication = this.createUserAuthentication(oauth2UserAuthentication, oauth2ClientAuthentication);
+		} else {
+			// Authenticate the user... the user needs to be authenticated
+			// before we can associate the client authentication to the user
+			oauth2UserAuthentication = (OAuth2UserAuthenticationToken)this.getAuthenticationManager().authenticate(
+				this.createUserAuthentication(oauth2ClientAuthentication));
+		}
 
-		return authenticated;
+		return oauth2UserAuthentication;
 	}
 
 	public RequestMatcher getAuthorizationResponseMatcher() {
@@ -182,6 +204,50 @@ public class AuthorizationCodeAuthenticationProcessingFilter extends AbstractAut
 		}
 	}
 
+	private boolean authenticated() {
+		Authentication currentAuthentication = SecurityContextHolder.getContext().getAuthentication();
+		return currentAuthentication != null &&
+			currentAuthentication instanceof OAuth2UserAuthenticationToken &&
+			currentAuthentication.isAuthenticated();
+	}
+
+	private boolean authenticatedSameProviderAs(OAuth2ClientAuthenticationToken oauth2ClientAuthentication) {
+		OAuth2UserAuthenticationToken userAuthentication =
+			(OAuth2UserAuthenticationToken)SecurityContextHolder.getContext().getAuthentication();
+
+		String userProviderId = this.providerIdentifierStrategy.getIdentifier(
+			userAuthentication.getClientAuthentication().getClientRegistration());
+		String clientProviderId = this.providerIdentifierStrategy.getIdentifier(
+			oauth2ClientAuthentication.getClientRegistration());
+
+		return userProviderId.equals(clientProviderId);
+	}
+
+	private OAuth2UserAuthenticationToken createUserAuthentication(OAuth2ClientAuthenticationToken clientAuthentication) {
+		if (OidcClientAuthenticationToken.class.isAssignableFrom(clientAuthentication.getClass())) {
+			return new OidcUserAuthenticationToken((OidcClientAuthenticationToken)clientAuthentication);
+		} else {
+			return new OAuth2UserAuthenticationToken(clientAuthentication);
+		}
+	}
+
+	private OAuth2UserAuthenticationToken createUserAuthentication(
+		OAuth2UserAuthenticationToken currentUserAuthentication,
+		OAuth2ClientAuthenticationToken newClientAuthentication) {
+
+		if (OidcUserAuthenticationToken.class.isAssignableFrom(currentUserAuthentication.getClass())) {
+			return new OidcUserAuthenticationToken(
+				(OidcUser) currentUserAuthentication.getPrincipal(),
+				currentUserAuthentication.getAuthorities(),
+				newClientAuthentication);
+		} else {
+			return new OAuth2UserAuthenticationToken(
+				(OAuth2User)currentUserAuthentication.getPrincipal(),
+				currentUserAuthentication.getAuthorities(),
+				newClientAuthentication);
+		}
+	}
+
 	private static class AuthorizationResponseMatcher implements RequestMatcher {
 
 		@Override
@@ -197,6 +263,18 @@ public class AuthorizationCodeAuthenticationProcessingFilter extends AbstractAut
 		private boolean errorResponse(HttpServletRequest request) {
 			return StringUtils.hasText(request.getParameter(OAuth2Parameter.ERROR)) &&
 				StringUtils.hasText(request.getParameter(OAuth2Parameter.STATE));
+		}
+	}
+
+	private static class ProviderIdentifierStrategy implements ClientRegistrationIdentifierStrategy<String> {
+
+		@Override
+		public String getIdentifier(ClientRegistration clientRegistration) {
+			StringBuilder builder = new StringBuilder();
+			builder.append("[").append(clientRegistration.getProviderDetails().getAuthorizationUri()).append("]");
+			builder.append("[").append(clientRegistration.getProviderDetails().getTokenUri()).append("]");
+			builder.append("[").append(clientRegistration.getProviderDetails().getUserInfoEndpoint().getUri()).append("]");
+			return builder.toString();
 		}
 	}
 }

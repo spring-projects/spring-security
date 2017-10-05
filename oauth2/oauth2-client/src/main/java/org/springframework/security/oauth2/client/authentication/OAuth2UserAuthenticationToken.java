@@ -19,6 +19,7 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.Assert;
 
@@ -42,14 +43,17 @@ public class OAuth2UserAuthenticationToken extends AbstractAuthenticationToken {
 	private final OAuth2User principal;
 	private final OAuth2ClientAuthenticationToken clientAuthentication;
 
+	public OAuth2UserAuthenticationToken(OAuth2ClientAuthenticationToken clientAuthentication) {
+		this(null, AuthorityUtils.NO_AUTHORITIES, clientAuthentication);
+	}
+
 	public OAuth2UserAuthenticationToken(OAuth2User principal, Collection<? extends GrantedAuthority> authorities,
 											OAuth2ClientAuthenticationToken clientAuthentication) {
 		super(authorities);
-		Assert.notNull(principal, "principal cannot be null");
 		Assert.notNull(clientAuthentication, "clientAuthentication cannot be null");
 		this.principal = principal;
 		this.clientAuthentication = clientAuthentication;
-		this.setAuthenticated(true);
+		this.setAuthenticated(principal != null);
 	}
 
 	@Override

@@ -23,6 +23,7 @@ import org.springframework.security.oauth2.client.authentication.AuthorizationCo
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticator;
 import org.springframework.security.oauth2.client.authentication.AuthorizationGrantAuthenticator;
 import org.springframework.security.oauth2.client.authentication.DelegatingAuthorizationGrantAuthenticator;
+import org.springframework.security.oauth2.client.authentication.OAuth2UserAuthenticationProvider;
 import org.springframework.security.oauth2.client.authentication.jwt.JwtDecoderRegistry;
 import org.springframework.security.oauth2.client.authentication.jwt.nimbus.NimbusJwtDecoderRegistry;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -128,13 +129,20 @@ final class AuthorizationCodeAuthenticationFilterConfigurer<H extends HttpSecuri
 
 	@Override
 	public void init(H http) throws Exception {
-		AuthorizationCodeAuthenticationProvider authenticationProvider = new AuthorizationCodeAuthenticationProvider(
-			this.getAuthorizationCodeAuthenticator(), this.getAccessTokenRepository(), this.getUserInfoService());
+		AuthorizationCodeAuthenticationProvider authorizationCodeAuthenticationProvider =
+			new AuthorizationCodeAuthenticationProvider(
+				this.getAuthorizationCodeAuthenticator(), this.getAccessTokenRepository());
+		authorizationCodeAuthenticationProvider = this.postProcess(authorizationCodeAuthenticationProvider);
+		http.authenticationProvider(authorizationCodeAuthenticationProvider);
+
+		OAuth2UserAuthenticationProvider oauth2UserAuthenticationProvider =
+			new OAuth2UserAuthenticationProvider(this.getUserInfoService());
 		if (this.userAuthoritiesMapper != null) {
-			authenticationProvider.setAuthoritiesMapper(this.userAuthoritiesMapper);
+			oauth2UserAuthenticationProvider.setAuthoritiesMapper(this.userAuthoritiesMapper);
 		}
-		authenticationProvider = this.postProcess(authenticationProvider);
-		http.authenticationProvider(authenticationProvider);
+		oauth2UserAuthenticationProvider = this.postProcess(oauth2UserAuthenticationProvider);
+		http.authenticationProvider(oauth2UserAuthenticationProvider);
+
 		super.init(http);
 	}
 

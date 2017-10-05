@@ -23,15 +23,20 @@ import org.mockito.Mockito;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.client.authentication.OAuth2ClientAuthenticationToken;
+import org.springframework.security.oauth2.client.authentication.OAuth2UserAuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.endpoint.AuthorizationRequestAttributes;
 import org.springframework.security.oauth2.core.endpoint.OAuth2Parameter;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
@@ -40,6 +45,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.mockito.Mockito.mock;
 
 /**
  * Tests {@link AuthorizationCodeAuthenticationProcessingFilter}.
@@ -58,7 +65,7 @@ public class AuthorizationCodeAuthenticationProcessingFilterTests {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestURI);
 		request.setServletPath(requestURI);
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		FilterChain filterChain = Mockito.mock(FilterChain.class);
+		FilterChain filterChain = mock(FilterChain.class);
 
 		filter.doFilter(request, response, filterChain);
 
@@ -71,7 +78,7 @@ public class AuthorizationCodeAuthenticationProcessingFilterTests {
 		ClientRegistration clientRegistration = TestUtil.githubClientRegistration();
 
 		AuthorizationCodeAuthenticationProcessingFilter filter = Mockito.spy(setupFilter(clientRegistration));
-		AuthenticationFailureHandler failureHandler = Mockito.mock(AuthenticationFailureHandler.class);
+		AuthenticationFailureHandler failureHandler = mock(AuthenticationFailureHandler.class);
 		filter.setAuthenticationFailureHandler(failureHandler);
 
 		MockHttpServletRequest request = this.setupRequest(clientRegistration);
@@ -79,7 +86,7 @@ public class AuthorizationCodeAuthenticationProcessingFilterTests {
 		request.addParameter(OAuth2Parameter.ERROR, errorCode);
 		request.addParameter(OAuth2Parameter.STATE, "some state");
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		FilterChain filterChain = Mockito.mock(FilterChain.class);
+		FilterChain filterChain = mock(FilterChain.class);
 
 		filter.doFilter(request, response, filterChain);
 
@@ -90,14 +97,17 @@ public class AuthorizationCodeAuthenticationProcessingFilterTests {
 
 	@Test
 	public void doFilterWhenAuthorizationCodeSuccessResponseThenAuthenticationSuccessHandlerIsCalled() throws Exception {
-		TestingAuthenticationToken authentication = new TestingAuthenticationToken("joe", "password", "user", "admin");
-		AuthenticationManager authenticationManager = Mockito.mock(AuthenticationManager.class);
-		Mockito.when(authenticationManager.authenticate(Matchers.any(Authentication.class))).thenReturn(authentication);
-
 		ClientRegistration clientRegistration = TestUtil.githubClientRegistration();
+		OAuth2ClientAuthenticationToken clientAuthentication = new OAuth2ClientAuthenticationToken(
+			clientRegistration, mock(AccessToken.class));
+		OAuth2UserAuthenticationToken userAuthentication = new OAuth2UserAuthenticationToken(
+			mock(OAuth2User.class), AuthorityUtils.createAuthorityList("ROLE_USER"), clientAuthentication);
+		SecurityContextHolder.getContext().setAuthentication(userAuthentication);
+		AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
+		Mockito.when(authenticationManager.authenticate(Matchers.any(Authentication.class))).thenReturn(clientAuthentication);
 
 		AuthorizationCodeAuthenticationProcessingFilter filter = Mockito.spy(setupFilter(authenticationManager, clientRegistration));
-		AuthenticationSuccessHandler successHandler = Mockito.mock(AuthenticationSuccessHandler.class);
+		AuthenticationSuccessHandler successHandler = mock(AuthenticationSuccessHandler.class);
 		filter.setAuthenticationSuccessHandler(successHandler);
 		AuthorizationRequestRepository authorizationRequestRepository = new HttpSessionAuthorizationRequestRepository();
 		filter.setAuthorizationRequestRepository(authorizationRequestRepository);
@@ -109,7 +119,7 @@ public class AuthorizationCodeAuthenticationProcessingFilterTests {
 		request.addParameter(OAuth2Parameter.STATE, state);
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		setupAuthorizationRequest(authorizationRequestRepository, request, response, clientRegistration, state);
-		FilterChain filterChain = Mockito.mock(FilterChain.class);
+		FilterChain filterChain = mock(FilterChain.class);
 
 		filter.doFilter(request, response, filterChain);
 
@@ -118,7 +128,7 @@ public class AuthorizationCodeAuthenticationProcessingFilterTests {
 		ArgumentCaptor<Authentication> authenticationArgCaptor = ArgumentCaptor.forClass(Authentication.class);
 		Mockito.verify(successHandler).onAuthenticationSuccess(Matchers.any(HttpServletRequest.class), Matchers.any(HttpServletResponse.class),
 				authenticationArgCaptor.capture());
-		Assertions.assertThat(authenticationArgCaptor.getValue()).isEqualTo(authentication);
+		Assertions.assertThat(authenticationArgCaptor.getValue()).isEqualTo(userAuthentication);
 	}
 
 	@Test
@@ -126,7 +136,7 @@ public class AuthorizationCodeAuthenticationProcessingFilterTests {
 		ClientRegistration clientRegistration = TestUtil.githubClientRegistration();
 
 		AuthorizationCodeAuthenticationProcessingFilter filter = Mockito.spy(setupFilter(clientRegistration));
-		AuthenticationFailureHandler failureHandler = Mockito.mock(AuthenticationFailureHandler.class);
+		AuthenticationFailureHandler failureHandler = mock(AuthenticationFailureHandler.class);
 		filter.setAuthenticationFailureHandler(failureHandler);
 
 		MockHttpServletRequest request = this.setupRequest(clientRegistration);
@@ -135,7 +145,7 @@ public class AuthorizationCodeAuthenticationProcessingFilterTests {
 		request.addParameter(OAuth2Parameter.CODE, authCode);
 		request.addParameter(OAuth2Parameter.STATE, state);
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		FilterChain filterChain = Mockito.mock(FilterChain.class);
+		FilterChain filterChain = mock(FilterChain.class);
 
 		filter.doFilter(request, response, filterChain);
 
@@ -147,7 +157,7 @@ public class AuthorizationCodeAuthenticationProcessingFilterTests {
 		ClientRegistration clientRegistration = TestUtil.githubClientRegistration();
 
 		AuthorizationCodeAuthenticationProcessingFilter filter = Mockito.spy(setupFilter(clientRegistration));
-		AuthenticationFailureHandler failureHandler = Mockito.mock(AuthenticationFailureHandler.class);
+		AuthenticationFailureHandler failureHandler = mock(AuthenticationFailureHandler.class);
 		filter.setAuthenticationFailureHandler(failureHandler);
 		AuthorizationRequestRepository authorizationRequestRepository = new HttpSessionAuthorizationRequestRepository();
 		filter.setAuthorizationRequestRepository(authorizationRequestRepository);
@@ -159,7 +169,7 @@ public class AuthorizationCodeAuthenticationProcessingFilterTests {
 		request.addParameter(OAuth2Parameter.STATE, state);
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		setupAuthorizationRequest(authorizationRequestRepository, request, response, clientRegistration, "some state");
-		FilterChain filterChain = Mockito.mock(FilterChain.class);
+		FilterChain filterChain = mock(FilterChain.class);
 
 		filter.doFilter(request, response, filterChain);
 
@@ -171,7 +181,7 @@ public class AuthorizationCodeAuthenticationProcessingFilterTests {
 		ClientRegistration clientRegistration = TestUtil.githubClientRegistration();
 
 		AuthorizationCodeAuthenticationProcessingFilter filter = Mockito.spy(setupFilter(clientRegistration));
-		AuthenticationFailureHandler failureHandler = Mockito.mock(AuthenticationFailureHandler.class);
+		AuthenticationFailureHandler failureHandler = mock(AuthenticationFailureHandler.class);
 		filter.setAuthenticationFailureHandler(failureHandler);
 		AuthorizationRequestRepository authorizationRequestRepository = new HttpSessionAuthorizationRequestRepository();
 		filter.setAuthorizationRequestRepository(authorizationRequestRepository);
@@ -184,7 +194,7 @@ public class AuthorizationCodeAuthenticationProcessingFilterTests {
 		request.addParameter(OAuth2Parameter.STATE, state);
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		setupAuthorizationRequest(authorizationRequestRepository, request, response, clientRegistration, state);
-		FilterChain filterChain = Mockito.mock(FilterChain.class);
+		FilterChain filterChain = mock(FilterChain.class);
 
 		filter.doFilter(request, response, filterChain);
 
@@ -209,7 +219,7 @@ public class AuthorizationCodeAuthenticationProcessingFilterTests {
 	}
 
 	private AuthorizationCodeAuthenticationProcessingFilter setupFilter(ClientRegistration... clientRegistrations) throws Exception {
-		AuthenticationManager authenticationManager = Mockito.mock(AuthenticationManager.class);
+		AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
 
 		return setupFilter(authenticationManager, clientRegistrations);
 	}

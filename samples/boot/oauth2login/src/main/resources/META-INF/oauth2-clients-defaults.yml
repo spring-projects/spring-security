@@ -10,6 +10,7 @@ security:
           authorization-uri: "https://accounts.google.com/o/oauth2/v2/auth"
           token-uri: "https://www.googleapis.com/oauth2/v4/token"
           user-info-uri: "https://www.googleapis.com/oauth2/v3/userinfo"
+          user-name-attribute-name: "sub"
           jwk-set-uri: "https://www.googleapis.com/oauth2/v3/certs"
           client-name: Google
         github:
@@ -38,3 +39,4 @@ security:
           redirect-uri: "{scheme}://{serverName}:{serverPort}{contextPath}/oauth2/authorize/code/{registrationId}"
           scope: openid, profile, email, address, phone
           client-name: Okta
+          user-name-attribute-name: "sub"
