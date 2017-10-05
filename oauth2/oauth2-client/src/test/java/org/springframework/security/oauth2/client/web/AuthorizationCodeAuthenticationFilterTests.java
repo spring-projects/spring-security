@@ -49,17 +49,17 @@ import java.util.Map;
 import static org.mockito.Mockito.mock;
 
 /**
- * Tests {@link AuthorizationCodeAuthenticationProcessingFilter}.
+ * Tests {@link AuthorizationCodeAuthenticationFilter}.
  *
  * @author Joe Grandja
  */
-public class AuthorizationCodeAuthenticationProcessingFilterTests {
+public class AuthorizationCodeAuthenticationFilterTests {
 
 	@Test
 	public void doFilterWhenNotAuthorizationCodeResponseThenContinueChain() throws Exception {
 		ClientRegistration clientRegistration = TestUtil.googleClientRegistration();
 
-		AuthorizationCodeAuthenticationProcessingFilter filter = Mockito.spy(setupFilter(clientRegistration));
+		AuthorizationCodeAuthenticationFilter filter = Mockito.spy(setupFilter(clientRegistration));
 
 		String requestURI = "/path";
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestURI);
@@ -77,7 +77,7 @@ public class AuthorizationCodeAuthenticationProcessingFilterTests {
 	public void doFilterWhenAuthorizationCodeErrorResponseThenAuthenticationFailureHandlerIsCalled() throws Exception {
 		ClientRegistration clientRegistration = TestUtil.githubClientRegistration();
 
-		AuthorizationCodeAuthenticationProcessingFilter filter = Mockito.spy(setupFilter(clientRegistration));
+		AuthorizationCodeAuthenticationFilter filter = Mockito.spy(setupFilter(clientRegistration));
 		AuthenticationFailureHandler failureHandler = mock(AuthenticationFailureHandler.class);
 		filter.setAuthenticationFailureHandler(failureHandler);
 
@@ -106,7 +106,7 @@ public class AuthorizationCodeAuthenticationProcessingFilterTests {
 		AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
 		Mockito.when(authenticationManager.authenticate(Matchers.any(Authentication.class))).thenReturn(clientAuthentication);
 
-		AuthorizationCodeAuthenticationProcessingFilter filter = Mockito.spy(setupFilter(authenticationManager, clientRegistration));
+		AuthorizationCodeAuthenticationFilter filter = Mockito.spy(setupFilter(authenticationManager, clientRegistration));
 		AuthenticationSuccessHandler successHandler = mock(AuthenticationSuccessHandler.class);
 		filter.setAuthenticationSuccessHandler(successHandler);
 		AuthorizationRequestRepository authorizationRequestRepository = new HttpSessionAuthorizationRequestRepository();
@@ -135,7 +135,7 @@ public class AuthorizationCodeAuthenticationProcessingFilterTests {
 	public void doFilterWhenAuthorizationCodeSuccessResponseAndNoMatchingAuthorizationRequestThenThrowOAuth2AuthenticationExceptionAuthorizationRequestNotFound() throws Exception {
 		ClientRegistration clientRegistration = TestUtil.githubClientRegistration();
 
-		AuthorizationCodeAuthenticationProcessingFilter filter = Mockito.spy(setupFilter(clientRegistration));
+		AuthorizationCodeAuthenticationFilter filter = Mockito.spy(setupFilter(clientRegistration));
 		AuthenticationFailureHandler failureHandler = mock(AuthenticationFailureHandler.class);
 		filter.setAuthenticationFailureHandler(failureHandler);
 
@@ -156,7 +156,7 @@ public class AuthorizationCodeAuthenticationProcessingFilterTests {
 	public void doFilterWhenAuthorizationCodeSuccessResponseWithInvalidStateParamThenThrowOAuth2AuthenticationExceptionInvalidStateParameter() throws Exception {
 		ClientRegistration clientRegistration = TestUtil.githubClientRegistration();
 
-		AuthorizationCodeAuthenticationProcessingFilter filter = Mockito.spy(setupFilter(clientRegistration));
+		AuthorizationCodeAuthenticationFilter filter = Mockito.spy(setupFilter(clientRegistration));
 		AuthenticationFailureHandler failureHandler = mock(AuthenticationFailureHandler.class);
 		filter.setAuthenticationFailureHandler(failureHandler);
 		AuthorizationRequestRepository authorizationRequestRepository = new HttpSessionAuthorizationRequestRepository();
@@ -180,7 +180,7 @@ public class AuthorizationCodeAuthenticationProcessingFilterTests {
 	public void doFilterWhenAuthorizationCodeSuccessResponseWithInvalidRedirectUriParamThenThrowOAuth2AuthenticationExceptionInvalidRedirectUriParameter() throws Exception {
 		ClientRegistration clientRegistration = TestUtil.githubClientRegistration();
 
-		AuthorizationCodeAuthenticationProcessingFilter filter = Mockito.spy(setupFilter(clientRegistration));
+		AuthorizationCodeAuthenticationFilter filter = Mockito.spy(setupFilter(clientRegistration));
 		AuthenticationFailureHandler failureHandler = mock(AuthenticationFailureHandler.class);
 		filter.setAuthenticationFailureHandler(failureHandler);
 		AuthorizationRequestRepository authorizationRequestRepository = new HttpSessionAuthorizationRequestRepository();
@@ -201,7 +201,7 @@ public class AuthorizationCodeAuthenticationProcessingFilterTests {
 		verifyThrowsOAuth2AuthenticationExceptionWithErrorCode(filter, failureHandler, "invalid_redirect_uri_parameter");
 	}
 
-	private void verifyThrowsOAuth2AuthenticationExceptionWithErrorCode(AuthorizationCodeAuthenticationProcessingFilter filter,
+	private void verifyThrowsOAuth2AuthenticationExceptionWithErrorCode(AuthorizationCodeAuthenticationFilter filter,
 																		AuthenticationFailureHandler failureHandler,
 																		String errorCode) throws Exception {
 
@@ -218,18 +218,18 @@ public class AuthorizationCodeAuthenticationProcessingFilterTests {
 		Assertions.assertThat(oauth2AuthenticationException.getErrorObject().getErrorCode()).isEqualTo(errorCode);
 	}
 
-	private AuthorizationCodeAuthenticationProcessingFilter setupFilter(ClientRegistration... clientRegistrations) throws Exception {
+	private AuthorizationCodeAuthenticationFilter setupFilter(ClientRegistration... clientRegistrations) throws Exception {
 		AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
 
 		return setupFilter(authenticationManager, clientRegistrations);
 	}
 
-	private AuthorizationCodeAuthenticationProcessingFilter setupFilter(
+	private AuthorizationCodeAuthenticationFilter setupFilter(
 			AuthenticationManager authenticationManager, ClientRegistration... clientRegistrations) throws Exception {
 
 		ClientRegistrationRepository clientRegistrationRepository = TestUtil.clientRegistrationRepository(clientRegistrations);
 
-		AuthorizationCodeAuthenticationProcessingFilter filter = new AuthorizationCodeAuthenticationProcessingFilter();
+		AuthorizationCodeAuthenticationFilter filter = new AuthorizationCodeAuthenticationFilter();
 		filter.setClientRegistrationRepository(clientRegistrationRepository);
 		filter.setAuthenticationManager(authenticationManager);
 

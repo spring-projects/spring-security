@@ -81,7 +81,7 @@ import java.io.IOException;
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">Section 4.1 Authorization Code Grant Flow</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.2">Section 4.1.2 Authorization Response</a>
  */
-public class AuthorizationCodeAuthenticationProcessingFilter extends AbstractAuthenticationProcessingFilter {
+public class AuthorizationCodeAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 	public static final String DEFAULT_AUTHORIZATION_RESPONSE_BASE_URI = "/oauth2/authorize/code";
 	private static final String AUTHORIZATION_REQUEST_NOT_FOUND_ERROR_CODE = "authorization_request_not_found";
 	private static final String INVALID_STATE_PARAMETER_ERROR_CODE = "invalid_state_parameter";
@@ -94,7 +94,7 @@ public class AuthorizationCodeAuthenticationProcessingFilter extends AbstractAut
 	private AuthorizationRequestRepository authorizationRequestRepository = new HttpSessionAuthorizationRequestRepository();
 	private final ClientRegistrationIdentifierStrategy<String> providerIdentifierStrategy = new ProviderIdentifierStrategy();
 
-	public AuthorizationCodeAuthenticationProcessingFilter() {
+	public AuthorizationCodeAuthenticationFilter() {
 		super(new AuthorizationResponseMatcher());
 	}
 

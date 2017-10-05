@@ -47,7 +47,7 @@ import java.util.Map;
  * It uses an {@link AuthorizationRequestUriBuilder} to build the <i>OAuth 2.0 Authorization Request</i>,
  * which is used as the redirect <code>URI</code> to the <i>Authorization Endpoint</i>.
  * The redirect <code>URI</code> will include the client identifier, requested scope(s), state, response type, and a redirection URI
- * which the authorization server will send the user-agent back to (handled by {@link AuthorizationCodeAuthenticationProcessingFilter})
+ * which the authorization server will send the user-agent back to (handled by {@link AuthorizationCodeAuthenticationFilter})
  * once access is granted (or denied) by the end-user (resource owner).
  *
  * @author Joe Grandja
@@ -57,7 +57,7 @@ import java.util.Map;
  * @see AuthorizationRequestUriBuilder
  * @see ClientRegistration
  * @see ClientRegistrationRepository
- * @see AuthorizationCodeAuthenticationProcessingFilter
+ * @see AuthorizationCodeAuthenticationFilter
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">Section 4.1 Authorization Code Grant Flow</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.1">Section 4.1.1 Authorization Request</a>
  */

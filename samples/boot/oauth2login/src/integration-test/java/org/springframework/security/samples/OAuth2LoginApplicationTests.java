@@ -40,7 +40,7 @@ import org.springframework.security.oauth2.client.authentication.AuthorizationCo
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.user.OAuth2UserService;
-import org.springframework.security.oauth2.client.web.AuthorizationCodeAuthenticationProcessingFilter;
+import org.springframework.security.oauth2.client.web.AuthorizationCodeAuthenticationFilter;
 import org.springframework.security.oauth2.client.web.AuthorizationCodeRequestRedirectFilter;
 import org.springframework.security.oauth2.client.web.AuthorizationGrantTokenExchanger;
 import org.springframework.security.oauth2.core.AccessToken;
@@ -73,7 +73,7 @@ import static org.mockito.Mockito.when;
 
 /**
  * Integration tests for the OAuth 2.0 client filters {@link AuthorizationCodeRequestRedirectFilter}
- * and {@link AuthorizationCodeAuthenticationProcessingFilter}.
+ * and {@link AuthorizationCodeAuthenticationFilter}.
  * These filters work together to realize the Authorization Code Grant flow.
  *
  * @author Joe Grandja

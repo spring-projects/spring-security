@@ -33,7 +33,7 @@ import org.springframework.security.oauth2.client.user.CustomUserTypesOAuth2User
 import org.springframework.security.oauth2.client.user.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.user.DelegatingOAuth2UserService;
 import org.springframework.security.oauth2.client.user.OAuth2UserService;
-import org.springframework.security.oauth2.client.web.AuthorizationCodeAuthenticationProcessingFilter;
+import org.springframework.security.oauth2.client.web.AuthorizationCodeAuthenticationFilter;
 import org.springframework.security.oauth2.client.web.AuthorizationGrantTokenExchanger;
 import org.springframework.security.oauth2.client.web.nimbus.NimbusAuthorizationCodeTokenExchanger;
 import org.springframework.security.oauth2.core.AccessToken;
@@ -53,7 +53,7 @@ import java.util.Map;
  * @author Joe Grandja
  */
 final class AuthorizationCodeAuthenticationFilterConfigurer<H extends HttpSecurityBuilder<H>, R extends RequestMatcher> extends
-		AbstractAuthenticationFilterConfigurer<H, AuthorizationCodeAuthenticationFilterConfigurer<H, R>, AuthorizationCodeAuthenticationProcessingFilter> {
+		AbstractAuthenticationFilterConfigurer<H, AuthorizationCodeAuthenticationFilterConfigurer<H, R>, AuthorizationCodeAuthenticationFilter> {
 
 	private R authorizationResponseMatcher;
 	private AuthorizationGrantAuthenticator<AuthorizationCodeAuthenticationToken> authorizationCodeAuthenticator;
@@ -65,7 +65,7 @@ final class AuthorizationCodeAuthenticationFilterConfigurer<H extends HttpSecuri
 	private GrantedAuthoritiesMapper userAuthoritiesMapper;
 
 	AuthorizationCodeAuthenticationFilterConfigurer() {
-		super(new AuthorizationCodeAuthenticationProcessingFilter(), null);
+		super(new AuthorizationCodeAuthenticationFilter(), null);
 	}
 
 	AuthorizationCodeAuthenticationFilterConfigurer<H, R> authorizationResponseMatcher(R authorizationResponseMatcher) {
@@ -148,7 +148,7 @@ final class AuthorizationCodeAuthenticationFilterConfigurer<H extends HttpSecuri
 
 	@Override
 	public void configure(H http) throws Exception {
-		AuthorizationCodeAuthenticationProcessingFilter authFilter = this.getAuthenticationFilter();
+		AuthorizationCodeAuthenticationFilter authFilter = this.getAuthenticationFilter();
 		if (this.authorizationResponseMatcher != null) {
 			authFilter.setAuthorizationResponseMatcher(this.authorizationResponseMatcher);
 		}

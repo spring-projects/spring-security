@@ -89,7 +89,7 @@ final class FilterComparator implements Comparator<Filter>, Serializable {
 				order);
 		order += STEP;
 		filterToOrder.put(
-			"org.springframework.security.oauth2.client.web.AuthorizationCodeAuthenticationProcessingFilter",
+			"org.springframework.security.oauth2.client.web.AuthorizationCodeAuthenticationFilter",
 			order);
 		order += STEP;
 		put(UsernamePasswordAuthenticationFilter.class, order);
