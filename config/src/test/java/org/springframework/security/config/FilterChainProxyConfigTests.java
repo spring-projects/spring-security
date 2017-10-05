@@ -38,6 +38,7 @@ import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
+import org.springframework.security.web.firewall.DefaultHttpFirewall;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
@@ -80,6 +81,7 @@ public class FilterChainProxyConfigTests {
 	public void normalOperationWithNewConfig() throws Exception {
 		FilterChainProxy filterChainProxy = appCtx.getBean("newFilterChainProxy",
 				FilterChainProxy.class);
+		filterChainProxy.setFirewall(new DefaultHttpFirewall());
 		checkPathAndFilterOrder(filterChainProxy);
 		doNormalOperation(filterChainProxy);
 	}
@@ -88,6 +90,7 @@ public class FilterChainProxyConfigTests {
 	public void normalOperationWithNewConfigRegex() throws Exception {
 		FilterChainProxy filterChainProxy = appCtx.getBean("newFilterChainProxyRegex",
 				FilterChainProxy.class);
+		filterChainProxy.setFirewall(new DefaultHttpFirewall());
 		checkPathAndFilterOrder(filterChainProxy);
 		doNormalOperation(filterChainProxy);
 	}
@@ -96,6 +99,7 @@ public class FilterChainProxyConfigTests {
 	public void normalOperationWithNewConfigNonNamespace() throws Exception {
 		FilterChainProxy filterChainProxy = appCtx.getBean(
 				"newFilterChainProxyNonNamespace", FilterChainProxy.class);
+		filterChainProxy.setFirewall(new DefaultHttpFirewall());
 		checkPathAndFilterOrder(filterChainProxy);
 		doNormalOperation(filterChainProxy);
 	}

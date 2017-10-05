@@ -37,8 +37,10 @@ import javax.servlet.http.HttpServletResponse;
  * containers normalize the paths before performing the servlet-mapping, but
  * again this is not guaranteed by the servlet spec.
  *
+ * @deprecated Use {@link StrictHttpFirewall} instead
  * @author Luke Taylor
  */
+@Deprecated
 public class DefaultHttpFirewall implements HttpFirewall {
 	private boolean allowUrlEncodedSlash;
 
