@@ -16,6 +16,7 @@
 
 package org.springframework.security.web.server.authentication.logout;
 
+import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -32,7 +33,7 @@ import org.springframework.web.server.WebFilterChain;
  * @author Rob Winch
  * @since 5.0
  */
-public class LogoutWebFiter implements WebFilter {
+public class LogoutWebFilter implements WebFilter {
 	private AnonymousAuthenticationToken anonymousAuthenticationToken = new AnonymousAuthenticationToken("key", "anonymous",
 		AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
 	private LogoutHandler logoutHandler = new SecurityContextRepositoryLogoutHandler();
@@ -53,5 +54,15 @@ public class LogoutWebFiter implements WebFilter {
 		return exchange.getPrincipal()
 			.cast(Authentication.class)
 			.defaultIfEmpty(this.anonymousAuthenticationToken);
+	}
+
+	public final void setLogoutHandler(LogoutHandler logoutHandler) {
+		Assert.notNull(logoutHandler, "logoutHandler must not be null");
+		this.logoutHandler = logoutHandler;
+	}
+
+	public final void setRequiresLogout(ServerWebExchangeMatcher serverWebExchangeMatcher) {
+		Assert.notNull(serverWebExchangeMatcher, "serverWebExchangeMatcher must not be null");
+		this.requiresLogout = serverWebExchangeMatcher;
 	}
 }

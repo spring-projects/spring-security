@@ -15,64 +15,45 @@
  */
 package org.springframework.security.config.web.server;
 
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.AnnotationAwareOrderComparator;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.security.authentication.ReactiveAuthenticationManager;
+import org.springframework.security.authorization.AuthenticatedAuthorizationManager;
+import org.springframework.security.authorization.AuthorityAuthorizationManager;
+import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.ReactiveAuthorizationManager;
+import org.springframework.security.web.server.*;
+import org.springframework.security.web.server.authentication.*;
+import org.springframework.security.web.server.authentication.logout.LogoutHandler;
+import org.springframework.security.web.server.authentication.logout.LogoutWebFilter;
+import org.springframework.security.web.server.authentication.logout.SecurityContextRepositoryLogoutHandler;
+import org.springframework.security.web.server.authentication.www.HttpBasicAuthenticationEntryPoint;
+import org.springframework.security.web.server.authorization.AuthorizationContext;
+import org.springframework.security.web.server.authorization.AuthorizationWebFilter;
+import org.springframework.security.web.server.authorization.DelegatingReactiveAuthorizationManager;
+import org.springframework.security.web.server.authorization.ExceptionTranslationWebFilter;
+import org.springframework.security.web.server.context.*;
+import org.springframework.security.web.server.header.*;
+import org.springframework.security.web.server.ui.LoginPageGeneratingWebFilter;
+import org.springframework.security.web.server.util.matcher.MediaTypeServerWebExchangeMatcher;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcherEntry;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
+import org.springframework.util.Assert;
+import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.WebFilter;
+import org.springframework.web.server.WebFilterChain;
+import reactor.core.publisher.Mono;
+
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.AnnotationAwareOrderComparator;
-import org.springframework.http.MediaType;
-import org.springframework.security.web.server.DelegatingAuthenticationEntryPoint;
-import org.springframework.security.web.server.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.server.authentication.logout.LogoutWebFiter;
-import org.springframework.security.web.server.util.matcher.MediaTypeServerWebExchangeMatcher;
-import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.server.WebFilterChain;
-import reactor.core.publisher.Mono;
-
-import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.ReactiveAuthenticationManager;
-import org.springframework.security.authorization.AuthenticatedAuthorizationManager;
-import org.springframework.security.authorization.AuthorityAuthorizationManager;
-import org.springframework.security.authorization.AuthorizationDecision;
-import org.springframework.security.authorization.ReactiveAuthorizationManager;
-import org.springframework.security.web.server.AuthenticationEntryPoint;
-import org.springframework.security.web.server.FormLoginAuthenticationConverter;
-import org.springframework.security.web.server.HttpBasicAuthenticationConverter;
-import org.springframework.security.web.server.MatcherSecurityWebFilterChain;
-import org.springframework.security.web.server.SecurityWebFilterChain;
-import org.springframework.security.web.server.authentication.AuthenticationEntryPointFailureHandler;
-import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
-import org.springframework.security.web.server.authentication.RedirectAuthenticationEntryPoint;
-import org.springframework.security.web.server.authentication.RedirectAuthenticationSuccessHandler;
-import org.springframework.security.web.server.authentication.www.HttpBasicAuthenticationEntryPoint;
-import org.springframework.security.web.server.authorization.AuthorizationContext;
-import org.springframework.security.web.server.authorization.AuthorizationWebFilter;
-import org.springframework.security.web.server.authorization.DelegatingReactiveAuthorizationManager;
-import org.springframework.security.web.server.authorization.ExceptionTranslationWebFilter;
-import org.springframework.security.web.server.context.AuthenticationReactorContextFilter;
-import org.springframework.security.web.server.context.SecurityContextRepository;
-import org.springframework.security.web.server.context.SecurityContextRepositoryWebFilter;
-import org.springframework.security.web.server.context.ServerWebExchangeAttributeSecurityContextRepository;
-import org.springframework.security.web.server.context.WebSessionSecurityContextRepository;
-import org.springframework.security.web.server.header.CacheControlHttpHeadersWriter;
-import org.springframework.security.web.server.header.CompositeHttpHeadersWriter;
-import org.springframework.security.web.server.header.ContentTypeOptionsHttpHeadersWriter;
-import org.springframework.security.web.server.header.HttpHeaderWriterWebFilter;
-import org.springframework.security.web.server.header.HttpHeadersWriter;
-import org.springframework.security.web.server.header.StrictTransportSecurityHttpHeadersWriter;
-import org.springframework.security.web.server.header.XFrameOptionsHttpHeadersWriter;
-import org.springframework.security.web.server.header.XXssProtectionHttpHeadersWriter;
-import org.springframework.security.web.server.ui.LoginPageGeneratingWebFilter;
-import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
-import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcherEntry;
-import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
-import org.springframework.util.Assert;
-import org.springframework.web.server.WebFilter;
-
-import static org.springframework.security.web.server.DelegatingAuthenticationEntryPoint.*;
+import static org.springframework.security.web.server.DelegatingAuthenticationEntryPoint.DelegateEntry;
 
 /**
  * @author Rob Winch
@@ -88,6 +69,8 @@ public class HttpSecurity {
 	private HttpBasicBuilder httpBasic;
 
 	private FormLoginBuilder formLogin;
+
+	private LogoutBuilder logout;
 
 	private ReactiveAuthenticationManager authenticationManager;
 
@@ -158,6 +141,13 @@ public class HttpSecurity {
 		return this.authorizeExchangeBuilder;
 	}
 
+	public LogoutBuilder logout() {
+		if (this.logout == null) {
+			this.logout = new LogoutBuilder();
+		}
+		return this.logout;
+	}
+
 	public HttpSecurity authenticationManager(ReactiveAuthenticationManager manager) {
 		this.authenticationManager = manager;
 		return this;
@@ -187,7 +177,10 @@ public class HttpSecurity {
 				this.webFilters.add(new OrderedWebFilter(new LoginPageGeneratingWebFilter(), SecurityWebFiltersOrder.LOGIN_PAGE_GENERATING.getOrder()));
 			}
 			this.formLogin.configure(this);
-			this.addFilterAt(new LogoutWebFiter(), SecurityWebFiltersOrder.LOGOUT);
+			this.addFilterAt(new LogoutWebFilter(), SecurityWebFiltersOrder.LOGOUT);
+		}
+		if(this.logout != null) {
+			this.logout.configure(this);
 		}
 		this.addFilterAt(new AuthenticationReactorContextFilter(), SecurityWebFiltersOrder.AUTHENTICATION_CONTEXT);
 		if(this.authorizeExchangeBuilder != null) {
@@ -533,6 +526,48 @@ public class HttpSecurity {
 			this.writers = new ArrayList<>(
 				Arrays.asList(this.cacheControl, this.contentTypeOptions, this.hsts,
 					this.frameOptions, this.xss));
+		}
+	}
+
+	/**
+	 * @author Shazin Sadakath
+	 * @since 5.0
+	 */
+	public final class LogoutBuilder {
+
+		private LogoutHandler logoutHandler = new SecurityContextRepositoryLogoutHandler();
+		private String logoutUrl = "/logout";
+		private ServerWebExchangeMatcher requiresLogout = ServerWebExchangeMatchers
+			.pathMatchers(logoutUrl);
+
+		public LogoutBuilder logoutHandler(LogoutHandler logoutHandler) {
+			Assert.notNull(logoutHandler, "logoutHandler must not be null");
+			this.logoutHandler = logoutHandler;
+			return this;
+		}
+
+		public LogoutBuilder logoutUrl(String logoutUrl) {
+			Assert.notNull(logoutHandler, "logoutUrl must not be null");
+			this.logoutUrl = logoutUrl;
+			this.requiresLogout = ServerWebExchangeMatchers.pathMatchers(logoutUrl);
+			return this;
+		}
+
+		public HttpSecurity and() {
+			return HttpSecurity.this;
+		}
+
+		public void configure(HttpSecurity http) {
+			LogoutWebFilter logoutWebFilter = createLogoutWebFilter(http);
+			http.addFilterAt(logoutWebFilter, SecurityWebFiltersOrder.LOGOUT);
+		}
+
+		private LogoutWebFilter createLogoutWebFilter(HttpSecurity http) {
+			LogoutWebFilter logoutWebFilter = new LogoutWebFilter();
+			logoutWebFilter.setLogoutHandler(this.logoutHandler);
+			logoutWebFilter.setRequiresLogout(this.requiresLogout);
+
+			return logoutWebFilter;
 		}
 	}
 
