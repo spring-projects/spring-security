@@ -55,6 +55,7 @@ public class FormLoginTests {
 				.anyExchange().authenticated()
 				.and()
 			.formLogin().and()
+			.logout().and()
 			.build();
 
 		WebTestClient webTestClient = WebTestClientBuilder

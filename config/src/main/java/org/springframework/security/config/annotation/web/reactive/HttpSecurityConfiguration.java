@@ -68,7 +68,8 @@ public class HttpSecurityConfiguration implements WebFluxConfigurer {
 			.authenticationManager(authenticationManager())
 			.headers().and()
 			.httpBasic().and()
-			.formLogin().and();
+			.formLogin().and()
+			.logout().and();
 	}
 
 	private ReactiveAuthenticationManager authenticationManager() {

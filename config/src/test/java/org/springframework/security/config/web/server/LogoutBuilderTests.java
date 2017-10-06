@@ -47,6 +47,7 @@ public class LogoutBuilderTests {
 			.anyExchange().authenticated()
 			.and()
 			.formLogin().and()
+			.logout().and()
 			.build();
 
 		WebTestClient webTestClient = WebTestClientBuilder
@@ -85,10 +86,12 @@ public class LogoutBuilderTests {
 		SecurityWebFilterChain securityWebFilter = this.http
 			.authenticationManager(this.manager)
 			.authorizeExchange()
-			.anyExchange().authenticated()
-			.and()
+				.anyExchange().authenticated()
+				.and()
 			.formLogin().and()
-			.logout().logoutUrl("/custom-logout").and()
+			.logout()
+				.logoutUrl("/custom-logout")
+				.and()
 			.build();
 
 		WebTestClient webTestClient = WebTestClientBuilder
