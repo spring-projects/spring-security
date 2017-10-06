@@ -24,7 +24,6 @@ import com.nimbusds.oauth2.sdk.ErrorObject;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.TokenErrorResponse;
 import com.nimbusds.oauth2.sdk.TokenRequest;
-import com.nimbusds.oauth2.sdk.TokenResponse;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
 import com.nimbusds.oauth2.sdk.auth.ClientSecretBasic;
 import com.nimbusds.oauth2.sdk.auth.ClientSecretPost;
@@ -40,7 +39,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2Error;
-import org.springframework.security.oauth2.core.endpoint.TokenResponseAttributes;
+import org.springframework.security.oauth2.core.endpoint.TokenResponse;
 import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
@@ -62,7 +61,7 @@ import java.util.stream.Collectors;
  * @author Joe Grandja
  * @since 5.0
  * @see AuthorizationCodeAuthenticationToken
- * @see TokenResponseAttributes
+ * @see TokenResponse
  * @see <a target="_blank" href="https://connect2id.com/products/nimbus-oauth-openid-connect-sdk">Nimbus OAuth 2.0 SDK</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.3">Section 4.1.3 Access Token Request (Authorization Code Grant)</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.4">Section 4.1.4 Access Token Response (Authorization Code Grant)</a>
@@ -71,7 +70,7 @@ public class NimbusAuthorizationCodeTokenExchanger implements AuthorizationGrant
 	private static final String INVALID_TOKEN_RESPONSE_ERROR_CODE = "invalid_token_response";
 
 	@Override
-	public TokenResponseAttributes exchange(AuthorizationCodeAuthenticationToken authorizationCodeAuthenticationToken)
+	public TokenResponse exchange(AuthorizationCodeAuthenticationToken authorizationCodeAuthenticationToken)
 			throws OAuth2AuthenticationException {
 
 		ClientRegistration clientRegistration = authorizationCodeAuthenticationToken.getClientRegistration();
@@ -92,7 +91,7 @@ public class NimbusAuthorizationCodeTokenExchanger implements AuthorizationGrant
 			clientAuthentication = new ClientSecretBasic(clientId, clientSecret);
 		}
 
-		TokenResponse tokenResponse;
+		com.nimbusds.oauth2.sdk.TokenResponse tokenResponse;
 		try {
 			// Send the Access Token request
 			TokenRequest tokenRequest = new TokenRequest(tokenUri, clientAuthentication, authorizationCodeGrant);
@@ -100,7 +99,7 @@ public class NimbusAuthorizationCodeTokenExchanger implements AuthorizationGrant
 			httpRequest.setAccept(MediaType.APPLICATION_JSON_VALUE);
 			httpRequest.setConnectTimeout(30000);
 			httpRequest.setReadTimeout(30000);
-			tokenResponse = TokenResponse.parse(httpRequest.send());
+			tokenResponse = com.nimbusds.oauth2.sdk.TokenResponse.parse(httpRequest.send());
 		} catch (ParseException pe) {
 			// This error occurs if the Access Token Response is not well-formed,
 			// for example, a required attribute is missing
@@ -134,7 +133,7 @@ public class NimbusAuthorizationCodeTokenExchanger implements AuthorizationGrant
 		Map<String, Object> additionalParameters = accessTokenResponse.getCustomParameters().entrySet().stream()
 				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-		return TokenResponseAttributes.withToken(accessToken)
+		return TokenResponse.withToken(accessToken)
 			.tokenType(accessTokenType)
 			.expiresIn(expiresIn)
 			.scope(scope)

@@ -47,7 +47,7 @@ import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.endpoint.OAuth2Parameter;
 import org.springframework.security.oauth2.core.endpoint.ResponseType;
-import org.springframework.security.oauth2.core.endpoint.TokenResponseAttributes;
+import org.springframework.security.oauth2.core.endpoint.TokenResponse;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -381,7 +381,7 @@ public class OAuth2LoginApplicationTests {
 		// @formatter:on
 
 		private AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> mockAuthorizationCodeTokenExchanger() {
-			TokenResponseAttributes tokenResponse = TokenResponseAttributes.withToken("access-token-1234")
+			TokenResponse tokenResponse = TokenResponse.withToken("access-token-1234")
 				.tokenType(AccessToken.TokenType.BEARER)
 				.expiresIn(60 * 1000)
 				.scope(Collections.singleton("openid"))

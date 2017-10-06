@@ -23,7 +23,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.core.endpoint.AuthorizationRequestAttributes;
+import org.springframework.security.oauth2.core.endpoint.AuthorizationRequest;
 
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
@@ -100,17 +100,17 @@ public class AuthorizationCodeRequestRedirectFilterTests {
 		Mockito.verifyZeroInteractions(filterChain);        // Request should not proceed up the chain
 
 		// The authorization request attributes are saved in the session before the redirect happens
-		AuthorizationRequestAttributes authorizationRequestAttributes =
+		AuthorizationRequest authorizationRequest =
 				authorizationRequestRepository.loadAuthorizationRequest(request);
-		Assertions.assertThat(authorizationRequestAttributes).isNotNull();
+		Assertions.assertThat(authorizationRequest).isNotNull();
 
-		Assertions.assertThat(authorizationRequestAttributes.getAuthorizeUri()).isNotNull();
-		Assertions.assertThat(authorizationRequestAttributes.getGrantType()).isNotNull();
-		Assertions.assertThat(authorizationRequestAttributes.getResponseType()).isNotNull();
-		Assertions.assertThat(authorizationRequestAttributes.getClientId()).isNotNull();
-		Assertions.assertThat(authorizationRequestAttributes.getRedirectUri()).isNotNull();
-		Assertions.assertThat(authorizationRequestAttributes.getScope()).isNotNull();
-		Assertions.assertThat(authorizationRequestAttributes.getState()).isNotNull();
+		Assertions.assertThat(authorizationRequest.getAuthorizeUri()).isNotNull();
+		Assertions.assertThat(authorizationRequest.getGrantType()).isNotNull();
+		Assertions.assertThat(authorizationRequest.getResponseType()).isNotNull();
+		Assertions.assertThat(authorizationRequest.getClientId()).isNotNull();
+		Assertions.assertThat(authorizationRequest.getRedirectUri()).isNotNull();
+		Assertions.assertThat(authorizationRequest.getScope()).isNotNull();
+		Assertions.assertThat(authorizationRequest.getState()).isNotNull();
 	}
 
 	private AuthorizationCodeRequestRedirectFilter setupFilter(String authorizationUri,
@@ -118,7 +118,7 @@ public class AuthorizationCodeRequestRedirectFilterTests {
 
 		AuthorizationRequestUriBuilder authorizationUriBuilder = Mockito.mock(AuthorizationRequestUriBuilder.class);
 		URI authorizationURI = new URI(authorizationUri);
-		Mockito.when(authorizationUriBuilder.build(Matchers.any(AuthorizationRequestAttributes.class))).thenReturn(authorizationURI);
+		Mockito.when(authorizationUriBuilder.build(Matchers.any(AuthorizationRequest.class))).thenReturn(authorizationURI);
 
 		return setupFilter(authorizationUriBuilder, clientRegistrations);
 	}

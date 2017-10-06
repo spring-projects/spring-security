@@ -17,7 +17,7 @@ package org.springframework.security.oauth2.client.authentication;
 
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.endpoint.AuthorizationRequestAttributes;
+import org.springframework.security.oauth2.core.endpoint.AuthorizationRequest;
 import org.springframework.util.Assert;
 
 /**
@@ -33,11 +33,11 @@ import org.springframework.util.Assert;
 public class AuthorizationCodeAuthenticationToken extends AuthorizationGrantAuthenticationToken {
 	private final String authorizationCode;
 	private final ClientRegistration clientRegistration;
-	private final AuthorizationRequestAttributes authorizationRequest;
+	private final AuthorizationRequest authorizationRequest;
 
 	public AuthorizationCodeAuthenticationToken(String authorizationCode,
 												ClientRegistration clientRegistration,
-												AuthorizationRequestAttributes authorizationRequest) {
+												AuthorizationRequest authorizationRequest) {
 		super(AuthorizationGrantType.AUTHORIZATION_CODE);
 		Assert.hasText(authorizationCode, "authorizationCode cannot be empty");
 		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
@@ -66,7 +66,7 @@ public class AuthorizationCodeAuthenticationToken extends AuthorizationGrantAuth
 		return this.clientRegistration;
 	}
 
-	public AuthorizationRequestAttributes getAuthorizationRequest() {
+	public AuthorizationRequest getAuthorizationRequest() {
 		return this.authorizationRequest;
 	}
 }

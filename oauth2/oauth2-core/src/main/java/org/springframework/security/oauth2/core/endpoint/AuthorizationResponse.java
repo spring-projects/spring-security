@@ -51,7 +51,7 @@ public final class AuthorizationResponse {
 	}
 
 	public boolean statusError() {
-		return this.error != null && this.error.getErrorCode() != null;
+		return (this.error != null && this.error.getErrorCode() != null);
 	}
 
 	public static Builder success(String code) {

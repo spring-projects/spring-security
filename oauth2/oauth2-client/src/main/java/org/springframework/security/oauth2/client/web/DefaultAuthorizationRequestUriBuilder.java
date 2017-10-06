@@ -15,7 +15,7 @@
  */
 package org.springframework.security.oauth2.client.web;
 
-import org.springframework.security.oauth2.core.endpoint.AuthorizationRequestAttributes;
+import org.springframework.security.oauth2.core.endpoint.AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2Parameter;
 import org.springframework.security.oauth2.core.endpoint.ResponseType;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -29,24 +29,24 @@ import java.util.stream.Collectors;
  *
  * @author Joe Grandja
  * @since 5.0
- * @see AuthorizationRequestAttributes
+ * @see AuthorizationRequest
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.1">Section 4.1.1 Authorization Request</a>
  */
 public class DefaultAuthorizationRequestUriBuilder implements AuthorizationRequestUriBuilder {
 
 	@Override
-	public URI build(AuthorizationRequestAttributes authorizationRequestAttributes) {
+	public URI build(AuthorizationRequest authorizationRequest) {
 		UriComponentsBuilder uriBuilder = UriComponentsBuilder
-				.fromUriString(authorizationRequestAttributes.getAuthorizeUri())
+				.fromUriString(authorizationRequest.getAuthorizeUri())
 				.queryParam(OAuth2Parameter.RESPONSE_TYPE, ResponseType.CODE.getValue());
-		if (authorizationRequestAttributes.getRedirectUri() != null) {
-			uriBuilder.queryParam(OAuth2Parameter.REDIRECT_URI, authorizationRequestAttributes.getRedirectUri());
+		if (authorizationRequest.getRedirectUri() != null) {
+			uriBuilder.queryParam(OAuth2Parameter.REDIRECT_URI, authorizationRequest.getRedirectUri());
 		}
 		uriBuilder
-				.queryParam(OAuth2Parameter.CLIENT_ID, authorizationRequestAttributes.getClientId())
+				.queryParam(OAuth2Parameter.CLIENT_ID, authorizationRequest.getClientId())
 				.queryParam(OAuth2Parameter.SCOPE,
-						authorizationRequestAttributes.getScope().stream().collect(Collectors.joining(" ")))
-				.queryParam(OAuth2Parameter.STATE, authorizationRequestAttributes.getState());
+						authorizationRequest.getScope().stream().collect(Collectors.joining(" ")))
+				.queryParam(OAuth2Parameter.STATE, authorizationRequest.getState());
 
 		return uriBuilder.build().encode().toUri();
 	}

@@ -21,11 +21,11 @@ import org.springframework.security.oauth2.core.AccessToken;
 import java.util.Collections;
 
 /**
- * Tests {@link TokenResponseAttributes}
+ * Tests {@link TokenResponse}
  *
  * @author Luander Ribeiro
  */
-public class TokenResponseAttributesTest {
+public class TokenResponseTest {
 
 	private static final String TOKEN = "token";
 	private static final long INVALID_EXPIRES_IN = -1L;
@@ -33,7 +33,7 @@ public class TokenResponseAttributesTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void buildWhenTokenValueIsNullThenThrowIllegalArgumentException() {
-		TokenResponseAttributes.withToken(null)
+		TokenResponse.withToken(null)
 			.expiresIn(EXPIRES_IN)
 			.additionalParameters(Collections.emptyMap())
 			.scope(Collections.emptySet())
@@ -43,7 +43,7 @@ public class TokenResponseAttributesTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void buildWhenExpiresInIsNegativeThenThrowIllegalArgumentException() {
-		TokenResponseAttributes.withToken(TOKEN)
+		TokenResponse.withToken(TOKEN)
 			.expiresIn(INVALID_EXPIRES_IN)
 			.additionalParameters(Collections.emptyMap())
 			.scope(Collections.emptySet())
@@ -53,7 +53,7 @@ public class TokenResponseAttributesTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void buildWhenTokenTypeIsInvalidThenThrowIllegalArgumentException() {
-		TokenResponseAttributes.withToken(TOKEN)
+		TokenResponse.withToken(TOKEN)
 			.expiresIn(EXPIRES_IN)
 			.additionalParameters(Collections.emptyMap())
 			.tokenType(null)
@@ -62,7 +62,7 @@ public class TokenResponseAttributesTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void buildWhenTokenTypeNotSetThenThrowIllegalArgumentException() {
-		TokenResponseAttributes.withToken(TOKEN)
+		TokenResponse.withToken(TOKEN)
 			.expiresIn(EXPIRES_IN)
 			.additionalParameters(Collections.emptyMap())
 			.build();

@@ -17,7 +17,7 @@ package org.springframework.security.oauth2.client.web.converter;
 
 import org.springframework.security.oauth2.core.endpoint.AuthorizationResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2Parameter;
-import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.function.Function;
@@ -36,12 +36,23 @@ public final class AuthorizationResponseConverter implements Function<HttpServle
 	@Override
 	public AuthorizationResponse apply(HttpServletRequest request) {
 		String code = request.getParameter(OAuth2Parameter.CODE);
-		Assert.hasText(code, OAuth2Parameter.CODE + " attribute is required");
-
+		String errorCode = request.getParameter(OAuth2Parameter.ERROR);
 		String state = request.getParameter(OAuth2Parameter.STATE);
 
-		return AuthorizationResponse.success(code)
-			.state(state)
-			.build();
+		if (StringUtils.hasText(code)) {
+			return AuthorizationResponse.success(code)
+				.state(state)
+				.build();
+		} else if (StringUtils.hasText(errorCode)) {
+			String description = request.getParameter(OAuth2Parameter.ERROR_DESCRIPTION);
+			String uri = request.getParameter(OAuth2Parameter.ERROR_URI);
+			return AuthorizationResponse.error(errorCode)
+				.errorDescription(description)
+				.errorUri(uri)
+				.state(state)
+				.build();
+		}
+
+		return null;
 	}
 }

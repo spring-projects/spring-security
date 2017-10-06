@@ -37,7 +37,7 @@ import java.util.Set;
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.1">Section 4.1.1 Authorization Code Grant Request</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.2.1">Section 4.2.1 Implicit Grant Request</a>
  */
-public final class AuthorizationRequestAttributes implements Serializable {
+public final class AuthorizationRequest implements Serializable {
 	private String authorizeUri;
 	private AuthorizationGrantType authorizationGrantType;
 	private ResponseType responseType;
@@ -47,7 +47,7 @@ public final class AuthorizationRequestAttributes implements Serializable {
 	private String state;
 	private Map<String,Object> additionalParameters;
 
-	private AuthorizationRequestAttributes() {
+	private AuthorizationRequest() {
 	}
 
 	public String getAuthorizeUri() {
@@ -82,16 +82,16 @@ public final class AuthorizationRequestAttributes implements Serializable {
 		return this.additionalParameters;
 	}
 
-	public static Builder withAuthorizationCode() {
+	public static Builder authorizationCode() {
 		return new Builder(AuthorizationGrantType.AUTHORIZATION_CODE);
 	}
 
 	public static class Builder {
-		private final AuthorizationRequestAttributes authorizationRequest;
+		private final AuthorizationRequest authorizationRequest;
 
 		private Builder(AuthorizationGrantType authorizationGrantType) {
 			Assert.notNull(authorizationGrantType, "authorizationGrantType cannot be null");
-			this.authorizationRequest = new AuthorizationRequestAttributes();
+			this.authorizationRequest = new AuthorizationRequest();
 			this.authorizationRequest.authorizationGrantType = authorizationGrantType;
 			if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(authorizationGrantType)) {
 				this.authorizationRequest.responseType = ResponseType.CODE;
@@ -128,7 +128,7 @@ public final class AuthorizationRequestAttributes implements Serializable {
 			return this;
 		}
 
-		public AuthorizationRequestAttributes build() {
+		public AuthorizationRequest build() {
 			Assert.hasText(this.authorizationRequest.clientId, "clientId cannot be empty");
 			Assert.hasText(this.authorizationRequest.authorizeUri, "authorizeUri cannot be empty");
 			this.authorizationRequest.scope = Collections.unmodifiableSet(

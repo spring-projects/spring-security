@@ -34,7 +34,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.security.oauth2.core.OAuth2Error;
-import org.springframework.security.oauth2.core.endpoint.AuthorizationRequestAttributes;
+import org.springframework.security.oauth2.core.endpoint.AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2Parameter;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
@@ -245,8 +245,8 @@ public class AuthorizationCodeAuthenticationFilterTests {
 		Map<String,Object> additionalParameters = new HashMap<>();
 		additionalParameters.put(OAuth2Parameter.REGISTRATION_ID, clientRegistration.getRegistrationId());
 
-		AuthorizationRequestAttributes authorizationRequestAttributes =
-			AuthorizationRequestAttributes.withAuthorizationCode()
+		AuthorizationRequest authorizationRequest =
+			AuthorizationRequest.authorizationCode()
 				.clientId(clientRegistration.getClientId())
 				.authorizeUri(clientRegistration.getProviderDetails().getAuthorizationUri())
 				.redirectUri(clientRegistration.getRedirectUri())
@@ -255,7 +255,7 @@ public class AuthorizationCodeAuthenticationFilterTests {
 				.additionalParameters(additionalParameters)
 				.build();
 
-		authorizationRequestRepository.saveAuthorizationRequest(authorizationRequestAttributes, request, response);
+		authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, request, response);
 	}
 
 	private MockHttpServletRequest setupRequest(ClientRegistration clientRegistration) {

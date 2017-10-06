@@ -15,14 +15,14 @@
  */
 package org.springframework.security.oauth2.client.web;
 
-import org.springframework.security.oauth2.core.endpoint.AuthorizationRequestAttributes;
+import org.springframework.security.oauth2.core.endpoint.AuthorizationRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
  * Implementations of this interface are responsible for the persistence
- * of {@link AuthorizationRequestAttributes} between requests.
+ * of {@link AuthorizationRequest} between requests.
  *
  * <p>
  * Used by the {@link AuthorizationCodeRequestRedirectFilter} for persisting the <i>Authorization Request</i>
@@ -32,16 +32,16 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Joe Grandja
  * @since 5.0
- * @see AuthorizationRequestAttributes
+ * @see AuthorizationRequest
  * @see HttpSessionAuthorizationRequestRepository
  */
 public interface AuthorizationRequestRepository {
 
-	AuthorizationRequestAttributes loadAuthorizationRequest(HttpServletRequest request);
+	AuthorizationRequest loadAuthorizationRequest(HttpServletRequest request);
 
-	void saveAuthorizationRequest(AuthorizationRequestAttributes authorizationRequest, HttpServletRequest request,
-		HttpServletResponse response);
+	void saveAuthorizationRequest(AuthorizationRequest authorizationRequest, HttpServletRequest request,
+									HttpServletResponse response);
 
-	AuthorizationRequestAttributes removeAuthorizationRequest(HttpServletRequest request);
+	AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request);
 
 }

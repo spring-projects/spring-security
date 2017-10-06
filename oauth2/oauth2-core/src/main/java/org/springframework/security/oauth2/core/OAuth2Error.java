@@ -30,7 +30,7 @@ import org.springframework.util.Assert;
  * @since 5.0
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-11.4">Section 11.4 OAuth Extensions Error Registry</a>
  */
-public class OAuth2Error {
+public final class OAuth2Error {
 	// Standard error codes
 	public static final String INVALID_REQUEST_ERROR_CODE = "invalid_request";
 	public static final String INVALID_CLIENT_ERROR_CODE = "invalid_client";

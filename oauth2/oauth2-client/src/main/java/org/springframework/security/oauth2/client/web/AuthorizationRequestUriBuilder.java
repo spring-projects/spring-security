@@ -16,7 +16,7 @@
 package org.springframework.security.oauth2.client.web;
 
 
-import org.springframework.security.oauth2.core.endpoint.AuthorizationRequestAttributes;
+import org.springframework.security.oauth2.core.endpoint.AuthorizationRequest;
 
 import java.net.URI;
 
@@ -37,10 +37,10 @@ import java.net.URI;
  *
  * @author Joe Grandja
  * @since 5.0
- * @see AuthorizationRequestAttributes
+ * @see AuthorizationRequest
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.1">Section 4.1.1 Authorization Request</a>
  */
 public interface AuthorizationRequestUriBuilder {
 
-	URI build(AuthorizationRequestAttributes authorizationRequestAttributes);
+	URI build(AuthorizationRequest authorizationRequest);
 }

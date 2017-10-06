@@ -19,7 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.keygen.StringKeyGenerator;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.core.endpoint.AuthorizationRequestAttributes;
+import org.springframework.security.oauth2.core.endpoint.AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2Parameter;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
@@ -52,7 +52,7 @@ import java.util.Map;
  *
  * @author Joe Grandja
  * @since 5.0
- * @see AuthorizationRequestAttributes
+ * @see AuthorizationRequest
  * @see AuthorizationRequestRepository
  * @see AuthorizationRequestUriBuilder
  * @see ClientRegistration
@@ -127,8 +127,8 @@ public class AuthorizationCodeRequestRedirectFilter extends OncePerRequestFilter
 		Map<String,Object> additionalParameters = new HashMap<>();
 		additionalParameters.put(OAuth2Parameter.REGISTRATION_ID, clientRegistration.getRegistrationId());
 
-		AuthorizationRequestAttributes authorizationRequestAttributes =
-			AuthorizationRequestAttributes.withAuthorizationCode()
+		AuthorizationRequest authorizationRequest =
+			AuthorizationRequest.authorizationCode()
 				.clientId(clientRegistration.getClientId())
 				.authorizeUri(clientRegistration.getProviderDetails().getAuthorizationUri())
 				.redirectUri(redirectUriStr)
@@ -137,9 +137,9 @@ public class AuthorizationCodeRequestRedirectFilter extends OncePerRequestFilter
 				.additionalParameters(additionalParameters)
 				.build();
 
-		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequestAttributes, request, response);
+		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, request, response);
 
-		URI redirectUri = this.authorizationUriBuilder.build(authorizationRequestAttributes);
+		URI redirectUri = this.authorizationUriBuilder.build(authorizationRequest);
 		this.authorizationRedirectStrategy.sendRedirect(request, response, redirectUri.toString());
 	}
 

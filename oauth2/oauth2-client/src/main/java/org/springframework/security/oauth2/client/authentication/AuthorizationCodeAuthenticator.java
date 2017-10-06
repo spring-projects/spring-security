@@ -17,7 +17,7 @@ package org.springframework.security.oauth2.client.authentication;
 
 import org.springframework.security.oauth2.client.web.AuthorizationGrantTokenExchanger;
 import org.springframework.security.oauth2.core.AccessToken;
-import org.springframework.security.oauth2.core.endpoint.TokenResponseAttributes;
+import org.springframework.security.oauth2.core.endpoint.TokenResponse;
 import org.springframework.util.Assert;
 
 /**
@@ -50,7 +50,7 @@ public class AuthorizationCodeAuthenticator implements AuthorizationGrantAuthent
 			return null;
 		}
 
-		TokenResponseAttributes tokenResponse =
+		TokenResponse tokenResponse =
 			this.authorizationCodeTokenExchanger.exchange(authorizationCodeAuthentication);
 
 		AccessToken accessToken = new AccessToken(tokenResponse.getTokenType(),

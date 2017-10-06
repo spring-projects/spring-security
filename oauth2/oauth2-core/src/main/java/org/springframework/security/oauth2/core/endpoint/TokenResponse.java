@@ -31,11 +31,11 @@ import java.util.Set;
  * @see AccessToken
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-5.1">Section 5.1 Access Token Response</a>
  */
-public final class TokenResponseAttributes {
+public final class TokenResponse {
 	private AccessToken accessToken;
 	private Map<String,Object> additionalParameters;
 
-	private TokenResponseAttributes() {
+	private TokenResponse() {
 	}
 
 	public String getTokenValue() {
@@ -97,12 +97,12 @@ public final class TokenResponseAttributes {
 			return this;
 		}
 
-		public TokenResponseAttributes build() {
+		public TokenResponse build() {
 			Assert.isTrue(this.expiresIn >= 0, "expiresIn must be a positive number");
 			Instant issuedAt = Instant.now();
 			AccessToken accessToken = new AccessToken(this.tokenType, this.tokenValue, issuedAt,
 				issuedAt.plusSeconds(this.expiresIn), this.scope);
-			TokenResponseAttributes tokenResponse = new TokenResponseAttributes();
+			TokenResponse tokenResponse = new TokenResponse();
 			tokenResponse.accessToken = accessToken;
 			tokenResponse.additionalParameters = Collections.unmodifiableMap(
 				this.additionalParameters != null ? this.additionalParameters : Collections.emptyMap());

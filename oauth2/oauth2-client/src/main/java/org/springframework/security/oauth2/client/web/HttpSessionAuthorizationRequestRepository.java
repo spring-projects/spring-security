@@ -15,7 +15,7 @@
  */
 package org.springframework.security.oauth2.client.web;
 
-import org.springframework.security.oauth2.core.endpoint.AuthorizationRequestAttributes;
+import org.springframework.security.oauth2.core.endpoint.AuthorizationRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -23,11 +23,11 @@ import javax.servlet.http.HttpSession;
 
 /**
  * An implementation of an {@link AuthorizationRequestRepository} that stores
- * {@link AuthorizationRequestAttributes} in the {@link HttpSession}.
+ * {@link AuthorizationRequest} in the {@link HttpSession}.
  *
  * @author Joe Grandja
  * @since 5.0
- * @see AuthorizationRequestAttributes
+ * @see AuthorizationRequest
  */
 public final class HttpSessionAuthorizationRequestRepository implements AuthorizationRequestRepository {
 	private static final String DEFAULT_AUTHORIZATION_REQUEST_ATTR_NAME =
@@ -35,18 +35,18 @@ public final class HttpSessionAuthorizationRequestRepository implements Authoriz
 	private String sessionAttributeName = DEFAULT_AUTHORIZATION_REQUEST_ATTR_NAME;
 
 	@Override
-	public AuthorizationRequestAttributes loadAuthorizationRequest(HttpServletRequest request) {
-		AuthorizationRequestAttributes authorizationRequest = null;
+	public AuthorizationRequest loadAuthorizationRequest(HttpServletRequest request) {
+		AuthorizationRequest authorizationRequest = null;
 		HttpSession session = request.getSession(false);
 		if (session != null) {
-			authorizationRequest = (AuthorizationRequestAttributes) session.getAttribute(this.sessionAttributeName);
+			authorizationRequest = (AuthorizationRequest) session.getAttribute(this.sessionAttributeName);
 		}
 		return authorizationRequest;
 	}
 
 	@Override
-	public void saveAuthorizationRequest(AuthorizationRequestAttributes authorizationRequest, HttpServletRequest request,
-			HttpServletResponse response) {
+	public void saveAuthorizationRequest(AuthorizationRequest authorizationRequest, HttpServletRequest request,
+											HttpServletResponse response) {
 		if (authorizationRequest == null) {
 			this.removeAuthorizationRequest(request);
 			return;
@@ -55,8 +55,8 @@ public final class HttpSessionAuthorizationRequestRepository implements Authoriz
 	}
 
 	@Override
-	public AuthorizationRequestAttributes removeAuthorizationRequest(HttpServletRequest request) {
-		AuthorizationRequestAttributes authorizationRequest = this.loadAuthorizationRequest(request);
+	public AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request) {
+		AuthorizationRequest authorizationRequest = this.loadAuthorizationRequest(request);
 		if (authorizationRequest != null) {
 			request.getSession().removeAttribute(this.sessionAttributeName);
 		}
