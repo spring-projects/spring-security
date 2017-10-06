@@ -27,11 +27,11 @@ import org.springframework.security.oauth2.client.authentication.OAuth2UserAuthe
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationIdentifierStrategy;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.web.converter.AuthorizationCodeAuthorizationResponseAttributesConverter;
+import org.springframework.security.oauth2.client.web.converter.AuthorizationResponseConverter;
 import org.springframework.security.oauth2.client.web.converter.ErrorResponseAttributesConverter;
 import org.springframework.security.oauth2.core.OAuth2Error;
-import org.springframework.security.oauth2.core.endpoint.AuthorizationCodeAuthorizationResponseAttributes;
 import org.springframework.security.oauth2.core.endpoint.AuthorizationRequestAttributes;
+import org.springframework.security.oauth2.core.endpoint.AuthorizationResponse;
 import org.springframework.security.oauth2.core.endpoint.ErrorResponseAttributes;
 import org.springframework.security.oauth2.core.endpoint.OAuth2Parameter;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -87,8 +87,7 @@ public class AuthorizationCodeAuthenticationFilter extends AbstractAuthenticatio
 	private static final String INVALID_STATE_PARAMETER_ERROR_CODE = "invalid_state_parameter";
 	private static final String INVALID_REDIRECT_URI_PARAMETER_ERROR_CODE = "invalid_redirect_uri_parameter";
 	private final ErrorResponseAttributesConverter errorResponseConverter = new ErrorResponseAttributesConverter();
-	private final AuthorizationCodeAuthorizationResponseAttributesConverter authorizationCodeResponseConverter =
-		new AuthorizationCodeAuthorizationResponseAttributesConverter();
+	private final AuthorizationResponseConverter authorizationResponseConverter = new AuthorizationResponseConverter();
 	private ClientRegistrationRepository clientRegistrationRepository;
 	private RequestMatcher authorizationResponseMatcher = new AuthorizationResponseMatcher();
 	private AuthorizationRequestRepository authorizationRequestRepository = new HttpSessionAuthorizationRequestRepository();
@@ -125,11 +124,10 @@ public class AuthorizationCodeAuthenticationFilter extends AbstractAuthenticatio
 			.redirectUri(matchingAuthorizationRequest.getRedirectUri())
 			.build();
 
-		AuthorizationCodeAuthorizationResponseAttributes authorizationCodeResponseAttributes =
-				this.authorizationCodeResponseConverter.apply(request);
+		AuthorizationResponse authorizationResponse = this.authorizationResponseConverter.apply(request);
 
 		AuthorizationCodeAuthenticationToken authorizationCodeAuthentication = new AuthorizationCodeAuthenticationToken(
-				authorizationCodeResponseAttributes.getCode(), clientRegistration, matchingAuthorizationRequest);
+				authorizationResponse.getCode(), clientRegistration, matchingAuthorizationRequest);
 		authorizationCodeAuthentication.setDetails(this.authenticationDetailsSource.buildDetails(request));
 
 		OAuth2ClientAuthenticationToken oauth2ClientAuthentication =

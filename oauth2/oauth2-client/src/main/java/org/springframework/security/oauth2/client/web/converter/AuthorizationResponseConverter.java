@@ -15,7 +15,7 @@
  */
 package org.springframework.security.oauth2.client.web.converter;
 
-import org.springframework.security.oauth2.core.endpoint.AuthorizationCodeAuthorizationResponseAttributes;
+import org.springframework.security.oauth2.core.endpoint.AuthorizationResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2Parameter;
 import org.springframework.util.Assert;
 
@@ -24,26 +24,24 @@ import java.util.function.Function;
 
 /**
  * A <code>Function</code> that converts an <i>OAuth 2.0 Authorization Code Grant Response</i>
- * (in the form of a {@link HttpServletRequest}) to a {@link AuthorizationCodeAuthorizationResponseAttributes}.
+ * (in the form of a {@link HttpServletRequest}) to a {@link AuthorizationResponse}.
  *
  * @author Joe Grandja
  * @since 5.0
- * @see AuthorizationCodeAuthorizationResponseAttributes
+ * @see AuthorizationResponse
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.2">Section 4.1.2 Authorization Code Grant Response</a>
  */
-public final class AuthorizationCodeAuthorizationResponseAttributesConverter implements Function<HttpServletRequest, AuthorizationCodeAuthorizationResponseAttributes> {
+public final class AuthorizationResponseConverter implements Function<HttpServletRequest, AuthorizationResponse> {
 
 	@Override
-	public AuthorizationCodeAuthorizationResponseAttributes apply(HttpServletRequest request) {
-		AuthorizationCodeAuthorizationResponseAttributes response;
-
+	public AuthorizationResponse apply(HttpServletRequest request) {
 		String code = request.getParameter(OAuth2Parameter.CODE);
 		Assert.hasText(code, OAuth2Parameter.CODE + " attribute is required");
 
 		String state = request.getParameter(OAuth2Parameter.STATE);
 
-		response = new AuthorizationCodeAuthorizationResponseAttributes(code, state);
-
-		return response;
+		return AuthorizationResponse.success(code)
+			.state(state)
+			.build();
 	}
 }
