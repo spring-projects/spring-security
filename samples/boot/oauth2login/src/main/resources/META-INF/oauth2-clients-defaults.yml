@@ -5,7 +5,7 @@ security:
         google:
           client-authentication-method: basic
           authorization-grant-type: authorization_code
-          redirect-uri: "{scheme}://{serverName}:{serverPort}{contextPath}/oauth2/authorize/code/{registrationId}"
+          redirect-uri: "{baseUrl}/oauth2/authorize/code/{registrationId}"
           scope: openid, profile, email, address, phone
           authorization-uri: "https://accounts.google.com/o/oauth2/v2/auth"
           token-uri: "https://www.googleapis.com/oauth2/v4/token"
@@ -16,7 +16,7 @@ security:
         github:
           client-authentication-method: basic
           authorization-grant-type: authorization_code
-          redirect-uri: "{baseRedirectUrl}/oauth2/authorize/code/{registrationId}"
+          redirect-uri: "{baseUrl}/oauth2/authorize/code/{registrationId}"
           scope: user
           authorization-uri: "https://github.com/login/oauth/authorize"
           token-uri: "https://github.com/login/oauth/access_token"
