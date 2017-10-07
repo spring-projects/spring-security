@@ -82,8 +82,10 @@ public final class XFrameOptionsHeaderWriter implements HeaderWriter {
 	 */
 	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
 		if (XFrameOptionsMode.ALLOW_FROM.equals(frameOptionsMode)) {
-			String allowFromValue = allowFromStrategy.getAllowFromValue(request);
-			if (allowFromValue != null && !allowFromValue.equals(XFrameOptionsMode.DENY.getMode())) {
+			String allowFromValue = this.allowFromStrategy.getAllowFromValue(request);
+			if(XFrameOptionsMode.DENY.getMode().equals(allowFromValue)) {
+				response.setHeader(XFRAME_OPTIONS_HEADER, XFrameOptionsMode.DENY.getMode());
+			} else if (allowFromValue != null) {
 				response.setHeader(XFRAME_OPTIONS_HEADER,
 						XFrameOptionsMode.ALLOW_FROM.getMode() + " " + allowFromValue);
 			}
