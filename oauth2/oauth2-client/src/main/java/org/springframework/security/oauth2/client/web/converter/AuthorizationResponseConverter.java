@@ -38,15 +38,18 @@ public final class AuthorizationResponseConverter implements Function<HttpServle
 		String code = request.getParameter(OAuth2Parameter.CODE);
 		String errorCode = request.getParameter(OAuth2Parameter.ERROR);
 		String state = request.getParameter(OAuth2Parameter.STATE);
+		String redirectUri = request.getRequestURL().toString();
 
 		if (StringUtils.hasText(code)) {
 			return AuthorizationResponse.success(code)
+				.redirectUri(redirectUri)
 				.state(state)
 				.build();
 		} else if (StringUtils.hasText(errorCode)) {
 			String description = request.getParameter(OAuth2Parameter.ERROR_DESCRIPTION);
 			String uri = request.getParameter(OAuth2Parameter.ERROR_URI);
 			return AuthorizationResponse.error(errorCode)
+				.redirectUri(redirectUri)
 				.errorDescription(description)
 				.errorUri(uri)
 				.state(state)

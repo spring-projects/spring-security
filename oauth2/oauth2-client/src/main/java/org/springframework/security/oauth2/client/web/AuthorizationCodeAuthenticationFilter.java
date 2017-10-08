@@ -82,8 +82,6 @@ import java.io.IOException;
 public class AuthorizationCodeAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 	public static final String DEFAULT_AUTHORIZATION_RESPONSE_BASE_URI = "/oauth2/authorize/code";
 	private static final String AUTHORIZATION_REQUEST_NOT_FOUND_ERROR_CODE = "authorization_request_not_found";
-	private static final String INVALID_STATE_PARAMETER_ERROR_CODE = "invalid_state_parameter";
-	private static final String INVALID_REDIRECT_URI_PARAMETER_ERROR_CODE = "invalid_redirect_uri_parameter";
 	private final AuthorizationResponseConverter authorizationResponseConverter = new AuthorizationResponseConverter();
 	private ClientRegistrationRepository clientRegistrationRepository;
 	private RequestMatcher authorizationResponseMatcher = new AuthorizationResponseMatcher();
@@ -98,16 +96,16 @@ public class AuthorizationCodeAuthenticationFilter extends AbstractAuthenticatio
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
 			throws AuthenticationException, IOException, ServletException {
 
+		AuthorizationRequest authorizationRequest = this.getAuthorizationRequestRepository().loadAuthorizationRequest(request);
+		if (authorizationRequest == null) {
+			OAuth2Error oauth2Error = new OAuth2Error(AUTHORIZATION_REQUEST_NOT_FOUND_ERROR_CODE);
+			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+		}
+		this.getAuthorizationRequestRepository().removeAuthorizationRequest(request);
+
 		AuthorizationResponse authorizationResponse = this.authorizationResponseConverter.apply(request);
 
-		if (authorizationResponse.statusError()) {
-			this.getAuthorizationRequestRepository().removeAuthorizationRequest(request);
-			throw new OAuth2AuthenticationException(
-				authorizationResponse.getError(), authorizationResponse.getError().toString());
-		}
-
-		AuthorizationRequest matchingAuthorizationRequest = this.resolveAuthorizationRequest(request);
-		String registrationId = (String)matchingAuthorizationRequest.getAdditionalParameters().get(OAuth2Parameter.REGISTRATION_ID);
+		String registrationId = (String)authorizationRequest.getAdditionalParameters().get(OAuth2Parameter.REGISTRATION_ID);
 		ClientRegistration clientRegistration = this.getClientRegistrationRepository().findByRegistrationId(registrationId);
 
 		// The clientRegistration.redirectUri may contain Uri template variables, whether it's configured by
@@ -116,13 +114,13 @@ public class AuthorizationCodeAuthenticationFilter extends AbstractAuthenticatio
 		// The resulting redirectUri used for the authorization request and saved within the AuthorizationRequestRepository
 		// MUST BE the same one used to complete the authorization code flow.
 		// Therefore, we'll create a copy of the clientRegistration and override the redirectUri
-		// with the one contained in matchingAuthorizationRequest.
+		// with the one contained in authorizationRequest.
 		clientRegistration = new ClientRegistration.Builder(clientRegistration)
-			.redirectUri(matchingAuthorizationRequest.getRedirectUri())
+			.redirectUri(authorizationRequest.getRedirectUri())
 			.build();
 
 		AuthorizationCodeAuthenticationToken authorizationCodeAuthentication = new AuthorizationCodeAuthenticationToken(
-				authorizationResponse.getCode(), clientRegistration, matchingAuthorizationRequest);
+				clientRegistration, authorizationRequest, authorizationResponse);
 		authorizationCodeAuthentication.setDetails(this.authenticationDetailsSource.buildDetails(request));
 
 		OAuth2ClientAuthenticationToken oauth2ClientAuthentication =
@@ -170,31 +168,6 @@ public class AuthorizationCodeAuthenticationFilter extends AbstractAuthenticatio
 	public final void setAuthorizationRequestRepository(AuthorizationRequestRepository authorizationRequestRepository) {
 		Assert.notNull(authorizationRequestRepository, "authorizationRequestRepository cannot be null");
 		this.authorizationRequestRepository = authorizationRequestRepository;
-	}
-
-	private AuthorizationRequest resolveAuthorizationRequest(HttpServletRequest request) {
-		AuthorizationRequest authorizationRequest =
-				this.getAuthorizationRequestRepository().loadAuthorizationRequest(request);
-		if (authorizationRequest == null) {
-			OAuth2Error oauth2Error = new OAuth2Error(AUTHORIZATION_REQUEST_NOT_FOUND_ERROR_CODE);
-			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
-		}
-		this.getAuthorizationRequestRepository().removeAuthorizationRequest(request);
-		this.assertMatchingAuthorizationRequest(request, authorizationRequest);
-		return authorizationRequest;
-	}
-
-	private void assertMatchingAuthorizationRequest(HttpServletRequest request, AuthorizationRequest authorizationRequest) {
-		String state = request.getParameter(OAuth2Parameter.STATE);
-		if (!authorizationRequest.getState().equals(state)) {
-			OAuth2Error oauth2Error = new OAuth2Error(INVALID_STATE_PARAMETER_ERROR_CODE);
-			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
-		}
-
-		if (!request.getRequestURL().toString().equals(authorizationRequest.getRedirectUri())) {
-			OAuth2Error oauth2Error = new OAuth2Error(INVALID_REDIRECT_URI_PARAMETER_ERROR_CODE);
-			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
-		}
 	}
 
 	private boolean authenticated() {

@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.client.authentication;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.endpoint.AuthorizationRequest;
+import org.springframework.security.oauth2.core.endpoint.AuthorizationResponse;
 import org.springframework.util.Assert;
 
 /**
@@ -28,38 +29,37 @@ import org.springframework.util.Assert;
  * @since 5.0
  * @see AuthorizationGrantAuthenticationToken
  * @see ClientRegistration
+ * @see AuthorizationRequest
+ * @see AuthorizationResponse
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-1.3.1">Section 1.3.1 Authorization Code Grant</a>
  */
 public class AuthorizationCodeAuthenticationToken extends AuthorizationGrantAuthenticationToken {
-	private final String authorizationCode;
 	private final ClientRegistration clientRegistration;
 	private final AuthorizationRequest authorizationRequest;
+	private final AuthorizationResponse authorizationResponse;
 
-	public AuthorizationCodeAuthenticationToken(String authorizationCode,
-												ClientRegistration clientRegistration,
-												AuthorizationRequest authorizationRequest) {
+	public AuthorizationCodeAuthenticationToken(ClientRegistration clientRegistration,
+												AuthorizationRequest authorizationRequest,
+												AuthorizationResponse authorizationResponse) {
+
 		super(AuthorizationGrantType.AUTHORIZATION_CODE);
-		Assert.hasText(authorizationCode, "authorizationCode cannot be empty");
 		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
 		Assert.notNull(authorizationRequest, "authorizationRequest cannot be null");
-		this.authorizationCode = authorizationCode;
+		Assert.notNull(authorizationResponse, "authorizationResponse cannot be null");
 		this.clientRegistration = clientRegistration;
 		this.authorizationRequest = authorizationRequest;
+		this.authorizationResponse = authorizationResponse;
 		this.setAuthenticated(false);
 	}
 
 	@Override
 	public Object getPrincipal() {
-		return this.getClientRegistration().getClientId();
+		return "";
 	}
 
 	@Override
 	public Object getCredentials() {
-		return this.getAuthorizationCode();
-	}
-
-	public String getAuthorizationCode() {
-		return this.authorizationCode;
+		return "";
 	}
 
 	public ClientRegistration getClientRegistration() {
@@ -68,5 +68,9 @@ public class AuthorizationCodeAuthenticationToken extends AuthorizationGrantAuth
 
 	public AuthorizationRequest getAuthorizationRequest() {
 		return this.authorizationRequest;
+	}
+
+	public AuthorizationResponse getAuthorizationResponse() {
+		return this.authorizationResponse;
 	}
 }

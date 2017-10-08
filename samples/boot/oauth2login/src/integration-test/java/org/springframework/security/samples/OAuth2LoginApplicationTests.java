@@ -44,7 +44,6 @@ import org.springframework.security.oauth2.client.web.AuthorizationCodeAuthentic
 import org.springframework.security.oauth2.client.web.AuthorizationCodeRequestRedirectFilter;
 import org.springframework.security.oauth2.client.web.AuthorizationGrantTokenExchanger;
 import org.springframework.security.oauth2.core.AccessToken;
-import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.endpoint.OAuth2Parameter;
 import org.springframework.security.oauth2.core.endpoint.ResponseType;
 import org.springframework.security.oauth2.core.endpoint.TokenResponse;
@@ -280,30 +279,6 @@ public class OAuth2LoginApplicationTests {
 		HtmlElement errorElement = page.getBody().getFirstByXPath("p");
 		assertThat(errorElement).isNotNull();
 		assertThat(errorElement.asText()).contains("invalid_redirect_uri_parameter");
-	}
-
-	@Test
-	public void requestAuthorizationCodeGrantWhenStandardErrorCodeResponseThenDisplayLoginPageWithError() throws Exception {
-		HtmlPage page = this.webClient.getPage("/");
-		URL loginPageUrl = page.getBaseURL();
-		URL loginErrorPageUrl = new URL(loginPageUrl.toString() + "?error");
-
-		String error = OAuth2Error.INVALID_CLIENT_ERROR_CODE;
-		String state = "state";
-		String redirectUri = AUTHORIZE_BASE_URL + "/" + this.githubClientRegistration.getRegistrationId();
-
-		String authorizationResponseUri =
-				UriComponentsBuilder.fromHttpUrl(redirectUri)
-						.queryParam(OAuth2Parameter.ERROR, error)
-						.queryParam(OAuth2Parameter.STATE, state)
-						.build().encode().toUriString();
-
-		page = this.webClient.getPage(new URL(authorizationResponseUri));
-		assertThat(page.getBaseURL()).isEqualTo(loginErrorPageUrl);
-
-		HtmlElement errorElement = page.getBody().getFirstByXPath("p");
-		assertThat(errorElement).isNotNull();
-		assertThat(errorElement.asText()).contains(error);
 	}
 
 	private void assertLoginPage(HtmlPage page) throws Exception {

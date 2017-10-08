@@ -27,19 +27,24 @@ import org.springframework.util.StringUtils;
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.2">Section 4.1.2 Authorization Response</a>
  */
 public final class AuthorizationResponse {
-	private String code;
+	private String redirectUri;
 	private String state;
+	private String code;
 	private OAuth2Error error;
 
 	private AuthorizationResponse() {
 	}
 
-	public String getCode() {
-		return this.code;
+	public String getRedirectUri() {
+		return this.redirectUri;
 	}
 
 	public String getState() {
 		return this.state;
+	}
+
+	public String getCode() {
+		return this.code;
 	}
 
 	public OAuth2Error getError() {
@@ -65,8 +70,9 @@ public final class AuthorizationResponse {
 	}
 
 	public static class Builder {
-		private String code;
+		private String redirectUri;
 		private String state;
+		private String code;
 		private String errorCode;
 		private String errorDescription;
 		private String errorUri;
@@ -74,13 +80,18 @@ public final class AuthorizationResponse {
 		private Builder() {
 		}
 
-		public Builder code(String code) {
-			this.code = code;
+		public Builder redirectUri(String redirectUri) {
+			this.redirectUri = redirectUri;
 			return this;
 		}
 
 		public Builder state(String state) {
 			this.state = state;
+			return this;
+		}
+
+		public Builder code(String code) {
+			this.code = code;
 			return this;
 		}
 
@@ -103,14 +114,17 @@ public final class AuthorizationResponse {
 			if (StringUtils.hasText(this.code) && StringUtils.hasText(this.errorCode)) {
 				throw new IllegalArgumentException("code and errorCode cannot both be set");
 			}
+			Assert.hasText(this.redirectUri, "redirectUri cannot be empty");
+
 			AuthorizationResponse authorizationResponse = new AuthorizationResponse();
+			authorizationResponse.redirectUri = this.redirectUri;
+			authorizationResponse.state = this.state;
 			if (StringUtils.hasText(this.code)) {
 				authorizationResponse.code = this.code;
 			} else {
 				authorizationResponse.error = new OAuth2Error(
 					this.errorCode, this.errorDescription, this.errorUri);
 			}
-			authorizationResponse.state = this.state;
 			return authorizationResponse;
 		}
 	}

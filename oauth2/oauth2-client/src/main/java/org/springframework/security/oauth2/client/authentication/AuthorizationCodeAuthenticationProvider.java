@@ -21,6 +21,9 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.client.token.InMemoryAccessTokenRepository;
 import org.springframework.security.oauth2.client.token.SecurityTokenRepository;
 import org.springframework.security.oauth2.core.AccessToken;
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.endpoint.AuthorizationRequest;
+import org.springframework.security.oauth2.core.endpoint.AuthorizationResponse;
 import org.springframework.security.oauth2.oidc.client.authentication.OidcClientAuthenticationToken;
 import org.springframework.util.Assert;
 
@@ -32,7 +35,7 @@ import org.springframework.util.Assert;
  *
  * <p>
  * The {@link AuthorizationCodeAuthenticationProvider} uses an {@link AuthorizationGrantAuthenticator}
- * to authenticate the {@link AuthorizationCodeAuthenticationToken#getAuthorizationCode()} and ultimately
+ * to authenticate the <i>authorization code</i> credential and ultimately
  * return an <i>&quot;Authorized Client&quot;</i> as an {@link OAuth2ClientAuthenticationToken}.
  *
  * @author Joe Grandja
@@ -49,6 +52,8 @@ import org.springframework.util.Assert;
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#TokenResponse">Section 3.1.3.3 OpenID Connect Token Response</a>
  */
 public class AuthorizationCodeAuthenticationProvider implements AuthenticationProvider {
+	private static final String INVALID_STATE_PARAMETER_ERROR_CODE = "invalid_state_parameter";
+	private static final String INVALID_REDIRECT_URI_PARAMETER_ERROR_CODE = "invalid_redirect_uri_parameter";
 	private final AuthorizationGrantAuthenticator<AuthorizationCodeAuthenticationToken> authorizationCodeAuthenticator;
 	private SecurityTokenRepository<AccessToken> accessTokenRepository = new InMemoryAccessTokenRepository();
 
@@ -63,6 +68,24 @@ public class AuthorizationCodeAuthenticationProvider implements AuthenticationPr
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		AuthorizationCodeAuthenticationToken authorizationCodeAuthentication =
 				(AuthorizationCodeAuthenticationToken) authentication;
+
+		AuthorizationRequest authorizationRequest = authorizationCodeAuthentication.getAuthorizationRequest();
+		AuthorizationResponse authorizationResponse = authorizationCodeAuthentication.getAuthorizationResponse();
+
+		if (authorizationResponse.statusError()) {
+			throw new OAuth2AuthenticationException(
+				authorizationResponse.getError(), authorizationResponse.getError().toString());
+		}
+
+		if (!authorizationResponse.getState().equals(authorizationRequest.getState())) {
+			OAuth2Error oauth2Error = new OAuth2Error(INVALID_STATE_PARAMETER_ERROR_CODE);
+			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+		}
+
+		if (!authorizationResponse.getRedirectUri().equals(authorizationRequest.getRedirectUri())) {
+			OAuth2Error oauth2Error = new OAuth2Error(INVALID_REDIRECT_URI_PARAMETER_ERROR_CODE);
+			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+		}
 
 		OAuth2ClientAuthenticationToken oauth2ClientAuthentication =
 			this.authorizationCodeAuthenticator.authenticate(authorizationCodeAuthentication);

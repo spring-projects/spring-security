@@ -152,55 +152,6 @@ public class AuthorizationCodeAuthenticationFilterTests {
 		verifyThrowsOAuth2AuthenticationExceptionWithErrorCode(filter, failureHandler, "authorization_request_not_found");
 	}
 
-	@Test
-	public void doFilterWhenAuthorizationCodeSuccessResponseWithInvalidStateParamThenThrowOAuth2AuthenticationExceptionInvalidStateParameter() throws Exception {
-		ClientRegistration clientRegistration = TestUtil.githubClientRegistration();
-
-		AuthorizationCodeAuthenticationFilter filter = Mockito.spy(setupFilter(clientRegistration));
-		AuthenticationFailureHandler failureHandler = mock(AuthenticationFailureHandler.class);
-		filter.setAuthenticationFailureHandler(failureHandler);
-		AuthorizationRequestRepository authorizationRequestRepository = new HttpSessionAuthorizationRequestRepository();
-		filter.setAuthorizationRequestRepository(authorizationRequestRepository);
-
-		MockHttpServletRequest request = this.setupRequest(clientRegistration);
-		String authCode = "some code";
-		String state = "some other state";
-		request.addParameter(OAuth2Parameter.CODE, authCode);
-		request.addParameter(OAuth2Parameter.STATE, state);
-		MockHttpServletResponse response = new MockHttpServletResponse();
-		setupAuthorizationRequest(authorizationRequestRepository, request, response, clientRegistration, "some state");
-		FilterChain filterChain = mock(FilterChain.class);
-
-		filter.doFilter(request, response, filterChain);
-
-		verifyThrowsOAuth2AuthenticationExceptionWithErrorCode(filter, failureHandler, "invalid_state_parameter");
-	}
-
-	@Test
-	public void doFilterWhenAuthorizationCodeSuccessResponseWithInvalidRedirectUriParamThenThrowOAuth2AuthenticationExceptionInvalidRedirectUriParameter() throws Exception {
-		ClientRegistration clientRegistration = TestUtil.githubClientRegistration();
-
-		AuthorizationCodeAuthenticationFilter filter = Mockito.spy(setupFilter(clientRegistration));
-		AuthenticationFailureHandler failureHandler = mock(AuthenticationFailureHandler.class);
-		filter.setAuthenticationFailureHandler(failureHandler);
-		AuthorizationRequestRepository authorizationRequestRepository = new HttpSessionAuthorizationRequestRepository();
-		filter.setAuthorizationRequestRepository(authorizationRequestRepository);
-
-		MockHttpServletRequest request = this.setupRequest(clientRegistration);
-		request.setRequestURI(request.getRequestURI() + "-other");
-		String authCode = "some code";
-		String state = "some state";
-		request.addParameter(OAuth2Parameter.CODE, authCode);
-		request.addParameter(OAuth2Parameter.STATE, state);
-		MockHttpServletResponse response = new MockHttpServletResponse();
-		setupAuthorizationRequest(authorizationRequestRepository, request, response, clientRegistration, state);
-		FilterChain filterChain = mock(FilterChain.class);
-
-		filter.doFilter(request, response, filterChain);
-
-		verifyThrowsOAuth2AuthenticationExceptionWithErrorCode(filter, failureHandler, "invalid_redirect_uri_parameter");
-	}
-
 	private void verifyThrowsOAuth2AuthenticationExceptionWithErrorCode(AuthorizationCodeAuthenticationFilter filter,
 																		AuthenticationFailureHandler failureHandler,
 																		String errorCode) throws Exception {
