@@ -22,13 +22,6 @@ dependencyManagement {
 		dependency 'org.spockframework:spock-core:1.0-groovy-2.4'
 		dependency 'org.spockframework:spock-spring:1.0-groovy-2.4'
 	}
-	project.configurations.matching { it.name == 'springIoTestRuntime' }.all {
-		springIoTestRuntime {
-			dependencies {
-				dependency 'org.mockito:mockito-core:1.10.19'
-			}
-		}
-	}
 }
 
 dependencyManagement {
