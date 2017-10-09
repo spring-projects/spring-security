@@ -53,7 +53,9 @@ public class MainController {
 			.getProviderDetails().getUserInfoEndpoint().getUri();
 		if (!StringUtils.isEmpty(userInfoEndpointUri)) {	// userInfoEndpointUri is optional for OIDC Clients
 			userAttributes = this.webClient
+				.mutate()
 				.filter(oauth2Credentials(authentication))
+				.build()
 				.get()
 				.uri(userInfoEndpointUri)
 				.retrieve()
