@@ -53,7 +53,7 @@ dependencyManagement {
 		dependency 'com.google.inject:guice:3.0'
 		dependency 'com.nimbusds:lang-tag:1.4.3'
 		dependency 'com.nimbusds:nimbus-jose-jwt:5.1'
-		dependency 'com.nimbusds:oauth2-oidc-sdk:5.36'
+		dependency 'com.nimbusds:oauth2-oidc-sdk:5.38'
 		dependency 'com.squareup.okhttp3:okhttp:3.8.1'
 		dependency 'com.squareup.okio:okio:1.13.0'
 		dependency 'com.vaadin.external.google:android-json:0.0.20131108.vaadin1'
