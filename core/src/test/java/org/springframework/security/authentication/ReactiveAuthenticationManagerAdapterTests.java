@@ -20,7 +20,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.Authentication;
 import reactor.core.publisher.Mono;
@@ -76,7 +76,6 @@ public class ReactiveAuthenticationManagerAdapterTests {
 	@Test
 	public void authenticateWhenBadCredentialsThenError() {
 		when(delegate.authenticate(any())).thenThrow(new BadCredentialsException("Failed"));
-		when(authentication.isAuthenticated()).thenReturn(true);
 
 		Mono<Authentication> result = manager.authenticate(authentication);
 

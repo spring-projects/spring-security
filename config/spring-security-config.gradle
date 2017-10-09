@@ -30,7 +30,7 @@ dependencies {
 	testCompile project(path : ':spring-security-core', configuration : 'tests')
 	testCompile project(path : ':spring-security-webflux', configuration : 'tests')
 	testCompile apachedsDependencies
-	testCompile powerMockDependencies
+	testCompile powerMock2Dependencies
 	testCompile spockDependencies
 	testCompile 'ch.qos.logback:logback-classic'
 	testCompile 'javax.annotation:jsr250-api:1.0'

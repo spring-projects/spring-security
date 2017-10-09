@@ -27,7 +27,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
 
@@ -107,7 +108,6 @@ public class AndRequestMatcherTests {
 	@Test
 	public void matchesMultiBothFalse() {
 		when(delegate.matches(request)).thenReturn(false);
-		when(delegate2.matches(request)).thenReturn(false);
 		matcher = new AndRequestMatcher(delegate, delegate2);
 
 		assertThat(matcher.matches(request)).isFalse();

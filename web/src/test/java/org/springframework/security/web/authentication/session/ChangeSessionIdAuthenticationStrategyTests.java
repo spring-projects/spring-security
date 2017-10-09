@@ -62,7 +62,7 @@ public class ChangeSessionIdAuthenticationStrategyTests {
 
 		new ChangeSessionIdAuthenticationStrategy().applySessionFixation(request);
 
-		verifyStatic();
+		verifyStatic(ReflectionUtils.class);
 		ReflectionUtils.invokeMethod(same(method), eq(request));
 	}
 

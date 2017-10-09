@@ -83,7 +83,6 @@ public class OrMessageMatcherTest {
 	@Test
 	public void matchesMultiTrue() {
 		when(delegate.matches(message)).thenReturn(true);
-		when(delegate2.matches(message)).thenReturn(true);
 		matcher = new OrMessageMatcher<Object>(delegate, delegate2);
 
 		assertThat(matcher.matches(message)).isTrue();
@@ -109,7 +108,6 @@ public class OrMessageMatcherTest {
 	@Test
 	public void matchesMultiSingleFalse() {
 		when(delegate.matches(message)).thenReturn(true);
-		when(delegate2.matches(message)).thenReturn(false);
 		matcher = new OrMessageMatcher<Object>(delegate, delegate2);
 
 		assertThat(matcher.matches(message)).isTrue();

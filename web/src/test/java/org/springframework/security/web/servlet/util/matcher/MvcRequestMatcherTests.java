@@ -65,12 +65,8 @@ public class MvcRequestMatcherTests {
 
 	@Test
 	public void extractUriTemplateVariablesSuccess() throws Exception {
-		when(this.result.extractUriTemplateVariables())
-				.thenReturn(Collections.singletonMap("p", "path"));
 		when(this.introspector.getMatchableHandlerMapping(this.request))
 				.thenReturn(this.mapping);
-		when(this.mapping.match(eq(this.request), this.pattern.capture()))
-				.thenReturn(this.result);
 
 		this.matcher = new MvcRequestMatcher(this.introspector, "/{p}");
 		when(this.introspector.getMatchableHandlerMapping(this.request)).thenReturn(null);
@@ -123,10 +119,6 @@ public class MvcRequestMatcherTests {
 
 	@Test
 	public void matchesServletPathFalse() throws Exception {
-		when(this.introspector.getMatchableHandlerMapping(this.request))
-				.thenReturn(this.mapping);
-		when(this.mapping.match(eq(this.request), this.pattern.capture()))
-				.thenReturn(this.result);
 		this.matcher.setServletPath("/spring");
 		this.request.setServletPath("/");
 

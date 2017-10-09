@@ -91,7 +91,7 @@ public class SecurityNamespaceHandlerTests {
 
 		handler.init();
 
-		verifyStatic();
+		verifyStatic(ClassUtils.class);
 		ClassUtils.forName(eq(FILTER_CHAIN_PROXY_CLASSNAME), any(ClassLoader.class));
 		verifyZeroInteractions(logger);
 	}

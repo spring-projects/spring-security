@@ -95,7 +95,6 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	@Test
 	public void resolveArgumentWhenIsEmptyThenMonoEmpty() throws Exception {
 		MethodParameter parameter = this.authenticationPrincipal.arg(String.class);
-		when(authentication.getPrincipal()).thenReturn("user");
 		when(exchange.getPrincipal()).thenReturn(Mono.empty());
 
 		Mono<Object> argument = resolver.resolveArgument(parameter, bindingContext, exchange);

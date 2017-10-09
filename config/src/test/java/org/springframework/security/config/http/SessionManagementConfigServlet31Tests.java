@@ -104,7 +104,7 @@ public class SessionManagementConfigServlet31Tests {
 
 		springSecurityFilterChain.doFilter(request, response, chain);
 
-		verifyStatic();
+		verifyStatic(ReflectionUtils.class);
 		ReflectionUtils.invokeMethod(same(method), any(HttpServletRequest.class));
 	}
 
@@ -129,7 +129,7 @@ public class SessionManagementConfigServlet31Tests {
 
 		springSecurityFilterChain.doFilter(request, response, chain);
 
-		verifyStatic();
+		verifyStatic(ReflectionUtils.class);
 		ReflectionUtils.invokeMethod(same(method), any(HttpServletRequest.class));
 	}
 

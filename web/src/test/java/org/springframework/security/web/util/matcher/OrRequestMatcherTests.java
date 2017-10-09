@@ -90,7 +90,6 @@ public class OrRequestMatcherTests {
 	@Test
 	public void matchesMultiTrue() {
 		when(delegate.matches(request)).thenReturn(true);
-		when(delegate2.matches(request)).thenReturn(true);
 		matcher = new OrRequestMatcher(delegate, delegate2);
 
 		assertThat(matcher.matches(request)).isTrue();
@@ -116,7 +115,6 @@ public class OrRequestMatcherTests {
 	@Test
 	public void matchesMultiSingleFalse() {
 		when(delegate.matches(request)).thenReturn(true);
-		when(delegate2.matches(request)).thenReturn(false);
 		matcher = new OrRequestMatcher(delegate, delegate2);
 
 		assertThat(matcher.matches(request)).isTrue();

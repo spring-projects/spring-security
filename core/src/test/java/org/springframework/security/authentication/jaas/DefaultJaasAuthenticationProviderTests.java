@@ -40,6 +40,7 @@ import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -262,19 +263,10 @@ public class DefaultJaasAuthenticationProviderTests {
 	}
 
 	private void verifyFailedLogin() {
-		verify(publisher).publishEvent(
-				argThat(new BaseMatcher<JaasAuthenticationFailedEvent>() {
-					public void describeTo(Description desc) {
-						desc.appendText("isA(org.springframework.security.authentication.jaas.event.JaasAuthenticationFailedEvent)");
-						desc.appendText(" && event.getException() != null");
-					}
-
-					public boolean matches(Object arg) {
-						JaasAuthenticationFailedEvent e = (JaasAuthenticationFailedEvent) arg;
-						return e.getException() != null;
-					}
-
-				}));
+		ArgumentCaptor<JaasAuthenticationFailedEvent> event = ArgumentCaptor.forClass(JaasAuthenticationFailedEvent.class);
+		verify(publisher).publishEvent(event.capture());
+		assertThat(event.getValue()).isInstanceOf(JaasAuthenticationFailedEvent.class);
+		assertThat(event.getValue().getException()).isNotNull();
 		verifyNoMoreInteractions(publisher);
 	}
 }

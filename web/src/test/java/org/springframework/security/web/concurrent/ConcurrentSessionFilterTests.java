@@ -309,7 +309,7 @@ public class ConcurrentSessionFilterTests {
 
 		filter.doFilter(request, response, new MockFilterChain());
 
-		verify(handler).logout(eq(request), eq(response), any(Authentication.class));
+		verify(handler).logout(eq(request), eq(response), any());
 	}
 
 	@Test(expected = IllegalArgumentException.class)

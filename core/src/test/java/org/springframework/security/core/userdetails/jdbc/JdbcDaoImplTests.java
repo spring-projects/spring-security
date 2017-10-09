@@ -37,7 +37,7 @@ import static org.mockito.Mockito.verify;
  * Tests {@link JdbcDaoImpl}.
  *
  * @author Ben Alex
- * @author EddÃº MelÃ©ndez
+ * @author Eddú Meléndez
  */
 public class JdbcDaoImplTests {
 
@@ -212,6 +212,6 @@ public class JdbcDaoImplTests {
 
 		dao.getMessages().getMessage(code);
 
-		verify(source).getMessage(eq(code), any(Object[].class), any(Locale.class));
+		verify(source).getMessage(eq(code), any(), any());
 	}
 }

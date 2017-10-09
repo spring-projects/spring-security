@@ -55,7 +55,6 @@ public class WithMockUserSecurityContextFactoryTests {
 
 	@Test
 	public void usernamePrioritizedOverValue() {
-		when(withUser.value()).thenReturn("valueUser");
 		when(withUser.username()).thenReturn("customUser");
 		when(withUser.password()).thenReturn("password");
 		when(withUser.roles()).thenReturn(new String[] { "USER" });
@@ -94,7 +93,6 @@ public class WithMockUserSecurityContextFactoryTests {
 	@Test(expected = IllegalStateException.class)
 	public void authoritiesAndRolesInvalid() {
 		when(withUser.value()).thenReturn("valueUser");
-		when(withUser.password()).thenReturn("password");
 		when(withUser.roles()).thenReturn(new String[] { "CUSTOM" });
 		when(withUser.authorities()).thenReturn(new String[] { "USER", "CUSTOM" });
 
@@ -104,7 +102,6 @@ public class WithMockUserSecurityContextFactoryTests {
 	@Test(expected = IllegalArgumentException.class)
 	public void rolesWithRolePrefixFails() {
 		when(withUser.value()).thenReturn("valueUser");
-		when(withUser.password()).thenReturn("password");
 		when(withUser.roles()).thenReturn(new String[] { "ROLE_FAIL" });
 		when(withUser.authorities()).thenReturn(new String[] {});
 

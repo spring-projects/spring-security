@@ -20,7 +20,7 @@ dependencies {
 	testCompile 'commons-codec:commons-codec'
 	testCompile 'org.codehaus.groovy:groovy-all'
 	testCompile 'org.skyscreamer:jsonassert'
-	testCompile powerMockDependencies
+	testCompile powerMock2Dependencies
 	testCompile spockDependencies
 	testCompile slf4jDependencies
 

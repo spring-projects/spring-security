@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareOnlyThisForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -50,6 +51,7 @@ import org.springframework.util.StringUtils;
 @SuppressWarnings("unchecked")
 @RunWith(PowerMockRunner.class)
 @PrepareOnlyThisForTest(ReflectionUtils.class)
+@PowerMockIgnore("javax.security.auth.*")
 public class AbstractRememberMeServicesTests {
 
 	static User joe = new User("joe", "password", true, true, true, true,

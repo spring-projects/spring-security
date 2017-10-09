@@ -58,7 +58,6 @@ public class SpringSecurityLdapTemplateTests {
 						searchControls.capture())).thenReturn(resultsEnum);
 		when(resultsEnum.hasMore()).thenReturn(true, false);
 		when(resultsEnum.next()).thenReturn(searchResult);
-		when(searchResult.getName()).thenReturn(searchResultName);
 		when(searchResult.getObject()).thenReturn(searchResultObject);
 
 		SpringSecurityLdapTemplate.searchForSingleEntryInternal(ctx,

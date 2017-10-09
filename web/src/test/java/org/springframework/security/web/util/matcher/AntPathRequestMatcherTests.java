@@ -211,7 +211,6 @@ public class AntPathRequestMatcherTests {
 	}
 
 	private HttpServletRequest createRequestWithNullMethod(String path) {
-		when(this.request.getQueryString()).thenReturn("doesntMatter");
 		when(this.request.getServletPath()).thenReturn(path);
 		return this.request;
 	}

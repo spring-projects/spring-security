@@ -64,8 +64,8 @@ public class FilterChainProxyTests {
 				fc.doFilter(extraWrapper, (HttpServletResponse) args[1]);
 				return null;
 			}
-		}).when(filter).doFilter(any(HttpServletRequest.class),
-				any(HttpServletResponse.class), any(FilterChain.class));
+		}).when(filter).doFilter(any(),
+				any(), any());
 		fcp = new FilterChainProxy(new DefaultSecurityFilterChain(matcher,
 				Arrays.asList(filter)));
 		fcp.setFilterChainValidator(mock(FilterChainProxy.FilterChainValidator.class));
@@ -127,12 +127,12 @@ public class FilterChainProxyTests {
 	@Test
 	public void requestIsWrappedForMatchingAndFilteringWhenMatchIsFound()
 			throws Exception {
-		when(matcher.matches(any(HttpServletRequest.class))).thenReturn(true);
+		when(matcher.matches(any())).thenReturn(true);
 		fcp.doFilter(request, response, chain);
 		verify(matcher).matches(any(FirewalledRequest.class));
 		verify(filter).doFilter(any(FirewalledRequest.class),
 				any(HttpServletResponse.class), any(FilterChain.class));
-		verify(chain).doFilter(any(FirewalledRequest.class),
+		verify(chain).doFilter(any(),
 				any(HttpServletResponse.class));
 	}
 
@@ -178,7 +178,7 @@ public class FilterChainProxyTests {
 		when(fw.getFirewalledRequest(firstFwr)).thenReturn(fwr);
 		when(fwr.getRequest()).thenReturn(firstFwr);
 		when(firstFwr.getRequest()).thenReturn(request);
-		when(matcher.matches(any(HttpServletRequest.class))).thenReturn(true);
+		when(matcher.matches(any())).thenReturn(true);
 		firstFcp.doFilter(request, response, chain);
 		verify(firstFwr).reset();
 		verify(fwr).reset();

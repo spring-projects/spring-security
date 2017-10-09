@@ -24,7 +24,7 @@ dependencies {
 	optional 'org.springframework:spring-jdbc'
 	optional 'org.springframework:spring-tx'
 
-	testCompile powerMockDependencies
+	testCompile powerMock2Dependencies
 	testCompile 'commons-collections:commons-collections'
 	testCompile 'io.projectreactor:reactor-test'
 	testCompile 'org.skyscreamer:jsonassert'

@@ -64,9 +64,6 @@ public class WebAsyncManagerIntegrationFilterTests {
 
 	@Before
 	public void setUp() {
-		when(asyncWebRequest.getNativeRequest(HttpServletRequest.class)).thenReturn(
-				request);
-		when(request.getRequestURI()).thenReturn("/");
 		filterChain = new MockFilterChain();
 
 		threadFactory = new JoinableThreadFactory();

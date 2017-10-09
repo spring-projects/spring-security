@@ -19,7 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.event.SmartApplicationListener;
 
@@ -63,7 +63,6 @@ public class DelegatingApplicationListenerTests {
 
 	@Test
 	public void processEventEventTypeNotSupported() {
-		when(delegate.supportsSourceType(event.getSource().getClass())).thenReturn(true);
 		listener.onApplicationEvent(event);
 
 		verify(delegate, never()).onApplicationEvent(any(ApplicationEvent.class));

@@ -54,7 +54,7 @@ public class AclEntryAfterInvocationProviderTests {
 		Acl acl = mock(Acl.class);
 		when(acl.isGranted(any(List.class), any(List.class), anyBoolean())).thenReturn(
 				true);
-		when(service.readAclById(any(ObjectIdentity.class), any(List.class))).thenReturn(
+		when(service.readAclById(any(), any())).thenReturn(
 				acl);
 		AclEntryAfterInvocationProvider provider = new AclEntryAfterInvocationProvider(
 				service, Arrays.asList(mock(Permission.class)));
@@ -106,9 +106,9 @@ public class AclEntryAfterInvocationProviderTests {
 		when(acl.isGranted(any(List.class), any(List.class), anyBoolean())).thenReturn(
 				false);
 		// Try a second time with no permissions found
-		when(acl.isGranted(any(List.class), any(List.class), anyBoolean())).thenThrow(
+		when(acl.isGranted(any(), any(List.class), anyBoolean())).thenThrow(
 				new NotFoundException(""));
-		when(service.readAclById(any(ObjectIdentity.class), any(List.class))).thenReturn(
+		when(service.readAclById(any(), any())).thenReturn(
 				acl);
 		AclEntryAfterInvocationProvider provider = new AclEntryAfterInvocationProvider(
 				service, Arrays.asList(mock(Permission.class)));

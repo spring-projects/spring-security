@@ -17,5 +17,5 @@ dependencies {
 	testCompile 'org.skyscreamer:jsonassert'
 	testCompile 'org.springframework:spring-webmvc'
 	testCompile 'org.springframework:spring-tx'
-	testCompile powerMockDependencies
+	testCompile powerMock2Dependencies
 }
