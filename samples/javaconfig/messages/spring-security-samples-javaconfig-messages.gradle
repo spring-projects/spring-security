@@ -4,7 +4,7 @@ dependencies {
 	compile project(':spring-security-config')
 	compile project(':spring-security-web')
 	compile 'javax.validation:validation-api'
-	compile 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:2.0.4'
+	compile 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect'
 	compile 'org.eclipse.persistence:javax.persistence'
 	compile('org.hibernate:hibernate-entitymanager') {
 		exclude group:'javassist', module: 'javassist'
