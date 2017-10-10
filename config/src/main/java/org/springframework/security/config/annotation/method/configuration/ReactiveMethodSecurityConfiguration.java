@@ -26,7 +26,7 @@ import org.springframework.security.access.expression.method.*;
 import org.springframework.security.access.intercept.aopalliance.MethodSecurityMetadataSourceAdvisor;
 import org.springframework.security.access.method.AbstractMethodSecurityMetadataSource;
 import org.springframework.security.access.method.DelegatingMethodSecurityMetadataSource;
-import org.springframework.security.access.method.PrePostAdviceMethodInterceptor;
+import org.springframework.security.access.method.PrePostAdviceReactiveMethodInterceptor;
 import org.springframework.security.access.prepost.PrePostAnnotationSecurityMetadataSource;
 
 import java.util.Arrays;
@@ -58,14 +58,14 @@ class ReactiveMethodSecurityConfiguration implements ImportAware {
 	}
 
 	@Bean
-	public PrePostAdviceMethodInterceptor securityMethodInterceptor(AbstractMethodSecurityMetadataSource source, MethodSecurityExpressionHandler handler) {
+	public PrePostAdviceReactiveMethodInterceptor securityMethodInterceptor(AbstractMethodSecurityMetadataSource source, MethodSecurityExpressionHandler handler) {
 
 		ExpressionBasedPostInvocationAdvice postAdvice = new ExpressionBasedPostInvocationAdvice(
 				handler);
 		ExpressionBasedPreInvocationAdvice preAdvice = new ExpressionBasedPreInvocationAdvice();
 		preAdvice.setExpressionHandler(handler);
 
-		PrePostAdviceMethodInterceptor result = new PrePostAdviceMethodInterceptor(source);
+		PrePostAdviceReactiveMethodInterceptor result = new PrePostAdviceReactiveMethodInterceptor(source);
 		result.setPostAdvice(postAdvice);
 		result.setPreAdvice(preAdvice);
 		return result;

@@ -25,7 +25,6 @@ import org.springframework.security.access.expression.method.DefaultMethodSecuri
 import org.springframework.security.access.expression.method.ExpressionBasedPostInvocationAdvice;
 import org.springframework.security.access.expression.method.ExpressionBasedPreInvocationAdvice;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
-import org.springframework.security.access.method.MethodSecurityMetadataSource;
 import org.springframework.security.access.prepost.PostInvocationAttribute;
 import org.springframework.security.access.prepost.PostInvocationAuthorizationAdvice;
 import org.springframework.security.access.prepost.PreInvocationAttribute;
@@ -46,7 +45,7 @@ import java.util.Collection;
  * @author Rob Winch
  * @since 5.0
  */
-public class PrePostAdviceMethodInterceptor implements MethodInterceptor {
+public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor {
 	private Authentication anonymous = new AnonymousAuthenticationToken("key", "anonymous",
 		AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
 
@@ -56,7 +55,7 @@ public class PrePostAdviceMethodInterceptor implements MethodInterceptor {
 
 	private PreInvocationAuthorizationAdvice preAdvice;
 
-	public PrePostAdviceMethodInterceptor(MethodSecurityMetadataSource attributeSource) {
+	public PrePostAdviceReactiveMethodInterceptor(MethodSecurityMetadataSource attributeSource) {
 		this.attributeSource = attributeSource;
 
 		MethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
