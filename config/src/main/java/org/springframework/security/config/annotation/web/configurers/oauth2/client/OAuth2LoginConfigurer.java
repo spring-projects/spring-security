@@ -72,6 +72,12 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		return this;
 	}
 
+	@Override
+	public OAuth2LoginConfigurer<B> loginPage(String loginPage) {
+		Assert.hasText(loginPage, "loginPage cannot be empty");
+		return super.loginPage(loginPage);
+	}
+
 	public AuthorizationEndpointConfig authorizationEndpoint() {
 		return this.authorizationEndpointConfig;
 	}
