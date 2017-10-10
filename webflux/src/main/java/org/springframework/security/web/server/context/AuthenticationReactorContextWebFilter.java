@@ -32,7 +32,7 @@ import java.security.Principal;
  * @author Rob Winch
  * @since 5.0
  */
-public class AuthenticationReactorContextFilter implements WebFilter {
+public class AuthenticationReactorContextWebFilter implements WebFilter {
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {

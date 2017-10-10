@@ -43,7 +43,7 @@ import org.springframework.security.web.server.authorization.AuthorizationContex
 import org.springframework.security.web.server.authorization.AuthorizationWebFilter;
 import org.springframework.security.web.server.authorization.DelegatingReactiveAuthorizationManager;
 import org.springframework.security.web.server.authorization.ExceptionTranslationWebFilter;
-import org.springframework.security.web.server.context.AuthenticationReactorContextFilter;
+import org.springframework.security.web.server.context.AuthenticationReactorContextWebFilter;
 import org.springframework.security.web.server.context.SecurityContextServerRepository;
 import org.springframework.security.web.server.context.SecurityContextRepositoryWebFilter;
 import org.springframework.security.web.server.context.ServerWebExchangeAttributeSecurityContextServerRepository;
@@ -201,7 +201,7 @@ public class HttpSecurity {
 		if(this.logout != null) {
 			this.logout.configure(this);
 		}
-		this.addFilterAt(new AuthenticationReactorContextFilter(), SecurityWebFiltersOrder.AUTHENTICATION_CONTEXT);
+		this.addFilterAt(new AuthenticationReactorContextWebFilter(), SecurityWebFiltersOrder.AUTHENTICATION_CONTEXT);
 		if(this.authorizeExchangeBuilder != null) {
 			ServerAuthenticationEntryPoint serverAuthenticationEntryPoint = getServerAuthenticationEntryPoint();
 			ExceptionTranslationWebFilter exceptionTranslationWebFilter = new ExceptionTranslationWebFilter();

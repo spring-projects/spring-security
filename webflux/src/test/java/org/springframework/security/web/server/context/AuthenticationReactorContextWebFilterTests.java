@@ -34,8 +34,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Rob Winch
  * @since 5.0
  */
-public class AuthenticationReactorContextFilterTests {
-	AuthenticationReactorContextFilter filter = new AuthenticationReactorContextFilter();
+public class AuthenticationReactorContextWebFilterTests {
+	AuthenticationReactorContextWebFilter filter = new AuthenticationReactorContextWebFilter();
 
 	Principal principal = new TestingAuthenticationToken("user","password", "ROLE_USER");
 
