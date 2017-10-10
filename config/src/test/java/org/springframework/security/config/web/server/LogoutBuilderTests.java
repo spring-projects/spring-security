@@ -35,7 +35,7 @@ import org.springframework.security.test.web.reactive.server.WebTestClientBuilde
 public class LogoutBuilderTests {
 
 	private UserDetails user = User.withUsername("user").password("password").roles("USER").build();
-	private HttpSecurity http = HttpSecurity.http();
+	private ServerHttpSecurity http = ServerHttpSecurity.http();
 
 	ReactiveAuthenticationManager manager = new UserDetailsRepositoryReactiveAuthenticationManager(new MapReactiveUserDetailsService(this.user));
 

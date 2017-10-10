@@ -22,14 +22,14 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.core.ReactiveAdapterRegistry;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
-import org.springframework.security.config.web.server.HttpSecurity;
+import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.reactive.result.method.annotation.AuthenticationPrincipalArgumentResolver;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
 import org.springframework.web.reactive.result.method.annotation.ArgumentResolverConfigurer;
 
-import static org.springframework.security.config.web.server.HttpSecurity.http;
+import static org.springframework.security.config.web.server.ServerHttpSecurity.http;
 
 /**
  * @author Rob Winch
@@ -63,7 +63,7 @@ public class HttpSecurityConfiguration implements WebFluxConfigurer {
 
 	@Bean(HTTPSECURITY_BEAN_NAME)
 	@Scope("prototype")
-	public HttpSecurity httpSecurity() {
+	public ServerHttpSecurity httpSecurity() {
 		return http()
 			.authenticationManager(authenticationManager())
 			.headers().and()

@@ -26,7 +26,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.security.authentication.TestingAuthenticationToken;
-import org.springframework.security.config.web.server.HttpSecurity;
+import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.User;
@@ -234,7 +234,7 @@ public class EnableWebFluxSecurityTests {
 	}
 
 	@RunWith(SpringRunner.class)
-	public static class MultiHttpSecurity {
+	public static class MultiServerHttpSecurity {
 		@Autowired WebFilterChainProxy springSecurityFilterChain;
 
 		@Test
@@ -257,7 +257,7 @@ public class EnableWebFluxSecurityTests {
 		static class Config {
 			@Order(Ordered.HIGHEST_PRECEDENCE)
 			@Bean
-			public SecurityWebFilterChain apiHttpSecurity(HttpSecurity http) {
+			public SecurityWebFilterChain apiHttpSecurity(ServerHttpSecurity http) {
 				http
 					.securityMatcher(new PathPatternParserServerWebExchangeMatcher("/api/**"))
 					.authorizeExchange()
@@ -266,7 +266,7 @@ public class EnableWebFluxSecurityTests {
 			}
 
 			@Bean
-			public SecurityWebFilterChain httpSecurity(HttpSecurity http) {
+			public SecurityWebFilterChain httpSecurity(ServerHttpSecurity http) {
 				return http.build();
 			}
 

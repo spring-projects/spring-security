@@ -44,16 +44,16 @@ import static org.springframework.web.reactive.function.client.ExchangeFilterFun
  * @since 5.0
  */
 @RunWith(MockitoJUnitRunner.class)
-public class HttpSecurityTests {
+public class ServerHttpSecurityTests {
 	@Mock SecurityContextServerRepository contextRepository;
 	@Mock
 	ReactiveAuthenticationManager authenticationManager;
 
-	HttpSecurity http;
+	ServerHttpSecurity http;
 
 	@Before
 	public void setup() {
-		this.http = HttpSecurity.http().headers().and();
+		this.http = ServerHttpSecurity.http().headers().and();
 	}
 
 	@Test
@@ -80,7 +80,7 @@ public class HttpSecurityTests {
 		this.http.securityContextRepository(new WebSessionSecurityContextServerRepository());
 		this.http.httpBasic();
 		this.http.authenticationManager(this.authenticationManager);
-		HttpSecurity.AuthorizeExchangeBuilder authorize = this.http.authorizeExchange();
+		ServerHttpSecurity.AuthorizeExchangeBuilder authorize = this.http.authorizeExchange();
 		authorize.anyExchange().authenticated();
 
 		WebTestClient client = buildClient();

@@ -19,7 +19,6 @@ package org.springframework.security.config.web.server;
 import org.junit.Test;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
-import org.springframework.security.web.server.authorization.ExceptionTranslationWebFilter;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 /**
@@ -27,8 +26,8 @@ import org.springframework.test.web.reactive.server.WebTestClient;
  * @since 5.0
  */
 public class AuthorizeExchangeBuilderTests {
-	HttpSecurity http = HttpSecurity.http();
-	HttpSecurity.AuthorizeExchangeBuilder authorization = this.http.authorizeExchange();
+	ServerHttpSecurity http = ServerHttpSecurity.http();
+	ServerHttpSecurity.AuthorizeExchangeBuilder authorization = this.http.authorizeExchange();
 
 	@Test
 	public void antMatchersWhenMethodAndPatternsThenDiscriminatesByMethod() {

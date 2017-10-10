@@ -21,7 +21,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.security.config.web.server.HttpSecurity;
+import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.WebFilterChainProxy;
 import org.springframework.util.ObjectUtils;
@@ -62,7 +62,7 @@ public class WebFluxSecurityConfiguration {
 	}
 
 	private List<SecurityWebFilterChain> defaultSecurityWebFilterChains() {
-		HttpSecurity http = context.getBean(HttpSecurity.class);
+		ServerHttpSecurity http = context.getBean(ServerHttpSecurity.class);
 		http
 			.authorizeExchange()
 				.anyExchange().authenticated();

@@ -43,7 +43,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class FormLoginTests {
 	private UserDetails user = User.withUsername("user").password("password").roles("USER").build();
-	private HttpSecurity http = HttpSecurity.http();
+	private ServerHttpSecurity http = ServerHttpSecurity.http();
 
 	ReactiveAuthenticationManager manager = new UserDetailsRepositoryReactiveAuthenticationManager(new MapReactiveUserDetailsService(this.user));
 

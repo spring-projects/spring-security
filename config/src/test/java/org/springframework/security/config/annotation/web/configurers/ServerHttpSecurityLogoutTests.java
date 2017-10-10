@@ -17,29 +17,30 @@ package org.springframework.security.config.annotation.web.configurers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
 /**
  * @author Rob Winch
  *
  */
-public class HttpSecurityAntMatchersTests {
+public class ServerHttpSecurityLogoutTests {
 	AnnotationConfigWebApplicationContext context;
 
 	MockHttpServletRequest request;
@@ -63,58 +64,31 @@ public class HttpSecurityAntMatchersTests {
 		}
 	}
 
-	// SEC-3135
+	// SEC-2848
 	@Test
-	public void antMatchersMethodAndNoPatterns() throws Exception {
-		loadConfig(AntMatchersNoPatternsConfig.class);
+	public void clearAuthenticationFalse() throws Exception {
+		loadConfig(ClearAuthenticationFalseConfig.class);
+
+		SecurityContext currentContext = SecurityContextHolder.createEmptyContext();
+		currentContext.setAuthentication(new TestingAuthenticationToken("user", "password","ROLE_USER"));
+
+		request.getSession().setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, currentContext);
 		request.setMethod("POST");
+		request.setServletPath("/logout");
 
 		springSecurityFilterChain.doFilter(request, response, chain);
 
-		assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_FORBIDDEN);
+		assertThat(currentContext.getAuthentication()).isNotNull();
 	}
 
 	@EnableWebSecurity
 	@Configuration
-	static class AntMatchersNoPatternsConfig extends WebSecurityConfigurerAdapter {
+	static class ClearAuthenticationFalseConfig extends WebSecurityConfigurerAdapter {
 		protected void configure(HttpSecurity http) throws Exception {
 			http
-				.requestMatchers()
-					.antMatchers(HttpMethod.POST)
-					.and()
-				.authorizeRequests()
-					.anyRequest().denyAll();
-		}
-
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			auth
-				.inMemoryAuthentication();
-		}
-	}
-
-	// SEC-3135
-	@Test
-	public void antMatchersMethodAndEmptyPatterns() throws Exception {
-		loadConfig(AntMatchersEmptyPatternsConfig.class);
-		request.setMethod("POST");
-
-		springSecurityFilterChain.doFilter(request, response, chain);
-
-		assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
-	}
-
-	@EnableWebSecurity
-	@Configuration
-	static class AntMatchersEmptyPatternsConfig extends WebSecurityConfigurerAdapter {
-		protected void configure(HttpSecurity http) throws Exception {
-			http
-				.requestMatchers()
-					.antMatchers("/never/")
-					.antMatchers(HttpMethod.POST, new String[0])
-					.and()
-				.authorizeRequests()
-					.anyRequest().denyAll();
+				.csrf().disable()
+				.logout()
+					.clearAuthentication(false);
 		}
 
 		@Override

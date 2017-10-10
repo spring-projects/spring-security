@@ -79,7 +79,7 @@ import static org.springframework.security.web.server.DelegatingServerAuthentica
  * @author Rob Winch
  * @since 5.0
  */
-public class HttpSecurity {
+public class ServerHttpSecurity {
 	private ServerWebExchangeMatcher securityMatcher = ServerWebExchangeMatchers.anyExchange();
 
 	private AuthorizeExchangeBuilder authorizeExchangeBuilder;
@@ -108,13 +108,13 @@ public class HttpSecurity {
 	 * @param matcher the ServerExchangeMatcher that determines which requests apply to this HttpSecurity instance.
 	 *                Default is all requests.
 	 */
-	public HttpSecurity securityMatcher(ServerWebExchangeMatcher matcher) {
+	public ServerHttpSecurity securityMatcher(ServerWebExchangeMatcher matcher) {
 		Assert.notNull(matcher, "matcher cannot be null");
 		this.securityMatcher = matcher;
 		return this;
 	}
 
-	public HttpSecurity addFilterAt(WebFilter webFilter, SecurityWebFiltersOrder order) {
+	public ServerHttpSecurity addFilterAt(WebFilter webFilter, SecurityWebFiltersOrder order) {
 		this.webFilters.add(new OrderedWebFilter(webFilter, order.getOrder()));
 		return this;
 	}
@@ -127,7 +127,7 @@ public class HttpSecurity {
 		return this.securityMatcher;
 	}
 
-	public HttpSecurity securityContextRepository(SecurityContextServerRepository securityContextServerRepository) {
+	public ServerHttpSecurity securityContextRepository(SecurityContextServerRepository securityContextServerRepository) {
 		Assert.notNull(securityContextServerRepository, "securityContextRepository cannot be null");
 		this.securityContextServerRepository = securityContextServerRepository;
 		return this;
@@ -168,7 +168,7 @@ public class HttpSecurity {
 		return this.logout;
 	}
 
-	public HttpSecurity authenticationManager(ReactiveAuthenticationManager manager) {
+	public ServerHttpSecurity authenticationManager(ReactiveAuthenticationManager manager) {
 		this.authenticationManager = manager;
 		return this;
 	}
@@ -228,8 +228,8 @@ public class HttpSecurity {
 		return result;
 	}
 
-	public static HttpSecurity http() {
-		return new HttpSecurity();
+	public static ServerHttpSecurity http() {
+		return new ServerHttpSecurity();
 	}
 
 	private WebFilter securityContextRepositoryWebFilter() {
@@ -241,7 +241,7 @@ public class HttpSecurity {
 		return new OrderedWebFilter(result, SecurityWebFiltersOrder.SECURITY_CONTEXT_REPOSITORY.getOrder());
 	}
 
-	private HttpSecurity() {}
+	private ServerHttpSecurity() {}
 
 	/**
 	 * @author Rob Winch
@@ -252,8 +252,8 @@ public class HttpSecurity {
 		private ServerWebExchangeMatcher matcher;
 		private boolean anyExchangeRegistered;
 
-		public HttpSecurity and() {
-			return HttpSecurity.this;
+		public ServerHttpSecurity and() {
+			return ServerHttpSecurity.this;
 		}
 
 		@Override
@@ -275,7 +275,7 @@ public class HttpSecurity {
 			return new Access();
 		}
 
-		protected void configure(HttpSecurity http) {
+		protected void configure(ServerHttpSecurity http) {
 			if(this.matcher != null) {
 				throw new IllegalStateException("The matcher " + this.matcher + " does not have an access rule defined");
 			}
@@ -336,23 +336,23 @@ public class HttpSecurity {
 			return this;
 		}
 
-		public HttpSecurity and() {
-			return HttpSecurity.this;
+		public ServerHttpSecurity and() {
+			return ServerHttpSecurity.this;
 		}
 
-		public HttpSecurity disable() {
-			HttpSecurity.this.httpBasic = null;
-			return HttpSecurity.this;
+		public ServerHttpSecurity disable() {
+			ServerHttpSecurity.this.httpBasic = null;
+			return ServerHttpSecurity.this;
 		}
 
-		protected void configure(HttpSecurity http) {
+		protected void configure(ServerHttpSecurity http) {
 			MediaTypeServerWebExchangeMatcher restMatcher = new MediaTypeServerWebExchangeMatcher(
 				MediaType.APPLICATION_ATOM_XML,
 				MediaType.APPLICATION_FORM_URLENCODED, MediaType.APPLICATION_JSON,
 				MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_XML,
 				MediaType.MULTIPART_FORM_DATA, MediaType.TEXT_XML);
 			restMatcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
-			HttpSecurity.this.defaultEntryPoints.add(new DelegateEntry(restMatcher, this.entryPoint));
+			ServerHttpSecurity.this.defaultEntryPoints.add(new DelegateEntry(restMatcher, this.entryPoint));
 			AuthenticationWebFilter authenticationFilter = new AuthenticationWebFilter(
 				this.authenticationManager);
 			authenticationFilter.setServerAuthenticationFailureHandler(new ServerAuthenticationEntryPointFailureHandler(this.entryPoint));
@@ -413,23 +413,23 @@ public class HttpSecurity {
 			return this;
 		}
 
-		public HttpSecurity and() {
-			return HttpSecurity.this;
+		public ServerHttpSecurity and() {
+			return ServerHttpSecurity.this;
 		}
 
-		public HttpSecurity disable() {
-			HttpSecurity.this.formLogin = null;
-			return HttpSecurity.this;
+		public ServerHttpSecurity disable() {
+			ServerHttpSecurity.this.formLogin = null;
+			return ServerHttpSecurity.this;
 		}
 
-		protected void configure(HttpSecurity http) {
+		protected void configure(ServerHttpSecurity http) {
 			if(this.serverAuthenticationEntryPoint == null) {
 				loginPage("/login");
 			}
 			MediaTypeServerWebExchangeMatcher htmlMatcher = new MediaTypeServerWebExchangeMatcher(
 				MediaType.TEXT_HTML);
 			htmlMatcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
-			HttpSecurity.this.defaultEntryPoints.add(0, new DelegateEntry(htmlMatcher, this.serverAuthenticationEntryPoint));
+			ServerHttpSecurity.this.defaultEntryPoints.add(0, new DelegateEntry(htmlMatcher, this.serverAuthenticationEntryPoint));
 			AuthenticationWebFilter authenticationFilter = new AuthenticationWebFilter(
 				this.authenticationManager);
 			authenticationFilter.setRequiresAuthenticationMatcher(this.requiresAuthenticationMatcher);
@@ -461,8 +461,8 @@ public class HttpSecurity {
 
 		private XXssProtectionServerHttpHeadersWriter xss = new XXssProtectionServerHttpHeadersWriter();
 
-		public HttpSecurity and() {
-			return HttpSecurity.this;
+		public ServerHttpSecurity and() {
+			return ServerHttpSecurity.this;
 		}
 
 		public CacheSpec cache() {
@@ -481,7 +481,7 @@ public class HttpSecurity {
 			return new HstsSpec();
 		}
 
-		protected void configure(HttpSecurity http) {
+		protected void configure(ServerHttpSecurity http) {
 			ServerHttpHeadersWriter writer = new CompositeServerHttpHeadersWriter(this.writers);
 			HttpHeaderWriterWebFilter result = new HttpHeaderWriterWebFilter(writer);
 			http.addFilterAt(result, SecurityWebFiltersOrder.HTTP_HEADERS_WRITER);
@@ -575,21 +575,21 @@ public class HttpSecurity {
 			return this;
 		}
 
-		public HttpSecurity disable() {
-			HttpSecurity.this.logout = null;
+		public ServerHttpSecurity disable() {
+			ServerHttpSecurity.this.logout = null;
 			return and();
 		}
 
-		public HttpSecurity and() {
-			return HttpSecurity.this;
+		public ServerHttpSecurity and() {
+			return ServerHttpSecurity.this;
 		}
 
-		public void configure(HttpSecurity http) {
+		public void configure(ServerHttpSecurity http) {
 			LogoutWebFilter logoutWebFilter = createLogoutWebFilter(http);
 			http.addFilterAt(logoutWebFilter, SecurityWebFiltersOrder.LOGOUT);
 		}
 
-		private LogoutWebFilter createLogoutWebFilter(HttpSecurity http) {
+		private LogoutWebFilter createLogoutWebFilter(ServerHttpSecurity http) {
 			LogoutWebFilter logoutWebFilter = new LogoutWebFilter();
 			logoutWebFilter.setServerLogoutHandler(this.serverLogoutHandler);
 			logoutWebFilter.setRequiresLogout(this.requiresLogout);
