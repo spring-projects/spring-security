@@ -26,8 +26,8 @@ import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.web.server.AuthenticationEntryPoint;
 import org.springframework.security.web.server.DelegatingAuthenticationEntryPoint;
-import org.springframework.security.web.server.FormLoginAuthenticationConverter;
-import org.springframework.security.web.server.HttpBasicAuthenticationConverter;
+import org.springframework.security.web.server.ServerFormLoginAuthenticationConverter;
+import org.springframework.security.web.server.ServerHttpBasicAuthenticationConverter;
 import org.springframework.security.web.server.MatcherSecurityWebFilterChain;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.AuthenticationEntryPointFailureHandler;
@@ -355,7 +355,7 @@ public class HttpSecurity {
 			AuthenticationWebFilter authenticationFilter = new AuthenticationWebFilter(
 				this.authenticationManager);
 			authenticationFilter.setAuthenticationFailureHandler(new AuthenticationEntryPointFailureHandler(this.entryPoint));
-			authenticationFilter.setAuthenticationConverter(new HttpBasicAuthenticationConverter());
+			authenticationFilter.setAuthenticationConverter(new ServerHttpBasicAuthenticationConverter());
 			if(this.securityContextRepository != null) {
 				authenticationFilter.setSecurityContextRepository(this.securityContextRepository);
 			}
@@ -433,7 +433,7 @@ public class HttpSecurity {
 				this.authenticationManager);
 			authenticationFilter.setRequiresAuthenticationMatcher(this.requiresAuthenticationMatcher);
 			authenticationFilter.setAuthenticationFailureHandler(this.authenticationFailureHandler);
-			authenticationFilter.setAuthenticationConverter(new FormLoginAuthenticationConverter());
+			authenticationFilter.setAuthenticationConverter(new ServerFormLoginAuthenticationConverter());
 			authenticationFilter.setAuthenticationSuccessHandler(new RedirectAuthenticationSuccessHandler("/"));
 			authenticationFilter.setSecurityContextRepository(this.securityContextRepository);
 			http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.FORM_LOGIN);

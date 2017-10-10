@@ -22,7 +22,6 @@ import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,9 +29,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Rob Winch
  * @since 5.0
  */
-public class HttpBasicAuthenticationConverterTests {
+public class ServerHttpBasicAuthenticationConverterTests {
 
-	HttpBasicAuthenticationConverter converter = new HttpBasicAuthenticationConverter();
+	ServerHttpBasicAuthenticationConverter converter = new ServerHttpBasicAuthenticationConverter();
 	MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/");
 
 	@Test

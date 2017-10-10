@@ -35,13 +35,13 @@ import static org.mockito.Mockito.when;
  * @since 5.0
  */
 @RunWith(MockitoJUnitRunner.class)
-public class FormLoginAuthenticationConverterTests {
+public class ServerFormLoginAuthenticationConverterTests {
 	@Mock
 	private ServerWebExchange exchange;
 
 	private MultiValueMap<String,String> data = new LinkedMultiValueMap<>();
 
-	private FormLoginAuthenticationConverter converter = new FormLoginAuthenticationConverter();
+	private ServerFormLoginAuthenticationConverter converter = new ServerFormLoginAuthenticationConverter();
 
 	@Before
 	public void setup() {

@@ -32,7 +32,7 @@ import org.springframework.web.server.ServerWebExchange;
  * @author Rob Winch
  * @since 5.0
  */
-public class FormLoginAuthenticationConverter implements Function<ServerWebExchange,Mono<Authentication>> {
+public class ServerFormLoginAuthenticationConverter implements Function<ServerWebExchange,Mono<Authentication>> {
 
 	private String usernameParameter = "username";
 
