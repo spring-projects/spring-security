@@ -25,7 +25,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.web.server.ServerHttpBasicAuthenticationConverter;
 import org.springframework.security.web.server.WebFilterExchange;
-import org.springframework.security.web.server.authentication.www.HttpBasicAuthenticationEntryPoint;
+import org.springframework.security.web.server.authentication.www.HttpBasicServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.context.SecurityContextRepository;
 import org.springframework.security.web.server.context.SecurityContextRepositoryServerWebExchange;
 import org.springframework.security.web.server.context.ServerWebExchangeAttributeSecurityContextRepository;
@@ -49,7 +49,7 @@ public class AuthenticationWebFilter implements WebFilter {
 
 	private Function<ServerWebExchange,Mono<Authentication>> authenticationConverter = new ServerHttpBasicAuthenticationConverter();
 
-	private AuthenticationFailureHandler authenticationFailureHandler = new AuthenticationEntryPointFailureHandler(new HttpBasicAuthenticationEntryPoint());
+	private AuthenticationFailureHandler authenticationFailureHandler = new AuthenticationEntryPointFailureHandler(new HttpBasicServerAuthenticationEntryPoint());
 
 	private SecurityContextRepository securityContextRepository = new ServerWebExchangeAttributeSecurityContextRepository();
 

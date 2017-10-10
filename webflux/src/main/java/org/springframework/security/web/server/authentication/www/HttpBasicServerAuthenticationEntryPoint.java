@@ -18,7 +18,7 @@ package org.springframework.security.web.server.authentication.www;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.server.AuthenticationEntryPoint;
+import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -29,7 +29,8 @@ import reactor.core.publisher.Mono;
  * @author Rob Winch
  * @since 5.0
  */
-public class HttpBasicAuthenticationEntryPoint implements AuthenticationEntryPoint {
+public class HttpBasicServerAuthenticationEntryPoint
+	implements ServerAuthenticationEntryPoint {
 	private static final String WWW_AUTHENTICATE = "WWW-Authenticate";
 	private static final String DEFAULT_REALM = "Realm";
 	private static String WWW_AUTHENTICATE_FORMAT = "Basic realm=\"%s\"";

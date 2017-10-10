@@ -25,7 +25,7 @@ import org.springframework.web.server.ServerWebExchange;
  * @author Rob Winch
  * @since 5.0
  */
-public interface AuthenticationEntryPoint {
+public interface ServerAuthenticationEntryPoint {
 
 	Mono<Void> commence(ServerWebExchange exchange, AuthenticationException e);
 }

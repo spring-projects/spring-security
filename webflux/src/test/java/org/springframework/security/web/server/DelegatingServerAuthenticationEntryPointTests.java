@@ -32,14 +32,14 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import static org.springframework.security.web.server.DelegatingAuthenticationEntryPoint.*;
+import static org.springframework.security.web.server.DelegatingServerAuthenticationEntryPoint.*;
 
 /**
  * @author Rob Winch
  * @since 5.0
  */
 @RunWith(MockitoJUnitRunner.class)
-public class DelegatingAuthenticationEntryPointTests {
+public class DelegatingServerAuthenticationEntryPointTests {
 	private ServerWebExchange exchange = MockServerHttpRequest.get("/").toExchange();
 
 	@Mock
@@ -47,12 +47,12 @@ public class DelegatingAuthenticationEntryPointTests {
 	@Mock
 	private ServerWebExchangeMatcher matcher2;
 	@Mock
-	private AuthenticationEntryPoint delegate1;
+	private ServerAuthenticationEntryPoint delegate1;
 	@Mock
-	private AuthenticationEntryPoint delegate2;
+	private ServerAuthenticationEntryPoint delegate2;
 
 	private AuthenticationException e = new AuthenticationCredentialsNotFoundException("Log In");
-	private DelegatingAuthenticationEntryPoint entryPoint;
+	private DelegatingServerAuthenticationEntryPoint entryPoint;
 
 	@Test
 	public void commenceWhenNotMatchThenMatchThenOnlySecondDelegateInvoked() {
@@ -62,7 +62,7 @@ public class DelegatingAuthenticationEntryPointTests {
 		when(this.matcher2.matches(this.exchange)).thenReturn(
 			ServerWebExchangeMatcher.MatchResult.match());
 		when(this.delegate2.commence(this.exchange, this.e)).thenReturn(expectedResult);
-		this.entryPoint = new DelegatingAuthenticationEntryPoint(
+		this.entryPoint = new DelegatingServerAuthenticationEntryPoint(
 			new DelegateEntry(this.matcher1, this.delegate1),
 			new DelegateEntry(this.matcher2, this.delegate2));
 
@@ -78,7 +78,7 @@ public class DelegatingAuthenticationEntryPointTests {
 	public void commenceWhenNotMatchThenDefault() {
 		when(this.matcher1.matches(this.exchange)).thenReturn(
 			ServerWebExchangeMatcher.MatchResult.notMatch());
-		this.entryPoint = new DelegatingAuthenticationEntryPoint(
+		this.entryPoint = new DelegatingServerAuthenticationEntryPoint(
 			new DelegateEntry(this.matcher1, this.delegate1));
 
 		this.entryPoint.commence(this.exchange, this.e).block();

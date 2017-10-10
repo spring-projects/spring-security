@@ -31,20 +31,21 @@ import java.util.List;
  * @author Rob Winch
  * @since 5.0
  */
-public class DelegatingAuthenticationEntryPoint implements AuthenticationEntryPoint {
+public class DelegatingServerAuthenticationEntryPoint
+	implements ServerAuthenticationEntryPoint {
 	private final Flux<DelegateEntry> entryPoints;
 
-	private AuthenticationEntryPoint defaultEntryPoint = (exchange, e) -> {
+	private ServerAuthenticationEntryPoint defaultEntryPoint = (exchange, e) -> {
 		exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
 		return exchange.getResponse().setComplete();
 	};
 
-	public DelegatingAuthenticationEntryPoint(
+	public DelegatingServerAuthenticationEntryPoint(
 		DelegateEntry... entryPoints) {
 		this(Arrays.asList(entryPoints));
 	}
 
-	public DelegatingAuthenticationEntryPoint(
+	public DelegatingServerAuthenticationEntryPoint(
 		List<DelegateEntry> entryPoints) {
 		this.entryPoints = Flux.fromIterable(entryPoints);
 	}
@@ -68,16 +69,16 @@ public class DelegatingAuthenticationEntryPoint implements AuthenticationEntryPo
 	 * EntryPoint which is used when no RequestMatcher returned true
 	 */
 	public void setDefaultEntryPoint(
-		AuthenticationEntryPoint defaultEntryPoint) {
+		ServerAuthenticationEntryPoint defaultEntryPoint) {
 		this.defaultEntryPoint = defaultEntryPoint;
 	}
 
 	public static class DelegateEntry {
 		private final ServerWebExchangeMatcher matcher;
-		private final AuthenticationEntryPoint entryPoint;
+		private final ServerAuthenticationEntryPoint entryPoint;
 
 		public DelegateEntry(ServerWebExchangeMatcher matcher,
-			AuthenticationEntryPoint entryPoint) {
+			ServerAuthenticationEntryPoint entryPoint) {
 			this.matcher = matcher;
 			this.entryPoint = entryPoint;
 		}
@@ -86,7 +87,7 @@ public class DelegatingAuthenticationEntryPoint implements AuthenticationEntryPo
 			return this.matcher;
 		}
 
-		public AuthenticationEntryPoint getEntryPoint() {
+		public ServerAuthenticationEntryPoint getEntryPoint() {
 			return this.entryPoint;
 		}
 	}

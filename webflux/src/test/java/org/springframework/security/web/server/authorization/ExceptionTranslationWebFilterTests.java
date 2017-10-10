@@ -30,7 +30,7 @@ import reactor.test.publisher.PublisherProbe;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.http.server.reactive.MockServerHttpResponse;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.web.server.AuthenticationEntryPoint;
+import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
 
@@ -53,7 +53,7 @@ public class ExceptionTranslationWebFilterTests {
 	@Mock
 	private AccessDeniedHandler deniedHandler;
 	@Mock
-	private AuthenticationEntryPoint entryPoint;
+	private ServerAuthenticationEntryPoint entryPoint;
 
 	private PublisherProbe<Void> deniedPublisher = PublisherProbe.empty();
 	private PublisherProbe<Void> entryPointPublisher = PublisherProbe.empty();
@@ -66,7 +66,7 @@ public class ExceptionTranslationWebFilterTests {
 		when(this.deniedHandler.handle(any(), any())).thenReturn(this.deniedPublisher.mono());
 		when(this.entryPoint.commence(any(), any())).thenReturn(this.entryPointPublisher.mono());
 
-		this.filter.setAuthenticationEntryPoint(this.entryPoint);
+		this.filter.setServerAuthenticationEntryPoint(this.entryPoint);
 		this.filter.setAccessDeniedHandler(this.deniedHandler);
 	}
 
@@ -155,6 +155,6 @@ public class ExceptionTranslationWebFilterTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void setAuthenticationEntryPointWhenNullThenException() {
-		this.filter.setAuthenticationEntryPoint(null);
+		this.filter.setServerAuthenticationEntryPoint(null);
 	}
 }

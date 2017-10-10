@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.web.server.authentication;
+package org.springframework.security.web.server.authentication.www;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,72 +25,58 @@ import org.springframework.http.HttpStatus;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
  * @since 5.0
  */
 @RunWith(MockitoJUnitRunner.class)
-public class RedirectAuthenticationEntryPointTests {
-
+public class HttpBasicServerAuthenticationEntryPointTests {
 	@Mock
 	private ServerWebExchange exchange;
-	@Mock
-	private ServerRedirectStrategy serverRedirectStrategy;
+	private HttpBasicServerAuthenticationEntryPoint entryPoint = new HttpBasicServerAuthenticationEntryPoint();
 
-	private String location = "/login";
-
-	private RedirectAuthenticationEntryPoint entryPoint =
-		new RedirectAuthenticationEntryPoint("/login");
-
-	private AuthenticationException exception = new AuthenticationCredentialsNotFoundException("Authentication Required");
-
-
-	@Test(expected = IllegalArgumentException.class)
-	public void constructorStringWhenNullLocationThenException() {
-		new RedirectAuthenticationEntryPoint((String) null);
-	}
+	private AuthenticationException exception = new AuthenticationCredentialsNotFoundException("Authenticate");
 
 	@Test
 	public void commenceWhenNoSubscribersThenNoActions() {
 		this.entryPoint.commence(this.exchange,
-			this.exception);
+				this.exception);
 
 		verifyZeroInteractions(this.exchange);
 	}
 
 	@Test
-	public void commenceWhenSubscribeThenStatusAndLocationSet() {
+	public void commenceWhenSubscribeThenStatusAndHeaderSet() {
 		this.exchange = MockServerHttpRequest.get("/").toExchange();
 
 		this.entryPoint.commence(this.exchange, this.exception).block();
 
 		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(
-			HttpStatus.FOUND);
-		assertThat(this.exchange.getResponse().getHeaders().getLocation()).hasPath(this.location);
+			HttpStatus.UNAUTHORIZED);
+		assertThat(this.exchange.getResponse().getHeaders().get("WWW-Authenticate")).containsOnly(
+			"Basic realm=\"Realm\"");
 	}
 
 	@Test
-	public void commenceWhenCustomStatusThenStatusSet() {
-		Mono<Void> result = Mono.empty();
-		when(this.serverRedirectStrategy.sendRedirect(any(), any())).thenReturn(result);
-		HttpStatus status = HttpStatus.MOVED_PERMANENTLY;
-		this.entryPoint.setServerRedirectStrategy(this.serverRedirectStrategy);
+	public void commenceWhenCustomRealmThenStatusAndHeaderSet() {
+		this.entryPoint.setRealm("Custom");
 		this.exchange = MockServerHttpRequest.get("/").toExchange();
 
-		assertThat(this.entryPoint.commence(this.exchange, this.exception)).isEqualTo(result);
+		this.entryPoint.commence(this.exchange, this.exception).block();
+
+		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(
+			HttpStatus.UNAUTHORIZED);
+		assertThat(this.exchange.getResponse().getHeaders().get("WWW-Authenticate")).containsOnly(
+			"Basic realm=\"Custom\"");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void setRedirectStrategyWhenNullThenException() {
-		this.entryPoint.setServerRedirectStrategy(null);
+	public void setRealmWhenNullThenException() {
+		this.entryPoint.setRealm(null);
 	}
 }

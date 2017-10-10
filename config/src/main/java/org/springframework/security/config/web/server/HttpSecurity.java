@@ -24,8 +24,8 @@ import org.springframework.security.authorization.AuthenticatedReactiveAuthoriza
 import org.springframework.security.authorization.AuthorityReactiveAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
-import org.springframework.security.web.server.AuthenticationEntryPoint;
-import org.springframework.security.web.server.DelegatingAuthenticationEntryPoint;
+import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
+import org.springframework.security.web.server.DelegatingServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.ServerFormLoginAuthenticationConverter;
 import org.springframework.security.web.server.ServerHttpBasicAuthenticationConverter;
 import org.springframework.security.web.server.MatcherSecurityWebFilterChain;
@@ -33,12 +33,12 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.AuthenticationEntryPointFailureHandler;
 import org.springframework.security.web.server.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
-import org.springframework.security.web.server.authentication.RedirectAuthenticationEntryPoint;
+import org.springframework.security.web.server.authentication.RedirectServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.authentication.RedirectAuthenticationSuccessHandler;
 import org.springframework.security.web.server.authentication.logout.LogoutHandler;
 import org.springframework.security.web.server.authentication.logout.LogoutWebFilter;
 import org.springframework.security.web.server.authentication.logout.SecurityContextRepositoryLogoutHandler;
-import org.springframework.security.web.server.authentication.www.HttpBasicAuthenticationEntryPoint;
+import org.springframework.security.web.server.authentication.www.HttpBasicServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.authorization.AuthorizationContext;
 import org.springframework.security.web.server.authorization.AuthorizationWebFilter;
 import org.springframework.security.web.server.authorization.DelegatingReactiveAuthorizationManager;
@@ -73,7 +73,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.springframework.security.web.server.DelegatingAuthenticationEntryPoint.DelegateEntry;
+import static org.springframework.security.web.server.DelegatingServerAuthenticationEntryPoint.DelegateEntry;
 
 /**
  * @author Rob Winch
@@ -96,7 +96,7 @@ public class HttpSecurity {
 
 	private SecurityContextRepository securityContextRepository;
 
-	private AuthenticationEntryPoint authenticationEntryPoint;
+	private ServerAuthenticationEntryPoint serverAuthenticationEntryPoint;
 
 	private List<DelegateEntry> defaultEntryPoints = new ArrayList<>();
 
@@ -193,7 +193,7 @@ public class HttpSecurity {
 			if(this.securityContextRepository != null) {
 				this.formLogin.securityContextRepository(this.securityContextRepository);
 			}
-			if(this.formLogin.authenticationEntryPoint == null) {
+			if(this.formLogin.serverAuthenticationEntryPoint == null) {
 				this.webFilters.add(new OrderedWebFilter(new LoginPageGeneratingWebFilter(), SecurityWebFiltersOrder.LOGIN_PAGE_GENERATING.getOrder()));
 			}
 			this.formLogin.configure(this);
@@ -203,10 +203,11 @@ public class HttpSecurity {
 		}
 		this.addFilterAt(new AuthenticationReactorContextFilter(), SecurityWebFiltersOrder.AUTHENTICATION_CONTEXT);
 		if(this.authorizeExchangeBuilder != null) {
-			AuthenticationEntryPoint authenticationEntryPoint = getAuthenticationEntryPoint();
+			ServerAuthenticationEntryPoint serverAuthenticationEntryPoint = getServerAuthenticationEntryPoint();
 			ExceptionTranslationWebFilter exceptionTranslationWebFilter = new ExceptionTranslationWebFilter();
-			if(authenticationEntryPoint != null) {
-				exceptionTranslationWebFilter.setAuthenticationEntryPoint(authenticationEntryPoint);
+			if(serverAuthenticationEntryPoint != null) {
+				exceptionTranslationWebFilter.setServerAuthenticationEntryPoint(
+					serverAuthenticationEntryPoint);
 			}
 			this.addFilterAt(exceptionTranslationWebFilter, SecurityWebFiltersOrder.EXCEPTION_TRANSLATION);
 			this.authorizeExchangeBuilder.configure(this);
@@ -215,14 +216,14 @@ public class HttpSecurity {
 		return new MatcherSecurityWebFilterChain(getSecurityMatcher(), this.webFilters);
 	}
 
-	private AuthenticationEntryPoint getAuthenticationEntryPoint() {
-		if(this.authenticationEntryPoint != null || this.defaultEntryPoints.isEmpty()) {
-			return this.authenticationEntryPoint;
+	private ServerAuthenticationEntryPoint getServerAuthenticationEntryPoint() {
+		if(this.serverAuthenticationEntryPoint != null || this.defaultEntryPoints.isEmpty()) {
+			return this.serverAuthenticationEntryPoint;
 		}
 		if(this.defaultEntryPoints.size() == 1) {
 			return this.defaultEntryPoints.get(0).getEntryPoint();
 		}
-		DelegatingAuthenticationEntryPoint result = new DelegatingAuthenticationEntryPoint(this.defaultEntryPoints);
+		DelegatingServerAuthenticationEntryPoint result = new DelegatingServerAuthenticationEntryPoint(this.defaultEntryPoints);
 		result.setDefaultEntryPoint(this.defaultEntryPoints.get(this.defaultEntryPoints.size() - 1).getEntryPoint());
 		return result;
 	}
@@ -323,7 +324,7 @@ public class HttpSecurity {
 
 		private SecurityContextRepository securityContextRepository = new ServerWebExchangeAttributeSecurityContextRepository();
 
-		private AuthenticationEntryPoint entryPoint = new HttpBasicAuthenticationEntryPoint();
+		private ServerAuthenticationEntryPoint entryPoint = new HttpBasicServerAuthenticationEntryPoint();
 
 		public HttpBasicBuilder authenticationManager(ReactiveAuthenticationManager authenticationManager) {
 			this.authenticationManager = authenticationManager;
@@ -374,7 +375,7 @@ public class HttpSecurity {
 
 		private SecurityContextRepository securityContextRepository = new WebSessionSecurityContextRepository();
 
-		private AuthenticationEntryPoint authenticationEntryPoint;
+		private ServerAuthenticationEntryPoint serverAuthenticationEntryPoint;
 
 		private ServerWebExchangeMatcher requiresAuthenticationMatcher;
 
@@ -386,14 +387,14 @@ public class HttpSecurity {
 		}
 
 		public FormLoginBuilder loginPage(String loginPage) {
-			this.authenticationEntryPoint =  new RedirectAuthenticationEntryPoint(loginPage);
+			this.serverAuthenticationEntryPoint =  new RedirectServerAuthenticationEntryPoint(loginPage);
 			this.requiresAuthenticationMatcher = ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, loginPage);
-			this.authenticationFailureHandler = new AuthenticationEntryPointFailureHandler(new RedirectAuthenticationEntryPoint(loginPage + "?error"));
+			this.authenticationFailureHandler = new AuthenticationEntryPointFailureHandler(new RedirectServerAuthenticationEntryPoint(loginPage + "?error"));
 			return this;
 		}
 
-		public FormLoginBuilder authenticationEntryPoint(AuthenticationEntryPoint authenticationEntryPoint) {
-			this.authenticationEntryPoint = authenticationEntryPoint;
+		public FormLoginBuilder authenticationEntryPoint(ServerAuthenticationEntryPoint serverAuthenticationEntryPoint) {
+			this.serverAuthenticationEntryPoint = serverAuthenticationEntryPoint;
 			return this;
 		}
 
@@ -422,13 +423,13 @@ public class HttpSecurity {
 		}
 
 		protected void configure(HttpSecurity http) {
-			if(this.authenticationEntryPoint == null) {
+			if(this.serverAuthenticationEntryPoint == null) {
 				loginPage("/login");
 			}
 			MediaTypeServerWebExchangeMatcher htmlMatcher = new MediaTypeServerWebExchangeMatcher(
 				MediaType.TEXT_HTML);
 			htmlMatcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
-			HttpSecurity.this.defaultEntryPoints.add(0, new DelegateEntry(htmlMatcher, this.authenticationEntryPoint));
+			HttpSecurity.this.defaultEntryPoints.add(0, new DelegateEntry(htmlMatcher, this.serverAuthenticationEntryPoint));
 			AuthenticationWebFilter authenticationFilter = new AuthenticationWebFilter(
 				this.authenticationManager);
 			authenticationFilter.setRequiresAuthenticationMatcher(this.requiresAuthenticationMatcher);

@@ -20,8 +20,8 @@ import reactor.core.publisher.Mono;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
-import org.springframework.security.web.server.AuthenticationEntryPoint;
-import org.springframework.security.web.server.authentication.www.HttpBasicAuthenticationEntryPoint;
+import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
+import org.springframework.security.web.server.authentication.www.HttpBasicServerAuthenticationEntryPoint;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
@@ -33,7 +33,7 @@ import org.springframework.web.server.WebFilterChain;
  * @since 5.0
  */
 public class ExceptionTranslationWebFilter implements WebFilter {
-	private AuthenticationEntryPoint authenticationEntryPoint = new HttpBasicAuthenticationEntryPoint();
+	private ServerAuthenticationEntryPoint serverAuthenticationEntryPoint = new HttpBasicServerAuthenticationEntryPoint();
 
 	private AccessDeniedHandler accessDeniedHandler = new HttpStatusAccessDeniedHandler(HttpStatus.FORBIDDEN);
 
@@ -58,17 +58,17 @@ public class ExceptionTranslationWebFilter implements WebFilter {
 
 	/**
 	 * Sets the authentication entry point used when authentication is required
-	 * @param authenticationEntryPoint the authentication entry point to use. Default is
-	 * {@link HttpBasicAuthenticationEntryPoint}
+	 * @param serverAuthenticationEntryPoint the authentication entry point to use. Default is
+	 * {@link HttpBasicServerAuthenticationEntryPoint}
 	 */
-	public void setAuthenticationEntryPoint(
-		AuthenticationEntryPoint authenticationEntryPoint) {
-		Assert.notNull(authenticationEntryPoint, "authenticationEntryPoint cannot be null");
-		this.authenticationEntryPoint = authenticationEntryPoint;
+	public void setServerAuthenticationEntryPoint(
+		ServerAuthenticationEntryPoint serverAuthenticationEntryPoint) {
+		Assert.notNull(serverAuthenticationEntryPoint, "authenticationEntryPoint cannot be null");
+		this.serverAuthenticationEntryPoint = serverAuthenticationEntryPoint;
 	}
 
 	private <T> Mono<T> commenceAuthentication(ServerWebExchange exchange, AccessDeniedException denied) {
-		return this.authenticationEntryPoint.commence(exchange, new AuthenticationCredentialsNotFoundException("Not Authenticated", denied))
+		return this.serverAuthenticationEntryPoint.commence(exchange, new AuthenticationCredentialsNotFoundException("Not Authenticated", denied))
 			.then(Mono.empty());
 	}
 }

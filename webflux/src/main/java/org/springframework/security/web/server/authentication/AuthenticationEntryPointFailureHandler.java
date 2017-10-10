@@ -17,7 +17,7 @@
 package org.springframework.security.web.server.authentication;
 
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.server.AuthenticationEntryPoint;
+import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
@@ -27,17 +27,18 @@ import reactor.core.publisher.Mono;
  * @since 5.0
  */
 public class AuthenticationEntryPointFailureHandler implements AuthenticationFailureHandler {
-	private final AuthenticationEntryPoint authenticationEntryPoint;
+	private final ServerAuthenticationEntryPoint serverAuthenticationEntryPoint;
 
 	public AuthenticationEntryPointFailureHandler(
-		AuthenticationEntryPoint authenticationEntryPoint) {
-		Assert.notNull(authenticationEntryPoint, "authenticationEntryPoint cannot be null");
-		this.authenticationEntryPoint = authenticationEntryPoint;
+		ServerAuthenticationEntryPoint serverAuthenticationEntryPoint) {
+		Assert.notNull(serverAuthenticationEntryPoint, "authenticationEntryPoint cannot be null");
+		this.serverAuthenticationEntryPoint = serverAuthenticationEntryPoint;
 	}
 
 	@Override
 	public Mono<Void> onAuthenticationFailure(WebFilterExchange webFilterExchange,
 		AuthenticationException exception) {
-		return this.authenticationEntryPoint.commence(webFilterExchange.getExchange(), exception);
+		return this.serverAuthenticationEntryPoint
+			.commence(webFilterExchange.getExchange(), exception);
 	}
 }

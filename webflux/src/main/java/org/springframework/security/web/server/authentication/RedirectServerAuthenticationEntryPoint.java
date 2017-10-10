@@ -23,7 +23,7 @@ import org.springframework.security.web.server.ServerRedirectStrategy;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.server.AuthenticationEntryPoint;
+import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -33,12 +33,13 @@ import org.springframework.web.server.ServerWebExchange;
  * @author Rob Winch
  * @since 5.0
  */
-public class RedirectAuthenticationEntryPoint implements AuthenticationEntryPoint {
+public class RedirectServerAuthenticationEntryPoint
+	implements ServerAuthenticationEntryPoint {
 	private final URI location;
 
 	private ServerRedirectStrategy serverRedirectStrategy = new DefaultServerRedirectStrategy();
 
-	public RedirectAuthenticationEntryPoint(String location) {
+	public RedirectServerAuthenticationEntryPoint(String location) {
 		Assert.notNull(location, "location cannot be null");
 		this.location = URI.create(location);
 	}

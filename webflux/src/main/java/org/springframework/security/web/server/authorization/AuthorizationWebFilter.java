@@ -17,9 +17,6 @@ package org.springframework.security.web.server.authorization;
 
 
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
-import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
-import org.springframework.security.web.server.AuthenticationEntryPoint;
-import org.springframework.security.web.server.authentication.www.HttpBasicAuthenticationEntryPoint;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
