@@ -40,11 +40,11 @@ import static org.mockito.Mockito.*;
  * @since 5.0
  */
 @RunWith(MockitoJUnitRunner.class)
-public class SecurityContextServerRepositoryWebFilterTests {
+public class ServerSecurityContextRepositoryWebFilterTests {
 	@Mock
 	Authentication principal;
 
-	@Mock SecurityContextServerRepository repository;
+	@Mock ServerSecurityContextRepository repository;
 
 	MockServerHttpRequest.BaseBuilder<?> exchange = MockServerHttpRequest.get("/");
 
@@ -61,7 +61,7 @@ public class SecurityContextServerRepositoryWebFilterTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorNullSecurityContextRepository() {
-		SecurityContextServerRepository repository = null;
+		ServerSecurityContextRepository repository = null;
 		new SecurityContextRepositoryWebFilter(repository);
 	}
 

@@ -25,8 +25,8 @@ import reactor.core.publisher.Mono;
  * @author Rob Winch
  * @since 5.0
  */
-public class WebSessionSecurityContextServerRepository
-	implements SecurityContextServerRepository {
+public class WebSessionServerSecurityContextRepository
+	implements ServerSecurityContextRepository {
 	final String SESSION_ATTR = "USER";
 
 	public Mono<Void> save(ServerWebExchange exchange, SecurityContext context) {

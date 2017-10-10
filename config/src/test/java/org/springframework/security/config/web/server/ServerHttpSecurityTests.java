@@ -26,8 +26,8 @@ import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
 import org.springframework.security.web.server.WebFilterChainProxy;
-import org.springframework.security.web.server.context.SecurityContextServerRepository;
-import org.springframework.security.web.server.context.WebSessionSecurityContextServerRepository;
+import org.springframework.security.web.server.context.ServerSecurityContextRepository;
+import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.FluxExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -45,7 +45,7 @@ import static org.springframework.web.reactive.function.client.ExchangeFilterFun
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ServerHttpSecurityTests {
-	@Mock SecurityContextServerRepository contextRepository;
+	@Mock ServerSecurityContextRepository contextRepository;
 	@Mock
 	ReactiveAuthenticationManager authenticationManager;
 
@@ -77,7 +77,7 @@ public class ServerHttpSecurityTests {
 	public void basic() {
 		given(this.authenticationManager.authenticate(any())).willReturn(Mono.just(new TestingAuthenticationToken("rob", "rob", "ROLE_USER", "ROLE_ADMIN")));
 
-		this.http.securityContextRepository(new WebSessionSecurityContextServerRepository());
+		this.http.securityContextRepository(new WebSessionServerSecurityContextRepository());
 		this.http.httpBasic();
 		this.http.authenticationManager(this.authenticationManager);
 		ServerHttpSecurity.AuthorizeExchangeBuilder authorize = this.http.authorizeExchange();

@@ -26,9 +26,9 @@ import reactor.core.publisher.Mono;
  * @since 5.0
  */
 public class SecurityContextRepositoryWebFilter implements WebFilter {
-	private final SecurityContextServerRepository repository;
+	private final ServerSecurityContextRepository repository;
 
-	public SecurityContextRepositoryWebFilter(SecurityContextServerRepository repository) {
+	public SecurityContextRepositoryWebFilter(ServerSecurityContextRepository repository) {
 		Assert.notNull(repository, "repository cannot be null");
 		this.repository = repository;
 	}

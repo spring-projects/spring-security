@@ -13,16 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.server.context;
 
+import org.junit.Test;
+import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.web.server.ServerWebExchange;
-
 import reactor.core.publisher.Mono;
 
-public interface SecurityContextServerRepository {
+import static org.assertj.core.api.Assertions.assertThat;
 
-	Mono<Void> save(ServerWebExchange exchange, SecurityContext context);
+/**
+ * @author Rob Winch
+ * @since 5.0
+ */
+public class ServerWebExchangeAttributeServerSecurityContextRepositoryTests {
+	ServerWebExchangeAttributeServerSecurityContextRepository repository = new ServerWebExchangeAttributeServerSecurityContextRepository();
+	ServerWebExchange exchange = MockServerHttpRequest.get("/").toExchange();
 
-	Mono<SecurityContext> load(ServerWebExchange exchange);
+	@Test
+	public void saveAndLoad() {
+		SecurityContext context = new SecurityContextImpl();
+		this.repository.save(this.exchange, context).block();
+
+		Mono<SecurityContext> loaded = this.repository.load(this.exchange);
+
+		assertThat(context).isSameAs(loaded.block());
+	}
+
 }

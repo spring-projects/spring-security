@@ -27,9 +27,9 @@ import reactor.core.publisher.Mono;
  * @since 5.0
  */
 public class SecurityContextRepositoryServerWebExchange extends ServerWebExchangeDecorator {
-	private final SecurityContextServerRepository repository;
+	private final ServerSecurityContextRepository repository;
 
-	public SecurityContextRepositoryServerWebExchange(ServerWebExchange delegate, SecurityContextServerRepository repository) {
+	public SecurityContextRepositoryServerWebExchange(ServerWebExchange delegate, ServerSecurityContextRepository repository) {
 		super(delegate);
 		this.repository = repository;
 	}

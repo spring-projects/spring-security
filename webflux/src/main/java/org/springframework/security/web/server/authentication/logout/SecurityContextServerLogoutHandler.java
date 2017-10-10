@@ -19,9 +19,9 @@ package org.springframework.security.web.server.authentication.logout;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.DefaultServerRedirectStrategy;
 import org.springframework.security.web.server.ServerRedirectStrategy;
-import org.springframework.security.web.server.context.SecurityContextServerRepository;
+import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import org.springframework.security.web.server.WebFilterExchange;
-import org.springframework.security.web.server.context.WebSessionSecurityContextServerRepository;
+import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
@@ -31,7 +31,7 @@ import java.net.URI;
  * @since 5.0
  */
 public class SecurityContextServerLogoutHandler implements ServerLogoutHandler {
-	private SecurityContextServerRepository repository = new WebSessionSecurityContextServerRepository();
+	private ServerSecurityContextRepository repository = new WebSessionServerSecurityContextRepository();
 
 	private URI logoutSuccessUrl = URI.create("/login?logout");
 

@@ -13,28 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.security.web.server.context;
-
 
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.web.server.ServerWebExchange;
+
 import reactor.core.publisher.Mono;
 
-/**
- * @author Rob Winch
- * @since 5.0
- */
-public class ServerWebExchangeAttributeSecurityContextServerRepository
-	implements SecurityContextServerRepository {
-	final String ATTR = "USER";
+public interface ServerSecurityContextRepository {
 
-	public Mono<Void> save(ServerWebExchange exchange, SecurityContext context) {
-		return Mono.fromRunnable(() ->exchange.getAttributes().put(ATTR, context));
+	Mono<Void> save(ServerWebExchange exchange, SecurityContext context);
 
-	}
-
-	public Mono<SecurityContext> load(ServerWebExchange exchange) {
-		return Mono.justOrEmpty(exchange.<SecurityContext>getAttribute(ATTR));
-	}
+	Mono<SecurityContext> load(ServerWebExchange exchange);
 }
