@@ -77,8 +77,10 @@ public class AuthorizationCodeRequestRedirectFilter extends OncePerRequestFilter
 		this.clientRegistrationRepository = clientRegistrationRepository;
 	}
 
-	public final <T extends RequestMatcher & RequestVariablesExtractor> void setAuthorizationRequestMatcher(T authorizationRequestMatcher) {
+	public final void setAuthorizationRequestMatcher(RequestMatcher authorizationRequestMatcher) {
 		Assert.notNull(authorizationRequestMatcher, "authorizationRequestMatcher cannot be null");
+		Assert.isInstanceOf(RequestVariablesExtractor.class, authorizationRequestMatcher,
+			"authorizationRequestMatcher must also be a " + RequestVariablesExtractor.class.getName());
 		this.authorizationRequestMatcher = authorizationRequestMatcher;
 	}
 
