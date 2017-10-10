@@ -24,7 +24,7 @@ import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.security.web.server.WebFilterChainFilter;
+import org.springframework.security.web.server.WebFilterChainProxy;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -46,8 +46,7 @@ import static org.springframework.web.reactive.function.client.ExchangeFilterFun
 public class HelloWebfluxFnApplicationTests {
 	@Autowired
 	RouterFunction<?> routerFunction;
-	@Autowired
-	WebFilterChainFilter springSecurityFilterChain;
+	@Autowired WebFilterChainProxy springSecurityFilterChain;
 
 	WebTestClient rest;
 

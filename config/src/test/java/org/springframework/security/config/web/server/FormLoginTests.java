@@ -29,7 +29,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.htmlunit.server.WebTestClientHtmlUnitDriverBuilder;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-import org.springframework.security.web.server.WebFilterChainFilter;
+import org.springframework.security.web.server.WebFilterChainProxy;
 import org.springframework.stereotype.Controller;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -104,7 +104,7 @@ public class FormLoginTests {
 
 		WebTestClient webTestClient = WebTestClient
 			.bindToController(new CustomLoginPageController(), new WebTestClientBuilder.Http200RestController())
-			.webFilter(WebFilterChainFilter.fromSecurityWebFilterChains(securityWebFilter))
+			.webFilter(WebFilterChainProxy.fromSecurityWebFilterChains(securityWebFilter))
 			.build();
 
 		WebDriver driver = WebTestClientHtmlUnitDriverBuilder

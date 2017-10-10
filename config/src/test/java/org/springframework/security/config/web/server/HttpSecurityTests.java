@@ -25,7 +25,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
-import org.springframework.security.web.server.WebFilterChainFilter;
+import org.springframework.security.web.server.WebFilterChainProxy;
 import org.springframework.security.web.server.context.SecurityContextRepository;
 import org.springframework.security.web.server.context.WebSessionSecurityContextRepository;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
@@ -116,7 +116,7 @@ public class HttpSecurityTests {
 	}
 
 	private WebTestClient buildClient() {
-		WebFilterChainFilter springSecurityFilterChain = WebFilterChainFilter.fromSecurityWebFilterChains(
+		WebFilterChainProxy springSecurityFilterChain = WebFilterChainProxy.fromSecurityWebFilterChains(
 			this.http.build());
 		return WebTestClientBuilder.bindToWebFilters(springSecurityFilterChain).build();
 	}

@@ -23,7 +23,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.web.server.HttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-import org.springframework.security.web.server.WebFilterChainFilter;
+import org.springframework.security.web.server.WebFilterChainProxy;
 import org.springframework.util.ObjectUtils;
 
 import java.util.Arrays;
@@ -49,8 +49,8 @@ public class WebFluxSecurityConfiguration {
 
 	@Bean(SPRING_SECURITY_WEBFILTERCHAINFILTER_BEAN_NAME)
 	@Order(value = WEB_FILTER_CHAIN_FILTER_ORDER)
-	public WebFilterChainFilter springSecurityWebFilterChainFilter() {
-		return WebFilterChainFilter.fromSecurityWebFilterChainsList(getSecurityWebFilterChains());
+	public WebFilterChainProxy springSecurityWebFilterChainFilter() {
+		return WebFilterChainProxy.fromSecurityWebFilterChainsList(getSecurityWebFilterChains());
 	}
 
 	private List<SecurityWebFilterChain> getSecurityWebFilterChains() {

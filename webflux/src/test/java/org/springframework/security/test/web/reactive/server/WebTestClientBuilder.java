@@ -17,14 +17,13 @@ package org.springframework.security.test.web.reactive.server;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-import org.springframework.security.web.server.WebFilterChainFilter;
+import org.springframework.security.web.server.WebFilterChainProxy;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.reactive.server.WebTestClient.Builder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.WebFilter;
-import reactor.core.publisher.Flux;
 
 /**
  * Provides a convenient mechanism for running {@link WebTestClient} against
@@ -41,7 +40,7 @@ public class WebTestClientBuilder {
 	}
 
 	public static Builder bindToWebFilters(SecurityWebFilterChain securityWebFilterChain) {
-		return bindToWebFilters(WebFilterChainFilter.fromSecurityWebFilterChains(securityWebFilterChain));
+		return bindToWebFilters(WebFilterChainProxy.fromSecurityWebFilterChains(securityWebFilterChain));
 	}
 
 	@RestController

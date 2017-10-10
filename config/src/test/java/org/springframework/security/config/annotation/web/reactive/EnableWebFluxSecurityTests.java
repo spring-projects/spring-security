@@ -35,7 +35,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-import org.springframework.security.web.server.WebFilterChainFilter;
+import org.springframework.security.web.server.WebFilterChainProxy;
 import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.FluxExchangeResult;
@@ -60,8 +60,7 @@ import static org.springframework.web.reactive.function.client.ExchangeFilterFun
 public class EnableWebFluxSecurityTests {
 	@RunWith(SpringRunner.class)
 	public static class Defaults {
-		@Autowired
-		WebFilterChainFilter springSecurityFilterChain;
+		@Autowired WebFilterChainProxy springSecurityFilterChain;
 
 		@Test
 		public void defaultRequiresAuthentication() {
@@ -150,8 +149,7 @@ public class EnableWebFluxSecurityTests {
 
 	@RunWith(SpringRunner.class)
 	public static class CustomPasswordEncoder {
-		@Autowired
-		WebFilterChainFilter springSecurityFilterChain;
+		@Autowired WebFilterChainProxy springSecurityFilterChain;
 
 		@Test
 		public void passwordEncoderBeanIsUsed() {
@@ -196,8 +194,7 @@ public class EnableWebFluxSecurityTests {
 
 	@RunWith(SpringRunner.class)
 	public static class FormLoginTests {
-		@Autowired
-		WebFilterChainFilter springSecurityFilterChain;
+		@Autowired WebFilterChainProxy springSecurityFilterChain;
 		@Test
 		public void formLoginWorks() {
 			WebTestClient client = WebTestClientBuilder.bindToWebFilters(
@@ -238,8 +235,7 @@ public class EnableWebFluxSecurityTests {
 
 	@RunWith(SpringRunner.class)
 	public static class MultiHttpSecurity {
-		@Autowired
-		WebFilterChainFilter springSecurityFilterChain;
+		@Autowired WebFilterChainProxy springSecurityFilterChain;
 
 		@Test
 		public void multiWorks() {

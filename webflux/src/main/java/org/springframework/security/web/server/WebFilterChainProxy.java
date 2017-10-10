@@ -16,12 +16,8 @@
 package org.springframework.security.web.server;
 
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
-import java.util.function.Function;
 
-import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
-import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcherEntry;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
@@ -36,10 +32,10 @@ import reactor.core.publisher.Mono;
  * @author Rob Winch
  * @since 5.0
  */
-public class WebFilterChainFilter implements WebFilter {
+public class WebFilterChainProxy implements WebFilter {
 	private final Flux<SecurityWebFilterChain> filters;
 
-	public WebFilterChainFilter(Flux<SecurityWebFilterChain> filters) {
+	public WebFilterChainProxy(Flux<SecurityWebFilterChain> filters) {
 		this.filters = filters;
 	}
 
@@ -56,15 +52,15 @@ public class WebFilterChainFilter implements WebFilter {
 				.flatMap( securedChain -> securedChain.filter(exchange));
 	}
 
-	public static WebFilterChainFilter fromWebFiltersList(List<WebFilter> filters) {
-		return new WebFilterChainFilter(Flux.just(new MatcherSecurityWebFilterChain(ServerWebExchangeMatchers.anyExchange(), filters)));
+	public static WebFilterChainProxy fromWebFiltersList(List<WebFilter> filters) {
+		return new WebFilterChainProxy(Flux.just(new MatcherSecurityWebFilterChain(ServerWebExchangeMatchers.anyExchange(), filters)));
 	}
 
-	public static WebFilterChainFilter fromSecurityWebFilterChainsList(List<SecurityWebFilterChain> securityWebFilterChains) {
-		return new WebFilterChainFilter(Flux.fromIterable(securityWebFilterChains));
+	public static WebFilterChainProxy fromSecurityWebFilterChainsList(List<SecurityWebFilterChain> securityWebFilterChains) {
+		return new WebFilterChainProxy(Flux.fromIterable(securityWebFilterChains));
 	}
 
-	public static WebFilterChainFilter fromSecurityWebFilterChains(SecurityWebFilterChain... securityWebFilterChains) {
+	public static WebFilterChainProxy fromSecurityWebFilterChains(SecurityWebFilterChain... securityWebFilterChains) {
 		return fromSecurityWebFilterChainsList(Arrays.asList(securityWebFilterChains));
 	}
 }
