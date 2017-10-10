@@ -34,17 +34,17 @@ import static org.mockito.Mockito.verifyZeroInteractions;
  * @since 5.0
  */
 @RunWith(MockitoJUnitRunner.class)
-public class HttpStatusAccessDeniedHandlerTests {
+public class HttpStatusServerAccessDeniedHandlerTests {
 	@Mock
 	private ServerWebExchange exchange;
 	private final HttpStatus httpStatus = HttpStatus.FORBIDDEN;
-	private HttpStatusAccessDeniedHandler handler = new HttpStatusAccessDeniedHandler(this.httpStatus);
+	private HttpStatusServerAccessDeniedHandler handler = new HttpStatusServerAccessDeniedHandler(this.httpStatus);
 
 	private AccessDeniedException exception = new AccessDeniedException("Forbidden");
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorHttpStatusWhenNullThenException() {
-		new HttpStatusAccessDeniedHandler((HttpStatus) null);
+		new HttpStatusServerAccessDeniedHandler((HttpStatus) null);
 	}
 
 	@Test

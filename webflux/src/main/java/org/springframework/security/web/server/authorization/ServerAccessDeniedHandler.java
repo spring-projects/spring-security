@@ -25,7 +25,7 @@ import reactor.core.publisher.Mono;
  * @author Rob Winch
  * @since 5.0
  */
-public interface AccessDeniedHandler {
+public interface ServerAccessDeniedHandler {
 
 	Mono<Void> handle(ServerWebExchange exchange, AccessDeniedException denied);
 }

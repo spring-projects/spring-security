@@ -35,25 +35,26 @@ import org.springframework.web.server.WebFilterChain;
 public class ExceptionTranslationWebFilter implements WebFilter {
 	private ServerAuthenticationEntryPoint serverAuthenticationEntryPoint = new HttpBasicServerAuthenticationEntryPoint();
 
-	private AccessDeniedHandler accessDeniedHandler = new HttpStatusAccessDeniedHandler(HttpStatus.FORBIDDEN);
+	private ServerAccessDeniedHandler serverAccessDeniedHandler = new HttpStatusServerAccessDeniedHandler(HttpStatus.FORBIDDEN);
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 		return chain.filter(exchange)
 			.onErrorResume(AccessDeniedException.class, denied -> exchange.getPrincipal()
 				.switchIfEmpty( commenceAuthentication(exchange, denied))
-				.flatMap( principal -> this.accessDeniedHandler.handle(exchange, denied))
+				.flatMap( principal -> this.serverAccessDeniedHandler
+					.handle(exchange, denied))
 			);
 	}
 
 	/**
 	 * Sets the access denied handler.
-	 * @param accessDeniedHandler the access denied handler to use. Default is
+	 * @param serverAccessDeniedHandler the access denied handler to use. Default is
 	 * HttpStatusAccessDeniedHandler with HttpStatus.FORBIDDEN
 	 */
-	public void setAccessDeniedHandler(AccessDeniedHandler accessDeniedHandler) {
-		Assert.notNull(accessDeniedHandler, "accessDeniedHandler cannot be null");
-		this.accessDeniedHandler = accessDeniedHandler;
+	public void setServerAccessDeniedHandler(ServerAccessDeniedHandler serverAccessDeniedHandler) {
+		Assert.notNull(serverAccessDeniedHandler, "accessDeniedHandler cannot be null");
+		this.serverAccessDeniedHandler = serverAccessDeniedHandler;
 	}
 
 	/**

@@ -51,7 +51,7 @@ public class ExceptionTranslationWebFilterTests {
 	@Mock
 	private WebFilterChain chain;
 	@Mock
-	private AccessDeniedHandler deniedHandler;
+	private ServerAccessDeniedHandler deniedHandler;
 	@Mock
 	private ServerAuthenticationEntryPoint entryPoint;
 
@@ -67,7 +67,7 @@ public class ExceptionTranslationWebFilterTests {
 		when(this.entryPoint.commence(any(), any())).thenReturn(this.entryPointPublisher.mono());
 
 		this.filter.setServerAuthenticationEntryPoint(this.entryPoint);
-		this.filter.setAccessDeniedHandler(this.deniedHandler);
+		this.filter.setServerAccessDeniedHandler(this.deniedHandler);
 	}
 
 	@Test
@@ -150,7 +150,7 @@ public class ExceptionTranslationWebFilterTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void setAccessDeniedHandlerWhenNullThenException() {
-		this.filter.setAccessDeniedHandler(null);
+		this.filter.setServerAccessDeniedHandler(null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)

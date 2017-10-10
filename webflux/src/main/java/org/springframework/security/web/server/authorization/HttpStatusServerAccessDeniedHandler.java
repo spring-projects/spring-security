@@ -28,10 +28,10 @@ import org.springframework.web.server.ServerWebExchange;
  * @author Rob Winch
  * @since 5.0
  */
-public class HttpStatusAccessDeniedHandler implements AccessDeniedHandler {
+public class HttpStatusServerAccessDeniedHandler implements ServerAccessDeniedHandler {
 	private final HttpStatus httpStatus;
 
-	public HttpStatusAccessDeniedHandler(HttpStatus httpStatus) {
+	public HttpStatusServerAccessDeniedHandler(HttpStatus httpStatus) {
 		Assert.notNull(httpStatus, "httpStatus cannot be null");
 		this.httpStatus = httpStatus;
 	}

@@ -36,7 +36,7 @@ import org.springframework.security.web.access.ExceptionTranslationFilter;
  * @author Rob Winch
  *
  */
-public class NamespaceHttpAccessDeniedHandlerTests extends BaseSpringSpec {
+public class NamespaceHttpServerAccessDeniedHandlerTests extends BaseSpringSpec {
 	def "http/access-denied-handler@error-page"() {
 		when:
 		loadConfig(AccessDeniedPageConfig)
