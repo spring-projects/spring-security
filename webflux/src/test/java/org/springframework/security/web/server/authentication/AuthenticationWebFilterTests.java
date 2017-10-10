@@ -30,7 +30,7 @@ import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
-import org.springframework.security.web.server.context.SecurityContextRepository;
+import org.springframework.security.web.server.context.SecurityContextServerRepository;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -62,7 +62,7 @@ public class AuthenticationWebFilterTests {
 	@Mock
 	private AuthenticationFailureHandler failureHandler;
 	@Mock
-	private SecurityContextRepository securityContextRepository;
+	private SecurityContextServerRepository securityContextServerRepository;
 
 	private AuthenticationWebFilter filter;
 
@@ -71,7 +71,7 @@ public class AuthenticationWebFilterTests {
 		this.filter = new AuthenticationWebFilter(this.authenticationManager);
 		this.filter.setAuthenticationSuccessHandler(this.successHandler);
 		this.filter.setAuthenticationConverter(this.authenticationConverter);
-		this.filter.setSecurityContextRepository(this.securityContextRepository);
+		this.filter.setSecurityContextServerRepository(this.securityContextServerRepository);
 		this.filter.setAuthenticationFailureHandler(this.failureHandler);
 	}
 
@@ -154,7 +154,7 @@ public class AuthenticationWebFilterTests {
 			.expectBody(String.class).consumeWith(b -> assertThat(b.getResponseBody()).isEqualTo("ok"))
 			.returnResult();
 
-		verify(this.securityContextRepository, never()).save(any(), any());
+		verify(this.securityContextServerRepository, never()).save(any(), any());
 		verifyZeroInteractions(this.authenticationManager, this.successHandler,
 			this.failureHandler);
 	}
@@ -174,7 +174,7 @@ public class AuthenticationWebFilterTests {
 			.expectStatus().is5xxServerError()
 			.expectBody().isEmpty();
 
-		verify(this.securityContextRepository, never()).save(any(), any());
+		verify(this.securityContextServerRepository, never()).save(any(), any());
 		verifyZeroInteractions(this.authenticationManager, this.successHandler,
 			this.failureHandler);
 	}
@@ -185,7 +185,7 @@ public class AuthenticationWebFilterTests {
 		when(this.authenticationConverter.apply(any())).thenReturn(authentication);
 		when(this.authenticationManager.authenticate(any())).thenReturn(authentication);
 		when(this.successHandler.success(any(),any())).thenReturn(Mono.empty());
-		when(this.securityContextRepository.save(any(),any())).thenAnswer( a -> Mono.just(a.getArguments()[0]));
+		when(this.securityContextServerRepository.save(any(),any())).thenAnswer( a -> Mono.just(a.getArguments()[0]));
 
 		WebTestClient client = WebTestClientBuilder
 			.bindToWebFilters(this.filter)
@@ -199,7 +199,7 @@ public class AuthenticationWebFilterTests {
 			.expectBody().isEmpty();
 
 		verify(this.successHandler).success(eq(authentication.block()), any());
-		verify(this.securityContextRepository).save(any(), any());
+		verify(this.securityContextServerRepository).save(any(), any());
 		verifyZeroInteractions(this.failureHandler);
 	}
 
@@ -244,7 +244,7 @@ public class AuthenticationWebFilterTests {
 			.expectBody().isEmpty();
 
 		verify(this.failureHandler).onAuthenticationFailure(any(),any());
-		verify(this.securityContextRepository, never()).save(any(), any());
+		verify(this.securityContextServerRepository, never()).save(any(), any());
 		verifyZeroInteractions(this.successHandler);
 	}
 
@@ -265,7 +265,7 @@ public class AuthenticationWebFilterTests {
 			.expectStatus().is5xxServerError()
 			.expectBody().isEmpty();
 
-		verify(this.securityContextRepository, never()).save(any(), any());
+		verify(this.securityContextServerRepository, never()).save(any(), any());
 		verifyZeroInteractions(this.successHandler, this.failureHandler);
 	}
 

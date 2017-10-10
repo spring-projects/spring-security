@@ -26,9 +26,9 @@ import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.web.server.ServerHttpBasicAuthenticationConverter;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.www.HttpBasicServerAuthenticationEntryPoint;
-import org.springframework.security.web.server.context.SecurityContextRepository;
+import org.springframework.security.web.server.context.SecurityContextServerRepository;
 import org.springframework.security.web.server.context.SecurityContextRepositoryServerWebExchange;
-import org.springframework.security.web.server.context.ServerWebExchangeAttributeSecurityContextRepository;
+import org.springframework.security.web.server.context.ServerWebExchangeAttributeSecurityContextServerRepository;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.util.Assert;
@@ -51,7 +51,7 @@ public class AuthenticationWebFilter implements WebFilter {
 
 	private AuthenticationFailureHandler authenticationFailureHandler = new AuthenticationEntryPointFailureHandler(new HttpBasicServerAuthenticationEntryPoint());
 
-	private SecurityContextRepository securityContextRepository = new ServerWebExchangeAttributeSecurityContextRepository();
+	private SecurityContextServerRepository securityContextServerRepository = new ServerWebExchangeAttributeSecurityContextServerRepository();
 
 	private ServerWebExchangeMatcher requiresAuthenticationMatcher = ServerWebExchangeMatchers.anyExchange();
 
@@ -62,7 +62,7 @@ public class AuthenticationWebFilter implements WebFilter {
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-		ServerWebExchange wrappedExchange = new SecurityContextRepositoryServerWebExchange(exchange, this.securityContextRepository);
+		ServerWebExchange wrappedExchange = new SecurityContextRepositoryServerWebExchange(exchange, this.securityContextServerRepository);
 		return filterInternal(wrappedExchange, chain);
 	}
 
@@ -86,14 +86,14 @@ public class AuthenticationWebFilter implements WebFilter {
 		ServerWebExchange exchange = webFilterExchange.getExchange();
 		SecurityContextImpl securityContext = new SecurityContextImpl();
 		securityContext.setAuthentication(authentication);
-		return this.securityContextRepository.save(exchange, securityContext)
+		return this.securityContextServerRepository.save(exchange, securityContext)
 			.then(this.authenticationSuccessHandler.success(authentication, webFilterExchange));
 	}
 
-	public void setSecurityContextRepository(
-		SecurityContextRepository securityContextRepository) {
-		Assert.notNull(securityContextRepository, "securityContextRepository cannot be null");
-		this.securityContextRepository = securityContextRepository;
+	public void setSecurityContextServerRepository(
+		SecurityContextServerRepository securityContextServerRepository) {
+		Assert.notNull(securityContextServerRepository, "securityContextRepository cannot be null");
+		this.securityContextServerRepository = securityContextServerRepository;
 	}
 
 	public void setAuthenticationSuccessHandler(AuthenticationSuccessHandler authenticationSuccessHandler) {

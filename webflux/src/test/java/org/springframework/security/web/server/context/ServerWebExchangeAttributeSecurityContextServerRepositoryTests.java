@@ -13,37 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.server.context;
 
+import org.junit.Test;
+import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.web.server.ServerWebExchange;
-
 import reactor.core.publisher.Mono;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
- *
  * @author Rob Winch
  * @since 5.0
  */
-public class WebSessionSecurityContextRepository implements SecurityContextRepository {
-	final String SESSION_ATTR = "USER";
+public class ServerWebExchangeAttributeSecurityContextServerRepositoryTests {
+	ServerWebExchangeAttributeSecurityContextServerRepository repository = new ServerWebExchangeAttributeSecurityContextServerRepository();
+	ServerWebExchange exchange = MockServerHttpRequest.get("/").toExchange();
 
-	public Mono<Void> save(ServerWebExchange exchange, SecurityContext context) {
-		return exchange.getSession()
-			.doOnNext(session -> {
-				if(context == null) {
-					session.getAttributes().remove(SESSION_ATTR);
-				} else {
-					session.getAttributes().put(SESSION_ATTR, context);
-				}
-			})
-			.then();
+	@Test
+	public void saveAndLoad() {
+		SecurityContext context = new SecurityContextImpl();
+		this.repository.save(this.exchange, context).block();
+
+		Mono<SecurityContext> loaded = this.repository.load(this.exchange);
+
+		assertThat(context).isSameAs(loaded.block());
 	}
 
-	public Mono<SecurityContext> load(ServerWebExchange exchange) {
-		return exchange.getSession().flatMap( session -> {
-			SecurityContext context = (SecurityContext) session.getAttributes().get(SESSION_ATTR);
-			return context == null ? Mono.empty() : Mono.just(context);
-		});
-	}
 }

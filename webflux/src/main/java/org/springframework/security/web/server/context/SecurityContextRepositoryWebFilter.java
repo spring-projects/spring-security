@@ -15,8 +15,6 @@
  */
 package org.springframework.security.web.server.context;
 
-import org.springframework.security.web.server.context.SecurityContextRepository;
-import org.springframework.security.web.server.context.SecurityContextRepositoryServerWebExchange;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
@@ -28,9 +26,9 @@ import reactor.core.publisher.Mono;
  * @since 5.0
  */
 public class SecurityContextRepositoryWebFilter implements WebFilter {
-	private final SecurityContextRepository repository;
+	private final SecurityContextServerRepository repository;
 
-	public SecurityContextRepositoryWebFilter(SecurityContextRepository repository) {
+	public SecurityContextRepositoryWebFilter(SecurityContextServerRepository repository) {
 		Assert.notNull(repository, "repository cannot be null");
 		this.repository = repository;
 	}
