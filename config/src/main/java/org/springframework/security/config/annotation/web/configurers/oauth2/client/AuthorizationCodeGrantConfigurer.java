@@ -45,7 +45,6 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.oidc.client.authentication.OidcAuthorizationCodeAuthenticator;
 import org.springframework.security.oauth2.oidc.client.user.OidcUserService;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 
 import java.net.URI;
@@ -65,13 +64,13 @@ public class AuthorizationCodeGrantConfigurer<B extends HttpSecurityBuilder<B>> 
 
 	// ***** Authorization Request members
 	private AuthorizationCodeRequestRedirectFilter authorizationRequestFilter;
-	private String authorizationRequestBaseUri = AuthorizationCodeRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
+	private String authorizationRequestBaseUri;
 	private AuthorizationRequestUriBuilder authorizationRequestBuilder;
 	private AuthorizationRequestRepository authorizationRequestRepository;
 
 	// ***** Authorization Response members
 	private AuthorizationCodeAuthenticationFilter authorizationResponseFilter;
-	private RequestMatcher authorizationResponseMatcher;
+	private String authorizationResponseBaseUri;
 	private AuthorizationGrantAuthenticator<AuthorizationCodeAuthenticationToken> authorizationCodeAuthenticator;
 	private AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger;
 	private SecurityTokenRepository<AccessToken> accessTokenRepository;
@@ -98,9 +97,9 @@ public class AuthorizationCodeGrantConfigurer<B extends HttpSecurityBuilder<B>> 
 		return this;
 	}
 
-	public AuthorizationCodeGrantConfigurer<B> authorizationResponseMatcher(RequestMatcher authorizationResponseMatcher) {
-		Assert.notNull(authorizationResponseMatcher, "authorizationResponseMatcher cannot be null");
-		this.authorizationResponseMatcher = authorizationResponseMatcher;
+	public AuthorizationCodeGrantConfigurer<B> authorizationResponseBaseUri(String authorizationResponseBaseUri) {
+		Assert.hasText(authorizationResponseBaseUri, "authorizationResponseBaseUri cannot be empty");
+		this.authorizationResponseBaseUri = authorizationResponseBaseUri;
 		return this;
 	}
 
@@ -183,7 +182,7 @@ public class AuthorizationCodeGrantConfigurer<B extends HttpSecurityBuilder<B>> 
 		//
 		// 	-> AuthorizationCodeRequestRedirectFilter
 		this.authorizationRequestFilter = new AuthorizationCodeRequestRedirectFilter(
-			this.authorizationRequestBaseUri, this.getClientRegistrationRepository());
+			this.getAuthorizationRequestBaseUri(), this.getClientRegistrationRepository());
 		if (this.authorizationRequestBuilder != null) {
 			this.authorizationRequestFilter.setAuthorizationUriBuilder(this.authorizationRequestBuilder);
 		}
@@ -192,11 +191,8 @@ public class AuthorizationCodeGrantConfigurer<B extends HttpSecurityBuilder<B>> 
 		}
 
 		// 	-> AuthorizationCodeAuthenticationFilter
-		this.authorizationResponseFilter = new AuthorizationCodeAuthenticationFilter();
+		this.authorizationResponseFilter = new AuthorizationCodeAuthenticationFilter(this.getAuthorizationResponseBaseUri());
 		this.authorizationResponseFilter.setClientRegistrationRepository(this.getClientRegistrationRepository());
-		if (this.authorizationResponseMatcher != null) {
-			this.authorizationResponseFilter.setAuthorizationResponseMatcher(this.authorizationResponseMatcher);
-		}
 		if (this.authorizationRequestRepository != null) {
 			this.authorizationResponseFilter.setAuthorizationRequestRepository(this.authorizationRequestRepository);
 		}
@@ -219,15 +215,15 @@ public class AuthorizationCodeGrantConfigurer<B extends HttpSecurityBuilder<B>> 
 	}
 
 	String getAuthorizationRequestBaseUri() {
-		return this.authorizationRequestBaseUri;
+		return this.authorizationRequestBaseUri != null ?
+			this.authorizationRequestBaseUri :
+			AuthorizationCodeRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
 	}
 
-	AuthorizationCodeAuthenticationFilter getAuthorizationResponseFilter() {
-		return this.authorizationResponseFilter;
-	}
-
-	RequestMatcher getAuthorizationResponseMatcher() {
-		return this.authorizationResponseMatcher;
+	String getAuthorizationResponseBaseUri() {
+		return this.authorizationResponseBaseUri != null ?
+			this.authorizationResponseBaseUri :
+			AuthorizationCodeAuthenticationFilter.DEFAULT_AUTHORIZATION_RESPONSE_BASE_URI;
 	}
 
 	AuthorizationRequestRepository getAuthorizationRequestRepository() {

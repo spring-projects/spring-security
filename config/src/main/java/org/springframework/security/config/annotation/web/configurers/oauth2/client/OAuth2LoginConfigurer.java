@@ -149,9 +149,9 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		private RedirectionEndpointConfig() {
 		}
 
-		public RedirectionEndpointConfig requestMatcher(RequestMatcher authorizationResponseMatcher) {
-			Assert.notNull(authorizationResponseMatcher, "authorizationResponseMatcher cannot be null");
-			authorizationCodeGrantConfigurer.authorizationResponseMatcher(authorizationResponseMatcher);
+		public RedirectionEndpointConfig baseUri(String authorizationResponseBaseUri) {
+			Assert.hasText(authorizationResponseBaseUri, "authorizationResponseBaseUri cannot be empty");
+			authorizationCodeGrantConfigurer.authorizationResponseBaseUri(authorizationResponseBaseUri);
 			return this;
 		}
 
@@ -209,9 +209,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 
 	@Override
 	protected RequestMatcher createLoginProcessingUrlMatcher(String loginProcessingUrl) {
-		return (this.authorizationCodeGrantConfigurer.getAuthorizationResponseMatcher() != null ?
-			this.authorizationCodeGrantConfigurer.getAuthorizationResponseMatcher() :
-			this.getAuthenticationFilter().getAuthorizationResponseMatcher());
+		return this.getAuthenticationFilter().getAuthorizationResponseMatcher();
 	}
 
 	private ClientRegistrationRepository getClientRegistrationRepository() {
@@ -244,9 +242,11 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		}
 
 		Map<String, String> authenticationUrlToClientName = new HashMap<>();
-		clientRegistrations.forEach(registration -> authenticationUrlToClientName.put(
-			authorizationCodeGrantConfigurer.getAuthorizationRequestBaseUri() + "/" + registration.getRegistrationId(),
-			registration.getClientName()));
+		clientRegistrations.forEach(registration -> {
+			authenticationUrlToClientName.put(
+				authorizationCodeGrantConfigurer.getAuthorizationRequestBaseUri() + "/" + registration.getRegistrationId(),
+				registration.getClientName());
+		});
 		loginPageGeneratingFilter.setOauth2LoginEnabled(true);
 		loginPageGeneratingFilter.setOauth2AuthenticationUrlToClientName(authenticationUrlToClientName);
 		loginPageGeneratingFilter.setLoginPageUrl(this.getLoginPage());
@@ -261,10 +261,8 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 
 			AuthorizationCodeAuthenticationFilter authorizationResponseFilter = getAuthenticationFilter();
 			authorizationResponseFilter.setClientRegistrationRepository(getClientRegistrationRepository());
-			if (authorizationCodeGrantConfigurer.getAuthorizationResponseMatcher() != null) {
-				authorizationResponseFilter.setAuthorizationResponseMatcher(
-					authorizationCodeGrantConfigurer.getAuthorizationResponseMatcher());
-			}
+			authorizationResponseFilter.setAuthorizationResponseBaseUri(
+				authorizationCodeGrantConfigurer.getAuthorizationResponseBaseUri());
 			if (authorizationCodeGrantConfigurer.getAuthorizationRequestRepository() != null) {
 				authorizationResponseFilter.setAuthorizationRequestRepository(
 					authorizationCodeGrantConfigurer.getAuthorizationRequestRepository());
