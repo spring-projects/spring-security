@@ -54,7 +54,7 @@ import static org.springframework.web.reactive.function.client.ExchangeFilterFun
 @RunWith(MockitoJUnitRunner.class)
 public class AuthenticationWebFilterTests {
 	@Mock
-	private AuthenticationSuccessHandler successHandler;
+	private ServerAuthenticationSuccessHandler successHandler;
 	@Mock
 	private Function<ServerWebExchange,Mono<Authentication>> authenticationConverter;
 	@Mock
@@ -69,7 +69,7 @@ public class AuthenticationWebFilterTests {
 	@Before
 	public void setup() {
 		this.filter = new AuthenticationWebFilter(this.authenticationManager);
-		this.filter.setAuthenticationSuccessHandler(this.successHandler);
+		this.filter.setServerAuthenticationSuccessHandler(this.successHandler);
 		this.filter.setAuthenticationConverter(this.authenticationConverter);
 		this.filter.setSecurityContextServerRepository(this.securityContextServerRepository);
 		this.filter.setAuthenticationFailureHandler(this.failureHandler);

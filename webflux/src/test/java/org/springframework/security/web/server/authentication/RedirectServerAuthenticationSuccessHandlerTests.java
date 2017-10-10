@@ -43,7 +43,7 @@ import static org.mockito.Mockito.when;
  * @since 5.0
  */
 @RunWith(MockitoJUnitRunner.class)
-public class RedirectAuthenticationSuccessHandlerTests {
+public class RedirectServerAuthenticationSuccessHandlerTests {
 
 	@Mock
 	private ServerWebExchange exchange;
@@ -56,8 +56,8 @@ public class RedirectAuthenticationSuccessHandlerTests {
 
 	private URI location = URI.create("/");
 
-	private RedirectAuthenticationSuccessHandler handler =
-		new RedirectAuthenticationSuccessHandler();
+	private RedirectServerAuthenticationSuccessHandler handler =
+		new RedirectServerAuthenticationSuccessHandler();
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorStringWhenNullLocationThenException() {

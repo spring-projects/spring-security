@@ -34,7 +34,7 @@ import org.springframework.security.web.server.authentication.AuthenticationEntr
 import org.springframework.security.web.server.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationEntryPoint;
-import org.springframework.security.web.server.authentication.RedirectAuthenticationSuccessHandler;
+import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.authentication.logout.LogoutHandler;
 import org.springframework.security.web.server.authentication.logout.LogoutWebFilter;
 import org.springframework.security.web.server.authentication.logout.SecurityContextRepositoryLogoutHandler;
@@ -435,7 +435,7 @@ public class HttpSecurity {
 			authenticationFilter.setRequiresAuthenticationMatcher(this.requiresAuthenticationMatcher);
 			authenticationFilter.setAuthenticationFailureHandler(this.authenticationFailureHandler);
 			authenticationFilter.setAuthenticationConverter(new ServerFormLoginAuthenticationConverter());
-			authenticationFilter.setAuthenticationSuccessHandler(new RedirectAuthenticationSuccessHandler("/"));
+			authenticationFilter.setServerAuthenticationSuccessHandler(new RedirectServerAuthenticationSuccessHandler("/"));
 			authenticationFilter.setSecurityContextServerRepository(this.securityContextServerRepository);
 			http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.FORM_LOGIN);
 		}

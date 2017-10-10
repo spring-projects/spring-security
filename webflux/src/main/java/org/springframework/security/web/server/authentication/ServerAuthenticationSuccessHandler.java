@@ -18,18 +18,12 @@ package org.springframework.security.web.server.authentication;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.WebFilterExchange;
-import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
 /**
  * @author Rob Winch
  * @since 5.0
  */
-public class WebFilterChainAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
-	@Override
-	public Mono<Void> success(Authentication authentication, WebFilterExchange webFilterExchange) {
-		ServerWebExchange exchange = webFilterExchange.getExchange();
-		return webFilterExchange.getChain().filter(exchange);
-	}
+public interface ServerAuthenticationSuccessHandler {
+	Mono<Void> success(Authentication authentication, WebFilterExchange webFilterExchange);
 }

@@ -45,7 +45,7 @@ public class AuthenticationWebFilter implements WebFilter {
 
 	private final ReactiveAuthenticationManager authenticationManager;
 
-	private AuthenticationSuccessHandler authenticationSuccessHandler = new WebFilterChainAuthenticationSuccessHandler();
+	private ServerAuthenticationSuccessHandler serverAuthenticationSuccessHandler = new WebFilterChainServerAuthenticationSuccessHandler();
 
 	private Function<ServerWebExchange,Mono<Authentication>> authenticationConverter = new ServerHttpBasicAuthenticationConverter();
 
@@ -87,7 +87,8 @@ public class AuthenticationWebFilter implements WebFilter {
 		SecurityContextImpl securityContext = new SecurityContextImpl();
 		securityContext.setAuthentication(authentication);
 		return this.securityContextServerRepository.save(exchange, securityContext)
-			.then(this.authenticationSuccessHandler.success(authentication, webFilterExchange));
+			.then(this.serverAuthenticationSuccessHandler
+				.success(authentication, webFilterExchange));
 	}
 
 	public void setSecurityContextServerRepository(
@@ -96,8 +97,8 @@ public class AuthenticationWebFilter implements WebFilter {
 		this.securityContextServerRepository = securityContextServerRepository;
 	}
 
-	public void setAuthenticationSuccessHandler(AuthenticationSuccessHandler authenticationSuccessHandler) {
-		this.authenticationSuccessHandler = authenticationSuccessHandler;
+	public void setServerAuthenticationSuccessHandler(ServerAuthenticationSuccessHandler serverAuthenticationSuccessHandler) {
+		this.serverAuthenticationSuccessHandler = serverAuthenticationSuccessHandler;
 	}
 
 	public void setAuthenticationConverter(Function<ServerWebExchange,Mono<Authentication>> authenticationConverter) {

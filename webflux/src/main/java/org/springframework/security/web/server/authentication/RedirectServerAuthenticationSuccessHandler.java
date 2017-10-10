@@ -30,14 +30,15 @@ import java.net.URI;
  * @author Rob Winch
  * @since 5.0
  */
-public class RedirectAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
+public class RedirectServerAuthenticationSuccessHandler
+	implements ServerAuthenticationSuccessHandler {
 	private URI location = URI.create("/");
 
 	private ServerRedirectStrategy serverRedirectStrategy = new DefaultServerRedirectStrategy();
 
-	public RedirectAuthenticationSuccessHandler() {}
+	public RedirectServerAuthenticationSuccessHandler() {}
 
-	public RedirectAuthenticationSuccessHandler(String location) {
+	public RedirectServerAuthenticationSuccessHandler(String location) {
 		this.location = URI.create(location);
 	}
 
