@@ -26,10 +26,11 @@ import reactor.core.publisher.Mono;
  * @author Rob Winch
  * @since 5.0
  */
-public class AuthenticationEntryPointFailureHandler implements AuthenticationFailureHandler {
+public class ServerAuthenticationEntryPointFailureHandler
+	implements ServerAuthenticationFailureHandler {
 	private final ServerAuthenticationEntryPoint serverAuthenticationEntryPoint;
 
-	public AuthenticationEntryPointFailureHandler(
+	public ServerAuthenticationEntryPointFailureHandler(
 		ServerAuthenticationEntryPoint serverAuthenticationEntryPoint) {
 		Assert.notNull(serverAuthenticationEntryPoint, "authenticationEntryPoint cannot be null");
 		this.serverAuthenticationEntryPoint = serverAuthenticationEntryPoint;

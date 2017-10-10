@@ -26,6 +26,6 @@ import org.springframework.security.web.server.WebFilterExchange;
  * @author Rob Winch
  * @since 5.0
  */
-public interface AuthenticationFailureHandler {
+public interface ServerAuthenticationFailureHandler {
 	Mono<Void> onAuthenticationFailure(WebFilterExchange webFilterExchange, AuthenticationException exception);
 }

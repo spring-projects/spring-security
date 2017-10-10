@@ -60,7 +60,7 @@ public class AuthenticationWebFilterTests {
 	@Mock
 	private ReactiveAuthenticationManager authenticationManager;
 	@Mock
-	private AuthenticationFailureHandler failureHandler;
+	private ServerAuthenticationFailureHandler failureHandler;
 	@Mock
 	private SecurityContextServerRepository securityContextServerRepository;
 
@@ -72,7 +72,7 @@ public class AuthenticationWebFilterTests {
 		this.filter.setServerAuthenticationSuccessHandler(this.successHandler);
 		this.filter.setAuthenticationConverter(this.authenticationConverter);
 		this.filter.setSecurityContextServerRepository(this.securityContextServerRepository);
-		this.filter.setAuthenticationFailureHandler(this.failureHandler);
+		this.filter.setServerAuthenticationFailureHandler(this.failureHandler);
 	}
 
 	@Test

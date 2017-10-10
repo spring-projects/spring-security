@@ -49,12 +49,12 @@ public class ServerAuthenticationEntryPointFailureHandlerTests {
 	private WebFilterExchange filterExchange;
 
 	@InjectMocks
-	private AuthenticationEntryPointFailureHandler handler;
+	private ServerAuthenticationEntryPointFailureHandler handler;
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorWhenNullEntryPointThenException() {
 		this.serverAuthenticationEntryPoint = null;
-		new AuthenticationEntryPointFailureHandler(this.serverAuthenticationEntryPoint);
+		new ServerAuthenticationEntryPointFailureHandler(this.serverAuthenticationEntryPoint);
 	}
 
 	@Test
