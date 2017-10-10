@@ -112,7 +112,7 @@ public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor
 			);
 	}
 
-	private<T extends Publisher<?>> T proceed(final MethodInvocation invocation) {
+	private static <T extends Publisher<?>> T proceed(final MethodInvocation invocation) {
 		try {
 			return (T) invocation.proceed();
 		} catch(Throwable throwable) {
@@ -131,7 +131,7 @@ public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor
 		return null;
 	}
 
-	private PreInvocationAttribute findPreInvocationAttribute(
+	private static PreInvocationAttribute findPreInvocationAttribute(
 		Collection<ConfigAttribute> config) {
 		for (ConfigAttribute attribute : config) {
 			if (attribute instanceof PreInvocationAttribute) {
