@@ -36,8 +36,6 @@ import java.util.Map;
  */
 @Controller
 public class MainController {
-	private WebClient webClient = WebClient.create();
-
 
 	@RequestMapping("/")
 	public String index(Model model, @AuthenticationPrincipal OAuth2User user, OAuth2UserAuthenticationToken authentication) {
@@ -52,8 +50,7 @@ public class MainController {
 		String userInfoEndpointUri = authentication.getClientAuthentication().getClientRegistration()
 			.getProviderDetails().getUserInfoEndpoint().getUri();
 		if (!StringUtils.isEmpty(userInfoEndpointUri)) {	// userInfoEndpointUri is optional for OIDC Clients
-			userAttributes = this.webClient
-				.mutate()
+			userAttributes = WebClient.builder()
 				.filter(oauth2Credentials(authentication))
 				.build()
 				.get()
