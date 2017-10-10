@@ -22,8 +22,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.core.userdetails.UserDetailsRepository;
-import org.springframework.security.util.InMemoryResource;
+import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -33,9 +32,8 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
  * @since 5.0
  */
 @RunWith(SpringRunner.class)
-public class UserDetailsRepositoryResourceFactoryBeanStringITests {
-	@Autowired
-	UserDetailsRepository users;
+public class ReactiveUserDetailsServiceResourceFactoryBeanPropertiesResourceLocationITests {
+	@Autowired ReactiveUserDetailsService users;
 
 	@Test
 	public void loadUserByUsernameWhenUserFoundThenNotNull() {
@@ -45,8 +43,8 @@ public class UserDetailsRepositoryResourceFactoryBeanStringITests {
 	@Configuration
 	static class Config {
 		@Bean
-		public UserDetailsRepositoryResourceFactoryBean userDetailsService() {
-			return UserDetailsRepositoryResourceFactoryBean.fromString("user=password,ROLE_USER");
+		public ReactiveUserDetailsServiceResourceFactoryBean userDetailsService() {
+			return ReactiveUserDetailsServiceResourceFactoryBean.fromResourceLocation("classpath:users.properties");
 		}
 	}
 }

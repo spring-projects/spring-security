@@ -23,7 +23,7 @@ import org.springframework.core.ReactiveAdapterRegistry;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UserDetailsRepositoryAuthenticationManager;
 import org.springframework.security.config.web.server.HttpSecurity;
-import org.springframework.security.core.userdetails.UserDetailsRepository;
+import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.reactive.result.method.annotation.AuthenticationPrincipalArgumentResolver;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
@@ -46,7 +46,7 @@ public class HttpSecurityConfiguration implements WebFluxConfigurer {
 	private ReactiveAuthenticationManager authenticationManager;
 
 	@Autowired(required = false)
-	private UserDetailsRepository userDetailsRepository;
+	private ReactiveUserDetailsService reactiveUserDetailsService;
 
 	@Autowired(required = false)
 	private PasswordEncoder passwordEncoder;
@@ -76,9 +76,9 @@ public class HttpSecurityConfiguration implements WebFluxConfigurer {
 		if(this.authenticationManager != null) {
 			return this.authenticationManager;
 		}
-		if(this.userDetailsRepository != null) {
+		if(this.reactiveUserDetailsService != null) {
 			UserDetailsRepositoryAuthenticationManager manager =
-				new UserDetailsRepositoryAuthenticationManager(this.userDetailsRepository);
+				new UserDetailsRepositoryAuthenticationManager(this.reactiveUserDetailsService);
 			if(this.passwordEncoder != null) {
 				manager.setPasswordEncoder(this.passwordEncoder);
 			}

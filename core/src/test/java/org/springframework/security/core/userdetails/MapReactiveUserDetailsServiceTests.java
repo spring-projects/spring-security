@@ -23,30 +23,27 @@ import java.util.Collection;
 import java.util.Collections;
 
 import org.junit.Test;
-import org.springframework.security.core.userdetails.MapUserDetailsRepository;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import reactor.core.publisher.Mono;
 
-public class MapUserDetailsRepositoryTests {
+public class MapReactiveUserDetailsServiceTests {
 	private static final UserDetails USER_DETAILS = User.withUsername("user")
 			.password("password")
 			.roles("USER")
 			.build();
 
-	private MapUserDetailsRepository users = new MapUserDetailsRepository(Arrays.asList(USER_DETAILS));
+	private MapReactiveUserDetailsService users = new MapReactiveUserDetailsService(Arrays.asList(USER_DETAILS));
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorNullUsers() {
 		Collection<UserDetails> users = null;
-		new MapUserDetailsRepository(users);
+		new MapReactiveUserDetailsService(users);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorEmptyUsers() {
 		Collection<UserDetails> users = Collections.emptyList();
-		new MapUserDetailsRepository(users);
+		new MapReactiveUserDetailsService(users);
 	}
 
 	@Test

@@ -16,11 +16,9 @@
 
 package org.springframework.security.authentication;
 
-import org.springframework.security.authentication.encoding.PlaintextPasswordEncoder;
 import org.springframework.security.core.Authentication;
 
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsRepository;
+import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.Assert;
@@ -32,13 +30,13 @@ import reactor.core.scheduler.Schedulers;
  * @since 5.0
  */
 public class UserDetailsRepositoryAuthenticationManager implements ReactiveAuthenticationManager {
-	private final UserDetailsRepository repository;
+	private final ReactiveUserDetailsService repository;
 
 	private PasswordEncoder passwordEncoder = NoOpPasswordEncoder.getInstance();
 
-	public UserDetailsRepositoryAuthenticationManager(UserDetailsRepository userDetailsRepository) {
-		Assert.notNull(userDetailsRepository, "userDetailsRepository cannot be null");
-		this.repository = userDetailsRepository;
+	public UserDetailsRepositoryAuthenticationManager(ReactiveUserDetailsService reactiveUserDetailsService) {
+		Assert.notNull(reactiveUserDetailsService, "userDetailsRepository cannot be null");
+		this.repository = reactiveUserDetailsService;
 	}
 
 	@Override

@@ -18,7 +18,7 @@ package sample;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
-import org.springframework.security.core.userdetails.MapUserDetailsRepository;
+import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -30,11 +30,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 public class HelloWebfluxFnSecurityConfig {
 
 	@Bean
-	public MapUserDetailsRepository userDetailsRepository() {
+	public MapReactiveUserDetailsService userDetailsRepository() {
 		UserDetails user = User.withUsername("user")
 			.password("user")
 			.roles("USER")
 			.build();
-		return new MapUserDetailsRepository(user);
+		return new MapReactiveUserDetailsService(user);
 	}
 }

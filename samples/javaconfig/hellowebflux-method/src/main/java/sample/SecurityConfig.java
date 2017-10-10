@@ -18,16 +18,12 @@ package sample;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
-import org.springframework.security.core.userdetails.MapUserDetailsRepository;
-import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.HttpSecurity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-import org.springframework.security.web.server.authorization.AuthorizationContext;
-import reactor.core.publisher.Mono;
 
 /**
  * @author Rob Winch
@@ -48,10 +44,10 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	public MapUserDetailsRepository userDetailsRepository() {
+	public MapReactiveUserDetailsService userDetailsRepository() {
 		UserDetails rob = User.withUsername("rob").password("rob").roles("USER").build();
 		UserDetails admin = User.withUsername("admin").password("admin").roles("USER","ADMIN").build();
-		return new MapUserDetailsRepository(rob, admin);
+		return new MapReactiveUserDetailsService(rob, admin);
 	}
 
 }

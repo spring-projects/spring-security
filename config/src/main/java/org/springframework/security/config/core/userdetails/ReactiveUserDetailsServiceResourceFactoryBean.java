@@ -20,31 +20,32 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.security.core.userdetails.MapUserDetailsRepository;
+import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.util.InMemoryResource;
 
 import java.util.Collection;
 
 /**
- * Constructs an {@link MapUserDetailsRepository} from a resource using {@link UserDetailsResourceFactoryBean}.
+ * Constructs an {@link MapReactiveUserDetailsService} from a resource using {@link UserDetailsResourceFactoryBean}.
  *
  * @author Rob Winch
  * @since 5.0
  * @see UserDetailsResourceFactoryBean
  */
-public class UserDetailsRepositoryResourceFactoryBean implements ResourceLoaderAware, FactoryBean<MapUserDetailsRepository> {
+public class ReactiveUserDetailsServiceResourceFactoryBean
+	implements ResourceLoaderAware, FactoryBean<MapReactiveUserDetailsService> {
 	private UserDetailsResourceFactoryBean userDetails = new UserDetailsResourceFactoryBean();
 
 	@Override
-	public MapUserDetailsRepository getObject() throws Exception {
+	public MapReactiveUserDetailsService getObject() throws Exception {
 		Collection<UserDetails> users = userDetails.getObject();
-		return new MapUserDetailsRepository(users);
+		return new MapReactiveUserDetailsService(users);
 	}
 
 	@Override
 	public Class<?> getObjectType() {
-		return MapUserDetailsRepository.class;
+		return MapReactiveUserDetailsService.class;
 	}
 
 	@Override
@@ -78,8 +79,8 @@ public class UserDetailsRepositoryResourceFactoryBean implements ResourceLoaderA
 	 * @param resourceLocatiton the location of the properties file that contains the users (i.e. "classpath:users.properties")
 	 * @return the UserDetailsResourceFactoryBean
 	 */
-	public static UserDetailsRepositoryResourceFactoryBean fromResourceLocation(String resourceLocatiton) {
-		UserDetailsRepositoryResourceFactoryBean result = new UserDetailsRepositoryResourceFactoryBean();
+	public static ReactiveUserDetailsServiceResourceFactoryBean fromResourceLocation(String resourceLocatiton) {
+		ReactiveUserDetailsServiceResourceFactoryBean result = new ReactiveUserDetailsServiceResourceFactoryBean();
 		result.setResourceLocation(resourceLocatiton);
 		return result;
 	}
@@ -91,8 +92,8 @@ public class UserDetailsRepositoryResourceFactoryBean implements ResourceLoaderA
 	 * @param propertiesResource the Resource that is a properties file that contains the users
 	 * @return the UserDetailsResourceFactoryBean
 	 */
-	public static UserDetailsRepositoryResourceFactoryBean fromResource(Resource propertiesResource) {
-		UserDetailsRepositoryResourceFactoryBean result = new UserDetailsRepositoryResourceFactoryBean();
+	public static ReactiveUserDetailsServiceResourceFactoryBean fromResource(Resource propertiesResource) {
+		ReactiveUserDetailsServiceResourceFactoryBean result = new ReactiveUserDetailsServiceResourceFactoryBean();
 		result.setResource(propertiesResource);
 		return result;
 	}
@@ -104,8 +105,8 @@ public class UserDetailsRepositoryResourceFactoryBean implements ResourceLoaderA
 	 * @param users the users in the format defined in {@link UserDetailsResourceFactoryBean}
 	 * @return the UserDetailsResourceFactoryBean
 	 */
-	public static UserDetailsRepositoryResourceFactoryBean fromString(String users) {
-		UserDetailsRepositoryResourceFactoryBean result = new UserDetailsRepositoryResourceFactoryBean();
+	public static ReactiveUserDetailsServiceResourceFactoryBean fromString(String users) {
+		ReactiveUserDetailsServiceResourceFactoryBean result = new ReactiveUserDetailsServiceResourceFactoryBean();
 		result.setResource(new InMemoryResource(users));
 		return result;
 	}

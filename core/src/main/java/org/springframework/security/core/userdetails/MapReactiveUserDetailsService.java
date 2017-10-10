@@ -30,20 +30,20 @@ import reactor.core.publisher.Mono;
  * @author Rob Winch
  * @since 5.0
  */
-public class MapUserDetailsRepository implements UserDetailsRepository {
+public class MapReactiveUserDetailsService implements ReactiveUserDetailsService {
 	private final Map<String,UserDetails> users;
 
-	public MapUserDetailsRepository(Map<String,UserDetails> users) {
+	public MapReactiveUserDetailsService(Map<String,UserDetails> users) {
 		this.users = users;
 	}
 
-	public MapUserDetailsRepository(UserDetails... users) {
+	public MapReactiveUserDetailsService(UserDetails... users) {
 		this(Arrays.asList(users));
 	}
 
-	public MapUserDetailsRepository(Collection<UserDetails> users) {
+	public MapReactiveUserDetailsService(Collection<UserDetails> users) {
 		Assert.notEmpty(users, "users cannot be null or empty");
-		this.users = users.stream().collect(Collectors.toMap( u -> getKey(u.getName()), Function.identity()));
+		this.users = users.stream().collect(Collectors.toConcurrentMap( u -> getKey(u.getName()), Function.identity()));
 	}
 
 	@Override

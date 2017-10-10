@@ -28,7 +28,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
 
-import org.springframework.security.core.userdetails.UserDetailsRepository;
+import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -38,9 +38,8 @@ import reactor.test.StepVerifier;
  * @since 5.0
  */
 @RunWith(MockitoJUnitRunner.class)
-public class UserDetailsRepositoryAuthenticationManagerTests {
-	@Mock
-	UserDetailsRepository repository;
+public class ReactiveUserDetailsServiceAuthenticationManagerTests {
+	@Mock ReactiveUserDetailsService repository;
 	@Mock
 	PasswordEncoder passwordEncoder;
 	UserDetailsRepositoryAuthenticationManager manager;
@@ -56,7 +55,7 @@ public class UserDetailsRepositoryAuthenticationManagerTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorNullUserDetailsRepository() {
-		UserDetailsRepository udr = null;
+		ReactiveUserDetailsService udr = null;
 		new UserDetailsRepositoryAuthenticationManager(udr);
 	}
 

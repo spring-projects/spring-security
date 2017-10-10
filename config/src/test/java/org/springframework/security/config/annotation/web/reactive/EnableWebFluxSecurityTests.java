@@ -28,9 +28,9 @@ import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.web.server.HttpSecurity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.MapUserDetailsRepository;
+import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetailsRepository;
+import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
@@ -138,8 +138,8 @@ public class EnableWebFluxSecurityTests {
 		@EnableWebFluxSecurity
 		static class Config {
 			@Bean
-			public UserDetailsRepository userDetailsRepository() {
-				return new MapUserDetailsRepository(User.withUsername("user")
+			public ReactiveUserDetailsService userDetailsRepository() {
+				return new MapReactiveUserDetailsService(User.withUsername("user")
 					.password("password")
 					.roles("USER")
 					.build()
@@ -178,8 +178,8 @@ public class EnableWebFluxSecurityTests {
 		@EnableWebFluxSecurity
 		static class Config {
 			@Bean
-			public UserDetailsRepository userDetailsRepository(PasswordEncoder encoder) {
-				return new MapUserDetailsRepository(User.withUsername("user")
+			public ReactiveUserDetailsService userDetailsRepository(PasswordEncoder encoder) {
+				return new MapReactiveUserDetailsService(User.withUsername("user")
 					.password(encoder.encode("password"))
 					.roles("USER")
 					.build()
@@ -226,8 +226,8 @@ public class EnableWebFluxSecurityTests {
 		@EnableWebFluxSecurity
 		static class Config {
 			@Bean
-			public UserDetailsRepository userDetailsRepository() {
-				return new MapUserDetailsRepository(User.withUsername("user")
+			public ReactiveUserDetailsService userDetailsRepository() {
+				return new MapReactiveUserDetailsService(User.withUsername("user")
 					.password("password")
 					.roles("USER")
 					.build()
@@ -275,8 +275,8 @@ public class EnableWebFluxSecurityTests {
 			}
 
 			@Bean
-			public UserDetailsRepository userDetailsRepository() {
-				return new MapUserDetailsRepository(User.withUsername("user")
+			public ReactiveUserDetailsService userDetailsRepository() {
+				return new MapReactiveUserDetailsService(User.withUsername("user")
 					.password("password")
 					.roles("USER")
 					.build()
