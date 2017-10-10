@@ -29,12 +29,12 @@ import reactor.core.scheduler.Schedulers;
  * @author Rob Winch
  * @since 5.0
  */
-public class UserDetailsRepositoryAuthenticationManager implements ReactiveAuthenticationManager {
+public class UserDetailsRepositoryReactiveAuthenticationManager implements ReactiveAuthenticationManager {
 	private final ReactiveUserDetailsService repository;
 
 	private PasswordEncoder passwordEncoder = NoOpPasswordEncoder.getInstance();
 
-	public UserDetailsRepositoryAuthenticationManager(ReactiveUserDetailsService reactiveUserDetailsService) {
+	public UserDetailsRepositoryReactiveAuthenticationManager(ReactiveUserDetailsService reactiveUserDetailsService) {
 		Assert.notNull(reactiveUserDetailsService, "userDetailsRepository cannot be null");
 		this.repository = reactiveUserDetailsService;
 	}

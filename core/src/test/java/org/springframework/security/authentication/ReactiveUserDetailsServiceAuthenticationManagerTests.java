@@ -42,13 +42,13 @@ public class ReactiveUserDetailsServiceAuthenticationManagerTests {
 	@Mock ReactiveUserDetailsService repository;
 	@Mock
 	PasswordEncoder passwordEncoder;
-	UserDetailsRepositoryAuthenticationManager manager;
+	UserDetailsRepositoryReactiveAuthenticationManager manager;
 	String username;
 	String password;
 
 	@Before
 	public void setup() {
-		manager = new UserDetailsRepositoryAuthenticationManager(repository);
+		manager = new UserDetailsRepositoryReactiveAuthenticationManager(repository);
 		username = "user";
 		password = "pass";
 	}
@@ -56,7 +56,7 @@ public class ReactiveUserDetailsServiceAuthenticationManagerTests {
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorNullUserDetailsRepository() {
 		ReactiveUserDetailsService udr = null;
-		new UserDetailsRepositoryAuthenticationManager(udr);
+		new UserDetailsRepositoryReactiveAuthenticationManager(udr);
 	}
 
 	@Test

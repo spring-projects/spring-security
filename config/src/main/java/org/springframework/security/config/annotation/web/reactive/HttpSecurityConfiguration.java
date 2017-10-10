@@ -21,7 +21,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.ReactiveAdapterRegistry;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
-import org.springframework.security.authentication.UserDetailsRepositoryAuthenticationManager;
+import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
 import org.springframework.security.config.web.server.HttpSecurity;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -77,8 +77,8 @@ public class HttpSecurityConfiguration implements WebFluxConfigurer {
 			return this.authenticationManager;
 		}
 		if(this.reactiveUserDetailsService != null) {
-			UserDetailsRepositoryAuthenticationManager manager =
-				new UserDetailsRepositoryAuthenticationManager(this.reactiveUserDetailsService);
+			UserDetailsRepositoryReactiveAuthenticationManager manager =
+				new UserDetailsRepositoryReactiveAuthenticationManager(this.reactiveUserDetailsService);
 			if(this.passwordEncoder != null) {
 				manager.setPasswordEncoder(this.passwordEncoder);
 			}

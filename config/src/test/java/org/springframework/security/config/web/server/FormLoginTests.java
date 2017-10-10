@@ -22,7 +22,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
-import org.springframework.security.authentication.UserDetailsRepositoryAuthenticationManager;
+import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -45,7 +45,7 @@ public class FormLoginTests {
 	private UserDetails user = User.withUsername("user").password("password").roles("USER").build();
 	private HttpSecurity http = HttpSecurity.http();
 
-	ReactiveAuthenticationManager manager = new UserDetailsRepositoryAuthenticationManager(new MapReactiveUserDetailsService(this.user));
+	ReactiveAuthenticationManager manager = new UserDetailsRepositoryReactiveAuthenticationManager(new MapReactiveUserDetailsService(this.user));
 
 	@Test
 	public void defaultLoginPage() {
