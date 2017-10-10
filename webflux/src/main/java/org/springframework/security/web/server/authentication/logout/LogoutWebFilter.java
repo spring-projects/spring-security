@@ -36,7 +36,7 @@ import org.springframework.web.server.WebFilterChain;
 public class LogoutWebFilter implements WebFilter {
 	private AnonymousAuthenticationToken anonymousAuthenticationToken = new AnonymousAuthenticationToken("key", "anonymous",
 		AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
-	private LogoutHandler logoutHandler = new SecurityContextRepositoryLogoutHandler();
+	private ServerLogoutHandler serverLogoutHandler = new SecurityContextServerLogoutHandler();
 
 	private ServerWebExchangeMatcher requiresLogout = ServerWebExchangeMatchers
 		.pathMatchers("/logout");
@@ -47,7 +47,8 @@ public class LogoutWebFilter implements WebFilter {
 			.filter( result -> result.isMatch())
 			.switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
 			.flatMap( result -> authentication(exchange))
-			.flatMap( authentication -> this.logoutHandler.logout(new WebFilterExchange(exchange, chain), authentication));
+			.flatMap( authentication -> this.serverLogoutHandler
+				.logout(new WebFilterExchange(exchange, chain), authentication));
 	}
 
 	private Mono<Authentication> authentication(ServerWebExchange exchange) {
@@ -56,9 +57,9 @@ public class LogoutWebFilter implements WebFilter {
 			.defaultIfEmpty(this.anonymousAuthenticationToken);
 	}
 
-	public final void setLogoutHandler(LogoutHandler logoutHandler) {
-		Assert.notNull(logoutHandler, "logoutHandler must not be null");
-		this.logoutHandler = logoutHandler;
+	public final void setServerLogoutHandler(ServerLogoutHandler serverLogoutHandler) {
+		Assert.notNull(serverLogoutHandler, "logoutHandler must not be null");
+		this.serverLogoutHandler = serverLogoutHandler;
 	}
 
 	public final void setRequiresLogout(ServerWebExchangeMatcher serverWebExchangeMatcher) {

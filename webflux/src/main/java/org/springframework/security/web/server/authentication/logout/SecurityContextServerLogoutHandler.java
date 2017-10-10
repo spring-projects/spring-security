@@ -30,7 +30,7 @@ import java.net.URI;
  * @author Rob Winch
  * @since 5.0
  */
-public class SecurityContextRepositoryLogoutHandler implements LogoutHandler {
+public class SecurityContextServerLogoutHandler implements ServerLogoutHandler {
 	private SecurityContextServerRepository repository = new WebSessionSecurityContextServerRepository();
 
 	private URI logoutSuccessUrl = URI.create("/login?logout");

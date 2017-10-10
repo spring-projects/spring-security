@@ -35,9 +35,9 @@ import org.springframework.security.web.server.authentication.ServerAuthenticati
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
-import org.springframework.security.web.server.authentication.logout.LogoutHandler;
+import org.springframework.security.web.server.authentication.logout.ServerLogoutHandler;
 import org.springframework.security.web.server.authentication.logout.LogoutWebFilter;
-import org.springframework.security.web.server.authentication.logout.SecurityContextRepositoryLogoutHandler;
+import org.springframework.security.web.server.authentication.logout.SecurityContextServerLogoutHandler;
 import org.springframework.security.web.server.authentication.www.HttpBasicServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.authorization.AuthorizationContext;
 import org.springframework.security.web.server.authorization.AuthorizationWebFilter;
@@ -555,21 +555,21 @@ public class HttpSecurity {
 	 */
 	public final class LogoutBuilder {
 
-		private LogoutHandler logoutHandler = new SecurityContextRepositoryLogoutHandler();
+		private ServerLogoutHandler serverLogoutHandler = new SecurityContextServerLogoutHandler();
 
 		private String logoutUrl = "/logout";
 
 		private ServerWebExchangeMatcher requiresLogout = ServerWebExchangeMatchers
 			.pathMatchers(this.logoutUrl);
 
-		public LogoutBuilder logoutHandler(LogoutHandler logoutHandler) {
-			Assert.notNull(logoutHandler, "logoutHandler must not be null");
-			this.logoutHandler = logoutHandler;
+		public LogoutBuilder logoutHandler(ServerLogoutHandler serverLogoutHandler) {
+			Assert.notNull(serverLogoutHandler, "logoutHandler must not be null");
+			this.serverLogoutHandler = serverLogoutHandler;
 			return this;
 		}
 
 		public LogoutBuilder logoutUrl(String logoutUrl) {
-			Assert.notNull(this.logoutHandler, "logoutUrl must not be null");
+			Assert.notNull(this.serverLogoutHandler, "logoutUrl must not be null");
 			this.logoutUrl = logoutUrl;
 			this.requiresLogout = ServerWebExchangeMatchers.pathMatchers(logoutUrl);
 			return this;
@@ -591,7 +591,7 @@ public class HttpSecurity {
 
 		private LogoutWebFilter createLogoutWebFilter(HttpSecurity http) {
 			LogoutWebFilter logoutWebFilter = new LogoutWebFilter();
-			logoutWebFilter.setLogoutHandler(this.logoutHandler);
+			logoutWebFilter.setServerLogoutHandler(this.serverLogoutHandler);
 			logoutWebFilter.setRequiresLogout(this.requiresLogout);
 
 			return logoutWebFilter;

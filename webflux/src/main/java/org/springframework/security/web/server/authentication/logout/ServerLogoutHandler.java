@@ -24,6 +24,6 @@ import reactor.core.publisher.Mono;
  * @author Rob Winch
  * @since 5.0
  */
-public interface LogoutHandler {
+public interface ServerLogoutHandler {
 	Mono<Void> logout(WebFilterExchange exchange, Authentication authentication);
 }
