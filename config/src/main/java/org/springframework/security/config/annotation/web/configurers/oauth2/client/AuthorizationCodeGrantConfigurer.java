@@ -65,7 +65,7 @@ public class AuthorizationCodeGrantConfigurer<B extends HttpSecurityBuilder<B>> 
 
 	// ***** Authorization Request members
 	private AuthorizationCodeRequestRedirectFilter authorizationRequestFilter;
-	private RequestMatcher authorizationRequestMatcher;
+	private String authorizationRequestBaseUri = AuthorizationCodeRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
 	private AuthorizationRequestUriBuilder authorizationRequestBuilder;
 	private AuthorizationRequestRepository authorizationRequestRepository;
 
@@ -80,9 +80,9 @@ public class AuthorizationCodeGrantConfigurer<B extends HttpSecurityBuilder<B>> 
 	private Map<URI, Class<? extends OAuth2User>> customUserTypes = new HashMap<>();
 	private GrantedAuthoritiesMapper userAuthoritiesMapper;
 
-	public AuthorizationCodeGrantConfigurer<B> authorizationRequestMatcher(RequestMatcher authorizationRequestMatcher) {
-		Assert.notNull(authorizationRequestMatcher, "authorizationRequestMatcher cannot be null");
-		this.authorizationRequestMatcher = authorizationRequestMatcher;
+	public AuthorizationCodeGrantConfigurer<B> authorizationRequestBaseUri(String authorizationRequestBaseUri) {
+		Assert.hasText(authorizationRequestBaseUri, "authorizationRequestBaseUri cannot be empty");
+		this.authorizationRequestBaseUri = authorizationRequestBaseUri;
 		return this;
 	}
 
@@ -183,10 +183,7 @@ public class AuthorizationCodeGrantConfigurer<B extends HttpSecurityBuilder<B>> 
 		//
 		// 	-> AuthorizationCodeRequestRedirectFilter
 		this.authorizationRequestFilter = new AuthorizationCodeRequestRedirectFilter(
-			this.getClientRegistrationRepository());
-		if (this.authorizationRequestMatcher != null) {
-			this.authorizationRequestFilter.setAuthorizationRequestMatcher(this.authorizationRequestMatcher);
-		}
+			this.authorizationRequestBaseUri, this.getClientRegistrationRepository());
 		if (this.authorizationRequestBuilder != null) {
 			this.authorizationRequestFilter.setAuthorizationUriBuilder(this.authorizationRequestBuilder);
 		}
@@ -221,8 +218,8 @@ public class AuthorizationCodeGrantConfigurer<B extends HttpSecurityBuilder<B>> 
 		return this.authorizationRequestFilter;
 	}
 
-	RequestMatcher getAuthorizationRequestMatcher() {
-		return this.authorizationRequestMatcher;
+	String getAuthorizationRequestBaseUri() {
+		return this.authorizationRequestBaseUri;
 	}
 
 	AuthorizationCodeAuthenticationFilter getAuthorizationResponseFilter() {

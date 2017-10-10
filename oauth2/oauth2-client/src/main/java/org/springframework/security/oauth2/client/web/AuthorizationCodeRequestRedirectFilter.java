@@ -64,8 +64,7 @@ import java.util.Map;
 public class AuthorizationCodeRequestRedirectFilter extends OncePerRequestFilter {
 	public static final String DEFAULT_AUTHORIZATION_REQUEST_BASE_URI = "/oauth2/authorization/code";
 	public static final String REGISTRATION_ID_URI_VARIABLE_NAME = "registrationId";
-	public static final String DEFAULT_AUTHORIZATION_REQUEST_URI = DEFAULT_AUTHORIZATION_REQUEST_BASE_URI + "/{" + REGISTRATION_ID_URI_VARIABLE_NAME + "}";
-	private RequestMatcher authorizationRequestMatcher = new AntPathRequestMatcher(DEFAULT_AUTHORIZATION_REQUEST_URI);
+	private final RequestMatcher authorizationRequestMatcher;
 	private final ClientRegistrationRepository clientRegistrationRepository;
 	private AuthorizationRequestUriBuilder authorizationUriBuilder = new DefaultAuthorizationRequestUriBuilder();
 	private final RedirectStrategy authorizationRedirectStrategy = new DefaultRedirectStrategy();
@@ -73,15 +72,17 @@ public class AuthorizationCodeRequestRedirectFilter extends OncePerRequestFilter
 	private AuthorizationRequestRepository authorizationRequestRepository = new HttpSessionAuthorizationRequestRepository();
 
 	public AuthorizationCodeRequestRedirectFilter(ClientRegistrationRepository clientRegistrationRepository) {
-		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
-		this.clientRegistrationRepository = clientRegistrationRepository;
+		this(DEFAULT_AUTHORIZATION_REQUEST_BASE_URI, clientRegistrationRepository);
 	}
 
-	public final void setAuthorizationRequestMatcher(RequestMatcher authorizationRequestMatcher) {
-		Assert.notNull(authorizationRequestMatcher, "authorizationRequestMatcher cannot be null");
-		Assert.isInstanceOf(RequestVariablesExtractor.class, authorizationRequestMatcher,
-			"authorizationRequestMatcher must also be a " + RequestVariablesExtractor.class.getName());
-		this.authorizationRequestMatcher = authorizationRequestMatcher;
+	public AuthorizationCodeRequestRedirectFilter(
+		String authorizationRequestBaseUri, ClientRegistrationRepository clientRegistrationRepository) {
+
+		Assert.hasText(authorizationRequestBaseUri, "authorizationRequestBaseUri cannot be empty");
+		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
+		this.authorizationRequestMatcher = new AntPathRequestMatcher(
+			authorizationRequestBaseUri + "/{" + REGISTRATION_ID_URI_VARIABLE_NAME + "}");
+		this.clientRegistrationRepository = clientRegistrationRepository;
 	}
 
 	public final void setAuthorizationUriBuilder(AuthorizationRequestUriBuilder authorizationUriBuilder) {

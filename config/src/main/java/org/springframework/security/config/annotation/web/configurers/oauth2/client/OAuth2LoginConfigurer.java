@@ -28,14 +28,12 @@ import org.springframework.security.oauth2.client.registration.InMemoryClientReg
 import org.springframework.security.oauth2.client.token.SecurityTokenRepository;
 import org.springframework.security.oauth2.client.user.OAuth2UserService;
 import org.springframework.security.oauth2.client.web.AuthorizationCodeAuthenticationFilter;
-import org.springframework.security.oauth2.client.web.AuthorizationCodeRequestRedirectFilter;
 import org.springframework.security.oauth2.client.web.AuthorizationGrantTokenExchanger;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestUriBuilder;
 import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 
@@ -43,8 +41,6 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.springframework.security.oauth2.client.web.AuthorizationCodeRequestRedirectFilter.REGISTRATION_ID_URI_VARIABLE_NAME;
 
 /**
  * A security configurer for OAuth 2.0 / OpenID Connect 1.0 login.
@@ -85,9 +81,9 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		private AuthorizationEndpointConfig() {
 		}
 
-		public AuthorizationEndpointConfig requestMatcher(RequestMatcher authorizationRequestMatcher) {
-			Assert.notNull(authorizationRequestMatcher, "authorizationRequestMatcher cannot be null");
-			authorizationCodeGrantConfigurer.authorizationRequestMatcher(authorizationRequestMatcher);
+		public AuthorizationEndpointConfig baseUri(String authorizationRequestBaseUri) {
+			Assert.hasText(authorizationRequestBaseUri, "authorizationRequestBaseUri cannot be empty");
+			authorizationCodeGrantConfigurer.authorizationRequestBaseUri(authorizationRequestBaseUri);
 			return this;
 		}
 
@@ -247,24 +243,10 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 			return;
 		}
 
-		String authorizationRequestBaseUri;
-		RequestMatcher authorizationRequestMatcher = authorizationCodeGrantConfigurer.getAuthorizationRequestMatcher();
-		if (authorizationRequestMatcher != null && AntPathRequestMatcher.class.isAssignableFrom(authorizationRequestMatcher.getClass())) {
-			String authorizationRequestPattern =  ((AntPathRequestMatcher)authorizationRequestMatcher).getPattern();
-			String registrationIdTemplateVariable = "{" + REGISTRATION_ID_URI_VARIABLE_NAME + "}";
-			if (authorizationRequestPattern.endsWith(registrationIdTemplateVariable)) {
-				authorizationRequestBaseUri = authorizationRequestPattern.substring(
-					0, authorizationRequestPattern.length() - registrationIdTemplateVariable.length() - 1);
-			} else {
-				authorizationRequestBaseUri = authorizationRequestPattern;
-			}
-		} else {
-			authorizationRequestBaseUri = AuthorizationCodeRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
-		}
-
 		Map<String, String> authenticationUrlToClientName = new HashMap<>();
 		clientRegistrations.forEach(registration -> authenticationUrlToClientName.put(
-			authorizationRequestBaseUri + "/" + registration.getRegistrationId(), registration.getClientName()));
+			authorizationCodeGrantConfigurer.getAuthorizationRequestBaseUri() + "/" + registration.getRegistrationId(),
+			registration.getClientName()));
 		loginPageGeneratingFilter.setOauth2LoginEnabled(true);
 		loginPageGeneratingFilter.setOauth2AuthenticationUrlToClientName(authenticationUrlToClientName);
 		loginPageGeneratingFilter.setLoginPageUrl(this.getLoginPage());
