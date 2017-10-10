@@ -24,10 +24,10 @@ import reactor.core.publisher.Mono;
  * @author Rob Winch
  * @since 5.0
  */
-public class AuthorityAuthorizationManager<T> implements ReactiveAuthorizationManager<T> {
+public class AuthorityReactiveAuthorizationManager<T> implements ReactiveAuthorizationManager<T> {
 	private final String authority;
 
-	private AuthorityAuthorizationManager(String authority) {
+	private AuthorityReactiveAuthorizationManager(String authority) {
 		this.authority = authority;
 	}
 
@@ -42,12 +42,12 @@ public class AuthorityAuthorizationManager<T> implements ReactiveAuthorizationMa
 			.defaultIfEmpty(new AuthorizationDecision(false));
 	}
 
-	public static <T> AuthorityAuthorizationManager<T> hasAuthority(String authority) {
+	public static <T> AuthorityReactiveAuthorizationManager<T> hasAuthority(String authority) {
 		Assert.notNull(authority, "authority cannot be null");
-		return new AuthorityAuthorizationManager<>(authority);
+		return new AuthorityReactiveAuthorizationManager<>(authority);
 	}
 
-	public static <T> AuthorityAuthorizationManager<T> hasRole(String role) {
+	public static <T> AuthorityReactiveAuthorizationManager<T> hasRole(String role) {
 		Assert.notNull(role, "role cannot be null");
 		return hasAuthority("ROLE_" + role);
 	}

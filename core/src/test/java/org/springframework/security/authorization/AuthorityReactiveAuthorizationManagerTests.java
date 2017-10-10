@@ -22,28 +22,25 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.Collection;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
-import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
 
 /**
  * @author Rob Winch
  * @since 5.0
  */
 @RunWith(MockitoJUnitRunner.class)
-public class AuthorityAuthorizationManagerTests {
+public class AuthorityReactiveAuthorizationManagerTests {
 	@Mock
 	Authentication authentication;
 
-	AuthorityAuthorizationManager<Object> manager = AuthorityAuthorizationManager.hasAuthority("ADMIN");
+	AuthorityReactiveAuthorizationManager<Object> manager = AuthorityReactiveAuthorizationManager
+		.hasAuthority("ADMIN");
 
 	@Test
 	public void checkWhenHasAuthorityAndNotAuthenticatedThenReturnFalse() {
@@ -99,7 +96,7 @@ public class AuthorityAuthorizationManagerTests {
 
 	@Test
 	public void checkWhenHasRoleAndAuthorizedThenReturnTrue() {
-		manager = AuthorityAuthorizationManager.hasRole("ADMIN");
+		manager = AuthorityReactiveAuthorizationManager.hasRole("ADMIN");
 		authentication = new TestingAuthenticationToken("rob", "secret", "ROLE_ADMIN");
 
 		boolean granted = manager.check(Mono.just(authentication), null).block().isGranted();
@@ -109,7 +106,7 @@ public class AuthorityAuthorizationManagerTests {
 
 	@Test
 	public void checkWhenHasRoleAndNotAuthorizedThenReturnTrue() {
-		manager = AuthorityAuthorizationManager.hasRole("ADMIN");
+		manager = AuthorityReactiveAuthorizationManager.hasRole("ADMIN");
 		authentication = new TestingAuthenticationToken("rob", "secret", "ADMIN");
 
 		boolean granted = manager.check(Mono.just(authentication), null).block().isGranted();
@@ -120,12 +117,12 @@ public class AuthorityAuthorizationManagerTests {
 	@Test(expected = IllegalArgumentException.class)
 	public void hasRoleWhenNullThenException() {
 		String role = null;
-		AuthorityAuthorizationManager.hasRole(role);
+		AuthorityReactiveAuthorizationManager.hasRole(role);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void hasAuthorityWhenNullThenException() {
 		String authority = null;
-		AuthorityAuthorizationManager.hasAuthority(authority);
+		AuthorityReactiveAuthorizationManager.hasAuthority(authority);
 	}
 }

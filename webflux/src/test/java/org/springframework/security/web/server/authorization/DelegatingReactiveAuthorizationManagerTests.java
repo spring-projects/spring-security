@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.security.authorization.AuthorityAuthorizationManager;
+import org.springframework.security.authorization.AuthorityReactiveAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
@@ -45,10 +45,8 @@ public class DelegatingReactiveAuthorizationManagerTests {
 	ServerWebExchangeMatcher match1;
 	@Mock
 	ServerWebExchangeMatcher match2;
-	@Mock
-	AuthorityAuthorizationManager<AuthorizationContext> delegate1;
-	@Mock
-	AuthorityAuthorizationManager<AuthorizationContext> delegate2;
+	@Mock AuthorityReactiveAuthorizationManager<AuthorizationContext> delegate1;
+	@Mock AuthorityReactiveAuthorizationManager<AuthorizationContext> delegate2;
 	@Mock
 	ServerWebExchange exchange;
 	@Mock

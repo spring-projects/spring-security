@@ -21,7 +21,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authorization.AuthenticatedAuthorizationManager;
-import org.springframework.security.authorization.AuthorityAuthorizationManager;
+import org.springframework.security.authorization.AuthorityReactiveAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.web.server.AuthenticationEntryPoint;
@@ -293,11 +293,11 @@ public class HttpSecurity {
 			}
 
 			public AuthorizeExchangeBuilder hasRole(String role) {
-				return access(AuthorityAuthorizationManager.hasRole(role));
+				return access(AuthorityReactiveAuthorizationManager.hasRole(role));
 			}
 
 			public AuthorizeExchangeBuilder hasAuthority(String authority) {
-				return access(AuthorityAuthorizationManager.hasAuthority(authority));
+				return access(AuthorityReactiveAuthorizationManager.hasAuthority(authority));
 			}
 
 			public AuthorizeExchangeBuilder authenticated() {
