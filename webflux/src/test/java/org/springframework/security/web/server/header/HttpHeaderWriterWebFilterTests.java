@@ -40,8 +40,7 @@ import reactor.core.publisher.Mono;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class HttpHeaderWriterWebFilterTests {
-	@Mock
-	HttpHeadersWriter writer;
+	@Mock ServerHttpHeadersWriter writer;
 
 	HttpHeaderWriterWebFilter filter;
 

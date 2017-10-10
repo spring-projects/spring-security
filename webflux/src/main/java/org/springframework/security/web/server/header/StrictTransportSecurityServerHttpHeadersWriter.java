@@ -25,19 +25,20 @@ import reactor.core.publisher.Mono;
  * @author Rob Winch
  * @since 5.0
  */
-public final class StrictTransportSecurityHttpHeadersWriter implements HttpHeadersWriter {
+public final class StrictTransportSecurityServerHttpHeadersWriter
+	implements ServerHttpHeadersWriter {
 	public static final String STRICT_TRANSPORT_SECURITY = "Strict-Transport-Security";
 
 	private String maxAge;
 
 	private String subdomain;
 
-	private HttpHeadersWriter delegate;
+	private ServerHttpHeadersWriter delegate;
 
 	/**
 	 *
 	 */
-	public StrictTransportSecurityHttpHeadersWriter() {
+	public StrictTransportSecurityServerHttpHeadersWriter() {
 		setIncludeSubDomains(true);
 		setMaxAge(Duration.ofDays(365L));
 		updateDelegate();
@@ -62,7 +63,7 @@ public final class StrictTransportSecurityHttpHeadersWriter implements HttpHeade
 	}
 
 	private void updateDelegate() {
-		delegate = StaticHttpHeadersWriter.builder()
+		delegate = StaticServerHttpHeadersWriter.builder()
 				.header(STRICT_TRANSPORT_SECURITY, maxAge + subdomain)
 				.build();
 	}

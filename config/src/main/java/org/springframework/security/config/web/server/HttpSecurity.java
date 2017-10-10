@@ -48,14 +48,14 @@ import org.springframework.security.web.server.context.SecurityContextServerRepo
 import org.springframework.security.web.server.context.SecurityContextRepositoryWebFilter;
 import org.springframework.security.web.server.context.ServerWebExchangeAttributeSecurityContextServerRepository;
 import org.springframework.security.web.server.context.WebSessionSecurityContextServerRepository;
-import org.springframework.security.web.server.header.CacheControlHttpHeadersWriter;
-import org.springframework.security.web.server.header.CompositeHttpHeadersWriter;
-import org.springframework.security.web.server.header.ContentTypeOptionsHttpHeadersWriter;
+import org.springframework.security.web.server.header.CacheControlServerHttpHeadersWriter;
+import org.springframework.security.web.server.header.CompositeServerHttpHeadersWriter;
+import org.springframework.security.web.server.header.ContentTypeOptionsServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.HttpHeaderWriterWebFilter;
-import org.springframework.security.web.server.header.HttpHeadersWriter;
-import org.springframework.security.web.server.header.StrictTransportSecurityHttpHeadersWriter;
-import org.springframework.security.web.server.header.XFrameOptionsHttpHeadersWriter;
-import org.springframework.security.web.server.header.XXssProtectionHttpHeadersWriter;
+import org.springframework.security.web.server.header.ServerHttpHeadersWriter;
+import org.springframework.security.web.server.header.StrictTransportSecurityServerHttpHeadersWriter;
+import org.springframework.security.web.server.header.XFrameOptionsServerHttpHeadersWriter;
+import org.springframework.security.web.server.header.XXssProtectionServerHttpHeadersWriter;
 import org.springframework.security.web.server.ui.LoginPageGeneratingWebFilter;
 import org.springframework.security.web.server.util.matcher.MediaTypeServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
@@ -449,17 +449,17 @@ public class HttpSecurity {
 	 * @since 5.0
 	 */
 	public class HeaderBuilder {
-		private final List<HttpHeadersWriter> writers;
+		private final List<ServerHttpHeadersWriter> writers;
 
-		private CacheControlHttpHeadersWriter cacheControl = new CacheControlHttpHeadersWriter();
+		private CacheControlServerHttpHeadersWriter cacheControl = new CacheControlServerHttpHeadersWriter();
 
-		private ContentTypeOptionsHttpHeadersWriter contentTypeOptions = new ContentTypeOptionsHttpHeadersWriter();
+		private ContentTypeOptionsServerHttpHeadersWriter contentTypeOptions = new ContentTypeOptionsServerHttpHeadersWriter();
 
-		private StrictTransportSecurityHttpHeadersWriter hsts = new StrictTransportSecurityHttpHeadersWriter();
+		private StrictTransportSecurityServerHttpHeadersWriter hsts = new StrictTransportSecurityServerHttpHeadersWriter();
 
-		private XFrameOptionsHttpHeadersWriter frameOptions = new XFrameOptionsHttpHeadersWriter();
+		private XFrameOptionsServerHttpHeadersWriter frameOptions = new XFrameOptionsServerHttpHeadersWriter();
 
-		private XXssProtectionHttpHeadersWriter xss = new XXssProtectionHttpHeadersWriter();
+		private XXssProtectionServerHttpHeadersWriter xss = new XXssProtectionServerHttpHeadersWriter();
 
 		public HttpSecurity and() {
 			return HttpSecurity.this;
@@ -482,7 +482,7 @@ public class HttpSecurity {
 		}
 
 		protected void configure(HttpSecurity http) {
-			HttpHeadersWriter writer = new CompositeHttpHeadersWriter(this.writers);
+			ServerHttpHeadersWriter writer = new CompositeServerHttpHeadersWriter(this.writers);
 			HttpHeaderWriterWebFilter result = new HttpHeaderWriterWebFilter(writer);
 			http.addFilterAt(result, SecurityWebFiltersOrder.HTTP_HEADERS_WRITER);
 		}
@@ -508,7 +508,7 @@ public class HttpSecurity {
 		}
 
 		public class FrameOptionsSpec {
-			public void mode(XFrameOptionsHttpHeadersWriter.Mode mode) {
+			public void mode(XFrameOptionsServerHttpHeadersWriter.Mode mode) {
 				HeaderBuilder.this.frameOptions.setMode(mode);
 			}
 			public void disable() {

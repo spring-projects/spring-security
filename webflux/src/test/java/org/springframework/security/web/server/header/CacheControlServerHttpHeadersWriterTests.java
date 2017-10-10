@@ -28,8 +28,8 @@ import org.springframework.web.server.ServerWebExchange;
  * @since 5.0
  *
  */
-public class CacheControlHttpHeadersWriterTests {
-	CacheControlHttpHeadersWriter writer = new CacheControlHttpHeadersWriter();
+public class CacheControlServerHttpHeadersWriterTests {
+	CacheControlServerHttpHeadersWriter writer = new CacheControlServerHttpHeadersWriter();
 
 	ServerWebExchange exchange = MockServerHttpRequest.get("/").toExchange();
 
@@ -40,9 +40,12 @@ public class CacheControlHttpHeadersWriterTests {
 		writer.writeHttpHeaders(exchange);
 
 		assertThat(headers).hasSize(3);
-		assertThat(headers.get(HttpHeaders.CACHE_CONTROL)).containsOnly(CacheControlHttpHeadersWriter.CACHE_CONTRTOL_VALUE);
-		assertThat(headers.get(HttpHeaders.EXPIRES)).containsOnly(CacheControlHttpHeadersWriter.EXPIRES_VALUE);
-		assertThat(headers.get(HttpHeaders.PRAGMA)).containsOnly(CacheControlHttpHeadersWriter.PRAGMA_VALUE);
+		assertThat(headers.get(HttpHeaders.CACHE_CONTROL)).containsOnly(
+			CacheControlServerHttpHeadersWriter.CACHE_CONTRTOL_VALUE);
+		assertThat(headers.get(HttpHeaders.EXPIRES)).containsOnly(
+			CacheControlServerHttpHeadersWriter.EXPIRES_VALUE);
+		assertThat(headers.get(HttpHeaders.PRAGMA)).containsOnly(
+			CacheControlServerHttpHeadersWriter.PRAGMA_VALUE);
 	}
 
 	@Test

@@ -26,50 +26,31 @@ import org.springframework.web.server.ServerWebExchange;
  * @author Rob Winch
  * @since 5.0
  */
-public class XXssProtectionHttpHeadersWriterTests {
+public class XContentTypeOptionsServerHttpHeadersWriterTests {
+
+	ContentTypeOptionsServerHttpHeadersWriter writer = new ContentTypeOptionsServerHttpHeadersWriter();
+
 	ServerWebExchange exchange = MockServerHttpRequest.get("/").toExchange();
 
 	HttpHeaders headers = exchange.getResponse().getHeaders();
-
-	XXssProtectionHttpHeadersWriter writer = new XXssProtectionHttpHeadersWriter();
 
 	@Test
 	public void writeHeadersWhenNoHeadersThenWriteHeaders() {
 		writer.writeHttpHeaders(exchange);
 
 		assertThat(headers).hasSize(1);
-		assertThat(headers.get(XXssProtectionHttpHeadersWriter.X_XSS_PROTECTION)).containsOnly("1 ; mode=block");
-	}
-
-	@Test
-	public void writeHeadersWhenBlockFalseThenWriteHeaders() {
-		writer.setBlock(false);
-
-		writer.writeHttpHeaders(exchange);
-
-		assertThat(headers).hasSize(1);
-		assertThat(headers.get(XXssProtectionHttpHeadersWriter.X_XSS_PROTECTION)).containsOnly("1");
-	}
-
-	@Test
-	public void writeHeadersWhenEnabledFalseThenWriteHeaders() {
-		writer.setEnabled(false);
-
-		writer.writeHttpHeaders(exchange);
-
-		assertThat(headers).hasSize(1);
-		assertThat(headers.get(XXssProtectionHttpHeadersWriter.X_XSS_PROTECTION)).containsOnly("0");
+		assertThat(headers.get(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS)).containsOnly(
+			ContentTypeOptionsServerHttpHeadersWriter.NOSNIFF);
 	}
 
 	@Test
 	public void writeHeadersWhenHeaderWrittenThenDoesNotOverrride() {
 		String headerValue = "value";
-		headers.set(XXssProtectionHttpHeadersWriter.X_XSS_PROTECTION, headerValue);
+		headers.set(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS, headerValue);
 
 		writer.writeHttpHeaders(exchange);
 
 		assertThat(headers).hasSize(1);
-		assertThat(headers.get(XXssProtectionHttpHeadersWriter.X_XSS_PROTECTION)).containsOnly(headerValue);
+		assertThat(headers.get(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS)).containsOnly(headerValue);
 	}
-
 }

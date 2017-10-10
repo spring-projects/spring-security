@@ -26,10 +26,10 @@ import org.springframework.web.server.ServerWebExchange;
  * @author Rob Winch
  * @since 5.0
  */
-public class StaticHttpHeadersWriterTests {
+public class StaticServerHttpHeadersWriterTests {
 
-	StaticHttpHeadersWriter writer = StaticHttpHeadersWriter.builder()
-			.header(ContentTypeOptionsHttpHeadersWriter.X_CONTENT_OPTIONS, ContentTypeOptionsHttpHeadersWriter.NOSNIFF)
+	StaticServerHttpHeadersWriter writer = StaticServerHttpHeadersWriter.builder()
+			.header(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS, ContentTypeOptionsServerHttpHeadersWriter.NOSNIFF)
 			.build();
 
 	ServerWebExchange exchange = MockServerHttpRequest.get("/").toExchange();
@@ -40,32 +40,36 @@ public class StaticHttpHeadersWriterTests {
 	public void writeHeadersWhenSingleHeaderThenWritesHeader() {
 		writer.writeHttpHeaders(exchange);
 
-		assertThat(headers.get(ContentTypeOptionsHttpHeadersWriter.X_CONTENT_OPTIONS)).containsOnly(ContentTypeOptionsHttpHeadersWriter.NOSNIFF);
+		assertThat(headers.get(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS)).containsOnly(
+			ContentTypeOptionsServerHttpHeadersWriter.NOSNIFF);
 	}
 
 	@Test
 	public void writeHeadersWhenSingleHeaderAndHeaderWrittenThenSuccess() {
 		String headerValue = "other";
-		headers.set(ContentTypeOptionsHttpHeadersWriter.X_CONTENT_OPTIONS, headerValue);
+		headers.set(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS, headerValue);
 
 		writer.writeHttpHeaders(exchange);
 
-		assertThat(headers.get(ContentTypeOptionsHttpHeadersWriter.X_CONTENT_OPTIONS)).containsOnly(headerValue);
+		assertThat(headers.get(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS)).containsOnly(headerValue);
 	}
 
 	@Test
 	public void writeHeadersWhenMultiHeaderThenWritesAllHeaders() {
-		writer = StaticHttpHeadersWriter.builder()
-					.header(HttpHeaders.CACHE_CONTROL, CacheControlHttpHeadersWriter.CACHE_CONTRTOL_VALUE)
-					.header(HttpHeaders.PRAGMA,  CacheControlHttpHeadersWriter.PRAGMA_VALUE)
-					.header(HttpHeaders.EXPIRES,  CacheControlHttpHeadersWriter.EXPIRES_VALUE)
+		writer = StaticServerHttpHeadersWriter.builder()
+					.header(HttpHeaders.CACHE_CONTROL, CacheControlServerHttpHeadersWriter.CACHE_CONTRTOL_VALUE)
+					.header(HttpHeaders.PRAGMA,  CacheControlServerHttpHeadersWriter.PRAGMA_VALUE)
+					.header(HttpHeaders.EXPIRES,  CacheControlServerHttpHeadersWriter.EXPIRES_VALUE)
 					.build();
 
 		writer.writeHttpHeaders(exchange);
 
-		assertThat(headers.get(HttpHeaders.CACHE_CONTROL)).containsOnly(CacheControlHttpHeadersWriter.CACHE_CONTRTOL_VALUE);
-		assertThat(headers.get(HttpHeaders.PRAGMA)).containsOnly(CacheControlHttpHeadersWriter.PRAGMA_VALUE);
-		assertThat(headers.get(HttpHeaders.EXPIRES)).containsOnly(CacheControlHttpHeadersWriter.EXPIRES_VALUE);
+		assertThat(headers.get(HttpHeaders.CACHE_CONTROL)).containsOnly(
+			CacheControlServerHttpHeadersWriter.CACHE_CONTRTOL_VALUE);
+		assertThat(headers.get(HttpHeaders.PRAGMA)).containsOnly(
+			CacheControlServerHttpHeadersWriter.PRAGMA_VALUE);
+		assertThat(headers.get(HttpHeaders.EXPIRES)).containsOnly(
+			CacheControlServerHttpHeadersWriter.EXPIRES_VALUE);
 	}
 
 	@Test
@@ -73,10 +77,10 @@ public class StaticHttpHeadersWriterTests {
 		String headerValue = "other";
 		headers.set(HttpHeaders.CACHE_CONTROL, headerValue);
 
-		writer = StaticHttpHeadersWriter.builder()
-					.header(HttpHeaders.CACHE_CONTROL, CacheControlHttpHeadersWriter.CACHE_CONTRTOL_VALUE)
-					.header(HttpHeaders.PRAGMA,  CacheControlHttpHeadersWriter.PRAGMA_VALUE)
-					.header(HttpHeaders.EXPIRES,  CacheControlHttpHeadersWriter.EXPIRES_VALUE)
+		writer = StaticServerHttpHeadersWriter.builder()
+					.header(HttpHeaders.CACHE_CONTROL, CacheControlServerHttpHeadersWriter.CACHE_CONTRTOL_VALUE)
+					.header(HttpHeaders.PRAGMA,  CacheControlServerHttpHeadersWriter.PRAGMA_VALUE)
+					.header(HttpHeaders.EXPIRES,  CacheControlServerHttpHeadersWriter.EXPIRES_VALUE)
 					.build();
 
 		writer.writeHttpHeaders(exchange);

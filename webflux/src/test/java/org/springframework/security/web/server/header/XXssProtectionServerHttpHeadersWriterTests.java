@@ -26,30 +26,50 @@ import org.springframework.web.server.ServerWebExchange;
  * @author Rob Winch
  * @since 5.0
  */
-public class XContentTypeOptionsHttpHeadersWriterTests {
-
-	ContentTypeOptionsHttpHeadersWriter writer = new ContentTypeOptionsHttpHeadersWriter();
-
+public class XXssProtectionServerHttpHeadersWriterTests {
 	ServerWebExchange exchange = MockServerHttpRequest.get("/").toExchange();
 
 	HttpHeaders headers = exchange.getResponse().getHeaders();
+
+	XXssProtectionServerHttpHeadersWriter writer = new XXssProtectionServerHttpHeadersWriter();
 
 	@Test
 	public void writeHeadersWhenNoHeadersThenWriteHeaders() {
 		writer.writeHttpHeaders(exchange);
 
 		assertThat(headers).hasSize(1);
-		assertThat(headers.get(ContentTypeOptionsHttpHeadersWriter.X_CONTENT_OPTIONS)).containsOnly(ContentTypeOptionsHttpHeadersWriter.NOSNIFF);
+		assertThat(headers.get(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION)).containsOnly("1 ; mode=block");
+	}
+
+	@Test
+	public void writeHeadersWhenBlockFalseThenWriteHeaders() {
+		writer.setBlock(false);
+
+		writer.writeHttpHeaders(exchange);
+
+		assertThat(headers).hasSize(1);
+		assertThat(headers.get(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION)).containsOnly("1");
+	}
+
+	@Test
+	public void writeHeadersWhenEnabledFalseThenWriteHeaders() {
+		writer.setEnabled(false);
+
+		writer.writeHttpHeaders(exchange);
+
+		assertThat(headers).hasSize(1);
+		assertThat(headers.get(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION)).containsOnly("0");
 	}
 
 	@Test
 	public void writeHeadersWhenHeaderWrittenThenDoesNotOverrride() {
 		String headerValue = "value";
-		headers.set(ContentTypeOptionsHttpHeadersWriter.X_CONTENT_OPTIONS, headerValue);
+		headers.set(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION, headerValue);
 
 		writer.writeHttpHeaders(exchange);
 
 		assertThat(headers).hasSize(1);
-		assertThat(headers.get(ContentTypeOptionsHttpHeadersWriter.X_CONTENT_OPTIONS)).containsOnly(headerValue);
+		assertThat(headers.get(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION)).containsOnly(headerValue);
 	}
+
 }

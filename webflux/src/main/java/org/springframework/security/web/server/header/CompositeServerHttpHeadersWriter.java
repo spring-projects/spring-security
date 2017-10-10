@@ -29,14 +29,14 @@ import reactor.core.publisher.Mono;
  * @author Rob Winch
  * @since 5.0
  */
-public class CompositeHttpHeadersWriter implements HttpHeadersWriter {
-	private final List<HttpHeadersWriter> writers;
+public class CompositeServerHttpHeadersWriter implements ServerHttpHeadersWriter {
+	private final List<ServerHttpHeadersWriter> writers;
 
-	public CompositeHttpHeadersWriter(HttpHeadersWriter... writers) {
+	public CompositeServerHttpHeadersWriter(ServerHttpHeadersWriter... writers) {
 		this(Arrays.asList(writers));
 	}
 
-	public CompositeHttpHeadersWriter(List<HttpHeadersWriter> writers) {
+	public CompositeServerHttpHeadersWriter(List<ServerHttpHeadersWriter> writers) {
 		this.writers = writers;
 	}
 

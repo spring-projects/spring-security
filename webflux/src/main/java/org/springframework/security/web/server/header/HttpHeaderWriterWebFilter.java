@@ -23,16 +23,16 @@ import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
 /**
- * Invokes a {@link HttpHeadersWriter} on
+ * Invokes a {@link ServerHttpHeadersWriter} on
  * {@link ServerHttpResponse#beforeCommit(java.util.function.Supplier)}.
  *
  * @author Rob Winch
  * @since 5.0
  */
 public class HttpHeaderWriterWebFilter implements WebFilter {
-	private final HttpHeadersWriter writer;
+	private final ServerHttpHeadersWriter writer;
 
-	public HttpHeaderWriterWebFilter(HttpHeadersWriter writer) {
+	public HttpHeaderWriterWebFilter(ServerHttpHeadersWriter writer) {
 		super();
 		this.writer = writer;
 	}

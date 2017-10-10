@@ -27,15 +27,15 @@ import org.springframework.web.server.ServerWebExchange;
  * @author Rob Winch
  * @since 5.0
  */
-public class XFrameOptionsHttpHeadersWriterTests {
+public class XFrameOptionsServerHttpHeadersWriterTests {
 
 	ServerWebExchange exchange = MockServerHttpRequest.get("/").toExchange();
 
-	XFrameOptionsHttpHeadersWriter writer;
+	XFrameOptionsServerHttpHeadersWriter writer;
 
 	@Before
 	public void setup() {
-		writer = new XFrameOptionsHttpHeadersWriter();
+		writer = new XFrameOptionsServerHttpHeadersWriter();
 	}
 
 	@Test
@@ -44,41 +44,41 @@ public class XFrameOptionsHttpHeadersWriterTests {
 
 		HttpHeaders headers = exchange.getResponse().getHeaders();
 		assertThat(headers).hasSize(1);
-		assertThat(headers.get(XFrameOptionsHttpHeadersWriter.X_FRAME_OPTIONS)).containsOnly("DENY");
+		assertThat(headers.get(XFrameOptionsServerHttpHeadersWriter.X_FRAME_OPTIONS)).containsOnly("DENY");
 	}
 
 	@Test
 	public void writeHeadersWhenUsingExplicitDenyThenWritesDeny() {
-		writer.setMode(XFrameOptionsHttpHeadersWriter.Mode.DENY);
+		writer.setMode(XFrameOptionsServerHttpHeadersWriter.Mode.DENY);
 
 		writer.writeHttpHeaders(exchange);
 
 		HttpHeaders headers = exchange.getResponse().getHeaders();
 		assertThat(headers).hasSize(1);
-		assertThat(headers.get(XFrameOptionsHttpHeadersWriter.X_FRAME_OPTIONS)).containsOnly("DENY");
+		assertThat(headers.get(XFrameOptionsServerHttpHeadersWriter.X_FRAME_OPTIONS)).containsOnly("DENY");
 	}
 
 	@Test
 	public void writeHeadersWhenUsingSameOriginThenWritesSameOrigin() {
-		writer.setMode(XFrameOptionsHttpHeadersWriter.Mode.SAMEORIGIN);
+		writer.setMode(XFrameOptionsServerHttpHeadersWriter.Mode.SAMEORIGIN);
 
 		writer.writeHttpHeaders(exchange);
 
 		HttpHeaders headers = exchange.getResponse().getHeaders();
 		assertThat(headers).hasSize(1);
-		assertThat(headers.get(XFrameOptionsHttpHeadersWriter.X_FRAME_OPTIONS)).containsOnly("SAMEORIGIN");
+		assertThat(headers.get(XFrameOptionsServerHttpHeadersWriter.X_FRAME_OPTIONS)).containsOnly("SAMEORIGIN");
 	}
 
 	@Test
 	public void writeHeadersWhenAlreadyWrittenThenWritesHeader() {
 		String headerValue = "other";
-		exchange.getResponse().getHeaders().set(XFrameOptionsHttpHeadersWriter.X_FRAME_OPTIONS, headerValue);
+		exchange.getResponse().getHeaders().set(XFrameOptionsServerHttpHeadersWriter.X_FRAME_OPTIONS, headerValue);
 
 		writer.writeHttpHeaders(exchange);
 
 		HttpHeaders headers = exchange.getResponse().getHeaders();
 		assertThat(headers).hasSize(1);
-		assertThat(headers.get(XFrameOptionsHttpHeadersWriter.X_FRAME_OPTIONS)).containsOnly(headerValue);
+		assertThat(headers.get(XFrameOptionsServerHttpHeadersWriter.X_FRAME_OPTIONS)).containsOnly(headerValue);
 	}
 
 }

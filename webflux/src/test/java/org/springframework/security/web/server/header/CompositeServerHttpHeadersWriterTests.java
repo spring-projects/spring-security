@@ -37,20 +37,18 @@ import reactor.test.StepVerifier;
  * @since 5.0
  */
 @RunWith(MockitoJUnitRunner.class)
-public class CompositeHttpHeadersWriterTests {
-	@Mock
-	HttpHeadersWriter writer1;
+public class CompositeServerHttpHeadersWriterTests {
+	@Mock ServerHttpHeadersWriter writer1;
 
-	@Mock
-	HttpHeadersWriter writer2;
+	@Mock ServerHttpHeadersWriter writer2;
 
-	CompositeHttpHeadersWriter writer;
+	CompositeServerHttpHeadersWriter writer;
 
 	ServerWebExchange exchange = MockServerHttpRequest.get("/").toExchange();
 
 	@Before
 	public void setup() {
-		writer = new CompositeHttpHeadersWriter(Arrays.asList(writer1, writer2));
+		writer = new CompositeServerHttpHeadersWriter(Arrays.asList(writer1, writer2));
 	}
 
 	@Test

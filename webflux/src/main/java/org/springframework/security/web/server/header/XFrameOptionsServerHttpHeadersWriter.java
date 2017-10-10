@@ -23,10 +23,10 @@ import reactor.core.publisher.Mono;
  * @author Rob Winch
  * @since 5.0
  */
-public class XFrameOptionsHttpHeadersWriter implements HttpHeadersWriter {
+public class XFrameOptionsServerHttpHeadersWriter implements ServerHttpHeadersWriter {
 	public static final String X_FRAME_OPTIONS = "X-Frame-Options";
 
-	private HttpHeadersWriter delegate = createDelegate(Mode.DENY);
+	private ServerHttpHeadersWriter delegate = createDelegate(Mode.DENY);
 
 	/*
 	 * (non-Javadoc)
@@ -82,9 +82,9 @@ public class XFrameOptionsHttpHeadersWriter implements HttpHeadersWriter {
 		SAMEORIGIN;
 	}
 
-	private static HttpHeadersWriter createDelegate(Mode mode) {
+	private static ServerHttpHeadersWriter createDelegate(Mode mode) {
 		// @formatter:off
-		return StaticHttpHeadersWriter.builder().header(X_FRAME_OPTIONS, mode.name()).build();
+		return StaticServerHttpHeadersWriter.builder().header(X_FRAME_OPTIONS, mode.name()).build();
 		// @formatter:on
 
 	}

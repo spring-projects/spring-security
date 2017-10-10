@@ -15,33 +15,46 @@
  */
 package org.springframework.security.web.server.header;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.server.ServerWebExchange;
 
 import reactor.core.publisher.Mono;
 
 /**
- * Adds X-Content-Type-Options: nosniff
  *
  * @author Rob Winch
  * @since 5.0
  */
-public class XContentTypeOptionsHttpHeadersWriter implements HttpHeadersWriter {
+public class CacheControlServerHttpHeadersWriter implements ServerHttpHeadersWriter {
 
-	public static final String X_CONTENT_OPTIONS = "X-Content-Options";
+	/**
+	 * The value for expires value
+	 */
+	public static final String EXPIRES_VALUE = "0";
 
-	public static final String NOSNIFF = "nosniff";
+	/**
+	 * The value for pragma value
+	 */
+	public static final String PRAGMA_VALUE = "no-cache";
 
+	/**
+	 * The value for cache control value
+	 */
+	public static final String CACHE_CONTRTOL_VALUE = "no-cache, no-store, max-age=0, must-revalidate";
 
 	/**
 	 * The delegate to write all the cache control related headers
 	 */
-	private static final HttpHeadersWriter CONTENT_TYPE_HEADERS = StaticHttpHeadersWriter.builder()
-			.header(X_CONTENT_OPTIONS, NOSNIFF)
+	private static final ServerHttpHeadersWriter CACHE_HEADERS = StaticServerHttpHeadersWriter
+		.builder()
+			.header(HttpHeaders.CACHE_CONTROL, CacheControlServerHttpHeadersWriter.CACHE_CONTRTOL_VALUE)
+			.header(HttpHeaders.PRAGMA,  CacheControlServerHttpHeadersWriter.PRAGMA_VALUE)
+			.header(HttpHeaders.EXPIRES,  CacheControlServerHttpHeadersWriter.EXPIRES_VALUE)
 			.build();
 
 	@Override
 	public Mono<Void> writeHttpHeaders(ServerWebExchange exchange) {
-		return CONTENT_TYPE_HEADERS.writeHttpHeaders(exchange);
+		return CACHE_HEADERS.writeHttpHeaders(exchange);
 	}
 
 }

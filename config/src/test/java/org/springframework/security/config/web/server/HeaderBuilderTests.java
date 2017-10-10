@@ -20,10 +20,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
-import org.springframework.security.web.server.header.ContentTypeOptionsHttpHeadersWriter;
-import org.springframework.security.web.server.header.StrictTransportSecurityHttpHeadersWriter;
-import org.springframework.security.web.server.header.XFrameOptionsHttpHeadersWriter;
-import org.springframework.security.web.server.header.XXssProtectionHttpHeadersWriter;
+import org.springframework.security.web.server.header.ContentTypeOptionsServerHttpHeadersWriter;
+import org.springframework.security.web.server.header.StrictTransportSecurityServerHttpHeadersWriter;
+import org.springframework.security.web.server.header.XFrameOptionsServerHttpHeadersWriter;
+import org.springframework.security.web.server.header.XXssProtectionServerHttpHeadersWriter;
 import org.springframework.test.web.reactive.server.FluxExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
@@ -49,15 +49,15 @@ public class HeaderBuilderTests {
 
 	@Before
 	public void setup() {
-		this.expectedHeaders.add(StrictTransportSecurityHttpHeadersWriter.STRICT_TRANSPORT_SECURITY, "max-age=31536000 ; includeSubDomains");
+		this.expectedHeaders.add(StrictTransportSecurityServerHttpHeadersWriter.STRICT_TRANSPORT_SECURITY, "max-age=31536000 ; includeSubDomains");
 		this.expectedHeaders.add(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, max-age=0, must-revalidate");
 		this.expectedHeaders.add(HttpHeaders.PRAGMA, "no-cache");
 		this.expectedHeaders.add(HttpHeaders.EXPIRES, "0");
 		this.expectedHeaders
-			.add(ContentTypeOptionsHttpHeadersWriter.X_CONTENT_OPTIONS, "nosniff");
-		this.expectedHeaders.add(XFrameOptionsHttpHeadersWriter.X_FRAME_OPTIONS, "DENY");
+			.add(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS, "nosniff");
+		this.expectedHeaders.add(XFrameOptionsServerHttpHeadersWriter.X_FRAME_OPTIONS, "DENY");
 		this.expectedHeaders
-			.add(XXssProtectionHttpHeadersWriter.X_XSS_PROTECTION, "1 ; mode=block");
+			.add(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION, "1 ; mode=block");
 	}
 
 	@Test
@@ -77,7 +77,7 @@ public class HeaderBuilderTests {
 
 	@Test
 	public void headersWhenContentOptionsDisableThenContentTypeOptionsNotWritten() {
-		this.expectedHeaders.remove(ContentTypeOptionsHttpHeadersWriter.X_CONTENT_OPTIONS);
+		this.expectedHeaders.remove(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS);
 		this.headers.contentTypeOptions().disable();
 
 		assertHeaders();
@@ -85,7 +85,7 @@ public class HeaderBuilderTests {
 
 	@Test
 	public void headersWhenHstsDisableThenHstsNotWritten() {
-		this.expectedHeaders.remove(StrictTransportSecurityHttpHeadersWriter.STRICT_TRANSPORT_SECURITY);
+		this.expectedHeaders.remove(StrictTransportSecurityServerHttpHeadersWriter.STRICT_TRANSPORT_SECURITY);
 		this.headers.hsts().disable();
 
 		assertHeaders();
@@ -93,8 +93,8 @@ public class HeaderBuilderTests {
 
 	@Test
 	public void headersWhenHstsCustomThenCustomHstsWritten() {
-		this.expectedHeaders.remove(StrictTransportSecurityHttpHeadersWriter.STRICT_TRANSPORT_SECURITY);
-		this.expectedHeaders.add(StrictTransportSecurityHttpHeadersWriter.STRICT_TRANSPORT_SECURITY, "max-age=60");
+		this.expectedHeaders.remove(StrictTransportSecurityServerHttpHeadersWriter.STRICT_TRANSPORT_SECURITY);
+		this.expectedHeaders.add(StrictTransportSecurityServerHttpHeadersWriter.STRICT_TRANSPORT_SECURITY, "max-age=60");
 		this.headers.hsts().maxAge(Duration.ofSeconds(60));
 		this.headers.hsts().includeSubdomains(false);
 
@@ -103,7 +103,7 @@ public class HeaderBuilderTests {
 
 	@Test
 	public void headersWhenFrameOptionsDisableThenFrameOptionsNotWritten() {
-		this.expectedHeaders.remove(XFrameOptionsHttpHeadersWriter.X_FRAME_OPTIONS);
+		this.expectedHeaders.remove(XFrameOptionsServerHttpHeadersWriter.X_FRAME_OPTIONS);
 		this.headers.frameOptions().disable();
 
 		assertHeaders();
@@ -111,10 +111,10 @@ public class HeaderBuilderTests {
 
 	@Test
 	public void headersWhenFrameOptionsModeThenFrameOptionsCustomMode() {
-		this.expectedHeaders.remove(XFrameOptionsHttpHeadersWriter.X_FRAME_OPTIONS);
+		this.expectedHeaders.remove(XFrameOptionsServerHttpHeadersWriter.X_FRAME_OPTIONS);
 		this.expectedHeaders
-			.add(XFrameOptionsHttpHeadersWriter.X_FRAME_OPTIONS, "SAMEORIGIN");
-		this.headers.frameOptions().mode(XFrameOptionsHttpHeadersWriter.Mode.SAMEORIGIN);
+			.add(XFrameOptionsServerHttpHeadersWriter.X_FRAME_OPTIONS, "SAMEORIGIN");
+		this.headers.frameOptions().mode(XFrameOptionsServerHttpHeadersWriter.Mode.SAMEORIGIN);
 
 		assertHeaders();
 	}

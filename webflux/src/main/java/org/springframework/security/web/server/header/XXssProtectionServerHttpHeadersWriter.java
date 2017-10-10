@@ -23,19 +23,19 @@ import reactor.core.publisher.Mono;
  * @author Rob Winch
  * @since 5.0
  */
-public class XXssProtectionHttpHeadersWriter implements HttpHeadersWriter {
+public class XXssProtectionServerHttpHeadersWriter implements ServerHttpHeadersWriter {
 	public static final String X_XSS_PROTECTION = "X-XSS-Protection";
 
 	private boolean enabled;
 
 	private boolean block;
 
-	private HttpHeadersWriter delegate;
+	private ServerHttpHeadersWriter delegate;
 
 	/**
 	 *
 	 */
-	public XXssProtectionHttpHeadersWriter() {
+	public XXssProtectionServerHttpHeadersWriter() {
 		this.enabled = true;
 		this.block = true;
 		updateDelegate();
@@ -97,7 +97,7 @@ public class XXssProtectionHttpHeadersWriter implements HttpHeadersWriter {
 
 	private void updateDelegate() {
 
-		this.delegate = StaticHttpHeadersWriter.builder()
+		this.delegate = StaticServerHttpHeadersWriter.builder()
 				.header(X_XSS_PROTECTION, createHeaderValue())
 				.build();
 	}

@@ -16,6 +16,7 @@
 package org.springframework.security.web.server.header;
 
 import org.springframework.web.server.ServerWebExchange;
+
 import reactor.core.publisher.Mono;
 
 /**
@@ -24,9 +25,10 @@ import reactor.core.publisher.Mono;
  * @author Rob Winch
  * @since 5.0
  */
-public class ContentTypeOptionsHttpHeadersWriter implements HttpHeadersWriter {
+public class XContentTypeOptionsServerHttpHeadersWriter
+	implements ServerHttpHeadersWriter {
 
-	public static final String X_CONTENT_OPTIONS = "X-Content-Type-Options";
+	public static final String X_CONTENT_OPTIONS = "X-Content-Options";
 
 	public static final String NOSNIFF = "nosniff";
 
@@ -34,7 +36,8 @@ public class ContentTypeOptionsHttpHeadersWriter implements HttpHeadersWriter {
 	/**
 	 * The delegate to write all the cache control related headers
 	 */
-	private static final HttpHeadersWriter CONTENT_TYPE_HEADERS = StaticHttpHeadersWriter.builder()
+	private static final ServerHttpHeadersWriter CONTENT_TYPE_HEADERS = StaticServerHttpHeadersWriter
+		.builder()
 			.header(X_CONTENT_OPTIONS, NOSNIFF)
 			.build();
 

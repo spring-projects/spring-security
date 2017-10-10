@@ -29,8 +29,8 @@ import org.springframework.web.server.ServerWebExchange;
  * @author Rob Winch
  * @since 5.0
  */
-public class StrictTransportSecurityHttpHeadersWriterTests {
-	StrictTransportSecurityHttpHeadersWriter hsts = new StrictTransportSecurityHttpHeadersWriter();
+public class StrictTransportSecurityServerHttpHeadersWriterTests {
+	StrictTransportSecurityServerHttpHeadersWriter hsts = new StrictTransportSecurityServerHttpHeadersWriter();
 
 	ServerWebExchange exchange;
 
@@ -42,7 +42,7 @@ public class StrictTransportSecurityHttpHeadersWriterTests {
 
 		HttpHeaders headers = exchange.getResponse().getHeaders();
 		assertThat(headers).hasSize(1);
-		assertThat(headers).containsEntry(StrictTransportSecurityHttpHeadersWriter.STRICT_TRANSPORT_SECURITY,
+		assertThat(headers).containsEntry(StrictTransportSecurityServerHttpHeadersWriter.STRICT_TRANSPORT_SECURITY,
 				Arrays.asList("max-age=31536000 ; includeSubDomains"));
 	}
 
@@ -56,7 +56,7 @@ public class StrictTransportSecurityHttpHeadersWriterTests {
 
 		HttpHeaders headers = exchange.getResponse().getHeaders();
 		assertThat(headers).hasSize(1);
-		assertThat(headers).containsEntry(StrictTransportSecurityHttpHeadersWriter.STRICT_TRANSPORT_SECURITY,
+		assertThat(headers).containsEntry(StrictTransportSecurityServerHttpHeadersWriter.STRICT_TRANSPORT_SECURITY,
 				Arrays.asList("max-age=" + maxAge.getSeconds() + " ; includeSubDomains"));
 	}
 
@@ -69,7 +69,7 @@ public class StrictTransportSecurityHttpHeadersWriterTests {
 
 		HttpHeaders headers = exchange.getResponse().getHeaders();
 		assertThat(headers).hasSize(1);
-		assertThat(headers).containsEntry(StrictTransportSecurityHttpHeadersWriter.STRICT_TRANSPORT_SECURITY,
+		assertThat(headers).containsEntry(StrictTransportSecurityServerHttpHeadersWriter.STRICT_TRANSPORT_SECURITY,
 				Arrays.asList("max-age=31536000"));
 	}
 

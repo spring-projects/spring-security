@@ -27,10 +27,10 @@ import reactor.core.publisher.Mono;
  * @author Rob Winch
  * @since 5.0
  */
-public class StaticHttpHeadersWriter implements HttpHeadersWriter {
+public class StaticServerHttpHeadersWriter implements ServerHttpHeadersWriter {
 	private final HttpHeaders headersToAdd;
 
-	public StaticHttpHeadersWriter(HttpHeaders headersToAdd) {
+	public StaticServerHttpHeadersWriter(HttpHeaders headersToAdd) {
 		this.headersToAdd = headersToAdd;
 	}
 
@@ -61,8 +61,8 @@ public class StaticHttpHeadersWriter implements HttpHeadersWriter {
 			return this;
 		}
 
-		public StaticHttpHeadersWriter build() {
-			return new StaticHttpHeadersWriter(headers);
+		public StaticServerHttpHeadersWriter build() {
+			return new StaticServerHttpHeadersWriter(headers);
 		}
 	}
 }
