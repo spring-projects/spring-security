@@ -22,10 +22,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
-import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.server.RedirectStrategy;
+import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
@@ -34,7 +32,6 @@ import reactor.core.publisher.Mono;
 import java.net.URI;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
@@ -53,7 +50,7 @@ public class RedirectAuthenticationSuccessHandlerTests {
 	@Mock
 	private WebFilterChain chain;
 	@Mock
-	private RedirectStrategy redirectStrategy;
+	private ServerRedirectStrategy serverRedirectStrategy;
 	@Mock
 	private Authentication authentication;
 
@@ -90,18 +87,18 @@ public class RedirectAuthenticationSuccessHandlerTests {
 	@Test
 	public void successWhenCustomLocationThenCustomLocationUsed() {
 		Mono<Void> result = Mono.empty();
-		when(this.redirectStrategy.sendRedirect(any(), any())).thenReturn(result);
-		this.handler.setRedirectStrategy(this.redirectStrategy);
+		when(this.serverRedirectStrategy.sendRedirect(any(), any())).thenReturn(result);
+		this.handler.setServerRedirectStrategy(this.serverRedirectStrategy);
 		this.exchange = MockServerHttpRequest.get("/").toExchange();
 
 		assertThat(this.handler.success(this.authentication, new WebFilterExchange(this.exchange,
 			this.chain))).isEqualTo(result);
-		verify(this.redirectStrategy).sendRedirect(any(), eq(this.location));
+		verify(this.serverRedirectStrategy).sendRedirect(any(), eq(this.location));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void setRedirectStrategyWhenNullThenException() {
-		this.handler.setRedirectStrategy(null);
+		this.handler.setServerRedirectStrategy(null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)

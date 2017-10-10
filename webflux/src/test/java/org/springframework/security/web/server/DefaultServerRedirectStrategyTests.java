@@ -24,7 +24,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.server.authentication.RedirectAuthenticationEntryPoint;
 import org.springframework.web.server.ServerWebExchange;
 
 import java.net.URI;
@@ -37,15 +36,15 @@ import static org.mockito.Mockito.verifyZeroInteractions;
  * @since 5.0
  */
 @RunWith(MockitoJUnitRunner.class)
-public class DefaultRedirectStrategyTests {
+public class DefaultServerRedirectStrategyTests {
 
 	@Mock
 	private ServerWebExchange exchange;
 
 	private URI location = URI.create("/login");
 
-	private DefaultRedirectStrategy strategy =
-		new DefaultRedirectStrategy();
+	private DefaultServerRedirectStrategy strategy =
+		new DefaultServerRedirectStrategy();
 
 	private AuthenticationException exception = new AuthenticationCredentialsNotFoundException("Authentication Required");
 

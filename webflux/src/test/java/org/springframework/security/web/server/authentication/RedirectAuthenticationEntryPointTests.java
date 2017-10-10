@@ -25,7 +25,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.server.RedirectStrategy;
+import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
@@ -44,7 +44,7 @@ public class RedirectAuthenticationEntryPointTests {
 	@Mock
 	private ServerWebExchange exchange;
 	@Mock
-	private RedirectStrategy redirectStrategy;
+	private ServerRedirectStrategy serverRedirectStrategy;
 
 	private String location = "/login";
 
@@ -81,9 +81,9 @@ public class RedirectAuthenticationEntryPointTests {
 	@Test
 	public void commenceWhenCustomStatusThenStatusSet() {
 		Mono<Void> result = Mono.empty();
-		when(this.redirectStrategy.sendRedirect(any(), any())).thenReturn(result);
+		when(this.serverRedirectStrategy.sendRedirect(any(), any())).thenReturn(result);
 		HttpStatus status = HttpStatus.MOVED_PERMANENTLY;
-		this.entryPoint.setRedirectStrategy(this.redirectStrategy);
+		this.entryPoint.setServerRedirectStrategy(this.serverRedirectStrategy);
 		this.exchange = MockServerHttpRequest.get("/").toExchange();
 
 		assertThat(this.entryPoint.commence(this.exchange, this.exception)).isEqualTo(result);
@@ -91,6 +91,6 @@ public class RedirectAuthenticationEntryPointTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void setRedirectStrategyWhenNullThenException() {
-		this.entryPoint.setRedirectStrategy(null);
+		this.entryPoint.setServerRedirectStrategy(null);
 	}
 }

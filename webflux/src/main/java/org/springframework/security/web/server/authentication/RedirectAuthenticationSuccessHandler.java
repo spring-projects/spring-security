@@ -17,12 +17,11 @@
 package org.springframework.security.web.server.authentication;
 
 import org.springframework.security.core.Authentication;
-import org.springframework.security.web.server.DefaultRedirectStrategy;
-import org.springframework.security.web.server.RedirectStrategy;
+import org.springframework.security.web.server.DefaultServerRedirectStrategy;
+import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
@@ -34,7 +33,7 @@ import java.net.URI;
 public class RedirectAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 	private URI location = URI.create("/");
 
-	private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
+	private ServerRedirectStrategy serverRedirectStrategy = new DefaultServerRedirectStrategy();
 
 	public RedirectAuthenticationSuccessHandler() {}
 
@@ -45,7 +44,7 @@ public class RedirectAuthenticationSuccessHandler implements AuthenticationSucce
 	@Override
 	public Mono<Void> success(Authentication authentication, WebFilterExchange webFilterExchange) {
 		ServerWebExchange exchange = webFilterExchange.getExchange();
-		return this.redirectStrategy.sendRedirect(exchange, this.location);
+		return this.serverRedirectStrategy.sendRedirect(exchange, this.location);
 	}
 
 	/**
@@ -59,10 +58,10 @@ public class RedirectAuthenticationSuccessHandler implements AuthenticationSucce
 
 	/**
 	 * The RedirectStrategy to use.
-	 * @param redirectStrategy the strategy to use. Default is DefaultRedirectStrategy.
+	 * @param serverRedirectStrategy the strategy to use. Default is DefaultRedirectStrategy.
 	 */
-	public void setRedirectStrategy(RedirectStrategy redirectStrategy) {
-		Assert.notNull(redirectStrategy, "redirectStrategy cannot be null");
-		this.redirectStrategy = redirectStrategy;
+	public void setServerRedirectStrategy(ServerRedirectStrategy serverRedirectStrategy) {
+		Assert.notNull(serverRedirectStrategy, "redirectStrategy cannot be null");
+		this.serverRedirectStrategy = serverRedirectStrategy;
 	}
 }

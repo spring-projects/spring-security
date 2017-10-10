@@ -18,12 +18,10 @@ package org.springframework.security.web.server.authentication;
 
 import java.net.URI;
 
-import org.springframework.security.web.server.DefaultRedirectStrategy;
-import org.springframework.security.web.server.RedirectStrategy;
+import org.springframework.security.web.server.DefaultServerRedirectStrategy;
+import org.springframework.security.web.server.ServerRedirectStrategy;
 import reactor.core.publisher.Mono;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.server.AuthenticationEntryPoint;
 import org.springframework.util.Assert;
@@ -38,7 +36,7 @@ import org.springframework.web.server.ServerWebExchange;
 public class RedirectAuthenticationEntryPoint implements AuthenticationEntryPoint {
 	private final URI location;
 
-	private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
+	private ServerRedirectStrategy serverRedirectStrategy = new DefaultServerRedirectStrategy();
 
 	public RedirectAuthenticationEntryPoint(String location) {
 		Assert.notNull(location, "location cannot be null");
@@ -47,15 +45,15 @@ public class RedirectAuthenticationEntryPoint implements AuthenticationEntryPoin
 
 	@Override
 	public Mono<Void> commence(ServerWebExchange exchange, AuthenticationException e) {
-		return this.redirectStrategy.sendRedirect(exchange, this.location);
+		return this.serverRedirectStrategy.sendRedirect(exchange, this.location);
 	}
 
 	/**
 	 * Sets the RedirectStrategy to use.
-	 * @param redirectStrategy the strategy to use. Default is DefaultRedirectStrategy.
+	 * @param serverRedirectStrategy the strategy to use. Default is DefaultRedirectStrategy.
 	 */
-	public void setRedirectStrategy(RedirectStrategy redirectStrategy) {
-		Assert.notNull(redirectStrategy, "redirectStrategy cannot be null");
-		this.redirectStrategy = redirectStrategy;
+	public void setServerRedirectStrategy(ServerRedirectStrategy serverRedirectStrategy) {
+		Assert.notNull(serverRedirectStrategy, "redirectStrategy cannot be null");
+		this.serverRedirectStrategy = serverRedirectStrategy;
 	}
 }

@@ -28,7 +28,7 @@ import java.net.URI;
  * @author Rob Winch
  * @since 5.0
  */
-public class DefaultRedirectStrategy implements RedirectStrategy {
+public class DefaultServerRedirectStrategy implements ServerRedirectStrategy {
 	private HttpStatus httpStatus = HttpStatus.FOUND;
 
 	private boolean contextRelative = true;

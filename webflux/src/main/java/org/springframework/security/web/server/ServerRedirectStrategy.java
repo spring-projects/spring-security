@@ -26,7 +26,7 @@ import org.springframework.web.server.ServerWebExchange;
  * @author Rob Winch
  * @since 5.0
  */
-public interface RedirectStrategy {
+public interface ServerRedirectStrategy {
 
 	Mono<Void> sendRedirect(ServerWebExchange exchange, URI location);
 }

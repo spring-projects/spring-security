@@ -17,8 +17,8 @@
 package org.springframework.security.web.server.authentication.logout;
 
 import org.springframework.security.core.Authentication;
-import org.springframework.security.web.server.DefaultRedirectStrategy;
-import org.springframework.security.web.server.RedirectStrategy;
+import org.springframework.security.web.server.DefaultServerRedirectStrategy;
+import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.security.web.server.context.SecurityContextRepository;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.context.WebSessionSecurityContextRepository;
@@ -35,12 +35,12 @@ public class SecurityContextRepositoryLogoutHandler implements LogoutHandler {
 
 	private URI logoutSuccessUrl = URI.create("/login?logout");
 
-	private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
+	private ServerRedirectStrategy serverRedirectStrategy = new DefaultServerRedirectStrategy();
 
 	@Override
 	public Mono<Void> logout(WebFilterExchange exchange,
 		Authentication authentication) {
 		return this.repository.save(exchange.getExchange(), null)
-			.then(this.redirectStrategy.sendRedirect(exchange.getExchange(), this.logoutSuccessUrl));
+			.then(this.serverRedirectStrategy.sendRedirect(exchange.getExchange(), this.logoutSuccessUrl));
 	}
 }
