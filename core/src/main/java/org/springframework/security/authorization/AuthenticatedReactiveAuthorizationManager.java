@@ -23,7 +23,7 @@ import reactor.core.publisher.Mono;
  * @author Rob Winch
  * @since 5.0
  */
-public class AuthenticatedAuthorizationManager<T> implements ReactiveAuthorizationManager<T> {
+public class AuthenticatedReactiveAuthorizationManager<T> implements ReactiveAuthorizationManager<T> {
 
 	@Override
 	public Mono<AuthorizationDecision> check(Mono<Authentication> authentication, T object) {
@@ -32,9 +32,9 @@ public class AuthenticatedAuthorizationManager<T> implements ReactiveAuthorizati
 			.defaultIfEmpty(new AuthorizationDecision(false));
 	}
 
-	public static <T> AuthenticatedAuthorizationManager<T> authenticated() {
-		return new AuthenticatedAuthorizationManager<>();
+	public static <T> AuthenticatedReactiveAuthorizationManager<T> authenticated() {
+		return new AuthenticatedReactiveAuthorizationManager<>();
 	}
 
-	private AuthenticatedAuthorizationManager() {}
+	private AuthenticatedReactiveAuthorizationManager() {}
 }

@@ -20,7 +20,7 @@ import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
-import org.springframework.security.authorization.AuthenticatedAuthorizationManager;
+import org.springframework.security.authorization.AuthenticatedReactiveAuthorizationManager;
 import org.springframework.security.authorization.AuthorityReactiveAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
@@ -301,7 +301,7 @@ public class HttpSecurity {
 			}
 
 			public AuthorizeExchangeBuilder authenticated() {
-				return access(AuthenticatedAuthorizationManager.authenticated());
+				return access(AuthenticatedReactiveAuthorizationManager.authenticated());
 			}
 
 			public AuthorizeExchangeBuilder access(ReactiveAuthorizationManager<AuthorizationContext> manager) {

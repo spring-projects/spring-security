@@ -16,7 +16,6 @@
 
 package org.springframework.security.authorization;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -33,11 +32,12 @@ import static org.mockito.Mockito.when;
  * @since 5.0
  */
 @RunWith(MockitoJUnitRunner.class)
-public class AuthenticatedAuthorizationManagerTests {
+public class AuthenticatedReactiveAuthorizationManagerTests {
 	@Mock
 	Authentication authentication;
 
-	AuthenticatedAuthorizationManager<Object> manager = AuthenticatedAuthorizationManager.authenticated();
+	AuthenticatedReactiveAuthorizationManager<Object> manager = AuthenticatedReactiveAuthorizationManager
+		.authenticated();
 
 	@Test
 	public void checkWhenAuthenticatedThenReturnTrue() {
