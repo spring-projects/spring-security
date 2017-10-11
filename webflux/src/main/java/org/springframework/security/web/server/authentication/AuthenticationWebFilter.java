@@ -25,7 +25,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.web.server.ServerHttpBasicAuthenticationConverter;
 import org.springframework.security.web.server.WebFilterExchange;
-import org.springframework.security.web.server.authentication.www.HttpBasicServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import org.springframework.security.web.server.context.SecurityContextRepositoryServerWebExchange;
 import org.springframework.security.web.server.context.ServerWebExchangeAttributeServerSecurityContextRepository;
