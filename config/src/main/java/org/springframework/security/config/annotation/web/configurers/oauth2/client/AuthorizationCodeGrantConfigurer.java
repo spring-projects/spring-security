@@ -19,39 +19,28 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationProvider;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticator;
 import org.springframework.security.oauth2.client.authentication.AuthorizationGrantAuthenticator;
 import org.springframework.security.oauth2.client.authentication.DelegatingAuthorizationGrantAuthenticator;
-import org.springframework.security.oauth2.client.authentication.OAuth2UserAuthenticationProvider;
 import org.springframework.security.oauth2.client.authentication.jwt.JwtDecoderRegistry;
 import org.springframework.security.oauth2.client.authentication.jwt.nimbus.NimbusJwtDecoderRegistry;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.token.SecurityTokenRepository;
-import org.springframework.security.oauth2.client.user.CustomUserTypesOAuth2UserService;
-import org.springframework.security.oauth2.client.user.DefaultOAuth2UserService;
-import org.springframework.security.oauth2.client.user.DelegatingOAuth2UserService;
-import org.springframework.security.oauth2.client.user.OAuth2UserService;
 import org.springframework.security.oauth2.client.web.AuthorizationCodeAuthenticationFilter;
-import org.springframework.security.oauth2.client.web.AuthorizationRequestRedirectFilter;
 import org.springframework.security.oauth2.client.web.AuthorizationGrantTokenExchanger;
+import org.springframework.security.oauth2.client.web.AuthorizationRequestRedirectFilter;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestUriBuilder;
 import org.springframework.security.oauth2.client.web.nimbus.NimbusAuthorizationCodeTokenExchanger;
 import org.springframework.security.oauth2.core.AccessToken;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.oidc.client.authentication.OidcAuthorizationCodeAuthenticator;
-import org.springframework.security.oauth2.oidc.client.user.OidcUserService;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.util.Assert;
 
-import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * A security configurer for the Authorization Code Grant type.
@@ -75,9 +64,6 @@ public class AuthorizationCodeGrantConfigurer<B extends HttpSecurityBuilder<B>> 
 	private AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger;
 	private SecurityTokenRepository<AccessToken> accessTokenRepository;
 	private JwtDecoderRegistry jwtDecoderRegistry;
-	private OAuth2UserService userService;
-	private Map<URI, Class<? extends OAuth2User>> customUserTypes = new HashMap<>();
-	private GrantedAuthoritiesMapper userAuthoritiesMapper;
 
 	public AuthorizationCodeGrantConfigurer<B> authorizationRequestBaseUri(String authorizationRequestBaseUri) {
 		Assert.hasText(authorizationRequestBaseUri, "authorizationRequestBaseUri cannot be empty");
@@ -131,25 +117,6 @@ public class AuthorizationCodeGrantConfigurer<B extends HttpSecurityBuilder<B>> 
 		return this;
 	}
 
-	public AuthorizationCodeGrantConfigurer<B> userService(OAuth2UserService userService) {
-		Assert.notNull(userService, "userService cannot be null");
-		this.userService = userService;
-		return this;
-	}
-
-	public AuthorizationCodeGrantConfigurer<B> customUserType(Class<? extends OAuth2User> customUserType, URI userInfoUri) {
-		Assert.notNull(customUserType, "customUserType cannot be null");
-		Assert.notNull(userInfoUri, "userInfoUri cannot be null");
-		this.customUserTypes.put(userInfoUri, customUserType);
-		return this;
-	}
-
-	public AuthorizationCodeGrantConfigurer<B> userAuthoritiesMapper(GrantedAuthoritiesMapper userAuthoritiesMapper) {
-		Assert.notNull(userAuthoritiesMapper, "userAuthoritiesMapper cannot be null");
-		this.userAuthoritiesMapper = userAuthoritiesMapper;
-		return this;
-	}
-
 	public AuthorizationCodeGrantConfigurer<B> clientRegistrationRepository(ClientRegistrationRepository clientRegistrationRepository) {
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
 		this.getBuilder().setSharedObject(ClientRegistrationRepository.class, clientRegistrationRepository);
@@ -158,10 +125,6 @@ public class AuthorizationCodeGrantConfigurer<B extends HttpSecurityBuilder<B>> 
 
 	@Override
 	public final void init(B http) throws Exception {
-		// *****************************************
-		// ***** Initialize AuthenticationProvider's
-		//
-		// 	-> AuthorizationCodeAuthenticationProvider
 		AuthorizationCodeAuthenticationProvider authorizationCodeAuthenticationProvider =
 			new AuthorizationCodeAuthenticationProvider(this.getAuthorizationCodeAuthenticator());
 		if (this.accessTokenRepository != null) {
@@ -169,18 +132,6 @@ public class AuthorizationCodeGrantConfigurer<B extends HttpSecurityBuilder<B>> 
 		}
 		http.authenticationProvider(this.postProcess(authorizationCodeAuthenticationProvider));
 
-		// 	-> OAuth2UserAuthenticationProvider
-		OAuth2UserAuthenticationProvider oauth2UserAuthenticationProvider =
-			new OAuth2UserAuthenticationProvider(this.getUserService());
-		if (this.userAuthoritiesMapper != null) {
-			oauth2UserAuthenticationProvider.setAuthoritiesMapper(this.userAuthoritiesMapper);
-		}
-		http.authenticationProvider(this.postProcess(oauth2UserAuthenticationProvider));
-
-		// *************************
-		// ***** Initialize Filter's
-		//
-		// 	-> AuthorizationRequestRedirectFilter
 		this.authorizationRequestFilter = new AuthorizationRequestRedirectFilter(
 			this.getAuthorizationRequestBaseUri(), this.getClientRegistrationRepository());
 		if (this.authorizationRequestBuilder != null) {
@@ -190,7 +141,6 @@ public class AuthorizationCodeGrantConfigurer<B extends HttpSecurityBuilder<B>> 
 			this.authorizationRequestFilter.setAuthorizationRequestRepository(this.authorizationRequestRepository);
 		}
 
-		// 	-> AuthorizationCodeAuthenticationFilter
 		this.authorizationResponseFilter = new AuthorizationCodeAuthenticationFilter(this.getAuthorizationResponseBaseUri());
 		this.authorizationResponseFilter.setClientRegistrationRepository(this.getClientRegistrationRepository());
 		if (this.authorizationRequestRepository != null) {
@@ -253,19 +203,6 @@ public class AuthorizationCodeGrantConfigurer<B extends HttpSecurityBuilder<B>> 
 			this.jwtDecoderRegistry = new NimbusJwtDecoderRegistry();
 		}
 		return this.jwtDecoderRegistry;
-	}
-
-	private OAuth2UserService getUserService() {
-		if (this.userService == null) {
-			List<OAuth2UserService> userServices = new ArrayList<>();
-			userServices.add(new DefaultOAuth2UserService());
-			userServices.add(new OidcUserService());
-			if (!this.customUserTypes.isEmpty()) {
-				userServices.add(new CustomUserTypesOAuth2UserService(this.customUserTypes));
-			}
-			this.userService = new DelegatingOAuth2UserService(userServices);
-		}
-		return this.userService;
 	}
 
 	private ClientRegistrationRepository getClientRegistrationRepository() {

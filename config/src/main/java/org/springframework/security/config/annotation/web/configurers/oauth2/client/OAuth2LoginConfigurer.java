@@ -22,10 +22,14 @@ import org.springframework.security.config.annotation.web.configurers.AbstractAu
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.AuthorizationGrantAuthenticator;
+import org.springframework.security.oauth2.client.authentication.OAuth2UserAuthenticationProvider;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.client.token.SecurityTokenRepository;
+import org.springframework.security.oauth2.client.user.CustomUserTypesOAuth2UserService;
+import org.springframework.security.oauth2.client.user.DefaultOAuth2UserService;
+import org.springframework.security.oauth2.client.user.DelegatingOAuth2UserService;
 import org.springframework.security.oauth2.client.user.OAuth2UserService;
 import org.springframework.security.oauth2.client.web.AuthorizationCodeAuthenticationFilter;
 import org.springframework.security.oauth2.client.web.AuthorizationGrantTokenExchanger;
@@ -33,13 +37,16 @@ import org.springframework.security.oauth2.client.web.AuthorizationRequestReposi
 import org.springframework.security.oauth2.client.web.AuthorizationRequestUriBuilder;
 import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.oidc.client.user.OidcUserService;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -171,27 +178,43 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 	}
 
 	public class UserInfoEndpointConfig {
+		private OAuth2UserService userService;
+		private Map<URI, Class<? extends OAuth2User>> customUserTypes = new HashMap<>();
+		private GrantedAuthoritiesMapper userAuthoritiesMapper;
 
 		private UserInfoEndpointConfig() {
 		}
 
 		public UserInfoEndpointConfig userService(OAuth2UserService userService) {
 			Assert.notNull(userService, "userService cannot be null");
-			authorizationCodeGrantConfigurer.userService(userService);
+			this.userService = userService;
 			return this;
 		}
 
 		public UserInfoEndpointConfig customUserType(Class<? extends OAuth2User> customUserType, URI userInfoUri) {
 			Assert.notNull(customUserType, "customUserType cannot be null");
 			Assert.notNull(userInfoUri, "userInfoUri cannot be null");
-			authorizationCodeGrantConfigurer.customUserType(customUserType, userInfoUri);
+			this.customUserTypes.put(userInfoUri, customUserType);
 			return this;
 		}
 
 		public UserInfoEndpointConfig userAuthoritiesMapper(GrantedAuthoritiesMapper userAuthoritiesMapper) {
 			Assert.notNull(userAuthoritiesMapper, "userAuthoritiesMapper cannot be null");
-			authorizationCodeGrantConfigurer.userAuthoritiesMapper(userAuthoritiesMapper);
+			this.userAuthoritiesMapper = userAuthoritiesMapper;
 			return this;
+		}
+
+		private OAuth2UserService getUserService() {
+			if (this.userService == null) {
+				List<OAuth2UserService> userServices = new ArrayList<>();
+				userServices.add(new DefaultOAuth2UserService());
+				userServices.add(new OidcUserService());
+				if (!this.customUserTypes.isEmpty()) {
+					userServices.add(new CustomUserTypesOAuth2UserService(this.customUserTypes));
+				}
+				this.userService = new DelegatingOAuth2UserService(userServices);
+			}
+			return this.userService;
 		}
 
 		public OAuth2LoginConfigurer<B> and() {
@@ -204,6 +227,14 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		super.init(http);
 		this.authorizationCodeGrantConfigurer.setBuilder(http);
 		this.authorizationCodeGrantConfigurer.init(http);
+
+		OAuth2UserAuthenticationProvider oauth2UserAuthenticationProvider =
+			new OAuth2UserAuthenticationProvider(this.userInfoEndpointConfig.getUserService());
+		if (this.userInfoEndpointConfig.userAuthoritiesMapper != null) {
+			oauth2UserAuthenticationProvider.setAuthoritiesMapper(this.userInfoEndpointConfig.userAuthoritiesMapper);
+		}
+		http.authenticationProvider(this.postProcess(oauth2UserAuthenticationProvider));
+
 		this.initDefaultLoginFilter(http);
 	}
 
