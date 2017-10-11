@@ -43,7 +43,8 @@ public class RedirectServerAuthenticationSuccessHandler
 	}
 
 	@Override
-	public Mono<Void> onAuthenticationSuccess(Authentication authentication, WebFilterExchange webFilterExchange) {
+	public Mono<Void> onAuthenticationSuccess(WebFilterExchange webFilterExchange,
+		Authentication authentication) {
 		ServerWebExchange exchange = webFilterExchange.getExchange();
 		return this.serverRedirectStrategy.sendRedirect(exchange, this.location);
 	}

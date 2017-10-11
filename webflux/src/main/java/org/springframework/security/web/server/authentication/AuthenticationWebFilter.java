@@ -88,7 +88,7 @@ public class AuthenticationWebFilter implements WebFilter {
 		securityContext.setAuthentication(authentication);
 		return this.serverSecurityContextRepository.save(exchange, securityContext)
 			.then(this.serverAuthenticationSuccessHandler
-				.onAuthenticationSuccess(authentication, webFilterExchange));
+				.onAuthenticationSuccess(webFilterExchange, authentication));
 	}
 
 	public void setServerSecurityContextRepository(

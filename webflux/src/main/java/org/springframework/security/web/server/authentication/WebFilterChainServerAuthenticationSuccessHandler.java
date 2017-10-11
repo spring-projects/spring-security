@@ -28,7 +28,8 @@ import reactor.core.publisher.Mono;
 public class WebFilterChainServerAuthenticationSuccessHandler
 	implements ServerAuthenticationSuccessHandler {
 	@Override
-	public Mono<Void> onAuthenticationSuccess(Authentication authentication, WebFilterExchange webFilterExchange) {
+	public Mono<Void> onAuthenticationSuccess(WebFilterExchange webFilterExchange,
+		Authentication authentication) {
 		ServerWebExchange exchange = webFilterExchange.getExchange();
 		return webFilterExchange.getChain().filter(exchange);
 	}

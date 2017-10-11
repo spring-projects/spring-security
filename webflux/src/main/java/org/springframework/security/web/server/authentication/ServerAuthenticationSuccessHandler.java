@@ -25,5 +25,6 @@ import reactor.core.publisher.Mono;
  * @since 5.0
  */
 public interface ServerAuthenticationSuccessHandler {
-	Mono<Void> onAuthenticationSuccess(Authentication authentication, WebFilterExchange webFilterExchange);
+	Mono<Void> onAuthenticationSuccess(WebFilterExchange webFilterExchange,
+		Authentication authentication);
 }
