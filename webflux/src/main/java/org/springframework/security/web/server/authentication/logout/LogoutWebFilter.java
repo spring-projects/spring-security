@@ -30,12 +30,16 @@ import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 
 /**
+ * If the request matches, logs an authenticated user out by delegating to a
+ * {@link ServerLogoutHandler}.
+ *
  * @author Rob Winch
  * @since 5.0
  */
 public class LogoutWebFilter implements WebFilter {
 	private AnonymousAuthenticationToken anonymousAuthenticationToken = new AnonymousAuthenticationToken("key", "anonymous",
 		AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
+
 	private ServerLogoutHandler serverLogoutHandler = new SecurityContextServerLogoutHandler();
 
 	private ServerWebExchangeMatcher requiresLogout = ServerWebExchangeMatchers
@@ -46,23 +50,26 @@ public class LogoutWebFilter implements WebFilter {
 		return this.requiresLogout.matches(exchange)
 			.filter( result -> result.isMatch())
 			.switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
-			.flatMap( result -> authentication(exchange))
-			.flatMap( authentication -> this.serverLogoutHandler
-				.logout(new WebFilterExchange(exchange, chain), authentication));
+			.map(result -> exchange)
+			.flatMap(this::flatMapAuthentication)
+			.flatMap( authentication -> {
+				WebFilterExchange webFilterExchange = new WebFilterExchange(exchange,chain);
+				return this.serverLogoutHandler.logout(webFilterExchange, authentication);
+			});
 	}
 
-	private Mono<Authentication> authentication(ServerWebExchange exchange) {
+	private Mono<Authentication> flatMapAuthentication(ServerWebExchange exchange) {
 		return exchange.getPrincipal()
 			.cast(Authentication.class)
 			.defaultIfEmpty(this.anonymousAuthenticationToken);
 	}
 
-	public final void setServerLogoutHandler(ServerLogoutHandler serverLogoutHandler) {
+	public void setServerLogoutHandler(ServerLogoutHandler serverLogoutHandler) {
 		Assert.notNull(serverLogoutHandler, "logoutHandler must not be null");
 		this.serverLogoutHandler = serverLogoutHandler;
 	}
 
-	public final void setRequiresLogout(ServerWebExchangeMatcher serverWebExchangeMatcher) {
+	public void setRequiresLogout(ServerWebExchangeMatcher serverWebExchangeMatcher) {
 		Assert.notNull(serverWebExchangeMatcher, "serverWebExchangeMatcher must not be null");
 		this.requiresLogout = serverWebExchangeMatcher;
 	}
