@@ -66,7 +66,7 @@ public class RedirectServerAuthenticationSuccessHandlerTests {
 
 	@Test
 	public void successWhenNoSubscribersThenNoActions() {
-		this.handler.success(this.authentication, new WebFilterExchange(this.exchange,
+		this.handler.onAuthenticationSuccess(this.authentication, new WebFilterExchange(this.exchange,
 			this.chain));
 
 		verifyZeroInteractions(this.exchange);
@@ -76,7 +76,7 @@ public class RedirectServerAuthenticationSuccessHandlerTests {
 	public void successWhenSubscribeThenStatusAndLocationSet() {
 		this.exchange = MockServerHttpRequest.get("/").toExchange();
 
-		this.handler.success(this.authentication, new WebFilterExchange(this.exchange,
+		this.handler.onAuthenticationSuccess(this.authentication, new WebFilterExchange(this.exchange,
 			this.chain)).block();
 
 		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(
@@ -91,7 +91,7 @@ public class RedirectServerAuthenticationSuccessHandlerTests {
 		this.handler.setServerRedirectStrategy(this.serverRedirectStrategy);
 		this.exchange = MockServerHttpRequest.get("/").toExchange();
 
-		assertThat(this.handler.success(this.authentication, new WebFilterExchange(this.exchange,
+		assertThat(this.handler.onAuthenticationSuccess(this.authentication, new WebFilterExchange(this.exchange,
 			this.chain))).isEqualTo(result);
 		verify(this.serverRedirectStrategy).sendRedirect(any(), eq(this.location));
 	}
