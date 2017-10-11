@@ -33,7 +33,7 @@ import org.springframework.security.oauth2.client.authentication.OAuth2UserAuthe
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AccessToken;
-import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2ErrorCode;
 import org.springframework.security.oauth2.core.endpoint.AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2Parameter;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -82,7 +82,7 @@ public class AuthorizationCodeAuthenticationFilterTests {
 		filter.setAuthenticationFailureHandler(failureHandler);
 
 		MockHttpServletRequest request = this.setupRequest(clientRegistration);
-		String errorCode = OAuth2Error.INVALID_GRANT_ERROR_CODE;
+		String errorCode = OAuth2ErrorCode.INVALID_GRANT;
 		request.addParameter(OAuth2Parameter.ERROR, errorCode);
 		request.addParameter(OAuth2Parameter.STATE, "some state");
 		MockHttpServletResponse response = new MockHttpServletResponse();
