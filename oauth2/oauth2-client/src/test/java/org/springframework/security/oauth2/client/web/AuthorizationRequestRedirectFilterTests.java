@@ -31,22 +31,22 @@ import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
 
 /**
- * Tests {@link AuthorizationCodeRequestRedirectFilter}.
+ * Tests {@link AuthorizationRequestRedirectFilter}.
  *
  * @author Joe Grandja
  */
-public class AuthorizationCodeRequestRedirectFilterTests {
+public class AuthorizationRequestRedirectFilterTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorWhenClientRegistrationRepositoryIsNullThenThrowIllegalArgumentException() {
-		new AuthorizationCodeRequestRedirectFilter(null);
+		new AuthorizationRequestRedirectFilter(null);
 	}
 
 	@Test
 	public void doFilterWhenRequestDoesNotMatchClientThenContinueChain() throws Exception {
 		ClientRegistration clientRegistration = TestUtil.googleClientRegistration();
 		String authorizationUri = clientRegistration.getProviderDetails().getAuthorizationUri().toString();
-		AuthorizationCodeRequestRedirectFilter filter =
+		AuthorizationRequestRedirectFilter filter =
 				setupFilter(authorizationUri, clientRegistration);
 
 		String requestURI = "/path";
@@ -64,7 +64,7 @@ public class AuthorizationCodeRequestRedirectFilterTests {
 	public void doFilterWhenRequestMatchesClientThenRedirectForAuthorization() throws Exception {
 		ClientRegistration clientRegistration = TestUtil.googleClientRegistration();
 		String authorizationUri = clientRegistration.getProviderDetails().getAuthorizationUri().toString();
-		AuthorizationCodeRequestRedirectFilter filter =
+		AuthorizationRequestRedirectFilter filter =
 				setupFilter(authorizationUri, clientRegistration);
 
 		String requestUri = TestUtil.AUTHORIZATION_BASE_URI + "/" + clientRegistration.getRegistrationId();
@@ -84,7 +84,7 @@ public class AuthorizationCodeRequestRedirectFilterTests {
 	public void doFilterWhenRequestMatchesClientThenAuthorizationRequestSavedInSession() throws Exception {
 		ClientRegistration clientRegistration = TestUtil.githubClientRegistration();
 		String authorizationUri = clientRegistration.getProviderDetails().getAuthorizationUri().toString();
-		AuthorizationCodeRequestRedirectFilter filter =
+		AuthorizationRequestRedirectFilter filter =
 				setupFilter(authorizationUri, clientRegistration);
 		AuthorizationRequestRepository authorizationRequestRepository = new HttpSessionAuthorizationRequestRepository();
 		filter.setAuthorizationRequestRepository(authorizationRequestRepository);
@@ -113,8 +113,8 @@ public class AuthorizationCodeRequestRedirectFilterTests {
 		Assertions.assertThat(authorizationRequest.getState()).isNotNull();
 	}
 
-	private AuthorizationCodeRequestRedirectFilter setupFilter(String authorizationUri,
-																ClientRegistration... clientRegistrations) throws Exception {
+	private AuthorizationRequestRedirectFilter setupFilter(String authorizationUri,
+															ClientRegistration... clientRegistrations) throws Exception {
 
 		AuthorizationRequestUriBuilder authorizationUriBuilder = Mockito.mock(AuthorizationRequestUriBuilder.class);
 		URI authorizationURI = new URI(authorizationUri);
@@ -123,11 +123,11 @@ public class AuthorizationCodeRequestRedirectFilterTests {
 		return setupFilter(authorizationUriBuilder, clientRegistrations);
 	}
 
-	private AuthorizationCodeRequestRedirectFilter setupFilter(AuthorizationRequestUriBuilder authorizationUriBuilder,
-																ClientRegistration... clientRegistrations) throws Exception {
+	private AuthorizationRequestRedirectFilter setupFilter(AuthorizationRequestUriBuilder authorizationUriBuilder,
+															ClientRegistration... clientRegistrations) throws Exception {
 
 		ClientRegistrationRepository clientRegistrationRepository = TestUtil.clientRegistrationRepository(clientRegistrations);
-		AuthorizationCodeRequestRedirectFilter filter = new AuthorizationCodeRequestRedirectFilter(clientRegistrationRepository);
+		AuthorizationRequestRedirectFilter filter = new AuthorizationRequestRedirectFilter(clientRegistrationRepository);
 		filter.setAuthorizationUriBuilder(authorizationUriBuilder);
 
 		return filter;

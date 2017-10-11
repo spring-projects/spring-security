@@ -41,7 +41,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.user.OAuth2UserService;
 import org.springframework.security.oauth2.client.web.AuthorizationCodeAuthenticationFilter;
-import org.springframework.security.oauth2.client.web.AuthorizationCodeRequestRedirectFilter;
+import org.springframework.security.oauth2.client.web.AuthorizationRequestRedirectFilter;
 import org.springframework.security.oauth2.client.web.AuthorizationGrantTokenExchanger;
 import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2Parameter;
@@ -71,7 +71,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Integration tests for the OAuth 2.0 client filters {@link AuthorizationCodeRequestRedirectFilter}
+ * Integration tests for the OAuth 2.0 client filters {@link AuthorizationRequestRedirectFilter}
  * and {@link AuthorizationCodeAuthenticationFilter}.
  * These filters work together to realize the Authorization Code Grant flow.
  *
@@ -81,7 +81,7 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 @AutoConfigureMockMvc
 public class OAuth2LoginApplicationTests {
-	private static final String AUTHORIZATION_BASE_URI = "/oauth2/authorization/code";
+	private static final String AUTHORIZATION_BASE_URI = "/oauth2/authorization";
 	private static final String AUTHORIZE_BASE_URL = "http://localhost:8080/oauth2/authorize/code";
 
 	@Autowired

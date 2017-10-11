@@ -304,13 +304,18 @@ public class ClientRegistration {
 		}
 
 		public ClientRegistration build() {
-			this.validateClientWithAuthorizationCodeGrantType();
-			ClientRegistration clientRegistration = new ClientRegistration();
-			this.setProperties(clientRegistration);
-			return clientRegistration;
+			Assert.notNull(this.authorizationGrantType, "authorizationGrantType cannot be null");
+			if (AuthorizationGrantType.IMPLICIT.equals(this.authorizationGrantType)) {
+				this.validateImplicitGrantType();
+			} else {
+				this.validateAuthorizationCodeGrantType();
+			}
+			return this.create();
 		}
 
-		protected void setProperties(ClientRegistration clientRegistration) {
+		protected ClientRegistration create() {
+			ClientRegistration clientRegistration = new ClientRegistration();
+
 			clientRegistration.setRegistrationId(this.registrationId);
 			clientRegistration.setClientId(this.clientId);
 			clientRegistration.setClientSecret(this.clientSecret);
@@ -328,9 +333,11 @@ public class ClientRegistration {
 			clientRegistration.setProviderDetails(providerDetails);
 
 			clientRegistration.setClientName(this.clientName);
+
+			return clientRegistration;
 		}
 
-		protected void validateClientWithAuthorizationCodeGrantType() {
+		protected void validateAuthorizationCodeGrantType() {
 			Assert.isTrue(AuthorizationGrantType.AUTHORIZATION_CODE.equals(this.authorizationGrantType),
 				"authorizationGrantType must be " + AuthorizationGrantType.AUTHORIZATION_CODE.getValue());
 			Assert.hasText(this.registrationId, "registrationId cannot be empty");
@@ -341,12 +348,22 @@ public class ClientRegistration {
 			Assert.notEmpty(this.scope, "scope cannot be empty");
 			Assert.hasText(this.authorizationUri, "authorizationUri cannot be empty");
 			Assert.hasText(this.tokenUri, "tokenUri cannot be empty");
-			if (!this.scope.contains(OidcScope.OPENID)) {
-				// userInfoUri is optional for OIDC Clients
-				Assert.hasText(this.userInfoUri, "userInfoUri cannot be empty");
+			if (this.scope.contains(OidcScope.OPENID)) {
+				// OIDC Clients need to verify/validate the ID Token
+				Assert.hasText(this.jwkSetUri, "jwkSetUri cannot be empty");
 			}
 			Assert.hasText(this.clientName, "clientName cannot be empty");
+		}
+
+		protected void validateImplicitGrantType() {
+			Assert.isTrue(AuthorizationGrantType.IMPLICIT.equals(this.authorizationGrantType),
+				"authorizationGrantType must be " + AuthorizationGrantType.IMPLICIT.getValue());
 			Assert.hasText(this.registrationId, "registrationId cannot be empty");
+			Assert.hasText(this.clientId, "clientId cannot be empty");
+			Assert.hasText(this.redirectUri, "redirectUri cannot be empty");
+			Assert.notEmpty(this.scope, "scope cannot be empty");
+			Assert.hasText(this.authorizationUri, "authorizationUri cannot be empty");
+			Assert.hasText(this.clientName, "clientName cannot be empty");
 		}
 	}
 }

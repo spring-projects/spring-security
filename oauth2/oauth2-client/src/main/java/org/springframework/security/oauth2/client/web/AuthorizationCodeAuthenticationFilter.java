@@ -72,11 +72,11 @@ import java.io.IOException;
  * @see AbstractAuthenticationProcessingFilter
  * @see AuthorizationCodeAuthenticationToken
  * @see AuthorizationCodeAuthenticationProvider
- * @see AuthorizationCodeRequestRedirectFilter
+ * @see AuthorizationRequestRedirectFilter
  * @see AuthorizationRequest
  * @see AuthorizationRequestRepository
  * @see ClientRegistrationRepository
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">Section 4.1 Authorization Code Grant Flow</a>
+ * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">Section 4.1 Authorization Code Grant</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.2">Section 4.1.2 Authorization Response</a>
  */
 public class AuthorizationCodeAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
@@ -121,7 +121,7 @@ public class AuthorizationCodeAuthenticationFilter extends AbstractAuthenticatio
 
 		// The clientRegistration.redirectUri may contain Uri template variables, whether it's configured by
 		// the user or configured by default. In these cases, the redirectUri will be expanded and ultimately changed
-		// (by AuthorizationCodeRequestRedirectFilter) before setting it in the authorization request.
+		// (by AuthorizationRequestRedirectFilter) before setting it in the authorization request.
 		// The resulting redirectUri used for the authorization request and saved within the AuthorizationRequestRepository
 		// MUST BE the same one used to complete the authorization code flow.
 		// Therefore, we'll create a copy of the clientRegistration and override the redirectUri

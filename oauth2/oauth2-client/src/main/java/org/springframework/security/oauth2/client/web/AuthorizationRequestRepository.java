@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletResponse;
  * of {@link AuthorizationRequest} between requests.
  *
  * <p>
- * Used by the {@link AuthorizationCodeRequestRedirectFilter} for persisting the <i>Authorization Request</i>
+ * Used by the {@link AuthorizationRequestRedirectFilter} for persisting the <i>Authorization Request</i>
  * before it initiates the authorization code grant flow.
  * As well, used by the {@link AuthorizationCodeAuthenticationFilter} when resolving
  * the associated <i>Authorization Request</i> during the handling of the <i>Authorization Response</i>.

@@ -35,7 +35,7 @@ import org.springframework.security.oauth2.client.user.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.user.DelegatingOAuth2UserService;
 import org.springframework.security.oauth2.client.user.OAuth2UserService;
 import org.springframework.security.oauth2.client.web.AuthorizationCodeAuthenticationFilter;
-import org.springframework.security.oauth2.client.web.AuthorizationCodeRequestRedirectFilter;
+import org.springframework.security.oauth2.client.web.AuthorizationRequestRedirectFilter;
 import org.springframework.security.oauth2.client.web.AuthorizationGrantTokenExchanger;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestUriBuilder;
@@ -63,7 +63,7 @@ public class AuthorizationCodeGrantConfigurer<B extends HttpSecurityBuilder<B>> 
 	AbstractHttpConfigurer<AuthorizationCodeGrantConfigurer<B>, B> {
 
 	// ***** Authorization Request members
-	private AuthorizationCodeRequestRedirectFilter authorizationRequestFilter;
+	private AuthorizationRequestRedirectFilter authorizationRequestFilter;
 	private String authorizationRequestBaseUri;
 	private AuthorizationRequestUriBuilder authorizationRequestBuilder;
 	private AuthorizationRequestRepository authorizationRequestRepository;
@@ -180,8 +180,8 @@ public class AuthorizationCodeGrantConfigurer<B extends HttpSecurityBuilder<B>> 
 		// *************************
 		// ***** Initialize Filter's
 		//
-		// 	-> AuthorizationCodeRequestRedirectFilter
-		this.authorizationRequestFilter = new AuthorizationCodeRequestRedirectFilter(
+		// 	-> AuthorizationRequestRedirectFilter
+		this.authorizationRequestFilter = new AuthorizationRequestRedirectFilter(
 			this.getAuthorizationRequestBaseUri(), this.getClientRegistrationRepository());
 		if (this.authorizationRequestBuilder != null) {
 			this.authorizationRequestFilter.setAuthorizationUriBuilder(this.authorizationRequestBuilder);
@@ -210,14 +210,14 @@ public class AuthorizationCodeGrantConfigurer<B extends HttpSecurityBuilder<B>> 
 		http.addFilter(this.postProcess(this.authorizationResponseFilter));
 	}
 
-	AuthorizationCodeRequestRedirectFilter getAuthorizationRequestFilter() {
+	AuthorizationRequestRedirectFilter getAuthorizationRequestFilter() {
 		return this.authorizationRequestFilter;
 	}
 
 	String getAuthorizationRequestBaseUri() {
 		return this.authorizationRequestBaseUri != null ?
 			this.authorizationRequestBaseUri :
-			AuthorizationCodeRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
+			AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
 	}
 
 	String getAuthorizationResponseBaseUri() {

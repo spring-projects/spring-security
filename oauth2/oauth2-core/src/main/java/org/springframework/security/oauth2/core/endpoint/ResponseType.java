@@ -19,22 +19,20 @@ import org.springframework.util.Assert;
 
 /**
  * The <i>response_type</i> parameter is consumed by the authorization endpoint which
- * is used by the authorization code grant type and implicit grant type flows.
+ * is used by the authorization code grant type and implicit grant type.
  * The client sets the <i>response_type</i> parameter with the desired grant type before initiating the authorization request.
  *
  * <p>
  * The <i>response_type</i> parameter value may be one of &quot;code&quot; for requesting an authorization code or
  * &quot;token&quot; for requesting an access token (implicit grant).
 
- * <p>
- * <b>NOTE:</b> &quot;code&quot; is currently the only supported response type.
- *
  * @author Joe Grandja
  * @since 5.0
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-3.1.1">Section 3.1.1 Response Type</a>
  */
 public final class ResponseType {
 	public static final ResponseType CODE = new ResponseType("code");
+	public static final ResponseType TOKEN = new ResponseType("token");
 	private final String value;
 
 	public ResponseType(String value) {

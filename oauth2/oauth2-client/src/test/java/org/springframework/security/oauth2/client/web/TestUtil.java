@@ -32,7 +32,7 @@ class TestUtil {
 	static final String DEFAULT_SERVER_NAME = "localhost";
 	static final int DEFAULT_SERVER_PORT = 8080;
 	static final String DEFAULT_SERVER_URL = DEFAULT_SCHEME + "://" + DEFAULT_SERVER_NAME + ":" + DEFAULT_SERVER_PORT;
-	static final String AUTHORIZATION_BASE_URI = "/oauth2/authorization/code";
+	static final String AUTHORIZATION_BASE_URI = "/oauth2/authorization";
 	static final String AUTHORIZE_BASE_URI = "/oauth2/authorize/code";
 	static final String GOOGLE_REGISTRATION_ID = "google";
 	static final String GITHUB_REGISTRATION_ID = "github";
@@ -55,6 +55,7 @@ class TestUtil {
 		clientRegistrationProperties.setAuthorizationUri("https://accounts.google.com/o/oauth2/auth");
 		clientRegistrationProperties.setTokenUri("https://accounts.google.com/o/oauth2/token");
 		clientRegistrationProperties.setUserInfoUri("https://www.googleapis.com/oauth2/v3/userinfo");
+		clientRegistrationProperties.setJwkSetUri("https://www.googleapis.com/oauth2/v3/certs");
 		clientRegistrationProperties.setRedirectUri(redirectUri);
 		clientRegistrationProperties.setScope(Arrays.stream(new String[] {"openid", "email", "profile"}).collect(Collectors.toSet()));
 		return new ClientRegistration.Builder(clientRegistrationProperties).build();

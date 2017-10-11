@@ -109,7 +109,8 @@ public class CommonOAuth2ProviderTests {
 		ClientRegistration registration = builder(CommonOAuth2Provider.OKTA)
 			.authorizationUri("http://example.com/auth")
 			.tokenUri("http://example.com/token")
-			.userInfoUri("http://example.com/info").build();
+			.userInfoUri("http://example.com/info")
+			.jwkSetUri("http://example.com/jwkset").build();
 		ProviderDetails providerDetails = registration.getProviderDetails();
 		assertThat(providerDetails.getAuthorizationUri())
 			.isEqualTo("http://example.com/auth");
@@ -117,7 +118,7 @@ public class CommonOAuth2ProviderTests {
 		assertThat(providerDetails.getUserInfoEndpoint().getUri()).isEqualTo("http://example.com/info");
 		assertThat(providerDetails.getUserInfoEndpoint().getUserNameAttributeName())
 			.isEqualTo(IdTokenClaim.SUB);
-		assertThat(providerDetails.getJwkSetUri()).isNull();
+		assertThat(providerDetails.getJwkSetUri()).isEqualTo("http://example.com/jwkset");
 		assertThat(registration.getClientAuthenticationMethod())
 			.isEqualTo(ClientAuthenticationMethod.BASIC);
 		assertThat(registration.getAuthorizationGrantType())

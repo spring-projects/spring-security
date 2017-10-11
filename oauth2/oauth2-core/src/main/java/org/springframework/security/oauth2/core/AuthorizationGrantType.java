@@ -35,6 +35,7 @@ import org.springframework.util.Assert;
  */
 public final class AuthorizationGrantType {
 	public static final AuthorizationGrantType AUTHORIZATION_CODE = new AuthorizationGrantType("authorization_code");
+	public static final AuthorizationGrantType IMPLICIT = new AuthorizationGrantType("implicit");
 	private final String value;
 
 	public AuthorizationGrantType(String value) {

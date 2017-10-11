@@ -86,6 +86,10 @@ public final class AuthorizationRequest implements Serializable {
 		return new Builder(AuthorizationGrantType.AUTHORIZATION_CODE);
 	}
 
+	public static Builder implicit() {
+		return new Builder(AuthorizationGrantType.IMPLICIT);
+	}
+
 	public static class Builder {
 		private final AuthorizationRequest authorizationRequest;
 
@@ -95,6 +99,8 @@ public final class AuthorizationRequest implements Serializable {
 			this.authorizationRequest.authorizationGrantType = authorizationGrantType;
 			if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(authorizationGrantType)) {
 				this.authorizationRequest.responseType = ResponseType.CODE;
+			} else if (AuthorizationGrantType.IMPLICIT.equals(authorizationGrantType)) {
+				this.authorizationRequest.responseType = ResponseType.TOKEN;
 			}
 		}
 
@@ -129,8 +135,11 @@ public final class AuthorizationRequest implements Serializable {
 		}
 
 		public AuthorizationRequest build() {
-			Assert.hasText(this.authorizationRequest.clientId, "clientId cannot be empty");
 			Assert.hasText(this.authorizationRequest.authorizeUri, "authorizeUri cannot be empty");
+			Assert.hasText(this.authorizationRequest.clientId, "clientId cannot be empty");
+			if (AuthorizationGrantType.IMPLICIT.equals(this.authorizationRequest.authorizationGrantType)) {
+				Assert.hasText(this.authorizationRequest.redirectUri, "redirectUri cannot be empty");
+			}
 			this.authorizationRequest.scope = Collections.unmodifiableSet(
 				CollectionUtils.isEmpty(this.authorizationRequest.scope) ?
 					Collections.emptySet() : new LinkedHashSet<>(this.authorizationRequest.scope));
