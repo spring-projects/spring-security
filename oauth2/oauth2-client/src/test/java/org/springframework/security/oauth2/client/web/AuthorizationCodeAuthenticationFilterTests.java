@@ -128,7 +128,7 @@ public class AuthorizationCodeAuthenticationFilterTests {
 		ArgumentCaptor<Authentication> authenticationArgCaptor = ArgumentCaptor.forClass(Authentication.class);
 		Mockito.verify(successHandler).onAuthenticationSuccess(Matchers.any(HttpServletRequest.class), Matchers.any(HttpServletResponse.class),
 				authenticationArgCaptor.capture());
-		Assertions.assertThat(authenticationArgCaptor.getValue()).isEqualTo(userAuthentication);
+		Assertions.assertThat(authenticationArgCaptor.getValue()).isEqualTo(clientAuthentication);
 	}
 
 	@Test

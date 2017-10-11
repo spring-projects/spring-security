@@ -20,6 +20,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationIdentifierStrategy;
 import org.springframework.security.oauth2.client.user.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.user.OAuth2UserService;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -55,6 +58,7 @@ import java.util.Collection;
  * @see OidcUser
  */
 public class OAuth2UserAuthenticationProvider implements AuthenticationProvider {
+	private final ClientRegistrationIdentifierStrategy<String> providerIdentifierStrategy = new ProviderIdentifierStrategy();
 	private final OAuth2UserService userService;
 	private GrantedAuthoritiesMapper authoritiesMapper = (authorities -> authorities);
 
@@ -65,11 +69,18 @@ public class OAuth2UserAuthenticationProvider implements AuthenticationProvider 
 
 	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-		OAuth2UserAuthenticationToken oauth2UserAuthentication = (OAuth2UserAuthenticationToken) authentication;
+		OAuth2UserAuthenticationToken userAuthentication = (OAuth2UserAuthenticationToken) authentication;
+		OAuth2ClientAuthenticationToken clientAuthentication = userAuthentication.getClientAuthentication();
 
-		OAuth2ClientAuthenticationToken oauth2ClientAuthentication = oauth2UserAuthentication.getClientAuthentication();
+		if (this.userAuthenticated() && this.userAuthenticatedSameProviderAs(clientAuthentication)) {
+			// Create a new user authentication (using same principal)
+			// but with a different client authentication association
+			return this.createUserAuthentication(
+				(OAuth2UserAuthenticationToken)SecurityContextHolder.getContext().getAuthentication(),
+				clientAuthentication);
+		}
 
-		OAuth2User oauth2User = this.userService.loadUser(oauth2ClientAuthentication);
+		OAuth2User oauth2User = this.userService.loadUser(clientAuthentication);
 
 		Collection<? extends GrantedAuthority> mappedAuthorities =
 				this.authoritiesMapper.mapAuthorities(oauth2User.getAuthorities());
@@ -77,12 +88,12 @@ public class OAuth2UserAuthenticationProvider implements AuthenticationProvider 
 		OAuth2UserAuthenticationToken authenticationResult;
 		if (OidcUser.class.isAssignableFrom(oauth2User.getClass())) {
 			authenticationResult = new OidcUserAuthenticationToken(
-				(OidcUser)oauth2User, mappedAuthorities, (OidcClientAuthenticationToken)oauth2ClientAuthentication);
+				(OidcUser)oauth2User, mappedAuthorities, (OidcClientAuthenticationToken)clientAuthentication);
 		} else {
 			authenticationResult = new OAuth2UserAuthenticationToken(
-				oauth2User, mappedAuthorities, oauth2ClientAuthentication);
+				oauth2User, mappedAuthorities, clientAuthentication);
 		}
-		authenticationResult.setDetails(oauth2ClientAuthentication.getDetails());
+		authenticationResult.setDetails(clientAuthentication.getDetails());
 
 		return authenticationResult;
 	}
@@ -95,5 +106,53 @@ public class OAuth2UserAuthenticationProvider implements AuthenticationProvider 
 	@Override
 	public boolean supports(Class<?> authentication) {
 		return OAuth2UserAuthenticationToken.class.isAssignableFrom(authentication);
+	}
+
+	private boolean userAuthenticated() {
+		Authentication currentAuthentication = SecurityContextHolder.getContext().getAuthentication();
+		return currentAuthentication != null &&
+			currentAuthentication instanceof OAuth2UserAuthenticationToken &&
+			currentAuthentication.isAuthenticated();
+	}
+
+	private boolean userAuthenticatedSameProviderAs(OAuth2ClientAuthenticationToken clientAuthentication) {
+		OAuth2UserAuthenticationToken currentUserAuthentication =
+			(OAuth2UserAuthenticationToken)SecurityContextHolder.getContext().getAuthentication();
+
+		String userProviderId = this.providerIdentifierStrategy.getIdentifier(
+			currentUserAuthentication.getClientAuthentication().getClientRegistration());
+		String clientProviderId = this.providerIdentifierStrategy.getIdentifier(
+			clientAuthentication.getClientRegistration());
+
+		return userProviderId.equals(clientProviderId);
+	}
+
+	private OAuth2UserAuthenticationToken createUserAuthentication(
+		OAuth2UserAuthenticationToken currentUserAuthentication,
+		OAuth2ClientAuthenticationToken newClientAuthentication) {
+
+		if (OidcUserAuthenticationToken.class.isAssignableFrom(currentUserAuthentication.getClass())) {
+			return new OidcUserAuthenticationToken(
+				(OidcUser) currentUserAuthentication.getPrincipal(),
+				currentUserAuthentication.getAuthorities(),
+				newClientAuthentication);
+		} else {
+			return new OAuth2UserAuthenticationToken(
+				(OAuth2User)currentUserAuthentication.getPrincipal(),
+				currentUserAuthentication.getAuthorities(),
+				newClientAuthentication);
+		}
+	}
+
+	private static class ProviderIdentifierStrategy implements ClientRegistrationIdentifierStrategy<String> {
+
+		@Override
+		public String getIdentifier(ClientRegistration clientRegistration) {
+			StringBuilder builder = new StringBuilder();
+			builder.append("[").append(clientRegistration.getProviderDetails().getAuthorizationUri()).append("]");
+			builder.append("[").append(clientRegistration.getProviderDetails().getTokenUri()).append("]");
+			builder.append("[").append(clientRegistration.getProviderDetails().getUserInfoEndpoint().getUri()).append("]");
+			return builder.toString();
+		}
 	}
 }

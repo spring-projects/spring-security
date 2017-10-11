@@ -18,23 +18,17 @@ package org.springframework.security.oauth2.client.web;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationProvider;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.client.authentication.OAuth2ClientAuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.OAuth2UserAuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationIdentifierStrategy;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.endpoint.AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.AuthorizationResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2Parameter;
-import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.security.oauth2.oidc.client.authentication.OidcClientAuthenticationToken;
-import org.springframework.security.oauth2.oidc.client.authentication.OidcUserAuthenticationToken;
-import org.springframework.security.oauth2.oidc.core.user.OidcUser;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
@@ -81,7 +75,6 @@ import java.io.IOException;
 public class AuthorizationCodeAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 	public static final String DEFAULT_AUTHORIZATION_RESPONSE_BASE_URI = "/oauth2/authorize/code";
 	private static final String AUTHORIZATION_REQUEST_NOT_FOUND_ERROR_CODE = "authorization_request_not_found";
-	private final ClientRegistrationIdentifierStrategy<String> providerIdentifierStrategy = new ProviderIdentifierStrategy();
 	private AuthorizationResponseMatcher authorizationResponseMatcher;
 	private ClientRegistrationRepository clientRegistrationRepository;
 	private AuthorizationRequestRepository authorizationRequestRepository = new HttpSessionAuthorizationRequestRepository();
@@ -135,20 +128,8 @@ public class AuthorizationCodeAuthenticationFilter extends AbstractAuthenticatio
 		OAuth2ClientAuthenticationToken oauth2ClientAuthentication =
 			(OAuth2ClientAuthenticationToken)this.getAuthenticationManager().authenticate(authorizationCodeAuthentication);
 
-		OAuth2UserAuthenticationToken oauth2UserAuthentication;
-		if (this.authenticated() && this.authenticatedSameProviderAs(oauth2ClientAuthentication)) {
-			// Create a new user authentication (using same principal)
-			// but with a different client authentication association
-			oauth2UserAuthentication = (OAuth2UserAuthenticationToken)SecurityContextHolder.getContext().getAuthentication();
-			oauth2UserAuthentication = this.createUserAuthentication(oauth2UserAuthentication, oauth2ClientAuthentication);
-		} else {
-			// Authenticate the user... the user needs to be authenticated
-			// before we can associate the client authentication to the user
-			oauth2UserAuthentication = (OAuth2UserAuthenticationToken)this.getAuthenticationManager().authenticate(
-				this.createUserAuthentication(oauth2ClientAuthentication));
-		}
-
-		return oauth2UserAuthentication;
+		return this.getAuthenticationManager().authenticate(
+			new OAuth2UserAuthenticationToken(oauth2ClientAuthentication));
 	}
 
 	public final RequestMatcher getAuthorizationResponseMatcher() {
@@ -169,50 +150,6 @@ public class AuthorizationCodeAuthenticationFilter extends AbstractAuthenticatio
 	public final void setAuthorizationRequestRepository(AuthorizationRequestRepository authorizationRequestRepository) {
 		Assert.notNull(authorizationRequestRepository, "authorizationRequestRepository cannot be null");
 		this.authorizationRequestRepository = authorizationRequestRepository;
-	}
-
-	private boolean authenticated() {
-		Authentication currentAuthentication = SecurityContextHolder.getContext().getAuthentication();
-		return currentAuthentication != null &&
-			currentAuthentication instanceof OAuth2UserAuthenticationToken &&
-			currentAuthentication.isAuthenticated();
-	}
-
-	private boolean authenticatedSameProviderAs(OAuth2ClientAuthenticationToken oauth2ClientAuthentication) {
-		OAuth2UserAuthenticationToken userAuthentication =
-			(OAuth2UserAuthenticationToken)SecurityContextHolder.getContext().getAuthentication();
-
-		String userProviderId = this.providerIdentifierStrategy.getIdentifier(
-			userAuthentication.getClientAuthentication().getClientRegistration());
-		String clientProviderId = this.providerIdentifierStrategy.getIdentifier(
-			oauth2ClientAuthentication.getClientRegistration());
-
-		return userProviderId.equals(clientProviderId);
-	}
-
-	private OAuth2UserAuthenticationToken createUserAuthentication(OAuth2ClientAuthenticationToken clientAuthentication) {
-		if (OidcClientAuthenticationToken.class.isAssignableFrom(clientAuthentication.getClass())) {
-			return new OidcUserAuthenticationToken((OidcClientAuthenticationToken)clientAuthentication);
-		} else {
-			return new OAuth2UserAuthenticationToken(clientAuthentication);
-		}
-	}
-
-	private OAuth2UserAuthenticationToken createUserAuthentication(
-		OAuth2UserAuthenticationToken currentUserAuthentication,
-		OAuth2ClientAuthenticationToken newClientAuthentication) {
-
-		if (OidcUserAuthenticationToken.class.isAssignableFrom(currentUserAuthentication.getClass())) {
-			return new OidcUserAuthenticationToken(
-				(OidcUser) currentUserAuthentication.getPrincipal(),
-				currentUserAuthentication.getAuthorities(),
-				newClientAuthentication);
-		} else {
-			return new OAuth2UserAuthenticationToken(
-				(OAuth2User)currentUserAuthentication.getPrincipal(),
-				currentUserAuthentication.getAuthorities(),
-				newClientAuthentication);
-		}
 	}
 
 	private static class AuthorizationResponseMatcher implements RequestMatcher {
@@ -264,18 +201,6 @@ public class AuthorizationCodeAuthenticationFilter extends AbstractAuthenticatio
 					.state(state)
 					.build();
 			}
-		}
-	}
-
-	private static class ProviderIdentifierStrategy implements ClientRegistrationIdentifierStrategy<String> {
-
-		@Override
-		public String getIdentifier(ClientRegistration clientRegistration) {
-			StringBuilder builder = new StringBuilder();
-			builder.append("[").append(clientRegistration.getProviderDetails().getAuthorizationUri()).append("]");
-			builder.append("[").append(clientRegistration.getProviderDetails().getTokenUri()).append("]");
-			builder.append("[").append(clientRegistration.getProviderDetails().getUserInfoEndpoint().getUri()).append("]");
-			return builder.toString();
 		}
 	}
 }
