@@ -35,29 +35,25 @@ import java.net.URI;
  * @since 5.0
  */
 public class SecurityContextServerLogoutHandler implements ServerLogoutHandler {
-	public static final String DEFAULT_LOGOUT_SUCCESS_URL = "/login?logout";
-
 	private ServerSecurityContextRepository serverSecurityContextRepository = new WebSessionServerSecurityContextRepository();
 
-	private URI logoutSuccessUrl = URI.create(DEFAULT_LOGOUT_SUCCESS_URL);
-
-	private ServerRedirectStrategy serverRedirectStrategy = new DefaultServerRedirectStrategy();
+	private ServerLogoutSuccessHandler serverLogoutSuccessHandler = new RedirectServerLogoutSuccessHandler();
 
 	@Override
 	public Mono<Void> logout(WebFilterExchange exchange,
 		Authentication authentication) {
 		return this.serverSecurityContextRepository.save(exchange.getExchange(), null)
-			.then(this.serverRedirectStrategy
-				.sendRedirect(exchange.getExchange(), this.logoutSuccessUrl));
+			.then(this.serverLogoutSuccessHandler.onLogoutSuccess(exchange));
 	}
 
 	/**
-	 * The URL to redirect to after successfully logging out.
-	 * @param logoutSuccessUrl the url to redirect to. Default is "/login?logout".
+	 * Sets the {@link ServerLogoutSuccessHandler}. The default is {@link RedirectServerLogoutSuccessHandler}.
+	 * @param serverLogoutSuccessHandler the handler to use
 	 */
-	public void setLogoutSuccessUrl(URI logoutSuccessUrl) {
-		Assert.notNull(logoutSuccessUrl, "logoutSuccessUrl cannot be null");
-		this.logoutSuccessUrl = logoutSuccessUrl;
+	public void setServerLogoutSuccessHandler(
+		ServerLogoutSuccessHandler serverLogoutSuccessHandler) {
+		Assert.notNull(serverLogoutSuccessHandler, "serverLogoutSuccessHandler cannot be null");
+		this.serverLogoutSuccessHandler = serverLogoutSuccessHandler;
 	}
 
 	/**
