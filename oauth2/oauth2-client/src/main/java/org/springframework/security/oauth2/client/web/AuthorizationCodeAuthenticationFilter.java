@@ -27,7 +27,6 @@ import org.springframework.security.oauth2.client.authentication.OAuth2UserAuthe
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationIdentifierStrategy;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.web.converter.AuthorizationResponseConverter;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.endpoint.AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.AuthorizationResponse;
@@ -82,9 +81,8 @@ import java.io.IOException;
 public class AuthorizationCodeAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 	public static final String DEFAULT_AUTHORIZATION_RESPONSE_BASE_URI = "/oauth2/authorize/code";
 	private static final String AUTHORIZATION_REQUEST_NOT_FOUND_ERROR_CODE = "authorization_request_not_found";
-	private final AuthorizationResponseConverter authorizationResponseConverter = new AuthorizationResponseConverter();
 	private final ClientRegistrationIdentifierStrategy<String> providerIdentifierStrategy = new ProviderIdentifierStrategy();
-	private RequestMatcher authorizationResponseMatcher;
+	private AuthorizationResponseMatcher authorizationResponseMatcher;
 	private ClientRegistrationRepository clientRegistrationRepository;
 	private AuthorizationRequestRepository authorizationRequestRepository = new HttpSessionAuthorizationRequestRepository();
 
@@ -114,7 +112,7 @@ public class AuthorizationCodeAuthenticationFilter extends AbstractAuthenticatio
 		}
 		this.authorizationRequestRepository.removeAuthorizationRequest(request);
 
-		AuthorizationResponse authorizationResponse = this.authorizationResponseConverter.apply(request);
+		AuthorizationResponse authorizationResponse = this.authorizationResponseMatcher.convert(request);
 
 		String registrationId = (String)authorizationRequest.getAdditionalParameters().get(OAuth2Parameter.REGISTRATION_ID);
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(registrationId);
@@ -239,6 +237,33 @@ public class AuthorizationCodeAuthenticationFilter extends AbstractAuthenticatio
 		private boolean errorResponse(HttpServletRequest request) {
 			return StringUtils.hasText(request.getParameter(OAuth2Parameter.ERROR)) &&
 				StringUtils.hasText(request.getParameter(OAuth2Parameter.STATE));
+		}
+
+		private AuthorizationResponse convert(HttpServletRequest request) {
+			if (!this.matches(request)) {
+				return null;
+			}
+
+			String code = request.getParameter(OAuth2Parameter.CODE);
+			String errorCode = request.getParameter(OAuth2Parameter.ERROR);
+			String state = request.getParameter(OAuth2Parameter.STATE);
+			String redirectUri = request.getRequestURL().toString();
+
+			if (StringUtils.hasText(code)) {
+				return AuthorizationResponse.success(code)
+					.redirectUri(redirectUri)
+					.state(state)
+					.build();
+			} else {
+				String description = request.getParameter(OAuth2Parameter.ERROR_DESCRIPTION);
+				String uri = request.getParameter(OAuth2Parameter.ERROR_URI);
+				return AuthorizationResponse.error(errorCode)
+					.redirectUri(redirectUri)
+					.errorDescription(description)
+					.errorUri(uri)
+					.state(state)
+					.build();
+			}
 		}
 	}
 
