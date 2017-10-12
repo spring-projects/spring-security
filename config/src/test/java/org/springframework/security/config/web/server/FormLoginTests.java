@@ -23,6 +23,7 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
+import org.springframework.security.config.annotation.web.reactive.ServerHttpSecurityConfigurationBuilder;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -42,20 +43,15 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 5.0
  */
 public class FormLoginTests {
-	private UserDetails user = User.withUsername("user").password("password").roles("USER").build();
-	private ServerHttpSecurity http = ServerHttpSecurity.http();
-
-	ReactiveAuthenticationManager manager = new UserDetailsRepositoryReactiveAuthenticationManager(new MapReactiveUserDetailsService(this.user));
+	private ServerHttpSecurity http = ServerHttpSecurityConfigurationBuilder.httpWithDefaultAuthentication();
 
 	@Test
 	public void defaultLoginPage() {
 		SecurityWebFilterChain securityWebFilter = this.http
-			.authenticationManager(this.manager)
 			.authorizeExchange()
 				.anyExchange().authenticated()
 				.and()
 			.formLogin().and()
-			.logout().and()
 			.build();
 
 		WebTestClient webTestClient = WebTestClientBuilder
@@ -92,7 +88,6 @@ public class FormLoginTests {
 	@Test
 	public void customLoginPage() {
 		SecurityWebFilterChain securityWebFilter = this.http
-			.authenticationManager(this.manager)
 			.authorizeExchange()
 				.pathMatchers("/login").permitAll()
 				.anyExchange().authenticated()

@@ -24,6 +24,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.config.annotation.web.reactive.ServerHttpSecurityConfigurationBuilder;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
 import org.springframework.security.web.server.WebFilterChainProxy;
 import org.springframework.security.web.server.context.ServerSecurityContextRepository;
@@ -45,15 +46,17 @@ import static org.springframework.web.reactive.function.client.ExchangeFilterFun
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ServerHttpSecurityTests {
-	@Mock ServerSecurityContextRepository contextRepository;
 	@Mock
-	ReactiveAuthenticationManager authenticationManager;
+	private ServerSecurityContextRepository contextRepository;
+	@Mock
+	private ReactiveAuthenticationManager authenticationManager;
 
-	ServerHttpSecurity http;
+	private ServerHttpSecurity http;
 
 	@Before
 	public void setup() {
-		this.http = ServerHttpSecurity.http().headers().and();
+		this.http = ServerHttpSecurityConfigurationBuilder.http()
+			.authenticationManager(this.authenticationManager);
 	}
 
 	@Test

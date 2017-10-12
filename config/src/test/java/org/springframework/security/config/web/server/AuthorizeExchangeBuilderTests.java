@@ -18,6 +18,7 @@ package org.springframework.security.config.web.server;
 
 import org.junit.Test;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.web.reactive.ServerHttpSecurityConfigurationBuilder;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
@@ -26,13 +27,14 @@ import org.springframework.test.web.reactive.server.WebTestClient;
  * @since 5.0
  */
 public class AuthorizeExchangeBuilderTests {
-	ServerHttpSecurity http = ServerHttpSecurity.http();
-	ServerHttpSecurity.AuthorizeExchangeBuilder authorization = this.http.authorizeExchange();
+	ServerHttpSecurity http = ServerHttpSecurityConfigurationBuilder.httpWithDefaultAuthentication();
 
 	@Test
 	public void antMatchersWhenMethodAndPatternsThenDiscriminatesByMethod() {
-		this.authorization.pathMatchers(HttpMethod.POST, "/a", "/b").denyAll();
-		this.authorization.anyExchange().permitAll();
+		this.http
+			.authorizeExchange()
+				.pathMatchers(HttpMethod.POST, "/a", "/b").denyAll()
+				.anyExchange().permitAll();
 
 		WebTestClient client = buildClient();
 
@@ -60,8 +62,10 @@ public class AuthorizeExchangeBuilderTests {
 
 	@Test
 	public void antMatchersWhenPatternsThenAnyMethod() {
-		this.authorization.pathMatchers("/a", "/b").denyAll();
-		this.authorization.anyExchange().permitAll();
+		this.http
+			.authorizeExchange()
+				.pathMatchers("/a", "/b").denyAll()
+				.anyExchange().permitAll();
 
 		WebTestClient client = buildClient();
 
@@ -88,19 +92,26 @@ public class AuthorizeExchangeBuilderTests {
 
 	@Test(expected = IllegalStateException.class)
 	public void antMatchersWhenNoAccessAndAnotherMatcherThenThrowsException() {
-		this.authorization.pathMatchers("/incomplete");
-		this.authorization.pathMatchers("/throws-exception");
+		this.http
+			.authorizeExchange()
+				.pathMatchers("/incomplete");
+		this.http
+			.authorizeExchange()
+				.pathMatchers("/throws-exception");
 	}
 
 	@Test(expected = IllegalStateException.class)
 	public void anyExchangeWhenFollowedByMatcherThenThrowsException() {
-		this.authorization.anyExchange().denyAll();
-		this.authorization.pathMatchers("/never-reached");
+		this.http
+			.authorizeExchange().anyExchange().denyAll()
+			.pathMatchers("/never-reached");
 	}
 
 	@Test(expected = IllegalStateException.class)
 	public void buildWhenMatcherDefinedWithNoAccessThenThrowsException() {
-		this.authorization.pathMatchers("/incomplete");
+		this.http
+			.authorizeExchange()
+				.pathMatchers("/incomplete");
 		this.http.build();
 	}
 

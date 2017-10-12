@@ -20,6 +20,7 @@ import org.junit.Test;
 import org.openqa.selenium.WebDriver;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
+import org.springframework.security.config.annotation.web.reactive.ServerHttpSecurityConfigurationBuilder;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -34,20 +35,14 @@ import org.springframework.security.test.web.reactive.server.WebTestClientBuilde
  */
 public class LogoutBuilderTests {
 
-	private UserDetails user = User.withUsername("user").password("password").roles("USER").build();
-	private ServerHttpSecurity http = ServerHttpSecurity.http();
-
-	ReactiveAuthenticationManager manager = new UserDetailsRepositoryReactiveAuthenticationManager(new MapReactiveUserDetailsService(this.user));
+	private ServerHttpSecurity http = ServerHttpSecurityConfigurationBuilder.httpWithDefaultAuthentication();
 
 	@Test
 	public void defaultLogout() {
 		SecurityWebFilterChain securityWebFilter = this.http
-			.authenticationManager(this.manager)
 			.authorizeExchange()
-			.anyExchange().authenticated()
-			.and()
-			.formLogin().and()
-			.logout().and()
+				.anyExchange().authenticated()
+				.and()
 			.build();
 
 		WebTestClient webTestClient = WebTestClientBuilder
@@ -84,11 +79,9 @@ public class LogoutBuilderTests {
 	@Test
 	public void customLogout() {
 		SecurityWebFilterChain securityWebFilter = this.http
-			.authenticationManager(this.manager)
 			.authorizeExchange()
 				.anyExchange().authenticated()
 				.and()
-			.formLogin().and()
 			.logout()
 				.logoutUrl("/custom-logout")
 				.and()
