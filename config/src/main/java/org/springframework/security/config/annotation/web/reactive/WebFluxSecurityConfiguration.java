@@ -65,7 +65,11 @@ public class WebFluxSecurityConfiguration {
 		ServerHttpSecurity http = context.getBean(ServerHttpSecurity.class);
 		http
 			.authorizeExchange()
-				.anyExchange().authenticated();
+				.anyExchange().authenticated()
+				.and()
+			.httpBasic().and()
+			.formLogin().and()
+			.build();
 		return Arrays.asList(http.build());
 	}
 }

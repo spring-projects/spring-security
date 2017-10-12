@@ -43,6 +43,7 @@ public class LogoutBuilderTests {
 			.authorizeExchange()
 				.anyExchange().authenticated()
 				.and()
+			.formLogin().and()
 			.build();
 
 		WebTestClient webTestClient = WebTestClientBuilder
@@ -82,6 +83,7 @@ public class LogoutBuilderTests {
 			.authorizeExchange()
 				.anyExchange().authenticated()
 				.and()
+			.formLogin().and()
 			.logout()
 				.logoutUrl("/custom-logout")
 				.and()

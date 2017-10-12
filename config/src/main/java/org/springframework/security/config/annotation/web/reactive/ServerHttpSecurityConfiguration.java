@@ -67,8 +67,6 @@ public class ServerHttpSecurityConfiguration implements WebFluxConfigurer {
 		return http()
 			.authenticationManager(authenticationManager())
 			.headers().and()
-			.httpBasic().and()
-			.formLogin().and()
 			.logout().and();
 	}
 

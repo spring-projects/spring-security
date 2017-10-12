@@ -36,10 +36,12 @@ public class SecurityConfig {
 	@Bean
 	SecurityWebFilterChain springWebFilterChain(ServerHttpSecurity http) throws Exception {
 		return http
-			// we rely on method security
+			// Demonstrate that method security works
+			// Best practice to use both for defense in depth
 			.authorizeExchange()
 				.anyExchange().permitAll()
 				.and()
+			.httpBasic().and()
 			.build();
 	}
 
