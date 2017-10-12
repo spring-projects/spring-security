@@ -199,7 +199,7 @@ public class AuthorizationCodeAuthenticationFilterTests {
 		AuthorizationRequest authorizationRequest =
 			AuthorizationRequest.authorizationCode()
 				.clientId(clientRegistration.getClientId())
-				.authorizeUri(clientRegistration.getProviderDetails().getAuthorizationUri())
+				.authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri())
 				.redirectUri(clientRegistration.getRedirectUri())
 				.scope(clientRegistration.getScope())
 				.state(state)

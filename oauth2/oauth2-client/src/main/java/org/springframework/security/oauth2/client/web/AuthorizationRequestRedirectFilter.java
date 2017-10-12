@@ -142,7 +142,7 @@ public class AuthorizationRequestRedirectFilter extends OncePerRequestFilter {
 		}
 		AuthorizationRequest authorizationRequest = builder
 				.clientId(clientRegistration.getClientId())
-				.authorizeUri(clientRegistration.getProviderDetails().getAuthorizationUri())
+				.authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri())
 				.redirectUri(redirectUriStr)
 				.scope(clientRegistration.getScope())
 				.state(this.stateGenerator.generateKey())

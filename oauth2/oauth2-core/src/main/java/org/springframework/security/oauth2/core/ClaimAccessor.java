@@ -74,9 +74,9 @@ public interface ClaimAccessor {
 		if (!this.containsClaim(claim) || !Map.class.isAssignableFrom(this.getClaims().get(claim).getClass())) {
 			return null;
 		}
-		Map<String, Object> claimFields = new HashMap<>();
-		((Map<?, ?>)this.getClaims().get(claim)).forEach((k, v) -> claimFields.put(k.toString(), v));
-		return claimFields;
+		Map<String, Object> claimValues = new HashMap<>();
+		((Map<?, ?>)this.getClaims().get(claim)).forEach((k, v) -> claimValues.put(k.toString(), v));
+		return claimValues;
 	}
 
 	default List<String> getClaimAsStringList(String claim) {

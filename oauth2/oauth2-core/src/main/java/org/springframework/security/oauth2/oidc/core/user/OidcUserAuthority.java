@@ -16,7 +16,6 @@
 package org.springframework.security.oauth2.oidc.core.user;
 
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.security.oauth2.oidc.core.IdToken;
 import org.springframework.security.oauth2.oidc.core.UserInfo;
@@ -29,7 +28,6 @@ import org.springframework.security.oauth2.oidc.core.UserInfo;
  * @see OidcUser
  */
 public class OidcUserAuthority extends OAuth2UserAuthority {
-	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 	private final IdToken idToken;
 	private final UserInfo userInfo;
 
@@ -72,7 +70,9 @@ public class OidcUserAuthority extends OAuth2UserAuthority {
 		if (!this.getIdToken().equals(that.getIdToken())) {
 			return false;
 		}
-		return this.getUserInfo() != null ? this.getUserInfo().equals(that.getUserInfo()) : that.getUserInfo() == null;
+		return this.getUserInfo() != null ?
+			this.getUserInfo().equals(that.getUserInfo()) :
+			that.getUserInfo() == null;
 	}
 
 	@Override

@@ -48,7 +48,6 @@ import java.util.Map;
  * @see UserInfo
  * @see IdTokenClaimAccessor
  * @see StandardClaimAccessor
- * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html">OpenID Connect Core 1.0</a>
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#IDToken">ID Token</a>
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#StandardClaims">Standard Claims</a>
  */

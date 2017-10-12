@@ -38,7 +38,7 @@ public class AuthorizationRequestTest {
 	@Test(expected = IllegalArgumentException.class)
 	public void buildWhenAuthorizationUriIsNullThenThrowIllegalArgumentException() {
 		AuthorizationRequest.authorizationCode()
-			.authorizeUri(null)
+			.authorizationUri(null)
 			.clientId(CLIENT_ID)
 			.redirectUri(REDIRECT_URI)
 			.scope(SCOPE)
@@ -59,7 +59,7 @@ public class AuthorizationRequestTest {
 	@Test(expected = IllegalArgumentException.class)
 	public void buildWhenClientIdIsNullThenThrowIllegalArgumentException() {
 		AuthorizationRequest.authorizationCode()
-			.authorizeUri(AUTHORIZE_URI)
+			.authorizationUri(AUTHORIZE_URI)
 			.clientId(null)
 			.redirectUri(REDIRECT_URI)
 			.scope(SCOPE)
@@ -70,7 +70,7 @@ public class AuthorizationRequestTest {
 	@Test(expected = IllegalArgumentException.class)
 	public void buildWhenClientIdNotSetThenThrowIllegalArgumentException() {
 		AuthorizationRequest.authorizationCode()
-			.authorizeUri(AUTHORIZE_URI)
+			.authorizationUri(AUTHORIZE_URI)
 			.redirectUri(REDIRECT_URI)
 			.scope(SCOPE)
 			.state(STATE)
@@ -81,7 +81,7 @@ public class AuthorizationRequestTest {
 	public void buildWhenGetResponseTypeIsCalledThenReturnCode() {
 		AuthorizationRequest authorizationRequest;
 		authorizationRequest = AuthorizationRequest.authorizationCode()
-			.authorizeUri(AUTHORIZE_URI)
+			.authorizationUri(AUTHORIZE_URI)
 			.clientId(CLIENT_ID)
 			.redirectUri(REDIRECT_URI)
 			.scope(SCOPE)
@@ -94,7 +94,7 @@ public class AuthorizationRequestTest {
 	@Test
 	public void buildWhenRedirectUriIsNullThenDoesNotThrowAnyException() {
 		assertThatCode(() -> AuthorizationRequest.authorizationCode()
-			.authorizeUri(AUTHORIZE_URI)
+			.authorizationUri(AUTHORIZE_URI)
 			.clientId(CLIENT_ID)
 			.redirectUri(null)
 			.scope(SCOPE)
@@ -105,7 +105,7 @@ public class AuthorizationRequestTest {
 	@Test
 	public void buildWhenRedirectUriNotSetThenDoesNotThrowAnyException() {
 		assertThatCode(() -> AuthorizationRequest.authorizationCode()
-			.authorizeUri(AUTHORIZE_URI)
+			.authorizationUri(AUTHORIZE_URI)
 			.clientId(CLIENT_ID)
 			.scope(SCOPE)
 			.state(STATE)
@@ -115,7 +115,7 @@ public class AuthorizationRequestTest {
 	@Test
 	public void buildWhenScopesIsNullThenDoesNotThrowAnyException() {
 		assertThatCode(() -> AuthorizationRequest.authorizationCode()
-			.authorizeUri(AUTHORIZE_URI)
+			.authorizationUri(AUTHORIZE_URI)
 			.clientId(CLIENT_ID)
 			.redirectUri(REDIRECT_URI)
 			.scope(null)
@@ -126,7 +126,7 @@ public class AuthorizationRequestTest {
 	@Test
 	public void buildWhenScopesNotSetThenDoesNotThrowAnyException() {
 		assertThatCode(() -> AuthorizationRequest.authorizationCode()
-			.authorizeUri(AUTHORIZE_URI)
+			.authorizationUri(AUTHORIZE_URI)
 			.clientId(CLIENT_ID)
 			.redirectUri(REDIRECT_URI)
 			.state(STATE)
@@ -136,7 +136,7 @@ public class AuthorizationRequestTest {
 	@Test
 	public void buildWhenStateIsNullThenDoesNotThrowAnyException() {
 		assertThatCode(() -> AuthorizationRequest.authorizationCode()
-			.authorizeUri(AUTHORIZE_URI)
+			.authorizationUri(AUTHORIZE_URI)
 			.clientId(CLIENT_ID)
 			.redirectUri(REDIRECT_URI)
 			.scope(SCOPE)
@@ -147,7 +147,7 @@ public class AuthorizationRequestTest {
 	@Test
 	public void buildWhenStateNotSetThenDoesNotThrowAnyException() {
 		assertThatCode(() -> AuthorizationRequest.authorizationCode()
-			.authorizeUri(AUTHORIZE_URI)
+			.authorizationUri(AUTHORIZE_URI)
 			.clientId(CLIENT_ID)
 			.redirectUri(REDIRECT_URI)
 			.scope(SCOPE)

@@ -37,7 +37,7 @@ public class DefaultAuthorizationRequestUriBuilder implements AuthorizationReque
 	@Override
 	public URI build(AuthorizationRequest authorizationRequest) {
 		UriComponentsBuilder uriBuilder = UriComponentsBuilder
-			.fromUriString(authorizationRequest.getAuthorizeUri())
+			.fromUriString(authorizationRequest.getAuthorizationUri())
 			.queryParam(OAuth2Parameter.RESPONSE_TYPE, authorizationRequest.getResponseType().getValue())
 			.queryParam(OAuth2Parameter.CLIENT_ID, authorizationRequest.getClientId())
 			.queryParam(OAuth2Parameter.SCOPE,

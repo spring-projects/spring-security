@@ -17,6 +17,7 @@ package org.springframework.security.oauth2.core.endpoint;
 
 import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -100,12 +101,11 @@ public final class TokenResponse {
 		public TokenResponse build() {
 			Assert.isTrue(this.expiresIn >= 0, "expiresIn must be a positive number");
 			Instant issuedAt = Instant.now();
-			AccessToken accessToken = new AccessToken(this.tokenType, this.tokenValue, issuedAt,
-				issuedAt.plusSeconds(this.expiresIn), this.scope);
 			TokenResponse tokenResponse = new TokenResponse();
-			tokenResponse.accessToken = accessToken;
+			tokenResponse.accessToken = new AccessToken(this.tokenType, this.tokenValue, issuedAt,
+				issuedAt.plusSeconds(this.expiresIn), this.scope);
 			tokenResponse.additionalParameters = Collections.unmodifiableMap(
-				this.additionalParameters != null ? this.additionalParameters : Collections.emptyMap());
+				CollectionUtils.isEmpty(this.additionalParameters) ? Collections.emptyMap() : this.additionalParameters);
 			return tokenResponse;
 		}
 	}

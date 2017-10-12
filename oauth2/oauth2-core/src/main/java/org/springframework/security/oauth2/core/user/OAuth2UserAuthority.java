@@ -33,7 +33,7 @@ import java.util.Map;
 public class OAuth2UserAuthority implements GrantedAuthority {
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 	private final String authority;
-	private Map<String, Object> attributes;
+	private final Map<String, Object> attributes;
 
 	public OAuth2UserAuthority(Map<String, Object> attributes) {
 		this("ROLE_USER", attributes);

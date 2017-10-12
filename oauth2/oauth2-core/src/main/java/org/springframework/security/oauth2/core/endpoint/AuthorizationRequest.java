@@ -38,7 +38,7 @@ import java.util.Set;
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.2.1">Section 4.2.1 Implicit Grant Request</a>
  */
 public final class AuthorizationRequest implements Serializable {
-	private String authorizeUri;
+	private String authorizationUri;
 	private AuthorizationGrantType authorizationGrantType;
 	private ResponseType responseType;
 	private String clientId;
@@ -50,8 +50,8 @@ public final class AuthorizationRequest implements Serializable {
 	private AuthorizationRequest() {
 	}
 
-	public String getAuthorizeUri() {
-		return this.authorizeUri;
+	public String getAuthorizationUri() {
+		return this.authorizationUri;
 	}
 
 	public AuthorizationGrantType getGrantType() {
@@ -91,62 +91,76 @@ public final class AuthorizationRequest implements Serializable {
 	}
 
 	public static class Builder {
-		private final AuthorizationRequest authorizationRequest;
+		private String authorizationUri;
+		private AuthorizationGrantType authorizationGrantType;
+		private ResponseType responseType;
+		private String clientId;
+		private String redirectUri;
+		private Set<String> scope;
+		private String state;
+		private Map<String,Object> additionalParameters;
 
 		private Builder(AuthorizationGrantType authorizationGrantType) {
 			Assert.notNull(authorizationGrantType, "authorizationGrantType cannot be null");
-			this.authorizationRequest = new AuthorizationRequest();
-			this.authorizationRequest.authorizationGrantType = authorizationGrantType;
+			this.authorizationGrantType = authorizationGrantType;
 			if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(authorizationGrantType)) {
-				this.authorizationRequest.responseType = ResponseType.CODE;
+				this.responseType = ResponseType.CODE;
 			} else if (AuthorizationGrantType.IMPLICIT.equals(authorizationGrantType)) {
-				this.authorizationRequest.responseType = ResponseType.TOKEN;
+				this.responseType = ResponseType.TOKEN;
 			}
 		}
 
-		public Builder authorizeUri(String authorizeUri) {
-			this.authorizationRequest.authorizeUri = authorizeUri;
+		public Builder authorizationUri(String authorizationUri) {
+			this.authorizationUri = authorizationUri;
 			return this;
 		}
 
 		public Builder clientId(String clientId) {
-			this.authorizationRequest.clientId = clientId;
+			this.clientId = clientId;
 			return this;
 		}
 
 		public Builder redirectUri(String redirectUri) {
-			this.authorizationRequest.redirectUri = redirectUri;
+			this.redirectUri = redirectUri;
 			return this;
 		}
 
 		public Builder scope(Set<String> scope) {
-			this.authorizationRequest.scope = scope;
+			this.scope = scope;
 			return this;
 		}
 
 		public Builder state(String state) {
-			this.authorizationRequest.state = state;
+			this.state = state;
 			return this;
 		}
 
 		public Builder additionalParameters(Map<String,Object> additionalParameters) {
-			this.authorizationRequest.additionalParameters = additionalParameters;
+			this.additionalParameters = additionalParameters;
 			return this;
 		}
 
 		public AuthorizationRequest build() {
-			Assert.hasText(this.authorizationRequest.authorizeUri, "authorizeUri cannot be empty");
-			Assert.hasText(this.authorizationRequest.clientId, "clientId cannot be empty");
-			if (AuthorizationGrantType.IMPLICIT.equals(this.authorizationRequest.authorizationGrantType)) {
-				Assert.hasText(this.authorizationRequest.redirectUri, "redirectUri cannot be empty");
+			Assert.hasText(this.authorizationUri, "authorizationUri cannot be empty");
+			Assert.hasText(this.clientId, "clientId cannot be empty");
+			if (AuthorizationGrantType.IMPLICIT.equals(this.authorizationGrantType)) {
+				Assert.hasText(this.redirectUri, "redirectUri cannot be empty");
 			}
-			this.authorizationRequest.scope = Collections.unmodifiableSet(
-				CollectionUtils.isEmpty(this.authorizationRequest.scope) ?
-					Collections.emptySet() : new LinkedHashSet<>(this.authorizationRequest.scope));
-			this.authorizationRequest.additionalParameters = Collections.unmodifiableMap(
-				CollectionUtils.isEmpty(this.authorizationRequest.additionalParameters) ?
-					Collections.emptyMap() : new LinkedHashMap<>(this.authorizationRequest.additionalParameters));
-			return this.authorizationRequest;
+
+			AuthorizationRequest authorizationRequest = new AuthorizationRequest();
+			authorizationRequest.authorizationUri = this.authorizationUri;
+			authorizationRequest.authorizationGrantType = this.authorizationGrantType;
+			authorizationRequest.responseType = this.responseType;
+			authorizationRequest.clientId = this.clientId;
+			authorizationRequest.redirectUri = this.redirectUri;
+			authorizationRequest.state = this.state;
+			authorizationRequest.scope = Collections.unmodifiableSet(
+				CollectionUtils.isEmpty(this.scope) ?
+					Collections.emptySet() : new LinkedHashSet<>(this.scope));
+			authorizationRequest.additionalParameters = Collections.unmodifiableMap(
+				CollectionUtils.isEmpty(this.additionalParameters) ?
+					Collections.emptyMap() : new LinkedHashMap<>(this.additionalParameters));
+			return authorizationRequest;
 		}
 	}
 }

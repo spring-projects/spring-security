@@ -38,11 +38,31 @@ public class AccessToken extends SecurityToken {
 	private final TokenType tokenType;
 	private final Set<String> scope;
 
+	public AccessToken(TokenType tokenType, String tokenValue, Instant issuedAt, Instant expiresAt) {
+		this(tokenType, tokenValue, issuedAt, expiresAt, Collections.emptySet());
+	}
+
+	public AccessToken(TokenType tokenType, String tokenValue, Instant issuedAt, Instant expiresAt, Set<String> scope) {
+		super(tokenValue, issuedAt, expiresAt);
+		Assert.notNull(tokenType, "tokenType cannot be null");
+		this.tokenType = tokenType;
+		this.scope = Collections.unmodifiableSet(
+			scope != null ? scope : Collections.emptySet());
+	}
+
+	public TokenType getTokenType() {
+		return this.tokenType;
+	}
+
+	public Set<String> getScope() {
+		return this.scope;
+	}
+
 	public static final class TokenType {
 		public static final TokenType BEARER = new TokenType("Bearer");
 		private final String value;
 
-		public TokenType(String value) {
+		private TokenType(String value) {
 			Assert.hasText(value, "value cannot be empty");
 			this.value = value;
 		}
@@ -67,25 +87,5 @@ public class AccessToken extends SecurityToken {
 		public int hashCode() {
 			return this.getValue().hashCode();
 		}
-	}
-
-	public AccessToken(TokenType tokenType, String tokenValue, Instant issuedAt, Instant expiresAt) {
-		this(tokenType, tokenValue, issuedAt, expiresAt, Collections.emptySet());
-	}
-
-	public AccessToken(TokenType tokenType, String tokenValue, Instant issuedAt, Instant expiresAt, Set<String> scope) {
-		super(tokenValue, issuedAt, expiresAt);
-		Assert.notNull(tokenType, "tokenType cannot be null");
-		this.tokenType = tokenType;
-		this.scope = Collections.unmodifiableSet(
-			scope != null ? scope : Collections.emptySet());
-	}
-
-	public TokenType getTokenType() {
-		return this.tokenType;
-	}
-
-	public Set<String> getScope() {
-		return this.scope;
 	}
 }

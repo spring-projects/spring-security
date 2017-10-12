@@ -114,7 +114,7 @@ public class DefaultOidcUserTests {
 	@Test
 	public void constructorWhenNameAttributeKeyClaimIsNotPresentThenThrowsException() {
 		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("Invalid nameAttributeKey: " + StandardClaim.NAME);
+		this.thrown.expectMessage("Missing attribute '" + StandardClaim.NAME + "' in attributes");
 
 		new DefaultOidcUser(TEST_AUTHORITIES, TEST_ID_TOKEN, TEST_USER_INFO, StandardClaim.NAME);
 	}

@@ -35,7 +35,7 @@ public final class ResponseType {
 	public static final ResponseType TOKEN = new ResponseType("token");
 	private final String value;
 
-	public ResponseType(String value) {
+	private ResponseType(String value) {
 		Assert.hasText(value, "value cannot be empty");
 		this.value = value;
 	}

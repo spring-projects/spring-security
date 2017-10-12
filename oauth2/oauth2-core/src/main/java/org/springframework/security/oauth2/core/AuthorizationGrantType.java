@@ -26,9 +26,6 @@ import org.springframework.util.Assert;
  * authorization code, implicit, resource owner password credentials, and client credentials.
  * It also provides an extensibility mechanism for defining additional grant types.
  *
- * <p>
- * <b>NOTE:</b> &quot;authorization code&quot; is currently the only supported grant type.
- *
  * @author Joe Grandja
  * @since 5.0
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-1.3">Section 1.3 Authorization Grant</a>

@@ -19,7 +19,15 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.Assert;
 
-import java.util.*;
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 /**
@@ -37,10 +45,10 @@ import java.util.stream.Collectors;
  * @since 5.0
  * @see OAuth2User
  */
-public class DefaultOAuth2User implements OAuth2User {
+public class DefaultOAuth2User implements OAuth2User, Serializable {
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 	private final Set<GrantedAuthority> authorities;
-	private Map<String, Object> attributes;
+	private final Map<String, Object> attributes;
 	private final String nameAttributeKey;
 
 	public DefaultOAuth2User(Set<GrantedAuthority> authorities, Map<String, Object> attributes, String nameAttributeKey) {
@@ -48,7 +56,7 @@ public class DefaultOAuth2User implements OAuth2User {
 		Assert.notEmpty(attributes, "attributes cannot be empty");
 		Assert.hasText(nameAttributeKey, "nameAttributeKey cannot be empty");
 		if (!attributes.containsKey(nameAttributeKey)) {
-			throw new IllegalArgumentException("Invalid nameAttributeKey: " + nameAttributeKey);
+			throw new IllegalArgumentException("Missing attribute '" + nameAttributeKey + "' in attributes");
 		}
 		this.authorities = Collections.unmodifiableSet(this.sortAuthorities(authorities));
 		this.attributes = Collections.unmodifiableMap(new LinkedHashMap<>(attributes));
@@ -72,8 +80,8 @@ public class DefaultOAuth2User implements OAuth2User {
 
 	private Set<GrantedAuthority> sortAuthorities(Set<GrantedAuthority> authorities) {
 		SortedSet<GrantedAuthority> sortedAuthorities =
-			new TreeSet<>((g1, g2) -> g1.getAuthority().compareTo(g2.getAuthority()));
-		authorities.stream().forEach(sortedAuthorities::add);
+			new TreeSet<>(Comparator.comparing(GrantedAuthority::getAuthority));
+		sortedAuthorities.addAll(authorities);
 		return sortedAuthorities;
 	}
 

@@ -24,9 +24,6 @@ import java.time.Instant;
 /**
  * Base class for <i>Security Token</i> implementations.
  *
- * <p>
- * It is highly recommended that implementations be immutable.
- *
  * @author Joe Grandja
  * @since 5.0
  */
@@ -37,7 +34,7 @@ public abstract class SecurityToken implements Serializable {
 	private final Instant expiresAt;
 
 	protected SecurityToken(String tokenValue, Instant issuedAt, Instant expiresAt) {
-		Assert.hasLength(tokenValue, "tokenValue cannot be empty");
+		Assert.hasText(tokenValue, "tokenValue cannot be empty");
 		Assert.notNull(issuedAt, "issuedAt cannot be null");
 		Assert.notNull(expiresAt, "expiresAt cannot be null");
 		this.tokenValue = tokenValue;
