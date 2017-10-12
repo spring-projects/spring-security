@@ -102,7 +102,7 @@ public class DefaultOAuth2UserTests {
 	@Test
 	public void constructorWhenNameAttributeKeyIsInvalidThenThrowsException() {
 		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("Invalid nameAttributeKey: invalid");
+		this.thrown.expectMessage("Missing attribute 'invalid' in attributes");
 
 		new DefaultOAuth2User(TEST_AUTHORITIES, TEST_ATTRIBUTES, "invalid");
 	}

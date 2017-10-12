@@ -27,6 +27,7 @@ import org.springframework.security.oauth2.client.web.AuthorizationGrantTokenExc
 import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.security.oauth2.core.endpoint.TokenResponse;
 import org.springframework.security.oauth2.oidc.core.IdToken;
+import org.springframework.security.oauth2.oidc.core.OidcScope;
 import org.springframework.security.oauth2.oidc.core.endpoint.OidcParameter;
 import org.springframework.util.Assert;
 
@@ -37,6 +38,10 @@ import org.springframework.util.Assert;
  *
  * @author Joe Grandja
  * @since 5.0
+ * @see AuthorizationGrantAuthenticator
+ * @see AuthorizationCodeAuthenticationToken
+ * @see AuthorizationGrantTokenExchanger
+ * @see JwtDecoderRegistry
  */
 public class OidcAuthorizationCodeAuthenticator implements AuthorizationGrantAuthenticator<AuthorizationCodeAuthenticationToken> {
 	private final AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger;
@@ -60,7 +65,7 @@ public class OidcAuthorizationCodeAuthenticator implements AuthorizationGrantAut
 		// scope
 		// 		REQUIRED. OpenID Connect requests MUST contain the "openid" scope value.
 		//		If the openid scope value is not present, the behavior is entirely unspecified.
-		if (!authorizationCodeAuthentication.getAuthorizationRequest().getScope().contains("openid")) {
+		if (!authorizationCodeAuthentication.getAuthorizationRequest().getScope().contains(OidcScope.OPENID)) {
 			return null;
 		}
 
@@ -75,21 +80,21 @@ public class OidcAuthorizationCodeAuthenticator implements AuthorizationGrantAut
 
 		if (!tokenResponse.getAdditionalParameters().containsKey(OidcParameter.ID_TOKEN)) {
 			throw new IllegalArgumentException(
-				"Missing (required) ID Token in Token Response for Client Registration: '" + clientRegistration.getRegistrationId() + "'");
+				"Missing (required) ID Token in Token Response for Client Registration: " + clientRegistration.getRegistrationId());
 		}
 
 		JwtDecoder jwtDecoder = this.jwtDecoderRegistry.getJwtDecoder(clientRegistration);
 		if (jwtDecoder == null) {
-			throw new IllegalArgumentException("Unable to find a registered JwtDecoder for Client Registration: '" + clientRegistration.getRegistrationId() +
+			throw new IllegalArgumentException("Failed to find a registered JwtDecoder for Client Registration: '" + clientRegistration.getRegistrationId() +
 				"'. Check to ensure you have configured the JwkSet URI.");
 		}
 		Jwt jwt = jwtDecoder.decode((String)tokenResponse.getAdditionalParameters().get(OidcParameter.ID_TOKEN));
 		IdToken idToken = new IdToken(jwt.getTokenValue(), jwt.getIssuedAt(), jwt.getExpiresAt(), jwt.getClaims());
 
-		OidcClientAuthenticationToken oidcClientAuthentication =
+		OidcClientAuthenticationToken clientAuthentication =
 			new OidcClientAuthenticationToken(clientRegistration, accessToken, idToken);
-		oidcClientAuthentication.setDetails(authorizationCodeAuthentication.getDetails());
+		clientAuthentication.setDetails(authorizationCodeAuthentication.getDetails());
 
-		return oidcClientAuthentication;
+		return clientAuthentication;
 	}
 }

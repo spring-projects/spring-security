@@ -28,21 +28,21 @@ import java.util.Map;
  *
  * @author Joe Grandja
  * @since 5.0
+ * @see ClientRegistrationRepository
  * @see ClientRegistration
  */
 public final class InMemoryClientRegistrationRepository implements ClientRegistrationRepository, Iterable<ClientRegistration> {
-	private final ClientRegistrationIdentifierStrategy<String> identifierStrategy = new RegistrationIdIdentifierStrategy();
 	private final Map<String, ClientRegistration> registrations;
 
 	public InMemoryClientRegistrationRepository(List<ClientRegistration> registrations) {
 		Assert.notEmpty(registrations, "registrations cannot be empty");
 		Map<String, ClientRegistration> registrationsMap = new HashMap<>();
 		registrations.forEach(registration -> {
-			String identifier = this.identifierStrategy.getIdentifier(registration);
-			if (registrationsMap.containsKey(identifier)) {
-				throw new IllegalArgumentException("ClientRegistration must be unique. Found duplicate identifier: " + identifier);
+			if (registrationsMap.containsKey(registration.getRegistrationId())) {
+				throw new IllegalArgumentException("ClientRegistration must be unique. Found duplicate registrationId: " +
+					registration.getRegistrationId());
 			}
-			registrationsMap.put(identifier, registration);
+			registrationsMap.put(registration.getRegistrationId(), registration);
 		});
 		this.registrations = Collections.unmodifiableMap(registrationsMap);
 	}

@@ -32,16 +32,15 @@ import javax.servlet.http.HttpSession;
 public final class HttpSessionAuthorizationRequestRepository implements AuthorizationRequestRepository {
 	private static final String DEFAULT_AUTHORIZATION_REQUEST_ATTR_NAME =
 			HttpSessionAuthorizationRequestRepository.class.getName() +  ".AUTHORIZATION_REQUEST";
-	private String sessionAttributeName = DEFAULT_AUTHORIZATION_REQUEST_ATTR_NAME;
+	private final String sessionAttributeName = DEFAULT_AUTHORIZATION_REQUEST_ATTR_NAME;
 
 	@Override
 	public AuthorizationRequest loadAuthorizationRequest(HttpServletRequest request) {
-		AuthorizationRequest authorizationRequest = null;
 		HttpSession session = request.getSession(false);
 		if (session != null) {
-			authorizationRequest = (AuthorizationRequest) session.getAttribute(this.sessionAttributeName);
+			return (AuthorizationRequest) session.getAttribute(this.sessionAttributeName);
 		}
-		return authorizationRequest;
+		return null;
 	}
 
 	@Override
@@ -55,11 +54,7 @@ public final class HttpSessionAuthorizationRequestRepository implements Authoriz
 	}
 
 	@Override
-	public AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request) {
-		AuthorizationRequest authorizationRequest = this.loadAuthorizationRequest(request);
-		if (authorizationRequest != null) {
-			request.getSession().removeAttribute(this.sessionAttributeName);
-		}
-		return authorizationRequest;
+	public void removeAuthorizationRequest(HttpServletRequest request) {
+		request.getSession().removeAttribute(this.sessionAttributeName);
 	}
 }

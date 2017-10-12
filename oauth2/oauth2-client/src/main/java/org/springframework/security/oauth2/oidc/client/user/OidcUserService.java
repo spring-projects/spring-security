@@ -65,7 +65,7 @@ public class OidcUserService implements OAuth2UserService {
 
 		UserInfo userInfo = null;
 		if (this.shouldRetrieveUserInfo(oidcClientAuthentication)) {
-			Map<String, Object> userAttributes = this.getUserInfoRetriever().retrieve(oidcClientAuthentication);
+			Map<String, Object> userAttributes = this.userInfoRetriever.retrieve(oidcClientAuthentication);
 			userInfo = new UserInfo(userAttributes);
 		}
 
@@ -74,10 +74,6 @@ public class OidcUserService implements OAuth2UserService {
 		authorities.add(authority);
 
 		return new DefaultOidcUser(authorities, oidcClientAuthentication.getIdToken(), userInfo);
-	}
-
-	protected UserInfoRetriever getUserInfoRetriever() {
-		return this.userInfoRetriever;
 	}
 
 	public final void setUserInfoRetriever(UserInfoRetriever userInfoRetriever) {

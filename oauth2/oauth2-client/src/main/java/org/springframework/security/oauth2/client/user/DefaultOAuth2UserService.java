@@ -53,9 +53,6 @@ import java.util.Set;
 public class DefaultOAuth2UserService implements OAuth2UserService {
 	private UserInfoRetriever userInfoRetriever = new NimbusUserInfoRetriever();
 
-	public DefaultOAuth2UserService() {
-	}
-
 	@Override
 	public OAuth2User loadUser(OAuth2ClientAuthenticationToken clientAuthentication) throws OAuth2AuthenticationException {
 		if (OidcClientAuthenticationToken.class.isAssignableFrom(clientAuthentication.getClass())) {
@@ -69,16 +66,12 @@ public class DefaultOAuth2UserService implements OAuth2UserService {
 					clientAuthentication.getClientRegistration().getRegistrationId());
 		}
 
-		Map<String, Object> userAttributes = this.getUserInfoRetriever().retrieve(clientAuthentication);
+		Map<String, Object> userAttributes = this.userInfoRetriever.retrieve(clientAuthentication);
 		GrantedAuthority authority = new OAuth2UserAuthority(userAttributes);
 		Set<GrantedAuthority> authorities = new HashSet<>();
 		authorities.add(authority);
 
 		return new DefaultOAuth2User(authorities, userAttributes, userNameAttributeName);
-	}
-
-	protected UserInfoRetriever getUserInfoRetriever() {
-		return this.userInfoRetriever;
 	}
 
 	public final void setUserInfoRetriever(UserInfoRetriever userInfoRetriever) {

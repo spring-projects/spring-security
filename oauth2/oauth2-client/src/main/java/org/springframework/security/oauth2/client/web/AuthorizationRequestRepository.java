@@ -27,8 +27,8 @@ import javax.servlet.http.HttpServletResponse;
  * <p>
  * Used by the {@link AuthorizationRequestRedirectFilter} for persisting the <i>Authorization Request</i>
  * before it initiates the authorization code grant flow.
- * As well, used by the {@link AuthorizationCodeAuthenticationFilter} when resolving
- * the associated <i>Authorization Request</i> during the handling of the <i>Authorization Response</i>.
+ * As well, used by the {@link AuthorizationCodeAuthenticationFilter} for resolving
+ * the associated <i>Authorization Request</i> when handling the <i>Authorization Response</i>.
  *
  * @author Joe Grandja
  * @since 5.0
@@ -42,6 +42,6 @@ public interface AuthorizationRequestRepository {
 	void saveAuthorizationRequest(AuthorizationRequest authorizationRequest, HttpServletRequest request,
 									HttpServletResponse response);
 
-	AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request);
+	void removeAuthorizationRequest(HttpServletRequest request);
 
 }

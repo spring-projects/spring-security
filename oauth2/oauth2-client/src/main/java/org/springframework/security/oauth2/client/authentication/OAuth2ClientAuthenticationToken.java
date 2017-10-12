@@ -18,12 +18,12 @@ package org.springframework.security.oauth2.client.authentication;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.SpringSecurityCoreVersion;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -48,7 +48,7 @@ public class OAuth2ClientAuthenticationToken extends AbstractAuthenticationToken
 	private final AccessToken accessToken;
 
 	public OAuth2ClientAuthenticationToken(ClientRegistration clientRegistration, AccessToken accessToken) {
-		super(AuthorityUtils.NO_AUTHORITIES);
+		super(Collections.emptyList());
 		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
 		Assert.notNull(accessToken, "accessToken cannot be null");
 		this.clientRegistration = clientRegistration;
@@ -63,7 +63,7 @@ public class OAuth2ClientAuthenticationToken extends AbstractAuthenticationToken
 
 	@Override
 	public Object getCredentials() {
-		return this.getAccessToken();
+		return "";		// No need to expose this.getClientRegistration().getClientSecret()
 	}
 
 	public ClientRegistration getClientRegistration() {
@@ -74,13 +74,13 @@ public class OAuth2ClientAuthenticationToken extends AbstractAuthenticationToken
 		return this.accessToken;
 	}
 
-	public Set<String> getAuthorizedScope() {
+	public final Set<String> getAuthorizedScope() {
 		// As per spec, in section 5.1 Successful Access Token Response
 		// https://tools.ietf.org/html/rfc6749#section-5.1
 		// If AccessToken.scope is empty, then default to the scope
 		// originally requested by the client in the Authorization Request
-		return (!CollectionUtils.isEmpty(this.getAccessToken().getScope()) ?
-			this.getAccessToken().getScope() :
-			this.getClientRegistration().getScope());
+		return (CollectionUtils.isEmpty(this.getAccessToken().getScope()) ?
+			this.getClientRegistration().getScope() :
+			this.getAccessToken().getScope());
 	}
 }

@@ -65,9 +65,10 @@ import java.io.IOException;
  * @see AbstractAuthenticationProcessingFilter
  * @see AuthorizationCodeAuthenticationToken
  * @see AuthorizationCodeAuthenticationProvider
- * @see AuthorizationRequestRedirectFilter
+ * @see AuthorizationResponse
  * @see AuthorizationRequest
  * @see AuthorizationRequestRepository
+ * @see AuthorizationRequestRedirectFilter
  * @see ClientRegistrationRepository
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">Section 4.1 Authorization Code Grant</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.2">Section 4.1.2 Authorization Response</a>
@@ -125,11 +126,11 @@ public class AuthorizationCodeAuthenticationFilter extends AbstractAuthenticatio
 				clientRegistration, authorizationRequest, authorizationResponse);
 		authorizationCodeAuthentication.setDetails(this.authenticationDetailsSource.buildDetails(request));
 
-		OAuth2ClientAuthenticationToken oauth2ClientAuthentication =
+		OAuth2ClientAuthenticationToken clientAuthentication =
 			(OAuth2ClientAuthenticationToken)this.getAuthenticationManager().authenticate(authorizationCodeAuthentication);
 
 		return this.getAuthenticationManager().authenticate(
-			new OAuth2UserAuthenticationToken(oauth2ClientAuthentication));
+			new OAuth2UserAuthenticationToken(clientAuthentication));
 	}
 
 	public final RequestMatcher getAuthorizationResponseMatcher() {
@@ -192,12 +193,12 @@ public class AuthorizationCodeAuthenticationFilter extends AbstractAuthenticatio
 					.state(state)
 					.build();
 			} else {
-				String description = request.getParameter(OAuth2Parameter.ERROR_DESCRIPTION);
-				String uri = request.getParameter(OAuth2Parameter.ERROR_URI);
+				String errorDescription = request.getParameter(OAuth2Parameter.ERROR_DESCRIPTION);
+				String errorUri = request.getParameter(OAuth2Parameter.ERROR_URI);
 				return AuthorizationResponse.error(errorCode)
 					.redirectUri(redirectUri)
-					.errorDescription(description)
-					.errorUri(uri)
+					.errorDescription(errorDescription)
+					.errorUri(errorUri)
 					.state(state)
 					.build();
 			}

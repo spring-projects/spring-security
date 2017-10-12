@@ -22,6 +22,8 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.openid.connect.sdk.UserInfoErrorResponse;
 import com.nimbusds.openid.connect.sdk.UserInfoRequest;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.client.AbstractClientHttpResponse;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.authentication.AuthenticationServiceException;
@@ -29,9 +31,13 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.client.authentication.OAuth2ClientAuthenticationToken;
 import org.springframework.security.oauth2.client.user.UserInfoRetriever;
 import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.util.Assert;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.util.Map;
 
 /**
@@ -98,6 +104,44 @@ public class NimbusUserInfoRetriever implements UserInfoRetriever {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_USER_INFO_RESPONSE_ERROR_CODE,
 				"An error occurred reading the UserInfo Success response: " + ex.getMessage(), null);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString(), ex);
+		}
+	}
+
+	private static class NimbusClientHttpResponse extends AbstractClientHttpResponse {
+		private final HTTPResponse httpResponse;
+		private final HttpHeaders headers;
+
+		private NimbusClientHttpResponse(HTTPResponse httpResponse) {
+			Assert.notNull(httpResponse, "httpResponse cannot be null");
+			this.httpResponse = httpResponse;
+			this.headers = new HttpHeaders();
+			this.headers.setAll(httpResponse.getHeaders());
+		}
+
+		@Override
+		public int getRawStatusCode() throws IOException {
+			return this.httpResponse.getStatusCode();
+		}
+
+		@Override
+		public String getStatusText() throws IOException {
+			return String.valueOf(this.getRawStatusCode());
+		}
+
+		@Override
+		public void close() {
+		}
+
+		@Override
+		public InputStream getBody() throws IOException {
+			InputStream inputStream = new ByteArrayInputStream(
+				this.httpResponse.getContent().getBytes(Charset.forName("UTF-8")));
+			return inputStream;
+		}
+
+		@Override
+		public HttpHeaders getHeaders() {
+			return this.headers;
 		}
 	}
 }

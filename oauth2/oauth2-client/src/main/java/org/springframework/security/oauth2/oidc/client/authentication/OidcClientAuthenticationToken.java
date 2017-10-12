@@ -24,7 +24,7 @@ import org.springframework.util.Assert;
 
 /**
  * A {@link OAuth2ClientAuthenticationToken} that represents an
- * <i>OpenID Connect 1.0 Client</i> {@link Authentication} (also known as <i>Relying Party</i>).
+ * <i>OpenID Connect 1.0 Client</i> {@link Authentication}.
  *
  * <p>
  * A client is considered <i>&quot;authenticated&quot;</i>,

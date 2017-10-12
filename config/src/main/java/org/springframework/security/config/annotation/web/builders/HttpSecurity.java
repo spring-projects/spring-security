@@ -991,7 +991,7 @@ public final class HttpSecurity extends
 	 * 				.and()
 	 * 			.oauth2Login()
 	 * 				.clients(this.clientRegistrationRepository())
-	 * 				.authorizationRequestBuilder(this.authorizationRequestBuilder())
+	 * 				.authorizationRequestUriBuilder(this.authorizationRequestUriBuilder())
 	 * 				.authorizationCodeTokenExchanger(this.authorizationCodeTokenExchanger())
 	 * 				.userInfoEndpoint()
 	 * 					.userInfoService(this.userInfoService())
@@ -1008,7 +1008,7 @@ public final class HttpSecurity extends
 	 *	}
 	 *
 	 * 	&#064;Bean
-	 * 	public AuthorizationRequestUriBuilder authorizationRequestBuilder() {
+	 * 	public AuthorizationRequestUriBuilder authorizationRequestUriBuilder() {
 	 * 		// Custom URI builder for the &quot;Authorization Request&quot;
 	 * 		return new AuthorizationRequestUriBuilderImpl();
 	 * 	}

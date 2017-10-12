@@ -58,7 +58,7 @@ public class CustomUserTypesOAuth2UserService implements OAuth2UserService {
 	public OAuth2User loadUser(OAuth2ClientAuthenticationToken clientAuthentication) throws OAuth2AuthenticationException {
 		URI userInfoUri = URI.create(clientAuthentication.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUri());
 		Class<? extends OAuth2User> customUserType;
-		if ((customUserType = this.getCustomUserTypes().get(userInfoUri)) == null) {
+		if ((customUserType = this.customUserTypes.get(userInfoUri)) == null) {
 			return null;
 		}
 
@@ -80,14 +80,6 @@ public class CustomUserTypesOAuth2UserService implements OAuth2UserService {
 		wrapper.setPropertyValues(userAttributes);
 
 		return customUser;
-	}
-
-	protected Map<URI, Class<? extends OAuth2User>> getCustomUserTypes() {
-		return this.customUserTypes;
-	}
-
-	protected UserInfoRetriever getUserInfoRetriever() {
-		return this.userInfoRetriever;
 	}
 
 	public final void setUserInfoRetriever(UserInfoRetriever userInfoRetriever) {

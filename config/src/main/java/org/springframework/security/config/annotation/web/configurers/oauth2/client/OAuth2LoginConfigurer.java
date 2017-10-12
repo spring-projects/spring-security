@@ -100,9 +100,9 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 			return this;
 		}
 
-		public AuthorizationEndpointConfig authorizationRequestBuilder(AuthorizationRequestUriBuilder authorizationRequestBuilder) {
-			Assert.notNull(authorizationRequestBuilder, "authorizationRequestBuilder cannot be null");
-			authorizationCodeGrantConfigurer.authorizationRequestBuilder(authorizationRequestBuilder);
+		public AuthorizationEndpointConfig authorizationRequestUriBuilder(AuthorizationRequestUriBuilder authorizationRequestUriBuilder) {
+			Assert.notNull(authorizationRequestUriBuilder, "authorizationRequestUriBuilder cannot be null");
+			authorizationCodeGrantConfigurer.authorizationRequestUriBuilder(authorizationRequestUriBuilder);
 			return this;
 		}
 

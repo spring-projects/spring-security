@@ -33,7 +33,7 @@ public final class ImplicitGrantConfigurer<B extends HttpSecurityBuilder<B>> ext
 	AbstractHttpConfigurer<ImplicitGrantConfigurer<B>, B> {
 
 	private String authorizationRequestBaseUri;
-	private AuthorizationRequestUriBuilder authorizationRequestBuilder;
+	private AuthorizationRequestUriBuilder authorizationRequestUriBuilder;
 
 	public ImplicitGrantConfigurer<B> authorizationRequestBaseUri(String authorizationRequestBaseUri) {
 		Assert.hasText(authorizationRequestBaseUri, "authorizationRequestBaseUri cannot be empty");
@@ -41,9 +41,9 @@ public final class ImplicitGrantConfigurer<B extends HttpSecurityBuilder<B>> ext
 		return this;
 	}
 
-	public ImplicitGrantConfigurer<B> authorizationRequestBuilder(AuthorizationRequestUriBuilder authorizationRequestBuilder) {
-		Assert.notNull(authorizationRequestBuilder, "authorizationRequestBuilder cannot be null");
-		this.authorizationRequestBuilder = authorizationRequestBuilder;
+	public ImplicitGrantConfigurer<B> authorizationRequestUriBuilder(AuthorizationRequestUriBuilder authorizationRequestUriBuilder) {
+		Assert.notNull(authorizationRequestUriBuilder, "authorizationRequestUriBuilder cannot be null");
+		this.authorizationRequestUriBuilder = authorizationRequestUriBuilder;
 		return this;
 	}
 
@@ -57,8 +57,8 @@ public final class ImplicitGrantConfigurer<B extends HttpSecurityBuilder<B>> ext
 	public void configure(B http) throws Exception {
 		AuthorizationRequestRedirectFilter authorizationRequestFilter = new AuthorizationRequestRedirectFilter(
 			this.getAuthorizationRequestBaseUri(), this.getClientRegistrationRepository());
-		if (this.authorizationRequestBuilder != null) {
-			authorizationRequestFilter.setAuthorizationUriBuilder(this.authorizationRequestBuilder);
+		if (this.authorizationRequestUriBuilder != null) {
+			authorizationRequestFilter.setAuthorizationRequestUriBuilder(this.authorizationRequestUriBuilder);
 		}
 		http.addFilter(this.postProcess(authorizationRequestFilter));
 	}

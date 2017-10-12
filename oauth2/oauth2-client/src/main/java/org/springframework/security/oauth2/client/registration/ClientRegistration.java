@@ -186,19 +186,19 @@ public class ClientRegistration {
 	}
 
 	public static class Builder {
-		protected String registrationId;
-		protected String clientId;
-		protected String clientSecret;
-		protected ClientAuthenticationMethod clientAuthenticationMethod = ClientAuthenticationMethod.BASIC;
-		protected AuthorizationGrantType authorizationGrantType;
-		protected String redirectUri;
-		protected Set<String> scope;
-		protected String authorizationUri;
-		protected String tokenUri;
-		protected String userInfoUri;
-		protected String userNameAttributeName;
-		protected String jwkSetUri;
-		protected String clientName;
+		private String registrationId;
+		private String clientId;
+		private String clientSecret;
+		private ClientAuthenticationMethod clientAuthenticationMethod = ClientAuthenticationMethod.BASIC;
+		private AuthorizationGrantType authorizationGrantType;
+		private String redirectUri;
+		private Set<String> scope;
+		private String authorizationUri;
+		private String tokenUri;
+		private String userInfoUri;
+		private String userNameAttributeName;
+		private String jwkSetUri;
+		private String clientName;
 
 		public Builder(String registrationId) {
 			this.registrationId = registrationId;
@@ -212,7 +212,7 @@ public class ClientRegistration {
 			this.authorizationGrantType(clientRegistrationProperties.getAuthorizationGrantType());
 			this.redirectUri(clientRegistrationProperties.getRedirectUri());
 			if (!CollectionUtils.isEmpty(clientRegistrationProperties.getScope())) {
-				this.scope(clientRegistrationProperties.getScope().stream().toArray(String[]::new));
+				this.scope(clientRegistrationProperties.getScope().toArray(new String[0]));
 			}
 			this.authorizationUri(clientRegistrationProperties.getAuthorizationUri());
 			this.tokenUri(clientRegistrationProperties.getTokenUri());
@@ -230,7 +230,7 @@ public class ClientRegistration {
 			this.authorizationGrantType(clientRegistration.getAuthorizationGrantType());
 			this.redirectUri(clientRegistration.getRedirectUri());
 			if (!CollectionUtils.isEmpty(clientRegistration.getScope())) {
-				this.scope(clientRegistration.getScope().stream().toArray(String[]::new));
+				this.scope(clientRegistration.getScope().toArray(new String[0]));
 			}
 			this.authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri());
 			this.tokenUri(clientRegistration.getProviderDetails().getTokenUri());

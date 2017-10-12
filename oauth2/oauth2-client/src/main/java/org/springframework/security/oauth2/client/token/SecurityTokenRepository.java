@@ -20,8 +20,7 @@ import org.springframework.security.oauth2.core.SecurityToken;
 
 /**
  * Implementations of this interface are responsible for the persistence
- * and association of an OAuth 2.0 / OpenID Connect 1.0
- * {@link SecurityToken} to a {@link ClientRegistration Client}.
+ * and association of a {@link SecurityToken} to a {@link ClientRegistration Client}.
  *
  * @author Joe Grandja
  * @since 5.0

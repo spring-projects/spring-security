@@ -19,7 +19,7 @@ import org.springframework.security.jwt.JwtDecoder;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 
 /**
- * A registry for {@link JwtDecoder}'s that are associated to a {@link ClientRegistration}.
+ * A registry of {@link JwtDecoder}'s that are associated to a {@link ClientRegistration}.
  *
  * @author Joe Grandja
  * @since 5.0

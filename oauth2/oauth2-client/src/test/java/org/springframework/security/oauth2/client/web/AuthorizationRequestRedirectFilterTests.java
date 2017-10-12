@@ -128,7 +128,7 @@ public class AuthorizationRequestRedirectFilterTests {
 
 		ClientRegistrationRepository clientRegistrationRepository = TestUtil.clientRegistrationRepository(clientRegistrations);
 		AuthorizationRequestRedirectFilter filter = new AuthorizationRequestRedirectFilter(clientRegistrationRepository);
-		filter.setAuthorizationUriBuilder(authorizationUriBuilder);
+		filter.setAuthorizationRequestUriBuilder(authorizationUriBuilder);
 
 		return filter;
 	}

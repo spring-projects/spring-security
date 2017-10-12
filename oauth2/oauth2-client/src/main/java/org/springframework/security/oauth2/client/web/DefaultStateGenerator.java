@@ -15,16 +15,16 @@
  */
 package org.springframework.security.oauth2.client.web;
 
-import java.util.Base64;
-
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 import org.springframework.security.crypto.keygen.StringKeyGenerator;
+import org.springframework.security.oauth2.core.endpoint.OAuth2Parameter;
 import org.springframework.util.Assert;
 
+import java.util.Base64;
+
 /**
- * The default implementation for generating the
- * {@link org.springframework.security.oauth2.core.endpoint.OAuth2Parameter#STATE} parameter
+ * The default implementation for generating the {@link OAuth2Parameter#STATE} parameter
  * used in the <i>Authorization Request</i> and correlated in the <i>Authorization Response</i> (or <i>Error Response</i>).
  *
  * <p>
@@ -36,16 +36,16 @@ import org.springframework.util.Assert;
  * @since 5.0
  */
 public class DefaultStateGenerator implements StringKeyGenerator {
-	private static final int DEFAULT_BYTE_LENGTH = 32;
+	private static final int DEFAULT_KEY_LENGTH = 32;
 	private final BytesKeyGenerator keyGenerator;
 
 	public DefaultStateGenerator() {
-		this(DEFAULT_BYTE_LENGTH);
+		this(DEFAULT_KEY_LENGTH);
 	}
 
-	public DefaultStateGenerator(int byteLength) {
-		Assert.isTrue(byteLength > 0, "byteLength must be greater than 0");
-		this.keyGenerator = KeyGenerators.secureRandom(byteLength);
+	public DefaultStateGenerator(int keyLength) {
+		Assert.isTrue(keyLength >= DEFAULT_KEY_LENGTH, "keyLength must be greater than " + DEFAULT_KEY_LENGTH);
+		this.keyGenerator = KeyGenerators.secureRandom(keyLength);
 	}
 
 	@Override

@@ -39,28 +39,28 @@ import org.springframework.util.Assert;
  * @since 5.0
  */
 public class OAuth2AuthenticationException extends AuthenticationException {
-	private OAuth2Error errorObject;
+	private OAuth2Error error;
 
-	public OAuth2AuthenticationException(OAuth2Error errorObject, Throwable cause) {
-		this(errorObject, cause.getMessage(), cause);
+	public OAuth2AuthenticationException(OAuth2Error error, Throwable cause) {
+		this(error, cause.getMessage(), cause);
 	}
 
-	public OAuth2AuthenticationException(OAuth2Error errorObject, String message) {
+	public OAuth2AuthenticationException(OAuth2Error error, String message) {
 		super(message);
-		this.setErrorObject(errorObject);
+		this.setError(error);
 	}
 
-	public OAuth2AuthenticationException(OAuth2Error errorObject, String message, Throwable cause) {
+	public OAuth2AuthenticationException(OAuth2Error error, String message, Throwable cause) {
 		super(message, cause);
-		this.setErrorObject(errorObject);
+		this.setError(error);
 	}
 
-	public OAuth2Error getErrorObject() {
-		return errorObject;
+	public OAuth2Error getError() {
+		return this.error;
 	}
 
-	private void setErrorObject(OAuth2Error errorObject) {
-		Assert.notNull(errorObject, "OAuth2 Error object cannot be null");
-		this.errorObject = errorObject;
+	private void setError(OAuth2Error error) {
+		Assert.notNull(error, "error cannot be null");
+		this.error = error;
 	}
 }

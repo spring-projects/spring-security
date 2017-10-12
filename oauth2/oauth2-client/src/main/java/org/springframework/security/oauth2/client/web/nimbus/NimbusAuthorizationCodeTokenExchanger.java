@@ -33,9 +33,9 @@ import com.nimbusds.oauth2.sdk.id.ClientID;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationToken;
-import org.springframework.security.oauth2.client.web.AuthorizationGrantTokenExchanger;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.web.AuthorizationGrantTokenExchanger;
 import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2Error;
@@ -45,10 +45,10 @@ import org.springframework.util.CollectionUtils;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * An implementation of an {@link AuthorizationGrantTokenExchanger} that <i>&quot;exchanges&quot;</i>
@@ -60,6 +60,7 @@ import java.util.stream.Collectors;
  *
  * @author Joe Grandja
  * @since 5.0
+ * @see AuthorizationGrantTokenExchanger
  * @see AuthorizationCodeAuthenticationToken
  * @see TokenResponse
  * @see <a target="_blank" href="https://connect2id.com/products/nimbus-oauth-openid-connect-sdk">Nimbus OAuth 2.0 SDK</a>
@@ -70,17 +71,17 @@ public class NimbusAuthorizationCodeTokenExchanger implements AuthorizationGrant
 	private static final String INVALID_TOKEN_RESPONSE_ERROR_CODE = "invalid_token_response";
 
 	@Override
-	public TokenResponse exchange(AuthorizationCodeAuthenticationToken authorizationCodeAuthenticationToken)
+	public TokenResponse exchange(AuthorizationCodeAuthenticationToken authorizationCodeAuthentication)
 			throws OAuth2AuthenticationException {
 
-		ClientRegistration clientRegistration = authorizationCodeAuthenticationToken.getClientRegistration();
+		ClientRegistration clientRegistration = authorizationCodeAuthentication.getClientRegistration();
 
 		// Build the authorization code grant request for the token endpoint
 		AuthorizationCode authorizationCode = new AuthorizationCode(
-			authorizationCodeAuthenticationToken.getAuthorizationResponse().getCode());
-		URI redirectUri = this.toURI(clientRegistration.getRedirectUri());
+			authorizationCodeAuthentication.getAuthorizationResponse().getCode());
+		URI redirectUri = toURI(clientRegistration.getRedirectUri());
 		AuthorizationGrant authorizationCodeGrant = new AuthorizationCodeGrant(authorizationCode, redirectUri);
-		URI tokenUri = this.toURI(clientRegistration.getProviderDetails().getTokenUri());
+		URI tokenUri = toURI(clientRegistration.getProviderDetails().getTokenUri());
 
 		// Set the credentials to authenticate the client at the token endpoint
 		ClientID clientId = new ClientID(clientRegistration.getClientId());
@@ -102,11 +103,8 @@ public class NimbusAuthorizationCodeTokenExchanger implements AuthorizationGrant
 			httpRequest.setReadTimeout(30000);
 			tokenResponse = com.nimbusds.oauth2.sdk.TokenResponse.parse(httpRequest.send());
 		} catch (ParseException pe) {
-			// This error occurs if the Access Token Response is not well-formed,
-			// for example, a required attribute is missing
 			throw new OAuth2AuthenticationException(new OAuth2Error(INVALID_TOKEN_RESPONSE_ERROR_CODE), pe);
 		} catch (IOException ioe) {
-			// This error occurs when there is a network-related issue
 			throw new AuthenticationServiceException("An error occurred while sending the Access Token Request: " +
 					ioe.getMessage(), ioe);
 		}
@@ -129,10 +127,9 @@ public class NimbusAuthorizationCodeTokenExchanger implements AuthorizationGrant
 		long expiresIn = accessTokenResponse.getTokens().getAccessToken().getLifetime();
 		Set<String> scope = Collections.emptySet();
 		if (!CollectionUtils.isEmpty(accessTokenResponse.getTokens().getAccessToken().getScope())) {
-			scope = new HashSet<>(accessTokenResponse.getTokens().getAccessToken().getScope().toStringList());
+			scope = new LinkedHashSet<>(accessTokenResponse.getTokens().getAccessToken().getScope().toStringList());
 		}
-		Map<String, Object> additionalParameters = accessTokenResponse.getCustomParameters().entrySet().stream()
-				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+		Map<String, Object> additionalParameters = new LinkedHashMap<>(accessTokenResponse.getCustomParameters());
 
 		return TokenResponse.withToken(accessToken)
 			.tokenType(accessTokenType)
@@ -142,7 +139,7 @@ public class NimbusAuthorizationCodeTokenExchanger implements AuthorizationGrant
 			.build();
 	}
 
-	private URI toURI(String uriStr) {
+	private static URI toURI(String uriStr) {
 		try {
 			return new URI(uriStr);
 		} catch (Exception ex) {

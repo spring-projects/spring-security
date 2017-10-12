@@ -37,17 +37,17 @@ import java.util.Objects;
  * @see OAuth2User
  */
 public class DelegatingOAuth2UserService implements OAuth2UserService {
-	private final List<OAuth2UserService> oauth2UserServices;
+	private final List<OAuth2UserService> userServices;
 
-	public DelegatingOAuth2UserService(List<OAuth2UserService> oauth2UserServices) {
-		Assert.notEmpty(oauth2UserServices, "oauth2UserServices cannot be empty");
-		this.oauth2UserServices = oauth2UserServices;
+	public DelegatingOAuth2UserService(List<OAuth2UserService> userServices) {
+		Assert.notEmpty(userServices, "userServices cannot be empty");
+		this.userServices = userServices;
 	}
 
 	@Override
 	public OAuth2User loadUser(OAuth2ClientAuthenticationToken clientAuthentication) throws OAuth2AuthenticationException {
-		OAuth2User oauth2User = this.oauth2UserServices.stream()
-			.map(oauth2UserService -> oauth2UserService.loadUser(clientAuthentication))
+		OAuth2User oauth2User = this.userServices.stream()
+			.map(userService -> userService.loadUser(clientAuthentication))
 			.filter(Objects::nonNull)
 			.findFirst()
 			.orElse(null);

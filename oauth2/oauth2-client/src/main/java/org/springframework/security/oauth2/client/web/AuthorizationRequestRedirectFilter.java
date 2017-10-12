@@ -64,10 +64,10 @@ import java.util.Map;
  */
 public class AuthorizationRequestRedirectFilter extends OncePerRequestFilter {
 	public static final String DEFAULT_AUTHORIZATION_REQUEST_BASE_URI = "/oauth2/authorization";
-	public static final String REGISTRATION_ID_URI_VARIABLE_NAME = "registrationId";
+	private static final String REGISTRATION_ID_URI_VARIABLE_NAME = "registrationId";
 	private final AntPathRequestMatcher authorizationRequestMatcher;
 	private final ClientRegistrationRepository clientRegistrationRepository;
-	private AuthorizationRequestUriBuilder authorizationUriBuilder = new DefaultAuthorizationRequestUriBuilder();
+	private AuthorizationRequestUriBuilder authorizationRequestUriBuilder = new DefaultAuthorizationRequestUriBuilder();
 	private final RedirectStrategy authorizationRedirectStrategy = new DefaultRedirectStrategy();
 	private final StringKeyGenerator stateGenerator = new DefaultStateGenerator();
 	private AuthorizationRequestRepository authorizationRequestRepository = new HttpSessionAuthorizationRequestRepository();
@@ -86,9 +86,9 @@ public class AuthorizationRequestRedirectFilter extends OncePerRequestFilter {
 		this.clientRegistrationRepository = clientRegistrationRepository;
 	}
 
-	public final void setAuthorizationUriBuilder(AuthorizationRequestUriBuilder authorizationUriBuilder) {
-		Assert.notNull(authorizationUriBuilder, "authorizationUriBuilder cannot be null");
-		this.authorizationUriBuilder = authorizationUriBuilder;
+	public final void setAuthorizationRequestUriBuilder(AuthorizationRequestUriBuilder authorizationRequestUriBuilder) {
+		Assert.notNull(authorizationRequestUriBuilder, "authorizationRequestUriBuilder cannot be null");
+		this.authorizationRequestUriBuilder = authorizationRequestUriBuilder;
 	}
 
 	public final void setAuthorizationRequestRepository(AuthorizationRequestRepository authorizationRequestRepository) {
@@ -112,18 +112,18 @@ public class AuthorizationRequestRedirectFilter extends OncePerRequestFilter {
 		filterChain.doFilter(request, response);
 	}
 
-	protected boolean shouldRequestAuthorization(HttpServletRequest request, HttpServletResponse response) {
+	private boolean shouldRequestAuthorization(HttpServletRequest request, HttpServletResponse response) {
 		return this.authorizationRequestMatcher.matches(request);
 	}
 
-	protected void sendRedirectForAuthorization(HttpServletRequest request, HttpServletResponse response)
+	private void sendRedirectForAuthorization(HttpServletRequest request, HttpServletResponse response)
 			throws IOException, ServletException {
 
 		String registrationId = this.authorizationRequestMatcher
 			.extractUriTemplateVariables(request).get(REGISTRATION_ID_URI_VARIABLE_NAME);
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(registrationId);
 		if (clientRegistration == null) {
-			throw new IllegalArgumentException("Invalid Client Identifier (Registration Id): " + registrationId);
+			throw new IllegalArgumentException("Invalid Client Registration with Id: " + registrationId);
 		}
 
 		String redirectUriStr = this.expandRedirectUri(request, clientRegistration);
@@ -153,11 +153,11 @@ public class AuthorizationRequestRedirectFilter extends OncePerRequestFilter {
 			this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, request, response);
 		}
 
-		URI redirectUri = this.authorizationUriBuilder.build(authorizationRequest);
+		URI redirectUri = this.authorizationRequestUriBuilder.build(authorizationRequest);
 		this.authorizationRedirectStrategy.sendRedirect(request, response, redirectUri.toString());
 	}
 
-	protected void unsuccessfulRedirectForAuthorization(HttpServletRequest request, HttpServletResponse response,
+	private void unsuccessfulRedirectForAuthorization(HttpServletRequest request, HttpServletResponse response,
 														Exception failed) throws IOException, ServletException {
 
 		if (logger.isDebugEnabled()) {

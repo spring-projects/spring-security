@@ -54,7 +54,7 @@ public class AuthorizationCodeGrantConfigurer<B extends HttpSecurityBuilder<B>> 
 	// ***** Authorization Request members
 	private AuthorizationRequestRedirectFilter authorizationRequestFilter;
 	private String authorizationRequestBaseUri;
-	private AuthorizationRequestUriBuilder authorizationRequestBuilder;
+	private AuthorizationRequestUriBuilder authorizationRequestUriBuilder;
 	private AuthorizationRequestRepository authorizationRequestRepository;
 
 	// ***** Authorization Response members
@@ -71,9 +71,9 @@ public class AuthorizationCodeGrantConfigurer<B extends HttpSecurityBuilder<B>> 
 		return this;
 	}
 
-	public AuthorizationCodeGrantConfigurer<B> authorizationRequestBuilder(AuthorizationRequestUriBuilder authorizationRequestBuilder) {
-		Assert.notNull(authorizationRequestBuilder, "authorizationRequestBuilder cannot be null");
-		this.authorizationRequestBuilder = authorizationRequestBuilder;
+	public AuthorizationCodeGrantConfigurer<B> authorizationRequestUriBuilder(AuthorizationRequestUriBuilder authorizationRequestUriBuilder) {
+		Assert.notNull(authorizationRequestUriBuilder, "authorizationRequestUriBuilder cannot be null");
+		this.authorizationRequestUriBuilder = authorizationRequestUriBuilder;
 		return this;
 	}
 
@@ -134,8 +134,8 @@ public class AuthorizationCodeGrantConfigurer<B extends HttpSecurityBuilder<B>> 
 
 		this.authorizationRequestFilter = new AuthorizationRequestRedirectFilter(
 			this.getAuthorizationRequestBaseUri(), this.getClientRegistrationRepository());
-		if (this.authorizationRequestBuilder != null) {
-			this.authorizationRequestFilter.setAuthorizationUriBuilder(this.authorizationRequestBuilder);
+		if (this.authorizationRequestUriBuilder != null) {
+			this.authorizationRequestFilter.setAuthorizationRequestUriBuilder(this.authorizationRequestUriBuilder);
 		}
 		if (this.authorizationRequestRepository != null) {
 			this.authorizationRequestFilter.setAuthorizationRequestRepository(this.authorizationRequestRepository);

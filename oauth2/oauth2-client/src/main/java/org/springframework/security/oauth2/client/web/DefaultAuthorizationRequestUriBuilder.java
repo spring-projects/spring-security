@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 /**
  * The default implementation of an {@link AuthorizationRequestUriBuilder},
- * which internally uses an {@link UriComponentsBuilder} to construct the <i>OAuth 2.0 Authorization Request</i>.
+ * which internally uses a {@link UriComponentsBuilder} to construct the <i>OAuth 2.0 Authorization Request</i>.
  *
  * @author Joe Grandja
  * @since 5.0

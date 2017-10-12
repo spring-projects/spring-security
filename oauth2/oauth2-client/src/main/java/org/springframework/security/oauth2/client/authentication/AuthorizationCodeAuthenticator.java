@@ -27,6 +27,8 @@ import org.springframework.util.Assert;
  *
  * @author Joe Grandja
  * @since 5.0
+ * @see AuthorizationCodeAuthenticationToken
+ * @see AuthorizationGrantTokenExchanger
  */
 public class AuthorizationCodeAuthenticator implements AuthorizationGrantAuthenticator<AuthorizationCodeAuthenticationToken> {
 	private final AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger;
@@ -46,7 +48,7 @@ public class AuthorizationCodeAuthenticator implements AuthorizationGrantAuthent
 		//		If the openid scope value is not present, the behavior is entirely unspecified.
 		if (authorizationCodeAuthentication.getAuthorizationRequest().getScope().contains("openid")) {
 			// The OpenID Connect implementation of AuthorizationGrantAuthenticator
-			// must handle OpenID Connect Authentication Requests
+			// should handle OpenID Connect Authentication Requests
 			return null;
 		}
 
@@ -57,10 +59,10 @@ public class AuthorizationCodeAuthenticator implements AuthorizationGrantAuthent
 			tokenResponse.getTokenValue(), tokenResponse.getIssuedAt(),
 			tokenResponse.getExpiresAt(), tokenResponse.getScope());
 
-		OAuth2ClientAuthenticationToken oauth2ClientAuthentication =
+		OAuth2ClientAuthenticationToken clientAuthentication =
 			new OAuth2ClientAuthenticationToken(authorizationCodeAuthentication.getClientRegistration(), accessToken);
-		oauth2ClientAuthentication.setDetails(authorizationCodeAuthentication.getDetails());
+		clientAuthentication.setDetails(authorizationCodeAuthentication.getDetails());
 
-		return oauth2ClientAuthentication;
+		return clientAuthentication;
 	}
 }

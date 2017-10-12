@@ -165,8 +165,8 @@ public class AuthorizationCodeAuthenticationFilterTests {
 		Assertions.assertThat(authenticationExceptionArgCaptor.getValue()).isInstanceOf(OAuth2AuthenticationException.class);
 		OAuth2AuthenticationException oauth2AuthenticationException =
 				(OAuth2AuthenticationException)authenticationExceptionArgCaptor.getValue();
-		Assertions.assertThat(oauth2AuthenticationException.getErrorObject()).isNotNull();
-		Assertions.assertThat(oauth2AuthenticationException.getErrorObject().getErrorCode()).isEqualTo(errorCode);
+		Assertions.assertThat(oauth2AuthenticationException.getError()).isNotNull();
+		Assertions.assertThat(oauth2AuthenticationException.getError().getErrorCode()).isEqualTo(errorCode);
 	}
 
 	private AuthorizationCodeAuthenticationFilter setupFilter(ClientRegistration... clientRegistrations) throws Exception {

@@ -26,8 +26,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A {@link JwtDecoderRegistry} that uses the <b>Nimbus JOSE + JWT SDK</b>
- * to create/manage instances of {@link NimbusJwtDecoderJwkSupport} internally.
+ * A {@link JwtDecoderRegistry} that creates/manages instances of
+ * {@link NimbusJwtDecoderJwkSupport}, which uses the <b>Nimbus JOSE + JWT SDK</b> internally.
  *
  * @author Joe Grandja
  * @since 5.0
