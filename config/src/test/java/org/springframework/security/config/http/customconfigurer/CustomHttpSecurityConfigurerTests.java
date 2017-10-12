@@ -42,7 +42,7 @@ import org.springframework.security.web.FilterChainProxy;
  * @author Rob Winch
  *
  */
-public class CustomServerHttpSecurityConfigurerTests {
+public class CustomHttpSecurityConfigurerTests {
 	@Autowired
 	ConfigurableApplicationContext context;
 

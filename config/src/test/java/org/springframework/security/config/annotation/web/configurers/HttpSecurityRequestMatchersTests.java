@@ -43,7 +43,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Rob Winch
  *
  */
-public class ServerHttpSecurityRequestMatchersTests {
+public class HttpSecurityRequestMatchersTests {
 	AnnotationConfigWebApplicationContext context;
 
 	MockHttpServletRequest request;

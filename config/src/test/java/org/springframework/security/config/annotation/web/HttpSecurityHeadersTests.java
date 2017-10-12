@@ -48,7 +48,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 @WebAppConfiguration
-public class ServerHttpSecurityHeadersTests {
+public class HttpSecurityHeadersTests {
 	@Autowired
 	WebApplicationContext wac;
 	@Autowired
