@@ -4597,7 +4597,7 @@ To use concurrent session support, you'll need to add the following to `web.xml`
 
 
 
-In addition, you will need to add the `ConcurrentSessionFilter` to your `FilterChainProxy`. The `ConcurrentSessionFilter` requires two properties, `sessionRegistry`, which generally points to an instance of `SessionRegistryImpl`, and `expiredUrl`, which points to the page to display when a session has expired. A configuration using the namespace to create the `FilterChainProxy` and other default beans might look like this:
+In addition, you will need to add the `ConcurrentSessionFilter` to your `FilterChainProxy`. The `ConcurrentSessionFilter` requires two constructor arguments, `sessionRegistry`, which generally points to an instance of `SessionRegistryImpl`, and `sessionInformationExpiredStrategy`, which defines the strategy to apply when a session has expired. A configuration using the namespace to create the `FilterChainProxy` and other default beans might look like this:
 
 [source,xml]
 ----
@@ -4609,10 +4609,15 @@ In addition, you will need to add the `ConcurrentSessionFilter` to your `FilterC
 <session-management session-authentication-strategy-ref="sas"/>
 </http>
 
+<beans:bean id="redirectSessionInformationExpiredStrategy"
+class="org.springframework.security.web.session.SimpleRedirectSessionInformationExpiredStrategy">
+<beans:constructor-arg name="invalidSessionUrl" value="/session-expired.htm" />
+</beans:bean>
+
 <beans:bean id="concurrencyFilter"
 class="org.springframework.security.web.session.ConcurrentSessionFilter">
-<beans:property name="sessionRegistry" ref="sessionRegistry" />
-<beans:property name="expiredUrl" value="/session-expired.htm" />
+<beans:constructor-arg name="sessionRegistry" ref="sessionRegistry" />
+<beans:constructor-arg name="sessionInformationExpiredStrategy" ref="redirectSessionInformationExpiredStrategy" />
 </beans:bean>
 
 <beans:bean id="myAuthFilter" class=
