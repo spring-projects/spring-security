@@ -26,6 +26,8 @@ import org.springframework.security.oauth2.core.endpoint.AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.AuthorizationResponse;
 import org.springframework.security.oauth2.oidc.client.authentication.OidcClientAuthenticationToken;
 import org.springframework.util.Assert;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * An implementation of an {@link AuthenticationProvider} that is responsible for authenticating
@@ -39,6 +41,7 @@ import org.springframework.util.Assert;
  * return an <i>&quot;Authorized Client&quot;</i> as an {@link OAuth2ClientAuthenticationToken}.
  *
  * @author Joe Grandja
+ * @author Toshiaki Maki
  * @since 5.0
  * @see AuthorizationCodeAuthenticationToken
  * @see OAuth2ClientAuthenticationToken
@@ -82,7 +85,13 @@ public class AuthorizationCodeAuthenticationProvider implements AuthenticationPr
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 		}
 
-		if (!authorizationResponse.getRedirectUri().equals(authorizationRequest.getRedirectUri())) {
+
+		UriComponents requestUri = fixWellKnowPort(
+			UriComponentsBuilder.fromHttpUrl(authorizationResponse.getRedirectUri())).build();
+		UriComponents redirectUri = fixWellKnowPort(
+			UriComponentsBuilder.fromHttpUrl(authorizationRequest.getRedirectUri())).build();
+
+		if (!requestUri.equals(redirectUri)) {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_REDIRECT_URI_PARAMETER_ERROR_CODE);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 		}
@@ -105,5 +114,22 @@ public class AuthorizationCodeAuthenticationProvider implements AuthenticationPr
 	@Override
 	public boolean supports(Class<?> authentication) {
 		return AuthorizationCodeAuthenticationToken.class.isAssignableFrom(authentication);
+	}
+
+	private UriComponentsBuilder fixWellKnowPort(UriComponentsBuilder b) {
+		UriComponents c = b.build();
+		if (c.getPort() != -1) {
+			return b;
+		}
+		if (c.getScheme() == null) {
+			return b;
+		}
+		switch (c.getScheme()) {
+			case "http":
+				return b.port(80);
+			case "https":
+				return b.port(443);
+		}
+		return b;
 	}
 }
