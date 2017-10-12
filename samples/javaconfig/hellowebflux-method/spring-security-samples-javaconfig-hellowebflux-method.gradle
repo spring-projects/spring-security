@@ -3,7 +3,7 @@ apply plugin: 'io.spring.convention.spring-sample'
 dependencies {
 	compile project(':spring-security-core')
 	compile project(':spring-security-config')
-	compile project(':spring-security-webflux')
+	compile project(':spring-security-web')
 	compile 'com.fasterxml.jackson.core:jackson-databind'
 	compile 'io.netty:netty-buffer'
 	compile 'io.projectreactor.ipc:reactor-netty'

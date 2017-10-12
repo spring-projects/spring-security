@@ -16,34 +16,23 @@
 
 package org.springframework.security.web.server.util.matcher;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import org.springframework.http.MediaType;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
-import org.springframework.web.reactive.accept.RequestedContentTypeResolver;
 import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
  * @since 5.0
  */
-@RunWith(MockitoJUnitRunner.class)
 public class MediaTypeServerWebExchangeMatcherTests {
-	@Mock
-	private RequestedContentTypeResolver resolver;
-
 	private MediaTypeServerWebExchangeMatcher matcher;
 
 	@Test(expected = IllegalArgumentException.class)
@@ -109,26 +98,6 @@ public class MediaTypeServerWebExchangeMatcherTests {
 		matcher.setUseEquals(true);
 
 		assertThat(matcher.matches(exchange(MediaType.TEXT_HTML)).block().isMatch()).isFalse();
-	}
-
-	@Test
-	public void matchWhenCustomResolverAndAcceptEqualThenMatch() {
-		MediaType acceptType = MediaType.TEXT_HTML;
-		when(this.resolver.resolveMediaTypes(any())).thenReturn(Arrays.asList(acceptType));
-		MediaTypeServerWebExchangeMatcher matcher = new MediaTypeServerWebExchangeMatcher(acceptType);
-		matcher.setRequestedContentTypeResolver(this.resolver);
-
-		assertThat(matcher.matches(exchange(acceptType)).block().isMatch()).isTrue();
-	}
-
-	@Test
-	public void matchWhenCustomResolverAndDifferentAcceptThenNotMatch() {
-		MediaType acceptType = MediaType.TEXT_HTML;
-		when(this.resolver.resolveMediaTypes(any())).thenReturn(Arrays.asList(acceptType));
-		MediaTypeServerWebExchangeMatcher matcher = new MediaTypeServerWebExchangeMatcher(MediaType.APPLICATION_JSON);
-		matcher.setRequestedContentTypeResolver(this.resolver);
-
-		assertThat(matcher.matches(exchange(acceptType)).block().isMatch()).isFalse();
 	}
 
 	private static ServerWebExchange exchange(MediaType... accept) {

@@ -24,13 +24,12 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.http.InvalidMediaTypeException;
 import reactor.core.publisher.Mono;
 
 import org.springframework.http.MediaType;
 import org.springframework.util.Assert;
 import org.springframework.web.accept.ContentNegotiationStrategy;
-import org.springframework.web.reactive.accept.HeaderContentTypeResolver;
-import org.springframework.web.reactive.accept.RequestedContentTypeResolver;
 import org.springframework.web.server.NotAcceptableStatusException;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -40,7 +39,6 @@ import org.springframework.web.server.ServerWebExchange;
  */
 public class MediaTypeServerWebExchangeMatcher implements ServerWebExchangeMatcher {
 	private final Log logger = LogFactory.getLog(getClass());
-	private RequestedContentTypeResolver requestedContentTypeResolver = new HeaderContentTypeResolver();
 
 	private final Collection<MediaType> matchingMediaTypes;
 	private boolean useEquals;
@@ -62,7 +60,7 @@ public class MediaTypeServerWebExchangeMatcher implements ServerWebExchangeMatch
 	public Mono<MatchResult> matches(ServerWebExchange exchange) {
 		List<MediaType> httpRequestMediaTypes;
 		try {
-			httpRequestMediaTypes = this.requestedContentTypeResolver.resolveMediaTypes(exchange);
+			httpRequestMediaTypes = resolveMediaTypes(exchange);
 		}
 		catch (NotAcceptableStatusException e) {
 			this.logger.debug("Failed to parse MediaTypes, returning false", e);
@@ -122,16 +120,6 @@ public class MediaTypeServerWebExchangeMatcher implements ServerWebExchangeMatch
 	}
 
 	/**
-	 * Sets the {@link RequestedContentTypeResolver} to be used
-	 * @param requestedContentTypeResolver the resolver to use. Default is {@link HeaderContentTypeResolver}
-	 */
-	public void setRequestedContentTypeResolver(
-		RequestedContentTypeResolver requestedContentTypeResolver) {
-		Assert.notNull(requestedContentTypeResolver, "requestedContentTypeResolver cannot be null");
-		this.requestedContentTypeResolver = requestedContentTypeResolver;
-	}
-
-	/**
 	 * Set the {@link MediaType} to ignore from the {@link ContentNegotiationStrategy}.
 	 * This is useful if for example, you want to match on
 	 * {@link MediaType#APPLICATION_JSON} but want to ignore {@link MediaType#ALL}.
@@ -143,10 +131,22 @@ public class MediaTypeServerWebExchangeMatcher implements ServerWebExchangeMatch
 		this.ignoredMediaTypes = ignoredMediaTypes;
 	}
 
+	private List<MediaType> resolveMediaTypes(ServerWebExchange exchange) throws NotAcceptableStatusException {
+		try {
+			List<MediaType> mediaTypes = exchange.getRequest().getHeaders().getAccept();
+			MediaType.sortBySpecificityAndQuality(mediaTypes);
+			return mediaTypes;
+		}
+		catch (InvalidMediaTypeException ex) {
+			String value = exchange.getRequest().getHeaders().getFirst("Accept");
+			throw new NotAcceptableStatusException(
+				"Could not parse 'Accept' header [" + value + "]: " + ex.getMessage());
+		}
+	}
+
 	@Override
 	public String toString() {
-		return "MediaTypeRequestMatcher [requestedContentTypeResolver="
-			+ this.requestedContentTypeResolver + ", matchingMediaTypes="
+		return "MediaTypeRequestMatcher [matchingMediaTypes="
 			+ this.matchingMediaTypes + ", useEquals=" + this.useEquals
 			+ ", ignoredMediaTypes=" + this.ignoredMediaTypes + "]";
 	}

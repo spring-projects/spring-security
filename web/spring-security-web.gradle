@@ -10,16 +10,20 @@ dependencies {
 	compile 'org.springframework:spring-web'
 
 	optional 'com.fasterxml.jackson.core:jackson-databind'
+	optional 'io.projectreactor:reactor-core'
 	optional 'org.springframework:spring-jdbc'
 	optional 'org.springframework:spring-tx'
+	optional 'org.springframework:spring-webflux'
 	optional 'org.springframework:spring-webmvc'
 
 	provided 'javax.servlet:javax.servlet-api'
 
 	testCompile project(path: ':spring-security-core', configuration: 'tests')
 	testCompile 'commons-codec:commons-codec'
+	testCompile 'io.projectreactor:reactor-test'
 	testCompile 'org.codehaus.groovy:groovy-all'
 	testCompile 'org.skyscreamer:jsonassert'
+	testCompile 'org.springframework:spring-webflux'
 	testCompile powerMock2Dependencies
 	testCompile spockDependencies
 	testCompile slf4jDependencies

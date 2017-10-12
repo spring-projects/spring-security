@@ -15,12 +15,13 @@ dependencies {
 	optional project(':spring-security-jwt-jose')
 	optional project(':spring-security-openid')
 	optional project(':spring-security-web')
-	optional project(':spring-security-webflux')
+	optional 'io.projectreactor:reactor-core'
 	optional 'org.aspectj:aspectjweaver'
 	optional 'org.springframework:spring-jdbc'
 	optional 'org.springframework:spring-tx'
 	optional 'org.springframework:spring-webmvc'
 	optional'org.springframework:spring-web'
+	optional'org.springframework:spring-webflux'
 	optional'org.springframework:spring-websocket'
 
 	provided 'javax.servlet:javax.servlet-api'
@@ -28,7 +29,7 @@ dependencies {
 	testCompile project(':spring-security-aspects')
 	testCompile project(':spring-security-cas')
 	testCompile project(path : ':spring-security-core', configuration : 'tests')
-	testCompile project(path : ':spring-security-webflux', configuration : 'tests')
+	testCompile project(path : ':spring-security-web', configuration : 'tests')
 	testCompile apachedsDependencies
 	testCompile powerMock2Dependencies
 	testCompile spockDependencies
