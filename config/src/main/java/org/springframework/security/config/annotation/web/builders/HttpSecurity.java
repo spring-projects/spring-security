@@ -606,7 +606,7 @@ public final class HttpSecurity extends
 	 * 	&#064;Override
 	 * 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 	 * 		auth.inMemoryAuthentication().withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;)
-	 * 				.and().withUser(&quot;adminr&quot;).password(&quot;password&quot;).roles(&quot;ADMIN&quot;, &quot;USER&quot;);
+	 * 				.and().withUser(&quot;admin&quot;).password(&quot;password&quot;).roles(&quot;ADMIN&quot;, &quot;USER&quot;);
 	 * 	}
 	 * }
 	 * </pre>
@@ -629,7 +629,7 @@ public final class HttpSecurity extends
 	 * 	&#064;Override
 	 * 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 	 * 		auth.inMemoryAuthentication().withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;)
-	 * 				.and().withUser(&quot;adminr&quot;).password(&quot;password&quot;).roles(&quot;ADMIN&quot;, &quot;USER&quot;);
+	 * 				.and().withUser(&quot;admin&quot;).password(&quot;password&quot;).roles(&quot;ADMIN&quot;, &quot;USER&quot;);
 	 * 	}
 	 * }
 	 * </pre>
