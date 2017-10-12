@@ -37,23 +37,10 @@ import java.net.URI;
 public class SecurityContextServerLogoutHandler implements ServerLogoutHandler {
 	private ServerSecurityContextRepository serverSecurityContextRepository = new WebSessionServerSecurityContextRepository();
 
-	private ServerLogoutSuccessHandler serverLogoutSuccessHandler = new RedirectServerLogoutSuccessHandler();
-
 	@Override
 	public Mono<Void> logout(WebFilterExchange exchange,
 		Authentication authentication) {
-		return this.serverSecurityContextRepository.save(exchange.getExchange(), null)
-			.then(this.serverLogoutSuccessHandler.onLogoutSuccess(exchange));
-	}
-
-	/**
-	 * Sets the {@link ServerLogoutSuccessHandler}. The default is {@link RedirectServerLogoutSuccessHandler}.
-	 * @param serverLogoutSuccessHandler the handler to use
-	 */
-	public void setServerLogoutSuccessHandler(
-		ServerLogoutSuccessHandler serverLogoutSuccessHandler) {
-		Assert.notNull(serverLogoutSuccessHandler, "serverLogoutSuccessHandler cannot be null");
-		this.serverLogoutSuccessHandler = serverLogoutSuccessHandler;
+		return this.serverSecurityContextRepository.save(exchange.getExchange(), null);
 	}
 
 	/**

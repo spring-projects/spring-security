@@ -16,6 +16,7 @@
 
 package org.springframework.security.web.server.authentication.logout;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.DefaultServerRedirectStrategy;
 import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.security.web.server.WebFilterExchange;
@@ -36,7 +37,7 @@ public class RedirectServerLogoutSuccessHandler implements ServerLogoutSuccessHa
 	private ServerRedirectStrategy serverRedirectStrategy = new DefaultServerRedirectStrategy();
 
 	@Override
-	public Mono<Void> onLogoutSuccess(WebFilterExchange exchange) {
+	public Mono<Void> onLogoutSuccess(WebFilterExchange exchange, Authentication authentication) {
 		return this.serverRedirectStrategy
 			.sendRedirect(exchange.getExchange(), this.logoutSuccessUrl);
 	}

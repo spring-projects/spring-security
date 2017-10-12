@@ -16,6 +16,7 @@
 
 package org.springframework.security.web.server.authentication.logout;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.WebFilterExchange;
 import reactor.core.publisher.Mono;
 
@@ -25,5 +26,5 @@ import reactor.core.publisher.Mono;
  */
 public interface ServerLogoutSuccessHandler {
 
-	Mono<Void> onLogoutSuccess(WebFilterExchange exchange);
+	Mono<Void> onLogoutSuccess(WebFilterExchange exchange, Authentication authentication);
 }
