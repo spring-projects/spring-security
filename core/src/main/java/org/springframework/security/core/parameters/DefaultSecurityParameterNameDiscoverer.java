@@ -26,7 +26,6 @@ import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.core.PrioritizedParameterNameDiscoverer;
-import org.springframework.security.access.method.P;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
@@ -83,6 +82,7 @@ public class DefaultSecurityParameterNameDiscoverer extends
 		}
 
 		Set<String> annotationClassesToUse = new HashSet<String>(2);
+		annotationClassesToUse.add("org.springframework.security.access.method.P");
 		annotationClassesToUse.add(P.class.getName());
 		if (DATA_PARAM_PRESENT) {
 			annotationClassesToUse.add(DATA_PARAM_CLASSNAME);
