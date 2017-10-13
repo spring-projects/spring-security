@@ -14,21 +14,14 @@
  * limitations under the License.
  */
 
-package org.springframework.security.access.method;
+package org.springframework.security.access.prepost;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.reactivestreams.Publisher;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
-import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
-import org.springframework.security.access.expression.method.ExpressionBasedPostInvocationAdvice;
-import org.springframework.security.access.expression.method.ExpressionBasedPreInvocationAdvice;
-import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
-import org.springframework.security.access.prepost.PostInvocationAttribute;
-import org.springframework.security.access.prepost.PostInvocationAuthorizationAdvice;
-import org.springframework.security.access.prepost.PreInvocationAttribute;
-import org.springframework.security.access.prepost.PreInvocationAuthorizationAdvice;
+import org.springframework.security.access.method.MethodSecurityMetadataSource;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -51,26 +44,18 @@ public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor
 
 	private final MethodSecurityMetadataSource attributeSource;
 
-	private PostInvocationAuthorizationAdvice postAdvice;
+	private final PreInvocationAuthorizationAdvice preInvocationAdvice;
 
-	private PreInvocationAuthorizationAdvice preAdvice;
+	private final PostInvocationAuthorizationAdvice postAdvice;
 
-	public PrePostAdviceReactiveMethodInterceptor(MethodSecurityMetadataSource attributeSource) {
+	public PrePostAdviceReactiveMethodInterceptor(MethodSecurityMetadataSource attributeSource, PreInvocationAuthorizationAdvice preInvocationAdvice, PostInvocationAuthorizationAdvice postInvocationAdvice) {
+		Assert.notNull(attributeSource, "attributeSource cannot be null");
+		Assert.notNull(preInvocationAdvice, "preInvocationAdvice cannot be null");
+		Assert.notNull(postInvocationAdvice, "postInvocationAdvice cannot be null");
+
 		this.attributeSource = attributeSource;
-
-		MethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
-		this.postAdvice = new ExpressionBasedPostInvocationAdvice(handler);
-		this.preAdvice = new ExpressionBasedPreInvocationAdvice();
-	}
-
-	public void setPostAdvice(PostInvocationAuthorizationAdvice postAdvice) {
-		Assert.notNull(postAdvice, "postAdvice cannot be null");
-		this.postAdvice = postAdvice;
-	}
-
-	public void setPreAdvice(PreInvocationAuthorizationAdvice preAdvice) {
-		Assert.notNull(preAdvice, "preAdvice cannot be null");
-		this.preAdvice = preAdvice;
+		this.preInvocationAdvice = preInvocationAdvice;
+		this.postAdvice = postInvocationAdvice;
 	}
 
 	@Override
@@ -86,7 +71,7 @@ public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor
 		Mono<Authentication> toInvoke = Mono.subscriberContext()
 			.defaultIfEmpty(Context.empty())
 			.flatMap( cxt -> cxt.getOrDefault(Authentication.class, Mono.just(anonymous)))
-			.filter( auth -> this.preAdvice.before(auth, invocation, preAttr))
+			.filter( auth -> this.preInvocationAdvice.before(auth, invocation, preAttr))
 			.switchIfEmpty(Mono.error(new AccessDeniedException("Denied")));
 
 
