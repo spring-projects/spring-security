@@ -22,8 +22,8 @@ import java.time.Instant;
 import java.util.List;
 
 /**
- * A {@link ClaimAccessor} for the &quot;Registered Claim Names&quot;
- * that may be contained in the JSON object <i>JWT Claims Set</i> of a <i>JSON Web Token (JWT)</i>.
+ * A {@link ClaimAccessor} for the &quot;Claims&quot; that may be contained
+ * in the JSON object <i>JWT Claims Set</i> of a <i>JSON Web Token (JWT)</i>.
  *
  * @author Joe Grandja
  * @since 5.0

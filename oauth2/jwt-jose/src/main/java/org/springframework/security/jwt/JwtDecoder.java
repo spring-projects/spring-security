@@ -34,7 +34,6 @@ package org.springframework.security.jwt;
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7515#section-3.1">JWS Compact Serialization</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7516#section-3.1">JWE Compact Serialization</a>
  */
-@FunctionalInterface
 public interface JwtDecoder {
 
 	Jwt decode(String token) throws JwtException;

@@ -27,7 +27,7 @@ import java.util.Map;
  * An implementation of a {@link SecurityToken} representing a <i>JSON Web Token (JWT)</i>.
  *
  * <p>
- * JWTs represent a set of &quot;Claims&quot; as a JSON object that is encoded in a
+ * JWTs represent a set of &quot;Claims&quot; as a JSON object that may be encoded in a
  * <i>JSON Web Signature (JWS)</i> and/or <i>JSON Web Encryption (JWE)</i> structure.
  * The JSON object, also known as the <i>JWT Claims Set</i>, consists of one or more Claim Name/Claim Value pairs.
  * The Claim Name is a <code>String</code> and the Claim Value is an arbitrary JSON object.

@@ -72,7 +72,7 @@ public class NimbusJwtDecoderJwkSupport implements JwtDecoder {
 		try {
 			this.jwkSetUrl = new URL(jwkSetUrl);
 		} catch (MalformedURLException ex) {
-			throw new IllegalArgumentException("Invalid JWK Set URL: " + ex.getMessage(), ex);
+			throw new IllegalArgumentException("Invalid JWK Set URL " + jwkSetUrl + " : " + ex.getMessage(), ex);
 		}
 		this.jwsAlgorithm = JWSAlgorithm.parse(jwsAlgorithm);
 
