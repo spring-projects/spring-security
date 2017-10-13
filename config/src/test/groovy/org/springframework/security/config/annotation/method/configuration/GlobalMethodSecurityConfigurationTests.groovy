@@ -19,20 +19,15 @@ package org.springframework.security.config.annotation.method.configuration
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl
 
-import java.lang.reflect.Proxy;
+import java.lang.reflect.Proxy
 
-import org.junit.After;
 import org.springframework.beans.BeansException
 import org.springframework.beans.factory.config.BeanPostProcessor
-import org.springframework.security.config.annotation.authentication.configurers.GlobalAuthenticationConfigurerAdapter
-import org.springframework.security.config.annotation.method.configuration.NamespaceGlobalMethodSecurityTests.BaseMethodConfig;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
+import org.springframework.security.config.annotation.authentication.configuration.GlobalAuthenticationConfigurerAdapter
+import org.springframework.security.config.annotation.method.configuration.NamespaceGlobalMethodSecurityTests.BaseMethodConfig
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 
 import javax.sql.DataSource
-
-import static org.assertj.core.api.Assertions.*
-import static org.junit.Assert.fail
 
 import org.aopalliance.intercept.MethodInterceptor
 import org.springframework.beans.factory.annotation.Autowired
