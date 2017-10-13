@@ -31,6 +31,7 @@ import java.util.Set;
  * for the authorization code grant type or implicit grant type.
  *
  * @author Joe Grandja
+ * @author Shazin Sadakath
  * @since 5.0
  * @see AuthorizationGrantType
  * @see ResponseType
@@ -45,6 +46,7 @@ public final class AuthorizationRequestAttributes implements Serializable {
 	private String redirectUri;
 	private Set<String> scope;
 	private String state;
+	private String nonce;
 	private Map<String,Object> additionalParameters;
 
 	private AuthorizationRequestAttributes() {
@@ -80,6 +82,10 @@ public final class AuthorizationRequestAttributes implements Serializable {
 
 	public Map<String, Object> getAdditionalParameters() {
 		return this.additionalParameters;
+	}
+
+	public String getNonce() {
+		return nonce;
 	}
 
 	public static Builder withAuthorizationCode() {
@@ -120,6 +126,11 @@ public final class AuthorizationRequestAttributes implements Serializable {
 
 		public Builder state(String state) {
 			this.authorizationRequest.state = state;
+			return this;
+		}
+
+		public Builder nonce(String nonce) {
+			this.authorizationRequest.nonce = nonce;
 			return this;
 		}
 

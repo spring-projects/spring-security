@@ -45,4 +45,6 @@ public interface OAuth2Parameter {
 
 	String REGISTRATION_ID = "registration_id";		// Non-standard additional parameter
 
+	String NONCE = "nonce";
+
 }

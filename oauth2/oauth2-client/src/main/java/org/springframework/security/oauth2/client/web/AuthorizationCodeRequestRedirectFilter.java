@@ -122,6 +122,8 @@ public class AuthorizationCodeRequestRedirectFilter extends OncePerRequestFilter
 			throw new IllegalArgumentException("Invalid Client Identifier (Registration Id): " + registrationId);
 		}
 
+		String nonce = request.getParameter(OAuth2Parameter.NONCE);
+
 		String redirectUriStr = this.expandRedirectUri(request, clientRegistration);
 
 		Map<String,Object> additionalParameters = new HashMap<>();
@@ -134,6 +136,7 @@ public class AuthorizationCodeRequestRedirectFilter extends OncePerRequestFilter
 				.redirectUri(redirectUriStr)
 				.scope(clientRegistration.getScope())
 				.state(this.stateGenerator.generateKey())
+				.nonce(nonce)
 				.additionalParameters(additionalParameters)
 				.build();
 

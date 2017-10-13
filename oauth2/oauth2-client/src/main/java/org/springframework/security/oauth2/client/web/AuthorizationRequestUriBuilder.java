@@ -32,6 +32,7 @@ import java.net.URI;
  * <li>response type (required)</li>
  * <li>requested scope(s) (optional)</li>
  * <li>state (recommended)</li>
+ * <li>nonce (recommended)</li>
  * <li>redirection URI (optional) - the authorization server will send the user-agent back to once access is granted (or denied) by the end-user (resource owner)</li>
  * </ul>
  *

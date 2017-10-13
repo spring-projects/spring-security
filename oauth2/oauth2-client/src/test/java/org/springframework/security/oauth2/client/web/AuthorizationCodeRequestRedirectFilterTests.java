@@ -92,6 +92,7 @@ public class AuthorizationCodeRequestRedirectFilterTests {
 		String requestUri = TestUtil.AUTHORIZATION_BASE_URI + "/" + clientRegistration.getRegistrationId();
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
 		request.setServletPath(requestUri);
+		request.addParameter("nonce", "some nonce");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain filterChain = Mockito.mock(FilterChain.class);
 
@@ -111,6 +112,7 @@ public class AuthorizationCodeRequestRedirectFilterTests {
 		Assertions.assertThat(authorizationRequestAttributes.getRedirectUri()).isNotNull();
 		Assertions.assertThat(authorizationRequestAttributes.getScope()).isNotNull();
 		Assertions.assertThat(authorizationRequestAttributes.getState()).isNotNull();
+		Assertions.assertThat(authorizationRequestAttributes.getNonce()).isNotNull();
 	}
 
 	private AuthorizationCodeRequestRedirectFilter setupFilter(String authorizationUri,
