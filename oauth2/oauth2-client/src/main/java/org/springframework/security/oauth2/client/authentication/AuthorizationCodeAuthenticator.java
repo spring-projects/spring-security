@@ -15,7 +15,6 @@
  */
 package org.springframework.security.oauth2.client.authentication;
 
-import org.springframework.security.oauth2.client.web.AuthorizationGrantTokenExchanger;
 import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.security.oauth2.core.endpoint.TokenResponse;
 import org.springframework.util.Assert;
