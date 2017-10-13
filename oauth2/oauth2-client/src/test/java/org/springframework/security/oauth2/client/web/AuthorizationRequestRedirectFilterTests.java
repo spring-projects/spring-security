@@ -24,6 +24,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.endpoint.AuthorizationRequest;
+import org.springframework.security.oauth2.core.endpoint.OAuth2Parameter;
 
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
@@ -34,6 +35,7 @@ import java.net.URI;
  * Tests {@link AuthorizationRequestRedirectFilter}.
  *
  * @author Joe Grandja
+ * @author Shazin Sadakath
  */
 public class AuthorizationRequestRedirectFilterTests {
 
@@ -92,6 +94,7 @@ public class AuthorizationRequestRedirectFilterTests {
 		String requestUri = TestUtil.AUTHORIZATION_BASE_URI + "/" + clientRegistration.getRegistrationId();
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
 		request.setServletPath(requestUri);
+		request.addParameter(OAuth2Parameter.NONCE, "nonce");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain filterChain = Mockito.mock(FilterChain.class);
 
@@ -111,6 +114,7 @@ public class AuthorizationRequestRedirectFilterTests {
 		Assertions.assertThat(authorizationRequest.getRedirectUri()).isNotNull();
 		Assertions.assertThat(authorizationRequest.getScope()).isNotNull();
 		Assertions.assertThat(authorizationRequest.getState()).isNotNull();
+		Assertions.assertThat(authorizationRequest.getNonce()).isNotNull();
 	}
 
 	private AuthorizationRequestRedirectFilter setupFilter(String authorizationUri,

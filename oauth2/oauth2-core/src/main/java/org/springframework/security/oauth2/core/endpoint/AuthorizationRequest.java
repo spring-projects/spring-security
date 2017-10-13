@@ -31,6 +31,7 @@ import java.util.Set;
  * for the authorization code grant type or implicit grant type.
  *
  * @author Joe Grandja
+ * @author Shazin Sadakath
  * @since 5.0
  * @see AuthorizationGrantType
  * @see ResponseType
@@ -45,6 +46,7 @@ public final class AuthorizationRequest implements Serializable {
 	private String redirectUri;
 	private Set<String> scope;
 	private String state;
+	private String nonce;
 	private Map<String,Object> additionalParameters;
 
 	private AuthorizationRequest() {
@@ -78,6 +80,10 @@ public final class AuthorizationRequest implements Serializable {
 		return this.state;
 	}
 
+	public String getNonce() {
+		return nonce;
+	}
+
 	public Map<String, Object> getAdditionalParameters() {
 		return this.additionalParameters;
 	}
@@ -98,6 +104,7 @@ public final class AuthorizationRequest implements Serializable {
 		private String redirectUri;
 		private Set<String> scope;
 		private String state;
+		private String nonce;
 		private Map<String,Object> additionalParameters;
 
 		private Builder(AuthorizationGrantType authorizationGrantType) {
@@ -135,6 +142,11 @@ public final class AuthorizationRequest implements Serializable {
 			return this;
 		}
 
+		public Builder nonce(String nonce) {
+			this.nonce = nonce;
+			return this;
+		}
+
 		public Builder additionalParameters(Map<String,Object> additionalParameters) {
 			this.additionalParameters = additionalParameters;
 			return this;
@@ -154,6 +166,7 @@ public final class AuthorizationRequest implements Serializable {
 			authorizationRequest.clientId = this.clientId;
 			authorizationRequest.redirectUri = this.redirectUri;
 			authorizationRequest.state = this.state;
+			authorizationRequest.nonce = this.nonce;
 			authorizationRequest.scope = Collections.unmodifiableSet(
 				CollectionUtils.isEmpty(this.scope) ?
 					Collections.emptySet() : new LinkedHashSet<>(this.scope));

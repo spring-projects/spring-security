@@ -52,6 +52,7 @@ import static org.mockito.Mockito.mock;
  * Tests {@link AuthorizationCodeAuthenticationFilter}.
  *
  * @author Joe Grandja
+ * @author Shazin Sadakath
  */
 public class AuthorizationCodeAuthenticationFilterTests {
 
@@ -115,10 +116,11 @@ public class AuthorizationCodeAuthenticationFilterTests {
 		MockHttpServletRequest request = this.setupRequest(clientRegistration);
 		String authCode = "some code";
 		String state = "some state";
+		String nonce = "some nonce";
 		request.addParameter(OAuth2Parameter.CODE, authCode);
 		request.addParameter(OAuth2Parameter.STATE, state);
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		setupAuthorizationRequest(authorizationRequestRepository, request, response, clientRegistration, state);
+		setupAuthorizationRequest(authorizationRequestRepository, request, response, clientRegistration, state, nonce);
 		FilterChain filterChain = mock(FilterChain.class);
 
 		filter.doFilter(request, response, filterChain);
@@ -191,7 +193,8 @@ public class AuthorizationCodeAuthenticationFilterTests {
 											HttpServletRequest request,
 											HttpServletResponse response,
 											ClientRegistration clientRegistration,
-											String state) {
+											String state,
+											String nonce) {
 
 		Map<String,Object> additionalParameters = new HashMap<>();
 		additionalParameters.put(OAuth2Parameter.REGISTRATION_ID, clientRegistration.getRegistrationId());
@@ -203,6 +206,7 @@ public class AuthorizationCodeAuthenticationFilterTests {
 				.redirectUri(clientRegistration.getRedirectUri())
 				.scope(clientRegistration.getScope())
 				.state(state)
+				.nonce(nonce)
 				.additionalParameters(additionalParameters)
 				.build();
 

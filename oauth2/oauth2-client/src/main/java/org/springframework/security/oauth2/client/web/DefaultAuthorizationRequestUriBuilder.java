@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
  * which internally uses a {@link UriComponentsBuilder} to construct the <i>OAuth 2.0 Authorization Request</i>.
  *
  * @author Joe Grandja
+ * @author Shazin Sadakath
  * @since 5.0
  * @see AuthorizationRequest
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.1">Section 4.1.1 Authorization Code Grant Request</a>
@@ -42,7 +43,8 @@ public class DefaultAuthorizationRequestUriBuilder implements AuthorizationReque
 			.queryParam(OAuth2Parameter.CLIENT_ID, authorizationRequest.getClientId())
 			.queryParam(OAuth2Parameter.SCOPE,
 				authorizationRequest.getScope().stream().collect(Collectors.joining(" ")))
-			.queryParam(OAuth2Parameter.STATE, authorizationRequest.getState());
+			.queryParam(OAuth2Parameter.STATE, authorizationRequest.getState())
+			.queryParam(OAuth2Parameter.NONCE, authorizationRequest.getNonce());
 		if (authorizationRequest.getRedirectUri() != null) {
 			uriBuilder.queryParam(OAuth2Parameter.REDIRECT_URI, authorizationRequest.getRedirectUri());
 		}

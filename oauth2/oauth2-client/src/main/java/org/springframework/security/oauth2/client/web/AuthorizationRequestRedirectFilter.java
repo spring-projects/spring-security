@@ -50,6 +50,7 @@ import java.util.Map;
  * once access is granted (or denied) by the end-user (resource owner).
  *
  * @author Joe Grandja
+ * @author Shazin Sadakath
  * @since 5.0
  * @see AuthorizationRequest
  * @see AuthorizationRequestRepository
@@ -131,6 +132,8 @@ public class AuthorizationRequestRedirectFilter extends OncePerRequestFilter {
 		Map<String,Object> additionalParameters = new HashMap<>();
 		additionalParameters.put(OAuth2Parameter.REGISTRATION_ID, clientRegistration.getRegistrationId());
 
+		String nonce = request.getParameter(OAuth2Parameter.NONCE);
+
 		AuthorizationRequest.Builder builder;
 		if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(clientRegistration.getAuthorizationGrantType())) {
 			builder = AuthorizationRequest.authorizationCode();
@@ -146,6 +149,7 @@ public class AuthorizationRequestRedirectFilter extends OncePerRequestFilter {
 				.redirectUri(redirectUriStr)
 				.scope(clientRegistration.getScope())
 				.state(this.stateGenerator.generateKey())
+				.nonce(nonce)
 				.additionalParameters(additionalParameters)
 				.build();
 

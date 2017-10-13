@@ -34,6 +34,7 @@ public class AuthorizationRequestTest {
 	private static final String REDIRECT_URI = "http://redirect.uri/";
 	private static final Set<String> SCOPE = Collections.singleton("scope");
 	private static final String STATE = "xyz";
+	private static final String NONCE = "1234-456-0393";
 
 	@Test(expected = IllegalArgumentException.class)
 	public void buildWhenAuthorizationUriIsNullThenThrowIllegalArgumentException() {
@@ -43,6 +44,7 @@ public class AuthorizationRequestTest {
 			.redirectUri(REDIRECT_URI)
 			.scope(SCOPE)
 			.state(STATE)
+			.nonce(NONCE)
 			.build();
 	}
 
@@ -53,6 +55,7 @@ public class AuthorizationRequestTest {
 			.redirectUri(REDIRECT_URI)
 			.scope(SCOPE)
 			.state(STATE)
+			.nonce(NONCE)
 			.build();
 	}
 
@@ -64,6 +67,7 @@ public class AuthorizationRequestTest {
 			.redirectUri(REDIRECT_URI)
 			.scope(SCOPE)
 			.state(STATE)
+			.nonce(NONCE)
 			.build();
 	}
 
@@ -74,6 +78,7 @@ public class AuthorizationRequestTest {
 			.redirectUri(REDIRECT_URI)
 			.scope(SCOPE)
 			.state(STATE)
+			.nonce(NONCE)
 			.build();
 	}
 
@@ -86,6 +91,7 @@ public class AuthorizationRequestTest {
 			.redirectUri(REDIRECT_URI)
 			.scope(SCOPE)
 			.state(STATE)
+			.nonce(NONCE)
 			.build();
 
 		assertThat(authorizationRequest.getResponseType()).isEqualTo(ResponseType.CODE);
@@ -99,6 +105,7 @@ public class AuthorizationRequestTest {
 			.redirectUri(null)
 			.scope(SCOPE)
 			.state(STATE)
+			.nonce(NONCE)
 			.build()).doesNotThrowAnyException();
 	}
 
@@ -109,6 +116,7 @@ public class AuthorizationRequestTest {
 			.clientId(CLIENT_ID)
 			.scope(SCOPE)
 			.state(STATE)
+			.nonce(NONCE)
 			.build()).doesNotThrowAnyException();
 	}
 
@@ -120,6 +128,7 @@ public class AuthorizationRequestTest {
 			.redirectUri(REDIRECT_URI)
 			.scope(null)
 			.state(STATE)
+			.nonce(NONCE)
 			.build()).doesNotThrowAnyException();
 	}
 
@@ -130,6 +139,7 @@ public class AuthorizationRequestTest {
 			.clientId(CLIENT_ID)
 			.redirectUri(REDIRECT_URI)
 			.state(STATE)
+			.nonce(NONCE)
 			.build()).doesNotThrowAnyException();
 	}
 
@@ -141,6 +151,19 @@ public class AuthorizationRequestTest {
 			.redirectUri(REDIRECT_URI)
 			.scope(SCOPE)
 			.state(null)
+			.nonce(NONCE)
+			.build()).doesNotThrowAnyException();
+	}
+
+	@Test
+	public void buildWhenNonceIsNullThenDoesNotThrowAnyException() {
+		assertThatCode(() -> AuthorizationRequest.authorizationCode()
+			.authorizationUri(AUTHORIZE_URI)
+			.clientId(CLIENT_ID)
+			.redirectUri(REDIRECT_URI)
+			.scope(SCOPE)
+			.state(STATE)
+			.nonce(null)
 			.build()).doesNotThrowAnyException();
 	}
 
@@ -151,6 +174,7 @@ public class AuthorizationRequestTest {
 			.clientId(CLIENT_ID)
 			.redirectUri(REDIRECT_URI)
 			.scope(SCOPE)
+			.nonce(NONCE)
 			.build()).doesNotThrowAnyException();
 	}
 }

@@ -20,6 +20,7 @@ package org.springframework.security.oauth2.core.endpoint;
  * and used by the authorization endpoint and token endpoint.
  *
  * @author Joe Grandja
+ * @author Shazin Sadakath
  * @since 5.0
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-11.2">11.2 OAuth Parameters Registry</a>
  */
@@ -44,5 +45,7 @@ public interface OAuth2Parameter {
 	String ERROR_URI = "error_uri";
 
 	String REGISTRATION_ID = "registration_id";		// Non-standard additional parameter
+
+	String NONCE = "nonce";
 
 }
