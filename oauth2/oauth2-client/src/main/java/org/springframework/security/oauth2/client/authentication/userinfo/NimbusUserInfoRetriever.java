@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.client.user.nimbus;
+package org.springframework.security.oauth2.client.authentication.userinfo;
 
 import com.nimbusds.oauth2.sdk.ErrorObject;
 import com.nimbusds.oauth2.sdk.ParseException;
@@ -29,7 +29,6 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.client.authentication.OAuth2ClientAuthenticationToken;
-import org.springframework.security.oauth2.client.user.UserInfoRetriever;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.util.Assert;
 

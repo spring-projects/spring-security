@@ -26,8 +26,8 @@ import org.springframework.security.oauth2.client.authentication.AuthorizationGr
 import org.springframework.security.oauth2.client.authentication.AuthorizationGrantTokenExchanger;
 import org.springframework.security.oauth2.client.authentication.DelegatingAuthorizationGrantAuthenticator;
 import org.springframework.security.oauth2.client.authentication.jwt.JwtDecoderRegistry;
-import org.springframework.security.oauth2.client.authentication.jwt.nimbus.NimbusJwtDecoderRegistry;
-import org.springframework.security.oauth2.client.authentication.nimbus.NimbusAuthorizationCodeTokenExchanger;
+import org.springframework.security.oauth2.client.authentication.jwt.NimbusJwtDecoderRegistry;
+import org.springframework.security.oauth2.client.authentication.NimbusAuthorizationCodeTokenExchanger;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.token.SecurityTokenRepository;
 import org.springframework.security.oauth2.client.web.AuthorizationCodeAuthenticationFilter;

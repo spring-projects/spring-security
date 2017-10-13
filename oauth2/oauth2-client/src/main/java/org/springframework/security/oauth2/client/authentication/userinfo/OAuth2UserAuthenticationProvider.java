@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.client.authentication;
+package org.springframework.security.oauth2.client.authentication.userinfo;
 
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
@@ -21,14 +21,13 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.authentication.OAuth2ClientAuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationIdentifierStrategy;
-import org.springframework.security.oauth2.client.user.DefaultOAuth2UserService;
-import org.springframework.security.oauth2.client.user.OAuth2UserService;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.oidc.client.authentication.OidcClientAuthenticationToken;
 import org.springframework.security.oauth2.oidc.client.authentication.OidcUserAuthenticationToken;
-import org.springframework.security.oauth2.oidc.client.user.OidcUserService;
+import org.springframework.security.oauth2.oidc.client.authentication.userinfo.OidcUserService;
 import org.springframework.security.oauth2.oidc.core.user.OidcUser;
 import org.springframework.util.Assert;
 
@@ -52,7 +51,6 @@ import java.util.Collection;
  * @see OAuth2ClientAuthenticationToken
  * @see OidcClientAuthenticationToken
  * @see OAuth2UserService
- * @see DefaultOAuth2UserService
  * @see OidcUserService
  * @see OAuth2User
  * @see OidcUser

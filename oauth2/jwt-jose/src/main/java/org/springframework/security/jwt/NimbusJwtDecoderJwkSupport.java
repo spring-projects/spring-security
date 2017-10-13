@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.jwt.nimbus;
+package org.springframework.security.jwt;
 
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.source.JWKSource;
@@ -29,9 +29,6 @@ import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import org.springframework.security.jose.jws.JwsAlgorithm;
-import org.springframework.security.jwt.Jwt;
-import org.springframework.security.jwt.JwtDecoder;
-import org.springframework.security.jwt.JwtException;
 import org.springframework.util.Assert;
 
 import java.net.MalformedURLException;

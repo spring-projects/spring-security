@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.oidc.client.user;
+package org.springframework.security.oauth2.oidc.client.authentication.userinfo;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.client.authentication.OAuth2ClientAuthenticationToken;
-import org.springframework.security.oauth2.client.user.OAuth2UserService;
-import org.springframework.security.oauth2.client.user.UserInfoRetriever;
-import org.springframework.security.oauth2.client.user.nimbus.NimbusUserInfoRetriever;
+import org.springframework.security.oauth2.client.authentication.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.client.authentication.userinfo.UserInfoRetriever;
+import org.springframework.security.oauth2.client.authentication.userinfo.NimbusUserInfoRetriever;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.oidc.client.authentication.OidcClientAuthenticationToken;

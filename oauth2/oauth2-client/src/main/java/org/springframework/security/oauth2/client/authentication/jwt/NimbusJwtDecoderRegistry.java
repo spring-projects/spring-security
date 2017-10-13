@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.client.authentication.jwt.nimbus;
+package org.springframework.security.oauth2.client.authentication.jwt;
 
 import org.springframework.security.jwt.JwtDecoder;
-import org.springframework.security.jwt.nimbus.NimbusJwtDecoderJwkSupport;
-import org.springframework.security.oauth2.client.authentication.jwt.JwtDecoderRegistry;
+import org.springframework.security.jwt.NimbusJwtDecoderJwkSupport;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
