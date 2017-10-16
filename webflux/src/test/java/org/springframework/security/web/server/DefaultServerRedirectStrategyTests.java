@@ -22,8 +22,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
-import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.server.ServerWebExchange;
 
 import java.net.URI;
@@ -46,16 +44,14 @@ public class DefaultServerRedirectStrategyTests {
 	private DefaultServerRedirectStrategy strategy =
 		new DefaultServerRedirectStrategy();
 
-	private AuthenticationException exception = new AuthenticationCredentialsNotFoundException("Authentication Required");
-
 	@Test(expected = IllegalArgumentException.class)
 	public void sendRedirectWhenLocationNullThenException() {
-		this.strategy.sendRedirect(this.exchange, (URI) null);
+		this.strategy.sendRedirect(this.exchange, null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void sendRedirectWhenExchangeNullThenException() {
-		this.strategy.sendRedirect((ServerWebExchange) null, this.location);
+		this.strategy.sendRedirect(null, this.location);
 	}
 
 	@Test
@@ -66,7 +62,7 @@ public class DefaultServerRedirectStrategyTests {
 	}
 
 	@Test
-	public void sendRedirectWhenNoContextThenStatusAndLocationSet() {
+	public void sendRedirectWhenNoContextPathThenStatusAndLocationSet() {
 		this.exchange = MockServerHttpRequest.get("/").toExchange();
 
 		this.strategy.sendRedirect(this.exchange, this.location).block();
@@ -121,7 +117,7 @@ public class DefaultServerRedirectStrategyTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void setHttpStatusWhenNullLocationThenException() {
+	public void setHttpStatusWhenNullThenException() {
 		this.strategy.setHttpStatus(null);
 	}
 }

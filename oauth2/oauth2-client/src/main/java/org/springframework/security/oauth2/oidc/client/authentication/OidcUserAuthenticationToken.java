@@ -25,11 +25,11 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
- * A {@link OAuth2UserAuthenticationToken} that represents an
+ * An {@link OAuth2UserAuthenticationToken} that represents an
  * <i>OpenID Connect 1.0 User</i> {@link Authentication}.
  *
  * <p>
- * This {@link Authentication} associates an {@link OidcUser} principal to a
+ * This {@link Authentication} associates an {@link OidcUser} principal to an
  * {@link OidcClientAuthenticationToken} which represents the <i>&quot;Authorized Client&quot;</i>.
  *
  * @author Joe Grandja

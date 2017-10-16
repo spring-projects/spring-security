@@ -50,7 +50,7 @@ public class RedirectServerAuthenticationSuccessHandler
 	}
 
 	/**
-	 * Where the user is redirected to upon AuthenticationSuccess
+	 * Where the user is redirected to upon authentication success
 	 * @param location the location to redirect to. The default is "/"
 	 */
 	public void setLocation(URI location) {
