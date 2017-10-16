@@ -23,7 +23,7 @@ import org.springframework.security.oauth2.oidc.core.IdToken;
 import org.springframework.util.Assert;
 
 /**
- * A {@link OAuth2ClientAuthenticationToken} that represents an
+ * An {@link OAuth2ClientAuthenticationToken} that represents an
  * <i>OpenID Connect 1.0 Client</i> {@link Authentication}.
  *
  * <p>

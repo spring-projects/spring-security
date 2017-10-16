@@ -69,7 +69,6 @@ public class DelegatingServerAuthenticationEntryPointTests {
 		Mono<Void> actualResult = this.entryPoint.commence(this.exchange, this.e);
 		actualResult.block();
 
-		assertThat(actualResult).isEqualTo(actualResult);
 		verifyZeroInteractions(this.delegate1);
 		verify(this.delegate2).commence(this.exchange, this.e);
 	}
@@ -85,6 +84,6 @@ public class DelegatingServerAuthenticationEntryPointTests {
 
 		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(
 			HttpStatus.UNAUTHORIZED);
-		verifyZeroInteractions(this.delegate1, this.delegate2);
+		verifyZeroInteractions(this.delegate1);
 	}
 }

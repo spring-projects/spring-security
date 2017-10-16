@@ -63,7 +63,7 @@ public class DefaultServerRedirectStrategy implements ServerRedirectStrategy {
 	/**
 	 * Sets if the location is relative to the context.
 	 * @param contextRelative if redirects should be relative to the context.
-	   Default is true.
+	 * Default is true.
 	 */
 	public void setContextRelative(boolean contextRelative) {
 		this.contextRelative = contextRelative;
