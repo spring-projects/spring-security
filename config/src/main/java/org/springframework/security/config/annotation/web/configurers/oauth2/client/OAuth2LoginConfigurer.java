@@ -21,12 +21,11 @@ import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationToken;
-import org.springframework.security.oauth2.client.authentication.AuthorizationGrantAuthenticator;
 import org.springframework.security.oauth2.client.authentication.AuthorizationGrantTokenExchanger;
-import org.springframework.security.oauth2.client.authentication.userinfo.OAuth2UserAuthenticationProvider;
 import org.springframework.security.oauth2.client.authentication.userinfo.CustomUserTypesOAuth2UserService;
 import org.springframework.security.oauth2.client.authentication.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.authentication.userinfo.DelegatingOAuth2UserService;
+import org.springframework.security.oauth2.client.authentication.userinfo.OAuth2UserAuthenticationProvider;
 import org.springframework.security.oauth2.client.authentication.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -124,14 +123,6 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 	public class TokenEndpointConfig {
 
 		private TokenEndpointConfig() {
-		}
-
-		public TokenEndpointConfig authorizationCodeAuthenticator(
-			AuthorizationGrantAuthenticator<AuthorizationCodeAuthenticationToken> authorizationCodeAuthenticator) {
-
-			Assert.notNull(authorizationCodeAuthenticator, "authorizationCodeAuthenticator cannot be null");
-			authorizationCodeGrantConfigurer.authorizationCodeAuthenticator(authorizationCodeAuthenticator);
-			return this;
 		}
 
 		public TokenEndpointConfig authorizationCodeTokenExchanger(

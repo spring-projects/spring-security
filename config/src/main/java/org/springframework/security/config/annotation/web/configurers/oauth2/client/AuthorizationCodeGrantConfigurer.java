@@ -21,13 +21,10 @@ import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationProvider;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationToken;
-import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticator;
-import org.springframework.security.oauth2.client.authentication.AuthorizationGrantAuthenticator;
 import org.springframework.security.oauth2.client.authentication.AuthorizationGrantTokenExchanger;
-import org.springframework.security.oauth2.client.authentication.DelegatingAuthorizationGrantAuthenticator;
+import org.springframework.security.oauth2.client.authentication.NimbusAuthorizationCodeTokenExchanger;
 import org.springframework.security.oauth2.client.authentication.jwt.JwtDecoderRegistry;
 import org.springframework.security.oauth2.client.authentication.jwt.NimbusJwtDecoderRegistry;
-import org.springframework.security.oauth2.client.authentication.NimbusAuthorizationCodeTokenExchanger;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.token.SecurityTokenRepository;
 import org.springframework.security.oauth2.client.web.AuthorizationCodeAuthenticationFilter;
@@ -35,12 +32,9 @@ import org.springframework.security.oauth2.client.web.AuthorizationRequestRedire
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestUriBuilder;
 import org.springframework.security.oauth2.core.AccessToken;
-import org.springframework.security.oauth2.oidc.client.authentication.OidcAuthorizationCodeAuthenticator;
+import org.springframework.security.oauth2.oidc.client.authentication.OidcAuthorizationCodeAuthenticationProvider;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.util.Assert;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A security configurer for the Authorization Code Grant type.
@@ -60,7 +54,6 @@ public class AuthorizationCodeGrantConfigurer<B extends HttpSecurityBuilder<B>> 
 	// ***** Authorization Response members
 	private AuthorizationCodeAuthenticationFilter authorizationResponseFilter;
 	private String authorizationResponseBaseUri;
-	private AuthorizationGrantAuthenticator<AuthorizationCodeAuthenticationToken> authorizationCodeAuthenticator;
 	private AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger;
 	private SecurityTokenRepository<AccessToken> accessTokenRepository;
 	private JwtDecoderRegistry jwtDecoderRegistry;
@@ -86,14 +79,6 @@ public class AuthorizationCodeGrantConfigurer<B extends HttpSecurityBuilder<B>> 
 	public AuthorizationCodeGrantConfigurer<B> authorizationResponseBaseUri(String authorizationResponseBaseUri) {
 		Assert.hasText(authorizationResponseBaseUri, "authorizationResponseBaseUri cannot be empty");
 		this.authorizationResponseBaseUri = authorizationResponseBaseUri;
-		return this;
-	}
-
-	public AuthorizationCodeGrantConfigurer<B> authorizationCodeAuthenticator(
-		AuthorizationGrantAuthenticator<AuthorizationCodeAuthenticationToken> authorizationCodeAuthenticator) {
-
-		Assert.notNull(authorizationCodeAuthenticator, "authorizationCodeAuthenticator cannot be null");
-		this.authorizationCodeAuthenticator = authorizationCodeAuthenticator;
 		return this;
 	}
 
@@ -125,12 +110,20 @@ public class AuthorizationCodeGrantConfigurer<B extends HttpSecurityBuilder<B>> 
 
 	@Override
 	public final void init(B http) throws Exception {
-		AuthorizationCodeAuthenticationProvider authorizationCodeAuthenticationProvider =
-			new AuthorizationCodeAuthenticationProvider(this.getAuthorizationCodeAuthenticator());
+		AuthorizationCodeAuthenticationProvider oauth2AuthorizationCodeAuthenticationProvider =
+			new AuthorizationCodeAuthenticationProvider(this.getAuthorizationCodeTokenExchanger());
 		if (this.accessTokenRepository != null) {
-			authorizationCodeAuthenticationProvider.setAccessTokenRepository(this.accessTokenRepository);
+			oauth2AuthorizationCodeAuthenticationProvider.setAccessTokenRepository(this.accessTokenRepository);
 		}
-		http.authenticationProvider(this.postProcess(authorizationCodeAuthenticationProvider));
+		http.authenticationProvider(this.postProcess(oauth2AuthorizationCodeAuthenticationProvider));
+
+		OidcAuthorizationCodeAuthenticationProvider oidcAuthorizationCodeAuthenticationProvider =
+			new OidcAuthorizationCodeAuthenticationProvider(
+				this.getAuthorizationCodeTokenExchanger(), this.getJwtDecoderRegistry());
+		if (this.accessTokenRepository != null) {
+			oidcAuthorizationCodeAuthenticationProvider.setAccessTokenRepository(this.accessTokenRepository);
+		}
+		http.authenticationProvider(this.postProcess(oidcAuthorizationCodeAuthenticationProvider));
 
 		this.authorizationRequestFilter = new AuthorizationRequestRedirectFilter(
 			this.getAuthorizationRequestBaseUri(), this.getClientRegistrationRepository());
@@ -178,17 +171,6 @@ public class AuthorizationCodeGrantConfigurer<B extends HttpSecurityBuilder<B>> 
 
 	AuthorizationRequestRepository getAuthorizationRequestRepository() {
 		return this.authorizationRequestRepository;
-	}
-
-	private AuthorizationGrantAuthenticator<AuthorizationCodeAuthenticationToken> getAuthorizationCodeAuthenticator() {
-		if (this.authorizationCodeAuthenticator == null) {
-			List<AuthorizationGrantAuthenticator<AuthorizationCodeAuthenticationToken>> authenticators = new ArrayList<>();
-			authenticators.add(new AuthorizationCodeAuthenticator(this.getAuthorizationCodeTokenExchanger()));
-			authenticators.add(new OidcAuthorizationCodeAuthenticator(
-				this.getAuthorizationCodeTokenExchanger(), this.getJwtDecoderRegistry()));
-			this.authorizationCodeAuthenticator = new DelegatingAuthorizationGrantAuthenticator<>(authenticators);;
-		}
-		return this.authorizationCodeAuthenticator;
 	}
 
 	private AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> getAuthorizationCodeTokenExchanger() {

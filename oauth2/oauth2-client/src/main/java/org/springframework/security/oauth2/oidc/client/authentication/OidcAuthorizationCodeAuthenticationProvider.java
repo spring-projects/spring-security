@@ -15,16 +15,22 @@
  */
 package org.springframework.security.oauth2.oidc.client.authentication;
 
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.jwt.Jwt;
 import org.springframework.security.jwt.JwtDecoder;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationToken;
-import org.springframework.security.oauth2.client.authentication.AuthorizationGrantAuthenticator;
 import org.springframework.security.oauth2.client.authentication.AuthorizationGrantTokenExchanger;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.client.authentication.OAuth2ClientAuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.jwt.JwtDecoderRegistry;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.token.InMemoryAccessTokenRepository;
+import org.springframework.security.oauth2.client.token.SecurityTokenRepository;
 import org.springframework.security.oauth2.core.AccessToken;
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.endpoint.AuthorizationRequest;
+import org.springframework.security.oauth2.core.endpoint.AuthorizationResponse;
 import org.springframework.security.oauth2.core.endpoint.TokenResponse;
 import org.springframework.security.oauth2.oidc.core.IdToken;
 import org.springframework.security.oauth2.oidc.core.OidcScope;
@@ -32,22 +38,30 @@ import org.springframework.security.oauth2.oidc.core.endpoint.OidcParameter;
 import org.springframework.util.Assert;
 
 /**
- * An implementation of an {@link AuthorizationGrantAuthenticator} that
- * <i>&quot;authenticates&quot;</i> an <i>authorization code grant</i> credential
- * against an OpenID Connect 1.0 Provider's <i>Token Endpoint</i>.
+ * An implementation of an {@link AuthenticationProvider}
+ * for the <i>OpenID Connect Core 1.0 Authorization Code Grant Flow</i>.
+ *
+ * This {@link AuthenticationProvider} is responsible for authenticating
+ * an <i>authorization code</i> credential with the authorization server's <i>Token Endpoint</i>
+ * and if valid, exchanging it for an <i>access token</i> credential.
  *
  * @author Joe Grandja
  * @since 5.0
- * @see AuthorizationGrantAuthenticator
  * @see AuthorizationCodeAuthenticationToken
- * @see AuthorizationGrantTokenExchanger
- * @see JwtDecoderRegistry
+ * @see OidcClientAuthenticationToken
+ * @see SecurityTokenRepository
+ * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth">Section 3.1 Authorization Code Grant Flow</a>
+ * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#TokenRequest">Section 3.1.3.1 Token Request</a>
+ * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#TokenResponse">Section 3.1.3.3 Token Response</a>
  */
-public class OidcAuthorizationCodeAuthenticator implements AuthorizationGrantAuthenticator<AuthorizationCodeAuthenticationToken> {
+public class OidcAuthorizationCodeAuthenticationProvider implements AuthenticationProvider {
+	private static final String INVALID_STATE_PARAMETER_ERROR_CODE = "invalid_state_parameter";
+	private static final String INVALID_REDIRECT_URI_PARAMETER_ERROR_CODE = "invalid_redirect_uri_parameter";
 	private final AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger;
 	private final JwtDecoderRegistry jwtDecoderRegistry;
+	private SecurityTokenRepository<AccessToken> accessTokenRepository = new InMemoryAccessTokenRepository();
 
-	public OidcAuthorizationCodeAuthenticator(
+	public OidcAuthorizationCodeAuthenticationProvider(
 		AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger,
 		JwtDecoderRegistry jwtDecoderRegistry) {
 
@@ -58,18 +72,36 @@ public class OidcAuthorizationCodeAuthenticator implements AuthorizationGrantAut
 	}
 
 	@Override
-	public OAuth2ClientAuthenticationToken authenticate(
-		AuthorizationCodeAuthenticationToken authorizationCodeAuthentication) throws OAuth2AuthenticationException {
+	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+		AuthorizationCodeAuthenticationToken authorizationCodeAuthentication =
+				(AuthorizationCodeAuthenticationToken) authentication;
 
 		// Section 3.1.2.1 Authentication Request - http://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
 		// scope
 		// 		REQUIRED. OpenID Connect requests MUST contain the "openid" scope value.
 		//		If the openid scope value is not present, the behavior is entirely unspecified.
 		if (!authorizationCodeAuthentication.getAuthorizationRequest().getScope().contains(OidcScope.OPENID)) {
+			// Let the standard OAuth 2.0 Authorization Code AuthenticationProvider handle this
 			return null;
 		}
 
-		ClientRegistration clientRegistration = authorizationCodeAuthentication.getClientRegistration();
+		AuthorizationRequest authorizationRequest = authorizationCodeAuthentication.getAuthorizationRequest();
+		AuthorizationResponse authorizationResponse = authorizationCodeAuthentication.getAuthorizationResponse();
+
+		if (authorizationResponse.statusError()) {
+			throw new OAuth2AuthenticationException(
+				authorizationResponse.getError(), authorizationResponse.getError().toString());
+		}
+
+		if (!authorizationResponse.getState().equals(authorizationRequest.getState())) {
+			OAuth2Error oauth2Error = new OAuth2Error(INVALID_STATE_PARAMETER_ERROR_CODE);
+			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+		}
+
+		if (!authorizationResponse.getRedirectUri().equals(authorizationRequest.getRedirectUri())) {
+			OAuth2Error oauth2Error = new OAuth2Error(INVALID_REDIRECT_URI_PARAMETER_ERROR_CODE);
+			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+		}
 
 		TokenResponse tokenResponse =
 			this.authorizationCodeTokenExchanger.exchange(authorizationCodeAuthentication);
@@ -77,6 +109,8 @@ public class OidcAuthorizationCodeAuthenticator implements AuthorizationGrantAut
 		AccessToken accessToken = new AccessToken(tokenResponse.getTokenType(),
 			tokenResponse.getTokenValue(), tokenResponse.getIssuedAt(),
 			tokenResponse.getExpiresAt(), tokenResponse.getScope());
+
+		ClientRegistration clientRegistration = authorizationCodeAuthentication.getClientRegistration();
 
 		if (!tokenResponse.getAdditionalParameters().containsKey(OidcParameter.ID_TOKEN)) {
 			throw new IllegalArgumentException(
@@ -95,6 +129,20 @@ public class OidcAuthorizationCodeAuthenticator implements AuthorizationGrantAut
 			new OidcClientAuthenticationToken(clientRegistration, accessToken, idToken);
 		clientAuthentication.setDetails(authorizationCodeAuthentication.getDetails());
 
+		this.accessTokenRepository.saveSecurityToken(
+			clientAuthentication.getAccessToken(),
+			clientAuthentication.getClientRegistration());
+
 		return clientAuthentication;
+	}
+
+	public final void setAccessTokenRepository(SecurityTokenRepository<AccessToken> accessTokenRepository) {
+		Assert.notNull(accessTokenRepository, "accessTokenRepository cannot be null");
+		this.accessTokenRepository = accessTokenRepository;
+	}
+
+	@Override
+	public boolean supports(Class<?> authentication) {
+		return AuthorizationCodeAuthenticationToken.class.isAssignableFrom(authentication);
 	}
 }
