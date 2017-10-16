@@ -99,7 +99,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * <ul>
  * <li>{@link AuthenticationEntryPoint} is populated with a
  * {@link LoginUrlAuthenticationEntryPoint}</li>
- * <li>A {@link OpenIDAuthenticationProvider} is populated into
+ * <li>An {@link OpenIDAuthenticationProvider} is populated into
  * {@link HttpSecurity#authenticationProvider(org.springframework.security.authentication.AuthenticationProvider)}
  * </li>
  * </ul>

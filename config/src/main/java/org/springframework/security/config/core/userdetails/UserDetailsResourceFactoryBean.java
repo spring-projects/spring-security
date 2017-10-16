@@ -101,7 +101,7 @@ public class UserDetailsResourceFactoryBean implements ResourceLoaderAware, Fact
 	}
 
 	/**
-	 * Sets a the location of a Resource that is a Properties file in the format defined in {@link UserDetailsResourceFactoryBean}
+	 * Sets the location of a Resource that is a Properties file in the format defined in {@link UserDetailsResourceFactoryBean}.
 	 *
 	 * @param resourceLocation the location of the properties file that contains the users (i.e. "classpath:users.properties")
 	 */
@@ -110,7 +110,7 @@ public class UserDetailsResourceFactoryBean implements ResourceLoaderAware, Fact
 	}
 
 	/**
-	 * Sets a a Resource that is a Properties file in the format defined in {@link UserDetailsResourceFactoryBean}
+	 * Sets a Resource that is a Properties file in the format defined in {@link UserDetailsResourceFactoryBean}.
 	 *
 	 * @param resource the Resource to use
 	 */

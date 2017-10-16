@@ -50,14 +50,14 @@ public class RedirectServerAuthenticationEntryPointTests {
 	private String location = "/login";
 
 	private RedirectServerAuthenticationEntryPoint entryPoint =
-		new RedirectServerAuthenticationEntryPoint("/login");
+		new RedirectServerAuthenticationEntryPoint(this.location);
 
 	private AuthenticationException exception = new AuthenticationCredentialsNotFoundException("Authentication Required");
 
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorStringWhenNullLocationThenException() {
-		new RedirectServerAuthenticationEntryPoint((String) null);
+		new RedirectServerAuthenticationEntryPoint(null);
 	}
 
 	@Test
@@ -80,10 +80,9 @@ public class RedirectServerAuthenticationEntryPointTests {
 	}
 
 	@Test
-	public void commenceWhenCustomStatusThenStatusSet() {
+	public void commenceWhenCustomServerRedirectStrategyThenCustomServerRedirectStrategyUsed() {
 		Mono<Void> result = Mono.empty();
 		when(this.serverRedirectStrategy.sendRedirect(any(), any())).thenReturn(result);
-		HttpStatus status = HttpStatus.MOVED_PERMANENTLY;
 		this.entryPoint.setServerRedirectStrategy(this.serverRedirectStrategy);
 		this.exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 

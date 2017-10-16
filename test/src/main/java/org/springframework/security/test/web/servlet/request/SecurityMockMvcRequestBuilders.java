@@ -217,7 +217,7 @@ public final class SecurityMockMvcRequestBuilders {
 		}
 
 		/**
-		 * Specify a media type to to set as the Accept header in the request.
+		 * Specify a media type to set as the Accept header in the request.
 		 *
 		 * @param acceptMediaType the {@link MediaType} to set the Accept header to.
 		 * Default is: MediaType.APPLICATION_FORM_URLENCODED
