@@ -47,12 +47,12 @@ public class DefaultServerRedirectStrategyTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void sendRedirectWhenLocationNullThenException() {
-		this.strategy.sendRedirect(this.exchange, null);
+		this.strategy.sendRedirect(this.exchange, (URI) null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void sendRedirectWhenExchangeNullThenException() {
-		this.strategy.sendRedirect(null, this.location);
+		this.strategy.sendRedirect((ServerWebExchange) null, this.location);
 	}
 
 	@Test

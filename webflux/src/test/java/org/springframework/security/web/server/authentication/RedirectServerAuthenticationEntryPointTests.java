@@ -57,7 +57,7 @@ public class RedirectServerAuthenticationEntryPointTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorStringWhenNullLocationThenException() {
-		new RedirectServerAuthenticationEntryPoint(null);
+		new RedirectServerAuthenticationEntryPoint((String) null);
 	}
 
 	@Test
