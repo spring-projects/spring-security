@@ -21,6 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
+import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.web.server.ServerWebExchange;
 
 /**
@@ -29,7 +30,7 @@ import org.springframework.web.server.ServerWebExchange;
  */
 public class XFrameOptionsServerHttpHeadersWriterTests {
 
-	ServerWebExchange exchange = MockServerHttpRequest.get("/").toExchange();
+	ServerWebExchange exchange = exchange(MockServerHttpRequest.get("/"));
 
 	XFrameOptionsServerHttpHeadersWriter writer;
 
@@ -81,4 +82,7 @@ public class XFrameOptionsServerHttpHeadersWriterTests {
 		assertThat(headers.get(XFrameOptionsServerHttpHeadersWriter.X_FRAME_OPTIONS)).containsOnly(headerValue);
 	}
 
+	private static MockServerWebExchange exchange(MockServerHttpRequest.BaseBuilder<?> request) {
+		return MockServerWebExchange.from(request.build());
+	}
 }

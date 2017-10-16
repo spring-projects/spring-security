@@ -18,6 +18,7 @@ package org.springframework.security.web.server.context;
 
 import org.junit.Test;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
+import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.web.server.ServerWebExchange;
@@ -31,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class ServerWebExchangeAttributeServerSecurityContextRepositoryTests {
 	ServerWebExchangeAttributeServerSecurityContextRepository repository = new ServerWebExchangeAttributeServerSecurityContextRepository();
-	ServerWebExchange exchange = MockServerHttpRequest.get("/").toExchange();
+	ServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 
 	@Test
 	public void saveAndLoad() {

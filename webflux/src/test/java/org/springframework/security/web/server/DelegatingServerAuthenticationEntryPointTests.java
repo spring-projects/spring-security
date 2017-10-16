@@ -22,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
+import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
@@ -40,7 +41,7 @@ import static org.springframework.security.web.server.DelegatingServerAuthentica
  */
 @RunWith(MockitoJUnitRunner.class)
 public class DelegatingServerAuthenticationEntryPointTests {
-	private ServerWebExchange exchange = MockServerHttpRequest.get("/").toExchange();
+	private ServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 
 	@Mock
 	private ServerWebExchangeMatcher matcher1;

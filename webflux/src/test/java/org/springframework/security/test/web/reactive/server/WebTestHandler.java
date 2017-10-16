@@ -16,6 +16,7 @@
 package org.springframework.security.test.web.reactive.server;
 
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest.BaseBuilder;
+import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebHandler;
@@ -39,7 +40,7 @@ public class WebTestHandler {
 	}
 
 	public WebHandlerResult exchange(BaseBuilder<?> baseBuilder) {
-		ServerWebExchange exchange = baseBuilder.toExchange();
+		ServerWebExchange exchange = MockServerWebExchange.from(baseBuilder.build());
 		return exchange(exchange);
 	}
 

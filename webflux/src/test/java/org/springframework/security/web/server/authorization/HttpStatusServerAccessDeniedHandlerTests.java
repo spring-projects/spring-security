@@ -23,6 +23,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
+import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -56,7 +57,7 @@ public class HttpStatusServerAccessDeniedHandlerTests {
 
 	@Test
 	public void commenceWhenSubscribeThenStatusSet() {
-		this.exchange = MockServerHttpRequest.get("/").toExchange();
+		this.exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 
 		this.handler.handle(this.exchange, this.exception).block();
 

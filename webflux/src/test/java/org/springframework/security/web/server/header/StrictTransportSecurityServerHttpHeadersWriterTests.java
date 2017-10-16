@@ -23,6 +23,7 @@ import java.util.Arrays;
 import org.junit.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
+import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.web.server.ServerWebExchange;
 
 /**
@@ -36,7 +37,7 @@ public class StrictTransportSecurityServerHttpHeadersWriterTests {
 
 	@Test
 	public void writeHttpHeadersWhenHttpsThenWrites() {
-		exchange = MockServerHttpRequest.get("https://example.com/").toExchange();
+		exchange = exchange(MockServerHttpRequest.get("https://example.com/"));
 
 		hsts.writeHttpHeaders(exchange);
 
@@ -50,7 +51,7 @@ public class StrictTransportSecurityServerHttpHeadersWriterTests {
 	public void writeHttpHeadersWhenCustomMaxAgeThenWrites() {
 		Duration maxAge = Duration.ofDays(1);
 		hsts.setMaxAge(maxAge);
-		exchange = MockServerHttpRequest.get("https://example.com/").toExchange();
+		exchange = exchange(MockServerHttpRequest.get("https://example.com/"));
 
 		hsts.writeHttpHeaders(exchange);
 
@@ -63,7 +64,7 @@ public class StrictTransportSecurityServerHttpHeadersWriterTests {
 	@Test
 	public void writeHttpHeadersWhenCustomIncludeSubDomainsThenWrites() {
 		hsts.setIncludeSubDomains(false);
-		exchange = MockServerHttpRequest.get("https://example.com/").toExchange();
+		exchange = exchange(MockServerHttpRequest.get("https://example.com/"));
 
 		hsts.writeHttpHeaders(exchange);
 
@@ -75,7 +76,7 @@ public class StrictTransportSecurityServerHttpHeadersWriterTests {
 
 	@Test
 	public void writeHttpHeadersWhenNullSchemeThenNoHeaders() {
-		exchange = MockServerHttpRequest.get("/").toExchange();
+		exchange = exchange(MockServerHttpRequest.get("/"));
 
 		hsts.writeHttpHeaders(exchange);
 
@@ -85,11 +86,15 @@ public class StrictTransportSecurityServerHttpHeadersWriterTests {
 
 	@Test
 	public void writeHttpHeadersWhenHttpThenNoHeaders() {
-		exchange = MockServerHttpRequest.get("http://example.com/").toExchange();
+		exchange = exchange(MockServerHttpRequest.get("http://example.com/"));
 
 		hsts.writeHttpHeaders(exchange);
 
 		HttpHeaders headers = exchange.getResponse().getHeaders();
 		assertThat(headers).isEmpty();
+	}
+
+	private static MockServerWebExchange exchange(MockServerHttpRequest.BaseBuilder<?> request) {
+		return MockServerWebExchange.from(request.build());
 	}
 }

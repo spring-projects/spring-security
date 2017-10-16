@@ -27,6 +27,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import org.springframework.http.MediaType;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
+import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.web.reactive.accept.RequestedContentTypeResolver;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -131,6 +132,6 @@ public class MediaTypeServerWebExchangeMatcherTests {
 	}
 
 	private static ServerWebExchange exchange(MediaType... accept) {
-		return MockServerHttpRequest.get("/").accept(accept).toExchange();
+		return MockServerWebExchange.from(MockServerHttpRequest.get("/").accept(accept).build());
 	}
 }

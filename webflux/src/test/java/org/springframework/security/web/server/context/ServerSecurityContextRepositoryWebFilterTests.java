@@ -22,6 +22,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
+import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.test.web.reactive.server.WebTestHandler;
@@ -90,7 +91,7 @@ public class ServerSecurityContextRepositoryWebFilterTests {
 		when(repository.load(any())).thenReturn(Mono.empty());
 		filters = WebTestHandler.bindToWebFilters(filter, (e,c) -> e.getPrincipal().flatMap( p-> c.filter(e))) ;
 
-		ServerWebExchange exchangeWithPrincipal = this.exchange.toExchange().mutate().principal(Mono.just(principal)).build();
+		ServerWebExchange exchangeWithPrincipal = MockServerWebExchange.from(exchange.build()).mutate().principal(Mono.just(principal)).build();
 		WebTestHandler.WebHandlerResult result = filters.exchange(exchangeWithPrincipal);
 
 		verify(repository).load(any());

@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
+import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.web.server.ServerWebExchange;
 
 /**
@@ -31,7 +32,8 @@ import org.springframework.web.server.ServerWebExchange;
 public class CacheControlServerHttpHeadersWriterTests {
 	CacheControlServerHttpHeadersWriter writer = new CacheControlServerHttpHeadersWriter();
 
-	ServerWebExchange exchange = MockServerHttpRequest.get("/").toExchange();
+	ServerWebExchange exchange = MockServerWebExchange
+		.from(MockServerHttpRequest.get("/").build());
 
 	HttpHeaders headers = exchange.getResponse().getHeaders();
 

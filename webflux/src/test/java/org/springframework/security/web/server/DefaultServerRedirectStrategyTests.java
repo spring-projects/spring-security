@@ -22,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
+import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.server.ServerWebExchange;
@@ -67,7 +68,7 @@ public class DefaultServerRedirectStrategyTests {
 
 	@Test
 	public void sendRedirectWhenNoContextThenStatusAndLocationSet() {
-		this.exchange = MockServerHttpRequest.get("/").toExchange();
+		this.exchange = exchange(MockServerHttpRequest.get("/"));
 
 		this.strategy.sendRedirect(this.exchange, this.location).block();
 
@@ -78,7 +79,7 @@ public class DefaultServerRedirectStrategyTests {
 
 	@Test
 	public void sendRedirectWhenContextPathSetThenStatusAndLocationSet() {
-		this.exchange = MockServerHttpRequest.get("/context/foo").contextPath("/context").toExchange();
+		this.exchange = exchange(MockServerHttpRequest.get("/context/foo").contextPath("/context"));
 
 		this.strategy.sendRedirect(this.exchange, this.location).block();
 
@@ -89,7 +90,7 @@ public class DefaultServerRedirectStrategyTests {
 	@Test
 	public void sendRedirectWhenContextPathSetAndAbsoluteURLThenStatusAndLocationSet() {
 		this.location = URI.create("https://example.com/foo/bar");
-		this.exchange = MockServerHttpRequest.get("/context/foo").contextPath("/context").toExchange();
+		this.exchange = exchange(MockServerHttpRequest.get("/context/foo").contextPath("/context"));
 
 		this.strategy.sendRedirect(this.exchange, this.location).block();
 
@@ -100,7 +101,7 @@ public class DefaultServerRedirectStrategyTests {
 	@Test
 	public void sendRedirectWhenContextPathSetAndDisabledThenStatusAndLocationSet() {
 		this.strategy.setContextRelative(false);
-		this.exchange = MockServerHttpRequest.get("/context/foo").contextPath("/context").toExchange();
+		this.exchange = exchange(MockServerHttpRequest.get("/context/foo").contextPath("/context"));
 
 		this.strategy.sendRedirect(this.exchange, this.location).block();
 
@@ -112,7 +113,7 @@ public class DefaultServerRedirectStrategyTests {
 	public void sendRedirectWhenCustomStatusThenStatusSet() {
 		HttpStatus status = HttpStatus.MOVED_PERMANENTLY;
 		this.strategy.setHttpStatus(status);
-		this.exchange = MockServerHttpRequest.get("/").toExchange();
+		this.exchange = exchange(MockServerHttpRequest.get("/"));
 
 		this.strategy.sendRedirect(this.exchange, this.location).block();
 
@@ -123,5 +124,9 @@ public class DefaultServerRedirectStrategyTests {
 	@Test(expected = IllegalArgumentException.class)
 	public void setHttpStatusWhenNullLocationThenException() {
 		this.strategy.setHttpStatus(null);
+	}
+
+	private static MockServerWebExchange exchange(MockServerHttpRequest.BaseBuilder<?> request) {
+		return MockServerWebExchange.from(request.build());
 	}
 }

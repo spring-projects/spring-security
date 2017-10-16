@@ -23,6 +23,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
+import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.server.ServerRedirectStrategy;
@@ -69,7 +70,7 @@ public class RedirectServerAuthenticationEntryPointTests {
 
 	@Test
 	public void commenceWhenSubscribeThenStatusAndLocationSet() {
-		this.exchange = MockServerHttpRequest.get("/").toExchange();
+		this.exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 
 		this.entryPoint.commence(this.exchange, this.exception).block();
 
@@ -84,7 +85,7 @@ public class RedirectServerAuthenticationEntryPointTests {
 		when(this.serverRedirectStrategy.sendRedirect(any(), any())).thenReturn(result);
 		HttpStatus status = HttpStatus.MOVED_PERMANENTLY;
 		this.entryPoint.setServerRedirectStrategy(this.serverRedirectStrategy);
-		this.exchange = MockServerHttpRequest.get("/").toExchange();
+		this.exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 
 		assertThat(this.entryPoint.commence(this.exchange, this.exception)).isEqualTo(result);
 	}

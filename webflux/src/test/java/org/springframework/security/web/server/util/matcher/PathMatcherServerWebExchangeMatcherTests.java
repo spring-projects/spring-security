@@ -23,7 +23,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.HttpMethod;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.http.server.reactive.MockServerHttpResponse;
-import org.springframework.mock.http.server.reactive.MockServerWebExchange;
+import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.web.server.session.DefaultWebSessionManager;
 import org.springframework.web.util.pattern.PathPattern;
 
@@ -53,7 +53,7 @@ public class PathMatcherServerWebExchangeMatcherTests {
 		MockServerHttpRequest request = MockServerHttpRequest.post("/path").build();
 		MockServerHttpResponse response = new MockServerHttpResponse();
 		DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
-		exchange = request.toExchange();
+		exchange = MockServerWebExchange.from(request);
 		path = "/path";
 
 		matcher = new PathPatternParserServerWebExchangeMatcher(pattern);

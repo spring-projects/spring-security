@@ -18,6 +18,7 @@ package org.springframework.security.web.server.context;
 
 import org.junit.Test;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
+import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.server.ServerWebExchange;
@@ -39,7 +40,7 @@ public class AuthenticationReactorContextWebFilterTests {
 
 	Principal principal = new TestingAuthenticationToken("user","password", "ROLE_USER");
 
-	ServerWebExchange exchange = MockServerHttpRequest.get("/").toExchange();
+	ServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 
 	@Test
 	public void filterWhenExistingContextAndPrincipalNotNullThenContextPopulated() {

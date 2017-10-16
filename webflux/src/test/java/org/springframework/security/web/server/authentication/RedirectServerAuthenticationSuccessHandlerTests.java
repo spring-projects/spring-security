@@ -22,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
+import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.security.web.server.WebFilterExchange;
@@ -74,7 +75,7 @@ public class RedirectServerAuthenticationSuccessHandlerTests {
 
 	@Test
 	public void successWhenSubscribeThenStatusAndLocationSet() {
-		this.exchange = MockServerHttpRequest.get("/").toExchange();
+		this.exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 
 		this.handler.onAuthenticationSuccess(new WebFilterExchange(this.exchange,
 			this.chain), this.authentication).block();
@@ -89,7 +90,7 @@ public class RedirectServerAuthenticationSuccessHandlerTests {
 		Mono<Void> result = Mono.empty();
 		when(this.serverRedirectStrategy.sendRedirect(any(), any())).thenReturn(result);
 		this.handler.setServerRedirectStrategy(this.serverRedirectStrategy);
-		this.exchange = MockServerHttpRequest.get("/").toExchange();
+		this.exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 
 		assertThat(this.handler.onAuthenticationSuccess(new WebFilterExchange(this.exchange,
 			this.chain), this.authentication)).isEqualTo(result);

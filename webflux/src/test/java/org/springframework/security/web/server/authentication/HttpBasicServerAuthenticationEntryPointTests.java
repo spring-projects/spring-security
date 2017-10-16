@@ -23,6 +23,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
+import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.server.authentication.HttpBasicServerAuthenticationEntryPoint;
@@ -53,7 +54,7 @@ public class HttpBasicServerAuthenticationEntryPointTests {
 
 	@Test
 	public void commenceWhenSubscribeThenStatusAndHeaderSet() {
-		this.exchange = MockServerHttpRequest.get("/").toExchange();
+		this.exchange = exchange(MockServerHttpRequest.get("/"));
 
 		this.entryPoint.commence(this.exchange, this.exception).block();
 
@@ -66,7 +67,7 @@ public class HttpBasicServerAuthenticationEntryPointTests {
 	@Test
 	public void commenceWhenCustomRealmThenStatusAndHeaderSet() {
 		this.entryPoint.setRealm("Custom");
-		this.exchange = MockServerHttpRequest.get("/").toExchange();
+		this.exchange = exchange(MockServerHttpRequest.get("/"));
 
 		this.entryPoint.commence(this.exchange, this.exception).block();
 
@@ -79,5 +80,10 @@ public class HttpBasicServerAuthenticationEntryPointTests {
 	@Test(expected = IllegalArgumentException.class)
 	public void setRealmWhenNullThenException() {
 		this.entryPoint.setRealm(null);
+	}
+
+
+	private static MockServerWebExchange exchange(MockServerHttpRequest.BaseBuilder<?> request) {
+		return MockServerWebExchange.from(request.build());
 	}
 }

@@ -19,6 +19,7 @@ package org.springframework.security.web.server.util.matcher;
 import org.junit.Test;
 import org.springframework.http.HttpMethod;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
+import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.*;
@@ -33,7 +34,8 @@ import static org.springframework.security.web.server.util.matcher.ServerWebExch
  * @since 5.0
  */
 public class ServerWebExchangeMatchersTests {
-	ServerWebExchange exchange = MockServerHttpRequest.get("/").toExchange();
+	ServerWebExchange exchange = MockServerWebExchange
+		.from(MockServerHttpRequest.get("/").build());
 
 	@Test
 	public void pathMatchersWhenSingleAndSamePatternThenMatches() throws Exception {
