@@ -15,7 +15,10 @@
  */
 package org.springframework.security.oauth2.core.endpoint;
 
+import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.Assert;
+
+import java.io.Serializable;
 
 /**
  * The <i>response_type</i> parameter is consumed by the authorization endpoint which
@@ -30,7 +33,8 @@ import org.springframework.util.Assert;
  * @since 5.0
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-3.1.1">Section 3.1.1 Response Type</a>
  */
-public final class ResponseType {
+public final class ResponseType implements Serializable {
+	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 	public static final ResponseType CODE = new ResponseType("code");
 	public static final ResponseType TOKEN = new ResponseType("token");
 	private final String value;

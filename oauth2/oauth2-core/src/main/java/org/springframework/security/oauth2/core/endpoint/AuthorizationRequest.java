@@ -15,6 +15,7 @@
  */
 package org.springframework.security.oauth2.core.endpoint;
 
+import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -38,6 +39,7 @@ import java.util.Set;
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.2.1">Section 4.2.1 Implicit Grant Request</a>
  */
 public final class AuthorizationRequest implements Serializable {
+	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 	private String authorizationUri;
 	private AuthorizationGrantType authorizationGrantType;
 	private ResponseType responseType;
