@@ -22,7 +22,6 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
-import org.springframework.security.oauth2.oidc.client.authentication.OidcClientAuthenticationToken;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -54,10 +53,6 @@ public class DefaultOAuth2UserService implements OAuth2UserService {
 
 	@Override
 	public OAuth2User loadUser(OAuth2ClientAuthenticationToken clientAuthentication) throws OAuth2AuthenticationException {
-		if (OidcClientAuthenticationToken.class.isAssignableFrom(clientAuthentication.getClass())) {
-			return null;
-		}
-
 		String userNameAttributeName = clientAuthentication.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
 		if (!StringUtils.hasText(userNameAttributeName)) {
 			throw new IllegalArgumentException(

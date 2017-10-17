@@ -25,10 +25,6 @@ import org.springframework.security.oauth2.client.authentication.OAuth2ClientAut
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationIdentifierStrategy;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.security.oauth2.oidc.client.authentication.OidcClientAuthenticationToken;
-import org.springframework.security.oauth2.oidc.client.authentication.OidcUserAuthenticationToken;
-import org.springframework.security.oauth2.oidc.client.authentication.userinfo.OidcUserService;
-import org.springframework.security.oauth2.oidc.core.user.OidcUser;
 import org.springframework.util.Assert;
 
 import java.util.Collection;
@@ -47,13 +43,9 @@ import java.util.Collection;
  * @author Joe Grandja
  * @since 5.0
  * @see OAuth2UserAuthenticationToken
- * @see OidcUserAuthenticationToken
  * @see OAuth2ClientAuthenticationToken
- * @see OidcClientAuthenticationToken
  * @see OAuth2UserService
- * @see OidcUserService
  * @see OAuth2User
- * @see OidcUser
  */
 public class OAuth2UserAuthenticationProvider implements AuthenticationProvider {
 	private final ClientRegistrationIdentifierStrategy<String> providerIdentifierStrategy = new ProviderIdentifierStrategy();
@@ -67,14 +59,26 @@ public class OAuth2UserAuthenticationProvider implements AuthenticationProvider 
 
 	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-		OAuth2UserAuthenticationToken userAuthentication = (OAuth2UserAuthenticationToken) authentication;
-		OAuth2ClientAuthenticationToken clientAuthentication = userAuthentication.getClientAuthentication();
+		OAuth2ClientAuthenticationToken clientAuthentication = (OAuth2ClientAuthenticationToken)authentication;
+
+		// Section 3.1.2.1 Authentication Request - http://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
+		// scope
+		// 		REQUIRED. OpenID Connect requests MUST contain the "openid" scope value.
+		if (clientAuthentication.getAuthorizedScope().contains("openid")) {
+			// This is an OpenID Connect Authentication Request so return null
+			// and let OidcUserAuthenticationProvider handle it instead
+			return null;
+		}
 
 		if (this.userAuthenticated() && this.userAuthenticatedSameProviderAs(clientAuthentication)) {
 			// Create a new user authentication (using same principal)
 			// but with a different client authentication association
-			return this.createUserAuthentication(
-				(OAuth2UserAuthenticationToken)SecurityContextHolder.getContext().getAuthentication(),
+			OAuth2UserAuthenticationToken currentUserAuthentication =
+				(OAuth2UserAuthenticationToken)SecurityContextHolder.getContext().getAuthentication();
+
+			return new OAuth2UserAuthenticationToken(
+				(OAuth2User)currentUserAuthentication.getPrincipal(),
+				currentUserAuthentication.getAuthorities(),
 				clientAuthentication);
 		}
 
@@ -83,27 +87,21 @@ public class OAuth2UserAuthenticationProvider implements AuthenticationProvider 
 		Collection<? extends GrantedAuthority> mappedAuthorities =
 				this.authoritiesMapper.mapAuthorities(oauth2User.getAuthorities());
 
-		OAuth2UserAuthenticationToken authenticationResult;
-		if (OidcUser.class.isAssignableFrom(oauth2User.getClass())) {
-			authenticationResult = new OidcUserAuthenticationToken(
-				(OidcUser)oauth2User, mappedAuthorities, (OidcClientAuthenticationToken)clientAuthentication);
-		} else {
-			authenticationResult = new OAuth2UserAuthenticationToken(
+		OAuth2UserAuthenticationToken authenticationResult = new OAuth2UserAuthenticationToken(
 				oauth2User, mappedAuthorities, clientAuthentication);
-		}
 		authenticationResult.setDetails(clientAuthentication.getDetails());
 
 		return authenticationResult;
 	}
 
+	@Override
+	public boolean supports(Class<?> authentication) {
+		return OAuth2ClientAuthenticationToken.class.isAssignableFrom(authentication);
+	}
+
 	public final void setAuthoritiesMapper(GrantedAuthoritiesMapper authoritiesMapper) {
 		Assert.notNull(authoritiesMapper, "authoritiesMapper cannot be null");
 		this.authoritiesMapper = authoritiesMapper;
-	}
-
-	@Override
-	public boolean supports(Class<?> authentication) {
-		return OAuth2UserAuthenticationToken.class.isAssignableFrom(authentication);
 	}
 
 	private boolean userAuthenticated() {
@@ -123,23 +121,6 @@ public class OAuth2UserAuthenticationProvider implements AuthenticationProvider 
 			clientAuthentication.getClientRegistration());
 
 		return userProviderId.equals(clientProviderId);
-	}
-
-	private OAuth2UserAuthenticationToken createUserAuthentication(
-		OAuth2UserAuthenticationToken currentUserAuthentication,
-		OAuth2ClientAuthenticationToken newClientAuthentication) {
-
-		if (OidcUserAuthenticationToken.class.isAssignableFrom(currentUserAuthentication.getClass())) {
-			return new OidcUserAuthenticationToken(
-				(OidcUser) currentUserAuthentication.getPrincipal(),
-				currentUserAuthentication.getAuthorities(),
-				newClientAuthentication);
-		} else {
-			return new OAuth2UserAuthenticationToken(
-				(OAuth2User)currentUserAuthentication.getPrincipal(),
-				currentUserAuthentication.getAuthorities(),
-				newClientAuthentication);
-		}
 	}
 
 	private static class ProviderIdentifierStrategy implements ClientRegistrationIdentifierStrategy<String> {

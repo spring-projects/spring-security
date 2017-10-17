@@ -24,7 +24,6 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.Assert;
 
 import java.util.Collection;
-import java.util.Collections;
 
 /**
  * An implementation of an {@link AbstractAuthenticationToken}
@@ -43,10 +42,6 @@ public class OAuth2UserAuthenticationToken extends AbstractAuthenticationToken {
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 	private final OAuth2User principal;
 	private final OAuth2ClientAuthenticationToken clientAuthentication;
-
-	public OAuth2UserAuthenticationToken(OAuth2ClientAuthenticationToken clientAuthentication) {
-		this(null, Collections.emptyList(), clientAuthentication);
-	}
 
 	public OAuth2UserAuthenticationToken(OAuth2User principal, Collection<? extends GrantedAuthority> authorities,
 											OAuth2ClientAuthenticationToken clientAuthentication) {

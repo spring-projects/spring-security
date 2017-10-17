@@ -18,9 +18,9 @@ package org.springframework.security.oauth2.oidc.client.authentication.userinfo;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.client.authentication.OAuth2ClientAuthenticationToken;
+import org.springframework.security.oauth2.client.authentication.userinfo.NimbusUserInfoRetriever;
 import org.springframework.security.oauth2.client.authentication.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.client.authentication.userinfo.UserInfoRetriever;
-import org.springframework.security.oauth2.client.authentication.userinfo.NimbusUserInfoRetriever;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.oidc.client.authentication.OidcClientAuthenticationToken;
@@ -58,9 +58,6 @@ public class OidcUserService implements OAuth2UserService {
 
 	@Override
 	public OAuth2User loadUser(OAuth2ClientAuthenticationToken clientAuthentication) throws OAuth2AuthenticationException {
-		if (!OidcClientAuthenticationToken.class.isAssignableFrom(clientAuthentication.getClass())) {
-			return null;
-		}
 		OidcClientAuthenticationToken oidcClientAuthentication = (OidcClientAuthenticationToken)clientAuthentication;
 
 		UserInfo userInfo = null;

@@ -36,6 +36,7 @@ import org.springframework.security.oauth2.client.web.AuthorizationRequestReposi
 import org.springframework.security.oauth2.client.web.AuthorizationRequestUriBuilder;
 import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.oidc.client.authentication.userinfo.OidcUserAuthenticationProvider;
 import org.springframework.security.oauth2.oidc.client.authentication.userinfo.OidcUserService;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -195,19 +196,6 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 			return this;
 		}
 
-		private OAuth2UserService getUserService() {
-			if (this.userService == null) {
-				List<OAuth2UserService> userServices = new ArrayList<>();
-				userServices.add(new DefaultOAuth2UserService());
-				userServices.add(new OidcUserService());
-				if (!this.customUserTypes.isEmpty()) {
-					userServices.add(new CustomUserTypesOAuth2UserService(this.customUserTypes));
-				}
-				this.userService = new DelegatingOAuth2UserService(userServices);
-			}
-			return this.userService;
-		}
-
 		public OAuth2LoginConfigurer<B> and() {
 			return OAuth2LoginConfigurer.this;
 		}
@@ -219,12 +207,34 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		this.authorizationCodeGrantConfigurer.setBuilder(http);
 		this.authorizationCodeGrantConfigurer.init(http);
 
+		OAuth2UserService userService = this.userInfoEndpointConfig.userService;
+		if (userService == null) {
+			if (!this.userInfoEndpointConfig.customUserTypes.isEmpty()) {
+				List<OAuth2UserService> userServices = new ArrayList<>();
+				userServices.add(new CustomUserTypesOAuth2UserService(this.userInfoEndpointConfig.customUserTypes));
+				userServices.add(new DefaultOAuth2UserService());
+				userService = new DelegatingOAuth2UserService(userServices);
+			} else {
+				userService = new DefaultOAuth2UserService();
+			}
+		}
 		OAuth2UserAuthenticationProvider oauth2UserAuthenticationProvider =
-			new OAuth2UserAuthenticationProvider(this.userInfoEndpointConfig.getUserService());
+			new OAuth2UserAuthenticationProvider(userService);
 		if (this.userInfoEndpointConfig.userAuthoritiesMapper != null) {
 			oauth2UserAuthenticationProvider.setAuthoritiesMapper(this.userInfoEndpointConfig.userAuthoritiesMapper);
 		}
 		http.authenticationProvider(this.postProcess(oauth2UserAuthenticationProvider));
+
+		userService = this.userInfoEndpointConfig.userService;
+		if (userService == null) {
+			userService = new OidcUserService();
+		}
+		OidcUserAuthenticationProvider oidcUserAuthenticationProvider =
+			new OidcUserAuthenticationProvider(userService);
+		if (this.userInfoEndpointConfig.userAuthoritiesMapper != null) {
+			oidcUserAuthenticationProvider.setAuthoritiesMapper(this.userInfoEndpointConfig.userAuthoritiesMapper);
+		}
+		http.authenticationProvider(this.postProcess(oidcUserAuthenticationProvider));
 
 		this.initDefaultLoginFilter(http);
 	}

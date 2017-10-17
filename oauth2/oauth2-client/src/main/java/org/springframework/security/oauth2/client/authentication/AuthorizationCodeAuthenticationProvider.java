@@ -65,10 +65,9 @@ public class AuthorizationCodeAuthenticationProvider implements AuthenticationPr
 		// Section 3.1.2.1 Authentication Request - http://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
 		// scope
 		// 		REQUIRED. OpenID Connect requests MUST contain the "openid" scope value.
-		//		If the openid scope value is not present, the behavior is entirely unspecified.
 		if (authorizationCodeAuthentication.getAuthorizationRequest().getScope().contains("openid")) {
-			// The OpenID Connect implementation of Authorization Code AuthenticationProvider
-			// should handle OpenID Connect Authentication Requests so don't handle and return null
+			// This is an OpenID Connect Authentication Request so return null
+			// and let OidcAuthorizationCodeAuthenticationProvider handle it instead
 			return null;
 		}
 

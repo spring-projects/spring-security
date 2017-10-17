@@ -17,12 +17,10 @@ package org.springframework.security.oauth2.oidc.client.authentication;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.client.authentication.OAuth2ClientAuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.userinfo.OAuth2UserAuthenticationToken;
 import org.springframework.security.oauth2.oidc.core.user.OidcUser;
 
 import java.util.Collection;
-import java.util.Collections;
 
 /**
  * An {@link OAuth2UserAuthenticationToken} that represents an
@@ -40,17 +38,9 @@ import java.util.Collections;
  */
 public class OidcUserAuthenticationToken extends OAuth2UserAuthenticationToken {
 
-	public OidcUserAuthenticationToken(OidcClientAuthenticationToken clientAuthentication) {
-		this(null, Collections.emptyList(), clientAuthentication);
-	}
-
 	public OidcUserAuthenticationToken(OidcUser principal, Collection<? extends GrantedAuthority> authorities,
 										OidcClientAuthenticationToken clientAuthentication) {
-		this(principal, authorities, (OAuth2ClientAuthenticationToken)clientAuthentication);
-	}
-
-	public OidcUserAuthenticationToken(OidcUser principal, Collection<? extends GrantedAuthority> authorities,
-										OAuth2ClientAuthenticationToken clientAuthentication) {
 		super(principal, authorities, clientAuthentication);
 	}
+
 }

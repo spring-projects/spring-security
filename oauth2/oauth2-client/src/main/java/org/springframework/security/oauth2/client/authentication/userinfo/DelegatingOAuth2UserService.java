@@ -20,6 +20,8 @@ import org.springframework.security.oauth2.client.authentication.OAuth2ClientAut
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.Assert;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -41,7 +43,7 @@ public class DelegatingOAuth2UserService implements OAuth2UserService {
 
 	public DelegatingOAuth2UserService(List<OAuth2UserService> userServices) {
 		Assert.notEmpty(userServices, "userServices cannot be empty");
-		this.userServices = userServices;
+		this.userServices = Collections.unmodifiableList(new ArrayList<>(userServices));
 	}
 
 	@Override

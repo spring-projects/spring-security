@@ -20,7 +20,6 @@ import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.client.authentication.OAuth2ClientAuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.security.oauth2.oidc.client.authentication.OidcClientAuthenticationToken;
 import org.springframework.util.Assert;
 
 import java.net.URI;
@@ -70,9 +69,6 @@ public class CustomUserTypesOAuth2UserService implements OAuth2UserService {
 		}
 
 		Map<String, Object> userAttributes = this.userInfoRetriever.retrieve(clientAuthentication);
-		if (OidcClientAuthenticationToken.class.isAssignableFrom(clientAuthentication.getClass())) {
-			userAttributes.putAll(((OidcClientAuthenticationToken)clientAuthentication).getIdToken().getClaims());
-		}
 
 		BeanWrapper wrapper = PropertyAccessorFactory.forBeanPropertyAccess(customUser);
 		wrapper.setAutoGrowNestedPaths(true);
