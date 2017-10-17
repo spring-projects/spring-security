@@ -11,24 +11,29 @@ logging:
 spring:
   thymeleaf:
     cache: false
-
-security:
-  oauth2:
-    client:
-      registrations:
-        google:
-          client-id: your-app-client-id
-          client-secret: your-app-client-secret
-        github:
-          client-id: your-app-client-id
-          client-secret: your-app-client-secret
-        facebook:
-          client-id: your-app-client-id
-          client-secret: your-app-client-secret
-        okta:
-          client-id: your-app-client-id
-          client-secret: your-app-client-secret
-          authorization-uri: https://your-subdomain.oktapreview.com/oauth2/v1/authorize
-          token-uri: https://your-subdomain.oktapreview.com/oauth2/v1/token
-          user-info-uri: https://your-subdomain.oktapreview.com/oauth2/v1/userinfo
-          jwk-set-uri: https://your-subdomain.oktapreview.com/oauth2/v1/keys
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            provider: google
+            client-id: your-app-client-id
+            client-secret: your-app-client-secret
+          github:
+            provider: github
+            client-id: your-app-client-id
+            client-secret: your-app-client-secret
+          facebook:
+            provider: facebook
+            client-id: your-app-client-id
+            client-secret: your-app-client-secret
+          okta:
+            provider: okta
+            client-id: your-app-client-id
+            client-secret: your-app-client-secret
+        provider:
+          okta:
+            authorization-uri: https://your-subdomain.oktapreview.com/oauth2/v1/authorize
+            token-uri: https://your-subdomain.oktapreview.com/oauth2/v1/token
+            user-info-uri: https://your-subdomain.oktapreview.com/oauth2/v1/userinfo
+            jwk-set-uri: https://your-subdomain.oktapreview.com/oauth2/v1/keys
