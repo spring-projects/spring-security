@@ -16,6 +16,7 @@
 package org.springframework.security.oauth2.client.web;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.keygen.Base64StringKeyGenerator;
 import org.springframework.security.crypto.keygen.StringKeyGenerator;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -35,6 +36,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -69,7 +71,7 @@ public class AuthorizationRequestRedirectFilter extends OncePerRequestFilter {
 	private final ClientRegistrationRepository clientRegistrationRepository;
 	private AuthorizationRequestUriBuilder authorizationRequestUriBuilder = new DefaultAuthorizationRequestUriBuilder();
 	private final RedirectStrategy authorizationRedirectStrategy = new DefaultRedirectStrategy();
-	private final StringKeyGenerator stateGenerator = new DefaultStateGenerator();
+	private final StringKeyGenerator stateGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder());
 	private AuthorizationRequestRepository authorizationRequestRepository = new HttpSessionAuthorizationRequestRepository();
 
 	public AuthorizationRequestRedirectFilter(ClientRegistrationRepository clientRegistrationRepository) {
