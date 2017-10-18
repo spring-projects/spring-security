@@ -15,8 +15,8 @@
  */
 package org.springframework.security.oauth2.client.authentication.jwt;
 
-import org.springframework.security.jwt.JwtDecoder;
-import org.springframework.security.jwt.NimbusJwtDecoderJwkSupport;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoderJwkSupport;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;

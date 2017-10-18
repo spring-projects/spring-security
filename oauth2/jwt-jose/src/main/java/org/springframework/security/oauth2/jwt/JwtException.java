@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2017 the original author or authors.
+ * Copyright 2002-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,31 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.jwt;
+package org.springframework.security.oauth2.jwt;
 
 /**
- * The &quot;Registered Claim Names&quot; defined by the <i>JSON Web Token (JWT)</i> specification
- * that may be contained in the JSON object <i>JWT Claims Set</i>.
+ * Base exception for all <i>JSON Web Token (JWT)</i> related errors.
  *
  * @author Joe Grandja
  * @since 5.0
- * @see JwtClaimAccessor
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7519#section-4">JWT Claims</a>
  */
-public interface JwtClaim {
+public class JwtException extends RuntimeException {
 
-	String ISS = "iss";
+	public JwtException(String message) {
+		super(message);
+	}
 
-	String SUB = "sub";
-
-	String AUD = "aud";
-
-	String EXP = "exp";
-
-	String NBF = "nbf";
-
-	String IAT = "iat";
-
-	String JTI = "jti";
-
+	public JwtException(String message, Throwable cause) {
+		super(message, cause);
+	}
 }

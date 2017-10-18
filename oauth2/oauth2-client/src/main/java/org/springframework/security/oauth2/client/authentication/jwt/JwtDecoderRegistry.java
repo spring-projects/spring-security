@@ -15,7 +15,7 @@
  */
 package org.springframework.security.oauth2.client.authentication.jwt;
 
-import org.springframework.security.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 
 /**
