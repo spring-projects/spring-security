@@ -74,13 +74,13 @@ public class OAuth2ClientAuthenticationToken extends AbstractAuthenticationToken
 		return this.accessToken;
 	}
 
-	public final Set<String> getAuthorizedScope() {
+	public final Set<String> getAuthorizedScopes() {
 		// As per spec, in section 5.1 Successful Access Token Response
 		// https://tools.ietf.org/html/rfc6749#section-5.1
-		// If AccessToken.scope is empty, then default to the scope
+		// If AccessToken.scopes is empty, then default to the scopes
 		// originally requested by the client in the Authorization Request
-		return (CollectionUtils.isEmpty(this.getAccessToken().getScope()) ?
-			this.getClientRegistration().getScope() :
-			this.getAccessToken().getScope());
+		return (CollectionUtils.isEmpty(this.getAccessToken().getScopes()) ?
+			this.getClientRegistration().getScopes() :
+			this.getAccessToken().getScopes());
 	}
 }

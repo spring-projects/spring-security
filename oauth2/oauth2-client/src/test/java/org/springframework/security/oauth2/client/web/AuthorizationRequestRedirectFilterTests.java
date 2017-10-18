@@ -109,7 +109,7 @@ public class AuthorizationRequestRedirectFilterTests {
 		Assertions.assertThat(authorizationRequest.getResponseType()).isNotNull();
 		Assertions.assertThat(authorizationRequest.getClientId()).isNotNull();
 		Assertions.assertThat(authorizationRequest.getRedirectUri()).isNotNull();
-		Assertions.assertThat(authorizationRequest.getScope()).isNotNull();
+		Assertions.assertThat(authorizationRequest.getScopes()).isNotNull();
 		Assertions.assertThat(authorizationRequest.getState()).isNotNull();
 	}
 

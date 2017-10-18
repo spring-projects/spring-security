@@ -40,7 +40,7 @@ public class ClientRegistration {
 	private ClientAuthenticationMethod clientAuthenticationMethod = ClientAuthenticationMethod.BASIC;
 	private AuthorizationGrantType authorizationGrantType;
 	private String redirectUri;
-	private Set<String> scope = Collections.emptySet();
+	private Set<String> scopes = Collections.emptySet();
 	private ProviderDetails providerDetails = new ProviderDetails();
 	private String clientName;
 
@@ -95,12 +95,12 @@ public class ClientRegistration {
 		this.redirectUri = redirectUri;
 	}
 
-	public Set<String> getScope() {
-		return this.scope;
+	public Set<String> getScopes() {
+		return this.scopes;
 	}
 
-	protected void setScope(Set<String> scope) {
-		this.scope = scope;
+	protected void setScopes(Set<String> scopes) {
+		this.scopes = scopes;
 	}
 
 	public ProviderDetails getProviderDetails() {
@@ -192,7 +192,7 @@ public class ClientRegistration {
 		private ClientAuthenticationMethod clientAuthenticationMethod = ClientAuthenticationMethod.BASIC;
 		private AuthorizationGrantType authorizationGrantType;
 		private String redirectUri;
-		private Set<String> scope;
+		private Set<String> scopes;
 		private String authorizationUri;
 		private String tokenUri;
 		private String userInfoUri;
@@ -212,7 +212,7 @@ public class ClientRegistration {
 			this.authorizationGrantType(clientRegistrationProperties.getAuthorizationGrantType());
 			this.redirectUri(clientRegistrationProperties.getRedirectUri());
 			if (!CollectionUtils.isEmpty(clientRegistrationProperties.getScope())) {
-				this.scope(clientRegistrationProperties.getScope().toArray(new String[0]));
+				this.scopes(clientRegistrationProperties.getScope().toArray(new String[0]));
 			}
 			this.authorizationUri(clientRegistrationProperties.getAuthorizationUri());
 			this.tokenUri(clientRegistrationProperties.getTokenUri());
@@ -229,8 +229,8 @@ public class ClientRegistration {
 			this.clientAuthenticationMethod(clientRegistration.getClientAuthenticationMethod());
 			this.authorizationGrantType(clientRegistration.getAuthorizationGrantType());
 			this.redirectUri(clientRegistration.getRedirectUri());
-			if (!CollectionUtils.isEmpty(clientRegistration.getScope())) {
-				this.scope(clientRegistration.getScope().toArray(new String[0]));
+			if (!CollectionUtils.isEmpty(clientRegistration.getScopes())) {
+				this.scopes(clientRegistration.getScopes().toArray(new String[0]));
 			}
 			this.authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri());
 			this.tokenUri(clientRegistration.getProviderDetails().getTokenUri());
@@ -265,10 +265,10 @@ public class ClientRegistration {
 			return this;
 		}
 
-		public Builder scope(String... scope) {
-			if (scope != null && scope.length > 0) {
-				this.scope = Collections.unmodifiableSet(
-						new LinkedHashSet<>(Arrays.asList(scope)));
+		public Builder scopes(String... scopes) {
+			if (scopes != null && scopes.length > 0) {
+				this.scopes = Collections.unmodifiableSet(
+						new LinkedHashSet<>(Arrays.asList(scopes)));
 			}
 			return this;
 		}
@@ -322,7 +322,7 @@ public class ClientRegistration {
 			clientRegistration.setClientAuthenticationMethod(this.clientAuthenticationMethod);
 			clientRegistration.setAuthorizationGrantType(this.authorizationGrantType);
 			clientRegistration.setRedirectUri(this.redirectUri);
-			clientRegistration.setScope(this.scope);
+			clientRegistration.setScopes(this.scopes);
 
 			ProviderDetails providerDetails = clientRegistration.new ProviderDetails();
 			providerDetails.setAuthorizationUri(this.authorizationUri);
@@ -345,10 +345,10 @@ public class ClientRegistration {
 			Assert.hasText(this.clientSecret, "clientSecret cannot be empty");
 			Assert.notNull(this.clientAuthenticationMethod, "clientAuthenticationMethod cannot be null");
 			Assert.hasText(this.redirectUri, "redirectUri cannot be empty");
-			Assert.notEmpty(this.scope, "scope cannot be empty");
+			Assert.notEmpty(this.scopes, "scopes cannot be empty");
 			Assert.hasText(this.authorizationUri, "authorizationUri cannot be empty");
 			Assert.hasText(this.tokenUri, "tokenUri cannot be empty");
-			if (this.scope.contains(OidcScope.OPENID)) {
+			if (this.scopes.contains(OidcScope.OPENID)) {
 				// OIDC Clients need to verify/validate the ID Token
 				Assert.hasText(this.jwkSetUri, "jwkSetUri cannot be empty");
 			}
@@ -361,7 +361,7 @@ public class ClientRegistration {
 			Assert.hasText(this.registrationId, "registrationId cannot be empty");
 			Assert.hasText(this.clientId, "clientId cannot be empty");
 			Assert.hasText(this.redirectUri, "redirectUri cannot be empty");
-			Assert.notEmpty(this.scope, "scope cannot be empty");
+			Assert.notEmpty(this.scopes, "scopes cannot be empty");
 			Assert.hasText(this.authorizationUri, "authorizationUri cannot be empty");
 			Assert.hasText(this.clientName, "clientName cannot be empty");
 		}

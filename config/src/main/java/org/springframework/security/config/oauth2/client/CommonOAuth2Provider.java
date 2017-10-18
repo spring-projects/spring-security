@@ -37,7 +37,7 @@ public enum CommonOAuth2Provider {
 		public Builder getBuilder(String registrationId) {
 			ClientRegistration.Builder builder = getBuilder(registrationId,
 					ClientAuthenticationMethod.BASIC, DEFAULT_REDIRECT_URL);
-			builder.scope("openid", "profile", "email", "address", "phone");
+			builder.scopes("openid", "profile", "email", "address", "phone");
 			builder.authorizationUri("https://accounts.google.com/o/oauth2/v2/auth");
 			builder.tokenUri("https://www.googleapis.com/oauth2/v4/token");
 			builder.jwkSetUri("https://www.googleapis.com/oauth2/v3/certs");
@@ -54,7 +54,7 @@ public enum CommonOAuth2Provider {
 		public Builder getBuilder(String registrationId) {
 			ClientRegistration.Builder builder = getBuilder(registrationId,
 					ClientAuthenticationMethod.BASIC, DEFAULT_REDIRECT_URL);
-			builder.scope("user");
+			builder.scopes("user");
 			builder.authorizationUri("https://github.com/login/oauth/authorize");
 			builder.tokenUri("https://github.com/login/oauth/access_token");
 			builder.userInfoUri("https://api.github.com/user");
@@ -70,7 +70,7 @@ public enum CommonOAuth2Provider {
 		public Builder getBuilder(String registrationId) {
 			ClientRegistration.Builder builder = getBuilder(registrationId,
 					ClientAuthenticationMethod.POST, DEFAULT_REDIRECT_URL);
-			builder.scope("public_profile", "email");
+			builder.scopes("public_profile", "email");
 			builder.authorizationUri("https://www.facebook.com/v2.8/dialog/oauth");
 			builder.tokenUri("https://graph.facebook.com/v2.8/oauth/access_token");
 			builder.userInfoUri("https://graph.facebook.com/me");
@@ -86,7 +86,7 @@ public enum CommonOAuth2Provider {
 		public Builder getBuilder(String registrationId) {
 			ClientRegistration.Builder builder = getBuilder(registrationId,
 					ClientAuthenticationMethod.BASIC, DEFAULT_REDIRECT_URL);
-			builder.scope("openid", "profile", "email", "address", "phone");
+			builder.scopes("openid", "profile", "email", "address", "phone");
 			builder.userNameAttributeName(IdTokenClaim.SUB);
 			builder.clientName("Okta");
 			return builder;

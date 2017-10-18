@@ -41,7 +41,7 @@ public class AuthorizationRequestTest {
 			.authorizationUri(null)
 			.clientId(CLIENT_ID)
 			.redirectUri(REDIRECT_URI)
-			.scope(SCOPE)
+			.scopes(SCOPE)
 			.state(STATE)
 			.build();
 	}
@@ -51,7 +51,7 @@ public class AuthorizationRequestTest {
 		AuthorizationRequest.authorizationCode()
 			.clientId(CLIENT_ID)
 			.redirectUri(REDIRECT_URI)
-			.scope(SCOPE)
+			.scopes(SCOPE)
 			.state(STATE)
 			.build();
 	}
@@ -62,7 +62,7 @@ public class AuthorizationRequestTest {
 			.authorizationUri(AUTHORIZE_URI)
 			.clientId(null)
 			.redirectUri(REDIRECT_URI)
-			.scope(SCOPE)
+			.scopes(SCOPE)
 			.state(STATE)
 			.build();
 	}
@@ -72,7 +72,7 @@ public class AuthorizationRequestTest {
 		AuthorizationRequest.authorizationCode()
 			.authorizationUri(AUTHORIZE_URI)
 			.redirectUri(REDIRECT_URI)
-			.scope(SCOPE)
+			.scopes(SCOPE)
 			.state(STATE)
 			.build();
 	}
@@ -84,7 +84,7 @@ public class AuthorizationRequestTest {
 			.authorizationUri(AUTHORIZE_URI)
 			.clientId(CLIENT_ID)
 			.redirectUri(REDIRECT_URI)
-			.scope(SCOPE)
+			.scopes(SCOPE)
 			.state(STATE)
 			.build();
 
@@ -97,7 +97,7 @@ public class AuthorizationRequestTest {
 			.authorizationUri(AUTHORIZE_URI)
 			.clientId(CLIENT_ID)
 			.redirectUri(null)
-			.scope(SCOPE)
+			.scopes(SCOPE)
 			.state(STATE)
 			.build()).doesNotThrowAnyException();
 	}
@@ -107,7 +107,7 @@ public class AuthorizationRequestTest {
 		assertThatCode(() -> AuthorizationRequest.authorizationCode()
 			.authorizationUri(AUTHORIZE_URI)
 			.clientId(CLIENT_ID)
-			.scope(SCOPE)
+			.scopes(SCOPE)
 			.state(STATE)
 			.build()).doesNotThrowAnyException();
 	}
@@ -118,7 +118,7 @@ public class AuthorizationRequestTest {
 			.authorizationUri(AUTHORIZE_URI)
 			.clientId(CLIENT_ID)
 			.redirectUri(REDIRECT_URI)
-			.scope(null)
+			.scopes(null)
 			.state(STATE)
 			.build()).doesNotThrowAnyException();
 	}
@@ -139,7 +139,7 @@ public class AuthorizationRequestTest {
 			.authorizationUri(AUTHORIZE_URI)
 			.clientId(CLIENT_ID)
 			.redirectUri(REDIRECT_URI)
-			.scope(SCOPE)
+			.scopes(SCOPE)
 			.state(null)
 			.build()).doesNotThrowAnyException();
 	}
@@ -150,7 +150,7 @@ public class AuthorizationRequestTest {
 			.authorizationUri(AUTHORIZE_URI)
 			.clientId(CLIENT_ID)
 			.redirectUri(REDIRECT_URI)
-			.scope(SCOPE)
+			.scopes(SCOPE)
 			.build()).doesNotThrowAnyException();
 	}
 }

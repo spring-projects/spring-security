@@ -122,16 +122,16 @@ public class NimbusAuthorizationCodeTokenExchanger implements AuthorizationGrant
 			accessTokenType = AccessToken.TokenType.BEARER;
 		}
 		long expiresIn = accessTokenResponse.getTokens().getAccessToken().getLifetime();
-		Set<String> scope = Collections.emptySet();
+		Set<String> scopes = Collections.emptySet();
 		if (!CollectionUtils.isEmpty(accessTokenResponse.getTokens().getAccessToken().getScope())) {
-			scope = new LinkedHashSet<>(accessTokenResponse.getTokens().getAccessToken().getScope().toStringList());
+			scopes = new LinkedHashSet<>(accessTokenResponse.getTokens().getAccessToken().getScope().toStringList());
 		}
 		Map<String, Object> additionalParameters = new LinkedHashMap<>(accessTokenResponse.getCustomParameters());
 
 		return TokenResponse.withToken(accessToken)
 			.tokenType(accessTokenType)
 			.expiresIn(expiresIn)
-			.scope(scope)
+			.scopes(scopes)
 			.additionalParameters(additionalParameters)
 			.build();
 	}

@@ -36,26 +36,26 @@ import java.util.Set;
  */
 public class AccessToken extends SecurityToken {
 	private final TokenType tokenType;
-	private final Set<String> scope;
+	private final Set<String> scopes;
 
 	public AccessToken(TokenType tokenType, String tokenValue, Instant issuedAt, Instant expiresAt) {
 		this(tokenType, tokenValue, issuedAt, expiresAt, Collections.emptySet());
 	}
 
-	public AccessToken(TokenType tokenType, String tokenValue, Instant issuedAt, Instant expiresAt, Set<String> scope) {
+	public AccessToken(TokenType tokenType, String tokenValue, Instant issuedAt, Instant expiresAt, Set<String> scopes) {
 		super(tokenValue, issuedAt, expiresAt);
 		Assert.notNull(tokenType, "tokenType cannot be null");
 		this.tokenType = tokenType;
-		this.scope = Collections.unmodifiableSet(
-			scope != null ? scope : Collections.emptySet());
+		this.scopes = Collections.unmodifiableSet(
+			scopes != null ? scopes : Collections.emptySet());
 	}
 
 	public TokenType getTokenType() {
 		return this.tokenType;
 	}
 
-	public Set<String> getScope() {
-		return this.scope;
+	public Set<String> getScopes() {
+		return this.scopes;
 	}
 
 	public static final class TokenType {

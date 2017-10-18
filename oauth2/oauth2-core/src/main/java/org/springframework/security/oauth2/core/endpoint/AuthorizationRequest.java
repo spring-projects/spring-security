@@ -45,7 +45,7 @@ public final class AuthorizationRequest implements Serializable {
 	private ResponseType responseType;
 	private String clientId;
 	private String redirectUri;
-	private Set<String> scope;
+	private Set<String> scopes;
 	private String state;
 	private Map<String,Object> additionalParameters;
 
@@ -72,8 +72,8 @@ public final class AuthorizationRequest implements Serializable {
 		return this.redirectUri;
 	}
 
-	public Set<String> getScope() {
-		return this.scope;
+	public Set<String> getScopes() {
+		return this.scopes;
 	}
 
 	public String getState() {
@@ -98,7 +98,7 @@ public final class AuthorizationRequest implements Serializable {
 		private ResponseType responseType;
 		private String clientId;
 		private String redirectUri;
-		private Set<String> scope;
+		private Set<String> scopes;
 		private String state;
 		private Map<String,Object> additionalParameters;
 
@@ -127,8 +127,8 @@ public final class AuthorizationRequest implements Serializable {
 			return this;
 		}
 
-		public Builder scope(Set<String> scope) {
-			this.scope = scope;
+		public Builder scopes(Set<String> scopes) {
+			this.scopes = scopes;
 			return this;
 		}
 
@@ -156,9 +156,9 @@ public final class AuthorizationRequest implements Serializable {
 			authorizationRequest.clientId = this.clientId;
 			authorizationRequest.redirectUri = this.redirectUri;
 			authorizationRequest.state = this.state;
-			authorizationRequest.scope = Collections.unmodifiableSet(
-				CollectionUtils.isEmpty(this.scope) ?
-					Collections.emptySet() : new LinkedHashSet<>(this.scope));
+			authorizationRequest.scopes = Collections.unmodifiableSet(
+				CollectionUtils.isEmpty(this.scopes) ?
+					Collections.emptySet() : new LinkedHashSet<>(this.scopes));
 			authorizationRequest.additionalParameters = Collections.unmodifiableMap(
 				CollectionUtils.isEmpty(this.additionalParameters) ?
 					Collections.emptyMap() : new LinkedHashMap<>(this.additionalParameters));

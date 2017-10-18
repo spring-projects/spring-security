@@ -41,7 +41,7 @@ public class DefaultAuthorizationRequestUriBuilderTests {
 			.clientId("client-id")
 			.state("thestate")
 			.redirectUri("https://client.example.com/login/oauth2")
-			.scope(new HashSet<>(Arrays.asList("openid", "user")))
+			.scopes(new HashSet<>(Arrays.asList("openid", "user")))
 			.build();
 
 		URI result = this.builder.build(request);

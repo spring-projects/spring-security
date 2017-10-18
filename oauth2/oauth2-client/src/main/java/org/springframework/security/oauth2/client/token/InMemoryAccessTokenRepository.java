@@ -21,7 +21,6 @@ import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.util.Assert;
 
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -76,7 +75,7 @@ public final class InMemoryAccessTokenRepository implements SecurityTokenReposit
 			builder.append("[").append(clientRegistration.getClientId()).append("]");
 
 			// Access Token Response attributes
-			builder.append("[").append(clientRegistration.getScope().toString()).append("]");
+			builder.append("[").append(clientRegistration.getScopes().toString()).append("]");
 
 			return Base64.getEncoder().encodeToString(builder.toString().getBytes());
 		}

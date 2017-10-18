@@ -55,8 +55,8 @@ public final class TokenResponse {
 		return this.accessToken.getExpiresAt();
 	}
 
-	public Set<String> getScope() {
-		return this.accessToken.getScope();
+	public Set<String> getScopes() {
+		return this.accessToken.getScopes();
 	}
 
 	public Map<String, Object> getAdditionalParameters() {
@@ -71,7 +71,7 @@ public final class TokenResponse {
 		private String tokenValue;
 		private AccessToken.TokenType tokenType;
 		private long expiresIn;
-		private Set<String> scope;
+		private Set<String> scopes;
 		private Map<String,Object> additionalParameters;
 
 		private Builder(String tokenValue) {
@@ -88,8 +88,8 @@ public final class TokenResponse {
 			return this;
 		}
 
-		public Builder scope(Set<String> scope) {
-			this.scope = scope;
+		public Builder scopes(Set<String> scopes) {
+			this.scopes = scopes;
 			return this;
 		}
 
@@ -103,7 +103,7 @@ public final class TokenResponse {
 			Instant issuedAt = Instant.now();
 			TokenResponse tokenResponse = new TokenResponse();
 			tokenResponse.accessToken = new AccessToken(this.tokenType, this.tokenValue, issuedAt,
-				issuedAt.plusSeconds(this.expiresIn), this.scope);
+				issuedAt.plusSeconds(this.expiresIn), this.scopes);
 			tokenResponse.additionalParameters = Collections.unmodifiableMap(
 				CollectionUtils.isEmpty(this.additionalParameters) ? Collections.emptyMap() : this.additionalParameters);
 			return tokenResponse;

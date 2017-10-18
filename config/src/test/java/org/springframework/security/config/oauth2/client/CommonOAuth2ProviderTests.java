@@ -52,7 +52,7 @@ public class CommonOAuth2ProviderTests {
 		assertThat(registration.getAuthorizationGrantType())
 			.isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 		assertThat(registration.getRedirectUri()).isEqualTo(DEFAULT_REDIRECT_URL);
-		assertThat(registration.getScope()).containsOnly("openid", "profile", "email",
+		assertThat(registration.getScopes()).containsOnly("openid", "profile", "email",
 			"address", "phone");
 		assertThat(registration.getClientName()).isEqualTo("Google");
 		assertThat(registration.getRegistrationId()).isEqualTo("123");
@@ -76,7 +76,7 @@ public class CommonOAuth2ProviderTests {
 		assertThat(registration.getAuthorizationGrantType())
 			.isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 		assertThat(registration.getRedirectUri()).isEqualTo(DEFAULT_REDIRECT_URL);
-		assertThat(registration.getScope()).containsOnly("user");
+		assertThat(registration.getScopes()).containsOnly("user");
 		assertThat(registration.getClientName()).isEqualTo("GitHub");
 		assertThat(registration.getRegistrationId()).isEqualTo("123");
 	}
@@ -99,7 +99,7 @@ public class CommonOAuth2ProviderTests {
 		assertThat(registration.getAuthorizationGrantType())
 			.isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 		assertThat(registration.getRedirectUri()).isEqualTo(DEFAULT_REDIRECT_URL);
-		assertThat(registration.getScope()).containsOnly("public_profile", "email");
+		assertThat(registration.getScopes()).containsOnly("public_profile", "email");
 		assertThat(registration.getClientName()).isEqualTo("Facebook");
 		assertThat(registration.getRegistrationId()).isEqualTo("123");
 	}
@@ -124,7 +124,7 @@ public class CommonOAuth2ProviderTests {
 		assertThat(registration.getAuthorizationGrantType())
 			.isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 		assertThat(registration.getRedirectUri()).isEqualTo(DEFAULT_REDIRECT_URL);
-		assertThat(registration.getScope()).containsOnly("openid", "profile", "email",
+		assertThat(registration.getScopes()).containsOnly("openid", "profile", "email",
 			"address", "phone");
 		assertThat(registration.getClientName()).isEqualTo("Okta");
 		assertThat(registration.getRegistrationId()).isEqualTo("123");

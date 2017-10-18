@@ -64,7 +64,7 @@ public class OAuth2UserAuthenticationProvider implements AuthenticationProvider 
 		// Section 3.1.2.1 Authentication Request - http://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
 		// scope
 		// 		REQUIRED. OpenID Connect requests MUST contain the "openid" scope value.
-		if (clientAuthentication.getAuthorizedScope().contains("openid")) {
+		if (clientAuthentication.getAuthorizedScopes().contains("openid")) {
 			// This is an OpenID Connect Authentication Request so return null
 			// and let OidcUserAuthenticationProvider handle it instead
 			return null;

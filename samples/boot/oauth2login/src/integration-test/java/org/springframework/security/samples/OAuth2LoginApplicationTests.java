@@ -56,7 +56,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -142,7 +141,7 @@ public class OAuth2LoginApplicationTests {
 		String redirectUri = AUTHORIZE_BASE_URL + "/" + this.githubClientRegistration.getRegistrationId();
 		assertThat(URLDecoder.decode(params.get(OAuth2Parameter.REDIRECT_URI), "UTF-8")).isEqualTo(redirectUri);
 		assertThat(URLDecoder.decode(params.get(OAuth2Parameter.SCOPE), "UTF-8"))
-				.isEqualTo(this.githubClientRegistration.getScope().stream().collect(Collectors.joining(" ")));
+				.isEqualTo(this.githubClientRegistration.getScopes().stream().collect(Collectors.joining(" ")));
 		assertThat(params.get(OAuth2Parameter.STATE)).isNotNull();
 	}
 
