@@ -23,6 +23,7 @@ import org.springframework.util.Assert;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A {@link SecurityTokenRepository} that associates an {@link AccessToken}
@@ -36,7 +37,7 @@ import java.util.Map;
  */
 public final class InMemoryAccessTokenRepository implements SecurityTokenRepository<AccessToken> {
 	private final ClientRegistrationIdentifierStrategy<String> identifierStrategy = new AuthorizedClientIdentifierStrategy();
-	private final Map<String, AccessToken> accessTokens = new HashMap<>();
+	private final Map<String, AccessToken> accessTokens = new ConcurrentHashMap<>();
 
 	@Override
 	public AccessToken loadSecurityToken(ClientRegistration registration) {

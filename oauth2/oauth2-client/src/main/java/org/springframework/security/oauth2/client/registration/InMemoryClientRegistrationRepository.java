@@ -18,10 +18,10 @@ package org.springframework.security.oauth2.client.registration;
 import org.springframework.util.Assert;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A {@link ClientRegistrationRepository} that stores {@link ClientRegistration}(s) <i>in-memory</i>.
@@ -36,7 +36,7 @@ public final class InMemoryClientRegistrationRepository implements ClientRegistr
 
 	public InMemoryClientRegistrationRepository(List<ClientRegistration> registrations) {
 		Assert.notEmpty(registrations, "registrations cannot be empty");
-		Map<String, ClientRegistration> registrationsMap = new HashMap<>();
+		Map<String, ClientRegistration> registrationsMap = new ConcurrentHashMap<>();
 		registrations.forEach(registration -> {
 			if (registrationsMap.containsKey(registration.getRegistrationId())) {
 				throw new IllegalArgumentException("ClientRegistration must be unique. Found duplicate registrationId: " +

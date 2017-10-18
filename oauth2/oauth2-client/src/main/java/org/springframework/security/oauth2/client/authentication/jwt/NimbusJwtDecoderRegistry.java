@@ -21,8 +21,8 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A {@link JwtDecoderRegistry} that creates/manages instances of
@@ -35,7 +35,7 @@ import java.util.Map;
  * @see <a target="_blank" href="https://connect2id.com/products/nimbus-jose-jwt">Nimbus JOSE + JWT SDK</a>
  */
 public class NimbusJwtDecoderRegistry implements JwtDecoderRegistry {
-	private final Map<String, JwtDecoder> jwtDecoders = new HashMap<>();
+	private final Map<String, JwtDecoder> jwtDecoders = new ConcurrentHashMap<>();
 
 	@Override
 	public JwtDecoder getJwtDecoder(ClientRegistration registration) {
