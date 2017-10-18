@@ -17,10 +17,11 @@ package org.springframework.security.oauth2.client.web;
 
 import org.springframework.security.oauth2.core.endpoint.AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2Parameter;
+import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 /**
  * The default implementation of an {@link AuthorizationRequestUriBuilder},
@@ -36,12 +37,12 @@ public class DefaultAuthorizationRequestUriBuilder implements AuthorizationReque
 
 	@Override
 	public URI build(AuthorizationRequest authorizationRequest) {
+		Set<String> scopes = authorizationRequest.getScope();
 		UriComponentsBuilder uriBuilder = UriComponentsBuilder
 			.fromUriString(authorizationRequest.getAuthorizationUri())
 			.queryParam(OAuth2Parameter.RESPONSE_TYPE, authorizationRequest.getResponseType().getValue())
 			.queryParam(OAuth2Parameter.CLIENT_ID, authorizationRequest.getClientId())
-			.queryParam(OAuth2Parameter.SCOPE,
-				authorizationRequest.getScope().stream().collect(Collectors.joining(" ")))
+			.queryParam(OAuth2Parameter.SCOPE, StringUtils.collectionToDelimitedString(scopes, " "))
 			.queryParam(OAuth2Parameter.STATE, authorizationRequest.getState());
 		if (authorizationRequest.getRedirectUri() != null) {
 			uriBuilder.queryParam(OAuth2Parameter.REDIRECT_URI, authorizationRequest.getRedirectUri());
