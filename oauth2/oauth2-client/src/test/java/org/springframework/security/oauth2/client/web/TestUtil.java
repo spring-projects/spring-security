@@ -44,7 +44,7 @@ class TestUtil {
 	}
 
 	static ClientRegistration googleClientRegistration(String redirectUri) {
-		return new ClientRegistration.Builder(GOOGLE_REGISTRATION_ID)
+		return ClientRegistration.withRegistrationId(GOOGLE_REGISTRATION_ID)
 			.clientId("google-client-id")
 			.clientSecret("secret")
 			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
@@ -63,7 +63,7 @@ class TestUtil {
 	}
 
 	static ClientRegistration githubClientRegistration(String redirectUri) {
-		return new ClientRegistration.Builder(GITHUB_REGISTRATION_ID)
+		return ClientRegistration.withRegistrationId(GITHUB_REGISTRATION_ID)
 			.clientId("github-client-id")
 			.clientSecret("secret")
 			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)

@@ -33,7 +33,7 @@ import java.util.Set;
  * @since 5.0
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-2">Section 2 Client Registration</a>
  */
-public class ClientRegistration {
+public final class ClientRegistration {
 	private String registrationId;
 	private String clientId;
 	private String clientSecret;
@@ -44,79 +44,43 @@ public class ClientRegistration {
 	private ProviderDetails providerDetails = new ProviderDetails();
 	private String clientName;
 
-	protected ClientRegistration() {
+	private ClientRegistration() {
 	}
 
 	public String getRegistrationId() {
 		return this.registrationId;
 	}
 
-	protected void setRegistrationId(String registrationId) {
-		this.registrationId = registrationId;
-	}
-
 	public String getClientId() {
 		return this.clientId;
-	}
-
-	protected void setClientId(String clientId) {
-		this.clientId = clientId;
 	}
 
 	public String getClientSecret() {
 		return this.clientSecret;
 	}
 
-	protected void setClientSecret(String clientSecret) {
-		this.clientSecret = clientSecret;
-	}
-
 	public ClientAuthenticationMethod getClientAuthenticationMethod() {
 		return this.clientAuthenticationMethod;
-	}
-
-	protected void setClientAuthenticationMethod(ClientAuthenticationMethod clientAuthenticationMethod) {
-		this.clientAuthenticationMethod = clientAuthenticationMethod;
 	}
 
 	public AuthorizationGrantType getAuthorizationGrantType() {
 		return this.authorizationGrantType;
 	}
 
-	protected void setAuthorizationGrantType(AuthorizationGrantType authorizationGrantType) {
-		this.authorizationGrantType = authorizationGrantType;
-	}
-
 	public String getRedirectUri() {
 		return this.redirectUri;
-	}
-
-	protected void setRedirectUri(String redirectUri) {
-		this.redirectUri = redirectUri;
 	}
 
 	public Set<String> getScopes() {
 		return this.scopes;
 	}
 
-	protected void setScopes(Set<String> scopes) {
-		this.scopes = scopes;
-	}
-
 	public ProviderDetails getProviderDetails() {
 		return this.providerDetails;
 	}
 
-	protected void setProviderDetails(ProviderDetails providerDetails) {
-		this.providerDetails = providerDetails;
-	}
-
 	public String getClientName() {
 		return this.clientName;
-	}
-
-	protected void setClientName(String clientName) {
-		this.clientName = clientName;
 	}
 
 	public class ProviderDetails {
@@ -125,64 +89,50 @@ public class ClientRegistration {
 		private UserInfoEndpoint userInfoEndpoint = new UserInfoEndpoint();
 		private String jwkSetUri;
 
-		protected ProviderDetails() {
+		private ProviderDetails() {
 		}
 
 		public String getAuthorizationUri() {
 			return this.authorizationUri;
 		}
 
-		protected void setAuthorizationUri(String authorizationUri) {
-			this.authorizationUri = authorizationUri;
-		}
-
 		public String getTokenUri() {
 			return this.tokenUri;
-		}
-
-		protected void setTokenUri(String tokenUri) {
-			this.tokenUri = tokenUri;
 		}
 
 		public UserInfoEndpoint getUserInfoEndpoint() {
 			return this.userInfoEndpoint;
 		}
 
-		protected void setUserInfoEndpoint(UserInfoEndpoint userInfoEndpoint) {
-			this.userInfoEndpoint = userInfoEndpoint;
-		}
-
 		public String getJwkSetUri() {
 			return this.jwkSetUri;
-		}
-
-		protected void setJwkSetUri(String jwkSetUri) {
-			this.jwkSetUri = jwkSetUri;
 		}
 
 		public class UserInfoEndpoint {
 			private String uri;
 			private String userNameAttributeName;
 
-			protected UserInfoEndpoint() {
+			private UserInfoEndpoint() {
 			}
 
 			public String getUri() {
 				return this.uri;
 			}
 
-			protected void setUri(String uri) {
-				this.uri = uri;
-			}
-
 			public String getUserNameAttributeName() {
 				return this.userNameAttributeName;
 			}
-
-			protected void setUserNameAttributeName(String userNameAttributeName) {
-				this.userNameAttributeName = userNameAttributeName;
-			}
 		}
+	}
+
+	public static Builder withRegistrationId(String registrationId) {
+		Assert.hasText(registrationId, "registrationId cannot be empty");
+		return new Builder(registrationId);
+	}
+
+	public static Builder from(ClientRegistration clientRegistration) {
+		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
+		return new Builder(clientRegistration);
 	}
 
 	public static class Builder {
@@ -200,11 +150,11 @@ public class ClientRegistration {
 		private String jwkSetUri;
 		private String clientName;
 
-		public Builder(String registrationId) {
+		private Builder(String registrationId) {
 			this.registrationId = registrationId;
 		}
 
-		public Builder(ClientRegistration clientRegistration) {
+		private Builder(ClientRegistration clientRegistration) {
 			this(clientRegistration.getRegistrationId());
 			this.clientId(clientRegistration.getClientId());
 			this.clientSecret(clientRegistration.getClientSecret());
@@ -295,31 +245,31 @@ public class ClientRegistration {
 			return this.create();
 		}
 
-		protected ClientRegistration create() {
+		private ClientRegistration create() {
 			ClientRegistration clientRegistration = new ClientRegistration();
 
-			clientRegistration.setRegistrationId(this.registrationId);
-			clientRegistration.setClientId(this.clientId);
-			clientRegistration.setClientSecret(this.clientSecret);
-			clientRegistration.setClientAuthenticationMethod(this.clientAuthenticationMethod);
-			clientRegistration.setAuthorizationGrantType(this.authorizationGrantType);
-			clientRegistration.setRedirectUri(this.redirectUri);
-			clientRegistration.setScopes(this.scopes);
+			clientRegistration.registrationId = this.registrationId;
+			clientRegistration.clientId = this.clientId;
+			clientRegistration.clientSecret = this.clientSecret;
+			clientRegistration.clientAuthenticationMethod = this.clientAuthenticationMethod;
+			clientRegistration.authorizationGrantType = this.authorizationGrantType;
+			clientRegistration.redirectUri = this.redirectUri;
+			clientRegistration.scopes = this.scopes;
 
 			ProviderDetails providerDetails = clientRegistration.new ProviderDetails();
-			providerDetails.setAuthorizationUri(this.authorizationUri);
-			providerDetails.setTokenUri(this.tokenUri);
-			providerDetails.getUserInfoEndpoint().setUri(this.userInfoUri);
-			providerDetails.getUserInfoEndpoint().setUserNameAttributeName(this.userNameAttributeName);
-			providerDetails.setJwkSetUri(this.jwkSetUri);
-			clientRegistration.setProviderDetails(providerDetails);
+			providerDetails.authorizationUri = this.authorizationUri;
+			providerDetails.tokenUri = this.tokenUri;
+			providerDetails.userInfoEndpoint.uri = this.userInfoUri;
+			providerDetails.userInfoEndpoint.userNameAttributeName = this.userNameAttributeName;
+			providerDetails.jwkSetUri = this.jwkSetUri;
+			clientRegistration.providerDetails = providerDetails;
 
-			clientRegistration.setClientName(this.clientName);
+			clientRegistration.clientName = this.clientName;
 
 			return clientRegistration;
 		}
 
-		protected void validateAuthorizationCodeGrantType() {
+		private void validateAuthorizationCodeGrantType() {
 			Assert.isTrue(AuthorizationGrantType.AUTHORIZATION_CODE.equals(this.authorizationGrantType),
 				"authorizationGrantType must be " + AuthorizationGrantType.AUTHORIZATION_CODE.getValue());
 			Assert.hasText(this.registrationId, "registrationId cannot be empty");
@@ -337,7 +287,7 @@ public class ClientRegistration {
 			Assert.hasText(this.clientName, "clientName cannot be empty");
 		}
 
-		protected void validateImplicitGrantType() {
+		private void validateImplicitGrantType() {
 			Assert.isTrue(AuthorizationGrantType.IMPLICIT.equals(this.authorizationGrantType),
 				"authorizationGrantType must be " + AuthorizationGrantType.IMPLICIT.getValue());
 			Assert.hasText(this.registrationId, "registrationId cannot be empty");

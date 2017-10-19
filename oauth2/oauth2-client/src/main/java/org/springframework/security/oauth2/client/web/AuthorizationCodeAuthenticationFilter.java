@@ -117,7 +117,7 @@ public class AuthorizationCodeAuthenticationFilter extends AbstractAuthenticatio
 		// MUST BE the same one used to complete the authorization code flow.
 		// Therefore, we'll create a copy of the clientRegistration and override the redirectUri
 		// with the one contained in authorizationRequest.
-		clientRegistration = new ClientRegistration.Builder(clientRegistration)
+		clientRegistration = ClientRegistration.from(clientRegistration)
 			.redirectUri(authorizationRequest.getRedirectUri())
 			.build();
 
