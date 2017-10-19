@@ -212,7 +212,7 @@ public class ClientRegistration {
 			this.authorizationGrantType(clientRegistrationProperties.getAuthorizationGrantType());
 			this.redirectUri(clientRegistrationProperties.getRedirectUri());
 			if (!CollectionUtils.isEmpty(clientRegistrationProperties.getScope())) {
-				this.scopes(clientRegistrationProperties.getScope().toArray(new String[0]));
+				this.scope(clientRegistrationProperties.getScope().toArray(new String[0]));
 			}
 			this.authorizationUri(clientRegistrationProperties.getAuthorizationUri());
 			this.tokenUri(clientRegistrationProperties.getTokenUri());
@@ -230,7 +230,7 @@ public class ClientRegistration {
 			this.authorizationGrantType(clientRegistration.getAuthorizationGrantType());
 			this.redirectUri(clientRegistration.getRedirectUri());
 			if (!CollectionUtils.isEmpty(clientRegistration.getScopes())) {
-				this.scopes(clientRegistration.getScopes().toArray(new String[0]));
+				this.scope(clientRegistration.getScopes().toArray(new String[0]));
 			}
 			this.authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri());
 			this.tokenUri(clientRegistration.getProviderDetails().getTokenUri());
@@ -265,10 +265,10 @@ public class ClientRegistration {
 			return this;
 		}
 
-		public Builder scopes(String... scopes) {
-			if (scopes != null && scopes.length > 0) {
+		public Builder scope(String... scope) {
+			if (scope != null && scope.length > 0) {
 				this.scopes = Collections.unmodifiableSet(
-						new LinkedHashSet<>(Arrays.asList(scopes)));
+						new LinkedHashSet<>(Arrays.asList(scope)));
 			}
 			return this;
 		}
