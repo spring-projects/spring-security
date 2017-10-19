@@ -16,7 +16,6 @@
 package org.springframework.security.oauth2.client.token;
 
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationIdentifierStrategy;
 import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.util.Assert;
 
@@ -35,26 +34,25 @@ import java.util.concurrent.ConcurrentHashMap;
  * @see ClientRegistration
  */
 public final class InMemoryAccessTokenRepository implements SecurityTokenRepository<AccessToken> {
-	private final ClientRegistrationIdentifierStrategy<String> identifierStrategy = new AuthorizedClientIdentifierStrategy();
 	private final Map<String, AccessToken> accessTokens = new ConcurrentHashMap<>();
 
 	@Override
 	public AccessToken loadSecurityToken(ClientRegistration registration) {
 		Assert.notNull(registration, "registration cannot be null");
-		return this.accessTokens.get(this.identifierStrategy.getIdentifier(registration));
+		return this.accessTokens.get(this.getClientIdentifier(registration));
 	}
 
 	@Override
 	public void saveSecurityToken(AccessToken accessToken, ClientRegistration registration) {
 		Assert.notNull(accessToken, "accessToken cannot be null");
 		Assert.notNull(registration, "registration cannot be null");
-		this.accessTokens.put(this.identifierStrategy.getIdentifier(registration), accessToken);
+		this.accessTokens.put(this.getClientIdentifier(registration), accessToken);
 	}
 
 	@Override
 	public void removeSecurityToken(ClientRegistration registration) {
 		Assert.notNull(registration, "registration cannot be null");
-		this.accessTokens.remove(this.identifierStrategy.getIdentifier(registration));
+		this.accessTokens.remove(this.getClientIdentifier(registration));
 	}
 
 	/**
@@ -63,22 +61,18 @@ public final class InMemoryAccessTokenRepository implements SecurityTokenReposit
 	 * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.3">Section 4.1.3 Access Token Request</a>
 	 * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-5.1">Section 5.1 Access Token Response</a>
 	 */
-	private static class AuthorizedClientIdentifierStrategy implements ClientRegistrationIdentifierStrategy<String> {
+	private String getClientIdentifier(ClientRegistration clientRegistration) {
+		StringBuilder builder = new StringBuilder();
 
-		@Override
-		public String getIdentifier(ClientRegistration clientRegistration) {
-			StringBuilder builder = new StringBuilder();
+		// Access Token Request attributes
+		builder.append("[").append(clientRegistration.getAuthorizationGrantType().getValue()).append("]");
+		builder.append("[").append(clientRegistration.getRedirectUri()).append("]");
+		builder.append("[").append(clientRegistration.getClientId()).append("]");
 
-			// Access Token Request attributes
-			builder.append("[").append(clientRegistration.getAuthorizationGrantType().getValue()).append("]");
-			builder.append("[").append(clientRegistration.getRedirectUri()).append("]");
-			builder.append("[").append(clientRegistration.getClientId()).append("]");
+		// Access Token Response attributes
+		builder.append("[").append(clientRegistration.getScopes().toString()).append("]");
 
-			// Access Token Response attributes
-			builder.append("[").append(clientRegistration.getScopes().toString()).append("]");
-
-			return Base64.getEncoder().encodeToString(builder.toString().getBytes());
-		}
+		return Base64.getEncoder().encodeToString(builder.toString().getBytes());
 	}
 }
 

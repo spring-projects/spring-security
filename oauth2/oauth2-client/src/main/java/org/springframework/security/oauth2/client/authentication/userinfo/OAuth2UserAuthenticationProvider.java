@@ -23,7 +23,6 @@ import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMap
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2ClientAuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationIdentifierStrategy;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.Assert;
 
@@ -48,7 +47,6 @@ import java.util.Collection;
  * @see OAuth2User
  */
 public class OAuth2UserAuthenticationProvider implements AuthenticationProvider {
-	private final ClientRegistrationIdentifierStrategy<String> providerIdentifierStrategy = new ProviderIdentifierStrategy();
 	private final OAuth2UserService userService;
 	private GrantedAuthoritiesMapper authoritiesMapper = (authorities -> authorities);
 
@@ -115,23 +113,19 @@ public class OAuth2UserAuthenticationProvider implements AuthenticationProvider 
 		OAuth2UserAuthenticationToken currentUserAuthentication =
 			(OAuth2UserAuthenticationToken)SecurityContextHolder.getContext().getAuthentication();
 
-		String userProviderId = this.providerIdentifierStrategy.getIdentifier(
+		String userProviderId = this.getProviderIdentifier(
 			currentUserAuthentication.getClientAuthentication().getClientRegistration());
-		String clientProviderId = this.providerIdentifierStrategy.getIdentifier(
+		String clientProviderId = this.getProviderIdentifier(
 			clientAuthentication.getClientRegistration());
 
 		return userProviderId.equals(clientProviderId);
 	}
 
-	private static class ProviderIdentifierStrategy implements ClientRegistrationIdentifierStrategy<String> {
-
-		@Override
-		public String getIdentifier(ClientRegistration clientRegistration) {
-			StringBuilder builder = new StringBuilder();
-			builder.append("[").append(clientRegistration.getProviderDetails().getAuthorizationUri()).append("]");
-			builder.append("[").append(clientRegistration.getProviderDetails().getTokenUri()).append("]");
-			builder.append("[").append(clientRegistration.getProviderDetails().getUserInfoEndpoint().getUri()).append("]");
-			return builder.toString();
-		}
+	private String getProviderIdentifier(ClientRegistration clientRegistration) {
+		StringBuilder builder = new StringBuilder();
+		builder.append("[").append(clientRegistration.getProviderDetails().getAuthorizationUri()).append("]");
+		builder.append("[").append(clientRegistration.getProviderDetails().getTokenUri()).append("]");
+		builder.append("[").append(clientRegistration.getProviderDetails().getUserInfoEndpoint().getUri()).append("]");
+		return builder.toString();
 	}
 }
