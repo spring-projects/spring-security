@@ -204,24 +204,6 @@ public class ClientRegistration {
 			this.registrationId = registrationId;
 		}
 
-		public Builder(ClientRegistrationProperties clientRegistrationProperties) {
-			this(clientRegistrationProperties.getRegistrationId());
-			this.clientId(clientRegistrationProperties.getClientId());
-			this.clientSecret(clientRegistrationProperties.getClientSecret());
-			this.clientAuthenticationMethod(clientRegistrationProperties.getClientAuthenticationMethod());
-			this.authorizationGrantType(clientRegistrationProperties.getAuthorizationGrantType());
-			this.redirectUri(clientRegistrationProperties.getRedirectUri());
-			if (!CollectionUtils.isEmpty(clientRegistrationProperties.getScope())) {
-				this.scope(clientRegistrationProperties.getScope().toArray(new String[0]));
-			}
-			this.authorizationUri(clientRegistrationProperties.getAuthorizationUri());
-			this.tokenUri(clientRegistrationProperties.getTokenUri());
-			this.userInfoUri(clientRegistrationProperties.getUserInfoUri());
-			this.userNameAttributeName(clientRegistrationProperties.getUserNameAttributeName());
-			this.jwkSetUri(clientRegistrationProperties.getJwkSetUri());
-			this.clientName(clientRegistrationProperties.getClientName());
-		}
-
 		public Builder(ClientRegistration clientRegistration) {
 			this(clientRegistration.getRegistrationId());
 			this.clientId(clientRegistration.getClientId());
