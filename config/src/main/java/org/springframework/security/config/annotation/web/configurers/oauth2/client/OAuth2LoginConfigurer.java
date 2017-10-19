@@ -66,6 +66,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 
 	public OAuth2LoginConfigurer() {
 		super(new AuthorizationCodeAuthenticationFilter(), null);
+		this.authorizationCodeGrantConfigurer.authorizationResponseBaseUri("/login/oauth2/authorize/code");
 	}
 
 	public OAuth2LoginConfigurer<B> clients(ClientRegistration... clientRegistrations) {

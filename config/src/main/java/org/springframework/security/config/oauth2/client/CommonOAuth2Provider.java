@@ -93,7 +93,7 @@ public enum CommonOAuth2Provider {
 		}
 	};
 
-	private static final String DEFAULT_REDIRECT_URL = "{scheme}://{serverName}:{serverPort}{contextPath}/oauth2/authorize/code/{registrationId}";
+	private static final String DEFAULT_REDIRECT_URL = "{scheme}://{serverName}:{serverPort}{contextPath}/login/oauth2/authorize/code/{registrationId}";
 
 	protected final ClientRegistration.Builder getBuilder(String registrationId,
 															ClientAuthenticationMethod method, String redirectUri) {
