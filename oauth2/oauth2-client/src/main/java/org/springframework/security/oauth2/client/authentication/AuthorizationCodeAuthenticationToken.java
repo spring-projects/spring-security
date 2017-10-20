@@ -17,6 +17,7 @@ package org.springframework.security.oauth2.client.authentication;
 
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.endpoint.AuthorizationExchange;
 import org.springframework.security.oauth2.core.endpoint.AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.AuthorizationResponse;
 import org.springframework.util.Assert;
@@ -35,20 +36,16 @@ import org.springframework.util.Assert;
  */
 public class AuthorizationCodeAuthenticationToken extends AuthorizationGrantAuthenticationToken {
 	private final ClientRegistration clientRegistration;
-	private final AuthorizationRequest authorizationRequest;
-	private final AuthorizationResponse authorizationResponse;
+	private final AuthorizationExchange authorizationExchange;
 
 	public AuthorizationCodeAuthenticationToken(ClientRegistration clientRegistration,
-												AuthorizationRequest authorizationRequest,
-												AuthorizationResponse authorizationResponse) {
+												AuthorizationExchange authorizationExchange) {
 
 		super(AuthorizationGrantType.AUTHORIZATION_CODE);
 		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
-		Assert.notNull(authorizationRequest, "authorizationRequest cannot be null");
-		Assert.notNull(authorizationResponse, "authorizationResponse cannot be null");
+		Assert.notNull(authorizationExchange, "authorizationExchange cannot be null");
 		this.clientRegistration = clientRegistration;
-		this.authorizationRequest = authorizationRequest;
-		this.authorizationResponse = authorizationResponse;
+		this.authorizationExchange = authorizationExchange;
 		this.setAuthenticated(false);
 	}
 
@@ -66,11 +63,7 @@ public class AuthorizationCodeAuthenticationToken extends AuthorizationGrantAuth
 		return this.clientRegistration;
 	}
 
-	public AuthorizationRequest getAuthorizationRequest() {
-		return this.authorizationRequest;
-	}
-
-	public AuthorizationResponse getAuthorizationResponse() {
-		return this.authorizationResponse;
+	public AuthorizationExchange getAuthorizationExchange() {
+		return this.authorizationExchange;
 	}
 }

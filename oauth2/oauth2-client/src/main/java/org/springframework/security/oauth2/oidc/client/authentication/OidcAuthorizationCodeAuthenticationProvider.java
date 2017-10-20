@@ -18,8 +18,6 @@ package org.springframework.security.oauth2.oidc.client.authentication;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.AuthorizationGrantTokenExchanger;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationException;
@@ -32,6 +30,8 @@ import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.endpoint.AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.AuthorizationResponse;
 import org.springframework.security.oauth2.core.endpoint.TokenResponse;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.oidc.core.IdToken;
 import org.springframework.security.oauth2.oidc.core.OidcScope;
 import org.springframework.security.oauth2.oidc.core.endpoint.OidcParameter;
@@ -79,14 +79,17 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 		// Section 3.1.2.1 Authentication Request - http://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
 		// scope
 		// 		REQUIRED. OpenID Connect requests MUST contain the "openid" scope value.
-		if (!authorizationCodeAuthentication.getAuthorizationRequest().getScopes().contains(OidcScope.OPENID)) {
+		if (!authorizationCodeAuthentication.getAuthorizationExchange()
+			.getAuthorizationRequest().getScopes().contains(OidcScope.OPENID)) {
 			// This is NOT an OpenID Connect Authentication Request so return null
 			// and let AuthorizationCodeAuthenticationProvider handle it instead
 			return null;
 		}
 
-		AuthorizationRequest authorizationRequest = authorizationCodeAuthentication.getAuthorizationRequest();
-		AuthorizationResponse authorizationResponse = authorizationCodeAuthentication.getAuthorizationResponse();
+		AuthorizationRequest authorizationRequest = authorizationCodeAuthentication
+			.getAuthorizationExchange().getAuthorizationRequest();
+		AuthorizationResponse authorizationResponse = authorizationCodeAuthentication
+			.getAuthorizationExchange().getAuthorizationResponse();
 
 		if (authorizationResponse.statusError()) {
 			throw new OAuth2AuthenticationException(

@@ -26,6 +26,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCode;
+import org.springframework.security.oauth2.core.endpoint.AuthorizationExchange;
 import org.springframework.security.oauth2.core.endpoint.AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.AuthorizationResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2Parameter;
@@ -124,7 +125,7 @@ public class AuthorizationCodeAuthenticationFilter extends AbstractAuthenticatio
 			.build();
 
 		AuthorizationCodeAuthenticationToken authorizationCodeAuthentication = new AuthorizationCodeAuthenticationToken(
-				clientRegistration, authorizationRequest, authorizationResponse);
+				clientRegistration, new AuthorizationExchange(authorizationRequest, authorizationResponse));
 		authorizationCodeAuthentication.setDetails(this.authenticationDetailsSource.buildDetails(request));
 
 		OAuth2ClientAuthenticationToken clientAuthentication =
