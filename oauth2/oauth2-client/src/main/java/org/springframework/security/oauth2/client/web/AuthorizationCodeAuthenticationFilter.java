@@ -29,7 +29,6 @@ import org.springframework.security.oauth2.core.endpoint.AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.AuthorizationResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2Parameter;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -73,9 +72,8 @@ import java.io.IOException;
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.2">Section 4.1.2 Authorization Response</a>
  */
 public class AuthorizationCodeAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
-	public static final String DEFAULT_AUTHORIZATION_RESPONSE_BASE_URI = "/oauth2/authorize/code";
+	public static final String DEFAULT_AUTHORIZATION_RESPONSE_BASE_URI = "/oauth2/authorize/code/*";
 	private static final String AUTHORIZATION_REQUEST_NOT_FOUND_ERROR_CODE = "authorization_request_not_found";
-	private AuthorizationResponseMatcher authorizationResponseMatcher;
 	private ClientRegistrationRepository clientRegistrationRepository;
 	private AuthorizationRequestRepository authorizationRequestRepository = new HttpSessionAuthorizationRequestRepository();
 
@@ -84,8 +82,7 @@ public class AuthorizationCodeAuthenticationFilter extends AbstractAuthenticatio
 	}
 
 	public AuthorizationCodeAuthenticationFilter(String authorizationResponseBaseUri) {
-		super(new AuthorizationResponseMatcher(authorizationResponseBaseUri));
-		this.authorizationResponseMatcher = new AuthorizationResponseMatcher(authorizationResponseBaseUri);
+		super(authorizationResponseBaseUri);
 	}
 
 	@Override
@@ -131,14 +128,9 @@ public class AuthorizationCodeAuthenticationFilter extends AbstractAuthenticatio
 		return this.getAuthenticationManager().authenticate(clientAuthentication);
 	}
 
-	public final RequestMatcher getAuthorizationResponseMatcher() {
-		return this.authorizationResponseMatcher;
-	}
-
 	public final void setAuthorizationResponseBaseUri(String authorizationResponseBaseUri) {
 		Assert.hasText(authorizationResponseBaseUri, "authorizationResponseBaseUri cannot be empty");
-		this.authorizationResponseMatcher = new AuthorizationResponseMatcher(authorizationResponseBaseUri);
-		this.setRequiresAuthenticationRequestMatcher(this.authorizationResponseMatcher);
+		this.setFilterProcessesUrl(authorizationResponseBaseUri);
 	}
 
 	public final void setClientRegistrationRepository(ClientRegistrationRepository clientRegistrationRepository) {
@@ -152,7 +144,7 @@ public class AuthorizationCodeAuthenticationFilter extends AbstractAuthenticatio
 	}
 
 	private AuthorizationResponse convert(HttpServletRequest request) {
-		if (!this.getAuthorizationResponseMatcher().matches(request)) {
+		if (!this.authorizationResponseSuccess(request) && !this.authorizationResponseError(request)) {
 			return null;
 		}
 
@@ -178,28 +170,13 @@ public class AuthorizationCodeAuthenticationFilter extends AbstractAuthenticatio
 		}
 	}
 
-	private static class AuthorizationResponseMatcher implements RequestMatcher {
-		private final String baseUri;
+	private boolean authorizationResponseSuccess(HttpServletRequest request) {
+		return StringUtils.hasText(request.getParameter(OAuth2Parameter.CODE)) &&
+			StringUtils.hasText(request.getParameter(OAuth2Parameter.STATE));
+	}
 
-		private AuthorizationResponseMatcher(String baseUri) {
-			Assert.hasText(baseUri, "baseUri cannot be empty");
-			this.baseUri = baseUri;
-		}
-
-		@Override
-		public boolean matches(HttpServletRequest request) {
-			return request.getRequestURI().startsWith(this.baseUri) &&
-				(this.successResponse(request) || this.errorResponse(request));
-		}
-
-		private boolean successResponse(HttpServletRequest request) {
-			return StringUtils.hasText(request.getParameter(OAuth2Parameter.CODE)) &&
-				StringUtils.hasText(request.getParameter(OAuth2Parameter.STATE));
-		}
-
-		private boolean errorResponse(HttpServletRequest request) {
-			return StringUtils.hasText(request.getParameter(OAuth2Parameter.ERROR)) &&
-				StringUtils.hasText(request.getParameter(OAuth2Parameter.STATE));
-		}
+	private boolean authorizationResponseError(HttpServletRequest request) {
+		return StringUtils.hasText(request.getParameter(OAuth2Parameter.ERROR)) &&
+			StringUtils.hasText(request.getParameter(OAuth2Parameter.STATE));
 	}
 }

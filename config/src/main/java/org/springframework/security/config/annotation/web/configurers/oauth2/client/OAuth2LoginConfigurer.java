@@ -32,6 +32,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.client.token.SecurityTokenRepository;
 import org.springframework.security.oauth2.client.web.AuthorizationCodeAuthenticationFilter;
+import org.springframework.security.oauth2.client.web.AuthorizationRequestRedirectFilter;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestUriBuilder;
 import org.springframework.security.oauth2.core.AccessToken;
@@ -39,6 +40,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.oidc.client.authentication.userinfo.OidcUserAuthenticationProvider;
 import org.springframework.security.oauth2.oidc.client.authentication.userinfo.OidcUserService;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 
@@ -58,6 +60,7 @@ import java.util.Map;
 public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> extends
 	AbstractAuthenticationFilterConfigurer<B, OAuth2LoginConfigurer<B>, AuthorizationCodeAuthenticationFilter> {
 
+	private static final String DEFAULT_LOGIN_PROCESSING_URI = "/login/oauth2/authorize/code/*";
 	private final AuthorizationCodeGrantConfigurer<B> authorizationCodeGrantConfigurer = new AuthorizationCodeGrantLoginConfigurer();
 	private final AuthorizationEndpointConfig authorizationEndpointConfig = new AuthorizationEndpointConfig();
 	private final TokenEndpointConfig tokenEndpointConfig = new TokenEndpointConfig();
@@ -65,8 +68,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 	private final UserInfoEndpointConfig userInfoEndpointConfig = new UserInfoEndpointConfig();
 
 	public OAuth2LoginConfigurer() {
-		super(new AuthorizationCodeAuthenticationFilter(), null);
-		this.authorizationCodeGrantConfigurer.authorizationResponseBaseUri("/login/oauth2/authorize/code");
+		super(new AuthorizationCodeAuthenticationFilter(DEFAULT_LOGIN_PROCESSING_URI), DEFAULT_LOGIN_PROCESSING_URI);
 	}
 
 	public OAuth2LoginConfigurer<B> clients(ClientRegistration... clientRegistrations) {
@@ -248,7 +250,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 
 	@Override
 	protected RequestMatcher createLoginProcessingUrlMatcher(String loginProcessingUrl) {
-		return this.getAuthenticationFilter().getAuthorizationResponseMatcher();
+		return new AntPathRequestMatcher(loginProcessingUrl);
 	}
 
 	private ClientRegistrationRepository getClientRegistrationRepository() {
@@ -280,12 +282,14 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 			return;
 		}
 
+		String authorizationRequestBaseUri = authorizationCodeGrantConfigurer.getAuthorizationRequestBaseUri() != null ?
+			authorizationCodeGrantConfigurer.getAuthorizationRequestBaseUri() :
+			AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
 		Map<String, String> authenticationUrlToClientName = new HashMap<>();
-		clientRegistrations.forEach(registration -> {
-			authenticationUrlToClientName.put(
-				authorizationCodeGrantConfigurer.getAuthorizationRequestBaseUri() + "/" + registration.getRegistrationId(),
-				registration.getClientName());
-		});
+
+		clientRegistrations.forEach(registration -> authenticationUrlToClientName.put(
+			authorizationRequestBaseUri + "/" + registration.getRegistrationId(),
+			registration.getClientName()));
 		loginPageGeneratingFilter.setOauth2LoginEnabled(true);
 		loginPageGeneratingFilter.setOauth2AuthenticationUrlToClientName(authenticationUrlToClientName);
 		loginPageGeneratingFilter.setLoginPageUrl(this.getLoginPage());
@@ -300,8 +304,10 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 
 			AuthorizationCodeAuthenticationFilter authorizationResponseFilter = getAuthenticationFilter();
 			authorizationResponseFilter.setClientRegistrationRepository(getClientRegistrationRepository());
-			authorizationResponseFilter.setAuthorizationResponseBaseUri(
-				authorizationCodeGrantConfigurer.getAuthorizationResponseBaseUri());
+			if (authorizationCodeGrantConfigurer.getAuthorizationResponseBaseUri() != null) {
+				authorizationResponseFilter.setAuthorizationResponseBaseUri(
+					authorizationCodeGrantConfigurer.getAuthorizationResponseBaseUri());
+			}
 			if (authorizationCodeGrantConfigurer.getAuthorizationRequestRepository() != null) {
 				authorizationResponseFilter.setAuthorizationRequestRepository(
 					authorizationCodeGrantConfigurer.getAuthorizationRequestRepository());

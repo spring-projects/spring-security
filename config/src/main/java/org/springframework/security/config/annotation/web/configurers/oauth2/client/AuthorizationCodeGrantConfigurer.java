@@ -126,7 +126,10 @@ public class AuthorizationCodeGrantConfigurer<B extends HttpSecurityBuilder<B>> 
 		http.authenticationProvider(this.postProcess(oidcAuthorizationCodeAuthenticationProvider));
 
 		this.authorizationRequestFilter = new AuthorizationRequestRedirectFilter(
-			this.getAuthorizationRequestBaseUri(), this.getClientRegistrationRepository());
+			this.authorizationRequestBaseUri != null ?
+				this.authorizationRequestBaseUri :
+				AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI,
+			this.getClientRegistrationRepository());
 		if (this.authorizationRequestUriBuilder != null) {
 			this.authorizationRequestFilter.setAuthorizationRequestUriBuilder(this.authorizationRequestUriBuilder);
 		}
@@ -134,7 +137,10 @@ public class AuthorizationCodeGrantConfigurer<B extends HttpSecurityBuilder<B>> 
 			this.authorizationRequestFilter.setAuthorizationRequestRepository(this.authorizationRequestRepository);
 		}
 
-		this.authorizationResponseFilter = new AuthorizationCodeAuthenticationFilter(this.getAuthorizationResponseBaseUri());
+		this.authorizationResponseFilter = new AuthorizationCodeAuthenticationFilter(
+			this.authorizationResponseBaseUri != null ?
+				this.authorizationResponseBaseUri :
+				AuthorizationCodeAuthenticationFilter.DEFAULT_AUTHORIZATION_RESPONSE_BASE_URI);
 		this.authorizationResponseFilter.setClientRegistrationRepository(this.getClientRegistrationRepository());
 		if (this.authorizationRequestRepository != null) {
 			this.authorizationResponseFilter.setAuthorizationRequestRepository(this.authorizationRequestRepository);
@@ -158,15 +164,11 @@ public class AuthorizationCodeGrantConfigurer<B extends HttpSecurityBuilder<B>> 
 	}
 
 	String getAuthorizationRequestBaseUri() {
-		return this.authorizationRequestBaseUri != null ?
-			this.authorizationRequestBaseUri :
-			AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
+		return this.authorizationRequestBaseUri;
 	}
 
 	String getAuthorizationResponseBaseUri() {
-		return this.authorizationResponseBaseUri != null ?
-			this.authorizationResponseBaseUri :
-			AuthorizationCodeAuthenticationFilter.DEFAULT_AUTHORIZATION_RESPONSE_BASE_URI;
+		return this.authorizationResponseBaseUri;
 	}
 
 	AuthorizationRequestRepository getAuthorizationRequestRepository() {
