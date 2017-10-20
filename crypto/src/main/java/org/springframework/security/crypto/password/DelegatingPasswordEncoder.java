@@ -27,6 +27,9 @@ import java.util.Map;
  *
  * <h2>Constructing an instance</h2>
  *
+ * You can easily construct an instance using
+ * {@link org.springframework.security.crypto.factory.PasswordEncoderFactories}.
+ * Alternatively, you may create your own custom instance. For example:
  *
  * <pre>
  * String idForEncode = "bcrypt";
@@ -73,7 +76,7 @@ import java.util.Map;
  * When matching it would delegate to
  * {@link org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder}</li>
  * <li>The second password would have a {@code PasswordEncoder} id of "noop" and
- * encodedPassword of "thisisextremelyunsafe". When matching it would delegate to
+ * encodedPassword of "password". When matching it would delegate to
  * {@link NoOpPasswordEncoder}</li>
  * <li>The third password would have a {@code PasswordEncoder} id of "pbkdf2" and
  * encodedPassword of
@@ -112,6 +115,8 @@ import java.util.Map;
  * password with an "id" that is not mapped (including a null id) will result in an
  * {@link IllegalArgumentException}. This behavior can be customized using
  * {@link #setDefaultPasswordEncoderForMatches(PasswordEncoder)}.
+ *
+ * @see org.springframework.security.crypto.factory.PasswordEncoderFactories
  *
  * @author Rob Winch
  * @since 5.0
