@@ -18,25 +18,24 @@ package org.springframework.security.config.annotation.web.reactive;
 
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
+import org.springframework.security.config.users.ReactiveAuthenticationTestConfiguration;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
-import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 
 /**
  * @author Rob Winch
  * @since 5.0
  */
 public class ServerHttpSecurityConfigurationBuilder {
-	public static final UserDetails USER = User.withUsername("user").password("password").roles("USER").build();
-	public static final UserDetails ADMIN = User.withUsername("admin").password("password").roles("USER","ADMIN").build();
-
 	public static ServerHttpSecurity http() {
 		return new ServerHttpSecurityConfiguration().httpSecurity();
 	}
 
 	public static ServerHttpSecurity httpWithDefaultAuthentication() {
-		ReactiveAuthenticationManager authenticationManager = new UserDetailsRepositoryReactiveAuthenticationManager(new MapReactiveUserDetailsService(USER,ADMIN));
+		ReactiveUserDetailsService reactiveUserDetailsService = ReactiveAuthenticationTestConfiguration
+			.userDetailsRepository();
+		ReactiveAuthenticationManager authenticationManager = new UserDetailsRepositoryReactiveAuthenticationManager(
+			reactiveUserDetailsService);
 		return http()
 			.authenticationManager(authenticationManager);
 	}

@@ -26,9 +26,11 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.core.userdetails.User;
 
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -74,10 +76,13 @@ public class ReactiveUserDetailsServiceAuthenticationManagerTests {
 
 	@Test
 	public void authenticateWhenPasswordNotEqualThenBadCredentials() {
-		User user = new User(username, password, AuthorityUtils.createAuthorityList("ROLE_USER"));
+		UserDetails user = PasswordEncodedUser.withUsername(this.username)
+			.password(this.password)
+			.roles("USER")
+			.build();
 		when(repository.findByUsername(user.getUsername())).thenReturn(Mono.just(user));
 
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password + "INVALID");
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, this.password + "INVALID");
 		Mono<Authentication> authentication = manager.authenticate(token);
 
 		StepVerifier
@@ -88,7 +93,10 @@ public class ReactiveUserDetailsServiceAuthenticationManagerTests {
 
 	@Test
 	public void authenticateWhenSuccessThenSuccess() {
-		User user = new User(username, password, AuthorityUtils.createAuthorityList("ROLE_USER"));
+		UserDetails user = PasswordEncodedUser.withUsername(this.username)
+			.password(this.password)
+			.roles("USER")
+			.build();
 		when(repository.findByUsername(user.getUsername())).thenReturn(Mono.just(user));
 
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);

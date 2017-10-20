@@ -14,28 +14,24 @@
  * limitations under the License.
  */
 
-package sample;
+package org.springframework.security.config.users;
 
+import org.junit.Test;
 import org.springframework.context.annotation.Bean;
-import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
+import org.springframework.security.core.userdetails.PasswordEncodedUser;
+import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 
 /**
  * @author Rob Winch
  * @since 5.0
  */
-@EnableWebFluxSecurity
-public class HelloWebfluxFnSecurityConfig {
-
+@Configuration
+public class ReactiveAuthenticationTestConfiguration {
 	@Bean
-	public MapReactiveUserDetailsService userDetailsRepository() {
-		UserDetails user = User.withDefaultPasswordEncoder()
-			.username("user")
-			.password("user")
-			.roles("USER")
-			.build();
-		return new MapReactiveUserDetailsService(user);
+	public static ReactiveUserDetailsService userDetailsRepository() {
+		return new MapReactiveUserDetailsService(PasswordEncodedUser.user(), PasswordEncodedUser.admin());
 	}
 }

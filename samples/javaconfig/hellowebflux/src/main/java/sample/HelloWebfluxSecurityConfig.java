@@ -31,7 +31,8 @@ public class HelloWebfluxSecurityConfig {
 
 	@Bean
 	public MapReactiveUserDetailsService userDetailsRepository() {
-		UserDetails user = User.withUsername("user")
+		UserDetails user = User.withDefaultPasswordEncoder()
+			.username("user")
 			.password("user")
 			.roles("USER")
 			.build();

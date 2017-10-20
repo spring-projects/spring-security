@@ -19,7 +19,7 @@ package org.springframework.security.authentication;
 import org.springframework.security.core.Authentication;
 
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
@@ -32,7 +32,7 @@ import reactor.core.scheduler.Schedulers;
 public class UserDetailsRepositoryReactiveAuthenticationManager implements ReactiveAuthenticationManager {
 	private final ReactiveUserDetailsService repository;
 
-	private PasswordEncoder passwordEncoder = NoOpPasswordEncoder.getInstance();
+	private PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
 	public UserDetailsRepositoryReactiveAuthenticationManager(ReactiveUserDetailsService reactiveUserDetailsService) {
 		Assert.notNull(reactiveUserDetailsService, "userDetailsRepository cannot be null");

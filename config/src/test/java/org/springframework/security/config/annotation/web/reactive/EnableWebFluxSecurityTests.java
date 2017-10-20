@@ -20,12 +20,15 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.ImportResource;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.test.SpringTestRule;
+import org.springframework.security.config.users.ReactiveAuthenticationTestConfiguration;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
@@ -141,15 +144,8 @@ public class EnableWebFluxSecurityTests {
 	}
 
 	@EnableWebFluxSecurity
+	@Import(ReactiveAuthenticationTestConfiguration.class)
 	static class Config {
-		@Bean
-		public ReactiveUserDetailsService userDetailsRepository() {
-			return new MapReactiveUserDetailsService(User.withUsername("user")
-				.password("password")
-				.roles("USER")
-				.build()
-			);
-		}
 	}
 
 	@Test
@@ -236,21 +232,20 @@ public class EnableWebFluxSecurityTests {
 	}
 
 	@EnableWebFluxSecurity
+	@Import(ReactiveAuthenticationTestConfiguration.class)
 	static class MultiSecurityHttpConfig {
-		@Order(Ordered.HIGHEST_PRECEDENCE) @Bean public SecurityWebFilterChain apiHttpSecurity(
+		@Order(Ordered.HIGHEST_PRECEDENCE)
+		@Bean
+		public SecurityWebFilterChain apiHttpSecurity(
 			ServerHttpSecurity http) {
 			http.securityMatcher(new PathPatternParserServerWebExchangeMatcher("/api/**"))
 				.authorizeExchange().anyExchange().denyAll();
 			return http.build();
 		}
 
-		@Bean public SecurityWebFilterChain httpSecurity(ServerHttpSecurity http) {
+		@Bean
+		public SecurityWebFilterChain httpSecurity(ServerHttpSecurity http) {
 			return http.build();
-		}
-
-		@Bean public ReactiveUserDetailsService userDetailsRepository() {
-			return new MapReactiveUserDetailsService(
-				User.withUsername("user").password("password").roles("USER").build());
 		}
 	}
 
