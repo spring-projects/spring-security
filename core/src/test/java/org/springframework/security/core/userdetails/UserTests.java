@@ -177,4 +177,37 @@ public class UserTests {
 		assertThat(actual.isCredentialsNonExpired()).isEqualTo(expected.isCredentialsNonExpired());
 		assertThat(actual.isEnabled()).isEqualTo(expected.isEnabled());
 	}
+
+	@Test
+	public void withUserWhenDetailsPasswordEncoderThenEncodes() {
+		UserDetails userDetails = User.withUsername("user").password("password").roles("USER").build();
+
+		UserDetails withEncodedPassword = User.withUserDetails(userDetails)
+			.passwordEncoder(p -> p + "encoded")
+			.build();
+
+		assertThat(withEncodedPassword.getPassword()).isEqualTo("passwordencoded");
+	}
+
+	@Test
+	public void withUsernameWhenPasswordEncoderAndPasswordThenEncodes() {
+		UserDetails withEncodedPassword = User.withUsername("user")
+			.password("password")
+			.passwordEncoder(p -> p + "encoded")
+			.roles("USER")
+			.build();
+
+		assertThat(withEncodedPassword.getPassword()).isEqualTo("passwordencoded");
+	}
+
+	@Test
+	public void withUsernameWhenPasswordAndPasswordEncoderThenEncodes() {
+		UserDetails withEncodedPassword = User.withUsername("user")
+			.passwordEncoder(p -> p + "encoded")
+			.password("password")
+			.roles("USER")
+			.build();
+
+		assertThat(withEncodedPassword.getPassword()).isEqualTo("passwordencoded");
+	}
 }

@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.function.Function;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.CredentialsContainer;
@@ -285,6 +286,7 @@ public class User implements UserDetails, CredentialsContainer {
 		private boolean accountLocked;
 		private boolean credentialsExpired;
 		private boolean disabled;
+		private Function<String,String> passwordEncoder = password -> password;
 
 		/**
 		 * Creates a new instance
@@ -314,8 +316,23 @@ public class User implements UserDetails, CredentialsContainer {
 		 */
 		public UserBuilder password(String password) {
 			Assert.notNull(password, "password cannot be null");
-			this.password = password;
+			String encodedPassword = this.passwordEncoder.apply(password);
+			this.password = encodedPassword;
 			return this;
+		}
+
+		/**
+		 * Encodes the current password (if non-null) and any future passwords supplied
+		 * to {@link #password(String)}.
+		 *
+		 * @param encoder the encoder to use
+		 * @return the {@link UserBuilder} for method chaining (i.e. to populate
+		 * additional attributes for this user)
+		 */
+		public UserBuilder passwordEncoder(Function<String,String> encoder) {
+			Assert.notNull(encoder, "encoder cannot be null");
+			this.passwordEncoder = encoder;
+			return this.password == null ? this : password(this.password);
 		}
 
 		/**
