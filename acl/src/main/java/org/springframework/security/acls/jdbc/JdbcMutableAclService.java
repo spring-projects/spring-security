@@ -85,7 +85,6 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 	private String updateObjectIdentity = "update acl_object_identity set "
 			+ "parent_object = ?, owner_sid = ?, entries_inheriting = ?"
 			+ " where id = ?";
-	private boolean aclClassIdSupported;
 
 	// ~ Constructors
 	// ===================================================================================================
@@ -193,7 +192,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 		}
 
 		if (allowCreate) {
-			if (!aclClassIdSupported) {
+			if (!isAclClassIdSupported()) {
 				jdbcTemplate.update(insertClass, type);
 			} else {
 				jdbcTemplate.update(insertClass, type, idType.getCanonicalName());
@@ -493,8 +492,9 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 		this.foreignKeysInDatabase = foreignKeysInDatabase;
 	}
 
+	@Override
 	public void setAclClassIdSupported(boolean aclClassIdSupported) {
-		this.aclClassIdSupported = aclClassIdSupported;
+		super.setAclClassIdSupported(aclClassIdSupported);
 		if (aclClassIdSupported) {
 			// Change the default insert if it hasn't been overridden
 			if (this.insertClass.equals(DEFAULT_INSERT_INTO_ACL_CLASS)) {

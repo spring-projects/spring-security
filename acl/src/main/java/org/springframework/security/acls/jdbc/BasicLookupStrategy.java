@@ -122,7 +122,6 @@ public class BasicLookupStrategy implements LookupStrategy {
 	private PermissionFactory permissionFactory = new DefaultPermissionFactory();
 	private final AclCache aclCache;
 	private final PermissionGrantingStrategy grantingStrategy;
-	private ConversionService conversionService = null;
 	private final JdbcTemplate jdbcTemplate;
 	private int batchSize = 50;
 
@@ -135,6 +134,8 @@ public class BasicLookupStrategy implements LookupStrategy {
 	private String lookupPrimaryKeysWhereClause = DEFAULT_LOOKUP_KEYS_WHERE_CLAUSE;
 	private String lookupObjectIdentitiesWhereClause = DEFAULT_LOOKUP_IDENTITIES_WHERE_CLAUSE;
 	private String orderByClause = DEFAULT_ORDER_BY_CLAUSE;
+
+	private AclClassIdUtils aclClassIdUtils;
 
 	// ~ Constructors
 	// ===================================================================================================
@@ -149,8 +150,7 @@ public class BasicLookupStrategy implements LookupStrategy {
 	public BasicLookupStrategy(DataSource dataSource, AclCache aclCache,
 			AclAuthorizationStrategy aclAuthorizationStrategy, AuditLogger auditLogger) {
 		this(dataSource, aclCache, aclAuthorizationStrategy,
-				new DefaultPermissionGrantingStrategy(auditLogger),
-				new DefaultConversionService());
+				new DefaultPermissionGrantingStrategy(auditLogger));
 	}
 
 	/**
@@ -172,17 +172,9 @@ public class BasicLookupStrategy implements LookupStrategy {
 		this.aclCache = aclCache;
 		this.aclAuthorizationStrategy = aclAuthorizationStrategy;
 		this.grantingStrategy = grantingStrategy;
+		this.aclClassIdUtils = new AclClassIdUtils();
 		fieldAces.setAccessible(true);
 		fieldAcl.setAccessible(true);
-	}
-
-	public BasicLookupStrategy(DataSource dataSource, AclCache aclCache,
-			AclAuthorizationStrategy aclAuthorizationStrategy,
-			PermissionGrantingStrategy grantingStrategy,
-			ConversionService conversionService) {
-		this(dataSource, aclCache, aclAuthorizationStrategy, grantingStrategy);
-		Assert.notNull(conversionService, "conversionService required");
-		this.conversionService = conversionService;
 	}
 
 	// ~ Methods
@@ -563,6 +555,10 @@ public class BasicLookupStrategy implements LookupStrategy {
 		}
 	}
 
+	public final void setAclClassIdUtils(AclClassIdUtils aclClassIdUtils) {
+		this.aclClassIdUtils = aclClassIdUtils;
+	}
+
 	// ~ Inner Classes
 	// ==================================================================================================
 
@@ -642,14 +638,7 @@ public class BasicLookupStrategy implements LookupStrategy {
 
 				// If the Java type is a String, check to see if we can convert it to the target id type, e.g. UUID.
 				Serializable identifier = (Serializable) rs.getObject("object_id_identity");
-				if (isString(identifier) && hasValidClassIdType(rs)
-					&& canConvertFromStringTo(classIdTypeFrom(rs))) {
-
-					identifier = convertFromStringTo((String) identifier, classIdTypeFrom(rs));
-				} else {
-					// Assume it should be a Long type
-					identifier = convertToLong(identifier);
-				}
+				identifier = aclClassIdUtils.identifierFrom(identifier, rs);
 				ObjectIdentity objectIdentity = new ObjectIdentityImpl(
 					rs.getString("class"), identifier);
 
@@ -696,64 +685,6 @@ public class BasicLookupStrategy implements LookupStrategy {
 				}
 			}
 		}
-	}
-
-	private boolean hasValidClassIdType(ResultSet resultSet) throws SQLException {
-		boolean hasClassIdType = false;
-		try {
-			hasClassIdType = classIdTypeFrom(resultSet) != null;
-		} catch (SQLException e) {
-		}
-		return hasClassIdType;
-	}
-
-	private <T  extends Serializable> Class<T> classIdTypeFrom(ResultSet resultSet) throws SQLException {
-		return classIdTypeFrom(resultSet.getString("class_id_type"));
-	}
-
-	private <T extends Serializable> Class<T> classIdTypeFrom(String className) {
-		Class targetType = null;
-		if (className != null) {
-			try {
-				targetType = Class.forName(className);
-			} catch (ClassNotFoundException e) {
-			}
-		}
-		return targetType;
-	}
-
-	private <T> boolean canConvertFromStringTo(Class<T> targetType) {
-		return hasConverstionService() && conversionService.canConvert(String.class, targetType);
-	}
-
-	private <T extends Serializable> T convertFromStringTo(String identifier, Class<T> targetType) {
-		return conversionService.convert(identifier, targetType);
-	}
-
-	private boolean hasConverstionService() {
-		return conversionService != null;
-	}
-
-	/**
-	 * Converts to a {@link Long}, attempting to use the {@link ConversionService} if available.
-	 * @param identifier    The identifier
-	 * @return Long version of the identifier
-	 * @throws NumberFormatException if the string cannot be parsed to a long.
-	 * @throws org.springframework.core.convert.ConversionException if a conversion exception occurred
-	 * @throws IllegalArgumentException if targetType is null
-     */
-	private Long convertToLong(Serializable identifier) {
-		Long idAsLong;
-		if (hasConverstionService()) {
-			idAsLong = conversionService.convert(identifier, Long.class);
-		} else {
-			idAsLong = Long.valueOf(identifier.toString());
-		}
-		return idAsLong;
-	}
-
-	private boolean isString(Serializable object) {
-		return object.getClass().isAssignableFrom(String.class);
 	}
 
 	private static class StubAclParent implements Acl {

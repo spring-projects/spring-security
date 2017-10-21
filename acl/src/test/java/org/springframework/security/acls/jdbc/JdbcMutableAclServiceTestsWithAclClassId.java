@@ -36,12 +36,39 @@ public class JdbcMutableAclServiceTestsWithAclClassId extends JdbcMutableAclServ
 
     private static final String TARGET_CLASS_WITH_UUID = TargetObjectWithUUID.class.getName();
 
+	private final ObjectIdentity topParentOid = new ObjectIdentityImpl(TARGET_CLASS_WITH_UUID,
+		UUID.randomUUID());
+	private final ObjectIdentity middleParentOid = new ObjectIdentityImpl(TARGET_CLASS_WITH_UUID,
+		UUID.randomUUID());
+	private final ObjectIdentity childOid = new ObjectIdentityImpl(TARGET_CLASS_WITH_UUID,
+		UUID.randomUUID());
+
     @Override
     protected String getSqlClassPathResource() {
         return "createAclSchemaWithAclClassIdType.sql";
     }
 
-    @Test
+	@Override
+	protected ObjectIdentity getTopParentOid() {
+		return topParentOid;
+	}
+
+	@Override
+	protected ObjectIdentity getMiddleParentOid() {
+		return middleParentOid;
+	}
+
+	@Override
+	protected ObjectIdentity getChildOid() {
+		return childOid;
+	}
+
+	@Override
+	protected String getTargetClass() {
+		return TARGET_CLASS_WITH_UUID;
+	}
+
+	@Test
     @Transactional
     public void identityWithUuidIdIsSupportedByCreateAcl() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(getAuth());
