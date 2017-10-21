@@ -168,7 +168,7 @@ dependencyManagement {
 		dependency 'org.hibernate.javax.persistence:hibernate-jpa-2.1-api:1.0.0.Final'
 		dependency 'org.hibernate:hibernate-core:5.2.10.Final'
 		dependency 'org.hibernate:hibernate-entitymanager:5.2.11.Final'
-		dependency 'org.hibernate:hibernate-validator:5.4.1.Final'
+		dependency 'org.hibernate:hibernate-validator:6.0.2.Final'
 		dependency 'org.hsqldb:hsqldb:2.4.0'
 		dependency 'org.jasig.cas.client:cas-client-core:3.4.1'
 		dependency 'org.javassist:javassist:3.21.0-GA'
