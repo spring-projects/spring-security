@@ -32,7 +32,6 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.BaseSpringSpec
 import org.springframework.security.config.annotation.ObjectPostProcessor
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
-import org.springframework.security.config.annotation.authentication.configurers.GlobalAuthenticationConfigurerAdapter
 import org.springframework.security.config.annotation.configuration.ObjectPostProcessorConfiguration
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity

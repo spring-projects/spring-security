@@ -89,7 +89,7 @@ public class AspectJMethodSecurityInterceptorTests {
 		when(codeSig.getDeclaringType()).thenReturn(TargetObject.class);
 		when(codeSig.getParameterTypes()).thenReturn(new Class[] { String.class });
 		when(staticPart.getSignature()).thenReturn(codeSig);
-		when(mds.getAttributes(any(JoinPoint.class))).thenReturn(
+		when(mds.getAttributes(any())).thenReturn(
 				SecurityConfig.createList("ROLE_USER"));
 		when(authman.authenticate(token)).thenReturn(token);
 	}
@@ -113,7 +113,7 @@ public class AspectJMethodSecurityInterceptorTests {
 	@Test
 	public void callbackIsNotInvokedWhenPermissionDenied() throws Exception {
 		doThrow(new AccessDeniedException("denied")).when(adm).decide(
-				any(Authentication.class), any(), any(Collection.class));
+				any(), any(), any());
 
 		SecurityContextHolder.getContext().setAuthentication(token);
 		try {

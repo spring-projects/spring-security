@@ -28,7 +28,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DistinguishedName;
 
@@ -58,7 +58,6 @@ public class SpringSecurityLdapTemplateTests {
 						searchControls.capture())).thenReturn(resultsEnum);
 		when(resultsEnum.hasMore()).thenReturn(true, false);
 		when(resultsEnum.next()).thenReturn(searchResult);
-		when(searchResult.getName()).thenReturn(searchResultName);
 		when(searchResult.getObject()).thenReturn(searchResultObject);
 
 		SpringSecurityLdapTemplate.searchForSingleEntryInternal(ctx,

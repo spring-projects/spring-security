@@ -144,6 +144,17 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
 		return false;
 	}
 
+	@Override
+	public int hashCode() {
+		int result = super.hashCode();
+		result = 31 * result + this.credentials.hashCode();
+		result = 31 * result + this.principal.hashCode();
+		result = 31 * result + this.userDetails.hashCode();
+		result = 31 * result + this.keyHash;
+		result = 31 * result + (this.assertion != null ? this.assertion.hashCode() : 0);
+		return result;
+	}
+
 	public Object getCredentials() {
 		return this.credentials;
 	}

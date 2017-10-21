@@ -20,6 +20,9 @@ import org.springframework.util.Assert;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -65,5 +68,23 @@ public interface ClaimAccessor {
 		} catch (MalformedURLException ex) {
 			throw new IllegalArgumentException("Unable to convert claim '" + claim + "' to URL: " + ex.getMessage(), ex);
 		}
+	}
+
+	default Map<String, Object> getClaimAsMap(String claim) {
+		if (!this.containsClaim(claim) || !Map.class.isAssignableFrom(this.getClaims().get(claim).getClass())) {
+			return null;
+		}
+		Map<String, Object> claimValues = new HashMap<>();
+		((Map<?, ?>)this.getClaims().get(claim)).forEach((k, v) -> claimValues.put(k.toString(), v));
+		return claimValues;
+	}
+
+	default List<String> getClaimAsStringList(String claim) {
+		if (!this.containsClaim(claim) || !List.class.isAssignableFrom(this.getClaims().get(claim).getClass())) {
+			return null;
+		}
+		List<String> claimValues = new ArrayList<>();
+		((List<?>)this.getClaims().get(claim)).forEach(e -> claimValues.add(e.toString()));
+		return claimValues;
 	}
 }

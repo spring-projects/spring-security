@@ -25,7 +25,7 @@ import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.messaging.Message;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -83,7 +83,6 @@ public class OrMessageMatcherTest {
 	@Test
 	public void matchesMultiTrue() {
 		when(delegate.matches(message)).thenReturn(true);
-		when(delegate2.matches(message)).thenReturn(true);
 		matcher = new OrMessageMatcher<Object>(delegate, delegate2);
 
 		assertThat(matcher.matches(message)).isTrue();
@@ -109,7 +108,6 @@ public class OrMessageMatcherTest {
 	@Test
 	public void matchesMultiSingleFalse() {
 		when(delegate.matches(message)).thenReturn(true);
-		when(delegate2.matches(message)).thenReturn(false);
 		matcher = new OrMessageMatcher<Object>(delegate, delegate2);
 
 		assertThat(matcher.matches(message)).isTrue();

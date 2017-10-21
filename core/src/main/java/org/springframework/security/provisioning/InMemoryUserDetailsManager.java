@@ -61,6 +61,12 @@ public class InMemoryUserDetailsManager implements UserDetailsManager {
 		}
 	}
 
+	public InMemoryUserDetailsManager(UserDetails... users) {
+		for (UserDetails user : users) {
+			createUser(user);
+		}
+	}
+
 	public InMemoryUserDetailsManager(Properties users) {
 		Enumeration<?> names = users.propertyNames();
 		UserAttributeEditor editor = new UserAttributeEditor();

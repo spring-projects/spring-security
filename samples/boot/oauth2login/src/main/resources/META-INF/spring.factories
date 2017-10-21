@@ -1,4 +1,0 @@
-# Spring Boot Auto Configurations
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-org.springframework.boot.autoconfigure.security.oauth2.client.ClientRegistrationAutoConfiguration,\
-org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2LoginAutoConfiguration

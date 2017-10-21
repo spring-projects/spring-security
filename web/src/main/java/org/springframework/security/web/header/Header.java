@@ -60,6 +60,23 @@ public final class Header {
 		return this.headerValues;
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+
+		Header header = (Header) o;
+
+		if (!this.headerName.equals(header.headerName)) {
+			return false;
+		}
+		return this.headerValues.equals(header.headerValues);
+	}
+
 	public int hashCode() {
 		return headerName.hashCode() + headerValues.hashCode();
 	}

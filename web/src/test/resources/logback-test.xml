@@ -1,14 +1,15 @@
 <configuration>
-  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 	<encoder>
-	  <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+		<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
 	</encoder>
-  </appender>
+	</appender>
 
-  <logger name="org.springframework.security" level="${sec.log.level}:-WARN"/>
+	<logger name="org.springframework.security" level="${sec.log.level:-WARN}"/>
 
-  <root level="${root.level}:-WARN">
+
+	<root level="${root.level:-WARN}">
 	<appender-ref ref="STDOUT" />
-  </root>
+	</root>
 
 </configuration>

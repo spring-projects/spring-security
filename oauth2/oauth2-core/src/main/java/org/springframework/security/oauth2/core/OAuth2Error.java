@@ -30,15 +30,7 @@ import org.springframework.util.Assert;
  * @since 5.0
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-11.4">Section 11.4 OAuth Extensions Error Registry</a>
  */
-public class OAuth2Error {
-	// Standard error codes
-	public static final String INVALID_REQUEST_ERROR_CODE = "invalid_request";
-	public static final String INVALID_CLIENT_ERROR_CODE = "invalid_client";
-	public static final String INVALID_GRANT_ERROR_CODE = "invalid_grant";
-	public static final String UNAUTHORIZED_CLIENT_ERROR_CODE = "unauthorized_client";
-	public static final String UNSUPPORTED_GRANT_TYPE_ERROR_CODE = "unsupported_grant_type";
-	public static final String INVALID_SCOPE_ERROR_CODE = "invalid_scope";
-
+public final class OAuth2Error {
 	private final String errorCode;
 	private final String description;
 	private final String uri;

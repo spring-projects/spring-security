@@ -38,6 +38,12 @@ class AspectJPlugin implements Plugin<Project> {
 			project.configurations.create('aspectpath')
 		}
 
+		project.afterEvaluate {
+			setupAspectJ(project)
+		}
+	}
+
+	void setupAspectJ(Project project) {
 		project.tasks.withType(JavaCompile) { javaCompileTask ->
 			def javaCompileTaskName = javaCompileTask.name
 			def ajCompileTask = project.tasks.create(name: javaCompileTaskName + 'Aspect', overwrite: true, description: 'Compiles AspectJ Source', type: Ajc) {

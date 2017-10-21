@@ -1,27 +1,25 @@
 /*
+ * Copyright 2002-2017 the original author or authors.
  *
- *  * Copyright 2002-2017 the original author or authors.
- *  *
- *  * Licensed under the Apache License, Version 2.0 (the "License");
- *  * you may not use this file except in compliance with the License.
- *  * You may obtain a copy of the License at
- *  *
- *  *      http://www.apache.org/licenses/LICENSE-2.0
- *  *
- *  * Unless required by applicable law or agreed to in writing, software
- *  * distributed under the License is distributed on an "AS IS" BASIS,
- *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the License for the specific language governing permissions and
- *  * limitations under the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.springframework.security.config.web.server;
 
 import org.junit.Test;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.web.reactive.ServerHttpSecurityConfigurationBuilder;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
-import org.springframework.security.web.server.authorization.ExceptionTranslationWebFilter;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 /**
@@ -29,12 +27,14 @@ import org.springframework.test.web.reactive.server.WebTestClient;
  * @since 5.0
  */
 public class AuthorizeExchangeBuilderTests {
-	HttpSecurity.AuthorizeExchangeBuilder authorization = HttpSecurity.http().new AuthorizeExchangeBuilder();
+	ServerHttpSecurity http = ServerHttpSecurityConfigurationBuilder.httpWithDefaultAuthentication();
 
 	@Test
 	public void antMatchersWhenMethodAndPatternsThenDiscriminatesByMethod() {
-		authorization.pathMatchers(HttpMethod.POST, "/a", "/b").denyAll();
-		authorization.anyExchange().permitAll();
+		this.http
+			.authorizeExchange()
+				.pathMatchers(HttpMethod.POST, "/a", "/b").denyAll()
+				.anyExchange().permitAll();
 
 		WebTestClient client = buildClient();
 
@@ -62,8 +62,10 @@ public class AuthorizeExchangeBuilderTests {
 
 	@Test
 	public void antMatchersWhenPatternsThenAnyMethod() {
-		authorization.pathMatchers("/a", "/b").denyAll();
-		authorization.anyExchange().permitAll();
+		this.http
+			.authorizeExchange()
+				.pathMatchers("/a", "/b").denyAll()
+				.anyExchange().permitAll();
 
 		WebTestClient client = buildClient();
 
@@ -90,23 +92,30 @@ public class AuthorizeExchangeBuilderTests {
 
 	@Test(expected = IllegalStateException.class)
 	public void antMatchersWhenNoAccessAndAnotherMatcherThenThrowsException() {
-		authorization.pathMatchers("/incomplete");
-		authorization.pathMatchers("/throws-exception");
+		this.http
+			.authorizeExchange()
+				.pathMatchers("/incomplete");
+		this.http
+			.authorizeExchange()
+				.pathMatchers("/throws-exception");
 	}
 
 	@Test(expected = IllegalStateException.class)
 	public void anyExchangeWhenFollowedByMatcherThenThrowsException() {
-		authorization.anyExchange().denyAll();
-		authorization.pathMatchers("/never-reached");
+		this.http
+			.authorizeExchange().anyExchange().denyAll()
+			.pathMatchers("/never-reached");
 	}
 
 	@Test(expected = IllegalStateException.class)
 	public void buildWhenMatcherDefinedWithNoAccessThenThrowsException() {
-		authorization.pathMatchers("/incomplete");
-		authorization.build();
+		this.http
+			.authorizeExchange()
+				.pathMatchers("/incomplete");
+		this.http.build();
 	}
 
 	private WebTestClient buildClient() {
-		return WebTestClientBuilder.bindToWebFilters(new ExceptionTranslationWebFilter(), authorization.build()).build();
+		return WebTestClientBuilder.bindToWebFilters(this.http.build()).build();
 	}
 }

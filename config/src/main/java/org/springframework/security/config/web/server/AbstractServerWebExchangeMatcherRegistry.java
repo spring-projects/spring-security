@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2002-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.springframework.security.config.web.server;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.security.web.server.util.matcher.OrServerWebExchangeMatcher;
+import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 
@@ -40,7 +41,7 @@ abstract class AbstractServerWebExchangeMatcherRegistry<T> {
 
 	/**
 	 * Maps a {@link List} of
-	 * {@link org.springframework.security.web.server.util.matcher.PathMatcherServerWebExchangeMatcher}
+	 * {@link PathPatternParserServerWebExchangeMatcher}
 	 * instances.
 	 *
 	 * @param method the {@link HttpMethod} to use for any
@@ -54,13 +55,13 @@ abstract class AbstractServerWebExchangeMatcherRegistry<T> {
 
 	/**
 	 * Maps a {@link List} of
-	 * {@link org.springframework.security.web.server.util.matcher.PathMatcherServerWebExchangeMatcher}
+	 * {@link PathPatternParserServerWebExchangeMatcher}
 	 * instances.
 	 *
 	 * @param method the {@link HttpMethod} to use or {@code null} for any
 	 * {@link HttpMethod}.
 	 * @param antPatterns the ant patterns to create. If {@code null} or empty, then matches on nothing.
-	 * {@link org.springframework.security.web.server.util.matcher.PathMatcherServerWebExchangeMatcher} from
+	 * {@link PathPatternParserServerWebExchangeMatcher} from
 	 *
 	 * @return the object that is chained after creating the {@link ServerWebExchangeMatcher}
 	 */
@@ -70,11 +71,11 @@ abstract class AbstractServerWebExchangeMatcherRegistry<T> {
 
 	/**
 	 * Maps a {@link List} of
-	 * {@link org.springframework.security.web.server.util.matcher.PathMatcherServerWebExchangeMatcher}
+	 * {@link PathPatternParserServerWebExchangeMatcher}
 	 * instances that do not care which {@link HttpMethod} is used.
 	 *
 	 * @param antPatterns the ant patterns to create
-	 * {@link org.springframework.security.web.server.util.matcher.PathMatcherServerWebExchangeMatcher} from
+	 * {@link PathPatternParserServerWebExchangeMatcher} from
 	 *
 	 * @return the object that is chained after creating the {@link ServerWebExchangeMatcher}
 	 */

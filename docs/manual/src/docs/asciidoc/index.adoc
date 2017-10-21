@@ -914,8 +914,6 @@ public BCryptPasswordEncoder passwordEncoder() {
 }
 ----
 
-==== LDAP Authentication
-
 === Multiple HttpSecurity
 
 We can configure multiple HttpSecurity instances just as we can have multiple `<http>` blocks. The key is to extend the `WebSecurityConfigurationAdapter` multiple times. For example, the following is an example of having a different configuration for URL's that start with `/api/`.
@@ -1086,7 +1084,7 @@ For example, you might have something that looks like this:
 
 [source,java]
 ----
-public class MyCustomDsl extends AbstractHttpConfigurer<CorsConfigurerMyCustomDsl, HttpSecurity> {
+public class MyCustomDsl extends AbstractHttpConfigurer<MyCustomDsl, HttpSecurity> {
 	private boolean flag;
 
 	@Override
@@ -4599,7 +4597,7 @@ To use concurrent session support, you'll need to add the following to `web.xml`
 
 
 
-In addition, you will need to add the `ConcurrentSessionFilter` to your `FilterChainProxy`. The `ConcurrentSessionFilter` requires two properties, `sessionRegistry`, which generally points to an instance of `SessionRegistryImpl`, and `expiredUrl`, which points to the page to display when a session has expired. A configuration using the namespace to create the `FilterChainProxy` and other default beans might look like this:
+In addition, you will need to add the `ConcurrentSessionFilter` to your `FilterChainProxy`. The `ConcurrentSessionFilter` requires two constructor arguments, `sessionRegistry`, which generally points to an instance of `SessionRegistryImpl`, and `sessionInformationExpiredStrategy`, which defines the strategy to apply when a session has expired. A configuration using the namespace to create the `FilterChainProxy` and other default beans might look like this:
 
 [source,xml]
 ----
@@ -4611,10 +4609,15 @@ In addition, you will need to add the `ConcurrentSessionFilter` to your `FilterC
 <session-management session-authentication-strategy-ref="sas"/>
 </http>
 
+<beans:bean id="redirectSessionInformationExpiredStrategy"
+class="org.springframework.security.web.session.SimpleRedirectSessionInformationExpiredStrategy">
+<beans:constructor-arg name="invalidSessionUrl" value="/session-expired.htm" />
+</beans:bean>
+
 <beans:bean id="concurrencyFilter"
 class="org.springframework.security.web.session.ConcurrentSessionFilter">
-<beans:property name="sessionRegistry" ref="sessionRegistry" />
-<beans:property name="expiredUrl" value="/session-expired.htm" />
+<beans:constructor-arg name="sessionRegistry" ref="sessionRegistry" />
+<beans:constructor-arg name="sessionInformationExpiredStrategy" ref="redirectSessionInformationExpiredStrategy" />
 </beans:bean>
 
 <beans:bean id="myAuthFilter" class=
@@ -9857,10 +9860,6 @@ The core module must be included in any project using Spring Security.
 .Core Dependencies
 |===
 | Dependency | Version | Description
-
-| aopalliance
-| 1.0
-| Required for method security implementation.
 
 | ehcache
 | 1.6.2

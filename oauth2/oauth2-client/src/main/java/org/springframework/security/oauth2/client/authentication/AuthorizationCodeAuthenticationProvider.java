@@ -15,131 +15,104 @@
  */
 package org.springframework.security.oauth2.client.authentication;
 
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
-import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper;
-import org.springframework.security.jwt.Jwt;
-import org.springframework.security.jwt.JwtDecoder;
-import org.springframework.security.oauth2.client.authentication.jwt.ProviderJwtDecoderRegistry;
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.client.user.OAuth2UserService;
+import org.springframework.security.oauth2.client.token.InMemoryAccessTokenRepository;
+import org.springframework.security.oauth2.client.token.SecurityTokenRepository;
 import org.springframework.security.oauth2.core.AccessToken;
-import org.springframework.security.oauth2.core.endpoint.TokenResponseAttributes;
-import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.security.oauth2.oidc.core.IdToken;
-import org.springframework.security.oauth2.oidc.core.endpoint.OidcParameter;
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.endpoint.AuthorizationRequest;
+import org.springframework.security.oauth2.core.endpoint.AuthorizationResponse;
+import org.springframework.security.oauth2.core.endpoint.TokenResponse;
 import org.springframework.util.Assert;
 
-import java.util.Collection;
-
 /**
- * An implementation of an {@link AuthenticationProvider} that is responsible for authenticating
+ * An implementation of an {@link AuthenticationProvider}
+ * for the <i>OAuth 2.0 Authorization Code Grant Flow</i>.
+ *
+ * This {@link AuthenticationProvider} is responsible for authenticating
  * an <i>authorization code</i> credential with the authorization server's <i>Token Endpoint</i>
- * and if valid, exchanging it for an <i>access token</i> credential and optionally an
- * <i>id token</i> credential (for OpenID Connect Authorization Code Flow).
- * Additionally, it will also obtain the end-user's (resource owner) attributes from the <i>UserInfo Endpoint</i>
- * (using the <i>access token</i>) and create a <code>Principal</code> in the form of an {@link OAuth2User}
- * associating it with the returned {@link OAuth2AuthenticationToken}.
- *
- * <p>
- * The {@link AuthorizationCodeAuthenticationProvider} uses an {@link AuthorizationGrantTokenExchanger}
- * to make a request to the authorization server's <i>Token Endpoint</i>
- * to verify the {@link AuthorizationCodeAuthenticationToken#getAuthorizationCode()}.
- * If the request is valid, the authorization server will respond back with a {@link TokenResponseAttributes}.
- *
- * <p>
- * It will then create an {@link OAuth2AuthenticationToken} associating the {@link AccessToken} and optionally
- * the {@link IdToken} from the {@link TokenResponseAttributes} and pass it to
- * {@link OAuth2UserService#loadUser(OAuth2AuthenticationToken)} to obtain the end-user's (resource owner) attributes
- * in the form of an {@link OAuth2User}.
- *
- * <p>
- * Finally, it will create another {@link OAuth2AuthenticationToken}, this time associating
- * the {@link AccessToken}, {@link IdToken} and {@link OAuth2User} and return it to the {@link AuthenticationManager},
- * at which point the {@link OAuth2AuthenticationToken} is considered <i>&quot;authenticated&quot;</i>.
+ * and if valid, exchanging it for an <i>access token</i> credential.
  *
  * @author Joe Grandja
  * @since 5.0
  * @see AuthorizationCodeAuthenticationToken
- * @see AuthorizationGrantTokenExchanger
- * @see TokenResponseAttributes
- * @see AccessToken
- * @see IdToken
- * @see OAuth2UserService
- * @see OAuth2User
+ * @see OAuth2ClientAuthenticationToken
+ * @see SecurityTokenRepository
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">Section 4.1 Authorization Code Grant Flow</a>
- * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth">Section 3.1 OpenID Connect Authorization Code Flow</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.3">Section 4.1.3 Access Token Request</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.4">Section 4.1.4 Access Token Response</a>
- * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#TokenResponse">Section 3.1.3.3 OpenID Connect Token Response</a>
  */
 public class AuthorizationCodeAuthenticationProvider implements AuthenticationProvider {
+	private static final String INVALID_STATE_PARAMETER_ERROR_CODE = "invalid_state_parameter";
+	private static final String INVALID_REDIRECT_URI_PARAMETER_ERROR_CODE = "invalid_redirect_uri_parameter";
 	private final AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger;
-	private final ProviderJwtDecoderRegistry providerJwtDecoderRegistry;
-	private final OAuth2UserService userInfoService;
-	private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
+	private SecurityTokenRepository<AccessToken> accessTokenRepository = new InMemoryAccessTokenRepository();
 
 	public AuthorizationCodeAuthenticationProvider(
-			AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger,
-			ProviderJwtDecoderRegistry providerJwtDecoderRegistry,
-			OAuth2UserService userInfoService) {
+		AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger) {
 
 		Assert.notNull(authorizationCodeTokenExchanger, "authorizationCodeTokenExchanger cannot be null");
-		Assert.notNull(providerJwtDecoderRegistry, "providerJwtDecoderRegistry cannot be null");
-		Assert.notNull(userInfoService, "userInfoService cannot be null");
 		this.authorizationCodeTokenExchanger = authorizationCodeTokenExchanger;
-		this.providerJwtDecoderRegistry = providerJwtDecoderRegistry;
-		this.userInfoService = userInfoService;
 	}
 
 	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		AuthorizationCodeAuthenticationToken authorizationCodeAuthentication =
 				(AuthorizationCodeAuthenticationToken) authentication;
-		ClientRegistration clientRegistration = authorizationCodeAuthentication.getClientRegistration();
 
-		TokenResponseAttributes tokenResponse =
-				this.authorizationCodeTokenExchanger.exchange(authorizationCodeAuthentication);
-
-		AccessToken accessToken = new AccessToken(tokenResponse.getTokenType(),
-				tokenResponse.getTokenValue(), tokenResponse.getIssuedAt(),
-				tokenResponse.getExpiresAt(), tokenResponse.getScopes());
-
-		IdToken idToken = null;
-		if (tokenResponse.getAdditionalParameters().containsKey(OidcParameter.ID_TOKEN)) {
-			JwtDecoder jwtDecoder = this.providerJwtDecoderRegistry.getJwtDecoder(clientRegistration.getProviderDetails().getJwkSetUri());
-			if (jwtDecoder == null) {
-				throw new IllegalArgumentException("Unable to find a registered JwtDecoder for the provider '" + clientRegistration.getProviderDetails().getTokenUri() +
-					"'. Check to ensure you have configured the JwkSet URI property.");
-			}
-			Jwt jwt = jwtDecoder.decode((String)tokenResponse.getAdditionalParameters().get(OidcParameter.ID_TOKEN));
-			idToken = new IdToken(jwt.getTokenValue(), jwt.getIssuedAt(), jwt.getExpiresAt(), jwt.getClaims());
+		// Section 3.1.2.1 Authentication Request - http://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
+		// scope
+		// 		REQUIRED. OpenID Connect requests MUST contain the "openid" scope value.
+		if (authorizationCodeAuthentication.getAuthorizationExchange()
+			.getAuthorizationRequest().getScopes().contains("openid")) {
+			// This is an OpenID Connect Authentication Request so return null
+			// and let OidcAuthorizationCodeAuthenticationProvider handle it instead
+			return null;
 		}
 
-		OAuth2AuthenticationToken accessTokenAuthentication =
-			new OAuth2AuthenticationToken(clientRegistration, accessToken, idToken);
-		accessTokenAuthentication.setDetails(authorizationCodeAuthentication.getDetails());
+		AuthorizationRequest authorizationRequest = authorizationCodeAuthentication
+			.getAuthorizationExchange().getAuthorizationRequest();
+		AuthorizationResponse authorizationResponse = authorizationCodeAuthentication
+			.getAuthorizationExchange().getAuthorizationResponse();
 
-		OAuth2User user = this.userInfoService.loadUser(accessTokenAuthentication);
+		if (authorizationResponse.statusError()) {
+			throw new OAuth2AuthenticationException(
+				authorizationResponse.getError(), authorizationResponse.getError().toString());
+		}
 
-		Collection<? extends GrantedAuthority> authorities =
-				this.authoritiesMapper.mapAuthorities(user.getAuthorities());
+		if (!authorizationResponse.getState().equals(authorizationRequest.getState())) {
+			OAuth2Error oauth2Error = new OAuth2Error(INVALID_STATE_PARAMETER_ERROR_CODE);
+			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+		}
 
-		OAuth2AuthenticationToken authenticationResult = new OAuth2AuthenticationToken(
-			user, authorities, accessTokenAuthentication.getClientRegistration(),
-			accessTokenAuthentication.getAccessToken(), accessTokenAuthentication.getIdToken());
-		authenticationResult.setDetails(accessTokenAuthentication.getDetails());
+		if (!authorizationResponse.getRedirectUri().equals(authorizationRequest.getRedirectUri())) {
+			OAuth2Error oauth2Error = new OAuth2Error(INVALID_REDIRECT_URI_PARAMETER_ERROR_CODE);
+			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+		}
 
-		return authenticationResult;
+		TokenResponse tokenResponse =
+			this.authorizationCodeTokenExchanger.exchange(authorizationCodeAuthentication);
+
+		AccessToken accessToken = new AccessToken(tokenResponse.getTokenType(),
+			tokenResponse.getTokenValue(), tokenResponse.getIssuedAt(),
+			tokenResponse.getExpiresAt(), tokenResponse.getScopes());
+
+		OAuth2ClientAuthenticationToken clientAuthentication =
+			new OAuth2ClientAuthenticationToken(authorizationCodeAuthentication.getClientRegistration(), accessToken);
+		clientAuthentication.setDetails(authorizationCodeAuthentication.getDetails());
+
+		this.accessTokenRepository.saveSecurityToken(
+			clientAuthentication.getAccessToken(),
+			clientAuthentication.getClientRegistration());
+
+		return clientAuthentication;
 	}
 
-	public final void setAuthoritiesMapper(GrantedAuthoritiesMapper authoritiesMapper) {
-		Assert.notNull(authoritiesMapper, "authoritiesMapper cannot be null");
-		this.authoritiesMapper = authoritiesMapper;
+	public final void setAccessTokenRepository(SecurityTokenRepository<AccessToken> accessTokenRepository) {
+		Assert.notNull(accessTokenRepository, "accessTokenRepository cannot be null");
+		this.accessTokenRepository = accessTokenRepository;
 	}
 
 	@Override

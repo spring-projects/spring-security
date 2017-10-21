@@ -29,7 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.security.core.context.SecurityContext;
@@ -64,9 +64,6 @@ public class WebAsyncManagerIntegrationFilterTests {
 
 	@Before
 	public void setUp() {
-		when(asyncWebRequest.getNativeRequest(HttpServletRequest.class)).thenReturn(
-				request);
-		when(request.getRequestURI()).thenReturn("/");
 		filterChain = new MockFilterChain();
 
 		threadFactory = new JoinableThreadFactory();

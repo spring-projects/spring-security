@@ -2,7 +2,6 @@ apply plugin: 'io.spring.convention.spring-module'
 
 dependencies {
 	compile project(':spring-security-core')
-	compile 'aopalliance:aopalliance'
 	compile 'org.springframework:spring-beans'
 	compile 'org.springframework:spring-context'
 	compile 'org.springframework:spring-core'
@@ -15,7 +14,7 @@ dependencies {
 
 	testCompile project(path: ':spring-security-core', configuration: 'tests')
 	testCompile 'commons-codec:commons-codec'
-	testCompile powerMockDependencies
+	testCompile powerMock2Dependencies
 	testCompile slf4jDependencies
 	testCompile spockDependencies
 

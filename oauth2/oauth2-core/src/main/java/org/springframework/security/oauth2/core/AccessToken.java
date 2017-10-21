@@ -19,11 +19,10 @@ import org.springframework.util.Assert;
 
 import java.time.Instant;
 import java.util.Collections;
-import java.util.Map;
 import java.util.Set;
 
 /**
- * An implementation of an {@link AbstractToken} representing an <i>OAuth 2.0 Access Token</i>.
+ * An implementation of a {@link SecurityToken} representing an <i>OAuth 2.0 Access Token</i>.
  *
  * <p>
  * An access token is a credential that represents an authorization
@@ -35,16 +34,35 @@ import java.util.Set;
  * @since 5.0
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-1.4">Section 1.4 Access Token</a>
  */
-public class AccessToken extends AbstractToken {
+public class AccessToken extends SecurityToken {
 	private final TokenType tokenType;
 	private final Set<String> scopes;
-	private final Map<String,Object> additionalParameters;
+
+	public AccessToken(TokenType tokenType, String tokenValue, Instant issuedAt, Instant expiresAt) {
+		this(tokenType, tokenValue, issuedAt, expiresAt, Collections.emptySet());
+	}
+
+	public AccessToken(TokenType tokenType, String tokenValue, Instant issuedAt, Instant expiresAt, Set<String> scopes) {
+		super(tokenValue, issuedAt, expiresAt);
+		Assert.notNull(tokenType, "tokenType cannot be null");
+		this.tokenType = tokenType;
+		this.scopes = Collections.unmodifiableSet(
+			scopes != null ? scopes : Collections.emptySet());
+	}
+
+	public TokenType getTokenType() {
+		return this.tokenType;
+	}
+
+	public Set<String> getScopes() {
+		return this.scopes;
+	}
 
 	public static final class TokenType {
 		public static final TokenType BEARER = new TokenType("Bearer");
 		private final String value;
 
-		public TokenType(String value) {
+		private TokenType(String value) {
 			Assert.hasText(value, "value cannot be empty");
 			this.value = value;
 		}
@@ -69,37 +87,5 @@ public class AccessToken extends AbstractToken {
 		public int hashCode() {
 			return this.getValue().hashCode();
 		}
-	}
-
-	public AccessToken(TokenType tokenType, String tokenValue, Instant issuedAt, Instant expiresAt) {
-		this(tokenType, tokenValue, issuedAt, expiresAt, Collections.emptySet());
-	}
-
-	public AccessToken(TokenType tokenType, String tokenValue, Instant issuedAt, Instant expiresAt, Set<String> scopes) {
-		this(tokenType, tokenValue, issuedAt, expiresAt, scopes, Collections.emptyMap());
-	}
-
-	public AccessToken(TokenType tokenType, String tokenValue, Instant issuedAt, Instant expiresAt,
-						Set<String> scopes, Map<String,Object> additionalParameters) {
-
-		super(tokenValue, issuedAt, expiresAt);
-		Assert.notNull(tokenType, "tokenType cannot be null");
-		this.tokenType = tokenType;
-		this.scopes = Collections.unmodifiableSet(
-			scopes != null ? scopes : Collections.emptySet());
-		this.additionalParameters = Collections.unmodifiableMap(
-			additionalParameters != null ? additionalParameters : Collections.emptyMap());
-	}
-
-	public TokenType getTokenType() {
-		return this.tokenType;
-	}
-
-	public Set<String> getScopes() {
-		return this.scopes;
-	}
-
-	public Map<String, Object> getAdditionalParameters() {
-		return additionalParameters;
 	}
 }

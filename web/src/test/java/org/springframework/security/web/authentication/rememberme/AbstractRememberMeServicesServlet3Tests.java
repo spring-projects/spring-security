@@ -67,7 +67,7 @@ public class AbstractRememberMeServicesServlet3Tests {
 		MockRememberMeServices services = new MockRememberMeServices();
 		services.setCookie(new String[] { "mycookie" }, 1000, request, response);
 		verify(response).addCookie(cookie.capture());
-		verifyStatic();
+		verifyStatic(ReflectionUtils.class);
 		ReflectionUtils.invokeMethod(same(method), eq(cookie.getValue()), eq(true));
 	}
 
@@ -81,7 +81,7 @@ public class AbstractRememberMeServicesServlet3Tests {
 				mock(UserDetailsService.class));
 		services.setCookie(new String[] { "mycookie" }, 1000, request, response);
 		verify(response).addCookie(cookie.capture());
-		verifyStatic();
+		verifyStatic(ReflectionUtils.class);
 		ReflectionUtils.invokeMethod(same(method), eq(cookie.getValue()), eq(true));
 	}
 }

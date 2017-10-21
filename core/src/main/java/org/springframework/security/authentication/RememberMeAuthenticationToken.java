@@ -120,4 +120,10 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken {
 		return false;
 	}
 
+	@Override
+	public int hashCode() {
+		int result = super.hashCode();
+		result = 31 * result + this.keyHash;
+		return result;
+	}
 }

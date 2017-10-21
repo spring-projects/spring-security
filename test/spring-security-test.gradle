@@ -13,8 +13,9 @@ dependencies {
 	provided 'javax.servlet:javax.servlet-api'
 
 	testCompile 'com.fasterxml.jackson.core:jackson-databind'
+	testCompile 'io.projectreactor:reactor-test'
 	testCompile 'org.skyscreamer:jsonassert'
 	testCompile 'org.springframework:spring-webmvc'
 	testCompile 'org.springframework:spring-tx'
-	testCompile powerMockDependencies
+	testCompile powerMock2Dependencies
 }

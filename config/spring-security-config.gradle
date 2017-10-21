@@ -4,7 +4,6 @@ apply plugin: 'trang'
 dependencies {
 	// NB: Don't add other compile time dependencies to the config module as this breaks tooling
 	compile project(':spring-security-core')
-	compile 'aopalliance:aopalliance:1.0'
 	compile 'org.springframework:spring-aop'
 	compile 'org.springframework:spring-beans'
 	compile 'org.springframework:spring-context'
@@ -16,12 +15,13 @@ dependencies {
 	optional project(':spring-security-jwt-jose')
 	optional project(':spring-security-openid')
 	optional project(':spring-security-web')
-	optional project(':spring-security-webflux')
+	optional 'io.projectreactor:reactor-core'
 	optional 'org.aspectj:aspectjweaver'
 	optional 'org.springframework:spring-jdbc'
 	optional 'org.springframework:spring-tx'
 	optional 'org.springframework:spring-webmvc'
 	optional'org.springframework:spring-web'
+	optional'org.springframework:spring-webflux'
 	optional'org.springframework:spring-websocket'
 
 	provided 'javax.servlet:javax.servlet-api'
@@ -29,18 +29,29 @@ dependencies {
 	testCompile project(':spring-security-aspects')
 	testCompile project(':spring-security-cas')
 	testCompile project(path : ':spring-security-core', configuration : 'tests')
-	testCompile project(path : ':spring-security-webflux', configuration : 'tests')
+	testCompile project(path : ':spring-security-web', configuration : 'tests')
 	testCompile apachedsDependencies
-	testCompile powerMockDependencies
+	testCompile powerMock2Dependencies
 	testCompile spockDependencies
+	testCompile 'ch.qos.logback:logback-classic'
 	testCompile 'javax.annotation:jsr250-api:1.0'
 	testCompile 'ldapsdk:ldapsdk:4.1'
+	testCompile('net.sourceforge.htmlunit:htmlunit') {
+		exclude group: 'commons-logging', module: 'commons-logging'
+	}
 	testCompile 'org.codehaus.groovy:groovy-all'
 	testCompile 'org.eclipse.persistence:javax.persistence'
 	testCompile 'org.hibernate:hibernate-entitymanager'
 	testCompile 'org.hsqldb:hsqldb'
 	testCompile ('org.openid4java:openid4java-nodeps') {
 		exclude group: 'com.google.code.guice', module: 'guice'
+	}
+	testCompile('org.seleniumhq.selenium:htmlunit-driver') {
+		exclude group: 'commons-logging', module: 'commons-logging'
+	}
+	testCompile('org.seleniumhq.selenium:selenium-java') {
+		exclude group: 'commons-logging', module: 'commons-logging'
+		exclude group: 'io.netty', module: 'netty'
 	}
 	testCompile 'org.slf4j:jcl-over-slf4j'
 	testCompile 'org.springframework.ldap:spring-ldap-core'

@@ -51,6 +51,7 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
  * @author Rob Winch
  */
 abstract class BaseSpringSpec extends Specification {
+	boolean allowCircularReferences = false
 	@AutoCleanup
 	ConfigurableApplicationContext context
 	@AutoCleanup
@@ -89,6 +90,7 @@ abstract class BaseSpringSpec extends Specification {
 
 	def loadConfig(Class<?>... configs) {
 		context = new AnnotationConfigWebApplicationContext()
+		context.setAllowCircularReferences(allowCircularReferences)
 		context.register(configs)
 		context.setServletContext(new MockServletContext())
 		context.refresh()

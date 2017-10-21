@@ -62,6 +62,8 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer;
+import org.springframework.security.oauth2.client.authentication.AuthorizationGrantTokenExchanger;
+import org.springframework.security.oauth2.client.web.AuthorizationRequestUriBuilder;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.PortMapper;
 import org.springframework.security.web.PortMapperImpl;
@@ -604,7 +606,7 @@ public final class HttpSecurity extends
 	 * 	&#064;Override
 	 * 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 	 * 		auth.inMemoryAuthentication().withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;)
-	 * 				.and().withUser(&quot;adminr&quot;).password(&quot;password&quot;).roles(&quot;ADMIN&quot;, &quot;USER&quot;);
+	 * 				.and().withUser(&quot;admin&quot;).password(&quot;password&quot;).roles(&quot;ADMIN&quot;, &quot;USER&quot;);
 	 * 	}
 	 * }
 	 * </pre>
@@ -627,7 +629,7 @@ public final class HttpSecurity extends
 	 * 	&#064;Override
 	 * 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 	 * 		auth.inMemoryAuthentication().withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;)
-	 * 				.and().withUser(&quot;adminr&quot;).password(&quot;password&quot;).roles(&quot;ADMIN&quot;, &quot;USER&quot;);
+	 * 				.and().withUser(&quot;admin&quot;).password(&quot;password&quot;).roles(&quot;ADMIN&quot;, &quot;USER&quot;);
 	 * 	}
 	 * }
 	 * </pre>
@@ -943,7 +945,7 @@ public final class HttpSecurity extends
 	 *
 	 * <p>
 	 * At this point in the <i>&quot;authentication flow&quot;</i>, the configured
-	 * {@link org.springframework.security.oauth2.client.authentication.AuthorizationGrantTokenExchanger}
+	 * {@link AuthorizationGrantTokenExchanger}
 	 * will exchange the <i>Authorization Code</i> for an <i>Access Token</i> and then use it to access the protected resource
 	 * at the <i>UserInfo Endpoint</i> (via {@link org.springframework.security.oauth2.client.user.OAuth2UserService})
 	 * in order to retrieve the details of the <i>Resource Owner</i> (end-user) and establish the <i>&quot;authenticated&quot;</i> session.
@@ -989,7 +991,7 @@ public final class HttpSecurity extends
 	 * 				.and()
 	 * 			.oauth2Login()
 	 * 				.clients(this.clientRegistrationRepository())
-	 * 				.authorizationRequestBuilder(this.authorizationRequestBuilder())
+	 * 				.authorizationRequestUriBuilder(this.authorizationRequestUriBuilder())
 	 * 				.authorizationCodeTokenExchanger(this.authorizationCodeTokenExchanger())
 	 * 				.userInfoEndpoint()
 	 * 					.userInfoService(this.userInfoService())
@@ -1006,7 +1008,7 @@ public final class HttpSecurity extends
 	 *	}
 	 *
 	 * 	&#064;Bean
-	 * 	public AuthorizationRequestUriBuilder authorizationRequestBuilder() {
+	 * 	public AuthorizationRequestUriBuilder authorizationRequestUriBuilder() {
 	 * 		// Custom URI builder for the &quot;Authorization Request&quot;
 	 * 		return new AuthorizationRequestUriBuilderImpl();
 	 * 	}
@@ -1038,8 +1040,8 @@ public final class HttpSecurity extends
 	 * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.2">Section 4.1.2 Authorization Response</a>
 	 * @see org.springframework.security.oauth2.client.registration.ClientRegistration
 	 * @see org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
-	 * @see org.springframework.security.oauth2.client.authentication.AuthorizationRequestUriBuilder
-	 * @see org.springframework.security.oauth2.client.authentication.AuthorizationGrantTokenExchanger
+	 * @see AuthorizationRequestUriBuilder
+	 * @see AuthorizationGrantTokenExchanger
 	 * @see org.springframework.security.oauth2.client.user.OAuth2UserService
 	 *
 	 * @return the {@link OAuth2LoginConfigurer} for further customizations

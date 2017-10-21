@@ -32,10 +32,12 @@ import org.springframework.security.core.parameters.AnnotationParameterNameDisco
  *
  * @author Rob Winch
  * @since 3.2
+ * @deprecated use @{code org.springframework.security.core.parameters.P}
  */
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
+@Deprecated
 public @interface P {
 
 	/**

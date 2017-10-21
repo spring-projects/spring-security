@@ -15,9 +15,11 @@
  */
 package org.springframework.security.oauth2.client.authentication;
 
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.endpoint.AuthorizationExchange;
+import org.springframework.security.oauth2.core.endpoint.AuthorizationRequest;
+import org.springframework.security.oauth2.core.endpoint.AuthorizationResponse;
 import org.springframework.util.Assert;
 
 /**
@@ -28,36 +30,40 @@ import org.springframework.util.Assert;
  * @since 5.0
  * @see AuthorizationGrantAuthenticationToken
  * @see ClientRegistration
+ * @see AuthorizationRequest
+ * @see AuthorizationResponse
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-1.3.1">Section 1.3.1 Authorization Code Grant</a>
  */
 public class AuthorizationCodeAuthenticationToken extends AuthorizationGrantAuthenticationToken {
-	private final String authorizationCode;
 	private final ClientRegistration clientRegistration;
+	private final AuthorizationExchange authorizationExchange;
 
-	public AuthorizationCodeAuthenticationToken(String authorizationCode, ClientRegistration clientRegistration) {
-		super(AuthorizationGrantType.AUTHORIZATION_CODE, AuthorityUtils.NO_AUTHORITIES);
-		Assert.hasText(authorizationCode, "authorizationCode cannot be empty");
+	public AuthorizationCodeAuthenticationToken(ClientRegistration clientRegistration,
+												AuthorizationExchange authorizationExchange) {
+
+		super(AuthorizationGrantType.AUTHORIZATION_CODE);
 		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
-		this.authorizationCode = authorizationCode;
+		Assert.notNull(authorizationExchange, "authorizationExchange cannot be null");
 		this.clientRegistration = clientRegistration;
+		this.authorizationExchange = authorizationExchange;
 		this.setAuthenticated(false);
 	}
 
 	@Override
 	public Object getPrincipal() {
-		return null;
+		return "";
 	}
 
 	@Override
 	public Object getCredentials() {
-		return this.getAuthorizationCode();
-	}
-
-	public String getAuthorizationCode() {
-		return this.authorizationCode;
+		return "";
 	}
 
 	public ClientRegistration getClientRegistration() {
 		return this.clientRegistration;
+	}
+
+	public AuthorizationExchange getAuthorizationExchange() {
+		return this.authorizationExchange;
 	}
 }

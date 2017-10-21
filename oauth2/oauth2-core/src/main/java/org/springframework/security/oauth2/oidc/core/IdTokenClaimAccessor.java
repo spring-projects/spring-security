@@ -19,6 +19,7 @@ import org.springframework.security.oauth2.core.ClaimAccessor;
 
 import java.net.URL;
 import java.time.Instant;
+import java.util.List;
 
 /**
  * A {@link ClaimAccessor} for the &quot;Claims&quot; that can be returned in the <i>ID Token</i>
@@ -44,9 +45,8 @@ public interface IdTokenClaimAccessor extends StandardClaimAccessor {
 		return this.getClaimAsString(IdTokenClaim.SUB);
 	}
 
-	default String[] getAudience() {
-		// TODO Impl IdTokenClaim.AUD
-		return null;
+	default List<String> getAudience() {
+		return this.getClaimAsStringList(IdTokenClaim.AUD);
 	}
 
 	default Instant getExpiresAt() {
@@ -69,9 +69,8 @@ public interface IdTokenClaimAccessor extends StandardClaimAccessor {
 		return this.getClaimAsString(IdTokenClaim.ACR);
 	}
 
-	default String[] getAuthenticationMethods() {
-		// TODO Impl IdTokenClaim.AMR
-		return null;
+	default List<String> getAuthenticationMethods() {
+		return this.getClaimAsStringList(IdTokenClaim.AMR);
 	}
 
 	default String getAuthorizedParty() {

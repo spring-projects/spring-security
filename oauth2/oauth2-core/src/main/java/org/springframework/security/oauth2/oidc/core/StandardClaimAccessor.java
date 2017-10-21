@@ -16,8 +16,10 @@
 package org.springframework.security.oauth2.oidc.core;
 
 import org.springframework.security.oauth2.core.ClaimAccessor;
+import org.springframework.util.CollectionUtils;
 
 import java.time.Instant;
+import java.util.Map;
 
 /**
  * A {@link ClaimAccessor} for the &quot;Standard Claims&quot; that can be returned
@@ -27,7 +29,6 @@ import java.time.Instant;
  * @see StandardClaim
  * @see UserInfo
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#UserInfoResponse">UserInfo Response</a>
- * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#IDToken">ID Token</a>
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#StandardClaims">Standard Claims</a>
  * @author Joe Grandja
  * @since 5.0
@@ -107,12 +108,13 @@ public interface StandardClaimAccessor extends ClaimAccessor {
 	}
 
 	default Address getAddress() {
-		// TODO Impl StandardClaim.ADDRESS
-		return null;
+		Map<String, Object> addressFields = this.getClaimAsMap(StandardClaim.ADDRESS);
+		return (!CollectionUtils.isEmpty(addressFields) ?
+			new DefaultAddress.Builder(addressFields).build() :
+			new DefaultAddress.Builder().build());
 	}
 
 	default Instant getUpdatedAt() {
 		return this.getClaimAsInstant(StandardClaim.UPDATED_AT);
 	}
-
 }

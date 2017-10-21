@@ -25,7 +25,7 @@ import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.messaging.Message;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -100,7 +100,6 @@ public class AndMessageMatcherTest {
 	@Test
 	public void matchesMultiBothFalse() {
 		when(delegate.matches(message)).thenReturn(false);
-		when(delegate2.matches(message)).thenReturn(false);
 		matcher = new AndMessageMatcher<Object>(delegate, delegate2);
 
 		assertThat(matcher.matches(message)).isFalse();

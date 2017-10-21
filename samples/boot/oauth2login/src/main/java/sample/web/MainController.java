@@ -17,16 +17,18 @@ package sample.web;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.client.authentication.userinfo.OAuth2UserAuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -34,34 +36,38 @@ import java.util.Map;
  */
 @Controller
 public class MainController {
-	private WebClient webClient = WebClient.create();
-
 
 	@RequestMapping("/")
-	public String index(Model model, @AuthenticationPrincipal OAuth2User user, OAuth2AuthenticationToken authentication) {
+	public String index(Model model, @AuthenticationPrincipal OAuth2User user, OAuth2UserAuthenticationToken authentication) {
 		model.addAttribute("userName", user.getName());
-		model.addAttribute("clientName", authentication.getClientRegistration().getClientName());
+		model.addAttribute("clientName", authentication.getClientAuthentication().getClientRegistration().getClientName());
 		return "index";
 	}
 
 	@RequestMapping("/userinfo")
-	public String userinfo(Model model, OAuth2AuthenticationToken authentication) {
-		Map userAttributes = this.webClient
-			.filter(oauth2Credentials(authentication))
-			.get()
-			.uri(authentication.getClientRegistration().getProviderDetails().getUserInfoUri())
-			.retrieve()
-			.bodyToMono(Map.class)
-			.block();
+	public String userinfo(Model model, OAuth2UserAuthenticationToken authentication) {
+		Map userAttributes = Collections.emptyMap();
+		String userInfoEndpointUri = authentication.getClientAuthentication().getClientRegistration()
+			.getProviderDetails().getUserInfoEndpoint().getUri();
+		if (!StringUtils.isEmpty(userInfoEndpointUri)) {	// userInfoEndpointUri is optional for OIDC Clients
+			userAttributes = WebClient.builder()
+				.filter(oauth2Credentials(authentication))
+				.build()
+				.get()
+				.uri(userInfoEndpointUri)
+				.retrieve()
+				.bodyToMono(Map.class)
+				.block();
+		}
 		model.addAttribute("userAttributes", userAttributes);
 		return "userinfo";
 	}
 
-	private ExchangeFilterFunction oauth2Credentials(OAuth2AuthenticationToken authentication) {
+	private ExchangeFilterFunction oauth2Credentials(OAuth2UserAuthenticationToken authentication) {
 		return ExchangeFilterFunction.ofRequestProcessor(
 			clientRequest -> {
 				ClientRequest authorizedRequest = ClientRequest.from(clientRequest)
-					.header(HttpHeaders.AUTHORIZATION, "Bearer " + authentication.getAccessToken().getTokenValue())
+					.header(HttpHeaders.AUTHORIZATION, "Bearer " + authentication.getClientAuthentication().getAccessToken().getTokenValue())
 					.build();
 				return Mono.just(authorizedRequest);
 			});

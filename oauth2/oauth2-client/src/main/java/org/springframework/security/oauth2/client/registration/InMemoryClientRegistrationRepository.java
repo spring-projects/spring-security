@@ -18,45 +18,46 @@ package org.springframework.security.oauth2.client.registration;
 import org.springframework.util.Assert;
 
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * A basic implementation of a {@link ClientRegistrationRepository} that accepts
- * a <code>List</code> of {@link ClientRegistration}(s) via it's constructor and stores it <i>in-memory</i>.
+ * A {@link ClientRegistrationRepository} that stores {@link ClientRegistration}(s) <i>in-memory</i>.
  *
  * @author Joe Grandja
  * @since 5.0
+ * @see ClientRegistrationRepository
  * @see ClientRegistration
  */
-public final class InMemoryClientRegistrationRepository implements ClientRegistrationRepository {
-	private final List<ClientRegistration> clientRegistrations;
+public final class InMemoryClientRegistrationRepository implements ClientRegistrationRepository, Iterable<ClientRegistration> {
+	private final Map<String, ClientRegistration> registrations;
 
-	public InMemoryClientRegistrationRepository(List<ClientRegistration> clientRegistrations) {
-		Assert.notEmpty(clientRegistrations, "clientRegistrations cannot be empty");
-		this.clientRegistrations = Collections.unmodifiableList(clientRegistrations);
+	public InMemoryClientRegistrationRepository(List<ClientRegistration> registrations) {
+		Assert.notEmpty(registrations, "registrations cannot be empty");
+		Map<String, ClientRegistration> registrationsMap = new ConcurrentHashMap<>();
+		registrations.forEach(registration -> {
+			if (registrationsMap.containsKey(registration.getRegistrationId())) {
+				throw new IllegalArgumentException("ClientRegistration must be unique. Found duplicate registrationId: " +
+					registration.getRegistrationId());
+			}
+			registrationsMap.put(registration.getRegistrationId(), registration);
+		});
+		this.registrations = Collections.unmodifiableMap(registrationsMap);
 	}
 
 	@Override
-	public ClientRegistration getRegistrationByClientId(String clientId) {
-		Optional<ClientRegistration> clientRegistration =
-				this.clientRegistrations.stream()
-				.filter(c -> c.getClientId().equals(clientId))
-				.findFirst();
-		return clientRegistration.isPresent() ? clientRegistration.get() : null;
+	public ClientRegistration findByRegistrationId(String registrationId) {
+		Assert.hasText(registrationId, "registrationId cannot be empty");
+		return this.registrations.values().stream()
+			.filter(registration -> registration.getRegistrationId().equals(registrationId))
+			.findFirst()
+			.orElse(null);
 	}
 
 	@Override
-	public ClientRegistration getRegistrationByClientAlias(String clientAlias) {
-		Optional<ClientRegistration> clientRegistration =
-				this.clientRegistrations.stream()
-						.filter(c -> c.getClientAlias().equals(clientAlias))
-						.findFirst();
-		return clientRegistration.isPresent() ? clientRegistration.get() : null;
-	}
-
-	@Override
-	public List<ClientRegistration> getRegistrations() {
-		return this.clientRegistrations;
+	public Iterator<ClientRegistration> iterator() {
+		return Collections.unmodifiableCollection(this.registrations.values()).iterator();
 	}
 }

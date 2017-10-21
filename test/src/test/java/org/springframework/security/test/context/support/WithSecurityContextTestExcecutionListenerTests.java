@@ -28,7 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -75,7 +75,6 @@ public class WithSecurityContextTestExcecutionListenerTests {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void beforeTestMethodNullSecurityContextNoError() throws Exception {
 		Class testClass = FakeTest.class;
-		when(testContext.getApplicationContext()).thenReturn(context);
 		when(testContext.getTestClass()).thenReturn(testClass);
 		when(testContext.getTestMethod()).thenReturn(
 				ReflectionUtils.findMethod(testClass, "testNoAnnotation"));
@@ -88,7 +87,6 @@ public class WithSecurityContextTestExcecutionListenerTests {
 	public void beforeTestMethodNoApplicationContext() throws Exception {
 		Class testClass = FakeTest.class;
 		when(testContext.getApplicationContext()).thenThrow(new IllegalStateException());
-		when(testContext.getTestClass()).thenReturn(testClass);
 		when(testContext.getTestMethod()).thenReturn(
 				ReflectionUtils.findMethod(testClass, "testWithMockUser"));
 

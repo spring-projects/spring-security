@@ -15,7 +15,10 @@
  */
 package org.springframework.security.oauth2.core;
 
+import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.Assert;
+
+import java.io.Serializable;
 
 /**
  * An authorization grant is a credential representing the resource owner's authorization
@@ -26,15 +29,14 @@ import org.springframework.util.Assert;
  * authorization code, implicit, resource owner password credentials, and client credentials.
  * It also provides an extensibility mechanism for defining additional grant types.
  *
- * <p>
- * <b>NOTE:</b> &quot;authorization code&quot; is currently the only supported grant type.
- *
  * @author Joe Grandja
  * @since 5.0
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-1.3">Section 1.3 Authorization Grant</a>
  */
-public final class AuthorizationGrantType {
+public final class AuthorizationGrantType implements Serializable {
+	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 	public static final AuthorizationGrantType AUTHORIZATION_CODE = new AuthorizationGrantType("authorization_code");
+	public static final AuthorizationGrantType IMPLICIT = new AuthorizationGrantType("implicit");
 	private final String value;
 
 	public AuthorizationGrantType(String value) {

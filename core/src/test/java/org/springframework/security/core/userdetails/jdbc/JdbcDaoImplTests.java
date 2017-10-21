@@ -212,6 +212,6 @@ public class JdbcDaoImplTests {
 
 		dao.getMessages().getMessage(code);
 
-		verify(source).getMessage(eq(code), any(Object[].class), any(Locale.class));
+		verify(source).getMessage(eq(code), any(), any());
 	}
 }

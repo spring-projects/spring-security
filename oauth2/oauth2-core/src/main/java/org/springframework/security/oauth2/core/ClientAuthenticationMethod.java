@@ -18,7 +18,7 @@ package org.springframework.security.oauth2.core;
 import org.springframework.util.Assert;
 
 /**
- * The available authentication methods used when authenticating the client with the authorization server.
+ * The authentication methods used when authenticating the client with the authorization server.
  *
  * @author Joe Grandja
  * @since 5.0

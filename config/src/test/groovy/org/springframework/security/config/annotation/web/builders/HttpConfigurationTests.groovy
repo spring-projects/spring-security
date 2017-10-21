@@ -40,7 +40,7 @@ import spock.lang.Unroll;
  * @author Rob Winch
  *
  */
-public class HttpSecurityTests extends BaseSpringSpec {
+public class HttpConfigurationTests extends BaseSpringSpec {
 	def "addFilter with unregistered Filter"() {
 		when:
 			loadConfig(UnregisteredFilterConfig)

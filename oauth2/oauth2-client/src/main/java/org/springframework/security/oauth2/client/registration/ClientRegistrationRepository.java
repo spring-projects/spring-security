@@ -15,17 +15,15 @@
  */
 package org.springframework.security.oauth2.client.registration;
 
-import java.util.List;
-
 /**
- * Implementations of this interface are responsible for the management of {@link ClientRegistration}'s.
+ * A repository for OAuth 2.0 / OpenID Connect 1.0 {@link ClientRegistration}'s.
  *
  * <p>
- * The <i>primary</i> client registration information is stored with the associated <i>Authorization Server</i>.
- * However, there may be uses cases where <i>secondary</i> information may need to be managed
- * that is not supported (or provided) by the <i>Authorization Server</i>.
- * This interface provides this capability for managing the <i>primary</i> and <i>secondary</i>
- * information of a client registration.
+ * <b>NOTE:</b> The client registration information is ultimately stored and owned
+ * by the associated <i>Authorization Server</i>.
+ * Therefore, this repository provides the capability to store a sub-set copy
+ * of the <i>primary</i> client registration information
+ * externally from the <i>Authorization Server</i>.
  *
  * @author Joe Grandja
  * @since 5.0
@@ -33,10 +31,6 @@ import java.util.List;
  */
 public interface ClientRegistrationRepository {
 
-	ClientRegistration getRegistrationByClientId(String clientId);
-
-	ClientRegistration getRegistrationByClientAlias(String clientAlias);
-
-	List<ClientRegistration> getRegistrations();
+	ClientRegistration findByRegistrationId(String registrationId);
 
 }

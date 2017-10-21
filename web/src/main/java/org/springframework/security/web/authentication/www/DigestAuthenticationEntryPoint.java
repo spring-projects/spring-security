@@ -27,6 +27,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.Ordered;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 
@@ -109,8 +110,8 @@ public class DigestAuthenticationEntryPoint implements AuthenticationEntryPoint,
 		}
 
 		httpResponse.addHeader("WWW-Authenticate", authenticateHeader);
-		httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED,
-				authException.getMessage());
+		httpResponse.sendError(HttpStatus.UNAUTHORIZED.value(),
+			HttpStatus.UNAUTHORIZED.getReasonPhrase());
 	}
 
 	public String getKey() {

@@ -23,6 +23,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 import org.aopalliance.aop.Advice;
+import org.aopalliance.intercept.MethodInterceptor;
 import org.springframework.aop.Pointcut;
 import org.springframework.aop.support.AbstractPointcutAdvisor;
 import org.springframework.aop.support.StaticMethodMatcherPointcut;
@@ -34,10 +35,10 @@ import org.springframework.util.Assert;
 
 /**
  * Advisor driven by a {@link MethodSecurityMetadataSource}, used to exclude a
- * {@link MethodSecurityInterceptor} from public (non-secure) methods.
+ * {@link MethodInterceptor} from public (non-secure) methods.
  * <p>
  * Because the AOP framework caches advice calculations, this is normally faster than just
- * letting the <code>MethodSecurityInterceptor</code> run and find out itself that it has
+ * letting the <code>MethodInterceptor</code> run and find out itself that it has
  * no work to do.
  * <p>
  * This class also allows the use of Spring's {@code DefaultAdvisorAutoProxyCreator},
@@ -56,7 +57,7 @@ public class MethodSecurityMetadataSourceAdvisor extends AbstractPointcutAdvisor
 	// ================================================================================================
 
 	private transient MethodSecurityMetadataSource attributeSource;
-	private transient MethodSecurityInterceptor interceptor;
+	private transient MethodInterceptor interceptor;
 	private final Pointcut pointcut = new MethodSecurityMetadataSourcePointcut();
 	private BeanFactory beanFactory;
 	private final String adviceBeanName;
@@ -106,7 +107,7 @@ public class MethodSecurityMetadataSourceAdvisor extends AbstractPointcutAdvisor
 				Assert.state(beanFactory != null,
 						"BeanFactory must be set to resolve 'adviceBeanName'");
 				interceptor = beanFactory.getBean(this.adviceBeanName,
-						MethodSecurityInterceptor.class);
+					MethodInterceptor.class);
 			}
 			return interceptor;
 		}

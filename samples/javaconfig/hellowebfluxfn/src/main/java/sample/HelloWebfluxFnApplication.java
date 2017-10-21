@@ -53,16 +53,16 @@ public class HelloWebfluxFnApplication {
 	@Bean
 	public NettyContext nettyContext(HttpHandler handler) {
 		ReactorHttpHandlerAdapter adapter = new ReactorHttpHandlerAdapter(handler);
-		HttpServer httpServer = HttpServer.create("localhost", port);
+		HttpServer httpServer = HttpServer.create("localhost", this.port);
 		return httpServer.newHandler(adapter).block();
 	}
 
 	@Bean
-	public RouterFunction<ServerResponse> routes(UserController userController) {
+	public RouterFunction<ServerResponse> routes(HelloUserController userController) {
 		return route(
-			GET("/principal"), userController::principal).andRoute(
-			GET("/admin"), userController::admin);
+			GET("/"), userController::hello);
 	}
+
 	@Bean
 	public HttpHandler httpHandler(RouterFunction<ServerResponse> routes, WebFilter springSecurityFilterChain) {
 		HandlerStrategies handlerStrategies = HandlerStrategies.builder()

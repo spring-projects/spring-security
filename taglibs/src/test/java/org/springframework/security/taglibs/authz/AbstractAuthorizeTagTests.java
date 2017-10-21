@@ -79,7 +79,7 @@ public class AbstractAuthorizeTagTests {
 
 		tag.authorizeUsingUrlCheck();
 
-		verify(expected).isAllowed(eq(""), eq(uri), eq("GET"), any(Authentication.class));
+		verify(expected).isAllowed(eq(""), eq(uri), eq("GET"), any());
 	}
 
 	@Test
@@ -93,7 +93,7 @@ public class AbstractAuthorizeTagTests {
 
 		tag.authorizeUsingUrlCheck();
 
-		verify(expected).isAllowed(eq(""), eq(uri), eq("GET"), any(Authentication.class));
+		verify(expected).isAllowed(eq(""), eq(uri), eq("GET"), any());
 	}
 
 	@Test

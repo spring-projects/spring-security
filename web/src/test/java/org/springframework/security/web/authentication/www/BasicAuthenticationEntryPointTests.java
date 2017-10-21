@@ -18,6 +18,7 @@ package org.springframework.security.web.authentication.www;
 
 import org.junit.Test;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.DisabledException;
@@ -65,11 +66,10 @@ public class BasicAuthenticationEntryPointTests {
 
 		// ep.afterPropertiesSet();
 
-		String msg = "These are the jokes kid";
-		ep.commence(request, response, new DisabledException(msg));
+		ep.commence(request, response, new DisabledException("These are the jokes kid"));
 
 		assertThat(response.getStatus()).isEqualTo(401);
-		assertThat(response.getErrorMessage()).isEqualTo(msg);
+		assertThat(response.getErrorMessage()).isEqualTo(HttpStatus.UNAUTHORIZED.getReasonPhrase());
 
 		assertThat(response.getHeader("WWW-Authenticate"))
 				.isEqualTo("Basic realm=\"hello\"");

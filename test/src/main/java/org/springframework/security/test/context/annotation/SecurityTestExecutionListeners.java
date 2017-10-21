@@ -23,6 +23,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.springframework.context.ApplicationContext;
+import org.springframework.security.test.context.support.ReactorContextTestExecutionListener;
 import org.springframework.security.test.context.support.WithSecurityContextTestExecutionListener;
 import org.springframework.test.context.TestExecutionListeners;
 
@@ -40,6 +41,7 @@ import org.springframework.test.context.TestExecutionListeners;
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-@TestExecutionListeners(inheritListeners = false, listeners = WithSecurityContextTestExecutionListener.class)
+@TestExecutionListeners(inheritListeners = false, listeners = {WithSecurityContextTestExecutionListener.class,
+	ReactorContextTestExecutionListener.class})
 public @interface SecurityTestExecutionListeners {
 }

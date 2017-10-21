@@ -67,7 +67,7 @@ public class CookieCsrfTokenRepositoryServlet3Tests {
 		repository.saveToken(token, request, response);
 
 		verify(response).addCookie(cookie.capture());
-		verifyStatic();
+		verifyStatic(ReflectionUtils.class);
 		ReflectionUtils.invokeMethod(same(this.method), eq(cookie.getValue()), eq(true));
 	}
 
@@ -88,7 +88,7 @@ public class CookieCsrfTokenRepositoryServlet3Tests {
 		repository.saveToken(token, request, response);
 
 		verify(response).addCookie(cookie.capture());
-		verifyStatic(never());
+		verifyStatic(ReflectionUtils.class, never());
 		ReflectionUtils.invokeMethod(same(this.method), eq(cookie.getValue()), eq(true));
 	}
 

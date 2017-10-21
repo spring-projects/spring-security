@@ -8,7 +8,6 @@ configurations {
 }
 
 dependencies {
-	compile 'aopalliance:aopalliance'
 	compile 'org.springframework:spring-aop'
 	compile 'org.springframework:spring-beans'
 	compile 'org.springframework:spring-context'
@@ -25,7 +24,7 @@ dependencies {
 	optional 'org.springframework:spring-jdbc'
 	optional 'org.springframework:spring-tx'
 
-	testCompile powerMockDependencies
+	testCompile powerMock2Dependencies
 	testCompile 'commons-collections:commons-collections'
 	testCompile 'io.projectreactor:reactor-test'
 	testCompile 'org.skyscreamer:jsonassert'
@@ -38,7 +37,7 @@ dependencies {
 classes.doLast {
 	copy {
 		from includeProject.sourceSets.main.output
-		into sourceSets.main.output.classesDir
+		into sourceSets.main.java.outputDir
 	}
 }
 

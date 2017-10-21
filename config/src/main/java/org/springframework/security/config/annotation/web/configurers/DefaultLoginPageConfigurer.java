@@ -19,6 +19,9 @@ import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
+import org.springframework.security.web.csrf.CsrfToken;
+
+import java.util.Collections;
 
 /**
  * Adds a Filter that will generate a login page if one is not specified otherwise when
@@ -65,6 +68,13 @@ public final class DefaultLoginPageConfigurer<H extends HttpSecurityBuilder<H>> 
 
 	@Override
 	public void init(H http) throws Exception {
+		this.loginPageGeneratingFilter.setResolveHiddenInputs( request -> {
+			CsrfToken token = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+			if(token == null) {
+				return Collections.emptyMap();
+			}
+			return Collections.singletonMap(token.getParameterName(), token.getToken());
+		});
 		http.setSharedObject(DefaultLoginPageGeneratingFilter.class,
 				loginPageGeneratingFilter);
 	}

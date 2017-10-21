@@ -1,24 +1,21 @@
 apply plugin: 'io.spring.convention.spring-sample-war'
-apply plugin: 'appengine'
+apply plugin: 'com.google.cloud.tools.appengine'
 
 buildscript {
 	repositories {
 		mavenCentral()
 	}
 	dependencies {
-		classpath "com.google.appengine:gradle-appengine-plugin:$gaeVersion"
+		classpath 'com.google.cloud.tools:appengine-gradle-plugin:1.3.3'
 	}
 }
 
-appengine {
-	downloadSdk = true
-}
 
 // Remove logback as it causes security issues with GAE.
 configurations.runtime.exclude(group: 'ch.qos.logback')
 
 dependencies {
-	appengineSdk "com.google.appengine:appengine-java-sdk:$gaeVersion"
+	compile "com.google.appengine:appengine:$gaeVersion"
 
 	compile project(':spring-security-core')
 	compile project(':spring-security-taglibs')

@@ -16,14 +16,9 @@
 package org.springframework.security.oauth2.oidc.core.user;
 
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.security.oauth2.oidc.core.IdToken;
 import org.springframework.security.oauth2.oidc.core.UserInfo;
-
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * A {@link GrantedAuthority} that is associated with an {@link OidcUser}.
@@ -33,7 +28,6 @@ import java.util.stream.Stream;
  * @see OidcUser
  */
 public class OidcUserAuthority extends OAuth2UserAuthority {
-	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 	private final IdToken idToken;
 	private final UserInfo userInfo;
 
@@ -46,16 +40,9 @@ public class OidcUserAuthority extends OAuth2UserAuthority {
 	}
 
 	public OidcUserAuthority(String authority, IdToken idToken, UserInfo userInfo) {
-		super(authority, idToken.getClaims());
+		super(authority, OidcUser.collectClaims(idToken, userInfo));
 		this.idToken = idToken;
 		this.userInfo = userInfo;
-		if (userInfo != null) {
-			this.setAttributes(
-				Stream.of(this.getAttributes(), userInfo.getClaims())
-					.flatMap(m -> m.entrySet().stream())
-					.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (k1, k2) -> k1))
-			);
-		}
 	}
 
 	public IdToken getIdToken() {
@@ -83,7 +70,9 @@ public class OidcUserAuthority extends OAuth2UserAuthority {
 		if (!this.getIdToken().equals(that.getIdToken())) {
 			return false;
 		}
-		return this.getUserInfo() != null ? this.getUserInfo().equals(that.getUserInfo()) : that.getUserInfo() == null;
+		return this.getUserInfo() != null ?
+			this.getUserInfo().equals(that.getUserInfo()) :
+			that.getUserInfo() == null;
 	}
 
 	@Override

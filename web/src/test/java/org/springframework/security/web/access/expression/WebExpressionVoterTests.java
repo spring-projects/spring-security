@@ -72,13 +72,7 @@ public class WebExpressionVoterTests {
 		EvaluationContextPostProcessor postProcessor = mock(
 				EvaluationContextPostProcessor.class);
 		when(postProcessor.postProcess(any(EvaluationContext.class),
-				any(FilterInvocation.class))).thenAnswer(new Answer<EvaluationContext>() {
-
-					public EvaluationContext answer(InvocationOnMock invocation)
-							throws Throwable {
-						return invocation.getArgumentAt(0, EvaluationContext.class);
-					}
-				});
+				any(FilterInvocation.class))).thenAnswer( invocation -> invocation.getArgument(0));
 		WebExpressionConfigAttribute weca = new WebExpressionConfigAttribute(ex,
 				postProcessor);
 		EvaluationContext ctx = mock(EvaluationContext.class);
