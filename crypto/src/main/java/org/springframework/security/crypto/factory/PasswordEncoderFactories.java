@@ -51,15 +51,35 @@ public class PasswordEncoderFactories {
 	 * @return the {@link PasswordEncoder} to use
 	 */
 	public static PasswordEncoder createDelegatingPasswordEncoder() {
-		String encodingId = "bcrypt";
+		return createDelegatingPasswordEncoder("bcrypt");
+	}
+
+	/**
+	 * Creates a {@link DelegatingPasswordEncoder} with default mappings. Additional
+	 * mappings may be added and the encoding will be updated to conform with best
+	 * practices. However, due to the nature of {@link DelegatingPasswordEncoder} the
+	 * updates should not impact users. The mappings current are:
+	 *
+	 * <ul>
+	 * <li>bcrypt - {@link BCryptPasswordEncoder}</li>
+	 * <li>noop - {@link NoOpPasswordEncoder}</li>
+	 * <li>pbkdf2 - {@link Pbkdf2PasswordEncoder}</li>
+	 * <li>scrypt - {@link SCryptPasswordEncoder}</li>
+	 * <li>sha256 - {@link StandardPasswordEncoder}</li>
+	 * </ul>
+	 *
+	 * @param idForEncode the id used to lookup which {@link PasswordEncoder} should be
+	 * used for {@link PasswordEncoder#encode(CharSequence)}
+	 * @return the {@link PasswordEncoder} to use
+	 */
+	public static PasswordEncoder createDelegatingPasswordEncoder(String idForEncode) {
 		Map<String,PasswordEncoder> encoders = new HashMap<>();
-		encoders.put(encodingId, new BCryptPasswordEncoder());
+		encoders.put("bcrypt", new BCryptPasswordEncoder());
 		encoders.put("noop", NoOpPasswordEncoder.getInstance());
 		encoders.put("pbkdf2", new Pbkdf2PasswordEncoder());
 		encoders.put("scrypt", new SCryptPasswordEncoder());
 		encoders.put("sha256", new StandardPasswordEncoder());
-
-		return new DelegatingPasswordEncoder(encodingId, encoders);
+		return new DelegatingPasswordEncoder(idForEncode, encoders);
 	}
 
 	private PasswordEncoderFactories() {}
