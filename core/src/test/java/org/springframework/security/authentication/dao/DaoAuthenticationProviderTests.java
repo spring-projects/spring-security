@@ -390,9 +390,9 @@ public class DaoAuthenticationProviderTests {
 	@Test
 	public void testGettersSetters() {
 		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-		provider.setPasswordEncoder(new PWE());
+		provider.setPasswordEncoder(new BCryptPasswordEncoder());
 		assertThat(provider.getPasswordEncoder().getClass()).isEqualTo(
-				PWE.class);
+			BCryptPasswordEncoder.class);
 
 		provider.setSaltSource(new SystemWideSaltSource());
 		assertThat(provider.getSaltSource().getClass()).isEqualTo(
@@ -405,17 +405,6 @@ public class DaoAuthenticationProviderTests {
 		assertThat(provider.isForcePrincipalAsString()).isFalse();
 		provider.setForcePrincipalAsString(true);
 		assertThat(provider.isForcePrincipalAsString()).isTrue();
-	}
-
-	static class PWE implements org.springframework.security.authentication.encoding.PasswordEncoder {
-		@Override public String encodePassword(String rawPass, Object salt) {
-			return null;
-		}
-
-		@Override public boolean isPasswordValid(String encPass, String rawPass,
-			Object salt) {
-			return false;
-		}
 	}
 
 	@Test

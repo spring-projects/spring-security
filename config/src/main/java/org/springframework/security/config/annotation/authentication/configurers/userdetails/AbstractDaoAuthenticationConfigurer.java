@@ -74,23 +74,6 @@ abstract class AbstractDaoAuthenticationConfigurer<B extends ProviderManagerBuil
 		return (C) this;
 	}
 
-	/**
-	 * Allows specifying the
-	 * {@link org.springframework.security.authentication.encoding.PasswordEncoder} to use
-	 * with the {@link DaoAuthenticationProvider}. The default is to use plain text.
-	 *
-	 * @param passwordEncoder The
-	 * {@link org.springframework.security.authentication.encoding.PasswordEncoder} to
-	 * use.
-	 * @return the {@link SecurityConfigurer} for further customizations
-	 */
-	@SuppressWarnings("unchecked")
-	public C passwordEncoder(
-			org.springframework.security.authentication.encoding.PasswordEncoder passwordEncoder) {
-		provider.setPasswordEncoder(passwordEncoder);
-		return (C) this;
-	}
-
 	@Override
 	public void configure(B builder) throws Exception {
 		provider = postProcess(provider);
