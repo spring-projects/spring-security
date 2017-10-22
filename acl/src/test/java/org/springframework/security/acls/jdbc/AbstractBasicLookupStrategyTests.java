@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.*;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
+
 import org.junit.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.acls.TargetObject;
@@ -51,7 +52,6 @@ public abstract class AbstractBasicLookupStrategyTests {
 	protected static final UUID OBJECT_IDENTITY_UUID = UUID.randomUUID();
 	protected static final Long OBJECT_IDENTITY_LONG_AS_UUID = 110L;
 
-
 	// ~ Instance fields
 	// ================================================================================================
 
@@ -62,6 +62,7 @@ public abstract class AbstractBasicLookupStrategyTests {
 	// ========================================================================================================
 
 	public abstract JdbcTemplate getJdbcTemplate();
+
 	public abstract DataSource getDataSource();
 
 	@BeforeClass
@@ -99,13 +100,13 @@ public abstract class AbstractBasicLookupStrategyTests {
 
 	protected AclAuthorizationStrategy aclAuthStrategy() {
 		return new AclAuthorizationStrategyImpl(
-                new SimpleGrantedAuthority("ROLE_ADMINISTRATOR"));
+			new SimpleGrantedAuthority("ROLE_ADMINISTRATOR"));
 	}
 
 	protected EhCacheBasedAclCache aclCache() {
 		return new EhCacheBasedAclCache(getCache(),
-                new DefaultPermissionGrantingStrategy(new ConsoleAuditLogger()),
-                new AclAuthorizationStrategyImpl(new SimpleGrantedAuthority("ROLE_USER")));
+			new DefaultPermissionGrantingStrategy(new ConsoleAuditLogger()),
+			new AclAuthorizationStrategyImpl(new SimpleGrantedAuthority("ROLE_USER")));
 	}
 
 
@@ -170,7 +171,7 @@ public abstract class AbstractBasicLookupStrategyTests {
 	}
 
 	private void checkEntries(ObjectIdentity topParentOid, ObjectIdentity middleParentOid, ObjectIdentity childOid,
-			Map<ObjectIdentity, Acl> map) throws Exception {
+		Map<ObjectIdentity, Acl> map) throws Exception {
 		assertThat(map).hasSize(3);
 
 		MutableAcl topParent = (MutableAcl) map.get(topParentOid);
@@ -267,10 +268,10 @@ public abstract class AbstractBasicLookupStrategyTests {
 	@Test
 	public void testReadAllObjectIdentitiesWhenLastElementIsAlreadyCached() throws Exception {
 		String query = "INSERT INTO acl_object_identity(ID,OBJECT_ID_CLASS,OBJECT_ID_IDENTITY,PARENT_OBJECT,OWNER_SID,ENTRIES_INHERITING) VALUES (6,2,105,null,1,1);"
-				+ "INSERT INTO acl_object_identity(ID,OBJECT_ID_CLASS,OBJECT_ID_IDENTITY,PARENT_OBJECT,OWNER_SID,ENTRIES_INHERITING) VALUES (7,2,106,6,1,1);"
-				+ "INSERT INTO acl_object_identity(ID,OBJECT_ID_CLASS,OBJECT_ID_IDENTITY,PARENT_OBJECT,OWNER_SID,ENTRIES_INHERITING) VALUES (8,2,107,6,1,1);"
-				+ "INSERT INTO acl_object_identity(ID,OBJECT_ID_CLASS,OBJECT_ID_IDENTITY,PARENT_OBJECT,OWNER_SID,ENTRIES_INHERITING) VALUES (9,2,108,7,1,1);"
-				+ "INSERT INTO acl_entry(ID,ACL_OBJECT_IDENTITY,ACE_ORDER,SID,MASK,GRANTING,AUDIT_SUCCESS,AUDIT_FAILURE) VALUES (7,6,0,1,1,1,0,0)";
+			+ "INSERT INTO acl_object_identity(ID,OBJECT_ID_CLASS,OBJECT_ID_IDENTITY,PARENT_OBJECT,OWNER_SID,ENTRIES_INHERITING) VALUES (7,2,106,6,1,1);"
+			+ "INSERT INTO acl_object_identity(ID,OBJECT_ID_CLASS,OBJECT_ID_IDENTITY,PARENT_OBJECT,OWNER_SID,ENTRIES_INHERITING) VALUES (8,2,107,6,1,1);"
+			+ "INSERT INTO acl_object_identity(ID,OBJECT_ID_CLASS,OBJECT_ID_IDENTITY,PARENT_OBJECT,OWNER_SID,ENTRIES_INHERITING) VALUES (9,2,108,7,1,1);"
+			+ "INSERT INTO acl_entry(ID,ACL_OBJECT_IDENTITY,ACE_ORDER,SID,MASK,GRANTING,AUDIT_SUCCESS,AUDIT_FAILURE) VALUES (7,6,0,1,1,1,0,0)";
 		getJdbcTemplate().execute(query);
 
 		ObjectIdentity grandParentOid = new ObjectIdentityImpl(TARGET_CLASS, new Long(104));

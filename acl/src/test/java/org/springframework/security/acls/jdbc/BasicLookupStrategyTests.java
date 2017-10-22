@@ -28,26 +28,26 @@ import org.springframework.jdbc.core.JdbcTemplate;
  * @author Paul Wheeler
  */
 public class BasicLookupStrategyTests extends AbstractBasicLookupStrategyTests {
-    private static final BasicLookupStrategyTestsDbHelper DATABASE_HELPER = new BasicLookupStrategyTestsDbHelper();
+	private static final BasicLookupStrategyTestsDbHelper DATABASE_HELPER = new BasicLookupStrategyTestsDbHelper();
 
 
-    @BeforeClass
-    public static void createDatabase() throws Exception {
-        DATABASE_HELPER.createDatabase();
-    }
+	@BeforeClass
+	public static void createDatabase() throws Exception {
+		DATABASE_HELPER.createDatabase();
+	}
 
-    @AfterClass
-    public static void dropDatabase() throws Exception {
-        DATABASE_HELPER.getDataSource().destroy();
-    }
+	@AfterClass
+	public static void dropDatabase() throws Exception {
+		DATABASE_HELPER.getDataSource().destroy();
+	}
 
-    @Override
-    public JdbcTemplate getJdbcTemplate() {
-        return DATABASE_HELPER.getJdbcTemplate();
-    }
+	@Override
+	public JdbcTemplate getJdbcTemplate() {
+		return DATABASE_HELPER.getJdbcTemplate();
+	}
 
-    @Override
-    public DataSource getDataSource() {
-        return DATABASE_HELPER.getDataSource();
-    }
+	@Override
+	public DataSource getDataSource() {
+		return DATABASE_HELPER.getDataSource();
+	}
 }
