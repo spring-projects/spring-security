@@ -16,14 +16,11 @@
 
 package org.springframework.security.crypto.password;
 
-import com.sun.org.apache.xpath.internal.SourceTree;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -50,8 +47,6 @@ public class DelegatingPasswordEncoderTests {
 
 	private String bcryptId = "bcrypt";
 
-	private String noopId = "noop";
-
 	private String rawPassword = "password";
 
 	private String encodedPassword = "ENCODED-PASSWORD";
@@ -68,15 +63,14 @@ public class DelegatingPasswordEncoderTests {
 	public void setup() {
 		this.delegates = new HashMap<>();
 		this.delegates.put(this.bcryptId, this.bcrypt);
-		this.delegates.put(this.noopId, this.noop);
+		this.delegates.put("noop", this.noop);
 
 		this.passwordEncoder = new DelegatingPasswordEncoder(this.bcryptId, this.delegates);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorWhenIdForEncodeNullThenIllegalArgumentException() {
-		String id = null;
-		new DelegatingPasswordEncoder(id, this.delegates);
+		new DelegatingPasswordEncoder(null, this.delegates);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
