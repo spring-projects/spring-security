@@ -68,4 +68,13 @@ public class PasswordEncoderFactoriesTests {
 		assertThat(this.encoder.matches(this.rawPassword, encodedPassword)).isTrue();
 	}
 
+	@Test
+	public void encodeUsingSpecifiedEncoder() {
+		PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder("pbkdf2");
+		String encodedPassword = passwordEncoder.encode(this.rawPassword);
+
+		assertThat(encodedPassword).startsWith("{pbkdf2}");
+		assertThat(passwordEncoder.matches(this.rawPassword, encodedPassword)).isTrue();
+	}
+
 }
