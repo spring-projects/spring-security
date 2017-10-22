@@ -41,8 +41,9 @@ public class PasswordEncoderFactories {
 	 * updates should not impact users. The mappings current are:
 	 *
 	 * <ul>
+	 * <li>bcrypt - {@link BCryptPasswordEncoder} (Also used for encoding)</li>
 	 * <li>noop - {@link NoOpPasswordEncoder}</li>
-	 * <li>pbkdf2 - {@link Pbkdf2PasswordEncoder} (Also used for encoding)</li>
+	 * <li>pbkdf2 - {@link Pbkdf2PasswordEncoder}</li>
 	 * <li>scrypt - {@link SCryptPasswordEncoder}</li>
 	 * <li>sha256 - {@link StandardPasswordEncoder}</li>
 	 * </ul>
