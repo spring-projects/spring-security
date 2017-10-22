@@ -40,7 +40,6 @@ import org.springframework.security.authentication.InternalAuthenticationService
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -349,33 +348,6 @@ public class DaoAuthenticationProviderTests {
 	}
 
 	@Test
-	public void testAuthenticatesWhenASaltIsUsed() {
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				"rod", "koala");
-
-		SystemWideSaltSource salt = new SystemWideSaltSource();
-		salt.setSystemWideSalt("SYSTEM_SALT_VALUE");
-
-		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-		provider.setUserDetailsService(new MockAuthenticationDaoUserrodWithSalt());
-		provider.setSaltSource(salt);
-		provider.setUserCache(new MockUserCache());
-
-		Authentication result = provider.authenticate(token);
-
-		if (!(result instanceof UsernamePasswordAuthenticationToken)) {
-			fail("Should have returned instance of UsernamePasswordAuthenticationToken");
-		}
-
-		assertThat(result.getPrincipal().getClass()).isEqualTo(User.class);
-
-		// We expect original credentials user submitted to be returned
-		assertThat(result.getCredentials()).isEqualTo("koala");
-		assertThat(AuthorityUtils.authorityListToSet(result.getAuthorities())).contains(
-				"ROLE_ONE", "ROLE_TWO");
-	}
-
-	@Test
 	public void testAuthenticatesWithForcePrincipalAsString() {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
 				"rod", "koala");
@@ -418,9 +390,9 @@ public class DaoAuthenticationProviderTests {
 	@Test
 	public void testGettersSetters() {
 		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-		provider.setPasswordEncoder(new ShaPasswordEncoder());
+		provider.setPasswordEncoder(new PWE());
 		assertThat(provider.getPasswordEncoder().getClass()).isEqualTo(
-				ShaPasswordEncoder.class);
+				PWE.class);
 
 		provider.setSaltSource(new SystemWideSaltSource());
 		assertThat(provider.getSaltSource().getClass()).isEqualTo(
@@ -433,6 +405,17 @@ public class DaoAuthenticationProviderTests {
 		assertThat(provider.isForcePrincipalAsString()).isFalse();
 		provider.setForcePrincipalAsString(true);
 		assertThat(provider.isForcePrincipalAsString()).isTrue();
+	}
+
+	static class PWE implements org.springframework.security.authentication.encoding.PasswordEncoder {
+		@Override public String encodePassword(String rawPass, Object salt) {
+			return null;
+		}
+
+		@Override public boolean isPasswordValid(String encPass, String rawPass,
+			Object salt) {
+			return false;
+		}
 	}
 
 	@Test

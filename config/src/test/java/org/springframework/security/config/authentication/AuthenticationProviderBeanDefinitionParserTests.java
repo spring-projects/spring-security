@@ -15,17 +15,13 @@
  */
 package org.springframework.security.config.authentication;
 
-import static org.assertj.core.api.Assertions.*;
-
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.ReflectionSaltSource;
-import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
 import org.springframework.security.crypto.password.MessageDigestPasswordEncoder;
-import org.springframework.security.util.FieldUtils;
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
 import org.springframework.context.support.AbstractXmlApplicationContext;
 
@@ -130,19 +126,6 @@ public class AuthenticationProviderBeanDefinitionParserTests {
 				+ "        </user-service>" + "    </authentication-provider>");
 
 		getProvider().authenticate(bob);
-	}
-
-	@Test
-	public void providerWithSha256PasswordEncoderIsSupported() throws Exception {
-		setContext(" <authentication-provider>"
-				+ "        <password-encoder hash='sha-256'/>"
-				+ "        <user-service>"
-				+ "            <user name='bob' password='notused' authorities='ROLE_A' />"
-				+ "        </user-service>" + "    </authentication-provider>");
-
-		ShaPasswordEncoder encoder = (ShaPasswordEncoder) FieldUtils.getFieldValue(
-				getProvider(), "passwordEncoder");
-		assertThat(encoder.getAlgorithm()).isEqualTo("SHA-256");
 	}
 
 	@Test

@@ -13,8 +13,6 @@
             <xs:restriction base="xs:token">
                <xs:enumeration value="bcrypt"/>
                <xs:enumeration value="plaintext"/>
-               <xs:enumeration value="sha"/>
-               <xs:enumeration value="sha-256"/>
                <xs:enumeration value="md4"/>
                <xs:enumeration value="{sha}"/>
                <xs:enumeration value="{ssha}"/>
@@ -147,8 +145,6 @@
             <xs:restriction base="xs:token">
                <xs:enumeration value="bcrypt"/>
                <xs:enumeration value="plaintext"/>
-               <xs:enumeration value="sha"/>
-               <xs:enumeration value="sha-256"/>
                <xs:enumeration value="md4"/>
                <xs:enumeration value="{sha}"/>
                <xs:enumeration value="{ssha}"/>
@@ -529,8 +525,6 @@
             <xs:restriction base="xs:token">
                <xs:enumeration value="bcrypt"/>
                <xs:enumeration value="plaintext"/>
-               <xs:enumeration value="sha"/>
-               <xs:enumeration value="sha-256"/>
                <xs:enumeration value="md4"/>
                <xs:enumeration value="{sha}"/>
                <xs:enumeration value="{ssha}"/>
