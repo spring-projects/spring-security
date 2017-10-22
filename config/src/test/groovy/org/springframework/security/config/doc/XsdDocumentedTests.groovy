@@ -39,7 +39,7 @@ class XsdDocumentedTests extends Specification {
 	@Shared def reference = new File('../docs/manual/src/docs/asciidoc/index.adoc')
 
 	@Shared File schema31xDocument = new File('src/main/resources/org/springframework/security/config/spring-security-3.1.xsd')
-	@Shared File schemaDocument = new File('src/main/resources/org/springframework/security/config/spring-security-4.2.xsd')
+	@Shared File schemaDocument = new File('src/main/resources/org/springframework/security/config/spring-security-5.0.xsd')
 	@Shared Map<String,Element> elementNameToElement
 	@Shared GPathResult schemaRootElement
 
@@ -116,8 +116,8 @@ class XsdDocumentedTests extends Specification {
 	def 'the latest schema is being validated'() {
 		when: 'all the schemas are found'
 		def schemas = schemaDocument.getParentFile().list().findAll { it.endsWith('.xsd') }
-		then: 'the count is equal to 11, if not then schemaDocument needs updated'
-		schemas.size() == 11
+		then: 'the count is equal to 12, if not then schemaDocument needs updated'
+		schemas.size() == 12
 	}
 
 	/**
