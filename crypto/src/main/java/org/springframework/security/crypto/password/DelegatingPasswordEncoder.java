@@ -16,9 +16,6 @@
 
 package org.springframework.security.crypto.password;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.util.Map;
 
 /**
@@ -124,7 +121,6 @@ import java.util.Map;
 public class DelegatingPasswordEncoder implements PasswordEncoder {
 	private static final String PREFIX = "{";
 	private static final String SUFFIX = "}";
-	private final Log logger = LogFactory.getLog(getClass());
 	private final String idForEncode;
 	private final PasswordEncoder passwordEncoderForEncode;
 	private final Map<String,PasswordEncoder> idToPasswordEncoder;
