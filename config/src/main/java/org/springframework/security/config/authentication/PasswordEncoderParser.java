@@ -26,7 +26,6 @@ import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.security.authentication.encoding.LdapShaPasswordEncoder;
 import org.springframework.security.config.Elements;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.util.StringUtils;
@@ -45,16 +44,12 @@ public class PasswordEncoderParser {
 	public static final String ATT_HASH = "hash";
 	static final String ATT_BASE_64 = "base64";
 	static final String OPT_HASH_BCRYPT = "bcrypt";
-	static final String OPT_HASH_LDAP_SHA = "{sha}";
-	static final String OPT_HASH_LDAP_SSHA = "{ssha}";
 
 	private static final Map<String, Class<?>> ENCODER_CLASSES;
 
 	static {
 		ENCODER_CLASSES = new HashMap<String, Class<?>>();
 		ENCODER_CLASSES.put(OPT_HASH_BCRYPT, BCryptPasswordEncoder.class);
-		ENCODER_CLASSES.put(OPT_HASH_LDAP_SHA, LdapShaPasswordEncoder.class);
-		ENCODER_CLASSES.put(OPT_HASH_LDAP_SSHA, LdapShaPasswordEncoder.class);
 	}
 
 	private static final Log logger = LogFactory.getLog(PasswordEncoderParser.class);

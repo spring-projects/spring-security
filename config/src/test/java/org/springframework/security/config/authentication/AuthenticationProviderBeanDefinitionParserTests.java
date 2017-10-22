@@ -21,6 +21,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.authentication.dao.ReflectionSaltSource;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
+import org.springframework.security.crypto.password.LdapShaPasswordEncoder;
 import org.springframework.security.crypto.password.MessageDigestPasswordEncoder;
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
 import org.springframework.context.support.AbstractXmlApplicationContext;
@@ -119,11 +120,17 @@ public class AuthenticationProviderBeanDefinitionParserTests {
 
 	@Test
 	public void providerWithShaPasswordEncoderWorks() throws Exception {
-		setContext(" <authentication-provider>"
-				+ "        <password-encoder hash='{sha}'/>"
+		appContext = new InMemoryXmlApplicationContext(
+			" <authentication-manager>"
+				+ " <authentication-provider>"
+				+ "        <password-encoder ref='passwordEncoder'/>"
 				+ "        <user-service>"
 				+ "            <user name='bob' password='{SSHA}PpuEwfdj7M1rs0C2W4ssSM2XEN/Y6S5U' authorities='ROLE_A' />"
-				+ "        </user-service>" + "    </authentication-provider>");
+				+ "        </user-service>"
+				+ "    </authentication-provider>"
+				+ " </authentication-manager>"
+				+ " <b:bean id='passwordEncoder'  class='"
+				+ LdapShaPasswordEncoder.class.getName() + "'/>");
 
 		getProvider().authenticate(bob);
 	}

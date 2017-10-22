@@ -12,8 +12,6 @@
          <xs:simpleType>
             <xs:restriction base="xs:token">
                <xs:enumeration value="bcrypt"/>
-               <xs:enumeration value="{sha}"/>
-               <xs:enumeration value="{ssha}"/>
             </xs:restriction>
          </xs:simpleType>
       </xs:attribute>
@@ -142,8 +140,6 @@
          <xs:simpleType>
             <xs:restriction base="xs:token">
                <xs:enumeration value="bcrypt"/>
-               <xs:enumeration value="{sha}"/>
-               <xs:enumeration value="{ssha}"/>
             </xs:restriction>
          </xs:simpleType>
       </xs:attribute>
@@ -514,8 +510,6 @@
          <xs:simpleType>
             <xs:restriction base="xs:token">
                <xs:enumeration value="bcrypt"/>
-               <xs:enumeration value="{sha}"/>
-               <xs:enumeration value="{ssha}"/>
             </xs:restriction>
          </xs:simpleType>
       </xs:attribute>

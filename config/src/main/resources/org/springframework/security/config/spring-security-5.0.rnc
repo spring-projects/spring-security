@@ -7,7 +7,7 @@ start = http | ldap-server | authentication-provider | ldap-authentication-provi
 
 hash =
 	## Defines the hashing algorithm used on user passwords. Bcrypt is recommended.
-	attribute hash {"bcrypt" | "{sha}" | "{ssha}"}
+	attribute hash {"bcrypt"}
 base64 =
 	## Whether a string should be base64 encoded
 	attribute base64 {xsd:boolean}

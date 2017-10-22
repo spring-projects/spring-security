@@ -19,11 +19,12 @@ package org.springframework.security.ldap.authentication;
 import org.junit.*;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.authentication.encoding.LdapShaPasswordEncoder;
-import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.keygen.KeyGenerators;
+import org.springframework.security.crypto.password.LdapShaPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.ldap.AbstractLdapIntegrationTests;
 
 import org.springframework.ldap.core.DirContextAdapter;
@@ -114,7 +115,8 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapIntegratio
 	public void testLdapCompareSucceedsWithShaEncodedPassword() {
 		// Don't retrieve the password
 		authenticator.setUserAttributes(new String[] { "uid" });
-		authenticator.setPasswordEncoder(new LdapShaPasswordEncoder());
+		authenticator.setPasswordEncoder(new LdapShaPasswordEncoder(KeyGenerators.shared(0)));
+		authenticator.setUsePasswordAttrCompare(false);
 		authenticator.authenticate(ben);
 	}
 

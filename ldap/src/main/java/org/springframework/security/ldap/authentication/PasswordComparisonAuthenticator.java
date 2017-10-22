@@ -23,11 +23,12 @@ import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.support.BaseLdapPathContextSource;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.authentication.encoding.LdapShaPasswordEncoder;
-import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.codec.Utf8;
+import org.springframework.security.crypto.keygen.KeyGenerators;
+import org.springframework.security.crypto.password.LdapShaPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.util.Assert;
 
@@ -55,7 +56,7 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
 	// ~ Instance fields
 	// ================================================================================================
 
-	private PasswordEncoder passwordEncoder = new LdapShaPasswordEncoder();
+	private PasswordEncoder passwordEncoder = new LdapShaPasswordEncoder(KeyGenerators.shared(0));
 	private String passwordAttributeName = "userPassword";
 	private boolean usePasswordAttrCompare = false;
 
@@ -116,14 +117,24 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
 	}
 
 	private boolean isPasswordAttrCompare(DirContextOperations user, String password) {
-		Object passwordAttrValue = user.getObjectAttribute(passwordAttributeName);
-		return passwordEncoder.isPasswordValid(new String((byte[]) passwordAttrValue),
-				password, null);
+		String passwordAttrValue = getPassword(user);
+		return passwordEncoder.matches(password, passwordAttrValue);
+	}
+
+	private String getPassword(DirContextOperations user) {
+		Object passwordAttrValue = user.getObjectAttribute(this.passwordAttributeName);
+		if(passwordAttrValue == null) {
+			return null;
+		}
+		if(passwordAttrValue instanceof byte[]) {
+			return new String((byte[])passwordAttrValue);
+		}
+		return String.valueOf(passwordAttrValue);
 	}
 
 	private boolean isLdapPasswordCompare(DirContextOperations user,
 			SpringSecurityLdapTemplate ldapTemplate, String password) {
-		String encodedPassword = passwordEncoder.encodePassword(password, null);
+		String encodedPassword = passwordEncoder.encode(password);
 		byte[] passwordBytes = Utf8.encode(encodedPassword);
 		return ldapTemplate.compare(user.getDn().toString(), passwordAttributeName,
 				passwordBytes);
@@ -135,41 +146,13 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
 		this.passwordAttributeName = passwordAttribute;
 	}
 
-	private void setPasswordEncoder(PasswordEncoder passwordEncoder) {
-		Assert.notNull(passwordEncoder, "passwordEncoder must not be null.");
-		this.passwordEncoder = passwordEncoder;
+	public void setUsePasswordAttrCompare(boolean usePasswordAttrCompare) {
+		this.usePasswordAttrCompare = usePasswordAttrCompare;
 	}
 
-	public void setPasswordEncoder(Object passwordEncoder) {
-		if (passwordEncoder instanceof PasswordEncoder) {
-			this.usePasswordAttrCompare = false;
-			setPasswordEncoder((PasswordEncoder) passwordEncoder);
-			return;
-		}
-
-		if (passwordEncoder instanceof org.springframework.security.crypto.password.PasswordEncoder) {
-			final org.springframework.security.crypto.password.PasswordEncoder delegate = (org.springframework.security.crypto.password.PasswordEncoder) passwordEncoder;
-			setPasswordEncoder(new PasswordEncoder() {
-				public String encodePassword(String rawPass, Object salt) {
-					checkSalt(salt);
-					return delegate.encode(rawPass);
-				}
-
-				public boolean isPasswordValid(String encPass, String rawPass, Object salt) {
-					checkSalt(salt);
-					return delegate.matches(rawPass, encPass);
-				}
-
-				private void checkSalt(Object salt) {
-					Assert.isNull(salt,
-							"Salt value must be null when used with crypto module PasswordEncoder");
-				}
-			});
-			this.usePasswordAttrCompare = true;
-			return;
-		}
-
-		throw new IllegalArgumentException(
-				"passwordEncoder must be a PasswordEncoder instance");
+	public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
+		Assert.notNull(passwordEncoder, "passwordEncoder must not be null.");
+		this.passwordEncoder = passwordEncoder;
+		setUsePasswordAttrCompare(true);
 	}
 }

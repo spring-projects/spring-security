@@ -1,5 +1,6 @@
 package org.springframework.security.config.ldap
 
+import org.springframework.security.crypto.password.NoOpPasswordEncoder
 
 import static org.mockito.Mockito.*
 
@@ -88,34 +89,16 @@ class LdapProviderBeanDefinitionParserTests extends AbstractXmlConfigTests {
 		notThrown(AuthenticationException)
 	}
 
-	def supportsPasswordComparisonAuthenticationWithHashAttribute() {
-		xml.'ldap-server'(ldif:'test-server.ldif')
-		xml.'authentication-manager'{
-			'ldap-authentication-provider'('user-dn-pattern': 'uid={0},ou=people') {
-				'password-compare'('password-attribute': 'uid', hash: 'plaintext')
-			}
-		}
-		createAppContext('')
-		def am = appContext.getBean(BeanIds.AUTHENTICATION_MANAGER)
-
-		when:
-		def auth = am.authenticate(new UsernamePasswordAuthenticationToken("ben", "ben"))
-
-		then:
-		auth != null
-		notThrown(AuthenticationException)
-
-	}
-
 	def supportsPasswordComparisonAuthenticationWithPasswordEncoder() {
 		xml.'ldap-server'(ldif:'test-server.ldif')
 		xml.'authentication-manager'{
 			'ldap-authentication-provider'('user-dn-pattern': 'uid={0},ou=people') {
 				'password-compare'('password-attribute': 'uid') {
-					'password-encoder'(hash: 'plaintext')
+					'password-encoder'(ref: 'passwordEncoder')
 				}
 			}
 		}
+		xml.'b:bean'(id: 'passwordEncoder', 'class' : NoOpPasswordEncoder.name, 'factory-method': 'getInstance')
 
 		createAppContext('')
 		def am = appContext.getBean(BeanIds.AUTHENTICATION_MANAGER)

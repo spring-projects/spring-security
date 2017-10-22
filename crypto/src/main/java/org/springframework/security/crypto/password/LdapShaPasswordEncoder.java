@@ -55,7 +55,7 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
 
 	// ~ Instance fields
 	// ================================================================================================
-	private BytesKeyGenerator saltGenerator = KeyGenerators.secureRandom();
+	private BytesKeyGenerator saltGenerator;
 
 	private boolean forceLowerCasePrefix;
 
@@ -63,6 +63,14 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
 	// ===================================================================================================
 
 	public LdapShaPasswordEncoder() {
+		this(KeyGenerators.secureRandom());
+	}
+
+	public LdapShaPasswordEncoder(BytesKeyGenerator saltGenerator) {
+		if(saltGenerator == null) {
+			throw new IllegalArgumentException("saltGenerator cannot be null");
+		}
+		this.saltGenerator = saltGenerator;
 	}
 
 	// ~ Methods
