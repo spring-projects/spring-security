@@ -31,7 +31,7 @@ final class Digester {
 
 	private final String algorithm;
 
-	private final int iterations;
+	private int iterations;
 
 	/**
 	 * Create a new Digester.
@@ -42,7 +42,7 @@ final class Digester {
 		// eagerly validate the algorithm
 		createDigest(algorithm);
 		this.algorithm = algorithm;
-		this.iterations = iterations;
+		setIterations(iterations);
 	}
 
 	public byte[] digest(byte[] value) {
@@ -51,6 +51,13 @@ final class Digester {
 			value = messageDigest.digest(value);
 		}
 		return value;
+	}
+
+	final void setIterations(int iterations) {
+		if(iterations <= 0) {
+			throw new IllegalArgumentException("Iterations value must be greater than zero");
+		}
+		this.iterations = iterations;
 	}
 
 	private static MessageDigest createDigest(String algorithm) {
