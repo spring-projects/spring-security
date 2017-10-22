@@ -147,12 +147,6 @@
             </xs:restriction>
          </xs:simpleType>
       </xs:attribute>
-      <xs:attribute name="base64" type="xs:boolean">
-         <xs:annotation>
-            <xs:documentation>Whether a string should be base64 encoded
-                </xs:documentation>
-         </xs:annotation>
-      </xs:attribute>
   </xs:attributeGroup>
   
   <xs:attributeGroup name="user-property">

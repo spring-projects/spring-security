@@ -56,7 +56,7 @@ password-encoder =
 	## element which defines a password encoding strategy. Used by an authentication provider to convert submitted passwords to hashed versions, for example.
 	element password-encoder {password-encoder.attlist, salt-source?}
 password-encoder.attlist &=
-	ref | (hash? & base64?)
+	ref | (hash)
 
 salt-source =
 	## Password salting strategy. A system-wide constant or a property from the UserDetails object can be used.

@@ -26,7 +26,6 @@ import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.security.authentication.encoding.BaseDigestPasswordEncoder;
 import org.springframework.security.authentication.encoding.LdapShaPasswordEncoder;
 import org.springframework.security.config.Elements;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -107,16 +106,6 @@ public class PasswordEncoderParser {
 		Class<?> beanClass = ENCODER_CLASSES.get(hash);
 		BeanDefinitionBuilder beanBldr = BeanDefinitionBuilder
 				.rootBeanDefinition(beanClass);
-
-		if (useBase64) {
-			if (BaseDigestPasswordEncoder.class.isAssignableFrom(beanClass)) {
-				beanBldr.addPropertyValue("encodeHashAsBase64", "true");
-			}
-			else {
-				logger.warn(ATT_BASE_64 + " isn't compatible with " + hash
-						+ " and will be ignored");
-			}
-		}
 		return beanBldr.getBeanDefinition();
 	}
 
