@@ -22,6 +22,7 @@ import org.springframework.security.oauth2.client.authentication.userinfo.Nimbus
 import org.springframework.security.oauth2.client.authentication.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.client.authentication.userinfo.UserInfoRetriever;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.oidc.client.authentication.OidcClientAuthenticationToken;
 import org.springframework.security.oauth2.oidc.core.OidcScope;
@@ -52,6 +53,7 @@ import java.util.Set;
  * @see UserInfoRetriever
  */
 public class OidcUserService implements OAuth2UserService {
+	private static final String INVALID_USER_INFO_RESPONSE_ERROR_CODE = "invalid_user_info_response";
 	private UserInfoRetriever userInfoRetriever = new NimbusUserInfoRetriever();
 	private final Set<String> userInfoScopes = new HashSet<>(
 		Arrays.asList(OidcScope.PROFILE, OidcScope.EMAIL, OidcScope.ADDRESS, OidcScope.PHONE));
@@ -64,6 +66,18 @@ public class OidcUserService implements OAuth2UserService {
 		if (this.shouldRetrieveUserInfo(oidcClientAuthentication)) {
 			Map<String, Object> userAttributes = this.userInfoRetriever.retrieve(oidcClientAuthentication);
 			userInfo = new UserInfo(userAttributes);
+
+			// http://openid.net/specs/openid-connect-core-1_0.html#UserInfoResponse
+			// Due to the possibility of token substitution attacks (see Section 16.11),
+			// the UserInfo Response is not guaranteed to be about the End-User
+			// identified by the sub (subject) element of the ID Token.
+			// The sub Claim in the UserInfo Response MUST be verified to exactly match
+			// the sub Claim in the ID Token; if they do not match,
+			// the UserInfo Response values MUST NOT be used.
+			if (!userInfo.getSubject().equals(oidcClientAuthentication.getIdToken().getSubject())) {
+				OAuth2Error oauth2Error = new OAuth2Error(INVALID_USER_INFO_RESPONSE_ERROR_CODE);
+				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+			}
 		}
 
 		GrantedAuthority authority = new OidcUserAuthority(oidcClientAuthentication.getIdToken(), userInfo);
