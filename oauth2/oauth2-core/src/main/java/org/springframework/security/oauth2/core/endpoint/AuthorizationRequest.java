@@ -21,11 +21,13 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * A representation of an <i>OAuth 2.0 Authorization Request</i>
@@ -124,6 +126,14 @@ public final class AuthorizationRequest implements Serializable {
 
 		public Builder redirectUri(String redirectUri) {
 			this.redirectUri = redirectUri;
+			return this;
+		}
+
+		public Builder scope(String... scope) {
+			if (scope != null && scope.length > 0) {
+				return this.scopes(Arrays.stream(scope).collect(
+					Collectors.toCollection(LinkedHashSet::new)));
+			}
 			return this;
 		}
 
