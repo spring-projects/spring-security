@@ -7,7 +7,7 @@ dependencies {
 	compile springCoreDependency
 	compile 'com.nimbusds:oauth2-oidc-sdk'
 
-	optional project(':spring-security-jwt-jose')
+	optional project(':spring-security-oauth2-jose')
 
 	provided 'javax.servlet:javax.servlet-api'
 }
