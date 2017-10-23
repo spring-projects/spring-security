@@ -22,7 +22,6 @@ import org.springframework.ldap.core.support.BaseLdapPathContextSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.encoding.PasswordEncoder;
-import org.springframework.security.authentication.encoding.PlaintextPasswordEncoder;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.authentication.ProviderManagerBuilder;
@@ -30,6 +29,7 @@ import org.springframework.security.config.annotation.web.configurers.ChannelSec
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
 import org.springframework.security.ldap.authentication.AbstractLdapAuthenticator;
 import org.springframework.security.ldap.authentication.BindAuthenticator;
@@ -401,11 +401,22 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 
 		/**
 		 * Allows specifying the {@link PasswordEncoder} to use. The default is
-		 * {@link PlaintextPasswordEncoder}.
+		 * {@link org.springframework.security.crypto.password.NoOpPasswordEncoder}.
 		 * @param passwordEncoder the {@link PasswordEncoder} to use
 		 * @return the {@link PasswordEncoder} to use
 		 */
 		public PasswordCompareConfigurer passwordEncoder(PasswordEncoder passwordEncoder) {
+			LdapAuthenticationProviderConfigurer.this.passwordEncoder = passwordEncoder;
+			return this;
+		}
+
+		/**
+		 * Allows specifying the {@link org.springframework.security.crypto.password.PasswordEncoder} to use. The default is
+		 * {@link org.springframework.security.crypto.password.NoOpPasswordEncoder}.
+		 * @param passwordEncoder the {@link org.springframework.security.crypto.password.PasswordEncoder} to use
+		 * @return the {@link org.springframework.security.crypto.password.PasswordEncoder} to use
+		 */
+		public PasswordCompareConfigurer passwordEncoder(org.springframework.security.crypto.password.PasswordEncoder passwordEncoder) {
 			LdapAuthenticationProviderConfigurer.this.passwordEncoder = passwordEncoder;
 			return this;
 		}
@@ -614,6 +625,6 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	 */
 	public PasswordCompareConfigurer passwordCompare() {
 		return new PasswordCompareConfigurer().passwordAttribute("password")
-				.passwordEncoder(new PlaintextPasswordEncoder());
+				.passwordEncoder(NoOpPasswordEncoder.getInstance());
 	}
 }

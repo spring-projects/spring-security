@@ -29,7 +29,6 @@ import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.authentication.encoding.BaseDigestPasswordEncoder;
 import org.springframework.security.authentication.encoding.LdapShaPasswordEncoder;
 import org.springframework.security.authentication.encoding.Md4PasswordEncoder;
-import org.springframework.security.authentication.encoding.PlaintextPasswordEncoder;
 import org.springframework.security.config.Elements;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.util.StringUtils;
@@ -48,7 +47,6 @@ public class PasswordEncoderParser {
 	public static final String ATT_HASH = "hash";
 	static final String ATT_BASE_64 = "base64";
 	static final String OPT_HASH_BCRYPT = "bcrypt";
-	static final String OPT_HASH_PLAINTEXT = "plaintext";
 	static final String OPT_HASH_MD4 = "md4";
 	static final String OPT_HASH_LDAP_SHA = "{sha}";
 	static final String OPT_HASH_LDAP_SSHA = "{ssha}";
@@ -57,7 +55,6 @@ public class PasswordEncoderParser {
 
 	static {
 		ENCODER_CLASSES = new HashMap<String, Class<?>>();
-		ENCODER_CLASSES.put(OPT_HASH_PLAINTEXT, PlaintextPasswordEncoder.class);
 		ENCODER_CLASSES.put(OPT_HASH_BCRYPT, BCryptPasswordEncoder.class);
 		ENCODER_CLASSES.put(OPT_HASH_MD4, Md4PasswordEncoder.class);
 		ENCODER_CLASSES.put(OPT_HASH_LDAP_SHA, LdapShaPasswordEncoder.class);

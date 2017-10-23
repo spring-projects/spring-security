@@ -21,9 +21,9 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.encoding.LdapShaPasswordEncoder;
 import org.springframework.security.authentication.encoding.PasswordEncoder;
-import org.springframework.security.authentication.encoding.PlaintextPasswordEncoder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.ldap.AbstractLdapIntegrationTests;
 
 import org.springframework.ldap.core.DirContextAdapter;
@@ -50,7 +50,7 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapIntegratio
 	@Before
 	public void setUp() throws Exception {
 		authenticator = new PasswordComparisonAuthenticator(getContextSource());
-		authenticator.setPasswordEncoder(new PlaintextPasswordEncoder());
+		authenticator.setPasswordEncoder(NoOpPasswordEncoder.getInstance());
 		authenticator.setUserDnPatterns(new String[] { "uid={0},ou=people" });
 		bob = new UsernamePasswordAuthenticationToken("bob", "bobspassword");
 		ben = new UsernamePasswordAuthenticationToken("ben", "benspassword");
@@ -140,7 +140,7 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapIntegratio
 	@Test
 	public void testWithUserSearch() {
 		authenticator = new PasswordComparisonAuthenticator(getContextSource());
-		authenticator.setPasswordEncoder(new PlaintextPasswordEncoder());
+		authenticator.setPasswordEncoder(NoOpPasswordEncoder.getInstance());
 		assertThat(authenticator.getUserDns("Bob")).withFailMessage("User DN matches shouldn't be available").isEmpty();
 
 		DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName(
