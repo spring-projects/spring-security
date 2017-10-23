@@ -43,6 +43,8 @@ public class UserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B>, C
 
 	private final List<UserDetailsBuilder> userBuilders = new ArrayList<UserDetailsBuilder>();
 
+	private final List<UserDetails> users = new ArrayList<>();
+
 	protected UserDetailsManagerConfigurer(UserDetailsManager userDetailsManager) {
 		super(userDetailsManager);
 	}
@@ -57,6 +59,35 @@ public class UserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B>, C
 		for (UserDetailsBuilder userBuilder : userBuilders) {
 			getUserDetailsService().createUser(userBuilder.build());
 		}
+		for (UserDetails userDetails : this.users) {
+			getUserDetailsService().createUser(userDetails);
+		}
+	}
+
+	/**
+	 * Allows adding a user to the {@link UserDetailsManager} that is being created. This
+	 * method can be invoked multiple times to add multiple users.
+	 *
+	 * @param userDetails the user to add. Cannot be null.
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public final C withUser(UserDetails userDetails) {
+		this.users.add(userDetails);
+		return (C) this;
+	}
+
+	/**
+	 * Allows adding a user to the {@link UserDetailsManager} that is being created. This
+	 * method can be invoked multiple times to add multiple users.
+	 *
+	 * @param userBuilder the user to add. Cannot be null.
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public final C withUser(User.UserBuilder userBuilder) {
+		this.users.add(userBuilder.build());
+		return (C) this;
 	}
 
 	/**
