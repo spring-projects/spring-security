@@ -24,7 +24,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.Assert;
 
@@ -63,7 +63,7 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 	private UserDetailsService userDetailsService;
 
 	public DaoAuthenticationProvider() {
-		setPasswordEncoder(NoOpPasswordEncoder.getInstance());
+		setPasswordEncoder(PasswordEncoderFactories.createDelegatingPasswordEncoder());
 	}
 
 	// ~ Methods

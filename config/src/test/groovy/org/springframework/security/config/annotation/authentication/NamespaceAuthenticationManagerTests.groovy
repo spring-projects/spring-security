@@ -25,6 +25,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.Authentication
+import org.springframework.security.core.userdetails.PasswordEncodedUser
 
 /**
  *
@@ -50,7 +51,7 @@ class NamespaceAuthenticationManagerTests extends BaseSpringSpec {
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			auth
 				.inMemoryAuthentication()
-					.withUser("user").password("password").roles("USER")
+					.withUser(PasswordEncodedUser.user())
 		}
 
 		// Only necessary to have access to verify the AuthenticationManager
@@ -68,7 +69,7 @@ class NamespaceAuthenticationManagerTests extends BaseSpringSpec {
 			Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("user","password"))
 		then:
 			auth.credentials == "password"
-			auth.principal.password == "password"
+			auth.principal.password
 	}
 
 	@EnableWebSecurity
@@ -77,7 +78,7 @@ class NamespaceAuthenticationManagerTests extends BaseSpringSpec {
 			auth
 				.eraseCredentials(false)
 				.inMemoryAuthentication()
-					.withUser("user").password("password").roles("USER")
+					.withUser(PasswordEncodedUser.user())
 		}
 
 		// Only necessary to have access to verify the AuthenticationManager
@@ -95,7 +96,7 @@ class NamespaceAuthenticationManagerTests extends BaseSpringSpec {
 			Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("user","password"))
 		then:
 			auth.credentials == "password"
-			auth.principal.password == "password"
+			auth.principal.password
 	}
 
 	@EnableWebSecurity
@@ -105,7 +106,7 @@ class NamespaceAuthenticationManagerTests extends BaseSpringSpec {
 			auth
 				.eraseCredentials(false)
 				.inMemoryAuthentication()
-					.withUser("user").password("password").roles("USER")
+					.withUser(PasswordEncodedUser.user())
 		}
 	}
 }

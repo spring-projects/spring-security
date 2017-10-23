@@ -56,7 +56,7 @@ import org.springframework.util.ReflectionUtils;
 public class SessionManagementConfigServlet31Tests {
 	private static final String XML_AUTHENTICATION_MANAGER = "<authentication-manager>"
 			+ "  <authentication-provider>" + "    <user-service>"
-			+ "      <user name='user' password='password' authorities='ROLE_USER' />"
+			+ "      <user name='user' password='{noop}password' authorities='ROLE_USER' />"
 			+ "    </user-service>" + "  </authentication-provider>"
 			+ "</authentication-manager>";
 

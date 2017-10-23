@@ -39,7 +39,7 @@ public class AuthenticationManagerBeanDefinitionParserTests {
 	private static final String CONTEXT = "<authentication-manager id='am'>"
 			+ "    <authentication-provider>"
 			+ "        <user-service>"
-			+ "            <user name='bob' password='bobspassword' authorities='ROLE_A,ROLE_B' />"
+			+ "            <user name='bob' password='{noop}bobspassword' authorities='ROLE_A,ROLE_B' />"
 			+ "        </user-service>" + "    </authentication-provider>"
 			+ "</authentication-manager>";
 	private AbstractXmlApplicationContext appContext;

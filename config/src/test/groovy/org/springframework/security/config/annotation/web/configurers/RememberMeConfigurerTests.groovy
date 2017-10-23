@@ -15,6 +15,8 @@
  */
 package org.springframework.security.config.annotation.web.configurers
 
+import org.springframework.security.core.userdetails.PasswordEncodedUser
+
 import javax.servlet.http.Cookie
 
 import org.springframework.beans.factory.BeanCreationException
@@ -75,7 +77,7 @@ public class RememberMeConfigurerTests extends BaseSpringSpec {
 
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			User user = new User("user", "password", AuthorityUtils.createAuthorityList("ROLE_USER"))
+			User user = PasswordEncodedUser.user();
 			DaoAuthenticationProvider provider = new DaoAuthenticationProvider()
 			provider.userDetailsService = new InMemoryUserDetailsManager([user])
 			auth
@@ -215,7 +217,7 @@ public class RememberMeConfigurerTests extends BaseSpringSpec {
 		public void configureGlobal(AuthenticationManagerBuilder auth) {
 			auth
 				.inMemoryAuthentication()
-					.withUser("user").password("password").roles("USER");
+					.withUser(PasswordEncodedUser.user());
 		}
 	}
 
@@ -235,8 +237,8 @@ public class RememberMeConfigurerTests extends BaseSpringSpec {
 		@Autowired
 		public void configureGlobal(AuthenticationManagerBuilder auth) {
 			auth
-					.inMemoryAuthentication()
-					.withUser("user").password("password").roles("USER");
+				.inMemoryAuthentication()
+					.withUser(PasswordEncodedUser.user());
 		}
 	}
 
@@ -261,8 +263,8 @@ public class RememberMeConfigurerTests extends BaseSpringSpec {
 		@Autowired
 		public void configureGlobal(AuthenticationManagerBuilder auth) {
 			auth
-					.inMemoryAuthentication()
-					.withUser("user").password("password").roles("USER");
+				.inMemoryAuthentication()
+					.withUser(PasswordEncodedUser.user());
 		}
 
 	}

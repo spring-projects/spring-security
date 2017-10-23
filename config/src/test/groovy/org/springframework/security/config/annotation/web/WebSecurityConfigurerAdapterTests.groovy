@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.config.annotation.web;
+package org.springframework.security.config.annotation.web
+
+import org.springframework.security.core.userdetails.PasswordEncodedUser;
 
 import static org.junit.Assert.*
 import static org.springframework.security.config.annotation.web.WebSecurityConfigurerAdapterTestsConfigs.*
@@ -94,7 +96,7 @@ class WebSecurityConfigurerAdapterTests extends BaseSpringSpec {
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			auth
 				.inMemoryAuthentication()
-					.withUser("user").password("password").roles("USER")
+					.withUser(PasswordEncodedUser.user())
 		}
 
 		@Override
@@ -117,7 +119,7 @@ class WebSecurityConfigurerAdapterTests extends BaseSpringSpec {
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			auth
 				.inMemoryAuthentication()
-					.withUser("user").password("password").roles("USER")
+					.withUser(PasswordEncodedUser.user())
 		}
 
 		@Override
@@ -153,7 +155,7 @@ class WebSecurityConfigurerAdapterTests extends BaseSpringSpec {
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			auth
 				.inMemoryAuthentication()
-					.withUser("user").password("password").roles("USER")
+					.withUser("user").password("{noop}password").roles("USER")
 		}
 
 		@Override
@@ -234,7 +236,7 @@ class WebSecurityConfigurerAdapterTests extends BaseSpringSpec {
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			auth
 				.inMemoryAuthentication()
-					.withUser("user").password("password").roles("USER")
+					.withUser(PasswordEncodedUser.user())
 		}
 	}
 

@@ -39,6 +39,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.core.authority.AuthorityUtils
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.core.userdetails.PasswordEncodedUser
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
@@ -64,7 +65,7 @@ class AuthenticationConfigurationTests extends BaseSpringSpec {
 	static class GlobalMethodSecurityAutowiredConfig {
 		@Autowired
 		public void configureGlobal(AuthenticationManagerBuilder auth) {
-			auth.inMemoryAuthentication().withUser("user").password("password").roles("USER")
+			auth.inMemoryAuthentication().withUser(PasswordEncodedUser.user())
 		}
 	}
 
@@ -88,7 +89,7 @@ class AuthenticationConfigurationTests extends BaseSpringSpec {
 	static class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		@Autowired
 		public void configureGlobal(AuthenticationManagerBuilder auth) {
-			auth.inMemoryAuthentication().withUser("user").password("password").roles("USER")
+			auth.inMemoryAuthentication().withUser(PasswordEncodedUser.user())
 		}
 	}
 
@@ -111,7 +112,7 @@ class AuthenticationConfigurationTests extends BaseSpringSpec {
 	static class WebMvcSecurityConfig extends WebSecurityConfigurerAdapter {
 		@Autowired
 		public void configureGlobal(AuthenticationManagerBuilder auth) {
-			auth.inMemoryAuthentication().withUser("user").password("password").roles("USER")
+			auth.inMemoryAuthentication().withUser(PasswordEncodedUser.user())
 		}
 	}
 
@@ -148,7 +149,7 @@ class AuthenticationConfigurationTests extends BaseSpringSpec {
 	@Configuration
 	static class GlobalAuthenticationConfiguererAdapterImpl extends GlobalAuthenticationConfigurerAdapter {
 		public void init(AuthenticationManagerBuilder auth) throws Exception {
-			auth.inMemoryAuthentication().withUser("user").password("password").roles("USER")
+			auth.inMemoryAuthentication().withUser(PasswordEncodedUser.user())
 		}
 	}
 
@@ -264,7 +265,7 @@ class AuthenticationConfigurationTests extends BaseSpringSpec {
 		public void init(AuthenticationManagerBuilder auth) throws Exception {
 			auth
 				.inMemoryAuthentication()
-					.withUser("user").password("password").roles("USER")
+					.withUser(PasswordEncodedUser.user())
 		}
 	}
 
@@ -282,7 +283,7 @@ class AuthenticationConfigurationTests extends BaseSpringSpec {
 				return;
 			}
 
-			User user = new User("boot","password", AuthorityUtils.createAuthorityList("ROLE_USER"))
+			User user = User.withUserDetails(PasswordEncodedUser.user()).username("boot").build()
 
 			List<User> users = Arrays.asList(user);
 			InMemoryUserDetailsManager inMemory = new InMemoryUserDetailsManager(users);
@@ -373,11 +374,11 @@ class AuthenticationConfigurationTests extends BaseSpringSpec {
 		when:
 		am.authenticate(new UsernamePasswordAuthenticationToken("user", "password"))
 		then:
-		1 * uds.loadUserByUsername("user") >> new User("user","password",AuthorityUtils.createAuthorityList("ROLE_USER"))
+		1 * uds.loadUserByUsername("user") >> PasswordEncodedUser.user()
 		when:
 		am.authenticate(new UsernamePasswordAuthenticationToken("user", "invalid"))
 		then:
-		1 * uds.loadUserByUsername("user") >> new User("user","password",AuthorityUtils.createAuthorityList("ROLE_USER"))
+		1 * uds.loadUserByUsername("user") >>  PasswordEncodedUser.user()
 		thrown(AuthenticationException.class)
 	}
 

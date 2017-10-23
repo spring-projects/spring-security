@@ -15,6 +15,8 @@
  */
 package org.springframework.security.config.annotation.web.configurers
 
+import org.springframework.security.core.userdetails.PasswordEncodedUser
+
 import javax.servlet.http.HttpServletResponse
 
 import org.springframework.context.annotation.Configuration
@@ -178,7 +180,7 @@ class RequestCacheConfigurerTests extends BaseSpringSpec {
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			auth
 				.inMemoryAuthentication()
-					.withUser("user").password("password").roles("USER")
+					.withUser(PasswordEncodedUser.user());
 		}
 	}
 }

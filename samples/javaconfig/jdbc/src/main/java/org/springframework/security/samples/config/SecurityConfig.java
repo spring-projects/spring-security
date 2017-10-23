@@ -20,6 +20,7 @@ import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.userdetails.User;
 
 @EnableWebSecurity
 public class SecurityConfig {
@@ -33,7 +34,7 @@ public class SecurityConfig {
 			.jdbcAuthentication()
 				.dataSource(dataSource)
 				.withDefaultSchema()
-				.withUser("user").password("password").roles("USER");
+				.withUser(User.withDefaultPasswordEncoder().username("user").password("password").roles("USER"));
 	}
 	// @formatter:on
 }

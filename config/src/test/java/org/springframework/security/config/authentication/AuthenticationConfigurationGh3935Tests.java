@@ -32,6 +32,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.FilterChainProxy;
@@ -66,9 +67,7 @@ public class AuthenticationConfigurationGh3935Tests {
 	public void delegateUsesExisitingAuthentication() {
 		String username = "user";
 		String password = "password";
-		User user = new User(username, password,
-				AuthorityUtils.createAuthorityList("ROLE_USER"));
-		when(this.uds.loadUserByUsername(username)).thenReturn(user);
+		when(this.uds.loadUserByUsername(username)).thenReturn(PasswordEncodedUser.user());
 
 		AuthenticationManager authenticationManager = this.adapter.authenticationManager;
 		assertThat(authenticationManager).isNotNull();
@@ -77,7 +76,7 @@ public class AuthenticationConfigurationGh3935Tests {
 				new UsernamePasswordAuthenticationToken(username, password));
 
 		verify(this.uds).loadUserByUsername(username);
-		assertThat(auth.getPrincipal()).isEqualTo(user);
+		assertThat(auth.getPrincipal()).isEqualTo(PasswordEncodedUser.user());
 	}
 
 	@EnableWebSecurity

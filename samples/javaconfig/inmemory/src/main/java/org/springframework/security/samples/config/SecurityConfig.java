@@ -15,21 +15,23 @@
  */
 package org.springframework.security.samples.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 @EnableWebSecurity
 public class SecurityConfig {
 
 	// @formatter:off
-	@Autowired
-	public void configureGlobal(
-			AuthenticationManagerBuilder auth) throws Exception {
-		auth
-			.inMemoryAuthentication()
-				.withUser("user").password("password").roles("USER").and()
-				.withUser("admin").password("password").roles("USER","ADMIN");
+	@Bean
+	public UserDetailsService userDetailsService() throws Exception {
+		User.UserBuilder builder = User.withDefaultPasswordEncoder();
+		UserDetails user = builder.username("user").password("password").roles("USER").build();
+		UserDetails admin = builder.username("admin").password("password").roles("USER", "ADMIN").build();
+		return new InMemoryUserDetailsManager(user, admin);
 	}
 		// @formatter:on
 }

@@ -26,9 +26,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -83,11 +88,10 @@ public class AuthenticationTests {
 	@EnableWebMvc
 	static class Config extends WebSecurityConfigurerAdapter {
 		// @formatter:off
-		@Autowired
-		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-			auth
-				.inMemoryAuthentication()
-					.withUser("user").password("password").roles("USER");
+		@Bean
+		public UserDetailsService userDetailsService() {
+			UserDetails user = User.withDefaultPasswordEncoder().username("user").password("password").roles("USER").build();
+			return new InMemoryUserDetailsManager(user);
 		}
 		// @formatter:on
 	}

@@ -35,6 +35,7 @@ import org.springframework.security.config.annotation.configuration.ObjectPostPr
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.Authentication
+import org.springframework.security.core.userdetails.PasswordEncodedUser
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
@@ -90,10 +91,10 @@ class AuthenticationManagerBuilderTests extends BaseSpringSpec {
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			auth
 				.inMemoryAuthentication()
-					.withUser("user").password("password").roles("USER").and()
+					.withUser(PasswordEncodedUser.user())
 					.and()
 				.inMemoryAuthentication()
-					.withUser("admin").password("password").roles("USER","ADMIN")
+					.withUser(PasswordEncodedUser.admin())
 		}
 	}
 

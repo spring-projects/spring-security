@@ -15,6 +15,8 @@
  */
 package org.springframework.security.config.annotation.web
 
+import org.springframework.security.core.userdetails.PasswordEncodedUser
+
 import javax.servlet.http.HttpServletResponse
 
 import org.springframework.beans.factory.annotation.Autowired
@@ -93,7 +95,7 @@ public class SampleWebSecurityConfigurerAdapterTests extends BaseSpringSpec {
 		protected void configure(AuthenticationManagerBuilder auth) {
 			auth
 				.inMemoryAuthentication()
-					.withUser("user").password("password").roles("USER");
+					.withUser(PasswordEncodedUser.user());
 		}
 	}
 
@@ -180,8 +182,8 @@ public class SampleWebSecurityConfigurerAdapterTests extends BaseSpringSpec {
 		protected void configure(AuthenticationManagerBuilder auth) {
 			auth
 				.inMemoryAuthentication()
-					.withUser("user").password("password").roles("USER").and()
-					.withUser("admin").password("password").roles("USER", "ADMIN");
+					.withUser(PasswordEncodedUser.user())
+					.withUser(PasswordEncodedUser.admin());
 		}
 	}
 
@@ -276,8 +278,8 @@ public class SampleWebSecurityConfigurerAdapterTests extends BaseSpringSpec {
 		protected void configure(AuthenticationManagerBuilder auth) {
 			auth
 				.inMemoryAuthentication()
-					.withUser("user").password("password").roles("USER").and()
-					.withUser("admin").password("password").roles("USER", "ADMIN");
+				.withUser(PasswordEncodedUser.user())
+				.withUser(PasswordEncodedUser.admin());
 		}
 
 		@Configuration

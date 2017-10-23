@@ -20,6 +20,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextImpl
+import org.springframework.security.core.userdetails.PasswordEncodedUser
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository
 import org.springframework.test.context.web.WebAppConfiguration
@@ -65,7 +66,7 @@ class EnableWebSecurityTests extends BaseSpringSpec {
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			auth
 				.inMemoryAuthentication()
-					.withUser("user").password("password").roles("USER");
+					.withUser(PasswordEncodedUser.user());
 		}
 
 		@Bean

@@ -15,6 +15,8 @@
  */
 package org.springframework.security.config.annotation.web.configurers
 
+import org.springframework.security.core.userdetails.PasswordEncodedUser
+
 import javax.servlet.http.HttpServletResponse
 
 import org.springframework.mock.web.MockFilterChain
@@ -144,7 +146,7 @@ class SessionManagementConfigurerTests extends BaseSpringSpec {
 		protected void configure(AuthenticationManagerBuilder auth) {
 			auth
 				.inMemoryAuthentication()
-					.withUser("user").password("password").roles("USER")
+					.withUser(PasswordEncodedUser.user())
 		}
 	}
 
@@ -200,7 +202,7 @@ class SessionManagementConfigurerTests extends BaseSpringSpec {
 		protected void configure(AuthenticationManagerBuilder auth) {
 			auth
 				.inMemoryAuthentication()
-					.withUser("user").password("password").roles("USER")
+					.withUser(PasswordEncodedUser.user())
 		}
 	}
 

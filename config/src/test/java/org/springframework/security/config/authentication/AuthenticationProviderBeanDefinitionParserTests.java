@@ -51,7 +51,7 @@ public class AuthenticationProviderBeanDefinitionParserTests {
 	public void worksWithEmbeddedUserService() {
 		setContext(" <authentication-provider>"
 				+ "        <user-service>"
-				+ "            <user name='bob' password='bobspassword' authorities='ROLE_A' />"
+				+ "            <user name='bob' password='{noop}bobspassword' authorities='ROLE_A' />"
 				+ "        </user-service>" + "    </authentication-provider>");
 		getProvider().authenticate(bob);
 	}
@@ -63,7 +63,7 @@ public class AuthenticationProviderBeanDefinitionParserTests {
 						+ "        <authentication-provider user-service-ref='myUserService' />"
 						+ "    </authentication-manager>"
 						+ "    <user-service id='myUserService'>"
-						+ "       <user name='bob' password='bobspassword' authorities='ROLE_A' />"
+						+ "       <user name='bob' password='{noop}bobspassword' authorities='ROLE_A' />"
 						+ "    </user-service>");
 		getProvider().authenticate(bob);
 	}

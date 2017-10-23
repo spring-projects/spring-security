@@ -15,6 +15,8 @@
  */
 package org.springframework.security.config.annotation.authentication
 
+import org.springframework.security.core.userdetails.PasswordEncodedUser
+
 import javax.sql.DataSource
 
 import org.springframework.beans.factory.annotation.Autowired
@@ -89,9 +91,7 @@ class NamespaceJdbcUserServiceTests extends BaseSpringSpec {
 					// imports the default schema (will fail if already exists)
 					.withDefaultSchema()
 					// adds this user automatically (will fail if already exists)
-					.withUser("user")
-						.password("password")
-						.roles("USER")
+					.withUser(PasswordEncodedUser.user())
 		}
 
 		// Only necessary to have access to verify the AuthenticationManager
