@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,8 +38,11 @@ import static org.springframework.security.crypto.util.EncodingUtils.subArray;
  *
  * @author Rob Worsnop
  * @author Rob Winch
+ * @author Guillaume Wallet
  * @since 4.1
+ * @deprecated Deprecated in 4.2.2, please use {@link org.springframework.security.crypto.pbkdf2.PBKDF2PasswordEncoder} instead.
  */
+@Deprecated
 public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 	private static final String PBKDF2_ALGORITHM = "PBKDF2WithHmacSHA1";
 	private static final int DEFAULT_HASH_WIDTH = 256;
