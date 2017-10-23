@@ -86,7 +86,7 @@ public class ExceptionTranslationFilter extends GenericFilterBean {
 
 	private RequestCache requestCache = new HttpSessionRequestCache();
 
-	private MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
+	private final MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
 	public ExceptionTranslationFilter(AuthenticationEntryPoint authenticationEntryPoint) {
 		this(authenticationEntryPoint, new HttpSessionRequestCache());
