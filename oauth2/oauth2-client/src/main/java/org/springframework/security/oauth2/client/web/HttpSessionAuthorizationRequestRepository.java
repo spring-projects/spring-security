@@ -54,7 +54,11 @@ public final class HttpSessionAuthorizationRequestRepository implements Authoriz
 	}
 
 	@Override
-	public void removeAuthorizationRequest(HttpServletRequest request) {
-		request.getSession().removeAttribute(this.sessionAttributeName);
+	public AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request) {
+		AuthorizationRequest authorizationRequest = this.loadAuthorizationRequest(request);
+		if (authorizationRequest != null) {
+			request.getSession().removeAttribute(this.sessionAttributeName);
+		}
+		return authorizationRequest;
 	}
 }

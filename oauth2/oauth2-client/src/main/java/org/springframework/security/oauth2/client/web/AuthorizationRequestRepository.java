@@ -42,6 +42,6 @@ public interface AuthorizationRequestRepository {
 	void saveAuthorizationRequest(AuthorizationRequest authorizationRequest, HttpServletRequest request,
 									HttpServletResponse response);
 
-	void removeAuthorizationRequest(HttpServletRequest request);
+	AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request);
 
 }
