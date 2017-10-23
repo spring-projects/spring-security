@@ -15,7 +15,6 @@
                <xs:enumeration value="plaintext"/>
                <xs:enumeration value="sha"/>
                <xs:enumeration value="sha-256"/>
-               <xs:enumeration value="md5"/>
                <xs:enumeration value="md4"/>
                <xs:enumeration value="{sha}"/>
                <xs:enumeration value="{ssha}"/>
@@ -150,7 +149,6 @@
                <xs:enumeration value="plaintext"/>
                <xs:enumeration value="sha"/>
                <xs:enumeration value="sha-256"/>
-               <xs:enumeration value="md5"/>
                <xs:enumeration value="md4"/>
                <xs:enumeration value="{sha}"/>
                <xs:enumeration value="{ssha}"/>
@@ -533,7 +531,6 @@
                <xs:enumeration value="plaintext"/>
                <xs:enumeration value="sha"/>
                <xs:enumeration value="sha-256"/>
-               <xs:enumeration value="md5"/>
                <xs:enumeration value="md4"/>
                <xs:enumeration value="{sha}"/>
                <xs:enumeration value="{ssha}"/>

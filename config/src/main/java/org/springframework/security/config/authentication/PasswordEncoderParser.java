@@ -29,7 +29,6 @@ import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.authentication.encoding.BaseDigestPasswordEncoder;
 import org.springframework.security.authentication.encoding.LdapShaPasswordEncoder;
 import org.springframework.security.authentication.encoding.Md4PasswordEncoder;
-import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
 import org.springframework.security.authentication.encoding.PlaintextPasswordEncoder;
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.security.config.Elements;
@@ -54,7 +53,6 @@ public class PasswordEncoderParser {
 	static final String OPT_HASH_SHA = "sha";
 	static final String OPT_HASH_SHA256 = "sha-256";
 	static final String OPT_HASH_MD4 = "md4";
-	static final String OPT_HASH_MD5 = "md5";
 	static final String OPT_HASH_LDAP_SHA = "{sha}";
 	static final String OPT_HASH_LDAP_SSHA = "{ssha}";
 
@@ -67,7 +65,6 @@ public class PasswordEncoderParser {
 		ENCODER_CLASSES.put(OPT_HASH_SHA, ShaPasswordEncoder.class);
 		ENCODER_CLASSES.put(OPT_HASH_SHA256, ShaPasswordEncoder.class);
 		ENCODER_CLASSES.put(OPT_HASH_MD4, Md4PasswordEncoder.class);
-		ENCODER_CLASSES.put(OPT_HASH_MD5, Md5PasswordEncoder.class);
 		ENCODER_CLASSES.put(OPT_HASH_LDAP_SHA, LdapShaPasswordEncoder.class);
 		ENCODER_CLASSES.put(OPT_HASH_LDAP_SSHA, LdapShaPasswordEncoder.class);
 	}

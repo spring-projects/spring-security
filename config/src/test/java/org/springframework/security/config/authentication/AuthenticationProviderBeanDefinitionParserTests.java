@@ -24,6 +24,7 @@ import org.springframework.security.authentication.dao.ReflectionSaltSource;
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
+import org.springframework.security.crypto.password.MessageDigestPasswordEncoder;
 import org.springframework.security.util.FieldUtils;
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
 import org.springframework.context.support.AbstractXmlApplicationContext;
@@ -103,11 +104,19 @@ public class AuthenticationProviderBeanDefinitionParserTests {
 
 	@Test
 	public void providerWithMd5PasswordEncoderWorks() throws Exception {
-		setContext(" <authentication-provider>"
-				+ "        <password-encoder hash='md5'/>"
+		appContext = new InMemoryXmlApplicationContext(
+				" <authentication-manager>"
+				+ " <authentication-provider>"
+				+ "        <password-encoder ref='passwordEncoder'/>"
 				+ "        <user-service>"
 				+ "            <user name='bob' password='12b141f35d58b8b3a46eea65e6ac179e' authorities='ROLE_A' />"
-				+ "        </user-service>" + "    </authentication-provider>");
+				+ "        </user-service>"
+				+ "    </authentication-provider>"
+				+ " </authentication-manager>"
+				+ " <b:bean id='passwordEncoder'  class='"
+				+ MessageDigestPasswordEncoder.class.getName() + "'>"
+				+ "     <b:constructor-arg value='MD5'/>"
+				+ " </b:bean>");
 
 		getProvider().authenticate(bob);
 	}
@@ -138,42 +147,21 @@ public class AuthenticationProviderBeanDefinitionParserTests {
 
 	@Test
 	public void passwordIsBase64EncodedWhenBase64IsEnabled() throws Exception {
-		setContext(" <authentication-provider>"
-				+ "        <password-encoder hash='md5' base64='true'/>"
+		appContext = new InMemoryXmlApplicationContext(
+				" <authentication-manager>"
+				+ " <authentication-provider>"
+				+ "        <password-encoder ref='passwordEncoder'/>"
 				+ "        <user-service>"
 				+ "            <user name='bob' password='ErFB811YuLOkbupl5qwXng==' authorities='ROLE_A' />"
-				+ "        </user-service>" + "    </authentication-provider>");
+				+ "        </user-service>"
+				+ "    </authentication-provider>"
+				+ " </authentication-manager>"
+				+ " <b:bean id='passwordEncoder'  class='"
+				+ MessageDigestPasswordEncoder.class.getName() + "'>"
+				+ "     <b:constructor-arg value='MD5'/>"
+				+ "     <b:property name='encodeHashAsBase64' value='true'/>"
+				+ " </b:bean>");
 
-		getProvider().authenticate(bob);
-	}
-
-	@Test
-	public void externalUserServicePasswordEncoderAndSaltSourceWork() throws Exception {
-		appContext = new InMemoryXmlApplicationContext(
-				"    <authentication-manager>"
-						+ "      <authentication-provider user-service-ref='customUserService'>"
-						+ "        <password-encoder ref='customPasswordEncoder'>"
-						+ "            <salt-source ref='saltSource'/>"
-						+ "        </password-encoder>"
-						+ "      </authentication-provider>"
-						+ "    </authentication-manager>"
-						+
-
-						"    <b:bean id='customPasswordEncoder' "
-						+ "class='org.springframework.security.authentication.encoding.Md5PasswordEncoder'/>"
-						+ "    <b:bean id='saltSource' "
-						+ "           class='"
-						+ ReflectionSaltSource.class.getName()
-						+ "'>"
-						+ "         <b:property name='userPropertyToUse' value='username'/>"
-						+ "    </b:bean>"
-						+ "    <b:bean id='customUserService' "
-						+ "           class='org.springframework.security.provisioning.InMemoryUserDetailsManager'>"
-						+ "        <b:constructor-arg>"
-						+ "            <b:props>"
-						+ "                <b:prop key='bob'>f117f0862384e9497ff4f470e3522606,ROLE_A</b:prop>"
-						+ "            </b:props>" + "        </b:constructor-arg>"
-						+ "    </b:bean>");
 		getProvider().authenticate(bob);
 	}
 
