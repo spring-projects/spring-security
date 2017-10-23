@@ -33,6 +33,8 @@ import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.Assert;
 
 /**
@@ -262,6 +264,11 @@ public class User implements UserDetails, CredentialsContainer {
 	 */
 	public static UserBuilder builder() {
 		return new UserBuilder();
+	}
+
+	public static UserBuilder withDefaultPasswordEncoder() {
+		PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+		return builder().passwordEncoder(encoder::encode);
 	}
 
 	public static UserBuilder withUserDetails(UserDetails userDetails) {
