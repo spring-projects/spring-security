@@ -45,6 +45,12 @@ public class PasswordEncoderFactoriesTests {
 	}
 
 	@Test
+	public void matchesWhenMd4ThenWorks() {
+		String encodedPassword = "{MD4}{KYp8/QErWyQemYazZQ8UnWWfbGbkYkVC8qMi0duoA84=}152ce09d3261d2b53cac55b2ea4d1c7a";
+		assertThat(this.encoder.matches(this.rawPassword, encodedPassword)).isTrue();
+	}
+
+	@Test
 	public void matchesWhenNoopThenWorks() {
 		String encodedPassword = "{noop}password";
 		assertThat(this.encoder.matches(this.rawPassword, encodedPassword)).isTrue();

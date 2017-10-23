@@ -18,6 +18,7 @@ package org.springframework.security.crypto.factory;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
+import org.springframework.security.crypto.password.Md4PasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
@@ -42,6 +43,7 @@ public class PasswordEncoderFactories {
 	 *
 	 * <ul>
 	 * <li>bcrypt - {@link BCryptPasswordEncoder} (Also used for encoding)</li>
+	 * <li>MD4 - {@link Md4PasswordEncoder}</li>
 	 * <li>noop - {@link NoOpPasswordEncoder}</li>
 	 * <li>pbkdf2 - {@link Pbkdf2PasswordEncoder}</li>
 	 * <li>scrypt - {@link SCryptPasswordEncoder}</li>
@@ -54,6 +56,7 @@ public class PasswordEncoderFactories {
 		String encodingId = "bcrypt";
 		Map<String,PasswordEncoder> encoders = new HashMap<>();
 		encoders.put(encodingId, new BCryptPasswordEncoder());
+		encoders.put("MD4", new Md4PasswordEncoder());
 		encoders.put("noop", NoOpPasswordEncoder.getInstance());
 		encoders.put("pbkdf2", new Pbkdf2PasswordEncoder());
 		encoders.put("scrypt", new SCryptPasswordEncoder());
