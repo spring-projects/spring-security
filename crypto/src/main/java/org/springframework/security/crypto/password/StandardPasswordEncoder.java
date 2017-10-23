@@ -24,6 +24,9 @@ import org.springframework.security.crypto.keygen.BytesKeyGenerator;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 
 /**
+ * This {@link PasswordEncoder} is provided for legacy purposes only and is not considered
+ * secure.
+ *
  * A standard {@code PasswordEncoder} implementation that uses SHA-256 hashing with 1024
  * iterations and a random 8-byte random salt value. It uses an additional system-wide
  * secret value to provide additional protection.
@@ -37,7 +40,12 @@ import org.springframework.security.crypto.keygen.KeyGenerators;
  *
  * @author Keith Donald
  * @author Luke Taylor
+ * @deprecated Digest based password encoding is not considered secure. Instead use an
+ * adaptive one way funciton like BCryptPasswordEncoder, Pbkdf2PasswordEncoder, or
+ * SCryptPasswordEncoder. Even better use {@link DelegatingPasswordEncoder} which supports
+ * password upgrades.
  */
+@Deprecated
 public final class StandardPasswordEncoder implements PasswordEncoder {
 
 	private final Digester digester;
