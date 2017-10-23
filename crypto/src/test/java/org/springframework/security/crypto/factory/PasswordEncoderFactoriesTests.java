@@ -81,6 +81,12 @@ public class PasswordEncoderFactoriesTests {
 	}
 
 	@Test
+	public void matchesWhenSHA256ThenWorks() {
+		String encodedPassword = "{SHA-256}{UisHp3pFSMqcqrhQsrhR+hspIG0SyMDyDW/XtY+t6nA=}a98efbaf59277bfd1837c33fd4fde67de5bcfd2205bcba0992f6fc32b03a8f88";
+		assertThat(this.encoder.matches(this.rawPassword, encodedPassword)).isTrue();
+	}
+
+	@Test
 	public void matchesWhenSha256ThenWorks() {
 		String encodedPassword = "{sha256}97cde38028ad898ebc02e690819fa220e88c62e0699403e94fff291cfffaf8410849f27605abcbc0";
 		assertThat(this.encoder.matches(this.rawPassword, encodedPassword)).isTrue();
