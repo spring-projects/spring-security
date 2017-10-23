@@ -18,7 +18,6 @@ package org.springframework.security.config.authentication;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.authentication.dao.ReflectionSaltSource;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
 import org.springframework.security.crypto.password.LdapShaPasswordEncoder;
@@ -78,25 +77,6 @@ public class AuthenticationProviderBeanDefinitionParserTests {
 				+ "        </user-service>" + "    </authentication-provider>");
 
 		getProvider().authenticate(bob);
-	}
-
-	@Test(expected = BeanDefinitionParsingException.class)
-	public void bCryptAndSaltSourceRaisesException() throws Exception {
-		appContext = new InMemoryXmlApplicationContext(
-				""
-						+ " <authentication-manager>"
-						+ "    <authentication-provider>"
-						+ "        <password-encoder hash='bcrypt'>"
-						+ "            <salt-source ref='saltSource'/>"
-						+ "        </password-encoder>"
-						+ "        <user-service>"
-						+ "            <user name='bob' password='$2a$05$dRmjl1T05J7rvCPD2NgsHesCEJHww3pdmesUhjM3PD4m/gaEYyx/G' authorities='ROLE_A' />"
-						+ "        </user-service>" + "    </authentication-provider>"
-						+ " </authentication-manager>"
-						+ " <b:bean id='saltSource'  class='"
-						+ ReflectionSaltSource.class.getName() + "'>"
-						+ "     <b:property name='userPropertyToUse' value='username'/>"
-						+ " </b:bean>");
 	}
 
 	@Test

@@ -2515,11 +2515,6 @@ One potential problem with the use of password hashes that it is relatively easy
 
 Bcrypt automatically generates a random salt value for each password when it is encoded, and stores it in the bcrypt string in a standard format.
 
-[NOTE]
-====
-The legacy approach to handling salt was to inject a `SaltSource` into the `DaoAuthenticationProvider`, which would obtain a salt value for a particular user and pass it to the `PasswordEncoder`. Using bcrypt means you don't have worry about the details of salt handling (such as where the value is stored), as it is all done internally. So we'd strongly recommend you use bcrypt unless you already have a system in place which stores the salt separately.
-====
-
 ====  Hashing and Authentication
 When an authentication provider (such as Spring Security's `DaoAuthenticationProvider`) needs to check the password in a submitted authentication request against the known value for a user, and the stored password is encoded in some way, then the submitted value must be encoded using exactly the same algorithm. It's up to you to check that these are compatible as Spring Security has no control over the persistent values. If you add password hashing to your authentication configuration in Spring Security, and your database contains plaintext passwords, then there is no way authentication can succeed. Even if you are aware that your database is using MD5 to encode the passwords, for example, and your application is configured to use Spring Security's `Md5PasswordEncoder`, there are still things that can go wrong. The database may have the passwords encoded in Base 64, for example while the encoder is using hexadecimal strings (the default). Alternatively your database may be using upper-case while the output from the encoder is lower-case. Make sure you write a test to check the output from your configured password encoder with a known password and salt combination and check that it matches the database value before going further and attempting to authenticate through your application. Using a standard like bcrypt will avoid these issues.
 
@@ -9169,7 +9164,7 @@ select username, password, enabled from users where username = ?
 
 [[nsa-password-encoder]]
 ==== <password-encoder>
-Authentication providers can optionally be configured to use a password encoder as described in the <<ns-password-encoder,namespace introduction>>. This will result in the bean being injected with the appropriate `PasswordEncoder` instance, potentially with an accompanying `SaltSource` bean to provide salt values for hashing.
+Authentication providers can optionally be configured to use a password encoder as described in the <<ns-password-encoder,namespace introduction>>. This will result in the bean being injected with the appropriate `PasswordEncoder` instance.
 
 
 [[nsa-password-encoder-parents]]
@@ -9193,46 +9188,6 @@ Defines the hashing algorithm used on user passwords. We recommend strongly agai
 [[nsa-password-encoder-ref]]
 * **ref**
 Defines a reference to a Spring bean that implements `PasswordEncoder`.
-
-
-[[nsa-password-encoder-children]]
-===== Child Elements of <password-encoder>
-
-
-* <<nsa-salt-source,salt-source>>
-
-
-
-[[nsa-salt-source]]
-==== <salt-source>
-Password salting strategy. A system-wide constant or a property from the UserDetails object can be used.
-
-
-[[nsa-salt-source-parents]]
-===== Parent Elements of <salt-source>
-
-
-* <<nsa-password-encoder,password-encoder>>
-
-
-
-[[nsa-salt-source-attributes]]
-===== <salt-source> Attributes
-
-
-[[nsa-salt-source-ref]]
-* **ref**
-Defines a reference to a Spring bean Id.
-
-
-[[nsa-salt-source-system-wide]]
-* **system-wide**
-A single value that will be used as the salt for a password encoder.
-
-
-[[nsa-salt-source-user-property]]
-* **user-property**
-A property of the UserDetails object which will be used as salt by a password encoder. Typically something like "username" might be used.
 
 
 [[nsa-user-service]]

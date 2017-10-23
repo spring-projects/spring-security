@@ -47,11 +47,6 @@ public class AuthenticationProviderBeanDefinitionParser implements BeanDefinitio
 			PasswordEncoderParser pep = new PasswordEncoderParser(passwordEncoderElt, pc);
 			authProvider.getPropertyValues().addPropertyValue("passwordEncoder",
 					pep.getPasswordEncoder());
-
-			if (pep.getSaltSource() != null) {
-				authProvider.getPropertyValues().addPropertyValue("saltSource",
-						pep.getSaltSource());
-			}
 		}
 
 		Element userServiceElt = DomUtils.getChildElementByTagName(element,

@@ -103,12 +103,6 @@ public class LdapProviderBeanDefinitionParser implements BeanDefinitionParser {
 						passwordEncoderElement, parserContext);
 				authenticatorBuilder.addPropertyValue("passwordEncoder",
 						pep.getPasswordEncoder());
-
-				if (pep.getSaltSource() != null) {
-					parserContext.getReaderContext().warning(
-							"Salt source information isn't valid when used with LDAP",
-							passwordEncoderElement);
-				}
 			}
 			else if (StringUtils.hasText(hash)) {
 				authenticatorBuilder.addPropertyValue("passwordEncoder",

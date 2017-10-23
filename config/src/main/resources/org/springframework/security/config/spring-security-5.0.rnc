@@ -54,19 +54,9 @@ debug =
 
 password-encoder =
 	## element which defines a password encoding strategy. Used by an authentication provider to convert submitted passwords to hashed versions, for example.
-	element password-encoder {password-encoder.attlist, salt-source?}
+	element password-encoder {password-encoder.attlist}
 password-encoder.attlist &=
 	ref | (hash)
-
-salt-source =
-	## Password salting strategy. A system-wide constant or a property from the UserDetails object can be used.
-	element salt-source {user-property | system-wide | ref}
-user-property =
-	## A property of the UserDetails object which will be used as salt by a password encoder. Typically something like "username" might be used.
-	attribute user-property {xsd:token}
-system-wide =
-	## A single value that will be used as the salt for a password encoder.
-	attribute system-wide {xsd:token}
 
 role-prefix =
 	## A non-empty string prefix that will be added to role strings loaded from persistent storage (e.g. "ROLE_"). Use the value "none" for no prefix in cases where the default is non-empty.

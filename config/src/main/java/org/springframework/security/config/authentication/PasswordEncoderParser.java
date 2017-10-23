@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package org.springframework.security.config.authentication;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,8 +34,6 @@ import org.w3c.dom.Element;
 /**
  * Stateful parser for the &lt;password-encoder&gt; element.
  *
- * Will produce a PasswordEncoder and (optionally) a SaltSource.
- *
  * @author Luke Taylor
  */
 public class PasswordEncoderParser {
@@ -55,7 +52,6 @@ public class PasswordEncoderParser {
 	private static final Log logger = LogFactory.getLog(PasswordEncoderParser.class);
 
 	private BeanMetadataElement passwordEncoder;
-	private BeanMetadataElement saltSource;
 
 	public PasswordEncoderParser(Element element, ParserContext parserContext) {
 		parse(element, parserContext);
@@ -79,21 +75,6 @@ public class PasswordEncoderParser {
 			((RootBeanDefinition) passwordEncoder).setSource(parserContext
 					.extractSource(element));
 		}
-
-		Element saltSourceElt = DomUtils.getChildElementByTagName(element,
-				Elements.SALT_SOURCE);
-
-		if (saltSourceElt != null) {
-			if (OPT_HASH_BCRYPT.equals(hash)) {
-				parserContext.getReaderContext().error(
-						Elements.SALT_SOURCE + " isn't compatible with bcrypt",
-						parserContext.extractSource(saltSourceElt));
-			}
-			else {
-				saltSource = new SaltSourceBeanDefinitionParser().parse(saltSourceElt,
-						parserContext);
-			}
-		}
 	}
 
 	public static BeanDefinition createPasswordEncoderBeanDefinition(String hash,
@@ -106,9 +87,5 @@ public class PasswordEncoderParser {
 
 	public BeanMetadataElement getPasswordEncoder() {
 		return passwordEncoder;
-	}
-
-	public BeanMetadataElement getSaltSource() {
-		return saltSource;
 	}
 }

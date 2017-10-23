@@ -394,10 +394,6 @@ public class DaoAuthenticationProviderTests {
 		assertThat(provider.getPasswordEncoder().getClass()).isEqualTo(
 			BCryptPasswordEncoder.class);
 
-		provider.setSaltSource(new SystemWideSaltSource());
-		assertThat(provider.getSaltSource().getClass()).isEqualTo(
-				SystemWideSaltSource.class);
-
 		provider.setUserCache(new EhCacheBasedUserCache());
 		assertThat(provider.getUserCache().getClass()).isEqualTo(
 				EhCacheBasedUserCache.class);

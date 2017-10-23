@@ -55,7 +55,6 @@ public abstract class Elements {
 	public static final String FILTER_CHAIN = "filter-chain";
 	public static final String GLOBAL_METHOD_SECURITY = "global-method-security";
 	public static final String PASSWORD_ENCODER = "password-encoder";
-	public static final String SALT_SOURCE = "salt-source";
 	public static final String PORT_MAPPINGS = "port-mappings";
 	public static final String PORT_MAPPING = "port-mapping";
 	public static final String CUSTOM_FILTER = "custom-filter";

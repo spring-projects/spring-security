@@ -60,8 +60,6 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 	 */
 	private String userNotFoundEncodedPassword;
 
-	private SaltSource saltSource;
-
 	private UserDetailsService userDetailsService;
 
 	public DaoAuthenticationProvider() {
@@ -75,12 +73,6 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 	protected void additionalAuthenticationChecks(UserDetails userDetails,
 			UsernamePasswordAuthenticationToken authentication)
 			throws AuthenticationException {
-		Object salt = null;
-
-		if (this.saltSource != null) {
-			salt = this.saltSource.getSalt(userDetails);
-		}
-
 		if (authentication.getCredentials() == null) {
 			logger.debug("Authentication failed: no credentials provided");
 
@@ -153,26 +145,6 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 
 	protected PasswordEncoder getPasswordEncoder() {
 		return passwordEncoder;
-	}
-
-	/**
-	 * The source of salts to use when decoding passwords. <code>null</code> is a valid
-	 * value, meaning the <code>DaoAuthenticationProvider</code> will present
-	 * <code>null</code> to the relevant <code>PasswordEncoder</code>.
-	 * <p>
-	 * Instead, it is recommended that you use an encoder which uses a random salt and
-	 * combines it with the password field. This is the default approach taken in the
-	 * {@code org.springframework.security.crypto.password} package.
-	 *
-	 * @param saltSource to use when attempting to decode passwords via the
-	 * <code>PasswordEncoder</code>
-	 */
-	public void setSaltSource(SaltSource saltSource) {
-		this.saltSource = saltSource;
-	}
-
-	protected SaltSource getSaltSource() {
-		return saltSource;
 	}
 
 	public void setUserDetailsService(UserDetailsService userDetailsService) {

@@ -144,24 +144,6 @@
          </xs:simpleType>
       </xs:attribute>
   </xs:attributeGroup>
-  
-  <xs:attributeGroup name="user-property">
-      <xs:attribute name="user-property" use="required" type="xs:token">
-         <xs:annotation>
-            <xs:documentation>A property of the UserDetails object which will be used as salt by a password encoder.
-                Typically something like "username" might be used.
-                </xs:documentation>
-         </xs:annotation>
-      </xs:attribute>
-  </xs:attributeGroup>
-  <xs:attributeGroup name="system-wide">
-      <xs:attribute name="system-wide" use="required" type="xs:token">
-         <xs:annotation>
-            <xs:documentation>A single value that will be used as the salt for a password encoder.
-                </xs:documentation>
-         </xs:annotation>
-      </xs:attribute>
-  </xs:attributeGroup>
   <xs:attributeGroup name="role-prefix">
       <xs:attribute name="role-prefix" use="required" type="xs:token">
          <xs:annotation>
@@ -2007,36 +1989,6 @@
                 </xs:documentation>
                         </xs:annotation>
                         <xs:complexType>
-                           <xs:sequence>
-                              <xs:element minOccurs="0" name="salt-source">
-                                 <xs:annotation>
-                                    <xs:documentation>Password salting strategy. A system-wide constant or a property from the UserDetails
-                object can be used.
-                </xs:documentation>
-                                 </xs:annotation>
-                                 <xs:complexType>
-                                    <xs:attribute name="user-property" type="xs:token">
-                                       <xs:annotation>
-                                          <xs:documentation>A property of the UserDetails object which will be used as salt by a password encoder.
-                Typically something like "username" might be used.
-                </xs:documentation>
-                                       </xs:annotation>
-                                    </xs:attribute>
-                                    <xs:attribute name="system-wide" type="xs:token">
-                                       <xs:annotation>
-                                          <xs:documentation>A single value that will be used as the salt for a password encoder.
-                </xs:documentation>
-                                       </xs:annotation>
-                                    </xs:attribute>
-                                    <xs:attribute name="ref" type="xs:token">
-                                       <xs:annotation>
-                                          <xs:documentation>Defines a reference to a Spring bean Id.
-                </xs:documentation>
-                                       </xs:annotation>
-                                    </xs:attribute>
-                                 </xs:complexType>
-                              </xs:element>
-                           </xs:sequence>
                            <xs:attributeGroup ref="security:password-encoder.attlist"/>
                         </xs:complexType>
                      </xs:element>
@@ -2066,36 +2018,6 @@
                 </xs:documentation>
                                  </xs:annotation>
                                  <xs:complexType>
-                                    <xs:sequence>
-                                       <xs:element minOccurs="0" name="salt-source">
-                                          <xs:annotation>
-                                             <xs:documentation>Password salting strategy. A system-wide constant or a property from the UserDetails
-                object can be used.
-                </xs:documentation>
-                                          </xs:annotation>
-                                          <xs:complexType>
-                                             <xs:attribute name="user-property" type="xs:token">
-                                                <xs:annotation>
-                                                   <xs:documentation>A property of the UserDetails object which will be used as salt by a password encoder.
-                Typically something like "username" might be used.
-                </xs:documentation>
-                                                </xs:annotation>
-                                             </xs:attribute>
-                                             <xs:attribute name="system-wide" type="xs:token">
-                                                <xs:annotation>
-                                                   <xs:documentation>A single value that will be used as the salt for a password encoder.
-                </xs:documentation>
-                                                </xs:annotation>
-                                             </xs:attribute>
-                                             <xs:attribute name="ref" type="xs:token">
-                                                <xs:annotation>
-                                                   <xs:documentation>Defines a reference to a Spring bean Id.
-                </xs:documentation>
-                                                </xs:annotation>
-                                             </xs:attribute>
-                                          </xs:complexType>
-                                       </xs:element>
-                                    </xs:sequence>
                                     <xs:attributeGroup ref="security:password-encoder.attlist"/>
                                  </xs:complexType>
                               </xs:element>
