@@ -49,6 +49,7 @@ public class PasswordEncoderFactories {
 	 * <li>noop - {@link NoOpPasswordEncoder}</li>
 	 * <li>pbkdf2 - {@link Pbkdf2PasswordEncoder}</li>
 	 * <li>scrypt - {@link SCryptPasswordEncoder}</li>
+	 * <li>SHA-1 - {@code new MessageDigestPasswordEncoder("SHA-1")}</li>
 	 * <li>sha256 - {@link StandardPasswordEncoder}</li>
 	 * </ul>
 	 *
@@ -63,6 +64,7 @@ public class PasswordEncoderFactories {
 		encoders.put("noop", NoOpPasswordEncoder.getInstance());
 		encoders.put("pbkdf2", new Pbkdf2PasswordEncoder());
 		encoders.put("scrypt", new SCryptPasswordEncoder());
+		encoders.put("SHA-1", new MessageDigestPasswordEncoder("SHA-1"));
 		encoders.put("sha256", new StandardPasswordEncoder());
 
 		return new DelegatingPasswordEncoder(encodingId, encoders);
