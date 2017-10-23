@@ -18,6 +18,7 @@ package org.springframework.security.crypto.factory;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
+import org.springframework.security.crypto.password.LdapShaPasswordEncoder;
 import org.springframework.security.crypto.password.Md4PasswordEncoder;
 import org.springframework.security.crypto.password.MessageDigestPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
@@ -44,6 +45,7 @@ public class PasswordEncoderFactories {
 	 *
 	 * <ul>
 	 * <li>bcrypt - {@link BCryptPasswordEncoder} (Also used for encoding)</li>
+	 * <li>ldap - {@link LdapShaPasswordEncoder}</li>
 	 * <li>MD4 - {@link Md4PasswordEncoder}</li>
 	 * <li>MD5 - {@code new MessageDigestPasswordEncoder("MD5")}</li>
 	 * <li>noop - {@link NoOpPasswordEncoder}</li>
@@ -60,6 +62,7 @@ public class PasswordEncoderFactories {
 		String encodingId = "bcrypt";
 		Map<String,PasswordEncoder> encoders = new HashMap<>();
 		encoders.put(encodingId, new BCryptPasswordEncoder());
+		encoders.put("ldap", new LdapShaPasswordEncoder());
 		encoders.put("MD4", new Md4PasswordEncoder());
 		encoders.put("MD5", new MessageDigestPasswordEncoder("MD5"));
 		encoders.put("noop", NoOpPasswordEncoder.getInstance());
