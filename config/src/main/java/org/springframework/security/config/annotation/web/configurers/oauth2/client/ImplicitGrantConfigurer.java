@@ -20,7 +20,7 @@ import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRedirectFilter;
-import org.springframework.security.oauth2.client.web.AuthorizationRequestUriBuilder;
+import org.springframework.security.oauth2.core.endpoint.AuthorizationRequestUriBuilder;
 import org.springframework.util.Assert;
 
 /**

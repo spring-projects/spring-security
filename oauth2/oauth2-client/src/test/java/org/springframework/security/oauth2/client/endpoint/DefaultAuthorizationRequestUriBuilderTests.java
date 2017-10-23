@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.oauth2.client.web;
+package org.springframework.security.oauth2.client.endpoint;
 
 import org.junit.Test;
 import org.springframework.security.oauth2.core.endpoint.AuthorizationRequest;
