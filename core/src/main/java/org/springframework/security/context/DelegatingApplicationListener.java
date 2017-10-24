@@ -20,8 +20,8 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.SmartApplicationListener;
 import org.springframework.util.Assert;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Used for delegating to a number of SmartApplicationListener instances. This is useful
@@ -32,7 +32,7 @@ import java.util.List;
  */
 public final class DelegatingApplicationListener implements
 		ApplicationListener<ApplicationEvent> {
-	private List<SmartApplicationListener> listeners = new ArrayList<SmartApplicationListener>();
+	private List<SmartApplicationListener> listeners = new CopyOnWriteArrayList<SmartApplicationListener>();
 
 	public void onApplicationEvent(ApplicationEvent event) {
 		if (event == null) {
