@@ -28,11 +28,53 @@ import java.util.Base64;
 /**
  * This {@link PasswordEncoder} is provided for legacy purposes only and is not considered secure.
  *
- * Encodes passwords using the passed in {@link MessageDigest}
+ * Encodes passwords using the passed in {@link MessageDigest}.
+ *
+ * The general format of the password is:
+ *
+ * <pre>
+ * s = salt == null ? "" : "{" + salt + "}"
+ * s + digest(password + s)
+ * </pre>
+ *
+ * Such that "salt" is the salt, digest is the digest method, and password is the actual
+ * password. For example when using MD5, a password of "password", and a salt of
+ * "thisissalt":
+ *
+ * <pre>
+ * String s = salt == null ? "" : "{" + salt + "}";
+ * s + md5(password + s)
+ * "{thisissalt}" + md5(password + "{thisissalt}")
+ * "{thisissalt}2a4e7104c2780098f50ed5a84bb2323d"
+ * </pre>
+ *
+ * If the salt does not exist, then omit "{salt}" like this:
+ *
+ * <pre>
+ * digest(password)
+ * </pre>
+ *
+ * If the salt is an empty String, then only use "{}" like this:
+ *
+ * <pre>
+ * "{}" + digest(password + "{}")
+ * </pre>
+ *
+ * The format is intended to work with the DigestPasswordEncoder that was found in the
+ * Spring Security core module. However, the passwords will need to be migrated to include
+ * any salt with the password since this API provides Salt internally vs making it the
+ * responsibility of the user. To migrate passwords from the SaltSource use the following:
+ *
+ * <pre>
+ * String salt = saltSource.getSalt(user);
+ * String s = salt == null ? null : "{" + salt + "}";
+ * String migratedPassword = s + user.getPassword();
+ * </pre>
  *
  * @author Ray Krueger
  * @author Luke Taylor
- * @since 1.0.1
+ * @author Rob Winch
+ * @since 5.0
  * @deprecated Digest based password encoding is not considered secure. Instead use an
  * adaptive one way funciton like BCryptPasswordEncoder, Pbkdf2PasswordEncoder, or
  * SCryptPasswordEncoder. Even better use {@link DelegatingPasswordEncoder} which supports
