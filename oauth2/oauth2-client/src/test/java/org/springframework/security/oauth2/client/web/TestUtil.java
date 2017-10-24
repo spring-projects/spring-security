@@ -31,7 +31,7 @@ class TestUtil {
 	static final int DEFAULT_SERVER_PORT = 8080;
 	static final String DEFAULT_SERVER_URL = DEFAULT_SCHEME + "://" + DEFAULT_SERVER_NAME + ":" + DEFAULT_SERVER_PORT;
 	static final String AUTHORIZATION_BASE_URI = "/oauth2/authorization";
-	static final String AUTHORIZE_BASE_URI = "/oauth2/authorize/code";
+	static final String AUTHORIZE_BASE_URI = "/login/oauth2";
 	static final String GOOGLE_REGISTRATION_ID = "google";
 	static final String GITHUB_REGISTRATION_ID = "github";
 

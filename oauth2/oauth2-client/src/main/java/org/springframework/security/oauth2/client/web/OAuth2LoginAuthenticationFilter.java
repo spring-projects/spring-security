@@ -74,17 +74,17 @@ import java.io.IOException;
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.2">Section 4.1.2 Authorization Response</a>
  */
 public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
-	public static final String DEFAULT_AUTHORIZATION_RESPONSE_BASE_URI = "/oauth2/authorize/code/*";
+	public static final String DEFAULT_FILTER_PROCESSES_URI = "/login/oauth2/*";
 	private static final String AUTHORIZATION_REQUEST_NOT_FOUND_ERROR_CODE = "authorization_request_not_found";
 	private ClientRegistrationRepository clientRegistrationRepository;
 	private AuthorizationRequestRepository authorizationRequestRepository = new HttpSessionAuthorizationRequestRepository();
 
 	public OAuth2LoginAuthenticationFilter() {
-		this(DEFAULT_AUTHORIZATION_RESPONSE_BASE_URI);
+		this(DEFAULT_FILTER_PROCESSES_URI);
 	}
 
-	public OAuth2LoginAuthenticationFilter(String authorizationResponseBaseUri) {
-		super(authorizationResponseBaseUri);
+	public OAuth2LoginAuthenticationFilter(String filterProcessesUrl) {
+		super(filterProcessesUrl);
 	}
 
 	@Override

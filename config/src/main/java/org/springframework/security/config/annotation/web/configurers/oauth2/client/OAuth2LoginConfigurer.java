@@ -35,9 +35,9 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.client.token.SecurityTokenRepository;
-import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRedirectFilter;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
+import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.security.oauth2.core.endpoint.AuthorizationRequestUriBuilder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -65,14 +65,15 @@ import java.util.Map;
 public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> extends
 	AbstractAuthenticationFilterConfigurer<B, OAuth2LoginConfigurer<B>, OAuth2LoginAuthenticationFilter> {
 
-	private static final String DEFAULT_LOGIN_PROCESSING_URI = "/login/oauth2/authorize/code/*";
 	private final AuthorizationEndpointConfig authorizationEndpointConfig = new AuthorizationEndpointConfig();
 	private final TokenEndpointConfig tokenEndpointConfig = new TokenEndpointConfig();
 	private final RedirectionEndpointConfig redirectionEndpointConfig = new RedirectionEndpointConfig();
 	private final UserInfoEndpointConfig userInfoEndpointConfig = new UserInfoEndpointConfig();
 
 	public OAuth2LoginConfigurer() {
-		super(new OAuth2LoginAuthenticationFilter(DEFAULT_LOGIN_PROCESSING_URI), DEFAULT_LOGIN_PROCESSING_URI);
+		super(new OAuth2LoginAuthenticationFilter(
+			OAuth2LoginAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI),
+			OAuth2LoginAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI);
 	}
 
 	public OAuth2LoginConfigurer<B> clients(ClientRegistration... clientRegistrations) {
