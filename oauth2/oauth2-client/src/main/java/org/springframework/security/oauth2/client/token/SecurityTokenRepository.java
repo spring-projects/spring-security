@@ -16,18 +16,18 @@
 package org.springframework.security.oauth2.client.token;
 
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.core.SecurityToken;
+import org.springframework.security.oauth2.core.AbstractOAuth2Token;
 
 /**
  * Implementations of this interface are responsible for the persistence
- * and association of a {@link SecurityToken} to a {@link ClientRegistration Client}.
+ * and association of an {@link AbstractOAuth2Token} to a {@link ClientRegistration Client}.
  *
  * @author Joe Grandja
  * @since 5.0
- * @see SecurityToken
+ * @see AbstractOAuth2Token
  * @see ClientRegistration
  */
-public interface SecurityTokenRepository<T extends SecurityToken> {
+public interface SecurityTokenRepository<T extends AbstractOAuth2Token> {
 
 	T loadSecurityToken(ClientRegistration registration);
 

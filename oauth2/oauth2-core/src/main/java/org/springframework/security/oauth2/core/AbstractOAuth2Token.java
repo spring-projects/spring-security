@@ -22,18 +22,18 @@ import java.io.Serializable;
 import java.time.Instant;
 
 /**
- * Base class for <i>Security Token</i> implementations.
+ * Base class for <i>OAuth 2.0 Token</i> implementations.
  *
  * @author Joe Grandja
  * @since 5.0
  */
-public abstract class SecurityToken implements Serializable {
+public abstract class AbstractOAuth2Token implements Serializable {
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 	private final String tokenValue;
 	private final Instant issuedAt;
 	private final Instant expiresAt;
 
-	protected SecurityToken(String tokenValue, Instant issuedAt, Instant expiresAt) {
+	protected AbstractOAuth2Token(String tokenValue, Instant issuedAt, Instant expiresAt) {
 		Assert.hasText(tokenValue, "tokenValue cannot be empty");
 		Assert.notNull(issuedAt, "issuedAt cannot be null");
 		Assert.notNull(expiresAt, "expiresAt cannot be null");
@@ -63,7 +63,7 @@ public abstract class SecurityToken implements Serializable {
 			return false;
 		}
 
-		SecurityToken that = (SecurityToken) obj;
+		AbstractOAuth2Token that = (AbstractOAuth2Token) obj;
 
 		if (!this.getTokenValue().equals(that.getTokenValue())) {
 			return false;

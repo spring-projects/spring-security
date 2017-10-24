@@ -15,7 +15,7 @@
  */
 package org.springframework.security.oauth2.oidc.core;
 
-import org.springframework.security.oauth2.core.SecurityToken;
+import org.springframework.security.oauth2.core.AbstractOAuth2Token;
 import org.springframework.util.Assert;
 
 import java.time.Instant;
@@ -24,7 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * An implementation of a {@link SecurityToken} representing an <i>OpenID Connect Core 1.0 ID Token</i>.
+ * An implementation of an {@link AbstractOAuth2Token} representing an <i>OpenID Connect Core 1.0 ID Token</i>.
  *
  * <p>
  * The <code>IdToken</code> is a security token that contains &quot;Claims&quot;
@@ -32,13 +32,13 @@ import java.util.Map;
  *
  * @author Joe Grandja
  * @since 5.0
- * @see SecurityToken
+ * @see AbstractOAuth2Token
  * @see IdTokenClaimAccessor
  * @see StandardClaimAccessor
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#IDToken">ID Token</a>
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#StandardClaims">Standard Claims</a>
  */
-public class IdToken extends SecurityToken implements IdTokenClaimAccessor {
+public class IdToken extends AbstractOAuth2Token implements IdTokenClaimAccessor {
 	private final Map<String, Object> claims;
 
 	public IdToken(String tokenValue, Instant issuedAt, Instant expiresAt, Map<String, Object> claims) {
