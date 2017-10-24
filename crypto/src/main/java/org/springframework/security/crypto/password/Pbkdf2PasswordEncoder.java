@@ -17,6 +17,7 @@ package org.springframework.security.crypto.password;
 
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
@@ -52,6 +53,7 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 	private final int hashWidth;
 	private final int iterations;
 	private String algorithm = SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA1.name();
+	private boolean encodeHashAsBase64;
 
 	/**
 	 * Constructs a PBKDF2 password encoder with no additional secret value. There will be
@@ -110,16 +112,33 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 		this.algorithm = algorithmName;
 	}
 
+	/**
+	 * Sets if the resulting hash should be encoded as Base64. The default is false which
+	 * means it will be encoded in Hex.
+	 * @param encodeHashAsBase64 true if encode as Base64, false if should use Hex
+	 * (default)
+	 */
+	public void setEncodeHashAsBase64(boolean encodeHashAsBase64) {
+		this.encodeHashAsBase64 = encodeHashAsBase64;
+	}
+
 	@Override
 	public String encode(CharSequence rawPassword) {
 		byte[] salt = this.saltGenerator.generateKey();
 		byte[] encoded = encode(rawPassword, salt);
-		return String.valueOf(Hex.encode(encoded));
+		return encode(encoded);
+	}
+
+	private String encode(byte[] bytes) {
+		if(this.encodeHashAsBase64) {
+			return Base64.getEncoder().encodeToString(bytes);
+		}
+		return String.valueOf(Hex.encode(bytes));
 	}
 
 	@Override
 	public boolean matches(CharSequence rawPassword, String encodedPassword) {
-		byte[] digested = Hex.decode(encodedPassword);
+		byte[] digested = decode(encodedPassword);
 		byte[] salt = subArray(digested, 0, this.saltGenerator.getKeyLength());
 		return matches(digested, encode(rawPassword, salt));
 	}
@@ -137,6 +156,13 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 			result |= expected[i] ^ actual[i];
 		}
 		return result == 0;
+	}
+
+	private byte[] decode(String encodedBytes) {
+		if(this.encodeHashAsBase64) {
+			return Base64.getDecoder().decode(encodedBytes);
+		}
+		return Hex.decode(encodedBytes);
 	}
 
 	private byte[] encode(CharSequence rawPassword, byte[] salt) {

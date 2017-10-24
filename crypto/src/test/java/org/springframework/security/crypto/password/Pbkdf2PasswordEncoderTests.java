@@ -19,6 +19,7 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
+import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 
@@ -73,6 +74,25 @@ public class Pbkdf2PasswordEncoderTests {
 		String fixedHex = String.valueOf(Hex.encode(fixedBytes));
 
 		assertThat(fixedHex).isEqualTo(encodedPassword);
+	}
+
+	@Test
+	public void encodeAndMatchWhenBase64ThenSuccess() {
+		this.encoder.setEncodeHashAsBase64(true);
+
+		String rawPassword = "password";
+		String encodedPassword = this.encoder.encode(rawPassword);
+		assertThat(this.encoder.matches(rawPassword, encodedPassword)).isTrue();
+	}
+
+	@Test
+	public void matchWhenBase64ThenSuccess() {
+		this.encoder.setEncodeHashAsBase64(true);
+		String rawPassword = "password";
+		String encodedPassword = "3FOwOMcDgxP+z1x/sv184LFY2WVD+ZGMgYP3LPOSmCcDmk1XPYvcCQ==";
+
+		assertThat(this.encoder.matches(rawPassword, encodedPassword)).isTrue();
+		java.util.Base64.getDecoder().decode(encodedPassword); // validate can decode as Base64
 	}
 
 	@Test
