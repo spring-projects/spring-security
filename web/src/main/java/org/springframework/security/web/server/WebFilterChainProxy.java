@@ -44,6 +44,7 @@ public class WebFilterChainProxy implements WebFilter {
 		return filters
 				.filterWhen( securityWebFilterChain -> securityWebFilterChain.matches(exchange))
 				.next()
+				.switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
 				.flatMap( securityWebFilterChain -> securityWebFilterChain.getWebFilters()
 					.collectList()
 				)
