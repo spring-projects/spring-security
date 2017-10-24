@@ -445,7 +445,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Bean
 	public UserDetailsService userDetailsService() throws Exception {
 		InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-		manager.createUser(User.withUsername("user").password("password").roles("USER").build());
+		manager.createUser(User.withDefaultPasswordEncoder().username("user").password("password").roles("USER").build());
 		return manager;
 	}
 }
@@ -777,9 +777,11 @@ We have already seen an example of configuring in-memory authentication for a si
 ----
 @Bean
 public UserDetailsService userDetailsService() throws Exception {
+	// ensure the passwords are encoded properly
+	UserBuilder users = User.withDefaultPasswordEncoder();
 	InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-	manager.createUser(User.withUsername("user").password("password").roles("USER").build());
-	manager.createUser(User.withUsername("admin").password("password").roles("USER","ADMIN").build());
+	manager.createUser(users.username("user").password("password").roles("USER").build());
+	manager.createUser(users.username("admin").password("password").roles("USER","ADMIN").build());
 	return manager;
 }
 ----
@@ -796,12 +798,14 @@ private DataSource dataSource;
 
 @Autowired
 public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+	// ensure the passwords are encoded properly
+	UserBuilder users = User.withDefaultPasswordEncoder();
 	auth
 		.jdbcAuthentication()
 			.dataSource(dataSource)
 			.withDefaultSchema()
-			.withUser("user").password("password").roles("USER").and()
-			.withUser("admin").password("password").roles("USER", "ADMIN");
+			.withUser(users.username("user").password("password").roles("USER"))
+			.withUser(users.username("admin").password("password").roles("USER","ADMIN"));
 }
 ----
 
@@ -924,9 +928,11 @@ We can configure multiple HttpSecurity instances just as we can have multiple `<
 public class MultiHttpSecurityConfig {
 	@Bean                                                             <1>
 	public UserDetailsService userDetailsService() throws Exception {
+		// ensure the passwords are encoded properly
+		UserBuilder users = User.withDefaultPasswordEncoder();
 		InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-		manager.createUser(User.withUsername("user").password("password").roles("USER").build());
-		manager.createUser(User.withUsername("admin").password("password").roles("USER","ADMIN").build());
+		manager.createUser(users.username("user").password("password").roles("USER").build());
+		manager.createUser(users.username("admin").password("password").roles("USER","ADMIN").build());
 		return manager;
 	}
 
@@ -1298,12 +1304,38 @@ To add some users, you can define a set of test data directly in the namespace:
 <authentication-manager>
 <authentication-provider>
 	<user-service>
-	<user name="jimi" password="jimispassword" authorities="ROLE_USER, ROLE_ADMIN" />
-	<user name="bob" password="bobspassword" authorities="ROLE_USER" />
+	<!-- Password is prefixed with {noop} to indicate to DelegatingPasswordEncoder that
+	NoOpPasswordEncoder should be used. This is not safe for production, but makes reading
+	in samples easier. Normally passwords should be hashed using BCrypt -->
+	<user name="jimi" password="{noop}jimispassword" authorities="ROLE_USER, ROLE_ADMIN" />
+	<user name="bob" password="{noop}bobspassword" authorities="ROLE_USER" />
 	</user-service>
 </authentication-provider>
 </authentication-manager>
 ----
+
+This is an example of a secure way of storing the same passwords. The password is prefixed
+with `{bcrypt}` to instruct `DelegatingPasswordEncoder`, which supports any configured
+`PasswordEncoder` for matching, that the passwords are hashed using
+BCrypt:
+
+[source,xml]
+----
+<authentication-manager>
+<authentication-provider>
+	<user-service>
+	<user name="jimi" password="{bcrypt}$2a$10$ddEWZUl8aU0GdZPPpy7wbu82dvEw/pBpbRvDQRqA41y6mK1CoH00m"
+			authorities="ROLE_USER, ROLE_ADMIN" />
+	<user name="bob" password="{bcrypt}$2a$10$/elFpMBnAYYig6KRR5bvOOYeZr1ie1hSogJryg9qDlhza4oCw1Qka"
+			authorities="ROLE_USER" />
+	<user name="jimi" password="{noop}jimispassword" authorities="ROLE_USER, ROLE_ADMIN" />
+	<user name="bob" password="{noop}bobspassword" authorities="ROLE_USER" />
+	</user-service>
+</authentication-provider>
+</authentication-manager>
+----
+
+
 
 [subs="quotes"]
 ****
@@ -1448,9 +1480,9 @@ Passwords should always be encoded using a secure hashing algorithm designed for
 <authentication-provider>
 	<password-encoder ref="bcryptEncoder"/>
 	<user-service>
-	<user name="jimi" password="d7e6351eaa13189a5a3641bab846c8e8c69ba39f"
+	<user name="jimi" password="$2a$10$ddEWZUl8aU0GdZPPpy7wbu82dvEw/pBpbRvDQRqA41y6mK1CoH00m"
 			authorities="ROLE_USER, ROLE_ADMIN" />
-	<user name="bob" password="4e7421b1b8765d8f9406d87e7cc6aa784c4ab97f"
+	<user name="bob" password="$2a$10$/elFpMBnAYYig6KRR5bvOOYeZr1ie1hSogJryg9qDlhza4oCw1Qka"
 			authorities="ROLE_USER" />
 	</user-service>
 </authentication-provider>
@@ -2441,10 +2473,14 @@ Is easy to use create a custom `UserDetailsService` implementation that extracts
 [source,xml]
 ----
 <user-service id="userDetailsService">
-<user name="jimi" password="jimispassword" authorities="ROLE_USER, ROLE_ADMIN" />
-<user name="bob" password="bobspassword" authorities="ROLE_USER" />
+<!-- Password is prefixed with {noop} to indicate to DelegatingPasswordEncoder that
+NoOpPasswordEncoder should be used. This is not safe for production, but makes reading
+in samples easier. Normally passwords should be hashed using BCrypt -->
+<user name="jimi" password="{noop}jimispassword" authorities="ROLE_USER, ROLE_ADMIN" />
+<user name="bob" password="{noop}bobspassword" authorities="ROLE_USER" />
 </user-service>
 ----
+
 
 This also supports the use of an external properties file:
 
@@ -6224,7 +6260,10 @@ Next you need to add a `CasAuthenticationProvider` and its collaborators:
 </bean>
 
 <security:user-service id="userService">
-<security:user name="joe" password="joe" authorities="ROLE_USER" />
+<!-- Password is prefixed with {noop} to indicate to DelegatingPasswordEncoder that
+NoOpPasswordEncoder should be used. This is not safe for production, but makes reading
+in samples easier. Normally passwords should be hashed using BCrypt -->
+<security:user name="joe" password="{noop}joe" authorities="ROLE_USER" />
 ...
 </security:user-service>
 ----
