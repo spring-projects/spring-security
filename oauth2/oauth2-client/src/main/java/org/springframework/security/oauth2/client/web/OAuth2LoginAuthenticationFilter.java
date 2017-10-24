@@ -18,7 +18,7 @@ package org.springframework.security.oauth2.client.web;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationProvider;
+import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationProvider;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -55,7 +55,7 @@ import java.io.IOException;
  * <li>
  *  This <code>Filter</code> will then create an {@link AuthorizationCodeAuthenticationToken} with
  *  the {@link OAuth2Parameter#CODE} received in the previous step and delegate it to
- *  {@link AuthorizationCodeAuthenticationProvider#authenticate(Authentication)} (indirectly via {@link AuthenticationManager}).
+ *  {@link OAuth2LoginAuthenticationProvider#authenticate(Authentication)} (indirectly via {@link AuthenticationManager}).
  * </li>
  * </ul>
  *
@@ -63,7 +63,7 @@ import java.io.IOException;
  * @since 5.0
  * @see AbstractAuthenticationProcessingFilter
  * @see AuthorizationCodeAuthenticationToken
- * @see AuthorizationCodeAuthenticationProvider
+ * @see OAuth2LoginAuthenticationProvider
  * @see AuthorizationResponse
  * @see AuthorizationRequest
  * @see AuthorizationRequestRepository

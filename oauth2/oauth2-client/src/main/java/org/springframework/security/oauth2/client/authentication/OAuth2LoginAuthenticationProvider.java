@@ -58,7 +58,7 @@ import java.util.Collection;
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.3">Section 4.1.3 Access Token Request</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.4">Section 4.1.4 Access Token Response</a>
  */
-public class AuthorizationCodeAuthenticationProvider implements AuthenticationProvider {
+public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider {
 	private static final String INVALID_STATE_PARAMETER_ERROR_CODE = "invalid_state_parameter";
 	private static final String INVALID_REDIRECT_URI_PARAMETER_ERROR_CODE = "invalid_redirect_uri_parameter";
 	private final AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger;
@@ -66,7 +66,7 @@ public class AuthorizationCodeAuthenticationProvider implements AuthenticationPr
 	private SecurityTokenRepository<AccessToken> accessTokenRepository = new InMemoryAccessTokenRepository();
 	private GrantedAuthoritiesMapper authoritiesMapper = (authorities -> authorities);
 
-	public AuthorizationCodeAuthenticationProvider(
+	public OAuth2LoginAuthenticationProvider(
 		AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger,
 		OAuth2UserService userService) {
 

@@ -20,7 +20,7 @@ import org.springframework.core.ResolvableType;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
-import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationProvider;
+import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationProvider;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.AuthorizationGrantTokenExchanger;
 import org.springframework.security.oauth2.client.authentication.NimbusAuthorizationCodeTokenExchanger;
@@ -247,17 +247,17 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 			jwtDecoderRegistry = new NimbusJwtDecoderRegistry();
 		}
 
-		AuthorizationCodeAuthenticationProvider oauth2AuthorizationCodeAuthenticationProvider =
-			new AuthorizationCodeAuthenticationProvider(authorizationCodeTokenExchanger, oauth2UserService);
+		OAuth2LoginAuthenticationProvider oauth2LoginAuthenticationProvider =
+			new OAuth2LoginAuthenticationProvider(authorizationCodeTokenExchanger, oauth2UserService);
 		if (this.tokenEndpointConfig.accessTokenRepository != null) {
-			oauth2AuthorizationCodeAuthenticationProvider.setAccessTokenRepository(
+			oauth2LoginAuthenticationProvider.setAccessTokenRepository(
 				this.tokenEndpointConfig.accessTokenRepository);
 		}
 		if (this.userInfoEndpointConfig.userAuthoritiesMapper != null) {
-			oauth2AuthorizationCodeAuthenticationProvider.setAuthoritiesMapper(
+			oauth2LoginAuthenticationProvider.setAuthoritiesMapper(
 				this.userInfoEndpointConfig.userAuthoritiesMapper);
 		}
-		http.authenticationProvider(this.postProcess(oauth2AuthorizationCodeAuthenticationProvider));
+		http.authenticationProvider(this.postProcess(oauth2LoginAuthenticationProvider));
 
 		OAuth2UserService oidcUserService = this.userInfoEndpointConfig.userService;
 		if (oidcUserService == null) {

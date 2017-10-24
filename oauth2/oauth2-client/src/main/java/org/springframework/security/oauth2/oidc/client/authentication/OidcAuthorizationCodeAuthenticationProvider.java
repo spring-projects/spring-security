@@ -102,7 +102,7 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 		if (!authorizationCodeAuthentication.getAuthorizationExchange()
 			.getAuthorizationRequest().getScopes().contains(OidcScope.OPENID)) {
 			// This is NOT an OpenID Connect Authentication Request so return null
-			// and let AuthorizationCodeAuthenticationProvider handle it instead
+			// and let OAuth2LoginAuthenticationProvider handle it instead
 			return null;
 		}
 
