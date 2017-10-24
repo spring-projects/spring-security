@@ -29,7 +29,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.client.authentication.OAuth2ClientAuthenticationToken;
-import org.springframework.security.oauth2.client.authentication.userinfo.OAuth2UserAuthenticationToken;
+import org.springframework.security.oauth2.client.authentication.userinfo.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AccessToken;
@@ -100,7 +100,7 @@ public class OAuth2LoginAuthenticationFilterTests {
 		ClientRegistration clientRegistration = TestUtil.githubClientRegistration();
 		OAuth2ClientAuthenticationToken clientAuthentication = new OAuth2ClientAuthenticationToken(
 			clientRegistration, mock(AccessToken.class));
-		OAuth2UserAuthenticationToken userAuthentication = new OAuth2UserAuthenticationToken(
+		OAuth2AuthenticationToken userAuthentication = new OAuth2AuthenticationToken(
 			mock(OAuth2User.class), AuthorityUtils.createAuthorityList("ROLE_USER"), clientAuthentication);
 		SecurityContextHolder.getContext().setAuthentication(userAuthentication);
 		AuthenticationManager authenticationManager = mock(AuthenticationManager.class);

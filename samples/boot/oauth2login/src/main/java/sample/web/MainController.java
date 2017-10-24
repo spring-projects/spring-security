@@ -17,7 +17,7 @@ package sample.web;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.client.authentication.userinfo.OAuth2UserAuthenticationToken;
+import org.springframework.security.oauth2.client.authentication.userinfo.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -38,14 +38,14 @@ import java.util.Map;
 public class MainController {
 
 	@RequestMapping("/")
-	public String index(Model model, @AuthenticationPrincipal OAuth2User user, OAuth2UserAuthenticationToken authentication) {
+	public String index(Model model, @AuthenticationPrincipal OAuth2User user, OAuth2AuthenticationToken authentication) {
 		model.addAttribute("userName", user.getName());
 		model.addAttribute("clientName", authentication.getClientAuthentication().getClientRegistration().getClientName());
 		return "index";
 	}
 
 	@RequestMapping("/userinfo")
-	public String userinfo(Model model, OAuth2UserAuthenticationToken authentication) {
+	public String userinfo(Model model, OAuth2AuthenticationToken authentication) {
 		Map userAttributes = Collections.emptyMap();
 		String userInfoEndpointUri = authentication.getClientAuthentication().getClientRegistration()
 			.getProviderDetails().getUserInfoEndpoint().getUri();
@@ -63,7 +63,7 @@ public class MainController {
 		return "userinfo";
 	}
 
-	private ExchangeFilterFunction oauth2Credentials(OAuth2UserAuthenticationToken authentication) {
+	private ExchangeFilterFunction oauth2Credentials(OAuth2AuthenticationToken authentication) {
 		return ExchangeFilterFunction.ofRequestProcessor(
 			clientRequest -> {
 				ClientRequest authorizedRequest = ClientRequest.from(clientRequest)

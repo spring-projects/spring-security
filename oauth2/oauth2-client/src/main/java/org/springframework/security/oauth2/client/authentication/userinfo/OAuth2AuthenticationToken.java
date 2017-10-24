@@ -27,7 +27,7 @@ import java.util.Collection;
 
 /**
  * An implementation of an {@link AbstractAuthenticationToken}
- * that represents an <i>OAuth 2.0 User</i> {@link Authentication}.
+ * that represents an <i>OAuth 2.0</i> {@link Authentication}.
  *
  * <p>
  * This {@link Authentication} associates an {@link OAuth2User} principal to an
@@ -38,13 +38,13 @@ import java.util.Collection;
  * @see OAuth2User
  * @see OAuth2ClientAuthenticationToken
  */
-public class OAuth2UserAuthenticationToken extends AbstractAuthenticationToken {
+public class OAuth2AuthenticationToken extends AbstractAuthenticationToken {
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 	private final OAuth2User principal;
 	private final OAuth2ClientAuthenticationToken clientAuthentication;
 
-	public OAuth2UserAuthenticationToken(OAuth2User principal, Collection<? extends GrantedAuthority> authorities,
-											OAuth2ClientAuthenticationToken clientAuthentication) {
+	public OAuth2AuthenticationToken(OAuth2User principal, Collection<? extends GrantedAuthority> authorities,
+										OAuth2ClientAuthenticationToken clientAuthentication) {
 		super(authorities);
 		Assert.notNull(clientAuthentication, "clientAuthentication cannot be null");
 		this.principal = principal;

@@ -21,7 +21,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationProvider;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.client.authentication.OAuth2ClientAuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.OAuth2Error;
@@ -128,10 +127,7 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 				clientRegistration, new AuthorizationExchange(authorizationRequest, authorizationResponse));
 		authorizationCodeAuthentication.setDetails(this.authenticationDetailsSource.buildDetails(request));
 
-		OAuth2ClientAuthenticationToken clientAuthentication =
-			(OAuth2ClientAuthenticationToken)this.getAuthenticationManager().authenticate(authorizationCodeAuthentication);
-
-		return this.getAuthenticationManager().authenticate(clientAuthentication);
+		return this.getAuthenticationManager().authenticate(authorizationCodeAuthentication);
 	}
 
 	public final void setClientRegistrationRepository(ClientRegistrationRepository clientRegistrationRepository) {

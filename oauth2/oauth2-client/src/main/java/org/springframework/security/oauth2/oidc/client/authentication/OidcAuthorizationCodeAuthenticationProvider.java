@@ -18,10 +18,14 @@ package org.springframework.security.oauth2.oidc.client.authentication;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.AuthorizationGrantTokenExchanger;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.client.authentication.jwt.JwtDecoderRegistry;
+import org.springframework.security.oauth2.client.authentication.userinfo.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.client.authentication.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.token.InMemoryAccessTokenRepository;
 import org.springframework.security.oauth2.client.token.SecurityTokenRepository;
@@ -30,26 +34,37 @@ import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.endpoint.AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.AuthorizationResponse;
 import org.springframework.security.oauth2.core.endpoint.TokenResponse;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.oidc.client.authentication.userinfo.OidcUserService;
 import org.springframework.security.oauth2.oidc.core.IdToken;
 import org.springframework.security.oauth2.oidc.core.OidcScope;
 import org.springframework.security.oauth2.oidc.core.endpoint.OidcParameter;
+import org.springframework.security.oauth2.oidc.core.user.OidcUser;
 import org.springframework.util.Assert;
+
+import java.util.Collection;
 
 /**
  * An implementation of an {@link AuthenticationProvider}
  * for the <i>OpenID Connect Core 1.0 Authorization Code Grant Flow</i>.
- *
+ * <p>
  * This {@link AuthenticationProvider} is responsible for authenticating
  * an <i>authorization code</i> credential with the authorization server's <i>Token Endpoint</i>
  * and if valid, exchanging it for an <i>access token</i> credential.
+ * <p>
+ * It will also obtain the user attributes of the <i>End-User</i> (resource owner)
+ * from the <i>UserInfo Endpoint</i> using an {@link OAuth2UserService}
+ * which will create a <code>Principal</code> in the form of an {@link OidcUser}.
  *
  * @author Joe Grandja
  * @since 5.0
  * @see AuthorizationCodeAuthenticationToken
- * @see OidcClientAuthenticationToken
  * @see SecurityTokenRepository
+ * @see OidcClientAuthenticationToken
+ * @see OidcUserService
+ * @see OidcUser
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth">Section 3.1 Authorization Code Grant Flow</a>
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#TokenRequest">Section 3.1.3.1 Token Request</a>
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#TokenResponse">Section 3.1.3.3 Token Response</a>
@@ -58,16 +73,21 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 	private static final String INVALID_STATE_PARAMETER_ERROR_CODE = "invalid_state_parameter";
 	private static final String INVALID_REDIRECT_URI_PARAMETER_ERROR_CODE = "invalid_redirect_uri_parameter";
 	private final AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger;
+	private final OAuth2UserService userService;
 	private final JwtDecoderRegistry jwtDecoderRegistry;
 	private SecurityTokenRepository<AccessToken> accessTokenRepository = new InMemoryAccessTokenRepository();
+	private GrantedAuthoritiesMapper authoritiesMapper = (authorities -> authorities);
 
 	public OidcAuthorizationCodeAuthenticationProvider(
 		AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger,
+		OAuth2UserService userService,
 		JwtDecoderRegistry jwtDecoderRegistry) {
 
 		Assert.notNull(authorizationCodeTokenExchanger, "authorizationCodeTokenExchanger cannot be null");
+		Assert.notNull(userService, "userService cannot be null");
 		Assert.notNull(jwtDecoderRegistry, "jwtDecoderRegistry cannot be null");
 		this.authorizationCodeTokenExchanger = authorizationCodeTokenExchanger;
+		this.userService = userService;
 		this.jwtDecoderRegistry = jwtDecoderRegistry;
 	}
 
@@ -136,12 +156,26 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 			clientAuthentication.getAccessToken(),
 			clientAuthentication.getClientRegistration());
 
-		return clientAuthentication;
+		OAuth2User oauth2User = this.userService.loadUser(clientAuthentication);
+
+		Collection<? extends GrantedAuthority> mappedAuthorities =
+			this.authoritiesMapper.mapAuthorities(oauth2User.getAuthorities());
+
+		OAuth2AuthenticationToken authenticationResult = new OAuth2AuthenticationToken(
+			oauth2User, mappedAuthorities, clientAuthentication);
+		authenticationResult.setDetails(clientAuthentication.getDetails());
+
+		return authenticationResult;
 	}
 
 	public final void setAccessTokenRepository(SecurityTokenRepository<AccessToken> accessTokenRepository) {
 		Assert.notNull(accessTokenRepository, "accessTokenRepository cannot be null");
 		this.accessTokenRepository = accessTokenRepository;
+	}
+
+	public final void setAuthoritiesMapper(GrantedAuthoritiesMapper authoritiesMapper) {
+		Assert.notNull(authoritiesMapper, "authoritiesMapper cannot be null");
+		this.authoritiesMapper = authoritiesMapper;
 	}
 
 	@Override
