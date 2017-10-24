@@ -64,7 +64,7 @@ public class OidcUserService implements OAuth2UserService {
 
 		UserInfo userInfo = null;
 		if (this.shouldRetrieveUserInfo(oidcClientAuthentication)) {
-			Map<String, Object> userAttributes = this.userInfoRetriever.retrieve(oidcClientAuthentication);
+			Map<String, Object> userAttributes = this.userInfoRetriever.retrieve(oidcClientAuthentication, Map.class);
 			userInfo = new UserInfo(userAttributes);
 
 			// http://openid.net/specs/openid-connect-core-1_0.html#UserInfoResponse

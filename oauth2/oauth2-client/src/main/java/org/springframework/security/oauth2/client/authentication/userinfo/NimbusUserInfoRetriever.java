@@ -52,7 +52,7 @@ public class NimbusUserInfoRetriever implements UserInfoRetriever {
 	private final HttpMessageConverter jackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();
 
 	@Override
-	public Map<String, Object> retrieve(OAuth2ClientAuthenticationToken clientAuthentication) throws OAuth2AuthenticationException {
+	public <T> T retrieve(OAuth2ClientAuthenticationToken clientAuthentication, Class<T> returnType) throws OAuth2AuthenticationException {
 		URI userInfoUri = URI.create(clientAuthentication.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUri());
 		BearerAccessToken accessToken = new BearerAccessToken(clientAuthentication.getAccessToken().getTokenValue());
 
@@ -98,7 +98,7 @@ public class NimbusUserInfoRetriever implements UserInfoRetriever {
 		}
 
 		try {
-			return (Map<String, Object>) this.jackson2HttpMessageConverter.read(Map.class, new NimbusClientHttpResponse(httpResponse));
+			return (T) this.jackson2HttpMessageConverter.read(returnType, new NimbusClientHttpResponse(httpResponse));
 		} catch (IOException ex) {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_USER_INFO_RESPONSE_ERROR_CODE,
 				"An error occurred reading the UserInfo Success response: " + ex.getMessage(), null);

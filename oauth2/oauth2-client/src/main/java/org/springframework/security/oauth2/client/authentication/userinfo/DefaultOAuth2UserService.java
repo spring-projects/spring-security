@@ -60,7 +60,7 @@ public class DefaultOAuth2UserService implements OAuth2UserService {
 					clientAuthentication.getClientRegistration().getRegistrationId());
 		}
 
-		Map<String, Object> userAttributes = this.userInfoRetriever.retrieve(clientAuthentication);
+		Map<String, Object> userAttributes = this.userInfoRetriever.retrieve(clientAuthentication, Map.class);
 		GrantedAuthority authority = new OAuth2UserAuthority(userAttributes);
 		Set<GrantedAuthority> authorities = new HashSet<>();
 		authorities.add(authority);

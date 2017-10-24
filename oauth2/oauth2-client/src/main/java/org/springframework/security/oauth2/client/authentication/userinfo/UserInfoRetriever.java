@@ -15,10 +15,9 @@
  */
 package org.springframework.security.oauth2.client.authentication.userinfo;
 
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.client.authentication.OAuth2ClientAuthenticationToken;
-
-import java.util.Map;
 
 /**
  * A strategy for retrieving the user attributes
@@ -26,12 +25,13 @@ import java.util.Map;
  * using the provided {@link OAuth2ClientAuthenticationToken#getAccessToken()}.
  *
  * @author Joe Grandja
+ * @author Rob Winch
  * @since 5.0
  * @see OAuth2ClientAuthenticationToken
  * @see OAuth2UserService
  */
 public interface UserInfoRetriever {
 
-	Map<String, Object> retrieve(OAuth2ClientAuthenticationToken clientAuthentication) throws OAuth2AuthenticationException;
+	<T> T retrieve(OAuth2ClientAuthenticationToken clientAuthentication, Class<T> responseType) throws OAuth2AuthenticationException;
 
 }

@@ -60,21 +60,7 @@ public class CustomUserTypesOAuth2UserService implements OAuth2UserService {
 			return null;
 		}
 
-		OAuth2User customUser;
-		try {
-			customUser = customUserType.newInstance();
-		} catch (ReflectiveOperationException ex) {
-			throw new IllegalArgumentException("An error occurred while attempting to instantiate the custom OAuth2User \"" +
-				customUserType.getName() + "\": " + ex.getMessage(), ex);
-		}
-
-		Map<String, Object> userAttributes = this.userInfoRetriever.retrieve(clientAuthentication);
-
-		BeanWrapper wrapper = PropertyAccessorFactory.forBeanPropertyAccess(customUser);
-		wrapper.setAutoGrowNestedPaths(true);
-		wrapper.setPropertyValues(userAttributes);
-
-		return customUser;
+		return this.userInfoRetriever.retrieve(clientAuthentication, customUserType);
 	}
 
 	public final void setUserInfoRetriever(UserInfoRetriever userInfoRetriever) {
