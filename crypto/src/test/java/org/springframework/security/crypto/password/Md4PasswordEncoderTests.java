@@ -66,5 +66,11 @@ public class Md4PasswordEncoderTests {
 
 		assertThat(md4.matches(rawPassword, encodedPassword)).isTrue();
 	}
+
+	@Test
+	public void javadocWhenHasSaltThenMatches() {
+		Md4PasswordEncoder encoder = new Md4PasswordEncoder();
+		assertThat(encoder.matches("password", "{thisissalt}6cc7924dad12ade79dfb99e424f25260"));
+	}
 }
 
