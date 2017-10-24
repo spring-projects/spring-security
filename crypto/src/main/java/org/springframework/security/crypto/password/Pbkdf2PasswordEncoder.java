@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,8 +57,8 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 
 	/**
 	 * Constructs a PBKDF2 password encoder with no additional secret value. There will be
-	 * 360000 iterations and a hash width of 160. The default is based upon aiming for .5
-	 * seconds to validate the password when this class was added.. Users should tune
+	 * 185,000 iterations and a hash width of 256. The default is based upon aiming for .5
+	 * seconds to validate the password when this class was added. Users should tune
 	 * password verification to their own systems.
 	 */
 	public Pbkdf2PasswordEncoder() {
@@ -67,7 +67,7 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 
 	/**
 	 * Constructs a standard password encoder with a secret value which is also included
-	 * in the password hash. There will be 1024 iterations and a hash width of 160.
+	 * in the password hash. There will be 185,000 iterations and a hash width of 256.
 	 *
 	 * @param secret the secret key used in the encoding process (should not be shared)
 	 */
@@ -94,9 +94,10 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 	 * Sets the algorithm to use. See
 	 * <a href="http://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#SecretKeyFactory">SecretKeyFactory Algorithms</a>
 	 * @param secretKeyFactoryAlgorithm the algorithm to use (i.e.
-	 * {@code Pbkdf2PasswordEncoder.PBKDF2_WITH_HMAC_SHA1},
-	 * {@code Pbkdf2PasswordEncoder.PBKDF2_WITH_HMAC_SHA256},
-	 * {@code Pbkdf2PasswordEncoder.PBKDF2_WITH_HMAC_SHA512})
+	 * {@code SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA1},
+	 * {@code SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA256},
+	 * {@code SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA512})
+	 * @since 5.0
 	 */
 	public void setAlgorithm(SecretKeyFactoryAlgorithm secretKeyFactoryAlgorithm) {
 		if(secretKeyFactoryAlgorithm == null) {
@@ -179,6 +180,8 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 
 	/**
 	 * The Algorithm used for creating the {@link SecretKeyFactory}
+	 *
+	 * @since 5.0
 	 */
 	public enum SecretKeyFactoryAlgorithm {
 		PBKDF2WithHmacSHA1,
