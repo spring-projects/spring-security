@@ -16,6 +16,7 @@
 package org.springframework.security.crypto.password;
 
 import java.security.GeneralSecurityException;
+import java.security.NoSuchAlgorithmException;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
@@ -41,7 +42,7 @@ import static org.springframework.security.crypto.util.EncodingUtils.subArray;
  * @since 4.1
  */
 public class Pbkdf2PasswordEncoder implements PasswordEncoder {
-	private static final String PBKDF2_ALGORITHM = "PBKDF2WithHmacSHA1";
+
 	private static final int DEFAULT_HASH_WIDTH = 256;
 	private static final int DEFAULT_ITERATIONS = 185000;
 
@@ -50,6 +51,7 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 	private final byte[] secret;
 	private final int hashWidth;
 	private final int iterations;
+	private String algorithm = SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA1.name();
 
 	/**
 	 * Constructs a PBKDF2 password encoder with no additional secret value. There will be
@@ -86,6 +88,28 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 		this.hashWidth = hashWidth;
 	}
 
+	/**
+	 * Sets the algorithm to use. See
+	 * <a href="http://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#SecretKeyFactory">SecretKeyFactory Algorithms</a>
+	 * @param secretKeyFactoryAlgorithm the algorithm to use (i.e.
+	 * {@code Pbkdf2PasswordEncoder.PBKDF2_WITH_HMAC_SHA1},
+	 * {@code Pbkdf2PasswordEncoder.PBKDF2_WITH_HMAC_SHA256},
+	 * {@code Pbkdf2PasswordEncoder.PBKDF2_WITH_HMAC_SHA512})
+	 */
+	public void setAlgorithm(SecretKeyFactoryAlgorithm secretKeyFactoryAlgorithm) {
+		if(secretKeyFactoryAlgorithm == null) {
+			throw new IllegalArgumentException("secretKeyFactoryAlgorithm cannot be null");
+		}
+		String algorithmName = secretKeyFactoryAlgorithm.name();
+		try {
+			SecretKeyFactory.getInstance(algorithmName);
+		}
+		catch (NoSuchAlgorithmException e) {
+			throw new IllegalArgumentException("Invalid algorithm '" + algorithmName + "'.", e);
+		}
+		this.algorithm = algorithmName;
+	}
+
 	@Override
 	public String encode(CharSequence rawPassword) {
 		byte[] salt = this.saltGenerator.generateKey();
@@ -119,11 +143,20 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 		try {
 			PBEKeySpec spec = new PBEKeySpec(rawPassword.toString().toCharArray(),
 					concatenate(salt, this.secret), this.iterations, this.hashWidth);
-			SecretKeyFactory skf = SecretKeyFactory.getInstance(PBKDF2_ALGORITHM);
+			SecretKeyFactory skf = SecretKeyFactory.getInstance(this.algorithm);
 			return concatenate(salt, skf.generateSecret(spec).getEncoded());
 		}
 		catch (GeneralSecurityException e) {
 			throw new IllegalStateException("Could not create hash", e);
 		}
+	}
+
+	/**
+	 * The Algorithm used for creating the {@link SecretKeyFactory}
+	 */
+	public enum SecretKeyFactoryAlgorithm {
+		PBKDF2WithHmacSHA1,
+		PBKDF2WithHmacSHA256,
+		PBKDF2WithHmacSHA512
 	}
 }
