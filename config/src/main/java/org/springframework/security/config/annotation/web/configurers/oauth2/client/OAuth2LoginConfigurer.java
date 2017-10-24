@@ -35,7 +35,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.client.token.SecurityTokenRepository;
-import org.springframework.security.oauth2.client.web.AuthorizationCodeAuthenticationFilter;
+import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRedirectFilter;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.core.AccessToken;
@@ -63,7 +63,7 @@ import java.util.Map;
  * @since 5.0
  */
 public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> extends
-	AbstractAuthenticationFilterConfigurer<B, OAuth2LoginConfigurer<B>, AuthorizationCodeAuthenticationFilter> {
+	AbstractAuthenticationFilterConfigurer<B, OAuth2LoginConfigurer<B>, OAuth2LoginAuthenticationFilter> {
 
 	private static final String DEFAULT_LOGIN_PROCESSING_URI = "/login/oauth2/authorize/code/*";
 	private final AuthorizationEndpointConfig authorizationEndpointConfig = new AuthorizationEndpointConfig();
@@ -72,7 +72,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 	private final UserInfoEndpointConfig userInfoEndpointConfig = new UserInfoEndpointConfig();
 
 	public OAuth2LoginConfigurer() {
-		super(new AuthorizationCodeAuthenticationFilter(DEFAULT_LOGIN_PROCESSING_URI), DEFAULT_LOGIN_PROCESSING_URI);
+		super(new OAuth2LoginAuthenticationFilter(DEFAULT_LOGIN_PROCESSING_URI), DEFAULT_LOGIN_PROCESSING_URI);
 	}
 
 	public OAuth2LoginConfigurer<B> clients(ClientRegistration... clientRegistrations) {
@@ -305,7 +305,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		}
 		http.addFilter(this.postProcess(authorizationRequestFilter));
 
-		AuthorizationCodeAuthenticationFilter authorizationResponseFilter = this.getAuthenticationFilter();
+		OAuth2LoginAuthenticationFilter authorizationResponseFilter = this.getAuthenticationFilter();
 		if (this.redirectionEndpointConfig.authorizationResponseBaseUri != null) {
 			authorizationResponseFilter.setFilterProcessesUrl(this.redirectionEndpointConfig.authorizationResponseBaseUri);
 		}

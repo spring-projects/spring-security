@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServletResponse;
  * <p>
  * Used by the {@link AuthorizationRequestRedirectFilter} for persisting the <i>Authorization Request</i>
  * before it initiates the authorization code grant flow.
- * As well, used by the {@link AuthorizationCodeAuthenticationFilter} for resolving
+ * As well, used by the {@link OAuth2LoginAuthenticationFilter} for resolving
  * the associated <i>Authorization Request</i> when handling the <i>Authorization Response</i>.
  *
  * @author Joe Grandja

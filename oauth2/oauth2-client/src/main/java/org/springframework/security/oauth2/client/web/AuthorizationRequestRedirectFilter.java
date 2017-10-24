@@ -60,7 +60,6 @@ import java.util.Map;
  * @see AuthorizationRequestUriBuilder
  * @see ClientRegistration
  * @see ClientRegistrationRepository
- * @see AuthorizationCodeAuthenticationFilter
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">Section 4.1 Authorization Code Grant</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.1">Section 4.1.1 Authorization Request (Authorization Code)</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.2">Section 4.2 Implicit Grant</a>

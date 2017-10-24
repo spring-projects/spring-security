@@ -49,17 +49,17 @@ import java.util.Map;
 import static org.mockito.Mockito.mock;
 
 /**
- * Tests {@link AuthorizationCodeAuthenticationFilter}.
+ * Tests {@link OAuth2LoginAuthenticationFilter}.
  *
  * @author Joe Grandja
  */
-public class AuthorizationCodeAuthenticationFilterTests {
+public class OAuth2LoginAuthenticationFilterTests {
 
 	@Test
 	public void doFilterWhenNotAuthorizationCodeResponseThenContinueChain() throws Exception {
 		ClientRegistration clientRegistration = TestUtil.googleClientRegistration();
 
-		AuthorizationCodeAuthenticationFilter filter = Mockito.spy(setupFilter(clientRegistration));
+		OAuth2LoginAuthenticationFilter filter = Mockito.spy(setupFilter(clientRegistration));
 
 		String requestURI = "/path";
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestURI);
@@ -77,7 +77,7 @@ public class AuthorizationCodeAuthenticationFilterTests {
 	public void doFilterWhenAuthorizationCodeErrorResponseThenAuthenticationFailureHandlerIsCalled() throws Exception {
 		ClientRegistration clientRegistration = TestUtil.githubClientRegistration();
 
-		AuthorizationCodeAuthenticationFilter filter = Mockito.spy(setupFilter(clientRegistration));
+		OAuth2LoginAuthenticationFilter filter = Mockito.spy(setupFilter(clientRegistration));
 		AuthenticationFailureHandler failureHandler = mock(AuthenticationFailureHandler.class);
 		filter.setAuthenticationFailureHandler(failureHandler);
 
@@ -106,7 +106,7 @@ public class AuthorizationCodeAuthenticationFilterTests {
 		AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
 		Mockito.when(authenticationManager.authenticate(Matchers.any(Authentication.class))).thenReturn(clientAuthentication);
 
-		AuthorizationCodeAuthenticationFilter filter = Mockito.spy(setupFilter(authenticationManager, clientRegistration));
+		OAuth2LoginAuthenticationFilter filter = Mockito.spy(setupFilter(authenticationManager, clientRegistration));
 		AuthenticationSuccessHandler successHandler = mock(AuthenticationSuccessHandler.class);
 		filter.setAuthenticationSuccessHandler(successHandler);
 		AuthorizationRequestRepository authorizationRequestRepository = new HttpSessionAuthorizationRequestRepository();
@@ -135,7 +135,7 @@ public class AuthorizationCodeAuthenticationFilterTests {
 	public void doFilterWhenAuthorizationCodeSuccessResponseAndNoMatchingAuthorizationRequestThenThrowOAuth2AuthenticationExceptionAuthorizationRequestNotFound() throws Exception {
 		ClientRegistration clientRegistration = TestUtil.githubClientRegistration();
 
-		AuthorizationCodeAuthenticationFilter filter = Mockito.spy(setupFilter(clientRegistration));
+		OAuth2LoginAuthenticationFilter filter = Mockito.spy(setupFilter(clientRegistration));
 		AuthenticationFailureHandler failureHandler = mock(AuthenticationFailureHandler.class);
 		filter.setAuthenticationFailureHandler(failureHandler);
 
@@ -152,7 +152,7 @@ public class AuthorizationCodeAuthenticationFilterTests {
 		verifyThrowsOAuth2AuthenticationExceptionWithErrorCode(filter, failureHandler, "authorization_request_not_found");
 	}
 
-	private void verifyThrowsOAuth2AuthenticationExceptionWithErrorCode(AuthorizationCodeAuthenticationFilter filter,
+	private void verifyThrowsOAuth2AuthenticationExceptionWithErrorCode(OAuth2LoginAuthenticationFilter filter,
 																		AuthenticationFailureHandler failureHandler,
 																		String errorCode) throws Exception {
 
@@ -169,18 +169,18 @@ public class AuthorizationCodeAuthenticationFilterTests {
 		Assertions.assertThat(oauth2AuthenticationException.getError().getErrorCode()).isEqualTo(errorCode);
 	}
 
-	private AuthorizationCodeAuthenticationFilter setupFilter(ClientRegistration... clientRegistrations) throws Exception {
+	private OAuth2LoginAuthenticationFilter setupFilter(ClientRegistration... clientRegistrations) throws Exception {
 		AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
 
 		return setupFilter(authenticationManager, clientRegistrations);
 	}
 
-	private AuthorizationCodeAuthenticationFilter setupFilter(
+	private OAuth2LoginAuthenticationFilter setupFilter(
 			AuthenticationManager authenticationManager, ClientRegistration... clientRegistrations) throws Exception {
 
 		ClientRegistrationRepository clientRegistrationRepository = TestUtil.clientRegistrationRepository(clientRegistrations);
 
-		AuthorizationCodeAuthenticationFilter filter = new AuthorizationCodeAuthenticationFilter();
+		OAuth2LoginAuthenticationFilter filter = new OAuth2LoginAuthenticationFilter();
 		filter.setClientRegistrationRepository(clientRegistrationRepository);
 		filter.setAuthenticationManager(authenticationManager);
 

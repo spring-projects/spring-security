@@ -73,17 +73,17 @@ import java.io.IOException;
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">Section 4.1 Authorization Code Grant</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.2">Section 4.1.2 Authorization Response</a>
  */
-public class AuthorizationCodeAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
+public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 	public static final String DEFAULT_AUTHORIZATION_RESPONSE_BASE_URI = "/oauth2/authorize/code/*";
 	private static final String AUTHORIZATION_REQUEST_NOT_FOUND_ERROR_CODE = "authorization_request_not_found";
 	private ClientRegistrationRepository clientRegistrationRepository;
 	private AuthorizationRequestRepository authorizationRequestRepository = new HttpSessionAuthorizationRequestRepository();
 
-	public AuthorizationCodeAuthenticationFilter() {
+	public OAuth2LoginAuthenticationFilter() {
 		this(DEFAULT_AUTHORIZATION_RESPONSE_BASE_URI);
 	}
 
-	public AuthorizationCodeAuthenticationFilter(String authorizationResponseBaseUri) {
+	public OAuth2LoginAuthenticationFilter(String authorizationResponseBaseUri) {
 		super(authorizationResponseBaseUri);
 	}
 
@@ -132,11 +132,6 @@ public class AuthorizationCodeAuthenticationFilter extends AbstractAuthenticatio
 			(OAuth2ClientAuthenticationToken)this.getAuthenticationManager().authenticate(authorizationCodeAuthentication);
 
 		return this.getAuthenticationManager().authenticate(clientAuthentication);
-	}
-
-	public final void setAuthorizationResponseBaseUri(String authorizationResponseBaseUri) {
-		Assert.hasText(authorizationResponseBaseUri, "authorizationResponseBaseUri cannot be empty");
-		this.setFilterProcessesUrl(authorizationResponseBaseUri);
 	}
 
 	public final void setClientRegistrationRepository(ClientRegistrationRepository clientRegistrationRepository) {
