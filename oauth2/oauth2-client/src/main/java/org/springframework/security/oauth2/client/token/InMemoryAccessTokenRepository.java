@@ -15,6 +15,7 @@
  */
 package org.springframework.security.oauth2.client.token;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.util.Assert;
@@ -24,55 +25,42 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * A {@link SecurityTokenRepository} that associates an {@link AccessToken}
- * to a {@link ClientRegistration Client} and stores it <i>in-memory</i>.
+ * An <i>in-memory</i> {@link OAuth2TokenRepository} for {@link AccessToken}'s.
  *
  * @author Joe Grandja
  * @since 5.0
- * @see SecurityTokenRepository
+ * @see OAuth2TokenRepository
  * @see AccessToken
  * @see ClientRegistration
+ * @see Authentication
  */
-public final class InMemoryAccessTokenRepository implements SecurityTokenRepository<AccessToken> {
+public final class InMemoryAccessTokenRepository implements OAuth2TokenRepository<AccessToken> {
 	private final Map<String, AccessToken> accessTokens = new ConcurrentHashMap<>();
 
 	@Override
-	public AccessToken loadSecurityToken(ClientRegistration registration) {
+	public AccessToken loadToken(ClientRegistration registration, Authentication principal) {
 		Assert.notNull(registration, "registration cannot be null");
-		return this.accessTokens.get(this.getClientIdentifier(registration));
+		Assert.notNull(principal, "principal cannot be null");
+		return this.accessTokens.get(this.getIdentifier(registration, principal));
 	}
 
 	@Override
-	public void saveSecurityToken(AccessToken accessToken, ClientRegistration registration) {
+	public void saveToken(AccessToken accessToken, ClientRegistration registration, Authentication principal) {
 		Assert.notNull(accessToken, "accessToken cannot be null");
 		Assert.notNull(registration, "registration cannot be null");
-		this.accessTokens.put(this.getClientIdentifier(registration), accessToken);
+		Assert.notNull(principal, "principal cannot be null");
+		this.accessTokens.put(this.getIdentifier(registration, principal), accessToken);
 	}
 
 	@Override
-	public void removeSecurityToken(ClientRegistration registration) {
+	public AccessToken removeToken(ClientRegistration registration, Authentication principal) {
 		Assert.notNull(registration, "registration cannot be null");
-		this.accessTokens.remove(this.getClientIdentifier(registration));
+		Assert.notNull(principal, "principal cannot be null");
+		return this.accessTokens.remove(this.getIdentifier(registration, principal));
 	}
 
-	/**
-	 * A client is considered <i>&quot;authorized&quot;</i>, if it receives a successful response from the <i>Token Endpoint</i>.
-	 *
-	 * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.3">Section 4.1.3 Access Token Request</a>
-	 * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-5.1">Section 5.1 Access Token Response</a>
-	 */
-	private String getClientIdentifier(ClientRegistration clientRegistration) {
-		StringBuilder builder = new StringBuilder();
-
-		// Access Token Request attributes
-		builder.append("[").append(clientRegistration.getAuthorizationGrantType().getValue()).append("]");
-		builder.append("[").append(clientRegistration.getRedirectUri()).append("]");
-		builder.append("[").append(clientRegistration.getClientId()).append("]");
-
-		// Access Token Response attributes
-		builder.append("[").append(clientRegistration.getScopes().toString()).append("]");
-
-		return Base64.getEncoder().encodeToString(builder.toString().getBytes());
+	private String getIdentifier(ClientRegistration registration, Authentication principal) {
+		String identifier = "[" + registration.getRegistrationId() + "][" + principal.getName() + "]";
+		return Base64.getEncoder().encodeToString(identifier.getBytes());
 	}
 }
-

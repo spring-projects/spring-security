@@ -18,11 +18,15 @@ package org.springframework.security.oauth2.client.web;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationProvider;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationProvider;
+import org.springframework.security.oauth2.client.authentication.userinfo.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.token.InMemoryAccessTokenRepository;
+import org.springframework.security.oauth2.client.token.OAuth2TokenRepository;
+import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCode;
 import org.springframework.security.oauth2.core.endpoint.AuthorizationExchange;
@@ -63,12 +67,14 @@ import java.io.IOException;
  * @since 5.0
  * @see AbstractAuthenticationProcessingFilter
  * @see AuthorizationCodeAuthenticationToken
+ * @see OAuth2AuthenticationToken
  * @see OAuth2LoginAuthenticationProvider
- * @see AuthorizationResponse
  * @see AuthorizationRequest
+ * @see AuthorizationResponse
  * @see AuthorizationRequestRepository
  * @see AuthorizationRequestRedirectFilter
  * @see ClientRegistrationRepository
+ * @see OAuth2TokenRepository
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">Section 4.1 Authorization Code Grant</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.2">Section 4.1.2 Authorization Response</a>
  */
@@ -77,6 +83,7 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 	private static final String AUTHORIZATION_REQUEST_NOT_FOUND_ERROR_CODE = "authorization_request_not_found";
 	private ClientRegistrationRepository clientRegistrationRepository;
 	private AuthorizationRequestRepository authorizationRequestRepository = new HttpSessionAuthorizationRequestRepository();
+	private OAuth2TokenRepository<AccessToken> accessTokenRepository = new InMemoryAccessTokenRepository();
 
 	public OAuth2LoginAuthenticationFilter() {
 		this(DEFAULT_FILTER_PROCESSES_URI);
@@ -127,7 +134,15 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 				clientRegistration, new AuthorizationExchange(authorizationRequest, authorizationResponse));
 		authorizationCodeAuthentication.setDetails(this.authenticationDetailsSource.buildDetails(request));
 
-		return this.getAuthenticationManager().authenticate(authorizationCodeAuthentication);
+		OAuth2AuthenticationToken oauth2Authentication =
+			(OAuth2AuthenticationToken) this.getAuthenticationManager().authenticate(authorizationCodeAuthentication);
+
+		this.accessTokenRepository.saveToken(
+			oauth2Authentication.getAuthorizedClient().getAccessToken(),
+			oauth2Authentication.getAuthorizedClient().getClientRegistration(),
+			oauth2Authentication);
+
+		return oauth2Authentication;
 	}
 
 	public final void setClientRegistrationRepository(ClientRegistrationRepository clientRegistrationRepository) {
@@ -138,6 +153,11 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 	public final void setAuthorizationRequestRepository(AuthorizationRequestRepository authorizationRequestRepository) {
 		Assert.notNull(authorizationRequestRepository, "authorizationRequestRepository cannot be null");
 		this.authorizationRequestRepository = authorizationRequestRepository;
+	}
+
+	public final void setAccessTokenRepository(OAuth2TokenRepository<AccessToken> accessTokenRepository) {
+		Assert.notNull(accessTokenRepository, "accessTokenRepository cannot be null");
+		this.accessTokenRepository = accessTokenRepository;
 	}
 
 	private AuthorizationResponse convert(HttpServletRequest request) {

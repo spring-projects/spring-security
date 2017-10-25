@@ -27,8 +27,6 @@ import org.springframework.security.oauth2.client.authentication.jwt.JwtDecoderR
 import org.springframework.security.oauth2.client.authentication.userinfo.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.client.token.InMemoryAccessTokenRepository;
-import org.springframework.security.oauth2.client.token.SecurityTokenRepository;
 import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.endpoint.AuthorizationRequest;
@@ -61,7 +59,7 @@ import java.util.Collection;
  * @author Joe Grandja
  * @since 5.0
  * @see AuthorizationCodeAuthenticationToken
- * @see SecurityTokenRepository
+ * @see OAuth2AuthenticationToken
  * @see OidcAuthorizedClient
  * @see OidcUserService
  * @see OidcUser
@@ -75,7 +73,6 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 	private final AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger;
 	private final OAuth2UserService userService;
 	private final JwtDecoderRegistry jwtDecoderRegistry;
-	private SecurityTokenRepository<AccessToken> accessTokenRepository = new InMemoryAccessTokenRepository();
 	private GrantedAuthoritiesMapper authoritiesMapper = (authorities -> authorities);
 
 	public OidcAuthorizationCodeAuthenticationProvider(
@@ -151,10 +148,6 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 		OidcAuthorizedClient authorizedClient = new OidcAuthorizedClient(
 			clientRegistration, idToken.getSubject(), accessToken, idToken);
 
-		this.accessTokenRepository.saveSecurityToken(
-			authorizedClient.getAccessToken(),
-			authorizedClient.getClientRegistration());
-
 		OAuth2User oauth2User = this.userService.loadUser(authorizedClient);
 
 		// Update AuthorizedClient as the 'principalName' may have changed
@@ -170,11 +163,6 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 		authenticationResult.setDetails(authorizationCodeAuthentication.getDetails());
 
 		return authenticationResult;
-	}
-
-	public final void setAccessTokenRepository(SecurityTokenRepository<AccessToken> accessTokenRepository) {
-		Assert.notNull(accessTokenRepository, "accessTokenRepository cannot be null");
-		this.accessTokenRepository = accessTokenRepository;
 	}
 
 	public final void setAuthoritiesMapper(GrantedAuthoritiesMapper authoritiesMapper) {

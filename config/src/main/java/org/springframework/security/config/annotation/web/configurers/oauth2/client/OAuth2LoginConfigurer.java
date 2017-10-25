@@ -20,10 +20,10 @@ import org.springframework.core.ResolvableType;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
-import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationProvider;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.AuthorizationGrantTokenExchanger;
 import org.springframework.security.oauth2.client.authentication.NimbusAuthorizationCodeTokenExchanger;
+import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationProvider;
 import org.springframework.security.oauth2.client.authentication.jwt.JwtDecoderRegistry;
 import org.springframework.security.oauth2.client.authentication.jwt.NimbusJwtDecoderRegistry;
 import org.springframework.security.oauth2.client.authentication.userinfo.CustomUserTypesOAuth2UserService;
@@ -33,7 +33,7 @@ import org.springframework.security.oauth2.client.authentication.userinfo.OAuth2
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
-import org.springframework.security.oauth2.client.token.SecurityTokenRepository;
+import org.springframework.security.oauth2.client.token.OAuth2TokenRepository;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRedirectFilter;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
@@ -132,7 +132,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 
 	public class TokenEndpointConfig {
 		private AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger;
-		private SecurityTokenRepository<AccessToken> accessTokenRepository;
+		private OAuth2TokenRepository<AccessToken> accessTokenRepository;
 		private JwtDecoderRegistry jwtDecoderRegistry;
 
 		private TokenEndpointConfig() {
@@ -146,7 +146,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 			return this;
 		}
 
-		public TokenEndpointConfig accessTokenRepository(SecurityTokenRepository<AccessToken> accessTokenRepository) {
+		public TokenEndpointConfig accessTokenRepository(OAuth2TokenRepository<AccessToken> accessTokenRepository) {
 			Assert.notNull(accessTokenRepository, "accessTokenRepository cannot be null");
 			this.accessTokenRepository = accessTokenRepository;
 			return this;
@@ -249,10 +249,6 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 
 		OAuth2LoginAuthenticationProvider oauth2LoginAuthenticationProvider =
 			new OAuth2LoginAuthenticationProvider(authorizationCodeTokenExchanger, oauth2UserService);
-		if (this.tokenEndpointConfig.accessTokenRepository != null) {
-			oauth2LoginAuthenticationProvider.setAccessTokenRepository(
-				this.tokenEndpointConfig.accessTokenRepository);
-		}
 		if (this.userInfoEndpointConfig.userAuthoritiesMapper != null) {
 			oauth2LoginAuthenticationProvider.setAuthoritiesMapper(
 				this.userInfoEndpointConfig.userAuthoritiesMapper);
@@ -267,10 +263,6 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		OidcAuthorizationCodeAuthenticationProvider oidcAuthorizationCodeAuthenticationProvider =
 			new OidcAuthorizationCodeAuthenticationProvider(
 				authorizationCodeTokenExchanger, oidcUserService, jwtDecoderRegistry);
-		if (this.tokenEndpointConfig.accessTokenRepository != null) {
-			oidcAuthorizationCodeAuthenticationProvider.setAccessTokenRepository(
-				this.tokenEndpointConfig.accessTokenRepository);
-		}
 		if (this.userInfoEndpointConfig.userAuthoritiesMapper != null) {
 			oidcAuthorizationCodeAuthenticationProvider.setAuthoritiesMapper(
 				this.userInfoEndpointConfig.userAuthoritiesMapper);
@@ -307,6 +299,10 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		if (this.authorizationEndpointConfig.authorizationRequestRepository != null) {
 			authorizationResponseFilter.setAuthorizationRequestRepository(
 				this.authorizationEndpointConfig.authorizationRequestRepository);
+		}
+		if (this.tokenEndpointConfig.accessTokenRepository != null) {
+			authorizationResponseFilter.setAccessTokenRepository(
+				this.tokenEndpointConfig.accessTokenRepository);
 		}
 		super.configure(http);
 	}

@@ -22,8 +22,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.oauth2.client.authentication.userinfo.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.userinfo.OAuth2UserService;
-import org.springframework.security.oauth2.client.token.InMemoryAccessTokenRepository;
-import org.springframework.security.oauth2.client.token.SecurityTokenRepository;
 import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.endpoint.AuthorizationRequest;
@@ -49,7 +47,6 @@ import java.util.Collection;
  * @author Joe Grandja
  * @since 5.0
  * @see AuthorizationCodeAuthenticationToken
- * @see SecurityTokenRepository
  * @see OAuth2AuthenticationToken
  * @see AuthorizedClient
  * @see OAuth2UserService
@@ -63,7 +60,6 @@ public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider
 	private static final String INVALID_REDIRECT_URI_PARAMETER_ERROR_CODE = "invalid_redirect_uri_parameter";
 	private final AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger;
 	private final OAuth2UserService userService;
-	private SecurityTokenRepository<AccessToken> accessTokenRepository = new InMemoryAccessTokenRepository();
 	private GrantedAuthoritiesMapper authoritiesMapper = (authorities -> authorities);
 
 	public OAuth2LoginAuthenticationProvider(
@@ -121,10 +117,6 @@ public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider
 		AuthorizedClient authorizedClient = new AuthorizedClient(
 			authorizationCodeAuthentication.getClientRegistration(), "unknown", accessToken);
 
-		this.accessTokenRepository.saveSecurityToken(
-			authorizedClient.getAccessToken(),
-			authorizedClient.getClientRegistration());
-
 		OAuth2User oauth2User = this.userService.loadUser(authorizedClient);
 
 		// Update AuthorizedClient now that we know the 'principalName'
@@ -139,11 +131,6 @@ public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider
 		authenticationResult.setDetails(authorizationCodeAuthentication.getDetails());
 
 		return authenticationResult;
-	}
-
-	public final void setAccessTokenRepository(SecurityTokenRepository<AccessToken> accessTokenRepository) {
-		Assert.notNull(accessTokenRepository, "accessTokenRepository cannot be null");
-		this.accessTokenRepository = accessTokenRepository;
 	}
 
 	public final void setAuthoritiesMapper(GrantedAuthoritiesMapper authoritiesMapper) {
