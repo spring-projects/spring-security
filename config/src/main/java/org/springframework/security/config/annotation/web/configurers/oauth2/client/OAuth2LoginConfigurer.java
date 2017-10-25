@@ -190,7 +190,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 
 	public class UserInfoEndpointConfig {
 		private OAuth2UserService userService;
-		private Map<URI, Class<? extends OAuth2User>> customUserTypes = new HashMap<>();
+		private Map<String, Class<? extends OAuth2User>> customUserTypes = new HashMap<>();
 		private GrantedAuthoritiesMapper userAuthoritiesMapper;
 
 		private UserInfoEndpointConfig() {
@@ -202,9 +202,9 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 			return this;
 		}
 
-		public UserInfoEndpointConfig customUserType(Class<? extends OAuth2User> customUserType, URI userInfoUri) {
+		public UserInfoEndpointConfig customUserType(Class<? extends OAuth2User> customUserType, String userInfoUri) {
 			Assert.notNull(customUserType, "customUserType cannot be null");
-			Assert.notNull(userInfoUri, "userInfoUri cannot be null");
+			Assert.hasText(userInfoUri, "userInfoUri cannot be empty");
 			this.customUserTypes.put(userInfoUri, customUserType);
 			return this;
 		}

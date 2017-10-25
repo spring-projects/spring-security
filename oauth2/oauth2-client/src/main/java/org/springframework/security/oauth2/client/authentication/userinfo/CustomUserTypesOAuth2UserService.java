@@ -20,7 +20,6 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.Assert;
 
-import java.net.URI;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -29,7 +28,7 @@ import java.util.Map;
  * An implementation of an {@link OAuth2UserService} that supports custom {@link OAuth2User} types.
  * <p>
  * The custom user type(s) is supplied via the constructor,
- * using a <code>Map</code> of {@link OAuth2User} type <i>keyed</i> by <code>URI</code>,
+ * using a <code>Map</code> of {@link OAuth2User} type <i>keyed</i> by <code>String</code>,
  * representing the <i>UserInfo Endpoint</i> address.
  * <p>
  * This implementation uses a {@link UserInfoRetriever} to obtain the user attributes
@@ -42,17 +41,17 @@ import java.util.Map;
  * @see UserInfoRetriever
  */
 public class CustomUserTypesOAuth2UserService implements OAuth2UserService {
-	private final Map<URI, Class<? extends OAuth2User>> customUserTypes;
+	private final Map<String, Class<? extends OAuth2User>> customUserTypes;
 	private UserInfoRetriever userInfoRetriever = new NimbusUserInfoRetriever();
 
-	public CustomUserTypesOAuth2UserService(Map<URI, Class<? extends OAuth2User>> customUserTypes) {
+	public CustomUserTypesOAuth2UserService(Map<String, Class<? extends OAuth2User>> customUserTypes) {
 		Assert.notEmpty(customUserTypes, "customUserTypes cannot be empty");
 		this.customUserTypes = Collections.unmodifiableMap(new LinkedHashMap<>(customUserTypes));
 	}
 
 	@Override
 	public OAuth2User loadUser(AuthorizedClient authorizedClient) throws OAuth2AuthenticationException {
-		URI userInfoUri = URI.create(authorizedClient.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUri());
+		String userInfoUri = authorizedClient.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUri();
 		Class<? extends OAuth2User> customUserType;
 		if ((customUserType = this.customUserTypes.get(userInfoUri)) == null) {
 			return null;
