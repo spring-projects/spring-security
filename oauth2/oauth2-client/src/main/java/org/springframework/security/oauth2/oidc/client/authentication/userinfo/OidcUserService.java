@@ -110,7 +110,7 @@ public class OidcUserService implements OAuth2UserService {
 			oidcAuthorizedClient.getClientRegistration().getAuthorizationGrantType())) {
 
 			// Return true if there is at least one match between the authorized scope(s) and UserInfo scope(s)
-			return oidcAuthorizedClient.getAuthorizedScopes().stream().anyMatch(userInfoScopes::contains);
+			return oidcAuthorizedClient.getAccessToken().getScopes().stream().anyMatch(userInfoScopes::contains);
 		}
 
 		return false;

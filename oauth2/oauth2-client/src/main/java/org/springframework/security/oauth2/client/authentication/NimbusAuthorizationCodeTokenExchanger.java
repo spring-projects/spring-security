@@ -41,7 +41,6 @@ import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -122,10 +121,20 @@ public class NimbusAuthorizationCodeTokenExchanger implements AuthorizationGrant
 			accessTokenType = AccessToken.TokenType.BEARER;
 		}
 		long expiresIn = accessTokenResponse.getTokens().getAccessToken().getLifetime();
-		Set<String> scopes = Collections.emptySet();
-		if (!CollectionUtils.isEmpty(accessTokenResponse.getTokens().getAccessToken().getScope())) {
-			scopes = new LinkedHashSet<>(accessTokenResponse.getTokens().getAccessToken().getScope().toStringList());
+
+		// As per spec, in section 5.1 Successful Access Token Response
+		// https://tools.ietf.org/html/rfc6749#section-5.1
+		// If AccessTokenResponse.scope is empty, then default to the scope
+		// originally requested by the client in the Authorization Request
+		Set<String> scopes;
+		if (CollectionUtils.isEmpty(accessTokenResponse.getTokens().getAccessToken().getScope())) {
+			scopes = new LinkedHashSet<>(
+				authorizationCodeAuthentication.getAuthorizationExchange().getAuthorizationRequest().getScopes());
+		} else {
+			scopes = new LinkedHashSet<>(
+				accessTokenResponse.getTokens().getAccessToken().getScope().toStringList());
 		}
+
 		Map<String, Object> additionalParameters = new LinkedHashMap<>(accessTokenResponse.getCustomParameters());
 
 		return TokenResponse.withToken(accessToken)

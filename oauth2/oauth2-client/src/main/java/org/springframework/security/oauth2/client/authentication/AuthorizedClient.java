@@ -18,9 +18,6 @@ package org.springframework.security.oauth2.client.authentication;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
-
-import java.util.Set;
 
 /**
  * A representation of an OAuth 2.0 <i>&quot;Authorized Client&quot;</i>.
@@ -62,15 +59,5 @@ public class AuthorizedClient {
 
 	public AccessToken getAccessToken() {
 		return this.accessToken;
-	}
-
-	public final Set<String> getAuthorizedScopes() {
-		// As per spec, in section 5.1 Successful Access Token Response
-		// https://tools.ietf.org/html/rfc6749#section-5.1
-		// If AccessToken.scopes is empty, then default to the scopes
-		// originally requested by the client in the Authorization Request
-		return (CollectionUtils.isEmpty(this.getAccessToken().getScopes()) ?
-			this.getClientRegistration().getScopes() :
-			this.getAccessToken().getScopes());
 	}
 }
