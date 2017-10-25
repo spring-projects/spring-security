@@ -31,6 +31,6 @@ import org.springframework.security.oauth2.client.authentication.AuthorizedClien
  */
 public interface UserInfoRetriever {
 
-	<T> T retrieve(AuthorizedClient clientAuthentication, Class<T> responseType) throws OAuth2AuthenticationException;
+	<T> T retrieve(AuthorizedClient authorizedClient, Class<T> responseType) throws OAuth2AuthenticationException;
 
 }
