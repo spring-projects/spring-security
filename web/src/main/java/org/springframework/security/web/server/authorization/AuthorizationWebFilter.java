@@ -17,6 +17,9 @@ package org.springframework.security.web.server.authorization;
 
 
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
@@ -37,7 +40,9 @@ public class AuthorizationWebFilter implements WebFilter {
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-		return accessDecisionManager.verify(exchange.getPrincipal(), exchange)
-			.switchIfEmpty( Mono.defer(() -> chain.filter(exchange)) );
+		return ReactiveSecurityContextHolder.getContext()
+			.map(SecurityContext::getAuthentication)
+			.as( authentication -> this.accessDecisionManager.verify(authentication, exchange))
+			.switchIfEmpty(chain.filter(exchange));
 	}
 }
