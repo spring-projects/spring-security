@@ -40,7 +40,7 @@ public class WebTestClientBuilder {
 	}
 
 	public static Builder bindToWebFilters(SecurityWebFilterChain securityWebFilterChain) {
-		return bindToWebFilters(WebFilterChainProxy.fromSecurityWebFilterChains(securityWebFilterChain));
+		return bindToWebFilters(new WebFilterChainProxy(securityWebFilterChain));
 	}
 
 	@RestController

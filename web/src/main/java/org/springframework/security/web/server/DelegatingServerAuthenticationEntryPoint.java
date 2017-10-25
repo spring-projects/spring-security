@@ -17,6 +17,7 @@
 package org.springframework.security.web.server;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.util.Assert;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -33,7 +34,7 @@ import java.util.List;
  */
 public class DelegatingServerAuthenticationEntryPoint
 	implements ServerAuthenticationEntryPoint {
-	private final Flux<DelegateEntry> entryPoints;
+	private final List<DelegateEntry> entryPoints;
 
 	private ServerAuthenticationEntryPoint defaultEntryPoint = (exchange, e) -> {
 		exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
@@ -47,12 +48,14 @@ public class DelegatingServerAuthenticationEntryPoint
 
 	public DelegatingServerAuthenticationEntryPoint(
 		List<DelegateEntry> entryPoints) {
-		this.entryPoints = Flux.fromIterable(entryPoints);
+		Assert.notEmpty(entryPoints, "entryPoints cannot be null");
+		this.entryPoints = entryPoints;
 	}
 
 	public Mono<Void> commence(ServerWebExchange exchange,
 		AuthenticationException e) {
-		return this.entryPoints.filterWhen( entry -> isMatch(exchange, entry))
+		return Flux.fromIterable(this.entryPoints)
+				.filterWhen( entry -> isMatch(exchange, entry))
 				.next()
 				.map( entry -> entry.getEntryPoint())
 				.defaultIfEmpty(this.defaultEntryPoint)

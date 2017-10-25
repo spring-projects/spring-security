@@ -50,7 +50,7 @@ public class WebFluxSecurityConfiguration {
 	@Bean(SPRING_SECURITY_WEBFILTERCHAINFILTER_BEAN_NAME)
 	@Order(value = WEB_FILTER_CHAIN_FILTER_ORDER)
 	public WebFilterChainProxy springSecurityWebFilterChainFilter() {
-		return WebFilterChainProxy.fromSecurityWebFilterChainsList(getSecurityWebFilterChains());
+		return new WebFilterChainProxy(getSecurityWebFilterChains());
 	}
 
 	private List<SecurityWebFilterChain> getSecurityWebFilterChains() {

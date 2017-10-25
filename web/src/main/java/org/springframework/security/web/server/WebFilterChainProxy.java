@@ -15,6 +15,7 @@
  */
 package org.springframework.security.web.server;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -33,15 +34,19 @@ import reactor.core.publisher.Mono;
  * @since 5.0
  */
 public class WebFilterChainProxy implements WebFilter {
-	private final Flux<SecurityWebFilterChain> filters;
+	private final List<SecurityWebFilterChain> filters;
 
-	public WebFilterChainProxy(Flux<SecurityWebFilterChain> filters) {
+	public WebFilterChainProxy(List<SecurityWebFilterChain> filters) {
 		this.filters = filters;
+	}
+
+	public WebFilterChainProxy(SecurityWebFilterChain... filters) {
+		this.filters = Arrays.asList(filters);
 	}
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-		return filters
+		return Flux.fromIterable(this.filters)
 				.filterWhen( securityWebFilterChain -> securityWebFilterChain.matches(exchange))
 				.next()
 				.switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
@@ -51,17 +56,5 @@ public class WebFilterChainProxy implements WebFilter {
 				.map( filters -> new FilteringWebHandler(webHandler -> chain.filter(webHandler), filters))
 				.map( handler -> new DefaultWebFilterChain(handler) )
 				.flatMap( securedChain -> securedChain.filter(exchange));
-	}
-
-	public static WebFilterChainProxy fromWebFiltersList(List<WebFilter> filters) {
-		return new WebFilterChainProxy(Flux.just(new MatcherSecurityWebFilterChain(ServerWebExchangeMatchers.anyExchange(), filters)));
-	}
-
-	public static WebFilterChainProxy fromSecurityWebFilterChainsList(List<SecurityWebFilterChain> securityWebFilterChains) {
-		return new WebFilterChainProxy(Flux.fromIterable(securityWebFilterChains));
-	}
-
-	public static WebFilterChainProxy fromSecurityWebFilterChains(SecurityWebFilterChain... securityWebFilterChains) {
-		return fromSecurityWebFilterChainsList(Arrays.asList(securityWebFilterChains));
 	}
 }

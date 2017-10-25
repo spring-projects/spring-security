@@ -118,7 +118,7 @@ public class ServerHttpSecurityTests {
 	}
 
 	private WebTestClient buildClient() {
-		WebFilterChainProxy springSecurityFilterChain = WebFilterChainProxy.fromSecurityWebFilterChains(
+		WebFilterChainProxy springSecurityFilterChain = new WebFilterChainProxy(
 			this.http.build());
 		return WebTestClientBuilder.bindToWebFilters(springSecurityFilterChain).build();
 	}

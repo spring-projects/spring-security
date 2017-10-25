@@ -99,7 +99,7 @@ public class FormLoginTests {
 
 		WebTestClient webTestClient = WebTestClient
 			.bindToController(new CustomLoginPageController(), new WebTestClientBuilder.Http200RestController())
-			.webFilter(WebFilterChainProxy.fromSecurityWebFilterChains(securityWebFilter))
+			.webFilter(new WebFilterChainProxy(securityWebFilter))
 			.build();
 
 		WebDriver driver = WebTestClientHtmlUnitDriverBuilder

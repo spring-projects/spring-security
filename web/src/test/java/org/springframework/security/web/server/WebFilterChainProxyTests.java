@@ -42,7 +42,7 @@ public class WebFilterChainProxyTests {
 		List<WebFilter> filters = Arrays.asList(new Http200WebFilter());
 		ServerWebExchangeMatcher notMatch = exchange -> MatchResult.notMatch();
 		MatcherSecurityWebFilterChain chain = new MatcherSecurityWebFilterChain(notMatch, filters);
-		WebFilterChainProxy filter = WebFilterChainProxy.fromSecurityWebFilterChains(chain);
+		WebFilterChainProxy filter = new WebFilterChainProxy(chain);
 
 		WebTestClient.bindToController(new Object()).webFilter(filter).build()
 			.get()

@@ -17,6 +17,7 @@
 package org.springframework.security.web.server;
 
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
+import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import reactor.core.publisher.Flux;
@@ -30,13 +31,11 @@ import java.util.List;
  */
 public class MatcherSecurityWebFilterChain implements SecurityWebFilterChain {
 	private final ServerWebExchangeMatcher matcher;
-	private final Flux<WebFilter> filters;
+	private final List<WebFilter> filters;
 
 	public MatcherSecurityWebFilterChain(ServerWebExchangeMatcher matcher, List<WebFilter> filters) {
-		this(matcher, Flux.fromIterable(filters));
-	}
-
-	public MatcherSecurityWebFilterChain(ServerWebExchangeMatcher matcher, Flux<WebFilter> filters) {
+		Assert.notNull(matcher, "matcher cannot be null");
+		Assert.notEmpty(filters, "filters cannot be null or empty. Got " + filters);
 		this.matcher = matcher;
 		this.filters = filters;
 	}
@@ -49,6 +48,6 @@ public class MatcherSecurityWebFilterChain implements SecurityWebFilterChain {
 
 	@Override
 	public Flux<WebFilter> getWebFilters() {
-		return filters;
+		return Flux.fromIterable(this.filters);
 	}
 }
