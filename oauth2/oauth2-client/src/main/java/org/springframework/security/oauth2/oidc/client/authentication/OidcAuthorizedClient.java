@@ -15,37 +15,36 @@
  */
 package org.springframework.security.oauth2.oidc.client.authentication;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.client.authentication.OAuth2ClientAuthenticationToken;
+import org.springframework.security.oauth2.client.authentication.AuthorizedClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.security.oauth2.oidc.core.IdToken;
 import org.springframework.util.Assert;
 
 /**
- * An {@link OAuth2ClientAuthenticationToken} that represents an
- * <i>OpenID Connect 1.0 Client</i> {@link Authentication}.
- *
+ * A representation of an OpenID Connect 1.0 <i>&quot;Authorized Client&quot;</i>.
  * <p>
- * A client is considered <i>&quot;authenticated&quot;</i>,
- * if it receives a successful response from the <i>Token Endpoint</i>.
- * This {@link Authentication} associates the client identified in {@link #getClientRegistration()}
- * to the {@link #getAccessToken()} granted by the resource owner along with the {@link #getIdToken()}
- * containing Claims about the authentication of the End-User.
+ * A client is considered <i>&quot;authorized&quot;</i>
+ * when it receives a successful response from the <i>Token Endpoint</i>.
+ * <p>
+ * This class associates the {@link #getClientRegistration() Client}
+ * to the {@link #getAccessToken() Access Token}
+ * granted/authorized by the {@link #getPrincipalName() Resource Owner}, along with
+ * the {@link #getIdToken() ID Token} which contains Claims about the authentication of the End-User.
  *
  * @author Joe Grandja
  * @since 5.0
  * @see IdToken
- * @see OAuth2ClientAuthenticationToken
+ * @see AuthorizedClient
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#TokenResponse">3.1.3.3 Successful Token Response</a>
  */
-public class OidcClientAuthenticationToken extends OAuth2ClientAuthenticationToken {
+public class OidcAuthorizedClient extends AuthorizedClient {
 	private final IdToken idToken;
 
-	public OidcClientAuthenticationToken(ClientRegistration clientRegistration,
-											AccessToken accessToken, IdToken idToken) {
+	public OidcAuthorizedClient(ClientRegistration clientRegistration, String principalName,
+								AccessToken accessToken, IdToken idToken) {
 
-		super(clientRegistration, accessToken);
+		super(clientRegistration, principalName, accessToken);
 		Assert.notNull(idToken, "idToken cannot be null");
 		this.idToken = idToken;
 	}

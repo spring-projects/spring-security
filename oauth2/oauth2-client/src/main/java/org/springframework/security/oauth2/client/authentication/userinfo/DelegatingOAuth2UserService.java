@@ -16,7 +16,7 @@
 package org.springframework.security.oauth2.client.authentication.userinfo;
 
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.client.authentication.OAuth2ClientAuthenticationToken;
+import org.springframework.security.oauth2.client.authentication.AuthorizedClient;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.Assert;
 
@@ -30,7 +30,7 @@ import java.util.Objects;
  * to it's internal <code>List</code> of {@link OAuth2UserService}'s.
  * <p>
  * Each {@link OAuth2UserService} is given a chance to
- * {@link OAuth2UserService#loadUser(OAuth2ClientAuthenticationToken) load} an {@link OAuth2User}
+ * {@link OAuth2UserService#loadUser(AuthorizedClient) load} an {@link OAuth2User}
  * with the first <code>non-null</code> {@link OAuth2User} being returned.
  *
  * @author Joe Grandja
@@ -47,9 +47,9 @@ public class DelegatingOAuth2UserService implements OAuth2UserService {
 	}
 
 	@Override
-	public OAuth2User loadUser(OAuth2ClientAuthenticationToken clientAuthentication) throws OAuth2AuthenticationException {
+	public OAuth2User loadUser(AuthorizedClient authorizedClient) throws OAuth2AuthenticationException {
 		OAuth2User oauth2User = this.userServices.stream()
-			.map(userService -> userService.loadUser(clientAuthentication))
+			.map(userService -> userService.loadUser(authorizedClient))
 			.filter(Objects::nonNull)
 			.findFirst()
 			.orElse(null);

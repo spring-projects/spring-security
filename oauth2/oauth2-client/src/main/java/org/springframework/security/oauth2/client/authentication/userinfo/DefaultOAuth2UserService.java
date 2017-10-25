@@ -17,7 +17,7 @@ package org.springframework.security.oauth2.client.authentication.userinfo;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.client.authentication.OAuth2ClientAuthenticationToken;
+import org.springframework.security.oauth2.client.authentication.AuthorizedClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -52,15 +52,15 @@ public class DefaultOAuth2UserService implements OAuth2UserService {
 	private UserInfoRetriever userInfoRetriever = new NimbusUserInfoRetriever();
 
 	@Override
-	public OAuth2User loadUser(OAuth2ClientAuthenticationToken clientAuthentication) throws OAuth2AuthenticationException {
-		String userNameAttributeName = clientAuthentication.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
+	public OAuth2User loadUser(AuthorizedClient authorizedClient) throws OAuth2AuthenticationException {
+		String userNameAttributeName = authorizedClient.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
 		if (!StringUtils.hasText(userNameAttributeName)) {
 			throw new IllegalArgumentException(
 				"Missing required \"user name\" attribute name in UserInfoEndpoint for Client Registration: " +
-					clientAuthentication.getClientRegistration().getRegistrationId());
+					authorizedClient.getClientRegistration().getRegistrationId());
 		}
 
-		Map<String, Object> userAttributes = this.userInfoRetriever.retrieve(clientAuthentication, Map.class);
+		Map<String, Object> userAttributes = this.userInfoRetriever.retrieve(authorizedClient, Map.class);
 		GrantedAuthority authority = new OAuth2UserAuthority(userAttributes);
 		Set<GrantedAuthority> authorities = new HashSet<>();
 		authorities.add(authority);

@@ -16,15 +16,15 @@
 package org.springframework.security.oauth2.oidc.client.authentication.userinfo;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.client.authentication.AuthorizedClient;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.client.authentication.OAuth2ClientAuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.userinfo.NimbusUserInfoRetriever;
 import org.springframework.security.oauth2.client.authentication.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.client.authentication.userinfo.UserInfoRetriever;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.security.oauth2.oidc.client.authentication.OidcClientAuthenticationToken;
+import org.springframework.security.oauth2.oidc.client.authentication.OidcAuthorizedClient;
 import org.springframework.security.oauth2.oidc.core.OidcScope;
 import org.springframework.security.oauth2.oidc.core.UserInfo;
 import org.springframework.security.oauth2.oidc.core.user.DefaultOidcUser;
@@ -47,7 +47,7 @@ import java.util.Set;
  * @author Joe Grandja
  * @since 5.0
  * @see OAuth2UserService
- * @see OidcClientAuthenticationToken
+ * @see OidcAuthorizedClient
  * @see DefaultOidcUser
  * @see UserInfo
  * @see UserInfoRetriever
@@ -59,12 +59,12 @@ public class OidcUserService implements OAuth2UserService {
 		Arrays.asList(OidcScope.PROFILE, OidcScope.EMAIL, OidcScope.ADDRESS, OidcScope.PHONE));
 
 	@Override
-	public OAuth2User loadUser(OAuth2ClientAuthenticationToken clientAuthentication) throws OAuth2AuthenticationException {
-		OidcClientAuthenticationToken oidcClientAuthentication = (OidcClientAuthenticationToken)clientAuthentication;
+	public OAuth2User loadUser(AuthorizedClient authorizedClient) throws OAuth2AuthenticationException {
+		OidcAuthorizedClient oidcAuthorizedClient = (OidcAuthorizedClient)authorizedClient;
 
 		UserInfo userInfo = null;
-		if (this.shouldRetrieveUserInfo(oidcClientAuthentication)) {
-			Map<String, Object> userAttributes = this.userInfoRetriever.retrieve(oidcClientAuthentication, Map.class);
+		if (this.shouldRetrieveUserInfo(oidcAuthorizedClient)) {
+			Map<String, Object> userAttributes = this.userInfoRetriever.retrieve(oidcAuthorizedClient, Map.class);
 			userInfo = new UserInfo(userAttributes);
 
 			// http://openid.net/specs/openid-connect-core-1_0.html#UserInfoResponse
@@ -74,17 +74,17 @@ public class OidcUserService implements OAuth2UserService {
 			// The sub Claim in the UserInfo Response MUST be verified to exactly match
 			// the sub Claim in the ID Token; if they do not match,
 			// the UserInfo Response values MUST NOT be used.
-			if (!userInfo.getSubject().equals(oidcClientAuthentication.getIdToken().getSubject())) {
+			if (!userInfo.getSubject().equals(oidcAuthorizedClient.getIdToken().getSubject())) {
 				OAuth2Error oauth2Error = new OAuth2Error(INVALID_USER_INFO_RESPONSE_ERROR_CODE);
 				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 			}
 		}
 
-		GrantedAuthority authority = new OidcUserAuthority(oidcClientAuthentication.getIdToken(), userInfo);
+		GrantedAuthority authority = new OidcUserAuthority(oidcAuthorizedClient.getIdToken(), userInfo);
 		Set<GrantedAuthority> authorities = new HashSet<>();
 		authorities.add(authority);
 
-		return new DefaultOidcUser(authorities, oidcClientAuthentication.getIdToken(), userInfo);
+		return new DefaultOidcUser(authorities, oidcAuthorizedClient.getIdToken(), userInfo);
 	}
 
 	public final void setUserInfoRetriever(UserInfoRetriever userInfoRetriever) {
@@ -92,9 +92,9 @@ public class OidcUserService implements OAuth2UserService {
 		this.userInfoRetriever = userInfoRetriever;
 	}
 
-	private boolean shouldRetrieveUserInfo(OidcClientAuthenticationToken oidcClientAuthentication) {
+	private boolean shouldRetrieveUserInfo(OidcAuthorizedClient oidcAuthorizedClient) {
 		// Auto-disabled if UserInfo Endpoint URI is not provided
-		if (StringUtils.isEmpty(oidcClientAuthentication.getClientRegistration().getProviderDetails()
+		if (StringUtils.isEmpty(oidcAuthorizedClient.getClientRegistration().getProviderDetails()
 			.getUserInfoEndpoint().getUri())) {
 
 			return false;
@@ -107,10 +107,10 @@ public class OidcUserService implements OAuth2UserService {
 		// the resulting Claims are returned in the ID Token.
 		// The Authorization Code Grant Flow, which is response_type=code, results in an Access Token being issued.
 		if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(
-			oidcClientAuthentication.getClientRegistration().getAuthorizationGrantType())) {
+			oidcAuthorizedClient.getClientRegistration().getAuthorizationGrantType())) {
 
 			// Return true if there is at least one match between the authorized scope(s) and UserInfo scope(s)
-			return oidcClientAuthentication.getAuthorizedScopes().stream().anyMatch(userInfoScopes::contains);
+			return oidcAuthorizedClient.getAuthorizedScopes().stream().anyMatch(userInfoScopes::contains);
 		}
 
 		return false;

@@ -28,7 +28,7 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.client.authentication.OAuth2ClientAuthenticationToken;
+import org.springframework.security.oauth2.client.authentication.AuthorizedClient;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.util.Assert;
 
@@ -37,7 +37,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.Charset;
-import java.util.Map;
 
 /**
  * An implementation of a {@link UserInfoRetriever} that uses the <b>Nimbus OAuth 2.0 SDK</b> internally.
@@ -52,9 +51,9 @@ public class NimbusUserInfoRetriever implements UserInfoRetriever {
 	private final HttpMessageConverter jackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();
 
 	@Override
-	public <T> T retrieve(OAuth2ClientAuthenticationToken clientAuthentication, Class<T> returnType) throws OAuth2AuthenticationException {
-		URI userInfoUri = URI.create(clientAuthentication.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUri());
-		BearerAccessToken accessToken = new BearerAccessToken(clientAuthentication.getAccessToken().getTokenValue());
+	public <T> T retrieve(AuthorizedClient authorizedClient, Class<T> returnType) throws OAuth2AuthenticationException {
+		URI userInfoUri = URI.create(authorizedClient.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUri());
+		BearerAccessToken accessToken = new BearerAccessToken(authorizedClient.getAccessToken().getTokenValue());
 
 		UserInfoRequest userInfoRequest = new UserInfoRequest(userInfoUri, accessToken);
 		HTTPRequest httpRequest = userInfoRequest.toHTTPRequest();

@@ -19,7 +19,7 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
-import org.springframework.security.oauth2.client.authentication.OAuth2ClientAuthenticationToken;
+import org.springframework.security.oauth2.client.authentication.AuthorizedClient;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.Assert;
 
@@ -28,28 +28,28 @@ import java.util.Collection;
 /**
  * An implementation of an {@link AbstractAuthenticationToken}
  * that represents an <i>OAuth 2.0</i> {@link Authentication}.
- *
  * <p>
- * This {@link Authentication} associates an {@link OAuth2User} principal to an
- * {@link OAuth2ClientAuthenticationToken} which represents the <i>&quot;Authorized Client&quot;</i>.
+ * This {@link Authentication} associates an {@link OAuth2User} principal
+ * to an {@link AuthorizedClient}.
  *
  * @author Joe Grandja
  * @since 5.0
  * @see OAuth2User
- * @see OAuth2ClientAuthenticationToken
+ * @see AuthorizedClient
  */
 public class OAuth2AuthenticationToken extends AbstractAuthenticationToken {
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 	private final OAuth2User principal;
-	private final OAuth2ClientAuthenticationToken clientAuthentication;
+	private final AuthorizedClient authorizedClient;
 
 	public OAuth2AuthenticationToken(OAuth2User principal, Collection<? extends GrantedAuthority> authorities,
-										OAuth2ClientAuthenticationToken clientAuthentication) {
+										AuthorizedClient authorizedClient) {
 		super(authorities);
-		Assert.notNull(clientAuthentication, "clientAuthentication cannot be null");
+		Assert.notNull(principal, "principal cannot be null");
+		Assert.notNull(authorizedClient, "authorizedClient cannot be null");
 		this.principal = principal;
-		this.clientAuthentication = clientAuthentication;
-		this.setAuthenticated(principal != null);
+		this.authorizedClient = authorizedClient;
+		this.setAuthenticated(true);
 	}
 
 	@Override
@@ -63,7 +63,7 @@ public class OAuth2AuthenticationToken extends AbstractAuthenticationToken {
 		return "";
 	}
 
-	public OAuth2ClientAuthenticationToken getClientAuthentication() {
-		return this.clientAuthentication;
+	public AuthorizedClient getAuthorizedClient() {
+		return this.authorizedClient;
 	}
 }

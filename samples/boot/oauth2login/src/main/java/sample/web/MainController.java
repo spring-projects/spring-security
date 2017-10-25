@@ -40,14 +40,14 @@ public class MainController {
 	@RequestMapping("/")
 	public String index(Model model, @AuthenticationPrincipal OAuth2User user, OAuth2AuthenticationToken authentication) {
 		model.addAttribute("userName", user.getName());
-		model.addAttribute("clientName", authentication.getClientAuthentication().getClientRegistration().getClientName());
+		model.addAttribute("clientName", authentication.getAuthorizedClient().getClientRegistration().getClientName());
 		return "index";
 	}
 
 	@RequestMapping("/userinfo")
 	public String userinfo(Model model, OAuth2AuthenticationToken authentication) {
 		Map userAttributes = Collections.emptyMap();
-		String userInfoEndpointUri = authentication.getClientAuthentication().getClientRegistration()
+		String userInfoEndpointUri = authentication.getAuthorizedClient().getClientRegistration()
 			.getProviderDetails().getUserInfoEndpoint().getUri();
 		if (!StringUtils.isEmpty(userInfoEndpointUri)) {	// userInfoEndpointUri is optional for OIDC Clients
 			userAttributes = WebClient.builder()
@@ -67,7 +67,7 @@ public class MainController {
 		return ExchangeFilterFunction.ofRequestProcessor(
 			clientRequest -> {
 				ClientRequest authorizedRequest = ClientRequest.from(clientRequest)
-					.header(HttpHeaders.AUTHORIZATION, "Bearer " + authentication.getClientAuthentication().getAccessToken().getTokenValue())
+					.header(HttpHeaders.AUTHORIZATION, "Bearer " + authentication.getAuthorizedClient().getAccessToken().getTokenValue())
 					.build();
 				return Mono.just(authorizedRequest);
 			});

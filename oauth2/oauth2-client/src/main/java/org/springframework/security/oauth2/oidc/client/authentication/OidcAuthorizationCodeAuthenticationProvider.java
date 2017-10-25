@@ -62,7 +62,7 @@ import java.util.Collection;
  * @since 5.0
  * @see AuthorizationCodeAuthenticationToken
  * @see SecurityTokenRepository
- * @see OidcClientAuthenticationToken
+ * @see OidcAuthorizedClient
  * @see OidcUserService
  * @see OidcUser
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth">Section 3.1 Authorization Code Grant Flow</a>
@@ -142,28 +142,32 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 
 		JwtDecoder jwtDecoder = this.jwtDecoderRegistry.getJwtDecoder(clientRegistration);
 		if (jwtDecoder == null) {
-			throw new IllegalArgumentException("Failed to find a registered JwtDecoder for Client Registration: '" + clientRegistration.getRegistrationId() +
-				"'. Check to ensure you have configured the JwkSet URI.");
+			throw new IllegalArgumentException("Failed to find a registered JwtDecoder for Client Registration: '" +
+				clientRegistration.getRegistrationId() + "'. Check to ensure you have configured the JwkSet URI.");
 		}
 		Jwt jwt = jwtDecoder.decode((String)tokenResponse.getAdditionalParameters().get(OidcParameter.ID_TOKEN));
 		IdToken idToken = new IdToken(jwt.getTokenValue(), jwt.getIssuedAt(), jwt.getExpiresAt(), jwt.getClaims());
 
-		OidcClientAuthenticationToken clientAuthentication =
-			new OidcClientAuthenticationToken(clientRegistration, accessToken, idToken);
-		clientAuthentication.setDetails(authorizationCodeAuthentication.getDetails());
+		OidcAuthorizedClient authorizedClient = new OidcAuthorizedClient(
+			clientRegistration, idToken.getSubject(), accessToken, idToken);
 
 		this.accessTokenRepository.saveSecurityToken(
-			clientAuthentication.getAccessToken(),
-			clientAuthentication.getClientRegistration());
+			authorizedClient.getAccessToken(),
+			authorizedClient.getClientRegistration());
 
-		OAuth2User oauth2User = this.userService.loadUser(clientAuthentication);
+		OAuth2User oauth2User = this.userService.loadUser(authorizedClient);
+
+		// Update AuthorizedClient as the 'principalName' may have changed
+		// (the default IdToken.subject) from the result of userService.loadUser()
+		authorizedClient = new OidcAuthorizedClient(
+			clientRegistration, oauth2User.getName(), accessToken, idToken);
 
 		Collection<? extends GrantedAuthority> mappedAuthorities =
 			this.authoritiesMapper.mapAuthorities(oauth2User.getAuthorities());
 
 		OAuth2AuthenticationToken authenticationResult = new OAuth2AuthenticationToken(
-			oauth2User, mappedAuthorities, clientAuthentication);
-		authenticationResult.setDetails(clientAuthentication.getDetails());
+			oauth2User, mappedAuthorities, authorizedClient);
+		authenticationResult.setDetails(authorizationCodeAuthentication.getDetails());
 
 		return authenticationResult;
 	}

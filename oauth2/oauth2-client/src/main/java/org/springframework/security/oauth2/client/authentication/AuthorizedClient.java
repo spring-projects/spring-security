@@ -15,26 +15,22 @@
  */
 package org.springframework.security.oauth2.client.authentication;
 
-import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Collections;
 import java.util.Set;
 
 /**
- * An implementation of an {@link AbstractAuthenticationToken}
- * that represents an <i>OAuth 2.0 Client</i> {@link Authentication}.
- *
+ * A representation of an OAuth 2.0 <i>&quot;Authorized Client&quot;</i>.
  * <p>
- * A client is considered <i>&quot;authenticated&quot;</i>,
- * if it receives a successful response from the <i>Token Endpoint</i>.
- * This {@link Authentication} associates the client identified in {@link #getClientRegistration()}
- * to the {@link #getAccessToken()} granted by the resource owner.
+ * A client is considered <i>&quot;authorized&quot;</i>
+ * when it receives a successful response from the <i>Token Endpoint</i>.
+ * <p>
+ * This class associates the {@link #getClientRegistration() Client}
+ * to the {@link #getAccessToken() Access Token}
+ * granted/authorized by the {@link #getPrincipalName() Resource Owner}.
  *
  * @author Joe Grandja
  * @since 5.0
@@ -42,32 +38,26 @@ import java.util.Set;
  * @see AccessToken
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-5.1">Section 5.1 Access Token Response</a>
  */
-public class OAuth2ClientAuthenticationToken extends AbstractAuthenticationToken {
-	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+public class AuthorizedClient {
 	private final ClientRegistration clientRegistration;
+	private final String principalName;
 	private final AccessToken accessToken;
 
-	public OAuth2ClientAuthenticationToken(ClientRegistration clientRegistration, AccessToken accessToken) {
-		super(Collections.emptyList());
+	public AuthorizedClient(ClientRegistration clientRegistration, String principalName, AccessToken accessToken) {
 		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
+		Assert.hasText(principalName, "principalName cannot be empty");
 		Assert.notNull(accessToken, "accessToken cannot be null");
 		this.clientRegistration = clientRegistration;
+		this.principalName = principalName;
 		this.accessToken = accessToken;
-		this.setAuthenticated(true);		// The Client is authenticated by the Authorization Server
-	}
-
-	@Override
-	public Object getPrincipal() {
-		return this.getClientRegistration().getClientId();
-	}
-
-	@Override
-	public Object getCredentials() {
-		return "";		// No need to expose this.getClientRegistration().getClientSecret()
 	}
 
 	public ClientRegistration getClientRegistration() {
 		return this.clientRegistration;
+	}
+
+	public String getPrincipalName() {
+		return this.principalName;
 	}
 
 	public AccessToken getAccessToken() {

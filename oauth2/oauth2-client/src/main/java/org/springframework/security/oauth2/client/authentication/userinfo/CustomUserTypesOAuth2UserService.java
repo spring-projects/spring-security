@@ -15,10 +15,8 @@
  */
 package org.springframework.security.oauth2.client.authentication.userinfo;
 
-import org.springframework.beans.BeanWrapper;
-import org.springframework.beans.PropertyAccessorFactory;
+import org.springframework.security.oauth2.client.authentication.AuthorizedClient;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.client.authentication.OAuth2ClientAuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.Assert;
 
@@ -53,14 +51,14 @@ public class CustomUserTypesOAuth2UserService implements OAuth2UserService {
 	}
 
 	@Override
-	public OAuth2User loadUser(OAuth2ClientAuthenticationToken clientAuthentication) throws OAuth2AuthenticationException {
-		URI userInfoUri = URI.create(clientAuthentication.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUri());
+	public OAuth2User loadUser(AuthorizedClient authorizedClient) throws OAuth2AuthenticationException {
+		URI userInfoUri = URI.create(authorizedClient.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUri());
 		Class<? extends OAuth2User> customUserType;
 		if ((customUserType = this.customUserTypes.get(userInfoUri)) == null) {
 			return null;
 		}
 
-		return this.userInfoRetriever.retrieve(clientAuthentication, customUserType);
+		return this.userInfoRetriever.retrieve(authorizedClient, customUserType);
 	}
 
 	public final void setUserInfoRetriever(UserInfoRetriever userInfoRetriever) {

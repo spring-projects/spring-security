@@ -51,7 +51,7 @@ import java.util.Collection;
  * @see AuthorizationCodeAuthenticationToken
  * @see SecurityTokenRepository
  * @see OAuth2AuthenticationToken
- * @see OAuth2ClientAuthenticationToken
+ * @see AuthorizedClient
  * @see OAuth2UserService
  * @see OAuth2User
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">Section 4.1 Authorization Code Grant Flow</a>
@@ -118,22 +118,25 @@ public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider
 			tokenResponse.getTokenValue(), tokenResponse.getIssuedAt(),
 			tokenResponse.getExpiresAt(), tokenResponse.getScopes());
 
-		OAuth2ClientAuthenticationToken clientAuthentication =
-			new OAuth2ClientAuthenticationToken(authorizationCodeAuthentication.getClientRegistration(), accessToken);
-		clientAuthentication.setDetails(authorizationCodeAuthentication.getDetails());
+		AuthorizedClient authorizedClient = new AuthorizedClient(
+			authorizationCodeAuthentication.getClientRegistration(), "unknown", accessToken);
 
 		this.accessTokenRepository.saveSecurityToken(
-			clientAuthentication.getAccessToken(),
-			clientAuthentication.getClientRegistration());
+			authorizedClient.getAccessToken(),
+			authorizedClient.getClientRegistration());
 
-		OAuth2User oauth2User = this.userService.loadUser(clientAuthentication);
+		OAuth2User oauth2User = this.userService.loadUser(authorizedClient);
+
+		// Update AuthorizedClient now that we know the 'principalName'
+		authorizedClient = new AuthorizedClient(
+			authorizationCodeAuthentication.getClientRegistration(), oauth2User.getName(), accessToken);
 
 		Collection<? extends GrantedAuthority> mappedAuthorities =
 			this.authoritiesMapper.mapAuthorities(oauth2User.getAuthorities());
 
 		OAuth2AuthenticationToken authenticationResult = new OAuth2AuthenticationToken(
-			oauth2User, mappedAuthorities, clientAuthentication);
-		authenticationResult.setDetails(clientAuthentication.getDetails());
+			oauth2User, mappedAuthorities, authorizedClient);
+		authenticationResult.setDetails(authorizationCodeAuthentication.getDetails());
 
 		return authenticationResult;
 	}

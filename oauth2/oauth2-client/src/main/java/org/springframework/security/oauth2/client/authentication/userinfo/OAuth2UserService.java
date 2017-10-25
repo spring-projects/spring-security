@@ -16,24 +16,24 @@
 package org.springframework.security.oauth2.client.authentication.userinfo;
 
 import org.springframework.security.core.AuthenticatedPrincipal;
+import org.springframework.security.oauth2.client.authentication.AuthorizedClient;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.client.authentication.OAuth2ClientAuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 /**
  * Implementations of this interface are responsible for obtaining the user attributes
  * of the <i>End-User</i> (resource owner) from the <i>UserInfo Endpoint</i>
- * using the provided {@link OAuth2ClientAuthenticationToken#getAccessToken()}
+ * using the provided {@link AuthorizedClient#getAccessToken()}
  * and returning an {@link AuthenticatedPrincipal} in the form of an {@link OAuth2User}.
  *
  * @author Joe Grandja
  * @since 5.0
- * @see OAuth2ClientAuthenticationToken
+ * @see AuthorizedClient
  * @see AuthenticatedPrincipal
  * @see OAuth2User
  */
 public interface OAuth2UserService {
 
-	OAuth2User loadUser(OAuth2ClientAuthenticationToken clientAuthentication) throws OAuth2AuthenticationException;
+	OAuth2User loadUser(AuthorizedClient authorizedClient) throws OAuth2AuthenticationException;
 
 }
