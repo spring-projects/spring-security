@@ -26,6 +26,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
 import reactor.core.publisher.Hooks;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -108,8 +110,8 @@ public class ReactorContextTestExecutionListenerTests {
 	}
 
 	public void assertAuthentication(Authentication expected) {
-		Mono<Authentication> authentication = Mono.subscriberContext()
-			.flatMap( context -> context.<Mono<Authentication>>get(Authentication.class));
+		Mono<Authentication> authentication = ReactiveSecurityContextHolder.getContext()
+			.map(SecurityContext::getAuthentication);
 
 		StepVerifier.create(authentication)
 			.expectNext(expected)

@@ -17,6 +17,8 @@
 package org.springframework.security.web.server.context;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
@@ -38,6 +40,13 @@ public class AuthenticationReactorContextWebFilter implements WebFilter {
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 
 		return chain.filter(exchange)
-				.subscriberContext((Context context) -> context.put(Authentication.class, exchange.getPrincipal()));
+				.subscriberContext(createContext(exchange));
+	}
+
+	private Context createContext(ServerWebExchange exchange) {
+		return exchange.getPrincipal()
+			.cast(Authentication.class)
+			.map(SecurityContextImpl::new)
+			.as(ReactiveSecurityContextHolder::withSecurityContext);
 	}
 }

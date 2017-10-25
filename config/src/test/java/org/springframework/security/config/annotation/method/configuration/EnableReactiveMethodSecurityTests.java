@@ -25,7 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Flux;
@@ -33,8 +33,6 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.test.publisher.TestPublisher;
 import reactor.util.context.Context;
-
-import java.util.function.Function;
 
 import static org.mockito.Mockito.*;
 
@@ -49,10 +47,8 @@ public class EnableReactiveMethodSecurityTests {
 	ReactiveMessageService delegate;
 	TestPublisher<String> result = TestPublisher.create();
 
-	Function<Context, Context> withAdmin = context -> context.put(Authentication.class, Mono
-		.just(new TestingAuthenticationToken("admin","password","ROLE_USER", "ROLE_ADMIN")));
-	Function<Context, Context> withUser = context -> context.put(Authentication.class, Mono
-		.just(new TestingAuthenticationToken("user","password","ROLE_USER")));
+	Context withAdmin = ReactiveSecurityContextHolder.withAuthentication(new TestingAuthenticationToken("admin","password","ROLE_USER", "ROLE_ADMIN"));
+	Context withUser = ReactiveSecurityContextHolder.withAuthentication(new TestingAuthenticationToken("user","password","ROLE_USER"));
 
 	@After
 	public void cleanup() {

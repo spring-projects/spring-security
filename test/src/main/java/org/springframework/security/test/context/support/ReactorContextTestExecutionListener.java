@@ -18,6 +18,7 @@ package org.springframework.security.test.context.support;
 
 import org.reactivestreams.Subscription;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.test.context.TestSecurityContextHolder;
 import org.springframework.test.context.TestContext;
 import org.springframework.test.context.TestExecutionListener;
@@ -25,7 +26,6 @@ import org.springframework.test.context.support.AbstractTestExecutionListener;
 import org.springframework.util.ClassUtils;
 import reactor.core.CoreSubscriber;
 import reactor.core.publisher.Hooks;
-import reactor.core.publisher.Mono;
 import reactor.core.publisher.Operators;
 import reactor.util.context.Context;
 
@@ -76,7 +76,8 @@ public class ReactorContextTestExecutionListener
 				if (authentication == null) {
 					return context;
 				}
-				return context.put(Authentication.class, Mono.just(authentication));
+				Context toMerge = ReactiveSecurityContextHolder.withAuthentication(authentication);
+				return context.putAll(toMerge);
 			}
 
 			@Override

@@ -25,11 +25,12 @@ import org.springframework.security.access.method.MethodSecurityMetadataSource;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.util.Assert;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.util.context.Context;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -68,9 +69,9 @@ public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor
 			.getAttributes(method, targetClass);
 
 		PreInvocationAttribute preAttr = findPreInvocationAttribute(attributes);
-		Mono<Authentication> toInvoke = Mono.subscriberContext()
-			.defaultIfEmpty(Context.empty())
-			.flatMap( cxt -> cxt.getOrDefault(Authentication.class, Mono.just(anonymous)))
+		Mono<Authentication> toInvoke = ReactiveSecurityContextHolder.getContext()
+			.map(SecurityContext::getAuthentication)
+			.defaultIfEmpty(this.anonymous)
 			.filter( auth -> this.preInvocationAdvice.before(auth, invocation, preAttr))
 			.switchIfEmpty(Mono.error(new AccessDeniedException("Denied")));
 

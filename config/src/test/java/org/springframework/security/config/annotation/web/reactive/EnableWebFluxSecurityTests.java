@@ -31,6 +31,8 @@ import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.config.users.ReactiveAuthenticationTestConfiguration;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.User;
@@ -106,8 +108,8 @@ public class EnableWebFluxSecurityTests {
 				chain.filter(exchange.mutate().principal(Mono.just(currentPrincipal)).build()),
 			this.springSecurityFilterChain,
 			(exchange,chain) ->
-				Mono.subscriberContext()
-					.flatMap( c -> c.<Mono<Principal>>get(Authentication.class))
+				ReactiveSecurityContextHolder.getContext()
+					.map(SecurityContext::getAuthentication)
 					.flatMap( principal -> exchange.getResponse()
 						.writeWith(Mono.just(toDataBuffer(principal.getName()))))
 		).build();
@@ -126,8 +128,8 @@ public class EnableWebFluxSecurityTests {
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(
 			this.springSecurityFilterChain,
 			(exchange,chain) ->
-				Mono.subscriberContext()
-					.flatMap( c -> c.<Mono<Principal>>get(Authentication.class))
+				ReactiveSecurityContextHolder.getContext()
+					.map(SecurityContext::getAuthentication)
 					.flatMap( principal -> exchange.getResponse()
 						.writeWith(Mono.just(toDataBuffer(principal.getName()))))
 		)
@@ -154,8 +156,8 @@ public class EnableWebFluxSecurityTests {
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(
 			this.springSecurityFilterChain,
 			(exchange,chain) ->
-				Mono.subscriberContext()
-					.flatMap( c -> c.<Mono<Principal>>get(Authentication.class))
+				ReactiveSecurityContextHolder.getContext()
+					.map(SecurityContext::getAuthentication)
 					.flatMap( principal -> exchange.getResponse()
 						.writeWith(Mono.just(toDataBuffer(principal.getName()))))
 		)

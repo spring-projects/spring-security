@@ -21,11 +21,12 @@ import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.handler.DefaultWebFilterChain;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-import reactor.util.context.Context;
 
 import java.security.Principal;
 
@@ -47,12 +48,12 @@ public class AuthenticationReactorContextWebFilterTests {
 		exchange = exchange.mutate().principal(Mono.just(principal)).build();
 		StepVerifier.create(filter.filter(exchange,
 			new DefaultWebFilterChain( e ->
-				Mono.subscriberContext().doOnSuccess( context -> {
-					Principal contextPrincipal = context.<Mono<Principal>>get(Authentication.class).block();
-					assertThat(contextPrincipal).isEqualTo(principal);
-					assertThat(context.<String>get("foo")).isEqualTo("bar");
-				})
-				.then()
+				ReactiveSecurityContextHolder.getContext()
+					.map(SecurityContext::getAuthentication)
+					.doOnSuccess(contextPrincipal -> assertThat(contextPrincipal).isEqualTo(principal))
+					.flatMap( contextPrincipal -> Mono.subscriberContext())
+					.doOnSuccess( context -> assertThat(context.<String>get("foo")).isEqualTo("bar"))
+					.then()
 			)
 		)
 		.subscriberContext( context -> context.put("foo", "bar")))
@@ -64,11 +65,10 @@ public class AuthenticationReactorContextWebFilterTests {
 		exchange = exchange.mutate().principal(Mono.just(principal)).build();
 		StepVerifier.create(filter.filter(exchange,
 			new DefaultWebFilterChain( e ->
-				Mono.subscriberContext().doOnSuccess( context -> {
-					Principal contextPrincipal = context.<Mono<Principal>>get(Authentication.class).block();
-					assertThat(contextPrincipal).isEqualTo(principal);
-				})
-				.then()
+				ReactiveSecurityContextHolder.getContext()
+					.map(SecurityContext::getAuthentication)
+					.doOnSuccess(contextPrincipal -> assertThat(contextPrincipal).isEqualTo(principal))
+					.then()
 			)
 		))
 		.verifyComplete();
@@ -76,15 +76,14 @@ public class AuthenticationReactorContextWebFilterTests {
 
 	@Test
 	public void filterWhenPrincipalNullThenContextEmpty() {
-		Context defaultContext = Context.empty();
+		Authentication defaultAuthentication = new TestingAuthenticationToken("anonymouse","anonymous", "TEST");
 		StepVerifier.create(filter.filter(exchange,
 			new DefaultWebFilterChain( e ->
-				Mono.subscriberContext()
-					.defaultIfEmpty(defaultContext)
-					.doOnSuccess( context -> {
-					Principal contextPrincipal = context.<Mono<Principal>>get(Authentication.class).block();
-					assertThat(contextPrincipal).isNull();
-				})
+				ReactiveSecurityContextHolder.getContext()
+					.map(SecurityContext::getAuthentication)
+					.defaultIfEmpty(defaultAuthentication)
+					.doOnSuccess( contextPrincipal -> assertThat(contextPrincipal).isEqualTo(defaultAuthentication)
+				)
 				.then()
 			)
 		))
