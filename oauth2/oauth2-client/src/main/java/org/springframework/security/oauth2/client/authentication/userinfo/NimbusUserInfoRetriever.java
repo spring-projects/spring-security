@@ -27,7 +27,7 @@ import org.springframework.http.client.AbstractClientHttpResponse;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.authentication.AuthenticationServiceException;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.client.authentication.AuthorizedClient;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.util.Assert;

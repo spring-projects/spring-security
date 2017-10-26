@@ -17,7 +17,7 @@ package org.springframework.security.oauth2.oidc.client.authentication.userinfo;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.authentication.AuthorizedClient;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.client.authentication.userinfo.NimbusUserInfoRetriever;
 import org.springframework.security.oauth2.client.authentication.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.client.authentication.userinfo.UserInfoRetriever;
