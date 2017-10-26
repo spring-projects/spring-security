@@ -25,7 +25,7 @@ import org.springframework.security.oauth2.client.authentication.AuthorizationGr
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.jwt.JwtDecoderRegistry;
-import org.springframework.security.oauth2.client.authentication.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.security.oauth2.core.OAuth2Error;
@@ -35,7 +35,7 @@ import org.springframework.security.oauth2.core.endpoint.TokenResponse;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.oidc.client.authentication.userinfo.OidcUserService;
+import org.springframework.security.oauth2.oidc.client.userinfo.OidcUserService;
 import org.springframework.security.oauth2.oidc.core.IdToken;
 import org.springframework.security.oauth2.oidc.core.OidcScope;
 import org.springframework.security.oauth2.oidc.core.endpoint.OidcParameter;

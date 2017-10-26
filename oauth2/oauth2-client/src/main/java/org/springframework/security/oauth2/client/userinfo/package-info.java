@@ -16,4 +16,4 @@
 /**
  * Support classes and interfaces related to an <i>OAuth 2.0 User</i>.
  */
-package org.springframework.security.oauth2.client.authentication.userinfo;
+package org.springframework.security.oauth2.client.userinfo;
