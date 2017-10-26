@@ -81,7 +81,7 @@ import static org.mockito.Mockito.when;
 @AutoConfigureMockMvc
 public class OAuth2LoginApplicationTests {
 	private static final String AUTHORIZATION_BASE_URI = "/oauth2/authorization";
-	private static final String AUTHORIZE_BASE_URL = "http://localhost:8080/login/oauth2";
+	private static final String AUTHORIZE_BASE_URL = "http://localhost:8080/login/oauth2/code";
 
 	@Autowired
 	private WebClient webClient;

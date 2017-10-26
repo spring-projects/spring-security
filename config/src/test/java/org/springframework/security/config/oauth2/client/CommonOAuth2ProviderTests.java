@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class CommonOAuth2ProviderTests {
 
-	private static final String DEFAULT_LOGIN_REDIRECT_URL = "{scheme}://{serverName}:{serverPort}{contextPath}/login/oauth2/{registrationId}";
+	private static final String DEFAULT_LOGIN_REDIRECT_URL = "{scheme}://{serverName}:{serverPort}{contextPath}/login/oauth2/code/{registrationId}";
 
 	@Test
 	public void getBuilderWhenGoogleShouldHaveGoogleSettings() throws Exception {

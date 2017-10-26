@@ -65,9 +65,9 @@ After completing the sub-section, *_"Obtain OAuth 2.0 credentials"_*, you should
 The redirect URI is the path in the sample application that the end-user's user-agent is redirected back to after they have authenticated with Google
 and have granted access to the OAuth Client _(created from the <<google-login-register-credentials, previous step>>)_ on the *Consent screen* page.
 
-For the sub-section, *_"Set a redirect URI"_*, ensure the *Authorised redirect URIs* is set to *http://localhost:8080/login/login/oauth2/authorize/code/google*
+For the sub-section, *_"Set a redirect URI"_*, ensure the *Authorised redirect URIs* is set to *http://localhost:8080/login/oauth2/code/google*
 
-TIP: The default redirect URI is *_"{scheme}://{serverName}:{serverPort}/login/login/oauth2/authorize/code/{registrationId}"_*.
+TIP: The default redirect URI is *_"{scheme}://{serverName}:{serverPort}/login/oauth2/code/{registrationId}"_*.
  See <<oauth2-client-properties, OAuth client properties>> for more details on this default.
 
 [[google-login-configure-application-yml]]
@@ -128,12 +128,12 @@ NOTE: https://developer.github.com/v3/oauth/[GitHub's OAuth 2.0 implementation] 
 
 In order to use GitHub's OAuth 2.0 authentication system for login, you must https://github.com/settings/applications/new[_Register a new OAuth application_].
 
-While registering your application, ensure the *Authorization callback URL* is set to *http://localhost:8080/login/oauth2/authorize/code/github*.
+While registering your application, ensure the *Authorization callback URL* is set to *http://localhost:8080/login/oauth2/code/github*.
 
 NOTE: The *Authorization callback URL* (or redirect URI) is the path in the sample application that the end-user's user-agent is redirected back to after they have authenticated with GitHub
  and have granted access to the OAuth application on the *Authorize application* page.
 
-TIP: The default redirect URI is *_"{scheme}://{serverName}:{serverPort}/login/oauth2/authorize/code/{registrationId}"_*.
+TIP: The default redirect URI is *_"{scheme}://{serverName}:{serverPort}/login/oauth2/code/{registrationId}"_*.
  See <<oauth2-client-properties, OAuth client properties>> for more details on this default.
 
 After completing the registration, you should have created a new *OAuth Application* with credentials consisting of a *Client ID* and *Client Secret*.
@@ -205,12 +205,12 @@ NOTE: The selection for the _Category_ field is not relevant but it's a required
 
 The next page presented is _"Product Setup"_. Click the _"Get Started"_ button for the *_Facebook Login_* product. In the left sidebar, under *_Products -> Facebook Login_*, select *_Settings_*.
 
-For the field *Valid OAuth redirect URIs*, enter *http://localhost:8080/login/oauth2/authorize/code/facebook* then click _"Save Changes"_.
+For the field *Valid OAuth redirect URIs*, enter *http://localhost:8080/login/oauth2/code/facebook* then click _"Save Changes"_.
 
 NOTE: The *OAuth redirect URI* is the path in the sample application that the end-user's user-agent is redirected back to after they have authenticated with Facebook
  and have granted access to the application on the *Authorize application* page.
 
-TIP: The default redirect URI is *_"{scheme}://{serverName}:{serverPort}/login/oauth2/authorize/code/{registrationId}"_*.
+TIP: The default redirect URI is *_"{scheme}://{serverName}:{serverPort}/login/oauth2/code/{registrationId}"_*.
  See <<oauth2-client-properties, OAuth client properties>> for more details on this default.
 
 Your application has now been assigned new OAuth 2.0 credentials under *App ID* and *App Secret*.
@@ -280,12 +280,12 @@ From the _"Add Application"_ page, click on the _"Create New App"_ button and en
 
 Click on the _"Create"_ button.
 On the _"General Settings"_ page, enter the Application Name (for example, _"Spring Security Okta Login"_) and then click on the _"Next"_ button.
-On the _"Configure OpenID Connect"_ page, enter *http://localhost:8080/login/oauth2/authorize/code/okta* for the field *Redirect URIs* and then click _"Finish"_.
+On the _"Configure OpenID Connect"_ page, enter *http://localhost:8080/login/oauth2/code/okta* for the field *Redirect URIs* and then click _"Finish"_.
 
 NOTE: The *Redirect URI* is the path in the sample application that the end-user's user-agent is redirected back to after they have authenticated with Okta
  and have granted access to the application on the *Authorize application* page.
 
-TIP: The default redirect URI is *_"{scheme}://{serverName}:{serverPort}/login/oauth2/authorize/code/{registrationId}"_*.
+TIP: The default redirect URI is *_"{scheme}://{serverName}:{serverPort}/login/oauth2/code/{registrationId}"_*.
  See <<oauth2-client-properties, OAuth client properties>> for more details on this default.
 
 The next page presented displays the _"General"_ tab selected for the application.
@@ -456,7 +456,7 @@ The following specifies the common set of properties available for configuring a
 - *redirect-uri* - this is the client's _registered_ redirect URI that the _Authorization Server_ redirects the end-user's user-agent
  to after the end-user has authenticated and authorized access for the client.
 
-NOTE: The default redirect URI is _"{scheme}://{serverName}:{serverPort}/login/oauth2/authorize/code/{registrationId}"_, which leverages *URI template variables*.
+NOTE: The default redirect URI is _"{scheme}://{serverName}:{serverPort}/login/oauth2/code/{registrationId}"_, which leverages *URI template variables*.
 
 - *scope* - a comma-delimited string of scope(s) requested during the _Authorization Request_ flow, for example: _openid, email, profile_
 
@@ -552,7 +552,7 @@ security.oauth2.client.registrations.google.client-id=${client-id}
 security.oauth2.client.registrations.google.client-secret=${client-secret}
 security.oauth2.client.registrations.google.client-authentication-method=basic
 security.oauth2.client.registrations.google.authorized-grant-type=authorization_code
-security.oauth2.client.registrations.google.redirect-uri=http://localhost:8080/login/oauth2/authorize/code/google
+security.oauth2.client.registrations.google.redirect-uri=http://localhost:8080/login/oauth2/code/google
 security.oauth2.client.registrations.google.scope=openid,email,profile
 security.oauth2.client.registrations.google.authorization-uri=https://accounts.google.com/o/oauth2/auth
 security.oauth2.client.registrations.google.token-uri=https://accounts.google.com/o/oauth2/token

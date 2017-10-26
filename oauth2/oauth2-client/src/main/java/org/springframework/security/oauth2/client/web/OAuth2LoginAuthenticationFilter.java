@@ -79,7 +79,7 @@ import java.io.IOException;
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.2">Section 4.1.2 Authorization Response</a>
  */
 public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
-	public static final String DEFAULT_FILTER_PROCESSES_URI = "/login/oauth2/*";
+	public static final String DEFAULT_FILTER_PROCESSES_URI = "/login/oauth2/code/*";
 	private static final String AUTHORIZATION_REQUEST_NOT_FOUND_ERROR_CODE = "authorization_request_not_found";
 	private ClientRegistrationRepository clientRegistrationRepository;
 	private AuthorizationRequestRepository authorizationRequestRepository = new HttpSessionAuthorizationRequestRepository();
