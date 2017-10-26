@@ -24,28 +24,29 @@ import org.springframework.security.authorization.AuthenticatedReactiveAuthoriza
 import org.springframework.security.authorization.AuthorityReactiveAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
-import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.DelegatingServerAuthenticationEntryPoint;
-import org.springframework.security.web.server.ServerFormLoginAuthenticationConverter;
-import org.springframework.security.web.server.ServerHttpBasicAuthenticationConverter;
 import org.springframework.security.web.server.MatcherSecurityWebFilterChain;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-import org.springframework.security.web.server.authentication.ServerAuthenticationEntryPointFailureHandler;
-import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler;
+import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
+import org.springframework.security.web.server.ServerFormLoginAuthenticationConverter;
+import org.springframework.security.web.server.ServerHttpBasicAuthenticationConverter;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
+import org.springframework.security.web.server.authentication.HttpBasicServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
-import org.springframework.security.web.server.authentication.logout.ServerLogoutHandler;
+import org.springframework.security.web.server.authentication.ServerAuthenticationEntryPointFailureHandler;
+import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler;
 import org.springframework.security.web.server.authentication.logout.LogoutWebFilter;
 import org.springframework.security.web.server.authentication.logout.SecurityContextServerLogoutHandler;
-import org.springframework.security.web.server.authentication.HttpBasicServerAuthenticationEntryPoint;
+import org.springframework.security.web.server.authentication.logout.ServerLogoutHandler;
+import org.springframework.security.web.server.authentication.logout.ServerLogoutSuccessHandler;
 import org.springframework.security.web.server.authorization.AuthorizationContext;
 import org.springframework.security.web.server.authorization.AuthorizationWebFilter;
 import org.springframework.security.web.server.authorization.DelegatingReactiveAuthorizationManager;
 import org.springframework.security.web.server.authorization.ExceptionTranslationWebFilter;
 import org.springframework.security.web.server.context.AuthenticationReactorContextWebFilter;
-import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import org.springframework.security.web.server.context.SecurityContextRepositoryWebFilter;
+import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import org.springframework.security.web.server.context.ServerWebExchangeAttributeServerSecurityContextRepository;
 import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
 import org.springframework.security.web.server.header.CacheControlServerHttpHeadersWriter;
@@ -581,6 +582,8 @@ public class ServerHttpSecurity {
 
 		private ServerLogoutHandler serverLogoutHandler = new SecurityContextServerLogoutHandler();
 
+		private ServerLogoutSuccessHandler logoutSuccessHandler;
+
 		private String logoutUrl = "/logout";
 
 		private ServerWebExchangeMatcher requiresLogout = ServerWebExchangeMatchers
@@ -596,6 +599,11 @@ public class ServerHttpSecurity {
 			Assert.notNull(this.serverLogoutHandler, "logoutUrl must not be null");
 			this.logoutUrl = logoutUrl;
 			this.requiresLogout = ServerWebExchangeMatchers.pathMatchers(logoutUrl);
+			return this;
+		}
+
+		public LogoutBuilder logoutSuccessHandler(ServerLogoutSuccessHandler handler) {
+			this.logoutSuccessHandler = handler;
 			return this;
 		}
 
@@ -617,6 +625,9 @@ public class ServerHttpSecurity {
 			LogoutWebFilter logoutWebFilter = new LogoutWebFilter();
 			logoutWebFilter.setServerLogoutHandler(this.serverLogoutHandler);
 			logoutWebFilter.setRequiresLogout(this.requiresLogout);
+			if(this.logoutSuccessHandler != null) {
+				logoutWebFilter.setServerLogoutSuccessHandler(this.logoutSuccessHandler);
+			}
 
 			return logoutWebFilter;
 		}
