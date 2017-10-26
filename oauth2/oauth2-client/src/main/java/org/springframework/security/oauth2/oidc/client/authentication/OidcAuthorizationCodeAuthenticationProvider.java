@@ -23,8 +23,8 @@ import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMap
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.AuthorizationGrantTokenExchanger;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.client.authentication.jwt.JwtDecoderRegistry;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.client.authentication.jwt.JwtDecoderRegistry;
 import org.springframework.security.oauth2.client.authentication.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AccessToken;
@@ -41,8 +41,12 @@ import org.springframework.security.oauth2.oidc.core.OidcScope;
 import org.springframework.security.oauth2.oidc.core.endpoint.OidcParameter;
 import org.springframework.security.oauth2.oidc.core.user.OidcUser;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
+import java.net.URL;
+import java.time.Instant;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * An implementation of an {@link AuthenticationProvider}
@@ -70,6 +74,7 @@ import java.util.Collection;
 public class OidcAuthorizationCodeAuthenticationProvider implements AuthenticationProvider {
 	private static final String INVALID_STATE_PARAMETER_ERROR_CODE = "invalid_state_parameter";
 	private static final String INVALID_REDIRECT_URI_PARAMETER_ERROR_CODE = "invalid_redirect_uri_parameter";
+	private static final String INVALID_ID_TOKEN_ERROR_CODE = "invalid_id_token";
 	private final AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger;
 	private final OAuth2UserService userService;
 	private final JwtDecoderRegistry jwtDecoderRegistry;
@@ -145,6 +150,8 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 		Jwt jwt = jwtDecoder.decode((String)tokenResponse.getAdditionalParameters().get(OidcParameter.ID_TOKEN));
 		IdToken idToken = new IdToken(jwt.getTokenValue(), jwt.getIssuedAt(), jwt.getExpiresAt(), jwt.getClaims());
 
+		this.validateIdToken(idToken, clientRegistration);
+
 		OidcAuthorizedClient authorizedClient = new OidcAuthorizedClient(
 			clientRegistration, idToken.getSubject(), accessToken, idToken);
 
@@ -173,5 +180,89 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 	@Override
 	public boolean supports(Class<?> authentication) {
 		return AuthorizationCodeAuthenticationToken.class.isAssignableFrom(authentication);
+	}
+
+	private void validateIdToken(IdToken idToken, ClientRegistration clientRegistration) {
+		// 3.1.3.7  ID Token Validation
+		// http://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation
+
+		// Validate REQUIRED Claims
+		URL issuer = idToken.getIssuer();
+		if (issuer == null) {
+			this.throwInvalidIdTokenException();
+		}
+		String subject = idToken.getSubject();
+		if (subject == null) {
+			this.throwInvalidIdTokenException();
+		}
+		List<String> audience = idToken.getAudience();
+		if (CollectionUtils.isEmpty(audience)) {
+			this.throwInvalidIdTokenException();
+		}
+		Instant expiresAt = idToken.getExpiresAt();
+		if (expiresAt == null) {
+			this.throwInvalidIdTokenException();
+		}
+		Instant issuedAt = idToken.getIssuedAt();
+		if (issuedAt == null) {
+			this.throwInvalidIdTokenException();
+		}
+
+		// 2. The Issuer Identifier for the OpenID Provider (which is typically obtained during Discovery)
+		// MUST exactly match the value of the iss (issuer) Claim.
+		// TODO Depends on gh-4413
+
+		// 3. The Client MUST validate that the aud (audience) Claim contains its client_id value
+		// registered at the Issuer identified by the iss (issuer) Claim as an audience.
+		// The aud (audience) Claim MAY contain an array with more than one element.
+		// The ID Token MUST be rejected if the ID Token does not list the Client as a valid audience,
+		// or if it contains additional audiences not trusted by the Client.
+		if (!audience.contains(clientRegistration.getClientId())) {
+			this.throwInvalidIdTokenException();
+		}
+
+		// 4. If the ID Token contains multiple audiences,
+		// the Client SHOULD verify that an azp Claim is present.
+		String authorizedParty = idToken.getAuthorizedParty();
+		if (audience.size() > 1 && authorizedParty == null) {
+			this.throwInvalidIdTokenException();
+		}
+
+		// 5. If an azp (authorized party) Claim is present,
+		// the Client SHOULD verify that its client_id is the Claim Value.
+		if (authorizedParty != null && !authorizedParty.equals(clientRegistration.getClientId())) {
+			this.throwInvalidIdTokenException();
+		}
+
+		// 7. The alg value SHOULD be the default of RS256 or the algorithm sent by the Client
+		// in the id_token_signed_response_alg parameter during Registration.
+		// TODO Depends on gh-4413
+
+		// 9. The current time MUST be before the time represented by the exp Claim.
+		Instant now = Instant.now();
+		if (!now.isBefore(expiresAt)) {
+			this.throwInvalidIdTokenException();
+		}
+
+		// 10. The iat Claim can be used to reject tokens that were issued too far away from the current time,
+		// limiting the amount of time that nonces need to be stored to prevent attacks.
+		// The acceptable range is Client specific.
+		Instant maxIssuedAt = now.plusSeconds(30);
+		if (issuedAt.isAfter(maxIssuedAt)) {
+			this.throwInvalidIdTokenException();
+		}
+
+		// 11. If a nonce value was sent in the Authentication Request,
+		// a nonce Claim MUST be present and its value checked to verify
+		// that it is the same value as the one that was sent in the Authentication Request.
+		// The Client SHOULD check the nonce value for replay attacks.
+		// The precise method for detecting replay attacks is Client specific.
+		// TODO Depends on gh-4442
+
+	}
+
+	private void throwInvalidIdTokenException() {
+		OAuth2Error invalidIdTokenError = new OAuth2Error(INVALID_ID_TOKEN_ERROR_CODE);
+		throw new OAuth2AuthenticationException(invalidIdTokenError, invalidIdTokenError.toString());
 	}
 }
