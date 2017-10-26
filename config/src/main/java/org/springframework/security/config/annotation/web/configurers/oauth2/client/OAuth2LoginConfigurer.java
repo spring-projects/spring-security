@@ -23,7 +23,7 @@ import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMap
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.AuthorizationGrantTokenExchanger;
 import org.springframework.security.oauth2.client.authentication.NimbusAuthorizationCodeTokenExchanger;
-import org.springframework.security.oauth2.client.authentication.userinfo.OAuth2LoginAuthenticationProvider;
+import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationProvider;
 import org.springframework.security.oauth2.client.authentication.jwt.JwtDecoderRegistry;
 import org.springframework.security.oauth2.client.authentication.jwt.NimbusJwtDecoderRegistry;
 import org.springframework.security.oauth2.client.authentication.userinfo.CustomUserTypesOAuth2UserService;
@@ -47,6 +47,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;

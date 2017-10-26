@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2012-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.client.authentication.userinfo;
+package org.springframework.security.oauth2.client.authentication;
 
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
-import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationToken;
-import org.springframework.security.oauth2.client.authentication.AuthorizationGrantTokenExchanger;
-import org.springframework.security.oauth2.client.authentication.AuthorizedClient;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.client.authentication.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.endpoint.AuthorizationRequest;
