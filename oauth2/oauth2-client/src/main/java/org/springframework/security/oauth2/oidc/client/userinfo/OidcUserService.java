@@ -16,7 +16,7 @@
 package org.springframework.security.oauth2.oidc.client.userinfo;
 
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.client.authentication.AuthorizedClient;
+import org.springframework.security.oauth2.client.AuthorizedClient;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.client.userinfo.NimbusUserInfoRetriever;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
@@ -24,7 +24,7 @@ import org.springframework.security.oauth2.client.userinfo.UserInfoRetriever;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.security.oauth2.oidc.client.authentication.OidcAuthorizedClient;
+import org.springframework.security.oauth2.oidc.client.OidcAuthorizedClient;
 import org.springframework.security.oauth2.oidc.core.OidcScope;
 import org.springframework.security.oauth2.oidc.core.UserInfo;
 import org.springframework.security.oauth2.oidc.core.user.DefaultOidcUser;

@@ -16,7 +16,7 @@
 package org.springframework.security.oauth2.client.userinfo;
 
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.client.authentication.AuthorizedClient;
+import org.springframework.security.oauth2.client.AuthorizedClient;
 
 /**
  * A strategy for retrieving the user attributes

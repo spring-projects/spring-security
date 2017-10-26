@@ -35,6 +35,7 @@ import org.springframework.security.oauth2.core.endpoint.TokenResponse;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.oidc.client.OidcAuthorizedClient;
 import org.springframework.security.oauth2.oidc.client.userinfo.OidcUserService;
 import org.springframework.security.oauth2.oidc.core.IdToken;
 import org.springframework.security.oauth2.oidc.core.OidcScope;
