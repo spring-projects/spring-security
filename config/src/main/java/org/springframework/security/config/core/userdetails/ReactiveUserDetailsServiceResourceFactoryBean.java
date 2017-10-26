@@ -73,24 +73,24 @@ public class ReactiveUserDetailsServiceResourceFactoryBean
 	}
 
 	/**
-	 * Create a UserDetailsRepositoryResourceFactoryBean with the location of a Resource that is a Properties file in the
-	 * format defined in {@link UserDetailsResourceFactoryBean}
+	 * Create a ReactiveUserDetailsServiceResourceFactoryBean with the location of a Resource that is a Properties file in the
+	 * format defined in {@link UserDetailsResourceFactoryBean}.
 	 *
-	 * @param resourceLocatiton the location of the properties file that contains the users (i.e. "classpath:users.properties")
-	 * @return the UserDetailsResourceFactoryBean
+	 * @param resourceLocation the location of the properties file that contains the users (i.e. "classpath:users.properties")
+	 * @return the ReactiveUserDetailsServiceResourceFactoryBean
 	 */
-	public static ReactiveUserDetailsServiceResourceFactoryBean fromResourceLocation(String resourceLocatiton) {
+	public static ReactiveUserDetailsServiceResourceFactoryBean fromResourceLocation(String resourceLocation) {
 		ReactiveUserDetailsServiceResourceFactoryBean result = new ReactiveUserDetailsServiceResourceFactoryBean();
-		result.setResourceLocation(resourceLocatiton);
+		result.setResourceLocation(resourceLocation);
 		return result;
 	}
 
 	/**
-	 * Create a UserDetailsRepositoryResourceFactoryBean with a Resource that is a Properties file in the
-	 * format defined in {@link UserDetailsResourceFactoryBean}
+	 * Create a ReactiveUserDetailsServiceResourceFactoryBean with a Resource that is a Properties file in the
+	 * format defined in {@link UserDetailsResourceFactoryBean}.
 	 *
 	 * @param propertiesResource the Resource that is a properties file that contains the users
-	 * @return the UserDetailsResourceFactoryBean
+	 * @return the ReactiveUserDetailsServiceResourceFactoryBean
 	 */
 	public static ReactiveUserDetailsServiceResourceFactoryBean fromResource(Resource propertiesResource) {
 		ReactiveUserDetailsServiceResourceFactoryBean result = new ReactiveUserDetailsServiceResourceFactoryBean();
@@ -99,11 +99,11 @@ public class ReactiveUserDetailsServiceResourceFactoryBean
 	}
 
 	/**
-	 * Create a UserDetailsRepositoryResourceFactoryBean with a String that is in the
-	 * format defined in {@link UserDetailsResourceFactoryBean}
+	 * Create a ReactiveUserDetailsServiceResourceFactoryBean with a String that is in the
+	 * format defined in {@link UserDetailsResourceFactoryBean}.
 	 *
 	 * @param users the users in the format defined in {@link UserDetailsResourceFactoryBean}
-	 * @return the UserDetailsResourceFactoryBean
+	 * @return the ReactiveUserDetailsServiceResourceFactoryBean
 	 */
 	public static ReactiveUserDetailsServiceResourceFactoryBean fromString(String users) {
 		ReactiveUserDetailsServiceResourceFactoryBean result = new ReactiveUserDetailsServiceResourceFactoryBean();

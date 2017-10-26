@@ -36,7 +36,7 @@ public class ReactiveUserDetailsServiceResourceFactoryBeanStringITests {
 	@Autowired ReactiveUserDetailsService users;
 
 	@Test
-	public void loadUserByUsernameWhenUserFoundThenNotNull() {
+	public void findByUsernameWhenUserFoundThenNotNull() {
 		assertThat(users.findByUsername("user").block()).isNotNull();
 	}
 
