@@ -22,6 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.server.context.SecurityContextServerWebExchangeWebFilter;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.security.Principal;
@@ -35,54 +36,11 @@ import static org.springframework.security.test.web.reactive.server.SecurityMock
 public class SecurityMockServerConfigurersTests extends AbstractMockServerConfigurersTests {
 	WebTestClient client = WebTestClient
 		.bindToController(controller)
+		.webFilter(new SecurityContextServerWebExchangeWebFilter())
 		.apply(springSecurity())
 		.configureClient()
 		.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
 		.build();
-
-	@Test
-	public void mockPrincipalWhenLocalThenSuccess() {
-		Principal principal = () -> "principal";
-		client
-			.mutateWith(mockPrincipal(principal))
-			.get()
-			.exchange()
-			.expectStatus().isOk();
-
-		controller.assertPrincipalIsEqualTo(principal);
-	}
-
-	@Test
-	public void mockPrincipalWhenGlobalTheWorks() {
-		Principal principal = () -> "principal";
-		client = WebTestClient
-			.bindToController(controller)
-			.apply(springSecurity())
-			.apply(mockPrincipal(principal))
-			.configureClient()
-			.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-			.build();
-
-		client
-			.get()
-			.exchange()
-			.expectStatus().isOk();
-
-		controller.assertPrincipalIsEqualTo(principal);
-	}
-
-	@Test
-	public void mockPrincipalWhenMultipleInvocationsThenLastInvocationWins() {
-		Principal principal = () -> "principal";
-		client
-			.mutateWith(mockPrincipal(() -> "will be overridden"))
-			.mutateWith(mockPrincipal(principal))
-			.get()
-			.exchange()
-			.expectStatus().isOk();
-
-		controller.assertPrincipalIsEqualTo(principal);
-	}
 
 	@Test
 	public void mockAuthenticationWhenLocalThenSuccess() {
@@ -100,6 +58,7 @@ public class SecurityMockServerConfigurersTests extends AbstractMockServerConfig
 		TestingAuthenticationToken authentication = new TestingAuthenticationToken("authentication", "secret", "ROLE_USER");
 		client = WebTestClient
 			.bindToController(controller)
+			.webFilter(new SecurityContextServerWebExchangeWebFilter())
 			.apply(springSecurity())
 			.apply(mockAuthentication(authentication))
 			.configureClient()
@@ -129,6 +88,7 @@ public class SecurityMockServerConfigurersTests extends AbstractMockServerConfig
 	public void mockUserWhenGlobalThenSuccess() {
 		client = WebTestClient
 			.bindToController(controller)
+			.webFilter(new SecurityContextServerWebExchangeWebFilter())
 			.apply(springSecurity())
 			.apply(mockUser())
 			.configureClient()

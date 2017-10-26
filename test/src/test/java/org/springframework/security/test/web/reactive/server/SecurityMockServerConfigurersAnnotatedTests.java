@@ -20,16 +20,18 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.test.context.TestSecurityContextHolder;
 import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.web.server.context.SecurityContextServerWebExchangeWebFilter;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.security.Principal;
 
-import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockPrincipal;
+import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockAuthentication;
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.springSecurity;
 
 /**
@@ -42,6 +44,7 @@ public class SecurityMockServerConfigurersAnnotatedTests extends AbstractMockSer
 
 	WebTestClient client = WebTestClient
 		.bindToController(controller)
+		.webFilter(new SecurityContextServerWebExchangeWebFilter())
 		.apply(springSecurity())
 		.configureClient()
 		.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
@@ -62,11 +65,12 @@ public class SecurityMockServerConfigurersAnnotatedTests extends AbstractMockSer
 	@Test
 	@WithMockUser
 	public void withMockUserWhenGlobalMockPrincipalThenOverridesAnnotation() {
-		Principal principal = () -> "principal";
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken("authentication", "secret", "ROLE_USER");
 		client = WebTestClient
 			.bindToController(controller)
+			.webFilter(new SecurityContextServerWebExchangeWebFilter())
 			.apply(springSecurity())
-			.apply(mockPrincipal(principal))
+			.apply(mockAuthentication(authentication))
 			.configureClient()
 			.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
 			.build();
@@ -76,33 +80,33 @@ public class SecurityMockServerConfigurersAnnotatedTests extends AbstractMockSer
 			.exchange()
 			.expectStatus().isOk();
 
-		controller.assertPrincipalIsEqualTo(principal);
+		controller.assertPrincipalIsEqualTo(authentication);
 	}
 
 	@Test
 	@WithMockUser
 	public void withMockUserWhenMutateWithMockPrincipalThenOverridesAnnotation() {
-		Principal principal = () -> "principal";
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken("authentication", "secret", "ROLE_USER");
 		client
-			.mutateWith(mockPrincipal(principal))
+			.mutateWith(mockAuthentication(authentication))
 			.get()
 			.exchange()
 			.expectStatus().isOk();
 
-		controller.assertPrincipalIsEqualTo(principal);
+		controller.assertPrincipalIsEqualTo(authentication);
 	}
 
 	@Test
 	@WithMockUser
 	public void withMockUserWhenMutateWithMockPrincipalAndNoMutateThenOverridesAnnotationAndUsesAnnotation() {
-		Principal principal = () -> "principal";
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken("authentication", "secret", "ROLE_USER");
 		client
-			.mutateWith(mockPrincipal(principal))
+			.mutateWith(mockAuthentication(authentication))
 			.get()
 			.exchange()
 			.expectStatus().isOk();
 
-		controller.assertPrincipalIsEqualTo(principal);
+		controller.assertPrincipalIsEqualTo(authentication);
 
 
 		client
@@ -110,7 +114,6 @@ public class SecurityMockServerConfigurersAnnotatedTests extends AbstractMockSer
 			.exchange()
 			.expectStatus().isOk();
 
-		principal = controller.removePrincipal();
-		assertPrincipalCreatedFromUserDetails(principal, userBuilder.build());
+		assertPrincipalCreatedFromUserDetails(controller.removePrincipal(), userBuilder.build());
 	}
 }

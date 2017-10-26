@@ -24,6 +24,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.test.context.TestSecurityContextHolder;
 import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.web.server.context.SecurityContextServerWebExchangeWebFilter;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
@@ -43,6 +44,7 @@ import static org.springframework.security.test.web.reactive.server.SecurityMock
 public class SecurityMockServerConfigurersClassAnnotatedTests extends AbstractMockServerConfigurersTests {
 	WebTestClient client = WebTestClient
 		.bindToController(controller)
+		.webFilter(new SecurityContextServerWebExchangeWebFilter())
 		.apply(springSecurity())
 		.configureClient()
 		.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)

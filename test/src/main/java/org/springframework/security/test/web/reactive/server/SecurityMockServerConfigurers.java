@@ -26,7 +26,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.test.context.TestSecurityContextHolder;
 import org.springframework.test.web.reactive.server.MockServerConfigurer;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.reactive.server.WebTestClientConfigurer;
@@ -39,6 +38,7 @@ import reactor.core.publisher.Mono;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * Test utilities for working with Spring Security and
@@ -58,7 +58,6 @@ public class SecurityMockServerConfigurers {
 			public void beforeServerCreated(WebHttpHandlerBuilder builder) {
 				builder.filters( filters -> {
 					filters.add(0, new MutatorFilter());
-					filters.add(0, new SetupMutatorFilter(TestSecurityContextHolder.getContext()));
 				});
 			}
 		};
@@ -71,7 +70,7 @@ public class SecurityMockServerConfigurers {
 	 * @return the {@link WebTestClientConfigurer}} to use
 	 */
 	public static <T extends WebTestClientConfigurer & MockServerConfigurer> T mockAuthentication(Authentication authentication) {
-		return (T) new MutatorWebTestClientConfigurer(authentication);
+		return (T) new MutatorWebTestClientConfigurer(() -> Mono.just(authentication).map(SecurityContextImpl::new));
 	}
 
 	/**
@@ -216,21 +215,11 @@ public class SecurityMockServerConfigurers {
 	}
 
 	private static class MutatorWebTestClientConfigurer implements WebTestClientConfigurer, MockServerConfigurer {
-		private final Mono<SecurityContext> context;
+		private final Supplier<Mono<SecurityContext>> context;
 
-		private MutatorWebTestClientConfigurer(Mono<SecurityContext> context) {
+		private MutatorWebTestClientConfigurer(Supplier<Mono<SecurityContext>> context) {
 			this.context = context;
 		}
-
-		private MutatorWebTestClientConfigurer(SecurityContext context) {
-			this(Mono.just(context));
-		}
-
-		private MutatorWebTestClientConfigurer(Authentication authentication) {
-			this(new SecurityContextImpl(authentication));
-		}
-
-
 		@Override
 		public void beforeServerCreated(WebHttpHandlerBuilder builder) {
 			builder.filters(addSetupMutatorFilter());
@@ -247,18 +236,10 @@ public class SecurityMockServerConfigurers {
 	}
 
 	private static class SetupMutatorFilter implements WebFilter {
-		private final Mono<SecurityContext> context;
+		private final Supplier<Mono<SecurityContext>> context;
 
-		private SetupMutatorFilter(Mono<SecurityContext> context) {
+		private SetupMutatorFilter(Supplier<Mono<SecurityContext>> context) {
 			this.context = context;
-		}
-
-		private SetupMutatorFilter(SecurityContext context) {
-			this(Mono.just(context));
-		}
-
-		private SetupMutatorFilter(Authentication authentication) {
-			this(new SecurityContextImpl(authentication));
 		}
 
 		@Override
@@ -273,11 +254,11 @@ public class SecurityMockServerConfigurers {
 
 		@Override
 		public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain webFilterChain) {
-			Mono<SecurityContext> context = exchange.getAttribute(ATTRIBUTE_NAME);
+			Supplier<Mono<SecurityContext>> context = exchange.getAttribute(ATTRIBUTE_NAME);
 			if(context != null) {
 				exchange.getAttributes().remove(ATTRIBUTE_NAME);
 				return webFilterChain.filter(exchange)
-					.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(context));
+					.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(context.get()));
 			}
 			return webFilterChain.filter(exchange);
 		}
