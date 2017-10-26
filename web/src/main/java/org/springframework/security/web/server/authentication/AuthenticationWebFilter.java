@@ -52,7 +52,6 @@ public class AuthenticationWebFilter implements WebFilter {
 	private ServerSecurityContextRepository serverSecurityContextRepository = new ServerWebExchangeAttributeServerSecurityContextRepository();
 
 	private ServerWebExchangeMatcher requiresAuthenticationMatcher = ServerWebExchangeMatchers.anyExchange();
-
 	public AuthenticationWebFilter(ReactiveAuthenticationManager authenticationManager) {
 		Assert.notNull(authenticationManager, "authenticationManager cannot be null");
 		this.authenticationManager = authenticationManager;
@@ -60,21 +59,16 @@ public class AuthenticationWebFilter implements WebFilter {
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-		ServerWebExchange wrappedExchange = new SecurityContextRepositoryServerWebExchange(exchange, this.serverSecurityContextRepository);
-		return filterInternal(wrappedExchange, chain);
-	}
-
-	private Mono<Void> filterInternal(ServerWebExchange wrappedExchange, WebFilterChain chain) {
-		return this.requiresAuthenticationMatcher.matches(wrappedExchange)
+		return this.requiresAuthenticationMatcher.matches(exchange)
 			.filter( matchResult -> matchResult.isMatch())
-			.flatMap( matchResult -> this.authenticationConverter.apply(wrappedExchange))
-			.switchIfEmpty(chain.filter(wrappedExchange).then(Mono.empty()))
-			.flatMap( token -> authenticate(wrappedExchange, chain, token));
+			.flatMap( matchResult -> this.authenticationConverter.apply(exchange))
+			.switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
+			.flatMap( token -> authenticate(exchange, chain, token));
 	}
 
-	private Mono<Void> authenticate(ServerWebExchange wrappedExchange,
+	private Mono<Void> authenticate(ServerWebExchange exchange,
 		WebFilterChain chain, Authentication token) {
-		WebFilterExchange webFilterExchange = new WebFilterExchange(wrappedExchange, chain);
+		WebFilterExchange webFilterExchange = new WebFilterExchange(exchange, chain);
 		return this.authenticationManager.authenticate(token)
 			.flatMap(authentication -> onAuthenticationSuccess(authentication, webFilterExchange))
 			.onErrorResume(AuthenticationException.class, e -> this.serverAuthenticationFailureHandler
