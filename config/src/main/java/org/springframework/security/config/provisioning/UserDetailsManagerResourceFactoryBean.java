@@ -57,7 +57,6 @@ public class UserDetailsManagerResourceFactoryBean implements ResourceLoaderAwar
 	 * Sets the location of a Resource that is a Properties file in the format defined in {@link UserDetailsResourceFactoryBean}.
 	 *
 	 * @param resourceLocation the location of the properties file that contains the users (i.e. "classpath:users.properties")
-	 * @return the UserDetailsResourceFactoryBean
 	 */
 	public void setResourceLocation(String resourceLocation) {
 		this.userDetails.setResourceLocation(resourceLocation);
@@ -73,11 +72,11 @@ public class UserDetailsManagerResourceFactoryBean implements ResourceLoaderAwar
 	}
 
 	/**
-	 * Create a UserDetailsServiceResourceFactoryBean with the location of a Resource that is a Properties file in the
-	 * format defined in {@link UserDetailsResourceFactoryBean}
+	 * Create a UserDetailsManagerResourceFactoryBean with the location of a Resource that is a Properties file in the
+	 * format defined in {@link UserDetailsResourceFactoryBean}.
 	 *
 	 * @param resourceLocation the location of the properties file that contains the users (i.e. "classpath:users.properties")
-	 * @return the UserDetailsResourceFactoryBean
+	 * @return the UserDetailsManagerResourceFactoryBean
 	 */
 	public static UserDetailsManagerResourceFactoryBean fromResourceLocation(String resourceLocation) {
 		UserDetailsManagerResourceFactoryBean result = new UserDetailsManagerResourceFactoryBean();
@@ -86,11 +85,11 @@ public class UserDetailsManagerResourceFactoryBean implements ResourceLoaderAwar
 	}
 
 	/**
-	 * Create a UserDetailsServiceResourceFactoryBean with a Resource that is a Properties file in the
-	 * format defined in {@link UserDetailsResourceFactoryBean}
+	 * Create a UserDetailsManagerResourceFactoryBean with a Resource that is a Properties file in the
+	 * format defined in {@link UserDetailsResourceFactoryBean}.
 	 *
 	 * @param resource the Resource that is a properties file that contains the users
-	 * @return the UserDetailsResourceFactoryBean
+	 * @return the UserDetailsManagerResourceFactoryBean
 	 */
 	public static UserDetailsManagerResourceFactoryBean fromResource(Resource resource) {
 		UserDetailsManagerResourceFactoryBean result = new UserDetailsManagerResourceFactoryBean();
@@ -99,11 +98,11 @@ public class UserDetailsManagerResourceFactoryBean implements ResourceLoaderAwar
 	}
 
 	/**
-	 * Create a UserDetailsServiceResourceFactoryBean with a String that is in the
-	 * format defined in {@link UserDetailsResourceFactoryBean}
+	 * Create a UserDetailsManagerResourceFactoryBean with a String that is in the
+	 * format defined in {@link UserDetailsResourceFactoryBean}.
 	 *
 	 * @param users the users in the format defined in {@link UserDetailsResourceFactoryBean}
-	 * @return the UserDetailsResourceFactoryBean
+	 * @return the UserDetailsManagerResourceFactoryBean
 	 */
 	public static UserDetailsManagerResourceFactoryBean fromString(String users) {
 		UserDetailsManagerResourceFactoryBean result = new UserDetailsManagerResourceFactoryBean();

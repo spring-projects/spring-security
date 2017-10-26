@@ -68,7 +68,7 @@ public class UserDetailsResourceFactoryBean implements ResourceLoaderAware, Fact
 	@Override
 	public Collection<UserDetails> getObject() throws Exception {
 		Properties userProperties = new Properties();
-		Resource resource = getProperitesResource();
+		Resource resource = getPropertiesResource();
 		try(InputStream in = resource.getInputStream()){
 			userProperties.load(in);
 		}
@@ -118,7 +118,7 @@ public class UserDetailsResourceFactoryBean implements ResourceLoaderAware, Fact
 		this.resource = resource;
 	}
 
-	private Resource getProperitesResource() {
+	private Resource getPropertiesResource() {
 		Resource result = resource;
 		if(result == null && resourceLocation != null) {
 			result = resourceLoader.getResource(resourceLocation);
@@ -129,20 +129,20 @@ public class UserDetailsResourceFactoryBean implements ResourceLoaderAware, Fact
 
 	/**
 	 * Create a UserDetailsResourceFactoryBean with the location of a Resource that is a Properties file in the
-	 * format defined in {@link UserDetailsResourceFactoryBean}
+	 * format defined in {@link UserDetailsResourceFactoryBean}.
 	 *
-	 * @param resourceLocatiton the location of the properties file that contains the users (i.e. "classpath:users.properties")
+	 * @param resourceLocation the location of the properties file that contains the users (i.e. "classpath:users.properties")
 	 * @return the UserDetailsResourceFactoryBean
 	 */
-	public static UserDetailsResourceFactoryBean fromResourceLocation(String resourceLocatiton) {
+	public static UserDetailsResourceFactoryBean fromResourceLocation(String resourceLocation) {
 		UserDetailsResourceFactoryBean result = new UserDetailsResourceFactoryBean();
-		result.setResourceLocation(resourceLocatiton);
+		result.setResourceLocation(resourceLocation);
 		return result;
 	}
 
 	/**
 	 * Create a UserDetailsResourceFactoryBean with a Resource that is a Properties file in the
-	 * format defined in {@link UserDetailsResourceFactoryBean}
+	 * format defined in {@link UserDetailsResourceFactoryBean}.
 	 *
 	 * @param propertiesResource the Resource that is a properties file that contains the users
 	 * @return the UserDetailsResourceFactoryBean
