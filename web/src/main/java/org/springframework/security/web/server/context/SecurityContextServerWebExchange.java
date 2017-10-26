@@ -15,28 +15,30 @@
  */
 package org.springframework.security.web.server.context;
 
-import org.springframework.util.Assert;
+import java.security.Principal;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.server.WebFilter;
-import org.springframework.web.server.WebFilterChain;
+import org.springframework.web.server.ServerWebExchangeDecorator;
+
 import reactor.core.publisher.Mono;
 
 /**
  * @author Rob Winch
  * @since 5.0
  */
-public class SecurityContextRepositoryWebFilter implements WebFilter {
-	private final ServerSecurityContextRepository repository;
+public class SecurityContextServerWebExchange extends ServerWebExchangeDecorator {
+	private final Mono<SecurityContext> context;
 
-	public SecurityContextRepositoryWebFilter(ServerSecurityContextRepository repository) {
-		Assert.notNull(repository, "repository cannot be null");
-		this.repository = repository;
+	public SecurityContextServerWebExchange(ServerWebExchange delegate, Mono<SecurityContext> context) {
+		super(delegate);
+		this.context = context;
 	}
 
 	@Override
-	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-		SecurityContextRepositoryServerWebExchange delegate =
-				new SecurityContextRepositoryServerWebExchange(exchange, repository);
-		return chain.filter(delegate);
+	@SuppressWarnings("unchecked")
+	public <T extends Principal> Mono<T> getPrincipal() {
+		return this.context.map(c -> (T) c.getAuthentication());
 	}
 }

@@ -15,33 +15,32 @@
  */
 package org.springframework.security.web.server.context;
 
-import java.security.Principal;
-
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.server.ServerWebExchangeDecorator;
-
+import org.springframework.web.server.WebFilter;
+import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
 /**
  * @author Rob Winch
  * @since 5.0
  */
-public class SecurityContextRepositoryServerWebExchange extends ServerWebExchangeDecorator {
+public class ReactorContextWebFilter implements WebFilter {
 	private final ServerSecurityContextRepository repository;
 
-	public SecurityContextRepositoryServerWebExchange(ServerWebExchange delegate, ServerSecurityContextRepository repository) {
-		super(delegate);
+	public ReactorContextWebFilter(ServerSecurityContextRepository repository) {
+		Assert.notNull(repository, "repository cannot be null");
 		this.repository = repository;
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public <T extends Principal> Mono<T> getPrincipal() {
-		return Mono.defer(() ->
-			this.repository.load(this)
-				.filter(c -> c.getAuthentication() != null)
-				.flatMap(c -> Mono.just((T) c.getAuthentication()))
-				.switchIfEmpty( super.getPrincipal() )
-		);
+	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+		return chain.filter(exchange)
+			.subscriberContext(c -> c.hasKey(SecurityContext.class) ? c :
+				Mono.defer(() -> this.repository.load(exchange))
+					.as(ReactiveSecurityContextHolder::withSecurityContext)
+			);
 	}
 }

@@ -36,57 +36,56 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Rob Winch
  * @since 5.0
  */
-public class AuthenticationReactorContextWebFilterTests {
-	AuthenticationReactorContextWebFilter filter = new AuthenticationReactorContextWebFilter();
+public class SecurityContextServerWebExchangeWebFilterTests {
+	SecurityContextServerWebExchangeWebFilter filter = new SecurityContextServerWebExchangeWebFilter();
 
-	Principal principal = new TestingAuthenticationToken("user","password", "ROLE_USER");
+	Authentication principal = new TestingAuthenticationToken("user","password", "ROLE_USER");
 
 	ServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 
 	@Test
 	public void filterWhenExistingContextAndPrincipalNotNullThenContextPopulated() {
-		exchange = exchange.mutate().principal(Mono.just(principal)).build();
-		StepVerifier.create(filter.filter(exchange,
-			new DefaultWebFilterChain( e ->
-				ReactiveSecurityContextHolder.getContext()
-					.map(SecurityContext::getAuthentication)
+		Mono<Void> result = this.filter.filter(this.exchange, new DefaultWebFilterChain( e ->
+				e.getPrincipal()
 					.doOnSuccess(contextPrincipal -> assertThat(contextPrincipal).isEqualTo(principal))
 					.flatMap( contextPrincipal -> Mono.subscriberContext())
 					.doOnSuccess( context -> assertThat(context.<String>get("foo")).isEqualTo("bar"))
 					.then()
 			)
 		)
-		.subscriberContext( context -> context.put("foo", "bar")))
-		.verifyComplete();
+		.subscriberContext( context -> context.put("foo", "bar"))
+		.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.principal));
+
+		StepVerifier.create(result)
+			.verifyComplete();
 	}
 
 	@Test
 	public void filterWhenPrincipalNotNullThenContextPopulated() {
-		exchange = exchange.mutate().principal(Mono.just(principal)).build();
-		StepVerifier.create(filter.filter(exchange,
-			new DefaultWebFilterChain( e ->
-				ReactiveSecurityContextHolder.getContext()
-					.map(SecurityContext::getAuthentication)
-					.doOnSuccess(contextPrincipal -> assertThat(contextPrincipal).isEqualTo(principal))
+		Mono<Void> result = this.filter.filter(this.exchange, new DefaultWebFilterChain( e ->
+				e.getPrincipal()
+					.doOnSuccess(contextPrincipal -> assertThat(contextPrincipal).isEqualTo(this.principal))
 					.then()
 			)
-		))
-		.verifyComplete();
+		)
+		.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.principal));
+
+		StepVerifier.create(result)
+			.verifyComplete();
 	}
 
 	@Test
 	public void filterWhenPrincipalNullThenContextEmpty() {
 		Authentication defaultAuthentication = new TestingAuthenticationToken("anonymouse","anonymous", "TEST");
-		StepVerifier.create(filter.filter(exchange,
-			new DefaultWebFilterChain( e ->
-				ReactiveSecurityContextHolder.getContext()
-					.map(SecurityContext::getAuthentication)
+		Mono<Void> result = this.filter.filter(this.exchange, new DefaultWebFilterChain( e ->
+				e.getPrincipal()
 					.defaultIfEmpty(defaultAuthentication)
 					.doOnSuccess( contextPrincipal -> assertThat(contextPrincipal).isEqualTo(defaultAuthentication)
-				)
-				.then()
+					)
+					.then()
 			)
-		))
-		.verifyComplete();
+		);
+		StepVerifier.create(result)
+			.verifyComplete();
 	}
 }

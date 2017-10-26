@@ -34,19 +34,11 @@ import java.security.Principal;
  * @author Rob Winch
  * @since 5.0
  */
-public class AuthenticationReactorContextWebFilter implements WebFilter {
+public class SecurityContextServerWebExchangeWebFilter implements WebFilter {
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 
-		return chain.filter(exchange)
-				.subscriberContext(createContext(exchange));
-	}
-
-	private Context createContext(ServerWebExchange exchange) {
-		return exchange.getPrincipal()
-			.cast(Authentication.class)
-			.map(SecurityContextImpl::new)
-			.as(ReactiveSecurityContextHolder::withSecurityContext);
+		return chain.filter(new SecurityContextServerWebExchange(exchange, ReactiveSecurityContextHolder.getContext()));
 	}
 }

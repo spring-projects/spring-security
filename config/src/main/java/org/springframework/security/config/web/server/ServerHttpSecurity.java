@@ -44,8 +44,8 @@ import org.springframework.security.web.server.authorization.AuthorizationContex
 import org.springframework.security.web.server.authorization.AuthorizationWebFilter;
 import org.springframework.security.web.server.authorization.DelegatingReactiveAuthorizationManager;
 import org.springframework.security.web.server.authorization.ExceptionTranslationWebFilter;
-import org.springframework.security.web.server.context.AuthenticationReactorContextWebFilter;
-import org.springframework.security.web.server.context.SecurityContextRepositoryWebFilter;
+import org.springframework.security.web.server.context.SecurityContextServerWebExchangeWebFilter;
+import org.springframework.security.web.server.context.ReactorContextWebFilter;
 import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import org.springframework.security.web.server.context.ServerWebExchangeAttributeServerSecurityContextRepository;
 import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
@@ -211,7 +211,7 @@ public class ServerHttpSecurity {
 		if(this.logout != null) {
 			this.logout.configure(this);
 		}
-		this.addFilterAt(new AuthenticationReactorContextWebFilter(), SecurityWebFiltersOrder.AUTHENTICATION_CONTEXT);
+		this.addFilterAt(new SecurityContextServerWebExchangeWebFilter(), SecurityWebFiltersOrder.AUTHENTICATION_CONTEXT);
 		if(this.authorizeExchangeBuilder != null) {
 			ServerAuthenticationEntryPoint serverAuthenticationEntryPoint = getServerAuthenticationEntryPoint();
 			ExceptionTranslationWebFilter exceptionTranslationWebFilter = new ExceptionTranslationWebFilter();
@@ -262,8 +262,8 @@ public class ServerHttpSecurity {
 		if(repository == null) {
 			return null;
 		}
-		WebFilter result = new SecurityContextRepositoryWebFilter(repository);
 		return new OrderedWebFilter(result, SecurityWebFiltersOrder.SECURITY_CONTEXT_REPOSITORY.getOrder());
+		WebFilter result = new ReactorContextWebFilter(repository);
 	}
 
 	private ServerHttpSecurity() {}
