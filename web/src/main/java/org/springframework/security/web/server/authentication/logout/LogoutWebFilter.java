@@ -16,6 +16,7 @@
 
 package org.springframework.security.web.server.authentication.logout;
 
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
 
@@ -68,7 +69,8 @@ public class LogoutWebFilter implements WebFilter {
 
 	private Mono<Void> logout(WebFilterExchange webFilterExchange, Authentication authentication) {
 		return this.serverLogoutHandler.logout(webFilterExchange, authentication)
-			.then(this.serverLogoutSuccessHandler.onLogoutSuccess(webFilterExchange, authentication));
+			.then(this.serverLogoutSuccessHandler.onLogoutSuccess(webFilterExchange, authentication))
+			.subscriberContext(ReactiveSecurityContextHolder.clearContext());
 	}
 
 	/**
