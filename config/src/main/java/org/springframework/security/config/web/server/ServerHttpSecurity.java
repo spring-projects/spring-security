@@ -98,7 +98,7 @@ public class ServerHttpSecurity {
 
 	private ReactiveAuthenticationManager authenticationManager;
 
-	private ServerSecurityContextRepository serverSecurityContextRepository;
+	private ServerSecurityContextRepository serverSecurityContextRepository = new WebSessionServerSecurityContextRepository();
 
 	private ServerAuthenticationEntryPoint serverAuthenticationEntryPoint;
 
