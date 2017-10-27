@@ -15,7 +15,6 @@ package org.springframework.security.crypto.bcrypt;
 
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
-
 import java.security.SecureRandom;
 
 /**
@@ -27,29 +26,29 @@ import java.security.SecureRandom;
  * The work factor of the algorithm is parameterised, so it can be increased as computers
  * get faster.
  * <p>
- * Usage is really simple. To hash a password for the first time, call the hashpw method
+ * Usage is really simple. To hash a password for the first time, call the hashPassword method
  * with a random salt, like this:
  * <p>
  * <code>
- * String pw_hash = BCrypt.hashpw(plain_password, BCrypt.gensalt()); <br>
+ * String pw_hash = BCrypt.hashPassword(plain_password, BCrypt.generateSalt()); <br>
  * </code>
  * <p>
  * To check whether a plaintext password matches one that has been hashed previously, use
- * the checkpw method:
+ * the checkPassword method:
  * <p>
  * <code>
- * if (BCrypt.checkpw(candidate_password, stored_hash))<br>
+ * if (BCrypt.checkPassword(candidate_password, stored_hash))<br>
  * &nbsp;&nbsp;&nbsp;&nbsp;System.out.println("It matches");<br>
  * else<br>
  * &nbsp;&nbsp;&nbsp;&nbsp;System.out.println("It does not match");<br>
  * </code>
  * <p>
- * The gensalt() method takes an optional parameter (log_rounds) that determines the
+ * The generateSalt() method takes an optional parameter (log_rounds) that determines the
  * computational complexity of the hashing:
  * <p>
  * <code>
- * String strong_salt = BCrypt.gensalt(10)<br>
- * String stronger_salt = BCrypt.gensalt(12)<br>
+ * String strong_salt = BCrypt.generateSalt(10)<br>
+ * String stronger_salt = BCrypt.generateSalt(12)<br>
  * </code>
  * <p>
  * The amount of work increases exponentially (2**log_rounds), so each increment is twice
@@ -372,7 +371,7 @@ public class BCrypt {
 	 * @param lr an array containing the two 32-bit half blocks
 	 * @param off the position in the array of the blocks
 	 */
-	private final void encipher(int lr[], int off) {
+	private void encipher(int lr[], int off) {
 		int i, n, l = lr[off], r = lr[off + 1];
 
 		l ^= P[0];
@@ -401,7 +400,7 @@ public class BCrypt {
 	 * @param offp a "pointer" (as a one-entry array) to the current offset into data
 	 * @return the next word of material from data
 	 */
-	private static int streamtoword(byte data[], int offp[]) {
+	private static int streamToWord(byte data[], int offp[]) {
 		int i;
 		int word = 0;
 		int off = offp[0];
@@ -434,7 +433,7 @@ public class BCrypt {
 		int plen = P.length, slen = S.length;
 
 		for (i = 0; i < plen; i++) {
-			P[i] = P[i] ^ streamtoword(key, koffp);
+			P[i] = P[i] ^ streamToWord(key, koffp);
 		}
 
 		for (i = 0; i < plen; i += 2) {
@@ -463,20 +462,21 @@ public class BCrypt {
 		int plen = P.length, slen = S.length;
 
 		for (i = 0; i < plen; i++) {
-			P[i] = P[i] ^ streamtoword(key, koffp);
+			P[i] = P[i] ^ streamToWord(key, koffp);
 		}
 
 		for (i = 0; i < plen; i += 2) {
-			lr[0] ^= streamtoword(data, doffp);
-			lr[1] ^= streamtoword(data, doffp);
+			lr[0] ^= streamToWord(data, doffp);
+			lr[1] ^= streamToWord(data, doffp);
 			encipher(lr, 0);
 			P[i] = lr[0];
 			P[i + 1] = lr[1];
 		}
 
+
 		for (i = 0; i < slen; i += 2) {
-			lr[0] ^= streamtoword(data, doffp);
-			lr[1] ^= streamtoword(data, doffp);
+			lr[0] ^= streamToWord(data, doffp);
+			lr[1] ^= streamToWord(data, doffp);
 			encipher(lr, 0);
 			S[i] = lr[0];
 			S[i + 1] = lr[1];
@@ -530,11 +530,11 @@ public class BCrypt {
 	/**
 	 * Hash a password using the OpenBSD bcrypt scheme
 	 * @param password the password to hash
-	 * @param salt the salt to hash with (perhaps generated using BCrypt.gensalt)
+	 * @param salt the salt to hash with (perhaps generated using BCrypt.generateSalt)
 	 * @return the hashed password
 	 * @throws IllegalArgumentException if invalid salt is passed
 	 */
-	public static String hashpw(String password, String salt) throws IllegalArgumentException {
+	public static String hashPassword(String password, String salt) throws IllegalArgumentException {
 		BCrypt B;
 		String real_salt;
 		byte passwordb[], saltb[], hashed[];
@@ -605,21 +605,22 @@ public class BCrypt {
 	}
 
 	/**
-	 * Generate a salt for use with the BCrypt.hashpw() method
+	 * Generate a salt for use with the BCrypt.hashPassword() method
 	 * @param log_rounds the log2 of the number of rounds of hashing to apply - the work
 	 * factor therefore increases as 2**log_rounds. Minimum 4, maximum 31.
 	 * @param random an instance of SecureRandom to use
 	 * @return an encoded salt value
 	 */
-	public static String gensalt(int log_rounds, SecureRandom random) {
+	public static String generateSalt(int log_rounds, SecureRandom random) {
 		if (log_rounds < MIN_LOG_ROUNDS || log_rounds > MAX_LOG_ROUNDS) {
 			throw new IllegalArgumentException("Bad number of rounds");
 		}
-		StringBuilder rs = new StringBuilder();
+
 		byte rnd[] = new byte[BCRYPT_SALT_LEN];
 
 		random.nextBytes(rnd);
 
+		StringBuilder rs = new StringBuilder();
 		rs.append("$2a$");
 		if (log_rounds < 10) {
 			rs.append("0");
@@ -631,22 +632,22 @@ public class BCrypt {
 	}
 
 	/**
-	 * Generate a salt for use with the BCrypt.hashpw() method
+	 * Generate a salt for use with the BCrypt.hashPassword() method
 	 * @param log_rounds the log2 of the number of rounds of hashing to apply - the work
 	 * factor therefore increases as 2**log_rounds. Minimum 4, maximum 31.
 	 * @return an encoded salt value
 	 */
-	public static String gensalt(int log_rounds) {
-		return gensalt(log_rounds, new SecureRandom());
+	public static String generateSalt(int log_rounds) {
+		return generateSalt(log_rounds, new SecureRandom());
 	}
 
 	/**
-	 * Generate a salt for use with the BCrypt.hashpw() method, selecting a reasonable
+	 * Generate a salt for use with the BCrypt.hashPassword() method, selecting a reasonable
 	 * default for the number of hashing rounds to apply
 	 * @return an encoded salt value
 	 */
-	public static String gensalt() {
-		return gensalt(GENSALT_DEFAULT_LOG2_ROUNDS);
+	public static String generateSalt() {
+		return generateSalt(GENSALT_DEFAULT_LOG2_ROUNDS);
 	}
 
 	/**
@@ -655,8 +656,8 @@ public class BCrypt {
 	 * @param hashed the previously-hashed password
 	 * @return true if the passwords match, false otherwise
 	 */
-	public static boolean checkpw(String plaintext, String hashed) {
-		return equalsNoEarlyReturn(hashed, hashpw(plaintext, hashed));
+	public static boolean checkPassword(String plaintext, String hashed) {
+		return equalsNoEarlyReturn(hashed, hashPassword(plaintext, hashed));
 	}
 
 	static boolean equalsNoEarlyReturn(String a, String b) {
