@@ -211,7 +211,7 @@ public class ServerHttpSecurity {
 		if(this.logout != null) {
 			this.logout.configure(this);
 		}
-		this.addFilterAt(new SecurityContextServerWebExchangeWebFilter(), SecurityWebFiltersOrder.AUTHENTICATION_CONTEXT);
+		this.addFilterAt(new SecurityContextServerWebExchangeWebFilter(), SecurityWebFiltersOrder.SECURITY_CONTEXT_SERVER_WEB_EXCHANGE);
 		if(this.authorizeExchangeBuilder != null) {
 			ServerAuthenticationEntryPoint serverAuthenticationEntryPoint = getServerAuthenticationEntryPoint();
 			ExceptionTranslationWebFilter exceptionTranslationWebFilter = new ExceptionTranslationWebFilter();
@@ -262,8 +262,8 @@ public class ServerHttpSecurity {
 		if(repository == null) {
 			return null;
 		}
-		return new OrderedWebFilter(result, SecurityWebFiltersOrder.SECURITY_CONTEXT_REPOSITORY.getOrder());
 		WebFilter result = new ReactorContextWebFilter(repository);
+		return new OrderedWebFilter(result, SecurityWebFiltersOrder.REACTOR_CONTEXT.getOrder());
 	}
 
 	private ServerHttpSecurity() {}

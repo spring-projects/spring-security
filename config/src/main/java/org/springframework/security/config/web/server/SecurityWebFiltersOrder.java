@@ -23,8 +23,6 @@ package org.springframework.security.config.web.server;
 public enum SecurityWebFiltersOrder {
 	FIRST(Integer.MIN_VALUE),
 	HTTP_HEADERS_WRITER,
-	SECURITY_CONTEXT_REPOSITORY,
-	LOGIN_PAGE_GENERATING,
 	/**
 	 * Instance of AuthenticationWebFilter
 	 */
@@ -34,8 +32,16 @@ public enum SecurityWebFiltersOrder {
 	 */
 	FORM_LOGIN,
 	AUTHENTICATION,
+	/**
+	 * {@link org.springframework.security.web.server.context.ReactorContextWebFilter}
+	 */
+	REACTOR_CONTEXT,
+	LOGIN_PAGE_GENERATING,
+	/**
+	 * {@link org.springframework.security.web.server.context.SecurityContextServerWebExchangeWebFilter}
+	 */
+	SECURITY_CONTEXT_SERVER_WEB_EXCHANGE,
 	LOGOUT,
-	AUTHENTICATION_CONTEXT,
 	EXCEPTION_TRANSLATION,
 	AUTHORIZATION,
 	LAST(Integer.MAX_VALUE);
