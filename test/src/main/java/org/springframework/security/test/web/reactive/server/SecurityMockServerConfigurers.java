@@ -130,7 +130,7 @@ public class SecurityMockServerConfigurers {
 		private final User.UserBuilder userBuilder;
 
 		private UserExchangeMutator(String username) {
-			userBuilder = User.withUsername(username);
+			this.userBuilder = User.withUsername(username);
 			password("password");
 			roles("USER");
 		}
@@ -141,7 +141,7 @@ public class SecurityMockServerConfigurers {
 		 * @return the UserExchangeMutator
 		 */
 		public UserExchangeMutator password(String password) {
-			userBuilder.password(password);
+			this.userBuilder.password(password);
 			return this;
 		}
 
@@ -153,7 +153,7 @@ public class SecurityMockServerConfigurers {
 		 * @return the UserExchangeMutator
 		 */
 		public UserExchangeMutator roles(String... roles) {
-			userBuilder.roles(roles);
+			this.userBuilder.roles(roles);
 			return this;
 		}
 
@@ -164,7 +164,7 @@ public class SecurityMockServerConfigurers {
 		 * @return the UserExchangeMutator
 		 */
 		public UserExchangeMutator authorities(GrantedAuthority... authorities) {
-			userBuilder.authorities(authorities);
+			this.userBuilder.authorities(authorities);
 			return this;
 		}
 
@@ -175,7 +175,7 @@ public class SecurityMockServerConfigurers {
 		 * @return the UserExchangeMutator
 		 */
 		public UserExchangeMutator authorities(Collection<? extends GrantedAuthority> authorities) {
-			userBuilder.authorities(authorities);
+			this.userBuilder.authorities(authorities);
 			return this;
 		}
 
@@ -185,27 +185,27 @@ public class SecurityMockServerConfigurers {
 		 * @return the UserExchangeMutator
 		 */
 		public UserExchangeMutator authorities(String... authorities) {
-			userBuilder.authorities(authorities);
+			this.userBuilder.authorities(authorities);
 			return this;
 		}
 
 		public UserExchangeMutator accountExpired(boolean accountExpired) {
-			userBuilder.accountExpired(accountExpired);
+			this.userBuilder.accountExpired(accountExpired);
 			return this;
 		}
 
 		public UserExchangeMutator accountLocked(boolean accountLocked) {
-			userBuilder.accountLocked(accountLocked);
+			this.userBuilder.accountLocked(accountLocked);
 			return this;
 		}
 
 		public UserExchangeMutator credentialsExpired(boolean credentialsExpired) {
-			userBuilder.credentialsExpired(credentialsExpired);
+			this.userBuilder.credentialsExpired(credentialsExpired);
 			return this;
 		}
 
 		public UserExchangeMutator disabled(boolean disabled) {
-			userBuilder.disabled(disabled);
+			this.userBuilder.disabled(disabled);
 			return this;
 		}
 
@@ -225,7 +225,7 @@ public class SecurityMockServerConfigurers {
 		}
 
 		private <T extends WebTestClientConfigurer & MockServerConfigurer> T configurer() {
-			return mockUser(userBuilder.build());
+			return mockUser(this.userBuilder.build());
 		}
 	}
 
