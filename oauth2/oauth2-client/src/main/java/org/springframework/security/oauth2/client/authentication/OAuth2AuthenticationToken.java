@@ -19,7 +19,7 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
-import org.springframework.security.oauth2.client.AuthorizedClient;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.Assert;
 
@@ -29,21 +29,25 @@ import java.util.Collection;
  * An implementation of an {@link AbstractAuthenticationToken}
  * that represents an <i>OAuth 2.0</i> {@link Authentication}.
  * <p>
- * This {@link Authentication} associates an {@link OAuth2User} principal
- * to an {@link AuthorizedClient}.
+ * This {@link Authentication} associates an {@link OAuth2User} <code>Principal</code>
+ * to an {@link OAuth2AuthorizedClient}, which the End-User (Principal) granted authorization to
+ * so that it can access its protected resource(s) at the <i>UserInfo Endpoint</i>.
  *
  * @author Joe Grandja
  * @since 5.0
+ * @see AbstractAuthenticationToken
+ * @see OAuth2AuthorizedClient
  * @see OAuth2User
- * @see AuthorizedClient
+ *
+ * @param <U> The type of <i>OAuth 2.0 User</i>
+ * @param <C> The type of <i>Authorized Client</i>
  */
-public class OAuth2AuthenticationToken extends AbstractAuthenticationToken {
+public class OAuth2AuthenticationToken<U extends OAuth2User, C extends OAuth2AuthorizedClient> extends AbstractAuthenticationToken {
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
-	private final OAuth2User principal;
-	private final AuthorizedClient authorizedClient;
+	private final U principal;
+	private final C authorizedClient;
 
-	public OAuth2AuthenticationToken(OAuth2User principal, Collection<? extends GrantedAuthority> authorities,
-										AuthorizedClient authorizedClient) {
+	public OAuth2AuthenticationToken(U principal, Collection<? extends GrantedAuthority> authorities, C authorizedClient) {
 		super(authorities);
 		Assert.notNull(principal, "principal cannot be null");
 		Assert.notNull(authorizedClient, "authorizedClient cannot be null");
@@ -53,7 +57,7 @@ public class OAuth2AuthenticationToken extends AbstractAuthenticationToken {
 	}
 
 	@Override
-	public Object getPrincipal() {
+	public U getPrincipal() {
 		return this.principal;
 	}
 
@@ -63,7 +67,7 @@ public class OAuth2AuthenticationToken extends AbstractAuthenticationToken {
 		return "";
 	}
 
-	public AuthorizedClient getAuthorizedClient() {
+	public C getAuthorizedClient() {
 		return this.authorizedClient;
 	}
 }

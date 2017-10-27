@@ -38,7 +38,6 @@ import org.springframework.security.oauth2.core.oidc.IdToken;
 import org.springframework.security.oauth2.core.oidc.OidcScope;
 import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameter;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.util.Assert;
@@ -65,8 +64,8 @@ import java.util.List;
  * @since 5.0
  * @see AuthorizationCodeAuthenticationToken
  * @see OAuth2AuthenticationToken
- * @see OidcAuthorizedClient
  * @see OidcUserService
+ * @see OidcAuthorizedClient
  * @see OidcUser
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth">Section 3.1 Authorization Code Grant Flow</a>
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#TokenRequest">Section 3.1.3.1 Token Request</a>
@@ -77,13 +76,13 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 	private static final String INVALID_REDIRECT_URI_PARAMETER_ERROR_CODE = "invalid_redirect_uri_parameter";
 	private static final String INVALID_ID_TOKEN_ERROR_CODE = "invalid_id_token";
 	private final AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger;
-	private final OAuth2UserService userService;
+	private final OAuth2UserService<OidcAuthorizedClient, OidcUser> userService;
 	private final JwtDecoderRegistry jwtDecoderRegistry;
 	private GrantedAuthoritiesMapper authoritiesMapper = (authorities -> authorities);
 
 	public OidcAuthorizationCodeAuthenticationProvider(
 		AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger,
-		OAuth2UserService userService,
+		OAuth2UserService<OidcAuthorizedClient, OidcUser> userService,
 		JwtDecoderRegistry jwtDecoderRegistry) {
 
 		Assert.notNull(authorizationCodeTokenExchanger, "authorizationCodeTokenExchanger cannot be null");
@@ -153,21 +152,21 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 
 		this.validateIdToken(idToken, clientRegistration);
 
-		OidcAuthorizedClient authorizedClient = new OidcAuthorizedClient(
+		OidcAuthorizedClient oidcAuthorizedClient = new OidcAuthorizedClient(
 			clientRegistration, idToken.getSubject(), accessToken, idToken);
 
-		OAuth2User oauth2User = this.userService.loadUser(authorizedClient);
+		OidcUser oidcUser = this.userService.loadUser(oidcAuthorizedClient);
 
-		// Update AuthorizedClient as the 'principalName' may have changed
+		// Update OidcAuthorizedClient as the 'principalName' may have changed
 		// (the default IdToken.subject) from the result of userService.loadUser()
-		authorizedClient = new OidcAuthorizedClient(
-			clientRegistration, oauth2User.getName(), accessToken, idToken);
+		oidcAuthorizedClient = new OidcAuthorizedClient(
+			clientRegistration, oidcUser.getName(), accessToken, idToken);
 
 		Collection<? extends GrantedAuthority> mappedAuthorities =
-			this.authoritiesMapper.mapAuthorities(oauth2User.getAuthorities());
+			this.authoritiesMapper.mapAuthorities(oidcUser.getAuthorities());
 
-		OAuth2AuthenticationToken authenticationResult = new OAuth2AuthenticationToken(
-			oauth2User, mappedAuthorities, authorizedClient);
+		OAuth2AuthenticationToken<OidcUser, OidcAuthorizedClient> authenticationResult =
+			new OAuth2AuthenticationToken<>(oidcUser, mappedAuthorities, oidcAuthorizedClient);
 		authenticationResult.setDetails(authorizationCodeAuthentication.getDetails());
 
 		return authenticationResult;

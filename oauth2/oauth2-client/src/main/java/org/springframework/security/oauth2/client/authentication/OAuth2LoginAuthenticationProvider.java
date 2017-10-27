@@ -20,7 +20,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
-import org.springframework.security.oauth2.client.AuthorizedClient;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -41,7 +41,7 @@ import java.util.Collection;
  * an <i>authorization code</i> credential with the authorization server's <i>Token Endpoint</i>
  * and if valid, exchanging it for an <i>access token</i> credential.
  * <p>
- * It will also obtain the user attributes of the <i>End-User</i> (resource owner)
+ * It will also obtain the user attributes of the <i>End-User</i> (Resource Owner)
  * from the <i>UserInfo Endpoint</i> using an {@link OAuth2UserService}
  * which will create a <code>Principal</code> in the form of an {@link OAuth2User}.
  *
@@ -49,8 +49,8 @@ import java.util.Collection;
  * @since 5.0
  * @see AuthorizationCodeAuthenticationToken
  * @see OAuth2AuthenticationToken
- * @see AuthorizedClient
  * @see OAuth2UserService
+ * @see OAuth2AuthorizedClient
  * @see OAuth2User
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">Section 4.1 Authorization Code Grant Flow</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.3">Section 4.1.3 Access Token Request</a>
@@ -60,12 +60,12 @@ public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider
 	private static final String INVALID_STATE_PARAMETER_ERROR_CODE = "invalid_state_parameter";
 	private static final String INVALID_REDIRECT_URI_PARAMETER_ERROR_CODE = "invalid_redirect_uri_parameter";
 	private final AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger;
-	private final OAuth2UserService userService;
+	private final OAuth2UserService<OAuth2AuthorizedClient, OAuth2User> userService;
 	private GrantedAuthoritiesMapper authoritiesMapper = (authorities -> authorities);
 
 	public OAuth2LoginAuthenticationProvider(
 		AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger,
-		OAuth2UserService userService) {
+		OAuth2UserService<OAuth2AuthorizedClient, OAuth2User> userService) {
 
 		Assert.notNull(authorizationCodeTokenExchanger, "authorizationCodeTokenExchanger cannot be null");
 		Assert.notNull(userService, "userService cannot be null");
@@ -115,20 +115,20 @@ public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider
 			tokenResponse.getTokenValue(), tokenResponse.getIssuedAt(),
 			tokenResponse.getExpiresAt(), tokenResponse.getScopes());
 
-		AuthorizedClient authorizedClient = new AuthorizedClient(
+		OAuth2AuthorizedClient oauth2AuthorizedClient = new OAuth2AuthorizedClient(
 			authorizationCodeAuthentication.getClientRegistration(), "unknown", accessToken);
 
-		OAuth2User oauth2User = this.userService.loadUser(authorizedClient);
+		OAuth2User oauth2User = this.userService.loadUser(oauth2AuthorizedClient);
 
-		// Update AuthorizedClient now that we know the 'principalName'
-		authorizedClient = new AuthorizedClient(
+		// Update OAuth2AuthorizedClient now that we know the 'principalName'
+		oauth2AuthorizedClient = new OAuth2AuthorizedClient(
 			authorizationCodeAuthentication.getClientRegistration(), oauth2User.getName(), accessToken);
 
 		Collection<? extends GrantedAuthority> mappedAuthorities =
 			this.authoritiesMapper.mapAuthorities(oauth2User.getAuthorities());
 
-		OAuth2AuthenticationToken authenticationResult = new OAuth2AuthenticationToken(
-			oauth2User, mappedAuthorities, authorizedClient);
+		OAuth2AuthenticationToken<OAuth2User, OAuth2AuthorizedClient> authenticationResult =
+			new OAuth2AuthenticationToken<>(oauth2User, mappedAuthorities, oauth2AuthorizedClient);
 		authenticationResult.setDetails(authorizationCodeAuthentication.getDetails());
 
 		return authenticationResult;

@@ -16,9 +16,9 @@
 package org.springframework.security.oauth2.client.userinfo;
 
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.client.AuthorizedClient;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
@@ -45,14 +45,16 @@ import java.util.Set;
  * @author Joe Grandja
  * @since 5.0
  * @see OAuth2UserService
+ * @see OAuth2AuthorizedClient
+ * @see OAuth2User
  * @see DefaultOAuth2User
  * @see UserInfoRetriever
  */
-public class DefaultOAuth2UserService implements OAuth2UserService {
+public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2AuthorizedClient, OAuth2User> {
 	private UserInfoRetriever userInfoRetriever = new NimbusUserInfoRetriever();
 
 	@Override
-	public OAuth2User loadUser(AuthorizedClient authorizedClient) throws OAuth2AuthenticationException {
+	public OAuth2User loadUser(OAuth2AuthorizedClient authorizedClient) throws OAuth2AuthenticationException {
 		String userNameAttributeName = authorizedClient.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
 		if (!StringUtils.hasText(userNameAttributeName)) {
 			throw new IllegalArgumentException(

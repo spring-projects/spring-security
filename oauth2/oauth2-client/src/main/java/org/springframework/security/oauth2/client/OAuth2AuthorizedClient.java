@@ -22,8 +22,8 @@ import org.springframework.util.Assert;
 /**
  * A representation of an OAuth 2.0 <i>&quot;Authorized Client&quot;</i>.
  * <p>
- * A client is considered <i>&quot;authorized&quot;</i>
- * when it receives a successful response from the <i>Token Endpoint</i>.
+ * A client is considered <i>&quot;authorized&quot;</i> when the End-User (Resource Owner)
+ * grants authorization to the Client to access its protected resources.
  * <p>
  * This class associates the {@link #getClientRegistration() Client}
  * to the {@link #getAccessToken() Access Token}
@@ -35,12 +35,12 @@ import org.springframework.util.Assert;
  * @see AccessToken
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-5.1">Section 5.1 Access Token Response</a>
  */
-public class AuthorizedClient {
+public class OAuth2AuthorizedClient {
 	private final ClientRegistration clientRegistration;
 	private final String principalName;
 	private final AccessToken accessToken;
 
-	public AuthorizedClient(ClientRegistration clientRegistration, String principalName, AccessToken accessToken) {
+	public OAuth2AuthorizedClient(ClientRegistration clientRegistration, String principalName, AccessToken accessToken) {
 		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
 		Assert.hasText(principalName, "principalName cannot be empty");
 		Assert.notNull(accessToken, "accessToken cannot be null");

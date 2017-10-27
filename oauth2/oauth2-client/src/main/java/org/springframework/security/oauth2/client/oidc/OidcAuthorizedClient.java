@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2017 the original author or authors.
+ * Copyright 2002-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package org.springframework.security.oauth2.client.oidc;
 
-import org.springframework.security.oauth2.client.AuthorizedClient;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AccessToken;
 import org.springframework.security.oauth2.core.oidc.IdToken;
@@ -24,8 +24,8 @@ import org.springframework.util.Assert;
 /**
  * A representation of an OpenID Connect 1.0 <i>&quot;Authorized Client&quot;</i>.
  * <p>
- * A client is considered <i>&quot;authorized&quot;</i>
- * when it receives a successful response from the <i>Token Endpoint</i>.
+ * A client is considered <i>&quot;authorized&quot;</i> when the End-User (Resource Owner)
+ * grants authorization to the Client to access its protected resources.
  * <p>
  * This class associates the {@link #getClientRegistration() Client}
  * to the {@link #getAccessToken() Access Token}
@@ -34,11 +34,11 @@ import org.springframework.util.Assert;
  *
  * @author Joe Grandja
  * @since 5.0
+ * @see OAuth2AuthorizedClient
  * @see IdToken
- * @see AuthorizedClient
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#TokenResponse">3.1.3.3 Successful Token Response</a>
  */
-public class OidcAuthorizedClient extends AuthorizedClient {
+public class OidcAuthorizedClient extends OAuth2AuthorizedClient {
 	private final IdToken idToken;
 
 	public OidcAuthorizedClient(ClientRegistration clientRegistration, String principalName,

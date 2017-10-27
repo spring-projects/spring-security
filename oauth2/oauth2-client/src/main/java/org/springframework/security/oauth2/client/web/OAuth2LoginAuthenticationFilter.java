@@ -18,21 +18,23 @@ package org.springframework.security.oauth2.client.web;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationToken;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationProvider;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationProvider;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.token.InMemoryAccessTokenRepository;
 import org.springframework.security.oauth2.client.token.OAuth2TokenRepository;
 import org.springframework.security.oauth2.core.AccessToken;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCode;
 import org.springframework.security.oauth2.core.endpoint.AuthorizationExchange;
 import org.springframework.security.oauth2.core.endpoint.AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.AuthorizationResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2Parameter;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -134,8 +136,8 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 				clientRegistration, new AuthorizationExchange(authorizationRequest, authorizationResponse));
 		authorizationCodeAuthentication.setDetails(this.authenticationDetailsSource.buildDetails(request));
 
-		OAuth2AuthenticationToken oauth2Authentication =
-			(OAuth2AuthenticationToken) this.getAuthenticationManager().authenticate(authorizationCodeAuthentication);
+		OAuth2AuthenticationToken<OAuth2User, OAuth2AuthorizedClient> oauth2Authentication =
+			(OAuth2AuthenticationToken<OAuth2User, OAuth2AuthorizedClient>) this.getAuthenticationManager().authenticate(authorizationCodeAuthentication);
 
 		this.accessTokenRepository.saveToken(
 			oauth2Authentication.getAuthorizedClient().getAccessToken(),
