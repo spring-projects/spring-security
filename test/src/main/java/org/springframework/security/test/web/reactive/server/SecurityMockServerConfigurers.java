@@ -21,6 +21,9 @@ import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.test.context.TestSecurityContextHolder;
@@ -33,12 +36,9 @@ import org.springframework.web.server.WebFilterChain;
 import org.springframework.web.server.adapter.WebHttpHandlerBuilder;
 import reactor.core.publisher.Mono;
 
-import java.security.Principal;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * Test utilities for working with Spring Security and
@@ -58,20 +58,10 @@ public class SecurityMockServerConfigurers {
 			public void beforeServerCreated(WebHttpHandlerBuilder builder) {
 				builder.filters( filters -> {
 					filters.add(0, new MutatorFilter());
-					filters.add(0, new SetupMutatorFilter(createMutator( () -> TestSecurityContextHolder.getContext().getAuthentication())));
+					filters.add(0, new SetupMutatorFilter(TestSecurityContextHolder.getContext()));
 				});
 			}
 		};
-	}
-
-	/**
-	 * Updates the ServerWebExchange to use the provided Principal
-	 *
-	 * @param principal the principal to use.
-	 * @return the {@link WebTestClientConfigurer} to use
-	 */
-	public static <T extends WebTestClientConfigurer & MockServerConfigurer> T mockPrincipal(Principal principal) {
-		return (T) new MutatorWebTestClientConfigurer(createMutator(() -> principal));
 	}
 
 	/**
@@ -81,7 +71,7 @@ public class SecurityMockServerConfigurers {
 	 * @return the {@link WebTestClientConfigurer}} to use
 	 */
 	public static <T extends WebTestClientConfigurer & MockServerConfigurer> T mockAuthentication(Authentication authentication) {
-		return mockPrincipal(authentication);
+		return (T) new MutatorWebTestClientConfigurer(authentication);
 	}
 
 	/**
@@ -116,10 +106,6 @@ public class SecurityMockServerConfigurers {
 	 */
 	public static UserExchangeMutator mockUser(String username) {
 		return new UserExchangeMutator(username);
-	}
-
-	private static Function<ServerWebExchange, ServerWebExchange> createMutator(Supplier<Principal> principal) {
-		return m -> principal.get() == null ? m : m.mutate().principal(Mono.just(principal.get())).build();
 	}
 
 	/**
@@ -230,11 +216,20 @@ public class SecurityMockServerConfigurers {
 	}
 
 	private static class MutatorWebTestClientConfigurer implements WebTestClientConfigurer, MockServerConfigurer {
-		private final Function<ServerWebExchange, ServerWebExchange> mutator;
+		private final Mono<SecurityContext> context;
 
-		private MutatorWebTestClientConfigurer(Function<ServerWebExchange, ServerWebExchange> mutator) {
-			this.mutator = mutator;
+		private MutatorWebTestClientConfigurer(Mono<SecurityContext> context) {
+			this.context = context;
 		}
+
+		private MutatorWebTestClientConfigurer(SecurityContext context) {
+			this(Mono.just(context));
+		}
+
+		private MutatorWebTestClientConfigurer(Authentication authentication) {
+			this(new SecurityContextImpl(authentication));
+		}
+
 
 		@Override
 		public void beforeServerCreated(WebHttpHandlerBuilder builder) {
@@ -247,34 +242,42 @@ public class SecurityMockServerConfigurers {
 		}
 
 		private Consumer<List<WebFilter>> addSetupMutatorFilter() {
-			return filters -> filters.add(0, new SetupMutatorFilter(mutator));
+			return filters -> filters.add(0, new SetupMutatorFilter(this.context));
 		}
 	}
 
 	private static class SetupMutatorFilter implements WebFilter {
-		private final Function<ServerWebExchange, ServerWebExchange> mutator;
+		private final Mono<SecurityContext> context;
 
-		private SetupMutatorFilter(Function<ServerWebExchange, ServerWebExchange> mutator) {
-			this.mutator = mutator;
+		private SetupMutatorFilter(Mono<SecurityContext> context) {
+			this.context = context;
+		}
+
+		private SetupMutatorFilter(SecurityContext context) {
+			this(Mono.just(context));
+		}
+
+		private SetupMutatorFilter(Authentication authentication) {
+			this(new SecurityContextImpl(authentication));
 		}
 
 		@Override
 		public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain webFilterChain) {
-			exchange.getAttributes().computeIfAbsent(MutatorFilter.ATTRIBUTE_NAME, key -> mutator);
+			exchange.getAttributes().computeIfAbsent(MutatorFilter.ATTRIBUTE_NAME, key -> this.context);
 			return webFilterChain.filter(exchange);
 		}
 	}
 
 	private static class MutatorFilter implements WebFilter {
-
-		public static final String ATTRIBUTE_NAME = "mutator";
+		public static final String ATTRIBUTE_NAME = "context";
 
 		@Override
 		public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain webFilterChain) {
-			Function<ServerWebExchange, ServerWebExchange> mutator = exchange.getAttribute(ATTRIBUTE_NAME);
-			if(mutator != null) {
+			Mono<SecurityContext> context = exchange.getAttribute(ATTRIBUTE_NAME);
+			if(context != null) {
 				exchange.getAttributes().remove(ATTRIBUTE_NAME);
-				exchange = mutator.apply(exchange);
+				return webFilterChain.filter(exchange)
+					.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(context));
 			}
 			return webFilterChain.filter(exchange);
 		}
