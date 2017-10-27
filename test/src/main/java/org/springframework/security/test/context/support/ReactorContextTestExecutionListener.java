@@ -63,6 +63,8 @@ public class ReactorContextTestExecutionListener
 		}
 
 		private static class SecuritySubContext<T> implements CoreSubscriber<T> {
+			private static String CONTEXT_DEFAULTED_ATTR_NAME = SecuritySubContext.class.getName().concat(".CONTEXT_DEFAULTED_ATTR_NAME");
+
 			private final CoreSubscriber<T> delegate;
 
 			SecuritySubContext(CoreSubscriber<T> delegate) {
@@ -72,6 +74,10 @@ public class ReactorContextTestExecutionListener
 			@Override
 			public Context currentContext() {
 				Context context = delegate.currentContext();
+				if(context.hasKey(CONTEXT_DEFAULTED_ATTR_NAME)) {
+					return context;
+				}
+				context = context.put(CONTEXT_DEFAULTED_ATTR_NAME, Boolean.TRUE);
 				Authentication authentication = TestSecurityContextHolder.getContext().getAuthentication();
 				if (authentication == null) {
 					return context;

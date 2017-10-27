@@ -112,6 +112,24 @@ public class ReactorContextTestExecutionListenerTests {
 	}
 
 	@Test
+	public void beforeTestMethodWhenClearThenReactorContextDoesNotOverride() throws Exception {
+		TestingAuthenticationToken expectedAuthentication = new TestingAuthenticationToken("user", "password", "ROLE_USER");
+		TestingAuthenticationToken contextHolder = new TestingAuthenticationToken("contextHolder", "password", "ROLE_USER");
+		TestSecurityContextHolder.setContext(new SecurityContextImpl(contextHolder));
+
+		this.listener.beforeTestMethod(this.testContext);
+
+		Mono<Authentication> authentication = Mono.just("any")
+			.flatMap(s -> ReactiveSecurityContextHolder.getContext()
+				.map(SecurityContext::getAuthentication)
+			)
+			.subscriberContext(ReactiveSecurityContextHolder.clearContext());
+
+		StepVerifier.create(authentication)
+			.verifyComplete();
+	}
+
+	@Test
 	public void afterTestMethodWhenSecurityContextEmptyThenNoError() throws Exception {
 		this.listener.beforeTestMethod(this.testContext);
 
