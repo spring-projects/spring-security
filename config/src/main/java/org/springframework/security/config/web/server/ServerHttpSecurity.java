@@ -67,6 +67,9 @@ import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -101,6 +104,8 @@ public class ServerHttpSecurity {
 	private List<DelegateEntry> defaultEntryPoints = new ArrayList<>();
 
 	private List<WebFilter> webFilters = new ArrayList<>();
+
+	private Throwable built;
 
 	/**
 	 * The ServerExchangeMatcher that determines which requests apply to this HttpSecurity instance.
@@ -174,6 +179,10 @@ public class ServerHttpSecurity {
 	}
 
 	public SecurityWebFilterChain build() {
+		if(this.built != null) {
+			throw new IllegalStateException("This has already been built with the following stacktrace. " + buildToString());
+		}
+		this.built = new RuntimeException("First Build Invocation").fillInStackTrace();
 		if(this.headers != null) {
 			this.headers.configure(this);
 		}
@@ -214,6 +223,21 @@ public class ServerHttpSecurity {
 		}
 		AnnotationAwareOrderComparator.sort(this.webFilters);
 		return new MatcherSecurityWebFilterChain(getSecurityMatcher(), this.webFilters);
+	}
+
+	private String buildToString() {
+		try(StringWriter writer = new StringWriter()) {
+			try(PrintWriter printer = new PrintWriter(writer)) {
+				printer.println();
+				printer.println();
+				this.built.printStackTrace(printer);
+				printer.println();
+				printer.println();
+				return writer.toString();
+			}
+		} catch(IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	private ServerAuthenticationEntryPoint getServerAuthenticationEntryPoint() {
