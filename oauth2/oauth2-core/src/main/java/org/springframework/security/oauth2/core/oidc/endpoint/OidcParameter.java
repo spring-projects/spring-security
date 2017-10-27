@@ -13,7 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.springframework.security.oauth2.core.oidc.endpoint;
+
 /**
- * Core classes and interfaces providing support for <i>OpenID Connect Core 1.0</i>.
+ * Standard parameters defined in the OAuth Parameters Registry
+ * and used by the authorization endpoint and token endpoint.
+ *
+ * @author Joe Grandja
+ * @since 5.0
+ * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#OAuthParametersRegistry">18.2 OAuth Parameters Registration</a>
  */
-package org.springframework.security.oauth2.oidc.core;
+public interface OidcParameter {
+
+	String ID_TOKEN = "id_token";
+
+}

@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.oidc.core.user;
+package org.springframework.security.oauth2.core.oidc.user;
 
 import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.security.oauth2.oidc.core.IdToken;
-import org.springframework.security.oauth2.oidc.core.IdTokenClaimAccessor;
-import org.springframework.security.oauth2.oidc.core.StandardClaimAccessor;
-import org.springframework.security.oauth2.oidc.core.UserInfo;
+import org.springframework.security.oauth2.core.oidc.IdToken;
+import org.springframework.security.oauth2.core.oidc.IdTokenClaimAccessor;
+import org.springframework.security.oauth2.core.oidc.StandardClaimAccessor;
+import org.springframework.security.oauth2.core.oidc.UserInfo;
 import org.springframework.util.Assert;
 
 import java.util.HashMap;

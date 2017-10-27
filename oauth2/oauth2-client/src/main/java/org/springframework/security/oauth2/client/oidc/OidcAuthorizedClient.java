@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.oidc.client;
+package org.springframework.security.oauth2.client.oidc;
 
 import org.springframework.security.oauth2.client.AuthorizedClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AccessToken;
-import org.springframework.security.oauth2.oidc.core.IdToken;
+import org.springframework.security.oauth2.core.oidc.IdToken;
 import org.springframework.util.Assert;
 
 /**

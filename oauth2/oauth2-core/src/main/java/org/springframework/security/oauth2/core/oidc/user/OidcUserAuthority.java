@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.oidc.core.user;
+package org.springframework.security.oauth2.core.oidc.user;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
-import org.springframework.security.oauth2.oidc.core.IdToken;
-import org.springframework.security.oauth2.oidc.core.UserInfo;
+import org.springframework.security.oauth2.core.oidc.IdToken;
+import org.springframework.security.oauth2.core.oidc.UserInfo;
 
 /**
  * A {@link GrantedAuthority} that is associated with an {@link OidcUser}.

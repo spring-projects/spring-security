@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.oauth2.oidc.core.user;
+package org.springframework.security.oauth2.core.oidc.user;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -27,10 +27,10 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.oidc.core.IdToken;
-import org.springframework.security.oauth2.oidc.core.IdTokenClaim;
-import org.springframework.security.oauth2.oidc.core.StandardClaim;
-import org.springframework.security.oauth2.oidc.core.UserInfo;
+import org.springframework.security.oauth2.core.oidc.IdToken;
+import org.springframework.security.oauth2.core.oidc.IdTokenClaim;
+import org.springframework.security.oauth2.core.oidc.StandardClaim;
+import org.springframework.security.oauth2.core.oidc.UserInfo;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

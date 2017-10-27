@@ -13,30 +13,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.oidc.core;
+package org.springframework.security.oauth2.core.oidc;
 
 /**
- * The Address Claim represents a physical mailing address defined by the <i>OpenID Connect Core 1.0</i> specification
- * that can be returned either in the <i>UserInfo Response</i> or the <i>ID Token</i>.
+ * The &quot;Claims&quot; defined by the <i>OpenID Connect Core 1.0</i> specification
+ * that can be returned in the <i>ID Token</i>.
  *
  * @author Joe Grandja
  * @since 5.0
- * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#AddressClaim">Address Claim</a>
- * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#UserInfoResponse">UserInfo Response</a>
+ * @see IdToken
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#IDToken">ID Token</a>
  */
-public interface Address {
 
-	String getFormatted();
+public interface IdTokenClaim {
 
-	String getStreetAddress();
+	String ISS = "iss";
 
-	String getLocality();
+	String SUB = "sub";
 
-	String getRegion();
+	String AUD = "aud";
 
-	String getPostalCode();
+	String EXP = "exp";
 
-	String getCountry();
+	String IAT = "iat";
+
+	String AUTH_TIME = "auth_time";
+
+	String NONCE = "nonce";
+
+	String ACR = "acr";
+
+	String AMR = "amr";
+
+	String AZP = "azp";
+
+	String AT_HASH = "at_hash";
+
+	String C_HASH = "c_hash";
 
 }

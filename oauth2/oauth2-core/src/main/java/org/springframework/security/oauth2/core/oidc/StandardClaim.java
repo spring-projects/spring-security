@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.oidc.core;
+package org.springframework.security.oauth2.core.oidc;
 
 /**
  * The &quot;Standard Claims&quot; defined by the <i>OpenID Connect Core 1.0</i> specification

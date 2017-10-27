@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package org.springframework.security.oauth2.oidc.core.user;
+package org.springframework.security.oauth2.core.oidc.user;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
-import org.springframework.security.oauth2.oidc.core.IdToken;
-import org.springframework.security.oauth2.oidc.core.IdTokenClaim;
-import org.springframework.security.oauth2.oidc.core.UserInfo;
+import org.springframework.security.oauth2.core.oidc.IdToken;
+import org.springframework.security.oauth2.core.oidc.IdTokenClaim;
+import org.springframework.security.oauth2.core.oidc.UserInfo;
 
 import java.util.Map;
 import java.util.Set;

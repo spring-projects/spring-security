@@ -20,7 +20,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ClientRegistration.ProviderDetails;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
-import org.springframework.security.oauth2.oidc.core.IdTokenClaim;
+import org.springframework.security.oauth2.core.oidc.IdTokenClaim;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
