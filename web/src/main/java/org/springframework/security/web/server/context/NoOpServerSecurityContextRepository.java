@@ -16,32 +16,32 @@
 
 package org.springframework.security.web.server.context;
 
-import org.junit.Test;
-import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
-import org.springframework.mock.web.server.MockServerWebExchange;
+
 import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Rob Winch
  * @since 5.0
  */
-public class ServerWebExchangeAttributeServerSecurityContextRepositoryTests {
-	ServerWebExchangeAttributeServerSecurityContextRepository repository = new ServerWebExchangeAttributeServerSecurityContextRepository();
-	ServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
+public class NoOpServerSecurityContextRepository
+	implements ServerSecurityContextRepository {
 
-	@Test
-	public void saveAndLoad() {
-		SecurityContext context = new SecurityContextImpl();
-		this.repository.save(this.exchange, context).block();
+	private static final NoOpServerSecurityContextRepository INSTANCE = new NoOpServerSecurityContextRepository();
 
-		Mono<SecurityContext> loaded = this.repository.load(this.exchange);
+	public Mono<Void> save(ServerWebExchange exchange, SecurityContext context) {
+		return Mono.empty();
 
-		assertThat(context).isSameAs(loaded.block());
 	}
 
+	public Mono<SecurityContext> load(ServerWebExchange exchange) {
+		return Mono.empty();
+	}
+
+	public static NoOpServerSecurityContextRepository getInstance() {
+		return INSTANCE;
+	}
+
+	private NoOpServerSecurityContextRepository() {}
 }

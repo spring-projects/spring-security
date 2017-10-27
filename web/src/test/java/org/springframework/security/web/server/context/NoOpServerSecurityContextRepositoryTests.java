@@ -16,25 +16,36 @@
 
 package org.springframework.security.web.server.context;
 
-
+import org.junit.Test;
+import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
+import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Rob Winch
  * @since 5.0
  */
-public class ServerWebExchangeAttributeServerSecurityContextRepository
-	implements ServerSecurityContextRepository {
-	final String ATTR = "USER";
+public class NoOpServerSecurityContextRepositoryTests {
+	NoOpServerSecurityContextRepository repository = NoOpServerSecurityContextRepository.getInstance();
 
-	public Mono<Void> save(ServerWebExchange exchange, SecurityContext context) {
-		return Mono.fromRunnable(() ->exchange.getAttributes().put(ATTR, context));
+	ServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 
+	@Test
+	public void saveAndLoad() {
+		SecurityContext context = new SecurityContextImpl();
+
+		Mono<SecurityContext> result =
+			this.repository.save(this.exchange, context)
+			.then(this.repository.load(this.exchange));
+
+		StepVerifier.create(result)
+			.verifyComplete();
 	}
 
-	public Mono<SecurityContext> load(ServerWebExchange exchange) {
-		return Mono.justOrEmpty(exchange.<SecurityContext>getAttribute(ATTR));
-	}
 }
