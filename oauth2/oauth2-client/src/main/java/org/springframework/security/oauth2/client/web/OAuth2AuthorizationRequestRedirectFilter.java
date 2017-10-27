@@ -18,7 +18,7 @@ package org.springframework.security.oauth2.client.web;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.keygen.Base64StringKeyGenerator;
 import org.springframework.security.crypto.keygen.StringKeyGenerator;
-import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationRequestUriBuilder;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationRequestUriBuilder;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -65,21 +65,21 @@ import java.util.Map;
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.2">Section 4.2 Implicit Grant</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.2.1">Section 4.2.1 Authorization Request (Implicit)</a>
  */
-public class AuthorizationRequestRedirectFilter extends OncePerRequestFilter {
+public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilter {
 	public static final String DEFAULT_AUTHORIZATION_REQUEST_BASE_URI = "/oauth2/authorization";
 	private static final String REGISTRATION_ID_URI_VARIABLE_NAME = "registrationId";
 	private final AntPathRequestMatcher authorizationRequestMatcher;
 	private final ClientRegistrationRepository clientRegistrationRepository;
-	private AuthorizationRequestUriBuilder authorizationRequestUriBuilder = new DefaultAuthorizationRequestUriBuilder();
+	private AuthorizationRequestUriBuilder authorizationRequestUriBuilder = new OAuth2AuthorizationRequestUriBuilder();
 	private final RedirectStrategy authorizationRedirectStrategy = new DefaultRedirectStrategy();
 	private final StringKeyGenerator stateGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder());
 	private AuthorizationRequestRepository authorizationRequestRepository = new HttpSessionAuthorizationRequestRepository();
 
-	public AuthorizationRequestRedirectFilter(ClientRegistrationRepository clientRegistrationRepository) {
+	public OAuth2AuthorizationRequestRedirectFilter(ClientRegistrationRepository clientRegistrationRepository) {
 		this(DEFAULT_AUTHORIZATION_REQUEST_BASE_URI, clientRegistrationRepository);
 	}
 
-	public AuthorizationRequestRedirectFilter(
+	public OAuth2AuthorizationRequestRedirectFilter(
 		String authorizationRequestBaseUri, ClientRegistrationRepository clientRegistrationRepository) {
 
 		Assert.hasText(authorizationRequestBaseUri, "authorizationRequestBaseUri cannot be empty");

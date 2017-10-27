@@ -19,7 +19,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
-import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationToken;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationProvider;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -59,7 +59,7 @@ import java.io.IOException;
  *	and redirect the end-user's user-agent back to this <code>Filter</code> (the client).
  * </li>
  * <li>
- *  This <code>Filter</code> will then create an {@link AuthorizationCodeAuthenticationToken} with
+ *  This <code>Filter</code> will then create an {@link OAuth2AuthorizationCodeAuthenticationToken} with
  *  the {@link OAuth2ParameterNames#CODE} received in the previous step and delegate it to
  *  {@link OAuth2LoginAuthenticationProvider#authenticate(Authentication)} (indirectly via {@link AuthenticationManager}).
  * </li>
@@ -68,13 +68,13 @@ import java.io.IOException;
  * @author Joe Grandja
  * @since 5.0
  * @see AbstractAuthenticationProcessingFilter
- * @see AuthorizationCodeAuthenticationToken
+ * @see OAuth2AuthorizationCodeAuthenticationToken
  * @see OAuth2AuthenticationToken
  * @see OAuth2LoginAuthenticationProvider
  * @see OAuth2AuthorizationRequest
  * @see OAuth2AuthorizationResponse
  * @see AuthorizationRequestRepository
- * @see AuthorizationRequestRedirectFilter
+ * @see OAuth2AuthorizationRequestRedirectFilter
  * @see ClientRegistrationRepository
  * @see OAuth2TokenRepository
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">Section 4.1 Authorization Code Grant</a>
@@ -123,7 +123,7 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 
 		// The clientRegistration.redirectUri may contain Uri template variables, whether it's configured by
 		// the user or configured by default. In these cases, the redirectUri will be expanded and ultimately changed
-		// (by AuthorizationRequestRedirectFilter) before setting it in the authorization request.
+		// (by OAuth2AuthorizationRequestRedirectFilter) before setting it in the authorization request.
 		// The resulting redirectUri used for the authorization request and saved within the AuthorizationRequestRepository
 		// MUST BE the same one used to complete the authorization code flow.
 		// Therefore, we'll create a copy of the clientRegistration and override the redirectUri
@@ -132,7 +132,7 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 			.redirectUri(authorizationRequest.getRedirectUri())
 			.build();
 
-		AuthorizationCodeAuthenticationToken authorizationCodeAuthentication = new AuthorizationCodeAuthenticationToken(
+		OAuth2AuthorizationCodeAuthenticationToken authorizationCodeAuthentication = new OAuth2AuthorizationCodeAuthenticationToken(
 				clientRegistration, new OAuth2AuthorizationExchange(authorizationRequest, authorizationResponse));
 		authorizationCodeAuthentication.setDetails(this.authenticationDetailsSource.buildDetails(request));
 

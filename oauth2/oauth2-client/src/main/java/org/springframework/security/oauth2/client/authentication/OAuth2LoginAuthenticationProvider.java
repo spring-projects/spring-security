@@ -47,7 +47,7 @@ import java.util.Collection;
  *
  * @author Joe Grandja
  * @since 5.0
- * @see AuthorizationCodeAuthenticationToken
+ * @see OAuth2AuthorizationCodeAuthenticationToken
  * @see OAuth2AuthenticationToken
  * @see OAuth2UserService
  * @see OAuth2AuthorizedClient
@@ -59,12 +59,12 @@ import java.util.Collection;
 public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider {
 	private static final String INVALID_STATE_PARAMETER_ERROR_CODE = "invalid_state_parameter";
 	private static final String INVALID_REDIRECT_URI_PARAMETER_ERROR_CODE = "invalid_redirect_uri_parameter";
-	private final AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger;
+	private final AuthorizationGrantTokenExchanger<OAuth2AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger;
 	private final OAuth2UserService<OAuth2AuthorizedClient, OAuth2User> userService;
 	private GrantedAuthoritiesMapper authoritiesMapper = (authorities -> authorities);
 
 	public OAuth2LoginAuthenticationProvider(
-		AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger,
+		AuthorizationGrantTokenExchanger<OAuth2AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger,
 		OAuth2UserService<OAuth2AuthorizedClient, OAuth2User> userService) {
 
 		Assert.notNull(authorizationCodeTokenExchanger, "authorizationCodeTokenExchanger cannot be null");
@@ -75,8 +75,8 @@ public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider
 
 	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-		AuthorizationCodeAuthenticationToken authorizationCodeAuthentication =
-				(AuthorizationCodeAuthenticationToken) authentication;
+		OAuth2AuthorizationCodeAuthenticationToken authorizationCodeAuthentication =
+				(OAuth2AuthorizationCodeAuthenticationToken) authentication;
 
 		// Section 3.1.2.1 Authentication Request - http://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
 		// scope
@@ -141,6 +141,6 @@ public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider
 
 	@Override
 	public boolean supports(Class<?> authentication) {
-		return AuthorizationCodeAuthenticationToken.class.isAssignableFrom(authentication);
+		return OAuth2AuthorizationCodeAuthenticationToken.class.isAssignableFrom(authentication);
 	}
 }

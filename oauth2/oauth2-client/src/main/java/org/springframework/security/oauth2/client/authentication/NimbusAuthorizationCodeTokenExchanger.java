@@ -58,17 +58,17 @@ import java.util.Set;
  * @author Joe Grandja
  * @since 5.0
  * @see AuthorizationGrantTokenExchanger
- * @see AuthorizationCodeAuthenticationToken
+ * @see OAuth2AuthorizationCodeAuthenticationToken
  * @see OAuth2AccessTokenResponse
  * @see <a target="_blank" href="https://connect2id.com/products/nimbus-oauth-openid-connect-sdk">Nimbus OAuth 2.0 SDK</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.3">Section 4.1.3 Access Token Request (Authorization Code Grant)</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.4">Section 4.1.4 Access Token Response (Authorization Code Grant)</a>
  */
-public class NimbusAuthorizationCodeTokenExchanger implements AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> {
+public class NimbusAuthorizationCodeTokenExchanger implements AuthorizationGrantTokenExchanger<OAuth2AuthorizationCodeAuthenticationToken> {
 	private static final String INVALID_TOKEN_RESPONSE_ERROR_CODE = "invalid_token_response";
 
 	@Override
-	public OAuth2AccessTokenResponse exchange(AuthorizationCodeAuthenticationToken authorizationCodeAuthentication)
+	public OAuth2AccessTokenResponse exchange(OAuth2AuthorizationCodeAuthenticationToken authorizationCodeAuthentication)
 			throws OAuth2AuthenticationException {
 
 		ClientRegistration clientRegistration = authorizationCodeAuthentication.getClientRegistration();

@@ -58,7 +58,7 @@ public class DefaultOidcUser extends DefaultOAuth2User implements OidcUser {
 	}
 
 	public DefaultOidcUser(Set<GrantedAuthority> authorities, OidcIdToken idToken, OidcUserInfo userInfo,
-						   String nameAttributeKey) {
+							String nameAttributeKey) {
 		super(authorities, OidcUser.collectClaims(idToken, userInfo), nameAttributeKey);
 		this.idToken = idToken;
 		this.userInfo = userInfo;

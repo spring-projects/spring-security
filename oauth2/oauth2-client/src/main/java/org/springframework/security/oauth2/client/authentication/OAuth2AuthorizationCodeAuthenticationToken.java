@@ -23,23 +23,23 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResp
 import org.springframework.util.Assert;
 
 /**
- * An implementation of an {@link AuthorizationGrantAuthenticationToken} that holds
+ * An implementation of an {@link AbstractOAuth2AuthorizationGrantAuthenticationToken} that holds
  * an <i>authorization code grant</i> credential for a specific client identified in {@link #getClientRegistration()}.
  *
  * @author Joe Grandja
  * @since 5.0
- * @see AuthorizationGrantAuthenticationToken
+ * @see AbstractOAuth2AuthorizationGrantAuthenticationToken
  * @see ClientRegistration
  * @see OAuth2AuthorizationRequest
  * @see OAuth2AuthorizationResponse
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-1.3.1">Section 1.3.1 Authorization Code Grant</a>
  */
-public class AuthorizationCodeAuthenticationToken extends AuthorizationGrantAuthenticationToken {
+public class OAuth2AuthorizationCodeAuthenticationToken extends AbstractOAuth2AuthorizationGrantAuthenticationToken {
 	private final ClientRegistration clientRegistration;
 	private final OAuth2AuthorizationExchange authorizationExchange;
 
-	public AuthorizationCodeAuthenticationToken(ClientRegistration clientRegistration,
-												OAuth2AuthorizationExchange authorizationExchange) {
+	public OAuth2AuthorizationCodeAuthenticationToken(ClientRegistration clientRegistration,
+														OAuth2AuthorizationExchange authorizationExchange) {
 
 		super(AuthorizationGrantType.AUTHORIZATION_CODE);
 		Assert.notNull(clientRegistration, "clientRegistration cannot be null");

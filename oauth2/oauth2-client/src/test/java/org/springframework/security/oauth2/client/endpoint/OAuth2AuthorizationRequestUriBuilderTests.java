@@ -30,8 +30,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Rob Winch
  * @since 5.0
  */
-public class DefaultAuthorizationRequestUriBuilderTests {
-	private DefaultAuthorizationRequestUriBuilder builder = new DefaultAuthorizationRequestUriBuilder();
+public class OAuth2AuthorizationRequestUriBuilderTests {
+	private OAuth2AuthorizationRequestUriBuilder builder = new OAuth2AuthorizationRequestUriBuilder();
 
 	@Test
 	public void buildWhenScopeMultiThenSeparatedByEncodedSpace() {

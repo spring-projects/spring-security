@@ -32,22 +32,22 @@ import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
 
 /**
- * Tests {@link AuthorizationRequestRedirectFilter}.
+ * Tests {@link OAuth2AuthorizationRequestRedirectFilter}.
  *
  * @author Joe Grandja
  */
-public class AuthorizationRequestRedirectFilterTests {
+public class OAuth2AuthorizationRequestRedirectFilterTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorWhenClientRegistrationRepositoryIsNullThenThrowIllegalArgumentException() {
-		new AuthorizationRequestRedirectFilter(null);
+		new OAuth2AuthorizationRequestRedirectFilter(null);
 	}
 
 	@Test
 	public void doFilterWhenRequestDoesNotMatchClientThenContinueChain() throws Exception {
 		ClientRegistration clientRegistration = TestUtil.googleClientRegistration();
 		String authorizationUri = clientRegistration.getProviderDetails().getAuthorizationUri().toString();
-		AuthorizationRequestRedirectFilter filter =
+		OAuth2AuthorizationRequestRedirectFilter filter =
 				setupFilter(authorizationUri, clientRegistration);
 
 		String requestURI = "/path";
@@ -65,7 +65,7 @@ public class AuthorizationRequestRedirectFilterTests {
 	public void doFilterWhenRequestMatchesClientThenRedirectForAuthorization() throws Exception {
 		ClientRegistration clientRegistration = TestUtil.googleClientRegistration();
 		String authorizationUri = clientRegistration.getProviderDetails().getAuthorizationUri().toString();
-		AuthorizationRequestRedirectFilter filter =
+		OAuth2AuthorizationRequestRedirectFilter filter =
 				setupFilter(authorizationUri, clientRegistration);
 
 		String requestUri = TestUtil.AUTHORIZATION_BASE_URI + "/" + clientRegistration.getRegistrationId();
@@ -85,7 +85,7 @@ public class AuthorizationRequestRedirectFilterTests {
 	public void doFilterWhenRequestMatchesClientThenAuthorizationRequestSavedInSession() throws Exception {
 		ClientRegistration clientRegistration = TestUtil.githubClientRegistration();
 		String authorizationUri = clientRegistration.getProviderDetails().getAuthorizationUri().toString();
-		AuthorizationRequestRedirectFilter filter =
+		OAuth2AuthorizationRequestRedirectFilter filter =
 				setupFilter(authorizationUri, clientRegistration);
 		AuthorizationRequestRepository authorizationRequestRepository = new HttpSessionAuthorizationRequestRepository();
 		filter.setAuthorizationRequestRepository(authorizationRequestRepository);
@@ -114,8 +114,8 @@ public class AuthorizationRequestRedirectFilterTests {
 		Assertions.assertThat(authorizationRequest.getState()).isNotNull();
 	}
 
-	private AuthorizationRequestRedirectFilter setupFilter(String authorizationUri,
-															ClientRegistration... clientRegistrations) throws Exception {
+	private OAuth2AuthorizationRequestRedirectFilter setupFilter(String authorizationUri,
+																	ClientRegistration... clientRegistrations) throws Exception {
 
 		AuthorizationRequestUriBuilder authorizationUriBuilder = Mockito.mock(AuthorizationRequestUriBuilder.class);
 		URI authorizationURI = new URI(authorizationUri);
@@ -124,11 +124,11 @@ public class AuthorizationRequestRedirectFilterTests {
 		return setupFilter(authorizationUriBuilder, clientRegistrations);
 	}
 
-	private AuthorizationRequestRedirectFilter setupFilter(AuthorizationRequestUriBuilder authorizationUriBuilder,
-															ClientRegistration... clientRegistrations) throws Exception {
+	private OAuth2AuthorizationRequestRedirectFilter setupFilter(AuthorizationRequestUriBuilder authorizationUriBuilder,
+																	ClientRegistration... clientRegistrations) throws Exception {
 
 		ClientRegistrationRepository clientRegistrationRepository = TestUtil.clientRegistrationRepository(clientRegistrations);
-		AuthorizationRequestRedirectFilter filter = new AuthorizationRequestRedirectFilter(clientRegistrationRepository);
+		OAuth2AuthorizationRequestRedirectFilter filter = new OAuth2AuthorizationRequestRedirectFilter(clientRegistrationRepository);
 		filter.setAuthorizationRequestUriBuilder(authorizationUriBuilder);
 
 		return filter;

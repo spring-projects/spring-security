@@ -20,7 +20,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
-import org.springframework.security.oauth2.client.authentication.AuthorizationCodeAuthenticationToken;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.AuthorizationGrantTokenExchanger;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.jwt.JwtDecoderRegistry;
@@ -62,7 +62,7 @@ import java.util.List;
  *
  * @author Joe Grandja
  * @since 5.0
- * @see AuthorizationCodeAuthenticationToken
+ * @see OAuth2AuthorizationCodeAuthenticationToken
  * @see OAuth2AuthenticationToken
  * @see OidcUserService
  * @see OidcAuthorizedClient
@@ -75,13 +75,13 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 	private static final String INVALID_STATE_PARAMETER_ERROR_CODE = "invalid_state_parameter";
 	private static final String INVALID_REDIRECT_URI_PARAMETER_ERROR_CODE = "invalid_redirect_uri_parameter";
 	private static final String INVALID_ID_TOKEN_ERROR_CODE = "invalid_id_token";
-	private final AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger;
+	private final AuthorizationGrantTokenExchanger<OAuth2AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger;
 	private final OAuth2UserService<OidcAuthorizedClient, OidcUser> userService;
 	private final JwtDecoderRegistry jwtDecoderRegistry;
 	private GrantedAuthoritiesMapper authoritiesMapper = (authorities -> authorities);
 
 	public OidcAuthorizationCodeAuthenticationProvider(
-		AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger,
+		AuthorizationGrantTokenExchanger<OAuth2AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger,
 		OAuth2UserService<OidcAuthorizedClient, OidcUser> userService,
 		JwtDecoderRegistry jwtDecoderRegistry) {
 
@@ -95,8 +95,8 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 
 	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-		AuthorizationCodeAuthenticationToken authorizationCodeAuthentication =
-				(AuthorizationCodeAuthenticationToken) authentication;
+		OAuth2AuthorizationCodeAuthenticationToken authorizationCodeAuthentication =
+				(OAuth2AuthorizationCodeAuthenticationToken) authentication;
 
 		// Section 3.1.2.1 Authentication Request - http://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
 		// scope
@@ -179,7 +179,7 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 
 	@Override
 	public boolean supports(Class<?> authentication) {
-		return AuthorizationCodeAuthenticationToken.class.isAssignableFrom(authentication);
+		return OAuth2AuthorizationCodeAuthenticationToken.class.isAssignableFrom(authentication);
 	}
 
 	private void validateIdToken(OidcIdToken idToken, ClientRegistration clientRegistration) {

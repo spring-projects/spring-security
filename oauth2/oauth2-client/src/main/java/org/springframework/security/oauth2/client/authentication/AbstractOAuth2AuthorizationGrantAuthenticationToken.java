@@ -31,11 +31,11 @@ import java.util.Collections;
  * @see AuthorizationGrantType
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-1.3">Section 1.3 Authorization Grant</a>
  */
-public abstract class AuthorizationGrantAuthenticationToken extends AbstractAuthenticationToken {
+public abstract class AbstractOAuth2AuthorizationGrantAuthenticationToken extends AbstractAuthenticationToken {
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 	private final AuthorizationGrantType authorizationGrantType;
 
-	protected AuthorizationGrantAuthenticationToken(AuthorizationGrantType authorizationGrantType) {
+	protected AbstractOAuth2AuthorizationGrantAuthenticationToken(AuthorizationGrantType authorizationGrantType) {
 		super(Collections.emptyList());
 		Assert.notNull(authorizationGrantType, "authorizationGrantType cannot be null");
 		this.authorizationGrantType = authorizationGrantType;

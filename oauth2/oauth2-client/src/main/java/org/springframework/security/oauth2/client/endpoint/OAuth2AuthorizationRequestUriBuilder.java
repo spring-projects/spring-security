@@ -34,7 +34,7 @@ import java.util.Set;
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.1">Section 4.1.1 Authorization Code Grant Request</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.2.1">Section 4.2.1 Implicit Grant Request</a>
  */
-public class DefaultAuthorizationRequestUriBuilder implements AuthorizationRequestUriBuilder {
+public class OAuth2AuthorizationRequestUriBuilder implements AuthorizationRequestUriBuilder {
 
 	@Override
 	public URI build(OAuth2AuthorizationRequest authorizationRequest) {
