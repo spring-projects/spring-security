@@ -33,6 +33,7 @@ import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.User;
@@ -41,6 +42,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.WebFilterChainProxy;
+import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
 import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher;
 import org.springframework.test.web.reactive.server.FluxExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -102,10 +104,13 @@ public class EnableWebFluxSecurityTests {
 	@Test
 	public void defaultPopulatesReactorContext() {
 		this.spring.register(Config.class).autowire();
-		Principal currentPrincipal = new TestingAuthenticationToken("user", "password", "ROLE_USER");
+		Authentication currentPrincipal = new TestingAuthenticationToken("user", "password", "ROLE_USER");
+		WebSessionServerSecurityContextRepository contextRepository = new WebSessionServerSecurityContextRepository();
+		SecurityContext context = new SecurityContextImpl(currentPrincipal);
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(
-			(exchange, chain) ->
-				chain.filter(exchange.mutate().principal(Mono.just(currentPrincipal)).build()),
+			(exchange, chain) -> contextRepository.save(exchange, context)
+				.switchIfEmpty(chain.filter(exchange))
+				.flatMap(e -> chain.filter(exchange)),
 			this.springSecurityFilterChain,
 			(exchange,chain) ->
 				ReactiveSecurityContextHolder.getContext()
