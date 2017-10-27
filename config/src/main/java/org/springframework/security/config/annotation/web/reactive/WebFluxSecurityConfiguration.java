@@ -68,8 +68,7 @@ public class WebFluxSecurityConfiguration {
 				.anyExchange().authenticated()
 				.and()
 			.httpBasic().and()
-			.formLogin().and()
-			.build();
+			.formLogin();
 		return Arrays.asList(http.build());
 	}
 }
