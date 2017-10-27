@@ -77,7 +77,7 @@ public class ReactorContextTestExecutionListener
 					return context;
 				}
 				Context toMerge = ReactiveSecurityContextHolder.withAuthentication(authentication);
-				return context.putAll(toMerge);
+				return toMerge.putAll(context);
 			}
 
 			@Override
