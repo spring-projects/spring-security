@@ -17,9 +17,9 @@ package org.springframework.security.oauth2.client.authentication;
 
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.endpoint.AuthorizationExchange;
-import org.springframework.security.oauth2.core.endpoint.AuthorizationRequest;
-import org.springframework.security.oauth2.core.endpoint.AuthorizationResponse;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
 import org.springframework.util.Assert;
 
 /**
@@ -30,16 +30,16 @@ import org.springframework.util.Assert;
  * @since 5.0
  * @see AuthorizationGrantAuthenticationToken
  * @see ClientRegistration
- * @see AuthorizationRequest
- * @see AuthorizationResponse
+ * @see OAuth2AuthorizationRequest
+ * @see OAuth2AuthorizationResponse
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-1.3.1">Section 1.3.1 Authorization Code Grant</a>
  */
 public class AuthorizationCodeAuthenticationToken extends AuthorizationGrantAuthenticationToken {
 	private final ClientRegistration clientRegistration;
-	private final AuthorizationExchange authorizationExchange;
+	private final OAuth2AuthorizationExchange authorizationExchange;
 
 	public AuthorizationCodeAuthenticationToken(ClientRegistration clientRegistration,
-												AuthorizationExchange authorizationExchange) {
+												OAuth2AuthorizationExchange authorizationExchange) {
 
 		super(AuthorizationGrantType.AUTHORIZATION_CODE);
 		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
@@ -63,7 +63,7 @@ public class AuthorizationCodeAuthenticationToken extends AuthorizationGrantAuth
 		return this.clientRegistration;
 	}
 
-	public AuthorizationExchange getAuthorizationExchange() {
+	public OAuth2AuthorizationExchange getAuthorizationExchange() {
 		return this.authorizationExchange;
 	}
 }

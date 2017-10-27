@@ -26,7 +26,7 @@ import java.util.Map;
  * from the OAuth 2.0 Protected Resource <i>UserInfo Endpoint</i>.
  *
  * <p>
- * The <code>UserInfo</code> contains a set of &quot;Standard Claims&quot; about the authentication of an End-User.
+ * The <code>OidcUserInfo</code> contains a set of &quot;Standard Claims&quot; about the authentication of an End-User.
  *
  * @author Joe Grandja
  * @since 5.0
@@ -35,10 +35,10 @@ import java.util.Map;
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#UserInfo">UserInfo Endpoint</a>
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#StandardClaims">Standard Claims</a>
  */
-public class UserInfo implements StandardClaimAccessor {
+public class OidcUserInfo implements StandardClaimAccessor {
 	private final Map<String, Object> claims;
 
-	public UserInfo(Map<String, Object> claims) {
+	public OidcUserInfo(Map<String, Object> claims) {
 		Assert.notEmpty(claims, "claims cannot be empty");
 		this.claims = Collections.unmodifiableMap(new LinkedHashMap<>(claims));
 	}
@@ -57,7 +57,7 @@ public class UserInfo implements StandardClaimAccessor {
 			return false;
 		}
 
-		UserInfo that = (UserInfo) obj;
+		OidcUserInfo that = (OidcUserInfo) obj;
 
 		return this.getClaims().equals(that.getClaims());
 	}

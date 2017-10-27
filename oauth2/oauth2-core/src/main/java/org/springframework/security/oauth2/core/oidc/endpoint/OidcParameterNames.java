@@ -16,14 +16,14 @@
 package org.springframework.security.oauth2.core.oidc.endpoint;
 
 /**
- * Standard parameters defined in the OAuth Parameters Registry
+ * Standard parameter names defined in the OAuth Parameters Registry
  * and used by the authorization endpoint and token endpoint.
  *
  * @author Joe Grandja
  * @since 5.0
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#OAuthParametersRegistry">18.2 OAuth Parameters Registration</a>
  */
-public interface OidcParameter {
+public interface OidcParameterNames {
 
 	String ID_TOKEN = "id_token";
 

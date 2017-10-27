@@ -16,14 +16,14 @@
 package org.springframework.security.oauth2.core.endpoint;
 
 /**
- * Standard and additional (custom) parameters defined in the OAuth Parameters Registry
+ * Standard and additional (custom) parameter names defined in the OAuth Parameters Registry
  * and used by the authorization endpoint and token endpoint.
  *
  * @author Joe Grandja
  * @since 5.0
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-11.2">11.2 OAuth Parameters Registry</a>
  */
-public interface OAuth2Parameter {
+public interface OAuth2ParameterNames {
 
 	String RESPONSE_TYPE = "response_type";
 

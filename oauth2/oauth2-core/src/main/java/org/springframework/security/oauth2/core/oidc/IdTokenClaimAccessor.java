@@ -27,9 +27,9 @@ import java.util.List;
  *
  * @see ClaimAccessor
  * @see StandardClaimAccessor
- * @see StandardClaim
- * @see IdTokenClaim
- * @see IdToken
+ * @see StandardClaimNames
+ * @see IdTokenClaimNames
+ * @see OidcIdToken
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#IDToken">ID Token</a>
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#StandardClaims">Standard Claims</a>
  * @author Joe Grandja
@@ -38,50 +38,50 @@ import java.util.List;
 public interface IdTokenClaimAccessor extends StandardClaimAccessor {
 
 	default URL getIssuer() {
-		return this.getClaimAsURL(IdTokenClaim.ISS);
+		return this.getClaimAsURL(IdTokenClaimNames.ISS);
 	}
 
 	default String getSubject() {
-		return this.getClaimAsString(IdTokenClaim.SUB);
+		return this.getClaimAsString(IdTokenClaimNames.SUB);
 	}
 
 	default List<String> getAudience() {
-		return this.getClaimAsStringList(IdTokenClaim.AUD);
+		return this.getClaimAsStringList(IdTokenClaimNames.AUD);
 	}
 
 	default Instant getExpiresAt() {
-		return this.getClaimAsInstant(IdTokenClaim.EXP);
+		return this.getClaimAsInstant(IdTokenClaimNames.EXP);
 	}
 
 	default Instant getIssuedAt() {
-		return this.getClaimAsInstant(IdTokenClaim.IAT);
+		return this.getClaimAsInstant(IdTokenClaimNames.IAT);
 	}
 
 	default Instant getAuthenticatedAt() {
-		return this.getClaimAsInstant(IdTokenClaim.AUTH_TIME);
+		return this.getClaimAsInstant(IdTokenClaimNames.AUTH_TIME);
 	}
 
 	default String getNonce() {
-		return this.getClaimAsString(IdTokenClaim.NONCE);
+		return this.getClaimAsString(IdTokenClaimNames.NONCE);
 	}
 
 	default String getAuthenticationContextClass() {
-		return this.getClaimAsString(IdTokenClaim.ACR);
+		return this.getClaimAsString(IdTokenClaimNames.ACR);
 	}
 
 	default List<String> getAuthenticationMethods() {
-		return this.getClaimAsStringList(IdTokenClaim.AMR);
+		return this.getClaimAsStringList(IdTokenClaimNames.AMR);
 	}
 
 	default String getAuthorizedParty() {
-		return this.getClaimAsString(IdTokenClaim.AZP);
+		return this.getClaimAsString(IdTokenClaimNames.AZP);
 	}
 
 	default String getAccessTokenHash() {
-		return this.getClaimAsString(IdTokenClaim.AT_HASH);
+		return this.getClaimAsString(IdTokenClaimNames.AT_HASH);
 	}
 
 	default String getAuthorizationCodeHash() {
-		return this.getClaimAsString(IdTokenClaim.C_HASH);
+		return this.getClaimAsString(IdTokenClaimNames.C_HASH);
 	}
 }

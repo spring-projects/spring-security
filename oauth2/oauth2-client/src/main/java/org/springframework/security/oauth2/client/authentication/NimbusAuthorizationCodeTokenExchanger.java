@@ -33,11 +33,11 @@ import com.nimbusds.oauth2.sdk.id.ClientID;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.core.AccessToken;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
-import org.springframework.security.oauth2.core.endpoint.TokenResponse;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
@@ -59,7 +59,7 @@ import java.util.Set;
  * @since 5.0
  * @see AuthorizationGrantTokenExchanger
  * @see AuthorizationCodeAuthenticationToken
- * @see TokenResponse
+ * @see OAuth2AccessTokenResponse
  * @see <a target="_blank" href="https://connect2id.com/products/nimbus-oauth-openid-connect-sdk">Nimbus OAuth 2.0 SDK</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.3">Section 4.1.3 Access Token Request (Authorization Code Grant)</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.4">Section 4.1.4 Access Token Response (Authorization Code Grant)</a>
@@ -68,7 +68,7 @@ public class NimbusAuthorizationCodeTokenExchanger implements AuthorizationGrant
 	private static final String INVALID_TOKEN_RESPONSE_ERROR_CODE = "invalid_token_response";
 
 	@Override
-	public TokenResponse exchange(AuthorizationCodeAuthenticationToken authorizationCodeAuthentication)
+	public OAuth2AccessTokenResponse exchange(AuthorizationCodeAuthenticationToken authorizationCodeAuthentication)
 			throws OAuth2AuthenticationException {
 
 		ClientRegistration clientRegistration = authorizationCodeAuthentication.getClientRegistration();
@@ -117,9 +117,9 @@ public class NimbusAuthorizationCodeTokenExchanger implements AuthorizationGrant
 		AccessTokenResponse accessTokenResponse = (AccessTokenResponse) tokenResponse;
 
 		String accessToken = accessTokenResponse.getTokens().getAccessToken().getValue();
-		AccessToken.TokenType accessTokenType = null;
-		if (AccessToken.TokenType.BEARER.getValue().equalsIgnoreCase(accessTokenResponse.getTokens().getAccessToken().getType().getValue())) {
-			accessTokenType = AccessToken.TokenType.BEARER;
+		OAuth2AccessToken.TokenType accessTokenType = null;
+		if (OAuth2AccessToken.TokenType.BEARER.getValue().equalsIgnoreCase(accessTokenResponse.getTokens().getAccessToken().getType().getValue())) {
+			accessTokenType = OAuth2AccessToken.TokenType.BEARER;
 		}
 		long expiresIn = accessTokenResponse.getTokens().getAccessToken().getLifetime();
 
@@ -138,7 +138,7 @@ public class NimbusAuthorizationCodeTokenExchanger implements AuthorizationGrant
 
 		Map<String, Object> additionalParameters = new LinkedHashMap<>(accessTokenResponse.getCustomParameters());
 
-		return TokenResponse.withToken(accessToken)
+		return OAuth2AccessTokenResponse.withToken(accessToken)
 			.tokenType(accessTokenType)
 			.expiresIn(expiresIn)
 			.scopes(scopes)

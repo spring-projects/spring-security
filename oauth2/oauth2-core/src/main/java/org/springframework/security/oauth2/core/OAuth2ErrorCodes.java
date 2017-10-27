@@ -21,7 +21,7 @@ package org.springframework.security.oauth2.core;
  * @author Joe Grandja
  * @since 5.0
  */
-public interface OAuth2ErrorCode {
+public interface OAuth2ErrorCodes {
 
 	String INVALID_REQUEST = "invalid_request";
 

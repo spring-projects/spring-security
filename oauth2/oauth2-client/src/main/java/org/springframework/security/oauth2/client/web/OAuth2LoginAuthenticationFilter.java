@@ -26,14 +26,14 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.token.InMemoryAccessTokenRepository;
 import org.springframework.security.oauth2.client.token.OAuth2TokenRepository;
-import org.springframework.security.oauth2.core.AccessToken;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
-import org.springframework.security.oauth2.core.OAuth2ErrorCode;
-import org.springframework.security.oauth2.core.endpoint.AuthorizationExchange;
-import org.springframework.security.oauth2.core.endpoint.AuthorizationRequest;
-import org.springframework.security.oauth2.core.endpoint.AuthorizationResponse;
-import org.springframework.security.oauth2.core.endpoint.OAuth2Parameter;
+import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
+import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.util.Assert;
@@ -54,13 +54,13 @@ import java.io.IOException;
  * <ul>
  * <li>
  *	Assuming the resource owner (end-user) has granted access to the client, the authorization server will append the
- *	{@link OAuth2Parameter#CODE} and {@link OAuth2Parameter#STATE} (if provided in the <i>Authorization Request</i>) parameters
- *	to the {@link OAuth2Parameter#REDIRECT_URI} (provided in the <i>Authorization Request</i>)
+ *	{@link OAuth2ParameterNames#CODE} and {@link OAuth2ParameterNames#STATE} (if provided in the <i>Authorization Request</i>) parameters
+ *	to the {@link OAuth2ParameterNames#REDIRECT_URI} (provided in the <i>Authorization Request</i>)
  *	and redirect the end-user's user-agent back to this <code>Filter</code> (the client).
  * </li>
  * <li>
  *  This <code>Filter</code> will then create an {@link AuthorizationCodeAuthenticationToken} with
- *  the {@link OAuth2Parameter#CODE} received in the previous step and delegate it to
+ *  the {@link OAuth2ParameterNames#CODE} received in the previous step and delegate it to
  *  {@link OAuth2LoginAuthenticationProvider#authenticate(Authentication)} (indirectly via {@link AuthenticationManager}).
  * </li>
  * </ul>
@@ -71,8 +71,8 @@ import java.io.IOException;
  * @see AuthorizationCodeAuthenticationToken
  * @see OAuth2AuthenticationToken
  * @see OAuth2LoginAuthenticationProvider
- * @see AuthorizationRequest
- * @see AuthorizationResponse
+ * @see OAuth2AuthorizationRequest
+ * @see OAuth2AuthorizationResponse
  * @see AuthorizationRequestRepository
  * @see AuthorizationRequestRedirectFilter
  * @see ClientRegistrationRepository
@@ -85,7 +85,7 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 	private static final String AUTHORIZATION_REQUEST_NOT_FOUND_ERROR_CODE = "authorization_request_not_found";
 	private ClientRegistrationRepository clientRegistrationRepository;
 	private AuthorizationRequestRepository authorizationRequestRepository = new HttpSessionAuthorizationRequestRepository();
-	private OAuth2TokenRepository<AccessToken> accessTokenRepository = new InMemoryAccessTokenRepository();
+	private OAuth2TokenRepository<OAuth2AccessToken> accessTokenRepository = new InMemoryAccessTokenRepository();
 
 	public OAuth2LoginAuthenticationFilter() {
 		this(DEFAULT_FILTER_PROCESSES_URI);
@@ -106,19 +106,19 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 			throws AuthenticationException, IOException, ServletException {
 
 		if (!this.authorizationResponseSuccess(request) && !this.authorizationResponseError(request)) {
-			OAuth2Error oauth2Error = new OAuth2Error(OAuth2ErrorCode.INVALID_REQUEST);
+			OAuth2Error oauth2Error = new OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 		}
-		AuthorizationResponse authorizationResponse = this.convert(request);
+		OAuth2AuthorizationResponse authorizationResponse = this.convert(request);
 
-		AuthorizationRequest authorizationRequest = this.authorizationRequestRepository.loadAuthorizationRequest(request);
+		OAuth2AuthorizationRequest authorizationRequest = this.authorizationRequestRepository.loadAuthorizationRequest(request);
 		if (authorizationRequest == null) {
 			OAuth2Error oauth2Error = new OAuth2Error(AUTHORIZATION_REQUEST_NOT_FOUND_ERROR_CODE);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 		}
 		this.authorizationRequestRepository.removeAuthorizationRequest(request);
 
-		String registrationId = (String)authorizationRequest.getAdditionalParameters().get(OAuth2Parameter.REGISTRATION_ID);
+		String registrationId = (String)authorizationRequest.getAdditionalParameters().get(OAuth2ParameterNames.REGISTRATION_ID);
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(registrationId);
 
 		// The clientRegistration.redirectUri may contain Uri template variables, whether it's configured by
@@ -133,7 +133,7 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 			.build();
 
 		AuthorizationCodeAuthenticationToken authorizationCodeAuthentication = new AuthorizationCodeAuthenticationToken(
-				clientRegistration, new AuthorizationExchange(authorizationRequest, authorizationResponse));
+				clientRegistration, new OAuth2AuthorizationExchange(authorizationRequest, authorizationResponse));
 		authorizationCodeAuthentication.setDetails(this.authenticationDetailsSource.buildDetails(request));
 
 		OAuth2AuthenticationToken<OAuth2User, OAuth2AuthorizedClient> oauth2Authentication =
@@ -157,26 +157,26 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 		this.authorizationRequestRepository = authorizationRequestRepository;
 	}
 
-	public final void setAccessTokenRepository(OAuth2TokenRepository<AccessToken> accessTokenRepository) {
+	public final void setAccessTokenRepository(OAuth2TokenRepository<OAuth2AccessToken> accessTokenRepository) {
 		Assert.notNull(accessTokenRepository, "accessTokenRepository cannot be null");
 		this.accessTokenRepository = accessTokenRepository;
 	}
 
-	private AuthorizationResponse convert(HttpServletRequest request) {
-		String code = request.getParameter(OAuth2Parameter.CODE);
-		String errorCode = request.getParameter(OAuth2Parameter.ERROR);
-		String state = request.getParameter(OAuth2Parameter.STATE);
+	private OAuth2AuthorizationResponse convert(HttpServletRequest request) {
+		String code = request.getParameter(OAuth2ParameterNames.CODE);
+		String errorCode = request.getParameter(OAuth2ParameterNames.ERROR);
+		String state = request.getParameter(OAuth2ParameterNames.STATE);
 		String redirectUri = request.getRequestURL().toString();
 
 		if (StringUtils.hasText(code)) {
-			return AuthorizationResponse.success(code)
+			return OAuth2AuthorizationResponse.success(code)
 				.redirectUri(redirectUri)
 				.state(state)
 				.build();
 		} else {
-			String errorDescription = request.getParameter(OAuth2Parameter.ERROR_DESCRIPTION);
-			String errorUri = request.getParameter(OAuth2Parameter.ERROR_URI);
-			return AuthorizationResponse.error(errorCode)
+			String errorDescription = request.getParameter(OAuth2ParameterNames.ERROR_DESCRIPTION);
+			String errorUri = request.getParameter(OAuth2ParameterNames.ERROR_URI);
+			return OAuth2AuthorizationResponse.error(errorCode)
 				.redirectUri(redirectUri)
 				.errorDescription(errorDescription)
 				.errorUri(errorUri)
@@ -186,12 +186,12 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 	}
 
 	private boolean authorizationResponseSuccess(HttpServletRequest request) {
-		return StringUtils.hasText(request.getParameter(OAuth2Parameter.CODE)) &&
-			StringUtils.hasText(request.getParameter(OAuth2Parameter.STATE));
+		return StringUtils.hasText(request.getParameter(OAuth2ParameterNames.CODE)) &&
+			StringUtils.hasText(request.getParameter(OAuth2ParameterNames.STATE));
 	}
 
 	private boolean authorizationResponseError(HttpServletRequest request) {
-		return StringUtils.hasText(request.getParameter(OAuth2Parameter.ERROR)) &&
-			StringUtils.hasText(request.getParameter(OAuth2Parameter.STATE));
+		return StringUtils.hasText(request.getParameter(OAuth2ParameterNames.ERROR)) &&
+			StringUtils.hasText(request.getParameter(OAuth2ParameterNames.STATE));
 	}
 }

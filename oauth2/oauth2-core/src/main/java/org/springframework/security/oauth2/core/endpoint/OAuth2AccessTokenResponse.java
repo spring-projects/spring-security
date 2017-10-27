@@ -15,7 +15,7 @@
  */
 package org.springframework.security.oauth2.core.endpoint;
 
-import org.springframework.security.oauth2.core.AccessToken;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
@@ -29,21 +29,21 @@ import java.util.Set;
  *
  * @author Joe Grandja
  * @since 5.0
- * @see AccessToken
+ * @see OAuth2AccessToken
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-5.1">Section 5.1 Access Token Response</a>
  */
-public final class TokenResponse {
-	private AccessToken accessToken;
+public final class OAuth2AccessTokenResponse {
+	private OAuth2AccessToken accessToken;
 	private Map<String,Object> additionalParameters;
 
-	private TokenResponse() {
+	private OAuth2AccessTokenResponse() {
 	}
 
 	public String getTokenValue() {
 		return this.accessToken.getTokenValue();
 	}
 
-	public AccessToken.TokenType getTokenType() {
+	public OAuth2AccessToken.TokenType getTokenType() {
 		return this.accessToken.getTokenType();
 	}
 
@@ -69,7 +69,7 @@ public final class TokenResponse {
 
 	public static class Builder {
 		private String tokenValue;
-		private AccessToken.TokenType tokenType;
+		private OAuth2AccessToken.TokenType tokenType;
 		private long expiresIn;
 		private Set<String> scopes;
 		private Map<String,Object> additionalParameters;
@@ -78,7 +78,7 @@ public final class TokenResponse {
 			this.tokenValue = tokenValue;
 		}
 
-		public Builder tokenType(AccessToken.TokenType tokenType) {
+		public Builder tokenType(OAuth2AccessToken.TokenType tokenType) {
 			this.tokenType = tokenType;
 			return this;
 		}
@@ -98,15 +98,15 @@ public final class TokenResponse {
 			return this;
 		}
 
-		public TokenResponse build() {
+		public OAuth2AccessTokenResponse build() {
 			Assert.isTrue(this.expiresIn >= 0, "expiresIn must be a positive number");
 			Instant issuedAt = Instant.now();
-			TokenResponse tokenResponse = new TokenResponse();
-			tokenResponse.accessToken = new AccessToken(this.tokenType, this.tokenValue, issuedAt,
+			OAuth2AccessTokenResponse accessTokenResponse = new OAuth2AccessTokenResponse();
+			accessTokenResponse.accessToken = new OAuth2AccessToken(this.tokenType, this.tokenValue, issuedAt,
 				issuedAt.plusSeconds(this.expiresIn), this.scopes);
-			tokenResponse.additionalParameters = Collections.unmodifiableMap(
+			accessTokenResponse.additionalParameters = Collections.unmodifiableMap(
 				CollectionUtils.isEmpty(this.additionalParameters) ? Collections.emptyMap() : this.additionalParameters);
-			return tokenResponse;
+			return accessTokenResponse;
 		}
 	}
 }

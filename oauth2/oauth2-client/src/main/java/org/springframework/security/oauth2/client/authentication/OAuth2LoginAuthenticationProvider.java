@@ -22,12 +22,12 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
-import org.springframework.security.oauth2.core.AccessToken;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
-import org.springframework.security.oauth2.core.endpoint.AuthorizationRequest;
-import org.springframework.security.oauth2.core.endpoint.AuthorizationResponse;
-import org.springframework.security.oauth2.core.endpoint.TokenResponse;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.Assert;
 
@@ -88,9 +88,9 @@ public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider
 			return null;
 		}
 
-		AuthorizationRequest authorizationRequest = authorizationCodeAuthentication
+		OAuth2AuthorizationRequest authorizationRequest = authorizationCodeAuthentication
 			.getAuthorizationExchange().getAuthorizationRequest();
-		AuthorizationResponse authorizationResponse = authorizationCodeAuthentication
+		OAuth2AuthorizationResponse authorizationResponse = authorizationCodeAuthentication
 			.getAuthorizationExchange().getAuthorizationResponse();
 
 		if (authorizationResponse.statusError()) {
@@ -108,12 +108,12 @@ public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 		}
 
-		TokenResponse tokenResponse =
+		OAuth2AccessTokenResponse accessTokenResponse =
 			this.authorizationCodeTokenExchanger.exchange(authorizationCodeAuthentication);
 
-		AccessToken accessToken = new AccessToken(tokenResponse.getTokenType(),
-			tokenResponse.getTokenValue(), tokenResponse.getIssuedAt(),
-			tokenResponse.getExpiresAt(), tokenResponse.getScopes());
+		OAuth2AccessToken accessToken = new OAuth2AccessToken(accessTokenResponse.getTokenType(),
+			accessTokenResponse.getTokenValue(), accessTokenResponse.getIssuedAt(),
+			accessTokenResponse.getExpiresAt(), accessTokenResponse.getScopes());
 
 		OAuth2AuthorizedClient oauth2AuthorizedClient = new OAuth2AuthorizedClient(
 			authorizationCodeAuthentication.getClientRegistration(), "unknown", accessToken);

@@ -34,15 +34,15 @@ import java.util.Set;
  * @since 5.0
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-1.4">Section 1.4 Access Token</a>
  */
-public class AccessToken extends AbstractOAuth2Token {
+public class OAuth2AccessToken extends AbstractOAuth2Token {
 	private final TokenType tokenType;
 	private final Set<String> scopes;
 
-	public AccessToken(TokenType tokenType, String tokenValue, Instant issuedAt, Instant expiresAt) {
+	public OAuth2AccessToken(TokenType tokenType, String tokenValue, Instant issuedAt, Instant expiresAt) {
 		this(tokenType, tokenValue, issuedAt, expiresAt, Collections.emptySet());
 	}
 
-	public AccessToken(TokenType tokenType, String tokenValue, Instant issuedAt, Instant expiresAt, Set<String> scopes) {
+	public OAuth2AccessToken(TokenType tokenType, String tokenValue, Instant issuedAt, Instant expiresAt, Set<String> scopes) {
 		super(tokenValue, issuedAt, expiresAt);
 		Assert.notNull(tokenType, "tokenType cannot be null");
 		this.tokenType = tokenType;

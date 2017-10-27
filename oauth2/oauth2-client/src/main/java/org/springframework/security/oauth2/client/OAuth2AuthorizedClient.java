@@ -16,7 +16,7 @@
 package org.springframework.security.oauth2.client;
 
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.core.AccessToken;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.util.Assert;
 
 /**
@@ -32,15 +32,15 @@ import org.springframework.util.Assert;
  * @author Joe Grandja
  * @since 5.0
  * @see ClientRegistration
- * @see AccessToken
+ * @see OAuth2AccessToken
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-5.1">Section 5.1 Access Token Response</a>
  */
 public class OAuth2AuthorizedClient {
 	private final ClientRegistration clientRegistration;
 	private final String principalName;
-	private final AccessToken accessToken;
+	private final OAuth2AccessToken accessToken;
 
-	public OAuth2AuthorizedClient(ClientRegistration clientRegistration, String principalName, AccessToken accessToken) {
+	public OAuth2AuthorizedClient(ClientRegistration clientRegistration, String principalName, OAuth2AccessToken accessToken) {
 		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
 		Assert.hasText(principalName, "principalName cannot be empty");
 		Assert.notNull(accessToken, "accessToken cannot be null");
@@ -57,7 +57,7 @@ public class OAuth2AuthorizedClient {
 		return this.principalName;
 	}
 
-	public AccessToken getAccessToken() {
+	public OAuth2AccessToken getAccessToken() {
 		return this.accessToken;
 	}
 }

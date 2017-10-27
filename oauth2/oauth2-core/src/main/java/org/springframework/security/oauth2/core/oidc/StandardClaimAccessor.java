@@ -26,8 +26,8 @@ import java.util.Map;
  * either in the <i>UserInfo Response</i> or the <i>ID Token</i>.
  *
  * @see ClaimAccessor
- * @see StandardClaim
- * @see UserInfo
+ * @see StandardClaimNames
+ * @see OidcUserInfo
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#UserInfoResponse">UserInfo Response</a>
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#StandardClaims">Standard Claims</a>
  * @author Joe Grandja
@@ -36,85 +36,85 @@ import java.util.Map;
 public interface StandardClaimAccessor extends ClaimAccessor {
 
 	default String getSubject() {
-		return this.getClaimAsString(StandardClaim.SUB);
+		return this.getClaimAsString(StandardClaimNames.SUB);
 	}
 
 	default String getFullName() {
-		return this.getClaimAsString(StandardClaim.NAME);
+		return this.getClaimAsString(StandardClaimNames.NAME);
 	}
 
 	default String getGivenName() {
-		return this.getClaimAsString(StandardClaim.GIVEN_NAME);
+		return this.getClaimAsString(StandardClaimNames.GIVEN_NAME);
 	}
 
 	default String getFamilyName() {
-		return this.getClaimAsString(StandardClaim.FAMILY_NAME);
+		return this.getClaimAsString(StandardClaimNames.FAMILY_NAME);
 	}
 
 	default String getMiddleName() {
-		return this.getClaimAsString(StandardClaim.MIDDLE_NAME);
+		return this.getClaimAsString(StandardClaimNames.MIDDLE_NAME);
 	}
 
 	default String getNickName() {
-		return this.getClaimAsString(StandardClaim.NICKNAME);
+		return this.getClaimAsString(StandardClaimNames.NICKNAME);
 	}
 
 	default String getPreferredUsername() {
-		return this.getClaimAsString(StandardClaim.PREFERRED_USERNAME);
+		return this.getClaimAsString(StandardClaimNames.PREFERRED_USERNAME);
 	}
 
 	default String getProfile() {
-		return this.getClaimAsString(StandardClaim.PROFILE);
+		return this.getClaimAsString(StandardClaimNames.PROFILE);
 	}
 
 	default String getPicture() {
-		return this.getClaimAsString(StandardClaim.PICTURE);
+		return this.getClaimAsString(StandardClaimNames.PICTURE);
 	}
 
 	default String getWebsite() {
-		return this.getClaimAsString(StandardClaim.WEBSITE);
+		return this.getClaimAsString(StandardClaimNames.WEBSITE);
 	}
 
 	default String getEmail() {
-		return this.getClaimAsString(StandardClaim.EMAIL);
+		return this.getClaimAsString(StandardClaimNames.EMAIL);
 	}
 
 	default Boolean getEmailVerified() {
-		return this.getClaimAsBoolean(StandardClaim.EMAIL_VERIFIED);
+		return this.getClaimAsBoolean(StandardClaimNames.EMAIL_VERIFIED);
 	}
 
 	default String getGender() {
-		return this.getClaimAsString(StandardClaim.GENDER);
+		return this.getClaimAsString(StandardClaimNames.GENDER);
 	}
 
 	default String getBirthdate() {
-		return this.getClaimAsString(StandardClaim.BIRTHDATE);
+		return this.getClaimAsString(StandardClaimNames.BIRTHDATE);
 	}
 
 	default String getZoneInfo() {
-		return this.getClaimAsString(StandardClaim.ZONEINFO);
+		return this.getClaimAsString(StandardClaimNames.ZONEINFO);
 	}
 
 	default String getLocale() {
-		return this.getClaimAsString(StandardClaim.LOCALE);
+		return this.getClaimAsString(StandardClaimNames.LOCALE);
 	}
 
 	default String getPhoneNumber() {
-		return this.getClaimAsString(StandardClaim.PHONE_NUMBER);
+		return this.getClaimAsString(StandardClaimNames.PHONE_NUMBER);
 	}
 
 	default Boolean getPhoneNumberVerified() {
-		return this.getClaimAsBoolean(StandardClaim.PHONE_NUMBER_VERIFIED);
+		return this.getClaimAsBoolean(StandardClaimNames.PHONE_NUMBER_VERIFIED);
 	}
 
-	default Address getAddress() {
-		Map<String, Object> addressFields = this.getClaimAsMap(StandardClaim.ADDRESS);
+	default AddressStandardClaim getAddress() {
+		Map<String, Object> addressFields = this.getClaimAsMap(StandardClaimNames.ADDRESS);
 		return (!CollectionUtils.isEmpty(addressFields) ?
-			new DefaultAddress.Builder(addressFields).build() :
-			new DefaultAddress.Builder().build());
+			new DefaultAddressStandardClaim.Builder(addressFields).build() :
+			new DefaultAddressStandardClaim.Builder().build());
 	}
 
 	default Instant getUpdatedAt() {
-		return this.getClaimAsInstant(StandardClaim.UPDATED_AT);
+		return this.getClaimAsInstant(StandardClaimNames.UPDATED_AT);
 	}
 }

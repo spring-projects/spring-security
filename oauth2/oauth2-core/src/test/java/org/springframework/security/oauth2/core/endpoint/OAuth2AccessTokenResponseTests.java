@@ -16,16 +16,16 @@
 package org.springframework.security.oauth2.core.endpoint;
 
 import org.junit.Test;
-import org.springframework.security.oauth2.core.AccessToken;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 
 import java.util.Collections;
 
 /**
- * Tests {@link TokenResponse}
+ * Tests {@link OAuth2AccessTokenResponse}
  *
  * @author Luander Ribeiro
  */
-public class TokenResponseTest {
+public class OAuth2AccessTokenResponseTests {
 
 	private static final String TOKEN = "token";
 	private static final long INVALID_EXPIRES_IN = -1L;
@@ -33,27 +33,27 @@ public class TokenResponseTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void buildWhenTokenValueIsNullThenThrowIllegalArgumentException() {
-		TokenResponse.withToken(null)
+		OAuth2AccessTokenResponse.withToken(null)
 			.expiresIn(EXPIRES_IN)
 			.additionalParameters(Collections.emptyMap())
 			.scopes(Collections.emptySet())
-			.tokenType(AccessToken.TokenType.BEARER)
+			.tokenType(OAuth2AccessToken.TokenType.BEARER)
 			.build();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void buildWhenExpiresInIsNegativeThenThrowIllegalArgumentException() {
-		TokenResponse.withToken(TOKEN)
+		OAuth2AccessTokenResponse.withToken(TOKEN)
 			.expiresIn(INVALID_EXPIRES_IN)
 			.additionalParameters(Collections.emptyMap())
 			.scopes(Collections.emptySet())
-			.tokenType(AccessToken.TokenType.BEARER)
+			.tokenType(OAuth2AccessToken.TokenType.BEARER)
 			.build();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void buildWhenTokenTypeIsInvalidThenThrowIllegalArgumentException() {
-		TokenResponse.withToken(TOKEN)
+		OAuth2AccessTokenResponse.withToken(TOKEN)
 			.expiresIn(EXPIRES_IN)
 			.additionalParameters(Collections.emptyMap())
 			.tokenType(null)
@@ -62,7 +62,7 @@ public class TokenResponseTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void buildWhenTokenTypeNotSetThenThrowIllegalArgumentException() {
-		TokenResponse.withToken(TOKEN)
+		OAuth2AccessTokenResponse.withToken(TOKEN)
 			.expiresIn(EXPIRES_IN)
 			.additionalParameters(Collections.emptyMap())
 			.build();

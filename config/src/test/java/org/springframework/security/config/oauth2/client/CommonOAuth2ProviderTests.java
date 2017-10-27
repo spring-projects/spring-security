@@ -20,7 +20,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ClientRegistration.ProviderDetails;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
-import org.springframework.security.oauth2.core.oidc.IdTokenClaim;
+import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -44,7 +44,7 @@ public class CommonOAuth2ProviderTests {
 		assertThat(providerDetails.getUserInfoEndpoint().getUri())
 			.isEqualTo("https://www.googleapis.com/oauth2/v3/userinfo");
 		assertThat(providerDetails.getUserInfoEndpoint().getUserNameAttributeName())
-			.isEqualTo(IdTokenClaim.SUB);
+			.isEqualTo(IdTokenClaimNames.SUB);
 		assertThat(providerDetails.getJwkSetUri())
 			.isEqualTo("https://www.googleapis.com/oauth2/v3/certs");
 		assertThat(registration.getClientAuthenticationMethod())
@@ -117,7 +117,7 @@ public class CommonOAuth2ProviderTests {
 		assertThat(providerDetails.getTokenUri()).isEqualTo("http://example.com/token");
 		assertThat(providerDetails.getUserInfoEndpoint().getUri()).isEqualTo("http://example.com/info");
 		assertThat(providerDetails.getUserInfoEndpoint().getUserNameAttributeName())
-			.isEqualTo(IdTokenClaim.SUB);
+			.isEqualTo(IdTokenClaimNames.SUB);
 		assertThat(providerDetails.getJwkSetUri()).isEqualTo("http://example.com/jwkset");
 		assertThat(registration.getClientAuthenticationMethod())
 			.isEqualTo(ClientAuthenticationMethod.BASIC);

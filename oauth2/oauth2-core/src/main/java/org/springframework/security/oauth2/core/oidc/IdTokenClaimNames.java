@@ -16,16 +16,16 @@
 package org.springframework.security.oauth2.core.oidc;
 
 /**
- * The &quot;Claims&quot; defined by the <i>OpenID Connect Core 1.0</i> specification
+ * The names of the &quot;Claims&quot; defined by the <i>OpenID Connect Core 1.0</i> specification
  * that can be returned in the <i>ID Token</i>.
  *
  * @author Joe Grandja
  * @since 5.0
- * @see IdToken
+ * @see OidcIdToken
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#IDToken">ID Token</a>
  */
 
-public interface IdTokenClaim {
+public interface IdTokenClaimNames {
 
 	String ISS = "iss";
 

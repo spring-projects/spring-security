@@ -17,11 +17,10 @@
 package org.springframework.security.oauth2.core.oidc.user;
 
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.core.oidc.OidcIdToken;
+import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
-import org.springframework.security.oauth2.core.oidc.IdToken;
-import org.springframework.security.oauth2.core.oidc.IdTokenClaim;
-import org.springframework.security.oauth2.core.oidc.UserInfo;
+import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 
 import java.util.Map;
 import java.util.Set;
@@ -32,34 +31,34 @@ import java.util.Set;
  * <p>
  * The claim used for accessing the &quot;name&quot; of the
  * user <code>Principal</code> via {@link #getClaims()}
- * is {@link IdTokenClaim#SUB}.
+ * is {@link IdTokenClaimNames#SUB}.
  *
  * @author Joe Grandja
  * @author Vedran Pavic
  * @since 5.0
  * @see OidcUser
  * @see DefaultOAuth2User
- * @see IdToken
- * @see UserInfo
+ * @see OidcIdToken
+ * @see OidcUserInfo
  */
 public class DefaultOidcUser extends DefaultOAuth2User implements OidcUser {
-	private final IdToken idToken;
-	private final UserInfo userInfo;
+	private final OidcIdToken idToken;
+	private final OidcUserInfo userInfo;
 
-	public DefaultOidcUser(Set<GrantedAuthority> authorities, IdToken idToken) {
-		this(authorities, idToken, IdTokenClaim.SUB);
+	public DefaultOidcUser(Set<GrantedAuthority> authorities, OidcIdToken idToken) {
+		this(authorities, idToken, IdTokenClaimNames.SUB);
 	}
 
-	public DefaultOidcUser(Set<GrantedAuthority> authorities, IdToken idToken, String nameAttributeKey) {
+	public DefaultOidcUser(Set<GrantedAuthority> authorities, OidcIdToken idToken, String nameAttributeKey) {
 		this(authorities, idToken, null, nameAttributeKey);
 	}
 
-	public DefaultOidcUser(Set<GrantedAuthority> authorities, IdToken idToken, UserInfo userInfo) {
-		this(authorities, idToken, userInfo, IdTokenClaim.SUB);
+	public DefaultOidcUser(Set<GrantedAuthority> authorities, OidcIdToken idToken, OidcUserInfo userInfo) {
+		this(authorities, idToken, userInfo, IdTokenClaimNames.SUB);
 	}
 
-	public DefaultOidcUser(Set<GrantedAuthority> authorities, IdToken idToken, UserInfo userInfo,
-			String nameAttributeKey) {
+	public DefaultOidcUser(Set<GrantedAuthority> authorities, OidcIdToken idToken, OidcUserInfo userInfo,
+						   String nameAttributeKey) {
 		super(authorities, OidcUser.collectClaims(idToken, userInfo), nameAttributeKey);
 		this.idToken = idToken;
 		this.userInfo = userInfo;
@@ -70,11 +69,11 @@ public class DefaultOidcUser extends DefaultOAuth2User implements OidcUser {
 		return this.getAttributes();
 	}
 
-	public IdToken getIdToken() {
+	public OidcIdToken getIdToken() {
 		return this.idToken;
 	}
 
-	public UserInfo getUserInfo() {
+	public OidcUserInfo getUserInfo() {
 		return this.userInfo;
 	}
 }

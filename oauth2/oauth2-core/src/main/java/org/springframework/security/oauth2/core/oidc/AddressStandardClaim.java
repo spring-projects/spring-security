@@ -25,7 +25,7 @@ package org.springframework.security.oauth2.core.oidc;
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#UserInfoResponse">UserInfo Response</a>
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#IDToken">ID Token</a>
  */
-public interface Address {
+public interface AddressStandardClaim {
 
 	String getFormatted();
 

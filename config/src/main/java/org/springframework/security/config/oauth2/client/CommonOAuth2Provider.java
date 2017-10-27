@@ -19,7 +19,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ClientRegistration.Builder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
-import org.springframework.security.oauth2.core.oidc.IdTokenClaim;
+import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 
 /**
  * Common OAuth2 Providers that can be used to create
@@ -42,7 +42,7 @@ public enum CommonOAuth2Provider {
 			builder.tokenUri("https://www.googleapis.com/oauth2/v4/token");
 			builder.jwkSetUri("https://www.googleapis.com/oauth2/v3/certs");
 			builder.userInfoUri("https://www.googleapis.com/oauth2/v3/userinfo");
-			builder.userNameAttributeName(IdTokenClaim.SUB);
+			builder.userNameAttributeName(IdTokenClaimNames.SUB);
 			builder.clientName("Google");
 			return builder;
 		}
@@ -87,7 +87,7 @@ public enum CommonOAuth2Provider {
 			ClientRegistration.Builder builder = getBuilder(registrationId,
 					ClientAuthenticationMethod.BASIC, DEFAULT_LOGIN_REDIRECT_URL);
 			builder.scope("openid", "profile", "email", "address", "phone");
-			builder.userNameAttributeName(IdTokenClaim.SUB);
+			builder.userNameAttributeName(IdTokenClaimNames.SUB);
 			builder.clientName("Okta");
 			return builder;
 		}

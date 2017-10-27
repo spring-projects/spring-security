@@ -15,7 +15,7 @@
  */
 package org.springframework.security.oauth2.client.web;
 
-import org.springframework.security.oauth2.core.endpoint.AuthorizationRequest;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -23,11 +23,11 @@ import javax.servlet.http.HttpSession;
 
 /**
  * An implementation of an {@link AuthorizationRequestRepository} that stores
- * {@link AuthorizationRequest} in the {@link HttpSession}.
+ * {@link OAuth2AuthorizationRequest} in the {@link HttpSession}.
  *
  * @author Joe Grandja
  * @since 5.0
- * @see AuthorizationRequest
+ * @see OAuth2AuthorizationRequest
  */
 public final class HttpSessionAuthorizationRequestRepository implements AuthorizationRequestRepository {
 	private static final String DEFAULT_AUTHORIZATION_REQUEST_ATTR_NAME =
@@ -35,16 +35,16 @@ public final class HttpSessionAuthorizationRequestRepository implements Authoriz
 	private final String sessionAttributeName = DEFAULT_AUTHORIZATION_REQUEST_ATTR_NAME;
 
 	@Override
-	public AuthorizationRequest loadAuthorizationRequest(HttpServletRequest request) {
+	public OAuth2AuthorizationRequest loadAuthorizationRequest(HttpServletRequest request) {
 		HttpSession session = request.getSession(false);
 		if (session != null) {
-			return (AuthorizationRequest) session.getAttribute(this.sessionAttributeName);
+			return (OAuth2AuthorizationRequest) session.getAttribute(this.sessionAttributeName);
 		}
 		return null;
 	}
 
 	@Override
-	public void saveAuthorizationRequest(AuthorizationRequest authorizationRequest, HttpServletRequest request,
+	public void saveAuthorizationRequest(OAuth2AuthorizationRequest authorizationRequest, HttpServletRequest request,
 											HttpServletResponse response) {
 		if (authorizationRequest == null) {
 			this.removeAuthorizationRequest(request);
@@ -54,8 +54,8 @@ public final class HttpSessionAuthorizationRequestRepository implements Authoriz
 	}
 
 	@Override
-	public AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request) {
-		AuthorizationRequest authorizationRequest = this.loadAuthorizationRequest(request);
+	public OAuth2AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request) {
+		OAuth2AuthorizationRequest authorizationRequest = this.loadAuthorizationRequest(request);
 		if (authorizationRequest != null) {
 			request.getSession().removeAttribute(this.sessionAttributeName);
 		}

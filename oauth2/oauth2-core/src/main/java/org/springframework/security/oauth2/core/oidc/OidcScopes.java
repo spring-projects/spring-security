@@ -15,22 +15,22 @@
  */
 package org.springframework.security.oauth2.core.oidc;
 
-import org.springframework.security.oauth2.core.AccessToken;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 
 /**
  * The <i>scope</i> values defined by the <i>OpenID Connect Core 1.0</i> specification
- * that can be used to request {@link StandardClaim Claims}.
+ * that can be used to request {@link StandardClaimNames Claims}.
  * <p>
- * The scope(s) associated to an {@link AccessToken} determine what claims (resources)
+ * The scope(s) associated to an {@link OAuth2AccessToken} determine what claims (resources)
  * will be available when they are used to access <i>OAuth 2.0 Protected Endpoints</i>,
  * such as the <i>UserInfo Endpoint</i>.
  *
  * @author Joe Grandja
  * @since 5.0
- * @see StandardClaim
+ * @see StandardClaimNames
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims">Requesting Claims using Scope Values</a>
  */
-public interface OidcScope {
+public interface OidcScopes {
 
 	String OPENID = "openid";
 

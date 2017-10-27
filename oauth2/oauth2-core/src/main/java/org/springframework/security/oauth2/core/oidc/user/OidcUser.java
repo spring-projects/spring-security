@@ -17,11 +17,11 @@ package org.springframework.security.oauth2.core.oidc.user;
 
 import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.security.oauth2.core.oidc.IdToken;
+import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimAccessor;
 import org.springframework.security.oauth2.core.oidc.StandardClaimAccessor;
-import org.springframework.security.oauth2.core.oidc.UserInfo;
 import org.springframework.util.Assert;
 
 import java.util.HashMap;
@@ -33,7 +33,7 @@ import java.util.Map;
  *
  * <p>
  * An <code>OidcUser</code> contains &quot;Claims&quot; about the Authentication of the End-User.
- * The claims are aggregated from the <code>IdToken</code> and optionally the <code>UserInfo</code>.
+ * The claims are aggregated from the <code>OidcIdToken</code> and optionally the <code>OidcUserInfo</code>.
  *
  * <p>
  * Implementation instances of this interface represent an {@link AuthenticatedPrincipal}
@@ -44,8 +44,8 @@ import java.util.Map;
  * @since 5.0
  * @see DefaultOidcUser
  * @see OAuth2User
- * @see IdToken
- * @see UserInfo
+ * @see OidcIdToken
+ * @see OidcUserInfo
  * @see IdTokenClaimAccessor
  * @see StandardClaimAccessor
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#IDToken">ID Token</a>
@@ -55,7 +55,7 @@ public interface OidcUser extends OAuth2User, IdTokenClaimAccessor {
 
 	Map<String, Object> getClaims();
 
-	static Map<String, Object> collectClaims(IdToken idToken, UserInfo userInfo) {
+	static Map<String, Object> collectClaims(OidcIdToken idToken, OidcUserInfo userInfo) {
 		Assert.notNull(idToken, "idToken cannot be null");
 		Map<String, Object> claims = new HashMap<>();
 		if (userInfo != null) {

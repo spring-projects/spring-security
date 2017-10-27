@@ -36,22 +36,22 @@ import java.util.stream.Collectors;
  * @author Joe Grandja
  * @since 5.0
  * @see AuthorizationGrantType
- * @see ResponseType
+ * @see OAuth2AuthorizationResponseType
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.1">Section 4.1.1 Authorization Code Grant Request</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.2.1">Section 4.2.1 Implicit Grant Request</a>
  */
-public final class AuthorizationRequest implements Serializable {
+public final class OAuth2AuthorizationRequest implements Serializable {
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 	private String authorizationUri;
 	private AuthorizationGrantType authorizationGrantType;
-	private ResponseType responseType;
+	private OAuth2AuthorizationResponseType responseType;
 	private String clientId;
 	private String redirectUri;
 	private Set<String> scopes;
 	private String state;
 	private Map<String,Object> additionalParameters;
 
-	private AuthorizationRequest() {
+	private OAuth2AuthorizationRequest() {
 	}
 
 	public String getAuthorizationUri() {
@@ -62,7 +62,7 @@ public final class AuthorizationRequest implements Serializable {
 		return this.authorizationGrantType;
 	}
 
-	public ResponseType getResponseType() {
+	public OAuth2AuthorizationResponseType getResponseType() {
 		return this.responseType;
 	}
 
@@ -97,7 +97,7 @@ public final class AuthorizationRequest implements Serializable {
 	public static class Builder {
 		private String authorizationUri;
 		private AuthorizationGrantType authorizationGrantType;
-		private ResponseType responseType;
+		private OAuth2AuthorizationResponseType responseType;
 		private String clientId;
 		private String redirectUri;
 		private Set<String> scopes;
@@ -108,9 +108,9 @@ public final class AuthorizationRequest implements Serializable {
 			Assert.notNull(authorizationGrantType, "authorizationGrantType cannot be null");
 			this.authorizationGrantType = authorizationGrantType;
 			if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(authorizationGrantType)) {
-				this.responseType = ResponseType.CODE;
+				this.responseType = OAuth2AuthorizationResponseType.CODE;
 			} else if (AuthorizationGrantType.IMPLICIT.equals(authorizationGrantType)) {
-				this.responseType = ResponseType.TOKEN;
+				this.responseType = OAuth2AuthorizationResponseType.TOKEN;
 			}
 		}
 
@@ -152,14 +152,14 @@ public final class AuthorizationRequest implements Serializable {
 			return this;
 		}
 
-		public AuthorizationRequest build() {
+		public OAuth2AuthorizationRequest build() {
 			Assert.hasText(this.authorizationUri, "authorizationUri cannot be empty");
 			Assert.hasText(this.clientId, "clientId cannot be empty");
 			if (AuthorizationGrantType.IMPLICIT.equals(this.authorizationGrantType)) {
 				Assert.hasText(this.redirectUri, "redirectUri cannot be empty");
 			}
 
-			AuthorizationRequest authorizationRequest = new AuthorizationRequest();
+			OAuth2AuthorizationRequest authorizationRequest = new OAuth2AuthorizationRequest();
 			authorizationRequest.authorizationUri = this.authorizationUri;
 			authorizationRequest.authorizationGrantType = this.authorizationGrantType;
 			authorizationRequest.responseType = this.responseType;

@@ -31,11 +31,11 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.core.AccessToken;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.OAuth2ErrorCode;
-import org.springframework.security.oauth2.core.endpoint.AuthorizationRequest;
-import org.springframework.security.oauth2.core.endpoint.OAuth2Parameter;
+import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
+import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -82,9 +82,9 @@ public class OAuth2LoginAuthenticationFilterTests {
 		filter.setAuthenticationFailureHandler(failureHandler);
 
 		MockHttpServletRequest request = this.setupRequest(clientRegistration);
-		String errorCode = OAuth2ErrorCode.INVALID_GRANT;
-		request.addParameter(OAuth2Parameter.ERROR, errorCode);
-		request.addParameter(OAuth2Parameter.STATE, "some state");
+		String errorCode = OAuth2ErrorCodes.INVALID_GRANT;
+		request.addParameter(OAuth2ParameterNames.ERROR, errorCode);
+		request.addParameter(OAuth2ParameterNames.STATE, "some state");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain filterChain = mock(FilterChain.class);
 
@@ -99,7 +99,7 @@ public class OAuth2LoginAuthenticationFilterTests {
 	public void doFilterWhenAuthorizationCodeSuccessResponseThenAuthenticationSuccessHandlerIsCalled() throws Exception {
 		ClientRegistration clientRegistration = TestUtil.githubClientRegistration();
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
-			clientRegistration, "principal", mock(AccessToken.class));
+			clientRegistration, "principal", mock(OAuth2AccessToken.class));
 		OAuth2AuthenticationToken userAuthentication = new OAuth2AuthenticationToken(
 			mock(OAuth2User.class), AuthorityUtils.createAuthorityList("ROLE_USER"), authorizedClient);
 		SecurityContextHolder.getContext().setAuthentication(userAuthentication);
@@ -115,8 +115,8 @@ public class OAuth2LoginAuthenticationFilterTests {
 		MockHttpServletRequest request = this.setupRequest(clientRegistration);
 		String authCode = "some code";
 		String state = "some state";
-		request.addParameter(OAuth2Parameter.CODE, authCode);
-		request.addParameter(OAuth2Parameter.STATE, state);
+		request.addParameter(OAuth2ParameterNames.CODE, authCode);
+		request.addParameter(OAuth2ParameterNames.STATE, state);
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		setupAuthorizationRequest(authorizationRequestRepository, request, response, clientRegistration, state);
 		FilterChain filterChain = mock(FilterChain.class);
@@ -142,8 +142,8 @@ public class OAuth2LoginAuthenticationFilterTests {
 		MockHttpServletRequest request = this.setupRequest(clientRegistration);
 		String authCode = "some code";
 		String state = "some state";
-		request.addParameter(OAuth2Parameter.CODE, authCode);
-		request.addParameter(OAuth2Parameter.STATE, state);
+		request.addParameter(OAuth2ParameterNames.CODE, authCode);
+		request.addParameter(OAuth2ParameterNames.STATE, state);
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain filterChain = mock(FilterChain.class);
 
@@ -194,10 +194,10 @@ public class OAuth2LoginAuthenticationFilterTests {
 											String state) {
 
 		Map<String,Object> additionalParameters = new HashMap<>();
-		additionalParameters.put(OAuth2Parameter.REGISTRATION_ID, clientRegistration.getRegistrationId());
+		additionalParameters.put(OAuth2ParameterNames.REGISTRATION_ID, clientRegistration.getRegistrationId());
 
-		AuthorizationRequest authorizationRequest =
-			AuthorizationRequest.authorizationCode()
+		OAuth2AuthorizationRequest authorizationRequest =
+			OAuth2AuthorizationRequest.authorizationCode()
 				.clientId(clientRegistration.getClientId())
 				.authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri())
 				.redirectUri(clientRegistration.getRedirectUri())

@@ -17,7 +17,7 @@ package org.springframework.security.oauth2.client.token;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.core.AccessToken;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.util.Assert;
 
 import java.util.Base64;
@@ -25,27 +25,27 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * An <i>in-memory</i> {@link OAuth2TokenRepository} for {@link AccessToken}'s.
+ * An <i>in-memory</i> {@link OAuth2TokenRepository} for {@link OAuth2AccessToken}'s.
  *
  * @author Joe Grandja
  * @since 5.0
  * @see OAuth2TokenRepository
- * @see AccessToken
+ * @see OAuth2AccessToken
  * @see ClientRegistration
  * @see Authentication
  */
-public final class InMemoryAccessTokenRepository implements OAuth2TokenRepository<AccessToken> {
-	private final Map<String, AccessToken> accessTokens = new ConcurrentHashMap<>();
+public final class InMemoryAccessTokenRepository implements OAuth2TokenRepository<OAuth2AccessToken> {
+	private final Map<String, OAuth2AccessToken> accessTokens = new ConcurrentHashMap<>();
 
 	@Override
-	public AccessToken loadToken(ClientRegistration registration, Authentication principal) {
+	public OAuth2AccessToken loadToken(ClientRegistration registration, Authentication principal) {
 		Assert.notNull(registration, "registration cannot be null");
 		Assert.notNull(principal, "principal cannot be null");
 		return this.accessTokens.get(this.getIdentifier(registration, principal));
 	}
 
 	@Override
-	public void saveToken(AccessToken accessToken, ClientRegistration registration, Authentication principal) {
+	public void saveToken(OAuth2AccessToken accessToken, ClientRegistration registration, Authentication principal) {
 		Assert.notNull(accessToken, "accessToken cannot be null");
 		Assert.notNull(registration, "registration cannot be null");
 		Assert.notNull(principal, "principal cannot be null");
@@ -53,7 +53,7 @@ public final class InMemoryAccessTokenRepository implements OAuth2TokenRepositor
 	}
 
 	@Override
-	public AccessToken removeToken(ClientRegistration registration, Authentication principal) {
+	public OAuth2AccessToken removeToken(ClientRegistration registration, Authentication principal) {
 		Assert.notNull(registration, "registration cannot be null");
 		Assert.notNull(principal, "principal cannot be null");
 		return this.accessTokens.remove(this.getIdentifier(registration, principal));

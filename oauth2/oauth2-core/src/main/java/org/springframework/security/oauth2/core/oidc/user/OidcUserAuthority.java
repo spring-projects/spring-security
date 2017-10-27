@@ -16,10 +16,9 @@
 package org.springframework.security.oauth2.core.oidc.user;
 
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
-import org.springframework.security.oauth2.core.oidc.IdToken;
-import org.springframework.security.oauth2.core.oidc.UserInfo;
+import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 
 /**
  * A {@link GrantedAuthority} that is associated with an {@link OidcUser}.
@@ -29,28 +28,28 @@ import org.springframework.security.oauth2.core.oidc.UserInfo;
  * @see OidcUser
  */
 public class OidcUserAuthority extends OAuth2UserAuthority {
-	private final IdToken idToken;
-	private final UserInfo userInfo;
+	private final OidcIdToken idToken;
+	private final OidcUserInfo userInfo;
 
-	public OidcUserAuthority(IdToken idToken) {
+	public OidcUserAuthority(OidcIdToken idToken) {
 		this(idToken, null);
 	}
 
-	public OidcUserAuthority(IdToken idToken, UserInfo userInfo) {
+	public OidcUserAuthority(OidcIdToken idToken, OidcUserInfo userInfo) {
 		this("ROLE_USER", idToken, userInfo);
 	}
 
-	public OidcUserAuthority(String authority, IdToken idToken, UserInfo userInfo) {
+	public OidcUserAuthority(String authority, OidcIdToken idToken, OidcUserInfo userInfo) {
 		super(authority, OidcUser.collectClaims(idToken, userInfo));
 		this.idToken = idToken;
 		this.userInfo = userInfo;
 	}
 
-	public IdToken getIdToken() {
+	public OidcIdToken getIdToken() {
 		return this.idToken;
 	}
 
-	public UserInfo getUserInfo() {
+	public OidcUserInfo getUserInfo() {
 		return this.userInfo;
 	}
 

@@ -24,11 +24,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
 /**
- * Tests {@link AuthorizationRequest}
+ * Tests {@link OAuth2AuthorizationRequest}
  *
  * @author Luander Ribeiro
  */
-public class AuthorizationRequestTest {
+public class OAuth2AuthorizationRequestTests {
 	private static final String AUTHORIZE_URI = "http://authorize.uri/";
 	private static final String CLIENT_ID = "client id";
 	private static final String REDIRECT_URI = "http://redirect.uri/";
@@ -37,7 +37,7 @@ public class AuthorizationRequestTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void buildWhenAuthorizationUriIsNullThenThrowIllegalArgumentException() {
-		AuthorizationRequest.authorizationCode()
+		OAuth2AuthorizationRequest.authorizationCode()
 			.authorizationUri(null)
 			.clientId(CLIENT_ID)
 			.redirectUri(REDIRECT_URI)
@@ -48,7 +48,7 @@ public class AuthorizationRequestTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void buildWhenAuthorizeUriNotSetThenThrowIllegalArgumentException() {
-		AuthorizationRequest.authorizationCode()
+		OAuth2AuthorizationRequest.authorizationCode()
 			.clientId(CLIENT_ID)
 			.redirectUri(REDIRECT_URI)
 			.scopes(SCOPE)
@@ -58,7 +58,7 @@ public class AuthorizationRequestTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void buildWhenClientIdIsNullThenThrowIllegalArgumentException() {
-		AuthorizationRequest.authorizationCode()
+		OAuth2AuthorizationRequest.authorizationCode()
 			.authorizationUri(AUTHORIZE_URI)
 			.clientId(null)
 			.redirectUri(REDIRECT_URI)
@@ -69,7 +69,7 @@ public class AuthorizationRequestTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void buildWhenClientIdNotSetThenThrowIllegalArgumentException() {
-		AuthorizationRequest.authorizationCode()
+		OAuth2AuthorizationRequest.authorizationCode()
 			.authorizationUri(AUTHORIZE_URI)
 			.redirectUri(REDIRECT_URI)
 			.scopes(SCOPE)
@@ -79,8 +79,8 @@ public class AuthorizationRequestTest {
 
 	@Test
 	public void buildWhenGetResponseTypeIsCalledThenReturnCode() {
-		AuthorizationRequest authorizationRequest;
-		authorizationRequest = AuthorizationRequest.authorizationCode()
+		OAuth2AuthorizationRequest authorizationRequest;
+		authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
 			.authorizationUri(AUTHORIZE_URI)
 			.clientId(CLIENT_ID)
 			.redirectUri(REDIRECT_URI)
@@ -88,12 +88,12 @@ public class AuthorizationRequestTest {
 			.state(STATE)
 			.build();
 
-		assertThat(authorizationRequest.getResponseType()).isEqualTo(ResponseType.CODE);
+		assertThat(authorizationRequest.getResponseType()).isEqualTo(OAuth2AuthorizationResponseType.CODE);
 	}
 
 	@Test
 	public void buildWhenRedirectUriIsNullThenDoesNotThrowAnyException() {
-		assertThatCode(() -> AuthorizationRequest.authorizationCode()
+		assertThatCode(() -> OAuth2AuthorizationRequest.authorizationCode()
 			.authorizationUri(AUTHORIZE_URI)
 			.clientId(CLIENT_ID)
 			.redirectUri(null)
@@ -104,7 +104,7 @@ public class AuthorizationRequestTest {
 
 	@Test
 	public void buildWhenRedirectUriNotSetThenDoesNotThrowAnyException() {
-		assertThatCode(() -> AuthorizationRequest.authorizationCode()
+		assertThatCode(() -> OAuth2AuthorizationRequest.authorizationCode()
 			.authorizationUri(AUTHORIZE_URI)
 			.clientId(CLIENT_ID)
 			.scopes(SCOPE)
@@ -114,7 +114,7 @@ public class AuthorizationRequestTest {
 
 	@Test
 	public void buildWhenScopesIsNullThenDoesNotThrowAnyException() {
-		assertThatCode(() -> AuthorizationRequest.authorizationCode()
+		assertThatCode(() -> OAuth2AuthorizationRequest.authorizationCode()
 			.authorizationUri(AUTHORIZE_URI)
 			.clientId(CLIENT_ID)
 			.redirectUri(REDIRECT_URI)
@@ -125,7 +125,7 @@ public class AuthorizationRequestTest {
 
 	@Test
 	public void buildWhenScopesNotSetThenDoesNotThrowAnyException() {
-		assertThatCode(() -> AuthorizationRequest.authorizationCode()
+		assertThatCode(() -> OAuth2AuthorizationRequest.authorizationCode()
 			.authorizationUri(AUTHORIZE_URI)
 			.clientId(CLIENT_ID)
 			.redirectUri(REDIRECT_URI)
@@ -135,7 +135,7 @@ public class AuthorizationRequestTest {
 
 	@Test
 	public void buildWhenStateIsNullThenDoesNotThrowAnyException() {
-		assertThatCode(() -> AuthorizationRequest.authorizationCode()
+		assertThatCode(() -> OAuth2AuthorizationRequest.authorizationCode()
 			.authorizationUri(AUTHORIZE_URI)
 			.clientId(CLIENT_ID)
 			.redirectUri(REDIRECT_URI)
@@ -146,7 +146,7 @@ public class AuthorizationRequestTest {
 
 	@Test
 	public void buildWhenStateNotSetThenDoesNotThrowAnyException() {
-		assertThatCode(() -> AuthorizationRequest.authorizationCode()
+		assertThatCode(() -> OAuth2AuthorizationRequest.authorizationCode()
 			.authorizationUri(AUTHORIZE_URI)
 			.clientId(CLIENT_ID)
 			.redirectUri(REDIRECT_URI)

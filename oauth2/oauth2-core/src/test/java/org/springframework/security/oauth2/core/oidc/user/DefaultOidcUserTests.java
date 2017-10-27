@@ -27,10 +27,10 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.core.oidc.IdToken;
-import org.springframework.security.oauth2.core.oidc.IdTokenClaim;
-import org.springframework.security.oauth2.core.oidc.StandardClaim;
-import org.springframework.security.oauth2.core.oidc.UserInfo;
+import org.springframework.security.oauth2.core.oidc.OidcIdToken;
+import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
+import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
+import org.springframework.security.oauth2.core.oidc.StandardClaimNames;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -52,13 +52,13 @@ public class DefaultOidcUserTests {
 	private static final Map<String, Object> TEST_ID_TOKEN_CLAIMS = new HashMap<>();
 
 	static {
-		TEST_ID_TOKEN_CLAIMS.put(IdTokenClaim.ISS, "https://example.com");
-		TEST_ID_TOKEN_CLAIMS.put(IdTokenClaim.SUB, TEST_SUBJECT);
+		TEST_ID_TOKEN_CLAIMS.put(IdTokenClaimNames.ISS, "https://example.com");
+		TEST_ID_TOKEN_CLAIMS.put(IdTokenClaimNames.SUB, TEST_SUBJECT);
 	}
 
-	private static final IdToken TEST_ID_TOKEN = new IdToken("value", Instant.EPOCH, Instant.MAX, TEST_ID_TOKEN_CLAIMS);
+	private static final OidcIdToken TEST_ID_TOKEN = new OidcIdToken("value", Instant.EPOCH, Instant.MAX, TEST_ID_TOKEN_CLAIMS);
 
-	private static final UserInfo TEST_USER_INFO = new UserInfo(Collections.singletonMap(StandardClaim.EMAIL, TEST_EMAIL));
+	private static final OidcUserInfo TEST_USER_INFO = new OidcUserInfo(Collections.singletonMap(StandardClaimNames.EMAIL, TEST_EMAIL));
 
 	@Rule
 	public ExpectedException thrown = ExpectedException.none();
@@ -70,17 +70,17 @@ public class DefaultOidcUserTests {
 		assertThat(user.getName()).isEqualTo(TEST_SUBJECT);
 		assertThat(user.getAuthorities()).hasSize(1);
 		assertThat(user.getAuthorities().iterator().next()).isEqualTo(TEST_AUTHORITY);
-		assertThat(user.getAttributes()).containsOnlyKeys(IdTokenClaim.ISS, IdTokenClaim.SUB);
+		assertThat(user.getAttributes()).containsOnlyKeys(IdTokenClaimNames.ISS, IdTokenClaimNames.SUB);
 	}
 
 	@Test
 	public void constructorWhenAuthoritiesAndIdTokenAndNameAttributeKeyThenIsCreated() {
-		DefaultOidcUser user = new DefaultOidcUser(TEST_AUTHORITIES, TEST_ID_TOKEN, IdTokenClaim.SUB);
+		DefaultOidcUser user = new DefaultOidcUser(TEST_AUTHORITIES, TEST_ID_TOKEN, IdTokenClaimNames.SUB);
 
 		assertThat(user.getName()).isEqualTo(TEST_SUBJECT);
 		assertThat(user.getAuthorities()).hasSize(1);
 		assertThat(user.getAuthorities().iterator().next()).isEqualTo(TEST_AUTHORITY);
-		assertThat(user.getAttributes()).containsOnlyKeys(IdTokenClaim.ISS, IdTokenClaim.SUB);
+		assertThat(user.getAttributes()).containsOnlyKeys(IdTokenClaimNames.ISS, IdTokenClaimNames.SUB);
 	}
 
 	@Test
@@ -90,17 +90,17 @@ public class DefaultOidcUserTests {
 		assertThat(user.getName()).isEqualTo(TEST_SUBJECT);
 		assertThat(user.getAuthorities()).hasSize(1);
 		assertThat(user.getAuthorities().iterator().next()).isEqualTo(TEST_AUTHORITY);
-		assertThat(user.getAttributes()).containsOnlyKeys(IdTokenClaim.ISS, IdTokenClaim.SUB, StandardClaim.EMAIL);
+		assertThat(user.getAttributes()).containsOnlyKeys(IdTokenClaimNames.ISS, IdTokenClaimNames.SUB, StandardClaimNames.EMAIL);
 	}
 
 	@Test
 	public void constructorWhenAuthoritiesAndIdTokenAndUserInfoAndNameAttributeKeyThenIsCreated() {
-		DefaultOidcUser user = new DefaultOidcUser(TEST_AUTHORITIES, TEST_ID_TOKEN, TEST_USER_INFO, StandardClaim.EMAIL);
+		DefaultOidcUser user = new DefaultOidcUser(TEST_AUTHORITIES, TEST_ID_TOKEN, TEST_USER_INFO, StandardClaimNames.EMAIL);
 
 		assertThat(user.getName()).isEqualTo(TEST_EMAIL);
 		assertThat(user.getAuthorities()).hasSize(1);
 		assertThat(user.getAuthorities().iterator().next()).isEqualTo(TEST_AUTHORITY);
-		assertThat(user.getAttributes()).containsOnlyKeys(IdTokenClaim.ISS, IdTokenClaim.SUB, StandardClaim.EMAIL);
+		assertThat(user.getAttributes()).containsOnlyKeys(IdTokenClaimNames.ISS, IdTokenClaimNames.SUB, StandardClaimNames.EMAIL);
 	}
 
 	@Test
@@ -114,9 +114,9 @@ public class DefaultOidcUserTests {
 	@Test
 	public void constructorWhenNameAttributeKeyClaimIsNotPresentThenThrowsException() {
 		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("Missing attribute '" + StandardClaim.NAME + "' in attributes");
+		this.thrown.expectMessage("Missing attribute '" + StandardClaimNames.NAME + "' in attributes");
 
-		new DefaultOidcUser(TEST_AUTHORITIES, TEST_ID_TOKEN, TEST_USER_INFO, StandardClaim.NAME);
+		new DefaultOidcUser(TEST_AUTHORITIES, TEST_ID_TOKEN, TEST_USER_INFO, StandardClaimNames.NAME);
 	}
 
 }

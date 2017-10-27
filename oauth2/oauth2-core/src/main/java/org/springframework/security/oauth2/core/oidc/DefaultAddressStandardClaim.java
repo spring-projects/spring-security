@@ -18,13 +18,13 @@ package org.springframework.security.oauth2.core.oidc;
 import java.util.Map;
 
 /**
- * The default implementation of an {@link Address}.
+ * The default implementation of an {@link AddressStandardClaim Address Claim}.
  *
  * @author Joe Grandja
  * @since 5.0
- * @see Address
+ * @see AddressStandardClaim
  */
-public final class DefaultAddress implements Address {
+public final class DefaultAddressStandardClaim implements AddressStandardClaim {
 	private String formatted;
 	private String streetAddress;
 	private String locality;
@@ -32,7 +32,7 @@ public final class DefaultAddress implements Address {
 	private String postalCode;
 	private String country;
 
-	private DefaultAddress() {
+	private DefaultAddressStandardClaim() {
 	}
 
 	@Override
@@ -121,8 +121,8 @@ public final class DefaultAddress implements Address {
 			return this;
 		}
 
-		public Address build() {
-			DefaultAddress address = new DefaultAddress();
+		public AddressStandardClaim build() {
+			DefaultAddressStandardClaim address = new DefaultAddressStandardClaim();
 			address.formatted = this.formatted;
 			address.streetAddress = this.streetAddress;
 			address.locality = this.locality;

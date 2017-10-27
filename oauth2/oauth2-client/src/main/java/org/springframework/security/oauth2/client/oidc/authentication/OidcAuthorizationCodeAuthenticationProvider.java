@@ -28,15 +28,15 @@ import org.springframework.security.oauth2.client.oidc.OidcAuthorizedClient;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
-import org.springframework.security.oauth2.core.AccessToken;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
-import org.springframework.security.oauth2.core.endpoint.AuthorizationRequest;
-import org.springframework.security.oauth2.core.endpoint.AuthorizationResponse;
-import org.springframework.security.oauth2.core.endpoint.TokenResponse;
-import org.springframework.security.oauth2.core.oidc.IdToken;
-import org.springframework.security.oauth2.core.oidc.OidcScope;
-import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameter;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
+import org.springframework.security.oauth2.core.oidc.OidcIdToken;
+import org.springframework.security.oauth2.core.oidc.OidcScopes;
+import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -102,15 +102,15 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 		// scope
 		// 		REQUIRED. OpenID Connect requests MUST contain the "openid" scope value.
 		if (!authorizationCodeAuthentication.getAuthorizationExchange()
-			.getAuthorizationRequest().getScopes().contains(OidcScope.OPENID)) {
+			.getAuthorizationRequest().getScopes().contains(OidcScopes.OPENID)) {
 			// This is NOT an OpenID Connect Authentication Request so return null
 			// and let OAuth2LoginAuthenticationProvider handle it instead
 			return null;
 		}
 
-		AuthorizationRequest authorizationRequest = authorizationCodeAuthentication
+		OAuth2AuthorizationRequest authorizationRequest = authorizationCodeAuthentication
 			.getAuthorizationExchange().getAuthorizationRequest();
-		AuthorizationResponse authorizationResponse = authorizationCodeAuthentication
+		OAuth2AuthorizationResponse authorizationResponse = authorizationCodeAuthentication
 			.getAuthorizationExchange().getAuthorizationResponse();
 
 		if (authorizationResponse.statusError()) {
@@ -128,16 +128,16 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 		}
 
-		TokenResponse tokenResponse =
+		OAuth2AccessTokenResponse accessTokenResponse =
 			this.authorizationCodeTokenExchanger.exchange(authorizationCodeAuthentication);
 
-		AccessToken accessToken = new AccessToken(tokenResponse.getTokenType(),
-			tokenResponse.getTokenValue(), tokenResponse.getIssuedAt(),
-			tokenResponse.getExpiresAt(), tokenResponse.getScopes());
+		OAuth2AccessToken accessToken = new OAuth2AccessToken(accessTokenResponse.getTokenType(),
+			accessTokenResponse.getTokenValue(), accessTokenResponse.getIssuedAt(),
+			accessTokenResponse.getExpiresAt(), accessTokenResponse.getScopes());
 
 		ClientRegistration clientRegistration = authorizationCodeAuthentication.getClientRegistration();
 
-		if (!tokenResponse.getAdditionalParameters().containsKey(OidcParameter.ID_TOKEN)) {
+		if (!accessTokenResponse.getAdditionalParameters().containsKey(OidcParameterNames.ID_TOKEN)) {
 			throw new IllegalArgumentException(
 				"Missing (required) ID Token in Token Response for Client Registration: " + clientRegistration.getRegistrationId());
 		}
@@ -147,8 +147,8 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 			throw new IllegalArgumentException("Failed to find a registered JwtDecoder for Client Registration: '" +
 				clientRegistration.getRegistrationId() + "'. Check to ensure you have configured the JwkSet URI.");
 		}
-		Jwt jwt = jwtDecoder.decode((String)tokenResponse.getAdditionalParameters().get(OidcParameter.ID_TOKEN));
-		IdToken idToken = new IdToken(jwt.getTokenValue(), jwt.getIssuedAt(), jwt.getExpiresAt(), jwt.getClaims());
+		Jwt jwt = jwtDecoder.decode((String) accessTokenResponse.getAdditionalParameters().get(OidcParameterNames.ID_TOKEN));
+		OidcIdToken idToken = new OidcIdToken(jwt.getTokenValue(), jwt.getIssuedAt(), jwt.getExpiresAt(), jwt.getClaims());
 
 		this.validateIdToken(idToken, clientRegistration);
 
@@ -182,7 +182,7 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 		return AuthorizationCodeAuthenticationToken.class.isAssignableFrom(authentication);
 	}
 
-	private void validateIdToken(IdToken idToken, ClientRegistration clientRegistration) {
+	private void validateIdToken(OidcIdToken idToken, ClientRegistration clientRegistration) {
 		// 3.1.3.7  ID Token Validation
 		// http://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation
 

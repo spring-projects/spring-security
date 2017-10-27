@@ -23,7 +23,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.core.endpoint.AuthorizationRequest;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.client.endpoint.AuthorizationRequestUriBuilder;
 
 import javax.servlet.FilterChain;
@@ -101,7 +101,7 @@ public class AuthorizationRequestRedirectFilterTests {
 		Mockito.verifyZeroInteractions(filterChain);        // Request should not proceed up the chain
 
 		// The authorization request attributes are saved in the session before the redirect happens
-		AuthorizationRequest authorizationRequest =
+		OAuth2AuthorizationRequest authorizationRequest =
 				authorizationRequestRepository.loadAuthorizationRequest(request);
 		Assertions.assertThat(authorizationRequest).isNotNull();
 
@@ -119,7 +119,7 @@ public class AuthorizationRequestRedirectFilterTests {
 
 		AuthorizationRequestUriBuilder authorizationUriBuilder = Mockito.mock(AuthorizationRequestUriBuilder.class);
 		URI authorizationURI = new URI(authorizationUri);
-		Mockito.when(authorizationUriBuilder.build(Matchers.any(AuthorizationRequest.class))).thenReturn(authorizationURI);
+		Mockito.when(authorizationUriBuilder.build(Matchers.any(OAuth2AuthorizationRequest.class))).thenReturn(authorizationURI);
 
 		return setupFilter(authorizationUriBuilder, clientRegistrations);
 	}

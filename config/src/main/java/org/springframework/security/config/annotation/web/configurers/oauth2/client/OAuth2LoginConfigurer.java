@@ -42,7 +42,7 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRedirectFilter;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
-import org.springframework.security.oauth2.core.AccessToken;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
@@ -134,7 +134,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 
 	public class TokenEndpointConfig {
 		private AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger;
-		private OAuth2TokenRepository<AccessToken> accessTokenRepository;
+		private OAuth2TokenRepository<OAuth2AccessToken> accessTokenRepository;
 		private JwtDecoderRegistry jwtDecoderRegistry;
 
 		private TokenEndpointConfig() {
@@ -148,7 +148,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 			return this;
 		}
 
-		public TokenEndpointConfig accessTokenRepository(OAuth2TokenRepository<AccessToken> accessTokenRepository) {
+		public TokenEndpointConfig accessTokenRepository(OAuth2TokenRepository<OAuth2AccessToken> accessTokenRepository) {
 			Assert.notNull(accessTokenRepository, "accessTokenRepository cannot be null");
 			this.accessTokenRepository = accessTokenRepository;
 			return this;

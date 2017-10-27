@@ -43,10 +43,10 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRedirectFilter;
-import org.springframework.security.oauth2.core.AccessToken;
-import org.springframework.security.oauth2.core.endpoint.OAuth2Parameter;
-import org.springframework.security.oauth2.core.endpoint.ResponseType;
-import org.springframework.security.oauth2.core.endpoint.TokenResponse;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponseType;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -136,13 +136,13 @@ public class OAuth2LoginApplicationTests {
 
 		Map<String, String> params = uriComponents.getQueryParams().toSingleValueMap();
 
-		assertThat(params.get(OAuth2Parameter.RESPONSE_TYPE)).isEqualTo(ResponseType.CODE.getValue());
-		assertThat(params.get(OAuth2Parameter.CLIENT_ID)).isEqualTo(this.githubClientRegistration.getClientId());
+		assertThat(params.get(OAuth2ParameterNames.RESPONSE_TYPE)).isEqualTo(OAuth2AuthorizationResponseType.CODE.getValue());
+		assertThat(params.get(OAuth2ParameterNames.CLIENT_ID)).isEqualTo(this.githubClientRegistration.getClientId());
 		String redirectUri = AUTHORIZE_BASE_URL + "/" + this.githubClientRegistration.getRegistrationId();
-		assertThat(URLDecoder.decode(params.get(OAuth2Parameter.REDIRECT_URI), "UTF-8")).isEqualTo(redirectUri);
-		assertThat(URLDecoder.decode(params.get(OAuth2Parameter.SCOPE), "UTF-8"))
+		assertThat(URLDecoder.decode(params.get(OAuth2ParameterNames.REDIRECT_URI), "UTF-8")).isEqualTo(redirectUri);
+		assertThat(URLDecoder.decode(params.get(OAuth2ParameterNames.SCOPE), "UTF-8"))
 				.isEqualTo(this.githubClientRegistration.getScopes().stream().collect(Collectors.joining(" ")));
-		assertThat(params.get(OAuth2Parameter.STATE)).isNotNull();
+		assertThat(params.get(OAuth2ParameterNames.STATE)).isNotNull();
 	}
 
 	@Test
@@ -177,13 +177,13 @@ public class OAuth2LoginApplicationTests {
 
 		Map<String, String> params = authorizeRequestUriComponents.getQueryParams().toSingleValueMap();
 		String code = "auth-code";
-		String state = URLDecoder.decode(params.get(OAuth2Parameter.STATE), "UTF-8");
-		String redirectUri = URLDecoder.decode(params.get(OAuth2Parameter.REDIRECT_URI), "UTF-8");
+		String state = URLDecoder.decode(params.get(OAuth2ParameterNames.STATE), "UTF-8");
+		String redirectUri = URLDecoder.decode(params.get(OAuth2ParameterNames.REDIRECT_URI), "UTF-8");
 
 		String authorizationResponseUri =
 				UriComponentsBuilder.fromHttpUrl(redirectUri)
-						.queryParam(OAuth2Parameter.CODE, code)
-						.queryParam(OAuth2Parameter.STATE, state)
+						.queryParam(OAuth2ParameterNames.CODE, code)
+						.queryParam(OAuth2ParameterNames.STATE, state)
 						.build().encode().toUriString();
 
 		page = this.webClient.getPage(new URL(authorizationResponseUri));
@@ -202,8 +202,8 @@ public class OAuth2LoginApplicationTests {
 
 		String authorizationResponseUri =
 				UriComponentsBuilder.fromHttpUrl(redirectUri)
-						.queryParam(OAuth2Parameter.CODE, code)
-						.queryParam(OAuth2Parameter.STATE, state)
+						.queryParam(OAuth2ParameterNames.CODE, code)
+						.queryParam(OAuth2ParameterNames.STATE, state)
 						.build().encode().toUriString();
 
 		// Clear session cookie will ensure the 'session-saved'
@@ -234,8 +234,8 @@ public class OAuth2LoginApplicationTests {
 
 		String authorizationResponseUri =
 				UriComponentsBuilder.fromHttpUrl(redirectUri)
-						.queryParam(OAuth2Parameter.CODE, code)
-						.queryParam(OAuth2Parameter.STATE, state)
+						.queryParam(OAuth2ParameterNames.CODE, code)
+						.queryParam(OAuth2ParameterNames.STATE, state)
 						.build().encode().toUriString();
 
 		page = this.webClient.getPage(new URL(authorizationResponseUri));
@@ -262,14 +262,14 @@ public class OAuth2LoginApplicationTests {
 
 		Map<String, String> params = authorizeRequestUriComponents.getQueryParams().toSingleValueMap();
 		String code = "auth-code";
-		String state = URLDecoder.decode(params.get(OAuth2Parameter.STATE), "UTF-8");
-		String redirectUri = URLDecoder.decode(params.get(OAuth2Parameter.REDIRECT_URI), "UTF-8");
+		String state = URLDecoder.decode(params.get(OAuth2ParameterNames.STATE), "UTF-8");
+		String redirectUri = URLDecoder.decode(params.get(OAuth2ParameterNames.REDIRECT_URI), "UTF-8");
 		redirectUri += "-invalid";
 
 		String authorizationResponseUri =
 				UriComponentsBuilder.fromHttpUrl(redirectUri)
-						.queryParam(OAuth2Parameter.CODE, code)
-						.queryParam(OAuth2Parameter.STATE, state)
+						.queryParam(OAuth2ParameterNames.CODE, code)
+						.queryParam(OAuth2ParameterNames.STATE, state)
 						.build().encode().toUriString();
 
 		page = this.webClient.getPage(new URL(authorizationResponseUri));
@@ -355,13 +355,13 @@ public class OAuth2LoginApplicationTests {
 		// @formatter:on
 
 		private AuthorizationGrantTokenExchanger<AuthorizationCodeAuthenticationToken> mockAuthorizationCodeTokenExchanger() {
-			TokenResponse tokenResponse = TokenResponse.withToken("access-token-1234")
-				.tokenType(AccessToken.TokenType.BEARER)
+			OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("access-token-1234")
+				.tokenType(OAuth2AccessToken.TokenType.BEARER)
 				.expiresIn(60 * 1000)
 				.build();
 
 			AuthorizationGrantTokenExchanger mock = mock(AuthorizationGrantTokenExchanger.class);
-			when(mock.exchange(any())).thenReturn(tokenResponse);
+			when(mock.exchange(any())).thenReturn(accessTokenResponse);
 			return mock;
 		}
 

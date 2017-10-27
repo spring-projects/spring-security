@@ -23,26 +23,26 @@ import org.springframework.util.Assert;
  *
  * @author Joe Grandja
  * @since 5.0
- * @see AuthorizationRequest
- * @see AuthorizationResponse
+ * @see OAuth2AuthorizationRequest
+ * @see OAuth2AuthorizationResponse
  */
-public final class AuthorizationExchange {
-	private final AuthorizationRequest authorizationRequest;
-	private final AuthorizationResponse authorizationResponse;
+public final class OAuth2AuthorizationExchange {
+	private final OAuth2AuthorizationRequest authorizationRequest;
+	private final OAuth2AuthorizationResponse authorizationResponse;
 
-	public AuthorizationExchange(AuthorizationRequest authorizationRequest,
-									AuthorizationResponse authorizationResponse) {
+	public OAuth2AuthorizationExchange(OAuth2AuthorizationRequest authorizationRequest,
+									   OAuth2AuthorizationResponse authorizationResponse) {
 		Assert.notNull(authorizationRequest, "authorizationRequest cannot be null");
 		Assert.notNull(authorizationResponse, "authorizationResponse cannot be null");
 		this.authorizationRequest = authorizationRequest;
 		this.authorizationResponse = authorizationResponse;
 	}
 
-	public AuthorizationRequest getAuthorizationRequest() {
+	public OAuth2AuthorizationRequest getAuthorizationRequest() {
 		return this.authorizationRequest;
 	}
 
-	public AuthorizationResponse getAuthorizationResponse() {
+	public OAuth2AuthorizationResponse getAuthorizationResponse() {
 		return this.authorizationResponse;
 	}
 }

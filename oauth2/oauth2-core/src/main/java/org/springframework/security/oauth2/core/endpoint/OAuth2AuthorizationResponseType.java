@@ -33,13 +33,13 @@ import java.io.Serializable;
  * @since 5.0
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-3.1.1">Section 3.1.1 Response Type</a>
  */
-public final class ResponseType implements Serializable {
+public final class OAuth2AuthorizationResponseType implements Serializable {
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
-	public static final ResponseType CODE = new ResponseType("code");
-	public static final ResponseType TOKEN = new ResponseType("token");
+	public static final OAuth2AuthorizationResponseType CODE = new OAuth2AuthorizationResponseType("code");
+	public static final OAuth2AuthorizationResponseType TOKEN = new OAuth2AuthorizationResponseType("token");
 	private final String value;
 
-	private ResponseType(String value) {
+	private OAuth2AuthorizationResponseType(String value) {
 		Assert.hasText(value, "value cannot be empty");
 		this.value = value;
 	}
@@ -56,7 +56,7 @@ public final class ResponseType implements Serializable {
 		if (obj == null || this.getClass() != obj.getClass()) {
 			return false;
 		}
-		ResponseType that = (ResponseType) obj;
+		OAuth2AuthorizationResponseType that = (OAuth2AuthorizationResponseType) obj;
 		return this.getValue().equals(that.getValue());
 	}
 

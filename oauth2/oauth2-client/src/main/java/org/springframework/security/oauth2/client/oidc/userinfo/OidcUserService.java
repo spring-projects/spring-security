@@ -23,8 +23,8 @@ import org.springframework.security.oauth2.client.userinfo.UserInfoRetriever;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
-import org.springframework.security.oauth2.core.oidc.OidcScope;
-import org.springframework.security.oauth2.core.oidc.UserInfo;
+import org.springframework.security.oauth2.core.oidc.OidcScopes;
+import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
@@ -41,7 +41,7 @@ import java.util.Set;
  * <p>
  * This implementation uses a {@link UserInfoRetriever} to obtain the user attributes
  * of the <i>End-User</i> (resource owner) from the <i>UserInfo Endpoint</i>
- * and constructs a {@link UserInfo} instance.
+ * and constructs a {@link OidcUserInfo} instance.
  *
  * @author Joe Grandja
  * @since 5.0
@@ -49,21 +49,21 @@ import java.util.Set;
  * @see OidcAuthorizedClient
  * @see OidcUser
  * @see DefaultOidcUser
- * @see UserInfo
+ * @see OidcUserInfo
  * @see UserInfoRetriever
  */
 public class OidcUserService implements OAuth2UserService<OidcAuthorizedClient, OidcUser> {
 	private static final String INVALID_USER_INFO_RESPONSE_ERROR_CODE = "invalid_user_info_response";
 	private UserInfoRetriever userInfoRetriever = new NimbusUserInfoRetriever();
 	private final Set<String> userInfoScopes = new HashSet<>(
-		Arrays.asList(OidcScope.PROFILE, OidcScope.EMAIL, OidcScope.ADDRESS, OidcScope.PHONE));
+		Arrays.asList(OidcScopes.PROFILE, OidcScopes.EMAIL, OidcScopes.ADDRESS, OidcScopes.PHONE));
 
 	@Override
 	public OidcUser loadUser(OidcAuthorizedClient authorizedClient) throws OAuth2AuthenticationException {
-		UserInfo userInfo = null;
+		OidcUserInfo userInfo = null;
 		if (this.shouldRetrieveUserInfo(authorizedClient)) {
 			Map<String, Object> userAttributes = this.userInfoRetriever.retrieve(authorizedClient, Map.class);
-			userInfo = new UserInfo(userAttributes);
+			userInfo = new OidcUserInfo(userAttributes);
 
 			// http://openid.net/specs/openid-connect-core-1_0.html#UserInfoResponse
 			// Due to the possibility of token substitution attacks (see Section 16.11),

@@ -22,9 +22,9 @@ import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationR
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.endpoint.AuthorizationRequest;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.client.endpoint.AuthorizationRequestUriBuilder;
-import org.springframework.security.oauth2.core.endpoint.OAuth2Parameter;
+import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -55,7 +55,7 @@ import java.util.Map;
  *
  * @author Joe Grandja
  * @since 5.0
- * @see AuthorizationRequest
+ * @see OAuth2AuthorizationRequest
  * @see AuthorizationRequestRepository
  * @see AuthorizationRequestUriBuilder
  * @see ClientRegistration
@@ -132,18 +132,18 @@ public class AuthorizationRequestRedirectFilter extends OncePerRequestFilter {
 		String redirectUriStr = this.expandRedirectUri(request, clientRegistration);
 
 		Map<String,Object> additionalParameters = new HashMap<>();
-		additionalParameters.put(OAuth2Parameter.REGISTRATION_ID, clientRegistration.getRegistrationId());
+		additionalParameters.put(OAuth2ParameterNames.REGISTRATION_ID, clientRegistration.getRegistrationId());
 
-		AuthorizationRequest.Builder builder;
+		OAuth2AuthorizationRequest.Builder builder;
 		if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(clientRegistration.getAuthorizationGrantType())) {
-			builder = AuthorizationRequest.authorizationCode();
+			builder = OAuth2AuthorizationRequest.authorizationCode();
 		} else if (AuthorizationGrantType.IMPLICIT.equals(clientRegistration.getAuthorizationGrantType())) {
-			builder = AuthorizationRequest.implicit();
+			builder = OAuth2AuthorizationRequest.implicit();
 		} else {
 			throw new IllegalArgumentException("Invalid Authorization Grant Type for Client Registration (" +
 				clientRegistration.getRegistrationId() + "): " + clientRegistration.getAuthorizationGrantType());
 		}
-		AuthorizationRequest authorizationRequest = builder
+		OAuth2AuthorizationRequest authorizationRequest = builder
 				.clientId(clientRegistration.getClientId())
 				.authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri())
 				.redirectUri(redirectUriStr)

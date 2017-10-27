@@ -26,13 +26,13 @@ import org.springframework.util.StringUtils;
  * @since 5.0
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.2">Section 4.1.2 Authorization Response</a>
  */
-public final class AuthorizationResponse {
+public final class OAuth2AuthorizationResponse {
 	private String redirectUri;
 	private String state;
 	private String code;
 	private OAuth2Error error;
 
-	private AuthorizationResponse() {
+	private OAuth2AuthorizationResponse() {
 	}
 
 	public String getRedirectUri() {
@@ -110,13 +110,13 @@ public final class AuthorizationResponse {
 			return this;
 		}
 
-		public AuthorizationResponse build() {
+		public OAuth2AuthorizationResponse build() {
 			if (StringUtils.hasText(this.code) && StringUtils.hasText(this.errorCode)) {
 				throw new IllegalArgumentException("code and errorCode cannot both be set");
 			}
 			Assert.hasText(this.redirectUri, "redirectUri cannot be empty");
 
-			AuthorizationResponse authorizationResponse = new AuthorizationResponse();
+			OAuth2AuthorizationResponse authorizationResponse = new OAuth2AuthorizationResponse();
 			authorizationResponse.redirectUri = this.redirectUri;
 			authorizationResponse.state = this.state;
 			if (StringUtils.hasText(this.code)) {

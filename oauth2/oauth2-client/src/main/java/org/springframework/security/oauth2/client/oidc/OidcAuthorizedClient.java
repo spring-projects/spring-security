@@ -17,8 +17,8 @@ package org.springframework.security.oauth2.client.oidc;
 
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.core.AccessToken;
-import org.springframework.security.oauth2.core.oidc.IdToken;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.util.Assert;
 
 /**
@@ -35,21 +35,21 @@ import org.springframework.util.Assert;
  * @author Joe Grandja
  * @since 5.0
  * @see OAuth2AuthorizedClient
- * @see IdToken
+ * @see OidcIdToken
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#TokenResponse">3.1.3.3 Successful Token Response</a>
  */
 public class OidcAuthorizedClient extends OAuth2AuthorizedClient {
-	private final IdToken idToken;
+	private final OidcIdToken idToken;
 
 	public OidcAuthorizedClient(ClientRegistration clientRegistration, String principalName,
-								AccessToken accessToken, IdToken idToken) {
+								OAuth2AccessToken accessToken, OidcIdToken idToken) {
 
 		super(clientRegistration, principalName, accessToken);
 		Assert.notNull(idToken, "idToken cannot be null");
 		this.idToken = idToken;
 	}
 
-	public IdToken getIdToken() {
+	public OidcIdToken getIdToken() {
 		return this.idToken;
 	}
 }

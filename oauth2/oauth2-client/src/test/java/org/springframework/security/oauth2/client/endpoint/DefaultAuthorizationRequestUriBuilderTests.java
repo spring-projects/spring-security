@@ -17,7 +17,7 @@
 package org.springframework.security.oauth2.client.endpoint;
 
 import org.junit.Test;
-import org.springframework.security.oauth2.core.endpoint.AuthorizationRequest;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -35,7 +35,7 @@ public class DefaultAuthorizationRequestUriBuilderTests {
 
 	@Test
 	public void buildWhenScopeMultiThenSeparatedByEncodedSpace() {
-		AuthorizationRequest request = AuthorizationRequest.implicit()
+		OAuth2AuthorizationRequest request = OAuth2AuthorizationRequest.implicit()
 			.additionalParameters(Collections.singletonMap("foo","bar"))
 			.authorizationUri("https://idp.example.com/oauth2/v2/auth")
 			.clientId("client-id")
