@@ -24,7 +24,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.endpoint.AuthorizationRequest;
-import org.springframework.security.oauth2.core.endpoint.AuthorizationRequestUriBuilder;
+import org.springframework.security.oauth2.client.endpoint.AuthorizationRequestUriBuilder;
 
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;

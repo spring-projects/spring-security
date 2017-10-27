@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.core.endpoint;
+package org.springframework.security.oauth2.client.endpoint;
 
+
+import org.springframework.security.oauth2.core.endpoint.AuthorizationRequest;
 
 import java.net.URI;
 

@@ -38,7 +38,7 @@ import org.springframework.security.oauth2.client.web.AuthorizationRequestRedire
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.oauth2.core.AccessToken;
-import org.springframework.security.oauth2.core.endpoint.AuthorizationRequestUriBuilder;
+import org.springframework.security.oauth2.client.endpoint.AuthorizationRequestUriBuilder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizationCodeAuthenticationProvider;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;

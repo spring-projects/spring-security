@@ -16,7 +16,6 @@
 package org.springframework.security.oauth2.client.endpoint;
 
 import org.springframework.security.oauth2.core.endpoint.AuthorizationRequest;
-import org.springframework.security.oauth2.core.endpoint.AuthorizationRequestUriBuilder;
 import org.springframework.security.oauth2.core.endpoint.OAuth2Parameter;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
