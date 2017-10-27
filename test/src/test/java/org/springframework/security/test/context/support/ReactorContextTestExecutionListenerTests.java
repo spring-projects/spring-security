@@ -60,7 +60,11 @@ public class ReactorContextTestExecutionListenerTests {
 	public void beforeTestMethodWhenSecurityContextEmptyThenReactorContextNull() throws Exception {
 		this.listener.beforeTestMethod(this.testContext);
 
-		assertThat(Mono.subscriberContext().block().isEmpty()).isTrue();
+		Mono<?> result = ReactiveSecurityContextHolder
+			.getContext();
+
+		StepVerifier.create(result)
+			.verifyComplete();
 	}
 
 	@Test
@@ -69,9 +73,12 @@ public class ReactorContextTestExecutionListenerTests {
 
 		this.listener.beforeTestMethod(this.testContext);
 
-		assertThat(Mono.subscriberContext().block().isEmpty()).isTrue();
-	}
+		Mono<?> result = ReactiveSecurityContextHolder
+			.getContext();
 
+		StepVerifier.create(result)
+			.verifyComplete();
+	}
 
 	@Test
 	public void beforeTestMethodWhenAuthenticationThenReactorContextHasAuthentication() throws Exception {
