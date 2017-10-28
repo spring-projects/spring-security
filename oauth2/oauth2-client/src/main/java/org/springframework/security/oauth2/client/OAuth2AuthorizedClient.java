@@ -33,7 +33,6 @@ import org.springframework.util.Assert;
  * @since 5.0
  * @see ClientRegistration
  * @see OAuth2AccessToken
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-5.1">Section 5.1 Access Token Response</a>
  */
 public class OAuth2AuthorizedClient {
 	private final ClientRegistration clientRegistration;

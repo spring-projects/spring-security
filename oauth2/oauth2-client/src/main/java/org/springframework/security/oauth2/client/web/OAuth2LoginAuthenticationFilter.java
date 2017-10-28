@@ -19,6 +19,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationProvider;
@@ -84,6 +85,7 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 	public static final String DEFAULT_FILTER_PROCESSES_URI = "/login/oauth2/code/*";
 	private static final String AUTHORIZATION_REQUEST_NOT_FOUND_ERROR_CODE = "authorization_request_not_found";
 	private ClientRegistrationRepository clientRegistrationRepository;
+	private OAuth2AuthorizedClientService<OAuth2AuthorizedClient> authorizedClientService;
 	private AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
 		new HttpSessionOAuth2AuthorizationRequestRepository();
 	private OAuth2TokenRepository<OAuth2AccessToken> accessTokenRepository = new InMemoryAccessTokenRepository();
@@ -100,6 +102,7 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 	public void afterPropertiesSet() {
 		super.afterPropertiesSet();
 		Assert.notNull(this.clientRegistrationRepository, "clientRegistrationRepository cannot be null");
+		Assert.notNull(this.authorizedClientService, "authorizedClientService cannot be null");
 	}
 
 	@Override
@@ -140,6 +143,9 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 		OAuth2AuthenticationToken<OAuth2User, OAuth2AuthorizedClient> oauth2Authentication =
 			(OAuth2AuthenticationToken<OAuth2User, OAuth2AuthorizedClient>) this.getAuthenticationManager().authenticate(authorizationCodeAuthentication);
 
+		this.authorizedClientService.saveAuthorizedClient(
+			oauth2Authentication.getAuthorizedClient(), oauth2Authentication);
+
 		this.accessTokenRepository.saveToken(
 			oauth2Authentication.getAuthorizedClient().getAccessToken(),
 			oauth2Authentication.getAuthorizedClient().getClientRegistration(),
@@ -151,6 +157,11 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 	public final void setClientRegistrationRepository(ClientRegistrationRepository clientRegistrationRepository) {
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
 		this.clientRegistrationRepository = clientRegistrationRepository;
+	}
+
+	public final void setAuthorizedClientService(OAuth2AuthorizedClientService<OAuth2AuthorizedClient> authorizedClientService) {
+		Assert.notNull(authorizedClientService, "authorizedClientService cannot be null");
+		this.authorizedClientService = authorizedClientService;
 	}
 
 	public final void setAuthorizationRequestRepository(AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {

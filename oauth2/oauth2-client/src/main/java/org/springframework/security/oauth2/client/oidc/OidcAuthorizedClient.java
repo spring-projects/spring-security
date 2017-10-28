@@ -36,7 +36,6 @@ import org.springframework.util.Assert;
  * @since 5.0
  * @see OAuth2AuthorizedClient
  * @see OidcIdToken
- * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#TokenResponse">3.1.3.3 Successful Token Response</a>
  */
 public class OidcAuthorizedClient extends OAuth2AuthorizedClient {
 	private final OidcIdToken idToken;
