@@ -35,7 +35,7 @@ import static org.springframework.security.config.web.server.ServerHttpSecurity.
  * @author Rob Winch
  * @since 5.0
  */
-public class ServerHttpSecurityConfiguration implements WebFluxConfigurer {
+class ServerHttpSecurityConfiguration implements WebFluxConfigurer {
 	private static final String BEAN_NAME_PREFIX = "org.springframework.security.config.annotation.web.reactive.HttpSecurityConfiguration.";
 	private static final String HTTPSECURITY_BEAN_NAME = BEAN_NAME_PREFIX + "httpSecurity";
 

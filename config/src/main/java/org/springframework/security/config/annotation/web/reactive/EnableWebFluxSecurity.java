@@ -18,10 +18,64 @@ package org.springframework.security.config.annotation.web.reactive;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.security.config.web.server.ServerHttpSecurity;
 
-import java.lang.annotation.*;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
+ * Add this annotation to a {@code Configuration} class to have Spring Security WebFlux
+ * support added. User's can then create one or more {@link ServerHttpSecurity}
+ * {@code Bean} instances.
+ *
+ * A minimal configuration can be found below:
+ *
+ * <pre class="code">
+ * &#064;EnableWebFluxSecurity
+ * public class MyMinimalSecurityConfiguration {
+ *
+ *     &#064;Bean
+ *     public MapReactiveUserDetailsService userDetailsRepository() {
+ *          UserDetails user = User.withDefaultPasswordEncoder()
+ *               .username("user")
+ *               .password("password")
+ *               .roles("USER")
+ *               .build();
+ *          return new MapReactiveUserDetailsService(user);
+ *     }
+ * }
+ *
+ * Below is the same as our minimal configuration, but explicitly declaring the
+ * {@code ServerHttpSecurity}.
+ *
+ * <pre class="code">
+ * &#064;EnableWebFluxSecurity
+ * public class MyExplicitSecurityConfiguration {
+ *     &#064;Bean
+ *     SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+ *          http
+ *               .authorizeExchange()
+ *                    .anyExchange().authenticated()
+ *                         .and()
+ *                    .httpBasic().and()
+ *                    .formLogin();
+ *          return http.build();
+ *     }
+ *
+ *     &#064;Bean
+ *     public MapReactiveUserDetailsService userDetailsRepository() {
+ *          UserDetails user = User.withDefaultPasswordEncoder()
+ *               .username("user")
+ *               .password("password")
+ *               .roles("USER")
+ *               .build();
+ *          return new MapReactiveUserDetailsService(user);
+ *     }
+ * }
+ *
  * @author Rob Winch
  * @since 5.0
  */
