@@ -27,17 +27,20 @@ import java.util.concurrent.ConcurrentHashMap;
  * A {@link ClientRegistrationRepository} that stores {@link ClientRegistration}(s) <i>in-memory</i>.
  *
  * @author Joe Grandja
+ * @author Shazin Sadakath
  * @since 5.0
  * @see ClientRegistrationRepository
  * @see ClientRegistration
  */
 public final class InMemoryClientRegistrationRepository implements ClientRegistrationRepository, Iterable<ClientRegistration> {
 	private final Map<String, ClientRegistration> registrations;
+	private final ClientRegistrationValidator clientRegistrationValidator = new DefaultClientRegistrationValidator();
 
 	public InMemoryClientRegistrationRepository(List<ClientRegistration> registrations) {
 		Assert.notEmpty(registrations, "registrations cannot be empty");
 		Map<String, ClientRegistration> registrationsMap = new ConcurrentHashMap<>();
 		registrations.forEach(registration -> {
+			clientRegistrationValidator.validate(registration);
 			if (registrationsMap.containsKey(registration.getRegistrationId())) {
 				throw new IllegalArgumentException("ClientRegistration must be unique. Found duplicate registrationId: " +
 					registration.getRegistrationId());
