@@ -22,9 +22,11 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.openid.connect.sdk.UserInfoErrorResponse;
 import com.nimbusds.openid.connect.sdk.UserInfoRequest;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.client.AbstractClientHttpResponse;
-import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.http.converter.GenericHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -47,10 +49,33 @@ import java.nio.charset.Charset;
  */
 public class NimbusUserInfoRetriever implements UserInfoRetriever {
 	private static final String INVALID_USER_INFO_RESPONSE_ERROR_CODE = "invalid_user_info_response";
-	private final HttpMessageConverter jackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();
+	private final GenericHttpMessageConverter genericHttpMessageConverter = new MappingJackson2HttpMessageConverter();
 
 	@Override
 	public <T> T retrieve(OAuth2UserRequest userRequest, Class<T> returnType) throws OAuth2AuthenticationException {
+		try {
+			ClientHttpResponse userResponse = this.retrieveResponse(userRequest);
+			return (T) this.genericHttpMessageConverter.read(returnType, userResponse);
+		} catch (IOException ex) {
+			OAuth2Error oauth2Error = new OAuth2Error(INVALID_USER_INFO_RESPONSE_ERROR_CODE,
+				"An error occurred reading the UserInfo Success response: " + ex.getMessage(), null);
+			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString(), ex);
+		}
+	}
+
+	@Override
+	public <T> T retrieve(OAuth2UserRequest userRequest, ParameterizedTypeReference<T> typeReference) throws OAuth2AuthenticationException {
+		try {
+			ClientHttpResponse userResponse = this.retrieveResponse(userRequest);
+			return (T) this.genericHttpMessageConverter.read(typeReference.getType(), null, userResponse);
+		} catch (IOException ex) {
+			OAuth2Error oauth2Error = new OAuth2Error(INVALID_USER_INFO_RESPONSE_ERROR_CODE,
+				"An error occurred reading the UserInfo Success response: " + ex.getMessage(), null);
+			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString(), ex);
+		}
+	}
+
+	private ClientHttpResponse retrieveResponse(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
 		URI userInfoUri = URI.create(userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUri());
 		BearerAccessToken accessToken = new BearerAccessToken(userRequest.getAccessToken().getTokenValue());
 
@@ -67,41 +92,35 @@ public class NimbusUserInfoRetriever implements UserInfoRetriever {
 				ex.getMessage(), ex);
 		}
 
-		if (httpResponse.getStatusCode() != HTTPResponse.SC_OK) {
-			UserInfoErrorResponse userInfoErrorResponse;
-			try {
-				userInfoErrorResponse = UserInfoErrorResponse.parse(httpResponse);
-			} catch (ParseException ex) {
-				OAuth2Error oauth2Error = new OAuth2Error(INVALID_USER_INFO_RESPONSE_ERROR_CODE,
-					"An error occurred parsing the UserInfo Error response: " + ex.getMessage(), null);
-				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString(), ex);
-			}
-			ErrorObject errorObject = userInfoErrorResponse.getErrorObject();
-
-			StringBuilder errorDescription = new StringBuilder();
-			errorDescription.append("An error occurred while attempting to access the UserInfo Endpoint -> ");
-			errorDescription.append("Error details: [");
-			errorDescription.append("UserInfo Uri: ").append(userInfoUri.toString());
-			errorDescription.append(", Http Status: ").append(errorObject.getHTTPStatusCode());
-			if (errorObject.getCode() != null) {
-				errorDescription.append(", Error Code: ").append(errorObject.getCode());
-			}
-			if (errorObject.getDescription() != null) {
-				errorDescription.append(", Error Description: ").append(errorObject.getDescription());
-			}
-			errorDescription.append("]");
-
-			OAuth2Error oauth2Error = new OAuth2Error(INVALID_USER_INFO_RESPONSE_ERROR_CODE, errorDescription.toString(), null);
-			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+		if (httpResponse.getStatusCode() == HTTPResponse.SC_OK) {
+			return new NimbusClientHttpResponse(httpResponse);
 		}
 
+		UserInfoErrorResponse userInfoErrorResponse;
 		try {
-			return (T) this.jackson2HttpMessageConverter.read(returnType, new NimbusClientHttpResponse(httpResponse));
-		} catch (IOException ex) {
+			userInfoErrorResponse = UserInfoErrorResponse.parse(httpResponse);
+		} catch (ParseException ex) {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_USER_INFO_RESPONSE_ERROR_CODE,
-				"An error occurred reading the UserInfo Success response: " + ex.getMessage(), null);
+				"An error occurred parsing the UserInfo Error response: " + ex.getMessage(), null);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString(), ex);
 		}
+		ErrorObject errorObject = userInfoErrorResponse.getErrorObject();
+
+		StringBuilder errorDescription = new StringBuilder();
+		errorDescription.append("An error occurred while attempting to access the UserInfo Endpoint -> ");
+		errorDescription.append("Error details: [");
+		errorDescription.append("UserInfo Uri: ").append(userInfoUri.toString());
+		errorDescription.append(", Http Status: ").append(errorObject.getHTTPStatusCode());
+		if (errorObject.getCode() != null) {
+			errorDescription.append(", Error Code: ").append(errorObject.getCode());
+		}
+		if (errorObject.getDescription() != null) {
+			errorDescription.append(", Error Description: ").append(errorObject.getDescription());
+		}
+		errorDescription.append("]");
+
+		OAuth2Error oauth2Error = new OAuth2Error(INVALID_USER_INFO_RESPONSE_ERROR_CODE, errorDescription.toString(), null);
+		throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 	}
 
 	private static class NimbusClientHttpResponse extends AbstractClientHttpResponse {

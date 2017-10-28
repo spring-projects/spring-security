@@ -15,6 +15,7 @@
  */
 package org.springframework.security.oauth2.client.userinfo;
 
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 
 /**
@@ -31,5 +32,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 public interface UserInfoRetriever {
 
 	<T> T retrieve(OAuth2UserRequest userRequest, Class<T> responseType) throws OAuth2AuthenticationException;
+
+	<T> T retrieve(OAuth2UserRequest userRequest, ParameterizedTypeReference<T> typeReference) throws OAuth2AuthenticationException;
 
 }
