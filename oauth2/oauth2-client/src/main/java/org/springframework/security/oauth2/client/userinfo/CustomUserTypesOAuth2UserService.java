@@ -15,6 +15,7 @@
  */
 package org.springframework.security.oauth2.client.userinfo;
 
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.Assert;
@@ -28,7 +29,7 @@ import java.util.Map;
  * <p>
  * The custom user type(s) is supplied via the constructor,
  * using a <code>Map</code> of {@link OAuth2User} type <i>keyed</i> by <code>String</code>,
- * representing the <i>UserInfo Endpoint</i> address.
+ * which represents the {@link ClientRegistration#getRegistrationId() Registration Id} of the Client.
  * <p>
  * This implementation uses a {@link UserInfoRetriever} to obtain the user attributes
  * of the <i>End-User</i> (Resource Owner) from the <i>UserInfo Endpoint</i>.
@@ -39,6 +40,7 @@ import java.util.Map;
  * @see OAuth2UserRequest
  * @see OAuth2User
  * @see UserInfoRetriever
+ * @see ClientRegistration
  */
 public class CustomUserTypesOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 	private final Map<String, Class<? extends OAuth2User>> customUserTypes;
@@ -51,9 +53,9 @@ public class CustomUserTypesOAuth2UserService implements OAuth2UserService<OAuth
 
 	@Override
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-		String userInfoUri = userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUri();
+		String registrationId = userRequest.getClientRegistration().getRegistrationId();
 		Class<? extends OAuth2User> customUserType;
-		if ((customUserType = this.customUserTypes.get(userInfoUri)) == null) {
+		if ((customUserType = this.customUserTypes.get(registrationId)) == null) {
 			return null;
 		}
 

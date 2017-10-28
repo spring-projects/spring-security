@@ -206,10 +206,10 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 			return this;
 		}
 
-		public UserInfoEndpointConfig customUserType(Class<? extends OAuth2User> customUserType, String userInfoUri) {
+		public UserInfoEndpointConfig customUserType(Class<? extends OAuth2User> customUserType, String clientRegistrationId) {
 			Assert.notNull(customUserType, "customUserType cannot be null");
-			Assert.hasText(userInfoUri, "userInfoUri cannot be empty");
-			this.customUserTypes.put(userInfoUri, customUserType);
+			Assert.hasText(clientRegistrationId, "clientRegistrationId cannot be empty");
+			this.customUserTypes.put(clientRegistrationId, customUserType);
 			return this;
 		}
 
