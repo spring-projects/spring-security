@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.client.authentication;
+package org.springframework.security.oauth2.client.endpoint;
 
 
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
@@ -33,8 +33,8 @@ import com.nimbusds.oauth2.sdk.id.ClientID;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
@@ -49,8 +49,8 @@ import java.util.Set;
 
 /**
  * An implementation of an {@link AuthorizationGrantTokenExchanger} that <i>&quot;exchanges&quot;</i>
- * an <i>authorization code</i> credential for an <i>access token</i> credential
- * at the authorization server's <i>Token Endpoint</i>.
+ * an <i>Authorization Code</i> credential for an <i>Access Token</i> credential
+ * at the Authorization Server's <i>Token Endpoint</i>.
  *
  * <p>
  * <b>NOTE:</b> This implementation uses the <b>Nimbus OAuth 2.0 SDK</b> internally.
@@ -58,24 +58,24 @@ import java.util.Set;
  * @author Joe Grandja
  * @since 5.0
  * @see AuthorizationGrantTokenExchanger
- * @see OAuth2AuthorizationCodeAuthenticationToken
+ * @see OAuth2AuthorizationCodeGrantRequest
  * @see OAuth2AccessTokenResponse
  * @see <a target="_blank" href="https://connect2id.com/products/nimbus-oauth-openid-connect-sdk">Nimbus OAuth 2.0 SDK</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.3">Section 4.1.3 Access Token Request (Authorization Code Grant)</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.4">Section 4.1.4 Access Token Response (Authorization Code Grant)</a>
  */
-public class NimbusAuthorizationCodeTokenExchanger implements AuthorizationGrantTokenExchanger<OAuth2AuthorizationCodeAuthenticationToken> {
+public class NimbusAuthorizationCodeTokenExchanger implements AuthorizationGrantTokenExchanger<OAuth2AuthorizationCodeGrantRequest> {
 	private static final String INVALID_TOKEN_RESPONSE_ERROR_CODE = "invalid_token_response";
 
 	@Override
-	public OAuth2AccessTokenResponse exchange(OAuth2AuthorizationCodeAuthenticationToken authorizationCodeAuthentication)
+	public OAuth2AccessTokenResponse exchange(OAuth2AuthorizationCodeGrantRequest authorizationGrantRequest)
 			throws OAuth2AuthenticationException {
 
-		ClientRegistration clientRegistration = authorizationCodeAuthentication.getClientRegistration();
+		ClientRegistration clientRegistration = authorizationGrantRequest.getClientRegistration();
 
 		// Build the authorization code grant request for the token endpoint
 		AuthorizationCode authorizationCode = new AuthorizationCode(
-			authorizationCodeAuthentication.getAuthorizationExchange().getAuthorizationResponse().getCode());
+			authorizationGrantRequest.getAuthorizationExchange().getAuthorizationResponse().getCode());
 		URI redirectUri = toURI(clientRegistration.getRedirectUri());
 		AuthorizationGrant authorizationCodeGrant = new AuthorizationCodeGrant(authorizationCode, redirectUri);
 		URI tokenUri = toURI(clientRegistration.getProviderDetails().getTokenUri());
@@ -130,7 +130,7 @@ public class NimbusAuthorizationCodeTokenExchanger implements AuthorizationGrant
 		Set<String> scopes;
 		if (CollectionUtils.isEmpty(accessTokenResponse.getTokens().getAccessToken().getScope())) {
 			scopes = new LinkedHashSet<>(
-				authorizationCodeAuthentication.getAuthorizationExchange().getAuthorizationRequest().getScopes());
+				authorizationGrantRequest.getAuthorizationExchange().getAuthorizationRequest().getScopes());
 		} else {
 			scopes = new LinkedHashSet<>(
 				accessTokenResponse.getTokens().getAccessToken().getScope().toStringList());
