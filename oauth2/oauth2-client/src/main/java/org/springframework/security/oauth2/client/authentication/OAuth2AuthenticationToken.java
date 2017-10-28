@@ -19,7 +19,6 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.Assert;
 
@@ -30,34 +29,33 @@ import java.util.Collection;
  * that represents an <i>OAuth 2.0</i> {@link Authentication}.
  * <p>
  * This {@link Authentication} associates an {@link OAuth2User} <code>Principal</code>
- * to an {@link OAuth2AuthorizedClient}, which the End-User (Principal) granted authorization to
+ * to the identifier of the {@link #getAuthorizedClientRegistrationId() Authorized Client},
+ * which the End-User (Principal) granted authorization to
  * so that it can access its protected resource(s) at the <i>UserInfo Endpoint</i>.
  *
  * @author Joe Grandja
  * @since 5.0
  * @see AbstractAuthenticationToken
- * @see OAuth2AuthorizedClient
  * @see OAuth2User
- *
- * @param <U> The type of <i>OAuth 2.0 User</i>
- * @param <C> The type of <i>Authorized Client</i>
  */
-public class OAuth2AuthenticationToken<U extends OAuth2User, C extends OAuth2AuthorizedClient> extends AbstractAuthenticationToken {
+public class OAuth2AuthenticationToken extends AbstractAuthenticationToken {
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
-	private final U principal;
-	private final C authorizedClient;
+	private final OAuth2User principal;
+	private final String authorizedClientRegistrationId;
 
-	public OAuth2AuthenticationToken(U principal, Collection<? extends GrantedAuthority> authorities, C authorizedClient) {
+	public OAuth2AuthenticationToken(OAuth2User principal,
+									Collection<? extends GrantedAuthority> authorities,
+									String authorizedClientRegistrationId) {
 		super(authorities);
 		Assert.notNull(principal, "principal cannot be null");
-		Assert.notNull(authorizedClient, "authorizedClient cannot be null");
+		Assert.hasText(authorizedClientRegistrationId, "authorizedClientRegistrationId cannot be empty");
 		this.principal = principal;
-		this.authorizedClient = authorizedClient;
+		this.authorizedClientRegistrationId = authorizedClientRegistrationId;
 		this.setAuthenticated(true);
 	}
 
 	@Override
-	public U getPrincipal() {
+	public OAuth2User getPrincipal() {
 		return this.principal;
 	}
 
@@ -67,7 +65,7 @@ public class OAuth2AuthenticationToken<U extends OAuth2User, C extends OAuth2Aut
 		return "";
 	}
 
-	public C getAuthorizedClient() {
-		return this.authorizedClient;
+	public String getAuthorizedClientRegistrationId() {
+		return this.authorizedClientRegistrationId;
 	}
 }

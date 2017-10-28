@@ -20,12 +20,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken;
 import org.springframework.security.oauth2.client.endpoint.AuthorizationGrantTokenExchanger;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.jwt.JwtDecoderRegistry;
-import org.springframework.security.oauth2.client.oidc.OidcAuthorizedClient;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -55,19 +53,18 @@ import java.util.List;
  * for the <i>OpenID Connect Core 1.0 Authorization Code Grant Flow</i>.
  * <p>
  * This {@link AuthenticationProvider} is responsible for authenticating
- * an <i>authorization code</i> credential with the authorization server's <i>Token Endpoint</i>
- * and if valid, exchanging it for an <i>access token</i> credential.
+ * an <i>Authorization Code</i> credential with the Authorization Server's <i>Token Endpoint</i>
+ * and if valid, exchanging it for an <i>Access Token</i> credential.
  * <p>
- * It will also obtain the user attributes of the <i>End-User</i> (resource owner)
+ * It will also obtain the user attributes of the <i>End-User</i> (Resource Owner)
  * from the <i>UserInfo Endpoint</i> using an {@link OAuth2UserService}
  * which will create a <code>Principal</code> in the form of an {@link OidcUser}.
  *
  * @author Joe Grandja
  * @since 5.0
- * @see OAuth2AuthorizationCodeAuthenticationToken
- * @see OAuth2AuthenticationToken
+ * @see OidcAuthorizationCodeAuthenticationToken
+ * @see AuthorizationGrantTokenExchanger
  * @see OidcUserService
- * @see OidcAuthorizedClient
  * @see OidcUser
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth">Section 3.1 Authorization Code Grant Flow</a>
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#TokenRequest">Section 3.1.3.1 Token Request</a>
@@ -97,8 +94,8 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 
 	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-		OAuth2AuthorizationCodeAuthenticationToken authorizationCodeAuthentication =
-				(OAuth2AuthorizationCodeAuthenticationToken) authentication;
+		OAuth2LoginAuthenticationToken authorizationCodeAuthentication =
+			(OAuth2LoginAuthenticationToken) authentication;
 
 		// Section 3.1.2.1 Authentication Request - http://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
 		// scope
@@ -160,14 +157,16 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 		OidcUser oidcUser = this.userService.loadUser(
 			new OidcUserRequest(clientRegistration, accessToken, idToken));
 
-		OidcAuthorizedClient oidcAuthorizedClient = new OidcAuthorizedClient(
-			clientRegistration, oidcUser.getName(), accessToken, idToken);
-
 		Collection<? extends GrantedAuthority> mappedAuthorities =
 			this.authoritiesMapper.mapAuthorities(oidcUser.getAuthorities());
 
-		OAuth2AuthenticationToken<OidcUser, OidcAuthorizedClient> authenticationResult =
-			new OAuth2AuthenticationToken<>(oidcUser, mappedAuthorities, oidcAuthorizedClient);
+		OidcAuthorizationCodeAuthenticationToken authenticationResult = new OidcAuthorizationCodeAuthenticationToken(
+			oidcUser,
+			mappedAuthorities,
+			authorizationCodeAuthentication.getClientRegistration(),
+			authorizationCodeAuthentication.getAuthorizationExchange(),
+			accessToken,
+			idToken);
 		authenticationResult.setDetails(authorizationCodeAuthentication.getDetails());
 
 		return authenticationResult;
@@ -180,7 +179,7 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 
 	@Override
 	public boolean supports(Class<?> authentication) {
-		return OAuth2AuthorizationCodeAuthenticationToken.class.isAssignableFrom(authentication);
+		return OAuth2LoginAuthenticationToken.class.isAssignableFrom(authentication);
 	}
 
 	private void validateIdToken(OidcIdToken idToken, ClientRegistration clientRegistration) {

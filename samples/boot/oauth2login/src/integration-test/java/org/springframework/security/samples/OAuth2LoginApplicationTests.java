@@ -30,12 +30,16 @@ import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.endpoint.AuthorizationGrantTokenExchanger;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -388,5 +392,13 @@ public class OAuth2LoginApplicationTests {
 	@EnableAutoConfiguration
 	@ComponentScan(basePackages = "sample.web")
 	public static class SpringBootApplicationTestConfig {
+
+		@Autowired
+		private ClientRegistrationRepository clientRegistrationRepository;
+
+		@Bean
+		public OAuth2AuthorizedClientService<OAuth2AuthorizedClient> authorizedClientService() {
+			return new InMemoryOAuth2AuthorizedClientService<>(this.clientRegistrationRepository);
+		}
 	}
 }

@@ -20,7 +20,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.endpoint.AuthorizationGrantTokenExchanger;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -37,12 +36,12 @@ import org.springframework.util.Assert;
 import java.util.Collection;
 
 /**
- * An implementation of an {@link AuthenticationProvider}
- * for the <i>OAuth 2.0 Authorization Code Grant Flow</i>.
+ * An implementation of an {@link AuthenticationProvider} for <i>OAuth 2.0 Login</i>,
+ * which leverages the <i>OAuth 2.0 Authorization Code Grant</i> Flow.
  *
  * This {@link AuthenticationProvider} is responsible for authenticating
- * an <i>authorization code</i> credential with the authorization server's <i>Token Endpoint</i>
- * and if valid, exchanging it for an <i>access token</i> credential.
+ * an <i>Authorization Code</i> credential with the Authorization Server's <i>Token Endpoint</i>
+ * and if valid, exchanging it for an <i>Access Token</i> credential.
  * <p>
  * It will also obtain the user attributes of the <i>End-User</i> (Resource Owner)
  * from the <i>UserInfo Endpoint</i> using an {@link OAuth2UserService}
@@ -50,10 +49,9 @@ import java.util.Collection;
  *
  * @author Joe Grandja
  * @since 5.0
- * @see OAuth2AuthorizationCodeAuthenticationToken
- * @see OAuth2AuthenticationToken
+ * @see OAuth2LoginAuthenticationToken
+ * @see AuthorizationGrantTokenExchanger
  * @see OAuth2UserService
- * @see OAuth2AuthorizedClient
  * @see OAuth2User
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">Section 4.1 Authorization Code Grant Flow</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.3">Section 4.1.3 Access Token Request</a>
@@ -78,8 +76,8 @@ public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider
 
 	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-		OAuth2AuthorizationCodeAuthenticationToken authorizationCodeAuthentication =
-				(OAuth2AuthorizationCodeAuthenticationToken) authentication;
+		OAuth2LoginAuthenticationToken authorizationCodeAuthentication =
+			(OAuth2LoginAuthenticationToken) authentication;
 
 		// Section 3.1.2.1 Authentication Request - http://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
 		// scope
@@ -124,14 +122,15 @@ public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider
 		OAuth2User oauth2User = this.userService.loadUser(
 			new OAuth2UserRequest(authorizationCodeAuthentication.getClientRegistration(), accessToken));
 
-		OAuth2AuthorizedClient oauth2AuthorizedClient = new OAuth2AuthorizedClient(
-			authorizationCodeAuthentication.getClientRegistration(), oauth2User.getName(), accessToken);
-
 		Collection<? extends GrantedAuthority> mappedAuthorities =
 			this.authoritiesMapper.mapAuthorities(oauth2User.getAuthorities());
 
-		OAuth2AuthenticationToken<OAuth2User, OAuth2AuthorizedClient> authenticationResult =
-			new OAuth2AuthenticationToken<>(oauth2User, mappedAuthorities, oauth2AuthorizedClient);
+		OAuth2LoginAuthenticationToken authenticationResult = new OAuth2LoginAuthenticationToken(
+			oauth2User,
+			mappedAuthorities,
+			authorizationCodeAuthentication.getClientRegistration(),
+			authorizationCodeAuthentication.getAuthorizationExchange(),
+			accessToken);
 		authenticationResult.setDetails(authorizationCodeAuthentication.getDetails());
 
 		return authenticationResult;
@@ -144,6 +143,6 @@ public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider
 
 	@Override
 	public boolean supports(Class<?> authentication) {
-		return OAuth2AuthorizationCodeAuthenticationToken.class.isAssignableFrom(authentication);
+		return OAuth2LoginAuthenticationToken.class.isAssignableFrom(authentication);
 	}
 }

@@ -1014,7 +1014,7 @@ public final class HttpSecurity extends
 	 * 	}
 	 *
 	 * 	&#064;Bean
-	 * 	public AuthorizationGrantTokenExchanger&lt;OAuth2AuthorizationCodeAuthenticationToken&gt; authorizationCodeTokenExchanger() {
+	 * 	public AuthorizationGrantTokenExchanger&lt;OAuth2LoginAuthenticationToken&gt; authorizationCodeTokenExchanger() {
 	 * 		// Custom implementation that exchanges an &quot;Authorization Code Grant&quot; for an &quot;Access Token&quot;
 	 * 		return new AuthorizationCodeTokenExchangerImpl();
 	 * 	}

@@ -21,8 +21,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationProvider;
+import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.token.InMemoryAccessTokenRepository;
@@ -35,7 +35,6 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExch
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -60,7 +59,7 @@ import java.io.IOException;
  *	and redirect the end-user's user-agent back to this <code>Filter</code> (the client).
  * </li>
  * <li>
- *  This <code>Filter</code> will then create an {@link OAuth2AuthorizationCodeAuthenticationToken} with
+ *  This <code>Filter</code> will then create an {@link OAuth2LoginAuthenticationToken} with
  *  the {@link OAuth2ParameterNames#CODE} received in the previous step and delegate it to
  *  {@link OAuth2LoginAuthenticationProvider#authenticate(Authentication)} (indirectly via {@link AuthenticationManager}).
  * </li>
@@ -69,7 +68,7 @@ import java.io.IOException;
  * @author Joe Grandja
  * @since 5.0
  * @see AbstractAuthenticationProcessingFilter
- * @see OAuth2AuthorizationCodeAuthenticationToken
+ * @see OAuth2LoginAuthenticationToken
  * @see OAuth2AuthenticationToken
  * @see OAuth2LoginAuthenticationProvider
  * @see OAuth2AuthorizationRequest
@@ -136,19 +135,29 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 			.redirectUri(authorizationRequest.getRedirectUri())
 			.build();
 
-		OAuth2AuthorizationCodeAuthenticationToken authorizationCodeAuthentication = new OAuth2AuthorizationCodeAuthenticationToken(
+		OAuth2LoginAuthenticationToken authenticationRequest = new OAuth2LoginAuthenticationToken(
 				clientRegistration, new OAuth2AuthorizationExchange(authorizationRequest, authorizationResponse));
-		authorizationCodeAuthentication.setDetails(this.authenticationDetailsSource.buildDetails(request));
+		authenticationRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));
 
-		OAuth2AuthenticationToken<OAuth2User, OAuth2AuthorizedClient> oauth2Authentication =
-			(OAuth2AuthenticationToken<OAuth2User, OAuth2AuthorizedClient>) this.getAuthenticationManager().authenticate(authorizationCodeAuthentication);
+		OAuth2LoginAuthenticationToken authenticationResult =
+			(OAuth2LoginAuthenticationToken)this.getAuthenticationManager().authenticate(authenticationRequest);
+
+		OAuth2AuthenticationToken oauth2Authentication = new OAuth2AuthenticationToken(
+			authenticationResult.getPrincipal(),
+			authenticationResult.getAuthorities(),
+			authenticationResult.getClientRegistration().getRegistrationId());
+
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
+			authenticationResult.getClientRegistration(),
+			oauth2Authentication.getName(),
+			authenticationResult.getAccessToken());
 
 		this.authorizedClientService.saveAuthorizedClient(
-			oauth2Authentication.getAuthorizedClient(), oauth2Authentication);
+			authorizedClient, oauth2Authentication);
 
 		this.accessTokenRepository.saveToken(
-			oauth2Authentication.getAuthorizedClient().getAccessToken(),
-			oauth2Authentication.getAuthorizedClient().getClientRegistration(),
+			authorizedClient.getAccessToken(),
+			authorizedClient.getClientRegistration(),
 			oauth2Authentication);
 
 		return oauth2Authentication;

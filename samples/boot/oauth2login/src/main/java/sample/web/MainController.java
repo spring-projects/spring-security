@@ -15,10 +15,11 @@
  */
 package sample.web;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -37,21 +38,26 @@ import java.util.Map;
 @Controller
 public class MainController {
 
+	@Autowired
+	private OAuth2AuthorizedClientService authorizedClientService;
+
 	@RequestMapping("/")
-	public String index(Model model, @AuthenticationPrincipal OAuth2User user, OAuth2AuthenticationToken authentication) {
-		model.addAttribute("userName", user.getName());
-		model.addAttribute("clientName", authentication.getAuthorizedClient().getClientRegistration().getClientName());
+	public String index(Model model, OAuth2AuthenticationToken authentication) {
+		OAuth2AuthorizedClient authorizedClient = this.getAuthorizedClient(authentication);
+		model.addAttribute("userName", authentication.getName());
+		model.addAttribute("clientName", authorizedClient.getClientRegistration().getClientName());
 		return "index";
 	}
 
 	@RequestMapping("/userinfo")
 	public String userinfo(Model model, OAuth2AuthenticationToken authentication) {
+		OAuth2AuthorizedClient authorizedClient = this.getAuthorizedClient(authentication);
 		Map userAttributes = Collections.emptyMap();
-		String userInfoEndpointUri = authentication.getAuthorizedClient().getClientRegistration()
+		String userInfoEndpointUri = authorizedClient.getClientRegistration()
 			.getProviderDetails().getUserInfoEndpoint().getUri();
 		if (!StringUtils.isEmpty(userInfoEndpointUri)) {	// userInfoEndpointUri is optional for OIDC Clients
 			userAttributes = WebClient.builder()
-				.filter(oauth2Credentials(authentication))
+				.filter(oauth2Credentials(authorizedClient))
 				.build()
 				.get()
 				.uri(userInfoEndpointUri)
@@ -63,11 +69,16 @@ public class MainController {
 		return "userinfo";
 	}
 
-	private ExchangeFilterFunction oauth2Credentials(OAuth2AuthenticationToken authentication) {
+	private OAuth2AuthorizedClient getAuthorizedClient(OAuth2AuthenticationToken authentication) {
+		return this.authorizedClientService.loadAuthorizedClient(
+			authentication.getAuthorizedClientRegistrationId(), authentication);
+	}
+
+	private ExchangeFilterFunction oauth2Credentials(OAuth2AuthorizedClient authorizedClient) {
 		return ExchangeFilterFunction.ofRequestProcessor(
 			clientRequest -> {
 				ClientRequest authorizedRequest = ClientRequest.from(clientRequest)
-					.header(HttpHeaders.AUTHORIZATION, "Bearer " + authentication.getAuthorizedClient().getAccessToken().getTokenValue())
+					.header(HttpHeaders.AUTHORIZATION, "Bearer " + authorizedClient.getAccessToken().getTokenValue())
 					.build();
 				return Mono.just(authorizedRequest);
 			});

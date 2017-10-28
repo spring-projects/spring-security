@@ -27,9 +27,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -48,6 +48,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests {@link OAuth2LoginAuthenticationFilter}.
@@ -99,13 +100,18 @@ public class OAuth2LoginAuthenticationFilterTests {
 	@Test
 	public void doFilterWhenAuthorizationCodeSuccessResponseThenAuthenticationSuccessHandlerIsCalled() throws Exception {
 		ClientRegistration clientRegistration = TestUtil.githubClientRegistration();
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
-			clientRegistration, "principal", mock(OAuth2AccessToken.class));
+		OAuth2User oauth2User = mock(OAuth2User.class);
+		when(oauth2User.getName()).thenReturn("principal name");
+		OAuth2LoginAuthenticationToken loginAuthentication = mock(OAuth2LoginAuthenticationToken.class);
+		when(loginAuthentication.getPrincipal()).thenReturn(oauth2User);
+		when(loginAuthentication.getClientRegistration()).thenReturn(clientRegistration);
+		when(loginAuthentication.getAccessToken()).thenReturn(mock(OAuth2AccessToken.class));
+
 		OAuth2AuthenticationToken userAuthentication = new OAuth2AuthenticationToken(
-			mock(OAuth2User.class), AuthorityUtils.createAuthorityList("ROLE_USER"), authorizedClient);
+			oauth2User, AuthorityUtils.NO_AUTHORITIES, clientRegistration.getRegistrationId());
 		SecurityContextHolder.getContext().setAuthentication(userAuthentication);
 		AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
-		Mockito.when(authenticationManager.authenticate(Matchers.any(Authentication.class))).thenReturn(userAuthentication);
+		when(authenticationManager.authenticate(Matchers.any(Authentication.class))).thenReturn(loginAuthentication);
 
 		OAuth2LoginAuthenticationFilter filter = Mockito.spy(setupFilter(authenticationManager, clientRegistration));
 		AuthenticationSuccessHandler successHandler = mock(AuthenticationSuccessHandler.class);
