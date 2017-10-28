@@ -34,7 +34,7 @@ import java.util.List;
  * @since 5.0
  */
 @Configuration
-public class WebFluxSecurityConfiguration {
+class WebFluxSecurityConfiguration {
 	public static final int WEB_FILTER_CHAIN_FILTER_ORDER = 0 - 100;
 
 	private static final String BEAN_NAME_PREFIX = "org.springframework.security.config.annotation.web.reactive.WebFluxSecurityConfiguration.";
@@ -54,21 +54,30 @@ public class WebFluxSecurityConfiguration {
 	}
 
 	private List<SecurityWebFilterChain> getSecurityWebFilterChains() {
-		List<SecurityWebFilterChain> result = securityWebFilterChains;
+		List<SecurityWebFilterChain> result = this.securityWebFilterChains;
 		if(ObjectUtils.isEmpty(result)) {
-			return defaultSecurityWebFilterChains();
+			return Arrays.asList(springSecurityFilterChain());
 		}
 		return result;
 	}
 
-	private List<SecurityWebFilterChain> defaultSecurityWebFilterChains() {
-		ServerHttpSecurity http = context.getBean(ServerHttpSecurity.class);
+	private SecurityWebFilterChain springSecurityFilterChain() {
+		ServerHttpSecurity http = this.context.getBean(ServerHttpSecurity.class);
+		return springSecurityFilterChain(http);
+	}
+
+	/**
+	 * The default {@link ServerHttpSecurity} configuration.
+	 * @param http
+	 * @return
+	 */
+	private SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 		http
 			.authorizeExchange()
 				.anyExchange().authenticated()
 				.and()
 			.httpBasic().and()
 			.formLogin();
-		return Arrays.asList(http.build());
+		return http.build();
 	}
 }
