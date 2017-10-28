@@ -27,7 +27,6 @@ import org.springframework.http.client.AbstractClientHttpResponse;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.authentication.AuthenticationServiceException;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.util.Assert;
@@ -51,9 +50,9 @@ public class NimbusUserInfoRetriever implements UserInfoRetriever {
 	private final HttpMessageConverter jackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();
 
 	@Override
-	public <T> T retrieve(OAuth2AuthorizedClient authorizedClient, Class<T> returnType) throws OAuth2AuthenticationException {
-		URI userInfoUri = URI.create(authorizedClient.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUri());
-		BearerAccessToken accessToken = new BearerAccessToken(authorizedClient.getAccessToken().getTokenValue());
+	public <T> T retrieve(OAuth2UserRequest userRequest, Class<T> returnType) throws OAuth2AuthenticationException {
+		URI userInfoUri = URI.create(userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUri());
+		BearerAccessToken accessToken = new BearerAccessToken(userRequest.getAccessToken().getTokenValue());
 
 		UserInfoRequest userInfoRequest = new UserInfoRequest(userInfoUri, accessToken);
 		HTTPRequest httpRequest = userInfoRequest.toHTTPRequest();

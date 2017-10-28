@@ -15,22 +15,21 @@
  */
 package org.springframework.security.oauth2.client.userinfo;
 
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 
 /**
  * A strategy for retrieving the user attributes
  * of the <i>End-User</i> (Resource Owner) from the <i>UserInfo Endpoint</i>
- * using the provided {@link OAuth2AuthorizedClient#getAccessToken() Access Token}.
+ * using the provided {@link OAuth2UserRequest#getAccessToken() Access Token}.
  *
  * @author Joe Grandja
  * @author Rob Winch
  * @since 5.0
- * @see OAuth2AuthorizedClient
+ * @see OAuth2UserRequest
  * @see OAuth2UserService
  */
 public interface UserInfoRetriever {
 
-	<T> T retrieve(OAuth2AuthorizedClient authorizedClient, Class<T> responseType) throws OAuth2AuthenticationException;
+	<T> T retrieve(OAuth2UserRequest userRequest, Class<T> responseType) throws OAuth2AuthenticationException;
 
 }

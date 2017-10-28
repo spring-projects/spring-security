@@ -15,7 +15,6 @@
  */
 package org.springframework.security.oauth2.client.userinfo;
 
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.Assert;
@@ -30,30 +29,30 @@ import java.util.Objects;
  * to it's internal <code>List</code> of {@link OAuth2UserService}'s.
  * <p>
  * Each {@link OAuth2UserService} is given a chance to
- * {@link OAuth2UserService#loadUser(OAuth2AuthorizedClient) load} an {@link OAuth2User}
+ * {@link OAuth2UserService#loadUser(OAuth2UserRequest) load} an {@link OAuth2User}
  * with the first <code>non-null</code> {@link OAuth2User} being returned.
  *
  * @author Joe Grandja
  * @since 5.0
  * @see OAuth2UserService
- * @see OAuth2AuthorizedClient
+ * @see OAuth2UserRequest
  * @see OAuth2User
  *
- * @param <C> The type of <i>Authorized Client</i>
+ * @param <R> The type of <i>OAuth 2.0 User Request</i>
  * @param <U> The type of <i>OAuth 2.0 User</i>
  */
-public class DelegatingOAuth2UserService<C extends OAuth2AuthorizedClient, U extends OAuth2User> implements OAuth2UserService<C, U> {
-	private final List<OAuth2UserService<C, U>> userServices;
+public class DelegatingOAuth2UserService<R extends OAuth2UserRequest, U extends OAuth2User> implements OAuth2UserService<R, U> {
+	private final List<OAuth2UserService<R, U>> userServices;
 
-	public DelegatingOAuth2UserService(List<OAuth2UserService<C, U>> userServices) {
+	public DelegatingOAuth2UserService(List<OAuth2UserService<R, U>> userServices) {
 		Assert.notEmpty(userServices, "userServices cannot be empty");
 		this.userServices = Collections.unmodifiableList(new ArrayList<>(userServices));
 	}
 
 	@Override
-	public U loadUser(C authorizedClient) throws OAuth2AuthenticationException {
+	public U loadUser(R userRequest) throws OAuth2AuthenticationException {
 		return this.userServices.stream()
-			.map(userService -> userService.loadUser(authorizedClient))
+			.map(userService -> userService.loadUser(userRequest))
 			.filter(Objects::nonNull)
 			.findFirst()
 			.orElse(null);

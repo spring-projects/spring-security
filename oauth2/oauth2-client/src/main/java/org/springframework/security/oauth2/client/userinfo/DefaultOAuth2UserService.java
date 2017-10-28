@@ -16,7 +16,6 @@
 package org.springframework.security.oauth2.client.userinfo;
 
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
@@ -45,24 +44,24 @@ import java.util.Set;
  * @author Joe Grandja
  * @since 5.0
  * @see OAuth2UserService
- * @see OAuth2AuthorizedClient
+ * @see OAuth2UserRequest
  * @see OAuth2User
  * @see DefaultOAuth2User
  * @see UserInfoRetriever
  */
-public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2AuthorizedClient, OAuth2User> {
+public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 	private UserInfoRetriever userInfoRetriever = new NimbusUserInfoRetriever();
 
 	@Override
-	public OAuth2User loadUser(OAuth2AuthorizedClient authorizedClient) throws OAuth2AuthenticationException {
-		String userNameAttributeName = authorizedClient.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
+	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+		String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
 		if (!StringUtils.hasText(userNameAttributeName)) {
 			throw new IllegalArgumentException(
 				"Missing required \"user name\" attribute name in UserInfoEndpoint for Client Registration: " +
-					authorizedClient.getClientRegistration().getRegistrationId());
+					userRequest.getClientRegistration().getRegistrationId());
 		}
 
-		Map<String, Object> userAttributes = this.userInfoRetriever.retrieve(authorizedClient, Map.class);
+		Map<String, Object> userAttributes = this.userInfoRetriever.retrieve(userRequest, Map.class);
 		GrantedAuthority authority = new OAuth2UserAuthority(userAttributes);
 		Set<GrantedAuthority> authorities = new HashSet<>();
 		authorities.add(authority);

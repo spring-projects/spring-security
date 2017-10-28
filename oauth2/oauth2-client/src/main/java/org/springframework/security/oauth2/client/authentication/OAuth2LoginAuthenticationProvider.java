@@ -21,13 +21,14 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
-import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.Assert;
 
@@ -60,12 +61,12 @@ public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider
 	private static final String INVALID_STATE_PARAMETER_ERROR_CODE = "invalid_state_parameter";
 	private static final String INVALID_REDIRECT_URI_PARAMETER_ERROR_CODE = "invalid_redirect_uri_parameter";
 	private final AuthorizationGrantTokenExchanger<OAuth2AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger;
-	private final OAuth2UserService<OAuth2AuthorizedClient, OAuth2User> userService;
+	private final OAuth2UserService<OAuth2UserRequest, OAuth2User> userService;
 	private GrantedAuthoritiesMapper authoritiesMapper = (authorities -> authorities);
 
 	public OAuth2LoginAuthenticationProvider(
 		AuthorizationGrantTokenExchanger<OAuth2AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger,
-		OAuth2UserService<OAuth2AuthorizedClient, OAuth2User> userService) {
+		OAuth2UserService<OAuth2UserRequest, OAuth2User> userService) {
 
 		Assert.notNull(authorizationCodeTokenExchanger, "authorizationCodeTokenExchanger cannot be null");
 		Assert.notNull(userService, "userService cannot be null");
@@ -115,13 +116,10 @@ public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider
 			accessTokenResponse.getTokenValue(), accessTokenResponse.getIssuedAt(),
 			accessTokenResponse.getExpiresAt(), accessTokenResponse.getScopes());
 
+		OAuth2User oauth2User = this.userService.loadUser(
+			new OAuth2UserRequest(authorizationCodeAuthentication.getClientRegistration(), accessToken));
+
 		OAuth2AuthorizedClient oauth2AuthorizedClient = new OAuth2AuthorizedClient(
-			authorizationCodeAuthentication.getClientRegistration(), "unknown", accessToken);
-
-		OAuth2User oauth2User = this.userService.loadUser(oauth2AuthorizedClient);
-
-		// Update OAuth2AuthorizedClient now that we know the 'principalName'
-		oauth2AuthorizedClient = new OAuth2AuthorizedClient(
 			authorizationCodeAuthentication.getClientRegistration(), oauth2User.getName(), accessToken);
 
 		Collection<? extends GrantedAuthority> mappedAuthorities =

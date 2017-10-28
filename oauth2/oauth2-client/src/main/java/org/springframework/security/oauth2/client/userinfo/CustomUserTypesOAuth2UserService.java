@@ -15,7 +15,6 @@
  */
 package org.springframework.security.oauth2.client.userinfo;
 
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.Assert;
@@ -37,11 +36,11 @@ import java.util.Map;
  * @author Joe Grandja
  * @since 5.0
  * @see OAuth2UserService
- * @see OAuth2AuthorizedClient
+ * @see OAuth2UserRequest
  * @see OAuth2User
  * @see UserInfoRetriever
  */
-public class CustomUserTypesOAuth2UserService implements OAuth2UserService<OAuth2AuthorizedClient, OAuth2User> {
+public class CustomUserTypesOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 	private final Map<String, Class<? extends OAuth2User>> customUserTypes;
 	private UserInfoRetriever userInfoRetriever = new NimbusUserInfoRetriever();
 
@@ -51,14 +50,14 @@ public class CustomUserTypesOAuth2UserService implements OAuth2UserService<OAuth
 	}
 
 	@Override
-	public OAuth2User loadUser(OAuth2AuthorizedClient authorizedClient) throws OAuth2AuthenticationException {
-		String userInfoUri = authorizedClient.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUri();
+	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+		String userInfoUri = userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUri();
 		Class<? extends OAuth2User> customUserType;
 		if ((customUserType = this.customUserTypes.get(userInfoUri)) == null) {
 			return null;
 		}
 
-		return this.userInfoRetriever.retrieve(authorizedClient, customUserType);
+		return this.userInfoRetriever.retrieve(userRequest, customUserType);
 	}
 
 	public final void setUserInfoRetriever(UserInfoRetriever userInfoRetriever) {

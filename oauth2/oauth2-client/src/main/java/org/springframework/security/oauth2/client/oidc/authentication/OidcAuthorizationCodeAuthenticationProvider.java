@@ -20,20 +20,21 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.AuthorizationGrantTokenExchanger;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.client.jwt.JwtDecoderRegistry;
 import org.springframework.security.oauth2.client.oidc.OidcAuthorizedClient;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
-import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
@@ -76,13 +77,13 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 	private static final String INVALID_REDIRECT_URI_PARAMETER_ERROR_CODE = "invalid_redirect_uri_parameter";
 	private static final String INVALID_ID_TOKEN_ERROR_CODE = "invalid_id_token";
 	private final AuthorizationGrantTokenExchanger<OAuth2AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger;
-	private final OAuth2UserService<OidcAuthorizedClient, OidcUser> userService;
+	private final OAuth2UserService<OidcUserRequest, OidcUser> userService;
 	private final JwtDecoderRegistry jwtDecoderRegistry;
 	private GrantedAuthoritiesMapper authoritiesMapper = (authorities -> authorities);
 
 	public OidcAuthorizationCodeAuthenticationProvider(
 		AuthorizationGrantTokenExchanger<OAuth2AuthorizationCodeAuthenticationToken> authorizationCodeTokenExchanger,
-		OAuth2UserService<OidcAuthorizedClient, OidcUser> userService,
+		OAuth2UserService<OidcUserRequest, OidcUser> userService,
 		JwtDecoderRegistry jwtDecoderRegistry) {
 
 		Assert.notNull(authorizationCodeTokenExchanger, "authorizationCodeTokenExchanger cannot be null");
@@ -152,14 +153,10 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 
 		this.validateIdToken(idToken, clientRegistration);
 
+		OidcUser oidcUser = this.userService.loadUser(
+			new OidcUserRequest(clientRegistration, accessToken, idToken));
+
 		OidcAuthorizedClient oidcAuthorizedClient = new OidcAuthorizedClient(
-			clientRegistration, idToken.getSubject(), accessToken, idToken);
-
-		OidcUser oidcUser = this.userService.loadUser(oidcAuthorizedClient);
-
-		// Update OidcAuthorizedClient as the 'principalName' may have changed
-		// (the default IdToken.subject) from the result of userService.loadUser()
-		oidcAuthorizedClient = new OidcAuthorizedClient(
 			clientRegistration, oidcUser.getName(), accessToken, idToken);
 
 		Collection<? extends GrantedAuthority> mappedAuthorities =
