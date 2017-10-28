@@ -84,7 +84,8 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 	public static final String DEFAULT_FILTER_PROCESSES_URI = "/login/oauth2/code/*";
 	private static final String AUTHORIZATION_REQUEST_NOT_FOUND_ERROR_CODE = "authorization_request_not_found";
 	private ClientRegistrationRepository clientRegistrationRepository;
-	private AuthorizationRequestRepository authorizationRequestRepository = new HttpSessionAuthorizationRequestRepository();
+	private AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
+		new HttpSessionOAuth2AuthorizationRequestRepository();
 	private OAuth2TokenRepository<OAuth2AccessToken> accessTokenRepository = new InMemoryAccessTokenRepository();
 
 	public OAuth2LoginAuthenticationFilter() {
@@ -152,7 +153,7 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 		this.clientRegistrationRepository = clientRegistrationRepository;
 	}
 
-	public final void setAuthorizationRequestRepository(AuthorizationRequestRepository authorizationRequestRepository) {
+	public final void setAuthorizationRequestRepository(AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
 		Assert.notNull(authorizationRequestRepository, "authorizationRequestRepository cannot be null");
 		this.authorizationRequestRepository = authorizationRequestRepository;
 	}

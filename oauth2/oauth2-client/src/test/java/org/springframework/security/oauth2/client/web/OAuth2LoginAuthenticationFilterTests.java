@@ -109,7 +109,8 @@ public class OAuth2LoginAuthenticationFilterTests {
 		OAuth2LoginAuthenticationFilter filter = Mockito.spy(setupFilter(authenticationManager, clientRegistration));
 		AuthenticationSuccessHandler successHandler = mock(AuthenticationSuccessHandler.class);
 		filter.setAuthenticationSuccessHandler(successHandler);
-		AuthorizationRequestRepository authorizationRequestRepository = new HttpSessionAuthorizationRequestRepository();
+		AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
+			new HttpSessionOAuth2AuthorizationRequestRepository();
 		filter.setAuthorizationRequestRepository(authorizationRequestRepository);
 
 		MockHttpServletRequest request = this.setupRequest(clientRegistration);
@@ -187,7 +188,7 @@ public class OAuth2LoginAuthenticationFilterTests {
 		return filter;
 	}
 
-	private void setupAuthorizationRequest(AuthorizationRequestRepository authorizationRequestRepository,
+	private void setupAuthorizationRequest(AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository,
 											HttpServletRequest request,
 											HttpServletResponse response,
 											ClientRegistration clientRegistration,

@@ -33,15 +33,17 @@ import javax.servlet.http.HttpServletResponse;
  * @author Joe Grandja
  * @since 5.0
  * @see OAuth2AuthorizationRequest
- * @see HttpSessionAuthorizationRequestRepository
+ * @see HttpSessionOAuth2AuthorizationRequestRepository
+ *
+ * @param <T> The type of <i>OAuth 2.0 Authorization Request</i>
  */
-public interface AuthorizationRequestRepository {
+public interface AuthorizationRequestRepository<T extends OAuth2AuthorizationRequest> {
 
-	OAuth2AuthorizationRequest loadAuthorizationRequest(HttpServletRequest request);
+	T loadAuthorizationRequest(HttpServletRequest request);
 
-	void saveAuthorizationRequest(OAuth2AuthorizationRequest authorizationRequest, HttpServletRequest request,
+	void saveAuthorizationRequest(T authorizationRequest, HttpServletRequest request,
 									HttpServletResponse response);
 
-	OAuth2AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request);
+	T removeAuthorizationRequest(HttpServletRequest request);
 
 }

@@ -29,9 +29,9 @@ import javax.servlet.http.HttpSession;
  * @since 5.0
  * @see OAuth2AuthorizationRequest
  */
-public final class HttpSessionAuthorizationRequestRepository implements AuthorizationRequestRepository {
+public final class HttpSessionOAuth2AuthorizationRequestRepository implements AuthorizationRequestRepository<OAuth2AuthorizationRequest> {
 	private static final String DEFAULT_AUTHORIZATION_REQUEST_ATTR_NAME =
-			HttpSessionAuthorizationRequestRepository.class.getName() +  ".AUTHORIZATION_REQUEST";
+			HttpSessionOAuth2AuthorizationRequestRepository.class.getName() +  ".AUTHORIZATION_REQUEST";
 	private final String sessionAttributeName = DEFAULT_AUTHORIZATION_REQUEST_ATTR_NAME;
 
 	@Override

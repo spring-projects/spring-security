@@ -87,7 +87,8 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 		String authorizationUri = clientRegistration.getProviderDetails().getAuthorizationUri().toString();
 		OAuth2AuthorizationRequestRedirectFilter filter =
 				setupFilter(authorizationUri, clientRegistration);
-		AuthorizationRequestRepository authorizationRequestRepository = new HttpSessionAuthorizationRequestRepository();
+		AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
+			new HttpSessionOAuth2AuthorizationRequestRepository();
 		filter.setAuthorizationRequestRepository(authorizationRequestRepository);
 
 		String requestUri = TestUtil.AUTHORIZATION_BASE_URI + "/" + clientRegistration.getRegistrationId();
