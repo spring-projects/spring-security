@@ -15,20 +15,18 @@
  */
 package org.springframework.security.config.annotation.web.configurers.oauth2.client;
 
-import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.ResolvableType;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
-import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationProvider;
 import org.springframework.security.oauth2.client.endpoint.AuthorizationGrantTokenExchanger;
+import org.springframework.security.oauth2.client.endpoint.AuthorizationRequestUriBuilder;
 import org.springframework.security.oauth2.client.endpoint.NimbusAuthorizationCodeTokenExchanger;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
-import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationProvider;
-import org.springframework.security.oauth2.client.endpoint.AuthorizationRequestUriBuilder;
 import org.springframework.security.oauth2.client.jwt.JwtDecoderRegistry;
 import org.springframework.security.oauth2.client.jwt.NimbusJwtDecoderRegistry;
 import org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizationCodeAuthenticationProvider;
@@ -36,7 +34,6 @@ import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.client.token.OAuth2TokenRepository;
 import org.springframework.security.oauth2.client.userinfo.CustomUserTypesOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -56,7 +53,6 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,11 +75,6 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		super(new OAuth2LoginAuthenticationFilter(
 			OAuth2LoginAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI),
 			OAuth2LoginAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI);
-	}
-
-	public OAuth2LoginConfigurer<B> clients(ClientRegistration... clientRegistrations) {
-		Assert.notEmpty(clientRegistrations, "clientRegistrations cannot be empty");
-		return this.clients(new InMemoryClientRegistrationRepository(Arrays.asList(clientRegistrations)));
 	}
 
 	public OAuth2LoginConfigurer<B> clients(ClientRegistrationRepository clientRegistrationRepository) {
@@ -323,7 +314,8 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 	}
 
 	private ClientRegistrationRepository getClientRegistrationRepository() {
-		ClientRegistrationRepository clientRegistrationRepository = this.getBuilder().getSharedObject(ClientRegistrationRepository.class);
+		ClientRegistrationRepository clientRegistrationRepository =
+			this.getBuilder().getSharedObject(ClientRegistrationRepository.class);
 		if (clientRegistrationRepository == null) {
 			clientRegistrationRepository = this.getClientRegistrationRepositoryBean();
 			this.getBuilder().setSharedObject(ClientRegistrationRepository.class, clientRegistrationRepository);
@@ -336,23 +328,17 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 	}
 
 	private OAuth2AuthorizedClientService<OAuth2AuthorizedClient> getAuthorizedClientService() {
-		OAuth2AuthorizedClientService<OAuth2AuthorizedClient> authorizedClientService = this.getBuilder().getSharedObject(OAuth2AuthorizedClientService.class);
+		OAuth2AuthorizedClientService<OAuth2AuthorizedClient> authorizedClientService =
+			this.getBuilder().getSharedObject(OAuth2AuthorizedClientService.class);
 		if (authorizedClientService == null) {
 			authorizedClientService = this.getAuthorizedClientServiceBean();
-			if (authorizedClientService == null) {
-				authorizedClientService = new InMemoryOAuth2AuthorizedClientService<>(this.getClientRegistrationRepository());
-			}
 			this.getBuilder().setSharedObject(OAuth2AuthorizedClientService.class, authorizedClientService);
 		}
 		return authorizedClientService;
 	}
 
 	private OAuth2AuthorizedClientService<OAuth2AuthorizedClient> getAuthorizedClientServiceBean() {
-		Map<String, OAuth2AuthorizedClientService> authorizedClientServiceMap =
-			BeanFactoryUtils.beansOfTypeIncludingAncestors(
-				this.getBuilder().getSharedObject(ApplicationContext.class),
-				OAuth2AuthorizedClientService.class);
-		return !authorizedClientServiceMap.isEmpty() ? authorizedClientServiceMap.values().iterator().next() : null;
+		return this.getBuilder().getSharedObject(ApplicationContext.class).getBean(OAuth2AuthorizedClientService.class);
 	}
 
 	private void initDefaultLoginFilter(B http) {
