@@ -15,8 +15,10 @@
  */
 package org.springframework.security.oauth2.core.oidc;
 
+import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.Assert;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -35,7 +37,8 @@ import java.util.Map;
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#UserInfo">UserInfo Endpoint</a>
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#StandardClaims">Standard Claims</a>
  */
-public class OidcUserInfo implements StandardClaimAccessor {
+public class OidcUserInfo implements StandardClaimAccessor, Serializable {
+	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 	private final Map<String, Object> claims;
 
 	public OidcUserInfo(Map<String, Object> claims) {
