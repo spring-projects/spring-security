@@ -77,8 +77,7 @@ public class HelloWebfluxMethodApplicationTests {
 			.uri("/message")
 			.attributes(robsCredentials())
 			.exchange()
-			.expectStatus().isEqualTo(HttpStatus.FORBIDDEN)
-			.expectBody().isEmpty();
+			.expectStatus().isEqualTo(HttpStatus.FORBIDDEN);
 	}
 
 	@Test
@@ -101,8 +100,7 @@ public class HelloWebfluxMethodApplicationTests {
 			.get()
 			.uri("/message")
 			.exchange()
-			.expectStatus().isEqualTo(HttpStatus.FORBIDDEN)
-			.expectBody().isEmpty();
+			.expectStatus().isEqualTo(HttpStatus.FORBIDDEN);
 	}
 
 	@Test
@@ -125,8 +123,7 @@ public class HelloWebfluxMethodApplicationTests {
 			.get()
 			.uri("/message")
 			.exchange()
-			.expectStatus().isEqualTo(HttpStatus.FORBIDDEN)
-			.expectBody().isEmpty();
+			.expectStatus().isEqualTo(HttpStatus.FORBIDDEN);
 	}
 
 	@Test

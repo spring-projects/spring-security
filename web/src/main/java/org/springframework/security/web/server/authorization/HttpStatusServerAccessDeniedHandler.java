@@ -16,12 +16,19 @@
 
 package org.springframework.security.web.server.authorization;
 
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.DataBufferFactory;
+import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.http.MediaType;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import reactor.core.publisher.Mono;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
+
+import java.nio.charset.Charset;
 
 /**
  * Sets an HTTP Status that is provided when
@@ -38,6 +45,15 @@ public class HttpStatusServerAccessDeniedHandler implements ServerAccessDeniedHa
 
 	@Override
 	public Mono<Void> handle(ServerWebExchange exchange, AccessDeniedException e) {
-		return Mono.fromRunnable(() -> exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN));
+		return Mono.defer(() -> Mono.just(exchange.getResponse()))
+			.flatMap(response -> {
+				response.setStatusCode(HttpStatus.FORBIDDEN);
+				response.getHeaders().setContentType(MediaType.TEXT_PLAIN);
+				DataBufferFactory dataBufferFactory = response.bufferFactory();
+				DataBuffer buffer = dataBufferFactory.wrap(e.getMessage().getBytes(
+					Charset.defaultCharset()));
+				return response.writeWith(Mono.just(buffer))
+					.doOnError( error -> DataBufferUtils.release(buffer));
+		});
 	}
 }
