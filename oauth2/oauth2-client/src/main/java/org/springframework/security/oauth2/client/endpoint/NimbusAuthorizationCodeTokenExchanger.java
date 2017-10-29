@@ -76,7 +76,7 @@ public class NimbusAuthorizationCodeTokenExchanger implements AuthorizationGrant
 		// Build the authorization code grant request for the token endpoint
 		AuthorizationCode authorizationCode = new AuthorizationCode(
 			authorizationGrantRequest.getAuthorizationExchange().getAuthorizationResponse().getCode());
-		URI redirectUri = toURI(clientRegistration.getRedirectUri());
+		URI redirectUri = toURI(authorizationGrantRequest.getAuthorizationExchange().getAuthorizationRequest().getRedirectUri());
 		AuthorizationGrant authorizationCodeGrant = new AuthorizationCodeGrant(authorizationCode, redirectUri);
 		URI tokenUri = toURI(clientRegistration.getProviderDetails().getTokenUri());
 

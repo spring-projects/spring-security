@@ -19,7 +19,6 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -130,11 +129,6 @@ public final class ClientRegistration {
 		return new Builder(registrationId);
 	}
 
-	public static Builder from(ClientRegistration clientRegistration) {
-		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
-		return new Builder(clientRegistration);
-	}
-
 	public static class Builder {
 		private String registrationId;
 		private String clientId;
@@ -152,24 +146,6 @@ public final class ClientRegistration {
 
 		private Builder(String registrationId) {
 			this.registrationId = registrationId;
-		}
-
-		private Builder(ClientRegistration clientRegistration) {
-			this(clientRegistration.getRegistrationId());
-			this.clientId(clientRegistration.getClientId());
-			this.clientSecret(clientRegistration.getClientSecret());
-			this.clientAuthenticationMethod(clientRegistration.getClientAuthenticationMethod());
-			this.authorizationGrantType(clientRegistration.getAuthorizationGrantType());
-			this.redirectUri(clientRegistration.getRedirectUri());
-			if (!CollectionUtils.isEmpty(clientRegistration.getScopes())) {
-				this.scope(clientRegistration.getScopes().toArray(new String[0]));
-			}
-			this.authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri());
-			this.tokenUri(clientRegistration.getProviderDetails().getTokenUri());
-			this.userInfoUri(clientRegistration.getProviderDetails().getUserInfoEndpoint().getUri());
-			this.userNameAttributeName(clientRegistration.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName());
-			this.jwkSetUri(clientRegistration.getProviderDetails().getJwkSetUri());
-			this.clientName(clientRegistration.getClientName());
 		}
 
 		public Builder clientId(String clientId) {

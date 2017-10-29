@@ -124,17 +124,6 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 		String registrationId = (String)authorizationRequest.getAdditionalParameters().get(OAuth2ParameterNames.REGISTRATION_ID);
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(registrationId);
 
-		// The clientRegistration.redirectUri may contain Uri template variables, whether it's configured by
-		// the user or configured by default. In these cases, the redirectUri will be expanded and ultimately changed
-		// (by OAuth2AuthorizationRequestRedirectFilter) before setting it in the authorization request.
-		// The resulting redirectUri used for the authorization request and saved within the AuthorizationRequestRepository
-		// MUST BE the same one used to complete the authorization code flow.
-		// Therefore, we'll create a copy of the clientRegistration and override the redirectUri
-		// with the one contained in authorizationRequest.
-		clientRegistration = ClientRegistration.from(clientRegistration)
-			.redirectUri(authorizationRequest.getRedirectUri())
-			.build();
-
 		OAuth2LoginAuthenticationToken authenticationRequest = new OAuth2LoginAuthenticationToken(
 				clientRegistration, new OAuth2AuthorizationExchange(authorizationRequest, authorizationResponse));
 		authenticationRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));
