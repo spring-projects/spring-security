@@ -641,31 +641,26 @@ public class ServerHttpSecurity {
 	 * @since 5.0
 	 */
 	public final class LogoutBuilder {
-
-		private ServerLogoutHandler serverLogoutHandler = new SecurityContextServerLogoutHandler();
-
-		private ServerLogoutSuccessHandler logoutSuccessHandler;
-
-		private String logoutUrl = "/logout";
-
-		private ServerWebExchangeMatcher requiresLogout = ServerWebExchangeMatchers
-			.pathMatchers(this.logoutUrl);
+		private LogoutWebFilter logoutWebFilter = new LogoutWebFilter();
 
 		public LogoutBuilder logoutHandler(ServerLogoutHandler serverLogoutHandler) {
-			Assert.notNull(serverLogoutHandler, "logoutHandler must not be null");
-			this.serverLogoutHandler = serverLogoutHandler;
+			this.logoutWebFilter.setServerLogoutHandler(serverLogoutHandler);
 			return this;
 		}
 
 		public LogoutBuilder logoutUrl(String logoutUrl) {
-			Assert.notNull(this.serverLogoutHandler, "logoutUrl must not be null");
-			this.logoutUrl = logoutUrl;
-			this.requiresLogout = ServerWebExchangeMatchers.pathMatchers(logoutUrl);
+			Assert.notNull(logoutUrl, "logoutUrl must not be null");
+			ServerWebExchangeMatcher requiresLogout = ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, logoutUrl);
+			return requiresLogout(requiresLogout);
+		}
+
+		public LogoutBuilder requiresLogout(ServerWebExchangeMatcher requiresLogout) {
+			this.logoutWebFilter.setRequiresLogout(requiresLogout);
 			return this;
 		}
 
 		public LogoutBuilder logoutSuccessHandler(ServerLogoutSuccessHandler handler) {
-			this.logoutSuccessHandler = handler;
+			this.logoutWebFilter.setServerLogoutSuccessHandler(handler);
 			return this;
 		}
 
@@ -679,19 +674,7 @@ public class ServerHttpSecurity {
 		}
 
 		public void configure(ServerHttpSecurity http) {
-			LogoutWebFilter logoutWebFilter = createLogoutWebFilter(http);
-			http.addFilterAt(logoutWebFilter, SecurityWebFiltersOrder.LOGOUT);
-		}
-
-		private LogoutWebFilter createLogoutWebFilter(ServerHttpSecurity http) {
-			LogoutWebFilter logoutWebFilter = new LogoutWebFilter();
-			logoutWebFilter.setServerLogoutHandler(this.serverLogoutHandler);
-			logoutWebFilter.setRequiresLogout(this.requiresLogout);
-			if(this.logoutSuccessHandler != null) {
-				logoutWebFilter.setServerLogoutSuccessHandler(this.logoutSuccessHandler);
-			}
-
-			return logoutWebFilter;
+			http.addFilterAt(this.logoutWebFilter, SecurityWebFiltersOrder.LOGOUT);
 		}
 
 		private LogoutBuilder() {}

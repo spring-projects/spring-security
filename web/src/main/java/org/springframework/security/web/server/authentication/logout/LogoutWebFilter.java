@@ -16,6 +16,7 @@
 
 package org.springframework.security.web.server.authentication.logout;
 
+import org.springframework.http.HttpMethod;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
@@ -46,7 +47,7 @@ public class LogoutWebFilter implements WebFilter {
 	private ServerLogoutSuccessHandler serverLogoutSuccessHandler = new RedirectServerLogoutSuccessHandler();
 
 	private ServerWebExchangeMatcher requiresLogout = ServerWebExchangeMatchers
-		.pathMatchers("/logout");
+		.pathMatchers(HttpMethod.POST, "/logout");
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
