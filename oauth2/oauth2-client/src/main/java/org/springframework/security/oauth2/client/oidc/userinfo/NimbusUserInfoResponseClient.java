@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.client.userinfo;
+package org.springframework.security.oauth2.client.oidc.userinfo;
 
 import com.nimbusds.oauth2.sdk.ErrorObject;
 import com.nimbusds.oauth2.sdk.ParseException;
@@ -29,6 +29,9 @@ import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.converter.GenericHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.util.Assert;
@@ -40,22 +43,20 @@ import java.net.URI;
 import java.nio.charset.Charset;
 
 /**
- * An implementation of a {@link UserInfoRetriever} that uses the <b>Nimbus OAuth 2.0 SDK</b> internally.
+ * NOTE: This is a straight copy of org.springframework.security.oauth2.client.userinfo.NimbusUserInfoResponseClient
  *
  * @author Joe Grandja
  * @since 5.0
- * @see UserInfoRetriever
- * @see <a target="_blank" href="https://connect2id.com/products/nimbus-oauth-openid-connect-sdk">Nimbus OAuth 2.0 SDK</a>
  */
-public class NimbusUserInfoRetriever implements UserInfoRetriever {
+final class NimbusUserInfoResponseClient {
 	private static final String INVALID_USER_INFO_RESPONSE_ERROR_CODE = "invalid_user_info_response";
 	private final GenericHttpMessageConverter genericHttpMessageConverter = new MappingJackson2HttpMessageConverter();
 
-	@Override
-	public <T> T retrieve(OAuth2UserRequest userRequest, Class<T> returnType) throws OAuth2AuthenticationException {
+	<T> T getUserInfoResponse(OAuth2UserRequest userInfoRequest, Class<T> returnType) throws OAuth2AuthenticationException {
+		ClientHttpResponse userInfoResponse = this.getUserInfoResponse(
+			userInfoRequest.getClientRegistration(), userInfoRequest.getAccessToken());
 		try {
-			ClientHttpResponse userResponse = this.retrieveResponse(userRequest);
-			return (T) this.genericHttpMessageConverter.read(returnType, userResponse);
+			return (T) this.genericHttpMessageConverter.read(returnType, userInfoResponse);
 		} catch (IOException ex) {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_USER_INFO_RESPONSE_ERROR_CODE,
 				"An error occurred reading the UserInfo Success response: " + ex.getMessage(), null);
@@ -63,11 +64,11 @@ public class NimbusUserInfoRetriever implements UserInfoRetriever {
 		}
 	}
 
-	@Override
-	public <T> T retrieve(OAuth2UserRequest userRequest, ParameterizedTypeReference<T> typeReference) throws OAuth2AuthenticationException {
+	<T> T getUserInfoResponse(OAuth2UserRequest userInfoRequest, ParameterizedTypeReference<T> typeReference) throws OAuth2AuthenticationException {
+		ClientHttpResponse userInfoResponse = this.getUserInfoResponse(
+			userInfoRequest.getClientRegistration(), userInfoRequest.getAccessToken());
 		try {
-			ClientHttpResponse userResponse = this.retrieveResponse(userRequest);
-			return (T) this.genericHttpMessageConverter.read(typeReference.getType(), null, userResponse);
+			return (T) this.genericHttpMessageConverter.read(typeReference.getType(), null, userInfoResponse);
 		} catch (IOException ex) {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_USER_INFO_RESPONSE_ERROR_CODE,
 				"An error occurred reading the UserInfo Success response: " + ex.getMessage(), null);
@@ -75,9 +76,10 @@ public class NimbusUserInfoRetriever implements UserInfoRetriever {
 		}
 	}
 
-	private ClientHttpResponse retrieveResponse(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-		URI userInfoUri = URI.create(userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUri());
-		BearerAccessToken accessToken = new BearerAccessToken(userRequest.getAccessToken().getTokenValue());
+	private ClientHttpResponse getUserInfoResponse(ClientRegistration clientRegistration,
+													OAuth2AccessToken oauth2AccessToken) throws OAuth2AuthenticationException {
+		URI userInfoUri = URI.create(clientRegistration.getProviderDetails().getUserInfoEndpoint().getUri());
+		BearerAccessToken accessToken = new BearerAccessToken(oauth2AccessToken.getTokenValue());
 
 		UserInfoRequest userInfoRequest = new UserInfoRequest(userInfoUri, accessToken);
 		HTTPRequest httpRequest = userInfoRequest.toHTTPRequest();

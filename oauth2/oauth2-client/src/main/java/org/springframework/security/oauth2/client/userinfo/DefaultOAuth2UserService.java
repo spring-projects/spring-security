@@ -15,13 +15,13 @@
  */
 package org.springframework.security.oauth2.client.userinfo;
 
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
-import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.util.HashSet;
@@ -37,9 +37,6 @@ import java.util.Set;
  * <p>
  * <b>NOTE:</b> Attribute names are <b><i>not</i></b> standardized between providers and therefore will vary.
  * Please consult the provider's API documentation for the set of supported user attribute names.
- * <p>
- * This implementation uses a {@link UserInfoRetriever} to obtain the user attributes
- * of the <i>End-User</i> (resource owner) from the <i>UserInfo Endpoint</i>.
  *
  * @author Joe Grandja
  * @since 5.0
@@ -47,10 +44,9 @@ import java.util.Set;
  * @see OAuth2UserRequest
  * @see OAuth2User
  * @see DefaultOAuth2User
- * @see UserInfoRetriever
  */
 public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
-	private UserInfoRetriever userInfoRetriever = new NimbusUserInfoRetriever();
+	private NimbusUserInfoResponseClient userInfoResponseClient = new NimbusUserInfoResponseClient();
 
 	@Override
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -61,16 +57,13 @@ public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2UserReq
 					userRequest.getClientRegistration().getRegistrationId());
 		}
 
-		Map<String, Object> userAttributes = this.userInfoRetriever.retrieve(userRequest, Map.class);
+		ParameterizedTypeReference<Map<String, Object>> typeReference =
+			new ParameterizedTypeReference<Map<String, Object>>() {};
+		Map<String, Object> userAttributes = this.userInfoResponseClient.getUserInfoResponse(userRequest, typeReference);
 		GrantedAuthority authority = new OAuth2UserAuthority(userAttributes);
 		Set<GrantedAuthority> authorities = new HashSet<>();
 		authorities.add(authority);
 
 		return new DefaultOAuth2User(authorities, userAttributes, userNameAttributeName);
-	}
-
-	public final void setUserInfoRetriever(UserInfoRetriever userInfoRetriever) {
-		Assert.notNull(userInfoRetriever, "userInfoRetriever cannot be null");
-		this.userInfoRetriever = userInfoRetriever;
 	}
 }

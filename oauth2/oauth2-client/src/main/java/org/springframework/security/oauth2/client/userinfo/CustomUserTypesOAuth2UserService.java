@@ -30,21 +30,17 @@ import java.util.Map;
  * The custom user type(s) is supplied via the constructor,
  * using a <code>Map</code> of {@link OAuth2User} type <i>keyed</i> by <code>String</code>,
  * which represents the {@link ClientRegistration#getRegistrationId() Registration Id} of the Client.
- * <p>
- * This implementation uses a {@link UserInfoRetriever} to obtain the user attributes
- * of the <i>End-User</i> (Resource Owner) from the <i>UserInfo Endpoint</i>.
  *
  * @author Joe Grandja
  * @since 5.0
  * @see OAuth2UserService
  * @see OAuth2UserRequest
  * @see OAuth2User
- * @see UserInfoRetriever
  * @see ClientRegistration
  */
 public class CustomUserTypesOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 	private final Map<String, Class<? extends OAuth2User>> customUserTypes;
-	private UserInfoRetriever userInfoRetriever = new NimbusUserInfoRetriever();
+	private NimbusUserInfoResponseClient userInfoResponseClient = new NimbusUserInfoResponseClient();
 
 	public CustomUserTypesOAuth2UserService(Map<String, Class<? extends OAuth2User>> customUserTypes) {
 		Assert.notEmpty(customUserTypes, "customUserTypes cannot be empty");
@@ -58,12 +54,6 @@ public class CustomUserTypesOAuth2UserService implements OAuth2UserService<OAuth
 		if ((customUserType = this.customUserTypes.get(registrationId)) == null) {
 			return null;
 		}
-
-		return this.userInfoRetriever.retrieve(userRequest, customUserType);
-	}
-
-	public final void setUserInfoRetriever(UserInfoRetriever userInfoRetriever) {
-		Assert.notNull(userInfoRetriever, "userInfoRetriever cannot be null");
-		this.userInfoRetriever = userInfoRetriever;
+		return this.userInfoResponseClient.getUserInfoResponse(userRequest, customUserType);
 	}
 }

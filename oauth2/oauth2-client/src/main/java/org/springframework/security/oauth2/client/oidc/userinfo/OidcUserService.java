@@ -15,10 +15,9 @@
  */
 package org.springframework.security.oauth2.client.oidc.userinfo;
 
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.client.userinfo.NimbusUserInfoRetriever;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
-import org.springframework.security.oauth2.client.userinfo.UserInfoRetriever;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
@@ -27,7 +26,6 @@ import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
-import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
@@ -37,10 +35,6 @@ import java.util.Set;
 
 /**
  * An implementation of an {@link OAuth2UserService} that supports <i>OpenID Connect 1.0 Provider's</i>.
- * <p>
- * This implementation uses a {@link UserInfoRetriever} to obtain the user attributes
- * of the <i>End-User</i> (resource owner) from the <i>UserInfo Endpoint</i>
- * and constructs a {@link OidcUserInfo} instance.
  *
  * @author Joe Grandja
  * @since 5.0
@@ -49,19 +43,20 @@ import java.util.Set;
  * @see OidcUser
  * @see DefaultOidcUser
  * @see OidcUserInfo
- * @see UserInfoRetriever
  */
 public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcUser> {
 	private static final String INVALID_USER_INFO_RESPONSE_ERROR_CODE = "invalid_user_info_response";
-	private UserInfoRetriever userInfoRetriever = new NimbusUserInfoRetriever();
 	private final Set<String> userInfoScopes = new HashSet<>(
 		Arrays.asList(OidcScopes.PROFILE, OidcScopes.EMAIL, OidcScopes.ADDRESS, OidcScopes.PHONE));
+	private NimbusUserInfoResponseClient userInfoResponseClient = new NimbusUserInfoResponseClient();
 
 	@Override
 	public OidcUser loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException {
 		OidcUserInfo userInfo = null;
 		if (this.shouldRetrieveUserInfo(userRequest)) {
-			Map<String, Object> userAttributes = this.userInfoRetriever.retrieve(userRequest, Map.class);
+			ParameterizedTypeReference<Map<String, Object>> typeReference =
+				new ParameterizedTypeReference<Map<String, Object>>() {};
+			Map<String, Object> userAttributes = this.userInfoResponseClient.getUserInfoResponse(userRequest, typeReference);
 			userInfo = new OidcUserInfo(userAttributes);
 
 			// http://openid.net/specs/openid-connect-core-1_0.html#UserInfoResponse
@@ -82,11 +77,6 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 		authorities.add(authority);
 
 		return new DefaultOidcUser(authorities, userRequest.getIdToken(), userInfo);
-	}
-
-	public final void setUserInfoRetriever(UserInfoRetriever userInfoRetriever) {
-		Assert.notNull(userInfoRetriever, "userInfoRetriever cannot be null");
-		this.userInfoRetriever = userInfoRetriever;
 	}
 
 	private boolean shouldRetrieveUserInfo(OidcUserRequest userRequest) {
