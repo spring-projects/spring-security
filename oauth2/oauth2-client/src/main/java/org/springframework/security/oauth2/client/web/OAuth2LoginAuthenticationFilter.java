@@ -85,19 +85,19 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 	private AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
 		new HttpSessionOAuth2AuthorizationRequestRepository();
 
-	public OAuth2LoginAuthenticationFilter() {
-		this(DEFAULT_FILTER_PROCESSES_URI);
+	public OAuth2LoginAuthenticationFilter(ClientRegistrationRepository clientRegistrationRepository,
+											OAuth2AuthorizedClientService<OAuth2AuthorizedClient> authorizedClientService) {
+		this(DEFAULT_FILTER_PROCESSES_URI, clientRegistrationRepository, authorizedClientService);
 	}
 
-	public OAuth2LoginAuthenticationFilter(String filterProcessesUrl) {
+	public OAuth2LoginAuthenticationFilter(String filterProcessesUrl,
+											ClientRegistrationRepository clientRegistrationRepository,
+											OAuth2AuthorizedClientService<OAuth2AuthorizedClient> authorizedClientService) {
 		super(filterProcessesUrl);
-	}
-
-	@Override
-	public void afterPropertiesSet() {
-		super.afterPropertiesSet();
-		Assert.notNull(this.clientRegistrationRepository, "clientRegistrationRepository cannot be null");
-		Assert.notNull(this.authorizedClientService, "authorizedClientService cannot be null");
+		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
+		Assert.notNull(authorizedClientService, "authorizedClientService cannot be null");
+		this.clientRegistrationRepository = clientRegistrationRepository;
+		this.authorizedClientService = authorizedClientService;
 	}
 
 	@Override
@@ -141,16 +141,6 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 			authorizedClient, oauth2Authentication);
 
 		return oauth2Authentication;
-	}
-
-	public final void setClientRegistrationRepository(ClientRegistrationRepository clientRegistrationRepository) {
-		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
-		this.clientRegistrationRepository = clientRegistrationRepository;
-	}
-
-	public final void setAuthorizedClientService(OAuth2AuthorizedClientService<OAuth2AuthorizedClient> authorizedClientService) {
-		Assert.notNull(authorizedClientService, "authorizedClientService cannot be null");
-		this.authorizedClientService = authorizedClientService;
 	}
 
 	public final void setAuthorizationRequestRepository(AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {

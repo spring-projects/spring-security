@@ -70,9 +70,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 	private final UserInfoEndpointConfig userInfoEndpointConfig = new UserInfoEndpointConfig();
 
 	public OAuth2LoginConfigurer() {
-		super(new OAuth2LoginAuthenticationFilter(
-			OAuth2LoginAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI),
-			OAuth2LoginAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI);
+		super();
 	}
 
 	public OAuth2LoginConfigurer<B> clients(ClientRegistrationRepository clientRegistrationRepository) {
@@ -217,6 +215,14 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 
 	@Override
 	public void init(B http) throws Exception {
+		OAuth2LoginAuthenticationFilter authenticationFilter =
+			new OAuth2LoginAuthenticationFilter(
+				OAuth2LoginAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI,
+				this.getClientRegistrationRepository(),
+				this.getAuthorizedClientService());
+		this.setAuthenticationFilter(authenticationFilter);
+		this.loginProcessingUrl(OAuth2LoginAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI);
+
 		super.init(http);
 
 		AuthorizationGrantTokenExchanger<OAuth2AuthorizationCodeGrantRequest> authorizationCodeTokenExchanger =
@@ -282,16 +288,14 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		}
 		http.addFilter(this.postProcess(authorizationRequestFilter));
 
-		OAuth2LoginAuthenticationFilter authorizationResponseFilter = this.getAuthenticationFilter();
+		OAuth2LoginAuthenticationFilter authenticationFilter = this.getAuthenticationFilter();
 		if (this.redirectionEndpointConfig.authorizationResponseBaseUri != null) {
-			authorizationResponseFilter.setFilterProcessesUrl(this.redirectionEndpointConfig.authorizationResponseBaseUri);
+			authenticationFilter.setFilterProcessesUrl(this.redirectionEndpointConfig.authorizationResponseBaseUri);
 		}
-		authorizationResponseFilter.setClientRegistrationRepository(this.getClientRegistrationRepository());
 		if (this.authorizationEndpointConfig.authorizationRequestRepository != null) {
-			authorizationResponseFilter.setAuthorizationRequestRepository(
+			authenticationFilter.setAuthorizationRequestRepository(
 				this.authorizationEndpointConfig.authorizationRequestRepository);
 		}
-		authorizationResponseFilter.setAuthorizedClientService(this.getAuthorizedClientService());
 		super.configure(http);
 	}
 

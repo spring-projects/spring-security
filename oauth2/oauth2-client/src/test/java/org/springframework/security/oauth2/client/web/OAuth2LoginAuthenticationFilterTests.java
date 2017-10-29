@@ -188,10 +188,9 @@ public class OAuth2LoginAuthenticationFilterTests {
 
 		ClientRegistrationRepository clientRegistrationRepository = TestUtil.clientRegistrationRepository(clientRegistrations);
 
-		OAuth2LoginAuthenticationFilter filter = new OAuth2LoginAuthenticationFilter();
-		filter.setClientRegistrationRepository(clientRegistrationRepository);
+		OAuth2LoginAuthenticationFilter filter = new OAuth2LoginAuthenticationFilter(
+			clientRegistrationRepository, mock(OAuth2AuthorizedClientService.class));
 		filter.setAuthenticationManager(authenticationManager);
-		filter.setAuthorizedClientService(mock(OAuth2AuthorizedClientService.class));
 
 		return filter;
 	}
