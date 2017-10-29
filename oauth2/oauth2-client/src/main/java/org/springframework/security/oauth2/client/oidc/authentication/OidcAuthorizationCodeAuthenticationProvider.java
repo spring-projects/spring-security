@@ -159,10 +159,10 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 			this.authoritiesMapper.mapAuthorities(oidcUser.getAuthorities());
 
 		OidcAuthorizationCodeAuthenticationToken authenticationResult = new OidcAuthorizationCodeAuthenticationToken(
-			oidcUser,
-			mappedAuthorities,
 			authorizationCodeAuthentication.getClientRegistration(),
 			authorizationCodeAuthentication.getAuthorizationExchange(),
+			oidcUser,
+			mappedAuthorities,
 			accessToken,
 			idToken);
 		authenticationResult.setDetails(authorizationCodeAuthentication.getDetails());

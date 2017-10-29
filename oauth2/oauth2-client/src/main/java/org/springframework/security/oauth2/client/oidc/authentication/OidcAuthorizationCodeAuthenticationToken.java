@@ -56,21 +56,21 @@ public class OidcAuthorizationCodeAuthenticationToken extends OAuth2LoginAuthent
 	 * which indicates that the Authorization Code Flow has fully completed
 	 * and OpenID Connect 1.0 Authentication has been achieved.
 	 *
-	 * @param principal
-	 * @param authorities
 	 * @param clientRegistration
 	 * @param authorizationExchange
+	 * @param principal
+	 * @param authorities
 	 * @param accessToken
 	 * @param idToken
 	 */
-	public OidcAuthorizationCodeAuthenticationToken(OidcUser principal,
-													Collection<? extends GrantedAuthority> authorities,
-													ClientRegistration clientRegistration,
+	public OidcAuthorizationCodeAuthenticationToken(ClientRegistration clientRegistration,
 													OAuth2AuthorizationExchange authorizationExchange,
+													OidcUser principal,
+													Collection<? extends GrantedAuthority> authorities,
 													OAuth2AccessToken accessToken,
 													OidcIdToken idToken) {
 
-		super(principal, authorities, clientRegistration, authorizationExchange, accessToken);
+		super(clientRegistration, authorizationExchange, principal, authorities, accessToken);
 		Assert.notNull(idToken, "idToken cannot be null");
 		this.idToken = idToken;
 	}

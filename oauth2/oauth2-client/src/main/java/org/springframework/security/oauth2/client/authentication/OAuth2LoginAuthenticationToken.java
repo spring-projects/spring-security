@@ -69,25 +69,25 @@ public class OAuth2LoginAuthenticationToken extends AbstractAuthenticationToken 
 	 * which indicates that the Authorization Code Grant flow has fully completed
 	 * and OAuth 2.0 Login has been achieved.
 	 *
-	 * @param principal
-	 * @param authorities
 	 * @param clientRegistration
 	 * @param authorizationExchange
+	 * @param principal
+	 * @param authorities
 	 * @param accessToken
 	 */
-	public OAuth2LoginAuthenticationToken(OAuth2User principal,
-											Collection<? extends GrantedAuthority> authorities,
-											ClientRegistration clientRegistration,
+	public OAuth2LoginAuthenticationToken(ClientRegistration clientRegistration,
 											OAuth2AuthorizationExchange authorizationExchange,
+											OAuth2User principal,
+											Collection<? extends GrantedAuthority> authorities,
 											OAuth2AccessToken accessToken) {
 		super(authorities);
-		Assert.notNull(principal, "principal cannot be null");
 		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
 		Assert.notNull(authorizationExchange, "authorizationExchange cannot be null");
+		Assert.notNull(principal, "principal cannot be null");
 		Assert.notNull(accessToken, "accessToken cannot be null");
-		this.principal = principal;
 		this.clientRegistration = clientRegistration;
 		this.authorizationExchange = authorizationExchange;
+		this.principal = principal;
 		this.accessToken = accessToken;
 		this.setAuthenticated(true);
 	}

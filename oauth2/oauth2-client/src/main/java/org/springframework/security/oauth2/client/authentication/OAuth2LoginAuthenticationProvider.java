@@ -124,10 +124,10 @@ public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider
 			this.authoritiesMapper.mapAuthorities(oauth2User.getAuthorities());
 
 		OAuth2LoginAuthenticationToken authenticationResult = new OAuth2LoginAuthenticationToken(
-			oauth2User,
-			mappedAuthorities,
 			authorizationCodeAuthentication.getClientRegistration(),
 			authorizationCodeAuthentication.getAuthorizationExchange(),
+			oauth2User,
+			mappedAuthorities,
 			accessToken);
 		authenticationResult.setDetails(authorizationCodeAuthentication.getDetails());
 
