@@ -15,11 +15,6 @@
  */
 package org.springframework.security.config.annotation.web.configurers;
 
-import java.util.Arrays;
-import java.util.Collections;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -37,16 +32,20 @@ import org.springframework.security.web.authentication.SavedRequestAwareAuthenti
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.accept.ContentNegotiationStrategy;
 import org.springframework.web.accept.HeaderContentNegotiationStrategy;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
+import java.util.Collections;
+
 /**
- * Base class for confuring {@link AbstractAuthenticationFilterConfigurer}. This is
+ * Base class for configuring {@link AbstractAuthenticationFilterConfigurer}. This is
  * intended for internal use only.
  *
  * @see FormLoginConfigurer
@@ -62,7 +61,7 @@ import org.springframework.web.accept.HeaderContentNegotiationStrategy;
 public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecurityBuilder<B>, T extends AbstractAuthenticationFilterConfigurer<B, T, F>, F extends AbstractAuthenticationProcessingFilter>
 		extends AbstractHttpConfigurer<T, B> {
 
-	private final F authFilter;
+	private F authFilter;
 
 	private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource;
 
@@ -81,6 +80,13 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	private String failureUrl;
 
 	/**
+	 * Creates a new instance with minimal defaults
+	 */
+	protected AbstractAuthenticationFilterConfigurer() {
+		setLoginPage("/login");
+	}
+
+	/**
 	 * Creates a new instance
 	 * @param authenticationFilter the {@link AbstractAuthenticationProcessingFilter} to
 	 * use
@@ -89,8 +95,8 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	 */
 	protected AbstractAuthenticationFilterConfigurer(F authenticationFilter,
 			String defaultLoginProcessingUrl) {
+		this();
 		this.authFilter = authenticationFilter;
-		setLoginPage("/login");
 		if (defaultLoginProcessingUrl != null) {
 			loginProcessingUrl(defaultLoginProcessingUrl);
 		}
@@ -321,10 +327,19 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	/**
 	 * Gets the Authentication Filter
 	 *
-	 * @return
+	 * @return the Authentication Filter
 	 */
 	protected final F getAuthenticationFilter() {
 		return authFilter;
+	}
+
+	/**
+	 * Sets the Authentication Filter
+	 *
+	 * @param authFilter the Authentication Filter
+	 */
+	protected final void setAuthenticationFilter(F authFilter) {
+		this.authFilter = authFilter;
 	}
 
 	/**
