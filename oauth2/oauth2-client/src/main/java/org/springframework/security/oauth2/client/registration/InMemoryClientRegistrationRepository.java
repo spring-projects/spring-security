@@ -21,7 +21,13 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.function.Function;
+import java.util.stream.Collector;
+
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.toConcurrentMap;
+import static java.util.stream.Collectors.toMap;
 
 /**
  * A {@link ClientRegistrationRepository} that stores {@link ClientRegistration}(s) <i>in-memory</i>.
@@ -36,28 +42,20 @@ public final class InMemoryClientRegistrationRepository implements ClientRegistr
 
 	public InMemoryClientRegistrationRepository(List<ClientRegistration> registrations) {
 		Assert.notEmpty(registrations, "registrations cannot be empty");
-		Map<String, ClientRegistration> registrationsMap = new ConcurrentHashMap<>();
-		registrations.forEach(registration -> {
-			if (registrationsMap.containsKey(registration.getRegistrationId())) {
-				throw new IllegalArgumentException("ClientRegistration must be unique. Found duplicate registrationId: " +
-					registration.getRegistrationId());
-			}
-			registrationsMap.put(registration.getRegistrationId(), registration);
-		});
-		this.registrations = Collections.unmodifiableMap(registrationsMap);
+		Collector<ClientRegistration, ?, ConcurrentMap<String, ClientRegistration>> collector =
+			toConcurrentMap(ClientRegistration::getRegistrationId, Function.identity());
+		this.registrations = registrations.stream()
+			.collect(collectingAndThen(collector, Collections::unmodifiableMap));
 	}
 
 	@Override
 	public ClientRegistration findByRegistrationId(String registrationId) {
 		Assert.hasText(registrationId, "registrationId cannot be empty");
-		return this.registrations.values().stream()
-			.filter(registration -> registration.getRegistrationId().equals(registrationId))
-			.findFirst()
-			.orElse(null);
+		return this.registrations.get(registrationId);
 	}
 
 	@Override
 	public Iterator<ClientRegistration> iterator() {
-		return Collections.unmodifiableCollection(this.registrations.values()).iterator();
+		return this.registrations.values().iterator();
 	}
 }

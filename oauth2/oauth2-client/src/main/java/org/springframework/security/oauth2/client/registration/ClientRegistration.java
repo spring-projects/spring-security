@@ -82,6 +82,21 @@ public final class ClientRegistration {
 		return this.clientName;
 	}
 
+	@Override
+	public String toString() {
+		return "ClientRegistration{"
+			+ "registrationId='" + this.registrationId + '\''
+			+ ", clientId='" + this.clientId + '\''
+			+ ", clientSecret='" + this.clientSecret + '\''
+			+ ", clientAuthenticationMethod=" + this.clientAuthenticationMethod
+			+ ", authorizationGrantType=" + this.authorizationGrantType
+			+ ", redirectUri='" + this.redirectUri + '\''
+			+ ", scopes=" + this.scopes
+			+ ", providerDetails=" + this.providerDetails
+			+ ", clientName='" + this.clientName
+			+ '\'' + '}';
+	}
+
 	public class ProviderDetails {
 		private String authorizationUri;
 		private String tokenUri;
