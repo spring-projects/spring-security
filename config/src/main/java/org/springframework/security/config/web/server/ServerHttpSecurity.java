@@ -92,7 +92,7 @@ public class ServerHttpSecurity {
 
 	private AuthorizeExchangeBuilder authorizeExchangeBuilder;
 
-	private HeaderBuilder headers;
+	private HeaderBuilder headers = new HeaderBuilder();
 
 	private CsrfBuilder csrf = new CsrfBuilder();
 
@@ -100,7 +100,7 @@ public class ServerHttpSecurity {
 
 	private FormLoginBuilder formLogin;
 
-	private LogoutBuilder logout;
+	private LogoutBuilder logout = new LogoutBuilder();
 
 	private ReactiveAuthenticationManager authenticationManager;
 
