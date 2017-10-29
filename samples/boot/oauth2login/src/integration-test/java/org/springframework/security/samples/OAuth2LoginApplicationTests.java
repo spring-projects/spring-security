@@ -40,7 +40,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
-import org.springframework.security.oauth2.client.endpoint.AuthorizationGrantTokenExchanger;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -351,21 +351,21 @@ public class OAuth2LoginApplicationTests {
 					.and()
 				.oauth2Login()
 					.tokenEndpoint()
-						.authorizationCodeTokenExchanger(this.mockAuthorizationCodeTokenExchanger())
+						.accessTokenResponseClient(this.mockAccessTokenResponseClient())
 						.and()
 					.userInfoEndpoint()
 						.userService(this.mockUserInfoService());
 		}
 		// @formatter:on
 
-		private AuthorizationGrantTokenExchanger<OAuth2AuthorizationCodeGrantRequest> mockAuthorizationCodeTokenExchanger() {
+		private OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> mockAccessTokenResponseClient() {
 			OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("access-token-1234")
 				.tokenType(OAuth2AccessToken.TokenType.BEARER)
 				.expiresIn(60 * 1000)
 				.build();
 
-			AuthorizationGrantTokenExchanger mock = mock(AuthorizationGrantTokenExchanger.class);
-			when(mock.exchange(any())).thenReturn(accessTokenResponse);
+			OAuth2AccessTokenResponseClient mock = mock(OAuth2AccessTokenResponseClient.class);
+			when(mock.getTokenResponse(any())).thenReturn(accessTokenResponse);
 			return mock;
 		}
 

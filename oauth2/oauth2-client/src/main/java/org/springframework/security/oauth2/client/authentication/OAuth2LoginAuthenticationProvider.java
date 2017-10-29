@@ -20,7 +20,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
-import org.springframework.security.oauth2.client.endpoint.AuthorizationGrantTokenExchanger;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
@@ -50,7 +50,7 @@ import java.util.Collection;
  * @author Joe Grandja
  * @since 5.0
  * @see OAuth2LoginAuthenticationToken
- * @see AuthorizationGrantTokenExchanger
+ * @see OAuth2AccessTokenResponseClient
  * @see OAuth2UserService
  * @see OAuth2User
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">Section 4.1 Authorization Code Grant Flow</a>
@@ -60,17 +60,17 @@ import java.util.Collection;
 public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider {
 	private static final String INVALID_STATE_PARAMETER_ERROR_CODE = "invalid_state_parameter";
 	private static final String INVALID_REDIRECT_URI_PARAMETER_ERROR_CODE = "invalid_redirect_uri_parameter";
-	private final AuthorizationGrantTokenExchanger<OAuth2AuthorizationCodeGrantRequest> authorizationCodeTokenExchanger;
+	private final OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient;
 	private final OAuth2UserService<OAuth2UserRequest, OAuth2User> userService;
 	private GrantedAuthoritiesMapper authoritiesMapper = (authorities -> authorities);
 
 	public OAuth2LoginAuthenticationProvider(
-		AuthorizationGrantTokenExchanger<OAuth2AuthorizationCodeGrantRequest> authorizationCodeTokenExchanger,
+		OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient,
 		OAuth2UserService<OAuth2UserRequest, OAuth2User> userService) {
 
-		Assert.notNull(authorizationCodeTokenExchanger, "authorizationCodeTokenExchanger cannot be null");
+		Assert.notNull(accessTokenResponseClient, "accessTokenResponseClient cannot be null");
 		Assert.notNull(userService, "userService cannot be null");
-		this.authorizationCodeTokenExchanger = authorizationCodeTokenExchanger;
+		this.accessTokenResponseClient = accessTokenResponseClient;
 		this.userService = userService;
 	}
 
@@ -110,7 +110,7 @@ public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider
 		}
 
 		OAuth2AccessTokenResponse accessTokenResponse =
-			this.authorizationCodeTokenExchanger.exchange(
+			this.accessTokenResponseClient.getTokenResponse(
 				new OAuth2AuthorizationCodeGrantRequest(
 					authorizationCodeAuthentication.getClientRegistration(),
 					authorizationCodeAuthentication.getAuthorizationExchange()));

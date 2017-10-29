@@ -62,7 +62,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer;
-import org.springframework.security.oauth2.client.endpoint.AuthorizationGrantTokenExchanger;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.AuthorizationRequestUriBuilder;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.PortMapper;
@@ -945,8 +945,8 @@ public final class HttpSecurity extends
 	 *
 	 * <p>
 	 * At this point in the <i>&quot;authentication flow&quot;</i>, the configured
-	 * {@link AuthorizationGrantTokenExchanger}
-	 * will exchange the <i>Authorization Code</i> for an <i>Access Token</i> and then use it to access the protected resource
+	 * {@link OAuth2AccessTokenResponseClient}
+	 * will getTokenResponse the <i>Authorization Code</i> for an <i>Access Token</i> and then use it to access the protected resource
 	 * at the <i>UserInfo Endpoint</i> (via {@link org.springframework.security.oauth2.client.user.OAuth2UserService})
 	 * in order to retrieve the details of the <i>Resource Owner</i> (end-user) and establish the <i>&quot;authenticated&quot;</i> session.
 	 *
@@ -992,7 +992,7 @@ public final class HttpSecurity extends
 	 * 			.oauth2Login()
 	 * 				.clients(this.clientRegistrationRepository())
 	 * 				.authorizationRequestUriBuilder(this.authorizationRequestUriBuilder())
-	 * 				.authorizationCodeTokenExchanger(this.authorizationCodeTokenExchanger())
+	 * 				.accessTokenResponseClient(this.accessTokenResponseClient())
 	 * 				.userInfoEndpoint()
 	 * 					.userInfoService(this.userInfoService())
 	 * 				.userInfoEndpoint()
@@ -1014,7 +1014,7 @@ public final class HttpSecurity extends
 	 * 	}
 	 *
 	 * 	&#064;Bean
-	 * 	public AuthorizationGrantTokenExchanger&lt;OAuth2LoginAuthenticationToken&gt; authorizationCodeTokenExchanger() {
+	 * 	public OAuth2AccessTokenResponseClient&lt;OAuth2LoginAuthenticationToken&gt; accessTokenResponseClient() {
 	 * 		// Custom implementation that exchanges an &quot;Authorization Code Grant&quot; for an &quot;Access Token&quot;
 	 * 		return new AuthorizationCodeTokenExchangerImpl();
 	 * 	}
@@ -1041,7 +1041,7 @@ public final class HttpSecurity extends
 	 * @see org.springframework.security.oauth2.client.registration.ClientRegistration
 	 * @see org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
 	 * @see AuthorizationRequestUriBuilder
-	 * @see AuthorizationGrantTokenExchanger
+	 * @see OAuth2AccessTokenResponseClient
 	 * @see org.springframework.security.oauth2.client.user.OAuth2UserService
 	 *
 	 * @return the {@link OAuth2LoginConfigurer} for further customizations

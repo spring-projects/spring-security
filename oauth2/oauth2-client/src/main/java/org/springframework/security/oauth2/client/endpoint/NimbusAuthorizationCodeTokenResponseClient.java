@@ -48,7 +48,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * An implementation of an {@link AuthorizationGrantTokenExchanger} that <i>&quot;exchanges&quot;</i>
+ * An implementation of an {@link OAuth2AccessTokenResponseClient} that <i>&quot;exchanges&quot;</i>
  * an <i>Authorization Code</i> credential for an <i>Access Token</i> credential
  * at the Authorization Server's <i>Token Endpoint</i>.
  *
@@ -57,18 +57,18 @@ import java.util.Set;
  *
  * @author Joe Grandja
  * @since 5.0
- * @see AuthorizationGrantTokenExchanger
+ * @see OAuth2AccessTokenResponseClient
  * @see OAuth2AuthorizationCodeGrantRequest
  * @see OAuth2AccessTokenResponse
  * @see <a target="_blank" href="https://connect2id.com/products/nimbus-oauth-openid-connect-sdk">Nimbus OAuth 2.0 SDK</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.3">Section 4.1.3 Access Token Request (Authorization Code Grant)</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.4">Section 4.1.4 Access Token Response (Authorization Code Grant)</a>
  */
-public class NimbusAuthorizationCodeTokenExchanger implements AuthorizationGrantTokenExchanger<OAuth2AuthorizationCodeGrantRequest> {
+public class NimbusAuthorizationCodeTokenResponseClient implements OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> {
 	private static final String INVALID_TOKEN_RESPONSE_ERROR_CODE = "invalid_token_response";
 
 	@Override
-	public OAuth2AccessTokenResponse exchange(OAuth2AuthorizationCodeGrantRequest authorizationGrantRequest)
+	public OAuth2AccessTokenResponse getTokenResponse(OAuth2AuthorizationCodeGrantRequest authorizationGrantRequest)
 			throws OAuth2AuthenticationException {
 
 		ClientRegistration clientRegistration = authorizationGrantRequest.getClientRegistration();

@@ -21,7 +21,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken;
-import org.springframework.security.oauth2.client.endpoint.AuthorizationGrantTokenExchanger;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.jwt.JwtDecoderRegistry;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
@@ -63,7 +63,7 @@ import java.util.List;
  * @author Joe Grandja
  * @since 5.0
  * @see OidcAuthorizationCodeAuthenticationToken
- * @see AuthorizationGrantTokenExchanger
+ * @see OAuth2AccessTokenResponseClient
  * @see OidcUserService
  * @see OidcUser
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth">Section 3.1 Authorization Code Grant Flow</a>
@@ -74,20 +74,20 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 	private static final String INVALID_STATE_PARAMETER_ERROR_CODE = "invalid_state_parameter";
 	private static final String INVALID_REDIRECT_URI_PARAMETER_ERROR_CODE = "invalid_redirect_uri_parameter";
 	private static final String INVALID_ID_TOKEN_ERROR_CODE = "invalid_id_token";
-	private final AuthorizationGrantTokenExchanger<OAuth2AuthorizationCodeGrantRequest> authorizationCodeTokenExchanger;
+	private final OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient;
 	private final OAuth2UserService<OidcUserRequest, OidcUser> userService;
 	private final JwtDecoderRegistry jwtDecoderRegistry;
 	private GrantedAuthoritiesMapper authoritiesMapper = (authorities -> authorities);
 
 	public OidcAuthorizationCodeAuthenticationProvider(
-		AuthorizationGrantTokenExchanger<OAuth2AuthorizationCodeGrantRequest> authorizationCodeTokenExchanger,
+		OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient,
 		OAuth2UserService<OidcUserRequest, OidcUser> userService,
 		JwtDecoderRegistry jwtDecoderRegistry) {
 
-		Assert.notNull(authorizationCodeTokenExchanger, "authorizationCodeTokenExchanger cannot be null");
+		Assert.notNull(accessTokenResponseClient, "accessTokenResponseClient cannot be null");
 		Assert.notNull(userService, "userService cannot be null");
 		Assert.notNull(jwtDecoderRegistry, "jwtDecoderRegistry cannot be null");
-		this.authorizationCodeTokenExchanger = authorizationCodeTokenExchanger;
+		this.accessTokenResponseClient = accessTokenResponseClient;
 		this.userService = userService;
 		this.jwtDecoderRegistry = jwtDecoderRegistry;
 	}
@@ -128,7 +128,7 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 		}
 
 		OAuth2AccessTokenResponse accessTokenResponse =
-			this.authorizationCodeTokenExchanger.exchange(
+			this.accessTokenResponseClient.getTokenResponse(
 				new OAuth2AuthorizationCodeGrantRequest(
 					authorizationCodeAuthentication.getClientRegistration(),
 					authorizationCodeAuthentication.getAuthorizationExchange()));

@@ -23,9 +23,9 @@ import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMap
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationProvider;
-import org.springframework.security.oauth2.client.endpoint.AuthorizationGrantTokenExchanger;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.AuthorizationRequestUriBuilder;
-import org.springframework.security.oauth2.client.endpoint.NimbusAuthorizationCodeTokenExchanger;
+import org.springframework.security.oauth2.client.endpoint.NimbusAuthorizationCodeTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.jwt.JwtDecoderRegistry;
 import org.springframework.security.oauth2.client.jwt.NimbusJwtDecoderRegistry;
@@ -131,17 +131,17 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 	}
 
 	public class TokenEndpointConfig {
-		private AuthorizationGrantTokenExchanger<OAuth2AuthorizationCodeGrantRequest> authorizationCodeTokenExchanger;
+		private OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient;
 		private JwtDecoderRegistry jwtDecoderRegistry;
 
 		private TokenEndpointConfig() {
 		}
 
-		public TokenEndpointConfig authorizationCodeTokenExchanger(
-			AuthorizationGrantTokenExchanger<OAuth2AuthorizationCodeGrantRequest> authorizationCodeTokenExchanger) {
+		public TokenEndpointConfig accessTokenResponseClient(
+			OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient) {
 
-			Assert.notNull(authorizationCodeTokenExchanger, "authorizationCodeTokenExchanger cannot be null");
-			this.authorizationCodeTokenExchanger = authorizationCodeTokenExchanger;
+			Assert.notNull(accessTokenResponseClient, "accessTokenResponseClient cannot be null");
+			this.accessTokenResponseClient = accessTokenResponseClient;
 			return this;
 		}
 
@@ -225,10 +225,10 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 
 		super.init(http);
 
-		AuthorizationGrantTokenExchanger<OAuth2AuthorizationCodeGrantRequest> authorizationCodeTokenExchanger =
-			this.tokenEndpointConfig.authorizationCodeTokenExchanger;
-		if (authorizationCodeTokenExchanger == null) {
-			authorizationCodeTokenExchanger = new NimbusAuthorizationCodeTokenExchanger();
+		OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient =
+			this.tokenEndpointConfig.accessTokenResponseClient;
+		if (accessTokenResponseClient == null) {
+			accessTokenResponseClient = new NimbusAuthorizationCodeTokenResponseClient();
 		}
 
 		OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService = this.userInfoEndpointConfig.userService;
@@ -249,7 +249,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		}
 
 		OAuth2LoginAuthenticationProvider oauth2LoginAuthenticationProvider =
-			new OAuth2LoginAuthenticationProvider(authorizationCodeTokenExchanger, oauth2UserService);
+			new OAuth2LoginAuthenticationProvider(accessTokenResponseClient, oauth2UserService);
 		if (this.userInfoEndpointConfig.userAuthoritiesMapper != null) {
 			oauth2LoginAuthenticationProvider.setAuthoritiesMapper(
 				this.userInfoEndpointConfig.userAuthoritiesMapper);
@@ -259,7 +259,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService = new OidcUserService();
 		OidcAuthorizationCodeAuthenticationProvider oidcAuthorizationCodeAuthenticationProvider =
 			new OidcAuthorizationCodeAuthenticationProvider(
-				authorizationCodeTokenExchanger, oidcUserService, jwtDecoderRegistry);
+				accessTokenResponseClient, oidcUserService, jwtDecoderRegistry);
 		if (this.userInfoEndpointConfig.userAuthoritiesMapper != null) {
 			oidcAuthorizationCodeAuthenticationProvider.setAuthoritiesMapper(
 				this.userInfoEndpointConfig.userAuthoritiesMapper);
