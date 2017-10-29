@@ -26,6 +26,10 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.server.csrf.CsrfToken;
+import org.springframework.security.web.server.csrf.CsrfWebFilter;
+import org.springframework.security.web.server.csrf.WebSessionServerCsrfTokenRepository;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.test.web.reactive.server.MockServerConfigurer;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.reactive.server.WebTestClientConfigurer;
@@ -105,6 +109,35 @@ public class SecurityMockServerConfigurers {
 	 */
 	public static UserExchangeMutator mockUser(String username) {
 		return new UserExchangeMutator(username);
+	}
+
+	public static CsrfMutator csrf() {
+		return new CsrfMutator();
+	}
+
+	public static class CsrfMutator implements WebTestClientConfigurer, MockServerConfigurer {
+
+		@Override
+		public void afterConfigurerAdded(WebTestClient.Builder builder,
+			@Nullable WebHttpHandlerBuilder httpHandlerBuilder,
+			@Nullable ClientHttpConnector connector) {
+			CsrfWebFilter filter = new CsrfWebFilter();
+			filter.setRequireCsrfProtectionMatcher( e -> ServerWebExchangeMatcher.MatchResult.notMatch());
+			httpHandlerBuilder.filters( filters -> filters.add(0, filter));
+		}
+
+		@Override
+		public void afterConfigureAdded(
+			WebTestClient.MockServerSpec<?> serverSpec) {
+
+		}
+
+		@Override
+		public void beforeServerCreated(WebHttpHandlerBuilder builder) {
+
+		}
+
+		private CsrfMutator() {}
 	}
 
 	/**

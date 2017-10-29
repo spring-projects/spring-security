@@ -32,6 +32,7 @@ public class AuthorizeExchangeBuilderTests {
 	@Test
 	public void antMatchersWhenMethodAndPatternsThenDiscriminatesByMethod() {
 		this.http
+			.csrf().disable()
 			.authorizeExchange()
 				.pathMatchers(HttpMethod.POST, "/a", "/b").denyAll()
 				.anyExchange().permitAll();
@@ -63,6 +64,7 @@ public class AuthorizeExchangeBuilderTests {
 	@Test
 	public void antMatchersWhenPatternsThenAnyMethod() {
 		this.http
+			.csrf().disable()
 			.authorizeExchange()
 				.pathMatchers("/a", "/b").denyAll()
 				.anyExchange().permitAll();

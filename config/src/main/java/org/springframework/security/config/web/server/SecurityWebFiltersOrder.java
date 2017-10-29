@@ -24,6 +24,10 @@ public enum SecurityWebFiltersOrder {
 	FIRST(Integer.MIN_VALUE),
 	HTTP_HEADERS_WRITER,
 	/**
+	 * {@link org.springframework.security.web.server.csrf.CsrfWebFilter}
+	 */
+	CSRF,
+	/**
 	 * Instance of AuthenticationWebFilter
 	 */
 	HTTP_BASIC,

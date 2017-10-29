@@ -55,6 +55,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.csrf;
 import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.Credentials.basicAuthenticationCredentials;
 import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.basicAuthentication;
 
@@ -213,6 +214,7 @@ public class EnableWebFluxSecurityTests {
 		data.add("username", "user");
 		data.add("password", "password");
 		client
+			.mutateWith(csrf())
 			.post()
 			.uri("/login")
 			.body(BodyInserters.fromFormData(data))

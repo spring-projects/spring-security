@@ -44,11 +44,14 @@ import org.springframework.security.web.server.authorization.AuthorizationContex
 import org.springframework.security.web.server.authorization.AuthorizationWebFilter;
 import org.springframework.security.web.server.authorization.DelegatingReactiveAuthorizationManager;
 import org.springframework.security.web.server.authorization.ExceptionTranslationWebFilter;
+import org.springframework.security.web.server.authorization.ServerAccessDeniedHandler;
 import org.springframework.security.web.server.context.SecurityContextServerWebExchangeWebFilter;
 import org.springframework.security.web.server.context.ReactorContextWebFilter;
 import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
 import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
+import org.springframework.security.web.server.csrf.CsrfWebFilter;
+import org.springframework.security.web.server.csrf.ServerCsrfTokenRepository;
 import org.springframework.security.web.server.header.CacheControlServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.CompositeServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.ContentTypeOptionsServerHttpHeadersWriter;
@@ -89,6 +92,8 @@ public class ServerHttpSecurity {
 	private AuthorizeExchangeBuilder authorizeExchangeBuilder;
 
 	private HeaderBuilder headers;
+
+	private CsrfBuilder csrf = new CsrfBuilder();
 
 	private HttpBasicBuilder httpBasic;
 
@@ -137,6 +142,13 @@ public class ServerHttpSecurity {
 		Assert.notNull(serverSecurityContextRepository, "securityContextRepository cannot be null");
 		this.serverSecurityContextRepository = serverSecurityContextRepository;
 		return this;
+	}
+
+	public CsrfBuilder csrf() {
+		if(this.csrf == null) {
+			this.csrf = new CsrfBuilder();
+		}
+		return this.csrf;
 	}
 
 	public HttpBasicBuilder httpBasic() {
@@ -190,6 +202,9 @@ public class ServerHttpSecurity {
 		WebFilter securityContextRepositoryWebFilter = securityContextRepositoryWebFilter();
 		if(securityContextRepositoryWebFilter != null) {
 			this.webFilters.add(securityContextRepositoryWebFilter);
+		}
+		if(this.csrf != null) {
+			this.csrf.configure(this);
 		}
 		if(this.httpBasic != null) {
 			this.httpBasic.authenticationManager(this.authenticationManager);
@@ -338,6 +353,53 @@ public class ServerHttpSecurity {
 				return AuthorizeExchangeBuilder.this;
 			}
 		}
+	}
+
+	/**
+	 * @author Rob Winch
+	 * @since 5.0
+	 */
+	public class CsrfBuilder {
+		private CsrfWebFilter filter = new CsrfWebFilter();
+
+		public CsrfBuilder serverAccessDeniedHandler(
+			ServerAccessDeniedHandler serverAccessDeniedHandler) {
+			this.filter.setServerAccessDeniedHandler(serverAccessDeniedHandler);
+			return this;
+		}
+
+		public CsrfBuilder csrfTokenAttributeName(String csrfTokenAttributeName) {
+			Assert.notNull(csrfTokenAttributeName, "csrfTokenAttributeName cannot be null");
+			this.filter.setCsrfTokenAttributeName(csrfTokenAttributeName);
+			return this;
+		}
+
+		public CsrfBuilder serverCsrfTokenRepository(
+			ServerCsrfTokenRepository serverCsrfTokenRepository) {
+			this.filter.setServerCsrfTokenRepository(serverCsrfTokenRepository);
+			return this;
+		}
+
+		public CsrfBuilder requireCsrfProtectionMatcher(
+			ServerWebExchangeMatcher requireCsrfProtectionMatcher) {
+			this.filter.setRequireCsrfProtectionMatcher(requireCsrfProtectionMatcher);
+			return this;
+		}
+
+		public ServerHttpSecurity and() {
+			return ServerHttpSecurity.this;
+		}
+
+		public ServerHttpSecurity disable() {
+			ServerHttpSecurity.this.csrf = null;
+			return ServerHttpSecurity.this;
+		}
+
+		protected void configure(ServerHttpSecurity http) {
+			http.addFilterAt(this.filter, SecurityWebFiltersOrder.CSRF);
+		}
+
+		private CsrfBuilder() {}
 	}
 
 	/**

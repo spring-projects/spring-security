@@ -23,6 +23,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpResponse;
+import org.springframework.security.web.server.csrf.CsrfToken;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.util.MultiValueMap;
@@ -50,21 +51,31 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 	}
 
 	private Mono<Void> render(ServerWebExchange exchange) {
-		MultiValueMap<String, String> queryParams = exchange.getRequest()
-			.getQueryParams();
-		boolean isError = queryParams.containsKey("error");
-		boolean isLogoutSuccess = queryParams.containsKey("logout");
 		ServerHttpResponse result = exchange.getResponse();
-		result.setStatusCode(HttpStatus.FOUND);
+		result.setStatusCode(HttpStatus.OK);
 		result.getHeaders().setContentType(MediaType.TEXT_HTML);
-		byte[] bytes = createPage(isError, isLogoutSuccess);
-		DataBufferFactory bufferFactory = exchange.getResponse().bufferFactory();
-		DataBuffer buffer = bufferFactory.wrap(bytes);
-		return result.writeWith(Mono.just(buffer))
-			.doOnError( error -> DataBufferUtils.release(buffer));
+		return result.writeWith(createBuffer(exchange));
+//			.doOnError( error -> DataBufferUtils.release(buffer));
 	}
 
-	private static byte[] createPage(boolean isError, boolean isLogoutSuccess) {
+	private Mono<DataBuffer> createBuffer(ServerWebExchange exchange) {
+		MultiValueMap<String, String> queryParams = exchange.getRequest()
+			.getQueryParams();
+		Mono<CsrfToken> token = (Mono<CsrfToken>) exchange.getAttributes()
+			.getOrDefault(CsrfToken.class.getName(), Mono.<CsrfToken>empty());
+		return token
+			.map(LoginPageGeneratingWebFilter::csrfToken)
+			.defaultIfEmpty("")
+			.map(csrfTokenHtmlInput -> {
+				boolean isError = queryParams.containsKey("error");
+				boolean isLogoutSuccess = queryParams.containsKey("logout");
+				byte[] bytes = createPage(isError, isLogoutSuccess, csrfTokenHtmlInput);
+				DataBufferFactory bufferFactory = exchange.getResponse().bufferFactory();
+				return bufferFactory.wrap(bytes);
+			});
+	}
+
+	private static byte[] createPage(boolean isError, boolean isLogoutSuccess, String csrfTokenHtmlInput) {
 		String page =  "<!DOCTYPE html>\n"
 			+ "<html lang=\"en\">\n"
 			+ "  <head>\n"
@@ -90,6 +101,7 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 			+ "          <label for=\"password\" class=\"sr-only\">Password</label>\n"
 			+ "          <input type=\"password\" id=\"password\" name=\"password\" class=\"form-control\" placeholder=\"Password\" required>\n"
 			+ "        </p>\n"
+			+ csrfTokenHtmlInput
 			+ "        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n"
 			+ "      </form>\n"
 			+ "    </div>\n"
@@ -97,6 +109,10 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 			+ "</html>";
 
 		return page.getBytes(Charset.defaultCharset());
+	}
+
+	private static String csrfToken(CsrfToken token) {
+		return "          <input type=\"hidden\" name=\"" + token.getParameterName() + "\" value=\"" + token.getToken() + "\">\n";
 	}
 
 	private static String createError(boolean isError) {
