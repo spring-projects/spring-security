@@ -133,9 +133,7 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 					authorizationCodeAuthentication.getClientRegistration(),
 					authorizationCodeAuthentication.getAuthorizationExchange()));
 
-		OAuth2AccessToken accessToken = new OAuth2AccessToken(accessTokenResponse.getTokenType(),
-			accessTokenResponse.getTokenValue(), accessTokenResponse.getIssuedAt(),
-			accessTokenResponse.getExpiresAt(), accessTokenResponse.getScopes());
+		OAuth2AccessToken accessToken = accessTokenResponse.getAccessToken();
 
 		ClientRegistration clientRegistration = authorizationCodeAuthentication.getClientRegistration();
 

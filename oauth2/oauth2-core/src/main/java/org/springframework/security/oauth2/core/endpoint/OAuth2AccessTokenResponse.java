@@ -39,24 +39,8 @@ public final class OAuth2AccessTokenResponse {
 	private OAuth2AccessTokenResponse() {
 	}
 
-	public String getTokenValue() {
-		return this.accessToken.getTokenValue();
-	}
-
-	public OAuth2AccessToken.TokenType getTokenType() {
-		return this.accessToken.getTokenType();
-	}
-
-	public Instant getIssuedAt() {
-		return this.accessToken.getIssuedAt();
-	}
-
-	public Instant getExpiresAt() {
-		return this.accessToken.getExpiresAt();
-	}
-
-	public Set<String> getScopes() {
-		return this.accessToken.getScopes();
+	public OAuth2AccessToken getAccessToken() {
+		return this.accessToken;
 	}
 
 	public Map<String, Object> getAdditionalParameters() {

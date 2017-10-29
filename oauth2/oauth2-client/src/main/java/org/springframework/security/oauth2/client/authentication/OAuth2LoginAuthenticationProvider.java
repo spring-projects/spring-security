@@ -115,9 +115,7 @@ public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider
 					authorizationCodeAuthentication.getClientRegistration(),
 					authorizationCodeAuthentication.getAuthorizationExchange()));
 
-		OAuth2AccessToken accessToken = new OAuth2AccessToken(accessTokenResponse.getTokenType(),
-			accessTokenResponse.getTokenValue(), accessTokenResponse.getIssuedAt(),
-			accessTokenResponse.getExpiresAt(), accessTokenResponse.getScopes());
+		OAuth2AccessToken accessToken = accessTokenResponse.getAccessToken();
 
 		OAuth2User oauth2User = this.userService.loadUser(
 			new OAuth2UserRequest(authorizationCodeAuthentication.getClientRegistration(), accessToken));
