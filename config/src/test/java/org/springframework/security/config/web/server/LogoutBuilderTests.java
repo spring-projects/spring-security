@@ -26,6 +26,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.htmlunit.server.WebTestClientHtmlUnitDriverBuilder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
 
@@ -70,9 +71,11 @@ public class LogoutBuilderTests {
 
 		homePage.assertAt();
 
-		driver.get("http://localhost/logout");
+		loginPage = FormLoginTests.DefaultLogoutPage.to(driver)
+			.assertAt()
+			.logout();
 
-		FormLoginTests.DefaultLoginPage.create(driver)
+		loginPage
 			.assertAt()
 			.assertLogout();
 	}
@@ -85,7 +88,7 @@ public class LogoutBuilderTests {
 				.and()
 			.formLogin().and()
 			.logout()
-				.logoutUrl("/custom-logout")
+				.requiresLogout(ServerWebExchangeMatchers.pathMatchers("/custom-logout"))
 				.and()
 			.build();
 

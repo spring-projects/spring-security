@@ -78,9 +78,11 @@ public class FormLoginTests {
 
 		homePage.assertAt();
 
-		driver.get("http://localhost/logout");
+		loginPage = DefaultLogoutPage.to(driver)
+			.assertAt()
+			.logout();
 
-		DefaultLoginPage.create(driver)
+		loginPage
 			.assertAt()
 			.assertLogout();
 	}
@@ -229,6 +231,32 @@ public class FormLoginTests {
 		}
 	}
 
+	public static class DefaultLogoutPage {
+
+		private WebDriver driver;
+		@FindBy(css = "button[type=submit]")
+		private WebElement submit;
+
+		public DefaultLogoutPage(WebDriver webDriver) {
+			this.driver = webDriver;
+		}
+
+		public DefaultLogoutPage assertAt() {
+			assertThat(this.driver.getTitle()).isEqualTo("Confirm Log Out?");
+			return this;
+		}
+
+		public DefaultLoginPage logout() {
+			this.submit.click();
+			return DefaultLoginPage.create(this.driver);
+		}
+
+		static DefaultLogoutPage to(WebDriver driver) {
+			driver.get("http://localhost/logout");
+			return PageFactory.initElements(driver, DefaultLogoutPage.class);
+		}
+
+	}
 	public static class HomePage {
 		private WebDriver driver;
 

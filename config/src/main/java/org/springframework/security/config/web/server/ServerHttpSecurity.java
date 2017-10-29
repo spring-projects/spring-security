@@ -61,6 +61,7 @@ import org.springframework.security.web.server.header.StrictTransportSecuritySer
 import org.springframework.security.web.server.header.XFrameOptionsServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.XXssProtectionServerHttpHeadersWriter;
 import org.springframework.security.web.server.ui.LoginPageGeneratingWebFilter;
+import org.springframework.security.web.server.ui.LogoutPageGeneratingWebFilter;
 import org.springframework.security.web.server.util.matcher.MediaTypeServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcherEntry;
@@ -220,6 +221,7 @@ public class ServerHttpSecurity {
 			}
 			if(this.formLogin.serverAuthenticationEntryPoint == null) {
 				this.webFilters.add(new OrderedWebFilter(new LoginPageGeneratingWebFilter(), SecurityWebFiltersOrder.LOGIN_PAGE_GENERATING.getOrder()));
+				this.webFilters.add(new OrderedWebFilter(new LogoutPageGeneratingWebFilter(), SecurityWebFiltersOrder.LOGOUT_PAGE_GENERATING.getOrder()));
 			}
 			this.formLogin.configure(this);
 		}

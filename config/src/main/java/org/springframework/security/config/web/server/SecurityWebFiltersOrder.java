@@ -41,6 +41,7 @@ public enum SecurityWebFiltersOrder {
 	 */
 	REACTOR_CONTEXT,
 	LOGIN_PAGE_GENERATING,
+	LOGOUT_PAGE_GENERATING,
 	/**
 	 * {@link org.springframework.security.web.server.context.SecurityContextServerWebExchangeWebFilter}
 	 */
