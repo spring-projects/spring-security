@@ -28,6 +28,7 @@ dependencies {
 
 	testCompile project(':spring-security-aspects')
 	testCompile project(':spring-security-cas')
+	testCompile project(':spring-security-test')
 	testCompile project(path : ':spring-security-core', configuration : 'tests')
 	testCompile project(path : ':spring-security-web', configuration : 'tests')
 	testCompile apachedsDependencies
