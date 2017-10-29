@@ -25,9 +25,6 @@ import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuth
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.token.InMemoryAccessTokenRepository;
-import org.springframework.security.oauth2.client.token.OAuth2TokenRepository;
-import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
@@ -76,7 +73,7 @@ import java.io.IOException;
  * @see AuthorizationRequestRepository
  * @see OAuth2AuthorizationRequestRedirectFilter
  * @see ClientRegistrationRepository
- * @see OAuth2TokenRepository
+ * @see OAuth2AuthorizedClientService
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">Section 4.1 Authorization Code Grant</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.2">Section 4.1.2 Authorization Response</a>
  */
@@ -87,7 +84,6 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 	private OAuth2AuthorizedClientService<OAuth2AuthorizedClient> authorizedClientService;
 	private AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
 		new HttpSessionOAuth2AuthorizationRequestRepository();
-	private OAuth2TokenRepository<OAuth2AccessToken> accessTokenRepository = new InMemoryAccessTokenRepository();
 
 	public OAuth2LoginAuthenticationFilter() {
 		this(DEFAULT_FILTER_PROCESSES_URI);
@@ -144,11 +140,6 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 		this.authorizedClientService.saveAuthorizedClient(
 			authorizedClient, oauth2Authentication);
 
-		this.accessTokenRepository.saveToken(
-			authorizedClient.getAccessToken(),
-			authorizedClient.getClientRegistration(),
-			oauth2Authentication);
-
 		return oauth2Authentication;
 	}
 
@@ -165,11 +156,6 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 	public final void setAuthorizationRequestRepository(AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
 		Assert.notNull(authorizationRequestRepository, "authorizationRequestRepository cannot be null");
 		this.authorizationRequestRepository = authorizationRequestRepository;
-	}
-
-	public final void setAccessTokenRepository(OAuth2TokenRepository<OAuth2AccessToken> accessTokenRepository) {
-		Assert.notNull(accessTokenRepository, "accessTokenRepository cannot be null");
-		this.accessTokenRepository = accessTokenRepository;
 	}
 
 	private OAuth2AuthorizationResponse convert(HttpServletRequest request) {
