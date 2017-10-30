@@ -28,7 +28,6 @@ import java.util.stream.Collector;
 
 import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toConcurrentMap;
-import static java.util.stream.Collectors.toMap;
 
 /**
  * A {@link ClientRegistrationRepository} that stores {@link ClientRegistration}(s) <i>in-memory</i>.

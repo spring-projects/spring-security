@@ -34,7 +34,7 @@ import java.util.Set;
  */
 class OAuth2AuthorizationRequestUriBuilder {
 
-	public URI build(OAuth2AuthorizationRequest authorizationRequest) {
+	URI build(OAuth2AuthorizationRequest authorizationRequest) {
 		Set<String> scopes = authorizationRequest.getScopes();
 		UriComponentsBuilder uriBuilder = UriComponentsBuilder
 			.fromUriString(authorizationRequest.getAuthorizationUri())

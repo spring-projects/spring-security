@@ -29,7 +29,6 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequ
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.net.URI;
 
 /**
  * Tests {@link OAuth2AuthorizationRequestRedirectFilter}.

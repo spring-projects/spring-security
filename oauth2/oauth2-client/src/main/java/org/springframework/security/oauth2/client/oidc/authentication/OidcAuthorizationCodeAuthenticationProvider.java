@@ -139,8 +139,11 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 		ClientRegistration clientRegistration = authorizationCodeAuthentication.getClientRegistration();
 
 		if (!accessTokenResponse.getAdditionalParameters().containsKey(OidcParameterNames.ID_TOKEN)) {
-			throw new IllegalArgumentException(
-				"Missing (required) ID Token in Token Response for Client Registration: " + clientRegistration.getRegistrationId());
+			OAuth2Error invalidIdTokenError = new OAuth2Error(
+				INVALID_ID_TOKEN_ERROR_CODE,
+				"Missing (required) ID Token in Token Response for Client Registration: " + clientRegistration.getRegistrationId(),
+				null);
+			throw new OAuth2AuthenticationException(invalidIdTokenError, invalidIdTokenError.toString());
 		}
 
 		JwtDecoder jwtDecoder = this.getJwtDecoder(clientRegistration);

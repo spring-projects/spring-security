@@ -19,6 +19,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
@@ -46,15 +47,20 @@ import java.util.Set;
  * @see DefaultOAuth2User
  */
 public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
+	private static final String MISSING_USER_NAME_ATTRIBUTE_ERROR_CODE = "missing_user_name_attribute";
 	private NimbusUserInfoResponseClient userInfoResponseClient = new NimbusUserInfoResponseClient();
 
 	@Override
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
 		String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
 		if (!StringUtils.hasText(userNameAttributeName)) {
-			throw new IllegalArgumentException(
+			OAuth2Error oauth2Error = new OAuth2Error(
+				MISSING_USER_NAME_ATTRIBUTE_ERROR_CODE,
 				"Missing required \"user name\" attribute name in UserInfoEndpoint for Client Registration: " +
-					userRequest.getClientRegistration().getRegistrationId());
+				userRequest.getClientRegistration().getRegistrationId(),
+				null
+			);
+			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 		}
 
 		ParameterizedTypeReference<Map<String, Object>> typeReference =

@@ -17,14 +17,12 @@ package org.springframework.security.oauth2.core.oidc.user;
 
 import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
-import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimAccessor;
+import org.springframework.security.oauth2.core.oidc.OidcIdToken;
+import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.StandardClaimAccessor;
-import org.springframework.util.Assert;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
