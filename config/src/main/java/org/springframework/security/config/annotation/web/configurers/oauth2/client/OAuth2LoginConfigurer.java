@@ -15,15 +15,17 @@
  */
 package org.springframework.security.config.annotation.web.configurers.oauth2.client;
 
+import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.ResolvableType;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationProvider;
-import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.NimbusAuthorizationCodeTokenResponseClient;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.jwt.JwtDecoderRegistry;
 import org.springframework.security.oauth2.client.jwt.NimbusJwtDecoderRegistry;
@@ -311,13 +313,20 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 			this.getBuilder().getSharedObject(OAuth2AuthorizedClientService.class);
 		if (authorizedClientService == null) {
 			authorizedClientService = this.getAuthorizedClientServiceBean();
+			if (authorizedClientService == null) {
+				authorizedClientService = new InMemoryOAuth2AuthorizedClientService(this.getClientRegistrationRepository());
+			}
 			this.getBuilder().setSharedObject(OAuth2AuthorizedClientService.class, authorizedClientService);
 		}
 		return authorizedClientService;
 	}
 
 	private OAuth2AuthorizedClientService getAuthorizedClientServiceBean() {
-		return this.getBuilder().getSharedObject(ApplicationContext.class).getBean(OAuth2AuthorizedClientService.class);
+		Map<String, OAuth2AuthorizedClientService> authorizedClientServiceMap =
+			BeanFactoryUtils.beansOfTypeIncludingAncestors(
+				this.getBuilder().getSharedObject(ApplicationContext.class),
+				OAuth2AuthorizedClientService.class);
+		return (!authorizedClientServiceMap.isEmpty() ? authorizedClientServiceMap.values().iterator().next() : null);
 	}
 
 	private void initDefaultLoginFilter(B http) {
