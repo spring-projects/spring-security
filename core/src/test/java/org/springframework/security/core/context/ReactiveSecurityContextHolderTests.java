@@ -51,6 +51,25 @@ public class ReactiveSecurityContextHolderTests {
 	}
 
 	@Test
+	public void demo() {
+		Authentication authentication = new TestingAuthenticationToken("user", "password", "ROLE_USER");
+
+		Mono<String> messageByUsername = ReactiveSecurityContextHolder.getContext()
+			.map(SecurityContext::getAuthentication)
+			.map(Authentication::getName)
+			.flatMap(this::findMessageByUsername)
+			.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication));
+
+		StepVerifier.create(messageByUsername)
+			.expectNext("Hi user")
+			.verifyComplete();
+	}
+
+	private Mono<String> findMessageByUsername(String username) {
+		return Mono.just("Hi " + username);
+	}
+
+	@Test
 	public void setContextAndClearAndGetContextThenEmitsEmpty() {
 		SecurityContext expectedContext = new SecurityContextImpl(
 			new TestingAuthenticationToken("user", "password", "ROLE_USER"));
