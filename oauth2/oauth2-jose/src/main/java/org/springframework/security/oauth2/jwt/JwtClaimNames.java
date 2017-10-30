@@ -24,7 +24,7 @@ package org.springframework.security.oauth2.jwt;
  * @see JwtClaimAccessor
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7519#section-4">JWT Claims</a>
  */
-public interface JwtClaim {
+public interface JwtClaimNames {
 
 	String ISS = "iss";
 

@@ -28,7 +28,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
-import org.springframework.security.oauth2.jose.jws.JwsAlgorithm;
+import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.util.Assert;
 
 import java.net.MalformedURLException;
@@ -54,13 +54,13 @@ import java.util.Map;
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7517">JSON Web Key (JWK)</a>
  * @see <a target="_blank" href="https://connect2id.com/products/nimbus-jose-jwt">Nimbus JOSE + JWT SDK</a>
  */
-public class NimbusJwtDecoderJwkSupport implements JwtDecoder {
+public final class NimbusJwtDecoderJwkSupport implements JwtDecoder {
 	private final URL jwkSetUrl;
 	private final JWSAlgorithm jwsAlgorithm;
 	private final ConfigurableJWTProcessor<SecurityContext> jwtProcessor;
 
 	public NimbusJwtDecoderJwkSupport(String jwkSetUrl) {
-		this(jwkSetUrl, JwsAlgorithm.RS256);
+		this(jwkSetUrl, JwsAlgorithms.RS256);
 	}
 
 	public NimbusJwtDecoderJwkSupport(String jwkSetUrl, String jwsAlgorithm) {

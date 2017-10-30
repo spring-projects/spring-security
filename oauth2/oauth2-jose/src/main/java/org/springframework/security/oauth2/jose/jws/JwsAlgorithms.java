@@ -26,7 +26,7 @@ package org.springframework.security.oauth2.jose.jws;
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7515">JSON Web Signature (JWS)</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7518#section-3">Cryptographic Algorithms for Digital Signatures and MACs</a>
  */
-public interface JwsAlgorithm {
+public interface JwsAlgorithms {
 
 	/**
 	 * HMAC using SHA-256 (Required)

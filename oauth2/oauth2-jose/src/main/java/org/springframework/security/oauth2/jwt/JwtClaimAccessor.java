@@ -28,37 +28,37 @@ import java.util.List;
  * @author Joe Grandja
  * @since 5.0
  * @see ClaimAccessor
- * @see JwtClaim
+ * @see JwtClaimNames
  * @see Jwt
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7519#section-4.1">Registered Claim Names</a>
  */
 public interface JwtClaimAccessor extends ClaimAccessor {
 
 	default URL getIssuer() {
-		return this.getClaimAsURL(JwtClaim.ISS);
+		return this.getClaimAsURL(JwtClaimNames.ISS);
 	}
 
 	default String getSubject() {
-		return this.getClaimAsString(JwtClaim.SUB);
+		return this.getClaimAsString(JwtClaimNames.SUB);
 	}
 
 	default List<String> getAudience() {
-		return this.getClaimAsStringList(JwtClaim.AUD);
+		return this.getClaimAsStringList(JwtClaimNames.AUD);
 	}
 
 	default Instant getExpiresAt() {
-		return this.getClaimAsInstant(JwtClaim.EXP);
+		return this.getClaimAsInstant(JwtClaimNames.EXP);
 	}
 
 	default Instant getNotBefore() {
-		return this.getClaimAsInstant(JwtClaim.NBF);
+		return this.getClaimAsInstant(JwtClaimNames.NBF);
 	}
 
 	default Instant getIssuedAt() {
-		return this.getClaimAsInstant(JwtClaim.IAT);
+		return this.getClaimAsInstant(JwtClaimNames.IAT);
 	}
 
 	default String getId() {
-		return this.getClaimAsString(JwtClaim.JTI);
+		return this.getClaimAsString(JwtClaimNames.JTI);
 	}
 }
