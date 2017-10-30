@@ -28,7 +28,7 @@ import org.springframework.security.web.method.annotation.CsrfTokenArgumentResol
 import org.springframework.security.web.servlet.support.csrf.CsrfRequestDataValueProcessor;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.support.RequestDataValueProcessor;
 
 /**
@@ -41,7 +41,7 @@ import org.springframework.web.servlet.support.RequestDataValueProcessor;
  * @author Rob Winch
  * @since 3.2
  */
-class WebMvcSecurityConfiguration extends WebMvcConfigurerAdapter implements ApplicationContextAware {
+class WebMvcSecurityConfiguration implements WebMvcConfigurer, ApplicationContextAware {
 	private BeanResolver beanResolver;
 
 	@Override

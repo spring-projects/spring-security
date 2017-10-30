@@ -23,7 +23,7 @@ import org.springframework.security.web.method.annotation.AuthenticationPrincipa
 import org.springframework.security.web.servlet.support.csrf.CsrfRequestDataValueProcessor;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.support.RequestDataValueProcessor;
 
 /**
@@ -38,7 +38,7 @@ import org.springframework.web.servlet.support.RequestDataValueProcessor;
  * @since 3.2
  */
 @EnableWebSecurity
-public class WebMvcSecurityConfiguration extends WebMvcConfigurerAdapter {
+public class WebMvcSecurityConfiguration implements WebMvcConfigurer {
 
 	@Override
 	@SuppressWarnings("deprecation")

@@ -38,7 +38,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  *
@@ -92,7 +92,7 @@ public class HttpSecurityHeadersTests {
 
 	@EnableWebMvc
 	@Configuration
-	static class WebMvcConfig extends WebMvcConfigurerAdapter {
+	static class WebMvcConfig implements WebMvcConfigurer {
 		@Override
 		public void addResourceHandlers(ResourceHandlerRegistry registry) {
 			registry.addResourceHandler("/resources/**").addResourceLocations("classpath:/resources/").setCachePeriod(12345);
