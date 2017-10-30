@@ -55,16 +55,6 @@ public interface OidcUser extends OAuth2User, IdTokenClaimAccessor {
 
 	Map<String, Object> getClaims();
 
-	static Map<String, Object> collectClaims(OidcIdToken idToken, OidcUserInfo userInfo) {
-		Assert.notNull(idToken, "idToken cannot be null");
-		Map<String, Object> claims = new HashMap<>();
-		if (userInfo != null) {
-			claims.putAll(userInfo.getClaims());
-		}
-		claims.putAll(idToken.getClaims());
-		return claims;
-	}
-
 	OidcUserInfo getUserInfo();
 
 	OidcIdToken getIdToken();
