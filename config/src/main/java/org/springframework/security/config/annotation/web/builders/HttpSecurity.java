@@ -926,7 +926,7 @@ public final class HttpSecurity extends
 	 * {@link org.springframework.security.oauth2.client.registration.ClientRegistrationRepository}.
 	 * An instance of {@link org.springframework.security.oauth2.client.registration.ClientRegistrationRepository} is <b>required</b>
 	 * and may be supplied via the {@link ApplicationContext} or configured using
-	 * {@link OAuth2LoginConfigurer#clients(org.springframework.security.oauth2.client.registration.ClientRegistrationRepository)}.
+	 * {@link OAuth2LoginConfigurer#clientRegistrationRepository(org.springframework.security.oauth2.client.registration.ClientRegistrationRepository)}.
 	 * <br>
 	 * <br>
 	 *
@@ -989,7 +989,7 @@ public final class HttpSecurity extends
 	 * 				.anyRequest().authenticated()
 	 * 				.and()
 	 * 			.oauth2Login()
-	 * 				.clients(this.clientRegistrationRepository())
+	 * 				.clientRegistrationRepository(this.clientRegistrationRepository())
 	 * 				.authorizationRequestUriBuilder(this.authorizationRequestUriBuilder())
 	 * 				.accessTokenResponseClient(this.accessTokenResponseClient())
 	 * 				.userInfoEndpoint()

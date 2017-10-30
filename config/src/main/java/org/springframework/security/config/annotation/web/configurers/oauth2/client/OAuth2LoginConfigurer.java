@@ -71,7 +71,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		super();
 	}
 
-	public OAuth2LoginConfigurer<B> clients(ClientRegistrationRepository clientRegistrationRepository) {
+	public OAuth2LoginConfigurer<B> clientRegistrationRepository(ClientRegistrationRepository clientRegistrationRepository) {
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
 		this.getBuilder().setSharedObject(ClientRegistrationRepository.class, clientRegistrationRepository);
 		return this;
@@ -123,7 +123,6 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 
 	public class TokenEndpointConfig {
 		private OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient;
-		private JwtDecoderRegistry jwtDecoderRegistry;
 
 		private TokenEndpointConfig() {
 		}
@@ -133,12 +132,6 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 
 			Assert.notNull(accessTokenResponseClient, "accessTokenResponseClient cannot be null");
 			this.accessTokenResponseClient = accessTokenResponseClient;
-			return this;
-		}
-
-		public TokenEndpointConfig jwtDecoderRegistry(JwtDecoderRegistry jwtDecoderRegistry) {
-			Assert.notNull(jwtDecoderRegistry, "jwtDecoderRegistry cannot be null");
-			this.jwtDecoderRegistry = jwtDecoderRegistry;
 			return this;
 		}
 
@@ -234,10 +227,6 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 			}
 		}
 
-		JwtDecoderRegistry jwtDecoderRegistry = this.tokenEndpointConfig.jwtDecoderRegistry;
-		if (jwtDecoderRegistry == null) {
-			jwtDecoderRegistry = new NimbusJwtDecoderRegistry();
-		}
 
 		OAuth2LoginAuthenticationProvider oauth2LoginAuthenticationProvider =
 			new OAuth2LoginAuthenticationProvider(accessTokenResponseClient, oauth2UserService);
@@ -248,6 +237,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		http.authenticationProvider(this.postProcess(oauth2LoginAuthenticationProvider));
 
 		OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService = new OidcUserService();
+		JwtDecoderRegistry jwtDecoderRegistry = new NimbusJwtDecoderRegistry();
 		OidcAuthorizationCodeAuthenticationProvider oidcAuthorizationCodeAuthenticationProvider =
 			new OidcAuthorizationCodeAuthenticationProvider(
 				accessTokenResponseClient, oidcUserService, jwtDecoderRegistry);
