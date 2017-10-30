@@ -384,7 +384,10 @@ Below are the highlights of this milestone release.
 === New Features
 
 * https://github.com/spring-projects/spring-security/issues/3907[#3907] - Support added for OAuth 2.0 Login (start with {gh-samples-url}/boot/oauth2login/README.adoc[Sample README])
-* https://github.com/spring-projects/spring-security/issues/4128[#4128] - Initial Reactive Support (start with {gh-samples-url}/javaconfig/hellowebflux[hellowebflux])
+* Reactive Support
+** <<jc-webflux,@EnableWebFluxSecurity>>
+** <<jc-erms,@EnableReactiveMethodSecurity>>
+** <<test-webflux,WebFlux Testing Support>>
 
 [[samples]]
 == Samples and Guides (Start Here)
@@ -763,6 +766,77 @@ a status code 200 will be returned by default.
 - Section <<cas-singlelogout, Single Logout>> (CAS protocol)
 - Documentation for the <<nsa-logout, logout element>> in the Spring Security XML Namespace section
 
+[[jc-webflux]]
+=== WebFlux Security
+
+Spring Security's WebFlux support relies on a `WebFilter` and works the same for Spring WebFlux
+and Spring WebFlux.Fn. You can find a few sample applications that demonstrate the code below:
+
+* Hello WebFlux {gh-samples-url}/javaconfig/hellowebflux[hellowebflux]
+* Hello WebFlux.Fn {gh-samples-url}/javaconfig/hellowebfluxfn[hellowebfluxfn]
+* Hello WebFlux Method {gh-samples-url}/javaconfig/hellowebflux-method[hellowebflux-method]
+
+
+==== Minimal WebFlux Security Configuration
+
+You can find a minimal WebFlux Security configuration below:
+
+[source,java]
+-----
+@EnableWebFluxSecurity
+public class HelloWebfluxSecurityConfig {
+
+	@Bean
+	public MapReactiveUserDetailsService userDetailsRepository() {
+		UserDetails user = User.withDefaultPasswordEncoder()
+			.username("user")
+			.password("user")
+			.roles("USER")
+			.build();
+		return new MapReactiveUserDetailsService(user);
+	}
+}
+-----
+
+This configuration provides form and http basic authentication, sets up authorization to
+require an authenticated user for accessing any page, sets up a default log in page and
+a default log out page, sets up security related HTTP headers, CSRF protection, and more.
+
+==== Explicit WebFlux Security Configuration
+
+You can find an explicit version of the minimal WebFlux Security configuration below:
+
+[source,java]
+-----
+@EnableWebFluxSecurity
+public class HelloWebfluxSecurityConfig {
+
+	@Bean
+	public MapReactiveUserDetailsService userDetailsRepository() {
+		UserDetails user = User.withDefaultPasswordEncoder()
+			.username("user")
+			.password("user")
+			.roles("USER")
+			.build();
+		return new MapReactiveUserDetailsService(user);
+	}
+
+	@Bean
+	public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+		http
+			.authorizeExchange()
+				.anyExchange().authenticated()
+				.and()
+			.httpBasic().and()
+			.formLogin();
+		return http.build();
+	}
+}
+-----
+
+This configuration explicitly sets up all the sames things as our minimal configuration.
+From here you can easily make the changes to the defaults.
+
 [[jc-authentication]]
 === Authentication
 
@@ -1058,6 +1132,77 @@ public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
 ----
 
 For additional information about methods that can be overridden, refer to the `GlobalMethodSecurityConfiguration` Javadoc.
+
+[[jc-erms]
+==== EnableReactiveMethodSecurity
+
+Spring Security supports method security using https://projectreactor.io/docs/core/release/reference/#context[Reactor's Context].
+Below is a minimal method security configuration when using method security in reactive applications.
+
+[source,java]
+----
+@EnableReactiveMethodSecurity
+public class SecurityConfig {
+	@Bean
+	public MapReactiveUserDetailsService userDetailsRepository() {
+		User.UserBuilder userBuilder = User.withDefaultPasswordEncoder();
+		UserDetails rob = userBuilder.username("rob").password("rob").roles("USER").build();
+		UserDetails admin = userBuilder.username("admin").password("admin").roles("USER","ADMIN").build();
+		return new MapReactiveUserDetailsService(rob, admin);
+	}
+}
+----
+
+Consider the following class:
+
+[source,java]
+----
+@Component
+public class HelloWorldMessageService {
+	@PreAuthorize("hasRole('ADMIN')")
+	public Mono<String> findMessage() {
+		return Mono.just("Hello World!");
+	}
+}
+----
+
+Combined with our configuration above, `@PreAuthorize("hasRole('ADMIN')")` will ensure that `findByMessage` is only invoked by a user with the role `ADMIN`.
+It is important to note that any of the expressions in standard method security work for `@EnableReactiveMethodSecurity`.
+However, at this time we only support return type of `Boolean` or `boolean` of the expression.
+This means that the expression must not block.
+
+When integrating with <<jc-webflux>>, the Reactor Context is automatically established by Spring Security according to the authenticated user.
+
+[source,java]
+----
+@EnableWebFluxSecurity
+@EnableReactiveMethodSecurity
+public class SecurityConfig {
+
+	@Bean
+	SecurityWebFilterChain springWebFilterChain(ServerHttpSecurity http) throws Exception {
+		return http
+			// Demonstrate that method security works
+			// Best practice to use both for defense in depth
+			.authorizeExchange()
+				.anyExchange().permitAll()
+				.and()
+			.httpBasic().and()
+			.build();
+	}
+
+	@Bean
+	MapReactiveUserDetailsService userDetailsRepository() {
+		User.UserBuilder userBuilder = User.withDefaultPasswordEncoder();
+		UserDetails rob = userBuilder.username("rob").password("rob").roles("USER").build();
+		UserDetails admin = userBuilder.username("admin").password("admin").roles("USER","ADMIN").build();
+		return new MapReactiveUserDetailsService(rob, admin);
+	}
+}
+
+----
+
+You can find a complete sample in {gh-samples-url}/javaconfig/hellowebflux-method[hellowebflux-method]
 
 === Post Processing Configured Objects
 
