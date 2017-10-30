@@ -39,6 +39,7 @@ import org.springframework.security.ldap.authentication.PasswordComparisonAuthen
 import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
 import org.springframework.security.ldap.search.LdapUserSearch;
 import org.springframework.security.ldap.server.ApacheDSContainer;
+import org.springframework.security.ldap.server.UnboundIdContainer;
 import org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator;
 import org.springframework.security.ldap.userdetails.InetOrgPersonContextMapper;
 import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
@@ -46,6 +47,7 @@ import org.springframework.security.ldap.userdetails.LdapUserDetailsMapper;
 import org.springframework.security.ldap.userdetails.PersonContextMapper;
 import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 
 /**
  * Configures LDAP {@link AuthenticationProvider} in the {@link ProviderManagerBuilder}.
@@ -535,9 +537,16 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 			if (url != null) {
 				return contextSource;
 			}
-			ApacheDSContainer apacheDsContainer = new ApacheDSContainer(root, ldif);
-			apacheDsContainer.setPort(getPort());
-			postProcess(apacheDsContainer);
+			if (ClassUtils.isPresent("org.apache.directory.server.core.DefaultDirectoryService", getClass().getClassLoader())) {
+				ApacheDSContainer apacheDsContainer = new ApacheDSContainer(root, ldif);
+				apacheDsContainer.setPort(getPort());
+				postProcess(apacheDsContainer);
+			}
+			else if (ClassUtils.isPresent("com.unboundid.ldap.listener.InMemoryDirectoryServer", getClass().getClassLoader())) {
+				UnboundIdContainer unboundIdContainer = new UnboundIdContainer(root, ldif);
+				unboundIdContainer.setPort(getPort());
+				postProcess(unboundIdContainer);
+			}
 			return contextSource;
 		}
 
