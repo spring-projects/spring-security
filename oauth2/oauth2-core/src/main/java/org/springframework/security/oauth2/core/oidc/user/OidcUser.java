@@ -64,4 +64,8 @@ public interface OidcUser extends OAuth2User, IdTokenClaimAccessor {
 		claims.putAll(idToken.getClaims());
 		return claims;
 	}
+
+	OidcUserInfo getUserInfo();
+
+	OidcIdToken getIdToken();
 }

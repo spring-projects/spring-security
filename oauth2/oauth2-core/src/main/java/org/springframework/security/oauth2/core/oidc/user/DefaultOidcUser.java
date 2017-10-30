@@ -69,10 +69,12 @@ public class DefaultOidcUser extends DefaultOAuth2User implements OidcUser {
 		return this.getAttributes();
 	}
 
+	@Override
 	public OidcIdToken getIdToken() {
 		return this.idToken;
 	}
 
+	@Override
 	public OidcUserInfo getUserInfo() {
 		return this.userInfo;
 	}
