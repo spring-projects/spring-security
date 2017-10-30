@@ -27,8 +27,6 @@ import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuth
 import org.springframework.security.oauth2.client.endpoint.NimbusAuthorizationCodeTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
-import org.springframework.security.oauth2.client.jwt.JwtDecoderRegistry;
-import org.springframework.security.oauth2.client.jwt.NimbusJwtDecoderRegistry;
 import org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizationCodeAuthenticationProvider;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
@@ -252,11 +250,10 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		if (oidcUserService == null) {
 			oidcUserService = new OidcUserService();
 		}
-		JwtDecoderRegistry jwtDecoderRegistry = new NimbusJwtDecoderRegistry();
 
 		OidcAuthorizationCodeAuthenticationProvider oidcAuthorizationCodeAuthenticationProvider =
 			new OidcAuthorizationCodeAuthenticationProvider(
-				accessTokenResponseClient, oidcUserService, jwtDecoderRegistry);
+				accessTokenResponseClient, oidcUserService);
 		if (this.userInfoEndpointConfig.userAuthoritiesMapper != null) {
 			oidcAuthorizationCodeAuthenticationProvider.setAuthoritiesMapper(
 				this.userInfoEndpointConfig.userAuthoritiesMapper);

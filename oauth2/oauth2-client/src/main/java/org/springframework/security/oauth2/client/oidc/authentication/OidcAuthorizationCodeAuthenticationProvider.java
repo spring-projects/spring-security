@@ -23,7 +23,6 @@ import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMap
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
-import org.springframework.security.oauth2.client.jwt.JwtDecoderRegistry;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -40,13 +39,17 @@ import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoderJwkSupport;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.net.URL;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * An implementation of an {@link AuthenticationProvider}
@@ -74,22 +77,20 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 	private static final String INVALID_STATE_PARAMETER_ERROR_CODE = "invalid_state_parameter";
 	private static final String INVALID_REDIRECT_URI_PARAMETER_ERROR_CODE = "invalid_redirect_uri_parameter";
 	private static final String INVALID_ID_TOKEN_ERROR_CODE = "invalid_id_token";
+	private static final String MISSING_SIGNATURE_VERIFIER_ERROR_CODE = "missing_signature_verifier";
 	private final OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient;
 	private final OAuth2UserService<OidcUserRequest, OidcUser> userService;
-	private final JwtDecoderRegistry jwtDecoderRegistry;
+	private final Map<String, JwtDecoder> jwtDecoders = new ConcurrentHashMap<>();
 	private GrantedAuthoritiesMapper authoritiesMapper = (authorities -> authorities);
 
 	public OidcAuthorizationCodeAuthenticationProvider(
 		OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient,
-		OAuth2UserService<OidcUserRequest, OidcUser> userService,
-		JwtDecoderRegistry jwtDecoderRegistry) {
+		OAuth2UserService<OidcUserRequest, OidcUser> userService) {
 
 		Assert.notNull(accessTokenResponseClient, "accessTokenResponseClient cannot be null");
 		Assert.notNull(userService, "userService cannot be null");
-		Assert.notNull(jwtDecoderRegistry, "jwtDecoderRegistry cannot be null");
 		this.accessTokenResponseClient = accessTokenResponseClient;
 		this.userService = userService;
-		this.jwtDecoderRegistry = jwtDecoderRegistry;
 	}
 
 	@Override
@@ -142,11 +143,7 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 				"Missing (required) ID Token in Token Response for Client Registration: " + clientRegistration.getRegistrationId());
 		}
 
-		JwtDecoder jwtDecoder = this.jwtDecoderRegistry.getJwtDecoder(clientRegistration);
-		if (jwtDecoder == null) {
-			throw new IllegalArgumentException("Failed to find a registered JwtDecoder for Client Registration: '" +
-				clientRegistration.getRegistrationId() + "'. Check to ensure you have configured the JwkSet URI.");
-		}
+		JwtDecoder jwtDecoder = this.getJwtDecoder(clientRegistration);
 		Jwt jwt = jwtDecoder.decode((String) accessTokenResponse.getAdditionalParameters().get(OidcParameterNames.ID_TOKEN));
 		OidcIdToken idToken = new OidcIdToken(jwt.getTokenValue(), jwt.getIssuedAt(), jwt.getExpiresAt(), jwt.getClaims());
 
@@ -177,6 +174,24 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 	@Override
 	public boolean supports(Class<?> authentication) {
 		return OAuth2LoginAuthenticationToken.class.isAssignableFrom(authentication);
+	}
+
+	private JwtDecoder getJwtDecoder(ClientRegistration clientRegistration) {
+		JwtDecoder jwtDecoder = this.jwtDecoders.get(clientRegistration.getRegistrationId());
+		if (jwtDecoder == null) {
+			if (!StringUtils.hasText(clientRegistration.getProviderDetails().getJwkSetUri())) {
+				OAuth2Error oauth2Error = new OAuth2Error(
+					MISSING_SIGNATURE_VERIFIER_ERROR_CODE,
+					"Failed to find a Signature Verifier for Client Registration: '" +
+						clientRegistration.getRegistrationId() + "'. Check to ensure you have configured the JwkSet URI.",
+					null
+				);
+				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+			}
+			jwtDecoder = new NimbusJwtDecoderJwkSupport(clientRegistration.getProviderDetails().getJwkSetUri());
+			this.jwtDecoders.put(clientRegistration.getRegistrationId(), jwtDecoder);
+		}
+		return jwtDecoder;
 	}
 
 	private void validateIdToken(OidcIdToken idToken, ClientRegistration clientRegistration) {
