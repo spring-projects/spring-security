@@ -35,10 +35,6 @@ class TestUtil {
 	static final String GOOGLE_REGISTRATION_ID = "google";
 	static final String GITHUB_REGISTRATION_ID = "github";
 
-	static ClientRegistrationRepository clientRegistrationRepository(ClientRegistration... clientRegistrations) {
-		return new InMemoryClientRegistrationRepository(Arrays.asList(clientRegistrations));
-	}
-
 	static ClientRegistration googleClientRegistration() {
 		return googleClientRegistration(DEFAULT_SERVER_URL + AUTHORIZE_BASE_URI + "/" + GOOGLE_REGISTRATION_ID);
 	}

@@ -32,6 +32,7 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
@@ -186,7 +187,7 @@ public class OAuth2LoginAuthenticationFilterTests {
 	private OAuth2LoginAuthenticationFilter setupFilter(
 			AuthenticationManager authenticationManager, ClientRegistration... clientRegistrations) throws Exception {
 
-		ClientRegistrationRepository clientRegistrationRepository = TestUtil.clientRegistrationRepository(clientRegistrations);
+		ClientRegistrationRepository clientRegistrationRepository = new InMemoryClientRegistrationRepository(clientRegistrations);
 
 		OAuth2LoginAuthenticationFilter filter = new OAuth2LoginAuthenticationFilter(
 			clientRegistrationRepository, mock(OAuth2AuthorizedClientService.class));

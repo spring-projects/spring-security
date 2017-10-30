@@ -43,8 +43,7 @@ public class InMemoryClientRegistrationRepositoryTests {
 		.tokenUri("https://example.com/oauth/access_token")
 		.build();
 
-	private InMemoryClientRegistrationRepository clients = new InMemoryClientRegistrationRepository(
-		Arrays.asList(this.registration));
+	private InMemoryClientRegistrationRepository clients = new InMemoryClientRegistrationRepository(this.registration);
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorListClientRegistrationWhenNullThenIllegalArgumentException() {

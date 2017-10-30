@@ -17,6 +17,7 @@ package org.springframework.security.oauth2.client.registration;
 
 import org.springframework.util.Assert;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -33,12 +34,17 @@ import static java.util.stream.Collectors.toMap;
  * A {@link ClientRegistrationRepository} that stores {@link ClientRegistration}(s) <i>in-memory</i>.
  *
  * @author Joe Grandja
+ * @author Rob Winch
  * @since 5.0
  * @see ClientRegistrationRepository
  * @see ClientRegistration
  */
 public final class InMemoryClientRegistrationRepository implements ClientRegistrationRepository, Iterable<ClientRegistration> {
 	private final Map<String, ClientRegistration> registrations;
+
+	public InMemoryClientRegistrationRepository(ClientRegistration... registrations) {
+		this(Arrays.asList(registrations));
+	}
 
 	public InMemoryClientRegistrationRepository(List<ClientRegistration> registrations) {
 		Assert.notEmpty(registrations, "registrations cannot be empty");
