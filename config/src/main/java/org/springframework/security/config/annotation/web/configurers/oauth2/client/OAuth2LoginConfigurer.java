@@ -68,6 +68,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 	private final TokenEndpointConfig tokenEndpointConfig = new TokenEndpointConfig();
 	private final RedirectionEndpointConfig redirectionEndpointConfig = new RedirectionEndpointConfig();
 	private final UserInfoEndpointConfig userInfoEndpointConfig = new UserInfoEndpointConfig();
+	private String loginPage;
 
 	public OAuth2LoginConfigurer() {
 		super();
@@ -88,7 +89,8 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 	@Override
 	public OAuth2LoginConfigurer<B> loginPage(String loginPage) {
 		Assert.hasText(loginPage, "loginPage cannot be empty");
-		return super.loginPage(loginPage);
+		this.loginPage = loginPage;
+		return this;
 	}
 
 	public AuthorizationEndpointConfig authorizationEndpoint() {
@@ -215,7 +217,9 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 				this.getAuthorizedClientService());
 		this.setAuthenticationFilter(authenticationFilter);
 		this.loginProcessingUrl(OAuth2LoginAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI);
-
+		if (this.loginPage != null) {
+			super.loginPage(this.loginPage);
+		}
 		super.init(http);
 
 		OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient =
