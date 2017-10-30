@@ -16,7 +16,6 @@
 package org.springframework.security.oauth2.client;
 
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.client.oidc.OidcAuthorizedClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.util.Assert;
@@ -33,14 +32,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 5.0
  * @see OAuth2AuthorizedClientService
  * @see OAuth2AuthorizedClient
- * @see OidcAuthorizedClient
  * @see ClientRegistration
  * @see Authentication
- *
- * @param <T> The type of <i>OAuth 2.0 Authorized Client</i>
  */
-public final class InMemoryOAuth2AuthorizedClientService<T extends OAuth2AuthorizedClient> implements OAuth2AuthorizedClientService<T> {
-	private final Map<String, T> authorizedClients = new ConcurrentHashMap<>();
+public final class InMemoryOAuth2AuthorizedClientService implements OAuth2AuthorizedClientService {
+	private final Map<String, OAuth2AuthorizedClient> authorizedClients = new ConcurrentHashMap<>();
 	private final ClientRegistrationRepository clientRegistrationRepository;
 
 	public InMemoryOAuth2AuthorizedClientService(ClientRegistrationRepository clientRegistrationRepository) {
@@ -49,37 +45,36 @@ public final class InMemoryOAuth2AuthorizedClientService<T extends OAuth2Authori
 	}
 
 	@Override
-	public T loadAuthorizedClient(String clientRegistrationId, Authentication principal) {
+	public <T extends OAuth2AuthorizedClient> T loadAuthorizedClient(String clientRegistrationId, String principalName) {
 		Assert.hasText(clientRegistrationId, "clientRegistrationId cannot be empty");
-		Assert.notNull(principal, "principal cannot be null");
+		Assert.hasText(principalName, "principalName cannot be empty");
 		ClientRegistration registration = this.clientRegistrationRepository.findByRegistrationId(clientRegistrationId);
 		if (registration == null) {
 			return null;
 		}
-		return this.authorizedClients.get(this.getIdentifier(registration, principal));
+		return (T) this.authorizedClients.get(this.getIdentifier(registration, principalName));
 	}
 
 	@Override
-	public void saveAuthorizedClient(T authorizedClient, Authentication principal) {
+	public void saveAuthorizedClient(OAuth2AuthorizedClient authorizedClient, Authentication principal) {
 		Assert.notNull(authorizedClient, "authorizedClient cannot be null");
 		Assert.notNull(principal, "principal cannot be null");
 		this.authorizedClients.put(this.getIdentifier(
-			authorizedClient.getClientRegistration(), principal), authorizedClient);
+			authorizedClient.getClientRegistration(), principal.getName()), authorizedClient);
 	}
 
 	@Override
-	public T removeAuthorizedClient(String clientRegistrationId, Authentication principal) {
+	public void removeAuthorizedClient(String clientRegistrationId, String principalName) {
 		Assert.hasText(clientRegistrationId, "clientRegistrationId cannot be empty");
-		Assert.notNull(principal, "principal cannot be null");
+		Assert.hasText(principalName, "principalName cannot be empty");
 		ClientRegistration registration = this.clientRegistrationRepository.findByRegistrationId(clientRegistrationId);
-		if (registration == null) {
-			return null;
+		if (registration != null) {
+			this.authorizedClients.remove(this.getIdentifier(registration, principalName));
 		}
-		return this.authorizedClients.remove(this.getIdentifier(registration, principal));
 	}
 
-	private String getIdentifier(ClientRegistration registration, Authentication principal) {
-		String identifier = "[" + registration.getRegistrationId() + "][" + principal.getName() + "]";
+	private String getIdentifier(ClientRegistration registration, String principalName) {
+		String identifier = "[" + registration.getRegistrationId() + "][" + principalName + "]";
 		return Base64.getEncoder().encodeToString(identifier.getBytes());
 	}
 }

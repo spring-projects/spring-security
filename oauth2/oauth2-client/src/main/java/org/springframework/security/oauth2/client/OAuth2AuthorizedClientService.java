@@ -16,8 +16,8 @@
 package org.springframework.security.oauth2.client;
 
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.client.oidc.OidcAuthorizedClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 
 /**
  * Implementations of this interface are responsible for the management
@@ -30,18 +30,16 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
  * @author Joe Grandja
  * @since 5.0
  * @see OAuth2AuthorizedClient
- * @see OidcAuthorizedClient
  * @see ClientRegistration
  * @see Authentication
- *
- * @param <T> The type of <i>OAuth 2.0 Authorized Client</i>
+ * @see OAuth2AccessToken
  */
-public interface OAuth2AuthorizedClientService<T extends OAuth2AuthorizedClient> {
+public interface OAuth2AuthorizedClientService {
 
-	T loadAuthorizedClient(String clientRegistrationId, Authentication principal);
+	<T extends OAuth2AuthorizedClient> T loadAuthorizedClient(String clientRegistrationId, String principalName);
 
-	void saveAuthorizedClient(T authorizedClient, Authentication principal);
+	void saveAuthorizedClient(OAuth2AuthorizedClient authorizedClient, Authentication principal);
 
-	T removeAuthorizedClient(String clientRegistrationId, Authentication principal);
+	void removeAuthorizedClient(String clientRegistrationId, String principalName);
 
 }

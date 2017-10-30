@@ -71,7 +71,7 @@ public class MainController {
 
 	private OAuth2AuthorizedClient getAuthorizedClient(OAuth2AuthenticationToken authentication) {
 		return this.authorizedClientService.loadAuthorizedClient(
-			authentication.getAuthorizedClientRegistrationId(), authentication);
+			authentication.getAuthorizedClientRegistrationId(), authentication.getName());
 	}
 
 	private ExchangeFilterFunction oauth2Credentials(OAuth2AuthorizedClient authorizedClient) {

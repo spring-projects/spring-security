@@ -38,7 +38,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
@@ -397,8 +396,8 @@ public class OAuth2LoginApplicationTests {
 		private ClientRegistrationRepository clientRegistrationRepository;
 
 		@Bean
-		public OAuth2AuthorizedClientService<OAuth2AuthorizedClient> authorizedClientService() {
-			return new InMemoryOAuth2AuthorizedClientService<>(this.clientRegistrationRepository);
+		public OAuth2AuthorizedClientService authorizedClientService() {
+			return new InMemoryOAuth2AuthorizedClientService(this.clientRegistrationRepository);
 		}
 	}
 }

@@ -20,12 +20,11 @@ import org.springframework.core.ResolvableType;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationProvider;
-import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.AuthorizationRequestUriBuilder;
 import org.springframework.security.oauth2.client.endpoint.NimbusAuthorizationCodeTokenResponseClient;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.jwt.JwtDecoderRegistry;
 import org.springframework.security.oauth2.client.jwt.NimbusJwtDecoderRegistry;
@@ -79,7 +78,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		return this;
 	}
 
-	public OAuth2LoginConfigurer<B> authorizedClientService(OAuth2AuthorizedClientService<OAuth2AuthorizedClient> authorizedClientService) {
+	public OAuth2LoginConfigurer<B> authorizedClientService(OAuth2AuthorizedClientService authorizedClientService) {
 		Assert.notNull(authorizedClientService, "authorizedClientService cannot be null");
 		this.getBuilder().setSharedObject(OAuth2AuthorizedClientService.class, authorizedClientService);
 		return this;
@@ -318,8 +317,8 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		return this.getBuilder().getSharedObject(ApplicationContext.class).getBean(ClientRegistrationRepository.class);
 	}
 
-	private OAuth2AuthorizedClientService<OAuth2AuthorizedClient> getAuthorizedClientService() {
-		OAuth2AuthorizedClientService<OAuth2AuthorizedClient> authorizedClientService =
+	private OAuth2AuthorizedClientService getAuthorizedClientService() {
+		OAuth2AuthorizedClientService authorizedClientService =
 			this.getBuilder().getSharedObject(OAuth2AuthorizedClientService.class);
 		if (authorizedClientService == null) {
 			authorizedClientService = this.getAuthorizedClientServiceBean();
@@ -328,7 +327,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		return authorizedClientService;
 	}
 
-	private OAuth2AuthorizedClientService<OAuth2AuthorizedClient> getAuthorizedClientServiceBean() {
+	private OAuth2AuthorizedClientService getAuthorizedClientServiceBean() {
 		return this.getBuilder().getSharedObject(ApplicationContext.class).getBean(OAuth2AuthorizedClientService.class);
 	}
 

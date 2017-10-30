@@ -81,18 +81,18 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 	public static final String DEFAULT_FILTER_PROCESSES_URI = "/login/oauth2/code/*";
 	private static final String AUTHORIZATION_REQUEST_NOT_FOUND_ERROR_CODE = "authorization_request_not_found";
 	private ClientRegistrationRepository clientRegistrationRepository;
-	private OAuth2AuthorizedClientService<OAuth2AuthorizedClient> authorizedClientService;
+	private OAuth2AuthorizedClientService authorizedClientService;
 	private AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
 		new HttpSessionOAuth2AuthorizationRequestRepository();
 
 	public OAuth2LoginAuthenticationFilter(ClientRegistrationRepository clientRegistrationRepository,
-											OAuth2AuthorizedClientService<OAuth2AuthorizedClient> authorizedClientService) {
+											OAuth2AuthorizedClientService authorizedClientService) {
 		this(DEFAULT_FILTER_PROCESSES_URI, clientRegistrationRepository, authorizedClientService);
 	}
 
 	public OAuth2LoginAuthenticationFilter(String filterProcessesUrl,
 											ClientRegistrationRepository clientRegistrationRepository,
-											OAuth2AuthorizedClientService<OAuth2AuthorizedClient> authorizedClientService) {
+											OAuth2AuthorizedClientService authorizedClientService) {
 		super(filterProcessesUrl);
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
 		Assert.notNull(authorizedClientService, "authorizedClientService cannot be null");
@@ -137,8 +137,7 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 			oauth2Authentication.getName(),
 			authenticationResult.getAccessToken());
 
-		this.authorizedClientService.saveAuthorizedClient(
-			authorizedClient, oauth2Authentication);
+		this.authorizedClientService.saveAuthorizedClient(authorizedClient, oauth2Authentication);
 
 		return oauth2Authentication;
 	}

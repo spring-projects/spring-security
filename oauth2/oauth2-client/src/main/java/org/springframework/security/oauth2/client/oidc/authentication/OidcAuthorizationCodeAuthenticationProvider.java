@@ -62,7 +62,7 @@ import java.util.List;
  *
  * @author Joe Grandja
  * @since 5.0
- * @see OidcAuthorizationCodeAuthenticationToken
+ * @see OAuth2LoginAuthenticationToken
  * @see OAuth2AccessTokenResponseClient
  * @see OidcUserService
  * @see OidcUser
@@ -158,13 +158,12 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 		Collection<? extends GrantedAuthority> mappedAuthorities =
 			this.authoritiesMapper.mapAuthorities(oidcUser.getAuthorities());
 
-		OidcAuthorizationCodeAuthenticationToken authenticationResult = new OidcAuthorizationCodeAuthenticationToken(
+		OAuth2LoginAuthenticationToken authenticationResult = new OAuth2LoginAuthenticationToken(
 			authorizationCodeAuthentication.getClientRegistration(),
 			authorizationCodeAuthentication.getAuthorizationExchange(),
 			oidcUser,
 			mappedAuthorities,
-			accessToken,
-			idToken);
+			accessToken);
 		authenticationResult.setDetails(authorizationCodeAuthentication.getDetails());
 
 		return authenticationResult;
