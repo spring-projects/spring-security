@@ -9,9 +9,8 @@ dependencies {
 
 	optional apachedsDependencies
 	optional 'ldapsdk:ldapsdk'
-	optional 'org.apache.directory.shared:shared-ldap'
-
 	optional "com.unboundid:unboundid-ldapsdk"
+	optional 'org.apache.directory.shared:shared-ldap'
 
 	compile ('org.springframework.ldap:spring-ldap-core') {
 		exclude(group: 'commons-logging', module: 'commons-logging')

@@ -49,7 +49,7 @@ dependencyManagement {
 		dependency 'com.nimbusds:oauth2-oidc-sdk:5.38'
 		dependency 'com.squareup.okhttp3:okhttp:3.9.0'
 		dependency 'com.squareup.okio:okio:1.13.0'
-		dependency 'com.unboundid:unboundid-ldapsdk:3.2.0'
+		dependency 'com.unboundid:unboundid-ldapsdk:4.0.1'
 		dependency 'com.vaadin.external.google:android-json:0.0.20131108.vaadin1'
 		dependency 'commons-cli:commons-cli:1.4'
 		dependency 'commons-codec:commons-codec:1.11'
