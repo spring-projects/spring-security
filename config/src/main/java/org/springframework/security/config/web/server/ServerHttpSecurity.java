@@ -249,7 +249,14 @@ public class ServerHttpSecurity {
 			this.authorizeExchangeBuilder.configure(this);
 		}
 		AnnotationAwareOrderComparator.sort(this.webFilters);
-		return new MatcherSecurityWebFilterChain(getSecurityMatcher(), this.webFilters);
+		List<WebFilter> sortedWebFilters = new ArrayList<>();
+		this.webFilters.forEach( f -> {
+			if(f instanceof OrderedWebFilter) {
+				f = ((OrderedWebFilter)f).webFilter;
+			}
+			sortedWebFilters.add(f);
+		});
+		return new MatcherSecurityWebFilterChain(getSecurityMatcher(), sortedWebFilters);
 	}
 
 	private String buildToString() {
