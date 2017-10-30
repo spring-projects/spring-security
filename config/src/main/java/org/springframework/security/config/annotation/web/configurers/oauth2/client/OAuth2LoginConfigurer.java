@@ -167,6 +167,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 
 	public class UserInfoEndpointConfig {
 		private OAuth2UserService<OAuth2UserRequest, OAuth2User> userService;
+		private OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService;
 		private Map<String, Class<? extends OAuth2User>> customUserTypes = new HashMap<>();
 		private GrantedAuthoritiesMapper userAuthoritiesMapper;
 
@@ -176,6 +177,12 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		public UserInfoEndpointConfig userService(OAuth2UserService<OAuth2UserRequest, OAuth2User> userService) {
 			Assert.notNull(userService, "userService cannot be null");
 			this.userService = userService;
+			return this;
+		}
+
+		public UserInfoEndpointConfig oidcUserService(OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService) {
+			Assert.notNull(oidcUserService, "oidcUserService cannot be null");
+			this.oidcUserService = oidcUserService;
 			return this;
 		}
 
@@ -227,7 +234,6 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 			}
 		}
 
-
 		OAuth2LoginAuthenticationProvider oauth2LoginAuthenticationProvider =
 			new OAuth2LoginAuthenticationProvider(accessTokenResponseClient, oauth2UserService);
 		if (this.userInfoEndpointConfig.userAuthoritiesMapper != null) {
@@ -236,8 +242,12 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		}
 		http.authenticationProvider(this.postProcess(oauth2LoginAuthenticationProvider));
 
-		OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService = new OidcUserService();
+		OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService = this.userInfoEndpointConfig.oidcUserService;
+		if (oidcUserService == null) {
+			oidcUserService = new OidcUserService();
+		}
 		JwtDecoderRegistry jwtDecoderRegistry = new NimbusJwtDecoderRegistry();
+
 		OidcAuthorizationCodeAuthenticationProvider oidcAuthorizationCodeAuthenticationProvider =
 			new OidcAuthorizationCodeAuthenticationProvider(
 				accessTokenResponseClient, oidcUserService, jwtDecoderRegistry);
