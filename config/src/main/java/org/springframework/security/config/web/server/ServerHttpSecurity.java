@@ -96,6 +96,8 @@ public class ServerHttpSecurity {
 
 	private CsrfBuilder csrf = new CsrfBuilder();
 
+	private ExceptionHandlingBuilder exceptionHandling = new ExceptionHandlingBuilder();
+
 	private HttpBasicBuilder httpBasic;
 
 	private FormLoginBuilder formLogin;
@@ -171,6 +173,13 @@ public class ServerHttpSecurity {
 			this.headers = new HeaderBuilder();
 		}
 		return this.headers;
+	}
+
+	public ExceptionHandlingBuilder exceptionHandling() {
+		if(this.exceptionHandling == null) {
+			this.exceptionHandling = new ExceptionHandlingBuilder();
+		}
+		return this.exceptionHandling;
 	}
 
 	public AuthorizeExchangeBuilder authorizeExchange() {
@@ -402,6 +411,23 @@ public class ServerHttpSecurity {
 		}
 
 		private CsrfBuilder() {}
+	}
+
+	/**
+	 * @author Rob Winch
+	 * @since 5.0
+	 */
+	public class ExceptionHandlingBuilder {
+		public ExceptionHandlingBuilder serverAuthenticationEntryPoint(ServerAuthenticationEntryPoint authenticationEntryPoint) {
+			ServerHttpSecurity.this.serverAuthenticationEntryPoint = authenticationEntryPoint;
+			return this;
+		}
+
+		public ServerHttpSecurity and() {
+			return ServerHttpSecurity.this;
+		}
+
+		private ExceptionHandlingBuilder() {}
 	}
 
 	/**
