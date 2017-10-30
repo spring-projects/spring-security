@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.client.endpoint;
+package org.springframework.security.oauth2.client.web;
 
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
@@ -24,19 +24,16 @@ import java.net.URI;
 import java.util.Set;
 
 /**
- * The default implementation of an {@link AuthorizationRequestUriBuilder},
- * which internally uses a {@link UriComponentsBuilder} to construct the <i>OAuth 2.0 Authorization Request</i>.
+ * Uses a {@link UriComponentsBuilder} to construct the <i>OAuth 2.0 Authorization Request</i>.
  *
  * @author Joe Grandja
  * @since 5.0
- * @see AuthorizationRequestUriBuilder
  * @see OAuth2AuthorizationRequest
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.1">Section 4.1.1 Authorization Code Grant Request</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.2.1">Section 4.2.1 Implicit Grant Request</a>
  */
-public class OAuth2AuthorizationRequestUriBuilder implements AuthorizationRequestUriBuilder {
+class OAuth2AuthorizationRequestUriBuilder {
 
-	@Override
 	public URI build(OAuth2AuthorizationRequest authorizationRequest) {
 		Set<String> scopes = authorizationRequest.getScopes();
 		UriComponentsBuilder uriBuilder = UriComponentsBuilder

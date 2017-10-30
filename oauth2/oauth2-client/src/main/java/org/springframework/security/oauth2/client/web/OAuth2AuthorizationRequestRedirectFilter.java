@@ -18,12 +18,10 @@ package org.springframework.security.oauth2.client.web;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.keygen.Base64StringKeyGenerator;
 import org.springframework.security.crypto.keygen.StringKeyGenerator;
-import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationRequestUriBuilder;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
-import org.springframework.security.oauth2.client.endpoint.AuthorizationRequestUriBuilder;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
@@ -47,17 +45,17 @@ import java.util.Map;
  * by redirecting the end-user's user-agent to the authorization server's <i>Authorization Endpoint</i>.
  *
  * <p>
- * It uses an {@link AuthorizationRequestUriBuilder} to build the <i>OAuth 2.0 Authorization Request</i>,
+ * It builds the <i>OAuth 2.0 Authorization Request</i>,
  * which is used as the redirect <code>URI</code> to the <i>Authorization Endpoint</i>.
  * The redirect <code>URI</code> will include the client identifier, requested scope(s), state,
  * response type, and a redirection URI which the authorization server will send the user-agent back to
  * once access is granted (or denied) by the end-user (resource owner).
  *
  * @author Joe Grandja
+ * @author Rob Winch
  * @since 5.0
  * @see OAuth2AuthorizationRequest
  * @see AuthorizationRequestRepository
- * @see AuthorizationRequestUriBuilder
  * @see ClientRegistration
  * @see ClientRegistrationRepository
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">Section 4.1 Authorization Code Grant</a>
@@ -70,7 +68,7 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 	private static final String REGISTRATION_ID_URI_VARIABLE_NAME = "registrationId";
 	private final AntPathRequestMatcher authorizationRequestMatcher;
 	private final ClientRegistrationRepository clientRegistrationRepository;
-	private AuthorizationRequestUriBuilder authorizationRequestUriBuilder = new OAuth2AuthorizationRequestUriBuilder();
+	private final OAuth2AuthorizationRequestUriBuilder authorizationRequestUriBuilder = new OAuth2AuthorizationRequestUriBuilder();
 	private final RedirectStrategy authorizationRedirectStrategy = new DefaultRedirectStrategy();
 	private final StringKeyGenerator stateGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder());
 	private AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
@@ -88,11 +86,6 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 		this.authorizationRequestMatcher = new AntPathRequestMatcher(
 			authorizationRequestBaseUri + "/{" + REGISTRATION_ID_URI_VARIABLE_NAME + "}");
 		this.clientRegistrationRepository = clientRegistrationRepository;
-	}
-
-	public final void setAuthorizationRequestUriBuilder(AuthorizationRequestUriBuilder authorizationRequestUriBuilder) {
-		Assert.notNull(authorizationRequestUriBuilder, "authorizationRequestUriBuilder cannot be null");
-		this.authorizationRequestUriBuilder = authorizationRequestUriBuilder;
 	}
 
 	public final void setAuthorizationRequestRepository(AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {

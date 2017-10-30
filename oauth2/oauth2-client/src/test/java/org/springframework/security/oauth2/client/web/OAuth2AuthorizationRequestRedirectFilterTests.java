@@ -24,7 +24,6 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
-import org.springframework.security.oauth2.client.endpoint.AuthorizationRequestUriBuilder;
 
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
@@ -78,7 +77,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 
 		Mockito.verifyZeroInteractions(filterChain);        // Request should not proceed up the chain
 
-		Assertions.assertThat(response.getRedirectedUrl()).isEqualTo(authorizationUri);
+		Assertions.assertThat(response.getRedirectedUrl()).matches("https://accounts.google.com/o/oauth2/auth\\?response_type=code&client_id=google-client-id&scope=openid%20email%20profile&state=.{15,}&redirect_uri=https://localhost:8080/login/oauth2/code/google");
 	}
 
 	@Test
@@ -117,21 +116,8 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 
 	private OAuth2AuthorizationRequestRedirectFilter setupFilter(String authorizationUri,
 																	ClientRegistration... clientRegistrations) throws Exception {
-
-		AuthorizationRequestUriBuilder authorizationUriBuilder = Mockito.mock(AuthorizationRequestUriBuilder.class);
-		URI authorizationURI = new URI(authorizationUri);
-		Mockito.when(authorizationUriBuilder.build(Matchers.any(OAuth2AuthorizationRequest.class))).thenReturn(authorizationURI);
-
-		return setupFilter(authorizationUriBuilder, clientRegistrations);
-	}
-
-	private OAuth2AuthorizationRequestRedirectFilter setupFilter(AuthorizationRequestUriBuilder authorizationUriBuilder,
-																	ClientRegistration... clientRegistrations) throws Exception {
-
 		ClientRegistrationRepository clientRegistrationRepository = TestUtil.clientRegistrationRepository(clientRegistrations);
 		OAuth2AuthorizationRequestRedirectFilter filter = new OAuth2AuthorizationRequestRedirectFilter(clientRegistrationRepository);
-		filter.setAuthorizationRequestUriBuilder(authorizationUriBuilder);
-
 		return filter;
 	}
 }

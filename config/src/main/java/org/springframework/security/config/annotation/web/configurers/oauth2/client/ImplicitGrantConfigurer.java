@@ -20,7 +20,6 @@ import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
-import org.springframework.security.oauth2.client.endpoint.AuthorizationRequestUriBuilder;
 import org.springframework.util.Assert;
 
 /**
@@ -33,17 +32,10 @@ public final class ImplicitGrantConfigurer<B extends HttpSecurityBuilder<B>> ext
 	AbstractHttpConfigurer<ImplicitGrantConfigurer<B>, B> {
 
 	private String authorizationRequestBaseUri;
-	private AuthorizationRequestUriBuilder authorizationRequestUriBuilder;
 
 	public ImplicitGrantConfigurer<B> authorizationRequestBaseUri(String authorizationRequestBaseUri) {
 		Assert.hasText(authorizationRequestBaseUri, "authorizationRequestBaseUri cannot be empty");
 		this.authorizationRequestBaseUri = authorizationRequestBaseUri;
-		return this;
-	}
-
-	public ImplicitGrantConfigurer<B> authorizationRequestUriBuilder(AuthorizationRequestUriBuilder authorizationRequestUriBuilder) {
-		Assert.notNull(authorizationRequestUriBuilder, "authorizationRequestUriBuilder cannot be null");
-		this.authorizationRequestUriBuilder = authorizationRequestUriBuilder;
 		return this;
 	}
 
@@ -57,9 +49,6 @@ public final class ImplicitGrantConfigurer<B extends HttpSecurityBuilder<B>> ext
 	public void configure(B http) throws Exception {
 		OAuth2AuthorizationRequestRedirectFilter authorizationRequestFilter = new OAuth2AuthorizationRequestRedirectFilter(
 			this.getAuthorizationRequestBaseUri(), this.getClientRegistrationRepository());
-		if (this.authorizationRequestUriBuilder != null) {
-			authorizationRequestFilter.setAuthorizationRequestUriBuilder(this.authorizationRequestUriBuilder);
-		}
 		http.addFilter(this.postProcess(authorizationRequestFilter));
 	}
 
