@@ -69,7 +69,7 @@ public class CommonOAuth2ProviderTests {
 		assertThat(providerDetails.getUserInfoEndpoint().getUri())
 			.isEqualTo("https://api.github.com/user");
 		assertThat(providerDetails.getUserInfoEndpoint().getUserNameAttributeName())
-			.isEqualTo("name");
+			.isEqualTo("id");
 		assertThat(providerDetails.getJwkSetUri()).isNull();
 		assertThat(registration.getClientAuthenticationMethod())
 			.isEqualTo(ClientAuthenticationMethod.BASIC);
@@ -92,7 +92,7 @@ public class CommonOAuth2ProviderTests {
 		assertThat(providerDetails.getUserInfoEndpoint().getUri())
 			.isEqualTo("https://graph.facebook.com/me");
 		assertThat(providerDetails.getUserInfoEndpoint().getUserNameAttributeName())
-			.isEqualTo("name");
+			.isEqualTo("id");
 		assertThat(providerDetails.getJwkSetUri()).isNull();
 		assertThat(registration.getClientAuthenticationMethod())
 			.isEqualTo(ClientAuthenticationMethod.POST);

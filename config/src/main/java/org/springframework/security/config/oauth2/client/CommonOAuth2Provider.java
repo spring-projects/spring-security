@@ -58,7 +58,7 @@ public enum CommonOAuth2Provider {
 			builder.authorizationUri("https://github.com/login/oauth/authorize");
 			builder.tokenUri("https://github.com/login/oauth/access_token");
 			builder.userInfoUri("https://api.github.com/user");
-			builder.userNameAttributeName("name");
+			builder.userNameAttributeName("id");
 			builder.clientName("GitHub");
 			return builder;
 		}
@@ -74,7 +74,7 @@ public enum CommonOAuth2Provider {
 			builder.authorizationUri("https://www.facebook.com/v2.8/dialog/oauth");
 			builder.tokenUri("https://graph.facebook.com/v2.8/oauth/access_token");
 			builder.userInfoUri("https://graph.facebook.com/me");
-			builder.userNameAttributeName("name");
+			builder.userNameAttributeName("id");
 			builder.clientName("Facebook");
 			return builder;
 		}
