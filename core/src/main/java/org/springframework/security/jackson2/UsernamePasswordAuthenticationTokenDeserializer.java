@@ -16,6 +16,9 @@
 
 package org.springframework.security.jackson2;
 
+import java.io.IOException;
+import java.util.List;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -24,11 +27,9 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.MissingNode;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
-
-import java.io.IOException;
-import java.util.List;
 
 /**
  * Custom deserializer for {@link UsernamePasswordAuthenticationToken}. At the time of deserialization
@@ -39,6 +40,7 @@ import java.util.List;
  * you can also registered it with your own mixin class.
  *
  * @author Jitendra Singh
+ * @author Greg Turnquist
  * @see UsernamePasswordAuthenticationTokenMixin
  * @since 4.2
  */
@@ -65,7 +67,13 @@ class UsernamePasswordAuthenticationTokenDeserializer extends JsonDeserializer<U
 		} else {
 			principal = principalNode.asText();
 		}
-		Object credentials = readJsonNode(jsonNode, "credentials").asText();
+		JsonNode credentialsNode = readJsonNode(jsonNode, "credentials");
+		Object credentials;
+		if (credentialsNode.isNull()) {
+			credentials = null;
+		} else {
+			credentials = credentialsNode.asText();
+		}
 		List<GrantedAuthority> authorities = mapper.readValue(
 				readJsonNode(jsonNode, "authorities").traverse(mapper), new TypeReference<List<GrantedAuthority>>() {
 		});
@@ -74,7 +82,12 @@ class UsernamePasswordAuthenticationTokenDeserializer extends JsonDeserializer<U
 		} else {
 			token = new UsernamePasswordAuthenticationToken(principal, credentials);
 		}
-		token.setDetails(readJsonNode(jsonNode, "details"));
+		JsonNode detailsNode = readJsonNode(jsonNode, "details");
+		if (detailsNode.isNull()) {
+			token.setDetails(null);
+		} else {
+			token.setDetails(detailsNode);
+		}
 		return token;
 	}
 

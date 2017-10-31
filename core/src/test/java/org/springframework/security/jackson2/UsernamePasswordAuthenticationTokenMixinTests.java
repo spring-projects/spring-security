@@ -30,10 +30,11 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * @author Jitendra Singh
+ * @author Greg Turnquist
  * @since 4.2
  */
 public class UsernamePasswordAuthenticationTokenMixinTests extends AbstractMixinTests {
@@ -149,6 +150,20 @@ public class UsernamePasswordAuthenticationTokenMixinTests extends AbstractMixin
 		assertThat(token).isNotNull();
 		assertThat(token.getPrincipal()).isNotNull().isInstanceOf(NonUserPrincipal.class);
 	}
+
+	@Test
+	public void serializingThenDeserializingWithNoCredentialsOrDetailsShouldWork() throws IOException {
+		// given
+		UsernamePasswordAuthenticationToken original = new UsernamePasswordAuthenticationToken("Frodo", null);
+
+		// when
+		String serialized = this.mapper.writeValueAsString(original);
+		UsernamePasswordAuthenticationToken deserialized = this.mapper.readValue(serialized, UsernamePasswordAuthenticationToken.class);
+
+		// then
+		assertThat(deserialized).isEqualTo(original);
+	}
+
 
 	private UsernamePasswordAuthenticationToken createToken() {
 		User user = createDefaultUser();
