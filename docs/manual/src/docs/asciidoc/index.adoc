@@ -1133,7 +1133,7 @@ public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
 
 For additional information about methods that can be overridden, refer to the `GlobalMethodSecurityConfiguration` Javadoc.
 
-[[jc-erms]
+[[jc-erms]]
 ==== EnableReactiveMethodSecurity
 
 Spring Security supports method security using https://projectreactor.io/docs/core/release/reference/#context[Reactor's Context] which is setup using `ReactiveSecurityContextHolder`.
