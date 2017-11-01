@@ -75,6 +75,7 @@ public final class DelegatingSecurityContextRunnable implements Runnable {
 		this(delegate, SecurityContextHolder.getContext());
 	}
 
+	@Override
 	public void run() {
 		this.originalSecurityContext = SecurityContextHolder.getContext();
 
@@ -93,6 +94,7 @@ public final class DelegatingSecurityContextRunnable implements Runnable {
 		}
 	}
 
+	@Override
 	public String toString() {
 		return delegate.toString();
 	}

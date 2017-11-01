@@ -98,6 +98,7 @@ public class OpenIDAttribute implements Serializable {
 		return values;
 	}
 
+	@Override
 	public String toString() {
 		StringBuilder result = new StringBuilder("[");
 		result.append(name);

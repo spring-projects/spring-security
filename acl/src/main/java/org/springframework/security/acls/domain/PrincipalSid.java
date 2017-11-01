@@ -60,6 +60,7 @@ public class PrincipalSid implements Sid {
 	// ~ Methods
 	// ========================================================================================================
 
+	@Override
 	public boolean equals(Object object) {
 		if ((object == null) || !(object instanceof PrincipalSid)) {
 			return false;
@@ -70,6 +71,7 @@ public class PrincipalSid implements Sid {
 		return ((PrincipalSid) object).getPrincipal().equals(this.getPrincipal());
 	}
 
+	@Override
 	public int hashCode() {
 		return this.getPrincipal().hashCode();
 	}
@@ -78,6 +80,7 @@ public class PrincipalSid implements Sid {
 		return principal;
 	}
 
+	@Override
 	public String toString() {
 		return "PrincipalSid[" + this.principal + "]";
 	}

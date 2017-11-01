@@ -98,6 +98,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices,
 				boolean.class);
 	}
 
+	@Override
 	public void afterPropertiesSet() throws Exception {
 		Assert.hasLength(key, "key cannot be empty or null");
 		Assert.notNull(userDetailsService, "A UserDetailsService is required");
@@ -111,6 +112,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices,
 	 * The returned username is then used to load the UserDetails object for the user,
 	 * which in turn is used to create a valid authentication token.
 	 */
+	@Override
 	public final Authentication autoLogin(HttpServletRequest request,
 			HttpServletResponse response) {
 		String rememberMeCookie = extractRememberMeCookie(request);
@@ -282,6 +284,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices,
 		return sb.toString();
 	}
 
+	@Override
 	public final void loginFail(HttpServletRequest request, HttpServletResponse response) {
 		logger.debug("Interactive login attempt was unsuccessful.");
 		cancelCookie(request, response);
@@ -300,6 +303,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices,
 	 * true, calls <tt>onLoginSucces</tt>.
 	 * </p>
 	 */
+	@Override
 	public final void loginSuccess(HttpServletRequest request,
 			HttpServletResponse response, Authentication successfulAuthentication) {
 
@@ -439,6 +443,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices,
 	 * Implementation of {@code LogoutHandler}. Default behaviour is to call
 	 * {@code cancelCookie()}.
 	 */
+	@Override
 	public void logout(HttpServletRequest request, HttpServletResponse response,
 			Authentication authentication) {
 		if (logger.isDebugEnabled()) {

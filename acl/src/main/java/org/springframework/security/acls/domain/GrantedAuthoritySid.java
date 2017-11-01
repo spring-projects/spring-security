@@ -55,6 +55,7 @@ public class GrantedAuthoritySid implements Sid {
 	// ~ Methods
 	// ========================================================================================================
 
+	@Override
 	public boolean equals(Object object) {
 		if ((object == null) || !(object instanceof GrantedAuthoritySid)) {
 			return false;
@@ -66,6 +67,7 @@ public class GrantedAuthoritySid implements Sid {
 				this.getGrantedAuthority());
 	}
 
+	@Override
 	public int hashCode() {
 		return this.getGrantedAuthority().hashCode();
 	}
@@ -74,6 +76,7 @@ public class GrantedAuthoritySid implements Sid {
 		return grantedAuthority;
 	}
 
+	@Override
 	public String toString() {
 		return "GrantedAuthoritySid[" + this.grantedAuthority + "]";
 	}

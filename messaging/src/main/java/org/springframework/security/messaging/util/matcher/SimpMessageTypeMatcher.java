@@ -44,6 +44,7 @@ public class SimpMessageTypeMatcher implements MessageMatcher<Object> {
 		this.typeToMatch = typeToMatch;
 	}
 
+	@Override
 	public boolean matches(Message<? extends Object> message) {
 		MessageHeaders headers = message.getHeaders();
 		SimpMessageType messageType = SimpMessageHeaderAccessor.getMessageType(headers);
@@ -64,6 +65,7 @@ public class SimpMessageTypeMatcher implements MessageMatcher<Object> {
 
 	}
 
+	@Override
 	public int hashCode() {
 		// Using nullSafeHashCode for proper array hashCode handling
 		return ObjectUtils.nullSafeHashCode(this.typeToMatch);

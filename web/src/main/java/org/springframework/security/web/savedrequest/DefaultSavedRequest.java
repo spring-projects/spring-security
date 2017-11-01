@@ -264,6 +264,7 @@ public class DefaultSavedRequest implements SavedRequest {
 		return contextPath;
 	}
 
+	@Override
 	public List<Cookie> getCookies() {
 		List<Cookie> cookieList = new ArrayList<Cookie>(cookies.size());
 
@@ -279,15 +280,18 @@ public class DefaultSavedRequest implements SavedRequest {
 	 *
 	 * @return the full URL of this request
 	 */
+	@Override
 	public String getRedirectUrl() {
 		return UrlUtils.buildFullRequestUrl(scheme, serverName, serverPort, requestURI,
 				queryString);
 	}
 
+	@Override
 	public Collection<String> getHeaderNames() {
 		return headers.keySet();
 	}
 
+	@Override
 	public List<String> getHeaderValues(String name) {
 		List<String> values = headers.get(name);
 
@@ -298,14 +302,17 @@ public class DefaultSavedRequest implements SavedRequest {
 		return values;
 	}
 
+	@Override
 	public List<Locale> getLocales() {
 		return locales;
 	}
 
+	@Override
 	public String getMethod() {
 		return method;
 	}
 
+	@Override
 	public Map<String, String[]> getParameterMap() {
 		return parameters;
 	}
@@ -314,6 +321,7 @@ public class DefaultSavedRequest implements SavedRequest {
 		return parameters.keySet();
 	}
 
+	@Override
 	public String[] getParameterValues(String name) {
 		return parameters.get(name);
 	}
@@ -385,6 +393,7 @@ public class DefaultSavedRequest implements SavedRequest {
 		}
 	}
 
+	@Override
 	public String toString() {
 		return "DefaultSavedRequest[" + getRedirectUrl() + "]";
 	}

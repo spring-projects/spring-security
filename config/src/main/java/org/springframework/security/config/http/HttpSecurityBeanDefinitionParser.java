@@ -86,6 +86,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 	 * "universal" match pattern mapped to the list of beans which have been parsed here.
 	 */
 	@SuppressWarnings({ "unchecked" })
+	@Override
 	public BeanDefinition parse(Element element, ParserContext pc) {
 		CompositeComponentDefinition compositeDef = new CompositeComponentDefinition(
 				element.getTagName(), pc.extractSource(element));
@@ -424,10 +425,12 @@ class OrderDecorator implements Ordered {
 		this.order = order;
 	}
 
+	@Override
 	public int getOrder() {
 		return order;
 	}
 
+	@Override
 	public String toString() {
 		return bean + ", order = " + order;
 	}
@@ -443,6 +446,7 @@ class OrderDecorator implements Ordered {
  * @author Rob Winch
  */
 final class ClearCredentialsMethodInvokingFactoryBean extends MethodInvokingFactoryBean {
+	@Override
 	public void afterPropertiesSet() throws Exception {
 		boolean isTargetProviderManager = getTargetObject() instanceof ProviderManager;
 		if (!isTargetProviderManager) {

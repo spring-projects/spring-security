@@ -60,18 +60,22 @@ public class InMemoryResource extends AbstractResource {
 	// ~ Methods
 	// ========================================================================================================
 
+	@Override
 	public String getDescription() {
 		return description;
 	}
 
+	@Override
 	public InputStream getInputStream() throws IOException {
 		return new ByteArrayInputStream(source);
 	}
 
+	@Override
 	public int hashCode() {
 		return 1;
 	}
 
+	@Override
 	public boolean equals(Object res) {
 		if (!(res instanceof InMemoryResource)) {
 			return false;

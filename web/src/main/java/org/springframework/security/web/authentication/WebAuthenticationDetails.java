@@ -68,6 +68,7 @@ public class WebAuthenticationDetails implements Serializable {
 	// ~ Methods
 	// ========================================================================================================
 
+	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof WebAuthenticationDetails) {
 			WebAuthenticationDetails rhs = (WebAuthenticationDetails) obj;
@@ -125,6 +126,7 @@ public class WebAuthenticationDetails implements Serializable {
 		return sessionId;
 	}
 
+	@Override
 	public int hashCode() {
 		int code = 7654;
 
@@ -139,6 +141,7 @@ public class WebAuthenticationDetails implements Serializable {
 		return code;
 	}
 
+	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(super.toString()).append(": ");

@@ -60,14 +60,17 @@ public final class SwitchUserGrantedAuthority implements GrantedAuthority {
 		return source;
 	}
 
+	@Override
 	public String getAuthority() {
 		return role;
 	}
 
+	@Override
 	public int hashCode() {
 		return 31 ^ source.hashCode() ^ role.hashCode();
 	}
 
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
 			return true;
@@ -81,6 +84,7 @@ public final class SwitchUserGrantedAuthority implements GrantedAuthority {
 		return false;
 	}
 
+	@Override
 	public String toString() {
 		return "Switch User Authority [" + role + "," + source + "]";
 	}

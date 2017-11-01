@@ -40,6 +40,7 @@ public class RequestKey {
 		return method;
 	}
 
+	@Override
 	public int hashCode() {
 		int code = 31;
 		code ^= url.hashCode();
@@ -51,6 +52,7 @@ public class RequestKey {
 		return code;
 	}
 
+	@Override
 	public boolean equals(Object obj) {
 		if (!(obj instanceof RequestKey)) {
 			return false;
@@ -69,6 +71,7 @@ public class RequestKey {
 		return method.equals(key.method);
 	}
 
+	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder(url.length() + 7);
 		sb.append("[");
