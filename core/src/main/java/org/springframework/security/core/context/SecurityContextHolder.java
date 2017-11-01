@@ -161,6 +161,7 @@ public class SecurityContextHolder {
 		return strategy.createEmptyContext();
 	}
 
+	@Override
 	public String toString() {
 		return "SecurityContextHolder[strategy='" + strategyName + "'; initializeCount="
 				+ initializeCount + "]";

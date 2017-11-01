@@ -84,6 +84,7 @@ public class Contact implements Serializable {
 		this.name = name;
 	}
 
+	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(super.toString() + ": ");

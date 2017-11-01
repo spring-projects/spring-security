@@ -123,6 +123,7 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 	// ~ Methods
 	// ========================================================================================================
 
+	@Override
 	public void deleteAce(int aceIndex) throws NotFoundException {
 		aclAuthorizationStrategy.securityCheck(this,
 				AclAuthorizationStrategy.CHANGE_GENERAL);
@@ -144,6 +145,7 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 		}
 	}
 
+	@Override
 	public void insertAce(int atIndexLocation, Permission permission, Sid sid,
 			boolean granting) throws NotFoundException {
 		aclAuthorizationStrategy.securityCheck(this,
@@ -167,20 +169,24 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 		}
 	}
 
+	@Override
 	public List<AccessControlEntry> getEntries() {
 		// Can safely return AccessControlEntry directly, as they're immutable outside the
 		// ACL package
 		return new ArrayList<AccessControlEntry>(aces);
 	}
 
+	@Override
 	public Serializable getId() {
 		return this.id;
 	}
 
+	@Override
 	public ObjectIdentity getObjectIdentity() {
 		return objectIdentity;
 	}
 
+	@Override
 	public boolean isEntriesInheriting() {
 		return entriesInheriting;
 	}
@@ -192,6 +198,7 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 	 * ACL was only loaded for a subset of SIDs
 	 * @see DefaultPermissionGrantingStrategy
 	 */
+	@Override
 	public boolean isGranted(List<Permission> permission, List<Sid> sids,
 			boolean administrativeMode) throws NotFoundException, UnloadedSidException {
 		Assert.notEmpty(permission, "Permissions required");
@@ -205,6 +212,7 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 				administrativeMode);
 	}
 
+	@Override
 	public boolean isSidLoaded(List<Sid> sids) {
 		// If loadedSides is null, this indicates all SIDs were loaded
 		// Also return true if the caller didn't specify a SID to find
@@ -233,12 +241,14 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 		return true;
 	}
 
+	@Override
 	public void setEntriesInheriting(boolean entriesInheriting) {
 		aclAuthorizationStrategy.securityCheck(this,
 				AclAuthorizationStrategy.CHANGE_GENERAL);
 		this.entriesInheriting = entriesInheriting;
 	}
 
+	@Override
 	public void setOwner(Sid newOwner) {
 		aclAuthorizationStrategy.securityCheck(this,
 				AclAuthorizationStrategy.CHANGE_OWNERSHIP);
@@ -246,10 +256,12 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 		this.owner = newOwner;
 	}
 
+	@Override
 	public Sid getOwner() {
 		return this.owner;
 	}
 
+	@Override
 	public void setParent(Acl newParent) {
 		aclAuthorizationStrategy.securityCheck(this,
 				AclAuthorizationStrategy.CHANGE_GENERAL);
@@ -258,10 +270,12 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 		this.parentAcl = newParent;
 	}
 
+	@Override
 	public Acl getParentAcl() {
 		return parentAcl;
 	}
 
+	@Override
 	public void updateAce(int aceIndex, Permission permission) throws NotFoundException {
 		aclAuthorizationStrategy.securityCheck(this,
 				AclAuthorizationStrategy.CHANGE_GENERAL);
@@ -273,6 +287,7 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 		}
 	}
 
+	@Override
 	public void updateAuditing(int aceIndex, boolean auditSuccess, boolean auditFailure) {
 		aclAuthorizationStrategy.securityCheck(this,
 				AclAuthorizationStrategy.CHANGE_AUDITING);
@@ -285,6 +300,7 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 		}
 	}
 
+	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof AclImpl) {
 			AclImpl rhs = (AclImpl) obj;
@@ -341,6 +357,7 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 		return result;
 	}
 
+	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("AclImpl[");

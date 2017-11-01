@@ -110,6 +110,7 @@ public class ObjectIdentityImpl implements ObjectIdentity {
 	 *
 	 * @return <code>true</code> if the presented object matches this object
 	 */
+	@Override
 	public boolean equals(Object arg0) {
 		if (arg0 == null || !(arg0 instanceof ObjectIdentityImpl)) {
 			return false;
@@ -134,10 +135,12 @@ public class ObjectIdentityImpl implements ObjectIdentity {
 		return type.equals(other.type);
 	}
 
+	@Override
 	public Serializable getIdentifier() {
 		return identifier;
 	}
 
+	@Override
 	public String getType() {
 		return type;
 	}
@@ -147,6 +150,7 @@ public class ObjectIdentityImpl implements ObjectIdentity {
 	 *
 	 * @return the hash
 	 */
+	@Override
 	public int hashCode() {
 		int code = 31;
 		code ^= this.type.hashCode();
@@ -155,6 +159,7 @@ public class ObjectIdentityImpl implements ObjectIdentity {
 		return code;
 	}
 
+	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(this.getClass().getName()).append("[");

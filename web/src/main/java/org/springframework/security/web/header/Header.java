@@ -77,10 +77,12 @@ public final class Header {
 		return this.headerValues.equals(header.headerValues);
 	}
 
+	@Override
 	public int hashCode() {
 		return headerName.hashCode() + headerValues.hashCode();
 	}
 
+	@Override
 	public String toString() {
 		return "Header [name: " + headerName + ", values: " + headerValues + "]";
 	}

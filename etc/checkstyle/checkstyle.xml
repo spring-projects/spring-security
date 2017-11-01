@@ -6,7 +6,7 @@
 	<module name="SuppressionFilter">
 		<property name="file" value="${configDir}/suppressions.xml"/>
 	</module>
-	
+
 	<!-- Root Checks -->
 	<module name="RegexpHeader">
 		<property name="headerFile" value="${configDir}/header.txt"/>
@@ -15,6 +15,9 @@
 
 	<!-- Root Checks -->
 	<module name="TreeWalker">
+		<!-- Annotations -->
+		<module name="MissingOverrideCheck"/>
+
 		<!-- Regexp -->
 		<module name="RegexpSinglelineJava">
 			<property name="format" value="^\t* +\t*\S"/>

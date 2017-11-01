@@ -39,6 +39,7 @@ public class File extends AbstractElement {
 		this.content = content;
 	}
 
+	@Override
 	public String toString() {
 		return "File[fullName='" + getFullName() + "'; name='" + getName() + "'; id='"
 				+ getId() + "'; content=" + getContent() + "'; parent='" + getParent()

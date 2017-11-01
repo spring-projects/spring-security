@@ -39,10 +39,12 @@ public final class SimpleGrantedAuthority implements GrantedAuthority {
 		this.role = role;
 	}
 
+	@Override
 	public String getAuthority() {
 		return role;
 	}
 
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
 			return true;
@@ -55,10 +57,12 @@ public final class SimpleGrantedAuthority implements GrantedAuthority {
 		return false;
 	}
 
+	@Override
 	public int hashCode() {
 		return this.role.hashCode();
 	}
 
+	@Override
 	public String toString() {
 		return this.role;
 	}

@@ -48,14 +48,17 @@ public final class JaasGrantedAuthority implements GrantedAuthority {
 		return principal;
 	}
 
+	@Override
 	public String getAuthority() {
 		return role;
 	}
 
+	@Override
 	public int hashCode() {
 		return 31 ^ principal.hashCode() ^ role.hashCode();
 	}
 
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
 			return true;
@@ -69,6 +72,7 @@ public final class JaasGrantedAuthority implements GrantedAuthority {
 		return false;
 	}
 
+	@Override
 	public String toString() {
 		return "Jaas Authority [" + role + "," + principal + "]";
 	}

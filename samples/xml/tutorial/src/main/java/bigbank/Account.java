@@ -65,6 +65,7 @@ public class Account {
 		this.overdraft = overdraft;
 	}
 
+	@Override
 	public String toString() {
 		return "Account[id=" + id + ",balance=" + balance + ",holder=" + holder
 				+ ", overdraft=" + overdraft + "]";

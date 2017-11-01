@@ -90,6 +90,7 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken {
 	 *
 	 * @return an empty String
 	 */
+	@Override
 	public Object getCredentials() {
 		return "";
 	}
@@ -98,10 +99,12 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken {
 		return this.keyHash;
 	}
 
+	@Override
 	public Object getPrincipal() {
 		return this.principal;
 	}
 
+	@Override
 	public boolean equals(Object obj) {
 		if (!super.equals(obj)) {
 			return false;

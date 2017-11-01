@@ -111,6 +111,7 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
 	 *
 	 * @throws UsernameNotFoundException if no matching entry is found.
 	 */
+	@Override
 	public DirContextOperations searchForUser(String username) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Searching for user '" + username + "', with user search "
@@ -183,6 +184,7 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
 		searchControls.setReturningAttributes(attrs);
 	}
 
+	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 

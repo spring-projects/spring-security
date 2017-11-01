@@ -75,6 +75,7 @@ public class MapBasedMethodSecurityMetadataSource extends
 	/**
 	 * Implementation does not support class-level attributes.
 	 */
+	@Override
 	protected Collection<ConfigAttribute> findAttributes(Class<?> clazz) {
 		return null;
 	}
@@ -83,6 +84,7 @@ public class MapBasedMethodSecurityMetadataSource extends
 	 * Will walk the method inheritance tree to find the most specific declaration
 	 * applicable.
 	 */
+	@Override
 	protected Collection<ConfigAttribute> findAttributes(Method method,
 			Class<?> targetClass) {
 		if (targetClass == null) {
@@ -232,6 +234,7 @@ public class MapBasedMethodSecurityMetadataSource extends
 	 *
 	 * @return the attributes explicitly defined against this bean
 	 */
+	@Override
 	public Collection<ConfigAttribute> getAllConfigAttributes() {
 		Set<ConfigAttribute> allAttributes = new HashSet<ConfigAttribute>();
 
@@ -258,6 +261,7 @@ public class MapBasedMethodSecurityMetadataSource extends
 						.substring(1, mappedName.length())));
 	}
 
+	@Override
 	public void setBeanClassLoader(ClassLoader beanClassLoader) {
 		Assert.notNull(beanClassLoader, "Bean class loader required");
 		this.beanClassLoader = beanClassLoader;
@@ -290,6 +294,7 @@ public class MapBasedMethodSecurityMetadataSource extends
 			this.registeredJavaType = registeredJavaType;
 		}
 
+		@Override
 		public boolean equals(Object obj) {
 			if (this == obj) {
 				return true;
@@ -302,10 +307,12 @@ public class MapBasedMethodSecurityMetadataSource extends
 			return false;
 		}
 
+		@Override
 		public int hashCode() {
 			return method.hashCode() * registeredJavaType.hashCode();
 		}
 
+		@Override
 		public String toString() {
 			return "RegisteredMethod[" + registeredJavaType.getName() + "; " + method
 					+ "]";

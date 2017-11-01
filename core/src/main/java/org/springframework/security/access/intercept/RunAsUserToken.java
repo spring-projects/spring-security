@@ -58,6 +58,7 @@ public class RunAsUserToken extends AbstractAuthenticationToken {
 	// ~ Methods
 	// ========================================================================================================
 
+	@Override
 	public Object getCredentials() {
 		return this.credentials;
 	}
@@ -70,10 +71,12 @@ public class RunAsUserToken extends AbstractAuthenticationToken {
 		return this.originalAuthentication;
 	}
 
+	@Override
 	public Object getPrincipal() {
 		return this.principal;
 	}
 
+	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder(super.toString());
 		String className = this.originalAuthentication == null ? null

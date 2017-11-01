@@ -44,6 +44,7 @@ public class SecurityConfig implements ConfigAttribute {
 	// ~ Methods
 	// ========================================================================================================
 
+	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof ConfigAttribute) {
 			ConfigAttribute attr = (ConfigAttribute) obj;
@@ -54,14 +55,17 @@ public class SecurityConfig implements ConfigAttribute {
 		return false;
 	}
 
+	@Override
 	public String getAttribute() {
 		return this.attrib;
 	}
 
+	@Override
 	public int hashCode() {
 		return this.attrib.hashCode();
 	}
 
+	@Override
 	public String toString() {
 		return this.attrib;
 	}

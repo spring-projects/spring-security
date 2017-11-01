@@ -75,34 +75,42 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
 	// ~ Methods
 	// ========================================================================================================
 
+	@Override
 	public Collection<GrantedAuthority> getAuthorities() {
 		return authorities;
 	}
 
+	@Override
 	public String getDn() {
 		return dn;
 	}
 
+	@Override
 	public String getPassword() {
 		return password;
 	}
 
+	@Override
 	public String getUsername() {
 		return username;
 	}
 
+	@Override
 	public boolean isAccountNonExpired() {
 		return accountNonExpired;
 	}
 
+	@Override
 	public boolean isAccountNonLocked() {
 		return accountNonLocked;
 	}
 
+	@Override
 	public boolean isCredentialsNonExpired() {
 		return credentialsNonExpired;
 	}
 
+	@Override
 	public boolean isEnabled() {
 		return enabled;
 	}
@@ -112,10 +120,12 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
 		password = null;
 	}
 
+	@Override
 	public int getTimeBeforeExpiration() {
 		return timeBeforeExpiration;
 	}
 
+	@Override
 	public int getGraceLoginsRemaining() {
 		return graceLoginsRemaining;
 	}
@@ -133,6 +143,7 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
 		return dn.hashCode();
 	}
 
+	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(super.toString()).append(": ");

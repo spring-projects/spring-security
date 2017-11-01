@@ -82,6 +82,7 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken im
 		return key.hashCode();
 	}
 
+	@Override
 	public boolean equals(Object obj) {
 		if (!super.equals(obj)) {
 			return false;
@@ -112,6 +113,7 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken im
 	 *
 	 * @return an empty String
 	 */
+	@Override
 	public Object getCredentials() {
 		return "";
 	}
@@ -120,6 +122,7 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken im
 		return this.keyHash;
 	}
 
+	@Override
 	public Object getPrincipal() {
 		return this.principal;
 	}

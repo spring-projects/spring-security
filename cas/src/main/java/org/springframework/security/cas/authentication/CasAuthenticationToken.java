@@ -122,6 +122,7 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
 		return key.hashCode();
 	}
 
+	@Override
 	public boolean equals(final Object obj) {
 		if (!super.equals(obj)) {
 			return false;
@@ -155,6 +156,7 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
 		return result;
 	}
 
+	@Override
 	public Object getCredentials() {
 		return this.credentials;
 	}
@@ -163,6 +165,7 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
 		return this.keyHash;
 	}
 
+	@Override
 	public Object getPrincipal() {
 		return this.principal;
 	}
@@ -175,6 +178,7 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
 		return userDetails;
 	}
 
+	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(super.toString());

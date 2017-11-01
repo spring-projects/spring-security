@@ -36,10 +36,12 @@ public interface MessageMatcher<T> {
 	 * Matches every {@link Message}
 	 */
 	MessageMatcher<Object> ANY_MESSAGE = new MessageMatcher<Object>() {
+		@Override
 		public boolean matches(Message<? extends Object> message) {
 			return true;
 		}
 
+		@Override
 		public String toString() {
 			return "ANY_MESSAGE";
 		}

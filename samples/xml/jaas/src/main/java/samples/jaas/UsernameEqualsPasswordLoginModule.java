@@ -44,14 +44,17 @@ public class UsernameEqualsPasswordLoginModule implements LoginModule {
 	// ~ Methods
 	// ========================================================================================================
 
+	@Override
 	public boolean abort() throws LoginException {
 		return true;
 	}
 
+	@Override
 	public boolean commit() throws LoginException {
 		return true;
 	}
 
+	@Override
 	public void initialize(Subject subject, CallbackHandler callbackHandler,
 			Map<String, ?> sharedState, Map<String, ?> options) {
 		this.subject = subject;
@@ -70,6 +73,7 @@ public class UsernameEqualsPasswordLoginModule implements LoginModule {
 		}
 	}
 
+	@Override
 	public boolean login() throws LoginException {
 		if (username == null || !username.equals(password)) {
 			throw new LoginException("username is not equal to password");
@@ -82,6 +86,7 @@ public class UsernameEqualsPasswordLoginModule implements LoginModule {
 		return true;
 	}
 
+	@Override
 	public boolean logout() throws LoginException {
 		return true;
 	}
@@ -93,10 +98,12 @@ public class UsernameEqualsPasswordLoginModule implements LoginModule {
 			this.username = username;
 		}
 
+		@Override
 		public String getName() {
 			return username;
 		}
 
+		@Override
 		public String toString() {
 			return "Principal [name=" + getName() + "]";
 		}

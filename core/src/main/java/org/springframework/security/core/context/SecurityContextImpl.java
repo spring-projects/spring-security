@@ -44,6 +44,7 @@ public class SecurityContextImpl implements SecurityContext {
 	// ~ Methods
 	// ========================================================================================================
 
+	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof SecurityContextImpl) {
 			SecurityContextImpl test = (SecurityContextImpl) obj;
@@ -61,10 +62,12 @@ public class SecurityContextImpl implements SecurityContext {
 		return false;
 	}
 
+	@Override
 	public Authentication getAuthentication() {
 		return authentication;
 	}
 
+	@Override
 	public int hashCode() {
 		if (this.authentication == null) {
 			return -1;
@@ -74,10 +77,12 @@ public class SecurityContextImpl implements SecurityContext {
 		}
 	}
 
+	@Override
 	public void setAuthentication(Authentication authentication) {
 		this.authentication = authentication;
 	}
 
+	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(super.toString());
