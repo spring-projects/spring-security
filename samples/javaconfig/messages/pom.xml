@@ -63,7 +63,7 @@
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-entitymanager</artifactId>
-      <version>5.0.11.Final</version>
+      <version>5.0.12.Final</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -75,7 +75,7 @@
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-validator</artifactId>
-      <version>5.2.4.Final</version>
+      <version>5.3.6.Final</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
