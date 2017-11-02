@@ -57,7 +57,7 @@ public class GrantedAuthorityFromAssertionAttributesUserDetailsServiceTests {
 				assertion, "ticket");
 		UserDetails user = uds.loadUserDetails(token);
 		Set<String> roles = AuthorityUtils.authorityListToSet(user.getAuthorities());
-		assertThat(roles).containsExactlyInAnyOrder(
+		assertThat(roles).containsOnly(
 				"role_a1", "role_a2", "role_b", "role_c");
 	}
 }
