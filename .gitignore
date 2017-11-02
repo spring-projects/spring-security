@@ -21,3 +21,5 @@ build/
 atlassian-ide-plugin.xml
 !etc/eclipse/.checkstyle
 .checkstyle
+classes/
+s101plugin.state
