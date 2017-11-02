@@ -37,6 +37,7 @@ public abstract class AbstractOAuth2Token implements Serializable {
 		Assert.hasText(tokenValue, "tokenValue cannot be empty");
 		Assert.notNull(issuedAt, "issuedAt cannot be null");
 		Assert.notNull(expiresAt, "expiresAt cannot be null");
+		Assert.isTrue(expiresAt.isAfter(issuedAt), "expiresAt must be after issuedAt");
 		this.tokenValue = tokenValue;
 		this.issuedAt = issuedAt;
 		this.expiresAt = expiresAt;

@@ -16,24 +16,34 @@
 package org.springframework.security.oauth2.core.endpoint;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
 
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
 /**
- * Tests {@link OAuth2AuthorizationRequest}
+ * Tests for {@link OAuth2AuthorizationRequest}.
  *
  * @author Luander Ribeiro
+ * @author Joe Grandja
  */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(OAuth2AuthorizationRequest.class)
 public class OAuth2AuthorizationRequestTests {
-	private static final String AUTHORIZE_URI = "http://authorize.uri/";
-	private static final String CLIENT_ID = "client id";
-	private static final String REDIRECT_URI = "http://redirect.uri/";
-	private static final Set<String> SCOPE = Collections.singleton("scope");
-	private static final String STATE = "xyz";
+	private static final String AUTHORIZATION_URI = "https://provider.com/oauth2/authorize";
+	private static final String CLIENT_ID = "client-id";
+	private static final String REDIRECT_URI = "http://example.com";
+	private static final Set<String> SCOPES = new LinkedHashSet<>(Arrays.asList("scope1", "scope2"));
+	private static final String STATE = "state";
 
 	@Test(expected = IllegalArgumentException.class)
 	public void buildWhenAuthorizationUriIsNullThenThrowIllegalArgumentException() {
@@ -41,17 +51,7 @@ public class OAuth2AuthorizationRequestTests {
 			.authorizationUri(null)
 			.clientId(CLIENT_ID)
 			.redirectUri(REDIRECT_URI)
-			.scopes(SCOPE)
-			.state(STATE)
-			.build();
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void buildWhenAuthorizeUriNotSetThenThrowIllegalArgumentException() {
-		OAuth2AuthorizationRequest.authorizationCode()
-			.clientId(CLIENT_ID)
-			.redirectUri(REDIRECT_URI)
-			.scopes(SCOPE)
+			.scopes(SCOPES)
 			.state(STATE)
 			.build();
 	}
@@ -59,63 +59,91 @@ public class OAuth2AuthorizationRequestTests {
 	@Test(expected = IllegalArgumentException.class)
 	public void buildWhenClientIdIsNullThenThrowIllegalArgumentException() {
 		OAuth2AuthorizationRequest.authorizationCode()
-			.authorizationUri(AUTHORIZE_URI)
+			.authorizationUri(AUTHORIZATION_URI)
 			.clientId(null)
 			.redirectUri(REDIRECT_URI)
-			.scopes(SCOPE)
+			.scopes(SCOPES)
 			.state(STATE)
 			.build();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void buildWhenClientIdNotSetThenThrowIllegalArgumentException() {
-		OAuth2AuthorizationRequest.authorizationCode()
-			.authorizationUri(AUTHORIZE_URI)
-			.redirectUri(REDIRECT_URI)
-			.scopes(SCOPE)
+	public void buildWhenRedirectUriIsNullForImplicitThenThrowIllegalArgumentException() {
+		OAuth2AuthorizationRequest.implicit()
+			.authorizationUri(AUTHORIZATION_URI)
+			.clientId(CLIENT_ID)
+			.redirectUri(null)
+			.scopes(SCOPES)
 			.state(STATE)
 			.build();
 	}
 
 	@Test
-	public void buildWhenGetResponseTypeIsCalledThenReturnCode() {
-		OAuth2AuthorizationRequest authorizationRequest;
-		authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
-			.authorizationUri(AUTHORIZE_URI)
+	public void buildWhenRedirectUriIsNullForAuthorizationCodeThenDoesNotThrowAnyException() {
+		assertThatCode(() -> OAuth2AuthorizationRequest.authorizationCode()
+			.authorizationUri(AUTHORIZATION_URI)
+			.clientId(CLIENT_ID)
+			.redirectUri(null)
+			.scopes(SCOPES)
+			.state(STATE)
+			.build()).doesNotThrowAnyException();
+	}
+
+	@Test
+	public void buildWhenImplicitThenGrantTypeResponseTypeIsSet() {
+		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.implicit()
+			.authorizationUri(AUTHORIZATION_URI)
 			.clientId(CLIENT_ID)
 			.redirectUri(REDIRECT_URI)
-			.scopes(SCOPE)
+			.scopes(SCOPES)
 			.state(STATE)
 			.build();
+		assertThat(authorizationRequest.getGrantType()).isEqualTo(AuthorizationGrantType.IMPLICIT);
+		assertThat(authorizationRequest.getResponseType()).isEqualTo(OAuth2AuthorizationResponseType.TOKEN);
+	}
 
+	@Test
+	public void buildWhenAuthorizationCodeThenGrantTypeResponseTypeIsSet() {
+		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
+			.authorizationUri(AUTHORIZATION_URI)
+			.clientId(CLIENT_ID)
+			.redirectUri(null)
+			.scopes(SCOPES)
+			.state(STATE)
+			.build();
+		assertThat(authorizationRequest.getGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 		assertThat(authorizationRequest.getResponseType()).isEqualTo(OAuth2AuthorizationResponseType.CODE);
 	}
 
 	@Test
-	public void buildWhenRedirectUriIsNullThenDoesNotThrowAnyException() {
-		assertThatCode(() -> OAuth2AuthorizationRequest.authorizationCode()
-			.authorizationUri(AUTHORIZE_URI)
-			.clientId(CLIENT_ID)
-			.redirectUri(null)
-			.scopes(SCOPE)
-			.state(STATE)
-			.build()).doesNotThrowAnyException();
-	}
+	public void buildWhenAllAttributesProvidedThenAllAttributesAreSet() {
+		Map<String, Object> additionalParameters = new HashMap<>();
+		additionalParameters.put("param1", "value1");
+		additionalParameters.put("param2", "value2");
 
-	@Test
-	public void buildWhenRedirectUriNotSetThenDoesNotThrowAnyException() {
-		assertThatCode(() -> OAuth2AuthorizationRequest.authorizationCode()
-			.authorizationUri(AUTHORIZE_URI)
+		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
+			.authorizationUri(AUTHORIZATION_URI)
 			.clientId(CLIENT_ID)
-			.scopes(SCOPE)
+			.redirectUri(REDIRECT_URI)
+			.scopes(SCOPES)
 			.state(STATE)
-			.build()).doesNotThrowAnyException();
+			.additionalParameters(additionalParameters)
+			.build();
+
+		assertThat(authorizationRequest.getAuthorizationUri()).isEqualTo(AUTHORIZATION_URI);
+		assertThat(authorizationRequest.getGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
+		assertThat(authorizationRequest.getResponseType()).isEqualTo(OAuth2AuthorizationResponseType.CODE);
+		assertThat(authorizationRequest.getClientId()).isEqualTo(CLIENT_ID);
+		assertThat(authorizationRequest.getRedirectUri()).isEqualTo(REDIRECT_URI);
+		assertThat(authorizationRequest.getScopes()).isEqualTo(SCOPES);
+		assertThat(authorizationRequest.getState()).isEqualTo(STATE);
+		assertThat(authorizationRequest.getAdditionalParameters()).isEqualTo(additionalParameters);
 	}
 
 	@Test
 	public void buildWhenScopesIsNullThenDoesNotThrowAnyException() {
 		assertThatCode(() -> OAuth2AuthorizationRequest.authorizationCode()
-			.authorizationUri(AUTHORIZE_URI)
+			.authorizationUri(AUTHORIZATION_URI)
 			.clientId(CLIENT_ID)
 			.redirectUri(REDIRECT_URI)
 			.scopes(null)
@@ -124,33 +152,25 @@ public class OAuth2AuthorizationRequestTests {
 	}
 
 	@Test
-	public void buildWhenScopesNotSetThenDoesNotThrowAnyException() {
-		assertThatCode(() -> OAuth2AuthorizationRequest.authorizationCode()
-			.authorizationUri(AUTHORIZE_URI)
-			.clientId(CLIENT_ID)
-			.redirectUri(REDIRECT_URI)
-			.state(STATE)
-			.build()).doesNotThrowAnyException();
-	}
-
-	@Test
 	public void buildWhenStateIsNullThenDoesNotThrowAnyException() {
 		assertThatCode(() -> OAuth2AuthorizationRequest.authorizationCode()
-			.authorizationUri(AUTHORIZE_URI)
+			.authorizationUri(AUTHORIZATION_URI)
 			.clientId(CLIENT_ID)
 			.redirectUri(REDIRECT_URI)
-			.scopes(SCOPE)
+			.scopes(SCOPES)
 			.state(null)
 			.build()).doesNotThrowAnyException();
 	}
 
 	@Test
-	public void buildWhenStateNotSetThenDoesNotThrowAnyException() {
+	public void buildWhenAdditionalParametersIsNullThenDoesNotThrowAnyException() {
 		assertThatCode(() -> OAuth2AuthorizationRequest.authorizationCode()
-			.authorizationUri(AUTHORIZE_URI)
+			.authorizationUri(AUTHORIZATION_URI)
 			.clientId(CLIENT_ID)
 			.redirectUri(REDIRECT_URI)
-			.scopes(SCOPE)
+			.scopes(SCOPES)
+			.state(STATE)
+			.additionalParameters(null)
 			.build()).doesNotThrowAnyException();
 	}
 }

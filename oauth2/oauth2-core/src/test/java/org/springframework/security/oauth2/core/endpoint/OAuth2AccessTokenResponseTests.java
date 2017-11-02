@@ -18,53 +18,71 @@ package org.springframework.security.oauth2.core.endpoint;
 import org.junit.Test;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 
-import java.util.Collections;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests {@link OAuth2AccessTokenResponse}
+ * Tests for {@link OAuth2AccessTokenResponse}.
  *
  * @author Luander Ribeiro
+ * @author Joe Grandja
  */
 public class OAuth2AccessTokenResponseTests {
-
-	private static final String TOKEN = "token";
-	private static final long INVALID_EXPIRES_IN = -1L;
-	private static final long EXPIRES_IN = System.currentTimeMillis();
+	private static final String TOKEN_VALUE = "access-token";
+	private static final long EXPIRES_IN = Instant.now().plusSeconds(5).toEpochMilli();
 
 	@Test(expected = IllegalArgumentException.class)
 	public void buildWhenTokenValueIsNullThenThrowIllegalArgumentException() {
 		OAuth2AccessTokenResponse.withToken(null)
-			.expiresIn(EXPIRES_IN)
-			.additionalParameters(Collections.emptyMap())
-			.scopes(Collections.emptySet())
 			.tokenType(OAuth2AccessToken.TokenType.BEARER)
+			.expiresIn(EXPIRES_IN)
+			.build();
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void buildWhenTokenTypeIsNullThenThrowIllegalArgumentException() {
+		OAuth2AccessTokenResponse.withToken(TOKEN_VALUE)
+			.tokenType(null)
+			.expiresIn(EXPIRES_IN)
 			.build();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void buildWhenExpiresInIsNegativeThenThrowIllegalArgumentException() {
-		OAuth2AccessTokenResponse.withToken(TOKEN)
-			.expiresIn(INVALID_EXPIRES_IN)
-			.additionalParameters(Collections.emptyMap())
-			.scopes(Collections.emptySet())
+		OAuth2AccessTokenResponse.withToken(TOKEN_VALUE)
 			.tokenType(OAuth2AccessToken.TokenType.BEARER)
+			.expiresIn(-1L)
 			.build();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void buildWhenTokenTypeIsInvalidThenThrowIllegalArgumentException() {
-		OAuth2AccessTokenResponse.withToken(TOKEN)
-			.expiresIn(EXPIRES_IN)
-			.additionalParameters(Collections.emptyMap())
-			.tokenType(null)
-			.build();
-	}
+	@Test
+	public void buildWhenAllAttributesProvidedThenAllAttributesAreSet() {
+		Instant expiresAt = Instant.now().plusSeconds(5);
+		Set<String> scopes = new LinkedHashSet<>(Arrays.asList("scope1", "scope2"));
+		Map<String, Object> additionalParameters = new HashMap<>();
+		additionalParameters.put("param1", "value1");
+		additionalParameters.put("param2", "value2");
 
-	@Test(expected = IllegalArgumentException.class)
-	public void buildWhenTokenTypeNotSetThenThrowIllegalArgumentException() {
-		OAuth2AccessTokenResponse.withToken(TOKEN)
-			.expiresIn(EXPIRES_IN)
-			.additionalParameters(Collections.emptyMap())
+		OAuth2AccessTokenResponse tokenResponse = OAuth2AccessTokenResponse
+			.withToken(TOKEN_VALUE)
+			.tokenType(OAuth2AccessToken.TokenType.BEARER)
+			.expiresIn(expiresAt.toEpochMilli())
+			.scopes(scopes)
+			.additionalParameters(additionalParameters)
 			.build();
+
+		assertThat(tokenResponse.getAccessToken()).isNotNull();
+		assertThat(tokenResponse.getAccessToken().getTokenValue()).isEqualTo(TOKEN_VALUE);
+		assertThat(tokenResponse.getAccessToken().getTokenType()).isEqualTo(OAuth2AccessToken.TokenType.BEARER);
+		assertThat(tokenResponse.getAccessToken().getIssuedAt()).isNotNull();
+		assertThat(tokenResponse.getAccessToken().getExpiresAt()).isAfterOrEqualTo(expiresAt);
+		assertThat(tokenResponse.getAccessToken().getScopes()).isEqualTo(scopes);
+		assertThat(tokenResponse.getAdditionalParameters()).isEqualTo(additionalParameters);
 	}
 }

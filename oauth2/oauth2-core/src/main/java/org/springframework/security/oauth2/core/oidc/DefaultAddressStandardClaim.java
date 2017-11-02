@@ -65,6 +65,46 @@ public final class DefaultAddressStandardClaim implements AddressStandardClaim {
 		return this.country;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null || !AddressStandardClaim.class.isAssignableFrom(obj.getClass())) {
+			return false;
+		}
+
+		AddressStandardClaim that = (AddressStandardClaim) obj;
+
+		if (this.getFormatted() != null ? !this.getFormatted().equals(that.getFormatted()) : that.getFormatted() != null) {
+			return false;
+		}
+		if (this.getStreetAddress() != null ? !this.getStreetAddress().equals(that.getStreetAddress()) : that.getStreetAddress() != null) {
+			return false;
+		}
+		if (this.getLocality() != null ? !this.getLocality().equals(that.getLocality()) : that.getLocality() != null) {
+			return false;
+		}
+		if (this.getRegion() != null ? !this.getRegion().equals(that.getRegion()) : that.getRegion() != null) {
+			return false;
+		}
+		if (this.getPostalCode() != null ? !this.getPostalCode().equals(that.getPostalCode()) : that.getPostalCode() != null) {
+			return false;
+		}
+		return this.getCountry() != null ? this.getCountry().equals(that.getCountry()) : that.getCountry() == null;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = this.getFormatted() != null ? this.getFormatted().hashCode() : 0;
+		result = 31 * result + (this.getStreetAddress() != null ? this.getStreetAddress().hashCode() : 0);
+		result = 31 * result + (this.getLocality() != null ? this.getLocality().hashCode() : 0);
+		result = 31 * result + (this.getRegion() != null ? this.getRegion().hashCode() : 0);
+		result = 31 * result + (this.getPostalCode() != null ? this.getPostalCode().hashCode() : 0);
+		result = 31 * result + (this.getCountry() != null ? this.getCountry().hashCode() : 0);
+		return result;
+	}
+
 	public static class Builder {
 		private static final String FORMATTED_FIELD_NAME = "formatted";
 		private static final String STREET_ADDRESS_FIELD_NAME = "street_address";

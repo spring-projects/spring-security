@@ -53,7 +53,7 @@ public interface ClaimAccessor {
 			return null;
 		}
 		try {
-			return Instant.ofEpochSecond(Long.valueOf(this.getClaimAsString(claim)));
+			return Instant.ofEpochMilli(Long.valueOf(this.getClaimAsString(claim)));
 		} catch (NumberFormatException ex) {
 			throw new IllegalArgumentException("Unable to convert claim '" + claim + "' to Instant: " + ex.getMessage(), ex);
 		}
