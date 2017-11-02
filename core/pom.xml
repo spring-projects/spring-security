@@ -110,7 +110,7 @@
     <dependency>
       <groupId>org.aspectj</groupId>
       <artifactId>aspectjrt</artifactId>
-      <version>1.8.4</version>
+      <version>1.8.12</version>
       <scope>compile</scope>
       <optional>true</optional>
     </dependency>
