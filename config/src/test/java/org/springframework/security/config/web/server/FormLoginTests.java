@@ -33,10 +33,13 @@ import org.springframework.security.web.context.SaveContextOnUpdateOrErrorRespon
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.WebFilterChainProxy;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
+import org.springframework.security.web.server.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -292,12 +295,15 @@ public class FormLoginTests {
 	public static class HomePage {
 		private WebDriver driver;
 
+		@FindBy(tagName = "body")
+		WebElement body;
+
 		public HomePage(WebDriver driver) {
 			this.driver = driver;
 		}
 
 		public void assertAt() {
-			assertThat(this.driver.getPageSource()).contains("ok");
+			assertThat(this.body.getText()).isEqualToIgnoringWhitespace("ok");
 		}
 
 		static <T> T to(WebDriver driver, Class<T> page) {
@@ -310,8 +316,10 @@ public class FormLoginTests {
 	public static class CustomLoginPageController {
 		@ResponseBody
 		@GetMapping("/login")
-		public String login() {
-			return "<!DOCTYPE html>\n"
+		public Mono<String> login(ServerWebExchange exchange) {
+			Mono<CsrfToken> token = exchange.getAttribute(CsrfToken.class.getName());
+			return token.map(t ->
+				"<!DOCTYPE html>\n"
 				+ "<html lang=\"en\">\n"
 				+ "  <head>\n"
 				+ "    <meta charset=\"utf-8\">\n"
@@ -332,11 +340,12 @@ public class FormLoginTests {
 				+ "          <label for=\"password\" class=\"sr-only\">Password</label>\n"
 				+ "          <input type=\"password\" id=\"password\" name=\"password\" placeholder=\"Password\" required>\n"
 				+ "        </p>\n"
+				+ "        <input type=\"hidden\" name=\"" + t.getParameterName() + "\" value=\"" + t.getToken() + "\">\n"
 				+ "        <button type=\"submit\">Sign in</button>\n"
 				+ "      </form>\n"
 				+ "    </div>\n"
 				+ "  </body>\n"
-				+ "</html>";
+				+ "</html>");
 		}
 
 	}
