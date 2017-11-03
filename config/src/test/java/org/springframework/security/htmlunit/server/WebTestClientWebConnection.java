@@ -84,7 +84,7 @@ public class WebTestClientWebConnection implements WebConnection {
 		long startTime = System.currentTimeMillis();
 
 		FluxExchangeResult<String> exchangeResult = this.requestBuilder.getResponse(webRequest);
-
+		webRequest.setUrl(exchangeResult.getUrl().toURL());
 		return new MockWebResponseBuilder(startTime, webRequest, exchangeResult).build();
 	}
 
