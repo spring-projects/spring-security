@@ -29,8 +29,10 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.htmlunit.server.WebTestClientHtmlUnitDriverBuilder;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
+import org.springframework.security.web.context.SaveContextOnUpdateOrErrorResponseWrapperTests;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.WebFilterChainProxy;
+import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -117,6 +119,36 @@ public class FormLoginTests {
 			.submit(HomePage.class);
 
 		homePage.assertAt();
+	}
+
+	@Test
+	public void authenticationSuccess() {
+		SecurityWebFilterChain securityWebFilter = this.http
+			.authorizeExchange()
+				.anyExchange().authenticated()
+				.and()
+			.formLogin()
+				.serverAuthenticationSuccessHandler(new RedirectServerAuthenticationSuccessHandler("/custom"))
+				.and()
+			.build();
+
+		WebTestClient webTestClient = WebTestClientBuilder
+			.bindToWebFilters(securityWebFilter)
+			.build();
+
+		WebDriver driver = WebTestClientHtmlUnitDriverBuilder
+			.webTestClientSetup(webTestClient)
+			.build();
+
+		DefaultLoginPage loginPage = HomePage.to(driver, DefaultLoginPage.class)
+			.assertAt();
+
+		HomePage homePage = loginPage.loginForm()
+			.username("user")
+			.password("password")
+			.submit(HomePage.class);
+
+		assertThat(driver.getCurrentUrl()).endsWith("/custom");
 	}
 
 	public static class CustomLoginPage {

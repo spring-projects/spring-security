@@ -36,6 +36,7 @@ import org.springframework.security.web.server.authentication.RedirectServerAuth
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.authentication.ServerAuthenticationEntryPointFailureHandler;
 import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler;
+import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.authentication.logout.LogoutWebFilter;
 import org.springframework.security.web.server.authentication.logout.SecurityContextServerLogoutHandler;
 import org.springframework.security.web.server.authentication.logout.ServerLogoutHandler;
@@ -503,8 +504,17 @@ public class ServerHttpSecurity {
 
 		private ServerAuthenticationFailureHandler serverAuthenticationFailureHandler;
 
+		private ServerAuthenticationSuccessHandler serverAuthenticationSuccessHandler = new RedirectServerAuthenticationSuccessHandler("/");
+
 		public FormLoginBuilder authenticationManager(ReactiveAuthenticationManager authenticationManager) {
 			this.authenticationManager = authenticationManager;
+			return this;
+		}
+
+		public FormLoginBuilder serverAuthenticationSuccessHandler(
+			ServerAuthenticationSuccessHandler serverAuthenticationSuccessHandler) {
+			Assert.notNull(serverAuthenticationSuccessHandler, "serverAuthenticationSuccessHandler cannot be null");
+			this.serverAuthenticationSuccessHandler = serverAuthenticationSuccessHandler;
 			return this;
 		}
 
@@ -557,7 +567,7 @@ public class ServerHttpSecurity {
 			authenticationFilter.setRequiresAuthenticationMatcher(this.requiresAuthenticationMatcher);
 			authenticationFilter.setServerAuthenticationFailureHandler(this.serverAuthenticationFailureHandler);
 			authenticationFilter.setAuthenticationConverter(new ServerFormLoginAuthenticationConverter());
-			authenticationFilter.setServerAuthenticationSuccessHandler(new RedirectServerAuthenticationSuccessHandler("/"));
+			authenticationFilter.setServerAuthenticationSuccessHandler(this.serverAuthenticationSuccessHandler);
 			authenticationFilter.setServerSecurityContextRepository(this.serverSecurityContextRepository);
 			http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.FORM_LOGIN);
 		}
