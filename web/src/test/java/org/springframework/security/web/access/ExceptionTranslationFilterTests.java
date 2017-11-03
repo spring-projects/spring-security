@@ -18,6 +18,7 @@ package org.springframework.security.web.access;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.MockPortResolver;
@@ -41,6 +42,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -165,6 +167,36 @@ public class ExceptionTranslationFilterTests {
 		filter.doFilter(request, response, fc);
 		assertThat(response.getStatus()).isEqualTo(403);
 		assertThat(request.getAttribute(WebAttributes.ACCESS_DENIED_403)).isExactlyInstanceOf(AccessDeniedException.class);
+	}
+
+	@Test
+	public void testLocalizedErrorMessages() throws Exception {
+		// Setup our HTTP request
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setServletPath("/secure/page.html");
+
+		// Setup the FilterChain to thrown an access denied exception
+		FilterChain fc = mock(FilterChain.class);
+		doThrow(new AccessDeniedException("")).when(fc).doFilter(
+			any(HttpServletRequest.class), any(HttpServletResponse.class));
+
+		// Setup SecurityContextHolder, as filter needs to check if user is
+		// anonymous
+		SecurityContextHolder.getContext().setAuthentication(
+			new AnonymousAuthenticationToken("ignored", "ignored", AuthorityUtils
+				.createAuthorityList("IGNORED")));
+
+		// Test
+		ExceptionTranslationFilter filter = new ExceptionTranslationFilter(
+			(req, res, ae) -> res.sendError(403, ae.getMessage()));
+		filter.setAuthenticationTrustResolver(new AuthenticationTrustResolverImpl());
+		assertThat(filter.getAuthenticationTrustResolver()).isNotNull();
+
+		LocaleContextHolder.setDefaultLocale(Locale.GERMAN);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		filter.doFilter(request, response, fc);
+		assertThat(response.getErrorMessage())
+			.isEqualTo("Vollst\u00e4ndige Authentifikation wird ben\u00f6tigt um auf diese Resource zuzugreifen");
 	}
 
 	@Test
