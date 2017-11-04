@@ -51,6 +51,10 @@ public class SpringTestContext implements Closeable {
 		return this;
 	}
 
+	public ConfigurableApplicationContext getContext() {
+		return this.context;
+	}
+
 	public void autowire() {
 		this.context.refresh();
 		this.context.getBeanFactory().autowireBean(this.test);
