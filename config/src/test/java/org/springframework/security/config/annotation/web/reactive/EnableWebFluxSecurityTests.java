@@ -19,6 +19,7 @@ package org.springframework.security.config.annotation.web.reactive;
 import org.junit.Rule;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportResource;
@@ -40,6 +41,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
+import org.springframework.security.web.reactive.result.view.CsrfRequestDataValueProcessor;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.WebFilterChainProxy;
 import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
@@ -49,6 +51,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.result.view.AbstractView;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
@@ -149,6 +152,15 @@ public class EnableWebFluxSecurityTests {
 			.exchange()
 			.expectStatus().isOk()
 			.expectBody(String.class).consumeWith( result -> assertThat(result.getResponseBody()).isEqualTo("user"));
+	}
+
+	@Test
+	public void requestDataValueProcessor() {
+		this.spring.register(Config.class).autowire();
+
+		ConfigurableApplicationContext context = this.spring.getContext();
+		CsrfRequestDataValueProcessor rdvp = context.getBean(AbstractView.REQUEST_DATA_VALUE_PROCESSOR_BEAN_NAME, CsrfRequestDataValueProcessor.class);
+		assertThat(rdvp).isNotNull();
 	}
 
 	@EnableWebFluxSecurity

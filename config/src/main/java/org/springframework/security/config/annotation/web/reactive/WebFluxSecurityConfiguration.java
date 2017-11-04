@@ -22,9 +22,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.web.reactive.result.view.CsrfRequestDataValueProcessor;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.WebFilterChainProxy;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.reactive.result.view.AbstractView;
 
 import java.util.Arrays;
 import java.util.List;
@@ -51,6 +53,11 @@ class WebFluxSecurityConfiguration {
 	@Order(value = WEB_FILTER_CHAIN_FILTER_ORDER)
 	public WebFilterChainProxy springSecurityWebFilterChainFilter() {
 		return new WebFilterChainProxy(getSecurityWebFilterChains());
+	}
+
+	@Bean(name = AbstractView.REQUEST_DATA_VALUE_PROCESSOR_BEAN_NAME)
+	public CsrfRequestDataValueProcessor requestDataValueProcessor() {
+		return new CsrfRequestDataValueProcessor();
 	}
 
 	private List<SecurityWebFilterChain> getSecurityWebFilterChains() {
