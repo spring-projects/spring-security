@@ -23,6 +23,7 @@ import java.io.ObjectOutputStream;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 
 import org.junit.Test;
 import org.springframework.security.core.GrantedAuthority;
@@ -205,6 +206,19 @@ public class UserTests {
 		UserDetails withEncodedPassword = User.withUsername("user")
 			.passwordEncoder(p -> p + "encoded")
 			.password("password")
+			.roles("USER")
+			.build();
+
+		assertThat(withEncodedPassword.getPassword()).isEqualTo("passwordencoded");
+	}
+
+	@Test
+	public void withUsernameWhenPasswordAndPasswordEncoderTwiceThenEncodesOnce() {
+		Function<String, String> encoder = p -> p + "encoded";
+		UserDetails withEncodedPassword = User.withUsername("user")
+			.passwordEncoder(encoder)
+			.password("password")
+			.passwordEncoder(encoder)
 			.roles("USER")
 			.build();
 

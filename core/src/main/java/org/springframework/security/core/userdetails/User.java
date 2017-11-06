@@ -323,8 +323,7 @@ public class User implements UserDetails, CredentialsContainer {
 		 */
 		public UserBuilder password(String password) {
 			Assert.notNull(password, "password cannot be null");
-			String encodedPassword = this.passwordEncoder.apply(password);
-			this.password = encodedPassword;
+			this.password = password;
 			return this;
 		}
 
@@ -339,7 +338,7 @@ public class User implements UserDetails, CredentialsContainer {
 		public UserBuilder passwordEncoder(Function<String,String> encoder) {
 			Assert.notNull(encoder, "encoder cannot be null");
 			this.passwordEncoder = encoder;
-			return this.password == null ? this : password(this.password);
+			return this;
 		}
 
 		/**
@@ -467,7 +466,8 @@ public class User implements UserDetails, CredentialsContainer {
 		}
 
 		public UserDetails build() {
-			return new User(username, password, !disabled, !accountExpired,
+			String encodedPassword = this.passwordEncoder.apply(password);
+			return new User(username, encodedPassword, !disabled, !accountExpired,
 					!credentialsExpired, !accountLocked, authorities);
 		}
 	}
