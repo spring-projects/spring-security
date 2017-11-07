@@ -51,6 +51,7 @@ public class DelegatingOAuth2UserService<R extends OAuth2UserRequest, U extends 
 
 	@Override
 	public U loadUser(R userRequest) throws OAuth2AuthenticationException {
+		Assert.notNull(userRequest, "userRequest cannot be null");
 		return this.userServices.stream()
 			.map(userService -> userService.loadUser(userRequest))
 			.filter(Objects::nonNull)

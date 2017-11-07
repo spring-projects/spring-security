@@ -27,6 +27,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.client.AbstractClientHttpResponse;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.converter.GenericHttpMessageConverter;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -54,7 +55,7 @@ final class NimbusUserInfoResponseClient {
 			userInfoRequest.getClientRegistration(), userInfoRequest.getAccessToken());
 		try {
 			return (T) this.genericHttpMessageConverter.read(returnType, userInfoResponse);
-		} catch (IOException ex) {
+		} catch (IOException | HttpMessageNotReadableException ex) {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_USER_INFO_RESPONSE_ERROR_CODE,
 				"An error occurred reading the UserInfo Success response: " + ex.getMessage(), null);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString(), ex);
@@ -66,7 +67,7 @@ final class NimbusUserInfoResponseClient {
 			userInfoRequest.getClientRegistration(), userInfoRequest.getAccessToken());
 		try {
 			return (T) this.genericHttpMessageConverter.read(typeReference.getType(), null, userInfoResponse);
-		} catch (IOException ex) {
+		} catch (IOException | HttpMessageNotReadableException ex) {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_USER_INFO_RESPONSE_ERROR_CODE,
 				"An error occurred reading the UserInfo Success response: " + ex.getMessage(), null);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString(), ex);

@@ -27,11 +27,18 @@ import java.util.HashSet;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
+ * Tests for {@link OAuth2AuthorizationRequestUriBuilder}.
+ *
  * @author Rob Winch
  * @since 5.0
  */
 public class OAuth2AuthorizationRequestUriBuilderTests {
 	private OAuth2AuthorizationRequestUriBuilder builder = new OAuth2AuthorizationRequestUriBuilder();
+
+	@Test(expected = IllegalArgumentException.class)
+	public void buildWhenAuthorizationRequestIsNullThenThrowIllegalArgumentException() {
+		this.builder.build(null);
+	}
 
 	@Test
 	public void buildWhenScopeMultiThenSeparatedByEncodedSpace() {

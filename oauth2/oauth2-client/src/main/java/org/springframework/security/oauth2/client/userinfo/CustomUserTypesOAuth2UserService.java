@@ -49,6 +49,7 @@ public class CustomUserTypesOAuth2UserService implements OAuth2UserService<OAuth
 
 	@Override
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+		Assert.notNull(userRequest, "userRequest cannot be null");
 		String registrationId = userRequest.getClientRegistration().getRegistrationId();
 		Class<? extends OAuth2User> customUserType;
 		if ((customUserType = this.customUserTypes.get(registrationId)) == null) {

@@ -26,6 +26,7 @@ import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
@@ -52,6 +53,7 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 
 	@Override
 	public OidcUser loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException {
+		Assert.notNull(userRequest, "userRequest cannot be null");
 		OidcUserInfo userInfo = null;
 		if (this.shouldRetrieveUserInfo(userRequest)) {
 			ParameterizedTypeReference<Map<String, Object>> typeReference =

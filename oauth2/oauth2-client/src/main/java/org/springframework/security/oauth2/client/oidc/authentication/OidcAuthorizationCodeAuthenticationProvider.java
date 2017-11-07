@@ -262,7 +262,7 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 		// 10. The iat Claim can be used to reject tokens that were issued too far away from the current time,
 		// limiting the amount of time that nonces need to be stored to prevent attacks.
 		// The acceptable range is Client specific.
-		Instant maxIssuedAt = now.plusSeconds(30);
+		Instant maxIssuedAt = Instant.now().plusSeconds(30);
 		if (issuedAt.isAfter(maxIssuedAt)) {
 			this.throwInvalidIdTokenException();
 		}

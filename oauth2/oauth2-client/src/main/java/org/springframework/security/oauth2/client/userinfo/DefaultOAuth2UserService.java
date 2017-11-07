@@ -23,6 +23,7 @@ import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.util.HashSet;
@@ -52,6 +53,7 @@ public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2UserReq
 
 	@Override
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+		Assert.notNull(userRequest, "userRequest cannot be null");
 		String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
 		if (!StringUtils.hasText(userNameAttributeName)) {
 			OAuth2Error oauth2Error = new OAuth2Error(

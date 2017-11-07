@@ -24,9 +24,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
+ * Tests for {@link InMemoryClientRegistrationRepository}.
+ *
  * @author Rob Winch
  * @since 5.0
  */

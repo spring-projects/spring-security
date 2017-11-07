@@ -16,6 +16,7 @@
 package org.springframework.security.oauth2.client.web;
 
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
+import org.springframework.util.Assert;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -36,6 +37,7 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository implements Au
 
 	@Override
 	public OAuth2AuthorizationRequest loadAuthorizationRequest(HttpServletRequest request) {
+		Assert.notNull(request, "request cannot be null");
 		HttpSession session = request.getSession(false);
 		if (session != null) {
 			return (OAuth2AuthorizationRequest) session.getAttribute(this.sessionAttributeName);
@@ -46,6 +48,8 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository implements Au
 	@Override
 	public void saveAuthorizationRequest(OAuth2AuthorizationRequest authorizationRequest, HttpServletRequest request,
 											HttpServletResponse response) {
+		Assert.notNull(request, "request cannot be null");
+		Assert.notNull(response, "response cannot be null");
 		if (authorizationRequest == null) {
 			this.removeAuthorizationRequest(request);
 			return;
@@ -55,6 +59,7 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository implements Au
 
 	@Override
 	public OAuth2AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request) {
+		Assert.notNull(request, "request cannot be null");
 		OAuth2AuthorizationRequest authorizationRequest = this.loadAuthorizationRequest(request);
 		if (authorizationRequest != null) {
 			request.getSession().removeAttribute(this.sessionAttributeName);

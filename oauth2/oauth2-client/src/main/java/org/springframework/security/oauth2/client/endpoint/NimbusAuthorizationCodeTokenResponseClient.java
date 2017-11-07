@@ -100,7 +100,9 @@ public class NimbusAuthorizationCodeTokenResponseClient implements OAuth2AccessT
 			httpRequest.setReadTimeout(30000);
 			tokenResponse = com.nimbusds.oauth2.sdk.TokenResponse.parse(httpRequest.send());
 		} catch (ParseException pe) {
-			throw new OAuth2AuthenticationException(new OAuth2Error(INVALID_TOKEN_RESPONSE_ERROR_CODE), pe);
+			OAuth2Error oauth2Error = new OAuth2Error(INVALID_TOKEN_RESPONSE_ERROR_CODE,
+				"An error occurred parsing the Access Token response: " + pe.getMessage(), null);
+			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString(), pe);
 		} catch (IOException ioe) {
 			throw new AuthenticationServiceException("An error occurred while sending the Access Token Request: " +
 					ioe.getMessage(), ioe);
