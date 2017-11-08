@@ -387,12 +387,6 @@ public class ServerHttpSecurity {
 			return this;
 		}
 
-		public CsrfBuilder csrfTokenAttributeName(String csrfTokenAttributeName) {
-			Assert.notNull(csrfTokenAttributeName, "csrfTokenAttributeName cannot be null");
-			this.filter.setCsrfTokenAttributeName(csrfTokenAttributeName);
-			return this;
-		}
-
 		public CsrfBuilder serverCsrfTokenRepository(
 			ServerCsrfTokenRepository serverCsrfTokenRepository) {
 			this.filter.setServerCsrfTokenRepository(serverCsrfTokenRepository);

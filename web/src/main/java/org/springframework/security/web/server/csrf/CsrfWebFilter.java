@@ -59,17 +59,10 @@ public class CsrfWebFilter implements WebFilter {
 
 	private ServerAccessDeniedHandler serverAccessDeniedHandler = new HttpStatusServerAccessDeniedHandler(HttpStatus.FORBIDDEN);
 
-	private String csrfTokenAttributeName = "csrf";
-
 	public void setServerAccessDeniedHandler(
 		ServerAccessDeniedHandler serverAccessDeniedHandler) {
 		Assert.notNull(serverAccessDeniedHandler, "serverAccessDeniedHandler");
 		this.serverAccessDeniedHandler = serverAccessDeniedHandler;
-	}
-
-	public void setCsrfTokenAttributeName(String csrfTokenAttributeName) {
-		Assert.notNull(csrfTokenAttributeName, "csrfTokenAttributeName cannot be null");
-		this.csrfTokenAttributeName = csrfTokenAttributeName;
 	}
 
 	public void setServerCsrfTokenRepository(
@@ -113,7 +106,6 @@ public class CsrfWebFilter implements WebFilter {
 	private Mono<Void> continueFilterChain(ServerWebExchange exchange, WebFilterChain chain) {
 		return csrfToken(exchange)
 			.doOnSuccess(csrfToken -> exchange.getAttributes().put(CsrfToken.class.getName(), csrfToken))
-			.doOnSuccess(csrfToken -> exchange.getAttributes().put(this.csrfTokenAttributeName, csrfToken))
 			.flatMap( t -> chain.filter(exchange))
 			.then();
 	}
