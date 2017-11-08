@@ -26,7 +26,6 @@ import org.thymeleaf.spring5.SpringWebFluxTemplateEngine;
 import org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver;
 import org.thymeleaf.spring5.view.reactive.ThymeleafReactiveViewResolver;
 import org.thymeleaf.templatemode.TemplateMode;
-import thymeleaf.PatchThymeleafReactiveView;
 
 /**
  * @author Rob Winch
@@ -68,7 +67,6 @@ public class ThymeleafConfig implements WebFluxConfigurer {
 		viewResolver.setTemplateEngine(thymeleafTemplateEngine());
 		viewResolver.setOrder(1);
 		viewResolver.setResponseMaxChunkSizeBytes(8192); // OUTPUT BUFFER size limit
-		viewResolver.setViewClass(PatchThymeleafReactiveView.class);
 		return viewResolver;
 	}
 
