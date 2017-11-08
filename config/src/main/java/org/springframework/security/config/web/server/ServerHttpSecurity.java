@@ -39,7 +39,6 @@ import org.springframework.security.web.server.authentication.ServerAuthenticati
 import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler;
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.authentication.logout.LogoutWebFilter;
-import org.springframework.security.web.server.authentication.logout.SecurityContextServerLogoutHandler;
 import org.springframework.security.web.server.authentication.logout.ServerLogoutHandler;
 import org.springframework.security.web.server.authentication.logout.ServerLogoutSuccessHandler;
 import org.springframework.security.web.server.authorization.AuthorizationContext;
@@ -47,10 +46,10 @@ import org.springframework.security.web.server.authorization.AuthorizationWebFil
 import org.springframework.security.web.server.authorization.DelegatingReactiveAuthorizationManager;
 import org.springframework.security.web.server.authorization.ExceptionTranslationWebFilter;
 import org.springframework.security.web.server.authorization.ServerAccessDeniedHandler;
-import org.springframework.security.web.server.context.SecurityContextServerWebExchangeWebFilter;
-import org.springframework.security.web.server.context.ReactorContextWebFilter;
-import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
+import org.springframework.security.web.server.context.ReactorContextWebFilter;
+import org.springframework.security.web.server.context.SecurityContextServerWebExchangeWebFilter;
+import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
 import org.springframework.security.web.server.csrf.CsrfWebFilter;
 import org.springframework.security.web.server.csrf.ServerCsrfTokenRepository;
@@ -62,6 +61,10 @@ import org.springframework.security.web.server.header.ServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.StrictTransportSecurityServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.XFrameOptionsServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.XXssProtectionServerHttpHeadersWriter;
+import org.springframework.security.web.server.savedrequest.NoOpServerRequestCache;
+import org.springframework.security.web.server.savedrequest.ServerRequestCache;
+import org.springframework.security.web.server.savedrequest.ServerRequestCacheWebFilter;
+import org.springframework.security.web.server.savedrequest.WebSessionServerRequestCache;
 import org.springframework.security.web.server.ui.LoginPageGeneratingWebFilter;
 import org.springframework.security.web.server.ui.LogoutPageGeneratingWebFilter;
 import org.springframework.security.web.server.util.matcher.MediaTypeServerWebExchangeMatcher;
@@ -101,6 +104,8 @@ public class ServerHttpSecurity {
 	private ExceptionHandlingBuilder exceptionHandling = new ExceptionHandlingBuilder();
 
 	private HttpBasicBuilder httpBasic;
+
+	private final RequestCacheBuilder requestCache = new RequestCacheBuilder();
 
 	private FormLoginBuilder formLogin;
 
@@ -198,6 +203,10 @@ public class ServerHttpSecurity {
 		return this.logout;
 	}
 
+	public RequestCacheBuilder requestCache() {
+		return this.requestCache;
+	}
+
 	public ServerHttpSecurity authenticationManager(ReactiveAuthenticationManager manager) {
 		this.authenticationManager = manager;
 		return this;
@@ -239,6 +248,7 @@ public class ServerHttpSecurity {
 		if(this.logout != null) {
 			this.logout.configure(this);
 		}
+		this.requestCache.configure(this);
 		this.addFilterAt(new SecurityContextServerWebExchangeWebFilter(), SecurityWebFiltersOrder.SECURITY_CONTEXT_SERVER_WEB_EXCHANGE);
 		if(this.authorizeExchangeBuilder != null) {
 			ServerAuthenticationEntryPoint serverAuthenticationEntryPoint = getServerAuthenticationEntryPoint();
@@ -437,6 +447,35 @@ public class ServerHttpSecurity {
 	 * @author Rob Winch
 	 * @since 5.0
 	 */
+	public class RequestCacheBuilder {
+		private ServerRequestCache requestCache = new WebSessionServerRequestCache();
+
+		public RequestCacheBuilder requestCache(ServerRequestCache requestCache) {
+			Assert.notNull(requestCache, "requestCache cannot be null");
+			this.requestCache = requestCache;
+			return this;
+		}
+
+		protected void configure(ServerHttpSecurity http) {
+			http.addFilterAt(new ServerRequestCacheWebFilter(), SecurityWebFiltersOrder.SERVER_REQUEST_CACHE);
+		}
+
+		public ServerHttpSecurity and() {
+			return ServerHttpSecurity.this;
+		}
+
+		public ServerHttpSecurity disable() {
+			this.requestCache = NoOpServerRequestCache.getInstance();
+			return and();
+		}
+
+		private RequestCacheBuilder() {}
+	}
+
+	/**
+	 * @author Rob Winch
+	 * @since 5.0
+	 */
 	public class HttpBasicBuilder {
 		private ReactiveAuthenticationManager authenticationManager;
 
@@ -489,6 +528,10 @@ public class ServerHttpSecurity {
 	 * @since 5.0
 	 */
 	public class FormLoginBuilder {
+		private final RedirectServerAuthenticationSuccessHandler defaultSuccessHandler = new RedirectServerAuthenticationSuccessHandler("/");
+
+		private RedirectServerAuthenticationEntryPoint defaultEntryPoint;
+
 		private ReactiveAuthenticationManager authenticationManager;
 
 		private ServerSecurityContextRepository serverSecurityContextRepository = new WebSessionServerSecurityContextRepository();
@@ -499,7 +542,7 @@ public class ServerHttpSecurity {
 
 		private ServerAuthenticationFailureHandler serverAuthenticationFailureHandler;
 
-		private ServerAuthenticationSuccessHandler serverAuthenticationSuccessHandler = new RedirectServerAuthenticationSuccessHandler("/");
+		private ServerAuthenticationSuccessHandler serverAuthenticationSuccessHandler = this.defaultSuccessHandler;
 
 		public FormLoginBuilder authenticationManager(ReactiveAuthenticationManager authenticationManager) {
 			this.authenticationManager = authenticationManager;
@@ -514,7 +557,8 @@ public class ServerHttpSecurity {
 		}
 
 		public FormLoginBuilder loginPage(String loginPage) {
-			this.serverAuthenticationEntryPoint =  new RedirectServerAuthenticationEntryPoint(loginPage);
+			this.defaultEntryPoint = new RedirectServerAuthenticationEntryPoint(loginPage);
+			this.serverAuthenticationEntryPoint = this.defaultEntryPoint;
 			this.requiresAuthenticationMatcher = ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, loginPage);
 			this.serverAuthenticationFailureHandler = new RedirectServerAuthenticationFailureHandler(loginPage + "?error");
 			return this;
@@ -552,6 +596,13 @@ public class ServerHttpSecurity {
 		protected void configure(ServerHttpSecurity http) {
 			if(this.serverAuthenticationEntryPoint == null) {
 				loginPage("/login");
+			}
+			if(http.requestCache != null) {
+				ServerRequestCache requestCache = http.requestCache.requestCache;
+				this.defaultSuccessHandler.setRequestCache(requestCache);
+				if(this.defaultEntryPoint != null) {
+					this.defaultEntryPoint.setRequestCache(requestCache);
+				}
 			}
 			MediaTypeServerWebExchangeMatcher htmlMatcher = new MediaTypeServerWebExchangeMatcher(
 				MediaType.TEXT_HTML);

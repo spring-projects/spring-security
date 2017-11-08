@@ -46,6 +46,10 @@ public enum SecurityWebFiltersOrder {
 	 * {@link org.springframework.security.web.server.context.SecurityContextServerWebExchangeWebFilter}
 	 */
 	SECURITY_CONTEXT_SERVER_WEB_EXCHANGE,
+	/**
+	 * {@link org.springframework.security.web.server.savedrequest.ServerRequestCacheWebFilter}
+	 */
+	SERVER_REQUEST_CACHE,
 	LOGOUT,
 	EXCEPTION_TRANSLATION,
 	AUTHORIZATION,

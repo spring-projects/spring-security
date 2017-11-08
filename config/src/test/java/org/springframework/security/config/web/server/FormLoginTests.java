@@ -21,15 +21,9 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
-import org.springframework.security.authentication.ReactiveAuthenticationManager;
-import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
 import org.springframework.security.config.annotation.web.reactive.ServerHttpSecurityConfigurationBuilder;
-import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.htmlunit.server.WebTestClientHtmlUnitDriverBuilder;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
-import org.springframework.security.web.context.SaveContextOnUpdateOrErrorResponseWrapperTests;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.WebFilterChainProxy;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
@@ -39,7 +33,6 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -143,7 +136,7 @@ public class FormLoginTests {
 			.webTestClientSetup(webTestClient)
 			.build();
 
-		DefaultLoginPage loginPage = HomePage.to(driver, DefaultLoginPage.class)
+		DefaultLoginPage loginPage = DefaultLoginPage.to(driver)
 			.assertAt();
 
 		HomePage homePage = loginPage.loginForm()
@@ -236,6 +229,11 @@ public class FormLoginTests {
 
 		public LoginForm loginForm() {
 			return this.loginForm;
+		}
+
+		static DefaultLoginPage to(WebDriver driver) {
+			driver.get("http://localhost/login");
+			return PageFactory.initElements(driver, DefaultLoginPage.class);
 		}
 
 		public static class LoginForm {
@@ -347,6 +345,5 @@ public class FormLoginTests {
 				+ "  </body>\n"
 				+ "</html>";
 		}
-
 	}
 }

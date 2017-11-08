@@ -20,6 +20,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.DefaultServerRedirectStrategy;
 import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.security.web.server.WebFilterExchange;
+import org.springframework.security.web.server.savedrequest.ServerRequestCache;
+import org.springframework.security.web.server.savedrequest.WebSessionServerRequestCache;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -36,17 +38,28 @@ public class RedirectServerAuthenticationSuccessHandler
 
 	private ServerRedirectStrategy serverRedirectStrategy = new DefaultServerRedirectStrategy();
 
+	private ServerRequestCache requestCache = new WebSessionServerRequestCache();
+
 	public RedirectServerAuthenticationSuccessHandler() {}
 
 	public RedirectServerAuthenticationSuccessHandler(String location) {
 		this.location = URI.create(location);
 	}
 
+	public void setRequestCache(ServerRequestCache requestCache) {
+		Assert.notNull(requestCache, "requestCache cannot be null");
+		this.requestCache = requestCache;
+	}
+
 	@Override
 	public Mono<Void> onAuthenticationSuccess(WebFilterExchange webFilterExchange,
 		Authentication authentication) {
 		ServerWebExchange exchange = webFilterExchange.getExchange();
-		return this.serverRedirectStrategy.sendRedirect(exchange, this.location);
+		return this.requestCache.getRequest(exchange)
+			.map(r -> r.getPath().pathWithinApplication().value())
+			.map(URI::create)
+			.defaultIfEmpty(this.location)
+			.flatMap(location -> this.serverRedirectStrategy.sendRedirect(exchange, location));
 	}
 
 	/**

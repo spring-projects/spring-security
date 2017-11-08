@@ -20,6 +20,8 @@ import java.net.URI;
 
 import org.springframework.security.web.server.DefaultServerRedirectStrategy;
 import org.springframework.security.web.server.ServerRedirectStrategy;
+import org.springframework.security.web.server.savedrequest.ServerRequestCache;
+import org.springframework.security.web.server.savedrequest.WebSessionServerRequestCache;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.core.AuthenticationException;
@@ -39,14 +41,22 @@ public class RedirectServerAuthenticationEntryPoint
 
 	private ServerRedirectStrategy serverRedirectStrategy = new DefaultServerRedirectStrategy();
 
+	private ServerRequestCache requestCache = new WebSessionServerRequestCache();
+
 	public RedirectServerAuthenticationEntryPoint(String location) {
 		Assert.notNull(location, "location cannot be null");
 		this.location = URI.create(location);
 	}
 
+	public void setRequestCache(ServerRequestCache requestCache) {
+		Assert.notNull(requestCache, "requestCache cannot be null");
+		this.requestCache = requestCache;
+	}
+
 	@Override
 	public Mono<Void> commence(ServerWebExchange exchange, AuthenticationException e) {
-		return this.serverRedirectStrategy.sendRedirect(exchange, this.location);
+		return this.requestCache.saveRequest(exchange)
+			.then(this.serverRedirectStrategy.sendRedirect(exchange, this.location));
 	}
 
 	/**
