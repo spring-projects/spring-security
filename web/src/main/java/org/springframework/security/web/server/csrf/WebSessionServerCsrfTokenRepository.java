@@ -50,28 +50,29 @@ public class WebSessionServerCsrfTokenRepository
 	@Override
 	public Mono<CsrfToken> generateToken(ServerWebExchange exchange) {
 		return Mono.defer(() -> Mono.just(createCsrfToken()))
-			.flatMap(token -> save(exchange, token));
+			.flatMap(token -> saveToken(exchange, token));
 	}
 
 	@Override
-	public Mono<Void> saveToken(ServerWebExchange exchange, CsrfToken token) {
-		return save(exchange, token)
-			.then();
-	}
-
-	private Mono<CsrfToken> save(ServerWebExchange exchange, CsrfToken token) {
+	public Mono<CsrfToken> saveToken(ServerWebExchange exchange, CsrfToken token) {
 		return exchange.getSession()
 			.map(WebSession::getAttributes)
 			.flatMap( attrs -> save(attrs, token));
 	}
 
 	private Mono<CsrfToken> save(Map<String,Object> attributes, CsrfToken token) {
+		return Mono.defer(() -> {
+			putToken(attributes, token);
+			return Mono.justOrEmpty(token);
+		});
+	}
+
+	private void putToken(Map<String,Object> attributes, CsrfToken token) {
 		if(token == null) {
 			attributes.remove(this.sessionAttributeName);
 		} else {
 			attributes.put(this.sessionAttributeName, token);
 		}
-		return Mono.justOrEmpty(token);
 	}
 
 	@Override

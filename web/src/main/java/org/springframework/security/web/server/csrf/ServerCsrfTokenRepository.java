@@ -46,7 +46,7 @@ public interface ServerCsrfTokenRepository {
 	 * @param exchange the {@link ServerWebExchange} to use
 	 * @param token the {@link CsrfToken} to save or null to delete
 	 */
-	Mono<Void> saveToken(ServerWebExchange exchange, CsrfToken token);
+	Mono<CsrfToken> saveToken(ServerWebExchange exchange, CsrfToken token);
 
 	/**
 	 * Loads the expected {@link CsrfToken} from the {@link ServerWebExchange}

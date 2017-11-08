@@ -70,9 +70,10 @@ public class WebSessionServerCsrfTokenRepositoryTests {
 		CsrfToken token = new DefaultCsrfToken("h","p", "t");
 		String attrName = "ATTR";
 		this.repository.setSessionAttributeName(attrName);
-		Mono<Void> result = this.repository.saveToken(this.exchange, token);
+		Mono<CsrfToken> result = this.repository.saveToken(this.exchange, token);
 
 		StepVerifier.create(result)
+			.consumeNextWith(n -> assertThat(n).isEqualTo(token))
 			.verifyComplete();
 
 		WebSession session = this.exchange.getSession().block();
@@ -86,7 +87,7 @@ public class WebSessionServerCsrfTokenRepositoryTests {
 		CsrfToken token = new DefaultCsrfToken("h","p", "t");
 		this.repository.saveToken(this.exchange, token).block();
 
-		Mono<Void> result = this.repository.saveToken(this.exchange, null);
+		Mono<CsrfToken> result = this.repository.saveToken(this.exchange, null);
 		StepVerifier.create(result)
 			.verifyComplete();
 
