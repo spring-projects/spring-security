@@ -9,6 +9,7 @@ dependencies {
 	compile 'io.projectreactor.ipc:reactor-netty'
 	compile 'org.springframework:spring-context'
 	compile 'org.springframework:spring-webflux'
+	compile slf4jDependencies
 
 	testCompile project(':spring-security-test')
 	testCompile 'io.projectreactor:reactor-test'
