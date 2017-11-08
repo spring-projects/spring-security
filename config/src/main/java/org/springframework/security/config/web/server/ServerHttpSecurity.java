@@ -33,6 +33,7 @@ import org.springframework.security.web.server.ServerHttpBasicAuthenticationConv
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import org.springframework.security.web.server.authentication.HttpBasicServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationEntryPoint;
+import org.springframework.security.web.server.authentication.RedirectServerAuthenticationFailureHandler;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.authentication.ServerAuthenticationEntryPointFailureHandler;
 import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler;
@@ -515,7 +516,7 @@ public class ServerHttpSecurity {
 		public FormLoginBuilder loginPage(String loginPage) {
 			this.serverAuthenticationEntryPoint =  new RedirectServerAuthenticationEntryPoint(loginPage);
 			this.requiresAuthenticationMatcher = ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, loginPage);
-			this.serverAuthenticationFailureHandler = new ServerAuthenticationEntryPointFailureHandler(new RedirectServerAuthenticationEntryPoint(loginPage + "?error"));
+			this.serverAuthenticationFailureHandler = new RedirectServerAuthenticationFailureHandler(loginPage + "?error");
 			return this;
 		}
 
