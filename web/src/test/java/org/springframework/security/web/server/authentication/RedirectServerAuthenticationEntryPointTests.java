@@ -29,6 +29,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+import reactor.test.publisher.PublisherProbe;
+import reactor.test.publisher.TestPublisher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -62,10 +64,12 @@ public class RedirectServerAuthenticationEntryPointTests {
 
 	@Test
 	public void commenceWhenNoSubscribersThenNoActions() {
+		this.exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 		this.entryPoint.commence(this.exchange,
 			this.exception);
 
-		verifyZeroInteractions(this.exchange);
+		assertThat(this.exchange.getResponse().getHeaders().getLocation()).isNull();
+		assertThat(this.exchange.getSession().block().isStarted()).isFalse();
 	}
 
 	@Test
@@ -81,12 +85,14 @@ public class RedirectServerAuthenticationEntryPointTests {
 
 	@Test
 	public void commenceWhenCustomServerRedirectStrategyThenCustomServerRedirectStrategyUsed() {
-		Mono<Void> result = Mono.empty();
-		when(this.serverRedirectStrategy.sendRedirect(any(), any())).thenReturn(result);
+		PublisherProbe<Void> redirectResult = PublisherProbe.empty();
+		when(this.serverRedirectStrategy.sendRedirect(any(), any())).thenReturn(redirectResult.mono());
 		this.entryPoint.setServerRedirectStrategy(this.serverRedirectStrategy);
 		this.exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 
-		assertThat(this.entryPoint.commence(this.exchange, this.exception)).isEqualTo(result);
+		this.entryPoint.commence(this.exchange, this.exception).block();
+
+		redirectResult.assertWasSubscribed();
 	}
 
 	@Test(expected = IllegalArgumentException.class)

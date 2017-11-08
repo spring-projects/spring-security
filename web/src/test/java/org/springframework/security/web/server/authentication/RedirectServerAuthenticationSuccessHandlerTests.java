@@ -29,6 +29,7 @@ import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
+import reactor.test.publisher.PublisherProbe;
 
 import java.net.URI;
 
@@ -67,10 +68,13 @@ public class RedirectServerAuthenticationSuccessHandlerTests {
 
 	@Test
 	public void successWhenNoSubscribersThenNoActions() {
+		this.exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
+
 		this.handler.onAuthenticationSuccess(new WebFilterExchange(this.exchange,
 			this.chain), this.authentication);
 
-		verifyZeroInteractions(this.exchange);
+		assertThat(this.exchange.getResponse().getHeaders().getLocation()).isNull();
+		assertThat(this.exchange.getSession().block().isStarted()).isFalse();
 	}
 
 	@Test
@@ -87,13 +91,14 @@ public class RedirectServerAuthenticationSuccessHandlerTests {
 
 	@Test
 	public void successWhenCustomLocationThenCustomLocationUsed() {
-		Mono<Void> result = Mono.empty();
-		when(this.serverRedirectStrategy.sendRedirect(any(), any())).thenReturn(result);
+		PublisherProbe<Void> redirectResult = PublisherProbe.empty();
+		when(this.serverRedirectStrategy.sendRedirect(any(), any())).thenReturn(redirectResult.mono());
 		this.handler.setServerRedirectStrategy(this.serverRedirectStrategy);
 		this.exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 
-		assertThat(this.handler.onAuthenticationSuccess(new WebFilterExchange(this.exchange,
-			this.chain), this.authentication)).isEqualTo(result);
+		this.handler.onAuthenticationSuccess(new WebFilterExchange(this.exchange,
+			this.chain), this.authentication).block();
+		redirectResult.assertWasSubscribed();
 		verify(this.serverRedirectStrategy).sendRedirect(any(), eq(this.location));
 	}
 
