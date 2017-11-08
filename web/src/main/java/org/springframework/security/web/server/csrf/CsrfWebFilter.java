@@ -106,14 +106,19 @@ public class CsrfWebFilter implements WebFilter {
 	private Mono<Void> continueFilterChain(ServerWebExchange exchange, WebFilterChain chain) {
 		return csrfToken(exchange)
 			.doOnSuccess(csrfToken -> exchange.getAttributes().put(CsrfToken.class.getName(), csrfToken))
+			.doOnSuccess(csrfToken -> exchange.getAttributes().put(csrfToken.getParameterName(), csrfToken))
 			.flatMap( t -> chain.filter(exchange))
 			.then();
 	}
 
-	private Mono<Mono<CsrfToken>> csrfToken(ServerWebExchange exchange) {
+	private Mono<CsrfToken> csrfToken(ServerWebExchange exchange) {
 		return this.serverCsrfTokenRepository.loadToken(exchange)
-			.switchIfEmpty(this.serverCsrfTokenRepository.generateToken(exchange))
-			.as(Mono::just); // FIXME eager saving of CsrfToken with .as
+			.switchIfEmpty(generateToken(exchange));
+	}
+
+	private Mono<CsrfToken> generateToken(ServerWebExchange exchange) {
+		return this.serverCsrfTokenRepository.generateToken(exchange)
+			.flatMap(token -> this.serverCsrfTokenRepository.saveToken(exchange, token));
 	}
 
 	private static class DefaultRequireCsrfProtectionMatcher implements ServerWebExchangeMatcher {

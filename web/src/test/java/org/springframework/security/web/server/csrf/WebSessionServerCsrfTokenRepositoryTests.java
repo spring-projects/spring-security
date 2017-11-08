@@ -37,7 +37,7 @@ public class WebSessionServerCsrfTokenRepositoryTests {
 	private MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/"));
 
 	@Test
-	public void generateTokenWhenNoSubscriptionThenNoSession() {
+	public void generateTokenThenNoSession() {
 		Mono<CsrfToken> result = this.repository.generateToken(this.exchange);
 
 		Mono<Boolean> isSessionStarted = this.exchange.getSession()
@@ -49,12 +49,21 @@ public class WebSessionServerCsrfTokenRepositoryTests {
 	}
 
 	@Test
-	public void generateTokenWhenSubscriptionThenAddsToSession() {
+	public void generateTokenWhenSubscriptionThenNoSession() {
 		Mono<CsrfToken> result = this.repository.generateToken(this.exchange);
 
-		StepVerifier.create(result)
-			.consumeNextWith( t -> assertThat(t).isNotNull())
+		Mono<Boolean> isSessionStarted = this.exchange.getSession()
+			.map(WebSession::isStarted);
+
+		StepVerifier.create(isSessionStarted)
+			.expectNext(false)
 			.verifyComplete();
+	}
+
+	@Test
+	public void generateTokenWhenGetTokenThenAddsToSession() {
+		Mono<CsrfToken> result = this.repository.generateToken(this.exchange);
+		result.block().getToken();
 
 		WebSession session = this.exchange.getSession().block();
 		Map<String, Object> attributes = session.getAttributes();
@@ -62,30 +71,12 @@ public class WebSessionServerCsrfTokenRepositoryTests {
 		assertThat(session.isStarted()).isTrue();
 		assertThat(attributes).hasSize(1);
 		assertThat(attributes.values().iterator().next()).isInstanceOf(CsrfToken.class);
-
-	}
-
-	@Test
-	public void saveTokenWhenSetSessionAttributeNameAndSubscriptionThenAddsToSession() {
-		CsrfToken token = new DefaultCsrfToken("h","p", "t");
-		String attrName = "ATTR";
-		this.repository.setSessionAttributeName(attrName);
-		Mono<CsrfToken> result = this.repository.saveToken(this.exchange, token);
-
-		StepVerifier.create(result)
-			.consumeNextWith(n -> assertThat(n).isEqualTo(token))
-			.verifyComplete();
-
-		WebSession session = this.exchange.getSession().block();
-
-		assertThat(session.isStarted()).isTrue();
-		assertThat(session.<WebSession>getAttribute(attrName)).isEqualTo(token);
 	}
 
 	@Test
 	public void saveTokenWhenNullThenDeletes() {
-		CsrfToken token = new DefaultCsrfToken("h","p", "t");
-		this.repository.saveToken(this.exchange, token).block();
+		CsrfToken token = this.repository.generateToken(this.exchange).block();
+		token.getToken();
 
 		Mono<CsrfToken> result = this.repository.saveToken(this.exchange, null);
 		StepVerifier.create(result)
@@ -99,6 +90,7 @@ public class WebSessionServerCsrfTokenRepositoryTests {
 	@Test
 	public void generateTokenAndLoadTokenDeleteTokenWhenNullThenDeletes() {
 		CsrfToken generate = this.repository.generateToken(this.exchange).block();
+		generate.getToken();
 
 		CsrfToken load = this.repository.loadToken(this.exchange).block();
 		assertThat(load).isEqualTo(generate);

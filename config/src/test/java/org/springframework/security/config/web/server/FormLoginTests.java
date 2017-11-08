@@ -316,9 +316,9 @@ public class FormLoginTests {
 	public static class CustomLoginPageController {
 		@ResponseBody
 		@GetMapping("/login")
-		public Mono<String> login(ServerWebExchange exchange) {
-			Mono<CsrfToken> token = exchange.getAttribute(CsrfToken.class.getName());
-			return token.map(t ->
+		public String login(ServerWebExchange exchange) {
+			CsrfToken token = exchange.getAttribute(CsrfToken.class.getName());
+			return
 				"<!DOCTYPE html>\n"
 				+ "<html lang=\"en\">\n"
 				+ "  <head>\n"
@@ -340,12 +340,12 @@ public class FormLoginTests {
 				+ "          <label for=\"password\" class=\"sr-only\">Password</label>\n"
 				+ "          <input type=\"password\" id=\"password\" name=\"password\" placeholder=\"Password\" required>\n"
 				+ "        </p>\n"
-				+ "        <input type=\"hidden\" name=\"" + t.getParameterName() + "\" value=\"" + t.getToken() + "\">\n"
+				+ "        <input type=\"hidden\" name=\"" + token.getParameterName() + "\" value=\"" + token.getToken() + "\">\n"
 				+ "        <button type=\"submit\">Sign in</button>\n"
 				+ "      </form>\n"
 				+ "    </div>\n"
 				+ "  </body>\n"
-				+ "</html>");
+				+ "</html>";
 		}
 
 	}

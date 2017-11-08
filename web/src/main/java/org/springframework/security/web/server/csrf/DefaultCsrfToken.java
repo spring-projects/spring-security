@@ -74,4 +74,28 @@ public final class DefaultCsrfToken implements CsrfToken {
 	public String getToken() {
 		return this.token;
 	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || !(o instanceof CsrfToken))
+			return false;
+
+		CsrfToken that = (CsrfToken) o;
+
+		if (!getToken().equals(that.getToken()))
+			return false;
+		if (!getParameterName().equals(that.getParameterName()))
+			return false;
+		return getHeaderName().equals(that.getHeaderName());
+	}
+
+	@Override
+	public int hashCode() {
+		int result = getToken().hashCode();
+		result = 31 * result + getParameterName().hashCode();
+		result = 31 * result + getHeaderName().hashCode();
+		return result;
+	}
 }

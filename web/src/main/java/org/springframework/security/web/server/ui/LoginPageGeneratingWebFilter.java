@@ -61,9 +61,8 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 	private Mono<DataBuffer> createBuffer(ServerWebExchange exchange) {
 		MultiValueMap<String, String> queryParams = exchange.getRequest()
 			.getQueryParams();
-		Mono<CsrfToken> token = (Mono<CsrfToken>) exchange.getAttributes()
-			.getOrDefault(CsrfToken.class.getName(), Mono.<CsrfToken>empty());
-		return token
+		CsrfToken token = exchange.getAttribute(CsrfToken.class.getName());
+		return Mono.justOrEmpty(token)
 			.map(LoginPageGeneratingWebFilter::csrfToken)
 			.defaultIfEmpty("")
 			.map(csrfTokenHtmlInput -> {
