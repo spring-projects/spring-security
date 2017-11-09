@@ -21,17 +21,13 @@ import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.memory.UserAttribute;
-import org.springframework.security.core.userdetails.memory.UserAttributeEditor;
 import org.springframework.security.util.InMemoryResource;
 import org.springframework.util.Assert;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Enumeration;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -72,27 +68,7 @@ public class UserDetailsResourceFactoryBean implements ResourceLoaderAware, Fact
 		try(InputStream in = resource.getInputStream()){
 			userProperties.load(in);
 		}
-
-		Collection<UserDetails> users = new ArrayList<>(userProperties.size());
-		Enumeration<?> names = userProperties.propertyNames();
-		UserAttributeEditor editor = new UserAttributeEditor();
-
-		while (names.hasMoreElements()) {
-			String name = (String) names.nextElement();
-			String property = userProperties.getProperty(name);
-			editor.setAsText(property);
-			UserAttribute attr = (UserAttribute) editor.getValue();
-			if(attr == null) {
-				throw new IllegalStateException("The entry with username '" + name + "' and value '" + property + "' could not be converted to a UserDetails.");
-			}
-			UserDetails user = User.withUsername(name)
-				.password(attr.getPassword())
-				.disabled(!attr.isEnabled())
-				.authorities(attr.getAuthorities())
-				.build();
-			users.add(user);
-		}
-		return users;
+		return new UserDetailsMapFactoryBean((Map) userProperties).getObject();
 	}
 
 	@Override
