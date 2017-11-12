@@ -16,7 +16,6 @@
 package org.springframework.security.oauth2.core.endpoint;
 
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
-import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import java.time.Instant;
@@ -83,11 +82,18 @@ public final class OAuth2AccessTokenResponse {
 		}
 
 		public OAuth2AccessTokenResponse build() {
-			Assert.isTrue(this.expiresIn >= 0, "expiresIn must be a positive number");
 			Instant issuedAt = Instant.now();
+
+			// expires_in is RECOMMENDED, as per spec https://tools.ietf.org/html/rfc6749#section-5.1
+			// Therefore, expires_in may not be returned in the Access Token response which would result in the default value of 0.
+			// For these instances, default the expiresAt to +1 second from issuedAt time.
+			Instant expiresAt = this.expiresIn > 0 ?
+				issuedAt.plusSeconds(this.expiresIn) :
+				issuedAt.plusSeconds(1);
+
 			OAuth2AccessTokenResponse accessTokenResponse = new OAuth2AccessTokenResponse();
-			accessTokenResponse.accessToken = new OAuth2AccessToken(this.tokenType, this.tokenValue, issuedAt,
-				issuedAt.plusSeconds(this.expiresIn), this.scopes);
+			accessTokenResponse.accessToken = new OAuth2AccessToken(
+				this.tokenType, this.tokenValue, issuedAt, expiresAt, this.scopes);
 			accessTokenResponse.additionalParameters = Collections.unmodifiableMap(
 				CollectionUtils.isEmpty(this.additionalParameters) ? Collections.emptyMap() : this.additionalParameters);
 			return accessTokenResponse;

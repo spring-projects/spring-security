@@ -53,12 +53,26 @@ public class OAuth2AccessTokenResponseTests {
 			.build();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void buildWhenExpiresInIsNegativeThenThrowIllegalArgumentException() {
-		OAuth2AccessTokenResponse.withToken(TOKEN_VALUE)
+	@Test
+	public void buildWhenExpiresInIsZeroThenExpiresAtOneSecondAfterIssueAt() {
+		OAuth2AccessTokenResponse tokenResponse = OAuth2AccessTokenResponse
+			.withToken(TOKEN_VALUE)
+			.tokenType(OAuth2AccessToken.TokenType.BEARER)
+			.expiresIn(0)
+			.build();
+		assertThat(tokenResponse.getAccessToken().getExpiresAt()).isEqualTo(
+			tokenResponse.getAccessToken().getIssuedAt().plusSeconds(1));
+	}
+
+	@Test
+	public void buildWhenExpiresInIsNegativeThenExpiresAtOneSecondAfterIssueAt() {
+		OAuth2AccessTokenResponse tokenResponse = OAuth2AccessTokenResponse
+			.withToken(TOKEN_VALUE)
 			.tokenType(OAuth2AccessToken.TokenType.BEARER)
 			.expiresIn(-1L)
 			.build();
+		assertThat(tokenResponse.getAccessToken().getExpiresAt()).isEqualTo(
+			tokenResponse.getAccessToken().getIssuedAt().plusSeconds(1));
 	}
 
 	@Test
