@@ -18,12 +18,16 @@ package org.springframework.security.config.annotation.web.configurers.oauth2.cl
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.ResolvableType;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationProvider;
+import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken;
 import org.springframework.security.oauth2.client.endpoint.NimbusAuthorizationCodeTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
@@ -40,13 +44,17 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
+import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -246,19 +254,25 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		}
 		http.authenticationProvider(this.postProcess(oauth2LoginAuthenticationProvider));
 
-		OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService = this.userInfoEndpointConfig.oidcUserService;
-		if (oidcUserService == null) {
-			oidcUserService = new OidcUserService();
-		}
+		boolean oidcAuthenticationProviderEnabled = ClassUtils.isPresent(
+			"org.springframework.security.oauth2.jwt.JwtDecoder", this.getClass().getClassLoader());
 
-		OidcAuthorizationCodeAuthenticationProvider oidcAuthorizationCodeAuthenticationProvider =
-			new OidcAuthorizationCodeAuthenticationProvider(
-				accessTokenResponseClient, oidcUserService);
-		if (this.userInfoEndpointConfig.userAuthoritiesMapper != null) {
-			oidcAuthorizationCodeAuthenticationProvider.setAuthoritiesMapper(
-				this.userInfoEndpointConfig.userAuthoritiesMapper);
+		if (oidcAuthenticationProviderEnabled) {
+			OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService = this.userInfoEndpointConfig.oidcUserService;
+			if (oidcUserService == null) {
+				oidcUserService = new OidcUserService();
+			}
+
+			OidcAuthorizationCodeAuthenticationProvider oidcAuthorizationCodeAuthenticationProvider =
+				new OidcAuthorizationCodeAuthenticationProvider(accessTokenResponseClient, oidcUserService);
+			if (this.userInfoEndpointConfig.userAuthoritiesMapper != null) {
+				oidcAuthorizationCodeAuthenticationProvider.setAuthoritiesMapper(
+					this.userInfoEndpointConfig.userAuthoritiesMapper);
+			}
+			http.authenticationProvider(this.postProcess(oidcAuthorizationCodeAuthenticationProvider));
+		} else {
+			http.authenticationProvider(new OidcAuthenticationRequestChecker());
 		}
-		http.authenticationProvider(this.postProcess(oidcAuthorizationCodeAuthenticationProvider));
 
 		this.initDefaultLoginFilter(http);
 	}
@@ -359,4 +373,35 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		loginPageGeneratingFilter.setLoginPageUrl(this.getLoginPage());
 		loginPageGeneratingFilter.setFailureUrl(this.getFailureUrl());
 	}
+
+	private static class OidcAuthenticationRequestChecker implements AuthenticationProvider {
+
+		@Override
+		public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+			OAuth2LoginAuthenticationToken authorizationCodeAuthentication =
+				(OAuth2LoginAuthenticationToken) authentication;
+
+			// Section 3.1.2.1 Authentication Request - http://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
+			// scope
+			// 		REQUIRED. OpenID Connect requests MUST contain the "openid" scope value.
+			if (authorizationCodeAuthentication.getAuthorizationExchange()
+				.getAuthorizationRequest().getScopes().contains(OidcScopes.OPENID)) {
+
+				OAuth2Error oauth2Error = new OAuth2Error(
+					"oidc_provider_not_configured",
+					"An OpenID Connect Authentication Provider has not been configured. " +
+						"Check to ensure you include the dependency 'spring-security-oauth2-jose'.",
+					null);
+				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+			}
+
+			return null;
+		}
+
+		@Override
+		public boolean supports(Class<?> authentication) {
+			return OAuth2LoginAuthenticationToken.class.isAssignableFrom(authentication);
+		}
+	}
+
 }
