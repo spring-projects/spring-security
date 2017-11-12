@@ -78,7 +78,17 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 		Set<GrantedAuthority> authorities = new HashSet<>();
 		authorities.add(authority);
 
-		return new DefaultOidcUser(authorities, userRequest.getIdToken(), userInfo);
+		OidcUser user;
+
+		String userNameAttributeName = userRequest.getClientRegistration()
+			.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
+		if (StringUtils.hasText(userNameAttributeName)) {
+			user = new DefaultOidcUser(authorities, userRequest.getIdToken(), userInfo, userNameAttributeName);
+		} else {
+			user = new DefaultOidcUser(authorities, userRequest.getIdToken(), userInfo);
+		}
+
+		return user;
 	}
 
 	private boolean shouldRetrieveUserInfo(OidcUserRequest userRequest) {

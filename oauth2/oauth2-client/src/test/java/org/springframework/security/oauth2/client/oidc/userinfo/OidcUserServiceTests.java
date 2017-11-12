@@ -35,6 +35,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
+import org.springframework.security.oauth2.core.oidc.StandardClaimNames;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 
@@ -256,5 +257,37 @@ public class OidcUserServiceTests {
 		when(this.accessToken.getTokenValue()).thenReturn("access-token");
 
 		this.userService.loadUser(new OidcUserRequest(this.clientRegistration, this.accessToken, this.idToken));
+	}
+
+	@Test
+	public void loadUserWhenCustomUserNameAttributeNameThenGetNameReturnsCustomUserName() throws Exception {
+		MockWebServer server = new MockWebServer();
+
+		String userInfoResponse = "{\n" +
+			"	\"sub\": \"subject1\",\n" +
+			"   \"name\": \"first last\",\n" +
+			"   \"given_name\": \"first\",\n" +
+			"   \"family_name\": \"last\",\n" +
+			"   \"preferred_username\": \"user1\",\n" +
+			"   \"email\": \"user1@example.com\"\n" +
+			"}\n";
+		server.enqueue(new MockResponse()
+			.setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+			.setBody(userInfoResponse));
+
+		server.start();
+
+		String userInfoUri = server.url("/user").toString();
+
+		when(this.userInfoEndpoint.getUri()).thenReturn(userInfoUri);
+		when(this.userInfoEndpoint.getUserNameAttributeName()).thenReturn(StandardClaimNames.EMAIL);
+		when(this.accessToken.getTokenValue()).thenReturn("access-token");
+
+		OidcUser user = this.userService.loadUser(
+			new OidcUserRequest(this.clientRegistration, this.accessToken, this.idToken));
+
+		server.shutdown();
+
+		assertThat(user.getName()).isEqualTo("user1@example.com");
 	}
 }
