@@ -87,12 +87,12 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 
 	public OAuth2LoginAuthenticationFilter(ClientRegistrationRepository clientRegistrationRepository,
 											OAuth2AuthorizedClientService authorizedClientService) {
-		this(DEFAULT_FILTER_PROCESSES_URI, clientRegistrationRepository, authorizedClientService);
+		this(clientRegistrationRepository, authorizedClientService, DEFAULT_FILTER_PROCESSES_URI);
 	}
 
-	public OAuth2LoginAuthenticationFilter(String filterProcessesUrl,
-											ClientRegistrationRepository clientRegistrationRepository,
-											OAuth2AuthorizedClientService authorizedClientService) {
+	public OAuth2LoginAuthenticationFilter(ClientRegistrationRepository clientRegistrationRepository,
+											OAuth2AuthorizedClientService authorizedClientService,
+											String filterProcessesUrl) {
 		super(filterProcessesUrl);
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
 		Assert.notNull(authorizedClientService, "authorizedClientService cannot be null");

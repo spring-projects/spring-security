@@ -218,9 +218,9 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 	public void init(B http) throws Exception {
 		OAuth2LoginAuthenticationFilter authenticationFilter =
 			new OAuth2LoginAuthenticationFilter(
-				OAuth2LoginAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI,
 				this.getClientRegistrationRepository(),
-				this.getAuthorizedClientService());
+				this.getAuthorizedClientService(),
+				OAuth2LoginAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI);
 		this.setAuthenticationFilter(authenticationFilter);
 		this.loginProcessingUrl(OAuth2LoginAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI);
 		if (this.loginPage != null) {
@@ -285,7 +285,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		}
 
 		OAuth2AuthorizationRequestRedirectFilter authorizationRequestFilter = new OAuth2AuthorizationRequestRedirectFilter(
-			authorizationRequestBaseUri, this.getClientRegistrationRepository());
+			this.getClientRegistrationRepository(), authorizationRequestBaseUri);
 
 		if (this.authorizationEndpointConfig.authorizationRequestRepository != null) {
 			authorizationRequestFilter.setAuthorizationRequestRepository(

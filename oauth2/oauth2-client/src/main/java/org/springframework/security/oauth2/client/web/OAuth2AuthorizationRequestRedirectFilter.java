@@ -75,11 +75,11 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 		new HttpSessionOAuth2AuthorizationRequestRepository();
 
 	public OAuth2AuthorizationRequestRedirectFilter(ClientRegistrationRepository clientRegistrationRepository) {
-		this(DEFAULT_AUTHORIZATION_REQUEST_BASE_URI, clientRegistrationRepository);
+		this(clientRegistrationRepository, DEFAULT_AUTHORIZATION_REQUEST_BASE_URI);
 	}
 
 	public OAuth2AuthorizationRequestRedirectFilter(
-		String authorizationRequestBaseUri, ClientRegistrationRepository clientRegistrationRepository) {
+		ClientRegistrationRepository clientRegistrationRepository, String authorizationRequestBaseUri) {
 
 		Assert.hasText(authorizationRequestBaseUri, "authorizationRequestBaseUri cannot be empty");
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");

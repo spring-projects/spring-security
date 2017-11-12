@@ -128,7 +128,7 @@ public class OAuth2LoginAuthenticationFilterTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorWhenFilterProcessesUrlIsNullThenThrowIllegalArgumentException() {
-		new OAuth2LoginAuthenticationFilter(null, this.clientRegistrationRepository, this.authorizedClientService);
+		new OAuth2LoginAuthenticationFilter(this.clientRegistrationRepository, this.authorizedClientService, null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -241,8 +241,8 @@ public class OAuth2LoginAuthenticationFilterTests {
 	@Test
 	public void doFilterWhenCustomFilterProcessesUrlThenFilterProcesses() throws Exception {
 		String filterProcessesUrl = "/login/oauth2/custom/*";
-		this.filter = spy(new OAuth2LoginAuthenticationFilter(filterProcessesUrl,
-			this.clientRegistrationRepository, this.authorizedClientService));
+		this.filter = spy(new OAuth2LoginAuthenticationFilter(
+			this.clientRegistrationRepository, this.authorizedClientService, filterProcessesUrl));
 		this.filter.setAuthenticationManager(this.authenticationManager);
 
 		String requestUri = "/login/oauth2/custom/" + this.registration2.getRegistrationId();

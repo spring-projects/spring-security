@@ -99,7 +99,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorWhenAuthorizationRequestBaseUriIsNullThenThrowIllegalArgumentException() {
-		new OAuth2AuthorizationRequestRedirectFilter(null, this.clientRegistrationRepository);
+		new OAuth2AuthorizationRequestRedirectFilter(this.clientRegistrationRepository, null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -231,7 +231,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 	@Test
 	public void doFilterWhenCustomAuthorizationRequestBaseUriThenRedirectForAuthorization() throws Exception {
 		String authorizationRequestBaseUri = "/custom/authorization";
-		this.filter = new OAuth2AuthorizationRequestRedirectFilter(authorizationRequestBaseUri, this.clientRegistrationRepository);
+		this.filter = new OAuth2AuthorizationRequestRedirectFilter(this.clientRegistrationRepository, authorizationRequestBaseUri);
 
 		String requestUri = authorizationRequestBaseUri + "/" + this.registration1.getRegistrationId();
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);

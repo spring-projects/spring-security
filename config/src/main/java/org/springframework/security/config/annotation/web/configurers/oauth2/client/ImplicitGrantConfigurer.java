@@ -48,7 +48,7 @@ public final class ImplicitGrantConfigurer<B extends HttpSecurityBuilder<B>> ext
 	@Override
 	public void configure(B http) throws Exception {
 		OAuth2AuthorizationRequestRedirectFilter authorizationRequestFilter = new OAuth2AuthorizationRequestRedirectFilter(
-			this.getAuthorizationRequestBaseUri(), this.getClientRegistrationRepository());
+			this.getClientRegistrationRepository(), this.getAuthorizationRequestBaseUri());
 		http.addFilter(this.postProcess(authorizationRequestFilter));
 	}
 
