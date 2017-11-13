@@ -101,7 +101,7 @@ public class ServerHttpSecurity {
 
 	private CsrfSpec csrf = new CsrfSpec();
 
-	private ExceptionHandlingBuilder exceptionHandling = new ExceptionHandlingBuilder();
+	private ExceptionHandlingSpec exceptionHandling = new ExceptionHandlingSpec();
 
 	private HttpBasicBuilder httpBasic;
 
@@ -182,9 +182,9 @@ public class ServerHttpSecurity {
 		return this.headers;
 	}
 
-	public ExceptionHandlingBuilder exceptionHandling() {
+	public ExceptionHandlingSpec exceptionHandling() {
 		if(this.exceptionHandling == null) {
-			this.exceptionHandling = new ExceptionHandlingBuilder();
+			this.exceptionHandling = new ExceptionHandlingSpec();
 		}
 		return this.exceptionHandling;
 	}
@@ -431,8 +431,8 @@ public class ServerHttpSecurity {
 	 * @author Rob Winch
 	 * @since 5.0
 	 */
-	public class ExceptionHandlingBuilder {
-		public ExceptionHandlingBuilder serverAuthenticationEntryPoint(ServerAuthenticationEntryPoint authenticationEntryPoint) {
+	public class ExceptionHandlingSpec {
+		public ExceptionHandlingSpec serverAuthenticationEntryPoint(ServerAuthenticationEntryPoint authenticationEntryPoint) {
 			ServerHttpSecurity.this.serverAuthenticationEntryPoint = authenticationEntryPoint;
 			return this;
 		}
@@ -441,7 +441,7 @@ public class ServerHttpSecurity {
 			return ServerHttpSecurity.this;
 		}
 
-		private ExceptionHandlingBuilder() {}
+		private ExceptionHandlingSpec() {}
 	}
 
 	/**
