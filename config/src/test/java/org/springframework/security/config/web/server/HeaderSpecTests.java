@@ -39,9 +39,9 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
  * @author Rob Winch
  * @since 5.0
  */
-public class HeaderBuilderTests {
+public class HeaderSpecTests {
 
-	ServerHttpSecurity.HeaderBuilder headers = ServerHttpSecurity.http().headers();
+	ServerHttpSecurity.HeaderSpec headers = ServerHttpSecurity.http().headers();
 
 	HttpHeaders expectedHeaders = new HttpHeaders();
 
