@@ -107,7 +107,7 @@ public class ServerHttpSecurity {
 
 	private final RequestCacheSpec requestCache = new RequestCacheSpec();
 
-	private FormLoginBuilder formLogin;
+	private FormLoginSpec formLogin;
 
 	private LogoutBuilder logout = new LogoutBuilder();
 
@@ -168,9 +168,9 @@ public class ServerHttpSecurity {
 		return this.httpBasic;
 	}
 
-	public FormLoginBuilder formLogin() {
+	public FormLoginSpec formLogin() {
 		if(this.formLogin == null) {
-			this.formLogin = new FormLoginBuilder();
+			this.formLogin = new FormLoginSpec();
 		}
 		return this.formLogin;
 	}
@@ -528,7 +528,7 @@ public class ServerHttpSecurity {
 	 * @author Rob Winch
 	 * @since 5.0
 	 */
-	public class FormLoginBuilder {
+	public class FormLoginSpec {
 		private final RedirectServerAuthenticationSuccessHandler defaultSuccessHandler = new RedirectServerAuthenticationSuccessHandler("/");
 
 		private RedirectServerAuthenticationEntryPoint defaultEntryPoint;
@@ -545,19 +545,19 @@ public class ServerHttpSecurity {
 
 		private ServerAuthenticationSuccessHandler serverAuthenticationSuccessHandler = this.defaultSuccessHandler;
 
-		public FormLoginBuilder authenticationManager(ReactiveAuthenticationManager authenticationManager) {
+		public FormLoginSpec authenticationManager(ReactiveAuthenticationManager authenticationManager) {
 			this.authenticationManager = authenticationManager;
 			return this;
 		}
 
-		public FormLoginBuilder serverAuthenticationSuccessHandler(
+		public FormLoginSpec serverAuthenticationSuccessHandler(
 			ServerAuthenticationSuccessHandler serverAuthenticationSuccessHandler) {
 			Assert.notNull(serverAuthenticationSuccessHandler, "serverAuthenticationSuccessHandler cannot be null");
 			this.serverAuthenticationSuccessHandler = serverAuthenticationSuccessHandler;
 			return this;
 		}
 
-		public FormLoginBuilder loginPage(String loginPage) {
+		public FormLoginSpec loginPage(String loginPage) {
 			this.defaultEntryPoint = new RedirectServerAuthenticationEntryPoint(loginPage);
 			this.serverAuthenticationEntryPoint = this.defaultEntryPoint;
 			this.requiresAuthenticationMatcher = ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, loginPage);
@@ -565,22 +565,22 @@ public class ServerHttpSecurity {
 			return this;
 		}
 
-		public FormLoginBuilder authenticationEntryPoint(ServerAuthenticationEntryPoint serverAuthenticationEntryPoint) {
+		public FormLoginSpec authenticationEntryPoint(ServerAuthenticationEntryPoint serverAuthenticationEntryPoint) {
 			this.serverAuthenticationEntryPoint = serverAuthenticationEntryPoint;
 			return this;
 		}
 
-		public FormLoginBuilder requiresAuthenticationMatcher(ServerWebExchangeMatcher requiresAuthenticationMatcher) {
+		public FormLoginSpec requiresAuthenticationMatcher(ServerWebExchangeMatcher requiresAuthenticationMatcher) {
 			this.requiresAuthenticationMatcher = requiresAuthenticationMatcher;
 			return this;
 		}
 
-		public FormLoginBuilder authenticationFailureHandler(ServerAuthenticationFailureHandler serverAuthenticationFailureHandler) {
+		public FormLoginSpec authenticationFailureHandler(ServerAuthenticationFailureHandler serverAuthenticationFailureHandler) {
 			this.serverAuthenticationFailureHandler = serverAuthenticationFailureHandler;
 			return this;
 		}
 
-		public FormLoginBuilder securityContextRepository(ServerSecurityContextRepository serverSecurityContextRepository) {
+		public FormLoginSpec securityContextRepository(ServerSecurityContextRepository serverSecurityContextRepository) {
 			this.serverSecurityContextRepository = serverSecurityContextRepository;
 			return this;
 		}
@@ -619,7 +619,7 @@ public class ServerHttpSecurity {
 			http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.FORM_LOGIN);
 		}
 
-		private FormLoginBuilder() {
+		private FormLoginSpec() {
 		}
 	}
 
