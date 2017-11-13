@@ -99,7 +99,7 @@ public class ServerHttpSecurity {
 
 	private HeaderSpec headers = new HeaderSpec();
 
-	private CsrfBuilder csrf = new CsrfBuilder();
+	private CsrfSpec csrf = new CsrfSpec();
 
 	private ExceptionHandlingBuilder exceptionHandling = new ExceptionHandlingBuilder();
 
@@ -154,9 +154,9 @@ public class ServerHttpSecurity {
 		return this;
 	}
 
-	public CsrfBuilder csrf() {
+	public CsrfSpec csrf() {
 		if(this.csrf == null) {
-			this.csrf = new CsrfBuilder();
+			this.csrf = new CsrfSpec();
 		}
 		return this.csrf;
 	}
@@ -390,22 +390,22 @@ public class ServerHttpSecurity {
 	 * @author Rob Winch
 	 * @since 5.0
 	 */
-	public class CsrfBuilder {
+	public class CsrfSpec {
 		private CsrfWebFilter filter = new CsrfWebFilter();
 
-		public CsrfBuilder serverAccessDeniedHandler(
+		public CsrfSpec serverAccessDeniedHandler(
 			ServerAccessDeniedHandler serverAccessDeniedHandler) {
 			this.filter.setServerAccessDeniedHandler(serverAccessDeniedHandler);
 			return this;
 		}
 
-		public CsrfBuilder serverCsrfTokenRepository(
+		public CsrfSpec serverCsrfTokenRepository(
 			ServerCsrfTokenRepository serverCsrfTokenRepository) {
 			this.filter.setServerCsrfTokenRepository(serverCsrfTokenRepository);
 			return this;
 		}
 
-		public CsrfBuilder requireCsrfProtectionMatcher(
+		public CsrfSpec requireCsrfProtectionMatcher(
 			ServerWebExchangeMatcher requireCsrfProtectionMatcher) {
 			this.filter.setRequireCsrfProtectionMatcher(requireCsrfProtectionMatcher);
 			return this;
@@ -424,7 +424,7 @@ public class ServerHttpSecurity {
 			http.addFilterAt(this.filter, SecurityWebFiltersOrder.CSRF);
 		}
 
-		private CsrfBuilder() {}
+		private CsrfSpec() {}
 	}
 
 	/**
