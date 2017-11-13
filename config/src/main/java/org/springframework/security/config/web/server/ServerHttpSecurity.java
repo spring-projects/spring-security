@@ -105,7 +105,7 @@ public class ServerHttpSecurity {
 
 	private HttpBasicSpec httpBasic;
 
-	private final RequestCacheBuilder requestCache = new RequestCacheBuilder();
+	private final RequestCacheSpec requestCache = new RequestCacheSpec();
 
 	private FormLoginBuilder formLogin;
 
@@ -203,7 +203,7 @@ public class ServerHttpSecurity {
 		return this.logout;
 	}
 
-	public RequestCacheBuilder requestCache() {
+	public RequestCacheSpec requestCache() {
 		return this.requestCache;
 	}
 
@@ -448,10 +448,10 @@ public class ServerHttpSecurity {
 	 * @author Rob Winch
 	 * @since 5.0
 	 */
-	public class RequestCacheBuilder {
+	public class RequestCacheSpec {
 		private ServerRequestCache requestCache = new WebSessionServerRequestCache();
 
-		public RequestCacheBuilder requestCache(ServerRequestCache requestCache) {
+		public RequestCacheSpec requestCache(ServerRequestCache requestCache) {
 			Assert.notNull(requestCache, "requestCache cannot be null");
 			this.requestCache = requestCache;
 			return this;
@@ -470,7 +470,7 @@ public class ServerHttpSecurity {
 			return and();
 		}
 
-		private RequestCacheBuilder() {}
+		private RequestCacheSpec() {}
 	}
 
 	/**
