@@ -31,25 +31,25 @@ import reactor.core.publisher.Mono;
  * @since 5.0
  */
 public class SecurityContextServerLogoutHandler implements ServerLogoutHandler {
-	private ServerSecurityContextRepository serverSecurityContextRepository = new WebSessionServerSecurityContextRepository();
+	private ServerSecurityContextRepository securityContextRepository = new WebSessionServerSecurityContextRepository();
 
 	@Override
 	public Mono<Void> logout(WebFilterExchange exchange,
 		Authentication authentication) {
-		return this.serverSecurityContextRepository.save(exchange.getExchange(), null);
+		return this.securityContextRepository.save(exchange.getExchange(), null);
 	}
 
 	/**
 	 * Sets the {@link ServerSecurityContextRepository} that should be used for logging
 	 * out. Default is {@link WebSessionServerSecurityContextRepository}
 	 *
-	 * @param serverSecurityContextRepository the {@link ServerSecurityContextRepository}
+	 * @param securityContextRepository the {@link ServerSecurityContextRepository}
 	 * to use.
 	 */
-	public void setServerSecurityContextRepository(
-		ServerSecurityContextRepository serverSecurityContextRepository) {
-		Assert.notNull(serverSecurityContextRepository,
-			"serverSecurityContextRepository cannot be null");
-		this.serverSecurityContextRepository = serverSecurityContextRepository;
+	public void setSecurityContextRepository(
+		ServerSecurityContextRepository securityContextRepository) {
+		Assert.notNull(securityContextRepository,
+			"securityContextRepository cannot be null");
+		this.securityContextRepository = securityContextRepository;
 	}
 }

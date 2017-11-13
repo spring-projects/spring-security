@@ -113,7 +113,7 @@ public class ServerHttpSecurity {
 
 	private ReactiveAuthenticationManager authenticationManager;
 
-	private ServerSecurityContextRepository serverSecurityContextRepository = new WebSessionServerSecurityContextRepository();
+	private ServerSecurityContextRepository securityContextRepository = new WebSessionServerSecurityContextRepository();
 
 	private ServerAuthenticationEntryPoint serverAuthenticationEntryPoint;
 
@@ -148,9 +148,9 @@ public class ServerHttpSecurity {
 		return this.securityMatcher;
 	}
 
-	public ServerHttpSecurity securityContextRepository(ServerSecurityContextRepository serverSecurityContextRepository) {
-		Assert.notNull(serverSecurityContextRepository, "securityContextRepository cannot be null");
-		this.serverSecurityContextRepository = serverSecurityContextRepository;
+	public ServerHttpSecurity securityContextRepository(ServerSecurityContextRepository securityContextRepository) {
+		Assert.notNull(securityContextRepository, "securityContextRepository cannot be null");
+		this.securityContextRepository = securityContextRepository;
 		return this;
 	}
 
@@ -229,15 +229,15 @@ public class ServerHttpSecurity {
 		}
 		if(this.httpBasic != null) {
 			this.httpBasic.authenticationManager(this.authenticationManager);
-			if(this.serverSecurityContextRepository != null) {
-				this.httpBasic.securityContextRepository(this.serverSecurityContextRepository);
+			if(this.securityContextRepository != null) {
+				this.httpBasic.securityContextRepository(this.securityContextRepository);
 			}
 			this.httpBasic.configure(this);
 		}
 		if(this.formLogin != null) {
 			this.formLogin.authenticationManager(this.authenticationManager);
-			if(this.serverSecurityContextRepository != null) {
-				this.formLogin.securityContextRepository(this.serverSecurityContextRepository);
+			if(this.securityContextRepository != null) {
+				this.formLogin.securityContextRepository(this.securityContextRepository);
 			}
 			if(this.formLogin.serverAuthenticationEntryPoint == null) {
 				this.webFilters.add(new OrderedWebFilter(new LoginPageGeneratingWebFilter(), SecurityWebFiltersOrder.LOGIN_PAGE_GENERATING.getOrder()));
@@ -303,7 +303,7 @@ public class ServerHttpSecurity {
 	}
 
 	private WebFilter securityContextRepositoryWebFilter() {
-		ServerSecurityContextRepository repository = this.serverSecurityContextRepository;
+		ServerSecurityContextRepository repository = this.securityContextRepository;
 		if(repository == null) {
 			return null;
 		}
@@ -480,7 +480,7 @@ public class ServerHttpSecurity {
 	public class HttpBasicSpec {
 		private ReactiveAuthenticationManager authenticationManager;
 
-		private ServerSecurityContextRepository serverSecurityContextRepository = NoOpServerSecurityContextRepository.getInstance();
+		private ServerSecurityContextRepository securityContextRepository = NoOpServerSecurityContextRepository.getInstance();
 
 		private ServerAuthenticationEntryPoint entryPoint = new HttpBasicServerAuthenticationEntryPoint();
 
@@ -489,8 +489,8 @@ public class ServerHttpSecurity {
 			return this;
 		}
 
-		public HttpBasicSpec securityContextRepository(ServerSecurityContextRepository serverSecurityContextRepository) {
-			this.serverSecurityContextRepository = serverSecurityContextRepository;
+		public HttpBasicSpec securityContextRepository(ServerSecurityContextRepository securityContextRepository) {
+			this.securityContextRepository = securityContextRepository;
 			return this;
 		}
 
@@ -515,8 +515,8 @@ public class ServerHttpSecurity {
 				this.authenticationManager);
 			authenticationFilter.setServerAuthenticationFailureHandler(new ServerAuthenticationEntryPointFailureHandler(this.entryPoint));
 			authenticationFilter.setAuthenticationConverter(new ServerHttpBasicAuthenticationConverter());
-			if(this.serverSecurityContextRepository != null) {
-				authenticationFilter.setServerSecurityContextRepository(this.serverSecurityContextRepository);
+			if(this.securityContextRepository != null) {
+				authenticationFilter.setSecurityContextRepository(this.securityContextRepository);
 			}
 			http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.HTTP_BASIC);
 		}
@@ -535,7 +535,7 @@ public class ServerHttpSecurity {
 
 		private ReactiveAuthenticationManager authenticationManager;
 
-		private ServerSecurityContextRepository serverSecurityContextRepository = new WebSessionServerSecurityContextRepository();
+		private ServerSecurityContextRepository securityContextRepository = new WebSessionServerSecurityContextRepository();
 
 		private ServerAuthenticationEntryPoint serverAuthenticationEntryPoint;
 
@@ -580,8 +580,8 @@ public class ServerHttpSecurity {
 			return this;
 		}
 
-		public FormLoginSpec securityContextRepository(ServerSecurityContextRepository serverSecurityContextRepository) {
-			this.serverSecurityContextRepository = serverSecurityContextRepository;
+		public FormLoginSpec securityContextRepository(ServerSecurityContextRepository securityContextRepository) {
+			this.securityContextRepository = securityContextRepository;
 			return this;
 		}
 
@@ -615,7 +615,7 @@ public class ServerHttpSecurity {
 			authenticationFilter.setServerAuthenticationFailureHandler(this.serverAuthenticationFailureHandler);
 			authenticationFilter.setAuthenticationConverter(new ServerFormLoginAuthenticationConverter());
 			authenticationFilter.setServerAuthenticationSuccessHandler(this.serverAuthenticationSuccessHandler);
-			authenticationFilter.setServerSecurityContextRepository(this.serverSecurityContextRepository);
+			authenticationFilter.setSecurityContextRepository(this.securityContextRepository);
 			http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.FORM_LOGIN);
 		}
 

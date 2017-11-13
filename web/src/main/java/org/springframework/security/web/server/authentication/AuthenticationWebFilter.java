@@ -49,7 +49,7 @@ public class AuthenticationWebFilter implements WebFilter {
 
 	private ServerAuthenticationFailureHandler serverAuthenticationFailureHandler = new ServerAuthenticationEntryPointFailureHandler(new HttpBasicServerAuthenticationEntryPoint());
 
-	private ServerSecurityContextRepository serverSecurityContextRepository = NoOpServerSecurityContextRepository.getInstance();
+	private ServerSecurityContextRepository securityContextRepository = NoOpServerSecurityContextRepository.getInstance();
 
 	private ServerWebExchangeMatcher requiresAuthenticationMatcher = ServerWebExchangeMatchers.anyExchange();
 
@@ -80,15 +80,15 @@ public class AuthenticationWebFilter implements WebFilter {
 		ServerWebExchange exchange = webFilterExchange.getExchange();
 		SecurityContextImpl securityContext = new SecurityContextImpl();
 		securityContext.setAuthentication(authentication);
-		return this.serverSecurityContextRepository.save(exchange, securityContext)
+		return this.securityContextRepository.save(exchange, securityContext)
 			.then(this.serverAuthenticationSuccessHandler
 				.onAuthenticationSuccess(webFilterExchange, authentication));
 	}
 
-	public void setServerSecurityContextRepository(
-		ServerSecurityContextRepository serverSecurityContextRepository) {
-		Assert.notNull(serverSecurityContextRepository, "securityContextRepository cannot be null");
-		this.serverSecurityContextRepository = serverSecurityContextRepository;
+	public void setSecurityContextRepository(
+		ServerSecurityContextRepository securityContextRepository) {
+		Assert.notNull(securityContextRepository, "securityContextRepository cannot be null");
+		this.securityContextRepository = securityContextRepository;
 	}
 
 	public void setServerAuthenticationSuccessHandler(ServerAuthenticationSuccessHandler serverAuthenticationSuccessHandler) {

@@ -62,7 +62,7 @@ public class AuthenticationWebFilterTests {
 	@Mock
 	private ServerAuthenticationFailureHandler failureHandler;
 	@Mock
-	private ServerSecurityContextRepository serverSecurityContextRepository;
+	private ServerSecurityContextRepository securityContextRepository;
 
 	private AuthenticationWebFilter filter;
 
@@ -71,7 +71,7 @@ public class AuthenticationWebFilterTests {
 		this.filter = new AuthenticationWebFilter(this.authenticationManager);
 		this.filter.setServerAuthenticationSuccessHandler(this.successHandler);
 		this.filter.setAuthenticationConverter(this.authenticationConverter);
-		this.filter.setServerSecurityContextRepository(this.serverSecurityContextRepository);
+		this.filter.setSecurityContextRepository(this.securityContextRepository);
 		this.filter.setServerAuthenticationFailureHandler(this.failureHandler);
 	}
 
@@ -154,7 +154,7 @@ public class AuthenticationWebFilterTests {
 			.expectBody(String.class).consumeWith(b -> assertThat(b.getResponseBody()).isEqualTo("ok"))
 			.returnResult();
 
-		verify(this.serverSecurityContextRepository, never()).save(any(), any());
+		verify(this.securityContextRepository, never()).save(any(), any());
 		verifyZeroInteractions(this.authenticationManager, this.successHandler,
 			this.failureHandler);
 	}
@@ -174,7 +174,7 @@ public class AuthenticationWebFilterTests {
 			.expectStatus().is5xxServerError()
 			.expectBody().isEmpty();
 
-		verify(this.serverSecurityContextRepository, never()).save(any(), any());
+		verify(this.securityContextRepository, never()).save(any(), any());
 		verifyZeroInteractions(this.authenticationManager, this.successHandler,
 			this.failureHandler);
 	}
@@ -185,7 +185,7 @@ public class AuthenticationWebFilterTests {
 		when(this.authenticationConverter.apply(any())).thenReturn(authentication);
 		when(this.authenticationManager.authenticate(any())).thenReturn(authentication);
 		when(this.successHandler.onAuthenticationSuccess(any(), any())).thenReturn(Mono.empty());
-		when(this.serverSecurityContextRepository.save(any(),any())).thenAnswer( a -> Mono.just(a.getArguments()[0]));
+		when(this.securityContextRepository.save(any(),any())).thenAnswer( a -> Mono.just(a.getArguments()[0]));
 
 		WebTestClient client = WebTestClientBuilder
 			.bindToWebFilters(this.filter)
@@ -200,7 +200,7 @@ public class AuthenticationWebFilterTests {
 
 		verify(this.successHandler).onAuthenticationSuccess(any(),
 			eq(authentication.block()));
-		verify(this.serverSecurityContextRepository).save(any(), any());
+		verify(this.securityContextRepository).save(any(), any());
 		verifyZeroInteractions(this.failureHandler);
 	}
 
@@ -245,7 +245,7 @@ public class AuthenticationWebFilterTests {
 			.expectBody().isEmpty();
 
 		verify(this.failureHandler).onAuthenticationFailure(any(),any());
-		verify(this.serverSecurityContextRepository, never()).save(any(), any());
+		verify(this.securityContextRepository, never()).save(any(), any());
 		verifyZeroInteractions(this.successHandler);
 	}
 
@@ -266,7 +266,7 @@ public class AuthenticationWebFilterTests {
 			.expectStatus().is5xxServerError()
 			.expectBody().isEmpty();
 
-		verify(this.serverSecurityContextRepository, never()).save(any(), any());
+		verify(this.securityContextRepository, never()).save(any(), any());
 		verifyZeroInteractions(this.successHandler, this.failureHandler);
 	}
 
