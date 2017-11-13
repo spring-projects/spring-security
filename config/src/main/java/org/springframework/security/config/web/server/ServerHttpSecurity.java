@@ -109,7 +109,7 @@ public class ServerHttpSecurity {
 
 	private FormLoginSpec formLogin;
 
-	private LogoutBuilder logout = new LogoutBuilder();
+	private LogoutSpec logout = new LogoutSpec();
 
 	private ReactiveAuthenticationManager authenticationManager;
 
@@ -196,9 +196,9 @@ public class ServerHttpSecurity {
 		return this.authorizeExchange;
 	}
 
-	public LogoutBuilder logout() {
+	public LogoutSpec logout() {
 		if (this.logout == null) {
-			this.logout = new LogoutBuilder();
+			this.logout = new LogoutSpec();
 		}
 		return this.logout;
 	}
@@ -732,26 +732,26 @@ public class ServerHttpSecurity {
 	 * @author Shazin Sadakath
 	 * @since 5.0
 	 */
-	public final class LogoutBuilder {
+	public final class LogoutSpec {
 		private LogoutWebFilter logoutWebFilter = new LogoutWebFilter();
 
-		public LogoutBuilder logoutHandler(ServerLogoutHandler serverLogoutHandler) {
+		public LogoutSpec logoutHandler(ServerLogoutHandler serverLogoutHandler) {
 			this.logoutWebFilter.setServerLogoutHandler(serverLogoutHandler);
 			return this;
 		}
 
-		public LogoutBuilder logoutUrl(String logoutUrl) {
+		public LogoutSpec logoutUrl(String logoutUrl) {
 			Assert.notNull(logoutUrl, "logoutUrl must not be null");
 			ServerWebExchangeMatcher requiresLogout = ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, logoutUrl);
 			return requiresLogout(requiresLogout);
 		}
 
-		public LogoutBuilder requiresLogout(ServerWebExchangeMatcher requiresLogout) {
+		public LogoutSpec requiresLogout(ServerWebExchangeMatcher requiresLogout) {
 			this.logoutWebFilter.setRequiresLogout(requiresLogout);
 			return this;
 		}
 
-		public LogoutBuilder logoutSuccessHandler(ServerLogoutSuccessHandler handler) {
+		public LogoutSpec logoutSuccessHandler(ServerLogoutSuccessHandler handler) {
 			this.logoutWebFilter.setServerLogoutSuccessHandler(handler);
 			return this;
 		}
@@ -769,7 +769,7 @@ public class ServerHttpSecurity {
 			http.addFilterAt(this.logoutWebFilter, SecurityWebFiltersOrder.LOGOUT);
 		}
 
-		private LogoutBuilder() {}
+		private LogoutSpec() {}
 	}
 
 	private static class OrderedWebFilter implements WebFilter, Ordered {

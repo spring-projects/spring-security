@@ -29,7 +29,7 @@ import org.springframework.security.test.web.reactive.server.WebTestClientBuilde
  * @author Shazin Sadakath
  * @since 5.0
  */
-public class LogoutBuilderTests {
+public class LogoutSpecTests {
 
 	private ServerHttpSecurity http = ServerHttpSecurityConfigurationBuilder.httpWithDefaultAuthentication();
 
