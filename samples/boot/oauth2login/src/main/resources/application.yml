@@ -16,19 +16,15 @@ spring:
       client:
         registration:
           google:
-            provider: google
             client-id: your-app-client-id
             client-secret: your-app-client-secret
           github:
-            provider: github
             client-id: your-app-client-id
             client-secret: your-app-client-secret
           facebook:
-            provider: facebook
             client-id: your-app-client-id
             client-secret: your-app-client-secret
           okta:
-            provider: okta
             client-id: your-app-client-id
             client-secret: your-app-client-secret
         provider:
