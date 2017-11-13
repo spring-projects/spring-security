@@ -95,7 +95,7 @@ import static org.springframework.security.web.server.DelegatingServerAuthentica
 public class ServerHttpSecurity {
 	private ServerWebExchangeMatcher securityMatcher = ServerWebExchangeMatchers.anyExchange();
 
-	private AuthorizeExchangeBuilder authorizeExchangeBuilder;
+	private AuthorizeExchangeSpec authorizeExchange;
 
 	private HeaderBuilder headers = new HeaderBuilder();
 
@@ -189,11 +189,11 @@ public class ServerHttpSecurity {
 		return this.exceptionHandling;
 	}
 
-	public AuthorizeExchangeBuilder authorizeExchange() {
-		if(this.authorizeExchangeBuilder == null) {
-			this.authorizeExchangeBuilder = new AuthorizeExchangeBuilder();
+	public AuthorizeExchangeSpec authorizeExchange() {
+		if(this.authorizeExchange == null) {
+			this.authorizeExchange = new AuthorizeExchangeSpec();
 		}
-		return this.authorizeExchangeBuilder;
+		return this.authorizeExchange;
 	}
 
 	public LogoutBuilder logout() {
@@ -250,7 +250,7 @@ public class ServerHttpSecurity {
 		}
 		this.requestCache.configure(this);
 		this.addFilterAt(new SecurityContextServerWebExchangeWebFilter(), SecurityWebFiltersOrder.SECURITY_CONTEXT_SERVER_WEB_EXCHANGE);
-		if(this.authorizeExchangeBuilder != null) {
+		if(this.authorizeExchange != null) {
 			ServerAuthenticationEntryPoint serverAuthenticationEntryPoint = getServerAuthenticationEntryPoint();
 			ExceptionTranslationWebFilter exceptionTranslationWebFilter = new ExceptionTranslationWebFilter();
 			if(serverAuthenticationEntryPoint != null) {
@@ -258,7 +258,7 @@ public class ServerHttpSecurity {
 					serverAuthenticationEntryPoint);
 			}
 			this.addFilterAt(exceptionTranslationWebFilter, SecurityWebFiltersOrder.EXCEPTION_TRANSLATION);
-			this.authorizeExchangeBuilder.configure(this);
+			this.authorizeExchange.configure(this);
 		}
 		AnnotationAwareOrderComparator.sort(this.webFilters);
 		List<WebFilter> sortedWebFilters = new ArrayList<>();
@@ -317,7 +317,8 @@ public class ServerHttpSecurity {
 	 * @author Rob Winch
 	 * @since 5.0
 	 */
-	public class AuthorizeExchangeBuilder extends AbstractServerWebExchangeMatcherRegistry<AuthorizeExchangeBuilder.Access> {
+	public class AuthorizeExchangeSpec
+		extends AbstractServerWebExchangeMatcherRegistry<AuthorizeExchangeSpec.Access> {
 		private DelegatingReactiveAuthorizationManager.Builder managerBldr = DelegatingReactiveAuthorizationManager.builder();
 		private ServerWebExchangeMatcher matcher;
 		private boolean anyExchangeRegistered;
@@ -355,32 +356,32 @@ public class ServerHttpSecurity {
 
 		public final class Access {
 
-			public AuthorizeExchangeBuilder permitAll() {
+			public AuthorizeExchangeSpec permitAll() {
 				return access( (a,e) -> Mono.just(new AuthorizationDecision(true)));
 			}
 
-			public AuthorizeExchangeBuilder denyAll() {
+			public AuthorizeExchangeSpec denyAll() {
 				return access( (a,e) -> Mono.just(new AuthorizationDecision(false)));
 			}
 
-			public AuthorizeExchangeBuilder hasRole(String role) {
+			public AuthorizeExchangeSpec hasRole(String role) {
 				return access(AuthorityReactiveAuthorizationManager.hasRole(role));
 			}
 
-			public AuthorizeExchangeBuilder hasAuthority(String authority) {
+			public AuthorizeExchangeSpec hasAuthority(String authority) {
 				return access(AuthorityReactiveAuthorizationManager.hasAuthority(authority));
 			}
 
-			public AuthorizeExchangeBuilder authenticated() {
+			public AuthorizeExchangeSpec authenticated() {
 				return access(AuthenticatedReactiveAuthorizationManager.authenticated());
 			}
 
-			public AuthorizeExchangeBuilder access(ReactiveAuthorizationManager<AuthorizationContext> manager) {
-				AuthorizeExchangeBuilder.this.managerBldr
+			public AuthorizeExchangeSpec access(ReactiveAuthorizationManager<AuthorizationContext> manager) {
+				AuthorizeExchangeSpec.this.managerBldr
 					.add(new ServerWebExchangeMatcherEntry<>(
-						AuthorizeExchangeBuilder.this.matcher, manager));
-				AuthorizeExchangeBuilder.this.matcher = null;
-				return AuthorizeExchangeBuilder.this;
+						AuthorizeExchangeSpec.this.matcher, manager));
+				AuthorizeExchangeSpec.this.matcher = null;
+				return AuthorizeExchangeSpec.this;
 			}
 		}
 	}

@@ -26,7 +26,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
  * @author Rob Winch
  * @since 5.0
  */
-public class AuthorizeExchangeBuilderTests {
+public class AuthorizeExchangeSpecTests {
 	ServerHttpSecurity http = ServerHttpSecurityConfigurationBuilder.httpWithDefaultAuthentication();
 
 	@Test
