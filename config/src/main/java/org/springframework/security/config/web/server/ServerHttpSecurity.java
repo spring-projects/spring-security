@@ -103,7 +103,7 @@ public class ServerHttpSecurity {
 
 	private ExceptionHandlingSpec exceptionHandling = new ExceptionHandlingSpec();
 
-	private HttpBasicBuilder httpBasic;
+	private HttpBasicSpec httpBasic;
 
 	private final RequestCacheBuilder requestCache = new RequestCacheBuilder();
 
@@ -161,9 +161,9 @@ public class ServerHttpSecurity {
 		return this.csrf;
 	}
 
-	public HttpBasicBuilder httpBasic() {
+	public HttpBasicSpec httpBasic() {
 		if(this.httpBasic == null) {
-			this.httpBasic = new HttpBasicBuilder();
+			this.httpBasic = new HttpBasicSpec();
 		}
 		return this.httpBasic;
 	}
@@ -477,19 +477,19 @@ public class ServerHttpSecurity {
 	 * @author Rob Winch
 	 * @since 5.0
 	 */
-	public class HttpBasicBuilder {
+	public class HttpBasicSpec {
 		private ReactiveAuthenticationManager authenticationManager;
 
 		private ServerSecurityContextRepository serverSecurityContextRepository = NoOpServerSecurityContextRepository.getInstance();
 
 		private ServerAuthenticationEntryPoint entryPoint = new HttpBasicServerAuthenticationEntryPoint();
 
-		public HttpBasicBuilder authenticationManager(ReactiveAuthenticationManager authenticationManager) {
+		public HttpBasicSpec authenticationManager(ReactiveAuthenticationManager authenticationManager) {
 			this.authenticationManager = authenticationManager;
 			return this;
 		}
 
-		public HttpBasicBuilder securityContextRepository(ServerSecurityContextRepository serverSecurityContextRepository) {
+		public HttpBasicSpec securityContextRepository(ServerSecurityContextRepository serverSecurityContextRepository) {
 			this.serverSecurityContextRepository = serverSecurityContextRepository;
 			return this;
 		}
@@ -521,7 +521,7 @@ public class ServerHttpSecurity {
 			http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.HTTP_BASIC);
 		}
 
-		private HttpBasicBuilder() {}
+		private HttpBasicSpec() {}
 	}
 
 	/**
