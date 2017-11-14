@@ -39,8 +39,8 @@ public class ServerFormLoginAuthenticationConverter implements Function<ServerWe
 	private String passwordParameter = "password";
 
 	@Override
-	public Mono<Authentication> apply(ServerWebExchange serverWebExchange) {
-		return serverWebExchange.getFormData()
+	public Mono<Authentication> apply(ServerWebExchange exchange) {
+		return exchange.getFormData()
 			.map( data -> createAuthentication(data));
 	}
 
