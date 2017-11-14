@@ -736,8 +736,8 @@ public class ServerHttpSecurity {
 	public final class LogoutSpec {
 		private LogoutWebFilter logoutWebFilter = new LogoutWebFilter();
 
-		public LogoutSpec logoutHandler(ServerLogoutHandler serverLogoutHandler) {
-			this.logoutWebFilter.setServerLogoutHandler(serverLogoutHandler);
+		public LogoutSpec logoutHandler(ServerLogoutHandler logoutHandler) {
+			this.logoutWebFilter.setLogoutHandler(logoutHandler);
 			return this;
 		}
 

@@ -42,7 +42,7 @@ public class LogoutWebFilter implements WebFilter {
 	private AnonymousAuthenticationToken anonymousAuthenticationToken = new AnonymousAuthenticationToken("key", "anonymous",
 		AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
 
-	private ServerLogoutHandler serverLogoutHandler = new SecurityContextServerLogoutHandler();
+	private ServerLogoutHandler logoutHandler = new SecurityContextServerLogoutHandler();
 
 	private ServerLogoutSuccessHandler serverLogoutSuccessHandler = new RedirectServerLogoutSuccessHandler();
 
@@ -69,7 +69,7 @@ public class LogoutWebFilter implements WebFilter {
 	}
 
 	private Mono<Void> logout(WebFilterExchange webFilterExchange, Authentication authentication) {
-		return this.serverLogoutHandler.logout(webFilterExchange, authentication)
+		return this.logoutHandler.logout(webFilterExchange, authentication)
 			.then(this.serverLogoutSuccessHandler.onLogoutSuccess(webFilterExchange, authentication))
 			.subscriberContext(ReactiveSecurityContextHolder.clearContext());
 	}
@@ -84,9 +84,9 @@ public class LogoutWebFilter implements WebFilter {
 		this.serverLogoutSuccessHandler = serverLogoutSuccessHandler;
 	}
 
-	public void setServerLogoutHandler(ServerLogoutHandler serverLogoutHandler) {
-		Assert.notNull(serverLogoutHandler, "logoutHandler must not be null");
-		this.serverLogoutHandler = serverLogoutHandler;
+	public void setLogoutHandler(ServerLogoutHandler logoutHandler) {
+		Assert.notNull(logoutHandler, "logoutHandler must not be null");
+		this.logoutHandler = logoutHandler;
 	}
 
 	public void setRequiresLogout(ServerWebExchangeMatcher serverWebExchangeMatcher) {
