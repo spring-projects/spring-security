@@ -393,9 +393,9 @@ public class ServerHttpSecurity {
 	public class CsrfSpec {
 		private CsrfWebFilter filter = new CsrfWebFilter();
 
-		public CsrfSpec serverAccessDeniedHandler(
-			ServerAccessDeniedHandler serverAccessDeniedHandler) {
-			this.filter.setServerAccessDeniedHandler(serverAccessDeniedHandler);
+		public CsrfSpec accessDeniedHandler(
+			ServerAccessDeniedHandler accessDeniedHandler) {
+			this.filter.setAccessDeniedHandler(accessDeniedHandler);
 			return this;
 		}
 

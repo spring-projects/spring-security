@@ -67,7 +67,7 @@ public class ExceptionTranslationWebFilterTests {
 		when(this.entryPoint.commence(any(), any())).thenReturn(this.entryPointPublisher.mono());
 
 		this.filter.setAuthenticationEntryPoint(this.entryPoint);
-		this.filter.setServerAccessDeniedHandler(this.deniedHandler);
+		this.filter.setAccessDeniedHandler(this.deniedHandler);
 	}
 
 	@Test
@@ -150,7 +150,7 @@ public class ExceptionTranslationWebFilterTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void setAccessDeniedHandlerWhenNullThenException() {
-		this.filter.setServerAccessDeniedHandler(null);
+		this.filter.setAccessDeniedHandler(null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)

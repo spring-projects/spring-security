@@ -57,12 +57,12 @@ public class CsrfWebFilter implements WebFilter {
 
 	private ServerCsrfTokenRepository serverCsrfTokenRepository = new WebSessionServerCsrfTokenRepository();
 
-	private ServerAccessDeniedHandler serverAccessDeniedHandler = new HttpStatusServerAccessDeniedHandler(HttpStatus.FORBIDDEN);
+	private ServerAccessDeniedHandler accessDeniedHandler = new HttpStatusServerAccessDeniedHandler(HttpStatus.FORBIDDEN);
 
-	public void setServerAccessDeniedHandler(
-		ServerAccessDeniedHandler serverAccessDeniedHandler) {
-		Assert.notNull(serverAccessDeniedHandler, "serverAccessDeniedHandler");
-		this.serverAccessDeniedHandler = serverAccessDeniedHandler;
+	public void setAccessDeniedHandler(
+		ServerAccessDeniedHandler accessDeniedHandler) {
+		Assert.notNull(accessDeniedHandler, "accessDeniedHandler");
+		this.accessDeniedHandler = accessDeniedHandler;
 	}
 
 	public void setServerCsrfTokenRepository(
@@ -85,7 +85,8 @@ public class CsrfWebFilter implements WebFilter {
 			.flatMap(m -> validateToken(exchange))
 			.flatMap(m -> continueFilterChain(exchange, chain))
 			.switchIfEmpty(continueFilterChain(exchange, chain).then(Mono.empty()))
-			.onErrorResume(CsrfException.class, e -> this.serverAccessDeniedHandler.handle(exchange, e));
+			.onErrorResume(CsrfException.class, e -> this.accessDeniedHandler
+				.handle(exchange, e));
 	}
 
 	private Mono<Void> validateToken(ServerWebExchange exchange) {
