@@ -44,7 +44,7 @@ public class LogoutWebFilter implements WebFilter {
 
 	private ServerLogoutHandler logoutHandler = new SecurityContextServerLogoutHandler();
 
-	private ServerLogoutSuccessHandler serverLogoutSuccessHandler = new RedirectServerLogoutSuccessHandler();
+	private ServerLogoutSuccessHandler logoutSuccessHandler = new RedirectServerLogoutSuccessHandler();
 
 	private ServerWebExchangeMatcher requiresLogout = ServerWebExchangeMatchers
 		.pathMatchers(HttpMethod.POST, "/logout");
@@ -70,18 +70,19 @@ public class LogoutWebFilter implements WebFilter {
 
 	private Mono<Void> logout(WebFilterExchange webFilterExchange, Authentication authentication) {
 		return this.logoutHandler.logout(webFilterExchange, authentication)
-			.then(this.serverLogoutSuccessHandler.onLogoutSuccess(webFilterExchange, authentication))
+			.then(this.logoutSuccessHandler
+				.onLogoutSuccess(webFilterExchange, authentication))
 			.subscriberContext(ReactiveSecurityContextHolder.clearContext());
 	}
 
 	/**
 	 * Sets the {@link ServerLogoutSuccessHandler}. The default is {@link RedirectServerLogoutSuccessHandler}.
-	 * @param serverLogoutSuccessHandler the handler to use
+	 * @param logoutSuccessHandler the handler to use
 	 */
-	public void setServerLogoutSuccessHandler(
-		ServerLogoutSuccessHandler serverLogoutSuccessHandler) {
-		Assert.notNull(serverLogoutSuccessHandler, "serverLogoutSuccessHandler cannot be null");
-		this.serverLogoutSuccessHandler = serverLogoutSuccessHandler;
+	public void setLogoutSuccessHandler(
+		ServerLogoutSuccessHandler logoutSuccessHandler) {
+		Assert.notNull(logoutSuccessHandler, "logoutSuccessHandler cannot be null");
+		this.logoutSuccessHandler = logoutSuccessHandler;
 	}
 
 	public void setLogoutHandler(ServerLogoutHandler logoutHandler) {

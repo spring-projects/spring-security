@@ -753,7 +753,7 @@ public class ServerHttpSecurity {
 		}
 
 		public LogoutSpec logoutSuccessHandler(ServerLogoutSuccessHandler handler) {
-			this.logoutWebFilter.setServerLogoutSuccessHandler(handler);
+			this.logoutWebFilter.setLogoutSuccessHandler(handler);
 			return this;
 		}
 
