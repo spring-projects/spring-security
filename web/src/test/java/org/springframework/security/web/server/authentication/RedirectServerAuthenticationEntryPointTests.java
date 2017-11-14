@@ -44,7 +44,7 @@ public class RedirectServerAuthenticationEntryPointTests {
 	@Mock
 	private ServerWebExchange exchange;
 	@Mock
-	private ServerRedirectStrategy serverRedirectStrategy;
+	private ServerRedirectStrategy redirectStrategy;
 
 	private String location = "/login";
 
@@ -83,8 +83,8 @@ public class RedirectServerAuthenticationEntryPointTests {
 	@Test
 	public void commenceWhenCustomServerRedirectStrategyThenCustomServerRedirectStrategyUsed() {
 		PublisherProbe<Void> redirectResult = PublisherProbe.empty();
-		when(this.serverRedirectStrategy.sendRedirect(any(), any())).thenReturn(redirectResult.mono());
-		this.entryPoint.setServerRedirectStrategy(this.serverRedirectStrategy);
+		when(this.redirectStrategy.sendRedirect(any(), any())).thenReturn(redirectResult.mono());
+		this.entryPoint.setRedirectStrategy(this.redirectStrategy);
 		this.exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 
 		this.entryPoint.commence(this.exchange, this.exception).block();
@@ -94,6 +94,6 @@ public class RedirectServerAuthenticationEntryPointTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void setRedirectStrategyWhenNullThenException() {
-		this.entryPoint.setServerRedirectStrategy(null);
+		this.entryPoint.setRedirectStrategy(null);
 	}
 }

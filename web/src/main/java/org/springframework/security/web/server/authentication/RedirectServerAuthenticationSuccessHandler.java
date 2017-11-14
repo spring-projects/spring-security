@@ -36,7 +36,7 @@ public class RedirectServerAuthenticationSuccessHandler
 	implements ServerAuthenticationSuccessHandler {
 	private URI location = URI.create("/");
 
-	private ServerRedirectStrategy serverRedirectStrategy = new DefaultServerRedirectStrategy();
+	private ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 
 	private ServerRequestCache requestCache = new WebSessionServerRequestCache();
 
@@ -59,7 +59,7 @@ public class RedirectServerAuthenticationSuccessHandler
 			.map(r -> r.getPath().pathWithinApplication().value())
 			.map(URI::create)
 			.defaultIfEmpty(this.location)
-			.flatMap(location -> this.serverRedirectStrategy.sendRedirect(exchange, location));
+			.flatMap(location -> this.redirectStrategy.sendRedirect(exchange, location));
 	}
 
 	/**
@@ -73,10 +73,10 @@ public class RedirectServerAuthenticationSuccessHandler
 
 	/**
 	 * The RedirectStrategy to use.
-	 * @param serverRedirectStrategy the strategy to use. Default is DefaultRedirectStrategy.
+	 * @param redirectStrategy the strategy to use. Default is DefaultRedirectStrategy.
 	 */
-	public void setServerRedirectStrategy(ServerRedirectStrategy serverRedirectStrategy) {
-		Assert.notNull(serverRedirectStrategy, "redirectStrategy cannot be null");
-		this.serverRedirectStrategy = serverRedirectStrategy;
+	public void setRedirectStrategy(ServerRedirectStrategy redirectStrategy) {
+		Assert.notNull(redirectStrategy, "redirectStrategy cannot be null");
+		this.redirectStrategy = redirectStrategy;
 	}
 }

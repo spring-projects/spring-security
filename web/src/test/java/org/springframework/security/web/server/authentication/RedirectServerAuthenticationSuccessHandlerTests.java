@@ -50,7 +50,7 @@ public class RedirectServerAuthenticationSuccessHandlerTests {
 	@Mock
 	private WebFilterChain chain;
 	@Mock
-	private ServerRedirectStrategy serverRedirectStrategy;
+	private ServerRedirectStrategy redirectStrategy;
 	@Mock
 	private Authentication authentication;
 
@@ -90,19 +90,19 @@ public class RedirectServerAuthenticationSuccessHandlerTests {
 	@Test
 	public void successWhenCustomLocationThenCustomLocationUsed() {
 		PublisherProbe<Void> redirectResult = PublisherProbe.empty();
-		when(this.serverRedirectStrategy.sendRedirect(any(), any())).thenReturn(redirectResult.mono());
-		this.handler.setServerRedirectStrategy(this.serverRedirectStrategy);
+		when(this.redirectStrategy.sendRedirect(any(), any())).thenReturn(redirectResult.mono());
+		this.handler.setRedirectStrategy(this.redirectStrategy);
 		this.exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 
 		this.handler.onAuthenticationSuccess(new WebFilterExchange(this.exchange,
 			this.chain), this.authentication).block();
 		redirectResult.assertWasSubscribed();
-		verify(this.serverRedirectStrategy).sendRedirect(any(), eq(this.location));
+		verify(this.redirectStrategy).sendRedirect(any(), eq(this.location));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void setRedirectStrategyWhenNullThenException() {
-		this.handler.setServerRedirectStrategy(null);
+		this.handler.setRedirectStrategy(null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)

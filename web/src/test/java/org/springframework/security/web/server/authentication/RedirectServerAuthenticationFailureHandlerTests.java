@@ -44,7 +44,7 @@ public class RedirectServerAuthenticationFailureHandlerTests {
 
 	private WebFilterExchange exchange;
 	@Mock
-	private ServerRedirectStrategy serverRedirectStrategy;
+	private ServerRedirectStrategy redirectStrategy;
 
 	private String location = "/login";
 
@@ -83,8 +83,8 @@ public class RedirectServerAuthenticationFailureHandlerTests {
 	@Test
 	public void commenceWhenCustomServerRedirectStrategyThenCustomServerRedirectStrategyUsed() {
 		PublisherProbe<Void> redirectResult = PublisherProbe.empty();
-		when(this.serverRedirectStrategy.sendRedirect(any(), any())).thenReturn(redirectResult.mono());
-		this.handler.setServerRedirectStrategy(this.serverRedirectStrategy);
+		when(this.redirectStrategy.sendRedirect(any(), any())).thenReturn(redirectResult.mono());
+		this.handler.setRedirectStrategy(this.redirectStrategy);
 		this.exchange = createExchange();
 
 		this.handler.onAuthenticationFailure(this.exchange, this.exception).block();
@@ -94,7 +94,7 @@ public class RedirectServerAuthenticationFailureHandlerTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void setRedirectStrategyWhenNullThenException() {
-		this.handler.setServerRedirectStrategy(null);
+		this.handler.setRedirectStrategy(null);
 	}
 
 	private WebFilterExchange createExchange() {

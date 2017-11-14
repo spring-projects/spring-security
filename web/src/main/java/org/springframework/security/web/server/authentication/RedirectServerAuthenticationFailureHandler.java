@@ -35,7 +35,7 @@ public class RedirectServerAuthenticationFailureHandler
 	implements ServerAuthenticationFailureHandler {
 	private final URI location;
 
-	private ServerRedirectStrategy serverRedirectStrategy = new DefaultServerRedirectStrategy();
+	private ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 
 	public RedirectServerAuthenticationFailureHandler(String location) {
 		Assert.notNull(location, "location cannot be null");
@@ -44,16 +44,16 @@ public class RedirectServerAuthenticationFailureHandler
 
 	/**
 	 * Sets the RedirectStrategy to use.
-	 * @param serverRedirectStrategy the strategy to use. Default is DefaultRedirectStrategy.
+	 * @param redirectStrategy the strategy to use. Default is DefaultRedirectStrategy.
 	 */
-	public void setServerRedirectStrategy(ServerRedirectStrategy serverRedirectStrategy) {
-		Assert.notNull(serverRedirectStrategy, "redirectStrategy cannot be null");
-		this.serverRedirectStrategy = serverRedirectStrategy;
+	public void setRedirectStrategy(ServerRedirectStrategy redirectStrategy) {
+		Assert.notNull(redirectStrategy, "redirectStrategy cannot be null");
+		this.redirectStrategy = redirectStrategy;
 	}
 
 	@Override
 	public Mono<Void> onAuthenticationFailure(
 		WebFilterExchange webFilterExchange, AuthenticationException exception) {
-		return this.serverRedirectStrategy.sendRedirect(webFilterExchange.getExchange(), this.location);
+		return this.redirectStrategy.sendRedirect(webFilterExchange.getExchange(), this.location);
 	}
 }

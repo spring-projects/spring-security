@@ -39,7 +39,7 @@ public class RedirectServerAuthenticationEntryPoint
 	implements ServerAuthenticationEntryPoint {
 	private final URI location;
 
-	private ServerRedirectStrategy serverRedirectStrategy = new DefaultServerRedirectStrategy();
+	private ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 
 	private ServerRequestCache requestCache = new WebSessionServerRequestCache();
 
@@ -56,15 +56,15 @@ public class RedirectServerAuthenticationEntryPoint
 	@Override
 	public Mono<Void> commence(ServerWebExchange exchange, AuthenticationException e) {
 		return this.requestCache.saveRequest(exchange)
-			.then(this.serverRedirectStrategy.sendRedirect(exchange, this.location));
+			.then(this.redirectStrategy.sendRedirect(exchange, this.location));
 	}
 
 	/**
 	 * Sets the RedirectStrategy to use.
-	 * @param serverRedirectStrategy the strategy to use. Default is DefaultRedirectStrategy.
+	 * @param redirectStrategy the strategy to use. Default is DefaultRedirectStrategy.
 	 */
-	public void setServerRedirectStrategy(ServerRedirectStrategy serverRedirectStrategy) {
-		Assert.notNull(serverRedirectStrategy, "redirectStrategy cannot be null");
-		this.serverRedirectStrategy = serverRedirectStrategy;
+	public void setRedirectStrategy(ServerRedirectStrategy redirectStrategy) {
+		Assert.notNull(redirectStrategy, "redirectStrategy cannot be null");
+		this.redirectStrategy = redirectStrategy;
 	}
 }
