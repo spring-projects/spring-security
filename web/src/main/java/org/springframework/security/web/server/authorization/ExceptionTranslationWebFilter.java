@@ -33,7 +33,7 @@ import org.springframework.web.server.WebFilterChain;
  * @since 5.0
  */
 public class ExceptionTranslationWebFilter implements WebFilter {
-	private ServerAuthenticationEntryPoint serverAuthenticationEntryPoint = new HttpBasicServerAuthenticationEntryPoint();
+	private ServerAuthenticationEntryPoint authenticationEntryPoint = new HttpBasicServerAuthenticationEntryPoint();
 
 	private ServerAccessDeniedHandler serverAccessDeniedHandler = new HttpStatusServerAccessDeniedHandler(HttpStatus.FORBIDDEN);
 
@@ -59,17 +59,17 @@ public class ExceptionTranslationWebFilter implements WebFilter {
 
 	/**
 	 * Sets the authentication entry point used when authentication is required
-	 * @param serverAuthenticationEntryPoint the authentication entry point to use. Default is
+	 * @param authenticationEntryPoint the authentication entry point to use. Default is
 	 * {@link HttpBasicServerAuthenticationEntryPoint}
 	 */
-	public void setServerAuthenticationEntryPoint(
-		ServerAuthenticationEntryPoint serverAuthenticationEntryPoint) {
-		Assert.notNull(serverAuthenticationEntryPoint, "authenticationEntryPoint cannot be null");
-		this.serverAuthenticationEntryPoint = serverAuthenticationEntryPoint;
+	public void setAuthenticationEntryPoint(
+		ServerAuthenticationEntryPoint authenticationEntryPoint) {
+		Assert.notNull(authenticationEntryPoint, "authenticationEntryPoint cannot be null");
+		this.authenticationEntryPoint = authenticationEntryPoint;
 	}
 
 	private <T> Mono<T> commenceAuthentication(ServerWebExchange exchange, AccessDeniedException denied) {
-		return this.serverAuthenticationEntryPoint.commence(exchange, new AuthenticationCredentialsNotFoundException("Not Authenticated", denied))
+		return this.authenticationEntryPoint.commence(exchange, new AuthenticationCredentialsNotFoundException("Not Authenticated", denied))
 			.then(Mono.empty());
 	}
 }

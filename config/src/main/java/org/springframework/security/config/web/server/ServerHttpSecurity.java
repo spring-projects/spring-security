@@ -115,7 +115,7 @@ public class ServerHttpSecurity {
 
 	private ServerSecurityContextRepository securityContextRepository = new WebSessionServerSecurityContextRepository();
 
-	private ServerAuthenticationEntryPoint serverAuthenticationEntryPoint;
+	private ServerAuthenticationEntryPoint authenticationEntryPoint;
 
 	private List<DelegateEntry> defaultEntryPoints = new ArrayList<>();
 
@@ -239,7 +239,7 @@ public class ServerHttpSecurity {
 			if(this.securityContextRepository != null) {
 				this.formLogin.securityContextRepository(this.securityContextRepository);
 			}
-			if(this.formLogin.serverAuthenticationEntryPoint == null) {
+			if(this.formLogin.authenticationEntryPoint == null) {
 				this.webFilters.add(new OrderedWebFilter(new LoginPageGeneratingWebFilter(), SecurityWebFiltersOrder.LOGIN_PAGE_GENERATING.getOrder()));
 				this.webFilters.add(new OrderedWebFilter(new LogoutPageGeneratingWebFilter(), SecurityWebFiltersOrder.LOGOUT_PAGE_GENERATING.getOrder()));
 			}
@@ -251,11 +251,11 @@ public class ServerHttpSecurity {
 		this.requestCache.configure(this);
 		this.addFilterAt(new SecurityContextServerWebExchangeWebFilter(), SecurityWebFiltersOrder.SECURITY_CONTEXT_SERVER_WEB_EXCHANGE);
 		if(this.authorizeExchange != null) {
-			ServerAuthenticationEntryPoint serverAuthenticationEntryPoint = getServerAuthenticationEntryPoint();
+			ServerAuthenticationEntryPoint authenticationEntryPoint = getAuthenticationEntryPoint();
 			ExceptionTranslationWebFilter exceptionTranslationWebFilter = new ExceptionTranslationWebFilter();
-			if(serverAuthenticationEntryPoint != null) {
-				exceptionTranslationWebFilter.setServerAuthenticationEntryPoint(
-					serverAuthenticationEntryPoint);
+			if(authenticationEntryPoint != null) {
+				exceptionTranslationWebFilter.setAuthenticationEntryPoint(
+					authenticationEntryPoint);
 			}
 			this.addFilterAt(exceptionTranslationWebFilter, SecurityWebFiltersOrder.EXCEPTION_TRANSLATION);
 			this.authorizeExchange.configure(this);
@@ -286,9 +286,9 @@ public class ServerHttpSecurity {
 		}
 	}
 
-	private ServerAuthenticationEntryPoint getServerAuthenticationEntryPoint() {
-		if(this.serverAuthenticationEntryPoint != null || this.defaultEntryPoints.isEmpty()) {
-			return this.serverAuthenticationEntryPoint;
+	private ServerAuthenticationEntryPoint getAuthenticationEntryPoint() {
+		if(this.authenticationEntryPoint != null || this.defaultEntryPoints.isEmpty()) {
+			return this.authenticationEntryPoint;
 		}
 		if(this.defaultEntryPoints.size() == 1) {
 			return this.defaultEntryPoints.get(0).getEntryPoint();
@@ -432,8 +432,9 @@ public class ServerHttpSecurity {
 	 * @since 5.0
 	 */
 	public class ExceptionHandlingSpec {
-		public ExceptionHandlingSpec serverAuthenticationEntryPoint(ServerAuthenticationEntryPoint authenticationEntryPoint) {
-			ServerHttpSecurity.this.serverAuthenticationEntryPoint = authenticationEntryPoint;
+
+		public ExceptionHandlingSpec authenticationEntryPoint(ServerAuthenticationEntryPoint authenticationEntryPoint) {
+			ServerHttpSecurity.this.authenticationEntryPoint = authenticationEntryPoint;
 			return this;
 		}
 
@@ -537,7 +538,7 @@ public class ServerHttpSecurity {
 
 		private ServerSecurityContextRepository securityContextRepository = new WebSessionServerSecurityContextRepository();
 
-		private ServerAuthenticationEntryPoint serverAuthenticationEntryPoint;
+		private ServerAuthenticationEntryPoint authenticationEntryPoint;
 
 		private ServerWebExchangeMatcher requiresAuthenticationMatcher;
 
@@ -559,14 +560,14 @@ public class ServerHttpSecurity {
 
 		public FormLoginSpec loginPage(String loginPage) {
 			this.defaultEntryPoint = new RedirectServerAuthenticationEntryPoint(loginPage);
-			this.serverAuthenticationEntryPoint = this.defaultEntryPoint;
+			this.authenticationEntryPoint = this.defaultEntryPoint;
 			this.requiresAuthenticationMatcher = ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, loginPage);
 			this.authenticationFailureHandler = new RedirectServerAuthenticationFailureHandler(loginPage + "?error");
 			return this;
 		}
 
-		public FormLoginSpec authenticationEntryPoint(ServerAuthenticationEntryPoint serverAuthenticationEntryPoint) {
-			this.serverAuthenticationEntryPoint = serverAuthenticationEntryPoint;
+		public FormLoginSpec authenticationEntryPoint(ServerAuthenticationEntryPoint authenticationEntryPoint) {
+			this.authenticationEntryPoint = authenticationEntryPoint;
 			return this;
 		}
 
@@ -595,7 +596,7 @@ public class ServerHttpSecurity {
 		}
 
 		protected void configure(ServerHttpSecurity http) {
-			if(this.serverAuthenticationEntryPoint == null) {
+			if(this.authenticationEntryPoint == null) {
 				loginPage("/login");
 			}
 			if(http.requestCache != null) {
@@ -608,7 +609,7 @@ public class ServerHttpSecurity {
 			MediaTypeServerWebExchangeMatcher htmlMatcher = new MediaTypeServerWebExchangeMatcher(
 				MediaType.TEXT_HTML);
 			htmlMatcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
-			ServerHttpSecurity.this.defaultEntryPoints.add(0, new DelegateEntry(htmlMatcher, this.serverAuthenticationEntryPoint));
+			ServerHttpSecurity.this.defaultEntryPoints.add(0, new DelegateEntry(htmlMatcher, this.authenticationEntryPoint));
 			AuthenticationWebFilter authenticationFilter = new AuthenticationWebFilter(
 				this.authenticationManager);
 			authenticationFilter.setRequiresAuthenticationMatcher(this.requiresAuthenticationMatcher);

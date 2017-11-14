@@ -39,7 +39,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ServerAuthenticationEntryPointFailureHandlerTests {
 	@Mock
-	private ServerAuthenticationEntryPoint serverAuthenticationEntryPoint;
+	private ServerAuthenticationEntryPoint authenticationEntryPoint;
 	@Mock
 	private ServerWebExchange exchange;
 	@Mock
@@ -53,15 +53,15 @@ public class ServerAuthenticationEntryPointFailureHandlerTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorWhenNullEntryPointThenException() {
-		this.serverAuthenticationEntryPoint = null;
-		new ServerAuthenticationEntryPointFailureHandler(this.serverAuthenticationEntryPoint);
+		this.authenticationEntryPoint = null;
+		new ServerAuthenticationEntryPointFailureHandler(this.authenticationEntryPoint);
 	}
 
 	@Test
 	public void onAuthenticationFailureWhenInvokedThenDelegatesToEntryPoint() {
 		Mono<Void> result = Mono.empty();
 		BadCredentialsException e = new BadCredentialsException("Failed");
-		when(this.serverAuthenticationEntryPoint.commence(this.exchange, e)).thenReturn(result);
+		when(this.authenticationEntryPoint.commence(this.exchange, e)).thenReturn(result);
 
 		assertThat(this.handler.onAuthenticationFailure(this.filterExchange, e)).isEqualTo(result);
 	}

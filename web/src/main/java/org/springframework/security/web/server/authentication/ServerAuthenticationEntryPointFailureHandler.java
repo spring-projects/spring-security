@@ -28,18 +28,18 @@ import reactor.core.publisher.Mono;
  */
 public class ServerAuthenticationEntryPointFailureHandler
 	implements ServerAuthenticationFailureHandler {
-	private final ServerAuthenticationEntryPoint serverAuthenticationEntryPoint;
+	private final ServerAuthenticationEntryPoint authenticationEntryPoint;
 
 	public ServerAuthenticationEntryPointFailureHandler(
-		ServerAuthenticationEntryPoint serverAuthenticationEntryPoint) {
-		Assert.notNull(serverAuthenticationEntryPoint, "authenticationEntryPoint cannot be null");
-		this.serverAuthenticationEntryPoint = serverAuthenticationEntryPoint;
+		ServerAuthenticationEntryPoint authenticationEntryPoint) {
+		Assert.notNull(authenticationEntryPoint, "authenticationEntryPoint cannot be null");
+		this.authenticationEntryPoint = authenticationEntryPoint;
 	}
 
 	@Override
 	public Mono<Void> onAuthenticationFailure(WebFilterExchange webFilterExchange,
 		AuthenticationException exception) {
-		return this.serverAuthenticationEntryPoint
+		return this.authenticationEntryPoint
 			.commence(webFilterExchange.getExchange(), exception);
 	}
 }
