@@ -86,7 +86,7 @@ public class CsrfWebFilterTests {
 
 	@Test
 	public void filterWhenPostAndEstablishedCsrfTokenAndRequestMissingTokenThenCsrfException() {
-		this.csrfFilter.setServerCsrfTokenRepository(this.repository);
+		this.csrfFilter.setCsrfTokenRepository(this.repository);
 		when(this.repository.loadToken(any()))
 			.thenReturn(Mono.just(this.token));
 		when(this.repository.generateToken(any()))
@@ -103,7 +103,7 @@ public class CsrfWebFilterTests {
 
 	@Test
 	public void filterWhenPostAndEstablishedCsrfTokenAndRequestParamInvalidTokenThenCsrfException() {
-		this.csrfFilter.setServerCsrfTokenRepository(this.repository);
+		this.csrfFilter.setCsrfTokenRepository(this.repository);
 		when(this.repository.loadToken(any()))
 			.thenReturn(Mono.just(this.token));
 		when(this.repository.generateToken(any()))
@@ -124,7 +124,7 @@ public class CsrfWebFilterTests {
 		PublisherProbe<Void> chainResult = PublisherProbe.empty();
 		when(this.chain.filter(any())).thenReturn(chainResult.mono());
 
-		this.csrfFilter.setServerCsrfTokenRepository(this.repository);
+		this.csrfFilter.setCsrfTokenRepository(this.repository);
 		when(this.repository.loadToken(any()))
 			.thenReturn(Mono.just(this.token));
 		when(this.repository.generateToken(any()))
@@ -143,7 +143,7 @@ public class CsrfWebFilterTests {
 
 	@Test
 	public void filterWhenPostAndEstablishedCsrfTokenAndHeaderInvalidTokenThenCsrfException() {
-		this.csrfFilter.setServerCsrfTokenRepository(this.repository);
+		this.csrfFilter.setCsrfTokenRepository(this.repository);
 		when(this.repository.loadToken(any()))
 			.thenReturn(Mono.just(this.token));
 		when(this.repository.generateToken(any()))
@@ -164,7 +164,7 @@ public class CsrfWebFilterTests {
 		PublisherProbe<Void> chainResult = PublisherProbe.empty();
 		when(this.chain.filter(any())).thenReturn(chainResult.mono());
 
-		this.csrfFilter.setServerCsrfTokenRepository(this.repository);
+		this.csrfFilter.setCsrfTokenRepository(this.repository);
 		when(this.repository.loadToken(any()))
 			.thenReturn(Mono.just(this.token));
 		when(this.repository.generateToken(any()))

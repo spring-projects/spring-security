@@ -55,7 +55,7 @@ public class CsrfWebFilter implements WebFilter {
 
 	private ServerWebExchangeMatcher requireCsrfProtectionMatcher = new DefaultRequireCsrfProtectionMatcher();
 
-	private ServerCsrfTokenRepository serverCsrfTokenRepository = new WebSessionServerCsrfTokenRepository();
+	private ServerCsrfTokenRepository csrfTokenRepository = new WebSessionServerCsrfTokenRepository();
 
 	private ServerAccessDeniedHandler accessDeniedHandler = new HttpStatusServerAccessDeniedHandler(HttpStatus.FORBIDDEN);
 
@@ -65,10 +65,10 @@ public class CsrfWebFilter implements WebFilter {
 		this.accessDeniedHandler = accessDeniedHandler;
 	}
 
-	public void setServerCsrfTokenRepository(
-		ServerCsrfTokenRepository serverCsrfTokenRepository) {
-		Assert.notNull(serverCsrfTokenRepository, "serverCsrfTokenRepository cannot be null");
-		this.serverCsrfTokenRepository = serverCsrfTokenRepository;
+	public void setCsrfTokenRepository(
+		ServerCsrfTokenRepository csrfTokenRepository) {
+		Assert.notNull(csrfTokenRepository, "csrfTokenRepository cannot be null");
+		this.csrfTokenRepository = csrfTokenRepository;
 	}
 
 	public void setRequireCsrfProtectionMatcher(
@@ -90,7 +90,7 @@ public class CsrfWebFilter implements WebFilter {
 	}
 
 	private Mono<Void> validateToken(ServerWebExchange exchange) {
-		return this.serverCsrfTokenRepository.loadToken(exchange)
+		return this.csrfTokenRepository.loadToken(exchange)
 			.switchIfEmpty(Mono.error(new CsrfException("CSRF Token has been associated to this client")))
 			.filterWhen(expected -> containsValidCsrfToken(exchange, expected))
 			.switchIfEmpty(Mono.error(new CsrfException("Invalid CSRF Token")))
@@ -113,13 +113,13 @@ public class CsrfWebFilter implements WebFilter {
 	}
 
 	private Mono<CsrfToken> csrfToken(ServerWebExchange exchange) {
-		return this.serverCsrfTokenRepository.loadToken(exchange)
+		return this.csrfTokenRepository.loadToken(exchange)
 			.switchIfEmpty(generateToken(exchange));
 	}
 
 	private Mono<CsrfToken> generateToken(ServerWebExchange exchange) {
-		return this.serverCsrfTokenRepository.generateToken(exchange)
-			.flatMap(token -> this.serverCsrfTokenRepository.saveToken(exchange, token));
+		return this.csrfTokenRepository.generateToken(exchange)
+			.flatMap(token -> this.csrfTokenRepository.saveToken(exchange, token));
 	}
 
 	private static class DefaultRequireCsrfProtectionMatcher implements ServerWebExchangeMatcher {

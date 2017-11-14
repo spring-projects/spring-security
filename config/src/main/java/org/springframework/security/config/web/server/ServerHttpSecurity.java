@@ -399,9 +399,9 @@ public class ServerHttpSecurity {
 			return this;
 		}
 
-		public CsrfSpec serverCsrfTokenRepository(
-			ServerCsrfTokenRepository serverCsrfTokenRepository) {
-			this.filter.setServerCsrfTokenRepository(serverCsrfTokenRepository);
+		public CsrfSpec csrfTokenRepository(
+			ServerCsrfTokenRepository csrfTokenRepository) {
+			this.filter.setCsrfTokenRepository(csrfTokenRepository);
 			return this;
 		}
 
