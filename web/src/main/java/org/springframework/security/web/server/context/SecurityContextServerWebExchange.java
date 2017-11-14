@@ -17,7 +17,6 @@ package org.springframework.security.web.server.context;
 
 import java.security.Principal;
 
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.ServerWebExchangeDecorator;

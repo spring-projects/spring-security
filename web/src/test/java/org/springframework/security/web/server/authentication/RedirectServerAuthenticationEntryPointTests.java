@@ -28,13 +28,10 @@ import org.springframework.security.authentication.AuthenticationCredentialsNotF
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
 import reactor.test.publisher.PublisherProbe;
-import reactor.test.publisher.TestPublisher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 /**

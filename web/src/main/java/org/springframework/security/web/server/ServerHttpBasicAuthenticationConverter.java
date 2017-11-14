@@ -18,7 +18,6 @@ package org.springframework.security.web.server;
 import java.util.Base64;
 import java.util.function.Function;
 
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

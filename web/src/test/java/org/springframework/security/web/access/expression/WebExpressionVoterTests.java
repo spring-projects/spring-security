@@ -28,8 +28,6 @@ import javax.servlet.ServletResponse;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.security.access.AccessDecisionVoter;

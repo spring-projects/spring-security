@@ -16,8 +16,6 @@
 
 package org.springframework.security.core.userdetails.jdbc;
 
-import java.util.Locale;
-
 import org.junit.Test;
 
 import org.springframework.context.MessageSource;
@@ -37,7 +35,7 @@ import static org.mockito.Mockito.verify;
  * Tests {@link JdbcDaoImpl}.
  *
  * @author Ben Alex
- * @author EddÃº MelÃ©ndez
+ * @author Eddú Meléndez
  */
 public class JdbcDaoImplTests {
 

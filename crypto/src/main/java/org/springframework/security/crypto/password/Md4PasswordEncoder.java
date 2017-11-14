@@ -20,7 +20,6 @@ import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.security.crypto.keygen.Base64StringKeyGenerator;
 import org.springframework.security.crypto.keygen.StringKeyGenerator;
 
-import java.security.MessageDigest;
 import java.util.Base64;
 
 /**

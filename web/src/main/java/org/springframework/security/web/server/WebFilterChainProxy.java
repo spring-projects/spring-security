@@ -15,11 +15,9 @@
  */
 package org.springframework.security.web.server;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;

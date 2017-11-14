@@ -19,7 +19,6 @@ package org.springframework.security.web.server.authentication;
 import org.springframework.security.core.AuthenticationException;
 import reactor.core.publisher.Mono;
 
-import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.WebFilterExchange;
 
 /**

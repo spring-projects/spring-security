@@ -16,8 +16,6 @@
 
 package org.springframework.security.crypto.password;
 
-import org.assertj.core.api.AbstractBooleanAssert;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 

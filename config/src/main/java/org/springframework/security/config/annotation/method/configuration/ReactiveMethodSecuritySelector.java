@@ -16,11 +16,9 @@
 
 package org.springframework.security.config.annotation.method.configuration;
 
-import org.springframework.cache.annotation.ProxyCachingConfiguration;
 import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.AdviceModeImportSelector;
 import org.springframework.context.annotation.AutoProxyRegistrar;
-import org.springframework.lang.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;

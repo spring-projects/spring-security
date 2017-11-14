@@ -18,11 +18,7 @@ package org.springframework.security.config.web.server;
 
 import org.junit.Test;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
-import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
-import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.config.annotation.web.reactive.ServerHttpSecurityConfigurationBuilder;
 import org.springframework.security.config.web.server.FormLoginTests.DefaultLoginPage;
 import org.springframework.security.config.web.server.FormLoginTests.HomePage;
@@ -30,7 +26,6 @@ import org.springframework.security.htmlunit.server.WebTestClientHtmlUnitDriverB
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.WebFilterChainProxy;
-import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.csrf.CsrfToken;
 import org.springframework.security.web.server.savedrequest.NoOpServerRequestCache;
 import org.springframework.stereotype.Controller;

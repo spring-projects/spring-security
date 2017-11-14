@@ -18,6 +18,11 @@
 		<!-- Annotations -->
 		<module name="MissingOverrideCheck"/>
 
+		<!-- Imports -->
+		<module name="UnusedImportsCheck">
+			<property name="processJavadoc" value="true" />
+		</module>
+
 		<!-- Regexp -->
 		<module name="RegexpSinglelineJava">
 			<property name="format" value="^\t* +\t*\S"/>

@@ -17,7 +17,6 @@ package org.springframework.security.oauth2.client.userinfo;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
@@ -35,7 +34,7 @@ import java.util.Set;
  * <p>
  * For standard <i>OAuth 2.0 Provider's</i>, the attribute name (from the <i>UserInfo Response</i>)
  * for the <i>&quot;user's name&quot;</i> is required and therefore must be supplied via
- * {@link ClientRegistration.ProviderDetails.UserInfoEndpoint#getUserNameAttributeName()}.
+ * {@link org.springframework.security.oauth2.client.registration.ClientRegistration.ProviderDetails.UserInfoEndpoint#getUserNameAttributeName()}.
  * <p>
  * <b>NOTE:</b> Attribute names are <b><i>not</i></b> standardized between providers and therefore will vary.
  * Please consult the provider's API documentation for the set of supported user attribute names.

@@ -15,8 +15,6 @@
  */
 package org.springframework.security.web.header.writers;
 
-import java.util.Arrays;
-
 import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Before;
