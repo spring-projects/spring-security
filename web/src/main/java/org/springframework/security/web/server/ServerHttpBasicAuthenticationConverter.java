@@ -36,8 +36,8 @@ public class ServerHttpBasicAuthenticationConverter implements Function<ServerWe
 	public static final String BASIC = "Basic ";
 
 	@Override
-	public Mono<Authentication> apply(ServerWebExchange serverWebExchange) {
-		ServerHttpRequest request = serverWebExchange.getRequest();
+	public Mono<Authentication> apply(ServerWebExchange webExchange) {
+		ServerHttpRequest request = webExchange.getRequest();
 
 		String authorization = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
 		if(authorization == null) {
