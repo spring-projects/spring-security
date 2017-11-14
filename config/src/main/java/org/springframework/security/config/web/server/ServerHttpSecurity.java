@@ -748,7 +748,7 @@ public class ServerHttpSecurity {
 		}
 
 		public LogoutSpec requiresLogout(ServerWebExchangeMatcher requiresLogout) {
-			this.logoutWebFilter.setRequiresLogout(requiresLogout);
+			this.logoutWebFilter.setRequiresLogoutMatcher(requiresLogout);
 			return this;
 		}
 

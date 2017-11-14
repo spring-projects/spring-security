@@ -90,8 +90,8 @@ public class LogoutWebFilter implements WebFilter {
 		this.logoutHandler = logoutHandler;
 	}
 
-	public void setRequiresLogout(ServerWebExchangeMatcher serverWebExchangeMatcher) {
-		Assert.notNull(serverWebExchangeMatcher, "serverWebExchangeMatcher must not be null");
-		this.requiresLogout = serverWebExchangeMatcher;
+	public void setRequiresLogoutMatcher(ServerWebExchangeMatcher requiresLogoutMatcher) {
+		Assert.notNull(requiresLogoutMatcher, "requiresLogoutMatcher must not be null");
+		this.requiresLogout = requiresLogoutMatcher;
 	}
 }
