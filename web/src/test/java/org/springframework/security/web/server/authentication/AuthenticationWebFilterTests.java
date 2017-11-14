@@ -72,7 +72,7 @@ public class AuthenticationWebFilterTests {
 		this.filter.setServerAuthenticationSuccessHandler(this.successHandler);
 		this.filter.setAuthenticationConverter(this.authenticationConverter);
 		this.filter.setSecurityContextRepository(this.securityContextRepository);
-		this.filter.setServerAuthenticationFailureHandler(this.failureHandler);
+		this.filter.setAuthenticationFailureHandler(this.failureHandler);
 	}
 
 	@Test

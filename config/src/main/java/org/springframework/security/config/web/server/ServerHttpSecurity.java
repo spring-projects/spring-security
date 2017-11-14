@@ -513,7 +513,7 @@ public class ServerHttpSecurity {
 			ServerHttpSecurity.this.defaultEntryPoints.add(new DelegateEntry(restMatcher, this.entryPoint));
 			AuthenticationWebFilter authenticationFilter = new AuthenticationWebFilter(
 				this.authenticationManager);
-			authenticationFilter.setServerAuthenticationFailureHandler(new ServerAuthenticationEntryPointFailureHandler(this.entryPoint));
+			authenticationFilter.setAuthenticationFailureHandler(new ServerAuthenticationEntryPointFailureHandler(this.entryPoint));
 			authenticationFilter.setAuthenticationConverter(new ServerHttpBasicAuthenticationConverter());
 			if(this.securityContextRepository != null) {
 				authenticationFilter.setSecurityContextRepository(this.securityContextRepository);
@@ -541,7 +541,7 @@ public class ServerHttpSecurity {
 
 		private ServerWebExchangeMatcher requiresAuthenticationMatcher;
 
-		private ServerAuthenticationFailureHandler serverAuthenticationFailureHandler;
+		private ServerAuthenticationFailureHandler authenticationFailureHandler;
 
 		private ServerAuthenticationSuccessHandler serverAuthenticationSuccessHandler = this.defaultSuccessHandler;
 
@@ -561,7 +561,7 @@ public class ServerHttpSecurity {
 			this.defaultEntryPoint = new RedirectServerAuthenticationEntryPoint(loginPage);
 			this.serverAuthenticationEntryPoint = this.defaultEntryPoint;
 			this.requiresAuthenticationMatcher = ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, loginPage);
-			this.serverAuthenticationFailureHandler = new RedirectServerAuthenticationFailureHandler(loginPage + "?error");
+			this.authenticationFailureHandler = new RedirectServerAuthenticationFailureHandler(loginPage + "?error");
 			return this;
 		}
 
@@ -575,8 +575,8 @@ public class ServerHttpSecurity {
 			return this;
 		}
 
-		public FormLoginSpec authenticationFailureHandler(ServerAuthenticationFailureHandler serverAuthenticationFailureHandler) {
-			this.serverAuthenticationFailureHandler = serverAuthenticationFailureHandler;
+		public FormLoginSpec authenticationFailureHandler(ServerAuthenticationFailureHandler authenticationFailureHandler) {
+			this.authenticationFailureHandler = authenticationFailureHandler;
 			return this;
 		}
 
@@ -612,7 +612,7 @@ public class ServerHttpSecurity {
 			AuthenticationWebFilter authenticationFilter = new AuthenticationWebFilter(
 				this.authenticationManager);
 			authenticationFilter.setRequiresAuthenticationMatcher(this.requiresAuthenticationMatcher);
-			authenticationFilter.setServerAuthenticationFailureHandler(this.serverAuthenticationFailureHandler);
+			authenticationFilter.setAuthenticationFailureHandler(this.authenticationFailureHandler);
 			authenticationFilter.setAuthenticationConverter(new ServerFormLoginAuthenticationConverter());
 			authenticationFilter.setServerAuthenticationSuccessHandler(this.serverAuthenticationSuccessHandler);
 			authenticationFilter.setSecurityContextRepository(this.securityContextRepository);

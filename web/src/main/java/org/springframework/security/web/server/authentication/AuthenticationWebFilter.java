@@ -47,7 +47,7 @@ public class AuthenticationWebFilter implements WebFilter {
 
 	private Function<ServerWebExchange,Mono<Authentication>> authenticationConverter = new ServerHttpBasicAuthenticationConverter();
 
-	private ServerAuthenticationFailureHandler serverAuthenticationFailureHandler = new ServerAuthenticationEntryPointFailureHandler(new HttpBasicServerAuthenticationEntryPoint());
+	private ServerAuthenticationFailureHandler authenticationFailureHandler = new ServerAuthenticationEntryPointFailureHandler(new HttpBasicServerAuthenticationEntryPoint());
 
 	private ServerSecurityContextRepository securityContextRepository = NoOpServerSecurityContextRepository.getInstance();
 
@@ -72,7 +72,7 @@ public class AuthenticationWebFilter implements WebFilter {
 		WebFilterExchange webFilterExchange = new WebFilterExchange(exchange, chain);
 		return this.authenticationManager.authenticate(token)
 			.flatMap(authentication -> onAuthenticationSuccess(authentication, webFilterExchange))
-			.onErrorResume(AuthenticationException.class, e -> this.serverAuthenticationFailureHandler
+			.onErrorResume(AuthenticationException.class, e -> this.authenticationFailureHandler
 				.onAuthenticationFailure(webFilterExchange, e));
 	}
 
@@ -99,10 +99,10 @@ public class AuthenticationWebFilter implements WebFilter {
 		this.authenticationConverter = authenticationConverter;
 	}
 
-	public void setServerAuthenticationFailureHandler(
-		ServerAuthenticationFailureHandler serverAuthenticationFailureHandler) {
-		Assert.notNull(serverAuthenticationFailureHandler, "authenticationFailureHandler cannot be null");
-		this.serverAuthenticationFailureHandler = serverAuthenticationFailureHandler;
+	public void setAuthenticationFailureHandler(
+		ServerAuthenticationFailureHandler authenticationFailureHandler) {
+		Assert.notNull(authenticationFailureHandler, "authenticationFailureHandler cannot be null");
+		this.authenticationFailureHandler = authenticationFailureHandler;
 	}
 
 	public void setRequiresAuthenticationMatcher(
