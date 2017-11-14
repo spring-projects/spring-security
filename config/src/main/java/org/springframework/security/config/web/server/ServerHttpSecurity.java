@@ -543,17 +543,17 @@ public class ServerHttpSecurity {
 
 		private ServerAuthenticationFailureHandler authenticationFailureHandler;
 
-		private ServerAuthenticationSuccessHandler serverAuthenticationSuccessHandler = this.defaultSuccessHandler;
+		private ServerAuthenticationSuccessHandler authenticationSuccessHandler = this.defaultSuccessHandler;
 
 		public FormLoginSpec authenticationManager(ReactiveAuthenticationManager authenticationManager) {
 			this.authenticationManager = authenticationManager;
 			return this;
 		}
 
-		public FormLoginSpec serverAuthenticationSuccessHandler(
-			ServerAuthenticationSuccessHandler serverAuthenticationSuccessHandler) {
-			Assert.notNull(serverAuthenticationSuccessHandler, "serverAuthenticationSuccessHandler cannot be null");
-			this.serverAuthenticationSuccessHandler = serverAuthenticationSuccessHandler;
+		public FormLoginSpec authenticationSuccessHandler(
+			ServerAuthenticationSuccessHandler authenticationSuccessHandler) {
+			Assert.notNull(authenticationSuccessHandler, "authenticationSuccessHandler cannot be null");
+			this.authenticationSuccessHandler = authenticationSuccessHandler;
 			return this;
 		}
 
@@ -614,7 +614,7 @@ public class ServerHttpSecurity {
 			authenticationFilter.setRequiresAuthenticationMatcher(this.requiresAuthenticationMatcher);
 			authenticationFilter.setAuthenticationFailureHandler(this.authenticationFailureHandler);
 			authenticationFilter.setAuthenticationConverter(new ServerFormLoginAuthenticationConverter());
-			authenticationFilter.setServerAuthenticationSuccessHandler(this.serverAuthenticationSuccessHandler);
+			authenticationFilter.setAuthenticationSuccessHandler(this.authenticationSuccessHandler);
 			authenticationFilter.setSecurityContextRepository(this.securityContextRepository);
 			http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.FORM_LOGIN);
 		}

@@ -69,7 +69,7 @@ public class AuthenticationWebFilterTests {
 	@Before
 	public void setup() {
 		this.filter = new AuthenticationWebFilter(this.authenticationManager);
-		this.filter.setServerAuthenticationSuccessHandler(this.successHandler);
+		this.filter.setAuthenticationSuccessHandler(this.successHandler);
 		this.filter.setAuthenticationConverter(this.authenticationConverter);
 		this.filter.setSecurityContextRepository(this.securityContextRepository);
 		this.filter.setAuthenticationFailureHandler(this.failureHandler);

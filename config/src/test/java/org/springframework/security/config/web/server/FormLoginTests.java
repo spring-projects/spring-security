@@ -124,7 +124,7 @@ public class FormLoginTests {
 				.anyExchange().authenticated()
 				.and()
 			.formLogin()
-				.serverAuthenticationSuccessHandler(new RedirectServerAuthenticationSuccessHandler("/custom"))
+				.authenticationSuccessHandler(new RedirectServerAuthenticationSuccessHandler("/custom"))
 				.and()
 			.build();
 
