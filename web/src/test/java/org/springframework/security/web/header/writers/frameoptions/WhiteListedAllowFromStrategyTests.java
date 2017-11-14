@@ -17,13 +17,11 @@ package org.springframework.security.web.header.writers.frameoptions;
 
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.security.web.header.writers.frameoptions.WhiteListedAllowFromStrategy;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.is;
 
 /**
  * Test for the {@code WhiteListedAllowFromStrategy}.

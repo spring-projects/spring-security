@@ -17,7 +17,6 @@ package org.springframework.security.web.server.util.matcher;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Predicate;
 
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;

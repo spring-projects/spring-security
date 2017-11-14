@@ -27,8 +27,6 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebSession;
 import reactor.core.publisher.Mono;
 
-import java.net.URI;
-
 /**
  * An implementation of {@link ServerRequestCache} that saves the
  * {@link ServerHttpRequest} in the {@link WebSession}.

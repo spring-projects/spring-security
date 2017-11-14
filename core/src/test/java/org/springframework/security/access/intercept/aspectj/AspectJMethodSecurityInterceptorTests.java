@@ -39,13 +39,11 @@ import org.springframework.security.access.intercept.RunAsUserToken;
 import org.springframework.security.access.method.MethodSecurityMetadataSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.ClassUtils;
 
 import java.lang.reflect.Method;
-import java.util.Collection;
 import java.util.List;
 
 /**

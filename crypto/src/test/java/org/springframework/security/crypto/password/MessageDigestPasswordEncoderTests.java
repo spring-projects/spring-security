@@ -18,10 +18,7 @@ package org.springframework.security.crypto.password;
 
 import org.junit.Test;
 
-import java.security.NoSuchAlgorithmException;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 
 /**
  * <p>
