@@ -87,11 +87,11 @@ public class HelloWebfluxMethodApplicationITests {
 	}
 
 	private Consumer<Map<String, Object>> robsCredentials() {
-		return basicAuthenticationCredentials("rob","rob");
+		return basicAuthenticationCredentials("rob", "rob");
 	}
 
 	private Consumer<Map<String, Object>> adminCredentials() {
-		return basicAuthenticationCredentials("admin","admin");
+		return basicAuthenticationCredentials("admin", "admin");
 	}
 
 	private String base64Encode(String value) {

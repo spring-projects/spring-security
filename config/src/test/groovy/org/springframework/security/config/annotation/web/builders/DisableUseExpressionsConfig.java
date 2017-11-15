@@ -26,7 +26,7 @@ public class DisableUseExpressionsConfig extends BaseWebConfig {
 		// This config is also on UrlAuthorizationConfigurer javadoc
 		http
 			.apply(new UrlAuthorizationConfigurer<HttpSecurity>(getApplicationContext())).getRegistry()
-				.antMatchers("/users**","/sessions/**").hasRole("USER")
+				.antMatchers("/users**", "/sessions/**").hasRole("USER")
 				.antMatchers("/signup").hasRole("ANONYMOUS")
 				.anyRequest().hasRole("USER");
 	}

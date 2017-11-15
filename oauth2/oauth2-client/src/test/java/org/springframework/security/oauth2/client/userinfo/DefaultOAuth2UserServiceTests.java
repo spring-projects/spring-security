@@ -121,7 +121,7 @@ public class DefaultOAuth2UserServiceTests {
 
 		assertThat(user.getAuthorities().size()).isEqualTo(1);
 		assertThat(user.getAuthorities().iterator().next()).isInstanceOf(OAuth2UserAuthority.class);
-		OAuth2UserAuthority userAuthority = (OAuth2UserAuthority)user.getAuthorities().iterator().next();
+		OAuth2UserAuthority userAuthority = (OAuth2UserAuthority) user.getAuthorities().iterator().next();
 		assertThat(userAuthority.getAuthority()).isEqualTo("ROLE_USER");
 		assertThat(userAuthority.getAttributes()).isEqualTo(user.getAttributes());
 	}

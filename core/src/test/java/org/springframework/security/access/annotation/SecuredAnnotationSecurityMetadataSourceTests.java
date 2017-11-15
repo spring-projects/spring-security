@@ -248,7 +248,7 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 	class CustomAnnotatedServiceImpl implements CustomAnnotatedService {
 	}
 
-	enum SecurityEnum implements ConfigAttribute,GrantedAuthority {
+	enum SecurityEnum implements ConfigAttribute, GrantedAuthority {
 		ADMIN, USER;
 
 		public String getAttribute() {

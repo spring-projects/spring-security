@@ -32,7 +32,7 @@ public interface ServerWebExchangeMatcher {
 
 	class MatchResult {
 		private final boolean match;
-		private final Map<String,Object> variables;
+		private final Map<String, Object> variables;
 
 		private MatchResult(boolean match, Map<String, Object> variables) {
 			this.match = match;
@@ -43,7 +43,7 @@ public interface ServerWebExchangeMatcher {
 			return match;
 		}
 
-		public Map<String,Object> getVariables() {
+		public Map<String, Object> getVariables() {
 			return variables;
 		}
 
@@ -51,7 +51,7 @@ public interface ServerWebExchangeMatcher {
 			return match(Collections.emptyMap());
 		}
 
-		public static Mono<MatchResult> match(Map<String,Object> variables) {
+		public static Mono<MatchResult> match(Map<String, Object> variables) {
 			return Mono.just(new MatchResult(true, variables));
 		}
 

@@ -79,7 +79,7 @@ public class WebSecurityConfigurerAdapterPowermockTests {
 		}
 	}
 
-	static class DefaultConfigurer extends AbstractHttpConfigurer<DefaultConfigurer,HttpSecurity> {
+	static class DefaultConfigurer extends AbstractHttpConfigurer<DefaultConfigurer, HttpSecurity> {
 		boolean init;
 		boolean configure;
 

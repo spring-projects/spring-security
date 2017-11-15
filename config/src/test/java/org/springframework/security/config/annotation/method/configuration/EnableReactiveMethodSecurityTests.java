@@ -47,8 +47,8 @@ public class EnableReactiveMethodSecurityTests {
 	ReactiveMessageService delegate;
 	TestPublisher<String> result = TestPublisher.create();
 
-	Context withAdmin = ReactiveSecurityContextHolder.withAuthentication(new TestingAuthenticationToken("admin","password","ROLE_USER", "ROLE_ADMIN"));
-	Context withUser = ReactiveSecurityContextHolder.withAuthentication(new TestingAuthenticationToken("user","password","ROLE_USER"));
+	Context withAdmin = ReactiveSecurityContextHolder.withAuthentication(new TestingAuthenticationToken("admin", "password", "ROLE_USER", "ROLE_ADMIN"));
+	Context withUser = ReactiveSecurityContextHolder.withAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
 
 	@After
 	public void cleanup() {

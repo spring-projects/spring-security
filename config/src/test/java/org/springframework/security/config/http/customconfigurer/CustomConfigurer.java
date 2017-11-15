@@ -26,7 +26,7 @@ import org.springframework.security.web.DefaultSecurityFilterChain;
  * @author Rob Winch
  *
  */
-public class CustomConfigurer extends SecurityConfigurerAdapter<DefaultSecurityFilterChain,HttpSecurity> {
+public class CustomConfigurer extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {
 
 	@Value("${permitAllPattern}")
 	private String permitAllPattern;

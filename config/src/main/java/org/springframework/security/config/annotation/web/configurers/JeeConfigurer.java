@@ -201,7 +201,7 @@ public final class JeeConfigurer<H extends HttpSecurityBuilder<H>> extends
 		// @formatter:off
 		http
 			.authenticationProvider(authenticationProvider)
-			.setSharedObject(AuthenticationEntryPoint.class,new Http403ForbiddenEntryPoint());
+			.setSharedObject(AuthenticationEntryPoint.class, new Http403ForbiddenEntryPoint());
 		// @formatter:on
 	}
 

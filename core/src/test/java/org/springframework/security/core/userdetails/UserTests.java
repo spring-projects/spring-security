@@ -150,7 +150,7 @@ public class UserTests {
 
 	@Test
 	public void withUserDetailsWhenAllEnabled() throws Exception {
-		User expected = new User("rob","pass", true, true, true, true, ROLE_12);
+		User expected = new User("rob", "pass", true, true, true, true, ROLE_12);
 
 		UserDetails actual = User.withUserDetails(expected).build();
 
@@ -166,7 +166,7 @@ public class UserTests {
 
 	@Test
 	public void withUserDetailsWhenAllDisabled() throws Exception {
-		User expected = new User("rob","pass", false, false, false, false, ROLE_12);
+		User expected = new User("rob", "pass", false, false, false, false, ROLE_12);
 
 		UserDetails actual = User.withUserDetails(expected).build();
 

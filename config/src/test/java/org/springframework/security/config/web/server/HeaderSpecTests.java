@@ -134,7 +134,7 @@ public class HeaderSpecTests {
 			.exchange()
 			.returnResult(String.class);
 
-		Map<String,List<String>> responseHeaders = response.getResponseHeaders();
+		Map<String, List<String>> responseHeaders = response.getResponseHeaders();
 		this.ignoredHeaderNames.stream().forEach(responseHeaders::remove);
 
 		assertThat(responseHeaders).describedAs(response.toString()).isEqualTo(

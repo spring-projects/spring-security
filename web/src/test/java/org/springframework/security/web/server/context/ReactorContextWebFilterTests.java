@@ -74,7 +74,7 @@ public class ReactorContextWebFilterTests {
 
 	@Test
 	public void filterWhenGetPrincipalMonoThenNoInteractions() {
-		this.handler = WebTestHandler.bindToWebFilters(this.filter, (e,c) -> {
+		this.handler = WebTestHandler.bindToWebFilters(this.filter, (e, c) -> {
 			ReactiveSecurityContextHolder.getContext();
 			return c.filter(e);
 		});
@@ -88,7 +88,7 @@ public class ReactorContextWebFilterTests {
 	public void filterWhenPrincipalAndGetPrincipalThenInteractAndUseOriginalPrincipal() {
 		SecurityContextImpl context = new SecurityContextImpl(this.principal);
 		when(this.repository.load(any())).thenReturn(Mono.just(context));
-		this.handler = WebTestHandler.bindToWebFilters(this.filter, (e,c) ->
+		this.handler = WebTestHandler.bindToWebFilters(this.filter, (e, c) ->
 			ReactiveSecurityContextHolder.getContext()
 				.map(SecurityContext::getAuthentication)
 				.doOnSuccess( p -> assertThat(p).isSameAs(this.principal))

@@ -49,7 +49,7 @@ public class LdapUtilsTests {
 
 		when(mockCtx.getNameInNamespace()).thenReturn("dc=springframework,dc=org");
 
-		assertThat(LdapUtils.getRelativeName("dc=springframework,dc=org",mockCtx)).isEqualTo("");
+		assertThat(LdapUtils.getRelativeName("dc=springframework,dc=org", mockCtx)).isEqualTo("");
 	}
 
 	@Test

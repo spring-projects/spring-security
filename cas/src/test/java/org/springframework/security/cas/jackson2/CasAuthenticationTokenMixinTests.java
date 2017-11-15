@@ -124,7 +124,7 @@ public class CasAuthenticationTokenMixinTests {
 	@Test
 	public void deserializeCasAuthenticationTestAfterEraseCredentialInvoked() throws Exception {
 		CasAuthenticationToken token = mapper.readValue(CAS_TOKEN_CLEARED_JSON, CasAuthenticationToken.class);
-		assertThat(((UserDetails)token.getPrincipal()).getPassword()).isNull();
+		assertThat(((UserDetails) token.getPrincipal()).getPassword()).isNull();
 	}
 
 	@Test

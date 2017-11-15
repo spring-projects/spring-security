@@ -68,8 +68,8 @@ public final class PathPatternParserServerWebExchangeMatcher implements ServerWe
 		if(!match) {
 			return MatchResult.notMatch();
 		}
-		Map<String,String> pathVariables = this.pattern.matchAndExtract(path).getUriVariables();
-		Map<String,Object> variables = new HashMap<>(pathVariables);
+		Map<String, String> pathVariables = this.pattern.matchAndExtract(path).getUriVariables();
+		Map<String, Object> variables = new HashMap<>(pathVariables);
 		return MatchResult.match(variables);
 	}
 

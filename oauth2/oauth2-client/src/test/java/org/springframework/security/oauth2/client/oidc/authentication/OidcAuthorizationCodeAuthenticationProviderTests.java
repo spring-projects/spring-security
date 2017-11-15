@@ -143,7 +143,7 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 		when(this.authorizationRequest.getScopes()).thenReturn(new LinkedHashSet<>(Collections.singleton("scope1")));
 
 		OAuth2LoginAuthenticationToken authentication =
-			(OAuth2LoginAuthenticationToken)this.authenticationProvider.authenticate(
+			(OAuth2LoginAuthenticationToken) this.authenticationProvider.authenticate(
 				new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
 
 		assertThat(authentication).isNull();
@@ -355,7 +355,7 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 		when(this.userService.loadUser(any())).thenReturn(principal);
 
 		OAuth2LoginAuthenticationToken authentication =
-			(OAuth2LoginAuthenticationToken)this.authenticationProvider.authenticate(
+			(OAuth2LoginAuthenticationToken) this.authenticationProvider.authenticate(
 				new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
 
 		assertThat(authentication.isAuthenticated()).isTrue();
@@ -389,7 +389,7 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 		this.authenticationProvider.setAuthoritiesMapper(authoritiesMapper);
 
 		OAuth2LoginAuthenticationToken authentication =
-			(OAuth2LoginAuthenticationToken)this.authenticationProvider.authenticate(
+			(OAuth2LoginAuthenticationToken) this.authenticationProvider.authenticate(
 				new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
 
 		assertThat(authentication.getAuthorities()).isEqualTo(mappedAuthorities);

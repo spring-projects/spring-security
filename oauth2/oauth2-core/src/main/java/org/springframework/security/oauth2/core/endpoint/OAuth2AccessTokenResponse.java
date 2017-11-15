@@ -33,7 +33,7 @@ import java.util.Set;
  */
 public final class OAuth2AccessTokenResponse {
 	private OAuth2AccessToken accessToken;
-	private Map<String,Object> additionalParameters;
+	private Map<String, Object> additionalParameters;
 
 	private OAuth2AccessTokenResponse() {
 	}
@@ -55,7 +55,7 @@ public final class OAuth2AccessTokenResponse {
 		private OAuth2AccessToken.TokenType tokenType;
 		private long expiresIn;
 		private Set<String> scopes;
-		private Map<String,Object> additionalParameters;
+		private Map<String, Object> additionalParameters;
 
 		private Builder(String tokenValue) {
 			this.tokenValue = tokenValue;
@@ -76,7 +76,7 @@ public final class OAuth2AccessTokenResponse {
 			return this;
 		}
 
-		public Builder additionalParameters(Map<String,Object> additionalParameters) {
+		public Builder additionalParameters(Map<String, Object> additionalParameters) {
 			this.additionalParameters = additionalParameters;
 			return this;
 		}

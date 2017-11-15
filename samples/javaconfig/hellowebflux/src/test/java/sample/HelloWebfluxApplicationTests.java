@@ -112,10 +112,10 @@ public class HelloWebfluxApplicationTests {
 	}
 
 	private Consumer<Map<String, Object>> userCredentials() {
-		return basicAuthenticationCredentials("user","user");
+		return basicAuthenticationCredentials("user", "user");
 	}
 
 	private Consumer<Map<String, Object>> invalidCredentials() {
-		return basicAuthenticationCredentials("user","INVALID");
+		return basicAuthenticationCredentials("user", "INVALID");
 	}
 }

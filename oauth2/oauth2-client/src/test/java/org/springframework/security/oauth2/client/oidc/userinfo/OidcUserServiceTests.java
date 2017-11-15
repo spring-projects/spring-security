@@ -159,7 +159,7 @@ public class OidcUserServiceTests {
 
 		assertThat(user.getAuthorities().size()).isEqualTo(1);
 		assertThat(user.getAuthorities().iterator().next()).isInstanceOf(OidcUserAuthority.class);
-		OidcUserAuthority userAuthority = (OidcUserAuthority)user.getAuthorities().iterator().next();
+		OidcUserAuthority userAuthority = (OidcUserAuthority) user.getAuthorities().iterator().next();
 		assertThat(userAuthority.getAuthority()).isEqualTo("ROLE_USER");
 		assertThat(userAuthority.getIdToken()).isEqualTo(user.getIdToken());
 		assertThat(userAuthority.getUserInfo()).isEqualTo(user.getUserInfo());

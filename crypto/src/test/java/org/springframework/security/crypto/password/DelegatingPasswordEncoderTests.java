@@ -55,7 +55,7 @@ public class DelegatingPasswordEncoderTests {
 
 	private String noopEncodedPassword = "{noop}" + this.encodedPassword;
 
-	private Map<String,PasswordEncoder> delegates;
+	private Map<String, PasswordEncoder> delegates;
 
 	private DelegatingPasswordEncoder passwordEncoder;
 

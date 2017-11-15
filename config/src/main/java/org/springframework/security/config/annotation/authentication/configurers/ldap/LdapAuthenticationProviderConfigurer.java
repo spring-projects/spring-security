@@ -64,7 +64,7 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	private String groupSearchFilter = "(uniqueMember={0})";
 	private String rolePrefix = "ROLE_";
 	private String userSearchBase = ""; // only for search
-	private String userSearchFilter = null;// "uid={0}"; // only for search
+	private String userSearchFilter = null; // "uid={0}"; // only for search
 	private String[] userDnPatterns;
 	private BaseLdapPathContextSource contextSource;
 	private ContextSourceBuilder contextSourceBuilder = new ContextSourceBuilder();

@@ -103,7 +103,7 @@ public class WithUserDetailsAuthenticationTests {
 			auth
 				.inMemoryAuthentication()
 					.withUser("user").password("password").roles("USER").and()
-					.withUser("admin").password("password").roles("USER","ADMIN");
+					.withUser("admin").password("password").roles("USER", "ADMIN");
 		}
 		// @formatter:on
 	}

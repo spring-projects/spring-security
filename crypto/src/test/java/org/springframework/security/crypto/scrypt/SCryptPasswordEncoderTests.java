@@ -65,7 +65,7 @@ public class SCryptPasswordEncoderTests {
 
 	@Test
 	public void samePasswordWithDifferentParams() {
-		SCryptPasswordEncoder oldEncoder = new SCryptPasswordEncoder(16384, 8, 1, 32,64);
+		SCryptPasswordEncoder oldEncoder = new SCryptPasswordEncoder(16384, 8, 1, 32, 64);
 		SCryptPasswordEncoder newEncoder = new SCryptPasswordEncoder();
 
 		String password = "secret";

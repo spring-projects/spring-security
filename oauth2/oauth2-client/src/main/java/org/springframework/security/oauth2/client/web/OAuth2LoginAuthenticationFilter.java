@@ -117,7 +117,7 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 		}
 		this.authorizationRequestRepository.removeAuthorizationRequest(request);
 
-		String registrationId = (String)authorizationRequest.getAdditionalParameters().get(OAuth2ParameterNames.REGISTRATION_ID);
+		String registrationId = (String) authorizationRequest.getAdditionalParameters().get(OAuth2ParameterNames.REGISTRATION_ID);
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(registrationId);
 
 		OAuth2LoginAuthenticationToken authenticationRequest = new OAuth2LoginAuthenticationToken(
@@ -125,7 +125,7 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 		authenticationRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));
 
 		OAuth2LoginAuthenticationToken authenticationResult =
-			(OAuth2LoginAuthenticationToken)this.getAuthenticationManager().authenticate(authenticationRequest);
+			(OAuth2LoginAuthenticationToken) this.getAuthenticationManager().authenticate(authenticationRequest);
 
 		OAuth2AuthenticationToken oauth2Authentication = new OAuth2AuthenticationToken(
 			authenticationResult.getPrincipal(),

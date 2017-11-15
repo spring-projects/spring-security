@@ -49,7 +49,7 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 	private String redirectUri;
 	private Set<String> scopes;
 	private String state;
-	private Map<String,Object> additionalParameters;
+	private Map<String, Object> additionalParameters;
 
 	private OAuth2AuthorizationRequest() {
 	}
@@ -102,7 +102,7 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 		private String redirectUri;
 		private Set<String> scopes;
 		private String state;
-		private Map<String,Object> additionalParameters;
+		private Map<String, Object> additionalParameters;
 
 		private Builder(AuthorizationGrantType authorizationGrantType) {
 			Assert.notNull(authorizationGrantType, "authorizationGrantType cannot be null");
@@ -147,7 +147,7 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 			return this;
 		}
 
-		public Builder additionalParameters(Map<String,Object> additionalParameters) {
+		public Builder additionalParameters(Map<String, Object> additionalParameters) {
 			this.additionalParameters = additionalParameters;
 			return this;
 		}

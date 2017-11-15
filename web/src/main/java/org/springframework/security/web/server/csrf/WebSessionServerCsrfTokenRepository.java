@@ -64,14 +64,14 @@ public class WebSessionServerCsrfTokenRepository
 			.flatMap( attrs -> save(attrs, token));
 	}
 
-	private Mono<CsrfToken> save(Map<String,Object> attributes, CsrfToken token) {
+	private Mono<CsrfToken> save(Map<String, Object> attributes, CsrfToken token) {
 		return Mono.defer(() -> {
 			putToken(attributes, token);
 			return Mono.justOrEmpty(token);
 		});
 	}
 
-	private void putToken(Map<String,Object> attributes, CsrfToken token) {
+	private void putToken(Map<String, Object> attributes, CsrfToken token) {
 		if(token == null) {
 			attributes.remove(this.sessionAttributeName);
 		} else {
@@ -118,7 +118,7 @@ public class WebSessionServerCsrfTokenRepository
 	}
 
 
-	private CsrfToken createCsrfToken(Map<String,Object> attributes) {
+	private CsrfToken createCsrfToken(Map<String, Object> attributes) {
 		return new LazyCsrfToken(attributes, createCsrfToken());
 	}
 
@@ -131,7 +131,7 @@ public class WebSessionServerCsrfTokenRepository
 	}
 
 	private class LazyCsrfToken implements CsrfToken {
-		private final Map<String,Object> attributes;
+		private final Map<String, Object> attributes;
 		private final CsrfToken delegate;
 
 		private LazyCsrfToken(Map<String, Object> attributes, CsrfToken delegate) {

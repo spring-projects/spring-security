@@ -39,7 +39,7 @@ public class ServerFormLoginAuthenticationConverterTests {
 	@Mock
 	private ServerWebExchange exchange;
 
-	private MultiValueMap<String,String> data = new LinkedMultiValueMap<>();
+	private MultiValueMap<String, String> data = new LinkedMultiValueMap<>();
 
 	private ServerFormLoginAuthenticationConverter converter = new ServerFormLoginAuthenticationConverter();
 

@@ -31,9 +31,9 @@ import reactor.core.publisher.Mono;
  * @since 5.0
  */
 public class MapReactiveUserDetailsService implements ReactiveUserDetailsService {
-	private final Map<String,UserDetails> users;
+	private final Map<String, UserDetails> users;
 
-	public MapReactiveUserDetailsService(Map<String,UserDetails> users) {
+	public MapReactiveUserDetailsService(Map<String, UserDetails> users) {
 		this.users = users;
 	}
 

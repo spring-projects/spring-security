@@ -58,7 +58,7 @@ public class ClientApplication {
 
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 
-		for (Map.Entry<String,ContactManager> entry : contactServices.entrySet()) {
+		for (Map.Entry<String, ContactManager> entry : contactServices.entrySet()) {
 			String beanName = entry.getKey();
 			ContactManager remoteContactManager = entry.getValue();
 			Object object = this.beanFactory.getBean("&" + beanName);

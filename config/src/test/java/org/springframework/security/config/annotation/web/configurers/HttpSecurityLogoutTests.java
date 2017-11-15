@@ -70,7 +70,7 @@ public class HttpSecurityLogoutTests {
 		loadConfig(ClearAuthenticationFalseConfig.class);
 
 		SecurityContext currentContext = SecurityContextHolder.createEmptyContext();
-		currentContext.setAuthentication(new TestingAuthenticationToken("user", "password","ROLE_USER"));
+		currentContext.setAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
 
 		request.getSession().setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, currentContext);
 		request.setMethod("POST");

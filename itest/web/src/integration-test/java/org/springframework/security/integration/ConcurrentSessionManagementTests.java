@@ -47,7 +47,7 @@ public class ConcurrentSessionManagementTests extends AbstractWebServerIntegrati
 		final MockHttpSession session1 = new MockHttpSession();
 		final MockHttpSession session2 = new MockHttpSession();
 
-		MockMvc mockMvc = createMockMvc("classpath:/spring/http-security-concurrency.xml","classpath:/spring/in-memory-provider.xml", "classpath:/spring/testapp-servlet.xml");
+		MockMvc mockMvc = createMockMvc("classpath:/spring/http-security-concurrency.xml", "classpath:/spring/in-memory-provider.xml", "classpath:/spring/testapp-servlet.xml");
 
 		mockMvc.perform(get("secure/index").session(session1))
 			.andExpect(status().is3xxRedirection());

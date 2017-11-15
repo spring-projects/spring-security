@@ -90,7 +90,7 @@ public class DigestAuthUtilsTests {
 	public void testSplitNormalOperation() {
 		String unsplit = "username=\"rod==\"";
 		assertThat(DigestAuthUtils.split(unsplit, "=")[0]).isEqualTo("username");
-		assertThat(DigestAuthUtils.split(unsplit, "=")[1]).isEqualTo("\"rod==\"");// should
+		assertThat(DigestAuthUtils.split(unsplit, "=")[1]).isEqualTo("\"rod==\""); // should
 																					// not
 																					// remove
 																					// quotes

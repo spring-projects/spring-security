@@ -75,7 +75,7 @@ public interface ClaimAccessor {
 			return null;
 		}
 		Map<String, Object> claimValues = new HashMap<>();
-		((Map<?, ?>)this.getClaims().get(claim)).forEach((k, v) -> claimValues.put(k.toString(), v));
+		((Map<?, ?>) this.getClaims().get(claim)).forEach((k, v) -> claimValues.put(k.toString(), v));
 		return claimValues;
 	}
 
@@ -84,7 +84,7 @@ public interface ClaimAccessor {
 			return null;
 		}
 		List<String> claimValues = new ArrayList<>();
-		((List<?>)this.getClaims().get(claim)).forEach(e -> claimValues.add(e.toString()));
+		((List<?>) this.getClaims().get(claim)).forEach(e -> claimValues.add(e.toString()));
 		return claimValues;
 	}
 }

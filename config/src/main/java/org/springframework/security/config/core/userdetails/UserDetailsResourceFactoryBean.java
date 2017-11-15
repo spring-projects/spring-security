@@ -57,7 +57,7 @@ public class UserDetailsResourceFactoryBean implements ResourceLoaderAware, Fact
 
 	@Override
 	public void setResourceLoader(ResourceLoader resourceLoader) {
-		Assert.notNull(resourceLoader,"resourceLoader cannot be null");
+		Assert.notNull(resourceLoader, "resourceLoader cannot be null");
 		this.resourceLoader = resourceLoader;
 	}
 

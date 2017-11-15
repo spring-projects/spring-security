@@ -60,7 +60,7 @@ public class SessionRegistryImpl implements SessionRegistry,
 		this.sessionIds = new ConcurrentHashMap<String, SessionInformation>();
 	}
 
-	public SessionRegistryImpl(ConcurrentMap<Object, Set<String>> principals,Map<String, SessionInformation> sessionIds) {
+	public SessionRegistryImpl(ConcurrentMap<Object, Set<String>> principals, Map<String, SessionInformation> sessionIds) {
 		this.principals=principals;
 		this.sessionIds=sessionIds;
 	}
