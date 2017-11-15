@@ -97,7 +97,8 @@ public class EnableWebFluxSecurityTests {
 			.build();
 
 		FluxExchangeResult<String> result = client.get()
-			.attributes(basicAuthenticationCredentials("user", "password")).exchange()
+			.attributes(basicAuthenticationCredentials("user", "password"))
+			.exchange()
 			.expectStatus()
 			.isOk()
 			.returnResult(String.class);
