@@ -4,7 +4,6 @@ asciidoctor {
 	baseDir = file('src/docs/asciidoc')
 	options = [
 	  eruby: 'erubis',
-	  eruby: 'erubis',
 	  attributes: [
 		  copycss : '',
 		  icons : 'font',
