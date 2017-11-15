@@ -27,6 +27,8 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebSession;
 import reactor.core.publisher.Mono;
 
+import java.net.URI;
+
 /**
  * An implementation of {@link ServerRequestCache} that saves the
  * {@link ServerHttpRequest} in the {@link WebSession}.
@@ -68,16 +70,18 @@ public class WebSessionServerRequestCache implements ServerRequestCache {
 	}
 
 	@Override
-	public Mono<ServerHttpRequest> getRequest(ServerWebExchange exchange) {
+	public Mono<URI> getRequest(ServerWebExchange exchange) {
 		return exchange.getSession()
 			.flatMap(session -> Mono.justOrEmpty(session.<String>getAttribute(this.sessionAttrName)))
-			.map(path -> exchange.getRequest().mutate().path(path).build());
+			.map(URI::create);
 	}
 
 	@Override
 	public Mono<ServerHttpRequest> getMatchingRequest(
 		ServerWebExchange exchange) {
 		return getRequest(exchange)
+			.map(URI::toASCIIString)
+			.map(path ->  exchange.getRequest().mutate().path(path).build())
 			.filter( request -> pathInApplication(request).equals(
 				pathInApplication(exchange.getRequest())));
 	}

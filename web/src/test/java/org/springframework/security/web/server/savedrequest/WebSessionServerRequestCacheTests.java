@@ -22,6 +22,8 @@ import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 
+import java.net.URI;
+
 import static org.assertj.core.api.Assertions.*;
 
 /**
@@ -36,9 +38,9 @@ public class WebSessionServerRequestCacheTests {
 		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/secured/"));
 		this.cache.saveRequest(exchange).block();
 
-		ServerHttpRequest saved = this.cache.getRequest(exchange).block();
+		URI saved = this.cache.getRequest(exchange).block();
 
-		assertThat(saved.getURI()).isEqualTo(exchange.getRequest().getURI());
+		assertThat(saved).isEqualTo(exchange.getRequest().getURI());
 	}
 
 	@Test
@@ -55,9 +57,9 @@ public class WebSessionServerRequestCacheTests {
 		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.post("/secured/"));
 		this.cache.saveRequest(exchange).block();
 
-		ServerHttpRequest saved = this.cache.getRequest(exchange).block();
+		URI saved = this.cache.getRequest(exchange).block();
 
-		assertThat(saved.getURI()).isEqualTo(exchange.getRequest().getURI());
+		assertThat(saved).isEqualTo(exchange.getRequest().getURI());
 	}
 
 	@Test

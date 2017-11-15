@@ -20,6 +20,8 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.net.URI;
+
 /**
  * @author Rob Winch
  * @since 5.0
@@ -31,7 +33,7 @@ public class NoOpServerRequestCache implements ServerRequestCache {
 	}
 
 	@Override
-	public Mono<ServerHttpRequest> getRequest(ServerWebExchange exchange) {
+	public Mono<URI> getRequest(ServerWebExchange exchange) {
 		return Mono.empty();
 	}
 

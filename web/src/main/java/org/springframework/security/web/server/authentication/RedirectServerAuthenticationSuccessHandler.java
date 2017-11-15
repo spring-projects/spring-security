@@ -56,8 +56,6 @@ public class RedirectServerAuthenticationSuccessHandler
 		Authentication authentication) {
 		ServerWebExchange exchange = webFilterExchange.getExchange();
 		return this.requestCache.getRequest(exchange)
-			.map(r -> r.getPath().pathWithinApplication().value())
-			.map(URI::create)
 			.defaultIfEmpty(this.location)
 			.flatMap(location -> this.redirectStrategy.sendRedirect(exchange, location));
 	}
