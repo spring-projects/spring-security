@@ -40,7 +40,7 @@ public class InMemoryClientRegistrationRepositoryTests {
 		.clientId("client-id")
 		.clientName("client-name")
 		.clientSecret("client-secret")
-		.redirectUri("{scheme}://{serverName}:{serverPort}{contextPath}/login/oauth2/code/{registrationId}")
+		.redirectUri("{baseUrl}/login/oauth2/code/{registrationId}")
 		.scope("user")
 		.tokenUri("https://example.com/oauth/access_token")
 		.build();
