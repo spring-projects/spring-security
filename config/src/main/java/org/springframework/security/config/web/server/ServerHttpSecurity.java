@@ -456,7 +456,9 @@ public class ServerHttpSecurity {
 		}
 
 		protected void configure(ServerHttpSecurity http) {
-			http.addFilterAt(new ServerRequestCacheWebFilter(), SecurityWebFiltersOrder.SERVER_REQUEST_CACHE);
+			ServerRequestCacheWebFilter filter = new ServerRequestCacheWebFilter();
+			filter.setRequestCache(this.requestCache);
+			http.addFilterAt(filter, SecurityWebFiltersOrder.SERVER_REQUEST_CACHE);
 		}
 
 		public ServerHttpSecurity and() {
