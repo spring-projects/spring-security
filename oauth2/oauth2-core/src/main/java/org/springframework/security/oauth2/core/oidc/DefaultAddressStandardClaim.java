@@ -123,12 +123,12 @@ public final class DefaultAddressStandardClaim implements AddressStandardClaim {
 		}
 
 		public Builder(Map<String, Object> addressFields) {
-			this.formatted((String)addressFields.get(FORMATTED_FIELD_NAME));
-			this.streetAddress((String)addressFields.get(STREET_ADDRESS_FIELD_NAME));
-			this.locality((String)addressFields.get(LOCALITY_FIELD_NAME));
-			this.region((String)addressFields.get(REGION_FIELD_NAME));
-			this.postalCode((String)addressFields.get(POSTAL_CODE_FIELD_NAME));
-			this.country((String)addressFields.get(COUNTRY_FIELD_NAME));
+			this.formatted((String) addressFields.get(FORMATTED_FIELD_NAME));
+			this.streetAddress((String) addressFields.get(STREET_ADDRESS_FIELD_NAME));
+			this.locality((String) addressFields.get(LOCALITY_FIELD_NAME));
+			this.region((String) addressFields.get(REGION_FIELD_NAME));
+			this.postalCode((String) addressFields.get(POSTAL_CODE_FIELD_NAME));
+			this.country((String) addressFields.get(COUNTRY_FIELD_NAME));
 		}
 
 		public Builder formatted(String formatted) {

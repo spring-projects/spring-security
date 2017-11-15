@@ -49,7 +49,7 @@ public class SecurityConfig {
 	public MapReactiveUserDetailsService userDetailsRepository() {
 		User.UserBuilder userBuilder = User.withDefaultPasswordEncoder();
 		UserDetails rob = userBuilder.username("rob").password("rob").roles("USER").build();
-		UserDetails admin = userBuilder.username("admin").password("admin").roles("USER","ADMIN").build();
+		UserDetails admin = userBuilder.username("admin").password("admin").roles("USER", "ADMIN").build();
 		return new MapReactiveUserDetailsService(rob, admin);
 	}
 

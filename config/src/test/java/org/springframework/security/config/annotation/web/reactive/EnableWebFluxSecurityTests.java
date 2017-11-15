@@ -116,7 +116,7 @@ public class EnableWebFluxSecurityTests {
 				.switchIfEmpty(chain.filter(exchange))
 				.flatMap(e -> chain.filter(exchange)),
 			this.springSecurityFilterChain,
-			(exchange,chain) ->
+			(exchange, chain) ->
 				ReactiveSecurityContextHolder.getContext()
 					.map(SecurityContext::getAuthentication)
 					.flatMap( principal -> exchange.getResponse()
@@ -136,7 +136,7 @@ public class EnableWebFluxSecurityTests {
 		this.spring.register(Config.class).autowire();
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(
 			this.springSecurityFilterChain,
-			(exchange,chain) ->
+			(exchange, chain) ->
 				ReactiveSecurityContextHolder.getContext()
 					.map(SecurityContext::getAuthentication)
 					.flatMap( principal -> exchange.getResponse()
@@ -148,7 +148,7 @@ public class EnableWebFluxSecurityTests {
 		client
 			.get()
 			.uri("/")
-			.attributes(basicAuthenticationCredentials("user","password"))
+			.attributes(basicAuthenticationCredentials("user", "password"))
 			.exchange()
 			.expectStatus().isOk()
 			.expectBody(String.class).consumeWith( result -> assertThat(result.getResponseBody()).isEqualTo("user"));
@@ -173,7 +173,7 @@ public class EnableWebFluxSecurityTests {
 		this.spring.register(CustomPasswordEncoderConfig.class).autowire();
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(
 			this.springSecurityFilterChain,
-			(exchange,chain) ->
+			(exchange, chain) ->
 				ReactiveSecurityContextHolder.getContext()
 					.map(SecurityContext::getAuthentication)
 					.flatMap( principal -> exchange.getResponse()
@@ -185,7 +185,7 @@ public class EnableWebFluxSecurityTests {
 		client
 			.get()
 			.uri("/")
-			.attributes(basicAuthenticationCredentials("user","password"))
+			.attributes(basicAuthenticationCredentials("user", "password"))
 			.exchange()
 			.expectStatus().isOk()
 			.expectBody(String.class).consumeWith( result -> assertThat(result.getResponseBody()).isEqualTo("user"));
@@ -213,7 +213,7 @@ public class EnableWebFluxSecurityTests {
 		this.spring.register(Config.class).autowire();
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(
 			this.springSecurityFilterChain,
-			(exchange,chain) ->
+			(exchange, chain) ->
 				Mono.subscriberContext()
 					.flatMap( c -> c.<Mono<Principal>>get(Authentication.class))
 					.flatMap( principal -> exchange.getResponse()

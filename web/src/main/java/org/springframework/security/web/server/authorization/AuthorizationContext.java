@@ -27,13 +27,13 @@ import java.util.Map;
  */
 public class AuthorizationContext {
 	private final ServerWebExchange exchange;
-	private final Map<String,Object> variables;
+	private final Map<String, Object> variables;
 
 	public AuthorizationContext(ServerWebExchange exchange) {
 		this(exchange, Collections.emptyMap());
 	}
 
-	public AuthorizationContext(ServerWebExchange exchange, Map<String,Object> variables) {
+	public AuthorizationContext(ServerWebExchange exchange, Map<String, Object> variables) {
 		this.exchange = exchange;
 		this.variables = variables;
 	}
@@ -42,7 +42,7 @@ public class AuthorizationContext {
 		return exchange;
 	}
 
-	public Map<String,Object> getVariables() {
+	public Map<String, Object> getVariables() {
 		return Collections.unmodifiableMap(variables);
 	}
 }

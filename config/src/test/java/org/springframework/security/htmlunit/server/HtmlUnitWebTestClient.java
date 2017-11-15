@@ -85,8 +85,8 @@ final class HtmlUnitWebTestClient {
 		return request.body(BodyInserters.fromObject(requestBody));
 	}
 
-	private MultiValueMap<String,String> formData(List<NameValuePair> params) {
-		MultiValueMap<String,String> result = new LinkedMultiValueMap<>(params.size());
+	private MultiValueMap<String, String> formData(List<NameValuePair> params) {
+		MultiValueMap<String, String> result = new LinkedMultiValueMap<>(params.size());
 		params.forEach( pair -> result.add(pair.getName(), pair.getValue()));
 		return result;
 	}
@@ -129,7 +129,7 @@ final class HtmlUnitWebTestClient {
 	}
 
 	private void headers(WebTestClient.RequestBodySpec request, WebRequest webRequest) {
-		webRequest.getAdditionalHeaders().forEach( (name,value) -> request.header(name, value));
+		webRequest.getAdditionalHeaders().forEach( (name, value) -> request.header(name, value));
 	}
 
 	private HttpMethod httpMethod(WebRequest webRequest) {
@@ -191,8 +191,8 @@ final class HtmlUnitWebTestClient {
 				}).build();
 		}
 
-		private MultiValueMap<String,String> clientCookies() {
-			MultiValueMap<String,String> result = new LinkedMultiValueMap<>(this.cookies.size());
+		private MultiValueMap<String, String> clientCookies() {
+			MultiValueMap<String, String> result = new LinkedMultiValueMap<>(this.cookies.size());
 			this.cookies.values().forEach( cookie ->
 				result.add(cookie.getName(), cookie.getValue())
 			);

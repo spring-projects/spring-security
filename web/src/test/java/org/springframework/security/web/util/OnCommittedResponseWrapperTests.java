@@ -94,9 +94,9 @@ public class OnCommittedResponseWrapperTests {
 		int off = 2;
 		int len = 3;
 
-		response.getWriter().write(buff,off,len);
+		response.getWriter().write(buff, off, len);
 
-		verify(writer).write(buff,off,len);
+		verify(writer).write(buff, off, len);
 	}
 
 	@Test
@@ -114,9 +114,9 @@ public class OnCommittedResponseWrapperTests {
 		int off = 2;
 		int len = 3;
 
-		response.getWriter().write(s,off,len);
+		response.getWriter().write(s, off, len);
 
-		verify(writer).write(s,off,len);
+		verify(writer).write(s, off, len);
 	}
 
 	@Test
@@ -602,7 +602,7 @@ public class OnCommittedResponseWrapperTests {
 		int len = 3;
 		response.setContentLength(3);
 
-		response.getWriter().write(buff,off,len);
+		response.getWriter().write(buff, off, len);
 
 		assertThat(committed).isTrue();
 	}
@@ -624,7 +624,7 @@ public class OnCommittedResponseWrapperTests {
 		int len = 3;
 		response.setContentLength(3);
 
-		response.getWriter().write(s,off,len);
+		response.getWriter().write(s, off, len);
 
 		assertThat(committed).isTrue();
 	}
@@ -1104,7 +1104,7 @@ public class OnCommittedResponseWrapperTests {
 	@Test
 	public void addHeaderContentLengthPrintWriterWriteStringCommits() throws Exception {
 		int expected = 1234;
-		response.addHeader("Content-Length",String.valueOf(String.valueOf(expected).length()));
+		response.addHeader("Content-Length", String.valueOf(String.valueOf(expected).length()));
 
 		response.getWriter().write(expected);
 

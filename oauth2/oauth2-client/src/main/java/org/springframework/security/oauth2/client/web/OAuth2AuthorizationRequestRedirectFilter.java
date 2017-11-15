@@ -125,7 +125,7 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 
 		String redirectUriStr = this.expandRedirectUri(request, clientRegistration);
 
-		Map<String,Object> additionalParameters = new HashMap<>();
+		Map<String, Object> additionalParameters = new HashMap<>();
 		additionalParameters.put(OAuth2ParameterNames.REGISTRATION_ID, clientRegistration.getRegistrationId());
 
 		OAuth2AuthorizationRequest.Builder builder;

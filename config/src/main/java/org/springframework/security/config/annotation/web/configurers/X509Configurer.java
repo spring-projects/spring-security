@@ -163,7 +163,7 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>> extends
 
 		http
 			.authenticationProvider(authenticationProvider)
-			.setSharedObject(AuthenticationEntryPoint.class,new Http403ForbiddenEntryPoint());
+			.setSharedObject(AuthenticationEntryPoint.class, new Http403ForbiddenEntryPoint());
 	}
 	// @formatter:on
 

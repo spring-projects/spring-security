@@ -57,7 +57,7 @@ public class LogoutWebFilter implements WebFilter {
 			.map(result -> exchange)
 			.flatMap(this::flatMapAuthentication)
 			.flatMap( authentication -> {
-				WebFilterExchange webFilterExchange = new WebFilterExchange(exchange,chain);
+				WebFilterExchange webFilterExchange = new WebFilterExchange(exchange, chain);
 				return logout(webFilterExchange, authentication);
 			});
 	}

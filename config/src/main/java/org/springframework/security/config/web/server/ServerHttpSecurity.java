@@ -261,7 +261,7 @@ public class ServerHttpSecurity {
 		List<WebFilter> sortedWebFilters = new ArrayList<>();
 		this.webFilters.forEach( f -> {
 			if(f instanceof OrderedWebFilter) {
-				f = ((OrderedWebFilter)f).webFilter;
+				f = ((OrderedWebFilter) f).webFilter;
 			}
 			sortedWebFilters.add(f);
 		});
@@ -354,11 +354,11 @@ public class ServerHttpSecurity {
 		public final class Access {
 
 			public AuthorizeExchangeSpec permitAll() {
-				return access( (a,e) -> Mono.just(new AuthorizationDecision(true)));
+				return access( (a, e) -> Mono.just(new AuthorizationDecision(true)));
 			}
 
 			public AuthorizeExchangeSpec denyAll() {
-				return access( (a,e) -> Mono.just(new AuthorizationDecision(false)));
+				return access( (a, e) -> Mono.just(new AuthorizationDecision(false)));
 			}
 
 			public AuthorizeExchangeSpec hasRole(String role) {

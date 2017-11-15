@@ -127,7 +127,7 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
 			return null;
 		}
 		if(passwordAttrValue instanceof byte[]) {
-			return new String((byte[])passwordAttrValue);
+			return new String((byte[]) passwordAttrValue);
 		}
 		return String.valueOf(passwordAttrValue);
 	}

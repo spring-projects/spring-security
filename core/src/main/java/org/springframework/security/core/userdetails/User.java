@@ -293,7 +293,7 @@ public class User implements UserDetails, CredentialsContainer {
 		private boolean accountLocked;
 		private boolean credentialsExpired;
 		private boolean disabled;
-		private Function<String,String> passwordEncoder = password -> password;
+		private Function<String, String> passwordEncoder = password -> password;
 
 		/**
 		 * Creates a new instance
@@ -335,7 +335,7 @@ public class User implements UserDetails, CredentialsContainer {
 		 * @return the {@link UserBuilder} for method chaining (i.e. to populate
 		 * additional attributes for this user)
 		 */
-		public UserBuilder passwordEncoder(Function<String,String> encoder) {
+		public UserBuilder passwordEncoder(Function<String, String> encoder) {
 			Assert.notNull(encoder, "encoder cannot be null");
 			this.passwordEncoder = encoder;
 			return this;

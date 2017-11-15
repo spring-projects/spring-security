@@ -47,7 +47,7 @@ public class ReactiveSecurityContextHolder {
 	 * @return Return a {@code Mono<Void>} which only replays complete and error signals
 	 * from clearing the context.
 	 */
-	public static Function<Context,Context> clearContext() {
+	public static Function<Context, Context> clearContext() {
 		return context -> context.delete(SECURITY_CONTEXT_KEY);
 	}
 

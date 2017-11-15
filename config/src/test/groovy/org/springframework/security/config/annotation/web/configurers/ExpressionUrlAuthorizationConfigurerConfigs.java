@@ -59,7 +59,7 @@ public class ExpressionUrlAuthorizationConfigurerConfigs {
 					.expressionHandler(handler)
 					.accessDecisionManager(adm)
 					.filterSecurityInterceptorOncePerRequest(true)
-					.antMatchers("/a","/b").hasRole("ADMIN")
+					.antMatchers("/a", "/b").hasRole("ADMIN")
 					.anyRequest().permitAll()
 					.and()
 				.formLogin();

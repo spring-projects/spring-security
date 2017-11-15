@@ -27,11 +27,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		http
 			.authorizeRequests()
-				.antMatchers("/login","/resources/**").permitAll()
+				.antMatchers("/login", "/resources/**").permitAll()
 				.anyRequest().authenticated()
 				.and()
 			.jee()
-				.mappableRoles("USER","ADMIN");
+				.mappableRoles("USER", "ADMIN");
 	}
 	// @formatter:on
 }

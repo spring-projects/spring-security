@@ -91,7 +91,7 @@ public class JdbcUserServiceBeanDefinitionParserTests {
 				+ "'/>" + DATA_SOURCE);
 		JdbcUserDetailsManager mgr = (JdbcUserDetailsManager) appContext
 				.getBean("myUserService");
-		assertThat(FieldUtils.getFieldValue(mgr,"usersByUsernameQuery")).isEqualTo(userQuery);
+		assertThat(FieldUtils.getFieldValue(mgr, "usersByUsernameQuery")).isEqualTo(userQuery);
 		assertThat(FieldUtils.getFieldValue(mgr, "authoritiesByUsernameQuery")).isEqualTo(authoritiesQuery);
 		assertThat(mgr.loadUserByUsername("rod") != null).isTrue();
 	}

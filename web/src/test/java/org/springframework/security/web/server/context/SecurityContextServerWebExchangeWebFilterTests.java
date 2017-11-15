@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SecurityContextServerWebExchangeWebFilterTests {
 	SecurityContextServerWebExchangeWebFilter filter = new SecurityContextServerWebExchangeWebFilter();
 
-	Authentication principal = new TestingAuthenticationToken("user","password", "ROLE_USER");
+	Authentication principal = new TestingAuthenticationToken("user", "password", "ROLE_USER");
 
 	ServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 
@@ -73,7 +73,7 @@ public class SecurityContextServerWebExchangeWebFilterTests {
 
 	@Test
 	public void filterWhenPrincipalNullThenContextEmpty() {
-		Authentication defaultAuthentication = new TestingAuthenticationToken("anonymouse","anonymous", "TEST");
+		Authentication defaultAuthentication = new TestingAuthenticationToken("anonymouse", "anonymous", "TEST");
 		Mono<Void> result = this.filter.filter(this.exchange, new DefaultWebFilterChain( e ->
 				e.getPrincipal()
 					.defaultIfEmpty(defaultAuthentication)

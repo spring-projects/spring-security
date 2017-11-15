@@ -31,7 +31,7 @@ import reactor.core.publisher.Mono;
  * @author Rob Winch
  * @since 5.0
  */
-public class ServerHttpBasicAuthenticationConverter implements Function<ServerWebExchange,Mono<Authentication>> {
+public class ServerHttpBasicAuthenticationConverter implements Function<ServerWebExchange, Mono<Authentication>> {
 
 	public static final String BASIC = "Basic ";
 

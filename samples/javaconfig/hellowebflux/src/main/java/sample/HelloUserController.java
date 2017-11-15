@@ -32,13 +32,13 @@ import reactor.core.publisher.Mono;
 public class HelloUserController {
 
 	@GetMapping("/")
-	public Mono<Map<String,String>> hello(Mono<Principal> principal) {
+	public Mono<Map<String, String>> hello(Mono<Principal> principal) {
 		return principal
 			.map(Principal::getName)
 			.map(this::helloMessage);
 	}
 
-	private Map<String,String> helloMessage(String username) {
+	private Map<String, String> helloMessage(String username) {
 		return Collections.singletonMap("message", "Hello " + username + "!");
 	}
 }

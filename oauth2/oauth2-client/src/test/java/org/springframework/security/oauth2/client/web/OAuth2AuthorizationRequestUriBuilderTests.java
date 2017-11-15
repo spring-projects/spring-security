@@ -43,7 +43,7 @@ public class OAuth2AuthorizationRequestUriBuilderTests {
 	@Test
 	public void buildWhenScopeMultiThenSeparatedByEncodedSpace() {
 		OAuth2AuthorizationRequest request = OAuth2AuthorizationRequest.implicit()
-			.additionalParameters(Collections.singletonMap("foo","bar"))
+			.additionalParameters(Collections.singletonMap("foo", "bar"))
 			.authorizationUri("https://idp.example.com/oauth2/v2/auth")
 			.clientId("client-id")
 			.state("thestate")

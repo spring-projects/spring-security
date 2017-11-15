@@ -56,7 +56,7 @@ public class AuthenticationWebFilterTests {
 	@Mock
 	private ServerAuthenticationSuccessHandler successHandler;
 	@Mock
-	private Function<ServerWebExchange,Mono<Authentication>> authenticationConverter;
+	private Function<ServerWebExchange, Mono<Authentication>> authenticationConverter;
 	@Mock
 	private ReactiveAuthenticationManager authenticationManager;
 	@Mock
@@ -96,7 +96,7 @@ public class AuthenticationWebFilterTests {
 
 	@Test
 	public void filterWhenDefaultsAndAuthenticationSuccessThenContinues() {
-		when(this.authenticationManager.authenticate(any())).thenReturn(Mono.just(new TestingAuthenticationToken("test","this", "ROLE")));
+		when(this.authenticationManager.authenticate(any())).thenReturn(Mono.just(new TestingAuthenticationToken("test", "this", "ROLE")));
 		this.filter = new AuthenticationWebFilter(this.authenticationManager);
 
 		WebTestClient client = WebTestClientBuilder
@@ -185,7 +185,7 @@ public class AuthenticationWebFilterTests {
 		when(this.authenticationConverter.apply(any())).thenReturn(authentication);
 		when(this.authenticationManager.authenticate(any())).thenReturn(authentication);
 		when(this.successHandler.onAuthenticationSuccess(any(), any())).thenReturn(Mono.empty());
-		when(this.securityContextRepository.save(any(),any())).thenAnswer( a -> Mono.just(a.getArguments()[0]));
+		when(this.securityContextRepository.save(any(), any())).thenAnswer( a -> Mono.just(a.getArguments()[0]));
 
 		WebTestClient client = WebTestClientBuilder
 			.bindToWebFilters(this.filter)
@@ -231,7 +231,7 @@ public class AuthenticationWebFilterTests {
 		Mono<Authentication> authentication = Mono.just(new TestingAuthenticationToken("test", "this", "ROLE_USER"));
 		when(this.authenticationConverter.apply(any())).thenReturn(authentication);
 		when(this.authenticationManager.authenticate(any())).thenReturn(Mono.error(new BadCredentialsException("Failed")));
-		when(this.failureHandler.onAuthenticationFailure(any(),any())).thenReturn(Mono.empty());
+		when(this.failureHandler.onAuthenticationFailure(any(), any())).thenReturn(Mono.empty());
 
 		WebTestClient client = WebTestClientBuilder
 			.bindToWebFilters(this.filter)
@@ -244,7 +244,7 @@ public class AuthenticationWebFilterTests {
 			.expectStatus().isOk()
 			.expectBody().isEmpty();
 
-		verify(this.failureHandler).onAuthenticationFailure(any(),any());
+		verify(this.failureHandler).onAuthenticationFailure(any(), any());
 		verify(this.securityContextRepository, never()).save(any(), any());
 		verifyZeroInteractions(this.successHandler);
 	}

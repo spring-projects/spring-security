@@ -60,7 +60,7 @@ public class PasswordEncoderFactories {
 	 */
 	public static PasswordEncoder createDelegatingPasswordEncoder() {
 		String encodingId = "bcrypt";
-		Map<String,PasswordEncoder> encoders = new HashMap<>();
+		Map<String, PasswordEncoder> encoders = new HashMap<>();
 		encoders.put(encodingId, new BCryptPasswordEncoder());
 		encoders.put("ldap", new LdapShaPasswordEncoder());
 		encoders.put("MD4", new Md4PasswordEncoder());

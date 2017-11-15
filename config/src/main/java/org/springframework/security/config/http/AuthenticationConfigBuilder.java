@@ -836,7 +836,7 @@ final class AuthenticationConfigBuilder {
 	}
 
 	private static class CsrfTokenHiddenInputFunction implements
-		Function<HttpServletRequest,Map<String,String>> {
+		Function<HttpServletRequest, Map<String, String>> {
 
 		@Override
 		public Map<String, String> apply(HttpServletRequest request) {

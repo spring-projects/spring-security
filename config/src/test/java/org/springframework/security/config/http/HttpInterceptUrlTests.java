@@ -57,7 +57,7 @@ public class HttpInterceptUrlTests {
 	}
 
 	private void loadConfig(String... configLocations) {
-		for(int i=0;i<configLocations.length;i++) {
+		for(int i=0; i<configLocations.length; i++) {
 			configLocations[i] = getClass().getName().replaceAll("\\.", "/") + "-" + configLocations[i];
 		}
 		XmlWebApplicationContext context = new XmlWebApplicationContext();

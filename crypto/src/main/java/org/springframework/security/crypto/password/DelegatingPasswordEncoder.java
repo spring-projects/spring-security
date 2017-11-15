@@ -123,7 +123,7 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 	private static final String SUFFIX = "}";
 	private final String idForEncode;
 	private final PasswordEncoder passwordEncoderForEncode;
-	private final Map<String,PasswordEncoder> idToPasswordEncoder;
+	private final Map<String, PasswordEncoder> idToPasswordEncoder;
 	private PasswordEncoder defaultPasswordEncoderForMatches = new UnmappedIdPasswordEncoder();
 
 	/**

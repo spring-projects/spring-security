@@ -25,7 +25,7 @@ import java.util.function.Function;
 public class PasswordEncodedUser {
 	private static final UserDetails USER = withUsername("user").password("password").roles("USER").build();
 
-	private static final UserDetails ADMIN = withUsername("admin").password("password").roles("USER","ADMIN").build();
+	private static final UserDetails ADMIN = withUsername("admin").password("password").roles("USER", "ADMIN").build();
 
 	public static UserDetails user() {
 		return User.withUserDetails(USER).build();
@@ -48,7 +48,7 @@ public class PasswordEncodedUser {
 			.passwordEncoder(passwordEncoder());
 	}
 
-	private static Function<String,String> passwordEncoder() {
+	private static Function<String, String> passwordEncoder() {
 		return rawPassword -> "{noop}" + rawPassword;
 	}
 

@@ -100,7 +100,7 @@ public class LdapShaPasswordEncoderTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void invalidPrefixIsRejected() {
-		this.sha.matches("somepassword","{MD9}xxxxxxxxxx");
+		this.sha.matches("somepassword", "{MD9}xxxxxxxxxx");
 	}
 
 	@Test(expected = IllegalArgumentException.class)

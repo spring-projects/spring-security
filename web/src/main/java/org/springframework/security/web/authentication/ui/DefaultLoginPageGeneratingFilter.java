@@ -62,7 +62,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 	private String openIDusernameParameter;
 	private String openIDrememberMeParameter;
 	private Map<String, String> oauth2AuthenticationUrlToClientName;
-	private Function<HttpServletRequest,Map<String,String>> resolveHiddenInputs = request -> Collections
+	private Function<HttpServletRequest, Map<String, String>> resolveHiddenInputs = request -> Collections
 		.emptyMap();
 
 
@@ -298,7 +298,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 	}
 
 	private void renderHiddenInputs(StringBuilder sb, HttpServletRequest request) {
-		for(Map.Entry<String,String> input : this.resolveHiddenInputs.apply(request).entrySet()) {
+		for(Map.Entry<String, String> input : this.resolveHiddenInputs.apply(request).entrySet()) {
 			sb.append("	<input name=\"" + input.getKey()
 					+ "\" type=\"hidden\" value=\"" + input.getValue() + "\" />\n");
 		}

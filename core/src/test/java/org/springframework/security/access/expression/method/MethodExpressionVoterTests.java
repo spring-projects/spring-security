@@ -88,7 +88,7 @@ public class MethodExpressionVoterTests {
 		am.vote(joe, mi, createAttributes(new PreInvocationExpressionAttribute(
 				"(filterObject == 'joe' or filterObject == 'sam')", "collection",
 				"permitAll")));
-		assertThat(arg).containsExactly("joe","sam");
+		assertThat(arg).containsExactly("joe", "sam");
 	}
 
 	@Test(expected = IllegalArgumentException.class)

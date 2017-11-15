@@ -304,16 +304,16 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
 	public void renameGroup(String oldName, String newName) {
 		logger.debug("Changing group name from '" + oldName + "' to '" + newName + "'");
-		Assert.hasText(oldName,"oldName should have text");;
-		Assert.hasText(newName,"newName should have text");;
+		Assert.hasText(oldName, "oldName should have text");;
+		Assert.hasText(newName, "newName should have text");;
 
 		getJdbcTemplate().update(renameGroupSql, newName, oldName);
 	}
 
 	public void addUserToGroup(final String username, final String groupName) {
 		logger.debug("Adding user '" + username + "' to group '" + groupName + "'");
-		Assert.hasText(username,"username should have text");;
-		Assert.hasText(groupName,"groupName should have text");;
+		Assert.hasText(username, "username should have text");;
+		Assert.hasText(groupName, "groupName should have text");;
 
 		final int id = findGroupId(groupName);
 		getJdbcTemplate().update(insertGroupMemberSql, new PreparedStatementSetter() {
@@ -328,8 +328,8 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
 	public void removeUserFromGroup(final String username, final String groupName) {
 		logger.debug("Removing user '" + username + "' to group '" + groupName + "'");
-		Assert.hasText(username,"username should have text");;
-		Assert.hasText(groupName,"groupName should have text");;
+		Assert.hasText(username, "username should have text");;
+		Assert.hasText(groupName, "groupName should have text");;
 
 		final int id = findGroupId(groupName);
 
@@ -345,7 +345,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
 	public List<GrantedAuthority> findGroupAuthorities(String groupName) {
 		logger.debug("Loading authorities for group '" + groupName + "'");
-		Assert.hasText(groupName,"groupName should have text");;
+		Assert.hasText(groupName, "groupName should have text");;
 
 		return getJdbcTemplate().query(groupAuthoritiesSql, new String[] { groupName },
 				new RowMapper<GrantedAuthority>() {
@@ -361,7 +361,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 	public void removeGroupAuthority(String groupName, final GrantedAuthority authority) {
 		logger.debug("Removing authority '" + authority + "' from group '" + groupName
 				+ "'");
-		Assert.hasText(groupName,"groupName should have text");
+		Assert.hasText(groupName, "groupName should have text");
 		Assert.notNull(authority, "authority cannot be null");
 
 		final int id = findGroupId(groupName);
@@ -377,7 +377,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
 	public void addGroupAuthority(final String groupName, final GrantedAuthority authority) {
 		logger.debug("Adding authority '" + authority + "' to group '" + groupName + "'");
-		Assert.hasText(groupName,"groupName should have text");;
+		Assert.hasText(groupName, "groupName should have text");;
 		Assert.notNull(authority, "authority cannot be null");
 
 		final int id = findGroupId(groupName);
@@ -398,102 +398,102 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 	}
 
 	public void setCreateUserSql(String createUserSql) {
-		Assert.hasText(createUserSql,"createUserSql should have text");;
+		Assert.hasText(createUserSql, "createUserSql should have text");;
 		this.createUserSql = createUserSql;
 	}
 
 	public void setDeleteUserSql(String deleteUserSql) {
-		Assert.hasText(deleteUserSql,"deleteUserSql should have text");;
+		Assert.hasText(deleteUserSql, "deleteUserSql should have text");;
 		this.deleteUserSql = deleteUserSql;
 	}
 
 	public void setUpdateUserSql(String updateUserSql) {
-		Assert.hasText(updateUserSql,"updateUserSql should have text");;
+		Assert.hasText(updateUserSql, "updateUserSql should have text");;
 		this.updateUserSql = updateUserSql;
 	}
 
 	public void setCreateAuthoritySql(String createAuthoritySql) {
-		Assert.hasText(createAuthoritySql,"createAuthoritySql should have text");;
+		Assert.hasText(createAuthoritySql, "createAuthoritySql should have text");;
 		this.createAuthoritySql = createAuthoritySql;
 	}
 
 	public void setDeleteUserAuthoritiesSql(String deleteUserAuthoritiesSql) {
-		Assert.hasText(deleteUserAuthoritiesSql,"deleteUserAuthoritiesSql should have text");;
+		Assert.hasText(deleteUserAuthoritiesSql, "deleteUserAuthoritiesSql should have text");;
 		this.deleteUserAuthoritiesSql = deleteUserAuthoritiesSql;
 	}
 
 	public void setUserExistsSql(String userExistsSql) {
-		Assert.hasText(userExistsSql,"userExistsSql should have text");;
+		Assert.hasText(userExistsSql, "userExistsSql should have text");;
 		this.userExistsSql = userExistsSql;
 	}
 
 	public void setChangePasswordSql(String changePasswordSql) {
-		Assert.hasText(changePasswordSql,"changePasswordSql should have text");;
+		Assert.hasText(changePasswordSql, "changePasswordSql should have text");;
 		this.changePasswordSql = changePasswordSql;
 	}
 
 	public void setFindAllGroupsSql(String findAllGroupsSql) {
-		Assert.hasText(findAllGroupsSql,"findAllGroupsSql should have text");;
+		Assert.hasText(findAllGroupsSql, "findAllGroupsSql should have text");;
 		this.findAllGroupsSql = findAllGroupsSql;
 	}
 
 	public void setFindUsersInGroupSql(String findUsersInGroupSql) {
-		Assert.hasText(findUsersInGroupSql,"findUsersInGroupSql should have text");;
+		Assert.hasText(findUsersInGroupSql, "findUsersInGroupSql should have text");;
 		this.findUsersInGroupSql = findUsersInGroupSql;
 	}
 
 	public void setInsertGroupSql(String insertGroupSql) {
-		Assert.hasText(insertGroupSql,"insertGroupSql should have text");;
+		Assert.hasText(insertGroupSql, "insertGroupSql should have text");;
 		this.insertGroupSql = insertGroupSql;
 	}
 
 	public void setFindGroupIdSql(String findGroupIdSql) {
-		Assert.hasText(findGroupIdSql,"findGroupIdSql should have text");;
+		Assert.hasText(findGroupIdSql, "findGroupIdSql should have text");;
 		this.findGroupIdSql = findGroupIdSql;
 	}
 
 	public void setInsertGroupAuthoritySql(String insertGroupAuthoritySql) {
-		Assert.hasText(insertGroupAuthoritySql,"insertGroupAuthoritySql should have text");;
+		Assert.hasText(insertGroupAuthoritySql, "insertGroupAuthoritySql should have text");;
 		this.insertGroupAuthoritySql = insertGroupAuthoritySql;
 	}
 
 	public void setDeleteGroupSql(String deleteGroupSql) {
-		Assert.hasText(deleteGroupSql,"deleteGroupSql should have text");;
+		Assert.hasText(deleteGroupSql, "deleteGroupSql should have text");;
 		this.deleteGroupSql = deleteGroupSql;
 	}
 
 	public void setDeleteGroupAuthoritiesSql(String deleteGroupAuthoritiesSql) {
-		Assert.hasText(deleteGroupAuthoritiesSql,"deleteGroupAuthoritiesSql should have text");;
+		Assert.hasText(deleteGroupAuthoritiesSql, "deleteGroupAuthoritiesSql should have text");;
 		this.deleteGroupAuthoritiesSql = deleteGroupAuthoritiesSql;
 	}
 
 	public void setDeleteGroupMembersSql(String deleteGroupMembersSql) {
-		Assert.hasText(deleteGroupMembersSql,"deleteGroupMembersSql should have text");;
+		Assert.hasText(deleteGroupMembersSql, "deleteGroupMembersSql should have text");;
 		this.deleteGroupMembersSql = deleteGroupMembersSql;
 	}
 
 	public void setRenameGroupSql(String renameGroupSql) {
-		Assert.hasText(renameGroupSql,"renameGroupSql should have text");;
+		Assert.hasText(renameGroupSql, "renameGroupSql should have text");;
 		this.renameGroupSql = renameGroupSql;
 	}
 
 	public void setInsertGroupMemberSql(String insertGroupMemberSql) {
-		Assert.hasText(insertGroupMemberSql,"insertGroupMemberSql should have text");;
+		Assert.hasText(insertGroupMemberSql, "insertGroupMemberSql should have text");;
 		this.insertGroupMemberSql = insertGroupMemberSql;
 	}
 
 	public void setDeleteGroupMemberSql(String deleteGroupMemberSql) {
-		Assert.hasText(deleteGroupMemberSql,"deleteGroupMemberSql should have text");;
+		Assert.hasText(deleteGroupMemberSql, "deleteGroupMemberSql should have text");;
 		this.deleteGroupMemberSql = deleteGroupMemberSql;
 	}
 
 	public void setGroupAuthoritiesSql(String groupAuthoritiesSql) {
-		Assert.hasText(groupAuthoritiesSql,"groupAuthoritiesSql should have text");;
+		Assert.hasText(groupAuthoritiesSql, "groupAuthoritiesSql should have text");;
 		this.groupAuthoritiesSql = groupAuthoritiesSql;
 	}
 
 	public void setDeleteGroupAuthoritySql(String deleteGroupAuthoritySql) {
-		Assert.hasText(deleteGroupAuthoritySql,"deleteGroupAuthoritySql should have text");;
+		Assert.hasText(deleteGroupAuthoritySql, "deleteGroupAuthoritySql should have text");;
 		this.deleteGroupAuthoritySql = deleteGroupAuthoritySql;
 	}
 

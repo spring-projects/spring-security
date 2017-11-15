@@ -50,7 +50,7 @@ class MethodSecurityMetadataSourceAdvisorRegistrar implements
 		advisor.addConstructorArgReference("methodSecurityMetadataSource");
 		advisor.addConstructorArgValue("methodSecurityMetadataSource");
 
-		MultiValueMap<String,Object> attributes = importingClassMetadata.getAllAnnotationAttributes(EnableGlobalMethodSecurity.class.getName());
+		MultiValueMap<String, Object> attributes = importingClassMetadata.getAllAnnotationAttributes(EnableGlobalMethodSecurity.class.getName());
 		Integer order = (Integer) attributes.getFirst("order");
 		if(order != null) {
 			advisor.addPropertyValue("order", order);

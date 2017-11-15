@@ -159,7 +159,7 @@ public class SecurityMockMvcRequestPostProcessorsCsrfTests {
 
 		MockHttpServletRequestBuilder requestWithCsrf = post("/")
 			.param(token.getParameterName(), token.getToken())
-			.session((MockHttpSession)request.getSession());
+			.session((MockHttpSession) request.getSession());
 		this.mockMvc.perform(requestWithCsrf)
 			.andExpect(status().isOk());
 		// @formatter:on

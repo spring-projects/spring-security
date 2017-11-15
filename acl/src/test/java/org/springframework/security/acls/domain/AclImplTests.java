@@ -495,7 +495,7 @@ public class AclImplTests {
 		assertThat(acl.isSidLoaded(Arrays.asList(new GrantedAuthoritySid("ROLE_IGNORED"),
 				new PrincipalSid("ben"))))
 			.isTrue();
-		assertThat(acl.isSidLoaded(Arrays.asList((Sid)new GrantedAuthoritySid(
+		assertThat(acl.isSidLoaded(Arrays.asList((Sid) new GrantedAuthoritySid(
 				"ROLE_IGNORED"))))
 			.isTrue();
 		assertThat(acl.isSidLoaded(BEN)).isTrue();
@@ -507,7 +507,7 @@ public class AclImplTests {
 		assertThat(acl.isSidLoaded(Arrays.asList((Sid) new GrantedAuthoritySid(
 				"ROLE_GENERAL"), new GrantedAuthoritySid("ROLE_IGNORED"))))
 			.isFalse();
-		assertThat(acl.isSidLoaded(Arrays.asList((Sid)new GrantedAuthoritySid(
+		assertThat(acl.isSidLoaded(Arrays.asList((Sid) new GrantedAuthoritySid(
 				"ROLE_IGNORED"), new GrantedAuthoritySid("ROLE_GENERAL"))))
 			.isFalse();
 	}

@@ -107,8 +107,8 @@ public class RememberMeAuthenticationTokenMixinTests extends AbstractMixinTests 
 				.readValue(String.format(REMEMBERME_AUTH_JSON, "\"password\""), RememberMeAuthenticationToken.class);
 		assertThat(token).isNotNull();
 		assertThat(token.getPrincipal()).isNotNull().isInstanceOf(User.class);
-		assertThat(((User)token.getPrincipal()).getUsername()).isEqualTo("admin");
-		assertThat(((User)token.getPrincipal()).getPassword()).isEqualTo("1234");
+		assertThat(((User) token.getPrincipal()).getUsername()).isEqualTo("admin");
+		assertThat(((User) token.getPrincipal()).getPassword()).isEqualTo("1234");
 		assertThat(((User) token.getPrincipal()).getAuthorities()).hasSize(1).contains(new SimpleGrantedAuthority("ROLE_USER"));
 		assertThat(token.getAuthorities()).hasSize(1).contains(new SimpleGrantedAuthority("ROLE_USER"));
 		assertThat(((User) token.getPrincipal()).isEnabled()).isEqualTo(true);

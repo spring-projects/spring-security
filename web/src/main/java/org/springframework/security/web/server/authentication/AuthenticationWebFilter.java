@@ -46,7 +46,7 @@ public class AuthenticationWebFilter implements WebFilter {
 
 	private ServerAuthenticationSuccessHandler authenticationSuccessHandler = new WebFilterChainServerAuthenticationSuccessHandler();
 
-	private Function<ServerWebExchange,Mono<Authentication>> authenticationConverter = new ServerHttpBasicAuthenticationConverter();
+	private Function<ServerWebExchange, Mono<Authentication>> authenticationConverter = new ServerHttpBasicAuthenticationConverter();
 
 	private ServerAuthenticationFailureHandler authenticationFailureHandler = new ServerAuthenticationEntryPointFailureHandler(new HttpBasicServerAuthenticationEntryPoint());
 
@@ -97,7 +97,7 @@ public class AuthenticationWebFilter implements WebFilter {
 		this.authenticationSuccessHandler = authenticationSuccessHandler;
 	}
 
-	public void setAuthenticationConverter(Function<ServerWebExchange,Mono<Authentication>> authenticationConverter) {
+	public void setAuthenticationConverter(Function<ServerWebExchange, Mono<Authentication>> authenticationConverter) {
 		this.authenticationConverter = authenticationConverter;
 	}
 
