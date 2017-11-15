@@ -56,7 +56,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 			.clientSecret("secret")
 			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
 			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-			.redirectUri("{baseUrl}/login/oauth2/code/{registrationId}")
+			.redirectUriTemplate("{baseUrl}/login/oauth2/code/{registrationId}")
 			.scope("user")
 			.authorizationUri("https://provider.com/oauth2/authorize")
 			.tokenUri("https://provider.com/oauth2/token")
@@ -69,7 +69,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 			.clientSecret("secret")
 			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
 			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-			.redirectUri("{baseUrl}/login/oauth2/code/{registrationId}")
+			.redirectUriTemplate("{baseUrl}/login/oauth2/code/{registrationId}")
 			.scope("openid", "profile", "email")
 			.authorizationUri("https://provider.com/oauth2/authorize")
 			.tokenUri("https://provider.com/oauth2/token")
@@ -80,7 +80,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 		this.registration3 = ClientRegistration.withRegistrationId("registration-3")
 			.clientId("client-3")
 			.authorizationGrantType(AuthorizationGrantType.IMPLICIT)
-			.redirectUri("{baseUrl}/login/oauth2/implicit/{registrationId}")
+			.redirectUriTemplate("{baseUrl}/login/oauth2/implicit/{registrationId}")
 			.scope("openid", "profile", "email")
 			.authorizationUri("https://provider.com/oauth2/authorize")
 			.tokenUri("https://provider.com/oauth2/token")
@@ -266,7 +266,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 		OAuth2AuthorizationRequest authorizationRequest = authorizationRequestRepository.loadAuthorizationRequest(request);
 
 		assertThat(authorizationRequest.getRedirectUri()).isNotEqualTo(
-			this.registration2.getRedirectUri());
+			this.registration2.getRedirectUriTemplate());
 		assertThat(authorizationRequest.getRedirectUri()).isEqualTo(
 			"http://localhost:80/login/oauth2/code/registration-2");
 	}

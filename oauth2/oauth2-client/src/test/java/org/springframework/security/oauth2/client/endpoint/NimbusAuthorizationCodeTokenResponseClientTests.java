@@ -125,7 +125,7 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 		this.exception.expect(IllegalArgumentException.class);
 
 		String redirectUri = "http:\\example.com";
-		when(this.clientRegistration.getRedirectUri()).thenReturn(redirectUri);
+		when(this.clientRegistration.getRedirectUriTemplate()).thenReturn(redirectUri);
 
 		this.tokenResponseClient.getTokenResponse(
 			new OAuth2AuthorizationCodeGrantRequest(this.clientRegistration, this.authorizationExchange));

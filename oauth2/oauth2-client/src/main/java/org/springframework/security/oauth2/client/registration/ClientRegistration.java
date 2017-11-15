@@ -38,7 +38,7 @@ public final class ClientRegistration {
 	private String clientSecret;
 	private ClientAuthenticationMethod clientAuthenticationMethod = ClientAuthenticationMethod.BASIC;
 	private AuthorizationGrantType authorizationGrantType;
-	private String redirectUri;
+	private String redirectUriTemplate;
 	private Set<String> scopes = Collections.emptySet();
 	private ProviderDetails providerDetails = new ProviderDetails();
 	private String clientName;
@@ -66,8 +66,8 @@ public final class ClientRegistration {
 		return this.authorizationGrantType;
 	}
 
-	public String getRedirectUri() {
-		return this.redirectUri;
+	public String getRedirectUriTemplate() {
+		return this.redirectUriTemplate;
 	}
 
 	public Set<String> getScopes() {
@@ -90,7 +90,7 @@ public final class ClientRegistration {
 			+ ", clientSecret='" + this.clientSecret + '\''
 			+ ", clientAuthenticationMethod=" + this.clientAuthenticationMethod
 			+ ", authorizationGrantType=" + this.authorizationGrantType
-			+ ", redirectUri='" + this.redirectUri + '\''
+			+ ", redirectUriTemplate='" + this.redirectUriTemplate + '\''
 			+ ", scopes=" + this.scopes
 			+ ", providerDetails=" + this.providerDetails
 			+ ", clientName='" + this.clientName
@@ -150,7 +150,7 @@ public final class ClientRegistration {
 		private String clientSecret;
 		private ClientAuthenticationMethod clientAuthenticationMethod = ClientAuthenticationMethod.BASIC;
 		private AuthorizationGrantType authorizationGrantType;
-		private String redirectUri;
+		private String redirectUriTemplate;
 		private Set<String> scopes;
 		private String authorizationUri;
 		private String tokenUri;
@@ -183,8 +183,8 @@ public final class ClientRegistration {
 			return this;
 		}
 
-		public Builder redirectUri(String redirectUri) {
-			this.redirectUri = redirectUri;
+		public Builder redirectUriTemplate(String redirectUriTemplate) {
+			this.redirectUriTemplate = redirectUriTemplate;
 			return this;
 		}
 
@@ -244,7 +244,7 @@ public final class ClientRegistration {
 			clientRegistration.clientSecret = this.clientSecret;
 			clientRegistration.clientAuthenticationMethod = this.clientAuthenticationMethod;
 			clientRegistration.authorizationGrantType = this.authorizationGrantType;
-			clientRegistration.redirectUri = this.redirectUri;
+			clientRegistration.redirectUriTemplate = this.redirectUriTemplate;
 			clientRegistration.scopes = this.scopes;
 
 			ProviderDetails providerDetails = clientRegistration.new ProviderDetails();
@@ -267,7 +267,7 @@ public final class ClientRegistration {
 			Assert.hasText(this.clientId, "clientId cannot be empty");
 			Assert.hasText(this.clientSecret, "clientSecret cannot be empty");
 			Assert.notNull(this.clientAuthenticationMethod, "clientAuthenticationMethod cannot be null");
-			Assert.hasText(this.redirectUri, "redirectUri cannot be empty");
+			Assert.hasText(this.redirectUriTemplate, "redirectUriTemplate cannot be empty");
 			Assert.notEmpty(this.scopes, "scopes cannot be empty");
 			Assert.hasText(this.authorizationUri, "authorizationUri cannot be empty");
 			Assert.hasText(this.tokenUri, "tokenUri cannot be empty");
@@ -283,7 +283,7 @@ public final class ClientRegistration {
 				"authorizationGrantType must be " + AuthorizationGrantType.IMPLICIT.getValue());
 			Assert.hasText(this.registrationId, "registrationId cannot be empty");
 			Assert.hasText(this.clientId, "clientId cannot be empty");
-			Assert.hasText(this.redirectUri, "redirectUri cannot be empty");
+			Assert.hasText(this.redirectUriTemplate, "redirectUriTemplate cannot be empty");
 			Assert.notEmpty(this.scopes, "scopes cannot be empty");
 			Assert.hasText(this.authorizationUri, "authorizationUri cannot be empty");
 			Assert.hasText(this.clientName, "clientName cannot be empty");

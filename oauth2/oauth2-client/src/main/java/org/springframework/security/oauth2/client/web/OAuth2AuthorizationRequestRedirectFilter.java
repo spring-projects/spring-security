@@ -180,7 +180,7 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 			.toUriString();
 		uriVariables.put("baseUrl", baseUrl);
 
-		return UriComponentsBuilder.fromUriString(clientRegistration.getRedirectUri())
+		return UriComponentsBuilder.fromUriString(clientRegistration.getRedirectUriTemplate())
 			.buildAndExpand(uriVariables)
 			.toUriString();
 	}
