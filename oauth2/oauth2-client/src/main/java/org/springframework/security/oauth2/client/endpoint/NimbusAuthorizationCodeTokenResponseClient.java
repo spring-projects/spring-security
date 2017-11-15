@@ -67,6 +67,31 @@ import java.util.Set;
 public class NimbusAuthorizationCodeTokenResponseClient implements OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> {
 	private static final String INVALID_TOKEN_RESPONSE_ERROR_CODE = "invalid_token_response";
 
+	private int connectTimeout = 30000;
+	private int readTimeout = 30000;
+
+	/**
+	 * Sets the HTTP connect timeout.
+	 *
+	 * @param connectTimeout The HTTP connect timeout, in milliseconds.
+	 *                       Zero implies no timeout. Must not be negative.
+	 * @see HTTPRequest#setConnectTimeout(int)
+	 */
+	public void setConnectTimeout(int connectTimeout) {
+		this.connectTimeout = connectTimeout;
+	}
+
+	/**
+	 * Sets the HTTP response read timeout.
+	 *
+	 * @param readTimeout The HTTP response read timeout, in milliseconds.
+	 *                    Zero implies no timeout. Must not be negative.
+	 * @see HTTPRequest#setReadTimeout(int)
+	 */
+	public void setReadTimeout(int readTimeout) {
+		this.readTimeout = readTimeout;
+	}
+
 	@Override
 	public OAuth2AccessTokenResponse getTokenResponse(OAuth2AuthorizationCodeGrantRequest authorizationGrantRequest)
 			throws OAuth2AuthenticationException {
@@ -96,8 +121,8 @@ public class NimbusAuthorizationCodeTokenResponseClient implements OAuth2AccessT
 			TokenRequest tokenRequest = new TokenRequest(tokenUri, clientAuthentication, authorizationCodeGrant);
 			HTTPRequest httpRequest = tokenRequest.toHTTPRequest();
 			httpRequest.setAccept(MediaType.APPLICATION_JSON_VALUE);
-			httpRequest.setConnectTimeout(30000);
-			httpRequest.setReadTimeout(30000);
+			httpRequest.setConnectTimeout(this.connectTimeout);
+			httpRequest.setReadTimeout(this.readTimeout);
 			tokenResponse = com.nimbusds.oauth2.sdk.TokenResponse.parse(httpRequest.send());
 		} catch (ParseException pe) {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_TOKEN_RESPONSE_ERROR_CODE,
