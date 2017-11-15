@@ -18,6 +18,7 @@ package org.springframework.security.web.server.authentication;
 import java.util.function.Function;
 
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
@@ -82,7 +83,8 @@ public class AuthenticationWebFilter implements WebFilter {
 		securityContext.setAuthentication(authentication);
 		return this.securityContextRepository.save(exchange, securityContext)
 			.then(this.authenticationSuccessHandler
-				.onAuthenticationSuccess(webFilterExchange, authentication));
+				.onAuthenticationSuccess(webFilterExchange, authentication))
+			.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)));
 	}
 
 	public void setSecurityContextRepository(

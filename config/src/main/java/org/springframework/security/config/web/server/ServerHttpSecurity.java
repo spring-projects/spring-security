@@ -229,9 +229,6 @@ public class ServerHttpSecurity {
 		}
 		if(this.httpBasic != null) {
 			this.httpBasic.authenticationManager(this.authenticationManager);
-			if(this.securityContextRepository != null) {
-				this.httpBasic.securityContextRepository(this.securityContextRepository);
-			}
 			this.httpBasic.configure(this);
 		}
 		if(this.formLogin != null) {

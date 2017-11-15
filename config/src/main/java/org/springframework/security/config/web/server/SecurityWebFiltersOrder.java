@@ -28,6 +28,10 @@ public enum SecurityWebFiltersOrder {
 	 */
 	CSRF,
 	/**
+	 * {@link org.springframework.security.web.server.context.ReactorContextWebFilter}
+	 */
+	REACTOR_CONTEXT,
+	/**
 	 * Instance of AuthenticationWebFilter
 	 */
 	HTTP_BASIC,
@@ -36,10 +40,6 @@ public enum SecurityWebFiltersOrder {
 	 */
 	FORM_LOGIN,
 	AUTHENTICATION,
-	/**
-	 * {@link org.springframework.security.web.server.context.ReactorContextWebFilter}
-	 */
-	REACTOR_CONTEXT,
 	LOGIN_PAGE_GENERATING,
 	LOGOUT_PAGE_GENERATING,
 	/**

@@ -100,7 +100,7 @@ public class ServerHttpSecurityTests {
 			.expectBody(String.class).consumeWith(b -> assertThat(b.getResponseBody()).isEqualTo("ok"))
 			.returnResult();
 
-		assertThat(result.getResponseCookies().getFirst("SESSION")).isNotNull();
+		assertThat(result.getResponseCookies().getFirst("SESSION")).isNull();
 	}
 
 	@Test
