@@ -33,7 +33,7 @@ public class NoOpServerRequestCache implements ServerRequestCache {
 	}
 
 	@Override
-	public Mono<URI> getRequest(ServerWebExchange exchange) {
+	public Mono<URI> getRedirectUri(ServerWebExchange exchange) {
 		return Mono.empty();
 	}
 

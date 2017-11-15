@@ -40,11 +40,11 @@ public interface ServerRequestCache {
 	Mono<Void> saveRequest(ServerWebExchange exchange);
 
 	/**
-	 * Get the saved {@link ServerHttpRequest}
+	 * Get the URI that can be redirected to trigger the saved request to be used
 	 * @param exchange the exchange to obtain the saved {@link ServerHttpRequest} from
-	 * @return the {@link ServerHttpRequest}
+	 * @return the URI that can be redirected to trigger the saved request to be used
 	 */
-	Mono<URI> getRequest(ServerWebExchange exchange);
+	Mono<URI> getRedirectUri(ServerWebExchange exchange);
 
 	/**
 	 * If the provided {@link ServerWebExchange} matches the saved {@link ServerHttpRequest}

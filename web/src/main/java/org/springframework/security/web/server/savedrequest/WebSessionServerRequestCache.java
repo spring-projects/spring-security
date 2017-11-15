@@ -70,7 +70,7 @@ public class WebSessionServerRequestCache implements ServerRequestCache {
 	}
 
 	@Override
-	public Mono<URI> getRequest(ServerWebExchange exchange) {
+	public Mono<URI> getRedirectUri(ServerWebExchange exchange) {
 		return exchange.getSession()
 			.flatMap(session -> Mono.justOrEmpty(session.<String>getAttribute(this.sessionAttrName)))
 			.map(URI::create);
@@ -79,7 +79,7 @@ public class WebSessionServerRequestCache implements ServerRequestCache {
 	@Override
 	public Mono<ServerHttpRequest> getMatchingRequest(
 		ServerWebExchange exchange) {
-		return getRequest(exchange)
+		return getRedirectUri(exchange)
 			.map(URI::toASCIIString)
 			.map(path ->  exchange.getRequest().mutate().path(path).build())
 			.filter( request -> pathInApplication(request).equals(
