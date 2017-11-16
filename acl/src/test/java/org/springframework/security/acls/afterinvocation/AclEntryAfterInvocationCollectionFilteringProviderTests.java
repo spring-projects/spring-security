@@ -82,7 +82,7 @@ public class AclEntryAfterInvocationCollectionFilteringProviderTests {
 
 		assertThat(provider.decide(mock(Authentication.class), new Object(),
 				SecurityConfig.createList("AFTER_ACL_COLLECTION_READ"), null))
-				.isNull();;
+				.isNull();
 		verify(service, never()).readAclById(any(ObjectIdentity.class), any(List.class));
 	}
 

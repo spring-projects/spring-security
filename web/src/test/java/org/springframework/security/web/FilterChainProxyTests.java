@@ -240,7 +240,7 @@ public class FilterChainProxyTests {
 					}
 				}).when(filter).doFilter(any(HttpServletRequest.class),
 						any(HttpServletResponse.class), any(FilterChain.class));
-				;
+
 				fcp.doFilter(request, response, innerChain);
 				assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(expected);
 				return null;

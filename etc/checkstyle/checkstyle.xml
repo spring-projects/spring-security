@@ -16,7 +16,10 @@
 	<!-- Root Checks -->
 	<module name="TreeWalker">
 		<!-- Annotations -->
-		<module name="MissingOverrideCheck"/>
+		<module name="MissingOverrideCheck" />
+
+		<!-- Coding -->
+		<module name="EmptyStatementCheck" />
 
 		<!-- Imports -->
 		<module name="UnusedImportsCheck">

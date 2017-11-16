@@ -44,12 +44,11 @@ public class RoleHierarchyImplTests {
 				authorities0)).isNotNull();
 		assertThat(
 				roleHierarchyImpl.getReachableGrantedAuthorities(authorities0)).isEmpty();
-		;
+
 		assertThat(roleHierarchyImpl.getReachableGrantedAuthorities(
 				authorities1)).isNotNull();
 		assertThat(
 				roleHierarchyImpl.getReachableGrantedAuthorities(authorities1)).isEmpty();
-		;
 	}
 
 	@Test
