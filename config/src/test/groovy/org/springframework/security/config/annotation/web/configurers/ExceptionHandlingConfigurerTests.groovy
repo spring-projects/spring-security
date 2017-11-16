@@ -100,6 +100,16 @@ class ExceptionHandlingConfigurerTests extends BaseSpringSpec {
 		response.status == HttpServletResponse.SC_UNAUTHORIZED
 	}
 
+	def "Chrome is Form by default"() {
+		setup:
+		loadConfig(DefaultSecurityConfig)
+		when:
+		request.addHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8")
+		springSecurityFilterChain.doFilter(request,response,chain)
+		then:
+		response.status == HttpServletResponse.SC_MOVED_TEMPORARILY
+	}
+
 	def "ContentNegotiationStrategy defaults to HeaderContentNegotiationStrategy"() {
 		when:
 			loadConfig(HttpBasicAndFormLoginEntryPointsConfig)
