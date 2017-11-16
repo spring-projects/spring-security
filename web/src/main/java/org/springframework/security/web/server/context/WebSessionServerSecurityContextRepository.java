@@ -38,7 +38,7 @@ public class WebSessionServerSecurityContextRepository
 					session.getAttributes().put(SESSION_ATTR, context);
 				}
 			})
-			.then();
+			.flatMap(session -> session.changeSessionId());
 	}
 
 	public Mono<SecurityContext> load(ServerWebExchange exchange) {
