@@ -23,8 +23,8 @@ package org.springframework.security.crypto.password;
  * passwords may be preferred.
  *
  * @author Keith Donald
- * @deprecated Digest based password encoding is not considered secure. Instead use an
- * adaptive one way funciton like BCryptPasswordEncoder, Pbkdf2PasswordEncoder, or
+ * @deprecated This PasswordEncoder is not secure. Instead use an
+ * adaptive one way function like BCryptPasswordEncoder, Pbkdf2PasswordEncoder, or
  * SCryptPasswordEncoder. Even better use {@link DelegatingPasswordEncoder} which supports
  * password upgrades.
  */
