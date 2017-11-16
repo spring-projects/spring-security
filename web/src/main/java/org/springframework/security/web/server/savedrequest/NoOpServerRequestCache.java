@@ -38,13 +38,8 @@ public class NoOpServerRequestCache implements ServerRequestCache {
 	}
 
 	@Override
-	public Mono<ServerHttpRequest> getMatchingRequest(
+	public Mono<ServerHttpRequest> removeMatchingRequest(
 		ServerWebExchange exchange) {
-		return Mono.empty();
-	}
-
-	@Override
-	public Mono<ServerHttpRequest> removeRequest(ServerWebExchange exchange) {
 		return Mono.empty();
 	}
 

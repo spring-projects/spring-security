@@ -67,7 +67,7 @@ public class WebSessionServerRequestCacheTests {
 		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/secured/"));
 		this.cache.saveRequest(exchange).block();
 
-		ServerHttpRequest saved = this.cache.removeRequest(exchange).block();
+		ServerHttpRequest saved = this.cache.removeMatchingRequest(exchange).block();
 
 		assertThat(saved.getURI()).isEqualTo(exchange.getRequest().getURI());
 	}
@@ -77,7 +77,7 @@ public class WebSessionServerRequestCacheTests {
 		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/secured/"));
 		this.cache.saveRequest(exchange).block();
 
-		this.cache.removeRequest(exchange).block();
+		this.cache.removeMatchingRequest(exchange).block();
 
 		assertThat(this.cache.getRedirectUri(exchange).block()).isNull();
 	}

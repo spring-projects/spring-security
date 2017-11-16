@@ -77,22 +77,12 @@ public class WebSessionServerRequestCache implements ServerRequestCache {
 	}
 
 	@Override
-	public Mono<ServerHttpRequest> getMatchingRequest(
+	public Mono<ServerHttpRequest> removeMatchingRequest(
 		ServerWebExchange exchange) {
-		return getRedirectUri(exchange)
-			.map(URI::toASCIIString)
-			.map(path ->  exchange.getRequest().mutate().path(path).build())
-			.filter( request -> pathInApplication(request).equals(
-				pathInApplication(exchange.getRequest())));
-	}
-
-	@Override
-	public Mono<ServerHttpRequest> removeRequest(ServerWebExchange exchange) {
 		return exchange.getSession()
 			.map(WebSession::getAttributes)
-			.flatMap(attrs -> Mono.justOrEmpty(attrs.remove(this.sessionAttrName)))
-			.cast(String.class)
-			.map(path -> exchange.getRequest().mutate().path(path).build());
+			.filter(attributes -> attributes.remove(this.sessionAttrName, pathInApplication(exchange.getRequest())))
+			.map(attributes -> exchange.getRequest());
 	}
 
 	private static String pathInApplication(ServerHttpRequest request) {

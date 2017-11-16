@@ -33,8 +33,7 @@ public class ServerRequestCacheWebFilter implements WebFilter {
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-		return this.requestCache.getMatchingRequest(exchange)
-			.flatMap(r -> this.requestCache.removeRequest(exchange))
+		return this.requestCache.removeMatchingRequest(exchange)
 			.map(r -> exchange.mutate().request(r).build())
 			.defaultIfEmpty(exchange)
 			.flatMap(e -> chain.filter(e));

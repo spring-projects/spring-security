@@ -52,15 +52,5 @@ public interface ServerRequestCache {
 	 * @param exchange the exchange to obtain the request from
 	 * @return the {@link ServerHttpRequest}
 	 */
-	Mono<ServerHttpRequest> getMatchingRequest(ServerWebExchange exchange);
-
-	/**
-	 * If the {@link ServerWebExchange} contains a saved {@link ServerHttpRequest} remove
-	 * and return it.
-	 *
-	 * @param exchange the {@link ServerWebExchange} to obtain and remove the
-	 * {@link ServerHttpRequest}
-	 * @return the {@link ServerHttpRequest}
-	 */
-	Mono<ServerHttpRequest> removeRequest(ServerWebExchange exchange);
+	Mono<ServerHttpRequest> removeMatchingRequest(ServerWebExchange exchange);
 }

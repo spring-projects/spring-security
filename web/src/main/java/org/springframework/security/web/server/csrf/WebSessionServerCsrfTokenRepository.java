@@ -60,15 +60,8 @@ public class WebSessionServerCsrfTokenRepository
 			return Mono.just(token);
 		}
 		return exchange.getSession()
-			.map(WebSession::getAttributes)
-			.flatMap( attrs -> save(attrs, token));
-	}
-
-	private Mono<CsrfToken> save(Map<String, Object> attributes, CsrfToken token) {
-		return Mono.defer(() -> {
-			putToken(attributes, token);
-			return Mono.justOrEmpty(token);
-		});
+			.doOnSuccess(session -> putToken(session.getAttributes(), token))
+			.flatMap(r -> Mono.justOrEmpty(token));
 	}
 
 	private void putToken(Map<String, Object> attributes, CsrfToken token) {
