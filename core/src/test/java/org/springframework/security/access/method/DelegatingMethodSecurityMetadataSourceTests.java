@@ -68,7 +68,7 @@ public class DelegatingMethodSecurityMetadataSourceTests {
 		// Exercise the cached case
 		assertThat(mds.getAttributes(mi)).isSameAs(attributes);
 		assertThat(mds.getAttributes(
-				new SimpleMethodInvocation(null, String.class.getMethod("length")))).isEmpty();;
+				new SimpleMethodInvocation(null, String.class.getMethod("length")))).isEmpty();
 	}
 
 }

@@ -403,7 +403,6 @@ public class SecurityContextHolderAwareRequestFilterTests {
 		this.filter.setRolePrefix("PREFIX_");
 
 		assertThat(wrappedRequest().isUserInRole("PREFIX_USER")).isTrue();
-		;
 	}
 
 	private HttpServletRequest wrappedRequest() throws Exception {

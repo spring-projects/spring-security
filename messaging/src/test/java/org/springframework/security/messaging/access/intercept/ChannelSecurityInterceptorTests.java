@@ -163,7 +163,6 @@ public class ChannelSecurityInterceptorTests {
 	@Test
 	public void preReceive() throws Exception {
 		assertThat(interceptor.preReceive(channel)).isTrue();
-		;
 	}
 
 	@Test
