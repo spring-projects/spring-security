@@ -21,6 +21,7 @@ import org.springframework.security.authentication.AuthenticationTrustResolverIm
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
@@ -29,6 +30,8 @@ import org.springframework.security.web.util.ThrowableAnalyzer;
 import org.springframework.security.web.util.ThrowableCauseExtractor;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
+
+import org.springframework.context.support.MessageSourceAccessor;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -82,6 +85,8 @@ public class ExceptionTranslationFilter extends GenericFilterBean {
 	private ThrowableAnalyzer throwableAnalyzer = new DefaultThrowableAnalyzer();
 
 	private RequestCache requestCache = new HttpSessionRequestCache();
+
+	private final MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
 	public ExceptionTranslationFilter(AuthenticationEntryPoint authenticationEntryPoint) {
 		this(authenticationEntryPoint, new HttpSessionRequestCache());
@@ -179,7 +184,9 @@ public class ExceptionTranslationFilter extends GenericFilterBean {
 						response,
 						chain,
 						new InsufficientAuthenticationException(
-								"Full authentication is required to access this resource"));
+							messages.getMessage(
+								"ExceptionTranslationFilter.insufficientAuthentication",
+								"Full authentication is required to access this resource")));
 			}
 			else {
 				logger.debug(
