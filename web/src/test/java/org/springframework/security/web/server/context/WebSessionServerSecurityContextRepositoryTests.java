@@ -39,7 +39,23 @@ public class WebSessionServerSecurityContextRepositoryTests {
 	@Test
 	public void saveAndLoadWhenDefaultsThenFound() {
 		SecurityContext expected = new SecurityContextImpl();
-		this.repository.save(this.exchange, new SecurityContextImpl()).block();
+		this.repository.save(this.exchange, expected).block();
+
+		SecurityContext actual = this.repository.load(this.exchange).block();
+
+		assertThat(actual).isEqualTo(expected);
+	}
+
+	@Test
+	public void saveAndLoadWhenCustomAttributeThenFound() {
+		String attrName = "attr";
+		this.repository.setSpringSecurityContextAttrName(attrName);
+		SecurityContext expected = new SecurityContextImpl();
+
+		this.repository.save(this.exchange, expected).block();
+
+		WebSession session = this.exchange.getSession().block();
+		assertThat(session.<SecurityContext>getAttribute(attrName)).isEqualTo(expected);
 
 		SecurityContext actual = this.repository.load(this.exchange).block();
 
@@ -49,7 +65,7 @@ public class WebSessionServerSecurityContextRepositoryTests {
 	@Test
 	public void saveAndLoadWhenNullThenDeletes() {
 		SecurityContext context = new SecurityContextImpl();
-		this.repository.save(this.exchange, new SecurityContextImpl()).block();
+		this.repository.save(this.exchange, context).block();
 		this.repository.save(this.exchange, null).block();
 
 		SecurityContext actual = this.repository.load(this.exchange).block();

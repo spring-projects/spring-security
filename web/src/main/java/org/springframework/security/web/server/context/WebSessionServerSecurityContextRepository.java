@@ -16,26 +16,45 @@
 package org.springframework.security.web.server.context;
 
 import org.springframework.security.core.context.SecurityContext;
+import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 
 import reactor.core.publisher.Mono;
 
 /**
- *
+ * Stores the {@link SecurityContext} in the
+ * {@link org.springframework.web.server.WebSession}. When a {@link SecurityContext} is
+ * saved, the session id is changed to prevent session fixation attacks.
  * @author Rob Winch
  * @since 5.0
  */
 public class WebSessionServerSecurityContextRepository
 	implements ServerSecurityContextRepository {
-	final String SESSION_ATTR = "USER";
+
+	/**
+	 * The default session attribute name to save and load the {@link SecurityContext}
+	 */
+	public static final String DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME = "SPRING_SECURITY_CONTEXT";
+
+	private String springSecurityContextAttrName = DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME;
+
+	/**
+	 * Sets the session attribute name used to save and load the {@link SecurityContext}
+	 * @param springSecurityContextAttrName the session attribute name to use to save and
+	 * load the {@link SecurityContext}
+	 */
+	public void setSpringSecurityContextAttrName(String springSecurityContextAttrName) {
+		Assert.hasText(springSecurityContextAttrName, "springSecurityContextAttrName cannot be null or empty");
+		this.springSecurityContextAttrName = springSecurityContextAttrName;
+	}
 
 	public Mono<Void> save(ServerWebExchange exchange, SecurityContext context) {
 		return exchange.getSession()
 			.doOnNext(session -> {
 				if(context == null) {
-					session.getAttributes().remove(SESSION_ATTR);
+					session.getAttributes().remove(this.springSecurityContextAttrName);
 				} else {
-					session.getAttributes().put(SESSION_ATTR, context);
+					session.getAttributes().put(this.springSecurityContextAttrName, context);
 				}
 			})
 			.flatMap(session -> session.changeSessionId());
@@ -43,7 +62,7 @@ public class WebSessionServerSecurityContextRepository
 
 	public Mono<SecurityContext> load(ServerWebExchange exchange) {
 		return exchange.getSession().flatMap( session -> {
-			SecurityContext context = (SecurityContext) session.getAttributes().get(SESSION_ATTR);
+			SecurityContext context = (SecurityContext) session.getAttributes().get(this.springSecurityContextAttrName);
 			return context == null ? Mono.empty() : Mono.just(context);
 		});
 	}
