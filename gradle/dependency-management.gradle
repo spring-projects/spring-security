@@ -1,6 +1,6 @@
 dependencyManagement {
 	imports {
-		mavenBom 'io.projectreactor:reactor-bom:Bismuth-BUILD-SNAPSHOT'
+		mavenBom 'io.projectreactor:reactor-bom:Bismuth-SR4'
 		mavenBom 'org.springframework:spring-framework-bom:5.0.2.BUILD-SNAPSHOT'
 		mavenBom 'org.springframework.data:spring-data-releasetrain:Kay-SR1'
 	}
