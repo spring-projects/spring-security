@@ -80,4 +80,10 @@ public class WebSessionServerSecurityContextRepositoryTests {
 		WebSession session = this.exchange.getSession().block();
 		assertThat(session.getId()).isNotEqualTo(originalSessionId);
 	}
+
+	@Test
+	public void loadWhenNullThenNull() {
+		SecurityContext context = this.repository.load(this.exchange).block();
+		assertThat(context).isNull();
+	}
 }

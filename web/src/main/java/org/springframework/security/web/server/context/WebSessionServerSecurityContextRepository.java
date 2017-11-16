@@ -19,6 +19,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 
+import org.springframework.web.server.WebSession;
 import reactor.core.publisher.Mono;
 
 /**
@@ -61,9 +62,11 @@ public class WebSessionServerSecurityContextRepository
 	}
 
 	public Mono<SecurityContext> load(ServerWebExchange exchange) {
-		return exchange.getSession().flatMap( session -> {
-			SecurityContext context = (SecurityContext) session.getAttributes().get(this.springSecurityContextAttrName);
-			return context == null ? Mono.empty() : Mono.just(context);
-		});
+		return exchange.getSession()
+			.map(WebSession::getAttributes)
+			.flatMap( attrs -> {
+				SecurityContext context = (SecurityContext) attrs.get(this.springSecurityContextAttrName);
+				return Mono.justOrEmpty(context);
+			});
 	}
 }
