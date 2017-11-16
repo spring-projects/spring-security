@@ -102,4 +102,12 @@ public class WebSessionServerCsrfTokenRepositoryTests {
 		load = this.repository.loadToken(this.exchange).block();
 		assertThat(load).isNull();
 	}
+
+	@Test
+	public void saveTokenChangeSessionId() {
+		String originalSessionId = this.exchange.getSession().block().getId();
+		this.repository.saveToken(this.exchange, null).block();
+		WebSession session = this.exchange.getSession().block();
+		assertThat(session.getId()).isNotEqualTo(originalSessionId);
+	}
 }

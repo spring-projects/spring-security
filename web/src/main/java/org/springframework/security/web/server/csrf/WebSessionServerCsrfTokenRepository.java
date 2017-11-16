@@ -61,6 +61,7 @@ public class WebSessionServerCsrfTokenRepository
 		}
 		return exchange.getSession()
 			.doOnSuccess(session -> putToken(session.getAttributes(), token))
+			.flatMap(session -> session.changeSessionId())
 			.flatMap(r -> Mono.justOrEmpty(token));
 	}
 
