@@ -26,6 +26,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.config.users.ReactiveAuthenticationTestConfiguration;
@@ -82,6 +83,23 @@ public class EnableWebFluxSecurityTests {
 
 		client.get()
 			.uri("/")
+			.exchange()
+			.expectStatus().isUnauthorized()
+			.expectBody().isEmpty();
+	}
+
+	// gh-4831
+	@Test
+	public void defaultMediaAllThenUnAuthorized() {
+		this.spring.register(Config.class).autowire();
+
+		WebTestClient client = WebTestClientBuilder
+			.bindToWebFilters(this.springSecurityFilterChain)
+			.build();
+
+		client.get()
+			.uri("/")
+			.accept(MediaType.ALL)
 			.exchange()
 			.expectStatus().isUnauthorized()
 			.expectBody().isEmpty();
