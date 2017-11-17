@@ -19,6 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -53,8 +54,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.powermock.api.mockito.PowerMockito.verifyPrivate;
 
 /**
  * Tests for {@link OAuth2LoginAuthenticationFilter}.
@@ -62,7 +65,7 @@ import static org.mockito.Mockito.*;
  * @author Joe Grandja
  */
 @PowerMockIgnore("javax.security.*")
-@PrepareForTest({OAuth2AuthorizationRequest.class, OAuth2AuthorizationExchange.class})
+@PrepareForTest({OAuth2AuthorizationRequest.class, OAuth2AuthorizationExchange.class, OAuth2LoginAuthenticationFilter.class})
 @RunWith(PowerMockRunner.class)
 public class OAuth2LoginAuthenticationFilterTests {
 	private ClientRegistration registration1;
@@ -261,6 +264,25 @@ public class OAuth2LoginAuthenticationFilterTests {
 
 		verifyZeroInteractions(filterChain);
 		verify(this.filter).attemptAuthentication(any(HttpServletRequest.class), any(HttpServletResponse.class));
+	}
+
+	@Test
+	public void attemptAuthenticationWhenAuthorizationRequestIsNullThenAuthorizationResponseNotCreated() throws Exception {
+		OAuth2LoginAuthenticationFilter filter = PowerMockito.spy(new OAuth2LoginAuthenticationFilter(
+			this.clientRegistrationRepository, this.authorizedClientService));
+
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addParameter(OAuth2ParameterNames.CODE, "code");
+		request.addParameter(OAuth2ParameterNames.STATE, "state");
+
+		MockHttpServletResponse response = new MockHttpServletResponse();
+
+		try {
+			filter.attemptAuthentication(request, response);
+			fail();
+		} catch (OAuth2AuthenticationException ex) {
+			verifyPrivate(filter, never()).invoke("convert", any(HttpServletRequest.class));
+		}
 	}
 
 	private void setUpAuthorizationRequest(HttpServletRequest request, HttpServletResponse response,

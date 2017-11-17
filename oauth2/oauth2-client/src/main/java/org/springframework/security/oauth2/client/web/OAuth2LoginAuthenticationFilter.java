@@ -108,7 +108,6 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 			OAuth2Error oauth2Error = new OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 		}
-		OAuth2AuthorizationResponse authorizationResponse = this.convert(request);
 
 		OAuth2AuthorizationRequest authorizationRequest = this.authorizationRequestRepository.loadAuthorizationRequest(request);
 		if (authorizationRequest == null) {
@@ -119,6 +118,8 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 
 		String registrationId = (String) authorizationRequest.getAdditionalParameters().get(OAuth2ParameterNames.REGISTRATION_ID);
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(registrationId);
+
+		OAuth2AuthorizationResponse authorizationResponse = this.convert(request);
 
 		OAuth2LoginAuthenticationToken authenticationRequest = new OAuth2LoginAuthenticationToken(
 				clientRegistration, new OAuth2AuthorizationExchange(authorizationRequest, authorizationResponse));
