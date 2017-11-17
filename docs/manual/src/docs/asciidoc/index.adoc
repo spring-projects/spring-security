@@ -1,5 +1,5 @@
 = Spring Security Reference
-Ben Alex; Luke Taylor; Rob Winch; Gunnar Hillert
+Ben Alex; Luke Taylor; Rob Winch; Gunnar Hillert; Joe Grandja
 :include-dir: _includes
 :security-api-url: http://docs.spring.io/spring-security/site/docs/current/apidocs/
 
@@ -104,7 +104,7 @@ At an authentication level, Spring Security supports a wide range of authenticat
 
 
 
-(* Denotes provided by a third party
+(* Denotes provided by a third party)
 
 Many independent software vendors (ISVs) adopt Spring Security because of this significant choice of flexible authentication models. Doing so allows them to quickly integrate their solutions with whatever their end clients need, without undertaking a lot of engineering or requiring the client to change their environment. If none of the above authentication mechanisms suit your needs, Spring Security is an open platform and it is quite simple to write your own authentication mechanism. Many corporate users of Spring Security need to integrate with "legacy" systems that don't follow any particular security standards, and Spring Security is happy to "play nicely" with such systems.
 
@@ -341,6 +341,25 @@ None of the classes are intended for direct use in an application.
 LDAP authentication and provisioning code. Required if you need to use LDAP authentication or manage LDAP user entries. The top-level package is `org.springframework.security.ldap`.
 
 
+[[spring-security-oauth2-core]]
+===== OAuth 2.0 Core - spring-security-oauth2-core.jar
+Contains core classes and interfaces providing support for the _OAuth 2.0 Authorization Framework_ and _OpenID Connect Core 1.0_. Required by applications leveraging _OAuth 2.0_ and/or _OpenID Connect Core 1.0_, e.g. Client, Resource Server and Authorization Server. The top-level package is `org.springframework.security.oauth2.core`.
+
+
+[[spring-security-oauth2-client]]
+===== OAuth 2.0 Client - spring-security-oauth2-client.jar
+Spring Security's client support for _OAuth 2.0 Authorization Framework_ and _OpenID Connect Core 1.0_. Required by applications leveraging *OAuth 2.0 Login* and/or OAuth Client support. The top-level package is `org.springframework.security.oauth2.client`.
+
+
+[[spring-security-oauth2-jose]]
+===== OAuth 2.0 JOSE - spring-security-oauth2-jose.jar
+Spring Security's support for the _JOSE_ framework (Javascript Object Signing and Encryption). The _JOSE_ framework is intended to provide a method to securely transfer claims between parties. It's comprised from a collection of specifications, specifically, JSON Web Token (JWT), JSON Web Signature (JWS), JSON Web Encryption (JWE) and JSON Web Key (JWK). Contains the top-level packages:
+
+* `org.springframework.security.oauth2.jwt`
+
+* `org.springframework.security.oauth2.jose`
+
+
 [[spring-security-acl]]
 ===== ACL - spring-security-acl.jar
 Specialized domain object ACL implementation. Used to apply security to specific domain object instances within your application. The top-level package is `org.springframework.security.acls`.
@@ -383,7 +402,7 @@ Below are the highlights of this milestone release.
 
 === New Features
 
-* https://github.com/spring-projects/spring-security/issues/3907[#3907] - Support added for OAuth 2.0 Login (start with {gh-samples-url}/boot/oauth2login/README.adoc[Sample README])
+* <<jc-oauth2login,OAuth 2.0 Login>>
 * Reactive Support
 ** <<jc-webflux,@EnableWebFluxSecurity>>
 ** <<jc-erms,@EnableReactiveMethodSecurity>>
@@ -417,6 +436,10 @@ If you are looking to get started with Spring Security, the best place to start 
 | {gh-samples-url}/javaconfig/form[Custom Login Form]
 | Demonstrates how to create a custom login form.
 | link:../../guides/html5/form-javaconfig.html[Custom Login Form Guide]
+
+| {gh-samples-url}/boot/oauth2login[OAuth 2.0 Login]
+| Demonstrates how to integrate OAuth 2.0 Login with an OAuth 2.0 or OpenID Connect 1.0 Provider.
+| link:{gh-samples-url}/boot/oauth2login/README.adoc[OAuth 2.0 Login Guide]
 
 |===
 
@@ -836,6 +859,522 @@ public class HelloWebfluxSecurityConfig {
 
 This configuration explicitly sets up all the sames things as our minimal configuration.
 From here you can easily make the changes to the defaults.
+
+[[jc-oauth2login]]
+=== OAuth 2.0 Login
+
+The OAuth 2.0 Login feature essentially realizes the use case _"Login with Google"_ or _"Login with GitHub"_. It ultimately provides an application
+the capability to have users login to the application using their existing account at an OAuth 2.0 Provider (e.g. GitHub) or OpenID Connect 1.0 Provider (e.g. Google).
+
+NOTE: OAuth 2.0 Login is realized using the *Authorization Code Grant*, as specified in the https://tools.ietf.org/html/rfc6749#section-4.1[OAuth 2.0 Authorization Framework]
+and http://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth[OpenID Connect Core 1.0].
+
+[[jc-oauth2login-sample-boot]]
+==== Spring Boot 2.0 Sample
+
+Spring Boot 2.0 brings full auto-configuration capabilities for OAuth 2.0 Login.
+
+Let's jump right in and configure the {gh-samples-url}/boot/oauth2login[*OAuth 2.0 Login sample*] using _Google_ as the _Authentication Provider_.
+
+[[jc-oauth2login-sample-initial-setup]]
+===== Initial setup
+
+In order to use Google's OAuth 2.0 authentication system for login, you must first set up a project in the *Google API Console* to obtain OAuth 2.0 credentials.
+
+NOTE: https://developers.google.com/identity/protocols/OpenIDConnect[Google's OAuth 2.0 implementation] for authentication conforms to the
+ http://openid.net/connect/[OpenID Connect 1.0] specification and is http://openid.net/certification/[OpenID Certified].
+
+Follow the instructions on the https://developers.google.com/identity/protocols/OpenIDConnect[OpenID Connect] page starting in the section *_"Setting up OAuth 2.0"_*.
+
+After completing the sub-section, *_"Obtain OAuth 2.0 credentials"_*, you should have created a new *OAuth Client* with credentials consisting of a *Client ID* and *Client Secret*.
+
+[[jc-oauth2login-sample-redirect-uri]]
+===== Setting the redirect URI
+
+The redirect URI is the path in the application that the end-user's user-agent is redirected back to after they have authenticated with Google
+and have granted access to the OAuth Client _(<<jc-oauth2login-sample-initial-setup,created in previous step>>)_ on the *Consent screen* page.
+
+For the sub-section, *_"Set a redirect URI"_*, ensure the *Authorized redirect URIs* is set to *_"http://localhost:8080/login/oauth2/code/google"_*.
+
+TIP: The default redirect URI template is *_{baseUrl}/login/oauth2/code/{registrationId}_*.
+ The *_registrationId_* is a unique identifier for the <<jc-oauth2login-client-registration,ClientRegistration>>.
+
+[[jc-oauth2login-sample-application-config]]
+===== Configure application.yml
+
+Now that you have created a new OAuth Client with Google, you need to configure the application to use the OAuth Client for the _authentication flow_.
+
+Go to *application.yml* and set the following configuration:
+
+[source,yaml]
+----
+spring:
+  security:
+    oauth2:
+      client:
+        registration:	<1>
+          google:	<2>
+            client-id: google-client-id
+            client-secret: google-client-secret
+----
+
+Replace the values in the *client-id* and *client-secret* property with the OAuth 2.0 credentials created previously.
+
+[TIP]
+.OAuth Client properties
+====
+<1> *_spring.security.oauth2.client.registration_* is the *base property prefix* for OAuth Client properties.
+<2> Following the *base property prefix* is the *_Id_* for the <<jc-oauth2login-client-registration,ClientRegistration>>, e.g. google.
+====
+
+[[jc-oauth2login-sample-boot-application]]
+===== Boot up the application
+
+Launch the Spring Boot 2.0 sample and go to *_"http://localhost:8080"_*.
+You'll then be redirected to the default _auto-generated_ login page displaying a link for Google.
+
+Click on the Google link and you'll then be redirected to Google for authentication.
+
+After authenticating using your Google account credentials, the next page presented to you will be the *Consent screen*.
+The Consent screen will ask you to either *_Allow_* or *_Deny_* access to the OAuth Client you created previously.
+Click *_Allow_* to authorize the OAuth Client to access your _email address_ and _basic profile_ information.
+
+At this point, the OAuth Client will retrieve your _email address_ and _basic profile_ information
+from the http://openid.net/specs/openid-connect-core-1_0.html#UserInfo[*UserInfo Endpoint*] and establish an *_authenticated session_*.
+
+[[jc-oauth2login-client-registration]]
+==== ClientRegistration
+
+`ClientRegistration` is a representation of a client registered with an OAuth 2.0 or OpenID Connect 1.0 Provider.
+
+A client registration holds information such as _client id_, _client secret_,
+_authorization grant type_, _redirect uri_, _scope(s)_, _authorization uri_, _token uri_, etc.
+
+`ClientRegistration` and it's properties are defined as follows:
+
+[source,java]
+----
+public final class ClientRegistration {
+	private String registrationId;	<1>
+	private String clientId;	<2>
+	private String clientSecret;	<3>
+	private ClientAuthenticationMethod clientAuthenticationMethod;	<4>
+	private AuthorizationGrantType authorizationGrantType;	<5>
+	private String redirectUriTemplate;	<6>
+	private Set<String> scopes;	<7>
+	private ProviderDetails providerDetails;
+	private String clientName;	<8>
+
+	public class ProviderDetails {
+		private String authorizationUri;	<9>
+		private String tokenUri;	<10>
+		private UserInfoEndpoint userInfoEndpoint;
+		private String jwkSetUri;	<11>
+
+		public class UserInfoEndpoint {
+			private String uri;	<12>
+			private String userNameAttributeName;	<13>
+
+		}
+	}
+}
+----
+<1> *registrationId* - the _Id_ that uniquely identifies the `ClientRegistration`.
+<2> *clientId* - the client identifier.
+<3> *clientSecret* - the client secret.
+<4> *clientAuthenticationMethod* - the method used to authenticate the Client with the Provider. Supported values are *basic* and *post*.
+<5> *authorizationGrantType* - the OAuth 2.0 Authorization Framework defines 4 https://tools.ietf.org/html/rfc6749#section-1.3[Authorization Grant] types.
+ Supported values are *authorization_code* and *implicit*.
+<6> *redirectUriTemplate* - the client's _registered_ redirect URI that the _Authorization Server_ redirects the end-user's user-agent
+ to after the end-user has authenticated and authorized access to the client.
+ The default redirect URI template is *_{baseUrl}/login/oauth2/code/{registrationId}_*, which supports _URI template variables_.
+<7> *scopes* - the scope(s) requested by the client during the _Authorization Request_ flow, for example, openid, email, profile.
+<8> *clientName* - a descriptive name used for the client. The name may be used in certain scenarios, for example, when displaying the name of the client in the _auto-generated_ login page.
+<9> *authorizationUri* - the _Authorization Endpoint_ URI for the Authorization Server.
+<10> *tokenUri* - the _Token Endpoint_ URI for the Authorization Server.
+<11> *jwkSetUri* - the URI used to retrieve the https://tools.ietf.org/html/rfc7517[JSON Web Key (JWK)] Set from the Authorization Server,
+ which contains the cryptographic key(s) used to verify the https://tools.ietf.org/html/rfc7515[JSON Web Signature (JWS)] of the *ID Token* and optionally the *UserInfo Response*.
+<12> *(userInfoEndpoint)uri* - the _UserInfo Endpoint_ URI used to access the claims/attributes of the authenticated end-user.
+<13> *userNameAttributeName* - the name of the attribute returned in the *UserInfo Response* that references the _Name_ or _Identifier_ of the end-user.
+
+[[jc-oauth2login-boot-property-mappings]]
+==== Spring Boot 2.0 Property Mappings
+
+The following table outlines the mapping of the Spring Boot 2.0 _OAuth Client_ properties to the `ClientRegistration` properties.
+
+|===
+|Spring Boot 2.0 |ClientRegistration
+
+|spring.security.oauth2.client.registration._[registrationId]_
+|registrationId
+
+|spring.security.oauth2.client.registration._[registrationId]_.client-id
+|clientId
+
+|spring.security.oauth2.client.registration._[registrationId]_.client-secret
+|clientSecret
+
+|spring.security.oauth2.client.registration._[registrationId]_.client-authentication-method
+|clientAuthenticationMethod
+
+|spring.security.oauth2.client.registration._[registrationId]_.authorization-grant-type
+|authorizationGrantType
+
+|spring.security.oauth2.client.registration._[registrationId]_.redirect-uri-template
+|redirectUriTemplate
+
+|spring.security.oauth2.client.registration._[registrationId]_.scope
+|scopes
+
+|spring.security.oauth2.client.registration._[registrationId]_.client-name
+|clientName
+
+|spring.security.oauth2.client.provider._[providerId]_.authorization-uri
+|providerDetails.authorizationUri
+
+|spring.security.oauth2.client.provider._[providerId]_.token-uri
+|providerDetails.tokenUri
+
+|spring.security.oauth2.client.provider._[providerId]_.jwk-set-uri
+|providerDetails.jwkSetUri
+
+|spring.security.oauth2.client.provider._[providerId]_.user-info-uri
+|providerDetails.userInfoEndpoint.uri
+
+|spring.security.oauth2.client.provider._[providerId]_.userNameAttribute
+|providerDetails.userInfoEndpoint.userNameAttributeName
+|===
+
+[[jc-oauth2login-client-registration-repo]]
+==== ClientRegistrationRepository
+
+The `ClientRegistrationRepository` serves as a _repository_ for OAuth 2.0 / OpenID Connect 1.0 `ClientRegistration`(s).
+
+[NOTE]
+Client registration information is ultimately stored and owned by the associated Authorization Server.
+This repository provides the capability to retrieve a _sub-set_ of the _primary_ client registration information
+which is stored with the Authorization Server.
+
+Spring Boot 2.0 auto-configuration will _bind_ each of the properties based under *spring.security.oauth2.client.registration._[registrationId]_*
+to an instance of `ClientRegistration` and then compose each of the `ClientRegistration` instance(s) within a `ClientRegistrationRepository`.
+
+[NOTE]
+The default implementation of `ClientRegistrationRepository` is `InMemoryClientRegistrationRepository`.
+
+The auto-configuration will also register the `ClientRegistrationRepository` as a `@Bean` in the `ApplicationContext`
+so that it's available for dependency-injection, if needed by the application.
+
+For example:
+
+[source,java]
+----
+@Controller
+public class MainController {
+
+	@Autowired
+	private ClientRegistrationRepository clientRegistrationRepository;
+
+	@RequestMapping("/")
+	public String index() {
+		ClientRegistration googleRegistration =
+			this.clientRegistrationRepository.findByRegistrationId("google");
+
+		...
+
+		return "index";
+	}
+}
+----
+
+[[jc-oauth2login-common-oauth2-provider]]
+==== CommonOAuth2Provider
+
+`CommonOAuth2Provider` pre-defines a set of default client properties for a number of _well-known_ Providers, specifically, Google, GitHub, Facebook and Okta.
+
+For example, the _authorization-uri_, _token-uri_ and _user-info-uri_ does not change often for a Provider and therefore it makes sense to
+provide default values in order to reduce the configuration required.
+
+As demonstrated previously, when we <<jc-oauth2login-sample-application-config,configured a Google client>>, only the *client-id* and *client-secret* properties were required.
+
+For example:
+
+[source,yaml]
+----
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: google-client-id
+            client-secret: google-client-secret
+----
+
+[TIP]
+The _auto-defaulting_ of client properties seamlessly works here because the *registrationId* (google) matches the `GOOGLE` `enum` (case-insensitive) in `CommonOAuth2Provider`.
+
+For cases where you may want to specify a different *registrationId*, for example, *google-login*,
+you can still leverage _auto-defaulting_ of client properties by configuring the *provider* property.
+
+For example:
+
+[source,yaml]
+----
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          google-login:	<1>
+            provider: google	<2>
+            client-id: google-client-id
+            client-secret: google-client-secret
+----
+<1> The *registrationId* is set to *google-login*.
+<2> The *provider* property is set to *google*, which will leverage the _auto-defaulting_ of client properties set in `CommonOAuth2Provider.GOOGLE.getBuilder()`.
+
+[[jc-oauth2login-custom-provider-properties]]
+==== Configuring Custom Provider Properties
+
+There are some OAuth 2.0 Providers that support _multi-tenancy_, which results in different _Protocol Endpoints_ for each tenant (or sub-domain).
+
+For example, an OAuth Client registered with Okta is assigned to a specific _sub-domain_ and have their own _Protocol Endpoints_.
+
+For these cases, Spring Boot 2.0 provides the base property *spring.security.oauth2.client.provider._[providerId]_* for configuring custom Provider properties.
+
+For example:
+
+[source,yaml]
+----
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          okta:
+            client-id: okta-client-id
+            client-secret: okta-client-secret
+        provider:
+          okta:	<1>
+            authorization-uri: https://your-subdomain.oktapreview.com/oauth2/v1/authorize
+            token-uri: https://your-subdomain.oktapreview.com/oauth2/v1/token
+            user-info-uri: https://your-subdomain.oktapreview.com/oauth2/v1/userinfo
+            user-name-attribute: sub
+            jwk-set-uri: https://your-subdomain.oktapreview.com/oauth2/v1/keys
+----
+
+<1> The base property *spring.security.oauth2.client.provider.okta* allows for custom configuration of _Protocol Endpoint_ locations.
+
+[[jc-oauth2login-override-boot-autoconfig]]
+==== Overriding Spring Boot 2.0 Auto-configuration
+
+The Spring Boot 2.0 Auto-configuration class for OAuth Client support is `OAuth2ClientAutoConfiguration`.
+
+It performs the following tasks:
+
+. Registers a `ClientRegistrationRepository` `@Bean` composed of `ClientRegistration`(s) from the configured OAuth Client properties.
+. Provides a `WebSecurityConfigurerAdapter` `@Configuration` and enables OAuth 2.0 Login via `httpSecurity.oauth2Login()`.
+
+If you need to override the Auto-configuration based on your specific requirements, you may do so in the following ways.
+
+- Register a `ClientRegistrationRepository` `@Bean`.
+
+[source,java]
+----
+@Configuration
+public class OAuth2LoginConfig {
+
+	@Bean
+	public ClientRegistrationRepository clientRegistrationRepository() {
+		return new InMemoryClientRegistrationRepository(this.googleClientRegistration());
+	}
+
+	private ClientRegistration googleClientRegistration() {
+		return ClientRegistration.withRegistrationId("google")
+			.clientId("google-client-id")
+			.clientSecret("google-client-secret")
+			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+			.redirectUriTemplate("{baseUrl}/login/oauth2/code/{registrationId}")
+			.scope("openid", "profile", "email", "address", "phone")
+			.authorizationUri("https://accounts.google.com/o/oauth2/v2/auth")
+			.tokenUri("https://www.googleapis.com/oauth2/v4/token")
+			.userInfoUri("https://www.googleapis.com/oauth2/v3/userinfo")
+			.userNameAttributeName(IdTokenClaimNames.SUB)
+			.jwkSetUri("https://www.googleapis.com/oauth2/v3/certs")
+			.clientName("Google")
+			.build();
+	}
+}
+----
+
+- Provide a `WebSecurityConfigurerAdapter` with `@EnableWebSecurity` and enable OAuth 2.0 Login via `httpSecurity.oauth2Login()`.
+
+[source,java]
+----
+@EnableWebSecurity
+public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
+
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http
+			.authorizeRequests()
+				.anyRequest().authenticated()
+				.and()
+			.oauth2Login();
+	}
+}
+----
+
+- Completely override the Auto-configuration by doing both, as per above.
+
+[source,java]
+----
+@Configuration
+public class OAuth2LoginConfig {
+
+	@EnableWebSecurity
+	public static class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.authorizeRequests()
+					.anyRequest().authenticated()
+					.and()
+				.oauth2Login();
+		}
+	}
+
+	@Bean
+	public ClientRegistrationRepository clientRegistrationRepository() {
+		return new InMemoryClientRegistrationRepository(this.googleClientRegistration());
+	}
+
+	private ClientRegistration googleClientRegistration() {
+		return ClientRegistration.withRegistrationId("google")
+			.clientId("google-client-id")
+			.clientSecret("google-client-secret")
+			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+			.redirectUriTemplate("{baseUrl}/login/oauth2/code/{registrationId}")
+			.scope("openid", "profile", "email", "address", "phone")
+			.authorizationUri("https://accounts.google.com/o/oauth2/v2/auth")
+			.tokenUri("https://www.googleapis.com/oauth2/v4/token")
+			.userInfoUri("https://www.googleapis.com/oauth2/v3/userinfo")
+			.userNameAttributeName(IdTokenClaimNames.SUB)
+			.jwkSetUri("https://www.googleapis.com/oauth2/v3/certs")
+			.clientName("Google")
+			.build();
+	}
+}
+----
+
+[[jc-oauth2login-javaconfig-wo-boot]]
+==== Java Configuration without Spring Boot 2.0
+
+If you are not able to use Spring Boot 2.0 and would like to configure one of the _pre-defined_ Providers in `CommonOAuth2Provider`,
+for example Google, the following configuration can be applied:
+
+[source,java]
+----
+@Configuration
+public class OAuth2LoginConfig {
+
+	@EnableWebSecurity
+	public static class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.authorizeRequests()
+					.anyRequest().authenticated()
+					.and()
+				.oauth2Login();
+		}
+	}
+
+	@Bean
+	public ClientRegistrationRepository clientRegistrationRepository() {
+		return new InMemoryClientRegistrationRepository(this.googleClientRegistration());
+	}
+
+	@Bean
+	public OAuth2AuthorizedClientService authorizedClientService() {
+		return new InMemoryOAuth2AuthorizedClientService(this.clientRegistrationRepository());
+	}
+
+	private ClientRegistration googleClientRegistration() {
+		return CommonOAuth2Provider.GOOGLE.getBuilder("google")
+			.clientId("google-client-id")
+			.clientSecret("google-client-secret")
+			.build();
+	}
+}
+----
+
+[[jc-oauth2login-authorized-client]]
+==== OAuth2AuthorizedClient / OAuth2AuthorizedClientService
+
+`OAuth2AuthorizedClient` is a representation of an *_Authorized Client_*.
+A client is considered _authorized_ when the end-user _(Resource Owner)_ has granted authorization to the client to access it's protected resources.
+
+`OAuth2AuthorizedClient` serves the purpose of associating an `OAuth2AccessToken` to a `ClientRegistration` _(Client)_ and _Resource Owner_,
+who is the `Principal` end-user that granted the authorization.
+
+The primary role of the `OAuth2AuthorizedClientService` is to manage `OAuth2AuthorizedClient` instances.
+From a developer perspective, it provides the capability to lookup an `OAuth2AccessToken` associated to a _Client_
+so that it may be used to initiate a request to a _Resource Server_.
+
+[NOTE]
+Spring Boot 2.0 Auto-configuration registers an `OAuth2AuthorizedClientService` `@Bean` in the `ApplicationContext`.
+
+The developer may also register an `OAuth2AuthorizedClientService` `@Bean` in the `ApplicationContext` (overriding Spring Boot 2.0 Auto-configuration)
+in order to have the ability to lookup an `OAuth2AccessToken` associated to a specific `ClientRegistration` _(Client)_.
+
+For example:
+
+[source,java]
+----
+@Controller
+public class MainController {
+
+	@Autowired
+	private OAuth2AuthorizedClientService authorizedClientService;
+
+	@RequestMapping("/userinfo")
+	public String userinfo(OAuth2AuthenticationToken authentication) {
+		// authentication.getAuthorizedClientRegistrationId() returns the
+		// registrationId of the Client that was authorized during the Login flow
+		OAuth2AuthorizedClient authorizedClient =
+			this.authorizedClientService.loadAuthorizedClient(
+				authentication.getAuthorizedClientRegistrationId(),
+				authentication.getName());
+
+		OAuth2AccessToken accessToken = authorizedClient.getAccessToken();
+
+		...
+
+		return "userinfo";
+	}
+}
+----
+
+[[jc-oauth2login-resources]]
+==== Additional Resources
+
+===== Advanced Configuration
+* <<oauth2login-advanced-login-page, OAuth 2.0 Login Page>>
+* Authorization Endpoint
+** <<oauth2login-advanced-authorization-request-repository, AuthorizationRequestRepository>>
+* <<oauth2login-advanced-redirection-endpoint, Redirection Endpoint>>
+* Token Endpoint
+** <<oauth2login-advanced-token-client, OAuth2AccessTokenResponseClient>>
+* UserInfo Endpoint
+** <<oauth2login-advanced-map-authorities, Mapping User Authorities>>
+** <<oauth2login-advanced-custom-user, Configuring a Custom OAuth2User>>
+** <<oauth2login-advanced-oauth2-user-service, OAuth 2.0 UserService>>
+** <<oauth2login-advanced-oidc-user-service, OpenID Connect 1.0 UserService>>
 
 [[jc-authentication]]
 === Authentication
@@ -6006,6 +6545,503 @@ By default, the user authorities are obtained from the `memberOf` attribute valu
 ===== Active Directory Error Codes
 By default, a failed result will cause a standard Spring Security `BadCredentialsException`. If you set the property `convertSubErrorCodesToExceptions` to `true`, the exception messages will be parsed to attempt to extract the Active Directory-specific error code and raise a more specific exception. Check the class Javadoc for more information.
 
+[[oauth2login-advanced]]
+== OAuth 2.0 Login - Advanced Configuration
+
+`HttpSecurity.oauth2Login()` (`OAuth2LoginConfigurer`) provides a number of configuration options for customizing OAuth 2.0 Login.
+The main configuration options are grouped into their _Protocol Endpoint_ counterparts.
+
+For example, `oauth2Login().authorizationEndpoint()` allows configuring the _Authorization Endpoint_,
+whereas `oauth2Login().tokenEndpoint()` allows configuring the _Token Endpoint_.
+
+[source,java]
+----
+@EnableWebSecurity
+public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
+
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http
+			.oauth2Login()
+				.authorizationEndpoint()
+					...
+				.redirectionEndpoint()
+					...
+				.tokenEndpoint()
+					...
+				.userInfoEndpoint()
+					...
+	}
+}
+----
+
+The main goal of the `oauth2Login()` DSL was to closely align with the naming as defined in the specifications.
+
+The *OAuth 2.0 Authorization Framework* defines the https://tools.ietf.org/html/rfc6749#section-3[Protocol Endpoints] as follows:
+
+The authorization process utilizes two authorization server endpoints (HTTP resources):
+
+- *Authorization Endpoint* - used by the client to obtain authorization from the resource owner via user-agent redirection.
+- *Token Endpoint* - used by the client to exchange an authorization grant for an access token, typically with client authentication.
+
+As well as one client endpoint:
+
+- *Redirection Endpoint* - used by the authorization server to return responses
+containing authorization credentials to the client via the resource owner user-agent.
+
+The *OpenID Connect Core 1.0* specification defines the http://openid.net/specs/openid-connect-core-1_0.html#UserInfo[UserInfo Endpoint] as follows:
+
+The *UserInfo Endpoint* is an OAuth 2.0 Protected Resource that returns Claims about the authenticated End-User.
+To obtain the requested Claims about the End-User, the Client makes a request to the UserInfo Endpoint
+using an Access Token obtained through OpenID Connect Authentication.
+These Claims are normally represented by a JSON object that contains a collection of name and value pairs for the Claims.
+
+The complete configuration options available for the `oauth2Login()` DSL is as follows:
+
+[source,java]
+----
+@EnableWebSecurity
+public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
+
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http
+			.oauth2Login()
+				.clientRegistrationRepository(this.clientRegistrationRepository())
+				.authorizedClientService(this.authorizedClientService())
+				.loginPage("/login")
+				.authorizationEndpoint()
+					.baseUri(this.authorizationRequestBaseUri())
+					.authorizationRequestRepository(this.authorizationRequestRepository())
+					.and()
+				.redirectionEndpoint()
+					.baseUri(this.authorizationResponseBaseUri())
+					.and()
+				.tokenEndpoint()
+					.accessTokenResponseClient(this.accessTokenResponseClient())
+					.and()
+				.userInfoEndpoint()
+					.userAuthoritiesMapper(this.userAuthoritiesMapper())
+					.userService(this.oauth2UserService())
+					.oidcUserService(this.oidcUserService())
+					.customUserType(GitHubOAuth2User.class, "github");
+	}
+}
+----
+
+The sections to follow will go more into detail on each of the configuration options available.
+
+[[oauth2login-advanced-login-page]]
+=== OAuth 2.0 Login Page
+
+By default, the OAuth 2.0 Login Page will be _auto-generated_ by the `DefaultLoginPageGeneratingFilter`.
+The default login page will display each configured OAuth Client with it's `ClientRegistration.clientName`
+as a link, that is capable of initiating the _Authorization Request_ (or OAuth 2.0 Login).
+
+The link's destination for each OAuth Client defaults to the following:
+
+`OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI` + "/{registrationId}"
+
+For example:
+
+[source,html]
+----
+<a href="/oauth2/authorization/google">Google</a>
+----
+
+If you would like to override the default login page,
+you need to configure `oauth2Login().loginPage()` and optionally `oauth2Login().authorizationEndpoint().baseUri()`.
+
+For example:
+
+[source,java]
+----
+@EnableWebSecurity
+public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
+
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http
+			.oauth2Login()
+				.loginPage("/login/oauth2")
+				...
+				.authorizationEndpoint()
+					.baseUri("/login/oauth2/authorization")
+					....
+	}
+}
+----
+
+[IMPORTANT]
+You will need to provide a `@Controller` with a `@RequestMapping("/login/oauth2")` that is capable of rendering the custom login page.
+
+[TIP]
+====
+As noted, configuring `oauth2Login().authorizationEndpoint().baseUri()` is optional.
+However, if you choose to customize it, ensure the link to each OAuth Client matches the `authorizationEndpoint().baseUri()`.
+
+For example:
+
+[source,html]
+----
+<a href="/login/oauth2/authorization/google">Google</a>
+----
+====
+
+[[oauth2login-advanced-authorization-endpoint]]
+=== Authorization Endpoint
+
+[[oauth2login-advanced-authorization-request-repository]]
+==== AuthorizationRequestRepository
+
+`AuthorizationRequestRepository` is responsible for the persistence of the `OAuth2AuthorizationRequest`
+from the time the _Authorization Request_ is initiated to the time the _Authorization Response_
+is received (_the callback_).
+
+[TIP]
+The `OAuth2AuthorizationRequest` is used to correlate and validate the _Authorization Response_.
+
+The default implementation of `AuthorizationRequestRepository` is `HttpSessionOAuth2AuthorizationRequestRepository`,
+which stores the `OAuth2AuthorizationRequest` in the `HttpSession`.
+
+If you would like to provide a custom implementation of `AuthorizationRequestRepository`
+that stores the attributes of `OAuth2AuthorizationRequest` in a `Cookie`,
+you may configure it as follows:
+
+[source,java]
+----
+@EnableWebSecurity
+public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
+
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http
+			.oauth2Login()
+				.authorizationEndpoint()
+					.authorizationRequestRepository(this.cookieAuthorizationRequestRepository())
+					...
+	}
+
+	private AuthorizationRequestRepository<OAuth2AuthorizationRequest> cookieAuthorizationRequestRepository() {
+		return new HttpCookieOAuth2AuthorizationRequestRepository();
+	}
+}
+----
+
+[[oauth2login-advanced-redirection-endpoint]]
+=== Redirection Endpoint
+
+The Redirection Endpoint is used by the Authorization Server for returning the _Authorization Response_
+(which contains the authorization credentials) to the client via the Resource Owner user-agent.
+
+[TIP]
+OAuth 2.0 Login leverages the *Authorization Code Grant*, therefore the authorization credential is the _authorization code_.
+
+The default _Authorization Response_ `baseUri` (Redirection Endpoint) is */login/oauth2/code/**, which is defined in `OAuth2LoginAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI`.
+
+If you would like to customize the _Authorization Response_ `baseUri`, you may configure it as follows:
+
+[source,java]
+----
+@EnableWebSecurity
+public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
+
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http
+			.oauth2Login()
+				.redirectionEndpoint()
+					.baseUri("/login/oauth2/callback/*")
+					....
+	}
+}
+----
+
+[IMPORTANT]
+====
+You will also need to ensure the `ClientRegistration.redirectUriTemplate` matches this custom _Authorization Response_ `baseUri`.
+
+For example:
+
+[source,java]
+----
+return CommonOAuth2Provider.GOOGLE.getBuilder("google")
+	.clientId("google-client-id")
+	.clientSecret("google-client-secret")
+	.redirectUriTemplate("{baseUrl}/login/oauth2/callback/{registrationId}")
+	.build();
+----
+====
+
+[[oauth2login-advanced-token-endpoint]]
+=== Token Endpoint
+
+[[oauth2login-advanced-token-client]]
+==== OAuth2AccessTokenResponseClient
+
+`OAuth2AccessTokenResponseClient` is responsible for *_exchanging_* an *Authorization Grant* credential
+for an *Access Token* credential at the Authorization Server's _Token Endpoint_.
+
+The default implementation of `OAuth2AccessTokenResponseClient` is `NimbusAuthorizationCodeTokenResponseClient`,
+which *_exchanges_* an *Authorization Code* for an *Access Token* at the _Token Endpoint_.
+
+[NOTE]
+`NimbusAuthorizationCodeTokenResponseClient` leverages the https://connect2id.com/products/nimbus-oauth-openid-connect-sdk[Nimbus OAuth 2.0 SDK] internally.
+
+If you would like to provide a custom implementation of `OAuth2AccessTokenResponseClient`
+that uses _Spring Framework 5_ reactive `WebClient` for initiating requests to the _Token Endpoint_,
+you may configure it as follows:
+
+[source,java]
+----
+@EnableWebSecurity
+public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
+
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http
+			.oauth2Login()
+				.tokenEndpoint()
+					.accessTokenResponseClient(this.accessTokenResponseClient())
+					...
+	}
+
+	private OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient() {
+		return new SpringWebClientAuthorizationCodeTokenResponseClient();
+	}
+}
+----
+
+[[oauth2login-advanced-userinfo-endpoint]]
+=== UserInfo Endpoint
+
+[[oauth2login-advanced-map-authorities]]
+==== Mapping User Authorities
+
+After the user successfully authenticates with the OAuth 2.0 Provider,
+the `OAuth2User.getAuthorities()` may be mapped to a new set of `GrantedAuthority`(s), which will then be supplied to `OAuth2AuthenticationToken`.
+
+[TIP]
+`OAuth2AuthenticationToken.getAuthorities()` is used for authorizing requests, for example, `hasRole('USER')` or `hasRole('ADMIN')`.
+
+In order to map user authorities, you need to provide an implementation of `GrantedAuthoritiesMapper`
+and configure it as follows:
+
+[source,java]
+----
+@EnableWebSecurity
+public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
+
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http
+			.oauth2Login()
+				.userInfoEndpoint()
+					.userAuthoritiesMapper(this.userAuthoritiesMapper())
+					...
+	}
+
+	private GrantedAuthoritiesMapper userAuthoritiesMapper() {
+		return (authorities) -> {
+			Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
+
+			authorities.forEach(authority -> {
+				if (OidcUserAuthority.class.isInstance(authority)) {
+					OidcUserAuthority oidcUserAuthority = (OidcUserAuthority)authority;
+
+					OidcIdToken idToken = oidcUserAuthority.getIdToken();
+					OidcUserInfo userInfo = oidcUserAuthority.getUserInfo();
+
+					// Map the claims found in idToken and/or userInfo
+					// to one or more GrantedAuthority's and add it to mappedAuthorities
+
+				} else if (OAuth2UserAuthority.class.isInstance(authority)) {
+					OAuth2UserAuthority oauth2UserAuthority = (OAuth2UserAuthority)authority;
+
+					Map<String, Object> userAttributes = oauth2UserAuthority.getAttributes();
+
+					// Map the attributes found in userAttributes
+					// to one or more GrantedAuthority's and add it to mappedAuthorities
+
+				}
+			});
+
+			return mappedAuthorities;
+		};
+	}
+}
+----
+
+[[oauth2login-advanced-custom-user]]
+==== Configuring a Custom OAuth2User
+
+`CustomUserTypesOAuth2UserService` is an implementation of an `OAuth2UserService`
+which provides support for custom `OAuth2User` types.
+
+There may be a use case where you would like to define your own implementation of `OAuth2User`
+as the default implementation (`DefaultOAuth2User`) may not suit your needs.
+
+The following code demonstrates how you would register a custom `OAuth2User` type for *GitHub*.
+
+[source,java]
+----
+@EnableWebSecurity
+public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
+
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http
+			.oauth2Login()
+				.userInfoEndpoint()
+					.customUserType(GitHubOAuth2User.class, "github")
+					...
+	}
+}
+----
+
+The custom `OAuth2User` type for GitHub is defined as follows:
+
+[source,java]
+----
+public class GitHubOAuth2User implements OAuth2User {
+	private List<GrantedAuthority> authorities =
+		AuthorityUtils.createAuthorityList("ROLE_USER");
+	private Map<String, Object> attributes;
+	private String id;
+	private String name;
+	private String login;
+	private String email;
+
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		return this.authorities;
+	}
+
+	@Override
+	public Map<String, Object> getAttributes() {
+		if (this.attributes == null) {
+			this.attributes = new HashMap<>();
+			this.attributes.put("id", this.getId());
+			this.attributes.put("name", this.getName());
+			this.attributes.put("login", this.getLogin());
+			this.attributes.put("email", this.getEmail());
+		}
+		return attributes;
+	}
+
+	public String getId() {
+		return this.id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	@Override
+	public String getName() {
+		return this.name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getLogin() {
+		return this.login;
+	}
+
+	public void setLogin(String login) {
+		this.login = login;
+	}
+
+	public String getEmail() {
+		return this.email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+}
+----
+
+[TIP]
+_id_, _name_, _login_ and _email_ are attributes returned in GitHub's *UserInfo Response*.
+For detailed information returned from the *UserInfo Endpoint* see the API documentation
+for https://developer.github.com/v3/users/#get-the-authenticated-user[Get the authenticated user].
+
+[[oauth2login-advanced-oauth2-user-service]]
+==== OAuth 2.0 UserService
+
+`DefaultOAuth2UserService` is an implementation of an `OAuth2UserService`
+that supports standard OAuth 2.0 Provider's.
+
+[NOTE]
+`OAuth2UserService` is responsible for obtaining the user attributes
+of the end-user (_Resource Owner_) from the UserInfo Endpoint (using the
+_Access Token_ granted to the client during the _Authorization Flow_)
+and return an `AuthenticatedPrincipal` in the form of an `OAuth2User`.
+
+There may be a use case where you need to define your own implementation of `OAuth2UserService`
+for standard OAuth 2.0 Provider's if the default implementation does not suit your needs.
+
+The following configuration demonstrates how to configure a custom `OAuth2UserService`.
+
+[source,java]
+----
+@EnableWebSecurity
+public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
+
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http
+			.oauth2Login()
+				.userInfoEndpoint()
+					.userService(this.oauth2UserService())
+					...
+	}
+
+	private OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService() {
+		return new CustomOAuth2UserService();
+	}
+}
+----
+
+[[oauth2login-advanced-oidc-user-service]]
+==== OpenID Connect 1.0 UserService
+
+`OidcUserService` is an implementation of an `OAuth2UserService`
+that supports OpenID Connect 1.0 Provider's.
+
+[NOTE]
+`OAuth2UserService` is responsible for obtaining the user attributes
+of the end-user (_Resource Owner_) from the UserInfo Endpoint (using the
+_Access Token_ granted to the client during the _Authorization Flow_)
+and return an `AuthenticatedPrincipal` in the form of an `OidcUser`.
+
+There may be a use case where you need to define your own implementation of `OAuth2UserService`
+for OpenID Connect 1.0 Provider's if the default implementation does not suit your needs.
+
+The following configuration demonstrates how to configure a custom OpenID Connect 1.0 `OAuth2UserService`.
+
+[source,java]
+----
+@EnableWebSecurity
+public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
+
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http
+			.oauth2Login()
+				.userInfoEndpoint()
+					.oidcUserService(this.oidcUserService())
+					...
+	}
+
+	private OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService() {
+		return new CustomOidcUserService();
+	}
+}
+----
 
 [[taglibs]]
 == JSP Tag Libraries
