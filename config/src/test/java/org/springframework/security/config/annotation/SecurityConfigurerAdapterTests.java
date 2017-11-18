@@ -42,7 +42,6 @@ public class SecurityConfigurerAdapterTests {
 		private final int order;
 
 		public OrderedObjectPostProcessor(int order) {
-			super();
 			this.order = order;
 		}
 

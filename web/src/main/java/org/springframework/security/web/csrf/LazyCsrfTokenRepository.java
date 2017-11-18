@@ -106,7 +106,6 @@ public final class LazyCsrfTokenRepository implements CsrfTokenRepository {
 		SaveOnAccessCsrfToken(CsrfTokenRepository tokenRepository,
 				HttpServletRequest request, HttpServletResponse response,
 				CsrfToken delegate) {
-			super();
 			this.tokenRepository = tokenRepository;
 			this.request = request;
 			this.response = response;

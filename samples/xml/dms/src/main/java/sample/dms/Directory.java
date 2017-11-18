@@ -24,7 +24,6 @@ public class Directory extends AbstractElement {
 	public static final Directory ROOT_DIRECTORY = new Directory();
 
 	private Directory() {
-		super();
 	}
 
 	public Directory(String name, Directory parent) {

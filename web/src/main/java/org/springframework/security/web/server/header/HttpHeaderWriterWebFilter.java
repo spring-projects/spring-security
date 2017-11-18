@@ -33,7 +33,6 @@ public class HttpHeaderWriterWebFilter implements WebFilter {
 	private final ServerHttpHeadersWriter writer;
 
 	public HttpHeaderWriterWebFilter(ServerHttpHeadersWriter writer) {
-		super();
 		this.writer = writer;
 	}
 

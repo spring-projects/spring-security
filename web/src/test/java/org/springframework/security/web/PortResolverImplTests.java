@@ -28,12 +28,6 @@ import org.springframework.mock.web.MockHttpServletRequest;
  * @author Ben Alex
  */
 public class PortResolverImplTests {
-	// ~ Constructors
-	// ===================================================================================================
-
-	public PortResolverImplTests() {
-		super();
-	}
 
 	// ~ Methods
 	// ========================================================================================================

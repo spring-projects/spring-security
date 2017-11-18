@@ -26,7 +26,6 @@ public class Contact {
 	 * @param name
 	 */
 	public Contact(String name) {
-		super();
 		this.name = name;
 	}
 

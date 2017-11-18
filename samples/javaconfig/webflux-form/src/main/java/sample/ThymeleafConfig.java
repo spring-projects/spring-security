@@ -36,7 +36,6 @@ public class ThymeleafConfig implements WebFluxConfigurer {
 	private ApplicationContext applicationContext;
 
 	public ThymeleafConfig(final ApplicationContext applicationContext) {
-		super();
 		this.applicationContext = applicationContext;
 	}
 
