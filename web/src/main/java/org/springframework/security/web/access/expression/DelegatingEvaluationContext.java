@@ -39,7 +39,6 @@ class DelegatingEvaluationContext implements EvaluationContext {
 	private final EvaluationContext delegate;
 
 	public DelegatingEvaluationContext(EvaluationContext delegate) {
-		super();
 		this.delegate = delegate;
 	}
 

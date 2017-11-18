@@ -76,10 +76,6 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 	private final UserInfoEndpointConfig userInfoEndpointConfig = new UserInfoEndpointConfig();
 	private String loginPage;
 
-	public OAuth2LoginConfigurer() {
-		super();
-	}
-
 	public OAuth2LoginConfigurer<B> clientRegistrationRepository(ClientRegistrationRepository clientRegistrationRepository) {
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
 		this.getBuilder().setSharedObject(ClientRegistrationRepository.class, clientRegistrationRepository);

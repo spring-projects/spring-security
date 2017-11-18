@@ -73,7 +73,6 @@ public final class HstsHeaderWriter implements HeaderWriter {
 	 */
 	public HstsHeaderWriter(RequestMatcher requestMatcher, long maxAgeInSeconds,
 			boolean includeSubDomains) {
-		super();
 		this.requestMatcher = requestMatcher;
 		this.maxAgeInSeconds = maxAgeInSeconds;
 		this.includeSubDomains = includeSubDomains;

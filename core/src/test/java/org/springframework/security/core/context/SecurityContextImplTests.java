@@ -28,12 +28,6 @@ import org.springframework.security.core.Authentication;
  * @author Ben Alex
  */
 public class SecurityContextImplTests {
-	// ~ Constructors
-	// ===================================================================================================
-
-	public SecurityContextImplTests() {
-		super();
-	}
 
 	// ~ Methods
 	// ========================================================================================================
