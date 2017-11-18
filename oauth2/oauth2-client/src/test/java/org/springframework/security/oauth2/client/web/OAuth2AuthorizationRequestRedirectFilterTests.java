@@ -150,7 +150,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 
 		verifyZeroInteractions(filterChain);
 
-		assertThat(response.getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=http://localhost:80/login/oauth2/code/registration-1");
+		assertThat(response.getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=http://localhost/login/oauth2/code/registration-1");
 	}
 
 	@Test
@@ -182,7 +182,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 		assertThat(authorizationRequest.getClientId()).isEqualTo(
 			this.registration2.getClientId());
 		assertThat(authorizationRequest.getRedirectUri()).isEqualTo(
-			"http://localhost:80/login/oauth2/code/registration-2");
+			"http://localhost/login/oauth2/code/registration-2");
 		assertThat(authorizationRequest.getScopes()).isEqualTo(
 			this.registration2.getScopes());
 		assertThat(authorizationRequest.getState()).isNotNull();
@@ -203,7 +203,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 
 		verifyZeroInteractions(filterChain);
 
-		assertThat(response.getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?response_type=token&client_id=client-3&scope=openid%20profile%20email&state=.{15,}&redirect_uri=http://localhost:80/login/oauth2/implicit/registration-3");
+		assertThat(response.getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?response_type=token&client_id=client-3&scope=openid%20profile%20email&state=.{15,}&redirect_uri=http://localhost/login/oauth2/implicit/registration-3");
 	}
 
 	@Test
@@ -243,7 +243,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 
 		verifyZeroInteractions(filterChain);
 
-		assertThat(response.getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=http://localhost:80/login/oauth2/code/registration-1");
+		assertThat(response.getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=http://localhost/login/oauth2/code/registration-1");
 	}
 
 	@Test
@@ -268,6 +268,44 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 		assertThat(authorizationRequest.getRedirectUri()).isNotEqualTo(
 			this.registration2.getRedirectUriTemplate());
 		assertThat(authorizationRequest.getRedirectUri()).isEqualTo(
-			"http://localhost:80/login/oauth2/code/registration-2");
+			"http://localhost/login/oauth2/code/registration-2");
+	}
+
+	@Test
+	public void doFilterWhenAuthorizationRequestIncludesPort80ThenExpandedRedirectUriExcludesPort() throws Exception {
+		String requestUri = OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI +
+			"/" + this.registration1.getRegistrationId();
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
+		request.setScheme("http");
+		request.setServerName("example.com");
+		request.setServerPort(80);
+		request.setServletPath(requestUri);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		FilterChain filterChain = mock(FilterChain.class);
+
+		this.filter.doFilter(request, response, filterChain);
+
+		verifyZeroInteractions(filterChain);
+
+		assertThat(response.getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=http://example.com/login/oauth2/code/registration-1");
+	}
+
+	@Test
+	public void doFilterWhenAuthorizationRequestIncludesPort443ThenExpandedRedirectUriExcludesPort() throws Exception {
+		String requestUri = OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI +
+			"/" + this.registration1.getRegistrationId();
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
+		request.setScheme("https");
+		request.setServerName("example.com");
+		request.setServerPort(443);
+		request.setServletPath(requestUri);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		FilterChain filterChain = mock(FilterChain.class);
+
+		this.filter.doFilter(request, response, filterChain);
+
+		verifyZeroInteractions(filterChain);
+
+		assertThat(response.getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=https://example.com/login/oauth2/code/registration-1");
 	}
 }

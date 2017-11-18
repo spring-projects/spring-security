@@ -164,21 +164,22 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 	}
 
 	private String expandRedirectUri(HttpServletRequest request, ClientRegistration clientRegistration) {
-		Map<String, String> uriVariables = new HashMap<>();
-		uriVariables.put("scheme", request.getScheme());
-		uriVariables.put("serverName", request.getServerName());
-		uriVariables.put("serverPort", String.valueOf(request.getServerPort()));
-		uriVariables.put("contextPath", request.getContextPath());
-		uriVariables.put("registrationId", clientRegistration.getRegistrationId());
+		int port = request.getServerPort();
+		if (("http".equals(request.getScheme()) && port == 80) || ("https".equals(request.getScheme()) && port == 443)) {
+			port = -1;		// Removes the port in UriComponentsBuilder
+		}
 
 		String baseUrl = UriComponentsBuilder.newInstance()
 			.scheme(request.getScheme())
 			.host(request.getServerName())
-			.port(request.getServerPort())
+			.port(port)
 			.path(request.getContextPath())
 			.build()
 			.toUriString();
+
+		Map<String, String> uriVariables = new HashMap<>();
 		uriVariables.put("baseUrl", baseUrl);
+		uriVariables.put("registrationId", clientRegistration.getRegistrationId());
 
 		return UriComponentsBuilder.fromUriString(clientRegistration.getRedirectUriTemplate())
 			.buildAndExpand(uriVariables)
