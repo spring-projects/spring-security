@@ -41,7 +41,7 @@ public class SimpleMappableAttributesRetriever implements MappableAttributesRetr
 	}
 
 	public void setMappableAttributes(Set<String> aMappableRoles) {
-		this.mappableAttributes = new HashSet<String>();
+		this.mappableAttributes = new HashSet<>();
 		this.mappableAttributes.addAll(aMappableRoles);
 		this.mappableAttributes = Collections.unmodifiableSet(this.mappableAttributes);
 	}

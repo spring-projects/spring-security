@@ -51,7 +51,7 @@ public class ExpressionProtectedBusinessServiceImpl implements BusinessService {
 	}
 
 	public List<Object> methodReturningAList(String userName, String arg2) {
-		return new ArrayList<Object>();
+		return new ArrayList<>();
 	}
 
 	@PostFilter("filterObject == 'bob'")

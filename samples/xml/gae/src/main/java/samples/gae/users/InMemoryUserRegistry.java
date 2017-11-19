@@ -30,7 +30,7 @@ public class InMemoryUserRegistry implements UserRegistry {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	private final Map<String, GaeUser> users = Collections
-			.synchronizedMap(new HashMap<String, GaeUser>());
+			.synchronizedMap(new HashMap<>());
 
 	public GaeUser findUser(String userId) {
 		return users.get(userId);

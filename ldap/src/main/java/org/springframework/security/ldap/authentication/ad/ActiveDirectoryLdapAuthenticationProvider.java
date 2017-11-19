@@ -175,7 +175,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends
 			logger.debug("'memberOf' attribute values: " + Arrays.asList(groups));
 		}
 
-		ArrayList<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>(
+		ArrayList<GrantedAuthority> authorities = new ArrayList<>(
 				groups.length);
 
 		for (String group : groups) {
@@ -190,7 +190,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends
 		// TODO. add DNS lookup based on domain
 		final String bindUrl = url;
 
-		Hashtable<String, String> env = new Hashtable<String, String>();
+		Hashtable<String, String> env = new Hashtable<>();
 		env.put(Context.SECURITY_AUTHENTICATION, "simple");
 		String bindPrincipal = createBindPrincipal(username);
 		env.put(Context.SECURITY_PRINCIPAL, bindPrincipal);

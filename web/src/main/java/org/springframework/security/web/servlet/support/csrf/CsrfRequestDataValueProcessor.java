@@ -67,7 +67,7 @@ public final class CsrfRequestDataValueProcessor implements RequestDataValueProc
 		if (token == null) {
 			return Collections.emptyMap();
 		}
-		Map<String, String> hiddenFields = new HashMap<String, String>(1);
+		Map<String, String> hiddenFields = new HashMap<>(1);
 		hiddenFields.put(token.getParameterName(), token.getToken());
 		return hiddenFields;
 	}

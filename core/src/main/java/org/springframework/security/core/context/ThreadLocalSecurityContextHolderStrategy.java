@@ -32,7 +32,7 @@ final class ThreadLocalSecurityContextHolderStrategy implements
 	// ~ Static fields/initializers
 	// =====================================================================================
 
-	private static final ThreadLocal<SecurityContext> contextHolder = new ThreadLocal<SecurityContext>();
+	private static final ThreadLocal<SecurityContext> contextHolder = new ThreadLocal<>();
 
 	// ~ Methods
 	// ========================================================================================================

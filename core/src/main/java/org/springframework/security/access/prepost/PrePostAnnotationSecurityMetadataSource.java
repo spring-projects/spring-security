@@ -84,7 +84,7 @@ public class PrePostAnnotationSecurityMetadataSource extends
 		String postAuthorizeAttribute = postAuthorize == null ? null : postAuthorize
 				.value();
 
-		ArrayList<ConfigAttribute> attrs = new ArrayList<ConfigAttribute>(2);
+		ArrayList<ConfigAttribute> attrs = new ArrayList<>(2);
 
 		PreInvocationAttribute pre = attributeFactory.createPreInvocationAttribute(
 				preFilterAttribute, filterObject, preAuthorizeAttribute);

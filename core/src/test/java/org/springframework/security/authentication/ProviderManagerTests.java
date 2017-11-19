@@ -27,7 +27,6 @@ import org.junit.Test;
 import org.springframework.context.MessageSource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
 
 /**
  * Tests {@link ProviderManager}.
@@ -318,12 +317,12 @@ public class ProviderManagerTests {
 
 	private TestingAuthenticationToken createAuthenticationToken() {
 		return new TestingAuthenticationToken("name", "password",
-				new ArrayList<GrantedAuthority>(0));
+				new ArrayList<>(0));
 	}
 
 	private ProviderManager makeProviderManager() throws Exception {
 		MockProvider provider1 = new MockProvider();
-		List<AuthenticationProvider> providers = new ArrayList<AuthenticationProvider>();
+		List<AuthenticationProvider> providers = new ArrayList<>();
 		providers.add(provider1);
 
 		return new ProviderManager(providers);

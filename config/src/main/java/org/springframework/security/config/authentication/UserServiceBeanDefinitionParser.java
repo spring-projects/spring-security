@@ -82,7 +82,7 @@ public class UserServiceBeanDefinitionParser extends
 							+ ATT_PROPERTIES + "' attribute)");
 		}
 
-		ManagedList<BeanDefinition> users = new ManagedList<BeanDefinition>();
+		ManagedList<BeanDefinition> users = new ManagedList<>();
 
 		for (Object elt : userElts) {
 			Element userElt = (Element) elt;

@@ -55,7 +55,7 @@ public class PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetailsTests {
 
 	private HttpServletRequest getRequest(final String userName, final String[] aRoles) {
 		MockHttpServletRequest req = new MockHttpServletRequest() {
-			private Set<String> roles = new HashSet<String>(Arrays.asList(aRoles));
+			private Set<String> roles = new HashSet<>(Arrays.asList(aRoles));
 
 			public boolean isUserInRole(String arg0) {
 				return roles.contains(arg0);

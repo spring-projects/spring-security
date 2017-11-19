@@ -76,7 +76,7 @@ public class SecurityConfig implements ConfigAttribute {
 
 	public static List<ConfigAttribute> createList(String... attributeNames) {
 		Assert.notNull(attributeNames, "You must supply an array of attribute names");
-		List<ConfigAttribute> attributes = new ArrayList<ConfigAttribute>(
+		List<ConfigAttribute> attributes = new ArrayList<>(
 				attributeNames.length);
 
 		for (String attribute : attributeNames) {

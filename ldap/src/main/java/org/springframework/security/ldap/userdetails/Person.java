@@ -42,7 +42,7 @@ public class Person extends LdapUserDetailsImpl {
 	private String sn;
 	private String description;
 	private String telephoneNumber;
-	private List<String> cn = new ArrayList<String>();
+	private List<String> cn = new ArrayList<>();
 
 	protected Person() {
 	}
@@ -106,7 +106,7 @@ public class Person extends LdapUserDetailsImpl {
 			setSn(copyMe.sn);
 			setDescription(copyMe.getDescription());
 			setTelephoneNumber(copyMe.getTelephoneNumber());
-			((Person) instance).cn = new ArrayList<String>(copyMe.cn);
+			((Person) instance).cn = new ArrayList<>(copyMe.cn);
 		}
 
 		protected LdapUserDetailsImpl createTarget() {

@@ -139,7 +139,7 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>> exte
 
 		boolean isCsrfEnabled = http.getConfigurer(CsrfConfigurer.class) != null;
 
-		List<RequestMatcher> matchers = new ArrayList<RequestMatcher>();
+		List<RequestMatcher> matchers = new ArrayList<>();
 		if (isCsrfEnabled) {
 			RequestMatcher getRequests = new AntPathRequestMatcher("/**", "GET");
 			matchers.add(0, getRequests);

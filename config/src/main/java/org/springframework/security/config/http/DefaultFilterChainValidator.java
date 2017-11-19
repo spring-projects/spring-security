@@ -52,8 +52,8 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 			checkFilterStack(filterChain.getFilters());
 		}
 
-		checkPathOrder(new ArrayList<SecurityFilterChain>(fcp.getFilterChains()));
-		checkForDuplicateMatchers(new ArrayList<SecurityFilterChain>(
+		checkPathOrder(new ArrayList<>(fcp.getFilterChains()));
+		checkForDuplicateMatchers(new ArrayList<>(
 				fcp.getFilterChains()));
 	}
 

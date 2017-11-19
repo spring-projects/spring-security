@@ -392,7 +392,7 @@ public class CasAuthenticationProviderTests {
 	}
 
 	private class MockStatelessTicketCache implements StatelessTicketCache {
-		private Map<String, CasAuthenticationToken> cache = new HashMap<String, CasAuthenticationToken>();
+		private Map<String, CasAuthenticationToken> cache = new HashMap<>();
 
 		public CasAuthenticationToken getByTicketId(String serviceTicket) {
 			return cache.get(serviceTicket);

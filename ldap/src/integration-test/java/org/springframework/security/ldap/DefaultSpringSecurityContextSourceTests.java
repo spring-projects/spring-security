@@ -104,7 +104,7 @@ public class DefaultSpringSecurityContextSourceTests extends AbstractLdapIntegra
 
 	@Test(expected = IllegalArgumentException.class)
 	public void instantiationFailsWithEmptyServerList() throws Exception {
-		List<String> serverUrls = new ArrayList<String>();
+		List<String> serverUrls = new ArrayList<>();
 		DefaultSpringSecurityContextSource ctxSrc = new DefaultSpringSecurityContextSource(
 				serverUrls, "dc=springframework,dc=org");
 		ctxSrc.afterPropertiesSet();
@@ -112,7 +112,7 @@ public class DefaultSpringSecurityContextSourceTests extends AbstractLdapIntegra
 
 	@Test
 	public void instantiationSuceedsWithProperServerList() throws Exception {
-		List<String> serverUrls = new ArrayList<String>();
+		List<String> serverUrls = new ArrayList<>();
 		serverUrls.add("ldap://foo:789");
 		serverUrls.add("ldap://bar:389");
 		serverUrls.add("ldaps://blah:636");
@@ -127,7 +127,7 @@ public class DefaultSpringSecurityContextSourceTests extends AbstractLdapIntegra
 	@Test
 	public void instantiationSuceedsWithEmtpyBaseDn() throws Exception {
 		String baseDn = "";
-		List<String> serverUrls = new ArrayList<String>();
+		List<String> serverUrls = new ArrayList<>();
 		serverUrls.add("ldap://foo:789");
 		serverUrls.add("ldap://bar:389");
 		serverUrls.add("ldaps://blah:636");
@@ -140,7 +140,7 @@ public class DefaultSpringSecurityContextSourceTests extends AbstractLdapIntegra
 
 	@Test(expected = IllegalArgumentException.class)
 	public void instantiationFailsWithIncorrectServerUrl() throws Exception {
-		List<String> serverUrls = new ArrayList<String>();
+		List<String> serverUrls = new ArrayList<>();
 		// a simple trailing slash should be ok
 		serverUrls.add("ldaps://blah:636/");
 		// this url should be rejected because the root DN goes into a separate parameter

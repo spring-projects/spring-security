@@ -181,7 +181,7 @@ public abstract class AbstractJaasAuthenticationProvider
 
 			// Create a set to hold the authorities, and add any that have already been
 			// applied.
-			authorities = new HashSet<GrantedAuthority>();
+			authorities = new HashSet<>();
 
 			// Get the subject principals and pass them to each of the AuthorityGranters
 			Set<Principal> principals = loginContext.getSubject().getPrincipals();
@@ -203,7 +203,7 @@ public abstract class AbstractJaasAuthenticationProvider
 			// Convert the authorities set back to an array and apply it to the token.
 			JaasAuthenticationToken result = new JaasAuthenticationToken(
 					request.getPrincipal(), request.getCredentials(),
-					new ArrayList<GrantedAuthority>(authorities), loginContext);
+					new ArrayList<>(authorities), loginContext);
 
 			// Publish the success event
 			publishSuccessEvent(result);

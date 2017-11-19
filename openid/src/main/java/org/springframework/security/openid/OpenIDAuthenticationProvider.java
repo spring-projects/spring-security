@@ -136,7 +136,7 @@ public class OpenIDAuthenticationProvider
 	 * Used to load the {@code UserDetails} for the authenticated OpenID user.
 	 */
 	public void setUserDetailsService(UserDetailsService userDetailsService) {
-		this.userDetailsService = new UserDetailsByNameServiceWrapper<OpenIDAuthenticationToken>(
+		this.userDetailsService = new UserDetailsByNameServiceWrapper<>(
 				userDetailsService);
 	}
 

@@ -43,7 +43,7 @@ class UnmodifiableSetDeserializer extends JsonDeserializer<Set> {
 	public Set deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
 		ObjectMapper mapper = (ObjectMapper) jp.getCodec();
 		JsonNode node = mapper.readTree(jp);
-		Set<Object> resultSet = new HashSet<Object>();
+		Set<Object> resultSet = new HashSet<>();
 		if (node != null) {
 			if (node instanceof ArrayNode) {
 				ArrayNode arrayNode = (ArrayNode) node;

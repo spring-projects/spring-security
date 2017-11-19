@@ -38,7 +38,7 @@ import org.springframework.security.core.Authentication;
  * @author Ben Alex
  */
 public class AffirmativeBasedTests {
-	private final List<ConfigAttribute> attrs = new ArrayList<ConfigAttribute>();
+	private final List<ConfigAttribute> attrs = new ArrayList<>();
 	private final Authentication user = new TestingAuthenticationToken("somebody",
 			"password", "ROLE_1", "ROLE_2");
 	private AffirmativeBased mgr;

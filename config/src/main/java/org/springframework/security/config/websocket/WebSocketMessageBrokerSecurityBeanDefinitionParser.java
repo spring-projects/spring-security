@@ -116,7 +116,7 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 		BeanDefinitionRegistry registry = parserContext.getRegistry();
 		XmlReaderContext context = parserContext.getReaderContext();
 
-		ManagedMap<BeanDefinition, String> matcherToExpression = new ManagedMap<BeanDefinition, String>();
+		ManagedMap<BeanDefinition, String> matcherToExpression = new ManagedMap<>();
 
 		String id = element.getAttribute(ID_ATTR);
 		Element expressionHandlerElt = DomUtils.getChildElementByTagName(element,
@@ -149,7 +149,7 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 
 		String mdsId = context.registerWithGeneratedName(mds.getBeanDefinition());
 
-		ManagedList<BeanDefinition> voters = new ManagedList<BeanDefinition>();
+		ManagedList<BeanDefinition> voters = new ManagedList<>();
 		BeanDefinitionBuilder messageExpressionVoterBldr = BeanDefinitionBuilder.rootBeanDefinition(MessageExpressionVoter.class);
 		if(expressionHandlerDefined) {
 			messageExpressionVoterBldr.addPropertyReference("expressionHandler", expressionHandlerRef);
@@ -259,7 +259,7 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 						WEB_SOCKET_AMMH_CLASS_NAME.equals(beanClassName)) {
 					PropertyValue current = bd.getPropertyValues().getPropertyValue(
 							CUSTOM_ARG_RESOLVERS_PROP);
-					ManagedList<Object> argResolvers = new ManagedList<Object>();
+					ManagedList<Object> argResolvers = new ManagedList<>();
 					if (current != null) {
 						argResolvers.addAll((ManagedList<?>) current.getValue());
 					}
@@ -322,7 +322,7 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 				return;
 			}
 			String interceptorPropertyName = "handshakeInterceptors";
-			ManagedList<? super Object> interceptors = new ManagedList<Object>();
+			ManagedList<? super Object> interceptors = new ManagedList<>();
 			interceptors.add(new RootBeanDefinition(CsrfTokenHandshakeInterceptor.class));
 			interceptors.addAll((ManagedList<Object>) bd.getPropertyValues().get(
 					interceptorPropertyName));

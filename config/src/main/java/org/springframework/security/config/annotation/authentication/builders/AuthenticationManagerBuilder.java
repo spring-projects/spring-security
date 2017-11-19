@@ -54,7 +54,7 @@ public class AuthenticationManagerBuilder
 	private final Log logger = LogFactory.getLog(getClass());
 
 	private AuthenticationManager parentAuthenticationManager;
-	private List<AuthenticationProvider> authenticationProviders = new ArrayList<AuthenticationProvider>();
+	private List<AuthenticationProvider> authenticationProviders = new ArrayList<>();
 	private UserDetailsService defaultUserDetailsService;
 	private Boolean eraseCredentials;
 	private AuthenticationEventPublisher eventPublisher;
@@ -131,7 +131,7 @@ public class AuthenticationManagerBuilder
 	 */
 	public InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder> inMemoryAuthentication()
 			throws Exception {
-		return apply(new InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder>());
+		return apply(new InMemoryUserDetailsManagerConfigurer<>());
 	}
 
 	/**
@@ -161,7 +161,7 @@ public class AuthenticationManagerBuilder
 	 */
 	public JdbcUserDetailsManagerConfigurer<AuthenticationManagerBuilder> jdbcAuthentication()
 			throws Exception {
-		return apply(new JdbcUserDetailsManagerConfigurer<AuthenticationManagerBuilder>());
+		return apply(new JdbcUserDetailsManagerConfigurer<>());
 	}
 
 	/**
@@ -184,7 +184,7 @@ public class AuthenticationManagerBuilder
 	public <T extends UserDetailsService> DaoAuthenticationConfigurer<AuthenticationManagerBuilder, T> userDetailsService(
 			T userDetailsService) throws Exception {
 		this.defaultUserDetailsService = userDetailsService;
-		return apply(new DaoAuthenticationConfigurer<AuthenticationManagerBuilder, T>(
+		return apply(new DaoAuthenticationConfigurer<>(
 				userDetailsService));
 	}
 
@@ -203,7 +203,7 @@ public class AuthenticationManagerBuilder
 	 */
 	public LdapAuthenticationProviderConfigurer<AuthenticationManagerBuilder> ldapAuthentication()
 			throws Exception {
-		return apply(new LdapAuthenticationProviderConfigurer<AuthenticationManagerBuilder>());
+		return apply(new LdapAuthenticationProviderConfigurer<>());
 	}
 
 	/**

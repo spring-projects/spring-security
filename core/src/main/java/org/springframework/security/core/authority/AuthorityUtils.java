@@ -55,7 +55,7 @@ public abstract class AuthorityUtils {
 	 */
 	public static Set<String> authorityListToSet(
 			Collection<? extends GrantedAuthority> userAuthorities) {
-		Set<String> set = new HashSet<String>(userAuthorities.size());
+		Set<String> set = new HashSet<>(userAuthorities.size());
 
 		for (GrantedAuthority authority : userAuthorities) {
 			set.add(authority.getAuthority());
@@ -65,7 +65,7 @@ public abstract class AuthorityUtils {
 	}
 
 	public static List<GrantedAuthority> createAuthorityList(String... roles) {
-		List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>(roles.length);
+		List<GrantedAuthority> authorities = new ArrayList<>(roles.length);
 
 		for (String role : roles) {
 			authorities.add(new SimpleGrantedAuthority(role));

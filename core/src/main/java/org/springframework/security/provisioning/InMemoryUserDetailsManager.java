@@ -48,7 +48,7 @@ import org.springframework.util.Assert;
 public class InMemoryUserDetailsManager implements UserDetailsManager {
 	protected final Log logger = LogFactory.getLog(getClass());
 
-	private final Map<String, MutableUserDetails> users = new HashMap<String, MutableUserDetails>();
+	private final Map<String, MutableUserDetails> users = new HashMap<>();
 
 	private AuthenticationManager authenticationManager;
 

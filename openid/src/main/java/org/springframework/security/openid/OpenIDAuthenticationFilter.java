@@ -104,7 +104,7 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 
 		if (returnToUrlParameters.isEmpty()
 				&& getRememberMeServices() instanceof AbstractRememberMeServices) {
-			returnToUrlParameters = new HashSet<String>();
+			returnToUrlParameters = new HashSet<>();
 			returnToUrlParameters
 					.add(((AbstractRememberMeServices) getRememberMeServices())
 							.getParameter());

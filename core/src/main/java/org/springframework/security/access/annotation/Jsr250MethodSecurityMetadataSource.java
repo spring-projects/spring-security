@@ -75,7 +75,7 @@ public class Jsr250MethodSecurityMetadataSource extends
 		if (annotations == null || annotations.length == 0) {
 			return null;
 		}
-		List<ConfigAttribute> attributes = new ArrayList<ConfigAttribute>();
+		List<ConfigAttribute> attributes = new ArrayList<>();
 
 		for (Annotation a : annotations) {
 			if (a instanceof DenyAll) {

@@ -44,7 +44,7 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 	private Acl parentAcl;
 	private transient AclAuthorizationStrategy aclAuthorizationStrategy;
 	private transient PermissionGrantingStrategy permissionGrantingStrategy;
-	private final List<AccessControlEntry> aces = new ArrayList<AccessControlEntry>();
+	private final List<AccessControlEntry> aces = new ArrayList<>();
 	private ObjectIdentity objectIdentity;
 	private Serializable id;
 	private Sid owner; // OwnershipAcl
@@ -173,7 +173,7 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 	public List<AccessControlEntry> getEntries() {
 		// Can safely return AccessControlEntry directly, as they're immutable outside the
 		// ACL package
-		return new ArrayList<AccessControlEntry>(aces);
+		return new ArrayList<>(aces);
 	}
 
 	@Override

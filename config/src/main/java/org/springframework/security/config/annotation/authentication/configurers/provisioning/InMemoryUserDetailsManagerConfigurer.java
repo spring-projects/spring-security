@@ -18,7 +18,6 @@ package org.springframework.security.config.annotation.authentication.configurer
 import java.util.ArrayList;
 
 import org.springframework.security.config.annotation.authentication.ProviderManagerBuilder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 /**
@@ -39,6 +38,6 @@ public class InMemoryUserDetailsManagerConfigurer<B extends ProviderManagerBuild
 	 * Creates a new instance
 	 */
 	public InMemoryUserDetailsManagerConfigurer() {
-		super(new InMemoryUserDetailsManager(new ArrayList<UserDetails>()));
+		super(new InMemoryUserDetailsManager(new ArrayList<>()));
 	}
 }

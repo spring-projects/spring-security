@@ -56,7 +56,7 @@ public class UserTests {
 	@Test
 	public void hashLookupOnlyDependsOnUsername() throws Exception {
 		User user1 = new User("rod", "koala", true, true, true, true, ROLE_12);
-		Set<UserDetails> users = new HashSet<UserDetails>();
+		Set<UserDetails> users = new HashSet<>();
 		users.add(user1);
 
 		assertThat(users).contains(new User("rod", "koala", true, true, true, true,

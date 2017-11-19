@@ -91,7 +91,7 @@ public class AfterInvocationProviderManager implements AfterInvocationManager,
 
 	public void setProviders(List<?> newList) {
 		checkIfValidList(newList);
-		providers = new ArrayList<AfterInvocationProvider>(newList.size());
+		providers = new ArrayList<>(newList.size());
 
 		for (Object currentObject : newList) {
 			Assert.isInstanceOf(AfterInvocationProvider.class, currentObject,

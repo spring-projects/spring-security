@@ -174,7 +174,7 @@ public class ThrowableAnalyzer {
 			throw new IllegalArgumentException("Invalid throwable: null");
 		}
 
-		List<Throwable> chain = new ArrayList<Throwable>();
+		List<Throwable> chain = new ArrayList<>();
 		Throwable currentThrowable = throwable;
 
 		while (currentThrowable != null) {

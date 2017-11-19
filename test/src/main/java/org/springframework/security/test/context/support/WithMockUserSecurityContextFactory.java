@@ -46,7 +46,7 @@ final class WithMockUserSecurityContextFactory implements
 					+ " cannot have null username on both username and value properites");
 		}
 
-		List<GrantedAuthority> grantedAuthorities = new ArrayList<GrantedAuthority>();
+		List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
 		for (String authority : withUser.authorities()) {
 			grantedAuthorities.add(new SimpleGrantedAuthority(authority));
 		}

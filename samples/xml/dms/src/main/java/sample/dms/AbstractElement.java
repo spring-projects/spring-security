@@ -79,7 +79,7 @@ public abstract class AbstractElement {
 	 * @return the fully-qualified name of this element, including any parents
 	 */
 	public String getFullName() {
-		List<String> strings = new ArrayList<String>();
+		List<String> strings = new ArrayList<>();
 		AbstractElement currentElement = this;
 		while (currentElement != null) {
 			strings.add(0, currentElement.getName());

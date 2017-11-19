@@ -88,7 +88,7 @@ public class ChannelDecisionManagerImpl implements ChannelDecisionManager,
 	@SuppressWarnings("cast")
 	public void setChannelProcessors(List<?> newList) {
 		Assert.notEmpty(newList, "A list of ChannelProcessors is required");
-		channelProcessors = new ArrayList<ChannelProcessor>(newList.size());
+		channelProcessors = new ArrayList<>(newList.size());
 
 		for (Object currentObject : newList) {
 			Assert.isInstanceOf(ChannelProcessor.class, currentObject,

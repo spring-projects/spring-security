@@ -210,7 +210,7 @@ public abstract class WebSecurityConfigurerAdapter implements
 				.requestCache().and()
 				.anonymous().and()
 				.servletApi().and()
-				.apply(new DefaultLoginPageConfigurer<HttpSecurity>()).and()
+				.apply(new DefaultLoginPageConfigurer<>()).and()
 				.logout();
 			// @formatter:on
 			ClassLoader classLoader = this.context.getClassLoader();
@@ -509,7 +509,7 @@ public abstract class WebSecurityConfigurerAdapter implements
 			String[] beanNamesForType = BeanFactoryUtils
 					.beanNamesForTypeIncludingAncestors(applicationContext,
 							AuthenticationManager.class);
-			return new HashSet<String>(Arrays.asList(beanNamesForType));
+			return new HashSet<>(Arrays.asList(beanNamesForType));
 		}
 
 		private static void validateBeanCycle(Object auth, Set<String> beanNames) {

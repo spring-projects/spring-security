@@ -29,7 +29,7 @@ import java.util.Map;
  * @author Luke Taylor
  */
 public class InMemoryTokenRepositoryImpl implements PersistentTokenRepository {
-	private final Map<String, PersistentRememberMeToken> seriesTokens = new HashMap<String, PersistentRememberMeToken>();
+	private final Map<String, PersistentRememberMeToken> seriesTokens = new HashMap<>();
 
 	public synchronized void createNewToken(PersistentRememberMeToken token) {
 		PersistentRememberMeToken current = seriesTokens.get(token.getSeries());

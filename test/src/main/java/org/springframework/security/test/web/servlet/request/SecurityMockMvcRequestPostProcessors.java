@@ -796,7 +796,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		 * @return the UserRequestPostProcessor for further customizations
 		 */
 		public UserRequestPostProcessor roles(String... roles) {
-			List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>(
+			List<GrantedAuthority> authorities = new ArrayList<>(
 					roles.length);
 			for (String role : roles) {
 				if (role.startsWith(ROLE_PREFIX)) {

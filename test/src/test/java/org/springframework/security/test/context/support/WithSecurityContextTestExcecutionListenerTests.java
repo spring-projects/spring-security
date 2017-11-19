@@ -114,7 +114,7 @@ public class WithSecurityContextTestExcecutionListenerTests {
 		AbstractTestExecutionListener otherListener = new AbstractTestExecutionListener() {
 		};
 
-		List<TestExecutionListener> listeners = new ArrayList<TestExecutionListener>();
+		List<TestExecutionListener> listeners = new ArrayList<>();
 		listeners.add(otherListener);
 		listeners.add(this.listener);
 

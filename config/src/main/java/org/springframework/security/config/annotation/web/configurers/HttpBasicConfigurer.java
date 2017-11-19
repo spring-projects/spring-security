@@ -97,7 +97,7 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>> extends
 	public HttpBasicConfigurer() throws Exception {
 		realmName(DEFAULT_REALM);
 
-		LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints = new LinkedHashMap<RequestMatcher, AuthenticationEntryPoint>();
+		LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints = new LinkedHashMap<>();
 		entryPoints.put(X_REQUESTED_WITH, new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
 
 		DelegatingAuthenticationEntryPoint defaultEntryPoint = new DelegatingAuthenticationEntryPoint(

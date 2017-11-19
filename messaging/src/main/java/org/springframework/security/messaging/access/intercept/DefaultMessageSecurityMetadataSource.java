@@ -60,7 +60,7 @@ public final class DefaultMessageSecurityMetadataSource implements
 	}
 
 	public Collection<ConfigAttribute> getAllConfigAttributes() {
-		Set<ConfigAttribute> allAttributes = new HashSet<ConfigAttribute>();
+		Set<ConfigAttribute> allAttributes = new HashSet<>();
 
 		for (Collection<ConfigAttribute> entry : messageMap.values()) {
 			allAttributes.addAll(entry);

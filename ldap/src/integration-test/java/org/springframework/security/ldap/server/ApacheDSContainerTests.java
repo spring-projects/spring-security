@@ -196,8 +196,8 @@ public class ApacheDSContainerTests {
 	}
 
 	private List<Integer> getDefaultPorts(int count) throws IOException {
-		List<ServerSocket> connections = new ArrayList<ServerSocket>();
-		List<Integer> availablePorts = new ArrayList<Integer>(count);
+		List<ServerSocket> connections = new ArrayList<>();
+		List<Integer> availablePorts = new ArrayList<>(count);
 		try {
 			for (int i = 0; i < count; i++) {
 				ServerSocket socket = new ServerSocket(0);

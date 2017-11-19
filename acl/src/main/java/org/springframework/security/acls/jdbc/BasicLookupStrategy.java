@@ -291,13 +291,13 @@ public class BasicLookupStrategy implements LookupStrategy {
 		Assert.notEmpty(objects, "Objects to lookup required");
 
 		// Map<ObjectIdentity,Acl>
-		Map<ObjectIdentity, Acl> result = new HashMap<ObjectIdentity, Acl>(); // contains
+		Map<ObjectIdentity, Acl> result = new HashMap<>(); // contains
 																				// FULLY
 																				// loaded
 																				// Acl
 																				// objects
 
-		Set<ObjectIdentity> currentBatchToLoad = new HashSet<ObjectIdentity>();
+		Set<ObjectIdentity> currentBatchToLoad = new HashSet<>();
 
 		for (int i = 0; i < objects.size(); i++) {
 			final ObjectIdentity oid = objects.get(i);
@@ -371,7 +371,7 @@ public class BasicLookupStrategy implements LookupStrategy {
 			final Collection<ObjectIdentity> objectIdentities, List<Sid> sids) {
 		Assert.notEmpty(objectIdentities, "Must provide identities to lookup");
 
-		final Map<Serializable, Acl> acls = new HashMap<Serializable, Acl>(); // contains
+		final Map<Serializable, Acl> acls = new HashMap<>(); // contains
 																				// Acls
 																				// with
 																				// StubAclParents
@@ -408,7 +408,7 @@ public class BasicLookupStrategy implements LookupStrategy {
 		}
 
 		// Finally, convert our "acls" containing StubAclParents into true Acls
-		Map<ObjectIdentity, Acl> resultMap = new HashMap<ObjectIdentity, Acl>();
+		Map<ObjectIdentity, Acl> resultMap = new HashMap<>();
 
 		for (Acl inputAcl : acls.values()) {
 			Assert.isInstanceOf(AclImpl.class, inputAcl,
@@ -463,7 +463,7 @@ public class BasicLookupStrategy implements LookupStrategy {
 		List<AccessControlEntryImpl> aces = readAces(inputAcl);
 
 		// Create a list in which to store the "aces" for the "result" AclImpl instance
-		List<AccessControlEntryImpl> acesNew = new ArrayList<AccessControlEntryImpl>();
+		List<AccessControlEntryImpl> acesNew = new ArrayList<>();
 
 		// Iterate over the "aces" input and replace each nested
 		// AccessControlEntryImpl.getAcl() with the new "result" AclImpl instance
@@ -581,7 +581,7 @@ public class BasicLookupStrategy implements LookupStrategy {
 		 * @throws SQLException
 		 */
 		public Set<Long> extractData(ResultSet rs) throws SQLException {
-			Set<Long> parentIdsToLookup = new HashSet<Long>(); // Set of parent_id Longs
+			Set<Long> parentIdsToLookup = new HashSet<>(); // Set of parent_id Longs
 
 			while (rs.next()) {
 				// Convert current row into an Acl (albeit with a StubAclParent)

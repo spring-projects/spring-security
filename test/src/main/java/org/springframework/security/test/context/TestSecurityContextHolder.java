@@ -56,7 +56,7 @@ import org.springframework.util.Assert;
  */
 public final class TestSecurityContextHolder {
 
-	private static final ThreadLocal<SecurityContext> contextHolder = new ThreadLocal<SecurityContext>();
+	private static final ThreadLocal<SecurityContext> contextHolder = new ThreadLocal<>();
 
 	/**
 	 * Clears the {@link SecurityContext} from {@link TestSecurityContextHolder} and

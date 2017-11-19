@@ -335,7 +335,7 @@ public class SwitchUserFilter extends GenericFilterBean
 		}
 
 		// add the new switch user authority
-		List<GrantedAuthority> newAuths = new ArrayList<GrantedAuthority>(orig);
+		List<GrantedAuthority> newAuths = new ArrayList<>(orig);
 		newAuths.add(switchAuthority);
 
 		// create the new authentication token

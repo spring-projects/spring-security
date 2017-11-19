@@ -55,7 +55,7 @@ public class CsrfTokenHandshakeInterceptorTests {
 	@Before
 	public void setup() {
 		httpRequest = new MockHttpServletRequest();
-		attributes = new HashMap<String, Object>();
+		attributes = new HashMap<>();
 		request = new ServletServerHttpRequest(httpRequest);
 
 		interceptor = new CsrfTokenHandshakeInterceptor();

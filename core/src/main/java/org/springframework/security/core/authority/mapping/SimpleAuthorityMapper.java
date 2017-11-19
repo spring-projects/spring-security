@@ -54,7 +54,7 @@ public final class SimpleAuthorityMapper implements GrantedAuthoritiesMapper,
 	 */
 	public Set<GrantedAuthority> mapAuthorities(
 			Collection<? extends GrantedAuthority> authorities) {
-		HashSet<GrantedAuthority> mapped = new HashSet<GrantedAuthority>(
+		HashSet<GrantedAuthority> mapped = new HashSet<>(
 				authorities.size());
 		for (GrantedAuthority authority : authorities) {
 			mapped.add(mapAuthority(authority.getAuthority()));

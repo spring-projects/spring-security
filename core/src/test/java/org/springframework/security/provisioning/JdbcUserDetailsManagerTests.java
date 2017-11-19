@@ -359,7 +359,7 @@ public class JdbcUserDetailsManagerTests {
 	}
 
 	private class MockUserCache implements UserCache {
-		private Map<String, UserDetails> cache = new HashMap<String, UserDetails>();
+		private Map<String, UserDetails> cache = new HashMap<>();
 
 		public UserDetails getUserFromCache(String username) {
 			return (User) cache.get(username);

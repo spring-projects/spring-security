@@ -26,7 +26,6 @@ import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 
@@ -138,7 +137,7 @@ public class UsernamePasswordAuthenticationTokenMixinTests extends AbstractMixin
 		NonUserPrincipal principal = new NonUserPrincipal();
 		principal.setUsername("admin");
 		UsernamePasswordAuthenticationToken token =
-			new UsernamePasswordAuthenticationToken(principal, null, new ArrayList<GrantedAuthority>());
+			new UsernamePasswordAuthenticationToken(principal, null, new ArrayList<>());
 		String actualJson = mapper.writeValueAsString(token);
 		JSONAssert.assertEquals(AUTHENTICATED_NON_USER_PRINCIPAL_JSON, actualJson, true);
 	}

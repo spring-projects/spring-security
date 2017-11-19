@@ -84,7 +84,7 @@ class SecuredAnnotationMetadataExtractor implements AnnotationMetadataExtractor<
 
 	public Collection<ConfigAttribute> extractAttributes(Secured secured) {
 		String[] attributeTokens = secured.value();
-		List<ConfigAttribute> attributes = new ArrayList<ConfigAttribute>(
+		List<ConfigAttribute> attributes = new ArrayList<>(
 				attributeTokens.length);
 
 		for (String token : attributeTokens) {

@@ -193,7 +193,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport
 
 		UserDetails user = users.get(0); // contains no GrantedAuthority[]
 
-		Set<GrantedAuthority> dbAuthsSet = new HashSet<GrantedAuthority>();
+		Set<GrantedAuthority> dbAuthsSet = new HashSet<>();
 
 		if (this.enableAuthorities) {
 			dbAuthsSet.addAll(loadUserAuthorities(user.getUsername()));
@@ -203,7 +203,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport
 			dbAuthsSet.addAll(loadGroupAuthorities(user.getUsername()));
 		}
 
-		List<GrantedAuthority> dbAuths = new ArrayList<GrantedAuthority>(dbAuthsSet);
+		List<GrantedAuthority> dbAuths = new ArrayList<>(dbAuthsSet);
 
 		addCustomAuthorities(user.getUsername(), dbAuths);
 

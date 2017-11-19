@@ -114,7 +114,7 @@ public class ChannelProcessingFilter extends GenericFilterBean {
 			return;
 		}
 
-		Set<ConfigAttribute> unsupportedAttributes = new HashSet<ConfigAttribute>();
+		Set<ConfigAttribute> unsupportedAttributes = new HashSet<>();
 
 		for (ConfigAttribute attr : attrDefs) {
 			if (!this.channelDecisionManager.supports(attr)) {

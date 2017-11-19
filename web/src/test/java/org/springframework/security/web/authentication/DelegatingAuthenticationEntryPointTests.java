@@ -44,7 +44,7 @@ public class DelegatingAuthenticationEntryPointTests {
 	@Before
 	public void before() {
 		defaultEntryPoint = mock(AuthenticationEntryPoint.class);
-		entryPoints = new LinkedHashMap<RequestMatcher, AuthenticationEntryPoint>();
+		entryPoints = new LinkedHashMap<>();
 		daep = new DelegatingAuthenticationEntryPoint(entryPoints);
 		daep.setDefaultEntryPoint(defaultEntryPoint);
 	}

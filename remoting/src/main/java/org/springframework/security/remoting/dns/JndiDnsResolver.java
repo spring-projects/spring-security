@@ -172,7 +172,7 @@ public class JndiDnsResolver implements DnsResolver {
 	private static class DefaultInitialContextFactory implements InitialContextFactory {
 
 		public DirContext getCtx() {
-			Hashtable<String, String> env = new Hashtable<String, String>();
+			Hashtable<String, String> env = new Hashtable<>();
 			env.put(Context.INITIAL_CONTEXT_FACTORY,
 					"com.sun.jndi.dns.DnsContextFactory");
 			env.put(Context.PROVIDER_URL, "dns:"); // This is needed for IBM JDK/JRE

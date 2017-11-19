@@ -38,7 +38,7 @@ import org.springframework.util.Assert;
  */
 public final class ChannelSecurityInterceptor extends AbstractSecurityInterceptor
 		implements ChannelInterceptor {
-	private static final ThreadLocal<InterceptorStatusToken> tokenHolder = new ThreadLocal<InterceptorStatusToken>();
+	private static final ThreadLocal<InterceptorStatusToken> tokenHolder = new ThreadLocal<>();
 
 	private final MessageSecurityMetadataSource metadataSource;
 

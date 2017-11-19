@@ -114,7 +114,7 @@ public class BindAuthenticatorTests extends AbstractLdapIntegrationTests {
 
 	/*
 	 * @Test public void messingWithEscapedChars() throws Exception {
-	 * Hashtable<String,String> env = new Hashtable<String,String>();
+	 * Hashtable<String,String> env = new Hashtable<>();
 	 * env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
 	 * env.put(Context.PROVIDER_URL, "ldap://127.0.0.1:22389/dc=springsource,dc=com");
 	 * env.put(Context.SECURITY_AUTHENTICATION, "simple");

@@ -208,7 +208,7 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
 			MessageExtension ext = authSuccess.getExtension(AxMessage.OPENID_NS_AX);
 			if (ext instanceof FetchResponse) {
 				FetchResponse fetchResp = (FetchResponse) ext;
-				attributes = new ArrayList<OpenIDAttribute>(attributesToFetch.size());
+				attributes = new ArrayList<>(attributesToFetch.size());
 
 				for (OpenIDAttribute attr : attributesToFetch) {
 					List<String> values = fetchResp.getAttributeValues(attr.getName());

@@ -95,7 +95,7 @@ public final class DelegatingMethodSecurityMetadataSource extends
 
 	@Override
 	public Collection<ConfigAttribute> getAllConfigAttributes() {
-		Set<ConfigAttribute> set = new HashSet<ConfigAttribute>();
+		Set<ConfigAttribute> set = new HashSet<>();
 		for (MethodSecurityMetadataSource s : methodSecurityMetadataSources) {
 			Collection<ConfigAttribute> attrs = s.getAllConfigAttributes();
 			if (attrs != null) {

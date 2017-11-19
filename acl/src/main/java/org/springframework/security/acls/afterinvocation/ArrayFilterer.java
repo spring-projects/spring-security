@@ -52,7 +52,7 @@ class ArrayFilterer<T> implements Filterer<T> {
 		// Collect the removed objects to a HashSet so that
 		// it is fast to lookup them when a filtered array
 		// is constructed.
-		removeList = new HashSet<T>();
+		removeList = new HashSet<>();
 	}
 
 	// ~ Methods

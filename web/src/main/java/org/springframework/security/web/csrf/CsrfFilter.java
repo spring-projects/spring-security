@@ -160,7 +160,7 @@ public final class CsrfFilter extends OncePerRequestFilter {
 	}
 
 	private static final class DefaultRequiresCsrfMatcher implements RequestMatcher {
-		private final HashSet<String> allowedMethods = new HashSet<String>(
+		private final HashSet<String> allowedMethods = new HashSet<>(
 				Arrays.asList("GET", "HEAD", "TRACE", "OPTIONS"));
 
 		/*

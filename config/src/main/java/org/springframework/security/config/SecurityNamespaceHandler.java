@@ -60,7 +60,7 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
 	private static final String FILTER_CHAIN_PROXY_CLASSNAME = "org.springframework.security.web.FilterChainProxy";
 	private static final String MESSAGE_CLASSNAME = "org.springframework.messaging.Message";
 	private final Log logger = LogFactory.getLog(getClass());
-	private final Map<String, BeanDefinitionParser> parsers = new HashMap<String, BeanDefinitionParser>();
+	private final Map<String, BeanDefinitionParser> parsers = new HashMap<>();
 	private final BeanDefinitionDecorator interceptMethodsBDD = new InterceptMethodsBeanDefinitionDecorator();
 	private BeanDefinitionDecorator filterChainMapBDD;
 

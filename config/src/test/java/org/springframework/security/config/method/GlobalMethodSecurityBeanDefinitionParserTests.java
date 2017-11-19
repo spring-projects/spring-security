@@ -287,7 +287,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 				+ AUTH_PROVIDER_XML);
 		SecurityContextHolder.getContext().setAuthentication(bob);
 		target = (BusinessService) appContext.getBean("target");
-		List<String> arg = new ArrayList<String>();
+		List<String> arg = new ArrayList<>();
 		arg.add("joe");
 		arg.add("bob");
 		arg.add("sam");
