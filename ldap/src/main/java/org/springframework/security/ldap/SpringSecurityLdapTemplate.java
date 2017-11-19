@@ -165,7 +165,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 		String[] attributeNames = new String[] { attributeName };
 		Set<Map<String, List<String>>> multipleAttributeValues = searchForMultipleAttributeValues(
 				base, filter, params, attributeNames);
-		Set<String> result = new HashSet<String>();
+		Set<String> result = new HashSet<>();
 		for (Map<String, List<String>> map : multipleAttributeValues) {
 			List<String> values = map.get(attributeName);
 			if (values != null) {
@@ -274,7 +274,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 			}
 			return;
 		}
-		List<String> svalues = new ArrayList<String>();
+		List<String> svalues = new ArrayList<>();
 		for (Object o : values) {
 			if (o != null) {
 				if (String.class.isAssignableFrom(o.getClass())) {
@@ -338,7 +338,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 					+ searchBaseDn + "', filter = '" + filter + "'");
 		}
 
-		Set<DirContextOperations> results = new HashSet<DirContextOperations>();
+		Set<DirContextOperations> results = new HashSet<>();
 		try {
 			while (resultsEnum.hasMore()) {
 				SearchResult searchResult = resultsEnum.next();

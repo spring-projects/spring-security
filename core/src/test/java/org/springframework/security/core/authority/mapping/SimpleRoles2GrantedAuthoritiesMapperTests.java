@@ -128,7 +128,7 @@ public class SimpleRoles2GrantedAuthoritiesMapperTests {
 			String[] expectedGas) {
 		List<GrantedAuthority> result = mapper
 				.getGrantedAuthorities(Arrays.asList(roles));
-		Collection<String> resultColl = new ArrayList<String>(result.size());
+		Collection<String> resultColl = new ArrayList<>(result.size());
 		for (int i = 0; i < result.size(); i++) {
 			resultColl.add(result.get(i).getAuthority());
 		}

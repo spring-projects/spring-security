@@ -54,7 +54,7 @@ public final class GrantedAuthorityFromAssertionAttributesUserDetailsService ext
 	@SuppressWarnings("unchecked")
 	@Override
 	protected UserDetails loadUserDetails(final Assertion assertion) {
-		final List<GrantedAuthority> grantedAuthorities = new ArrayList<GrantedAuthority>();
+		final List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
 
 		for (final String attribute : this.attributes) {
 			final Object value = assertion.getPrincipal().getAttributes().get(attribute);

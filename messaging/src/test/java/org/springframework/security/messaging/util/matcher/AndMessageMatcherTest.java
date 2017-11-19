@@ -43,39 +43,39 @@ public class AndMessageMatcherTest {
 
 	@Test(expected = NullPointerException.class)
 	public void constructorNullArray() {
-		new AndMessageMatcher<Object>((MessageMatcher<Object>[]) null);
+		new AndMessageMatcher<>((MessageMatcher<Object>[]) null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorArrayContainsNull() {
-		new AndMessageMatcher<Object>((MessageMatcher<Object>) null);
+		new AndMessageMatcher<>((MessageMatcher<Object>) null);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorEmptyArray() {
-		new AndMessageMatcher<Object>((MessageMatcher<Object>[]) new MessageMatcher[0]);
+		new AndMessageMatcher<>((MessageMatcher<Object>[]) new MessageMatcher[0]);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorNullList() {
-		new AndMessageMatcher<Object>((List<MessageMatcher<Object>>) null);
+		new AndMessageMatcher<>((List<MessageMatcher<Object>>) null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorListContainsNull() {
-		new AndMessageMatcher<Object>(Arrays.asList((MessageMatcher<Object>) null));
+		new AndMessageMatcher<>(Arrays.asList((MessageMatcher<Object>) null));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorEmptyList() {
-		new AndMessageMatcher<Object>(Collections.<MessageMatcher<Object>> emptyList());
+		new AndMessageMatcher<>(Collections.emptyList());
 	}
 
 	@Test
 	public void matchesSingleTrue() {
 		when(delegate.matches(message)).thenReturn(true);
-		matcher = new AndMessageMatcher<Object>(delegate);
+		matcher = new AndMessageMatcher<>(delegate);
 
 		assertThat(matcher.matches(message)).isTrue();
 	}
@@ -84,7 +84,7 @@ public class AndMessageMatcherTest {
 	public void matchesMultiTrue() {
 		when(delegate.matches(message)).thenReturn(true);
 		when(delegate2.matches(message)).thenReturn(true);
-		matcher = new AndMessageMatcher<Object>(delegate, delegate2);
+		matcher = new AndMessageMatcher<>(delegate, delegate2);
 
 		assertThat(matcher.matches(message)).isTrue();
 	}
@@ -92,7 +92,7 @@ public class AndMessageMatcherTest {
 	@Test
 	public void matchesSingleFalse() {
 		when(delegate.matches(message)).thenReturn(false);
-		matcher = new AndMessageMatcher<Object>(delegate);
+		matcher = new AndMessageMatcher<>(delegate);
 
 		assertThat(matcher.matches(message)).isFalse();
 	}
@@ -100,7 +100,7 @@ public class AndMessageMatcherTest {
 	@Test
 	public void matchesMultiBothFalse() {
 		when(delegate.matches(message)).thenReturn(false);
-		matcher = new AndMessageMatcher<Object>(delegate, delegate2);
+		matcher = new AndMessageMatcher<>(delegate, delegate2);
 
 		assertThat(matcher.matches(message)).isFalse();
 	}
@@ -109,7 +109,7 @@ public class AndMessageMatcherTest {
 	public void matchesMultiSingleFalse() {
 		when(delegate.matches(message)).thenReturn(true);
 		when(delegate2.matches(message)).thenReturn(false);
-		matcher = new AndMessageMatcher<Object>(delegate, delegate2);
+		matcher = new AndMessageMatcher<>(delegate, delegate2);
 
 		assertThat(matcher.matches(message)).isFalse();
 	}

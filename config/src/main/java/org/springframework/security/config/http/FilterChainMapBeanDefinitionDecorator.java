@@ -44,7 +44,7 @@ public class FilterChainMapBeanDefinitionDecorator implements BeanDefinitionDeco
 			ParserContext parserContext) {
 		BeanDefinition filterChainProxy = holder.getBeanDefinition();
 
-		ManagedList<BeanMetadataElement> securityFilterChains = new ManagedList<BeanMetadataElement>();
+		ManagedList<BeanMetadataElement> securityFilterChains = new ManagedList<>();
 		Element elt = (Element) node;
 
 		MatcherType matcherType = MatcherType.fromElement(elt);

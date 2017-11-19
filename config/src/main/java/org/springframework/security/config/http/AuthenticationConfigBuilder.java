@@ -302,7 +302,7 @@ final class AuthenticationConfigBuilder {
 	}
 
 	private ManagedList<BeanDefinition> parseOpenIDAttributes(Element attrExElt) {
-		ManagedList<BeanDefinition> attributes = new ManagedList<BeanDefinition>();
+		ManagedList<BeanDefinition> attributes = new ManagedList<>();
 		for (Element attElt : DomUtils.getChildElementsByTagName(attrExElt,
 				Elements.OPENID_ATTRIBUTE)) {
 			String name = attElt.getAttribute("name");
@@ -764,7 +764,7 @@ final class AuthenticationConfigBuilder {
 	}
 
 	List<OrderDecorator> getFilters() {
-		List<OrderDecorator> filters = new ArrayList<OrderDecorator>();
+		List<OrderDecorator> filters = new ArrayList<>();
 
 		if (anonymousFilter != null) {
 			filters.add(new OrderDecorator(anonymousFilter, ANONYMOUS_FILTER));
@@ -810,7 +810,7 @@ final class AuthenticationConfigBuilder {
 	}
 
 	List<BeanReference> getProviders() {
-		List<BeanReference> providers = new ArrayList<BeanReference>();
+		List<BeanReference> providers = new ArrayList<>();
 
 		if (anonymousProviderRef != null) {
 			providers.add(anonymousProviderRef);

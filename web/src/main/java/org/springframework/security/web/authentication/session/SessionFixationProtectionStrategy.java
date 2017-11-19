@@ -117,7 +117,7 @@ public class SessionFixationProtectionStrategy extends
 
 	@SuppressWarnings("unchecked")
 	private HashMap<String, Object> createMigratedAttributeMap(HttpSession session) {
-		HashMap<String, Object> attributesToMigrate = new HashMap<String, Object>();
+		HashMap<String, Object> attributesToMigrate = new HashMap<>();
 
 		Enumeration enumer = session.getAttributeNames();
 

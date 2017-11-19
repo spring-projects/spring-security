@@ -55,7 +55,7 @@ public class JdbcAclServiceTests {
 	// SEC-1898
 	@Test(expected = NotFoundException.class)
 	public void readAclByIdMissingAcl() {
-		Map<ObjectIdentity, Acl> result = new HashMap<ObjectIdentity, Acl>();
+		Map<ObjectIdentity, Acl> result = new HashMap<>();
 		when(
 				lookupStrategy.readAclsById(anyListOf(ObjectIdentity.class),
 						anyListOf(Sid.class))).thenReturn(result);

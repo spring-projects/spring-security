@@ -82,7 +82,7 @@ public class WebXmlMappableAttributesRetriever implements ResourceLoaderAware,
 		NodeList securityRoles = ((Element) webApp.item(0))
 				.getElementsByTagName("security-role");
 
-		ArrayList<String> roleNames = new ArrayList<String>();
+		ArrayList<String> roleNames = new ArrayList<>();
 
 		for (int i = 0; i < securityRoles.getLength(); i++) {
 			Element secRoleElt = (Element) securityRoles.item(i);
@@ -98,7 +98,7 @@ public class WebXmlMappableAttributesRetriever implements ResourceLoaderAware,
 			}
 		}
 
-		mappableAttributes = Collections.unmodifiableSet(new HashSet<String>(roleNames));
+		mappableAttributes = Collections.unmodifiableSet(new HashSet<>(roleNames));
 	}
 
 	/**

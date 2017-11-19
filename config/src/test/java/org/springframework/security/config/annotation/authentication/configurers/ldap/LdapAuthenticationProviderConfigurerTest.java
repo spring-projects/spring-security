@@ -30,7 +30,7 @@ public class LdapAuthenticationProviderConfigurerTest {
 
 	@Before
 	public void setUp() {
-		configurer = new LdapAuthenticationProviderConfigurer<AuthenticationManagerBuilder>();
+		configurer = new LdapAuthenticationProviderConfigurer<>();
 	}
 
 	// SEC-2557

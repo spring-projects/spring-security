@@ -41,7 +41,7 @@ import org.springframework.security.provisioning.UserDetailsManager;
 public class UserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B>, C extends UserDetailsManagerConfigurer<B, C>>
 		extends UserDetailsServiceConfigurer<B, C, UserDetailsManager> {
 
-	private final List<UserDetailsBuilder> userBuilders = new ArrayList<UserDetailsBuilder>();
+	private final List<UserDetailsBuilder> userBuilders = new ArrayList<>();
 
 	private final List<UserDetails> users = new ArrayList<>();
 

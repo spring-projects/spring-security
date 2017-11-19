@@ -71,7 +71,7 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
 
 		String alias = element.getAttribute(ATT_ALIAS);
 
-		List<BeanMetadataElement> providers = new ManagedList<BeanMetadataElement>();
+		List<BeanMetadataElement> providers = new ManagedList<>();
 		NamespaceHandlerResolver resolver = pc.getReaderContext()
 				.getNamespaceHandlerResolver();
 

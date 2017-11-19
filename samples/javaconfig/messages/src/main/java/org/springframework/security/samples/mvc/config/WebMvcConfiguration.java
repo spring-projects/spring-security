@@ -82,6 +82,6 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
 
 	@Bean
 	public DomainClassConverter<?> domainClassConverter() {
-		return new DomainClassConverter<FormattingConversionService>(mvcConversionService);
+		return new DomainClassConverter<>(mvcConversionService);
 	}
 }

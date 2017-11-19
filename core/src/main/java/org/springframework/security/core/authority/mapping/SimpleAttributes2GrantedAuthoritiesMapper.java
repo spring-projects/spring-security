@@ -62,7 +62,7 @@ public class SimpleAttributes2GrantedAuthoritiesMapper implements
 	 * GrantedAuthorities.
 	 */
 	public List<GrantedAuthority> getGrantedAuthorities(Collection<String> attributes) {
-		List<GrantedAuthority> result = new ArrayList<GrantedAuthority>(attributes.size());
+		List<GrantedAuthority> result = new ArrayList<>(attributes.size());
 		for (String attribute : attributes) {
 			result.add(getGrantedAuthority(attribute));
 		}

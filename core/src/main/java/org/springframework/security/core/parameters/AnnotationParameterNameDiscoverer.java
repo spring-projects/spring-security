@@ -91,7 +91,7 @@ public class AnnotationParameterNameDiscoverer implements ParameterNameDiscovere
 	private final Set<String> annotationClassesToUse;
 
 	public AnnotationParameterNameDiscoverer(String... annotationClassToUse) {
-		this(new HashSet<String>(Arrays.asList(annotationClassToUse)));
+		this(new HashSet<>(Arrays.asList(annotationClassToUse)));
 	}
 
 	public AnnotationParameterNameDiscoverer(Set<String> annotationClassesToUse) {

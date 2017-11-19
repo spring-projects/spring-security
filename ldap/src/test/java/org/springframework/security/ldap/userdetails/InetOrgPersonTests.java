@@ -43,7 +43,7 @@ public class InetOrgPersonTests {
 		InetOrgPerson p = (InetOrgPerson) essence.createUserDetails();
 		essence = new InetOrgPerson.Essence(createUserContext());
 		InetOrgPerson p2 = (InetOrgPerson) essence.createUserDetails();
-		Set<InetOrgPerson> set = new HashSet<InetOrgPerson>();
+		Set<InetOrgPerson> set = new HashSet<>();
 		set.add(p);
 		assertThat(set.contains(p2)).isTrue();
 	}

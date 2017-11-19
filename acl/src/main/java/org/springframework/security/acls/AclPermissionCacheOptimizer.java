@@ -52,7 +52,7 @@ public class AclPermissionCacheOptimizer implements PermissionCacheOptimizer {
 			return;
 		}
 
-		List<ObjectIdentity> oidsToCache = new ArrayList<ObjectIdentity>(objects.size());
+		List<ObjectIdentity> oidsToCache = new ArrayList<>(objects.size());
 
 		for (Object domainObject : objects) {
 			if (domainObject == null) {

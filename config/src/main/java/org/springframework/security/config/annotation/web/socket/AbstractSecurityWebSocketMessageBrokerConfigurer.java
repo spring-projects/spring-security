@@ -87,7 +87,7 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends
 		AbstractWebSocketMessageBrokerConfigurer implements SmartInitializingSingleton {
 	private final WebSocketMessageSecurityMetadataSourceRegistry inboundRegistry = new WebSocketMessageSecurityMetadataSourceRegistry();
 
-	private SecurityExpressionHandler<Message<Object>> defaultExpressionHandler = new DefaultMessageSecurityExpressionHandler<Object>();
+	private SecurityExpressionHandler<Message<Object>> defaultExpressionHandler = new DefaultMessageSecurityExpressionHandler<>();
 
 	private SecurityExpressionHandler<Message<Object>> expressionHandler;
 
@@ -156,7 +156,7 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends
 	public ChannelSecurityInterceptor inboundChannelSecurity() {
 		ChannelSecurityInterceptor channelSecurityInterceptor = new ChannelSecurityInterceptor(
 				inboundMessageSecurityMetadataSource());
-		MessageExpressionVoter<Object> voter = new MessageExpressionVoter<Object>();
+		MessageExpressionVoter<Object> voter = new MessageExpressionVoter<>();
 		voter.setExpressionHandler(getMessageExpressionHandler());
 
 		List<AccessDecisionVoter<? extends Object>> voters = new ArrayList<AccessDecisionVoter<? extends Object>>();
@@ -255,7 +255,7 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends
 				TransportHandlingSockJsService transportHandlingSockJsService = (TransportHandlingSockJsService) sockJsService;
 				List<HandshakeInterceptor> handshakeInterceptors = transportHandlingSockJsService
 						.getHandshakeInterceptors();
-				List<HandshakeInterceptor> interceptorsToSet = new ArrayList<HandshakeInterceptor>(
+				List<HandshakeInterceptor> interceptorsToSet = new ArrayList<>(
 						handshakeInterceptors.size() + 1);
 				interceptorsToSet.add(new CsrfTokenHandshakeInterceptor());
 				interceptorsToSet.addAll(handshakeInterceptors);
@@ -267,7 +267,7 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends
 				WebSocketHttpRequestHandler handler = (WebSocketHttpRequestHandler) object;
 				List<HandshakeInterceptor> handshakeInterceptors = handler
 						.getHandshakeInterceptors();
-				List<HandshakeInterceptor> interceptorsToSet = new ArrayList<HandshakeInterceptor>(
+				List<HandshakeInterceptor> interceptorsToSet = new ArrayList<>(
 						handshakeInterceptors.size() + 1);
 				interceptorsToSet.add(new CsrfTokenHandshakeInterceptor());
 				interceptorsToSet.addAll(handshakeInterceptors);

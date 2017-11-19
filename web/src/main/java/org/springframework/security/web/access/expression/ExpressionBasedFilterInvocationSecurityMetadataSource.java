@@ -68,7 +68,7 @@ public final class ExpressionBasedFilterInvocationSecurityMetadataSource
 			RequestMatcher request = entry.getKey();
 			Assert.isTrue(entry.getValue().size() == 1,
 					"Expected a single expression attribute for " + request);
-			ArrayList<ConfigAttribute> attributes = new ArrayList<ConfigAttribute>(1);
+			ArrayList<ConfigAttribute> attributes = new ArrayList<>(1);
 			String expression = entry.getValue().toArray(new ConfigAttribute[1])[0]
 					.getAttribute();
 			logger.debug("Adding web access control expression '" + expression + "', for "

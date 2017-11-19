@@ -31,7 +31,7 @@ public class ObjectPostProcessorTests {
 
 	@Test
 	public void convertTypes() {
-		assertThat((Object) PerformConversion.perform(new ArrayList<Object>()))
+		assertThat((Object) PerformConversion.perform(new ArrayList<>()))
 				.isInstanceOf(LinkedList.class);
 	}
 }

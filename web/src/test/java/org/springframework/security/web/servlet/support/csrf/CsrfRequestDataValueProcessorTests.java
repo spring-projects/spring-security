@@ -39,7 +39,7 @@ public class CsrfRequestDataValueProcessorTests {
 	private CsrfRequestDataValueProcessor processor;
 
 	private CsrfToken token;
-	private Map<String, String> expected = new HashMap<String, String>();
+	private Map<String, String> expected = new HashMap<>();
 
 	@Before
 	public void setup() {
@@ -129,7 +129,7 @@ public class CsrfRequestDataValueProcessorTests {
 	public void createGetExtraHiddenFieldsHasCsrfToken() {
 		CsrfToken token = new DefaultCsrfToken("1", "a", "b");
 		request.setAttribute(CsrfToken.class.getName(), token);
-		Map<String, String> expected = new HashMap<String, String>();
+		Map<String, String> expected = new HashMap<>();
 		expected.put(token.getParameterName(), token.getToken());
 
 		RequestDataValueProcessor processor = new CsrfRequestDataValueProcessor();

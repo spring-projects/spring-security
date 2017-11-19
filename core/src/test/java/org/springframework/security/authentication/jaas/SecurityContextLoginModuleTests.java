@@ -16,7 +16,6 @@
 
 package org.springframework.security.authentication.jaas;
 
-import java.security.Principal;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -44,8 +43,8 @@ public class SecurityContextLoginModuleTests {
 	// ================================================================================================
 
 	private SecurityContextLoginModule module = null;
-	private Subject subject = new Subject(false, new HashSet<Principal>(),
-			new HashSet<Object>(), new HashSet<Object>());
+	private Subject subject = new Subject(false, new HashSet<>(),
+			new HashSet<>(), new HashSet<>());
 	private UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
 			"principal", "credentials");
 
@@ -127,7 +126,7 @@ public class SecurityContextLoginModuleTests {
 	public void testNullAuthenticationInSecurityContextIgnored() throws Exception {
 		this.module = new SecurityContextLoginModule();
 
-		Map<String, String> options = new HashMap<String, String>();
+		Map<String, String> options = new HashMap<>();
 		options.put("ignoreMissingAuthentication", "true");
 
 		this.module.initialize(this.subject, null, null, options);

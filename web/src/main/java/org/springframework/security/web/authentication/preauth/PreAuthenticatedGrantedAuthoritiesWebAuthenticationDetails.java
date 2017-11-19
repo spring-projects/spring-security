@@ -42,7 +42,7 @@ public class PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails extends
 			HttpServletRequest request, Collection<? extends GrantedAuthority> authorities) {
 		super(request);
 
-		List<GrantedAuthority> temp = new ArrayList<GrantedAuthority>(authorities.size());
+		List<GrantedAuthority> temp = new ArrayList<>(authorities.size());
 		temp.addAll(authorities);
 		this.authorities = Collections.unmodifiableList(temp);
 	}

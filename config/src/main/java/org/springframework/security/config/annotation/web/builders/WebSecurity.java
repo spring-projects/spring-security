@@ -79,7 +79,7 @@ public final class WebSecurity extends
 		SecurityBuilder<Filter>, ApplicationContextAware {
 	private final Log logger = LogFactory.getLog(getClass());
 
-	private final List<RequestMatcher> ignoredRequests = new ArrayList<RequestMatcher>();
+	private final List<RequestMatcher> ignoredRequests = new ArrayList<>();
 
 	private final List<SecurityBuilder<? extends SecurityFilterChain>> securityFilterChainBuilders = new ArrayList<SecurityBuilder<? extends SecurityFilterChain>>();
 
@@ -281,7 +281,7 @@ public final class WebSecurity extends
 						+ WebSecurity.class.getSimpleName()
 						+ ".addSecurityFilterChainBuilder directly");
 		int chainSize = ignoredRequests.size() + securityFilterChainBuilders.size();
-		List<SecurityFilterChain> securityFilterChains = new ArrayList<SecurityFilterChain>(
+		List<SecurityFilterChain> securityFilterChains = new ArrayList<>(
 				chainSize);
 		for (RequestMatcher ignoredRequest : ignoredRequests) {
 			securityFilterChains.add(new DefaultSecurityFilterChain(ignoredRequest));

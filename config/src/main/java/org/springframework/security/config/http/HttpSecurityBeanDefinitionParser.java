@@ -138,7 +138,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 		final BeanReference portMapper = createPortMapper(element, pc);
 		final BeanReference portResolver = createPortResolver(portMapper, pc);
 
-		ManagedList<BeanReference> authenticationProviders = new ManagedList<BeanReference>();
+		ManagedList<BeanReference> authenticationProviders = new ManagedList<>();
 		BeanReference authenticationManager = createAuthenticationManager(element, pc,
 				authenticationProviders);
 
@@ -158,7 +158,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
 		authenticationProviders.addAll(authBldr.getProviders());
 
-		List<OrderDecorator> unorderedFilterChain = new ArrayList<OrderDecorator>();
+		List<OrderDecorator> unorderedFilterChain = new ArrayList<>();
 
 		unorderedFilterChain.addAll(httpBldr.getFilters());
 		unorderedFilterChain.addAll(authBldr.getFilters());
@@ -168,7 +168,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 		checkFilterChainOrder(unorderedFilterChain, pc, pc.extractSource(element));
 
 		// The list of filter beans
-		List<BeanMetadataElement> filterChain = new ManagedList<BeanMetadataElement>();
+		List<BeanMetadataElement> filterChain = new ManagedList<>();
 
 		for (OrderDecorator od : unorderedFilterChain) {
 			filterChain.add(od.bean);
@@ -330,7 +330,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 	List<OrderDecorator> buildCustomFilterList(Element element, ParserContext pc) {
 		List<Element> customFilterElts = DomUtils.getChildElementsByTagName(element,
 				Elements.CUSTOM_FILTER);
-		List<OrderDecorator> customFilters = new ArrayList<OrderDecorator>();
+		List<OrderDecorator> customFilters = new ArrayList<>();
 
 		final String ATT_AFTER = "after";
 		final String ATT_BEFORE = "before";

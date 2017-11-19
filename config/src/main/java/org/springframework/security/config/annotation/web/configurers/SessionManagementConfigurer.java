@@ -100,7 +100,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	private SessionAuthenticationStrategy providedSessionAuthenticationStrategy;
 	private InvalidSessionStrategy invalidSessionStrategy;
 	private SessionInformationExpiredStrategy expiredSessionStrategy;
-	private List<SessionAuthenticationStrategy> sessionAuthenticationStrategies = new ArrayList<SessionAuthenticationStrategy>();
+	private List<SessionAuthenticationStrategy> sessionAuthenticationStrategies = new ArrayList<>();
 	private SessionRegistry sessionRegistry;
 	private Integer maximumSessions;
 	private String expiredUrl;

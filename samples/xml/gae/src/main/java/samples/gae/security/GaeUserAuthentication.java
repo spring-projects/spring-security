@@ -39,7 +39,7 @@ public class GaeUserAuthentication implements Authentication {
 	}
 
 	public Collection<GrantedAuthority> getAuthorities() {
-		return new HashSet<GrantedAuthority>(principal.getAuthorities());
+		return new HashSet<>(principal.getAuthorities());
 	}
 
 	public Object getCredentials() {

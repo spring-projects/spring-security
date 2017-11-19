@@ -84,9 +84,9 @@ public class IndexController {
 	@RequestMapping(value = "/secure/index.htm", method = RequestMethod.GET)
 	public ModelAndView displayUserContacts() {
 		List<Contact> myContactsList = contactManager.getAll();
-		Map<Contact, Boolean> hasDelete = new HashMap<Contact, Boolean>(
+		Map<Contact, Boolean> hasDelete = new HashMap<>(
 				myContactsList.size());
-		Map<Contact, Boolean> hasAdmin = new HashMap<Contact, Boolean>(
+		Map<Contact, Boolean> hasAdmin = new HashMap<>(
 				myContactsList.size());
 
 		Authentication user = SecurityContextHolder.getContext().getAuthentication();
@@ -98,7 +98,7 @@ public class IndexController {
 					contact, HAS_ADMIN)));
 		}
 
-		Map<String, Object> model = new HashMap<String, Object>();
+		Map<String, Object> model = new HashMap<>();
 		model.put("contacts", myContactsList);
 		model.put("hasDeletePermission", hasDelete);
 		model.put("hasAdminPermission", hasAdmin);

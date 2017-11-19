@@ -115,7 +115,7 @@ public final class SecurityContextChannelInterceptor extends ChannelInterceptorA
 
 		Stack<SecurityContext> contextStack = ORIGINAL_CONTEXT.get();
 		if (contextStack == null) {
-			contextStack = new Stack<SecurityContext>();
+			contextStack = new Stack<>();
 			ORIGINAL_CONTEXT.set(contextStack);
 		}
 		contextStack.push(currentContext);

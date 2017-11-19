@@ -39,7 +39,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  */
 public abstract class AbstractConfigAttributeRequestMatcherRegistry<C> extends
 		AbstractRequestMatcherRegistry<C> {
-	private List<UrlMapping> urlMappings = new ArrayList<UrlMapping>();
+	private List<UrlMapping> urlMappings = new ArrayList<>();
 	private List<RequestMatcher> unmappedMatchers;
 
 	/**

@@ -511,14 +511,14 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 
 	private Message<String> message(SimpMessageHeaderAccessor headers, String destination) {
 		headers.setSessionId("123");
-		headers.setSessionAttributes(new HashMap<String, Object>());
+		headers.setSessionAttributes(new HashMap<>());
 		if (destination != null) {
 			headers.setDestination(destination);
 		}
 		if (messageUser != null) {
 			headers.setUser(messageUser);
 		}
-		return new GenericMessage<String>("hi", headers.getMessageHeaders());
+		return new GenericMessage<>("hi", headers.getMessageHeaders());
 	}
 
 	private MessageChannel clientInboundChannel() {

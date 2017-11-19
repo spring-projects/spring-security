@@ -230,7 +230,7 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 		when(
 				ctx.search(any(Name.class), any(String.class), any(Object[].class),
 						any(SearchControls.class))).thenReturn(
-				new EmptyEnumeration<SearchResult>());
+				new EmptyEnumeration<>());
 
 		provider.contextFactory = createContextFactoryReturning(ctx);
 

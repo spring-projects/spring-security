@@ -42,7 +42,7 @@ public final class DefaultSecurityFilterChain implements SecurityFilterChain {
 	public DefaultSecurityFilterChain(RequestMatcher requestMatcher, List<Filter> filters) {
 		logger.info("Creating filter chain: " + requestMatcher + ", " + filters);
 		this.requestMatcher = requestMatcher;
-		this.filters = new ArrayList<Filter>(filters);
+		this.filters = new ArrayList<>(filters);
 	}
 
 	public RequestMatcher getRequestMatcher() {

@@ -65,10 +65,10 @@ public class FastHttpDateFormat {
 	protected static String currentDate = null;
 
 	/** Formatter cache. */
-	protected static final HashMap<Long, String> formatCache = new HashMap<Long, String>();
+	protected static final HashMap<Long, String> formatCache = new HashMap<>();
 
 	/** Parser cache. */
-	protected static final HashMap<String, Long> parseCache = new HashMap<String, Long>();
+	protected static final HashMap<String, Long> parseCache = new HashMap<>();
 
 	// ~ Methods
 	// ========================================================================================================

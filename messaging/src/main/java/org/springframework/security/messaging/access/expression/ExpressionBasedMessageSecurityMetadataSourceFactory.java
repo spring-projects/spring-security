@@ -68,7 +68,7 @@ public final class ExpressionBasedMessageSecurityMetadataSourceFactory {
 	 */
 	public static MessageSecurityMetadataSource createExpressionMessageMetadataSource(
 			LinkedHashMap<MessageMatcher<?>, String> matcherToExpression) {
-		return createExpressionMessageMetadataSource(matcherToExpression, new DefaultMessageSecurityExpressionHandler<Object>());
+		return createExpressionMessageMetadataSource(matcherToExpression, new DefaultMessageSecurityExpressionHandler<>());
 	}
 
 	/**

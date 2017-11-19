@@ -20,7 +20,7 @@ import java.util.Map;
 
 public class BankDaoStub implements BankDao {
 	private long id = 0;
-	private final Map<Long, Account> accounts = new HashMap<Long, Account>();
+	private final Map<Long, Account> accounts = new HashMap<>();
 
 	public void createOrUpdateAccount(Account account) {
 		if (account.getId() == -1) {

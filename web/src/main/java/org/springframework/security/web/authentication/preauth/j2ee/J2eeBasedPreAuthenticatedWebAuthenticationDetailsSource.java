@@ -67,7 +67,7 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource
 	 * making the request.
 	 */
 	protected Collection<String> getUserRoles(HttpServletRequest request) {
-		ArrayList<String> j2eeUserRolesList = new ArrayList<String>();
+		ArrayList<String> j2eeUserRolesList = new ArrayList<>();
 
 		for (String role : j2eeMappableRoles) {
 			if (request.isUserInRole(role)) {

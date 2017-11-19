@@ -113,7 +113,7 @@ public final class HpkpHeaderWriter implements HeaderWriter {
 
 	private final RequestMatcher requestMatcher = new SecureRequestMatcher();
 
-	private Map<String, String> pins = new LinkedHashMap<String, String>();
+	private Map<String, String> pins = new LinkedHashMap<>();
 
 	private long maxAgeInSeconds;
 

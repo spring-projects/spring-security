@@ -56,8 +56,8 @@ public class SessionRegistryImpl implements SessionRegistry,
 	// ========================================================================================================
 
 	public SessionRegistryImpl() {
-		this.principals = new ConcurrentHashMap<Object, Set<String>>();
-		this.sessionIds = new ConcurrentHashMap<String, SessionInformation>();
+		this.principals = new ConcurrentHashMap<>();
+		this.sessionIds = new ConcurrentHashMap<>();
 	}
 
 	public SessionRegistryImpl(ConcurrentMap<Object, Set<String>> principals, Map<String, SessionInformation> sessionIds) {
@@ -66,7 +66,7 @@ public class SessionRegistryImpl implements SessionRegistry,
 	}
 
 	public List<Object> getAllPrincipals() {
-		return new ArrayList<Object>(principals.keySet());
+		return new ArrayList<>(principals.keySet());
 	}
 
 	public List<SessionInformation> getAllSessions(Object principal,
@@ -77,7 +77,7 @@ public class SessionRegistryImpl implements SessionRegistry,
 			return Collections.emptyList();
 		}
 
-		List<SessionInformation> list = new ArrayList<SessionInformation>(
+		List<SessionInformation> list = new ArrayList<>(
 				sessionsUsedByPrincipal.size());
 
 		for (String sessionId : sessionsUsedByPrincipal) {
@@ -135,7 +135,7 @@ public class SessionRegistryImpl implements SessionRegistry,
 		Set<String> sessionsUsedByPrincipal = principals.get(principal);
 
 		if (sessionsUsedByPrincipal == null) {
-			sessionsUsedByPrincipal = new CopyOnWriteArraySet<String>();
+			sessionsUsedByPrincipal = new CopyOnWriteArraySet<>();
 			Set<String> prevSessionsUsedByPrincipal = principals.putIfAbsent(principal,
 					sessionsUsedByPrincipal);
 			if (prevSessionsUsedByPrincipal != null) {

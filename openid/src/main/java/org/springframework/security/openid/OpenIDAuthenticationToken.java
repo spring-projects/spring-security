@@ -46,7 +46,7 @@ public class OpenIDAuthenticationToken extends AbstractAuthenticationToken {
 
 	public OpenIDAuthenticationToken(OpenIDAuthenticationStatus status,
 			String identityUrl, String message, List<OpenIDAttribute> attributes) {
-		super(new ArrayList<GrantedAuthority>(0));
+		super(new ArrayList<>(0));
 		this.principal = identityUrl;
 		this.status = status;
 		this.identityUrl = identityUrl;

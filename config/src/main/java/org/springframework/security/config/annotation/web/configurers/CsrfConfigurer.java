@@ -80,7 +80,7 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	private CsrfTokenRepository csrfTokenRepository = new LazyCsrfTokenRepository(
 			new HttpSessionCsrfTokenRepository());
 	private RequestMatcher requireCsrfProtectionMatcher = CsrfFilter.DEFAULT_CSRF_MATCHER;
-	private List<RequestMatcher> ignoredCsrfProtectionMatchers = new ArrayList<RequestMatcher>();
+	private List<RequestMatcher> ignoredCsrfProtectionMatchers = new ArrayList<>();
 	private final ApplicationContext context;
 
 	/**

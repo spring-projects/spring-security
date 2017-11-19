@@ -92,7 +92,7 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 	public ApacheDSContainer(String root, String ldifs) throws Exception {
 		this.ldifResources = ldifs;
 		service = new DefaultDirectoryService();
-		List<Interceptor> list = new ArrayList<Interceptor>();
+		List<Interceptor> list = new ArrayList<>();
 
 		list.add(new NormalizationInterceptor());
 		list.add(new AuthenticationInterceptor());

@@ -138,7 +138,7 @@ public class RetryWithHttpsEntryPointTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
 		PortMapperImpl portMapper = new PortMapperImpl();
-		Map<String, String> map = new HashMap<String, String>();
+		Map<String, String> map = new HashMap<>();
 		map.put("8888", "9999");
 		portMapper.setPortMappings(map);
 

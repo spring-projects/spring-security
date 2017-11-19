@@ -37,7 +37,7 @@ public class HpkpHeaderWriterTests {
 	private static final Map<String, String> DEFAULT_PINS;
 	static
 	{
-		Map<String, String> defaultPins = new LinkedHashMap<String, String>();
+		Map<String, String> defaultPins = new LinkedHashMap<>();
 		defaultPins.put("d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=", "sha256");
 		DEFAULT_PINS = Collections.unmodifiableMap(defaultPins);
 	}
@@ -54,7 +54,7 @@ public class HpkpHeaderWriterTests {
 
 		writer = new HpkpHeaderWriter();
 
-		Map<String, String> defaultPins = new LinkedHashMap<String, String>();
+		Map<String, String> defaultPins = new LinkedHashMap<>();
 		defaultPins.put("d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=", "sha256");
 
 		writer.setPins(defaultPins);

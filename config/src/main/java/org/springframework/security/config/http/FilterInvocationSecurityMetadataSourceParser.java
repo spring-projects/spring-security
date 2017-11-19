@@ -155,7 +155,7 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
 			MatcherType matcherType, List<Element> urlElts, boolean useExpressions,
 			boolean addAuthenticatedAll, ParserContext parserContext) {
 
-		ManagedMap<BeanMetadataElement, BeanDefinition> filterInvocationDefinitionMap = new ManagedMap<BeanMetadataElement, BeanDefinition>();
+		ManagedMap<BeanMetadataElement, BeanDefinition> filterInvocationDefinitionMap = new ManagedMap<>();
 
 		for (Element urlElt : urlElts) {
 			String access = urlElt.getAttribute(ATT_ACCESS);

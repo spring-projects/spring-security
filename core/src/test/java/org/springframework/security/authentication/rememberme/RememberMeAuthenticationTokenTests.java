@@ -58,7 +58,7 @@ public class RememberMeAuthenticationTokenTests {
 		}
 
 		try {
-			List<GrantedAuthority> authsContainingNull = new ArrayList<GrantedAuthority>();
+			List<GrantedAuthority> authsContainingNull = new ArrayList<>();
 			authsContainingNull.add(null);
 			new RememberMeAuthenticationToken("key", "Test", authsContainingNull);
 			fail("Should have thrown IllegalArgumentException");

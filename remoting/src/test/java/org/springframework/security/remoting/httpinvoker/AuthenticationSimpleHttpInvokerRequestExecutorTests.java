@@ -103,7 +103,7 @@ public class AuthenticationSimpleHttpInvokerRequestExecutorTests {
 
 	private class MockHttpURLConnection extends HttpURLConnection {
 
-		private Map<String, String> requestProperties = new HashMap<String, String>();
+		private Map<String, String> requestProperties = new HashMap<>();
 
 		public MockHttpURLConnection(URL u) {
 			super(u);

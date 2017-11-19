@@ -213,7 +213,7 @@ public final class SecurityMockMvcResultMatchers {
 		 * @return the {@link AuthenticatedMatcher} for further customization
 		 */
 		public AuthenticatedMatcher withRoles(String... roles) {
-			Collection<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+			Collection<GrantedAuthority> authorities = new ArrayList<>();
 			for (String role : roles) {
 				authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
 			}

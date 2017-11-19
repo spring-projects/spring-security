@@ -57,7 +57,7 @@ public class SidRetrievalStrategyImpl implements SidRetrievalStrategy {
 	public List<Sid> getSids(Authentication authentication) {
 		Collection<? extends GrantedAuthority> authorities = roleHierarchy
 				.getReachableGrantedAuthorities(authentication.getAuthorities());
-		List<Sid> sids = new ArrayList<Sid>(authorities.size() + 1);
+		List<Sid> sids = new ArrayList<>(authorities.size() + 1);
 
 		sids.add(new PrincipalSid(authentication));
 

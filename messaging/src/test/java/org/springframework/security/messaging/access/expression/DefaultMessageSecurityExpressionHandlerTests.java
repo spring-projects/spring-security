@@ -51,9 +51,9 @@ public class DefaultMessageSecurityExpressionHandlerTests {
 
 	@Before
 	public void setup() {
-		handler = new DefaultMessageSecurityExpressionHandler<Object>();
+		handler = new DefaultMessageSecurityExpressionHandler<>();
 
-		message = new GenericMessage<Object>("");
+		message = new GenericMessage<>("");
 		authentication = new AnonymousAuthenticationToken("key", "anonymous",
 				AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
 	}

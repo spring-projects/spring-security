@@ -57,7 +57,7 @@ public class BusinessServiceImpl<E extends Entity> implements BusinessService {
 	}
 
 	public List<Object> methodReturningAList(String userName, String arg2) {
-		return new ArrayList<Object>();
+		return new ArrayList<>();
 	}
 
 	public Object[] methodReturningAnArray(Object[] someArray) {

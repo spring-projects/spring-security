@@ -232,7 +232,7 @@ public class SwitchUserFilterTests {
 				"dano", "hawaii50", ROLES_12);
 
 		// set current user (Admin)
-		List<GrantedAuthority> adminAuths = new ArrayList<GrantedAuthority>();
+		List<GrantedAuthority> adminAuths = new ArrayList<>();
 		adminAuths.addAll(ROLES_12);
 		adminAuths.add(new SwitchUserGrantedAuthority("PREVIOUS_ADMINISTRATOR", source));
 		UsernamePasswordAuthenticationToken admin = new UsernamePasswordAuthenticationToken(
@@ -394,7 +394,7 @@ public class SwitchUserFilterTests {
 			public Collection<GrantedAuthority> modifyGrantedAuthorities(
 					UserDetails targetUser, Authentication currentAuthentication,
 					Collection<? extends GrantedAuthority> authoritiesToBeGranted) {
-				List<GrantedAuthority> auths = new ArrayList<GrantedAuthority>();
+				List<GrantedAuthority> auths = new ArrayList<>();
 				auths.add(new SimpleGrantedAuthority("ROLE_NEW"));
 				return auths;
 			}

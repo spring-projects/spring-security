@@ -104,7 +104,7 @@ public class OpenIDAuthenticationProviderTests {
 	public void testAuthenticateFailure() {
 		OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
 		provider.setAuthenticationUserDetailsService(
-				new UserDetailsByNameServiceWrapper<OpenIDAuthenticationToken>(
+				new UserDetailsByNameServiceWrapper<>(
 						new MockUserDetailsService()));
 
 		Authentication preAuth = new OpenIDAuthenticationToken(

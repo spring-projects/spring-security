@@ -31,7 +31,7 @@ final class InheritableThreadLocalSecurityContextHolderStrategy implements
 	// ~ Static fields/initializers
 	// =====================================================================================
 
-	private static final ThreadLocal<SecurityContext> contextHolder = new InheritableThreadLocal<SecurityContext>();
+	private static final ThreadLocal<SecurityContext> contextHolder = new InheritableThreadLocal<>();
 
 	// ~ Methods
 	// ========================================================================================================

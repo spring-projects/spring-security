@@ -159,7 +159,7 @@ public class User implements UserDetails, CredentialsContainer {
 		Assert.notNull(authorities, "Cannot pass a null GrantedAuthority collection");
 		// Ensure array iteration order is predictable (as per
 		// UserDetails.getAuthorities() contract and SEC-717)
-		SortedSet<GrantedAuthority> sortedAuthorities = new TreeSet<GrantedAuthority>(
+		SortedSet<GrantedAuthority> sortedAuthorities = new TreeSet<>(
 				new AuthorityComparator());
 
 		for (GrantedAuthority grantedAuthority : authorities) {
@@ -367,7 +367,7 @@ public class User implements UserDetails, CredentialsContainer {
 		 * additional attributes for this user)
 		 */
 		public UserBuilder roles(String... roles) {
-			List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>(
+			List<GrantedAuthority> authorities = new ArrayList<>(
 					roles.length);
 			for (String role : roles) {
 				Assert.isTrue(!role.startsWith("ROLE_"), role
@@ -400,7 +400,7 @@ public class User implements UserDetails, CredentialsContainer {
 		 * @see #roles(String...)
 		 */
 		public UserBuilder authorities(Collection<? extends GrantedAuthority> authorities) {
-			this.authorities = new ArrayList<GrantedAuthority>(authorities);
+			this.authorities = new ArrayList<>(authorities);
 			return this;
 		}
 

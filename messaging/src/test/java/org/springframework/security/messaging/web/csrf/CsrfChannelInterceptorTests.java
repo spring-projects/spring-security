@@ -51,7 +51,7 @@ public class CsrfChannelInterceptorTests {
 
 		messageHeaders = SimpMessageHeaderAccessor.create(SimpMessageType.CONNECT);
 		messageHeaders.setNativeHeader(token.getHeaderName(), token.getToken());
-		messageHeaders.setSessionAttributes(new HashMap<String, Object>());
+		messageHeaders.setSessionAttributes(new HashMap<>());
 		messageHeaders.getSessionAttributes().put(CsrfToken.class.getName(), token);
 	}
 

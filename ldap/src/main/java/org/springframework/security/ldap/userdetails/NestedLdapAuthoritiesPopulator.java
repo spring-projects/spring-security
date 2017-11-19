@@ -151,10 +151,10 @@ public class NestedLdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopula
 	@Override
 	public Set<GrantedAuthority> getGroupMembershipRoles(String userDn, String username) {
 		if (getGroupSearchBase() == null) {
-			return new HashSet<GrantedAuthority>();
+			return new HashSet<>();
 		}
 
-		Set<GrantedAuthority> authorities = new HashSet<GrantedAuthority>();
+		Set<GrantedAuthority> authorities = new HashSet<>();
 
 		performNestedSearch(userDn, username, authorities, getMaxSearchDepth());
 
@@ -190,7 +190,7 @@ public class NestedLdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopula
 		}
 
 		if (getAttributeNames() == null) {
-			setAttributeNames(new HashSet<String>());
+			setAttributeNames(new HashSet<>());
 		}
 		if (StringUtils.hasText(getGroupRoleAttribute())
 				&& !getAttributeNames().contains(getGroupRoleAttribute())) {
@@ -211,7 +211,7 @@ public class NestedLdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopula
 			boolean circular = false;
 			String dn = record.get(SpringSecurityLdapTemplate.DN_KEY).get(0);
 			List<String> roleValues = record.get(getGroupRoleAttribute());
-			Set<String> roles = new HashSet<String>();
+			Set<String> roles = new HashSet<>();
 			if (roleValues != null) {
 				roles.addAll(roleValues);
 			}

@@ -72,7 +72,7 @@ public class PythonInterpreterPreInvocationAdvice implements
 				targetObject.getClass());
 		String[] paramNames = parameterNameDiscoverer.getParameterNames(method);
 
-		Map<String, Object> argMap = new HashMap<String, Object>();
+		Map<String, Object> argMap = new HashMap<>();
 		for (int i = 0; i < args.length; i++) {
 			argMap.put(paramNames[i], args[i]);
 		}

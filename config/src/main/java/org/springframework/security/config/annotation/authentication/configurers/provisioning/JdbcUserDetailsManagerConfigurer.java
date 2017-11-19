@@ -49,7 +49,7 @@ public class JdbcUserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B
 
 	private DataSource dataSource;
 
-	private List<Resource> initScripts = new ArrayList<Resource>();
+	private List<Resource> initScripts = new ArrayList<>();
 
 	public JdbcUserDetailsManagerConfigurer(JdbcUserDetailsManager manager) {
 		super(manager);

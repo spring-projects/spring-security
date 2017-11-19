@@ -72,7 +72,7 @@ public final class JeeConfigurer<H extends HttpSecurityBuilder<H>> extends
 		AbstractHttpConfigurer<JeeConfigurer<H>, H> {
 	private J2eePreAuthenticatedProcessingFilter j2eePreAuthenticatedProcessingFilter;
 	private AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> authenticationUserDetailsService;
-	private Set<String> mappableRoles = new HashSet<String>();
+	private Set<String> mappableRoles = new HashSet<>();
 
 	/**
 	 * Creates a new instance

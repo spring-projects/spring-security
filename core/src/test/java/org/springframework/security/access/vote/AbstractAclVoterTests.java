@@ -60,7 +60,7 @@ public class AbstractAclVoterTests {
 	public void correctArgumentIsSelectedFromMultipleArgs() throws Exception {
 		voter.setProcessDomainObjectClass(String.class);
 		MethodInvocation mi = MethodInvocationUtils.create(new TestClass(),
-				"methodTakingAListAndAString", new ArrayList<Object>(), "The Argument");
+				"methodTakingAListAndAString", new ArrayList<>(), "The Argument");
 		assertThat(voter.getDomainObjectInstance(mi)).isEqualTo("The Argument");
 	}
 

@@ -75,7 +75,7 @@ public class SavedCookieMixinTests extends AbstractMixinTests {
 
 	@Test
 	public void serializeSavedCookieWithList() throws JsonProcessingException, JSONException {
-		List<SavedCookie> savedCookies = new ArrayList<SavedCookie>();
+		List<SavedCookie> savedCookies = new ArrayList<>();
 		savedCookies.add(new SavedCookie(new Cookie("SESSION", "123456789")));
 		String actualJson = mapper.writeValueAsString(savedCookies);
 		JSONAssert.assertEquals(COOKIES_JSON, actualJson, true);

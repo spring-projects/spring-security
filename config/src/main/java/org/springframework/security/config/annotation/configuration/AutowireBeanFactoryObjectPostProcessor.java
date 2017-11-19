@@ -41,8 +41,8 @@ final class AutowireBeanFactoryObjectPostProcessor
 		implements ObjectPostProcessor<Object>, DisposableBean, SmartInitializingSingleton {
 	private final Log logger = LogFactory.getLog(getClass());
 	private final AutowireCapableBeanFactory autowireBeanFactory;
-	private final List<DisposableBean> disposableBeans = new ArrayList<DisposableBean>();
-	private final List<SmartInitializingSingleton> smartSingletons = new ArrayList<SmartInitializingSingleton>();
+	private final List<DisposableBean> disposableBeans = new ArrayList<>();
+	private final List<SmartInitializingSingleton> smartSingletons = new ArrayList<>();
 
 	public AutowireBeanFactoryObjectPostProcessor(
 			AutowireCapableBeanFactory autowireBeanFactory) {
