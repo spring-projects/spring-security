@@ -26,7 +26,6 @@ import org.springframework.security.htmlunit.server.WebTestClientHtmlUnitDriverB
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.WebFilterChainProxy;
-import org.springframework.security.web.server.csrf.CsrfToken;
 import org.springframework.security.web.server.savedrequest.NoOpServerRequestCache;
 import org.springframework.stereotype.Controller;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -126,7 +125,6 @@ public class RequestCacheTests {
 		@ResponseBody
 		@GetMapping("/secured")
 		public String login(ServerWebExchange exchange) {
-			CsrfToken token = exchange.getAttribute(CsrfToken.class.getName());
 			return
 				"<!DOCTYPE html>\n"
 					+ "<html lang=\"en\">\n"

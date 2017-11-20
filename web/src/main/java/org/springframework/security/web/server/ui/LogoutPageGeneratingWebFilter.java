@@ -57,8 +57,8 @@ public class LogoutPageGeneratingWebFilter implements WebFilter {
 	}
 
 	private Mono<DataBuffer> createBuffer(ServerWebExchange exchange) {
-		CsrfToken token = exchange.getAttribute(CsrfToken.class.getName());
-		return Mono.justOrEmpty(token)
+		Mono<CsrfToken> token = exchange.getAttributeOrDefault(CsrfToken.class.getName(), Mono.empty());
+		return token
 			.map(LogoutPageGeneratingWebFilter::csrfToken)
 			.defaultIfEmpty("")
 			.map(csrfTokenHtmlInput -> {

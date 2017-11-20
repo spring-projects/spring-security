@@ -30,6 +30,10 @@ import java.util.regex.Pattern;
  * @since 5.0
  */
 public class CsrfRequestDataValueProcessor implements RequestDataValueProcessor {
+	/**
+	 * The default request attribute to look for a {@link CsrfToken}.
+	 */
+	public static final String DEFAULT_CSRF_ATTR_NAME = "_csrf";
 
 	private static final Pattern DISABLE_CSRF_TOKEN_PATTERN = Pattern
 		.compile("(?i)^(GET|HEAD|TRACE|OPTIONS)$");
@@ -62,7 +66,7 @@ public class CsrfRequestDataValueProcessor implements RequestDataValueProcessor 
 			exchange.getAttributes().remove(DISABLE_CSRF_TOKEN_ATTR);
 			return Collections.emptyMap();
 		}
-		CsrfToken token = exchange.getAttribute(CsrfToken.class.getName());
+		CsrfToken token = exchange.getAttribute(DEFAULT_CSRF_ATTR_NAME);
 		if(token == null) {
 			return Collections.emptyMap();
 		}

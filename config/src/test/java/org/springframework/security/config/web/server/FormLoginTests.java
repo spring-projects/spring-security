@@ -33,6 +33,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -314,9 +315,9 @@ public class FormLoginTests {
 	public static class CustomLoginPageController {
 		@ResponseBody
 		@GetMapping("/login")
-		public String login(ServerWebExchange exchange) {
-			CsrfToken token = exchange.getAttribute(CsrfToken.class.getName());
-			return
+		public Mono<String> login(ServerWebExchange exchange) {
+			Mono<CsrfToken> token = exchange.getAttributeOrDefault(CsrfToken.class.getName(), Mono.empty());
+			return token.map(t ->
 				"<!DOCTYPE html>\n"
 				+ "<html lang=\"en\">\n"
 				+ "  <head>\n"
@@ -338,12 +339,12 @@ public class FormLoginTests {
 				+ "          <label for=\"password\" class=\"sr-only\">Password</label>\n"
 				+ "          <input type=\"password\" id=\"password\" name=\"password\" placeholder=\"Password\" required>\n"
 				+ "        </p>\n"
-				+ "        <input type=\"hidden\" name=\"" + token.getParameterName() + "\" value=\"" + token.getToken() + "\">\n"
+				+ "        <input type=\"hidden\" name=\"" + t.getParameterName() + "\" value=\"" + t.getToken() + "\">\n"
 				+ "        <button type=\"submit\">Sign in</button>\n"
 				+ "      </form>\n"
 				+ "    </div>\n"
 				+ "  </body>\n"
-				+ "</html>";
+				+ "</html>");
 		}
 	}
 }

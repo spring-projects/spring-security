@@ -17,7 +17,6 @@ package org.springframework.security.web.server.csrf;
 
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.server.WebSession;
 import reactor.core.publisher.Mono;
 
 import javax.servlet.http.HttpServletRequest;
@@ -49,20 +48,15 @@ public class WebSessionServerCsrfTokenRepository
 
 	@Override
 	public Mono<CsrfToken> generateToken(ServerWebExchange exchange) {
-		return exchange.getSession()
-			.map(WebSession::getAttributes)
-			.map(this::createCsrfToken);
+		return Mono.fromCallable(() -> createCsrfToken());
 	}
 
 	@Override
 	public Mono<CsrfToken> saveToken(ServerWebExchange exchange, CsrfToken token) {
-		if(token != null) {
-			return Mono.just(token);
-		}
 		return exchange.getSession()
-			.doOnSuccess(session -> putToken(session.getAttributes(), token))
+			.doOnNext(session -> putToken(session.getAttributes(), token))
 			.flatMap(session -> session.changeSessionId())
-			.flatMap(r -> Mono.justOrEmpty(token));
+			.then(Mono.justOrEmpty(token));
 	}
 
 	private void putToken(Map<String, Object> attributes, CsrfToken token) {
@@ -111,11 +105,6 @@ public class WebSessionServerCsrfTokenRepository
 		this.sessionAttributeName = sessionAttributeName;
 	}
 
-
-	private CsrfToken createCsrfToken(Map<String, Object> attributes) {
-		return new LazyCsrfToken(attributes, createCsrfToken());
-	}
-
 	private CsrfToken createCsrfToken() {
 		return new DefaultCsrfToken(this.headerName, this.parameterName, createNewToken());
 	}
@@ -124,58 +113,4 @@ public class WebSessionServerCsrfTokenRepository
 		return UUID.randomUUID().toString();
 	}
 
-	private class LazyCsrfToken implements CsrfToken {
-		private final Map<String, Object> attributes;
-		private final CsrfToken delegate;
-
-		private LazyCsrfToken(Map<String, Object> attributes, CsrfToken delegate) {
-			this.attributes = attributes;
-			this.delegate = delegate;
-		}
-
-		@Override
-		public String getHeaderName() {
-			return this.delegate.getHeaderName();
-		}
-
-		@Override
-		public String getParameterName() {
-			return this.delegate.getParameterName();
-		}
-
-		@Override
-		public String getToken() {
-			putToken(this.attributes, this.delegate);
-			return this.delegate.getToken();
-		}
-
-		@Override
-		public boolean equals(Object o) {
-			if (this == o)
-				return true;
-			if (o == null || !(o instanceof CsrfToken))
-				return false;
-
-			CsrfToken that = (CsrfToken) o;
-
-			if (!getToken().equals(that.getToken()))
-				return false;
-			if (!getParameterName().equals(that.getParameterName()))
-				return false;
-			return getHeaderName().equals(that.getHeaderName());
-		}
-
-		@Override
-		public int hashCode() {
-			int result = getToken().hashCode();
-			result = 31 * result + getParameterName().hashCode();
-			result = 31 * result + getHeaderName().hashCode();
-			return result;
-		}
-
-		@Override
-		public String toString() {
-			return "LazyCsrfToken{" + "delegate=" + this.delegate + '}';
-		}
-	}
 }

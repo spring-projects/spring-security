@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.springframework.security.web.reactive.result.view.CsrfRequestDataValueProcessor.DEFAULT_CSRF_ATTR_NAME;
 
 /**
  * @author Rob Winch
@@ -46,7 +47,7 @@ public class CsrfRequestDataValueProcessorTests {
 	@Before
 	public void setup() {
 		this.expected.put(this.token.getParameterName(), this.token.getToken());
-		this.exchange.getAttributes().put(CsrfToken.class.getName(), this.token);
+		this.exchange.getAttributes().put(DEFAULT_CSRF_ATTR_NAME, this.token);
 	}
 
 	@Test
@@ -122,7 +123,7 @@ public class CsrfRequestDataValueProcessorTests {
 	@Test
 	public void createGetExtraHiddenFieldsHasCsrfToken() {
 		CsrfToken token = new DefaultCsrfToken("1", "a", "b");
-		this.exchange.getAttributes().put(CsrfToken.class.getName(), token);
+		this.exchange.getAttributes().put(DEFAULT_CSRF_ATTR_NAME, token);
 		Map<String, String> expected = new HashMap<String, String>();
 		expected.put(token.getParameterName(), token.getToken());
 

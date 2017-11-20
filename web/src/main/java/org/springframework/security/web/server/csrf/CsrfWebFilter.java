@@ -47,12 +47,16 @@ import java.util.Set;
  * {@link WebSessionServerCsrfTokenRepository}. This is preferred to storing the token in
  * a cookie which can be modified by a client application.
  * </p>
+ * <p>
+ * The {@code Mono&lt;CsrfToken&gt;} is exposes as a request attribute with the name of
+ * {@code CsrfToken.class.getName()}. If the token is new it will automatically be saved
+ * at the time it is subscribed.
+ * </p>
  *
  * @author Rob Winch
  * @since 5.0
  */
 public class CsrfWebFilter implements WebFilter {
-
 	private ServerWebExchangeMatcher requireCsrfProtectionMatcher = new DefaultRequireCsrfProtectionMatcher();
 
 	private ServerCsrfTokenRepository csrfTokenRepository = new WebSessionServerCsrfTokenRepository();
@@ -105,11 +109,11 @@ public class CsrfWebFilter implements WebFilter {
 	}
 
 	private Mono<Void> continueFilterChain(ServerWebExchange exchange, WebFilterChain chain) {
-		return csrfToken(exchange)
-			.doOnSuccess(csrfToken -> exchange.getAttributes().put(CsrfToken.class.getName(), csrfToken))
-			.doOnSuccess(csrfToken -> exchange.getAttributes().put(csrfToken.getParameterName(), csrfToken))
-			.flatMap( t -> chain.filter(exchange))
-			.then();
+		return Mono.defer(() ->{
+			Mono<CsrfToken> csrfToken = csrfToken(exchange);
+			exchange.getAttributes().put(CsrfToken.class.getName(), csrfToken);
+			return chain.filter(exchange);
+		});
 	}
 
 	private Mono<CsrfToken> csrfToken(ServerWebExchange exchange) {

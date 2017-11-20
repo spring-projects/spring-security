@@ -89,8 +89,6 @@ public class CsrfWebFilterTests {
 		this.csrfFilter.setCsrfTokenRepository(this.repository);
 		when(this.repository.loadToken(any()))
 			.thenReturn(Mono.just(this.token));
-		when(this.repository.generateToken(any()))
-			.thenReturn(Mono.just(this.token));
 
 		Mono<Void> result = this.csrfFilter.filter(this.post, this.chain);
 
@@ -105,8 +103,6 @@ public class CsrfWebFilterTests {
 	public void filterWhenPostAndEstablishedCsrfTokenAndRequestParamInvalidTokenThenCsrfException() {
 		this.csrfFilter.setCsrfTokenRepository(this.repository);
 		when(this.repository.loadToken(any()))
-			.thenReturn(Mono.just(this.token));
-		when(this.repository.generateToken(any()))
 			.thenReturn(Mono.just(this.token));
 		this.post = MockServerWebExchange.from(MockServerHttpRequest.post("/")
 			.body(this.token.getParameterName() + "="+this.token.getToken()+"INVALID"));
@@ -145,8 +141,6 @@ public class CsrfWebFilterTests {
 	public void filterWhenPostAndEstablishedCsrfTokenAndHeaderInvalidTokenThenCsrfException() {
 		this.csrfFilter.setCsrfTokenRepository(this.repository);
 		when(this.repository.loadToken(any()))
-			.thenReturn(Mono.just(this.token));
-		when(this.repository.generateToken(any()))
 			.thenReturn(Mono.just(this.token));
 		this.post = MockServerWebExchange.from(MockServerHttpRequest.post("/")
 			.header(this.token.getHeaderName(), this.token.getToken()+"INVALID"));
