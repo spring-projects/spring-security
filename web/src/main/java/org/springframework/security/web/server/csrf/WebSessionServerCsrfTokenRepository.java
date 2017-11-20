@@ -52,15 +52,14 @@ public class WebSessionServerCsrfTokenRepository
 	}
 
 	@Override
-	public Mono<CsrfToken> saveToken(ServerWebExchange exchange, CsrfToken token) {
+	public Mono<Void> saveToken(ServerWebExchange exchange, CsrfToken token) {
 		return exchange.getSession()
 			.doOnNext(session -> putToken(session.getAttributes(), token))
-			.flatMap(session -> session.changeSessionId())
-			.then(Mono.justOrEmpty(token));
+			.flatMap(session -> session.changeSessionId());
 	}
 
 	private void putToken(Map<String, Object> attributes, CsrfToken token) {
-		if(token == null) {
+		if (token == null) {
 			attributes.remove(this.sessionAttributeName);
 		} else {
 			attributes.put(this.sessionAttributeName, token);

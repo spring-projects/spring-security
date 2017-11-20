@@ -78,7 +78,7 @@ public class WebSessionServerCsrfTokenRepositoryTests {
 	public void saveTokenWhenNullThenDeletes() {
 		CsrfToken token = this.repository.generateToken(this.exchange).block();
 
-		Mono<CsrfToken> result = this.repository.saveToken(this.exchange, null);
+		Mono<Void> result = this.repository.saveToken(this.exchange, null);
 		StepVerifier.create(result)
 			.verifyComplete();
 
