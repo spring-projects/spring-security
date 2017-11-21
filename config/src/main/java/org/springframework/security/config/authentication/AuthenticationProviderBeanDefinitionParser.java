@@ -15,6 +15,7 @@
  */
 package org.springframework.security.config.authentication;
 
+import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.RootBeanDefinition;
@@ -36,17 +37,16 @@ public class AuthenticationProviderBeanDefinitionParser implements BeanDefinitio
 	private static final String ATT_USER_DETAILS_REF = "user-service-ref";
 
 	public BeanDefinition parse(Element element, ParserContext pc) {
-		RootBeanDefinition authProvider = new RootBeanDefinition(
-				DaoAuthenticationProvider.class);
+		RootBeanDefinition authProvider = new RootBeanDefinition(DaoAuthenticationProvider.class);
 		authProvider.setSource(pc.extractSource(element));
 
-		Element passwordEncoderElt = DomUtils.getChildElementByTagName(element,
-				Elements.PASSWORD_ENCODER);
+		Element passwordEncoderElt = DomUtils.getChildElementByTagName(element, Elements.PASSWORD_ENCODER);
 
-		if (passwordEncoderElt != null) {
-			PasswordEncoderParser pep = new PasswordEncoderParser(passwordEncoderElt, pc);
-			authProvider.getPropertyValues().addPropertyValue("passwordEncoder",
-					pep.getPasswordEncoder());
+		PasswordEncoderParser pep = new PasswordEncoderParser(passwordEncoderElt, pc);
+		BeanMetadataElement passwordEncoder = pep.getPasswordEncoder();
+		if (passwordEncoder != null) {
+			authProvider.getPropertyValues()
+				.addPropertyValue("passwordEncoder", passwordEncoder);
 		}
 
 		Element userServiceElt = DomUtils.getChildElementByTagName(element,

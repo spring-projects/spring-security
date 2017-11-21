@@ -56,6 +56,12 @@ public class PasswordEncoderParser {
 	}
 
 	private void parse(Element element, ParserContext parserContext) {
+		if (element == null) {
+			if (parserContext.getRegistry().containsBeanDefinition("passwordEncoder")) {
+				this.passwordEncoder = parserContext.getRegistry().getBeanDefinition("passwordEncoder");
+			}
+			return;
+		}
 		String hash = element.getAttribute(ATT_HASH);
 		boolean useBase64 = false;
 

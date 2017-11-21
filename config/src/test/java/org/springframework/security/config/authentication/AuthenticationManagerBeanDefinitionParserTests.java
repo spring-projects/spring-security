@@ -15,25 +15,27 @@
  */
 package org.springframework.security.config.authentication;
 
-import static org.assertj.core.api.Assertions.*;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.Rule;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.event.AbstractAuthenticationEvent;
-import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestRule;
-import org.springframework.security.config.util.InMemoryXmlApplicationContext;
 import org.springframework.security.util.FieldUtils;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  *
@@ -44,7 +46,8 @@ public class AuthenticationManagerBeanDefinitionParserTests {
 			+ "    <authentication-provider>"
 			+ "        <user-service>"
 			+ "            <user name='bob' password='{noop}bobspassword' authorities='ROLE_A,ROLE_B' />"
-			+ "        </user-service>" + "    </authentication-provider>"
+			+ "        </user-service>"
+			+ "    </authentication-provider>"
 			+ "</authentication-manager>";
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
@@ -90,6 +93,23 @@ public class AuthenticationManagerBeanDefinitionParserTests {
 		ProviderManager pm = (ProviderManager) appContext
 				.getBeansOfType(ProviderManager.class).values().toArray()[0];
 		assertThat(pm.isEraseCredentialsAfterAuthentication()).isFalse();
+	}
+
+	@Autowired
+	MockMvc mockMvc;
+
+	@Test
+	public void passwordEncoderBeanUsed() throws Exception {
+		this.spring.context("<b:bean id='passwordEncoder' class='org.springframework.security.crypto.password.NoOpPasswordEncoder' factory-method='getInstance'/>"
+			+ "<user-service>"
+			+ "  <user name='user' password='password' authorities='ROLE_A,ROLE_B' />"
+			+ "</user-service>"
+			+ "<http/>")
+			.mockMvcAfterSpringSecurityOk()
+			.autowire();
+
+		this.mockMvc.perform(get("/").with(httpBasic("user", "password")))
+			.andExpect(status().isOk());
 	}
 
 	private static class AuthListener implements

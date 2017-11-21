@@ -26,6 +26,7 @@ import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Arrays;
 
@@ -49,21 +50,24 @@ public class AuthenticationManagerFactoryBean implements
 			return (AuthenticationManager) bf.getBean(BeanIds.AUTHENTICATION_MANAGER);
 		}
 		catch (NoSuchBeanDefinitionException e) {
-			if (BeanIds.AUTHENTICATION_MANAGER.equals(e.getBeanName())) {
-				try {
-					UserDetailsService uds = bf.getBean(UserDetailsService.class);
-					DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-					provider.setUserDetailsService(uds);
-					provider.afterPropertiesSet();
-					return new ProviderManager(
-							Arrays.<AuthenticationProvider> asList(provider));
-				}
-				catch (NoSuchBeanDefinitionException noUds) {
-				}
-				throw new NoSuchBeanDefinitionException(BeanIds.AUTHENTICATION_MANAGER,
-						MISSING_BEAN_ERROR_MESSAGE);
+			if (!BeanIds.AUTHENTICATION_MANAGER.equals(e.getBeanName())) {
+				throw e;
 			}
-			throw e;
+
+			UserDetailsService uds = getBeanOrNull(UserDetailsService.class);
+			if(uds == null) {
+				throw new NoSuchBeanDefinitionException(BeanIds.AUTHENTICATION_MANAGER,
+					MISSING_BEAN_ERROR_MESSAGE);
+			}
+
+			DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+			provider.setUserDetailsService(uds);
+			PasswordEncoder passwordEncoder = getBeanOrNull(PasswordEncoder.class);
+			if (passwordEncoder != null) {
+				provider.setPasswordEncoder(passwordEncoder);
+			}
+			provider.afterPropertiesSet();
+			return new ProviderManager(Arrays.<AuthenticationProvider> asList(provider));
 		}
 	}
 
@@ -79,4 +83,11 @@ public class AuthenticationManagerFactoryBean implements
 		bf = beanFactory;
 	}
 
+	private <T> T getBeanOrNull(Class<T> type) {
+		try {
+			return this.bf.getBean(type);
+		} catch (NoSuchBeanDefinitionException noUds) {
+			return null;
+		}
+	}
 }
