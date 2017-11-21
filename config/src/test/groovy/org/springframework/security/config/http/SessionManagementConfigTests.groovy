@@ -394,7 +394,6 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
 	def 'session-fixation-protection=migrateSession'() {
 		setup:
 		MockHttpServletRequest request = new MockHttpServletRequest(method:'POST')
-		request.session.id = '123'
 		request.setParameter('username', 'user')
 		request.setParameter('password', 'password')
 		request.servletPath = '/login'
@@ -406,13 +405,13 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
 			csrf(disabled:true)
 		}
 		createAppContext()
-		request.session.id = '123'
+		String originalId = request.session.id
 
 		when:
 		springSecurityFilterChain.doFilter(request,response, chain)
 
 		then:
-		request.session.id != '123'
+		request.session.id != originalId
 	}
 
 	def disablingSessionProtectionRetainsSessionManagementFilterInvalidSessionUrlSet() {
