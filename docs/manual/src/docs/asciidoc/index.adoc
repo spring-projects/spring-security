@@ -342,17 +342,17 @@ LDAP authentication and provisioning code. Required if you need to use LDAP auth
 
 
 [[spring-security-oauth2-core]]
-===== OAuth 2.0 Core -- `spring-security-oauth2-core.jar`
+===== OAuth 2.0 Core - spring-security-oauth2-core.jar
 `spring-security-oauth2-core.jar` contains core classes and interfaces that provide support for the _OAuth 2.0 Authorization Framework_ and for _OpenID Connect Core 1.0_. It is required by applications that use _OAuth 2.0_ or _OpenID Connect Core 1.0_, such as Client, Resource Server, and Authorization Server. The top-level package is `org.springframework.security.oauth2.core`.
 
 
 [[spring-security-oauth2-client]]
-===== OAuth 2.0 Client -- `spring-security-oauth2-client.jar`
+===== OAuth 2.0 Client - spring-security-oauth2-client.jar
 `spring-security-oauth2-client.jar` is Spring Security's client support for _OAuth 2.0 Authorization Framework_ and _OpenID Connect Core 1.0_. Required by applications leveraging *OAuth 2.0 Login* and/or OAuth Client support. The top-level package is `org.springframework.security.oauth2.client`.
 
 
 [[spring-security-oauth2-jose]]
-===== OAuth 2.0 JOSE -- `spring-security-oauth2-jose.jar`
+===== OAuth 2.0 JOSE - spring-security-oauth2-jose.jar
 `spring-security-oauth2-jose.jar` contains Spring Security's support for the _JOSE_ (Javascript Object Signing and Encryption) framework. The _JOSE_ framework is intended to provide a method to securely transfer claims between parties. It is built from a collection of specifications:
 
 * JSON Web Token (JWT)
@@ -869,8 +869,9 @@ From here you can easily make the changes to the defaults.
 [[jc-oauth2login]]
 === OAuth 2.0 Login
 
-The OAuth 2.0 Login feature implements the following use case: "Login with Google" or "Login with GitHub". It provides an application with
-the capability to have users log in to the application by using their existing account at an OAuth 2.0 Provider (e.g. GitHub) or OpenID Connect 1.0 Provider (such as Google).
+The OAuth 2.0 Login feature provides an application with the capability to have users log in to the application
+by using their existing account at an OAuth 2.0 Provider (e.g. GitHub) or OpenID Connect 1.0 Provider (such as Google).
+OAuth 2.0 Login implements the use cases: "Login with Google" or "Login with GitHub".
 
 NOTE: OAuth 2.0 Login is implemented by using the *Authorization Code Grant*, as specified in the https://tools.ietf.org/html/rfc6749#section-4.1[OAuth 2.0 Authorization Framework]
 and http://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth[OpenID Connect Core 1.0].
@@ -882,10 +883,10 @@ Spring Boot 2.0 brings full auto-configuration capabilities for OAuth 2.0 Login.
 
 This section shows how to configure the {gh-samples-url}/boot/oauth2login[*OAuth 2.0 Login sample*] using _Google_ as the _Authentication Provider_ and covers the following topics:
 
-* <<jc-oauth2login-sample-initial-setup>>
-* <<jc-oauth2login-sample-redirect-uri>>
-* <<jc-oauth2login-sample-application-config>>
-* <<jc-oauth2login-sample-boot-application>>
+* <<jc-oauth2login-sample-initial-setup,Initial setup>>
+* <<jc-oauth2login-sample-redirect-uri,Setting the redirect URI>>
+* <<jc-oauth2login-sample-application-config,Configure `application.yml`>>
+* <<jc-oauth2login-sample-boot-application,Boot up the application>>
 
 
 [[jc-oauth2login-sample-initial-setup]]
@@ -952,7 +953,7 @@ The Consent screen asks you to either allow or deny access to the OAuth Client y
 Click *Allow* to authorize the OAuth Client to access your email address and basic profile information.
 
 At this point, the OAuth Client retrieves your email address and basic profile information
-from the http://openid.net/specs/openid-connect-core-1_0.html#UserInfo[UserInfo Endpoint] and establish an authenticated session.
+from the http://openid.net/specs/openid-connect-core-1_0.html#UserInfo[UserInfo Endpoint] and establishes an authenticated session.
 
 [[jc-oauth2login-client-registration]]
 ==== ClientRegistration
@@ -960,7 +961,7 @@ from the http://openid.net/specs/openid-connect-core-1_0.html#UserInfo[UserInfo 
 `ClientRegistration` is a representation of a client registered with an OAuth 2.0 or OpenID Connect 1.0 Provider.
 
 A client registration holds information, such as client id, client secret,
-authorization grant type, redirect URI, scope(s), authorization URI, _token URI, and other details.
+authorization grant type, redirect URI, scope(s), authorization URI, token URI, and other details.
 
 `ClientRegistration` and its properties are defined as follows:
 
@@ -994,7 +995,7 @@ public final class ClientRegistration {
 <1> `registrationId`: The ID that uniquely identifies the `ClientRegistration`.
 <2> `clientId`: The client identifier.
 <3> `clientSecret`: The client secret.
-<4> `clientAuthenticationMethod`: tThe method used to authenticate the Client with the Provider. The supported values are *basic* and *post*.
+<4> `clientAuthenticationMethod`: The method used to authenticate the Client with the Provider. The supported values are *basic* and *post*.
 <5> `authorizationGrantType`: The OAuth 2.0 Authorization Framework defines four https://tools.ietf.org/html/rfc6749#section-1.3[Authorization Grant] types.
  The supported values are authorization_code and implicit.
 <6> `redirectUriTemplate`: The client's registered redirect URI that the _Authorization Server_ redirects the end-user's user-agent
@@ -1067,7 +1068,7 @@ Client registration information is ultimately stored and owned by the associated
 This repository provides the ability to retrieve a sub-set of the primary client registration information,
 which is stored with the Authorization Server.
 
-Spring Boot 2.0 auto-configuration binds each of the properties under spring.security.oauth2.client.registration._[registrationId]_
+Spring Boot 2.0 auto-configuration binds each of the properties under `spring.security.oauth2.client.registration._[registrationId]_`
 to an instance of `ClientRegistration` and then composes each of the `ClientRegistration` instance(s) within a `ClientRegistrationRepository`.
 
 [NOTE]
@@ -1143,7 +1144,7 @@ spring:
             client-secret: google-client-secret
 ----
 <1> The `registrationId` is set to `google-login`.
-<2> The `provider` property is set to `google`, which relies on the auto-defaulting of client properties set in `CommonOAuth2Provider.GOOGLE.getBuilder()`.
+<2> The `provider` property is set to `google`, which will leverage the auto-defaulting of client properties set in `CommonOAuth2Provider.GOOGLE.getBuilder()`.
 
 [[jc-oauth2login-custom-provider-properties]]
 ==== Configuring Custom Provider Properties
@@ -1152,7 +1153,7 @@ There are some OAuth 2.0 Providers that support multi-tenancy, which results in 
 
 For example, an OAuth Client registered with Okta is assigned to a specific sub-domain and have their own protocol endpoints.
 
-For these cases, Spring Boot 2.0 provides the following base property for configuring custom provider properties: `spring.security.oauth2.client.provider.providerId`.
+For these cases, Spring Boot 2.0 provides the following base property for configuring custom provider properties: `spring.security.oauth2.client.provider._[providerId]_`.
 
 The following listing shows an example:
 
@@ -1189,9 +1190,9 @@ It performs the following tasks:
 
 If you need to override the auto-configuration based on your specific requirements, you may do so in the following ways:
 
-* <<jc-oauth2login-register-clientregistrationrepository-bean>>
-* <<jc-oauth2login-provide-websecurityconfigureradapter>>
-* <<jc-oauth2login-completely-override-autoconfiguration>>
+* <<jc-oauth2login-register-clientregistrationrepository-bean,Register a `ClientRegistrationRepository` `@Bean`>>
+* <<jc-oauth2login-provide-websecurityconfigureradapter,Provide a `WebSecurityConfigurerAdapter`>>
+* <<jc-oauth2login-completely-override-autoconfiguration,Completely Override the Auto-configuration>>
 
 
 [[jc-oauth2login-register-clientregistrationrepository-bean]]
@@ -1252,7 +1253,7 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 
 
 [[jc-oauth2login-completely-override-autoconfiguration]]
-Completely Override the Auto-configuration
+===== Completely Override the Auto-configuration
 
 The following example shows how to completely override the auto-configuration by both registering a `ClientRegistrationRepository` `@Bean` and providing a `WebSecurityConfigurerAdapter`, both of which were described in the two preceding sections.
 
@@ -6578,9 +6579,8 @@ By default, a failed result will cause a standard Spring Security `BadCredential
 [[oauth2login-advanced]]
 == OAuth 2.0 Login -- Advanced Configuration
 
-`HttpSecurity.oauth2Login()` (`OAuth2LoginConfigurer`) provides a number of configuration options for customizing OAuth 2.0 Login.
+`HttpSecurity.oauth2Login()` provides a number of configuration options for customizing OAuth 2.0 Login.
 The main configuration options are grouped into their protocol endpoint counterparts.
-//TODO What is the relationship of `HttpSecurity.oauth2Login` to `OAuth2LoginConfigurer`?
 
 For example, `oauth2Login().authorizationEndpoint()` allows configuring the _Authorization Endpoint_,
 whereas `oauth2Login().tokenEndpoint()` allows configuring the _Token Endpoint_.
@@ -6610,22 +6610,22 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 
 The main goal of the `oauth2Login()` DSL was to closely align with the naming, as defined in the specifications.
 
-The OAuth 2.0 Authorization Framework defines the https://tools.ietf.org/html/rfc6749#section-3[Protocol Endpoints].
+The OAuth 2.0 Authorization Framework defines the https://tools.ietf.org/html/rfc6749#section-3[Protocol Endpoints] as follows:
 
-The authorization process uses two authorization server endpoints (HTTP resources):
+The authorization process utilizes two authorization server endpoints (HTTP resources):
 
-* Authorization Endpoint: Used by the client to obtain authorization from the resource owner through user-agent redirection.
+* Authorization Endpoint: Used by the client to obtain authorization from the resource owner via user-agent redirection.
 * Token Endpoint: Used by the client to exchange an authorization grant for an access token, typically with client authentication.
 
-It also uses one client endpoint:
+As well as one client endpoint:
 
 * Redirection Endpoint: Used by the authorization server to return responses
-containing authorization credentials to the client through the resource owner user-agent.
+containing authorization credentials to the client via the resource owner user-agent.
 
 The OpenID Connect Core 1.0 specification defines the http://openid.net/specs/openid-connect-core-1_0.html#UserInfo[UserInfo Endpoint] as follows:
 
 The UserInfo Endpoint is an OAuth 2.0 Protected Resource that returns claims about the authenticated end-user.
-To obtain the requested claims about the end-user, the client makes a request to the `UserInfo` endpoint
+To obtain the requested claims about the end-user, the client makes a request to the UserInfo Endpoint
 by using an access token obtained through OpenID Connect Authentication.
 These claims are normally represented by a JSON object that contains a collection of name-value pairs for the claims.
 
@@ -6731,9 +6731,6 @@ The following line shows an example:
 [[oauth2login-advanced-authorization-endpoint]]
 === Authorization Endpoint
 
-The authorization endpoint works through the `AuthorizationRequestRepository`, as described in the next sub-section.
-//TODO Is there more to the Authorization Endpoint than the repository? If so, those details should be added to this section.
-
 
 [[oauth2login-advanced-authorization-request-repository]]
 ==== `AuthorizationRequestRepository`
@@ -6783,7 +6780,7 @@ OAuth 2.0 Login leverages the Authorization Code Grant. Therefore, the authoriza
 
 The default Authorization Response `baseUri` (redirection endpoint) is `*/login/oauth2/code/**`, which is defined in `OAuth2LoginAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI`.
 
-If you would like to customize the _Authorization Response_ `baseUri`, configure it as shown in the following example:
+If you would like to customize the Authorization Response `baseUri`, configure it as shown in the following example:
 
 [source,java]
 ----
@@ -6820,15 +6817,12 @@ return CommonOAuth2Provider.GOOGLE.getBuilder("google")
 [[oauth2login-advanced-token-endpoint]]
 === Token Endpoint
 
-The token endpoint works through the `OAuth2AccessTokenResponseClient`, as described in the next sub-section.
-//TODO Is there more to the token Endpoint than the response client? If so, those details should be added to this section.
-
 
 [[oauth2login-advanced-token-client]]
 ==== OAuth2AccessTokenResponseClient
 
 `OAuth2AccessTokenResponseClient` is responsible for exchanging an authorization grant credential
-for an access token credential at the Authorization Server's token endpoint.
+for an access token credential at the Authorization Server's Token Endpoint.
 
 The default implementation of `OAuth2AccessTokenResponseClient` is `NimbusAuthorizationCodeTokenResponseClient`,
 which exchanges an authorization code for an access token at the Token Endpoint.
@@ -6837,7 +6831,7 @@ which exchanges an authorization code for an access token at the Token Endpoint.
 `NimbusAuthorizationCodeTokenResponseClient` uses the https://connect2id.com/products/nimbus-oauth-openid-connect-sdk[Nimbus OAuth 2.0 SDK] internally.
 
 If you would like to provide a custom implementation of `OAuth2AccessTokenResponseClient`
-that uses Spring Framework 5 reactive `WebClient` for initiating requests to the token endpoint,
+that uses Spring Framework 5 reactive `WebClient` for initiating requests to the Token Endpoint,
 configure it as shown in the following example:
 
 [source,java]
@@ -6861,9 +6855,9 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 ----
 
 [[oauth2login-advanced-userinfo-endpoint]]
-=== `UserInfo` Endpoint
+=== UserInfo Endpoint
 
-The `UserInfo` endpoint includes a number of configuration options, as described in the following sub-sections:
+The UserInfo Endpoint includes a number of configuration options, as described in the following sub-sections:
 
 * <<oauth2login-advanced-map-authorities>>
 * <<oauth2login-advanced-custom-user>>
@@ -6934,8 +6928,8 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 `CustomUserTypesOAuth2UserService` is an implementation of an `OAuth2UserService`
 that provides support for custom `OAuth2User` types.
 
-If the default implementation (`DefaultOAuth2User`) may not suit your needs, you may need
-to define your own implementation of `OAuth2User`.
+If the default implementation (`DefaultOAuth2User`) does not suit your needs,
+you can define your own implementation of `OAuth2User`.
 
 The following code demonstrates how you would register a custom `OAuth2User` type for GitHub:
 
@@ -7022,23 +7016,23 @@ public class GitHubOAuth2User implements OAuth2User {
 
 [TIP]
 `id`, `name`, `login`, and `email` are attributes returned in GitHub's UserInfo Response.
-For detailed information returned from the `UserInfo` endpoint, see the API documentation
+For detailed information returned from the UserInfo Endpoint, see the API documentation
 for https://developer.github.com/v3/users/#get-the-authenticated-user["Get the authenticated user"].
 
 [[oauth2login-advanced-oauth2-user-service]]
 ==== OAuth 2.0 UserService
 
 `DefaultOAuth2UserService` is an implementation of an `OAuth2UserService`
-that supports standard OAuth 2.0 Provider instances.
+that supports standard OAuth 2.0 Provider's.
 
 [NOTE]
 `OAuth2UserService` obtains the user attributes
-of the end-user (the resource owner) from the `UserInfo` endpoint (by using the
+of the end-user (the resource owner) from the UserInfo Endpoint (by using the
 access token granted to the client during the authorization flow)
 and returns an `AuthenticatedPrincipal` in the form of an `OAuth2User`.
 
-If the default implementation does not suit your needs, you may need to define your own implementation of `OAuth2UserService`
-for standard OAuth 2.0 Provider instances.
+If the default implementation does not suit your needs, you can define your own implementation of `OAuth2UserService`
+for standard OAuth 2.0 Provider's.
 
 The following configuration demonstrates how to configure a custom `OAuth2UserService`:
 
@@ -7070,7 +7064,7 @@ that supports OpenID Connect 1.0 Provider's.
 
 [NOTE]
 `OAuth2UserService` is responsible for obtaining the user attributes
-of the end user (the resource owner) from the `UserInfo` endpoint (byusing the
+of the end user (the resource owner) from the UserInfo Endpoint (by using the
 access token granted to the client during the authorization flow)
 and return an `AuthenticatedPrincipal` in the form of an `OidcUser`.
 
