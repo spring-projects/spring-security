@@ -97,7 +97,7 @@ public class ServerHttpSecurity {
 
 	private AuthorizeExchangeSpec authorizeExchange;
 
-	private HeaderSpec headers = new HeaderSpec();
+	private HeaderSpec headers;
 
 	private CsrfSpec csrf = new CsrfSpec();
 
