@@ -29,14 +29,21 @@ import java.util.Set;
  * A representation of a client registration with an OAuth 2.0 / OpenID Connect 1.0 <i>Authorization Server</i>.
  *
  * @author Joe Grandja
+ * @author Kazuki Shimizu
  * @since 5.0
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-2">Section 2 Client Registration</a>
  */
 public final class ClientRegistration {
+
+	/**
+	 * The default URI template for redirecting to the client application when authorization is completed.
+	 */
+	public static final String DEFAULT_REDIRECT_URI_TEMPLATE = "{baseUrl}/login/oauth2/code/{registrationId}";
+
 	private String registrationId;
 	private String clientId;
 	private String clientSecret;
-	private ClientAuthenticationMethod clientAuthenticationMethod = ClientAuthenticationMethod.BASIC;
+	private ClientAuthenticationMethod clientAuthenticationMethod;
 	private AuthorizationGrantType authorizationGrantType;
 	private String redirectUriTemplate;
 	private Set<String> scopes = Collections.emptySet();
@@ -150,7 +157,7 @@ public final class ClientRegistration {
 		private String clientSecret;
 		private ClientAuthenticationMethod clientAuthenticationMethod = ClientAuthenticationMethod.BASIC;
 		private AuthorizationGrantType authorizationGrantType;
-		private String redirectUriTemplate;
+		private String redirectUriTemplate = DEFAULT_REDIRECT_URI_TEMPLATE;
 		private Set<String> scopes;
 		private String authorizationUri;
 		private String tokenUri;
