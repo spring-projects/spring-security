@@ -29,6 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Tests for {@link ClientRegistration}.
  *
  * @author Joe Grandja
+ * @author Kazuki Shimizu
  */
 public class ClientRegistrationTests {
 	private static final String REGISTRATION_ID = "registration-1";
@@ -150,7 +151,7 @@ public class ClientRegistrationTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void buildWhenAuthorizationCodeGrantRedirectUriIsNullThenThrowIllegalArgumentException() {
+	public void buildWhenAuthorizationCodeGrantRedirectUriTemplateIsNullThenThrowIllegalArgumentException() {
 		ClientRegistration.withRegistrationId(REGISTRATION_ID)
 			.clientId(CLIENT_ID)
 			.clientSecret(CLIENT_SECRET)
@@ -305,7 +306,7 @@ public class ClientRegistrationTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void buildWhenImplicitGrantRedirectUriIsNullThenThrowIllegalArgumentException() {
+	public void buildWhenImplicitGrantRedirectUriTemplateIsNullThenThrowIllegalArgumentException() {
 		ClientRegistration.withRegistrationId(REGISTRATION_ID)
 			.clientId(CLIENT_ID)
 			.authorizationGrantType(AuthorizationGrantType.IMPLICIT)
@@ -351,4 +352,31 @@ public class ClientRegistrationTests {
 			.clientName(null)
 			.build();
 	}
+
+	@Test
+	public void buildOmitDefinitionOnHavingDefaultValue() {
+		ClientRegistration registration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
+			.clientId(CLIENT_ID)
+			.clientSecret(CLIENT_SECRET)
+			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+			.scope(SCOPES.toArray(new String[0]))
+			.authorizationUri(AUTHORIZATION_URI)
+			.tokenUri(TOKEN_URI)
+			.jwkSetUri(JWK_SET_URI)
+			.clientName(CLIENT_NAME)
+			.build();
+
+		assertThat(registration.getRegistrationId()).isEqualTo(REGISTRATION_ID);
+		assertThat(registration.getClientId()).isEqualTo(CLIENT_ID);
+		assertThat(registration.getClientSecret()).isEqualTo(CLIENT_SECRET);
+		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC); // have default value
+		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
+		assertThat(registration.getRedirectUriTemplate()).isEqualTo("{baseUrl}/login/oauth2/code/{registrationId}"); // have default value
+		assertThat(registration.getScopes()).isEqualTo(SCOPES);
+		assertThat(registration.getProviderDetails().getAuthorizationUri()).isEqualTo(AUTHORIZATION_URI);
+		assertThat(registration.getProviderDetails().getTokenUri()).isEqualTo(TOKEN_URI);
+		assertThat(registration.getProviderDetails().getJwkSetUri()).isEqualTo(JWK_SET_URI);
+		assertThat(registration.getClientName()).isEqualTo(CLIENT_NAME);
+	}
+
 }

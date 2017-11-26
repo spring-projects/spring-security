@@ -27,6 +27,7 @@ import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
  * builders} pre-configured with sensible defaults.
  *
  * @author Phillip Webb
+ * @author Kazuki Shimizu
  * @since 5.0
  */
 public enum CommonOAuth2Provider {
@@ -36,7 +37,8 @@ public enum CommonOAuth2Provider {
 		@Override
 		public Builder getBuilder(String registrationId) {
 			ClientRegistration.Builder builder = getBuilder(registrationId,
-					ClientAuthenticationMethod.BASIC, DEFAULT_LOGIN_REDIRECT_URL);
+					ClientAuthenticationMethod.BASIC,
+					ClientRegistration.DEFAULT_REDIRECT_URI_TEMPLATE);
 			builder.scope("openid", "profile", "email", "address", "phone");
 			builder.authorizationUri("https://accounts.google.com/o/oauth2/v2/auth");
 			builder.tokenUri("https://www.googleapis.com/oauth2/v4/token");
@@ -53,7 +55,8 @@ public enum CommonOAuth2Provider {
 		@Override
 		public Builder getBuilder(String registrationId) {
 			ClientRegistration.Builder builder = getBuilder(registrationId,
-					ClientAuthenticationMethod.BASIC, DEFAULT_LOGIN_REDIRECT_URL);
+					ClientAuthenticationMethod.BASIC,
+					ClientRegistration.DEFAULT_REDIRECT_URI_TEMPLATE);
 			builder.scope("user");
 			builder.authorizationUri("https://github.com/login/oauth/authorize");
 			builder.tokenUri("https://github.com/login/oauth/access_token");
@@ -69,7 +72,8 @@ public enum CommonOAuth2Provider {
 		@Override
 		public Builder getBuilder(String registrationId) {
 			ClientRegistration.Builder builder = getBuilder(registrationId,
-					ClientAuthenticationMethod.POST, DEFAULT_LOGIN_REDIRECT_URL);
+					ClientAuthenticationMethod.POST,
+					ClientRegistration.DEFAULT_REDIRECT_URI_TEMPLATE);
 			builder.scope("public_profile", "email");
 			builder.authorizationUri("https://www.facebook.com/v2.8/dialog/oauth");
 			builder.tokenUri("https://graph.facebook.com/v2.8/oauth/access_token");
@@ -85,7 +89,8 @@ public enum CommonOAuth2Provider {
 		@Override
 		public Builder getBuilder(String registrationId) {
 			ClientRegistration.Builder builder = getBuilder(registrationId,
-					ClientAuthenticationMethod.BASIC, DEFAULT_LOGIN_REDIRECT_URL);
+					ClientAuthenticationMethod.BASIC,
+					ClientRegistration.DEFAULT_REDIRECT_URI_TEMPLATE);
 			builder.scope("openid", "profile", "email", "address", "phone");
 			builder.userNameAttributeName(IdTokenClaimNames.SUB);
 			builder.clientName("Okta");
@@ -93,14 +98,12 @@ public enum CommonOAuth2Provider {
 		}
 	};
 
-	private static final String DEFAULT_LOGIN_REDIRECT_URL = "{baseUrl}/login/oauth2/code/{registrationId}";
-
 	protected final ClientRegistration.Builder getBuilder(String registrationId,
-															ClientAuthenticationMethod method, String redirectUri) {
+													ClientAuthenticationMethod method, String redirectUriTemplate) {
 		ClientRegistration.Builder builder = ClientRegistration.withRegistrationId(registrationId);
 		builder.clientAuthenticationMethod(method);
 		builder.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE);
-		builder.redirectUriTemplate(redirectUri);
+		builder.redirectUriTemplate(redirectUriTemplate);
 		return builder;
 	}
 
