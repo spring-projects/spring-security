@@ -173,7 +173,7 @@ public class ClientRegistrationTests {
 			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
 			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 			.redirectUriTemplate(REDIRECT_URI)
-			.scope(null)
+			.scope((String[]) null)
 			.authorizationUri(AUTHORIZATION_URI)
 			.tokenUri(TOKEN_URI)
 			.jwkSetUri(JWK_SET_URI)
@@ -322,7 +322,7 @@ public class ClientRegistrationTests {
 			.clientId(CLIENT_ID)
 			.authorizationGrantType(AuthorizationGrantType.IMPLICIT)
 			.redirectUriTemplate(REDIRECT_URI)
-			.scope(null)
+			.scope((String[]) null)
 			.authorizationUri(AUTHORIZATION_URI)
 			.clientName(CLIENT_NAME)
 			.build();
