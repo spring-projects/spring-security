@@ -403,7 +403,15 @@ This will give you access to the entire project history (including all releases 
 == What's New in Spring Security 5.0
 
 Spring Security 5.0 provides a number of new features as well as support for Spring Framework 5.
-You can find the change log at https://github.com/spring-projects/spring-security/milestone/90?closed=1[5.0.0.M1].
+In total there were 400+ enhancements and bugs resolved.
+You can find the change log at
+https://github.com/spring-projects/spring-security/milestone/90?closed=1[5.0.0.M1]
+https://github.com/spring-projects/spring-security/milestone/97?closed=1[5.0.0.M2]
+https://github.com/spring-projects/spring-security/milestone/100?closed=1[5.0.0.M3]
+https://github.com/spring-projects/spring-security/milestone/101?closed=1[5.0.0.M4]
+https://github.com/spring-projects/spring-security/milestone/102?closed=1[5.0.0.M5]
+https://github.com/spring-projects/spring-security/milestone/103?closed=1[5.0.0.RC1]
+https://github.com/spring-projects/spring-security/milestone/98?closed=1[5.0.0.RELEASE].
 Below are the highlights of this milestone release.
 
 === New Features
