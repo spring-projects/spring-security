@@ -25,7 +25,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -178,8 +179,8 @@ public class DelegatingPasswordEncoderTests {
 		verifyZeroInteractions(this.bcrypt, this.noop);
 	}
 
-	@Test(expected = IllegalStateException.class)
-	public void matchesWhenRawPasswordNotNullAndEncodedPasswordNullThenThrowsIllegalStateException() {
+	@Test(expected = IllegalArgumentException.class)
+	public void matchesWhenRawPasswordNotNullAndEncodedPasswordNullThenThrowsIllegalArgumentException() {
 		this.passwordEncoder.matches(this.rawPassword, null);
 	}
 }
