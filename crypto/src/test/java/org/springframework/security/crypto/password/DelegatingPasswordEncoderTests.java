@@ -177,4 +177,9 @@ public class DelegatingPasswordEncoderTests {
 		verify(this.invalidId).matches(this.rawPassword, this.encodedPassword);
 		verifyZeroInteractions(this.bcrypt, this.noop);
 	}
+
+	@Test(expected = IllegalStateException.class)
+	public void matchesWhenRawPasswordNotNullAndEncodedPasswordNullThenThrowsIllegalStateException() {
+		this.passwordEncoder.matches(this.rawPassword, null);
+	}
 }

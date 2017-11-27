@@ -200,6 +200,9 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 	}
 
 	private String extractId(String prefixEncodedPassword) {
+		if (prefixEncodedPassword == null) {
+			return null;
+		}
 		int start = prefixEncodedPassword.indexOf(PREFIX);
 		if(start != 0) {
 			return null;
