@@ -15,6 +15,7 @@
  */
 package org.springframework.security.config.annotation.authentication
 
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration
@@ -37,6 +38,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.userdetails.PasswordEncodedUser
 import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.security.crypto.password.NoOpPasswordEncoder
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 /**
@@ -69,6 +72,55 @@ class AuthenticationManagerBuilderTests extends BaseSpringSpec {
 				.build()
 		then:
 			am.eventPublisher == aep
+	}
+
+	def "PasswordEncoder bean is used for Global"() {
+		setup:
+		loadConfig(PasswordEncoderGlobalConfig)
+		when:
+		Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("user","password"))
+		then:
+		auth.name == "user"
+		auth.authorities*.authority == ['ROLE_USER']
+	}
+
+	@EnableWebSecurity
+	static class PasswordEncoderGlobalConfig extends WebSecurityConfigurerAdapter {
+		@Autowired
+		void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.inMemoryAuthentication()
+				.withUser("user").password("password").roles("USER")
+		}
+
+		@Bean
+		PasswordEncoder passwordEncoder() {
+			return NoOpPasswordEncoder.getInstance();
+		}
+	}
+
+	def "PasswordEncoder bean is used for protected"() {
+		setup:
+		loadConfig(PasswordEncoderConfig)
+		when:
+		Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("user","password"))
+		then:
+		auth.name == "user"
+		auth.authorities*.authority == ['ROLE_USER']
+	}
+
+	@EnableWebSecurity
+	static class PasswordEncoderConfig extends WebSecurityConfigurerAdapter {
+		void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.inMemoryAuthentication()
+				.withUser("user").password("password").roles("USER")
+		}
+
+		@Bean
+		PasswordEncoder passwordEncoder() {
+			return NoOpPasswordEncoder.getInstance();
+		}
 	}
 
 	def "authentication-manager support multiple DaoAuthenticationProvider's"() {

@@ -71,6 +71,7 @@ class InitializeUserDetailsBeanManagerConfigurer
 			if (passwordEncoder != null) {
 				provider.setPasswordEncoder(passwordEncoder);
 			}
+			provider.afterPropertiesSet();
 
 			auth.authenticationProvider(provider);
 		}

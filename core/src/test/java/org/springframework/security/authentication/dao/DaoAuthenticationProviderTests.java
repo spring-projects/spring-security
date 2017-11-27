@@ -483,7 +483,7 @@ public class DaoAuthenticationProviderTests {
 
 	// SEC-2056
 	@Test
-	public void testUserNotFoundEncodesPassword() {
+	public void testUserNotFoundEncodesPassword() throws Exception {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
 				"missing", "koala");
 		PasswordEncoder encoder = mock(PasswordEncoder.class);
@@ -492,6 +492,7 @@ public class DaoAuthenticationProviderTests {
 		provider.setHideUserNotFoundExceptions(false);
 		provider.setPasswordEncoder(encoder);
 		provider.setUserDetailsService(new MockAuthenticationDaoUserrod());
+		provider.afterPropertiesSet();
 		try {
 			provider.authenticate(token);
 			fail("Expected Exception");

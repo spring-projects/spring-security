@@ -94,6 +94,7 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 
 	protected void doAfterPropertiesSet() throws Exception {
 		Assert.notNull(this.userDetailsService, "A UserDetailsService must be set");
+		this.userNotFoundEncodedPassword = this.passwordEncoder.encode(USER_NOT_FOUND_PASSWORD);
 	}
 
 	protected final UserDetails retrieveUser(String username,
@@ -138,8 +139,6 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 	 */
 	public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
 		Assert.notNull(passwordEncoder, "passwordEncoder cannot be null");
-
-		this.userNotFoundEncodedPassword = passwordEncoder.encode(USER_NOT_FOUND_PASSWORD);
 		this.passwordEncoder = passwordEncoder;
 	}
 
