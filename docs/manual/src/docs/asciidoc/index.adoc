@@ -4134,14 +4134,13 @@ CSRF protection is enabled by default with Java Configuration. If you would like
 public class WebSecurityConfig extends
 WebSecurityConfigurerAdapter {
 
-@Override
-protected void configure(HttpSecurity http) throws Exception {
-	http
-	.csrf().disable();
-}
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http
+			.csrf().disable();
+	}
 }
 ----
-
 
 [[csrf-include-csrf-token]]
 ==== Include the CSRF Token
@@ -11405,5 +11404,3 @@ Provides Spring Security's JSP tag implementations.
 include::{include-dir}/proxy-server.adoc[]
 
 include::{include-dir}/faq.adoc[]
-
-include::{include-dir}/migrating.adoc[]
