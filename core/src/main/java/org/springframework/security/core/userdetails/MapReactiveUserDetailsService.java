@@ -43,7 +43,7 @@ public class MapReactiveUserDetailsService implements ReactiveUserDetailsService
 
 	public MapReactiveUserDetailsService(Collection<UserDetails> users) {
 		Assert.notEmpty(users, "users cannot be null or empty");
-		this.users = users.stream().collect(Collectors.toConcurrentMap( u -> getKey(u.getName()), Function.identity()));
+		this.users = users.stream().collect(Collectors.toConcurrentMap( u -> getKey(u.getUsername()), Function.identity()));
 	}
 
 	@Override
