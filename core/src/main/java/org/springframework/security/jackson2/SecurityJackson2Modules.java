@@ -145,6 +145,7 @@ public final class SecurityJackson2Modules {
 			"java.util.Collections$EmptyMap",
 			"java.util.Date",
 			"java.util.TreeMap",
+			"java.util.HashMap",
 			"org.springframework.security.core.context.SecurityContextImpl"
 		)));
 
