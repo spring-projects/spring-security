@@ -54,7 +54,7 @@ public enum CommonOAuth2Provider {
 		public Builder getBuilder(String registrationId) {
 			ClientRegistration.Builder builder = getBuilder(registrationId,
 					ClientAuthenticationMethod.BASIC, DEFAULT_LOGIN_REDIRECT_URL);
-			builder.scope("user");
+			builder.scope("read:user");
 			builder.authorizationUri("https://github.com/login/oauth/authorize");
 			builder.tokenUri("https://github.com/login/oauth/access_token");
 			builder.userInfoUri("https://api.github.com/user");
