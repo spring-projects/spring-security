@@ -52,8 +52,7 @@ public class CommonOAuth2ProviderTests {
 		assertThat(registration.getAuthorizationGrantType())
 			.isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 		assertThat(registration.getRedirectUriTemplate()).isEqualTo(DEFAULT_LOGIN_REDIRECT_URL);
-		assertThat(registration.getScopes()).containsOnly("openid", "profile", "email",
-			"address", "phone");
+		assertThat(registration.getScopes()).containsOnly("openid", "profile", "email");
 		assertThat(registration.getClientName()).isEqualTo("Google");
 		assertThat(registration.getRegistrationId()).isEqualTo("123");
 	}
