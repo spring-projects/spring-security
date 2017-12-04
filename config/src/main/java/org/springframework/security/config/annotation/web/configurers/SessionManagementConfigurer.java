@@ -16,7 +16,6 @@
 package org.springframework.security.config.annotation.web.configurers;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
@@ -212,17 +211,13 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
-	 * Allows explicitly specifying the {@link SessionAuthenticationStrategy}. The default
-	 * is to use {@link SessionFixationProtectionStrategy}. If restricting the maximum
-	 * number of sessions is configured, then
+	 * Allows explicitly specifying a custom {@link SessionAuthenticationStrategy} before
+	 * {@link SessionFixationProtectionStrategy} (the default or {@link #sessionFixation()} configured).
+	 * If restricting the {@link #maximumSessions} is configured, then
 	 * {@link CompositeSessionAuthenticationStrategy} delegating to
-	 * {@link ConcurrentSessionControlAuthenticationStrategy},
-	 * {@link SessionFixationProtectionStrategy} (the default) OR
-	 * {@link SessionAuthenticationStrategy} the supplied sessionAuthenticationStrategy,
+	 * {@link ConcurrentSessionControlAuthenticationStrategy}, the supplied sessionAuthenticationStrategy,
+	 * {@link SessionFixationProtectionStrategy} (the default or {@link #sessionFixation()} configured),
 	 * {@link RegisterSessionAuthenticationStrategy}.
-	 *
-	 * NOTE: Supplying a custom {@link SessionAuthenticationStrategy} will override the
-	 * default provided {@link SessionFixationProtectionStrategy}.
 	 *
 	 * @param sessionAuthenticationStrategy
 	 * @return the {@link SessionManagementConfigurer} for further customizations
@@ -587,16 +582,14 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 			return this.sessionAuthenticationStrategy;
 		}
 		List<SessionAuthenticationStrategy> delegateStrategies = this.sessionAuthenticationStrategies;
-		SessionAuthenticationStrategy defaultSessionAuthenticationStrategy;
-		if (this.providedSessionAuthenticationStrategy == null) {
-			// If a user provided SessionAuthenticationStrategy is not supplied
-			// then default to SessionFixationProtectionStrategy
-			defaultSessionAuthenticationStrategy = postProcess(
-					this.sessionFixationAuthenticationStrategy);
+
+		if (this.providedSessionAuthenticationStrategy != null) {
+			delegateStrategies.add(this.providedSessionAuthenticationStrategy);
 		}
-		else {
-			defaultSessionAuthenticationStrategy = this.providedSessionAuthenticationStrategy;
-		}
+
+		SessionAuthenticationStrategy sessionFixationStategy = postProcess(this.sessionFixationAuthenticationStrategy);
+		delegateStrategies.add(sessionFixationStategy);
+
 		if (isConcurrentSessionControlEnabled()) {
 			SessionRegistry sessionRegistry = getSessionRegistry(http);
 			ConcurrentSessionControlAuthenticationStrategy concurrentSessionControlStrategy = new ConcurrentSessionControlAuthenticationStrategy(
@@ -611,12 +604,10 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 					sessionRegistry);
 			registerSessionStrategy = postProcess(registerSessionStrategy);
 
-			delegateStrategies.addAll(Arrays.asList(concurrentSessionControlStrategy,
-					defaultSessionAuthenticationStrategy, registerSessionStrategy));
+			delegateStrategies.add(0, concurrentSessionControlStrategy);
+			delegateStrategies.add(registerSessionStrategy);
 		}
-		else {
-			delegateStrategies.add(defaultSessionAuthenticationStrategy);
-		}
+
 		this.sessionAuthenticationStrategy = postProcess(
 				new CompositeSessionAuthenticationStrategy(delegateStrategies));
 		return this.sessionAuthenticationStrategy;
