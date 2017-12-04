@@ -249,6 +249,11 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		return this;
 	}
 
+	/**
+	 * Allows changing the default {@link SessionFixationProtectionStrategy}.
+	 *
+	 * @return the {@link SessionFixationConfigurer} for further customizations
+	 */
 	public SessionFixationConfigurer sessionFixation() {
 		return new SessionFixationConfigurer();
 	}
