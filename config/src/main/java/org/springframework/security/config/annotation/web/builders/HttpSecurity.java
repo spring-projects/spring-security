@@ -1084,7 +1084,7 @@ public final class HttpSecurity extends
 	 * (non-Javadoc)
 	 *
 	 * @see
-	 * org.springframework.security.config.annotation.web.HttpBuilder#authenticationProvider
+	 * org.springframework.security.config.annotation.web.HttpSecurityBuilder#authenticationProvider
 	 * (org.springframework.security.authentication.AuthenticationProvider)
 	 */
 	public HttpSecurity authenticationProvider(
@@ -1097,7 +1097,7 @@ public final class HttpSecurity extends
 	 * (non-Javadoc)
 	 *
 	 * @see
-	 * org.springframework.security.config.annotation.web.HttpBuilder#userDetailsService
+	 * org.springframework.security.config.annotation.web.HttpSecurityBuilder#userDetailsService
 	 * (org.springframework.security.core.userdetails.UserDetailsService)
 	 */
 	public HttpSecurity userDetailsService(UserDetailsService userDetailsService)
@@ -1114,7 +1114,7 @@ public final class HttpSecurity extends
 	 * (non-Javadoc)
 	 *
 	 * @see
-	 * org.springframework.security.config.annotation.web.HttpBuilder#addFilterAfter(javax
+	 * org.springframework.security.config.annotation.web.HttpSecurityBuilder#addFilterAfter(javax
 	 * .servlet.Filter, java.lang.Class)
 	 */
 	public HttpSecurity addFilterAfter(Filter filter, Class<? extends Filter> afterFilter) {
@@ -1126,7 +1126,7 @@ public final class HttpSecurity extends
 	 * (non-Javadoc)
 	 *
 	 * @see
-	 * org.springframework.security.config.annotation.web.HttpBuilder#addFilterBefore(
+	 * org.springframework.security.config.annotation.web.HttpSecurityBuilder#addFilterBefore(
 	 * javax.servlet.Filter, java.lang.Class)
 	 */
 	public HttpSecurity addFilterBefore(Filter filter,
@@ -1139,7 +1139,7 @@ public final class HttpSecurity extends
 	 * (non-Javadoc)
 	 *
 	 * @see
-	 * org.springframework.security.config.annotation.web.HttpBuilder#addFilter(javax.
+	 * org.springframework.security.config.annotation.web.HttpSecurityBuilder#addFilter(javax.
 	 * servlet.Filter)
 	 */
 	public HttpSecurity addFilter(Filter filter) {
