@@ -52,6 +52,16 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 	}
 
 	@Test
+	public void lookupNotNullButEmptyIfNotMatching() {
+		createFids("/foo/**", null);
+
+		FilterInvocation fi = createFilterInvocation("/bar/somefile.html", null,
+				null, null);
+
+		assertThat(this.fids.getAttributes(fi)).isNotNull().isEmpty();;
+	}
+
+	@Test
 	public void lookupNotRequiringExactMatchSucceedsIfNotMatching() {
 		createFids("/secure/super/**", null);
 
@@ -128,7 +138,7 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 
 		FilterInvocation fi = createFilterInvocation("/somepage", null, null, "POST");
 		Collection<ConfigAttribute> attrs = this.fids.getAttributes(fi);
-		assertThat(attrs).isNull();
+		assertThat(attrs).isNotNull().isEmpty();
 	}
 
 	// SEC-1236

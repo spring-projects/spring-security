@@ -56,7 +56,7 @@ public final class DefaultMessageSecurityMetadataSource implements
 				return entry.getValue();
 			}
 		}
-		return null;
+		return Collections.emptyList();
 	}
 
 	public Collection<ConfigAttribute> getAllConfigAttributes() {

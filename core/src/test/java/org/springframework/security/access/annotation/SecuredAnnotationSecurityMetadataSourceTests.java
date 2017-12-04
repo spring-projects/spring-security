@@ -208,6 +208,16 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 	}
 
 	@Test
+	public void emptyResultIfNoMatching() throws Exception {
+		MockMethodInvocation annotatedAtMethodLevel = new MockMethodInvocation(
+				new NoAnnotatedAnnotationAtAnyLevel(), ReturnVoid.class, "doSomething",
+				List.class);
+		Collection<ConfigAttribute> attrs = mds.getAttributes(annotatedAtMethodLevel);
+
+		assertThat(attrs).isNotNull().isEmpty();
+	}
+
+	@Test
 	public void proxyFactoryInterfaceAttributesFound() throws Exception {
 		MockMethodInvocation mi = MethodInvocationFactory.createSec2150MethodInvocation();
 		Collection<ConfigAttribute> attributes = mds.getAttributes(mi);
@@ -315,4 +325,11 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 		public void doSomething(List<?> param) {
 		}
 	}
+
+	public static class NoAnnotatedAnnotationAtAnyLevel implements ReturnVoid {
+
+		public void doSomething(List<?> param) {
+		}
+	}
+
 }

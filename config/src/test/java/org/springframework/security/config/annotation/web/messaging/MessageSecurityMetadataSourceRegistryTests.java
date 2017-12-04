@@ -296,7 +296,7 @@ public class MessageSecurityMetadataSourceRegistryTests {
 	private String getAttribute() {
 		MessageSecurityMetadataSource source = messages.createMetadataSource();
 		Collection<ConfigAttribute> attrs = source.getAttributes(message);
-		if (attrs == null) {
+		if (attrs.isEmpty()) {
 			return null;
 		}
 		assertThat(attrs).hasSize(1);

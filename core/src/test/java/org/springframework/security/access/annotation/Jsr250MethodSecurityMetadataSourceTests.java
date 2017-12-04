@@ -141,7 +141,7 @@ public class Jsr250MethodSecurityMetadataSourceTests {
 				"notOverriden");
 
 		Collection<ConfigAttribute> accessAttributes = this.mds.getAttributes(mi);
-		assertThat(accessAttributes).isNull();
+		assertThat(accessAttributes).isNotNull().isEmpty();
 	}
 
 	@Test
