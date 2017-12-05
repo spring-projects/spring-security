@@ -17,7 +17,6 @@
 package org.springframework.security.config.core.userdetails;
 
 import org.springframework.beans.factory.FactoryBean;
-import org.springframework.lang.Nullable;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.memory.UserAttribute;
@@ -54,7 +53,6 @@ public class UserDetailsMapFactoryBean implements FactoryBean<Collection<UserDet
 		this.userProperties = userProperties;
 	}
 
-	@Nullable
 	@Override
 	public Collection<UserDetails> getObject() throws Exception {
 		Collection<UserDetails> users = new ArrayList<>(this.userProperties.size());
@@ -78,7 +76,6 @@ public class UserDetailsMapFactoryBean implements FactoryBean<Collection<UserDet
 		} return users;
 	}
 
-	@Nullable
 	@Override
 	public Class<?> getObjectType() {
 		return Collection.class;
