@@ -5,6 +5,8 @@ sonarqube.skipProject = true
 
 project.rootProject.allprojects.each { p ->
 	p.plugins.withType(io.spring.gradle.convention.SpringMavenPlugin) {
-		project.mavenBom.projects.add(p)
+		if (!project.name.equals(p.name)) {
+			project.mavenBom.projects.add(p)
+		}
 	}
 }
