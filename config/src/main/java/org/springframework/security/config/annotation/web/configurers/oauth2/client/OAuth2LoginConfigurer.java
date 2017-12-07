@@ -65,6 +65,7 @@ import java.util.Map;
  * A security configurer for OAuth 2.0 / OpenID Connect 1.0 login.
  *
  * @author Joe Grandja
+ * @author Kazuki Shimizu
  * @since 5.0
  */
 public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> extends
@@ -175,7 +176,6 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		private OAuth2UserService<OAuth2UserRequest, OAuth2User> userService;
 		private OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService;
 		private Map<String, Class<? extends OAuth2User>> customUserTypes = new HashMap<>();
-		private GrantedAuthoritiesMapper userAuthoritiesMapper;
 
 		private UserInfoEndpointConfig() {
 		}
@@ -201,7 +201,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 
 		public UserInfoEndpointConfig userAuthoritiesMapper(GrantedAuthoritiesMapper userAuthoritiesMapper) {
 			Assert.notNull(userAuthoritiesMapper, "userAuthoritiesMapper cannot be null");
-			this.userAuthoritiesMapper = userAuthoritiesMapper;
+			OAuth2LoginConfigurer.this.getBuilder().setSharedObject(GrantedAuthoritiesMapper.class, userAuthoritiesMapper);
 			return this;
 		}
 
@@ -244,9 +244,9 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 
 		OAuth2LoginAuthenticationProvider oauth2LoginAuthenticationProvider =
 			new OAuth2LoginAuthenticationProvider(accessTokenResponseClient, oauth2UserService);
-		if (this.userInfoEndpointConfig.userAuthoritiesMapper != null) {
-			oauth2LoginAuthenticationProvider.setAuthoritiesMapper(
-				this.userInfoEndpointConfig.userAuthoritiesMapper);
+		GrantedAuthoritiesMapper userAuthoritiesMapper = this.getGrantedAuthoritiesMapper();
+		if (userAuthoritiesMapper != null) {
+			oauth2LoginAuthenticationProvider.setAuthoritiesMapper(userAuthoritiesMapper);
 		}
 		http.authenticationProvider(this.postProcess(oauth2LoginAuthenticationProvider));
 
@@ -261,9 +261,8 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 
 			OidcAuthorizationCodeAuthenticationProvider oidcAuthorizationCodeAuthenticationProvider =
 				new OidcAuthorizationCodeAuthenticationProvider(accessTokenResponseClient, oidcUserService);
-			if (this.userInfoEndpointConfig.userAuthoritiesMapper != null) {
-				oidcAuthorizationCodeAuthenticationProvider.setAuthoritiesMapper(
-					this.userInfoEndpointConfig.userAuthoritiesMapper);
+			if (userAuthoritiesMapper != null) {
+				oidcAuthorizationCodeAuthenticationProvider.setAuthoritiesMapper(userAuthoritiesMapper);
 			}
 			http.authenticationProvider(this.postProcess(oidcAuthorizationCodeAuthenticationProvider));
 		} else {
@@ -338,6 +337,26 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 				this.getBuilder().getSharedObject(ApplicationContext.class),
 				OAuth2AuthorizedClientService.class);
 		return (!authorizedClientServiceMap.isEmpty() ? authorizedClientServiceMap.values().iterator().next() : null);
+	}
+
+	private GrantedAuthoritiesMapper getGrantedAuthoritiesMapper() {
+		GrantedAuthoritiesMapper grantedAuthoritiesMapper =
+				this.getBuilder().getSharedObject(GrantedAuthoritiesMapper.class);
+		if (grantedAuthoritiesMapper == null) {
+			grantedAuthoritiesMapper = this.getGrantedAuthoritiesMapperBean();
+			if (grantedAuthoritiesMapper != null) {
+				this.getBuilder().setSharedObject(GrantedAuthoritiesMapper.class, grantedAuthoritiesMapper);
+			}
+		}
+		return grantedAuthoritiesMapper;
+	}
+
+	private GrantedAuthoritiesMapper getGrantedAuthoritiesMapperBean() {
+		Map<String, GrantedAuthoritiesMapper> grantedAuthoritiesMapperMap =
+			BeanFactoryUtils.beansOfTypeIncludingAncestors(
+				this.getBuilder().getSharedObject(ApplicationContext.class),
+				GrantedAuthoritiesMapper.class);
+		return (!grantedAuthoritiesMapperMap.isEmpty() ? grantedAuthoritiesMapperMap.values().iterator().next() : null);
 	}
 
 	private void initDefaultLoginFilter(B http) {
