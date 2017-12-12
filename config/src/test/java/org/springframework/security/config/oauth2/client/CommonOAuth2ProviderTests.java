@@ -76,7 +76,7 @@ public class CommonOAuth2ProviderTests {
 		assertThat(registration.getAuthorizationGrantType())
 			.isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 		assertThat(registration.getRedirectUriTemplate()).isEqualTo(DEFAULT_LOGIN_REDIRECT_URL);
-		assertThat(registration.getScopes()).containsOnly("user");
+		assertThat(registration.getScopes()).containsOnly("read:user");
 		assertThat(registration.getClientName()).isEqualTo("GitHub");
 		assertThat(registration.getRegistrationId()).isEqualTo("123");
 	}
