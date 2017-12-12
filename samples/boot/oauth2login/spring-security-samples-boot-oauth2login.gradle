@@ -3,16 +3,16 @@ apply plugin: 'io.spring.convention.spring-sample-boot'
 ext['thymeleaf.version'] = '3.0.9.RELEASE'
 
 dependencies {
-	compile 'org.springframework.security:spring-security-config:5.0.0.RC1'
-	compile 'org.springframework.security:spring-security-oauth2-client:5.0.0.RC1'
-	compile 'org.springframework.security:spring-security-oauth2-jose:5.0.0.RC1'
+	compile project(':spring-security-config')
+	compile project(':spring-security-oauth2-client')
+	compile project(':spring-security-oauth2-jose')
 	compile 'org.springframework:spring-webflux'
 	compile 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	compile 'org.springframework.boot:spring-boot-starter-web'
 	compile 'org.thymeleaf.extras:thymeleaf-extras-springsecurity4'
 	compile 'io.projectreactor.ipc:reactor-netty'
 
-	testCompile 'org.springframework.security:spring-security-test:5.0.0.RC1'
+	testCompile project(':spring-security-test')
 	testCompile 'net.sourceforge.htmlunit:htmlunit'
 	testCompile 'org.springframework.boot:spring-boot-starter-test'
 }
