@@ -37,7 +37,7 @@ public enum CommonOAuth2Provider {
 		public Builder getBuilder(String registrationId) {
 			ClientRegistration.Builder builder = getBuilder(registrationId,
 					ClientAuthenticationMethod.BASIC, DEFAULT_LOGIN_REDIRECT_URL);
-			builder.scope("openid", "profile", "email", "address", "phone");
+			builder.scope("openid", "profile", "email");
 			builder.authorizationUri("https://accounts.google.com/o/oauth2/v2/auth");
 			builder.tokenUri("https://www.googleapis.com/oauth2/v4/token");
 			builder.jwkSetUri("https://www.googleapis.com/oauth2/v3/certs");
