@@ -57,7 +57,7 @@ public class OAuth2AuthenticationSessionDestroyedListenerTests {
 	}
 
 	@Test
-	public void removesAuthorizedClient() {
+	public void onApplicationEventWhenSessionIsDestroyedThenClearOAuth2Authentication() {
 
 		String clientRegistrationId = "google";
 		String principalName = "foo";
@@ -98,7 +98,7 @@ public class OAuth2AuthenticationSessionDestroyedListenerTests {
 	}
 
 	@Test
-	public void securityContextsIsNull() {
+	public void onApplicationEventWhenSecurityContextsIsNullThenSkipClearingOAuth2Authentication() {
 
 		SessionDestroyedEvent event = new SessionDestroyedEvent(this) {
 			@Override
@@ -121,7 +121,7 @@ public class OAuth2AuthenticationSessionDestroyedListenerTests {
 	}
 
 	@Test
-	public void securityContextsIsEmpty() {
+	public void onApplicationEventWhenSecurityContextsIsEmptyThenSkipClearingOAuth2Authentication() {
 
 		SessionDestroyedEvent event = new SessionDestroyedEvent(this) {
 			@Override
