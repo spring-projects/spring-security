@@ -17,7 +17,6 @@ package org.springframework.security.oauth2.client.web;
 
 import java.util.Objects;
 
-import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.session.SessionDestroyedEvent;
@@ -56,7 +55,7 @@ public class OAuth2AuthenticationSessionDestroyedListener
 	 * {@link org.springframework.security.oauth2.client.OAuth2AuthorizedClient}.
 	 *
 	 * @param event indicates an event notifying that the session will be destroyed
-	 * @see ApplicationListener#onApplicationEvent(ApplicationEvent)
+	 * @see ApplicationListener#onApplicationEvent(org.springframework.context.ApplicationEvent)
 	 */
 	@Override
 	public void onApplicationEvent(SessionDestroyedEvent event) {
