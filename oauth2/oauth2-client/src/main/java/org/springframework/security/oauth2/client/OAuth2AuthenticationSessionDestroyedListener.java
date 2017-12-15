@@ -25,7 +25,7 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.util.Assert;
 
 /**
- * {@link OAuth2AuthorizedClientSessionDestroyedListener} is in charge of removing the
+ * {@link OAuth2AuthenticationSessionDestroyedListener} is in charge of removing the
  * {@link org.springframework.security.oauth2.client.OAuth2AuthorizedClient} upon session
  * destroyed.
  * <p>
@@ -35,7 +35,7 @@ import org.springframework.util.Assert;
  * @author Kazuki Shimizu
  * @since 5.0
  */
-public class OAuth2AuthorizedClientSessionDestroyedListener
+public class OAuth2AuthenticationSessionDestroyedListener
 		implements ApplicationListener<SessionDestroyedEvent> {
 
 	private final OAuth2AuthorizedClientService authorizedClientService;
@@ -44,7 +44,7 @@ public class OAuth2AuthorizedClientSessionDestroyedListener
 	 * Creates a new instance.
 	 * @param authorizedClientService the {@link OAuth2AuthorizedClientService} to use
 	 */
-	public OAuth2AuthorizedClientSessionDestroyedListener(
+	public OAuth2AuthenticationSessionDestroyedListener(
 			OAuth2AuthorizedClientService authorizedClientService) {
 		Assert.notNull(authorizedClientService, "authorizedClientService cannot be null");
 		this.authorizedClientService = authorizedClientService;

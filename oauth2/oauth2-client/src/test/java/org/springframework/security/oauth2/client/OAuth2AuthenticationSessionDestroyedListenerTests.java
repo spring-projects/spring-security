@@ -39,20 +39,20 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Tests for {@link OAuth2AuthorizedClientSessionDestroyedListener}.
+ * Tests for {@link OAuth2AuthenticationSessionDestroyedListener}.
  *
  * @author Kazuki Shimizu
  * @since 5.0
  */
 @RunWith(MockitoJUnitRunner.class)
-public class OAuth2AuthorizedClientSessionDestroyedListenerTests {
+public class OAuth2AuthenticationSessionDestroyedListenerTests {
 
 	@Mock
 	private OAuth2AuthorizedClientService authorizedClientService;
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorNullOAuth2AuthorizedClientService() {
-		new OAuth2AuthorizedClientSessionDestroyedListener(null);
+		new OAuth2AuthenticationSessionDestroyedListener(null);
 	}
 
 	@Test
@@ -85,7 +85,7 @@ public class OAuth2AuthorizedClientSessionDestroyedListenerTests {
 			}
 		};
 
-		ApplicationListener<SessionDestroyedEvent> listener = new OAuth2AuthorizedClientSessionDestroyedListener(
+		ApplicationListener<SessionDestroyedEvent> listener = new OAuth2AuthenticationSessionDestroyedListener(
 				authorizedClientService);
 		listener.onApplicationEvent(event);
 
@@ -111,7 +111,7 @@ public class OAuth2AuthorizedClientSessionDestroyedListenerTests {
 			}
 		};
 
-		ApplicationListener<SessionDestroyedEvent> listener = new OAuth2AuthorizedClientSessionDestroyedListener(
+		ApplicationListener<SessionDestroyedEvent> listener = new OAuth2AuthenticationSessionDestroyedListener(
 				authorizedClientService);
 		listener.onApplicationEvent(event);
 
@@ -134,7 +134,7 @@ public class OAuth2AuthorizedClientSessionDestroyedListenerTests {
 			}
 		};
 
-		ApplicationListener<SessionDestroyedEvent> listener = new OAuth2AuthorizedClientSessionDestroyedListener(
+		ApplicationListener<SessionDestroyedEvent> listener = new OAuth2AuthenticationSessionDestroyedListener(
 				authorizedClientService);
 		listener.onApplicationEvent(event);
 
