@@ -34,7 +34,7 @@ import org.springframework.util.Assert;
  * {@link org.springframework.security.web.session.HttpSessionEventPublisher}.
  * </p>
  * @author Kazuki Shimizu
- * @since 5.0
+ * @since 5.1
  */
 public class OAuth2AuthenticationSessionDestroyedListener
 		implements ApplicationListener<SessionDestroyedEvent> {

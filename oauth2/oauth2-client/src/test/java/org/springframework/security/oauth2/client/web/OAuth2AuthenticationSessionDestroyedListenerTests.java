@@ -43,7 +43,7 @@ import java.util.List;
  * Tests for {@link OAuth2AuthenticationSessionDestroyedListener}.
  *
  * @author Kazuki Shimizu
- * @since 5.0
+ * @since 5.1
  */
 @RunWith(MockitoJUnitRunner.class)
 public class OAuth2AuthenticationSessionDestroyedListenerTests {
