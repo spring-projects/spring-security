@@ -19,6 +19,7 @@ package org.springframework.security.oauth2.core.user;
 import org.junit.Test;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.util.SerializationUtils;
 
 import java.util.Collections;
 import java.util.Map;
@@ -78,5 +79,12 @@ public class DefaultOAuth2UserTests {
 		assertThat(user.getAuthorities()).hasSize(1);
 		assertThat(user.getAuthorities().iterator().next()).isEqualTo(AUTHORITY);
 		assertThat(user.getAttributes()).containsOnlyKeys(ATTRIBUTE_NAME_KEY);
+	}
+
+	// gh-4917
+	@Test
+	public void constructorWhenCreatedThenIsSerializable() {
+		DefaultOAuth2User user = new DefaultOAuth2User(AUTHORITIES, ATTRIBUTES, ATTRIBUTE_NAME_KEY);
+		SerializationUtils.serialize(user);
 	}
 }
