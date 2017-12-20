@@ -35,7 +35,7 @@ import static org.mockito.Mockito.verify;
  * Tests {@link JdbcDaoImpl}.
  *
  * @author Ben Alex
- * @author Eddú Meléndez
+ * @author EddÃº MelÃ©ndez
  */
 public class JdbcDaoImplTests {
 
