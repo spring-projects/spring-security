@@ -28,17 +28,20 @@ import org.springframework.test.context.junit4.SpringRunner;
 import sample.webdriver.IndexPage;
 import sample.webdriver.LoginPage;
 
+import java.io.IOException;
+import java.net.ServerSocket;
+
 /**
  * @author Rob Winch
  * @since 5.0
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = WebfluxFormApplication.class)
-@TestPropertySource(properties = "server.port=0")
+@TestPropertySource(properties = "server.port=#{T(sample.WebfluxFormApplicationTests).availablePort()}")
 public class WebfluxFormApplicationTests {
 	WebDriver driver;
 
-	@Value("#{@nettyContext.address().getPort()}")
+	@Value("#{@tomcat.server.port}")
 	int port;
 
 	@Before
@@ -75,5 +78,13 @@ public class WebfluxFormApplicationTests {
 		login
 			.assertAt()
 			.assertLogout();
+	}
+
+	public static final int availablePort() {
+		try(ServerSocket socket = new ServerSocket(0)) {
+			return socket.getLocalPort();
+		} catch(IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

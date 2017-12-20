@@ -16,15 +16,20 @@
 
 package sample;
 
+import org.apache.catalina.Context;
+import org.apache.catalina.startup.Tomcat;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.server.reactive.HttpHandler;
-import org.springframework.http.server.reactive.ReactorHttpHandlerAdapter;
+import org.springframework.http.server.reactive.ServletHttpHandlerAdapter;
 import org.springframework.web.reactive.config.EnableWebFlux;
 import org.springframework.web.server.adapter.WebHttpHandlerBuilder;
-import reactor.ipc.netty.NettyContext;
-import reactor.ipc.netty.http.server.HttpServer;
+
+import javax.servlet.Servlet;
 
 /**
  * @author Rob Winch
@@ -38,19 +43,26 @@ public class WebfluxFormApplication {
 	private int port = 8080;
 
 	public static void main(String[] args) throws Exception {
+		Object lock = new Object();
 		try(AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
 			WebfluxFormApplication.class)) {
-			context.getBean(NettyContext.class).onClose().block();
+			synchronized (lock) {
+				lock.wait();
+			}
 		}
 	}
 
-	@Profile("default")
-	@Bean
-	public NettyContext nettyContext(ApplicationContext context) {
+	@Bean(destroyMethod = "stop", initMethod = "start")
+	public Tomcat tomcat(ApplicationContext context) throws Exception {
 		HttpHandler handler = WebHttpHandlerBuilder.applicationContext(context)
 			.build();
-		ReactorHttpHandlerAdapter adapter = new ReactorHttpHandlerAdapter(handler);
-		HttpServer httpServer = HttpServer.create("localhost", port);
-		return httpServer.newHandler(adapter).block();
+		Servlet servlet = new ServletHttpHandlerAdapter(handler);
+		Tomcat server = new Tomcat();
+		server.setPort(this.port);
+		server.getServer().setPort(this.port);
+		Context rootContext = server.addContext("", System.getProperty("java.io.tmpdir"));
+		Tomcat.addServlet(rootContext, "servlet", servlet);
+		rootContext.addServletMapping("/", "servlet");
+		return server;
 	}
 }
