@@ -1,6 +1,6 @@
 image::https://badges.gitter.im/Join%20Chat.svg[Gitter,link=https://gitter.im/spring-projects/spring-security?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge]
 
-image:https://travis-ci.org/spring-projects/spring-security.svg?branch=master["Build Status", link="https://travis-ci.org/spring-security/spring-security"]
+image:https://travis-ci.org/spring-projects/spring-security.svg?branch=master["Build Status", link="https://travis-ci.org/spring-projects/spring-security"]
 
 = Spring Security
 
