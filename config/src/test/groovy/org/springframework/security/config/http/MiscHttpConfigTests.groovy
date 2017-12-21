@@ -268,7 +268,7 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
 		 expect:
 		 attrs.size() == 1
 		 attrs.contains(new SecurityConfig("REQUIRES_SECURE_CHANNEL"))
-		 attrsPost == null
+		 attrsPost != null && attrsPost.isEmpty()
 	 }
 
 	 def httpMethodMatchIsSupportedForRequiresChannelAny() {
@@ -285,7 +285,7 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
 		 expect:
 		 attrs.size() == 1
 		 attrs.contains(new SecurityConfig("REQUIRES_SECURE_CHANNEL"))
-		 attrsPost == null
+		 attrsPost != null && attrsPost.isEmpty()
 	 }
 
 	def oncePerRequestAttributeIsSupported() {

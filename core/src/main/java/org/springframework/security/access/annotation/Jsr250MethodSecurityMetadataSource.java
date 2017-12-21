@@ -20,6 +20,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.security.DenyAll;
@@ -68,7 +69,7 @@ public class Jsr250MethodSecurityMetadataSource extends
 	}
 
 	public Collection<ConfigAttribute> getAllConfigAttributes() {
-		return null;
+		return Collections.emptyList();
 	}
 
 	private List<ConfigAttribute> processAnnotations(Annotation[] annotations) {

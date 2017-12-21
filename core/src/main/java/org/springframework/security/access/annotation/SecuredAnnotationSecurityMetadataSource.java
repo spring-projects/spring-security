@@ -68,7 +68,7 @@ public class SecuredAnnotationSecurityMetadataSource extends
 	}
 
 	public Collection<ConfigAttribute> getAllConfigAttributes() {
-		return null;
+		return Collections.emptyList();
 	}
 
 	private Collection<ConfigAttribute> processAnnotation(Annotation a) {

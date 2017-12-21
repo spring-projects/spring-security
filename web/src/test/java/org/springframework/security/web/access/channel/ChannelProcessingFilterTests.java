@@ -16,11 +16,12 @@
 
 package org.springframework.security.web.access.channel;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -218,7 +219,7 @@ public class ChannelProcessingFilterTests {
 
 		public Collection<ConfigAttribute> getAllConfigAttributes() {
 			if (!provideIterator) {
-				return null;
+				return Collections.emptyList();
 			}
 
 			return toReturn;

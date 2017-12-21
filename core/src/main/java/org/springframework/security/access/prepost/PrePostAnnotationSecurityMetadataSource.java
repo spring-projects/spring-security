@@ -106,7 +106,7 @@ public class PrePostAnnotationSecurityMetadataSource extends
 	}
 
 	public Collection<ConfigAttribute> getAllConfigAttributes() {
-		return null;
+		return Collections.emptyList();
 	}
 
 	/**

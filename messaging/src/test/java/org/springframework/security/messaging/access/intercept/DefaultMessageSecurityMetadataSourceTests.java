@@ -63,7 +63,7 @@ public class DefaultMessageSecurityMetadataSourceTests {
 
 	@Test
 	public void getAttributesNull() {
-		assertThat(source.getAttributes(message)).isNull();
+		assertThat(source.getAttributes(message)).isNotNull().isEmpty();
 	}
 
 	@Test

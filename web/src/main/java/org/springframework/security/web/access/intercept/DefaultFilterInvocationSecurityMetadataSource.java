@@ -17,6 +17,7 @@
 package org.springframework.security.web.access.intercept;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -96,7 +97,7 @@ public class DefaultFilterInvocationSecurityMetadataSource implements
 				return entry.getValue();
 			}
 		}
-		return null;
+		return Collections.emptyList();
 	}
 
 	public boolean supports(Class<?> clazz) {

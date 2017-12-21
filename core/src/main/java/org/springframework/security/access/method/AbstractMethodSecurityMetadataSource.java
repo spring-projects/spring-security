@@ -17,6 +17,7 @@
 package org.springframework.security.access.method;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
@@ -55,6 +56,9 @@ public abstract class AbstractMethodSecurityMetadataSource implements
 			}
 			if (target != null && !(target instanceof Class<?>)) {
 				attrs = getAttributes(mi.getMethod(), target.getClass());
+			}
+			if (attrs == null) {
+				attrs = Collections.emptyList();
 			}
 			return attrs;
 		}

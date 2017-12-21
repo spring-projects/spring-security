@@ -54,6 +54,12 @@ public class MapBasedMethodSecurityMetadataSourceTests {
 	}
 
 	@Test
+	public void returnEmptyAttributesCollectionIfNoMatch() {
+		// no definition of method's configuration attributes.
+		assertThat(mds.getAttributes(someMethodInteger, MockService.class)).isNotNull().isEmpty();
+	}
+
+	@Test
 	public void methodsWithDifferentArgumentsAreMatchedCorrectly() throws Exception {
 		mds.addSecureMethod(MockService.class, someMethodInteger, ROLE_A);
 		mds.addSecureMethod(MockService.class, someMethodString, ROLE_B);
