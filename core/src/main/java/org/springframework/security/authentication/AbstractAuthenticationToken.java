@@ -66,7 +66,7 @@ public abstract class AbstractAuthenticationToken implements Authentication,
 						"Authorities collection cannot contain any null elements");
 			}
 		}
-		ArrayList<GrantedAuthority> temp = new ArrayList<GrantedAuthority>(
+		ArrayList<GrantedAuthority> temp = new ArrayList<>(
 				authorities.size());
 		temp.addAll(authorities);
 		this.authorities = Collections.unmodifiableList(temp);

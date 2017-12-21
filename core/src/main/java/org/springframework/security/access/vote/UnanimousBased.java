@@ -66,7 +66,7 @@ public class UnanimousBased extends AbstractAccessDecisionManager {
 		int grant = 0;
 		int abstain = 0;
 
-		List<ConfigAttribute> singleAttributeList = new ArrayList<ConfigAttribute>(1);
+		List<ConfigAttribute> singleAttributeList = new ArrayList<>(1);
 		singleAttributeList.add(null);
 
 		for (ConfigAttribute attribute : attributes) {

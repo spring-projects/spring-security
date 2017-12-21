@@ -91,7 +91,7 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 	private ManagedList<BeanMetadataElement> headerWriters;
 
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
-		headerWriters = new ManagedList<BeanMetadataElement>();
+		headerWriters = new ManagedList<>();
 		BeanDefinitionBuilder builder = BeanDefinitionBuilder
 				.rootBeanDefinition(HeaderWriterFilter.class);
 
@@ -220,7 +220,7 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 			if (pinsElement != null) {
 				List<Element> pinElements = DomUtils.getChildElements(pinsElement);
 
-				Map<String, String> pins = new LinkedHashMap<String, String>();
+				Map<String, String> pins = new LinkedHashMap<>();
 
 				for (Element pinElement : pinElements) {
 					String hash = pinElement.getAttribute(ATT_ALGORITHM);

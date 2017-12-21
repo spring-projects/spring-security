@@ -42,7 +42,7 @@ public class CsrfRequestDataValueProcessorTests {
 	private CsrfRequestDataValueProcessor processor = new CsrfRequestDataValueProcessor();
 
 	private CsrfToken token = new DefaultCsrfToken("1", "a", "b");
-	private Map<String, String> expected = new HashMap<String, String>();
+	private Map<String, String> expected = new HashMap<>();
 
 	@Before
 	public void setup() {

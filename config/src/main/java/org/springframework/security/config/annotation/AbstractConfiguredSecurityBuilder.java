@@ -220,9 +220,9 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	public <C extends SecurityConfigurer<O, B>> List<C> getConfigurers(Class<C> clazz) {
 		List<C> configs = (List<C>) this.configurers.get(clazz);
 		if (configs == null) {
-			return new ArrayList<C>();
+			return new ArrayList<>();
 		}
-		return new ArrayList<C>(configs);
+		return new ArrayList<>(configs);
 	}
 
 	/**
@@ -236,9 +236,9 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	public <C extends SecurityConfigurer<O, B>> List<C> removeConfigurers(Class<C> clazz) {
 		List<C> configs = (List<C>) this.configurers.remove(clazz);
 		if (configs == null) {
-			return new ArrayList<C>();
+			return new ArrayList<>();
 		}
-		return new ArrayList<C>(configs);
+		return new ArrayList<>(configs);
 	}
 
 	/**

@@ -102,7 +102,7 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator,
 			return Collections.emptyList();
 		}
 
-		List<String> userDns = new ArrayList<String>(userDnFormat.length);
+		List<String> userDns = new ArrayList<>(userDnFormat.length);
 		String[] args = new String[] { LdapEncoder.nameEncode(username) };
 
 		synchronized (userDnFormat) {

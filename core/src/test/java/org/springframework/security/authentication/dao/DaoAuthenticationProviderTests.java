@@ -561,14 +561,14 @@ public class DaoAuthenticationProviderTests {
 
 		int sampleSize = 100;
 
-		List<Long> userFoundTimes = new ArrayList<Long>(sampleSize);
+		List<Long> userFoundTimes = new ArrayList<>(sampleSize);
 		for (int i = 0; i < sampleSize; i++) {
 			long start = System.currentTimeMillis();
 			provider.authenticate(foundUser);
 			userFoundTimes.add(System.currentTimeMillis() - start);
 		}
 
-		List<Long> userNotFoundTimes = new ArrayList<Long>(sampleSize);
+		List<Long> userNotFoundTimes = new ArrayList<>(sampleSize);
 		for (int i = 0; i < sampleSize; i++) {
 			long start = System.currentTimeMillis();
 			try {

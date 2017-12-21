@@ -124,7 +124,7 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 	private OpenIDConsumer openIDConsumer;
 	private ConsumerManager consumerManager;
 	private AuthenticationUserDetailsService<OpenIDAuthenticationToken> authenticationUserDetailsService;
-	private List<AttributeExchangeConfigurer> attributeExchangeConfigurers = new ArrayList<AttributeExchangeConfigurer>();
+	private List<AttributeExchangeConfigurer> attributeExchangeConfigurers = new ArrayList<>();
 
 	/**
 	 * Creates a new instance
@@ -341,7 +341,7 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 		if (this.authenticationUserDetailsService != null) {
 			return this.authenticationUserDetailsService;
 		}
-		return new UserDetailsByNameServiceWrapper<OpenIDAuthenticationToken>(
+		return new UserDetailsByNameServiceWrapper<>(
 				http.getSharedObject(UserDetailsService.class));
 	}
 
@@ -374,8 +374,8 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 	 */
 	public final class AttributeExchangeConfigurer {
 		private final String identifier;
-		private List<OpenIDAttribute> attributes = new ArrayList<OpenIDAttribute>();
-		private List<AttributeConfigurer> attributeConfigurers = new ArrayList<AttributeConfigurer>();
+		private List<OpenIDAttribute> attributes = new ArrayList<>();
+		private List<AttributeConfigurer> attributeConfigurers = new ArrayList<>();
 
 		/**
 		 * Creates a new instance

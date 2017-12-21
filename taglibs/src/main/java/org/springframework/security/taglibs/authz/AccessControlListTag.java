@@ -109,7 +109,7 @@ public class AccessControlListTag extends TagSupport {
 
 	private List<Object> parseHasPermission(String hasPermission) {
 		String[] requiredPermissions = hasPermission.split(",");
-		List<Object> parsedPermissions = new ArrayList<Object>(requiredPermissions.length);
+		List<Object> parsedPermissions = new ArrayList<>(requiredPermissions.length);
 		for (String permissionToParse : requiredPermissions) {
 			Object parsedPermission = permissionToParse;
 			try {

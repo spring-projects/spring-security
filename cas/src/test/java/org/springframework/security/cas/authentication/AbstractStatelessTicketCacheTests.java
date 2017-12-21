@@ -33,7 +33,7 @@ import org.springframework.security.core.userdetails.User;
 public abstract class AbstractStatelessTicketCacheTests {
 
 	protected CasAuthenticationToken getToken() {
-		List<String> proxyList = new ArrayList<String>();
+		List<String> proxyList = new ArrayList<>();
 		proxyList.add("https://localhost/newPortal/login/cas");
 
 		User user = new User("rod", "password", true, true, true, true,

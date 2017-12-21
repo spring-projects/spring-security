@@ -50,10 +50,10 @@ public class MapBasedMethodSecurityMetadataSource extends
 	private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
 
 	/** Map from RegisteredMethod to ConfigAttribute list */
-	protected final Map<RegisteredMethod, List<ConfigAttribute>> methodMap = new HashMap<RegisteredMethod, List<ConfigAttribute>>();
+	protected final Map<RegisteredMethod, List<ConfigAttribute>> methodMap = new HashMap<>();
 
 	/** Map from RegisteredMethod to name pattern used for registration */
-	private final Map<RegisteredMethod, String> nameMap = new HashMap<RegisteredMethod, String>();
+	private final Map<RegisteredMethod, String> nameMap = new HashMap<>();
 
 	// ~ Methods
 	// ========================================================================================================
@@ -150,7 +150,7 @@ public class MapBasedMethodSecurityMetadataSource extends
 		}
 
 		Method[] methods = javaType.getMethods();
-		List<Method> matchingMethods = new ArrayList<Method>();
+		List<Method> matchingMethods = new ArrayList<>();
 
 		for (Method m : methods) {
 			if (m.getName().equals(mappedName) || isMatch(m.getName(), mappedName)) {
@@ -236,7 +236,7 @@ public class MapBasedMethodSecurityMetadataSource extends
 	 */
 	@Override
 	public Collection<ConfigAttribute> getAllConfigAttributes() {
-		Set<ConfigAttribute> allAttributes = new HashSet<ConfigAttribute>();
+		Set<ConfigAttribute> allAttributes = new HashSet<>();
 
 		for (List<ConfigAttribute> attributeList : methodMap.values()) {
 			allAttributes.addAll(attributeList);

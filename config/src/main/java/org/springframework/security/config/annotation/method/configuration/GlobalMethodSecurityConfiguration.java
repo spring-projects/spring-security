@@ -213,7 +213,7 @@ public class GlobalMethodSecurityConfiguration
 					getExpressionHandler());
 			PostInvocationAdviceProvider postInvocationAdviceProvider = new PostInvocationAdviceProvider(
 					postAdvice);
-			List<AfterInvocationProvider> afterInvocationProviders = new ArrayList<AfterInvocationProvider>();
+			List<AfterInvocationProvider> afterInvocationProviders = new ArrayList<>();
 			afterInvocationProviders.add(postInvocationAdviceProvider);
 			invocationProviderManager.setProviders(afterInvocationProviders);
 			return invocationProviderManager;
@@ -350,7 +350,7 @@ public class GlobalMethodSecurityConfiguration
 	 */
 	@Bean
 	public MethodSecurityMetadataSource methodSecurityMetadataSource() {
-		List<MethodSecurityMetadataSource> sources = new ArrayList<MethodSecurityMetadataSource>();
+		List<MethodSecurityMetadataSource> sources = new ArrayList<>();
 		ExpressionBasedAnnotationAttributeFactory attributeFactory = new ExpressionBasedAnnotationAttributeFactory(
 				getExpressionHandler());
 		MethodSecurityMetadataSource customMethodSecurityMetadataSource = customMethodSecurityMetadataSource();

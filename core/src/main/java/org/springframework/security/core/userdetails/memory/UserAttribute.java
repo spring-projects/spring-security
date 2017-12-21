@@ -33,7 +33,7 @@ public class UserAttribute {
 	// ~ Instance fields
 	// ================================================================================================
 
-	private List<GrantedAuthority> authorities = new Vector<GrantedAuthority>();
+	private List<GrantedAuthority> authorities = new Vector<>();
 	private String password;
 	private boolean enabled = true;
 
@@ -66,7 +66,7 @@ public class UserAttribute {
 	 * @since 1.1
 	 */
 	public void setAuthoritiesAsString(List<String> authoritiesAsStrings) {
-		setAuthorities(new ArrayList<GrantedAuthority>(authoritiesAsStrings.size()));
+		setAuthorities(new ArrayList<>(authoritiesAsStrings.size()));
 		for (String authority : authoritiesAsStrings) {
 			addAuthority(new SimpleGrantedAuthority(authority));
 		}

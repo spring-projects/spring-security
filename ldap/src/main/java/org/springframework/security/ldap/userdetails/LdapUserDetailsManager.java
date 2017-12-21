@@ -274,7 +274,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 		copyToContext(user, ctx);
 
 		// Remove the objectclass attribute from the list of mods (if present).
-		List<ModificationItem> mods = new LinkedList<ModificationItem>(Arrays.asList(ctx
+		List<ModificationItem> mods = new LinkedList<>(Arrays.asList(ctx
 				.getModificationItems()));
 		ListIterator<ModificationItem> modIt = mods.listIterator();
 

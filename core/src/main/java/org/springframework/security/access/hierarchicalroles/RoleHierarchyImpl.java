@@ -115,7 +115,7 @@ public class RoleHierarchyImpl implements RoleHierarchy {
 			return AuthorityUtils.NO_AUTHORITIES;
 		}
 
-		Set<GrantedAuthority> reachableRoles = new HashSet<GrantedAuthority>();
+		Set<GrantedAuthority> reachableRoles = new HashSet<>();
 
 		for (GrantedAuthority authority : authorities) {
 			addReachableRoles(reachableRoles, authority);
@@ -132,7 +132,7 @@ public class RoleHierarchyImpl implements RoleHierarchy {
 					+ " in zero or more steps.");
 		}
 
-		List<GrantedAuthority> reachableRoleList = new ArrayList<GrantedAuthority>(
+		List<GrantedAuthority> reachableRoleList = new ArrayList<>(
 				reachableRoles.size());
 		reachableRoleList.addAll(reachableRoles);
 
@@ -190,7 +190,7 @@ public class RoleHierarchyImpl implements RoleHierarchy {
 			Set<GrantedAuthority> rolesReachableInOneStepSet;
 
 			if (!this.rolesReachableInOneStepMap.containsKey(higherRole)) {
-				rolesReachableInOneStepSet = new HashSet<GrantedAuthority>();
+				rolesReachableInOneStepSet = new HashSet<>();
 				this.rolesReachableInOneStepMap.put(higherRole,
 						rolesReachableInOneStepSet);
 			}
@@ -212,17 +212,17 @@ public class RoleHierarchyImpl implements RoleHierarchy {
 	 * detected)
 	 */
 	private void buildRolesReachableInOneOrMoreStepsMap() {
-		this.rolesReachableInOneOrMoreStepsMap = new HashMap<GrantedAuthority, Set<GrantedAuthority>>();
+		this.rolesReachableInOneOrMoreStepsMap = new HashMap<>();
 		// iterate over all higher roles from rolesReachableInOneStepMap
 
 		for (GrantedAuthority role : this.rolesReachableInOneStepMap.keySet()) {
-			Set<GrantedAuthority> rolesToVisitSet = new HashSet<GrantedAuthority>();
+			Set<GrantedAuthority> rolesToVisitSet = new HashSet<>();
 
 			if (this.rolesReachableInOneStepMap.containsKey(role)) {
 				rolesToVisitSet.addAll(this.rolesReachableInOneStepMap.get(role));
 			}
 
-			Set<GrantedAuthority> visitedRolesSet = new HashSet<GrantedAuthority>();
+			Set<GrantedAuthority> visitedRolesSet = new HashSet<>();
 
 			while (!rolesToVisitSet.isEmpty()) {
 				// take a role from the rolesToVisit set

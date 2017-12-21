@@ -186,7 +186,7 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
 	 */
 	public static class Essence {
 		protected LdapUserDetailsImpl instance = createTarget();
-		private List<GrantedAuthority> mutableAuthorities = new ArrayList<GrantedAuthority>();
+		private List<GrantedAuthority> mutableAuthorities = new ArrayList<>();
 
 		public Essence() {
 		}
@@ -257,7 +257,7 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
 		}
 
 		public void setAuthorities(Collection<? extends GrantedAuthority> authorities) {
-			mutableAuthorities = new ArrayList<GrantedAuthority>();
+			mutableAuthorities = new ArrayList<>();
 			mutableAuthorities.addAll(authorities);
 		}
 

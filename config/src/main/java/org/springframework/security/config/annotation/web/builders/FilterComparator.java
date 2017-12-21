@@ -57,7 +57,7 @@ import org.springframework.web.filter.CorsFilter;
 @SuppressWarnings("serial")
 final class FilterComparator implements Comparator<Filter>, Serializable {
 	private static final int STEP = 100;
-	private Map<String, Integer> filterToOrder = new HashMap<String, Integer>();
+	private Map<String, Integer> filterToOrder = new HashMap<>();
 
 	FilterComparator() {
 		int order = 100;

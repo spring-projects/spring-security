@@ -32,7 +32,7 @@ public class TestAuthorityGranter implements AuthorityGranter {
 	// ========================================================================================================
 
 	public Set<String> grant(Principal principal) {
-		Set<String> rtnSet = new HashSet<String>();
+		Set<String> rtnSet = new HashSet<>();
 
 		if (principal.getName().equals("TEST_PRINCIPAL")) {
 			rtnSet.add("ROLE_TEST1");

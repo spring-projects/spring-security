@@ -106,7 +106,7 @@ public class ReferrerPolicyHeaderWriter implements HeaderWriter {
 		private static final Map<String, ReferrerPolicy> REFERRER_POLICIES;
 
 		static {
-			Map<String, ReferrerPolicy> referrerPolicies = new HashMap<String, ReferrerPolicy>();
+			Map<String, ReferrerPolicy> referrerPolicies = new HashMap<>();
 			for (ReferrerPolicy referrerPolicy : values()) {
 				referrerPolicies.put(referrerPolicy.getPolicy(), referrerPolicy);
 			}

@@ -169,7 +169,7 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 		}
 		HandlerMappingIntrospector introspector = this.context.getBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME,
 			HandlerMappingIntrospector.class);
-		List<MvcRequestMatcher> matchers = new ArrayList<MvcRequestMatcher>(
+		List<MvcRequestMatcher> matchers = new ArrayList<>(
 				mvcPatterns.length);
 		for (String mvcPattern : mvcPatterns) {
 			MvcRequestMatcher matcher = new MvcRequestMatcher(introspector, mvcPattern);
@@ -257,7 +257,7 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 		public static List<RequestMatcher> antMatchers(HttpMethod httpMethod,
 				String... antPatterns) {
 			String method = httpMethod == null ? null : httpMethod.toString();
-			List<RequestMatcher> matchers = new ArrayList<RequestMatcher>();
+			List<RequestMatcher> matchers = new ArrayList<>();
 			for (String pattern : antPatterns) {
 				matchers.add(new AntPathRequestMatcher(pattern, method));
 			}
@@ -290,7 +290,7 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 		public static List<RequestMatcher> regexMatchers(HttpMethod httpMethod,
 				String... regexPatterns) {
 			String method = httpMethod == null ? null : httpMethod.toString();
-			List<RequestMatcher> matchers = new ArrayList<RequestMatcher>();
+			List<RequestMatcher> matchers = new ArrayList<>();
 			for (String pattern : regexPatterns) {
 				matchers.add(new RegexRequestMatcher(pattern, method));
 			}

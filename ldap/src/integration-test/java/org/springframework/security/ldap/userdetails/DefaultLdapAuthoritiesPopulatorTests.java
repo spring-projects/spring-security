@@ -147,7 +147,7 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegratio
 			@Override
 			protected Set<GrantedAuthority> getAdditionalRoles(DirContextOperations user,
 					String username) {
-				return new HashSet<GrantedAuthority>(
+				return new HashSet<>(
 						AuthorityUtils.createAuthorityList("ROLE_EXTRA"));
 			}
 		};

@@ -38,8 +38,8 @@ import org.springframework.util.Assert;
  * @since 2.0.3
  */
 public class DefaultPermissionFactory implements PermissionFactory {
-	private final Map<Integer, Permission> registeredPermissionsByInteger = new HashMap<Integer, Permission>();
-	private final Map<String, Permission> registeredPermissionsByName = new HashMap<String, Permission>();
+	private final Map<Integer, Permission> registeredPermissionsByInteger = new HashMap<>();
+	private final Map<String, Permission> registeredPermissionsByName = new HashMap<>();
 
 	/**
 	 * Registers the <tt>Permission</tt> fields from the <tt>BasePermission</tt> class.
@@ -156,7 +156,7 @@ public class DefaultPermissionFactory implements PermissionFactory {
 			return Collections.emptyList();
 		}
 
-		List<Permission> permissions = new ArrayList<Permission>(names.size());
+		List<Permission> permissions = new ArrayList<>(names.size());
 
 		for (String name : names) {
 			permissions.add(buildFromName(name));

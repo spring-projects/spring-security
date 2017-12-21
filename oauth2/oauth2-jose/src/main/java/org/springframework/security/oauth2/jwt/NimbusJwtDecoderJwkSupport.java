@@ -76,7 +76,7 @@ public final class NimbusJwtDecoderJwkSupport implements JwtDecoder {
 		ResourceRetriever jwkSetRetriever = new DefaultResourceRetriever(30000, 30000);
 		JWKSource jwkSource = new RemoteJWKSet(this.jwkSetUrl, jwkSetRetriever);
 		JWSKeySelector<SecurityContext> jwsKeySelector =
-			new JWSVerificationKeySelector<SecurityContext>(this.jwsAlgorithm, jwkSource);
+			new JWSVerificationKeySelector<>(this.jwsAlgorithm, jwkSource);
 
 		this.jwtProcessor = new DefaultJWTProcessor<>();
 		this.jwtProcessor.setJWSKeySelector(jwsKeySelector);

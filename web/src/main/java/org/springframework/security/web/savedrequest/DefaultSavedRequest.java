@@ -62,11 +62,11 @@ public class DefaultSavedRequest implements SavedRequest {
 	// ~ Instance fields
 	// ================================================================================================
 
-	private final ArrayList<SavedCookie> cookies = new ArrayList<SavedCookie>();
-	private final ArrayList<Locale> locales = new ArrayList<Locale>();
-	private final Map<String, List<String>> headers = new TreeMap<String, List<String>>(
+	private final ArrayList<SavedCookie> cookies = new ArrayList<>();
+	private final ArrayList<Locale> locales = new ArrayList<>();
+	private final Map<String, List<String>> headers = new TreeMap<>(
 			String.CASE_INSENSITIVE_ORDER);
-	private final Map<String, String[]> parameters = new TreeMap<String, String[]>();
+	private final Map<String, String[]> parameters = new TreeMap<>();
 	private final String contextPath;
 	private final String method;
 	private final String pathInfo;
@@ -163,7 +163,7 @@ public class DefaultSavedRequest implements SavedRequest {
 		List<String> values = headers.get(name);
 
 		if (values == null) {
-			values = new ArrayList<String>();
+			values = new ArrayList<>();
 			headers.put(name, values);
 		}
 
@@ -407,8 +407,8 @@ public class DefaultSavedRequest implements SavedRequest {
 
 		private List<SavedCookie> cookies = null;
 		private List<Locale> locales = null;
-		private Map<String, List<String>> headers = new TreeMap<String, List<String>>(String.CASE_INSENSITIVE_ORDER);
-		private Map<String, String[]> parameters = new TreeMap<String, String[]>();
+		private Map<String, List<String>> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		private Map<String, String[]> parameters = new TreeMap<>();
 		private String contextPath;
 		private String method;
 		private String pathInfo;

@@ -30,10 +30,10 @@ import org.springframework.security.authentication.event.AbstractAuthenticationF
  * @since 3.1
  */
 public class CollectingAppListener implements ApplicationListener {
-	Set<ApplicationEvent> events = new HashSet<ApplicationEvent>();
-	Set<AbstractAuthenticationEvent> authenticationEvents = new HashSet<AbstractAuthenticationEvent>();
-	Set<AbstractAuthenticationFailureEvent> authenticationFailureEvents = new HashSet<AbstractAuthenticationFailureEvent>();
-	Set<AbstractAuthorizationEvent> authorizationEvents = new HashSet<AbstractAuthorizationEvent>();
+	Set<ApplicationEvent> events = new HashSet<>();
+	Set<AbstractAuthenticationEvent> authenticationEvents = new HashSet<>();
+	Set<AbstractAuthenticationFailureEvent> authenticationFailureEvents = new HashSet<>();
+	Set<AbstractAuthorizationEvent> authorizationEvents = new HashSet<>();
 
 	public void onApplicationEvent(ApplicationEvent event) {
 		if (event instanceof AbstractAuthenticationEvent) {

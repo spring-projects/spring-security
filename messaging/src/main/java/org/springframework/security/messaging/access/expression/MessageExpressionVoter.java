@@ -37,7 +37,7 @@ import java.util.Collection;
  * @author Rob Winch
  */
 public class MessageExpressionVoter<T> implements AccessDecisionVoter<Message<T>> {
-	private SecurityExpressionHandler<Message<T>> expressionHandler = new DefaultMessageSecurityExpressionHandler<T>();
+	private SecurityExpressionHandler<Message<T>> expressionHandler = new DefaultMessageSecurityExpressionHandler<>();
 
 	public int vote(Authentication authentication, Message<T> message,
 			Collection<ConfigAttribute> attributes) {

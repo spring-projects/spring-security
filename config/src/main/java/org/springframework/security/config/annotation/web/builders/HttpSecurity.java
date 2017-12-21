@@ -119,7 +119,7 @@ public final class HttpSecurity extends
 		implements SecurityBuilder<DefaultSecurityFilterChain>,
 		HttpSecurityBuilder<HttpSecurity> {
 	private final RequestMatcherConfigurer requestMatcherConfigurer;
-	private List<Filter> filters = new ArrayList<Filter>();
+	private List<Filter> filters = new ArrayList<>();
 	private RequestMatcher requestMatcher = AnyRequestMatcher.INSTANCE;
 	private FilterComparator comparator = new FilterComparator();
 
@@ -232,7 +232,7 @@ public final class HttpSecurity extends
 	 * @see OpenIDLoginConfigurer
 	 */
 	public OpenIDLoginConfigurer<HttpSecurity> openidLogin() throws Exception {
-		return getOrApply(new OpenIDLoginConfigurer<HttpSecurity>());
+		return getOrApply(new OpenIDLoginConfigurer<>());
 	}
 
 	/**
@@ -332,7 +332,7 @@ public final class HttpSecurity extends
 	 * @see HeadersConfigurer
 	 */
 	public HeadersConfigurer<HttpSecurity> headers() throws Exception {
-		return getOrApply(new HeadersConfigurer<HttpSecurity>());
+		return getOrApply(new HeadersConfigurer<>());
 	}
 
 	/**
@@ -345,7 +345,7 @@ public final class HttpSecurity extends
 	 * @throws Exception
 	 */
 	public CorsConfigurer<HttpSecurity> cors() throws Exception {
-		return getOrApply(new CorsConfigurer<HttpSecurity>());
+		return getOrApply(new CorsConfigurer<>());
 	}
 
 	/**
@@ -397,7 +397,7 @@ public final class HttpSecurity extends
 	 * @throws Exception
 	 */
 	public SessionManagementConfigurer<HttpSecurity> sessionManagement() throws Exception {
-		return getOrApply(new SessionManagementConfigurer<HttpSecurity>());
+		return getOrApply(new SessionManagementConfigurer<>());
 	}
 
 	/**
@@ -440,7 +440,7 @@ public final class HttpSecurity extends
 	 * @see #requiresChannel()
 	 */
 	public PortMapperConfigurer<HttpSecurity> portMapper() throws Exception {
-		return getOrApply(new PortMapperConfigurer<HttpSecurity>());
+		return getOrApply(new PortMapperConfigurer<>());
 	}
 
 	/**
@@ -512,7 +512,7 @@ public final class HttpSecurity extends
 	 * @throws Exception
 	 */
 	public JeeConfigurer<HttpSecurity> jee() throws Exception {
-		return getOrApply(new JeeConfigurer<HttpSecurity>());
+		return getOrApply(new JeeConfigurer<>());
 	}
 
 	/**
@@ -542,7 +542,7 @@ public final class HttpSecurity extends
 	 * @throws Exception
 	 */
 	public X509Configurer<HttpSecurity> x509() throws Exception {
-		return getOrApply(new X509Configurer<HttpSecurity>());
+		return getOrApply(new X509Configurer<>());
 	}
 
 	/**
@@ -579,7 +579,7 @@ public final class HttpSecurity extends
 	 * @throws Exception
 	 */
 	public RememberMeConfigurer<HttpSecurity> rememberMe() throws Exception {
-		return getOrApply(new RememberMeConfigurer<HttpSecurity>());
+		return getOrApply(new RememberMeConfigurer<>());
 	}
 
 	/**
@@ -649,7 +649,7 @@ public final class HttpSecurity extends
 	public ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry authorizeRequests()
 			throws Exception {
 		ApplicationContext context = getContext();
-		return getOrApply(new ExpressionUrlAuthorizationConfigurer<HttpSecurity>(context))
+		return getOrApply(new ExpressionUrlAuthorizationConfigurer<>(context))
 				.getRegistry();
 	}
 
@@ -664,7 +664,7 @@ public final class HttpSecurity extends
 	 * @throws Exception
 	 */
 	public RequestCacheConfigurer<HttpSecurity> requestCache() throws Exception {
-		return getOrApply(new RequestCacheConfigurer<HttpSecurity>());
+		return getOrApply(new RequestCacheConfigurer<>());
 	}
 
 	/**
@@ -675,7 +675,7 @@ public final class HttpSecurity extends
 	 * @throws Exception
 	 */
 	public ExceptionHandlingConfigurer<HttpSecurity> exceptionHandling() throws Exception {
-		return getOrApply(new ExceptionHandlingConfigurer<HttpSecurity>());
+		return getOrApply(new ExceptionHandlingConfigurer<>());
 	}
 
 	/**
@@ -687,7 +687,7 @@ public final class HttpSecurity extends
 	 * @throws Exception
 	 */
 	public SecurityContextConfigurer<HttpSecurity> securityContext() throws Exception {
-		return getOrApply(new SecurityContextConfigurer<HttpSecurity>());
+		return getOrApply(new SecurityContextConfigurer<>());
 	}
 
 	/**
@@ -699,7 +699,7 @@ public final class HttpSecurity extends
 	 * @throws Exception
 	 */
 	public ServletApiConfigurer<HttpSecurity> servletApi() throws Exception {
-		return getOrApply(new ServletApiConfigurer<HttpSecurity>());
+		return getOrApply(new ServletApiConfigurer<>());
 	}
 
 	/**
@@ -726,7 +726,7 @@ public final class HttpSecurity extends
 	 */
 	public CsrfConfigurer<HttpSecurity> csrf() throws Exception {
 		ApplicationContext context = getContext();
-		return getOrApply(new CsrfConfigurer<HttpSecurity>(context));
+		return getOrApply(new CsrfConfigurer<>(context));
 	}
 
 	/**
@@ -767,7 +767,7 @@ public final class HttpSecurity extends
 	 * @throws Exception
 	 */
 	public LogoutConfigurer<HttpSecurity> logout() throws Exception {
-		return getOrApply(new LogoutConfigurer<HttpSecurity>());
+		return getOrApply(new LogoutConfigurer<>());
 	}
 
 	/**
@@ -830,7 +830,7 @@ public final class HttpSecurity extends
 	 * @throws Exception
 	 */
 	public AnonymousConfigurer<HttpSecurity> anonymous() throws Exception {
-		return getOrApply(new AnonymousConfigurer<HttpSecurity>());
+		return getOrApply(new AnonymousConfigurer<>());
 	}
 
 	/**
@@ -894,7 +894,7 @@ public final class HttpSecurity extends
 	 * @throws Exception
 	 */
 	public FormLoginConfigurer<HttpSecurity> formLogin() throws Exception {
-		return getOrApply(new FormLoginConfigurer<HttpSecurity>());
+		return getOrApply(new FormLoginConfigurer<>());
 	}
 
 	/**
@@ -988,7 +988,7 @@ public final class HttpSecurity extends
 	 * @throws Exception
 	 */
 	public OAuth2LoginConfigurer<HttpSecurity> oauth2Login() throws Exception {
-		return getOrApply(new OAuth2LoginConfigurer<HttpSecurity>());
+		return getOrApply(new OAuth2LoginConfigurer<>());
 	}
 
 	/**
@@ -1028,7 +1028,7 @@ public final class HttpSecurity extends
 	public ChannelSecurityConfigurer<HttpSecurity>.ChannelRequestMatcherRegistry requiresChannel()
 			throws Exception {
 		ApplicationContext context = getContext();
-		return getOrApply(new ChannelSecurityConfigurer<HttpSecurity>(context))
+		return getOrApply(new ChannelSecurityConfigurer<>(context))
 				.getRegistry();
 	}
 
@@ -1062,7 +1062,7 @@ public final class HttpSecurity extends
 	 * @throws Exception
 	 */
 	public HttpBasicConfigurer<HttpSecurity> httpBasic() throws Exception {
-		return getOrApply(new HttpBasicConfigurer<HttpSecurity>());
+		return getOrApply(new HttpBasicConfigurer<>());
 	}
 
 	public <C> void setSharedObject(Class<C> sharedType, C object) {
@@ -1382,7 +1382,7 @@ public final class HttpSecurity extends
 		private MvcMatchersRequestMatcherConfigurer(ApplicationContext context,
 				List<MvcRequestMatcher> matchers) {
 			super(context);
-			this.matchers = new ArrayList<RequestMatcher>(matchers);
+			this.matchers = new ArrayList<>(matchers);
 		}
 
 		public RequestMatcherConfigurer servletPath(String servletPath) {
@@ -1403,7 +1403,7 @@ public final class HttpSecurity extends
 	public class RequestMatcherConfigurer
 			extends AbstractRequestMatcherRegistry<RequestMatcherConfigurer> {
 
-		protected List<RequestMatcher> matchers = new ArrayList<RequestMatcher>();
+		protected List<RequestMatcher> matchers = new ArrayList<>();
 
 		/**
 		 * @param context

@@ -43,39 +43,39 @@ public class OrMessageMatcherTest {
 
 	@Test(expected = NullPointerException.class)
 	public void constructorNullArray() {
-		new OrMessageMatcher<Object>((MessageMatcher<Object>[]) null);
+		new OrMessageMatcher<>((MessageMatcher<Object>[]) null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorArrayContainsNull() {
-		new OrMessageMatcher<Object>((MessageMatcher<Object>) null);
+		new OrMessageMatcher<>((MessageMatcher<Object>) null);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorEmptyArray() {
-		new OrMessageMatcher<Object>((MessageMatcher<Object>[]) new MessageMatcher[0]);
+		new OrMessageMatcher<>((MessageMatcher<Object>[]) new MessageMatcher[0]);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorNullList() {
-		new OrMessageMatcher<Object>((List<MessageMatcher<Object>>) null);
+		new OrMessageMatcher<>((List<MessageMatcher<Object>>) null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorListContainsNull() {
-		new OrMessageMatcher<Object>(Arrays.asList((MessageMatcher<Object>) null));
+		new OrMessageMatcher<>(Arrays.asList((MessageMatcher<Object>) null));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorEmptyList() {
-		new OrMessageMatcher<Object>(Collections.<MessageMatcher<Object>> emptyList());
+		new OrMessageMatcher<>(Collections.emptyList());
 	}
 
 	@Test
 	public void matchesSingleTrue() {
 		when(delegate.matches(message)).thenReturn(true);
-		matcher = new OrMessageMatcher<Object>(delegate);
+		matcher = new OrMessageMatcher<>(delegate);
 
 		assertThat(matcher.matches(message)).isTrue();
 	}
@@ -83,7 +83,7 @@ public class OrMessageMatcherTest {
 	@Test
 	public void matchesMultiTrue() {
 		when(delegate.matches(message)).thenReturn(true);
-		matcher = new OrMessageMatcher<Object>(delegate, delegate2);
+		matcher = new OrMessageMatcher<>(delegate, delegate2);
 
 		assertThat(matcher.matches(message)).isTrue();
 	}
@@ -91,7 +91,7 @@ public class OrMessageMatcherTest {
 	@Test
 	public void matchesSingleFalse() {
 		when(delegate.matches(message)).thenReturn(false);
-		matcher = new OrMessageMatcher<Object>(delegate);
+		matcher = new OrMessageMatcher<>(delegate);
 
 		assertThat(matcher.matches(message)).isFalse();
 	}
@@ -100,7 +100,7 @@ public class OrMessageMatcherTest {
 	public void matchesMultiBothFalse() {
 		when(delegate.matches(message)).thenReturn(false);
 		when(delegate2.matches(message)).thenReturn(false);
-		matcher = new OrMessageMatcher<Object>(delegate, delegate2);
+		matcher = new OrMessageMatcher<>(delegate, delegate2);
 
 		assertThat(matcher.matches(message)).isFalse();
 	}
@@ -108,7 +108,7 @@ public class OrMessageMatcherTest {
 	@Test
 	public void matchesMultiSingleFalse() {
 		when(delegate.matches(message)).thenReturn(true);
-		matcher = new OrMessageMatcher<Object>(delegate, delegate2);
+		matcher = new OrMessageMatcher<>(delegate, delegate2);
 
 		assertThat(matcher.matches(message)).isTrue();
 	}

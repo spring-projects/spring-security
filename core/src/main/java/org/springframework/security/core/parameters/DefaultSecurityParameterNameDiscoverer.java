@@ -81,7 +81,7 @@ public class DefaultSecurityParameterNameDiscoverer extends
 			addDiscoverer(discover);
 		}
 
-		Set<String> annotationClassesToUse = new HashSet<String>(2);
+		Set<String> annotationClassesToUse = new HashSet<>(2);
 		annotationClassesToUse.add("org.springframework.security.access.method.P");
 		annotationClassesToUse.add(P.class.getName());
 		if (DATA_PARAM_PRESENT) {

@@ -206,7 +206,7 @@ class PrePostSecured {
 
 	@PostFilter("filterObject.startsWith('a')")
 	public List<String> postFilterMethod() {
-		ArrayList<String> objects = new ArrayList<String>();
+		ArrayList<String> objects = new ArrayList<>();
 		objects.addAll(Arrays.asList(new String[] { "apple", "banana", "aubergine",
 				"orange" }));
 		return objects;

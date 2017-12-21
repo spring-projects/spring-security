@@ -43,7 +43,7 @@ public class ExceptionMappingAuthenticationFailureHandlerTests {
 	@Test
 	public void exceptionMapIsUsedIfMappingExists() throws Exception {
 		ExceptionMappingAuthenticationFailureHandler fh = new ExceptionMappingAuthenticationFailureHandler();
-		HashMap<String, String> mapping = new HashMap<String, String>();
+		HashMap<String, String> mapping = new HashMap<>();
 		mapping.put(
 				"org.springframework.security.authentication.BadCredentialsException",
 				"/badcreds");

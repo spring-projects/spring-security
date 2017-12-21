@@ -63,7 +63,7 @@ public abstract class HierarchicalRolesTestHelper {
 			return null;
 		}
 
-		List<String> result = new ArrayList<String>(authorities.size());
+		List<String> result = new ArrayList<>(authorities.size());
 		for (GrantedAuthority authority : authorities) {
 			result.add(authority.getAuthority());
 		}
@@ -71,7 +71,7 @@ public abstract class HierarchicalRolesTestHelper {
 	}
 
 	public static List<GrantedAuthority> createAuthorityList(final String... roles) {
-		List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>(roles.length);
+		List<GrantedAuthority> authorities = new ArrayList<>(roles.length);
 
 		for (final String role : roles) {
 			// Use non SimpleGrantedAuthority (SEC-863)

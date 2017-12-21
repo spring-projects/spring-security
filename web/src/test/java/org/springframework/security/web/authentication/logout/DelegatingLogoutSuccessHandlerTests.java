@@ -63,7 +63,7 @@ public class DelegatingLogoutSuccessHandlerTests {
 
 	@Before
 	public void setup() {
-		LinkedHashMap<RequestMatcher, LogoutSuccessHandler> matcherToHandler = new LinkedHashMap<RequestMatcher, LogoutSuccessHandler>();
+		LinkedHashMap<RequestMatcher, LogoutSuccessHandler> matcherToHandler = new LinkedHashMap<>();
 		matcherToHandler.put(this.matcher, this.handler);
 		matcherToHandler.put(this.matcher2, this.handler2);
 		this.delegatingHandler = new DelegatingLogoutSuccessHandler(matcherToHandler);

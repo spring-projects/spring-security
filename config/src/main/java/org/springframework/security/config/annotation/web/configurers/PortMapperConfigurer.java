@@ -34,7 +34,7 @@ import org.springframework.security.web.PortMapperImpl;
 public final class PortMapperConfigurer<H extends HttpSecurityBuilder<H>> extends
 		AbstractHttpConfigurer<PortMapperConfigurer<H>, H> {
 	private PortMapper portMapper;
-	private Map<String, String> httpsPortMappings = new HashMap<String, String>();
+	private Map<String, String> httpsPortMappings = new HashMap<>();
 
 	/**
 	 * Creates a new instance

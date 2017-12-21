@@ -71,7 +71,7 @@ public final class AdminPermissionController implements MessageSourceAware {
 		Contact contact = contactManager.getById(Long.valueOf(contactId));
 		Acl acl = aclService.readAclById(new ObjectIdentityImpl(contact));
 
-		Map<String, Object> model = new HashMap<String, Object>();
+		Map<String, Object> model = new HashMap<>();
 		model.put("contact", contact);
 		model.put("acl", acl);
 
@@ -89,7 +89,7 @@ public final class AdminPermissionController implements MessageSourceAware {
 		AddPermission addPermission = new AddPermission();
 		addPermission.setContact(contact);
 
-		Map<String, Object> model = new HashMap<String, Object>();
+		Map<String, Object> model = new HashMap<>();
 		model.put("addPermission", addPermission);
 		model.put("recipients", listRecipients());
 		model.put("permissions", listPermissions());
@@ -151,7 +151,7 @@ public final class AdminPermissionController implements MessageSourceAware {
 
 		contactManager.deletePermission(contact, sidObject, permission);
 
-		Map<String, Object> model = new HashMap<String, Object>();
+		Map<String, Object> model = new HashMap<>();
 		model.put("contact", contact);
 		model.put("sid", sidObject);
 		model.put("permission", permission);
@@ -160,7 +160,7 @@ public final class AdminPermissionController implements MessageSourceAware {
 	}
 
 	private Map<Integer, String> listPermissions() {
-		Map<Integer, String> map = new LinkedHashMap<Integer, String>();
+		Map<Integer, String> map = new LinkedHashMap<>();
 		map.put(Integer.valueOf(BasePermission.ADMINISTRATION.getMask()),
 				messages.getMessage("select.administer", "Administer"));
 		map.put(Integer.valueOf(BasePermission.READ.getMask()),
@@ -172,7 +172,7 @@ public final class AdminPermissionController implements MessageSourceAware {
 	}
 
 	private Map<String, String> listRecipients() {
-		Map<String, String> map = new LinkedHashMap<String, String>();
+		Map<String, String> map = new LinkedHashMap<>();
 		map.put("", messages.getMessage("select.pleaseSelect", "-- please select --"));
 
 		for (String recipient : contactManager.getAllRecipients()) {

@@ -19,7 +19,6 @@ import java.util.ArrayList;
 
 import org.jasig.cas.client.validation.Assertion;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 
 /**
@@ -37,7 +36,7 @@ public final class CasAssertionAuthenticationToken extends AbstractAuthenticatio
 	private final String ticket;
 
 	public CasAssertionAuthenticationToken(final Assertion assertion, final String ticket) {
-		super(new ArrayList<GrantedAuthority>());
+		super(new ArrayList<>());
 
 		this.assertion = assertion;
 		this.ticket = ticket;

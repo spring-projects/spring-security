@@ -114,7 +114,7 @@ public class AuthenticationManagerBeanDefinitionParserTests {
 
 	private static class AuthListener implements
 			ApplicationListener<AbstractAuthenticationEvent> {
-		List<AbstractAuthenticationEvent> events = new ArrayList<AbstractAuthenticationEvent>();
+		List<AbstractAuthenticationEvent> events = new ArrayList<>();
 
 		public void onApplicationEvent(AbstractAuthenticationEvent event) {
 			this.events.add(event);

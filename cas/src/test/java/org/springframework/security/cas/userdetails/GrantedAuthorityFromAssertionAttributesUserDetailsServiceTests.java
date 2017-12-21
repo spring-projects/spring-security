@@ -44,7 +44,7 @@ public class GrantedAuthorityFromAssertionAttributesUserDetailsServiceTests {
 		uds.setConvertToUpperCase(false);
 		Assertion assertion = mock(Assertion.class);
 		AttributePrincipal principal = mock(AttributePrincipal.class);
-		Map<String, Object> attributes = new HashMap<String, Object>();
+		Map<String, Object> attributes = new HashMap<>();
 		attributes.put("a", Arrays.asList("role_a1", "role_a2"));
 		attributes.put("b", "role_b");
 		attributes.put("c", "role_c");

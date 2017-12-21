@@ -33,7 +33,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
  * @author Luke Taylor
  */
 public class RequestWrapperTests {
-	private static Map<String, String> testPaths = new LinkedHashMap<String, String>();
+	private static Map<String, String> testPaths = new LinkedHashMap<>();
 
 	@BeforeClass
 	// Some of these may be unrealistic values, but we can't be sure because of the

@@ -51,7 +51,7 @@ public class PortMapperImplTests {
 		PortMapperImpl portMapper = new PortMapperImpl();
 
 		try {
-			portMapper.setPortMappings(new HashMap<String, String>());
+			portMapper.setPortMappings(new HashMap<>());
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
@@ -81,7 +81,7 @@ public class PortMapperImplTests {
 	@Test
 	public void testRejectsOutOfRangeMappings() {
 		PortMapperImpl portMapper = new PortMapperImpl();
-		Map<String, String> map = new HashMap<String, String>();
+		Map<String, String> map = new HashMap<>();
 		map.put("79", "80559");
 
 		try {
@@ -102,7 +102,7 @@ public class PortMapperImplTests {
 	@Test
 	public void testSupportsCustomMappings() {
 		PortMapperImpl portMapper = new PortMapperImpl();
-		Map<String, String> map = new HashMap<String, String>();
+		Map<String, String> map = new HashMap<>();
 		map.put("79", "442");
 
 		portMapper.setPortMappings(map);

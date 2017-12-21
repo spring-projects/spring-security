@@ -33,7 +33,7 @@ public class WhiteListedAllowFromStrategyTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void emptyListShouldThrowException() {
-		new WhiteListedAllowFromStrategy(new ArrayList<String>());
+		new WhiteListedAllowFromStrategy(new ArrayList<>());
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -43,7 +43,7 @@ public class WhiteListedAllowFromStrategyTests {
 
 	@Test
 	public void listWithSingleElementShouldMatch() {
-		List<String> allowed = new ArrayList<String>();
+		List<String> allowed = new ArrayList<>();
 		allowed.add("http://www.test.com");
 		WhiteListedAllowFromStrategy strategy = new WhiteListedAllowFromStrategy(allowed);
 		strategy.setAllowFromParameterName("from");
@@ -56,7 +56,7 @@ public class WhiteListedAllowFromStrategyTests {
 
 	@Test
 	public void listWithMultipleElementShouldMatch() {
-		List<String> allowed = new ArrayList<String>();
+		List<String> allowed = new ArrayList<>();
 		allowed.add("http://www.test.com");
 		allowed.add("http://www.springsource.org");
 		WhiteListedAllowFromStrategy strategy = new WhiteListedAllowFromStrategy(allowed);
@@ -70,7 +70,7 @@ public class WhiteListedAllowFromStrategyTests {
 
 	@Test
 	public void listWithSingleElementShouldNotMatch() {
-		List<String> allowed = new ArrayList<String>();
+		List<String> allowed = new ArrayList<>();
 		allowed.add("http://www.test.com");
 		WhiteListedAllowFromStrategy strategy = new WhiteListedAllowFromStrategy(allowed);
 		strategy.setAllowFromParameterName("from");
@@ -83,7 +83,7 @@ public class WhiteListedAllowFromStrategyTests {
 
 	@Test
 	public void requestWithoutParameterShouldNotMatch() {
-		List<String> allowed = new ArrayList<String>();
+		List<String> allowed = new ArrayList<>();
 		allowed.add("http://www.test.com");
 		WhiteListedAllowFromStrategy strategy = new WhiteListedAllowFromStrategy(allowed);
 		strategy.setAllowFromParameterName("from");

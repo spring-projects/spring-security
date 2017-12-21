@@ -64,7 +64,7 @@ public class DefaultSpringSecurityContextSource extends LdapContextSource {
 
 		StringTokenizer st = new StringTokenizer(providerUrl);
 
-		ArrayList<String> urls = new ArrayList<String>();
+		ArrayList<String> urls = new ArrayList<>();
 
 		// Work out rootDn from the first URL and check that the other URLs (if any) match
 		while (st.hasMoreTokens()) {

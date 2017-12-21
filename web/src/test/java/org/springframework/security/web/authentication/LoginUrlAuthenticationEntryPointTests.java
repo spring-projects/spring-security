@@ -109,7 +109,7 @@ public class LoginUrlAuthenticationEntryPointTests {
 		assertThat(response.getRedirectedUrl()).isEqualTo("https://www.example.com:8443/bigWebApp/hello");
 
 		PortMapperImpl portMapper = new PortMapperImpl();
-		Map<String, String> map = new HashMap<String, String>();
+		Map<String, String> map = new HashMap<>();
 		map.put("8888", "9999");
 		portMapper.setPortMappings(map);
 		response = new MockHttpServletResponse();

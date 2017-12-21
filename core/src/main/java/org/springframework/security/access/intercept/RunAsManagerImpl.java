@@ -71,7 +71,7 @@ public class RunAsManagerImpl implements RunAsManager, InitializingBean {
 
 	public Authentication buildRunAs(Authentication authentication, Object object,
 			Collection<ConfigAttribute> attributes) {
-		List<GrantedAuthority> newAuthorities = new ArrayList<GrantedAuthority>();
+		List<GrantedAuthority> newAuthorities = new ArrayList<>();
 
 		for (ConfigAttribute attribute : attributes) {
 			if (this.supports(attribute)) {

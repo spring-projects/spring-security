@@ -37,7 +37,7 @@ public class UserAttributeEditor extends PropertyEditorSupport {
 			String[] tokens = StringUtils.commaDelimitedListToStringArray(s);
 			UserAttribute userAttrib = new UserAttribute();
 
-			List<String> authoritiesAsStrings = new ArrayList<String>();
+			List<String> authoritiesAsStrings = new ArrayList<>();
 
 			for (int i = 0; i < tokens.length; i++) {
 				String currentToken = tokens[i].trim();

@@ -56,7 +56,7 @@ class CollectionFilterer<T> implements Filterer<T> {
 		// to the method may not necessarily be re-constructable (as
 		// the Collection(collection) constructor is not guaranteed and
 		// manually adding may lose sort order or other capabilities)
-		removeList = new HashSet<T>();
+		removeList = new HashSet<>();
 	}
 
 	// ~ Methods

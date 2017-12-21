@@ -57,7 +57,7 @@ public class FilterChainBeanDefinitionParser implements BeanDefinitionParser {
 		}
 		else {
 			String[] filterBeanNames = StringUtils.tokenizeToStringArray(filters, ",");
-			ManagedList<RuntimeBeanReference> filterChain = new ManagedList<RuntimeBeanReference>(
+			ManagedList<RuntimeBeanReference> filterChain = new ManagedList<>(
 					filterBeanNames.length);
 
 			for (String name : filterBeanNames) {

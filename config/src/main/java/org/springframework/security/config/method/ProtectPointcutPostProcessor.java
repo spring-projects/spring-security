@@ -64,9 +64,9 @@ final class ProtectPointcutPostProcessor implements BeanPostProcessor {
 
 	private final Map<String, List<ConfigAttribute>> pointcutMap = new LinkedHashMap<String, List<ConfigAttribute>>();
 	private final MapBasedMethodSecurityMetadataSource mapBasedMethodSecurityMetadataSource;
-	private final Set<PointcutExpression> pointCutExpressions = new LinkedHashSet<PointcutExpression>();
+	private final Set<PointcutExpression> pointCutExpressions = new LinkedHashSet<>();
 	private final PointcutParser parser;
-	private final Set<String> processedBeans = new HashSet<String>();
+	private final Set<String> processedBeans = new HashSet<>();
 
 	public ProtectPointcutPostProcessor(
 			MapBasedMethodSecurityMetadataSource mapBasedMethodSecurityMetadataSource) {
@@ -75,7 +75,7 @@ final class ProtectPointcutPostProcessor implements BeanPostProcessor {
 		this.mapBasedMethodSecurityMetadataSource = mapBasedMethodSecurityMetadataSource;
 
 		// Set up AspectJ pointcut expression parser
-		Set<PointcutPrimitive> supportedPrimitives = new HashSet<PointcutPrimitive>(3);
+		Set<PointcutPrimitive> supportedPrimitives = new HashSet<>(3);
 		supportedPrimitives.add(PointcutPrimitive.EXECUTION);
 		supportedPrimitives.add(PointcutPrimitive.ARGS);
 		supportedPrimitives.add(PointcutPrimitive.REFERENCE);

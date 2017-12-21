@@ -48,7 +48,7 @@ public class HeaderWriterFilterTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void noHeadersConfigured() throws Exception {
-		List<HeaderWriter> headerWriters = new ArrayList<HeaderWriter>();
+		List<HeaderWriter> headerWriters = new ArrayList<>();
 		new HeaderWriterFilter(headerWriters);
 	}
 
@@ -59,7 +59,7 @@ public class HeaderWriterFilterTests {
 
 	@Test
 	public void additionalHeadersShouldBeAddedToTheResponse() throws Exception {
-		List<HeaderWriter> headerWriters = new ArrayList<HeaderWriter>();
+		List<HeaderWriter> headerWriters = new ArrayList<>();
 		headerWriters.add(writer1);
 		headerWriters.add(writer2);
 

@@ -47,7 +47,7 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper implements
 	 * Map the given array of attributes to Spring Security GrantedAuthorities.
 	 */
 	public List<GrantedAuthority> getGrantedAuthorities(Collection<String> attributes) {
-		ArrayList<GrantedAuthority> gaList = new ArrayList<GrantedAuthority>();
+		ArrayList<GrantedAuthority> gaList = new ArrayList<>();
 		for (String attribute : attributes) {
 			Collection<GrantedAuthority> c = attributes2grantedAuthoritiesMap
 					.get(attribute);
@@ -107,7 +107,7 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper implements
 	 * @return Collection containing the GrantedAuthority Collection
 	 */
 	private Collection<GrantedAuthority> getGrantedAuthorityCollection(Object value) {
-		Collection<GrantedAuthority> result = new ArrayList<GrantedAuthority>();
+		Collection<GrantedAuthority> result = new ArrayList<>();
 		addGrantedAuthorityCollection(result, value);
 		return result;
 	}

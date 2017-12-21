@@ -24,8 +24,8 @@ import java.util.*;
  * @author Luke Taylor
  */
 public class BeanNameCollectingPostProcessor implements BeanPostProcessor {
-	Set<String> beforeInitPostProcessedBeans = new HashSet<String>();
-	Set<String> afterInitPostProcessedBeans = new HashSet<String>();
+	Set<String> beforeInitPostProcessedBeans = new HashSet<>();
+	Set<String> afterInitPostProcessedBeans = new HashSet<>();
 
 	public Object postProcessBeforeInitialization(Object bean, String beanName)
 			throws BeansException {

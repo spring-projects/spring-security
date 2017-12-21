@@ -370,7 +370,7 @@ class HttpConfigurationBuilder {
 		boolean sessionFixationProtectionRequired = !sessionFixationAttribute
 				.equals(OPT_SESSION_FIXATION_NO_PROTECTION);
 
-		ManagedList<BeanMetadataElement> delegateSessionStrategies = new ManagedList<BeanMetadataElement>();
+		ManagedList<BeanMetadataElement> delegateSessionStrategies = new ManagedList<>();
 		BeanDefinitionBuilder concurrentSessionStrategy;
 		BeanDefinitionBuilder sessionFixationStrategy = null;
 		BeanDefinitionBuilder registerSessionStrategy;
@@ -601,7 +601,7 @@ class HttpConfigurationBuilder {
 				metadataSourceBldr.getBeanDefinition());
 		RootBeanDefinition channelDecisionManager = new RootBeanDefinition(
 				ChannelDecisionManagerImpl.class);
-		ManagedList<RootBeanDefinition> channelProcessors = new ManagedList<RootBeanDefinition>(
+		ManagedList<RootBeanDefinition> channelProcessors = new ManagedList<>(
 				3);
 		RootBeanDefinition secureChannelProcessor = new RootBeanDefinition(
 				SecureChannelProcessor.class);
@@ -639,7 +639,7 @@ class HttpConfigurationBuilder {
 	 */
 	private ManagedMap<BeanMetadataElement, BeanDefinition> parseInterceptUrlsForChannelSecurity() {
 
-		ManagedMap<BeanMetadataElement, BeanDefinition> channelRequestMap = new ManagedMap<BeanMetadataElement, BeanDefinition>();
+		ManagedMap<BeanMetadataElement, BeanDefinition> channelRequestMap = new ManagedMap<>();
 
 		for (Element urlElt : interceptUrls) {
 			String path = urlElt.getAttribute(ATT_PATH_PATTERN);
@@ -719,7 +719,7 @@ class HttpConfigurationBuilder {
 				.createSecurityMetadataSource(interceptUrls, addAllAuth, httpElt, pc);
 
 		RootBeanDefinition accessDecisionMgr;
-		ManagedList<BeanDefinition> voters = new ManagedList<BeanDefinition>(2);
+		ManagedList<BeanDefinition> voters = new ManagedList<>(2);
 
 		if (useExpressions) {
 			BeanDefinitionBuilder expressionVoter = BeanDefinitionBuilder
@@ -820,7 +820,7 @@ class HttpConfigurationBuilder {
 	}
 
 	List<OrderDecorator> getFilters() {
-		List<OrderDecorator> filters = new ArrayList<OrderDecorator>();
+		List<OrderDecorator> filters = new ArrayList<>();
 
 		if (cpf != null) {
 			filters.add(new OrderDecorator(cpf, CHANNEL_FILTER));

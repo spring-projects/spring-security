@@ -116,8 +116,8 @@ public final class DelegatingSecurityContextCallable<V> implements Callable<V> {
 	 */
 	public static <V> Callable<V> create(Callable<V> delegate,
 			SecurityContext securityContext) {
-		return securityContext == null ? new DelegatingSecurityContextCallable<V>(
-				delegate) : new DelegatingSecurityContextCallable<V>(delegate,
+		return securityContext == null ? new DelegatingSecurityContextCallable<>(
+				delegate) : new DelegatingSecurityContextCallable<>(delegate,
 				securityContext);
 	}
 }

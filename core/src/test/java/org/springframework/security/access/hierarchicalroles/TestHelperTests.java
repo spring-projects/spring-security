@@ -85,22 +85,22 @@ public class TestHelperTests {
 		Collection<GrantedAuthority> authorities5 = AuthorityUtils.createAuthorityList(
 				"ROLE_A", "ROLE_A");
 
-		List<String> authoritiesStrings1 = new ArrayList<String>();
+		List<String> authoritiesStrings1 = new ArrayList<>();
 		authoritiesStrings1.add("ROLE_A");
 		authoritiesStrings1.add("ROLE_B");
 
-		List<String> authoritiesStrings2 = new ArrayList<String>();
+		List<String> authoritiesStrings2 = new ArrayList<>();
 		authoritiesStrings2.add("ROLE_B");
 		authoritiesStrings2.add("ROLE_A");
 
-		List<String> authoritiesStrings3 = new ArrayList<String>();
+		List<String> authoritiesStrings3 = new ArrayList<>();
 		authoritiesStrings3.add("ROLE_A");
 		authoritiesStrings3.add("ROLE_C");
 
-		List<String> authoritiesStrings4 = new ArrayList<String>();
+		List<String> authoritiesStrings4 = new ArrayList<>();
 		authoritiesStrings4.add("ROLE_A");
 
-		List<String> authoritiesStrings5 = new ArrayList<String>();
+		List<String> authoritiesStrings5 = new ArrayList<>();
 		authoritiesStrings5.add("ROLE_A");
 		authoritiesStrings5.add("ROLE_A");
 

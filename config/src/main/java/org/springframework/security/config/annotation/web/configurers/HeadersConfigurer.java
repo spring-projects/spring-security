@@ -62,7 +62,7 @@ import org.springframework.util.Assert;
  */
 public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 		AbstractHttpConfigurer<HeadersConfigurer<H>, H> {
-	private List<HeaderWriter> headerWriters = new ArrayList<HeaderWriter>();
+	private List<HeaderWriter> headerWriters = new ArrayList<>();
 
 	// --- default header writers ---
 
@@ -766,7 +766,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 	 * @return
 	 */
 	private List<HeaderWriter> getHeaderWriters() {
-		List<HeaderWriter> writers = new ArrayList<HeaderWriter>();
+		List<HeaderWriter> writers = new ArrayList<>();
 		addIfNotNull(writers, contentTypeOptions.writer);
 		addIfNotNull(writers, xssProtection.writer);
 		addIfNotNull(writers, cacheControl.writer);

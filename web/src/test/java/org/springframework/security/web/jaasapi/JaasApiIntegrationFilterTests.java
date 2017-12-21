@@ -122,7 +122,7 @@ public class JaasApiIntegrationFilterTests {
 			public AppConfigurationEntry[] getAppConfigurationEntry(String name) {
 				return new AppConfigurationEntry[] { new AppConfigurationEntry(
 						TestLoginModule.class.getName(), LoginModuleControlFlag.REQUIRED,
-						new HashMap<String, String>()) };
+						new HashMap<>()) };
 			}
 		};
 		LoginContext ctx = new LoginContext("SubjectDoAsFilterTest", authenticatedSubject,

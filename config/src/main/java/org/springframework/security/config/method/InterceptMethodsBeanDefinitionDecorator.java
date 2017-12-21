@@ -88,7 +88,7 @@ class InternalInterceptMethodsBeanDefinitionDecorator extends
 		// Parse the included methods
 		List<Element> methods = DomUtils.getChildElementsByTagName(interceptMethodsElt,
 				Elements.PROTECT);
-		Map<String, BeanDefinition> mappings = new ManagedMap<String, BeanDefinition>();
+		Map<String, BeanDefinition> mappings = new ManagedMap<>();
 
 		for (Element protectmethodElt : methods) {
 			BeanDefinitionBuilder attributeBuilder = BeanDefinitionBuilder

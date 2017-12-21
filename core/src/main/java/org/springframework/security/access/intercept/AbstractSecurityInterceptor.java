@@ -161,7 +161,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
 				return;
 			}
 
-			Set<ConfigAttribute> unsupportedAttrs = new HashSet<ConfigAttribute>();
+			Set<ConfigAttribute> unsupportedAttrs = new HashSet<>();
 
 			for (ConfigAttribute attr : attributeDefs) {
 				if (!this.runAsManager.supports(attr)

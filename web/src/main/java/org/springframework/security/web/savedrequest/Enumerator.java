@@ -92,7 +92,7 @@ public class Enumerator<T> implements Enumeration<T> {
 			this.iterator = iterator;
 		}
 		else {
-			List<T> list = new ArrayList<T>();
+			List<T> list = new ArrayList<>();
 
 			while (iterator.hasNext()) {
 				list.add(iterator.next());

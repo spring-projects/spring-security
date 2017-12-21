@@ -95,7 +95,7 @@ public final class SecurityJackson2Modules {
 	 * @return List of available security modules in classpath.
 	 */
 	public static List<Module> getModules(ClassLoader loader) {
-		List<Module> modules = new ArrayList<Module>();
+		List<Module> modules = new ArrayList<>();
 		for (String className : securityJackson2ModuleClasses) {
 			Module module = loadAndGetInstance(className, loader);
 			if (module != null) {

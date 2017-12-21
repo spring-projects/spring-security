@@ -47,7 +47,7 @@ final class DigestAuthUtils {
 			return EMPTY_STRING_ARRAY;
 		}
 
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		int i = 0;
 		int start = 0;
 		boolean match = false;
@@ -158,7 +158,7 @@ final class DigestAuthUtils {
 			return null;
 		}
 
-		Map<String, String> map = new HashMap<String, String>();
+		Map<String, String> map = new HashMap<>();
 
 		for (String s : array) {
 			String postRemove;

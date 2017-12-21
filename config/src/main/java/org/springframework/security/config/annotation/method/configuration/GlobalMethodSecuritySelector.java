@@ -61,7 +61,7 @@ final class GlobalMethodSecuritySelector implements ImportSelector {
 
 		boolean jsr250Enabled = attributes.getBoolean("jsr250Enabled");
 
-		List<String> classNames = new ArrayList<String>(4);
+		List<String> classNames = new ArrayList<>(4);
 		if(isProxy) {
 			classNames.add(MethodSecurityMetadataSourceAdvisorRegistrar.class.getName());
 		}

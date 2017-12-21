@@ -62,7 +62,7 @@ public class SecurityMockWithAuthoritiesMvcResultMatchersTests {
 
 	@Test
 	public void withAuthoritiesNotOrderSensitive() throws Exception {
-		List<SimpleGrantedAuthority> grantedAuthorities = new ArrayList<SimpleGrantedAuthority>();
+		List<SimpleGrantedAuthority> grantedAuthorities = new ArrayList<>();
 		grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
 		grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_SELLER"));
 		mockMvc.perform(formLogin())
@@ -71,7 +71,7 @@ public class SecurityMockWithAuthoritiesMvcResultMatchersTests {
 
 	@Test(expected = AssertionError.class)
 	public void withAuthoritiesFailsIfNotAllRoles() throws Exception {
-		List<SimpleGrantedAuthority> grantedAuthorities = new ArrayList<SimpleGrantedAuthority>();
+		List<SimpleGrantedAuthority> grantedAuthorities = new ArrayList<>();
 		grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
 		mockMvc.perform(formLogin()).andExpect(authenticated().withAuthorities(grantedAuthorities));
 	}

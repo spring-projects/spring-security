@@ -24,7 +24,7 @@ import java.util.List;
  */
 class ConcereteSecurityConfigurerAdapter extends
 		SecurityConfigurerAdapter<Object, SecurityBuilder<Object>> {
-	private List<Object> list = new ArrayList<Object>();
+	private List<Object> list = new ArrayList<>();
 
 	@Override
 	public void configure(SecurityBuilder<Object> builder) throws Exception {

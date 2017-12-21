@@ -48,7 +48,7 @@ public class MessageJsonController {
 	@RequestMapping
 	public ResponseEntity<Iterable<Message>> list() {
 		Iterable<Message> messages = messageRepository.findAll();
-		return new ResponseEntity<Iterable<Message>>(messages, HttpStatus.OK);
+		return new ResponseEntity<>(messages, HttpStatus.OK);
 	}
 
 	@RequestMapping("{id}")
@@ -61,13 +61,13 @@ public class MessageJsonController {
 	public ResponseEntity<?> create(@Valid @RequestBody Message message,
 			BindingResult result, RedirectAttributes redirect) {
 		if (result.hasErrors()) {
-			List<String> errors = new ArrayList<String>(result.getErrorCount());
+			List<String> errors = new ArrayList<>(result.getErrorCount());
 			for (ObjectError r : result.getAllErrors()) {
 				errors.add(r.getDefaultMessage());
 			}
-			return new ResponseEntity<List<String>>(errors, HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
 		}
 		message = messageRepository.save(message);
-		return new ResponseEntity<Message>(message, HttpStatus.OK);
+		return new ResponseEntity<>(message, HttpStatus.OK);
 	}
 }
