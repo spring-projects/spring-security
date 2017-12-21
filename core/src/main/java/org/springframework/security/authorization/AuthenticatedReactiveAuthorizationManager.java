@@ -20,8 +20,13 @@ import org.springframework.security.core.Authentication;
 import reactor.core.publisher.Mono;
 
 /**
+ * A {@link ReactiveAuthorizationManager} that determines if the current user is
+ * authenticated.
+ *
  * @author Rob Winch
  * @since 5.0
+ * @param <T> The type of object authorization is being performed against. This does not
+ * matter since the authorization decision does not use the object.
  */
 public class AuthenticatedReactiveAuthorizationManager<T> implements ReactiveAuthorizationManager<T> {
 
@@ -32,6 +37,11 @@ public class AuthenticatedReactiveAuthorizationManager<T> implements ReactiveAut
 			.defaultIfEmpty(new AuthorizationDecision(false));
 	}
 
+	/**
+	 * Gets an instance of {@link AuthenticatedReactiveAuthorizationManager}
+	 * @param <T>
+	 * @return
+	 */
 	public static <T> AuthenticatedReactiveAuthorizationManager<T> authenticated() {
 		return new AuthenticatedReactiveAuthorizationManager<>();
 	}

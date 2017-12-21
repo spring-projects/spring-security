@@ -21,8 +21,12 @@ import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
 
 /**
+ * A {@link ReactiveAuthorizationManager} that determines if the current user is
+ * authorized by evaluating if the {@link Authentication} contains a specified authority.
+ *
  * @author Rob Winch
  * @since 5.0
+ * @param <T> the type of object being authorized
  */
 public class AuthorityReactiveAuthorizationManager<T> implements ReactiveAuthorizationManager<T> {
 	private final String authority;
@@ -42,11 +46,27 @@ public class AuthorityReactiveAuthorizationManager<T> implements ReactiveAuthori
 			.defaultIfEmpty(new AuthorizationDecision(false));
 	}
 
+	/**
+	 * Creates an instance of {@link AuthorityReactiveAuthorizationManager} with the
+	 * provided authority.
+	 *
+	 * @param authority the authority to check for
+	 * @param <T> the type of object being authorized
+	 * @return the new instance
+	 */
 	public static <T> AuthorityReactiveAuthorizationManager<T> hasAuthority(String authority) {
 		Assert.notNull(authority, "authority cannot be null");
 		return new AuthorityReactiveAuthorizationManager<>(authority);
 	}
 
+	/**
+	 * Creates an instance of {@link AuthorityReactiveAuthorizationManager} with the
+	 * provided authority.
+	 *
+	 * @param role the authority to check for prefixed with "ROLE_"
+	 * @param <T> the type of object being authorized
+	 * @return the new instance
+	 */
 	public static <T> AuthorityReactiveAuthorizationManager<T> hasRole(String role) {
 		Assert.notNull(role, "role cannot be null");
 		return hasAuthority("ROLE_" + role);
