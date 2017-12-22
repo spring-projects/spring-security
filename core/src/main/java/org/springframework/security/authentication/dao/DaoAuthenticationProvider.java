@@ -58,7 +58,7 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 	 * {@link PasswordEncoder} implementations will short circuit if the password is not
 	 * in a valid format.
 	 */
-	private String userNotFoundEncodedPassword;
+	private volatile String userNotFoundEncodedPassword;
 
 	private UserDetailsService userDetailsService;
 
@@ -94,34 +94,43 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 
 	protected void doAfterPropertiesSet() throws Exception {
 		Assert.notNull(this.userDetailsService, "A UserDetailsService must be set");
-		this.userNotFoundEncodedPassword = this.passwordEncoder.encode(USER_NOT_FOUND_PASSWORD);
 	}
 
 	protected final UserDetails retrieveUser(String username,
 			UsernamePasswordAuthenticationToken authentication)
 			throws AuthenticationException {
-		UserDetails loadedUser;
-
+		prepareTimingAttackProtection();
 		try {
-			loadedUser = this.getUserDetailsService().loadUserByUsername(username);
-		}
-		catch (UsernameNotFoundException notFound) {
-			if (authentication.getCredentials() != null) {
-				String presentedPassword = authentication.getCredentials().toString();
-				passwordEncoder.matches(presentedPassword, userNotFoundEncodedPassword);
+			UserDetails loadedUser = this.getUserDetailsService().loadUserByUsername(username);
+			if (loadedUser == null) {
+				throw new InternalAuthenticationServiceException(
+						"UserDetailsService returned null, which is an interface contract violation");
 			}
-			throw notFound;
+			return loadedUser;
 		}
-		catch (Exception repositoryProblem) {
-			throw new InternalAuthenticationServiceException(
-					repositoryProblem.getMessage(), repositoryProblem);
+		catch (UsernameNotFoundException ex) {
+			mitigateAgainstTimingAttack(authentication);
+			throw ex;
 		}
+		catch (InternalAuthenticationServiceException ex) {
+			throw ex;
+		}
+		catch (Exception ex) {
+			throw new InternalAuthenticationServiceException(ex.getMessage(), ex);
+		}
+	}
 
-		if (loadedUser == null) {
-			throw new InternalAuthenticationServiceException(
-					"UserDetailsService returned null, which is an interface contract violation");
+	private void prepareTimingAttackProtection() {
+		if (this.userNotFoundEncodedPassword == null) {
+			this.userNotFoundEncodedPassword = this.passwordEncoder.encode(USER_NOT_FOUND_PASSWORD);
 		}
-		return loadedUser;
+	}
+
+	private void mitigateAgainstTimingAttack(UsernamePasswordAuthenticationToken authentication) {
+		if (authentication.getCredentials() != null) {
+			String presentedPassword = authentication.getCredentials().toString();
+			this.passwordEncoder.matches(presentedPassword, this.userNotFoundEncodedPassword);
+		}
 	}
 
 	/**
