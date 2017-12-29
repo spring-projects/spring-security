@@ -22,6 +22,11 @@ The following provides information on setting up a development environment that 
 * Importing the project into Spring Tool Suite
   * File->Import...->Gradle Project
 
+As of new versions of Spring Tool Suite, you might need to install Groovy Eclipse pointing directly to the updates plugin location. To install Groovy Eclipse on Spring Tool Suite based on Eclipse Oxigen you must do the following steps:
+
+Help->Install New Software...->Add the following URL into _Work with_ field:
+http://dist.springsource.org/snapshot/GRECLIPSE/e4.7/
+
 # Understand the basics 
 Not sure what a pull request is, or how to submit one? Take a look at GitHub's excellent [help documentation first](https://help.github.com/articles/using-pull-requests).
 
