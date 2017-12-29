@@ -21,11 +21,13 @@ import org.json.JSONException;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,6 +54,7 @@ public class SecurityContextMixinTests extends AbstractMixinTests {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void securityContextDeserializeTest() throws IOException {
 		SecurityContext context = mapper.readValue(SECURITY_CONTEXT_JSON, SecurityContextImpl.class);
 		assertThat(context).isNotNull();
@@ -59,6 +62,8 @@ public class SecurityContextMixinTests extends AbstractMixinTests {
 		assertThat(context.getAuthentication().getPrincipal()).isEqualTo("admin");
 		assertThat(context.getAuthentication().getCredentials()).isEqualTo("1234");
 		assertThat(context.getAuthentication().isAuthenticated()).isTrue();
-		assertThat(context.getAuthentication().getAuthorities()).hasSize(1).contains(new SimpleGrantedAuthority("ROLE_USER"));
+
+		Collection<GrantedAuthority> authorities = (Collection<GrantedAuthority>) context.getAuthentication().getAuthorities();
+		assertThat(authorities).hasSize(1).contains(new SimpleGrantedAuthority("ROLE_USER"));
 	}
 }

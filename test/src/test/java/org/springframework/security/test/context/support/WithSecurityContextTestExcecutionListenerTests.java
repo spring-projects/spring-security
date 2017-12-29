@@ -83,7 +83,7 @@ public class WithSecurityContextTestExcecutionListenerTests {
 	}
 
 	@Test
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "rawtypes" })
 	public void beforeTestMethodNoApplicationContext() throws Exception {
 		Class testClass = FakeTest.class;
 		when(testContext.getApplicationContext()).thenThrow(new IllegalStateException());
@@ -101,7 +101,7 @@ public class WithSecurityContextTestExcecutionListenerTests {
 		SqlScriptsTestExecutionListener sql = new SqlScriptsTestExecutionListener();
 		WithSecurityContextTestExecutionListener security = new WithSecurityContextTestExecutionListener();
 
-		List<? extends TestExecutionListener> listeners = Arrays.asList(security, sql);
+		List<TestExecutionListener> listeners = Arrays.asList(security, sql);
 
 		AnnotationAwareOrderComparator.sort(listeners);
 

@@ -128,6 +128,7 @@ public class CasAuthenticationTokenMixinTests {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void deserializeCasAuthenticationTest() throws IOException, JSONException {
 		CasAuthenticationToken token = mapper.readValue(CAS_TOKEN_JSON, CasAuthenticationToken.class);
 		assertThat(token).isNotNull();
@@ -137,7 +138,10 @@ public class CasAuthenticationTokenMixinTests {
 		assertThat(token.getUserDetails()).isNotNull().isInstanceOf(User.class);
 		assertThat(token.getAssertion()).isNotNull().isInstanceOf(AssertionImpl.class);
 		assertThat(token.getKeyHash()).isEqualTo(KEY.hashCode());
-		assertThat(token.getUserDetails().getAuthorities()).hasSize(1).contains(new SimpleGrantedAuthority("ROLE_USER"));
+
+		Collection<GrantedAuthority> authorities = (Collection<GrantedAuthority>) token.getUserDetails().getAuthorities();
+		assertThat(authorities).hasSize(1).contains(new SimpleGrantedAuthority("ROLE_USER"));
+
 		assertThat(token.getAssertion().getAuthenticationDate()).isEqualTo(START_DATE);
 		assertThat(token.getAssertion().getValidFromDate()).isEqualTo(START_DATE);
 		assertThat(token.getAssertion().getValidUntilDate()).isEqualTo(END_DATE);

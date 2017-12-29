@@ -44,11 +44,10 @@ public class DelegatingOAuth2UserServiceTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	@SuppressWarnings("unchecked")
 	public void loadUserWhenUserRequestIsNullThenThrowIllegalArgumentException() {
 		DelegatingOAuth2UserService<OAuth2UserRequest, OAuth2User> delegatingUserService =
 			new DelegatingOAuth2UserService<>(
-				Arrays.asList(mock(OAuth2UserService.class), mock(OAuth2UserService.class)));
+				Arrays.asList(mock(DefaultOAuth2UserService.class), mock(DefaultOAuth2UserService.class)));
 		delegatingUserService.loadUser(null);
 	}
 
