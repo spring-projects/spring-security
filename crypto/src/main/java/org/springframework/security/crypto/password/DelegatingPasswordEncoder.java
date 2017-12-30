@@ -116,6 +116,7 @@ import java.util.Map;
  * @see org.springframework.security.crypto.factory.PasswordEncoderFactories
  *
  * @author Rob Winch
+ * @author Michael Simons
  * @since 5.0
  */
 public class DelegatingPasswordEncoder implements PasswordEncoder {
@@ -190,7 +191,11 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 			return true;
 		}
 		String id = extractId(prefixEncodedPassword);
-		PasswordEncoder delegate = this.idToPasswordEncoder.get(id);
+		PasswordEncoder delegate = null;
+		try {
+			delegate = this.idToPasswordEncoder.get(id);
+		} catch(NullPointerException e) {
+		}
 		if(delegate == null) {
 			return this.defaultPasswordEncoderForMatches
 				.matches(rawPassword, prefixEncodedPassword);
