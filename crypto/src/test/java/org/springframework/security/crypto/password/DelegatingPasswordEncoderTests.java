@@ -33,6 +33,7 @@ import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
+ * @author Michael Simons
  * @since 5.0
  */
 @RunWith(MockitoJUnitRunner.class)
@@ -45,6 +46,9 @@ public class DelegatingPasswordEncoderTests {
 
 	@Mock
 	private PasswordEncoder invalidId;
+
+	@Mock
+	private Map<String, PasswordEncoder> throwingDelegates;
 
 	private String bcryptId = "bcrypt";
 
@@ -161,6 +165,21 @@ public class DelegatingPasswordEncoderTests {
 	@Test
 	public void matchesWhenPrefixInMiddleThenFalse() {
 		assertThatThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "invalid" + this.bcryptEncodedPassword))
+			.isInstanceOf(IllegalArgumentException.class)
+			.hasMessage("There is no PasswordEncoder mapped for the id \"null\"");
+
+		verifyZeroInteractions(this.bcrypt, this.noop);
+	}
+
+	@Test
+	public void matchesWhenIdIsNullThenFalse() {
+		when(this.throwingDelegates.containsKey(this.bcryptId)).thenReturn(true);
+		when(this.throwingDelegates.get(this.bcryptId)).thenReturn(this.bcrypt);
+		when(this.throwingDelegates.get(null)).thenThrow(NullPointerException.class);
+
+		DelegatingPasswordEncoder passwordEncoder = new DelegatingPasswordEncoder(this.bcryptId, throwingDelegates);
+
+		assertThatThrownBy(() -> passwordEncoder.matches(this.rawPassword, this.rawPassword))
 			.isInstanceOf(IllegalArgumentException.class)
 			.hasMessage("There is no PasswordEncoder mapped for the id \"null\"");
 
