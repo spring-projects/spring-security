@@ -26,6 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.lang.annotation.*;
+import java.util.HashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -85,6 +86,14 @@ public class SecurityJackson2ModulesTests {
 		String content = "{\"@class\":\"org.springframework.security.jackson2.SecurityJackson2ModulesTests$NotWhitelisted\",\"property\":\"bar\"}";
 
 		assertThat(mapper.readValue(content, Object.class)).isInstanceOf(NotWhitelisted.class);
+	}
+
+	@Test
+	public void readValueWhenHashMapThenReadsAsSpecificType() throws Exception {
+		mapper.addMixIn(NotWhitelisted.class, NotWhitelistedMixin.class);
+		String content = "{\"@class\":\"java.util.HashMap\"}";
+
+		assertThat(mapper.readValue(content, Object.class)).isInstanceOf(HashMap.class);
 	}
 
 	@Target({ ElementType.TYPE, ElementType.ANNOTATION_TYPE })
