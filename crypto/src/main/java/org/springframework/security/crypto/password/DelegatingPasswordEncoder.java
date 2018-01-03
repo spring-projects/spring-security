@@ -16,6 +16,7 @@
 
 package org.springframework.security.crypto.password;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -155,7 +156,7 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 		}
 		this.idForEncode = idForEncode;
 		this.passwordEncoderForEncode = idToPasswordEncoder.get(idForEncode);
-		this.idToPasswordEncoder = idToPasswordEncoder;
+		this.idToPasswordEncoder = new HashMap<>(idToPasswordEncoder);
 	}
 
 	/**
@@ -191,11 +192,7 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 			return true;
 		}
 		String id = extractId(prefixEncodedPassword);
-		PasswordEncoder delegate = null;
-		try {
-			delegate = this.idToPasswordEncoder.get(id);
-		} catch(NullPointerException e) {
-		}
+		PasswordEncoder delegate = this.idToPasswordEncoder.get(id);
 		if(delegate == null) {
 			return this.defaultPasswordEncoderForMatches
 				.matches(rawPassword, prefixEncodedPassword);

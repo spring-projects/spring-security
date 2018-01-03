@@ -23,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,9 +47,6 @@ public class DelegatingPasswordEncoderTests {
 
 	@Mock
 	private PasswordEncoder invalidId;
-
-	@Mock
-	private Map<String, PasswordEncoder> throwingDelegates;
 
 	private String bcryptId = "bcrypt";
 
@@ -173,11 +171,9 @@ public class DelegatingPasswordEncoderTests {
 
 	@Test
 	public void matchesWhenIdIsNullThenFalse() {
-		when(this.throwingDelegates.containsKey(this.bcryptId)).thenReturn(true);
-		when(this.throwingDelegates.get(this.bcryptId)).thenReturn(this.bcrypt);
-		when(this.throwingDelegates.get(null)).thenThrow(NullPointerException.class);
+		this.delegates = new Hashtable<>(this.delegates);
 
-		DelegatingPasswordEncoder passwordEncoder = new DelegatingPasswordEncoder(this.bcryptId, throwingDelegates);
+		DelegatingPasswordEncoder passwordEncoder = new DelegatingPasswordEncoder(this.bcryptId, this.delegates);
 
 		assertThatThrownBy(() -> passwordEncoder.matches(this.rawPassword, this.rawPassword))
 			.isInstanceOf(IllegalArgumentException.class)
