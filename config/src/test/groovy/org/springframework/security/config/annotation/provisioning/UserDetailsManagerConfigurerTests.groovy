@@ -32,8 +32,10 @@ import spock.lang.Specification
 class UserDetailsManagerConfigurerTests extends Specification {
 
 	def "all attributes supported"() {
+		setup:
+			InMemoryUserDetailsManager userDetailsManager = new InMemoryUserDetailsManager([])
 		when:
-			UserDetails userDetails = new InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder>()
+			UserDetails userDetails = new UserDetailsManagerConfigurer<AuthenticationManagerBuilder, InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder>>(userDetailsManager)
 				.withUser("user")
 					.password("password")
 					.roles("USER")
@@ -54,9 +56,10 @@ class UserDetailsManagerConfigurerTests extends Specification {
 
 	def "authorities(GrantedAuthorities...) works"() {
 		setup:
+			InMemoryUserDetailsManager userDetailsManager = new InMemoryUserDetailsManager([])
 			SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_USER")
 		when:
-			UserDetails userDetails = new InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder>()
+			UserDetails userDetails = new UserDetailsManagerConfigurer<AuthenticationManagerBuilder, InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder>>(userDetailsManager)
 				.withUser("user")
 					.password("password")
 					.authorities(authority)
@@ -67,9 +70,10 @@ class UserDetailsManagerConfigurerTests extends Specification {
 
 	def "authorities(String...) works"() {
 		setup:
+		InMemoryUserDetailsManager userDetailsManager = new InMemoryUserDetailsManager([])
 			String authority = "ROLE_USER"
 		when:
-			UserDetails userDetails = new InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder>()
+			UserDetails userDetails = new UserDetailsManagerConfigurer<AuthenticationManagerBuilder, InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder>>(userDetailsManager)
 				.withUser("user")
 					.password("password")
 					.authorities(authority)
@@ -81,9 +85,10 @@ class UserDetailsManagerConfigurerTests extends Specification {
 
 	def "authorities(List) works"() {
 		setup:
+			InMemoryUserDetailsManager userDetailsManager = new InMemoryUserDetailsManager([])
 			SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_USER")
 		when:
-			UserDetails userDetails = new InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder>()
+			UserDetails userDetails = new UserDetailsManagerConfigurer<AuthenticationManagerBuilder, InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder>>(userDetailsManager)
 				.withUser("user")
 					.password("password")
 					.authorities([authority])
