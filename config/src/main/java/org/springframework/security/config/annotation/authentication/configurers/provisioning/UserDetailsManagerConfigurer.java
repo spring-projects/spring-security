@@ -275,7 +275,7 @@ public class UserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B>, C
 			return this;
 		}
 
-		private UserDetails build() {
+		UserDetails build() {
 			return this.user.build();
 		}
 	}
