@@ -26,7 +26,7 @@ Finally, welcome to the Spring Security <<community,community>>.
 == Getting Started
 The later parts of this guide provide an in-depth discussion of the framework architecture and implementation classes, which you need to understand if you want to do any serious customization. In this part, we'll introduce Spring Security 4.0, give a brief overview of the project's history and take a slightly gentler look at how to get started using the framework. In particular, we'll look at namespace configuration which provides a much simpler way of securing your application compared to the traditional Spring bean approach where you have to wire up all the implementation classes individually.
 
-We'll also take a look at the sample applications that are available. It's worth trying to run these and experimenting with them a bit even before you read the later sections - you can dip back into them as your understanding of the framework increases. Please also check out the http://spring.io/spring-security[project website] as it has useful information on building the project, plus links to articles, videos and tutorials.
+We'll also take a look at the sample applications that are available. It's worth trying to run these and experimenting with them a bit even before you read the later sections - you can dip back into them as your understanding of the framework increases. Please also check out the https://projects.spring.io/spring-security/[project website] as it has useful information on building the project, plus links to articles, videos and tutorials.
 
 
 [[introduction]]
@@ -137,7 +137,7 @@ You should always test your application thoroughly before rolling out a new vers
 
 [[get-spring-security]]
 === Getting Spring Security
-You can get hold of Spring Security in several ways. You can download a packaged distribution from the main http://spring.io/spring-security[Spring Security] page, download individual jars from the Maven Central repository (or a Spring Maven repository for snapshot and milestone releases) or, alternatively, you can build the project from source yourself.
+You can get hold of Spring Security in several ways. You can download a packaged distribution from the main https://projects.spring.io/spring-security/[Spring Security] page, download individual jars from the Maven Central repository (or a Spring Maven repository for snapshot and milestone releases) or, alternatively, you can build the project from source yourself.
 
 [[maven]]
 ==== Usage with Maven
@@ -2711,7 +2711,7 @@ Another common requirement is that another bean in the context may require a ref
 
 [[sample-apps]]
 == Sample Applications
-There are several sample web applications that are available with the project. To avoid an overly large download, only the "tutorial" and "contacts" samples are included in the distribution zip file. The others can be built directly from the source which you can obtain as described in <<get-source,the introduction>>. It's easy to build the project yourself and there's more information on the project web site at http://spring.io/spring-security/[http://spring.io/spring-security/]. All paths referred to in this chapter are relative to the project source directory.
+There are several sample web applications that are available with the project. To avoid an overly large download, only the "tutorial" and "contacts" samples are included in the distribution zip file. The others can be built directly from the source which you can obtain as described in <<get-source,the introduction>>. It's easy to build the project yourself and there's more information on the project web site at https://projects.spring.io/spring-security/[https://projects.spring.io/spring-security/]. All paths referred to in this chapter are relative to the project source directory.
 
 
 [[tutorial-sample]]
