@@ -38,7 +38,7 @@ import java.lang.annotation.Target;
  * public class MyMinimalSecurityConfiguration {
  *
  *     &#064;Bean
- *     public MapReactiveUserDetailsService userDetailsRepository() {
+ *     public MapReactiveUserDetailsService userDetailsService() {
  *          UserDetails user = User.withDefaultPasswordEncoder()
  *               .username("user")
  *               .password("password")
@@ -66,7 +66,7 @@ import java.lang.annotation.Target;
  *     }
  *
  *     &#064;Bean
- *     public MapReactiveUserDetailsService userDetailsRepository() {
+ *     public MapReactiveUserDetailsService userDetailsService() {
  *          UserDetails user = User.withDefaultPasswordEncoder()
  *               .username("user")
  *               .password("password")

@@ -825,7 +825,7 @@ You can find a minimal WebFlux Security configuration below:
 public class HelloWebfluxSecurityConfig {
 
 	@Bean
-	public MapReactiveUserDetailsService userDetailsRepository() {
+	public MapReactiveUserDetailsService userDetailsService() {
 		UserDetails user = User.withDefaultPasswordEncoder()
 			.username("user")
 			.password("user")
@@ -850,7 +850,7 @@ You can find an explicit version of the minimal WebFlux Security configuration b
 public class HelloWebfluxSecurityConfig {
 
 	@Bean
-	public MapReactiveUserDetailsService userDetailsRepository() {
+	public MapReactiveUserDetailsService userDetailsService() {
 		UserDetails user = User.withDefaultPasswordEncoder()
 			.username("user")
 			.password("user")
@@ -1750,7 +1750,7 @@ Below is a minimal method security configuration when using method security in r
 @EnableReactiveMethodSecurity
 public class SecurityConfig {
 	@Bean
-	public MapReactiveUserDetailsService userDetailsRepository() {
+	public MapReactiveUserDetailsService userDetailsService() {
 		User.UserBuilder userBuilder = User.withDefaultPasswordEncoder();
 		UserDetails rob = userBuilder.username("rob").password("rob").roles("USER").build();
 		UserDetails admin = userBuilder.username("admin").password("admin").roles("USER","ADMIN").build();
@@ -1798,7 +1798,7 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	MapReactiveUserDetailsService userDetailsRepository() {
+	MapReactiveUserDetailsService userDetailsService() {
 		User.UserBuilder userBuilder = User.withDefaultPasswordEncoder();
 		UserDetails rob = userBuilder.username("rob").password("rob").roles("USER").build();
 		UserDetails admin = userBuilder.username("admin").password("admin").roles("USER","ADMIN").build();

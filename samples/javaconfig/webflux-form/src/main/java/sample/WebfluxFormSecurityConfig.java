@@ -32,7 +32,7 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 public class WebfluxFormSecurityConfig {
 
 	@Bean
-	public MapReactiveUserDetailsService userDetailsRepository() {
+	public MapReactiveUserDetailsService userDetailsService() {
 		UserDetails user = User.withDefaultPasswordEncoder()
 			.username("user")
 			.password("password")
