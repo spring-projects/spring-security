@@ -30,7 +30,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 public class HelloWebfluxSecurityConfig {
 
 	@Bean
-	public MapReactiveUserDetailsService userDetailsRepository() {
+	public MapReactiveUserDetailsService userDetailsService() {
 		UserDetails user = User.withDefaultPasswordEncoder()
 			.username("user")
 			.password("user")

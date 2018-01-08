@@ -56,9 +56,9 @@ public class ReactiveUserDetailsServiceAuthenticationManagerTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void constructorNullUserDetailsRepository() {
-		ReactiveUserDetailsService udr = null;
-		new UserDetailsRepositoryReactiveAuthenticationManager(udr);
+	public void constructorNullUserDetailsService() {
+		ReactiveUserDetailsService userDetailsService = null;
+		new UserDetailsRepositoryReactiveAuthenticationManager(userDetailsService);
 	}
 
 	@Test
