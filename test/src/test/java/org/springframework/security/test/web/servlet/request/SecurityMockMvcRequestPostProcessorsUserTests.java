@@ -24,6 +24,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 
 import java.util.Arrays;
+import java.util.Collection;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -106,6 +107,7 @@ public class SecurityMockMvcRequestPostProcessorsUserTests {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void userCustomAuthoritiesVarargs() {
 		String username = "customuser";
 
@@ -114,7 +116,11 @@ public class SecurityMockMvcRequestPostProcessorsUserTests {
 		verify(repository).saveContext(contextCaptor.capture(), eq(request),
 				any(HttpServletResponse.class));
 		SecurityContext context = contextCaptor.getValue();
-		assertThat(context.getAuthentication().getAuthorities()).containsOnly(authority1,
+
+		Collection<GrantedAuthority> authorities = (Collection<GrantedAuthority>) context
+				.getAuthentication().getAuthorities();
+
+		assertThat(authorities).containsOnly(authority1,
 				authority2);
 	}
 
@@ -124,6 +130,7 @@ public class SecurityMockMvcRequestPostProcessorsUserTests {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void userCustomAuthoritiesList() {
 		String username = "customuser";
 
@@ -133,7 +140,10 @@ public class SecurityMockMvcRequestPostProcessorsUserTests {
 		verify(repository).saveContext(contextCaptor.capture(), eq(request),
 				any(HttpServletResponse.class));
 		SecurityContext context = contextCaptor.getValue();
-		assertThat(context.getAuthentication().getAuthorities()).containsOnly(authority1,
+
+		Collection<GrantedAuthority> authorities = (Collection<GrantedAuthority>) context
+				.getAuthentication().getAuthorities();
+		assertThat(authorities).containsOnly(authority1,
 				authority2);
 	}
 

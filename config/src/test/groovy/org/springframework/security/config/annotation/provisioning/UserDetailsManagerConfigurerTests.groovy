@@ -15,6 +15,8 @@
  */
 package org.springframework.security.config.annotation.provisioning
 
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
+import org.springframework.security.config.annotation.authentication.configurers.provisioning.InMemoryUserDetailsManagerConfigurer
 import org.springframework.security.config.annotation.authentication.configurers.provisioning.UserDetailsManagerConfigurer;
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
@@ -33,7 +35,7 @@ class UserDetailsManagerConfigurerTests extends Specification {
 		setup:
 			InMemoryUserDetailsManager userDetailsManager = new InMemoryUserDetailsManager([])
 		when:
-			UserDetails userDetails = new UserDetailsManagerConfigurer<InMemoryUserDetailsManager,UserDetailsManagerConfigurer<InMemoryUserDetailsManager>>(userDetailsManager)
+			UserDetails userDetails = new UserDetailsManagerConfigurer<AuthenticationManagerBuilder, InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder>>(userDetailsManager)
 				.withUser("user")
 					.password("password")
 					.roles("USER")
@@ -57,7 +59,7 @@ class UserDetailsManagerConfigurerTests extends Specification {
 			InMemoryUserDetailsManager userDetailsManager = new InMemoryUserDetailsManager([])
 			SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_USER")
 		when:
-			UserDetails userDetails = new UserDetailsManagerConfigurer<InMemoryUserDetailsManager,UserDetailsManagerConfigurer<InMemoryUserDetailsManager>>(userDetailsManager)
+			UserDetails userDetails = new UserDetailsManagerConfigurer<AuthenticationManagerBuilder, InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder>>(userDetailsManager)
 				.withUser("user")
 					.password("password")
 					.authorities(authority)
@@ -68,10 +70,10 @@ class UserDetailsManagerConfigurerTests extends Specification {
 
 	def "authorities(String...) works"() {
 		setup:
-			InMemoryUserDetailsManager userDetailsManager = new InMemoryUserDetailsManager([])
+		InMemoryUserDetailsManager userDetailsManager = new InMemoryUserDetailsManager([])
 			String authority = "ROLE_USER"
 		when:
-			UserDetails userDetails = new UserDetailsManagerConfigurer<InMemoryUserDetailsManager,UserDetailsManagerConfigurer<InMemoryUserDetailsManager>>(userDetailsManager)
+			UserDetails userDetails = new UserDetailsManagerConfigurer<AuthenticationManagerBuilder, InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder>>(userDetailsManager)
 				.withUser("user")
 					.password("password")
 					.authorities(authority)
@@ -86,7 +88,7 @@ class UserDetailsManagerConfigurerTests extends Specification {
 			InMemoryUserDetailsManager userDetailsManager = new InMemoryUserDetailsManager([])
 			SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_USER")
 		when:
-			UserDetails userDetails = new UserDetailsManagerConfigurer<InMemoryUserDetailsManager,UserDetailsManagerConfigurer<InMemoryUserDetailsManager>>(userDetailsManager)
+			UserDetails userDetails = new UserDetailsManagerConfigurer<AuthenticationManagerBuilder, InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder>>(userDetailsManager)
 				.withUser("user")
 					.password("password")
 					.authorities([authority])
