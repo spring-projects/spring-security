@@ -24,7 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * A {@link GrantedAuthority} that is associated with an {@link OAuth2User}.
+ * A {@link GrantedAuthority} that may be associated to an {@link OAuth2User}.
  *
  * @author Joe Grandja
  * @since 5.0
@@ -35,10 +35,22 @@ public class OAuth2UserAuthority implements GrantedAuthority {
 	private final String authority;
 	private final Map<String, Object> attributes;
 
+	/**
+	 * Constructs a {@code OAuth2UserAuthority} using the provided parameters
+	 * and defaults {@link #getAuthority()} to {@code ROLE_USER}.
+	 *
+	 * @param attributes the attributes about the user
+	 */
 	public OAuth2UserAuthority(Map<String, Object> attributes) {
 		this("ROLE_USER", attributes);
 	}
 
+	/**
+	 * Constructs a {@code OAuth2UserAuthority} using the provided parameters.
+	 *
+	 * @param authority the authority granted to the user
+	 * @param attributes the attributes about the user
+	 */
 	public OAuth2UserAuthority(String authority, Map<String, Object> attributes) {
 		Assert.hasText(authority, "authority cannot be empty");
 		Assert.notEmpty(attributes, "attributes cannot be empty");
@@ -51,6 +63,11 @@ public class OAuth2UserAuthority implements GrantedAuthority {
 		return this.authority;
 	}
 
+	/**
+	 * Returns the attributes about the user.
+	 *
+	 * @return a {@code Map} of attributes about the user
+	 */
 	public Map<String, Object> getAttributes() {
 		return this.attributes;
 	}

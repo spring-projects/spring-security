@@ -30,7 +30,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * A representation of an <i>OAuth 2.0 Authorization Request</i>
+ * A representation of an OAuth 2.0 Authorization Request
  * for the authorization code grant type or implicit grant type.
  *
  * @author Joe Grandja
@@ -54,46 +54,99 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 	private OAuth2AuthorizationRequest() {
 	}
 
+	/**
+	 * Returns the uri for the authorization endpoint.
+	 *
+	 * @return the uri for the authorization endpoint
+	 */
 	public String getAuthorizationUri() {
 		return this.authorizationUri;
 	}
 
+	/**
+	 * Returns the {@link AuthorizationGrantType grant type}.
+	 *
+	 * @return the {@link AuthorizationGrantType}
+	 */
 	public AuthorizationGrantType getGrantType() {
 		return this.authorizationGrantType;
 	}
 
+	/**
+	 * Returns the {@link OAuth2AuthorizationResponseType response type}.
+	 *
+	 * @return the {@link OAuth2AuthorizationResponseType}
+	 */
 	public OAuth2AuthorizationResponseType getResponseType() {
 		return this.responseType;
 	}
 
+	/**
+	 * Returns the client identifier.
+	 *
+	 * @return the client identifier
+	 */
 	public String getClientId() {
 		return this.clientId;
 	}
 
+	/**
+	 * Returns the uri for the redirect endpoint.
+	 *
+	 * @return the uri for the redirect endpoint
+	 */
 	public String getRedirectUri() {
 		return this.redirectUri;
 	}
 
+	/**
+	 * Returns the scope(s).
+	 *
+	 * @return the scope(s)
+	 */
 	public Set<String> getScopes() {
 		return this.scopes;
 	}
 
+	/**
+	 * Returns the state.
+	 *
+	 * @return the state
+	 */
 	public String getState() {
 		return this.state;
 	}
 
+	/**
+	 * Returns the additional parameters used in the request.
+	 *
+	 * @return a {@code Map} of the additional parameters used in the request
+	 */
 	public Map<String, Object> getAdditionalParameters() {
 		return this.additionalParameters;
 	}
 
+	/**
+	 * Returns a new {@link Builder}, initialized with the authorization code grant type.
+	 *
+	 * @return the {@link Builder}
+	 */
 	public static Builder authorizationCode() {
 		return new Builder(AuthorizationGrantType.AUTHORIZATION_CODE);
 	}
 
+	/**
+	 * Returns a new {@link Builder}, initialized with the implicit grant type.
+	 *
+	 * @return the {@link Builder}
+	 */
 	public static Builder implicit() {
 		return new Builder(AuthorizationGrantType.IMPLICIT);
 	}
 
+	/**
+	 * A builder for {@link OAuth2AuthorizationRequest}.
+	 */
 	public static class Builder {
 		private String authorizationUri;
 		private AuthorizationGrantType authorizationGrantType;
@@ -114,21 +167,45 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 			}
 		}
 
+		/**
+		 * Sets the uri for the authorization endpoint.
+		 *
+		 * @param authorizationUri the uri for the authorization endpoint
+		 * @return the {@link Builder}
+		 */
 		public Builder authorizationUri(String authorizationUri) {
 			this.authorizationUri = authorizationUri;
 			return this;
 		}
 
+		/**
+		 * Sets the client identifier.
+		 *
+		 * @param clientId the client identifier
+		 * @return the {@link Builder}
+		 */
 		public Builder clientId(String clientId) {
 			this.clientId = clientId;
 			return this;
 		}
 
+		/**
+		 * Sets the uri for the redirect endpoint.
+		 *
+		 * @param redirectUri the uri for the redirect endpoint
+		 * @return the {@link Builder}
+		 */
 		public Builder redirectUri(String redirectUri) {
 			this.redirectUri = redirectUri;
 			return this;
 		}
 
+		/**
+		 * Sets the scope(s).
+		 *
+		 * @param scope the scope(s)
+		 * @return the {@link Builder}
+		 */
 		public Builder scope(String... scope) {
 			if (scope != null && scope.length > 0) {
 				return this.scopes(Arrays.stream(scope).collect(
@@ -137,21 +214,44 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 			return this;
 		}
 
+		/**
+		 * Sets the scope(s).
+		 *
+		 * @param scopes the scope(s)
+		 * @return the {@link Builder}
+		 */
 		public Builder scopes(Set<String> scopes) {
 			this.scopes = scopes;
 			return this;
 		}
 
+		/**
+		 * Sets the state.
+		 *
+		 * @param state the state
+		 * @return the {@link Builder}
+		 */
 		public Builder state(String state) {
 			this.state = state;
 			return this;
 		}
 
+		/**
+		 * Sets the additional parameters used in the request.
+		 *
+		 * @param additionalParameters the additional parameters used in the request
+		 * @return the {@link Builder}
+		 */
 		public Builder additionalParameters(Map<String, Object> additionalParameters) {
 			this.additionalParameters = additionalParameters;
 			return this;
 		}
 
+		/**
+		 * Builds a new {@link OAuth2AuthorizationRequest}.
+		 *
+		 * @return a {@link OAuth2AuthorizationRequest}
+		 */
 		public OAuth2AuthorizationRequest build() {
 			Assert.hasText(this.authorizationUri, "authorizationUri cannot be empty");
 			Assert.hasText(this.clientId, "clientId cannot be empty");

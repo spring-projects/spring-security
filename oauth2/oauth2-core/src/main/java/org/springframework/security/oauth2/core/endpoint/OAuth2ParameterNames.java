@@ -16,7 +16,7 @@
 package org.springframework.security.oauth2.core.endpoint;
 
 /**
- * Standard and additional (custom) parameter names defined in the OAuth Parameters Registry
+ * Standard and custom (non-standard) parameter names defined in the OAuth Parameters Registry
  * and used by the authorization endpoint and token endpoint.
  *
  * @author Joe Grandja
@@ -25,24 +25,54 @@ package org.springframework.security.oauth2.core.endpoint;
  */
 public interface OAuth2ParameterNames {
 
+	/**
+	 * {@code response_type} - used in Authorization Request.
+	 */
 	String RESPONSE_TYPE = "response_type";
 
+	/**
+	 * {@code client_id} - used in Authorization Request and Access Token Request.
+	 */
 	String CLIENT_ID = "client_id";
 
+	/**
+	 * {@code redirect_uri} - used in Authorization Request and Access Token Request.
+	 */
 	String REDIRECT_URI = "redirect_uri";
 
+	/**
+	 * {@code scope} - used in Authorization Request, Authorization Response, Access Token Request and Access Token Response.
+	 */
 	String SCOPE = "scope";
 
+	/**
+	 * {@code state} - used in Authorization Request and Authorization Response.
+	 */
 	String STATE = "state";
 
+	/**
+	 * {@code code} - used in Authorization Response and Access Token Request.
+	 */
 	String CODE = "code";
 
+	/**
+	 * {@code error} - used in Authorization Response and Access Token Response.
+	 */
 	String ERROR = "error";
 
+	/**
+	 * {@code error_description} - used in Authorization Response and Access Token Response.
+	 */
 	String ERROR_DESCRIPTION = "error_description";
 
+	/**
+	 * {@code error_uri} - used in Authorization Response and Access Token Response.
+	 */
 	String ERROR_URI = "error_uri";
 
-	String REGISTRATION_ID = "registration_id";		// Non-standard additional parameter
+	/**
+	 * Non-standard parameter (used internally).
+	 */
+	String REGISTRATION_ID = "registration_id";
 
 }

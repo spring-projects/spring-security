@@ -105,6 +105,9 @@ public final class DefaultAddressStandardClaim implements AddressStandardClaim {
 		return result;
 	}
 
+	/**
+	 * A builder for {@link DefaultAddressStandardClaim}.
+	 */
 	public static class Builder {
 		private static final String FORMATTED_FIELD_NAME = "formatted";
 		private static final String STREET_ADDRESS_FIELD_NAME = "street_address";
@@ -119,9 +122,17 @@ public final class DefaultAddressStandardClaim implements AddressStandardClaim {
 		private String postalCode;
 		private String country;
 
+		/**
+		 * Default constructor.
+		 */
 		public Builder() {
 		}
 
+		/**
+		 * Constructs and initializes the address attributes using the provided {@code addressFields}.
+		 *
+		 * @param addressFields the fields used to initialize the address attributes
+		 */
 		public Builder(Map<String, Object> addressFields) {
 			this.formatted((String) addressFields.get(FORMATTED_FIELD_NAME));
 			this.streetAddress((String) addressFields.get(STREET_ADDRESS_FIELD_NAME));
@@ -131,36 +142,77 @@ public final class DefaultAddressStandardClaim implements AddressStandardClaim {
 			this.country((String) addressFields.get(COUNTRY_FIELD_NAME));
 		}
 
+		/**
+		 * Sets the full mailing address, formatted for display.
+		 *
+		 * @param formatted the full mailing address
+		 * @return the {@link Builder}
+		 */
 		public Builder formatted(String formatted) {
 			this.formatted = formatted;
 			return this;
 		}
 
+		/**
+		 * Sets the full street address, which may include house number, street name, P.O. Box, etc.
+		 *
+		 * @param streetAddress the full street address
+		 * @return the {@link Builder}
+		 */
 		public Builder streetAddress(String streetAddress) {
 			this.streetAddress = streetAddress;
 			return this;
 		}
 
+		/**
+		 * Sets the city or locality.
+		 *
+		 * @param locality the city or locality
+		 * @return the {@link Builder}
+		 */
 		public Builder locality(String locality) {
 			this.locality = locality;
 			return this;
 		}
 
+		/**
+		 * Sets the state, province, prefecture, or region.
+		 *
+		 * @param region the state, province, prefecture, or region
+		 * @return the {@link Builder}
+		 */
 		public Builder region(String region) {
 			this.region = region;
 			return this;
 		}
 
+		/**
+		 * Sets the zip code or postal code.
+		 *
+		 * @param postalCode the zip code or postal code
+		 * @return the {@link Builder}
+		 */
 		public Builder postalCode(String postalCode) {
 			this.postalCode = postalCode;
 			return this;
 		}
 
+		/**
+		 * Sets the country.
+		 *
+		 * @param country the country
+		 * @return the {@link Builder}
+		 */
 		public Builder country(String country) {
 			this.country = country;
 			return this;
 		}
 
+		/**
+		 * Builds a new {@link DefaultAddressStandardClaim}.
+		 *
+		 * @return a {@link AddressStandardClaim}
+		 */
 		public AddressStandardClaim build() {
 			DefaultAddressStandardClaim address = new DefaultAddressStandardClaim();
 			address.formatted = this.formatted;

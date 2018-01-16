@@ -21,12 +21,12 @@ import org.springframework.util.Assert;
 import java.io.Serializable;
 
 /**
- * The <i>response_type</i> parameter is consumed by the authorization endpoint which
+ * The {@code response_type} parameter is consumed by the authorization endpoint which
  * is used by the authorization code grant type and implicit grant type.
- * The client sets the <i>response_type</i> parameter with the desired grant type before initiating the authorization request.
+ * The client sets the {@code response_type} parameter with the desired grant type before initiating the authorization request.
  *
  * <p>
- * The <i>response_type</i> parameter value may be one of &quot;code&quot; for requesting an authorization code or
+ * The {@code response_type} parameter value may be one of &quot;code&quot; for requesting an authorization code or
  * &quot;token&quot; for requesting an access token (implicit grant).
 
  * @author Joe Grandja
@@ -44,6 +44,11 @@ public final class OAuth2AuthorizationResponseType implements Serializable {
 		this.value = value;
 	}
 
+	/**
+	 * Returns the value of the authorization response type.
+	 *
+	 * @return the value of the authorization response type
+	 */
 	public String getValue() {
 		return this.value;
 	}

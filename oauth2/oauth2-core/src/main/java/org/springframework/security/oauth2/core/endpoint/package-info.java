@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 /**
- * Support classes that model the request/response messages from the
- * <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-3.1">Authorization Endpoint</a>
- * and <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-3.2">Token Endpoint</a>.
+ * Support classes that model the OAuth 2.0 Request and Response messages
+ * from the Authorization Endpoint and Token Endpoint.
  */
 package org.springframework.security.oauth2.core.endpoint;

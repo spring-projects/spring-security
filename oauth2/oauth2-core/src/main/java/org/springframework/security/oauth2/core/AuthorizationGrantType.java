@@ -25,7 +25,7 @@ import java.io.Serializable;
  * (to access it's protected resources) to the client and used by the client to obtain an access token.
  *
  * <p>
- * The <i>OAuth 2.0 Authorization Framework</i> defines four standard grant types:
+ * The OAuth 2.0 Authorization Framework defines four standard grant types:
  * authorization code, implicit, resource owner password credentials, and client credentials.
  * It also provides an extensibility mechanism for defining additional grant types.
  *
@@ -39,11 +39,21 @@ public final class AuthorizationGrantType implements Serializable {
 	public static final AuthorizationGrantType IMPLICIT = new AuthorizationGrantType("implicit");
 	private final String value;
 
+	/**
+	 * Constructs an {@code AuthorizationGrantType} using the provided value.
+	 *
+	 * @param value the value of the authorization grant type
+	 */
 	public AuthorizationGrantType(String value) {
 		Assert.hasText(value, "value cannot be empty");
 		this.value = value;
 	}
 
+	/**
+	 * Returns the value of the authorization grant type.
+	 *
+	 * @return the value of the authorization grant type
+	 */
 	public String getValue() {
 		return this.value;
 	}

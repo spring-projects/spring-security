@@ -18,7 +18,7 @@ package org.springframework.security.oauth2.core;
 import org.springframework.util.Assert;
 
 /**
- * The authentication methods used when authenticating the client with the authorization server.
+ * The authentication method used when authenticating the client with the authorization server.
  *
  * @author Joe Grandja
  * @since 5.0
@@ -29,11 +29,21 @@ public final class ClientAuthenticationMethod {
 	public static final ClientAuthenticationMethod POST = new ClientAuthenticationMethod("post");
 	private final String value;
 
+	/**
+	 * Constructs a {@code ClientAuthenticationMethod} using the provided value.
+	 *
+	 * @param value the value of the client authentication method
+	 */
 	public ClientAuthenticationMethod(String value) {
 		Assert.hasText(value, "value cannot be empty");
 		this.value = value;
 	}
 
+	/**
+	 * Returns the value of the client authentication method.
+	 *
+	 * @return the value of the client authentication method
+	 */
 	public String getValue() {
 		return this.value;
 	}

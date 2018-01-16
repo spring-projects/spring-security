@@ -16,16 +16,16 @@
 package org.springframework.security.oauth2.core.oidc.user;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
-import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.util.Assert;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A {@link GrantedAuthority} that is associated with an {@link OidcUser}.
+ * A {@link GrantedAuthority} that may be associated to an {@link OidcUser}.
  *
  * @author Joe Grandja
  * @since 5.0
@@ -35,24 +35,53 @@ public class OidcUserAuthority extends OAuth2UserAuthority {
 	private final OidcIdToken idToken;
 	private final OidcUserInfo userInfo;
 
+	/**
+	 * Constructs a {@code OidcUserAuthority} using the provided parameters.
+	 *
+	 * @param idToken the {@link OidcIdToken ID Token} containing claims about the user
+	 */
 	public OidcUserAuthority(OidcIdToken idToken) {
 		this(idToken, null);
 	}
 
+	/**
+	 * Constructs a {@code OidcUserAuthority} using the provided parameters
+	 * and defaults {@link #getAuthority()} to {@code ROLE_USER}.
+	 *
+	 * @param idToken the {@link OidcIdToken ID Token} containing claims about the user
+	 * @param userInfo the {@link OidcUserInfo UserInfo} containing claims about the user, may be {@code null}
+	 */
 	public OidcUserAuthority(OidcIdToken idToken, OidcUserInfo userInfo) {
 		this("ROLE_USER", idToken, userInfo);
 	}
 
+	/**
+	 * Constructs a {@code OidcUserAuthority} using the provided parameters.
+	 *
+	 * @param authority the authority granted to the user
+	 * @param idToken the {@link OidcIdToken ID Token} containing claims about the user
+	 * @param userInfo the {@link OidcUserInfo UserInfo} containing claims about the user, may be {@code null}
+	 */
 	public OidcUserAuthority(String authority, OidcIdToken idToken, OidcUserInfo userInfo) {
 		super(authority, collectClaims(idToken, userInfo));
 		this.idToken = idToken;
 		this.userInfo = userInfo;
 	}
 
+	/**
+	 * Returns the {@link OidcIdToken ID Token} containing claims about the user.
+	 *
+	 * @return the {@link OidcIdToken} containing claims about the user.
+	 */
 	public OidcIdToken getIdToken() {
 		return this.idToken;
 	}
 
+	/**
+	 * Returns the {@link OidcUserInfo UserInfo} containing claims about the user, may be {@code null}.
+	 *
+	 * @return the {@link OidcUserInfo} containing claims about the user, or {@code null}
+	 */
 	public OidcUserInfo getUserInfo() {
 		return this.userInfo;
 	}

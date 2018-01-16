@@ -25,6 +25,9 @@ package org.springframework.security.oauth2.core.oidc.endpoint;
  */
 public interface OidcParameterNames {
 
+	/**
+	 * {@code id_token} - used in the Access Token Response.
+	 */
 	String ID_TOKEN = "id_token";
 
 }

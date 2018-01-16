@@ -24,11 +24,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * A representation of a <i>UserInfo Response</i> that is returned
- * from the OAuth 2.0 Protected Resource <i>UserInfo Endpoint</i>.
+ * A representation of a UserInfo Response that is returned
+ * from the OAuth 2.0 Protected Resource UserInfo Endpoint.
  *
  * <p>
- * The <code>OidcUserInfo</code> contains a set of &quot;Standard Claims&quot; about the authentication of an End-User.
+ * The {@code OidcUserInfo} contains a set of &quot;Standard Claims&quot; about the authentication of an End-User.
  *
  * @author Joe Grandja
  * @since 5.0
@@ -41,6 +41,11 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 	private final Map<String, Object> claims;
 
+	/**
+	 * Constructs a {@code OidcUserInfo} using the provided parameters.
+	 *
+	 * @param claims the claims about the authentication of the End-User
+	 */
 	public OidcUserInfo(Map<String, Object> claims) {
 		Assert.notEmpty(claims, "claims cannot be empty");
 		this.claims = Collections.unmodifiableMap(new LinkedHashMap<>(claims));

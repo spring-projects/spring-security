@@ -20,7 +20,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.util.Assert;
 
 /**
- * This exception is thrown for all <i>OAuth 2.0</i> related {@link Authentication} errors.
+ * This exception is thrown for all OAuth 2.0 related {@link Authentication} errors.
  *
  * <p>
  * There are a number of scenarios where an error may occur, for example:
@@ -40,20 +40,44 @@ import org.springframework.util.Assert;
 public class OAuth2AuthenticationException extends AuthenticationException {
 	private OAuth2Error error;
 
+	/**
+	 * Constructs an {@code OAuth2AuthenticationException} using the provided parameters.
+	 *
+	 * @param error the {@link OAuth2Error OAuth 2.0 Error}
+	 * @param cause the root cause
+	 */
 	public OAuth2AuthenticationException(OAuth2Error error, Throwable cause) {
 		this(error, cause.getMessage(), cause);
 	}
 
+	/**
+	 * Constructs an {@code OAuth2AuthenticationException} using the provided parameters.
+	 *
+	 * @param error the {@link OAuth2Error OAuth 2.0 Error}
+	 * @param message the detail message
+	 */
 	public OAuth2AuthenticationException(OAuth2Error error, String message) {
 		super(message);
 		this.setError(error);
 	}
 
+	/**
+	 * Constructs an {@code OAuth2AuthenticationException} using the provided parameters.
+	 *
+	 * @param error the {@link OAuth2Error OAuth 2.0 Error}
+	 * @param message the detail message
+	 * @param cause the root cause
+	 */
 	public OAuth2AuthenticationException(OAuth2Error error, String message, Throwable cause) {
 		super(message, cause);
 		this.setError(error);
 	}
 
+	/**
+	 * Returns the {@link OAuth2Error OAuth 2.0 Error}.
+	 *
+	 * @return the {@link OAuth2Error}
+	 */
 	public OAuth2Error getError() {
 		return this.error;
 	}

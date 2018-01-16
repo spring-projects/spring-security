@@ -22,7 +22,7 @@ import java.time.Instant;
 import java.util.List;
 
 /**
- * A {@link ClaimAccessor} for the &quot;Claims&quot; that can be returned in the <i>ID Token</i>
+ * A {@link ClaimAccessor} for the &quot;claims&quot; that can be returned in the ID Token,
  * which provides information about the authentication of an End-User by an Authorization Server.
  *
  * @see ClaimAccessor
@@ -37,50 +37,111 @@ import java.util.List;
  */
 public interface IdTokenClaimAccessor extends StandardClaimAccessor {
 
+	/**
+	 * Returns the Issuer identifier {@code (iss)}.
+	 *
+	 * @return the Issuer identifier
+	 */
 	default URL getIssuer() {
 		return this.getClaimAsURL(IdTokenClaimNames.ISS);
 	}
 
+	/**
+	 * Returns the Subject identifier {@code (sub)}.
+	 *
+	 * @return the Subject identifier
+	 */
 	default String getSubject() {
 		return this.getClaimAsString(IdTokenClaimNames.SUB);
 	}
 
+	/**
+	 * Returns the Audience(s) {@code (aud)} that this ID Token is intended for.
+	 *
+	 * @return the Audience(s) that this ID Token is intended for
+	 */
 	default List<String> getAudience() {
 		return this.getClaimAsStringList(IdTokenClaimNames.AUD);
 	}
 
+	/**
+	 * Returns the Expiration time {@code (exp)} on or after which the ID Token MUST NOT be accepted.
+	 *
+	 * @return the Expiration time on or after which the ID Token MUST NOT be accepted
+	 */
 	default Instant getExpiresAt() {
 		return this.getClaimAsInstant(IdTokenClaimNames.EXP);
 	}
 
+	/**
+	 * Returns the time at which the ID Token was issued {@code (iat)}.
+	 *
+	 * @return the time at which the ID Token was issued
+	 */
 	default Instant getIssuedAt() {
 		return this.getClaimAsInstant(IdTokenClaimNames.IAT);
 	}
 
+	/**
+	 * Returns the time when the End-User authentication occurred {@code (auth_time)}.
+	 *
+	 * @return the time when the End-User authentication occurred
+	 */
 	default Instant getAuthenticatedAt() {
 		return this.getClaimAsInstant(IdTokenClaimNames.AUTH_TIME);
 	}
 
+	/**
+	 * Returns a {@code String} value {@code (nonce)} used to associate a Client session with an ID Token,
+	 * and to mitigate replay attacks.
+	 *
+	 * @return the nonce used to associate a Client session with an ID Token
+	 */
 	default String getNonce() {
 		return this.getClaimAsString(IdTokenClaimNames.NONCE);
 	}
 
+	/**
+	 * Returns the Authentication Context Class Reference {@code (acr)}.
+	 *
+	 * @return the Authentication Context Class Reference
+	 */
 	default String getAuthenticationContextClass() {
 		return this.getClaimAsString(IdTokenClaimNames.ACR);
 	}
 
+	/**
+	 * Returns the Authentication Methods References {@code (amr)}.
+	 *
+	 * @return the Authentication Methods References
+	 */
 	default List<String> getAuthenticationMethods() {
 		return this.getClaimAsStringList(IdTokenClaimNames.AMR);
 	}
 
+	/**
+	 * Returns the Authorized party {@code (azp)} to which the ID Token was issued.
+	 *
+	 * @return the Authorized party to which the ID Token was issued
+	 */
 	default String getAuthorizedParty() {
 		return this.getClaimAsString(IdTokenClaimNames.AZP);
 	}
 
+	/**
+	 * Returns the Access Token hash value {@code (at_hash)}.
+	 *
+	 * @return the Access Token hash value
+	 */
 	default String getAccessTokenHash() {
 		return this.getClaimAsString(IdTokenClaimNames.AT_HASH);
 	}
 
+	/**
+	 * Returns the Authorization Code hash value {@code (c_hash)}.
+	 *
+	 * @return the Authorization Code hash value
+	 */
 	default String getAuthorizationCodeHash() {
 		return this.getClaimAsString(IdTokenClaimNames.C_HASH);
 	}

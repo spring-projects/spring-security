@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 /**
- * Provides a model for an <i>OAuth 2.0</i> representation of a user <code>Principal</code>.
+ * Provides a model for an OAuth 2.0 representation of a user {@code Principal}.
  */
 package org.springframework.security.oauth2.core.user;

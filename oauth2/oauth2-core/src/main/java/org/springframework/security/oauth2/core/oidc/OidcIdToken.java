@@ -24,10 +24,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * An implementation of an {@link AbstractOAuth2Token} representing an <i>OpenID Connect Core 1.0 ID Token</i>.
+ * An implementation of an {@link AbstractOAuth2Token} representing an OpenID Connect Core 1.0 ID Token.
  *
  * <p>
- * The <code>OidcIdToken</code> is a security token that contains &quot;Claims&quot;
+ * The {@code OidcIdToken} is a security token that contains &quot;claims&quot;
  * about the authentication of an End-User by an Authorization Server.
  *
  * @author Joe Grandja
@@ -41,6 +41,14 @@ import java.util.Map;
 public class OidcIdToken extends AbstractOAuth2Token implements IdTokenClaimAccessor {
 	private final Map<String, Object> claims;
 
+	/**
+	 * Constructs a {@code OidcIdToken} using the provided parameters.
+	 *
+	 * @param tokenValue the ID Token value
+	 * @param issuedAt the time at which the ID Token was issued {@code (iat)}
+	 * @param expiresAt the expiration time {@code (exp)} on or after which the ID Token MUST NOT be accepted
+	 * @param claims the claims about the authentication of the End-User
+	 */
 	public OidcIdToken(String tokenValue, Instant issuedAt, Instant expiresAt, Map<String, Object> claims) {
 		super(tokenValue, issuedAt, expiresAt);
 		Assert.notEmpty(claims, "claims cannot be empty");

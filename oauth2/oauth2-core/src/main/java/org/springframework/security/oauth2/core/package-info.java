@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 /**
- * Core classes and interfaces providing support for the <i>OAuth 2.0 Authorization Framework</i>.
+ * Core classes and interfaces providing support for the OAuth 2.0 Authorization Framework.
  */
 package org.springframework.security.oauth2.core;

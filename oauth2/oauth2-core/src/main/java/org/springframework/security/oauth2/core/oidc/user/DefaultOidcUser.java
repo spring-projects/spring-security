@@ -17,10 +17,10 @@
 package org.springframework.security.oauth2.core.oidc.user;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
-import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 
 import java.util.Map;
 import java.util.Set;
@@ -29,9 +29,8 @@ import java.util.Set;
  * The default implementation of an {@link OidcUser}.
  *
  * <p>
- * The claim used for accessing the &quot;name&quot; of the
- * user <code>Principal</code> via {@link #getClaims()}
- * is {@link IdTokenClaimNames#SUB}.
+ * The default claim used for accessing the &quot;name&quot; of the
+ * user {@code Principal} from {@link #getClaims()} is {@link IdTokenClaimNames#SUB}.
  *
  * @author Joe Grandja
  * @author Vedran Pavic
@@ -45,18 +44,46 @@ public class DefaultOidcUser extends DefaultOAuth2User implements OidcUser {
 	private final OidcIdToken idToken;
 	private final OidcUserInfo userInfo;
 
+	/**
+	 * Constructs a {@code DefaultOidcUser} using the provided parameters.
+	 *
+	 * @param authorities the authorities granted to the user
+	 * @param idToken the {@link OidcIdToken ID Token} containing claims about the user
+	 */
 	public DefaultOidcUser(Set<GrantedAuthority> authorities, OidcIdToken idToken) {
 		this(authorities, idToken, IdTokenClaimNames.SUB);
 	}
 
+	/**
+	 * Constructs a {@code DefaultOidcUser} using the provided parameters.
+	 *
+	 * @param authorities the authorities granted to the user
+	 * @param idToken the {@link OidcIdToken ID Token} containing claims about the user
+	 * @param nameAttributeKey the key used to access the user's &quot;name&quot; from {@link #getAttributes()}
+	 */
 	public DefaultOidcUser(Set<GrantedAuthority> authorities, OidcIdToken idToken, String nameAttributeKey) {
 		this(authorities, idToken, null, nameAttributeKey);
 	}
 
+	/**
+	 * Constructs a {@code DefaultOidcUser} using the provided parameters.
+	 *
+	 * @param authorities the authorities granted to the user
+	 * @param idToken the {@link OidcIdToken ID Token} containing claims about the user
+	 * @param userInfo the {@link OidcUserInfo UserInfo} containing claims about the user, may be {@code null}
+	 */
 	public DefaultOidcUser(Set<GrantedAuthority> authorities, OidcIdToken idToken, OidcUserInfo userInfo) {
 		this(authorities, idToken, userInfo, IdTokenClaimNames.SUB);
 	}
 
+	/**
+	 * Constructs a {@code DefaultOidcUser} using the provided parameters.
+	 *
+	 * @param authorities the authorities granted to the user
+	 * @param idToken the {@link OidcIdToken ID Token} containing claims about the user
+	 * @param userInfo the {@link OidcUserInfo UserInfo} containing claims about the user, may be {@code null}
+	 * @param nameAttributeKey the key used to access the user's &quot;name&quot; from {@link #getAttributes()}
+	 */
 	public DefaultOidcUser(Set<GrantedAuthority> authorities, OidcIdToken idToken, OidcUserInfo userInfo,
 							String nameAttributeKey) {
 		super(authorities, OidcUserAuthority.collectClaims(idToken, userInfo), nameAttributeKey);

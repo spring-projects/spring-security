@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A representation of an <i>OAuth 2.0 Access Token Response</i>.
+ * A representation of an OAuth 2.0 Access Token Response.
  *
  * @author Joe Grandja
  * @since 5.0
@@ -38,18 +38,37 @@ public final class OAuth2AccessTokenResponse {
 	private OAuth2AccessTokenResponse() {
 	}
 
+	/**
+	 * Returns the {@link OAuth2AccessToken Access Token}.
+	 *
+	 * @return the {@link OAuth2AccessToken}
+	 */
 	public OAuth2AccessToken getAccessToken() {
 		return this.accessToken;
 	}
 
+	/**
+	 * Returns the additional parameters returned in the response.
+	 *
+	 * @return a {@code Map} of the additional parameters returned in the response, may be empty.
+	 */
 	public Map<String, Object> getAdditionalParameters() {
 		return this.additionalParameters;
 	}
 
+	/**
+	 * Returns a new {@link Builder}, initialized with the provided access token value.
+	 *
+	 * @param tokenValue the value of the access token
+	 * @return the {@link Builder}
+	 */
 	public static Builder withToken(String tokenValue) {
 		return new Builder(tokenValue);
 	}
 
+	/**
+	 * A builder for {@link OAuth2AccessTokenResponse}.
+	 */
 	public static class Builder {
 		private String tokenValue;
 		private OAuth2AccessToken.TokenType tokenType;
@@ -61,26 +80,55 @@ public final class OAuth2AccessTokenResponse {
 			this.tokenValue = tokenValue;
 		}
 
+		/**
+		 * Sets the {@link OAuth2AccessToken.TokenType token type}.
+		 *
+		 * @param tokenType the type of token issued
+		 * @return the {@link Builder}
+		 */
 		public Builder tokenType(OAuth2AccessToken.TokenType tokenType) {
 			this.tokenType = tokenType;
 			return this;
 		}
 
+		/**
+		 * Sets the lifetime (in seconds) of the access token.
+		 *
+		 * @param expiresIn the lifetime of the access token, in seconds.
+		 * @return the {@link Builder}
+		 */
 		public Builder expiresIn(long expiresIn) {
 			this.expiresIn = expiresIn;
 			return this;
 		}
 
+		/**
+		 * Sets the scope(s) associated to the access token.
+		 *
+		 * @param scopes the scope(s) associated to the access token.
+		 * @return the {@link Builder}
+		 */
 		public Builder scopes(Set<String> scopes) {
 			this.scopes = scopes;
 			return this;
 		}
 
+		/**
+		 * Sets the additional parameters returned in the response.
+		 *
+		 * @param additionalParameters the additional parameters returned in the response
+		 * @return the {@link Builder}
+		 */
 		public Builder additionalParameters(Map<String, Object> additionalParameters) {
 			this.additionalParameters = additionalParameters;
 			return this;
 		}
 
+		/**
+		 * Builds a new {@link OAuth2AccessTokenResponse}.
+		 *
+		 * @return a {@link OAuth2AccessTokenResponse}
+		 */
 		public OAuth2AccessTokenResponse build() {
 			Instant issuedAt = Instant.now();
 

@@ -26,12 +26,12 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import java.util.Map;
 
 /**
- * A representation of a user <code>Principal</code>
- * that is registered with an <i>OpenID Connect 1.0 Provider</i>.
+ * A representation of a user {@code Principal}
+ * that is registered with an OpenID Connect 1.0 Provider.
  *
  * <p>
- * An <code>OidcUser</code> contains &quot;Claims&quot; about the Authentication of the End-User.
- * The claims are aggregated from the <code>OidcIdToken</code> and optionally the <code>OidcUserInfo</code>.
+ * An {@code OidcUser} contains &quot;claims&quot; about the authentication of the End-User.
+ * The claims are aggregated from the {@link OidcIdToken} and the {@link OidcUserInfo} (if available).
  *
  * <p>
  * Implementation instances of this interface represent an {@link AuthenticatedPrincipal}
@@ -51,9 +51,25 @@ import java.util.Map;
  */
 public interface OidcUser extends OAuth2User, IdTokenClaimAccessor {
 
+	/**
+	 * Returns the claims about the user.
+	 * The claims are aggregated from {@link #getIdToken()} and {@link #getUserInfo()} (if available).
+	 *
+	 * @return a {@code Map} of claims about the user
+	 */
 	Map<String, Object> getClaims();
 
+	/**
+	 * Returns the {@link OidcUserInfo UserInfo} containing claims about the user.
+	 *
+	 * @return the {@link OidcUserInfo} containing claims about the user.
+	 */
 	OidcUserInfo getUserInfo();
 
+	/**
+	 * Returns the {@link OidcIdToken ID Token} containing claims about the user.
+	 *
+	 * @return the {@link OidcIdToken} containing claims about the user.
+	 */
 	OidcIdToken getIdToken();
 }

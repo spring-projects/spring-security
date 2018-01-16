@@ -22,10 +22,11 @@ import java.io.Serializable;
 import java.time.Instant;
 
 /**
- * Base class for <i>OAuth 2.0 Token</i> implementations.
+ * Base class for OAuth 2.0 Token implementations.
  *
  * @author Joe Grandja
  * @since 5.0
+ * @see OAuth2AccessToken
  */
 public abstract class AbstractOAuth2Token implements Serializable {
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
@@ -33,6 +34,13 @@ public abstract class AbstractOAuth2Token implements Serializable {
 	private final Instant issuedAt;
 	private final Instant expiresAt;
 
+	/**
+	 * Sub-class constructor.
+	 *
+	 * @param tokenValue the token value
+	 * @param issuedAt the time at which the token was issued
+	 * @param expiresAt the expiration time on or after which the token MUST NOT be accepted
+	 */
 	protected AbstractOAuth2Token(String tokenValue, Instant issuedAt, Instant expiresAt) {
 		Assert.hasText(tokenValue, "tokenValue cannot be empty");
 		Assert.notNull(issuedAt, "issuedAt cannot be null");
@@ -43,14 +51,29 @@ public abstract class AbstractOAuth2Token implements Serializable {
 		this.expiresAt = expiresAt;
 	}
 
+	/**
+	 * Returns the token value.
+	 *
+	 * @return the token value
+	 */
 	public String getTokenValue() {
 		return this.tokenValue;
 	}
 
+	/**
+	 * Returns the time at which the token was issued.
+	 *
+	 * @return the time the token was issued
+	 */
 	public Instant getIssuedAt() {
 		return this.issuedAt;
 	}
 
+	/**
+	 * Returns the expiration time on or after which the token MUST NOT be accepted.
+	 *
+	 * @return the expiration time of the token
+	 */
 	public Instant getExpiresAt() {
 		return this.expiresAt;
 	}

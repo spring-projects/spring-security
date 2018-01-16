@@ -16,31 +16,80 @@
 package org.springframework.security.oauth2.core;
 
 /**
- * Standard error codes defined by the <i>OAuth 2.0 Authorization Framework</i>.
+ * Standard error codes defined by the OAuth 2.0 Authorization Framework.
  *
  * @author Joe Grandja
  * @since 5.0
  */
 public interface OAuth2ErrorCodes {
 
+	/**
+	 * {@code invalid_request} - The request is missing a required parameter,
+	 * includes an invalid parameter value,
+	 * includes a parameter more than once, or is otherwise malformed.
+	 */
 	String INVALID_REQUEST = "invalid_request";
 
+	/**
+	 * {@code unauthorized_client} - The client is not authorized to request
+	 * an authorization code or access token using this method.
+	 */
 	String UNAUTHORIZED_CLIENT = "unauthorized_client";
 
+	/**
+	 * {@code access_denied} - The resource owner or authorization server denied the request.
+	 */
 	String ACCESS_DENIED = "access_denied";
 
+	/**
+	 * {@code unsupported_response_type} - The authorization server does not support
+	 * obtaining an authorization code or access token using this method.
+	 */
 	String UNSUPPORTED_RESPONSE_TYPE = "unsupported_response_type";
 
+	/**
+	 * {@code invalid_scope} - The requested scope is invalid, unknown, malformed or
+	 * exceeds the scope granted by the resource owner.
+	 */
 	String INVALID_SCOPE = "invalid_scope";
 
+	/**
+	 * {@code server_error} - The authorization server encountered an
+	 * unexpected condition that prevented it from fulfilling the request.
+	 * (This error code is needed because a 500 Internal Server Error HTTP status code
+	 * cannot be returned to the client via a HTTP redirect.)
+	 */
 	String SERVER_ERROR = "server_error";
 
+	/**
+	 * {@code temporarily_unavailable} - The authorization server is currently unable
+	 * to handle the request due to a temporary overloading or maintenance of the server.
+	 * (This error code is needed because a 503 Service Unavailable HTTP status code
+	 * cannot be returned to the client via an HTTP redirect.)
+	 */
 	String TEMPORARILY_UNAVAILABLE = "temporarily_unavailable";
 
+	/**
+	 * {@code invalid_client} - Client authentication failed (e.g., unknown client,
+	 * no client authentication included, or unsupported authentication method).
+	 * The authorization server MAY return a HTTP 401 (Unauthorized) status code
+	 * to indicate which HTTP authentication schemes are supported.
+	 * If the client attempted to authenticate via the &quot;Authorization&quot; request header field,
+	 * the authorization server MUST respond with a HTTP 401 (Unauthorized) status code and
+	 * include the &quot;WWW-Authenticate&quot; response header field matching the authentication scheme used by the client.
+	 */
 	String INVALID_CLIENT = "invalid_client";
 
+	/**
+	 * {@code invalid_grant} - The provided authorization grant
+	 * (e.g., authorization code, resource owner credentials) or refresh token is invalid, expired, revoked,
+	 * does not match the redirection URI used in the authorization request, or was issued to another client.
+	 */
 	String INVALID_GRANT = "invalid_grant";
 
+	/**
+	 * {@code unsupported_grant_type} - The authorization grant type is not supported by the authorization server.
+	 */
 	String UNSUPPORTED_GRANT_TYPE = "unsupported_grant_type";
 
 }

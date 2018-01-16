@@ -21,16 +21,17 @@ import org.springframework.util.Assert;
 import java.io.Serializable;
 
 /**
- * A representation of an <i>OAuth 2.0 Error</i>.
+ * A representation of an OAuth 2.0 Error.
  *
  * <p>
  * At a minimum, an error response will contain an error code.
  * The error code may be one of the standard codes defined by the specification,
- * or a <i>new</i> code defined in the <i>OAuth Extensions Error Registry</i>,
+ * or a new code defined in the OAuth Extensions Error Registry,
  * for cases where protocol extensions require additional error code(s) above the standard codes.
  *
  * @author Joe Grandja
  * @since 5.0
+ * @see OAuth2ErrorCodes
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-11.4">Section 11.4 OAuth Extensions Error Registry</a>
  */
 public final class OAuth2Error implements Serializable {
@@ -39,10 +40,22 @@ public final class OAuth2Error implements Serializable {
 	private final String description;
 	private final String uri;
 
+	/**
+	 * Constructs an {@code OAuth2Error} using the provided parameters.
+	 *
+	 * @param errorCode the error code
+	 */
 	public OAuth2Error(String errorCode) {
 		this(errorCode, null, null);
 	}
 
+	/**
+	 * Constructs an {@code OAuth2Error} using the provided parameters.
+	 *
+	 * @param errorCode the error code
+	 * @param description the error description
+	 * @param uri the error uri
+	 */
 	public OAuth2Error(String errorCode, String description, String uri) {
 		Assert.hasText(errorCode, "errorCode cannot be empty");
 		this.errorCode = errorCode;
@@ -50,14 +63,29 @@ public final class OAuth2Error implements Serializable {
 		this.uri = uri;
 	}
 
+	/**
+	 * Returns the error code.
+	 *
+	 * @return the error code
+	 */
 	public String getErrorCode() {
 		return this.errorCode;
 	}
 
+	/**
+	 * Returns the error description.
+	 *
+	 * @return the error description
+	 */
 	public String getDescription() {
 		return this.description;
 	}
 
+	/**
+	 * Returns the error uri.
+	 *
+	 * @return the error uri
+	 */
 	public String getUri() {
 		return this.uri;
 	}

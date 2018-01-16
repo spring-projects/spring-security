@@ -33,21 +33,50 @@ import java.util.Map;
  */
 public interface ClaimAccessor {
 
+	/**
+	 * Returns a set of claims that may be used for assertions.
+	 *
+	 * @return a {@code Map} of claims
+	 */
 	Map<String, Object> getClaims();
 
+	/**
+	 * Returns {@code true} if the claim exists in {@link #getClaims()}, otherwise {@code false}.
+	 *
+	 * @param claim the name of the claim
+	 * @return {@code true} if the claim exists, otherwise {@code false}
+	 */
 	default Boolean containsClaim(String claim) {
 		Assert.notNull(claim, "claim cannot be null");
 		return this.getClaims().containsKey(claim);
 	}
 
+	/**
+	 * Returns the claim value as a {@code String} or {@code null} if it does not exist.
+	 *
+	 * @param claim the name of the claim
+	 * @return the claim value or {@code null} if it does not exist
+	 */
 	default String getClaimAsString(String claim) {
 		return (this.containsClaim(claim) ? this.getClaims().get(claim).toString() : null);
 	}
 
+	/**
+	 * Returns the claim value as a {@code Boolean} or {@code null} if it does not exist.
+	 *
+	 * @param claim the name of the claim
+	 * @return the claim value or {@code null} if it does not exist
+	 */
 	default Boolean getClaimAsBoolean(String claim) {
 		return (this.containsClaim(claim) ? Boolean.valueOf(this.getClaimAsString(claim)) : null);
 	}
 
+	/**
+	 * Returns the claim value as an {@code Instant} or {@code null} if it does not exist.
+	 *
+	 * @param claim the name of the claim
+	 * @return the claim value or {@code null} if it does not exist
+	 */
 	default Instant getClaimAsInstant(String claim) {
 		if (!this.containsClaim(claim)) {
 			return null;
@@ -59,6 +88,12 @@ public interface ClaimAccessor {
 		}
 	}
 
+	/**
+	 * Returns the claim value as an {@code URL} or {@code null} if it does not exist.
+	 *
+	 * @param claim the name of the claim
+	 * @return the claim value or {@code null} if it does not exist
+	 */
 	default URL getClaimAsURL(String claim) {
 		if (!this.containsClaim(claim)) {
 			return null;
@@ -70,6 +105,13 @@ public interface ClaimAccessor {
 		}
 	}
 
+	/**
+	 * Returns the claim value as a {@code Map<String, Object>}
+	 * or {@code null} if it does not exist or cannot be assigned to a {@code Map}.
+	 *
+	 * @param claim the name of the claim
+	 * @return the claim value or {@code null} if it does not exist or cannot be assigned to a {@code Map}
+	 */
 	default Map<String, Object> getClaimAsMap(String claim) {
 		if (!this.containsClaim(claim) || !Map.class.isAssignableFrom(this.getClaims().get(claim).getClass())) {
 			return null;
@@ -79,6 +121,13 @@ public interface ClaimAccessor {
 		return claimValues;
 	}
 
+	/**
+	 * Returns the claim value as a {@code List<String>}
+	 * or {@code null} if it does not exist or cannot be assigned to a {@code List}.
+	 *
+	 * @param claim the name of the claim
+	 * @return the claim value or {@code null} if it does not exist or cannot be assigned to a {@code List}
+	 */
 	default List<String> getClaimAsStringList(String claim) {
 		if (!this.containsClaim(claim) || !List.class.isAssignableFrom(this.getClaims().get(claim).getClass())) {
 			return null;

@@ -35,11 +35,11 @@ import java.util.stream.Collectors;
  * The default implementation of an {@link OAuth2User}.
  *
  * <p>
- * User attribute names are <b><i>not</i></b> standardized between providers
- * and therefore it is required that the user supply the <i>key</i>
+ * User attribute names are <b>not</b> standardized between providers
+ * and therefore it is required to supply the <i>key</i>
  * for the user's &quot;name&quot; attribute to one of the constructors.
  * The <i>key</i> will be used for accessing the &quot;name&quot; of the
- * <code>Principal</code> (user) via {@link #getAttributes()}
+ * {@code Principal} (user) via {@link #getAttributes()}
  * and returning it from {@link #getName()}.
  *
  * @author Joe Grandja
@@ -52,6 +52,13 @@ public class DefaultOAuth2User implements OAuth2User, Serializable {
 	private final Map<String, Object> attributes;
 	private final String nameAttributeKey;
 
+	/**
+	 * Constructs a {@code DefaultOAuth2User} using the provided parameters.
+	 *
+	 * @param authorities the authorities granted to the user
+	 * @param attributes the attributes about the user
+	 * @param nameAttributeKey the key used to access the user's &quot;name&quot; from {@link #getAttributes()}
+	 */
 	public DefaultOAuth2User(Set<GrantedAuthority> authorities, Map<String, Object> attributes, String nameAttributeKey) {
 		Assert.notEmpty(authorities, "authorities cannot be empty");
 		Assert.notEmpty(attributes, "attributes cannot be empty");
