@@ -35,7 +35,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * An implementation of an {@link OAuth2UserService} that supports <i>OpenID Connect 1.0 Provider's</i>.
+ * An implementation of an {@link OAuth2UserService} that supports OpenID Connect 1.0 Provider's.
  *
  * @author Joe Grandja
  * @since 5.0

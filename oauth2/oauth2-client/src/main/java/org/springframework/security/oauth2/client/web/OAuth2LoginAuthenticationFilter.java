@@ -33,6 +33,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequ
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -42,23 +43,35 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * An implementation of an {@link AbstractAuthenticationProcessingFilter} that handles
- * the processing of an <i>OAuth 2.0 Authorization Response</i> for the authorization code grant flow.
+ * An implementation of an {@link AbstractAuthenticationProcessingFilter} for OAuth 2.0 Login.
  *
  * <p>
- * This <code>Filter</code> processes the <i>Authorization Response</i> as follows:
+ * This authentication {@code Filter} handles the processing of an OAuth 2.0 Authorization Response
+ * for the authorization code grant flow and delegates an {@link OAuth2LoginAuthenticationToken}
+ * to the {@link AuthenticationManager} to log in the End-User.
+ *
+ * <p>
+ * The OAuth 2.0 Authorization Response is processed as follows:
  *
  * <ul>
  * <li>
- *	Assuming the resource owner (end-user) has granted access to the client, the authorization server will append the
- *	{@link OAuth2ParameterNames#CODE} and {@link OAuth2ParameterNames#STATE} (if provided in the <i>Authorization Request</i>) parameters
- *	to the {@link OAuth2ParameterNames#REDIRECT_URI} (provided in the <i>Authorization Request</i>)
- *	and redirect the end-user's user-agent back to this <code>Filter</code> (the client).
+ *	Assuming the End-User (Resource Owner) has granted access to the Client, the Authorization Server will append the
+ *	{@link OAuth2ParameterNames#CODE code} and {@link OAuth2ParameterNames#STATE state} parameters
+ *	to the {@link OAuth2ParameterNames#REDIRECT_URI redirect_uri} (provided in the Authorization Request)
+ *	and redirect the End-User's user-agent back to this {@code Filter} (the Client).
  * </li>
  * <li>
- *  This <code>Filter</code> will then create an {@link OAuth2LoginAuthenticationToken} with
- *  the {@link OAuth2ParameterNames#CODE} received in the previous step and delegate it to
- *  {@link OAuth2LoginAuthenticationProvider#authenticate(Authentication)} (indirectly via {@link AuthenticationManager}).
+ *  This {@code Filter} will then create an {@link OAuth2LoginAuthenticationToken} with
+ *  the {@link OAuth2ParameterNames#CODE code} received and
+ *  delegate it to the {@link AuthenticationManager} to authenticate.
+ * </li>
+ * <li>
+ *  Upon a successful authentication, an {@link OAuth2AuthenticationToken} is created (representing the End-User {@code Principal})
+ *  and associated to the {@link OAuth2AuthorizedClient Authorized Client} using the {@link OAuth2AuthorizedClientService}.
+ * </li>
+ * <li>
+ *  Finally, the {@link OAuth2AuthenticationToken} is returned and ultimately stored
+ *  in the {@link SecurityContextRepository} to complete the authentication processing.
  * </li>
  * </ul>
  *
@@ -73,11 +86,15 @@ import java.io.IOException;
  * @see AuthorizationRequestRepository
  * @see OAuth2AuthorizationRequestRedirectFilter
  * @see ClientRegistrationRepository
+ * @see OAuth2AuthorizedClient
  * @see OAuth2AuthorizedClientService
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">Section 4.1 Authorization Code Grant</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.2">Section 4.1.2 Authorization Response</a>
  */
 public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
+	/**
+	 * The default {@code URI} where this {@code Filter} processes authentication requests.
+	 */
 	public static final String DEFAULT_FILTER_PROCESSES_URI = "/login/oauth2/code/*";
 	private static final String AUTHORIZATION_REQUEST_NOT_FOUND_ERROR_CODE = "authorization_request_not_found";
 	private ClientRegistrationRepository clientRegistrationRepository;
@@ -85,11 +102,24 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 	private AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
 		new HttpSessionOAuth2AuthorizationRequestRepository();
 
+	/**
+	 * Constructs an {@code OAuth2LoginAuthenticationFilter} using the provided parameters.
+	 *
+	 * @param clientRegistrationRepository the repository of client registrations
+	 * @param authorizedClientService the authorized client service
+	 */
 	public OAuth2LoginAuthenticationFilter(ClientRegistrationRepository clientRegistrationRepository,
 											OAuth2AuthorizedClientService authorizedClientService) {
 		this(clientRegistrationRepository, authorizedClientService, DEFAULT_FILTER_PROCESSES_URI);
 	}
 
+	/**
+	 * Constructs an {@code OAuth2LoginAuthenticationFilter} using the provided parameters.
+	 *
+	 * @param clientRegistrationRepository the repository of client registrations
+	 * @param authorizedClientService the authorized client service
+	 * @param filterProcessesUrl the {@code URI} where this {@code Filter} will process the authentication requests
+	 */
 	public OAuth2LoginAuthenticationFilter(ClientRegistrationRepository clientRegistrationRepository,
 											OAuth2AuthorizedClientService authorizedClientService,
 											String filterProcessesUrl) {
@@ -143,6 +173,11 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 		return oauth2Authentication;
 	}
 
+	/**
+	 * Sets the repository for stored {@link OAuth2AuthorizationRequest}'s.
+	 *
+	 * @param authorizationRequestRepository the repository for stored {@link OAuth2AuthorizationRequest}'s
+	 */
 	public final void setAuthorizationRequestRepository(AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
 		Assert.notNull(authorizationRequestRepository, "authorizationRequestRepository cannot be null");
 		this.authorizationRequestRepository = authorizationRequestRepository;

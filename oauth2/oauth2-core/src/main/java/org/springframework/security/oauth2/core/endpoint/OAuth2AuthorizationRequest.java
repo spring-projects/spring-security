@@ -91,9 +91,9 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 	}
 
 	/**
-	 * Returns the uri for the redirect endpoint.
+	 * Returns the uri for the redirection endpoint.
 	 *
-	 * @return the uri for the redirect endpoint
+	 * @return the uri for the redirection endpoint
 	 */
 	public String getRedirectUri() {
 		return this.redirectUri;
@@ -190,9 +190,9 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 		}
 
 		/**
-		 * Sets the uri for the redirect endpoint.
+		 * Sets the uri for the redirection endpoint.
 		 *
-		 * @param redirectUri the uri for the redirect endpoint
+		 * @param redirectUri the uri for the redirection endpoint
 		 * @return the {@link Builder}
 		 */
 		public Builder redirectUri(String redirectUri) {

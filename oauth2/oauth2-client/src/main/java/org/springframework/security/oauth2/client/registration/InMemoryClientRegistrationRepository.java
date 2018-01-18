@@ -30,7 +30,7 @@ import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toConcurrentMap;
 
 /**
- * A {@link ClientRegistrationRepository} that stores {@link ClientRegistration}(s) <i>in-memory</i>.
+ * A {@link ClientRegistrationRepository} that stores {@link ClientRegistration}(s) in-memory.
  *
  * @author Joe Grandja
  * @author Rob Winch
@@ -41,10 +41,20 @@ import static java.util.stream.Collectors.toConcurrentMap;
 public final class InMemoryClientRegistrationRepository implements ClientRegistrationRepository, Iterable<ClientRegistration> {
 	private final Map<String, ClientRegistration> registrations;
 
+	/**
+	 * Constructs an {@code InMemoryClientRegistrationRepository} using the provided parameters.
+	 *
+	 * @param registrations the client registration(s)
+	 */
 	public InMemoryClientRegistrationRepository(ClientRegistration... registrations) {
 		this(Arrays.asList(registrations));
 	}
 
+	/**
+	 * Constructs an {@code InMemoryClientRegistrationRepository} using the provided parameters.
+	 *
+	 * @param registrations the client registration(s)
+	 */
 	public InMemoryClientRegistrationRepository(List<ClientRegistration> registrations) {
 		Assert.notEmpty(registrations, "registrations cannot be empty");
 		Collector<ClientRegistration, ?, ConcurrentMap<String, ClientRegistration>> collector =
@@ -59,6 +69,11 @@ public final class InMemoryClientRegistrationRepository implements ClientRegistr
 		return this.registrations.get(registrationId);
 	}
 
+	/**
+	 * Returns an {@code Iterator} of {@link ClientRegistration}.
+	 *
+	 * @return an {@code Iterator<ClientRegistration>}
+	 */
 	@Override
 	public Iterator<ClientRegistration> iterator() {
 		return this.registrations.values().iterator();

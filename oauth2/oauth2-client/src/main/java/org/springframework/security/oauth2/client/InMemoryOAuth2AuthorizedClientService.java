@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * An {@link OAuth2AuthorizedClientService} that stores
- * {@link OAuth2AuthorizedClient Authorized Client(s)} <i>in-memory</i>.
+ * {@link OAuth2AuthorizedClient Authorized Client(s)} in-memory.
  *
  * @author Joe Grandja
  * @since 5.0
@@ -39,6 +39,11 @@ public final class InMemoryOAuth2AuthorizedClientService implements OAuth2Author
 	private final Map<String, OAuth2AuthorizedClient> authorizedClients = new ConcurrentHashMap<>();
 	private final ClientRegistrationRepository clientRegistrationRepository;
 
+	/**
+	 * Constructs an {@code InMemoryOAuth2AuthorizedClientService} using the provided parameters.
+	 *
+	 * @param clientRegistrationRepository the repository of client registrations
+	 */
 	public InMemoryOAuth2AuthorizedClientService(ClientRegistrationRepository clientRegistrationRepository) {
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
 		this.clientRegistrationRepository = clientRegistrationRepository;

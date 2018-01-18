@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 /**
- * Support classes/interfaces for authenticating an <i>end-user</i>
- * with an <i>authorization server</i> using a specific <i>authorization grant flow</i>.
+ * Support classes and interfaces for authenticating and authorizing a client
+ * with an OAuth 2.0 Authorization Server using a specific authorization grant flow.
  */
 package org.springframework.security.oauth2.client.authentication;

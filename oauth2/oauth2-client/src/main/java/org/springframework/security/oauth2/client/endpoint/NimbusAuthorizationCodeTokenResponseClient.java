@@ -48,12 +48,12 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * An implementation of an {@link OAuth2AccessTokenResponseClient} that <i>&quot;exchanges&quot;</i>
- * an <i>Authorization Code</i> credential for an <i>Access Token</i> credential
- * at the Authorization Server's <i>Token Endpoint</i>.
+ * An implementation of an {@link OAuth2AccessTokenResponseClient} that &quot;exchanges&quot;
+ * an authorization code credential for an access token credential
+ * at the Authorization Server's Token Endpoint.
  *
  * <p>
- * <b>NOTE:</b> This implementation uses the <b>Nimbus OAuth 2.0 SDK</b> internally.
+ * <b>NOTE:</b> This implementation uses the Nimbus OAuth 2.0 SDK internally.
  *
  * @author Joe Grandja
  * @since 5.0

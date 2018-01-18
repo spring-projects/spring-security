@@ -21,7 +21,7 @@ import org.springframework.util.Assert;
 
 /**
  * Represents a request the {@link OAuth2UserService} uses
- * when initiating a HTTP request to the <i>UserInfo Endpoint</i>.
+ * when initiating a request to the UserInfo Endpoint.
  *
  * @author Joe Grandja
  * @since 5.0
@@ -33,6 +33,12 @@ public class OAuth2UserRequest {
 	private final ClientRegistration clientRegistration;
 	private final OAuth2AccessToken accessToken;
 
+	/**
+	 * Constructs an {@code OAuth2UserRequest} using the provided parameters.
+	 *
+	 * @param clientRegistration the client registration
+	 * @param accessToken the access token
+	 */
 	public OAuth2UserRequest(ClientRegistration clientRegistration, OAuth2AccessToken accessToken) {
 		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
 		Assert.notNull(accessToken, "accessToken cannot be null");
@@ -40,10 +46,20 @@ public class OAuth2UserRequest {
 		this.accessToken = accessToken;
 	}
 
+	/**
+	 * Returns the {@link ClientRegistration client registration}.
+	 *
+	 * @return the {@link ClientRegistration}
+	 */
 	public ClientRegistration getClientRegistration() {
 		return this.clientRegistration;
 	}
 
+	/**
+	 * Returns the {@link OAuth2AccessToken access token}.
+	 *
+	 * @return the {@link OAuth2AccessToken}
+	 */
 	public OAuth2AccessToken getAccessToken() {
 		return this.accessToken;
 	}

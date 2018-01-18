@@ -36,16 +36,18 @@ import org.springframework.util.Assert;
 import java.util.Collection;
 
 /**
- * An implementation of an {@link AuthenticationProvider} for <i>OAuth 2.0 Login</i>,
- * which leverages the <i>OAuth 2.0 Authorization Code Grant</i> Flow.
+ * An implementation of an {@link AuthenticationProvider} for OAuth 2.0 Login,
+ * which leverages the OAuth 2.0 Authorization Code Grant Flow.
  *
  * This {@link AuthenticationProvider} is responsible for authenticating
- * an <i>Authorization Code</i> credential with the Authorization Server's <i>Token Endpoint</i>
- * and if valid, exchanging it for an <i>Access Token</i> credential.
+ * an Authorization Code credential with the Authorization Server's Token Endpoint
+ * and if valid, exchanging it for an Access Token credential.
  * <p>
- * It will also obtain the user attributes of the <i>End-User</i> (Resource Owner)
- * from the <i>UserInfo Endpoint</i> using an {@link OAuth2UserService}
- * which will create a <code>Principal</code> in the form of an {@link OAuth2User}.
+ * It will also obtain the user attributes of the End-User (Resource Owner)
+ * from the UserInfo Endpoint using an {@link OAuth2UserService},
+ * which will create a {@code Principal} in the form of an {@link OAuth2User}.
+ * The {@code OAuth2User} is then associated to the {@link OAuth2LoginAuthenticationToken}
+ * to complete the authentication.
  *
  * @author Joe Grandja
  * @since 5.0
@@ -64,6 +66,12 @@ public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider
 	private final OAuth2UserService<OAuth2UserRequest, OAuth2User> userService;
 	private GrantedAuthoritiesMapper authoritiesMapper = (authorities -> authorities);
 
+	/**
+	 * Constructs an {@code OAuth2LoginAuthenticationProvider} using the provided parameters.
+	 *
+	 * @param accessTokenResponseClient the client used for requesting the access token credential from the Token Endpoint
+	 * @param userService the service used for obtaining the user attributes of the End-User from the UserInfo Endpoint
+	 */
 	public OAuth2LoginAuthenticationProvider(
 		OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient,
 		OAuth2UserService<OAuth2UserRequest, OAuth2User> userService) {
@@ -134,6 +142,12 @@ public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider
 		return authenticationResult;
 	}
 
+	/**
+	 * Sets the {@link GrantedAuthoritiesMapper} used for mapping {@link OAuth2User#getAuthorities()}
+	 * to a new set of authorities which will be associated to the {@link OAuth2LoginAuthenticationToken}.
+	 *
+	 * @param authoritiesMapper the {@link GrantedAuthoritiesMapper} used for mapping the user's authorities
+	 */
 	public final void setAuthoritiesMapper(GrantedAuthoritiesMapper authoritiesMapper) {
 		Assert.notNull(authoritiesMapper, "authoritiesMapper cannot be null");
 		this.authoritiesMapper = authoritiesMapper;

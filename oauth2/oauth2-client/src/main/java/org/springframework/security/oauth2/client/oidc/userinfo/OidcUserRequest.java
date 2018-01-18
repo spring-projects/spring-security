@@ -23,7 +23,7 @@ import org.springframework.util.Assert;
 
 /**
  * Represents a request the {@link OidcUserService} uses
- * when initiating a HTTP request to the <i>UserInfo Endpoint</i>.
+ * when initiating a request to the UserInfo Endpoint.
  *
  * @author Joe Grandja
  * @since 5.0
@@ -35,6 +35,13 @@ import org.springframework.util.Assert;
 public class OidcUserRequest extends OAuth2UserRequest {
 	private final OidcIdToken idToken;
 
+	/**
+	 * Constructs an {@code OidcUserRequest} using the provided parameters.
+	 *
+	 * @param clientRegistration the client registration
+	 * @param accessToken the access token credential
+	 * @param idToken the ID Token
+	 */
 	public OidcUserRequest(ClientRegistration clientRegistration,
 							OAuth2AccessToken accessToken, OidcIdToken idToken) {
 
@@ -43,6 +50,11 @@ public class OidcUserRequest extends OAuth2UserRequest {
 		this.idToken = idToken;
 	}
 
+	/**
+	 * Returns the {@link OidcIdToken ID Token} containing claims about the user.
+	 *
+	 * @return the {@link OidcIdToken} containing claims about the user.
+	 */
 	public OidcIdToken getIdToken() {
 		return this.idToken;
 	}

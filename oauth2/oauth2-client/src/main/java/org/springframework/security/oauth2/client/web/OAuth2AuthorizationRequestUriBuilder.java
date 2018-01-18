@@ -25,7 +25,7 @@ import java.net.URI;
 import java.util.Set;
 
 /**
- * Uses a {@link UriComponentsBuilder} to construct the <i>OAuth 2.0 Authorization Request</i>.
+ * A {@code URI} builder for an OAuth 2.0 Authorization Request.
  *
  * @author Joe Grandja
  * @since 5.0

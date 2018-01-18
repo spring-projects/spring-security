@@ -26,11 +26,11 @@ import java.util.Objects;
 
 /**
  * An implementation of an {@link OAuth2UserService} that simply delegates
- * to it's internal <code>List</code> of {@link OAuth2UserService}'s.
+ * to it's internal {@code List} of {@link OAuth2UserService}(s).
  * <p>
  * Each {@link OAuth2UserService} is given a chance to
  * {@link OAuth2UserService#loadUser(OAuth2UserRequest) load} an {@link OAuth2User}
- * with the first <code>non-null</code> {@link OAuth2User} being returned.
+ * with the first {@code non-null} {@link OAuth2User} being returned.
  *
  * @author Joe Grandja
  * @since 5.0
@@ -38,12 +38,17 @@ import java.util.Objects;
  * @see OAuth2UserRequest
  * @see OAuth2User
  *
- * @param <R> The type of <i>OAuth 2.0 User Request</i>
- * @param <U> The type of <i>OAuth 2.0 User</i>
+ * @param <R> The type of OAuth 2.0 User Request
+ * @param <U> The type of OAuth 2.0 User
  */
 public class DelegatingOAuth2UserService<R extends OAuth2UserRequest, U extends OAuth2User> implements OAuth2UserService<R, U> {
 	private final List<OAuth2UserService<R, U>> userServices;
 
+	/**
+	 * Constructs a {@code DelegatingOAuth2UserService} using the provided parameters.
+	 *
+	 * @param userServices a {@code List} of {@link OAuth2UserService}(s)
+	 */
 	public DelegatingOAuth2UserService(List<OAuth2UserService<R, U>> userServices) {
 		Assert.notEmpty(userServices, "userServices cannot be empty");
 		this.userServices = Collections.unmodifiableList(new ArrayList<>(userServices));

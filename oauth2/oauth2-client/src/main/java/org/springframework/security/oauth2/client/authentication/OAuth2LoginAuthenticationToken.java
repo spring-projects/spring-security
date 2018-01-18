@@ -28,8 +28,8 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
- * An {@link AbstractAuthenticationToken} for <i>OAuth 2.0 Login</i>,
- * which leverages the <i>OAuth 2.0 Authorization Code Grant</i> Flow.
+ * An {@link AbstractAuthenticationToken} for OAuth 2.0 Login,
+ * which leverages the OAuth 2.0 Authorization Code Grant Flow.
  *
  * @author Joe Grandja
  * @since 5.0
@@ -50,8 +50,8 @@ public class OAuth2LoginAuthenticationToken extends AbstractAuthenticationToken 
 	/**
 	 * This constructor should be used when the Authorization Request/Response is complete.
 	 *
-	 * @param clientRegistration
-	 * @param authorizationExchange
+	 * @param clientRegistration the client registration
+	 * @param authorizationExchange the authorization exchange
 	 */
 	public OAuth2LoginAuthenticationToken(ClientRegistration clientRegistration,
 											OAuth2AuthorizationExchange authorizationExchange) {
@@ -69,11 +69,11 @@ public class OAuth2LoginAuthenticationToken extends AbstractAuthenticationToken 
 	 * which indicates that the Authorization Code Grant flow has fully completed
 	 * and OAuth 2.0 Login has been achieved.
 	 *
-	 * @param clientRegistration
-	 * @param authorizationExchange
-	 * @param principal
-	 * @param authorities
-	 * @param accessToken
+	 * @param clientRegistration the client registration
+	 * @param authorizationExchange the authorization exchange
+	 * @param principal the user {@code Principal} registered with the OAuth 2.0 Provider
+	 * @param authorities the authorities granted to the user
+	 * @param accessToken the access token credential
 	 */
 	public OAuth2LoginAuthenticationToken(ClientRegistration clientRegistration,
 											OAuth2AuthorizationExchange authorizationExchange,
@@ -102,14 +102,29 @@ public class OAuth2LoginAuthenticationToken extends AbstractAuthenticationToken 
 		return "";
 	}
 
+	/**
+	 * Returns the {@link ClientRegistration client registration}.
+	 *
+	 * @return the {@link ClientRegistration}
+	 */
 	public ClientRegistration getClientRegistration() {
 		return this.clientRegistration;
 	}
 
+	/**
+	 * Returns the {@link OAuth2AuthorizationExchange authorization exchange}.
+	 *
+	 * @return the {@link OAuth2AuthorizationExchange}
+	 */
 	public OAuth2AuthorizationExchange getAuthorizationExchange() {
 		return this.authorizationExchange;
 	}
 
+	/**
+	 * Returns the {@link OAuth2AccessToken access token}.
+	 *
+	 * @return the {@link OAuth2AccessToken}
+	 */
 	public OAuth2AccessToken getAccessToken() {
 		return this.accessToken;
 	}

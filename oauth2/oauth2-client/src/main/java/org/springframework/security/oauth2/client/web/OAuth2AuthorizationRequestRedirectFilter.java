@@ -41,15 +41,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This <code>Filter</code> initiates the authorization code grant or implicit grant flow
- * by redirecting the end-user's user-agent to the authorization server's <i>Authorization Endpoint</i>.
+ * This {@code Filter} initiates the authorization code grant or implicit grant flow
+ * by redirecting the End-User's user-agent to the Authorization Server's Authorization Endpoint.
  *
  * <p>
- * It builds the <i>OAuth 2.0 Authorization Request</i>,
- * which is used as the redirect <code>URI</code> to the <i>Authorization Endpoint</i>.
- * The redirect <code>URI</code> will include the client identifier, requested scope(s), state,
+ * It builds the OAuth 2.0 Authorization Request,
+ * which is used as the redirect {@code URI} to the Authorization Endpoint.
+ * The redirect {@code URI} will include the client identifier, requested scope(s), state,
  * response type, and a redirection URI which the authorization server will send the user-agent back to
- * once access is granted (or denied) by the end-user (resource owner).
+ * once access is granted (or denied) by the End-User (Resource Owner).
  *
  * @author Joe Grandja
  * @author Rob Winch
@@ -64,6 +64,9 @@ import java.util.Map;
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.2.1">Section 4.2.1 Authorization Request (Implicit)</a>
  */
 public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilter {
+	/**
+	 * The default base {@code URI} used for authorization requests.
+	 */
 	public static final String DEFAULT_AUTHORIZATION_REQUEST_BASE_URI = "/oauth2/authorization";
 	private static final String REGISTRATION_ID_URI_VARIABLE_NAME = "registrationId";
 	private final AntPathRequestMatcher authorizationRequestMatcher;
@@ -74,10 +77,21 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 	private AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
 		new HttpSessionOAuth2AuthorizationRequestRepository();
 
+	/**
+	 * Constructs an {@code OAuth2AuthorizationRequestRedirectFilter} using the provided parameters.
+	 *
+	 * @param clientRegistrationRepository the repository of client registrations
+	 */
 	public OAuth2AuthorizationRequestRedirectFilter(ClientRegistrationRepository clientRegistrationRepository) {
 		this(clientRegistrationRepository, DEFAULT_AUTHORIZATION_REQUEST_BASE_URI);
 	}
 
+	/**
+	 * Constructs an {@code OAuth2AuthorizationRequestRedirectFilter} using the provided parameters.
+	 *
+	 * @param clientRegistrationRepository the repository of client registrations
+	 * @param authorizationRequestBaseUri the base {@code URI} used for authorization requests
+	 */
 	public OAuth2AuthorizationRequestRedirectFilter(
 		ClientRegistrationRepository clientRegistrationRepository, String authorizationRequestBaseUri) {
 
@@ -88,6 +102,11 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 		this.clientRegistrationRepository = clientRegistrationRepository;
 	}
 
+	/**
+	 * Sets the repository used for storing {@link OAuth2AuthorizationRequest}'s.
+	 *
+	 * @param authorizationRequestRepository the repository used for storing {@link OAuth2AuthorizationRequest}'s
+	 */
 	public final void setAuthorizationRequestRepository(AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
 		Assert.notNull(authorizationRequestRepository, "authorizationRequestRepository cannot be null");
 		this.authorizationRequestRepository = authorizationRequestRepository;

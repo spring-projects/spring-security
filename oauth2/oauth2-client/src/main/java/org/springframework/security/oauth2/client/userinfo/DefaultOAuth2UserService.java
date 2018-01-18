@@ -30,13 +30,13 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * An implementation of an {@link OAuth2UserService} that supports standard <i>OAuth 2.0 Provider's</i>.
+ * An implementation of an {@link OAuth2UserService} that supports standard OAuth 2.0 Provider's.
  * <p>
- * For standard <i>OAuth 2.0 Provider's</i>, the attribute name (from the <i>UserInfo Response</i>)
- * for the <i>&quot;user's name&quot;</i> is required and therefore must be supplied via
- * {@link org.springframework.security.oauth2.client.registration.ClientRegistration.ProviderDetails.UserInfoEndpoint#getUserNameAttributeName()}.
+ * For standard OAuth 2.0 Provider's, the attribute name used to access the user's name
+ * from the UserInfo response is required and therefore must be available via
+ * {@link org.springframework.security.oauth2.client.registration.ClientRegistration.ProviderDetails.UserInfoEndpoint#getUserNameAttributeName() UserInfoEndpoint.getUserNameAttributeName()}.
  * <p>
- * <b>NOTE:</b> Attribute names are <b><i>not</i></b> standardized between providers and therefore will vary.
+ * <b>NOTE:</b> Attribute names are <b>not</b> standardized between providers and therefore will vary.
  * Please consult the provider's API documentation for the set of supported user attribute names.
  *
  * @author Joe Grandja

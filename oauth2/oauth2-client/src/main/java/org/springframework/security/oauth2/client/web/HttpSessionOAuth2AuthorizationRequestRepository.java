@@ -24,10 +24,11 @@ import javax.servlet.http.HttpSession;
 
 /**
  * An implementation of an {@link AuthorizationRequestRepository} that stores
- * {@link OAuth2AuthorizationRequest} in the {@link HttpSession}.
+ * {@link OAuth2AuthorizationRequest} in the {@code HttpSession}.
  *
  * @author Joe Grandja
  * @since 5.0
+ * @see AuthorizationRequestRepository
  * @see OAuth2AuthorizationRequest
  */
 public final class HttpSessionOAuth2AuthorizationRequestRepository implements AuthorizationRequestRepository<OAuth2AuthorizationRequest> {

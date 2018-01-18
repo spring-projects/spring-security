@@ -21,9 +21,9 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 
 /**
- * A strategy for <i>&quot;exchanging&quot;</i> an <i>Authorization Grant</i> credential
- * (e.g. an Authorization Code) for an <i>Access Token</i> credential
- * at the Authorization Server's <i>Token Endpoint</i>.
+ * A strategy for &quot;exchanging&quot; an authorization grant credential
+ * (e.g. an Authorization Code) for an access token credential
+ * at the Authorization Server's Token Endpoint.
  *
  * @author Joe Grandja
  * @since 5.0
@@ -36,6 +36,14 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenRespon
  */
 public interface OAuth2AccessTokenResponseClient<T extends AbstractOAuth2AuthorizationGrantRequest>  {
 
+	/**
+	 * Exchanges the authorization grant credential, provided in the authorization grant request,
+	 * for an access token credential at the Authorization Server's Token Endpoint.
+	 *
+	 * @param authorizationGrantRequest the authorization grant request that contains the authorization grant credential
+	 * @return an {@link OAuth2AccessTokenResponse} that contains the {@link OAuth2AccessTokenResponse#getAccessToken() access token} credential
+	 * @throws OAuth2AuthenticationException if an error occurs while attempting to exchange for the access token credential
+	 */
 	OAuth2AccessTokenResponse getTokenResponse(T authorizationGrantRequest) throws OAuth2AuthenticationException;
 
 }

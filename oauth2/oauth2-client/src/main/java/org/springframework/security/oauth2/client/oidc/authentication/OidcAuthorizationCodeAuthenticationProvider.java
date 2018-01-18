@@ -53,15 +53,17 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * An implementation of an {@link AuthenticationProvider}
- * for the <i>OpenID Connect Core 1.0 Authorization Code Grant Flow</i>.
+ * for the OpenID Connect Core 1.0 Authorization Code Grant Flow.
  * <p>
  * This {@link AuthenticationProvider} is responsible for authenticating
- * an <i>Authorization Code</i> credential with the Authorization Server's <i>Token Endpoint</i>
- * and if valid, exchanging it for an <i>Access Token</i> credential.
+ * an Authorization Code credential with the Authorization Server's Token Endpoint
+ * and if valid, exchanging it for an Access Token credential.
  * <p>
- * It will also obtain the user attributes of the <i>End-User</i> (Resource Owner)
- * from the <i>UserInfo Endpoint</i> using an {@link OAuth2UserService}
- * which will create a <code>Principal</code> in the form of an {@link OidcUser}.
+ * It will also obtain the user attributes of the End-User (Resource Owner)
+ * from the UserInfo Endpoint using an {@link OAuth2UserService},
+ * which will create a {@code Principal} in the form of an {@link OidcUser}.
+ * The {@code OidcUser} is then associated to the {@link OAuth2LoginAuthenticationToken}
+ * to complete the authentication.
  *
  * @author Joe Grandja
  * @since 5.0
@@ -83,6 +85,12 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 	private final Map<String, JwtDecoder> jwtDecoders = new ConcurrentHashMap<>();
 	private GrantedAuthoritiesMapper authoritiesMapper = (authorities -> authorities);
 
+	/**
+	 * Constructs an {@code OidcAuthorizationCodeAuthenticationProvider} using the provided parameters.
+	 *
+	 * @param accessTokenResponseClient the client used for requesting the access token credential from the Token Endpoint
+	 * @param userService the service used for obtaining the user attributes of the End-User from the UserInfo Endpoint
+	 */
 	public OidcAuthorizationCodeAuthenticationProvider(
 		OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient,
 		OAuth2UserService<OidcUserRequest, OidcUser> userService) {
@@ -169,6 +177,12 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 		return authenticationResult;
 	}
 
+	/**
+	 * Sets the {@link GrantedAuthoritiesMapper} used for mapping {@link OidcUser#getAuthorities()}}
+	 * to a new set of authorities which will be associated to the {@link OAuth2LoginAuthenticationToken}.
+	 *
+	 * @param authoritiesMapper the {@link GrantedAuthoritiesMapper} used for mapping the user's authorities
+	 */
 	public final void setAuthoritiesMapper(GrantedAuthoritiesMapper authoritiesMapper) {
 		Assert.notNull(authoritiesMapper, "authoritiesMapper cannot be null");
 		this.authoritiesMapper = authoritiesMapper;

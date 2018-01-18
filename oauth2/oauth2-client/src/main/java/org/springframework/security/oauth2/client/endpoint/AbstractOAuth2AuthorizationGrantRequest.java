@@ -19,9 +19,9 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.util.Assert;
 
 /**
- * Base implementation of an <i>OAuth 2.0 Authorization Grant</i> request
- * that holds an <i>authorization grant</i> credential and is used when
- * initiating a HTTP request to the Authorization Server's <i>Token Endpoint</i>.
+ * Base implementation of an OAuth 2.0 Authorization Grant request
+ * that holds an authorization grant credential and is used when
+ * initiating a request to the Authorization Server's Token Endpoint.
  *
  * @author Joe Grandja
  * @since 5.0
@@ -31,11 +31,21 @@ import org.springframework.util.Assert;
 public abstract class AbstractOAuth2AuthorizationGrantRequest {
 	private final AuthorizationGrantType authorizationGrantType;
 
+	/**
+	 * Sub-class constructor.
+	 *
+	 * @param authorizationGrantType the authorization grant type
+	 */
 	protected AbstractOAuth2AuthorizationGrantRequest(AuthorizationGrantType authorizationGrantType) {
 		Assert.notNull(authorizationGrantType, "authorizationGrantType cannot be null");
 		this.authorizationGrantType = authorizationGrantType;
 	}
 
+	/**
+	 * Returns the authorization grant type.
+	 *
+	 * @return the authorization grant type
+	 */
 	public AuthorizationGrantType getGrantType() {
 		return this.authorizationGrantType;
 	}

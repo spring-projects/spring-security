@@ -22,8 +22,8 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 /**
  * Implementations of this interface are responsible for the management
  * of {@link OAuth2AuthorizedClient Authorized Client(s)}, which provide the purpose
- * of associating an {@link OAuth2AuthorizedClient#getAccessToken() Access Token} to a
- * {@link OAuth2AuthorizedClient#getClientRegistration() Client} and <i>Resource Owner</i>,
+ * of associating an {@link OAuth2AuthorizedClient#getAccessToken() Access Token} credential
+ * to a {@link OAuth2AuthorizedClient#getClientRegistration() Client} and Resource Owner,
  * who is the {@link OAuth2AuthorizedClient#getPrincipalName() Principal}
  * that originally granted the authorization.
  *
@@ -36,10 +36,34 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
  */
 public interface OAuth2AuthorizedClientService {
 
+	/**
+	 * Returns the {@link OAuth2AuthorizedClient} associated to the
+	 * provided client registration identifier and End-User's {@code Principal} name
+	 * or {@code null} if not available.
+	 *
+	 * @param clientRegistrationId the identifier for the client's registration
+	 * @param principalName the name of the End-User {@code Principal} (Resource Owner)
+	 * @param <T> a type of OAuth2AuthorizedClient
+	 * @return the {@link OAuth2AuthorizedClient} or {@code null} if not available
+	 */
 	<T extends OAuth2AuthorizedClient> T loadAuthorizedClient(String clientRegistrationId, String principalName);
 
+	/**
+	 * Saves the {@link OAuth2AuthorizedClient} associating it to
+	 * the provided End-User {@link Authentication} (Resource Owner).
+	 *
+	 * @param authorizedClient the authorized client
+	 * @param principal the End-User {@link Authentication} (Resource Owner)
+	 */
 	void saveAuthorizedClient(OAuth2AuthorizedClient authorizedClient, Authentication principal);
 
+	/**
+	 * Removes the {@link OAuth2AuthorizedClient} associated to the
+	 * provided client registration identifier and End-User's {@code Principal} name.
+	 *
+	 * @param clientRegistrationId the identifier for the client's registration
+	 * @param principalName the name of the End-User {@code Principal} (Resource Owner)
+	 */
 	void removeAuthorizedClient(String clientRegistrationId, String principalName);
 
 }

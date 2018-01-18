@@ -21,7 +21,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 
 /**
  * Implementations of this interface are responsible for obtaining the user attributes
- * of the <i>End-User</i> (Resource Owner) from the <i>UserInfo Endpoint</i>
+ * of the End-User (Resource Owner) from the UserInfo Endpoint
  * using the {@link OAuth2UserRequest#getAccessToken() Access Token}
  * granted to the {@link OAuth2UserRequest#getClientRegistration() Client}
  * and returning an {@link AuthenticatedPrincipal} in the form of an {@link OAuth2User}.
@@ -32,11 +32,18 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
  * @see OAuth2User
  * @see AuthenticatedPrincipal
  *
- * @param <R> The type of <i>OAuth 2.0 User Request</i>
- * @param <U> The type of <i>OAuth 2.0 User</i>
+ * @param <R> The type of OAuth 2.0 User Request
+ * @param <U> The type of OAuth 2.0 User
  */
 public interface OAuth2UserService<R extends OAuth2UserRequest, U extends OAuth2User> {
 
+	/**
+	 * Returns an {@link OAuth2User} after obtaining the user attributes of the End-User from the UserInfo Endpoint.
+	 *
+	 * @param userRequest the user request
+	 * @return an {@link OAuth2User}
+	 * @throws OAuth2AuthenticationException if an error occurs while attempting to obtain the user attributes from the UserInfo Endpoint
+	 */
 	U loadUser(R userRequest) throws OAuth2AuthenticationException;
 
 }

@@ -28,7 +28,7 @@ import java.util.Map;
  * An implementation of an {@link OAuth2UserService} that supports custom {@link OAuth2User} types.
  * <p>
  * The custom user type(s) is supplied via the constructor,
- * using a <code>Map</code> of {@link OAuth2User} type <i>keyed</i> by <code>String</code>,
+ * using a {@code Map} of {@link OAuth2User} type(s) keyed by {@code String},
  * which represents the {@link ClientRegistration#getRegistrationId() Registration Id} of the Client.
  *
  * @author Joe Grandja
@@ -42,6 +42,11 @@ public class CustomUserTypesOAuth2UserService implements OAuth2UserService<OAuth
 	private final Map<String, Class<? extends OAuth2User>> customUserTypes;
 	private NimbusUserInfoResponseClient userInfoResponseClient = new NimbusUserInfoResponseClient();
 
+	/**
+	 * Constructs a {@code CustomUserTypesOAuth2UserService} using the provided parameters.
+	 *
+	 * @param customUserTypes a {@code Map} of {@link OAuth2User} type(s) keyed by {@link ClientRegistration#getRegistrationId() Registration Id}
+	 */
 	public CustomUserTypesOAuth2UserService(Map<String, Class<? extends OAuth2User>> customUserTypes) {
 		Assert.notEmpty(customUserTypes, "customUserTypes cannot be empty");
 		this.customUserTypes = Collections.unmodifiableMap(new LinkedHashMap<>(customUserTypes));

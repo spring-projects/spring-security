@@ -20,10 +20,10 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.util.Assert;
 
 /**
- * A representation of an OAuth 2.0 <i>&quot;Authorized Client&quot;</i>.
+ * A representation of an OAuth 2.0 &quot;Authorized Client&quot;.
  * <p>
- * A client is considered <i>&quot;authorized&quot;</i> when the End-User (Resource Owner)
- * grants authorization to the Client to access its protected resources.
+ * A client is considered &quot;authorized&quot; when the End-User (Resource Owner)
+ * has granted authorization to the client to access it's protected resources.
  * <p>
  * This class associates the {@link #getClientRegistration() Client}
  * to the {@link #getAccessToken() Access Token}
@@ -39,6 +39,13 @@ public class OAuth2AuthorizedClient {
 	private final String principalName;
 	private final OAuth2AccessToken accessToken;
 
+	/**
+	 * Constructs an {@code OAuth2AuthorizedClient} using the provided parameters.
+	 *
+	 * @param clientRegistration the authorized client's registration
+	 * @param principalName the name of the End-User {@code Principal} (Resource Owner)
+	 * @param accessToken the access token credential granted
+	 */
 	public OAuth2AuthorizedClient(ClientRegistration clientRegistration, String principalName, OAuth2AccessToken accessToken) {
 		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
 		Assert.hasText(principalName, "principalName cannot be empty");
@@ -48,14 +55,29 @@ public class OAuth2AuthorizedClient {
 		this.accessToken = accessToken;
 	}
 
+	/**
+	 * Returns the authorized client's {@link ClientRegistration registration}.
+	 *
+	 * @return the {@link ClientRegistration}
+	 */
 	public ClientRegistration getClientRegistration() {
 		return this.clientRegistration;
 	}
 
+	/**
+	 * Returns the End-User's {@code Principal} name.
+	 *
+	 * @return the End-User's {@code Principal} name
+	 */
 	public String getPrincipalName() {
 		return this.principalName;
 	}
 
+	/**
+	 * Returns the {@link OAuth2AccessToken access token} credential granted.
+	 *
+	 * @return the {@link OAuth2AccessToken}
+	 */
 	public OAuth2AccessToken getAccessToken() {
 		return this.accessToken;
 	}

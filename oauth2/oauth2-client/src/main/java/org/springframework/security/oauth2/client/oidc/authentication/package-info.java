@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 /**
- * Classes and interfaces providing support to the client for initiating requests
- * to the OAuth 2.0 Authorization Server's UserInfo Endpoint.
+ * Support classes and interfaces for authenticating and authorizing a client
+ * with an OpenID Connect 1.0 Provider using a specific authorization grant flow.
  */
-package org.springframework.security.oauth2.client.userinfo;
+package org.springframework.security.oauth2.client.oidc.authentication;
