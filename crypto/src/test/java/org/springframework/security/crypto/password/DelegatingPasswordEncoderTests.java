@@ -23,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,6 +34,7 @@ import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
+ * @author Michael Simons
  * @since 5.0
  */
 @RunWith(MockitoJUnitRunner.class)
@@ -161,6 +163,19 @@ public class DelegatingPasswordEncoderTests {
 	@Test
 	public void matchesWhenPrefixInMiddleThenFalse() {
 		assertThatThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "invalid" + this.bcryptEncodedPassword))
+			.isInstanceOf(IllegalArgumentException.class)
+			.hasMessage("There is no PasswordEncoder mapped for the id \"null\"");
+
+		verifyZeroInteractions(this.bcrypt, this.noop);
+	}
+
+	@Test
+	public void matchesWhenIdIsNullThenFalse() {
+		this.delegates = new Hashtable<>(this.delegates);
+
+		DelegatingPasswordEncoder passwordEncoder = new DelegatingPasswordEncoder(this.bcryptId, this.delegates);
+
+		assertThatThrownBy(() -> passwordEncoder.matches(this.rawPassword, this.rawPassword))
 			.isInstanceOf(IllegalArgumentException.class)
 			.hasMessage("There is no PasswordEncoder mapped for the id \"null\"");
 

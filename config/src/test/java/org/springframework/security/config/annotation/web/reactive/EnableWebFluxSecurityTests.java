@@ -212,7 +212,7 @@ public class EnableWebFluxSecurityTests {
 	@EnableWebFluxSecurity
 	static class CustomPasswordEncoderConfig {
 		@Bean
-		public ReactiveUserDetailsService userDetailsRepository(PasswordEncoder encoder) {
+		public ReactiveUserDetailsService userDetailsService(PasswordEncoder encoder) {
 			return new MapReactiveUserDetailsService(User.withUsername("user")
 				.password(encoder.encode("password"))
 				.roles("USER")

@@ -29,7 +29,7 @@ import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 @Configuration
 public class ReactiveAuthenticationTestConfiguration {
 	@Bean
-	public static ReactiveUserDetailsService userDetailsRepository() {
+	public static ReactiveUserDetailsService userDetailsService() {
 		return new MapReactiveUserDetailsService(PasswordEncodedUser.user(), PasswordEncodedUser.admin());
 	}
 }

@@ -1,3 +1,5 @@
+
+
 apply plugin: 'io.spring.convention.spring-sample-war'
 
 dependencies {

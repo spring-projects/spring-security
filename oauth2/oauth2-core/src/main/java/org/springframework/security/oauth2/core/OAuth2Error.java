@@ -15,7 +15,10 @@
  */
 package org.springframework.security.oauth2.core;
 
+import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.Assert;
+
+import java.io.Serializable;
 
 /**
  * A representation of an <i>OAuth 2.0 Error</i>.
@@ -30,7 +33,8 @@ import org.springframework.util.Assert;
  * @since 5.0
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-11.4">Section 11.4 OAuth Extensions Error Registry</a>
  */
-public final class OAuth2Error {
+public final class OAuth2Error implements Serializable {
+	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 	private final String errorCode;
 	private final String description;
 	private final String uri;

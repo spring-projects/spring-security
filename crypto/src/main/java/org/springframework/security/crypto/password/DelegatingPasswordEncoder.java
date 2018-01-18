@@ -16,6 +16,7 @@
 
 package org.springframework.security.crypto.password;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -116,6 +117,7 @@ import java.util.Map;
  * @see org.springframework.security.crypto.factory.PasswordEncoderFactories
  *
  * @author Rob Winch
+ * @author Michael Simons
  * @since 5.0
  */
 public class DelegatingPasswordEncoder implements PasswordEncoder {
@@ -154,7 +156,7 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 		}
 		this.idForEncode = idForEncode;
 		this.passwordEncoderForEncode = idToPasswordEncoder.get(idForEncode);
-		this.idToPasswordEncoder = idToPasswordEncoder;
+		this.idToPasswordEncoder = new HashMap<>(idToPasswordEncoder);
 	}
 
 	/**

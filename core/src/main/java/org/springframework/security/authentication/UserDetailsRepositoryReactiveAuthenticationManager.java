@@ -30,19 +30,19 @@ import reactor.core.scheduler.Schedulers;
  * @since 5.0
  */
 public class UserDetailsRepositoryReactiveAuthenticationManager implements ReactiveAuthenticationManager {
-	private final ReactiveUserDetailsService repository;
+	private final ReactiveUserDetailsService userDetailsService;
 
 	private PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
-	public UserDetailsRepositoryReactiveAuthenticationManager(ReactiveUserDetailsService reactiveUserDetailsService) {
-		Assert.notNull(reactiveUserDetailsService, "userDetailsRepository cannot be null");
-		this.repository = reactiveUserDetailsService;
+	public UserDetailsRepositoryReactiveAuthenticationManager(ReactiveUserDetailsService userDetailsService) {
+		Assert.notNull(userDetailsService, "userDetailsService cannot be null");
+		this.userDetailsService = userDetailsService;
 	}
 
 	@Override
 	public Mono<Authentication> authenticate(Authentication authentication) {
 		final String username = authentication.getName();
-		return this.repository.findByUsername(username)
+		return this.userDetailsService.findByUsername(username)
 				.publishOn(Schedulers.parallel())
 				.filter( u -> this.passwordEncoder.matches((String) authentication.getCredentials(), u.getPassword()))
 				.switchIfEmpty(  Mono.error(new BadCredentialsException("Invalid Credentials")) )

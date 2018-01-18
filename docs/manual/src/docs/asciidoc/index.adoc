@@ -825,7 +825,7 @@ You can find a minimal WebFlux Security configuration below:
 public class HelloWebfluxSecurityConfig {
 
 	@Bean
-	public MapReactiveUserDetailsService userDetailsRepository() {
+	public MapReactiveUserDetailsService userDetailsService() {
 		UserDetails user = User.withDefaultPasswordEncoder()
 			.username("user")
 			.password("user")
@@ -850,7 +850,7 @@ You can find an explicit version of the minimal WebFlux Security configuration b
 public class HelloWebfluxSecurityConfig {
 
 	@Bean
-	public MapReactiveUserDetailsService userDetailsRepository() {
+	public MapReactiveUserDetailsService userDetailsService() {
 		UserDetails user = User.withDefaultPasswordEncoder()
 			.username("user")
 			.password("user")
@@ -1750,7 +1750,7 @@ Below is a minimal method security configuration when using method security in r
 @EnableReactiveMethodSecurity
 public class SecurityConfig {
 	@Bean
-	public MapReactiveUserDetailsService userDetailsRepository() {
+	public MapReactiveUserDetailsService userDetailsService() {
 		User.UserBuilder userBuilder = User.withDefaultPasswordEncoder();
 		UserDetails rob = userBuilder.username("rob").password("rob").roles("USER").build();
 		UserDetails admin = userBuilder.username("admin").password("admin").roles("USER","ADMIN").build();
@@ -1798,7 +1798,7 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	MapReactiveUserDetailsService userDetailsRepository() {
+	MapReactiveUserDetailsService userDetailsService() {
 		User.UserBuilder userBuilder = User.withDefaultPasswordEncoder();
 		UserDetails rob = userBuilder.username("rob").password("rob").roles("USER").build();
 		UserDetails admin = userBuilder.username("admin").password("admin").roles("USER","ADMIN").build();
@@ -6851,13 +6851,21 @@ The UserInfo Endpoint includes a number of configuration options, as described i
 ==== Mapping User Authorities
 
 After the user successfully authenticates with the OAuth 2.0 Provider,
-the `OAuth2User.getAuthorities()` may be mapped to a new set of `GrantedAuthority` instances, which are then supplied to `OAuth2AuthenticationToken`.
+the `OAuth2User.getAuthorities()` (or `OidcUser.getAuthorities()`) may be mapped to a new set of `GrantedAuthority` instances,
+which will be supplied to `OAuth2AuthenticationToken` when completing the authentication.
 
 [TIP]
 `OAuth2AuthenticationToken.getAuthorities()` is used for authorizing requests, such as in `hasRole('USER')` or `hasRole('ADMIN')`.
 
-In order to map user authorities, you need to provide an implementation of `GrantedAuthoritiesMapper`
-and configure it as shown in the following example:
+There are a couple of options to choose from when mapping user authorities:
+
+* <<oauth2login-advanced-map-authorities-grantedauthoritiesmapper,Using a `GrantedAuthoritiesMapper`>>
+* <<oauth2login-advanced-map-authorities-oauth2userservice,Delegation-based strategy with `OAuth2UserService`>>
+
+[[oauth2login-advanced-map-authorities-grantedauthoritiesmapper]]
+===== Using a `GrantedAuthoritiesMapper`
+
+Provide an implementation of `GrantedAuthoritiesMapper` and configure it as shown in the following example:
 
 [source,java]
 ----
@@ -6899,6 +6907,56 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 			});
 
 			return mappedAuthorities;
+		};
+	}
+}
+----
+
+[[oauth2login-advanced-map-authorities-oauth2userservice]]
+===== Delegation-based strategy with `OAuth2UserService`
+
+This strategy is advanced compared to using a `GrantedAuthoritiesMapper`, however, it's also more flexible
+as it gives you access to the `OAuth2UserRequest` and `OAuth2User` (when using an OAuth 2.0 UserService)
+or `OidcUserRequest` and `OidcUser` (when using an OpenID Connect 1.0 UserService).
+
+The `OAuth2UserRequest` (and `OidcUserRequest`) provides you access to the associated `OAuth2AccessToken`,
+which is very useful in the cases where the _delegator_ needs to fetch authority information
+from a protected resource before it can map the custom authorities for the user.
+
+The following example shows how to implement and configure a delegation-based strategy using an OpenID Connect 1.0 UserService:
+
+[source,java]
+----
+@EnableWebSecurity
+public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
+
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http
+			.oauth2Login()
+				.userInfoEndpoint()
+					.oidcUserService(this.oidcUserService())
+					...
+	}
+
+	private OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService() {
+		final OidcUserService delegate = new OidcUserService();
+
+		return (userRequest) -> {
+			// Delegate to the default implementation for loading a user
+			OidcUser oidcUser = delegate.loadUser(userRequest);
+
+			OAuth2AccessToken accessToken = userRequest.getAccessToken();
+			Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
+
+			// TODO
+			// 1) Fetch the authority information from the protected resource using accessToken
+			// 2) Map the authority information to one or more GrantedAuthority's and add it to mappedAuthorities
+
+			// 3) Create a copy of oidcUser but use the mappedAuthorities instead
+			oidcUser = new DefaultOidcUser(mappedAuthorities, oidcUser.getIdToken(), oidcUser.getUserInfo());
+
+			return oidcUser;
 		};
 	}
 }
