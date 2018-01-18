@@ -34,6 +34,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
+import org.springframework.security.authentication.AuthenticationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -76,7 +77,13 @@ public class AuthenticationConfiguration {
 	public AuthenticationManagerBuilder authenticationManagerBuilder(
 			ObjectPostProcessor<Object> objectPostProcessor, ApplicationContext context) {
 		LazyPasswordEncoder defaultPasswordEncoder = new LazyPasswordEncoder(context);
-		return new DefaultPasswordEncoderAuthenticationManagerBuilder(objectPostProcessor, defaultPasswordEncoder);
+		AuthenticationEventPublisher authenticationEventPublisher = getBeanOrNull(context, AuthenticationEventPublisher.class);
+
+		DefaultPasswordEncoderAuthenticationManagerBuilder result = new DefaultPasswordEncoderAuthenticationManagerBuilder(objectPostProcessor, defaultPasswordEncoder);
+		if (authenticationEventPublisher != null) {
+			result.authenticationEventPublisher(authenticationEventPublisher);
+		}
+		return result;
 	}
 
 	@Bean
@@ -157,6 +164,14 @@ public class AuthenticationConfiguration {
 
 	private AuthenticationManager getAuthenticationManagerBean() {
 		return lazyBean(AuthenticationManager.class);
+	}
+
+	private static <T> T getBeanOrNull(ApplicationContext applicationContext, Class<T> type) {
+		try {
+			return applicationContext.getBean(type);
+		} catch(NoSuchBeanDefinitionException notFound) {
+			return null;
+		}
 	}
 
 	private static class EnableGlobalAuthenticationAutowiredConfigurer extends
@@ -278,20 +293,12 @@ public class AuthenticationConfiguration {
 			if (this.passwordEncoder != null) {
 				return this.passwordEncoder;
 			}
-			PasswordEncoder passwordEncoder = getBeanOrNull(PasswordEncoder.class);
+			PasswordEncoder passwordEncoder = getBeanOrNull(this.applicationContext, PasswordEncoder.class);
 			if (passwordEncoder == null) {
 				passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 			}
 			this.passwordEncoder = passwordEncoder;
 			return passwordEncoder;
-		}
-
-		private <T> T getBeanOrNull(Class<T> type) {
-			try {
-				return this.applicationContext.getBean(type);
-			} catch(NoSuchBeanDefinitionException notFound) {
-				return null;
-			}
 		}
 
 		@Override
