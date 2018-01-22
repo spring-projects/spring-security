@@ -77,7 +77,7 @@ public final class IpAddressMatcher implements RequestMatcher {
 		byte[] reqAddr = requiredAddress.getAddress();
 
 		int nMaskFullBytes = nMaskBits / 8;
-		byte finalByte = (0xFF00 >> (nMaskBits & 0x07));
+		byte finalByte = (byte) (0xFF00 >> (nMaskBits & 0x07));
 
 		// System.out.println("Mask is " + new sun.misc.HexDumpEncoder().encode(mask));
 
