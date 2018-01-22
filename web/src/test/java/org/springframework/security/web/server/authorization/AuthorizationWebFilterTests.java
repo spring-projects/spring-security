@@ -63,7 +63,7 @@ public class AuthorizationWebFilterTests {
 	@Test
 	public void filterWhenNoAuthenticationThenThrowsAccessDenied() {
 		when(this.chain.filter(this.exchange)).thenReturn(this.chainResult.mono());
-		AuthorizationWebFilter filter = new AuthorizationWebFilter((a, e) -> Mono.error(new AccessDeniedException("Denied")));
+		AuthorizationWebFilter filter = new AuthorizationWebFilter((a, e) -> a.flatMap(auth -> Mono.error(new AccessDeniedException("Denied"))));
 
 		Mono<Void> result = filter
 			.filter(this.exchange, this.chain)

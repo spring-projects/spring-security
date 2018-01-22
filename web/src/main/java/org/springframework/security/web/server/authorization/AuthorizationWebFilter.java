@@ -40,6 +40,7 @@ public class AuthorizationWebFilter implements WebFilter {
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 		return ReactiveSecurityContextHolder.getContext()
+			.filter(c -> c.getAuthentication() != null)
 			.map(SecurityContext::getAuthentication)
 			.as(authentication -> this.accessDecisionManager.verify(authentication, exchange))
 			.switchIfEmpty(chain.filter(exchange));
