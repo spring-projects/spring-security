@@ -17,7 +17,6 @@ package org.springframework.security.web.util.matcher;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Arrays;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -76,24 +75,19 @@ public final class IpAddressMatcher implements RequestMatcher {
 		byte[] remAddr = remoteAddress.getAddress();
 		byte[] reqAddr = requiredAddress.getAddress();
 
-		int oddBits = nMaskBits % 8;
-		int nMaskBytes = nMaskBits / 8 + (oddBits == 0 ? 0 : 1);
-		byte[] mask = new byte[nMaskBytes];
-
-		Arrays.fill(mask, 0, oddBits == 0 ? mask.length : mask.length - 1, (byte) 0xFF);
-
-		if (oddBits != 0) {
-			int finalByte = (1 << oddBits) - 1;
-			finalByte <<= 8 - oddBits;
-			mask[mask.length - 1] = (byte) finalByte;
-		}
+		int nMaskFullBytes = nMaskBits / 8;
+		byte finalByte = (byte) (0xFF00 >> (nMaskBits & 0x07));
 
 		// System.out.println("Mask is " + new sun.misc.HexDumpEncoder().encode(mask));
 
-		for (int i = 0; i < mask.length; i++) {
-			if ((remAddr[i] & mask[i]) != (reqAddr[i] & mask[i])) {
+		for (int i = 0; i < nMaskFullBytes; i++) {
+			if (remAddr[i] != reqAddr[i]) {
 				return false;
 			}
+		}
+
+		if (finalByte != 0) {
+			return (remAddr[nMaskFullBytes] & finalByte) == (reqAddr[nMaskFullBytes] & finalByte);
 		}
 
 		return true;
