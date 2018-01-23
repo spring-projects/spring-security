@@ -66,6 +66,7 @@ dependencies {
 
 	testRuntime 'cglib:cglib-nodep'
 	testRuntime 'org.hsqldb:hsqldb'
+	testRuntime 'com.fasterxml.jackson.core:jackson-databind'
 }
 
 test {
