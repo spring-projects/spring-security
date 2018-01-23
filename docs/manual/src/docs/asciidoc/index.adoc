@@ -6912,6 +6912,25 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 }
 ----
 
+Alternatively, you may register a `GrantedAuthoritiesMapper` `@Bean` to have it automatically applied to the configuration, as shown in the following example:
+
+[source,java]
+----
+@EnableWebSecurity
+public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
+
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http.oauth2Login();
+	}
+
+	@Bean
+	public GrantedAuthoritiesMapper userAuthoritiesMapper() {
+		...
+	}
+}
+----
+
 [[oauth2login-advanced-map-authorities-oauth2userservice]]
 ===== Delegation-based strategy with `OAuth2UserService`
 
