@@ -17,7 +17,6 @@ package org.springframework.security.web.util.matcher;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Arrays;
 
 import javax.servlet.http.HttpServletRequest;
 
