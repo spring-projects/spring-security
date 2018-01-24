@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-data</artifactId>
-  <version>4.2.4.BUILD-SNAPSHOT</version>
+  <version>4.2.4.RELEASE</version>
   <name>spring-security-data</name>
   <description>spring-security-data</description>
   <url>http://spring.io/spring-security</url>
@@ -51,7 +51,7 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <version>4.2.4.BUILD-SNAPSHOT</version>
+      <version>4.2.4.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -108,12 +108,6 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-  <repositories>
-    <repository>
-      <id>spring-snapshot</id>
-      <url>https://repo.spring.io/snapshot</url>
-    </repository>
-  </repositories>
   <build>
     <plugins>
       <plugin>

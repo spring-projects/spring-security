@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-samples-xml-casserver</artifactId>
-  <version>4.2.4.BUILD-SNAPSHOT</version>
+  <version>4.2.4.RELEASE</version>
   <packaging>war</packaging>
   <name>spring-security-samples-xml-casserver</name>
   <description>spring-security-samples-xml-casserver</description>
@@ -89,12 +89,6 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-  <repositories>
-    <repository>
-      <id>spring-snapshot</id>
-      <url>https://repo.spring.io/snapshot</url>
-    </repository>
-  </repositories>
   <build>
     <plugins>
       <plugin>
