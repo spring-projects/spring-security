@@ -16,8 +16,8 @@
 package org.springframework.security.oauth2.jose.jws;
 
 /**
- * The cryptographic algorithms defined by the <i>JSON Web Algorithms (JWA)</i> specification
- * and used by <i>JSON Web Signature (JWS)</i> to digitally sign or create a MAC
+ * The cryptographic algorithms defined by the JSON Web Algorithms (JWA) specification
+ * and used by JSON Web Signature (JWS) to digitally sign or create a MAC
  * of the contents of the JWS Protected Header and JWS Payload.
  *
  * @author Joe Grandja

@@ -39,12 +39,12 @@ import java.util.Map;
 
 /**
  * An implementation of a {@link JwtDecoder} that &quot;decodes&quot; a
- * <i>JSON Web Token (JWT)</i> and additionally verifies it's digital signature if the JWT is a
- * <i>JSON Web Signature (JWS)</i>. The public key used for verification is obtained from the
- * <i>JSON Web Key (JWK)</i> Set <code>URL</code> which is supplied via the constructor.
+ * JSON Web Token (JWT) and additionally verifies it's digital signature if the JWT is a
+ * JSON Web Signature (JWS). The public key used for verification is obtained from the
+ * JSON Web Key (JWK) Set {@code URL} supplied via the constructor.
  *
  * <p>
- * <b>NOTE:</b> This implementation uses the <b>Nimbus JOSE + JWT SDK</b> internally.
+ * <b>NOTE:</b> This implementation uses the Nimbus JOSE + JWT SDK internally.
  *
  * @author Joe Grandja
  * @since 5.0
@@ -59,10 +59,21 @@ public final class NimbusJwtDecoderJwkSupport implements JwtDecoder {
 	private final JWSAlgorithm jwsAlgorithm;
 	private final ConfigurableJWTProcessor<SecurityContext> jwtProcessor;
 
+	/**
+	 * Constructs a {@code NimbusJwtDecoderJwkSupport} using the provided parameters.
+	 *
+	 * @param jwkSetUrl the JSON Web Key (JWK) Set {@code URL}
+	 */
 	public NimbusJwtDecoderJwkSupport(String jwkSetUrl) {
 		this(jwkSetUrl, JwsAlgorithms.RS256);
 	}
 
+	/**
+	 * Constructs a {@code NimbusJwtDecoderJwkSupport} using the provided parameters.
+	 *
+	 * @param jwkSetUrl the JSON Web Key (JWK) Set {@code URL}
+	 * @param jwsAlgorithm the JSON Web Algorithm (JWA) used for verifying the digital signatures
+	 */
 	public NimbusJwtDecoderJwkSupport(String jwkSetUrl, String jwsAlgorithm) {
 		Assert.hasText(jwkSetUrl, "jwkSetUrl cannot be empty");
 		Assert.hasText(jwsAlgorithm, "jwsAlgorithm cannot be empty");

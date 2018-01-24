@@ -24,13 +24,13 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * An implementation of an {@link AbstractOAuth2Token} representing a <i>JSON Web Token (JWT)</i>.
+ * An implementation of an {@link AbstractOAuth2Token} representing a JSON Web Token (JWT).
  *
  * <p>
- * JWTs represent a set of &quot;Claims&quot; as a JSON object that may be encoded in a
- * <i>JSON Web Signature (JWS)</i> and/or <i>JSON Web Encryption (JWE)</i> structure.
- * The JSON object, also known as the <i>JWT Claims Set</i>, consists of one or more Claim Name/Claim Value pairs.
- * The Claim Name is a <code>String</code> and the Claim Value is an arbitrary JSON object.
+ * JWTs represent a set of &quot;claims&quot; as a JSON object that may be encoded in a
+ * JSON Web Signature (JWS) and/or JSON Web Encryption (JWE) structure.
+ * The JSON object, also known as the JWT Claims Set, consists of one or more claim name/value pairs.
+ * The claim name is a {@code String} and the claim value is an arbitrary JSON object.
  *
  * @author Joe Grandja
  * @since 5.0
@@ -44,6 +44,15 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 	private final Map<String, Object> headers;
 	private final Map<String, Object> claims;
 
+	/**
+	 * Constructs a {@code Jwt} using the provided parameters.
+	 *
+	 * @param tokenValue the token value
+	 * @param issuedAt the time at which the JWT was issued
+	 * @param expiresAt the expiration time on or after which the JWT MUST NOT be accepted
+	 * @param headers the JOSE header(s)
+	 * @param claims the JWT Claims Set
+	 */
 	public Jwt(String tokenValue, Instant issuedAt, Instant expiresAt,
 				Map<String, Object> headers, Map<String, Object> claims) {
 		super(tokenValue, issuedAt, expiresAt);
@@ -53,10 +62,20 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 		this.claims = Collections.unmodifiableMap(new LinkedHashMap<>(claims));
 	}
 
+	/**
+	 * Returns the JOSE header(s).
+	 *
+	 * @return a {@code Map} of the JOSE header(s)
+	 */
 	public Map<String, Object> getHeaders() {
 		return this.headers;
 	}
 
+	/**
+	 * Returns the JWT Claims Set.
+	 *
+	 * @return a {@code Map} of the JWT Claims Set
+	 */
 	@Override
 	public Map<String, Object> getClaims() {
 		return this.claims;

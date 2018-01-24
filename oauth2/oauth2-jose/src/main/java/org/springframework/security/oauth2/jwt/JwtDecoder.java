@@ -17,12 +17,12 @@ package org.springframework.security.oauth2.jwt;
 
 /**
  * Implementations of this interface are responsible for &quot;decoding&quot;
- * a <i>JSON Web Token (JWT)</i> from it's compact claims representation format to a {@link Jwt}.
+ * a JSON Web Token (JWT) from it's compact claims representation format to a {@link Jwt}.
  *
  * <p>
  * JWTs may be represented using the JWS Compact Serialization format for a
- * <i>JSON Web Signature (JWS)</i> structure or JWE Compact Serialization format for a
- * <i>JSON Web Encryption (JWE)</i> structure. Therefore, implementors are responsible
+ * JSON Web Signature (JWS) structure or JWE Compact Serialization format for a
+ * JSON Web Encryption (JWE) structure. Therefore, implementors are responsible
  * for verifying a JWS and/or decrypting a JWE.
  *
  * @author Joe Grandja
@@ -36,6 +36,13 @@ package org.springframework.security.oauth2.jwt;
  */
 public interface JwtDecoder {
 
+	/**
+	 * Decodes the JWT from it's compact claims representation format and returns a {@link Jwt}.
+	 *
+	 * @param token the JWT value
+	 * @return a {@link Jwt}
+	 * @throws JwtException if an error occurs while attempting to decode the JWT
+	 */
 	Jwt decode(String token) throws JwtException;
 
 }
