@@ -20,7 +20,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.ResolvableType;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
@@ -62,11 +64,57 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A security configurer for OAuth 2.0 / OpenID Connect 1.0 login.
+ * An {@link AbstractHttpConfigurer} for OAuth 2.0 Login,
+ * which leverages the OAuth 2.0 Authorization Code Grant Flow.
+ *
+ * <p>
+ * OAuth 2.0 Login provides an application with the capability to have users log in
+ * by using their existing account at an OAuth 2.0 or OpenID Connect 1.0 Provider.
+ *
+ * <p>
+ * Defaults are provided for all configuration options with the only required configuration
+ * being {@link #clientRegistrationRepository(ClientRegistrationRepository)}.
+ * Alternatively, a {@link ClientRegistrationRepository} {@code @Bean} may be registered instead.
+ *
+ * <h2>Security Filters</h2>
+ *
+ * The following {@code Filter}'s are populated:
+ *
+ * <ul>
+ * <li>{@link OAuth2AuthorizationRequestRedirectFilter}</li>
+ * <li>{@link OAuth2LoginAuthenticationFilter}</li>
+ * </ul>
+ *
+ * <h2>Shared Objects Created</h2>
+ *
+ * The following shared objects are populated:
+ *
+ * <ul>
+ * <li>{@link ClientRegistrationRepository} (required)</li>
+ * <li>{@link OAuth2AuthorizedClientService} (optional)</li>
+ * <li>{@link GrantedAuthoritiesMapper} (optional)</li>
+ * </ul>
+ *
+ * <h2>Shared Objects Used</h2>
+ *
+ * The following shared objects are used:
+ *
+ * <ul>
+ * <li>{@link ClientRegistrationRepository}</li>
+ * <li>{@link OAuth2AuthorizedClientService}</li>
+ * <li>{@link GrantedAuthoritiesMapper}</li>
+ * <li>{@link DefaultLoginPageGeneratingFilter} - if {@link #loginPage(String)} is not configured
+ * and {@code DefaultLoginPageGeneratingFilter} is available, than a default login page will be made available</li>
+ * </ul>
  *
  * @author Joe Grandja
  * @author Kazuki Shimizu
  * @since 5.0
+ * @see HttpSecurity#oauth2Login()
+ * @see OAuth2AuthorizationRequestRedirectFilter
+ * @see OAuth2LoginAuthenticationFilter
+ * @see ClientRegistrationRepository
+ * @see AbstractAuthenticationFilterConfigurer
  */
 public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> extends
 	AbstractAuthenticationFilterConfigurer<B, OAuth2LoginConfigurer<B>, OAuth2LoginAuthenticationFilter> {
@@ -77,12 +125,24 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 	private final UserInfoEndpointConfig userInfoEndpointConfig = new UserInfoEndpointConfig();
 	private String loginPage;
 
+	/**
+	 * Sets the repository of client registrations.
+	 *
+	 * @param clientRegistrationRepository the repository of client registrations
+	 * @return the {@link OAuth2LoginConfigurer} for further configuration
+	 */
 	public OAuth2LoginConfigurer<B> clientRegistrationRepository(ClientRegistrationRepository clientRegistrationRepository) {
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
 		this.getBuilder().setSharedObject(ClientRegistrationRepository.class, clientRegistrationRepository);
 		return this;
 	}
 
+	/**
+	 * Sets the service for authorized client(s).
+	 *
+	 * @param authorizedClientService the authorized client service
+	 * @return the {@link OAuth2LoginConfigurer} for further configuration
+	 */
 	public OAuth2LoginConfigurer<B> authorizedClientService(OAuth2AuthorizedClientService authorizedClientService) {
 		Assert.notNull(authorizedClientService, "authorizedClientService cannot be null");
 		this.getBuilder().setSharedObject(OAuth2AuthorizedClientService.class, authorizedClientService);
@@ -96,10 +156,18 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		return this;
 	}
 
+	/**
+	 * Returns the {@link AuthorizationEndpointConfig} for configuring the Authorization Server's Authorization Endpoint.
+	 *
+	 * @return the {@link AuthorizationEndpointConfig}
+	 */
 	public AuthorizationEndpointConfig authorizationEndpoint() {
 		return this.authorizationEndpointConfig;
 	}
 
+	/**
+	 * Configuration options for the Authorization Server's Authorization Endpoint.
+	 */
 	public class AuthorizationEndpointConfig {
 		private String authorizationRequestBaseUri;
 		private AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository;
@@ -107,33 +175,64 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		private AuthorizationEndpointConfig() {
 		}
 
+		/**
+		 * Sets the base {@code URI} used for authorization requests.
+		 *
+		 * @param authorizationRequestBaseUri the base {@code URI} used for authorization requests
+		 * @return the {@link AuthorizationEndpointConfig} for further configuration
+		 */
 		public AuthorizationEndpointConfig baseUri(String authorizationRequestBaseUri) {
 			Assert.hasText(authorizationRequestBaseUri, "authorizationRequestBaseUri cannot be empty");
 			this.authorizationRequestBaseUri = authorizationRequestBaseUri;
 			return this;
 		}
 
+		/**
+		 * Sets the repository used for storing {@link OAuth2AuthorizationRequest}'s.
+		 *
+		 * @param authorizationRequestRepository the repository used for storing {@link OAuth2AuthorizationRequest}'s
+		 * @return the {@link AuthorizationEndpointConfig} for further configuration
+		 */
 		public AuthorizationEndpointConfig authorizationRequestRepository(AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
 			Assert.notNull(authorizationRequestRepository, "authorizationRequestRepository cannot be null");
 			this.authorizationRequestRepository = authorizationRequestRepository;
 			return this;
 		}
 
+		/**
+		 * Returns the {@link OAuth2LoginConfigurer} for further configuration.
+		 *
+		 * @return the {@link OAuth2LoginConfigurer}
+		 */
 		public OAuth2LoginConfigurer<B> and() {
 			return OAuth2LoginConfigurer.this;
 		}
 	}
 
+	/**
+	 * Returns the {@link TokenEndpointConfig} for configuring the Authorization Server's Token Endpoint.
+	 *
+	 * @return the {@link TokenEndpointConfig}
+	 */
 	public TokenEndpointConfig tokenEndpoint() {
 		return this.tokenEndpointConfig;
 	}
 
+	/**
+	 * Configuration options for the Authorization Server's Token Endpoint.
+	 */
 	public class TokenEndpointConfig {
 		private OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient;
 
 		private TokenEndpointConfig() {
 		}
 
+		/**
+		 * Sets the client used for requesting the access token credential from the Token Endpoint.
+		 *
+		 * @param accessTokenResponseClient the client used for requesting the access token credential from the Token Endpoint
+		 * @return the {@link TokenEndpointConfig} for further configuration
+		 */
 		public TokenEndpointConfig accessTokenResponseClient(
 			OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient) {
 
@@ -142,36 +241,68 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 			return this;
 		}
 
+		/**
+		 * Returns the {@link OAuth2LoginConfigurer} for further configuration.
+		 *
+		 * @return the {@link OAuth2LoginConfigurer}
+		 */
 		public OAuth2LoginConfigurer<B> and() {
 			return OAuth2LoginConfigurer.this;
 		}
 	}
 
+	/**
+	 * Returns the {@link RedirectionEndpointConfig} for configuring the Client's Redirection Endpoint.
+	 *
+	 * @return the {@link RedirectionEndpointConfig}
+	 */
 	public RedirectionEndpointConfig redirectionEndpoint() {
 		return this.redirectionEndpointConfig;
 	}
 
+	/**
+	 * Configuration options for the Client's Redirection Endpoint.
+	 */
 	public class RedirectionEndpointConfig {
 		private String authorizationResponseBaseUri;
 
 		private RedirectionEndpointConfig() {
 		}
 
+		/**
+		 * Sets the {@code URI} where the authorization response will be processed.
+		 *
+		 * @param authorizationResponseBaseUri the {@code URI} where the authorization response will be processed
+		 * @return the {@link RedirectionEndpointConfig} for further configuration
+		 */
 		public RedirectionEndpointConfig baseUri(String authorizationResponseBaseUri) {
 			Assert.hasText(authorizationResponseBaseUri, "authorizationResponseBaseUri cannot be empty");
 			this.authorizationResponseBaseUri = authorizationResponseBaseUri;
 			return this;
 		}
 
+		/**
+		 * Returns the {@link OAuth2LoginConfigurer} for further configuration.
+		 *
+		 * @return the {@link OAuth2LoginConfigurer}
+		 */
 		public OAuth2LoginConfigurer<B> and() {
 			return OAuth2LoginConfigurer.this;
 		}
 	}
 
+	/**
+	 * Returns the {@link UserInfoEndpointConfig} for configuring the Authorization Server's UserInfo Endpoint.
+	 *
+	 * @return the {@link UserInfoEndpointConfig}
+	 */
 	public UserInfoEndpointConfig userInfoEndpoint() {
 		return this.userInfoEndpointConfig;
 	}
 
+	/**
+	 * Configuration options for the Authorization Server's UserInfo Endpoint.
+	 */
 	public class UserInfoEndpointConfig {
 		private OAuth2UserService<OAuth2UserRequest, OAuth2User> userService;
 		private OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService;
@@ -180,18 +311,38 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		private UserInfoEndpointConfig() {
 		}
 
+		/**
+		 * Sets the OAuth 2.0 service used for obtaining the user attributes of the End-User from the UserInfo Endpoint.
+		 *
+		 * @param userService the OAuth 2.0 service used for obtaining the user attributes of the End-User from the UserInfo Endpoint
+		 * @return the {@link UserInfoEndpointConfig} for further configuration
+		 */
 		public UserInfoEndpointConfig userService(OAuth2UserService<OAuth2UserRequest, OAuth2User> userService) {
 			Assert.notNull(userService, "userService cannot be null");
 			this.userService = userService;
 			return this;
 		}
 
+		/**
+		 * Sets the OpenID Connect 1.0 service used for obtaining the user attributes of the End-User from the UserInfo Endpoint.
+		 *
+		 * @param oidcUserService the OpenID Connect 1.0 service used for obtaining the user attributes of the End-User from the UserInfo Endpoint
+		 * @return the {@link UserInfoEndpointConfig} for further configuration
+		 */
 		public UserInfoEndpointConfig oidcUserService(OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService) {
 			Assert.notNull(oidcUserService, "oidcUserService cannot be null");
 			this.oidcUserService = oidcUserService;
 			return this;
 		}
 
+		/**
+		 * Sets a custom {@link OAuth2User} type and associates it to the provided
+		 * client {@link ClientRegistration#getRegistrationId() registration identifier}.
+		 *
+		 * @param customUserType a custom {@link OAuth2User} type
+		 * @param clientRegistrationId the client registration identifier
+		 * @return the {@link UserInfoEndpointConfig} for further configuration
+		 */
 		public UserInfoEndpointConfig customUserType(Class<? extends OAuth2User> customUserType, String clientRegistrationId) {
 			Assert.notNull(customUserType, "customUserType cannot be null");
 			Assert.hasText(clientRegistrationId, "clientRegistrationId cannot be empty");
@@ -199,12 +350,23 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 			return this;
 		}
 
+		/**
+		 * Sets the {@link GrantedAuthoritiesMapper} used for mapping {@link OAuth2User#getAuthorities()}.
+		 *
+		 * @param userAuthoritiesMapper the {@link GrantedAuthoritiesMapper} used for mapping the user's authorities
+		 * @return the {@link UserInfoEndpointConfig} for further configuration
+		 */
 		public UserInfoEndpointConfig userAuthoritiesMapper(GrantedAuthoritiesMapper userAuthoritiesMapper) {
 			Assert.notNull(userAuthoritiesMapper, "userAuthoritiesMapper cannot be null");
 			OAuth2LoginConfigurer.this.getBuilder().setSharedObject(GrantedAuthoritiesMapper.class, userAuthoritiesMapper);
 			return this;
 		}
 
+		/**
+		 * Returns the {@link OAuth2LoginConfigurer} for further configuration.
+		 *
+		 * @return the {@link OAuth2LoginConfigurer}
+		 */
 		public OAuth2LoginConfigurer<B> and() {
 			return OAuth2LoginConfigurer.this;
 		}

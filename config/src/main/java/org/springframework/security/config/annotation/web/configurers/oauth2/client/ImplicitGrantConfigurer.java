@@ -23,22 +23,60 @@ import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequest
 import org.springframework.util.Assert;
 
 /**
- * A security configurer for the Implicit Grant type.
+ * An {@link AbstractHttpConfigurer} for the OAuth 2.0 Implicit Grant type.
+ *
+ * <h2>Security Filters</h2>
+ *
+ * The following {@code Filter}'s are populated:
+ *
+ * <ul>
+ * <li>{@link OAuth2AuthorizationRequestRedirectFilter}</li>
+ * </ul>
+ *
+ * <h2>Shared Objects Created</h2>
+ *
+ * The following shared objects are populated:
+ *
+ * <ul>
+ * <li>{@link ClientRegistrationRepository} (required)</li>
+ * </ul>
+ *
+ * <h2>Shared Objects Used</h2>
+ *
+ * The following shared objects are used:
+ *
+ * <ul>
+ * <li>{@link ClientRegistrationRepository}</li>
+ * </ul>
  *
  * @author Joe Grandja
  * @since 5.0
+ * @see OAuth2AuthorizationRequestRedirectFilter
+ * @see ClientRegistrationRepository
  */
 public final class ImplicitGrantConfigurer<B extends HttpSecurityBuilder<B>> extends
 	AbstractHttpConfigurer<ImplicitGrantConfigurer<B>, B> {
 
 	private String authorizationRequestBaseUri;
 
+	/**
+	 * Sets the base {@code URI} used for authorization requests.
+	 *
+	 * @param authorizationRequestBaseUri the base {@code URI} used for authorization requests
+	 * @return the {@link ImplicitGrantConfigurer} for further configuration
+	 */
 	public ImplicitGrantConfigurer<B> authorizationRequestBaseUri(String authorizationRequestBaseUri) {
 		Assert.hasText(authorizationRequestBaseUri, "authorizationRequestBaseUri cannot be empty");
 		this.authorizationRequestBaseUri = authorizationRequestBaseUri;
 		return this;
 	}
 
+	/**
+	 * Sets the repository of client registrations.
+	 *
+	 * @param clientRegistrationRepository the repository of client registrations
+	 * @return the {@link ImplicitGrantConfigurer} for further configuration
+	 */
 	public ImplicitGrantConfigurer<B> clientRegistrationRepository(ClientRegistrationRepository clientRegistrationRepository) {
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
 		this.getBuilder().setSharedObject(ClientRegistrationRepository.class, clientRegistrationRepository);
