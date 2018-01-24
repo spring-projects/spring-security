@@ -149,6 +149,7 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 	public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
 		Assert.notNull(passwordEncoder, "passwordEncoder cannot be null");
 		this.passwordEncoder = passwordEncoder;
+		this.userNotFoundEncodedPassword = null;
 	}
 
 	protected PasswordEncoder getPasswordEncoder() {

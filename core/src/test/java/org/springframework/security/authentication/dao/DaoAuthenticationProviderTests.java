@@ -50,6 +50,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.core.userdetails.cache.EhCacheBasedUserCache;
 import org.springframework.security.core.userdetails.cache.NullUserCache;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -270,6 +271,35 @@ public class DaoAuthenticationProviderTests {
 		assertThat(provider.isHideUserNotFoundExceptions()).isTrue();
 		provider.setUserDetailsService(new MockAuthenticationDaoUserrod());
 		provider.setUserCache(new MockUserCache());
+
+		try {
+			provider.authenticate(token);
+			fail("Should have thrown BadCredentialsException");
+		}
+		catch (BadCredentialsException expected) {
+
+		}
+	}
+
+	@Test
+	public void testAuthenticateFailsWithInvalidUsernameAndChangePasswordEncoder() {
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+			"INVALID_USER", "koala");
+
+		DaoAuthenticationProvider provider = createProvider();
+		assertThat(provider.isHideUserNotFoundExceptions()).isTrue();
+		provider.setUserDetailsService(new MockAuthenticationDaoUserrod());
+		provider.setUserCache(new MockUserCache());
+
+		try {
+			provider.authenticate(token);
+			fail("Should have thrown BadCredentialsException");
+		}
+		catch (BadCredentialsException expected) {
+
+		}
+
+		provider.setPasswordEncoder(PasswordEncoderFactories.createDelegatingPasswordEncoder());
 
 		try {
 			provider.authenticate(token);
