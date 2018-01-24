@@ -5,7 +5,6 @@ dependencies {
 	compile project(':spring-security-config')
 	compile project(':spring-security-web')
 	compile 'com.fasterxml.jackson.core:jackson-databind'
-	compile 'io.netty:netty-buffer'
 	compile 'io.projectreactor.ipc:reactor-netty'
 	compile 'org.springframework:spring-context'
 	compile 'org.springframework:spring-webflux'
