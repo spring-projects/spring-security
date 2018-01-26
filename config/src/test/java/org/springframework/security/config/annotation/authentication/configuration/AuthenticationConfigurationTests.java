@@ -15,7 +15,6 @@
  */
 package org.springframework.security.config.annotation.authentication.configuration;
 
-import org.apache.http.auth.AUTH;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
@@ -166,7 +165,7 @@ public class AuthenticationConfigurationTests {
 
 		@Bean
 		public AuthenticationManager authenticationManager() {
-			return authenticationManager;
+			return this.authenticationManager;
 		}
 	}
 		//
