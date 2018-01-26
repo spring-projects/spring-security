@@ -52,5 +52,5 @@ public class PasswordEncodedUser {
 		return rawPassword -> "{noop}" + rawPassword;
 	}
 
-	private PasswordEncodedUser() {}
+	protected PasswordEncodedUser() {}
 }
