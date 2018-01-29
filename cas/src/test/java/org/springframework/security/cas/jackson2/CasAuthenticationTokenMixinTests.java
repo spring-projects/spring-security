@@ -55,7 +55,7 @@ public class CasAuthenticationTokenMixinTests {
 
 	public static final String AUTHORITIES_SET_JSON = "[\"java.util.Collections$UnmodifiableSet\", [" + AUTHORITY_JSON + "]]";
 
-	public static final String AUTHORITIES_ARRAYLIST_JSON = "[\"java.util.ArrayList\", [" + AUTHORITY_JSON + "]]";
+	public static final String AUTHORITIES_ARRAYLIST_JSON = "[\"java.util.Collections$UnmodifiableRandomAccessList\", [" + AUTHORITY_JSON + "]]";
 
 	// @formatter:off
 	public static final String USER_JSON = "{"

@@ -503,8 +503,13 @@ public class DefaultSavedRequest implements SavedRequest {
 
 			this.headers.remove(HEADER_IF_MODIFIED_SINCE);
 			this.headers.remove(HEADER_IF_NONE_MATCH);
-			if (!ObjectUtils.isEmpty(this.headers))
-				savedRequest.headers.putAll(this.headers);
+			for (Map.Entry<String, List<String>> entry : this.headers.entrySet()) {
+				String headerName = entry.getKey();
+				List<String> headerValues = entry.getValue();
+				for (String headerValue : headerValues) {
+					savedRequest.addHeader(headerName, headerValue);
+				}
+			}
 			return savedRequest;
 		}
 	}
