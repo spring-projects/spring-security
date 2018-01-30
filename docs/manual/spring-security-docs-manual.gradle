@@ -9,3 +9,9 @@ asciidoctor {
 		'gh-url': ghUrl,
 		'gh-samples-url': "$ghUrl/samples"
 }
+
+docsZip {
+	from(project(':spring-security-docs-guides').asciidoctor) {
+		into 'guides'
+	}
+}
