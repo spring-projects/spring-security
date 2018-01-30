@@ -25,11 +25,7 @@ import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCo
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
-import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
-import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.Assert;
 
@@ -60,8 +56,6 @@ import java.util.Collection;
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.4">Section 4.1.4 Access Token Response</a>
  */
 public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider {
-	private static final String INVALID_STATE_PARAMETER_ERROR_CODE = "invalid_state_parameter";
-	private static final String INVALID_REDIRECT_URI_PARAMETER_ERROR_CODE = "invalid_redirect_uri_parameter";
 	private final OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient;
 	private final OAuth2UserService<OAuth2UserRequest, OAuth2User> userService;
 	private GrantedAuthoritiesMapper authoritiesMapper = (authorities -> authorities);
@@ -97,25 +91,8 @@ public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider
 			return null;
 		}
 
-		OAuth2AuthorizationRequest authorizationRequest = authorizationCodeAuthentication
-			.getAuthorizationExchange().getAuthorizationRequest();
-		OAuth2AuthorizationResponse authorizationResponse = authorizationCodeAuthentication
-			.getAuthorizationExchange().getAuthorizationResponse();
-
-		if (authorizationResponse.statusError()) {
-			throw new OAuth2AuthenticationException(
-				authorizationResponse.getError(), authorizationResponse.getError().toString());
-		}
-
-		if (!authorizationResponse.getState().equals(authorizationRequest.getState())) {
-			OAuth2Error oauth2Error = new OAuth2Error(INVALID_STATE_PARAMETER_ERROR_CODE);
-			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
-		}
-
-		if (!authorizationResponse.getRedirectUri().equals(authorizationRequest.getRedirectUri())) {
-			OAuth2Error oauth2Error = new OAuth2Error(INVALID_REDIRECT_URI_PARAMETER_ERROR_CODE);
-			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
-		}
+		OAuth2AuthorizationExchangeValidator.validate(
+			authorizationCodeAuthentication.getAuthorizationExchange());
 
 		OAuth2AccessTokenResponse accessTokenResponse =
 			this.accessTokenResponseClient.getTokenResponse(

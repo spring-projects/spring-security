@@ -35,7 +35,6 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -134,7 +133,7 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
 			throws AuthenticationException, IOException, ServletException {
 
-		if (!this.authorizationResponseSuccess(request) && !this.authorizationResponseError(request)) {
+		if (!OAuth2AuthorizationResponseUtils.authorizationResponse(request)) {
 			OAuth2Error oauth2Error = new OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 		}
@@ -149,7 +148,7 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 		String registrationId = (String) authorizationRequest.getAdditionalParameters().get(OAuth2ParameterNames.REGISTRATION_ID);
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(registrationId);
 
-		OAuth2AuthorizationResponse authorizationResponse = this.convert(request);
+		OAuth2AuthorizationResponse authorizationResponse = OAuth2AuthorizationResponseUtils.convert(request);
 
 		OAuth2LoginAuthenticationToken authenticationRequest = new OAuth2LoginAuthenticationToken(
 				clientRegistration, new OAuth2AuthorizationExchange(authorizationRequest, authorizationResponse));
@@ -181,38 +180,5 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 	public final void setAuthorizationRequestRepository(AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
 		Assert.notNull(authorizationRequestRepository, "authorizationRequestRepository cannot be null");
 		this.authorizationRequestRepository = authorizationRequestRepository;
-	}
-
-	private OAuth2AuthorizationResponse convert(HttpServletRequest request) {
-		String code = request.getParameter(OAuth2ParameterNames.CODE);
-		String errorCode = request.getParameter(OAuth2ParameterNames.ERROR);
-		String state = request.getParameter(OAuth2ParameterNames.STATE);
-		String redirectUri = request.getRequestURL().toString();
-
-		if (StringUtils.hasText(code)) {
-			return OAuth2AuthorizationResponse.success(code)
-				.redirectUri(redirectUri)
-				.state(state)
-				.build();
-		} else {
-			String errorDescription = request.getParameter(OAuth2ParameterNames.ERROR_DESCRIPTION);
-			String errorUri = request.getParameter(OAuth2ParameterNames.ERROR_URI);
-			return OAuth2AuthorizationResponse.error(errorCode)
-				.redirectUri(redirectUri)
-				.errorDescription(errorDescription)
-				.errorUri(errorUri)
-				.state(state)
-				.build();
-		}
-	}
-
-	private boolean authorizationResponseSuccess(HttpServletRequest request) {
-		return StringUtils.hasText(request.getParameter(OAuth2ParameterNames.CODE)) &&
-			StringUtils.hasText(request.getParameter(OAuth2ParameterNames.STATE));
-	}
-
-	private boolean authorizationResponseError(HttpServletRequest request) {
-		return StringUtils.hasText(request.getParameter(OAuth2ParameterNames.ERROR)) &&
-			StringUtils.hasText(request.getParameter(OAuth2ParameterNames.STATE));
 	}
 }
