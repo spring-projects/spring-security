@@ -143,6 +143,7 @@ public final class SecurityJackson2Modules {
 		private static final Set<String> WHITELIST_CLASS_NAMES = Collections.unmodifiableSet(new HashSet(Arrays.asList(
 			"java.util.ArrayList",
 			"java.util.Collections$EmptyMap",
+			"java.util.Collections$UnmodifiableRandomAccessList",
 			"java.util.Date",
 			"java.util.TreeMap",
 			"java.util.HashMap",

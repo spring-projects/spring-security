@@ -70,7 +70,7 @@ public class UsernamePasswordAuthenticationTokenMixinTests extends AbstractMixin
 	// @formatter:off
 	private static final String UNAUTHENTICATED_STRINGPRINCIPAL_JSON = AUTHENTICATED_STRINGPRINCIPAL_JSON
 		.replace("\"authenticated\": true, ", "\"authenticated\": false, ")
-		.replace(SimpleGrantedAuthorityMixinTests.AUTHORITIES_ARRAYLIST_JSON, SimpleGrantedAuthorityMixinTests.NO_AUTHORITIES_ARRAYLIST_JSON);
+		.replace(SimpleGrantedAuthorityMixinTests.AUTHORITIES_ARRAYLIST_JSON, SimpleGrantedAuthorityMixinTests.EMPTY_AUTHORITIES_ARRAYLIST_JSON);
 	// @formatter:on
 
 	@Test

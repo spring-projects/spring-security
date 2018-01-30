@@ -55,7 +55,7 @@ public class CasAuthenticationTokenMixinTests {
 
 	public static final String AUTHORITIES_SET_JSON = "[\"java.util.Collections$UnmodifiableSet\", [" + AUTHORITY_JSON + "]]";
 
-	public static final String AUTHORITIES_ARRAYLIST_JSON = "[\"java.util.ArrayList\", [" + AUTHORITY_JSON + "]]";
+	public static final String AUTHORITIES_ARRAYLIST_JSON = "[\"java.util.Collections$UnmodifiableRandomAccessList\", [" + AUTHORITY_JSON + "]]";
 
 	// @formatter:off
 	public static final String USER_JSON = "{"
@@ -84,14 +84,14 @@ public class CasAuthenticationTokenMixinTests {
 			+ "\"principal\": {"
 				+ "\"@class\": \"org.jasig.cas.client.authentication.AttributePrincipalImpl\", "
 				+ "\"name\": \"assertName\", "
-				+ "\"attributes\": {\"@class\": \"java.util.Collections$EmptyMap\"}, "
+				+ "\"attributes\": {\"@class\": \"java.util.HashMap\"}, "
 				+ "\"proxyGrantingTicket\": null, "
 				+ "\"proxyRetriever\": null"
 			+ "}, "
 			+ "\"validFromDate\": [\"java.util.Date\", " + START_DATE.getTime() + "], "
 			+ "\"validUntilDate\": [\"java.util.Date\", " + END_DATE.getTime() + "],"
 			+ "\"authenticationDate\": [\"java.util.Date\", " + START_DATE.getTime() + "], "
-			+ "\"attributes\": {\"@class\": \"java.util.Collections$EmptyMap\"}" +
+			+ "\"attributes\": {\"@class\": \"java.util.HashMap\"}" +
 		"}"
 	+ "}";
 
