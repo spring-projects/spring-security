@@ -93,7 +93,7 @@ import java.util.Map;
  *
  * <h2>Password Encoding</h2>
  *
- * The @{code idForEncode} passed into the constructor determines which
+ * The {@code idForEncode} passed into the constructor determines which
  * {@link PasswordEncoder} will be used for encoding passwords. In the
  * {@code DelegatingPasswordEncoder} we constructed above, that means that the result of
  * encoding "password" would be delegated to {@code BCryptPasswordEncoder} and be prefixed
