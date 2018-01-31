@@ -28,6 +28,8 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.function.Function;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.SpringSecurityCoreVersion;
@@ -60,6 +62,8 @@ import org.springframework.util.Assert;
 public class User implements UserDetails, CredentialsContainer {
 
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+
+	private static final Log logger = LogFactory.getLog(User.class);
 
 	// ~ Instance fields
 	// ================================================================================================
@@ -266,7 +270,65 @@ public class User implements UserDetails, CredentialsContainer {
 		return new UserBuilder();
 	}
 
+	/**
+	 * <p>
+	 * <b>WARNING:</b> This method is considered unsafe for production and is only intended
+	 * for sample applications.
+	 * </p>
+	 * <p>
+	 * Creates a user and automatically encodes the provided password using
+	 * {@code PasswordEncoderFactories.createDelegatingPasswordEncoder()}. For example:
+	 * </p>
+	 *
+	 * <pre>
+	 * <code>
+	 * UserDetails user = User.withDefaultPasswordEncoder()
+	 *     .username("user")
+	 *     .password("password")
+	 *     .roles("USER")
+	 *     .build();
+	 * // outputs {bcrypt}$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG
+	 * System.out.println(user.getPassword());
+	 * </code>
+	 * </pre>
+	 *
+	 * This is not safe for production (it is intended for getting started experience)
+	 * because the password "password" is compiled into the source code and then is
+	 * included in memory at the time of creation. This means there are still ways to
+	 * recover the plain text password making it unsafe. It does provide a slight
+	 * improvement to using plain text passwords since the UserDetails password is
+	 * securely hashed. This means if the UserDetails password is accidentally exposed,
+	 * the password is securely stored.
+	 *
+	 * In a production setting, it is recommended to hash the password ahead of time.
+	 * For example:
+	 *
+	 * <pre>
+	 * <code>
+	 * PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+	 * // outputs {bcrypt}$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG
+	 * // remember the password that is printed out and use in the next step
+	 * System.out.println(encoder.encode("password"));
+	 * </code>
+	 * </pre>
+	 *
+	 * <pre>
+	 * <code>
+	 * UserDetails user = User.witUsername("user")
+	 *     .password("{bcrypt}$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG")
+	 *     .roles("USER")
+	 *     .build();
+	 * </code>
+	 * </pre>
+	 *
+	 * @return a UserBuilder that automatically encodes the password with the default
+	 * PasswordEncoder
+	 * @deprecated Using this method is not considered safe for production, but is
+	 * acceptable for demos and getting started. For production purposes, ensure the
+	 * password is encoded externally. See the method Javadoc for additional details.
+	 */
 	public static UserBuilder withDefaultPasswordEncoder() {
+		logger.warn("User.withDefaultPasswordEncoder() is considered unsafe for production and is only intended for sample applications.");
 		PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 		return builder().passwordEncoder(encoder::encode);
 	}
