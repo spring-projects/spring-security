@@ -34,12 +34,7 @@ dependencies {
 	testRuntime 'org.hsqldb:hsqldb'
 }
 
-classes.doLast {
-	copy {
-		from includeProject.sourceSets.main.output
-		into sourceSets.main.java.outputDir
-	}
-}
+tasks.jar.from { includeProject.sourceSets.main.output }
 
 tasks.sourcesJar.from {includeProject.sourceSets.main.java}
 
