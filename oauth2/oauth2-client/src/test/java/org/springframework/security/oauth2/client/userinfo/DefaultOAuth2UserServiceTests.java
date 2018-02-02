@@ -74,10 +74,20 @@ public class DefaultOAuth2UserServiceTests {
 	}
 
 	@Test
+	public void loadUserWhenUserInfoUriIsNullThenThrowOAuth2AuthenticationException() {
+		this.exception.expect(OAuth2AuthenticationException.class);
+		this.exception.expectMessage(containsString("missing_user_info_uri"));
+
+		when(this.userInfoEndpoint.getUri()).thenReturn(null);
+		this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessToken));
+	}
+
+	@Test
 	public void loadUserWhenUserNameAttributeNameIsNullThenThrowOAuth2AuthenticationException() {
 		this.exception.expect(OAuth2AuthenticationException.class);
 		this.exception.expectMessage(containsString("missing_user_name_attribute"));
 
+		when(this.userInfoEndpoint.getUri()).thenReturn("http://provider.com/user");
 		when(this.userInfoEndpoint.getUserNameAttributeName()).thenReturn(null);
 		this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessToken));
 	}
