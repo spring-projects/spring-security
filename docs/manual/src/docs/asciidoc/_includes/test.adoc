@@ -694,6 +694,16 @@ mvc
 	.andExpect(authenticated().withUsername("admin"));
 ----
 
+We can also make arbitrary assertions on the authentication
+
+[source,java]
+----
+mvc
+	.perform(formLogin())
+	.andExpect(authenticated().withAuthentication(auth ->
+		assertThat(auth).isInstanceOf(UsernamePasswordAuthenticationToken.class)));
+----
+
 [[test-webflux]]
 == WebFlux Support
 
