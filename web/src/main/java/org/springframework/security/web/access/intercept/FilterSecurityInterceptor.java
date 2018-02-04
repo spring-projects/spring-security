@@ -117,7 +117,7 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor imple
 		}
 		else {
 			// first time this request being called, so perform security checking
-			if (fi.getRequest() != null) {
+			if (fi.getRequest() != null && observeOncePerRequest) {
 				fi.getRequest().setAttribute(FILTER_APPLIED, Boolean.TRUE);
 			}
 
