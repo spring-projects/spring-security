@@ -13,19 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.config.annotation.authentication
-
-import java.rmi.registry.Registry;
+package org.springframework.security.config.annotation.authentication;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
-import org.springframework.security.authentication.AuthenticationManager
-import org.springframework.security.config.annotation.authentication.AuthenticationManagerBuilder
-import org.springframework.security.config.annotation.authentication.configurers.userdetails.UserDetailsServiceConfigurer;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.authentication.configurers.provisioning.InMemoryUserDetailsManagerConfigurer;
-import org.springframework.security.core.userdetails.UserDetailsService;
 
 
 /**
@@ -33,12 +25,12 @@ import org.springframework.security.core.userdetails.UserDetailsService;
  * @author Rob Winch
  */
 @Configuration
-class BaseAuthenticationConfig {
+public class BaseAuthenticationConfig {
 	@Autowired
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 		auth
 			.inMemoryAuthentication()
 				.withUser("user").password("password").roles("USER").and()
-				.withUser("admin").password("password").roles("USER", "ADMIN").and()
+				.withUser("admin").password("password").roles("USER", "ADMIN");
 	}
 }
