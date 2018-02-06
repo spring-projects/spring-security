@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,53 +13,52 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.method.configuration;
 
-import javax.annotation.security.DenyAll
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.method.P;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+
+import javax.annotation.security.DenyAll;
 import javax.annotation.security.PermitAll;
 
-import org.springframework.security.access.annotation.Secured
-import org.springframework.security.access.method.P
-import org.springframework.security.access.prepost.PostAuthorize;
-import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.security.core.Authentication
-
-
 /**
- *
  * @author Rob Winch
  */
 public interface MethodSecurityService {
 	@PreAuthorize("denyAll")
-	public String preAuthorize();
+	String preAuthorize();
 
 	@Secured("ROLE_ADMIN")
-	public String secured();
+	String secured();
 
 	@Secured("ROLE_USER")
-	public String securedUser();
+	String securedUser();
 
 	@DenyAll
-	public String jsr250();
+	String jsr250();
 
 	@PermitAll
-	public String jsr250PermitAll();
+	String jsr250PermitAll();
 
-	@Secured(["ROLE_USER","RUN_AS_SUPER"])
-	public Authentication runAs();
+	@Secured({ "ROLE_USER", "RUN_AS_SUPER" })
+	Authentication runAs();
 
 	@PreAuthorize("permitAll")
-	public String preAuthorizePermitAll();
+	String preAuthorizePermitAll();
 
 	@PreAuthorize("hasRole('ADMIN')")
-	public void preAuthorizeAdmin();
+	void preAuthorizeAdmin();
 
 	@PreAuthorize("hasPermission(#object,'read')")
-	public String hasPermission(String object);
+	String hasPermission(String object);
 
 	@PostAuthorize("hasPermission(#object,'read')")
-	public String postHasPermission(String object);
+	String postHasPermission(String object);
 
 	@PostAuthorize("#o?.contains('grant')")
-	public String postAnnotation(@P("o") String object);
+	String postAnnotation(@P("o") String object);
 }
