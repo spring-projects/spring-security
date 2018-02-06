@@ -10,7 +10,7 @@
 
 	<context:annotation-config/>
 
-	<bean class="org.springframework.security.config.annotation.configuration.AutowireBeanFactoryObjectPostProcessorTests$WithBanNameAutoProxyCreatorConfig"/>
+	<bean class="org.springframework.security.config.annotation.configuration.AutowireBeanFactoryObjectPostProcessorTests$WithBeanNameAutoProxyCreatorConfig"/>
 
 	<bean id="interceptor" class="org.springframework.security.config.annotation.configuration.AroundMethodInterceptor"/>
 	<bean id="myBean" class="org.springframework.security.config.annotation.configuration.MyAdvisedBean"/>
