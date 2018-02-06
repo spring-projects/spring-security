@@ -19,6 +19,8 @@ package org.springframework.security.config.test;
 import org.junit.rules.MethodRule;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.test.context.TestSecurityContextHolder;
 
 /**
  * @author Rob Winch
@@ -34,6 +36,7 @@ public class SpringTestRule extends SpringTestContext implements MethodRule {
 				try {
 					base.evaluate();
 				} finally {
+					TestSecurityContextHolder.clearContext();
 					close();
 				}
 			}
