@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,24 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.config.annotation.method.configuration
+package org.springframework.security.config.annotation.method.configuration;
 
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
-import org.springframework.security.access.AccessDeniedException
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
-import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler
-import org.springframework.security.authentication.AuthenticationManager
-import org.springframework.security.authentication.TestingAuthenticationToken
-import org.springframework.security.config.annotation.BaseSpringSpec
-import org.springframework.security.config.annotation.authentication.AuthenticationManagerBuilder
+import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
+import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
-import org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration;
+import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.core.context.SecurityContextHolder;
+
+import java.io.Serializable;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Demonstrate the samples
@@ -38,31 +41,35 @@ import org.springframework.security.core.context.SecurityContextHolder
  * @author Rob Winch
  *
  */
-public class SampleEnableGlobalMethodSecurityTests extends BaseSpringSpec {
-	def setup() {
+public class SampleEnableGlobalMethodSecurityTests {
+	@Rule
+	public final SpringTestRule spring = new SpringTestRule();
+
+	@Autowired
+	private MethodSecurityService methodSecurityService;
+
+	@Before
+	public void setup() {
 		SecurityContextHolder.getContext().setAuthentication(
-						new TestingAuthenticationToken("user", "password","ROLE_USER"))
+									new TestingAuthenticationToken("user", "password", "ROLE_USER"));
 	}
 
-	def preAuthorize() {
-		when:
-		loadConfig(SampleWebSecurityConfig)
-		MethodSecurityService service = context.getBean(MethodSecurityService)
-		then:
-		service.secured() == null
-		service.jsr250() == null
+	@Test
+	public void preAuthorize() {
+		this.spring.register(SampleWebSecurityConfig.class).autowire();
 
-		when:
-		service.preAuthorize()
-		then:
-		thrown(AccessDeniedException)
+		assertThat(this.methodSecurityService.secured()).isNull();
+		assertThat(this.methodSecurityService.jsr250()).isNull();
+
+		assertThatThrownBy(() -> this.methodSecurityService.preAuthorize())
+			.isInstanceOf(AccessDeniedException.class);
 	}
 
 	@EnableGlobalMethodSecurity(prePostEnabled=true)
-	public static class SampleWebSecurityConfig {
+	static class SampleWebSecurityConfig {
 		@Bean
 		public MethodSecurityService methodSecurityService() {
-			return new MethodSecurityServiceImpl()
+			return new MethodSecurityServiceImpl();
 		}
 
 		@Autowired
@@ -74,24 +81,23 @@ public class SampleEnableGlobalMethodSecurityTests extends BaseSpringSpec {
 		}
 	}
 
-	def 'custom permission handler'() {
-		when:
-		loadConfig(CustomPermissionEvaluatorWebSecurityConfig)
-		MethodSecurityService service = context.getBean(MethodSecurityService)
-		then:
-		service.hasPermission("allowed") == null
 
-		when:
-		service.hasPermission("denied") == null
-		then:
-		thrown(AccessDeniedException)
+	@Test
+	public void customPermissionHandler() {
+		this.spring.register(CustomPermissionEvaluatorWebSecurityConfig.class).autowire();
+
+		assertThat(this.methodSecurityService.hasPermission("allowed")).isNull();
+
+		assertThatThrownBy(() -> this.methodSecurityService.hasPermission("denied"))
+			.isInstanceOf(AccessDeniedException.class);
 	}
+
 
 	@EnableGlobalMethodSecurity(prePostEnabled=true)
 	public static class CustomPermissionEvaluatorWebSecurityConfig extends GlobalMethodSecurityConfiguration {
 		@Bean
 		public MethodSecurityService methodSecurityService() {
-			return new MethodSecurityServiceImpl()
+			return new MethodSecurityServiceImpl();
 		}
 
 		@Override
