@@ -15,15 +15,17 @@
  */
 package org.springframework.security.web.header;
 
-import org.springframework.util.Assert;
-import org.springframework.web.filter.OncePerRequestFilter;
+import java.io.IOException;
+import java.util.List;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.*;
+
+import org.springframework.security.web.util.OnCommittedResponseWrapper;
+import org.springframework.util.Assert;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
  * Filter implementation to add headers to the current response. Can be useful to add
@@ -56,12 +58,52 @@ public class HeaderWriterFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request,
 			HttpServletResponse response, FilterChain filterChain)
-			throws ServletException, IOException {
+					throws ServletException, IOException {
 
-		for (HeaderWriter headerWriter : headerWriters) {
-			headerWriter.writeHeaders(request, response);
+		HeaderWriterResponse headerWriterResponse = new HeaderWriterResponse(request,
+				response, this.headerWriters);
+		try {
+			filterChain.doFilter(request, headerWriterResponse);
 		}
-		filterChain.doFilter(request, response);
+		finally {
+			headerWriterResponse.writeHeaders();
+		}
 	}
 
+	static class HeaderWriterResponse extends OnCommittedResponseWrapper {
+		private final HttpServletRequest request;
+		private final List<HeaderWriter> headerWriters;
+
+		HeaderWriterResponse(HttpServletRequest request, HttpServletResponse response,
+				List<HeaderWriter> headerWriters) {
+			super(response);
+			this.request = request;
+			this.headerWriters = headerWriters;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 *
+		 * @see org.springframework.security.web.util.OnCommittedResponseWrapper#
+		 * onResponseCommitted()
+		 */
+		@Override
+		protected void onResponseCommitted() {
+			writeHeaders();
+			this.disableOnResponseCommitted();
+		}
+
+		protected void writeHeaders() {
+			if (isDisableOnResponseCommitted()) {
+				return;
+			}
+			for (HeaderWriter headerWriter : this.headerWriters) {
+				headerWriter.writeHeaders(this.request, getHttpResponse());
+			}
+		}
+
+		private HttpServletResponse getHttpResponse() {
+			return (HttpServletResponse) getResponse();
+		}
+	}
 }

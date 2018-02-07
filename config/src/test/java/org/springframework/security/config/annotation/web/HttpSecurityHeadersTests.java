@@ -71,8 +71,8 @@ public class HttpSecurityHeadersTests {
 		mockMvc.perform(get("/resources/file.js"))
 			.andExpect(status().isOk())
 			.andExpect(header().string(HttpHeaders.CACHE_CONTROL,"max-age=12345"))
-			.andExpect(header().string(HttpHeaders.PRAGMA, ""))
-			.andExpect(header().string(HttpHeaders.EXPIRES, ""));
+			.andExpect(header().doesNotExist(HttpHeaders.PRAGMA))
+			.andExpect(header().doesNotExist(HttpHeaders.EXPIRES));
 	}
 
 	@Test
