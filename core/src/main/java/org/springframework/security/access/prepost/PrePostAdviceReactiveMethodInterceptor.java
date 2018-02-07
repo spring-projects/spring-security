@@ -64,6 +64,9 @@ public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor
 		throws Throwable {
 		Method method = invocation.getMethod();
 		Class<?> returnType = method.getReturnType();
+		if (!Publisher.class.isAssignableFrom(returnType)) {
+			throw new IllegalStateException("The returnType " + returnType + " on " + method + " must return an instance of org.reactivestreams.Publisher (i.e. Mono / Flux) in order to support Reactor Context");
+		}
 		Class<?> targetClass = invocation.getThis().getClass();
 		Collection<ConfigAttribute> attributes = this.attributeSource
 			.getAttributes(method, targetClass);

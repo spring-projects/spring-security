@@ -20,6 +20,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface ReactiveMessageService {
+	String notPublisherPreAuthorizeFindById(long id);
+
 	Mono<String> monoFindById(long id);
 	Mono<String> monoPreAuthorizeHasRoleFindById(long id);
 	Mono<String> monoPostAuthorizeFindById(long id);

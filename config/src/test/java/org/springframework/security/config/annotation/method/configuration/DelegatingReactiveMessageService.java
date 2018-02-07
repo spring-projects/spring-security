@@ -29,6 +29,12 @@ public class DelegatingReactiveMessageService implements ReactiveMessageService 
 	}
 
 	@Override
+	@PreAuthorize("denyAll")
+	public String notPublisherPreAuthorizeFindById(long id) {
+		return this.delegate.notPublisherPreAuthorizeFindById(id);
+	}
+
+	@Override
 	public Mono<String> monoFindById(long id) {
 		return delegate.monoFindById(id);
 	}

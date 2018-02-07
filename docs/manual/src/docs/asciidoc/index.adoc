@@ -1718,6 +1718,12 @@ For additional information about methods that can be overridden, refer to the `G
 Spring Security supports method security using https://projectreactor.io/docs/core/release/reference/#context[Reactor's Context] which is setup using `ReactiveSecurityContextHolder`.
 For example, this demonstrates how to retrieve the currently logged in user's message.
 
+[NOTE]
+====
+For this to work the return type of the method must be a `org.reactivestreams.Publisher` (i.e. `Mono`/`Flux`).
+This is necessary to integrate with Reactor's `Context`.
+====
+
 [source,java]
 ----
 Authentication authentication = new TestingAuthenticationToken("user", "password", "ROLE_USER");
