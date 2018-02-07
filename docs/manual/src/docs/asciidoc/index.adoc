@@ -872,7 +872,7 @@ public class HelloWebfluxSecurityConfig {
 }
 -----
 
-This configuration explicitly sets up all the sames things as our minimal configuration.
+This configuration explicitly sets up all the same things as our minimal configuration.
 From here you can easily make the changes to the defaults.
 
 [[jc-oauth2login]]
@@ -2216,7 +2216,7 @@ You can also use standard `AuthenticationProvider` beans as follows
 
 ----
 
-where `myAuthenticationProvider` is the name of a bean in your application context which implements `AuthenticationProvider`. You can use multiple `authentication-provider` elements, in which case the providers will be queried in the order they are declared. See <<ns-auth-manager>> for more on information on how the Spring Security `AuthenticationManager` is configured using the namespace.
+where `myAuthenticationProvider` is the name of a bean in your application context which implements `AuthenticationProvider`. You can use multiple `authentication-provider` elements, in which case the providers will be queried in the order they are declared. See <<ns-auth-manager>> for more information on how the Spring Security `AuthenticationManager` is configured using the namespace.
 
 [[ns-password-encoder]]
 ===== Adding a Password Encoder
