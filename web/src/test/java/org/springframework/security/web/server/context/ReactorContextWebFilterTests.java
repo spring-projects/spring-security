@@ -33,6 +33,7 @@ import org.springframework.web.server.WebFilterChain;
 import org.springframework.web.server.handler.DefaultWebFilterChain;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import reactor.test.publisher.TestPublisher;
 import reactor.util.context.Context;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,6 +54,8 @@ public class ReactorContextWebFilterTests {
 
 	private MockServerHttpRequest.BaseBuilder<?> exchange = MockServerHttpRequest.get("/");
 
+	private TestPublisher<SecurityContext> securityContext = TestPublisher.create();
+
 	private ReactorContextWebFilter filter;
 
 	private WebTestHandler handler;
@@ -62,6 +65,7 @@ public class ReactorContextWebFilterTests {
 	public void setup() {
 		this.filter = new ReactorContextWebFilter(this.repository);
 		this.handler = WebTestHandler.bindToWebFilters(this.filter);
+		when(this.repository.load(any())).thenReturn(this.securityContext.mono());
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -74,7 +78,7 @@ public class ReactorContextWebFilterTests {
 	public void filterWhenNoPrincipalAccessThenNoInteractions() {
 		this.handler.exchange(this.exchange);
 
-		verifyZeroInteractions(this.repository);
+		this.securityContext.assertWasNotSubscribed();
 	}
 
 	@Test
@@ -86,7 +90,7 @@ public class ReactorContextWebFilterTests {
 
 		this.handler.exchange(this.exchange);
 
-		verifyZeroInteractions(this.repository);
+		this.securityContext.assertWasNotSubscribed();
 	}
 
 	@Test
@@ -102,7 +106,7 @@ public class ReactorContextWebFilterTests {
 
 		WebTestHandler.WebHandlerResult result = this.handler.exchange(this.exchange);
 
-		verify(this.repository).load(any());
+		this.securityContext.assertWasNotSubscribed();
 	}
 
 	@Test

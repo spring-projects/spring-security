@@ -25,6 +25,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.web.reactive.ServerHttpSecurityConfigurationBuilder;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
 import org.springframework.security.web.server.WebFilterChainProxy;
 import org.springframework.security.web.server.context.ServerSecurityContextRepository;
@@ -33,11 +34,12 @@ import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.FluxExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
+import reactor.test.publisher.TestPublisher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.basicAuthentication;
 
 /**
@@ -61,6 +63,8 @@ public class ServerHttpSecurityTests {
 
 	@Test
 	public void defaults() {
+		TestPublisher<SecurityContext> securityContext = TestPublisher.create();
+		when(this.contextRepository.load(any())).thenReturn(securityContext.mono());
 		this.http.securityContextRepository(this.contextRepository);
 
 		WebTestClient client = buildClient();
@@ -73,7 +77,7 @@ public class ServerHttpSecurityTests {
 
 		assertThat(result.getResponseCookies()).isEmpty();
 		// there is no need to try and load the SecurityContext by default
-		verifyZeroInteractions(this.contextRepository);
+		securityContext.assertWasNotSubscribed();
 	}
 
 	@Test

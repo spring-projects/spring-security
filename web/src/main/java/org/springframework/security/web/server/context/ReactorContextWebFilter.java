@@ -45,7 +45,7 @@ public class ReactorContextWebFilter implements WebFilter {
 	}
 
 	private Context withSecurityContext(Context mainContext, ServerWebExchange exchange) {
-		return mainContext.putAll(Mono.defer(() -> this.repository.load(exchange))
+		return mainContext.putAll(this.repository.load(exchange)
 			.as(ReactiveSecurityContextHolder::withSecurityContext));
 	}
 }
