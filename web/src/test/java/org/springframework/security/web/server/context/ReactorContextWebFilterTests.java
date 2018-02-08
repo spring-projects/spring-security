@@ -22,12 +22,19 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
+import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.test.web.reactive.server.WebTestHandler;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.web.server.WebFilter;
+import org.springframework.web.server.WebFilterChain;
+import org.springframework.web.server.handler.DefaultWebFilterChain;
 import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
+import reactor.util.context.Context;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -97,5 +104,22 @@ public class ReactorContextWebFilterTests {
 		WebTestHandler.WebHandlerResult result = this.handler.exchange(this.exchange);
 
 		verify(this.repository).load(any());
+	}
+
+	@Test
+	// gh-4962
+	public void filterWhenMainContextThenDoesNotOverride() {
+		String contextKey = "main";
+		WebFilter mainContextWebFilter = (e, c) -> c
+			.filter(e)
+			.subscriberContext(Context.of(contextKey, true));
+
+		WebFilterChain chain = new DefaultWebFilterChain(e -> Mono.empty(), mainContextWebFilter, this.filter);
+		Mono<Void> filter = chain.filter(MockServerWebExchange.from(this.exchange.build()));
+		StepVerifier.create(filter)
+			.expectAccessibleContext()
+			.hasKey(contextKey)
+			.then()
+			.verifyComplete();
 	}
 }

@@ -22,6 +22,7 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
+import reactor.util.context.Context;
 
 /**
  * @author Rob Winch
@@ -39,8 +40,12 @@ public class ReactorContextWebFilter implements WebFilter {
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 		return chain.filter(exchange)
 			.subscriberContext(c -> c.hasKey(SecurityContext.class) ? c :
-				Mono.defer(() -> this.repository.load(exchange))
-					.as(ReactiveSecurityContextHolder::withSecurityContext)
+				withSecurityContext(c, exchange)
 			);
+	}
+
+	private Context withSecurityContext(Context mainContext, ServerWebExchange exchange) {
+		return mainContext.putAll(Mono.defer(() -> this.repository.load(exchange))
+			.as(ReactiveSecurityContextHolder::withSecurityContext));
 	}
 }
