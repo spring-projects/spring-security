@@ -26,9 +26,42 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * <p>
  * A strict implementation of {@link HttpFirewall} that rejects any suspicious requests
  * with a {@link RequestRejectedException}.
+ * </p>
+ * <p>
+ * The following rules are applied to the firewall:
+ * </p>
+ * <ul>
+ * <li>
+ * Rejects URLs that are not normalized to avoid bypassing security constraints. There is
+ * no way to disable this as it is considered extremely risky to disable this constraint.
+ * A few options to allow this behavior is to normalize the request prior to the firewall
+ * or using {@link DefaultHttpFirewall} instead. Please keep in mind that normalizing the
+ * request is fragile and why requests are rejected rather than normalized.
+ * </li>
+ * <li>
+ * Rejects URLs that contain characters that are not printable ASCII characters. There is
+ * no way to disable this as it is considered extremely risky to disable this constraint.
+ * </li>
+ * <li>
+ * Rejects URLs that contain semicolons. See {@link #setAllowSemicolon(boolean)}
+ * </li>
+ * <li>
+ * Rejects URLs that contain a URL encoded slash. See
+ * {@link #setAllowUrlEncodedSlash(boolean)}
+ * </li>
+ * <li>
+ * Rejects URLs that contain a backslash. See {@link #setAllowBackSlash(boolean)}
+ * </li>
+ * <li>
+ * Rejects URLs that contain a URL encoded percent. See
+ * {@link #setAllowUrlEncodedPercent(boolean)}
+ * </li>
+ * </ul>
  *
+ * @see DefaultHttpFirewall
  * @author Rob Winch
  * @since 5.0.1
  */
@@ -60,8 +93,36 @@ public class StrictHttpFirewall implements HttpFirewall {
 	}
 
 	/**
+	 * <p>
+	 * Determines if semicolon is allowed in the URL (i.e. matrix variables). The default
+	 * is to disable this behavior because it is a common way of attempting to bypass URL
+	 * based security.
+	 * </p>
+	 * <p>For example, the following CVEs are a subset of the issues related
+	 * to ambiguities in the Servlet Specification on how to treat semicolons that
+	 * led to CVEs:
+	 * </p>
+	 * <ul>
+	 *     <li><a href="https://pivotal.io/security/cve-2016-5007">cve-2016-5007</a></li>
+	 *     <li><a href="https://pivotal.io/security/cve-2016-9879">cve-2016-9879</a></li>
+	 *     <li><a href="https://pivotal.io/security/cve-2018-1199">cve-2018-1199</a></li>
+	 * </ul>
 	 *
-	 * @param allowSemicolon
+	 * <p>
+	 * If you are wanting to allow semicolons, please reconsider as it is a very common
+	 * source of security bypasses. A few common reasons users want semicolons and
+	 * alternatives are listed below:
+	 * </p>
+	 * <ul>
+	 * <li>Including the JSESSIONID in the path - You should not include session id (or
+	 * any sensitive information) in a URL as it can lead to leaking. Instead use Cookies.
+	 * </li>
+	 * <li>Matrix Variables - Users wanting to leverage Matrix Variables should consider
+	 * using HTTP parameters instead.
+	 * </li>
+	 * </ul>
+	 *
+	 * @param allowSemicolon should semicolons be allowed in the URL. Default is false
 	 */
 	public void setAllowSemicolon(boolean allowSemicolon) {
 		if (allowSemicolon) {
@@ -71,6 +132,21 @@ public class StrictHttpFirewall implements HttpFirewall {
 		}
 	}
 
+	/**
+	 * <p>
+	 * Determines if a slash "/" that is URL encoded "%2F" should be allowed in the path
+	 * or not. The default is to not allow this behavior because it is a common way to
+	 * bypass URL based security.
+	 * </p>
+	 * <p>
+	 * For example, due to ambiguities in the servlet specification, the value is not
+	 * parsed consistently which results in different values in {@code HttpServletRequest}
+	 * path related values which allow bypassing certain security constraints.
+	 * </p>
+	 *
+	 * @param allowUrlEncodedSlash should a slash "/" that is URL encoded "%2F" be allowed
+	 * in the path or not. Default is false.
+	 */
 	public void setAllowUrlEncodedSlash(boolean allowUrlEncodedSlash) {
 		if (allowUrlEncodedSlash) {
 			urlBlacklistsRemoveAll(FORBIDDEN_FORWARDSLASH);
@@ -79,6 +155,23 @@ public class StrictHttpFirewall implements HttpFirewall {
 		}
 	}
 
+	/**
+	 * <p>
+	 * Determines if a period "." that is URL encoded "%2E" should be allowed in the path
+	 * or not. The default is to not allow this behavior because it is a frequent source
+	 * of security exploits.
+	 * </p>
+	 * <p>
+	 * For example, due to ambiguities in the servlet specification a URL encoded period
+	 * might lead to bypassing security constraints through a directory traversal attack.
+	 * This is because the path is not parsed consistently which results  in different
+	 * values in {@code HttpServletRequest} path related values which allow bypassing
+	 * certain security constraints.
+	 * </p>
+	 *
+	 * @param allowUrlEncodedPeriod should a period "." that is URL encoded "%2E" be
+	 * allowed in the path or not. Default is false.
+	 */
 	public void setAllowUrlEncodedPeriod(boolean allowUrlEncodedPeriod) {
 		if (allowUrlEncodedPeriod) {
 			this.encodedUrlBlacklist.removeAll(FORBIDDEN_ENCODED_PERIOD);
@@ -87,6 +180,23 @@ public class StrictHttpFirewall implements HttpFirewall {
 		}
 	}
 
+	/**
+	 * <p>
+	 * Determines if a backslash "\" or a URL encoded backslash "%5C" should be allowed in
+	 * the path or not. The default is not to allow this behavior because it is a frequent
+	 * source of security exploits.
+	 * </p>
+	 * <p>
+	 * For example, due to ambiguities in the servlet specification a URL encoded period
+	 * might lead to bypassing security constraints through a directory traversal attack.
+	 * This is because the path is not parsed consistently which results  in different
+	 * values in {@code HttpServletRequest} path related values which allow bypassing
+	 * certain security constraints.
+	 * </p>
+	 *
+	 * @param allowBackSlash a backslash "\" or a URL encoded backslash "%5C" be allowed
+	 * in the path or not. Default is false
+	 */
 	public void setAllowBackSlash(boolean allowBackSlash) {
 		if (allowBackSlash) {
 			urlBlacklistsRemoveAll(FORBIDDEN_BACKSLASH);
@@ -95,6 +205,20 @@ public class StrictHttpFirewall implements HttpFirewall {
 		}
 	}
 
+	/**
+	 * <p>
+	 * Determines if a percent "%" that is URL encoded "%25" should be allowed in the path
+	 * or not. The default is not to allow this behavior because it is a frequent source
+	 * of security exploits.
+	 * </p>
+	 * <p>
+	 * For example, this can lead to exploits that involve double URL encoding that lead
+	 * to bypassing security constraints.
+	 * </p>
+	 *
+	 * @param allowUrlEncodedPercent if a percent "%" that is URL encoded "%25" should be
+	 * allowed in the path or not. Default is false
+	 */
 	public void setAllowUrlEncodedPercent(boolean allowUrlEncodedPercent) {
 		if (allowUrlEncodedPercent) {
 			this.encodedUrlBlacklist.remove(ENCODED_PERCENT);
