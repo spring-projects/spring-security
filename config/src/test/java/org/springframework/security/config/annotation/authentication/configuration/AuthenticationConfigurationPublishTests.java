@@ -19,7 +19,6 @@ package org.springframework.security.config.annotation.authentication.configurat
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.authentication.AuthenticationEventPublisher;
@@ -27,11 +26,9 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
+import org.springframework.security.config.MockEventListener;
 import org.springframework.security.config.users.AuthenticationTestConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -41,7 +38,7 @@ import static org.assertj.core.api.Assertions.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 public class AuthenticationConfigurationPublishTests {
 	@Autowired
-	MockEventListener listener;
+	MockEventListener<AuthenticationSuccessEvent> listener;
 
 	AuthenticationManager authenticationManager;
 
@@ -50,7 +47,7 @@ public class AuthenticationConfigurationPublishTests {
 	public void authenticationEventPublisherBeanUsedByDefault() {
 		this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
 
-		assertThat(this.listener.events).hasSize(1);
+		assertThat(this.listener.getEvents()).hasSize(1);
 	}
 
 	@Autowired
@@ -67,18 +64,9 @@ public class AuthenticationConfigurationPublishTests {
 		}
 
 		@Bean
-		MockEventListener eventListener() {
-			return new MockEventListener();
+		MockEventListener<AuthenticationSuccessEvent> eventListener() {
+			return new MockEventListener<AuthenticationSuccessEvent>(){};
 		}
 	}
 
-	static class MockEventListener implements
-		ApplicationListener<AuthenticationSuccessEvent> {
-		List<AuthenticationSuccessEvent> events = new ArrayList<>();
-
-		public void onApplicationEvent(AuthenticationSuccessEvent event) {
-			this.events.add(event);
-		}
-
-	}
 }
