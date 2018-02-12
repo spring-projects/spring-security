@@ -17,6 +17,7 @@
 package org.springframework.security.config.test;
 
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.mock.web.MockServletConfig;
 import org.springframework.mock.web.MockServletContext;
@@ -66,6 +67,11 @@ public class SpringTestContext implements Closeable {
 		try {
 			this.context.close();
 		} catch(Exception e) {}
+	}
+
+	public SpringTestContext context(ConfigurableWebApplicationContext context) {
+		this.context = context;
+		return this;
 	}
 
 	public SpringTestContext register(Class<?>... classes) {
