@@ -17,10 +17,10 @@
 package org.springframework.security.config.annotation.method.configuration;
 
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.access.method.P;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.parameters.P;
 
 import javax.annotation.security.DenyAll;
 import javax.annotation.security.PermitAll;
@@ -49,6 +49,12 @@ public interface MethodSecurityService {
 
 	@PreAuthorize("permitAll")
 	String preAuthorizePermitAll();
+
+	@PreAuthorize("!anonymous")
+	void preAuthorizeNotAnonymous();
+
+	@PreAuthorize("@authz.check(#result)")
+	void preAuthorizeBean(@P("result") boolean result);
 
 	@PreAuthorize("hasRole('ADMIN')")
 	void preAuthorizeAdmin();

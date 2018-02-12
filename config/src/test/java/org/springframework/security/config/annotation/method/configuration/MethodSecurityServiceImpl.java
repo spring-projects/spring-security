@@ -54,6 +54,14 @@ public class MethodSecurityServiceImpl implements MethodSecurityService {
 	}
 
 	@Override
+	public void preAuthorizeNotAnonymous() {
+	}
+
+	@Override
+	public void preAuthorizeBean(boolean b) {
+	}
+
+	@Override
 	public void preAuthorizeAdmin() {
 	}
 
