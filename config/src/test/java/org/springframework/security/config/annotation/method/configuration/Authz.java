@@ -25,6 +25,11 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class Authz {
+
+	public boolean check(boolean result) {
+		return result;
+	}
+
 	public boolean check(long id) {
 		return id % 2 == 0;
 	}
