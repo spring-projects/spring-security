@@ -333,8 +333,8 @@ public class GlobalMethodSecurityConfigurationTests {
 	}
 
 	static class MockBeanPostProcessor implements BeanPostProcessor {
-		Map<String,Object> beforeInit = new HashMap<String,Object>();
-		Map<String,Object> afterInit = new HashMap<String,Object>();
+		Map<String, Object> beforeInit = new HashMap<String, Object>();
+		Map<String, Object> afterInit = new HashMap<String, Object>();
 
 		@Override
 		public Object postProcessBeforeInitialization(Object bean, String beanName) throws
