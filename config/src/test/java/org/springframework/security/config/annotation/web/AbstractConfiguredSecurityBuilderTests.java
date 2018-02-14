@@ -21,10 +21,8 @@ import org.springframework.security.config.annotation.AbstractConfiguredSecurity
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.SecurityConfigurer;
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -57,7 +55,7 @@ public class AbstractConfiguredSecurityBuilderTests {
 	public void applyWhenDuplicateConfigurerAddedThenDuplicateConfigurerRemoved() throws Exception {
 		this.builder.apply(new TestSecurityConfigurer());
 		this.builder.apply(new TestSecurityConfigurer());
-		assertThat((Map) ReflectionTestUtils.getField(this.builder, "configurers")).hasSize(1);
+		assertThat(this.builder.getConfigurers(TestSecurityConfigurer.class)).hasSize(1);
 	}
 
 	@Test(expected = IllegalStateException.class)
