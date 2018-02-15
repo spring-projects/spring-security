@@ -95,8 +95,9 @@ public class StrictHttpFirewall implements HttpFirewall {
 	/**
 	 * <p>
 	 * Determines if semicolon is allowed in the URL (i.e. matrix variables). The default
-	 * is to disable this behavior because it is a common way of attempting to bypass URL
-	 * based security.
+	 * is to disable this behavior because it is a common way of attempting to perform
+	 * <a href="https://www.owasp.org/index.php/Reflected_File_Download">Reflected File Download Attacks</a>.
+	 * It is also the source of many exploits which bypass URL based security.
 	 * </p>
 	 * <p>For example, the following CVEs are a subset of the issues related
 	 * to ambiguities in the Servlet Specification on how to treat semicolons that
