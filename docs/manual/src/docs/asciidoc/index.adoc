@@ -3416,6 +3416,32 @@ Security defined at the service layer is much more robust and harder to bypass, 
 
 The `HttpFirewall` also prevents https://www.owasp.org/index.php/HTTP_Response_Splitting[HTTP Response Splitting] by rejecting new line characters in the HTTP Response headers.
 
+By default the `StrictHttpFirewall` is used.
+This implementation rejects requests that appear to be malicious.
+If it is too strict for your needs, then you can customize what types of requests are rejected.
+However, it is important that you do so knowing that this can open your application up to attacks.
+For example, if you wish to leverage Spring MVC's Matrix Variables, the following configuration could be used in XML:
+
+[source,xml]
+----
+<b:bean id="httpFirewall"
+      class="org.springframework.security.web.firewall.StrictHttpFirewall"
+      p:allowSemicolon="true"/>
+
+<http-firewall ref="httpFirewall"/>
+----
+
+The same thing can be achieved with Java Configuration by exposing a `StrictHttpFirewall` bean.
+
+[source,java]
+----
+@Bean
+public StrictHttpFirewall httpFirewall() {
+    StrictHttpFirewall firewall = new StrictHttpFirewall();
+    firewall.setAllowSemicolon(true);
+    return firewall;
+}
+----
 
 === Use with other Filter-Based Frameworks
 If you're using some other framework that is also filter-based, then you need to make sure that the Spring Security filters come first. This enables the `SecurityContextHolder` to be populated in time for use by the other filters. Examples are the use of SiteMesh to decorate your web pages or a web framework like Wicket which uses a filter to handle its requests.

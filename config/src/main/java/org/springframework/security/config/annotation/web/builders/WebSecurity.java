@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.http.HttpMethod;
@@ -382,5 +383,8 @@ public final class WebSecurity extends
 		this.defaultWebSecurityExpressionHandler
 				.setApplicationContext(applicationContext);
 		this.ignoredRequestRegistry = new IgnoredRequestConfigurer(applicationContext);
+		try {
+			this.httpFirewall = applicationContext.getBean(HttpFirewall.class);
+		} catch(NoSuchBeanDefinitionException e) {}
 	}
 }
