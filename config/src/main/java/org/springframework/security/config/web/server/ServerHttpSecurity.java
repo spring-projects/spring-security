@@ -15,6 +15,18 @@
  */
 package org.springframework.security.config.web.server;
 
+import static org.springframework.security.web.server.DelegatingServerAuthenticationEntryPoint.*;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import reactor.core.publisher.Mono;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.http.HttpMethod;
@@ -75,21 +87,10 @@ import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
-import reactor.core.publisher.Mono;
-
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import static org.springframework.security.web.server.DelegatingServerAuthenticationEntryPoint.DelegateEntry;
 
 /**
  * @author Rob Winch
+ * @author Greg Turnquist
  * @since 5.0
  */
 public class ServerHttpSecurity {
@@ -229,6 +230,9 @@ public class ServerHttpSecurity {
 		}
 		if(this.httpBasic != null) {
 			this.httpBasic.authenticationManager(this.authenticationManager);
+			if(this.securityContextRepository != null) {
+				this.httpBasic.securityContextRepository(this.securityContextRepository);
+			}
 			this.httpBasic.configure(this);
 		}
 		if(this.formLogin != null) {

@@ -16,31 +16,32 @@
 
 package org.springframework.security.config.web.server;
 
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.BDDMockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.*;
+
 import org.apache.http.HttpHeaders;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import reactor.core.publisher.Mono;
+import reactor.test.publisher.TestPublisher;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.web.reactive.ServerHttpSecurityConfigurationBuilder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
 import org.springframework.security.web.server.WebFilterChainProxy;
+import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
 import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.FluxExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import reactor.core.publisher.Mono;
-import reactor.test.publisher.TestPublisher;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
-import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.basicAuthentication;
 
 /**
  * @author Rob Winch
@@ -81,10 +82,37 @@ public class ServerHttpSecurityTests {
 	}
 
 	@Test
-	public void basic() {
+	public void basicWithWebSessionSecurityContextRepository() {
 		given(this.authenticationManager.authenticate(any())).willReturn(Mono.just(new TestingAuthenticationToken("rob", "rob", "ROLE_USER", "ROLE_ADMIN")));
 
 		this.http.securityContextRepository(new WebSessionServerSecurityContextRepository());
+		this.http.httpBasic();
+		this.http.authenticationManager(this.authenticationManager);
+		ServerHttpSecurity.AuthorizeExchangeSpec authorize = this.http.authorizeExchange();
+		authorize.anyExchange().authenticated();
+
+		WebTestClient client = buildClient();
+
+		EntityExchangeResult<String> result = client
+			.mutate()
+			.filter(basicAuthentication("rob", "rob"))
+			.build()
+			.get()
+			.uri("/")
+			.exchange()
+			.expectStatus().isOk()
+			.expectHeader().valueMatches(HttpHeaders.CACHE_CONTROL, ".+")
+			.expectBody(String.class).consumeWith(b -> assertThat(b.getResponseBody()).isEqualTo("ok"))
+			.returnResult();
+
+		assertThat(result.getResponseCookies().getFirst("SESSION")).isNotNull();
+	}
+
+	@Test
+	public void basicWithNoSecurityContextRepository() {
+		given(this.authenticationManager.authenticate(any())).willReturn(Mono.just(new TestingAuthenticationToken("rob", "rob", "ROLE_USER", "ROLE_ADMIN")));
+
+		this.http.securityContextRepository(NoOpServerSecurityContextRepository.getInstance());
 		this.http.httpBasic();
 		this.http.authenticationManager(this.authenticationManager);
 		ServerHttpSecurity.AuthorizeExchangeSpec authorize = this.http.authorizeExchange();
