@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.config.annotation.web.configurers;
+package org.springframework.security.config.annotation.web.configurers
+
+import org.springframework.context.annotation.Bean;
 
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
@@ -86,6 +88,28 @@ public class NamespaceHttpFirewallTests extends BaseSpringSpec {
 		public void configure(WebSecurity builder)	throws Exception {
 			builder
 				.httpFirewall(new CustomHttpFirewall())
+		}
+	}
+
+	def "http-firewall bean"() {
+		setup:
+		loadConfig(CustomHttpFirewallBeanConfig)
+		springSecurityFilterChain = context.getBean(FilterChainProxy)
+		request.setParameter("deny", "true")
+		when:
+		springSecurityFilterChain.doFilter(request,response,chain)
+		then: "the custom firewall is used"
+		thrown(RequestRejectedException)
+	}
+
+	@Configuration
+	static class CustomHttpFirewallBeanConfig extends BaseWebConfig {
+		@Override
+		protected void configure(HttpSecurity http) { }
+
+		@Bean
+		CustomHttpFirewall firewall() {
+			return new CustomHttpFirewall();
 		}
 	}
 
