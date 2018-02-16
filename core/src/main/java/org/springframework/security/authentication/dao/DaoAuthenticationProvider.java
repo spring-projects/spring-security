@@ -135,13 +135,7 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 
 	/**
 	 * Sets the PasswordEncoder instance to be used to encode and validate passwords. If
-	 * not set, the password will be compared as plain text.
-	 * <p>
-	 * For systems which are already using salted password which are encoded with a
-	 * previous release, the encoder should be of type
-	 * {@code org.springframework.security.authentication.encoding.PasswordEncoder}.
-	 * Otherwise, the recommended approach is to use
-	 * {@code org.springframework.security.crypto.password.PasswordEncoder}.
+	 * not set, the password will be compared using {@link PasswordEncoderFactories#createDelegatingPasswordEncoder()}
 	 *
 	 * @param passwordEncoder must be an instance of one of the {@code PasswordEncoder}
 	 * types.
