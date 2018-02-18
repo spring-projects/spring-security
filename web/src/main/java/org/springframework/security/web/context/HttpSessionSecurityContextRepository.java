@@ -332,7 +332,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 		/**
 		 * Stores the supplied security context in the session (if available) and if it
 		 * has changed since it was set at the start of the request. If the
-		 * AuthenticationTrustResolver identifies the current user as anonymous, then the
+		 * AuthenticationTrustResolver identifies the current user as fully anonymous, then the
 		 * context will not be stored.
 		 *
 		 * @param context the context object obtained from the SecurityContextHolder after
@@ -347,7 +347,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 			HttpSession httpSession = request.getSession(false);
 
 			// See SEC-776
-			if (authentication == null || trustResolver.isAnonymous(authentication)) {
+			if (authentication == null || trustResolver.isFullyAnonymous(authentication)) {
 				if (logger.isDebugEnabled()) {
 					logger.debug("SecurityContext is empty or contents are anonymous - context will not be stored in HttpSession.");
 				}

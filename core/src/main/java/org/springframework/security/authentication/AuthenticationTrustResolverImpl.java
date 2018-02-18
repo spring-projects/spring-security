@@ -34,6 +34,7 @@ public class AuthenticationTrustResolverImpl implements AuthenticationTrustResol
 	// ================================================================================================
 
 	private Class<? extends Authentication> anonymousClass = AnonymousAuthenticationToken.class;
+	private Class<? extends Authentication> firstOfMultiFactorClass = FirstOfMultiFactorAuthenticationToken.class;
 	private Class<? extends Authentication> rememberMeClass = RememberMeAuthenticationToken.class;
 
 	// ~ Methods
@@ -43,11 +44,25 @@ public class AuthenticationTrustResolverImpl implements AuthenticationTrustResol
 		return anonymousClass;
 	}
 
+	Class<? extends Authentication> getFirstOfMultiFactorClass() { return firstOfMultiFactorClass; }
+
 	Class<? extends Authentication> getRememberMeClass() {
 		return rememberMeClass;
 	}
 
 	public boolean isAnonymous(Authentication authentication) {
+		if(isFullyAnonymous(authentication)){
+			return true;
+		}
+		if ((firstOfMultiFactorClass == null) || (authentication == null)) {
+			return false;
+		}
+
+		return firstOfMultiFactorClass.isAssignableFrom(authentication.getClass());
+	}
+
+	@Override
+	public boolean isFullyAnonymous(Authentication authentication) {
 		if ((anonymousClass == null) || (authentication == null)) {
 			return false;
 		}
@@ -66,6 +81,8 @@ public class AuthenticationTrustResolverImpl implements AuthenticationTrustResol
 	public void setAnonymousClass(Class<? extends Authentication> anonymousClass) {
 		this.anonymousClass = anonymousClass;
 	}
+
+	public void setFirstOfMultiFactorClass(Class<? extends Authentication> firstOfMultiFactorClass) {this.firstOfMultiFactorClass = firstOfMultiFactorClass; }
 
 	public void setRememberMeClass(Class<? extends Authentication> rememberMeClass) {
 		this.rememberMeClass = rememberMeClass;
