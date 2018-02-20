@@ -1,8 +1,8 @@
 dependencyManagement {
 	imports {
 		mavenBom 'io.projectreactor:reactor-bom:Bismuth-SR5'
-		mavenBom 'org.springframework:spring-framework-bom:5.0.3.RELEASE'
 		mavenBom 'org.springframework.data:spring-data-releasetrain:Kay-SR3'
+		mavenBom 'org.springframework:spring-framework-bom:5.0.4.RELEASE'
 	}
 	dependencies {
 		dependency 'cglib:cglib-nodep:3.2.6'
