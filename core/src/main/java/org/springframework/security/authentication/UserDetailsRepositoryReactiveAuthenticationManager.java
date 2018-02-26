@@ -45,7 +45,7 @@ public class UserDetailsRepositoryReactiveAuthenticationManager implements React
 		return this.userDetailsService.findByUsername(username)
 				.publishOn(Schedulers.parallel())
 				.filter( u -> this.passwordEncoder.matches((String) authentication.getCredentials(), u.getPassword()))
-				.switchIfEmpty(  Mono.error(new BadCredentialsException("Invalid Credentials")) )
+				.switchIfEmpty(Mono.defer(() -> Mono.error(new BadCredentialsException("Invalid Credentials"))))
 				.map( u -> new UsernamePasswordAuthenticationToken(u, u.getPassword(), u.getAuthorities()) );
 	}
 

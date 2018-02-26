@@ -76,7 +76,7 @@ public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor
 			.map(SecurityContext::getAuthentication)
 			.defaultIfEmpty(this.anonymous)
 			.filter( auth -> this.preInvocationAdvice.before(auth, invocation, preAttr))
-			.switchIfEmpty(Mono.error(new AccessDeniedException("Denied")));
+			.switchIfEmpty(Mono.defer(() -> Mono.error(new AccessDeniedException("Denied"))));
 
 
 		PostInvocationAttribute attr = findPostInvocationAttribute(attributes);

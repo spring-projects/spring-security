@@ -95,9 +95,9 @@ public class CsrfWebFilter implements WebFilter {
 
 	private Mono<Void> validateToken(ServerWebExchange exchange) {
 		return this.csrfTokenRepository.loadToken(exchange)
-			.switchIfEmpty(Mono.error(new CsrfException("CSRF Token has been associated to this client")))
+			.switchIfEmpty(Mono.defer(() -> Mono.error(new CsrfException("CSRF Token has been associated to this client"))))
 			.filterWhen(expected -> containsValidCsrfToken(exchange, expected))
-			.switchIfEmpty(Mono.error(new CsrfException("Invalid CSRF Token")))
+			.switchIfEmpty(Mono.defer(() -> Mono.error(new CsrfException("Invalid CSRF Token"))))
 			.then();
 	}
 
