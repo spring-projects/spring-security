@@ -43,7 +43,7 @@ dependencyManagement {
 		dependency 'com.google.inject:guice:3.0'
 		dependency 'com.nimbusds:lang-tag:1.4.3'
 		dependency 'com.nimbusds:nimbus-jose-jwt:5.4'
-		dependency 'com.nimbusds:oauth2-oidc-sdk:5.45'
+		dependency 'com.nimbusds:oauth2-oidc-sdk:5.54'
 		dependency 'com.squareup.okhttp3:okhttp:3.9.0'
 		dependency 'com.squareup.okio:okio:1.13.0'
 		dependency 'com.unboundid:unboundid-ldapsdk:4.0.4'
