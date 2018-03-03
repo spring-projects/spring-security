@@ -32,31 +32,7 @@ public final class ExpressionBasedFilterInvocationSecurityMetadataSource extends
         Assert.notNull(expressionHandler, "A non-null SecurityExpressionHandler is required");
     }
     
-     /**
-     * @param urlMap store url<--> expression
-     */
-    public ExpressionBasedFilterInvocationSecurityMetadataSource(Map<String, String> urlMap ) {
-        loadSecurityMetadataSourceFromUrlMap(urlMap);
-    }
 
-    /**
-     * @param urlMap store url<--> expression
-     */
-    public synchronized void loadSecurityMetadataSourceFromUrlMap(Map<String, String> urlMap) {
-        LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap  = new LinkedHashMap(urlMap.size());
-        for (Map.Entry<String, String> entry : urlMap.entrySet()) {
-            RequestMatcher requestMatcher = new AntPathRequestMatcher(entry.getKey());
-            Set<String> set = StringUtils.commaDelimitedListToSet(entry.getValue());
-            Collection<ConfigAttribute> configAttributes = new LinkedHashSet<>(set.size());
-            for (String str : set) {
-                configAttributes.add(new SecurityConfig(str));
-            }
-            requestMap.put(requestMatcher, configAttributes);
-        }
-        FilterInvocationSecurityMetadataSource metadataSource =
-                new ExpressionBasedFilterInvocationSecurityMetadataSource(requestMap, new DefaultWebSecurityExpressionHandler());
-        this.securityMetadataSource = metadataSource;
-    }
 
     private static LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> processMap(
             LinkedHashMap<RequestMatcher,Collection<ConfigAttribute>> requestMap, ExpressionParser parser) {
