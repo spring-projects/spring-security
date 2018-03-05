@@ -33,9 +33,7 @@ Spring Security is not a panacea which will solve all security issues.
 It is important that the application is designed with security in mind from the start.
 Attempting to retrofit it is not a good idea.
 In particular, if you are building a web application, you should be aware of the many potential vulnerabilities such as cross-site scripting, request-forgery and session-hijacking which you should be taking into account from the start.
-The OWASP web site (http://www.
-owasp.
-org/) maintains a top ten list of web application vulnerabilities as well as a lot of useful reference information.
+The OWASP web site (http://www.owasp.org/) maintains a top ten list of web application vulnerabilities as well as a lot of useful reference information.
 
 We hope that you find this reference guide useful, and we welcome your feedback and <<jira,suggestions>>.
 
