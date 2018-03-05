@@ -17,6 +17,10 @@ package org.springframework.security.config.annotation.web;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
@@ -34,15 +38,16 @@ import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
+import org.springframework.security.web.context.request.async.SecurityContextCallableProcessingInterceptor;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.accept.ContentNegotiationStrategy;
 import org.springframework.web.accept.HeaderContentNegotiationStrategy;
+import org.springframework.web.context.request.async.CallableProcessingInterceptor;
+import org.springframework.web.context.request.async.WebAsyncManager;
+import org.springframework.web.context.request.async.WebAsyncUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -53,7 +58,8 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
-import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -65,12 +71,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Rob Winch
  * @author Joe Grandja
  */
+@PrepareForTest({WebAsyncManager.class})
+@RunWith(PowerMockRunner.class)
 public class WebSecurityConfigurerAdapterTests {
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
-
-	@Autowired
-	private FilterChainProxy springSecurityFilterChain;
 
 	@Autowired
 	private MockMvc mockMvc;
@@ -108,7 +113,21 @@ public class WebSecurityConfigurerAdapterTests {
 	public void loadConfigWhenDefaultConfigThenWebAsyncManagerIntegrationFilterAdded() throws Exception {
 		this.spring.register(WebAsyncPopulatedByDefaultConfig.class).autowire();
 
-		assertThat(this.findFilter(WebAsyncManagerIntegrationFilter.class, this.springSecurityFilterChain)).isNotNull();
+		WebAsyncManager webAsyncManager = mock(WebAsyncManager.class);
+
+		this.mockMvc.perform(get("/").requestAttr(WebAsyncUtils.WEB_ASYNC_MANAGER_ATTRIBUTE, webAsyncManager));
+
+		ArgumentCaptor<CallableProcessingInterceptor> callableProcessingInterceptorArgCaptor =
+			ArgumentCaptor.forClass(CallableProcessingInterceptor.class);
+		verify(webAsyncManager, atLeastOnce()).registerCallableInterceptor(any(), callableProcessingInterceptorArgCaptor.capture());
+
+		CallableProcessingInterceptor callableProcessingInterceptor =
+			callableProcessingInterceptorArgCaptor.getAllValues().stream()
+				.filter(e -> SecurityContextCallableProcessingInterceptor.class.isAssignableFrom(e.getClass()))
+				.findFirst()
+				.orElse(null);
+
+		assertThat(callableProcessingInterceptor).isNotNull();
 	}
 
 	@EnableWebSecurity
@@ -212,7 +231,7 @@ public class WebSecurityConfigurerAdapterTests {
 	public void loadConfigWhenUserDetailsServiceHasCircularReferenceThenStillLoads() throws Exception {
 		this.spring.register(RequiresUserDetailsServiceConfig.class, UserDetailsServiceConfig.class).autowire();
 
-		MyFilter myFilter = this.findFilter(MyFilter.class, this.springSecurityFilterChain);
+		MyFilter myFilter = this.spring.getContext().getBean(MyFilter.class);
 
 		Throwable thrown = catchThrowable(() -> myFilter.userDetailsService.loadUserByUsername("user") );
 		assertThat(thrown).isNull();
@@ -334,23 +353,5 @@ public class WebSecurityConfigurerAdapterTests {
 
 	@Order
 	static class LowestPriorityWebSecurityConfig extends WebSecurityConfigurerAdapter {
-	}
-
-	private <T extends Filter> T findFilter(Class<T> filterType, FilterChainProxy filterChainProxy) {
-		return this.findFilter(filterType, filterChainProxy, 0);
-	}
-
-	private <T extends Filter> T findFilter(Class<T> filterType, FilterChainProxy filterChainProxy, int filterChainIndex) {
-		if (filterChainIndex >= filterChainProxy.getFilterChains().size()) {
-			return null;
-		}
-
-		Filter filter = filterChainProxy.getFilterChains().get(filterChainIndex).getFilters()
-			.stream()
-			.filter(f -> f.getClass().isAssignableFrom(filterType))
-			.findFirst()
-			.orElse(null);
-
-		return (T) filter;
 	}
 }
