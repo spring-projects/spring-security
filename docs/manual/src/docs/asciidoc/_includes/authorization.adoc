@@ -1,0 +1,728 @@
+
+[[authorization]]
+= Authorization
+The advanced authorization capabilities within Spring Security represent one of the most compelling reasons for its popularity.
+Irrespective of how you choose to authenticate - whether using a Spring Security-provided mechanism and provider, or integrating with a container or other non-Spring Security authentication authority - you will find the authorization services can be used within your application in a consistent and simple way.
+
+In this part we'll explore the different `AbstractSecurityInterceptor` implementations, which were introduced in Part I.
+We then move on to explore how to fine-tune authorization through use of domain access control lists.
+
+
+[[authz-arch]]
+== Authorization Architecture
+
+
+[[authz-authorities]]
+=== Authorities
+As we saw in the <<tech-granted-authority,technical overview>>, all `Authentication` implementations store a list of `GrantedAuthority` objects.
+These represent the authorities that have been granted to the principal.
+the `GrantedAuthority` objects are inserted into the `Authentication` object by the `AuthenticationManager` and are later read by `AccessDecisionManager` s when making authorization decisions.
+
+`GrantedAuthority` is an interface with only one method:
+
+[source,java]
+----
+
+String getAuthority();
+
+----
+
+This method allows
+			`AccessDecisionManager` s to obtain a precise `String` representation of the `GrantedAuthority`.
+By returning a representation as a `String`, a `GrantedAuthority` can be easily "read" by most `AccessDecisionManager` s.
+If a `GrantedAuthority` cannot be precisely represented as a `String`, the `GrantedAuthority` is considered "complex" and `getAuthority()` must return `null`.
+
+An example of a "complex" `GrantedAuthority` would be an implementation that stores a list of operations and authority thresholds that apply to different customer account numbers.
+Representing this complex `GrantedAuthority` as a `String` would be quite difficult, and as a result the `getAuthority()` method should return `null`.
+This will indicate to any `AccessDecisionManager` that it will need to specifically support the `GrantedAuthority` implementation in order to understand its contents.
+
+Spring Security includes one concrete `GrantedAuthority` implementation, `SimpleGrantedAuthority`.
+This allows any user-specified `String` to be converted into a `GrantedAuthority`.
+All `AuthenticationProvider` s included with the security architecture use `SimpleGrantedAuthority` to populate the `Authentication` object.
+
+
+[[authz-pre-invocation]]
+=== Pre-Invocation Handling
+As we've also seen in the <<secure-objects,Technical Overview>> chapter, Spring Security provides interceptors which control access to secure objects such as method invocations or web requests.
+A pre-invocation decision on whether the invocation is allowed to proceed is made by the `AccessDecisionManager`.
+
+
+[[authz-access-decision-manager]]
+==== The AccessDecisionManager
+The `AccessDecisionManager` is called by the `AbstractSecurityInterceptor` and is responsible for making final access control decisions.
+the `AccessDecisionManager` interface contains three methods:
+
+[source,java]
+----
+void decide(Authentication authentication, Object secureObject,
+	Collection<ConfigAttribute> attrs) throws AccessDeniedException;
+
+boolean supports(ConfigAttribute attribute);
+
+boolean supports(Class clazz);
+----
+
+The ``AccessDecisionManager``'s `decide` method is passed all the relevant information it needs in order to make an authorization decision.
+In particular, passing the secure `Object` enables those arguments contained in the actual secure object invocation to be inspected.
+For example, let's assume the secure object was a `MethodInvocation`.
+It would be easy to query the `MethodInvocation` for any `Customer` argument, and then implement some sort of security logic in the `AccessDecisionManager` to ensure the principal is permitted to operate on that customer.
+Implementations are expected to throw an `AccessDeniedException` if access is denied.
+
+The `supports(ConfigAttribute)` method is called by the `AbstractSecurityInterceptor` at startup time to determine if the `AccessDecisionManager` can process the passed `ConfigAttribute`.
+The `supports(Class)` method is called by a security interceptor implementation to ensure the configured `AccessDecisionManager` supports the type of secure object that the security interceptor will present.
+
+[[authz-voting-based]]
+==== Voting-Based AccessDecisionManager Implementations
+Whilst users can implement their own `AccessDecisionManager` to control all aspects of authorization, Spring Security includes several `AccessDecisionManager` implementations that are based on voting.
+<<authz-access-voting>> illustrates the relevant classes.
+
+[[authz-access-voting]]
+.Voting Decision Manager
+image::images/access-decision-voting.png[]
+
+
+
+Using this approach, a series of `AccessDecisionVoter` implementations are polled on an authorization decision.
+The `AccessDecisionManager` then decides whether or not to throw an `AccessDeniedException` based on its assessment of the votes.
+
+The `AccessDecisionVoter` interface has three methods:
+
+[source,java]
+----
+int vote(Authentication authentication, Object object, Collection<ConfigAttribute> attrs);
+
+boolean supports(ConfigAttribute attribute);
+
+boolean supports(Class clazz);
+----
+
+Concrete implementations return an `int`, with possible values               being reflected in the `AccessDecisionVoter` static fields `ACCESS_ABSTAIN`, `ACCESS_DENIED` and `ACCESS_GRANTED`.
+A voting implementation will return `ACCESS_ABSTAIN` if it has no opinion on an authorization decision.
+If it does have an opinion, it must return either `ACCESS_DENIED` or `ACCESS_GRANTED`.
+
+There are three concrete `AccessDecisionManager` s provided with Spring Security that tally the votes.
+The `ConsensusBased` implementation will grant or deny access based on the consensus of non-abstain votes.
+Properties are provided to control behavior in the event of an equality of votes or if all votes are abstain.
+The `AffirmativeBased` implementation will grant access if one or more `ACCESS_GRANTED` votes were received (i.e. a deny vote will be ignored, provided there was at least one grant vote).
+Like the `ConsensusBased` implementation, there is a parameter that controls the behavior if all voters abstain.
+The `UnanimousBased` provider expects unanimous `ACCESS_GRANTED` votes in order to grant access, ignoring abstains.
+It will deny access if there is any `ACCESS_DENIED` vote.
+Like the other implementations, there is a parameter that controls the behaviour if all voters abstain.
+
+It is possible to implement a custom `AccessDecisionManager` that tallies votes differently.
+For example, votes from a particular `AccessDecisionVoter` might receive additional weighting, whilst a deny vote from a particular voter may have a veto effect.
+
+
+[[authz-role-voter]]
+===== RoleVoter
+The most commonly used `AccessDecisionVoter` provided with Spring Security is the simple `RoleVoter`, which treats configuration attributes as simple role names and votes to grant access if the user has been assigned that role.
+
+It will vote if any `ConfigAttribute` begins with the prefix `ROLE_`.
+It will vote to grant access if there is a `GrantedAuthority` which returns a `String` representation (via the `getAuthority()` method) exactly equal to one or more `ConfigAttributes` starting with the prefix `ROLE_`.
+If there is no exact match of any `ConfigAttribute` starting with `ROLE_`, the `RoleVoter` will vote to deny access.
+If no `ConfigAttribute` begins with `ROLE_`, the voter will abstain.
+
+
+[[authz-authenticated-voter]]
+===== AuthenticatedVoter
+Another voter which we've implicitly seen is the `AuthenticatedVoter`, which can be used to differentiate between anonymous, fully-authenticated and remember-me authenticated users.
+Many sites allow certain limited access under remember-me authentication, but require a user to confirm their identity by logging in for full access.
+
+When we've used the attribute `IS_AUTHENTICATED_ANONYMOUSLY` to grant anonymous access, this attribute was being processed by the `AuthenticatedVoter`.
+See the Javadoc for this class for more information.
+
+
+[[authz-custom-voter]]
+===== Custom Voters
+Obviously, you can also implement a custom `AccessDecisionVoter` and you can put just about any access-control logic you want in it.
+It might be specific to your application (business-logic related) or it might implement some security administration logic.
+For example, you'll find a http://spring.io/blog/2009/01/03/spring-security-customization-part-2-adjusting-secured-session-in-real-time[blog article] on the Spring web site which describes how to use a voter to deny access in real-time to users whose accounts have been suspended.
+
+
+[[authz-after-invocation-handling]]
+=== After Invocation Handling
+Whilst the `AccessDecisionManager` is called by the `AbstractSecurityInterceptor` before proceeding with the secure object invocation, some applications need a way of modifying the object actually returned by the secure object invocation.
+Whilst you could easily implement your own AOP concern to achieve this, Spring Security provides a convenient hook that has several concrete implementations that integrate with its ACL capabilities.
+
+<<authz-after-invocation>> illustrates Spring Security's `AfterInvocationManager` and its concrete implementations.
+
+[[authz-after-invocation]]
+.After Invocation Implementation
+image::images/after-invocation.png[]
+
+Like many other parts of Spring Security, `AfterInvocationManager` has a single concrete implementation, `AfterInvocationProviderManager`, which polls a list of `AfterInvocationProvider` s.
+Each `AfterInvocationProvider` is allowed to modify the return object or throw an `AccessDeniedException`.
+Indeed multiple providers can modify the object, as the result of the previous provider is passed to the next in the list.
+
+Please be aware that if you're using `AfterInvocationManager`, you will still need configuration attributes that allow the ``MethodSecurityInterceptor``'s `AccessDecisionManager` to allow an operation.
+If you're using the typical Spring Security included `AccessDecisionManager` implementations, having no configuration attributes defined for a particular secure method invocation will cause each `AccessDecisionVoter` to abstain from voting.
+In turn, if the `AccessDecisionManager` property           "`allowIfAllAbstainDecisions`" is `false`, an `AccessDeniedException` will be thrown.
+You may avoid this potential issue by either (i) setting "`allowIfAllAbstainDecisions`" to `true` (although this is generally not recommended) or (ii) simply ensure that there is at least one configuration attribute that an `AccessDecisionVoter` will vote to grant access for.
+This latter (recommended) approach is usually achieved through a `ROLE_USER` or `ROLE_AUTHENTICATED` configuration attribute.
+
+
+[[authz-hierarchical-roles]]
+=== Hierarchical Roles
+It is a common requirement that a particular role in an application should automatically "include" other roles.
+For example, in an application which has the concept of an "admin" and a "user" role, you may want an admin to be able to do everything a normal user can.
+To achieve this, you can either make sure that all admin users are also assigned the "user" role.
+Alternatively, you can modify every access constraint which requires the "user" role to also include the "admin" role.
+This can get quite complicated if you have a lot of different roles in your application.
+
+The use of a role-hierarchy allows you to configure which roles (or authorities) should include others.
+An extended version of Spring Security's <<authz-role-voter,RoleVoter>>, `RoleHierarchyVoter`, is configured with a `RoleHierarchy`, from which it obtains all the "reachable authorities" which the user is assigned.
+A typical configuration might look like this:
+
+[source,xml]
+----
+
+<bean id="roleVoter" class="org.springframework.security.access.vote.RoleHierarchyVoter">
+	<constructor-arg ref="roleHierarchy" />
+</bean>
+<bean id="roleHierarchy"
+		class="org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl">
+	<property name="hierarchy">
+		<value>
+			ROLE_ADMIN > ROLE_STAFF
+			ROLE_STAFF > ROLE_USER
+			ROLE_USER > ROLE_GUEST
+		</value>
+	</property>
+</bean>
+----
+
+Here we have four roles in a hierarchy `ROLE_ADMIN => ROLE_STAFF => ROLE_USER => ROLE_GUEST`.
+A user who is authenticated with `ROLE_ADMIN`, will behave as if they have all four roles when security constraints are evaluated against an `AccessDecisionManager` cconfigured with the above `RoleHierarchyVoter`.
+The `>` symbol can be thought of as meaning "includes".
+
+Role hierarchies offer a convenient means of simplifying the access-control configuration data for your application and/or reducing the number of authorities which you need to assign to a user.
+For more complex requirements you may wish to define a logical mapping between the specific access-rights your application requires and the roles that are assigned to users, translating between the two when loading the user information.
+
+[[secure-object-impls]]
+== Secure Object Implementations
+
+[[aop-alliance]]
+=== AOP Alliance (MethodInvocation) Security Interceptor
+Prior to Spring Security 2.0, securing `MethodInvocation` s needed quite a lot of boiler plate configuration.
+Now the recommended approach for method security is to use <<ns-method-security,namespace configuration>>.
+This way the method security infrastructure beans are configured automatically for you so you don't really need to know about the implementation classes.
+We'll just provide a quick overview of the classes that are involved here.
+
+Method security in enforced using a `MethodSecurityInterceptor`, which secures `MethodInvocation` s.
+Depending on the configuration approach, an interceptor may be specific to a single bean or shared between multiple beans.
+The interceptor uses a `MethodSecurityMetadataSource` instance to obtain the configuration attributes that apply to a particular method invocation.
+`MapBasedMethodSecurityMetadataSource` is used to store configuration attributes keyed by method names (which can be wildcarded) and will be used internally when the attributes are defined in the application context using the `<intercept-methods>` or `<protect-point>` elements.
+Other implementations will be used to handle annotation-based configuration.
+
+==== Explicit MethodSecurityInterceptor Configuration
+You can of course configure a `MethodSecurityIterceptor` directly in your application context for use with one of Spring AOP's proxying mechanisms:
+
+[source,xml]
+----
+
+<bean id="bankManagerSecurity" class=
+	"org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor">
+<property name="authenticationManager" ref="authenticationManager"/>
+<property name="accessDecisionManager" ref="accessDecisionManager"/>
+<property name="afterInvocationManager" ref="afterInvocationManager"/>
+<property name="securityMetadataSource">
+	<sec:method-security-metadata-source>
+	<sec:protect method="com.mycompany.BankManager.delete*" access="ROLE_SUPERVISOR"/>
+	<sec:protect method="com.mycompany.BankManager.getBalance" access="ROLE_TELLER,ROLE_SUPERVISOR"/>
+	</sec:method-security-metadata-source>
+</property>
+</bean>
+----
+
+[[aspectj]]
+=== AspectJ (JoinPoint) Security Interceptor
+The AspectJ security interceptor is very similar to the AOP Alliance security interceptor discussed in the previous section.
+Indeed we will only discuss the differences in this section.
+
+The AspectJ interceptor is named `AspectJSecurityInterceptor`.
+Unlike the AOP Alliance security interceptor, which relies on the Spring application context to weave in the security interceptor via proxying, the `AspectJSecurityInterceptor` is weaved in via the AspectJ compiler.
+It would not be uncommon to use both types of security interceptors in the same application, with `AspectJSecurityInterceptor` being used for domain object instance security and the AOP Alliance `MethodSecurityInterceptor` being used for services layer security.
+
+Let's first consider how the `AspectJSecurityInterceptor` is configured in the Spring application context:
+
+
+[source,xml]
+----
+
+<bean id="bankManagerSecurity" class=
+	"org.springframework.security.access.intercept.aspectj.AspectJMethodSecurityInterceptor">
+<property name="authenticationManager" ref="authenticationManager"/>
+<property name="accessDecisionManager" ref="accessDecisionManager"/>
+<property name="afterInvocationManager" ref="afterInvocationManager"/>
+<property name="securityMetadataSource">
+	<sec:method-security-metadata-source>
+	<sec:protect method="com.mycompany.BankManager.delete*" access="ROLE_SUPERVISOR"/>
+	<sec:protect method="com.mycompany.BankManager.getBalance" access="ROLE_TELLER,ROLE_SUPERVISOR"/>
+	</sec:method-security-metadata-source>
+</property>
+</bean>
+----
+
+
+As you can see, aside from the class name, the `AspectJSecurityInterceptor` is exactly the same as the AOP Alliance security interceptor.
+Indeed the two interceptors can share the same `securityMetadataSource`, as the `SecurityMetadataSource` works with `java.lang.reflect.Method` s rather than an AOP library-specific class.
+Of course, your access decisions have access to the relevant AOP library-specific invocation (ie `MethodInvocation` or `JoinPoint`) and as such can consider a range of addition criteria when making access decisions (such as method arguments).
+
+Next you'll need to define an AspectJ `aspect`.
+For example:
+
+
+[source,java]
+----
+
+package org.springframework.security.samples.aspectj;
+
+import org.springframework.security.access.intercept.aspectj.AspectJSecurityInterceptor;
+import org.springframework.security.access.intercept.aspectj.AspectJCallback;
+import org.springframework.beans.factory.InitializingBean;
+
+public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
+
+	private AspectJSecurityInterceptor securityInterceptor;
+
+	pointcut domainObjectInstanceExecution(): target(PersistableEntity)
+		&& execution(public * *(..)) && !within(DomainObjectInstanceSecurityAspect);
+
+	Object around(): domainObjectInstanceExecution() {
+		if (this.securityInterceptor == null) {
+			return proceed();
+		}
+
+		AspectJCallback callback = new AspectJCallback() {
+			public Object proceedWithObject() {
+				return proceed();
+			}
+		};
+
+		return this.securityInterceptor.invoke(thisJoinPoint, callback);
+	}
+
+	public AspectJSecurityInterceptor getSecurityInterceptor() {
+		return securityInterceptor;
+	}
+
+	public void setSecurityInterceptor(AspectJSecurityInterceptor securityInterceptor) {
+		this.securityInterceptor = securityInterceptor;
+	}
+
+	public void afterPropertiesSet() throws Exception {
+		if (this.securityInterceptor == null)
+			throw new IllegalArgumentException("securityInterceptor required");
+		}
+	}
+}
+----
+
+
+In the above example, the security interceptor will be applied to every instance of `PersistableEntity`, which is an abstract class not shown (you can use any other class or `pointcut` expression you like).
+For those curious, `AspectJCallback` is needed because the `proceed();` statement has special meaning only within an `around()` body.
+The `AspectJSecurityInterceptor` calls this anonymous `AspectJCallback` class when it wants the target object to continue.
+
+You will need to configure Spring to load the aspect and wire it with the `AspectJSecurityInterceptor`.
+A bean declaration which achieves this is shown below:
+
+
+[source,xml]
+----
+
+<bean id="domainObjectInstanceSecurityAspect"
+	class="security.samples.aspectj.DomainObjectInstanceSecurityAspect"
+	factory-method="aspectOf">
+<property name="securityInterceptor" ref="bankManagerSecurity"/>
+</bean>
+----
+
+
+That's it!
+Now you can create your beans from anywhere within your application, using whatever means you think fit (eg `new Person();`) and they will have the security interceptor applied.
+
+
+[[el-access]]
+== Expression-Based Access Control
+Spring Security 3.0 introduced the ability to use Spring EL expressions as an authorization mechanism in addition to the simple use of configuration attributes and access-decision voters which have seen before.
+Expression-based access control is built on the same architecture but allows complicated Boolean logic to be encapsulated in a single expression.
+
+
+=== Overview
+Spring Security uses Spring EL for expression support and you should look at how that works if you are interested in understanding the topic in more depth.
+Expressions are evaluated with a "root object" as part of the evaluation context.
+Spring Security uses specific classes for web and method security as the root object, in order to provide built-in expressions and access to values such as the current principal.
+
+
+[[el-common-built-in]]
+==== Common Built-In Expressions
+The base class for expression root objects is `SecurityExpressionRoot`.
+This provides some common expressions which are available in both web and method security.
+
+[[common-expressions]]
+.Common built-in expressions
+|===
+| Expression | Description
+
+| `hasRole([role])`
+| Returns `true` if the current principal has the specified role.
+By default if the supplied role does not start with 'ROLE_' it will be added.
+This can be customized by modifying the `defaultRolePrefix` on `DefaultWebSecurityExpressionHandler`.
+
+| `hasAnyRole([role1,role2])`
+| Returns `true` if the current principal has any of the supplied roles (given as a comma-separated list of strings).
+By default if the supplied role does not start with 'ROLE_' it will be added.
+This can be customized by modifying the `defaultRolePrefix` on `DefaultWebSecurityExpressionHandler`.
+
+| `hasAuthority([authority])`
+| Returns `true` if the current principal has the specified authority.
+
+| `hasAnyAuthority([authority1,authority2])`
+| Returns `true` if the current principal has any of the supplied roles (given as a comma-separated list of strings)
+
+| `principal`
+| Allows direct access to the principal object representing the current user
+
+| `authentication`
+| Allows direct access to the current `Authentication` object obtained from the `SecurityContext`
+
+| `permitAll`
+| Always evaluates to `true`
+
+| `denyAll`
+| Always evaluates to `false`
+
+| `isAnonymous()`
+| Returns `true` if the current principal is an anonymous user
+
+| `isRememberMe()`
+| Returns `true` if the current principal is a remember-me user
+
+| `isAuthenticated()`
+| Returns `true` if the user is not anonymous
+
+| `isFullyAuthenticated()`
+| Returns `true` if the user is not an anonymous or a remember-me user
+
+| `hasPermission(Object target, Object permission)`
+| Returns `true` if the user has access to the provided target for the given permission.
+For example, `hasPermission(domainObject, 'read')`
+
+| `hasPermission(Object targetId, String targetType, Object permission)`
+| Returns `true` if the user has access to the provided target for the given permission.
+For example, `hasPermission(1, 'com.example.domain.Message', 'read')`
+|===
+
+
+
+[[el-access-web]]
+=== Web Security Expressions
+To use expressions to secure individual URLs, you would first need to set the `use-expressions` attribute in the `<http>` element to `true`.
+Spring Security will then expect the `access` attributes of the `<intercept-url>` elements to contain Spring EL expressions.
+The expressions should evaluate to a Boolean, defining whether access should be allowed or not.
+For example:
+
+[source,xml]
+----
+
+<http>
+	<intercept-url pattern="/admin*"
+		access="hasRole('admin') and hasIpAddress('192.168.1.0/24')"/>
+	...
+</http>
+
+----
+
+Here we have defined that the "admin" area of an application (defined by the URL pattern) should only be available to users who have the granted authority "admin" and whose IP address matches a local subnet.
+We've already seen the built-in `hasRole` expression in the previous section.
+The expression `hasIpAddress` is an additional built-in expression which is specific to web security.
+It is defined by the `WebSecurityExpressionRoot` class, an instance of which is used as the expression root object when evaluation web-access expressions.
+This object also directly exposed the `HttpServletRequest` object under the name `request` so you can invoke the request directly in an expression.
+If expressions are being used, a `WebExpressionVoter` will be added to the `AccessDecisionManager` which is used by the namespace.
+So if you aren't using the namespace and want to use expressions, you will have to add one of these to your configuration.
+
+[[el-access-web-beans]]
+==== Referring to Beans in Web Security Expressions
+
+If you wish to extend the expressions that are available, you can easily refer to any Spring Bean you expose.
+For example, assuming you have a Bean with the name of `webSecurity` that contains the following method signature:
+
+[source,java]
+----
+public class WebSecurity {
+		public boolean check(Authentication authentication, HttpServletRequest request) {
+				...
+		}
+}
+----
+
+You could refer to the method using:
+
+[source,xml]
+----
+<http>
+	<intercept-url pattern="/user/**"
+		access="@webSecurity.check(authentication,request)"/>
+	...
+</http>
+----
+
+or in Java configuration
+
+
+[source,java]
+----
+http
+		.authorizeRequests()
+				.antMatchers("/user/**").access("@webSecurity.check(authentication,request)")
+				...
+----
+
+[[el-access-web-path-variables]]
+==== Path Variables in Web Security Expressions
+
+At times it is nice to be able to refer to path variables within a URL.
+For example, consider a RESTful application that looks up a user by id from the URL path in the format `/user/{userId}`.
+
+You can easily refer to the path variable by placing it in the pattern.
+For example, if you had a Bean with the name of `webSecurity` that contains the following method signature:
+
+[source,java]
+----
+public class WebSecurity {
+		public boolean checkUserId(Authentication authentication, int id) {
+				...
+		}
+}
+----
+
+You could refer to the method using:
+
+[source,xml]
+----
+<http>
+	<intercept-url pattern="/user/{userId}/**"
+		access="@webSecurity.checkUserId(authentication,#userId)"/>
+	...
+</http>
+----
+
+or in Java configuration
+
+[source,java]
+----
+http
+		.authorizeRequests()
+				.antMatchers("/user/{userId}/**").access("@webSecurity.checkUserId(authentication,#userId)")
+				...
+----
+
+In both configurations URLs that match would pass in the path variable (and convert it) into checkUserId method.
+For example, if the URL were `/user/123/resource`, then the id passed in would be `123`.
+
+=== Method Security Expressions
+Method security is a bit more complicated than a simple allow or deny rule.
+Spring Security 3.0 introduced some new annotations in order to allow comprehensive support for the use of expressions.
+
+
+[[el-pre-post-annotations]]
+==== @Pre and @Post Annotations
+There are four annotations which support expression attributes to allow pre and post-invocation authorization checks and also to support filtering of submitted collection arguments or return values.
+They are `@PreAuthorize`, `@PreFilter`, `@PostAuthorize` and `@PostFilter`.
+Their use is enabled through the `global-method-security` namespace element:
+
+[source,xml]
+----
+<global-method-security pre-post-annotations="enabled"/>
+----
+
+===== Access Control using @PreAuthorize and @PostAuthorize
+The most obviously useful annotation is `@PreAuthorize` which decides whether a method can actually be invoked or not.
+For example (from the"Contacts" sample application)
+
+[source,java]
+----
+@PreAuthorize("hasRole('USER')")
+public void create(Contact contact);
+----
+
+which means that access will only be allowed for users with the role "ROLE_USER".
+Obviously the same thing could easily be achieved using a traditional configuration and a simple configuration attribute for the required role.
+But what about:
+
+[source,java]
+----
+@PreAuthorize("hasPermission(#contact, 'admin')")
+public void deletePermission(Contact contact, Sid recipient, Permission permission);
+----
+
+Here we're actually using a method argument as part of the expression to decide whether the current user has the "admin"permission for the given contact.
+The built-in `hasPermission()` expression is linked into the Spring Security ACL module through the application context, as we'll<<el-permission-evaluator,see below>>.
+You can access any of the method arguments by name as expression variables.
+
+There are a number of ways in which Spring Security can resolve the method arguments.
+Spring Security uses `DefaultSecurityParameterNameDiscoverer` to discover the parameter names.
+By default, the following options are tried for a method as a whole.
+
+* If Spring Security's `@P` annotation is present on a single argument to the method, the value will be used.
+This is useful for interfaces compiled with a JDK prior to JDK 8 which do not contain any information about the parameter names.
+For example:
+
++
+
+[source,java]
+----
+import org.springframework.security.access.method.P;
+
+...
+
+@PreAuthorize("#c.name == authentication.name")
+public void doSomething(@P("c") Contact contact);
+----
+
++
+
+Behind the scenes this use implemented using `AnnotationParameterNameDiscoverer` which can be customized to support the value attribute of any specified annotation.
+
+* If Spring Data's `@Param` annotation is present on at least one parameter for the method, the value will be used.
+This is useful for interfaces compiled with a JDK prior to JDK 8 which do not contain any information about the parameter names.
+For example:
+
++
+
+[source,java]
+----
+import org.springframework.data.repository.query.Param;
+
+...
+
+@PreAuthorize("#n == authentication.name")
+Contact findContactByName(@Param("n") String name);
+----
+
++
+
+Behind the scenes this use implemented using `AnnotationParameterNameDiscoverer` which can be customized to support the value attribute of any specified annotation.
+
+* If JDK 8 was used to compile the source with the -parameters argument and Spring 4+ is being used, then the standard JDK reflection API is used to discover the parameter names.
+This works on both classes and interfaces.
+
+* Last, if the code was compiled with the debug symbols, the parameter names will be discovered using the debug symbols.
+This will not work for interfaces since they do not have debug information about the parameter names.
+For interfaces, annotations or the JDK 8 approach must be used.
+
+.[[el-pre-post-annotations-spel]]
+--
+Any Spring-EL functionality is available within the expression, so you can also access properties on the arguments.
+For example, if you wanted a particular method to only allow access to a user whose username matched that of the contact, you could write
+--
+
+[source,java]
+----
+@PreAuthorize("#contact.name == authentication.name")
+public void doSomething(Contact contact);
+----
+
+Here we are accessing another built-in expression, `authentication`, which is the `Authentication` stored in the security context.
+You can also access its "principal" property directly, using the expression `principal`.
+The value will often be a `UserDetails` instance, so you might use an expression like `principal.username` or `principal.enabled`.
+
+.[[el-pre-post-annotations-post]]
+--
+Less commonly, you may wish to perform an access-control check after the method has been invoked.
+This can be achieved using the `@PostAuthorize` annotation.
+To access the return value from a method, use the built-in name `returnObject` in the expression.
+--
+
+===== Filtering using @PreFilter and @PostFilter
+As you may already be aware, Spring Security supports filtering of collections and arrays and this can now be achieved using expressions.
+This is most commonly performed on the return value of a method.
+For example:
+
+[source,java]
+----
+@PreAuthorize("hasRole('USER')")
+@PostFilter("hasPermission(filterObject, 'read') or hasPermission(filterObject, 'admin')")
+public List<Contact> getAll();
+----
+
+When using the `@PostFilter` annotation, Spring Security iterates through the returned collection and removes any elements for which the supplied expression is false.
+The name `filterObject` refers to the current object in the collection.
+You can also filter before the method call, using `@PreFilter`, though this is a less common requirement.
+The syntax is just the same, but if there is more than one argument which is a collection type then you have to select one by name using the `filterTarget` property of this annotation.
+
+Note that filtering is obviously not a substitute for tuning your data retrieval queries.
+If you are filtering large collections and removing many of the entries then this is likely to be inefficient.
+
+
+[[el-method-built-in]]
+==== Built-In Expressions
+There are some built-in expressions which are specific to method security, which we have already seen in use above.
+The `filterTarget` and `returnValue` values are simple enough, but the use of the `hasPermission()` expression warrants a closer look.
+
+
+[[el-permission-evaluator]]
+===== The PermissionEvaluator interface
+`hasPermission()` expressions are delegated to an instance of `PermissionEvaluator`.
+It is intended to bridge between the expression system and Spring Security's ACL system, allowing you to specify authorization constraints on domain objects, based on abstract permissions.
+It has no explicit dependencies on the ACL module, so you could swap that out for an alternative implementation if required.
+The interface has two methods:
+
+[source,java]
+----
+boolean hasPermission(Authentication authentication, Object targetDomainObject,
+							Object permission);
+
+boolean hasPermission(Authentication authentication, Serializable targetId,
+							String targetType, Object permission);
+----
+
+which map directly to the available versions of the expression, with the exception that the first argument (the `Authentication` object) is not supplied.
+The first is used in situations where the domain object, to which access is being controlled, is already loaded.
+Then expression will return true if the current user has the given permission for that object.
+The second version is used in cases where the object is not loaded, but its identifier is known.
+An abstract "type" specifier for the domain object is also required, allowing the correct ACL permissions to be loaded.
+This has traditionally been the Java class of the object, but does not have to be as long as it is consistent with how the permissions are loaded.
+
+To use `hasPermission()` expressions, you have to explicitly configure a `PermissionEvaluator` in your application context.
+This would look something like this:
+
+[source,xml]
+----
+<security:global-method-security pre-post-annotations="enabled">
+<security:expression-handler ref="expressionHandler"/>
+</security:global-method-security>
+
+<bean id="expressionHandler" class=
+"org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
+	<property name="permissionEvaluator" ref="myPermissionEvaluator"/>
+</bean>
+----
+
+Where `myPermissionEvaluator` is the bean which implements `PermissionEvaluator`.
+Usually this will be the implementation from the ACL module which is called `AclPermissionEvaluator`.
+See the "Contacts" sample application configuration for more details.
+
+===== Method Security Meta Annotations
+
+You can make use of meta annotations for method security to make your code more readable.
+This is especially convenient if you find that you are repeating the same complex expression throughout your code base.
+For example, consider the following:
+
+[source,java]
+----
+@PreAuthorize("#contact.name == authentication.name")
+----
+
+Instead of repeating this everywhere, we can create a meta annotation that can be used instead.
+
+[source,java]
+----
+@Retention(RetentionPolicy.RUNTIME)
+@PreAuthorize("#contact.name == authentication.name")
+public @interface ContactPermission {}
+----
+
+Meta annotations can be used for any of the Spring Security method security annotations.
+In order to remain compliant with the specification JSR-250 annotations do not support meta annotations.
+
