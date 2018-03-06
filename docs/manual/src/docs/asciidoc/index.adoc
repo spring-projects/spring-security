@@ -10,7 +10,7 @@ include::{include-dir}/preface/index.adoc[]
 
 include::{include-dir}/architecture/index.adoc[]
 
-include::{include-dir}/test.adoc[]
+include::{include-dir}/test/index.adoc[]
 
 include::{include-dir}/web.adoc[]
 
