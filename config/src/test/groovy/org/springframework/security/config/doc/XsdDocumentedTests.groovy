@@ -36,7 +36,7 @@ class XsdDocumentedTests extends Specification {
 		'nsa-method-security',
 		'nsa-web'
 	]
-	@Shared def reference = new File('../docs/manual/src/docs/asciidoc/index.adoc')
+	@Shared def reference = new File('../docs/manual/src/docs/asciidoc/_includes/appendix/namespace.adoc')
 
 	@Shared File schema31xDocument = new File('src/main/resources/org/springframework/security/config/spring-security-3.1.xsd')
 	@Shared File schemaDocument = new File('src/main/resources/org/springframework/security/config/spring-security-5.0.xsd')
