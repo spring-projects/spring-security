@@ -26,6 +26,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationProvider;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken;
@@ -375,8 +376,8 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 	public void init(B http) throws Exception {
 		OAuth2LoginAuthenticationFilter authenticationFilter =
 			new OAuth2LoginAuthenticationFilter(
-				OAuth2ClientConfigurerUtils.getClientRegistrationRepository(this.getBuilder()),
-				OAuth2ClientConfigurerUtils.getAuthorizedClientService(this.getBuilder()),
+				this.getClientRegistrationRepository(),
+				this.getAuthorizedClientService(),
 				OAuth2LoginAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI);
 		this.setAuthenticationFilter(authenticationFilter);
 		this.loginProcessingUrl(OAuth2LoginAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI);
@@ -441,7 +442,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		}
 
 		OAuth2AuthorizationRequestRedirectFilter authorizationRequestFilter = new OAuth2AuthorizationRequestRedirectFilter(
-			OAuth2ClientConfigurerUtils.getClientRegistrationRepository(this.getBuilder()), authorizationRequestBaseUri);
+			this.getClientRegistrationRepository(), authorizationRequestBaseUri);
 
 		if (this.authorizationEndpointConfig.authorizationRequestRepository != null) {
 			authorizationRequestFilter.setAuthorizationRequestRepository(
@@ -463,6 +464,41 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 	@Override
 	protected RequestMatcher createLoginProcessingUrlMatcher(String loginProcessingUrl) {
 		return new AntPathRequestMatcher(loginProcessingUrl);
+	}
+
+	private ClientRegistrationRepository getClientRegistrationRepository() {
+		ClientRegistrationRepository clientRegistrationRepository =
+			this.getBuilder().getSharedObject(ClientRegistrationRepository.class);
+		if (clientRegistrationRepository == null) {
+			clientRegistrationRepository = this.getClientRegistrationRepositoryBean();
+			this.getBuilder().setSharedObject(ClientRegistrationRepository.class, clientRegistrationRepository);
+		}
+		return clientRegistrationRepository;
+	}
+
+	private ClientRegistrationRepository getClientRegistrationRepositoryBean() {
+		return this.getBuilder().getSharedObject(ApplicationContext.class).getBean(ClientRegistrationRepository.class);
+	}
+
+	private OAuth2AuthorizedClientService getAuthorizedClientService() {
+		OAuth2AuthorizedClientService authorizedClientService =
+			this.getBuilder().getSharedObject(OAuth2AuthorizedClientService.class);
+		if (authorizedClientService == null) {
+			authorizedClientService = this.getAuthorizedClientServiceBean();
+			if (authorizedClientService == null) {
+				authorizedClientService = new InMemoryOAuth2AuthorizedClientService(this.getClientRegistrationRepository());
+			}
+			this.getBuilder().setSharedObject(OAuth2AuthorizedClientService.class, authorizedClientService);
+		}
+		return authorizedClientService;
+	}
+
+	private OAuth2AuthorizedClientService getAuthorizedClientServiceBean() {
+		Map<String, OAuth2AuthorizedClientService> authorizedClientServiceMap =
+			BeanFactoryUtils.beansOfTypeIncludingAncestors(
+				this.getBuilder().getSharedObject(ApplicationContext.class),
+				OAuth2AuthorizedClientService.class);
+		return (!authorizedClientServiceMap.isEmpty() ? authorizedClientServiceMap.values().iterator().next() : null);
 	}
 
 	private GrantedAuthoritiesMapper getGrantedAuthoritiesMapper() {
@@ -492,8 +528,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		}
 
 		Iterable<ClientRegistration> clientRegistrations = null;
-		ClientRegistrationRepository clientRegistrationRepository =
-			OAuth2ClientConfigurerUtils.getClientRegistrationRepository(this.getBuilder());
+		ClientRegistrationRepository clientRegistrationRepository = this.getClientRegistrationRepository();
 		ResolvableType type = ResolvableType.forInstance(clientRegistrationRepository).as(Iterable.class);
 		if (type != ResolvableType.NONE && ClientRegistration.class.isAssignableFrom(type.resolveGenerics()[0])) {
 			clientRegistrations = (Iterable<ClientRegistration>) clientRegistrationRepository;
@@ -545,4 +580,5 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 			return OAuth2LoginAuthenticationToken.class.isAssignableFrom(authentication);
 		}
 	}
+
 }
