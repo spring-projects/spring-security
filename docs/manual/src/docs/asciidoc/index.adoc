@@ -14,7 +14,7 @@ include::{include-dir}/test/index.adoc[]
 
 include::{include-dir}/web/index.adoc[]
 
-include::{include-dir}/authorization.adoc[]
+include::{include-dir}/authorization/index.adoc[]
 
 include::{include-dir}/additional-topics.adoc[]
 
