@@ -16,7 +16,7 @@ include::{include-dir}/web/index.adoc[]
 
 include::{include-dir}/authorization/index.adoc[]
 
-include::{include-dir}/additional-topics.adoc[]
+include::{include-dir}/additional-topics/index.adoc[]
 
 include::{include-dir}/data.adoc[]
 
