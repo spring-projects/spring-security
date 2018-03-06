@@ -20,6 +20,6 @@ include::{include-dir}/additional-topics/index.adoc[]
 
 include::{include-dir}/data/index.adoc[]
 
-include::{include-dir}/appendix.adoc[]
+include::{include-dir}/appendix/index.adoc[]
 
 
