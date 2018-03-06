@@ -18,7 +18,7 @@ include::{include-dir}/authorization/index.adoc[]
 
 include::{include-dir}/additional-topics/index.adoc[]
 
-include::{include-dir}/data.adoc[]
+include::{include-dir}/data/index.adoc[]
 
 include::{include-dir}/appendix.adoc[]
 
