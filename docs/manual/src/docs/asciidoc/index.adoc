@@ -12,7 +12,7 @@ include::{include-dir}/architecture/index.adoc[]
 
 include::{include-dir}/test/index.adoc[]
 
-include::{include-dir}/web.adoc[]
+include::{include-dir}/web/index.adoc[]
 
 include::{include-dir}/authorization.adoc[]
 
