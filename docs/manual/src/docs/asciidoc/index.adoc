@@ -8,7 +8,7 @@ It is the de-facto standard for securing Spring-based applications.
 
 include::{include-dir}/preface/index.adoc[]
 
-include::{include-dir}/architecture.adoc[]
+include::{include-dir}/architecture/index.adoc[]
 
 include::{include-dir}/test.adoc[]
 
