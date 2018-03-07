@@ -25,6 +25,7 @@ import java.lang.annotation.Target;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContext;
+import org.springframework.test.context.TestContext;
 
 /**
  * <p>
@@ -61,4 +62,14 @@ public @interface WithSecurityContext {
 	 * @return
 	 */
 	Class<? extends WithSecurityContextFactory<? extends Annotation>> factory();
+
+	/**
+	 * Determines when the {@link SecurityContext} is setup. The default is before
+	 * {@link TestExecutionEvent#TEST_METHOD} which occurs during
+	 * {@link org.springframework.test.context.TestExecutionListener#beforeTestMethod(TestContext)}
+	 * @return the {@link TestExecutionEvent} to initialize before
+	 * @since 5.1
+	 */
+	TestExecutionEvent setupBefore() default TestExecutionEvent.TEST_METHOD;
+
 }

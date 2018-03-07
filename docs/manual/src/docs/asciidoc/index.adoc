@@ -400,28 +400,16 @@ git clone https://github.com/spring-projects/spring-security.git
 This will give you access to the entire project history (including all releases and branches) on your local machine.
 
 [[new]]
-== What's New in Spring Security 5.0
+== What's New in Spring Security 5.1
 
-Spring Security 5.0 provides a number of new features as well as support for Spring Framework 5.
-In total there were 400+ enhancements and bugs resolved.
-You can find the change log at
-https://github.com/spring-projects/spring-security/milestone/90?closed=1[5.0.0.M1]
-https://github.com/spring-projects/spring-security/milestone/97?closed=1[5.0.0.M2]
-https://github.com/spring-projects/spring-security/milestone/100?closed=1[5.0.0.M3]
-https://github.com/spring-projects/spring-security/milestone/101?closed=1[5.0.0.M4]
-https://github.com/spring-projects/spring-security/milestone/102?closed=1[5.0.0.M5]
-https://github.com/spring-projects/spring-security/milestone/103?closed=1[5.0.0.RC1]
-https://github.com/spring-projects/spring-security/milestone/98?closed=1[5.0.0.RELEASE].
-Below are the highlights of this milestone release.
+Spring Security 5.1 provides a number of new features.
+Below are the highlights of the release.
 
 === New Features
 
-* <<jc-oauth2login,OAuth 2.0 Login>>
-* Reactive Support
-** <<jc-webflux,@EnableWebFluxSecurity>>
-** <<jc-erms,@EnableReactiveMethodSecurity>>
-** <<test-webflux,WebFlux Testing Support>>
-* Modernized <<core-services-password-encoding,Password Encoding>>
+* <<test-method>> - Support for customizing when the `SecurityContext` is setup in the test.
+For example, `@WithMockUser(setupBefore = TestExecutionEvent.TEST_EXECUTION)` will setup a user after JUnit's `@Before` and before the test executes.
+
 
 [[samples]]
 == Samples and Guides (Start Here)

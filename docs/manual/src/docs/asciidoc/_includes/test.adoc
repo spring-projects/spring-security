@@ -144,6 +144,15 @@ For example, the following would run every test with a user with the username "a
 public class WithMockUserTests {
 ----
 
+By default the `SecurityContext` is set during the `TestExecutionListener.beforeTestMethod` event.
+This is the equivalent of happening before JUnit's `@Before`.
+You can change this to happen during the `TestExecutionListener.beforeTestExecution` event which is after JUnit's `@Before` but before the test method is invoked.
+
+[source,java]
+----
+@WithMockUser(setupBefore = TestExecutionEvent.TEST_EXECUTION)
+----
+
 
 [[test-method-withanonymoususer]]
 === @WithAnonymousUser
@@ -172,6 +181,15 @@ public class WithUserClassLevelAuthenticationTests {
 		// override default to run as anonymous user
 	}
 }
+----
+
+By default the `SecurityContext` is set during the `TestExecutionListener.beforeTestMethod` event.
+This is the equivalent of happening before JUnit's `@Before`.
+You can change this to happen during the `TestExecutionListener.beforeTestExecution` event which is after JUnit's `@Before` but before the test method is invoked.
+
+[source,java]
+----
+@WithAnonymousUser(setupBefore = TestExecutionEvent.TEST_EXECUTION)
 ----
 
 
@@ -226,6 +244,16 @@ public void getMessageWithUserDetailsServiceBeanName() {
 
 Like `@WithMockUser` we can also place our annotation at the class level so that every test uses the same user.
 However unlike `@WithMockUser`, `@WithUserDetails` requires the user to exist.
+
+By default the `SecurityContext` is set during the `TestExecutionListener.beforeTestMethod` event.
+This is the equivalent of happening before JUnit's `@Before`.
+You can change this to happen during the `TestExecutionListener.beforeTestExecution` event which is after JUnit's `@Before` but before the test method is invoked.
+
+[source,java]
+----
+@WithUserDetails(setupBefore = TestExecutionEvent.TEST_EXECUTION)
+----
+
 
 [[test-method-withsecuritycontext]]
 === @WithSecurityContext
@@ -300,6 +328,16 @@ final class WithUserDetailsSecurityContextFactory
 	}
 }
 ----
+
+By default the `SecurityContext` is set during the `TestExecutionListener.beforeTestMethod` event.
+This is the equivalent of happening before JUnit's `@Before`.
+You can change this to happen during the `TestExecutionListener.beforeTestExecution` event which is after JUnit's `@Before` but before the test method is invoked.
+
+[source,java]
+----
+@WithSecurityContext(setupBefore = TestExecutionEvent.TEST_EXECUTION)
+----
+
 
 [[test-method-meta-annotations]]
 === Test Meta Annotations

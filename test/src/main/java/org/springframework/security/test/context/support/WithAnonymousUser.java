@@ -22,8 +22,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.springframework.core.annotation.AliasFor;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
+import org.springframework.test.context.TestContext;
 
 /**
  * When used with {@link WithSecurityContextTestExecutionListener} this
@@ -58,4 +60,13 @@ import org.springframework.security.core.context.SecurityContext;
 @WithSecurityContext(factory = WithAnonymousUserSecurityContextFactory.class)
 public @interface WithAnonymousUser {
 
+	/**
+	 * Determines when the {@link SecurityContext} is setup. The default is before
+	 * {@link TestExecutionEvent#TEST_METHOD} which occurs during
+	 * {@link org.springframework.test.context.TestExecutionListener#beforeTestMethod(TestContext)}
+	 * @return the {@link TestExecutionEvent} to initialize before
+	 * @since 5.1
+	 */
+	@AliasFor(annotation = WithSecurityContext.class)
+	TestExecutionEvent setupBefore() default TestExecutionEvent.TEST_METHOD;
 }

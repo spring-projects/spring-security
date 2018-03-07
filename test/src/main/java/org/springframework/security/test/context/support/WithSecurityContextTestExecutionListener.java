@@ -20,6 +20,7 @@ import java.lang.reflect.AnnotatedElement;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.GenericTypeResolver;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -46,6 +47,8 @@ import org.springframework.test.web.servlet.MockMvc;
 public class WithSecurityContextTestExecutionListener
 		extends AbstractTestExecutionListener {
 
+	static final String SECURITY_CONTEXT_ATTR_NAME = WithSecurityContextTestExecutionListener.class.getName().concat(".SECURITY_CONTEXT");
+
 	/**
 	 * Sets up the {@link SecurityContext} for each test method. First the specific method
 	 * is inspected for a {@link WithSecurityContext} or {@link Annotation} that has
@@ -54,46 +57,68 @@ public class WithSecurityContextTestExecutionListener
 	 */
 	@Override
 	public void beforeTestMethod(TestContext testContext) throws Exception {
-		SecurityContext securityContext = createSecurityContext(
+		TestSecurityContext testSecurityContext = createTestSecurityContext(
 				testContext.getTestMethod(), testContext);
-		if (securityContext == null) {
-			securityContext = createSecurityContext(testContext.getTestClass(),
+		if (testSecurityContext == null) {
+			testSecurityContext = createTestSecurityContext(testContext.getTestClass(),
 					testContext);
 		}
-		if (securityContext != null) {
+		if (testSecurityContext == null) {
+			return;
+		}
+
+		SecurityContext securityContext = testSecurityContext.securityContext;
+		if (testSecurityContext.getTestExecutionEvent() == TestExecutionEvent.TEST_METHOD) {
+			TestSecurityContextHolder.setContext(securityContext);
+		} else {
+			testContext.setAttribute(SECURITY_CONTEXT_ATTR_NAME, securityContext);
+		}
+	}
+
+	/**
+	 * If configured before test execution sets the SecurityContext
+	 * @since 5.1
+	 */
+	@Override
+	public void beforeTestExecution(TestContext testContext) {
+		SecurityContext securityContext = (SecurityContext) testContext.removeAttribute(SECURITY_CONTEXT_ATTR_NAME);
+		if(securityContext != null) {
 			TestSecurityContextHolder.setContext(securityContext);
 		}
 	}
 
-	private SecurityContext createSecurityContext(AnnotatedElement annotated,
+	private TestSecurityContext createTestSecurityContext(AnnotatedElement annotated,
 			TestContext context) {
-		WithSecurityContext withSecurityContext = AnnotationUtils
-				.findAnnotation(annotated, WithSecurityContext.class);
-		return createSecurityContext(annotated, withSecurityContext, context);
+		WithSecurityContext withSecurityContext = AnnotatedElementUtils
+				.findMergedAnnotation(annotated, WithSecurityContext.class);
+		return createTestSecurityContext(annotated, withSecurityContext, context);
 	}
 
-	private SecurityContext createSecurityContext(Class<?> annotated,
+	private TestSecurityContext createTestSecurityContext(Class<?> annotated,
 			TestContext context) {
 		MetaAnnotationUtils.AnnotationDescriptor<WithSecurityContext> withSecurityContextDescriptor = MetaAnnotationUtils
 				.findAnnotationDescriptor(annotated, WithSecurityContext.class);
 		WithSecurityContext withSecurityContext = withSecurityContextDescriptor == null
 				? null : withSecurityContextDescriptor.getAnnotation();
-		return createSecurityContext(annotated, withSecurityContext, context);
+		return createTestSecurityContext(annotated, withSecurityContext, context);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private SecurityContext createSecurityContext(AnnotatedElement annotated,
+	private TestSecurityContext createTestSecurityContext(AnnotatedElement annotated,
 			WithSecurityContext withSecurityContext, TestContext context) {
 		if (withSecurityContext == null) {
 			return null;
 		}
+		withSecurityContext = AnnotationUtils
+			.synthesizeAnnotation(withSecurityContext, annotated);
 		WithSecurityContextFactory factory = createFactory(withSecurityContext, context);
 		Class<? extends Annotation> type = (Class<? extends Annotation>) GenericTypeResolver
 				.resolveTypeArgument(factory.getClass(),
 						WithSecurityContextFactory.class);
 		Annotation annotation = findAnnotation(annotated, type);
+		TestExecutionEvent initialize = withSecurityContext.setupBefore();
 		try {
-			return factory.createSecurityContext(annotation);
+			return new TestSecurityContext(factory.createSecurityContext(annotation), initialize);
 		}
 		catch (RuntimeException e) {
 			throw new IllegalStateException(
@@ -149,5 +174,23 @@ public class WithSecurityContextTestExecutionListener
 	@Override
 	public int getOrder() {
 		return 10000;
+	}
+
+	static class TestSecurityContext {
+		private final SecurityContext securityContext;
+		private final TestExecutionEvent testExecutionEvent;
+
+		TestSecurityContext(SecurityContext securityContext, TestExecutionEvent testExecutionEvent) {
+			this.securityContext = securityContext;
+			this.testExecutionEvent = testExecutionEvent;
+		}
+
+		public SecurityContext getSecurityContext() {
+			return this.securityContext;
+		}
+
+		public TestExecutionEvent getTestExecutionEvent() {
+			return this.testExecutionEvent;
+		}
 	}
 }

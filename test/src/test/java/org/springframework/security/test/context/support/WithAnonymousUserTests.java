@@ -16,30 +16,25 @@
 
 package org.springframework.security.test.context.support;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.Test;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 
-public class WithMockUserTests {
+import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * @author Rob Winch
+ * @since 5.0
+ */
+public class WithAnonymousUserTests {
 	@Test
 	public void defaults() {
-		WithMockUser mockUser = AnnotatedElementUtils.findMergedAnnotation(Annotated.class,
-				WithMockUser.class);
-		assertThat(mockUser.value()).isEqualTo("user");
-		assertThat(mockUser.username()).isEmpty();
-		assertThat(mockUser.password()).isEqualTo("password");
-		assertThat(mockUser.roles()).containsOnly("USER");
-		assertThat(mockUser.setupBefore()).isEqualByComparingTo(TestExecutionEvent.TEST_METHOD);
-
 		WithSecurityContext context = AnnotatedElementUtils.findMergedAnnotation(Annotated.class,
 			WithSecurityContext.class);
 
 		assertThat(context.setupBefore()).isEqualTo(TestExecutionEvent.TEST_METHOD);
 	}
 
-	@WithMockUser
+	@WithAnonymousUser
 	private class Annotated {
 	}
 
@@ -52,7 +47,7 @@ public class WithMockUserTests {
 		assertThat(context.setupBefore()).isEqualTo(TestExecutionEvent.TEST_METHOD);
 	}
 
-	@WithMockUser(setupBefore = TestExecutionEvent.TEST_METHOD)
+	@WithAnonymousUser(setupBefore = TestExecutionEvent.TEST_METHOD)
 	private class SetupExplicit {
 	}
 
@@ -64,7 +59,7 @@ public class WithMockUserTests {
 		assertThat(context.setupBefore()).isEqualTo(TestExecutionEvent.TEST_EXECUTION);
 	}
 
-	@WithMockUser(setupBefore = TestExecutionEvent.TEST_EXECUTION)
+	@WithAnonymousUser(setupBefore = TestExecutionEvent.TEST_EXECUTION)
 	private class SetupOverridden {
 	}
 }

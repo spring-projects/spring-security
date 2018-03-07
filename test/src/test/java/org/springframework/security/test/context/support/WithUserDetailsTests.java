@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.security.test.context.support;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.annotation.AnnotationUtils;
 
 public class WithUserDetailsTests {
@@ -27,9 +28,41 @@ public class WithUserDetailsTests {
 		WithUserDetails userDetails = AnnotationUtils.findAnnotation(Annotated.class,
 				WithUserDetails.class);
 		assertThat(userDetails.value()).isEqualTo("user");
+
+		WithSecurityContext context = AnnotatedElementUtils
+			.findMergedAnnotation(Annotated.class,
+				WithSecurityContext.class);
+
+		assertThat(context.setupBefore()).isEqualTo(TestExecutionEvent.TEST_METHOD);
 	}
 
 	@WithUserDetails
 	private static class Annotated {
+	}
+
+	@Test
+	public void findMergedAnnotationWhenSetupExplicitThenOverridden() {
+		WithSecurityContext context = AnnotatedElementUtils
+			.findMergedAnnotation(SetupExplicit.class,
+				WithSecurityContext.class);
+
+		assertThat(context.setupBefore()).isEqualTo(TestExecutionEvent.TEST_METHOD);
+	}
+
+	@WithUserDetails(setupBefore = TestExecutionEvent.TEST_METHOD)
+	private class SetupExplicit {
+	}
+
+	@Test
+	public void findMergedAnnotationWhenSetupOverriddenThenOverridden() {
+		WithSecurityContext context = AnnotatedElementUtils
+			.findMergedAnnotation(SetupOverridden.class,
+				WithSecurityContext.class);
+
+		assertThat(context.setupBefore()).isEqualTo(TestExecutionEvent.TEST_EXECUTION);
+	}
+
+	@WithUserDetails(setupBefore = TestExecutionEvent.TEST_EXECUTION)
+	private class SetupOverridden {
 	}
 }

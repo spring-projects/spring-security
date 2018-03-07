@@ -22,10 +22,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.springframework.core.annotation.AliasFor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.test.context.TestContext;
 import org.springframework.test.web.servlet.MockMvc;
 
 /**
@@ -102,4 +104,14 @@ public @interface WithMockUser {
 	 * @return
 	 */
 	String password() default "password";
+
+	/**
+	 * Determines when the {@link SecurityContext} is setup. The default is before
+	 * {@link TestExecutionEvent#TEST_METHOD} which occurs during
+	 * {@link org.springframework.test.context.TestExecutionListener#beforeTestMethod(TestContext)}
+	 * @return the {@link TestExecutionEvent} to initialize before
+	 * @since 5.1
+	 */
+	@AliasFor(annotation = WithSecurityContext.class)
+	TestExecutionEvent setupBefore() default TestExecutionEvent.TEST_METHOD;
 }
