@@ -46,7 +46,7 @@ public class HttpStatusServerAccessDeniedHandler implements ServerAccessDeniedHa
 	public Mono<Void> handle(ServerWebExchange exchange, AccessDeniedException e) {
 		return Mono.defer(() -> Mono.just(exchange.getResponse()))
 			.flatMap(response -> {
-				response.setStatusCode(HttpStatus.FORBIDDEN);
+				response.setStatusCode(this.httpStatus);
 				response.getHeaders().setContentType(MediaType.TEXT_PLAIN);
 				DataBufferFactory dataBufferFactory = response.bufferFactory();
 				DataBuffer buffer = dataBufferFactory.wrap(e.getMessage().getBytes(

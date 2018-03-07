@@ -38,7 +38,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 public class HttpStatusServerAccessDeniedHandlerTests {
 	@Mock
 	private ServerWebExchange exchange;
-	private final HttpStatus httpStatus = HttpStatus.FORBIDDEN;
+	private HttpStatus httpStatus = HttpStatus.FORBIDDEN;
 	private HttpStatusServerAccessDeniedHandler handler = new HttpStatusServerAccessDeniedHandler(this.httpStatus);
 
 	private AccessDeniedException exception = new AccessDeniedException("Forbidden");
@@ -57,6 +57,17 @@ public class HttpStatusServerAccessDeniedHandlerTests {
 
 	@Test
 	public void commenceWhenSubscribeThenStatusSet() {
+		this.exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
+
+		this.handler.handle(this.exchange, this.exception).block();
+
+		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(this.httpStatus);
+	}
+
+	@Test
+	public void commenceWhenCustomStatusSubscribeThenStatusSet() {
+		this.httpStatus = HttpStatus.NOT_FOUND;
+		this.handler = new HttpStatusServerAccessDeniedHandler(this.httpStatus);
 		this.exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 
 		this.handler.handle(this.exchange, this.exception).block();
