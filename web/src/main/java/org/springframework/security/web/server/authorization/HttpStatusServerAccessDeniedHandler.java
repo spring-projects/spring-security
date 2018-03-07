@@ -30,13 +30,18 @@ import org.springframework.web.server.ServerWebExchange;
 import java.nio.charset.Charset;
 
 /**
- * Sets an HTTP Status that is provided when
+ * Sets the provided HTTP Status when access is denied.
+ *
  * @author Rob Winch
  * @since 5.0
  */
 public class HttpStatusServerAccessDeniedHandler implements ServerAccessDeniedHandler {
 	private final HttpStatus httpStatus;
 
+	/**
+	 * Creates an instance with the provided status
+	 * @param httpStatus the status to use
+	 */
 	public HttpStatusServerAccessDeniedHandler(HttpStatus httpStatus) {
 		Assert.notNull(httpStatus, "httpStatus cannot be null");
 		this.httpStatus = httpStatus;
