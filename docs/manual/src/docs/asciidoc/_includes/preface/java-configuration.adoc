@@ -673,7 +673,7 @@ The following listing shows an example:
 [source,java]
 ----
 @Controller
-public class MainController {
+public class OAuth2LoginController {
 
 	@Autowired
 	private ClientRegistrationRepository clientRegistrationRepository;
@@ -953,7 +953,7 @@ The following listing shows an example:
 [source,java]
 ----
 @Controller
-public class MainController {
+public class OAuth2LoginController {
 
 	@Autowired
 	private OAuth2AuthorizedClientService authorizedClientService;

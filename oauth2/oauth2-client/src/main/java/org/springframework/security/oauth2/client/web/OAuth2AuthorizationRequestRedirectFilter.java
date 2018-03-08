@@ -93,8 +93,8 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 	private final StringKeyGenerator stateGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder());
 	private AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
 		new HttpSessionOAuth2AuthorizationRequestRepository();
+	private RequestCache requestCache = new HttpSessionRequestCache();
 	private final ThrowableAnalyzer throwableAnalyzer = new DefaultThrowableAnalyzer();
-	private final RequestCache requestCache = new HttpSessionRequestCache();
 
 	/**
 	 * Constructs an {@code OAuth2AuthorizationRequestRedirectFilter} using the provided parameters.
@@ -129,6 +129,17 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 	public final void setAuthorizationRequestRepository(AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
 		Assert.notNull(authorizationRequestRepository, "authorizationRequestRepository cannot be null");
 		this.authorizationRequestRepository = authorizationRequestRepository;
+	}
+
+	/**
+	 * Sets the {@link RequestCache} used for storing the current request
+	 * before redirecting the OAuth 2.0 Authorization Request.
+	 *
+	 * @param requestCache the cache used for storing the current request
+	 */
+	public final void setRequestCache(RequestCache requestCache) {
+		Assert.notNull(requestCache, "requestCache cannot be null");
+		this.requestCache = requestCache;
 	}
 
 	@Override

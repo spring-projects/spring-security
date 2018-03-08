@@ -52,6 +52,7 @@ import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
+import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
@@ -446,6 +447,10 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		if (this.authorizationEndpointConfig.authorizationRequestRepository != null) {
 			authorizationRequestFilter.setAuthorizationRequestRepository(
 				this.authorizationEndpointConfig.authorizationRequestRepository);
+		}
+		RequestCache requestCache = http.getSharedObject(RequestCache.class);
+		if (requestCache != null) {
+			authorizationRequestFilter.setRequestCache(requestCache);
 		}
 		http.addFilter(this.postProcess(authorizationRequestFilter));
 
