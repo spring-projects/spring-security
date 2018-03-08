@@ -15,12 +15,9 @@
  */
 package sample.web;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.client.ClientAuthorizationRequiredException;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.annotation.OAuth2Client;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,9 +32,7 @@ import java.util.List;
  * @author Joe Grandja
  */
 @Controller
-public class MainController {
-	@Autowired
-	private OAuth2AuthorizedClientService authorizedClientService;
+public class GitHubReposController {
 
 	@GetMapping("/")
 	public String index() {
@@ -45,16 +40,7 @@ public class MainController {
 	}
 
 	@GetMapping("/repos")
-	public String gitHubRepos(Model model, Authentication authentication) {
-		String registrationId = "github";
-
-		OAuth2AuthorizedClient authorizedClient =
-			this.authorizedClientService.loadAuthorizedClient(
-				registrationId, authentication.getName());
-		if (authorizedClient == null) {
-			throw new ClientAuthorizationRequiredException(registrationId);
-		}
-
+	public String gitHubRepos(Model model, @OAuth2Client("github") OAuth2AuthorizedClient authorizedClient) {
 		String endpointUri = "https://api.github.com/user/repos";
 		List repos = WebClient.builder()
 			.filter(oauth2Credentials(authorizedClient))

@@ -19,6 +19,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
@@ -29,6 +30,7 @@ import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.annotation.OAuth2Client;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -42,16 +44,21 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
@@ -68,6 +75,8 @@ public class OAuth2ClientConfigurerTests {
 	private static OAuth2AuthorizedClientService authorizedClientService;
 
 	private static OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient;
+
+	private static RequestCache requestCache;
 
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
@@ -101,6 +110,7 @@ public class OAuth2ClientConfigurerTests {
 				.build();
 		accessTokenResponseClient = mock(OAuth2AccessTokenResponseClient.class);
 		when(accessTokenResponseClient.getTokenResponse(any(OAuth2AuthorizationCodeGrantRequest.class))).thenReturn(accessTokenResponse);
+		requestCache = mock(RequestCache.class);
 	}
 
 	@Test
@@ -151,7 +161,20 @@ public class OAuth2ClientConfigurerTests {
 		assertThat(authorizedClient).isNotNull();
 	}
 
+	@Test
+	public void configureWhenRequestCacheProvidedAndClientAuthorizationRequiredExceptionThrownThenRequestCacheUsed() throws Exception {
+		this.spring.register(OAuth2ClientConfig.class).autowire();
+
+		MvcResult mvcResult = this.mockMvc.perform(get("/resource1").with(user("user1")))
+				.andExpect(status().is3xxRedirection())
+				.andReturn();
+		assertThat(mvcResult.getResponse().getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=http://localhost/client-1");
+
+		verify(requestCache).saveRequest(any(HttpServletRequest.class), any(HttpServletResponse.class));
+	}
+
 	@EnableWebSecurity
+	@EnableWebMvc
 	static class OAuth2ClientConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
@@ -159,13 +182,32 @@ public class OAuth2ClientConfigurerTests {
 				.authorizeRequests()
 					.anyRequest().authenticated()
 					.and()
+				.requestCache()
+					.requestCache(requestCache)
+					.and()
 				.oauth2()
 					.client()
-						.clientRegistrationRepository(clientRegistrationRepository)
-						.authorizedClientService(authorizedClientService)
 						.authorizationCodeGrant()
 							.tokenEndpoint()
 								.accessTokenResponseClient(accessTokenResponseClient);
+		}
+
+		@Bean
+		public ClientRegistrationRepository clientRegistrationRepository() {
+			return clientRegistrationRepository;
+		}
+
+		@Bean
+		public OAuth2AuthorizedClientService authorizedClientService() {
+			return authorizedClientService;
+		}
+
+		@RestController
+		public class ResourceController {
+			@GetMapping("/resource1")
+			public String resource1(@OAuth2Client("registration-1") OAuth2AuthorizedClient authorizedClient) {
+				return "resource1";
+			}
 		}
 	}
 }

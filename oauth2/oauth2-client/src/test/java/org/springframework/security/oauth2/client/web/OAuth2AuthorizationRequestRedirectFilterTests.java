@@ -28,15 +28,13 @@ import org.springframework.security.oauth2.client.registration.InMemoryClientReg
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
-import org.springframework.security.web.savedrequest.SavedRequest;
+import org.springframework.security.web.savedrequest.RequestCache;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -53,6 +51,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 	private ClientRegistration registration3;
 	private ClientRegistrationRepository clientRegistrationRepository;
 	private OAuth2AuthorizationRequestRedirectFilter filter;
+	private RequestCache requestCache;
 
 	@Before
 	public void setUp() {
@@ -95,6 +94,8 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 		this.clientRegistrationRepository = new InMemoryClientRegistrationRepository(
 			this.registration1, this.registration2, this.registration3);
 		this.filter = new OAuth2AuthorizationRequestRedirectFilter(this.clientRegistrationRepository);
+		this.requestCache = mock(RequestCache.class);
+		this.filter.setRequestCache(this.requestCache);
 	}
 
 	@Test
@@ -116,6 +117,12 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 	}
 
 	@Test
+	public void setRequestCacheWhenRequestCacheIsNullThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() -> this.filter.setRequestCache(null))
+				.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
 	public void doFilterWhenNotAuthorizationRequestThenNextFilter() throws Exception {
 		String requestUri = "/path";
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
@@ -129,7 +136,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 	}
 
 	@Test
-	public void doFilterWhenAuthorizationRequestWithInvalidClientThenStatusBadRequest() throws Exception {
+	public void doFilterWhenAuthorizationRequestWithInvalidClientThenStatusInternalServerError() throws Exception {
 		String requestUri = OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI +
 			"/" + this.registration1.getRegistrationId() + "-invalid";
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
@@ -141,8 +148,8 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 
 		verifyZeroInteractions(filterChain);
 
-		assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
-		assertThat(response.getErrorMessage()).isEqualTo(HttpStatus.BAD_REQUEST.getReasonPhrase());
+		assertThat(response.getStatus()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
+		assertThat(response.getErrorMessage()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
 	}
 
 	@Test
@@ -320,16 +327,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 
 		assertThat(response.getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=http://localhost/authorize/oauth2/code/registration-1");
 
-		HttpSession session = request.getSession(false);
-		assertThat(session).isNotNull();
-		boolean requestSaved = false;
-		for (String attrName : Collections.list(session.getAttributeNames())) {
-			if (SavedRequest.class.isAssignableFrom(session.getAttribute(attrName).getClass())) {
-				requestSaved = true;
-				break;
-			}
-		}
-		assertThat(requestSaved).isTrue();
+		verify(this.requestCache).saveRequest(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
 	@Test

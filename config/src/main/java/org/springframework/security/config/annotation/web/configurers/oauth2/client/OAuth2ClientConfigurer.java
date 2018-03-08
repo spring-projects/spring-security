@@ -28,6 +28,7 @@ import org.springframework.security.oauth2.client.web.AuthorizationRequestReposi
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationCodeGrantFilter;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
+import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.util.Assert;
 
 /**
@@ -276,6 +277,10 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>> exte
 		if (authorizationCodeGrantConfigurer.authorizationEndpointConfig.authorizationRequestRepository != null) {
 			authorizationRequestFilter.setAuthorizationRequestRepository(
 				authorizationCodeGrantConfigurer.authorizationEndpointConfig.authorizationRequestRepository);
+		}
+		RequestCache requestCache = builder.getSharedObject(RequestCache.class);
+		if (requestCache != null) {
+			authorizationRequestFilter.setRequestCache(requestCache);
 		}
 		builder.addFilter(this.postProcess(authorizationRequestFilter));
 

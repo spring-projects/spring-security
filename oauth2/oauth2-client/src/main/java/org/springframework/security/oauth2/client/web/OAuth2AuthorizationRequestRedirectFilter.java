@@ -93,8 +93,8 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 	private final StringKeyGenerator stateGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder());
 	private AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
 		new HttpSessionOAuth2AuthorizationRequestRepository();
+	private RequestCache requestCache = new HttpSessionRequestCache();
 	private final ThrowableAnalyzer throwableAnalyzer = new DefaultThrowableAnalyzer();
-	private final RequestCache requestCache = new HttpSessionRequestCache();
 
 	/**
 	 * Constructs an {@code OAuth2AuthorizationRequestRedirectFilter} using the provided parameters.
@@ -129,6 +129,17 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 	public final void setAuthorizationRequestRepository(AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
 		Assert.notNull(authorizationRequestRepository, "authorizationRequestRepository cannot be null");
 		this.authorizationRequestRepository = authorizationRequestRepository;
+	}
+
+	/**
+	 * Sets the {@link RequestCache} used for storing the current request
+	 * before redirecting the OAuth 2.0 Authorization Request.
+	 *
+	 * @param requestCache the cache used for storing the current request
+	 */
+	public final void setRequestCache(RequestCache requestCache) {
+		Assert.notNull(requestCache, "requestCache cannot be null");
+		this.requestCache = requestCache;
 	}
 
 	@Override
@@ -212,8 +223,9 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 		} else if (AuthorizationGrantType.IMPLICIT.equals(clientRegistration.getAuthorizationGrantType())) {
 			builder = OAuth2AuthorizationRequest.implicit();
 		} else {
-			throw new IllegalArgumentException("Invalid Authorization Grant Type for Client Registration (" +
-				clientRegistration.getRegistrationId() + "): " + clientRegistration.getAuthorizationGrantType());
+			throw new IllegalArgumentException("Invalid Authorization Grant Type ("  +
+					clientRegistration.getAuthorizationGrantType().getValue() +
+					") for Client Registration with Id: " + clientRegistration.getRegistrationId());
 		}
 		OAuth2AuthorizationRequest authorizationRequest = builder
 				.clientId(clientRegistration.getClientId())
@@ -235,10 +247,10 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 	private void unsuccessfulRedirectForAuthorization(HttpServletRequest request, HttpServletResponse response,
 														Exception failed) throws IOException, ServletException {
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Authorization Request failed: " + failed.toString(), failed);
+		if (logger.isErrorEnabled()) {
+			logger.error("Authorization Request failed: " + failed.toString(), failed);
 		}
-		response.sendError(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.getReasonPhrase());
+		response.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
 	}
 
 	private String expandRedirectUri(HttpServletRequest request, ClientRegistration clientRegistration) {

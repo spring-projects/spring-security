@@ -145,7 +145,7 @@ public class OAuth2LoginApplicationTests {
 	}
 
 	@Test
-	public void requestAuthorizeClientWhenInvalidClientThenStatusBadRequest() throws Exception {
+	public void requestAuthorizeClientWhenInvalidClientThenStatusInternalServerError() throws Exception {
 		HtmlPage page = this.webClient.getPage("/");
 
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId("google");
@@ -161,7 +161,7 @@ public class OAuth2LoginApplicationTests {
 			response = ex.getResponse();
 		}
 
-		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
 	}
 
 	@Test
