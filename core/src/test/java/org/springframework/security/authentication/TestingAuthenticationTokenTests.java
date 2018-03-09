@@ -16,6 +16,7 @@
 package org.springframework.security.authentication;
 
 import org.junit.Test;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.Arrays;
@@ -46,7 +47,7 @@ public class TestingAuthenticationTokenTests {
 	public void constructorWhenCollectionAuthoritiesThenAuthenticated() {
 		TestingAuthenticationToken authenticated =
 			new TestingAuthenticationToken("principal", "credentials",
-				Arrays.asList(new SimpleGrantedAuthority("authority")));
+				Arrays.<GrantedAuthority>asList(new SimpleGrantedAuthority("authority")));
 
 		assertThat(authenticated.isAuthenticated()).isTrue();
 	}
