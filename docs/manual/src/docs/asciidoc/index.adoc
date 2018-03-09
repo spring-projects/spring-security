@@ -407,8 +407,10 @@ Below are the highlights of the release.
 
 === New Features
 
-* <<test-method>> - Support for customizing when the `SecurityContext` is setup in the test.
+* <<test-method>>
+** Support for customizing when the `SecurityContext` is setup in the test
 For example, `@WithMockUser(setupBefore = TestExecutionEvent.TEST_EXECUTION)` will setup a user after JUnit's `@Before` and before the test executes.
+** `@WithUserDetails` now works with `ReactiveUserDetailsService`
 
 
 [[samples]]
