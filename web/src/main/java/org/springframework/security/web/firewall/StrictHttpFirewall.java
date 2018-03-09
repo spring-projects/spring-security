@@ -340,7 +340,7 @@ public class StrictHttpFirewall implements HttpFirewall {
 			return true;
 		}
 
-		if (path.indexOf("//") > 0) {
+		if (path.indexOf("//") > -1) {
 			return false;
 		}
 
