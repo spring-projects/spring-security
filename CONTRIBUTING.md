@@ -180,6 +180,7 @@ Fixes gh-123
 2. Do not end the subject line with a period
 3. In the body of the commit message, explain how things worked before this commit, what has changed, and how things work now
 3. Include Fixes gh-<issue-number> at the end if this fixes a GitHub issue  
+5. Avoid markdown, including back-ticks identifying code
 
 # Run all tests prior to submission
 
