@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.ReactiveAdapterRegistry;
+import org.springframework.expression.BeanResolver;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.web.method.ResolvableMethod;
@@ -33,6 +34,8 @@ import reactor.core.publisher.Mono;
 import java.lang.annotation.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 
@@ -48,16 +51,20 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	BindingContext bindingContext;
 	@Mock
 	Authentication authentication;
+	@Mock
+	BeanResolver beanResolver;
 
 	ResolvableMethod authenticationPrincipal = ResolvableMethod.on(getClass()).named("authenticationPrincipal").build();
 	ResolvableMethod spel = ResolvableMethod.on(getClass()).named("spel").build();
 	ResolvableMethod meta = ResolvableMethod.on(getClass()).named("meta").build();
+	ResolvableMethod bean = ResolvableMethod.on(getClass()).named("bean").build();
 
 	AuthenticationPrincipalArgumentResolver resolver;
 
 	@Before
 	public void setup() {
 		resolver =  new AuthenticationPrincipalArgumentResolver(new ReactiveAdapterRegistry());
+		this.resolver.setBeanResolver(this.beanResolver);
 	}
 
 	@Test
@@ -127,6 +134,19 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	}
 
 	@Test
+	public void resolveArgumentWhenBeanThenObtainsPrincipal() throws Exception {
+		MyUser user = new MyUser(3L);
+		MethodParameter parameter = this.bean.arg(Long.class);
+		when(authentication.getPrincipal()).thenReturn(user);
+		when(exchange.getPrincipal()).thenReturn(Mono.just(authentication));
+		when(this.beanResolver.resolve(any(), eq("beanName"))).thenReturn(new Bean());
+
+		Mono<Object> argument = resolver.resolveArgument(parameter, bindingContext, exchange);
+
+		assertThat(argument.block()).isEqualTo(user.getId());
+	}
+
+	@Test
 	public void resolveArgumentWhenMetaThenObtainsPrincipal() throws Exception {
 		MethodParameter parameter = this.meta.arg(String.class);
 		when(authentication.getPrincipal()).thenReturn("user");
@@ -142,7 +162,15 @@ public class AuthenticationPrincipalArgumentResolverTests {
 
 	void spel(@AuthenticationPrincipal(expression = "id") Long id) {}
 
+	void bean(@AuthenticationPrincipal(expression = "@beanName.methodName(#this)") Long id) {}
+
 	void meta(@CurrentUser String principal) {}
+
+	static class Bean {
+		public Long methodName(MyUser user) {
+			return user.getId();
+		}
+	}
 
 	static class MyUser {
 		private final Long id;

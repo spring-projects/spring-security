@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,17 @@
 
 package org.springframework.security.config.annotation.web.reactive;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.csrf;
+import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.basicAuthentication;
+import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.Credentials.basicAuthenticationCredentials;
+
+import java.nio.charset.StandardCharsets;
+import java.security.Principal;
+
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -32,40 +41,43 @@ import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.config.users.ReactiveAuthenticationTestConfiguration;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
 import org.springframework.security.web.reactive.result.view.CsrfRequestDataValueProcessor;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.WebFilterChainProxy;
 import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
 import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.FluxExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.reactive.config.EnableWebFlux;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.result.view.AbstractView;
+
 import reactor.core.publisher.Mono;
-
-import java.nio.charset.StandardCharsets;
-import java.security.Principal;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.csrf;
-import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.Credentials.basicAuthenticationCredentials;
-import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.basicAuthentication;
 
 /**
  * @author Rob Winch
  * @since 5.0
  */
+@RunWith(SpringRunner.class)
+@SecurityTestExecutionListeners
 public class EnableWebFluxSecurityTests {
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
@@ -285,6 +297,46 @@ public class EnableWebFluxSecurityTests {
 		@Bean
 		public SecurityWebFilterChain httpSecurity(ServerHttpSecurity http) {
 			return http.build();
+		}
+	}
+
+	@Test
+	@WithMockUser
+	public void authenticationPrincipalArgumentResolverWhenSpelThenWorks() {
+		this.spring.register(AuthenticationPrincipalConfig.class).autowire();
+
+		WebTestClient client = WebTestClient.bindToApplicationContext(this.spring.getContext()).build();
+
+		client.get()
+			.uri("/spel")
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody(String.class).isEqualTo("user");
+	}
+
+
+	@EnableWebFluxSecurity
+	@EnableWebFlux
+	@Import(ReactiveAuthenticationTestConfiguration.class)
+	static class AuthenticationPrincipalConfig {
+
+		@Bean
+		public PrincipalBean principalBean() {
+			return new PrincipalBean();
+		}
+
+		static class PrincipalBean {
+			public String username(UserDetails user) {
+				return user.getUsername();
+			}
+		}
+
+		@RestController
+		public static class AuthenticationPrincipalResolver {
+			@GetMapping("/spel")
+			String username(@AuthenticationPrincipal(expression = "@principalBean.username(#this)") String username) {
+				return  username;
+			}
 		}
 	}
 

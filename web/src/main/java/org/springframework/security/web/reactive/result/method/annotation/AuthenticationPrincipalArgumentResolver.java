@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,6 +47,14 @@ public class AuthenticationPrincipalArgumentResolver extends HandlerMethodArgume
 
 	public AuthenticationPrincipalArgumentResolver(ReactiveAdapterRegistry adapterRegistry) {
 		super(adapterRegistry);
+	}
+
+	/**
+	 * Sets the {@link BeanResolver} to be used on the expressions
+	 * @param beanResolver the {@link BeanResolver} to use
+	 */
+	public void setBeanResolver(BeanResolver beanResolver) {
+		this.beanResolver = beanResolver;
 	}
 
 	@Override

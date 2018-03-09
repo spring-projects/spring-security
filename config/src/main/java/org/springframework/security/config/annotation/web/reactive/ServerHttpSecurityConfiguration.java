@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,11 @@
 
 package org.springframework.security.config.annotation.web.reactive;
 
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Scope;
+import org.springframework.context.expression.BeanFactoryResolver;
 import org.springframework.core.ReactiveAdapterRegistry;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
@@ -51,6 +53,9 @@ class ServerHttpSecurityConfiguration implements WebFluxConfigurer {
 	@Autowired(required = false)
 	private PasswordEncoder passwordEncoder;
 
+	@Autowired(required = false)
+	private BeanFactory beanFactory;
+
 	@Override
 	public void configureArgumentResolvers(ArgumentResolverConfigurer configurer) {
 		configurer.addCustomResolver(authenticationPrincipalArgumentResolver());
@@ -58,7 +63,12 @@ class ServerHttpSecurityConfiguration implements WebFluxConfigurer {
 
 	@Bean
 	public AuthenticationPrincipalArgumentResolver authenticationPrincipalArgumentResolver() {
-		return new AuthenticationPrincipalArgumentResolver(this.adapterRegistry);
+		AuthenticationPrincipalArgumentResolver resolver = new AuthenticationPrincipalArgumentResolver(
+			this.adapterRegistry);
+		if(this.beanFactory != null) {
+			resolver.setBeanResolver(new BeanFactoryResolver(this.beanFactory));
+		}
+		return resolver;
 	}
 
 	@Bean(HTTPSECURITY_BEAN_NAME)
