@@ -412,8 +412,9 @@ Below are the highlights of the release.
 For example, `@WithMockUser(setupBefore = TestExecutionEvent.TEST_EXECUTION)` will setup a user after JUnit's `@Before` and before the test executes.
 ** `@WithUserDetails` now works with `ReactiveUserDetailsService`
 * <<jackson>> - added support for `BadCredentialsException`
-* <<mvc-authentication-principal>> - Supports resolving beans in WebFlux (was already supported in Spring MVC).
-
+* <<mvc-authentication-principal>>
+** Supports resolving beans in WebFlux (was already supported in Spring MVC)
+** Supports resolving `errorOnInvalidType` in WebFlux (was already supported in Spring MVC)
 
 [[samples]]
 == Samples and Guides (Start Here)

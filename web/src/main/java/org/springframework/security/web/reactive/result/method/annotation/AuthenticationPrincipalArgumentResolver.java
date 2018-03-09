@@ -15,9 +15,13 @@
  */
 package org.springframework.security.web.reactive.result.method.annotation;
 
+import java.lang.annotation.Annotation;
+
+import org.reactivestreams.Publisher;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.ReactiveAdapter;
 import org.springframework.core.ReactiveAdapterRegistry;
+import org.springframework.core.ResolvableType;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.expression.BeanResolver;
 import org.springframework.expression.Expression;
@@ -30,9 +34,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.BindingContext;
 import org.springframework.web.reactive.result.method.HandlerMethodArgumentResolverSupport;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
 
-import java.lang.annotation.Annotation;
+import reactor.core.publisher.Mono;
 
 /**
  * Resolves the Authentication
@@ -90,7 +93,35 @@ public class AuthenticationPrincipalArgumentResolver extends HandlerMethodArgume
 			principal = expression.getValue(context);
 		}
 
+		if (isInvalidType(parameter, principal)) {
+
+			if (authPrincipal.errorOnInvalidType()) {
+				throw new ClassCastException(principal + " is not assignable to "
+					+ parameter.getParameterType());
+			}
+			else {
+				return null;
+			}
+		}
+
 		return principal;
+	}
+
+	private boolean isInvalidType(MethodParameter parameter, Object principal) {
+		if (principal == null) {
+			return false;
+		}
+		Class<?> typeToCheck = parameter.getParameterType();
+		boolean isParameterPublisher = Publisher.class.isAssignableFrom(parameter.getParameterType());
+		if (isParameterPublisher) {
+			ResolvableType resolvableType = ResolvableType.forMethodParameter(parameter);
+			Class<?> genericType = resolvableType.resolveGeneric(0);
+			if (genericType == null) {
+				return false;
+			}
+			typeToCheck = genericType;
+		}
+		return !typeToCheck.isAssignableFrom(principal.getClass());
 	}
 
 	/**
