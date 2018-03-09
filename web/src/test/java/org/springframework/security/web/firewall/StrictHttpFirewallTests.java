@@ -26,7 +26,8 @@ import static org.assertj.core.api.Assertions.fail;
  */
 public class StrictHttpFirewallTests {
 	public String[] unnormalizedPaths = { "/..", "/./path/", "/path/path/.", "/path/path//.", "./path/../path//.",
-			"./path", ".//path", ".", "/path//" };
+		"./path", ".//path", ".", "//path", "//path/path", "//path//path", "/path//path" };
+
 
 	private StrictHttpFirewall firewall = new StrictHttpFirewall();
 
