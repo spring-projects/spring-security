@@ -68,6 +68,18 @@ public class EncryptorsTests {
 	}
 
 	@Test
+	public void queryable() throws Exception {
+		CryptoAssumptions.assumeCBCJCE();
+		BytesEncryptor encryptor = Encryptors.queryable("password", "5c0744940b5c369b");
+		byte[] result = encryptor.encrypt("text".getBytes("UTF-8"));
+		assertThat(result).isNotNull();
+		assertThat(new String(result).equals("text")).isFalse();
+		assertThat(new String(encryptor.decrypt(result))).isEqualTo("text");
+		assertThat(new String(result)).isEqualTo(
+			new String(encryptor.encrypt("text".getBytes())));
+	}
+
+	@Test
 	public void queryableText() {
 		CryptoAssumptions.assumeCBCJCE();
 		TextEncryptor encryptor = Encryptors.queryableText("password",
