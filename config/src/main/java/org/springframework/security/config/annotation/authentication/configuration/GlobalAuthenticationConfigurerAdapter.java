@@ -27,7 +27,7 @@ import org.springframework.security.config.annotation.authentication.configurati
  * {@link AuthenticationConfiguration} to configure the global
  * {@link AuthenticationManagerBuilder}.
  *
- * @since 3.2.1
+ * @since 5.0
  * @author Rob Winch
  */
 @Order(100)
