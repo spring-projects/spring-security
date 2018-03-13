@@ -17,6 +17,7 @@ package org.springframework.security.oauth2.client.web;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -26,8 +27,6 @@ import org.springframework.security.oauth2.client.registration.InMemoryClientReg
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
-import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponseType;
-import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
@@ -153,7 +152,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 	}
 
 	@Test
-	public void doFilterWhenAuthorizationRequestAuthorizationCodeGrantThenAuthorizationRequestSavedInSession() throws Exception {
+	public void doFilterWhenAuthorizationRequestAuthorizationCodeGrantThenAuthorizationRequestSaved() throws Exception {
 		String requestUri = OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI +
 			"/" + this.registration2.getRegistrationId();
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
@@ -162,31 +161,14 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 		FilterChain filterChain = mock(FilterChain.class);
 
 		AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
-			new HttpSessionOAuth2AuthorizationRequestRepository();
+				mock(AuthorizationRequestRepository.class);
 		this.filter.setAuthorizationRequestRepository(authorizationRequestRepository);
 
 		this.filter.doFilter(request, response, filterChain);
 
 		verifyZeroInteractions(filterChain);
-
-		OAuth2AuthorizationRequest authorizationRequest = authorizationRequestRepository.loadAuthorizationRequest(request);
-
-		assertThat(authorizationRequest).isNotNull();
-		assertThat(authorizationRequest.getAuthorizationUri()).isEqualTo(
-			this.registration2.getProviderDetails().getAuthorizationUri());
-		assertThat(authorizationRequest.getGrantType()).isEqualTo(
-			this.registration2.getAuthorizationGrantType());
-		assertThat(authorizationRequest.getResponseType()).isEqualTo(
-			OAuth2AuthorizationResponseType.CODE);
-		assertThat(authorizationRequest.getClientId()).isEqualTo(
-			this.registration2.getClientId());
-		assertThat(authorizationRequest.getRedirectUri()).isEqualTo(
-			"http://localhost/login/oauth2/code/registration-2");
-		assertThat(authorizationRequest.getScopes()).isEqualTo(
-			this.registration2.getScopes());
-		assertThat(authorizationRequest.getState()).isNotNull();
-		assertThat(authorizationRequest.getAdditionalParameters()
-			.get(OAuth2ParameterNames.REGISTRATION_ID)).isEqualTo(this.registration2.getRegistrationId());
+		verify(authorizationRequestRepository).saveAuthorizationRequest(
+			any(OAuth2AuthorizationRequest.class), any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
 	@Test
@@ -206,7 +188,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 	}
 
 	@Test
-	public void doFilterWhenAuthorizationRequestImplicitGrantThenAuthorizationRequestNotSavedInSession() throws Exception {
+	public void doFilterWhenAuthorizationRequestImplicitGrantThenAuthorizationRequestNotSaved() throws Exception {
 		String requestUri = OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI +
 			"/" + this.registration3.getRegistrationId();
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
@@ -215,16 +197,14 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 		FilterChain filterChain = mock(FilterChain.class);
 
 		AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
-			new HttpSessionOAuth2AuthorizationRequestRepository();
+				mock(AuthorizationRequestRepository.class);
 		this.filter.setAuthorizationRequestRepository(authorizationRequestRepository);
 
 		this.filter.doFilter(request, response, filterChain);
 
 		verifyZeroInteractions(filterChain);
-
-		OAuth2AuthorizationRequest authorizationRequest = authorizationRequestRepository.loadAuthorizationRequest(request);
-
-		assertThat(authorizationRequest).isNull();
+		verify(authorizationRequestRepository, times(0)).saveAuthorizationRequest(
+				any(OAuth2AuthorizationRequest.class), any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
 	@Test
@@ -255,14 +235,19 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 		FilterChain filterChain = mock(FilterChain.class);
 
 		AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
-			new HttpSessionOAuth2AuthorizationRequestRepository();
+				mock(AuthorizationRequestRepository.class);
 		this.filter.setAuthorizationRequestRepository(authorizationRequestRepository);
 
 		this.filter.doFilter(request, response, filterChain);
 
-		verifyZeroInteractions(filterChain);
+		ArgumentCaptor<OAuth2AuthorizationRequest> authorizationRequestArgCaptor =
+			ArgumentCaptor.forClass(OAuth2AuthorizationRequest.class);
 
-		OAuth2AuthorizationRequest authorizationRequest = authorizationRequestRepository.loadAuthorizationRequest(request);
+		verifyZeroInteractions(filterChain);
+		verify(authorizationRequestRepository).saveAuthorizationRequest(
+			authorizationRequestArgCaptor.capture(), any(HttpServletRequest.class), any(HttpServletResponse.class));
+
+		OAuth2AuthorizationRequest authorizationRequest = authorizationRequestArgCaptor.getValue();
 
 		assertThat(authorizationRequest.getRedirectUri()).isNotEqualTo(
 			this.registration2.getRedirectUriTemplate());
