@@ -28,7 +28,7 @@ import org.springframework.test.web.reactive.server.FluxExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.time.Duration;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,7 +45,7 @@ public class HeaderSpecTests {
 
 	HttpHeaders expectedHeaders = new HttpHeaders();
 
-	Set<String> ignoredHeaderNames = Collections.singleton(HttpHeaders.CONTENT_TYPE);
+	Set<String> headerNamesNotPresent = new HashSet<>();
 
 	@Before
 	public void setup() {
@@ -67,9 +67,7 @@ public class HeaderSpecTests {
 
 	@Test
 	public void headersWhenCacheDisableThenCacheNotWritten() {
-		this.expectedHeaders.remove(HttpHeaders.CACHE_CONTROL);
-		this.expectedHeaders.remove(HttpHeaders.PRAGMA);
-		this.expectedHeaders.remove(HttpHeaders.EXPIRES);
+		expectHeaderNamesNotPresent(HttpHeaders.CACHE_CONTROL, HttpHeaders.PRAGMA, HttpHeaders.EXPIRES);
 		this.headers.cache().disable();
 
 		assertHeaders();
@@ -77,7 +75,7 @@ public class HeaderSpecTests {
 
 	@Test
 	public void headersWhenContentOptionsDisableThenContentTypeOptionsNotWritten() {
-		this.expectedHeaders.remove(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS);
+		expectHeaderNamesNotPresent(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS);
 		this.headers.contentTypeOptions().disable();
 
 		assertHeaders();
@@ -85,7 +83,7 @@ public class HeaderSpecTests {
 
 	@Test
 	public void headersWhenHstsDisableThenHstsNotWritten() {
-		this.expectedHeaders.remove(StrictTransportSecurityServerHttpHeadersWriter.STRICT_TRANSPORT_SECURITY);
+		expectHeaderNamesNotPresent(StrictTransportSecurityServerHttpHeadersWriter.STRICT_TRANSPORT_SECURITY);
 		this.headers.hsts().disable();
 
 		assertHeaders();
@@ -103,7 +101,7 @@ public class HeaderSpecTests {
 
 	@Test
 	public void headersWhenFrameOptionsDisableThenFrameOptionsNotWritten() {
-		this.expectedHeaders.remove(XFrameOptionsServerHttpHeadersWriter.X_FRAME_OPTIONS);
+		expectHeaderNamesNotPresent(XFrameOptionsServerHttpHeadersWriter.X_FRAME_OPTIONS);
 		this.headers.frameOptions().disable();
 
 		assertHeaders();
@@ -111,9 +109,7 @@ public class HeaderSpecTests {
 
 	@Test
 	public void headersWhenFrameOptionsModeThenFrameOptionsCustomMode() {
-		this.expectedHeaders.remove(XFrameOptionsServerHttpHeadersWriter.X_FRAME_OPTIONS);
-		this.expectedHeaders
-			.add(XFrameOptionsServerHttpHeadersWriter.X_FRAME_OPTIONS, "SAMEORIGIN");
+		this.expectedHeaders.set(XFrameOptionsServerHttpHeadersWriter.X_FRAME_OPTIONS, "SAMEORIGIN");
 		this.headers.frameOptions().mode(XFrameOptionsServerHttpHeadersWriter.Mode.SAMEORIGIN);
 
 		assertHeaders();
@@ -121,10 +117,17 @@ public class HeaderSpecTests {
 
 	@Test
 	public void headersWhenXssProtectionDisableThenXssProtectionNotWritten() {
-		this.expectedHeaders.remove("X-Xss-Protection");
+		expectHeaderNamesNotPresent("X-Xss-Protection");
 		this.headers.xssProtection().disable();
 
 		assertHeaders();
+	}
+
+	private void expectHeaderNamesNotPresent(String... headerNames) {
+		for(String headerName : headerNames) {
+			this.expectedHeaders.remove(headerName);
+			this.headerNamesNotPresent.add(headerName);
+		}
 	}
 
 	private void assertHeaders() {
@@ -135,10 +138,12 @@ public class HeaderSpecTests {
 			.returnResult(String.class);
 
 		Map<String, List<String>> responseHeaders = response.getResponseHeaders();
-		this.ignoredHeaderNames.stream().forEach(responseHeaders::remove);
 
-		assertThat(responseHeaders).describedAs(response.toString()).isEqualTo(
+		assertThat(responseHeaders).describedAs(response.toString()).containsAllEntriesOf(
 			this.expectedHeaders);
+		if (!this.headerNamesNotPresent.isEmpty()) {
+			assertThat(responseHeaders.keySet()).doesNotContainAnyElementsOf(this.headerNamesNotPresent);
+		}
 	}
 
 	private WebTestClient buildClient() {
