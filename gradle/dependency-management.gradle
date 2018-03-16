@@ -1,8 +1,20 @@
+if (!project.hasProperty('reactorVersion')) {
+	ext.reactorVersion = 'Bismuth-SR7'
+}
+
+if (!project.hasProperty('springVersion')) {
+	ext.springVersion = '5.0.4.RELEASE'
+}
+
+if (!project.hasProperty('springDataVersion')) {
+	ext.springDataVersion = 'Kay-SR5'
+}
+
 dependencyManagement {
 	imports {
-		mavenBom 'io.projectreactor:reactor-bom:Bismuth-SR7'
-		mavenBom 'org.springframework:spring-framework-bom:5.0.4.RELEASE'
-		mavenBom 'org.springframework.data:spring-data-releasetrain:Kay-SR5'
+		mavenBom "io.projectreactor:reactor-bom:${reactorVersion}"
+		mavenBom "org.springframework:spring-framework-bom:${springVersion}"
+		mavenBom "org.springframework.data:spring-data-releasetrain:${springDataVersion}"
 	}
 	dependencies {
 		dependency 'cglib:cglib-nodep:3.2.6'
