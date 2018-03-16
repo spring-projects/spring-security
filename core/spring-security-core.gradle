@@ -34,6 +34,17 @@ dependencies {
 	testRuntime 'org.hsqldb:hsqldb'
 }
 
+task springVersion(type: versions.VersionsResourceTasks) {
+	versionsFile = file("${buildDir}/versions/spring-security.versions")
+	versions = { project.dependencyManagement.managedVersions }
+}
+
+tasks.processResources {
+	into('META-INF') {
+		from project.tasks.springVersion.outputs
+	}
+}
+
 tasks.jar.from { includeProject.sourceSets.main.output }
 
 tasks.sourcesJar.from {includeProject.sourceSets.main.java}
