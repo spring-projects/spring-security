@@ -50,6 +50,8 @@ tasks.jar.from { includeProject.sourceSets.main.output }
 tasks.sourcesJar.from {includeProject.sourceSets.main.java}
 
 configure(project.tasks.withType(Test)) {
-	systemProperties['springSecurityVersion'] = version
-	systemProperties['springVersion'] = project.dependencyManagement.managedVersions['org.springframework:spring-core']
+	doFirst {
+		systemProperties['springSecurityVersion'] = version
+		systemProperties['springVersion'] = project.dependencyManagement.managedVersions['org.springframework:spring-core']
+	}
 }
