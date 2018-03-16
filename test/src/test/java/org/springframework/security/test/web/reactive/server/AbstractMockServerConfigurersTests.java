@@ -52,7 +52,7 @@ abstract class AbstractMockServerConfigurersTests {
 
 	@RestController
 	protected static class PrincipalController {
-		Principal principal;
+		volatile Principal principal;
 
 		@RequestMapping("/**")
 		public Principal get(Principal principal) {

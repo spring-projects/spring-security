@@ -16,6 +16,8 @@
 
 package org.springframework.security.test.web.reactive.server;
 
+import java.util.concurrent.ForkJoinPool;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpHeaders;
@@ -111,6 +113,56 @@ public class SecurityMockServerConfigurersAnnotatedTests extends AbstractMockSer
 			.get()
 			.exchange()
 			.expectStatus().isOk();
+
+		assertPrincipalCreatedFromUserDetails(controller.removePrincipal(), userBuilder.build());
+	}
+
+	@Test
+	@WithMockUser
+	public void withMockUserWhenOnMethodAndRequestIsExecutedOnDifferentThreadThenSuccess() {
+		Authentication authentication = TestSecurityContextHolder.getContext().getAuthentication();
+		ForkJoinPool
+			.commonPool()
+			.submit(() ->
+				client
+					.get()
+					.exchange()
+					.expectStatus()
+					.isOk()
+			)
+			.join();
+
+		controller.assertPrincipalIsEqualTo(authentication);
+	}
+
+	@Test
+	@WithMockUser
+	public void withMockUserAndWithCallOnSeparateThreadWhenMutateWithMockPrincipalAndNoMutateThenOverridesAnnotationAndUsesAnnotation() {
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken("authentication", "secret", "ROLE_USER");
+
+		ForkJoinPool
+			.commonPool()
+			.submit(() ->
+				client
+					.mutateWith(mockAuthentication(authentication))
+					.get()
+					.exchange()
+					.expectStatus().isOk()
+			)
+			.join();
+
+		controller.assertPrincipalIsEqualTo(authentication);
+
+
+		ForkJoinPool
+			.commonPool()
+			.submit(() ->
+				client
+					.get()
+					.exchange()
+					.expectStatus().isOk()
+			)
+			.join();
 
 		assertPrincipalCreatedFromUserDetails(controller.removePrincipal(), userBuilder.build());
 	}

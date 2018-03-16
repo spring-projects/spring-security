@@ -19,6 +19,7 @@ package org.springframework.security.test.context.support;
 import org.reactivestreams.Subscription;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.test.context.TestSecurityContextHolder;
 import org.springframework.test.context.TestContext;
 import org.springframework.test.context.TestExecutionListener;
@@ -54,7 +55,8 @@ public class ReactorContextTestExecutionListener
 	private static class DelegateTestExecutionListener extends AbstractTestExecutionListener {
 		@Override
 		public void beforeTestMethod(TestContext testContext) throws Exception {
-			Hooks.onLastOperator(Operators.lift((s, sub) -> new SecuritySubContext<>(sub)));
+			SecurityContext securityContext = TestSecurityContextHolder.getContext();
+			Hooks.onLastOperator(Operators.lift((s, sub) -> new SecuritySubContext<>(sub, securityContext)));
 		}
 
 		@Override
@@ -66,9 +68,11 @@ public class ReactorContextTestExecutionListener
 			private static String CONTEXT_DEFAULTED_ATTR_NAME = SecuritySubContext.class.getName().concat(".CONTEXT_DEFAULTED_ATTR_NAME");
 
 			private final CoreSubscriber<T> delegate;
+			private final SecurityContext securityContext;
 
-			SecuritySubContext(CoreSubscriber<T> delegate) {
+			SecuritySubContext(CoreSubscriber<T> delegate, SecurityContext securityContext) {
 				this.delegate = delegate;
+				this.securityContext = securityContext;
 			}
 
 			@Override
@@ -78,7 +82,7 @@ public class ReactorContextTestExecutionListener
 					return context;
 				}
 				context = context.put(CONTEXT_DEFAULTED_ATTR_NAME, Boolean.TRUE);
-				Authentication authentication = TestSecurityContextHolder.getContext().getAuthentication();
+				Authentication authentication = securityContext.getAuthentication();
 				if (authentication == null) {
 					return context;
 				}
