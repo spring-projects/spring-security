@@ -21,6 +21,8 @@ package org.springframework.security.test.context.support;
  * @since 5.0
  */
 
+import java.util.concurrent.ForkJoinPool;
+
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -151,6 +153,18 @@ public class ReactorContextTestExecutionListenerTests {
 		WithSecurityContextTestExecutionListener withSecurity = new WithSecurityContextTestExecutionListener();
 		ReactorContextTestExecutionListener reactorContext = new ReactorContextTestExecutionListener();
 		assertThat(comparator.compare(withSecurity, reactorContext)).isLessThan(0);
+	}
+
+	@Test
+	public void checkSecurityContextResolutionWhenSubscribedContextCalledOnTheDifferentThreadThanWithSecurityContextTestExecutionListener() throws Exception {
+		TestingAuthenticationToken contextHolder = new TestingAuthenticationToken("contextHolder", "password", "ROLE_USER");
+		TestSecurityContextHolder.setContext(new SecurityContextImpl(contextHolder));
+
+		this.listener.beforeTestMethod(this.testContext);
+
+		ForkJoinPool.commonPool()
+			.submit(() -> assertAuthentication(contextHolder))
+			.join();
 	}
 
 	public void assertAuthentication(Authentication expected) {
