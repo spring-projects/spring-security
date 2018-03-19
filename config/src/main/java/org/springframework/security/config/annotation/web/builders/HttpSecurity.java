@@ -1163,6 +1163,11 @@ public final class HttpSecurity extends
 	 * addFilterAt(new CustomFilter(), UsernamePasswordAuthenticationFilter.class)
 	 * </pre>
 	 *
+	 * Registration of multiple Filters in the same location means their ordering is not
+	 * deterministic. More concretely, registering multiple Filters in the same location
+	 * does not override existing Filters. Instead, do not register Filters you do not
+	 * want to uses.
+	 *
 	 * @param filter the Filter to register
 	 * @param atFilter the location of another {@link Filter} that is already registered
 	 * (i.e. known) with Spring Security.
