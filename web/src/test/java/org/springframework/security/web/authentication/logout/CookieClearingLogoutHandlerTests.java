@@ -55,7 +55,8 @@ public class CookieClearingLogoutHandlerTests {
 		handler.logout(request, response, mock(Authentication.class));
 		assertThat(response.getCookies()).hasSize(2);
 		for (Cookie c : response.getCookies()) {
-			assertThat(c.getPath()).isEqualTo("/app");
+			// gh-2325
+			assertThat(c.getPath()).isEqualTo("/app/");
 			assertThat(c.getMaxAge()).isZero();
 		}
 	}
