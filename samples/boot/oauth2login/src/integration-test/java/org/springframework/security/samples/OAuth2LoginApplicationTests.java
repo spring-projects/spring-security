@@ -250,7 +250,7 @@ public class OAuth2LoginApplicationTests {
 
 		HtmlElement errorElement = page.getBody().getFirstByXPath("p");
 		assertThat(errorElement).isNotNull();
-		assertThat(errorElement.asText()).contains("invalid_state_parameter");
+		assertThat(errorElement.asText()).contains("authorization_request_not_found");
 	}
 
 	@Test
