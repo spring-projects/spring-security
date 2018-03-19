@@ -1166,7 +1166,7 @@ public final class HttpSecurity extends
 	 * Registration of multiple Filters in the same location means their ordering is not
 	 * deterministic. More concretely, registering multiple Filters in the same location
 	 * does not override existing Filters. Instead, do not register Filters you do not
-	 * want to uses.
+	 * want to use.
 	 *
 	 * @param filter the Filter to register
 	 * @param atFilter the location of another {@link Filter} that is already registered
