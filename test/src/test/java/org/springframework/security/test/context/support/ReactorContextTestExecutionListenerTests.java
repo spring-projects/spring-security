@@ -95,6 +95,35 @@ public class ReactorContextTestExecutionListenerTests {
 	}
 
 	@Test
+	public void beforeTestMethodWhenCustomContext() throws Exception {
+		TestingAuthenticationToken expectedAuthentication = new TestingAuthenticationToken("user", "password", "ROLE_USER");
+		SecurityContext context = new CustomContext(expectedAuthentication);
+		TestSecurityContextHolder.setContext(context);
+
+		this.listener.beforeTestMethod(this.testContext);
+
+		assertSecurityContext(context);
+	}
+
+	static class CustomContext implements SecurityContext {
+		private Authentication authentication;
+
+		CustomContext(Authentication authentication) {
+			this.authentication = authentication;
+		}
+
+		@Override
+		public Authentication getAuthentication() {
+			return this.authentication;
+		}
+
+		@Override
+		public void setAuthentication(Authentication authentication) {
+			this.authentication = authentication;
+		}
+	}
+
+	@Test
 	public void beforeTestMethodWhenExistingAuthenticationThenReactorContextHasOriginalAuthentication() throws Exception {
 		TestingAuthenticationToken expectedAuthentication = new TestingAuthenticationToken("user", "password", "ROLE_USER");
 		TestingAuthenticationToken contextHolder = new TestingAuthenticationToken("contextHolder", "password", "ROLE_USER");
@@ -172,6 +201,15 @@ public class ReactorContextTestExecutionListenerTests {
 			.map(SecurityContext::getAuthentication);
 
 		StepVerifier.create(authentication)
+			.expectNext(expected)
+			.verifyComplete();
+	}
+
+
+	private void assertSecurityContext(SecurityContext expected) {
+		Mono<SecurityContext> securityContext = ReactiveSecurityContextHolder.getContext();
+
+		StepVerifier.create(securityContext)
 			.expectNext(expected)
 			.verifyComplete();
 	}

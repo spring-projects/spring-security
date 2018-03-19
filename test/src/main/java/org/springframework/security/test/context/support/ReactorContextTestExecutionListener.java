@@ -27,6 +27,7 @@ import org.springframework.test.context.support.AbstractTestExecutionListener;
 import org.springframework.util.ClassUtils;
 import reactor.core.CoreSubscriber;
 import reactor.core.publisher.Hooks;
+import reactor.core.publisher.Mono;
 import reactor.core.publisher.Operators;
 import reactor.util.context.Context;
 
@@ -86,7 +87,8 @@ public class ReactorContextTestExecutionListener
 				if (authentication == null) {
 					return context;
 				}
-				Context toMerge = ReactiveSecurityContextHolder.withAuthentication(authentication);
+				Context toMerge = ReactiveSecurityContextHolder.withSecurityContext(
+						Mono.just(this.securityContext));
 				return toMerge.putAll(context);
 			}
 
