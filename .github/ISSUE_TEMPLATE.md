@@ -1,3 +1,7 @@
+<!--
+For Security Vulnerabilities, please use https://pivotal.io/security#reporting
+-->
+
 ### Summary
 
 <!-- 
