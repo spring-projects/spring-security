@@ -34,7 +34,7 @@ import java.io.Serializable;
  * @see OAuth2ErrorCodes
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-11.4">Section 11.4 OAuth Extensions Error Registry</a>
  */
-public final class OAuth2Error implements Serializable {
+public class OAuth2Error implements Serializable {
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 	private final String errorCode;
 	private final String description;
@@ -68,7 +68,7 @@ public final class OAuth2Error implements Serializable {
 	 *
 	 * @return the error code
 	 */
-	public String getErrorCode() {
+	public final String getErrorCode() {
 		return this.errorCode;
 	}
 
@@ -77,7 +77,7 @@ public final class OAuth2Error implements Serializable {
 	 *
 	 * @return the error description
 	 */
-	public String getDescription() {
+	public final String getDescription() {
 		return this.description;
 	}
 
@@ -86,7 +86,7 @@ public final class OAuth2Error implements Serializable {
 	 *
 	 * @return the error uri
 	 */
-	public String getUri() {
+	public final String getUri() {
 		return this.uri;
 	}
 
