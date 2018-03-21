@@ -23,8 +23,12 @@ import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Tests for {@link HttpSessionOAuth2AuthorizationRequestRepository}.
@@ -158,6 +162,42 @@ public class HttpSessionOAuth2AuthorizationRequestRepositoryTests {
 	}
 
 	@Test
+	public void saveAuthorizationRequestWhenNoExistingSessionAndDistributedSessionThenSaved() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setSession(new MockDistributedHttpSession());
+
+		OAuth2AuthorizationRequest authorizationRequest = createAuthorizationRequest().build();
+		this.authorizationRequestRepository.saveAuthorizationRequest(
+				authorizationRequest, request, new MockHttpServletResponse());
+
+		request.addParameter(OAuth2ParameterNames.STATE, authorizationRequest.getState());
+		OAuth2AuthorizationRequest loadedAuthorizationRequest =
+				this.authorizationRequestRepository.loadAuthorizationRequest(request);
+
+		assertThat(loadedAuthorizationRequest).isEqualTo(authorizationRequest);
+	}
+
+	@Test
+	public void saveAuthorizationRequestWhenExistingSessionAndDistributedSessionThenSaved() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setSession(new MockDistributedHttpSession());
+
+		OAuth2AuthorizationRequest authorizationRequest1 = createAuthorizationRequest().build();
+		this.authorizationRequestRepository.saveAuthorizationRequest(
+				authorizationRequest1, request, new MockHttpServletResponse());
+
+		OAuth2AuthorizationRequest authorizationRequest2 = createAuthorizationRequest().build();
+		this.authorizationRequestRepository.saveAuthorizationRequest(
+				authorizationRequest2, request, new MockHttpServletResponse());
+
+		request.addParameter(OAuth2ParameterNames.STATE, authorizationRequest2.getState());
+		OAuth2AuthorizationRequest loadedAuthorizationRequest =
+				this.authorizationRequestRepository.loadAuthorizationRequest(request);
+
+		assertThat(loadedAuthorizationRequest).isEqualTo(authorizationRequest2);
+	}
+
+	@Test
 	public void saveAuthorizationRequestWhenNullThenRemoved() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -219,5 +259,24 @@ public class HttpSessionOAuth2AuthorizationRequestRepositoryTests {
 				.authorizationUri("https://example.com/oauth2/authorize")
 				.clientId("client-id-1234")
 				.state("state-1234");
+	}
+
+	static class MockDistributedHttpSession extends MockHttpSession {
+		@Override
+		public Object getAttribute(String name) {
+			return wrap(super.getAttribute(name));
+		}
+
+		@Override
+		public void setAttribute(String name, Object value) {
+			super.setAttribute(name, wrap(value));
+		}
+
+		private Object wrap(Object object) {
+			if (object instanceof Map) {
+				object = new HashMap<>((Map<Object, Object>) object);
+			}
+			return object;
+		}
 	}
 }
