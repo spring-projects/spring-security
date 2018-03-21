@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ public class DefaultOAuth2User implements OAuth2User, Serializable {
 	 * @param attributes the attributes about the user
 	 * @param nameAttributeKey the key used to access the user's &quot;name&quot; from {@link #getAttributes()}
 	 */
-	public DefaultOAuth2User(Set<GrantedAuthority> authorities, Map<String, Object> attributes, String nameAttributeKey) {
+	public DefaultOAuth2User(Collection<? extends GrantedAuthority> authorities, Map<String, Object> attributes, String nameAttributeKey) {
 		Assert.notEmpty(authorities, "authorities cannot be empty");
 		Assert.notEmpty(attributes, "attributes cannot be empty");
 		Assert.hasText(nameAttributeKey, "nameAttributeKey cannot be empty");
@@ -86,7 +86,7 @@ public class DefaultOAuth2User implements OAuth2User, Serializable {
 		return this.attributes;
 	}
 
-	private Set<GrantedAuthority> sortAuthorities(Set<GrantedAuthority> authorities) {
+	private Set<GrantedAuthority> sortAuthorities(Collection<? extends GrantedAuthority> authorities) {
 		SortedSet<GrantedAuthority> sortedAuthorities =
 			new TreeSet<>(Comparator.comparing(GrantedAuthority::getAuthority));
 		sortedAuthorities.addAll(authorities);

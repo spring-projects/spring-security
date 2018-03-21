@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@ import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 
+import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * The default implementation of an {@link OidcUser}.
@@ -50,7 +50,7 @@ public class DefaultOidcUser extends DefaultOAuth2User implements OidcUser {
 	 * @param authorities the authorities granted to the user
 	 * @param idToken the {@link OidcIdToken ID Token} containing claims about the user
 	 */
-	public DefaultOidcUser(Set<GrantedAuthority> authorities, OidcIdToken idToken) {
+	public DefaultOidcUser(Collection<? extends GrantedAuthority> authorities, OidcIdToken idToken) {
 		this(authorities, idToken, IdTokenClaimNames.SUB);
 	}
 
@@ -61,7 +61,7 @@ public class DefaultOidcUser extends DefaultOAuth2User implements OidcUser {
 	 * @param idToken the {@link OidcIdToken ID Token} containing claims about the user
 	 * @param nameAttributeKey the key used to access the user's &quot;name&quot; from {@link #getAttributes()}
 	 */
-	public DefaultOidcUser(Set<GrantedAuthority> authorities, OidcIdToken idToken, String nameAttributeKey) {
+	public DefaultOidcUser(Collection<? extends GrantedAuthority> authorities, OidcIdToken idToken, String nameAttributeKey) {
 		this(authorities, idToken, null, nameAttributeKey);
 	}
 
@@ -72,7 +72,7 @@ public class DefaultOidcUser extends DefaultOAuth2User implements OidcUser {
 	 * @param idToken the {@link OidcIdToken ID Token} containing claims about the user
 	 * @param userInfo the {@link OidcUserInfo UserInfo} containing claims about the user, may be {@code null}
 	 */
-	public DefaultOidcUser(Set<GrantedAuthority> authorities, OidcIdToken idToken, OidcUserInfo userInfo) {
+	public DefaultOidcUser(Collection<? extends GrantedAuthority> authorities, OidcIdToken idToken, OidcUserInfo userInfo) {
 		this(authorities, idToken, userInfo, IdTokenClaimNames.SUB);
 	}
 
@@ -84,8 +84,8 @@ public class DefaultOidcUser extends DefaultOAuth2User implements OidcUser {
 	 * @param userInfo the {@link OidcUserInfo UserInfo} containing claims about the user, may be {@code null}
 	 * @param nameAttributeKey the key used to access the user's &quot;name&quot; from {@link #getAttributes()}
 	 */
-	public DefaultOidcUser(Set<GrantedAuthority> authorities, OidcIdToken idToken, OidcUserInfo userInfo,
-							String nameAttributeKey) {
+	public DefaultOidcUser(Collection<? extends GrantedAuthority> authorities, OidcIdToken idToken,
+							OidcUserInfo userInfo, String nameAttributeKey) {
 		super(authorities, OidcUserAuthority.collectClaims(idToken, userInfo), nameAttributeKey);
 		this.idToken = idToken;
 		this.userInfo = userInfo;
