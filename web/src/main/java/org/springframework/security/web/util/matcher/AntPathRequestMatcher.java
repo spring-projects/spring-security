@@ -136,7 +136,7 @@ public final class AntPathRequestMatcher
 			if (logger.isDebugEnabled()) {
 				logger.debug("Request '" + request.getMethod() + " "
 						+ getRequestPath(request) + "'" + " doesn't match '"
-						+ this.httpMethod + " " + this.pattern);
+						+ this.httpMethod + " " + this.pattern + "'");
 			}
 
 			return false;
