@@ -26,6 +26,7 @@ import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
@@ -163,8 +164,8 @@ public class JdbcAclService implements AclService {
 		}
 	}
 
-	public void setAclClassIdUtils(AclClassIdUtils aclClassIdUtils) {
-		this.aclClassIdUtils = aclClassIdUtils;
+	public void setConversionService(ConversionService conversionService) {
+		this.aclClassIdUtils = new AclClassIdUtils(conversionService);
 	}
 
 	protected boolean isAclClassIdSupported() {

@@ -29,13 +29,17 @@ import org.springframework.security.acls.model.ObjectIdentity;
  * the correct Java type as specified by <code>acl_class.class_id_type</code>.
  * @author paulwheeler
  */
-public class AclClassIdUtils {
+class AclClassIdUtils {
 	private static final String DEFAULT_CLASS_ID_TYPE_COLUMN_NAME = "class_id_type";
 	private static final Log log = LogFactory.getLog(AclClassIdUtils.class);
 
 	private ConversionService conversionService;
 
 	public AclClassIdUtils() {
+	}
+
+	public AclClassIdUtils(ConversionService conversionService) {
+		this.conversionService = conversionService;
 	}
 
 	/**
