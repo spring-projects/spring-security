@@ -31,6 +31,7 @@ import java.util.Set;
 import javax.sql.DataSource;
 
 import org.springframework.core.convert.ConversionException;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -553,8 +554,8 @@ public class BasicLookupStrategy implements LookupStrategy {
 		}
 	}
 
-	public final void setAclClassIdUtils(AclClassIdUtils aclClassIdUtils) {
-		this.aclClassIdUtils = aclClassIdUtils;
+	public final void setConversionService(ConversionService conversionService) {
+		this.aclClassIdUtils = new AclClassIdUtils(conversionService);
 	}
 
 	// ~ Inner Classes

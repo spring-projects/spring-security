@@ -70,13 +70,11 @@ public class BasicLookupStrategyWithAclClassTypeTests extends AbstractBasicLooku
 	@Before
 	public void initializeBeans() {
 		super.initializeBeans();
-		AclClassIdUtils aclClassIdUtils = new AclClassIdUtils();
-		aclClassIdUtils.setConversionService(new DefaultConversionService());
 		uuidEnabledStrategy = new BasicLookupStrategy(getDataSource(), aclCache(), aclAuthStrategy(),
 			new DefaultPermissionGrantingStrategy(new ConsoleAuditLogger()));
 		uuidEnabledStrategy.setPermissionFactory(new DefaultPermissionFactory());
 		uuidEnabledStrategy.setAclClassIdSupported(true);
-		uuidEnabledStrategy.setAclClassIdUtils(aclClassIdUtils);
+		uuidEnabledStrategy.setConversionService(new DefaultConversionService());
 	}
 
 	@Before
