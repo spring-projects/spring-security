@@ -158,8 +158,9 @@ public class JaasAuthenticationProvider extends AbstractJaasAuthenticationProvid
 		// the superclass is not called because it does additional checks that are
 		// non-passive
 		Assert.hasLength(getLoginContextName(),
-				"loginContextName must be set on " + getClass());
-		Assert.notNull(this.loginConfig, "loginConfig must be set on " + getClass());
+				() -> "loginContextName must be set on " + getClass());
+		Assert.notNull(this.loginConfig,
+				() -> "loginConfig must be set on " + getClass());
 		configureJaas(this.loginConfig);
 
 		Assert.notNull(Configuration.getConfiguration(),
