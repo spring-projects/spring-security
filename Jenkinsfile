@@ -66,6 +66,21 @@ try {
 				}
 			}
 		}
+	},
+	jdk9: {
+		stage('JDK 9') {
+			node {
+				checkout scm
+				try {
+					withEnv(["JAVA_HOME=${ tool 'jdk9' }"]) {
+						sh "./gradlew clean test --no-daemon --stacktrace"
+					}
+				} catch(Exception e) {
+					currentBuild.result = 'FAILED: snapshots'
+					throw e
+				}
+			}
+		}
 	}
 
 	if(currentBuild.result == 'SUCCESS') {
