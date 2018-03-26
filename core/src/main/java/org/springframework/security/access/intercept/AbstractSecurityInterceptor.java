@@ -136,18 +136,18 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
 				"An SecurityMetadataSource is required");
 		Assert.isTrue(this.obtainSecurityMetadataSource()
 				.supports(getSecureObjectClass()),
-				"SecurityMetadataSource does not support secure object class: "
+				() -> "SecurityMetadataSource does not support secure object class: "
 						+ getSecureObjectClass());
 		Assert.isTrue(this.runAsManager.supports(getSecureObjectClass()),
-				"RunAsManager does not support secure object class: "
+				() -> "RunAsManager does not support secure object class: "
 						+ getSecureObjectClass());
 		Assert.isTrue(this.accessDecisionManager.supports(getSecureObjectClass()),
-				"AccessDecisionManager does not support secure object class: "
+				() -> "AccessDecisionManager does not support secure object class: "
 						+ getSecureObjectClass());
 
 		if (this.afterInvocationManager != null) {
 			Assert.isTrue(this.afterInvocationManager.supports(getSecureObjectClass()),
-					"AfterInvocationManager does not support secure object class: "
+					() -> "AfterInvocationManager does not support secure object class: "
 							+ getSecureObjectClass());
 		}
 

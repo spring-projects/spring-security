@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -103,7 +103,7 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
 				else {
 					BeanDefinition provider = resolver.resolve(
 							providerElt.getNamespaceURI()).parse(providerElt, pc);
-					Assert.notNull(provider, "Parser for " + providerElt.getNodeName()
+					Assert.notNull(provider, () -> "Parser for " + providerElt.getNodeName()
 							+ " returned a null bean definition");
 					String providerId = pc.getReaderContext().generateBeanName(provider);
 					pc.registerBeanComponent(new BeanComponentDefinition(provider,

@@ -54,7 +54,7 @@ public class SecuredAnnotationSecurityMetadataSource extends
 		annotationType = (Class<? extends Annotation>) GenericTypeResolver
 				.resolveTypeArgument(annotationExtractor.getClass(),
 						AnnotationMetadataExtractor.class);
-		Assert.notNull(annotationType, annotationExtractor.getClass().getName()
+		Assert.notNull(annotationType, () -> annotationExtractor.getClass().getName()
 				+ " must supply a generic parameter for AnnotationMetadataExtractor");
 	}
 

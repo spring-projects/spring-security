@@ -92,11 +92,11 @@ public abstract class AclFormattingUtils {
 	 */
 	public static String printBinary(int mask, char code) {
 		Assert.doesNotContain(Character.toString(code),
-				Character.toString(Permission.RESERVED_ON), Permission.RESERVED_ON
-						+ " is a reserved character code");
+				Character.toString(Permission.RESERVED_ON),
+				() -> Permission.RESERVED_ON + " is a reserved character code");
 		Assert.doesNotContain(Character.toString(code),
-				Character.toString(Permission.RESERVED_OFF), Permission.RESERVED_OFF
-						+ " is a reserved character code");
+				Character.toString(Permission.RESERVED_OFF),
+				() -> Permission.RESERVED_OFF + " is a reserved character code");
 
 		return printBinary(mask, Permission.RESERVED_ON, Permission.RESERVED_OFF)
 				.replace(Permission.RESERVED_ON, code);
