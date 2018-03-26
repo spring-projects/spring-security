@@ -126,7 +126,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements
 	public Authentication authenticate(Authentication authentication)
 			throws AuthenticationException {
 		Assert.isInstanceOf(UsernamePasswordAuthenticationToken.class, authentication,
-				messages.getMessage(
+				() -> messages.getMessage(
 						"AbstractUserDetailsAuthenticationProvider.onlySupports",
 						"Only UsernamePasswordAuthenticationToken is supported"));
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,8 +42,8 @@ public class ForwardLogoutSuccessHandler implements LogoutSuccessHandler {
 	 * @param targetUrl the target URL
 	 */
 	public ForwardLogoutSuccessHandler(String targetUrl) {
-		Assert.isTrue(UrlUtils.isValidRedirectUrl(targetUrl), "'" + targetUrl
-				+ "' is not a valid target URL");
+		Assert.isTrue(UrlUtils.isValidRedirectUrl(targetUrl),
+				() -> "'" + targetUrl + "' is not a valid target URL");
 		this.targetUrl = targetUrl;
 	}
 

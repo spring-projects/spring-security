@@ -95,7 +95,7 @@ public class AfterInvocationProviderManager implements AfterInvocationManager,
 
 		for (Object currentObject : newList) {
 			Assert.isInstanceOf(AfterInvocationProvider.class, currentObject,
-					"AfterInvocationProvider " + currentObject.getClass().getName()
+					() -> "AfterInvocationProvider " + currentObject.getClass().getName()
 							+ " must implement AfterInvocationProvider");
 			providers.add((AfterInvocationProvider) currentObject);
 		}

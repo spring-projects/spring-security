@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -100,7 +100,7 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
 		}
 		String[] tokens = StringUtils.delimitedListToStringArray(
 				Utf8.decode(Base64.getDecoder().decode(Utf8.encode(key))), ":");
-		Assert.isTrue(tokens.length >= 4, "Expected 4 or more tokens but found "
+		Assert.isTrue(tokens.length >= 4, () -> "Expected 4 or more tokens but found "
 				+ tokens.length);
 
 		long creationTime;

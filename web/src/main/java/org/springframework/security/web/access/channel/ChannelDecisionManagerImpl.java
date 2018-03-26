@@ -92,7 +92,7 @@ public class ChannelDecisionManagerImpl implements ChannelDecisionManager,
 
 		for (Object currentObject : newList) {
 			Assert.isInstanceOf(ChannelProcessor.class, currentObject,
-					"ChannelProcessor " + currentObject.getClass().getName()
+					() -> "ChannelProcessor " + currentObject.getClass().getName()
 							+ " must implement ChannelProcessor");
 			channelProcessors.add((ChannelProcessor) currentObject);
 		}

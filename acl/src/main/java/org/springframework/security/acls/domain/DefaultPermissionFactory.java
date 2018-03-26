@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -104,9 +104,9 @@ public class DefaultPermissionFactory implements PermissionFactory {
 
 		// Ensure no existing Permission uses this integer or code
 		Assert.isTrue(!registeredPermissionsByInteger.containsKey(mask),
-				"An existing Permission already provides mask " + mask);
+				() -> "An existing Permission already provides mask " + mask);
 		Assert.isTrue(!registeredPermissionsByName.containsKey(permissionName),
-				"An existing Permission already provides name '" + permissionName + "'");
+				() -> "An existing Permission already provides name '" + permissionName + "'");
 
 		// Register the new Permission
 		registeredPermissionsByInteger.put(mask, perm);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -220,7 +220,7 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>> 
 	private static String hasRole(String role) {
 		Assert.isTrue(
 				!role.startsWith("ROLE_"),
-				role
+				() -> role
 						+ " should not start with ROLE_ since ROLE_ is automatically prepended when using hasRole. Consider using hasAuthority or access instead.");
 		return "ROLE_" + role;
 	}

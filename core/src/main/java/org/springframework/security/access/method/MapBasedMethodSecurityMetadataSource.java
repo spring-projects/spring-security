@@ -123,7 +123,7 @@ public class MapBasedMethodSecurityMetadataSource extends
 		}
 
 		String methodName = name.substring(lastDotIndex + 1);
-		Assert.hasText(methodName, "Method not found for '" + name + "'");
+		Assert.hasText(methodName, () -> "Method not found for '" + name + "'");
 
 		String typeName = name.substring(0, lastDotIndex);
 		Class<?> type = ClassUtils.resolveClassName(typeName, this.beanClassLoader);
