@@ -93,7 +93,7 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
 	public ConcurrentSessionFilter(SessionRegistry sessionRegistry, String expiredUrl) {
 		Assert.notNull(sessionRegistry, "SessionRegistry required");
 		Assert.isTrue(expiredUrl == null || UrlUtils.isValidRedirectUrl(expiredUrl),
-				expiredUrl + " isn't a valid redirect URL");
+				() -> expiredUrl + " isn't a valid redirect URL");
 		this.expiredUrl = expiredUrl;
 		this.sessionRegistry = sessionRegistry;
 		this.sessionInformationExpiredStrategy = new SessionInformationExpiredStrategy() {

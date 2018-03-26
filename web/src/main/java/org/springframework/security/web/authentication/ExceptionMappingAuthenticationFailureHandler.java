@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,7 +76,7 @@ public class ExceptionMappingAuthenticationFailureHandler extends
 					"Exception key must be a String (the exception classname).");
 			Assert.isInstanceOf(String.class, url, "URL must be a String");
 			Assert.isTrue(UrlUtils.isValidRedirectUrl((String) url),
-					"Not a valid redirect URL: " + url);
+					() -> "Not a valid redirect URL: " + url);
 			this.failureUrlMap.put((String) exception, (String) url);
 		}
 	}

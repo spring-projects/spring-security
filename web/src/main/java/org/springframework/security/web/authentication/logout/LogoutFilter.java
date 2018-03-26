@@ -81,7 +81,7 @@ public class LogoutFilter extends GenericFilterBean {
 		Assert.isTrue(
 				!StringUtils.hasLength(logoutSuccessUrl)
 						|| UrlUtils.isValidRedirectUrl(logoutSuccessUrl),
-				logoutSuccessUrl + " isn't a valid redirect URL");
+				() -> logoutSuccessUrl + " isn't a valid redirect URL");
 		SimpleUrlLogoutSuccessHandler urlLogoutSuccessHandler = new SimpleUrlLogoutSuccessHandler();
 		if (StringUtils.hasText(logoutSuccessUrl)) {
 			urlLogoutSuccessHandler.setDefaultTargetUrl(logoutSuccessUrl);

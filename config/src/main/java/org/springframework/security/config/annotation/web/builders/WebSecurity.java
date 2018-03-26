@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -278,7 +278,9 @@ public final class WebSecurity extends
 	protected Filter performBuild() throws Exception {
 		Assert.state(
 				!securityFilterChainBuilders.isEmpty(),
-				"At least one SecurityBuilder<? extends SecurityFilterChain> needs to be specified. Typically this done by adding a @Configuration that extends WebSecurityConfigurerAdapter. More advanced users can invoke "
+				() -> "At least one SecurityBuilder<? extends SecurityFilterChain> needs to be specified. "
+						+ "Typically this done by adding a @Configuration that extends WebSecurityConfigurerAdapter. "
+						+ "More advanced users can invoke "
 						+ WebSecurity.class.getSimpleName()
 						+ ".addSecurityFilterChainBuilder directly");
 		int chainSize = ignoredRequests.size() + securityFilterChainBuilders.size();

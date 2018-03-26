@@ -433,7 +433,7 @@ public class User implements UserDetails, CredentialsContainer {
 			List<GrantedAuthority> authorities = new ArrayList<>(
 					roles.length);
 			for (String role : roles) {
-				Assert.isTrue(!role.startsWith("ROLE_"), role
+				Assert.isTrue(!role.startsWith("ROLE_"), () -> role
 						+ " cannot start with ROLE_ (it is automatically added)");
 				authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
 			}

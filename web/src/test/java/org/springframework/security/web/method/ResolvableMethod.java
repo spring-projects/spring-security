@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -371,8 +371,8 @@ public class ResolvableMethod {
 		 */
 		public ResolvableMethod build() {
 			Set<Method> methods = MethodIntrospector.selectMethods(this.objectClass, this::isMatch);
-			Assert.state(!methods.isEmpty(), "No matching method: " + this);
-			Assert.state(methods.size() == 1, "Multiple matching methods: " + this + formatMethods(methods));
+			Assert.state(!methods.isEmpty(), () -> "No matching method: " + this);
+			Assert.state(methods.size() == 1, () -> "Multiple matching methods: " + this + formatMethods(methods));
 			return new ResolvableMethod(methods.iterator().next());
 		}
 
