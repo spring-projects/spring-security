@@ -63,7 +63,7 @@ import java.util.Set;
  *
  * @see DefaultHttpFirewall
  * @author Rob Winch
- * @since 5.0.1
+ * @since 4.2.4
  */
 public class StrictHttpFirewall implements HttpFirewall {
 	private static final String ENCODED_PERCENT = "%25";
