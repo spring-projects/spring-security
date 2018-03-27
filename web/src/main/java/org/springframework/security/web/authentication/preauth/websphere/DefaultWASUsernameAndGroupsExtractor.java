@@ -25,7 +25,6 @@ import java.util.List;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.rmi.PortableRemoteObject;
 import javax.security.auth.Subject;
 
 import org.apache.commons.logging.Log;
@@ -44,6 +43,8 @@ final class DefaultWASUsernameAndGroupsExtractor implements WASUsernameAndGroups
 	private static final Log logger = LogFactory
 			.getLog(DefaultWASUsernameAndGroupsExtractor.class);
 
+	private static final String PORTABLE_REMOTE_OBJECT_CLASSNAME = "javax.rmi.PortableRemoteObject";
+
 	private static final String USER_REGISTRY = "UserRegistry";
 
 	private static Method getRunAsSubject = null;
@@ -51,6 +52,8 @@ final class DefaultWASUsernameAndGroupsExtractor implements WASUsernameAndGroups
 	private static Method getGroupsForUser = null;
 
 	private static Method getSecurityName = null;
+
+	private static Method narrow = null;
 
 	// SEC-803
 	private static Class<?> wsCredentialClass = null;
@@ -80,7 +83,7 @@ final class DefaultWASUsernameAndGroupsExtractor implements WASUsernameAndGroups
 					.iterator().next();
 			if (credential != null) {
 				userSecurityName = (String) invokeMethod(getSecurityNameMethod(),
-						credential, null);
+						credential);
 			}
 		}
 		if (logger.isDebugEnabled()) {
@@ -125,8 +128,7 @@ final class DefaultWASUsernameAndGroupsExtractor implements WASUsernameAndGroups
 			// TODO: Cache UserRegistry object
 			ic = new InitialContext();
 			Object objRef = ic.lookup(USER_REGISTRY);
-			Object userReg = PortableRemoteObject.narrow(objRef,
-					Class.forName("com.ibm.websphere.security.UserRegistry"));
+			Object userReg = invokeMethod(getNarrowMethod(), null , objRef, Class.forName("com.ibm.websphere.security.UserRegistry"));
 			if (logger.isDebugEnabled()) {
 				logger.debug("Determining WebSphere groups for user " + securityName
 						+ " using WebSphere UserRegistry " + userReg);
@@ -156,7 +158,7 @@ final class DefaultWASUsernameAndGroupsExtractor implements WASUsernameAndGroups
 		}
 	}
 
-	private static Object invokeMethod(Method method, Object instance, Object[] args) {
+	private static Object invokeMethod(Method method, Object instance, Object... args) {
 		try {
 			return method.invoke(instance, args);
 		}
@@ -228,6 +230,13 @@ final class DefaultWASUsernameAndGroupsExtractor implements WASUsernameAndGroups
 					"getSecurityName", new String[] {});
 		}
 		return getSecurityName;
+	}
+
+	private static Method getNarrowMethod() {
+		if (narrow == null) {
+			narrow = getMethod(PORTABLE_REMOTE_OBJECT_CLASSNAME, "narrow", new String[] { Object.class.getName() , Class.class.getName()});
+		}
+		return narrow;
 	}
 
 	// SEC-803

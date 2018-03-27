@@ -5,6 +5,7 @@ dependencies {
 	compile slf4jDependencies
 	compile 'javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api'
 	compile 'javax.validation:validation-api'
+	compile 'javax.xml.bind:jaxb-api'
 	compile 'org.hibernate:hibernate-validator'
 	compile 'org.springframework:spring-jdbc'
 	compile 'org.springframework:spring-webmvc'

@@ -36,6 +36,7 @@ dependencies {
 	testCompile spockDependencies
 	testCompile 'ch.qos.logback:logback-classic'
 	testCompile 'javax.annotation:jsr250-api:1.0'
+	testCompile 'javax.xml.bind:jaxb-api'
 	testCompile 'ldapsdk:ldapsdk:4.1'
 	testCompile('net.sourceforge.htmlunit:htmlunit') {
 		exclude group: 'commons-logging', module: 'commons-logging'

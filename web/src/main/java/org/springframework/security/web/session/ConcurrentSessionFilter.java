@@ -162,6 +162,7 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
 	 * @return the URL for expiration
 	 * @deprecated Use {@link #ConcurrentSessionFilter(SessionRegistry, SessionInformationExpiredStrategy)} instead.
 	 */
+	@Deprecated
 	protected String determineExpiredUrl(HttpServletRequest request,
 			SessionInformation info) {
 		return expiredUrl;
@@ -182,6 +183,7 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
 	 * @param redirectStrategy the {@link RedirectStrategy} to use
 	 * @deprecated use {@link #ConcurrentSessionFilter(SessionRegistry, SessionInformationExpiredStrategy)} instead.
 	 */
+	@Deprecated
 	public void setRedirectStrategy(RedirectStrategy redirectStrategy) {
 		this.redirectStrategy = redirectStrategy;
 	}
