@@ -76,11 +76,41 @@ try {
 						sh "./gradlew clean test --no-daemon --stacktrace"
 					}
 				} catch(Exception e) {
-					currentBuild.result = 'FAILED: snapshots'
+					currentBuild.result = 'FAILED: jdk9'
 					throw e
 				}
 			}
 		}
+	},
+	jdk10: {
+		stage('JDK 10') {
+			node {
+				checkout scm
+				try {
+					withEnv(["JAVA_HOME=${ tool 'jdk10' }"]) {
+						sh "./gradlew clean test --no-daemon --stacktrace"
+					}
+				} catch(Exception e) {
+					currentBuild.result = 'FAILED: jdk10'
+					throw e
+				}
+			}
+		}
+	},
+	 jdk11: {
+		 stage('JDK 11') {
+			 node {
+				 checkout scm
+				 try {
+					 withEnv(["JAVA_HOME=${ tool 'jdk11' }"]) {
+						 sh "./gradlew clean test --no-daemon --stacktrace"
+					 }
+				 } catch(Exception e) {
+					 currentBuild.result = 'FAILED: jdk11'
+					 throw e
+				 }
+			 }
+		 }
 	}
 
 	if(currentBuild.result == 'SUCCESS') {
