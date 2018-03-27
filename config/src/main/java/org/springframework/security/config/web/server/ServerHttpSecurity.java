@@ -644,6 +644,11 @@ public class ServerHttpSecurity {
 			return ServerHttpSecurity.this;
 		}
 
+		public ServerHttpSecurity disable() {
+			ServerHttpSecurity.this.headers = null;
+			return ServerHttpSecurity.this;
+		}
+
 		public CacheSpec cache() {
 			return new CacheSpec();
 		}
@@ -671,27 +676,36 @@ public class ServerHttpSecurity {
 		}
 
 		public class CacheSpec {
-			public void disable() {
+			public HeaderSpec disable() {
 				HeaderSpec.this.writers.remove(HeaderSpec.this.cacheControl);
+				return HeaderSpec.this;
 			}
 
 			private CacheSpec() {}
 		}
 
 		public class ContentTypeOptionsSpec {
-			public void disable() {
+			public HeaderSpec disable() {
 				HeaderSpec.this.writers.remove(HeaderSpec.this.contentTypeOptions);
+				return HeaderSpec.this;
 			}
 
 			private ContentTypeOptionsSpec() {}
 		}
 
 		public class FrameOptionsSpec {
-			public void mode(XFrameOptionsServerHttpHeadersWriter.Mode mode) {
+			public FrameOptionsSpec mode(XFrameOptionsServerHttpHeadersWriter.Mode mode) {
 				HeaderSpec.this.frameOptions.setMode(mode);
+				return this;
 			}
-			public void disable() {
+
+			public HeaderSpec and() {
+				return HeaderSpec.this;
+			}
+
+			public HeaderSpec disable() {
 				HeaderSpec.this.writers.remove(HeaderSpec.this.frameOptions);
+				return HeaderSpec.this;
 			}
 
 			private FrameOptionsSpec() {}
@@ -706,16 +720,22 @@ public class ServerHttpSecurity {
 				HeaderSpec.this.hsts.setIncludeSubDomains(includeSubDomains);
 			}
 
-			public void disable() {
+			public HeaderSpec and() {
+				return HeaderSpec.this;
+			}
+
+			public HeaderSpec disable() {
 				HeaderSpec.this.writers.remove(HeaderSpec.this.hsts);
+				return HeaderSpec.this;
 			}
 
 			private HstsSpec() {}
 		}
 
 		public class XssProtectionSpec {
-			public void disable() {
+			public HeaderSpec disable() {
 				HeaderSpec.this.writers.remove(HeaderSpec.this.xss);
+				return HeaderSpec.this;
 			}
 
 			private XssProtectionSpec() {}

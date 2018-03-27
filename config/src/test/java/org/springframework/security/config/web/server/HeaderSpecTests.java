@@ -61,6 +61,23 @@ public class HeaderSpecTests {
 	}
 
 	@Test
+	public void headersWhenDisableThenNoSecurityHeaders() {
+		new HashSet<>(this.expectedHeaders.keySet()).forEach(this::expectHeaderNamesNotPresent);
+
+		this.headers.disable();
+
+		assertHeaders();
+	}
+
+	@Test
+	public void headersWhenDisableAndInvokedExplicitlyThenDefautsUsed() {
+		this.headers.disable()
+			.headers();
+
+		assertHeaders();
+	}
+
+	@Test
 	public void headersWhenDefaultsThenAllDefaultsWritten() {
 		assertHeaders();
 	}
@@ -110,7 +127,9 @@ public class HeaderSpecTests {
 	@Test
 	public void headersWhenFrameOptionsModeThenFrameOptionsCustomMode() {
 		this.expectedHeaders.set(XFrameOptionsServerHttpHeadersWriter.X_FRAME_OPTIONS, "SAMEORIGIN");
-		this.headers.frameOptions().mode(XFrameOptionsServerHttpHeadersWriter.Mode.SAMEORIGIN);
+		this.headers
+				.frameOptions()
+					.mode(XFrameOptionsServerHttpHeadersWriter.Mode.SAMEORIGIN);
 
 		assertHeaders();
 	}
@@ -139,8 +158,10 @@ public class HeaderSpecTests {
 
 		Map<String, List<String>> responseHeaders = response.getResponseHeaders();
 
-		assertThat(responseHeaders).describedAs(response.toString()).containsAllEntriesOf(
-			this.expectedHeaders);
+		if (!this.expectedHeaders.isEmpty()) {
+			assertThat(responseHeaders).describedAs(response.toString())
+					.containsAllEntriesOf(this.expectedHeaders);
+		}
 		if (!this.headerNamesNotPresent.isEmpty()) {
 			assertThat(responseHeaders.keySet()).doesNotContainAnyElementsOf(this.headerNamesNotPresent);
 		}
