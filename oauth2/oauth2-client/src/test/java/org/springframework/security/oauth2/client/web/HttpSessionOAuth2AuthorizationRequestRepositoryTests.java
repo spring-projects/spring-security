@@ -15,9 +15,6 @@
  */
 package org.springframework.security.oauth2.client.web;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -29,6 +26,9 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Tests for {@link HttpSessionOAuth2AuthorizationRequestRepository}.
@@ -107,15 +107,14 @@ public class HttpSessionOAuth2AuthorizationRequestRepositoryTests {
 	}
 
 	@Test
-	public void loadAuthorizationRequestWhenSavedAndStateParameterNullThenThrowIllegalArgumentException() {
+	public void loadAuthorizationRequestWhenSavedAndStateParameterNullThenReturnNull() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 
 		OAuth2AuthorizationRequest authorizationRequest = createAuthorizationRequest().build();
 		this.authorizationRequestRepository.saveAuthorizationRequest(
 			authorizationRequest, request, new MockHttpServletResponse());
 
-		assertThatThrownBy(() -> this.authorizationRequestRepository.loadAuthorizationRequest(request))
-			.isInstanceOf(IllegalArgumentException.class);
+		assertThat(this.authorizationRequestRepository.loadAuthorizationRequest(request)).isNull();
 	}
 
 	@Test

@@ -44,8 +44,10 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository implements Au
 	@Override
 	public OAuth2AuthorizationRequest loadAuthorizationRequest(HttpServletRequest request) {
 		Assert.notNull(request, "request cannot be null");
-		String stateParameter = getStateParameter(request);
-		Assert.hasText(stateParameter, "state parameter cannot be empty");
+		String stateParameter = this.getStateParameter(request);
+		if (stateParameter == null) {
+			return null;
+		}
 		Map<String, OAuth2AuthorizationRequest> authorizationRequests = this.getAuthorizationRequests(request);
 		return authorizationRequests.get(stateParameter);
 	}
@@ -69,7 +71,7 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository implements Au
 	@Override
 	public OAuth2AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request) {
 		Assert.notNull(request, "request cannot be null");
-		String stateParameter = getStateParameter(request);
+		String stateParameter = this.getStateParameter(request);
 		if (stateParameter == null) {
 			return null;
 		}
