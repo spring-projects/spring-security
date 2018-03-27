@@ -37,6 +37,7 @@ import org.springframework.security.core.Authentication;
 @Target({ ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
+@Deprecated
 public @interface AuthenticationPrincipal {
 
 	/**

@@ -327,6 +327,7 @@ public class User implements UserDetails, CredentialsContainer {
 	 * acceptable for demos and getting started. For production purposes, ensure the
 	 * password is encoded externally. See the method Javadoc for additional details.
 	 */
+	@Deprecated
 	public static UserBuilder withDefaultPasswordEncoder() {
 		logger.warn("User.withDefaultPasswordEncoder() is considered unsafe for production and is only intended for sample applications.");
 		PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();

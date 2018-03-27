@@ -30,3 +30,11 @@ gradle.taskGraph.whenReady { graph ->
 		}
 	}
 }
+
+
+subprojects {
+	plugins.withType(JavaPlugin) {
+		project.sourceCompatibility='1.8'
+	}
+}
+

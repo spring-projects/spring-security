@@ -101,7 +101,7 @@ public class WithSecurityContextTestExcecutionListenerTests {
 		SqlScriptsTestExecutionListener sql = new SqlScriptsTestExecutionListener();
 		WithSecurityContextTestExecutionListener security = new WithSecurityContextTestExecutionListener();
 
-		List<? extends TestExecutionListener> listeners = Arrays.asList(security, sql);
+		List<TestExecutionListener> listeners = Arrays.asList(security, sql);
 
 		AnnotationAwareOrderComparator.sort(listeners);
 

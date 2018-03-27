@@ -26,6 +26,7 @@ package org.springframework.security.crypto.codec;
  * @since 3.0
  * @deprecated Use java.util.Base64
  */
+@Deprecated
 public final class Base64 {
 
 	/** No options specified. Value is zero. */

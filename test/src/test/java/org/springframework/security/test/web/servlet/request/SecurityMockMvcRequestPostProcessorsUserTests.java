@@ -24,6 +24,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 
 import java.util.Arrays;
+import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -114,8 +115,8 @@ public class SecurityMockMvcRequestPostProcessorsUserTests {
 		verify(repository).saveContext(contextCaptor.capture(), eq(request),
 				any(HttpServletResponse.class));
 		SecurityContext context = contextCaptor.getValue();
-		assertThat(context.getAuthentication().getAuthorities()).containsOnly(authority1,
-				authority2);
+		assertThat((List<GrantedAuthority>) context.getAuthentication().getAuthorities())
+				.containsOnly(authority1, authority2);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -133,8 +134,8 @@ public class SecurityMockMvcRequestPostProcessorsUserTests {
 		verify(repository).saveContext(contextCaptor.capture(), eq(request),
 				any(HttpServletResponse.class));
 		SecurityContext context = contextCaptor.getValue();
-		assertThat(context.getAuthentication().getAuthorities()).containsOnly(authority1,
-				authority2);
+		assertThat((List<GrantedAuthority>) context.getAuthentication().getAuthorities())
+				.containsOnly(authority1, authority2);
 	}
 
 	private void mockWebTestUtils() {
