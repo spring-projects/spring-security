@@ -186,13 +186,14 @@ class LogoutConfigurerTests extends BaseSpringSpec {
 		}
 	}
 
-	def "LogoutConfigurer content negotiation default redirects"() {
+	def "LogoutConfigurer content negotiation text/html redirects"() {
 		setup:
 			loadConfig(LogoutHandlerContentNegotiation)
 		when:
 			login()
 			request.method = 'POST'
 			request.servletPath = '/logout'
+			request.addHeader('Accept', 'text/html')
 			springSecurityFilterChain.doFilter(request,response,chain)
 		then:
 			response.status == 302

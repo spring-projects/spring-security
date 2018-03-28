@@ -90,6 +90,7 @@ public final class SecurityMockMvcRequestBuilders {
 		@Override
 		public MockHttpServletRequest buildRequest(ServletContext servletContext) {
 			MockHttpServletRequest request = post(this.logoutUrl)
+					.accept(MediaType.TEXT_HTML, MediaType.ALL)
 					.buildRequest(servletContext);
 			return this.postProcessor.postProcessRequest(request);
 		}

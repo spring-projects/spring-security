@@ -16,17 +16,16 @@
 package org.springframework.security.samples.config;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.*;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-import javax.servlet.Filter;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.security.samples.mvc.config.WebMvcConfiguration;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
@@ -49,14 +48,11 @@ public class SecurityConfigTests {
 	@Autowired
 	private WebApplicationContext context;
 
-	@Autowired
-	private Filter springSecurityFilterChain;
-
 	@Before
 	public void setup() {
 		mvc = MockMvcBuilders.webAppContextSetup(context)
-				.addFilters(springSecurityFilterChain)
-				.defaultRequest(get("/").with(testSecurityContext())).build();
+				.apply(springSecurity())
+				.defaultRequest(get("/").accept(MediaType.TEXT_HTML)).build();
 	}
 
 	@Test
@@ -84,7 +80,8 @@ public class SecurityConfigTests {
 	@Test
 	@WithMockUser
 	public void logoutSuccess() throws Exception {
-		mvc.perform(logout()).andExpect(redirectedUrl("/login?logout"))
+		mvc.perform(logout())
+				.andExpect(redirectedUrl("/login?logout"))
 				.andExpect(unauthenticated());
 	}
 }
