@@ -36,6 +36,9 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 
 /**
+ * A {@link MethodInterceptor} that supports {@link PreAuthorize} and {@link PostAuthorize} for methods that return
+ * {@link Mono} or {@link Flux}
+ *
  * @author Rob Winch
  * @since 5.0
  */
@@ -49,6 +52,12 @@ public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor
 
 	private final PostInvocationAuthorizationAdvice postAdvice;
 
+	/**
+	 * Creates a new instance
+	 * @param attributeSource the {@link MethodSecurityMetadataSource} to use
+	 * @param preInvocationAdvice the {@link PreInvocationAuthorizationAdvice} to use
+	 * @param postInvocationAdvice the {@link PostInvocationAuthorizationAdvice} to use
+	 */
 	public PrePostAdviceReactiveMethodInterceptor(MethodSecurityMetadataSource attributeSource, PreInvocationAuthorizationAdvice preInvocationAdvice, PostInvocationAuthorizationAdvice postInvocationAdvice) {
 		Assert.notNull(attributeSource, "attributeSource cannot be null");
 		Assert.notNull(preInvocationAdvice, "preInvocationAdvice cannot be null");

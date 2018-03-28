@@ -27,6 +27,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 /**
+ * Converts from a {@link ServerWebExchange} to an {@link Authentication} that can be authenticated.
  *
  * @author Rob Winch
  * @since 5.0

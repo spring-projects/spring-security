@@ -25,6 +25,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 /**
+ * Prompts a user for HTTP Basic authentication.
  *
  * @author Rob Winch
  * @since 5.0

@@ -55,7 +55,7 @@ import java.lang.annotation.Target;
  * &#064;EnableWebFluxSecurity
  * public class MyExplicitSecurityConfiguration {
  *     &#064;Bean
- *     SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+ *     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
  *          http
  *               .authorizeExchange()
  *                    .anyExchange().authenticated()

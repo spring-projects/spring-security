@@ -28,6 +28,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
+ * Used to delegate to a List of {@link SecurityWebFilterChain} instances.
+ *
  * @author Rob Winch
  * @since 5.0
  */

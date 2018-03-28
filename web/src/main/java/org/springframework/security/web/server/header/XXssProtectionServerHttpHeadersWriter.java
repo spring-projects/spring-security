@@ -20,6 +20,8 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 /**
+ * Add the x-xss-protection header.
+ *
  * @author Rob Winch
  * @since 5.0
  */
@@ -33,7 +35,7 @@ public class XXssProtectionServerHttpHeadersWriter implements ServerHttpHeadersW
 	private ServerHttpHeadersWriter delegate;
 
 	/**
-	 *
+	 * Creates a new instance
 	 */
 	public XXssProtectionServerHttpHeadersWriter() {
 		this.enabled = true;

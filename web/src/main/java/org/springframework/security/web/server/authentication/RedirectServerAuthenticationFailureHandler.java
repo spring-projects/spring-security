@@ -37,6 +37,10 @@ public class RedirectServerAuthenticationFailureHandler
 
 	private ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 
+	/**
+	 * Creates an instance
+	 * @param location the location to redirect to (i.e. "/login?failed")
+	 */
 	public RedirectServerAuthenticationFailureHandler(String location) {
 		Assert.notNull(location, "location cannot be null");
 		this.location = URI.create(location);

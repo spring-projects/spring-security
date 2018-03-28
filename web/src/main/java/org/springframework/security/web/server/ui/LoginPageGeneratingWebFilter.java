@@ -34,6 +34,8 @@ import reactor.core.publisher.Mono;
 import java.nio.charset.Charset;
 
 /**
+ * Generates a default log in page used for authenticating users.
+ *
  * @author Rob Winch
  * @since 5.0
  */
@@ -54,7 +56,6 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 		result.setStatusCode(HttpStatus.OK);
 		result.getHeaders().setContentType(MediaType.TEXT_HTML);
 		return result.writeWith(createBuffer(exchange));
-//			.doOnError( error -> DataBufferUtils.release(buffer));
 	}
 
 	private Mono<DataBuffer> createBuffer(ServerWebExchange exchange) {

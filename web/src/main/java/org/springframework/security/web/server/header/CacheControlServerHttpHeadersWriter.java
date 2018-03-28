@@ -21,6 +21,13 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 /**
+ * Writes cache control related headers.
+ *
+ * <pre>
+ * Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+ * Pragma: no-cache
+ * Expires: 0
+ * </pre>
  *
  * @author Rob Winch
  * @since 5.0

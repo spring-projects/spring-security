@@ -33,6 +33,8 @@ import reactor.core.publisher.Mono;
 import java.nio.charset.Charset;
 
 /**
+ * Generates a default log out page.
+ *
  * @author Rob Winch
  * @since 5.0
  */

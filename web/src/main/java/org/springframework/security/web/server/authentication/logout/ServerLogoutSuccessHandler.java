@@ -21,10 +21,18 @@ import org.springframework.security.web.server.WebFilterExchange;
 import reactor.core.publisher.Mono;
 
 /**
+ * Strategy for when log out was successfully performed (typically after {@link ServerLogoutHandler} is invoked).
  * @author Rob Winch
  * @since 5.0
+ * @see ServerLogoutHandler
  */
 public interface ServerLogoutSuccessHandler {
 
+	/**
+	 * Invoked after log out was successful
+	 * @param exchange the exchange
+	 * @param authentication the {@link Authentication}
+	 * @return a completion notification (success or error)
+	 */
 	Mono<Void> onLogoutSuccess(WebFilterExchange exchange, Authentication authentication);
 }

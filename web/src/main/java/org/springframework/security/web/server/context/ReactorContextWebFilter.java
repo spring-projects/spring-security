@@ -25,6 +25,9 @@ import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
 /**
+ * Uses a {@link ServerSecurityContextRepository} to provide the {@link SecurityContext} to initialize the
+ * {@link ReactiveSecurityContextHolder}.
+ *
  * @author Rob Winch
  * @since 5.0
  */

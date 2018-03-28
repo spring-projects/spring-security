@@ -29,6 +29,9 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
+ * A {@link ServerAuthenticationEntryPoint} which delegates to multiple {@link ServerAuthenticationEntryPoint} based
+ * on a {@link ServerWebExchangeMatcher}
+ *
  * @author Rob Winch
  * @since 5.0
  */

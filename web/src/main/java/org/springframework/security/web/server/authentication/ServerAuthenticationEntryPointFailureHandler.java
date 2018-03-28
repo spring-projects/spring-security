@@ -23,6 +23,7 @@ import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
 
 /**
+ * Adapts a {@link ServerAuthenticationEntryPoint} into a {@link ServerAuthenticationFailureHandler}
  * @author Rob Winch
  * @since 5.0
  */

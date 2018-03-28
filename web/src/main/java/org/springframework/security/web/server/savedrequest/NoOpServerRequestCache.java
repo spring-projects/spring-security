@@ -23,6 +23,7 @@ import reactor.core.publisher.Mono;
 import java.net.URI;
 
 /**
+ * An implementation of {@link ServerRequestCache} that does nothing. This is used in stateless applications
  * @author Rob Winch
  * @since 5.0
  */

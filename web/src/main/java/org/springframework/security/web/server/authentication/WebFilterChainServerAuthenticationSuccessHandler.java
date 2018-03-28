@@ -22,6 +22,8 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 /**
+ * Success handler that continues the filter chain after authentication success.
+ *
  * @author Rob Winch
  * @since 5.0
  */

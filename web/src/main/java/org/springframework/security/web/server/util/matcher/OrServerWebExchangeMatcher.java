@@ -24,8 +24,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
+ * Matches if any of the provided {@link ServerWebExchangeMatcher} match
  * @author Rob Winch
  * @since 5.0
+ * @see AndServerWebExchangeMatcher
  */
 public class OrServerWebExchangeMatcher implements ServerWebExchangeMatcher {
 	private final List<ServerWebExchangeMatcher> matchers;
