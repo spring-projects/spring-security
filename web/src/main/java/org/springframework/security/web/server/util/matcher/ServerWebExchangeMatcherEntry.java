@@ -17,6 +17,7 @@
 package org.springframework.security.web.server.util.matcher;
 
 /**
+ * A rich object for associating a {@link ServerWebExchangeMatcher} to another object.
  * @author Rob Winch
  * @since 5.0
  */

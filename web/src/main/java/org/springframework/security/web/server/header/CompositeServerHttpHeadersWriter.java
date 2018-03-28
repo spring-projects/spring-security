@@ -25,6 +25,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 /**
+ * Combines multiple {@link ServerHttpHeadersWriter} instances into a single instance.
  *
  * @author Rob Winch
  * @since 5.0

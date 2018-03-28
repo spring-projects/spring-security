@@ -43,11 +43,19 @@ public class RedirectServerAuthenticationEntryPoint
 
 	private ServerRequestCache requestCache = new WebSessionServerRequestCache();
 
+	/**
+	 * Creates an instance
+	 * @param location the location to redirect to (i.e. "/logout-success")
+	 */
 	public RedirectServerAuthenticationEntryPoint(String location) {
 		Assert.notNull(location, "location cannot be null");
 		this.location = URI.create(location);
 	}
 
+	/**
+	 * The request cache to use to save the request before sending a redirect.
+	 * @param requestCache the cache to redirect to.
+	 */
 	public void setRequestCache(ServerRequestCache requestCache) {
 		Assert.notNull(requestCache, "requestCache cannot be null");
 		this.requestCache = requestCache;

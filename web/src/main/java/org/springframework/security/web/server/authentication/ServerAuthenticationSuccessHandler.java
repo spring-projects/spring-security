@@ -21,10 +21,17 @@ import org.springframework.security.web.server.WebFilterExchange;
 import reactor.core.publisher.Mono;
 
 /**
+ * Handles authentication success
  * @author Rob Winch
  * @since 5.0
  */
 public interface ServerAuthenticationSuccessHandler {
+	/**
+	 * Invoked when the application authenticates successfully
+	 * @param webFilterExchange the exchange
+	 * @param authentication the {@link Authentication}
+	 * @return a completion notification (success or error)
+	 */
 	Mono<Void> onAuthenticationSuccess(WebFilterExchange webFilterExchange,
 		Authentication authentication);
 }

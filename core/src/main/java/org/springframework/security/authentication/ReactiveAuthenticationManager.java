@@ -25,6 +25,7 @@ import reactor.core.publisher.Mono;
  * @author Rob Winch
  * @since 5.0
  */
+@FunctionalInterface
 public interface ReactiveAuthenticationManager {
 
 	/**

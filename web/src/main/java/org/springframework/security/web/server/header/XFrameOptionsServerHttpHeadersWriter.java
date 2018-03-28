@@ -20,6 +20,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 /**
+ * {@code ServerHttpHeadersWriter} implementation for the X-Frame-Options headers.
  * @author Rob Winch
  * @since 5.0
  */

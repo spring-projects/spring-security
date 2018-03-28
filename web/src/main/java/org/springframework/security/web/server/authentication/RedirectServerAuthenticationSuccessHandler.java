@@ -29,6 +29,8 @@ import reactor.core.publisher.Mono;
 import java.net.URI;
 
 /**
+ * Performs a redirect on authentication success. The default is to redirect to a saved request if present and
+ * otherwise "/".
  * @author Rob Winch
  * @since 5.0
  */
@@ -40,12 +42,24 @@ public class RedirectServerAuthenticationSuccessHandler
 
 	private ServerRequestCache requestCache = new WebSessionServerRequestCache();
 
+	/**
+	 * Creates a new instance with location of "/"
+	 */
 	public RedirectServerAuthenticationSuccessHandler() {}
 
+	/**
+	 * Creates a new instance with the specified location
+	 * @param location the location to redirect if the no request is cached in
+	 * {@link #setRequestCache(ServerRequestCache)}
+	 */
 	public RedirectServerAuthenticationSuccessHandler(String location) {
 		this.location = URI.create(location);
 	}
 
+	/**
+	 * Sets the {@link ServerRequestCache} used to redirect to. Default is {@link WebSessionServerRequestCache}.
+	 * @param requestCache the cache to use
+	 */
 	public void setRequestCache(ServerRequestCache requestCache) {
 		Assert.notNull(requestCache, "requestCache cannot be null");
 		this.requestCache = requestCache;

@@ -26,6 +26,7 @@ import reactor.core.publisher.Mono;
 import java.net.URI;
 
 /**
+ * Performs a redirect on log out success.
  * @author Rob Winch
  * @since 5.0
  */

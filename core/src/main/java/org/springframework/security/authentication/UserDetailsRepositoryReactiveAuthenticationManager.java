@@ -26,6 +26,9 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 /**
+ * A {@link ReactiveAuthenticationManager} that uses a {@link ReactiveUserDetailsService} to validate the provided
+ * username and password.
+ *
  * @author Rob Winch
  * @since 5.0
  */
@@ -49,6 +52,11 @@ public class UserDetailsRepositoryReactiveAuthenticationManager implements React
 				.map( u -> new UsernamePasswordAuthenticationToken(u, u.getPassword(), u.getAuthorities()) );
 	}
 
+	/**
+	 * The {@link PasswordEncoder} that is used for validating the password. The default is
+	 * {@link PasswordEncoderFactories#createDelegatingPasswordEncoder()}
+	 * @param passwordEncoder the {@link PasswordEncoder} to use. Cannot be null
+	 */
 	public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
 		Assert.notNull(passwordEncoder, "passwordEncoder cannot be null");
 		this.passwordEncoder = passwordEncoder;

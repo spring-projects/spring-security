@@ -25,6 +25,8 @@ import reactor.core.publisher.Mono;
 import java.net.URI;
 
 /**
+ * The default {@link ServerRedirectStrategy} to use.
+ *
  * @author Rob Winch
  * @since 5.0
  */
@@ -55,6 +57,10 @@ public class DefaultServerRedirectStrategy implements ServerRedirectStrategy {
 		return location;
 	}
 
+	/**
+	 * The {@link HttpStatus} to use for the redirect.
+	 * @param httpStatus the status to use. Cannot be null
+	 */
 	public void setHttpStatus(HttpStatus httpStatus) {
 		Assert.notNull(httpStatus, "httpStatus cannot be null");
 		this.httpStatus = httpStatus;

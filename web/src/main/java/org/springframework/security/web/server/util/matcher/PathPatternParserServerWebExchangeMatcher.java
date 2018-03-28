@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * Matches if the {@link PathPattern} matches the path within the application.
  * @author Rob Winch
  * @since 5.0
  */

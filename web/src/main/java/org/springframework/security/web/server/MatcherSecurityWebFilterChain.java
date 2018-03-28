@@ -26,6 +26,9 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 /**
+ * A {@link SecurityWebFilterChain} that leverages a {@link ServerWebExchangeMatcher} to determine which
+ * {@link WebFilter} to execute.
+ *
  * @author Rob Winch
  * @since 5.0
  */

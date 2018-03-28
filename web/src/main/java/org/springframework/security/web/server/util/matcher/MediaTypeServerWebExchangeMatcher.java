@@ -34,6 +34,8 @@ import org.springframework.web.server.NotAcceptableStatusException;
 import org.springframework.web.server.ServerWebExchange;
 
 /**
+ * Matches based upon the accept headers.
+ *
  * @author Rob Winch
  * @since 5.0
  */
@@ -44,12 +46,20 @@ public class MediaTypeServerWebExchangeMatcher implements ServerWebExchangeMatch
 	private boolean useEquals;
 	private Set<MediaType> ignoredMediaTypes = Collections.emptySet();
 
+	/**
+	 * Creates a new instance
+	 * @param matchingMediaTypes the types to match on
+	 */
 	public MediaTypeServerWebExchangeMatcher(MediaType... matchingMediaTypes) {
 		Assert.notEmpty(matchingMediaTypes, "matchingMediaTypes cannot be null");
 		Assert.noNullElements(matchingMediaTypes, "matchingMediaTypes cannot contain null");
 		this.matchingMediaTypes = Arrays.asList(matchingMediaTypes);
 	}
 
+	/**
+	 * Creates a new instance
+	 * @param matchingMediaTypes the types to match on
+	 */
 	public MediaTypeServerWebExchangeMatcher(Collection<MediaType> matchingMediaTypes) {
 		Assert.notEmpty(matchingMediaTypes, "matchingMediaTypes cannot be null");
 		Assert.isTrue(!matchingMediaTypes.contains(null), () -> "matchingMediaTypes cannot contain null. Got " + matchingMediaTypes);

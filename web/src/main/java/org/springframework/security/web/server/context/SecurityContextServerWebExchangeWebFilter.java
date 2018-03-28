@@ -21,13 +21,9 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
-import reactor.util.context.Context;
-
-import java.security.Principal;
 
 /**
- * Populate the {@link Principal} from {@link ServerWebExchange#getPrincipal()} into the
- * Reactor {@link Context}.
+ * Override the {@link ServerWebExchange#getPrincipal()} to be looked up using {@link ReactiveSecurityContextHolder}.
  *
  * @author Rob Winch
  * @since 5.0

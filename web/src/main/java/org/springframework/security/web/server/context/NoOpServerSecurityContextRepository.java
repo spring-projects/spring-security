@@ -22,6 +22,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 /**
+ * A do nothing implementation of {@link ServerSecurityContextRepository}. Used in stateless applications.
  * @author Rob Winch
  * @since 5.0
  */

@@ -26,6 +26,7 @@ import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
 
 /**
+ * A {@link Map} based implementation of {@link ReactiveUserDetailsService}
  *
  * @author Rob Winch
  * @since 5.0
@@ -33,14 +34,26 @@ import reactor.core.publisher.Mono;
 public class MapReactiveUserDetailsService implements ReactiveUserDetailsService {
 	private final Map<String, UserDetails> users;
 
+	/**
+	 * Creates a new instance using a {@link Map} that must be non blocking.
+	 * @param users a {@link Map} of users to use.
+	 */
 	public MapReactiveUserDetailsService(Map<String, UserDetails> users) {
 		this.users = users;
 	}
 
+	/**
+	 * Creates a new instance
+	 * @param users the {@link UserDetails} to use
+	 */
 	public MapReactiveUserDetailsService(UserDetails... users) {
 		this(Arrays.asList(users));
 	}
 
+	/**
+	 * Creates a new instance
+	 * @param users the {@link UserDetails} to use
+	 */
 	public MapReactiveUserDetailsService(Collection<UserDetails> users) {
 		Assert.notEmpty(users, "users cannot be null or empty");
 		this.users = users.stream().collect(Collectors.toConcurrentMap( u -> getKey(u.getUsername()), Function.identity()));

@@ -21,6 +21,8 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
 
 /**
+ * A composite of the {@link ServerWebExchange} and the {@link WebFilterChain}. This is typically used as a value object
+ * for handling success and failures.
  * @author Rob Winch
  * @since 5.0
  */

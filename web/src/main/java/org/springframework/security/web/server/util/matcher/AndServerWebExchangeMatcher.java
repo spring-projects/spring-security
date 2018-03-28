@@ -26,8 +26,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Matches if all the provided {@link ServerWebExchangeMatcher} match
  * @author Rob Winch
  * @since 5.0
+ * @see OrServerWebExchangeMatcher
  */
 public class AndServerWebExchangeMatcher implements ServerWebExchangeMatcher {
 	private final List<ServerWebExchangeMatcher> matchers;

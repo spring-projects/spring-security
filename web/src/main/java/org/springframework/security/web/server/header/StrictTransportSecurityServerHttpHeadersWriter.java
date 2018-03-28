@@ -22,6 +22,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 /**
+ * Writes the Strict-Transport-Security if the request is secure.
  * @author Rob Winch
  * @since 5.0
  */
@@ -52,11 +53,19 @@ public final class StrictTransportSecurityServerHttpHeadersWriter
 		return isSecure(exchange) ? delegate.writeHttpHeaders(exchange) : Mono.empty();
 	}
 
+	/**
+	 * Sets if subdomains should be included. Default is true
+	 * @param includeSubDomains if subdomains should be included
+	 */
 	public void setIncludeSubDomains(boolean includeSubDomains) {
 		subdomain = includeSubDomains ? " ; includeSubDomains" : "";
 		updateDelegate();
 	}
 
+	/**
+	 * Sets the max age of the header. Default is a year.
+	 * @param maxAge the max age of the header
+	 */
 	public void setMaxAge(Duration maxAge) {
 		this.maxAge = "max-age=" + maxAge.getSeconds();
 		updateDelegate();

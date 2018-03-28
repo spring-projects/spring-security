@@ -24,6 +24,8 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 /**
+ * Allows specifying {@link HttpHeaders} that should be written to the response.
+ *
  * @author Rob Winch
  * @since 5.0
  */
