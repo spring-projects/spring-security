@@ -130,7 +130,7 @@ dependencyManagement {
 		dependency 'org.aspectj:aspectjrt:1.8.13'
 		dependency 'org.aspectj:aspectjtools:1.8.13'
 		dependency 'org.aspectj:aspectjweaver:1.8.13'
-		dependency 'org.assertj:assertj-core:3.9.0'
+		dependency 'org.assertj:assertj-core:3.9.1'
 		dependency 'org.attoparser:attoparser:2.0.4.RELEASE'
 		dependency 'org.bouncycastle:bcpkix-jdk15on:1.59'
 		dependency 'org.bouncycastle:bcprov-jdk15on:1.58'
