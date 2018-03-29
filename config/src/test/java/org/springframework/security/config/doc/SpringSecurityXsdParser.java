@@ -27,12 +27,12 @@ import java.util.stream.Stream;
  * @author Josh Cummings
  */
 public class SpringSecurityXsdParser {
-	private NicerNode rootElement;
+	private XmlNode rootElement;
 
 	private Set<String> attrElmts = new LinkedHashSet<>();
 	private Map<String, Element> elementNameToElement = new HashMap<>();
 
-	public SpringSecurityXsdParser(NicerNode rootElement) {
+	public SpringSecurityXsdParser(XmlNode rootElement) {
 		this.rootElement = rootElement;
 	}
 
@@ -52,7 +52,7 @@ public class SpringSecurityXsdParser {
 	 * @param node
 	 * @return
 	 */
-	private Map<String, Element> elements(NicerNode node) {
+	private Map<String, Element> elements(XmlNode node) {
 		Map<String, Element> elementNameToElement = new HashMap<>();
 
 		node.children().forEach(child -> {
@@ -73,7 +73,7 @@ public class SpringSecurityXsdParser {
 	 * @param element
 	 * @return a collection of Attribute objects that are children of element.
 	 */
-	private Collection<Attribute> attrs(NicerNode element) {
+	private Collection<Attribute> attrs(XmlNode element) {
 		Collection<Attribute> attrs = new ArrayList<>();
 		element.children().forEach(c -> {
 			String name = c.simpleName();
@@ -94,7 +94,7 @@ public class SpringSecurityXsdParser {
 	 * @param element
 	 * @return
 	 */
-	private Collection<Attribute> attrgrps(NicerNode element) {
+	private Collection<Attribute> attrgrps(XmlNode element) {
 		Collection<Attribute> attrgrp = new ArrayList<>();
 
 		element.children().forEach(c -> {
@@ -105,7 +105,7 @@ public class SpringSecurityXsdParser {
 					attrgrp.addAll(attrgrp(c));
 				} else {
 					String name = c.attribute("ref").split(":")[1];
-					NicerNode attrGrp = findNode(element, name);
+					XmlNode attrGrp = findNode(element, name);
 					attrgrp.addAll(attrgrp(attrGrp));
 				}
 			} else {
@@ -116,8 +116,8 @@ public class SpringSecurityXsdParser {
 		return attrgrp;
 	}
 
-	private NicerNode findNode(NicerNode c, String name) {
-		NicerNode root = c;
+	private XmlNode findNode(XmlNode c, String name) {
+		XmlNode root = c;
 		while (!"schema".equals(root.simpleName())) {
 			root = root.parent().get();
 		}
@@ -127,7 +127,7 @@ public class SpringSecurityXsdParser {
 				.findFirst().orElseThrow(IllegalArgumentException::new);
 	}
 
-	private Stream<NicerNode> expand(NicerNode root) {
+	private Stream<XmlNode> expand(XmlNode root) {
 		return Stream.concat(
 				Stream.of(root),
 				root.children().flatMap(this::expand));
@@ -139,7 +139,7 @@ public class SpringSecurityXsdParser {
 	 * @param e
 	 * @return all the attributes for a specific attributeGroup and any child attributeGroups
 	 */
-	private Collection<Attribute> attrgrp(NicerNode e) {
+	private Collection<Attribute> attrgrp(XmlNode e) {
 		Collection<Attribute> attrs = attrs(e);
 		attrs.addAll(attrgrps(e));
 		return attrs;
@@ -151,7 +151,7 @@ public class SpringSecurityXsdParser {
 	 * @param element
 	 * @return
 	 */
-	private String desc(NicerNode element) {
+	private String desc(XmlNode element) {
 		return element.child("annotation")
 				.flatMap(annotation -> annotation.child("documentation"))
 				.map(documentation -> documentation.text())
@@ -164,7 +164,7 @@ public class SpringSecurityXsdParser {
 	 * @param n
 	 * @return
 	 */
-	private Attribute attr(NicerNode n) {
+	private Attribute attr(XmlNode n) {
 		return new Attribute(desc(n), n.attribute("name"));
 	}
 
@@ -174,7 +174,7 @@ public class SpringSecurityXsdParser {
 	 * @param n
 	 * @return
 	 */
-	private Element elmt(NicerNode n) {
+	private Element elmt(XmlNode n) {
 		String name = n.attribute("ref");
 		if (StringUtils.isEmpty(name)) {
 			name = n.attribute("name");

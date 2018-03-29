@@ -52,7 +52,7 @@ public class XsdDocumentedTests {
 	String schema31xDocumentLocation = "org/springframework/security/config/spring-security-3.1.xsd";
 	String schemaDocumentLocation = "org/springframework/security/config/spring-security-5.0.xsd";
 
-	NicerXmlSupport xml = new NicerXmlSupport();
+	XmlSupport xml = new XmlSupport();
 
 	@After
 	public void close() throws IOException {
@@ -62,17 +62,17 @@ public class XsdDocumentedTests {
 	@Test
 	public void parseWhenLatestXsdThenAllNamedSecurityFiltersAreDefinedAndOrderedProperly()
 		throws IOException {
-		NicerNode root = this.xml.parse(this.schemaDocumentLocation);
+		XmlNode root = this.xml.parse(this.schemaDocumentLocation);
 
 		List<String> nodes =
 			root.child("schema")
-				.map(NicerNode::children)
+				.map(XmlNode::children)
 				.orElse(Stream.empty())
 				.filter(node ->
 					"simpleType".equals(node.simpleName()) &&
 					"named-security-filter".equals(node.attribute("name")))
-				.flatMap(NicerNode::children)
-				.flatMap(NicerNode::children)
+				.flatMap(XmlNode::children)
+				.flatMap(XmlNode::children)
 				.map(node -> node.attribute("value"))
 				.filter(StringUtils::isNotEmpty)
 				.collect(Collectors.toList());
@@ -110,17 +110,17 @@ public class XsdDocumentedTests {
 			"LAST"
 		);
 
-		NicerNode root = this.xml.parse(this.schema31xDocumentLocation);
+		XmlNode root = this.xml.parse(this.schema31xDocumentLocation);
 
 		List<String> nodes =
 			root.child("schema")
-				.map(NicerNode::children)
+				.map(XmlNode::children)
 				.orElse(Stream.empty())
 				.filter(node ->
 					"simpleType".equals(node.simpleName()) &&
 						"named-security-filter".equals(node.attribute("name")))
-				.flatMap(NicerNode::children)
-				.flatMap(NicerNode::children)
+				.flatMap(XmlNode::children)
+				.flatMap(XmlNode::children)
 				.map(node -> node.attribute("value"))
 				.filter(StringUtils::isNotEmpty)
 				.collect(Collectors.toList());

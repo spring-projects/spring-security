@@ -25,10 +25,10 @@ import java.util.stream.Stream;
 /**
  * @author Josh Cummings
  */
-public class NicerNode {
+public class XmlNode {
 	private final Node node;
 
-	public NicerNode(Node node) {
+	public XmlNode(Node node) {
 		this.node = node;
 	}
 
@@ -41,23 +41,23 @@ public class NicerNode {
 		return this.node.getTextContent();
 	}
 
-	public Stream<NicerNode> children() {
+	public Stream<XmlNode> children() {
 		NodeList children = this.node.getChildNodes();
 
 		return IntStream.range(0, children.getLength())
 				.mapToObj(children::item)
-				.map(NicerNode::new);
+				.map(XmlNode::new);
 	}
 
-	public Optional<NicerNode> child(String name) {
+	public Optional<XmlNode> child(String name) {
 		return this.children()
 				.filter(child -> name.equals(child.simpleName()))
 				.findFirst();
 	}
 
-	public Optional<NicerNode> parent() {
+	public Optional<XmlNode> parent() {
 		return Optional.ofNullable(this.node.getParentNode())
-				.map(parent -> new NicerNode(parent));
+				.map(parent -> new XmlNode(parent));
 	}
 
 	public String attribute(String name) {

@@ -15,37 +15,34 @@
  */
 package org.springframework.security.config.doc;
 
-import org.xml.sax.SAXException;
+import org.springframework.core.io.ClassPathResource;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
-import java.io.InputStream;
+import java.util.Map;
 
 /**
+ * Support for ensuring preparing the givens in {@link XsdDocumentedTests}
+ *
  * @author Josh Cummings
  */
-public class NicerXmlParser implements AutoCloseable {
-	private InputStream xml;
+public class XmlSupport {
+	private XmlParser parser;
 
-	public NicerXmlParser(InputStream xml) {
-		this.xml = xml;
+	public XmlNode parse(String location) throws IOException {
+		ClassPathResource resource = new ClassPathResource(location);
+		this.parser = new XmlParser(resource.getInputStream());
+
+		return this.parser.parse();
 	}
 
-	public NicerNode parse() {
-		try {
-			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-
-			return new NicerNode(dBuilder.parse(this.xml));
-		} catch ( IOException | ParserConfigurationException | SAXException e ) {
-			throw new IllegalStateException(e);
-		}
+	public Map<String, Element> elementsByElementName(String location) throws IOException {
+		XmlNode node = parse(location);
+		return new SpringSecurityXsdParser(node).parse();
 	}
 
-	@Override
 	public void close() throws IOException {
-		this.xml.close();
+		if ( this.parser != null ) {
+			this.parser.close();
+		}
 	}
 }
