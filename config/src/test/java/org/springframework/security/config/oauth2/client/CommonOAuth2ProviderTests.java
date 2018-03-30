@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class CommonOAuth2ProviderTests {
 
-	private static final String DEFAULT_LOGIN_REDIRECT_URL = "{baseUrl}/login/oauth2/code/{registrationId}";
+	private static final String DEFAULT_REDIRECT_URL = "{baseUrl}/{action}/oauth2/code/{registrationId}";
 
 	@Test
 	public void getBuilderWhenGoogleShouldHaveGoogleSettings() throws Exception {
@@ -51,7 +51,7 @@ public class CommonOAuth2ProviderTests {
 			.isEqualTo(ClientAuthenticationMethod.BASIC);
 		assertThat(registration.getAuthorizationGrantType())
 			.isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
-		assertThat(registration.getRedirectUriTemplate()).isEqualTo(DEFAULT_LOGIN_REDIRECT_URL);
+		assertThat(registration.getRedirectUriTemplate()).isEqualTo(DEFAULT_REDIRECT_URL);
 		assertThat(registration.getScopes()).containsOnly("openid", "profile", "email");
 		assertThat(registration.getClientName()).isEqualTo("Google");
 		assertThat(registration.getRegistrationId()).isEqualTo("123");
@@ -74,7 +74,7 @@ public class CommonOAuth2ProviderTests {
 			.isEqualTo(ClientAuthenticationMethod.BASIC);
 		assertThat(registration.getAuthorizationGrantType())
 			.isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
-		assertThat(registration.getRedirectUriTemplate()).isEqualTo(DEFAULT_LOGIN_REDIRECT_URL);
+		assertThat(registration.getRedirectUriTemplate()).isEqualTo(DEFAULT_REDIRECT_URL);
 		assertThat(registration.getScopes()).containsOnly("read:user");
 		assertThat(registration.getClientName()).isEqualTo("GitHub");
 		assertThat(registration.getRegistrationId()).isEqualTo("123");
@@ -97,7 +97,7 @@ public class CommonOAuth2ProviderTests {
 			.isEqualTo(ClientAuthenticationMethod.POST);
 		assertThat(registration.getAuthorizationGrantType())
 			.isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
-		assertThat(registration.getRedirectUriTemplate()).isEqualTo(DEFAULT_LOGIN_REDIRECT_URL);
+		assertThat(registration.getRedirectUriTemplate()).isEqualTo(DEFAULT_REDIRECT_URL);
 		assertThat(registration.getScopes()).containsOnly("public_profile", "email");
 		assertThat(registration.getClientName()).isEqualTo("Facebook");
 		assertThat(registration.getRegistrationId()).isEqualTo("123");
@@ -122,7 +122,7 @@ public class CommonOAuth2ProviderTests {
 			.isEqualTo(ClientAuthenticationMethod.BASIC);
 		assertThat(registration.getAuthorizationGrantType())
 			.isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
-		assertThat(registration.getRedirectUriTemplate()).isEqualTo(DEFAULT_LOGIN_REDIRECT_URL);
+		assertThat(registration.getRedirectUriTemplate()).isEqualTo(DEFAULT_REDIRECT_URL);
 		assertThat(registration.getScopes()).containsOnly("openid", "profile", "email",
 			"address", "phone");
 		assertThat(registration.getClientName()).isEqualTo("Okta");

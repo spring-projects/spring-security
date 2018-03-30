@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,6 @@
  * limitations under the License.
  */
 package org.springframework.security.config.annotation.web.builders;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.Filter;
-import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpMethod;
@@ -56,12 +48,13 @@ import org.springframework.security.config.annotation.web.configurers.SecurityCo
 import org.springframework.security.config.annotation.web.configurers.ServletApiConfigurer;
 import org.springframework.security.config.annotation.web.configurers.SessionManagementConfigurer;
 import org.springframework.security.config.annotation.web.configurers.X509Configurer;
+import org.springframework.security.config.annotation.web.configurers.oauth2.OAuth2Configurer;
+import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer;
 import org.springframework.security.config.annotation.web.configurers.openid.OpenIDLoginConfigurer;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.PortMapper;
 import org.springframework.security.web.PortMapperImpl;
@@ -78,6 +71,13 @@ import org.springframework.util.Assert;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
+
+import javax.servlet.Filter;
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A {@link HttpSecurity} is similar to Spring Security's XML &lt;http&gt; element in the
@@ -989,6 +989,18 @@ public final class HttpSecurity extends
 	 */
 	public OAuth2LoginConfigurer<HttpSecurity> oauth2Login() throws Exception {
 		return getOrApply(new OAuth2LoginConfigurer<>());
+	}
+
+	/**
+	 * Configures support for the <a target="_blank" href="https://tools.ietf.org/html/rfc6749">OAuth 2.0 Authorization Framework</a>.
+	 *
+	 * @author Joe Grandja
+	 * @since 5.1
+	 * @return the {@link OAuth2Configurer} for further customizations
+	 * @throws Exception
+	 */
+	public OAuth2Configurer oauth2() throws Exception {
+		return getOrApply(new OAuth2Configurer());
 	}
 
 	/**

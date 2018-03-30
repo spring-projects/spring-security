@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.client.web;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.keygen.Base64StringKeyGenerator;
 import org.springframework.security.crypto.keygen.StringKeyGenerator;
+import org.springframework.security.oauth2.client.ClientAuthorizationRequiredException;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -25,6 +26,9 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequ
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.security.web.util.ThrowableAnalyzer;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -51,6 +55,17 @@ import java.util.Map;
  * response type, and a redirection URI which the authorization server will send the user-agent back to
  * once access is granted (or denied) by the End-User (Resource Owner).
  *
+ * <p>
+ * By default, this {@code Filter} responds to authorization requests
+ * at the {@code URI} {@code /oauth2/authorization/{registrationId}}.
+ * The {@code URI} template variable {@code {registrationId}} represents the
+ * {@link ClientRegistration#getRegistrationId() registration identifier} of the client
+ * that is used for initiating the OAuth 2.0 Authorization Request.
+ *
+ * <p>
+ * <b>NOTE:</b> The default base {@code URI} {@code /oauth2/authorization} may be overridden
+ * via it's constructor {@link #OAuth2AuthorizationRequestRedirectFilter(ClientRegistrationRepository, String)}.
+
  * @author Joe Grandja
  * @author Rob Winch
  * @since 5.0
@@ -69,6 +84,8 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 	 */
 	public static final String DEFAULT_AUTHORIZATION_REQUEST_BASE_URI = "/oauth2/authorization";
 	private static final String REGISTRATION_ID_URI_VARIABLE_NAME = "registrationId";
+	private static final String AUTHORIZATION_REQUIRED_EXCEPTION_ATTR_NAME =
+			ClientAuthorizationRequiredException.class.getName() + ".AUTHORIZATION_REQUIRED_EXCEPTION";
 	private final AntPathRequestMatcher authorizationRequestMatcher;
 	private final ClientRegistrationRepository clientRegistrationRepository;
 	private final OAuth2AuthorizationRequestUriBuilder authorizationRequestUriBuilder = new OAuth2AuthorizationRequestUriBuilder();
@@ -76,6 +93,8 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 	private final StringKeyGenerator stateGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder());
 	private AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
 		new HttpSessionOAuth2AuthorizationRequestRepository();
+	private final ThrowableAnalyzer throwableAnalyzer = new DefaultThrowableAnalyzer();
+	private final RequestCache requestCache = new HttpSessionRequestCache();
 
 	/**
 	 * Constructs an {@code OAuth2AuthorizationRequestRedirectFilter} using the provided parameters.
@@ -125,7 +144,36 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 			return;
 		}
 
-		filterChain.doFilter(request, response);
+		try {
+			filterChain.doFilter(request, response);
+		} catch (IOException ex) {
+			throw ex;
+		} catch (Exception ex) {
+			// Check to see if we need to handle ClientAuthorizationRequiredException
+			Throwable[] causeChain = this.throwableAnalyzer.determineCauseChain(ex);
+			ClientAuthorizationRequiredException authzEx = (ClientAuthorizationRequiredException) this.throwableAnalyzer
+				.getFirstThrowableOfType(ClientAuthorizationRequiredException.class, causeChain);
+			if (authzEx != null) {
+				try {
+					request.setAttribute(AUTHORIZATION_REQUIRED_EXCEPTION_ATTR_NAME, authzEx);
+					this.sendRedirectForAuthorization(request, response, authzEx.getClientRegistrationId());
+					this.requestCache.saveRequest(request, response);
+				} catch (Exception failed) {
+					this.unsuccessfulRedirectForAuthorization(request, response, failed);
+				} finally {
+					request.removeAttribute(AUTHORIZATION_REQUIRED_EXCEPTION_ATTR_NAME);
+				}
+				return;
+			}
+
+			if (ex instanceof ServletException) {
+				throw (ServletException) ex;
+			} else if (ex instanceof RuntimeException) {
+				throw (RuntimeException) ex;
+			} else {
+				throw new RuntimeException(ex);
+			}
+		}
 	}
 
 	private boolean shouldRequestAuthorization(HttpServletRequest request, HttpServletResponse response) {
@@ -133,14 +181,25 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 	}
 
 	private void sendRedirectForAuthorization(HttpServletRequest request, HttpServletResponse response)
-			throws IOException, ServletException {
+		throws IOException, ServletException {
 
 		String registrationId = this.authorizationRequestMatcher
 			.extractUriTemplateVariables(request).get(REGISTRATION_ID_URI_VARIABLE_NAME);
+		this.sendRedirectForAuthorization(request, response, registrationId);
+	}
+
+	private void sendRedirectForAuthorization(HttpServletRequest request, HttpServletResponse response,
+												String registrationId) throws IOException, ServletException {
+
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(registrationId);
 		if (clientRegistration == null) {
 			throw new IllegalArgumentException("Invalid Client Registration with Id: " + registrationId);
 		}
+		this.sendRedirectForAuthorization(request, response, clientRegistration);
+	}
+
+	private void sendRedirectForAuthorization(HttpServletRequest request, HttpServletResponse response,
+												ClientRegistration clientRegistration) throws IOException, ServletException {
 
 		String redirectUriStr = this.expandRedirectUri(request, clientRegistration);
 
@@ -188,6 +247,11 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 			port = -1;		// Removes the port in UriComponentsBuilder
 		}
 
+		// Supported URI variables -> baseUrl, action, registrationId
+		// Used in -> CommonOAuth2Provider.DEFAULT_REDIRECT_URL = "{baseUrl}/{action}/oauth2/code/{registrationId}"
+		Map<String, String> uriVariables = new HashMap<>();
+		uriVariables.put("registrationId", clientRegistration.getRegistrationId());
+
 		String baseUrl = UriComponentsBuilder.newInstance()
 			.scheme(request.getScheme())
 			.host(request.getServerName())
@@ -195,13 +259,40 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 			.path(request.getContextPath())
 			.build()
 			.toUriString();
-
-		Map<String, String> uriVariables = new HashMap<>();
 		uriVariables.put("baseUrl", baseUrl);
-		uriVariables.put("registrationId", clientRegistration.getRegistrationId());
+
+		if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(clientRegistration.getAuthorizationGrantType())) {
+			String loginAction = "login";
+			String authorizeAction = "authorize";
+			String actionParameter = "action";
+			String action;
+			if (request.getAttribute(AUTHORIZATION_REQUIRED_EXCEPTION_ATTR_NAME) != null) {
+				action = authorizeAction;
+			} else if (request.getParameter(actionParameter) == null) {
+				action = loginAction;
+			} else {
+				String actionValue = request.getParameter(actionParameter);
+				if (loginAction.equalsIgnoreCase(actionValue)) {
+					action = loginAction;
+				} else {
+					action = authorizeAction;
+				}
+			}
+			uriVariables.put("action", action);
+		}
 
 		return UriComponentsBuilder.fromUriString(clientRegistration.getRedirectUriTemplate())
 			.buildAndExpand(uriVariables)
 			.toUriString();
+	}
+
+	private static final class DefaultThrowableAnalyzer extends ThrowableAnalyzer {
+		protected void initExtractorMap() {
+			super.initExtractorMap();
+			registerExtractor(ServletException.class, throwable -> {
+				ThrowableAnalyzer.verifyThrowableHierarchy(throwable, ServletException.class);
+				return ((ServletException) throwable).getRootCause();
+			});
+		}
 	}
 }

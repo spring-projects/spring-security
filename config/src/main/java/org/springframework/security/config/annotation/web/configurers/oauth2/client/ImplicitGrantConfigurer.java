@@ -15,7 +15,6 @@
  */
 package org.springframework.security.config.annotation.web.configurers.oauth2.client;
 
-import org.springframework.context.ApplicationContext;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -86,7 +85,7 @@ public final class ImplicitGrantConfigurer<B extends HttpSecurityBuilder<B>> ext
 	@Override
 	public void configure(B http) throws Exception {
 		OAuth2AuthorizationRequestRedirectFilter authorizationRequestFilter = new OAuth2AuthorizationRequestRedirectFilter(
-			this.getClientRegistrationRepository(), this.getAuthorizationRequestBaseUri());
+			OAuth2ClientConfigurerUtils.getClientRegistrationRepository(this.getBuilder()), this.getAuthorizationRequestBaseUri());
 		http.addFilter(this.postProcess(authorizationRequestFilter));
 	}
 
@@ -94,18 +93,5 @@ public final class ImplicitGrantConfigurer<B extends HttpSecurityBuilder<B>> ext
 		return this.authorizationRequestBaseUri != null ?
 			this.authorizationRequestBaseUri :
 			OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
-	}
-
-	private ClientRegistrationRepository getClientRegistrationRepository() {
-		ClientRegistrationRepository clientRegistrationRepository = this.getBuilder().getSharedObject(ClientRegistrationRepository.class);
-		if (clientRegistrationRepository == null) {
-			clientRegistrationRepository = this.getClientRegistrationRepositoryBean();
-			this.getBuilder().setSharedObject(ClientRegistrationRepository.class, clientRegistrationRepository);
-		}
-		return clientRegistrationRepository;
-	}
-
-	private ClientRegistrationRepository getClientRegistrationRepositoryBean() {
-		return this.getBuilder().getSharedObject(ApplicationContext.class).getBean(ClientRegistrationRepository.class);
 	}
 }
