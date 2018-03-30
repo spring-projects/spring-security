@@ -20,8 +20,10 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 /**
+ * Negates the provided matcher. If the provided matcher returns true, then the result will be false. If the provided
+ * matcher returns false, then the result will be true.
  * @author Tao Qian
- * @since 5.0
+ * @since 5.1
  */
 public class NegatedServerWebExchangeMatcher implements ServerWebExchangeMatcher {
 	private final ServerWebExchangeMatcher matcher;
