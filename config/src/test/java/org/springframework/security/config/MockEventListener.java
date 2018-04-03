@@ -24,7 +24,7 @@ import java.util.List;
 
 /**
  * @author Rob Winch
- * @since 5.0
+ * @since 5.0.2
  */
 public class MockEventListener<T extends ApplicationEvent>
 	implements ApplicationListener<T> {
