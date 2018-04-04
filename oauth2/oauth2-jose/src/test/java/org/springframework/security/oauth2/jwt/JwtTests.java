@@ -73,16 +73,6 @@ public class JwtTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void constructorWhenIssuedAtIsNullThenThrowIllegalArgumentException() {
-		new Jwt(JWT_TOKEN_VALUE, null, Instant.ofEpochMilli(EXP_VALUE), HEADERS, CLAIMS);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void constructorWhenExpiresAtIsNullThenThrowIllegalArgumentException() {
-		new Jwt(JWT_TOKEN_VALUE, Instant.ofEpochMilli(IAT_VALUE), null, HEADERS, CLAIMS);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
 	public void constructorWhenHeadersIsEmptyThenThrowIllegalArgumentException() {
 		new Jwt(JWT_TOKEN_VALUE, Instant.ofEpochMilli(IAT_VALUE),
 			Instant.ofEpochMilli(EXP_VALUE), Collections.emptyMap(), CLAIMS);

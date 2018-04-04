@@ -52,16 +52,6 @@ public class OAuth2AccessTokenTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void constructorWhenIssuedAtIsNullThenThrowIllegalArgumentException() {
-		new OAuth2AccessToken(TOKEN_TYPE, TOKEN_VALUE, null, EXPIRES_AT);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void constructorWhenExpiresAtIsNullThenThrowIllegalArgumentException() {
-		new OAuth2AccessToken(TOKEN_TYPE, TOKEN_VALUE, ISSUED_AT, null);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
 	public void constructorWhenIssuedAtAfterExpiresAtThenThrowIllegalArgumentException() {
 		new OAuth2AccessToken(TOKEN_TYPE, TOKEN_VALUE, Instant.from(EXPIRES_AT).plusSeconds(1), EXPIRES_AT);
 	}
