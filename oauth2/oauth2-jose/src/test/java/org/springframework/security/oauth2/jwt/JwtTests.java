@@ -106,7 +106,7 @@ public class JwtTests {
 		assertThat(jwt.getSubject()).isEqualTo(SUB_VALUE);
 		assertThat(jwt.getAudience()).isEqualTo(AUD_VALUE);
 		assertThat(jwt.getExpiresAt().toEpochMilli()).isEqualTo(EXP_VALUE);
-		assertThat(jwt.getNotBefore().toEpochMilli()).isEqualTo(NBF_VALUE);
+		assertThat(jwt.getNotBefore().getEpochSecond()).isEqualTo(NBF_VALUE);
 		assertThat(jwt.getIssuedAt().toEpochMilli()).isEqualTo(IAT_VALUE);
 		assertThat(jwt.getId()).isEqualTo(JTI_VALUE);
 	}

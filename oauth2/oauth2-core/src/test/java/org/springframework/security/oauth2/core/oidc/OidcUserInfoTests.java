@@ -137,6 +137,6 @@ public class OidcUserInfoTests {
 		assertThat(userInfo.getPhoneNumber()).isEqualTo(PHONE_NUMBER_VALUE);
 		assertThat(userInfo.getPhoneNumberVerified()).isEqualTo(PHONE_NUMBER_VERIFIED_VALUE);
 		assertThat(userInfo.getAddress()).isEqualTo(new DefaultAddressStandardClaim.Builder(ADDRESS_VALUE).build());
-		assertThat(userInfo.getUpdatedAt().toEpochMilli()).isEqualTo(UPDATED_AT_VALUE);
+		assertThat(userInfo.getUpdatedAt().getEpochSecond()).isEqualTo(UPDATED_AT_VALUE);
 	}
 }

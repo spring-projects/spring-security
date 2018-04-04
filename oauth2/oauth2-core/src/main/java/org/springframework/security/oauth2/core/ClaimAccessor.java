@@ -21,6 +21,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,11 +82,18 @@ public interface ClaimAccessor {
 		if (!this.containsClaim(claim)) {
 			return null;
 		}
-		try {
-			return Instant.ofEpochMilli(Long.valueOf(this.getClaimAsString(claim)));
-		} catch (NumberFormatException ex) {
-			throw new IllegalArgumentException("Unable to convert claim '" + claim + "' to Instant: " + ex.getMessage(), ex);
+		Object claimValue = this.getClaims().get(claim);
+		if (Long.class.isAssignableFrom(claimValue.getClass())) {
+			return Instant.ofEpochSecond((Long) claimValue);
 		}
+		if (Date.class.isAssignableFrom(claimValue.getClass())) {
+			return ((Date) claimValue).toInstant();
+		}
+		if (Instant.class.isAssignableFrom(claimValue.getClass())) {
+			return (Instant) claimValue;
+		}
+		throw new IllegalArgumentException("Unable to convert claim '" + claim +
+				"' of type '" + claimValue.getClass() + "' to Instant.");
 	}
 
 	/**
