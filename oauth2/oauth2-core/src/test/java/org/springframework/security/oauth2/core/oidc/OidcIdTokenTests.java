@@ -110,7 +110,7 @@ public class OidcIdTokenTests {
 		assertThat(idToken.getAudience()).isEqualTo(AUD_VALUE);
 		assertThat(idToken.getIssuedAt().toEpochMilli()).isEqualTo(IAT_VALUE);
 		assertThat(idToken.getExpiresAt().toEpochMilli()).isEqualTo(EXP_VALUE);
-		assertThat(idToken.getAuthenticatedAt().toEpochMilli()).isEqualTo(AUTH_TIME_VALUE);
+		assertThat(idToken.getAuthenticatedAt().getEpochSecond()).isEqualTo(AUTH_TIME_VALUE);
 		assertThat(idToken.getNonce()).isEqualTo(NONCE_VALUE);
 		assertThat(idToken.getAuthenticationContextClass()).isEqualTo(ACR_VALUE);
 		assertThat(idToken.getAuthenticationMethods()).isEqualTo(AMR_VALUE);
