@@ -103,12 +103,15 @@ public final class NimbusJwtDecoderJwkSupport implements JwtDecoder {
 			// Verify the signature
 			JWTClaimsSet jwtClaimsSet = this.jwtProcessor.process(parsedJwt, null);
 
-			Instant expiresAt = jwtClaimsSet.getExpirationTime().toInstant();
-			Instant issuedAt;
+			Instant expiresAt = null;
+			if (jwtClaimsSet.getExpirationTime() != null) {
+				expiresAt = jwtClaimsSet.getExpirationTime().toInstant();
+			}
+			Instant issuedAt = null;
 			if (jwtClaimsSet.getIssueTime() != null) {
 				issuedAt = jwtClaimsSet.getIssueTime().toInstant();
-			} else {
-				// issuedAt is required in AbstractOAuth2Token so let's default to expiresAt - 1 second
+			} else if (expiresAt != null) {
+				// Default to expiresAt - 1 second
 				issuedAt = Instant.from(expiresAt).minusSeconds(1);
 			}
 

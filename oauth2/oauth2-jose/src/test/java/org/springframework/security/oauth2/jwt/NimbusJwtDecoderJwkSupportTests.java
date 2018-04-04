@@ -15,36 +15,77 @@
  */
 package org.springframework.security.oauth2.jwt;
 
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jwt.JWT;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.JWTParser;
+import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.mock;
+import static org.powermock.api.mockito.PowerMockito.*;
 
 /**
  * Tests for {@link NimbusJwtDecoderJwkSupport}.
  *
  * @author Joe Grandja
  */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({NimbusJwtDecoderJwkSupport.class, JWTParser.class})
 public class NimbusJwtDecoderJwkSupportTests {
 	private static final String JWK_SET_URL = "https://provider.com/oauth2/keys";
 	private static final String JWS_ALGORITHM = JwsAlgorithms.RS256;
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenJwkSetUrlIsNullThenThrowIllegalArgumentException() {
-		new NimbusJwtDecoderJwkSupport(null);
+		assertThatThrownBy(() -> new NimbusJwtDecoderJwkSupport(null))
+				.isInstanceOf(IllegalArgumentException.class);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenJwkSetUrlInvalidThenThrowIllegalArgumentException() {
-		new NimbusJwtDecoderJwkSupport("invalid.com");
+		assertThatThrownBy(() -> new NimbusJwtDecoderJwkSupport("invalid.com"))
+				.isInstanceOf(IllegalArgumentException.class);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenJwsAlgorithmIsNullThenThrowIllegalArgumentException() {
-		new NimbusJwtDecoderJwkSupport(JWK_SET_URL, null);
+		assertThatThrownBy(() -> new NimbusJwtDecoderJwkSupport(JWK_SET_URL, null))
+				.isInstanceOf(IllegalArgumentException.class);
 	}
 
-	@Test(expected = JwtException.class)
+	@Test
 	public void decodeWhenJwtInvalidThenThrowJwtException() {
 		NimbusJwtDecoderJwkSupport jwtDecoder = new NimbusJwtDecoderJwkSupport(JWK_SET_URL, JWS_ALGORITHM);
-		jwtDecoder.decode("invalid");
+		assertThatThrownBy(() -> jwtDecoder.decode("invalid"))
+				.isInstanceOf(JwtException.class);
+	}
+
+	// gh-5168
+	@Test
+	public void decodeWhenExpClaimNullThenDoesNotThrowException() throws Exception {
+		JWT jwt = mock(JWT.class);
+		JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.parse(JWS_ALGORITHM)).build();
+		when(jwt.getHeader()).thenReturn(header);
+
+		mockStatic(JWTParser.class);
+		when(JWTParser.parse(anyString())).thenReturn(jwt);
+
+		DefaultJWTProcessor jwtProcessor = mock(DefaultJWTProcessor.class);
+		whenNew(DefaultJWTProcessor.class).withAnyArguments().thenReturn(jwtProcessor);
+
+		JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder().audience("resource1").build();
+		when(jwtProcessor.process(any(JWT.class), eq(null))).thenReturn(jwtClaimsSet);
+
+		NimbusJwtDecoderJwkSupport jwtDecoder = new NimbusJwtDecoderJwkSupport(JWK_SET_URL, JWS_ALGORITHM);
+		assertThatCode(() -> jwtDecoder.decode("encoded-jwt")).doesNotThrowAnyException();
 	}
 }

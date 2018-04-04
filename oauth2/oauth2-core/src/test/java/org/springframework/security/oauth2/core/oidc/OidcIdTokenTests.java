@@ -83,16 +83,6 @@ public class OidcIdTokenTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void constructorWhenIssuedAtIsNullThenThrowIllegalArgumentException() {
-		new OidcIdToken(ID_TOKEN_VALUE, null, Instant.ofEpochMilli(EXP_VALUE), CLAIMS);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void constructorWhenExpiresAtIsNullThenThrowIllegalArgumentException() {
-		new OidcIdToken(ID_TOKEN_VALUE, Instant.ofEpochMilli(IAT_VALUE), null, CLAIMS);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
 	public void constructorWhenClaimsIsEmptyThenThrowIllegalArgumentException() {
 		new OidcIdToken(ID_TOKEN_VALUE, Instant.ofEpochMilli(IAT_VALUE),
 			Instant.ofEpochMilli(EXP_VALUE), Collections.emptyMap());

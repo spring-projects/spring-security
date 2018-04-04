@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,14 +38,14 @@ public abstract class AbstractOAuth2Token implements Serializable {
 	 * Sub-class constructor.
 	 *
 	 * @param tokenValue the token value
-	 * @param issuedAt the time at which the token was issued
-	 * @param expiresAt the expiration time on or after which the token MUST NOT be accepted
+	 * @param issuedAt the time at which the token was issued, may be null
+	 * @param expiresAt the expiration time on or after which the token MUST NOT be accepted, may be null
 	 */
 	protected AbstractOAuth2Token(String tokenValue, Instant issuedAt, Instant expiresAt) {
 		Assert.hasText(tokenValue, "tokenValue cannot be empty");
-		Assert.notNull(issuedAt, "issuedAt cannot be null");
-		Assert.notNull(expiresAt, "expiresAt cannot be null");
-		Assert.isTrue(expiresAt.isAfter(issuedAt), "expiresAt must be after issuedAt");
+		if (issuedAt != null && expiresAt != null) {
+			Assert.isTrue(expiresAt.isAfter(issuedAt), "expiresAt must be after issuedAt");
+		}
 		this.tokenValue = tokenValue;
 		this.issuedAt = issuedAt;
 		this.expiresAt = expiresAt;
@@ -63,7 +63,7 @@ public abstract class AbstractOAuth2Token implements Serializable {
 	/**
 	 * Returns the time at which the token was issued.
 	 *
-	 * @return the time the token was issued
+	 * @return the time the token was issued or null
 	 */
 	public Instant getIssuedAt() {
 		return this.issuedAt;
@@ -72,7 +72,7 @@ public abstract class AbstractOAuth2Token implements Serializable {
 	/**
 	 * Returns the expiration time on or after which the token MUST NOT be accepted.
 	 *
-	 * @return the expiration time of the token
+	 * @return the expiration time of the token or null
 	 */
 	public Instant getExpiresAt() {
 		return this.expiresAt;
@@ -92,17 +92,17 @@ public abstract class AbstractOAuth2Token implements Serializable {
 		if (!this.getTokenValue().equals(that.getTokenValue())) {
 			return false;
 		}
-		if (!this.getIssuedAt().equals(that.getIssuedAt())) {
+		if (this.getIssuedAt() != null ? !this.getIssuedAt().equals(that.getIssuedAt()) : that.getIssuedAt() != null) {
 			return false;
 		}
-		return this.getExpiresAt().equals(that.getExpiresAt());
+		return this.getExpiresAt() != null ? this.getExpiresAt().equals(that.getExpiresAt()) : that.getExpiresAt() == null;
 	}
 
 	@Override
 	public int hashCode() {
 		int result = this.getTokenValue().hashCode();
-		result = 31 * result + this.getIssuedAt().hashCode();
-		result = 31 * result + this.getExpiresAt().hashCode();
+		result = 31 * result + (this.getIssuedAt() != null ? this.getIssuedAt().hashCode() : 0);
+		result = 31 * result + (this.getExpiresAt() != null ? this.getExpiresAt().hashCode() : 0);
 		return result;
 	}
 }
