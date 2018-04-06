@@ -87,7 +87,7 @@ public class JdbcAclService implements AclService {
 	// ========================================================================================================
 
 	public List<ObjectIdentity> findChildren(ObjectIdentity parentIdentity) {
-		Object[] args = { parentIdentity.getIdentifier(), parentIdentity.getType() };
+		Object[] args = { parentIdentity.getIdentifier().toString(), parentIdentity.getType() };
 		List<ObjectIdentity> objects = jdbcTemplate.query(findChildrenSql, args,
 				new RowMapper<ObjectIdentity>() {
 					public ObjectIdentity mapRow(ResultSet rs, int rowNum)

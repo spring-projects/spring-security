@@ -170,7 +170,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 	protected void createObjectIdentity(ObjectIdentity object, Sid owner) {
 		Long sidId = createOrRetrieveSidPrimaryKey(owner, true);
 		Long classId = createOrRetrieveClassPrimaryKey(object.getType(), true, object.getIdentifier().getClass());
-		jdbcTemplate.update(insertObjectIdentity, classId, object.getIdentifier(), sidId,
+		jdbcTemplate.update(insertObjectIdentity, classId, object.getIdentifier().toString(), sidId,
 				Boolean.TRUE);
 	}
 
@@ -340,7 +340,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 	protected Long retrieveObjectIdentityPrimaryKey(ObjectIdentity oid) {
 		try {
 			return jdbcTemplate.queryForObject(selectObjectIdentityPrimaryKey, Long.class,
-					oid.getType(), oid.getIdentifier());
+					oid.getType(), oid.getIdentifier().toString());
 		}
 		catch (DataAccessException notFound) {
 			return null;
