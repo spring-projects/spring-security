@@ -25,6 +25,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.security.access.intercept.AbstractSecurityInterceptor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.CredentialsContainer;
@@ -187,22 +188,6 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 			catch (InternalAuthenticationServiceException e) {
 				prepareException(e, authentication);
 				throw e;
-			}
-			catch (AuthenticationException e) {
-				lastException = e;
-			}
-		}
-
-		if (result == null && parent != null) {
-			// Allow the parent to try.
-			try {
-				result = parent.authenticate(authentication);
-			}
-			catch (ProviderNotFoundException e) {
-				// ignore as we will throw below if no other exception occurred prior to
-				// calling parent and the parent
-				// may throw ProviderNotFound even though a provider in the child already
-				// handled the request
 			}
 			catch (AuthenticationException e) {
 				lastException = e;
