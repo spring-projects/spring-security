@@ -67,6 +67,7 @@ public final class CsrfFilter extends OncePerRequestFilter {
 	private final CsrfTokenRepository tokenRepository;
 	private RequestMatcher requireCsrfProtectionMatcher = DEFAULT_CSRF_MATCHER;
 	private AccessDeniedHandler accessDeniedHandler = new AccessDeniedHandlerImpl();
+	private final Object writeLock = new Object();
 
 	public CsrfFilter(CsrfTokenRepository csrfTokenRepository) {
 		Assert.notNull(csrfTokenRepository, "csrfTokenRepository cannot be null");
@@ -87,14 +88,18 @@ public final class CsrfFilter extends OncePerRequestFilter {
 					throws ServletException, IOException {
 		request.setAttribute(HttpServletResponse.class.getName(), response);
 
-		CsrfToken csrfToken = this.tokenRepository.loadToken(request);
-		final boolean missingToken = csrfToken == null;
-		if (missingToken) {
-			csrfToken = this.tokenRepository.generateToken(request);
-			this.tokenRepository.saveToken(csrfToken, request, response);
+		CsrfToken csrfToken;
+		boolean missingToken;
+		synchronized (writeLock) {
+			csrfToken = this.tokenRepository.loadToken(request);
+			missingToken = csrfToken == null;
+			if (missingToken) {
+				csrfToken = this.tokenRepository.generateToken(request);
+				this.tokenRepository.saveToken(csrfToken, request, response);
+			}
+			request.setAttribute(CsrfToken.class.getName(), csrfToken);
+			request.setAttribute(csrfToken.getParameterName(), csrfToken);
 		}
-		request.setAttribute(CsrfToken.class.getName(), csrfToken);
-		request.setAttribute(csrfToken.getParameterName(), csrfToken);
 
 		if (!this.requireCsrfProtectionMatcher.matches(request)) {
 			filterChain.doFilter(request, response);
