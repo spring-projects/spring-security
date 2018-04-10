@@ -29,6 +29,7 @@ import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.util.ThrowableAnalyzer;
+import org.springframework.security.web.util.UrlUtils;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -254,23 +255,15 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 	}
 
 	private String expandRedirectUri(HttpServletRequest request, ClientRegistration clientRegistration) {
-		int port = request.getServerPort();
-		if (("http".equals(request.getScheme()) && port == 80) || ("https".equals(request.getScheme()) && port == 443)) {
-			port = -1;		// Removes the port in UriComponentsBuilder
-		}
-
 		// Supported URI variables -> baseUrl, action, registrationId
 		// Used in -> CommonOAuth2Provider.DEFAULT_REDIRECT_URL = "{baseUrl}/{action}/oauth2/code/{registrationId}"
 		Map<String, String> uriVariables = new HashMap<>();
 		uriVariables.put("registrationId", clientRegistration.getRegistrationId());
 
-		String baseUrl = UriComponentsBuilder.newInstance()
-			.scheme(request.getScheme())
-			.host(request.getServerName())
-			.port(port)
-			.path(request.getContextPath())
-			.build()
-			.toUriString();
+		String baseUrl = UriComponentsBuilder.fromHttpUrl(UrlUtils.buildFullRequestUrl(request))
+				.replacePath(request.getContextPath())
+				.build()
+				.toUriString();
 		uriVariables.put("baseUrl", baseUrl);
 
 		if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(clientRegistration.getAuthorizationGrantType())) {
