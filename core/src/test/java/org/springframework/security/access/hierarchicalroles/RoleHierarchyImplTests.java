@@ -210,7 +210,7 @@ public class RoleHierarchyImplTests {
 						roleHierarchyImpl.getReachableGrantedAuthorities(authorities2),
 						authorities2)).isTrue();
 	}
-	
+
 	@Test
 	public void testWhitespaceRoleHierarchies() {
 		List<GrantedAuthority> authorities1 = AuthorityUtils.createAuthorityList(
