@@ -15,6 +15,9 @@
  */
 package org.springframework.security.access.hierarchicalroles;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -22,12 +25,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -176,32 +176,31 @@ public class RoleHierarchyImpl implements RoleHierarchy {
 	 * will become a key that references a set of the reachable lower roles.
 	 */
 	private void buildRolesReachableInOneStepMap() {
-		Pattern pattern = Pattern.compile("(\\s*([^\\s>]+)\\s*>\\s*([^\\s>]+))");
-
-		Matcher roleHierarchyMatcher = pattern
-				.matcher(this.roleHierarchyStringRepresentation);
 		this.rolesReachableInOneStepMap = new HashMap<GrantedAuthority, Set<GrantedAuthority>>();
-
-		while (roleHierarchyMatcher.find()) {
-			GrantedAuthority higherRole = new SimpleGrantedAuthority(
-					roleHierarchyMatcher.group(2));
-			GrantedAuthority lowerRole = new SimpleGrantedAuthority(
-					roleHierarchyMatcher.group(3));
-			Set<GrantedAuthority> rolesReachableInOneStepSet;
-
-			if (!this.rolesReachableInOneStepMap.containsKey(higherRole)) {
-				rolesReachableInOneStepSet = new HashSet<>();
-				this.rolesReachableInOneStepMap.put(higherRole,
-						rolesReachableInOneStepSet);
+		try (BufferedReader bufferedReader = new BufferedReader(
+				new StringReader(this.roleHierarchyStringRepresentation))) {
+			for (String readLine; (readLine = bufferedReader.readLine()) != null;) {
+				String[] roles = readLine.split(" > ");
+				for (int i = 1; i < roles.length; i++) {
+					GrantedAuthority higherRole = new SimpleGrantedAuthority(
+							roles[i - 1].replaceAll("^\\s+|\\s+$", ""));
+					GrantedAuthority lowerRole = new SimpleGrantedAuthority(roles[i].replaceAll("^\\s+|\\s+$", ""));
+					Set<GrantedAuthority> rolesReachableInOneStepSet;
+					if (!this.rolesReachableInOneStepMap.containsKey(higherRole)) {
+						rolesReachableInOneStepSet = new HashSet<GrantedAuthority>();
+						this.rolesReachableInOneStepMap.put(higherRole, rolesReachableInOneStepSet);
+					} else {
+						rolesReachableInOneStepSet = this.rolesReachableInOneStepMap.get(higherRole);
+					}
+					addReachableRoles(rolesReachableInOneStepSet, lowerRole);
+					if (logger.isDebugEnabled()) {
+						logger.debug("buildRolesReachableInOneStepMap() - From role " + higherRole
+								+ " one can reach role " + lowerRole + " in one step.");
+					}
+				}
 			}
-			else {
-				rolesReachableInOneStepSet = this.rolesReachableInOneStepMap
-						.get(higherRole);
-			}
-			addReachableRoles(rolesReachableInOneStepSet, lowerRole);
-
-			logger.debug("buildRolesReachableInOneStepMap() - From role " + higherRole
-					+ " one can reach role " + lowerRole + " in one step.");
+		} catch (IOException e) {
+			throw new IllegalStateException(e);
 		}
 	}
 
