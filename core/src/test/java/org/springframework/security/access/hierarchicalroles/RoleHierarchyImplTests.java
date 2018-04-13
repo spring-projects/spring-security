@@ -210,4 +210,27 @@ public class RoleHierarchyImplTests {
 						roleHierarchyImpl.getReachableGrantedAuthorities(authorities2),
 						authorities2)).isTrue();
 	}
+	
+	@Test
+	public void testWhitespaceRoleHierarchies() {
+		List<GrantedAuthority> authorities1 = AuthorityUtils.createAuthorityList(
+				"ROLE A");
+		List<GrantedAuthority> authorities2 = AuthorityUtils.createAuthorityList("ROLE A",
+				"ROLE B", "ROLE>C");
+		List<GrantedAuthority> authorities3 = AuthorityUtils.createAuthorityList("ROLE A",
+				"ROLE B", "ROLE>C", "ROLE D");
+
+		RoleHierarchyImpl roleHierarchyImpl = new RoleHierarchyImpl();
+
+		roleHierarchyImpl.setHierarchy("ROLE A > ROLE B\nROLE B > ROLE>C");
+		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
+				roleHierarchyImpl.getReachableGrantedAuthorities(authorities1),
+				authorities2)).isTrue();
+
+		roleHierarchyImpl.setHierarchy(
+				"ROLE A > ROLE B\nROLE B > ROLE>C\nROLE>C > ROLE D");
+		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
+				roleHierarchyImpl.getReachableGrantedAuthorities(authorities1),
+				authorities3)).isTrue();
+	}
 }
