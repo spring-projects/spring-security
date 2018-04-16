@@ -297,6 +297,30 @@ public class StrictHttpFirewallTests {
 		this.firewall.getFirewalledRequest(this.request);
 	}
 
+	@Test(expected = RequestRejectedException.class)
+	public void getFirewalledRequestWhenExceedsLowerboundAsciiThenException() {
+		this.request.setRequestURI("/\u0019");
+		this.firewall.getFirewalledRequest(this.request);
+	}
+
+	@Test
+	public void getFirewalledRequestWhenContainsLowerboundAsciiThenNoException() {
+		this.request.setRequestURI("/ ");
+		this.firewall.getFirewalledRequest(this.request);
+	}
+
+	@Test
+	public void getFirewalledRequestWhenContainsUpperboundAsciiThenNoException() {
+		this.request.setRequestURI("/~");
+		this.firewall.getFirewalledRequest(this.request);
+	}
+
+	@Test(expected = RequestRejectedException.class)
+	public void getFirewalledRequestWhenExceedsUpperboundAsciiThenException() {
+		this.request.setRequestURI("/\u007f");
+		this.firewall.getFirewalledRequest(this.request);
+	}
+
 	// --- from DefaultHttpFirewallTests ---
 
 	/**

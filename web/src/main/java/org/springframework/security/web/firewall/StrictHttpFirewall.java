@@ -314,7 +314,7 @@ public class StrictHttpFirewall implements HttpFirewall {
 		int length = uri.length();
 		for (int i = 0; i < length; i++) {
 			char c = uri.charAt(i);
-			if (c < '\u0021' || '\u007e' < c) {
+			if (c < '\u0020' || c > '\u007e') {
 				return false;
 			}
 		}
