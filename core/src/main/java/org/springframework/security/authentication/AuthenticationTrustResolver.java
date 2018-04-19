@@ -39,9 +39,26 @@ public interface AuthenticationTrustResolver {
 	 * will always return <code>false</code>)
 	 *
 	 * @return <code>true</code> the passed authentication token represented an anonymous
-	 * principal, <code>false</code> otherwise
+	 * principal or in the middle of multi factor authentication process,
+	 * <code>false</code> otherwise
 	 */
 	boolean isAnonymous(Authentication authentication);
+
+
+	/**
+	 * Indicates whether the passed <code>Authentication</code> token represents a
+	 * fully anonymous user (not authenticated and also not in the middle of multi factor
+	 * authentication process.
+	 * The method is provided to distinguish fully anonymous principal from the principal
+	 * which has passed the first step of multi step (factor) authentication.
+	 *
+	 * @param authentication to test (may be <code>null</code> in which case the method
+	 * will always return <code>false</code>)
+	 *
+	 * @return <code>true</code> the passed authentication token represented an anonymous
+	 * principal, <code>false</code> otherwise
+	 */
+	boolean isFullyAnonymous(Authentication authentication);
 
 	/**
 	 * Indicates whether the passed <code>Authentication</code> token represents user that

@@ -36,8 +36,21 @@ public class AuthenticationTrustResolverImplTests {
 		AuthenticationTrustResolverImpl trustResolver = new AuthenticationTrustResolverImpl();
 		assertThat(trustResolver.isAnonymous(new AnonymousAuthenticationToken("ignored",
 				"ignored", AuthorityUtils.createAuthorityList("ignored")))).isTrue();
+		assertThat(trustResolver.isAnonymous(new FirstOfMultiFactorAuthenticationToken("ignored",
+			"ignored", AuthorityUtils.createAuthorityList("ignored")))).isTrue();
 		assertThat(trustResolver.isAnonymous(new TestingAuthenticationToken("ignored",
 				"ignored", AuthorityUtils.createAuthorityList("ignored")))).isFalse();
+	}
+
+	@Test
+	public void testCorrectOperationIsFullyAnonymous() {
+		AuthenticationTrustResolverImpl trustResolver = new AuthenticationTrustResolverImpl();
+		assertThat(trustResolver.isFullyAnonymous(new AnonymousAuthenticationToken("ignored",
+			"ignored", AuthorityUtils.createAuthorityList("ignored")))).isTrue();
+		assertThat(trustResolver.isFullyAnonymous(new FirstOfMultiFactorAuthenticationToken("ignored",
+			"ignored", AuthorityUtils.createAuthorityList("ignored")))).isFalse();
+		assertThat(trustResolver.isFullyAnonymous(new TestingAuthenticationToken("ignored",
+			"ignored", AuthorityUtils.createAuthorityList("ignored")))).isFalse();
 	}
 
 	@Test

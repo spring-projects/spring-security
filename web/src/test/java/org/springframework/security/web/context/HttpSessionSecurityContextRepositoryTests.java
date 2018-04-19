@@ -592,7 +592,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 
 		repo.saveContext(contextToSave, holder.getRequest(), holder.getResponse());
 
-		verify(trustResolver).isAnonymous(contextToSave.getAuthentication());
+		verify(trustResolver).isFullyAnonymous(contextToSave.getAuthentication());
 	}
 
 	@Test(expected = IllegalArgumentException.class)
