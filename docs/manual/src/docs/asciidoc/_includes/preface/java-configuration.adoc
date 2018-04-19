@@ -167,12 +167,6 @@ The Java Configuration equivalent of closing an XML tag is expressed using the `
 If you read the code it also makes sense.
 I want to configure authorized requests __and__ configure form login __and__ configure HTTP Basic authentication.
 
-However, Java Configuration has different defaults URLs and parameters.
-Keep this in mind when creating custom login pages.
-The result is that our URLs are more RESTful.
-Additionally, it is not quite so obvious we are using Spring Security which helps to prevent https://www.owasp.org/index.php/Information_Leak_(information_disclosure)[information leaks].
-For example:
-
 [[jc-form]]
 === Java Configuration and Form Login
 You might be wondering where the login form came from when you were prompted to log in, since we made no mention of any HTML files or JSPs.
