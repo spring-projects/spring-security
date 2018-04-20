@@ -15,8 +15,7 @@
  */
 package org.springframework.security.config.annotation.web.configurers;
 
-import java.util.LinkedHashMap;
-
+import org.springframework.security.authentication.MFATokenEvaluator;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -29,6 +28,8 @@ import org.springframework.security.web.authentication.Http403ForbiddenEntryPoin
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+
+import java.util.LinkedHashMap;
 
 /**
  * Adds exception handling for Spring Security related exceptions to an application. All
@@ -66,6 +67,8 @@ public final class ExceptionHandlingConfigurer<H extends HttpSecurityBuilder<H>>
 		AbstractHttpConfigurer<ExceptionHandlingConfigurer<H>, H> {
 
 	private AuthenticationEntryPoint authenticationEntryPoint;
+
+	private MFATokenEvaluator mfaTokenEvaluator;
 
 	private AccessDeniedHandler accessDeniedHandler;
 
@@ -152,6 +155,18 @@ public final class ExceptionHandlingConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
+	 * Specifies the {@link MFATokenEvaluator} to be used
+	 *
+	 * @param mfaTokenEvaluator the {@link MFATokenEvaluator} to be used
+	 * @return the {@link ExceptionHandlingConfigurer} for further customization
+	 */
+	public ExceptionHandlingConfigurer<H> mfaTokenEvaluator(
+			MFATokenEvaluator mfaTokenEvaluator) {
+		this.mfaTokenEvaluator = mfaTokenEvaluator;
+		return this;
+	}
+
+	/**
 	 * Sets a default {@link AuthenticationEntryPoint} to be used which prefers being
 	 * invoked for the provided {@link RequestMatcher}. If only a single default
 	 * {@link AuthenticationEntryPoint} is specified, it will be what is used for the
@@ -194,6 +209,9 @@ public final class ExceptionHandlingConfigurer<H extends HttpSecurityBuilder<H>>
 				entryPoint, getRequestCache(http));
 		AccessDeniedHandler deniedHandler = getAccessDeniedHandler(http);
 		exceptionTranslationFilter.setAccessDeniedHandler(deniedHandler);
+		if (mfaTokenEvaluator != null) {
+			exceptionTranslationFilter.setMFATokenEvaluator(mfaTokenEvaluator);
+		}
 		exceptionTranslationFilter = postProcess(exceptionTranslationFilter);
 		http.addFilter(exceptionTranslationFilter);
 	}

@@ -43,6 +43,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.MultiFactorAuthenticationToken;
 import org.springframework.security.authentication.RememberMeAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
@@ -110,6 +111,40 @@ public class ExceptionTranslationFilterTests {
 		assertThat(response.getRedirectedUrl()).isEqualTo("/mycontext/login.jsp");
 		assertThat(getSavedRequestUrl(request)).isEqualTo("http://localhost/mycontext/secure/page.html");
 	}
+
+	@Test
+	public void testAccessDeniedWhenMultiFactorAuthentication() throws Exception {
+		// Setup our HTTP request
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setServletPath("/secure/page.html");
+		request.setServerPort(80);
+		request.setScheme("http");
+		request.setServerName("www.example.com");
+		request.setContextPath("/mycontext");
+		request.setRequestURI("/mycontext/secure/page.html");
+
+		// Setup the FilterChain to thrown an access denied exception
+		FilterChain fc = mock(FilterChain.class);
+		doThrow(new AccessDeniedException("")).when(fc).doFilter(
+			any(HttpServletRequest.class), any(HttpServletResponse.class));
+
+		// Setup SecurityContextHolder, as filter needs to check if user is
+		// anonymous
+		SecurityContextHolder.getContext().setAuthentication(
+			new MultiFactorAuthenticationToken("ignored", "ignored", AuthorityUtils
+				.createAuthorityList("IGNORED")));
+
+		// Test
+		ExceptionTranslationFilter filter = new ExceptionTranslationFilter(mockEntryPoint);
+		filter.setAuthenticationTrustResolver(new AuthenticationTrustResolverImpl());
+		assertThat(filter.getAuthenticationTrustResolver()).isNotNull();
+
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		filter.doFilter(request, response, fc);
+		assertThat(response.getRedirectedUrl()).isEqualTo("/mycontext/login.jsp");
+		assertThat(getSavedRequestUrl(request)).isEqualTo("http://www.example.com/mycontext/secure/page.html");
+	}
+
 
 	@Test
 	public void testAccessDeniedWithRememberMe() throws Exception {

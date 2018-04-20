@@ -29,6 +29,8 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
+import org.springframework.security.authentication.MFATokenEvaluator;
+import org.springframework.security.authentication.MFATokenEvaluatorImpl;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.Transient;
 import org.springframework.security.core.context.SecurityContext;
@@ -97,6 +99,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 	private String springSecurityContextKey = SPRING_SECURITY_CONTEXT_KEY;
 
 	private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
+	private MFATokenEvaluator mfaTokenEvaluator = new MFATokenEvaluatorImpl();
 
 	/**
 	 * Gets the security context for the current request (if available) and returns it.
@@ -331,8 +334,8 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 		/**
 		 * Stores the supplied security context in the session (if available) and if it
 		 * has changed since it was set at the start of the request. If the
-		 * AuthenticationTrustResolver identifies the current user as anonymous, then the
-		 * context will not be stored.
+		 * AuthenticationTrustResolver identifies the current user as anonymous, but not
+		 * in the middle of multi factor authentication, then the context will not be stored.
 		 *
 		 * @param context the context object obtained from the SecurityContextHolder after
 		 * the request has been processed by the filter chain.
@@ -346,7 +349,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 			HttpSession httpSession = request.getSession(false);
 
 			// See SEC-776
-			if (authentication == null || trustResolver.isAnonymous(authentication)) {
+			if (authentication == null || trustResolver.isAnonymous(authentication) && !mfaTokenEvaluator.isMultiFactorAuthentication(authentication)) {
 				if (logger.isDebugEnabled()) {
 					logger.debug("SecurityContext is empty or contents are anonymous - context will not be stored in HttpSession.");
 				}
@@ -454,5 +457,17 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 	public void setTrustResolver(AuthenticationTrustResolver trustResolver) {
 		Assert.notNull(trustResolver, "trustResolver cannot be null");
 		this.trustResolver = trustResolver;
+	}
+
+	/**
+	 * Sets the {@link MFATokenEvaluator} to be used. The default is
+	 * {@link MFATokenEvaluatorImpl}.
+	 *
+	 * @param mfaTokenEvaluator the {@link MFATokenEvaluator} to use. Cannot be
+	 * null.
+	 */
+	public void setMFATokenEvaluator(MFATokenEvaluator mfaTokenEvaluator) {
+		Assert.notNull(mfaTokenEvaluator, "mfaTokenEvaluator cannot be null");
+		this.mfaTokenEvaluator = mfaTokenEvaluator;
 	}
 }

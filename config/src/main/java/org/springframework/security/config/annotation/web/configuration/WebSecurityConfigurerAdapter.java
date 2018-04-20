@@ -40,6 +40,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
+import org.springframework.security.authentication.MFATokenEvaluator;
+import org.springframework.security.authentication.MFATokenEvaluatorImpl;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -113,6 +115,7 @@ public abstract class WebSecurityConfigurerAdapter implements
 	private boolean authenticationManagerInitialized;
 	private AuthenticationManager authenticationManager;
 	private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
+	private MFATokenEvaluator mfaTokenEvaluator = new MFATokenEvaluatorImpl();
 	private HttpSecurity http;
 	private boolean disableDefaults;
 
@@ -391,6 +394,11 @@ public abstract class WebSecurityConfigurerAdapter implements
 	}
 
 	@Autowired(required = false)
+	public void setMfaTokenEvaluator(MFATokenEvaluator mfaTokenEvaluator){
+		this.mfaTokenEvaluator = mfaTokenEvaluator;
+	}
+
+	@Autowired(required = false)
 	public void setContentNegotationStrategy(
 			ContentNegotiationStrategy contentNegotiationStrategy) {
 		this.contentNegotiationStrategy = contentNegotiationStrategy;
@@ -419,6 +427,7 @@ public abstract class WebSecurityConfigurerAdapter implements
 		sharedObjects.put(ApplicationContext.class, context);
 		sharedObjects.put(ContentNegotiationStrategy.class, contentNegotiationStrategy);
 		sharedObjects.put(AuthenticationTrustResolver.class, trustResolver);
+		sharedObjects.put(MFATokenEvaluator.class, mfaTokenEvaluator);
 		return sharedObjects;
 	}
 

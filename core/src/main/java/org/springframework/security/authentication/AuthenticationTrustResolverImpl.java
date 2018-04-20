@@ -36,6 +36,8 @@ public class AuthenticationTrustResolverImpl implements AuthenticationTrustResol
 	private Class<? extends Authentication> anonymousClass = AnonymousAuthenticationToken.class;
 	private Class<? extends Authentication> rememberMeClass = RememberMeAuthenticationToken.class;
 
+	private MFATokenEvaluator mfaTokenEvaluator = new MFATokenEvaluatorImpl();
+
 	// ~ Methods
 	// ========================================================================================================
 
@@ -50,6 +52,10 @@ public class AuthenticationTrustResolverImpl implements AuthenticationTrustResol
 	public boolean isAnonymous(Authentication authentication) {
 		if ((anonymousClass == null) || (authentication == null)) {
 			return false;
+		}
+
+		if (mfaTokenEvaluator != null && mfaTokenEvaluator.isMultiFactorAuthentication(authentication)) {
+			return true;
 		}
 
 		return anonymousClass.isAssignableFrom(authentication.getClass());
@@ -69,5 +75,9 @@ public class AuthenticationTrustResolverImpl implements AuthenticationTrustResol
 
 	public void setRememberMeClass(Class<? extends Authentication> rememberMeClass) {
 		this.rememberMeClass = rememberMeClass;
+	}
+
+	public void setMFATokenEvaluator(MFATokenEvaluator mfaTokenEvaluator){
+		this.mfaTokenEvaluator = mfaTokenEvaluator;
 	}
 }
