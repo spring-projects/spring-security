@@ -26,6 +26,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.GenericApplicationListenerAdapter;
 import org.springframework.context.event.SmartApplicationListener;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.authentication.MFATokenEvaluator;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -424,6 +425,11 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 						.getSharedObject(AuthenticationTrustResolver.class);
 				if (trustResolver != null) {
 					httpSecurityRepository.setTrustResolver(trustResolver);
+				}
+				MFATokenEvaluator mfaTokenEvaluator = http
+						.getSharedObject(MFATokenEvaluator.class);
+				if(mfaTokenEvaluator != null){
+					httpSecurityRepository.setMFATokenEvaluator(mfaTokenEvaluator);
 				}
 				http.setSharedObject(SecurityContextRepository.class,
 						httpSecurityRepository);
