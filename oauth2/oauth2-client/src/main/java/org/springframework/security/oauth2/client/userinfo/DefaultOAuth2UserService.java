@@ -15,22 +15,16 @@
  */
 package org.springframework.security.oauth2.client.userinfo;
 
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
-import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -53,13 +47,9 @@ import java.util.Set;
  * @see DefaultOAuth2User
  * @since 5.0
  */
-public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
+public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User>,UserAttributesService {
 	private static final String MISSING_USER_INFO_URI_ERROR_CODE = "missing_user_info_uri";
 	private static final String MISSING_USER_NAME_ATTRIBUTE_ERROR_CODE = "missing_user_name_attribute";
-	private static final String INVALID_USER_INFO_RESPONSE_ERROR_CODE = "invalid_user_info_response";
-
-	private static final ParameterizedTypeReference<Map<String, Object>> typeReference = new ParameterizedTypeReference<Map<String, Object>>() {
-	};
 
 	private final RestTemplate restTemplate;
 
@@ -94,33 +84,15 @@ public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2UserReq
 			);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 		}
-		String userInfoUri = clientRegistration.getProviderDetails().getUserInfoEndpoint().getUri();
-		OAuth2AccessTokenResponse accessTokenResponse = userRequest.getAccessTokenResponse();
-		Map<String, Object> parameters = accessTokenResponse.getAdditionalParameters();
-		Map<String, Object> userAttributes;
-		if (!StringUtils.isEmpty(userInfoUri) && restTemplate != null) {
-			String url = UriComponentsBuilder.fromHttpUrl(userInfoUri)
-					.queryParam("access_token", accessTokenResponse.getAccessToken().getTokenValue())
-					.buildAndExpand(parameters).toString();
-			ResponseEntity<Map<String, Object>> resp = restTemplate.exchange(url, HttpMethod.GET, null, typeReference);
-			if (HttpStatus.OK.equals(resp.getStatusCode())) {
-				userAttributes = resp.getBody();
-			} else {
-				OAuth2Error oauth2Error = new OAuth2Error(
-						INVALID_USER_INFO_RESPONSE_ERROR_CODE,
-						"An error occurred while sending the UserInfo Request for Client Registration: " +
-								userRequest.getClientRegistration().getRegistrationId() +
-								" Status Code:" + resp.getStatusCodeValue(),
-						null
-				);
-				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
-			}
-		} else {
-			userAttributes = parameters;
-		}
+		Map<String, Object> userAttributes = getUserAttributes(clientRegistration, userRequest.getAccessTokenResponse());
 		GrantedAuthority authority = new OAuth2UserAuthority(userAttributes);
 		Set<GrantedAuthority> authorities = new HashSet<>();
 		authorities.add(authority);
 		return new DefaultOAuth2User(authorities, userAttributes, userNameAttributeName);
+	}
+
+	@Override
+	public RestTemplate getRestTemplate() {
+		return restTemplate;
 	}
 }

@@ -27,7 +27,6 @@ import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
-import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
@@ -142,8 +141,6 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 					authorizationCodeAuthentication.getClientRegistration(),
 					authorizationCodeAuthentication.getAuthorizationExchange()));
 
-		OAuth2AccessToken accessToken = accessTokenResponse.getAccessToken();
-
 		ClientRegistration clientRegistration = authorizationCodeAuthentication.getClientRegistration();
 
 		if (!accessTokenResponse.getAdditionalParameters().containsKey(OidcParameterNames.ID_TOKEN)) {
@@ -161,7 +158,7 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 		this.validateIdToken(idToken, clientRegistration);
 
 		OidcUser oidcUser = this.userService.loadUser(
-			new OidcUserRequest(clientRegistration, accessToken, idToken));
+			new OidcUserRequest(clientRegistration,accessTokenResponse, idToken));
 
 		Collection<? extends GrantedAuthority> mappedAuthorities =
 			this.authoritiesMapper.mapAuthorities(oidcUser.getAuthorities());
@@ -171,7 +168,7 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 			authorizationCodeAuthentication.getAuthorizationExchange(),
 			oidcUser,
 			mappedAuthorities,
-			accessToken);
+				accessTokenResponse.getAccessToken());
 		authenticationResult.setDetails(authorizationCodeAuthentication.getDetails());
 
 		return authenticationResult;

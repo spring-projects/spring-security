@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.client.oidc.userinfo;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.util.Assert;
 
@@ -39,13 +40,13 @@ public class OidcUserRequest extends OAuth2UserRequest {
 	 * Constructs an {@code OidcUserRequest} using the provided parameters.
 	 *
 	 * @param clientRegistration the client registration
-	 * @param accessToken the access token credential
+	 * @param accessTokenResponse the access token response
 	 * @param idToken the ID Token
 	 */
 	public OidcUserRequest(ClientRegistration clientRegistration,
-							OAuth2AccessToken accessToken, OidcIdToken idToken) {
+						   OAuth2AccessTokenResponse accessTokenResponse, OidcIdToken idToken) {
 
-		super(clientRegistration, accessToken);
+		super(clientRegistration, accessTokenResponse);
 		Assert.notNull(idToken, "idToken cannot be null");
 		this.idToken = idToken;
 	}
