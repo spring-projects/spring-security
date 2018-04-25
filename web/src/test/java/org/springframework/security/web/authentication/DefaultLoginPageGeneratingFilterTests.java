@@ -15,15 +15,6 @@
  */
 package org.springframework.security.web.authentication;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-
-import java.util.Locale;
-
-import javax.servlet.FilterChain;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.junit.Test;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -34,6 +25,15 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
+
+import javax.servlet.FilterChain;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Collections;
+import java.util.Locale;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 /**
  *
@@ -114,6 +114,17 @@ public class DefaultLoginPageGeneratingFilterTests {
 		filter.doFilter(request, response, chain);
 
 		assertThat(response.getContentAsString()).isNotEmpty();
+	}
+
+	@Test
+	public void generatesForWithContentLength() throws Exception {
+		DefaultLoginPageGeneratingFilter filter = new DefaultLoginPageGeneratingFilter(new UsernamePasswordAuthenticationFilter());
+		filter.setOauth2LoginEnabled(true);
+		filter.setOauth2AuthenticationUrlToClientName(Collections.singletonMap("XYUU","\u8109\u640F\u7F51\u5E10\u6237\u767B\u5F55"));
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/login");
+		filter.doFilter(request, response, chain);
+		assertThat(response.getContentLength()==response.getContentAsString().getBytes(response.getCharacterEncoding()).length).isTrue();
 	}
 
 	@Test
