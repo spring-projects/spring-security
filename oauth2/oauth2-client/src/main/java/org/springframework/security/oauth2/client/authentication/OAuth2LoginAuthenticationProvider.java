@@ -24,7 +24,6 @@ import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResp
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
-import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.Assert;
@@ -100,10 +99,8 @@ public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider
 					authorizationCodeAuthentication.getClientRegistration(),
 					authorizationCodeAuthentication.getAuthorizationExchange()));
 
-		OAuth2AccessToken accessToken = accessTokenResponse.getAccessToken();
-
 		OAuth2User oauth2User = this.userService.loadUser(
-			new OAuth2UserRequest(authorizationCodeAuthentication.getClientRegistration(), accessToken));
+			new OAuth2UserRequest(authorizationCodeAuthentication.getClientRegistration(), accessTokenResponse));
 
 		Collection<? extends GrantedAuthority> mappedAuthorities =
 			this.authoritiesMapper.mapAuthorities(oauth2User.getAuthorities());
@@ -113,7 +110,7 @@ public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider
 			authorizationCodeAuthentication.getAuthorizationExchange(),
 			oauth2User,
 			mappedAuthorities,
-			accessToken);
+				accessTokenResponse.getAccessToken());
 		authenticationResult.setDetails(authorizationCodeAuthentication.getDetails());
 
 		return authenticationResult;
