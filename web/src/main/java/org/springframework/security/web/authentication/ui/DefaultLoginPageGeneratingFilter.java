@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
 import java.util.function.Function;
@@ -195,7 +196,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 			String loginPageHtml = generateLoginPageHtml(request, loginError,
 					logoutSuccess);
 			response.setContentType("text/html;charset=UTF-8");
-			response.setContentLength(loginPageHtml.length());
+			response.setContentLength(loginPageHtml.getBytes(StandardCharsets.UTF_8).length);
 			response.getWriter().write(loginPageHtml);
 
 			return;

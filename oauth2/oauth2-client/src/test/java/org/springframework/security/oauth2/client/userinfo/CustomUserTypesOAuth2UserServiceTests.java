@@ -33,13 +33,10 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -58,7 +55,7 @@ public class CustomUserTypesOAuth2UserServiceTests {
 	private ClientRegistration clientRegistration;
 	private ClientRegistration.ProviderDetails providerDetails;
 	private ClientRegistration.ProviderDetails.UserInfoEndpoint userInfoEndpoint;
-	private OAuth2AccessToken accessToken;
+	private OAuth2AccessTokenResponse accessTokenResponse;
 	private CustomUserTypesOAuth2UserService userService;
 
 	@Rule
@@ -73,7 +70,7 @@ public class CustomUserTypesOAuth2UserServiceTests {
 		when(this.providerDetails.getUserInfoEndpoint()).thenReturn(this.userInfoEndpoint);
 		String registrationId = "client-registration-id-1";
 		when(this.clientRegistration.getRegistrationId()).thenReturn(registrationId);
-		this.accessToken = mock(OAuth2AccessToken.class);
+		this.accessTokenResponse = mock(OAuth2AccessTokenResponse.class);
 
 		Map<String, Class<? extends OAuth2User>> customUserTypes = new HashMap<>();
 		customUserTypes.put(registrationId, CustomOAuth2User.class);
@@ -102,7 +99,7 @@ public class CustomUserTypesOAuth2UserServiceTests {
 	public void loadUserWhenCustomUserTypeNotFoundThenReturnNull() {
 		when(this.clientRegistration.getRegistrationId()).thenReturn("other-client-registration-id-1");
 
-		OAuth2User user = this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessToken));
+		OAuth2User user = this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessTokenResponse));
 		assertThat(user).isNull();
 	}
 
@@ -125,9 +122,9 @@ public class CustomUserTypesOAuth2UserServiceTests {
 		String userInfoUri = server.url("/user").toString();
 
 		when(this.userInfoEndpoint.getUri()).thenReturn(userInfoUri);
-		when(this.accessToken.getTokenValue()).thenReturn("access-token");
+		when(this.accessTokenResponse.getAccessToken().getTokenValue()).thenReturn("access-token");
 
-		OAuth2User user = this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessToken));
+		OAuth2User user = this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessTokenResponse));
 
 		server.shutdown();
 
@@ -164,10 +161,10 @@ public class CustomUserTypesOAuth2UserServiceTests {
 		String userInfoUri = server.url("/user").toString();
 
 		when(this.userInfoEndpoint.getUri()).thenReturn(userInfoUri);
-		when(this.accessToken.getTokenValue()).thenReturn("access-token");
+		when(this.accessTokenResponse.getAccessToken().getTokenValue()).thenReturn("access-token");
 
 		try {
-			this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessToken));
+			this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessTokenResponse));
 		} finally {
 			server.shutdown();
 		}
@@ -185,10 +182,10 @@ public class CustomUserTypesOAuth2UserServiceTests {
 		String userInfoUri = server.url("/user").toString();
 
 		when(this.userInfoEndpoint.getUri()).thenReturn(userInfoUri);
-		when(this.accessToken.getTokenValue()).thenReturn("access-token");
+		when(this.accessTokenResponse.getAccessToken().getTokenValue()).thenReturn("access-token");
 
 		try {
-			this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessToken));
+			this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessTokenResponse));
 		} finally {
 			server.shutdown();
 		}
@@ -201,9 +198,9 @@ public class CustomUserTypesOAuth2UserServiceTests {
 		String userInfoUri = "http://invalid-provider.com/user";
 
 		when(this.userInfoEndpoint.getUri()).thenReturn(userInfoUri);
-		when(this.accessToken.getTokenValue()).thenReturn("access-token");
+		when(this.accessTokenResponse.getAccessToken().getTokenValue()).thenReturn("access-token");
 
-		this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessToken));
+		this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessTokenResponse));
 	}
 
 	public static class CustomOAuth2User implements OAuth2User {
