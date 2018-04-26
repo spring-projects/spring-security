@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by XYUU on 2018/4/25.
+ * Created by XYUU <xyuu@xyuu.net> on 2018/4/25.
  */
 public class DefaultAccessTokenResponseClient implements OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> {
 
@@ -39,11 +39,13 @@ public class DefaultAccessTokenResponseClient implements OAuth2AccessTokenRespon
 	private static final String AUTHORIZATION = "Authorization";
 
 	private final Map<ClientAuthenticationMethod, PlainClientSecret> methodMap = new HashMap<>();
+	private final PlainClientSecret DEFAULT_METHOD = new ClientSecretBasic();
 	private final RestTemplate restTemplate;
 
+
 	public DefaultAccessTokenResponseClient() {
+		methodMap.put(ClientAuthenticationMethod.BASIC, DEFAULT_METHOD);
 		methodMap.put(ClientAuthenticationMethod.POST, new ClientSecretPost());
-		methodMap.put(ClientAuthenticationMethod.BASIC, new ClientSecretBasic());
 
 		FormHttpMessageConverter formHttpMessageConverter = new FormHttpMessageConverter();
 		ObjectMapper objectMapper = new ObjectMapper().registerModule(new SimpleModule()
@@ -53,8 +55,14 @@ public class DefaultAccessTokenResponseClient implements OAuth2AccessTokenRespon
 				, new FormOAuth2AccessTokenMessageConverter(formHttpMessageConverter)));
 	}
 
+	public DefaultAccessTokenResponseClient addMethod(ClientAuthenticationMethod name, PlainClientSecret method) {
+		methodMap.put(name, method);
+		return this;
+	}
+
 	@Override
-	public OAuth2AccessTokenResponse getTokenResponse(OAuth2AuthorizationCodeGrantRequest authorizationGrantRequest) throws OAuth2AuthenticationException {
+	public OAuth2AccessTokenResponse getTokenResponse(OAuth2AuthorizationCodeGrantRequest authorizationGrantRequest)
+			throws OAuth2AuthenticationException {
 		ClientRegistration clientRegistration = authorizationGrantRequest.getClientRegistration();
 		OAuth2AuthorizationExchange authorizationExchange = authorizationGrantRequest.getAuthorizationExchange();
 		OAuth2AuthorizationRequest authorizationRequest = authorizationExchange.getAuthorizationRequest();
@@ -66,18 +74,22 @@ public class DefaultAccessTokenResponseClient implements OAuth2AccessTokenRespon
 		body.add(GRANT_TYPE, AUTHORIZATION_CODE);
 		body.add(REDIRECT_URI, redirectUri);
 		//body.addAll("scope", new ArrayList<>(clientRegistration.getScopes()));
-		methodMap.get(clientRegistration.getClientAuthenticationMethod()).getRequest(headers, body, authorizationGrantRequest);
+		methodMap.getOrDefault(clientRegistration.getClientAuthenticationMethod(), DEFAULT_METHOD)
+				.getRequest(headers, body, authorizationGrantRequest);
 		HttpEntity request = new HttpEntity<>(body, headers);
-		return restTemplate.postForObject(clientRegistration.getProviderDetails().getTokenUri(), request, OAuth2AccessTokenResponse.class);
+		return restTemplate.postForObject(clientRegistration.getProviderDetails().getTokenUri(), request,
+				OAuth2AccessTokenResponse.class);
 	}
 
 	public interface PlainClientSecret {
-		void getRequest(HttpHeaders headers, MultiValueMap<String, String> body, OAuth2AuthorizationCodeGrantRequest authorizationGrantRequest);
+		void getRequest(HttpHeaders headers, MultiValueMap<String, String> body, OAuth2AuthorizationCodeGrantRequest
+				authorizationGrantRequest);
 	}
 
 	class ClientSecretPost implements PlainClientSecret {
 		@Override
-		public void getRequest(HttpHeaders headers, MultiValueMap<String, String> body, OAuth2AuthorizationCodeGrantRequest authorizationGrantRequest) {
+		public void getRequest(HttpHeaders headers, MultiValueMap<String, String> body,
+							   OAuth2AuthorizationCodeGrantRequest authorizationGrantRequest) {
 			ClientRegistration clientRegistration = authorizationGrantRequest.getClientRegistration();
 			body.add(CLIENT_ID, clientRegistration.getClientId());
 			body.add(CLIENT_SECRET, clientRegistration.getClientSecret());
@@ -86,7 +98,8 @@ public class DefaultAccessTokenResponseClient implements OAuth2AccessTokenRespon
 
 	class ClientSecretBasic implements PlainClientSecret {
 		@Override
-		public void getRequest(HttpHeaders headers, MultiValueMap<String, String> body, OAuth2AuthorizationCodeGrantRequest authorizationGrantRequest) {
+		public void getRequest(HttpHeaders headers, MultiValueMap<String, String> body,
+							   OAuth2AuthorizationCodeGrantRequest authorizationGrantRequest) {
 			ClientRegistration clientRegistration = authorizationGrantRequest.getClientRegistration();
 			headers.add(AUTHORIZATION, "Basic " + Base64Utils.encodeToString(String.join(":",
 					UriUtils.encode(clientRegistration.getClientId(), StandardCharsets.UTF_8),
