@@ -4,14 +4,14 @@ dependencies {
 	compile project(':spring-security-core')
 	compile project(':spring-security-oauth2-core')
 	compile project(':spring-security-web')
+    compile 'com.fasterxml.jackson.core:jackson-databind'
 	compile springCoreDependency
-	compile 'com.nimbusds:oauth2-oidc-sdk'
-
 	optional project(':spring-security-oauth2-jose')
 
 	testCompile powerMock2Dependencies
 	testCompile 'com.squareup.okhttp3:mockwebserver'
 	testCompile 'com.fasterxml.jackson.core:jackson-databind'
 
+    provided 'com.nimbusds:oauth2-oidc-sdk'
 	provided 'javax.servlet:javax.servlet-api'
 }

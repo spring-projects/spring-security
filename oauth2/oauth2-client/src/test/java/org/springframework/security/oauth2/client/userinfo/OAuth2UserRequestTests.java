@@ -22,6 +22,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -35,17 +36,20 @@ import static org.mockito.Mockito.mock;
 @PrepareForTest(ClientRegistration.class)
 public class OAuth2UserRequestTests {
 	private ClientRegistration clientRegistration;
-	private OAuth2AccessToken accessToken;
+	private OAuth2AccessTokenResponse accessTokenResponse;
 
 	@Before
 	public void setUp() {
 		this.clientRegistration = mock(ClientRegistration.class);
-		this.accessToken = mock(OAuth2AccessToken.class);
+		this.accessTokenResponse = OAuth2AccessTokenResponse
+				.withToken("access-token")
+				.tokenType(OAuth2AccessToken.TokenType.BEARER)
+				.build();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorWhenClientRegistrationIsNullThenThrowIllegalArgumentException() {
-		new OAuth2UserRequest(null, this.accessToken);
+		new OAuth2UserRequest(null, this.accessTokenResponse);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -55,9 +59,9 @@ public class OAuth2UserRequestTests {
 
 	@Test
 	public void constructorWhenAllParametersProvidedAndValidThenCreated() {
-		OAuth2UserRequest userRequest = new OAuth2UserRequest(this.clientRegistration, this.accessToken);
+		OAuth2UserRequest userRequest = new OAuth2UserRequest(this.clientRegistration, this.accessTokenResponse);
 
 		assertThat(userRequest.getClientRegistration()).isEqualTo(this.clientRegistration);
-		assertThat(userRequest.getAccessToken()).isEqualTo(this.accessToken);
+		assertThat(userRequest.getAccessTokenResponse().getAccessToken()).isEqualTo(this.accessTokenResponse.getAccessToken());
 	}
 }

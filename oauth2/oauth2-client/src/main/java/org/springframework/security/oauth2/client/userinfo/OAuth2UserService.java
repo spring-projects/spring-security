@@ -22,7 +22,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 /**
  * Implementations of this interface are responsible for obtaining the user attributes
  * of the End-User (Resource Owner) from the UserInfo Endpoint
- * using the {@link OAuth2UserRequest#getAccessToken() Access Token}
+ * using the {@link OAuth2UserRequest#getAccessTokenResponse() Access Token Response}
  * granted to the {@link OAuth2UserRequest#getClientRegistration() Client}
  * and returning an {@link AuthenticatedPrincipal} in the form of an {@link OAuth2User}.
  *

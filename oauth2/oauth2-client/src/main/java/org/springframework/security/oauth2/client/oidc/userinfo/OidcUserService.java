@@ -15,9 +15,10 @@
  */
 package org.springframework.security.oauth2.client.oidc.userinfo;
 
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.UserAttributesService;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
@@ -28,6 +29,7 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -45,22 +47,30 @@ import java.util.Set;
  * @see DefaultOidcUser
  * @see OidcUserInfo
  */
-public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcUser> {
-	private static final String INVALID_USER_INFO_RESPONSE_ERROR_CODE = "invalid_user_info_response";
+public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcUser>, UserAttributesService {
+
 	private final Set<String> userInfoScopes = new HashSet<>(
 		Arrays.asList(OidcScopes.PROFILE, OidcScopes.EMAIL, OidcScopes.ADDRESS, OidcScopes.PHONE));
-	private NimbusUserInfoResponseClient userInfoResponseClient = new NimbusUserInfoResponseClient();
+
+	private final RestTemplate restTemplate;
+
+	public OidcUserService() {
+		this(new RestTemplate());
+	}
+
+	public OidcUserService(RestTemplate restTemplate) {
+		this.restTemplate = restTemplate;
+	}
 
 	@Override
 	public OidcUser loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException {
 		Assert.notNull(userRequest, "userRequest cannot be null");
+
 		OidcUserInfo userInfo = null;
 		if (this.shouldRetrieveUserInfo(userRequest)) {
-			ParameterizedTypeReference<Map<String, Object>> typeReference =
-				new ParameterizedTypeReference<Map<String, Object>>() {};
-			Map<String, Object> userAttributes = this.userInfoResponseClient.getUserInfoResponse(userRequest, typeReference);
+			ClientRegistration clientRegistration = userRequest.getClientRegistration();
+			Map<String, Object> userAttributes = getUserAttributes(clientRegistration, userRequest.getAccessTokenResponse());
 			userInfo = new OidcUserInfo(userAttributes);
-
 			// http://openid.net/specs/openid-connect-core-1_0.html#UserInfoResponse
 			// Due to the possibility of token substitution attacks (see Section 16.11),
 			// the UserInfo Response is not guaranteed to be about the End-User
@@ -87,7 +97,6 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 		} else {
 			user = new DefaultOidcUser(authorities, userRequest.getIdToken(), userInfo);
 		}
-
 		return user;
 	}
 
@@ -109,9 +118,14 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 			userRequest.getClientRegistration().getAuthorizationGrantType())) {
 
 			// Return true if there is at least one match between the authorized scope(s) and UserInfo scope(s)
-			return userRequest.getAccessToken().getScopes().stream().anyMatch(userInfoScopes::contains);
+			return userRequest.getAccessTokenResponse().getAccessToken().getScopes().stream().anyMatch(userInfoScopes::contains);
 		}
 
 		return false;
+	}
+
+	@Override
+	public RestTemplate getRestTemplate() {
+		return restTemplate;
 	}
 }
