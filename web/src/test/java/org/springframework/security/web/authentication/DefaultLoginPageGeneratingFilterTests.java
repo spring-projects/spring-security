@@ -118,13 +118,16 @@ public class DefaultLoginPageGeneratingFilterTests {
 
 	@Test
 	public void generatesForWithContentLength() throws Exception {
-		DefaultLoginPageGeneratingFilter filter = new DefaultLoginPageGeneratingFilter(new UsernamePasswordAuthenticationFilter());
+		DefaultLoginPageGeneratingFilter filter = new DefaultLoginPageGeneratingFilter(
+				new UsernamePasswordAuthenticationFilter());
 		filter.setOauth2LoginEnabled(true);
-		filter.setOauth2AuthenticationUrlToClientName(Collections.singletonMap("XYUU","\u8109\u640F\u7F51\u5E10\u6237\u767B\u5F55"));
+		filter.setOauth2AuthenticationUrlToClientName(Collections.singletonMap("XYUU",
+				"\u8109\u640F\u7F51\u5E10\u6237\u767B\u5F55"));
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/login");
 		filter.doFilter(request, response, chain);
-		assertThat(response.getContentLength()==response.getContentAsString().getBytes(response.getCharacterEncoding()).length).isTrue();
+		assertThat(response.getContentLength() == response.getContentAsString().getBytes(
+				response.getCharacterEncoding()).length).isTrue();
 	}
 
 	@Test
