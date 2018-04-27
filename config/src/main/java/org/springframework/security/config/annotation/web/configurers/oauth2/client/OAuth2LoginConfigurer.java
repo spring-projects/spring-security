@@ -44,6 +44,7 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestUriBuilder;
 import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
@@ -265,6 +266,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 	 */
 	public class RedirectionEndpointConfig {
 		private String authorizationResponseBaseUri;
+		private Map<String, OAuth2AuthorizationRequestUriBuilder> uriBuilders = new HashMap<>();
 
 		private RedirectionEndpointConfig() {
 		}
@@ -278,6 +280,13 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		public RedirectionEndpointConfig baseUri(String authorizationResponseBaseUri) {
 			Assert.hasText(authorizationResponseBaseUri, "authorizationResponseBaseUri cannot be empty");
 			this.authorizationResponseBaseUri = authorizationResponseBaseUri;
+			return this;
+		}
+
+		public RedirectionEndpointConfig uriBuilder(OAuth2AuthorizationRequestUriBuilder uriBuilder, String clientRegistrationId) {
+			Assert.notNull(uriBuilder, "uriBuilder cannot be null");
+			Assert.hasText(clientRegistrationId, "clientRegistrationId cannot be empty");
+			this.uriBuilders.put(clientRegistrationId, uriBuilder);
 			return this;
 		}
 
@@ -451,6 +460,9 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		RequestCache requestCache = http.getSharedObject(RequestCache.class);
 		if (requestCache != null) {
 			authorizationRequestFilter.setRequestCache(requestCache);
+		}
+		if (!this.redirectionEndpointConfig.uriBuilders.isEmpty()) {
+			authorizationRequestFilter.setUriBuilders(this.redirectionEndpointConfig.uriBuilders);
 		}
 		http.addFilter(this.postProcess(authorizationRequestFilter));
 

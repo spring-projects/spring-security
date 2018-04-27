@@ -103,7 +103,8 @@ public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider
 		OAuth2AccessToken accessToken = accessTokenResponse.getAccessToken();
 
 		OAuth2User oauth2User = this.userService.loadUser(
-			new OAuth2UserRequest(authorizationCodeAuthentication.getClientRegistration(), accessToken));
+			new OAuth2UserRequest(authorizationCodeAuthentication.getClientRegistration(), accessToken)
+					.setAdditionalParameters(accessTokenResponse.getAdditionalParameters()));
 
 		Collection<? extends GrantedAuthority> mappedAuthorities =
 			this.authoritiesMapper.mapAuthorities(oauth2User.getAuthorities());

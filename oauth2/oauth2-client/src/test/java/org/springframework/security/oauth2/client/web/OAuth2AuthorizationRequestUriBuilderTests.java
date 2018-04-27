@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 5.0
  */
 public class OAuth2AuthorizationRequestUriBuilderTests {
-	private OAuth2AuthorizationRequestUriBuilder builder = new OAuth2AuthorizationRequestUriBuilder();
+	private OAuth2AuthorizationRequestUriBuilder builder = new DefaultAuthorizationRequestUriBuilder();
 
 	@Test(expected = IllegalArgumentException.class)
 	public void buildWhenAuthorizationRequestIsNullThenThrowIllegalArgumentException() {

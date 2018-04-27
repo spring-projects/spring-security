@@ -19,6 +19,8 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.util.Assert;
 
+import java.util.Map;
+
 /**
  * Represents a request the {@link OAuth2UserService} uses
  * when initiating a request to the UserInfo Endpoint.
@@ -32,6 +34,7 @@ import org.springframework.util.Assert;
 public class OAuth2UserRequest {
 	private final ClientRegistration clientRegistration;
 	private final OAuth2AccessToken accessToken;
+	private Map<String, Object> additionalParameters;
 
 	/**
 	 * Constructs an {@code OAuth2UserRequest} using the provided parameters.
@@ -44,6 +47,15 @@ public class OAuth2UserRequest {
 		Assert.notNull(accessToken, "accessToken cannot be null");
 		this.clientRegistration = clientRegistration;
 		this.accessToken = accessToken;
+	}
+
+	public Map<String, Object> getAdditionalParameters() {
+		return additionalParameters;
+	}
+
+	public OAuth2UserRequest setAdditionalParameters(Map<String, Object> additionalParameters) {
+		this.additionalParameters = additionalParameters;
+		return this;
 	}
 
 	/**

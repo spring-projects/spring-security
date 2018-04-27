@@ -89,8 +89,9 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 			ClientAuthorizationRequiredException.class.getName() + ".AUTHORIZATION_REQUIRED_EXCEPTION";
 	private final AntPathRequestMatcher authorizationRequestMatcher;
 	private final ClientRegistrationRepository clientRegistrationRepository;
-	private final OAuth2AuthorizationRequestUriBuilder authorizationRequestUriBuilder = new OAuth2AuthorizationRequestUriBuilder();
+	private final DefaultAuthorizationRequestUriBuilder authorizationRequestUriBuilder = new DefaultAuthorizationRequestUriBuilder();
 	private final RedirectStrategy authorizationRedirectStrategy = new DefaultRedirectStrategy();
+	private Map<String, OAuth2AuthorizationRequestUriBuilder> uriBuilders = new HashMap<>();
 	private final StringKeyGenerator stateGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder());
 	private AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
 		new HttpSessionOAuth2AuthorizationRequestRepository();
@@ -120,6 +121,16 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 		this.authorizationRequestMatcher = new AntPathRequestMatcher(
 			authorizationRequestBaseUri + "/{" + REGISTRATION_ID_URI_VARIABLE_NAME + "}");
 		this.clientRegistrationRepository = clientRegistrationRepository;
+	}
+
+	/**
+	 * Sets the authorizationRequestUriBuilder used for storing {@link OAuth2AuthorizationRequestUriBuilder}'s.
+	 *
+	 * @param uriBuilders the authorizationRequestUriBuilder used for storing {@link OAuth2AuthorizationRequestUriBuilder}'s
+	 */
+	public final void setUriBuilders(Map<String, OAuth2AuthorizationRequestUriBuilder> uriBuilders) {
+		Assert.notEmpty(uriBuilders, "uriBuilders cannot be empty");
+		this.uriBuilders = uriBuilders;
 	}
 
 	/**
@@ -214,9 +225,9 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 												ClientRegistration clientRegistration) throws IOException, ServletException {
 
 		String redirectUriStr = this.expandRedirectUri(request, clientRegistration);
-
+		String registrationId = clientRegistration.getRegistrationId();
 		Map<String, Object> additionalParameters = new HashMap<>();
-		additionalParameters.put(OAuth2ParameterNames.REGISTRATION_ID, clientRegistration.getRegistrationId());
+		additionalParameters.put(OAuth2ParameterNames.REGISTRATION_ID, registrationId);
 
 		OAuth2AuthorizationRequest.Builder builder;
 		if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(clientRegistration.getAuthorizationGrantType())) {
@@ -241,7 +252,7 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 			this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, request, response);
 		}
 
-		URI redirectUri = this.authorizationRequestUriBuilder.build(authorizationRequest);
+		URI redirectUri = this.uriBuilders.getOrDefault(registrationId, this.authorizationRequestUriBuilder).build(authorizationRequest);
 		this.authorizationRedirectStrategy.sendRedirect(request, response, redirectUri.toString());
 	}
 
