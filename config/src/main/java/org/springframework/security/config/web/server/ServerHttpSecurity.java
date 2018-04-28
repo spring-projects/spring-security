@@ -28,6 +28,7 @@ import org.springframework.security.authorization.AuthenticatedReactiveAuthoriza
 import org.springframework.security.authorization.AuthorityReactiveAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
+import org.springframework.security.oauth2.client.InMemoryReactiveOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginReactiveAuthenticationManager;
 import org.springframework.security.oauth2.client.endpoint.NimbusReactiveAuthorizationCodeTokenResponseClient;
@@ -145,6 +146,8 @@ public class ServerHttpSecurity {
 	private OAuth2LoginSpec oauth2Login;
 
 	private LogoutSpec logout = new LogoutSpec();
+
+	private LoginPageSpec loginPage = new LoginPageSpec();
 
 	private ReactiveAuthenticationManager authenticationManager;
 
@@ -325,11 +328,7 @@ public class ServerHttpSecurity {
 			return this;
 		}
 
-		protected void configure(LoginPageGeneratingWebFilter loginPageFilter, ServerHttpSecurity http) {
-			if (loginPageFilter != null) {
-				loginPageFilter.setOauth2AuthenticationUrlToClientName(getLinks());
-			}
-
+		protected void configure(ServerHttpSecurity http) {
 			ReactiveClientRegistrationRepository clientRegistrationRepository = getClientRegistrationRepository();
 			ReactiveOAuth2AuthorizedClientService authorizedClientService = getAuthorizedClientService();
 			OAuth2AuthorizationRequestRedirectWebFilter oauthRedirectFilter = new OAuth2AuthorizationRequestRedirectWebFilter(clientRegistrationRepository);
@@ -352,6 +351,16 @@ public class ServerHttpSecurity {
 			authenticationFilter.setAuthenticationSuccessHandler(redirectHandler);
 			authenticationFilter.setAuthenticationFailureHandler((webFilterExchange, exception) -> Mono.error(exception));
 			authenticationFilter.setSecurityContextRepository(new WebSessionServerSecurityContextRepository());
+
+			MediaTypeServerWebExchangeMatcher htmlMatcher = new MediaTypeServerWebExchangeMatcher(
+					MediaType.TEXT_HTML);
+			htmlMatcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
+			Map<String, String> urlToText = http.oauth2Login.getLinks();
+			if (urlToText.size() == 1) {
+				http.defaultEntryPoints.add(new DelegateEntry(htmlMatcher, new RedirectServerAuthenticationEntryPoint(urlToText.keySet().iterator().next())));
+			} else {
+				http.defaultEntryPoints.add(new DelegateEntry(htmlMatcher, new RedirectServerAuthenticationEntryPoint("/login")));
+			}
 
 			http.addFilterAt(oauthRedirectFilter, SecurityWebFiltersOrder.HTTP_BASIC);
 			http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION);
@@ -379,6 +388,9 @@ public class ServerHttpSecurity {
 		private ReactiveOAuth2AuthorizedClientService getAuthorizedClientService() {
 			if (this.authorizedClientService == null) {
 				this.authorizedClientService = getBeanOrNull(ReactiveOAuth2AuthorizedClientService.class);
+			}
+			if (this.authorizedClientService == null) {
+				this.authorizedClientService = new InMemoryReactiveOAuth2AuthorizedClientService(getClientRegistrationRepository());
 			}
 			return this.authorizedClientService;
 		}
@@ -573,22 +585,17 @@ public class ServerHttpSecurity {
 			this.httpBasic.authenticationManager(this.authenticationManager);
 			this.httpBasic.configure(this);
 		}
-		LoginPageGeneratingWebFilter loginPageFilter = null;
 		if(this.formLogin != null) {
 			this.formLogin.authenticationManager(this.authenticationManager);
 			if(this.securityContextRepository != null) {
 				this.formLogin.securityContextRepository(this.securityContextRepository);
 			}
-			if(this.formLogin.authenticationEntryPoint == null) {
-				loginPageFilter = new LoginPageGeneratingWebFilter();
-				this.webFilters.add(new OrderedWebFilter(loginPageFilter, SecurityWebFiltersOrder.LOGIN_PAGE_GENERATING.getOrder()));
-				this.webFilters.add(new OrderedWebFilter(new LogoutPageGeneratingWebFilter(), SecurityWebFiltersOrder.LOGOUT_PAGE_GENERATING.getOrder()));
-			}
 			this.formLogin.configure(this);
 		}
 		if (this.oauth2Login != null) {
-			this.oauth2Login.configure(loginPageFilter, this);
+			this.oauth2Login.configure(this);
 		}
+		this.loginPage.configure(this);
 		if(this.logout != null) {
 			this.logout.configure(this);
 		}
@@ -599,10 +606,10 @@ public class ServerHttpSecurity {
 			ExceptionTranslationWebFilter exceptionTranslationWebFilter = new ExceptionTranslationWebFilter();
 			if(authenticationEntryPoint != null) {
 				exceptionTranslationWebFilter.setAuthenticationEntryPoint(
-					authenticationEntryPoint);
+						authenticationEntryPoint);
 			}
-			if(accessDeniedHandler != null) {
-				exceptionTranslationWebFilter.setAccessDeniedHandler(accessDeniedHandler);
+			if(this.accessDeniedHandler != null) {
+				exceptionTranslationWebFilter.setAccessDeniedHandler(this.accessDeniedHandler);
 			}
 			this.addFilterAt(exceptionTranslationWebFilter, SecurityWebFiltersOrder.EXCEPTION_TRANSLATION);
 			this.authorizeExchange.configure(this);
@@ -672,7 +679,7 @@ public class ServerHttpSecurity {
 	 * @see #authorizeExchange()
 	 */
 	public class AuthorizeExchangeSpec
-		extends AbstractServerWebExchangeMatcherRegistry<AuthorizeExchangeSpec.Access> {
+			extends AbstractServerWebExchangeMatcherRegistry<AuthorizeExchangeSpec.Access> {
 		private DelegatingReactiveAuthorizationManager.Builder managerBldr = DelegatingReactiveAuthorizationManager.builder();
 		private ServerWebExchangeMatcher matcher;
 		private boolean anyExchangeRegistered;
@@ -770,8 +777,8 @@ public class ServerHttpSecurity {
 			 */
 			public AuthorizeExchangeSpec access(ReactiveAuthorizationManager<AuthorizationContext> manager) {
 				AuthorizeExchangeSpec.this.managerBldr
-					.add(new ServerWebExchangeMatcherEntry<>(
-						AuthorizeExchangeSpec.this.matcher, manager));
+						.add(new ServerWebExchangeMatcherEntry<>(
+								AuthorizeExchangeSpec.this.matcher, manager));
 				AuthorizeExchangeSpec.this.matcher = null;
 				return AuthorizeExchangeSpec.this;
 			}
@@ -796,7 +803,7 @@ public class ServerHttpSecurity {
 		 * @return the {@link CsrfSpec} for additional configuration
 		 */
 		public CsrfSpec accessDeniedHandler(
-			ServerAccessDeniedHandler accessDeniedHandler) {
+				ServerAccessDeniedHandler accessDeniedHandler) {
 			this.filter.setAccessDeniedHandler(accessDeniedHandler);
 			return this;
 		}
@@ -809,7 +816,7 @@ public class ServerHttpSecurity {
 		 * @return the {@link CsrfSpec} for additional configuration
 		 */
 		public CsrfSpec csrfTokenRepository(
-			ServerCsrfTokenRepository csrfTokenRepository) {
+				ServerCsrfTokenRepository csrfTokenRepository) {
 			this.filter.setCsrfTokenRepository(csrfTokenRepository);
 			return this;
 		}
@@ -822,7 +829,7 @@ public class ServerHttpSecurity {
 		 * @return the {@link CsrfSpec} for additional configuration
 		 */
 		public CsrfSpec requireCsrfProtectionMatcher(
-			ServerWebExchangeMatcher requireCsrfProtectionMatcher) {
+				ServerWebExchangeMatcher requireCsrfProtectionMatcher) {
 			this.filter.setRequireCsrfProtectionMatcher(requireCsrfProtectionMatcher);
 			return this;
 		}
@@ -1001,14 +1008,14 @@ public class ServerHttpSecurity {
 
 		protected void configure(ServerHttpSecurity http) {
 			MediaTypeServerWebExchangeMatcher restMatcher = new MediaTypeServerWebExchangeMatcher(
-				MediaType.APPLICATION_ATOM_XML,
-				MediaType.APPLICATION_FORM_URLENCODED, MediaType.APPLICATION_JSON,
-				MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_XML,
-				MediaType.MULTIPART_FORM_DATA, MediaType.TEXT_XML);
+					MediaType.APPLICATION_ATOM_XML,
+					MediaType.APPLICATION_FORM_URLENCODED, MediaType.APPLICATION_JSON,
+					MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_XML,
+					MediaType.MULTIPART_FORM_DATA, MediaType.TEXT_XML);
 			restMatcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
 			ServerHttpSecurity.this.defaultEntryPoints.add(new DelegateEntry(restMatcher, this.entryPoint));
 			AuthenticationWebFilter authenticationFilter = new AuthenticationWebFilter(
-				this.authenticationManager);
+					this.authenticationManager);
 			authenticationFilter.setAuthenticationFailureHandler(new ServerAuthenticationEntryPointFailureHandler(this.entryPoint));
 			authenticationFilter.setAuthenticationConverter(new ServerHttpBasicAuthenticationConverter());
 			if(this.securityContextRepository != null) {
@@ -1038,6 +1045,8 @@ public class ServerHttpSecurity {
 
 		private ServerAuthenticationEntryPoint authenticationEntryPoint;
 
+		private boolean isEntryPointExplicit;
+
 		private ServerWebExchangeMatcher requiresAuthenticationMatcher;
 
 		private ServerAuthenticationFailureHandler authenticationFailureHandler;
@@ -1063,7 +1072,7 @@ public class ServerHttpSecurity {
 		 * @return the {@link FormLoginSpec} to continue configuring
 		 */
 		public FormLoginSpec authenticationSuccessHandler(
-			ServerAuthenticationSuccessHandler authenticationSuccessHandler) {
+				ServerAuthenticationSuccessHandler authenticationSuccessHandler) {
 			Assert.notNull(authenticationSuccessHandler, "authenticationSuccessHandler cannot be null");
 			this.authenticationSuccessHandler = authenticationSuccessHandler;
 			return this;
@@ -1160,7 +1169,10 @@ public class ServerHttpSecurity {
 
 		protected void configure(ServerHttpSecurity http) {
 			if(this.authenticationEntryPoint == null) {
+				this.isEntryPointExplicit = false;
 				loginPage("/login");
+			} else {
+				this.isEntryPointExplicit = true;
 			}
 			if(http.requestCache != null) {
 				ServerRequestCache requestCache = http.requestCache.requestCache;
@@ -1170,11 +1182,11 @@ public class ServerHttpSecurity {
 				}
 			}
 			MediaTypeServerWebExchangeMatcher htmlMatcher = new MediaTypeServerWebExchangeMatcher(
-				MediaType.TEXT_HTML);
+					MediaType.TEXT_HTML);
 			htmlMatcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
 			ServerHttpSecurity.this.defaultEntryPoints.add(0, new DelegateEntry(htmlMatcher, this.authenticationEntryPoint));
 			AuthenticationWebFilter authenticationFilter = new AuthenticationWebFilter(
-				this.authenticationManager);
+					this.authenticationManager);
 			authenticationFilter.setRequiresAuthenticationMatcher(this.requiresAuthenticationMatcher);
 			authenticationFilter.setAuthenticationFailureHandler(this.authenticationFailureHandler);
 			authenticationFilter.setAuthenticationConverter(new ServerFormLoginAuthenticationConverter());
@@ -1185,6 +1197,35 @@ public class ServerHttpSecurity {
 
 		private FormLoginSpec() {
 		}
+	}
+
+	private class LoginPageSpec {
+		protected void configure(ServerHttpSecurity http) {
+			if (http.authenticationEntryPoint != null) {
+				return;
+			}
+			if (http.formLogin != null && http.formLogin.isEntryPointExplicit) {
+				return;
+			}
+			LoginPageGeneratingWebFilter loginPage = null;
+			if (http.formLogin != null && !http.formLogin.isEntryPointExplicit) {
+				loginPage = new LoginPageGeneratingWebFilter();
+				loginPage.setFormLoginEnabled(true);
+			}
+			if (http.oauth2Login != null) {
+				Map<String, String> urlToText = http.oauth2Login.getLinks();
+				if (loginPage == null) {
+					loginPage = new LoginPageGeneratingWebFilter();
+				}
+				loginPage.setOauth2AuthenticationUrlToClientName(urlToText);
+			}
+			if (loginPage != null) {
+				http.addFilterAt(loginPage, SecurityWebFiltersOrder.LOGIN_PAGE_GENERATING);
+				http.addFilterAt(new LogoutPageGeneratingWebFilter(), SecurityWebFiltersOrder.LOGOUT_PAGE_GENERATING);
+			}
+		}
+
+		private LoginPageSpec() {}
 	}
 
 	/**
@@ -1400,8 +1441,8 @@ public class ServerHttpSecurity {
 
 		private HeaderSpec() {
 			this.writers = new ArrayList<>(
-				Arrays.asList(this.cacheControl, this.contentTypeOptions, this.hsts,
-					this.frameOptions, this.xss));
+					Arrays.asList(this.cacheControl, this.contentTypeOptions, this.hsts,
+							this.frameOptions, this.xss));
 		}
 	}
 
@@ -1506,8 +1547,7 @@ public class ServerHttpSecurity {
 		}
 
 		@Override
-		public Mono<Void> filter(ServerWebExchange exchange,
-			WebFilterChain chain) {
+		public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 			return this.webFilter.filter(exchange, chain);
 		}
 
@@ -1519,7 +1559,7 @@ public class ServerHttpSecurity {
 		@Override
 		public String toString() {
 			return "OrderedWebFilter{" + "webFilter=" + this.webFilter + ", order=" + this.order
-				+ '}';
+					+ '}';
 		}
 	}
 }
