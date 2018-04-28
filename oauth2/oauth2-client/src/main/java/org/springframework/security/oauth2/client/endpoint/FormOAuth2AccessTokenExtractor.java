@@ -13,80 +13,73 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.client.util;
+package org.springframework.security.oauth2.client.endpoint;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.ResponseExtractor;
 
 import java.io.IOException;
 import java.util.*;
 
 /**
- * Created by XYUU <xyuu@xyuu.net> on 2018/4/24.
+ * Created by XYUU <xyuu@xyuu.net> on 2018/4/23.
  */
-public final class AccessTokenResponseJackson2Deserializer extends StdDeserializer<OAuth2AccessTokenResponse> {
+public class FormOAuth2AccessTokenExtractor implements ResponseExtractor<OAuth2AccessTokenResponse> {
 
-	public AccessTokenResponseJackson2Deserializer() {
-		super(OAuth2AccessTokenResponse.class);
+	public static final String NAME = "form";
+
+	private final FormHttpMessageConverter delegateMessageConverter;
+
+	public FormOAuth2AccessTokenExtractor(FormHttpMessageConverter delegateMessageConverter) {
+		this.delegateMessageConverter = delegateMessageConverter;
 	}
 
 	@Override
-	public OAuth2AccessTokenResponse deserialize(JsonParser jp, DeserializationContext deserializationContext)
-			throws IOException {
+	public OAuth2AccessTokenResponse extractData(ClientHttpResponse response) throws IOException {
+		MultiValueMap<String, String> data = delegateMessageConverter.read(null, response);
 		String tokenValue = null;
 		String tokenType = null;
 		String refreshToken = null;
 		Long expiresIn = 0L;
 		Set<String> scope = null;
 		Map<String, Object> additionalInformation = new LinkedHashMap<>();
-
-		// TODO What should occur if a parameter exists twice
-		while (jp.nextToken() != JsonToken.END_OBJECT) {
-			String name = jp.getCurrentName();
-			jp.nextToken();
+		for (Map.Entry<String, List<String>> entry : data.entrySet()) {
+			String name = entry.getKey();
+			List<String> values = entry.getValue();
 			switch (name) {
 				case OAuth2ParameterNames.ACCESS_TOKEN:
-					tokenValue = jp.getText();
+					tokenValue = values.get(0);
 					break;
 				case OAuth2ParameterNames.TOKEN_TYPE:
-					tokenType = jp.getText();
+					tokenType = values.get(0);
 					break;
 				case OAuth2ParameterNames.REFRESH_TOKEN:
-					refreshToken = jp.getText();
+					refreshToken = values.get(0);
 					break;
 				case OAuth2ParameterNames.EXPIRES_IN:
-					try {
-						expiresIn = jp.getLongValue();
-					} catch (JsonParseException e) {
-						expiresIn = Long.valueOf(jp.getText());
-					}
+					expiresIn = Long.valueOf(values.get(0));
 					break;
 				case OAuth2ParameterNames.SCOPE:
-					if (jp.getCurrentToken() == JsonToken.START_ARRAY) {
-						scope = new TreeSet<>();
-						while (jp.nextToken() != JsonToken.END_ARRAY) {
-							scope.add(jp.getValueAsString());
-						}
+					if (values.size() > 1) {
+						scope = new TreeSet<>(values);
 					} else {
-						String values = jp.getText();
-						if (values != null && values.trim().length() > 0) {
+						String value = values.get(0);
+						if (value != null && value.trim().length() > 0) {
 							// the spec says the scope is separated by spaces
-							String[] tokens = values.split("[\\s+]");
+							String[] tokens = value.split("[\\s+]");
 							scope = new TreeSet<>(Arrays.asList(tokens));
 						}
 					}
 					break;
 				default:
-					additionalInformation.put(name, jp.readValueAs(Object.class));
+					additionalInformation.put(name, values.get(0));
 			}
 		}
-		// TODO What should occur if a required parameter (tokenValue or tokenType) is missing?
 		return OAuth2AccessTokenResponse.withToken(tokenValue)
 				.tokenType(OAuth2AccessToken.TokenType.BEARER)
 				.expiresIn(expiresIn)

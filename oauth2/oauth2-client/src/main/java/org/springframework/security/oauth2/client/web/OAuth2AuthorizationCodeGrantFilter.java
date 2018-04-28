@@ -187,12 +187,12 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 			OAuth2Error error = ex.getError();
 			UriComponentsBuilder uriBuilder = UriComponentsBuilder
 				.fromUriString(authorizationResponse.getRedirectUri())
-				.queryParam(OAuth2ParameterNames.ERROR, error.getErrorCode());
+				.queryParam(clientRegistration.getProviderDetails().getErrorAttributeName(), error.getErrorCode());
 			if (!StringUtils.isEmpty(error.getDescription())) {
-				uriBuilder.queryParam(OAuth2ParameterNames.ERROR_DESCRIPTION, error.getDescription());
+				uriBuilder.queryParam(clientRegistration.getProviderDetails().getErrorDescriptionAttributeName(), error.getDescription());
 			}
 			if (!StringUtils.isEmpty(error.getUri())) {
-				uriBuilder.queryParam(OAuth2ParameterNames.ERROR_URI, error.getUri());
+				uriBuilder.queryParam(clientRegistration.getProviderDetails().getErrorUriAttributeName(), error.getUri());
 			}
 			this.redirectStrategy.sendRedirect(request, response, uriBuilder.build().encode().toString());
 			return;

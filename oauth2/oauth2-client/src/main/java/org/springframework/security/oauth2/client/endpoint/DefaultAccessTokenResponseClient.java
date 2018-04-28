@@ -26,7 +26,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.client.util.AccessTokenResponseJackson2Deserializer;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
@@ -67,6 +66,7 @@ public class DefaultAccessTokenResponseClient implements OAuth2AccessTokenRespon
 		methodMap.put(ClientAuthenticationMethod.POST, new ClientSecretPost(formHttpMessageConverter));
 		defaultExtractor = response -> objectMapper.readValue(response.getBody(), OAuth2AccessTokenResponse.class);
 		extractors.put(OAuth2ParameterNames.JSON_EXTRACTOR, defaultExtractor);
+		extractors.put(FormOAuth2AccessTokenExtractor.NAME, new FormOAuth2AccessTokenExtractor(formHttpMessageConverter));
 	}
 
 	@Override
