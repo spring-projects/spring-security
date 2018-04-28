@@ -29,6 +29,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
+import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -44,14 +45,6 @@ import java.util.Map;
  * Created by XYUU <xyuu@xyuu.net> on 2018/4/25.
  */
 public class DefaultAccessTokenResponseClient implements OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> {
-
-	private static final String AUTHORIZATION_CODE = "authorization_code";
-	private static final String CODE = "code";
-	private static final String GRANT_TYPE = "grant_type";
-	private static final String REDIRECT_URI = "redirect_uri";
-	private static final String CLIENT_ID = "client_id";
-	private static final String CLIENT_SECRET = "client_secret";
-	private static final String AUTHORIZATION = "Authorization";
 
 	private final Map<ClientAuthenticationMethod, PlainClientSecret> methodMap = new HashMap<>();
 	private final PlainClientSecret DEFAULT_METHOD = new ClientSecretBasic();
@@ -102,9 +95,9 @@ public class DefaultAccessTokenResponseClient implements OAuth2AccessTokenRespon
 			OAuth2AuthorizationExchange authorizationExchange = authorizationGrantRequest.getAuthorizationExchange();
 			OAuth2AuthorizationRequest authorizationRequest = authorizationExchange.getAuthorizationRequest();
 			MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-			body.add(CODE, authorizationExchange.getAuthorizationResponse().getCode());
-			body.add(GRANT_TYPE, AUTHORIZATION_CODE);
-			body.add(REDIRECT_URI, authorizationRequest.getRedirectUri());
+			body.add(OAuth2ParameterNames.CODE, authorizationExchange.getAuthorizationResponse().getCode());
+			body.add(OAuth2ParameterNames.GRANT_TYPE, OAuth2ParameterNames.AUTHORIZATION_CODE);
+			body.add(OAuth2ParameterNames.REDIRECT_URI, authorizationRequest.getRedirectUri());
 			//body.addAll("scope", new ArrayList<>(clientRegistration.getScopes()));
 			HttpHeaders headers = new HttpHeaders();
 			fill(headers, body, authorizationGrantRequest);
@@ -118,8 +111,8 @@ public class DefaultAccessTokenResponseClient implements OAuth2AccessTokenRespon
 		@Override
 		public void fill(HttpHeaders headers, MultiValueMap<String, String> body, OAuth2AuthorizationCodeGrantRequest authorizationGrantRequest) {
 			ClientRegistration clientRegistration = authorizationGrantRequest.getClientRegistration();
-			body.add(CLIENT_ID, clientRegistration.getClientId());
-			body.add(CLIENT_SECRET, clientRegistration.getClientSecret());
+			body.add(OAuth2ParameterNames.CLIENT_ID, clientRegistration.getClientId());
+			body.add(OAuth2ParameterNames.CLIENT_SECRET, clientRegistration.getClientSecret());
 		}
 	}
 
@@ -127,7 +120,7 @@ public class DefaultAccessTokenResponseClient implements OAuth2AccessTokenRespon
 		@Override
 		public void fill(HttpHeaders headers, MultiValueMap<String, String> body, OAuth2AuthorizationCodeGrantRequest authorizationGrantRequest) {
 			ClientRegistration clientRegistration = authorizationGrantRequest.getClientRegistration();
-			headers.add(AUTHORIZATION, "Basic " + Base64Utils.encodeToString(String.join(":",
+			headers.add(OAuth2ParameterNames.AUTHORIZATION, "Basic " + Base64Utils.encodeToString(String.join(":",
 					UriUtils.encode(clientRegistration.getClientId(), StandardCharsets.UTF_8),
 					UriUtils.encode(clientRegistration.getClientSecret(), StandardCharsets.UTF_8)).
 					getBytes(StandardCharsets.UTF_8)));

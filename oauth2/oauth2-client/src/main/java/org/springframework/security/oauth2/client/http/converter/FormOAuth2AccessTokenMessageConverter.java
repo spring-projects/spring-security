@@ -24,6 +24,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
+import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.MultiValueMap;
 
 import java.io.IOException;
@@ -60,19 +61,19 @@ public class FormOAuth2AccessTokenMessageConverter extends AbstractHttpMessageCo
 			String name = entry.getKey();
 			List<String> values = entry.getValue();
 			switch (name) {
-				case "access_token":
+				case OAuth2ParameterNames.ACCESS_TOKEN:
 					tokenValue = values.get(0);
 					break;
-				case "token_type":
+				case OAuth2ParameterNames.TOKEN_TYPE:
 					tokenType = values.get(0);
 					break;
-				case "refresh_token":
+				case OAuth2ParameterNames.REFRESH_TOKEN:
 					refreshToken = values.get(0);
 					break;
-				case "expires_in":
+				case OAuth2ParameterNames.EXPIRES_IN:
 					expiresIn = Long.valueOf(values.get(0));
 					break;
-				case "scope":
+				case OAuth2ParameterNames.SCOPE:
 					if (values.size() > 1) {
 						scope = new TreeSet<>(values);
 					} else {

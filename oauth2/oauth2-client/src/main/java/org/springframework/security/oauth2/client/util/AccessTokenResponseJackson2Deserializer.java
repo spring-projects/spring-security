@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
+import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 
 import java.io.IOException;
 import java.util.*;
@@ -50,23 +51,23 @@ public final class AccessTokenResponseJackson2Deserializer extends StdDeserializ
 			String name = jp.getCurrentName();
 			jp.nextToken();
 			switch (name) {
-				case "access_token":
+				case OAuth2ParameterNames.ACCESS_TOKEN:
 					tokenValue = jp.getText();
 					break;
-				case "token_type":
+				case OAuth2ParameterNames.TOKEN_TYPE:
 					tokenType = jp.getText();
 					break;
-				case "refresh_token":
+				case OAuth2ParameterNames.REFRESH_TOKEN:
 					refreshToken = jp.getText();
 					break;
-				case "expires_in":
+				case OAuth2ParameterNames.EXPIRES_IN:
 					try {
 						expiresIn = jp.getLongValue();
 					} catch (JsonParseException e) {
 						expiresIn = Long.valueOf(jp.getText());
 					}
 					break;
-				case "scope":
+				case OAuth2ParameterNames.SCOPE:
 					if (jp.getCurrentToken() == JsonToken.START_ARRAY) {
 						scope = new TreeSet<>();
 						while (jp.nextToken() != JsonToken.END_ARRAY) {

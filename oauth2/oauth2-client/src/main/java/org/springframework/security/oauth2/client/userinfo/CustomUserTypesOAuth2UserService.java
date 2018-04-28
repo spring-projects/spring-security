@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.client.userinfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -43,7 +44,7 @@ import java.util.Map;
  * @since 5.0
  */
 public class CustomUserTypesOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
-	public static final String ACCESS_TOKEN = "access_token";
+
 	private final Map<String, Class<? extends OAuth2User>> customUserTypes;
 	private final RestTemplate restTemplate;
 	private final ObjectMapper objectMapper;
@@ -86,7 +87,7 @@ public class CustomUserTypesOAuth2UserService implements OAuth2UserService<OAuth
 		}
 		if (restTemplate != null) {
 			String url = UriComponentsBuilder.fromHttpUrl(userInfoUri)
-					.queryParam(ACCESS_TOKEN, userRequest.getAccessToken().getTokenValue())
+					.queryParam(OAuth2ParameterNames.ACCESS_TOKEN, userRequest.getAccessToken().getTokenValue())
 					.buildAndExpand(parameters).toString();
 			return restTemplate.getForObject(url, customUserType);
 		}

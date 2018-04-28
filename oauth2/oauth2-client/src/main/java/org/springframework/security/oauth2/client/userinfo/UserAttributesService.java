@@ -22,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -34,7 +35,7 @@ import java.util.Map;
 public interface UserAttributesService {
 
 	String INVALID_USER_INFO_RESPONSE_ERROR_CODE = "invalid_user_info_response";
-	String ACCESS_TOKEN = "access_token";
+
 	ParameterizedTypeReference<Map<String, Object>> typeReference = new ParameterizedTypeReference<Map<String, Object>>() {
 	};
 
@@ -44,7 +45,7 @@ public interface UserAttributesService {
 		Map<String, Object> userAttributes;
 		if (!StringUtils.isEmpty(userInfoUri) && getRestTemplate() != null) {
 			String url = UriComponentsBuilder.fromHttpUrl(userInfoUri)
-					.queryParam(ACCESS_TOKEN, userRequest.getAccessToken().getTokenValue())
+					.queryParam(OAuth2ParameterNames.ACCESS_TOKEN, userRequest.getAccessToken().getTokenValue())
 					.buildAndExpand(parameters).toString();
 			ResponseEntity<Map<String, Object>> resp = getRestTemplate().exchange(url, HttpMethod.GET, null, typeReference);
 			if (HttpStatus.OK.equals(resp.getStatusCode())) {
