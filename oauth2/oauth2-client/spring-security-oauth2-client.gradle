@@ -4,9 +4,8 @@ dependencies {
 	compile project(':spring-security-core')
 	compile project(':spring-security-oauth2-core')
 	compile project(':spring-security-web')
+    compile 'com.fasterxml.jackson.core:jackson-databind'
 	compile springCoreDependency
-	compile 'com.nimbusds:oauth2-oidc-sdk'
-
     compile 'org.springframework:spring-webflux'
     compile 'io.projectreactor.ipc:reactor-netty'
 	optional project(':spring-security-oauth2-jose')
@@ -15,5 +14,6 @@ dependencies {
 	testCompile 'com.squareup.okhttp3:mockwebserver'
 	testCompile 'com.fasterxml.jackson.core:jackson-databind'
 
+    provided 'com.nimbusds:oauth2-oidc-sdk'
 	provided 'javax.servlet:javax.servlet-api'
 }

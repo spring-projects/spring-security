@@ -39,11 +39,10 @@ public class OidcUserRequest extends OAuth2UserRequest {
 	 * Constructs an {@code OidcUserRequest} using the provided parameters.
 	 *
 	 * @param clientRegistration the client registration
-	 * @param accessToken the access token credential
+	 * @param accessToken the access token
 	 * @param idToken the ID Token
 	 */
-	public OidcUserRequest(ClientRegistration clientRegistration,
-							OAuth2AccessToken accessToken, OidcIdToken idToken) {
+	public OidcUserRequest(ClientRegistration clientRegistration, OAuth2AccessToken accessToken, OidcIdToken idToken) {
 
 		super(clientRegistration, accessToken);
 		Assert.notNull(idToken, "idToken cannot be null");

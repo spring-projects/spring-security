@@ -27,12 +27,14 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestClientException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -105,7 +107,7 @@ public class DefaultOAuth2UserServiceTests {
 			"   \"email\": \"user1@example.com\"\n" +
 			"}\n";
 		server.enqueue(new MockResponse()
-			.setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+			.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
 			.setBody(userInfoResponse));
 
 		server.start();
@@ -137,9 +139,9 @@ public class DefaultOAuth2UserServiceTests {
 	}
 
 	@Test
-	public void loadUserWhenUserInfoSuccessResponseInvalidThenThrowOAuth2AuthenticationException() throws Exception {
-		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("invalid_user_info_response"));
+	public void loadUserWhenUserInfoSuccessResponseInvalidThenThrowRestClientException() throws Exception {
+		this.exception.expect(RestClientException.class);
+		this.exception.expectMessage(containsString("JSON parse error"));
 
 		MockWebServer server = new MockWebServer();
 
@@ -152,7 +154,7 @@ public class DefaultOAuth2UserServiceTests {
 			"   \"email\": \"user1@example.com\"\n";
 //			"}\n";		// Make the JSON invalid/malformed
 		server.enqueue(new MockResponse()
-			.setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+			.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
 			.setBody(userInfoResponse));
 
 		server.start();
@@ -171,9 +173,9 @@ public class DefaultOAuth2UserServiceTests {
 	}
 
 	@Test
-	public void loadUserWhenUserInfoErrorResponseThenThrowOAuth2AuthenticationException() throws Exception {
-		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("invalid_user_info_response"));
+	public void loadUserWhenUserInfoErrorResponseThenThrowHttpServerErrorException() throws Exception {
+		this.exception.expect(HttpServerErrorException.class);
+		this.exception.expectMessage(containsString("500 Server Error"));
 
 		MockWebServer server = new MockWebServer();
 		server.enqueue(new MockResponse().setResponseCode(500));
@@ -193,9 +195,9 @@ public class DefaultOAuth2UserServiceTests {
 	}
 
 	@Test
-	public void loadUserWhenUserInfoUriInvalidThenThrowAuthenticationServiceException() throws Exception {
-		this.exception.expect(AuthenticationServiceException.class);
-
+	public void loadUserWhenUserInfoUriInvalidThenThrowResourceAccessException() throws Exception {
+		this.exception.expect(ResourceAccessException.class);
+		this.exception.expectMessage(containsString("invalid-provider.com"));
 		String userInfoUri = "http://invalid-provider.com/user";
 
 		when(this.userInfoEndpoint.getUri()).thenReturn(userInfoUri);
