@@ -108,12 +108,12 @@ public class DefaultAccessTokenResponseClient implements OAuth2AccessTokenRespon
 			body.add(OAuth2ParameterNames.REDIRECT_URI, authorizationRequest.getRedirectUri());
 			//body.addAll("scope", new ArrayList<>(clientRegistration.getScopes()));
 			return request -> {
-				doWithRequest(request.getHeaders(), body, authorizationGrantRequest);
+				andThen(request.getHeaders(), body, authorizationGrantRequest);
 				formHttpMessageConverter.write(body, MediaType.APPLICATION_FORM_URLENCODED, request);
 			};
 		}
 
-		abstract void doWithRequest(HttpHeaders headers, MultiValueMap<String, String> body, OAuth2AuthorizationCodeGrantRequest authorizationGrantRequest);
+		abstract void andThen(HttpHeaders headers, MultiValueMap<String, String> body, OAuth2AuthorizationCodeGrantRequest authorizationGrantRequest);
 	}
 
 	class ClientSecretPost extends FormClientSecret {
@@ -123,7 +123,7 @@ public class DefaultAccessTokenResponseClient implements OAuth2AccessTokenRespon
 		}
 
 		@Override
-		public void doWithRequest(HttpHeaders headers, MultiValueMap<String, String> body, OAuth2AuthorizationCodeGrantRequest authorizationGrantRequest) {
+		public void andThen(HttpHeaders headers, MultiValueMap<String, String> body, OAuth2AuthorizationCodeGrantRequest authorizationGrantRequest) {
 			ClientRegistration clientRegistration = authorizationGrantRequest.getClientRegistration();
 			body.add(OAuth2ParameterNames.CLIENT_ID, clientRegistration.getClientId());
 			body.add(OAuth2ParameterNames.CLIENT_SECRET, clientRegistration.getClientSecret());
@@ -137,7 +137,7 @@ public class DefaultAccessTokenResponseClient implements OAuth2AccessTokenRespon
 		}
 
 		@Override
-		public void doWithRequest(HttpHeaders headers, MultiValueMap<String, String> body, OAuth2AuthorizationCodeGrantRequest authorizationGrantRequest) {
+		public void andThen(HttpHeaders headers, MultiValueMap<String, String> body, OAuth2AuthorizationCodeGrantRequest authorizationGrantRequest) {
 			ClientRegistration clientRegistration = authorizationGrantRequest.getClientRegistration();
 			headers.add(OAuth2ParameterNames.AUTHORIZATION, "Basic " + Base64Utils.encodeToString(String.join(":",
 					UriUtils.encode(clientRegistration.getClientId(), StandardCharsets.UTF_8),

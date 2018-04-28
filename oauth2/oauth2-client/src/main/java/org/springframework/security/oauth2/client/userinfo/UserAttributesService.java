@@ -18,7 +18,8 @@ package org.springframework.security.oauth2.client.userinfo;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
@@ -32,14 +33,16 @@ import java.util.Map;
 /**
  * Created by XYUU <xyuu@xyuu.net> on 2018/4/25.
  */
-public interface UserAttributesService {
+public abstract class UserAttributesService<T> extends ParameterizedTypeReference<T> {
 
 	String INVALID_USER_INFO_RESPONSE_ERROR_CODE = "invalid_user_info_response";
 
 	ParameterizedTypeReference<Map<String, Object>> typeReference = new ParameterizedTypeReference<Map<String, Object>>() {
 	};
 
-	default Map<String, Object> getUserAttributes(ClientRegistration clientRegistration, OAuth2UserRequest userRequest) {
+	MappingJackson2HttpMessageConverter jackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();
+
+	public T getUserAttributes(ClientRegistration clientRegistration, OAuth2UserRequest userRequest) {
 		String userInfoUri = clientRegistration.getProviderDetails().getUserInfoEndpoint().getUri();
 		Map<String, Object> parameters = userRequest.getAdditionalParameters();
 		Map<String, Object> userAttributes;
@@ -47,7 +50,10 @@ public interface UserAttributesService {
 			String url = UriComponentsBuilder.fromHttpUrl(userInfoUri)
 					.queryParam(OAuth2ParameterNames.ACCESS_TOKEN, userRequest.getAccessToken().getTokenValue())
 					.buildAndExpand(parameters).toString();
-			ResponseEntity<Map<String, Object>> resp = getRestTemplate().exchange(url, HttpMethod.GET, null, typeReference);
+			T resp = getRestTemplate().execute(url, HttpMethod.GET,
+					request -> request.getHeaders().setContentType(MediaType.APPLICATION_FORM_URLENCODED),
+					response -> (T) jackson2HttpMessageConverter.read(getType(), null, response)
+			);
 			if (HttpStatus.OK.equals(resp.getStatusCode())) {
 				userAttributes = resp.getBody();
 			} else {
@@ -66,5 +72,5 @@ public interface UserAttributesService {
 		return userAttributes;
 	}
 
-	RestTemplate getRestTemplate();
+	protected abstract RestTemplate getRestTemplate();
 }

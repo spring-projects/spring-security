@@ -47,11 +47,11 @@ import java.util.Set;
  * @see DefaultOidcUser
  * @see OidcUserInfo
  */
-public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcUser>, UserAttributesService {
+public class OidcUserService extends UserAttributesService<Map<String, Object>> implements OAuth2UserService<OidcUserRequest, OidcUser> {
 
 	private final Set<String> userInfoScopes = new HashSet<>(
 		Arrays.asList(OidcScopes.PROFILE, OidcScopes.EMAIL, OidcScopes.ADDRESS, OidcScopes.PHONE));
-
+	private final  static String INVALID_USER_INFO_RESPONSE_ERROR_CODE = "invalid_user_info_response";
 	private final RestTemplate restTemplate;
 
 	public OidcUserService() {

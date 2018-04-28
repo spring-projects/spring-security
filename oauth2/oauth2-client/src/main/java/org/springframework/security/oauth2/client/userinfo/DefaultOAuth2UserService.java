@@ -47,7 +47,7 @@ import java.util.Set;
  * @see DefaultOAuth2User
  * @since 5.0
  */
-public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User>, UserAttributesService {
+public class DefaultOAuth2UserService extends UserAttributesService<Map<String, Object>> implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 	private static final String MISSING_USER_INFO_URI_ERROR_CODE = "missing_user_info_uri";
 	private static final String MISSING_USER_NAME_ATTRIBUTE_ERROR_CODE = "missing_user_name_attribute";
 
