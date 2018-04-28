@@ -22,7 +22,6 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
-import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,22 +36,19 @@ import static org.mockito.Mockito.mock;
 @PrepareForTest(ClientRegistration.class)
 public class OidcUserRequestTests {
 	private ClientRegistration clientRegistration;
-	private OAuth2AccessTokenResponse accessTokenResponse;
+	private OAuth2AccessToken accessToken;
 	private OidcIdToken idToken;
 
 	@Before
 	public void setUp() {
 		this.clientRegistration = mock(ClientRegistration.class);
-		this.accessTokenResponse = OAuth2AccessTokenResponse
-				.withToken("access-token")
-				.tokenType(OAuth2AccessToken.TokenType.BEARER)
-				.build();
+		this.accessToken = mock(OAuth2AccessToken.class);
 		this.idToken = mock(OidcIdToken.class);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorWhenClientRegistrationIsNullThenThrowIllegalArgumentException() {
-		new OidcUserRequest(null, this.accessTokenResponse, this.idToken);
+		new OidcUserRequest(null, this.accessToken, this.idToken);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -62,16 +58,16 @@ public class OidcUserRequestTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorWhenIdTokenIsNullThenThrowIllegalArgumentException() {
-		new OidcUserRequest(this.clientRegistration, this.accessTokenResponse, null);
+		new OidcUserRequest(this.clientRegistration, this.accessToken, null);
 	}
 
 	@Test
 	public void constructorWhenAllParametersProvidedAndValidThenCreated() {
 		OidcUserRequest userRequest = new OidcUserRequest(
-			this.clientRegistration, this.accessTokenResponse, this.idToken);
+			this.clientRegistration, this.accessToken, this.idToken);
 
 		assertThat(userRequest.getClientRegistration()).isEqualTo(this.clientRegistration);
-		assertThat(userRequest.getAccessTokenResponse().getAccessToken()).isEqualTo(this.accessTokenResponse.getAccessToken());
+		assertThat(userRequest.getAccessToken()).isEqualTo(this.accessToken);
 		assertThat(userRequest.getIdToken()).isEqualTo(this.idToken);
 	}
 }

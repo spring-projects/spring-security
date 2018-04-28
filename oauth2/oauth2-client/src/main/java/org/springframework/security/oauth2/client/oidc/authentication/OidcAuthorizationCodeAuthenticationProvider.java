@@ -27,6 +27,7 @@ import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
@@ -141,9 +142,11 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 					authorizationCodeAuthentication.getClientRegistration(),
 					authorizationCodeAuthentication.getAuthorizationExchange()));
 
-		ClientRegistration clientRegistration = authorizationCodeAuthentication.getClientRegistration();
+		OAuth2AccessToken accessToken = accessTokenResponse.getAccessToken();
 
-		if (!accessTokenResponse.getAdditionalParameters().containsKey(OidcParameterNames.ID_TOKEN)) {
+		ClientRegistration clientRegistration = authorizationCodeAuthentication.getClientRegistration();
+		Map<String, Object> additionalParameters = accessTokenResponse.getAdditionalParameters();
+		if (!additionalParameters.containsKey(OidcParameterNames.ID_TOKEN)) {
 			OAuth2Error invalidIdTokenError = new OAuth2Error(
 				INVALID_ID_TOKEN_ERROR_CODE,
 				"Missing (required) ID Token in Token Response for Client Registration: " + clientRegistration.getRegistrationId(),
@@ -152,13 +155,13 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 		}
 
 		JwtDecoder jwtDecoder = this.getJwtDecoder(clientRegistration);
-		Jwt jwt = jwtDecoder.decode((String) accessTokenResponse.getAdditionalParameters().get(OidcParameterNames.ID_TOKEN));
+		Jwt jwt = jwtDecoder.decode((String) additionalParameters.get(OidcParameterNames.ID_TOKEN));
 		OidcIdToken idToken = new OidcIdToken(jwt.getTokenValue(), jwt.getIssuedAt(), jwt.getExpiresAt(), jwt.getClaims());
 
 		this.validateIdToken(idToken, clientRegistration);
-
-		OidcUser oidcUser = this.userService.loadUser(
-				new OidcUserRequest(clientRegistration, accessTokenResponse, idToken));
+		OidcUserRequest userRequest = new OidcUserRequest(clientRegistration, accessToken, idToken);
+		userRequest.setAdditionalParameters(additionalParameters);
+		OidcUser oidcUser = this.userService.loadUser(userRequest);
 
 		Collection<? extends GrantedAuthority> mappedAuthorities =
 			this.authoritiesMapper.mapAuthorities(oidcUser.getAuthorities());
@@ -168,7 +171,7 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 			authorizationCodeAuthentication.getAuthorizationExchange(),
 			oidcUser,
 			mappedAuthorities,
-				accessTokenResponse.getAccessToken());
+			accessToken);
 		authenticationResult.setDetails(authorizationCodeAuthentication.getDetails());
 
 		return authenticationResult;

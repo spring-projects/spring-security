@@ -59,15 +59,22 @@ public class DefaultAccessTokenResponseClient implements OAuth2AccessTokenRespon
 
 
 	public DefaultAccessTokenResponseClient() {
+		this(null);
+	}
+
+	public DefaultAccessTokenResponseClient(RestTemplate restTemplate) {
 		methodMap.put(ClientAuthenticationMethod.BASIC, DEFAULT_METHOD);
 		methodMap.put(ClientAuthenticationMethod.POST, new ClientSecretPost());
-
-		FormHttpMessageConverter formHttpMessageConverter = new FormHttpMessageConverter();
-		ObjectMapper objectMapper = new ObjectMapper().registerModule(new SimpleModule()
-				.addDeserializer(OAuth2AccessTokenResponse.class, new AccessTokenResponseJackson2Deserializer()));
-		this.restTemplate = new RestTemplate(Arrays.asList(formHttpMessageConverter,
-				new MappingJackson2HttpMessageConverter(objectMapper)
-				, new FormOAuth2AccessTokenMessageConverter(formHttpMessageConverter)));
+		if (restTemplate == null) {
+			FormHttpMessageConverter formHttpMessageConverter = new FormHttpMessageConverter();
+			ObjectMapper objectMapper = new ObjectMapper().registerModule(new SimpleModule()
+					.addDeserializer(OAuth2AccessTokenResponse.class, new AccessTokenResponseJackson2Deserializer()));
+			this.restTemplate = new RestTemplate(Arrays.asList(formHttpMessageConverter,
+					new MappingJackson2HttpMessageConverter(objectMapper)
+					, new FormOAuth2AccessTokenMessageConverter(formHttpMessageConverter)));
+		} else {
+			this.restTemplate = restTemplate;
+		}
 	}
 
 	public DefaultAccessTokenResponseClient addMethod(ClientAuthenticationMethod name, PlainClientSecret method) {
@@ -79,40 +86,46 @@ public class DefaultAccessTokenResponseClient implements OAuth2AccessTokenRespon
 	public OAuth2AccessTokenResponse getTokenResponse(OAuth2AuthorizationCodeGrantRequest authorizationGrantRequest)
 			throws OAuth2AuthenticationException {
 		ClientRegistration clientRegistration = authorizationGrantRequest.getClientRegistration();
-		OAuth2AuthorizationExchange authorizationExchange = authorizationGrantRequest.getAuthorizationExchange();
-		OAuth2AuthorizationRequest authorizationRequest = authorizationExchange.getAuthorizationRequest();
-		String code = authorizationExchange.getAuthorizationResponse().getCode();
-		String redirectUri = authorizationRequest.getRedirectUri();
-		HttpHeaders headers = new HttpHeaders();
-		MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-		body.add(CODE, code);
-		body.add(GRANT_TYPE, AUTHORIZATION_CODE);
-		body.add(REDIRECT_URI, redirectUri);
-		//body.addAll("scope", new ArrayList<>(clientRegistration.getScopes()));
-		methodMap.getOrDefault(clientRegistration.getClientAuthenticationMethod(), DEFAULT_METHOD)
-				.getRequest(headers, body, authorizationGrantRequest);
-		HttpEntity request = new HttpEntity<>(body, headers);
+		HttpEntity request = methodMap.getOrDefault(clientRegistration.getClientAuthenticationMethod(), DEFAULT_METHOD)
+				.getRequest(authorizationGrantRequest);
 		return restTemplate.postForObject(clientRegistration.getProviderDetails().getTokenUri(), request,
 				OAuth2AccessTokenResponse.class);
 	}
 
 	public interface PlainClientSecret {
-		void getRequest(HttpHeaders headers, MultiValueMap<String, String> body, OAuth2AuthorizationCodeGrantRequest
-				authorizationGrantRequest);
+		HttpEntity getRequest(OAuth2AuthorizationCodeGrantRequest authorizationGrantRequest);
 	}
 
-	class ClientSecretPost implements PlainClientSecret {
+	public interface FormClientSecret extends PlainClientSecret {
+
+		default HttpEntity getRequest(OAuth2AuthorizationCodeGrantRequest authorizationGrantRequest) {
+			OAuth2AuthorizationExchange authorizationExchange = authorizationGrantRequest.getAuthorizationExchange();
+			OAuth2AuthorizationRequest authorizationRequest = authorizationExchange.getAuthorizationRequest();
+			MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+			body.add(CODE, authorizationExchange.getAuthorizationResponse().getCode());
+			body.add(GRANT_TYPE, AUTHORIZATION_CODE);
+			body.add(REDIRECT_URI, authorizationRequest.getRedirectUri());
+			//body.addAll("scope", new ArrayList<>(clientRegistration.getScopes()));
+			HttpHeaders headers = new HttpHeaders();
+			fill(headers, body, authorizationGrantRequest);
+			return new HttpEntity<>(body, headers);
+		}
+
+		void fill(HttpHeaders headers, MultiValueMap<String, String> body, OAuth2AuthorizationCodeGrantRequest authorizationGrantRequest);
+	}
+
+	class ClientSecretPost implements FormClientSecret {
 		@Override
-		public void getRequest(HttpHeaders headers, MultiValueMap<String, String> body, OAuth2AuthorizationCodeGrantRequest authorizationGrantRequest) {
+		public void fill(HttpHeaders headers, MultiValueMap<String, String> body, OAuth2AuthorizationCodeGrantRequest authorizationGrantRequest) {
 			ClientRegistration clientRegistration = authorizationGrantRequest.getClientRegistration();
 			body.add(CLIENT_ID, clientRegistration.getClientId());
 			body.add(CLIENT_SECRET, clientRegistration.getClientSecret());
 		}
 	}
 
-	class ClientSecretBasic implements PlainClientSecret {
+	class ClientSecretBasic implements FormClientSecret {
 		@Override
-		public void getRequest(HttpHeaders headers, MultiValueMap<String, String> body, OAuth2AuthorizationCodeGrantRequest authorizationGrantRequest) {
+		public void fill(HttpHeaders headers, MultiValueMap<String, String> body, OAuth2AuthorizationCodeGrantRequest authorizationGrantRequest) {
 			ClientRegistration clientRegistration = authorizationGrantRequest.getClientRegistration();
 			headers.add(AUTHORIZATION, "Basic " + Base64Utils.encodeToString(String.join(":",
 					UriUtils.encode(clientRegistration.getClientId(), StandardCharsets.UTF_8),

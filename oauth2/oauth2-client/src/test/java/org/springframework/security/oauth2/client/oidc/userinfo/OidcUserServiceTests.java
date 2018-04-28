@@ -31,7 +31,6 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
@@ -61,7 +60,7 @@ public class OidcUserServiceTests {
 	private ClientRegistration clientRegistration;
 	private ClientRegistration.ProviderDetails providerDetails;
 	private ClientRegistration.ProviderDetails.UserInfoEndpoint userInfoEndpoint;
-	private OAuth2AccessTokenResponse accessTokenResponse;
+	private OAuth2AccessToken accessToken;
 	private OidcIdToken idToken;
 	private OidcUserService userService = new OidcUserService();
 
@@ -76,12 +75,10 @@ public class OidcUserServiceTests {
 		when(this.clientRegistration.getProviderDetails()).thenReturn(this.providerDetails);
 		when(this.providerDetails.getUserInfoEndpoint()).thenReturn(this.userInfoEndpoint);
 		when(this.clientRegistration.getAuthorizationGrantType()).thenReturn(AuthorizationGrantType.AUTHORIZATION_CODE);
+
+		this.accessToken = mock(OAuth2AccessToken.class);
 		Set<String> authorizedScopes = new LinkedHashSet<>(Arrays.asList(OidcScopes.OPENID, OidcScopes.PROFILE));
-		this.accessTokenResponse = OAuth2AccessTokenResponse
-				.withToken("access-token")
-				.tokenType(OAuth2AccessToken.TokenType.BEARER)
-				.scopes(authorizedScopes)
-				.build();
+		when(this.accessToken.getScopes()).thenReturn(authorizedScopes);
 
 		this.idToken = mock(OidcIdToken.class);
 		Map<String, Object> idTokenClaims = new HashMap<>();
@@ -102,23 +99,19 @@ public class OidcUserServiceTests {
 		when(this.userInfoEndpoint.getUri()).thenReturn(null);
 
 		OidcUser user = this.userService.loadUser(
-			new OidcUserRequest(this.clientRegistration, this.accessTokenResponse, this.idToken));
+			new OidcUserRequest(this.clientRegistration, this.accessToken, this.idToken));
 		assertThat(user.getUserInfo()).isNull();
 	}
 
 	@Test
 	public void loadUserWhenAuthorizedScopesDoesNotContainUserInfoScopesThenUserInfoEndpointNotRequested() {
 		Set<String> authorizedScopes = new LinkedHashSet<>(Arrays.asList("scope1", "scope2"));
-		OAuth2AccessTokenResponse response = OAuth2AccessTokenResponse
-				.withToken("access-token")
-				.tokenType(OAuth2AccessToken.TokenType.BEARER)
-				.scopes(authorizedScopes)
-				.build();
+		when(this.accessToken.getScopes()).thenReturn(authorizedScopes);
 
 		when(this.userInfoEndpoint.getUri()).thenReturn("http://provider.com/user");
 
 		OidcUser user = this.userService.loadUser(
-			new OidcUserRequest(this.clientRegistration, response, this.idToken));
+			new OidcUserRequest(this.clientRegistration, this.accessToken, this.idToken));
 		assertThat(user.getUserInfo()).isNull();
 	}
 
@@ -143,9 +136,10 @@ public class OidcUserServiceTests {
 		String userInfoUri = server.url("/user").toString();
 
 		when(this.userInfoEndpoint.getUri()).thenReturn(userInfoUri);
+		when(this.accessToken.getTokenValue()).thenReturn("access-token");
 
 		OidcUser user = this.userService.loadUser(
-			new OidcUserRequest(this.clientRegistration, this.accessTokenResponse, this.idToken));
+			new OidcUserRequest(this.clientRegistration, this.accessToken, this.idToken));
 
 		server.shutdown();
 
@@ -180,17 +174,18 @@ public class OidcUserServiceTests {
 			"	\"sub\": \"other-subject\"\n" +
 			"}\n";
 		server.enqueue(new MockResponse()
-				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-				.setBody(userInfoResponse));
+			.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+			.setBody(userInfoResponse));
 
 		server.start();
 
 		String userInfoUri = server.url("/user").toString();
 
 		when(this.userInfoEndpoint.getUri()).thenReturn(userInfoUri);
+		when(this.accessToken.getTokenValue()).thenReturn("access-token");
 
 		try {
-			this.userService.loadUser(new OidcUserRequest(this.clientRegistration, this.accessTokenResponse, this.idToken));
+			this.userService.loadUser(new OidcUserRequest(this.clientRegistration, this.accessToken, this.idToken));
 		} finally {
 			server.shutdown();
 		}
@@ -199,7 +194,7 @@ public class OidcUserServiceTests {
 	@Test
 	public void loadUserWhenUserInfoSuccessResponseInvalidThenThrowRestClientException() throws Exception {
 		this.exception.expect(RestClientException.class);
-		this.exception.expectMessage(containsString("parse error"));
+		this.exception.expectMessage(containsString("JSON parse error"));
 
 		MockWebServer server = new MockWebServer();
 
@@ -220,9 +215,10 @@ public class OidcUserServiceTests {
 		String userInfoUri = server.url("/user").toString();
 
 		when(this.userInfoEndpoint.getUri()).thenReturn(userInfoUri);
+		when(this.accessToken.getTokenValue()).thenReturn("access-token");
 
 		try {
-			this.userService.loadUser(new OidcUserRequest(this.clientRegistration, this.accessTokenResponse, this.idToken));
+			this.userService.loadUser(new OidcUserRequest(this.clientRegistration, this.accessToken, this.idToken));
 		} finally {
 			server.shutdown();
 		}
@@ -240,9 +236,10 @@ public class OidcUserServiceTests {
 		String userInfoUri = server.url("/user").toString();
 
 		when(this.userInfoEndpoint.getUri()).thenReturn(userInfoUri);
+		when(this.accessToken.getTokenValue()).thenReturn("access-token");
 
 		try {
-			this.userService.loadUser(new OidcUserRequest(this.clientRegistration, this.accessTokenResponse, this.idToken));
+			this.userService.loadUser(new OidcUserRequest(this.clientRegistration, this.accessToken, this.idToken));
 		} finally {
 			server.shutdown();
 		}
@@ -255,8 +252,9 @@ public class OidcUserServiceTests {
 		String userInfoUri = "http://invalid-provider.com/user";
 
 		when(this.userInfoEndpoint.getUri()).thenReturn(userInfoUri);
+		when(this.accessToken.getTokenValue()).thenReturn("access-token");
 
-		this.userService.loadUser(new OidcUserRequest(this.clientRegistration, this.accessTokenResponse, this.idToken));
+		this.userService.loadUser(new OidcUserRequest(this.clientRegistration, this.accessToken, this.idToken));
 	}
 
 	@Test
@@ -281,9 +279,10 @@ public class OidcUserServiceTests {
 
 		when(this.userInfoEndpoint.getUri()).thenReturn(userInfoUri);
 		when(this.userInfoEndpoint.getUserNameAttributeName()).thenReturn(StandardClaimNames.EMAIL);
+		when(this.accessToken.getTokenValue()).thenReturn("access-token");
 
 		OidcUser user = this.userService.loadUser(
-			new OidcUserRequest(this.clientRegistration, this.accessTokenResponse, this.idToken));
+			new OidcUserRequest(this.clientRegistration, this.accessToken, this.idToken));
 
 		server.shutdown();
 

@@ -17,8 +17,10 @@ package org.springframework.security.oauth2.client.userinfo;
 
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
-import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.util.Assert;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Represents a request the {@link OAuth2UserService} uses
@@ -32,19 +34,29 @@ import org.springframework.util.Assert;
  */
 public class OAuth2UserRequest {
 	private final ClientRegistration clientRegistration;
-	private final OAuth2AccessTokenResponse accessTokenResponse;
+	private final OAuth2AccessToken accessToken;
+	private Map<String, Object> additionalParameters = new LinkedHashMap<>();
 
 	/**
 	 * Constructs an {@code OAuth2UserRequest} using the provided parameters.
 	 *
 	 * @param clientRegistration the client registration
-	 * @param accessTokenResponse the access token
+	 * @param accessToken the access token
 	 */
-	public OAuth2UserRequest(ClientRegistration clientRegistration, OAuth2AccessTokenResponse accessTokenResponse) {
+	public OAuth2UserRequest(ClientRegistration clientRegistration, OAuth2AccessToken accessToken) {
 		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
-		Assert.notNull(accessTokenResponse, "accessToken cannot be null");
+		Assert.notNull(accessToken, "accessToken cannot be null");
 		this.clientRegistration = clientRegistration;
-		this.accessTokenResponse = accessTokenResponse;
+		this.accessToken = accessToken;
+	}
+
+	public Map<String, Object> getAdditionalParameters() {
+		return additionalParameters;
+	}
+
+	public OAuth2UserRequest setAdditionalParameters(Map<String, Object> additionalParameters) {
+		this.additionalParameters.putAll(additionalParameters);
+		return this;
 	}
 
 	/**
@@ -57,11 +69,11 @@ public class OAuth2UserRequest {
 	}
 
 	/**
-	 * Returns an {@link OAuth2AccessTokenResponse} that contains the {@link OAuth2AccessTokenResponse#getAccessToken() access token} credential
+	 * Returns the {@link OAuth2AccessToken access token}.
 	 *
-	 * @return the {@link OAuth2AccessTokenResponse}
+	 * @return the {@link OAuth2AccessToken}
 	 */
-	public OAuth2AccessTokenResponse getAccessTokenResponse() {
-		return accessTokenResponse;
+	public OAuth2AccessToken getAccessToken() {
+		return this.accessToken;
 	}
 }

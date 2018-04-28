@@ -22,7 +22,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
-import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -39,13 +38,13 @@ public interface UserAttributesService {
 	ParameterizedTypeReference<Map<String, Object>> typeReference = new ParameterizedTypeReference<Map<String, Object>>() {
 	};
 
-	default Map<String, Object> getUserAttributes(ClientRegistration clientRegistration, OAuth2AccessTokenResponse accessTokenResponse) {
+	default Map<String, Object> getUserAttributes(ClientRegistration clientRegistration, OAuth2UserRequest userRequest) {
 		String userInfoUri = clientRegistration.getProviderDetails().getUserInfoEndpoint().getUri();
-		Map<String, Object> parameters = accessTokenResponse.getAdditionalParameters();
+		Map<String, Object> parameters = userRequest.getAdditionalParameters();
 		Map<String, Object> userAttributes;
 		if (!StringUtils.isEmpty(userInfoUri) && getRestTemplate() != null) {
 			String url = UriComponentsBuilder.fromHttpUrl(userInfoUri)
-					.queryParam(ACCESS_TOKEN, accessTokenResponse.getAccessToken().getTokenValue())
+					.queryParam(ACCESS_TOKEN, userRequest.getAccessToken().getTokenValue())
 					.buildAndExpand(parameters).toString();
 			ResponseEntity<Map<String, Object>> resp = getRestTemplate().exchange(url, HttpMethod.GET, null, typeReference);
 			if (HttpStatus.OK.equals(resp.getStatusCode())) {

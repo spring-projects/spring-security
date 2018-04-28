@@ -84,7 +84,7 @@ public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2UserReq
 			);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 		}
-		Map<String, Object> userAttributes = getUserAttributes(clientRegistration, userRequest.getAccessTokenResponse());
+		Map<String, Object> userAttributes = getUserAttributes(clientRegistration, userRequest);
 		GrantedAuthority authority = new OAuth2UserAuthority(userAttributes);
 		Set<GrantedAuthority> authorities = new HashSet<>();
 		authorities.add(authority);

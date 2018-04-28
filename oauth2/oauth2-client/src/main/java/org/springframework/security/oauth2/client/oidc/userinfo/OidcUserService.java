@@ -69,7 +69,7 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 		OidcUserInfo userInfo = null;
 		if (this.shouldRetrieveUserInfo(userRequest)) {
 			ClientRegistration clientRegistration = userRequest.getClientRegistration();
-			Map<String, Object> userAttributes = getUserAttributes(clientRegistration, userRequest.getAccessTokenResponse());
+			Map<String, Object> userAttributes = getUserAttributes(clientRegistration, userRequest);
 			userInfo = new OidcUserInfo(userAttributes);
 			// http://openid.net/specs/openid-connect-core-1_0.html#UserInfoResponse
 			// Due to the possibility of token substitution attacks (see Section 16.11),
@@ -118,7 +118,7 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 			userRequest.getClientRegistration().getAuthorizationGrantType())) {
 
 			// Return true if there is at least one match between the authorized scope(s) and UserInfo scope(s)
-			return userRequest.getAccessTokenResponse().getAccessToken().getScopes().stream().anyMatch(userInfoScopes::contains);
+			return userRequest.getAccessToken().getScopes().stream().anyMatch(userInfoScopes::contains);
 		}
 
 		return false;
