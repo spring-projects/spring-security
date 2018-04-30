@@ -135,6 +135,9 @@ public class ExceptionTranslationFilter extends GenericFilterBean {
 			}
 
 			if (ase != null) {
+				if (response.isCommitted()) {
+					throw new ServletException("Unable to handle the Spring Security Exception because the response is already committed.", ex);
+				}
 				handleSpringSecurityException(request, response, chain, ase);
 			}
 			else {
