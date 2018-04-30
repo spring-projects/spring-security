@@ -29,6 +29,7 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.config.annotation.AbstractConfiguredSecurityBuilder;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
@@ -382,6 +383,11 @@ public final class WebSecurity extends
 			throws BeansException {
 		this.defaultWebSecurityExpressionHandler
 				.setApplicationContext(applicationContext);
+		try {
+			this.defaultWebSecurityExpressionHandler.setPermissionEvaluator(applicationContext.getBean(
+					PermissionEvaluator.class));
+		} catch(NoSuchBeanDefinitionException e) {}
+
 		this.ignoredRequestRegistry = new IgnoredRequestConfigurer(applicationContext);
 		try {
 			this.httpFirewall = applicationContext.getBean(HttpFirewall.class);
