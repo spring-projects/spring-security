@@ -131,6 +131,7 @@ class InterceptUrlConfigTests extends AbstractHttpConfigTests {
 		when: 'user cannot access otheruser'
 		request = new MockHttpServletRequest(method:'GET', servletPath : '/user/otheruser/abc')
 		login(request, 'user', 'password')
+		response = new MockHttpServletResponse()
 		chain.reset()
 		springSecurityFilterChain.doFilter(request,response,chain)
 		then: 'The response is OK'
@@ -138,6 +139,7 @@ class InterceptUrlConfigTests extends AbstractHttpConfigTests {
 		when: 'user can access case insensitive URL'
 		request = new MockHttpServletRequest(method:'GET', servletPath : '/USER/user/abc')
 		login(request, 'user', 'password')
+		response = new MockHttpServletResponse()
 		chain.reset()
 		springSecurityFilterChain.doFilter(request,response,chain)
 		then: 'The response is OK'
@@ -164,6 +166,7 @@ class InterceptUrlConfigTests extends AbstractHttpConfigTests {
 		when: 'user cannot access otheruser'
 		request = new MockHttpServletRequest(method:'GET', servletPath : '/user/otheruser/abc')
 		login(request, 'user', 'password')
+		response = new MockHttpServletResponse()
 		chain.reset()
 		springSecurityFilterChain.doFilter(request,response,chain)
 		then: 'The response is OK'
@@ -171,6 +174,7 @@ class InterceptUrlConfigTests extends AbstractHttpConfigTests {
 		when: 'user can access case insensitive URL'
 		request = new MockHttpServletRequest(method:'GET', servletPath : '/USER/user/abc')
 		login(request, 'user', 'password')
+		response = new MockHttpServletResponse()
 		chain.reset()
 		springSecurityFilterChain.doFilter(request,response,chain)
 		then: 'The response is OK'
