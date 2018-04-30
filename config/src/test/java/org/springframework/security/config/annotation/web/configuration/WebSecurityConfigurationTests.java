@@ -23,15 +23,24 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.Order;
+import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
+import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.access.PermissionEvaluator;
+import org.springframework.security.access.expression.AbstractSecurityExpressionHandler;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
+import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.config.users.AuthenticationTestConfiguration;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.DefaultWebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
@@ -41,6 +50,7 @@ import org.springframework.util.ClassUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.List;
@@ -257,6 +267,42 @@ public class WebSecurityConfigurationTests {
 			http
 				.authorizeRequests()
 					.anyRequest().authenticated();
+		}
+	}
+
+	@Test
+	public void securityExpressionHandlerWhenPermissionEvaluatorBeanThenPermissionEvaluatorUsed() throws Exception {
+		this.spring.register(WebSecurityExpressionHandlerPermissionEvaluatorBeanConfig.class).autowire();
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken("user", "notused");
+		FilterInvocation invocation = new FilterInvocation(new MockHttpServletRequest(), new MockHttpServletResponse(), new MockFilterChain());
+
+		AbstractSecurityExpressionHandler handler = this.spring.getContext().getBean(AbstractSecurityExpressionHandler.class);
+		EvaluationContext evaluationContext = handler.createEvaluationContext(authentication, invocation);
+		Expression expression = handler.getExpressionParser()
+				.parseExpression("hasPermission(#study,'DELETE')");
+		boolean granted = expression.getValue(evaluationContext, Boolean.class);
+		assertThat(granted).isTrue();
+	}
+
+	@EnableWebSecurity
+	static class WebSecurityExpressionHandlerPermissionEvaluatorBeanConfig extends WebSecurityConfigurerAdapter {
+		static final PermissionEvaluator PERMIT_ALL_PERMISSION_EVALUATOR = new PermissionEvaluator() {
+			@Override
+			public boolean hasPermission(Authentication authentication,
+					Object targetDomainObject, Object permission) {
+				return true;
+			}
+
+			@Override
+			public boolean hasPermission(Authentication authentication,
+					Serializable targetId, String targetType, Object permission) {
+				return true;
+			}
+		};
+
+		@Bean
+		public PermissionEvaluator permissionEvaluator() {
+			return PERMIT_ALL_PERMISSION_EVALUATOR;
 		}
 	}
 
