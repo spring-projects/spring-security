@@ -77,7 +77,11 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository implements Au
 		}
 		Map<String, OAuth2AuthorizationRequest> authorizationRequests = this.getAuthorizationRequests(request);
 		OAuth2AuthorizationRequest originalRequest = authorizationRequests.remove(stateParameter);
-		request.getSession().setAttribute(this.sessionAttributeName, authorizationRequests);
+		if (!authorizationRequests.isEmpty()) {
+			request.getSession().setAttribute(this.sessionAttributeName, authorizationRequests);
+		} else {
+			request.getSession().removeAttribute(this.sessionAttributeName);
+		}
 		return originalRequest;
 	}
 

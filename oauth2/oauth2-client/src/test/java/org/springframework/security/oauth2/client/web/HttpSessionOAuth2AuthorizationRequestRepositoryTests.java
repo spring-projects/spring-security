@@ -242,6 +242,28 @@ public class HttpSessionOAuth2AuthorizationRequestRepositoryTests {
 		assertThat(loadedAuthorizationRequest).isNull();
 	}
 
+	// gh-5263
+	@Test
+	public void removeAuthorizationRequestWhenSavedThenRemovedFromSession() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+
+		OAuth2AuthorizationRequest authorizationRequest = createAuthorizationRequest().build();
+
+		this.authorizationRequestRepository.saveAuthorizationRequest(
+				authorizationRequest, request, response);
+
+		request.addParameter(OAuth2ParameterNames.STATE, authorizationRequest.getState());
+		OAuth2AuthorizationRequest removedAuthorizationRequest =
+				this.authorizationRequestRepository.removeAuthorizationRequest(request);
+
+		String sessionAttributeName = HttpSessionOAuth2AuthorizationRequestRepository.class.getName() +
+				".AUTHORIZATION_REQUEST";
+
+		assertThat(removedAuthorizationRequest).isNotNull();
+		assertThat(request.getSession().getAttribute(sessionAttributeName)).isNull();
+	}
+
 	@Test
 	public void removeAuthorizationRequestWhenNotSavedThenNotRemoved() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
