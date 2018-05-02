@@ -199,6 +199,45 @@ public class OAuth2LoginAuthenticationFilterTests {
 		assertThat(authenticationException.getError().getErrorCode()).isEqualTo("authorization_request_not_found");
 	}
 
+	// gh-5251
+	@Test
+	public void doFilterWhenAuthorizationResponseClientRegistrationNotFoundThenClientRegistrationNotFoundError() throws Exception {
+		String requestUri = "/login/oauth2/code/" + this.registration2.getRegistrationId();
+		String state = "state";
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
+		request.setServletPath(requestUri);
+		request.addParameter(OAuth2ParameterNames.CODE, "code");
+		request.addParameter(OAuth2ParameterNames.STATE, "state");
+
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		FilterChain filterChain = mock(FilterChain.class);
+
+		ClientRegistration registrationNotFound = ClientRegistration.withRegistrationId("registration-not-found")
+				.clientId("client-1")
+				.clientSecret("secret")
+				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.redirectUriTemplate("{baseUrl}/login/oauth2/code/{registrationId}")
+				.scope("user")
+				.authorizationUri("https://provider.com/oauth2/authorize")
+				.tokenUri("https://provider.com/oauth2/token")
+				.userInfoUri("https://provider.com/oauth2/user")
+				.userNameAttributeName("id")
+				.clientName("client-1")
+				.build();
+		this.setUpAuthorizationRequest(request, response, registrationNotFound, state);
+
+		this.filter.doFilter(request, response, filterChain);
+
+		ArgumentCaptor<AuthenticationException> authenticationExceptionArgCaptor = ArgumentCaptor.forClass(AuthenticationException.class);
+		verify(this.failureHandler).onAuthenticationFailure(any(HttpServletRequest.class), any(HttpServletResponse.class),
+				authenticationExceptionArgCaptor.capture());
+
+		assertThat(authenticationExceptionArgCaptor.getValue()).isInstanceOf(OAuth2AuthenticationException.class);
+		OAuth2AuthenticationException authenticationException = (OAuth2AuthenticationException) authenticationExceptionArgCaptor.getValue();
+		assertThat(authenticationException.getError().getErrorCode()).isEqualTo("client_registration_not_found");
+	}
+
 	@Test
 	public void doFilterWhenAuthorizationResponseValidThenAuthorizationRequestRemoved() throws Exception {
 		String requestUri = "/login/oauth2/code/" + this.registration2.getRegistrationId();
