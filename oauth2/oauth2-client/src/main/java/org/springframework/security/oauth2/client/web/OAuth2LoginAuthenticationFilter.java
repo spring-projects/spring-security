@@ -97,6 +97,7 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 	 */
 	public static final String DEFAULT_FILTER_PROCESSES_URI = "/login/oauth2/code/*";
 	private static final String AUTHORIZATION_REQUEST_NOT_FOUND_ERROR_CODE = "authorization_request_not_found";
+	private static final String CLIENT_REGISTRATION_NOT_FOUND_ERROR_CODE = "client_registration_not_found";
 	private ClientRegistrationRepository clientRegistrationRepository;
 	private OAuth2AuthorizedClientService authorizedClientService;
 	private AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
@@ -148,7 +149,11 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 
 		String registrationId = (String) authorizationRequest.getAdditionalParameters().get(OAuth2ParameterNames.REGISTRATION_ID);
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(registrationId);
-
+		if (clientRegistration == null) {
+			OAuth2Error oauth2Error = new OAuth2Error(CLIENT_REGISTRATION_NOT_FOUND_ERROR_CODE,
+					"Client Registration not found with Id: " + registrationId, null);
+			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+		}
 		OAuth2AuthorizationResponse authorizationResponse = this.convert(request);
 
 		OAuth2LoginAuthenticationToken authenticationRequest = new OAuth2LoginAuthenticationToken(
