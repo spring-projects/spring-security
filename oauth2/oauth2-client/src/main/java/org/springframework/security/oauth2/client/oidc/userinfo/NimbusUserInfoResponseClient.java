@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import com.nimbusds.openid.connect.sdk.UserInfoErrorResponse;
 import com.nimbusds.openid.connect.sdk.UserInfoRequest;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.client.AbstractClientHttpResponse;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.converter.GenericHttpMessageConverter;
@@ -84,6 +85,7 @@ final class NimbusUserInfoResponseClient {
 
 		UserInfoRequest userInfoRequest = new UserInfoRequest(userInfoUri, accessToken);
 		HTTPRequest httpRequest = userInfoRequest.toHTTPRequest();
+		httpRequest.setAccept(MediaType.APPLICATION_JSON_VALUE);
 		httpRequest.setConnectTimeout(30000);
 		httpRequest.setReadTimeout(30000);
 		HTTPResponse httpResponse;
