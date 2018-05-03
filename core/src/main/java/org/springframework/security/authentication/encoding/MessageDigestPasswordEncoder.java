@@ -51,7 +51,10 @@ import org.springframework.util.Assert;
  * @author Ray Krueger
  * @author Luke Taylor
  * @since 1.0.1
+ * @deprecated This is deprecated and marked for deletion. Replace with an implementation
+ * of {@link org.springframework.security.crypto.password.MessageDigestPasswordEncoder}
  */
+@Deprecated
 public class MessageDigestPasswordEncoder extends BaseDigestPasswordEncoder {
 
 	private final String algorithm;

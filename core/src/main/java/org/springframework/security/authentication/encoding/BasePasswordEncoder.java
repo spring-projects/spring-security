@@ -22,7 +22,10 @@ package org.springframework.security.authentication.encoding;
  * </p>
  *
  * @author Ben Alex
+ * @deprecated This is deprecated and marked for deletion. Replace with an implementation
+ * of {@link org.springframework.security.crypto.password.PasswordEncoder}
  */
+@Deprecated
 public abstract class BasePasswordEncoder implements PasswordEncoder {
 	// ~ Methods
 	// ========================================================================================================

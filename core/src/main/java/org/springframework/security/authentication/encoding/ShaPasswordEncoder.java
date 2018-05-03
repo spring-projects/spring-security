@@ -40,7 +40,11 @@ package org.springframework.security.authentication.encoding;
  * @author Ray Krueger
  * @author colin sampaleanu
  * @author Ben Alex
+ * @deprecated This is deprecated and marked for deletion. Replace with an implementation
+ * of {@link org.springframework.security.crypto.password.MessageDigestPasswordEncoder}
+ * with an algorithm "SHA-$strength" (i.e. "SHA-1" or "SHA-256").
  */
+@Deprecated
 public class ShaPasswordEncoder extends MessageDigestPasswordEncoder {
 
 	/**

@@ -29,7 +29,10 @@ import java.util.Locale;
  *
  * @author colin sampaleanu
  * @author Ben Alex
+ * @deprecated This class will be removed in Spring Security 5. For passivity switch to
+ * {@link org.springframework.security.crypto.password.NoOpPasswordEncoder}.
  */
+@Deprecated
 public class PlaintextPasswordEncoder extends BasePasswordEncoder {
 	// ~ Instance fields
 	// ================================================================================================

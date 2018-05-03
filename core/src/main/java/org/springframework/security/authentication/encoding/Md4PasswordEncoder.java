@@ -31,7 +31,10 @@ import org.springframework.security.crypto.codec.Utf8;
  * legacy applications, it's not secure, don't use it for anything new!
  *
  * @author Alan Stewart
+ * @deprecated This is deprecated and marked for deletion. Replace with an implementation
+ * of {@link org.springframework.security.crypto.password.Md4PasswordEncoder}
  */
+@Deprecated
 public class Md4PasswordEncoder extends BaseDigestPasswordEncoder {
 
 	// ~ Methods

@@ -34,7 +34,7 @@ public class HexTests {
 	@Test
 	public void encode() {
 		assertThat(Hex.encode(new byte[] { (byte) 'A', (byte) 'B', (byte) 'C',
-				(byte) 'D' })).isEqualTo(new char[] {'4','1','4','2','4','3','4','4'});
+				(byte) 'D' })).isEqualTo(new char[] {'4', '1', '4', '2', '4', '3', '4', '4'});
 	}
 
 	@Test
