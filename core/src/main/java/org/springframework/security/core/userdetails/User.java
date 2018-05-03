@@ -326,6 +326,8 @@ public class User implements UserDetails, CredentialsContainer {
 	 * @deprecated Using this method is not considered safe for production, but is
 	 * acceptable for demos and getting started. For production purposes, ensure the
 	 * password is encoded externally. See the method Javadoc for additional details.
+	 * There are no plans to remove this support. It is deprecated to indicate
+	 * that this is considered insecure for production purposes.
 	 */
 	@Deprecated
 	public static UserBuilder withDefaultPasswordEncoder() {
