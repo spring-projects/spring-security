@@ -25,6 +25,7 @@ import org.springframework.http.server.PathContainer;
 import org.springframework.http.server.RequestPath;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 
 import reactor.core.publisher.Mono;
@@ -57,7 +58,9 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 	 * {@link #setCookieHttpOnly(boolean)} set to false
 	 */
 	public static CookieServerCsrfTokenRepository withHttpOnlyFalse() {
-		return new CookieServerCsrfTokenRepository().withCookieHttpOnly(false);
+		CookieServerCsrfTokenRepository result = new CookieServerCsrfTokenRepository();
+		result.setCookieHttpOnly(false);
+		return result;
 	}
 
 	@Override
@@ -102,16 +105,6 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 	}
 
 	/**
-	 * Sets the HttpOnly attribute on the cookie containing the CSRF token
-	 * @param cookieHttpOnly True to mark the cookie as http only. False otherwise.
-	 * @return This instance
-	 */
-	public CookieServerCsrfTokenRepository withCookieHttpOnly(boolean cookieHttpOnly) {
-		setCookieHttpOnly(cookieHttpOnly);
-		return this;
-	}
-
-	/**
 	 * Sets the cookie name
 	 * @param cookieName The cookie name
 	 */
@@ -121,32 +114,12 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 	}
 
 	/**
-	 * Sets the cookie name
-	 * @param cookieName The cookie name
-	 * @return This instance
-	 */
-	public CookieServerCsrfTokenRepository withCookieName(String cookieName) {
-		setCookieName(cookieName);
-		return this;
-	}
-
-	/**
 	 * Sets the parameter name
 	 * @param parameterName The parameter name
 	 */
 	public void setParameterName(String parameterName) {
 		Assert.hasLength(parameterName, "parameterName can't be null");
 		this.parameterName = parameterName;
-	}
-
-	/**
-	 * Sets the parameter name
-	 * @param parameterName The parameter name
-	 * @return This instance
-	 */
-	public CookieServerCsrfTokenRepository withParameterName(String parameterName) {
-		setParameterName(parameterName);
-		return this;
 	}
 
 	/**
@@ -160,32 +133,12 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 	}
 
 	/**
-	 * Sets the header name
-	 * @param headerName The header name
-	 * @return This instance
-	 */
-	public CookieServerCsrfTokenRepository withHeaderName(String headerName) {
-		setHeaderName(headerName);
-		return this;
-	}
-
-	/**
 	 * Sets the cookie path
 	 * @param cookiePath The cookie path
 	 * @return This instance
 	 */
 	public void setCookiePath(String cookiePath) {
 		this.cookiePath = cookiePath;
-	}
-
-	/**
-	 * Sets the cookie path
-	 * @param cookiePath The cookie path
-	 * @return This instance
-	 */
-	public CookieServerCsrfTokenRepository withCookiePath(String cookiePath) {
-		setCookiePath(cookiePath);
-		return this;
 	}
 
 	/**
@@ -197,15 +150,6 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 		this.cookieDomain = cookieDomain;
 	}
 
-	/**
-	 * Sets the cookie domain
-	 * @param cookieDomain The cookie domain
-	 * @return This instance
-	 */
-	public CookieServerCsrfTokenRepository withCookieDomain(String cookieDomain) {
-		setCookieDomain(cookieDomain);
-		return this;
-	}
 
 	private CsrfToken createCsrfToken() {
 		return createCsrfToken(createNewToken());
@@ -220,11 +164,7 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 	}
 
 	private String getRequestContext(ServerHttpRequest request) {
-		return Optional.ofNullable(request)
-			.map(ServerHttpRequest::getPath)
-			.map(RequestPath::contextPath)
-			.map(PathContainer::value)
-			.filter(contextPath -> contextPath.length() > 0)
-			.orElse("/");
+		String contextPath = request.getPath().contextPath().value();
+		return StringUtils.hasLength(contextPath) ? contextPath : "/";
 	}
 }
