@@ -302,7 +302,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport
 	 * Allows the default query string used to retrieve authorities based on username to
 	 * be overridden, if default table or column names need to be changed. The default
 	 * query is {@link #DEF_AUTHORITIES_BY_USERNAME_QUERY}; when modifying this query,
-	 * ensure that all returned columns are mapped back to the same column names as in the
+	 * ensure that all returned columns are mapped back to the same column positions as in the
 	 * default query.
 	 *
 	 * @param queryString The SQL query string to set
@@ -320,7 +320,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport
 	 * username to be overridden, if default table or column names need to be changed. The
 	 * default query is {@link #DEF_GROUP_AUTHORITIES_BY_USERNAME_QUERY}; when modifying
 	 * this query, ensure that all returned columns are mapped back to the same column
-	 * names as in the default query.
+	 * positions as in the default query.
 	 *
 	 * @param queryString The SQL query string to set
 	 */
@@ -370,7 +370,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport
 	 * Allows the default query string used to retrieve users based on username to be
 	 * overridden, if default table or column names need to be changed. The default query
 	 * is {@link #DEF_USERS_BY_USERNAME_QUERY}; when modifying this query, ensure that all
-	 * returned columns are mapped back to the same column names as in the default query.
+	 * returned columns are mapped back to the same column positions as in the default query.
 	 * If the 'enabled' column does not exist in the source database, a permanent true
 	 * value for this column may be returned by using a query similar to
 	 *
