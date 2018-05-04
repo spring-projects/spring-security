@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,8 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
+
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -203,5 +205,36 @@ public class DefaultOAuth2UserServiceTests {
 		when(this.accessToken.getTokenValue()).thenReturn("access-token");
 
 		this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessToken));
+	}
+
+	// gh-5294
+	@Test
+	public void loadUserWhenUserInfoSuccessResponseThenAcceptHeaderJson() throws Exception {
+		MockWebServer server = new MockWebServer();
+
+		String userInfoResponse = "{\n" +
+				"	\"user-name\": \"user1\",\n" +
+				"   \"first-name\": \"first\",\n" +
+				"   \"last-name\": \"last\",\n" +
+				"   \"middle-name\": \"middle\",\n" +
+				"   \"address\": \"address\",\n" +
+				"   \"email\": \"user1@example.com\"\n" +
+				"}\n";
+		server.enqueue(new MockResponse()
+				.setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+				.setBody(userInfoResponse));
+
+		server.start();
+
+		String userInfoUri = server.url("/user").toString();
+
+		when(this.userInfoEndpoint.getUri()).thenReturn(userInfoUri);
+		when(this.userInfoEndpoint.getUserNameAttributeName()).thenReturn("user-name");
+		when(this.accessToken.getTokenValue()).thenReturn("access-token");
+
+		this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessToken));
+		server.shutdown();
+		assertThat(server.takeRequest(1, TimeUnit.SECONDS).getHeader(HttpHeaders.ACCEPT))
+				.isEqualTo(MediaType.APPLICATION_JSON_VALUE);
 	}
 }
