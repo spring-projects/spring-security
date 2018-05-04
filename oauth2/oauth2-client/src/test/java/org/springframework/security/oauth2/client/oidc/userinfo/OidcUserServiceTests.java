@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,6 +44,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -289,5 +290,35 @@ public class OidcUserServiceTests {
 		server.shutdown();
 
 		assertThat(user.getName()).isEqualTo("user1@example.com");
+	}
+
+	// gh-5294
+	@Test
+	public void loadUserWhenUserInfoSuccessResponseThenAcceptHeaderJson() throws Exception {
+		MockWebServer server = new MockWebServer();
+
+		String userInfoResponse = "{\n" +
+				"	\"sub\": \"subject1\",\n" +
+				"   \"name\": \"first last\",\n" +
+				"   \"given_name\": \"first\",\n" +
+				"   \"family_name\": \"last\",\n" +
+				"   \"preferred_username\": \"user1\",\n" +
+				"   \"email\": \"user1@example.com\"\n" +
+				"}\n";
+		server.enqueue(new MockResponse()
+				.setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+				.setBody(userInfoResponse));
+
+		server.start();
+
+		String userInfoUri = server.url("/user").toString();
+
+		when(this.userInfoEndpoint.getUri()).thenReturn(userInfoUri);
+		when(this.accessToken.getTokenValue()).thenReturn("access-token");
+
+		this.userService.loadUser(new OidcUserRequest(this.clientRegistration, this.accessToken, this.idToken));
+		server.shutdown();
+		assertThat(server.takeRequest(1, TimeUnit.SECONDS).getHeader(HttpHeaders.ACCEPT))
+				.isEqualTo(MediaType.APPLICATION_JSON_VALUE);
 	}
 }
