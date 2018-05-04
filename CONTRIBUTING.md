@@ -8,7 +8,7 @@ By participating, you  are expected to uphold this code. Please report unaccepta
 
 # Similar but different
 
-Each Spring module is slightly different than another in terms of team size, number of issues, etc. Therefore each project is managed slightly different. You will notice that this document is very similar to the [Spring Framework Contributor guidelines](https://github.com/SpringSource/spring-framework/wiki/Contributor-guidelines). However, there are some subtle differences between the two documents, so please be sure to read this document thoroughly.
+Each Spring module is slightly different than another in terms of team size, number of issues, etc. Therefore each project is managed slightly different. You will notice that this document is very similar to the [Spring Framework Contributor guidelines](https://github.com/spring-projects/spring-framework/wiki/Contributor-guidelines). However, there are some subtle differences between the two documents, so please be sure to read this document thoroughly.
 
 # Importing into IDE
 
