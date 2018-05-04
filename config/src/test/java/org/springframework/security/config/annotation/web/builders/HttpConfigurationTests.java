@@ -88,7 +88,7 @@ public class HttpConfigurationTests {
 		}
 	}
 
-	// https://github.com/SpringSource/spring-security-javaconfig/issues/104
+	// https://github.com/spring-projects/spring-security-javaconfig/issues/104
 	@Test
 	public void configureWhenAddFilterCasAuthenticationFilterThenFilterAdded() throws Exception {
 		CasAuthenticationFilterConfig.CAS_AUTHENTICATION_FILTER = spy(new CasAuthenticationFilter());

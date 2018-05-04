@@ -62,7 +62,7 @@ public class Issue50Tests {
 	}
 
 	@Test
-	// https://github.com/SpringSource/spring-security-javaconfig/issues/50
+	// https://github.com/spring-projects/spring-security-javaconfig/issues/50
 	public void loadWhenGlobalMethodSecurityConfigurationThenAuthenticationManagerLazy() {
 		// no exception
 	}
