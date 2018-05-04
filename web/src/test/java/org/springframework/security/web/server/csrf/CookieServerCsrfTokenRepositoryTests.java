@@ -19,236 +19,208 @@ package org.springframework.security.web.server.csrf;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Duration;
-import java.util.function.Supplier;
 
 import org.junit.Test;
-
+import org.springframework.http.HttpCookie;
 import org.springframework.http.ResponseCookie;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
-
-import reactor.core.publisher.Mono;
 
 /**
  * @author Eric Deandrea
  * @since 5.1
  */
 public class CookieServerCsrfTokenRepositoryTests {
-	@Test
-	public void generateTokenDefault() {
-		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/someUri"));
-		CookieServerCsrfTokenRepository csrfTokenRepository =
-			CookieServerCsrfTokenRepositoryFactory.createRepository(CookieServerCsrfTokenRepository::new);
-		Mono<CsrfToken> csrfTokenMono = csrfTokenRepository.generateToken(exchange);
+	private MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/someUri"));
 
-		assertThat(csrfTokenMono).isNotNull();
-		assertThat(csrfTokenMono.block())
-			.isNotNull()
-			.extracting("headerName", "parameterName")
-			.containsExactly(CookieServerCsrfTokenRepository.DEFAULT_CSRF_HEADER_NAME, CookieServerCsrfTokenRepository.DEFAULT_CSRF_PARAMETER_NAME);
-		assertThat(csrfTokenMono.block().getToken()).isNotBlank();
+	private CookieServerCsrfTokenRepository csrfTokenRepository = new CookieServerCsrfTokenRepository();
+
+	private String expectedHeaderName = CookieServerCsrfTokenRepository.DEFAULT_CSRF_HEADER_NAME;
+
+	private String expectedParameterName = CookieServerCsrfTokenRepository.DEFAULT_CSRF_PARAMETER_NAME;
+
+	private Duration expectedMaxAge = Duration.ofSeconds(-1);
+
+	private String expectedDomain = null;
+
+	private String expectedPath = "/";
+
+	private boolean expectedSecure = false;
+
+	private boolean expectedHttpOnly = true;
+
+	private String expectedCookieName = CookieServerCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME;
+
+	private String expectedCookieValue = "csrfToken";
+
+	@Test
+	public void generateTokenWhenDefaultThenDefaults() {
+		generateTokenAndAssertExpectedValues();
 	}
 
 	@Test
-	public void generateTokenChangeHeaderName() {
-		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/someUri"));
-		CookieServerCsrfTokenRepository csrfTokenRepository =
-			CookieServerCsrfTokenRepositoryFactory.createRepository(CookieServerCsrfTokenRepository::new,
-				CookieServerCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME,
-				"someHeader",
-				CookieServerCsrfTokenRepository.DEFAULT_CSRF_PARAMETER_NAME);
-		Mono<CsrfToken> csrfTokenMono = csrfTokenRepository.generateToken(exchange);
+	public void generateTokenWhenCustomHeaderThenCustomHeader() {
+		setExpectedHeaderName("someHeader");
 
-		assertThat(csrfTokenMono).isNotNull();
-		assertThat(csrfTokenMono.block())
-			.isNotNull()
-			.extracting("headerName", "parameterName")
-			.containsExactly("someHeader", CookieServerCsrfTokenRepository.DEFAULT_CSRF_PARAMETER_NAME);
-		assertThat(csrfTokenMono.block().getToken()).isNotBlank();
+		generateTokenAndAssertExpectedValues();
 	}
 
 	@Test
-	public void generateTokenChangeParameterName() {
-		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/someUri"));
-		CookieServerCsrfTokenRepository csrfTokenRepository =
-			CookieServerCsrfTokenRepositoryFactory.createRepository(CookieServerCsrfTokenRepository::new,
-				CookieServerCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME,
-				CookieServerCsrfTokenRepository.DEFAULT_CSRF_HEADER_NAME,
-				"someParam");
-		Mono<CsrfToken> csrfTokenMono = csrfTokenRepository.generateToken(exchange);
+	public void generateTokenWhenCustomParameterThenCustomParameter() {
+		setExpectedParameterName("someParam");
 
-		assertThat(csrfTokenMono).isNotNull();
-		assertThat(csrfTokenMono.block())
-			.isNotNull()
-			.extracting("headerName", "parameterName")
-			.containsExactly(CookieServerCsrfTokenRepository.DEFAULT_CSRF_HEADER_NAME, "someParam");
-		assertThat(csrfTokenMono.block().getToken()).isNotBlank();
+		generateTokenAndAssertExpectedValues();
 	}
 
 	@Test
-	public void generateTokenChangeHeaderAndParameterName() {
-		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/someUri"));
-		CookieServerCsrfTokenRepository csrfTokenRepository =
-			CookieServerCsrfTokenRepositoryFactory.createRepository(CookieServerCsrfTokenRepository::new,
-				CookieServerCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME,
-				"someHeader",
-				"someParam");
-		Mono<CsrfToken> csrfTokenMono = csrfTokenRepository.generateToken(exchange);
+	public void generateTokenWhenCustomHeaderAndParameterThenCustomHeaderAndParameter() {
+		setExpectedHeaderName("someHeader");
+		setExpectedParameterName("someParam");
 
-		assertThat(csrfTokenMono).isNotNull();
-		assertThat(csrfTokenMono.block())
-			.isNotNull()
-			.extracting("headerName", "parameterName")
-			.containsExactly("someHeader", "someParam");
-		assertThat(csrfTokenMono.block().getToken()).isNotBlank();
+		generateTokenAndAssertExpectedValues();
 	}
 
 	@Test
-	public void saveTokenDefault() {
-		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/someUri"));
-		CookieServerCsrfTokenRepository csrfTokenRepository =
-			CookieServerCsrfTokenRepositoryFactory.createRepository(CookieServerCsrfTokenRepository::new);
+	public void saveTokenWhenNoSubscriptionThenNotWritten() {
+		this.csrfTokenRepository.saveToken(this.exchange, createToken());
 
-		Mono<Void> csrfTokenMono = csrfTokenRepository.saveToken(exchange, createToken("someTokenValue"));
-		ResponseCookie cookie = exchange
-			.getResponse()
-			.getCookies()
-			.getFirst(CookieServerCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
-
-		assertThat(csrfTokenMono).isNotNull();
-		assertThat(cookie)
-			.isNotNull()
-			.extracting("maxAge", "domain", "path", "secure", "httpOnly", "name", "value")
-			.containsExactly(Duration.ofSeconds(-1), null, "/", false, true, "XSRF-TOKEN", "someTokenValue");
+		assertThat(this.exchange
+				.getResponse()
+				.getCookies()
+				.getFirst(this.expectedCookieName)).isNull();
 	}
 
 	@Test
-	public void saveTokenMaxAge() {
-		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/someUri"));
-		CookieServerCsrfTokenRepository csrfTokenRepository =
-			CookieServerCsrfTokenRepositoryFactory.createRepository(CookieServerCsrfTokenRepository::new);
-
-		Mono<Void> csrfTokenMono = csrfTokenRepository.saveToken(exchange, null);
-		ResponseCookie cookie = exchange
-			.getResponse()
-			.getCookies()
-			.getFirst(CookieServerCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
-
-		assertThat(csrfTokenMono).isNotNull();
-		assertThat(cookie)
-			.isNotNull()
-			.extracting("maxAge", "domain", "path", "secure", "httpOnly", "name", "value")
-			.containsExactly(Duration.ofSeconds(0), null, "/", false, true, "XSRF-TOKEN", "");
+	public void saveTokenWhenDefaultThenDefaults() {
+		saveAndAssertExpectedValues(createToken());
 	}
 
 	@Test
-	public void saveTokenHttpOnly() {
-		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/someUri"));
-		CookieServerCsrfTokenRepository csrfTokenRepository =
-			CookieServerCsrfTokenRepositoryFactory.createRepository(CookieServerCsrfTokenRepository::withHttpOnlyFalse);
-
-		Mono<Void> csrfTokenMono = csrfTokenRepository.saveToken(exchange, createToken("someTokenValue"));
-		ResponseCookie cookie = exchange
-			.getResponse()
-			.getCookies()
-			.getFirst(CookieServerCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
-
-		assertThat(csrfTokenMono).isNotNull();
-		assertThat(cookie)
-			.isNotNull()
-			.extracting("maxAge", "domain", "path", "secure", "httpOnly", "name", "value")
-			.containsExactly(Duration.ofSeconds(-1), null, "/", false, false, "XSRF-TOKEN", "someTokenValue");
+	public void saveTokenWhenNullThenDeletes() {
+		saveAndAssertExpectedValues(null);
 	}
 
 	@Test
-	public void saveTokenOverriddenViaCsrfProps() {
-		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/someUri"));
-		CookieServerCsrfTokenRepository csrfTokenRepository =
-			CookieServerCsrfTokenRepositoryFactory.createRepository(CookieServerCsrfTokenRepository::new,
-			".spring.io",  "csrfCookie", "/some/path",
-				"headerName", "paramName");
+	public void saveTokenWhenHttpOnlyFalseThenHttpOnlyFalse() {
+		setExpectedHttpOnly(false);
 
-		Mono<Void> csrfTokenMono =
-			csrfTokenRepository.saveToken(exchange, createToken("headerName", "paramName", "someTokenValue"));
-		ResponseCookie cookie = exchange.getResponse().getCookies().getFirst("csrfCookie");
-
-		assertThat(csrfTokenMono).isNotNull();
-		assertThat(cookie)
-			.isNotNull()
-			.extracting("maxAge", "domain", "path", "secure", "httpOnly", "name", "value")
-			.containsExactly(Duration.ofSeconds(-1), ".spring.io", "/some/path", false, true, "csrfCookie", "someTokenValue");
+		saveAndAssertExpectedValues(createToken());
 	}
 
 	@Test
-	public void loadTokenThatExists() {
-		MockServerWebExchange exchange = MockServerWebExchange.from(
-			MockServerHttpRequest.post("/someUri")
-				.cookie(ResponseCookie.from(CookieServerCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME, "someTokenValue").build()));
+	public void saveTokenWhenCustomPropertiesThenCustomProperties() {
+		setExpectedDomain(".spring.io");
+		setExpectedCookieName("csrfCookie");
+		setExpectedPath("/some/path");
+		setExpectedHeaderName("headerName");
+		setExpectedParameterName("paramName");
 
-		CookieServerCsrfTokenRepository csrfTokenRepository =
-			CookieServerCsrfTokenRepositoryFactory.createRepository(CookieServerCsrfTokenRepository::new);
-		Mono<CsrfToken> csrfTokenMono = csrfTokenRepository.loadToken(exchange);
-
-		assertThat(csrfTokenMono).isNotNull();
-		assertThat(csrfTokenMono.block())
-			.isNotNull()
-			.extracting("headerName", "parameterName", "token")
-			.containsExactly(
-				CookieServerCsrfTokenRepository.DEFAULT_CSRF_HEADER_NAME,
-				CookieServerCsrfTokenRepository.DEFAULT_CSRF_PARAMETER_NAME,
-				"someTokenValue");
+		saveAndAssertExpectedValues(createToken());
 	}
 
 	@Test
-	public void loadTokenThatDoesntExists() {
-		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.post("/someUri"));
-		CookieServerCsrfTokenRepository csrfTokenRepository =
-			CookieServerCsrfTokenRepositoryFactory.createRepository(CookieServerCsrfTokenRepository::new);
-
-		Mono<CsrfToken> csrfTokenMono = csrfTokenRepository.loadToken(exchange);
-		assertThat(csrfTokenMono).isNotNull();
-		assertThat(csrfTokenMono.block()).isNull();
+	public void loadTokenWhenCookieExistThenTokenFound() {
+		loadAndAssertExpectedValues();
 	}
 
-	private static CsrfToken createToken(String tokenValue) {
-		return createToken(CookieServerCsrfTokenRepository.DEFAULT_CSRF_HEADER_NAME,
-			CookieServerCsrfTokenRepository.DEFAULT_CSRF_PARAMETER_NAME, tokenValue);
+	@Test
+	public void loadTokenWhenCustomThenTokenFound() {
+		setExpectedParameterName("paramName");
+		setExpectedHeaderName("headerName");
+		setExpectedCookieName("csrfCookie");
+
+		saveAndAssertExpectedValues(createToken());
+	}
+
+	@Test
+	public void loadTokenWhenNoCookiesThenNullToken() {
+		CsrfToken csrfToken = this.csrfTokenRepository.loadToken(this.exchange).block();
+		assertThat(csrfToken).isNull();
+	}
+
+	private void setExpectedHeaderName(String expectedHeaderName) {
+		this.csrfTokenRepository.setHeaderName(expectedHeaderName);
+		this.expectedHeaderName = expectedHeaderName;
+	}
+
+	private void setExpectedParameterName(String expectedParameterName) {
+		this.csrfTokenRepository.setParameterName(expectedParameterName);
+		this.expectedParameterName = expectedParameterName;
+	}
+
+	private void setExpectedDomain(String expectedDomain) {
+		this.csrfTokenRepository.setCookieDomain(expectedDomain);
+		this.expectedDomain = expectedDomain;
+	}
+
+	private void setExpectedPath(String expectedPath) {
+		this.csrfTokenRepository.setCookiePath(expectedPath);
+		this.expectedPath = expectedPath;
+	}
+
+	private void setExpectedHttpOnly(boolean expectedHttpOnly) {
+		this.expectedHttpOnly = expectedHttpOnly;
+		this.csrfTokenRepository.setCookieHttpOnly(expectedHttpOnly);
+	}
+
+	private void setExpectedCookieName(String expectedCookieName) {
+		this.expectedCookieName = expectedCookieName;
+		this.csrfTokenRepository.setCookieName(expectedCookieName);
+	}
+
+	private void loadAndAssertExpectedValues() {
+		MockServerHttpRequest.BodyBuilder request = MockServerHttpRequest.post("/someUri")
+				.cookie(new HttpCookie(this.expectedCookieName,
+						this.expectedCookieValue));
+		this.exchange = MockServerWebExchange.from(request);
+
+		CsrfToken csrfToken = this.csrfTokenRepository.loadToken(this.exchange).block();
+
+		assertThat(csrfToken).isNotNull();
+		assertThat(csrfToken.getHeaderName()).isEqualTo(this.expectedHeaderName);
+		assertThat(csrfToken.getParameterName()).isEqualTo(this.expectedParameterName);
+		assertThat(csrfToken.getToken()).isEqualTo(this.expectedCookieValue);
+	}
+
+	private void saveAndAssertExpectedValues(CsrfToken token) {
+		if (token == null) {
+			this.expectedMaxAge = Duration.ofSeconds(0);
+			this.expectedCookieValue = "";
+		}
+
+		this.csrfTokenRepository.saveToken(this.exchange, token).block();
+
+		ResponseCookie cookie =  this.exchange
+				.getResponse()
+				.getCookies()
+				.getFirst(this.expectedCookieName);
+
+		assertThat(cookie).isNotNull();
+		assertThat(cookie.getMaxAge()).isEqualTo(this.expectedMaxAge);
+		assertThat(cookie.getDomain()).isEqualTo(this.expectedDomain);
+		assertThat(cookie.getPath()).isEqualTo(this.expectedPath);
+		assertThat(cookie.isSecure()).isEqualTo(this.expectedSecure);
+		assertThat(cookie.isHttpOnly()).isEqualTo(this.expectedHttpOnly);
+		assertThat(cookie.getName()).isEqualTo(this.expectedCookieName);
+		assertThat(cookie.getValue()).isEqualTo(this.expectedCookieValue);
+	}
+
+	private void generateTokenAndAssertExpectedValues() {
+		CsrfToken csrfToken = this.csrfTokenRepository.generateToken(this.exchange).block();
+
+		assertThat(csrfToken).isNotNull();
+		assertThat(csrfToken.getHeaderName()).isEqualTo(this.expectedHeaderName);
+		assertThat(csrfToken.getParameterName()).isEqualTo(this.expectedParameterName);
+		assertThat(csrfToken.getToken()).isNotBlank();
+	}
+
+
+	private CsrfToken createToken() {
+		return createToken(this.expectedHeaderName,
+			this.expectedParameterName, this.expectedCookieValue);
 	}
 
 	private static CsrfToken createToken(String headerName, String parameterName, String tokenValue) {
 		return new DefaultCsrfToken(headerName, parameterName, tokenValue);
-	}
-
-	static final class CookieServerCsrfTokenRepositoryFactory {
-		private CookieServerCsrfTokenRepositoryFactory() {
-			super();
-		}
-
-		static CookieServerCsrfTokenRepository createRepository(Supplier<CookieServerCsrfTokenRepository> cookieServerCsrfTokenRepositorySupplier) {
-			return createRepository(cookieServerCsrfTokenRepositorySupplier,
-				CookieServerCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME,
-				CookieServerCsrfTokenRepository.DEFAULT_CSRF_HEADER_NAME,
-				CookieServerCsrfTokenRepository.DEFAULT_CSRF_PARAMETER_NAME);
-		}
-
-		static CookieServerCsrfTokenRepository createRepository(
-			Supplier<CookieServerCsrfTokenRepository> cookieServerCsrfTokenRepositorySupplier,
-			String cookieName, String headerName, String parameterName) {
-
-			return createRepository(cookieServerCsrfTokenRepositorySupplier,
-				null, cookieName, null, headerName, parameterName);
-		}
-
-		static CookieServerCsrfTokenRepository createRepository(
-			Supplier<CookieServerCsrfTokenRepository> cookieServerCsrfTokenRepositorySupplier,
-			String cookieDomain, String cookieName, String cookiePath, String headerName, String parameterName) {
-
-			return cookieServerCsrfTokenRepositorySupplier.get()
-				.withCookieDomain(cookieDomain)
-				.withCookieName(cookieName)
-				.withCookiePath(cookiePath)
-				.withHeaderName(headerName)
-				.withParameterName(parameterName);
-		}
 	}
 }

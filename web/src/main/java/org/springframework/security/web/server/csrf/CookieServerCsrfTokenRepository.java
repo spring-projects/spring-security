@@ -21,8 +21,6 @@ import java.util.UUID;
 
 import org.springframework.http.HttpCookie;
 import org.springframework.http.ResponseCookie;
-import org.springframework.http.server.PathContainer;
-import org.springframework.http.server.RequestPath;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -70,30 +68,30 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 
 	@Override
 	public Mono<Void> saveToken(ServerWebExchange exchange, CsrfToken token) {
-		Optional<String> tokenValue = Optional.ofNullable(token).map(CsrfToken::getToken);
+		return Mono.fromRunnable(() -> {
+			Optional<String> tokenValue = Optional.ofNullable(token).map(CsrfToken::getToken);
 
-		ResponseCookie cookie = ResponseCookie.from(this.cookieName, tokenValue.orElse(""))
-			.domain(this.cookieDomain)
-			.httpOnly(this.cookieHttpOnly)
-			.maxAge(tokenValue.map(val -> -1).orElse(0))
-			.path(Optional.ofNullable(this.cookiePath).orElseGet(() -> getRequestContext(exchange.getRequest())))
-			.secure(Optional.ofNullable(exchange.getRequest().getSslInfo()).map(sslInfo -> true).orElse(false))
-			.build();
+			ResponseCookie cookie = ResponseCookie.from(this.cookieName, tokenValue.orElse(""))
+					.domain(this.cookieDomain)
+					.httpOnly(this.cookieHttpOnly)
+					.maxAge(tokenValue.map(val -> -1).orElse(0))
+					.path(Optional.ofNullable(this.cookiePath).orElseGet(() -> getRequestContext(exchange.getRequest())))
+					.secure(Optional.ofNullable(exchange.getRequest().getSslInfo()).map(sslInfo -> true).orElse(false))
+					.build();
 
-		exchange.getResponse().addCookie(cookie);
-
-		return Mono.empty();
+			exchange.getResponse().addCookie(cookie);
+		});
 	}
 
 	@Override
 	public Mono<CsrfToken> loadToken(ServerWebExchange exchange) {
-		Optional<CsrfToken> token = Optional.ofNullable(exchange.getRequest())
-			.map(ServerHttpRequest::getCookies)
-			.map(cookiesMap -> cookiesMap.getFirst(this.cookieName))
-			.map(HttpCookie::getValue)
-			.map(this::createCsrfToken);
-
-		return Mono.justOrEmpty(token);
+		return Mono.fromCallable(() -> {
+			HttpCookie csrfCookie = exchange.getRequest().getCookies().getFirst(this.cookieName);
+			if (csrfCookie == null) {
+				return null;
+			}
+			return createCsrfToken(csrfCookie.getValue());
+		});
 	}
 
 	/**
