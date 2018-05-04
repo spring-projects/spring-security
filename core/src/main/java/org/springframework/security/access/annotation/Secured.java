@@ -43,12 +43,14 @@ import java.lang.annotation.Target;
  * &#064;Secured({ &quot;ROLE_ADMIN&quot; })
  * public void delete(Contact contact);
  * </pre>
+ * @deprecated use {@link org.springframework.security.access.prepost.PreAuthorize} for consistency and flexibility
  * @author Mark St.Godard
  */
 @Target({ ElementType.METHOD, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
+@Deprecated
 public @interface Secured {
 	/**
 	 * Returns the list of security configuration attributes (e.g. ROLE_USER, ROLE_ADMIN).
