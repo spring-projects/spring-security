@@ -22,6 +22,7 @@ import org.junit.*;
 /**
  * @author Luke Taylor
  */
+@SuppressWarnings("deprecation")
 public class Base64Tests {
 
 	@Test
@@ -33,7 +34,7 @@ public class Base64Tests {
 	}
 
 	@Test
-	public void isBase64ReturnsFalseForInvalidBase64() throws Exception {
+	public void isBase64ReturnsFalseForInvalidBase64() {
 		// Include invalid '`' character
 		assertThat(Base64.isBase64(new byte[] { (byte) 'A', (byte) 'B', (byte) 'C',
 				(byte) '`' })).isFalse();

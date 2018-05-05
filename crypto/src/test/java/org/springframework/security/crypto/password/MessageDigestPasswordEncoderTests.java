@@ -30,6 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Ray Krueger
  * @author Luke Taylor
  */
+@SuppressWarnings("deprecation")
 public class MessageDigestPasswordEncoderTests {
 	// ~ Methods
 	// ========================================================================================================

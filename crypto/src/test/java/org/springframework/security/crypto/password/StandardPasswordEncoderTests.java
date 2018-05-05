@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 
+@SuppressWarnings("deprecation")
 public class StandardPasswordEncoderTests {
 
 	private StandardPasswordEncoder encoder = new StandardPasswordEncoder("secret");
