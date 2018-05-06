@@ -147,9 +147,10 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 		}
 		String requestUrl = UrlUtils.buildFullRequestUrl(request.getScheme(), request.getServerName(),
 				request.getServerPort(), request.getRequestURI(), null);
-		if (requestUrl.equals(authorizationRequest.getRedirectUri()) &&
-				OAuth2AuthorizationResponseUtils.isAuthorizationResponse(request)) {
-			return true;
+		if (requestUrl.equals(authorizationRequest.getRedirectUri())) {
+			String registrationId = (String) authorizationRequest.getAdditionalParameters().get(OAuth2ParameterNames.REGISTRATION_ID);
+			ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(registrationId);
+			return OAuth2AuthorizationResponseUtils.isAuthorizationResponse(request, clientRegistration.getProviderDetails());
 		}
 		return false;
 	}
@@ -162,7 +163,8 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 		String registrationId = (String) authorizationRequest.getAdditionalParameters().get(OAuth2ParameterNames.REGISTRATION_ID);
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(registrationId);
 
-		OAuth2AuthorizationResponse authorizationResponse = OAuth2AuthorizationResponseUtils.convert(request);
+		OAuth2AuthorizationResponse authorizationResponse = OAuth2AuthorizationResponseUtils.convert(request,
+				clientRegistration.getProviderDetails());
 
 		OAuth2AuthorizationCodeAuthenticationToken authenticationRequest = new OAuth2AuthorizationCodeAuthenticationToken(
 			clientRegistration, new OAuth2AuthorizationExchange(authorizationRequest, authorizationResponse));

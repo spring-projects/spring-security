@@ -15,8 +15,8 @@
  */
 package org.springframework.security.oauth2.client.web;
 
+import org.springframework.security.oauth2.client.registration.ClientRegistration.ProviderDetails;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
-import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -33,24 +33,24 @@ final class OAuth2AuthorizationResponseUtils {
 	private OAuth2AuthorizationResponseUtils() {
 	}
 
-	static boolean isAuthorizationResponse(HttpServletRequest request) {
-		return isAuthorizationResponseSuccess(request) || isAuthorizationResponseError(request);
+	static boolean isAuthorizationResponse(HttpServletRequest request, ProviderDetails providerDetails) {
+		return isAuthorizationResponseSuccess(request, providerDetails) || isAuthorizationResponseError(request, providerDetails);
 	}
 
-	static boolean isAuthorizationResponseSuccess(HttpServletRequest request) {
-		return StringUtils.hasText(request.getParameter(OAuth2ParameterNames.CODE)) &&
-			StringUtils.hasText(request.getParameter(OAuth2ParameterNames.STATE));
+	static boolean isAuthorizationResponseSuccess(HttpServletRequest request, ProviderDetails providerDetails) {
+		return StringUtils.hasText(request.getParameter(providerDetails.getCodeAttributeName())) &&
+			StringUtils.hasText(request.getParameter(providerDetails.getStateAttributeName()));
 	}
 
-	static boolean isAuthorizationResponseError(HttpServletRequest request) {
-		return StringUtils.hasText(request.getParameter(OAuth2ParameterNames.ERROR)) &&
-			StringUtils.hasText(request.getParameter(OAuth2ParameterNames.STATE));
+	static boolean isAuthorizationResponseError(HttpServletRequest request, ProviderDetails providerDetails) {
+		return StringUtils.hasText(request.getParameter(providerDetails.getErrorAttributeName())) &&
+			StringUtils.hasText(request.getParameter(providerDetails.getStateAttributeName()));
 	}
 
-	static OAuth2AuthorizationResponse convert(HttpServletRequest request) {
-		String code = request.getParameter(OAuth2ParameterNames.CODE);
-		String errorCode = request.getParameter(OAuth2ParameterNames.ERROR);
-		String state = request.getParameter(OAuth2ParameterNames.STATE);
+	static OAuth2AuthorizationResponse convert(HttpServletRequest request, ProviderDetails providerDetails) {
+		String code = request.getParameter(providerDetails.getCodeAttributeName());
+		String errorCode = request.getParameter(providerDetails.getErrorAttributeName());
+		String state = request.getParameter(providerDetails.getStateAttributeName());
 		String redirectUri = request.getRequestURL().toString();
 
 		if (StringUtils.hasText(code)) {
@@ -59,8 +59,8 @@ final class OAuth2AuthorizationResponseUtils {
 				.state(state)
 				.build();
 		} else {
-			String errorDescription = request.getParameter(OAuth2ParameterNames.ERROR_DESCRIPTION);
-			String errorUri = request.getParameter(OAuth2ParameterNames.ERROR_URI);
+			String errorDescription = request.getParameter(providerDetails.getErrorDescriptionAttributeName());
+			String errorUri = request.getParameter(providerDetails.getErrorUriAttributeName());
 			return OAuth2AuthorizationResponse.error(errorCode)
 				.redirectUri(redirectUri)
 				.errorDescription(errorDescription)

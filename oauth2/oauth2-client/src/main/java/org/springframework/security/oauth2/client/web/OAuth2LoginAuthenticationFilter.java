@@ -133,11 +133,6 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
 			throws AuthenticationException, IOException, ServletException {
 
-		if (!OAuth2AuthorizationResponseUtils.isAuthorizationResponse(request)) {
-			OAuth2Error oauth2Error = new OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST);
-			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
-		}
-
 		OAuth2AuthorizationRequest authorizationRequest = this.authorizationRequestRepository.removeAuthorizationRequest(request);
 		if (authorizationRequest == null) {
 			OAuth2Error oauth2Error = new OAuth2Error(AUTHORIZATION_REQUEST_NOT_FOUND_ERROR_CODE);
@@ -146,8 +141,13 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 
 		String registrationId = (String) authorizationRequest.getAdditionalParameters().get(OAuth2ParameterNames.REGISTRATION_ID);
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(registrationId);
+		if (!OAuth2AuthorizationResponseUtils.isAuthorizationResponse(request, clientRegistration.getProviderDetails())) {
+			OAuth2Error oauth2Error = new OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST);
+			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+		}
 
-		OAuth2AuthorizationResponse authorizationResponse = OAuth2AuthorizationResponseUtils.convert(request);
+		OAuth2AuthorizationResponse authorizationResponse = OAuth2AuthorizationResponseUtils.convert(request,
+				clientRegistration.getProviderDetails());
 
 		OAuth2LoginAuthenticationToken authenticationRequest = new OAuth2LoginAuthenticationToken(
 				clientRegistration, new OAuth2AuthorizationExchange(authorizationRequest, authorizationResponse));
