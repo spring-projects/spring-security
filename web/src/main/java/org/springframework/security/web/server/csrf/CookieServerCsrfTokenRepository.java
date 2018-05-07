@@ -87,7 +87,7 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 	public Mono<CsrfToken> loadToken(ServerWebExchange exchange) {
 		return Mono.fromCallable(() -> {
 			HttpCookie csrfCookie = exchange.getRequest().getCookies().getFirst(this.cookieName);
-			if (csrfCookie == null) {
+			if ((csrfCookie == null) || !StringUtils.hasText(csrfCookie.getValue())) {
 				return null;
 			}
 			return createCsrfToken(csrfCookie.getValue());
@@ -123,7 +123,6 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 	/**
 	 * Sets the header name
 	 * @param headerName The header name
-	 * @return This instance
 	 */
 	public void setHeaderName(String headerName) {
 		Assert.hasLength(headerName, "headerName can't be null");
@@ -133,7 +132,6 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 	/**
 	 * Sets the cookie path
 	 * @param cookiePath The cookie path
-	 * @return This instance
 	 */
 	public void setCookiePath(String cookiePath) {
 		this.cookiePath = cookiePath;
@@ -142,12 +140,10 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 	/**
 	 * Sets the cookie domain
 	 * @param cookieDomain The cookie domain
-	 * @return This instance
 	 */
 	public void setCookieDomain(String cookieDomain) {
 		this.cookieDomain = cookieDomain;
 	}
-
 
 	private CsrfToken createCsrfToken() {
 		return createCsrfToken(createNewToken());
