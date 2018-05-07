@@ -171,6 +171,8 @@ public class ServerHttpSecurity {
 
 	private List<DelegateEntry> defaultEntryPoints = new ArrayList<>();
 
+	private ServerAccessDeniedHandler accessDeniedHandler;
+
 	private List<WebFilter> webFilters = new ArrayList<>();
 
 	private Throwable built;
@@ -526,6 +528,9 @@ public class ServerHttpSecurity {
 				exceptionTranslationWebFilter.setAuthenticationEntryPoint(
 					authenticationEntryPoint);
 			}
+			if(accessDeniedHandler != null) {
+				exceptionTranslationWebFilter.setAccessDeniedHandler(accessDeniedHandler);
+			}
 			this.addFilterAt(exceptionTranslationWebFilter, SecurityWebFiltersOrder.EXCEPTION_TRANSLATION);
 			this.authorizeExchange.configure(this);
 		}
@@ -790,6 +795,18 @@ public class ServerHttpSecurity {
 		 */
 		public ExceptionHandlingSpec authenticationEntryPoint(ServerAuthenticationEntryPoint authenticationEntryPoint) {
 			ServerHttpSecurity.this.authenticationEntryPoint = authenticationEntryPoint;
+			return this;
+		}
+
+		/**
+		 * Configures what to do when an authenticated user does not hold a required authority
+		 * @param accessDeniedHandler the access denied handler to use
+		 * @return the {@link ExceptionHandlingSpec} to configure
+		 *
+		 * @since 5.0.5
+		 */
+		public ExceptionHandlingSpec accessDeniedHandler(ServerAccessDeniedHandler accessDeniedHandler) {
+			ServerHttpSecurity.this.accessDeniedHandler = accessDeniedHandler;
 			return this;
 		}
 
