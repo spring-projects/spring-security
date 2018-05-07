@@ -4253,7 +4253,7 @@ name: $("meta[name='_csrf_header']").attr("content")
 ----
 
 
-The configured client can be shared with any component of the application that needs to make a request to the CSRF protected resource. One significant different between rest.js and jQuery is that only requests made with the configured client will contain the CSRF token, vs jQuery where __all__ requests will include the token. The ability to scope which requests receive the token helps guard against leaking the CSRF token to a third party. Please refer to the https://github.com/cujojs/rest/tree/master/docs[rest.js reference documentation] for more information on rest.js.
+The configured client can be shared with any component of the application that needs to make a request to the CSRF protected resource. One significant difference between rest.js and jQuery is that only requests made with the configured client will contain the CSRF token, vs jQuery where __all__ requests will include the token. The ability to scope which requests receive the token helps guard against leaking the CSRF token to a third party. Please refer to the https://github.com/cujojs/rest/tree/master/docs[rest.js reference documentation] for more information on rest.js.
 
 [[csrf-cookie]]
 ===== CookieCsrfTokenRepository
@@ -8717,7 +8717,7 @@ There are four tables used by the Spring Security <<domain-acls,ACL>> implementa
 
 . `acl_sid` stores the security identities recognised by the ACL system. These can be unique principals or authorities which may apply to multiple principals.
 . `acl_class` defines the domain object types to which ACLs apply. The `class` column stores the Java class name of the object.
-. `acl_object_identity` stores the object identity definitions of specific domai objects.
+. `acl_object_identity` stores the object identity definitions of specific domain objects.
 . `acl_entry` stores the ACL permissions which apply to a specific object identity and security identity.
 
 It is assumed that the database will auto-generate the primary keys for each of the identities. The `JdbcMutableAclService` has to be able to retrieve these when it has created a new row in the `acl_sid` or `acl_class` tables. It has two properties which define the SQL needed to retrieve these values `classIdentityQuery` and `sidIdentityQuery`. Both of these default to `call identity()`
