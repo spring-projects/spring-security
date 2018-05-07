@@ -21,10 +21,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.Duration;
 
 import org.junit.Test;
+
 import org.springframework.http.HttpCookie;
 import org.springframework.http.ResponseCookie;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
+import org.springframework.util.StringUtils;
 
 /**
  * @author Eric Deandrea
@@ -138,6 +140,20 @@ public class CookieServerCsrfTokenRepositoryTests {
 		assertThat(csrfToken).isNull();
 	}
 
+	@Test
+	public void loadTokenWhenCookieExistsWithNoValue() {
+		setExpectedCookieValue("");
+
+		loadAndAssertExpectedValues();
+	}
+
+	@Test
+	public void loadTokenWhenCookieExistsWithNullValue() {
+		setExpectedCookieValue(null);
+
+		loadAndAssertExpectedValues();
+	}
+
 	private void setExpectedHeaderName(String expectedHeaderName) {
 		this.csrfTokenRepository.setHeaderName(expectedHeaderName);
 		this.expectedHeaderName = expectedHeaderName;
@@ -168,6 +184,10 @@ public class CookieServerCsrfTokenRepositoryTests {
 		this.csrfTokenRepository.setCookieName(expectedCookieName);
 	}
 
+	private void setExpectedCookieValue(String expectedCookieValue) {
+		this.expectedCookieValue = expectedCookieValue;
+	}
+
 	private void loadAndAssertExpectedValues() {
 		MockServerHttpRequest.BodyBuilder request = MockServerHttpRequest.post("/someUri")
 				.cookie(new HttpCookie(this.expectedCookieName,
@@ -176,10 +196,15 @@ public class CookieServerCsrfTokenRepositoryTests {
 
 		CsrfToken csrfToken = this.csrfTokenRepository.loadToken(this.exchange).block();
 
-		assertThat(csrfToken).isNotNull();
-		assertThat(csrfToken.getHeaderName()).isEqualTo(this.expectedHeaderName);
-		assertThat(csrfToken.getParameterName()).isEqualTo(this.expectedParameterName);
-		assertThat(csrfToken.getToken()).isEqualTo(this.expectedCookieValue);
+		if (StringUtils.hasText(this.expectedCookieValue)) {
+			assertThat(csrfToken).isNotNull();
+			assertThat(csrfToken.getHeaderName()).isEqualTo(this.expectedHeaderName);
+			assertThat(csrfToken.getParameterName()).isEqualTo(this.expectedParameterName);
+			assertThat(csrfToken.getToken()).isEqualTo(this.expectedCookieValue);
+		}
+		else {
+			assertThat(csrfToken).isNull();
+		}
 	}
 
 	private void saveAndAssertExpectedValues(CsrfToken token) {
