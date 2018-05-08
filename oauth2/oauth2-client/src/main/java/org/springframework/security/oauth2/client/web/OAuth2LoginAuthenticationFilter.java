@@ -15,6 +15,12 @@
  */
 package org.springframework.security.oauth2.client.web;
 
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -35,11 +41,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.util.Assert;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import org.springframework.util.MultiValueMap;
 
 /**
  * An implementation of an {@link AbstractAuthenticationProcessingFilter} for OAuth 2.0 Login.
@@ -134,7 +136,8 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
 			throws AuthenticationException, IOException, ServletException {
 
-		if (!OAuth2AuthorizationResponseUtils.isAuthorizationResponse(request)) {
+		MultiValueMap<String, String> params = OAuth2AuthorizationResponseUtils.toMultiMap(request.getParameterMap());
+		if (!OAuth2AuthorizationResponseUtils.isAuthorizationResponse(params)) {
 			OAuth2Error oauth2Error = new OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 		}
@@ -152,7 +155,8 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 					"Client Registration not found with Id: " + registrationId, null);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 		}
-		OAuth2AuthorizationResponse authorizationResponse = OAuth2AuthorizationResponseUtils.convert(request);
+		String redirectUri = request.getRequestURL().toString();
+		OAuth2AuthorizationResponse authorizationResponse = OAuth2AuthorizationResponseUtils.convert(params, redirectUri);
 
 		OAuth2LoginAuthenticationToken authenticationRequest = new OAuth2LoginAuthenticationToken(
 				clientRegistration, new OAuth2AuthorizationExchange(authorizationRequest, authorizationResponse));

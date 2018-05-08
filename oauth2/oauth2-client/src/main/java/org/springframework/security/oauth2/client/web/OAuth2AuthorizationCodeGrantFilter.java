@@ -15,6 +15,13 @@
  */
 package org.springframework.security.oauth2.client.web;
 
+import java.io.IOException;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -39,15 +46,10 @@ import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
+import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 /**
  * A {@code Filter} for the OAuth 2.0 Authorization Code Grant,
@@ -147,8 +149,9 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 		}
 		String requestUrl = UrlUtils.buildFullRequestUrl(request.getScheme(), request.getServerName(),
 				request.getServerPort(), request.getRequestURI(), null);
+		MultiValueMap<String, String> params = OAuth2AuthorizationResponseUtils.toMultiMap(request.getParameterMap());
 		if (requestUrl.equals(authorizationRequest.getRedirectUri()) &&
-				OAuth2AuthorizationResponseUtils.isAuthorizationResponse(request)) {
+				OAuth2AuthorizationResponseUtils.isAuthorizationResponse(params)) {
 			return true;
 		}
 		return false;
@@ -162,7 +165,9 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 		String registrationId = (String) authorizationRequest.getAdditionalParameters().get(OAuth2ParameterNames.REGISTRATION_ID);
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(registrationId);
 
-		OAuth2AuthorizationResponse authorizationResponse = OAuth2AuthorizationResponseUtils.convert(request);
+		MultiValueMap<String, String> params = OAuth2AuthorizationResponseUtils.toMultiMap(request.getParameterMap());
+		String redirectUri = request.getRequestURL().toString();
+		OAuth2AuthorizationResponse authorizationResponse = OAuth2AuthorizationResponseUtils.convert(params, redirectUri);
 
 		OAuth2AuthorizationCodeAuthenticationToken authenticationRequest = new OAuth2AuthorizationCodeAuthenticationToken(
 			clientRegistration, new OAuth2AuthorizationExchange(authorizationRequest, authorizationResponse));
