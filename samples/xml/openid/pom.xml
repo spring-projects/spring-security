@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-samples-xml-openid</artifactId>
-  <version>4.2.5.RELEASE</version>
+  <version>4.2.6.BUILD-SNAPSHOT</version>
   <packaging>war</packaging>
   <name>spring-security-samples-xml-openid</name>
   <description>spring-security-samples-xml-openid</description>
@@ -39,7 +39,7 @@
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-framework-bom</artifactId>
-        <version>4.3.12.RELEASE</version>
+        <version>4.3.17.RELEASE</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -49,13 +49,13 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <version>4.2.5.RELEASE</version>
+      <version>4.2.6.BUILD-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-openid</artifactId>
-      <version>4.2.5.RELEASE</version>
+      <version>4.2.6.BUILD-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -103,13 +103,13 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
-      <version>4.2.5.RELEASE</version>
+      <version>4.2.6.BUILD-SNAPSHOT</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-taglibs</artifactId>
-      <version>4.2.5.RELEASE</version>
+      <version>4.2.6.BUILD-SNAPSHOT</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -136,6 +136,12 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+  <repositories>
+    <repository>
+      <id>spring-snapshot</id>
+      <url>https://repo.spring.io/snapshot</url>
+    </repository>
+  </repositories>
   <build>
     <plugins>
       <plugin>

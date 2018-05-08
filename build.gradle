@@ -4,13 +4,14 @@ buildscript {
 		maven { url "https://repo.spring.io/plugins-snapshot" }
 	}
 	dependencies {
+		classpath "com.github.ben-manes:gradle-versions-plugin:0.17.0"
 		classpath("org.springframework.build.gradle:propdeps-plugin:0.0.7")
 		classpath("io.spring.gradle:spring-io-plugin:0.0.6.RELEASE")
 		classpath("com.bmuschko:gradle-tomcat-plugin:2.2.4")
 		classpath('me.champeau.gradle:gradle-javadoc-hotfix-plugin:0.1')
 		classpath('org.asciidoctor:asciidoctor-gradle-plugin:1.5.1')
 		classpath("io.spring.gradle:docbook-reference-plugin:0.3.1")
-		classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.0.BUILD-SNAPSHOT")
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.12.RELEASE")
 	}
 }
 
@@ -25,10 +26,11 @@ description = 'Spring Security'
 allprojects {
 	apply plugin: 'idea'
 	apply plugin: 'eclipse'
+	apply plugin: "com.github.ben-manes.versions"
 
 	ext.releaseBuild = version.endsWith('RELEASE')
 	ext.snapshotBuild = version.endsWith('SNAPSHOT')
-	ext.springVersion = '4.3.12.RELEASE'
+	ext.springVersion = '4.3.17.RELEASE'
 	ext.springLdapVersion = '2.3.2.RELEASE'
 
 	group = 'org.springframework.security'
