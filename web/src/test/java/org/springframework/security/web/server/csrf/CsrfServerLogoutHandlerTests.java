@@ -1,7 +1,7 @@
 package org.springframework.security.web.server.csrf;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -14,6 +14,8 @@ import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.web.server.WebFilterChain;
+
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric Deandrea
@@ -38,6 +40,7 @@ public class CsrfServerLogoutHandlerTests {
 		this.exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 		this.filterExchange = new WebFilterExchange(this.exchange, this.filterChain);
 		this.handler = new CsrfServerLogoutHandler(this.csrfTokenRepository);
+		when(this.csrfTokenRepository.saveToken(this.exchange, null)).thenReturn(Mono.empty());
 	}
 
 	@Test
@@ -52,7 +55,7 @@ public class CsrfServerLogoutHandlerTests {
 	public void logoutRemovesCsrfToken() {
 		this.handler.logout(
 				this.filterExchange,
-				new TestingAuthenticationToken("user", "password", "ROLE_USER"));
+				new TestingAuthenticationToken("user", "password", "ROLE_USER")).block();
 
 		verify(this.csrfTokenRepository).saveToken(this.exchange, null);
 	}
