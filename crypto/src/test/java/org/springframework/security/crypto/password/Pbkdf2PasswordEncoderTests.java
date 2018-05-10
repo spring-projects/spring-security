@@ -22,6 +22,7 @@ import org.junit.Test;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.codec.Utf8;
+import org.springframework.security.crypto.junit.Assumptions;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -98,6 +99,7 @@ public class Pbkdf2PasswordEncoderTests {
 
 	@Test
 	public void encodeAndMatchWhenSha256ThenSuccess() {
+		Assumptions.assumeMinimumJdk8();
 		this.encoder.setAlgorithm(Pbkdf2PasswordEncoder.SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA256);
 
 		String rawPassword = "password";
@@ -107,6 +109,7 @@ public class Pbkdf2PasswordEncoderTests {
 
 	@Test
 	public void matchWhenSha256ThenSuccess() {
+		Assumptions.assumeMinimumJdk8();
 		this.encoder.setAlgorithm(Pbkdf2PasswordEncoder.SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA256);
 
 		String rawPassword = "password";
