@@ -17,11 +17,11 @@ package org.springframework.security.crypto.password;
 
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
+import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
@@ -132,7 +132,7 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 
 	private String encode(byte[] bytes) {
 		if(this.encodeHashAsBase64) {
-			return Base64.getEncoder().encodeToString(bytes);
+			return Utf8.decode(Base64.encode(bytes));
 		}
 		return String.valueOf(Hex.encode(bytes));
 	}
@@ -161,7 +161,7 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 
 	private byte[] decode(String encodedBytes) {
 		if(this.encodeHashAsBase64) {
-			return Base64.getDecoder().decode(encodedBytes);
+			return Base64.decode(Utf8.encode(encodedBytes));
 		}
 		return Hex.decode(encodedBytes);
 	}

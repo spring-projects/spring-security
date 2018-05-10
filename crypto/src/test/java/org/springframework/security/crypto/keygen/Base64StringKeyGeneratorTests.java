@@ -16,15 +16,14 @@
 
 package org.springframework.security.crypto.keygen;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.Test;
-
-import java.util.Base64;
-
-import static org.assertj.core.api.Assertions.*;
+import org.springframework.security.crypto.codec.Base64;
 
 /**
  * @author Rob Winch
- * @since 5.0
+ * @since 4.2.6
  */
 public class Base64StringKeyGeneratorTests {
 	@Test(expected = IllegalArgumentException.class)
@@ -32,35 +31,16 @@ public class Base64StringKeyGeneratorTests {
 		new Base64StringKeyGenerator(31);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void constructorEncoderWhenEncoderNullThenThrowsIllegalArgumentException() {
-		Base64.Encoder encoder = null;
-		new Base64StringKeyGenerator(null);
-	}
-
 	@Test
 	public void generateKeyWhenDefaultConstructorThen32Bytes() {
 		String result = new Base64StringKeyGenerator().generateKey();
-		assertThat(Base64.getDecoder().decode(result.getBytes())).hasSize(32);
+		assertThat(Base64.decode(result.getBytes())).hasSize(32);
 	}
 
 	@Test
 	public void generateKeyWhenCustomKeySizeThen32Bytes() {
 		int size = 40;
 		String result = new Base64StringKeyGenerator(size).generateKey();
-		assertThat(Base64.getDecoder().decode(result.getBytes())).hasSize(size);
-	}
-
-	@Test
-	public void generateKeyWhenBase64Then32Bytes() {
-		String result = new Base64StringKeyGenerator(Base64.getUrlEncoder()).generateKey();
-		assertThat(Base64.getUrlDecoder().decode(result.getBytes())).hasSize(32);
-	}
-
-	@Test
-	public void generateKeyWhenBase64AndCustomKeySizeThen32Bytes() {
-		int size = 40;
-		String result = new Base64StringKeyGenerator(Base64.getUrlEncoder(), size).generateKey();
-		assertThat(Base64.getUrlDecoder().decode(result.getBytes())).hasSize(size);
+		assertThat(Base64.decode(result.getBytes())).hasSize(size);
 	}
 }

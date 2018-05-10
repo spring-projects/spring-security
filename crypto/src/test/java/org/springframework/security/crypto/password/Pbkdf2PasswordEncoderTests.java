@@ -19,7 +19,9 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
+import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.crypto.codec.Hex;
+import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -91,7 +93,7 @@ public class Pbkdf2PasswordEncoderTests {
 		String encodedPassword = "3FOwOMcDgxP+z1x/sv184LFY2WVD+ZGMgYP3LPOSmCcDmk1XPYvcCQ==";
 
 		assertThat(this.encoder.matches(rawPassword, encodedPassword)).isTrue();
-		java.util.Base64.getDecoder().decode(encodedPassword); // validate can decode as Base64
+		Base64.decode(Utf8.encode(encodedPassword)); // validate can decode as Base64
 	}
 
 	@Test

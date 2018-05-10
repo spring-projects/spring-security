@@ -16,12 +16,12 @@
 
 package org.springframework.security.crypto.password;
 
+import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 
 import java.security.MessageDigest;
-import java.util.Base64;
 
 /**
  * This {@link PasswordEncoder} is provided for legacy purposes only and is not considered
@@ -132,13 +132,13 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
 			prefix = forceLowerCasePrefix ? SSHA_PREFIX_LC : SSHA_PREFIX;
 		}
 
-		return prefix + Utf8.decode(Base64.getEncoder().encode(hash));
+		return prefix + Utf8.decode(Base64.encode(hash));
 	}
 
 	private byte[] extractSalt(String encPass) {
 		String encPassNoLabel = encPass.substring(6);
 
-		byte[] hashAndSalt = Base64.getDecoder().decode(encPassNoLabel.getBytes());
+		byte[] hashAndSalt = Base64.decode(encPassNoLabel.getBytes());
 		int saltLength = hashAndSalt.length - SHA_LENGTH;
 		byte[] salt = new byte[saltLength];
 		System.arraycopy(hashAndSalt, SHA_LENGTH, salt, 0, saltLength);

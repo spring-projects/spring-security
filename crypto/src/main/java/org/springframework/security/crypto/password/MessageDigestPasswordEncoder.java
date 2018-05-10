@@ -15,13 +15,13 @@
  */
 package org.springframework.security.crypto.password;
 
+import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.security.crypto.keygen.Base64StringKeyGenerator;
 import org.springframework.security.crypto.keygen.StringKeyGenerator;
 
 import java.security.MessageDigest;
-import java.util.Base64;
 
 /**
  * This {@link PasswordEncoder} is provided for legacy purposes only and is not considered secure.
@@ -126,7 +126,7 @@ public class MessageDigestPasswordEncoder implements PasswordEncoder {
 
 	private String encode(byte[] digest) {
 		if (this.encodeHashAsBase64) {
-			return Utf8.decode(Base64.getEncoder().encode(digest));
+			return Utf8.decode(Base64.encode(digest));
 		}
 		else {
 			return new String(Hex.encode(digest));
