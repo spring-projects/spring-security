@@ -205,6 +205,27 @@ public class AuthenticationWebFilterTests {
 	}
 
 	@Test
+	public void filterWhenConvertAndAuthenticationEmptyThenServerError() {
+		Mono<Authentication> authentication = Mono.just(new TestingAuthenticationToken("test", "this", "ROLE_USER"));
+		when(this.authenticationConverter.apply(any())).thenReturn(authentication);
+		when(this.authenticationManager.authenticate(any())).thenReturn(Mono.empty());
+
+		WebTestClient client = WebTestClientBuilder
+				.bindToWebFilters(this.filter)
+				.build();
+
+		client
+				.get()
+				.uri("/")
+				.exchange()
+				.expectStatus().is5xxServerError()
+				.expectBody().isEmpty();
+
+		verify(this.securityContextRepository, never()).save(any(), any());
+		verifyZeroInteractions(this.successHandler, this.failureHandler);
+	}
+
+	@Test
 	public void filterWhenNotMatchAndConvertAndAuthenticationSuccessThenContinues() {
 		this.filter.setRequiresAuthenticationMatcher(e -> ServerWebExchangeMatcher.MatchResult.notMatch());
 
