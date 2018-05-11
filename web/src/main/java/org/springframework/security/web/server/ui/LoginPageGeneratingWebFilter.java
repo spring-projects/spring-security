@@ -16,6 +16,10 @@
 
 package org.springframework.security.web.server.ui;
 
+import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.http.HttpMethod;
@@ -25,13 +29,14 @@ import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.web.server.csrf.CsrfToken;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
+import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
-import reactor.core.publisher.Mono;
+import org.springframework.web.util.HtmlUtils;
 
-import java.nio.charset.Charset;
+import reactor.core.publisher.Mono;
 
 /**
  * Generates a default log in page used for authenticating users.
@@ -42,6 +47,14 @@ import java.nio.charset.Charset;
 public class LoginPageGeneratingWebFilter implements WebFilter {
 	private ServerWebExchangeMatcher matcher = ServerWebExchangeMatchers
 		.pathMatchers(HttpMethod.GET, "/login");
+
+	private Map<String, String> oauth2AuthenticationUrlToClientName = new HashMap<>();
+
+	public void setOauth2AuthenticationUrlToClientName(
+			Map<String, String> oauth2AuthenticationUrlToClientName) {
+		Assert.notNull(oauth2AuthenticationUrlToClientName, "oauth2AuthenticationUrlToClientName cannot be null");
+		this.oauth2AuthenticationUrlToClientName = oauth2AuthenticationUrlToClientName;
+	}
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
@@ -59,22 +72,24 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 	}
 
 	private Mono<DataBuffer> createBuffer(ServerWebExchange exchange) {
-		MultiValueMap<String, String> queryParams = exchange.getRequest()
-			.getQueryParams();
+
 		Mono<CsrfToken> token = exchange.getAttributeOrDefault(CsrfToken.class.getName(), Mono.empty());
 		return token
 			.map(LoginPageGeneratingWebFilter::csrfToken)
 			.defaultIfEmpty("")
 			.map(csrfTokenHtmlInput -> {
-				boolean isError = queryParams.containsKey("error");
-				boolean isLogoutSuccess = queryParams.containsKey("logout");
-				byte[] bytes = createPage(isError, isLogoutSuccess, csrfTokenHtmlInput);
+				byte[] bytes = createPage(exchange, csrfTokenHtmlInput);
 				DataBufferFactory bufferFactory = exchange.getResponse().bufferFactory();
 				return bufferFactory.wrap(bytes);
 			});
 	}
 
-	private static byte[] createPage(boolean isError, boolean isLogoutSuccess, String csrfTokenHtmlInput) {
+	private byte[] createPage(ServerWebExchange exchange, String csrfTokenHtmlInput) {
+		MultiValueMap<String, String> queryParams = exchange.getRequest()
+				.getQueryParams();
+		boolean isError = queryParams.containsKey("error");
+		boolean isLogoutSuccess = queryParams.containsKey("logout");
+		String contextPath = exchange.getRequest().getPath().contextPath().value();
 		String page =  "<!DOCTYPE html>\n"
 			+ "<html lang=\"en\">\n"
 			+ "  <head>\n"
@@ -103,11 +118,32 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 			+ csrfTokenHtmlInput
 			+ "        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n"
 			+ "      </form>\n"
+			+ oauth2LoginLinks(contextPath, this.oauth2AuthenticationUrlToClientName)
 			+ "    </div>\n"
 			+ "  </body>\n"
 			+ "</html>";
 
 		return page.getBytes(Charset.defaultCharset());
+	}
+
+	private static String oauth2LoginLinks(String contextPath, Map<String, String> oauth2AuthenticationUrlToClientName) {
+		if (oauth2AuthenticationUrlToClientName.isEmpty()) {
+			return "";
+		}
+		StringBuilder sb = new StringBuilder();
+		sb.append("<div class=\"container\"><h2 class=\"form-signin-heading\">Login with OAuth 2.0</h3>");
+		sb.append("<table class=\"table table-striped\">\n");
+		for (Map.Entry<String, String> clientAuthenticationUrlToClientName : oauth2AuthenticationUrlToClientName.entrySet()) {
+			sb.append(" <tr><td>");
+			String url = clientAuthenticationUrlToClientName.getKey();
+			sb.append("<a href=\"").append(contextPath).append(url).append("\">");
+			String clientName = HtmlUtils.htmlEscape(clientAuthenticationUrlToClientName.getValue());
+			sb.append(clientName);
+			sb.append("</a>");
+			sb.append("</td></tr>\n");
+		}
+		sb.append("</table></div>\n");
+		return sb.toString();
 	}
 
 	private static String csrfToken(CsrfToken token) {

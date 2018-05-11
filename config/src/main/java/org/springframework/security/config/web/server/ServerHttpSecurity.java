@@ -24,9 +24,14 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.Ordered;
+import org.springframework.core.ResolvableType;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -35,12 +40,23 @@ import org.springframework.security.authorization.AuthenticatedReactiveAuthoriza
 import org.springframework.security.authorization.AuthorityReactiveAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.authentication.OAuth2LoginReactiveAuthenticationManager;
+import org.springframework.security.oauth2.client.endpoint.NimbusReactiveAuthorizationCodeTokenResponseClient;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
+import org.springframework.security.oauth2.client.userinfo.DefaultReactiveOAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.ReactiveOAuth2UserService;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectWebFilter;
+import org.springframework.security.oauth2.client.web.ServerOAuth2LoginAuthenticationTokenConverter;
 import org.springframework.security.web.server.DelegatingServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.MatcherSecurityWebFilterChain;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.ServerFormLoginAuthenticationConverter;
 import org.springframework.security.web.server.ServerHttpBasicAuthenticationConverter;
+import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import org.springframework.security.web.server.authentication.HttpBasicServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationEntryPoint;
@@ -79,6 +95,7 @@ import org.springframework.security.web.server.savedrequest.WebSessionServerRequ
 import org.springframework.security.web.server.ui.LoginPageGeneratingWebFilter;
 import org.springframework.security.web.server.ui.LogoutPageGeneratingWebFilter;
 import org.springframework.security.web.server.util.matcher.MediaTypeServerWebExchangeMatcher;
+import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcherEntry;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
@@ -161,6 +178,8 @@ public class ServerHttpSecurity {
 
 	private FormLoginSpec formLogin;
 
+	private OAuth2LoginSpec oauth2Login;
+
 	private LogoutSpec logout = new LogoutSpec();
 
 	private ReactiveAuthenticationManager authenticationManager;
@@ -174,6 +193,8 @@ public class ServerHttpSecurity {
 	private ServerAccessDeniedHandler accessDeniedHandler;
 
 	private List<WebFilter> webFilters = new ArrayList<>();
+
+	private ApplicationContext context;
 
 	private Throwable built;
 
@@ -316,6 +337,90 @@ public class ServerHttpSecurity {
 			this.formLogin = new FormLoginSpec();
 		}
 		return this.formLogin;
+	}
+
+	public OAuth2LoginSpec oauth2Login() {
+		if (this.oauth2Login == null) {
+			this.oauth2Login = new OAuth2LoginSpec();
+		}
+		return this.oauth2Login;
+	}
+
+	public class OAuth2LoginSpec {
+		private ReactiveClientRegistrationRepository clientRegistrationRepository;
+
+		private ReactiveOAuth2AuthorizedClientService authorizedClientService;
+
+		public OAuth2LoginSpec clientRegistrationRepository(ReactiveClientRegistrationRepository clientRegistrationRepository) {
+			this.clientRegistrationRepository = clientRegistrationRepository;
+			return this;
+		}
+
+		public OAuth2LoginSpec authorizedClientService(ReactiveOAuth2AuthorizedClientService authorizedClientService) {
+			this.authorizedClientService = authorizedClientService;
+			return this;
+		}
+
+		protected void configure(LoginPageGeneratingWebFilter loginPageFilter, ServerHttpSecurity http) {
+			if (loginPageFilter != null) {
+				loginPageFilter.setOauth2AuthenticationUrlToClientName(getLinks());
+			}
+
+			ReactiveClientRegistrationRepository clientRegistrationRepository = getClientRegistrationRepository();
+			ReactiveOAuth2AuthorizedClientService authorizedClientService = getAuthorizedClientService();
+			OAuth2AuthorizationRequestRedirectWebFilter oauthRedirectFilter = new OAuth2AuthorizationRequestRedirectWebFilter(clientRegistrationRepository);
+
+			NimbusReactiveAuthorizationCodeTokenResponseClient client = new NimbusReactiveAuthorizationCodeTokenResponseClient();
+			ReactiveOAuth2UserService userService = new DefaultReactiveOAuth2UserService();
+			OAuth2LoginReactiveAuthenticationManager manager = new OAuth2LoginReactiveAuthenticationManager(client, userService,
+					authorizedClientService);
+			AuthenticationWebFilter authenticationFilter = new AuthenticationWebFilter(manager);
+			authenticationFilter.setRequiresAuthenticationMatcher(new PathPatternParserServerWebExchangeMatcher("/login/oauth2/code/{registrationId}"));
+			authenticationFilter.setAuthenticationConverter(new ServerOAuth2LoginAuthenticationTokenConverter(clientRegistrationRepository));
+
+			RedirectServerAuthenticationSuccessHandler redirectHandler = new RedirectServerAuthenticationSuccessHandler();
+
+			authenticationFilter.setAuthenticationSuccessHandler(redirectHandler);
+			authenticationFilter.setAuthenticationFailureHandler(new ServerAuthenticationFailureHandler() {
+				@Override
+				public Mono<Void> onAuthenticationFailure(WebFilterExchange webFilterExchange,
+						AuthenticationException exception) {
+					return Mono.error(exception);
+				}
+			});
+			authenticationFilter.setSecurityContextRepository(new WebSessionServerSecurityContextRepository());
+
+			http.addFilterAt(oauthRedirectFilter, SecurityWebFiltersOrder.HTTP_BASIC);
+			http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION);
+		}
+
+		private Map<String, String> getLinks() {
+			Iterable<ClientRegistration> registrations = getBeanOrNull(ResolvableType.forClassWithGenerics(Iterable.class, ClientRegistration.class));
+			if (registrations == null) {
+				return Collections.emptyMap();
+			}
+			Map<String, String> result = new HashMap<>();
+			registrations.iterator().forEachRemaining(r -> {
+				result.put("/oauth2/authorization/" + r.getRegistrationId(), r.getClientName());
+			});
+			return result;
+		}
+
+		private ReactiveClientRegistrationRepository getClientRegistrationRepository() {
+			if (this.clientRegistrationRepository == null) {
+				this.clientRegistrationRepository = getBeanOrNull(ReactiveClientRegistrationRepository.class);
+			}
+			return this.clientRegistrationRepository;
+		}
+
+		private ReactiveOAuth2AuthorizedClientService getAuthorizedClientService() {
+			if (this.authorizedClientService == null) {
+				this.authorizedClientService = getBeanOrNull(ReactiveOAuth2AuthorizedClientService.class);
+			}
+			return this.authorizedClientService;
+		}
+
+		private OAuth2LoginSpec() {}
 	}
 
 	/**
@@ -505,16 +610,21 @@ public class ServerHttpSecurity {
 			this.httpBasic.authenticationManager(this.authenticationManager);
 			this.httpBasic.configure(this);
 		}
+		LoginPageGeneratingWebFilter loginPageFilter = null;
 		if(this.formLogin != null) {
 			this.formLogin.authenticationManager(this.authenticationManager);
 			if(this.securityContextRepository != null) {
 				this.formLogin.securityContextRepository(this.securityContextRepository);
 			}
 			if(this.formLogin.authenticationEntryPoint == null) {
-				this.webFilters.add(new OrderedWebFilter(new LoginPageGeneratingWebFilter(), SecurityWebFiltersOrder.LOGIN_PAGE_GENERATING.getOrder()));
+				loginPageFilter = new LoginPageGeneratingWebFilter();
+				this.webFilters.add(new OrderedWebFilter(loginPageFilter, SecurityWebFiltersOrder.LOGIN_PAGE_GENERATING.getOrder()));
 				this.webFilters.add(new OrderedWebFilter(new LogoutPageGeneratingWebFilter(), SecurityWebFiltersOrder.LOGOUT_PAGE_GENERATING.getOrder()));
 			}
 			this.formLogin.configure(this);
+		}
+		if (this.oauth2Login != null) {
+			this.oauth2Login.configure(loginPageFilter, this);
 		}
 		if(this.logout != null) {
 			this.logout.configure(this);
@@ -589,7 +699,7 @@ public class ServerHttpSecurity {
 		return new OrderedWebFilter(result, SecurityWebFiltersOrder.REACTOR_CONTEXT.getOrder());
 	}
 
-	private ServerHttpSecurity() {}
+	protected ServerHttpSecurity() {}
 
 	/**
 	 * Configures authorization
@@ -1400,6 +1510,27 @@ public class ServerHttpSecurity {
 		}
 
 		private LogoutSpec() {}
+	}
+
+	private <T> T getBeanOrNull(Class<T> beanClass) {
+		return getBeanOrNull(ResolvableType.forClass(beanClass));
+	}
+
+
+	private <T> T getBeanOrNull(ResolvableType type) {
+		if (this.context == null) {
+			return null;
+		}
+		String[] names =  this.context.getBeanNamesForType(type);
+		if (names.length == 1) {
+			return (T) this.context.getBean(names[0]);
+		}
+		return null;
+	}
+
+	protected void setApplicationContext(ApplicationContext applicationContext)
+			throws BeansException {
+		this.context = applicationContext;
 	}
 
 	private static class OrderedWebFilter implements WebFilter, Ordered {
