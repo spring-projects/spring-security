@@ -82,6 +82,8 @@ public class StrictHttpFirewall implements HttpFirewall {
 
 	private Set<String> decodedUrlBlacklist = new HashSet<String>();
 
+	private boolean allowConsecutiveSlashes;
+
 	public StrictHttpFirewall() {
 		urlBlacklistsAddAll(FORBIDDEN_SEMICOLON);
 		urlBlacklistsAddAll(FORBIDDEN_FORWARDSLASH);
@@ -154,6 +156,25 @@ public class StrictHttpFirewall implements HttpFirewall {
 		} else {
 			urlBlacklistsAddAll(FORBIDDEN_FORWARDSLASH);
 		}
+	}
+
+	/**
+	 * <p>
+	 * Determines if two or more slashes "/" should be allowed next to each other in the path
+	 * or not. The default is to not allow this behavior because it is a common way to
+	 * bypass URL based security.
+	 * </p>
+	 * <p>
+	 * For example, some matchers may treat consecutive slashes differently. That could lead to
+	 * mismatch between security controls and application logic. This in turn could lead to 
+	 * authorization bypass.
+	 * </p>
+	 *
+	 * @param allowConsecutiveSlashes two or more slashes "/" should be allowed next to each 
+	 * other in the path or not. Default is false.
+	 */
+	public void setAllowConsecutiveSlashes(boolean allowConsecutiveSlashes) {
+		this.allowConsecutiveSlashes = allowConsecutiveSlashes;
 	}
 
 	/**
@@ -277,7 +298,7 @@ public class StrictHttpFirewall implements HttpFirewall {
 		return new FirewalledResponse(response);
 	}
 
-	private static boolean isNormalized(HttpServletRequest request) {
+	private boolean isNormalized(HttpServletRequest request) {
 		if (!isNormalized(request.getRequestURI())) {
 			return false;
 		}
@@ -328,19 +349,22 @@ public class StrictHttpFirewall implements HttpFirewall {
 
 	/**
 	 * Checks whether a path is normalized (doesn't contain path traversal
-	 * sequences like "./", "/../" or "/.")
+	 * sequences like "./", "/../" or "/.").
+	 * If {@link #allowConsecutiveSlashes} is false (the default) consecutive
+	 * slashes ("//", "///", ...) are also considered as path traversal 
+	 * sequences.
 	 *
 	 * @param path
 	 *            the path to test
 	 * @return true if the path doesn't contain any path-traversal character
 	 *         sequences.
 	 */
-	private static boolean isNormalized(String path) {
+	private boolean isNormalized(String path) {
 		if (path == null) {
 			return true;
 		}
 
-		if (path.indexOf("//") > -1) {
+		if (!allowConsecutiveSlashes && path.indexOf("//") > -1) {
 			return false;
 		}
 

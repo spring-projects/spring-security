@@ -21,17 +21,31 @@ import org.springframework.mock.web.MockHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.fail;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 /**
  * @author Rob Winch
  */
 public class StrictHttpFirewallTests {
-	public String[] unnormalizedPaths = { "/..", "/./path/", "/path/path/.", "/path/path//.", "./path/../path//.",
-		"./path", ".//path", ".", "//path", "//path/path", "//path//path", "/path//path" };
+
+	public String[] dotPaths = { "/..", "/./path/", "/path/path/.", "/path/path//.", "./path/../path//.",
+			"./path", ".//path", "." };
+
+	public String[] doubleSlashPaths = { "//path", "//path/path", "//path//path", "/path//path" };
+
+	public String[] unnormalizedPaths = Stream.concat(
+			Arrays.stream(dotPaths), 
+			Arrays.stream(doubleSlashPaths)
+			).collect(Collectors.toList()).toArray(new String[0]);
 
 
 	private StrictHttpFirewall firewall = new StrictHttpFirewall();
 
 	private MockHttpServletRequest request = new MockHttpServletRequest();
+
+	// --- normalized ---
 
 	@Test
 	public void getFirewalledRequestWhenRequestURINotNormalizedThenThrowsRequestRejectedException() throws Exception {
@@ -82,6 +96,34 @@ public class StrictHttpFirewallTests {
 				fail(path + " is un-normalized");
 			} catch (RequestRejectedException expected) {
 			}
+		}
+	}
+
+	// --- consecutive slashes ---
+
+	@Test
+	public void getFirewalledRequestWhenRequestURIContainsDotsAndAllowConsecutiveSlashesThenThrowsRequestRejectedException() throws Exception {
+		for (String path : this.dotPaths) {
+			this.request = new MockHttpServletRequest();
+			this.request.setRequestURI(path);
+
+			this.firewall.setAllowConsecutiveSlashes(true);
+			try {
+				this.firewall.getFirewalledRequest(this.request);
+				fail(path + " contains dots");
+			} catch (RequestRejectedException expected) {
+			}
+		}
+	}
+
+	@Test
+	public void getFirewalledRequestWhenRequestURIContainsConsecutiveSlashesAndAllowConsecutiveSlashesThenNoException() throws Exception {
+		for (String path : this.doubleSlashPaths) {
+			this.request = new MockHttpServletRequest();
+			this.request.setRequestURI(path);
+
+			this.firewall.setAllowConsecutiveSlashes(true);
+			this.firewall.getFirewalledRequest(this.request);
 		}
 	}
 
