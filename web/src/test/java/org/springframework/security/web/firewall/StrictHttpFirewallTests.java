@@ -35,10 +35,12 @@ public class StrictHttpFirewallTests {
 
 	public String[] doubleSlashPaths = { "//path", "//path/path", "//path//path", "/path//path" };
 
-	public String[] unnormalizedPaths = Stream.concat(
-			Arrays.stream(dotPaths), 
-			Arrays.stream(doubleSlashPaths)
-			).collect(Collectors.toList()).toArray(new String[0]);
+	public String[] unnormalizedPaths =
+			Stream.concat(
+					Arrays.stream(dotPaths),
+					Arrays.stream(doubleSlashPaths)
+			)
+			.collect(Collectors.toList()).toArray(new String[0]);
 
 
 	private StrictHttpFirewall firewall = new StrictHttpFirewall();

@@ -166,11 +166,11 @@ public class StrictHttpFirewall implements HttpFirewall {
 	 * </p>
 	 * <p>
 	 * For example, some matchers may treat consecutive slashes differently. That could lead to
-	 * mismatch between security controls and application logic. This in turn could lead to 
+	 * mismatch between security controls and application logic. This in turn could lead to
 	 * authorization bypass.
 	 * </p>
 	 *
-	 * @param allowConsecutiveSlashes two or more slashes "/" should be allowed next to each 
+	 * @param allowConsecutiveSlashes two or more slashes "/" should be allowed next to each
 	 * other in the path or not. Default is false.
 	 */
 	public void setAllowConsecutiveSlashes(boolean allowConsecutiveSlashes) {
@@ -349,10 +349,9 @@ public class StrictHttpFirewall implements HttpFirewall {
 
 	/**
 	 * Checks whether a path is normalized (doesn't contain path traversal
-	 * sequences like "./", "/../" or "/.").
-	 * If {@link #allowConsecutiveSlashes} is false (the default) consecutive
-	 * slashes ("//", "///", ...) are also considered as path traversal 
-	 * sequences.
+	 * sequences like "./", "/../" or "/."). If {@link #allowConsecutiveSlashes}
+	 * is false (the default) consecutive slashes ("//", "///", ...) are also
+	 * considered as path traversal sequences.
 	 *
 	 * @param path
 	 *            the path to test
