@@ -15,15 +15,14 @@
  */
 package org.springframework.security.web.server;
 
-import java.util.function.Function;
-
-import org.springframework.util.Assert;
-import reactor.core.publisher.Mono;
-
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.web.server.authentication.AuthenticationConverter;
+import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
+
+import reactor.core.publisher.Mono;
 
 /**
  * Converts a ServerWebExchange into a UsernamePasswordAuthenticationToken from the form
@@ -32,7 +31,7 @@ import org.springframework.web.server.ServerWebExchange;
  * @author Rob Winch
  * @since 5.0
  */
-public class ServerFormLoginAuthenticationConverter implements Function<ServerWebExchange, Mono<Authentication>> {
+public class ServerFormLoginAuthenticationConverter implements AuthenticationConverter {
 
 	private String usernameParameter = "username";
 
