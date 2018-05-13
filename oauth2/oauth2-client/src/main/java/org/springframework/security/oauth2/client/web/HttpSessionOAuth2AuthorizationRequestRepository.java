@@ -15,8 +15,8 @@
  */
 package org.springframework.security.oauth2.client.web;
 
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
-import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.Assert;
 
 import javax.servlet.http.HttpServletRequest;
@@ -42,23 +42,13 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository implements Au
 	private final String sessionAttributeName = DEFAULT_AUTHORIZATION_REQUEST_ATTR_NAME;
 
 	@Override
-	public OAuth2AuthorizationRequest loadAuthorizationRequest(HttpServletRequest request) {
-		Assert.notNull(request, "request cannot be null");
-		String stateParameter = this.getStateParameter(request);
-		if (stateParameter == null) {
-			return null;
-		}
-		Map<String, OAuth2AuthorizationRequest> authorizationRequests = this.getAuthorizationRequests(request);
-		return authorizationRequests.get(stateParameter);
-	}
-
-	@Override
 	public void saveAuthorizationRequest(OAuth2AuthorizationRequest authorizationRequest, HttpServletRequest request,
-											HttpServletResponse response) {
+											HttpServletResponse response, ClientRegistration clientRegistration) {
 		Assert.notNull(request, "request cannot be null");
 		Assert.notNull(response, "response cannot be null");
+		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
 		if (authorizationRequest == null) {
-			this.removeAuthorizationRequest(request);
+			this.removeAuthorizationRequest(request, clientRegistration);
 			return;
 		}
 		String state = authorizationRequest.getState();
@@ -69,9 +59,10 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository implements Au
 	}
 
 	@Override
-	public OAuth2AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request) {
+	public OAuth2AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request, ClientRegistration clientRegistration) {
 		Assert.notNull(request, "request cannot be null");
-		String stateParameter = this.getStateParameter(request);
+		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
+		String stateParameter = this.getStateParameter(request, clientRegistration);
 		if (stateParameter == null) {
 			return null;
 		}
@@ -84,10 +75,11 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository implements Au
 	/**
 	 * Gets the state parameter from the {@link HttpServletRequest}
 	 * @param request the request to use
+	 * @param clientRegistration the {@code ClientRegistration}
 	 * @return the state parameter or null if not found
 	 */
-	private String getStateParameter(HttpServletRequest request) {
-		return request.getParameter(OAuth2ParameterNames.STATE);
+	private String getStateParameter(HttpServletRequest request, ClientRegistration clientRegistration) {
+		return request.getParameter(clientRegistration.getProviderDetails().getStateAttributeName());
 	}
 
 	/**

@@ -27,6 +27,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
@@ -37,7 +38,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
-import org.springframework.security.web.util.UrlUtils;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -91,6 +92,9 @@ import java.io.IOException;
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.2">Section 4.1.2 Authorization Response</a>
  */
 public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
+	public static final String DEFAULT_FILTER_PROCESSES_URI = "/authorize/oauth2/code";
+	private static final String REGISTRATION_ID_URI_VARIABLE_NAME = "registrationId";
+	private static final String AUTHORIZATION_REQUEST_NOT_FOUND_ERROR_CODE = "authorization_request_not_found";
 	private final ClientRegistrationRepository clientRegistrationRepository;
 	private final OAuth2AuthorizedClientService authorizedClientService;
 	private final AuthenticationManager authenticationManager;
@@ -99,6 +103,7 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 	private final AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
 	private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 	private final RequestCache requestCache = new HttpSessionRequestCache();
+	private AntPathRequestMatcher requiresAuthenticationRequestMatcher;
 
 	/**
 	 * Constructs an {@code OAuth2AuthorizationCodeGrantFilter} using the provided parameters.
@@ -116,6 +121,7 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 		this.clientRegistrationRepository = clientRegistrationRepository;
 		this.authorizedClientService = authorizedClientService;
 		this.authenticationManager = authenticationManager;
+		this.requiresAuthenticationRequestMatcher = new AntPathRequestMatcher(DEFAULT_FILTER_PROCESSES_URI + "/{" + REGISTRATION_ID_URI_VARIABLE_NAME + "}");
 	}
 
 	/**
@@ -131,37 +137,34 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 		throws ServletException, IOException {
-
 		if (this.shouldProcessAuthorizationResponse(request)) {
 			this.processAuthorizationResponse(request, response);
 			return;
 		}
-
 		filterChain.doFilter(request, response);
 	}
 
 	private boolean shouldProcessAuthorizationResponse(HttpServletRequest request) {
-		OAuth2AuthorizationRequest authorizationRequest = this.authorizationRequestRepository.loadAuthorizationRequest(request);
-		if (authorizationRequest == null) {
-			return false;
-		}
-		String requestUrl = UrlUtils.buildFullRequestUrl(request.getScheme(), request.getServerName(),
-				request.getServerPort(), request.getRequestURI(), null);
-		if (requestUrl.equals(authorizationRequest.getRedirectUri())) {
-			String registrationId = (String) authorizationRequest.getAdditionalParameters().get(OAuth2ParameterNames.REGISTRATION_ID);
-			ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(registrationId);
-			return OAuth2AuthorizationResponseUtils.isAuthorizationResponse(request, clientRegistration.getProviderDetails());
-		}
-		return false;
+		return this.requiresAuthenticationRequestMatcher.matches(request);
 	}
 
 	private void processAuthorizationResponse(HttpServletRequest request, HttpServletResponse response)
-		throws ServletException, IOException {
-
-		OAuth2AuthorizationRequest authorizationRequest = this.authorizationRequestRepository.removeAuthorizationRequest(request);
-
-		String registrationId = (String) authorizationRequest.getAdditionalParameters().get(OAuth2ParameterNames.REGISTRATION_ID);
+		throws IOException {
+		String registrationId = this.requiresAuthenticationRequestMatcher
+				.extractUriTemplateVariables(request).get(REGISTRATION_ID_URI_VARIABLE_NAME);
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(registrationId);
+		if (clientRegistration == null) {
+			throw new IllegalArgumentException("Invalid Client Registration with Id: " + registrationId);
+		}
+		if (!OAuth2AuthorizationResponseUtils.isAuthorizationResponse(request, clientRegistration.getProviderDetails())) {
+			OAuth2Error oauth2Error = new OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST);
+			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+		}
+		OAuth2AuthorizationRequest authorizationRequest = this.authorizationRequestRepository.removeAuthorizationRequest(request, clientRegistration);
+		if (authorizationRequest == null) {
+			OAuth2Error oauth2Error = new OAuth2Error(AUTHORIZATION_REQUEST_NOT_FOUND_ERROR_CODE);
+			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+		}
 
 		OAuth2AuthorizationResponse authorizationResponse = OAuth2AuthorizationResponseUtils.convert(request,
 				clientRegistration.getProviderDetails());

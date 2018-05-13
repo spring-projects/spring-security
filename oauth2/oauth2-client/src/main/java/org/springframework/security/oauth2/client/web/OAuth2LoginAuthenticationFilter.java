@@ -34,12 +34,12 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResp
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 /**
  * An implementation of an {@link AbstractAuthenticationProcessingFilter} for OAuth 2.0 Login.
@@ -94,12 +94,14 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 	/**
 	 * The default {@code URI} where this {@code Filter} processes authentication requests.
 	 */
-	public static final String DEFAULT_FILTER_PROCESSES_URI = "/login/oauth2/code/*";
+	public static final String DEFAULT_FILTER_PROCESSES_URI = "/login/oauth2/code";
+	public static final String REGISTRATION_ID_URI_VARIABLE_NAME = "registrationId";
 	private static final String AUTHORIZATION_REQUEST_NOT_FOUND_ERROR_CODE = "authorization_request_not_found";
 	private ClientRegistrationRepository clientRegistrationRepository;
 	private OAuth2AuthorizedClientService authorizedClientService;
 	private AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
 		new HttpSessionOAuth2AuthorizationRequestRepository();
+	private AntPathRequestMatcher requiresAuthenticationRequestMatcher;
 
 	/**
 	 * Constructs an {@code OAuth2LoginAuthenticationFilter} using the provided parameters.
@@ -122,32 +124,51 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 	public OAuth2LoginAuthenticationFilter(ClientRegistrationRepository clientRegistrationRepository,
 											OAuth2AuthorizedClientService authorizedClientService,
 											String filterProcessesUrl) {
-		super(filterProcessesUrl);
+		this(clientRegistrationRepository, authorizedClientService, new AntPathRequestMatcher(
+				filterProcessesUrl + "/{" + REGISTRATION_ID_URI_VARIABLE_NAME + "}"));
+	}
+
+	/**
+	 * Constructs an {@code OAuth2LoginAuthenticationFilter} using the provided parameters.
+	 *
+	 * @param clientRegistrationRepository the repository of client registrations
+	 * @param authorizedClientService the authorized client service
+	 * @param requiresAuthenticationRequestMatcher the {@link RequestMatcher} used to
+	 * 	 determine if authentication is required. Cannot be null.
+	 */
+	public OAuth2LoginAuthenticationFilter(ClientRegistrationRepository clientRegistrationRepository,
+											OAuth2AuthorizedClientService authorizedClientService,
+											AntPathRequestMatcher requiresAuthenticationRequestMatcher) {
+		super(requiresAuthenticationRequestMatcher);
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
 		Assert.notNull(authorizedClientService, "authorizedClientService cannot be null");
+		this.requiresAuthenticationRequestMatcher = requiresAuthenticationRequestMatcher;
 		this.clientRegistrationRepository = clientRegistrationRepository;
 		this.authorizedClientService = authorizedClientService;
 	}
 
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
-			throws AuthenticationException, IOException, ServletException {
-
-		if (!OAuth2AuthorizationResponseUtils.isAuthorizationResponse(request)) {
+			throws AuthenticationException {
+		String registrationId = this.requiresAuthenticationRequestMatcher
+				.extractUriTemplateVariables(request).get(REGISTRATION_ID_URI_VARIABLE_NAME);
+		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(registrationId);
+		if (clientRegistration == null) {
+			throw new IllegalArgumentException("Invalid Client Registration with Id: " + registrationId);
+		}
+		if (!OAuth2AuthorizationResponseUtils.isAuthorizationResponse(request, clientRegistration.getProviderDetails())) {
 			OAuth2Error oauth2Error = new OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 		}
 
-		OAuth2AuthorizationRequest authorizationRequest = this.authorizationRequestRepository.removeAuthorizationRequest(request);
+		OAuth2AuthorizationRequest authorizationRequest = this.authorizationRequestRepository.removeAuthorizationRequest(request, clientRegistration);
 		if (authorizationRequest == null) {
 			OAuth2Error oauth2Error = new OAuth2Error(AUTHORIZATION_REQUEST_NOT_FOUND_ERROR_CODE);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 		}
 
-		String registrationId = (String) authorizationRequest.getAdditionalParameters().get(OAuth2ParameterNames.REGISTRATION_ID);
-		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(registrationId);
-
-		OAuth2AuthorizationResponse authorizationResponse = OAuth2AuthorizationResponseUtils.convert(request);
+		OAuth2AuthorizationResponse authorizationResponse = OAuth2AuthorizationResponseUtils.convert(request,
+				clientRegistration.getProviderDetails());
 
 		OAuth2LoginAuthenticationToken authenticationRequest = new OAuth2LoginAuthenticationToken(
 				clientRegistration, new OAuth2AuthorizationExchange(authorizationRequest, authorizationResponse));

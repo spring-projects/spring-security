@@ -15,6 +15,7 @@
  */
 package org.springframework.security.oauth2.client.registration;
 
+
 /**
  * A repository for OAuth 2.0 / OpenID Connect 1.0 {@link ClientRegistration}(s).
  *
@@ -29,7 +30,7 @@ package org.springframework.security.oauth2.client.registration;
  * @since 5.0
  * @see ClientRegistration
  */
-public interface ClientRegistrationRepository {
+public interface ClientRegistrationRepository extends Iterable<ClientRegistration>{
 
 	/**
 	 * Returns the client registration identified by the provided {@code registrationId}, or {@code null} if not found.

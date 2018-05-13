@@ -93,7 +93,7 @@ public class OAuth2ClientConfigurerTests {
 			.clientSecret("secret")
 			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
 			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-			.redirectUriTemplate("{baseUrl}/client-1")
+			.redirectUriTemplate("{baseUrl}/{action}/oauth2/code/{registrationId}")
 			.scope("user")
 			.authorizationUri("https://provider.com/oauth2/authorize")
 			.tokenUri("https://provider.com/oauth2/token")
@@ -120,7 +120,7 @@ public class OAuth2ClientConfigurerTests {
 		MvcResult mvcResult = this.mockMvc.perform(get("/oauth2/authorization/registration-1"))
 			.andExpect(status().is3xxRedirection())
 			.andReturn();
-		assertThat(mvcResult.getResponse().getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=http://localhost/client-1");
+		assertThat(mvcResult.getResponse().getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=http://localhost/login/oauth2/code/registration-1");
 	}
 
 	@Test
@@ -133,7 +133,7 @@ public class OAuth2ClientConfigurerTests {
 		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
 				.authorizationUri(this.registration1.getProviderDetails().getAuthorizationUri())
 				.clientId(this.registration1.getClientId())
-				.redirectUri("http://localhost/client-1")
+				.redirectUri("http://localhost/authorize/oauth2/code/registration-1")
 				.state("state")
 				.additionalParameters(additionalParameters)
 				.build();
@@ -142,19 +142,19 @@ public class OAuth2ClientConfigurerTests {
 				new HttpSessionOAuth2AuthorizationRequestRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, request, response);
+		authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, request, response, this.registration1);
 
 		MockHttpSession session = (MockHttpSession) request.getSession();
 
 		String principalName = "user1";
 
-		this.mockMvc.perform(get("/client-1")
+		this.mockMvc.perform(get("/authorize/oauth2/code/registration-1")
 			.param(OAuth2ParameterNames.CODE, "code")
 			.param(OAuth2ParameterNames.STATE, "state")
 			.with(user(principalName))
 			.session(session))
 			.andExpect(status().is3xxRedirection())
-			.andExpect(redirectedUrl("http://localhost/client-1"));
+			.andExpect(redirectedUrl("http://localhost/authorize/oauth2/code/registration-1"));
 
 		OAuth2AuthorizedClient authorizedClient = authorizedClientService.loadAuthorizedClient(
 			this.registration1.getRegistrationId(), principalName);
@@ -168,7 +168,7 @@ public class OAuth2ClientConfigurerTests {
 		MvcResult mvcResult = this.mockMvc.perform(get("/resource1").with(user("user1")))
 				.andExpect(status().is3xxRedirection())
 				.andReturn();
-		assertThat(mvcResult.getResponse().getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=http://localhost/client-1");
+		assertThat(mvcResult.getResponse().getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=http://localhost/authorize/oauth2/code/registration-1");
 
 		verify(requestCache).saveRequest(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}

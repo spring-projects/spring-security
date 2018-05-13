@@ -33,7 +33,7 @@ import java.util.Set;
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.2.1">Section 4.2.1 Implicit Grant Request</a>
  * @since 5.0
  */
-public class DefaultAuthorizationRequestUriParamsBuilder extends AbstractAuthorizationRequestUriBuilder {
+public class DefaultAuthorizationRequestUriBuilder implements OAuth2AuthorizationRequestUriBuilder {
 
 	public static final String DEFAULT = "default";
 

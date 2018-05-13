@@ -35,16 +35,13 @@ import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuth
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
-import org.springframework.security.oauth2.core.OAuth2AccessToken;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
+import org.springframework.security.oauth2.core.*;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
@@ -78,39 +75,39 @@ public class OAuth2LoginAuthenticationFilterTests {
 	@Before
 	public void setUp() {
 		this.registration1 = ClientRegistration.withRegistrationId("registration-1")
-			.clientId("client-1")
-			.clientSecret("secret")
-			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-			.redirectUriTemplate("{baseUrl}/login/oauth2/code/{registrationId}")
-			.scope("user")
-			.authorizationUri("https://provider.com/oauth2/authorize")
-			.tokenUri("https://provider.com/oauth2/token")
-			.userInfoUri("https://provider.com/oauth2/user")
-			.userNameAttributeName("id")
-			.clientName("client-1")
-			.build();
+				.clientId("client-1")
+				.clientSecret("secret")
+				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.redirectUriTemplate("{baseUrl}/login/oauth2/code/{registrationId}")
+				.scope("user")
+				.authorizationUri("https://provider.com/oauth2/authorize")
+				.tokenUri("https://provider.com/oauth2/token")
+				.userInfoUri("https://provider.com/oauth2/user")
+				.userNameAttributeName("id")
+				.clientName("client-1")
+				.build();
 		this.registration2 = ClientRegistration.withRegistrationId("registration-2")
-			.clientId("client-2")
-			.clientSecret("secret")
-			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-			.redirectUriTemplate("{baseUrl}/login/oauth2/code/{registrationId}")
-			.scope("openid", "profile", "email")
-			.authorizationUri("https://provider.com/oauth2/authorize")
-			.tokenUri("https://provider.com/oauth2/token")
-			.userInfoUri("https://provider.com/oauth2/userinfo")
-			.jwkSetUri("https://provider.com/oauth2/keys")
-			.clientName("client-2")
-			.build();
+				.clientId("client-2")
+				.clientSecret("secret")
+				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.redirectUriTemplate("{baseUrl}/login/oauth2/code/{registrationId}")
+				.scope("openid", "profile", "email")
+				.authorizationUri("https://provider.com/oauth2/authorize")
+				.tokenUri("https://provider.com/oauth2/token")
+				.userInfoUri("https://provider.com/oauth2/userinfo")
+				.jwkSetUri("https://provider.com/oauth2/keys")
+				.clientName("client-2")
+				.build();
 		this.clientRegistrationRepository = new InMemoryClientRegistrationRepository(
-			this.registration1, this.registration2);
+				this.registration1, this.registration2);
 		this.authorizedClientService = new InMemoryOAuth2AuthorizedClientService(this.clientRegistrationRepository);
 		this.authorizationRequestRepository = new HttpSessionOAuth2AuthorizationRequestRepository();
 		this.failureHandler = mock(AuthenticationFailureHandler.class);
 		this.authenticationManager = mock(AuthenticationManager.class);
 		this.filter = spy(new OAuth2LoginAuthenticationFilter(
-			this.clientRegistrationRepository, this.authorizedClientService));
+				this.clientRegistrationRepository, this.authorizedClientService));
 		this.filter.setAuthorizationRequestRepository(this.authorizationRequestRepository);
 		this.filter.setAuthenticationFailureHandler(this.failureHandler);
 		this.filter.setAuthenticationManager(this.authenticationManager);
@@ -129,8 +126,9 @@ public class OAuth2LoginAuthenticationFilterTests {
 	}
 
 	@Test
-	public void constructorWhenFilterProcessesUrlIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2LoginAuthenticationFilter(this.clientRegistrationRepository, this.authorizedClientService, null))
+	public void constructorWhenRequiresAuthenticationRequestMatcherIsNullThenThrowIllegalArgumentException() {
+		AntPathRequestMatcher requiresAuthenticationRequestMatcher = null;
+		assertThatThrownBy(() -> new OAuth2LoginAuthenticationFilter(this.clientRegistrationRepository, this.authorizedClientService, requiresAuthenticationRequestMatcher))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
@@ -170,7 +168,7 @@ public class OAuth2LoginAuthenticationFilterTests {
 
 		ArgumentCaptor<AuthenticationException> authenticationExceptionArgCaptor = ArgumentCaptor.forClass(AuthenticationException.class);
 		verify(this.failureHandler).onAuthenticationFailure(any(HttpServletRequest.class), any(HttpServletResponse.class),
-			authenticationExceptionArgCaptor.capture());
+				authenticationExceptionArgCaptor.capture());
 
 		assertThat(authenticationExceptionArgCaptor.getValue()).isInstanceOf(OAuth2AuthenticationException.class);
 		OAuth2AuthenticationException authenticationException = (OAuth2AuthenticationException) authenticationExceptionArgCaptor.getValue();
@@ -192,7 +190,7 @@ public class OAuth2LoginAuthenticationFilterTests {
 
 		ArgumentCaptor<AuthenticationException> authenticationExceptionArgCaptor = ArgumentCaptor.forClass(AuthenticationException.class);
 		verify(this.failureHandler).onAuthenticationFailure(any(HttpServletRequest.class), any(HttpServletResponse.class),
-			authenticationExceptionArgCaptor.capture());
+				authenticationExceptionArgCaptor.capture());
 
 		assertThat(authenticationExceptionArgCaptor.getValue()).isInstanceOf(OAuth2AuthenticationException.class);
 		OAuth2AuthenticationException authenticationException = (OAuth2AuthenticationException) authenticationExceptionArgCaptor.getValue();
@@ -216,7 +214,7 @@ public class OAuth2LoginAuthenticationFilterTests {
 
 		this.filter.doFilter(request, response, filterChain);
 
-		assertThat(this.authorizationRequestRepository.loadAuthorizationRequest(request)).isNull();
+		assertThat(this.authorizationRequestRepository.removeAuthorizationRequest(request, this.registration2)).isNull();
 	}
 
 	@Test
@@ -237,7 +235,7 @@ public class OAuth2LoginAuthenticationFilterTests {
 		this.filter.doFilter(request, response, filterChain);
 
 		OAuth2AuthorizedClient authorizedClient = this.authorizedClientService.loadAuthorizedClient(
-			this.registration1.getRegistrationId(), this.principalName1);
+				this.registration1.getRegistrationId(), this.principalName1);
 		assertThat(authorizedClient).isNotNull();
 		assertThat(authorizedClient.getClientRegistration()).isEqualTo(this.registration1);
 		assertThat(authorizedClient.getPrincipalName()).isEqualTo(this.principalName1);
@@ -246,9 +244,9 @@ public class OAuth2LoginAuthenticationFilterTests {
 
 	@Test
 	public void doFilterWhenCustomFilterProcessesUrlThenFilterProcesses() throws Exception {
-		String filterProcessesUrl = "/login/oauth2/custom/*";
+		String filterProcessesUrl = "/login/oauth2/custom";
 		this.filter = spy(new OAuth2LoginAuthenticationFilter(
-			this.clientRegistrationRepository, this.authorizedClientService, filterProcessesUrl));
+				this.clientRegistrationRepository, this.authorizedClientService, filterProcessesUrl));
 		this.filter.setAuthenticationManager(this.authenticationManager);
 
 		String requestUri = "/login/oauth2/custom/" + this.registration2.getRegistrationId();
@@ -270,14 +268,13 @@ public class OAuth2LoginAuthenticationFilterTests {
 		verify(this.filter).attemptAuthentication(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
-	private void setUpAuthorizationRequest(HttpServletRequest request, HttpServletResponse response,
-											ClientRegistration registration, String state) {
+	private void setUpAuthorizationRequest(HttpServletRequest request, HttpServletResponse response, ClientRegistration registration, String state) {
 		OAuth2AuthorizationRequest authorizationRequest = mock(OAuth2AuthorizationRequest.class);
 		when(authorizationRequest.getState()).thenReturn(state);
 		Map<String, Object> additionalParameters = new HashMap<>();
 		additionalParameters.put(OAuth2ParameterNames.REGISTRATION_ID, registration.getRegistrationId());
 		when(authorizationRequest.getAdditionalParameters()).thenReturn(additionalParameters);
-		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, request, response);
+		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, request, response, registration);
 	}
 
 	private void setUpAuthenticationResult(ClientRegistration registration) {

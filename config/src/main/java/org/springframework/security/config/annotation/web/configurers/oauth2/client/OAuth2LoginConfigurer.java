@@ -37,11 +37,8 @@ import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.userinfo.CustomUserTypesOAuth2UserService;
-import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
-import org.springframework.security.oauth2.client.userinfo.DelegatingOAuth2UserService;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.*;
+import org.springframework.security.oauth2.client.web.DefaultAuthorizationRequestUriBuilder;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestUriBuilder;
@@ -59,10 +56,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * An {@link AbstractHttpConfigurer} for OAuth 2.0 Login,
@@ -266,7 +260,6 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 	 */
 	public class RedirectionEndpointConfig {
 		private String authorizationResponseBaseUri;
-		private Map<String, OAuth2AuthorizationRequestUriBuilder> uriBuilders = new HashMap<>();
 
 		private RedirectionEndpointConfig() {
 		}
@@ -280,13 +273,6 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		public RedirectionEndpointConfig baseUri(String authorizationResponseBaseUri) {
 			Assert.hasText(authorizationResponseBaseUri, "authorizationResponseBaseUri cannot be empty");
 			this.authorizationResponseBaseUri = authorizationResponseBaseUri;
-			return this;
-		}
-
-		public RedirectionEndpointConfig uriBuilder(OAuth2AuthorizationRequestUriBuilder uriBuilder, String clientRegistrationId) {
-			Assert.notNull(uriBuilder, "uriBuilder cannot be null");
-			Assert.hasText(clientRegistrationId, "clientRegistrationId cannot be empty");
-			this.uriBuilders.put(clientRegistrationId, uriBuilder);
 			return this;
 		}
 
@@ -461,9 +447,13 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		if (requestCache != null) {
 			authorizationRequestFilter.setRequestCache(requestCache);
 		}
-		if (!this.redirectionEndpointConfig.uriBuilders.isEmpty()) {
-			authorizationRequestFilter.setUriBuilders(this.redirectionEndpointConfig.uriBuilders);
-		}
+
+		LinkedHashMap<String, OAuth2AuthorizationRequestUriBuilder> uriBuilders = new LinkedHashMap<>(1);
+		uriBuilders.put(DefaultAuthorizationRequestUriBuilder.DEFAULT, new DefaultAuthorizationRequestUriBuilder());
+		uriBuilders.putAll(BeanFactoryUtils.
+				beansOfTypeIncludingAncestors(http.getSharedObject(ApplicationContext.class), OAuth2AuthorizationRequestUriBuilder.class));
+		authorizationRequestFilter.setUriBuilders(uriBuilders);
+
 		http.addFilter(this.postProcess(authorizationRequestFilter));
 
 		OAuth2LoginAuthenticationFilter authenticationFilter = this.getAuthenticationFilter();
@@ -479,7 +469,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 
 	@Override
 	protected RequestMatcher createLoginProcessingUrlMatcher(String loginProcessingUrl) {
-		return new AntPathRequestMatcher(loginProcessingUrl);
+		return new AntPathRequestMatcher(loginProcessingUrl+"/{" + OAuth2LoginAuthenticationFilter.REGISTRATION_ID_URI_VARIABLE_NAME + "}");
 	}
 
 	private GrantedAuthoritiesMapper getGrantedAuthoritiesMapper() {

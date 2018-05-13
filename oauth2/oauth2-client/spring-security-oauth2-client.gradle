@@ -7,6 +7,8 @@ dependencies {
 	compile springCoreDependency
 	compile 'com.nimbusds:oauth2-oidc-sdk'
 
+    compile 'org.springframework:spring-webflux'
+    compile 'io.projectreactor.ipc:reactor-netty'
 	optional project(':spring-security-oauth2-jose')
 
 	testCompile powerMock2Dependencies

@@ -15,6 +15,7 @@
  */
 package org.springframework.security.oauth2.client.registration;
 
+import org.springframework.security.oauth2.client.web.DefaultAuthorizationRequestUriBuilder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
@@ -152,13 +153,14 @@ public final class ClientRegistration {
 		private String tokenUri;
 		private UserInfoEndpoint userInfoEndpoint = new UserInfoEndpoint();
 		private String jwkSetUri;
-		private String clientIdAttributeName;
+		private String uriBuilderName;
 		private String clientSecretAttributeName;
 		private String codeAttributeName;
 		private String errorAttributeName;
 		private String stateAttributeName;
 		private String errorDescriptionAttributeName;
 		private String errorUriAttributeName;
+
 		private String responseTypeAttributeName;
 		private String scopeAttributeName;
 		private String redirectUriAttributeName;
@@ -202,8 +204,8 @@ public final class ClientRegistration {
 			return this.jwkSetUri;
 		}
 
-		public String getClientIdAttributeName() {
-			return clientIdAttributeName;
+		public String getUriBuilderName() {
+			return uriBuilderName;
 		}
 
 		public String getClientSecretAttributeName() {
@@ -301,11 +303,11 @@ public final class ClientRegistration {
 		private String jwkSetUri;
 		private String clientName;
 
-		private String clientIdAttributeName = OAuth2ParameterNames.CLIENT_ID;
-		private String clientSecretAttributeName = OAuth2ParameterNames.CLIENT_SECRET;
+		private String uriBuilderName = DefaultAuthorizationRequestUriBuilder.DEFAULT;
 		private String responseTypeAttributeName = OAuth2ParameterNames.RESPONSE_TYPE;
 		private String scopeAttributeName = OAuth2ParameterNames.SCOPE;
 		private String redirectUriAttributeName = OAuth2ParameterNames.REDIRECT_URI;
+
 		private String codeAttributeName = OAuth2ParameterNames.CODE;
 		private String errorAttributeName = OAuth2ParameterNames.ERROR;
 		private String stateAttributeName = OAuth2ParameterNames.STATE;
@@ -452,13 +454,8 @@ public final class ClientRegistration {
 			return this;
 		}
 
-		public Builder clientIdAttributeName(String clientIdAttributeName) {
-			this.clientIdAttributeName = clientIdAttributeName;
-			return this;
-		}
-
-		public Builder clientSecretAttributeName(String clientSecretAttributeName) {
-			this.clientSecretAttributeName = clientSecretAttributeName;
+		public Builder uriBuilderName(String uriBuilderName) {
+			this.uriBuilderName = uriBuilderName;
 			return this;
 		}
 
@@ -535,8 +532,7 @@ public final class ClientRegistration {
 			providerDetails.userInfoEndpoint.userNameAttributeName = this.userNameAttributeName;
 			providerDetails.jwkSetUri = this.jwkSetUri;
 
-			providerDetails.clientIdAttributeName = this.clientIdAttributeName;
-			providerDetails.clientSecretAttributeName = this.clientSecretAttributeName;
+			providerDetails.uriBuilderName = this.uriBuilderName;
 			providerDetails.codeAttributeName = this.codeAttributeName;
 			providerDetails.errorAttributeName = this.errorAttributeName;
 			providerDetails.stateAttributeName = this.stateAttributeName;

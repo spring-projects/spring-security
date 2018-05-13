@@ -15,6 +15,8 @@
  */
 package org.springframework.security.config.annotation.web.configurers.oauth2.client;
 
+import org.springframework.beans.factory.BeanFactoryUtils;
+import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -24,12 +26,12 @@ import org.springframework.security.oauth2.client.endpoint.NimbusAuthorizationCo
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
-import org.springframework.security.oauth2.client.web.OAuth2AuthorizationCodeGrantFilter;
-import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
+import org.springframework.security.oauth2.client.web.*;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.util.Assert;
+
+import java.util.LinkedHashMap;
 
 /**
  * An {@link AbstractHttpConfigurer} for OAuth 2.0 Client support.
@@ -282,6 +284,11 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>> exte
 		if (requestCache != null) {
 			authorizationRequestFilter.setRequestCache(requestCache);
 		}
+		LinkedHashMap<String, OAuth2AuthorizationRequestUriBuilder> uriBuilders = new LinkedHashMap<>(1);
+		uriBuilders.put(DefaultAuthorizationRequestUriBuilder.DEFAULT, new DefaultAuthorizationRequestUriBuilder());
+		uriBuilders.putAll(BeanFactoryUtils.
+				beansOfTypeIncludingAncestors(builder.getSharedObject(ApplicationContext.class), OAuth2AuthorizationRequestUriBuilder.class));
+		authorizationRequestFilter.setUriBuilders(uriBuilders);
 		builder.addFilter(this.postProcess(authorizationRequestFilter));
 
 		AuthenticationManager authenticationManager = builder.getSharedObject(AuthenticationManager.class);

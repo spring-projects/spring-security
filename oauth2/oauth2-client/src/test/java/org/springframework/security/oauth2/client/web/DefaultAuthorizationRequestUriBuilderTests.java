@@ -27,13 +27,13 @@ import java.util.HashSet;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for {@link DefaultAuthorizationRequestUriParamsBuilder}.
+ * Tests for {@link DefaultAuthorizationRequestUriBuilder}.
  *
  * @author XYUU
  * @since 5.0
  */
-public class DefaultAuthorizationRequestUriParamsBuilderTests {
-	private DefaultAuthorizationRequestUriParamsBuilder builder = new DefaultAuthorizationRequestUriParamsBuilder();
+public class DefaultAuthorizationRequestUriBuilderTests {
+	private DefaultAuthorizationRequestUriBuilder builder = new DefaultAuthorizationRequestUriBuilder();
 
 	@Test(expected = IllegalArgumentException.class)
 	public void buildWhenAuthorizationRequestIsNullThenThrowIllegalArgumentException() {

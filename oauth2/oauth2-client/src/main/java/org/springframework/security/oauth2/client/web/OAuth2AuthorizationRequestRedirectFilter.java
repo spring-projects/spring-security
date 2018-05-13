@@ -23,7 +23,6 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
-import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
@@ -48,14 +47,14 @@ import java.util.Map;
 /**
  * This {@code Filter} initiates the authorization code grant or implicit grant flow
  * by redirecting the End-User's user-agent to the Authorization Server's Authorization Endpoint.
- *
+ * <p>
  * <p>
  * It builds the OAuth 2.0 Authorization Request,
  * which is used as the redirect {@code URI} to the Authorization Endpoint.
  * The redirect {@code URI} will include the client identifier, requested scope(s), state,
  * response type, and a redirection URI which the authorization server will send the user-agent back to
  * once access is granted (or denied) by the End-User (Resource Owner).
- *
+ * <p>
  * <p>
  * By default, this {@code Filter} responds to authorization requests
  * at the {@code URI} {@code /oauth2/authorization/{registrationId}}.
@@ -63,13 +62,12 @@ import java.util.Map;
  * {@link ClientRegistration#getRegistrationId() registration identifier} of the client
  * that is used for initiating the OAuth 2.0 Authorization Request.
  *
- * <p>
+ *
  * <b>NOTE:</b> The default base {@code URI} {@code /oauth2/authorization} may be overridden
  * via it's constructor {@link #OAuth2AuthorizationRequestRedirectFilter(ClientRegistrationRepository, String)}.
-
+ *
  * @author Joe Grandja
  * @author Rob Winch
- * @since 5.0
  * @see OAuth2AuthorizationRequest
  * @see AuthorizationRequestRepository
  * @see ClientRegistration
@@ -78,6 +76,7 @@ import java.util.Map;
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.1">Section 4.1.1 Authorization Request (Authorization Code)</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.2">Section 4.2 Implicit Grant</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.2.1">Section 4.2.1 Authorization Request (Implicit)</a>
+ * @since 5.0
  */
 public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilter {
 	/**
@@ -89,12 +88,11 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 			ClientAuthorizationRequiredException.class.getName() + ".AUTHORIZATION_REQUIRED_EXCEPTION";
 	private final AntPathRequestMatcher authorizationRequestMatcher;
 	private final ClientRegistrationRepository clientRegistrationRepository;
-	private final DefaultAuthorizationRequestUriBuilder authorizationRequestUriBuilder = new DefaultAuthorizationRequestUriBuilder();
 	private final RedirectStrategy authorizationRedirectStrategy = new DefaultRedirectStrategy();
 	private Map<String, OAuth2AuthorizationRequestUriBuilder> uriBuilders = new HashMap<>();
 	private final StringKeyGenerator stateGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder());
 	private AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
-		new HttpSessionOAuth2AuthorizationRequestRepository();
+			new HttpSessionOAuth2AuthorizationRequestRepository();
 	private RequestCache requestCache = new HttpSessionRequestCache();
 	private final ThrowableAnalyzer throwableAnalyzer = new DefaultThrowableAnalyzer();
 
@@ -111,15 +109,15 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 	 * Constructs an {@code OAuth2AuthorizationRequestRedirectFilter} using the provided parameters.
 	 *
 	 * @param clientRegistrationRepository the repository of client registrations
-	 * @param authorizationRequestBaseUri the base {@code URI} used for authorization requests
+	 * @param authorizationRequestBaseUri  the base {@code URI} used for authorization requests
 	 */
 	public OAuth2AuthorizationRequestRedirectFilter(
-		ClientRegistrationRepository clientRegistrationRepository, String authorizationRequestBaseUri) {
+			ClientRegistrationRepository clientRegistrationRepository, String authorizationRequestBaseUri) {
 
 		Assert.hasText(authorizationRequestBaseUri, "authorizationRequestBaseUri cannot be empty");
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
 		this.authorizationRequestMatcher = new AntPathRequestMatcher(
-			authorizationRequestBaseUri + "/{" + REGISTRATION_ID_URI_VARIABLE_NAME + "}");
+				authorizationRequestBaseUri + "/{" + REGISTRATION_ID_URI_VARIABLE_NAME + "}");
 		this.clientRegistrationRepository = clientRegistrationRepository;
 	}
 
@@ -175,7 +173,7 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 			// Check to see if we need to handle ClientAuthorizationRequiredException
 			Throwable[] causeChain = this.throwableAnalyzer.determineCauseChain(ex);
 			ClientAuthorizationRequiredException authzEx = (ClientAuthorizationRequiredException) this.throwableAnalyzer
-				.getFirstThrowableOfType(ClientAuthorizationRequiredException.class, causeChain);
+					.getFirstThrowableOfType(ClientAuthorizationRequiredException.class, causeChain);
 			if (authzEx != null) {
 				try {
 					request.setAttribute(AUTHORIZATION_REQUIRED_EXCEPTION_ATTR_NAME, authzEx);
@@ -191,8 +189,6 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 
 			if (ex instanceof ServletException) {
 				throw (ServletException) ex;
-			} else if (ex instanceof RuntimeException) {
-				throw (RuntimeException) ex;
 			} else {
 				throw new RuntimeException(ex);
 			}
@@ -204,15 +200,14 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 	}
 
 	private void sendRedirectForAuthorization(HttpServletRequest request, HttpServletResponse response)
-		throws IOException, ServletException {
+			throws IOException {
 
 		String registrationId = this.authorizationRequestMatcher
-			.extractUriTemplateVariables(request).get(REGISTRATION_ID_URI_VARIABLE_NAME);
+				.extractUriTemplateVariables(request).get(REGISTRATION_ID_URI_VARIABLE_NAME);
 		this.sendRedirectForAuthorization(request, response, registrationId);
 	}
 
-	private void sendRedirectForAuthorization(HttpServletRequest request, HttpServletResponse response,
-												String registrationId) throws IOException, ServletException {
+	private void sendRedirectForAuthorization(HttpServletRequest request, HttpServletResponse response, String registrationId) throws IOException {
 
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(registrationId);
 		if (clientRegistration == null) {
@@ -221,13 +216,9 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 		this.sendRedirectForAuthorization(request, response, clientRegistration);
 	}
 
-	private void sendRedirectForAuthorization(HttpServletRequest request, HttpServletResponse response,
-												ClientRegistration clientRegistration) throws IOException, ServletException {
+	private void sendRedirectForAuthorization(HttpServletRequest request, HttpServletResponse response, ClientRegistration clientRegistration) throws IOException {
 
 		String redirectUriStr = this.expandRedirectUri(request, clientRegistration);
-		String registrationId = clientRegistration.getRegistrationId();
-		Map<String, Object> additionalParameters = new HashMap<>();
-		additionalParameters.put(OAuth2ParameterNames.REGISTRATION_ID, registrationId);
 
 		OAuth2AuthorizationRequest.Builder builder;
 		if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(clientRegistration.getAuthorizationGrantType())) {
@@ -235,30 +226,33 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 		} else if (AuthorizationGrantType.IMPLICIT.equals(clientRegistration.getAuthorizationGrantType())) {
 			builder = OAuth2AuthorizationRequest.implicit();
 		} else {
-			throw new IllegalArgumentException("Invalid Authorization Grant Type ("  +
+			throw new IllegalArgumentException("Invalid Authorization Grant Type (" +
 					clientRegistration.getAuthorizationGrantType().getValue() +
 					") for Client Registration with Id: " + clientRegistration.getRegistrationId());
 		}
+		ClientRegistration.ProviderDetails provider = clientRegistration.getProviderDetails();
 		OAuth2AuthorizationRequest authorizationRequest = builder
 				.clientId(clientRegistration.getClientId())
-				.authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri())
+				.authorizationUri(provider.getAuthorizationUri())
 				.redirectUri(redirectUriStr)
 				.scopes(clientRegistration.getScopes())
 				.state(this.stateGenerator.generateKey())
-				.additionalParameters(additionalParameters)
 				.build();
 
 		if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(authorizationRequest.getGrantType())) {
-			this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, request, response);
+			this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, request, response, clientRegistration);
 		}
-
-		URI redirectUri = this.uriBuilders.getOrDefault(registrationId, this.authorizationRequestUriBuilder).build(authorizationRequest);
+		OAuth2AuthorizationRequestUriBuilder paramsBuilder = this.uriBuilders.get(provider.getparamsBuilderName());
+		if (paramsBuilder == null) {
+			throw new IllegalArgumentException("Invalid Params Builder Name (" +
+					provider.getparamsBuilderName() +
+					") for Client Registration with Id: " + clientRegistration.getRegistrationId());
+		}
+		URI redirectUri = paramsBuilder.build(authorizationRequest);
 		this.authorizationRedirectStrategy.sendRedirect(request, response, redirectUri.toString());
 	}
 
-	private void unsuccessfulRedirectForAuthorization(HttpServletRequest request, HttpServletResponse response,
-														Exception failed) throws IOException, ServletException {
-
+	private void unsuccessfulRedirectForAuthorization(HttpServletRequest request, HttpServletResponse response, Exception failed) throws IOException {
 		if (logger.isErrorEnabled()) {
 			logger.error("Authorization Request failed: " + failed.toString(), failed);
 		}
@@ -284,11 +278,9 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 			String action;
 			if (request.getAttribute(AUTHORIZATION_REQUIRED_EXCEPTION_ATTR_NAME) != null) {
 				action = authorizeAction;
-			} else if (request.getParameter(actionParameter) == null) {
-				action = loginAction;
 			} else {
 				String actionValue = request.getParameter(actionParameter);
-				if (loginAction.equalsIgnoreCase(actionValue)) {
+				if (actionValue == null || loginAction.equalsIgnoreCase(actionValue)) {
 					action = loginAction;
 				} else {
 					action = authorizeAction;
@@ -298,8 +290,8 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 		}
 
 		return UriComponentsBuilder.fromUriString(clientRegistration.getRedirectUriTemplate())
-			.buildAndExpand(uriVariables)
-			.toUriString();
+				.buildAndExpand(uriVariables)
+				.toUriString();
 	}
 
 	private static final class DefaultThrowableAnalyzer extends ThrowableAnalyzer {
