@@ -18,35 +18,38 @@ package org.springframework.security.oauth2.client.web;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.Assert;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URI;
 import java.util.Set;
+
 /**
- * A {@code URI} builder for an OAuth 2.0 Authorization Request.
+ * A {@code MultiValueMap<String, String>} builder for an OAuth 2.0 Authorization Request Params.
  *
- * @author Joe Grandja
- * @since 5.0
+ * @author XYUU
  * @see OAuth2AuthorizationRequest
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.1">Section 4.1.1 Authorization Code Grant Request</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.2.1">Section 4.2.1 Implicit Grant Request</a>
+ * @since 5.0
  */
-public class DefaultAuthorizationRequestUriBuilder implements OAuth2AuthorizationRequestUriBuilder {
+public class DefaultAuthorizationRequestUriParamsBuilder extends AbstractAuthorizationRequestUriBuilder {
 
-	public URI build(OAuth2AuthorizationRequest authorizationRequest) {
+	public static final String DEFAULT = "default";
+
+	@Override
+	public MultiValueMap<String, String> apply(OAuth2AuthorizationRequest authorizationRequest) {
 		Assert.notNull(authorizationRequest, "authorizationRequest cannot be null");
 		Set<String> scopes = authorizationRequest.getScopes();
-		UriComponentsBuilder uriBuilder = UriComponentsBuilder
-				.fromUriString(authorizationRequest.getAuthorizationUri())
-				.queryParam(OAuth2ParameterNames.RESPONSE_TYPE, authorizationRequest.getResponseType().getValue())
-				.queryParam(OAuth2ParameterNames.CLIENT_ID, authorizationRequest.getClientId())
-				.queryParam(OAuth2ParameterNames.SCOPE, StringUtils.collectionToDelimitedString(scopes, " "))
-				.queryParam(OAuth2ParameterNames.STATE, authorizationRequest.getState());
+		MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+		map.add(OAuth2ParameterNames.RESPONSE_TYPE, authorizationRequest.getResponseType().getValue());
+		map.add(OAuth2ParameterNames.CLIENT_ID, authorizationRequest.getClientId());
+		map.add(OAuth2ParameterNames.SCOPE, StringUtils.collectionToDelimitedString(scopes, " "));
+		map.add(OAuth2ParameterNames.STATE, authorizationRequest.getState());
 		if (authorizationRequest.getRedirectUri() != null) {
-			uriBuilder.queryParam(OAuth2ParameterNames.REDIRECT_URI, authorizationRequest.getRedirectUri());
+			map.add(OAuth2ParameterNames.REDIRECT_URI, authorizationRequest.getRedirectUri());
 		}
-		return uriBuilder.build().encode().toUri();
+		return map;
 	}
 
 }

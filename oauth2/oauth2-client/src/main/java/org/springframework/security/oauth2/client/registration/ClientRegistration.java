@@ -17,6 +17,7 @@ package org.springframework.security.oauth2.client.registration;
 
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.util.Assert;
 
@@ -151,6 +152,16 @@ public final class ClientRegistration {
 		private String tokenUri;
 		private UserInfoEndpoint userInfoEndpoint = new UserInfoEndpoint();
 		private String jwkSetUri;
+		private String clientIdAttributeName;
+		private String clientSecretAttributeName;
+		private String codeAttributeName;
+		private String errorAttributeName;
+		private String stateAttributeName;
+		private String errorDescriptionAttributeName;
+		private String errorUriAttributeName;
+		private String responseTypeAttributeName;
+		private String scopeAttributeName;
+		private String redirectUriAttributeName;
 
 		private ProviderDetails() {
 		}
@@ -189,6 +200,46 @@ public final class ClientRegistration {
 		 */
 		public String getJwkSetUri() {
 			return this.jwkSetUri;
+		}
+
+		public String getClientIdAttributeName() {
+			return clientIdAttributeName;
+		}
+
+		public String getClientSecretAttributeName() {
+			return clientSecretAttributeName;
+		}
+
+		public String getCodeAttributeName() {
+			return codeAttributeName;
+		}
+
+		public String getErrorAttributeName() {
+			return errorAttributeName;
+		}
+
+		public String getStateAttributeName() {
+			return stateAttributeName;
+		}
+
+		public String getErrorDescriptionAttributeName() {
+			return errorDescriptionAttributeName;
+		}
+
+		public String getErrorUriAttributeName() {
+			return errorUriAttributeName;
+		}
+
+		public String getResponseTypeAttributeName() {
+			return responseTypeAttributeName;
+		}
+
+		public String getScopeAttributeName() {
+			return scopeAttributeName;
+		}
+
+		public String getRedirectUriAttributeName() {
+			return redirectUriAttributeName;
 		}
 
 		/**
@@ -249,6 +300,17 @@ public final class ClientRegistration {
 		private String userNameAttributeName;
 		private String jwkSetUri;
 		private String clientName;
+
+		private String clientIdAttributeName = OAuth2ParameterNames.CLIENT_ID;
+		private String clientSecretAttributeName = OAuth2ParameterNames.CLIENT_SECRET;
+		private String responseTypeAttributeName = OAuth2ParameterNames.RESPONSE_TYPE;
+		private String scopeAttributeName = OAuth2ParameterNames.SCOPE;
+		private String redirectUriAttributeName = OAuth2ParameterNames.REDIRECT_URI;
+		private String codeAttributeName = OAuth2ParameterNames.CODE;
+		private String errorAttributeName = OAuth2ParameterNames.ERROR;
+		private String stateAttributeName = OAuth2ParameterNames.STATE;
+		private String errorDescriptionAttributeName = OAuth2ParameterNames.ERROR_DESCRIPTION;
+		private String errorUriAttributeName = OAuth2ParameterNames.ERROR_URI;
 
 		private Builder(String registrationId) {
 			this.registrationId = registrationId;
@@ -390,6 +452,56 @@ public final class ClientRegistration {
 			return this;
 		}
 
+		public Builder clientIdAttributeName(String clientIdAttributeName) {
+			this.clientIdAttributeName = clientIdAttributeName;
+			return this;
+		}
+
+		public Builder clientSecretAttributeName(String clientSecretAttributeName) {
+			this.clientSecretAttributeName = clientSecretAttributeName;
+			return this;
+		}
+
+		public Builder codeAttributeName(String codeAttributeName) {
+			this.codeAttributeName = codeAttributeName;
+			return this;
+		}
+
+		public Builder errorAttributeName(String errorAttributeName) {
+			this.errorAttributeName = errorAttributeName;
+			return this;
+		}
+
+		public Builder stateAttributeName(String stateAttributeName) {
+			this.stateAttributeName = stateAttributeName;
+			return this;
+		}
+
+		public Builder errorDescriptionAttributeName(String errorDescriptionAttributeName) {
+			this.errorDescriptionAttributeName = errorDescriptionAttributeName;
+			return this;
+		}
+
+		public Builder errorUriAttributeName(String errorUriAttributeName) {
+			this.errorUriAttributeName = errorUriAttributeName;
+			return this;
+		}
+
+		public Builder responseTypeAttributeName(String responseTypeAttributeName) {
+			this.responseTypeAttributeName = responseTypeAttributeName;
+			return this;
+		}
+
+		public Builder scopeAttributeName(String scopeAttributeName) {
+			this.scopeAttributeName = scopeAttributeName;
+			return this;
+		}
+
+		public Builder redirectUriAttributeName(String redirectUriAttributeName) {
+			this.redirectUriAttributeName = redirectUriAttributeName;
+			return this;
+		}
+
 		/**
 		 * Builds a new {@link ClientRegistration}.
 		 *
@@ -422,6 +534,18 @@ public final class ClientRegistration {
 			providerDetails.userInfoEndpoint.uri = this.userInfoUri;
 			providerDetails.userInfoEndpoint.userNameAttributeName = this.userNameAttributeName;
 			providerDetails.jwkSetUri = this.jwkSetUri;
+
+			providerDetails.clientIdAttributeName = this.clientIdAttributeName;
+			providerDetails.clientSecretAttributeName = this.clientSecretAttributeName;
+			providerDetails.codeAttributeName = this.codeAttributeName;
+			providerDetails.errorAttributeName = this.errorAttributeName;
+			providerDetails.stateAttributeName = this.stateAttributeName;
+			providerDetails.errorDescriptionAttributeName = this.errorDescriptionAttributeName;
+			providerDetails.errorUriAttributeName = this.errorUriAttributeName;
+			providerDetails.responseTypeAttributeName = this.responseTypeAttributeName;
+			providerDetails.scopeAttributeName = this.scopeAttributeName;
+			providerDetails.redirectUriAttributeName = this.redirectUriAttributeName;
+
 			clientRegistration.providerDetails = providerDetails;
 
 			clientRegistration.clientName = this.clientName;
