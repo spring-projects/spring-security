@@ -151,8 +151,14 @@ final class HtmlUnitWebTestClient {
 
 		private Mono<ClientResponse> redirectIfNecessary(ClientRequest request, ExchangeFunction next, ClientResponse response) {
 			URI location = response.headers().asHttpHeaders().getLocation();
+			String host = request.url().getHost();
+			String scheme = request.url().getScheme();
 			if(location != null) {
-				ClientRequest redirect = ClientRequest.method(HttpMethod.GET, URI.create("http://localhost" + location.toASCIIString()))
+				String redirectUrl = location.toASCIIString();
+				if (location.getHost() == null) {
+					redirectUrl = scheme+ "://" + host + location.toASCIIString();
+				}
+				ClientRequest redirect = ClientRequest.method(HttpMethod.GET, URI.create(redirectUrl))
 					.headers(headers -> headers.addAll(request.headers()))
 					.cookies(cookies -> cookies.addAll(request.cookies()))
 					.attributes(attributes -> attributes.putAll(request.attributes()))

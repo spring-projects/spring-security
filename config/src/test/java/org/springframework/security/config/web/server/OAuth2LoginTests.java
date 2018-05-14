@@ -21,29 +21,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Rule;
 import org.junit.Test;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
-import org.springframework.security.config.annotation.web.reactive.ServerHttpSecurityConfigurationBuilder;
 import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.htmlunit.server.WebTestClientHtmlUnitDriverBuilder;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.InMemoryReactiveClientRegistrationRepository;
-import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
-import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.WebFilterChainProxy;
-import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
-import org.springframework.security.web.server.csrf.CsrfToken;
-import org.springframework.stereotype.Controller;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.WebFilter;
+import org.springframework.web.server.WebFilterChain;
 
 import reactor.core.publisher.Mono;
 
@@ -59,7 +50,7 @@ public class OAuth2LoginTests {
 	@Autowired
 	private WebFilterChainProxy springSecurity;
 
-	private ClientRegistration github = CommonOAuth2Provider.GITHUB
+	private static ClientRegistration github = CommonOAuth2Provider.GITHUB
 			.getBuilder("github")
 			.clientId("client")
 			.clientSecret("secret")
@@ -90,17 +81,48 @@ public class OAuth2LoginTests {
 	static class OAuth2LoginWithMulitpleClientRegistrations {
 		@Bean
 		InMemoryReactiveClientRegistrationRepository clientRegistrationRepository() {
-			ClientRegistration github = CommonOAuth2Provider.GITHUB
-					.getBuilder("github")
-					.clientId("client")
-					.clientSecret("secret")
-					.build();
 			ClientRegistration google = CommonOAuth2Provider.GOOGLE
 					.getBuilder("google")
 					.clientId("client")
 					.clientSecret("secret")
 					.build();
 			return new InMemoryReactiveClientRegistrationRepository(github, google);
+		}
+	}
+
+	@Test
+	public void defaultLoginPageWithSingleClientRegistrationThenRedirect() {
+		this.spring.register(OAuth2LoginWithSingleClientRegistrations.class).autowire();
+
+		WebTestClient webTestClient = WebTestClientBuilder
+				.bindToWebFilters(new GitHubWebFilter(), this.springSecurity)
+				.build();
+
+		WebDriver driver = WebTestClientHtmlUnitDriverBuilder
+				.webTestClientSetup(webTestClient)
+				.build();
+
+		driver.get("http://localhost/");
+
+		assertThat(driver.getCurrentUrl()).startsWith("https://github.com/login/oauth/authorize");
+	}
+
+	@EnableWebFluxSecurity
+	static class OAuth2LoginWithSingleClientRegistrations {
+		@Bean
+		InMemoryReactiveClientRegistrationRepository clientRegistrationRepository() {
+			return new InMemoryReactiveClientRegistrationRepository(github);
+		}
+	}
+
+	static class GitHubWebFilter implements WebFilter {
+
+		@Override
+		public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+			if (exchange.getRequest().getURI().getHost().equals("github.com")) {
+				return exchange.getResponse().setComplete();
+			}
+			return chain.filter(exchange);
 		}
 	}
 }
