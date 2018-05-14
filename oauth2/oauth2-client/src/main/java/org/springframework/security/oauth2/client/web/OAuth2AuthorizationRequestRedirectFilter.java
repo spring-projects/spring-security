@@ -242,13 +242,13 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 		if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(authorizationRequest.getGrantType())) {
 			this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, request, response, clientRegistration);
 		}
-		OAuth2AuthorizationRequestUriBuilder paramsBuilder = this.uriBuilders.get(provider.getparamsBuilderName());
-		if (paramsBuilder == null) {
+		OAuth2AuthorizationRequestUriBuilder uriBuilder = this.uriBuilders.get(provider.getUriBuilderName());
+		if (uriBuilder == null) {
 			throw new IllegalArgumentException("Invalid Params Builder Name (" +
-					provider.getparamsBuilderName() +
+					provider.getUriBuilderName() +
 					") for Client Registration with Id: " + clientRegistration.getRegistrationId());
 		}
-		URI redirectUri = paramsBuilder.build(authorizationRequest);
+		URI redirectUri = uriBuilder.build(authorizationRequest);
 		this.authorizationRedirectStrategy.sendRedirect(request, response, redirectUri.toString());
 	}
 

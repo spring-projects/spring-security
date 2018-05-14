@@ -50,10 +50,6 @@ public class OAuth2UserRequest {
 		this.accessToken = accessToken;
 	}
 
-	public Map<String, Object> getAdditionalParameters() {
-		return additionalParameters;
-	}
-
 	public OAuth2UserRequest setAdditionalParameters(Map<String, Object> additionalParameters) {
 		this.additionalParameters.putAll(additionalParameters);
 		return this;
