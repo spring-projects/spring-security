@@ -35,6 +35,7 @@ dependencies {
 	testCompile powerMock2Dependencies
 	testCompile spockDependencies
 	testCompile 'ch.qos.logback:logback-classic'
+	testCompile 'io.projectreactor.ipc:reactor-netty'
 	testCompile 'javax.annotation:jsr250-api:1.0'
 	testCompile 'javax.xml.bind:jaxb-api'
 	testCompile 'ldapsdk:ldapsdk:4.1'
