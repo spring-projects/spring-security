@@ -17,8 +17,8 @@
 package org.springframework.security.oauth2.client.web;
 
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
-import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebSession;
@@ -44,20 +44,8 @@ public final class WebSessionOAuth2ReactiveAuthorizationRequestRepository implem
 	private final String sessionAttributeName = DEFAULT_AUTHORIZATION_REQUEST_ATTR_NAME;
 
 	@Override
-	public Mono<OAuth2AuthorizationRequest> loadAuthorizationRequest(
-			ServerWebExchange exchange) {
-		String state = getStateParameter(exchange);
-		if (state == null) {
-			return Mono.empty();
-		}
-		return getStateToAuthorizationRequest(exchange, false)
-				.filter(stateToAuthorizationRequest -> stateToAuthorizationRequest.containsKey(state))
-				.map(stateToAuthorizationRequest -> stateToAuthorizationRequest.get(state));
-	}
-
-	@Override
 	public Mono<Void> saveAuthorizationRequest(
-			OAuth2AuthorizationRequest authorizationRequest, ServerWebExchange exchange) {
+			OAuth2AuthorizationRequest authorizationRequest, ServerWebExchange exchange, ClientRegistration clientRegistration) {
 		Assert.notNull(authorizationRequest, "authorizationRequest cannot be null");
 		return getStateToAuthorizationRequest(exchange, true)
 				.doOnNext(stateToAuthorizationRequest -> stateToAuthorizationRequest.put(authorizationRequest.getState(), authorizationRequest))
@@ -66,8 +54,8 @@ public final class WebSessionOAuth2ReactiveAuthorizationRequestRepository implem
 
 	@Override
 	public Mono<OAuth2AuthorizationRequest> removeAuthorizationRequest(
-			ServerWebExchange exchange) {
-		String state = getStateParameter(exchange);
+			ServerWebExchange exchange, ClientRegistration clientRegistration) {
+		String state = getStateParameter(exchange, clientRegistration);
 		if (state == null) {
 			return Mono.empty();
 		}
@@ -92,9 +80,9 @@ public final class WebSessionOAuth2ReactiveAuthorizationRequestRepository implem
 	 * @param exchange the exchange to use
 	 * @return the state parameter or null if not found
 	 */
-	private String getStateParameter(ServerWebExchange exchange) {
+	private String getStateParameter(ServerWebExchange exchange, ClientRegistration clientRegistration) {
 		Assert.notNull(exchange, "exchange cannot be null");
-		return exchange.getRequest().getQueryParams().getFirst(OAuth2ParameterNames.STATE);
+		return exchange.getRequest().getQueryParams().getFirst(clientRegistration.getProviderDetails().getStateAttributeName());
 	}
 
 	private Mono<Map<String, Object>> getSessionAttributes(ServerWebExchange exchange) {

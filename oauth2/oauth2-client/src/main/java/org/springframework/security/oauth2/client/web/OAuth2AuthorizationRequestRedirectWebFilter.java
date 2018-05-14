@@ -173,7 +173,7 @@ public class OAuth2AuthorizationRequestRedirectWebFilter implements WebFilter {
 			Mono<Void> saveAuthorizationRequest = Mono.empty();
 			if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(authorizationRequest.getGrantType())) {
 				saveAuthorizationRequest = this.authorizationRequestRepository
-						.saveAuthorizationRequest(authorizationRequest, exchange);
+						.saveAuthorizationRequest(authorizationRequest, exchange, clientRegistration);
 			}
 			OAuth2AuthorizationRequestUriBuilder uriBuilder = this.uriBuilders.get(provider.getUriBuilderName());
 			if (uriBuilder == null) {

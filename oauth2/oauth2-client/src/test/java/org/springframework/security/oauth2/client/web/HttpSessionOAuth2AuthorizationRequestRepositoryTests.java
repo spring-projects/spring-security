@@ -269,11 +269,11 @@ public class HttpSessionOAuth2AuthorizationRequestRepositoryTests {
 		OAuth2AuthorizationRequest authorizationRequest = createAuthorizationRequest().build();
 
 		this.authorizationRequestRepository.saveAuthorizationRequest(
-				authorizationRequest, request, response);
+				authorizationRequest, request, response, registration);
 
 		request.addParameter(OAuth2ParameterNames.STATE, authorizationRequest.getState());
 		OAuth2AuthorizationRequest removedAuthorizationRequest =
-				this.authorizationRequestRepository.removeAuthorizationRequest(request);
+				this.authorizationRequestRepository.removeAuthorizationRequest(request, registration);
 
 		String sessionAttributeName = HttpSessionOAuth2AuthorizationRequestRepository.class.getName() +
 				".AUTHORIZATION_REQUEST";
