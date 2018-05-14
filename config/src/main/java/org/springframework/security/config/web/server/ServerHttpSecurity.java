@@ -183,6 +183,8 @@ public class ServerHttpSecurity {
 
 	private LogoutSpec logout = new LogoutSpec();
 
+	private LoginPageSpec loginPage = new LoginPageSpec();
+
 	private ReactiveAuthenticationManager authenticationManager;
 
 	private ServerSecurityContextRepository securityContextRepository = new WebSessionServerSecurityContextRepository();
@@ -386,6 +388,16 @@ public class ServerHttpSecurity {
 				}
 			});
 			authenticationFilter.setSecurityContextRepository(new WebSessionServerSecurityContextRepository());
+
+			MediaTypeServerWebExchangeMatcher htmlMatcher = new MediaTypeServerWebExchangeMatcher(
+					MediaType.TEXT_HTML);
+			htmlMatcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
+			Map<String, String> urlToText = http.oauth2Login.getLinks();
+			if (urlToText.size() == 1) {
+				http.defaultEntryPoints.add(new DelegateEntry(htmlMatcher, new RedirectServerAuthenticationEntryPoint(urlToText.keySet().iterator().next())));
+			} else {
+				http.defaultEntryPoints.add(new DelegateEntry(htmlMatcher, new RedirectServerAuthenticationEntryPoint("/login")));
+			}
 
 			http.addFilterAt(oauthRedirectFilter, SecurityWebFiltersOrder.HTTP_BASIC);
 			http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION);
@@ -610,31 +622,17 @@ public class ServerHttpSecurity {
 			this.httpBasic.authenticationManager(this.authenticationManager);
 			this.httpBasic.configure(this);
 		}
-		LoginPageGeneratingWebFilter loginPageFilter = null;
 		if(this.formLogin != null) {
 			this.formLogin.authenticationManager(this.authenticationManager);
 			if(this.securityContextRepository != null) {
 				this.formLogin.securityContextRepository(this.securityContextRepository);
 			}
-			if (this.authenticationEntryPoint == null) {
-				loginPageFilter = new LoginPageGeneratingWebFilter();
-				loginPageFilter.setFormLoginEnabled(true);
-				this.authenticationEntryPoint = this.formLogin.authenticationEntryPoint;
-			}
 			this.formLogin.configure(this);
 		}
 		if (this.oauth2Login != null) {
-			if (this.authenticationEntryPoint == null) {
-				loginPageFilter = new LoginPageGeneratingWebFilter();
-				loginPageFilter.setOauth2AuthenticationUrlToClientName(this.oauth2Login.getLinks());
-			}
 			this.oauth2Login.configure(this);
 		}
-		if (loginPageFilter != null) {
-			this.authenticationEntryPoint = new RedirectServerAuthenticationEntryPoint("/login");
-			this.webFilters.add(new OrderedWebFilter(loginPageFilter, SecurityWebFiltersOrder.LOGIN_PAGE_GENERATING.getOrder()));
-			this.webFilters.add(new OrderedWebFilter(new LogoutPageGeneratingWebFilter(), SecurityWebFiltersOrder.LOGOUT_PAGE_GENERATING.getOrder()));
-		}
+		this.loginPage.configure(this);
 		if(this.logout != null) {
 			this.logout.configure(this);
 		}
@@ -1084,6 +1082,8 @@ public class ServerHttpSecurity {
 
 		private ServerAuthenticationEntryPoint authenticationEntryPoint;
 
+		private boolean isEntryPointExplicit;
+
 		private ServerWebExchangeMatcher requiresAuthenticationMatcher;
 
 		private ServerAuthenticationFailureHandler authenticationFailureHandler;
@@ -1206,7 +1206,10 @@ public class ServerHttpSecurity {
 
 		protected void configure(ServerHttpSecurity http) {
 			if(this.authenticationEntryPoint == null) {
+				this.isEntryPointExplicit = false;
 				loginPage("/login");
+			} else {
+				this.isEntryPointExplicit = true;
 			}
 			if(http.requestCache != null) {
 				ServerRequestCache requestCache = http.requestCache.requestCache;
@@ -1231,6 +1234,35 @@ public class ServerHttpSecurity {
 
 		private FormLoginSpec() {
 		}
+	}
+
+	private class LoginPageSpec {
+		protected void configure(ServerHttpSecurity http) {
+			if (http.authenticationEntryPoint != null) {
+				return;
+			}
+			if (http.formLogin != null && http.formLogin.isEntryPointExplicit) {
+				return;
+			}
+			LoginPageGeneratingWebFilter loginPage = null;
+			if (http.formLogin != null && !http.formLogin.isEntryPointExplicit) {
+				loginPage = new LoginPageGeneratingWebFilter();
+				loginPage.setFormLoginEnabled(true);
+			}
+			if (http.oauth2Login != null) {
+				Map<String, String> urlToText = http.oauth2Login.getLinks();
+				if (loginPage == null) {
+					loginPage = new LoginPageGeneratingWebFilter();
+				}
+				loginPage.setOauth2AuthenticationUrlToClientName(urlToText);
+			}
+			if (loginPage != null) {
+				http.addFilterAt(loginPage, SecurityWebFiltersOrder.LOGIN_PAGE_GENERATING);
+				http.addFilterAt(new LogoutPageGeneratingWebFilter(), SecurityWebFiltersOrder.LOGOUT_PAGE_GENERATING);
+			}
+		}
+
+		private LoginPageSpec() {}
 	}
 
 	/**
