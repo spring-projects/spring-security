@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,7 +74,7 @@ public final class CacheControlHeadersWriter implements HeaderWriter {
 	}
 
 	private static List<Header> createHeaders() {
-		List<Header> headers = new ArrayList<>(2);
+		List<Header> headers = new ArrayList<>(3);
 		headers.add(new Header(CACHE_CONTROL,
 				"no-cache, no-store, max-age=0, must-revalidate"));
 		headers.add(new Header(PRAGMA, "no-cache"));

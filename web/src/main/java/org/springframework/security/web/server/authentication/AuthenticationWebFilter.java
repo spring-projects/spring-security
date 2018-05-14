@@ -17,23 +17,23 @@ package org.springframework.security.web.server.authentication;
 
 import java.util.function.Function;
 
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import reactor.core.publisher.Mono;
-
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.web.server.ServerHttpBasicAuthenticationConverter;
 import org.springframework.security.web.server.WebFilterExchange;
-import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
+import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
+
+import reactor.core.publisher.Mono;
 
 /**
  * A {@link WebFilter} that performs authentication of a particular request. An outline of the logic:
@@ -97,6 +97,7 @@ public class AuthenticationWebFilter implements WebFilter {
 		WebFilterChain chain, Authentication token) {
 		WebFilterExchange webFilterExchange = new WebFilterExchange(exchange, chain);
 		return this.authenticationManager.authenticate(token)
+			.switchIfEmpty(Mono.defer(() -> Mono.error(new IllegalStateException("No provider found for " + token.getClass()))))
 			.flatMap(authentication -> onAuthenticationSuccess(authentication, webFilterExchange))
 			.onErrorResume(AuthenticationException.class, e -> this.authenticationFailureHandler
 				.onAuthenticationFailure(webFilterExchange, e));

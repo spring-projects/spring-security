@@ -19,7 +19,6 @@ import static org.springframework.security.crypto.util.EncodingUtils.concatenate
 import static org.springframework.security.crypto.util.EncodingUtils.subArray;
 
 import org.bouncycastle.crypto.InvalidCipherTextException;
-import org.bouncycastle.crypto.engines.AESFastEngine;
 import org.bouncycastle.crypto.modes.AEADBlockCipher;
 import org.bouncycastle.crypto.modes.GCMBlockCipher;
 import org.bouncycastle.crypto.params.AEADParameters;
@@ -49,7 +48,8 @@ public class BouncyCastleAesGcmBytesEncryptor extends BouncyCastleAesBytesEncryp
 	public byte[] encrypt(byte[] bytes) {
 		byte[] iv = this.ivGenerator.generateKey();
 
-		GCMBlockCipher blockCipher = new GCMBlockCipher(new AESFastEngine());
+		@SuppressWarnings("deprecation")
+		GCMBlockCipher blockCipher = new GCMBlockCipher(new org.bouncycastle.crypto.engines.AESFastEngine());
 		blockCipher.init(true, new AEADParameters(secretKey, 128, iv, null));
 
 		byte[] encrypted = process(blockCipher, bytes);
@@ -62,7 +62,8 @@ public class BouncyCastleAesGcmBytesEncryptor extends BouncyCastleAesBytesEncryp
 		encryptedBytes = subArray(encryptedBytes, this.ivGenerator.getKeyLength(),
 				encryptedBytes.length);
 
-		GCMBlockCipher blockCipher = new GCMBlockCipher(new AESFastEngine());
+		@SuppressWarnings("deprecation")
+		GCMBlockCipher blockCipher = new GCMBlockCipher(new org.bouncycastle.crypto.engines.AESFastEngine());
 		blockCipher.init(false, new AEADParameters(secretKey, 128, iv, null));
 		return process(blockCipher, encryptedBytes);
 	}

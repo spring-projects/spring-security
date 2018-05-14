@@ -16,6 +16,9 @@
 
 package org.springframework.security.config.annotation.web.reactive;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -25,11 +28,9 @@ import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.reactive.result.view.CsrfRequestDataValueProcessor;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.WebFilterChainProxy;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.reactive.result.view.AbstractView;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author Rob Winch
@@ -42,6 +43,11 @@ class WebFluxSecurityConfiguration {
 	private static final String BEAN_NAME_PREFIX = "org.springframework.security.config.annotation.web.reactive.WebFluxSecurityConfiguration.";
 
 	private static final String SPRING_SECURITY_WEBFILTERCHAINFILTER_BEAN_NAME = BEAN_NAME_PREFIX + "WebFilterChainFilter";
+
+	public static final String REACTIVE_CLIENT_REGISTRATION_REPOSITORY_CLASSNAME = "org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository";
+
+	private static final boolean isOAuth2Present = ClassUtils.isPresent(
+			REACTIVE_CLIENT_REGISTRATION_REPOSITORY_CLASSNAME, WebFluxSecurityConfiguration.class.getClassLoader());
 
 	@Autowired(required = false)
 	private List<SecurityWebFilterChain> securityWebFilterChains;
@@ -85,6 +91,22 @@ class WebFluxSecurityConfiguration {
 				.and()
 			.httpBasic().and()
 			.formLogin();
-		return http.build();
+
+		if (isOAuth2Present) {
+			OAuth2ClasspathGuard.configure(this.context, http);
+		}
+
+		SecurityWebFilterChain result = http.build();
+		return result;
+	}
+
+	private static class OAuth2ClasspathGuard {
+		static void configure(ApplicationContext context, ServerHttpSecurity http) {
+			ClassLoader loader = context.getClassLoader();
+			Class<?> reactiveClientRegistrationRepositoryClass = ClassUtils.resolveClassName(REACTIVE_CLIENT_REGISTRATION_REPOSITORY_CLASSNAME, loader);
+			if (context.getBeanNamesForType(reactiveClientRegistrationRepositoryClass).length == 1) {
+				http.oauth2Login();
+			}
+		}
 	}
 }

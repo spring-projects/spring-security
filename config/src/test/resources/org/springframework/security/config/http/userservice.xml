@@ -24,6 +24,6 @@
 			http://www.springframework.org/schema/beans
 			http://www.springframework.org/schema/beans/spring-beans.xsd">
 	<user-service>
-		<user name="user" password="password" authorities="ROLE_USER"/>
+		<user name="user" password="{noop}password" authorities="ROLE_USER"/>
 	</user-service>
 </b:beans>

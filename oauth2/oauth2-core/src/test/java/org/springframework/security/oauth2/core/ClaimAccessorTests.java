@@ -70,4 +70,26 @@ public class ClaimAccessorTests {
 		assertThat(this.claimAccessor.getClaimAsInstant(claimName)).isBetween(
 				expectedClaimValue.minusSeconds(1), expectedClaimValue.plusSeconds(1));
 	}
+
+	// gh-5250
+	@Test
+	public void getClaimAsInstantWhenIntegerTypeSecondsThenReturnInstant() {
+		Instant expectedClaimValue = Instant.now();
+		String claimName = "integerSeconds";
+		this.claims.put(claimName, Long.valueOf(expectedClaimValue.getEpochSecond()).intValue());
+
+		assertThat(this.claimAccessor.getClaimAsInstant(claimName)).isBetween(
+				expectedClaimValue.minusSeconds(1), expectedClaimValue.plusSeconds(1));
+	}
+
+	// gh-5250
+	@Test
+	public void getClaimAsInstantWhenDoubleTypeSecondsThenReturnInstant() {
+		Instant expectedClaimValue = Instant.now();
+		String claimName = "doubleSeconds";
+		this.claims.put(claimName, Long.valueOf(expectedClaimValue.getEpochSecond()).doubleValue());
+
+		assertThat(this.claimAccessor.getClaimAsInstant(claimName)).isBetween(
+				expectedClaimValue.minusSeconds(1), expectedClaimValue.plusSeconds(1));
+	}
 }

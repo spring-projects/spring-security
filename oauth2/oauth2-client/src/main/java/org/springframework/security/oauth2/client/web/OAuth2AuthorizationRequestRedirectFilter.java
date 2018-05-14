@@ -22,6 +22,8 @@ import org.springframework.security.oauth2.client.ClientAuthorizationRequiredExc
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
@@ -86,6 +88,7 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 	private static final String REGISTRATION_ID_URI_VARIABLE_NAME = "registrationId";
 	private static final String AUTHORIZATION_REQUIRED_EXCEPTION_ATTR_NAME =
 			ClientAuthorizationRequiredException.class.getName() + ".AUTHORIZATION_REQUIRED_EXCEPTION";
+	private static final String CLIENT_REGISTRATION_NOT_FOUND_ERROR_CODE = "client_registration_not_found";
 	private final AntPathRequestMatcher authorizationRequestMatcher;
 	private final ClientRegistrationRepository clientRegistrationRepository;
 	private final RedirectStrategy authorizationRedirectStrategy = new DefaultRedirectStrategy();
@@ -208,10 +211,11 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 	}
 
 	private void sendRedirectForAuthorization(HttpServletRequest request, HttpServletResponse response, String registrationId) throws IOException {
-
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(registrationId);
 		if (clientRegistration == null) {
-			throw new IllegalArgumentException("Invalid Client Registration with Id: " + registrationId);
+			OAuth2Error oauth2Error = new OAuth2Error(CLIENT_REGISTRATION_NOT_FOUND_ERROR_CODE,
+					"Client Registration not found with Id: " + registrationId, null);
+			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 		}
 		this.sendRedirectForAuthorization(request, response, clientRegistration);
 	}
@@ -244,11 +248,12 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 		}
 		OAuth2AuthorizationRequestUriBuilder uriBuilder = this.uriBuilders.get(provider.getUriBuilderName());
 		if (uriBuilder == null) {
-			throw new IllegalArgumentException("Invalid Params Builder Name (" +
+			throw new IllegalArgumentException("Invalid Uri Builder Name (" +
 					provider.getUriBuilderName() +
 					") for Client Registration with Id: " + clientRegistration.getRegistrationId());
 		}
 		URI redirectUri = uriBuilder.build(authorizationRequest);
+
 		this.authorizationRedirectStrategy.sendRedirect(request, response, redirectUri.toString());
 	}
 

@@ -30,7 +30,7 @@ public class MethodInvocationFactory {
 	public static MockMethodInvocation createSec2150MethodInvocation()
 			throws NoSuchMethodException {
 		ProxyFactory factory = new ProxyFactory(new Class[] { PersonRepository.class });
-		factory.setTargetClass(PersonRepositoryImpl.class);
+		factory.setTargetClass(CrudRepository.class);
 		PersonRepository repository = (PersonRepository) factory.getProxy();
 		return new MockMethodInvocation(repository, PersonRepository.class, "findAll");
 	}

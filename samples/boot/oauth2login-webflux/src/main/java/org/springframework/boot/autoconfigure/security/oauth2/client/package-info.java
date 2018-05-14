@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2012-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.access.annotation.sec2150;
 
 /**
- * @author Joe Grandja
+ * Auto-configuration for Spring Security's Reactive OAuth 2 client. This will be merged into Spring Boot 2.1.
  */
-public class PersonRepositoryImpl implements PersonRepository {
-	@Override
-	public Iterable<Object> findAll() {
-		return null;
-	}
-}
+package org.springframework.boot.autoconfigure.security.oauth2.client;

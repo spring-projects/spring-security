@@ -9,10 +9,14 @@ dependencies {
     compile 'org.springframework:spring-webflux'
     compile 'io.projectreactor.ipc:reactor-netty'
 	optional project(':spring-security-oauth2-jose')
+	optional 'io.projectreactor:reactor-core'
+	optional 'org.springframework:spring-webflux'
 
 	testCompile powerMock2Dependencies
 	testCompile 'com.squareup.okhttp3:mockwebserver'
 	testCompile 'com.fasterxml.jackson.core:jackson-databind'
+	testCompile 'io.projectreactor.ipc:reactor-netty'
+	testCompile 'io.projectreactor:reactor-test'
 
     provided 'com.nimbusds:oauth2-oidc-sdk'
 	provided 'javax.servlet:javax.servlet-api'

@@ -84,7 +84,7 @@ There are four tables used by the Spring Security <<domain-acls,ACL>> implementa
 These can be unique principals or authorities which may apply to multiple principals.
 . `acl_class` defines the domain object types to which ACLs apply.
 The `class` column stores the Java class name of the object.
-. `acl_object_identity` stores the object identity definitions of specific domai objects.
+. `acl_object_identity` stores the object identity definitions of specific domain objects.
 . `acl_entry` stores the ACL permissions which apply to a specific object identity and security identity.
 
 It is assumed that the database will auto-generate the primary keys for each of the identities.

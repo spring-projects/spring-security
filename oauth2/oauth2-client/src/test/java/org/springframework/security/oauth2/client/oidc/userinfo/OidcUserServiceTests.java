@@ -27,6 +27,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -42,6 +43,7 @@ import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientException;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -287,5 +289,35 @@ public class OidcUserServiceTests {
 		server.shutdown();
 
 		assertThat(user.getName()).isEqualTo("user1@example.com");
+	}
+
+	// gh-5294
+	@Test
+	public void loadUserWhenUserInfoSuccessResponseThenAcceptHeaderJson() throws Exception {
+		MockWebServer server = new MockWebServer();
+
+		String userInfoResponse = "{\n" +
+				"	\"sub\": \"subject1\",\n" +
+				"   \"name\": \"first last\",\n" +
+				"   \"given_name\": \"first\",\n" +
+				"   \"family_name\": \"last\",\n" +
+				"   \"preferred_username\": \"user1\",\n" +
+				"   \"email\": \"user1@example.com\"\n" +
+				"}\n";
+		server.enqueue(new MockResponse()
+				.setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+				.setBody(userInfoResponse));
+
+		server.start();
+
+		String userInfoUri = server.url("/user").toString();
+
+		when(this.userInfoEndpoint.getUri()).thenReturn(userInfoUri);
+		when(this.accessToken.getTokenValue()).thenReturn("access-token");
+
+		this.userService.loadUser(new OidcUserRequest(this.clientRegistration, this.accessToken, this.idToken));
+		server.shutdown();
+		assertThat(server.takeRequest(1, TimeUnit.SECONDS).getHeader(HttpHeaders.ACCEPT))
+				.isEqualTo(MediaType.APPLICATION_JSON_VALUE);
 	}
 }

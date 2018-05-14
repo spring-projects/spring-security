@@ -15,11 +15,13 @@
  */
 package org.springframework.security.oauth2.client.web;
 
-import org.springframework.security.oauth2.client.registration.ClientRegistration.ProviderDetails;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 
-import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 /**
  * Utility methods for an OAuth 2.0 Authorization Response.
@@ -33,25 +35,40 @@ final class OAuth2AuthorizationResponseUtils {
 	private OAuth2AuthorizationResponseUtils() {
 	}
 
-	static boolean isAuthorizationResponse(HttpServletRequest request, ProviderDetails providerDetails) {
-		return isAuthorizationResponseSuccess(request, providerDetails) || isAuthorizationResponseError(request, providerDetails);
+	static MultiValueMap<String, String> toMultiMap(Map<String, String[]> map) {
+		MultiValueMap<String, String> params = new LinkedMultiValueMap<>(map.size());
+		map.forEach((key, values) -> {
+			if (values.length > 0) {
+				for (String value : values) {
+					params.add(key, value);
+				}
+			}
+		});
+		return params;
 	}
 
-	static boolean isAuthorizationResponseSuccess(HttpServletRequest request, ProviderDetails providerDetails) {
-		return StringUtils.hasText(request.getParameter(providerDetails.getCodeAttributeName())) &&
-			StringUtils.hasText(request.getParameter(providerDetails.getStateAttributeName()));
+	static boolean isAuthorizationResponse(MultiValueMap<String, String> request, ClientRegistration clientRegistration) {
+		ClientRegistration.ProviderDetails provider = clientRegistration.getProviderDetails();
+		String codeAttributeName = provider.getCodeAttributeName();
+		String stateAttributeName = provider.getStateAttributeName();
+		String errorAttributeName = provider.getErrorAttributeName();
+		return isAuthorizationResponseSuccess(request, codeAttributeName, stateAttributeName) ||
+				isAuthorizationResponseError(request, errorAttributeName, stateAttributeName);
 	}
 
-	static boolean isAuthorizationResponseError(HttpServletRequest request, ProviderDetails providerDetails) {
-		return StringUtils.hasText(request.getParameter(providerDetails.getErrorAttributeName())) &&
-			StringUtils.hasText(request.getParameter(providerDetails.getStateAttributeName()));
+	static boolean isAuthorizationResponseSuccess(MultiValueMap<String, String> request, String codeAttributeName, String stateAttributeName) {
+		return StringUtils.hasText(request.getFirst(codeAttributeName)) && StringUtils.hasText(request.getFirst(stateAttributeName));
 	}
 
-	static OAuth2AuthorizationResponse convert(HttpServletRequest request, ProviderDetails providerDetails) {
-		String code = request.getParameter(providerDetails.getCodeAttributeName());
-		String errorCode = request.getParameter(providerDetails.getErrorAttributeName());
-		String state = request.getParameter(providerDetails.getStateAttributeName());
-		String redirectUri = request.getRequestURL().toString();
+	static boolean isAuthorizationResponseError(MultiValueMap<String, String> request, String errorAttributeName, String stateAttributeName) {
+		return StringUtils.hasText(request.getFirst(errorAttributeName)) && StringUtils.hasText(request.getFirst(stateAttributeName));
+	}
+
+	static OAuth2AuthorizationResponse convert(MultiValueMap<String, String> request, String redirectUri, ClientRegistration clientRegistration) {
+		ClientRegistration.ProviderDetails provider = clientRegistration.getProviderDetails();
+		String code = request.getFirst(provider.getCodeAttributeName());
+		String errorCode = request.getFirst(provider.getErrorAttributeName());
+		String state = request.getFirst(provider.getStateAttributeName());
 
 		if (StringUtils.hasText(code)) {
 			return OAuth2AuthorizationResponse.success(code)
@@ -59,8 +76,8 @@ final class OAuth2AuthorizationResponseUtils {
 				.state(state)
 				.build();
 		} else {
-			String errorDescription = request.getParameter(providerDetails.getErrorDescriptionAttributeName());
-			String errorUri = request.getParameter(providerDetails.getErrorUriAttributeName());
+			String errorDescription = request.getFirst(provider.getErrorDescriptionAttributeName());
+			String errorUri = request.getFirst(provider.getErrorUriAttributeName());
 			return OAuth2AuthorizationResponse.error(errorCode)
 				.redirectUri(redirectUri)
 				.errorDescription(errorDescription)

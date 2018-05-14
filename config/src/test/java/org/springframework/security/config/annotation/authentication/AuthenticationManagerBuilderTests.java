@@ -78,7 +78,7 @@ public class AuthenticationManagerBuilderTests {
 		verify(opp, never()).postProcess(provider);
 	}
 
-	// https://github.com/SpringSource/spring-security-javaconfig/issues/132
+	// https://github.com/spring-projects/spring-security-javaconfig/issues/132
 	@Test
 	public void customAuthenticationEventPublisherWithWeb() throws Exception {
 		ObjectPostProcessor<Object> opp = mock(ObjectPostProcessor.class);

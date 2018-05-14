@@ -271,7 +271,7 @@ name: $("meta[name='_csrf_header']").attr("content")
 
 
 The configured client can be shared with any component of the application that needs to make a request to the CSRF protected resource.
-One significant different between rest.js and jQuery is that only requests made with the configured client will contain the CSRF token, vs jQuery where __all__ requests will include the token.
+One significant difference between rest.js and jQuery is that only requests made with the configured client will contain the CSRF token, vs jQuery where __all__ requests will include the token.
 The ability to scope which requests receive the token helps guard against leaking the CSRF token to a third party.
 Please refer to the https://github.com/cujojs/rest/tree/master/docs[rest.js reference documentation] for more information on rest.js.
 

@@ -26,6 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Luke Taylor
  */
+@SuppressWarnings("deprecation")
 public class LdapShaPasswordEncoderTests {
 	// ~ Instance fields
 	// ================================================================================================

@@ -16,8 +16,11 @@
 
 package org.springframework.security.config.annotation.web.reactive;
 
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.expression.BeanFactoryResolver;
@@ -30,8 +33,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.reactive.result.method.annotation.AuthenticationPrincipalArgumentResolver;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
 import org.springframework.web.reactive.result.method.annotation.ArgumentResolverConfigurer;
-
-import static org.springframework.security.config.web.server.ServerHttpSecurity.http;
 
 /**
  * @author Rob Winch
@@ -74,7 +75,8 @@ class ServerHttpSecurityConfiguration implements WebFluxConfigurer {
 	@Bean(HTTPSECURITY_BEAN_NAME)
 	@Scope("prototype")
 	public ServerHttpSecurity httpSecurity() {
-		return http()
+		ContextAwareServerHttpSecurity http = new ContextAwareServerHttpSecurity();
+		return http
 			.authenticationManager(authenticationManager())
 			.headers().and()
 			.logout().and();
@@ -93,5 +95,14 @@ class ServerHttpSecurityConfiguration implements WebFluxConfigurer {
 			return manager;
 		}
 		return null;
+	}
+
+	private static class ContextAwareServerHttpSecurity extends ServerHttpSecurity implements
+			ApplicationContextAware {
+		@Override
+		public void setApplicationContext(ApplicationContext applicationContext)
+				throws BeansException {
+			super.setApplicationContext(applicationContext);
+		}
 	}
 }

@@ -82,7 +82,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@Import({ServerHttpSecurityConfiguration.class, WebFluxSecurityConfiguration.class})
+@Import({ServerHttpSecurityConfiguration.class, WebFluxSecurityConfiguration.class,
+		ReactiveOAuth2ClientImportSelector.class})
 @Configuration
 public @interface EnableWebFluxSecurity {
 }

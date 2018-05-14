@@ -40,6 +40,7 @@ import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.Assert;
+import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -95,6 +96,7 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 	public static final String DEFAULT_FILTER_PROCESSES_URI = "/authorize/oauth2/code";
 	private static final String REGISTRATION_ID_URI_VARIABLE_NAME = "registrationId";
 	private static final String AUTHORIZATION_REQUEST_NOT_FOUND_ERROR_CODE = "authorization_request_not_found";
+	private static final String CLIENT_REGISTRATION_NOT_FOUND_ERROR_CODE = "client_registration_not_found";
 	private final ClientRegistrationRepository clientRegistrationRepository;
 	private final OAuth2AuthorizedClientService authorizedClientService;
 	private final AuthenticationManager authenticationManager;
@@ -154,9 +156,12 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 				.extractUriTemplateVariables(request).get(REGISTRATION_ID_URI_VARIABLE_NAME);
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(registrationId);
 		if (clientRegistration == null) {
-			throw new IllegalArgumentException("Invalid Client Registration with Id: " + registrationId);
+			OAuth2Error oauth2Error = new OAuth2Error(CLIENT_REGISTRATION_NOT_FOUND_ERROR_CODE,
+					"Client Registration not found with Id: " + registrationId, null);
+			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 		}
-		if (!OAuth2AuthorizationResponseUtils.isAuthorizationResponse(request, clientRegistration.getProviderDetails())) {
+		MultiValueMap<String, String> params = OAuth2AuthorizationResponseUtils.toMultiMap(request.getParameterMap());
+		if (!OAuth2AuthorizationResponseUtils.isAuthorizationResponse(params, clientRegistration)) {
 			OAuth2Error oauth2Error = new OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 		}
@@ -165,9 +170,9 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 			OAuth2Error oauth2Error = new OAuth2Error(AUTHORIZATION_REQUEST_NOT_FOUND_ERROR_CODE);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 		}
-
-		OAuth2AuthorizationResponse authorizationResponse = OAuth2AuthorizationResponseUtils.convert(request,
-				clientRegistration.getProviderDetails());
+		String redirectUri = request.getRequestURL().toString();
+		OAuth2AuthorizationResponse authorizationResponse = OAuth2AuthorizationResponseUtils.convert(params,
+				redirectUri, clientRegistration);
 
 		OAuth2AuthorizationCodeAuthenticationToken authenticationRequest = new OAuth2AuthorizationCodeAuthenticationToken(
 			clientRegistration, new OAuth2AuthorizationExchange(authorizationRequest, authorizationResponse));
