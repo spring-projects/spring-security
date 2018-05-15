@@ -15,20 +15,8 @@
  */
 package org.springframework.security.config.web.server;
 
-import static org.springframework.security.web.server.DelegatingServerAuthenticationEntryPoint.DelegateEntry;
-
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.Ordered;
 import org.springframework.core.ResolvableType;
@@ -40,7 +28,6 @@ import org.springframework.security.authorization.AuthenticatedReactiveAuthoriza
 import org.springframework.security.authorization.AuthorityReactiveAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginReactiveAuthenticationManager;
 import org.springframework.security.oauth2.client.endpoint.NimbusReactiveAuthorizationCodeTokenResponseClient;
@@ -48,63 +35,40 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.userinfo.DefaultReactiveOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.ReactiveOAuth2UserService;
+import org.springframework.security.oauth2.client.web.DefaultAuthorizationRequestUriBuilder;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectWebFilter;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestUriBuilder;
 import org.springframework.security.oauth2.client.web.ServerOAuth2LoginAuthenticationTokenConverter;
-import org.springframework.security.web.server.DelegatingServerAuthenticationEntryPoint;
-import org.springframework.security.web.server.MatcherSecurityWebFilterChain;
-import org.springframework.security.web.server.SecurityWebFilterChain;
-import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
-import org.springframework.security.web.server.ServerFormLoginAuthenticationConverter;
-import org.springframework.security.web.server.ServerHttpBasicAuthenticationConverter;
-import org.springframework.security.web.server.WebFilterExchange;
-import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
-import org.springframework.security.web.server.authentication.HttpBasicServerAuthenticationEntryPoint;
-import org.springframework.security.web.server.authentication.RedirectServerAuthenticationEntryPoint;
-import org.springframework.security.web.server.authentication.RedirectServerAuthenticationFailureHandler;
-import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
-import org.springframework.security.web.server.authentication.ServerAuthenticationEntryPointFailureHandler;
-import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler;
-import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
+import org.springframework.security.web.server.*;
+import org.springframework.security.web.server.authentication.*;
 import org.springframework.security.web.server.authentication.logout.LogoutWebFilter;
 import org.springframework.security.web.server.authentication.logout.ServerLogoutHandler;
 import org.springframework.security.web.server.authentication.logout.ServerLogoutSuccessHandler;
-import org.springframework.security.web.server.authorization.AuthorizationContext;
-import org.springframework.security.web.server.authorization.AuthorizationWebFilter;
-import org.springframework.security.web.server.authorization.DelegatingReactiveAuthorizationManager;
-import org.springframework.security.web.server.authorization.ExceptionTranslationWebFilter;
-import org.springframework.security.web.server.authorization.ServerAccessDeniedHandler;
-import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
-import org.springframework.security.web.server.context.ReactorContextWebFilter;
-import org.springframework.security.web.server.context.SecurityContextServerWebExchangeWebFilter;
-import org.springframework.security.web.server.context.ServerSecurityContextRepository;
-import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
+import org.springframework.security.web.server.authorization.*;
+import org.springframework.security.web.server.context.*;
 import org.springframework.security.web.server.csrf.CsrfWebFilter;
 import org.springframework.security.web.server.csrf.ServerCsrfTokenRepository;
-import org.springframework.security.web.server.header.CacheControlServerHttpHeadersWriter;
-import org.springframework.security.web.server.header.CompositeServerHttpHeadersWriter;
-import org.springframework.security.web.server.header.ContentTypeOptionsServerHttpHeadersWriter;
-import org.springframework.security.web.server.header.HttpHeaderWriterWebFilter;
-import org.springframework.security.web.server.header.ServerHttpHeadersWriter;
-import org.springframework.security.web.server.header.StrictTransportSecurityServerHttpHeadersWriter;
-import org.springframework.security.web.server.header.XFrameOptionsServerHttpHeadersWriter;
-import org.springframework.security.web.server.header.XXssProtectionServerHttpHeadersWriter;
+import org.springframework.security.web.server.header.*;
 import org.springframework.security.web.server.savedrequest.NoOpServerRequestCache;
 import org.springframework.security.web.server.savedrequest.ServerRequestCache;
 import org.springframework.security.web.server.savedrequest.ServerRequestCacheWebFilter;
 import org.springframework.security.web.server.savedrequest.WebSessionServerRequestCache;
 import org.springframework.security.web.server.ui.LoginPageGeneratingWebFilter;
 import org.springframework.security.web.server.ui.LogoutPageGeneratingWebFilter;
-import org.springframework.security.web.server.util.matcher.MediaTypeServerWebExchangeMatcher;
-import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher;
-import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
-import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcherEntry;
-import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
+import org.springframework.security.web.server.util.matcher.*;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
-
 import reactor.core.publisher.Mono;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.time.Duration;
+import java.util.*;
+
+import static org.springframework.security.web.server.DelegatingServerAuthenticationEntryPoint.DelegateEntry;
 
 
 /**
@@ -369,6 +333,11 @@ public class ServerHttpSecurity {
 			ReactiveClientRegistrationRepository clientRegistrationRepository = getClientRegistrationRepository();
 			ReactiveOAuth2AuthorizedClientService authorizedClientService = getAuthorizedClientService();
 			OAuth2AuthorizationRequestRedirectWebFilter oauthRedirectFilter = new OAuth2AuthorizationRequestRedirectWebFilter(clientRegistrationRepository);
+			LinkedHashMap<String, OAuth2AuthorizationRequestUriBuilder> uriBuilders = new LinkedHashMap<>(1);
+			uriBuilders.put(DefaultAuthorizationRequestUriBuilder.DEFAULT, new DefaultAuthorizationRequestUriBuilder());
+			uriBuilders.putAll(BeanFactoryUtils.
+					beansOfTypeIncludingAncestors(http.context, OAuth2AuthorizationRequestUriBuilder.class));
+			oauthRedirectFilter.setUriBuilders(uriBuilders);
 
 			NimbusReactiveAuthorizationCodeTokenResponseClient client = new NimbusReactiveAuthorizationCodeTokenResponseClient();
 			ReactiveOAuth2UserService userService = new DefaultReactiveOAuth2UserService();
@@ -381,13 +350,7 @@ public class ServerHttpSecurity {
 			RedirectServerAuthenticationSuccessHandler redirectHandler = new RedirectServerAuthenticationSuccessHandler();
 
 			authenticationFilter.setAuthenticationSuccessHandler(redirectHandler);
-			authenticationFilter.setAuthenticationFailureHandler(new ServerAuthenticationFailureHandler() {
-				@Override
-				public Mono<Void> onAuthenticationFailure(WebFilterExchange webFilterExchange,
-						AuthenticationException exception) {
-					return Mono.error(exception);
-				}
-			});
+			authenticationFilter.setAuthenticationFailureHandler((webFilterExchange, exception) -> Mono.error(exception));
 			authenticationFilter.setSecurityContextRepository(new WebSessionServerSecurityContextRepository());
 
 			http.addFilterAt(oauthRedirectFilter, SecurityWebFiltersOrder.HTTP_BASIC);

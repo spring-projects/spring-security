@@ -32,6 +32,7 @@ import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
+import java.util.Map;
 import java.util.function.BiFunction;
 
 /**
@@ -66,7 +67,7 @@ public class AuthenticationWebFilter implements WebFilter {
 
 	private ServerAuthenticationSuccessHandler authenticationSuccessHandler = new WebFilterChainServerAuthenticationSuccessHandler();
 
-	private BiFunction<ServerWebExchange,String, Mono<Authentication>> authenticationConverter = new ServerHttpBasicAuthenticationConverter();
+	private BiFunction<ServerWebExchange, Map<String, Object>, Mono<Authentication>> authenticationConverter = new ServerHttpBasicAuthenticationConverter();
 
 	private ServerAuthenticationFailureHandler authenticationFailureHandler = new ServerAuthenticationEntryPointFailureHandler(new HttpBasicServerAuthenticationEntryPoint());
 
@@ -86,10 +87,10 @@ public class AuthenticationWebFilter implements WebFilter {
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 		return this.requiresAuthenticationMatcher.matches(exchange)
-			.filter( matchResult -> matchResult.isMatch())
-				.flatMap(matchResult -> this.authenticationConverter.apply(exchange, (String) matchResult.getVariables().get("registrationId")))
-			.switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
-			.flatMap( token -> authenticate(exchange, chain, token));
+				.filter(ServerWebExchangeMatcher.MatchResult::isMatch)
+				.flatMap(matchResult -> this.authenticationConverter.apply(exchange, matchResult.getVariables()))
+				.switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
+				.flatMap(token -> authenticate(exchange, chain, token));
 	}
 
 	private Mono<Void> authenticate(ServerWebExchange exchange,
@@ -138,7 +139,7 @@ public class AuthenticationWebFilter implements WebFilter {
 	 * {@link ServerHttpBasicAuthenticationConverter}
 	 * @param authenticationConverter the converter to use
 	 */
-	public void setAuthenticationConverter(BiFunction<ServerWebExchange, String, Mono<Authentication>> authenticationConverter) {
+	public void setAuthenticationConverter(BiFunction<ServerWebExchange, Map<String, Object>, Mono<Authentication>> authenticationConverter) {
 		Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
 		this.authenticationConverter = authenticationConverter;
 	}

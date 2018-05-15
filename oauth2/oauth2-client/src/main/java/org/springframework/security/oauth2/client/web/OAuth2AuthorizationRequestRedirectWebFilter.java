@@ -117,6 +117,16 @@ public class OAuth2AuthorizationRequestRedirectWebFilter implements WebFilter {
 	}
 
 	/**
+	 * Sets the authorizationRequestUriBuilder used for storing {@link OAuth2AuthorizationRequestUriBuilder}'s.
+	 *
+	 * @param uriBuilders the authorizationRequestUriBuilder used for storing {@link OAuth2AuthorizationRequestUriBuilder}'s
+	 */
+	public final void setUriBuilders(Map<String, OAuth2AuthorizationRequestUriBuilder> uriBuilders) {
+		Assert.notEmpty(uriBuilders, "uriBuilders cannot be empty");
+		this.uriBuilders = uriBuilders;
+	}
+
+	/**
 	 * Sets the repository used for storing {@link OAuth2AuthorizationRequest}'s.
 	 *
 	 * @param authorizationRequestRepository the repository used for storing {@link OAuth2AuthorizationRequest}'s

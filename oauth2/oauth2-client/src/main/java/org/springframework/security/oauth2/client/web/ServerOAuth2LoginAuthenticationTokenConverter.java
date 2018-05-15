@@ -31,6 +31,7 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
+import java.util.Map;
 import java.util.function.BiFunction;
 
 
@@ -43,7 +44,7 @@ import java.util.function.BiFunction;
  * @since 5.1
  */
 public class ServerOAuth2LoginAuthenticationTokenConverter implements
-		BiFunction<ServerWebExchange, String, Mono<Authentication>> {
+		BiFunction<ServerWebExchange, Map<String, Object>, Mono<Authentication>> {
 
 	static final String AUTHORIZATION_REQUEST_NOT_FOUND_ERROR_CODE = "authorization_request_not_found";
 
@@ -73,8 +74,12 @@ public class ServerOAuth2LoginAuthenticationTokenConverter implements
 	}
 
 	@Override
-	public Mono<Authentication> apply(ServerWebExchange serverWebExchange, String registrationId) {
-		return clientRegistrationRepository.findByRegistrationId(registrationId)
+	public Mono<Authentication> apply(ServerWebExchange serverWebExchange, Map<String, Object> variables) {
+		if (variables == null) {
+			return oauth2AuthenticationException(CLIENT_REGISTRATION_NOT_FOUND_ERROR_CODE);
+		}
+		String registrationId = (String) variables.get("registrationId");
+		return this.clientRegistrationRepository.findByRegistrationId(registrationId)
 				.switchIfEmpty(oauth2AuthenticationException(CLIENT_REGISTRATION_NOT_FOUND_ERROR_CODE))
 				.flatMap(clientRegistration ->
 						this.authorizationRequestRepository.removeAuthorizationRequest(serverWebExchange, clientRegistration)

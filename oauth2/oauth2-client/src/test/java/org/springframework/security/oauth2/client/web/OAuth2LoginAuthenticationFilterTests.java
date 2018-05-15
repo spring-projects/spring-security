@@ -46,8 +46,6 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -200,7 +198,7 @@ public class OAuth2LoginAuthenticationFilterTests {
 	// gh-5251
 	@Test
 	public void doFilterWhenAuthorizationResponseClientRegistrationNotFoundThenClientRegistrationNotFoundError() throws Exception {
-		String requestUri = "/login/oauth2/code/" + this.registration2.getRegistrationId();
+		String requestUri = "/login/oauth2/code/registration-not-found";
 		String state = "state";
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
 		request.setServletPath(requestUri);
@@ -210,20 +208,7 @@ public class OAuth2LoginAuthenticationFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain filterChain = mock(FilterChain.class);
 
-		ClientRegistration registrationNotFound = ClientRegistration.withRegistrationId("registration-not-found")
-				.clientId("client-1")
-				.clientSecret("secret")
-				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-				.redirectUriTemplate("{baseUrl}/login/oauth2/code/{registrationId}")
-				.scope("user")
-				.authorizationUri("https://provider.com/oauth2/authorize")
-				.tokenUri("https://provider.com/oauth2/token")
-				.userInfoUri("https://provider.com/oauth2/user")
-				.userNameAttributeName("id")
-				.clientName("client-1")
-				.build();
-		this.setUpAuthorizationRequest(request, response, registrationNotFound, state);
+		this.setUpAuthorizationRequest(request, response, registration1, state);
 		this.filter.doFilter(request, response, filterChain);
 
 		ArgumentCaptor<AuthenticationException> authenticationExceptionArgCaptor = ArgumentCaptor.forClass(AuthenticationException.class);
@@ -309,9 +294,6 @@ public class OAuth2LoginAuthenticationFilterTests {
 	private void setUpAuthorizationRequest(HttpServletRequest request, HttpServletResponse response, ClientRegistration registration, String state) {
 		OAuth2AuthorizationRequest authorizationRequest = mock(OAuth2AuthorizationRequest.class);
 		when(authorizationRequest.getState()).thenReturn(state);
-		Map<String, Object> additionalParameters = new HashMap<>();
-		additionalParameters.put(OAuth2ParameterNames.REGISTRATION_ID, registration.getRegistrationId());
-		when(authorizationRequest.getAdditionalParameters()).thenReturn(additionalParameters);
 		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, request, response, registration);
 	}
 

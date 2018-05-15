@@ -23,6 +23,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.Base64;
+import java.util.Map;
 import java.util.function.BiFunction;
 
 /**
@@ -31,14 +32,13 @@ import java.util.function.BiFunction;
  * @author Rob Winch
  * @since 5.0
  */
-public class ServerHttpBasicAuthenticationConverter implements BiFunction<ServerWebExchange,String, Mono<Authentication>> {
+public class ServerHttpBasicAuthenticationConverter implements BiFunction<ServerWebExchange, Map<String, Object>, Mono<Authentication>> {
 
 	public static final String BASIC = "Basic ";
 
 	@Override
-	public Mono<Authentication> apply(ServerWebExchange exchange,String registrationId) {
+	public Mono<Authentication> apply(ServerWebExchange exchange, Map<String, Object> variables) {
 		ServerHttpRequest request = exchange.getRequest();
-
 		String authorization = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
 		if(authorization == null) {
 			return Mono.empty();

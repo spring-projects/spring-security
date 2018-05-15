@@ -109,7 +109,7 @@ public class OAuth2AuthorizationCodeGrantApplicationTests {
 				new HttpSessionOAuth2AuthorizationRequestRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, request, response);
+		authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, request, response, registration);
 
 		MockHttpSession session = (MockHttpSession) request.getSession();
 
