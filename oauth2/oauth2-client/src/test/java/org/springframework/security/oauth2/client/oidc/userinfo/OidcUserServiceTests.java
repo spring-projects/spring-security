@@ -100,7 +100,7 @@ public class OidcUserServiceTests {
 		when(this.userInfoEndpoint.getUri()).thenReturn(null);
 
 		OidcUser user = this.userService.loadUser(
-			new OidcUserRequest(this.clientRegistration, this.accessToken, this.idToken));
+				new OidcUserRequest(this.clientRegistration, this.accessToken, this.idToken));
 		assertThat(user.getUserInfo()).isNull();
 	}
 
@@ -112,7 +112,7 @@ public class OidcUserServiceTests {
 		when(this.userInfoEndpoint.getUri()).thenReturn("http://provider.com/user");
 
 		OidcUser user = this.userService.loadUser(
-			new OidcUserRequest(this.clientRegistration, this.accessToken, this.idToken));
+				new OidcUserRequest(this.clientRegistration, this.accessToken, this.idToken));
 		assertThat(user.getUserInfo()).isNull();
 	}
 
@@ -121,16 +121,16 @@ public class OidcUserServiceTests {
 		MockWebServer server = new MockWebServer();
 
 		String userInfoResponse = "{\n" +
-			"	\"sub\": \"subject1\",\n" +
-			"   \"name\": \"first last\",\n" +
-			"   \"given_name\": \"first\",\n" +
-			"   \"family_name\": \"last\",\n" +
-			"   \"preferred_username\": \"user1\",\n" +
-			"   \"email\": \"user1@example.com\"\n" +
-			"}\n";
+				"	\"sub\": \"subject1\",\n" +
+				"   \"name\": \"first last\",\n" +
+				"   \"given_name\": \"first\",\n" +
+				"   \"family_name\": \"last\",\n" +
+				"   \"preferred_username\": \"user1\",\n" +
+				"   \"email\": \"user1@example.com\"\n" +
+				"}\n";
 		server.enqueue(new MockResponse()
-			.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-			.setBody(userInfoResponse));
+				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+				.setBody(userInfoResponse));
 
 		server.start();
 
@@ -140,7 +140,7 @@ public class OidcUserServiceTests {
 		when(this.accessToken.getTokenValue()).thenReturn("access-token");
 
 		OidcUser user = this.userService.loadUser(
-			new OidcUserRequest(this.clientRegistration, this.accessToken, this.idToken));
+				new OidcUserRequest(this.clientRegistration, this.accessToken, this.idToken));
 
 		server.shutdown();
 
@@ -172,11 +172,11 @@ public class OidcUserServiceTests {
 		MockWebServer server = new MockWebServer();
 
 		String userInfoResponse = "{\n" +
-			"	\"sub\": \"other-subject\"\n" +
-			"}\n";
+				"	\"sub\": \"other-subject\"\n" +
+				"}\n";
 		server.enqueue(new MockResponse()
-			.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-			.setBody(userInfoResponse));
+				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+				.setBody(userInfoResponse));
 
 		server.start();
 
@@ -200,16 +200,16 @@ public class OidcUserServiceTests {
 		MockWebServer server = new MockWebServer();
 
 		String userInfoResponse = "{\n" +
-			"	\"sub\": \"subject1\",\n" +
-			"   \"name\": \"first last\",\n" +
-			"   \"given_name\": \"first\",\n" +
-			"   \"family_name\": \"last\",\n" +
-			"   \"preferred_username\": \"user1\",\n" +
-			"   \"email\": \"user1@example.com\"\n";
+				"	\"sub\": \"subject1\",\n" +
+				"   \"name\": \"first last\",\n" +
+				"   \"given_name\": \"first\",\n" +
+				"   \"family_name\": \"last\",\n" +
+				"   \"preferred_username\": \"user1\",\n" +
+				"   \"email\": \"user1@example.com\"\n";
 //			"}\n";		// Make the JSON invalid/malformed
 		server.enqueue(new MockResponse()
-			.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-			.setBody(userInfoResponse));
+				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+				.setBody(userInfoResponse));
 
 		server.start();
 
@@ -263,16 +263,16 @@ public class OidcUserServiceTests {
 		MockWebServer server = new MockWebServer();
 
 		String userInfoResponse = "{\n" +
-			"	\"sub\": \"subject1\",\n" +
-			"   \"name\": \"first last\",\n" +
-			"   \"given_name\": \"first\",\n" +
-			"   \"family_name\": \"last\",\n" +
-			"   \"preferred_username\": \"user1\",\n" +
-			"   \"email\": \"user1@example.com\"\n" +
-			"}\n";
+				"	\"sub\": \"subject1\",\n" +
+				"   \"name\": \"first last\",\n" +
+				"   \"given_name\": \"first\",\n" +
+				"   \"family_name\": \"last\",\n" +
+				"   \"preferred_username\": \"user1\",\n" +
+				"   \"email\": \"user1@example.com\"\n" +
+				"}\n";
 		server.enqueue(new MockResponse()
-			.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-			.setBody(userInfoResponse));
+				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+				.setBody(userInfoResponse));
 
 		server.start();
 
@@ -283,7 +283,7 @@ public class OidcUserServiceTests {
 		when(this.accessToken.getTokenValue()).thenReturn("access-token");
 
 		OidcUser user = this.userService.loadUser(
-			new OidcUserRequest(this.clientRegistration, this.accessToken, this.idToken));
+				new OidcUserRequest(this.clientRegistration, this.accessToken, this.idToken));
 
 		server.shutdown();
 
@@ -305,6 +305,7 @@ public class OidcUserServiceTests {
 				"}\n";
 		server.enqueue(new MockResponse()
 				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+				.setHeader("XYUU", "Spring")
 				.setBody(userInfoResponse));
 
 		server.start();
@@ -316,7 +317,7 @@ public class OidcUserServiceTests {
 
 		this.userService.loadUser(new OidcUserRequest(this.clientRegistration, this.accessToken, this.idToken));
 		server.shutdown();
-		assertThat(server.takeRequest(1, TimeUnit.SECONDS).getHeader(HttpHeaders.CONTENT_TYPE))
-				.isEqualTo(MediaType.APPLICATION_JSON_VALUE);
+		assertThat(server.takeRequest(1, TimeUnit.SECONDS).getHeader(HttpHeaders.ACCEPT))
+				.contains(MediaType.APPLICATION_JSON_VALUE);
 	}
 }

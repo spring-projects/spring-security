@@ -236,7 +236,7 @@ public class DefaultOAuth2UserServiceTests {
 
 		this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessToken));
 		server.shutdown();
-		assertThat(server.takeRequest(1, TimeUnit.SECONDS).getHeader(HttpHeaders.CONTENT_TYPE))
-				.isEqualTo(MediaType.APPLICATION_JSON_VALUE);
+		assertThat(server.takeRequest(1, TimeUnit.SECONDS).getHeader(HttpHeaders.ACCEPT))
+				.contains(MediaType.APPLICATION_JSON_VALUE);
 	}
 }
