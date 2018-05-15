@@ -154,16 +154,12 @@ public final class ClientRegistration {
 		private UserInfoEndpoint userInfoEndpoint = new UserInfoEndpoint();
 		private String jwkSetUri;
 		private String uriBuilderName;
-		private String clientSecretAttributeName;
 		private String codeAttributeName;
 		private String errorAttributeName;
 		private String stateAttributeName;
 		private String errorDescriptionAttributeName;
 		private String errorUriAttributeName;
-
-		private String responseTypeAttributeName;
-		private String scopeAttributeName;
-		private String redirectUriAttributeName;
+		private String tokenExtractorName;
 
 		private ProviderDetails() {
 		}
@@ -208,10 +204,6 @@ public final class ClientRegistration {
 			return uriBuilderName;
 		}
 
-		public String getClientSecretAttributeName() {
-			return clientSecretAttributeName;
-		}
-
 		public String getCodeAttributeName() {
 			return codeAttributeName;
 		}
@@ -232,16 +224,8 @@ public final class ClientRegistration {
 			return errorUriAttributeName;
 		}
 
-		public String getResponseTypeAttributeName() {
-			return responseTypeAttributeName;
-		}
-
-		public String getScopeAttributeName() {
-			return scopeAttributeName;
-		}
-
-		public String getRedirectUriAttributeName() {
-			return redirectUriAttributeName;
+		public String getTokenExtractorName() {
+			return tokenExtractorName;
 		}
 
 		/**
@@ -250,6 +234,8 @@ public final class ClientRegistration {
 		public class UserInfoEndpoint {
 			private String uri;
 			private String userNameAttributeName;
+			private String requestName;
+			private String extractorName;
 
 			private UserInfoEndpoint() {
 			}
@@ -270,6 +256,14 @@ public final class ClientRegistration {
 			 */
 			public String getUserNameAttributeName() {
 				return this.userNameAttributeName;
+			}
+
+			public String getRequestNameName() {
+				return requestName;
+			}
+
+			public String getExtractorName() {
+				return extractorName;
 			}
 		}
 	}
@@ -304,9 +298,9 @@ public final class ClientRegistration {
 		private String clientName;
 
 		private String uriBuilderName = DefaultAuthorizationRequestUriBuilder.DEFAULT;
-		private String responseTypeAttributeName = OAuth2ParameterNames.RESPONSE_TYPE;
-		private String scopeAttributeName = OAuth2ParameterNames.SCOPE;
-		private String redirectUriAttributeName = OAuth2ParameterNames.REDIRECT_URI;
+		private String tokenExtractorName = OAuth2ParameterNames.RESPONSE_TYPE;
+		private String userInfoRequestName = OAuth2ParameterNames.SCOPE;
+		private String userInfoExtractorName = OAuth2ParameterNames.REDIRECT_URI;
 
 		private String codeAttributeName = OAuth2ParameterNames.CODE;
 		private String errorAttributeName = OAuth2ParameterNames.ERROR;
@@ -484,18 +478,18 @@ public final class ClientRegistration {
 			return this;
 		}
 
-		public Builder responseTypeAttributeName(String responseTypeAttributeName) {
-			this.responseTypeAttributeName = responseTypeAttributeName;
+		public Builder tokenExtractorName(String tokenExtractorName) {
+			this.tokenExtractorName = tokenExtractorName;
 			return this;
 		}
 
-		public Builder scopeAttributeName(String scopeAttributeName) {
-			this.scopeAttributeName = scopeAttributeName;
+		public Builder userInfoRequestName(String userInfoRequestName) {
+			this.userInfoRequestName = userInfoRequestName;
 			return this;
 		}
 
-		public Builder redirectUriAttributeName(String redirectUriAttributeName) {
-			this.redirectUriAttributeName = redirectUriAttributeName;
+		public Builder userInfoExtractorName(String userInfoExtractorName) {
+			this.userInfoExtractorName = userInfoExtractorName;
 			return this;
 		}
 
@@ -538,9 +532,9 @@ public final class ClientRegistration {
 			providerDetails.stateAttributeName = this.stateAttributeName;
 			providerDetails.errorDescriptionAttributeName = this.errorDescriptionAttributeName;
 			providerDetails.errorUriAttributeName = this.errorUriAttributeName;
-			providerDetails.responseTypeAttributeName = this.responseTypeAttributeName;
-			providerDetails.scopeAttributeName = this.scopeAttributeName;
-			providerDetails.redirectUriAttributeName = this.redirectUriAttributeName;
+			providerDetails.tokenExtractorName = this.tokenExtractorName;
+			providerDetails.userInfoEndpoint.requestName = this.userInfoRequestName;
+			providerDetails.userInfoEndpoint.extractorName = this.userInfoExtractorName;
 
 			clientRegistration.providerDetails = providerDetails;
 
