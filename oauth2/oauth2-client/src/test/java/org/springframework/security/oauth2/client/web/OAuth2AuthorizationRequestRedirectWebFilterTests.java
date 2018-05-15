@@ -80,7 +80,7 @@ public class OAuth2AuthorizationRequestRedirectWebFilterTests {
 		this.client = WebTestClient.bindToWebHandler(webHandler).build();
 		when(this.clientRepository.findByRegistrationId(this.github.getRegistrationId())).thenReturn(
 				Mono.just(this.github));
-		when(this.authzRequestRepository.saveAuthorizationRequest(any(), any())).thenReturn(
+		when(this.authzRequestRepository.saveAuthorizationRequest(any(), any(), any())).thenReturn(
 				Mono.empty());
 	}
 
@@ -131,6 +131,6 @@ public class OAuth2AuthorizationRequestRedirectWebFilterTests {
 					.hasParameter("state")
 					.hasParameter("redirect_uri", "https://example.com/login/oauth2/code/github");
 		});
-		verify(this.authzRequestRepository).saveAuthorizationRequest(any(), any());
+		verify(this.authzRequestRepository).saveAuthorizationRequest(any(), any(), any());
 	}
 }

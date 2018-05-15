@@ -223,7 +223,7 @@ public class DefaultOAuth2UserServiceTests {
 				"   \"email\": \"user1@example.com\"\n" +
 				"}\n";
 		server.enqueue(new MockResponse()
-				.setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
 				.setBody(userInfoResponse));
 
 		server.start();
@@ -236,7 +236,7 @@ public class DefaultOAuth2UserServiceTests {
 
 		this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessToken));
 		server.shutdown();
-		assertThat(server.takeRequest(1, TimeUnit.SECONDS).getHeader(HttpHeaders.ACCEPT))
+		assertThat(server.takeRequest(1, TimeUnit.SECONDS).getHeader(HttpHeaders.CONTENT_TYPE))
 				.isEqualTo(MediaType.APPLICATION_JSON_VALUE);
 	}
 }

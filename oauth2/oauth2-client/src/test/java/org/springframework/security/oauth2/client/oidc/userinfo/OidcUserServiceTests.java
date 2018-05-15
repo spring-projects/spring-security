@@ -27,7 +27,6 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -293,7 +292,7 @@ public class OidcUserServiceTests {
 
 	// gh-5294
 	@Test
-	public void loadUserWhenUserInfoSuccessResponseThenAcceptHeaderJson() throws Exception {
+	public void loadUserWhenUserInfoSuccessResponseThenContentTypeHeaderJson() throws Exception {
 		MockWebServer server = new MockWebServer();
 
 		String userInfoResponse = "{\n" +
@@ -305,7 +304,7 @@ public class OidcUserServiceTests {
 				"   \"email\": \"user1@example.com\"\n" +
 				"}\n";
 		server.enqueue(new MockResponse()
-				.setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
 				.setBody(userInfoResponse));
 
 		server.start();
@@ -317,7 +316,7 @@ public class OidcUserServiceTests {
 
 		this.userService.loadUser(new OidcUserRequest(this.clientRegistration, this.accessToken, this.idToken));
 		server.shutdown();
-		assertThat(server.takeRequest(1, TimeUnit.SECONDS).getHeader(HttpHeaders.ACCEPT))
+		assertThat(server.takeRequest(1, TimeUnit.SECONDS).getHeader(HttpHeaders.CONTENT_TYPE))
 				.isEqualTo(MediaType.APPLICATION_JSON_VALUE);
 	}
 }

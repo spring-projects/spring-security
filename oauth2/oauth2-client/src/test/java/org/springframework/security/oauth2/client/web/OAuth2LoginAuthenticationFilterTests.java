@@ -224,7 +224,7 @@ public class OAuth2LoginAuthenticationFilterTests {
 				.clientName("client-1")
 				.build();
 		this.setUpAuthorizationRequest(request, response, registrationNotFound, state);
-
+		this.setUpAuthenticationResult(this.registration2);
 		this.filter.doFilter(request, response, filterChain);
 
 		ArgumentCaptor<AuthenticationException> authenticationExceptionArgCaptor = ArgumentCaptor.forClass(AuthenticationException.class);
