@@ -87,13 +87,14 @@ class WebFluxSecurityConfiguration {
 	private SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 		http
 			.authorizeExchange()
-				.anyExchange().authenticated()
-				.and()
-			.httpBasic().and()
-			.formLogin();
+				.anyExchange().authenticated();
 
-		if (isOAuth2Present) {
+		if (isOAuth2Present && OAuth2ClasspathGuard.shouldConfigure(this.context)) {
 			OAuth2ClasspathGuard.configure(this.context, http);
+		} else {
+			http
+				.httpBasic().and()
+				.formLogin();
 		}
 
 		SecurityWebFilterChain result = http.build();
@@ -102,11 +103,13 @@ class WebFluxSecurityConfiguration {
 
 	private static class OAuth2ClasspathGuard {
 		static void configure(ApplicationContext context, ServerHttpSecurity http) {
+			http.oauth2Login();
+		}
+
+		static boolean shouldConfigure(ApplicationContext context) {
 			ClassLoader loader = context.getClassLoader();
 			Class<?> reactiveClientRegistrationRepositoryClass = ClassUtils.resolveClassName(REACTIVE_CLIENT_REGISTRATION_REPOSITORY_CLASSNAME, loader);
-			if (context.getBeanNamesForType(reactiveClientRegistrationRepositoryClass).length == 1) {
-				http.oauth2Login();
-			}
+			return context.getBeanNamesForType(reactiveClientRegistrationRepositoryClass).length == 1;
 		}
 	}
 }

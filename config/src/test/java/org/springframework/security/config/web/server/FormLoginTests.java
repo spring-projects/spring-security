@@ -17,6 +17,8 @@
 package org.springframework.security.config.web.server;
 
 import org.junit.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -36,6 +38,8 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author Rob Winch
@@ -204,9 +208,10 @@ public class FormLoginTests {
 
 		private LoginForm loginForm;
 
+		private OAuth2Login oauth2Login = new OAuth2Login();
+
 		public DefaultLoginPage(WebDriver webDriver) {
 			this.driver = webDriver;
-			this.loginForm = PageFactory.initElements(webDriver, LoginForm.class);
 		}
 
 		static DefaultLoginPage create(WebDriver driver) {
@@ -228,8 +233,21 @@ public class FormLoginTests {
 			return this;
 		}
 
+		public DefaultLoginPage assertLoginFormNotPresent() {
+			assertThatThrownBy(() -> loginForm().username(""))
+					.isInstanceOf(NoSuchElementException.class);
+			return this;
+		}
+
 		public LoginForm loginForm() {
+			if (this.loginForm == null) {
+				this.loginForm = PageFactory.initElements(this.driver, LoginForm.class);
+			}
 			return this.loginForm;
+		}
+
+		public OAuth2Login oauth2Login() {
+			return this.oauth2Login;
 		}
 
 		static DefaultLoginPage to(WebDriver driver) {
@@ -261,6 +279,22 @@ public class FormLoginTests {
 			public <T> T submit(Class<T> page) {
 				this.submit.click();
 				return PageFactory.initElements(this.driver, page);
+			}
+		}
+
+		public class OAuth2Login {
+			public WebElement findClientRegistrationByName(String clientName) {
+				return DefaultLoginPage.this.driver.findElement(By.linkText(clientName));
+			}
+
+			public OAuth2Login assertClientRegistrationByName(String clientName) {
+				assertThatCode(() -> findClientRegistrationByName(clientName))
+						.doesNotThrowAnyException();
+				return this;
+			}
+
+			public DefaultLoginPage and() {
+				return DefaultLoginPage.this;
 			}
 		}
 	}
