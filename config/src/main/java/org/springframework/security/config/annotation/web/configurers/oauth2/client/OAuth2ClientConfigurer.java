@@ -259,7 +259,9 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>> exte
 		OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient =
 			authorizationCodeGrantConfigurer.tokenEndpointConfig.accessTokenResponseClient;
 		if (accessTokenResponseClient == null) {
-			accessTokenResponseClient = new DefaultAccessTokenResponseClient();
+			DefaultAccessTokenResponseClient client = new DefaultAccessTokenResponseClient();
+			client.setApplicationContext(builder.getSharedObject(ApplicationContext.class));
+			accessTokenResponseClient = client;
 		}
 
 		OAuth2AuthorizationCodeAuthenticationProvider authorizationCodeAuthenticationProvider =

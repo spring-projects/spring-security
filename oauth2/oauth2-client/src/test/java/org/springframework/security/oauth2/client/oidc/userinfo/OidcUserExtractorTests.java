@@ -25,9 +25,12 @@ import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -39,31 +42,32 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
-import org.springframework.web.client.RestClientException;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests for {@link OidcUserService}.
+ * Tests for {@link OidcUserExtractor}.
  *
  * @author Joe Grandja
  */
 @PowerMockIgnore("okhttp3.*")
 @PrepareForTest(ClientRegistration.class)
 @RunWith(PowerMockRunner.class)
-public class OidcUserServiceTests {
+public class OidcUserExtractorTests {
 	private ClientRegistration clientRegistration;
 	private ClientRegistration.ProviderDetails providerDetails;
 	private ClientRegistration.ProviderDetails.UserInfoEndpoint userInfoEndpoint;
 	private OAuth2AccessToken accessToken;
 	private OidcIdToken idToken;
-	private OidcUserService userService = new OidcUserService();
+	private DefaultOAuth2UserService<OidcUserRequest, OidcUser> userService = new DefaultOAuth2UserService<>();
+	private OidcUserExtractor extractor = new OidcUserExtractor();
 
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
@@ -76,6 +80,13 @@ public class OidcUserServiceTests {
 		when(this.clientRegistration.getProviderDetails()).thenReturn(this.providerDetails);
 		when(this.providerDetails.getUserInfoEndpoint()).thenReturn(this.userInfoEndpoint);
 		when(this.clientRegistration.getAuthorizationGrantType()).thenReturn(AuthorizationGrantType.AUTHORIZATION_CODE);
+		when(this.userInfoEndpoint.getMethod()).thenReturn(HttpMethod.GET);
+		ApplicationContext applicationContext = mock(ApplicationContext.class);
+		when(applicationContext.containsBean(any())).thenReturn(false);
+		this.userService.setApplicationContext(applicationContext);
+		this.extractor.setApplicationContext(applicationContext);
+		this.userService.addExtractor(OidcUserExtractor.NAME, extractor);
+		when(this.userInfoEndpoint.getExtractorName()).thenReturn(OidcUserExtractor.NAME);
 
 		this.accessToken = mock(OAuth2AccessToken.class);
 		Set<String> authorizedScopes = new LinkedHashSet<>(Arrays.asList(OidcScopes.OPENID, OidcScopes.PROFILE));
@@ -105,14 +116,27 @@ public class OidcUserServiceTests {
 	}
 
 	@Test
-	public void loadUserWhenAuthorizedScopesDoesNotContainUserInfoScopesThenUserInfoEndpointNotRequested() {
+	public void loadUserWhenAuthorizedScopesDoesNotContainUserInfoScopesThenUserInfoEndpointNotRequested() throws Exception {
+		MockWebServer server = new MockWebServer();
+		String userInfoResponse = "{\n" +
+				"	\"sub\": \"subject1\",\n" +
+				"   \"name\": \"first last\",\n" +
+				"   \"given_name\": \"first\",\n" +
+				"   \"family_name\": \"last\",\n" +
+				"   \"preferred_username\": \"user1\",\n" +
+				"   \"email\": \"user1@example.com\"\n" +
+				"}\n";
+		server.enqueue(new MockResponse()
+				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+				.setBody(userInfoResponse));
+		server.start();
+		String userInfoUri = server.url("/user").toString();
 		Set<String> authorizedScopes = new LinkedHashSet<>(Arrays.asList("scope1", "scope2"));
 		when(this.accessToken.getScopes()).thenReturn(authorizedScopes);
-
-		when(this.userInfoEndpoint.getUri()).thenReturn("http://provider.com/user");
-
+		when(this.userInfoEndpoint.getUri()).thenReturn(userInfoUri);
 		OidcUser user = this.userService.loadUser(
 				new OidcUserRequest(this.clientRegistration, this.accessToken, this.idToken));
+		server.shutdown();
 		assertThat(user.getUserInfo()).isNull();
 	}
 
@@ -193,9 +217,9 @@ public class OidcUserServiceTests {
 	}
 
 	@Test
-	public void loadUserWhenUserInfoSuccessResponseInvalidThenThrowRestClientException() throws Exception {
-		this.exception.expect(RestClientException.class);
-		this.exception.expectMessage(containsString("JSON parse error"));
+	public void loadUserWhenUserInfoSuccessResponseInvalidThenThrowResourceAccessException() throws Exception {
+		this.exception.expect(ResourceAccessException.class);
+		this.exception.expectMessage(containsString("expected close marker for Object"));
 
 		MockWebServer server = new MockWebServer();
 

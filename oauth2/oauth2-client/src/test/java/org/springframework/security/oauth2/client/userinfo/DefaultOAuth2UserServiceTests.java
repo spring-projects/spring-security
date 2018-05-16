@@ -25,7 +25,9 @@ import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -34,12 +36,12 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
-import org.springframework.web.client.RestClientException;
 
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -56,7 +58,7 @@ public class DefaultOAuth2UserServiceTests {
 	private ClientRegistration.ProviderDetails providerDetails;
 	private ClientRegistration.ProviderDetails.UserInfoEndpoint userInfoEndpoint;
 	private OAuth2AccessToken accessToken;
-	private DefaultOAuth2UserService userService = new DefaultOAuth2UserService();
+	private DefaultOAuth2UserService<OAuth2UserRequest, OAuth2User> userService = new DefaultOAuth2UserService<>();
 
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
@@ -68,6 +70,10 @@ public class DefaultOAuth2UserServiceTests {
 		this.userInfoEndpoint = mock(ClientRegistration.ProviderDetails.UserInfoEndpoint.class);
 		when(this.clientRegistration.getProviderDetails()).thenReturn(this.providerDetails);
 		when(this.providerDetails.getUserInfoEndpoint()).thenReturn(this.userInfoEndpoint);
+		when(this.userInfoEndpoint.getMethod()).thenReturn(HttpMethod.GET);
+		ApplicationContext applicationContext = mock(ApplicationContext.class);
+		when(applicationContext.containsBean(any())).thenReturn(false);
+		this.userService.setApplicationContext(applicationContext);
 		this.accessToken = mock(OAuth2AccessToken.class);
 	}
 
@@ -78,22 +84,28 @@ public class DefaultOAuth2UserServiceTests {
 	}
 
 	@Test
-	public void loadUserWhenUserInfoUriIsNullThenThrowOAuth2AuthenticationException() {
-		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("missing_user_info_uri"));
-
-		when(this.userInfoEndpoint.getUri()).thenReturn(null);
-		this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessToken));
-	}
-
-	@Test
-	public void loadUserWhenUserNameAttributeNameIsNullThenThrowOAuth2AuthenticationException() {
+	public void loadUserWhenUserNameAttributeNameIsNullThenThrowOAuth2AuthenticationException() throws Exception {
 		this.exception.expect(OAuth2AuthenticationException.class);
 		this.exception.expectMessage(containsString("missing_user_name_attribute"));
+		MockWebServer server = new MockWebServer();
+		String userInfoResponse = "{\n" +
+				"	\"user-name\": \"user1\",\n" +
+				"   \"first-name\": \"first\",\n" +
+				"   \"last-name\": \"last\",\n" +
+				"   \"middle-name\": \"middle\",\n" +
+				"   \"address\": \"address\",\n" +
+				"   \"email\": \"user1@example.com\"\n" +
+				"}\n";
+		server.enqueue(new MockResponse()
+				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+				.setBody(userInfoResponse));
 
-		when(this.userInfoEndpoint.getUri()).thenReturn("http://provider.com/user");
+		server.start();
+		String userInfoUri = server.url("/user").toString();
+		when(this.userInfoEndpoint.getUri()).thenReturn(userInfoUri);
 		when(this.userInfoEndpoint.getUserNameAttributeName()).thenReturn(null);
 		this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessToken));
+		server.shutdown();
 	}
 
 	@Test
@@ -141,9 +153,9 @@ public class DefaultOAuth2UserServiceTests {
 	}
 
 	@Test
-	public void loadUserWhenUserInfoSuccessResponseInvalidThenThrowRestClientException() throws Exception {
-		this.exception.expect(RestClientException.class);
-		this.exception.expectMessage(containsString("JSON parse error"));
+	public void loadUserWhenUserInfoSuccessResponseInvalidThenThrowResourceAccessException() throws Exception {
+		this.exception.expect(ResourceAccessException.class);
+		this.exception.expectMessage(containsString("expected close marker for Object"));
 
 		MockWebServer server = new MockWebServer();
 

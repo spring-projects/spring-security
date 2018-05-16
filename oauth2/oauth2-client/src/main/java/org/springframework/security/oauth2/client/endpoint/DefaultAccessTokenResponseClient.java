@@ -16,12 +16,15 @@
 package org.springframework.security.oauth2.client.endpoint;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactoryUtils;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.FormHttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.util.AccessTokenResponseJackson2Deserializer;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
@@ -45,29 +48,44 @@ import java.util.Map;
 /**
  * Created by XYUU <xyuu@xyuu.net> on 2018/4/25.
  */
-public class DefaultAccessTokenResponseClient implements OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> {
+public class DefaultAccessTokenResponseClient implements OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest>, ApplicationContextAware {
 
+	private static final String OAUTH2_RESTTEMPLATE_BEAN_NAME = "oauth2RestTemplate";
+	private static final String OAUTH2_OBJECTMAPPER_BEAN_NAME = "oauth2ObjectMapper";
 	private final Map<ClientAuthenticationMethod, PlainClientSecret> methodMap = new HashMap<>();
 	private final Map<String, ResponseExtractor<OAuth2AccessTokenResponse>> extractors = new HashMap<>();
 	private final PlainClientSecret defaultMethod;
 	private final ResponseExtractor<OAuth2AccessTokenResponse> defaultExtractor;
-	private final RestTemplate restTemplate;
 
-	public DefaultAccessTokenResponseClient(RestTemplate restTemplate) {
+	private RestTemplate restTemplate;
+	private ObjectMapper objectMapper;
+
+	public DefaultAccessTokenResponseClient() {
 		FormHttpMessageConverter formHttpMessageConverter = new FormHttpMessageConverter();
 		defaultMethod = new ClientSecretBasic(formHttpMessageConverter);
 		methodMap.put(ClientAuthenticationMethod.BASIC, defaultMethod);
 		methodMap.put(ClientAuthenticationMethod.POST, new ClientSecretPost(formHttpMessageConverter));
-
-		ObjectMapper objectMapper = new ObjectMapper().registerModule(new SimpleModule()
-				.addDeserializer(OAuth2AccessTokenResponse.class, new AccessTokenResponseJackson2Deserializer()));
-		MappingJackson2HttpMessageConverter jackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter(objectMapper);
-		defaultExtractor = response -> (OAuth2AccessTokenResponse) jackson2HttpMessageConverter.read(OAuth2AccessTokenResponse.class, response);
-		this.restTemplate = restTemplate;
+		defaultExtractor = response -> objectMapper.readValue(response.getBody(), OAuth2AccessTokenResponse.class);
+		extractors.put(OAuth2ParameterNames.JSON_EXTRACTOR, defaultExtractor);
 	}
 
-	public DefaultAccessTokenResponseClient addMethod(ClientAuthenticationMethod name, PlainClientSecret method) {
-		methodMap.put(name, method);
+	@Override
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+		this.restTemplate = applicationContext.containsBean(OAUTH2_RESTTEMPLATE_BEAN_NAME) ?
+				applicationContext.getBean(OAUTH2_RESTTEMPLATE_BEAN_NAME, RestTemplate.class) :
+				new RestTemplate();
+		this.objectMapper = applicationContext.containsBean(OAUTH2_OBJECTMAPPER_BEAN_NAME) ?
+				applicationContext.getBean(OAUTH2_OBJECTMAPPER_BEAN_NAME, ObjectMapper.class) :
+				Jackson2ObjectMapperBuilder.json()
+						.deserializerByType(OAuth2AccessTokenResponse.class, new AccessTokenResponseJackson2Deserializer()).build();
+		BeanFactoryUtils.
+				beansOfTypeIncludingAncestors(applicationContext, PlainClientSecret.class).forEach(this::addMethod);
+		BeanFactoryUtils.
+				beansOfTypeIncludingAncestors(applicationContext, ResponseExtractor.class).forEach(this::addExtractor);
+	}
+
+	public DefaultAccessTokenResponseClient addMethod(String name, PlainClientSecret method) {
+		methodMap.put(new ClientAuthenticationMethod(name), method);
 		return this;
 	}
 

@@ -15,6 +15,7 @@
  */
 package org.springframework.security.oauth2.client.registration;
 
+import org.springframework.http.HttpMethod;
 import org.springframework.security.oauth2.client.web.DefaultAuthorizationRequestUriBuilder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
@@ -235,6 +236,7 @@ public final class ClientRegistration {
 			private String uri;
 			private String userNameAttributeName;
 			private String requestName;
+			private HttpMethod method;
 			private String extractorName;
 
 			private UserInfoEndpoint() {
@@ -258,12 +260,16 @@ public final class ClientRegistration {
 				return this.userNameAttributeName;
 			}
 
-			public String getRequestNameName() {
-				return requestName;
+			public String getRequestName() {
+				return this.requestName;
+			}
+
+			public HttpMethod getMethod() {
+				return this.method;
 			}
 
 			public String getExtractorName() {
-				return extractorName;
+				return this.extractorName;
 			}
 		}
 	}
@@ -298,9 +304,10 @@ public final class ClientRegistration {
 		private String clientName;
 
 		private String uriBuilderName = DefaultAuthorizationRequestUriBuilder.DEFAULT;
-		private String tokenExtractorName = OAuth2ParameterNames.RESPONSE_TYPE;
-		private String userInfoRequestName = OAuth2ParameterNames.SCOPE;
-		private String userInfoExtractorName = OAuth2ParameterNames.REDIRECT_URI;
+		private String tokenExtractorName = OAuth2ParameterNames.JSON_EXTRACTOR;
+		private String userInfoRequestName = OAuth2ParameterNames.USER_INFO_DEFAULT;
+		private String userInfoExtractorName = OAuth2ParameterNames.JSON_EXTRACTOR;
+		private HttpMethod userInfoMethod = HttpMethod.GET;
 
 		private String codeAttributeName = OAuth2ParameterNames.CODE;
 		private String errorAttributeName = OAuth2ParameterNames.ERROR;
@@ -493,6 +500,11 @@ public final class ClientRegistration {
 			return this;
 		}
 
+		public Builder userInfoMethod(String userInfoMethod) {
+			this.userInfoMethod = HttpMethod.valueOf(userInfoMethod);
+			return this;
+		}
+
 		/**
 		 * Builds a new {@link ClientRegistration}.
 		 *
@@ -534,6 +546,7 @@ public final class ClientRegistration {
 			providerDetails.errorUriAttributeName = this.errorUriAttributeName;
 			providerDetails.tokenExtractorName = this.tokenExtractorName;
 			providerDetails.userInfoEndpoint.requestName = this.userInfoRequestName;
+			providerDetails.userInfoEndpoint.method = this.userInfoMethod;
 			providerDetails.userInfoEndpoint.extractorName = this.userInfoExtractorName;
 
 			clientRegistration.providerDetails = providerDetails;

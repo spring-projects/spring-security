@@ -115,4 +115,13 @@ public interface OAuth2ParameterNames {
 	 */
 	String EXPIRES_IN = "expires_in";
 
+	/**
+	 * {@code user_info_default} - used in User Info Request.
+	 */
+	String USER_INFO_DEFAULT = "default";
+
+	/**
+	 * {@code error_uri} - used in User Info Response extractor.
+	 */
+	String JSON_EXTRACTOR = "json";
 }
