@@ -22,7 +22,7 @@ import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeAuthenticationProvider;
-import org.springframework.security.oauth2.client.endpoint.DefaultAccessTokenResponseClient;
+import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -259,7 +259,7 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>> exte
 		OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient =
 			authorizationCodeGrantConfigurer.tokenEndpointConfig.accessTokenResponseClient;
 		if (accessTokenResponseClient == null) {
-			DefaultAccessTokenResponseClient client = new DefaultAccessTokenResponseClient();
+			DefaultAuthorizationCodeTokenResponseClient client = new DefaultAuthorizationCodeTokenResponseClient();
 			client.setApplicationContext(builder.getSharedObject(ApplicationContext.class));
 			accessTokenResponseClient = client;
 		}
