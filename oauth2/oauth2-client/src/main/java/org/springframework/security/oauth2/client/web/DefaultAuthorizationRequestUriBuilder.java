@@ -17,7 +17,6 @@ package org.springframework.security.oauth2.client.web;
 
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
-import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
@@ -39,7 +38,6 @@ public class DefaultAuthorizationRequestUriBuilder implements OAuth2Authorizatio
 
 	@Override
 	public MultiValueMap<String, String> apply(OAuth2AuthorizationRequest authorizationRequest) {
-		Assert.notNull(authorizationRequest, "authorizationRequest cannot be null");
 		Set<String> scopes = authorizationRequest.getScopes();
 		MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
 		map.add(OAuth2ParameterNames.RESPONSE_TYPE, authorizationRequest.getResponseType().getValue());

@@ -16,6 +16,7 @@
 package org.springframework.security.oauth2.client.web;
 
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
+import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -34,6 +35,7 @@ import java.util.function.Function;
 public interface OAuth2AuthorizationRequestUriBuilder extends Function<OAuth2AuthorizationRequest, MultiValueMap<String, String>> {
 
 	default URI build(OAuth2AuthorizationRequest authorizationRequest) {
+		Assert.notNull(authorizationRequest, "authorizationRequest cannot be null");
 		return UriComponentsBuilder.fromUriString(authorizationRequest.getAuthorizationUri())
 				.queryParams(apply(authorizationRequest)).build().encode().toUri();
 	}
