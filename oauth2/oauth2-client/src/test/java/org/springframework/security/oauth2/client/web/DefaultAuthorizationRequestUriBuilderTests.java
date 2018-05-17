@@ -37,7 +37,7 @@ public class DefaultAuthorizationRequestUriBuilderTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void buildWhenAuthorizationRequestIsNullThenThrowIllegalArgumentException() {
-		this.builder.apply(null);
+		this.builder.build(null);
 	}
 
 	@Test
