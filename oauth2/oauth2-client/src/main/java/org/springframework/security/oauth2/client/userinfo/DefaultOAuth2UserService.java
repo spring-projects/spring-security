@@ -161,18 +161,18 @@ public class DefaultOAuth2UserService<T extends OAuth2UserRequest, R extends OAu
 
 		@Override
 		public ResponseExtractor<OAuth2User> apply(OAuth2UserRequest userRequest) {
+			ClientRegistration clientRegistration = userRequest.getClientRegistration();
+			String userNameAttributeName = clientRegistration.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
+			if (!StringUtils.hasText(userNameAttributeName)) {
+				OAuth2Error oauth2Error = new OAuth2Error(
+						MISSING_USER_NAME_ATTRIBUTE_ERROR_CODE,
+						"Missing required \"user name\" attribute name in UserInfoEndpoint for Client Registration: " +
+								userRequest.getClientRegistration().getRegistrationId(),
+						null
+				);
+				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+			}
 			return response -> {
-				ClientRegistration clientRegistration = userRequest.getClientRegistration();
-				String userNameAttributeName = clientRegistration.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
-				if (!StringUtils.hasText(userNameAttributeName)) {
-					OAuth2Error oauth2Error = new OAuth2Error(
-							MISSING_USER_NAME_ATTRIBUTE_ERROR_CODE,
-							"Missing required \"user name\" attribute name in UserInfoEndpoint for Client Registration: " +
-									userRequest.getClientRegistration().getRegistrationId(),
-							null
-					);
-					throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
-				}
 				Map<String, Object> userAttributes = objectMapper.readValue(response.getBody(), typeReference);
 				GrantedAuthority authority = new OAuth2UserAuthority(userAttributes);
 				Set<GrantedAuthority> authorities = new HashSet<>();
