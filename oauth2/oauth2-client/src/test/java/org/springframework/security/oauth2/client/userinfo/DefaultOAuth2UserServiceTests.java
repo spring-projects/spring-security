@@ -87,25 +87,9 @@ public class DefaultOAuth2UserServiceTests {
 	public void loadUserWhenUserNameAttributeNameIsNullThenThrowOAuth2AuthenticationException() throws Exception {
 		this.exception.expect(OAuth2AuthenticationException.class);
 		this.exception.expectMessage(containsString("missing_user_name_attribute"));
-		MockWebServer server = new MockWebServer();
-		String userInfoResponse = "{\n" +
-				"	\"user-name\": \"user1\",\n" +
-				"   \"first-name\": \"first\",\n" +
-				"   \"last-name\": \"last\",\n" +
-				"   \"middle-name\": \"middle\",\n" +
-				"   \"address\": \"address\",\n" +
-				"   \"email\": \"user1@example.com\"\n" +
-				"}\n";
-		server.enqueue(new MockResponse()
-				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-				.setBody(userInfoResponse));
-
-		server.start();
-		String userInfoUri = server.url("/user").toString();
-		when(this.userInfoEndpoint.getUri()).thenReturn(userInfoUri);
+		when(this.userInfoEndpoint.getUri()).thenReturn("http://provider.com/user");
 		when(this.userInfoEndpoint.getUserNameAttributeName()).thenReturn(null);
 		this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessToken));
-		server.shutdown();
 	}
 
 	@Test
