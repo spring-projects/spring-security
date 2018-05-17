@@ -35,6 +35,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -96,6 +97,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 		this.filter = new OAuth2AuthorizationRequestRedirectFilter(this.clientRegistrationRepository);
 		this.requestCache = mock(RequestCache.class);
 		this.filter.setRequestCache(this.requestCache);
+		this.filter.setUriBuilders(Collections.singletonMap(DefaultAuthorizationRequestUriBuilder.DEFAULT, new DefaultAuthorizationRequestUriBuilder()));
 	}
 
 	@Test
@@ -185,7 +187,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 
 		verifyZeroInteractions(filterChain);
 		verify(authorizationRequestRepository).saveAuthorizationRequest(
-			any(OAuth2AuthorizationRequest.class), any(HttpServletRequest.class), any(HttpServletResponse.class));
+			any(OAuth2AuthorizationRequest.class), any(HttpServletRequest.class), any(HttpServletResponse.class), any(ClientRegistration.class));
 	}
 
 	@Test
@@ -221,14 +223,14 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 
 		verifyZeroInteractions(filterChain);
 		verify(authorizationRequestRepository, times(0)).saveAuthorizationRequest(
-				any(OAuth2AuthorizationRequest.class), any(HttpServletRequest.class), any(HttpServletResponse.class));
+				any(OAuth2AuthorizationRequest.class), any(HttpServletRequest.class), any(HttpServletResponse.class), any(ClientRegistration.class));
 	}
 
 	@Test
 	public void doFilterWhenCustomAuthorizationRequestBaseUriThenRedirectForAuthorization() throws Exception {
 		String authorizationRequestBaseUri = "/custom/authorization";
 		this.filter = new OAuth2AuthorizationRequestRedirectFilter(this.clientRegistrationRepository, authorizationRequestBaseUri);
-
+		this.filter.setUriBuilders(Collections.singletonMap(DefaultAuthorizationRequestUriBuilder.DEFAULT, new DefaultAuthorizationRequestUriBuilder()));
 		String requestUri = authorizationRequestBaseUri + "/" + this.registration1.getRegistrationId();
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
 		request.setServletPath(requestUri);
@@ -262,7 +264,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 
 		verifyZeroInteractions(filterChain);
 		verify(authorizationRequestRepository).saveAuthorizationRequest(
-			authorizationRequestArgCaptor.capture(), any(HttpServletRequest.class), any(HttpServletResponse.class));
+			authorizationRequestArgCaptor.capture(), any(HttpServletRequest.class), any(HttpServletResponse.class), any(ClientRegistration.class));
 
 		OAuth2AuthorizationRequest authorizationRequest = authorizationRequestArgCaptor.getValue();
 

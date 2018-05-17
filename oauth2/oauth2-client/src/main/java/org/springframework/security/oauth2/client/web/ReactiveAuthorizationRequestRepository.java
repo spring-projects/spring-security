@@ -16,9 +16,9 @@
 
 package org.springframework.security.oauth2.client.web;
 
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.web.server.ServerWebExchange;
-
 import reactor.core.publisher.Mono;
 
 /**
@@ -41,29 +41,22 @@ import reactor.core.publisher.Mono;
 public interface ReactiveAuthorizationRequestRepository<T extends OAuth2AuthorizationRequest> {
 
 	/**
-	 * Returns the {@link OAuth2AuthorizationRequest} associated to the provided {@code HttpServletRequest}
-	 * or {@code null} if not available.
-	 *
-	 * @param exchange the {@code ServerWebExchange}
-	 * @return the {@link OAuth2AuthorizationRequest} or {@code null} if not available
-	 */
-	Mono<T> loadAuthorizationRequest(ServerWebExchange exchange);
-
-	/**
 	 * Persists the {@link OAuth2AuthorizationRequest} associating it to
 	 * the provided {@code HttpServletRequest} and/or {@code HttpServletResponse}.
 	 *
 	 * @param authorizationRequest the {@link OAuth2AuthorizationRequest}
+	 * @param clientRegistration the {@code ClientRegistration}
 	 * @param exchange             the {@code ServerWebExchange}
 	 */
-	Mono<Void> saveAuthorizationRequest(T authorizationRequest, ServerWebExchange exchange);
+	Mono<Void> saveAuthorizationRequest(T authorizationRequest, ServerWebExchange exchange, ClientRegistration clientRegistration);
 
 	/**
 	 * Removes and returns the {@link OAuth2AuthorizationRequest} associated to the
 	 * provided {@code HttpServletRequest} or if not available returns {@code null}.
 	 *
 	 * @param exchange the {@code ServerWebExchange}
+	 * @param clientRegistration the {@code ClientRegistration}
 	 * @return the removed {@link OAuth2AuthorizationRequest} or {@code null} if not available
 	 */
-	Mono<T> removeAuthorizationRequest(ServerWebExchange exchange);
+	Mono<T> removeAuthorizationRequest(ServerWebExchange exchange, ClientRegistration clientRegistration);
 }

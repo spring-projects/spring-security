@@ -127,7 +127,7 @@ public class OAuth2LoginConfigurerTests {
 		// setup authorization request
 		OAuth2AuthorizationRequest authorizationRequest = createOAuth2AuthorizationRequest();
 		this.authorizationRequestRepository.saveAuthorizationRequest(
-			authorizationRequest, this.request, this.response);
+			authorizationRequest, this.request, this.response, CLIENT_REGISTRATION);
 
 		// setup authentication parameters
 		this.request.setParameter("code", "code123");
@@ -153,7 +153,7 @@ public class OAuth2LoginConfigurerTests {
 		// setup authorization request
 		OAuth2AuthorizationRequest authorizationRequest = createOAuth2AuthorizationRequest();
 		this.authorizationRequestRepository.saveAuthorizationRequest(
-			authorizationRequest, this.request, this.response);
+			authorizationRequest, this.request, this.response, CLIENT_REGISTRATION);
 
 		// setup authentication parameters
 		this.request.setParameter("code", "code123");
@@ -179,7 +179,7 @@ public class OAuth2LoginConfigurerTests {
 		// setup authorization request
 		OAuth2AuthorizationRequest authorizationRequest = createOAuth2AuthorizationRequest();
 		this.authorizationRequestRepository.saveAuthorizationRequest(
-			authorizationRequest, this.request, this.response);
+			authorizationRequest, this.request, this.response, CLIENT_REGISTRATION);
 
 		// setup authentication parameters
 		this.request.setParameter("code", "code123");
@@ -206,7 +206,7 @@ public class OAuth2LoginConfigurerTests {
 		// setup authorization request
 		OAuth2AuthorizationRequest authorizationRequest = createOAuth2AuthorizationRequest("openid");
 		this.authorizationRequestRepository.saveAuthorizationRequest(
-			authorizationRequest, this.request, this.response);
+			authorizationRequest, this.request, this.response, CLIENT_REGISTRATION);
 
 		// setup authentication parameters
 		this.request.setParameter("code", "code123");
@@ -233,7 +233,7 @@ public class OAuth2LoginConfigurerTests {
 		// setup authorization request
 		OAuth2AuthorizationRequest authorizationRequest = createOAuth2AuthorizationRequest("openid");
 		this.authorizationRequestRepository.saveAuthorizationRequest(
-			authorizationRequest, this.request, this.response);
+			authorizationRequest, this.request, this.response, CLIENT_REGISTRATION);
 
 		// setup authentication parameters
 		this.request.setParameter("code", "code123");
@@ -260,7 +260,7 @@ public class OAuth2LoginConfigurerTests {
 		// setup authorization request
 		OAuth2AuthorizationRequest authorizationRequest = createOAuth2AuthorizationRequest("openid");
 		this.authorizationRequestRepository.saveAuthorizationRequest(
-			authorizationRequest, this.request, this.response);
+			authorizationRequest, this.request, this.response, CLIENT_REGISTRATION);
 
 		// setup authentication parameters
 		this.request.setParameter("code", "code123");

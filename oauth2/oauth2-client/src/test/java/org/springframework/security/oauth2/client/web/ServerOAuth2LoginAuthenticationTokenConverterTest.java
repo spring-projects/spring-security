@@ -16,13 +16,6 @@
 
 package org.springframework.security.oauth2.client.web;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
-import java.util.Collections;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,8 +32,15 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
-
 import reactor.core.publisher.Mono;
+
+import java.util.Collections;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -78,7 +78,7 @@ public class ServerOAuth2LoginAuthenticationTokenConverterTest {
 			.additionalParameters(Collections.singletonMap(OAuth2ParameterNames.REGISTRATION_ID, this.clientRegistrationId));
 
 	private final MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/");
-
+	private final Map<String, Object> variables = Collections.singletonMap("registrationId", clientRegistrationId);
 	private ServerOAuth2LoginAuthenticationTokenConverter converter;
 
 	@Before
@@ -89,28 +89,22 @@ public class ServerOAuth2LoginAuthenticationTokenConverterTest {
 
 	@Test
 	public void applyWhenAuthorizationRequestEmptyThenOAuth2AuthenticationException() {
-		when(this.authorizationRequestRepository.removeAuthorizationRequest(any())).thenReturn(Mono.empty());
-
-		assertThatThrownBy(() -> applyConverter())
+		when(this.clientRegistrationRepository.findByRegistrationId(any())).thenReturn(Mono.empty());
+		assertThatThrownBy(() -> applyConverter(this.variables))
 				.isInstanceOf(OAuth2AuthenticationException.class);
 	}
 
 	@Test
-	public void applyWhenAdditionalParametersMissingThenOAuth2AuthenticationException() {
-		this.authorizationRequest.additionalParameters(Collections.emptyMap());
-		when(this.authorizationRequestRepository.removeAuthorizationRequest(any())).thenReturn(Mono.just(this.authorizationRequest.build()));
-
-		assertThatThrownBy(() -> applyConverter())
+	public void applyWhenVariablesIsNullThenOAuth2AuthenticationException() {
+		assertThatThrownBy(() -> applyConverter(null))
 				.isInstanceOf(OAuth2AuthenticationException.class)
 				.hasMessageContaining(ServerOAuth2LoginAuthenticationTokenConverter.CLIENT_REGISTRATION_NOT_FOUND_ERROR_CODE);
 	}
 
 	@Test
 	public void applyWhenClientRegistrationMissingThenOAuth2AuthenticationException() {
-		when(this.authorizationRequestRepository.removeAuthorizationRequest(any())).thenReturn(Mono.just(this.authorizationRequest.build()));
 		when(this.clientRegistrationRepository.findByRegistrationId(any())).thenReturn(Mono.empty());
-
-		assertThatThrownBy(() -> applyConverter())
+		assertThatThrownBy(() -> applyConverter(this.variables))
 				.isInstanceOf(OAuth2AuthenticationException.class)
 				.hasMessageContaining(ServerOAuth2LoginAuthenticationTokenConverter.CLIENT_REGISTRATION_NOT_FOUND_ERROR_CODE);
 	}
@@ -118,20 +112,20 @@ public class ServerOAuth2LoginAuthenticationTokenConverterTest {
 	@Test
 	public void applyWhenCodeParameterNotFoundThenErrorCode() {
 		this.request.queryParam(OAuth2ParameterNames.ERROR, "error");
-		when(this.authorizationRequestRepository.removeAuthorizationRequest(any())).thenReturn(Mono.just(this.authorizationRequest.build()));
+		when(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any())).thenReturn(Mono.just(this.authorizationRequest.build()));
 		when(this.clientRegistrationRepository.findByRegistrationId(any())).thenReturn(Mono.just(this.clientRegistration));
 
-		assertThat(applyConverter().getAuthorizationExchange().getAuthorizationResponse().getError().getErrorCode())
+		assertThat(applyConverter(this.variables).getAuthorizationExchange().getAuthorizationResponse().getError().getErrorCode())
 				.isEqualTo("error");
 	}
 
 	@Test
 	public void applyWhenCodeParameterFoundThenCode() {
 		this.request.queryParam(OAuth2ParameterNames.CODE, "code");
-		when(this.authorizationRequestRepository.removeAuthorizationRequest(any())).thenReturn(Mono.just(this.authorizationRequest.build()));
+		when(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any())).thenReturn(Mono.just(this.authorizationRequest.build()));
 		when(this.clientRegistrationRepository.findByRegistrationId(any())).thenReturn(Mono.just(this.clientRegistration));
 
-		OAuth2LoginAuthenticationToken result = applyConverter();
+		OAuth2LoginAuthenticationToken result = applyConverter(this.variables);
 
 		OAuth2AuthorizationResponse exchange = result
 				.getAuthorizationExchange().getAuthorizationResponse();
@@ -139,8 +133,8 @@ public class ServerOAuth2LoginAuthenticationTokenConverterTest {
 		assertThat(exchange.getCode()).isEqualTo("code");
 	}
 
-	private OAuth2LoginAuthenticationToken applyConverter() {
+	private OAuth2LoginAuthenticationToken applyConverter(Map<String, Object> variables) {
 		MockServerWebExchange exchange = MockServerWebExchange.from(this.request);
-		return (OAuth2LoginAuthenticationToken) this.converter.apply(exchange).block();
+		return (OAuth2LoginAuthenticationToken) this.converter.apply(exchange, variables).block();
 	}
 }

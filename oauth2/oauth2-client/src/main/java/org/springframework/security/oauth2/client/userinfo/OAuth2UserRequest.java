@@ -19,31 +19,40 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.util.Assert;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 /**
  * Represents a request the {@link OAuth2UserService} uses
  * when initiating a request to the UserInfo Endpoint.
  *
  * @author Joe Grandja
- * @since 5.0
  * @see ClientRegistration
  * @see OAuth2AccessToken
  * @see OAuth2UserService
+ * @since 5.0
  */
 public class OAuth2UserRequest {
 	private final ClientRegistration clientRegistration;
 	private final OAuth2AccessToken accessToken;
+	private Map<String, Object> additionalParameters = new LinkedHashMap<>();
 
 	/**
 	 * Constructs an {@code OAuth2UserRequest} using the provided parameters.
 	 *
 	 * @param clientRegistration the client registration
-	 * @param accessToken the access token
+	 * @param accessToken        the access token
 	 */
 	public OAuth2UserRequest(ClientRegistration clientRegistration, OAuth2AccessToken accessToken) {
 		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
 		Assert.notNull(accessToken, "accessToken cannot be null");
 		this.clientRegistration = clientRegistration;
 		this.accessToken = accessToken;
+	}
+
+	public OAuth2UserRequest setAdditionalParameters(Map<String, Object> additionalParameters) {
+		this.additionalParameters.putAll(additionalParameters);
+		return this;
 	}
 
 	/**
@@ -63,4 +72,14 @@ public class OAuth2UserRequest {
 	public OAuth2AccessToken getAccessToken() {
 		return this.accessToken;
 	}
+
+	/**
+	 * Returns the additional parameters used in the request.
+	 *
+	 * @return a {@code Map} of the additional parameters used in the request
+	 */
+	public Map<String, Object> getAdditionalParameters() {
+		return this.additionalParameters;
+	}
+
 }

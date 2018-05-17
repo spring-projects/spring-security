@@ -75,4 +75,53 @@ public interface OAuth2ParameterNames {
 	 */
 	String REGISTRATION_ID = "registration_id";
 
+	/**
+	 * {@code authorization_code} - used in Authorization Response and Access Token Request.
+	 */
+	String AUTHORIZATION_CODE = "authorization_code";
+
+	/**
+	 * {@code grant_type} - used in Authorization Response and Access Token Request.
+	 */
+	String GRANT_TYPE = "grant_type";
+
+	/**
+	 * {@code client_secret} - used in Authorization Response and Access Token Request.
+	 */
+	String CLIENT_SECRET = "client_secret";
+
+	/**
+	 * {@code Authorization} - used in Authorization Response and Access Token Request.
+	 */
+	String AUTHORIZATION = "Authorization";
+
+	/**
+	 * {@code access_token} - used in Authorization Request, Authorization Response, Access Token Response.
+	 */
+	String ACCESS_TOKEN = "access_token";
+
+	/**
+	 * {@code token_type} - used in  Access Token Response.
+	 */
+	String TOKEN_TYPE = "token_type";
+
+	/**
+	 * {@code refresh_token} - used in  Access Token Response.
+	 */
+	String REFRESH_TOKEN = "refresh_token";
+
+	/**
+	 * {@code error_uri} - used in  Access Token Response.
+	 */
+	String EXPIRES_IN = "expires_in";
+
+	/**
+	 * {@code user_info_default} - used in User Info Request.
+	 */
+	String USER_INFO_DEFAULT = "default";
+
+	/**
+	 * {@code error_uri} - used in User Info Response extractor.
+	 */
+	String JSON_EXTRACTOR = "json";
 }

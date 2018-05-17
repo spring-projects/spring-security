@@ -15,6 +15,7 @@
  */
 package org.springframework.security.oauth2.client.web;
 
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 
 import javax.servlet.http.HttpServletRequest;
@@ -40,32 +41,25 @@ import javax.servlet.http.HttpServletResponse;
 public interface AuthorizationRequestRepository<T extends OAuth2AuthorizationRequest> {
 
 	/**
-	 * Returns the {@link OAuth2AuthorizationRequest} associated to the provided {@code HttpServletRequest}
-	 * or {@code null} if not available.
-	 *
-	 * @param request the {@code HttpServletRequest}
-	 * @return the {@link OAuth2AuthorizationRequest} or {@code null} if not available
-	 */
-	T loadAuthorizationRequest(HttpServletRequest request);
-
-	/**
 	 * Persists the {@link OAuth2AuthorizationRequest} associating it to
 	 * the provided {@code HttpServletRequest} and/or {@code HttpServletResponse}.
 	 *
 	 * @param authorizationRequest the {@link OAuth2AuthorizationRequest}
 	 * @param request the {@code HttpServletRequest}
 	 * @param response the {@code HttpServletResponse}
+	 * @param clientRegistration the {@code ClientRegistration}
 	 */
 	void saveAuthorizationRequest(T authorizationRequest, HttpServletRequest request,
-									HttpServletResponse response);
+									HttpServletResponse response, ClientRegistration clientRegistration);
 
 	/**
 	 * Removes and returns the {@link OAuth2AuthorizationRequest} associated to the
 	 * provided {@code HttpServletRequest} or if not available returns {@code null}.
 	 *
 	 * @param request the {@code HttpServletRequest}
+	 * @param clientRegistration the {@code ClientRegistration}
 	 * @return the removed {@link OAuth2AuthorizationRequest} or {@code null} if not available
 	 */
-	T removeAuthorizationRequest(HttpServletRequest request);
+	T removeAuthorizationRequest(HttpServletRequest request, ClientRegistration clientRegistration);
 
 }

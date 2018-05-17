@@ -286,7 +286,7 @@ public class OAuth2LoginApplicationTests {
 
 		HtmlElement errorElement = page.getBody().getFirstByXPath("p");
 		assertThat(errorElement).isNotNull();
-		assertThat(errorElement.asText()).contains("invalid_redirect_uri_parameter");
+		assertThat(errorElement.asText()).contains("client_registration_not_found");
 	}
 
 	private void assertLoginPage(HtmlPage page) throws Exception {

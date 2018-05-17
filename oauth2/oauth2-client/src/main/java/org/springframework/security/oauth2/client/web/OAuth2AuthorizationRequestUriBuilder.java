@@ -16,13 +16,12 @@
 package org.springframework.security.oauth2.client.web;
 
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
-import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.util.Set;
+import java.util.function.Function;
 
 /**
  * A {@code URI} builder for an OAuth 2.0 Authorization Request.
@@ -33,21 +32,12 @@ import java.util.Set;
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.1">Section 4.1.1 Authorization Code Grant Request</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.2.1">Section 4.2.1 Implicit Grant Request</a>
  */
-class OAuth2AuthorizationRequestUriBuilder {
+public interface OAuth2AuthorizationRequestUriBuilder extends Function<OAuth2AuthorizationRequest, MultiValueMap<String, String>> {
 
-	URI build(OAuth2AuthorizationRequest authorizationRequest) {
+	default URI build(OAuth2AuthorizationRequest authorizationRequest) {
 		Assert.notNull(authorizationRequest, "authorizationRequest cannot be null");
-		Set<String> scopes = authorizationRequest.getScopes();
-		UriComponentsBuilder uriBuilder = UriComponentsBuilder
-			.fromUriString(authorizationRequest.getAuthorizationUri())
-			.queryParam(OAuth2ParameterNames.RESPONSE_TYPE, authorizationRequest.getResponseType().getValue())
-			.queryParam(OAuth2ParameterNames.CLIENT_ID, authorizationRequest.getClientId())
-			.queryParam(OAuth2ParameterNames.SCOPE, StringUtils.collectionToDelimitedString(scopes, " "))
-			.queryParam(OAuth2ParameterNames.STATE, authorizationRequest.getState());
-		if (authorizationRequest.getRedirectUri() != null) {
-			uriBuilder.queryParam(OAuth2ParameterNames.REDIRECT_URI, authorizationRequest.getRedirectUri());
-		}
-
-		return uriBuilder.build().encode().toUri();
+		return UriComponentsBuilder.fromUriString(authorizationRequest.getAuthorizationUri())
+				.queryParams(apply(authorizationRequest)).build().encode().toUri();
 	}
+
 }

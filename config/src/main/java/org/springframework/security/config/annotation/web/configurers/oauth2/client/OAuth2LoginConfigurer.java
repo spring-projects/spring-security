@@ -29,22 +29,19 @@ import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMap
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationProvider;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken;
-import org.springframework.security.oauth2.client.endpoint.NimbusAuthorizationCodeTokenResponseClient;
+import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizationCodeAuthenticationProvider;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserExtractor;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
-import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.userinfo.CustomUserTypesOAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.CustomOAuth2UserExtractor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
-import org.springframework.security.oauth2.client.userinfo.DelegatingOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
-import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
-import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
-import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
+import org.springframework.security.oauth2.client.web.*;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
@@ -58,26 +55,25 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
  * An {@link AbstractHttpConfigurer} for OAuth 2.0 Login,
  * which leverages the OAuth 2.0 Authorization Code Grant Flow.
- *
+ * <p>
  * <p>
  * OAuth 2.0 Login provides an application with the capability to have users log in
  * by using their existing account at an OAuth 2.0 or OpenID Connect 1.0 Provider.
- *
+ * <p>
  * <p>
  * Defaults are provided for all configuration options with the only required configuration
  * being {@link #clientRegistrationRepository(ClientRegistrationRepository)}.
  * Alternatively, a {@link ClientRegistrationRepository} {@code @Bean} may be registered instead.
  *
  * <h2>Security Filters</h2>
- *
+ * <p>
  * The following {@code Filter}'s are populated:
  *
  * <ul>
@@ -86,7 +82,7 @@ import java.util.Map;
  * </ul>
  *
  * <h2>Shared Objects Created</h2>
- *
+ * <p>
  * The following shared objects are populated:
  *
  * <ul>
@@ -96,7 +92,7 @@ import java.util.Map;
  * </ul>
  *
  * <h2>Shared Objects Used</h2>
- *
+ * <p>
  * The following shared objects are used:
  *
  * <ul>
@@ -109,16 +105,15 @@ import java.util.Map;
  *
  * @author Joe Grandja
  * @author Kazuki Shimizu
- * @since 5.0
  * @see HttpSecurity#oauth2Login()
  * @see OAuth2AuthorizationRequestRedirectFilter
  * @see OAuth2LoginAuthenticationFilter
  * @see ClientRegistrationRepository
  * @see AbstractAuthenticationFilterConfigurer
+ * @since 5.0
  */
 public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> extends
-	AbstractAuthenticationFilterConfigurer<B, OAuth2LoginConfigurer<B>, OAuth2LoginAuthenticationFilter> {
-
+		AbstractAuthenticationFilterConfigurer<B, OAuth2LoginConfigurer<B>, OAuth2LoginAuthenticationFilter> {
 	private final AuthorizationEndpointConfig authorizationEndpointConfig = new AuthorizationEndpointConfig();
 	private final TokenEndpointConfig tokenEndpointConfig = new TokenEndpointConfig();
 	private final RedirectionEndpointConfig redirectionEndpointConfig = new RedirectionEndpointConfig();
@@ -234,7 +229,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		 * @return the {@link TokenEndpointConfig} for further configuration
 		 */
 		public TokenEndpointConfig accessTokenResponseClient(
-			OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient) {
+				OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient) {
 
 			Assert.notNull(accessTokenResponseClient, "accessTokenResponseClient cannot be null");
 			this.accessTokenResponseClient = accessTokenResponseClient;
@@ -339,7 +334,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		 * Sets a custom {@link OAuth2User} type and associates it to the provided
 		 * client {@link ClientRegistration#getRegistrationId() registration identifier}.
 		 *
-		 * @param customUserType a custom {@link OAuth2User} type
+		 * @param customUserType       a custom {@link OAuth2User} type
 		 * @param clientRegistrationId the client registration identifier
 		 * @return the {@link UserInfoEndpointConfig} for further configuration
 		 */
@@ -375,10 +370,10 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 	@Override
 	public void init(B http) throws Exception {
 		OAuth2LoginAuthenticationFilter authenticationFilter =
-			new OAuth2LoginAuthenticationFilter(
-				OAuth2ClientConfigurerUtils.getClientRegistrationRepository(this.getBuilder()),
-				OAuth2ClientConfigurerUtils.getAuthorizedClientService(this.getBuilder()),
-				OAuth2LoginAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI);
+				new OAuth2LoginAuthenticationFilter(
+						OAuth2ClientConfigurerUtils.getClientRegistrationRepository(this.getBuilder()),
+						OAuth2ClientConfigurerUtils.getAuthorizedClientService(this.getBuilder()),
+						OAuth2LoginAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI);
 		this.setAuthenticationFilter(authenticationFilter);
 		this.loginProcessingUrl(OAuth2LoginAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI);
 		if (this.loginPage != null) {
@@ -387,25 +382,26 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		super.init(http);
 
 		OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient =
-			this.tokenEndpointConfig.accessTokenResponseClient;
+				this.tokenEndpointConfig.accessTokenResponseClient;
 		if (accessTokenResponseClient == null) {
-			accessTokenResponseClient = new NimbusAuthorizationCodeTokenResponseClient();
+			DefaultAuthorizationCodeTokenResponseClient client = new DefaultAuthorizationCodeTokenResponseClient();
+			client.setApplicationContext(http.getSharedObject(ApplicationContext.class));
+			accessTokenResponseClient = client;
 		}
-
 		OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService = this.userInfoEndpointConfig.userService;
 		if (oauth2UserService == null) {
+			DefaultOAuth2UserService<OAuth2UserRequest, OAuth2User> defaultOAuth2UserService = new DefaultOAuth2UserService<>();
+			defaultOAuth2UserService.setApplicationContext(http.getSharedObject(ApplicationContext.class));
 			if (!this.userInfoEndpointConfig.customUserTypes.isEmpty()) {
-				List<OAuth2UserService<OAuth2UserRequest, OAuth2User>> userServices = new ArrayList<>();
-				userServices.add(new CustomUserTypesOAuth2UserService(this.userInfoEndpointConfig.customUserTypes));
-				userServices.add(new DefaultOAuth2UserService());
-				oauth2UserService = new DelegatingOAuth2UserService<>(userServices);
-			} else {
-				oauth2UserService = new DefaultOAuth2UserService();
+				CustomOAuth2UserExtractor extractor = new CustomOAuth2UserExtractor(this.userInfoEndpointConfig.customUserTypes);
+				extractor.setApplicationContext(http.getSharedObject(ApplicationContext.class));
+				defaultOAuth2UserService.addExtractor(CustomOAuth2UserExtractor.NAME, extractor);
 			}
+			oauth2UserService = defaultOAuth2UserService;
 		}
 
 		OAuth2LoginAuthenticationProvider oauth2LoginAuthenticationProvider =
-			new OAuth2LoginAuthenticationProvider(accessTokenResponseClient, oauth2UserService);
+				new OAuth2LoginAuthenticationProvider(accessTokenResponseClient, oauth2UserService);
 		GrantedAuthoritiesMapper userAuthoritiesMapper = this.getGrantedAuthoritiesMapper();
 		if (userAuthoritiesMapper != null) {
 			oauth2LoginAuthenticationProvider.setAuthoritiesMapper(userAuthoritiesMapper);
@@ -413,16 +409,19 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		http.authenticationProvider(this.postProcess(oauth2LoginAuthenticationProvider));
 
 		boolean oidcAuthenticationProviderEnabled = ClassUtils.isPresent(
-			"org.springframework.security.oauth2.jwt.JwtDecoder", this.getClass().getClassLoader());
+				"org.springframework.security.oauth2.jwt.JwtDecoder", this.getClass().getClassLoader());
 
 		if (oidcAuthenticationProviderEnabled) {
 			OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService = this.userInfoEndpointConfig.oidcUserService;
 			if (oidcUserService == null) {
-				oidcUserService = new OidcUserService();
+				DefaultOAuth2UserService<OidcUserRequest, OidcUser> defaultOAuth2UserService = new DefaultOAuth2UserService<>();
+				defaultOAuth2UserService.setApplicationContext(http.getSharedObject(ApplicationContext.class));
+				OidcUserExtractor extractor = new OidcUserExtractor();
+				defaultOAuth2UserService.addExtractor(OidcUserExtractor.NAME, extractor);
+				oidcUserService = defaultOAuth2UserService;
 			}
-
 			OidcAuthorizationCodeAuthenticationProvider oidcAuthorizationCodeAuthenticationProvider =
-				new OidcAuthorizationCodeAuthenticationProvider(accessTokenResponseClient, oidcUserService);
+					new OidcAuthorizationCodeAuthenticationProvider(accessTokenResponseClient, oidcUserService);
 			if (userAuthoritiesMapper != null) {
 				oidcAuthorizationCodeAuthenticationProvider.setAuthoritiesMapper(userAuthoritiesMapper);
 			}
@@ -442,16 +441,23 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		}
 
 		OAuth2AuthorizationRequestRedirectFilter authorizationRequestFilter = new OAuth2AuthorizationRequestRedirectFilter(
-			OAuth2ClientConfigurerUtils.getClientRegistrationRepository(this.getBuilder()), authorizationRequestBaseUri);
+				OAuth2ClientConfigurerUtils.getClientRegistrationRepository(this.getBuilder()), authorizationRequestBaseUri);
 
 		if (this.authorizationEndpointConfig.authorizationRequestRepository != null) {
 			authorizationRequestFilter.setAuthorizationRequestRepository(
-				this.authorizationEndpointConfig.authorizationRequestRepository);
+					this.authorizationEndpointConfig.authorizationRequestRepository);
 		}
 		RequestCache requestCache = http.getSharedObject(RequestCache.class);
 		if (requestCache != null) {
 			authorizationRequestFilter.setRequestCache(requestCache);
 		}
+
+		LinkedHashMap<String, OAuth2AuthorizationRequestUriBuilder> uriBuilders = new LinkedHashMap<>(1);
+		uriBuilders.put(DefaultAuthorizationRequestUriBuilder.DEFAULT, new DefaultAuthorizationRequestUriBuilder());
+		uriBuilders.putAll(BeanFactoryUtils.
+				beansOfTypeIncludingAncestors(http.getSharedObject(ApplicationContext.class), OAuth2AuthorizationRequestUriBuilder.class));
+		authorizationRequestFilter.setUriBuilders(uriBuilders);
+
 		http.addFilter(this.postProcess(authorizationRequestFilter));
 
 		OAuth2LoginAuthenticationFilter authenticationFilter = this.getAuthenticationFilter();
@@ -460,14 +466,14 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		}
 		if (this.authorizationEndpointConfig.authorizationRequestRepository != null) {
 			authenticationFilter.setAuthorizationRequestRepository(
-				this.authorizationEndpointConfig.authorizationRequestRepository);
+					this.authorizationEndpointConfig.authorizationRequestRepository);
 		}
 		super.configure(http);
 	}
 
 	@Override
 	protected RequestMatcher createLoginProcessingUrlMatcher(String loginProcessingUrl) {
-		return new AntPathRequestMatcher(loginProcessingUrl);
+		return new AntPathRequestMatcher(loginProcessingUrl + "/{" + OAuth2LoginAuthenticationFilter.REGISTRATION_ID_URI_VARIABLE_NAME + "}");
 	}
 
 	private GrantedAuthoritiesMapper getGrantedAuthoritiesMapper() {
@@ -484,9 +490,9 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 
 	private GrantedAuthoritiesMapper getGrantedAuthoritiesMapperBean() {
 		Map<String, GrantedAuthoritiesMapper> grantedAuthoritiesMapperMap =
-			BeanFactoryUtils.beansOfTypeIncludingAncestors(
-				this.getBuilder().getSharedObject(ApplicationContext.class),
-				GrantedAuthoritiesMapper.class);
+				BeanFactoryUtils.beansOfTypeIncludingAncestors(
+						this.getBuilder().getSharedObject(ApplicationContext.class),
+						GrantedAuthoritiesMapper.class);
 		return (!grantedAuthoritiesMapperMap.isEmpty() ? grantedAuthoritiesMapperMap.values().iterator().next() : null);
 	}
 
@@ -498,7 +504,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 
 		Iterable<ClientRegistration> clientRegistrations = null;
 		ClientRegistrationRepository clientRegistrationRepository =
-			OAuth2ClientConfigurerUtils.getClientRegistrationRepository(this.getBuilder());
+				OAuth2ClientConfigurerUtils.getClientRegistrationRepository(this.getBuilder());
 		ResolvableType type = ResolvableType.forInstance(clientRegistrationRepository).as(Iterable.class);
 		if (type != ResolvableType.NONE && ClientRegistration.class.isAssignableFrom(type.resolveGenerics()[0])) {
 			clientRegistrations = (Iterable<ClientRegistration>) clientRegistrationRepository;
@@ -508,13 +514,13 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		}
 
 		String authorizationRequestBaseUri = this.authorizationEndpointConfig.authorizationRequestBaseUri != null ?
-			this.authorizationEndpointConfig.authorizationRequestBaseUri :
-			OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
+				this.authorizationEndpointConfig.authorizationRequestBaseUri :
+				OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
 		Map<String, String> authenticationUrlToClientName = new HashMap<>();
 
 		clientRegistrations.forEach(registration -> authenticationUrlToClientName.put(
-			authorizationRequestBaseUri + "/" + registration.getRegistrationId(),
-			registration.getClientName()));
+				authorizationRequestBaseUri + "/" + registration.getRegistrationId(),
+				registration.getClientName()));
 		loginPageGeneratingFilter.setOauth2LoginEnabled(true);
 		loginPageGeneratingFilter.setOauth2AuthenticationUrlToClientName(authenticationUrlToClientName);
 		loginPageGeneratingFilter.setLoginPageUrl(this.getLoginPage());
@@ -526,19 +532,19 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		@Override
 		public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 			OAuth2LoginAuthenticationToken authorizationCodeAuthentication =
-				(OAuth2LoginAuthenticationToken) authentication;
+					(OAuth2LoginAuthenticationToken) authentication;
 
 			// Section 3.1.2.1 Authentication Request - http://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
 			// scope
 			// 		REQUIRED. OpenID Connect requests MUST contain the "openid" scope value.
 			if (authorizationCodeAuthentication.getAuthorizationExchange()
-				.getAuthorizationRequest().getScopes().contains(OidcScopes.OPENID)) {
+					.getAuthorizationRequest().getScopes().contains(OidcScopes.OPENID)) {
 
 				OAuth2Error oauth2Error = new OAuth2Error(
-					"oidc_provider_not_configured",
-					"An OpenID Connect Authentication Provider has not been configured. " +
-						"Check to ensure you include the dependency 'spring-security-oauth2-jose'.",
-					null);
+						"oidc_provider_not_configured",
+						"An OpenID Connect Authentication Provider has not been configured. " +
+								"Check to ensure you include the dependency 'spring-security-oauth2-jose'.",
+						null);
 				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 			}
 

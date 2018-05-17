@@ -38,7 +38,7 @@ import static java.util.stream.Collectors.toConcurrentMap;
  * @see ClientRegistrationRepository
  * @see ClientRegistration
  */
-public final class InMemoryClientRegistrationRepository implements ClientRegistrationRepository, Iterable<ClientRegistration> {
+public final class InMemoryClientRegistrationRepository implements ClientRegistrationRepository {
 	private final Map<String, ClientRegistration> registrations;
 
 	/**

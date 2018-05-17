@@ -15,13 +15,13 @@
  */
 package org.springframework.security.oauth2.client.web;
 
-import java.util.Map;
-
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
-import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
+
+import java.util.Map;
 
 /**
  * Utility methods for an OAuth 2.0 Authorization Response.
@@ -47,24 +47,28 @@ final class OAuth2AuthorizationResponseUtils {
 		return params;
 	}
 
-	static boolean isAuthorizationResponse(MultiValueMap<String, String> request) {
-		return isAuthorizationResponseSuccess(request) || isAuthorizationResponseError(request);
+	static boolean isAuthorizationResponse(MultiValueMap<String, String> request, ClientRegistration clientRegistration) {
+		ClientRegistration.ProviderDetails provider = clientRegistration.getProviderDetails();
+		String codeAttributeName = provider.getCodeAttributeName();
+		String stateAttributeName = provider.getStateAttributeName();
+		String errorAttributeName = provider.getErrorAttributeName();
+		return isAuthorizationResponseSuccess(request, codeAttributeName, stateAttributeName) ||
+				isAuthorizationResponseError(request, errorAttributeName, stateAttributeName);
 	}
 
-	static boolean isAuthorizationResponseSuccess(MultiValueMap<String, String> request) {
-		return StringUtils.hasText(request.getFirst(OAuth2ParameterNames.CODE)) &&
-			StringUtils.hasText(request.getFirst(OAuth2ParameterNames.STATE));
+	static boolean isAuthorizationResponseSuccess(MultiValueMap<String, String> request, String codeAttributeName, String stateAttributeName) {
+		return StringUtils.hasText(request.getFirst(codeAttributeName)) && StringUtils.hasText(request.getFirst(stateAttributeName));
 	}
 
-	static boolean isAuthorizationResponseError(MultiValueMap<String, String> request) {
-		return StringUtils.hasText(request.getFirst(OAuth2ParameterNames.ERROR)) &&
-			StringUtils.hasText(request.getFirst(OAuth2ParameterNames.STATE));
+	static boolean isAuthorizationResponseError(MultiValueMap<String, String> request, String errorAttributeName, String stateAttributeName) {
+		return StringUtils.hasText(request.getFirst(errorAttributeName)) && StringUtils.hasText(request.getFirst(stateAttributeName));
 	}
 
-	static OAuth2AuthorizationResponse convert(MultiValueMap<String, String> request, String redirectUri) {
-		String code = request.getFirst(OAuth2ParameterNames.CODE);
-		String errorCode = request.getFirst(OAuth2ParameterNames.ERROR);
-		String state = request.getFirst(OAuth2ParameterNames.STATE);
+	static OAuth2AuthorizationResponse convert(MultiValueMap<String, String> request, String redirectUri, ClientRegistration clientRegistration) {
+		ClientRegistration.ProviderDetails provider = clientRegistration.getProviderDetails();
+		String code = request.getFirst(provider.getCodeAttributeName());
+		String errorCode = request.getFirst(provider.getErrorAttributeName());
+		String state = request.getFirst(provider.getStateAttributeName());
 
 		if (StringUtils.hasText(code)) {
 			return OAuth2AuthorizationResponse.success(code)
@@ -72,8 +76,8 @@ final class OAuth2AuthorizationResponseUtils {
 				.state(state)
 				.build();
 		} else {
-			String errorDescription = request.getFirst(OAuth2ParameterNames.ERROR_DESCRIPTION);
-			String errorUri = request.getFirst(OAuth2ParameterNames.ERROR_URI);
+			String errorDescription = request.getFirst(provider.getErrorDescriptionAttributeName());
+			String errorUri = request.getFirst(provider.getErrorUriAttributeName());
 			return OAuth2AuthorizationResponse.error(errorCode)
 				.redirectUri(redirectUri)
 				.errorDescription(errorDescription)

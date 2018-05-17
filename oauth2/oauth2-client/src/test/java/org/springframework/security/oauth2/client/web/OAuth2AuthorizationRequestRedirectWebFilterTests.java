@@ -33,13 +33,12 @@ import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Rob Winch
@@ -75,12 +74,16 @@ public class OAuth2AuthorizationRequestRedirectWebFilterTests {
 	public void setup() {
 		this.filter = new OAuth2AuthorizationRequestRedirectWebFilter(this.clientRepository);
 		this.filter.setAuthorizationRequestRepository(this.authzRequestRepository);
+		LinkedHashMap<String, OAuth2AuthorizationRequestUriBuilder> uriBuilders = new LinkedHashMap<>(1);
+		uriBuilders.put(DefaultAuthorizationRequestUriBuilder.DEFAULT, new DefaultAuthorizationRequestUriBuilder());
+		this.filter.setUriBuilders(uriBuilders);
+
 		FilteringWebHandler webHandler = new FilteringWebHandler(e -> e.getResponse().setComplete(), Arrays.asList(this.filter));
 
 		this.client = WebTestClient.bindToWebHandler(webHandler).build();
 		when(this.clientRepository.findByRegistrationId(this.github.getRegistrationId())).thenReturn(
 				Mono.just(this.github));
-		when(this.authzRequestRepository.saveAuthorizationRequest(any(), any())).thenReturn(
+		when(this.authzRequestRepository.saveAuthorizationRequest(any(), any(), any())).thenReturn(
 				Mono.empty());
 	}
 
@@ -131,6 +134,6 @@ public class OAuth2AuthorizationRequestRedirectWebFilterTests {
 					.hasParameter("state")
 					.hasParameter("redirect_uri", "https://example.com/login/oauth2/code/github");
 		});
-		verify(this.authzRequestRepository).saveAuthorizationRequest(any(), any());
+		verify(this.authzRequestRepository).saveAuthorizationRequest(any(), any(), any());
 	}
 }

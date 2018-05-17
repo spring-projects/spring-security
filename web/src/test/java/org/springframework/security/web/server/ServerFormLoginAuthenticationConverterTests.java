@@ -55,7 +55,7 @@ public class ServerFormLoginAuthenticationConverterTests {
 		this.data.add("username", username);
 		this.data.add("password", password);
 
-		Authentication authentication = this.converter.apply(this.exchange).block();
+		Authentication authentication = this.converter.apply(this.exchange, null).block();
 
 		assertThat(authentication.getName()).isEqualTo(username);
 		assertThat(authentication.getCredentials()).isEqualTo(password);
@@ -73,7 +73,7 @@ public class ServerFormLoginAuthenticationConverterTests {
 		this.data.add(usernameParameter, username);
 		this.data.add(passwordParameter, password);
 
-		Authentication authentication = this.converter.apply(this.exchange).block();
+		Authentication authentication = this.converter.apply(this.exchange, null).block();
 
 		assertThat(authentication.getName()).isEqualTo(username);
 		assertThat(authentication.getCredentials()).isEqualTo(password);
@@ -82,7 +82,7 @@ public class ServerFormLoginAuthenticationConverterTests {
 
 	@Test
 	public void applyWhenNoDataThenCreatesTokenSuccess() {
-		Authentication authentication = this.converter.apply(this.exchange).block();
+		Authentication authentication = this.converter.apply(this.exchange, null).block();
 
 		assertThat(authentication.getName()).isNullOrEmpty();
 		assertThat(authentication.getCredentials()).isNull();

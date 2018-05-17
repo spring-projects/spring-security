@@ -15,8 +15,6 @@
  */
 package org.springframework.security.oauth2.client.authentication;
 
-import java.util.Collection;
-
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -31,8 +29,9 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.Assert;
-
 import reactor.core.publisher.Mono;
+
+import java.util.Collection;
 
 
 /**

@@ -15,11 +15,6 @@
  */
 package org.springframework.security.oauth2.client.web;
 
-import java.net.URI;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpRequestDecorator;
@@ -31,7 +26,6 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
-import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.web.server.DefaultServerRedirectStrategy;
 import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher;
@@ -41,8 +35,12 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import org.springframework.web.util.UriComponentsBuilder;
-
 import reactor.core.publisher.Mono;
+
+import java.net.URI;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This {@code WebFilter} initiates the authorization code grant or implicit grant flow
@@ -87,7 +85,7 @@ public class OAuth2AuthorizationRequestRedirectWebFilter implements WebFilter {
 			ClientAuthorizationRequiredException.class.getName() + ".AUTHORIZATION_REQUIRED_EXCEPTION";
 	private final ServerWebExchangeMatcher authorizationRequestMatcher;
 	private final ReactiveClientRegistrationRepository clientRegistrationRepository;
-	private final OAuth2AuthorizationRequestUriBuilder authorizationRequestUriBuilder = new OAuth2AuthorizationRequestUriBuilder();
+	private Map<String, OAuth2AuthorizationRequestUriBuilder> uriBuilders = new HashMap<>();
 	private final ServerRedirectStrategy authorizationRedirectStrategy = new DefaultServerRedirectStrategy();
 	private final StringKeyGenerator stateGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder());
 	private ReactiveAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
@@ -116,6 +114,16 @@ public class OAuth2AuthorizationRequestRedirectWebFilter implements WebFilter {
 		this.authorizationRequestMatcher = new PathPatternParserServerWebExchangeMatcher(
 			authorizationRequestBaseUri + "/{" + REGISTRATION_ID_URI_VARIABLE_NAME + "}");
 		this.clientRegistrationRepository = clientRegistrationRepository;
+	}
+
+	/**
+	 * Sets the authorizationRequestUriBuilder used for storing {@link OAuth2AuthorizationRequestUriBuilder}'s.
+	 *
+	 * @param uriBuilders the authorizationRequestUriBuilder used for storing {@link OAuth2AuthorizationRequestUriBuilder}'s
+	 */
+	public final void setUriBuilders(Map<String, OAuth2AuthorizationRequestUriBuilder> uriBuilders) {
+		Assert.notEmpty(uriBuilders, "uriBuilders cannot be empty");
+		this.uriBuilders = uriBuilders;
 	}
 
 	/**
@@ -151,13 +159,7 @@ public class OAuth2AuthorizationRequestRedirectWebFilter implements WebFilter {
 	private Mono<Void> sendRedirectForAuthorization(ServerWebExchange exchange,
 												ClientRegistration clientRegistration) {
 		return Mono.defer(() -> {
-			String redirectUriStr = this
-					.expandRedirectUri(exchange.getRequest(), clientRegistration);
-
-			Map<String, Object> additionalParameters = new HashMap<>();
-			additionalParameters.put(OAuth2ParameterNames.REGISTRATION_ID,
-					clientRegistration.getRegistrationId());
-
+			String redirectUriStr = this.expandRedirectUri(exchange.getRequest(), clientRegistration);
 			OAuth2AuthorizationRequest.Builder builder;
 			if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(clientRegistration.getAuthorizationGrantType())) {
 				builder = OAuth2AuthorizationRequest.authorizationCode();
@@ -170,20 +172,26 @@ public class OAuth2AuthorizationRequestRedirectWebFilter implements WebFilter {
 						"Invalid Authorization Grant Type (" + clientRegistration.getAuthorizationGrantType().getValue()
 								+ ") for Client Registration with Id: " + clientRegistration.getRegistrationId());
 			}
+			ClientRegistration.ProviderDetails provider = clientRegistration.getProviderDetails();
 			OAuth2AuthorizationRequest authorizationRequest = builder
 					.clientId(clientRegistration.getClientId())
-					.authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri())
+					.authorizationUri(provider.getAuthorizationUri())
 					.redirectUri(redirectUriStr).scopes(clientRegistration.getScopes())
 					.state(this.stateGenerator.generateKey())
-					.additionalParameters(additionalParameters).build();
+					.build();
 
 			Mono<Void> saveAuthorizationRequest = Mono.empty();
 			if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(authorizationRequest.getGrantType())) {
 				saveAuthorizationRequest = this.authorizationRequestRepository
-						.saveAuthorizationRequest(authorizationRequest, exchange);
+						.saveAuthorizationRequest(authorizationRequest, exchange, clientRegistration);
 			}
-
-			URI redirectUri = this.authorizationRequestUriBuilder.build(authorizationRequest);
+			OAuth2AuthorizationRequestUriBuilder uriBuilder = this.uriBuilders.get(provider.getUriBuilderName());
+			if (uriBuilder == null) {
+				throw new IllegalArgumentException("Invalid Uri Builder Name (" +
+						provider.getUriBuilderName() +
+						") for Client Registration with Id: " + clientRegistration.getRegistrationId());
+			}
+			URI redirectUri = uriBuilder.build(authorizationRequest);
 			return saveAuthorizationRequest
 					.then(this.authorizationRedirectStrategy.sendRedirect(exchange, redirectUri));
 		});

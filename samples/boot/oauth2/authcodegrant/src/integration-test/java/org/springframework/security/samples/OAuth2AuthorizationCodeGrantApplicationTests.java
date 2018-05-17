@@ -99,7 +99,7 @@ public class OAuth2AuthorizationCodeGrantApplicationTests {
 		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
 			.authorizationUri(registration.getProviderDetails().getAuthorizationUri())
 			.clientId(registration.getClientId())
-			.redirectUri("http://localhost/github-repos")
+			.redirectUri("http://localhost/authorize/oauth2/code/github")
 			.scopes(registration.getScopes())
 			.state("state")
 			.additionalParameters(additionalParameters)
@@ -109,20 +109,20 @@ public class OAuth2AuthorizationCodeGrantApplicationTests {
 				new HttpSessionOAuth2AuthorizationRequestRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, request, response);
+		authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, request, response, registration);
 
 		MockHttpSession session = (MockHttpSession) request.getSession();
 
 		String principalName = "user";
 
 		// Authorization Response
-		this.mockMvc.perform(get("/github-repos")
+		this.mockMvc.perform(get("/authorize/oauth2/code/github")
 			.param(OAuth2ParameterNames.CODE, "code")
 			.param(OAuth2ParameterNames.STATE, "state")
 			.with(user(principalName))
 			.session(session))
 			.andExpect(status().is3xxRedirection())
-			.andExpect(redirectedUrl("http://localhost/github-repos"));
+			.andExpect(redirectedUrl("http://localhost/authorize/oauth2/code/github"));
 
 		OAuth2AuthorizedClient authorizedClient = this.authorizedClientService.loadAuthorizedClient(
 			registration.getRegistrationId(), principalName);

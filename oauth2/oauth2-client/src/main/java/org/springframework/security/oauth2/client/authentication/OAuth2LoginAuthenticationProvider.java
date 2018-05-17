@@ -101,9 +101,9 @@ public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider
 					authorizationCodeAuthentication.getAuthorizationExchange()));
 
 		OAuth2AccessToken accessToken = accessTokenResponse.getAccessToken();
-
-		OAuth2User oauth2User = this.userService.loadUser(
-			new OAuth2UserRequest(authorizationCodeAuthentication.getClientRegistration(), accessToken));
+		OAuth2UserRequest auth2UserRequest = new OAuth2UserRequest(authorizationCodeAuthentication.getClientRegistration(), accessToken);
+		auth2UserRequest.getAdditionalParameters().putAll(accessTokenResponse.getAdditionalParameters());
+		OAuth2User oauth2User = this.userService.loadUser(auth2UserRequest);
 
 		Collection<? extends GrantedAuthority> mappedAuthorities =
 			this.authoritiesMapper.mapAuthorities(oauth2User.getAuthorities());

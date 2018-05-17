@@ -15,16 +15,16 @@
  */
 package org.springframework.security.web.server;
 
-import java.util.Base64;
-import java.util.function.Function;
-
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.server.ServerWebExchange;
-
 import reactor.core.publisher.Mono;
+
+import java.util.Base64;
+import java.util.Map;
+import java.util.function.BiFunction;
 
 /**
  * Converts from a {@link ServerWebExchange} to an {@link Authentication} that can be authenticated.
@@ -32,14 +32,13 @@ import reactor.core.publisher.Mono;
  * @author Rob Winch
  * @since 5.0
  */
-public class ServerHttpBasicAuthenticationConverter implements Function<ServerWebExchange, Mono<Authentication>> {
+public class ServerHttpBasicAuthenticationConverter implements BiFunction<ServerWebExchange, Map<String, Object>, Mono<Authentication>> {
 
 	public static final String BASIC = "Basic ";
 
 	@Override
-	public Mono<Authentication> apply(ServerWebExchange exchange) {
+	public Mono<Authentication> apply(ServerWebExchange exchange, Map<String, Object> variables) {
 		ServerHttpRequest request = exchange.getRequest();
-
 		String authorization = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
 		if(authorization == null) {
 			return Mono.empty();

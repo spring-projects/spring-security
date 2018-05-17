@@ -80,6 +80,6 @@ public class ServerHttpBasicAuthenticationConverterTests {
 	}
 
 	private Mono<Authentication> apply(MockServerHttpRequest.BaseBuilder<?> request) {
-		return this.converter.apply(MockServerWebExchange.from(this.request.build()));
+		return this.converter.apply(MockServerWebExchange.from(request.build()), null);
 	}
 }

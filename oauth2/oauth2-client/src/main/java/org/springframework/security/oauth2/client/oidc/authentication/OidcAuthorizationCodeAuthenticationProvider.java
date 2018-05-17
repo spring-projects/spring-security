@@ -23,8 +23,8 @@ import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMap
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserExtractor;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
-import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -69,7 +69,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 5.0
  * @see OAuth2LoginAuthenticationToken
  * @see OAuth2AccessTokenResponseClient
- * @see OidcUserService
+ * @see OidcUserExtractor
  * @see OidcUser
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth">Section 3.1 Authorization Code Grant Flow</a>
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#TokenRequest">Section 3.1.3.1 Token Request</a>
@@ -145,8 +145,8 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 		OAuth2AccessToken accessToken = accessTokenResponse.getAccessToken();
 
 		ClientRegistration clientRegistration = authorizationCodeAuthentication.getClientRegistration();
-
-		if (!accessTokenResponse.getAdditionalParameters().containsKey(OidcParameterNames.ID_TOKEN)) {
+		Map<String, Object> additionalParameters = accessTokenResponse.getAdditionalParameters();
+		if (!additionalParameters.containsKey(OidcParameterNames.ID_TOKEN)) {
 			OAuth2Error invalidIdTokenError = new OAuth2Error(
 				INVALID_ID_TOKEN_ERROR_CODE,
 				"Missing (required) ID Token in Token Response for Client Registration: " + clientRegistration.getRegistrationId(),
@@ -155,13 +155,13 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 		}
 
 		JwtDecoder jwtDecoder = this.getJwtDecoder(clientRegistration);
-		Jwt jwt = jwtDecoder.decode((String) accessTokenResponse.getAdditionalParameters().get(OidcParameterNames.ID_TOKEN));
+		Jwt jwt = jwtDecoder.decode((String) additionalParameters.get(OidcParameterNames.ID_TOKEN));
 		OidcIdToken idToken = new OidcIdToken(jwt.getTokenValue(), jwt.getIssuedAt(), jwt.getExpiresAt(), jwt.getClaims());
 
 		this.validateIdToken(idToken, clientRegistration);
-
-		OidcUser oidcUser = this.userService.loadUser(
-			new OidcUserRequest(clientRegistration, accessToken, idToken));
+		OidcUserRequest oidcUserRequest = new OidcUserRequest(clientRegistration, accessToken, idToken);
+		oidcUserRequest.getAdditionalParameters().putAll(additionalParameters);
+		OidcUser oidcUser = this.userService.loadUser(oidcUserRequest);
 
 		Collection<? extends GrantedAuthority> mappedAuthorities =
 			this.authoritiesMapper.mapAuthorities(oidcUser.getAuthorities());
