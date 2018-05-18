@@ -3,7 +3,7 @@ rootProject.name = 'spring-security'
 FileTree buildFiles = fileTree(rootDir) {
 	List excludes = gradle.startParameter.projectProperties.get("excludeProjects")?.split(",")
 	include '**/*.gradle'
-	exclude '**/gradle', 'settings.gradle', 'buildSrc', '/build.gradle', '.*', 'out'
+	exclude 'build', ''**/gradle', 'settings.gradle', 'buildSrc', '/build.gradle', '.*', 'out'
 	exclude '**/grails3'
 	if(excludes) {
 		exclude excludes
