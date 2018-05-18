@@ -25,7 +25,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.config.oauth2.client.oidc.OidcConfigurationProvider;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
@@ -181,17 +180,26 @@ public class OidcConfigurationProviderTests {
 		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC);
 	}
 
+	@Test
+	public void issuerWhenTokenEndpointAuthMethodsPostThenMethodIsPost() throws Exception {
+		this.response.put("token_endpoint_auth_methods_supported", Arrays.asList("client_secret_post"));
+
+		ClientRegistration registration = registration("");
+
+		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.POST);
+	}
+
 	/**
 	 * We currently only support client_secret_basic, so verify we have a meaningful error until we add support.
 	 * @throws Exception
 	 */
 	@Test
 	public void issuerWhenTokenEndpointAuthMethodsInvalidThenException() throws Exception {
-		this.response.put("token_endpoint_auth_methods_supported", Arrays.asList("client_secret_post"));
+		this.response.put("token_endpoint_auth_methods_supported", Arrays.asList("tls_client_auth"));
 
 		assertThatThrownBy(() -> registration(""))
 				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessageContaining("Only ClientAuthenticationMethod.BASIC is supported. The issuer \"" + this.issuer + "\" returned a configuration of [client_secret_post]");
+				.hasMessageContaining("Only ClientAuthenticationMethod.BASIC and ClientAuthenticationMethod.POST are supported. The issuer \"" + this.issuer + "\" returned a configuration of [tls_client_auth]");
 	}
 
 	private ClientRegistration registration(String path) throws Exception {

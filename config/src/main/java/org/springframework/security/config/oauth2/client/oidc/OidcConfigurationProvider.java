@@ -72,13 +72,9 @@ public final class OidcConfigurationProvider {
 		String openidConfiguration = rest.getForObject(issuer + "/.well-known/openid-configuration", String.class);
 		OIDCProviderMetadata metadata = parse(openidConfiguration);
 		String name = URI.create(issuer).getHost();
-		List<com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod> metadataAuthMethods = metadata.getTokenEndpointAuthMethods();
-			// if null, the default includes client_secret_basic
-		if (metadataAuthMethods != null && !metadataAuthMethods.contains(com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod.CLIENT_SECRET_BASIC)) {
-			throw new IllegalArgumentException("Only ClientAuthenticationMethod.BASIC is supported. The issuer \"" + issuer + "\" returned a configuration of " + metadataAuthMethods);
-		}
+		ClientAuthenticationMethod method = getClientAuthenticationMethod(issuer, metadata.getTokenEndpointAuthMethods());
 		List<GrantType> grantTypes = metadata.getGrantTypes();
-			// If null, the default includes authorization_code
+		// If null, the default includes authorization_code
 		if (grantTypes != null && !grantTypes.contains(GrantType.AUTHORIZATION_CODE)) {
 			throw new IllegalArgumentException("Only AuthorizationGrantType.AUTHORIZATION_CODE is supported. The issuer \"" + issuer + "\" returned a configuration of " + grantTypes);
 		}
@@ -87,13 +83,25 @@ public final class OidcConfigurationProvider {
 				.userNameAttributeName(IdTokenClaimNames.SUB)
 				.scope(scopes)
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.clientAuthenticationMethod(method)
 				.redirectUriTemplate("{baseUrl}/{action}/oauth2/code/{registrationId}")
 				.authorizationUri(metadata.getAuthorizationEndpointURI().toASCIIString())
 				.jwkSetUri(metadata.getJWKSetURI().toASCIIString())
 				.userInfoUri(metadata.getUserInfoEndpointURI().toASCIIString())
 				.tokenUri(metadata.getTokenEndpointURI().toASCIIString())
 				.clientName(issuer);
+	}
+
+
+	private static ClientAuthenticationMethod getClientAuthenticationMethod(String issuer, List<com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod> metadataAuthMethods) {
+		if (metadataAuthMethods == null || metadataAuthMethods.contains(com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod.CLIENT_SECRET_BASIC)) {
+			// If null, the default includes client_secret_basic
+			return ClientAuthenticationMethod.BASIC;
+		}
+		if (metadataAuthMethods.contains(com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod.CLIENT_SECRET_POST)) {
+			return ClientAuthenticationMethod.POST;
+		}
+		throw new IllegalArgumentException("Only ClientAuthenticationMethod.BASIC and ClientAuthenticationMethod.POST are supported. The issuer \"" + issuer + "\" returned a configuration of " + metadataAuthMethods);
 	}
 
 	private static List<String> getScopes(OIDCProviderMetadata metadata) {
