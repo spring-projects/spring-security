@@ -68,8 +68,7 @@ public final class OidcConfigurationProvider {
 	 * @return a {@link ClientRegistration.Builder} that was initialized by the OpenID Provider Configuration.
 	 */
 	public static ClientRegistration.Builder issuer(String issuer) {
-		RestTemplate rest = new RestTemplate();
-		String openidConfiguration = rest.getForObject(issuer + "/.well-known/openid-configuration", String.class);
+		String openidConfiguration = getOpenidConfiguration(issuer);
 		OIDCProviderMetadata metadata = parse(openidConfiguration);
 		String name = URI.create(issuer).getHost();
 		ClientAuthenticationMethod method = getClientAuthenticationMethod(issuer, metadata.getTokenEndpointAuthMethods());
@@ -92,6 +91,14 @@ public final class OidcConfigurationProvider {
 				.clientName(issuer);
 	}
 
+	private static String getOpenidConfiguration(String issuer) {
+		RestTemplate rest = new RestTemplate();
+		try {
+			return rest.getForObject(issuer + "/.well-known/openid-configuration", String.class);
+		} catch(RuntimeException e) {
+			throw new IllegalArgumentException("Unable to resolve the OpenID Configuration with the provided Issuer of \"" + issuer + "\"", e);
+		}
+	}
 
 	private static ClientAuthenticationMethod getClientAuthenticationMethod(String issuer, List<com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod> metadataAuthMethods) {
 		if (metadataAuthMethods == null || metadataAuthMethods.contains(com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod.CLIENT_SECRET_BASIC)) {
