@@ -41,15 +41,15 @@ import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 public final class OidcConfigurationProvider {
 
 	/**
-	 * Given the <a href="http://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a> creates a
-	 * {@link ClientRegistration.Builder} by making an
+	 * Creates a {@link ClientRegistration.Builder}  using the provided
+	 * <a href="http://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a> by making an
 	 * <a href="https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest">OpenID Provider
 	 * Configuration Request</a> and using the values in the
 	 * <a href="https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse">OpenID
 	 * Provider Configuration Response</a> to initialize the {@link ClientRegistration.Builder}.
 	 *
 	 * <p>
-	 * For example if the issuer provided is "https://example.com", then an "OpenID Provider Configuration Request" will
+	 * For example, if the issuer provided is "https://example.com", then an "OpenID Provider Configuration Request" will
 	 * be made to "https://example.com/.well-known/openid-configuration". The result is expected to be an "OpenID
 	 * Provider Configuration Response".
 	 * </p>
