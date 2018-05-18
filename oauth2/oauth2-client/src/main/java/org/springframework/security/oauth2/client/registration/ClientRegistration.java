@@ -21,7 +21,6 @@ import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.util.Assert;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -321,20 +320,6 @@ public final class ClientRegistration {
 			if (scope != null && scope.length > 0) {
 				this.scopes = Collections.unmodifiableSet(
 						new LinkedHashSet<>(Arrays.asList(scope)));
-			}
-			return this;
-		}
-
-		/**
-		 * Sets the scope(s) used for the client.
-		 *
-		 * @param scope the scope(s) used for the client
-		 * @return the {@link Builder}
-		 */
-		public Builder scope(Collection<String> scope) {
-			if (scope != null && !scope.isEmpty()) {
-				this.scopes = Collections.unmodifiableSet(
-						new LinkedHashSet<>(scope));
 			}
 			return this;
 		}
