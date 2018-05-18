@@ -202,6 +202,12 @@ public class OidcConfigurationProviderTests {
 				.hasMessageContaining("Only ClientAuthenticationMethod.BASIC and ClientAuthenticationMethod.POST are supported. The issuer \"" + this.issuer + "\" returned a configuration of [tls_client_auth]");
 	}
 
+	@Test
+	public void issuerWhenEmptyStringThenMeaningfulErrorMessage() {
+		assertThatThrownBy(() -> OidcConfigurationProvider.issuer(""))
+			.hasMessageContaining("Unable to resolve the OpenID Configuration with the provided Issuer of \"\"");
+	}
+
 	private ClientRegistration registration(String path) throws Exception {
 		String body = this.mapper.writeValueAsString(this.response);
 		MockResponse mockResponse = new MockResponse()
