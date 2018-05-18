@@ -34,6 +34,7 @@ dependencies {
 	testCompile apachedsDependencies
 	testCompile powerMock2Dependencies
 	testCompile spockDependencies
+	testCompile 'com.squareup.okhttp3:mockwebserver'
 	testCompile 'ch.qos.logback:logback-classic'
 	testCompile 'io.projectreactor.ipc:reactor-netty'
 	testCompile 'javax.annotation:jsr250-api:1.0'
