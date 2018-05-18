@@ -24,6 +24,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
+import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.web.client.RestTemplate;
 
 import com.nimbusds.oauth2.sdk.GrantType;
@@ -99,7 +100,7 @@ public final class OidcConfigurationProvider {
 		Scope scope = metadata.getScopes();
 		if (scope == null) {
 			// If null, default to "openid" which must be supported
-			return Arrays.asList("openid");
+			return Arrays.asList(OidcScopes.OPENID);
 		} else {
 			return scope.toStringList();
 		}
