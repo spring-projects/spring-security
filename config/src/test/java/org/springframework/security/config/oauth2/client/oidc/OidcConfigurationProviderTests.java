@@ -205,20 +205,37 @@ public class OidcConfigurationProviderTests {
 	@Test
 	public void issuerWhenEmptyStringThenMeaningfulErrorMessage() {
 		assertThatThrownBy(() -> OidcConfigurationProvider.issuer(""))
-			.hasMessageContaining("Unable to resolve the OpenID Configuration with the provided Issuer of \"\"");
+				.hasMessageContaining("Unable to resolve the OpenID Configuration with the provided Issuer of \"\"");
 	}
 
-	private ClientRegistration registration(String path) throws Exception {
+	@Test
+	public void issuerWhenOpenIdConfigurationDoesNotMatchThenMeaningfulErrorMessage()  throws Exception {
+		this.issuer = createIssuerFromServer("");
 		String body = this.mapper.writeValueAsString(this.response);
 		MockResponse mockResponse = new MockResponse()
 				.setBody(body)
 				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 		this.server.enqueue(mockResponse);
-		this.issuer = this.server.url(path).toString();
+		assertThatThrownBy(() -> OidcConfigurationProvider.issuer(this.issuer))
+				.hasMessageContaining("The Issuer \"https://example.com\" provided in the OpenID Configuration did not match the requested issuer \"" + this.issuer + "\"");
+	}
+
+	private ClientRegistration registration(String path) throws Exception {
+		this.issuer = createIssuerFromServer(path);
+		this.response.put("issuer", this.issuer);
+		String body = this.mapper.writeValueAsString(this.response);
+		MockResponse mockResponse = new MockResponse()
+				.setBody(body)
+				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+		this.server.enqueue(mockResponse);
 
 		return OidcConfigurationProvider.issuer(this.issuer)
 			.clientId("client-id")
 			.clientSecret("client-secret")
 			.build();
+	}
+
+	private String createIssuerFromServer(String path) {
+		return this.server.url(path).toString();
 	}
 }

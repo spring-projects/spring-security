@@ -70,6 +70,11 @@ public final class OidcConfigurationProvider {
 	public static ClientRegistration.Builder issuer(String issuer) {
 		String openidConfiguration = getOpenidConfiguration(issuer);
 		OIDCProviderMetadata metadata = parse(openidConfiguration);
+		String metadataIssuer = metadata.getIssuer().getValue();
+		if (!issuer.equals(metadataIssuer)) {
+			throw new IllegalStateException("The Issuer \"" + metadataIssuer + "\" provided in the OpenID Configuration did not match the requested issuer \"" + issuer + "\"");
+		}
+
 		String name = URI.create(issuer).getHost();
 		ClientAuthenticationMethod method = getClientAuthenticationMethod(issuer, metadata.getTokenEndpointAuthMethods());
 		List<GrantType> grantTypes = metadata.getGrantTypes();
