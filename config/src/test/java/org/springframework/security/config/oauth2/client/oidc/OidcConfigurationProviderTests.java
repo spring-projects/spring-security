@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.config.oauth2.client;
+package org.springframework.security.config.oauth2.client.oidc;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.config.oauth2.client.oidc.OidcConfigurationProvider;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;

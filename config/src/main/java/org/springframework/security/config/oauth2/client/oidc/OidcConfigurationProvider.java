@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.config.oauth2.client;
+package org.springframework.security.config.oauth2.client.oidc;
 
 import java.net.URI;
 import java.util.Arrays;
