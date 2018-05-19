@@ -17,7 +17,7 @@
 package org.springframework.security.config.oauth2.client.oidc;
 
 import java.net.URI;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -120,7 +120,7 @@ public final class OidcConfigurationProvider {
 		Scope scope = metadata.getScopes();
 		if (scope == null) {
 			// If null, default to "openid" which must be supported
-			return Arrays.asList(OidcScopes.OPENID);
+			return Collections.singletonList(OidcScopes.OPENID);
 		} else {
 			return scope.toStringList();
 		}
