@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 import reactor.core.publisher.Mono;
@@ -92,7 +93,9 @@ import org.springframework.security.web.server.authentication.ServerAuthenticati
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.authentication.ServerFormLoginAuthenticationConverter;
 import org.springframework.security.web.server.authentication.ServerHttpBasicAuthenticationConverter;
+import org.springframework.security.web.server.authentication.logout.DelegatingServerLogoutHandler;
 import org.springframework.security.web.server.authentication.logout.LogoutWebFilter;
+import org.springframework.security.web.server.authentication.logout.SecurityContextServerLogoutHandler;
 import org.springframework.security.web.server.authentication.logout.ServerLogoutHandler;
 import org.springframework.security.web.server.authentication.logout.ServerLogoutSuccessHandler;
 import org.springframework.security.web.server.authorization.AuthorizationContext;
@@ -106,8 +109,10 @@ import org.springframework.security.web.server.context.ReactorContextWebFilter;
 import org.springframework.security.web.server.context.SecurityContextServerWebExchangeWebFilter;
 import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
+import org.springframework.security.web.server.csrf.CsrfServerLogoutHandler;
 import org.springframework.security.web.server.csrf.CsrfWebFilter;
 import org.springframework.security.web.server.csrf.ServerCsrfTokenRepository;
+import org.springframework.security.web.server.csrf.WebSessionServerCsrfTokenRepository;
 import org.springframework.security.web.server.header.CacheControlServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.CompositeServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.ContentSecurityPolicyServerHttpHeadersWriter;
@@ -1538,6 +1543,7 @@ public class ServerHttpSecurity {
 	 */
 	public class CsrfSpec {
 		private CsrfWebFilter filter = new CsrfWebFilter();
+		private ServerCsrfTokenRepository csrfTokenRepository = new WebSessionServerCsrfTokenRepository();
 
 		private boolean specifiedRequireCsrfProtectionMatcher;
 
@@ -1563,7 +1569,7 @@ public class ServerHttpSecurity {
 		 */
 		public CsrfSpec csrfTokenRepository(
 			ServerCsrfTokenRepository csrfTokenRepository) {
-			this.filter.setCsrfTokenRepository(csrfTokenRepository);
+			this.csrfTokenRepository = csrfTokenRepository;
 			return this;
 		}
 
@@ -1600,6 +1606,10 @@ public class ServerHttpSecurity {
 		}
 
 		protected void configure(ServerHttpSecurity http) {
+			Optional.ofNullable(this.csrfTokenRepository).ifPresent(serverCsrfTokenRepository -> {
+				this.filter.setCsrfTokenRepository(serverCsrfTokenRepository);
+				http.logout().logoutHandler(new CsrfServerLogoutHandler(serverCsrfTokenRepository));
+			});
 			http.addFilterAt(this.filter, SecurityWebFiltersOrder.CSRF);
 		}
 
@@ -2332,6 +2342,7 @@ public class ServerHttpSecurity {
 	 */
 	public final class LogoutSpec {
 		private LogoutWebFilter logoutWebFilter = new LogoutWebFilter();
+		private List<ServerLogoutHandler> logoutHandlers = new ArrayList<>(Arrays.asList(new SecurityContextServerLogoutHandler()));
 
 		/**
 		 * Configures the logout handler. Default is {@code SecurityContextServerLogoutHandler}
@@ -2339,7 +2350,10 @@ public class ServerHttpSecurity {
 		 * @return the {@link LogoutSpec} to configure
 		 */
 		public LogoutSpec logoutHandler(ServerLogoutHandler logoutHandler) {
-			this.logoutWebFilter.setLogoutHandler(logoutHandler);
+			if (logoutHandler != null) {
+				this.logoutHandlers.add(logoutHandler);
+			}
+
 			return this;
 		}
 
@@ -2387,7 +2401,19 @@ public class ServerHttpSecurity {
 			return and();
 		}
 
+		private Optional<ServerLogoutHandler> createLogoutHandler() {
+			if (this.logoutHandlers.isEmpty()) {
+				return Optional.empty();
+			}
+			else if (this.logoutHandlers.size() == 1) {
+				return Optional.of(this.logoutHandlers.get(0));
+			}
+
+			return Optional.of(new DelegatingServerLogoutHandler(this.logoutHandlers));
+		}
+
 		protected void configure(ServerHttpSecurity http) {
+			createLogoutHandler().ifPresent(this.logoutWebFilter::setLogoutHandler);
 			http.addFilterAt(this.logoutWebFilter, SecurityWebFiltersOrder.LOGOUT);
 		}
 
