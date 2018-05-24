@@ -140,7 +140,7 @@ public class OAuth2ClientConfigurerTests {
 
 		AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
 				new HttpSessionOAuth2AuthorizationRequestRepository();
-		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, request, response);
 

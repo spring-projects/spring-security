@@ -15,7 +15,10 @@
  */
 package org.springframework.security.config.annotation.web.configurers
 
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.security.core.userdetails.PasswordEncodedUser
+import org.springframework.security.web.firewall.StrictHttpFirewall
 
 import javax.servlet.http.HttpServletResponse
 
@@ -44,7 +47,7 @@ class CsrfConfigurerTests extends BaseSpringSpec {
 	@Unroll
 	def "csrf applied by default"() {
 		setup:
-		loadConfig(CsrfAppliedDefaultConfig)
+		loadConfig(CsrfAppliedDefaultConfig, AllowHttpMethodsFirewallConfig)
 		request.method = httpMethod
 		clearCsrfToken()
 		when:
@@ -66,9 +69,19 @@ class CsrfConfigurerTests extends BaseSpringSpec {
 
 	def "csrf default creates CsrfRequestDataValueProcessor"() {
 		when:
-		loadConfig(CsrfAppliedDefaultConfig)
+		loadConfig(CsrfAppliedDefaultConfig, AllowHttpMethodsFirewallConfig)
 		then:
 		context.getBean(RequestDataValueProcessor)
+	}
+
+	@Configuration
+	static class AllowHttpMethodsFirewallConfig {
+		@Bean
+		StrictHttpFirewall strictHttpFirewall() {
+			StrictHttpFirewall result = new StrictHttpFirewall();
+			result.setAllowedHttpMethods(StrictHttpFirewall.ALLOW_ANY_HTTP_METHOD);
+			return result;
+		}
 	}
 
 	@EnableWebSecurity

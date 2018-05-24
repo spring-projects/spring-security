@@ -104,7 +104,7 @@ public class OAuth2LoginConfigurerTests {
 
 	@Before
 	public void setup() {
-		this.request = new MockHttpServletRequest();
+		this.request = new MockHttpServletRequest("GET", "");
 		this.response = new MockHttpServletResponse();
 		this.filterChain = new MockFilterChain();
 

@@ -93,7 +93,7 @@ class MultiHttpBlockConfigTests extends AbstractHttpConfigTests {
 			UserDetailsService uds = appContext.getBean('uds')
 			UserDetailsService uds2 = appContext.getBean('uds2')
 		when:
-			MockHttpServletRequest request = new MockHttpServletRequest()
+			MockHttpServletRequest request = new MockHttpServletRequest("GET", "")
 			MockHttpServletResponse response = new MockHttpServletResponse()
 			MockFilterChain chain = new MockFilterChain()
 			request.servletPath = "/first/login"
@@ -104,7 +104,7 @@ class MultiHttpBlockConfigTests extends AbstractHttpConfigTests {
 			verify(uds).loadUserByUsername(anyString()) || true
 			verifyZeroInteractions(uds2) || true
 		when:
-			MockHttpServletRequest request2 = new MockHttpServletRequest()
+			MockHttpServletRequest request2 = new MockHttpServletRequest("GET", "")
 			MockHttpServletResponse response2 = new MockHttpServletResponse()
 			MockFilterChain chain2 = new MockFilterChain()
 			request2.servletPath = "/login"

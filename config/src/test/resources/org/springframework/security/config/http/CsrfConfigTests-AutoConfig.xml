@@ -18,10 +18,15 @@
 <b:beans xmlns:b="http://www.springframework.org/schema/beans"
 		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		 xmlns="http://www.springframework.org/schema/security"
+		 xmlns:p="http://www.springframework.org/schema/p"
 		 xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+	<http-firewall ref="firewall"/>
 	<http auto-config="true"/>
 
 	<b:import resource="CsrfConfigTests-shared-userservice.xml"/>
+
+	<b:bean id="firewall" class="org.springframework.security.web.firewall.StrictHttpFirewall"
+			p:unsafeAllowAnyHttpMethod="true"/>
 </b:beans>

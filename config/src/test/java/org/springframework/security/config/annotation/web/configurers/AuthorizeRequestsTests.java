@@ -68,7 +68,7 @@ public class AuthorizeRequestsTests {
 	@Before
 	public void setup() {
 		this.servletContext = spy(new MockServletContext());
-		this.request = new MockHttpServletRequest();
+		this.request = new MockHttpServletRequest("GET", "");
 		this.request.setMethod("GET");
 		this.response = new MockHttpServletResponse();
 		this.chain = new MockFilterChain();

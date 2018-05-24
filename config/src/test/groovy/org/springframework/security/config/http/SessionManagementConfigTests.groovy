@@ -115,7 +115,7 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
 			createAppContext()
 			SessionRegistry registry = appContext.getBean(SessionRegistry)
 			registry.registerNewSession("1", new User("user","password",AuthorityUtils.createAuthorityList("ROLE_USER")))
-			MockHttpServletRequest request = new MockHttpServletRequest()
+			MockHttpServletRequest request = new MockHttpServletRequest("GET", "")
 			MockHttpServletResponse response = new MockHttpServletResponse()
 			String credentials = "user:password"
 			request.addHeader("Authorization", "Basic " + credentials.bytes.encodeBase64())
@@ -134,7 +134,7 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
 				}
 			}
 			createAppContext()
-			MockHttpServletRequest request = new MockHttpServletRequest()
+			MockHttpServletRequest request = new MockHttpServletRequest("GET", "")
 			MockHttpServletResponse response = new MockHttpServletResponse()
 			String originalSessionId = request.session.id
 			String credentials = "user:password"
@@ -282,7 +282,7 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
 			mockBean(SessionAuthenticationStrategy,'ss')
 			createAppContext()
 
-			MockHttpServletRequest request = new MockHttpServletRequest();
+			MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
 			request.getSession();
 			request.servletPath = "/login"
 			request.setMethod("POST");
@@ -343,15 +343,15 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
 			}
 		};
 		when: "First session is established"
-		seshFilter.doFilter(new MockHttpServletRequest(), response, new MockFilterChain());
+		seshFilter.doFilter(new MockHttpServletRequest("GET", ""), response, new MockFilterChain());
 		then: "ok"
 		mockResponse.redirectedUrl == null
 		when: "Second session is established"
-		seshFilter.doFilter(new MockHttpServletRequest(), response, new MockFilterChain());
+		seshFilter.doFilter(new MockHttpServletRequest("GET", ""), response, new MockFilterChain());
 		then: "ok"
 		mockResponse.redirectedUrl == null
 		when: "Third session is established"
-		seshFilter.doFilter(new MockHttpServletRequest(), response, new MockFilterChain());
+		seshFilter.doFilter(new MockHttpServletRequest("GET", ""), response, new MockFilterChain());
 		then: "Rejected"
 		mockResponse.redirectedUrl == "/max-exceeded";
 	}

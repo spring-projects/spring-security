@@ -69,7 +69,7 @@ public class FilterChainProxyTests {
 		fcp = new FilterChainProxy(new DefaultSecurityFilterChain(matcher,
 				Arrays.asList(filter)));
 		fcp.setFilterChainValidator(mock(FilterChainProxy.FilterChainValidator.class));
-		request = new MockHttpServletRequest();
+		request = new MockHttpServletRequest("GET", "");
 		request.setServletPath("/path");
 		response = new MockHttpServletResponse();
 		chain = mock(FilterChain.class);

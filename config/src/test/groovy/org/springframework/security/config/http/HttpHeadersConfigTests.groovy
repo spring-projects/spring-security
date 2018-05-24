@@ -69,7 +69,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 		when:
 			def hf = getFilter(HeaderWriterFilter)
 			MockHttpServletResponse response = new MockHttpServletResponse()
-			hf.doFilter(new MockHttpServletRequest(secure:true), response, new MockFilterChain())
+			hf.doFilter(new MockHttpServletRequest(secure:true, method: "GET"), response, new MockFilterChain())
 		then:
 			assertHeaders(response, defaultHeaders)
 	}
@@ -83,7 +83,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 		when:
 			def hf = getFilter(HeaderWriterFilter)
 			MockHttpServletResponse response = new MockHttpServletResponse()
-			hf.doFilter(new MockHttpServletRequest(secure:true), response, new MockFilterChain())
+			hf.doFilter(new MockHttpServletRequest(secure:true, method: "GET"), response, new MockFilterChain())
 		then:
 			assertHeaders(response, defaultHeaders)
 	}
@@ -98,7 +98,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 
 		def hf = getFilter(HeaderWriterFilter)
 		MockHttpServletResponse response = new MockHttpServletResponse()
-		hf.doFilter(new MockHttpServletRequest(secure:true), response, new MockFilterChain())
+		hf.doFilter(new MockHttpServletRequest(secure:true, method: "GET"), response, new MockFilterChain())
 		def expectedHeaders = [:] << defaultHeaders
 		expectedHeaders['X-Frame-Options'] = 'SAMEORIGIN'
 
@@ -131,7 +131,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 
 		def hf = getFilter(HeaderWriterFilter)
 		MockHttpServletResponse response = new MockHttpServletResponse()
-		hf.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
+		hf.doFilter(new MockHttpServletRequest("GET", ""), response, new MockFilterChain())
 
 		expect:
 		assertHeaders(response, ['X-Content-Type-Options':'nosniff'])
@@ -147,7 +147,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 
 		def hf = getFilter(HeaderWriterFilter)
 		MockHttpServletResponse response = new MockHttpServletResponse()
-		hf.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
+		hf.doFilter(new MockHttpServletRequest("GET", ""), response, new MockFilterChain())
 
 		expect:
 		assertHeaders(response, ['X-Frame-Options':'DENY'])
@@ -163,7 +163,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 
 		def hf = getFilter(HeaderWriterFilter)
 		MockHttpServletResponse response = new MockHttpServletResponse()
-		hf.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
+		hf.doFilter(new MockHttpServletRequest("GET", ""), response, new MockFilterChain())
 
 		expect:
 		assertHeaders(response, ['X-Frame-Options':'DENY'])
@@ -179,7 +179,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 
 		def hf = getFilter(HeaderWriterFilter)
 		MockHttpServletResponse response = new MockHttpServletResponse()
-		hf.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
+		hf.doFilter(new MockHttpServletRequest("GET", ""), response, new MockFilterChain())
 
 		expect:
 		assertHeaders(response, ['X-Frame-Options':'SAMEORIGIN'])
@@ -228,7 +228,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 
 		def hf = getFilter(HeaderWriterFilter)
 		MockHttpServletResponse response = new MockHttpServletResponse()
-		hf.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
+		hf.doFilter(new MockHttpServletRequest("GET", ""), response, new MockFilterChain())
 
 		then:
 		assertHeaders(response, ['X-Frame-Options':'ALLOW-FROM https://example.com'])
@@ -246,7 +246,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 		def hf = getFilter(HeaderWriterFilter)
 		MockHttpServletResponse response = new MockHttpServletResponse()
 
-		def request = new MockHttpServletRequest()
+		def request = new MockHttpServletRequest("GET", "")
 		request.setParameter("from", "https://example.com");
 		hf.doFilter(request, response, new MockFilterChain())
 
@@ -265,7 +265,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 
 		def hf = getFilter(HeaderWriterFilter)
 		MockHttpServletResponse response = new MockHttpServletResponse()
-		hf.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
+		hf.doFilter(new MockHttpServletRequest("GET", ""), response, new MockFilterChain())
 
 		then:
 		assertHeaders(response, ['a':'b'])
@@ -283,7 +283,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 
 		def hf = getFilter(HeaderWriterFilter)
 		MockHttpServletResponse response = new MockHttpServletResponse()
-		hf.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
+		hf.doFilter(new MockHttpServletRequest("GET", ""), response, new MockFilterChain())
 
 		then:
 		assertHeaders(response , ['a':'b', 'c':'d'])
@@ -304,7 +304,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 		when:
 			def hf = getFilter(HeaderWriterFilter)
 			MockHttpServletResponse response = new MockHttpServletResponse()
-			hf.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
+			hf.doFilter(new MockHttpServletRequest("GET", ""), response, new MockFilterChain())
 		then:
 			assertHeaders(response, ['abc':'def'])
 	}
@@ -346,7 +346,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 
 		def hf = getFilter(HeaderWriterFilter)
 		MockHttpServletResponse response = new MockHttpServletResponse()
-		hf.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
+		hf.doFilter(new MockHttpServletRequest("GET", ""), response, new MockFilterChain())
 
 		then:
 		assertHeaders(response, ['X-XSS-Protection':'1; mode=block'])
@@ -363,7 +363,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 
 		def hf = getFilter(HeaderWriterFilter)
 		MockHttpServletResponse response = new MockHttpServletResponse()
-		hf.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
+		hf.doFilter(new MockHttpServletRequest("GET", ""), response, new MockFilterChain())
 
 		then:
 		assertHeaders(response, ['X-XSS-Protection':'1; mode=block'])
@@ -380,7 +380,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 
 		def hf = getFilter(HeaderWriterFilter)
 		MockHttpServletResponse response = new MockHttpServletResponse()
-		hf.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
+		hf.doFilter(new MockHttpServletRequest("GET", ""), response, new MockFilterChain())
 
 		then:
 		assertHeaders(response, ['X-XSS-Protection':'0'])
@@ -413,7 +413,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 			def springSecurityFilterChain = appContext.getBean(FilterChainProxy)
 			MockHttpServletResponse response = new MockHttpServletResponse()
 		when:
-			springSecurityFilterChain.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
+			springSecurityFilterChain.doFilter(new MockHttpServletRequest("GET", ""), response, new MockFilterChain())
 		then:
 			assertHeaders(response, ['Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate',
 									'Expires' : '0',
@@ -431,7 +431,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 			def springSecurityFilterChain = appContext.getBean(FilterChainProxy)
 			MockHttpServletResponse response = new MockHttpServletResponse()
 		when:
-			springSecurityFilterChain.doFilter(new MockHttpServletRequest(secure:true), response, new MockFilterChain())
+			springSecurityFilterChain.doFilter(new MockHttpServletRequest(secure:true, method: "GET"), response, new MockFilterChain())
 		then:
 			assertHeaders(response, ['Strict-Transport-Security': 'max-age=31536000 ; includeSubDomains'])
 	}
@@ -447,7 +447,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 			def springSecurityFilterChain = appContext.getBean(FilterChainProxy)
 			MockHttpServletResponse response = new MockHttpServletResponse()
 		when:
-			springSecurityFilterChain.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
+			springSecurityFilterChain.doFilter(new MockHttpServletRequest("GET", ""), response, new MockFilterChain())
 		then:
 			response.headerNames.empty
 	}
@@ -465,7 +465,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 			def springSecurityFilterChain = appContext.getBean(FilterChainProxy)
 			MockHttpServletResponse response = new MockHttpServletResponse()
 		when:
-			springSecurityFilterChain.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
+			springSecurityFilterChain.doFilter(new MockHttpServletRequest("GET", ""), response, new MockFilterChain())
 		then:
 			assertHeaders(response, ['Strict-Transport-Security': 'max-age=1'])
 	}
@@ -515,7 +515,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 			def springSecurityFilterChain = appContext.getBean(FilterChainProxy)
 			MockHttpServletResponse response = new MockHttpServletResponse()
 		when:
-			springSecurityFilterChain.doFilter(new MockHttpServletRequest(secure:true), response, new MockFilterChain())
+			springSecurityFilterChain.doFilter(new MockHttpServletRequest(secure:true, method: "GET"), response, new MockFilterChain())
 		then:
 			assertHeaders(response, ['Public-Key-Pins-Report-Only': 'max-age=5184000 ; pin-sha256="d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM="'])
 	}
@@ -535,7 +535,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 						def springSecurityFilterChain = appContext.getBean(FilterChainProxy)
 						MockHttpServletResponse response = new MockHttpServletResponse()
 				when:
-						springSecurityFilterChain.doFilter(new MockHttpServletRequest(secure:true), response, new MockFilterChain())
+						springSecurityFilterChain.doFilter(new MockHttpServletRequest(secure:true, method: "GET"), response, new MockFilterChain())
 				then:
 						assertHeaders(response, ['Public-Key-Pins-Report-Only': 'max-age=5184000 ; pin-sha256="d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM="'])
 		}
@@ -555,7 +555,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 						def springSecurityFilterChain = appContext.getBean(FilterChainProxy)
 						MockHttpServletResponse response = new MockHttpServletResponse()
 		when:
-				springSecurityFilterChain.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
+				springSecurityFilterChain.doFilter(new MockHttpServletRequest("GET", ""), response, new MockFilterChain())
 		then:
 				response.headerNames.empty
 	}
@@ -575,7 +575,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 						def springSecurityFilterChain = appContext.getBean(FilterChainProxy)
 						MockHttpServletResponse response = new MockHttpServletResponse()
 				when:
-						springSecurityFilterChain.doFilter(new MockHttpServletRequest(secure:true), response, new MockFilterChain())
+						springSecurityFilterChain.doFilter(new MockHttpServletRequest(secure:true, method: "GET"), response, new MockFilterChain())
 				then:
 						assertHeaders(response, ['Public-Key-Pins-Report-Only': 'max-age=604800 ; pin-sha256="d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM="'])
 		}
@@ -595,7 +595,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 						def springSecurityFilterChain = appContext.getBean(FilterChainProxy)
 						MockHttpServletResponse response = new MockHttpServletResponse()
 				when:
-						springSecurityFilterChain.doFilter(new MockHttpServletRequest(secure: true), response, new MockFilterChain())
+						springSecurityFilterChain.doFilter(new MockHttpServletRequest(secure: true, method: "GET"), response, new MockFilterChain())
 				then:
 						assertHeaders(response, ['Public-Key-Pins': 'max-age=5184000 ; pin-sha256="E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g="'])
 		}
@@ -615,7 +615,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 						def springSecurityFilterChain = appContext.getBean(FilterChainProxy)
 						MockHttpServletResponse response = new MockHttpServletResponse()
 				when:
-						springSecurityFilterChain.doFilter(new MockHttpServletRequest(secure: true), response, new MockFilterChain())
+						springSecurityFilterChain.doFilter(new MockHttpServletRequest(secure: true, method: "GET"), response, new MockFilterChain())
 				then:
 						assertHeaders(response, ['Public-Key-Pins-Report-Only': 'max-age=5184000 ; pin-sha256="E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=" ; includeSubDomains'])
 		}
@@ -635,7 +635,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 						def springSecurityFilterChain = appContext.getBean(FilterChainProxy)
 						MockHttpServletResponse response = new MockHttpServletResponse()
 				when:
-						springSecurityFilterChain.doFilter(new MockHttpServletRequest(secure: true), response, new MockFilterChain())
+						springSecurityFilterChain.doFilter(new MockHttpServletRequest(secure: true, method: "GET"), response, new MockFilterChain())
 				then:
 						assertHeaders(response, ['Public-Key-Pins-Report-Only': 'max-age=5184000 ; pin-sha256="E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=" ; report-uri="http://example.net/pkp-report"'])
 		}
@@ -657,7 +657,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 			expectedHeaders.remove('Expires')
 			expectedHeaders.remove('Pragma')
 		when:
-			springSecurityFilterChain.doFilter(new MockHttpServletRequest(secure:true), response, new MockFilterChain())
+			springSecurityFilterChain.doFilter(new MockHttpServletRequest(secure:true, method: "GET"), response, new MockFilterChain())
 		then:
 			assertHeaders(response, expectedHeaders)
 	}
@@ -675,7 +675,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 			def expectedHeaders = [:] << defaultHeaders
 			expectedHeaders.remove('X-Content-Type-Options')
 		when:
-			springSecurityFilterChain.doFilter(new MockHttpServletRequest(secure:true), response, new MockFilterChain())
+			springSecurityFilterChain.doFilter(new MockHttpServletRequest(secure:true, method: "GET"), response, new MockFilterChain())
 		then:
 			assertHeaders(response, expectedHeaders)
 	}
@@ -693,7 +693,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 			def expectedHeaders = [:] << defaultHeaders
 			expectedHeaders.remove('Strict-Transport-Security')
 		when:
-			springSecurityFilterChain.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
+			springSecurityFilterChain.doFilter(new MockHttpServletRequest("GET", ""), response, new MockFilterChain())
 		then:
 			assertHeaders(response, expectedHeaders)
 	}
@@ -714,7 +714,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 						MockHttpServletResponse response = new MockHttpServletResponse()
 						def expectedHeaders = [:] << defaultHeaders
 		when:
-				springSecurityFilterChain.doFilter(new MockHttpServletRequest(secure:true), response, new MockFilterChain())
+				springSecurityFilterChain.doFilter(new MockHttpServletRequest(secure:true, method: "GET"), response, new MockFilterChain())
 		then:
 				assertHeaders(response, expectedHeaders)
 	}
@@ -732,7 +732,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 			def expectedHeaders = [:] << defaultHeaders
 			expectedHeaders.remove('X-Frame-Options')
 		when:
-			springSecurityFilterChain.doFilter(new MockHttpServletRequest(secure:true), response, new MockFilterChain())
+			springSecurityFilterChain.doFilter(new MockHttpServletRequest(secure:true, method: "GET"), response, new MockFilterChain())
 		then:
 			assertHeaders(response, expectedHeaders)
 	}
@@ -750,7 +750,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 			def expectedHeaders = [:] << defaultHeaders
 			expectedHeaders.remove('X-XSS-Protection')
 		when:
-			springSecurityFilterChain.doFilter(new MockHttpServletRequest(secure:true), response, new MockFilterChain())
+			springSecurityFilterChain.doFilter(new MockHttpServletRequest(secure:true, method: "GET"), response, new MockFilterChain())
 		then:
 			assertHeaders(response, expectedHeaders)
 	}
@@ -853,7 +853,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 		when:
 			def hf = getFilter(HeaderWriterFilter)
 			MockHttpServletResponse response = new MockHttpServletResponse()
-			hf.doFilter(new MockHttpServletRequest(secure:true), response, new MockFilterChain())
+			hf.doFilter(new MockHttpServletRequest(secure:true, method: "GET"), response, new MockFilterChain())
 			def expectedHeaders = [:] << defaultHeaders
 			expectedHeaders['Content-Security-Policy'] = 'default-src \'self\''
 		then:
@@ -885,7 +885,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 		when:
 			def hf = getFilter(HeaderWriterFilter)
 			MockHttpServletResponse response = new MockHttpServletResponse()
-			hf.doFilter(new MockHttpServletRequest(secure:true), response, new MockFilterChain())
+			hf.doFilter(new MockHttpServletRequest(secure:true, method: "GET"), response, new MockFilterChain())
 		then:
 			assertHeaders(response, ['Content-Security-Policy':'default-src \'self\''])
 	}
@@ -913,7 +913,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 		when:
 			def hf = getFilter(HeaderWriterFilter)
 			MockHttpServletResponse response = new MockHttpServletResponse()
-			hf.doFilter(new MockHttpServletRequest(secure:true), response, new MockFilterChain())
+			hf.doFilter(new MockHttpServletRequest(secure:true, method: "GET"), response, new MockFilterChain())
 			def expectedHeaders = [:] << defaultHeaders
 			expectedHeaders['Content-Security-Policy-Report-Only'] = 'default-src https:; report-uri https://example.com/'
 		then:
@@ -931,7 +931,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 		when:
 			def hf = getFilter(HeaderWriterFilter)
 			MockHttpServletResponse response = new MockHttpServletResponse()
-			hf.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
+			hf.doFilter(new MockHttpServletRequest("GET", ""), response, new MockFilterChain())
 		then:
 			assertHeaders(response, ['Referrer-Policy': 'no-referrer'])
 	}
@@ -947,7 +947,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 		when:
 			def hf = getFilter(HeaderWriterFilter)
 			MockHttpServletResponse response = new MockHttpServletResponse()
-			hf.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
+			hf.doFilter(new MockHttpServletRequest("GET", ""), response, new MockFilterChain())
 		then:
 			assertHeaders(response, ['Referrer-Policy': 'same-origin'])
 	}

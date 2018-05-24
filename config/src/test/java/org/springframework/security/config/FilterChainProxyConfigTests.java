@@ -152,7 +152,7 @@ public class FilterChainProxyConfigTests {
 	}
 
 	private void doNormalOperation(FilterChainProxy filterChainProxy) throws Exception {
-		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
 		request.setServletPath("/foo/secure/super/somefile.html");
 
 		MockHttpServletResponse response = new MockHttpServletResponse();

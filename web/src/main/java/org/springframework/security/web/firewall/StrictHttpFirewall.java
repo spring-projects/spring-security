@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.firewall;
 
+import org.springframework.http.HttpMethod;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
@@ -34,6 +36,11 @@ import java.util.Set;
  * The following rules are applied to the firewall:
  * </p>
  * <ul>
+ * <li>
+ * Rejects HTTP methods that are not allowed. This specified to block
+ * <a href="https://www.owasp.org/index.php/Test_HTTP_Methods_(OTG-CONFIG-006)">HTTP Verb tampering and XST attacks</a>.
+ * See {@link #setAllowedHttpMethods(Collection)}
+ * </li>
  * <li>
  * Rejects URLs that are not normalized to avoid bypassing security constraints. There is
  * no way to disable this as it is considered extremely risky to disable this constraint.
@@ -66,6 +73,11 @@ import java.util.Set;
  * @since 4.2.4
  */
 public class StrictHttpFirewall implements HttpFirewall {
+	/**
+	 * Used to specify to {@link #setAllowedHttpMethods(Collection)} that any HTTP method should be allowed.
+	 */
+	private static final Set<String> ALLOW_ANY_HTTP_METHOD = Collections.unmodifiableSet(Collections.emptySet());
+
 	private static final String ENCODED_PERCENT = "%25";
 
 	private static final String PERCENT = "%";
@@ -82,6 +94,8 @@ public class StrictHttpFirewall implements HttpFirewall {
 
 	private Set<String> decodedUrlBlacklist = new HashSet<String>();
 
+	private Set<String> allowedHttpMethods = createDefaultAllowedHttpMethods();
+
 	public StrictHttpFirewall() {
 		urlBlacklistsAddAll(FORBIDDEN_SEMICOLON);
 		urlBlacklistsAddAll(FORBIDDEN_FORWARDSLASH);
@@ -90,6 +104,39 @@ public class StrictHttpFirewall implements HttpFirewall {
 		this.encodedUrlBlacklist.add(ENCODED_PERCENT);
 		this.encodedUrlBlacklist.addAll(FORBIDDEN_ENCODED_PERIOD);
 		this.decodedUrlBlacklist.add(PERCENT);
+	}
+
+	/**
+	 * Sets if any HTTP method is allowed. If this set to true, then no validation on the HTTP method will be performed.
+	 * This can open the application up to <a href="https://www.owasp.org/index.php/Test_HTTP_Methods_(OTG-CONFIG-006)">
+	 * HTTP Verb tampering and XST attacks</a>
+	 * @param unsafeAllowAnyHttpMethod if true, disables HTTP method validation, else resets back to the defaults. Default is false.
+	 * @see #setAllowedHttpMethods(Collection)
+	 * @since 5.1
+	 */
+	public void setUnsafeAllowAnyHttpMethod(boolean unsafeAllowAnyHttpMethod) {
+		this.allowedHttpMethods = unsafeAllowAnyHttpMethod ? ALLOW_ANY_HTTP_METHOD : createDefaultAllowedHttpMethods();
+	}
+
+	/**
+	 * <p>
+	 * Determines which HTTP methods should be allowed. The default is to allow "DELETE", "GET", "HEAD", "OPTIONS",
+	 * "PATCH", "POST", and "PUT".
+	 * </p>
+	 *
+	 * @param allowedHttpMethods the case-sensitive collection of HTTP methods that are allowed.
+	 * @see #setUnsafeAllowAnyHttpMethod(boolean)
+	 * @since 5.1
+	 */
+	public void setAllowedHttpMethods(Collection<String> allowedHttpMethods) {
+		if (allowedHttpMethods == null) {
+			throw new IllegalArgumentException("allowedHttpMethods cannot be null");
+		}
+		if (allowedHttpMethods == ALLOW_ANY_HTTP_METHOD) {
+			this.allowedHttpMethods = ALLOW_ANY_HTTP_METHOD;
+		} else {
+			this.allowedHttpMethods = new HashSet<>(allowedHttpMethods);
+		}
 	}
 
 	/**
@@ -242,6 +289,7 @@ public class StrictHttpFirewall implements HttpFirewall {
 
 	@Override
 	public FirewalledRequest getFirewalledRequest(HttpServletRequest request) throws RequestRejectedException {
+		rejectForbiddenHttpMethod(request);
 		rejectedBlacklistedUrls(request);
 
 		if (!isNormalized(request)) {
@@ -257,6 +305,18 @@ public class StrictHttpFirewall implements HttpFirewall {
 			public void reset() {
 			}
 		};
+	}
+
+	private void rejectForbiddenHttpMethod(HttpServletRequest request) {
+		if (this.allowedHttpMethods == ALLOW_ANY_HTTP_METHOD) {
+			return;
+		}
+		if (!this.allowedHttpMethods.contains(request.getMethod())) {
+			throw new RequestRejectedException("The request was rejected because the HTTP method \"" +
+					request.getMethod() +
+					"\" was not included within the whitelist " +
+					this.allowedHttpMethods);
+		}
 	}
 
 	private void rejectedBlacklistedUrls(HttpServletRequest request) {
@@ -275,6 +335,18 @@ public class StrictHttpFirewall implements HttpFirewall {
 	@Override
 	public HttpServletResponse getFirewalledResponse(HttpServletResponse response) {
 		return new FirewalledResponse(response);
+	}
+
+	private static Set<String> createDefaultAllowedHttpMethods() {
+		Set<String> result = new HashSet<>();
+		result.add(HttpMethod.DELETE.name());
+		result.add(HttpMethod.GET.name());
+		result.add(HttpMethod.HEAD.name());
+		result.add(HttpMethod.OPTIONS.name());
+		result.add(HttpMethod.PATCH.name());
+		result.add(HttpMethod.POST.name());
+		result.add(HttpMethod.PUT.name());
+		return result;
 	}
 
 	private static boolean isNormalized(HttpServletRequest request) {

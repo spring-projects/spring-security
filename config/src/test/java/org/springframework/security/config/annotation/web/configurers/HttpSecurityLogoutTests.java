@@ -52,7 +52,7 @@ public class HttpSecurityLogoutTests {
 
 	@Before
 	public void setup() {
-		request = new MockHttpServletRequest();
+		request = new MockHttpServletRequest("GET", "");
 		response = new MockHttpServletResponse();
 		chain = new MockFilterChain();
 	}
