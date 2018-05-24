@@ -17,19 +17,19 @@
 package org.springframework.security.web.server.authentication.logout;
 
 import org.springframework.http.HttpMethod;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.util.Assert;
-import reactor.core.publisher.Mono;
-
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
+import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
+
+import reactor.core.publisher.Mono;
 
 /**
  * If the request matches, logs an authenticated user out by delegating to a
@@ -85,9 +85,36 @@ public class LogoutWebFilter implements WebFilter {
 		this.logoutSuccessHandler = logoutSuccessHandler;
 	}
 
+	/**
+	 * Sets the {@link ServerLogoutHandler}. The default is {@link SecurityContextServerLogoutHandler}.
+	 * @param logoutHandler The handler to use
+	 * @see #addLogoutHandler(ServerLogoutHandler)
+	 */
 	public void setLogoutHandler(ServerLogoutHandler logoutHandler) {
 		Assert.notNull(logoutHandler, "logoutHandler must not be null");
 		this.logoutHandler = logoutHandler;
+	}
+
+	/**
+	 * Adds an additional {@link ServerLogoutHandler} to use.
+	 * @param logoutHandler The additional handler to use
+	 * @see #setLogoutHandler(ServerLogoutHandler)
+	 * @since 5.1
+	 */
+	public void addLogoutHandler(ServerLogoutHandler logoutHandler) {
+		Assert.notNull(logoutHandler, "logoutHandler must not be null");
+
+		if (this.logoutHandler != null) {
+			if (this.logoutHandler instanceof DelegatingServerLogoutHandler) {
+				((DelegatingServerLogoutHandler) this.logoutHandler).addDelegate(logoutHandler);
+			}
+			else {
+				this.logoutHandler = new DelegatingServerLogoutHandler(this.logoutHandler, logoutHandler);
+			}
+		}
+		else {
+			setLogoutHandler(logoutHandler);
+		}
 	}
 
 	public void setRequiresLogoutMatcher(ServerWebExchangeMatcher requiresLogoutMatcher) {

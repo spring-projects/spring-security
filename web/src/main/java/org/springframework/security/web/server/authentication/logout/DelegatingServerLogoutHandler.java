@@ -18,7 +18,9 @@ package org.springframework.security.web.server.authentication.logout;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -35,21 +37,34 @@ import reactor.core.publisher.Mono;
  * @since 5.1
  */
 public class DelegatingServerLogoutHandler implements ServerLogoutHandler {
-	private final List<ServerLogoutHandler> delegates;
+	private final List<ServerLogoutHandler> delegates = new ArrayList<>();
 
 	public DelegatingServerLogoutHandler(ServerLogoutHandler... delegates) {
 		Assert.notEmpty(delegates, "delegates cannot be null or empty");
-		this.delegates = Arrays.asList(delegates);
+		this.delegates.addAll(Arrays.asList(delegates));
 	}
 
-	public DelegatingServerLogoutHandler(List<ServerLogoutHandler> delegates) {
+	public DelegatingServerLogoutHandler(Collection<ServerLogoutHandler> delegates) {
 		Assert.notEmpty(delegates, "delegates cannot be null or empty");
-		this.delegates = new ArrayList<>(delegates);
+		this.delegates.addAll(delegates);
+	}
+
+	/**
+	 * Adds a delegate {@link ServerLogoutHandler}
+	 *
+	 * @param delegate The delegate to add
+	 */
+	public void addDelegate(ServerLogoutHandler delegate) {
+		Assert.notNull(delegate, "delegate cannot be null");
+		this.delegates.add(delegate);
 	}
 
 	@Override
 	public Mono<Void> logout(WebFilterExchange exchange, Authentication authentication) {
-		Stream<Mono<Void>> results = this.delegates.stream().map(delegate -> delegate.logout(exchange, authentication));
+		Stream<Mono<Void>> results = this.delegates.stream()
+				.filter(Objects::nonNull)
+				.map(delegate -> delegate.logout(exchange, authentication));
+
 		return Mono.when(results.collect(Collectors.toList()));
 	}
 }

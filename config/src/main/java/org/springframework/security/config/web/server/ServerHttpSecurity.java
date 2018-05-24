@@ -106,6 +106,7 @@ import org.springframework.security.web.server.context.ReactorContextWebFilter;
 import org.springframework.security.web.server.context.SecurityContextServerWebExchangeWebFilter;
 import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
+import org.springframework.security.web.server.csrf.CsrfServerLogoutHandler;
 import org.springframework.security.web.server.csrf.CsrfWebFilter;
 import org.springframework.security.web.server.csrf.ServerCsrfTokenRepository;
 import org.springframework.security.web.server.header.CacheControlServerHttpHeadersWriter;
@@ -1600,6 +1601,7 @@ public class ServerHttpSecurity {
 		}
 
 		protected void configure(ServerHttpSecurity http) {
+			http.logout().additionalLogoutHandler(new CsrfServerLogoutHandler(this.filter.getCsrfTokenRepository()));
 			http.addFilterAt(this.filter, SecurityWebFiltersOrder.CSRF);
 		}
 
@@ -2343,9 +2345,22 @@ public class ServerHttpSecurity {
 		 * Configures the logout handler. Default is {@code SecurityContextServerLogoutHandler}
 		 * @param logoutHandler
 		 * @return the {@link LogoutSpec} to configure
+		 * @see #additionalLogoutHandler(ServerLogoutHandler)
 		 */
 		public LogoutSpec logoutHandler(ServerLogoutHandler logoutHandler) {
 			this.logoutWebFilter.setLogoutHandler(logoutHandler);
+			return this;
+		}
+
+		/**
+		 * Configutes an additional logout handler.
+		 * @param logoutHandler The additional handler to use
+		 * @return This instance
+		 * @since 5.1
+		 * @see #logoutHandler(ServerLogoutHandler)
+		 */
+		public LogoutSpec additionalLogoutHandler(ServerLogoutHandler logoutHandler) {
+			this.logoutWebFilter.addLogoutHandler(logoutHandler);
 			return this;
 		}
 
