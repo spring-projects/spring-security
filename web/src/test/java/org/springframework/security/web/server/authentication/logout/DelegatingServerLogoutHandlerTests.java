@@ -30,6 +30,8 @@ import org.springframework.security.web.server.WebFilterExchange;
 
 import reactor.test.publisher.PublisherProbe;
 
+import java.util.List;
+
 /**
  * @author Eric Deandrea
  * @since 5.1
@@ -57,8 +59,16 @@ public class DelegatingServerLogoutHandlerTests {
 	}
 
 	@Test
-	public void constructorWhenNullThenIllegalArgumentException() {
+	public void constructorWhenNullVargsThenIllegalArgumentException() {
 		assertThatThrownBy(() -> new DelegatingServerLogoutHandler((ServerLogoutHandler[]) null))
+				.isExactlyInstanceOf(IllegalArgumentException.class)
+				.hasMessage("delegates cannot be null or empty")
+				.hasNoCause();
+	}
+
+	@Test
+	public void constructorWhenNullListThenIllegalArgumentException() {
+		assertThatThrownBy(() -> new DelegatingServerLogoutHandler((List<ServerLogoutHandler>) null))
 				.isExactlyInstanceOf(IllegalArgumentException.class)
 				.hasMessage("delegates cannot be null or empty")
 				.hasNoCause();
