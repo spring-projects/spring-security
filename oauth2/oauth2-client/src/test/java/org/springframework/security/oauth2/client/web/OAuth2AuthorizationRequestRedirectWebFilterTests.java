@@ -21,6 +21,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.security.oauth2.client.ClientAuthorizationRequiredException;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -132,5 +133,16 @@ public class OAuth2AuthorizationRequestRedirectWebFilterTests {
 					.hasParameter("redirect_uri", "https://example.com/login/oauth2/code/github");
 		});
 		verify(this.authzRequestRepository).saveAuthorizationRequest(any(), any());
+	}
+
+	@Test
+	public void filterWhenExceptionThenRedirected() {
+		FilteringWebHandler webHandler = new FilteringWebHandler(e -> Mono.error(new ClientAuthorizationRequiredException(this.github.getRegistrationId())), Arrays.asList(this.filter));
+		this.client = WebTestClient.bindToWebHandler(webHandler).build();
+		FluxExchangeResult<String> result = this.client.get()
+				.uri("https://example.com/foo").exchange()
+				.expectStatus()
+				.is3xxRedirection()
+				.returnResult(String.class);
 	}
 }

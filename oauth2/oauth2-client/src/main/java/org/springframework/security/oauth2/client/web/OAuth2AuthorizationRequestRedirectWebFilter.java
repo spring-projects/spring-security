@@ -136,6 +136,7 @@ public class OAuth2AuthorizationRequestRedirectWebFilter implements WebFilter {
 			.map(ServerWebExchangeMatcher.MatchResult::getVariables)
 			.map(variables -> variables.get(REGISTRATION_ID_URI_VARIABLE_NAME))
 			.cast(String.class)
+			.onErrorResume(ClientAuthorizationRequiredException.class, e -> Mono.just(e.getClientRegistrationId()))
 			.flatMap(clientRegistrationId -> this.findByRegistrationId(exchange, clientRegistrationId))
 			.flatMap(clientRegistration -> sendRedirectForAuthorization(exchange, clientRegistration));
 	}
