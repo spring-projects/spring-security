@@ -16,6 +16,7 @@
 
 package org.springframework.security.web.server.authentication.logout;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,6 +40,11 @@ public class DelegatingServerLogoutHandler implements ServerLogoutHandler {
 	public DelegatingServerLogoutHandler(ServerLogoutHandler... delegates) {
 		Assert.notEmpty(delegates, "delegates cannot be null or empty");
 		this.delegates = Arrays.asList(delegates);
+	}
+
+	public DelegatingServerLogoutHandler(List<ServerLogoutHandler> delegates) {
+		Assert.notEmpty(delegates, "delegates cannot be null or empty");
+		this.delegates = new ArrayList<>(delegates);
 	}
 
 	@Override
