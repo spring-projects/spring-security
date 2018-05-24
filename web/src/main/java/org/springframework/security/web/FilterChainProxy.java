@@ -238,7 +238,7 @@ public class FilterChainProxy extends GenericFilterBean {
 	 * @return matching filter list
 	 */
 	public List<Filter> getFilters(String url) {
-		return getFilters(firewall.getFirewalledRequest((new FilterInvocation(url, null)
+		return getFilters(firewall.getFirewalledRequest((new FilterInvocation(url, "GET")
 				.getRequest())));
 	}
 

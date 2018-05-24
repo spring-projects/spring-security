@@ -493,7 +493,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 	}
 
 	private MockHttpServletRequest sockjsHttpRequest(String mapping) {
-		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
 		request.setMethod("GET");
 		request.setAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE,
 				"/289/tpyx6mde/websocket");

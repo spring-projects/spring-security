@@ -274,7 +274,7 @@ public class WebSecurityConfigurationTests {
 	public void securityExpressionHandlerWhenPermissionEvaluatorBeanThenPermissionEvaluatorUsed() throws Exception {
 		this.spring.register(WebSecurityExpressionHandlerPermissionEvaluatorBeanConfig.class).autowire();
 		TestingAuthenticationToken authentication = new TestingAuthenticationToken("user", "notused");
-		FilterInvocation invocation = new FilterInvocation(new MockHttpServletRequest(), new MockHttpServletResponse(), new MockFilterChain());
+		FilterInvocation invocation = new FilterInvocation(new MockHttpServletRequest("GET", ""), new MockHttpServletResponse(), new MockFilterChain());
 
 		AbstractSecurityExpressionHandler handler = this.spring.getContext().getBean(AbstractSecurityExpressionHandler.class);
 		EvaluationContext evaluationContext = handler.createEvaluationContext(authentication, invocation);

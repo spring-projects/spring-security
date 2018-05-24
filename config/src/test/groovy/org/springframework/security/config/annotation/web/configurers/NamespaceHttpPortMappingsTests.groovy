@@ -44,7 +44,7 @@ public class NamespaceHttpPortMappingsTests extends BaseSpringSpec {
 	MockFilterChain chain
 
 	def setup() {
-		request = new MockHttpServletRequest()
+		request = new MockHttpServletRequest("GET", "")
 		request.setMethod("GET")
 		response = new MockHttpServletResponse()
 		chain = new MockFilterChain()

@@ -179,6 +179,45 @@ public StrictHttpFirewall httpFirewall() {
 }
 ----
 
+The `StrictHttpFirewall` provides a whitelist of valid HTTP methods that are allowed to protect against https://www.owasp.org/index.php/Cross_Site_Tracing[Cross Site Tracing (XST)] and https://www.owasp.org/index.php/Test_HTTP_Methods_(OTG-CONFIG-006)[HTTP Verb Tampering].
+The default valid methods are "DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", and "PUT".
+If your application needs to modify the valid methods, you can configure a custom `StrictHttpFirewall` bean.
+For example, the following will only allow HTTP "GET" and "POST" methods:
+
+
+[source,xml]
+----
+<b:bean id="httpFirewall"
+      class="org.springframework.security.web.firewall.StrictHttpFirewall"
+      p:allowedHttpMethods="GET,HEAD"/>
+
+<http-firewall ref="httpFirewall"/>
+----
+
+The same thing can be achieved with Java Configuration by exposing a `StrictHttpFirewall` bean.
+
+[source,java]
+----
+@Bean
+public StrictHttpFirewall httpFirewall() {
+    StrictHttpFirewall firewall = new StrictHttpFirewall();
+    firewall.setAllowedHttpMethods(Arrays.asList("GET", "POST"));
+    return firewall;
+}
+----
+
+[TIP]
+====
+If you are using `new MockHttpServletRequest()` it currently creates an HTTP method as an empty String "".
+This is an invalid HTTP method and will be rejected by Spring Security.
+You can resolve this by replacing it with `new MockHttpServletRequest("GET", "")`.
+See https://jira.spring.io/browse/SPR-16851[SPR_16851] for an issue requesting to improve this.
+====
+
+If you must allow any HTTP method (not recommended), you can use `StrictHttpFirewall.setUnsafeAllowAnyHttpMethod(true)`.
+This will disable validation of the HTTP method entirely.
+
+
 === Use with other Filter-Based Frameworks
 If you're using some other framework that is also filter-based, then you need to make sure that the Spring Security filters come first.
 This enables the `SecurityContextHolder` to be populated in time for use by the other filters.

@@ -270,7 +270,7 @@ public class RememberMeConfigurerTests extends BaseSpringSpec {
 	}
 
 	Cookie createRememberMeCookie() {
-		MockHttpServletRequest request = new MockHttpServletRequest()
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "")
 		MockHttpServletResponse response = new MockHttpServletResponse()
 		super.setupCsrf("CSRF_TOKEN", request, response)
 

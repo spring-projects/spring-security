@@ -46,7 +46,7 @@ public class NamespaceHttpFirewallTests extends BaseSpringSpec {
 	MockFilterChain chain
 
 	def setup() {
-		request = new MockHttpServletRequest()
+		request = new MockHttpServletRequest("GET", "")
 		response = new MockHttpServletResponse()
 		chain = new MockFilterChain()
 	}

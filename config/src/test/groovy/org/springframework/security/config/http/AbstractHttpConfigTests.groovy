@@ -67,7 +67,7 @@ abstract class AbstractHttpConfigTests extends AbstractXmlConfigTests {
 	}
 
 	FilterInvocation createFilterinvocation(String path, String method) {
-		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
 		request.setMethod(method);
 		request.setRequestURI(null);
 		request.setServletPath(path);

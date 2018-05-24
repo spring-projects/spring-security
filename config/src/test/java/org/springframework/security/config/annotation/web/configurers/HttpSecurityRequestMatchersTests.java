@@ -55,7 +55,7 @@ public class HttpSecurityRequestMatchersTests {
 
 	@Before
 	public void setup() {
-		this.request = new MockHttpServletRequest();
+		this.request = new MockHttpServletRequest("GET", "");
 		this.request.setMethod("GET");
 		this.response = new MockHttpServletResponse();
 		this.chain = new MockFilterChain();

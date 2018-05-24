@@ -55,7 +55,7 @@ public class CustomHttpSecurityConfigurerTests {
 
 	@Before
 	public void setup() {
-		request = new MockHttpServletRequest();
+		request = new MockHttpServletRequest("GET", "");
 		response = new MockHttpServletResponse();
 		chain = new MockFilterChain();
 		request.setMethod("GET");

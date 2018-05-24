@@ -142,7 +142,7 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
 		createAppContext()
 		then:
 		Filter debugFilter = appContext.getBean(BeanIds.SPRING_SECURITY_FILTER_CHAIN);
-		MockHttpServletRequest request = new MockHttpServletRequest()
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "")
 		request.setServletPath("/unprotected");
 		debugFilter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
 		request.setServletPath("/nomatch");

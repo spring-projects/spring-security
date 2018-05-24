@@ -65,7 +65,7 @@ public class GrantedAuthorityDefaultsJcTests {
 	public void setup() {
 		setup("USER");
 
-		request = new MockHttpServletRequest();
+		request = new MockHttpServletRequest("GET", "");
 		request.setMethod("GET");
 		response = new MockHttpServletResponse();
 		chain = new MockFilterChain();

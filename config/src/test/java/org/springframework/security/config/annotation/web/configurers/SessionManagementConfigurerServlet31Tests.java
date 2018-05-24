@@ -72,7 +72,7 @@ public class SessionManagementConfigurerServlet31Tests {
 
 	@Before
 	public void setup() {
-		request = new MockHttpServletRequest();
+		request = new MockHttpServletRequest("GET", "");
 		response = new MockHttpServletResponse();
 		chain = new MockFilterChain();
 	}
@@ -88,7 +88,7 @@ public class SessionManagementConfigurerServlet31Tests {
 	public void changeSessionIdDefaultsInServlet31Plus() throws Exception {
 		spy(ReflectionUtils.class);
 		Method method = mock(Method.class);
-		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
 		request.getSession();
 		request.setServletPath("/login");
 		request.setMethod("POST");
