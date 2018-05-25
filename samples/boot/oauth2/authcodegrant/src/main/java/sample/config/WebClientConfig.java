@@ -17,6 +17,7 @@
 package sample.config;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.client.web.reactive.function.client.OAuth2AuthorizedClientExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -24,6 +25,7 @@ import org.springframework.web.reactive.function.client.WebClient;
  * @author Rob Winch
  * @since 5.1
  */
+@Configuration
 public class WebClientConfig {
 
 	@Bean
