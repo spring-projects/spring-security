@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.client.userinfo;
 
+import static org.springframework.security.web.http.SecurityHeaders.bearerToken;
+
 import java.net.UnknownHostException;
 import java.util.HashSet;
 import java.util.Map;
@@ -99,8 +101,7 @@ public class DefaultReactiveOAuth2UserService implements ReactiveOAuth2UserServi
 
 			Mono<Map<String, Object>> userAttributes = this.webClient.get()
 					.uri(userInfoUri)
-					.header(HttpHeaders.AUTHORIZATION,
-							"Bearer " + userRequest.getAccessToken().getTokenValue())
+					.headers(bearerToken(userRequest.getAccessToken().getTokenValue()))
 					.retrieve()
 					.onStatus(s -> s != HttpStatus.OK, response -> {
 						return parse(response).map(userInfoErrorResponse -> {
