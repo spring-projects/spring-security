@@ -15,24 +15,28 @@
  */
 package sample.web;
 
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.annotation.OAuth2Client;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.reactive.function.client.ClientRequest;
-import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 
+import static org.springframework.security.oauth2.client.web.reactive.function.client.OAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient;
+
 /**
  * @author Joe Grandja
+ * @author Rob Winch
  */
 @Controller
 public class GitHubReposController {
+	private final WebClient webClient;
+
+	public GitHubReposController(WebClient webClient) {
+		this.webClient = webClient;
+	}
 
 	@GetMapping("/")
 	public String index() {
@@ -42,26 +46,15 @@ public class GitHubReposController {
 	@GetMapping("/repos")
 	public String gitHubRepos(Model model, @OAuth2Client("github") OAuth2AuthorizedClient authorizedClient) {
 		String endpointUri = "https://api.github.com/user/repos";
-		List repos = WebClient.builder()
-			.filter(oauth2Credentials(authorizedClient))
-			.build()
+		List repos = this.webClient
 			.get()
 			.uri(endpointUri)
+			.attributes(oauth2AuthorizedClient(authorizedClient))
 			.retrieve()
 			.bodyToMono(List.class)
 			.block();
 		model.addAttribute("repos", repos);
 
 		return "github-repos";
-	}
-
-	private ExchangeFilterFunction oauth2Credentials(OAuth2AuthorizedClient authorizedClient) {
-		return ExchangeFilterFunction.ofRequestProcessor(
-			clientRequest -> {
-				ClientRequest authorizedRequest = ClientRequest.from(clientRequest)
-					.header(HttpHeaders.AUTHORIZATION, "Bearer " + authorizedClient.getAccessToken().getTokenValue())
-					.build();
-				return Mono.just(authorizedRequest);
-			});
 	}
 }
