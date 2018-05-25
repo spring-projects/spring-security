@@ -15,6 +15,10 @@
  */
 package org.springframework.security.oauth2.client.oidc.authentication;
 
+import java.util.Collection;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -40,15 +44,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoderJwkSupport;
 import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-
-import java.net.URL;
-import java.time.Instant;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * An implementation of an {@link AuthenticationProvider}
@@ -151,11 +147,7 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 			throw new OAuth2AuthenticationException(invalidIdTokenError, invalidIdTokenError.toString());
 		}
 
-		JwtDecoder jwtDecoder = this.getJwtDecoder(clientRegistration);
-		Jwt jwt = jwtDecoder.decode((String) accessTokenResponse.getAdditionalParameters().get(OidcParameterNames.ID_TOKEN));
-		OidcIdToken idToken = new OidcIdToken(jwt.getTokenValue(), jwt.getIssuedAt(), jwt.getExpiresAt(), jwt.getClaims());
-
-		this.validateIdToken(idToken, clientRegistration);
+		OidcIdToken idToken = createOidcToken(clientRegistration, accessTokenResponse);
 
 		OidcUser oidcUser = this.userService.loadUser(
 			new OidcUserRequest(clientRegistration, accessTokenResponse.getAccessToken(), idToken));
@@ -191,15 +183,24 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 		return OAuth2LoginAuthenticationToken.class.isAssignableFrom(authentication);
 	}
 
+	private OidcIdToken createOidcToken(ClientRegistration clientRegistration, OAuth2AccessTokenResponse accessTokenResponse) {
+		JwtDecoder jwtDecoder = getJwtDecoder(clientRegistration);
+		Jwt jwt = jwtDecoder.decode((String) accessTokenResponse.getAdditionalParameters().get(
+				OidcParameterNames.ID_TOKEN));
+		OidcIdToken idToken = new OidcIdToken(jwt.getTokenValue(), jwt.getIssuedAt(), jwt.getExpiresAt(), jwt.getClaims());
+		OidcTokenValidator.validateIdToken(idToken, clientRegistration);
+		return idToken;
+	}
+
 	private JwtDecoder getJwtDecoder(ClientRegistration clientRegistration) {
 		JwtDecoder jwtDecoder = this.jwtDecoders.get(clientRegistration.getRegistrationId());
 		if (jwtDecoder == null) {
 			if (!StringUtils.hasText(clientRegistration.getProviderDetails().getJwkSetUri())) {
 				OAuth2Error oauth2Error = new OAuth2Error(
-					MISSING_SIGNATURE_VERIFIER_ERROR_CODE,
-					"Failed to find a Signature Verifier for Client Registration: '" +
-						clientRegistration.getRegistrationId() + "'. Check to ensure you have configured the JwkSet URI.",
-					null
+						MISSING_SIGNATURE_VERIFIER_ERROR_CODE,
+						"Failed to find a Signature Verifier for Client Registration: '" +
+								clientRegistration.getRegistrationId() + "'. Check to ensure you have configured the JwkSet URI.",
+						null
 				);
 				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 			}
@@ -207,89 +208,5 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 			this.jwtDecoders.put(clientRegistration.getRegistrationId(), jwtDecoder);
 		}
 		return jwtDecoder;
-	}
-
-	private void validateIdToken(OidcIdToken idToken, ClientRegistration clientRegistration) {
-		// 3.1.3.7  ID Token Validation
-		// http://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation
-
-		// Validate REQUIRED Claims
-		URL issuer = idToken.getIssuer();
-		if (issuer == null) {
-			this.throwInvalidIdTokenException();
-		}
-		String subject = idToken.getSubject();
-		if (subject == null) {
-			this.throwInvalidIdTokenException();
-		}
-		List<String> audience = idToken.getAudience();
-		if (CollectionUtils.isEmpty(audience)) {
-			this.throwInvalidIdTokenException();
-		}
-		Instant expiresAt = idToken.getExpiresAt();
-		if (expiresAt == null) {
-			this.throwInvalidIdTokenException();
-		}
-		Instant issuedAt = idToken.getIssuedAt();
-		if (issuedAt == null) {
-			this.throwInvalidIdTokenException();
-		}
-
-		// 2. The Issuer Identifier for the OpenID Provider (which is typically obtained during Discovery)
-		// MUST exactly match the value of the iss (issuer) Claim.
-		// TODO Depends on gh-4413
-
-		// 3. The Client MUST validate that the aud (audience) Claim contains its client_id value
-		// registered at the Issuer identified by the iss (issuer) Claim as an audience.
-		// The aud (audience) Claim MAY contain an array with more than one element.
-		// The ID Token MUST be rejected if the ID Token does not list the Client as a valid audience,
-		// or if it contains additional audiences not trusted by the Client.
-		if (!audience.contains(clientRegistration.getClientId())) {
-			this.throwInvalidIdTokenException();
-		}
-
-		// 4. If the ID Token contains multiple audiences,
-		// the Client SHOULD verify that an azp Claim is present.
-		String authorizedParty = idToken.getAuthorizedParty();
-		if (audience.size() > 1 && authorizedParty == null) {
-			this.throwInvalidIdTokenException();
-		}
-
-		// 5. If an azp (authorized party) Claim is present,
-		// the Client SHOULD verify that its client_id is the Claim Value.
-		if (authorizedParty != null && !authorizedParty.equals(clientRegistration.getClientId())) {
-			this.throwInvalidIdTokenException();
-		}
-
-		// 7. The alg value SHOULD be the default of RS256 or the algorithm sent by the Client
-		// in the id_token_signed_response_alg parameter during Registration.
-		// TODO Depends on gh-4413
-
-		// 9. The current time MUST be before the time represented by the exp Claim.
-		Instant now = Instant.now();
-		if (!now.isBefore(expiresAt)) {
-			this.throwInvalidIdTokenException();
-		}
-
-		// 10. The iat Claim can be used to reject tokens that were issued too far away from the current time,
-		// limiting the amount of time that nonces need to be stored to prevent attacks.
-		// The acceptable range is Client specific.
-		Instant maxIssuedAt = Instant.now().plusSeconds(30);
-		if (issuedAt.isAfter(maxIssuedAt)) {
-			this.throwInvalidIdTokenException();
-		}
-
-		// 11. If a nonce value was sent in the Authentication Request,
-		// a nonce Claim MUST be present and its value checked to verify
-		// that it is the same value as the one that was sent in the Authentication Request.
-		// The Client SHOULD check the nonce value for replay attacks.
-		// The precise method for detecting replay attacks is Client specific.
-		// TODO Depends on gh-4442
-
-	}
-
-	private void throwInvalidIdTokenException() {
-		OAuth2Error invalidIdTokenError = new OAuth2Error(INVALID_ID_TOKEN_ERROR_CODE);
-		throw new OAuth2AuthenticationException(invalidIdTokenError, invalidIdTokenError.toString());
 	}
 }
