@@ -16,17 +16,19 @@
 
 package org.springframework.security.oauth2.client.web.reactive.function.client;
 
-import org.springframework.http.HttpHeaders;
+import static org.springframework.security.web.http.SecurityHeaders.bearerToken;
+
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Consumer;
+
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.ExchangeFunction;
-import reactor.core.publisher.Mono;
 
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Consumer;
+import reactor.core.publisher.Mono;
 
 /**
  * Provides an easy mechanism for using an {@link OAuth2AuthorizedClient} to make OAuth2 requests by including the
@@ -76,9 +78,5 @@ public final class OAuth2AuthorizedClientExchangeFilterFunction implements Excha
 		return ClientRequest.from(request)
 					.headers(bearerToken(authorizedClient.getAccessToken().getTokenValue()))
 					.build();
-	}
-
-	private Consumer<HttpHeaders> bearerToken(String token) {
-		return headers -> headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + token);
 	}
 }
