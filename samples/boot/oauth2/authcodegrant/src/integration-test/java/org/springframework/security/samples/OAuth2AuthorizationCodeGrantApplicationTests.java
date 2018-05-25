@@ -23,6 +23,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
@@ -47,6 +48,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import sample.config.WebClientConfig;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -160,6 +162,7 @@ public class OAuth2AuthorizationCodeGrantApplicationTests {
 	@SpringBootConfiguration
 	@EnableAutoConfiguration
 	@ComponentScan(basePackages = "sample.web")
+	@Import(WebClientConfig.class)
 	public static class SpringBootApplicationTestConfig {
 	}
 }
