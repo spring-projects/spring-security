@@ -146,7 +146,7 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 				return null;
 			}
 			catch (OpenIDConsumerException e) {
-				logger.debug("Failed to consume claimedIdentity: " + claimedIdentity, e);
+				logger.error("Failed to consume claimedIdentity: " + claimedIdentity, e);
 				throw new AuthenticationServiceException(
 						"Unable to process claimed identity '" + claimedIdentity + "'");
 			}
