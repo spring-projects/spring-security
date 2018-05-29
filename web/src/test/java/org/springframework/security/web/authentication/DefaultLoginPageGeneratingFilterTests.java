@@ -15,6 +15,16 @@
  */
 package org.springframework.security.web.authentication;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+
+import java.util.Collections;
+import java.util.Locale;
+
+import javax.servlet.FilterChain;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.junit.Test;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -25,15 +35,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
-
-import javax.servlet.FilterChain;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.Collections;
-import java.util.Locale;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 /**
  *
@@ -186,5 +187,22 @@ public class DefaultLoginPageGeneratingFilterTests {
 				new BadCredentialsException(message));
 
 		filter.doFilter(request, new MockHttpServletResponse(), chain);
+	}
+
+	// gh-5394
+	@Test
+	public void generatesForOAuth2LoginAndEscapesClientName() throws Exception {
+		DefaultLoginPageGeneratingFilter filter = new DefaultLoginPageGeneratingFilter();
+		filter.setLoginPageUrl(DefaultLoginPageGeneratingFilter.DEFAULT_LOGIN_PAGE_URL);
+		filter.setOauth2LoginEnabled(true);
+
+		String clientName = "Google < > \" \' &";
+		filter.setOauth2AuthenticationUrlToClientName(
+			Collections.singletonMap("/oauth2/authorization/google", clientName));
+
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		filter.doFilter(new MockHttpServletRequest("GET", "/login"), response, chain);
+
+		assertThat(response.getContentAsString()).contains("<a href=\"/oauth2/authorization/google\">Google &lt; &gt; &quot; &#39; &amp;</a>");
 	}
 }
