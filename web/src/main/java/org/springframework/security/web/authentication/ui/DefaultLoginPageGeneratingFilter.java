@@ -22,6 +22,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
+import org.springframework.web.util.HtmlUtils;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -286,7 +287,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 			for (Map.Entry<String, String> clientAuthenticationUrlToClientName : oauth2AuthenticationUrlToClientName.entrySet()) {
 				sb.append(" <tr><td>");
 				sb.append("<a href=\"").append(request.getContextPath()).append(clientAuthenticationUrlToClientName.getKey()).append("\">");
-				sb.append(clientAuthenticationUrlToClientName.getValue());
+				sb.append(HtmlUtils.htmlEscape(clientAuthenticationUrlToClientName.getValue(), "UTF-8"));
 				sb.append("</a>");
 				sb.append("</td></tr>\n");
 			}
