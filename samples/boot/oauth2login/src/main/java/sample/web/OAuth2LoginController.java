@@ -15,18 +15,13 @@
  */
 package sample.web;
 
-import static org.springframework.security.oauth2.client.web.reactive.function.client.OAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient;
-
-import java.util.Collections;
-import java.util.Map;
-
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.annotation.OAuth2Client;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.reactive.function.client.WebClient;
 
 /**
  * @author Joe Grandja
@@ -34,34 +29,14 @@ import org.springframework.web.reactive.function.client.WebClient;
  */
 @Controller
 public class OAuth2LoginController {
-	private final WebClient webClient;
-
-	public OAuth2LoginController(WebClient webClient) {
-		this.webClient = webClient;
-	}
 
 	@GetMapping("/")
-	public String index(Model model, @OAuth2Client OAuth2AuthorizedClient authorizedClient) {
-		model.addAttribute("userName", authorizedClient.getPrincipalName());
+	public String index(Model model,
+						@OAuth2Client OAuth2AuthorizedClient authorizedClient,
+						@AuthenticationPrincipal OAuth2User oauth2User) {
+		model.addAttribute("userName", oauth2User.getName());
 		model.addAttribute("clientName", authorizedClient.getClientRegistration().getClientName());
+		model.addAttribute("userAttributes", oauth2User.getAttributes());
 		return "index";
-	}
-
-	@GetMapping("/userinfo")
-	public String userinfo(Model model, @OAuth2Client OAuth2AuthorizedClient authorizedClient) {
-		Map userAttributes = Collections.emptyMap();
-		String userInfoEndpointUri = authorizedClient.getClientRegistration()
-			.getProviderDetails().getUserInfoEndpoint().getUri();
-		if (!StringUtils.isEmpty(userInfoEndpointUri)) {	// userInfoEndpointUri is optional for OIDC Clients
-			userAttributes = this.webClient
-				.get()
-				.uri(userInfoEndpointUri)
-				.attributes(oauth2AuthorizedClient(authorizedClient))
-				.retrieve()
-				.bodyToMono(Map.class)
-				.block();
-		}
-		model.addAttribute("userAttributes", userAttributes);
-		return "userinfo";
 	}
 }
