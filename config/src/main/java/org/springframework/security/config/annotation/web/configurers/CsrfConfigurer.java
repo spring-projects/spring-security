@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -128,7 +128,7 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	 * </p>
 	 *
 	 * <p>
-	 * The following will ensure CSRF protection ignores:
+	 * For example, the following configuration will ensure CSRF protection ignores:
 	 * </p>
 	 * <ul>
 	 * <li>Any GET, HEAD, TRACE, OPTIONS (this is the default)</li>
@@ -147,6 +147,35 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	 */
 	public CsrfConfigurer<H> ignoringAntMatchers(String... antPatterns) {
 		return new IgnoreCsrfProtectionRegistry(this.context).antMatchers(antPatterns)
+				.and();
+	}
+
+	/**
+	 * <p>
+	 * Allows specifying {@link HttpServletRequest}s that should not use CSRF Protection
+	 * even if they match the {@link #requireCsrfProtectionMatcher(RequestMatcher)}.
+	 * </p>
+	 *
+	 * <p>
+	 * For example, the following configuration will ensure CSRF protection ignores:
+	 * </p>
+	 * <ul>
+	 * <li>Any GET, HEAD, TRACE, OPTIONS (this is the default)</li>
+	 * <li>We also explicitly state to ignore any request that has a "X-Requested-With: XMLHttpRequest" header</li>
+	 * </ul>
+	 *
+	 * <pre>
+	 * http
+	 *     .csrf()
+	 *         .ignoringRequestMatchers(request -> "XMLHttpRequest".equals(request.getHeader("X-Requested-With")))
+	 *         .and()
+	 *     ...
+	 * </pre>
+	 *
+	 * @since 5.1
+	 */
+	public CsrfConfigurer<H> ignoringRequestMatchers(RequestMatcher... requestMatchers) {
+		return new IgnoreCsrfProtectionRegistry(this.context).requestMatchers(requestMatchers)
 				.and();
 	}
 
