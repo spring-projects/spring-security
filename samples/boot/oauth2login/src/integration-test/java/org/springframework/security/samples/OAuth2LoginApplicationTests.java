@@ -32,7 +32,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -58,7 +57,6 @@ import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
-import sample.WebClientConfig;
 
 import java.net.URI;
 import java.net.URL;
@@ -403,7 +401,6 @@ public class OAuth2LoginApplicationTests {
 	@SpringBootConfiguration
 	@EnableAutoConfiguration
 	@ComponentScan(basePackages = "sample.web")
-	@Import(WebClientConfig.class)
 	public static class SpringBootApplicationTestConfig {
 
 		@Autowired
