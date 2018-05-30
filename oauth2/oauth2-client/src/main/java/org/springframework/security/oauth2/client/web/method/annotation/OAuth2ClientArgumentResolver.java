@@ -16,6 +16,7 @@
 package org.springframework.security.oauth2.client.web.method.annotation;
 
 import org.springframework.core.MethodParameter;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
@@ -90,7 +91,7 @@ public final class OAuth2ClientArgumentResolver implements HandlerMethodArgument
 		return ((OAuth2AccessToken.class.isAssignableFrom(parameterType) ||
 				OAuth2AuthorizedClient.class.isAssignableFrom(parameterType) ||
 				ClientRegistration.class.isAssignableFrom(parameterType)) &&
-				(parameter.hasParameterAnnotation(OAuth2Client.class)));
+				(AnnotatedElementUtils.findMergedAnnotation(parameter.getParameter(), OAuth2Client.class) != null));
 	}
 
 	@NonNull
@@ -100,7 +101,8 @@ public final class OAuth2ClientArgumentResolver implements HandlerMethodArgument
 									NativeWebRequest webRequest,
 									@Nullable WebDataBinderFactory binderFactory) throws Exception {
 
-		OAuth2Client oauth2ClientAnnotation = parameter.getParameterAnnotation(OAuth2Client.class);
+		OAuth2Client oauth2ClientAnnotation = AnnotatedElementUtils.findMergedAnnotation(
+				parameter.getParameter(), OAuth2Client.class);
 		Authentication principal = SecurityContextHolder.getContext().getAuthentication();
 
 		String clientRegistrationId = null;
