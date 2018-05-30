@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,15 @@ import org.springframework.util.Assert;
  */
 public class OAuth2AuthenticationException extends AuthenticationException {
 	private OAuth2Error error;
+
+	/**
+	 * Constructs an {@code OAuth2AuthenticationException} using the provided parameters.
+	 *
+	 * @param error the {@link OAuth2Error OAuth 2.0 Error}
+	 */
+	public OAuth2AuthenticationException(OAuth2Error error) {
+		this(error, error.getDescription());
+	}
 
 	/**
 	 * Constructs an {@code OAuth2AuthenticationException} using the provided parameters.
