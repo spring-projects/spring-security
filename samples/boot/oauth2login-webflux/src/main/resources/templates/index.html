@@ -40,7 +40,12 @@
 </div>
 <div>&nbsp;</div>
 <div>
-	<a href="/userinfo" th:href="@{/userinfo}">Display User Info</a>
+	<span style="font-weight:bold">User Attributes:</span>
+	<ul>
+		<li th:each="userAttribute : ${userAttributes}">
+			<span style="font-weight:bold" th:text="${userAttribute.key}"></span>: <span th:text="${userAttribute.value}"></span>
+		</li>
+	</ul>
 </div>
 </body>
 </html>
