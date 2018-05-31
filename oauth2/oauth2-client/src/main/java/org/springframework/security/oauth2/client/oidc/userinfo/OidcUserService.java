@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,9 @@
  */
 package org.springframework.security.oauth2.client.oidc.userinfo;
 
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -26,12 +27,12 @@ import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -49,17 +50,15 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 	private static final String INVALID_USER_INFO_RESPONSE_ERROR_CODE = "invalid_user_info_response";
 	private final Set<String> userInfoScopes = new HashSet<>(
 		Arrays.asList(OidcScopes.PROFILE, OidcScopes.EMAIL, OidcScopes.ADDRESS, OidcScopes.PHONE));
-	private NimbusUserInfoResponseClient userInfoResponseClient = new NimbusUserInfoResponseClient();
+	private final OAuth2UserService<OAuth2UserRequest, OAuth2User> defaultUserService = new DefaultOAuth2UserService();
 
 	@Override
 	public OidcUser loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException {
 		Assert.notNull(userRequest, "userRequest cannot be null");
 		OidcUserInfo userInfo = null;
 		if (this.shouldRetrieveUserInfo(userRequest)) {
-			ParameterizedTypeReference<Map<String, Object>> typeReference =
-				new ParameterizedTypeReference<Map<String, Object>>() {};
-			Map<String, Object> userAttributes = this.userInfoResponseClient.getUserInfoResponse(userRequest, typeReference);
-			userInfo = new OidcUserInfo(userAttributes);
+			OAuth2User oauth2User = this.defaultUserService.loadUser(userRequest);
+			userInfo = new OidcUserInfo(oauth2User.getAttributes());
 
 			// http://openid.net/specs/openid-connect-core-1_0.html#UserInfoResponse
 			// Due to the possibility of token substitution attacks (see Section 16.11),
