@@ -79,6 +79,8 @@ public class OidcUserServiceTests {
 		when(this.providerDetails.getUserInfoEndpoint()).thenReturn(this.userInfoEndpoint);
 		when(this.clientRegistration.getAuthorizationGrantType()).thenReturn(AuthorizationGrantType.AUTHORIZATION_CODE);
 
+		when(this.userInfoEndpoint.getUserNameAttributeName()).thenReturn(StandardClaimNames.SUB);
+
 		this.accessToken = mock(OAuth2AccessToken.class);
 		Set<String> authorizedScopes = new LinkedHashSet<>(Arrays.asList(OidcScopes.OPENID, OidcScopes.PROFILE));
 		when(this.accessToken.getScopes()).thenReturn(authorizedScopes);
