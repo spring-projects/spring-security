@@ -1,13 +1,13 @@
 if (!project.hasProperty('reactorVersion')) {
-	ext.reactorVersion = 'Bismuth-SR9'
+	ext.reactorVersion = 'Californium-BUILD-SNAPSHOT'
 }
 
 if (!project.hasProperty('springVersion')) {
-	ext.springVersion = '5.0.6.RELEASE'
+	ext.springVersion = '5.1.0.BUILD-SNAPSHOT'
 }
 
 if (!project.hasProperty('springDataVersion')) {
-	ext.springDataVersion = 'Kay-SR7'
+	ext.springDataVersion = 'Lovelace-BUILD-SNAPSHOT'
 }
 
 dependencyManagement {

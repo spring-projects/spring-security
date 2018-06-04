@@ -59,7 +59,7 @@ try {
 			node {
 				checkout scm
 				try {
-					sh "./gradlew clean test -PspringVersion='5.0.+' -PreactorVersion=Bismuth-BUILD-SNAPSHOT -PspringDataVersion=Kay-BUILD-SNAPSHOT --refresh-dependencies --no-daemon --stacktrace"
+					sh "./gradlew clean test -PspringVersion='5.+' -PreactorVersion=Californium-BUILD-SNAPSHOT -PspringDataVersion=Lovelace-BUILD-SNAPSHOT --refresh-dependencies --no-daemon --stacktrace"
 				} catch(Exception e) {
 					currentBuild.result = 'FAILED: snapshots'
 					throw e
