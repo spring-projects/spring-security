@@ -15,6 +15,10 @@
  */
 package org.springframework.security.oauth2.client.oidc.userinfo;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -29,11 +33,8 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * An implementation of an {@link OAuth2UserService} that supports OpenID Connect 1.0 Provider's.
@@ -108,7 +109,7 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 			userRequest.getClientRegistration().getAuthorizationGrantType())) {
 
 			// Return true if there is at least one match between the authorized scope(s) and UserInfo scope(s)
-			return userRequest.getAccessToken().getScopes().stream().anyMatch(userInfoScopes::contains);
+			return CollectionUtils.containsAny(userRequest.getAccessToken().getScopes(), this.userInfoScopes);
 		}
 
 		return false;
