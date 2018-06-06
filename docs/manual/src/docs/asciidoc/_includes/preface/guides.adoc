@@ -27,8 +27,8 @@ If you are looking to get started with Spring Security, the best place to start 
 | Demonstrates how to create a custom login form.
 | link:../../guides/html5/form-javaconfig.html[Custom Login Form Guide]
 
-| {gh-samples-url}/boot/oauth2/oauth2login[OAuth 2.0 Login]
+| {gh-samples-url}/boot/oauth2login[OAuth 2.0 Login]
 | Demonstrates how to integrate OAuth 2.0 Login with an OAuth 2.0 or OpenID Connect 1.0 Provider.
-| link:{gh-samples-url}/boot/oauth2/oauth2login/README.adoc[OAuth 2.0 Login Guide]
+| link:{gh-samples-url}/boot/oauth2login/README.adoc[OAuth 2.0 Login Guide]
 
 |===
