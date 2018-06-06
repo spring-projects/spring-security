@@ -35,6 +35,7 @@ import org.springframework.core.ResolvableType;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.DelegatingReactiveAuthenticationManager;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authorization.AuthenticatedReactiveAuthorizationManager;
 import org.springframework.security.authorization.AuthorityReactiveAuthorizationManager;
@@ -45,6 +46,8 @@ import org.springframework.security.oauth2.client.InMemoryReactiveOAuth2Authoriz
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginReactiveAuthenticationManager;
 import org.springframework.security.oauth2.client.endpoint.NimbusReactiveAuthorizationCodeTokenResponseClient;
+import org.springframework.security.oauth2.client.oidc.authentication.OidcReactiveAuthenticationManager;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcReactiveOAuth2UserService;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.userinfo.DefaultReactiveOAuth2UserService;
@@ -101,6 +104,7 @@ import org.springframework.security.web.server.util.matcher.ServerWebExchangeMat
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcherEntry;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
@@ -371,8 +375,16 @@ public class ServerHttpSecurity {
 
 			NimbusReactiveAuthorizationCodeTokenResponseClient client = new NimbusReactiveAuthorizationCodeTokenResponseClient();
 			ReactiveOAuth2UserService userService = new DefaultReactiveOAuth2UserService();
-			OAuth2LoginReactiveAuthenticationManager manager = new OAuth2LoginReactiveAuthenticationManager(client, userService,
+			ReactiveAuthenticationManager manager = new OAuth2LoginReactiveAuthenticationManager(client, userService,
 					authorizedClientService);
+
+			boolean oidcAuthenticationProviderEnabled = ClassUtils.isPresent(
+					"org.springframework.security.oauth2.jwt.JwtDecoder", this.getClass().getClassLoader());
+			if (oidcAuthenticationProviderEnabled) {
+				OidcReactiveAuthenticationManager oidc = new OidcReactiveAuthenticationManager(client, new OidcReactiveOAuth2UserService(), authorizedClientService);
+				manager = new DelegatingReactiveAuthenticationManager(oidc, manager);
+			}
+
 			AuthenticationWebFilter authenticationFilter = new AuthenticationWebFilter(manager);
 			authenticationFilter.setRequiresAuthenticationMatcher(new PathPatternParserServerWebExchangeMatcher("/login/oauth2/code/{registrationId}"));
 			authenticationFilter.setAuthenticationConverter(new ServerOAuth2LoginAuthenticationTokenConverter(clientRegistrationRepository));
