@@ -999,8 +999,8 @@ public final class HttpSecurity extends
 	 * @return the {@link OAuth2Configurer} for further customizations
 	 * @throws Exception
 	 */
-	public OAuth2Configurer oauth2() throws Exception {
-		return getOrApply(new OAuth2Configurer());
+	public OAuth2Configurer<HttpSecurity> oauth2() throws Exception {
+		return getOrApply(new OAuth2Configurer<>());
 	}
 
 	/**
