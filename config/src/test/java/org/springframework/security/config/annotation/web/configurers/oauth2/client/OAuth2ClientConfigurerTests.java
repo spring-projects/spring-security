@@ -30,7 +30,7 @@ import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
-import org.springframework.security.oauth2.client.annotation.OAuth2Client;
+import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -205,7 +205,7 @@ public class OAuth2ClientConfigurerTests {
 		@RestController
 		public class ResourceController {
 			@GetMapping("/resource1")
-			public String resource1(@OAuth2Client("registration-1") OAuth2AuthorizedClient authorizedClient) {
+			public String resource1(@RegisteredOAuth2AuthorizedClient("registration-1") OAuth2AuthorizedClient authorizedClient) {
 				return "resource1";
 			}
 		}

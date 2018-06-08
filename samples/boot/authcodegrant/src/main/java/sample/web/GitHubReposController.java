@@ -16,7 +16,7 @@
 package sample.web;
 
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
-import org.springframework.security.oauth2.client.annotation.OAuth2Client;
+import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,7 +44,7 @@ public class GitHubReposController {
 	}
 
 	@GetMapping("/repos")
-	public String gitHubRepos(Model model, @OAuth2Client("github") OAuth2AuthorizedClient authorizedClient) {
+	public String gitHubRepos(Model model, @RegisteredOAuth2AuthorizedClient("github") OAuth2AuthorizedClient authorizedClient) {
 		String endpointUri = "https://api.github.com/user/repos";
 		List repos = this.webClient
 			.get()

@@ -24,11 +24,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.ClientAuthorizationRequiredException;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
-import org.springframework.security.oauth2.client.annotation.OAuth2Client;
+import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.support.WebDataBinderFactory;
@@ -38,60 +35,43 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 
 /**
  * An implementation of a {@link HandlerMethodArgumentResolver} that is capable
- * of resolving a method parameter into an argument value for the following types:
- * {@link ClientRegistration}, {@link OAuth2AuthorizedClient} and {@link OAuth2AccessToken}.
+ * of resolving a method parameter to an argument value of type {@link OAuth2AuthorizedClient}.
  *
  * <p>
  * For example:
  * <pre>
  * &#64;Controller
  * public class MyController {
- *     &#64;GetMapping("/client-registration")
- *     public String clientRegistration(@OAuth2Client("login-client") ClientRegistration clientRegistration) {
- *         // do something with clientRegistration
- *     }
- *
  *     &#64;GetMapping("/authorized-client")
- *     public String authorizedClient(@OAuth2Client("login-client") OAuth2AuthorizedClient authorizedClient) {
+ *     public String authorizedClient(@RegisteredOAuth2AuthorizedClient("login-client") OAuth2AuthorizedClient authorizedClient) {
  *         // do something with authorizedClient
- *     }
- *
- *     &#64;GetMapping("/access-token")
- *     public String accessToken(@OAuth2Client("login-client") OAuth2AccessToken accessToken) {
- *         // do something with accessToken
  *     }
  * }
  * </pre>
  *
  * @author Joe Grandja
  * @since 5.1
- * @see OAuth2Client
+ * @see RegisteredOAuth2AuthorizedClient
  */
-public final class OAuth2ClientArgumentResolver implements HandlerMethodArgumentResolver {
-	private final ClientRegistrationRepository clientRegistrationRepository;
+public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMethodArgumentResolver {
 	private final OAuth2AuthorizedClientService authorizedClientService;
 
 	/**
-	 * Constructs an {@code OAuth2ClientArgumentResolver} using the provided parameters.
+	 * Constructs an {@code OAuth2AuthorizedClientArgumentResolver} using the provided parameters.
 	 *
-	 * @param clientRegistrationRepository the repository of client registrations
 	 * @param authorizedClientService the authorized client service
 	 */
-	public OAuth2ClientArgumentResolver(ClientRegistrationRepository clientRegistrationRepository,
-										OAuth2AuthorizedClientService authorizedClientService) {
-		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
+	public OAuth2AuthorizedClientArgumentResolver(OAuth2AuthorizedClientService authorizedClientService) {
 		Assert.notNull(authorizedClientService, "authorizedClientService cannot be null");
-		this.clientRegistrationRepository = clientRegistrationRepository;
 		this.authorizedClientService = authorizedClientService;
 	}
 
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
 		Class<?> parameterType = parameter.getParameterType();
-		return ((OAuth2AccessToken.class.isAssignableFrom(parameterType) ||
-				OAuth2AuthorizedClient.class.isAssignableFrom(parameterType) ||
-				ClientRegistration.class.isAssignableFrom(parameterType)) &&
-				(AnnotatedElementUtils.findMergedAnnotation(parameter.getParameter(), OAuth2Client.class) != null));
+		return (OAuth2AuthorizedClient.class.isAssignableFrom(parameterType) &&
+				(AnnotatedElementUtils.findMergedAnnotation(
+						parameter.getParameter(), RegisteredOAuth2AuthorizedClient.class) != null));
 	}
 
 	@NonNull
@@ -101,30 +81,21 @@ public final class OAuth2ClientArgumentResolver implements HandlerMethodArgument
 									NativeWebRequest webRequest,
 									@Nullable WebDataBinderFactory binderFactory) throws Exception {
 
-		OAuth2Client oauth2ClientAnnotation = AnnotatedElementUtils.findMergedAnnotation(
-				parameter.getParameter(), OAuth2Client.class);
+		RegisteredOAuth2AuthorizedClient authorizedClientAnnotation = AnnotatedElementUtils.findMergedAnnotation(
+				parameter.getParameter(), RegisteredOAuth2AuthorizedClient.class);
 		Authentication principal = SecurityContextHolder.getContext().getAuthentication();
 
 		String clientRegistrationId = null;
-		if (!StringUtils.isEmpty(oauth2ClientAnnotation.registrationId())) {
-			clientRegistrationId = oauth2ClientAnnotation.registrationId();
-		} else if (!StringUtils.isEmpty(oauth2ClientAnnotation.value())) {
-			clientRegistrationId = oauth2ClientAnnotation.value();
+		if (!StringUtils.isEmpty(authorizedClientAnnotation.registrationId())) {
+			clientRegistrationId = authorizedClientAnnotation.registrationId();
+		} else if (!StringUtils.isEmpty(authorizedClientAnnotation.value())) {
+			clientRegistrationId = authorizedClientAnnotation.value();
 		} else if (principal != null && OAuth2AuthenticationToken.class.isAssignableFrom(principal.getClass())) {
 			clientRegistrationId = ((OAuth2AuthenticationToken) principal).getAuthorizedClientRegistrationId();
 		}
 		if (StringUtils.isEmpty(clientRegistrationId)) {
 			throw new IllegalArgumentException("Unable to resolve the Client Registration Identifier. " +
-					"It must be provided via @OAuth2Client(\"client1\") or @OAuth2Client(registrationId = \"client1\").");
-		}
-
-		if (ClientRegistration.class.isAssignableFrom(parameter.getParameterType())) {
-			ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(clientRegistrationId);
-			if (clientRegistration == null) {
-				throw new IllegalArgumentException("Unable to find ClientRegistration with registration identifier \"" +
-						clientRegistrationId + "\".");
-			}
-			return clientRegistration;
+					"It must be provided via @RegisteredOAuth2AuthorizedClient(\"client1\") or @RegisteredOAuth2AuthorizedClient(registrationId = \"client1\").");
 		}
 
 		if (principal == null) {
@@ -140,7 +111,6 @@ public final class OAuth2ClientArgumentResolver implements HandlerMethodArgument
 			throw new ClientAuthorizationRequiredException(clientRegistrationId);
 		}
 
-		return OAuth2AccessToken.class.isAssignableFrom(parameter.getParameterType()) ?
-			authorizedClient.getAccessToken() : authorizedClient;
+		return authorizedClient;
 	}
 }

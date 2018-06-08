@@ -16,18 +16,17 @@
 
 package org.springframework.security.config.annotation.web.reactive;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService;
-import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
-import org.springframework.security.oauth2.client.web.reactive.result.method.annotation.OAuth2ClientArgumentResolver;
+import org.springframework.security.oauth2.client.web.reactive.result.method.annotation.OAuth2AuthorizedClientArgumentResolver;
 import org.springframework.util.ClassUtils;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
 import org.springframework.web.reactive.result.method.annotation.ArgumentResolverConfigurer;
+
+import java.util.List;
 
 /**
  * {@link Configuration} for OAuth 2.0 Client support.
@@ -52,21 +51,12 @@ final class ReactiveOAuth2ClientImportSelector implements ImportSelector {
 
 	@Configuration
 	static class OAuth2ClientWebFluxSecurityConfiguration implements WebFluxConfigurer {
-		private ReactiveClientRegistrationRepository clientRegistrationRepository;
-
 		private ReactiveOAuth2AuthorizedClientService authorizedClientService;
 
 		@Override
 		public void configureArgumentResolvers(ArgumentResolverConfigurer configurer) {
-			if (this.clientRegistrationRepository != null && this.authorizedClientService != null) {
-				configurer.addCustomResolver(new OAuth2ClientArgumentResolver(this.clientRegistrationRepository, this.authorizedClientService));
-			}
-		}
-
-		@Autowired(required = false)
-		public void setClientRegistrationRepository(List<ReactiveClientRegistrationRepository> clientRegistrationRepository) {
-			if (clientRegistrationRepository.size() == 1) {
-				this.clientRegistrationRepository = clientRegistrationRepository.get(0);
+			if (this.authorizedClientService != null) {
+				configurer.addCustomResolver(new OAuth2AuthorizedClientArgumentResolver(this.authorizedClientService));
 			}
 		}
 
