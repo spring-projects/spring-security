@@ -21,8 +21,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.web.method.annotation.OAuth2ClientArgumentResolver;
+import org.springframework.security.oauth2.client.web.method.annotation.OAuth2AuthorizedClientArgumentResolver;
 import org.springframework.util.ClassUtils;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -59,17 +58,14 @@ final class OAuth2ClientConfiguration {
 	@Configuration
 	static class OAuth2ClientWebMvcSecurityConfiguration implements WebMvcConfigurer {
 		@Autowired(required = false)
-		private ClientRegistrationRepository clientRegistrationRepository;
-
-		@Autowired(required = false)
 		private OAuth2AuthorizedClientService authorizedClientService;
 
 		@Override
 		public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
-			if (this.clientRegistrationRepository != null && this.authorizedClientService != null) {
-				OAuth2ClientArgumentResolver oauth2ClientArgumentResolver = new OAuth2ClientArgumentResolver(
-					this.clientRegistrationRepository, this.authorizedClientService);
-				argumentResolvers.add(oauth2ClientArgumentResolver);
+			if (this.authorizedClientService != null) {
+				OAuth2AuthorizedClientArgumentResolver authorizedClientArgumentResolver =
+						new OAuth2AuthorizedClientArgumentResolver(this.authorizedClientService);
+				argumentResolvers.add(authorizedClientArgumentResolver);
 			}
 		}
 	}

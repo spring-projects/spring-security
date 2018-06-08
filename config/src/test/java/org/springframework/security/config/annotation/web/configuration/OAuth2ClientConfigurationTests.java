@@ -23,11 +23,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
-import org.springframework.security.oauth2.client.annotation.OAuth2Client;
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -54,23 +50,9 @@ public class OAuth2ClientConfigurationTests {
 	private MockMvc mockMvc;
 
 	@Test
-	public void requestWhenAuthorizedClientFoundThenOAuth2ClientArgumentsResolved() throws Exception {
+	public void requestWhenAuthorizedClientFoundThenMethodArgumentResolved() throws Exception {
 		String clientRegistrationId = "client1";
 		String principalName = "user1";
-
-		ClientRegistrationRepository clientRegistrationRepository = mock(ClientRegistrationRepository.class);
-		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(clientRegistrationId)
-				.clientId("client-id")
-				.clientSecret("secret")
-				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-				.redirectUriTemplate("{baseUrl}/client1")
-				.scope("scope1", "scope2")
-				.authorizationUri("https://provider.com/oauth2/auth")
-				.tokenUri("https://provider.com/oauth2/token")
-				.clientName("Client 1")
-				.build();
-		when(clientRegistrationRepository.findByRegistrationId(clientRegistrationId)).thenReturn(clientRegistration);
 
 		OAuth2AuthorizedClientService authorizedClientService = mock(OAuth2AuthorizedClientService.class);
 		OAuth2AuthorizedClient authorizedClient = mock(OAuth2AuthorizedClient.class);
@@ -79,25 +61,17 @@ public class OAuth2ClientConfigurationTests {
 		OAuth2AccessToken accessToken = mock(OAuth2AccessToken.class);
 		when(authorizedClient.getAccessToken()).thenReturn(accessToken);
 
-		OAuth2ClientArgumentResolverConfig.CLIENT_REGISTRATION_REPOSITORY = clientRegistrationRepository;
-		OAuth2ClientArgumentResolverConfig.AUTHORIZED_CLIENT_SERVICE = authorizedClientService;
-		this.spring.register(OAuth2ClientArgumentResolverConfig.class).autowire();
+		OAuth2AuthorizedClientArgumentResolverConfig.AUTHORIZED_CLIENT_SERVICE = authorizedClientService;
+		this.spring.register(OAuth2AuthorizedClientArgumentResolverConfig.class).autowire();
 
-		this.mockMvc.perform(get("/access-token").with(user(principalName)))
-			.andExpect(status().isOk())
-			.andExpect(content().string("resolved"));
 		this.mockMvc.perform(get("/authorized-client").with(user(principalName)))
-			.andExpect(status().isOk())
-			.andExpect(content().string("resolved"));
-		this.mockMvc.perform(get("/client-registration").with(user(principalName)))
 			.andExpect(status().isOk())
 			.andExpect(content().string("resolved"));
 	}
 
 	@EnableWebMvc
 	@EnableWebSecurity
-	static class OAuth2ClientArgumentResolverConfig extends WebSecurityConfigurerAdapter {
-		static ClientRegistrationRepository CLIENT_REGISTRATION_REPOSITORY;
+	static class OAuth2AuthorizedClientArgumentResolverConfig extends WebSecurityConfigurerAdapter {
 		static OAuth2AuthorizedClientService AUTHORIZED_CLIENT_SERVICE;
 
 		@Override
@@ -107,25 +81,10 @@ public class OAuth2ClientConfigurationTests {
 		@RestController
 		public class Controller {
 
-			@GetMapping("/access-token")
-			public String accessToken(@OAuth2Client("client1") OAuth2AccessToken accessToken) {
-				return accessToken != null ? "resolved" : "not-resolved";
-			}
-
 			@GetMapping("/authorized-client")
-			public String authorizedClient(@OAuth2Client("client1") OAuth2AuthorizedClient authorizedClient) {
+			public String authorizedClient(@RegisteredOAuth2AuthorizedClient("client1") OAuth2AuthorizedClient authorizedClient) {
 				return authorizedClient != null ? "resolved" : "not-resolved";
 			}
-
-			@GetMapping("/client-registration")
-			public String clientRegistration(@OAuth2Client("client1") ClientRegistration clientRegistration) {
-				return clientRegistration != null ? "resolved" : "not-resolved";
-			}
-		}
-
-		@Bean
-		public ClientRegistrationRepository clientRegistrationRepository() {
-			return CLIENT_REGISTRATION_REPOSITORY;
 		}
 
 		@Bean

@@ -24,92 +24,65 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.oauth2.client.ClientAuthorizationRequiredException;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService;
-import org.springframework.security.oauth2.client.annotation.OAuth2Client;
+import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
-import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.BindingContext;
 import org.springframework.web.reactive.result.method.HandlerMethodArgumentResolver;
 import org.springframework.web.server.ServerWebExchange;
-
 import reactor.core.publisher.Mono;
 
 /**
  * An implementation of a {@link HandlerMethodArgumentResolver} that is capable
- * of resolving a method parameter into an argument value for the following types:
- * {@link ClientRegistration}, {@link OAuth2AuthorizedClient} and {@link OAuth2AccessToken}.
+ * of resolving a method parameter to an argument value of type {@link OAuth2AuthorizedClient}.
  *
  * <p>
  * For example:
  * <pre>
  * &#64;Controller
  * public class MyController {
- *     &#64;GetMapping("/client-registration")
- *     public Mono<String></String> clientRegistration(@OAuth2Client("login-client") ClientRegistration clientRegistration) {
- *         // do something with clientRegistration
- *     }
- *
  *     &#64;GetMapping("/authorized-client")
- *     public Mono<String></String> authorizedClient(@OAuth2Client("login-client") OAuth2AuthorizedClient authorizedClient) {
+ *     public Mono&lt;String&gt; authorizedClient(@RegisteredOAuth2AuthorizedClient("login-client") OAuth2AuthorizedClient authorizedClient) {
  *         // do something with authorizedClient
- *     }
- *
- *     &#64;GetMapping("/access-token")
- *     public Mono<String> accessToken(@OAuth2Client("login-client") OAuth2AccessToken accessToken) {
- *         // do something with accessToken
  *     }
  * }
  * </pre>
  *
  * @author Rob Winch
  * @since 5.1
- * @see OAuth2Client
+ * @see RegisteredOAuth2AuthorizedClient
  */
-public final class OAuth2ClientArgumentResolver implements HandlerMethodArgumentResolver {
-	private final ReactiveClientRegistrationRepository clientRegistrationRepository;
+public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMethodArgumentResolver {
 	private final ReactiveOAuth2AuthorizedClientService authorizedClientService;
 
 	/**
-	 * Constructs an {@code OAuth2ClientArgumentResolver} using the provided parameters.
+	 * Constructs an {@code OAuth2AuthorizedClientArgumentResolver} using the provided parameters.
 	 *
-	 * @param clientRegistrationRepository the repository of client registrations
 	 * @param authorizedClientService the authorized client service
 	 */
-	public OAuth2ClientArgumentResolver(ReactiveClientRegistrationRepository clientRegistrationRepository,
-			ReactiveOAuth2AuthorizedClientService authorizedClientService) {
-		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
+	public OAuth2AuthorizedClientArgumentResolver(ReactiveOAuth2AuthorizedClientService authorizedClientService) {
 		Assert.notNull(authorizedClientService, "authorizedClientService cannot be null");
-		this.clientRegistrationRepository = clientRegistrationRepository;
 		this.authorizedClientService = authorizedClientService;
 	}
 
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
-		return AnnotatedElementUtils.findMergedAnnotation(parameter.getParameter(), OAuth2Client.class) != null;
+		return AnnotatedElementUtils.findMergedAnnotation(parameter.getParameter(), RegisteredOAuth2AuthorizedClient.class) != null;
 	}
 
 	@Override
 	public Mono<Object> resolveArgument(
 			MethodParameter parameter, BindingContext bindingContext, ServerWebExchange exchange) {
 		return Mono.defer(() -> {
-			OAuth2Client oauth2ClientAnnotation = AnnotatedElementUtils
-					.findMergedAnnotation(parameter.getParameter(), OAuth2Client.class);
+			RegisteredOAuth2AuthorizedClient authorizedClientAnnotation = AnnotatedElementUtils
+					.findMergedAnnotation(parameter.getParameter(), RegisteredOAuth2AuthorizedClient.class);
 
-			Mono<String> clientRegistrationId = Mono.justOrEmpty(oauth2ClientAnnotation.registrationId())
+			Mono<String> clientRegistrationId = Mono.justOrEmpty(authorizedClientAnnotation.registrationId())
 					.filter(id -> !StringUtils.isEmpty(id))
 					.switchIfEmpty(clientRegistrationId())
 					.switchIfEmpty(Mono.defer(() -> Mono.error(new IllegalArgumentException(
-							"Unable to resolve the Client Registration Identifier. It must be provided via @OAuth2Client(\"client1\") or @OAuth2Client(registrationId = \"client1\")."))));
-
-			if (ClientRegistration.class.isAssignableFrom(parameter.getParameterType())) {
-				return clientRegistrationId.flatMap(id -> this.clientRegistrationRepository.findByRegistrationId(id)
-						.switchIfEmpty(Mono.defer(() -> Mono.error(new IllegalArgumentException(
-								"Unable to find ClientRegistration with registration identifier \""
-										+ id + "\"."))))).cast(Object.class);
-			}
+							"Unable to resolve the Client Registration Identifier. It must be provided via @RegisteredOAuth2AuthorizedClient(\"client1\") or @RegisteredOAuth2AuthorizedClient(registrationId = \"client1\")."))));
 
 			Mono<String> principalName = ReactiveSecurityContextHolder.getContext()
 					.map(SecurityContext::getAuthentication).map(Authentication::getName);
@@ -128,10 +101,6 @@ public final class OAuth2ClientArgumentResolver implements HandlerMethodArgument
 										.error(new ClientAuthorizationRequiredException(
 												registrationId))));
 					}).cast(OAuth2AuthorizedClient.class);
-
-			if (OAuth2AccessToken.class.isAssignableFrom(parameter.getParameterType())) {
-				return authorizedClient.map(OAuth2AuthorizedClient::getAccessToken);
-			}
 
 			return authorizedClient.cast(Object.class);
 		});

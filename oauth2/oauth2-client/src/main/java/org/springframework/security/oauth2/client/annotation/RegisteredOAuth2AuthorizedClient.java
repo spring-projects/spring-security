@@ -17,9 +17,7 @@ package org.springframework.security.oauth2.client.annotation;
 
 import org.springframework.core.annotation.AliasFor;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.client.web.method.annotation.OAuth2ClientArgumentResolver;
-import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.client.web.method.annotation.OAuth2AuthorizedClientArgumentResolver;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -28,40 +26,29 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * This annotation may be used to resolve a method parameter into an argument value
- * for the following types: {@link ClientRegistration}, {@link OAuth2AuthorizedClient}
- * and {@link OAuth2AccessToken}.
+ * This annotation may be used to resolve a method parameter
+ * to an argument value of type {@link OAuth2AuthorizedClient}.
  *
  * <p>
  * For example:
  * <pre>
  * &#64;Controller
  * public class MyController {
- *     &#64;GetMapping("/client-registration")
- *     public String clientRegistration(@OAuth2Client("login-client") ClientRegistration clientRegistration) {
- *         // do something with clientRegistration
- *     }
- *
  *     &#64;GetMapping("/authorized-client")
- *     public String authorizedClient(@OAuth2Client("login-client") OAuth2AuthorizedClient authorizedClient) {
+ *     public String authorizedClient(@RegisteredOAuth2AuthorizedClient("login-client") OAuth2AuthorizedClient authorizedClient) {
  *         // do something with authorizedClient
- *     }
- *
- *     &#64;GetMapping("/access-token")
- *     public String accessToken(@OAuth2Client("login-client") OAuth2AccessToken accessToken) {
- *         // do something with accessToken
  *     }
  * }
  * </pre>
  *
  * @author Joe Grandja
  * @since 5.1
- * @see OAuth2ClientArgumentResolver
+ * @see OAuth2AuthorizedClientArgumentResolver
  */
 @Target({ ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface OAuth2Client {
+public @interface RegisteredOAuth2AuthorizedClient {
 
 	/**
 	 * Sets the client registration identifier.
@@ -74,8 +61,8 @@ public @interface OAuth2Client {
 	/**
 	 * The default attribute for this annotation.
 	 * This is an alias for {@link #registrationId()}.
-	 * For example, {@code @OAuth2Client("login-client")} is equivalent to
-	 * {@code @OAuth2Client(registrationId="login-client")}.
+	 * For example, {@code @RegisteredOAuth2AuthorizedClient("login-client")} is equivalent to
+	 * {@code @RegisteredOAuth2AuthorizedClient(registrationId="login-client")}.
 	 *
 	 * @return the client registration identifier
 	 */
