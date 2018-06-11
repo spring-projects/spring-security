@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
+import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
@@ -164,8 +165,10 @@ public class OAuth2LoginAuthenticationProviderTests {
 	@Test
 	public void authenticateWhenLoginSuccessThenReturnAuthentication() {
 		OAuth2AccessToken accessToken = mock(OAuth2AccessToken.class);
+		OAuth2RefreshToken refreshToken = mock(OAuth2RefreshToken.class);
 		OAuth2AccessTokenResponse accessTokenResponse = mock(OAuth2AccessTokenResponse.class);
 		when(accessTokenResponse.getAccessToken()).thenReturn(accessToken);
+		when(accessTokenResponse.getRefreshToken()).thenReturn(refreshToken);
 		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(accessTokenResponse);
 
 		OAuth2User principal = mock(OAuth2User.class);
@@ -185,6 +188,7 @@ public class OAuth2LoginAuthenticationProviderTests {
 		assertThat(authentication.getClientRegistration()).isEqualTo(this.clientRegistration);
 		assertThat(authentication.getAuthorizationExchange()).isEqualTo(this.authorizationExchange);
 		assertThat(authentication.getAccessToken()).isEqualTo(accessToken);
+		assertThat(authentication.getRefreshToken()).isEqualTo(refreshToken);
 	}
 
 	@Test

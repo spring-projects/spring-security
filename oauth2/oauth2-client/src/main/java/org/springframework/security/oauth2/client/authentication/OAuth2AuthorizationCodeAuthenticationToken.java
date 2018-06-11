@@ -15,10 +15,12 @@
  */
 package org.springframework.security.oauth2.client.authentication;
 
+import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
 import org.springframework.util.Assert;
 
@@ -40,6 +42,7 @@ public class OAuth2AuthorizationCodeAuthenticationToken extends AbstractAuthenti
 	private ClientRegistration clientRegistration;
 	private OAuth2AuthorizationExchange authorizationExchange;
 	private OAuth2AccessToken accessToken;
+	private OAuth2RefreshToken refreshToken;
 
 	/**
 	 * This constructor should be used when the Authorization Request/Response is complete.
@@ -67,9 +70,26 @@ public class OAuth2AuthorizationCodeAuthenticationToken extends AbstractAuthenti
 	public OAuth2AuthorizationCodeAuthenticationToken(ClientRegistration clientRegistration,
 														OAuth2AuthorizationExchange authorizationExchange,
 														OAuth2AccessToken accessToken) {
+		this(clientRegistration, authorizationExchange, accessToken, null);
+	}
+
+	/**
+	 * This constructor should be used when the Access Token Request/Response is complete,
+	 * which indicates that the Authorization Code Grant flow has fully completed.
+	 *
+	 * @param clientRegistration the client registration
+	 * @param authorizationExchange the authorization exchange
+	 * @param accessToken the access token credential
+	 * @param refreshToken the refresh token credential
+	 */
+	public OAuth2AuthorizationCodeAuthenticationToken(ClientRegistration clientRegistration,
+														OAuth2AuthorizationExchange authorizationExchange,
+														OAuth2AccessToken accessToken,
+														@Nullable OAuth2RefreshToken refreshToken) {
 		this(clientRegistration, authorizationExchange);
 		Assert.notNull(accessToken, "accessToken cannot be null");
 		this.accessToken = accessToken;
+		this.refreshToken = refreshToken;
 		this.setAuthenticated(true);
 	}
 
@@ -110,5 +130,14 @@ public class OAuth2AuthorizationCodeAuthenticationToken extends AbstractAuthenti
 	 */
 	public OAuth2AccessToken getAccessToken() {
 		return this.accessToken;
+	}
+
+	/**
+	 * Returns the {@link OAuth2RefreshToken refresh token}.
+	 *
+	 * @return the {@link OAuth2RefreshToken}
+	 */
+	public @Nullable OAuth2RefreshToken getRefreshToken() {
+		return this.refreshToken;
 	}
 }

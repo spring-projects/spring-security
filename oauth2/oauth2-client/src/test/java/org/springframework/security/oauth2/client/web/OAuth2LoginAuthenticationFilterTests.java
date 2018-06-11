@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
+import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
@@ -281,6 +282,7 @@ public class OAuth2LoginAuthenticationFilterTests {
 		assertThat(authorizedClient.getClientRegistration()).isEqualTo(this.registration1);
 		assertThat(authorizedClient.getPrincipalName()).isEqualTo(this.principalName1);
 		assertThat(authorizedClient.getAccessToken()).isNotNull();
+		assertThat(authorizedClient.getRefreshToken()).isNotNull();
 	}
 
 	@Test
@@ -328,6 +330,7 @@ public class OAuth2LoginAuthenticationFilterTests {
 		when(loginAuthentication.getClientRegistration()).thenReturn(registration);
 		when(loginAuthentication.getAuthorizationExchange()).thenReturn(mock(OAuth2AuthorizationExchange.class));
 		when(loginAuthentication.getAccessToken()).thenReturn(mock(OAuth2AccessToken.class));
+		when(loginAuthentication.getRefreshToken()).thenReturn(mock(OAuth2RefreshToken.class));
 		when(this.authenticationManager.authenticate(any(Authentication.class))).thenReturn(loginAuthentication);
 	}
 }

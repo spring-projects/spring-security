@@ -41,6 +41,7 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
+import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
@@ -238,6 +239,7 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 		assertThat(authorizedClient.getClientRegistration()).isEqualTo(this.registration1);
 		assertThat(authorizedClient.getPrincipalName()).isEqualTo(this.principalName1);
 		assertThat(authorizedClient.getAccessToken()).isNotNull();
+		assertThat(authorizedClient.getRefreshToken()).isNotNull();
 	}
 
 	@Test
@@ -299,6 +301,7 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 		when(authentication.getClientRegistration()).thenReturn(registration);
 		when(authentication.getAuthorizationExchange()).thenReturn(mock(OAuth2AuthorizationExchange.class));
 		when(authentication.getAccessToken()).thenReturn(mock(OAuth2AccessToken.class));
+		when(authentication.getRefreshToken()).thenReturn(mock(OAuth2RefreshToken.class));
 		when(this.authenticationManager.authenticate(any(Authentication.class))).thenReturn(authentication);
 	}
 }

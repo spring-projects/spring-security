@@ -120,11 +120,13 @@ public class OAuth2LoginReactiveAuthenticationManager implements
 							authorizationCodeAuthentication.getAuthorizationExchange(),
 							oauth2User,
 							mappedAuthorities,
-							accessToken);
+							accessToken,
+							accessTokenResponse.getRefreshToken());
 					OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
 							authenticationResult.getClientRegistration(),
 							authenticationResult.getName(),
-							authenticationResult.getAccessToken());
+							authenticationResult.getAccessToken(),
+							authenticationResult.getRefreshToken());
 					OAuth2AuthenticationToken result =  new OAuth2AuthenticationToken(
 							authenticationResult.getPrincipal(),
 							authenticationResult.getAuthorities(),

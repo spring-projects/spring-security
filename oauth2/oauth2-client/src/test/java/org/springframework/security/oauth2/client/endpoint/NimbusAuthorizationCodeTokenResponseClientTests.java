@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,6 +91,7 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 			"   \"token_type\": \"bearer\",\n" +
 			"   \"expires_in\": \"3600\",\n" +
 			"   \"scope\": \"openid profile\",\n" +
+			"	\"refresh_token\": \"refresh-token-1234\",\n" +
 			"   \"custom_parameter_1\": \"custom-value-1\",\n" +
 			"   \"custom_parameter_2\": \"custom-value-2\"\n" +
 			"}\n";
@@ -115,6 +116,7 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 		assertThat(accessTokenResponse.getAccessToken().getTokenType()).isEqualTo(OAuth2AccessToken.TokenType.BEARER);
 		assertThat(accessTokenResponse.getAccessToken().getExpiresAt()).isBetween(expiresAtBefore, expiresAtAfter);
 		assertThat(accessTokenResponse.getAccessToken().getScopes()).containsExactly("openid", "profile");
+		assertThat(accessTokenResponse.getRefreshToken().getTokenValue()).isEqualTo("refresh-token-1234");
 		assertThat(accessTokenResponse.getAdditionalParameters().size()).isEqualTo(2);
 		assertThat(accessTokenResponse.getAdditionalParameters()).containsEntry("custom_parameter_1", "custom-value-1");
 		assertThat(accessTokenResponse.getAdditionalParameters()).containsEntry("custom_parameter_2", "custom-value-2");

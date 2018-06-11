@@ -20,7 +20,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
-import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.util.Assert;
 
@@ -69,13 +68,12 @@ public class OAuth2AuthorizationCodeAuthenticationProvider implements Authentica
 					authorizationCodeAuthentication.getClientRegistration(),
 					authorizationCodeAuthentication.getAuthorizationExchange()));
 
-		OAuth2AccessToken accessToken = accessTokenResponse.getAccessToken();
-
 		OAuth2AuthorizationCodeAuthenticationToken authenticationResult =
 			new OAuth2AuthorizationCodeAuthenticationToken(
 				authorizationCodeAuthentication.getClientRegistration(),
 				authorizationCodeAuthentication.getAuthorizationExchange(),
-				accessToken);
+				accessTokenResponse.getAccessToken(),
+				accessTokenResponse.getRefreshToken());
 		authenticationResult.setDetails(authorizationCodeAuthentication.getDetails());
 
 		return authenticationResult;

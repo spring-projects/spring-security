@@ -27,6 +27,7 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
+import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
@@ -122,8 +123,10 @@ public class OAuth2AuthorizationCodeAuthenticationProviderTests {
 	@Test
 	public void authenticateWhenAuthorizationSuccessResponseThenExchangedForAccessToken() {
 		OAuth2AccessToken accessToken = mock(OAuth2AccessToken.class);
+		OAuth2RefreshToken refreshToken = mock(OAuth2RefreshToken.class);
 		OAuth2AccessTokenResponse accessTokenResponse = mock(OAuth2AccessTokenResponse.class);
 		when(accessTokenResponse.getAccessToken()).thenReturn(accessToken);
+		when(accessTokenResponse.getRefreshToken()).thenReturn(refreshToken);
 		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(accessTokenResponse);
 
 		OAuth2AuthorizationCodeAuthenticationToken authenticationResult =
@@ -137,5 +140,6 @@ public class OAuth2AuthorizationCodeAuthenticationProviderTests {
 		assertThat(authenticationResult.getClientRegistration()).isEqualTo(this.clientRegistration);
 		assertThat(authenticationResult.getAuthorizationExchange()).isEqualTo(this.authorizationExchange);
 		assertThat(authenticationResult.getAccessToken()).isEqualTo(accessToken);
+		assertThat(authenticationResult.getRefreshToken()).isEqualTo(refreshToken);
 	}
 }

@@ -118,6 +118,11 @@ public class NimbusReactiveAuthorizationCodeTokenResponseClient implements React
 									accessToken.getScope().toStringList());
 						}
 
+						String refreshToken = null;
+						if (accessTokenResponse.getTokens().getRefreshToken() != null) {
+							refreshToken = accessTokenResponse.getTokens().getRefreshToken().getValue();
+						}
+
 						Map<String, Object> additionalParameters = new LinkedHashMap<>(
 								accessTokenResponse.getCustomParameters());
 
@@ -125,6 +130,7 @@ public class NimbusReactiveAuthorizationCodeTokenResponseClient implements React
 								.tokenType(accessTokenType)
 								.expiresIn(expiresIn)
 								.scopes(scopes)
+								.refreshToken(refreshToken)
 								.additionalParameters(additionalParameters)
 								.build();
 					});
