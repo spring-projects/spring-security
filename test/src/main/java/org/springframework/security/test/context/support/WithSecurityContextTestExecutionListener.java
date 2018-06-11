@@ -42,6 +42,8 @@ import org.springframework.test.web.servlet.MockMvc;
  * @author Rob Winch
  * @author Eddú Meléndez
  * @since 4.0
+ * @see ReactorContextTestExecutionListener
+ * @see org.springframework.security.test.context.annotation.SecurityTestExecutionListeners
  */
 public class WithSecurityContextTestExecutionListener
 		extends AbstractTestExecutionListener {
