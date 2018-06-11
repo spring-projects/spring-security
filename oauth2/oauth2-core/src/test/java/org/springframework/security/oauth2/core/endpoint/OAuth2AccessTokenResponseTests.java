@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class OAuth2AccessTokenResponseTests {
 	private static final String TOKEN_VALUE = "access-token";
+	private static final String REFRESH_TOKEN_VALUE = "refresh-token";
 	private static final long EXPIRES_IN = Instant.now().plusSeconds(5).toEpochMilli();
 
 	@Test(expected = IllegalArgumentException.class)
@@ -88,6 +89,7 @@ public class OAuth2AccessTokenResponseTests {
 			.tokenType(OAuth2AccessToken.TokenType.BEARER)
 			.expiresIn(expiresAt.toEpochMilli())
 			.scopes(scopes)
+			.refreshToken(REFRESH_TOKEN_VALUE)
 			.additionalParameters(additionalParameters)
 			.build();
 
@@ -97,6 +99,7 @@ public class OAuth2AccessTokenResponseTests {
 		assertThat(tokenResponse.getAccessToken().getIssuedAt()).isNotNull();
 		assertThat(tokenResponse.getAccessToken().getExpiresAt()).isAfterOrEqualTo(expiresAt);
 		assertThat(tokenResponse.getAccessToken().getScopes()).isEqualTo(scopes);
+		assertThat(tokenResponse.getRefreshToken().getTokenValue()).isEqualTo(REFRESH_TOKEN_VALUE);
 		assertThat(tokenResponse.getAdditionalParameters()).isEqualTo(additionalParameters);
 	}
 }

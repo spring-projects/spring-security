@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
+import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
@@ -78,6 +79,7 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 	private OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient;
 	private OAuth2AccessTokenResponse accessTokenResponse;
 	private OAuth2AccessToken accessToken;
+	private OAuth2RefreshToken refreshToken;
 	private OAuth2UserService<OidcUserRequest, OidcUser> userService;
 	private OidcAuthorizationCodeAuthenticationProvider authenticationProvider;
 
@@ -95,6 +97,7 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 		this.accessTokenResponseClient = mock(OAuth2AccessTokenResponseClient.class);
 		this.accessTokenResponse = mock(OAuth2AccessTokenResponse.class);
 		this.accessToken = mock(OAuth2AccessToken.class);
+		this.refreshToken = mock(OAuth2RefreshToken.class);
 		this.userService = mock(OAuth2UserService.class);
 		this.authenticationProvider = PowerMockito.spy(
 			new OidcAuthorizationCodeAuthenticationProvider(this.accessTokenResponseClient, this.userService));
@@ -109,6 +112,7 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 		when(this.authorizationRequest.getRedirectUri()).thenReturn("http://example.com");
 		when(this.authorizationResponse.getRedirectUri()).thenReturn("http://example.com");
 		when(this.accessTokenResponse.getAccessToken()).thenReturn(this.accessToken);
+		when(this.accessTokenResponse.getRefreshToken()).thenReturn(this.refreshToken);
 		Map<String, Object> additionalParameters = new HashMap<>();
 		additionalParameters.put(OidcParameterNames.ID_TOKEN, "id-token");
 		when(this.accessTokenResponse.getAdditionalParameters()).thenReturn(additionalParameters);
@@ -365,6 +369,7 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 		assertThat(authentication.getClientRegistration()).isEqualTo(this.clientRegistration);
 		assertThat(authentication.getAuthorizationExchange()).isEqualTo(this.authorizationExchange);
 		assertThat(authentication.getAccessToken()).isEqualTo(this.accessToken);
+		assertThat(authentication.getRefreshToken()).isEqualTo(this.refreshToken);
 	}
 
 	@Test

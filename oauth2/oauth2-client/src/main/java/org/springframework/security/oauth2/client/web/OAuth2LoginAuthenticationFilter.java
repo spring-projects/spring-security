@@ -173,7 +173,8 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
 			authenticationResult.getClientRegistration(),
 			oauth2Authentication.getName(),
-			authenticationResult.getAccessToken());
+			authenticationResult.getAccessToken(),
+			authenticationResult.getRefreshToken());
 
 		this.authorizedClientService.saveAuthorizedClient(authorizedClient, oauth2Authentication);
 

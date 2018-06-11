@@ -198,7 +198,8 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
 			authenticationResult.getClientRegistration(),
 			currentAuthentication.getName(),
-			authenticationResult.getAccessToken());
+			authenticationResult.getAccessToken(),
+			authenticationResult.getRefreshToken());
 
 		this.authorizedClientService.saveAuthorizedClient(authorizedClient, currentAuthentication);
 

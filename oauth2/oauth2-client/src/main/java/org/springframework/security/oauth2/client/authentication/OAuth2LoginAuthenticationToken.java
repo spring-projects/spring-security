@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,13 @@
  */
 package org.springframework.security.oauth2.client.authentication;
 
+import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.Assert;
@@ -46,6 +48,7 @@ public class OAuth2LoginAuthenticationToken extends AbstractAuthenticationToken 
 	private ClientRegistration clientRegistration;
 	private OAuth2AuthorizationExchange authorizationExchange;
 	private OAuth2AccessToken accessToken;
+	private OAuth2RefreshToken refreshToken;
 
 	/**
 	 * This constructor should be used when the Authorization Request/Response is complete.
@@ -80,6 +83,27 @@ public class OAuth2LoginAuthenticationToken extends AbstractAuthenticationToken 
 											OAuth2User principal,
 											Collection<? extends GrantedAuthority> authorities,
 											OAuth2AccessToken accessToken) {
+		this(clientRegistration, authorizationExchange, principal, authorities, accessToken, null);
+	}
+
+	/**
+	 * This constructor should be used when the Access Token Request/Response is complete,
+	 * which indicates that the Authorization Code Grant flow has fully completed
+	 * and OAuth 2.0 Login has been achieved.
+	 *
+	 * @param clientRegistration the client registration
+	 * @param authorizationExchange the authorization exchange
+	 * @param principal the user {@code Principal} registered with the OAuth 2.0 Provider
+	 * @param authorities the authorities granted to the user
+	 * @param accessToken the access token credential
+	 * @param refreshToken the refresh token credential
+	 */
+	public OAuth2LoginAuthenticationToken(ClientRegistration clientRegistration,
+											OAuth2AuthorizationExchange authorizationExchange,
+											OAuth2User principal,
+											Collection<? extends GrantedAuthority> authorities,
+											OAuth2AccessToken accessToken,
+											@Nullable OAuth2RefreshToken refreshToken) {
 		super(authorities);
 		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
 		Assert.notNull(authorizationExchange, "authorizationExchange cannot be null");
@@ -89,6 +113,7 @@ public class OAuth2LoginAuthenticationToken extends AbstractAuthenticationToken 
 		this.authorizationExchange = authorizationExchange;
 		this.principal = principal;
 		this.accessToken = accessToken;
+		this.refreshToken = refreshToken;
 		this.setAuthenticated(true);
 	}
 
@@ -127,5 +152,15 @@ public class OAuth2LoginAuthenticationToken extends AbstractAuthenticationToken 
 	 */
 	public OAuth2AccessToken getAccessToken() {
 		return this.accessToken;
+	}
+
+	/**
+	 * Returns the {@link OAuth2RefreshToken refresh token}.
+	 *
+	 * @since 5.1
+	 * @return the {@link OAuth2RefreshToken}
+	 */
+	public @Nullable OAuth2RefreshToken getRefreshToken() {
+		return this.refreshToken;
 	}
 }

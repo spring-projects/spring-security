@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,11 @@
  */
 package org.springframework.security.oauth2.core.endpoint;
 
+import org.springframework.lang.Nullable;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -29,10 +32,12 @@ import java.util.Set;
  * @author Joe Grandja
  * @since 5.0
  * @see OAuth2AccessToken
+ * @see OAuth2RefreshToken
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-5.1">Section 5.1 Access Token Response</a>
  */
 public final class OAuth2AccessTokenResponse {
 	private OAuth2AccessToken accessToken;
+	private OAuth2RefreshToken refreshToken;
 	private Map<String, Object> additionalParameters;
 
 	private OAuth2AccessTokenResponse() {
@@ -45,6 +50,16 @@ public final class OAuth2AccessTokenResponse {
 	 */
 	public OAuth2AccessToken getAccessToken() {
 		return this.accessToken;
+	}
+
+	/**
+	 * Returns the {@link OAuth2RefreshToken Refresh Token}.
+	 *
+	 * @since 5.1
+	 * @return the {@link OAuth2RefreshToken}
+	 */
+	public @Nullable OAuth2RefreshToken getRefreshToken() {
+		return this.refreshToken;
 	}
 
 	/**
@@ -74,6 +89,7 @@ public final class OAuth2AccessTokenResponse {
 		private OAuth2AccessToken.TokenType tokenType;
 		private long expiresIn;
 		private Set<String> scopes;
+		private String refreshToken;
 		private Map<String, Object> additionalParameters;
 
 		private Builder(String tokenValue) {
@@ -114,6 +130,17 @@ public final class OAuth2AccessTokenResponse {
 		}
 
 		/**
+		 * Sets the refresh token associated to the access token.
+		 *
+		 * @param refreshToken the refresh token associated to the access token.
+		 * @return the {@link Builder}
+		 */
+		public Builder refreshToken(String refreshToken) {
+			this.refreshToken = refreshToken;
+			return this;
+		}
+
+		/**
 		 * Sets the additional parameters returned in the response.
 		 *
 		 * @param additionalParameters the additional parameters returned in the response
@@ -142,6 +169,14 @@ public final class OAuth2AccessTokenResponse {
 			OAuth2AccessTokenResponse accessTokenResponse = new OAuth2AccessTokenResponse();
 			accessTokenResponse.accessToken = new OAuth2AccessToken(
 				this.tokenType, this.tokenValue, issuedAt, expiresAt, this.scopes);
+			if (StringUtils.hasText(this.refreshToken)) {
+				// The Access Token response does not return an expires_in for the Refresh Token,
+				// therefore, we'll default to +1 second from issuedAt time.
+				// NOTE:
+				// The expiry or invalidity of a Refresh Token can only be determined by performing
+				// the refresh_token grant and if it fails than likely it has expired or has been invalidated.
+				accessTokenResponse.refreshToken = new OAuth2RefreshToken(this.refreshToken, issuedAt, issuedAt.plusSeconds(1));
+			}
 			accessTokenResponse.additionalParameters = Collections.unmodifiableMap(
 				CollectionUtils.isEmpty(this.additionalParameters) ? Collections.emptyMap() : this.additionalParameters);
 			return accessTokenResponse;

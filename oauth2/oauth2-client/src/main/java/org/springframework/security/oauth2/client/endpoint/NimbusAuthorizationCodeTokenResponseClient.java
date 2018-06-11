@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -138,12 +138,18 @@ public class NimbusAuthorizationCodeTokenResponseClient implements OAuth2AccessT
 				accessTokenResponse.getTokens().getAccessToken().getScope().toStringList());
 		}
 
+		String refreshToken = null;
+		if (accessTokenResponse.getTokens().getRefreshToken() != null) {
+			refreshToken = accessTokenResponse.getTokens().getRefreshToken().getValue();
+		}
+
 		Map<String, Object> additionalParameters = new LinkedHashMap<>(accessTokenResponse.getCustomParameters());
 
 		return OAuth2AccessTokenResponse.withToken(accessToken)
 			.tokenType(accessTokenType)
 			.expiresIn(expiresIn)
 			.scopes(scopes)
+			.refreshToken(refreshToken)
 			.additionalParameters(additionalParameters)
 			.build();
 	}
