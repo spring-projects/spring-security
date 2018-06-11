@@ -1,33 +1,33 @@
 [[preauth]]
-== Pre-Authentication Scenarios
-There are situations where you want to use Spring Security for authorization, but the user has already been reliably authenticated by some external system prior to accessing the application.
-We refer to these situations as "pre-authenticated" scenarios.
-Examples include X.509, Siteminder and authentication by the Java EE container in which the application is running.
-When using pre-authentication, Spring Security has to
+== 预认证方案
+在某些情况下，您希望使用Spring Security进行授权，但在访问应用程序之前，用户已被某个外部系统可靠地认证。
+我们将这些情况称为"pre-authenticated"情景。
+示例包括X.509，Siteminder和运行该应用程序的Java EE容器的身份验证。
+在使用预认证时，Spring Security必须
 
-* Identify the user making the request.
+* 识别发出请求的用户。
 
-* Obtain the authorities for the user.
-
-
-The details will depend on the external authentication mechanism.
-A user might be identified by their certificate information in the case of X.509, or by an HTTP request header in the case of Siteminder.
-If relying on container authentication, the user will be identified by calling the `getUserPrincipal()` method on the incoming HTTP request.
-In some cases, the external mechanism may supply role/authority information for the user but in others the authorities must be obtained from a separate source, such as a `UserDetailsService`.
+* 获取用户权限。
 
 
-=== Pre-Authentication Framework Classes
-Because most pre-authentication mechanisms follow the same pattern, Spring Security has a set of classes which provide an internal framework for implementing pre-authenticated authentication providers.
-This removes duplication and allows new implementations to be added in a structured fashion, without having to write everything from scratch.
-You don't need to know about these classes if you want to use something like <<x509,X.509 authentication>>, as it already has a namespace configuration option which is simpler to use and get started with.
-If you need to use explicit bean configuration or are planning on writing your own implementation then an understanding of how the provided implementations work will be useful.
-You will find classes under the `org.springframework.security.web.authentication.preauth`.
-We just provide an outline here so you should consult the Javadoc and source where appropriate.
+细节将取决于外部认证机制。
+在X.509的情况下，用户可以通过他们的证书信息来标识，或者在Siteminder的情况下通过HTTP请求标头来标识用户。
+如果依赖容器身份验证，则将通过调用传入HTTP请求上的`getUserPrincipal()`方法来识别用户。
+在某些情况下，外部机制可能会为用户提供角色/权限信息，但在其他情况下，必须从单独的来源获取权限，例如`UserDetailsService`。
 
 
-==== AbstractPreAuthenticatedProcessingFilter
-This class will check the current contents of the security context and, if empty, it will attempt to extract user information from the HTTP request and submit it to the `AuthenticationManager`.
-Subclasses override the following methods to obtain this information:
+=== 预认证框架类
+由于大多数预认证机制遵循相同的模式，因此Spring Security具有一组类，它们为实现预认证的认证提供程序提供了一个内部框架。
+这消除了重复，并允许以结构化的方式添加新的实现，而无需从头开始编写所有内容。
+如果您想使用<<x509,X.509 authentication>>之类的东西，则不需要了解这些类，因为它已经有一个名称空间配置选项，该选项使用起来更简单并且易于使用。
+如果您需要使用显式的bean配置或正在计划编写自己的实现，那么了解提供的实现如何工作将会很有用。
+您会在`org.springframework.security.web.authentication.preauth`下找到课程。
+我们只是在这里提供一个大纲，所以你应该在适当的地方咨询Javadoc和源代码。
+
+
+====  AbstractPreAuthenticatedProcessingFilter
+该类将检查安全上下文的当前内容，如果为空，它将尝试从HTTP请求中提取用户信息并将其提交给`AuthenticationManager`。
+子类覆盖以下方法来获取此信息：
 
 [source,java]
 ----
@@ -37,30 +37,30 @@ protected abstract Object getPreAuthenticatedCredentials(HttpServletRequest requ
 ----
 
 
-After calling these, the filter will create a `PreAuthenticatedAuthenticationToken` containing the returned data and submit it for authentication.
-By "authentication" here, we really just mean further processing to perhaps load the user's authorities, but the standard Spring Security authentication architecture is followed.
+调用这些后，过滤器将创建一个包含返回数据的`PreAuthenticatedAuthenticationToken`并提交它进行验证。
+在"authentication"这里，我们实际上只是意味着可能会加载用户权限的进一步处理，但遵循标准的Spring Security身份验证体系结构。
 
-Like other Spring Security authentication filters, the pre-authentication filter has an `authenticationDetailsSource` property which by default will create a `WebAuthenticationDetails` object to store additional information such as the session-identifier and originating IP address in the `details` property of the `Authentication` object.
-In cases where user role information can be obtained from the pre-authentication mechanism, the data is also stored in this property, with the details implementing the `GrantedAuthoritiesContainer` interface.
-This enables the authentication provider to read the authorities which were externally allocated to the user.
-We'll look at a concrete example next.
+与其他Spring Security身份验证过滤器一样，身份验证前过滤器也具有`authenticationDetailsSource`属性，默认情况下，该属性将创建一个`WebAuthenticationDetails`对象以将其他信息（如会话标识符和始发IP地址）存储在{{ 2}} `Authentication`对象的属性。
+在可以从预认证机制获取用户角色信息的情况下，数据也存储在此属性中，并且具体实现了`GrantedAuthoritiesContainer`接口。
+这使验证提供者能够读取外部分配给用户的权限。
+接下来我们将看一个具体的例子。
 
 
 [[j2ee-preauth-details]]
-===== J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource
-If the filter is configured with an `authenticationDetailsSource` which is an instance of this class, the authority information is obtained by calling the `isUserInRole(String role)` method for each of a pre-determined set of "mappable roles".
-The class gets these from a configured `MappableAttributesRetriever`.
-Possible implementations include hard-coding a list in the application context and reading the role information from the `<security-role>` information in a `web.xml` file.
-The pre-authentication sample application uses the latter approach.
+=====  J2eeBasedPreAuthenticatedWebAuthenticationDetailsS​​ource
+如果过滤器配置了一个作为该类实例的`authenticationDetailsSource`，则通过为每个预定义的"mappable roles"调用`isUserInRole(String role)`方法来获得权限信息。
+该类从配置的`MappableAttributesRetriever`中获取这些信息。
+可能的实现包括在应用程序上下文中对列表进行硬编码，并从`web.xml`文件中的`<security-role>`信息中读取角色信息。
+预认证示例应用程序使用后一种方法。
 
-There is an additional stage where the roles (or attributes) are mapped to Spring Security `GrantedAuthority` objects using a configured `Attributes2GrantedAuthoritiesMapper`.
-The default will just add the usual `ROLE_` prefix to the names, but it gives you full control over the behaviour.
+还有一个阶段使用配置的`Attributes2GrantedAuthoritiesMapper`将角色（或属性）映射到Spring Security `GrantedAuthority`对象。
+默认情况下，只会为名称添加通常的`ROLE_`前缀，但它可以让您完全控制行为。
 
 
-==== PreAuthenticatedAuthenticationProvider
-The pre-authenticated provider has little more to do than load the `UserDetails` object for the user.
-It does this by delegating to an `AuthenticationUserDetailsService`.
-The latter is similar to the standard `UserDetailsService` but takes an `Authentication` object rather than just user name:
+====  PreAuthenticatedAuthenticationProvider
+预先认证的提供者要比为用户加载`UserDetails`对象做更多的事情。
+它通过委托给`AuthenticationUserDetailsService`来完成。
+后者与标准`UserDetailsService`类似，但采用`Authentication`对象而不仅仅是用户名：
 
 [source,java]
 ----
@@ -69,38 +69,38 @@ public interface AuthenticationUserDetailsService {
 }
 ----
 
-This interface may have also other uses but with pre-authentication it allows access to the authorities which were packaged in the `Authentication` object, as we saw in the previous section.
-The `PreAuthenticatedGrantedAuthoritiesUserDetailsService` class does this.
-Alternatively, it may delegate to a standard `UserDetailsService` via the `UserDetailsByNameServiceWrapper` implementation.
+此接口也可能有其他用途，但通过预认证，它允许访问打包在`Authentication`对象中的权限，如我们在前一节中看到的那样。
+`PreAuthenticatedGrantedAuthoritiesUserDetailsService`类执行此操作。
+或者，它可以通过`UserDetailsByNameServiceWrapper`实施委托给标准`UserDetailsService`。
 
-==== Http403ForbiddenEntryPoint
-The `AuthenticationEntryPoint` was discussed in the <<tech-intro-auth-entry-point,technical overview>> chapter.
-Normally it is responsible for kick-starting the authentication process for an unauthenticated user (when they try to access a protected resource), but in the pre-authenticated case this doesn't apply.
-You would only configure the `ExceptionTranslationFilter` with an instance of this class if you aren't using pre-authentication in combination with other authentication mechanisms.
-It will be called if the user is rejected by the `AbstractPreAuthenticatedProcessingFilter` resulting in a null authentication.
-It always returns a `403`-forbidden response code if called.
-
-
-=== Concrete Implementations
-X.509 authentication is covered in its <<x509,own chapter>>.
-Here we'll look at some classes which provide support for other pre-authenticated scenarios.
+====  Http403ForbiddenEntryPoint
+<<tech-intro-auth-entry-point,technical overview>>一章讨论了`AuthenticationEntryPoint`。
+通常，它负责启动未经身份验证的用户（当他们尝试访问受保护的资源时）的身份验证过程，但在预先验证的情况下，这不适用。
+如果您未将预认证与其他认证机制结合使用，那么您只会将`ExceptionTranslationFilter`配置为具有此类的实例。
+如果用户被`AbstractPreAuthenticatedProcessingFilter`拒绝，则会被调用，从而导致空身份验证。
+如果被调用，它总是返回一个`403`  - 禁止的响应代码。
 
 
-==== Request-Header Authentication (Siteminder)
-An external authentication system may supply information to the application by setting specific headers on the HTTP request.
-A well-known example of this is Siteminder, which passes the username in a header called `SM_USER`.
-This mechanism is supported by the class `RequestHeaderAuthenticationFilter` which simply extracts the username from the header.
-It defaults to using the name `SM_USER` as the header name.
-See the Javadoc for more details.
+=== 具体实现
+其<<x509,own chapter>>中涵盖了X.509认证。
+在这里，我们将看看一些为其他预认证方案提供支持的类。
+
+
+==== 请求标头认证（Siteminder）
+外部认证系统可以通过在HTTP请求上设置特定标头来向应用程序提供信息。
+一个众所周知的例子是Siteminder，它在名为`SM_USER`的标头中传递用户名。
+该机制由`RequestHeaderAuthenticationFilter`类简单地从头中提取用户名来支持。
+它默认使用名称`SM_USER`作为标题名称。
+查看Javadoc了解更多详情。
 
 [TIP]
 ====
-Note that when using a system like this, the framework performs no authentication checks at all and it is __extremely__ important that the external system is configured properly and protects all access to the application.
-If an attacker is able to forge the headers in their original request without this being detected then they could potentially choose any username they wished.
+请注意，使用这样的系统时，框架完全不执行身份验证检查，而且__extremely__非常重要，因为外部系统已正确配置并保护对应用程序的所有访问。
+如果攻击者能够在未检测到原始请求的情况下伪造标头，那么他们可能会选择他们希望的任何用户名。
 ====
 
-===== Siteminder Example Configuration
-A typical configuration using this filter would look like this:
+=====  Siteminder示例配置
+使用此过滤器的典型配置如下所示：
 
 [source,xml]
 ----
@@ -128,13 +128,13 @@ A typical configuration using this filter would look like this:
 </security:authentication-manager>
 ----
 
-We've assumed here that the <<ns-config,security namespace>> is being used for configuration.
-It's also assumed that you have added a `UserDetailsService` (called "userDetailsService") to your configuration to load the user's roles.
+我们在此假设<<ns-config,security namespace>>正用于配置。
+还假定您已将`UserDetailsService`（称为"userDetailsService"）添加到您的配置中以加载用户的角色。
 
 
-==== Java EE Container Authentication
-The class `J2eePreAuthenticatedProcessingFilter` will extract the username from the `userPrincipal` property of the `HttpServletRequest`.
-Use of this filter would usually be combined with the use of Java EE roles as described above in <<j2ee-preauth-details>>.
+====  Java EE容器认证
+类`J2eePreAuthenticatedProcessingFilter`将从`HttpServletRequest`的`userPrincipal`属性中提取用户名。
+如上所述，<<j2ee-preauth-details>>中使用此过滤器通常会与使用Java EE角色相结合。
 
-There is a sample application in the codebase which uses this approach, so get hold of the code from github and have a look at the application context file if you are interested.
-The code is in the `samples/xml/preauth` directory.
+在使用这种方法的代码库中有一个示例应用程序，因此如果您有兴趣，可以从github获取代码并查看应用程序上下文文件。
+该代码位于`samples/xml/preauth`目录中。

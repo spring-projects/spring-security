@@ -1,87 +1,87 @@
 [[ldap]]
-== LDAP Authentication
+==  LDAP身份验证
 
 
 [[ldap-overview]]
-=== Overview
-LDAP is often used by organizations as a central repository for user information and as an authentication service.
-It can also be used to store the role information for application users.
+=== 概述
+LDAP通常被组织用作用户信息和身份验证服务的中央存储库。
+它也可以用来存储应用程序用户的角色信息。
 
-There are many different scenarios for how an LDAP server may be configured so Spring Security's LDAP provider is fully configurable.
-It uses separate strategy interfaces for authentication and role retrieval and provides default implementations which can be configured to handle a wide range of situations.
+LDAP服务器如何配置有很多不同的情况，所以Spring Security的LDAP提供程序是完全可配置的。
+它使用单独的策略接口进行身份验证和角色检索，并提供可配置为处理各种情况的默认实现。
 
-You should be familiar with LDAP before trying to use it with Spring Security.
-The following link provides a good introduction to the concepts involved and a guide to setting up a directory using the free LDAP server OpenLDAP: http://www.zytrax.com/books/ldap/[http://www.zytrax.com/books/ldap/].
-Some familiarity with the JNDI APIs used to access LDAP from Java may also be useful.
-We don't use any third-party LDAP libraries (Mozilla, JLDAP etc.) in the LDAP provider, but extensive use is made of Spring LDAP, so some familiarity with that project may be useful if you plan on adding your own customizations.
+在尝试将其用于Spring Security之前，您应该熟悉LDAP。
+以下链接提供了有关概念的良好介绍，并提供了使用免费LDAP服务器OpenLDAP设置目录的指南： http://www.zytrax.com/books/ldap/[http://www.zytrax.com/books/ldap/]。
+熟悉用于从Java访问LDAP的JNDI API也可能有用。
+我们不在LDAP提供程序中使用任何第三方LDAP库（Mozilla，JLDAP等），但广泛使用Spring LDAP，因此如果您计划添加自己的自定义项，对该项目的某些熟悉可能会很有用。
 
-When using LDAP authentication, it is important to ensure that you configure LDAP connection pooling properly.
-If you are unfamiliar with how to do this, you can refer to the http://docs.oracle.com/javase/jndi/tutorial/ldap/connect/config.html[Java LDAP documentation].
+使用LDAP身份验证时，确保正确配置LDAP连接池非常重要。
+如果您不熟悉如何操作，可以参考 http://docs.oracle.com/javase/jndi/tutorial/ldap/connect/config.html[Java LDAP文档]。
 
-=== Using LDAP with Spring Security
-LDAP authentication in Spring Security can be roughly divided into the following stages.
+=== 在Spring Security中使用LDAP
+Spring Security中的LDAP认证大致可以分为以下几个阶段。
 
-* Obtaining the unique LDAP "Distinguished Name", or DN, from the login name.
-This will often mean performing a search in the directory, unless the exact mapping of usernames to DNs is known in advance.
-So a user might enter the name "joe" when logging in, but the actual name used to authenticate to LDAP will be the full DN, such as `uid=joe,ou=users,dc=spring,dc=io`.
+* 从登录名获取唯一的LDAP "Distinguished Name"或DN。
+这通常意味着在目录中执行搜索，除非事先知道用户名到DN的确切映射。
+因此，用户在登录时可能会输入名称"joe"，但用于向LDAP进行身份验证的实际名称将是完整的DN，例如`uid=joe,ou=users,dc=spring,dc=io`。
 
-* Authenticating the user, either by "binding" as that user or by performing a remote "compare" operation of the user's password against the password attribute in the directory entry for the DN.
+* 以该用户的身份"binding"对用户进行身份验证，或者对DN的目录条目中的password属性执行用户密码的远程"compare"操作。
 
-* Loading the list of authorities for the user.
+* 加载用户权限列表。
 
-The exception is when the LDAP directory is just being used to retrieve user information and authenticate against it locally.
-This may not be possible as directories are often set up with limited read access for attributes such as user passwords.
+例外情况是LDAP目录仅用于在本地检索用户信息并进行身份验证。
+这可能是不可能的，因为目录通常设置为对用户密码等属性的读访问权限有限。
 
-We will look at some configuration scenarios below.
-For full information on available configuration options, please consult the security namespace schema (information from which should be available in your XML editor).
+我们将在下面看一些配置方案。
+有关可用配置选项的完整信息，请参阅安全名称空间模式（您的XML编辑器中应该提供哪些信息）。
 
 
 [[ldap-server]]
-=== Configuring an LDAP Server
-The first thing you need to do is configure the server against which authentication should take place.
-This is done using the `<ldap-server>` element from the security namespace.
-This can be configured to point at an external LDAP server, using the `url` attribute:
+=== 配置LDAP服务器
+您需要做的第一件事是配置服务器进行身份验证。
+这是使用安全名称空间中的`<ldap-server>`元素完成的。
+可以使用`url`属性将其配置为指向外部LDAP服务器：
 
 [source,xml]
 ----
 <ldap-server url="ldap://springframework.org:389/dc=springframework,dc=org" />
 ----
 
-==== Using an Embedded Test Server
-The `<ldap-server>` element can also be used to create an embedded server, which can be very useful for testing and demonstrations.
-In this case you use it without the `url` attribute:
+==== 使用嵌入式测试服务器
+`<ldap-server>`元素也可用于创建嵌入式服务器，这对于测试和演示可能非常有用。
+在这种情况下，您可以不使用`url`属性来使用它：
 
 [source,xml]
 ----
 <ldap-server root="dc=springframework,dc=org"/>
 ----
 
-Here we've specified that the root DIT of the directory should be "dc=springframework,dc=org", which is the default.
-Used this way, the namespace parser will create an embedded Apache Directory server and scan the classpath for any LDIF files, which it will attempt to load into the server.
-You can customize this behaviour using the `ldif` attribute, which defines an LDIF resource to be loaded:
+这里我们已经指定目录的根目录DIT应该是"dc=springframework,dc=org"，这是默认值。
+使用这种方式，命名空间解析器将创建一个嵌入式Apache Directory服务器，并扫描类路径以查找将尝试加载到服务器的任何LDIF文件。
+您可以使用定义要加载的LDIF资源的`ldif`属性来自定义此行为：
 
 [source,xml]
 ----
 <ldap-server ldif="classpath:users.ldif" />
 ----
 
-This makes it a lot easier to get up and running with LDAP, since it can be inconvenient to work all the time with an external server.
-It also insulates the user from the complex bean configuration needed to wire up an Apache Directory server.
-Using plain Spring Beans the configuration would be much more cluttered.
-You must have the necessary Apache Directory dependency jars available for your application to use.
-These can be obtained from the LDAP sample application.
+这使得启动和运行LDAP变得容易很多，因为使用外部服务器可能会很不方便。
+它还将用户从连接Apache Directory服务器所需的复杂bean配置中隔离开来。
+使用普通的Spring Beans，配置会更加混乱。
+您必须拥有必要的Apache目录依赖关系jar供您的应用程序使用。
+这些可以从LDAP示例应用程序获得。
 
-==== Using Bind Authentication
-This is the most common LDAP authentication scenario.
+==== 使用绑定验证
+这是最常见的LDAP身份验证方案。
 
 [source,xml]
 ----
 <ldap-authentication-provider user-dn-pattern="uid={0},ou=people"/>
 ----
 
-This simple example would obtain the DN for the user by substituting the user login name in the supplied pattern and attempting to bind as that user with the login password.
-This is OK if all your users are stored under a single node in the directory.
-If instead you wished to configure an LDAP search filter to locate the user, you could use the following:
+这个简单的例子将通过用所提供的模式中的用户登录名替换用户并获得用户的DN，并尝试将该用户与登录密码绑定。
+如果您的所有用户都存储在目录中的单个节点下，这是可以的。
+如果您想要配置LDAP搜索过滤器来查找用户，则可以使用以下内容：
 
 [source,xml]
 ----
@@ -89,25 +89,25 @@ If instead you wished to configure an LDAP search filter to locate the user, you
 	user-search-base="ou=people"/>
 ----
 
-If used with the server definition above, this would perform a search under the DN `ou=people,dc=springframework,dc=org` using the value of the `user-search-filter` attribute as a filter.
-Again the user login name is substituted for the parameter in the filter name, so it will search for an entry with the `uid` attribute equal to the user name.
-If `user-search-base` isn't supplied, the search will be performed from the root.
+如果与上述服务器定义一起使用，则会使用`user-search-filter`属性的值作为过滤器在DN `ou=people,dc=springframework,dc=org`下执行搜索。
+同样，用户登录名将替换过滤器名称中的参数，因此它将搜索`uid`属性等于用户名的条目。
+如果未提供`user-search-base`，则将从根目录执行搜索。
 
-==== Loading Authorities
-How authorities are loaded from groups in the LDAP directory is controlled by the following attributes.
+==== 加载授权
+如何从LDAP目录中的组加载权限是由以下属性控制的。
 
 * `group-search-base`.
-Defines the part of the directory tree under which group searches should be performed.
+定义应在其下执行组搜索的目录树的部分。
 * `group-role-attribute`.
-The attribute which contains the name of the authority defined by the group entry.
-Defaults to `cn`
+包含组条目定义的权限名称的属性。
+默认为`cn`
 * `group-search-filter`.
-The filter which is used to search for group membership.
-The default is `uniqueMember={0}`, corresponding to the `groupOfUniqueNames` LDAP class footnote:[Note that this is different from the default configuration of the underlying `DefaultLdapAuthoritiesPopulator` which uses `member={0}`.].
-In this case, the substituted parameter is the full distinguished name of the user.
-The parameter `{1}` can be used if you want to filter on the login name.
+用于搜索组成员身份的过滤器。
+默认值为`uniqueMember={0}`，对应于`groupOfUniqueNames` LDAP类注脚：[请注意，这与使用`member={0}`的底层`DefaultLdapAuthoritiesPopulator`的默认配置不同）。
+在这种情况下，替换参数是用户的完整专有名称。
+如果您想过滤登录名称，则可以使用参数`{1}`。
 
-So if we used the following configuration
+所以如果我们使用下面的配置
 
 [source,xml]
 ----
@@ -115,91 +115,91 @@ So if we used the following configuration
 		group-search-base="ou=groups" />
 ----
 
-and authenticated successfully as user "ben", the subsequent loading of authorities would perform a search under the directory entry `ou=groups,dc=springframework,dc=org`, looking for entries which contain the attribute `uniqueMember` with value `uid=ben,ou=people,dc=springframework,dc=org`.
-By default the authority names will have the prefix `ROLE_` prepended.
-You can change this using the `role-prefix` attribute.
-If you don't want any prefix, use `role-prefix="none"`.
-For more information on loading authorities, see the Javadoc for the `DefaultLdapAuthoritiesPopulator` class.
+并以用户"ben"身份成功进行身份验证，则后续加载权限会在目录条目`ou=groups,dc=springframework,dc=org`下执行搜索，查找包含值`uid=ben,ou=people,dc=springframework,dc=org`的属性`uniqueMember`的条目。
+默认情况下，机构名称的前缀是`ROLE_`。
+您可以使用`role-prefix`属性进行更改。
+如果您不需要任何前缀，请使用`role-prefix="none"`。
+有关加载权限的更多信息，请参阅`DefaultLdapAuthoritiesPopulator`类的Javadoc。
 
-=== Implementation Classes
-The namespace configuration options we've used above are simple to use and much more concise than using Spring beans explicitly.
-There are situations when you may need to know how to configure Spring Security LDAP directly in your application context.
-You may wish to customize the behaviour of some of the classes, for example.
-If you're happy using namespace configuration then you can skip this section and the next one.
+=== 实现类
+我们上面使用的命名空间配置选项很容易使用，比使用Spring bean明确得多。
+有些情况下，您可能需要知道如何直接在应用程序上下文中配置Spring Security LDAP。
+例如，您可能希望自定义某些类的行为。
+如果您很高兴使用命名空间配置，那么您可以跳过本节和下一节。
 
-The main LDAP provider class, `LdapAuthenticationProvider`, doesn't actually do much itself but delegates the work to two other beans, an `LdapAuthenticator` and an `LdapAuthoritiesPopulator` which are responsible for authenticating the user and retrieving the user's set of `GrantedAuthority` s respectively.
+主要的LDAP提供者类`LdapAuthenticationProvider`实际上并没有多大作用，而是将工作委托给其他两个bean，`LdapAuthenticator`和`LdapAuthoritiesPopulator`，它们负责验证用户并检索用户的`GrantedAuthority`分别。
 
 
 [[ldap-ldap-authenticators]]
-==== LdapAuthenticator Implementations
-The authenticator is also responsible for retrieving any required user attributes.
-This is because the permissions on the attributes may depend on the type of authentication being used.
-For example, if binding as the user, it may be necessary to read them with the user's own permissions.
+====  LdapAuthenticator实现
+认证者还负责检索任何所需的用户属性。
+这是因为对属性的权限可能取决于正在使用的身份验证的类型。
+例如，如果作为用户进行绑定，则可能需要使用用户自己的权限读取它们。
 
-There are currently two authentication strategies supplied with Spring Security:
+目前Spring Security提供了两种身份验证策略：
 
-* Authentication directly to the LDAP server ("bind" authentication).
+* 直接向LDAP服务器认证（"bind"认证）。
 
-* Password comparison, where the password supplied by the user is compared with the one stored in the repository.
-This can either be done by retrieving the value of the password attribute and checking it locally or by performing an LDAP "compare" operation, where the supplied password is passed to the server for comparison and the real password value is never retrieved.
+* 密码比较，其中用户提供的密码与存储库中存储的密码进行比较。
+这可以通过检索密码属性的值并在本地进行检查或通过执行LDAP "compare"操作来完成，其中将提供的密码传递给服务器进行比较，并且实际密码值永远不会被检索。
 
 [[ldap-ldap-authenticators-common]]
-===== Common Functionality
-Before it is possible to authenticate a user (by either strategy), the distinguished name (DN) has to be obtained from the login name supplied to the application.
-This can be done either by simple pattern-matching (by setting the `setUserDnPatterns` array property) or by setting the `userSearch` property.
-For the DN pattern-matching approach, a standard Java pattern format is used, and the login name will be substituted for the parameter `{0}`.
-The pattern should be relative to the DN that the configured `SpringSecurityContextSource` will bind to (see the section on <<ldap-context-source,connecting to the LDAP server>> for more information on this).
-For example, if you are using an LDAP server with the URL `ldap://monkeymachine.co.uk/dc=springframework,dc=org`, and have a pattern `uid={0},ou=greatapes`, then a login name of "gorilla" will map to a DN `uid=gorilla,ou=greatapes,dc=springframework,dc=org`.
-Each configured DN pattern will be tried in turn until a match is found.
-For information on using a search, see the section on <<ldap-searchobjects,search objects>> below.
-A combination of the two approaches can also be used - the patterns will be checked first and if no matching DN is found, the search will be used.
+===== 通用功能
+在可以通过任一策略对用户进行身份验证之前，必须从提供给应用程序的登录名中获取专有名称（DN）。
+这可以通过简单的模式匹配（通过设置`setUserDnPatterns`数组属性）或通过设置`userSearch`属性来完成。
+对于DN模式匹配方法，使用标准的Java模式格式，并且登录名将替换参数`{0}`。
+该模式应该与配置的`SpringSecurityContextSource`将绑定到的DN相关（有关此信息的更多信息，请参阅<<ldap-context-source,connecting to the LDAP server>>中的部分）。
+例如，如果您使用URL为`ldap://monkeymachine.co.uk/dc=springframework,dc=org`的LDAP服务器，并且模式为`uid={0},ou=greatapes`，则登录名"gorilla"将映射到DN `uid=gorilla,ou=greatapes,dc=springframework,dc=org`。
+每个配置的DN模式将依次尝试，直到找到匹配项。
+有关使用搜索的信息，请参阅下面的<<ldap-searchobjects,search objects>>部分。
+也可以使用两种方法的组合 - 首先检查模式，如果找不到匹配的DN，则将使用搜索。
 
 
 [[ldap-ldap-authenticators-bind]]
-===== BindAuthenticator
-The class `BindAuthenticator` in the package `org.springframework.security.ldap.authentication` implements the bind authentication strategy.
-It simply attempts to bind as the user.
+===== 认证者
+包`org.springframework.security.ldap.authentication`中的类`BindAuthenticator`实现了绑定认证策略。
+它只是试图绑定为用户。
 
 
 [[ldap-ldap-authenticators-password]]
-===== PasswordComparisonAuthenticator
-The class `PasswordComparisonAuthenticator` implements the password comparison authentication strategy.
+=====  PasswordComparisonAuthenticator
+类`PasswordComparisonAuthenticator`实施密码比较认证策略。
 
 
 [[ldap-context-source]]
-==== Connecting to the LDAP Server
-The beans discussed above have to be able to connect to the server.
-They both have to be supplied with a `SpringSecurityContextSource` which is an extension of Spring LDAP's `ContextSource`.
-Unless you have special requirements, you will usually configure a `DefaultSpringSecurityContextSource` bean, which can be configured with the URL of your LDAP server and optionally with the username and password of a "manager" user which will be used by default when binding to the server (instead of binding anonymously).
-For more information read the Javadoc for this class and for Spring LDAP's `AbstractContextSource`.
+==== 连接到LDAP服务器
+上面讨论的bean必须能够连接到服务器。
+他们都必须提供`SpringSecurityContextSource`，这是Spring LDAP的`ContextSource`的扩展。
+除非您有特殊要求，否则您通常会配置一个`DefaultSpringSecurityContextSource` bean，该bean可以使用您的LDAP服务器的URL进行配置，并且可以使用默认使用的"manager"用户的用户名和密码绑定到服务器时（而不是匿名绑定）。
+有关更多信息，请阅读此类的Javadoc和Spring LDAP的`AbstractContextSource`。
 
 
 [[ldap-searchobjects]]
-==== LDAP Search Objects
-Often a more complicated strategy than simple DN-matching is required to locate a user entry in the directory.
-This can be encapsulated in an `LdapUserSearch` instance which can be supplied to the authenticator implementations, for example, to allow them to locate a user.
-The supplied implementation is `FilterBasedLdapUserSearch`.
+====  LDAP搜索对象
+通常比简单的DN匹配更复杂的策略需要在目录中定位用户条目。
+这可以封装在可以提供给验证器实现的`LdapUserSearch`实例中，例如，允许它们定位用户。
+提供的实现是`FilterBasedLdapUserSearch`。
 
 
 [[ldap-searchobjects-filter]]
-===== FilterBasedLdapUserSearch
-This bean uses an LDAP filter to match the user object in the directory.
-The process is explained in the Javadoc for the corresponding search method on the http://java.sun.com/j2se/1.4.2/docs/api/javax/naming/directory/DirContext.html#search(javax.naming.Name%2C%2520java.lang.String%2C%2520java.lang.Object%5B%5D%2C%2520javax.naming.directory.SearchControls)[JDK DirContext class].
-As explained there, the search filter can be supplied with parameters.
-For this class, the only valid parameter is `{0}` which will be replaced with the user's login name.
+=====  FilterBasedLdapUserSearch中
+这个bean使用LDAP过滤器来匹配目录中的用户对象。
+该过程在Javadoc中对 http://java.sun.com/j2se/1.4.2/docs/api/javax/naming/directory/DirContext.html#search(javax.naming.Name%2C%2520java.lang.String%2C%2520java.lang.Object%5B%5D%2C%2520javax.naming.directory.SearchControls)[JDK DirContext类]中的相应搜索方法进行了解释。
+如上所述，搜索过滤器可以提供参数。
+对于这个类，唯一有效的参数是`{0}`，它将被用户的登录名取代。
 
 
 [[ldap-authorities]]
-==== LdapAuthoritiesPopulator
-After authenticating the user successfully, the `LdapAuthenticationProvider` will attempt to load a set of authorities for the user by calling the configured `LdapAuthoritiesPopulator` bean.
-The `DefaultLdapAuthoritiesPopulator` is an implementation which will load the authorities by searching the directory for groups of which the user is a member (typically these will be `groupOfNames` or `groupOfUniqueNames` entries in the directory).
-Consult the Javadoc for this class for more details on how it works.
+====  LdapAuthoritiesPopulator在
+在成功验证用户之后，`LdapAuthenticationProvider`将尝试通过调用配置的`LdapAuthoritiesPopulator` Bean来为用户加载一组权限。
+`DefaultLdapAuthoritiesPopulator`是一个实现，它将通过在目录中搜索用户所属的组来加载权限（通常这些将是目录中的`groupOfNames`或`groupOfUniqueNames`条目）。
+有关它如何工作的更多细节，请咨询本课程的Javadoc。
 
-If you want to use LDAP only for authentication, but load the authorities from a difference source (such as a database) then you can provide your own implementation of this interface and inject that instead.
+如果您只想使用LDAP进行身份验证，但是从不同的来源（例如数据库）加载权限，则可以提供您自己的此接口实现，然后插入。
 
 [[ldap-bean-config]]
-==== Spring Bean Configuration
-A typical configuration, using some of the beans we've discussed here, might look like this:
+====  Spring Bean配置
+使用我们在此讨论的一些bean的典型配置可能如下所示：
 
 [source,xml]
 ----
@@ -231,12 +231,12 @@ A typical configuration, using some of the beans we've discussed here, might loo
 </bean>
 ----
 
-This would set up the provider to access an LDAP server with URL `ldap://monkeymachine:389/dc=springframework,dc=org`.
-Authentication will be performed by attempting to bind with the DN `uid=<user-login-name>,ou=people,dc=springframework,dc=org`.
-After successful authentication, roles will be assigned to the user by searching under the DN `ou=groups,dc=springframework,dc=org` with the default filter `(member=<user's-DN>)`.
-The role name will be taken from the "ou" attribute of each match.
+这将设置提供者访问URL为`ldap://monkeymachine:389/dc=springframework,dc=org`的LDAP服务器。
+尝试使用DN `uid=<user-login-name>,ou=people,dc=springframework,dc=org`进行绑定来执行身份验证。
+验证成功后，角色将通过使用默认过滤器`(member=<user's-DN>)`在DN `ou=groups,dc=springframework,dc=org`下搜索来分配给用户。
+角色名称将取自每个匹配的"ou"属性。
 
-To configure a user search object, which uses the filter `(uid=<user-login-name>)` for use instead of the DN-pattern (or in addition to it), you would configure the following bean
+要配置使用过滤器`(uid=<user-login-name>)`而不是DN模式（或除此之外）的用户搜索对象，您可以配置以下bean
 
 [source,xml]
 ----
@@ -249,17 +249,17 @@ To configure a user search object, which uses the filter `(uid=<user-login-name>
 </bean>
 ----
 
-and use it by setting the `BindAuthenticator` bean's `userSearch` property.
-The authenticator would then call the search object to obtain the correct user's DN before attempting to bind as this user.
+并通过设置`BindAuthenticator` bean的`userSearch`属性来使用它。
+然后认证者会在尝试以该用户身份进行绑定之前调用搜索对象以获取正确的用户DN。
 
 
 [[ldap-custom-user-details]]
-==== LDAP Attributes and Customized UserDetails
-The net result of an authentication using `LdapAuthenticationProvider` is the same as a normal Spring Security authentication using the standard `UserDetailsService` interface.
-A `UserDetails` object is created and stored in the returned `Authentication` object.
-As with using a `UserDetailsService`, a common requirement is to be able to customize this implementation and add extra properties.
-When using LDAP, these will normally be attributes from the user entry.
-The creation of the `UserDetails` object is controlled by the provider's `UserDetailsContextMapper` strategy, which is responsible for mapping user objects to and from LDAP context data:
+====  LDAP属性和自定义UserDetails
+使用`LdapAuthenticationProvider`进行身份验证的最终结果与使用标准`UserDetailsService`接口的普通Spring Security身份验证相同。
+`UserDetails`对象被创建并存储在返回的`Authentication`对象中。
+与使用`UserDetailsService`一样，常见的要求是能够自定义此实现并添加额外的属性。
+使用LDAP时，这些通常是来自用户条目的属性。
+`UserDetails`对象的创建由提供者的`UserDetailsContextMapper`策略控制，该策略负责将用户对象映射到LDAP上下文数据和从LDAP上下文数据映射用户对象：
 
 [source,java]
 ----
@@ -272,27 +272,27 @@ void mapUserToContext(UserDetails user, DirContextAdapter ctx);
 }
 ----
 
-Only the first method is relevant for authentication.
-If you provide an implementation of this interface and inject it into the `LdapAuthenticationProvider`, you have control over exactly how the UserDetails object is created.
-The first parameter is an instance of Spring LDAP's `DirContextOperations` which gives you access to the LDAP attributes which were loaded during authentication.
-The `username` parameter is the name used to authenticate and the final parameter is the collection of authorities loaded for the user by the configured `LdapAuthoritiesPopulator`.
+只有第一种方法与认证有关。
+如果您提供此接口的实现并将其注入到`LdapAuthenticationProvider`中，则您可以精确控制如何创建UserDetails对象。
+第一个参数是Spring LDAP的`DirContextOperations`实例，它允许您访问在验证期间加载的LDAP属性。
+`username`参数是用于认证的名称，最后一个参数是配置的`LdapAuthoritiesPopulator`为用户加载的权限的集合。
 
-The way the context data is loaded varies slightly depending on the type of authentication you are using.
-With the `BindAuthenticator`, the context returned from the bind operation will be used to read the attributes, otherwise the data will be read using the standard context obtained from the configured `ContextSource` (when a search is configured to locate the user, this will be the data returned by the search object).
+根据您使用的身份验证类型，上下文数据加载的方式略有不同。
+使用`BindAuthenticator`，绑定操作返回的上下文将用于读取属性，否则将使用从配置的`ContextSource`中获取的标准上下文读取数据（当搜索配置为定位用户，这将是搜索对象返回的数据）。
 
 
 [[ldap-active-directory]]
-=== Active Directory Authentication
-Active Directory supports its own non-standard authentication options, and the normal usage pattern doesn't fit too cleanly with the standard `LdapAuthenticationProvider`.
-Typically authentication is performed using the domain username (in the form `user@domain`), rather than using an LDAP distinguished name.
-To make this easier, Spring Security 3.1 has an authentication provider which is customized for a typical Active Directory setup.
+===  Active Directory身份验证
+Active Directory支持其自身的非标准认证选项，并且正常使用模式不适合标准的`LdapAuthenticationProvider`。
+通常使用域用户名（格式为`user@domain`）执行身份验证，而不是使用LDAP专有名称。
+为了简化这个过程，Spring Security 3.1有一个为典型Active Directory设置定制的身份验证提供程序。
 
 
-==== ActiveDirectoryLdapAuthenticationProvider
-Configuring `ActiveDirectoryLdapAuthenticationProvider` is quite straightforward.
-You just need to supply the domain name and an LDAP URL supplying the address of the server footnote:[It is also possible to obtain the server's IP address using a DNS lookup.
-This is not currently supported, but hopefully will be in a future version.].
-An example configuration would then look like this:
+====  ActiveDirectoryLdapAuthenticationProvider
+配置`ActiveDirectoryLdapAuthenticationProvider`非常简单。
+您只需提供域名和提供服务器脚注地址的LDAP URL：[也可以使用DNS查找来获取服务器的IP地址。
+目前尚未支持，但希望能在未来的版本中。]。
+一个示例配置将如下所示：
 
 [source,xml]
 ----
@@ -305,17 +305,17 @@ class="org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAu
 }
 ----
 
-Note that there is no need to specify a separate `ContextSource` in order to define the server location - the bean is completely self-contained.
-A user named "Sharon", for example, would then be able to authenticate by entering either the username `sharon` or the full Active Directory `userPrincipalName`, namely `sharon@mydomain.com`.
-The user's directory entry will then be located, and the attributes returned for possible use in customizing the created `UserDetails` object (a `UserDetailsContextMapper` can be injected for this purpose, as described above).
-All interaction with the directory takes place with the identity of the user themselves.
-There is no concept of a "manager" user.
+请注意，为了定义服务器位置，不需要指定单独的`ContextSource`  - 该bean是完全独立的。
+例如，名为"Sharon"的用户可以通过输入用户名`sharon`或完整的Active Directory `userPrincipalName`进行身份验证，即`sharon@mydomain.com`。
+然后定位用户的目录条目，并返回可用于定制创建的`UserDetails`对象（a `UserDetailsContextMapper`）的属性（如上所述）以实现此目的。
+与目录的所有交互都与用户本身的身份一致。
+没有"manager"用户的概念。
 
-By default, the user authorities are obtained from the `memberOf` attribute values of the user entry.
-The authorities allocated to the user can again be customized using a `UserDetailsContextMapper`.
-You can also inject a `GrantedAuthoritiesMapper` into the provider instance to control the authorities which end up in the `Authentication` object.
+默认情况下，用户权限是从用户条目的`memberOf`属性值中获取的。
+分配给用户的权限可以再次使用`UserDetailsContextMapper`进行自定义。
+您还可以在提供程序实例中注入`GrantedAuthoritiesMapper`以控制最终位于`Authentication`对象中的权限。
 
-===== Active Directory Error Codes
-By default, a failed result will cause a standard Spring Security `BadCredentialsException`.
-If you set the property `convertSubErrorCodesToExceptions` to `true`, the exception messages will be parsed to attempt to extract the Active Directory-specific error code and raise a more specific exception.
-Check the class Javadoc for more information.
+=====  Active Directory错误代码
+默认情况下，失败的结果将导致标准的Spring Security `BadCredentialsException`。
+如果将属性`convertSubErrorCodesToExceptions`设置为`true`，则将解析异常消息以尝试解压出特定于Active Directory的错误代码并引发更具体的异常。
+查看Javadoc课程获取更多信息。

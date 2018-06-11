@@ -1,27 +1,27 @@
 
 [[session-mgmt]]
-== Session Management
-HTTP session related functionality is handled by a combination of the `SessionManagementFilter` and the `SessionAuthenticationStrategy` interface, which the filter delegates to.
-Typical usage includes session-fixation protection attack prevention, detection of session timeouts and restrictions on how many sessions an authenticated user may have open concurrently.
+== 会话管理
+HTTP会话相关功能由过滤器委派的`SessionManagementFilter`和`SessionAuthenticationStrategy`接口组合处理。
+典型用法包括会话固定保护攻击预防，会话超时检测以及限制已验证用户同时打开的会话数。
 
 
-=== SessionManagementFilter
-The `SessionManagementFilter` checks the contents of the `SecurityContextRepository` against the current contents of the `SecurityContextHolder` to determine whether a user has been authenticated during the current request, typically by a non-interactive authentication mechanism, such as pre-authentication or remember-me  footnote:[
-Authentication by mechanisms which perform a redirect after authenticating (such as form-login) will not be detected by `SessionManagementFilter`, as the filter will not be invoked during the authenticating request.
-Session-management functionality has to be handled separately in these cases.
+===  SessionManagementFilter
+`SessionManagementFilter`根据`SecurityContextHolder`的当前内容检查`SecurityContextRepository`的内容，以确定用户在当前请求期间是否已通过身份验证，通常是通过非交互式身份验证机制作为预认证或记住我的脚注：[
+`SessionManagementFilter`不会检测到身份验证后执行重定向（例如表单登录）的身份验证，因为筛选器在身份验证请求期间不会被调用。
+会话管理功能必须在这些情况下单独处理。
 ].
-If the repository contains a security context, the filter does nothing.
-If it doesn't, and the thread-local `SecurityContext` contains a (non-anonymous) `Authentication` object, the filter assumes they have been authenticated by a previous filter in the stack.
-It will then invoke the configured `SessionAuthenticationStrategy`.
+如果存储库包含安全上下文，则该过滤器不执行任何操作。
+如果没有，并且线程本地`SecurityContext`包含（非匿名）`Authentication`对象，则筛选器会假定它们已由堆栈中的前一个筛选器进行了身份验证。
+然后它将调用配置的`SessionAuthenticationStrategy`。
 
-If the user is not currently authenticated, the filter will check whether an invalid session ID has been requested (because of a timeout, for example) and will invoke the configured `InvalidSessionStrategy`, if one is set.
-The most common behaviour is just to redirect to a fixed URL and this is encapsulated in the standard implementation `SimpleRedirectInvalidSessionStrategy`.
-The latter is also used when configuring an invalid session URL through the namespace,<<ns-session-mgmt,as described earlier>>.
+如果用户当前未通过身份验证，则筛选器将检查是否请求了无效的会话ID（例如由于超时），并且将调用配置的`InvalidSessionStrategy`（如果已设置）。
+最常见的行为就是重定向到一个固定的URL，并将其封装在标准实现`SimpleRedirectInvalidSessionStrategy`中。
+在通过命名空间<<ns-session-mgmt,as described earlier>>配置无效会话URL时，也会使用后者。
 
 
-=== SessionAuthenticationStrategy
-`SessionAuthenticationStrategy` is used by both `SessionManagementFilter` and `AbstractAuthenticationProcessingFilter`, so if you are using a customized form-login class, for example, you will need to inject it into both of these.
-In this case, a typical configuration, combining the namespace and custom beans might look like this:
+===  SessionAuthenticationStrategy
+`SessionManagementFilter`和`AbstractAuthenticationProcessingFilter`都使用`SessionAuthenticationStrategy`，所以如果您使用的是自定义的表单登录类，则需要将其注入到这两者中。
+在这种情况下，组合命名空间和自定义Bean的典型配置可能如下所示：
 
 [source,xml]
 ----
@@ -42,33 +42,33 @@ In this case, a typical configuration, combining the namespace and custom beans 
 
 ----
 
-Note that the use of the default, `SessionFixationProtectionStrategy` may cause issues if you are storing beans in the session which implement `HttpSessionBindingListener`, including Spring session-scoped beans.
-See the Javadoc for this class for more information.
+请注意，如果要在实现`HttpSessionBindingListener`的会话中存储Bean，包括Spring会话范围的bean，则使用默认值`SessionFixationProtectionStrategy`可能会导致问题。
+有关更多信息，请参阅此类的Javadoc。
 
 [[concurrent-sessions]]
-=== Concurrency Control
-Spring Security is able to prevent a principal from concurrently authenticating to the same application more than a specified number of times.
-Many ISVs take advantage of this to enforce licensing, whilst network administrators like this feature because it helps prevent people from sharing login names.
-You can, for example, stop user "Batman" from logging onto the web application from two different sessions.
-You can either expire their previous login or you can report an error when they try to log in again, preventing the second login.
-Note that if you are using the second approach, a user who has not explicitly logged out (but who has just closed their browser, for example) will not be able to log in again until their original session expires.
+=== 并发控制
+Spring Security能够防止委托人同时对同一应用程序进行超过指定次数的身份验证。
+许多独立软件开发商利用这一点来强制执行许可，而网络管理员喜欢这种功能，因为它有助于防止人们共享登录名。
+例如，您可以阻止用户"Batman"从两个不同的会话登录到Web应用程序。
+您可以使其以前的登录失效，或者在他们尝试再次登录时报告错误，从而阻止第二次登录。
+请注意，如果您使用的是第二种方法，那么未明确注销的用户（例如，刚刚关闭浏览器的用户）将无法再次登录，直到其原始会话过期。
 
-Concurrency control is supported by the namespace, so please check the earlier namespace chapter for the simplest configuration.
-Sometimes you need to customize things though.
+并发控制由名称空间支持，因此请检查较早的名称空间章节以获取最简单的配置。
+有时候你需要定制一些东西。
 
-The implementation uses a specialized version of `SessionAuthenticationStrategy`, called `ConcurrentSessionControlAuthenticationStrategy`.
+该实现使用`SessionAuthenticationStrategy`的专用版本，称为`ConcurrentSessionControlAuthenticationStrategy`。
 [NOTE]
 ====
 
-Previously the concurrent authentication check was made by the `ProviderManager`, which could be injected with a `ConcurrentSessionController`.
-The latter would check if the user was attempting to exceed the number of permitted sessions.
-However, this approach required that an HTTP session be created in advance, which is undesirable.
-In Spring Security 3, the user is first authenticated by the `AuthenticationManager` and once they are successfully authenticated, a session is created and the check is made whether they are allowed to have another session open.
+以前，并发身份验证检查由`ProviderManager`进行，可以使用`ConcurrentSessionController`注入。
+后者会检查用户是否尝试超出允许的会话数量。
+但是，这种方法需要事先创建HTTP会话，这是不可取的。
+在Spring Security 3中，用户首先通过`AuthenticationManager`进行身份验证，并且一旦他们成功通过身份验证，将创建一个会话并检查是否允许他们打开另一个会话。
 
 ====
 
 
-To use concurrent session support, you'll need to add the following to `web.xml`:
+要使用并发会话支持，您需要将以下内容添加到`web.xml`：
 
 [source,xml]
 ----
@@ -82,9 +82,9 @@ To use concurrent session support, you'll need to add the following to `web.xml`
 
 
 
-In addition, you will need to add the `ConcurrentSessionFilter` to your `FilterChainProxy`.
-The `ConcurrentSessionFilter` requires two constructor arguments, `sessionRegistry`, which generally points to an instance of `SessionRegistryImpl`, and `sessionInformationExpiredStrategy`, which defines the strategy to apply when a session has expired.
-A configuration using the namespace to create the `FilterChainProxy` and other default beans might look like this:
+另外，您需要将`ConcurrentSessionFilter`添加到您的`FilterChainProxy`。
+`ConcurrentSessionFilter`需要两个构造函数参数`sessionRegistry`，它通常指向`SessionRegistryImpl`的实例，而`sessionInformationExpiredStrategy`定义了在会话过期时应用的策略。
+使用命名空间创建`FilterChainProxy`和其他默认bean的配置可能如下所示：
 
 [source,xml]
 ----
@@ -137,20 +137,20 @@ class="org.springframework.security.web.session.ConcurrentSessionFilter">
 
 
 
-Adding the listener to `web.xml` causes an `ApplicationEvent` to be published to the Spring `ApplicationContext` every time a `HttpSession` commences or terminates.
-This is critical, as it allows the `SessionRegistryImpl` to be notified when a session ends.
-Without it, a user will never be able to log back in again once they have exceeded their session allowance, even if they log out of another session or it times out.
+每当`HttpSession`开始或结束时，将侦听器添加到`web.xml`，都会将`ApplicationEvent`发布到Spring `ApplicationContext`。
+这很重要，因为它允许在会话结束时通知`SessionRegistryImpl`。
+如果没有它，即使用户退出其他会话或超时，用户将永远无法再次重新登录。
 
 
 [[list-authenticated-principals]]
-==== Querying the SessionRegistry for currently authenticated users and their sessions
-Setting up concurrency-control, either through the namespace or using plain beans has the useful side effect of providing you with a reference to the `SessionRegistry` which you can use directly within your application, so even if you don't want to restrict the number of sessions a user may have, it may be worth setting up the infrastructure anyway.
-You can set the `maximumSession` property to -1 to allow unlimited sessions.
-If you're using the namespace, you can set an alias for the internally-created `SessionRegistry` using the `session-registry-alias` attribute, providing a reference which you can inject into your own beans.
+==== 查询当前通过身份验证的用户及其会话的SessionRegistry
+通过命名空间或使用普通bean设置并发控制具有有用的副作用，即为您提供对可在应用程序中直接使用的`SessionRegistry`的引用，因此即使您不想限制用户可能拥有的会话数量，无论如何，建立基础架构可能都是值得的。
+您可以将`maximumSession`属性设置为-1以允许无限制的会话。
+如果您使用的是名称空间，则可以使用`session-registry-alias`属性为内部创建的`SessionRegistry`设置别名，从而为您自己的bean注入引用。
 
-The `getAllPrincipals()` method supplies you with a list of the currently authenticated users.
-You can list a user's sessions by calling the `getAllSessions(Object principal, boolean includeExpiredSessions)` method, which returns a list of `SessionInformation` objects.
-You can also expire a user's session by calling `expireNow()` on a `SessionInformation` instance.
-When the user returns to the application, they will be prevented from proceeding.
-You may find these methods useful in an administration application, for example.
-Have a look at the Javadoc for more information.
+`getAllPrincipals()`方法为您提供当前已通过身份验证的用户列表。
+您可以通过调用`getAllSessions(Object principal, boolean includeExpiredSessions)`方法列出用户的会话，该方法返回`SessionInformation`对象列表。
+您也可以通过调用`SessionInformation`实例上的`expireNow()`来过期用户的会话。
+当用户返回到应用程序时，将阻止他们继续进行。
+例如，您可以在管理应用程序中找到这些方法。
+查看Javadoc以获取更多信息。

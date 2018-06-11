@@ -1,37 +1,37 @@
 [[crypto]]
-== Spring Security Crypto Module
+==  Spring Security加密模块
 
 
 [[spring-security-crypto-introduction]]
-=== Introduction
-The Spring Security Crypto module provides support for symmetric encryption, key generation, and password encoding.
-The code is distributed as part of the core module but has no dependencies on any other Spring Security (or Spring) code.
+=== 介绍
+Spring Security Crypto模块为对称加密，密钥生成和密码编码提供支持。
+该代码作为核心模块的一部分进行分发，但不依赖于任何其他Spring Security（或Spring）代码。
 
 
 [[spring-security-crypto-encryption]]
-=== Encryptors
-The Encryptors class provides factory methods for constructing symmetric encryptors.
-Using this class, you can create ByteEncryptors to encrypt data in raw byte[] form.
-You can also construct TextEncryptors to encrypt text strings.
-Encryptors are thread-safe.
+=== 加密器
+Encryptors类提供了构造对称加密器的工厂方法。
+使用这个类，您可以创建ByteEncryptors以原始字节[]形式加密数据。
+您还可以构造TextEncryptors来加密文本字符串。
+加密器是线程安全的。
 
 [[spring-security-crypto-encryption-bytes]]
-==== BytesEncryptor
-Use the Encryptors.standard factory method to construct a "standard" BytesEncryptor:
+====  BytesEncryptor
+使用Encryptors.standard工厂方法构建一个"standard" BytesEncryptor：
 
 [source,java]
 ----
 Encryptors.standard("password", "salt");
 ----
 
-The "standard" encryption method is 256-bit AES using PKCS #5's PBKDF2 (Password-Based Key Derivation Function #2).
-This method requires Java 6.
-The password used to generate the SecretKey should be kept in a secure place and not be shared.
-The salt is used to prevent dictionary attacks against the key in the event your encrypted data is compromised.
-A 16-byte random initialization vector is also applied so each encrypted message is unique.
+"standard"加密方法是使用PKCS＃5的PBKDF2（基于密码的密钥推导函数＃2）的256位AES。
+此方法需要Java 6。
+用于生成SecretKey的密码应保存在安全的地方，不要共享。
+salt用于防止在加密数据被泄露的情况下对字典进行字典攻击。
+一个16字节的随机初始化向量也被应用，因此每个加密的消息都是唯一的。
 
-The provided salt should be in hex-encoded String form, be random, and be at least 8 bytes in length.
-Such a salt may be generated using a KeyGenerator:
+提供的salt应该是以十六进制编码的字符串形式，是随机的，并且长度至少为8个字节。
+这种盐可以使用KeyGenerator生成：
 
 [source,java]
 ----
@@ -39,8 +39,8 @@ String salt = KeyGenerators.string().generateKey(); // generates a random 8-byte
 ----
 
 [[spring-security-crypto-encryption-text]]
-==== TextEncryptor
-Use the Encryptors.text factory method to construct a standard TextEncryptor:
+====  TextEncryptor
+使用Encryptors.text工厂方法构建标准的TextEncryptor：
 
 [source,java]
 ----
@@ -48,31 +48,31 @@ Use the Encryptors.text factory method to construct a standard TextEncryptor:
 Encryptors.text("password", "salt");
 ----
 
-A TextEncryptor uses a standard BytesEncryptor to encrypt text data.
-Encrypted results are returned as hex-encoded strings for easy storage on the filesystem or in the database.
+TextEncryptor使用标准的BytesEncryptor来加密文本数据。
+加密结果以十六进制编码字符串的形式返回，以便于在文件系统或数据库中存储。
 
-Use the Encryptors.queryableText factory method to construct a "queryable" TextEncryptor:
+使用Encryptors.queryableText工厂方法构建一个"queryable" TextEncryptor：
 
 [source,java]
 ----
 Encryptors.queryableText("password", "salt");
 ----
 
-The difference between a queryable TextEncryptor and a standard TextEncryptor has to do with initialization vector (iv) handling.
-The iv used in a queryable TextEncryptor#encrypt operation is shared, or constant, and is not randomly generated.
-This means the same text encrypted multiple times will always produce the same encryption result.
-This is less secure, but necessary for encrypted data that needs to be queried against.
-An example of queryable encrypted text would be an OAuth apiKey.
+可查询TextEncryptor和标准TextEncryptor之间的区别与初始化向量（iv）处理有关。
+在可查询的TextEncryptor＃encrypt操作中使用的iv是共享的，或者是常量，并且不是随机生成的。
+这意味着多次加密的相同文本将始终产生相同的加密结果。
+这不太安全，但对于需要查询的加密数据来说是必需的。
+可查询加密文本的一个例子是一个OAuth apiKey。
 
 [[spring-security-crypto-keygenerators]]
-=== Key Generators
-The KeyGenerators class provides a number of convenience factory methods for constructing different types of key generators.
-Using this class, you can create a BytesKeyGenerator to generate byte[] keys.
-You can also construct a StringKeyGenerator to generate string keys.
-KeyGenerators are thread-safe.
+=== 密钥生成器
+KeyGenerators类提供了许多便捷工厂方法来构建不同类型的密钥生成器。
+使用这个类，你可以创建一个BytesKeyGenerator来生成byte []键。
+你也可以构造一个StringKeyGenerator来生成字符串键。
+KeyGenerators是线程安全的。
 
-==== BytesKeyGenerator
-Use the KeyGenerators.secureRandom factory methods to generate a BytesKeyGenerator backed by a SecureRandom instance:
+====  BytesKeyGenerator
+使用KeyGenerators.secureRandom工厂方法生成由SecureRandom实例支持的BytesKeyGenerator：
 
 [source,java]
 ----
@@ -80,23 +80,23 @@ BytesKeyGenerator generator = KeyGenerators.secureRandom();
 byte[] key = generator.generateKey();
 ----
 
-The default key length is 8 bytes.
-There is also a KeyGenerators.secureRandom variant that provides control over the key length:
+默认密钥长度是8个字节。
+还有一个可以控制密钥长度的KeyGenerators.secureRandom变体：
 
 [source,java]
 ----
 KeyGenerators.secureRandom(16);
 ----
 
-Use the KeyGenerators.shared factory method to construct a BytesKeyGenerator that always returns the same key on every invocation:
+使用KeyGenerators.shared工厂方法构造一个BytesKeyGenerator，它总是在每次调用时返回相同的键：
 
 [source,java]
 ----
 KeyGenerators.shared(16);
 ----
 
-==== StringKeyGenerator
-Use the KeyGenerators.string factory method to construct a 8-byte, SecureRandom KeyGenerator that hex-encodes each key as a String:
+====  StringKeyGenerator
+使用KeyGenerators.string工厂方法构造一个8字节的SecureRandom KeyGenerator，它将每个键的字符串编码为一个字符串：
 
 [source,java]
 ----
@@ -104,9 +104,9 @@ KeyGenerators.string();
 ----
 
 [[spring-security-crypto-passwordencoders]]
-=== Password Encoding
-The password package of the spring-security-crypto module provides support for encoding passwords.
-`PasswordEncoder` is the central service interface and has the following signature:
+=== 密码编码
+spring-security-crypto模块的密码包提供对密码编码的支持。
+`PasswordEncoder`是中央服务界面，具有以下签名：
 
 [source,java]
 ----
@@ -118,15 +118,15 @@ boolean matches(String rawPassword, String encodedPassword);
 }
 ----
 
-The matches method returns true if the rawPassword, once encoded, equals the encodedPassword.
-This method is designed to support password-based authentication schemes.
+如果rawPassword一旦编码，就等于encodedPassword，则匹配方法返回true。
+此方法旨在支持基于密码的身份验证方案。
 
-The `BCryptPasswordEncoder` implementation uses the widely supported "bcrypt" algorithm to hash the passwords.
-Bcrypt uses a random 16 byte salt value and is a deliberately slow algorithm, in order to hinder password crackers.
-The amount of work it does can be tuned using the "strength" parameter which takes values from 4 to 31.
-The higher the value, the more work has to be done to calculate the hash.
-The default value is 10.
-You can change this value in your deployed system without affecting existing passwords, as the value is also stored in the encoded hash.
+`BCryptPasswordEncoder`实现使用广泛支持的"bcrypt"算法对密码进行哈希处理。
+Bcrypt使用一个随机的16字节盐值，并且是故意缓慢的算法，以阻止密码破解者。
+它所做的工作量可以使用值为4到31的"strength"参数进行调整。
+值越高，计算散列的工作就越多。
+默认值是10。
+您可以在已部署的系统中更改此值，而不会影响现有密码，因为该值也存储在已编码的散列中。
 
 [source,java]
 ----
@@ -137,8 +137,8 @@ String result = encoder.encode("myPassword");
 assertTrue(encoder.matches("myPassword", result));
 ----
 
-The `Pbkdf2PasswordEncoder` implementation uses PBKDF2 algorithm to hash the passwords.
-In order to defeat password cracking PBKDF2 is a deliberately slow algorithm and should be tuned to take about .5 seconds to verify a password on your system.
+`Pbkdf2PasswordEncoder`实现使用PBKDF2算法来散列密码。
+为了破解密码破解PBKDF2是一个故意缓慢的算法，应该调整大约0.5秒来验证系统上的密码。
 
 
 [source,java]

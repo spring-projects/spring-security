@@ -1,18 +1,18 @@
 
 [[test-mockmvc]]
-== Spring MVC Test Integration
+==  Spring MVC测试集成
 
-Spring Security provides comprehensive integration with http://docs.spring.io/spring/docs/current/spring-framework-reference/html/testing.html#spring-mvc-test-framework[Spring MVC Test]
+Spring Security提供与 http://docs.spring.io/spring/docs/current/spring-framework-reference/html/testing.html#spring-mvc-test-framework[Spring MVC测试]的全面集成
 
 [[test-mockmvc-setup]]
-=== Setting Up MockMvc and Spring Security
+=== 设置MockMvc和Spring Security
 
-In order to use Spring Security with Spring MVC Test it is necessary to add the Spring Security `FilterChainProxy` as a `Filter`.
-It is also necessary to add Spring Security's `TestSecurityContextHolderPostProcessor` to support <<Running as a User in Spring MVC Test with Annotations,Running as a User in Spring MVC Test with Annotations>>.
-This can be done using Spring Security's `SecurityMockMvcConfigurers.springSecurity()`.
-For example:
+为了在Spring MVC测试中使用Spring Security，有必要将Spring Security `FilterChainProxy`添加为`Filter`。
+还需要添加Spring Security的`TestSecurityContextHolderPostProcessor`以支持<<Running as a User in Spring MVC Test with Annotations,Running as a User in Spring MVC Test with Annotations>>。
+这可以使用Spring Security的`SecurityMockMvcConfigurers.springSecurity()`来完成。
+例如：
 
-NOTE: Spring Security's testing support requires spring-test-4.1.3.RELEASE or greater.
+注意：Spring Security的测试支持需要spring-test-4.1.3.RELEASE或更高版本。
 
 [source,java]
 ----
@@ -40,14 +40,14 @@ public class CsrfShowcaseTests {
 ...
 ----
 
-<1> `SecurityMockMvcConfigurers.springSecurity()` will perform all of the initial setup we need to integrate Spring Security with Spring MVC Test
+<1> `SecurityMockMvcConfigurers.springSecurity()`将执行我们需要将Spring Security与Spring MVC Test集成的所有初始设置
 
 [[test-mockmvc-smmrpp]]
-=== SecurityMockMvcRequestPostProcessors
+===  SecurityMockMvcRequestPostProcessors
 
-Spring MVC Test provides a convenient interface called a `RequestPostProcessor` that can be used to modify a request.
-Spring Security provides a number of `RequestPostProcessor` implementations that make testing easier.
-In order to use Spring Security's `RequestPostProcessor` implementations ensure the following static import is used:
+Spring MVC Test提供了一个方便的接口，称为`RequestPostProcessor`，可用于修改请求。
+Spring Security提供了许多使得测试更容易的`RequestPostProcessor`实现。
+为了使用Spring Security的`RequestPostProcessor`实现，请确保使用以下静态导入：
 
 [source,java]
 ----
@@ -55,10 +55,10 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 ----
 
 [[test-mockmvc-csrf]]
-==== Testing with CSRF Protection
+==== 使用CSRF保护进行测试
 
-When testing any non-safe HTTP methods and using Spring Security's CSRF protection, you must be sure to include a valid CSRF Token in the request.
-To specify a valid CSRF token as a request parameter using the following:
+在测试任何非安全的HTTP方法并使用Spring Security的CSRF保护时，您必须确保在请求中包含有效的CSRF令牌。
+使用以下命令将有效的CSRF令牌指定为请求参数：
 
 [source,java]
 ----
@@ -66,7 +66,7 @@ mvc
 	.perform(post("/").with(csrf()))
 ----
 
-If you like you can include CSRF token in the header instead:
+如果你喜欢，你可以在标题中包含CSRF令牌：
 
 [source,java]
 ----
@@ -74,7 +74,7 @@ mvc
 	.perform(post("/").with(csrf().asHeader()))
 ----
 
-You can also test providing an invalid CSRF token using the following:
+您也可以使用以下测试来提供无效的CSRF令牌：
 
 [source,java]
 ----
@@ -83,29 +83,29 @@ mvc
 ----
 
 [[test-mockmvc-securitycontextholder]]
-==== Running a Test as a User in Spring MVC Test
+==== 在Spring MVC测试中以用户身份运行测试
 
-It is often desirable to run tests as a specific user.
-There are two simple ways of populating the user:
+通常需要以特定用户身份运行测试。
+有两种填充用户的简单方法：
 
 * <<Running as a User in Spring MVC Test with RequestPostProcessor,Running as a User in Spring MVC Test with RequestPostProcessor>>
 * <<Running as a User in Spring MVC Test with Annotations,Running as a User in Spring MVC Test with Annotations>>
 
 [[test-mockmvc-securitycontextholder-rpp]]
-==== Running as a User in Spring MVC Test with RequestPostProcessor
+==== 以RequestPostProcessor的形式在Spring MVC测试中以用户身份运行
 
-There are a number of options available to associate a user to the current `HttpServletRequest`.
-For example, the following will run as a user (which does not need to exist) with the username "user", the password "password", and the role "ROLE_USER":
+有多种选项可将用户关联到当前的`HttpServletRequest`。
+例如，以下内容将以用户名"user"，密码"password"和角色"ROLE_USER"作为用户（不需要存在）运行：
 
 [NOTE]
 ====
-The support works by associating the user to the `HttpServletRequest`.
-To associate the request to the `SecurityContextHolder` you need to ensure that the `SecurityContextPersistenceFilter` is associated with the `MockMvc` instance.
-A few ways to do this are:
+该支持通过将用户与`HttpServletRequest`关联起作用。
+要将请求与`SecurityContextHolder`关联，您需要确保`SecurityContextPersistenceFilter`与`MockMvc`实例关联。
+有几种方法可以做到这一点：
 
-* Invoking <<test-mockmvc-setup,apply(springSecurity())>>
-* Adding Spring Security's `FilterChainProxy` to `MockMvc`
-* Manually adding `SecurityContextPersistenceFilter` to the `MockMvc` instance may make sense when using `MockMvcBuilders.standaloneSetup`
+* 调用<<test-mockmvc-setup,apply(springSecurity())>>
+* 将Spring Security的`FilterChainProxy`添加到`MockMvc`
+* 手动添加`SecurityContextPersistenceFilter`到`MockMvc`实例可能在使用`MockMvcBuilders.standaloneSetup`时有意义
 ====
 
 [source,java]
@@ -114,8 +114,8 @@ mvc
 	.perform(get("/").with(user("user")))
 ----
 
-You can easily make customizations.
-For example, the following will run as a user (which does not need to exist) with the username "admin", the password "pass", and the roles "ROLE_USER" and "ROLE_ADMIN".
+您可以轻松进行自定义。
+例如，以下内容将以用户名"admin"，密码"pass"和角色"ROLE_USER"和"ROLE_ADMIN"作为用户（不需要存在）运行。
 
 [source,java]
 ----
@@ -123,8 +123,8 @@ mvc
 	.perform(get("/admin").with(user("admin").password("pass").roles("USER","ADMIN")))
 ----
 
-If you have a custom `UserDetails` that you would like to use, you can easily specify that as well.
-For example, the following will use the specified `UserDetails` (which does not need to exist) to run with a `UsernamePasswordAuthenticationToken` that has a principal of the specified `UserDetails`:
+如果您有要使用的自定义`UserDetails`，则也可以轻松指定。
+例如，以下内容将使用指定的`UserDetails`（不需要存在）与具有指定`UserDetails`的主体的`UsernamePasswordAuthenticationToken`一起运行：
 
 [source,java]
 ----
@@ -132,7 +132,7 @@ mvc
 	.perform(get("/").with(user(userDetails)))
 ----
 
-You can run as anonymous user using the following:
+您可以使用以下方式以匿名用户身份运行：
 
 [source,java]
 ----
@@ -140,9 +140,9 @@ mvc
 	.perform(get("/").with(anonymous()))
 ----
 
-This is especially useful if you are running with a default user and wish to execute a few requests as an anonymous user.
+如果您使用默认用户运行并希望以匿名用户的身份执行一些请求，则此功能特别有用。
 
-If you want a custom `Authentication` (which does not need to exist) you can do so using the following:
+如果您想要自定义`Authentication`（不需要存在），则可以使用以下方法执行此操作：
 
 [source,java]
 ----
@@ -150,7 +150,7 @@ mvc
 	.perform(get("/").with(authentication(authentication)))
 ----
 
-You can even customize the `SecurityContext` using the following:
+您甚至可以使用以下方式自定义`SecurityContext`：
 
 [source,java]
 ----
@@ -158,8 +158,8 @@ mvc
 	.perform(get("/").with(securityContext(securityContext)))
 ----
 
-We can also ensure to run as a specific user for every request by using ``MockMvcBuilders``'s default request.
-For example, the following will run as a user (which does not need to exist) with the username "admin", the password "password", and the role "ROLE_ADMIN":
+我们还可以确保使用``MockMvcBuilders``的默认请求以每个请求的特定用户身份运行。
+例如，以下内容将以用户名"admin"，密码"password"和角色"ROLE_ADMIN"作为用户（不需要存在）运行：
 
 [source,java]
 ----
@@ -170,8 +170,8 @@ mvc = MockMvcBuilders
 		.build();
 ----
 
-If you find you are using the same user in many of your tests, it is recommended to move the user to a method.
-For example, you can specify the following in your own class named `CustomSecurityMockMvcRequestPostProcessors`:
+如果你发现你在许多测试中使用同一个用户，建议将用户移到一个方法。
+例如，您可以在名为`CustomSecurityMockMvcRequestPostProcessors`的类中指定以下内容：
 
 [source,java]
 ----
@@ -180,7 +180,7 @@ public static RequestPostProcessor rob() {
 }
 ----
 
-Now you can perform a static import on `SecurityMockMvcRequestPostProcessors` and use that within your tests:
+现在您可以在`SecurityMockMvcRequestPostProcessors`上执行静态导入，并在您的测试中使用它：
 
 [source,java]
 ----
@@ -192,10 +192,10 @@ mvc
 	.perform(get("/").with(rob()))
 ----
 
-===== Running as a User in Spring MVC Test with Annotations
+作为用户在Spring MVC测试中使用注解运行===== 
 
-As an alternative to using a `RequestPostProcessor` to create your user, you can use annotations described in <<Testing Method Security>>.
-For example, the following will run the test with the user with username "user", password "password", and role "ROLE_USER":
+作为使用`RequestPostProcessor`创建用户的替代方法，您可以使用<<Testing Method Security>>中描述的注释。
+例如，以下内容将使用用户名"user"，密码"password"和角色"ROLE_USER"进行测试：
 
 [source,java]
 ----
@@ -208,7 +208,7 @@ mvc
 }
 ----
 
-Alternatively, the following will run the test with the user with username "user", password "password", and role "ROLE_ADMIN":
+或者，以下内容将使用用户名"user"，密码"password"和角色"ROLE_ADMIN"进行测试：
 
 [source,java]
 ----
@@ -221,11 +221,11 @@ mvc
 }
 ----
 
-==== Testing HTTP Basic Authentication
+==== 测试HTTP基本身份验证
 
-While it has always been possible to authenticate with HTTP Basic, it was a bit tedious to remember the header name, format, and encode the values.
-Now this can be done using Spring Security's `httpBasic` `RequestPostProcessor`.
-For example, the snippet below:
+虽然始终可以使用HTTP Basic进行身份验证，但记住头名称，格式和编码值有点繁琐。
+现在可以使用Spring Security的`httpBasic` `RequestPostProcessor`完成。
+例如，下面的代码片段：
 
 [source,java]
 ----
@@ -233,28 +233,28 @@ mvc
 	.perform(get("/").with(httpBasic("user","password")))
 ----
 
-will attempt to use HTTP Basic to authenticate a user with the username "user" and the password "password" by ensuring the following header is populated on the HTTP Request:
+将尝试使用HTTP Basic通过确保在HTTP请求上填充以下标头，以用户名"user"和密码"password"对用户进行身份验证：
 
 [source,text]
 ----
 Authorization: Basic dXNlcjpwYXNzd29yZA==
 ----
 
-=== SecurityMockMvcRequestBuilders
+===  SecurityMockMvcRequestBuilders
 
-Spring MVC Test also provides a `RequestBuilder` interface that can be used to create the `MockHttpServletRequest` used in your test.
-Spring Security provides a few `RequestBuilder` implementations that can be used to make testing easier.
-In order to use Spring Security's `RequestBuilder` implementations ensure the following static import is used:
+Spring MVC Test还提供了一个`RequestBuilder`接口，可用于创建测试中使用的`MockHttpServletRequest`。
+Spring Security提供了几个可用于简化测试的`RequestBuilder`实现。
+为了使用Spring Security的`RequestBuilder`实现，请确保使用以下静态导入：
 
 [source,java]
 ----
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.*;
 ----
 
-==== Testing Form Based Authentication
+==== 测试基于表单的身份验证
 
-You can easily create a request to test a form based authentication using Spring Security's testing support.
-For example, the following will submit a POST to "/login" with the username "user", the password "password", and a valid CSRF token:
+使用Spring Security的测试支持，您可以轻松创建一个请求来测试基于表单的身份验证。
+例如，以下内容将使用用户名"user"，密码"password"和有效的CSRF令牌向"/login"提交POST：
 
 [source,java]
 ----
@@ -262,8 +262,8 @@ mvc
 	.perform(formLogin())
 ----
 
-It is easy to customize the request.
-For example, the following will submit a POST to "/auth" with the username "admin", the password "pass", and a valid CSRF token:
+定制请求很容易。
+例如，以下内容将使用用户名"admin"，密码"pass"和有效的CSRF令牌向"/auth"提交POST：
 
 [source,java]
 ----
@@ -271,8 +271,8 @@ mvc
 	.perform(formLogin("/auth").user("admin").password("pass"))
 ----
 
-We can also customize the parameters names that the username and password are included on.
-For example, this is the above request modified to include the username on the HTTP parameter "u" and the password on the HTTP parameter "p".
+我们也可以自定义包含用户名和密码的参数名称。
+例如，上述请求被修改为在HTTP参数"u"上包含用户名，在HTTP参数"p"中包含密码。
 
 [source,java]
 ----
@@ -281,10 +281,10 @@ mvc
 ----
 
 [[test-logout]]
-==== Testing Logout
+==== 测试注销
 
-While fairly trivial using standard Spring MVC Test, you can use Spring Security's testing support to make testing log out easier.
-For example, the following will submit a POST to "/logout" with a valid CSRF token:
+虽然使用标准的Spring MVC测试相当简单，但您可以使用Spring Security的测试支持来简化测试注销。
+例如，以下内容将使用有效的CSRF令牌向"/logout"提交POST：
 
 [source,java]
 ----
@@ -292,8 +292,8 @@ mvc
 	.perform(logout())
 ----
 
-You can also customize the URL to post to.
-For example, the snippet below will submit a POST to "/signout" with a valid CSRF token:
+您还可以自定义发布到的URL。
+例如，下面的代码段将使用有效的CSRF令牌向"/signout"提交POST：
 
 [source,java]
 ----
@@ -301,22 +301,22 @@ mvc
 	.perform(logout("/signout"))
 ----
 
-=== SecurityMockMvcResultMatchers
+===  SecurityMockMvcResultMatchers
 
-At times it is desirable to make various security related assertions about a request.
-To accommodate this need, Spring Security Test support implements Spring MVC Test's `ResultMatcher` interface.
-In order to use Spring Security's `ResultMatcher` implementations ensure the following static import is used:
+有时需要对请求进行各种与安全相关的断言。
+为了适应这种需求，Spring Security Test支持实现了Spring MVC Test的`ResultMatcher`接口。
+为了使用Spring Security的`ResultMatcher`实现，请确保使用以下静态导入：
 
 [source,java]
 ----
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.*;
 ----
 
-==== Unauthenticated Assertion
+==== 未经身份验证的声明
 
-At times it may be valuable to assert that there is no authenticated user associated with the result of a `MockMvc` invocation.
-For example, you might want to test submitting an invalid username and password and verify that no user is authenticated.
-You can easily do this with Spring Security's testing support using something like the following:
+有时，声明没有经过认证的用户与`MockMvc`调用的结果关联可能很有价值。
+例如，您可能想要测试提交无效的用户名和密码，并验证没有用户通过身份验证。
+使用Spring Security的测试支持，您可以使用如下所示轻松完成此操作：
 
 [source,java]
 ----
@@ -325,11 +325,11 @@ mvc
 	.andExpect(unauthenticated());
 ----
 
-==== Authenticated Assertion
+==== 已验证的声明
 
-It is often times that we must assert that an authenticated user exists.
-For example, we may want to verify that we authenticated successfully.
-We could verify that a form based login was successful with the following snippet of code:
+通常我们必须断言经过身份验证的用户存在。
+例如，我们可能想验证我们是否成功验证。
+我们可以通过以下代码片段验证基于表单的登录是否成功：
 
 [source,java]
 ----
@@ -338,7 +338,7 @@ mvc
 	.andExpect(authenticated());
 ----
 
-If we wanted to assert the roles of the user, we could refine our previous code as shown below:
+如果我们想要声明用户的角色，我们可以改进我们以前的代码，如下所示：
 
 [source,java]
 ----
@@ -347,7 +347,7 @@ mvc
 	.andExpect(authenticated().withRoles("USER","ADMIN"));
 ----
 
-Alternatively, we could verify the username:
+或者，我们可以验证用户名：
 
 [source,java]
 ----
@@ -356,7 +356,7 @@ mvc
 	.andExpect(authenticated().withUsername("admin"));
 ----
 
-We can also combine the assertions:
+我们也可以结合这些断言：
 
 [source,java]
 ----
@@ -365,7 +365,7 @@ mvc
 	.andExpect(authenticated().withUsername("admin"));
 ----
 
-We can also make arbitrary assertions on the authentication
+我们也可以对认证进行任意的断言
 
 [source,java]
 ----

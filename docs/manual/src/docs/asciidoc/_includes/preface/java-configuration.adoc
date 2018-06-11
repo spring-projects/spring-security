@@ -1,19 +1,19 @@
 
 [[jc]]
-== Java Configuration
+==  Java配置
 
-General support for http://docs.spring.io/spring/docs/3.1.x/spring-framework-reference/html/beans.html#beans-java[Java Configuration] was added to Spring Framework in Spring 3.1.
-Since Spring Security 3.2 there has been Spring Security Java Configuration support which enables users to easily configure Spring Security without the use of any XML.
+在Spring 3.1中为Spring Framework添加了对 http://docs.spring.io/spring/docs/3.1.x/spring-framework-reference/html/beans.html#beans-java[Java配置]的一般支持。
+自Spring Security 3.2以来，已经有了Spring Security Java Configuration支持，使用户无需使用任何XML即可轻松配置Spring Security。
 
-If you are familiar with the <<ns-config>> then you should find quite a few similarities between it and the Security Java Configuration support.
+如果您熟悉<<ns-config>>，那么您应该会发现它与Security Java Configuration支持之间的相似之处。
 
-NOTE: Spring Security provides https://github.com/spring-projects/spring-security/tree/master/samples/javaconfig[lots of sample applications] which demonstrate the use of Spring Security Java Configuration.
+注：Spring Security提供了https://github.com/spring-projects/spring-security/tree/master/samples/javaconfig [示例应用程序]，演示了如何使用Spring Security Java Configuration。
 
-=== Hello Web Security Java Configuration
+===  Hello Web安全Java配置
 
-The first step is to create our Spring Security Java Configuration.
-The configuration creates a Servlet Filter known as the `springSecurityFilterChain` which is responsible for all the security (protecting the application URLs, validating submitted username and passwords, redirecting to the log in form, etc) within your application.
-You can find the most basic example of a Spring Security Java Configuration below:
+第一步是创建我们的Spring Security Java配置。
+该配置会创建一个名为`springSecurityFilterChain`的Servlet过滤器，它负责应用程序中的所有安全性（保护应用程序URL，验证提交的用户名和密码，重定向到登录表单等）。
+你可以在下面找到Spring Security Java Configuration的最基本的例子：
 
 [[jc-hello-wsca]]
 [source,java]
@@ -36,42 +36,42 @@ public class WebSecurityConfig implements WebMvcConfigurer {
 }
 ----
 
-There really isn't much to this configuration, but it does a lot.
-You can find a summary of the features below:
+这个配置真的没有太多，但它确实很多。
+您可以在下面找到以下功能的摘要：
 
-* Require authentication to every URL in your application
-* Generate a login form for you
-* Allow the user with the *Username* _user_ and the *Password* _password_ to authenticate with form based authentication
-* Allow the user to logout
-* http://en.wikipedia.org/wiki/Cross-site_request_forgery[CSRF attack] prevention
-* http://en.wikipedia.org/wiki/Session_fixation[Session Fixation] protection
-* Security Header integration
-** http://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security[HTTP Strict Transport Security] for secure requests
-** http://msdn.microsoft.com/en-us/library/ie/gg622941(v=vs.85).aspx[X-Content-Type-Options] integration
-** Cache Control (can be overridden later by your application to allow caching of your static resources)
-** http://msdn.microsoft.com/en-us/library/dd565647(v=vs.85).aspx[X-XSS-Protection] integration
-** X-Frame-Options integration to help prevent http://en.wikipedia.org/wiki/Clickjacking[Clickjacking]
-* Integrate with the following Servlet API methods
-** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#getRemoteUser()[HttpServletRequest#getRemoteUser()]
-** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#getUserPrincipal()[HttpServletRequest.html#getUserPrincipal()]
-** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#isUserInRole(java.lang.String)[HttpServletRequest.html#isUserInRole(java.lang.String)]
-** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#login(java.lang.String,%20java.lang.String)[HttpServletRequest.html#login(java.lang.String, java.lang.String)]
-** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#logout()[HttpServletRequest.html#logout()]
+* 要求对您的应用程序中的每个URL进行身份验证
+* 为您生成一个登录表单
+* 允许具有*Username* _user_和*Password* _password_的用户使用基于表单的身份验证进行身份验证
+* 允许用户注销
+*  http://en.wikipedia.org/wiki/Cross-site_request_forgery[CSRF攻击]预防
+*  http://en.wikipedia.org/wiki/Session_fixation[会话固定]保护
+* 安全标题集成
+用于安全请求的**  http://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security[HTTP严格传输安全]
+**  http://msdn.microsoft.com/en-us/library/ie/gg622941(v=vs.85).aspx[X-Content-Type的选项]集成
+** 高速缓存控制（稍后可由应用程序覆盖，以允许缓存静态资源）
+**  http://msdn.microsoft.com/en-us/library/dd565647(v=vs.85).aspx[X-XSS-保护]集成
+**  X-​​Frame-Options集成有助于防止 http://en.wikipedia.org/wiki/Clickjacking[点击劫持]
+* 与以下Servlet API方法集成
+**  http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#getRemoteUser()[HttpServletRequest的＃getRemoteUser（）]
+**  http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#getUserPrincipal()[HttpServletRequest.html＃getUserPrincipal（）]
+**  http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#isUserInRole(java.lang.String)[HttpServletRequest.html＃的isUserInRole（java.lang.String中）]
+**  http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#login(java.lang.String,%20java.lang.String)[HttpServletRequest.html＃login（java.lang.String，java.lang.String）]
+**  http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#logout()[HttpServletRequest.html＃注销（）]
 
-==== AbstractSecurityWebApplicationInitializer
+====  AbstractSecurityWebApplicationInitializer
 
-The next step is to register the `springSecurityFilterChain` with the war.
-This can be done in Java Configuration with http://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/mvc.html#mvc-container-config[Spring's WebApplicationInitializer support] in a Servlet 3.0+ environment.
-Not suprisingly, Spring Security provides a base class `AbstractSecurityWebApplicationInitializer` that will ensure the `springSecurityFilterChain` gets registered for you.
-The way in which we use `AbstractSecurityWebApplicationInitializer` differs depending on if we are already using Spring or if Spring Security is the only Spring component in our application.
+下一步是向战争注册{{0}。
+这可以在Servlet 3.0+环境中的 http://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/mvc.html#mvc-container-config[Spring的WebApplicationInitializer支持]的Java配置中完成。
+不出所料，Spring Security提供了一个基类`AbstractSecurityWebApplicationInitializer`，可确保`springSecurityFilterChain`为您注册。
+我们使用`AbstractSecurityWebApplicationInitializer`的方式取决于我们是否已经使用Spring，或者Spring Security是我们应用程序中唯一的Spring组件。
 
-* <<abstractsecuritywebapplicationinitializer-without-existing-spring>> - Use these instructions if you are not using Spring already
-* <<abstractsecuritywebapplicationinitializer-with-spring-mvc>> - Use these instructions if you are already using Spring
+*  <<abstractsecuritywebapplicationinitializer-without-existing-spring>>  - 如果您尚未使用Spring，请使用这些说明
+*  <<abstractsecuritywebapplicationinitializer-with-spring-mvc>>  - 如果您已经在使用Spring，请使用这些说明
 
-==== AbstractSecurityWebApplicationInitializer without Existing Spring
+不存在Spring的====  AbstractSecurityWebApplicationInitializer
 
-If you are not using Spring or Spring MVC, you will need to pass in the `WebSecurityConfig` into the superclass to ensure the configuration is picked up.
-You can find an example below:
+如果您没有使用Spring或Spring MVC，则需要将`WebSecurityConfig`传递给超类，以确保获取配置。
+你可以在下面找到一个例子：
 
 [source,java]
 ----
@@ -86,17 +86,17 @@ public class SecurityWebApplicationInitializer
 }
 ----
 
-The `SecurityWebApplicationInitializer` will do the following things:
+`SecurityWebApplicationInitializer`将执行以下操作：
 
-* Automatically register the springSecurityFilterChain Filter for every URL in your application
-* Add a ContextLoaderListener that loads the <<jc-hello-wsca,WebSecurityConfig>>.
+* 为应用程序中的每个URL自动注册springSecurityFilterChain过滤器
+* 添加加载<<jc-hello-wsca,WebSecurityConfig>>的ContextLoaderListener。
 
-==== AbstractSecurityWebApplicationInitializer with Spring MVC
+具有Spring MVC的AbstractSecurityWebApplicationInitializer。==== 
 
-If we were using Spring elsewhere in our application we probably already had a `WebApplicationInitializer` that is loading our Spring Configuration.
-If we use the previous configuration we would get an error.
-Instead, we should register Spring Security with the existing `ApplicationContext`.
-For example, if we were using Spring MVC our `SecurityWebApplicationInitializer` would look something like the following:
+如果我们在应用程序的其他地方使用Spring，我们可能已经有一个加载我们的Spring配置的`WebApplicationInitializer`。
+如果我们使用以前的配置，我们会得到一个错误。
+相反，我们应该使用现有的`ApplicationContext`注册Spring Security。
+例如，如果我们使用Spring MVC，我们的`SecurityWebApplicationInitializer`将如下所示：
 
 [source,java]
 ----
@@ -108,9 +108,9 @@ public class SecurityWebApplicationInitializer
 }
 ----
 
-This would simply only register the springSecurityFilterChain Filter for every URL in your application.
-After that we would ensure that `WebSecurityConfig` was loaded in our existing ApplicationInitializer.
-For example, if we were using Spring MVC it would be added in the `getRootConfigClasses()`
+这只会为应用程序中的每个URL注册springSecurityFilterChain过滤器。
+之后，我们将确保`WebSecurityConfig`在我们现有的ApplicationInitializer中加载。
+例如，如果我们使用Spring MVC，它将被添加到`getRootConfigClasses()`
 
 [[message-web-application-inititializer-java]]
 [source,java]
@@ -128,10 +128,10 @@ public class MvcWebApplicationInitializer extends
 ----
 
 [[jc-httpsecurity]]
-=== HttpSecurity
+===  HttpSecurity
 
-Thus far our <<jc-hello-wsca,WebSecurityConfig>> only contains information about how to authenticate our users.
-How does Spring Security know that we want to require all users to be authenticated? How does Spring Security know we want to support form based authentication? The reason for this is that the `WebSecurityConfigurerAdapter` provides a default configuration in the `configure(HttpSecurity http)` method that looks like:
+迄今为止，我们的<<jc-hello-wsca,WebSecurityConfig>>仅包含有关如何验证用户的信息。
+Spring Security如何知道我们想要求所有用户进行身份验证？ Spring Security如何知道我们想要支持基于表单的身份验证？原因是`WebSecurityConfigurerAdapter`在`configure(HttpSecurity http)`方法中提供了一个默认配置，如下所示：
 
 [source,java]
 ----
@@ -146,13 +146,13 @@ protected void configure(HttpSecurity http) throws Exception {
 }
 ----
 
-The default configuration above:
+上面的默认配置：
 
-* Ensures that any request to our application requires the user to be authenticated
-* Allows users to authenticate with form based login
-* Allows users to authenticate with HTTP Basic authentication
+* 确保对我们应用程序的任何请求都要求用户进行身份验证
+* 允许用户使用基于表单的登录进行身份验证
+* 允许用户使用HTTP基本身份验证进行身份验证
 
-You will notice that this configuration is quite similar the XML Namespace configuration:
+您会注意到这个配置与XML命名空间配置非常相似：
 
 [source,xml]
 ----
@@ -163,17 +163,17 @@ You will notice that this configuration is quite similar the XML Namespace confi
 </http>
 ----
 
-The Java Configuration equivalent of closing an XML tag is expressed using the `and()` method which allows us to continue configuring the parent.
-If you read the code it also makes sense.
-I want to configure authorized requests __and__ configure form login __and__ configure HTTP Basic authentication.
+关闭XML标签的Java配置等同于使用允许我们继续配置父项的`and()`方法表示。
+如果你阅读代码，这也是有道理的。
+我想配置授权请求__并配置表单登录__and__配置HTTP基本认证。
 
 [[jc-form]]
-=== Java Configuration and Form Login
-You might be wondering where the login form came from when you were prompted to log in, since we made no mention of any HTML files or JSPs.
-Since Spring Security's default configuration does not explicitly set a URL for the login page, Spring Security generates one automatically, based on the features that are enabled and using standard values for the URL which processes the submitted login, the default target URL the user will be sent to after logging in and so on.
+===  Java配置和表单登录
+由于我们没有提及任何HTML文件或JSP，因此您可能想知道登录表单从何时被提示登录。
+由于Spring Security的默认配置没有明确设置登录页面的URL，因此Spring Security会根据启用的功能自动生成一个URL，并使用处理提交的登录的URL的标准值，用户将默认的目标URL登录后发送到等等。
 
-While the automatically generated log in page is convenient to get up and running quickly, most applications will want to provide their own log in page.
-To do so we can update our configuration as seen below:
+尽管自动生成的登录页面很方便快速启动和运行，但大多数应用程序都希望提供自己的登录页面。
+为此，我们可以更新我们的配置，如下所示：
 
 
 [source,java]
@@ -189,14 +189,14 @@ protected void configure(HttpSecurity http) throws Exception {
 }
 ----
 
-<1> The updated configuration specifies the location of the log in page.
-<2> We must grant all users (i.e. unauthenticated users) access to our log in page.
-The `formLogin().permitAll()` method allows granting access to all users for all URLs associated with form based log in.
+<1>更新后的配置指定登录页面的位置。
+<2>我们必须授予所有用户（即未经身份验证的用户）访问我们的登录页面。
+`formLogin().permitAll()`方法允许所有用户访问与基于表单的登录相关的所有URL。
 
-An example log in page implemented with JSPs for our current configuration can be seen below:
+下面是一个使用JSP实现的用于当前配置的登录页面示例：
 
-NOTE: The login page below represents our current configuration.
-We could easily update our configuration if some of the defaults do not meet our needs.
+注意：下面的登录页面代表我们当前的配置。
+如果某些默认设置不能满足我们的需求，我们可以轻松更新我们的配置。
 
 [source,html]
 ----
@@ -227,18 +227,18 @@ We could easily update our configuration if some of the defaults do not meet our
 </form>
 ----
 
-<1> A POST to the `/login` URL will attempt to authenticate the user
-<2> If the query parameter `error` exists, authentication was attempted and failed
-<3> If the query parameter `logout` exists, the user was successfully logged out
-<4> The username must be present as the HTTP parameter named __username__
-<5> The password must be present as the HTTP parameter named __password__
-<6> We must <<csrf-include-csrf-token>> To learn more read the <<csrf>> section of the reference
+<1>发布到`/login`网址的邮件将尝试对用户进行身份验证
+<2>如果查询参数`error`存在，则认证尝试失败
+<3>如果查询参数`logout`存在，用户已成功注销
+<4>用户名必须作为名为__username__的HTTP参数存在
+<5>密码必须以名为__password__的HTTP参数
+<6>我们必须<<csrf-include-csrf-token>>要了解更多信息，请阅读参考文献的<<csrf>>部分
 
 [[jc-authorize-requests]]
-=== Authorize Requests
-Our examples have only required users to be authenticated and have done so for every URL in our application.
-We can specify custom requirements for our URLs by adding multiple children to our `http.authorizeRequests()` method.
-For example:
+=== 授权请求
+我们的示例只需要用户进行身份验证，并已为我们的应用程序中的每个URL完成此操作。
+我们可以通过向我们的`http.authorizeRequests()`方法添加多个子项来为我们的网址指定自定义要求。
+例如：
 
 
 [source,java]
@@ -256,27 +256,27 @@ protected void configure(HttpSecurity http) throws Exception {
 }
 ----
 
-<1> There are multiple children to the `http.authorizeRequests()` method each matcher is considered in the order they were declared.
-<2> We specified multiple URL patterns that any user can access.
-Specifically, any user can access a request if the URL starts with "/resources/", equals "/signup", or equals "/about".
-<3> Any URL that starts with "/admin/" will be restricted to users who have the role "ROLE_ADMIN".
-You will notice that since we are invoking the `hasRole` method we do not need to specify the "ROLE_" prefix.
-<4> Any URL that starts with "/db/" requires the user to have both "ROLE_ADMIN" and "ROLE_DBA".
-You will notice that since we are using the `hasRole` expression we do not need to specify the "ROLE_" prefix.
-<5> Any URL that has not already been matched on only requires that the user be authenticated
+<1> `http.authorizeRequests()`方法有多个孩子，每个匹配者按照他们声明的顺序考虑。
+<2>我们指定了任何用户都可以访问的多个网址格式。
+具体而言，如果网址以"/resources/"开头，等于"/signup"或等于"/about"，任何用户都可以访问请求。
+<3>任何以"/admin/"开头的网址将仅限于拥有角色"ROLE_ADMIN"的用户。
+您会注意到，由于我们调用了`hasRole`方法，因此我们不需要指定"ROLE_"前缀。
+<4>任何以"/db/"开头的网址都需要用户同时拥有"ROLE_ADMIN"和"ROLE_DBA"。
+您会注意到，由于我们使用的是`hasRole`表达式，因此无需指定"ROLE_"前缀。
+<5>任何尚未匹配的网址只要求用户进行身份验证
 
 [[jc-logout]]
-=== Handling Logouts
+=== 处理注销
 
-When using the `{security-api-url}org/springframework/security/config/annotation/web/configuration/WebSecurityConfigurerAdapter.html[WebSecurityConfigurerAdapter]`, logout capabilities are automatically applied.
-The default is that accessing the URL `/logout` will log the user out by:
+使用`{security-api-url}org/springframework/security/config/annotation/web/configuration/WebSecurityConfigurerAdapter.html[WebSecurityConfigurerAdapter]`时，会自动应用注销功能。
+默认情况下，访问网址`/logout`将通过以下方式登录用户：
 
-- Invalidating the HTTP Session
-- Cleaning up any RememberMe authentication that was configured
-- Clearing the `SecurityContextHolder`
-- Redirect to `/login?logout`
+- 使HTTP会话无效
+- 清理已配置的任何RememberMe认证
+- 清除`SecurityContextHolder`
+- 重定向到`/login?logout`
 
-Similar to configuring login capabilities, however, you also have various options to further customize your logout requirements:
+但是，类似于配置登录功能，您还可以有多种选项来进一步自定义注销要求：
 
 [source,java]
 ----
@@ -294,109 +294,109 @@ protected void configure(HttpSecurity http) throws Exception {
 }
 ----
 
-<1> Provides logout support.
-This is automatically applied when using `WebSecurityConfigurerAdapter`.
-<2> The URL that triggers log out to occur (default is `/logout`).
-If CSRF protection is enabled (default), then the request must also be a POST.
-For more information, please consult the {security-api-url}org/springframework/security/config/annotation/web/configurers/LogoutConfigurer.html#logoutUrl-java.lang.String-[JavaDoc].
-<3> The URL to redirect to after logout has occurred.
-The default is `/login?logout`.
-For more information, please consult the {security-api-url}org/springframework/security/config/annotation/web/configurers/LogoutConfigurer.html#logoutSuccessUrl-java.lang.String-[JavaDoc].
-<4> Let's you specify a custom `LogoutSuccessHandler`.
-If this is specified, `logoutSuccessUrl()` is ignored.
-For more information, please consult the {security-api-url}org/springframework/security/config/annotation/web/configurers/LogoutConfigurer.html#logoutSuccessHandler-org.springframework.security.web.authentication.logout.LogoutSuccessHandler-[JavaDoc].
-<5> Specify whether to invalidate the `HttpSession` at the time of logout.
-This is *true* by default.
-Configures the `SecurityContextLogoutHandler` under the covers.
-For more information, please consult the {security-api-url}org/springframework/security/config/annotation/web/configurers/LogoutConfigurer.html#invalidateHttpSession-boolean-[JavaDoc].
-<6> Adds a `LogoutHandler`.
-`SecurityContextLogoutHandler` is added as the last `LogoutHandler` by default.
-<7> Allows specifying the names of cookies to be removed on logout success.
-This is a shortcut for adding a `CookieClearingLogoutHandler` explicitly.
+<1>提供注销支持。
+这在使用`WebSecurityConfigurerAdapter`时会自动应用。
+<2>触发注销的URL（默认为`/logout`）。
+如果启用CSRF保护（默认），则该请求也必须是POST。
+有关更多信息，请参阅{security-api-url} org / springframework / security / config / annotation / web / configurers / LogoutConfigurer.html＃logoutUrl-java.lang.String- [JavaDoc]。
+<3>发生注销后重定向到的URL。
+默认值是`/login?logout`。
+有关更多信息，请参阅{security-api-url} org / springframework / security / config / annotation / web / configurers / LogoutConfigurer.html＃logoutSuccessUrl-java.lang.String- [JavaDoc]。
+<4>让我们指定一个自定义`LogoutSuccessHandler`。
+如果指定，则`logoutSuccessUrl()`被忽略。
+有关更多信息，请参阅{security-api-url} org / springframework / security / config / annotation / web / configurers / LogoutConfigurer.html＃logoutSuccessHandler-org.springframework.security.web.authentication.logout.LogoutSuccessHandler- [JavaDoc ]。
+<5>指定在注销时是否使`HttpSession`无效。
+这是默认的*true*。
+配置封面下的{{0}。
+有关更多信息，请参阅{security-api-url} org / springframework / security / config / annotation / web / configurers / LogoutConfigurer.html＃invalidateHttpSession-boolean- [JavaDoc]。
+<6>添加一个`LogoutHandler`。
+`SecurityContextLogoutHandler`默认添加为最后一个`LogoutHandler`。
+<7>允许指定在注销成功时删除的cookies的名称。
+这是明确添加`CookieClearingLogoutHandler`的快捷方式。
 
 [NOTE]
 ====
-Logouts can of course also be configured using the XML Namespace notation.
-Please see the documentation for the <<nsa-logout, logout element>> in the Spring Security XML Namespace section for further details.
+注销当然也可以使用XML名称空间表示法进行配置。
+有关更多详细信息，请参阅Spring Security XML命名空间部分中<<nsa-logout, logout element>>的文档。
 ====
 
-Generally, in order to customize logout functionality, you can add
+通常，为了自定义注销功能，您可以添加
 `{security-api-url}org/springframework/security/web/authentication/logout/LogoutHandler.html[LogoutHandler]`
-and/or
+和/或
 `{security-api-url}org/springframework/security/web/authentication/logout/LogoutSuccessHandler.html[LogoutSuccessHandler]`
-implementations.
-For many common scenarios, these handlers are applied under the
-covers when using the fluent API.
+实现。
+对于很多常见的场景，这些处理程序都是根据
+涵盖了何时使用流利的API。
 
 [[jc-logout-handler]]
-==== LogoutHandler
+====  LogoutHandler
 
-Generally, `{security-api-url}org/springframework/security/web/authentication/logout/LogoutHandler.html[LogoutHandler]`
-implementations indicate classes that are able to participate in logout handling.
-They are expected to be invoked to perform necessary clean-up.
-As such they should
-not throw exceptions.
-Various implementations are provided:
+通常，`{security-api-url}org/springframework/security/web/authentication/logout/LogoutHandler.html[LogoutHandler]`
+实现指示能够参与注销处理的类。
+预计它们将被调用来执行必要的清理。
+因此他们应该
+不会抛出异常。
+提供了各种实现：
 
-- {security-api-url}org/springframework/security/web/authentication/rememberme/PersistentTokenBasedRememberMeServices.html[PersistentTokenBasedRememberMeServices]
-- {security-api-url}org/springframework/security/web/authentication/rememberme/TokenBasedRememberMeServices.html[TokenBasedRememberMeServices]
-- {security-api-url}org/springframework/security/web/authentication/logout/CookieClearingLogoutHandler.html[CookieClearingLogoutHandler]
-- {security-api-url}org/springframework/security/web/csrf/CsrfLogoutHandler.html[CsrfLogoutHandler]
-- {security-api-url}org/springframework/security/web/authentication/logout/SecurityContextLogoutHandler.html[SecurityContextLogoutHandler]
+-  {安全API-URL}组织/ springframework的/安全/网络/认证/了rememberMe / PersistentTokenBasedRememberMeServices.html [对PersistentTokenBasedRememberMeServices]
+-  {安全API-URL}组织/ springframework的/安全/网络/认证/了rememberMe / TokenBasedRememberMeServices.html [TokenBasedRememberMeServices]
+-  {安全API-URL}组织/ springframework的/安全/网络/认证/注销/ CookieClearingLogoutHandler.html [CookieClearingLogoutHandler]
+-  {安全API-URL}组织/ springframework的/安全/网络/ CSRF / CsrfLogoutHandler.html [CsrfLogoutHandler]
+-  {安全API-URL}组织/ springframework的/安全/网络/认证/注销/ SecurityContextLogoutHandler.html [SecurityContextLogoutHandler]
 
-Please see <<remember-me-impls>> for details.
+有关详细信息，请参阅<<remember-me-impls>>。
 
-Instead of providing `LogoutHandler` implementations directly, the fluent API also provides shortcuts that provide the respective `LogoutHandler` implementations under the covers.
-E.g. `deleteCookies()` allows specifying the names of one or more cookies to be removed on logout success.
-This is a shortcut compared to adding a `CookieClearingLogoutHandler`.
+Fluent API不是直接提供`LogoutHandler`实现，而是提供了快捷方式，它们提供了相应的`LogoutHandler`实现。
+例如。 `deleteCookies()`允许指定在注销成功时删除一个或多个Cookie的名称。
+与添加`CookieClearingLogoutHandler`相比，这是一条捷径。
 
 [[jc-logout-success-handler]]
-==== LogoutSuccessHandler
+====  LogoutSuccessHandler
 
-The `LogoutSuccessHandler` is called after a successful logout by the `LogoutFilter`, to handle e.g.
-redirection or forwarding to the appropriate destination.
-Note that the interface is almost the same as the `LogoutHandler` but may raise an exception.
+在`LogoutFilter`成功注销后调用`LogoutSuccessHandler`，以处理例如
+重定向或转发到适当的目的地。
+请注意，界面与`LogoutHandler`几乎相同，但可能会引发异常。
 
-The following implementations are provided:
+提供了以下实现：
 
-- {security-api-url}org/springframework/security/web/authentication/logout/SimpleUrlLogoutSuccessHandler.html[SimpleUrlLogoutSuccessHandler]
-- HttpStatusReturningLogoutSuccessHandler
+-  {安全API-URL}组织/ springframework的/安全/网络/认证/注销/ SimpleUrlLogoutSuccessHandler.html [SimpleUrlLogoutSuccessHandler]
+-  HttpStatusReturningLogoutSuccessHandler
 
-As mentioned above, you don't need to specify the `SimpleUrlLogoutSuccessHandler` directly.
-Instead, the fluent API provides a shortcut by setting the `logoutSuccessUrl()`.
-This will setup the `SimpleUrlLogoutSuccessHandler` under the covers.
-The provided URL will be redirected to after a logout has occurred.
-The default is `/login?logout`.
+如上所述，您不需要直接指定`SimpleUrlLogoutSuccessHandler`。
+相反，流利的API通过设置`logoutSuccessUrl()`来提供快捷方式。
+这将设置封面下的`SimpleUrlLogoutSuccessHandler`。
+提供的URL将在注销发生后重定向到。
+默认值是`/login?logout`。
 
-The `HttpStatusReturningLogoutSuccessHandler` can be interesting in REST API type scenarios.
-Instead of redirecting to a URL upon the successful logout, this `LogoutSuccessHandler` allows you to provide a plain HTTP status code to be returned.
-If not configured a status code 200 will be returned by default.
+REST API类型场景中的`HttpStatusReturningLogoutSuccessHandler`可能很有趣。
+取而代之的是在成功注销后重定向到URL，这个`LogoutSuccessHandler`允许您提供一个简单的HTTP状态代码来返回。
+如果未配置，则缺省情况下将返回状态代码200。
 
 [[jc-logout-references]]
-==== Further Logout-Related References
+==== 更多注销相关参考
 
 - <<ns-logout, Logout Handling>>
 - <<test-logout, Testing Logout>>
 - <<servletapi-logout, HttpServletRequest.logout()>>
 - <<remember-me-impls>>
-- <<csrf-logout, Logging Out>> in section CSRF Caveats
-- Section <<cas-singlelogout, Single Logout>> (CAS protocol)
-- Documentation for the <<nsa-logout, logout element>> in the Spring Security XML Namespace section
+CSRF警告部分中的-  <<csrf-logout, Logging Out>>
+- 部分<<cas-singlelogout, Single Logout>>（CAS协议）
+-  Spring Security XML命名空间部分中<<nsa-logout, logout element>>的文档
 
 [[jc-webflux]]
-=== WebFlux Security
+===  WebFlux安全
 
-Spring Security's WebFlux support relies on a `WebFilter` and works the same for Spring WebFlux and Spring WebFlux.Fn.
-You can find a few sample applications that demonstrate the code below:
+Spring Security的WebFlux支持依赖于`WebFilter`，并且对于Spring WebFlux和Spring WebFlux.Fn也是如此。
+你可以找到几个示例应用程序来演示下面的代码：
 
-* Hello WebFlux {gh-samples-url}/javaconfig/hellowebflux[hellowebflux]
-* Hello WebFlux.Fn {gh-samples-url}/javaconfig/hellowebfluxfn[hellowebfluxfn]
-* Hello WebFlux Method {gh-samples-url}/javaconfig/hellowebflux-method[hellowebflux-method]
+*  Hello WebFlux {gh-samples-url} / javaconfig / hellowebflux [hellowebflux]
+*  Hello WebFlux.Fn {gh-samples-url} / javaconfig / hellowebfluxfn [hellowebfluxfn]
+*  Hello WebFlux方法{gh-samples-url} / javaconfig / hellowebflux-method [hellowebflux-method]
 
 
-==== Minimal WebFlux Security Configuration
+==== 最小的WebFlux安全配置
 
-You can find a minimal WebFlux Security configuration below:
+您可以在下面找到最低限度的WebFlux安全配置：
 
 [source,java]
 -----
@@ -415,11 +415,11 @@ public class HelloWebfluxSecurityConfig {
 }
 -----
 
-This configuration provides form and http basic authentication, sets up authorization to require an authenticated user for accessing any page, sets up a default log in page and a default log out page, sets up security related HTTP headers, CSRF protection, and more.
+此配置提供表单和http基本身份验证，设置授权以要求经过身份验证的用户访问任何页面，设置默认登录页面和默认注销页面，设置与安全性相关的HTTP标头，CSRF保护等。
 
-==== Explicit WebFlux Security Configuration
+==== 明确的WebFlux安全配置
 
-You can find an explicit version of the minimal WebFlux Security configuration below:
+您可以在下面找到最小WebFlux安全配置的显式版本：
 
 [source,java]
 -----
@@ -449,24 +449,24 @@ public class HelloWebfluxSecurityConfig {
 }
 -----
 
-This configuration explicitly sets up all the same things as our minimal configuration.
-From here you can easily make the changes to the defaults.
+该配置明确设置了与我们最小配置相同的所有内容。
+从这里您可以轻松地对默认值进行更改。
 
 [[jc-oauth2login]]
-=== OAuth 2.0 Login
+===  OAuth 2.0登录
 
-The OAuth 2.0 Login feature provides an application with the capability to have users log in to the application by using their existing account at an OAuth 2.0 Provider (e.g.
-GitHub) or OpenID Connect 1.0 Provider (such as Google).
-OAuth 2.0 Login implements the use cases: "Login with Google" or "Login with GitHub".
+OAuth 2.0登录功能为应用程序提供了让用户通过在OAuth 2.0提供者处使用其现有帐户登录应用程序的功能（例如，
+GitHub）或OpenID Connect 1.0 Provider（例如Google）。
+OAuth 2.0 Login实现了用例："Login with Google"或"Login with GitHub"。
 
-NOTE: OAuth 2.0 Login is implemented by using the *Authorization Code Grant*, as specified in the https://tools.ietf.org/html/rfc6749#section-4.1[OAuth 2.0 Authorization Framework] and http://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth[OpenID Connect Core 1.0].
+注意：通过使用https://tools.ietf.org/html/rfc6749#section-4.1[OAuth 2.0授权框架]和 http://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth[OpenID Connect Core 1.0]中指定的*Authorization Code Grant*实现OAuth 2.0登录。
 
 [[jc-oauth2login-sample-boot]]
-==== Spring Boot 2.0 Sample
+====  Spring Boot 2.0示例
 
-Spring Boot 2.0 brings full auto-configuration capabilities for OAuth 2.0 Login.
+Spring Boot 2.0为OAuth 2.0登录带来了全面的自动配置功能。
 
-This section shows how to configure the {gh-samples-url}/boot/oauth2login[*OAuth 2.0 Login sample*] using _Google_ as the _Authentication Provider_ and covers the following topics:
+本节介绍如何使用_Google_作为_Authentication Provider_配置{gh-samples-url} / boot / oauth2login [*OAuth 2.0 Login sample*]，并涵盖以下主题：
 
 * <<jc-oauth2login-sample-initial-setup,Initial setup>>
 * <<jc-oauth2login-sample-redirect-uri,Setting the redirect URI>>
@@ -475,33 +475,33 @@ This section shows how to configure the {gh-samples-url}/boot/oauth2login[*OAuth
 
 
 [[jc-oauth2login-sample-initial-setup]]
-===== Initial setup
+===== 初始设置
 
-To use Google's OAuth 2.0 authentication system for login, you must set up a project in the Google API Console to obtain OAuth 2.0 credentials.
+要使用Google的OAuth 2.0身份验证系统进行登录，您必须在Google API控制台中设置一个项目以获取OAuth 2.0凭据。
 
-NOTE: https://developers.google.com/identity/protocols/OpenIDConnect[Google's OAuth 2.0 implementation] for authentication conforms to the  http://openid.net/connect/[OpenID Connect 1.0] specification and is http://openid.net/certification/[OpenID Certified].
+注意：用于身份验证的https://developers.google.com/identity/protocols/OpenIDConnect[Google' OAuth 2.0实现]符合 http://openid.net/connect/[OpenID Connect 1.0]规范，并且是 http://openid.net/certification/[OpenID认证]。
 
-Follow the instructions on the https://developers.google.com/identity/protocols/OpenIDConnect[OpenID Connect] page, starting in the section, "Setting up OAuth 2.0".
+按照https://developers.google.com/identity/protocols/OpenIDConnect[OpenID Connect]页上的说明操作，从"Setting up OAuth 2.0"部分开始。
 
-After completing the "Obtain OAuth 2.0 credentials" instructions, you should have a new OAuth Client with credentials consisting of a Client ID and a Client Secret.
+完成"Obtain OAuth 2.0 credentials"指示后，您应该拥有一个新的OAuth客户端，其凭据由客户端ID和客户端密钥组成。
 
 [[jc-oauth2login-sample-redirect-uri]]
-===== Setting the redirect URI
+===== 设置重定向URI
 
-The redirect URI is the path in the application that the end-user's user-agent is redirected back to after they have authenticated with Google and have granted access to the OAuth Client _(<<jc-oauth2login-sample-initial-setup,created in the previous step>>)_ on the Consent page.
+重定向URI是应用程序中的路径，用户的用户代理在与Google进行身份验证并授予对“同意”页面上的OAuth客户端_（<<jc-oauth2login-sample-initial-setup,created in the previous step>>）_的访问权之后，会将其重定向回。
 
-In the "Set a redirect URI" sub-section, ensure that the *Authorized redirect URIs* field is set to `http://localhost:8080/login/oauth2/code/google`.
+在"Set a redirect URI"小节中，确保*Authorized redirect URIs*字段设置为`http://localhost:8080/login/oauth2/code/google`。
 
-TIP: The default redirect URI template is `{baseUrl}/login/oauth2/code/{registrationId}`.
-The *_registrationId_* is a unique identifier for the <<jc-oauth2login-client-registration,ClientRegistration>>.
+提示：默认重定向URI模板为`{baseUrl}/login/oauth2/code/{registrationId}`。
+*_registrationId_*是<<jc-oauth2login-client-registration,ClientRegistration>>的唯一标识符。
 
 [[jc-oauth2login-sample-application-config]]
-===== Configure `application.yml`
+===== 配置`application.yml`
 
-Now that you have a new OAuth Client with Google, you need to configure the application to use the OAuth Client for the _authentication flow_.
-To do so:
+现在，您已经拥有了一个带有Google的新OAuth客户端，您需要配置该应用程序以使用OAuth客户端作为_authentication flow_。
+要做到这一点：
 
-. Go to `application.yml` and set the following configuration:
+. 转到`application.yml`并设置以下配置：
 +
 [source,yaml]
 ----
@@ -515,38 +515,38 @@ spring:
             client-secret: google-client-secret
 ----
 +
-.OAuth Client properties
+.OAuth客户端属性
 ====
-<1> `spring.security.oauth2.client.registration` is the base property prefix for OAuth Client properties.
-<2> Following the base property prefix is the ID for the <<jc-oauth2login-client-registration,ClientRegistration>>, such as google.
+<1> `spring.security.oauth2.client.registration`是OAuth客户端属性的基本属性前缀。
+<2>基本属性前缀后面是<<jc-oauth2login-client-registration,ClientRegistration>>的ID，例如google。
 ====
 
-. Replace the values in the `client-id` and `client-secret` property with the OAuth 2.0 credentials you created earlier.
+. 用您之前创建的OAuth 2.0凭据替换`client-id`和`client-secret`属性中的值。
 
 
 [[jc-oauth2login-sample-boot-application]]
-===== Boot up the application
+===== 启动应用程序
 
-Launch the Spring Boot 2.0 sample and go to `http://localhost:8080`.
-You are then redirected to the default _auto-generated_ login page, which displays a link for Google.
+启动Spring Boot 2.0示例并转至`http://localhost:8080`。
+然后，您被重定向到默认的_auto-generated_登录页面，该页面显示Google的链接。
 
-Click on the Google link, and you are then redirected to Google for authentication.
+点击Google链接，然后重定向到Google进行身份验证。
 
-After authenticating with your Google account credentials, the next page presented to you is the Consent screen.
-The Consent screen asks you to either allow or deny access to the OAuth Client you created earlier.
-Click *Allow* to authorize the OAuth Client to access your email address and basic profile information.
+在使用Google帐户凭证进行身份验证后，向您呈现的下一页是“同意”屏幕。
+“同意”屏幕会要求您允许或拒绝访问之前创建的OAuth客户端。
+点击*Allow*，授权OAuth客户端访问您的电子邮件地址和基本配置文件信息。
 
-At this point, the OAuth Client retrieves your email address and basic profile information from the http://openid.net/specs/openid-connect-core-1_0.html#UserInfo[UserInfo Endpoint] and establishes an authenticated session.
+此时，OAuth客户端会从 http://openid.net/specs/openid-connect-core-1_0.html#UserInfo[UserInfo端点]中检索您的电子邮件地址和基本配置文件信息，并建立经过验证的会话。
 
 [[jc-oauth2login-client-registration]]
-==== ClientRegistration
+====  ClientRegistration
 
-`ClientRegistration` is a representation of a client registered with an OAuth 2.0 or OpenID Connect 1.0 Provider.
+`ClientRegistration`是向OAuth 2.0或OpenID Connect 1.0 Provider注册的客户端的代表。
 
-A client registration holds information, such as client id, client secret,
-authorization grant type, redirect URI, scope(s), authorization URI, token URI, and other details.
+客户端注册保存信息，如客户端ID，客户端密码，
+授权授权类型，重定向URI，范围，授权URI，令牌URI和其他详细信息。
 
-`ClientRegistration` and its properties are defined as follows:
+`ClientRegistration`及其属性定义如下：
 
 [source,java]
 ----
@@ -575,33 +575,33 @@ public final class ClientRegistration {
 	}
 }
 ----
-<1> `registrationId`: The ID that uniquely identifies the `ClientRegistration`.
-<2> `clientId`: The client identifier.
-<3> `clientSecret`: The client secret.
-<4> `clientAuthenticationMethod`: The method used to authenticate the Client with the Provider.
-The supported values are *basic* and *post*.
-<5> `authorizationGrantType`: The OAuth 2.0 Authorization Framework defines four https://tools.ietf.org/html/rfc6749#section-1.3[Authorization Grant] types.
- The supported values are authorization_code and implicit.
-<6> `redirectUriTemplate`: The client's registered redirect URI that the _Authorization Server_ redirects the end-user's user-agent
- to after the end-user has authenticated and authorized access to the client.
- The default redirect URI template is `{baseUrl}/login/oauth2/code/{registrationId}`, which supports URI template variables.
-<7> `scopes`: The scope(s) requested by the client during the Authorization Request flow, such as openid, email, or profile.
-<8> `clientName`: A descriptive name used for the client.
-The name may be used in certain scenarios, such as when displaying the name of the client in the auto-generated login page.
-<9> `authorizationUri`: The Authorization Endpoint URI for the Authorization Server.
-<10> `tokenUri`: The Token Endpoint URI for the Authorization Server.
-<11> `jwkSetUri`: The URI used to retrieve the https://tools.ietf.org/html/rfc7517[JSON Web Key (JWK)] Set from the Authorization Server,
- which contains the cryptographic key(s) used to verify the https://tools.ietf.org/html/rfc7515[JSON Web Signature (JWS)] of the ID Token and optionally the UserInfo Response.
-<12> `(userInfoEndpoint)uri`: The UserInfo Endpoint URI used to access the claims/attributes of the authenticated end-user.
-<13> `userNameAttributeName`: The name of the attribute returned in the UserInfo Response that references the Name or Identifier of the end-user.
+<1> `registrationId`：唯一标识`ClientRegistration`的标识。
+<2> `clientId`：客户端标识符。
+<3> `clientSecret`：客户端秘密。
+<4> `clientAuthenticationMethod`：用于向提供者验证客户端的方法。
+支持的值是*basic*和*post*。
+<5> `authorizationGrantType`：OAuth 2.0授权框架定义了四个https://tools.ietf.org/html/rfc6749#section-1.3 [授权]类型。
+ 支持的值是authorization_code和隐式。
+<6> `redirectUriTemplate`：客户端注册的重定向URI，_Authorization Server_重定向最终用户的用户代理
+ 到最终用户已验证并授权访问客户端后。
+ 默认的重定向URI模板是`{baseUrl}/login/oauth2/code/{registrationId}`，它支持URI模板变量。
+<7> `scopes`：客户端在授权请求流程中请求的范围，例如openid，电子邮件或配置文件。
+<8> `clientName`：用于客户端的描述性名称。
+该名称可用于某些情况下，例如在自动生成的登录页面中显示客户端的名称时。
+<9> `authorizationUri`：授权服务器的授权端点URI。
+<10> `tokenUri`：授权服务器的令牌端点URI。
+<11> `jwkSetUri`：用于检索https://tools.ietf.org/html/rfc7517[JSON Web Key（JWK）]的URI从授权服务器设置，
+ ，其中包含用于验证ID令牌的https://tools.ietf.org/html/rfc7515[JSON Web签名（JWS）]的加密密钥以及可选的UserInfo响应。
+<12> `(userInfoEndpoint)uri`：UserInfo端点URI，用于访问经过身份验证的最终用户的声明/属性。
+<13> `userNameAttributeName`：在UserInfo Response中返回的属性的名称，该名称引用最终用户的名称或标识符。
 
 [[jc-oauth2login-boot-property-mappings]]
-==== Spring Boot 2.0 Property Mappings
+====  Spring Boot 2.0属性映射
 
-The following table outlines the mapping of the Spring Boot 2.0 OAuth Client properties to the `ClientRegistration` properties.
+下表概述了Spring Boot 2.0 OAuth客户端属性到`ClientRegistration`属性的映射。
 
 |===
-|Spring Boot 2.0 |ClientRegistration
+| Spring Boot 2.0 | ClientRegistration
 
 |`spring.security.oauth2.client.registration._[registrationId]_`
 |`registrationId`
@@ -644,25 +644,25 @@ The following table outlines the mapping of the Spring Boot 2.0 OAuth Client pro
 |===
 
 [[jc-oauth2login-client-registration-repo]]
-==== ClientRegistrationRepository
+====  ClientRegistrationRepository
 
-The `ClientRegistrationRepository` serves as a repository for OAuth 2.0 / OpenID Connect 1.0 `ClientRegistration`(s).
-
-[NOTE]
-Client registration information is ultimately stored and owned by the associated Authorization Server.
-This repository provides the ability to retrieve a sub-set of the primary client registration information,
-which is stored with the Authorization Server.
-
-Spring Boot 2.0 auto-configuration binds each of the properties under `spring.security.oauth2.client.registration._[registrationId]_`
-to an instance of `ClientRegistration` and then composes each of the `ClientRegistration` instance(s) within a `ClientRegistrationRepository`.
+`ClientRegistrationRepository`充当OAuth 2.0 / OpenID Connect 1.0 `ClientRegistration`（s）的存储库。
 
 [NOTE]
-The default implementation of `ClientRegistrationRepository` is `InMemoryClientRegistrationRepository`.
+客户端注册信息最终由关联的授权服务器存储和拥有。
+该存储库提供了检索主要客户端注册信息的子集的能力，
+它与授权服务器一起存储。
 
-The auto-configuration also registers the `ClientRegistrationRepository` as a `@Bean` in the `ApplicationContext`
-so that it is available for dependency-injection, if needed by the application.
+Spring Boot 2.0自动配置绑定`spring.security.oauth2.client.registration._[registrationId]_`下的每个属性
+到`ClientRegistration`的实例，然后在`ClientRegistrationRepository`内组合`ClientRegistration`个实例中的每个实例。
 
-The following listing shows an example:
+[NOTE]
+`ClientRegistrationRepository`的默认实现是`InMemoryClientRegistrationRepository`。
+
+自动配置还将`ClientRegistrationRepository`注册为`ApplicationContext`中的`@Bean`
+以便它可用于依赖注入，如果应用程序需要的话。
+
+以下列表显示了一个示例：
 
 [source,java]
 ----
@@ -685,16 +685,16 @@ public class OAuth2LoginController {
 ----
 
 [[jc-oauth2login-common-oauth2-provider]]
-==== CommonOAuth2Provider
+====  CommonOAuth2Provider
 
-`CommonOAuth2Provider` pre-defines a set of default client properties for a number of well known providers: Google, GitHub, Facebook, and Okta.
+`CommonOAuth2Provider`为众多知名供应商预先定义了一组默认客户端属性：Google，GitHub，Facebook和Okta。
 
-For example, the `authorization-uri`, `token-uri`, and `user-info-uri` do not change often for a Provider.
-Therefore, it makes sense to provide default values in order to reduce the required configuration.
+例如，`authorization-uri`，`token-uri`和`user-info-uri`不会经常更改提供者。
+因此，提供默认值以减少所需的配置是有意义的。
 
-As demonstrated previously, when we <<jc-oauth2login-sample-application-config,configured a Google client>>, only the `client-id` and `client-secret` properties are required.
+如前所述，当我们<<jc-oauth2login-sample-application-config,configured a Google client>>时，只需要`client-id`和`client-secret`属性。
 
-The following listing shows an example:
+以下列表显示了一个示例：
 
 [source,yaml]
 ----
@@ -709,12 +709,12 @@ spring:
 ----
 
 [TIP]
-The auto-defaulting of client properties works seamlessly here because the `registrationId` (`google`) matches the `GOOGLE` `enum` (case-insensitive) in `CommonOAuth2Provider`.
+由于`registrationId`（`google`）与`CommonOAuth2Provider`中的`GOOGLE` `enum`（不区分大小写）匹配，所以客户端属性的自动默认功能无缝工作。
 
-For cases where you may want to specify a different `registrationId`, such as `google-login`,
-you can still leverage auto-defaulting of client properties by configuring the `provider` property.
+对于您可能需要指定不同的`registrationId`的情况，例如`google-login`，
+您仍然可以通过配置`provider`属性来利用客户端属性的自动默认功能。
 
-The following listing shows an example:
+以下列表显示了一个示例：
 
 [source,yaml]
 ----
@@ -728,19 +728,19 @@ spring:
             client-id: google-client-id
             client-secret: google-client-secret
 ----
-<1> The `registrationId` is set to `google-login`.
-<2> The `provider` property is set to `google`, which will leverage the auto-defaulting of client properties set in `CommonOAuth2Provider.GOOGLE.getBuilder()`.
+<1> `registrationId`设置为`google-login`。
+<2> `provider`属性设置为`google`，该属性将利用`CommonOAuth2Provider.GOOGLE.getBuilder()`中设置的客户端属性的自动默认设置。
 
 [[jc-oauth2login-custom-provider-properties]]
-==== Configuring Custom Provider Properties
+==== 配置自定义提供程序属性
 
-There are some OAuth 2.0 Providers that support multi-tenancy, which results in different protocol endpoints for each tenant (or sub-domain).
+有一些OAuth 2.0提供商支持多租户，这会为每个租户（或子域）生成不同的协议端点。
 
-For example, an OAuth Client registered with Okta is assigned to a specific sub-domain and have their own protocol endpoints.
+例如，向Okta注册的OAuth客户端分配给特定的子域，并拥有自己的协议端点。
 
-For these cases, Spring Boot 2.0 provides the following base property for configuring custom provider properties: `spring.security.oauth2.client.provider._[providerId]_`.
+对于这些情况，Spring Boot 2.0为配置自定义提供程序属性提供以下基本属性：`spring.security.oauth2.client.provider._[providerId]_`。
 
-The following listing shows an example:
+以下列表显示了一个示例：
 
 [source,yaml]
 ----
@@ -761,19 +761,19 @@ spring:
             jwk-set-uri: https://your-subdomain.oktapreview.com/oauth2/v1/keys
 ----
 
-<1> The base property (`spring.security.oauth2.client.provider.okta`) allows for custom configuration of protocol endpoint locations.
+<1>基本属性（`spring.security.oauth2.client.provider.okta`）允许自定义配置协议端点位置。
 
 [[jc-oauth2login-override-boot-autoconfig]]
-==== Overriding Spring Boot 2.0 Auto-configuration
+==== 重写Spring Boot 2.0自动配置
 
-The Spring Boot 2.0 Auto-configuration class for OAuth Client support is `OAuth2ClientAutoConfiguration`.
+用于OAuth客户端支持的Spring Boot 2.0自动配置类为`OAuth2ClientAutoConfiguration`。
 
-It performs the following tasks:
+它执行以下任务：
 
-* Registers a `ClientRegistrationRepository` `@Bean` composed of `ClientRegistration`(s) from the configured OAuth Client properties.
-* Provides a `WebSecurityConfigurerAdapter` `@Configuration` and enables OAuth 2.0 Login through `httpSecurity.oauth2Login()`.
+* 从配置的OAuth客户端属性中注册由`ClientRegistration`（s）组成的`ClientRegistrationRepository` `@Bean`。
+* 提供`WebSecurityConfigurerAdapter` `@Configuration`并通过`httpSecurity.oauth2Login()`启用OAuth 2.0登录。
 
-If you need to override the auto-configuration based on your specific requirements, you may do so in the following ways:
+如果您需要根据您的特定要求覆盖自动配置，可以通过以下方式进行：
 
 * <<jc-oauth2login-register-clientregistrationrepository-bean,Register a `ClientRegistrationRepository` `@Bean`>>
 * <<jc-oauth2login-provide-websecurityconfigureradapter,Provide a `WebSecurityConfigurerAdapter`>>
@@ -781,9 +781,9 @@ If you need to override the auto-configuration based on your specific requiremen
 
 
 [[jc-oauth2login-register-clientregistrationrepository-bean]]
-===== Register a `ClientRegistrationRepository` `@Bean`
+===== 注册一个`ClientRegistrationRepository` `@Bean`
 
-The following example shows how to register a `ClientRegistrationRepository` `@Bean`:
+以下示例显示如何注册`ClientRegistrationRepository` `@Bean`：
 
 [source,java]
 ----
@@ -816,9 +816,9 @@ public class OAuth2LoginConfig {
 
 
 [[jc-oauth2login-provide-websecurityconfigureradapter]]
-===== Provide a `WebSecurityConfigurerAdapter`
+===== 提供`WebSecurityConfigurerAdapter`
 
-The following example shows how to provide a `WebSecurityConfigurerAdapter` with `@EnableWebSecurity` and enable OAuth 2.0 login through `httpSecurity.oauth2Login()`:
+以下示例显示如何为`WebSecurityConfigurerAdapter`提供`@EnableWebSecurity`，并通过`httpSecurity.oauth2Login()`启用OAuth 2.0登录：
 
 [source,java]
 ----
@@ -838,9 +838,9 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 
 
 [[jc-oauth2login-completely-override-autoconfiguration]]
-===== Completely Override the Auto-configuration
+===== 完全覆盖自动配置
 
-The following example shows how to completely override the auto-configuration by both registering a `ClientRegistrationRepository` `@Bean` and providing a `WebSecurityConfigurerAdapter`, both of which were described in the two preceding sections.
+以下示例显示了如何通过注册`ClientRegistrationRepository` `@Bean`并提供`WebSecurityConfigurerAdapter`完全覆盖自动配置，两者均在前两节中进行了介绍。
 
 [source,java]
 ----
@@ -885,9 +885,9 @@ public class OAuth2LoginConfig {
 ----
 
 [[jc-oauth2login-javaconfig-wo-boot]]
-==== Java Configuration without Spring Boot 2.0
+没有Spring Boot 2.0的====  Java配置
 
-If you are not able to use Spring Boot 2.0 and would like to configure one of the pre-defined providers in `CommonOAuth2Provider` (for example, Google), apply the following configuration:
+如果您无法使用Spring Boot 2.0并希望在`CommonOAuth2Provider`中配置一个预定义提供程序（例如Google），请应用以下配置：
 
 [source,java]
 ----
@@ -927,22 +927,22 @@ public class OAuth2LoginConfig {
 ----
 
 [[jc-oauth2login-authorized-client]]
-==== OAuth2AuthorizedClient / OAuth2AuthorizedClientService
+====  OAuth2AuthorizedClient / OAuth2AuthorizedClientService
 
-`OAuth2AuthorizedClient` is a representation of an Authorized Client.
-A client is considered to be authorized when the end-user (Resource Owner) has granted authorization to the client to access its protected resources.
+`OAuth2AuthorizedClient`是授权客户端的代表。
+当最终用户（资源所有者）授予客户端访问其受保护资源的权限时，客户端被认为是被授权的。
 
-`OAuth2AuthorizedClient` serves the purpose of associating an `OAuth2AccessToken` to a `ClientRegistration` (client) and resource owner, who is the `Principal` end-user that granted the authorization.
+`OAuth2AuthorizedClient`用于将`OAuth2AccessToken`与`ClientRegistration`（客户端）和资源所有者关联起来，该所有者是授予授权的`Principal`最终用户。
 
-The primary role of the `OAuth2AuthorizedClientService` is to manage `OAuth2AuthorizedClient` instances.
-From a developer perspective, it provides the capability to lookup an `OAuth2AccessToken` associated with a client so that it may be used to initiate a request to a resource server.
+`OAuth2AuthorizedClientService`的主要作用是管理`OAuth2AuthorizedClient`个实例。
+从开发人员的角度来看，它提供了查找与客户端关联的`OAuth2AccessToken`的功能，以便它可以用来发起对资源服务器的请求。
 
 [NOTE]
-Spring Boot 2.0 Auto-configuration registers an `OAuth2AuthorizedClientService` `@Bean` in the `ApplicationContext`.
+Spring Boot 2.0自动配置在`ApplicationContext`中注册`OAuth2AuthorizedClientService` `@Bean`。
 
-The developer may also register an `OAuth2AuthorizedClientService` `@Bean` in the `ApplicationContext` (overriding Spring Boot 2.0 Auto-configuration) in order to have the ability to lookup an `OAuth2AccessToken` associated with a specific `ClientRegistration` (client).
+开发人员还可以在`ApplicationContext`（覆盖Spring Boot 2.0自动配置）中注册`OAuth2AuthorizedClientService` `@Bean`，以便能够查找与特定相关的`OAuth2AccessToken` `ClientRegistration`（客户端）。
 
-The following listing shows an example:
+以下列表显示了一个示例：
 
 [source,java]
 ----
@@ -972,33 +972,33 @@ public class OAuth2LoginController {
 
 
 [[jc-oauth2login-resources]]
-==== Additional Resources
+==== 其他资源
 
-The following additional resources describe advanced configuration options:
+以下其他资源介绍了高级配置选项：
 
 * <<oauth2login-advanced-login-page, OAuth 2.0 Login Page>>
-* Authorization Endpoint:
+* 授权端点：
 ** <<oauth2login-advanced-authorization-request-repository, AuthorizationRequestRepository>>
 * <<oauth2login-advanced-redirection-endpoint, Redirection Endpoint>>
-* Token Endpoint:
+* 令牌端点：
 ** <<oauth2login-advanced-token-client, OAuth2AccessTokenResponseClient>>
-* UserInfo Endpoint:
+*  UserInfo端点：
 ** <<oauth2login-advanced-map-authorities, Mapping User Authorities>>
 ** <<oauth2login-advanced-custom-user, Configuring a Custom OAuth2User>>
 ** <<oauth2login-advanced-oauth2-user-service, OAuth 2.0 UserService>>
 ** <<oauth2login-advanced-oidc-user-service, OpenID Connect 1.0 UserService>>
 
 [[jc-authentication]]
-=== Authentication
+=== 认证
 
-Thus far we have only taken a look at the most basic authentication configuration.
-Let's take a look at a few slightly more advanced options for configuring authentication.
+到目前为止，我们只看到了最基本的认证配置。
+让我们来看看几个稍微更高级的配置认证选项。
 
 [[jc-authentication-inmemory]]
-==== In-Memory Authentication
+==== 内存认证
 
-We have already seen an example of configuring in-memory authentication for a single user.
-Below is an example to configure multiple users:
+我们已经看到了为单个用户配置内存认证的例子。
+以下是配置多个用户的示例：
 
 [source,java]
 ----
@@ -1014,11 +1014,11 @@ public UserDetailsService userDetailsService() throws Exception {
 ----
 
 [[jc-authentication-jdbc]]
-==== JDBC Authentication
+====  JDBC身份验证
 
-You can find the updates to support JDBC based authentication.
-The example below assumes that you have already defined a `DataSource` within your application.
-The https://github.com/spring-projects/spring-security/tree/master/samples/javaconfig/jdbc[jdbc-javaconfig] sample provides a complete example of using JDBC based authentication.
+您可以找到更新以支持基于JDBC的身份验证。
+以下示例假定您已经在应用程序中定义了`DataSource`。
+https://github.com/spring-projects/spring-security/tree/master/samples/javaconfig/jdbc[jdbc-javaconfig]示例提供了使用基于JDBC的身份验证的完整示例。
 
 [source,java]
 ----
@@ -1038,10 +1038,10 @@ public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception 
 }
 ----
 
-==== LDAP Authentication
+====  LDAP身份验证
 
-You can find the updates to support LDAP based authentication.
-The https://github.com/spring-projects/spring-security/tree/master/samples/javaconfig/ldap[ldap-javaconfig] sample provides a complete example of using LDAP based authentication.
+您可以找到更新以支持基于LDAP的身份验证。
+https://github.com/spring-projects/spring-security/tree/master/samples/javaconfig/ldap[ldap-javaconfig]示例提供了使用基于LDAP的身份验证的完整示例。
 
 [source,java]
 ----
@@ -1057,7 +1057,7 @@ public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception 
 }
 ----
 
-The example above uses the following LDIF and an embedded Apache DS LDAP instance.
+上面的示例使用以下LDIF和嵌入式Apache DS LDAP实例。
 
 .users.ldif
 ----
@@ -1106,12 +1106,12 @@ uniqueMember: uid=admin,ou=people,dc=springframework,dc=org
 ----
 
 [[jc-authentication-authenticationprovider]]
-==== AuthenticationProvider
+==== 的AuthenticationProvider
 
-You can define custom authentication by exposing a custom `AuthenticationProvider` as a bean.
-For example, the following will customize authentication assuming that `SpringAuthenticationProvider` implements `AuthenticationProvider`:
+您可以通过将自定义`AuthenticationProvider`公开为bean来定义自定义身份验证。
+例如，假设`SpringAuthenticationProvider`实现`AuthenticationProvider`，以下将自定义认证：
 
-NOTE: This is only used if the `AuthenticationManagerBuilder` has not been populated
+注：仅当`AuthenticationManagerBuilder`尚未填充时才会使用
 
 [source,java]
 ----
@@ -1122,12 +1122,12 @@ public SpringAuthenticationProvider springAuthenticationProvider() {
 ----
 
 [[jc-authentication-userdetailsservice]]
-==== UserDetailsService
+==== 的UserDetailsS​​ervice
 
-You can define custom authentication by exposing a custom `UserDetailsService` as a bean.
-For example, the following will customize authentication assuming that `SpringDataUserDetailsService` implements `UserDetailsService`:
+您可以通过将自定义`UserDetailsService`公开为bean来定义自定义身份验证。
+例如，假设`SpringDataUserDetailsService`实现`UserDetailsService`，以下将自定义认证：
 
-NOTE: This is only used if the `AuthenticationManagerBuilder` has not been populated and no `AuthenticationProviderBean` is defined.
+注意：仅当`AuthenticationManagerBuilder`尚未填充且未定义`AuthenticationProviderBean`时才会使用此选项。
 
 [source,java]
 ----
@@ -1137,8 +1137,8 @@ public SpringDataUserDetailsService springDataUserDetailsService() {
 }
 ----
 
-You can also customize how passwords are encoded by exposing a `PasswordEncoder` as a bean.
-For example, if you use bcrypt you can add a bean definition as shown below:
+您还可以通过将`PasswordEncoder`公开为bean来自定义密码的编码方式。
+例如，如果您使用bcrypt，则可以添加一个bean定义，如下所示：
 
 [source,java]
 ----
@@ -1148,11 +1148,11 @@ public BCryptPasswordEncoder passwordEncoder() {
 }
 ----
 
-=== Multiple HttpSecurity
+=== 多个HttpSecurity
 
-We can configure multiple HttpSecurity instances just as we can have multiple `<http>` blocks.
-The key is to extend the `WebSecurityConfigurationAdapter` multiple times.
-For example, the following is an example of having a different configuration for URL's that start with `/api/`.
+我们可以配置多个HttpSecurity实例，就像我们可以有多个`<http>`块一样。
+关键是多次扩展`WebSecurityConfigurationAdapter`。
+例如，以下是针对以`/api/`开头的URL进行不同配置的示例。
 
 [source,java]
 ----
@@ -1196,26 +1196,26 @@ public class MultiHttpSecurityConfig {
 }
 ----
 
-<1> Configure Authentication as normal
-<2> Create an instance of `WebSecurityConfigurerAdapter` that contains `@Order` to specify which `WebSecurityConfigurerAdapter` should be considered first.
-<3> The `http.antMatcher` states that this `HttpSecurity` will only be applicable to URLs that start with `/api/`
-<4> Create another instance of `WebSecurityConfigurerAdapter`.
-If the URL does not start with `/api/` this configuration will be used.
-This configuration is considered after `ApiWebSecurityConfigurationAdapter` since it has an `@Order` value after `1` (no `@Order` defaults to last).
+<1>配置身份验证正常
+<2>创建包含`@Order`的`WebSecurityConfigurerAdapter`的实例，以指定首先考虑哪个`WebSecurityConfigurerAdapter`。
+<3> `http.antMatcher`声明，此`HttpSecurity`仅适用于以`/api/`开头的网址
+<4>创建`WebSecurityConfigurerAdapter`的另一个实例。
+如果网址不是以`/api/`开头，则会使用此配置。
+`ApiWebSecurityConfigurationAdapter`之后会考虑此配置，因为`1`（`@Order`默认为最后一个值）后有`@Order`值。
 
 
 [[jc-method]]
-=== Method Security
+=== 方法安全性
 
-From version 2.0 onwards Spring Security has improved support substantially for adding security to your service layer methods.
-It provides support for JSR-250 annotation security as well as the framework's original `@Secured` annotation.
-From 3.0 you can also make use of new <<el-access,expression-based annotations>>.
-You can apply security to a single bean, using the `intercept-methods` element to decorate the bean declaration, or you can secure multiple beans across the entire service layer using the AspectJ style pointcuts.
+从2.0版本开始，Spring Security已经大大改善了对服务层方法的安全性的支持。
+它提供对JSR-250注释安全性的支持以及框架的原始`@Secured`注释。
+从3.0开始，您还可以使用新的<<el-access,expression-based annotations>>。
+您可以使用`intercept-methods`元素来装饰bean声明，也可以将安全性应用于单个bean，也可以使用AspectJ样式切入点在整个服务层中保护多个bean。
 
-==== EnableGlobalMethodSecurity
+====  EnableGlobalMethodSecurity
 
-We can enable annotation-based security using the `@EnableGlobalMethodSecurity` annotation on any `@Configuration` instance.
-For example, the following would enable Spring Security's `@Secured` annotation.
+我们可以在任何`@Configuration`实例上使用`@EnableGlobalMethodSecurity`注释来启用基于注释的安全性。
+例如，以下内容将启用Spring Security的`@Secured`注释。
 
 [source,java]
 ----
@@ -1225,9 +1225,9 @@ public class MethodSecurityConfig {
 }
 ----
 
-Adding an annotation to a method (on a class or interface) would then limit the access to that method accordingly.
-Spring Security's native annotation support defines a set of attributes for the method.
-These will be passed to the AccessDecisionManager for it to make the actual decision:
+然后向方法（在类或接口上）添加注释将相应地限制对该方法的访问。
+Spring Security的本地注释支持为该方法定义了一组属性。
+这些将被传递给AccessDecisionManager以供它作出实际的决定：
 
 [source,java]
 ----
@@ -1244,7 +1244,7 @@ public Account post(Account account, double amount);
 }
 ----
 
-Support for JSR-250 annotations can be enabled using
+可以使用支持JSR-250注释
 
 [source,java]
 ----
@@ -1254,8 +1254,8 @@ public class MethodSecurityConfig {
 }
 ----
 
-These are standards-based and allow simple role-based constraints to be applied but do not have the power Spring Security's native annotations.
-To use the new expression-based syntax, you would use
+这些都是基于标准的，允许应用简单的基于角色的约束，但是没有Spring Security的本地注释的强大功能。
+要使用新的基于表达式的语法，您可以使用
 
 [source,java]
 ----
@@ -1265,7 +1265,7 @@ public class MethodSecurityConfig {
 }
 ----
 
-and the equivalent Java code would be
+和等效的Java代码将会是
 
 [source,java]
 ----
@@ -1282,11 +1282,11 @@ public Account post(Account account, double amount);
 }
 ----
 
-==== GlobalMethodSecurityConfiguration
+====  GlobalMethodSecurityConfiguration
 
-Sometimes you may need to perform operations that are more complicated than are possible with the `@EnableGlobalMethodSecurity` annotation allow.
-For these instances, you can extend the `GlobalMethodSecurityConfiguration` ensuring that the `@EnableGlobalMethodSecurity` annotation is present on your subclass.
-For example, if you wanted to provide a custom `MethodSecurityExpressionHandler`, you could use the following configuration:
+有时您可能需要执行比`@EnableGlobalMethodSecurity`批注允许的操作更复杂的操作。
+对于这些实例，您可以扩展`GlobalMethodSecurityConfiguration`，确保`@EnableGlobalMethodSecurity`注释存在于您的子类中。
+例如，如果您想提供自定义`MethodSecurityExpressionHandler`，则可以使用以下配置：
 
 [source,java]
 ----
@@ -1300,18 +1300,18 @@ public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
 }
 ----
 
-For additional information about methods that can be overridden, refer to the `GlobalMethodSecurityConfiguration` Javadoc.
+有关可覆盖的方法的其他信息，请参阅`GlobalMethodSecurityConfiguration` Javadoc。
 
 [[jc-erms]]
-==== EnableReactiveMethodSecurity
+====  EnableReactiveMethodSecurity
 
-Spring Security supports method security using https://projectreactor.io/docs/core/release/reference/#context[Reactor's Context] which is setup using `ReactiveSecurityContextHolder`.
-For example, this demonstrates how to retrieve the currently logged in user's message.
+Spring Security通过使用`ReactiveSecurityContextHolder`设置的https://projectreactor.io/docs/core/release/reference/#context[Reactor's Context]支持方法安全性。
+例如，这将演示如何检索当前登录的用户的消息。
 
 [NOTE]
 ====
-For this to work the return type of the method must be a `org.reactivestreams.Publisher` (i.e. `Mono`/`Flux`).
-This is necessary to integrate with Reactor's `Context`.
+为此，该方法的返回类型必须是`org.reactivestreams.Publisher`（即`Mono` / `Flux`）。
+这对于整合反应堆的`Context`是必要的。
 ====
 
 [source,java]
@@ -1330,7 +1330,7 @@ StepVerifier.create(messageByUsername)
 	.verifyComplete();
 ----
 
-with `this::findMessageByUsername` defined as:
+与`this::findMessageByUsername`定义为：
 
 [source,java]
 ----
@@ -1339,7 +1339,7 @@ Mono<String> findMessageByUsername(String username) {
 }
 ----
 
-Below is a minimal method security configuration when using method security in reactive applications.
+以下是在反应式应用程序中使用方法安全性时的最小方法安全配置。
 
 [source,java]
 ----
@@ -1355,7 +1355,7 @@ public class SecurityConfig {
 }
 ----
 
-Consider the following class:
+考虑以下课程：
 
 [source,java]
 ----
@@ -1368,12 +1368,12 @@ public class HelloWorldMessageService {
 }
 ----
 
-Combined with our configuration above, `@PreAuthorize("hasRole('ADMIN')")` will ensure that `findByMessage` is only invoked by a user with the role `ADMIN`.
-It is important to note that any of the expressions in standard method security work for `@EnableReactiveMethodSecurity`.
-However, at this time we only support return type of `Boolean` or `boolean` of the expression.
-This means that the expression must not block.
+结合上述配置，`@PreAuthorize("hasRole('ADMIN')")`将确保`findByMessage`仅由具有角色`ADMIN`的用户调用。
+请注意，标准方法安全性中的任何表达式都适用于`@EnableReactiveMethodSecurity`。
+但是，目前我们只支持表达式的`Boolean`或`boolean`的返回类型。
+这意味着表达式不能阻止。
 
-When integrating with <<jc-webflux>>, the Reactor Context is automatically established by Spring Security according to the authenticated user.
+当与<<jc-webflux>>进行集成时，Spring Security会根据经过验证的用户自动建立Reactor Context。
 
 [source,java]
 ----
@@ -1404,17 +1404,17 @@ public class SecurityConfig {
 
 ----
 
-You can find a complete sample in {gh-samples-url}/javaconfig/hellowebflux-method[hellowebflux-method]
+您可以在{gh-samples-url} / javaconfig / hellowebflux-method [hellowebflux-method]中找到完整的示例
 
-=== Post Processing Configured Objects
+=== 后处理配置的对象
 
-Spring Security's Java Configuration does not expose every property of every object that it configures.
-This simplifies the configuration for a majority of users.
-Afterall, if every property was exposed, users could use standard bean configuration.
+Spring Security的Java配置不公开它配置的每个对象的每个属性。
+这简化了大多数用户的配置。
+最后，如果每个属性都暴露出来，用户可以使用标准的bean配置。
 
-While there are good reasons to not directly expose every property, users may still need more advanced configuration options.
-To address this Spring Security introduces the concept of an `ObjectPostProcessor` which can be used to modify or replace many of the Object instances created by the Java Configuration.
-For example, if you wanted to configure the `filterSecurityPublishAuthorizationSuccess` property on `FilterSecurityInterceptor` you could use the following:
+尽管没有直接公开每个属性的很好理由，但用户可能仍然需要更高级的配置选项。
+为了解决这个问题，Spring Security引入了`ObjectPostProcessor`的概念，它可以用来修改或替换由Java配置创建的许多对象实例。
+例如，如果您想在`FilterSecurityInterceptor`上配置`filterSecurityPublishAuthorizationSuccess`属性，则可以使用以下内容：
 
 [source,java]
 ----
@@ -1434,10 +1434,10 @@ protected void configure(HttpSecurity http) throws Exception {
 ----
 
 [[jc-custom-dsls]]
-=== Custom DSLs
+=== 自定义DSL
 
-You can provide your own custom DSLs in Spring Security.
-For example, you might have something that looks like this:
+您可以在Spring Security中提供您自己的定制DSL。
+例如，你可能有这样的东西：
 
 [source,java]
 ----
@@ -1472,9 +1472,9 @@ public class MyCustomDsl extends AbstractHttpConfigurer<MyCustomDsl, HttpSecurit
 }
 ----
 
-NOTE: This is actually how methods like `HttpSecurity.authorizeRequests()` are implemented.
+注意：这实际上是如何实现像`HttpSecurity.authorizeRequests()`这样的方法。
 
-The custom DSL can then be used like this:
+自定义DSL可以像这样使用：
 
 [source,java]
 ----
@@ -1491,21 +1491,21 @@ public class Config extends WebSecurityConfigurerAdapter {
 }
 ----
 
-The code is invoked in the following order:
+代码按以下顺序调用：
 
-* Code in `Config`s configure method is invoked
-* Code in `MyCustomDsl`s init method is invoked
-* Code in `MyCustomDsl`s configure method is invoked
+在`Config`的configure方法中调用* 代码
+在`MyCustomDsl`的init方法中调用* 代码
+在`MyCustomDsl`的configure方法中调用* 代码
 
-If you want, you can have `WebSecurityConfiguerAdapter` add `MyCustomDsl` by default by using `SpringFactories`.
-For example, you would create a resource on the classpath named `META-INF/spring.factories` with the following contents:
+如果需要，可以使用`SpringFactories`默认`WebSecurityConfiguerAdapter`添加`MyCustomDsl`。
+例如，您将在名为`META-INF/spring.factories`的类路径中创建资源，其中包含以下内容：
 
-.META-INF/spring.factories
+.META-INF / spring.factories
 ----
 org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer = sample.MyCustomDsl
 ----
 
-Users wishing to disable the default can do so explicitly.
+希望禁用默认的用户可以明确地这样做。
 
 [source,java]
 ----

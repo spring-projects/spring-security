@@ -1,11 +1,11 @@
 [[test]]
-= Testing
+= 测试
 
-This section describes the testing support provided by Spring Security.
+本节介绍Spring Security提供的测试支持。
 
 [TIP]
 ====
-To use the Spring Security test support, you must include `spring-security-test-{spring-security-version}.jar` as a dependency of your project.
+要使用Spring Security测试支持，您必须将`spring-security-test-{spring-security-version}.jar`作为项目的依赖项。
 ====
 
 include::method.adoc[]

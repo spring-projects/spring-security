@@ -1,31 +1,31 @@
 
 [[community]]
-== Spring Security Community
+==  Spring安全社区
 
 
 [[jira]]
-=== Issue Tracking
-Spring Security uses JIRA to manage bug reports and enhancement requests.
-If you find a bug, please log a report using JIRA.
-Do not log it on the support forum, mailing list or by emailing the project's developers.
-Such approaches are ad-hoc and we prefer to manage bugs using a more formal process.
+=== 问题跟踪
+Spring Security使用JIRA来管理错误报告和增强请求。
+如果您发现错误，请使用JIRA登录报告。
+请勿将其登录到支持论坛，邮件列表或通过电子邮件发送给项目开发人员。
+这种方法是临时的，我们更愿意使用更正式的流程来管理错误。
 
-If possible, in your issue report please provide a JUnit test that demonstrates any incorrect behaviour.
-Or, better yet, provide a patch that corrects the issue.
-Similarly, enhancements are welcome to be logged in the issue tracker, although we only accept enhancement requests if you include corresponding unit tests.
-This is necessary to ensure project test coverage is adequately maintained.
+如果可能，请在您的问题报告中提供一个JUnit测试，以显示任何不正确的行为。
+或者，更好的是，提供一个补丁来纠正问题。
+同样，我们也欢迎增强功能在问题跟踪器中登录，但如果您包含相应的单元测试，我们只接受增强请求。
+这对确保项目测试覆盖率得到充分维护是必要的。
 
-You can access the issue tracker at https://github.com/spring-projects/spring-security/issues.
+您可以通过https://github.com/spring-projects/spring-security/issues访问问题跟踪器。
 
 
 [[becoming-involved]]
-=== Becoming Involved
-We welcome your involvement in the Spring Security project.
-There are many ways of contributing, including reading the forum and responding to questions from other people, writing new code, improving existing code, assisting with documentation, developing samples or tutorials, or simply making suggestions.
+=== 成为参与者
+我们欢迎您参与Spring Security项目。
+有很多贡献方式，包括阅读论坛并回答其他人提出的问题，编写新代码，改进现有代码，协助编写文档，开发示例或教程，或仅仅提出建议。
 
 
 [[further-info]]
-=== Further Information
-Questions and comments on Spring Security are welcome.
-You can use the Spring at Stack Overflow web site at http://spring.io/questions[http://spring.io/questions] to discuss Spring Security with other users of the framework.
-Remember to use JIRA for bug reports, as explained above.
+=== 更多信息
+欢迎关于Spring Security的问题和评论。
+您可以在 http://spring.io/questions[http://spring.io/questions]处的Stack Overflow网站上使用Spring，以与框架的其他用户讨论Spring Security。
+如上所述，请记住使用JIRA进行错误报告。

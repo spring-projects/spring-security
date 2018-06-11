@@ -1,11 +1,11 @@
 
 [[headers]]
-== Security HTTP Response Headers
-This section discusses Spring Security's support for adding various security headers to the response.
+== 安全性HTTP响应头
+本节讨论Spring Security支持将各种安全头添加到响应中。
 
-=== Default Security Headers
-Spring Security allows users to easily inject the default security headers to assist in protecting their application.
-The default for Spring Security is to include the following headers:
+=== 默认安全标题
+Spring Security允​​许用户轻松地注入默认安全头以帮助保护他们的应用程序。
+Spring Security的默认设置是包含以下标题：
 
 [source,http]
 ----
@@ -18,9 +18,9 @@ X-Frame-Options: DENY
 X-XSS-Protection: 1; mode=block
 ----
 
-NOTE: Strict-Transport-Security is only added on HTTPS requests
+注意：仅在HTTPS请求上添加严格传输安全性
 
-For additional details on each of these headers, refer to the corresponding sections:
+有关每个标题的更多详细信息，请参阅相应章节：
 
 * <<headers-cache-control,Cache Control>>
 * <<headers-content-type-options,Content Type Options>>
@@ -28,10 +28,10 @@ For additional details on each of these headers, refer to the corresponding sect
 * <<headers-frame-options,X-Frame-Options>>
 * <<headers-xss-protection,X-XSS-Protection>>
 
-While each of these headers are considered best practice, it should be noted that not all clients utilize the headers, so additional testing is encouraged.
+虽然这些标题都被认为是最佳实践，但应该指出，并非所有客户都使用标题，因此鼓励进行其他测试。
 
-You can customize specific headers.
-For example, assume that want your HTTP response headers to look like the following:
+您可以自定义特定的标题。
+例如，假设您希望您的HTTP响应标头如下所示：
 
 [source,http]
 ----
@@ -43,12 +43,12 @@ X-Frame-Options: SAMEORIGIN
 X-XSS-Protection: 1; mode=block
 ----
 
-Specifically, you want all of the default headers with the following customizations:
+具体来说，您需要使用以下自定义设置的所有默认标题：
 
-* <<headers-frame-options,X-Frame-Options>> to allow any request from same domain
-* <<headers-hsts,HTTP Strict Transport Security (HSTS)>> will not be addded to the response
+*  <<headers-frame-options,X-Frame-Options>>允许来自同一个域的任何请求
+*  <<headers-hsts,HTTP Strict Transport Security (HSTS)>>不会被添加到响应中
 
-You can easily do this with the following Java Configuration:
+您可以使用以下Java配置轻松完成此操作：
 
 [source,java]
 ----
@@ -67,7 +67,7 @@ public class WebSecurityConfig extends
 }
 ----
 
-Alternatively, if you are using Spring Security XML Configuration, you can use the following:
+或者，如果您使用的是Spring Security XML Configuration，则可以使用以下内容：
 
 [source,xml]
 ----
@@ -81,10 +81,10 @@ Alternatively, if you are using Spring Security XML Configuration, you can use t
 </http>
 ----
 
-If you do not want the defaults to be added and want explicit control over what should be used, you can disable the defaults.
-An example for both Java and XML based configuration is provided below:
+如果您不希望添加默认设置并希望明确控制应该使用的内容，则可以禁用默认设置。
+下面提供了一个基于Java和XML的配置示例：
 
-If you are using Spring Security's Java Configuration the following will only add <<headers-cache-control,Cache Control>>.
+如果您使用的是Spring Security的Java配置，以下内容仅会添加<<headers-cache-control,Cache Control>>。
 
 [source,java]
 ----
@@ -104,7 +104,7 @@ protected void configure(HttpSecurity http) throws Exception {
 }
 ----
 
-The following XML will only add <<headers-cache-control,Cache Control>>.
+以下XML仅会添加<<headers-cache-control,Cache Control>>。
 
 [source,xml]
 ----
@@ -118,7 +118,7 @@ The following XML will only add <<headers-cache-control,Cache Control>>.
 ----
 
 
-If necessary, you can disable all of the HTTP Security response headers with the following Java Configuration:
+如有必要，可以使用以下Java配置禁用所有HTTP安全响应标头：
 
 [source,java]
 ----
@@ -135,7 +135,7 @@ protected void configure(HttpSecurity http) throws Exception {
 }
 ----
 
-If necessary, you can disable all of the HTTP Security response headers with the following XML configuration below:
+如有必要，可以使用下面的XML配置禁用所有HTTP安全响应标头：
 
 [source,xml]
 ----
@@ -147,11 +147,11 @@ If necessary, you can disable all of the HTTP Security response headers with the
 ----
 
 [[headers-cache-control]]
-==== Cache Control
-In the past Spring Security required you to provide your own cache control for your web application.
-This seemed reasonable at the time, but browser caches have evolved to include caches for secure connections as well.
-This means that a user may view an authenticated page, log out, and then a malicious user can use the browser history to view the cached page.
-To help mitigate this Spring Security has added cache control support which will insert the following headers into you response.
+==== 缓存控制
+在过去，Spring Security要求您为您的Web应用程序提供自己的缓存控制。
+这在当时似乎是合理的，但浏览器缓存已经发展到包括用于安全连接的缓存。
+这意味着用户可以查看已认证的页面并注销，然后恶意用户可以使用浏览器历史记录查看缓存的页面。
+为了帮助缓解这个问题，Spring Security增加了缓存控制支持，它将在响应中插入以下头文件。
 
 [source]
 ----
@@ -160,8 +160,8 @@ Pragma: no-cache
 Expires: 0
 ----
 
-Simply adding the <<nsa-headers,<headers>>> element with no child elements will automatically add Cache Control and quite a few other protections.
-However, if you only want cache control, you can enable this feature using Spring Security's XML namespace with the <<nsa-cache-control,<cache-control>>> element and the <<nsa-headers-defaults-disabled,headers@defaults-disabled>> attribute.
+简单地添加没有子元素的<<nsa-headers,<headers>>>元素将自动添加缓存控制和其他一些保护。
+但是，如果您只需要缓存控制，则可以使用带有<<nsa-cache-control,<cache-control>>>元素和<<nsa-headers-defaults-disabled,headers@defaults-disabled>>属性的Spring Security的XML名称空间启用此功能。
 
 [source,xml]
 ----
@@ -174,7 +174,7 @@ However, if you only want cache control, you can enable this feature using Sprin
 </http>
 ----
 
-Similarly, you can enable only cache control within Java Configuration with the following:
+同样，您可以通过以下方式仅启用Java配置中的缓存控制：
 
 [source,java]
 ----
@@ -193,11 +193,11 @@ protected void configure(HttpSecurity http) throws Exception {
 }
 ----
 
-If you actually want to cache specific responses, your application can selectively invoke http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletResponse.html#setHeader(java.lang.String,java.lang.String)[HttpServletResponse.setHeader(String,String)] to override the header set by Spring Security.
-This is useful to ensure things like CSS, JavaScript, and images are properly cached.
+如果您真的想缓存特定的响应，您的应用程序可以选择性地调用 http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletResponse.html#setHeader(java.lang.String,java.lang.String)[HttpServletResponse.setHeader（字符串，字符串）]来覆盖Spring Security设置的标头。
+这对于确保像CSS，JavaScript和图像等正确缓存很有用。
 
-When using Spring Web MVC, this is typically done within your configuration.
-For example, the following configuration will ensure that the cache headers are set for all of your resources:
+在使用Spring Web MVC时，通常在您的配置中完成。
+例如，以下配置将确保为所有资源设置缓存标头：
 
 [source,java]
 ----
@@ -217,31 +217,31 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
 ----
 
 [[headers-content-type-options]]
-==== Content Type Options
-Historically browsers, including Internet Explorer, would try to guess the content type of a request using http://en.wikipedia.org/wiki/Content_sniffing[content sniffing].
-This allowed browsers to improve the user experience by guessing the content type on resources that had not specified the content type.
-For example, if a browser encountered a JavaScript file that did not have the content type specified, it would be able to guess the content type and then execute it.
+==== 内容类型选项
+历史上，浏览器（包括Internet Explorer）会尝试使用 http://en.wikipedia.org/wiki/Content_sniffing[内容嗅探]来猜测请求的内容类型。
+这允许浏览器通过猜测未指定内容类型的资源上的内容类型来改善用户体验。
+例如，如果浏览器遇到没有指定内容类型的JavaScript文件，它将能够猜测内容类型并执行它。
 
 [NOTE]
 ====
-There are many additional things one should do (i.e. only display the document in a distinct domain, ensure Content-Type header is set, sanitize the document, etc) when allowing content to be uploaded.
-However, these measures are out of the scope of what Spring Security provides.
-It is also important to point out when disabling content sniffing, you must specify the content type in order for things to work properly.
+在允许上传内容时，应该做很多其他事情（即，仅在不同域中显示文档，确保设置Content-Type标头，清理文档等）。
+但是，这些措施超出了Spring Security提供的范围。
+指出禁用内容嗅探时，还必须指出内容类型以使事情正常工作。
 ====
 
-The problem with content sniffing is that this allowed malicious users to use polyglots (i.e. a file that is valid as multiple content types) to execute XSS attacks.
-For example, some sites may allow users to submit a valid postscript document to a website and view it.
-A malicious user might create a http://webblaze.cs.berkeley.edu/papers/barth-caballero-song.pdf[postscript document that is also a valid JavaScript file] and execute a XSS attack with it.
+内容嗅探的问题在于，它允许恶意用户使用polyglots（即作为多种内容类型有效的文件）来执行XSS攻击。
+例如，某些网站可能允许用户向网站提交有效的postscript文档并查看它。
+恶意用户可能会创建 http://webblaze.cs.berkeley.edu/papers/barth-caballero-song.pdf[postscript文件也是一个有效的JavaScript文件]并使用它执行XSS攻击。
 
-Content sniffing can be disabled by adding the following header to our response:
+内容嗅探可以通过将以下标题添加到我们的响应来禁用：
 
 [source]
 ----
 X-Content-Type-Options: nosniff
 ----
 
-Just as with the cache control element, the nosniff directive is added by default when using the <headers> element with no child elements.
-However, if you want more control over which headers are added you can use the <<nsa-content-type-options,<content-type-options>>> element and the <<nsa-headers-defaults-disabled,headers@defaults-disabled>> attribute as shown below:
+就像缓存控制元素一样，在没有子元素的情况下使用<headers>元素时，默认添加nosniff指令。
+但是，如果您想更多地控制添加哪些标题，则可以使用<<nsa-content-type-options,<content-type-options>>>元素和<<nsa-headers-defaults-disabled,headers@defaults-disabled>>属性，如下所示：
 
 [source,xml]
 ----
@@ -254,8 +254,8 @@ However, if you want more control over which headers are added you can use the <
 </http>
 ----
 
-The X-Content-Type-Options header is added by default with Spring Security Java configuration.
-If you want more control over the headers, you can explicitly specify the content type options with the following:
+默认情况下，Spring Security Java配置会添加X-Content-Type-Options标头。
+如果您想更好地控制标题，可以使用以下内容显式指定内容类型选项：
 
 [source,java]
 ----
@@ -275,33 +275,33 @@ protected void configure(HttpSecurity http) throws Exception {
 ----
 
 [[headers-hsts]]
-==== HTTP Strict Transport Security (HSTS)
-When you type in your bank's website, do you enter mybank.example.com or do you enter https://mybank.example.com[]? If you omit the https protocol, you are potentially vulnerable to http://en.wikipedia.org/wiki/Man-in-the-middle_attack[Man in the Middle attacks].
-Even if the website performs a redirect to https://mybank.example.com a malicious user could intercept the initial HTTP request and manipulate the response (i.e. redirect to https://mibank.example.com and steal their credentials).
+====  HTTP严格传输安全性（HSTS）
+当您输入银行网站时，您是输入mybank.example.com还是输入https://mybank.example.com []？如果您省略https协议，则可能会受 http://en.wikipedia.org/wiki/Man-in-the-middle_attack[中间人攻击]的影响。
+即使网站执行https://mybank.example.com的重定向，恶意用户也可能会拦截最初的HTTP请求并操纵响应（即重定向到https://mibank.example.com并窃取其凭据）。
 
-Many users omit the https protocol and this is why http://tools.ietf.org/html/rfc6797[HTTP Strict Transport Security (HSTS)] was created.
-Once mybank.example.com is added as a http://tools.ietf.org/html/rfc6797#section-5.1[HSTS host], a browser can know ahead of time that any request to mybank.example.com should be interpreted as https://mybank.example.com.
-This greatly reduces the possibility of a Man in the Middle attack occurring.
+许多用户省略了https协议，这就是 http://tools.ietf.org/html/rfc6797[HTTP严格传输安全性（HSTS）]创建的原因。
+一旦mybank.example.com作为 http://tools.ietf.org/html/rfc6797#section-5.1[HSTS主机]添加，浏览器可以提前知道任何对mybank.example.com的请求应该被解释为https://mybank.example.com。
+这大大降低了发生中间人攻击的可能性。
 
 [NOTE]
 ====
-In accordance with http://tools.ietf.org/html/rfc6797#section-7.2[RFC6797], the HSTS header is only injected into HTTPS responses.
-In order for the browser to acknowledge the header, the browser must first trust the CA that signed the SSL certificate used to make the connection (not just the SSL certificate).
+根据{{​​0}}，HSTS标头仅被注入到HTTPS响应中。
+为了使浏览器确认标题，浏览器必须首先相信签署用于建立连接的SSL证书的CA（而不仅仅是SSL证书）。
 ====
 
-One way for a site to be marked as a HSTS host is to have the host preloaded into the browser.
-Another is to add the "Strict-Transport-Security" header to the response.
-For example the following would instruct the browser to treat the domain as an HSTS host for a year (there are approximately 31536000 seconds in a year):
+将站点标记为HSTS主机的一种方法是将主机预加载到浏览器中。
+另一种方法是将"Strict-Transport-Security"标头添加到响应中。
+例如，以下内容将指示浏览器将域名视为一年的HSTS主机（一年大约有31536000秒）：
 
 [source]
 ----
 Strict-Transport-Security: max-age=31536000 ; includeSubDomains
 ----
 
-The optional includeSubDomains directive instructs Spring Security that subdomains (i.e. secure.mybank.example.com) should also be treated as an HSTS domain.
+可选的includeSubDomains指令指示Spring Security将子域（即secure.mybank.example.com）也视为HSTS域。
 
-As with the other headers, Spring Security adds HSTS by default.
-You can customize HSTS headers with the <<nsa-hsts,<hsts>>> element as shown below:
+与其他标题一样，Spring Security默认添加HSTS。
+您可以使用<<nsa-hsts,<hsts>>>元素自定义HSTS标头，如下所示：
 
 [source,xml]
 ----
@@ -316,7 +316,7 @@ You can customize HSTS headers with the <<nsa-hsts,<hsts>>> element as shown bel
 </http>
 ----
 
-Similarly, you can enable only HSTS headers with Java Configuration:
+同样，您可以只启用带有Java配置的HSTS头文件：
 
 [source,java]
 ----
@@ -337,37 +337,37 @@ protected void configure(HttpSecurity http) throws Exception {
 ----
 
 [[headers-hpkp]]
-==== HTTP Public Key Pinning (HPKP)
-HTTP Public Key Pinning (HPKP) is a security feature that tells a web client to associate a specific cryptographic public key with a certain web server to prevent Man in the Middle (MITM) attacks with forged certificates.
+====  HTTP公钥锁定（HPKP）
+HTTP Public Key Pinning（HPKP）是一项安全功能，它告诉Web客户端将特定的加密公钥与特定的Web服务器相关联，以防止伪造的证书对中间人（MITM）的攻击。
 
-To ensure the authenticity of a server's public key used in TLS sessions, this public key is wrapped into a X.509 certificate which is usually signed by a certificate authority (CA).
-Web clients such as browsers trust a lot of these CAs, which can all create certificates for arbitrary domain names.
-If an attacker is able to compromise a single CA, they can perform MITM attacks on various TLS connections.
-HPKP can circumvent this threat for the HTTPS protocol by telling the client which public key belongs to a certain web server.
-HPKP is a Trust on First Use (TOFU) technique.
-The first time a web server tells a client via a special HTTP header which public keys belong to it, the client stores this information for a given period of time.
-When the client visits the server again, it expects a certificate containing a public key whose fingerprint is already known via HPKP.
-If the server delivers an unknown public key, the client should present a warning to the user.
+为了确保在TLS会话中使用的服务器公钥的真实性，该公钥被封装到通常由证书颁发机构（CA）签署的X.509证书中。
+Web客户端（如浏览器）信任很多这些CA，它们都可以为任意域名创建证书。
+如果攻击者能够危害单个CA，他们可以对各种TLS连接执行MITM攻击。
+HPKP可以通过告诉客户端哪个公钥属于某个Web服务器来规避HTTPS协议的这种威胁。
+HPKP是首次使用信托（TOFU）技术。
+Web服务器第一次通过特殊的HTTP头告诉客户端公钥属于它时，客户端将这些信息存储一段给定的时间。
+当客户端再次访问服务器时，它需要一个包含指纹已经通过HPKP知道的公钥的证书。
+如果服务器提供未知的公钥，则客户端应向用户提供警告。
 
 [NOTE]
 ====
-Because the user-agent needs to validate the pins against the SSL certificate chain, the HPKP header is only injected into HTTPS responses.
+由于用户代理需要根据SSL证书链验证引脚，所以HPKP头只能注入到HTTPS响应中。
 ====
 
-Enabling this feature for your site is as simple as returning the Public-Key-Pins HTTP header when your site is accessed over HTTPS.
-For example, the following would instruct the user-agent to only report pin validation failures to a given URI (via the https://tools.ietf.org/html/rfc7469#section-2.1.4[*_report-uri_*] directive) for 2 pins:
+为您的站点启用此功能非常简单，只需在通过HTTPS访问您的站点时返回Public-Key-Pins HTTP标头即可。
+例如，以下内容将指示用户代理仅向指定的URI报告引脚验证失败（通过https://tools.ietf.org/html/rfc7469#section-2.1.4[*_report-uri_*]指令）2个引脚：
 
 [source]
 ----
 Public-Key-Pins-Report-Only: max-age=5184000 ; pin-sha256="d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=" ; pin-sha256="E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=" ; report-uri="http://example.net/pkp-report" ; includeSubDomains
 ----
 
-A https://tools.ietf.org/html/rfc7469#section-3[*_pin validation failure report_*] is a standard JSON structure that can be captured either by the web application's own API or by a publicly hosted HPKP reporting service, such as, https://report-uri.io/[*_REPORT-URI_*].
+https://tools.ietf.org/html/rfc7469#section-3[*_pin validation failure report_*]是标准的JSON结构，可以通过Web应用程序自己的API或公开托管的HPKP报告服务来捕获，如https://report-uri.io/[*_REPORT-URI_*]。
 
-The optional includeSubDomains directive instructs the browser to also validate subdomains with the given pins.
+可选的includeSubDomains指令指示浏览器也使用给定引脚验证子域。
 
-Opposed to the other headers, Spring Security does not add HPKP by default.
-You can customize HPKP headers with the <<nsa-hpkp,<hpkp>>> element as shown below:
+与其他标题相反，Spring Security默认不添加HPKP。
+您可以使用<<nsa-hpkp,<hpkp>>>元素自定义HPKP标题，如下所示：
 
 [source,xml]
 ----
@@ -387,7 +387,7 @@ You can customize HPKP headers with the <<nsa-hpkp,<hpkp>>> element as shown bel
 </http>
 ----
 
-Similarly, you can enable HPKP headers with Java Configuration:
+同样，您可以使用Java配置启用HPKP标题：
 
 [source,java]
 ----
@@ -409,33 +409,33 @@ WebSecurityConfigurerAdapter {
 ----
 
 [[headers-frame-options]]
-==== X-Frame-Options
-Allowing your website to be added to a frame can be a security issue.
-For example, using clever CSS styling users could be tricked into clicking on something that they were not intending (http://www.youtube.com/watch?v=3mk0RySeNsU[video demo]).
-For example, a user that is logged into their bank might click a button that grants access to other users.
-This sort of attack is known as http://en.wikipedia.org/wiki/Clickjacking[Clickjacking].
+====  X框-选项
+允许将您的网站添加到框架可能是一个安全问题。
+例如，使用聪明的CSS样式的用户可能会被欺骗点击他们不想要的东西（ http://www.youtube.com/watch?v=3mk0RySeNsU[视频演示]）。
+例如，登录他们银行的用户可能会点击一个按钮，授予对其他用户的访问权限。
+这种攻击被称为 http://en.wikipedia.org/wiki/Clickjacking[点击劫持]。
 
 [NOTE]
 ====
-Another modern approach to dealing with clickjacking is to use <<headers-csp>>.
+另一种处理点击劫持的现代方法是使用<<headers-csp>>。
 ====
 
-There are a number ways to mitigate clickjacking attacks.
-For example, to protect legacy browsers from clickjacking attacks you can use https://www.owasp.org/index.php/Clickjacking_Defense_Cheat_Sheet#Best-for-now_Legacy_Browser_Frame_Breaking_Script[frame breaking code].
-While not perfect, the frame breaking code is the best you can do for the legacy browsers.
+有多种方法可以缓解点击劫持攻击。
+例如，为了保护传统浏览器免受点击劫持攻击，您可以使用https://www.owasp.org/index.php/Clickjacking_Defense_Cheat_Sheet#Best-for-now_Legacy_Browser_Frame_Breaking_Script [框架破解代码]。
+虽然不完美，但对于传统浏览器来说，破解代码是最好的选择。
 
-A more modern approach to address clickjacking is to use https://developer.mozilla.org/en-US/docs/HTTP/X-Frame-Options[X-Frame-Options] header:
+处理点击劫持的更现代的方法是使用https://developer.mozilla.org/en-US/docs/HTTP/X-Frame-Options[X-Frame-Options]标头：
 
 [source]
 ----
 X-Frame-Options: DENY
 ----
 
-The X-Frame-Options response header instructs the browser to prevent any site with this header in the response from being rendered within a frame.
-By default, Spring Security disables rendering within an iframe.
+X-Frame-Options响应头指示浏览器阻止响应中的任何站点在帧中呈现。
+默认情况下，Spring Security会禁用iframe中的渲染。
 
-You can customize X-Frame-Options with the <<nsa-frame-options,frame-options>> element.
-For example, the following will instruct Spring Security to use "X-Frame-Options: SAMEORIGIN" which allows iframes within the same domain:
+您可以使用<<nsa-frame-options,frame-options>>元素自定义X-Frame-Options。
+例如，以下内容将指示Spring Security使用允许同一域内的iframe的"X-Frame-Options: SAMEORIGIN"：
 
 [source,xml]
 ----
@@ -449,7 +449,7 @@ For example, the following will instruct Spring Security to use "X-Frame-Options
 </http>
 ----
 
-Similarly, you can customize frame options to use the same origin within Java Configuration using the following:
+同样，您可以使用以下方法自定义框架选项以在Java配置中使用相同的源：
 
 [source,java]
 ----
@@ -469,24 +469,24 @@ protected void configure(HttpSecurity http) throws Exception {
 ----
 
 [[headers-xss-protection]]
-==== X-XSS-Protection
-Some browsers have built in support for filtering out https://www.owasp.org/index.php/Testing_for_Reflected_Cross_site_scripting_(OWASP-DV-001)[reflected XSS attacks].
-This is by no means foolproof, but does assist in XSS protection.
+====  X-​​XSS-保护
+有些浏览器支持过滤https://www.owasp.org/index.php/Testing_for_Reflected_Cross_site_scripting_(OWASP-DV-001)[reflected XSS attacks]。
+这绝不是万无一失的，但有助于XSS保护。
 
-The filtering is typically enabled by default, so adding the header typically just ensures it is enabled and instructs the browser what to do when a XSS attack is detected.
-For example, the filter might try to change the content in the least invasive way to still render everything.
-At times, this type of replacement can become a http://hackademix.net/2009/11/21/ies-xss-filter-creates-xss-vulnerabilities/[XSS vulnerability in itself].
-Instead, it is best to block the content rather than attempt to fix it.
-To do this we can add the following header:
+默认情况下，过滤通常处于启用状态，因此添加标头通常会确保启用它并指示浏览器在检测到XSS攻击时该执行什么操作。
+例如，该过滤器可能会尝试以最小侵入方式更改内容，以继续呈现所有内容。
+有时候，这种类型的替换可能会变成 http://hackademix.net/2009/11/21/ies-xss-filter-creates-xss-vulnerabilities/[XSS漏洞本身]。
+相反，最好是阻止内容而不是尝试修复它。
+为此，我们可以添加以下标题：
 
 [source]
 ----
 X-XSS-Protection: 1; mode=block
 ----
 
-This header is included by default.
-However, we can customize it if we wanted.
-For example:
+该标题默认包含在内。
+但是，如果我们想要，我们可以定制它。
+例如：
 
 [source,xml]
 ----
@@ -499,7 +499,7 @@ For example:
 </http>
 ----
 
-Similarly, you can customize XSS protection within Java Configuration with the following:
+同样，您可以使用以下方法在Java配置中自定义XSS保护：
 
 [source,java]
 ----
@@ -519,72 +519,72 @@ protected void configure(HttpSecurity http) throws Exception {
 ----
 
 [[headers-csp]]
-==== Content Security Policy (CSP)
+==== 内容安全策略（CSP）
 
-https://www.w3.org/TR/CSP2/[Content Security Policy (CSP)] is a mechanism that web applications can leverage to mitigate content injection vulnerabilities, such as cross-site scripting (XSS).
-CSP is a declarative policy that provides a facility for web application authors to declare and ultimately inform the client (user-agent) about the sources from which the web application expects to load resources.
+https://www.w3.org/TR/CSP2/ [内容安全策略（CSP）]是Web应用程序可以利用的机制来缓解内容注入漏洞，例如跨站点脚本（XSS）。
+CSP是一种声明性策略，为Web应用程序作者声明并最终通知客户端（用户代理）有关Web应用程序预期从中加载资源的来源提供了便利。
 
 [NOTE]
 ====
-Content Security Policy is not intended to solve all content injection vulnerabilities.
-Instead, CSP can be leveraged to help reduce the harm caused by content injection attacks.
-As a first line of defense, web application authors should validate their input and encode their output.
+内容安全策略不是为了解决所有内容注入漏洞。
+相反，可以利用CSP来帮助减少内容注入攻击造成的危害。
+作为第一道防线，Web应用程序作者应验证其输入并对其输出进行编码。
 ====
 
-A web application may employ the use of CSP by including one of the following HTTP headers in the response:
+Web应用程序可以通过在响应中包含以下HTTP标头之一来使用CSP：
 
 * *_Content-Security-Policy_*
 * *_Content-Security-Policy-Report-Only_*
 
-Each of these headers are used as a mechanism to deliver a *_security policy_* to the client.
-A security policy contains a set of *_security policy directives_* (for example, _script-src_ and _object-src_), each responsible for declaring the restrictions for a particular resource representation.
+这些标头中的每一个都用作将*_security policy_*交付给客户端的机制。
+安全策略包含一组*_security policy directives_*（例如_script-src_和_object-src_），每个负责声明特定资源表示的限制。
 
-For example, a web application can declare that it expects to load scripts from specific, trusted sources, by including the following header in the response:
+例如，Web应用程序可以声明它希望通过在响应中包含以下标题来从特定的可信来源加载脚本：
 
 [source]
 ----
 Content-Security-Policy: script-src https://trustedscripts.example.com
 ----
 
-An attempt to load a script from another source other than what is declared in the _script-src_ directive will be blocked by the user-agent.
-Additionally, if the https://www.w3.org/TR/CSP2/#directive-report-uri[*_report-uri_*] directive is declared in the security policy, then the violation will be reported by the user-agent to the declared URL.
+尝试从其他来源加载脚本，而不是在_script-src_指令中声明的脚本将被用户代理阻止。
+此外，如果在安全策略中声明了https://www.w3.org/TR/CSP2/#directive-report-uri[*_report-uri_*]指令，则该违规将由用户代理报告到声明的URL。
 
-For example, if a web application violates the declared security policy, the following response header will instruct the user-agent to send violation reports to the URL specified in the policy's _report-uri_ directive.
+例如，如果Web应用程序违反了声明的安全策略，则以下响应标头将指示用户代理将违规报告发送到策略的_report-uri_指令中指定的URL。
 
 [source]
 ----
 Content-Security-Policy: script-src https://trustedscripts.example.com; report-uri /csp-report-endpoint/
 ----
 
-https://www.w3.org/TR/CSP2/#violation-reports[*_Violation reports_*] are standard JSON structures that can be captured either by the web application's own API or by a publicly hosted CSP violation reporting service, such as, https://report-uri.io/[*_REPORT-URI_*].
+https://www.w3.org/TR/CSP2/#violation-reports[*_Violation reports_*]是标准的JSON结构，可以通过Web应用程序自己的API或公开托管的CSP违规报告服务来捕获，如https://report-uri.io/[*_REPORT-URI_*]。
 
-The *_Content-Security-Policy-Report-Only_* header provides the capability for web application authors and administrators to monitor security policies, rather than enforce them.
-This header is typically used when experimenting and/or developing security policies for a site.
-When a policy is deemed effective, it can be enforced by using the _Content-Security-Policy_ header field instead.
+*_Content-Security-Policy-Report-Only_*标头为Web应用程序作者和管理员提供了监控安全策略的功能，而不是强制执行它们。
+此标题通常用于为网站试验和/或开发安全策略。
+当策略被认为有效时，可以通过使用_Content-Security-Policy_标头字段来强制实施。
 
-Given the following response header, the policy declares that scripts may be loaded from one of two possible sources.
+给定以下响应头，该策略声明脚本可以从两个可能来源之一加载。
 
 [source]
 ----
 Content-Security-Policy-Report-Only: script-src 'self' https://trustedscripts.example.com; report-uri /csp-report-endpoint/
 ----
 
-If the site violates this policy, by attempting to load a script from _evil.com_, the user-agent will send a violation report to the declared URL specified by the _report-uri_ directive, but still allow the violating resource to load nevertheless.
+如果站点违反了此策略，则通过尝试从_evil.com_加载脚本，用户代理将向_report-uri_指令指定的声明URL发送违规报告，但仍允许加载违规资源。
 
 [[headers-csp-configure]]
-===== Configuring Content Security Policy
+===== 配置内容安全策略
 
-It's important to note that Spring Security *_does not add_* Content Security Policy by default.
-The web application author must declare the security policy(s) to enforce and/or monitor for the protected resources.
+默认情况下需要注意Spring Security *_does not add_*内容安全策略。
+Web应用程序作者必须声明安全策略以强制执行和/或监视受保护的资源。
 
-For example, given the following security policy:
+例如，鉴于以下安全策略：
 
 [source]
 ----
 script-src 'self' https://trustedscripts.example.com; object-src https://trustedplugins.example.com; report-uri /csp-report-endpoint/
 ----
 
-You can enable the CSP header using XML configuration with the <<nsa-content-security-policy,<content-security-policy>>> element as shown below:
+您可以使用带<<nsa-content-security-policy,<content-security-policy>>>元素的XML配置来启用CSP头，如下所示：
 
 [source,xml]
 ----
@@ -598,7 +598,7 @@ You can enable the CSP header using XML configuration with the <<nsa-content-sec
 </http>
 ----
 
-To enable the CSP _'report-only'_ header, configure the element as follows:
+要启用CSP _report-only__头，请按如下所示配置元素：
 
 [source,xml]
 ----
@@ -613,7 +613,7 @@ To enable the CSP _'report-only'_ header, configure the element as follows:
 </http>
 ----
 
-Similarly, you can enable the CSP header using Java configuration as shown below:
+同样，您可以使用Java配置启用CSP头，如下所示：
 
 [source,java]
 ----
@@ -631,7 +631,7 @@ protected void configure(HttpSecurity http) throws Exception {
 }
 ----
 
-To enable the CSP _'report-only'_ header, provide the following Java configuration:
+要启用CSP _'report-only'_头，请提供以下Java配置：
 
 [source,java]
 ----
@@ -651,38 +651,38 @@ protected void configure(HttpSecurity http) throws Exception {
 ----
 
 [[headers-csp-links]]
-===== Additional Resources
+===== 其他资源
 
-Applying Content Security Policy to a web application is often a non-trivial undertaking.
-The following resources may provide further assistance in developing effective security policies for your site.
+将内容安全策略应用于Web应用程序通常是一项不重要的任务。
+以下资源可能会为您的网站制定有效的安全策略提供进一步的帮助。
 
-http://www.html5rocks.com/en/tutorials/security/content-security-policy/[An Introduction to Content Security Policy]
+http://www.html5rocks.com/en/tutorials/security/content-security-policy/[内容安全策略简介]
 
-https://developer.mozilla.org/en-US/docs/Web/Security/CSP[CSP Guide - Mozilla Developer Network]
+https://developer.mozilla.org/en-US/docs/Web/Security/CSP[CSP指南 -  Mozilla开发者网络]
 
-https://www.w3.org/TR/CSP2/[W3C Candidate Recommendation]
+https://www.w3.org/TR/CSP2/[W3C候选推荐]
 
 [[headers-referrer]]
-==== Referrer Policy
+==== 推荐人政策
 
-https://www.w3.org/TR/referrer-policy[Referrer Policy] is a mechanism that web applications can leverage to manage the referrer field, which contains the last
-page the user was on.
+https://www.w3.org/TR/referrer-policy[Referrer Policy]是Web应用程序可以利用的机制来管理引用者字段，其中包含最后一个
+用户所在的页面。
 
-Spring Security's approach is to use https://www.w3.org/TR/referrer-policy/[Referrer Policy] header, which provides different https://www.w3.org/TR/referrer-policy/#referrer-policies[policies]:
+Spring Security的方法是使用https://www.w3.org/TR/referrer-policy/[Referrer Policy]标头，它提供了不同的https://www.w3.org/TR/referrer-policy/#referrer-政策[政策]：
 
 [source]
 ----
 Referrer-Policy: same-origin
 ----
 
-The Referrer-Policy response header instructs the browser to let the destination knows the source where the user was previously.
+Referrer-Policy响应头指示浏览器让目的地知道用户以前的来源。
 
 [[headers-referrer-configure]]
-===== Configuring Referrer Policy
+===== 配置Referrer策略
 
-Spring Security *_doesn't add_* Referrer Policy header by default.
+Spring Security *_doesn't add_*默认引用策略标头。
 
-You can enable the Referrer-Policy header using XML configuration with the <<nsa-referrer-policy,<referrer-policy>>> element as shown below:
+您可以使用带<<nsa-referrer-policy,<referrer-policy>>>元素的XML配置启用Referrer-Policy标头，如下所示：
 
 [source,xml]
 ----
@@ -695,7 +695,7 @@ You can enable the Referrer-Policy header using XML configuration with the <<nsa
 </http>
 ----
 
-Similarly, you can enable the Referrer Policy header using Java configuration as shown below:
+同样，您可以使用Java配置启用Referrer Policy标头，如下所示：
 
 [source,java]
 ----
@@ -715,21 +715,21 @@ protected void configure(HttpSecurity http) throws Exception {
 
 
 [[headers-custom]]
-=== Custom Headers
-Spring Security has mechanisms to make it convenient to add the more common security headers to your application.
-However, it also provides hooks to enable adding custom headers.
+=== 自定义标题
+Spring Security具有一些机制，可以方便地将更常见的安全性标题添加到应用程序中。
+不过，它也提供挂钩来启用添加自定义标题。
 
 [[headers-static]]
-==== Static Headers
-There may be times you wish to inject custom security headers into your application that are not supported out of the box.
-For example, given the following custom security header:
+==== 静态标头
+您可能有时希望将自定义安全标头插入到您的应用程序中，但不支持开箱即用。
+例如，给定以下自定义安全标头：
 
 [source]
 ----
 X-Custom-Security-Header: header-value
 ----
 
-When using the XML namespace, these headers can be added to the response using the <<nsa-header,<header>>> element as shown below:
+使用XML名称空间时，可以使用<<nsa-header,<header>>>元素将这些头添加到响应中，如下所示：
 
 [source,xml]
 ----
@@ -742,7 +742,7 @@ When using the XML namespace, these headers can be added to the response using t
 </http>
 ----
 
-Similarly, the headers could be added to the response using Java Configuration as shown in the following:
+同样，可以使用Java Configuration将头添加到响应中，如下所示：
 
 [source,java]
 ----
@@ -761,12 +761,12 @@ protected void configure(HttpSecurity http) throws Exception {
 ----
 
 [[headers-writer]]
-==== Headers Writer
-When the namespace or Java configuration does not support the headers you want, you can create a custom `HeadersWriter` instance or even provide a custom implementation of the `HeadersWriter`.
+==== 标题作者
+如果名称空间或Java配置不支持所需的标题，则可以创建自定义`HeadersWriter`实例，甚至可以提供`HeadersWriter`的自定义实现。
 
-Let's take a look at an example of using an custom instance of `XFrameOptionsHeaderWriter`.
-Perhaps you want to allow framing of content for the same origin.
-This is easily supported by setting the <<nsa-frame-options-policy,policy>> attribute to "SAMEORIGIN", but let's take a look at a more explicit example using the <<nsa-header-ref,ref>> attribute.
+我们来看看使用`XFrameOptionsHeaderWriter`的自定义实例的示例。
+也许你想允许为相同的来源制作内容。
+通过将<<nsa-frame-options-policy,policy>>属性设置为"SAMEORIGIN"，很容易支持这一点，但让我们来看看使用<<nsa-header-ref,ref>>属性的更明确的示例。
 
 [source,xml]
 ----
@@ -786,7 +786,7 @@ See http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsin
 ----
 
 
-We could also restrict framing of content to the same origin with Java configuration:
+我们还可以通过Java配置将内容的框架限制在相同的原始位置：
 
 
 [source,java]
@@ -808,11 +808,11 @@ protected void configure(HttpSecurity http) throws Exception {
 
 
 [[headers-delegatingrequestmatcherheaderwriter]]
-==== DelegatingRequestMatcherHeaderWriter
-At times you may want to only write a header for certain requests.
-For example, perhaps you want to only protect your log in page from being framed.
-You could use the `DelegatingRequestMatcherHeaderWriter` to do so.
-When using the XML namespace configuration, this can be done with the following:
+====  DelegatingRequestMatcherHeaderWriter
+有时您可能只想为某些请求编写头文件。
+例如，也许你只想保护你的登录页面不被陷害。
+您可以使用`DelegatingRequestMatcherHeaderWriter`来执行此操作。
+在使用XML名称空间配置时，可以通过以下方式完成此操作：
 
 
 [source,xml]
@@ -840,7 +840,7 @@ When using the XML namespace configuration, this can be done with the following:
 ----
 
 
-We could also prevent framing of content to the log in page using java configuration:
+我们还可以使用java配置防止内容成帧到登录页面：
 
 
 [source,java]

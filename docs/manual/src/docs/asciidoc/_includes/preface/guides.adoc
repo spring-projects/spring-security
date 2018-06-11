@@ -1,34 +1,34 @@
 [[samples]]
-== Samples and Guides (Start Here)
+== 样本和指南（从此处开始）
 
-If you are looking to get started with Spring Security, the best place to start is our Sample Applications.
+如果您想要开始使用Spring Security，最好的地方就是我们的示例应用程序。
 
-.Sample Applications
+。示例应用程序
 |===
-| Source | Description | Guide
+|来源|说明|指南
 
-| {gh-samples-url}/javaconfig/helloworld[Hello Spring Security]
-| Demonstrates how to integrate Spring Security with an existing application using Java-based configuration.
-| link:../../guides/html5/helloworld-javaconfig.html[Hello Spring Security Guide]
+| {gh-samples-url} / javaconfig / helloworld [Hello Spring Security]
+|演示如何将Spring Security与现有的使用基于Java的配置的应用程序集成。
+| link:../../guides/html5/helloworld-javaconfig.html[你好春天安全指南]
 
-| {gh-samples-url}/boot/helloworld[Hello Spring Security Boot]
-| Demonstrates how to integrate Spring Security with an existing Spring Boot application.
-| link:../../guides/html5/helloworld-boot.html[Hello Spring Security Boot Guide]
+| {gh-samples-url} / boot / helloworld [Hello Spring安全启动]
+|演示如何将Spring Security与现有的Spring Boot应用程序集成。
+| link:../../guides/html5/helloworld-boot.html[你好Spring安全启动指南]
 
-| {gh-samples-url}/xml/helloworld[Hello Spring Security XML]
-| Demonstrates how to integrate Spring Security with an existing application using XML-based configuration.
-| link:../../guides/html5/helloworld-xml.html[Hello Spring Security XML Guide]
+| {gh-samples-url} / xml / helloworld [Hello Spring Security XML]
+|演示如何将Spring Security与使用基于XML的配置的现有应用程序集成。
+| link:../../guides/html5/helloworld-xml.html[Spring Security XML指南]
 
-| {gh-samples-url}/javaconfig/hellomvc[Hello Spring MVC Security]
-| Demonstrates how to integrate Spring Security with an existing Spring MVC application.
-| link:../../guides/html5/hellomvc-javaconfig.html[Hello Spring MVC Security Guide]
+| {gh-samples-url} / javaconfig / hellomvc [Hello Spring MVC安全性]
+|演示如何将Spring Security与现有的Spring MVC应用程序集成。
+| link:../../guides/html5/hellomvc-javaconfig.html[Spring MVC安全指南]
 
-| {gh-samples-url}/javaconfig/form[Custom Login Form]
-| Demonstrates how to create a custom login form.
-| link:../../guides/html5/form-javaconfig.html[Custom Login Form Guide]
+| {gh-samples-url} / javaconfig / form [自定义登录表单]
+|演示如何创建自定义登录表单。
+| link:../../guides/html5/form-javaconfig.html[自定义登录表格指南]
 
-| {gh-samples-url}/boot/oauth2login[OAuth 2.0 Login]
-| Demonstrates how to integrate OAuth 2.0 Login with an OAuth 2.0 or OpenID Connect 1.0 Provider.
-| link:{gh-samples-url}/boot/oauth2login/README.adoc[OAuth 2.0 Login Guide]
+| {gh-samples-url} / boot / oauth2login [OAuth 2.0登录]
+|演示如何将OAuth 2.0登录与OAuth 2.0或OpenID Connect 1.0 Provider集成。
+| link:{gh-samples-url}/boot/oauth2login/README.adoc[OAuth 2.0登录指南]
 
 |===

@@ -1,24 +1,24 @@
 
 [[core-services]]
-== Core Services
-Now that we have a high-level overview of the Spring Security architecture and its core classes, let's take a closer look at one or two of the core interfaces and their implementations, in particular the `AuthenticationManager`, `UserDetailsService` and the `AccessDecisionManager`.
-These crop up regularly throughout the remainder of this document so it's important you know how they are configured and how they operate.
+== 核心服务
+现在我们对Spring Security体系结构及其核心类进行高级概述，让我们仔细研究一个或两个核心接口及其实现，特别是`AuthenticationManager`，`UserDetailsService`和`AccessDecisionManager`。
+这些文件会在本文档的其余部分定期出现，因此了解它们如何配置以及如何操作非常重要。
 
 
 [[core-services-authentication-manager]]
-=== The AuthenticationManager, ProviderManager and AuthenticationProvider
-The `AuthenticationManager` is just an interface, so the implementation can be anything we choose, but how does it work in practice? What if we need to check multiple authentication databases or a combination of different authentication services such as a database and an LDAP server?
+===  AuthenticationManager，ProviderManager和AuthenticationProvider
+`AuthenticationManager`仅仅是一个接口，所以实现可以是我们选择的任何东西，但实际上它是如何工作的？如果我们需要检查多个身份验证数据库或不同的身份验证服务（如数据库和LDAP服务器）的组合，该怎么办？
 
-The default implementation in Spring Security is called `ProviderManager` and rather than handling the authentication request itself, it delegates to a list of configured `AuthenticationProvider` s, each of which is queried in turn to see if it can perform the authentication.
-Each provider will either throw an exception or return a fully populated `Authentication` object.
-Remember our good friends, `UserDetails` and `UserDetailsService`? If not, head back to the previous chapter and refresh your memory.
-The most common approach to verifying an authentication request is to load the corresponding `UserDetails` and check the loaded password against the one that has been entered by the user.
-This is the approach used by the `DaoAuthenticationProvider` (see below).
-The loaded `UserDetails` object - and particularly the `GrantedAuthority` s it contains - will be used when building the fully populated `Authentication` object which is returned from a successful authentication and stored in the `SecurityContext`.
+Spring Security中的默认实现被称为`ProviderManager`，而不是自己处理认证请求，它委托给配置的`AuthenticationProvider`列表，每个`AuthenticationProvider`查询是否可以执行认证。
+每个提供程序将引发异常或返回完全填充的`Authentication`对象。
+请记住我们的好朋友`UserDetails`和`UserDetailsService`？如果不是，请回到上一章并刷新你的记忆。
+验证身份验证请求的最常见方法是加载相应的`UserDetails`，并检查加载的密码与用户输入的密码。
+这是`DaoAuthenticationProvider`使用的方法（见下文）。
+装载的`UserDetails`对象 - 特别是其包含的`GrantedAuthority`  - 将用于构建完整填充的`Authentication`对象，该对象从成功的身份验证中返回并存储在{{3} }。
 
-If you are using the namespace, an instance of `ProviderManager` is created and maintained internally, and you add providers to it by using the namespace authentication provider elements (see <<ns-auth-manager,the namespace chapter>>).
-In this case, you should not declare a `ProviderManager` bean in your application context.
-However, if you are not using the namespace then you would declare it like so:
+如果您使用的是命名空间，则`ProviderManager`的实例将在内部创建和维护，并且您可以使用命名空间身份验证提供程序元素向它添加提供程序（请参阅<<ns-auth-manager,the namespace chapter>>）。
+在这种情况下，您不应该在应用程序上下文中声明一个`ProviderManager` bean。
+但是，如果您不使用名称空间，那么您会声明它如下所示：
 
 [source,xml]
 ----
@@ -35,38 +35,38 @@ However, if you are not using the namespace then you would declare it like so:
 </bean>
 ----
 
-In the above example we have three providers.
-They are tried in the order shown (which is implied by the use of a `List`), with each provider able to attempt authentication, or skip authentication by simply returning `null`.
-If all implementations return null, the `ProviderManager` will throw a `ProviderNotFoundException`.
-If you're interested in learning more about chaining providers, please refer to the `ProviderManager` Javadoc.
+在上面的例子中，我们有三个提供者。
+它们按所示顺序（使用`List`）进行尝试，每个提供程序都可以尝试进行身份验证，或者通过简单地返回`null`来跳过身份验证。
+如果所有实现都返回null，则`ProviderManager`将抛出`ProviderNotFoundException`。
+如果您有兴趣详细了解链接提供商，请参阅`ProviderManager` Javadoc。
 
-Authentication mechanisms such as a web form-login processing filter are injected with a reference to the `ProviderManager` and will call it to handle their authentication requests.
-The providers you require will sometimes be interchangeable with the authentication mechanisms, while at other times they will depend on a specific authentication mechanism.
-For example, `DaoAuthenticationProvider` and `LdapAuthenticationProvider` are compatible with any mechanism which submits a simple username/password authentication request and so will work with form-based logins or HTTP Basic authentication.
-On the other hand, some authentication mechanisms create an authentication request object which can only be interpreted by a single type of `AuthenticationProvider`.
-An example of this would be JA-SIG CAS, which uses the notion of a service ticket and so can therefore only be authenticated by a `CasAuthenticationProvider`.
-You needn't be too concerned about this, because if you forget to register a suitable provider, you'll simply receive a `ProviderNotFoundException` when an attempt to authenticate is made.
+身份验证机制（例如Web表单登录处理过滤器）会引用`ProviderManager`，并会调用它来处理其身份验证请求。
+您需要的提供者有时可以与认证机制互换，而在其他时候，他们将依赖于特定的认证机制。
+例如，`DaoAuthenticationProvider`和`LdapAuthenticationProvider`与任何提交简单的用户名/密码认证请求的机制兼容，因此可以与基于表单的登录或HTTP基本认证一起使用。
+另一方面，一些认证机制会创建一个认证请求对象，该对象只能由单一类型的`AuthenticationProvider`来解释。
+例如，JA-SIG CAS使用服务票据的概念，因此只能通过`CasAuthenticationProvider`进行身份验证。
+您不必太在意这一点，因为如果您忘记注册合适的提供商，则只需在尝试进行身份验证时收到`ProviderNotFoundException`。
 
 
 [[core-services-erasing-credentials]]
-==== Erasing Credentials on Successful Authentication
-By default (from Spring Security 3.1 onwards) the `ProviderManager` will attempt to clear any sensitive credentials information from the `Authentication` object which is returned by a successful authentication request.
-This prevents information like passwords being retained longer than necessary.
+==== 成功验证时擦除凭证
+默认情况下（从Spring Security 3.1开始），`ProviderManager`将尝试清除成功认证请求返回的`Authentication`对象中的任何敏感凭据信息。
+这可以防止密码等信息被保留超过必要的时间。
 
-This may cause issues when you are using a cache of user objects, for example, to improve performance in a stateless application.
-If the `Authentication` contains a reference to an object in the cache (such as a `UserDetails` instance) and this has its credentials removed, then it will no longer be possible to authenticate against the cached value.
-You need to take this into account if you are using a cache.
-An obvious solution is to make a copy of the object first, either in the cache implementation or in the `AuthenticationProvider` which creates the returned `Authentication` object.
-Alternatively, you can disable the `eraseCredentialsAfterAuthentication` property on `ProviderManager`.
-See the Javadoc for more information.
+例如，当您使用用户对象缓存时，这可能会导致问题，以提高无状态应用程序的性能。
+如果`Authentication`包含对缓存中对象的引用（例如`UserDetails`实例），并且已删除其凭据，则无法再对缓存值进行身份验证。
+如果您使用缓存，则需要考虑这一点。
+一个明显的解决方案是先创建对象的副本，无论是在缓存实现中还是在创建返回的`Authentication`对象的`AuthenticationProvider`中。
+或者，您可以禁用`ProviderManager`上的`eraseCredentialsAfterAuthentication`属性。
+有关更多信息，请参阅Javadoc。
 
 
 [[core-services-dao-provider]]
-==== DaoAuthenticationProvider
-The simplest `AuthenticationProvider` implemented by Spring Security is `DaoAuthenticationProvider`, which is also one of the earliest supported by the framework.
-It leverages a `UserDetailsService` (as a DAO) in order to lookup the username, password and `GrantedAuthority` s.
-It authenticates the user simply by comparing the password submitted in a `UsernamePasswordAuthenticationToken` against the one loaded by the `UserDetailsService`.
-Configuring the provider is quite simple:
+====  DaoAuthenticationProvider还可以为
+Spring Security最简单的`AuthenticationProvider`是`DaoAuthenticationProvider`，它也是该框架最早支持的之一。
+它利用`UserDetailsService`（作为DAO）来查找用户名，密码和`GrantedAuthority`。
+它仅通过将`UsernamePasswordAuthenticationToken`中提交的密码与`UserDetailsService`加载的密码进行比较来对用户进行身份验证。
+配置提供者非常简单：
 
 [source,xml]
 ----
@@ -78,33 +78,33 @@ Configuring the provider is quite simple:
 </bean>
 ----
 
-The `PasswordEncoder` is optional.
-A `PasswordEncoder` provides encoding and decoding of passwords presented in the `UserDetails` object that is returned from the configured `UserDetailsService`.
-This will be discussed in more detail <<core-services-password-encoding,below>>.
+`PasswordEncoder`是可选的。
+`PasswordEncoder`提供从配置的`UserDetailsService`返回的`UserDetails`对象中显示的密码的编码和解码。
+这将在<<core-services-password-encoding,below>>中进行更详细的讨论。
 
 
-=== UserDetailsService Implementations
-As mentioned in the earlier in this reference guide, most authentication providers take advantage of the `UserDetails` and `UserDetailsService` interfaces.
-Recall that the contract for `UserDetailsService` is a single method:
+===  UserDetailsS​​ervice实现
+如本参考指南前面所述，大多数身份验证提供程序利用`UserDetails`和`UserDetailsService`接口。
+回想一下，`UserDetailsService`的合同是单一方法：
 
 [source,java]
 ----
 UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
 ----
 
-The returned `UserDetails` is an interface that provides getters that guarantee non-null provision of authentication information such as the username, password, granted authorities and whether the user account is enabled or disabled.
-Most authentication providers will use a `UserDetailsService`, even if the username and password are not actually used as part of the authentication decision.
-They may use the returned `UserDetails` object just for its `GrantedAuthority` information, because some other system (like LDAP or X.509 or CAS etc) has undertaken the responsibility of actually validating the credentials.
+返回的`UserDetails`是一个提供getter的接口，用于保证认证信息非空值的提供，如用户名，密码，授予的权限以及用户帐户是启用还是禁用。
+即使用户名和密码实际上未用作身份验证决策的一部分，大多数身份验证提供程序也会使用`UserDetailsService`。
+他们可能会将`UserDetails`对象仅用于其`GrantedAuthority`信息，因为其他系统（如LDAP或X.509或CAS等）承担了实际验证凭据的责任。
 
-Given `UserDetailsService` is so simple to implement, it should be easy for users to retrieve authentication information using a persistence strategy of their choice.
-Having said that, Spring Security does include a couple of useful base implementations, which we'll look at below.
+鉴于`UserDetailsService`的实现非常简单，用户应该很容易使用自己选择的持久性策略来检索认证信息。
+话虽如此，Spring Security确实包含了一些有用的基础实现，我们将在下面进行介绍。
 
 
 [[core-services-in-memory-service]]
-==== In-Memory Authentication
-Is easy to use create a custom `UserDetailsService` implementation that extracts information from a persistence engine of choice, but many applications do not require such complexity.
-This is particularly true if you're building a prototype application or just starting integrating Spring Security, when you don't really want to spend time configuring databases or writing `UserDetailsService` implementations.
-For this sort of situation, a simple option is to use the `user-service` element from the security <<ns-minimal,namespace>>:
+==== 内存认证
+易于使用创建自定义的`UserDetailsService`实现，从所选持久性引擎中提取信息，但许多应用程序不需要这种复杂性。
+如果您正在构建原型应用程序，或者刚刚开始集成Spring Security，尤其当您不想花时间配置数据库或编写`UserDetailsService`实现时，情况尤其如此。
+对于这种情况，一个简单的选择是使用安全性<<ns-minimal,namespace>>中的`user-service`元素：
 
 [source,xml]
 ----
@@ -118,21 +118,21 @@ in samples easier. Normally passwords should be hashed using BCrypt -->
 ----
 
 
-This also supports the use of an external properties file:
+这也支持使用外部属性文件：
 
 [source,xml]
 ----
 <user-service id="userDetailsService" properties="users.properties"/>
 ----
 
-The properties file should contain entries in the form
+属性文件应该包含表单中的条目
 
 [source,txt]
 ----
 username=password,grantedAuthority[,grantedAuthority][,enabled|disabled]
 ----
 
-For example
+例如
 
 [source,txt]
 ----
@@ -141,11 +141,11 @@ bob=bobspassword,ROLE_USER,enabled
 ----
 
 [[core-services-jdbc-user-service]]
-==== JdbcDaoImpl
-Spring Security also includes a `UserDetailsService` that can obtain authentication information from a JDBC data source.
-Internally Spring JDBC is used, so it avoids the complexity of a fully-featured object relational mapper (ORM) just to store user details.
-If your application does use an ORM tool, you might prefer to write a custom `UserDetailsService` to reuse the mapping files you've probably already created.
-Returning to `JdbcDaoImpl`, an example configuration is shown below:
+====  JdbcDaoImpl
+Spring Security还包含一个可以从JDBC数据源获取认证信息的`UserDetailsService`。
+使用内部Spring JDBC，因此避免了用于存储用户详细信息的全功能对象关系映射程序（ORM）的复杂性。
+如果您的应用程序确实使用了ORM工具，那么您可能更愿意编写一个自定义`UserDetailsService`来重用您可能已经创建的映射文件。
+返回`JdbcDaoImpl`，示例配置如下所示：
 
 [source,xml]
 ----
@@ -162,15 +162,15 @@ Returning to `JdbcDaoImpl`, an example configuration is shown below:
 </bean>
 ----
 
-You can use different relational database management systems by modifying the `DriverManagerDataSource` shown above.
-You can also use a global data source obtained from JNDI, as with any other Spring configuration.
+您可以通过修改上面显示的`DriverManagerDataSource`来使用不同的关系数据库管理系统。
+您也可以像使用其他Spring配置一样使用从JNDI获取的全局数据源。
 
-===== Authority Groups
-By default, `JdbcDaoImpl` loads the authorities for a single user with the assumption that the authorities are mapped directly to users (see the <<appendix-schema,database schema appendix>>).
-An alternative approach is to partition the authorities into groups and assign groups to the user.
-Some people prefer this approach as a means of administering user rights.
-See the `JdbcDaoImpl` Javadoc for more information on how to enable the use of group authorities.
-The group schema is also included in the appendix.
+===== 权限组
+默认情况下，假设权限直接映射到用户（请参阅<<appendix-schema,database schema appendix>>），`JdbcDaoImpl`为单个用户加载权限。
+另一种方法是将权限分为组并将组分配给用户。
+有些人更喜欢这种方法作为管理用户权利的手段。
+有关如何启用组权限的更多信息，请参阅`JdbcDaoImpl` Javadoc。
+组模式也包含在附录中。
 
 include::password-encoder.adoc[leveloffset=+2]
 

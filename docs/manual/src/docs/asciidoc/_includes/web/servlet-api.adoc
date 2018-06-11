@@ -1,29 +1,29 @@
 
 [[servletapi]]
-== Servlet API integration
-This section describes how Spring Security is integrated with the Servlet API.
-The https://github.com/spring-projects/spring-security/tree/master/samples/xml/servletapi[servletapi-xml] sample application demonstrates the usage of each of these methods.
+==  Servlet API集成
+本节介绍Spring Security如何与Servlet API集成。
+https://github.com/spring-projects/spring-security/tree/master/samples/xml/servletapi[servletapi-xml]示例应用程序演示了每种方法的用法。
 
 
 [[servletapi-25]]
-=== Servlet 2.5+ Integration
+===  Servlet 2.5+集成
 
 
 [[servletapi-remote-user]]
-==== HttpServletRequest.getRemoteUser()
-The http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#getRemoteUser()[HttpServletRequest.getRemoteUser()] will return the result of `SecurityContextHolder.getContext().getAuthentication().getName()` which is typically the current username.
-This can be useful if you want to display the current username in your application.
-Additionally, checking if this is null can be used to indicate if a user has authenticated or is anonymous.
-Knowing if the user is authenticated or not can be useful for determining if certain UI elements should be shown or not (i.e. a log out link should only be displayed if the user is authenticated).
+====  HttpServletRequest.getRemoteUser（）
+http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#getRemoteUser()[HttpServletRequest.getRemoteUser（）]将返回通常为当前用户名的`SecurityContextHolder.getContext().getAuthentication().getName()`的结果。
+如果您想在应用程序中显示当前用户名，这会很有用。
+此外，检查这是否为空可用于指示用户是否已通过身份验证或匿名。
+知道用户是否被认证对于确定是否应该显示某些UI元素是有用的（即，仅当用户被认证时才显示注销链接）。
 
 
 [[servletapi-user-principal]]
-==== HttpServletRequest.getUserPrincipal()
-The http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#getUserPrincipal()[HttpServletRequest.getUserPrincipal()] will return the result of `SecurityContextHolder.getContext().getAuthentication()`.
-This means it is an `Authentication` which is typically an instance of `UsernamePasswordAuthenticationToken` when using username and password based authentication.
-This can be useful if you need additional information about your user.
-For example, you might have created a custom `UserDetailsService` that returns a custom `UserDetails` containing a first and last name for your user.
-You could obtain this information with the following:
+====  HttpServletRequest.getUserPrincipal（）
+http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#getUserPrincipal()[HttpServletRequest.getUserPrincipal（）]将返回`SecurityContextHolder.getContext().getAuthentication()`的结果。
+这意味着在使用基于用户名和密码的身份验证时，它是`Authentication`，通常是`UsernamePasswordAuthenticationToken`的实例。
+如果您需要有关用户的其他信息，这可能很有用。
+例如，您可能已创建一个自定义`UserDetailsService`，返回包含用户姓名和姓氏的自定义`UserDetails`。
+您可以通过以下方式获取此信息：
 
 
 [source,java]
@@ -38,39 +38,39 @@ String lastName = userDetails.getLastName();
 
 [NOTE]
 ====
-It should be noted that it is typically bad practice to perform so much logic throughout your application.
-Instead, one should centralize it to reduce any coupling of Spring Security and the Servlet API's.
+应该指出，在整个应用程序中执行如此多的逻辑通常是不好的做法。
+相反，应该集中它来减少Spring Security和Servlet API的耦合。
 ====
 
 [[servletapi-user-in-role]]
-==== HttpServletRequest.isUserInRole(String)
-The http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#isUserInRole(java.lang.String)[HttpServletRequest.isUserInRole(String)] will determine if `SecurityContextHolder.getContext().getAuthentication().getAuthorities()` contains a `GrantedAuthority` with the role passed into `isUserInRole(String)`.
-Typically users should not pass in the "ROLE_" prefix into this method since it is added automatically.
-For example, if you want to determine if the current user has the authority "ROLE_ADMIN", you could use the following:
+====  HttpServletRequest.isUserInRole（字符串）
+http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#isUserInRole(java.lang.String)[HttpServletRequest.isUserInRole（字符串）]将确定`SecurityContextHolder.getContext().getAuthentication().getAuthorities()`是否包含传递给`isUserInRole(String)`的角色的`GrantedAuthority`。
+通常用户不应将"ROLE_"前缀传入此方法，因为它会自动添加。
+例如，如果您要确定当前用户是否具有权限"ROLE_ADMIN"，则可以使用以下内容：
 
 [source,java]
 ----
 boolean isAdmin = httpServletRequest.isUserInRole("ADMIN");
 ----
 
-This might be useful to determine if certain UI components should be displayed.
-For example, you might display admin links only if the current user is an admin.
+这对确定是否显示某些UI组件可能很有用。
+例如，只有当前用户是管理员时，才可以显示管理员链接。
 
 [[servletapi-3]]
-=== Servlet 3+ Integration
-The following section describes the Servlet 3 methods that Spring Security integrates with.
+===  Servlet 3+集成
+以下部分描述Spring Security集成的Servlet 3方法。
 
 
 [[servletapi-authenticate]]
-==== HttpServletRequest.authenticate(HttpServletRequest,HttpServletResponse)
-The http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#authenticate%28javax.servlet.http.HttpServletResponse%29[HttpServletRequest.authenticate(HttpServletRequest,HttpServletResponse)] method can be used to ensure that a user is authenticated.
-If they are not authenticated, the configured AuthenticationEntryPoint will be used to request the user to authenticate (i.e. redirect to the login page).
+====  HttpServletRequest.authenticate（HttpServletRequest的，HttpServletResponse的）
+http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#authenticate%28javax.servlet.http.HttpServletResponse%29[HttpServletRequest.authenticate（HttpServletRequest的，HttpServletResponse的）]方法可用于确保用户通过身份验证。
+如果它们未通过身份验证，则配置的AuthenticationEntryPoint将用于请求用户进行身份验证（即重定向到登录页面）。
 
 
 [[servletapi-login]]
-==== HttpServletRequest.login(String,String)
-The http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#login%28java.lang.String,%20java.lang.String%29[HttpServletRequest.login(String,String)] method can be used to authenticate the user with the current `AuthenticationManager`.
-For example, the following would attempt to authenticate with the username "user" and password "password":
+====  HttpServletRequest.login（字符串，字符串）
+http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#login%28java.lang.String,%20java.lang.String%29[HttpServletRequest.login（字符串，字符串）]方法可用于使用当前`AuthenticationManager`对用户进行身份验证。
+例如，以下内容会尝试使用用户名"user"和密码"password"进行身份验证：
 
 [source,java]
 ----
@@ -83,23 +83,23 @@ httpServletRequest.login("user","password");
 
 [NOTE]
 ====
-It is not necessary to catch the ServletException if you want Spring Security to process the failed authentication attempt.
+如果您希望Spring Security处理失败的身份验证尝试，则不需要捕获ServletException。
 ====
 
 [[servletapi-logout]]
-==== HttpServletRequest.logout()
-The http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#logout%28%29[HttpServletRequest.logout()] method can be used to log the current user out.
+====  HttpServletRequest.logout（）
+可以使用 http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#logout%28%29[HttpServletRequest.logout（）]方法记录当前用户。
 
-Typically this means that the SecurityContextHolder will be cleared out, the HttpSession will be invalidated, any "Remember Me" authentication will be cleaned up, etc.
-However, the configured LogoutHandler implementations will vary depending on your Spring Security configuration.
-It is important to note that after HttpServletRequest.logout() has been invoked, you are still in charge of writing a response out.
-Typically this would involve a redirect to the welcome page.
+通常这意味着SecurityContextHolder将被清除，HttpSession将失效，任何"Remember Me"认证将被清除，等等。
+但是，配置的LogoutHandler实现将根据您的Spring Security配置而有所不同。
+请注意，在调用HttpServletRequest.logout（）之后，您仍然负责编写响应。
+通常这会涉及重定向到欢迎页面。
 
 [[servletapi-start-runnable]]
-==== AsyncContext.start(Runnable)
-The http://docs.oracle.com/javaee/6/api/javax/servlet/AsyncContext.html#start%28java.lang.Runnable%29[AsynchContext.start(Runnable)] method that ensures your credentials will be propagated to the new Thread.
-Using Spring Security's concurrency support, Spring Security overrides the AsyncContext.start(Runnable) to ensure that the current SecurityContext is used when processing the Runnable.
-For example, the following would output the current user's Authentication:
+====  AsyncContext.start（可运行）
+确保您的凭据将传播到新线程的 http://docs.oracle.com/javaee/6/api/javax/servlet/AsyncContext.html#start%28java.lang.Runnable%29[AsynchContext.start（可运行）]方法。
+使用Spring Security的并发支持，Spring Security会覆盖AsyncContext.start（Runnable），以确保在处理Runnable时使用当前的SecurityContext。
+例如，以下内容会输出当前用户的身份验证：
 
 [source,java]
 ----
@@ -120,10 +120,10 @@ async.start(new Runnable() {
 ----
 
 [[servletapi-async]]
-==== Async Servlet Support
-If you are using Java Based configuration, you are ready to go.
-If you are using XML configuration, there are a few updates that are necessary.
-The first step is to ensure you have updated your web.xml to use at least the 3.0 schema as shown below:
+==== 异步Servlet支持
+如果您正在使用基于Java的配置，则可以开始使用了。
+如果您使用的是XML配置，则需要进行一些更新。
+第一步是确保您已更新web.xml以至少使用3.0架构，如下所示：
 
 [source,xml]
 ----
@@ -135,7 +135,7 @@ version="3.0">
 </web-app>
 ----
 
-Next you need to ensure that your springSecurityFilterChain is setup for processing asynchronous requests.
+接下来，您需要确保您的springSecurityFilterChain已设置为处理异步请求。
 
 [source,xml]
 ----
@@ -154,14 +154,14 @@ Next you need to ensure that your springSecurityFilterChain is setup for process
 </filter-mapping>
 ----
 
-That's it!
-Now Spring Security will ensure that your SecurityContext is propagated on asynchronous requests too.
+而已！
+现在，Spring Security将确保您的SecurityContext也在异步请求上传播。
 
-So how does it work? If you are not really interested, feel free to skip the remainder of this section, otherwise read on.
-Most of this is built into the Servlet specification, but there is a little bit of tweaking that Spring Security does to ensure things work with asynchronous requests properly.
-Prior to Spring Security 3.2, the SecurityContext from the SecurityContextHolder was automatically saved as soon as the HttpServletResponse was committed.
-This can cause issues in an Async environment.
-For example, consider the following:
+那么它是怎样工作的？如果你不是真的感兴趣，可以跳过本节的其余部分，否则请继续阅读。
+其中大部分都是内置到Servlet规范中的，但是有一点调整，Spring Security确实能够正确地处理异步请求。
+在Spring Security 3.2之前，只要提交HttpServletResponse，SecurityContextHolder中的SecurityContext就会自动保存。
+这可能会导致异步环境中的问题。
+例如，请考虑以下几点：
 
 [source,java]
 ----
@@ -182,16 +182,16 @@ new Thread("AsyncThread") {
 }.start();
 ----
 
-The issue is that this Thread is not known to Spring Security, so the SecurityContext is not propagated to it.
-This means when we commit the HttpServletResponse there is no SecuriytContext.
-When Spring Security automatically saved the SecurityContext on committing the HttpServletResponse it would lose our logged in user.
+问题是这个Thread对于Spring Security来说是不知道的，所以SecurityContext不会传播给它。
+这意味着当我们提交HttpServletResponse时，没有SecuriytContext。
+当Spring Security在提交HttpServletResponse时自动保存SecurityContext时，它会丢失我们的登录用户。
 
-Since version 3.2, Spring Security is smart enough to no longer automatically save the SecurityContext on commiting the HttpServletResponse as soon as HttpServletRequest.startAsync() is invoked.
+从3.2版本开始，Spring Security足够聪明，只要HttpServletRequest.startAsync（）被调用，就不会再自动保存SecurityContext来提交HttpServletResponse。
 
 [[servletapi-31]]
-=== Servlet 3.1+ Integration
-The following section describes the Servlet 3.1 methods that Spring Security integrates with.
+===  Servlet 3.1+集成
+以下部分描述Spring Security集成的Servlet 3.1方法。
 
 [[servletapi-change-session-id]]
-==== HttpServletRequest#changeSessionId()
-The http://docs.oracle.com/javaee/7/api/javax/servlet/http/HttpServletRequest.html#changeSessionId()[HttpServletRequest.changeSessionId()] is the default method for protecting against <<ns-session-fixation,Session Fixation>> attacks in Servlet 3.1 and higher.
+==== 的HttpServletRequest＃changeSessionId（）
+http://docs.oracle.com/javaee/7/api/javax/servlet/http/HttpServletRequest.html#changeSessionId()[HttpServletRequest.changeSessionId（）]是在Servlet 3.1及更高版本中防止<<ns-session-fixation,Session Fixation>>攻击的默认方法。

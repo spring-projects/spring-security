@@ -1,33 +1,33 @@
-= OAuth 2.0 Authorization Code Grant Sample
+=  OAuth 2.0授权代码授予示例
 
-== GitHub Repositories
+==  GitHub存储库
 
-This guide provides instructions on setting up the sample application, which leverages the OAuth 2.0 Authorization Code Grant, and displays a list of public GitHub repositories that are accessible to the authenticated user.
+本指南提供了有关设置示例应用程序的说明，该示例应用程序利用OAuth 2.0授权代码授权，并显示经认证的用户可访问的公共GitHub存储库列表。
 
-This includes repositories owned by the authenticated user, repositories where the authenticated user is a collaborator, and repositories that the authenticated user has access to through an organization membership.
+这包括经过身份验证的用户拥有的存储库，经过身份验证的用户是协作者的存储库以及经过身份验证的用户可以通过组织成员身份访问的存储库。
 
-The following sections provide detailed steps for setting up the sample and covers the following topics:
+以下各节提供了设置示例的详细步骤，并包含以下主题：
 
 * <<github-register-application,Register OAuth application>>
 * <<github-application-config,Configure application.yml>>
 * <<github-boot-application,Boot up the application>>
 
 [[github-register-application]]
-=== Register OAuth application
+=== 注册OAuth应用程序
 
-To use GitHub's OAuth 2.0 authorization system, you must https://github.com/settings/applications/new[Register a new OAuth application].
+要使用GitHub的OAuth 2.0授权系统，您必须https://github.com/settings/applications/new[注册新的OAuth应用程序]。
 
-When registering the OAuth application, ensure the *Authorization callback URL* is set to `http://localhost:8080/github-repos`.
+注册OAuth应用程序时，请确保*Authorization callback URL*设置为`http://localhost:8080/github-repos`。
 
-The Authorization callback URL (redirect URI) is the path in the application that the end-user's user-agent is redirected back to after they have authenticated with GitHub and have granted access to the OAuth application on the _Authorize application_ page.
+授权回调URL（重定向URI）是应用程序中的路径，用户代理在使用GitHub进行身份验证并授予对_Authorize application_页面上的OAuth应用程序的访问权限后，可以将其重定向回。
 
 [[github-application-config]]
-=== Configure application.yml
+=== 配置application.yml
 
-Now that you have a new OAuth application with GitHub, you need to configure the sample to use the OAuth application for the _authorization code grant flow_.
-To do so:
+现在您已经有了一个带有GitHub的新OAuth应用程序，您需要配置示例以使用OAuth应用程序来获得授权代码授权流程_。
+要做到这一点：
 
-. Go to `application.yml` and set the following configuration:
+. 转到`application.yml`并设置以下配置：
 +
 [source,yaml]
 ----
@@ -44,21 +44,21 @@ spring:
             client-name: GitHub Repositories
 ----
 +
-.OAuth Client properties
+.OAuth客户端属性
 ====
-<1> `spring.security.oauth2.client.registration` is the base property prefix for OAuth Client properties.
-<2> Following the base property prefix is the ID for the `ClientRegistration`, which is github.
+<1> `spring.security.oauth2.client.registration`是OAuth客户端属性的基本属性前缀。
+<2>基本属性前缀后面是`ClientRegistration`的标识，它是github。
 ====
 
-. Replace the values in the `client-id` and `client-secret` property with the OAuth 2.0 credentials you created earlier.
+. 用您之前创建的OAuth 2.0凭据替换`client-id`和`client-secret`属性中的值。
 
 [[github-boot-application]]
-=== Boot up the application
+=== 启动应用程序
 
-Launch the Spring Boot 2.0 sample and go to `http://localhost:8080`.
-You are then redirected to the default _auto-generated_ form login page.
-Log in using *'user'* (username) and *'password'* (password) and then you'll be redirected to GitHub for authentication.
+启动Spring Boot 2.0示例并转至`http://localhost:8080`。
+然后您将被重定向到默认的_auto-generated_表单登录页面。
+使用*'user'*（用户名）和*'password'*（密码）登录，然后您将被重定向到GitHub进行身份验证。
 
-After authenticating with your GitHub credentials, the next page presented to you is "Authorize application".
-This page will ask you to *Authorize* the application you created in the previous step.
-Click _Authorize application_ to allow the OAuth application to access and display your public repository information.
+在使用您的GitHub凭证进行身份验证后，呈现给您的下一页是"Authorize application"。
+此页面会要求您在上一步中创建的应用程序*Authorize*。
+单击_Authorize application_允许OAuth应用程序访问并显示您的公共存储库信息。

@@ -1,5 +1,5 @@
 [[appendix-faq]]
-== Spring Security FAQ
+==  Spring安全常见问答
 
 * <<appendix-faq-general-questions>>
 * <<appendix-faq-common-problems>>
@@ -7,7 +7,7 @@
 * <<appendix-faq-howto>>
 
 [[appendix-faq-general-questions]]
-=== General Questions
+=== 一般问题
 
 . <<appendix-faq-other-concerns>>
 . <<appendix-faq-web-xml>>
@@ -16,98 +16,98 @@
 
 
 [[appendix-faq-other-concerns]]
-==== Will Spring Security take care of all my application security requirements?
+====  Spring Security是否会处理我所有的应用程序安全要求？
 
-Spring Security provides you with a very flexible framework for your authentication and authorization requirements, but there are many other considerations for building a secure application that are outside its scope.
-Web applications are vulnerable to all kinds of attacks which you should be familiar with, preferably before you start development so you can design and code with them in mind from the beginning.
-Check out thehttp://www.owasp.org/[OWASP web site] for information on the major issues facing web application developers and the countermeasures you can use against them.
+Spring Security为您提供了一个非常灵活的框架来满足您的身份验证和授权要求，但构建不在其范围内的安全应用程序还有许多其他注意事项。
+Web应用程序容易受到各种您应该熟悉的攻击，最好在开始开发之前进行，以便您可以从头开始设计和编写这些攻击。
+查看 http://www.owasp.org/[OWASP网站]，了解Web应用程序开发人员面临的主要问题以及您可以使用的对策。
 
 
 [[appendix-faq-web-xml]]
-==== Why not just use web.xml security?
+==== 为什么不使用web.xml安全性？
 
-Let's assume you're developing an enterprise application based on Spring.
-There are four security concerns you typically need to address: authentication, web request security, service layer security (i.e. your methods that implement business logic), and domain object instance security (i.e. different domain objects have different permissions). With these typical requirements in mind:
+假设您正在开发基于Spring的企业应用程序。
+您通常需要解决四个安全问题：身份验证，Web请求安全性，服务层安全性（即您的实现业务逻辑的方法）和域对象实例安全性（即不同的域对象具有不同的权限）。考虑到这些典型要求：
 
-. __Authentication__: The servlet specification provides an approach to authentication.
-However, you will need to configure the container to perform authentication which typically requires editing of container-specific "realm" settings.
-This makes a non-portable configuration, and if you need to write an actual Java class to implement the container's authentication interface, it becomes even more non-portable.
-With Spring Security you achieve complete portability - right down to the WAR level.
-Also, Spring Security offers a choice of production-proven authentication providers and mechanisms, meaning you can switch your authentication approaches at deployment time.
-This is particularly valuable for software vendors writing products that need to work in an unknown target environment.
+.  __ Authentication__：servlet规范提供了一种认证方法。
+但是，您需要将容器配置为执行身份验证，通常需要编辑容器特定的"realm"设置。
+这使得一个不可移植的配置，如果你需要编写一个实际的Java类来实现容器的认证接口，它变得更加不可移植。
+通过Spring Security，您可以实现完全的可移植性 - 直至WAR级别。
+此外，Spring Security还提供了经过生产验证的身份验证提供程序和机制的选择，这意味着您可以在部署时切换身份验证方法。
+这对于编写需要在未知目标环境中工作的产品的软件供应商特别有用。
 
-. __Web request security:__ The servlet specification provides an approach to secure your request URIs.
-However, these URIs can only be expressed in the servlet specification's own limited URI path format.
-Spring Security provides a far more comprehensive approach.
-For instance, you can use Ant paths or regular expressions, you can consider parts of the URI other than simply the requested page (e.g.
-you can consider HTTP GET parameters) and you can implement your own runtime source of configuration data.
-This means your web request security can be dynamically changed during the actual execution of your webapp.
+.  __ Web请求安全性：__ servlet规范提供了一种保护请求URI的方法。
+但是，这些URI只能用servlet规范自己的有限URI路径格式表示。
+Spring Security提供了一个更全面的方法。
+例如，您可以使用Ant路径或正则表达式，您可以考虑URI的一部分，而不仅仅是请求的页面（例如，
+您可以考虑使用HTTP GET参数），并且可以实现自己的运行时配置数据源。
+这意味着您的Web请求安全性可以在Web应用程序的实际执行过程中动态更改。
 
-. __Service layer and domain object security:__ The absence of support in the servlet specification for services layer security or domain object instance security represent serious limitations for multi-tiered applications.
-Typically developers either ignore these requirements, or implement security logic within their MVC controller code (or even worse, inside the views). There are serious disadvantages with this approach:
+.  __服务层和域对象安全性：__服务层规范中缺少对服务层安全性或域对象实例安全性的支持，这对于多层应用程序来说是严重的限制。
+通常开发人员要么忽略这些需求，要么在他们的MVC控制器代码中实现安全逻辑（或者更糟糕的是，在视图内部）。这种方法存在严重的缺点：
 
-.. __Separation of concerns:__ Authorization is a crosscutting concern and should be implemented as such.
-MVC controllers or views implementing authorization code makes it more difficult to test both the controller and authorization logic, more difficult to debug, and will often lead to code duplication.
+..  __分离关注点：__授权是一个横切的关注点，应该像这样执行。
+实现授权代码的MVC控制器或视图使测试控制器和授权逻辑变得更加困难，更难以调试，并且通常会导致代码重复。
 
-.. __Support for rich clients and web services:__ If an additional client type must ultimately be supported, any authorization code embedded within the web layer is non-reusable.
-It should be considered that Spring remoting exporters only export service layer beans (not MVC controllers). As such authorization logic needs to be located in the services layer to support a multitude of client types.
+..  __支持富客户端和Web服务：__如果最终必须支持其他客户端类型，则嵌入在Web层中的任何授权代码都是不可重用的。
+应该考虑到Spring remoting导出器只导出服务层bean（而不是MVC控制器）。由于这种授权逻辑需要位于服务层中以支持多种客户端类型。
 
-.. __Layering issues:__ An MVC controller or view is simply the incorrect architectural layer to implement authorization decisions concerning services layer methods or domain object instances.
-Whilst the Principal may be passed to the services layer to enable it to make the authorization decision, doing so would introduce an additional argument on every services layer method.
-A more elegant approach is to use a ThreadLocal to hold the Principal, although this would likely increase development time to a point where it would become more economical (on a cost-benefit basis) to simply use a dedicated security framework.
+..  __分层问题：__ MVC控制器或视图只是不正确的体系结构层，无法实现有关服务层方法或域对象实例的授权决策。
+虽然委托人可能被传递给服务层以使其能够作出授权决定，但这样做会对每个服务层方法引入额外的争论。
+一个更优雅的方法是使用ThreadLocal来保存委托人，尽管这可能会增加开发时间，使其仅仅使用专用安全框架变得更经济（在成本效益的基础上）。
 
-.. __Authorisation code quality:__ It is often said of web frameworks that they "make it easier to do the right things, and harder to do the wrong things". Security frameworks are the same, because they are designed in an abstract manner for a wide range of purposes.
-Writing your own authorization code from scratch does not provide the "design check" a framework would offer, and in-house authorization code will typically lack the improvements that emerge from widespread deployment, peer review and new versions.
+..  __授权代码质量：__人们经常说他们"make it easier to do the right things, and harder to do the wrong things"的网络框架。安全框架是相同的，因为它们以抽象的方式设计用于广泛的目的。
+从头开始编写自己的授权代码不会提供框架将提供的"design check"，而内部授权代码通常不会从广泛部署，同行评审和新版本中产生的改进。
 
-For simple applications, servlet specification security may just be enough.
-Although when considered within the context of web container portability, configuration requirements, limited web request security flexibility, and non-existent services layer and domain object instance security, it becomes clear why developers often look to alternative solutions.
+对于简单的应用程序，servlet规范安全性可能就足够了。
+虽然在Web容器可移植性，配置要求，有限的Web请求安全灵活性以及不存在的服务层和域对象实例安全性的上下文中考虑，但很明显为什么开发人员往往会选择其他解决方案。
 
 
 [[appendix-faq-requirements]]
-==== What Java and Spring Framework versions are required?
+==== 需要哪些Java和Spring Framework版本？
 
-Spring Security 3.0 and 3.1 require at least JDK 1.5 and also require Spring 3.0.3 as a minimum.
-Ideally you should be using the latest release versions to avoid problems.
+Spring Security 3.0和3.1至少需要JDK 1.5，并且至少需要Spring 3.0.3。
+理想情况下，您应该使用最新的版本来避免问题。
 
-Spring Security 2.0.x requires a minimum JDK version of 1.4 and is built against Spring 2.0.x.
-It should also be compatible with applications using Spring 2.5.x.
+Spring Security 2.0.x需要1.4的最低JDK版本，并且是针对Spring 2.0.x构建的。
+它也应该与使用Spring 2.5.x的应用程序兼容。
 
 
 [[appendix-faq-start-simple]]
-==== I'm new to Spring Security and I need to build an application that supports CAS single sign-on over HTTPS, while allowing Basic authentication locally for certain URLs, authenticating against multiple back end user information sources (LDAP and JDBC). I've copied some configuration files I found but it doesn't work.
-What could be wrong?
+==== 我是Spring Security的新手，我需要构建支持通过HTTPS进行CAS单点登录的应用程序，同时允许对某些URL进行本地基本身份验证，对多个后端用户信息源（LDAP和JDBC ）。我已经复制了一些我发现的配置文件，但它不起作用。
+什么可能是错的？
 
-Or subsititute an alternative complex scenario...
+或者替代复杂的情景......
 
-Realistically, you need an understanding of the technolgies you are intending to use before you can successfully build applications with them.
-Security is complicated.
-Setting up a simple configuration using a login form and some hard-coded users using Spring Security's namespace is reasonably straightforward.
-Moving to using a backed JDBC database is also easy enough.
-But if you try and jump straight to a complicated deployment scenario like this you will almost certainly be frustrated.
-There is a big jump in the learning curve required to set up systems like CAS, configure LDAP servers and install SSL certificates properly.
-So you need to take things one step at a time.
+实际上，您需要先了解您打算使用的技术，然后才能成功构建应用程序。
+安全性很复杂。
+使用Spring Security的命名空间使用登录表单和一些硬编码的用户来设置一个简单的配置非常简单。
+转向使用支持的JDBC数据库也很简单。
+但是如果您尝试直接跳到这样复杂的部署场景中，您几乎肯定会感到沮丧。
+设置CAS系统，配置LDAP服务器和正确安装SSL证书所需的学习曲线有很大的提升。
+所以你需要一次采取一步。
 
-From a Spring Security perspective, the first thing you should do is follow the "Getting Started" guide on the web site.
-This will take you through a series of steps to get up and running and get some idea of how the framework operates.
-If you are using other technologies which you aren't familiar with then you should do some research and try to make sure you can use them in isolation before combining them in a complex system.
+从Spring Security的角度来看，您应该首先遵循网站上的"Getting Started"指南。
+这将通过一系列步骤来启动和运行，并了解框架如何运作。
+如果您正在使用您不熟悉的其他技术，那么您应该进行一些研究，并尝试确保在将它们组合到一个复杂系统中之前将它们单独使用。
 
 [[appendix-faq-common-problems]]
-=== Common Problems
+=== 常见问题
 
-. Authentication
+. 认证
 .. <<appendix-faq-bad-credentials>>
 .. <<appendix-faq-login-loop>>
 .. <<appendix-faq-anon-access-denied>>
 .. <<appendix-faq-cached-secure-page>>
 .. <<auth-exception-credentials-not-found>>
 .. <<appendix-faq-ldap-authentication>>
-. Session Management
+. 会话管理
 .. <<appendix-faq-concurrent-session-same-browser>>
 .. <<appendix-faq-new-session-on-authentication>>
 .. <<appendix-faq-tomcat-https-session>>
 .. <<appendix-faq-session-listener-missing>>
 .. <<appendix-faq-unwanted-session-creation>>
-. Miscellaneous
+. 其他
 .. <<appendix-faq-forbidden-csrf>>
 .. <<appendix-faq-no-security-on-forward>>
 .. <<appendix-faq-method-security-in-web-context>>
@@ -115,34 +115,34 @@ If you are using other technologies which you aren't familiar with then you shou
 .. <<appendix-faq-method-security-with-taglib>>
 
 [[appendix-faq-bad-credentials]]
-==== When I try to log in, I get an error message that says "Bad Credentials". What's wrong?
+==== 当我尝试登录时，出现一条表示"Bad Credentials"的错误消息。怎么了？
 
-This means that authentication has failed.
-It doesn't say why, as it is good practice to avoid giving details which might help an attacker guess account names or passwords.
+这意味着认证失败了。
+它没有说明为什么，因为避免提供可能有助于攻击者猜测帐户名称或密码的详细信息是一种很好的做法。
 
-This also means that if you ask this question in the forum, you will not get an answer unless you provide additional information.
-As with any issue you should check the output from the debug log, note any exception stacktraces and related messages.
-Step through the code in a debugger to see where the authentication fails and why.
-Write a test case which exercises your authentication configuration outside of the application.
-More often than not, the failure is due to a difference in the password data stored in a database and that entered by the user.
-If you are using hashed passwords, make sure the value stored in your database is __exactly__ the same as the value produced by the `PasswordEncoder` configured in your application.
+这也意味着如果您在论坛中提出这个问题，除非您提供其他信息，否则您将无法获得答案。
+与任何问题一样，您应该检查调试日志的输出，注意任何异常堆栈跟踪和相关消息。
+通过调试器中的代码来查看身份验证失败的原因以及原因。
+编写一个测试用例，在应用程序之外执行您的认证配置。
+多数情况下，失败是由于存储在数据库中的密码数据和用户输入的密码数据不同。
+如果您使用散列密码，请确保存储在数据库中的值为__exactly__，与应用程序中配置的`PasswordEncoder`生成的值相同。
 
 
 [[appendix-faq-login-loop]]
-==== My application goes into an "endless loop" when I try to login, what's going on?
+==== 当我尝试登录时，我的应用程序进入"endless loop"，发生了什么？
 
-A common user problem with infinite loop and redirecting to the login page is caused by accidently configuring the login page as a "secured" resource.
-Make sure your configuration allows anonymous access to the login page, either by excluding it from the security filter chain or marking it as requiring ROLE_ANONYMOUS.
+无限循环和重定向到登录页面的常见用户问题是由于意外地将登录页面配置为"secured"资源而导致的。
+确保您的配置允许匿名访问登录页面，或者将其从安全过滤器链中排除或将其标记为需要ROLE_ANONYMOUS。
 
-If your AccessDecisionManager includes an AuthenticatedVoter, you can use the attribute "IS_AUTHENTICATED_ANONYMOUSLY". This is automatically available if you are using the standard namespace configuration setup.
+如果您的AccessDecisionManager包含AuthenticatedVoter，则可以使用属性"IS_AUTHENTICATED_ANONYMOUSLY"。如果您正在使用标准名称空间配置设置，这将自动可用。
 
-From Spring Security 2.0.1 onwards, when you are using namespace-based configuration, a check will be made on loading the application context and a warning message logged if your login page appears to be protected.
+从Spring Security 2.0.1开始，当你使用基于命名空间的配置时，如果你的登录页面看起来受到保护，那么将加载应用程序上下文并记录警告消息。
 
 
 [[appendix-faq-anon-access-denied]]
-==== I get an exception with the message "Access is denied (user is anonymous);". What's wrong?
+==== 我收到了"Access is denied (user is anonymous);"消息的例外情况。怎么了？
 
-This is a debug level message which occurs the first time an anonymous user attempts to access a protected resource.
+这是匿名用户首次尝试访问受保护资源时发生的调试级别消息。
 
 [source]
 ----
@@ -154,21 +154,21 @@ at org.springframework.security.intercept.AbstractSecurityInterceptor.beforeInvo
 
 ----
 
-It is normal and shouldn't be anything to worry about.
+这是正常的，不应该担心任何事情。
 
 
 [[appendix-faq-cached-secure-page]]
-==== Why can I still see a secured page even after I've logged out of my application?
+==== 即使在我退出应用程序之后，为什么还能看到受保护的页面？
 
-The most common reason for this is that your browser has cached the page and you are seeing a copy which is being retrieved from the browsers cache.
-Verify this by checking whether the browser is actually sending the request (check your server access logs, the debug log or use a suitable browser debugging plugin such as "Tamper Data" for Firefox). This has nothing to do with Spring Security and you should configure your application or server to set the appropriate `Cache-Control` response headers.
-Note that SSL requests are never cached.
+最常见的原因是您的浏览器缓存了页面，并且您正在从浏览器缓存中看到正在检索的副本。
+通过检查浏览器是否实际发送请求（检查服务器访问日志，调试日志或使用合适的浏览器调试插件，例如"Tamper Data" for Firefox）来验证此内容。这与Spring Security无关，您应该配置您的应用程序或服务器来设置适当的`Cache-Control`响应标头。
+请注意，SSL请求从不缓存。
 
 
 [[auth-exception-credentials-not-found]]
-==== I get an exception with the message "An Authentication object was not found in the SecurityContext". What's wrong?
+==== 我收到了"An Authentication object was not found in the SecurityContext"消息的例外情况。怎么了？
 
-This is a another debug level message which occurs the first time an anonymous user attempts to access a protected resource, but when you do not have an `AnonymousAuthenticationFilter` in your filter chain configuration.
+这是另一个调试级别消息，在匿名用户首次尝试访问受保护资源时发生，但是当您的筛选器链配置中没有`AnonymousAuthenticationFilter`时会发生这种情况。
 
 [source]
 ----
@@ -180,21 +180,21 @@ at org.springframework.security.intercept.AbstractSecurityInterceptor.credential
 at org.springframework.security.intercept.AbstractSecurityInterceptor.beforeInvocation(AbstractSecurityInterceptor.java:254)
 ----
 
-It is normal and shouldn't be anything to worry about.
+这是正常的，不应该担心任何事情。
 
 
 [[appendix-faq-ldap-authentication]]
-==== I can't get LDAP authentication to work.
-What's wrong with my configuration?
+==== 我无法使LDAP认证正常工作。
+我的配置有什么问题？
 
-Note that the permissions for an LDAP directory often do not allow you to read the password for a user.
-Hence it is often not possible to use the <<appendix-faq-what-is-userdetailservice>> where Spring Security compares the stored password with the one submitted by the user.
-The most common approach is to use LDAP "bind", which is one of the operations supported by http://en.wikipedia.org/wiki/Lightweight_Directory_Access_Protocol[the LDAP protocol]. With this approach, Spring Security validates the password by attempting to authenticate to the directory as the user.
+请注意，LDAP目录的权限通常不允许您读取用户的密码。
+因此，在Spring Security将存储的密码与用户提交的密码进行比较时，通常不可能使用<<appendix-faq-what-is-userdetailservice>>。
+最常见的方法是使用LDAP "bind"，这是 http://en.wikipedia.org/wiki/Lightweight_Directory_Access_Protocol[LDAP协议]支持的操作之一。通过这种方法，Spring Security通过尝试以用户身份对目录进行身份验证来验证密码。
 
-The most common problem with LDAP authentication is a lack of knowledge of the directory server tree structure and configuration.
-This will be different in different companies, so you have to find it out yourself.
-Before adding a Spring Security LDAP configuration to an application, it's a good idea to write a simple test using standard Java LDAP code (without Spring Security involved), and make sure you can get that to work first.
-For example, to authenticate a user, you could use the following code:
+LDAP认证最常见的问题是缺乏对目录服务器树结构和配置的了解。
+这在不同的公司会有所不同，所以你必须自己找到它。
+在将Spring Security LDAP配置添加到应用程序之前，最好使用标准的Java LDAP代码编写一个简单的测试（不涉及Spring Security），并确保可以首先使用它。
+例如，要验证用户，您可以使用以下代码：
 
 [source,java]
 ----
@@ -214,63 +214,63 @@ public void ldapAuthenticationIsSuccessful() throws Exception {
 
 ----
 
-==== Session Management
+==== 会话管理
 
-Session management issues are a common source of forum questions.
-If you are developing Java web applications, you should understand how the session is maintained between the servlet container and the user's browser.
-You should also understand the difference between secure and non-secure cookies and the implications of using HTTP/HTTPS and switching between the two.
-Spring Security has nothing to do with maintaining the session or providing session identifiers.
-This is entirely handled by the servlet container.
+会话管理问题是论坛问题的常见来源。
+如果您正在开发Java Web应用程序，您应该了解如何在servlet容器和用户浏览器之间维护会话。
+您还应该了解安全和非安全cookie之间的区别以及使用HTTP / HTTPS和两者之间切换的含义。
+Spring Security与维护会话或提供会话标识无关。
+这完全由servlet容器处理。
 
 
 [[appendix-faq-concurrent-session-same-browser]]
-==== I'm using Spring Security's concurrent session control to prevent users from logging in more than once at a time.
-When I open another browser window after logging in, it doesn't stop me from logging in again.
-Why can I log in more than once?
+==== 我使用Spring Security的并发会话控制来防止用户一次登录多次。
+当我登录后打开另一个浏览器窗口时，它不会阻止我再次登录。
+为什么我可以多次登录？
 
-Browsers generally maintain a single session per browser instance.
-You cannot have two separate sessions at once.
-So if you log in again in another window or tab you are just reauthenticating in the same session.
-The server doesn't know anything about tabs, windows or browser instances.
-All it sees are HTTP requests and it ties those to a particular session according to the value of the JSESSIONID cookie that they contain.
-When a user authenticates during a session, Spring Security's concurrent session control checks the number of__other authenticated sessions__ that they have.
-If they are already authenticated with the same session, then re-authenticating will have no effect.
+浏览器通常为每个浏览器实例保留一个会话。
+一次不能有两个单独的会话。
+因此，如果您在另一个窗口或选项卡中重新登录，则只需在同一会话中重新进行身份验证。
+服务器对标签，窗口或浏览器实例不了解。
+它看到的只是HTTP请求，它根据它们包含的JSESSIONID cookie的值将它们绑定到特定的会话。
+当用户在会话期间进行身份验证时，Spring Security的并发会话控制会检查他们拥有的其他已验证会话的数量。
+如果他们已经使用同一个会话进行了身份验证，则重新身份验证将不起作用。
 
 
 [[appendix-faq-new-session-on-authentication]]
-==== Why does the session Id change when I authenticate through Spring Security?
+==== 为什么在通过Spring Security进行身份验证时会话Id发生了变化？
 
-With the default configuration, Spring Security changes the session ID when the user authenticates.
-If you're using a Servlet 3.1 or newer container, the session ID is simply changed.
-If you're using an older container, Spring Security invalidates the existing session, creates a new session, and transfers the session data to the new session.
-Changing the session identifier in this manner prevents"session-fixation" attacks.
-You can find more about this online and in the reference manual.
+通过默认配置，Spring Security在用户身份验证时更改会话ID。
+如果您使用的是Servlet 3.1或更新的容器，则仅改变会话ID。
+如果您使用的是较旧的容器，则Spring Security会使现有会话无效，创建新会话并将会话数据传输到新会话。
+以这种方式更改会话标识可防止"session-fixation"次攻击。
+您可以在线和参考手册中找到更多关于这方面的信息。
 
 
 [[appendix-faq-tomcat-https-session]]
-==== I'm using Tomcat (or some other servlet container) and have enabled HTTPS for my login page, switching back to HTTP afterwards.
-It doesn't work - I just end up back at the login page after authenticating.
+==== 我使用的是Tomcat（或其他一些servlet容器），并为我的登录页面启用了HTTPS，之后切换回HTTP。
+它不起作用 - 我只是在认证之后回到登录页面。
 
-This happens because sessions created under HTTPS, for which the session cookie is marked as "secure", cannot subsequently be used under HTTP. The browser will not send the cookie back to the server and any session state will be lost (including the security context information). Starting a session in HTTP first should work as the session cookie won't be marked as secure.
-However, Spring Security's http://static.springsource.org/spring-security/site/docs/3.1.x/reference/springsecurity-single.html#ns-session-fixation[Session Fixation Protection] can interfere with this because it results in a new session ID cookie being sent back to the user's browser, usually with the secure flag.
-To get around this, you can disable session fixation protection, but in newer Servlet containers you can also configure session cookies to never use the secure flag.
-Note that switching between HTTP and HTTPS is not a good idea in general, as any application which uses HTTP at all is vulnerable to man-in-the-middle attacks.
-To be truly secure, the user should begin accessing your site in HTTPS and continue using it until they log out.
-Even clicking on an HTTPS link from a page accessed over HTTP is potentially risky.
-If you need more convincing, check out a tool like http://www.thoughtcrime.org/software/sslstrip/[sslstrip].
+发生这种情况的原因是，在HTTPS下创建的会话（会话cookie标记为"secure"）无法在HTTP下使用。浏览器不会将cookie发送回服务器，任何会话状态都将丢失（包括安全上下文信息）。首先在HTTP中启动一个会话应该可以工作，因为会话cookie不会被标记为安全。
+但是，Spring Security的 http://static.springsource.org/spring-security/site/docs/3.1.x/reference/springsecurity-single.html#ns-session-fixation[会话固定保护]可能会干扰此操作，因为它会导致将新的会话ID cookie发送回用户的浏览器，通常使用安全标志。
+为了解决这个问题，你可以禁用会话固定保护，但是在新的Servlet容器中，你也可以配置会话cookie以不使用安全标志。
+请注意，在HTTP和HTTPS之间切换通常不是一个好主意，因为任何使用HTTP的应用程序都容易受到中间人攻击。
+为了确保安全，用户应该开始以HTTPS访问您的网站并继续使用它，直到他们注销。
+即使点击通过HTTP访问的页面上的HTTPS链接也是有风险的。
+如果您需要更多说服力，请查看 http://www.thoughtcrime.org/software/sslstrip/[sslstrip]之类的工具。
 
 
-==== I'm not switching between HTTP and HTTPS but my session is still getting lost
+==== 我没有在HTTP和HTTPS之间切换，但我的会话仍在迷失
 
-Sessions are maintained either by exchanging a session cookie or by adding a `jsessionid` parameter to URLs (this happens automatically if you are using JSTL to output URLs, or if you call `HttpServletResponse.encodeUrl` on URLs (before a redirect, for example). If clients have cookies disabled, and you are not rewriting URLs to include the `jsessionid`, then the session will be lost.
-Note that the use of cookies is preferred for security reasons, as it does not expose the session information in the URL.
+通过交换会话cookie或向URL添加`jsessionid`参数来维护会话（如果您使用JSTL输出URL，或者在URL上调用`HttpServletResponse.encodeUrl`（在重定向之前，会自动发生）例如）如果客户端禁用了Cookie，并且您没有重写包含`jsessionid`的URL，则会话将会丢失。
+请注意，出于安全原因，首选使用Cookie，因为它不公开URL中的会话信息。
 
 [[appendix-faq-session-listener-missing]]
-==== I'm trying to use the concurrent session-control support but it won't let me log back in, even if I'm sure I've logged out and haven't exceeded the allowed sessions.
+==== 我试图使用并发会话控制支持，但它不会让我重新登录，即使我确定我已经注销并且没有超出允许的会话。
 
-Make sure you have added the listener to your web.xml file.
-It is essential to make sure that the Spring Security session registry is notified when a session is destroyed.
-Without it, the session information will not be removed from the registry.
+确保您已将监听器添加到您的web.xml文件中。
+确保在会话销毁时通知Spring Security会话注册表是非常重要的。
+没有它，会话信息将不会从注册表中删除。
 
 
 [source,xml]
@@ -281,54 +281,54 @@ Without it, the session information will not be removed from the registry.
 ----
 
 [[appendix-faq-unwanted-session-creation]]
-==== Spring Security is creating a session somewhere, even though I've configured it not to, by setting the create-session attribute to never.
+====  Spring Security正在创建一个会话，尽管我已经将它配置为不会，通过将create-session属性设置为永远不会。
 
-This usually means that the user's application is creating a session somewhere, but that they aren't aware of it.
-The most common culprit is a JSP. Many people aren't aware that JSPs create sessions by default.
-To prevent a JSP from creating a session, add the directive `<%@ page session="false" %>` to the top of the page.
+这通常意味着用户的应用程序正在创建一个会话，但他们并不知道它。
+最常见的罪魁祸首是JSP。很多人都不知道JSP默认会创建会话。
+要防止JSP创建会话，请将指令`<%@ page session="false" %>`添加到页面的顶部。
 
-If you are having trouble working out where a session is being created, you can add some debugging code to track down the location(s). One way to do this would be to add a `javax.servlet.http.HttpSessionListener` to your application, which calls `Thread.dumpStack()` in the `sessionCreated` method.
+如果您在创建会话的位置时遇到问题，可以添加一些调试代码来追踪位置。一种方法是将`javax.servlet.http.HttpSessionListener`添加到应用程序中，该应用程序在`sessionCreated`方法中调用`Thread.dumpStack()`。
 
 [[appendix-faq-forbidden-csrf]]
-==== I get a 403 Forbidden when performing a POST
+==== 执行POST时，我得到了一个403 Forbidden
 
-If an HTTP 403 Forbidden is returned for HTTP POST, but works for HTTP GET then the issue is most likely related to http://docs.spring.io/spring-security/site/docs/3.2.x/reference/htmlsingle/#csrf[CSRF]. Either provide the CSRF Token or disable CSRF protection (not recommended).
+如果为HTTP POST返回HTTP 403 Forbidden，但对HTTP GET起作用，则问题很可能与 http://docs.spring.io/spring-security/site/docs/3.2.x/reference/htmlsingle/#csrf[CSRF]相关。提供CSRF令牌或禁用CSRF保护（不推荐）。
 
 [[appendix-faq-no-security-on-forward]]
-==== I'm forwarding a request to another URL using the RequestDispatcher, but my security constraints aren't being applied.
+==== 我正在使用RequestDispatcher将请求转发到另一个URL，但我的安全限制未被应用。
 
-Filters are not applied by default to forwards or includes.
-If you really want the security filters to be applied to forwards and/or includes, then you have to configure these explicitly in your web.xml using the <dispatcher> element, a child element of <filter-mapping>.
+过滤器默认不会应用于转发或包含。
+如果您确实希望将安全筛选器应用于转发和/或包含，则必须使用<dispatcher>元素（它是<filter-mapping>的子元素）在web.xml中显式配置这些筛选器。
 
 
 [[appendix-faq-method-security-in-web-context]]
-==== I have added Spring Security's <global-method-security> element to my application context but if I add security annotations to my Spring MVC controller beans (Struts actions etc.) then they don't seem to have an effect.
+==== 我已经将Spring Security的<global-method-security>元素添加到我的应用程序上下文中，但是如果将安全注释添加到我的Spring MVC控制器bean（Struts操作等）中，那么它们似乎没有效果。
 
-In a Spring web application, the application context which holds the Spring MVC beans for the dispatcher servlet is often separate from the main application context.
-It is often defined in a file called `myapp-servlet.xml`, where "myapp" is the name assigned to the Spring `DispatcherServlet` in `web.xml`. An application can have multiple ``DispatcherServlet``s, each with its own isolated application context.
-The beans in these "child" contexts are not visible to the rest of the application.
-The"parent" application context is loaded by the `ContextLoaderListener` you define in your `web.xml` and is visible to all the child contexts.
-This parent context is usually where you define your security configuration, including the `<global-method-security>` element). As a result any security constraints applied to methods in these web beans will not be enforced, since the beans cannot be seen from the `DispatcherServlet` context.
-You need to either move the `<global-method-security>` declaration to the web context or moved the beans you want secured into the main application context.
+在Spring Web应用程序中，保存调度程序servlet的Spring MVC bean的应用程序上下文通常与主应用程序上下文分离。
+它通常在名为`myapp-servlet.xml`的文件中定义，其中"myapp"是分配给`web.xml`中的Spring `DispatcherServlet`的名称。应用程序可以有多个``DispatcherServlet``，每个都有其独立的应用程序上下文。
+这些"child"上下文中的bean对应用程序的其余部分不可见。
+"parent"应用程序上下文由您在`web.xml`中定义的`ContextLoaderListener`加载，并且对所有子上下文均可见。
+此父上下文通常是您定义安全配置的位置，包括`<global-method-security>`元素）。因此，应用于这些Web Bean中的方法的安全约束将不会被强制执行，因为无法从`DispatcherServlet`上下文中查看bean。
+您需要将`<global-method-security>`声明移至Web上下文，或将需要保护的bean移至主应用程序上下文中。
 
-Generally we would recommend applying method security at the service layer rather than on individual web controllers.
+通常我们会建议在服务层而不是单独的网络控制器上应用方法安全性。
 
 
 [[appendix-faq-no-filters-no-context]]
-==== I have a user who has definitely been authenticated, but when I try to access the SecurityContextHolder during some requests, the Authentication is null.
-Why can't I see the user information?
+==== 我有一个肯定已经过身份验证的用户，但是当我在某些请求期间尝试访问SecurityContextHolder时，身份验证为空。
+为什么我看不到用户信息？
 
-If you have excluded the request from the security filter chain using the attribute `filters='none'` in the `<intercept-url>` element that matches the URL pattern, then the `SecurityContextHolder` will not be populated for that request.
-Check the debug log to see whether the request is passing through the filter chain.
-(You are reading the debug log, right?).
+如果您已使用与URL模式匹配的`<intercept-url>`元素中的属性`filters='none'`排除安全筛选器链中的请求，则不会为该请求填充`SecurityContextHolder`。
+检查调试日志以查看请求是否通过过滤器链。
+（您正在阅读调试日志，对吗？）。
 
 [[appendix-faq-method-security-with-taglib]]
-==== The authorize JSP Tag doesn't respect my method security annotations when using the URL attribute.
+==== 当使用URL属性时，授权JSP标记不尊重我的方法安全注释。
 
-Method security will not hide links when using the `url` attribute in `<sec:authorize>` because we cannot readily reverse engineer what URL is mapped to what controller endpoint as controllers can rely on headers, current user, etc to determine what method to invoke.
+在使用`<sec:authorize>`中的`url`属性时，方法安全性不会隐藏链接，因为我们无法容易地反向设计将URL映射到哪个控制器端点，因为控制器可以依靠标题，当前用户等来确定哪种方法调用。
 
 [[appendix-faq-architecture]]
-=== Spring Security Architecture Questions
+===  Spring安全体系结构问题
 
 . <<appendix-faq-where-is-class-x>>
 . <<appendix-faq-namespace-to-bean-mapping>>
@@ -339,55 +339,55 @@ Method security will not hide links when using the `url` attribute in `<sec:auth
 
 
 [[appendix-faq-where-is-class-x]]
-==== How do I know which package class X is in?
+==== 我如何知道X类包含在哪个包中？
 
-The best way of locating classes is by installing the Spring Security source in your IDE. The distribution includes source jars for each of the modules the project is divided up into.
-Add these to your project source path and you can navigate directly to Spring Security classes (`Ctrl-Shift-T` in Eclipse). This also makes debugging easier and allows you to troubleshoot exceptions by looking directly at the code where they occur to see what's going on there.
+定位类的最好方法是在IDE中安装Spring Security源代码。该分配包括项目分成的每个模块的源罐。
+将这些添加到您的项目源路径中，您可以直接导航到Spring Security类（Eclipse中的`Ctrl-Shift-T`）。这也使得调试变得更加容易，并允许您通过直接查看代码出现的位置来查看异常情况，从而排除异常。
 
 
 [[appendix-faq-namespace-to-bean-mapping]]
-==== How do the namespace elements map to conventional bean configurations?
+==== 命名空间元素如何映射到传统的bean配置？
 
-There is a general overview of what beans are created by the namespace in the namespace appendix of the reference guide.
-There is also a detailed blog article called "Behind the Spring Security Namespace" on http://blog.springsource.com/2010/03/06/behind-the-spring-security-namespace/[blog.springsource.com]. If want to know the full details then the code is in the `spring-security-config` module within the Spring Security 3.0 distribution.
-You should probably read the chapters on namespace parsing in the standard Spring Framework reference documentation first.
+在参考指南的附录名称空间中，通过名称空间创建了哪些bean的概述。
+在 http://blog.springsource.com/2010/03/06/behind-the-spring-security-namespace/[blog.springsource.com]上还有一篇名为"Behind the Spring Security Namespace"的详细博客文章。如果想知道全部细节，那么代码位于Spring Security 3.0发行版的`spring-security-config`模块中。
+您应该首先阅读标准Spring Framework参考文档中名称空间解析的章节。
 
 
 [[appendix-faq-role-prefix]]
-==== What does "ROLE_" mean and why do I need it on my role names?
+====  "ROLE_"的含义是什么以及为什么我需要在我的角色名称上使用它？
 
-Spring Security has a voter-based architecture which means that an access decision is made by a series of ``AccessDecisionVoter``s.
-The voters act on the "configuration attributes" which are specified for a secured resource (such as a method invocation). With this approach, not all attributes may be relevant to all voters and a voter needs to know when it should ignore an attribute (abstain) and when it should vote to grant or deny access based on the attribute value.
-The most common voter is the `RoleVoter` which by default votes whenever it finds an attribute with the "ROLE_" prefix.
-It makes a simple comparison of the attribute (such as "ROLE_USER") with the names of the authorities which the current user has been assigned.
-If it finds a match (they have an authority called "ROLE_USER"), it votes to grant access, otherwise it votes to deny access.
+Spring Security具有基于选民的架构，这意味着访问决策由一系列``AccessDecisionVoter``组成。
+选民在为受保护资源指定的"configuration attributes"上执行操作（例如方法调用）。采用这种方法，并不是所有的属性都可能与所有选民有关，而且选民需要知道什么时候应该忽略某个属性（弃权），以及何时应该投票授予或拒绝基于属性值的访问。
+最常用的投票人是`RoleVoter`，默认情况下每当它找到带有"ROLE_"前缀的属性时就会投票。
+它将该属性（如"ROLE_USER"）与当前用户分配的权限名称进行简单比较。
+如果它发现匹配（他们有一个称为"ROLE_USER"的权限），它会投票授予访问权限，否则它会投票拒绝访问权限。
 
-The prefix can be changed by setting the `rolePrefix` property of `RoleVoter`. If you only need to use roles in your application and have no need for other custom voters, then you can set the prefix to a blank string, in which case the `RoleVoter` will treat all attributes as roles.
+可以通过设置`RoleVoter`的{​​{0}}属性来更改前缀。如果您只需要在应用程序中使用角色并且不需要其他自定义选民，则可以将前缀设置为空白字符串，在这种情况下`RoleVoter`将所有属性视为角色。
 
 
 [[appendix-faq-what-dependencies]]
-==== How do I know which dependencies to add to my application to work with Spring Security?
+==== 我如何知道添加到我的应用程序中以使用Spring Security的依赖关系？
 
-It will depend on what features you are using and what type of application you are developing.
-With Spring Security 3.0, the project jars are divided into clearly distinct areas of functionality, so it is straightforward to work out which Spring Security jars you need from your application requirements.
-All applications will need the `spring-security-core` jar.
-If you're developing a web application, you need the `spring-security-web` jar.
-If you're using security namespace configuration you need the `spring-security-config` jar, for LDAP support you need the `spring-security-ldap` jar and so on.
+这取决于您正在使用的功能以及您开发的应用程序类型。
+使用Spring Security 3.0，项目罐被划分为明显不同的功能区域，因此，根据应用程序需求计算出您需要的Spring Security罐是非常简单的。
+所有应用程序都需要`spring-security-core` jar。
+如果您正在开发Web应用程序，则需要`spring-security-web` jar。
+如果您使用安全名称空间配置，则需要`spring-security-config` jar，为了支持LDAP，您需要`spring-security-ldap` jar等。
 
-For third-party jars the situation isn't always quite so obvious.
-A good starting point is to copy those from one of the pre-built sample applications WEB-INF/lib directories.
-For a basic application, you can start with the tutorial sample.
-If you want to use LDAP, with an embedded test server, then use the LDAP sample as a starting point.
-The reference manual also includeshttp://static.springsource.org/spring-security/site/docs/3.1.x/reference/springsecurity-single.html#appendix-dependencies[an appendix] listing the first-level dependencies for each Spring Security module with some information on whether they are optional and what they are required for.
+对于第三方罐子来说，情况并不总是那么明显。
+一个好的起点是从预构建的示例应用程序WEB-INF / lib目录中复制这些应用程序。
+对于基本应用程序，您可以从教程示例开始。
+如果您想使用LDAP和嵌入式测试服务器，那么请使用LDAP示例作为起点。
+参考手册还包括 http://static.springsource.org/spring-security/site/docs/3.1.x/reference/springsecurity-single.html#appendix-dependencies[一个附录]列出了每个Spring Security模块的第一级依赖关系，并提供了一些关于它们是否可选以及它们需要什么的信息。
 
-If you are building your project with maven, then adding the appropriate Spring Security modules as dependencies to your pom.xml will automatically pull in the core jars that the framework requires.
-Any which are marked as "optional" in the Spring Security POM files will have to be added to your own pom.xml file if you need them.
+如果您使用maven构建项目，那么将适当的Spring Security模块作为依赖关系添加到您的pom.xml中会自动引入该框架所需的核心jar。
+在Spring Security POM文件中任何标记为"optional"的文件都必须添加到您自己的pom.xml文件中（如果需要的话）。
 
 
 [[appendix-faq-apacheds-deps]]
-==== What dependencies are needed to run an embedded ApacheDS LDAP server?
+==== 运行嵌入式ApacheDS LDAP服务器需要哪些依赖关系？
 
-If you are using Maven, you need to add the folowing to your pom dependencies:
+如果您使用的是Maven，则需要将以下内容添加到您的pom依赖项中：
 
 [source]
 ----
@@ -407,22 +407,22 @@ If you are using Maven, you need to add the folowing to your pom dependencies:
 
 ----
 
-The other required jars should be pulled in transitively.
+其他需要的罐子应该被过渡拉动。
 
 [[appendix-faq-what-is-userdetailservice]]
-==== What is a UserDetailsService and do I need one?
+==== 什么是UserDetailsS​​ervice，我需要一个吗？
 
-`UserDetailsService` is a DAO interface for loading data that is specific to a user account.
-It has no other function other to load that data for use by other components within the framework.
-It is not responsible for authenticating the user.
-Authenticating a user with a username/password combination is most commonly performed by the `DaoAuthenticationProvider`, which is injected with a `UserDetailsService` to allow it to load the password (and other data) for a user in order to compare it with the submitted value.
-Note that if you are using LDAP, <<appendix-faq-ldap-authentication,this approach may not work>>.
+`UserDetailsService`是用于加载特定于用户帐户的数据的DAO界面。
+它没有其他功能来加载该数据以供框架中的其他组件使用。
+它不负责认证用户。
+使用用户名/密码组合对用户进行身份验证通常由`DaoAuthenticationProvider`执行，该用`UserDetailsService`注入以允许其为用户加载密码（和其他数据）以便比较它与提交的价值。
+请注意，如果您使用的是LDAP，则<<appendix-faq-ldap-authentication,this approach may not work>>。
 
-If you want to customize the authentication process then you should implement `AuthenticationProvider` yourself.
-See this http://blog.springsource.com/2010/08/02/spring-security-in-google-app-engine/[ blog article] for an example integrating Spring Security authentication with Google App Engine.
+如果你想自定义认证过程，那么你应该自己实现`AuthenticationProvider`。
+有关将Spring Security身份验证与Google App Engine集成的示例，请参阅 http://blog.springsource.com/2010/08/02/spring-security-in-google-app-engine/[ 博客文章]。
 
 [[appendix-faq-howto]]
-=== Common "Howto" Requests
+=== 常见"Howto"请求
 
 . <<appendix-faq-extra-login-fields>>
 . <<appendix-faq-matching-url-fragments>>
@@ -435,68 +435,68 @@ See this http://blog.springsource.com/2010/08/02/spring-security-in-google-app-e
 
 
 [[appendix-faq-extra-login-fields]]
-==== I need to login in with more information than just the username.
-How do I add support for extra login fields (e.g.
-a company name)?
+==== 我需要使用更多信息登录，而不仅仅是用户名。
+如何添加对额外登录字段的支持（例如
+一个公司名称）？
 
-This question comes up repeatedly in the Spring Security forum so you                           will find more information there by searching the archives (or through google).
+这个问题在Spring Security论坛上反复提到，所以你可以通过搜索档案（或通过谷歌）找到更多的信息。
 
-The submitted login information is processed by an instance of `UsernamePasswordAuthenticationFilter`. You will need to customize this class to handle the extra data field(s). One option is to use your own customized authentication token class (rather than the standard `UsernamePasswordAuthenticationToken`), another is simply to concatenate the extra fields with the username (for example, using a ":" as the separator) and pass them in the username property of `UsernamePasswordAuthenticationToken`.
+提交的登录信息由`UsernamePasswordAuthenticationFilter`的实例处理。您将需要定制此类来处理额外的数据字段。一种选择是使用自己的自定义身份验证令牌类（而不是标准`UsernamePasswordAuthenticationToken`），另一种方法是将额外字段与用户名连接起来（例如，使用":"作为分隔符）和将它们传递给`UsernamePasswordAuthenticationToken`的用户名属性。
 
-You will also need to customize the actual authentication process.
-If you are using a custom authentication token class, for example, you will have to write an `AuthenticationProvider` to handle it (or extend the standard `DaoAuthenticationProvider`). If you have concatenated the fields, you can implement your own `UserDetailsService` which splits them up and loads the appropriate user data for authentication.
+您还需要自定义实际的身份验证过程。
+例如，如果您使用自定义身份验证令牌类，则必须编写`AuthenticationProvider`来处理它（或者扩展标准`DaoAuthenticationProvider`）。如果您已连接字段，则可以实施自己的`UserDetailsService`，将其拆分并加载适当的用户数据以进行身份​​验证。
 
 [[appendix-faq-matching-url-fragments]]
-==== How do I apply different intercept-url constraints where only the fragment value of the requested URLs differs (e.g./foo#bar and /foo#blah?
+==== 如果只有请求的URL的片段值不同（如/foo#bar和/ foo＃blah？），我该如何应用不同的截取url约束？
 
-You can't do this, since the fragment is not transmitted from the browser to the server.
-The URLs above are identical from the server's perspective.
-This is a common question from GWT users.
+你不能这样做，因为片段不是从浏览器传输到服务器。
+上面的URL与服务器的角度相同。
+这是GWT用户常见的问题。
 
 [[appendix-faq-request-details-in-user-service]]
-==== How do I access the user's IP Address (or other web-request data) in a UserDetailsService?
+==== 如何在UserDetailsS​​ervice中访问用户的IP地址（或其他Web请求数据）？
 
-Obviously you can't (without resorting to something like thread-local variables) since the only information supplied to the interface is the username.
-Instead of implementing `UserDetailsService`, you should implement `AuthenticationProvider` directly and extract the information from the supplied `Authentication` token.
+显然，你不能（不诉诸于线程局部变量之类的东西），因为提供给接口的唯一信息就是用户名。
+您应该直接实施`AuthenticationProvider`并从提供的`Authentication`令牌中提取信息，而不是实施`UserDetailsService`。
 
-In a standard web setup, the `getDetails()` method on the `Authentication` object will return an instance of `WebAuthenticationDetails`. If you need additional information, you can inject a custom `AuthenticationDetailsSource` into the authentication filter you are using.
-If you are using the namespace, for example with the `<form-login>` element, then you should remove this element and replace it with a `<custom-filter>` declaration pointing to an explicitly configured `UsernamePasswordAuthenticationFilter`.
+在标准网络设置中，`Authentication`对象上的`getDetails()`方法将返回`WebAuthenticationDetails`的实例。如果您需要更多信息，您可以在您使用的认证过滤器中注入一个自定义`AuthenticationDetailsSource`。
+如果您正在使用名称空间，例如使用`<form-login>`元素，则应删除此元素并用指向明确配置的`UsernamePasswordAuthenticationFilter`的`<custom-filter>`声明替换它。
 
 
 [[appendix-faq-access-session-from-user-service]]
-==== How do I access the HttpSession from a UserDetailsService?
+==== 如何从UserDetailsS​​ervice访问HttpSession？
 
-You can't, since the `UserDetailsService` has no awareness of the servlet API. If you want to store custom user data, then you should customize the `UserDetails` object which is returned.
-This can then be accessed at any point, via the thread-local `SecurityContextHolder`. A call to `SecurityContextHolder.getContext().getAuthentication().getPrincipal()` will return this custom object.
+你不能，因为`UserDetailsService`不知道servlet API。如果要存储自定义用户数据，则应该自定义返回的`UserDetails`对象。
+然后可以通过线程本地`SecurityContextHolder`在任何时候访问它。对`SecurityContextHolder.getContext().getAuthentication().getPrincipal()`的调用将返回此自定义对象。
 
-If you really need to access the session, then it must be done by customizing the web tier.
+如果您确实需要访问会话，那么必须通过自定义Web层来完成。
 
 
 [[appendix-faq-password-in-user-service]]
-==== How do I access the user's password in a UserDetailsService?
+==== 如何在UserDetailsS​​ervice中访问用户的密码？
 
-You can't (and shouldn't). You are probably misunderstanding its purpose.
-See "<<appendix-faq-what-is-userdetailservice,What is a UserDetailsService?>>" above.
+你不能（也不应该）。你可能误解了它的目的。
+请参阅上面的"<<appendix-faq-what-is-userdetailservice,What is a UserDetailsService?>>"。
 
 
 [[appendix-faq-dynamic-url-metadata]]
-==== How do I define the secured URLs within an application dynamically?
+==== 如何动态定义应用程序中的安全URL？
 
-People often ask about how to store the mapping between secured URLs and security metadata attributes in a database, rather than in the application context.
+人们经常询问如何将安全URL和安全元数据属性之间的映射存储在数据库中，而不是在应用程序上下文中。
 
-The first thing you should ask yourself is if you really need to do this.
-If an application requires securing, then it also requires that the security be tested thoroughly based on a defined policy.
-It may require auditing and acceptance testing before being rolled out into a production environment.
-A security-conscious organization should be aware that the benefits of their diligent testing process could be wiped out instantly by allowing the security settings to be modified at runtime by changing a row or two in a configuration database.
-If you have taken this into account (perhaps using multiple layers of security within your application) then Spring Security allows you to fully customize the source of security metadata.
-You can make it fully dynamic if you choose.
+你应该问自己的第一件事是如果你真的需要这样做。
+如果应用程序需要安全保护，则还需要根据定义的策略彻底测试安全性。
+在推向生产环境之前，可能需要进行审计和验收测试。
+有安全意识的组织应该意识到，通过在运行时修改安全设置，可以通过更改配置数据库中的一行或两行来立即清除其勤奋测试过程的好处。
+如果您已经考虑到了这一点（可能在您的应用程序中使用多层安全性），那么Spring Security允​​许您完全自定义安全元数据的来源。
+如果您选择，您可以使其完全动态。
 
-Both method and web security are protected by subclasses of `AbstractSecurityInterceptor` which is configured with a `SecurityMetadataSource` from which it obtains the metadata for a particular method or filter invocation.
-For web security, the interceptor class is `FilterSecurityInterceptor` and it uses the marker interface `FilterInvocationSecurityMetadataSource`. The "secured object" type it operates on is a `FilterInvocation`. The default implementation which is used (both in the namespace `<http>` and when configuring the interceptor explicitly, stores the list of URL patterns and their corresponding list of "configuration attributes" (instances of `ConfigAttribute`) in an in-memory map.
+方法和Web安全都由`AbstractSecurityInterceptor`的子类保护，该`AbstractSecurityInterceptor`的子类使用`SecurityMetadataSource`进行配置，从中获取特定方法或过滤器调用的元数据。
+为了Web安全性，拦截器类是`FilterSecurityInterceptor`，它使用标记接口`FilterInvocationSecurityMetadataSource`。它操作的"secured object"类型是`FilterInvocation`。使用默认实现（在命名空间`<http>`和显式配置拦截器时，将URL模式列表及其对应的"configuration attributes"列表（`ConfigAttribute`实例）存储在一个内存中的地图。
 
-To load the data from an alternative source, you must be using an explicitly declared security filter chain (typically Spring Security's `FilterChainProxy`) in order to customize the `FilterSecurityInterceptor` bean.
-You can't use the namespace.
-You would then implement `FilterInvocationSecurityMetadataSource` to load the data as you please for a particular `FilterInvocation` footnote:[The `FilterInvocation` object contains the `HttpServletRequest`, so you can obtain the URL or any other relevant information on which to base your decision on what the list of returned attributes will contain.]. A very basic outline would look something like this:
+要从其他来源加载数据，您必须使用明确声明的安全过滤器链（通常为Spring Security的`FilterChainProxy`）来自定义`FilterSecurityInterceptor` Bean。
+你不能使用命名空间。
+然后，您会针对特定的`FilterInvocation`脚注实施`FilterInvocationSecurityMetadataSource`以便根据需要加载数据：[{2}}对象包含`HttpServletRequest`，因此您可以获取URL或任何其他相关信息，以此为基础确定返回属性列表包含的内容。]。一个非常基本的大纲看起来像这样：
 
 [source,java]
 ----
@@ -526,16 +526,16 @@ You would then implement `FilterInvocationSecurityMetadataSource` to load the da
 
 ----
 
-For more information, look at the code for `DefaultFilterInvocationSecurityMetadataSource`.
+有关更多信息，请查看`DefaultFilterInvocationSecurityMetadataSource`的代码。
 
 
 [[appendix-faq-ldap-authorities]]
-==== How do I authenticate against LDAP but load user roles from a database?
+==== 我如何针对LDAP进行身份验证，但从数据库加载用户角色？
 
-The `LdapAuthenticationProvider` bean (which handles normal LDAP authentication in Spring Security) is configured with two separate strategy interfaces, one which performs the authentication and one which loads the user authorities, called `LdapAuthenticator` and `LdapAuthoritiesPopulator` respectively.
-The `DefaultLdapAuthoritiesPopulator` loads the user authorities from the LDAP directory and has various configuration parameters to allow you to specify how these should be retrieved.
+`LdapAuthenticationProvider`（在Spring Security中处理普通LDAP认证）配置有两个独立的策略接口，一个执行认证，一个加载用户权限，称为`LdapAuthenticator`和`LdapAuthoritiesPopulator`分别。
+`DefaultLdapAuthoritiesPopulator`从LDAP目录加载用户权限，并具有各种配置参数，以允许您指定应如何检索这些参数。
 
-To use JDBC instead, you can implement the interface yourself, using whatever SQL is appropriate for your schema:
+要改用JDBC，你可以使用任何适合你的模式的SQL来自己实现接口：
 
 [source,java]
 ----
@@ -561,21 +561,21 @@ To use JDBC instead, you can implement the interface yourself, using whatever SQ
 
 ----
 
-You would then add a bean of this type to your application context and inject it into the `LdapAuthenticationProvider`. This is covered in the section on configuring LDAP using explicit Spring beans in the LDAP chapter of the reference manual.
-Note that you can't use the namespace for configuration in this case.
-You should also consult the Javadoc for the relevant classes and interfaces.
+然后，您可以将这种类型的bean添加到您的应用程序上下文中，并将其注入到`LdapAuthenticationProvider`中。这在参考手册的LDAP章节中有关使用显式Spring bean配置LDAP的章节中有所介绍。
+请注意，在这种情况下，您不能使用命名空间进行配置。
+您还应该咨询Javadoc以获取相关的类和接口。
 
 
 [[appendix-faq-namespace-post-processor]]
-==== I want to modify the property of a bean that is created by the namespace, but there is nothing in the schema to support it.
-What can I do short of abandoning namespace use?
+==== 我想修改由名称空间创建的bean的属性，但架构中没有任何内容支持它。
+我能做些什么来放弃命名空间的使用？
 
-The namespace functionality is intentionally limited, so it doesn't cover everything that you can do with plain beans.
-If you want to do something simple, like modify a bean, or inject a different dependency, you can do this by adding a `BeanPostProcessor` to your configuration.
-More information can be found in the http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/htmlsingle/spring-framework-reference.html#beans-factory-extension-bpp[Spring Reference Manual]. In order to do this, you need to know a bit about which beans are created, so you should also read the blog article in the above question on <<appendix-faq-namespace-to-bean-mapping,how the namespace maps to Spring beans>>.
+命名空间的功能是有意限制的，所以它不能涵盖你用普通的bean所能做的所有事情。
+如果你想做一些简单的事情，比如修改一个bean，或者注入一个不同的依赖项，你可以通过向你的配置添加一个`BeanPostProcessor`来实现。
+更多信息可以在 http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/htmlsingle/spring-framework-reference.html#beans-factory-extension-bpp[Spring参考手册]中找到。为了做到这一点，您需要了解一些有关创建哪些bean的信息，所以您还应该阅读关于<<appendix-faq-namespace-to-bean-mapping,how the namespace maps to Spring beans>>的上述问题中的博客文章。
 
-Normally, you would add the functionality you require to the `postProcessBeforeInitialization` method of `BeanPostProcessor`. Let's say that you want to customize the `AuthenticationDetailsSource` used by the `UsernamePasswordAuthenticationFilter`, (created by the `form-login` element). You want to extract a particular header called `CUSTOM_HEADER` from the request and make use of it while authenticating the user.
-The processor class would look like this:
+通常，您可以将所需的功能添加到`BeanPostProcessor`的{​​{0}}方法。假设您要自定义`UsernamePasswordAuthenticationFilter`（由`form-login`元素创建）所使用的`AuthenticationDetailsSource`。您希望从请求中提取名为`CUSTOM_HEADER`的特定标头，并在验证用户时使用它。
+处理器类看起来像这样：
 
 [source,java]
 ----
@@ -602,5 +602,5 @@ public class BeanPostProcessor implements BeanPostProcessor {
 
 ----
 
-You would then register this bean in your application context.
-Spring will automatically invoke it on the beans defined in the application context.
+然后您将在您的应用程序上下文中注册这个bean。
+Spring将自动在应用程序上下文中定义的bean上调用它。

@@ -1,24 +1,24 @@
 
 
 [[remember-me]]
-== Remember-Me Authentication
+== 记住我的身份验证
 
 
 [[remember-me-overview]]
-=== Overview
-Remember-me or persistent-login authentication refers to web sites being able to remember the identity of a principal between sessions.
-This is typically accomplished by sending a cookie to the browser, with the cookie being detected during future sessions and causing automated login to take place.
-Spring Security provides the necessary hooks for these operations to take place, and has two concrete remember-me implementations.
-One uses hashing to preserve the security of cookie-based tokens and the other uses a database or other persistent storage mechanism to store the generated tokens.
+=== 概述
+记住我或永久登录身份验证是指网站能够记住会话之间的主体身份。
+这通常通过向浏览器发送cookie来完成，在将来的会话中检测到cookie并导致自动登录。
+Spring Security为这些操作提供了必要的钩子，并且有两个具体的记住我的实现。
+一个使用散列来保存基于cookie的令牌的安全性，另一个使用数据库或其他持久存储机制来存储生成的令牌。
 
-Note that both implementations require a `UserDetailsService`.
-If you are using an authentication provider which doesn't use a `UserDetailsService` (for example, the LDAP provider) then it won't work unless you also have a `UserDetailsService` bean in your application context.
+请注意，这两种实现都需要`UserDetailsService`。
+如果您使用不使用`UserDetailsService`的身份验证提供程序（例如，LDAP提供程序），那么它将不起作用，除非您的应用程序上下文中还有一个`UserDetailsService` bean。
 
 
 [[remember-me-hash-token]]
-=== Simple Hash-Based Token Approach
-This approach uses hashing to achieve a useful remember-me strategy.
-In essence a cookie is sent to the browser upon successful interactive authentication, with the cookie being composed as follows:
+=== 简单的基于哈希的令牌方法
+这种方法使用散列来实现有用的记忆我策略。
+本质上，cookie在成功交互式验证后发送到浏览器，cookie的组成如下：
 
 [source,txt]
 ----
@@ -31,14 +31,14 @@ expirationTime:    The date and time when the remember-me token expires, express
 key:               A private key to prevent modification of the remember-me token
 ----
 
-As such the remember-me token is valid only for the period specified, and provided that the username, password and key does not change.
-Notably, this has a potential security issue in that a captured remember-me token will be usable from any user agent until such time as the token expires.
-This is the same issue as with digest authentication.
-If a principal is aware a token has been captured, they can easily change their password and immediately invalidate all remember-me tokens on issue.
-If more significant security is needed you should use the approach described in the next section.
-Alternatively remember-me services should simply not be used at all.
+因此，记住我记号仅在指定的时间段内有效，并且前提是用户名，密码和密钥不会更改。
+值得注意的是，这存在潜在的安全问题，因为捕获的记忆我令牌将可用于任何用户代理直到令牌过期。
+这与摘要式身份验证相同。
+如果委托人知道令牌已被捕获，他们可以轻松更改其密码，并立即使有问题的所有令牌令牌失效。
+如果需要更重要的安全性，则应使用下一节中介绍的方法。
+或者，记住我服务应该根本不用。
 
-If you are familiar with the topics discussed in the chapter on <<ns-config,namespace configuration>>, you can enable remember-me authentication just by adding the `<remember-me>` element:
+如果您熟悉<<ns-config,namespace configuration>>一章中讨论的主题，则只需添加`<remember-me>`元素即可启用记事本身份验证：
 
 [source,xml]
 ----
@@ -48,14 +48,14 @@ If you are familiar with the topics discussed in the chapter on <<ns-config,name
 </http>
 ----
 
-The `UserDetailsService` will normally be selected automatically.
-If you have more than one in your application context, you need to specify which one should be used with the `user-service-ref` attribute, where the value is the name of your `UserDetailsService` bean.
+通常会自动选择`UserDetailsService`。
+如果您的应用程序环境中有多个应用程序，则需要指定哪一个应与`user-service-ref`属性一起使用，其中值是您的`UserDetailsService` bean的名称。
 
 [[remember-me-persistent-token]]
-=== Persistent Token Approach
-This approach is based on the article http://jaspan.com/improved_persistent_login_cookie_best_practice[http://jaspan.com/improved_persistent_login_cookie_best_practice] with some minor modifications  footnote:[Essentially, the username is not included in the cookie, to prevent exposing a valid login name unecessarily.
-There is a discussion on this in the comments section of this article.].
-To use the this approach with namespace configuration, you would supply a datasource reference:
+=== 持久令牌方法
+此方法基于文章 http://jaspan.com/improved_persistent_login_cookie_best_practice[http://jaspan.com/improved_persistent_login_cookie_best_practice]进行了一些小修改脚注：[基本上，用户名不包含在cookie中，以防止不必要地公开有效的登录名。
+本文的评论部分对此进行了讨论。]。
+要在命名空间配置中使用这种方法，您需要提供一个数据源参考：
 
 [source,xml]
 ----
@@ -65,7 +65,7 @@ To use the this approach with namespace configuration, you would supply a dataso
 </http>
 ----
 
-The database should contain a `persistent_logins` table, created using the following SQL (or equivalent):
+数据库应该包含使用以下SQL（或等价物）创建的`persistent_logins`表：
 
 [source,ddl]
 ----
@@ -76,11 +76,11 @@ create table persistent_logins (username varchar(64) not null,
 ----
 
 [[remember-me-impls]]
-=== Remember-Me Interfaces and Implementations
-Remember-me is used with `UsernamePasswordAuthenticationFilter`, and is implemented via hooks in the `AbstractAuthenticationProcessingFilter` superclass.
-It is also used within `BasicAuthenticationFilter`.
-The hooks will invoke a concrete `RememberMeServices` at the appropriate times.
-The interface looks like this:
+=== 记住我的接口和实现
+Remember-me与`UsernamePasswordAuthenticationFilter`一起使用，并通过`AbstractAuthenticationProcessingFilter`超类中的钩子实现。
+它也用于`BasicAuthenticationFilter`。
+挂钩将在适当的时候调用具体的`RememberMeServices`。
+界面如下所示：
 
 [source,java]
 ----
@@ -92,22 +92,22 @@ void loginSuccess(HttpServletRequest request, HttpServletResponse response,
 	Authentication successfulAuthentication);
 ----
 
-Please refer to the Javadoc for a fuller discussion on what the methods do, although note at this stage that `AbstractAuthenticationProcessingFilter` only calls the `loginFail()` and `loginSuccess()` methods.
-The `autoLogin()` method is called by `RememberMeAuthenticationFilter` whenever the `SecurityContextHolder` does not contain an `Authentication`.
-This interface therefore provides the underlying remember-me implementation with sufficient notification of authentication-related events, and delegates to the implementation whenever a candidate web request might contain a cookie and wish to be remembered.
-This design allows any number of remember-me implementation strategies.
-We've seen above that Spring Security provides two implementations.
-We'll look at these in turn.
+请参阅Javadoc，详细讨论这些方法的用途，但请注意，在此阶段`AbstractAuthenticationProcessingFilter`仅调用`loginFail()`和`loginSuccess()`方法。
+每当`SecurityContextHolder`不包含`Authentication`时，`autoLogin()`方法由`RememberMeAuthenticationFilter`调用。
+因此，该接口为潜在的记忆我实现提供了充分的与身份验证相关的事件通知，并在候选Web请求可能包含Cookie并希望被记住时委托实现。
+这种设计允许任何数量的记忆我实施策略。
+我们在上面看到Spring Security提供了两个实现。
+我们将依次查看这些内容。
 
-==== TokenBasedRememberMeServices
-This implementation supports the simpler approach described in <<remember-me-hash-token>>.
-`TokenBasedRememberMeServices` generates a `RememberMeAuthenticationToken`, which is processed by `RememberMeAuthenticationProvider`.
-A `key` is shared between this authentication provider and the `TokenBasedRememberMeServices`.
-In addition, `TokenBasedRememberMeServices` requires A UserDetailsService from which it can retrieve the username and password for signature comparison purposes, and generate the `RememberMeAuthenticationToken` to contain the correct `GrantedAuthority` s.
-Some sort of logout command should be provided by the application that invalidates the cookie if the user requests this.
-`TokenBasedRememberMeServices` also implements Spring Security's `LogoutHandler` interface so can be used with `LogoutFilter` to have the cookie cleared automatically.
+====  TokenBasedRememberMeServices
+此实现支持<<remember-me-hash-token>>中介绍的更简单的方法。
+`TokenBasedRememberMeServices`生成`RememberMeAuthenticationToken`，由`RememberMeAuthenticationProvider`处理。
+此身份验证提供程序与`TokenBasedRememberMeServices`共享一个`key`。
+另外，`TokenBasedRememberMeServices`需要一个UserDetailsS​​ervice，通过它可以检索用户名和密码以进行签名比较，并生成`RememberMeAuthenticationToken`以包含正确的`GrantedAuthority`。
+某些注销命令应由应用程序提供，如果用户请求该命令，则会使Cookie无效。
+`TokenBasedRememberMeServices`还实现了Spring Security的`LogoutHandler`界面，因此可以与`LogoutFilter`一起使用以自动清除cookie。
 
-The beans required in an application context to enable remember-me services are as follows:
+在应用程序上下文中启用Remember-me服务所需的bean如下所示：
 
 [source,xml]
 ----
@@ -129,14 +129,14 @@ The beans required in an application context to enable remember-me services are 
 </bean>
 ----
 
-Don't forget to add your `RememberMeServices` implementation to your `UsernamePasswordAuthenticationFilter.setRememberMeServices()` property, include the `RememberMeAuthenticationProvider` in your `AuthenticationManager.setProviders()` list, and add `RememberMeAuthenticationFilter` into your `FilterChainProxy` (typically immediately after your `UsernamePasswordAuthenticationFilter`).
+不要忘记将您的`RememberMeServices`实施添加到您的`UsernamePasswordAuthenticationFilter.setRememberMeServices()`属性，将`RememberMeAuthenticationProvider`添加到您的`AuthenticationManager.setProviders()`列表中，并将`RememberMeAuthenticationFilter`添加到您的{{5 }}（通常在你的`UsernamePasswordAuthenticationFilter`之后）。
 
 
-==== PersistentTokenBasedRememberMeServices
-This class can be used in the same way as `TokenBasedRememberMeServices`, but it additionally needs to be configured with a `PersistentTokenRepository` to store the tokens.
-There are two standard implementations.
+==== 对PersistentTokenBasedRememberMeServices
+此类可以与`TokenBasedRememberMeServices`相同的方式使用，但还需要使用`PersistentTokenRepository`配置以存储令牌。
+有两种标准实现。
 
-* `InMemoryTokenRepositoryImpl` which is intended for testing only.
-* `JdbcTokenRepositoryImpl` which stores the tokens in a database.
+仅用于测试的*  `InMemoryTokenRepositoryImpl`。
+*  `JdbcTokenRepositoryImpl`将令牌存储在数据库中。
 
-The database schema is described above in <<remember-me-persistent-token>>.
+数据库模式在<<remember-me-persistent-token>>中进行了描述。

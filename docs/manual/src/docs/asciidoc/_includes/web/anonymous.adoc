@@ -1,36 +1,36 @@
 
 [[anonymous]]
-== Anonymous Authentication
+== 匿名身份验证
 
 
 [[anonymous-overview]]
-=== Overview
-It's generally considered good security practice to adopt a "deny-by-default" where you explicitly specify what is allowed and disallow everything else.
-Defining what is accessible to unauthenticated users is a similar situation, particularly for web applications.
-Many sites require that users must be authenticated for anything other than a few URLs (for example the home and login pages).
-In this case it is easiest to define access configuration attributes for these specific URLs rather than have for every secured resource.
-Put differently, sometimes it is nice to say `ROLE_SOMETHING` is required by default and only allow certain exceptions to this rule, such as for login, logout and home pages of an application.
-You could also omit these pages from the filter chain entirely, thus bypassing the access control checks, but this may be undesirable for other reasons, particularly if the pages behave differently for authenticated users.
+=== 概述
+通常认为采用"deny-by-default"的安全做法非常好，您可以在其中明确指定允许的内容并拒绝其他所有内容。
+定义未经身份验证的用户可访问的内容也是类似的情况，特别是对于Web应用程序。
+许多网站要求用户必须通过除少数网址以外的其他任何验证（例如，家庭和登录页面）。
+在这种情况下，为这些特定的URL定义访问配置属性是最容易的，而不是针对每个安全资源。
+换句话说，有时很高兴地说默认情况下`ROLE_SOMETHING`是必需的，并且只允许某些例外情况，例如登录，注销和应用程序的主页。
+您也可以完全忽略过滤器链中的这些页面，从而绕过访问控制检查，但这可能因其他原因而不受欢迎，特别是如果页面对经过身份验证的用户的行为不同。
 
-This is what we mean by anonymous authentication.
-Note that there is no real conceptual difference between a user who is "anonymously authenticated" and an unauthenticated user.
-Spring Security's anonymous authentication just gives you a more convenient way to configure your access-control attributes.
-Calls to servlet API calls such as `getCallerPrincipal`, for example, will still return null even though there is actually an anonymous authentication object in the `SecurityContextHolder`.
+这就是我们所说的匿名认证。
+请注意，"anonymously authenticated"的用户与未经身份验证的用户之间没有真正的概念区别。
+Spring Security的匿名身份验证只是为您提供一种更方便的配置访问控制属性的方式。
+例如，调用诸如`getCallerPrincipal`的servlet API调用，即使实际上存在`SecurityContextHolder`中的匿名认证对象，仍将返回null。
 
-There are other situations where anonymous authentication is useful, such as when an auditing interceptor queries the `SecurityContextHolder` to identify which principal was responsible for a given operation.
-Classes can be authored more robustly if they know the `SecurityContextHolder` always contains an `Authentication` object, and never `null`.
+在其他情况下，匿名身份验证很有用，例如审计拦截器查询`SecurityContextHolder`以确定哪个主体负责给定操作。
+如果他们知道`SecurityContextHolder`始终包含`Authentication`对象，并且从不`null`，则可以更强健地编写类。
 
 
 [[anonymous-config]]
-=== Configuration
-Anonymous authentication support is provided automatically when using the HTTP configuration Spring Security 3.0 and can be customized (or disabled) using the `<anonymous>` element.
-You don't need to configure the beans described here unless you are using traditional bean configuration.
+=== 配置
+当使用HTTP配置Spring Security 3.0时，会自动提供匿名认证支持，并且可以使用`<anonymous>`元素进行自定义（或禁用）。
+除非您使用传统的bean配置，否则不需要配置这里描述的bean。
 
-Three classes that together provide the anonymous authentication feature.
-`AnonymousAuthenticationToken` is an implementation of `Authentication`, and stores the `GrantedAuthority` s which apply to the anonymous principal.
-There is a corresponding `AnonymousAuthenticationProvider`, which is chained into the `ProviderManager` so that `AnonymousAuthenticationToken` s are accepted.
-Finally, there is an `AnonymousAuthenticationFilter`, which is chained after the normal authentication mechanisms and automatically adds an `AnonymousAuthenticationToken` to the `SecurityContextHolder` if there is no existing `Authentication` held there.
-The definition of the filter and authentication provider appears as follows:
+三个类共同提供匿名身份验证功能。
+`AnonymousAuthenticationToken`是`Authentication`的实现，并存储适用于匿名主体的`GrantedAuthority`。
+有一个对应的`AnonymousAuthenticationProvider`，链接到`ProviderManager`，以便接受`AnonymousAuthenticationToken`。
+最后，还有一个`AnonymousAuthenticationFilter`，它在普通身份验证机制之后被链接，并且如果没有现有的`Authentication`，则会自动向`SecurityContextHolder`添加`AnonymousAuthenticationToken`。
+筛选器和身份验证提供程序的定义如下所示：
 
 
 
@@ -51,18 +51,18 @@ The definition of the filter and authentication provider appears as follows:
 
 
 
-The `key` is shared between the filter and authentication provider, so that tokens created by the former are accepted by the latter footnote:[
-The use of the `key` property should not be regarded as providing any real security here.
-It is merely a book-keeping exercise.
-If you are sharing a `ProviderManager` which contains an `AnonymousAuthenticationProvider` in a scenario where it is possible for an authenticating client to construct the `Authentication` object (such as with RMI invocations), then a malicious client could submit an `AnonymousAuthenticationToken` which it had created itself (with chosen username and authority list).
-If the `key` is guessable or can be found out, then the token would be accepted by the anonymous provider.
-This isn't a problem with normal usage but if you are using RMI you would be best to use a customized `ProviderManager` which omits the anonymous provider rather than sharing the one you use for your HTTP authentication mechanisms.
+`key`在过滤器和身份验证提供程序之间共享，以便前者创建的令牌可以被后面的脚注接受：[{
+不应将`key`属性的使用视为提供任何实际安全性。
+这仅仅是一个记账练习。
+如果您在验证客户端可能构建`Authentication`对象（例如使用RMI调用）的情况下共享包含`AnonymousAuthenticationProvider`的{​​{0}}，则恶意客户端可以提交自己创建的`AnonymousAuthenticationToken`（使用所选的用户名和权限列表）。
+如果`key`是可猜测的或可以发现的，那么该令牌将被匿名提供者接受。
+这对正常使用来说并不是问题，但如果您使用RMI，则最好使用自定义`ProviderManager`，省略匿名提供程序，而不是共享您用于HTTP身份验证机制的那个。
 ].
-The `userAttribute` is expressed in the form of `usernameInTheAuthenticationToken,grantedAuthority[,grantedAuthority]`.
-This is the same syntax as used after the equals sign for the `userMap` property of `InMemoryDaoImpl`.
+`userAttribute`以`usernameInTheAuthenticationToken,grantedAuthority[,grantedAuthority]`的形式表示。
+这与在`InMemoryDaoImpl`的{​​{0}}属性的等号之后使用的语法相同。
 
-As explained earlier, the benefit of anonymous authentication is that all URI patterns can have security applied to them.
-For example:
+如前所述，匿名身份验证的好处是所有的URI模式都可以应用于它们。
+例如：
 
 
 
@@ -89,15 +89,15 @@ For example:
 
 
 [[anonymous-auth-trust-resolver]]
-=== AuthenticationTrustResolver
-Rounding out the anonymous authentication discussion is the `AuthenticationTrustResolver` interface, with its corresponding `AuthenticationTrustResolverImpl` implementation.
-This interface provides an `isAnonymous(Authentication)` method, which allows interested classes to take into account this special type of authentication status.
-The `ExceptionTranslationFilter` uses this interface in processing `AccessDeniedException` s.
-If an `AccessDeniedException` is thrown, and the authentication is of an anonymous type, instead of throwing a 403 (forbidden) response, the filter will instead commence the `AuthenticationEntryPoint` so the principal can authenticate properly.
-This is a necessary distinction, otherwise principals would always be deemed "authenticated" and never be given an opportunity to login via form, basic, digest or some other normal authentication mechanism.
+===  AuthenticationTrustResolver
+舍弃匿名身份验证讨论的是`AuthenticationTrustResolver`接口及其相应的`AuthenticationTrustResolverImpl`实现。
+该接口提供了`isAnonymous(Authentication)`方法，它允许感兴趣的类考虑这种特殊类型的身份验证状态。
+`ExceptionTranslationFilter`在处理`AccessDeniedException`时使用此接口。
+如果`AccessDeniedException`被抛出，并且身份验证是匿名类型，而不是抛出403（禁止）响应，则过滤器将改为开始`AuthenticationEntryPoint`，以便委托人可以正确进行身份验证。
+这是一个必要的区别，否则委托人将始终被视为"authenticated"，永远不会有机会通过表单，基本，摘要或其他正常的身份验证机制进行登录。
 
-You will often see the `ROLE_ANONYMOUS` attribute in the above interceptor configuration replaced with `IS_AUTHENTICATED_ANONYMOUSLY`, which is effectively the same thing when defining access controls.
-This is an example of the use of the `AuthenticatedVoter` which we will see in the <<authz-authenticated-voter,authorization chapter>>.
-It uses an `AuthenticationTrustResolver` to process this particular configuration attribute and grant access to anonymous users.
-The `AuthenticatedVoter` approach is more powerful, since it allows you to differentiate between anonymous, remember-me and fully-authenticated users.
-If you don't need this functionality though, then you can stick with `ROLE_ANONYMOUS`, which will be processed by Spring Security's standard `RoleVoter`.
+您经常会看到上述拦截器配置中的`ROLE_ANONYMOUS`属性被`IS_AUTHENTICATED_ANONYMOUSLY`替代，这在定义访问控制时实际上是同样的事情。
+这是使用我们将在<<authz-authenticated-voter,authorization chapter>>中看到的`AuthenticatedVoter`的一个示例。
+它使用`AuthenticationTrustResolver`来处理这个特定的配置属性并授予匿名用户访问权限。
+`AuthenticatedVoter`方法更强大，因为它允许区分匿名，记住我和完全认证的用户。
+如果您不需要此功能，那么您可以坚持使用`ROLE_ANONYMOUS`，这将由Spring Security的标准`RoleVoter`处理。

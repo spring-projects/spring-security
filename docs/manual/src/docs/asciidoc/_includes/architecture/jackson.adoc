@@ -1,10 +1,10 @@
 [[jackson]]
-=== Jackson Support
+杰克逊支持。=== 
 
-Spring Security has added Jackson Support for persisting Spring Security related classes.
-This can improve the performance of serializing Spring Security related classes when working with distributed sessions (i.e. session replication, Spring Session, etc).
+Spring Security已经增加了Jackson Support来坚持Spring Security相关的类。
+这可以提高在处理分布式会话（即会话复制，Spring会话等）时序列化Spring Security相关类的性能。
 
-To use it, register the `JacksonJacksonModules.getModules(ClassLoader)` as http://wiki.fasterxml.com/JacksonFeatureModules[Jackson Modules].
+要使用它，请将`JacksonJacksonModules.getModules(ClassLoader)`注册为 http://wiki.fasterxml.com/JacksonFeatureModules[杰克逊模块]。
 
 [source,java]
 ----

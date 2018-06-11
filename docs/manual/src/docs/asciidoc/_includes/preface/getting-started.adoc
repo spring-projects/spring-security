@@ -1,13 +1,13 @@
 
 [[getting-started]]
-== Getting Started
-The later parts of this guide provide an in-depth discussion of the framework architecture and implementation classes, which you need to understand if you want to do any serious customization.
-In this part, we'll introduce Spring Security 4.
-0, give a brief overview of the project's history and take a slightly gentler look at how to get started using the framework.
-In particular, we'll look at namespace configuration which provides a much simpler way of securing your application compared to the traditional Spring bean approach where you have to wire up all the implementation classes individually.
+== 入门
+本指南的后面部分提供了关于框架体系结构和实现类的深入讨论，您需要了解是否需要进行任何严格的自定义。
+在这一部分中，我们将介绍Spring Security 4。
+0，简要介绍一下该项目的历史，并对如何开始使用该框架稍微考虑一下。
+特别是，我们将看看命名空间配置，与传统的Spring bean方法相比，它提供了一种更简单的保护应用程序的方法，您必须单独连接所有实现类。
 
-We'll also take a look at the sample applications that are available.
-It's worth trying to run these and experimenting with them a bit even before you read the later sections - you can dip back into them as your understanding of the framework increases.
-Please also check out the http://spring.
-io/spring-security[project website] as it has useful information on building the project, plus links to articles, videos and tutorials.
+我们还将看看可用的示例应用程序。
+在阅读后面的章节之前，尝试运行这些内容并尝试一下这些内容 - 随着对框架理解的增加，您可以深入了解它们。
+请同时查看http：// spring。
+io / spring-security [项目网站]，因为它有关于构建项目的有用信息，以及指向文章，视频和教程的链接。
 

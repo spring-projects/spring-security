@@ -1,22 +1,22 @@
 
 [[security-filter-chain]]
-== The Security Filter Chain
-Spring Security's web infrastructure is based entirely on standard servlet filters.
-It doesn't use servlets or any other servlet-based frameworks (such as Spring MVC) internally, so it has no strong links to any particular web technology.
-It deals in `HttpServletRequest` s and `HttpServletResponse` s and doesn't care whether the requests come from a browser, a web service client, an `HttpInvoker` or an AJAX application.
+== 安全过滤器链
+Spring Security的Web基础架构完全基于标准的servlet过滤器。
+它不在内部使用servlet或任何其他基于servlet的框架（如Spring MVC），因此它没有与任何特定Web技术的强大链接。
+它处理`HttpServletRequest`和`HttpServletResponse`，并不关心请求是来自浏览器，Web服务客户端，`HttpInvoker`还是AJAX应用程序。
 
-Spring Security maintains a filter chain internally where each of the filters has a particular responsibility and filters are added or removed from the configuration depending on which services are required.
-The ordering of the filters is important as there are dependencies between them.
-If you have been using <<ns-config,namespace configuration>>, then the filters are automatically configured for you and you don't have to define any Spring beans explicitly but here may be times when you want full control over the security filter chain, either because you are using features which aren't supported in the namespace, or you are using your own customized versions of classes.
+Spring Security在内部维护一个过滤器链，其中每个过滤器都有特定的责任，并且根据需要哪些服务来添加或从配置中删除过滤器。
+过滤器的排序很重要，因为它们之间存在依赖关系。
+如果您一直在使用<<ns-config,namespace configuration>>，那么过滤器会自动为您配置，而且您不必明确定义任何Spring bean，但在这里可能有时想要完全控制安全过滤器链，无论是因为您正在使用名称空间不支持的功能，或者您正在使用您自己的定制版本的类。
 
 
 [[delegating-filter-proxy]]
-=== DelegatingFilterProxy
-When using servlet filters, you obviously need to declare them in your `web.xml`, or they will be ignored by the servlet container.
-In Spring Security, the filter classes are also Spring beans defined in the application context and thus able to take advantage of Spring's rich dependency-injection facilities and lifecycle interfaces.
-Spring's `DelegatingFilterProxy` provides the link between `web.xml` and the application context.
+=== 的DelegatingFilterProxy
+使用servlet过滤器时，显然需要在`web.xml`中声明它们，否则它们将被servlet容器忽略。
+在Spring Security中，过滤器类也是在应用程序上下文中定义的Spring bean，因此可以利用Spring丰富的依赖注入工具和生命周期接口。
+Spring的`DelegatingFilterProxy`提供了`web.xml`和应用程序上下文之间的链接。
 
-When using `DelegatingFilterProxy`, you will see something like this in the `web.xml` file:
+使用`DelegatingFilterProxy`时，您会在`web.xml`文件中看到类似这样的内容：
 
 [source,xml]
 ----
@@ -31,22 +31,22 @@ When using `DelegatingFilterProxy`, you will see something like this in the `web
 </filter-mapping>
 ----
 
-Notice that the filter is actually a `DelegatingFilterProxy`, and not the class that will actually implement the logic of the filter.
-What `DelegatingFilterProxy` does is delegate the `Filter` 's methods through to a bean which is obtained from the Spring application context.
-This enables the bean to benefit from the Spring web application context lifecycle support and configuration flexibility.
-The bean must implement `javax.servlet.Filter` and it must have the same name as that in the `filter-name` element.
-Read the Javadoc for `DelegatingFilterProxy` for more information
+请注意，过滤器实际上是`DelegatingFilterProxy`，而不是实际实现过滤器逻辑的类。
+`DelegatingFilterProxy`将`Filter`的方法委托给从Spring应用程序上下文获得的bean。
+这使得bean可以从Spring Web应用程序上下文生命周期支持和配置灵活性中受益。
+该bean必须实现`javax.servlet.Filter`，并且它必须具有与`filter-name`元素中相同的名称。
+阅读Javadoc的`DelegatingFilterProxy`了解更多信息
 
 
 [[filter-chain-proxy]]
-=== FilterChainProxy
-Spring Security's web infrastructure should only be used by delegating to an instance of `FilterChainProxy`.
-The security filters should not be used by themselves.
-In theory you could declare each Spring Security filter bean that you require in your application context file and add a corresponding `DelegatingFilterProxy` entry to `web.xml` for each filter, making sure that they are ordered correctly, but this would be cumbersome and would clutter up the `web.xml` file quickly if you have a lot of filters.
-`FilterChainProxy` lets us add a single entry to `web.xml` and deal entirely with the application context file for managing our web security beans.
-It is wired using a `DelegatingFilterProxy`, just like in the example above, but with the `filter-name` set to the bean name "filterChainProxy".
-The filter chain is then declared in the application context with the same bean name.
-Here's an example:
+=== 的FilterChainProxy
+Spring Security的Web基础架构只能通过委派给`FilterChainProxy`的实例来使用。
+安全过滤器不应该单独使用。
+理论上，您可以在应用程序上下文文件中声明您需要的每个Spring Security过滤器bean，并为每个过滤器添加一个`DelegatingFilterProxy`条目到`web.xml`，确保它们的顺序正确，但这会是如果你有很多的过滤器，会很麻烦并且很快就会把`web.xml`文件搞乱。
+`FilterChainProxy`让我们为`web.xml`添加单个条目，并完全处理应用程序上下文文件以管理我们的Web安全性Bean。
+它使用`DelegatingFilterProxy`进行连线，就像上面的示例一样，但将`filter-name`设置为bean名称"filterChainProxy"。
+过滤器链然后在应用程序上下文中用相同的bean名称声明。
+这是一个例子：
 
 [source,xml]
 ----
@@ -68,95 +68,95 @@ Here's an example:
 </bean>
 ----
 
-The namespace element `filter-chain` is used for convenience to set up the security filter chain(s) which are required within the application.
-footnote:[Note that you'll need to include the security namespace in your application context XML file in order to use this syntax.
-The older syntax which used a `filter-chain-map` is still supported, but is deprecated in favour of the constructor argument injection.].
-It maps a particular URL pattern to a list of filters built up from the bean names specified in the `filters` element, and combines them in a bean of type `SecurityFilterChain`.
-The `pattern` attribute takes an Ant Paths and the most specific URIs should appear first  footnote:[Instead of a path pattern, the `request-matcher-ref` attribute can be used to specify a `RequestMatcher` instance for more powerful matching].
-At runtime the `FilterChainProxy` will locate the first URI pattern that matches the current web request and the list of filter beans specified by the `filters` attribute will be applied to that request.
-The filters will be invoked in the order they are defined, so you have complete control over the filter chain which is applied to a particular URL.
+名称空间元素`filter-chain`用于方便地设置应用程序中所需的安全筛选器链。
+脚注：[请注意，您需要将安全性名称空间包含在应用程序上下文XML文件中才能使用此语法。
+使用`filter-chain-map`的较早语法仍然受支持，但不赞成使用构造函数参数注入。]。
+它将特定的URL模式映射到根据`filters`元素中指定的bean名称构建的过滤器列表，并将它们组合到`SecurityFilterChain`类型的bean中。
+`pattern`属性采用Ant路径，最具体的URI应首先显示脚注：[可以使用`request-matcher-ref`属性指定一个`RequestMatcher`实例，使其更强大匹配]。
+在运行时，`FilterChainProxy`将找到与当前Web请求匹配的第一个URI模式，并将`filters`属性指定的筛选器列表应用于该请求。
+过滤器将按照它们定义的顺序调用，因此您可以完全控制应用于特定URL的过滤器链。
 
-You may have noticed we have declared two `SecurityContextPersistenceFilter` s in the filter chain (`ASC` is short for `allowSessionCreation`, a property of `SecurityContextPersistenceFilter`).
-As web services will never present a `jsessionid` on future requests, creating `HttpSession` s for such user agents would be wasteful.
-If you had a high-volume application which required maximum scalability, we recommend you use the approach shown above.
-For smaller applications, using a single `SecurityContextPersistenceFilter` (with its default `allowSessionCreation` as `true`) would likely be sufficient.
+您可能已经注意到我们已经在过滤器链中声明了两个`SecurityContextPersistenceFilter`（`ASC`是`allowSessionCreation`的缩写，属性为`SecurityContextPersistenceFilter`）。
+由于Web服务永远不会在将来的请求中显示`jsessionid`，因此为这些用户代理创建`HttpSession`将会是浪费。
+如果您有一个需要最大可伸缩性的高容量应用程序，我们建议您使用上述方法。
+对于较小的应用程序，使用单个`SecurityContextPersistenceFilter`（默认`allowSessionCreation`为`true`）可能就足够了。
 
-Note that `FilterChainProxy` does not invoke standard filter lifecycle methods on the filters it is configured with.
-We recommend you use Spring's application context lifecycle interfaces as an alternative, just as you would for any other Spring bean.
+请注意，`FilterChainProxy`不会在其配置的过滤器上调用标准过滤器生命周期方法。
+我们建议您使用Spring的应用程序上下文生命周期接口作为替代方案，就像您对其他任何Spring bean一样。
 
-When we looked at how to set up web security using <<ns-web-xml,namespace configuration>>, we used a `DelegatingFilterProxy` with the name "springSecurityFilterChain".
-You should now be able to see that this is the name of the `FilterChainProxy` which is created by the namespace.
-
-
-==== Bypassing the Filter Chain
-You can use the attribute `filters = "none"` as an alternative to supplying a filter bean list.
-This will omit the request pattern from the security filter chain entirely.
-Note that anything matching this path will then have no authentication or authorization services applied and will be freely accessible.
-If you want to make use of the contents of the `SecurityContext` contents during a request, then it must have passed through the security filter chain.
-Otherwise the `SecurityContextHolder` will not have been populated and the contents will be null.
+当我们查看如何使用<<ns-web-xml,namespace configuration>>设置网络安全时，我们使用了名称为"springSecurityFilterChain"的`DelegatingFilterProxy`。
+您现在应该能够看到这是由命名空间创建的`FilterChainProxy`的名称。
 
 
-=== Filter Ordering
-The order that filters are defined in the chain is very important.
-Irrespective of which filters you are actually using, the order should be as follows:
+==== 绕过滤链
+您可以使用属性`filters = "none"`作为提供过滤器bean列表的替代方法。
+这将完全忽略来自安全过滤器链的请求模式。
+请注意，与此路径相匹配的任何内容都不会应用认证或授权服务，并且可以自由访问。
+如果您想在请求期间使用`SecurityContext`内容的内容，则它必须通过安全筛选器链。
+否则，`SecurityContextHolder`将不会被填充，并且内容将为空。
 
-* `ChannelProcessingFilter`, because it might need to redirect to a different protocol
-* `SecurityContextPersistenceFilter`, so a `SecurityContext` can be set up in the `SecurityContextHolder` at the beginning of a web request, and any changes to the `SecurityContext` can be copied to the `HttpSession` when the web request ends (ready for use with the next web request)
-* `ConcurrentSessionFilter`, because it uses the `SecurityContextHolder` functionality and needs to update the `SessionRegistry` to reflect ongoing requests from the principal
-* Authentication processing mechanisms - `UsernamePasswordAuthenticationFilter`, `CasAuthenticationFilter`, `BasicAuthenticationFilter` etc - so that the `SecurityContextHolder` can be modified to contain a valid `Authentication` request token
-* The `SecurityContextHolderAwareRequestFilter`, if you are using it to install a Spring Security aware `HttpServletRequestWrapper` into your servlet container
-* The `JaasApiIntegrationFilter`, if a `JaasAuthenticationToken` is in the `SecurityContextHolder` this will process the `FilterChain` as the `Subject` in the `JaasAuthenticationToken`
-* `RememberMeAuthenticationFilter`, so that if no earlier authentication processing mechanism updated the `SecurityContextHolder`, and the request presents a cookie that enables remember-me services to take place, a suitable remembered `Authentication` object will be put there
-* `AnonymousAuthenticationFilter`, so that if no earlier authentication processing mechanism updated the `SecurityContextHolder`, an anonymous `Authentication` object will be put there
-* `ExceptionTranslationFilter`, to catch any Spring Security exceptions so that either an HTTP error response can be returned or an appropriate `AuthenticationEntryPoint` can be launched
-* `FilterSecurityInterceptor`, to protect web URIs and raise exceptions when access is denied
+
+=== 过滤器排序
+过滤器在链中定义的顺序非常重要。
+无论您实际使用哪些过滤器，顺序应如下所示：
+
+*  `ChannelProcessingFilter`，因为它可能需要重定向到不同的协议
+*  `SecurityContextPersistenceFilter`，因此可以在Web请求的开头`SecurityContextHolder`中设置`SecurityContext`，并且可以复制对`SecurityContext`所做的任何更改到Web请求结束时的`HttpSession`（准备好用于下一个Web请求）
+*  `ConcurrentSessionFilter`，因为它使用`SecurityContextHolder`功能，需要更新`SessionRegistry`以反映来自主体的持续请求
+* 认证处理机制 -  `UsernamePasswordAuthenticationFilter`，`CasAuthenticationFilter`，`BasicAuthenticationFilter`等 - 以便可以修改`SecurityContextHolder`以包含有效的`Authentication`请求令牌
+*  `SecurityContextHolderAwareRequestFilter`，如果您使用它将感知Spring安全的`HttpServletRequestWrapper`安装到您的servlet容器中
+*  `JaasApiIntegrationFilter`，如果`JaasAuthenticationToken`在`SecurityContextHolder`中，则会将`FilterChain`处理为`JaasAuthenticationToken`中的{{5}
+*  `RememberMeAuthenticationFilter`，这样如果没有更早的认证处理机制更新`SecurityContextHolder`，并且请求提供了一个允许记住我服务的cookie，则会记住一个合适的记录{{3} }对象将放在那里
+*  `AnonymousAuthenticationFilter`，这样如果没有更早的认证处理机制更新`SecurityContextHolder`，则会在其中放置匿名`Authentication`对象
+*  `ExceptionTranslationFilter`，以捕获任何Spring安全性异常，以便可以返回HTTP错误响应或者启动适当的`AuthenticationEntryPoint`
+*  `FilterSecurityInterceptor`，以保护网络URI并在访问被拒绝时引发异常
 
 [[request-matching]]
-=== Request Matching and HttpFirewall
-Spring Security has several areas where patterns you have defined are tested against incoming requests in order to decide how the request should be handled.
-This occurs when the `FilterChainProxy` decides which filter chain a request should be passed through and also when the `FilterSecurityInterceptor` decides which security constraints apply to a request.
-It's important to understand what the mechanism is and what URL value is used when testing against the patterns that you define.
+=== 请求匹配和HttpFirewall
+Spring Security有几个区域，您定义的模式会根据传入的请求进行测试，以决定如何处理请求。
+这发生在`FilterChainProxy`决定哪个过滤器链应该通过请求并且`FilterSecurityInterceptor`决定哪个安全约束条件适用于请求时发生。
+了解机制是什么以及在针对您定义的模式进行测试时使用的URL值非常重要。
 
-The Servlet Specification defines several properties for the `HttpServletRequest` which are accessible via getter methods, and which we might want to match against.
-These are the `contextPath`, `servletPath`, `pathInfo` and `queryString`.
-Spring Security is only interested in securing paths within the application, so the `contextPath` is ignored.
-Unfortunately, the servlet spec does not define exactly what the values of `servletPath` and `pathInfo` will contain for a particular request URI.
-For example, each path segment of a URL may contain parameters, as defined in http://www.ietf.org/rfc/rfc2396.txt[RFC 2396]
-footnote:[You have probably seen this when a browser doesn't support cookies and the `jsessionid` parameter is appended to the URL after a semi-colon.
-However the RFC allows the presence of these parameters in any path segment of the URL].
-The Specification does not clearly state whether these should be included in the `servletPath` and `pathInfo` values and the behaviour varies between different servlet containers.
-There is a danger that when an application is deployed in a container which does not strip path parameters from these values, an attacker could add them to the requested URL in order to cause a pattern match to succeed or fail unexpectedly.
-footnote:[The original values will be returned once the request leaves the `FilterChainProxy`, so will still be available to the application.].
-Other variations in the incoming URL are also possible.
-For example, it could contain path-traversal sequences (like `/../`) or multiple forward slashes (`//`) which could also cause pattern-matches to fail.
-Some containers normalize these out before performing the servlet mapping, but others don't.
-To protect against issues like these, `FilterChainProxy` uses an `HttpFirewall` strategy to check and wrap the request.
-Un-normalized requests are automatically rejected by default, and path parameters and duplicate slashes are removed for matching purposes.
-footnote:[So, for example, an original request path `/secure;hack=1/somefile.html;hack=2` will be returned as `/secure/somefile.html`.].
-It is therefore essential that a `FilterChainProxy` is used to manage the security filter chain.
-Note that the `servletPath` and `pathInfo` values are decoded by the container, so your application should not have any valid paths which contain semi-colons, as these parts will be removed for matching purposes.
+Servlet规范定义了`HttpServletRequest`的几个属性，这些属性可以通过getter方法访问，我们可能需要匹配。
+这些是`contextPath`，`servletPath`，`pathInfo`和`queryString`。
+Spring Security只对保护应用程序中的路径感兴趣，所以`contextPath`被忽略。
+不幸的是，servlet规范没有准确定义`servletPath`和`pathInfo`的值将为特定请求URI包含的内容。
+例如，URL中的每个路径段都可能包含参数，如 http://www.ietf.org/rfc/rfc2396.txt[RFC 2396]中所定义
+脚注：[您可能在浏览器不支持cookies并且`jsessionid`参数在分号后追加了URL时看到了这一点。
+但是，RFC允许在URL的任何路径段中存在这些参数]。
+规范没有明确说明这些是否应该包含在`servletPath`和`pathInfo`中，并且不同的servlet容器之间的行为会有所不同。
+当应用程序部署在未从这些值中剥离路径参数的容器中时，攻击者可能会将它们添加到请求的URL中，以使模式匹配成功或意外失败。
+脚注：[原始值将在请求离开`FilterChainProxy`后返回，因此仍然可用于应用程序。]。
+传入URL中的其他变体也是可能的。
+例如，它可能包含路径遍历序列（如`/../`）或多个正斜杠（`//`），这也可能导致模式匹配失败。
+有些容器在执行servlet映射之前将这些归一化，但其他容器则不会。
+为防止出现类似问题，`FilterChainProxy`使用`HttpFirewall`策略检查并包装请求。
+未规范化的请求默认会自动被拒绝，路径参数和重复的斜杠会被删除以达到匹配的目的。
+脚注：[因此，例如，原始请求路径`/secure;hack=1/somefile.html;hack=2`将作为`/secure/somefile.html`返回。]。
+因此，必须使用`FilterChainProxy`来管理安全过滤器链。
+请注意，容器对`servletPath`和`pathInfo`值进行解码，因此您的应用程序不应该包含任何包含分号的有效路径，因为这些部分将被删除以达到匹配目的。
 
-As mentioned above, the default strategy is to use Ant-style paths for matching and this is likely to be the best choice for most users.
-The strategy is implemented in the class `AntPathRequestMatcher` which uses Spring's `AntPathMatcher` to perform a case-insensitive match of the pattern against the concatenated `servletPath` and `pathInfo`, ignoring the `queryString`.
+如上所述，默认策略是使用Ant风格路径进行匹配，这对于大多数用户来说可能是最佳选择。
+该策略在类`AntPathRequestMatcher`中实现，该类使用Spring的`AntPathMatcher`对模式与连接的`servletPath`和`pathInfo`执行不区分大小写的匹配，忽略{{4 }}。
 
-If for some reason, you need a more powerful matching strategy, you can use regular expressions.
-The strategy implementation is then `RegexRequestMatcher`.
-See the Javadoc for this class for more information.
+如果由于某种原因，您需要更强大的匹配策略，则可以使用正则表达式。
+战略实施是`RegexRequestMatcher`。
+有关更多信息，请参阅此类的Javadoc。
 
-In practice we recommend that you use method security at your service layer, to control access to your application, and do not rely entirely on the use of security constraints defined at the web-application level.
-URLs change and it is difficult to take account of all the possible URLs that an application might support and how requests might be manipulated.
-You should try and restrict yourself to using a few simple ant paths which are simple to understand.
-Always try to use a "deny-by-default" approach where you have a catch-all wildcard ( /** or **) defined last and denying access.
+实际上，我们建议您在服务层使用方法安全性，以控制对应用程序的访问，而不完全依赖于在Web应用程序级别定义的安全约束。
+URL变化，很难考虑到应用程序可能支持的所有可能的URL以及请求可能被操纵的方式。
+你应该试着限制自己使用一些简单易懂的简单蚂蚁路径。
+始终尝试使用"deny-by-default"方法，并在其中定义最后一个捕获所有通配符（/ ** or **）并拒绝访问。
 
-Security defined at the service layer is much more robust and harder to bypass, so you should always take advantage of Spring Security's method security options.
+在服务层定义的安全性更健壮，更难绕过，所以你应该总是利用Spring Security的方法安全选项。
 
-The `HttpFirewall` also prevents https://www.owasp.org/index.php/HTTP_Response_Splitting[HTTP Response Splitting] by rejecting new line characters in the HTTP Response headers.
+通过拒绝HTTP响应头中的新行字符，`HttpFirewall`还可以阻止https://www.owasp.org/index.php/HTTP_Response_Splitting [HTTP响应拆分]。
 
-By default the `StrictHttpFirewall` is used.
-This implementation rejects requests that appear to be malicious.
-If it is too strict for your needs, then you can customize what types of requests are rejected.
-However, it is important that you do so knowing that this can open your application up to attacks.
-For example, if you wish to leverage Spring MVC's Matrix Variables, the following configuration could be used in XML:
+默认情况下使用`StrictHttpFirewall`。
+该实施拒绝看起来是恶意的请求。
+如果它对您的需求太严格，那么您可以自定义哪些类型的请求被拒绝。
+但是，您知道这会打开您的应用程序以应对攻击，这一点很重要。
+例如，如果您希望利用Spring MVC的Matrix变量，则可以在XML中使用以下配置：
 
 [source,xml]
 ----
@@ -167,7 +167,7 @@ For example, if you wish to leverage Spring MVC's Matrix Variables, the followin
 <http-firewall ref="httpFirewall"/>
 ----
 
-The same thing can be achieved with Java Configuration by exposing a `StrictHttpFirewall` bean.
+Java配置通过公开`StrictHttpFirewall` bean可以实现同样的效果。
 
 [source,java]
 ----
@@ -179,10 +179,10 @@ public StrictHttpFirewall httpFirewall() {
 }
 ----
 
-The `StrictHttpFirewall` provides a whitelist of valid HTTP methods that are allowed to protect against https://www.owasp.org/index.php/Cross_Site_Tracing[Cross Site Tracing (XST)] and https://www.owasp.org/index.php/Test_HTTP_Methods_(OTG-CONFIG-006)[HTTP Verb Tampering].
-The default valid methods are "DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", and "PUT".
-If your application needs to modify the valid methods, you can configure a custom `StrictHttpFirewall` bean.
-For example, the following will only allow HTTP "GET" and "POST" methods:
+`StrictHttpFirewall`提供了有效的HTTP方法白名单，可以通过https://www.owasp.org/index.php/Cross_Site_Tracing [跨站点跟踪（XST）]和https：//www.owasp .org / index.php / Test_HTTP_Methods_（OTG-CONFIG-006）[HTTP动词篡改]。
+默认的有效方法是"DELETE"，"GET"，"HEAD"，"OPTIONS"，"PATCH"，"POST"和"PUT"。
+如果您的应用程序需要修改有效的方法，您可以配置一个自定义的`StrictHttpFirewall` bean。
+例如，以下内容仅允许使用HTTP "GET"和"POST"方法：
 
 
 [source,xml]
@@ -194,7 +194,7 @@ For example, the following will only allow HTTP "GET" and "POST" methods:
 <http-firewall ref="httpFirewall"/>
 ----
 
-The same thing can be achieved with Java Configuration by exposing a `StrictHttpFirewall` bean.
+Java配置通过公开`StrictHttpFirewall` bean可以实现同样的效果。
 
 [source,java]
 ----
@@ -208,28 +208,28 @@ public StrictHttpFirewall httpFirewall() {
 
 [TIP]
 ====
-If you are using `new MockHttpServletRequest()` it currently creates an HTTP method as an empty String "".
-This is an invalid HTTP method and will be rejected by Spring Security.
-You can resolve this by replacing it with `new MockHttpServletRequest("GET", "")`.
-See https://jira.spring.io/browse/SPR-16851[SPR_16851] for an issue requesting to improve this.
+如果您使用的是`new MockHttpServletRequest()`，则它当前将创建一个HTTP方法为空字符串""。
+这是一个无效的HTTP方法，将被Spring Security拒绝。
+您可以通过用`new MockHttpServletRequest("GET", "")`替换它来解决此问题。
+请参阅https://jira.spring.io/browse/SPR-16851[SPR_16851]以了解有关改善此问题的问题。
 ====
 
-If you must allow any HTTP method (not recommended), you can use `StrictHttpFirewall.setUnsafeAllowAnyHttpMethod(true)`.
-This will disable validation of the HTTP method entirely.
+如果您必须允许任何HTTP方法（不推荐），则可以使用`StrictHttpFirewall.setUnsafeAllowAnyHttpMethod(true)`。
+这将完全禁用HTTP方法的验证。
 
 
-=== Use with other Filter-Based Frameworks
-If you're using some other framework that is also filter-based, then you need to make sure that the Spring Security filters come first.
-This enables the `SecurityContextHolder` to be populated in time for use by the other filters.
-Examples are the use of SiteMesh to decorate your web pages or a web framework like Wicket which uses a filter to handle its requests.
+=== 与其他基于过滤器的框架一起使用
+如果您使用的其他框架也是基于过滤器的，那么您需要确保Spring Security过滤器是第一位的。
+这使得`SecurityContextHolder`能够及时填充以供其他过滤器使用。
+例子是使用SiteMesh来装饰你的网页或像Wicket这样的网络框架，它使用过滤器来处理它的请求。
 
 
 [[filter-chains-with-ns]]
-=== Advanced Namespace Configuration
-As we saw earlier in the namespace chapter, it's possible to use multiple `http` elements to define different security configurations for different URL patterns.
-Each element creates a filter chain within the internal `FilterChainProxy` and the URL pattern that should be mapped to it.
-The elements will be added in the order they are declared, so the most specific patterns must again be declared first.
-Here's another example, for a similar situation to that above, where the application supports both a stateless RESTful API and also a normal web application which users log into using a form.
+=== 高级命名空间配置
+正如我们前面在命名空间章节中看到的那样，可以使用多个`http`元素为不同的URL模式定义不同的安全配置。
+每个元素在内部`FilterChainProxy`和应该映射到它的URL模式内创建一个过滤器链。
+元素将按照它们声明的顺序添加，因此必须首先声明最具体的模式。
+下面是另一个例子，对于上述类似的情况，应用程序同时支持无状态的RESTful API以及用户使用表单登录的普通Web应用程序。
 
 
 [source,xml]

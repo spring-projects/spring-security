@@ -1,22 +1,22 @@
 
 [[secure-object-impls]]
-== Secure Object Implementations
+== 安全对象实现
 
 [[aop-alliance]]
-=== AOP Alliance (MethodInvocation) Security Interceptor
-Prior to Spring Security 2.0, securing `MethodInvocation` s needed quite a lot of boiler plate configuration.
-Now the recommended approach for method security is to use <<ns-method-security,namespace configuration>>.
-This way the method security infrastructure beans are configured automatically for you so you don't really need to know about the implementation classes.
-We'll just provide a quick overview of the classes that are involved here.
+===  AOP联盟（MethodInvocation）安全拦截器
+在Spring Security 2.0之前，安全`MethodInvocation`需要相当多的锅炉配置。
+现在推荐的方法安全方法是使用<<ns-method-security,namespace configuration>>。
+这样方法安全基础结构bean就会自动为您配置，因此您并不需要了解实现类。
+我们只是简单介绍一下这里涉及的类。
 
-Method security in enforced using a `MethodSecurityInterceptor`, which secures `MethodInvocation` s.
-Depending on the configuration approach, an interceptor may be specific to a single bean or shared between multiple beans.
-The interceptor uses a `MethodSecurityMetadataSource` instance to obtain the configuration attributes that apply to a particular method invocation.
-`MapBasedMethodSecurityMetadataSource` is used to store configuration attributes keyed by method names (which can be wildcarded) and will be used internally when the attributes are defined in the application context using the `<intercept-methods>` or `<protect-point>` elements.
-Other implementations will be used to handle annotation-based configuration.
+使用保证`MethodInvocation`的{​​{0}}实施的方法安全性。
+根据配置方法，拦截器可能特定于单个bean或在多个bean之间共享。
+拦截器使用`MethodSecurityMetadataSource`实例来获取适用于特定方法调用的配置属性。
+`MapBasedMethodSecurityMetadataSource`用于存储由方法名称（可以通配符）键入的配置属性，并且在应用上下文中使用`<intercept-methods>`或`<protect-point>`元素定义属性时将在内部使用。
+其他实现将用于处理基于注释的配置。
 
-==== Explicit MethodSecurityInterceptor Configuration
-You can of course configure a `MethodSecurityIterceptor` directly in your application context for use with one of Spring AOP's proxying mechanisms:
+==== 显式MethodSecurityInterceptor配置
+您当然可以在应用程序上下文中直接配置`MethodSecurityIterceptor`，以便与Spring AOP的代理机制一起使用：
 
 [source,xml]
 ----
@@ -36,15 +36,15 @@ You can of course configure a `MethodSecurityIterceptor` directly in your applic
 ----
 
 [[aspectj]]
-=== AspectJ (JoinPoint) Security Interceptor
-The AspectJ security interceptor is very similar to the AOP Alliance security interceptor discussed in the previous section.
-Indeed we will only discuss the differences in this section.
+===  AspectJ（JoinPoint）安全拦截器
+AspectJ安全拦截器与上一节讨论的AOP联盟安全拦截器非常相似。
+事实上，我们只会讨论本节的不同之处。
 
-The AspectJ interceptor is named `AspectJSecurityInterceptor`.
-Unlike the AOP Alliance security interceptor, which relies on the Spring application context to weave in the security interceptor via proxying, the `AspectJSecurityInterceptor` is weaved in via the AspectJ compiler.
-It would not be uncommon to use both types of security interceptors in the same application, with `AspectJSecurityInterceptor` being used for domain object instance security and the AOP Alliance `MethodSecurityInterceptor` being used for services layer security.
+AspectJ拦截器被命名为`AspectJSecurityInterceptor`。
+与依靠Spring应用程序上下文通过代理编织安全拦截器的AOP Alliance安全拦截器不同，通过AspectJ编译器编译`AspectJSecurityInterceptor`。
+在同一个应用程序中使用两种类型的安全拦截器并不少见，`AspectJSecurityInterceptor`用于域对象实例安全性，而AOP联盟`MethodSecurityInterceptor`用于服务层安全性。
 
-Let's first consider how the `AspectJSecurityInterceptor` is configured in the Spring application context:
+我们首先考虑如何在Spring应用程序上下文中配置`AspectJSecurityInterceptor`：
 
 
 [source,xml]
@@ -65,12 +65,12 @@ Let's first consider how the `AspectJSecurityInterceptor` is configured in the S
 ----
 
 
-As you can see, aside from the class name, the `AspectJSecurityInterceptor` is exactly the same as the AOP Alliance security interceptor.
-Indeed the two interceptors can share the same `securityMetadataSource`, as the `SecurityMetadataSource` works with `java.lang.reflect.Method` s rather than an AOP library-specific class.
-Of course, your access decisions have access to the relevant AOP library-specific invocation (ie `MethodInvocation` or `JoinPoint`) and as such can consider a range of addition criteria when making access decisions (such as method arguments).
+如您所见，除了课程名称外，`AspectJSecurityInterceptor`与AOP Alliance安全拦截器完全相同。
+事实上，两个拦截器可以共享`securityMetadataSource`，因为`SecurityMetadataSource`与`java.lang.reflect.Method`协同工作，而不是AOP库特定的类。
+当然，您的访问决策可以访问相关的AOP库特定的调用（例如`MethodInvocation`或`JoinPoint`），因此在进行访问决策时可以考虑一系列的附加标准（如方法参数） 。
 
-Next you'll need to define an AspectJ `aspect`.
-For example:
+接下来，您需要定义一个AspectJ `aspect`。
+例如：
 
 
 [source,java]
@@ -120,12 +120,12 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
 ----
 
 
-In the above example, the security interceptor will be applied to every instance of `PersistableEntity`, which is an abstract class not shown (you can use any other class or `pointcut` expression you like).
-For those curious, `AspectJCallback` is needed because the `proceed();` statement has special meaning only within an `around()` body.
-The `AspectJSecurityInterceptor` calls this anonymous `AspectJCallback` class when it wants the target object to continue.
+在上面的示例中，安全拦截器将应用于`PersistableEntity`的每个实例，这是一个未显示的抽象类（您可以使用任何其他类或`pointcut`表达式）。
+对于那些好奇的人来说，需要`AspectJCallback`，因为`proceed();`语句仅在`around()`正文中具有特殊含义。
+`AspectJSecurityInterceptor`在需要目标对象继续时调用这个匿名`AspectJCallback`类。
 
-You will need to configure Spring to load the aspect and wire it with the `AspectJSecurityInterceptor`.
-A bean declaration which achieves this is shown below:
+您将需要配置Spring以加载该方面并将其与`AspectJSecurityInterceptor`连接起来。
+下面显示了实现这一点的bean声明：
 
 
 [source,xml]
@@ -139,5 +139,5 @@ A bean declaration which achieves this is shown below:
 ----
 
 
-That's it!
-Now you can create your beans from anywhere within your application, using whatever means you think fit (eg `new Person();`) and they will have the security interceptor applied.
+而已！
+现在，您可以使用您认为合适的任何方式（例如`new Person();`）从应用程序中的任何位置创建bean，并且它们将应用安全拦截器。

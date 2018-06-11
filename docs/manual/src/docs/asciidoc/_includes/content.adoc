@@ -1,9 +1,9 @@
-= Book Title
+= 书名
 Rob Winch
 
 [abstract]
-This is the actual content.
+这是实际的内容。
 
-== First Section
+== 第一部分
 
-And off we go.
+我们走吧。

@@ -1,11 +1,11 @@
 
 [[taglibs]]
-== JSP Tag Libraries
-Spring Security has its own taglib which provides basic support for accessing security information and applying security constraints in JSPs.
+==  JSP标记库
+Spring Security有自己的taglib，它为访问安全信息和在JSP中应用安全约束提供了基本的支持。
 
 
-=== Declaring the Taglib
-To use any of the tags, you must have the security taglib declared in your JSP:
+=== 声明Taglib
+要使用任何标签，您必须在JSP中声明安全taglib：
 
 [source,xml]
 ----
@@ -13,14 +13,14 @@ To use any of the tags, you must have the security taglib declared in your JSP:
 ----
 
 [[taglibs-authorize]]
-=== The authorize Tag
-This tag is used to determine whether its contents should be evaluated or not.
-In Spring Security 3.0, it can be used in two ways footnote:[
-The legacy options from Spring Security 2.0 are also supported, but discouraged.
+=== 授权标签
+该标签用于确定是否应评估其内容。
+在Spring Security 3.0中，它可以以两种方式使用脚注：[
+Spring Security 2.0的遗留选项也受到支持，但不鼓励。
 ].
-The first approach uses a <<el-access-web,web-security expression>>, specified in the `access` attribute of the tag.
-The expression evaluation will be delegated to the `SecurityExpressionHandler<FilterInvocation>` defined in the application context (you should have web expressions enabled in your `<http>` namespace configuration to make sure this service is available).
-So, for example, you might have
+第一种方法使用在标签的`access`属性中指定的<<el-access-web,web-security expression>>。
+表达式评估将委派给应用程序上下文中定义的`SecurityExpressionHandler<FilterInvocation>`（您应该在`<http>`名称空间配置中启用Web表达式以确保此服务可用）。
+所以，例如，你可能有
 
 [source,xml]
 ----
@@ -31,8 +31,8 @@ This content will only be visible to users who have the "supervisor" authority i
 </sec:authorize>
 ----
 
-When used in conjuction with Spring Security's PermissionEvaluator, the tag can also be used to check permissions.
-For example:
+当与Spring Security的PermissionEvaluator结合使用时，该标签也可以用来检查权限。
+例如：
 
 [source,xml]
 ----
@@ -43,10 +43,10 @@ This content will only be visible to users who have read or write permission to 
 </sec:authorize>
 ----
 
-A common requirement is to only show a particular link, if the user is actually allowed to click it.
-How can we determine in advance whether something will be allowed? This tag can also operate in an alternative mode which allows you to define a particular URL as an attribute.
-If the user is allowed to invoke that URL, then the tag body will be evaluated, otherwise it will be skipped.
-So you might have something like
+一个常见的要求是只显示特定的链接，如果用户实际上被允许点击它。
+我们如何预先确定是否允许某些事情？该标签也可以在另一种模式下运行，该模式允许您将特定的URL定义为属性。
+如果用户被允许调用该URL，那么标签主体将被评估，否则它将被跳过。
+所以你可能有类似的东西
 
 [source,xml]
 ----
@@ -57,45 +57,45 @@ This content will only be visible to users who are authorized to send requests t
 </sec:authorize>
 ----
 
-To use this tag there must also be an instance of `WebInvocationPrivilegeEvaluator` in your application context.
-If you are using the namespace, one will automatically be registered.
-This is an instance of `DefaultWebInvocationPrivilegeEvaluator`, which creates a dummy web request for the supplied URL and invokes the security interceptor to see whether the request would succeed or fail.
-This allows you to delegate to the access-control setup you defined using `intercept-url` declarations within the `<http>` namespace configuration and saves having to duplicate the information (such as the required roles) within your JSPs.
-This approach can also be combined with a `method` attribute, supplying the HTTP method, for a more specific match.
+要使用此标记，您的应用程序上下文中还必须有`WebInvocationPrivilegeEvaluator`的实例。
+如果您使用的是名称空间，则会自动注册。
+这是`DefaultWebInvocationPrivilegeEvaluator`的一个实例，它为提供的URL创建一个虚拟Web请求，并调用安全拦截器来查看请求是成功还是失败。
+这允许您委派到您在`<http>`命名空间配置中使用`intercept-url`声明定义的访问控制设置，并且不必在JSP中复制信息（如所需的角色）。
+这种方法还可以与提供HTTP方法的`method`属性相结合，以获得更具体的匹配。
 
-The Boolean result of evaluating the tag (whether it grants or denies access) can be stored in a page context scope variable by setting the `var` attribute to the variable name, avoiding the need for duplicating and re-evaluating the condition at other points in the page.
-
-
-==== Disabling Tag Authorization for Testing
-Hiding a link in a page for unauthorized users doesn't prevent them from accessing the URL.
-They could just type it into their browser directly, for example.
-As part of your testing process, you may want to reveal the hidden areas in order to check that links really are secured at the back end.
-If you set the system property `spring.security.disableUISecurity` to `true`, the `authorize` tag will still run but will not hide its contents.
-By default it will also surround the content with `<span class="securityHiddenUI">...</span>` tags.
-This allows you to display "hidden" content with a particular CSS style such as a different background colour.
-Try running the "tutorial" sample application with this property enabled, for example.
-
-You can also set the properties `spring.security.securedUIPrefix` and `spring.security.securedUISuffix` if you want to change surrounding text from the default `span` tags (or use empty strings to remove it completely).
+通过将`var`属性设置为变量名称，可以将评估标记的布尔结果（无论是授予还是拒绝访问）存储在页面上下文范围变量中，从而避免需要复制和重新评估条件页面中的其他点。
 
 
-=== The authentication Tag
-This tag allows access to the current `Authentication` object stored in the security context.
-It renders a property of the object directly in the JSP.
-So, for example, if the `principal` property of the `Authentication` is an instance of Spring Security's `UserDetails` object, then using `<sec:authentication property="principal.username" />` will render the name of the current user.
+==== 禁用标签授权以进行测试
+在页面中隐藏未授权用户的链接并不妨碍他们访问URL。
+例如，他们可以直接将其输入到浏览器中。
+作为测试过程的一部分，您可能想要揭示隐藏区域，以检查链接是否真正在后端得到保护。
+如果您将系统属性`spring.security.disableUISecurity`设置为`true`，则`authorize`标签仍会运行，但不会隐藏其内容。
+默认情况下，它也会用`<span class="securityHiddenUI">...</span>`标签包围内容。
+这使您可以显示具有特定CSS样式（例如不同背景颜色）的"hidden"内容。
+例如，尝试运行启用了此属性的"tutorial"示例应用程序。
 
-Of course, it isn't necessary to use JSP tags for this kind of thing and some people prefer to keep as little logic as possible in the view.
-You can access the `Authentication` object in your MVC controller (by calling `SecurityContextHolder.getContext().getAuthentication()`) and add the data directly to your model for rendering by the view.
+如果要从默认的`span`标签更改周围文本（或使用空字符串将其完全删除），还可以设置属性`spring.security.securedUIPrefix`和`spring.security.securedUISuffix`。
 
 
-=== The accesscontrollist Tag
-This tag is only valid when used with Spring Security's ACL module.
-It checks a comma-separated list of required permissions for a specified domain object.
-If the current user has all of those permissions, then the tag body will be evaluated.
-If they don't, it will be skipped.
-An example might be
+=== 认证标签
+该标签允许访问存储在安全上下文中的当前`Authentication`对象。
+它直接在JSP中呈现对象的属性。
+因此，例如，如果`Authentication`的{​​{0}}属性是Spring Security的`UserDetails`对象的实例，则使用`<sec:authentication property="principal.username" />`将呈现当前用户的名称。
 
-CAUTION: In general this tag should be considered deprecated.
-Instead use the <<taglibs-authorize>>.
+当然，没有必要为这类事情使用JSP标签，而有些人更愿意在视图中尽可能少地使用逻辑。
+您可以访问MVC控制器中的`Authentication`对象（通过调用`SecurityContextHolder.getContext().getAuthentication()`）并将数据直接添加到您的模型中，以供视图渲染。
+
+
+===  accesscontrollist标记
+该标签只有在与Spring Security的ACL模块一起使用时才有效。
+它检查指定域对象的必需权限的逗号分隔列表。
+如果当前用户拥有所有这些权限，则标签正文将被评估。
+如果他们不这样做，它将被跳过。
+一个例子可能是
+
+小心：一般来说，这个标签应被视为弃用。
+请改用<<taglibs-authorize>>。
 
 [source,xml]
 ----
@@ -106,23 +106,23 @@ This will be shown if the user has all of the permissions represented by the val
 </sec:accesscontrollist>
 ----
 
-The permissions are passed to the `PermissionFactory` defined in the application context, converting them to ACL `Permission` instances, so they may be any format which is supported by the factory - they don't have to be integers, they could be strings like `READ` or `WRITE`.
-If no `PermissionFactory` is found, an instance of `DefaultPermissionFactory` will be used.
-The `AclService` from the application context will be used to load the `Acl` instance for the supplied object.
-The `Acl` will be invoked with the required permissions to check if all of them are granted.
+权限被传递给应用程序上下文中定义的`PermissionFactory`，并将它们转换为ACL `Permission`实例，因此它们可以是工厂支持的任何格式 - 它们不必是整数，它们可以是`READ`或`WRITE`之类的字符串。
+如果未找到`PermissionFactory`，则将使用`DefaultPermissionFactory`的实例。
+来自应用程序上下文的`AclService`将用于加载提供对象的`Acl`实例。
+`Acl`将被调用所需的权限来检查是否所有这些都被授予。
 
-This tag also supports the `var` attribute, in the same way as the `authorize` tag.
+这个标签也支持`var`属性，就像`authorize`标签一样。
 
 
-=== The csrfInput Tag
-If CSRF protection is enabled, this tag inserts a hidden form field with the correct name and value for the CSRF protection token.
-If CSRF protection is not enabled, this tag outputs nothing.
+===  csrfInput标记
+如果启用了CSRF保护，则此标记会为CSRF保护令牌插入一个隐藏表单字段，其中包含正确的名称和值。
+如果CSRF保护未启用，则此标记不输出任何内容。
 
-Normally Spring Security automatically inserts a CSRF form field for any `<form:form>` tags you use, but if for some reason you cannot use `<form:form>`, `csrfInput` is a handy replacement.
+通常，Spring Security会为您使用的任何`<form:form>`标记自动插入CSRF表单字段，但如果由于某种原因您无法使用`<form:form>`，则`csrfInput`是一个方便的替代品。
 
-You should place this tag within an HTML `<form></form>` block, where you would normally place other input fields.
-Do NOT place this tag within a Spring `<form:form></form:form>` block.
-Spring Security handles Spring forms automatically.
+您应该将此标记置于HTML `<form></form>`块内，您通常会在其中放置其他输入字段。
+不要将此标签放置在Spring `<form:form></form:form>`块内。
+Spring Security自动处理Spring窗体。
 
 [source,xml]
 ----
@@ -135,13 +135,13 @@ Spring Security handles Spring forms automatically.
 ----
 
 
-=== The csrfMetaTags Tag
-If CSRF protection is enabled, this tag inserts meta tags containing the CSRF protection token form field and header names and CSRF protection token value.
-These meta tags are useful for employing CSRF protection within JavaScript in your applications.
+===  csrfMetaTags标记
+如果启用CSRF保护，则此标记会插入包含CSRF保护令牌表单字段和标头名称以及CSRF保护标记值的元标记。
+这些元标记对于在应用程序中使用JavaScript中的CSRF保护很有用。
 
-You should place `csrfMetaTags` within an HTML `<head></head>` block, where you would normally place other meta tags.
-Once you use this tag, you can access the form field name, header name, and token value easily using JavaScript.
-JQuery is used in this example to make the task easier.
+您应该将`csrfMetaTags`放置在HTML `<head></head>`块内，您通常会在其中放置其他元标记。
+一旦你使用这个标签，你可以使用JavaScript轻松访问表单字段名称，标题名称和标记值。
+在这个例子中使用JQuery使任务更容易。
 
 [source,xml]
 ----
@@ -199,5 +199,5 @@ JQuery is used in this example to make the task easier.
 </html>
 ----
 
-If CSRF protection is not enabled, `csrfMetaTags` outputs nothing.
+如果未启用CSRF保护，则`csrfMetaTags`不输出任何内容。
 

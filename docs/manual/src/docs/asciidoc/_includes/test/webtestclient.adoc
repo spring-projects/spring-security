@@ -1,11 +1,11 @@
 [[test-webflux]]
-== WebFlux Support
+==  WebFlux支持
 
 [[test-erms]]
-=== Reactive Method Security
+=== 反应式方法安全性
 
-For example, we can test our example from <<jc-erms>> using the same setup and annotations we did in <<test-method>>.
-Here is a minimal sample of what we can do:
+例如，我们可以使用与<<test-method>>中所做的相同的设置和注释，从<<jc-erms>>测试我们的示例。
+以下是我们可以做的一个最小样本：
 
 [source,java]
 ----
@@ -41,10 +41,10 @@ public class HelloWorldMessageServiceTests {
 ----
 
 [[test-webtestclient]]
-=== WebTestClientSupport
+===  WebTestClientSupport
 
-Spring Security provides integration with `WebTestClient`.
-The basic setup looks like this:
+Spring Security提供了与`WebTestClient`的集成。
+基本设置如下所示：
 
 [source,java]
 ----
@@ -70,10 +70,10 @@ public class HelloWebfluxMethodApplicationTests {
 }
 ----
 
-==== Authentication
+==== 认证
 
-After applying the Spring Security support to `WebTestClient` we can use either annotations or `mutateWith` support.
-For example:
+将Spring Security支持应用到`WebTestClient`后，我们可以使用注释或`mutateWith`支持。
+例如：
 
 [source,java]
 ----
@@ -134,10 +134,10 @@ public void messageWhenMutateWithMockAdminThenOk() throws Exception {
 ----
 
 
-==== CSRF Support
+====  CSRF支持
 
-Spring Security also provides support for CSRF testing with `WebTestClient`.
-For example:
+Spring Security还为`WebTestClient`提供CSRF测试支持。
+例如：
 
 [source,java]
 ----

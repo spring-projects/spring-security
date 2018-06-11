@@ -1,5 +1,5 @@
 
-= Appendix
+= 附录
 
 include::database-schema.adoc[]
 

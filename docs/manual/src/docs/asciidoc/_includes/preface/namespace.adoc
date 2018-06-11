@@ -1,30 +1,30 @@
 
 [[ns-config]]
-== Security Namespace Configuration
+== 安全名称空间配置
 
 
-=== Introduction
-Namespace configuration has been available since version 2.0 of the Spring Framework.
-It allows you to supplement the traditional Spring beans application context syntax with elements from additional XML schema.
-You can find more information in the Spring http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/[Reference Documentation].
-A namespace element can be used simply to allow a more concise way of configuring an individual bean or, more powerfully, to define an alternative configuration syntax which more closely matches the problem domain and hides the underlying complexity from the user.
-A simple element may conceal the fact that multiple beans and processing steps are being added to the application context.
-For example, adding the following element from the security namespace to an application context will start up an embedded LDAP server for testing use within the application:
+=== 介绍
+名称空间配置自Spring Framework 2.0以来已可用。
+它允许您用传统的Spring bean应用程序上下文语法和其他XML模式中的元素进行补充。
+您可以在Spring http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/[参考文档]中找到更多信息。
+命名空间元素可以简单地用于配置单个Bean的更简洁的方式，或者更有力地定义更接近匹配问题域的替代配置语法，并隐藏用户的底层复杂性。
+一个简单的元素可能会隐藏多个bean和处理步骤被添加到应用程序上下文的事实。
+例如，将以下元素从安全性名称空间添加到应用程序上下文将启动一个嵌入式LDAP服务器，以在应用程序中测试使用情况：
 
 [source,xml]
 ----
 <security:ldap-server />
 ----
 
-This is much simpler than wiring up the equivalent Apache Directory Server beans.
-The most common alternative configuration requirements are supported by attributes on the `ldap-server` element and the user is isolated from worrying about which beans they need to create and what the bean property names are.
-footnote:[You can find out more about the use of the `ldap-server` element in the chapter on pass:specialcharacters,macros[<<ldap>>].].
-Use of a good XML editor while editing the application context file should provide information on the attributes and elements that are available.
-We would recommend that you try out the http://spring.io/tools/sts[Spring Tool Suite] as it has special features for working with standard Spring namespaces.
+这比连接相应的Apache Directory Server bean简单得多。
+最常见的备选配置要求由`ldap-server`元素上的属性支持，用户不必担心需要创建哪些bean以及哪些bean属性名称。
+脚注：[您可以在关于pass的章节中找到更多关于使用`ldap-server`元素的信息：specialcharacters，macros [<<ldap>>]。]。
+编辑应用程序上下文文件时使用好的XML编辑器应提供有关可用属性和元素的信息。
+我们建议您尝试使用 http://spring.io/tools/sts[Spring工具套件]，因为它具有用于处理标准Spring名称空间的特殊功能。
 
 
-To start using the security namespace in your application context, you need to have the `spring-security-config` jar on your classpath.
-Then all you need to do is add the schema declaration to your application context file:
+要开始在您的应用程序上下文中使用安全性命名空间，您需要在您的类路径中包含`spring-security-config` jar。
+然后，您需要做的就是将模式声明添加到您的应用程序上下文文件中：
 
 [source,xml]
 ----
@@ -39,9 +39,9 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans
 </beans>
 ----
 
-In many of the examples you will see (and in the sample applications), we will often use "security" as the default namespace rather than "beans", which means we can omit the prefix on all the security namespace elements, making the content easier to read.
-You may also want to do this if you have your application context divided up into separate files and have most of your security configuration in one of them.
-Your security application context file would then start like this
+在许多您将看到的示例中（以及示例应用程序中），我们经常会将"security"用作默认名称空间而不是"beans"，这意味着我们可以忽略所有安全名称空间元素上的前缀，使内容更易于阅读。
+如果将应用程序上下文划分为单独的文件并在其中一个文件中包含大部分安全配置，则可能还需要执行此操作。
+您的安全应用程序上下文文件将会像这样开始
 
 [source,xml]
 ----
@@ -56,40 +56,40 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans
 </beans:beans>
 ----
 
-We'll assume this syntax is being used from now on in this chapter.
+我们将假设这章从现在开始使用这个语法。
 
 
-==== Design of the Namespace
-The namespace is designed to capture the most common uses of the framework and provide a simplified and concise syntax for enabling them within an application.
-The design is based around the large-scale dependencies within the framework, and can be divided up into the following areas:
+==== 命名空间的设计
+命名空间旨在捕获框架的最常见用途，并提供简化和简洁的语法来在应用程序中启用它们。
+该设计基于框架内的大规模依赖关系，可分为以下几个方面：
 
-* __Web/HTTP Security__ - the most complex part.
-Sets up the filters and related service beans used to apply the framework authentication mechanisms, to secure URLs, render login and error pages and much more.
+*  __ Web / HTTP Security__  - 最复杂的部分。
+设置用于应用框架认证机制的过滤器和相关服务bean，保护URL，呈现登录和错误页面等等。
 
-* __Business Object (Method) Security__ - options for securing the service layer.
+*  __业务对象（方法）安全性___  - 保护服务层的选项。
 
-* __AuthenticationManager__ - handles authentication requests from other parts of the framework.
+*  __ AuthenticationManager__  - 处理来自框架其他部分的认证请求。
 
-* __AccessDecisionManager__ - provides access decisions for web and method security.
-A default one will be registered, but you can also choose to use a custom one, declared using normal Spring bean syntax.
+*  __ AccessDecisionManager__  - 为网络和方法安全提供访问决策。
+一个默认的将被注册，但你也可以选择使用一个自定义的，使用普通的Spring bean语法声明。
 
-* __AuthenticationProvider__s - mechanisms against which the authentication manager authenticates users.
-The namespace provides supports for several standard options and also a means of adding custom beans declared using a traditional syntax.
+*  __ AuthenticationProvider__s  - 身份验证管理员验证用户身份的机制。
+命名空间为几个标准选项提供了支持，同时也提供了添加使用传统语法声明的自定义bean的方法。
 
-* __UserDetailsService__ - closely related to authentication providers, but often also required by other beans.
+*  __ UserDetailsS​​ervice__  - 与身份验证提供程序密切相关，但其他bean通常也需要它。
 
-We'll see how to configure these in the following sections.
+我们将在下面的章节中看到如何配置这些。
 
 [[ns-getting-started]]
-=== Getting Started with Security Namespace Configuration
-In this section, we'll look at how you can build up a namespace configuration to use some of the main features of the framework.
-Let's assume you initially want to get up and running as quickly as possible and add authentication support and access control to an existing web application, with a few test logins.
-Then we'll look at how to change over to authenticating against a database or other security repository.
-In later sections we'll introduce more advanced namespace configuration options.
+=== 安全名称空间配置入门
+在本节中，我们将看看如何构建一个名称空间配置来使用框架的一些主要功能。
+假设您最初希望尽快启动并运行，并将身份验证支持和访问控制添加到现有的Web应用程序，并带有一些测试登录名。
+然后我们将看看如何切换到对数据库或其他安全存储库进行身份验证。
+在后面的章节中，我们将介绍更高级的命名空间配置选项。
 
 [[ns-web-xml]]
-==== web.xml Configuration
-The first thing you need to do is add the following filter declaration to your `web.xml` file:
+====  web.xml配置
+您需要做的第一件事是将以下过滤声明添加到您的`web.xml`文件中：
 
 [source,xml]
 ----
@@ -104,16 +104,16 @@ The first thing you need to do is add the following filter declaration to your `
 </filter-mapping>
 ----
 
-This provides a hook into the Spring Security web infrastructure.
-`DelegatingFilterProxy` is a Spring Framework class which delegates to a filter implementation which is defined as a Spring bean in your application context.
-In this case, the bean is named "springSecurityFilterChain", which is an internal infrastructure bean created by the namespace to handle web security.
-Note that you should not use this bean name yourself.
-Once you've added this to your `web.xml`, you're ready to start editing your application context file.
-Web security services are configured using the `<http>` element.
+这为Spring Security Web基础结构提供了一个钩子。
+`DelegatingFilterProxy`是一个Spring框架类，它委派一个过滤器实现，它在应用程序上下文中定义为一个Spring bean。
+在这种情况下，bean被命名为"springSecurityFilterChain"，它是由命名空间创建的用于处理Web安全性的内部基础设施bean。
+请注意，您不应该自己使用这个bean名称。
+将这些内容添加到您的`web.xml`后，即可开始编辑您的应用程序上下文文件。
+Web安全服务使用`<http>`元素进行配置。
 
 [[ns-minimal]]
-==== A Minimal <http> Configuration
-All you need to enable web security to begin with is
+==== 最小<http>配置
+您只需启用网络安全即可
 
 [source,xml]
 ----
@@ -124,29 +124,29 @@ All you need to enable web security to begin with is
 </http>
 ----
 
-Which says that we want all URLs within our application to be secured, requiring the role `ROLE_USER` to access them, we want to log in to the application using a form with username and password, and that we want a logout URL registered which will allow us to log out of the application.
-`<http>` element is the parent for all web-related namespace functionality.
-The `<intercept-url>` element defines a `pattern` which is matched against the URLs of incoming requests using an ant path style syntax footnote:[See the section on pass:specialcharacters,macros[<<request-matching>>] in the Web Application Infrastructure chapter for more details on how matches are actually performed.].
-You can also use regular-expression matching as an alternative (see the namespace appendix for more details).
-The `access` attribute defines the access requirements for requests matching the given pattern.
-With the default configuration, this is typically a comma-separated list of roles, one of which a user must have to be allowed to make the request.
-The prefix"ROLE_" is a marker which indicates that a simple comparison with the user's authorities should be made.
-In other words, a normal role-based check should be used.
-Access-control in Spring Security is not limited to the use of simple roles (hence the use of the prefix to differentiate between different types of security attributes).
-We'll see later how the interpretation can vary footnote:[The interpretation of the comma-separated values in the `access` attribute depends on the implementation of the pass:specialcharacters,macros[<<ns-access-manager,AccessDecisionManager>>] which is used.
-In Spring Security 3.0, the attribute can also be populated with an pass:specialcharacters,macros[<<el-access,EL expression>>].
+其中说我们希望我们应用程序中的所有URL都受到保护，要求角色`ROLE_USER`能够访问它们，我们希望使用带有用户名和密码的表单登录应用程序，并且我们希望注册注销URL这将允许我们注销应用程序。
+`<http>`元素是所有与Web相关的名称空间功能的父项。
+`<intercept-url>`元素定义了一个`pattern`，它使用蚂蚁路径样式语法脚注与传入请求的URL匹配：[请参阅关于传递的部分：特殊字符，宏[<<request-matching>>] Web应用程序基础结构一章，了解如何实际执行匹配的更多细节。]。
+您也可以使用正则表达式匹配作为替代（有关更多详细信息，请参阅命名空间附录）。
+`access`属性定义匹配给定模式的请求的访问要求。
+通过默认配置，这通常是逗号分隔的角色列表，其中一个用户必须被允许发出请求。
+前缀"ROLE_"是一个标记，表示应该与用户权限进行简单比较。
+换句话说，应该使用正常的基于角色的检查。
+Spring Security中的访问控制不限于使用简单角色（因此使用前缀来区分不同类型的安全属性）。
+我们稍后会看到解释如何变化脚注：[{0}}属性中逗号分隔值的解释取决于pass的实现：specialcharacters，macros [<<ns-access-manager,AccessDecisionManager>>] 。
+在Spring Security 3.0中，该属性也可以使用pass：specialcharacters，macros [<<el-access,EL expression>>]来填充。
 
 
 [NOTE]
 ====
 
-You can use multiple `<intercept-url>` elements to define different access requirements for different sets of URLs, but they will be evaluated in the order listed and the first match will be used.
-So you must put the most specific matches at the top.
-You can also add a `method` attribute to limit the match to a particular HTTP method (`GET`, `POST`, `PUT` etc.).
+您可以使用多个`<intercept-url>`元素为不同的网址集定义不同的访问权限要求，但会按列出的顺序对其进行评估，并使用第一个匹配项。
+所以你必须把最具体的比赛放在最上面。
+您还可以添加`method`属性，以将匹配限制为特定的HTTP方法（`GET`，`POST`，`PUT`）。
 
 ====
 
-To add some users, you can define a set of test data directly in the namespace:
+要添加一些用户，您可以直接在命名空间中定义一组测试数据：
 
 [source,xml]
 ----
@@ -163,8 +163,8 @@ To add some users, you can define a set of test data directly in the namespace:
 </authentication-manager>
 ----
 
-This is an example of a secure way of storing the same passwords.
-The password is prefixed with `{bcrypt}` to instruct `DelegatingPasswordEncoder`, which supports any configured `PasswordEncoder` for matching, that the passwords are hashed using BCrypt:
+这是存储相同密码的安全方式的一个例子。
+密码前缀为`{bcrypt}`，用于指示支持任何已配置的`PasswordEncoder`进行匹配的`DelegatingPasswordEncoder`，并使用BCrypt对密码进行散列处理：
 
 [source,xml]
 ----
@@ -186,32 +186,32 @@ The password is prefixed with `{bcrypt}` to instruct `DelegatingPasswordEncoder`
 
 [subs="quotes"]
 ****
-If you are familiar with pre-namespace versions of the framework, you can probably already guess roughly what's going on here.
-The `<http>` element is responsible for creating a `FilterChainProxy` and the filter beans which it uses.
-Common problems like incorrect filter ordering are no longer an issue as the filter positions are predefined.
+如果你熟悉框架的命名空间版本，你可能已经可以大概猜出这里发生了什么。
+`<http>`元素负责创建一个`FilterChainProxy`和它使用的过滤器bean。
+由于过滤器位置是预定义的，因此不正确的过滤器排序等常见问题不再是问题。
 
-The `<authentication-provider>` element creates a `DaoAuthenticationProvider` bean and the `<user-service>` element creates an `InMemoryDaoImpl`.
-All `authentication-provider` elements must be children of the `<authentication-manager>` element, which creates a `ProviderManager` and registers the authentication providers with it.
-You can find more detailed information on the beans that are created in the <<appendix-namespace,namespace appendix>>.
-It's worth cross-checking this if you want to start understanding what the important classes in the framework are and how they are used, particularly if you want to customise things later.
+`<authentication-provider>`元素创建一个`DaoAuthenticationProvider` bean，`<user-service>`元素创建一个`InMemoryDaoImpl`。
+所有`authentication-provider`元素必须是`<authentication-manager>`元素的子元素，它会创建一个`ProviderManager`并向其注册身份验证提供程序。
+您可以找到有关在<<appendix-namespace,namespace appendix>>中创建的bean的更多详细信息。
+如果您想开始了解框架中的重要类以及如何使用这些类，那么值得进行交叉检查，特别是如果您想稍后进行自定义的话。
 ****
 
-The configuration above defines two users, their passwords and their roles within the application (which will be used for access control).
-It is also possible to load user information from a standard properties file using the `properties` attribute on `user-service`.
-See the section on <<core-services-in-memory-service,in-memory authentication>> for more details on the file format.
-Using the `<authentication-provider>` element means that the user information will be used by the authentication manager to process authentication requests.
-You can have multiple `<authentication-provider>` elements to define different authentication sources and each will be consulted in turn.
+上面的配置定义了两个用户，他们的密码和他们在应用程序中的角色（将用于访问控制）。
+也可以使用`user-service`上的`properties`属性从标准属性文件加载用户信息。
+有关文件格式的更多详细信息，请参阅<<core-services-in-memory-service,in-memory authentication>>中的部分。
+使用`<authentication-provider>`元素意味着用户信息将被认证管理器用于处理认证请求。
+您可以有多个`<authentication-provider>`元素来定义不同的身份验证源，并且每个元素都会依次进行查询。
 
-At this point you should be able to start up your application and you will be required to log in to proceed.
-Try it out, or try experimenting with the "tutorial" sample application that comes with the project.
+此时您应该能够启动您的应用程序，并且您将需要登录才能继续。
+尝试一下，或尝试使用该项目附带的"tutorial"示例应用程序进行试验。
 
 
 [[ns-form-and-basic]]
-==== Form and Basic Login Options
-You might be wondering where the login form came from when you were prompted to log in, since we made no mention of any HTML files or JSPs.
-In fact, since we didn't explicitly set a URL for the login page, Spring Security generates one automatically, based on the features that are enabled and using standard values for the URL which processes the submitted login, the default target URL the user will be sent to after logging in and so on.
-However, the namespace offers plenty of support to allow you to customize these options.
-For example, if you want to supply your own login page, you could use:
+==== 表单和基本登录选项
+由于我们没有提及任何HTML文件或JSP，因此您可能想知道登录表单从何时被提示登录。
+实际上，由于我们没有明确设置登录页面的URL，因此Spring Security会根据启用的功能自动生成一个URL，并使用处理提交的登录的URL的标准值，用户将默认的目标URL在登录后被发送到等等。
+但是，命名空间提供了大量的支持来允许您自定义这些选项。
+例如，如果您想提供自己的登录页面，则可以使用：
 
 [source,xml]
 ----
@@ -222,11 +222,11 @@ For example, if you want to supply your own login page, you could use:
 </http>
 ----
 
-Also note that we've added an extra `intercept-url` element to say that any requests for the login page should be available to anonymous users footnote:[See the chapter on pass:specialcharacters,macros[<<anonymous>>]] and also the <<authz-authenticated-voter,AuthenticatedVoter>> class for more details on how the value `IS_AUTHENTICATED_ANONYMOUSLY` is processed.].
-Otherwise the request would be matched by the pattern /** and it wouldn't be possible to access the login page itself!
-This is a common configuration error and will result in an infinite loop in the application.
-Spring Security will emit a warning in the log if your login page appears to be secured.
-It is also possible to have all requests matching a particular pattern bypass the security filter chain completely, by defining a separate `http` element for the pattern like this:
+另请注意，我们已经添加了一个额外的`intercept-url`元素来说明登录页面的任何请求应该可供匿名用户使用脚注：[请参阅关于pass的章节：specialcharacters，macros [<<anonymous>>]]以及关于值`IS_AUTHENTICATED_ANONYMOUSLY`如何处理的更多细节<<authz-authenticated-voter,AuthenticatedVoter>>类。]。
+否则，请求将与模式/ **匹配，并且无法访问登录页面本身！
+这是一个常见的配置错误，并且会导致应用程序中出现无限循环。
+如果您的登录页面似乎受到保护，Spring Security将在日志中发出警告。
+通过为模式定义一个单独的`http`元素，也可以让所有匹配特定模式的请求完全绕过安全过滤器链，如下所示：
 
 
 [source,xml]
@@ -240,16 +240,16 @@ It is also possible to have all requests matching a particular pattern bypass th
 </http>
 ----
 
-From Spring Security 3.1 it is now possible to use multiple `http` elements to define separate security filter chain configurations for different request patterns.
-If the `pattern` attribute is omitted from an `http` element, it matches all requests.
-Creating an unsecured pattern is a simple example of this syntax, where the pattern is mapped to an empty filter chain  footnote:[The use of multiple `<http>` elements is an important feature, allowing the namespace to simultaneously support both stateful and stateless paths within the same application, for example.
-The previous syntax, using the attribute `filters="none"` on an `intercept-url` element is incompatible with this change and is no longer supported in 3.1.].
-We'll look at this new syntax in more detail in the chapter on the <<filter-chains-with-ns,Security Filter Chain>>.
+从Spring Security 3.1开始，现在可以使用多个`http`元素为不同的请求模式定义单独的安全过滤器链配置。
+如果从`http`元素中省略`pattern`属性，它将匹配所有请求。
+创建一个不安全的模式就是这种语法的一个简单例子，其中模式映射到一个空的过滤器链脚注：[使用多个`<http>`元素是一个重要的特性，允许名称空间同时支持有状态和无状态例如，在同一个应用程序中的路径。
+以前使用`intercept-url`元素上的属性`filters="none"`的语法与此更改不兼容，并且在3.1中不再支持。]。
+我们将在<<filter-chains-with-ns,Security Filter Chain>>一章中更详细地讨论这种新语法。
 
-It's important to realise that these unsecured requests will be completely oblivious to any Spring Security web-related configuration or additional attributes such as `requires-channel`, so you will not be able to access information on the current user or call secured methods during the request.
-Use `access='IS_AUTHENTICATED_ANONYMOUSLY'` as an alternative if you still want the security filter chain to be applied.
+认识到这些不安全的请求将完全忽略任何Spring Security Web相关配置或诸如`requires-channel`之类的附加属性是非常重要的，因此您将无法访问当前用户的信息或在请求。
+如果您仍希望应用安全筛选器链，请使用`access='IS_AUTHENTICATED_ANONYMOUSLY'`作为替代方案。
 
-If you want to use basic authentication instead of form login, then change the configuration to
+如果您想使用基本身份验证而不是表单登录，请将配置更改为
 
 [source,xml]
 ----
@@ -259,15 +259,15 @@ If you want to use basic authentication instead of form login, then change the c
 </http>
 ----
 
-Basic authentication will then take precedence and will be used to prompt for a login when a user attempts to access a protected resource.
-Form login is still available in this configuration if you wish to use it, for example through a login form embedded in another web page.
+然后，基本身份验证将优先，并在用户尝试访问受保护资源时用于提示登录。
+如果您希望使用此配置，表单登录仍然可用，例如通过嵌入其他网页的登录表单。
 
 [[ns-form-target]]
-===== Setting a Default Post-Login Destination
-If a form login isn't prompted by an attempt to access a protected resource, the `default-target-url` option comes into play.
-This is the URL the user will be taken to after successfully logging in, and defaults to "/".
-You can also configure things so that the user __always__ ends up at this page (regardless of whether the login was "on-demand" or they explicitly chose to log in) by setting the `always-use-default-target` attribute to "true".
-This is useful if your application always requires that the user starts at a "home" page, for example:
+===== 设置默认的登录后目的地
+如果尝试访问受保护资源时未提示表单登录，则`default-target-url`选项会发挥作用。
+这是成功登录后用户将访问的网址，默认为"/"。
+通过将`always-use-default-target`属性设置为"true"，您还可以配置这些内容，以使用户__always__结束于此页面（无论登录名是"on-demand"还是明确选择登录） 。
+如果您的应用程序始终要求用户从"home"页开始，这非常有用，例如：
 
 [source,xml]
 ----
@@ -279,22 +279,22 @@ This is useful if your application always requires that the user starts at a "ho
 </http>
 ----
 
-For even more control over the destination, you can use the `authentication-success-handler-ref` attribute as an alternative to `default-target-url`.
-The referenced bean should be an instance of `AuthenticationSuccessHandler`.
-You'll find more on this in the <<form-login-flow-handling,Core Filters>> chapter and also in the namespace appendix, as well as information on how to customize the flow when authentication fails.
+为了更好地控制目标，您可以使用`authentication-success-handler-ref`属性作为`default-target-url`的替代选项。
+被引用的bean应该是`AuthenticationSuccessHandler`的一个实例。
+您可以在<<form-login-flow-handling,Core Filters>>章节以及命名空间附录中找到更多信息，以及有关如何在身份验证失败时自定义流的信息。
 
 [[ns-logout]]
-==== Logout Handling
-The `logout` element adds support for logging out by navigating to a particular URL.
-The default logout URL is `/logout`, but you can set it to something else using the `logout-url` attribute.
-More information on other available attributes may be found in the namespace appendix.
+==== 注销处理
+`logout`元素通过导航到特定的URL添加了对注销的支持。
+默认注销网址为`/logout`，但您可以使用`logout-url`属性将其设置为其他内容。
+关于其他可用属性的更多信息可以在命名空间附录中找到。
 
 [[ns-auth-providers]]
-==== Using other Authentication Providers
-In practice you will need a more scalable source of user information than a few names added to the application context file.
-Most likely you will want to store your user information in something like a database or an LDAP server.
-LDAP namespace configuration is dealt with in the <<ldap,LDAP chapter>>, so we won't cover it here.
-If you have a custom implementation of Spring Security's `UserDetailsService`, called "myUserDetailsService" in your application context, then you can authenticate against this using
+==== 使用其他身份验证提供程序
+在实践中，您将需要一个更可扩展的用户信息来源，而不是添加到应用程序上下文文件中的几个名称。
+您很可能希望将您的用户信息存储在数据库或LDAP服务器中。
+LDAP命名空间配置在<<ldap,LDAP chapter>>中处理，所以我们不会在这里介绍它。
+如果您在应用程序上下文中有一个名为"myUserDetailsService"的Spring Security {0}}的自定义实现，那么您可以使用这种方法进行身份验证
 
 [source,xml]
 ----
@@ -305,7 +305,7 @@ If you have a custom implementation of Spring Security's `UserDetailsService`, c
 
 ----
 
-If you want to use a database, then you can use
+如果你想使用数据库，那么你可以使用
 
 [source,xml]
 ----
@@ -316,8 +316,8 @@ If you want to use a database, then you can use
 </authentication-manager>
 ----
 
-Where "securityDataSource" is the name of a `DataSource` bean in the application context, pointing at a database containing the standard Spring Security <<user-schema,user data tables>>.
-Alternatively, you could configure a Spring Security `JdbcDaoImpl` bean and point at that using the `user-service-ref` attribute:
+"securityDataSource"是应用程序上下文中`DataSource` bean的名称，指向包含标准Spring Security <<user-schema,user data tables>>的数据库。
+或者，您可以配置Spring Security `JdbcDaoImpl` bean并使用`user-service-ref`属性指向该bean：
 
 [source,xml]
 ----
@@ -331,7 +331,7 @@ Alternatively, you could configure a Spring Security `JdbcDaoImpl` bean and poin
 </beans:bean>
 ----
 
-You can also use standard `AuthenticationProvider` beans as follows
+您还可以使用标准的`AuthenticationProvider` bean，如下所示
 
 [source,xml]
 ----
@@ -342,15 +342,15 @@ You can also use standard `AuthenticationProvider` beans as follows
 
 ----
 
-where `myAuthenticationProvider` is the name of a bean in your application context which implements `AuthenticationProvider`.
-You can use multiple `authentication-provider` elements, in which case the providers will be queried in the order they are declared.
-See <<ns-auth-manager>> for more information on how the Spring Security `AuthenticationManager` is configured using the namespace.
+其中`myAuthenticationProvider`是您的应用程序上下文中实现`AuthenticationProvider`的bean的名称。
+您可以使用多个`authentication-provider`元素，在这种情况下，提供程序将按其声明的顺序进行查询。
+有关如何使用名称空间配置Spring Security `AuthenticationManager`的更多信息，请参阅<<ns-auth-manager>>。
 
 [[ns-password-encoder]]
-===== Adding a Password Encoder
-Passwords should always be encoded using a secure hashing algorithm designed for the purpose (not a standard algorithm like SHA or MD5).
-This is supported by the `<password-encoder>` element.
-With bcrypt encoded passwords, the original authentication provider configuration would look like this:
+===== 添加密码编码器
+应该始终使用为此目的而设计的安全哈希算法对密码进行编码（不是像SHA或MD5这样的标准算法）。
+这由`<password-encoder>`元素支持。
+使用bcrypt编码密码，原始身份验证提供程序配置将如下所示：
 
 [source,xml]
 ----
@@ -373,19 +373,19 @@ With bcrypt encoded passwords, the original authentication provider configuratio
 
 
 
-bcrypt is a good choice for most cases, unless you have a legacy system which forces you to use a different algorithm.
-If you are using a simple hashing algorithm or, even worse, storing plain text passwords, then you should consider migrating to a more secure option like bcrypt.
+在大多数情况下，bcrypt是一个不错的选择，除非你有一个遗留系统迫使你使用不同的算法。
+如果您使用简单的哈希算法，或者更糟糕的是，存储纯文本密码，那么您应该考虑迁移到更安全的选项，如bcrypt。
 
 [[ns-web-advanced]]
-=== Advanced Web Features
+=== 高级网络功能
 
 [[ns-remember-me]]
-==== Remember-Me Authentication
-See the separate <<remember-me,Remember-Me chapter>> for information on remember-me namespace configuration.
+==== 记住我的身份验证
+有关remember-me命名空间配置的信息，请参阅单独的<<remember-me,Remember-Me chapter>>。
 
 [[ns-requires-channel]]
-==== Adding HTTP/HTTPS Channel Security
-If your application supports both HTTP and HTTPS, and you require that particular URLs can only be accessed over HTTPS, then this is directly supported using the `requires-channel` attribute on `<intercept-url>`:
+==== 添加HTTP / HTTPS频道安全
+如果您的应用程序同时支持HTTP和HTTPS，并且您要求只能通过HTTPS访问特定的URL，则可以使用`<intercept-url>`上的`requires-channel`属性直接支持此功能：
 
 [source,xml]
 ----
@@ -396,11 +396,11 @@ If your application supports both HTTP and HTTPS, and you require that particula
 </http>
 ----
 
-With this configuration in place, if a user attempts to access anything matching the "/secure/**" pattern using HTTP, they will first be redirected to an HTTPS URL footnote:[For more details on how channel-processing is implemented, see the Javadoc for `ChannelProcessingFilter` and related classes.].
-The available options are "http", "https" or "any".
-Using the value "any" means that either HTTP or HTTPS can be used.
+使用此配置，如果用户尝试使用HTTP访问任何匹配"/secure/**"模式的内容，则会首先将其重定向到HTTPS URL脚注：[有关如何实现频道处理的更多详细信息，请参阅Javadoc对于`ChannelProcessingFilter`和相关类。]。
+可用选项为"http"，"https"或"any"。
+使用值"any"表示可以使用HTTP或HTTPS。
 
-If your application uses non-standard ports for HTTP and/or HTTPS, you can specify a list of port mappings as follows:
+如果您的应用程序使用HTTP和/或HTTPS的非标准端口，则可以按如下方式指定端口映射列表：
 
 [source,xml]
 ----
@@ -412,15 +412,15 @@ If your application uses non-standard ports for HTTP and/or HTTPS, you can speci
 </http>
 ----
 
-Note that in order to be truly secure, an application should not use HTTP at all or switch between HTTP and HTTPS.
-It should start in HTTPS (with the user entering an HTTPS URL) and use a secure connection throughout to avoid any possibility of man-in-the-middle attacks.
+请注意，为了确保安全，应用程序不应该使用HTTP或在HTTP和HTTPS之间切换。
+它应该从HTTPS开始（用户输入HTTPS URL）并始终使用安全连接以避免任何可能的中间人攻击。
 
 [[ns-session-mgmt]]
-==== Session Management
+==== 会话管理
 
-===== Detecting Timeouts
-You can configure Spring Security to detect the submission of an invalid session ID and redirect the user to an appropriate URL.
-This is achieved through the `session-management` element:
+===== 检测超时
+您可以配置Spring Security检测提交的无效会话ID并将用户重定向到适当的URL。
+这是通过`session-management`元素实现的：
 
 [source,xml]
 ----
@@ -430,9 +430,9 @@ This is achieved through the `session-management` element:
 </http>
 ----
 
-Note that if you use this mechanism to detect session timeouts, it may falsely report an error if the user logs out and then logs back in without closing the browser.
-This is because the session cookie is not cleared when you invalidate the session and will be resubmitted even if the user has logged out.
-You may be able to explicitly delete the JSESSIONID cookie on logging out, for example by using the following syntax in the logout handler:
+请注意，如果您使用此机制来检测会话超时，那么如果用户注销并重新登录而不关闭浏览器，它可能会错误地报告错误。
+这是因为会话cookie在会话无效时不会被清除，即使用户已注销，也会重新提交。
+您可以在注销时显式删除JSESSIONID cookie，例如在注销处理程序中使用以下语法：
 
 [source,xml]
 ----
@@ -441,12 +441,12 @@ You may be able to explicitly delete the JSESSIONID cookie on logging out, for e
 </http>
 ----
 
-Unfortunately this can't be guaranteed to work with every servlet container, so you will need to test it in your environment
+不幸的是，这不能保证与每个servlet容器一起工作，所以你需要在你的环境中测试它
 
 [NOTE]
 ====
-If you are running your application behind a proxy, you may also be able to remove the session cookie by configuring the proxy server.
-For example, using Apache HTTPD's mod_headers, the following directive would delete the `JSESSIONID` cookie by expiring it in the response to a logout request (assuming the application is deployed under the path `/tutorial`):
+如果您在代理后运行应用程序，则可以通过配置代理服务器来删除会话cookie。
+例如，使用Apache HTTPD的mod_headers，以下指令将通过在对注销请求的响应（假设应用程序部署在`/tutorial`路径下）中删除`JSESSIONID` cookie：
 
 [source,xml]
 ----
@@ -458,9 +458,9 @@ Header always set Set-Cookie "JSESSIONID=;Path=/tutorial;Expires=Thu, 01 Jan 197
 
 
 [[ns-concurrent-sessions]]
-===== Concurrent Session Control
-If you wish to place constraints on a single user's ability to log in to your application, Spring Security supports this out of the box with the following simple additions.
-First you need to add the following listener to your `web.xml` file to keep Spring Security updated about session lifecycle events:
+===== 并发会话控制
+如果您希望限制单个用户登录您的应用程序的能力，Spring Security通过以下简单添加支持这种开箱即用的功能。
+首先，您需要将以下侦听器添加到您的`web.xml`文件中，以保持Spring Security关于会话生命周期事件的更新：
 
 [source,xml]
 ----
@@ -471,7 +471,7 @@ First you need to add the following listener to your `web.xml` file to keep Spri
 </listener>
 ----
 
-Then add the following lines to your application context:
+然后将以下行添加到您的应用程序上下文中：
 
 [source,xml]
 ----
@@ -483,8 +483,8 @@ Then add the following lines to your application context:
 </http>
 ----
 
-This will prevent a user from logging in multiple times - a second login will cause the first to be invalidated.
-Often you would prefer to prevent a second login, in which case you can use
+这将防止用户多次登录 - 第二次登录会导致第一次登录失效。
+通常情况下，您宁愿阻止第二次登录，在这种情况下您可以使用
 
 [source,xml]
 ----
@@ -496,43 +496,43 @@ Often you would prefer to prevent a second login, in which case you can use
 </http>
 ----
 
-The second login will then be rejected.
-By "rejected", we mean that the user will be sent to the `authentication-failure-url` if form-based login is being used.
-If the second authentication takes place through another non-interactive mechanism, such as "remember-me", an "unauthorized" (401) error will be sent to the client.
-If instead you want to use an error page, you can add the attribute `session-authentication-error-url` to the `session-management` element.
+第二次登录将被拒绝。
+通过"rejected"，我们表示如果正在使用基于表单的登录，则用户将被发送到`authentication-failure-url`。
+如果第二次认证是通过另一个非交互式机制（例如"remember-me"）发生的，则会向客户端发送一个"unauthorized"（401）错误。
+如果您想要使用错误页面，则可以将属性`session-authentication-error-url`添加到`session-management`元素。
 
-If you are using a customized authentication filter for form-based login, then you have to configure concurrent session control support explicitly.
-More details can be found in the <<session-mgmt,Session Management chapter>>.
+如果您使用自定义身份验证过滤器进行基于表单的登录，则必须明确配置并发会话控制支持。
+更多详细信息可以在<<session-mgmt,Session Management chapter>>中找到。
 
 [[ns-session-fixation]]
-===== Session Fixation Attack Protection
-http://en.wikipedia.org/wiki/Session_fixation[Session fixation] attacks are a potential risk where it is possible for a malicious attacker to create a session by accessing a site, then persuade another user to log in with the same session (by sending them a link containing the session identifier as a parameter, for example).
-Spring Security protects against this automatically by creating a new session or otherwise changing the session ID when a user logs in.
-If you don't require this protection, or it conflicts with some other requirement, you can control the behavior using the `session-fixation-protection` attribute on `<session-management>`, which has four options
+===== 会话固定攻击保护
+http://en.wikipedia.org/wiki/Session_fixation[会话固定]攻击是潜在的风险，因为恶意攻击者可能通过访问站点创建会话，然后说服其他用户使用同一会话登录（通过向其发送包含会话标识符的链接作为参数，例如）。
+Spring Security通过创建新会话或以其他方式更改用户登录时的会话ID来自动防止此问题。
+如果您不需要此保护，或者与其他要求冲突，则可以使用`<session-management>`上的`session-fixation-protection`属性来控制行为，该属性有四个选项
 
-* `none` - Don't do anything.
-The original session will be retained.
+*  `none`  - 不要做任何事情。
+原来的会议将被保留。
 
-* `newSession` - Create a new "clean" session, without copying the existing session data (Spring Security-related attributes will still be copied).
+*  `newSession`  - 创建新的"clean"会话，而不复制现有的会话数据（Spring Security相关的属性仍将被复制）。
 
-* `migrateSession` - Create a new session and copy all existing session attributes to the new session.
-This is the default in Servlet 3.0 or older containers.
+*  `migrateSession`  - 创建新会话并将所有现有会话属性复制到新会话。
+这是Servlet 3.0或更旧版本容器的默认值。
 
-* `changeSessionId` - Do not create a new session.
-Instead, use the session fixation protection provided by the Servlet container (`HttpServletRequest#changeSessionId()`).
-This option is only available in Servlet 3.1 (Java EE 7) and newer containers.
-Specifying it in older containers will result in an exception.
-This is the default in Servlet 3.1 and newer containers.
+*  `changeSessionId`  - 不要创建新会话。
+而是使用Servlet容器提供的会话固定保护（`HttpServletRequest#changeSessionId()`）。
+此选项仅在Servlet 3.1（Java EE 7）和更新的容器中可用。
+在较旧的容器中指定它将导致异常。
+这是Servlet 3.1和更新的容器中的默认值。
 
 
-When session fixation protection occurs, it results in a `SessionFixationProtectionEvent` being published in the application context.
-If you use `changeSessionId`, this protection will __also__ result in any  `javax.servlet.http.HttpSessionIdListener` s being notified, so use caution if your code listens for both events.
-See the <<session-mgmt,Session Management>> chapter for additional information.
+发生会话修复保护时，会导致在应用程序上下文中发布`SessionFixationProtectionEvent`。
+如果您使用`changeSessionId`，则此保护将会__also__导致通知任何`javax.servlet.http.HttpSessionIdListener`，因此如果您的代码侦听这两个事件，请谨慎使用。
+有关更多信息，请参阅<<session-mgmt,Session Management>>一章。
 
 
 [[ns-openid]]
-==== OpenID Support
-The namespace supports http://openid.net/[OpenID] login either instead of, or in addition to normal form-based login, with a simple change:
+====  OpenID支持
+命名空间支持 http://openid.net/[OpenID的]登录，而不是普通的基于表单的登录，或者除了普通的基于表单的登录外，还可以进行简单的更改：
 
 [source,xml]
 ----
@@ -542,23 +542,23 @@ The namespace supports http://openid.net/[OpenID] login either instead of, or in
 </http>
 ----
 
-You should then register yourself with an OpenID provider (such as myopenid.com), and add the user information to your in-memory `<user-service>`:
+然后，您应该向OpenID提供商（例如myopenid.com）注册您自己，并将用户信息添加到您的内存`<user-service>`中：
 
 [source,xml]
 ----
 <user name="http://jimi.hendrix.myopenid.com/" authorities="ROLE_USER" />
 ----
 
-You should be able to login using the `myopenid.com` site to authenticate.
-It is also possible to select a specific `UserDetailsService` bean for use OpenID by setting the `user-service-ref` attribute on the `openid-login` element.
-See the previous section on <<ns-auth-providers,authentication providers>> for more information.
-Note that we have omitted the password attribute from the above user configuration, since this set of user data is only being used to load the authorities for the user.
-A random password will be generated internally, preventing you from accidentally using this user data as an authentication source elsewhere in your configuration.
+您应该可以使用`myopenid.com`网站进行身份验证。
+通过设置`openid-login`元素上的`user-service-ref`属性，还可以选择特定的`UserDetailsService` bean来使用OpenID。
+有关更多信息，请参阅<<ns-auth-providers,authentication providers>>上的上一节。
+请注意，我们从上述用户配置中省略了密码属性，因为这组用户数据仅用于为用户加载权限。
+随机密码将在内部生成，从而防止您在配置中的其他位置意外地将此用户数据用作身份验证源。
 
 
-===== Attribute Exchange
-Support for OpenID http://openid.net/specs/openid-attribute-exchange-1_0.html[attribute exchange].
-As an example, the following configuration would attempt to retrieve the email and full name from the OpenID provider, for use by the application:
+===== 属性交换
+支持OpenID http://openid.net/specs/openid-attribute-exchange-1_0.html[属性交换]。
+例如，以下配置将尝试从OpenID提供程序中检索电子邮件和全名，供应用程序使用：
 
 [source,xml]
 ----
@@ -570,10 +570,10 @@ As an example, the following configuration would attempt to retrieve the email a
 </openid-login>
 ----
 
-The "type" of each OpenID attribute is a URI, determined by a particular schema, in this case http://axschema.org/[http://axschema.org/].
-If an attribute must be retrieved for successful authentication, the `required` attribute can be set.
-The exact schema and attributes supported will depend on your OpenID provider.
-The attribute values are returned as part of the authentication process and can be accessed afterwards using the following code:
+每个OpenID属性的"type"是一个由特定模式确定的URI，在这种情况下为 http://axschema.org/[http://axschema.org/]。
+如果必须为成功认证检索属性，则可以设置`required`属性。
+支持的确切架构和属性取决于您的OpenID提供者。
+属性值作为身份验证过程的一部分返回，并可以使用以下代码进行访问：
 
 [source,java]
 ----
@@ -582,53 +582,53 @@ OpenIDAuthenticationToken token =
 List<OpenIDAttribute> attributes = token.getAttributes();
 ----
 
-The `OpenIDAttribute` contains the attribute type and the retrieved value (or values in the case of multi-valued attributes).
-We'll see more about how the `SecurityContextHolder` class is used when we look at core Spring Security components in the <<core-components,technical overview>> chapter.
-Multiple attribute exchange configurations are also be supported, if you wish to use multiple identity providers.
-You can supply multiple `attribute-exchange` elements, using an `identifier-matcher` attribute on each.
-This contains a regular expression which will be matched against the OpenID identifier supplied by the user.
-See the OpenID sample application in the codebase for an example configuration, providing different attribute lists for the Google, Yahoo and MyOpenID providers.
+`OpenIDAttribute`包含属性类型和检索值（或多值属性中的值）。
+当我们查看<<core-components,technical overview>>章节中的核心Spring Security组件时，我们将更多地了解如何使用`SecurityContextHolder`类。
+如果您希望使用多个身份提供程序，则还支持多个属性交换配置。
+您可以使用每个`identifier-matcher`属性提供多个`attribute-exchange`个元素。
+这包含一个正则表达式，它将与用户提供的OpenID标识符相匹配。
+有关示例配置，请参阅代码库中的OpenID示例应用程序，为Google，Yahoo和MyOpenID提供程序提供不同的属性列表。
 
 
 [[ns-headers]]
-==== Response Headers
-For additional information on how to customize the headers element refer to the <<headers>> section of the reference.
+==== 响应标题
+有关如何自定义标题元素的其他信息，请参阅参考文献的<<headers>>部分。
 
 
 [[ns-custom-filters]]
-==== Adding in Your Own Filters
-If you've used Spring Security before, you'll know that the framework maintains a chain of filters in order to apply its services.
-You may want to add your own filters to the stack at particular locations or use a Spring Security filter for which there isn't currently a namespace configuration option (CAS, for example).
-Or you might want to use a customized version of a standard namespace filter, such as the `UsernamePasswordAuthenticationFilter` which is created by the `<form-login>` element, taking advantage of some of the extra configuration options which are available by using the bean explicitly.
-How can you do this with namespace configuration, since the filter chain is not directly exposed?
+==== 添加您自己的过滤器
+如果您以前使用过Spring Security，那么您会知道该框架维护一系列过滤器以应用其服务。
+您可能希望将自己的过滤器添加到特定位置的堆栈中，或者使用当前没有命名空间配置选项（例如CAS）的Spring Security过滤器。
+或者您可能想要使用标准名称空间过滤器的自定义版本，例如由`<form-login>`元素创建的`UsernamePasswordAuthenticationFilter`，以利用可用的一些额外配置选项显式的bean。
+你怎么能用命名空间配置来做到这一点，因为过滤器链不直接暴露？
 
-The order of the filters is always strictly enforced when using the namespace.
-When the application context is being created, the filter beans are sorted by the namespace handling code and the standard Spring Security filters each have an alias in the namespace and a well-known position.
+使用名称空间时，过滤器的顺序始终严格执行。
+在创建应用程序上下文时，过滤器bean按名称空间处理代码进行排序，标准Spring Security过滤器在名称空间和知名位置都有一个别名。
 
 [NOTE]
 ====
-In previous versions, the sorting took place after the filter instances had been created, during post-processing of the application context.
-In version 3.0+ the sorting is now done at the bean metadata level, before the classes have been instantiated.
-This has implications for how you add your own filters to the stack as the entire filter list must be known during the parsing of the `<http>` element, so the syntax has changed slightly in 3.0.
+在以前的版本中，在应用程序上下文的后处理期间，创建过滤器实例之后进行排序。
+在版本3.0+中，现在在bean实例化之前，在bean元数据级完成排序。
+这会影响您如何将自己的过滤器添加到堆栈，因为在解析`<http>`元素期间必须知道整个过滤器列表，因此语法在3.0中稍有变化。
 ====
 
-The filters, aliases and namespace elements/attributes which create the filters are shown in <<filter-stack>>.
-The filters are listed in the order in which they occur in the filter chain.
+<<filter-stack>>中显示了创建过滤器的过滤器，别名和命名空间元素/属性。
+过滤器按照它们在过滤器链中出现的顺序列出。
 
 [[filter-stack]]
-.Standard Filter Aliases and Ordering
+。标准过滤器别名和排序
 |===
-| Alias | Filter Class | Namespace Element or Attribute
+|别名|过滤器类|名称空间元素或属性
 
-|  CHANNEL_FILTER
+| CHANNEL_FILTER
 | `ChannelProcessingFilter`
 | `http/intercept-url@requires-channel`
 
-|  SECURITY_CONTEXT_FILTER
+| SECURITY_CONTEXT_FILTER
 | `SecurityContextPersistenceFilter`
 | `http`
 
-|  CONCURRENT_SESSION_FILTER
+| CONCURRENT_SESSION_FILTER
 | `ConcurrentSessionFilter`
 | `session-management/concurrency-control`
 
@@ -640,31 +640,31 @@ The filters are listed in the order in which they occur in the filter chain.
 | `CsrfFilter`
 | `http/csrf`
 
-|  LOGOUT_FILTER
+| LOGOUT_FILTER
 | `LogoutFilter`
 | `http/logout`
 
-|  X509_FILTER
+| X509_FILTER
 | `X509AuthenticationFilter`
 | `http/x509`
 
-|  PRE_AUTH_FILTER
-| `AbstractPreAuthenticatedProcessingFilter` Subclasses
-| N/A
+| PRE_AUTH_FILTER
+| `AbstractPreAuthenticatedProcessingFilter`子类
+| N / A
 
-|  CAS_FILTER
+| CAS_FILTER
 | `CasAuthenticationFilter`
-| N/A
+| N / A
 
-|  FORM_LOGIN_FILTER
+| FORM_LOGIN_FILTER
 | `UsernamePasswordAuthenticationFilter`
 | `http/form-login`
 
-|  BASIC_AUTH_FILTER
+| BASIC_AUTH_FILTER
 | `BasicAuthenticationFilter`
 | `http/http-basic`
 
-|  SERVLET_API_SUPPORT_FILTER
+| SERVLET_API_SUPPORT_FILTER
 | `SecurityContextHolderAwareRequestFilter`
 | `http/@servlet-api-provision`
 
@@ -672,15 +672,15 @@ The filters are listed in the order in which they occur in the filter chain.
 | `JaasApiIntegrationFilter`
 | `http/@jaas-api-provision`
 
-|  REMEMBER_ME_FILTER
+| REMEMBER_ME_FILTER
 | `RememberMeAuthenticationFilter`
 | `http/remember-me`
 
-|  ANONYMOUS_FILTER
+| ANONYMOUS_FILTER
 | `AnonymousAuthenticationFilter`
 | `http/anonymous`
 
-|  SESSION_MANAGEMENT_FILTER
+| SESSION_MANAGEMENT_FILTER
 | `SessionManagementFilter`
 | `session-management`
 
@@ -688,16 +688,16 @@ The filters are listed in the order in which they occur in the filter chain.
 | `ExceptionTranslationFilter`
 | `http`
 
-|  FILTER_SECURITY_INTERCEPTOR
+| FILTER_SECURITY_INTERCEPTOR
 | `FilterSecurityInterceptor`
 | `http`
 
-|  SWITCH_USER_FILTER
+| SWITCH_USER_FILTER
 | `SwitchUserFilter`
-| N/A
+| N / A
 |===
 
-You can add your own filter to the stack, using the `custom-filter` element and one of these names to specify the position your filter should appear at:
+您可以使用`custom-filter`元素和其中一个名称来指定您的过滤器应显示在的位置，您可以将自己的过滤器添加到堆栈中：
 
 [source,xml]
 ----
@@ -708,56 +708,56 @@ You can add your own filter to the stack, using the `custom-filter` element and 
 <beans:bean id="myFilter" class="com.mycompany.MySpecialAuthenticationFilter"/>
 ----
 
-You can also use the `after` or `before` attributes if you want your filter to be inserted before or after another filter in the stack.
-The names "FIRST" and "LAST" can be used with the `position` attribute to indicate that you want your filter to appear before or after the entire stack, respectively.
+如果您希望将过滤器插入堆栈中另一个过滤器之前或之后，也可以使用`after`或`before`属性。
+名称"FIRST"和"LAST"可以与`position`属性一起使用，以指示您希望过滤器分别出现在整个堆栈之前或之后。
 
-.Avoiding filter position conflicts
+。避免过滤器位置冲突
 [TIP]
 ====
 
-If you are inserting a custom filter which may occupy the same position as one of the standard filters created by the namespace then it's important that you don't include the namespace versions by mistake.
-Remove any elements which create filters whose functionality you want to replace.
+如果您插入的自定义过滤器可能与名称空间创建的标准过滤器之一占据相同的位置，请务必不要错误地包含命名空间版本。
+删除所有创建要替换其功能的过滤器的元素。
 
-Note that you can't replace filters which are created by the use of the `<http>` element itself - `SecurityContextPersistenceFilter`, `ExceptionTranslationFilter` or `FilterSecurityInterceptor`.
-Some other filters are added by default, but you can disable them.
-An `AnonymousAuthenticationFilter` is added by default and unless you have <<ns-session-fixation,session-fixation protection>> disabled, a `SessionManagementFilter` will also be added to the filter chain.
+请注意，您无法替换使用`<http>`元素本身创建的过滤器 -  `SecurityContextPersistenceFilter`，`ExceptionTranslationFilter`或`FilterSecurityInterceptor`。
+其他一些过滤器默认添加，但您可以禁用它们。
+默认情况下会添加`AnonymousAuthenticationFilter`，除非您禁用<<ns-session-fixation,session-fixation protection>>，否则`SessionManagementFilter`也会添加到过滤器链中。
 
 ====
 
-If you're replacing a namespace filter which requires an authentication entry point (i.e. where the authentication process is triggered by an attempt by an unauthenticated user to access to a secured resource), you will need to add a custom entry point bean too.
+如果要替换需要身份验证入口点的名称空间过滤器（即身份验证过程由未经身份验证的用户尝试访问受保护的资源触发），则还需要添加自定义入口点Bean。
 
 
 [[ns-entry-point-ref]]
-===== Setting a Custom AuthenticationEntryPoint
-If you aren't using form login, OpenID or basic authentication through the namespace, you may want to define an authentication filter and entry point using a traditional bean syntax and link them into the namespace, as we've just seen.
-The corresponding `AuthenticationEntryPoint` can be set using the `entry-point-ref` attribute on the `<http>` element.
+===== 设置自定义AuthenticationEntryPoint
+如果您没有通过名称空间使用表单登录，OpenID或基本身份验证，则可能需要使用传统的bean语法定义身份验证过滤器和入口点，并将它们链接到名称空间中，就像我们刚刚看到的那样。
+可以使用`<http>`元素上的`entry-point-ref`属性来设置相应的`AuthenticationEntryPoint`。
 
-The CAS sample application is a good example of the use of custom beans with the namespace, including this syntax.
-If you aren't familiar with authentication entry points, they are discussed in the <<tech-intro-auth-entry-point,technical overview>> chapter.
+CAS示例应用程序是使用包含此语法的名称空间的自定义Bean的一个很好的示例。
+如果您不熟悉身份验证入口点，则会在<<tech-intro-auth-entry-point,technical overview>>一章中讨论它们。
 
 
 [[ns-method-security]]
-=== Method Security
-From version 2.0 onwards Spring Security has improved support substantially for adding security to your service layer methods.
-It provides support for JSR-250 annotation security as well as the framework's original `@Secured` annotation.
-From 3.0 you can also make use of new <<el-access,expression-based annotations>>.
-You can apply security to a single bean, using the `intercept-methods` element to decorate the bean declaration, or you can secure multiple beans across the entire service layer using the AspectJ style pointcuts.
+=== 方法安全性
+从2.0版本开始，Spring Security已经大大改善了对服务层方法的安全性的支持。
+它提供对JSR-250注释安全性的支持以及框架的原始`@Secured`注释。
+从3.0开始，您还可以使用新的<<el-access,expression-based annotations>>。
+您可以使用`intercept-methods`元素来装饰bean声明，也可以将安全性应用于单个bean，也可以使用AspectJ样式切入点在整个服务层中保护多个bean。
 
 
 [[ns-global-method]]
-==== The <global-method-security> Element
-This element is used to enable annotation-based security in your application (by setting the appropriate attributes on the element), and also to group together security pointcut declarations which will be applied across your entire application context.
-You should only declare one `<global-method-security>` element.
-The following declaration would enable support for Spring Security's `@Secured`:
+====  <global-method-security>元素
+此元素用于在应用程序中启用基于注释的安全性（通过在元素上设置适当的属性），并将安全性切入点声明分组在一起，这些声明将应用于整个应用程序上下文中。
+您应该只声​​明一个`<global-method-security>`元素。
+以下声明将支持Spring Security的`@Secured`：
 
 [source,xml]
 ----
 <global-method-security secured-annotations="enabled" />
 ----
 
-Adding an annotation to a method (on an class or interface) would then limit the access to that method accordingly.
-Spring Security's native annotation support defines a set of attributes for the method.
-These will be passed to the `AccessDecisionManager` for it to make the actual decision:
+向方法（在类或接口上）添加注释会相应地限制对该方法的访问。
+Spring Security的本地注释支持为该方法定义了一组属性。
+这些将被传递给`AccessDecisionManager`，以便做出实际的决定：
 
 [source,java]
 ----
@@ -774,22 +774,22 @@ public Account post(Account account, double amount);
 }
 ----
 
-Support for JSR-250 annotations can be enabled using
+可以使用支持JSR-250注释
 
 [source,xml]
 ----
 <global-method-security jsr250-annotations="enabled" />
 ----
 
-These are standards-based and allow simple role-based constraints to be applied but do not have the power Spring Security's native annotations.
-To use the new expression-based syntax, you would use
+这些都是基于标准的，允许应用简单的基于角色的约束，但是没有Spring Security的本地注释的强大功能。
+要使用新的基于表达式的语法，您可以使用
 
 [source,xml]
 ----
 <global-method-security pre-post-annotations="enabled" />
 ----
 
-and the equivalent Java code would be
+和等效的Java代码将会是
 
 [source,java]
 ----
@@ -806,25 +806,25 @@ public Account post(Account account, double amount);
 }
 ----
 
-Expression-based annotations are a good choice if you need to define simple rules that go beyond checking the role names against the user's list of authorities.
+如果您需要定义简单的规则，而不是根据用户的权限列表检查角色名称，则基于表达式的注释是一个不错的选择。
 
 [NOTE]
 ====
-The annotated methods will only be secured for instances which are defined as Spring beans (in the same application context in which method-security is enabled).
-If you want to secure instances which are not created by Spring (using the `new` operator, for example) then you need to use AspectJ.
+注释的方法只会对定义为Spring bean的实例（在启用了方法安全性的相同应用程序上下文中）保护。
+如果你想确保那些不是由Spring创建的实例（例如使用`new`运算符），那么你需要使用AspectJ。
 ====
 
 [NOTE]
 ====
-You can enable more than one type of annotation in the same application, but only one type should be used for any interface or class as the behaviour will not be well-defined otherwise.
-If two annotations are found which apply to a particular method, then only one of them will be applied.
+您可以在同一个应用程序中启用多种类型的注释，但只有一种类型应该用于任何界面或类，否则将无法很好地定义行为。
+如果找到适用于特定方法的两个注释，则只会应用其中的一个注释。
 ====
 
 [[ns-protect-pointcut]]
-===== Adding Security Pointcuts using protect-pointcut
+===== 使用protect-pointcut添加安全性切入点
 
-The use of `protect-pointcut` is particularly powerful, as it allows you to apply security to many beans with only a simple declaration.
-Consider the following example:
+`protect-pointcut`的使用特别强大，因为它允许您仅通过简单的声明就可以将安全性应用于许多bean。
+考虑下面的例子：
 
 [source,xml]
 ----
@@ -834,27 +834,27 @@ Consider the following example:
 </global-method-security>
 ----
 
-This will protect all methods on beans declared in the application context whose classes are in the `com.mycompany` package and whose class names end in "Service".
-Only users with the `ROLE_USER` role will be able to invoke these methods.
-As with URL matching, the most specific matches must come first in the list of pointcuts, as the first matching expression will be used.
-Security annotations take precedence over pointcuts.
+这将保护应用程序上下文中声明的bean上的所有方法，这些方法的类位于`com.mycompany`包中，并且其类名以"Service"结尾。
+只有具有`ROLE_USER`角色的用户才能够调用这些方法。
+与URL匹配一样，最具体的匹配必须在切入点列表中排在第一位，因为将使用第一个匹配表达式。
+安全注释优先于切入点。
 
 [[ns-access-manager]]
-=== The Default AccessDecisionManager
-This section assumes you have some knowledge of the underlying architecture for access-control within Spring Security.
-If you don't you can skip it and come back to it later, as this section is only really relevant for people who need to do some customization in order to use more than simple role-based security.
+=== 默认AccessDecisionManager
+本节假定您对Spring Security中访问控制的基础体系结构有一定的了解。
+如果你不这样做，你可以跳过它并稍后回来，因为这部分内容只对那些需要进行一些定制以便使用不仅仅是基于角色的安全性的人非常相关。
 
-When you use a namespace configuration, a default instance of `AccessDecisionManager` is automatically registered for you and will be used for making access decisions for method invocations and web URL access, based on the access attributes you specify in your `intercept-url` and `protect-pointcut` declarations (and in annotations if you are using annotation secured methods).
+当您使用名称空间配置时，会自动为您注册一个默认实例`AccessDecisionManager`，并将根据您在`intercept-url`中指定的访问属性为方法调用和Web URL访问做出访问决策。 }和`protect-pointcut`声明（如果您使用注释安全方法，则在注释中）。
 
-The default strategy is to use an `AffirmativeBased` `AccessDecisionManager` with a `RoleVoter` and an `AuthenticatedVoter`.
-You can find out more about these in the chapter on <<authz-arch,authorization>>.
+默认策略是使用带有`RoleVoter`和`AuthenticatedVoter`的`AffirmativeBased` `AccessDecisionManager`。
+您可以在<<authz-arch,authorization>>的章节中找到更多关于这些内容的信息。
 
 
 [[ns-custom-access-mgr]]
-==== Customizing the AccessDecisionManager
-If you need to use a more complicated access control strategy then it is easy to set an alternative for both method and web security.
+==== 自定义AccessDecisionManager
+如果您需要使用更复杂的访问控制策略，则很容易为方法和网络安全设置替代方案。
 
-For method security, you do this by setting the `access-decision-manager-ref` attribute on `global-method-security` to the `id` of the appropriate `AccessDecisionManager` bean in the application context:
+对于方法安全性，您可以通过将`global-method-security`中的`access-decision-manager-ref`属性设置为应用程序上下文中相应的`AccessDecisionManager` bean的`id`来执行此操作：
 
 [source,xml]
 ----
@@ -863,7 +863,7 @@ For method security, you do this by setting the `access-decision-manager-ref` at
 </global-method-security>
 ----
 
-The syntax for web security is the same, but on the `http` element:
+Web安全的语法是相同的，但在`http`元素上：
 
 [source,xml]
 ----
@@ -873,15 +873,15 @@ The syntax for web security is the same, but on the `http` element:
 ----
 
 [[ns-auth-manager]]
-=== The Authentication Manager and the Namespace
-The main interface which provides authentication services in Spring Security is the `AuthenticationManager`.
-This is usually an instance of Spring Security's `ProviderManager` class, which you may already be familiar with if you've used the framework before.
-If not, it will be covered later, in the <<tech-intro-authentication,technical overview chapter>>.
-The bean instance is registered using the `authentication-manager` namespace element.
-You can't use a custom `AuthenticationManager` if you are using either HTTP or method security through the namespace, but this should not be a problem as you have full control over the `AuthenticationProvider` s that are used.
+=== 验证管理器和名称空间
+在Spring Security中提供认证服务的主界面是`AuthenticationManager`。
+这通常是Spring Security的`ProviderManager`类的一个实例，如果您之前使用过该框架，您可能已经熟悉了它。
+如果没有，稍后将在<<tech-intro-authentication,technical overview chapter>>中进行介绍。
+这个bean实例是使用`authentication-manager`命名空间元素注册的。
+如果您通过名称空间使用HTTP或方法安全性，则无法使用自定义`AuthenticationManager`，但这不应该成为问题，因为您可以完全控制所使用的`AuthenticationProvider`。
 
-You may want to register additional `AuthenticationProvider` beans with the `ProviderManager` and you can do this using the `<authentication-provider>` element with the `ref` attribute, where the value of the attribute is the name of the provider bean you want to add.
-For example:
+您可能希望使用`ProviderManager`注册其他`AuthenticationProvider` Bean，您可以使用带有`ref`属性的`<authentication-provider>`元素进行此操作，其中属性的值是名称您要添加的提供程序bean的名称。
+例如：
 
 [source,xml]
 ----
@@ -895,8 +895,8 @@ For example:
 </bean>
 ----
 
-Another common requirement is that another bean in the context may require a reference to the `AuthenticationManager`.
-You can easily register an alias for the `AuthenticationManager` and use this name elsewhere in your application context.
+另一个常见要求是上下文中的另一个bean可能需要对`AuthenticationManager`的引用。
+您可以轻松地为`AuthenticationManager`注册别名，并在您的应用程序上下文的其他地方使用此名称。
 
 [source,xml]
 ----

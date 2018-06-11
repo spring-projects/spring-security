@@ -1,11 +1,11 @@
 
 [[authorization]]
-= Authorization
-The advanced authorization capabilities within Spring Security represent one of the most compelling reasons for its popularity.
-Irrespective of how you choose to authenticate - whether using a Spring Security-provided mechanism and provider, or integrating with a container or other non-Spring Security authentication authority - you will find the authorization services can be used within your application in a consistent and simple way.
+= 授权
+Spring Security中的高级授权功能是其受欢迎最引人注目的原因之一。
+无论您选择如何进行身份验证 - 无论是使用Spring Security提供的机制和提供程序，还是与容器或其他非Spring Security身份验证机构集成 - 您都会发现授权服务可以在您的应用程序中以一致且简单的方式使用办法。
 
-In this part we'll explore the different `AbstractSecurityInterceptor` implementations, which were introduced in Part I.
-We then move on to explore how to fine-tune authorization through use of domain access control lists.
+在本部分中，我们将探讨第I部分中介绍的各种`AbstractSecurityInterceptor`实现。
+然后，我们继续探讨如何通过使用域访问控制列表来微调授权。
 
 include::architecture.adoc[]
 

@@ -1,10 +1,10 @@
-= Spring Security Reference
-Ben Alex; Luke Taylor; Rob Winch; Gunnar Hillert; Joe Grandja; Jay Bryant
+=  Spring安全参考
+Ben Alex;卢克泰勒; Rob Winch; Gunnar Hillert; Joe Grandja;杰伊布莱恩特
 :include-dir: _includes
 :security-api-url: http://docs.spring.io/spring-security/site/docs/current/apidocs/
 
-Spring Security is a powerful and highly customizable authentication and access-control framework.
-It is the de-facto standard for securing Spring-based applications.
+Spring Security是一个强大且高度可定制的身份验证和访问控制框架。
+这是保护基于Spring的应用程序的事实标准。
 
 include::{include-dir}/preface/index.adoc[]
 

@@ -1,8 +1,8 @@
 [[test-method]]
-== Testing Method Security
+== 测试方法安全性
 
-This section demonstrates how to use Spring Security's Test support to test method based security.
-We first introduce a `MessageService` that requires the user to be authenticated in order to access it.
+本节演示如何使用Spring Security的测试支持来测试基于安全性的方法。
+我们首先介绍需要用户进行身份验证才能访问的`MessageService`。
 
 [source,java]
 ----
@@ -17,8 +17,8 @@ public class HelloMessageService implements MessageService {
 }
 ----
 
-The result of `getMessage` is a String saying "Hello" to the current Spring Security `Authentication`.
-An example of the output is displayed below.
+`getMessage`的结果是一个表示当前Spring Security `Authentication`的"Hello"的字符串。
+输出示例如下所示。
 
 [source,text]
 ----
@@ -26,9 +26,9 @@ Hello org.springframework.security.authentication.UsernamePasswordAuthentication
 ----
 
 [[test-method-setup]]
-=== Security Test Setup
+=== 安全测试设置
 
-Before we can use Spring Security Test support, we must perform some setup. An example can be seen below:
+在我们使用Spring Security Test支持之前，我们必须执行一些设置。下面是一个例子：
 
 [source,java]
 ----
@@ -37,18 +37,18 @@ Before we can use Spring Security Test support, we must perform some setup. An e
 public class WithMockUserTests {
 ----
 
-This is a basic example of how to setup Spring Security Test. The highlights are:
+这是如何设置Spring Security Test的基本示例。亮点是：
 
-<1> `@RunWith` instructs the spring-test module that it should create an `ApplicationContext`. This is no different than using the existing Spring Test support. For additional information, refer to the http://docs.spring.io/spring-framework/docs/4.0.x/spring-framework-reference/htmlsingle/#integration-testing-annotations-standard[Spring Reference]
-<2> `@ContextConfiguration` instructs the spring-test the configuration to use to create the `ApplicationContext`. Since no configuration is specified, the default configuration locations will be tried. This is no different than using the existing Spring Test support. For additional information, refer to the http://docs.spring.io/spring-framework/docs/4.0.x/spring-framework-reference/htmlsingle/#testcontext-ctx-management[Spring Reference]
+<1> `@RunWith`指示spring-test模块创建一个`ApplicationContext`。这与使用现有的Spring Test支持没有区别。有关更多信息，请参阅 http://docs.spring.io/spring-framework/docs/4.0.x/spring-framework-reference/htmlsingle/#integration-testing-annotations-standard[Spring参考]
+<2> `@ContextConfiguration`指示spring-test用于创建`ApplicationContext`的配置。由于没有指定配置，因此将尝试默认配置位置。这与使用现有的Spring Test支持没有区别。有关更多信息，请参阅 http://docs.spring.io/spring-framework/docs/4.0.x/spring-framework-reference/htmlsingle/#testcontext-ctx-management[Spring参考]
 
-NOTE: Spring Security hooks into Spring Test support using the `WithSecurityContextTestExecutionListener` which will ensure our tests are ran with the correct user.
-It does this by populating the `SecurityContextHolder` prior to running our tests.
-After the test is done, it will clear out the `SecurityContextHolder`.
-If you only need Spring Security related support, you can replace `@ContextConfiguration` with `@SecurityTestExecutionListeners`.
+注意：Spring Security使用`WithSecurityContextTestExecutionListener`挂钩到Spring Test支持中，这将确保我们的测试使用正确的用户运行。
+它通过在运行我们的测试之前填充`SecurityContextHolder`来完成此操作。
+测试完成后，它会清除`SecurityContextHolder`。
+如果您只需要Spring Security相关支持，则可以用`@SecurityTestExecutionListeners`替换`@ContextConfiguration`。
 
-Remember we added the `@PreAuthorize` annotation to our `HelloMessageService` and so it requires an authenticated user to invoke it.
-If we ran the following test, we would expect the following test will pass:
+请记住，我们已将`@PreAuthorize`注释添加到我们的`HelloMessageService`，因此它需要经过身份验证的用户才能调用它。
+如果我们进行了以下测试，我们预计将通过以下测试：
 
 [source,java]
 ----
@@ -59,11 +59,11 @@ public void getMessageUnauthenticated() {
 ----
 
 [[test-method-withmockuser]]
-=== @WithMockUser
+===  @ WithMockUser
 
-The question is "How could we most easily run the test as a specific user?"
-The answer is to use `@WithMockUser`.
-The following test will be run as a user with the username "user", the password "password", and the roles "ROLE_USER".
+问题是"How could we most easily run the test as a specific user?"
+答案是使用`@WithMockUser`。
+以下测试将以具有用户名"user"，密码"password"和角色"ROLE_USER"的用户身份运行。
 
 [source,java]
 ----
@@ -75,16 +75,16 @@ String message = messageService.getMessage();
 }
 ----
 
-Specifically the following is true:
+具体如下：
 
-* The user with the username "user" does not have to exist since we are mocking the user
-* The `Authentication` that is populated in the `SecurityContext` is of type `UsernamePasswordAuthenticationToken`
-* The principal on the `Authentication` is Spring Security's `User` object
-* The `User` will have the username of "user", the password "password", and a single `GrantedAuthority` named "ROLE_USER" is used.
+* 使用用户名"user"的用户不必存在，因为我们正在嘲笑用户
+* 在`SecurityContext`中填充的`Authentication`类型为`UsernamePasswordAuthenticationToken`
+*  `Authentication`的主体是Spring Security的`User`对象
+*  `User`将使用用户名"user"，密码"password"和一个名为"ROLE_USER"的`GrantedAuthority`。
 
-Our example is nice because we are able to leverage a lot of defaults.
-What if we wanted to run the test with a different username?
-The following test would run with the username "customUser". Again, the user does not need to actually exist.
+我们的例子很好，因为我们可以利用很多默认值。
+如果我们想用其他用户名运行测试，该怎么办？
+以下测试将使用用户名"customUser"运行。同样，用户不需要实际存在。
 
 [source,java]
 ----
@@ -96,8 +96,8 @@ public void getMessageWithMockUserCustomUsername() {
 }
 ----
 
-We can also easily customize the roles.
-For example, this test will be invoked with the username "admin" and the roles "ROLE_USER" and "ROLE_ADMIN".
+我们也可以轻松定制角色。
+例如，将使用用户名"admin"和角色"ROLE_USER"和"ROLE_ADMIN"来调用此测试。
 
 [source,java]
 ----
@@ -109,8 +109,8 @@ public void getMessageWithMockUserCustomUser() {
 }
 ----
 
-If we do not want the value to automatically be prefixed with ROLE_ we can leverage the authorities attribute.
-For example, this test will be invoked with the username "admin" and the authorities "USER" and "ADMIN".
+如果我们不希望该值自动以ROLE_开头，我们可以使用权限属性。
+例如，此测试将使用用户名"admin"和权限"USER"和"ADMIN"进行调用。
 
 [source,java]
 ----
@@ -122,9 +122,9 @@ public void getMessageWithMockUserCustomAuthorities() {
 }
 ----
 
-Of course it can be a bit tedious placing the annotation on every test method.
-Instead, we can place the annotation at the class level and every test will use the specified user.
-For example, the following would run every test with a user with the username "admin", the password "password", and the roles "ROLE_USER" and "ROLE_ADMIN".
+当然，将注释放在每种测试方法上可能有点乏味。
+相反，我们可以在类级别放置注释，并且每个测试都将使用指定的用户。
+例如，以下内容将针对用户使用用户名"admin"，密码"password"以及角色"ROLE_USER"和"ROLE_ADMIN"运行每项测试。
 
 [source,java]
 ----
@@ -134,9 +134,9 @@ For example, the following would run every test with a user with the username "a
 public class WithMockUserTests {
 ----
 
-By default the `SecurityContext` is set during the `TestExecutionListener.beforeTestMethod` event.
-This is the equivalent of happening before JUnit's `@Before`.
-You can change this to happen during the `TestExecutionListener.beforeTestExecution` event which is after JUnit's `@Before` but before the test method is invoked.
+默认情况下，在`TestExecutionListener.beforeTestMethod`事件期间设置`SecurityContext`。
+这与JUnit的`@Before`之前发生的情况相同。
+您可以将此更改为在JUnit的`@Before`之后但在调用测试方法之前的`TestExecutionListener.beforeTestExecution`事件期间发生。
 
 [source,java]
 ----
@@ -145,11 +145,11 @@ You can change this to happen during the `TestExecutionListener.beforeTestExecut
 
 
 [[test-method-withanonymoususer]]
-=== @WithAnonymousUser
+===  @ WithAnonymousUser
 
-Using `@WithAnonymousUser` allows running as an anonymous user.
-This is especially convenient when you wish to run most of your tests with a specific user, but want to run a few tests as an anonymous user.
-For example, the following will run withMockUser1 and withMockUser2 using <<test-method-withmockuser,@WithMockUser>> and anonymous as an anonymous user.
+使用`@WithAnonymousUser`允许以匿名用户身份运行。
+当您希望使用特定用户运行大多数测试，但希望以匿名用户身份运行一些测试时，这样做尤其方便。
+例如，以下内容将使用<<test-method-withmockuser,@WithMockUser>>和匿名用户作为匿名用户与MockUser1和withMockUser2一起运行。
 
 [source,java]
 ----
@@ -173,9 +173,9 @@ public class WithUserClassLevelAuthenticationTests {
 }
 ----
 
-By default the `SecurityContext` is set during the `TestExecutionListener.beforeTestMethod` event.
-This is the equivalent of happening before JUnit's `@Before`.
-You can change this to happen during the `TestExecutionListener.beforeTestExecution` event which is after JUnit's `@Before` but before the test method is invoked.
+默认情况下，在`TestExecutionListener.beforeTestMethod`事件期间设置`SecurityContext`。
+这与JUnit的`@Before`之前发生的情况相同。
+您可以将此更改为在JUnit的`@Before`之后但在调用测试方法之前的`TestExecutionListener.beforeTestExecution`事件期间发生。
 
 [source,java]
 ----
@@ -184,17 +184,17 @@ You can change this to happen during the `TestExecutionListener.beforeTestExecut
 
 
 [[test-method-withuserdetails]]
-=== @WithUserDetails
+===  @ WithUserDetails
 
-While `@WithMockUser` is a very convenient way to get started, it may not work in all instances.
-For example, it is common for applications to expect that the `Authentication` principal be of a specific type.
-This is done so that the application can refer to the principal as the custom type and reduce coupling on Spring Security.
+虽然`@WithMockUser`是一种非常方便的入门方式，但它可能无法在所有情况下使用。
+例如，应用程序期望`Authentication`主体具有特定类型是很常见的。
+这样做是为了让应用程序可以将主体引用为自定义类型，并减少Spring Security上的耦合。
 
-The custom principal is often times returned by a custom `UserDetailsService` that returns an object that implements both `UserDetails` and the custom type.
-For situations like this, it is useful to create the test user using the custom `UserDetailsService`.
-That is exactly what `@WithUserDetails` does.
+自定义主体通常由自定义`UserDetailsService`返回，该自定义返回实现`UserDetails`和自定义类型的对象。
+对于这种情况，使用自定义`UserDetailsService`创建测试用户非常有用。
+这正是`@WithUserDetails`所做的。
 
-Assuming we have a `UserDetailsService` exposed as a bean, the following test will be invoked with an `Authentication` of type `UsernamePasswordAuthenticationToken` and a principal that is returned from the `UserDetailsService` with the username of "user".
+假设我们将`UserDetailsService`作为bean公开，则将使用`UsernamePasswordAuthenticationToken`类型的`Authentication`和使用用户名从`UserDetailsService`返回的主体调用以下测试的"user"。
 
 [source,java]
 ----
@@ -206,8 +206,8 @@ public void getMessageWithUserDetails() {
 }
 ----
 
-We can also customize the username used to lookup the user from our `UserDetailsService`.
-For example, this test would be executed with a principal that is returned from the `UserDetailsService` with the username of "customUsername".
+我们还可以自定义用于从我们的`UserDetailsService`查找用户的用户名。
+例如，此测试将使用用户名为"customUsername"的{​​{0}}返回的主体执行。
 
 [source,java]
 ----
@@ -219,8 +219,8 @@ public void getMessageWithUserDetailsCustomUsername() {
 }
 ----
 
-We can also provide an explicit bean name to look up the `UserDetailsService`.
-For example, this test would look up the username of "customUsername" using the `UserDetailsService` with the bean name "myUserDetailsService".
+我们还可以提供一个显式的bean名称来查找`UserDetailsService`。
+例如，此测试将使用bean名称为"myUserDetailsService"的`UserDetailsService`查找"customUsername"的用户名。
 
 [source,java]
 ----
@@ -232,12 +232,12 @@ public void getMessageWithUserDetailsServiceBeanName() {
 }
 ----
 
-Like `@WithMockUser` we can also place our annotation at the class level so that every test uses the same user.
-However unlike `@WithMockUser`, `@WithUserDetails` requires the user to exist.
+像`@WithMockUser`一样，我们也可以将我们的注释放在课程级别，以便每个测试都使用同一个用户。
+但与`@WithMockUser`不同，`@WithUserDetails`要求用户存在。
 
-By default the `SecurityContext` is set during the `TestExecutionListener.beforeTestMethod` event.
-This is the equivalent of happening before JUnit's `@Before`.
-You can change this to happen during the `TestExecutionListener.beforeTestExecution` event which is after JUnit's `@Before` but before the test method is invoked.
+默认情况下，在`TestExecutionListener.beforeTestMethod`事件期间设置`SecurityContext`。
+这与JUnit的`@Before`之前发生的情况相同。
+您可以将此更改为在JUnit的`@Before`之后但在调用测试方法之前的`TestExecutionListener.beforeTestExecution`事件期间发生。
 
 [source,java]
 ----
@@ -246,14 +246,14 @@ You can change this to happen during the `TestExecutionListener.beforeTestExecut
 
 
 [[test-method-withsecuritycontext]]
-=== @WithSecurityContext
+===  @ WithSecurityContext
 
-We have seen that `@WithMockUser` is an excellent choice if we are not using a custom `Authentication` principal.
-Next we discovered that `@WithUserDetails` would allow us to use a custom `UserDetailsService` to create our `Authentication` principal but required the user to exist.
-We will now see an option that allows the most flexibility.
+我们已经看到，如果我们不使用自定义`Authentication`主体，`@WithMockUser`是一个很好的选择。
+接下来我们发现`@WithUserDetails`允许我们使用自定义`UserDetailsService`创建我们的`Authentication`主体，但需要用户存在。
+我们现在将看到一个允许最大灵活性的选项。
 
-We can create our own annotation that uses the `@WithSecurityContext` to create any `SecurityContext` we want.
-For example, we might create an annotation named `@WithMockCustomUser` as shown below:
+我们可以创建自己的注释，使用`@WithSecurityContext`创建任何我们想要的`SecurityContext`。
+例如，我们可能会创建一个名为`@WithMockCustomUser`的注释，如下所示：
 
 [source,java]
 ----
@@ -267,10 +267,10 @@ public @interface WithMockCustomUser {
 }
 ----
 
-You can see that `@WithMockCustomUser` is annotated with the `@WithSecurityContext` annotation.
-This is what signals to Spring Security Test support that we intend to create a `SecurityContext` for the test.
-The `@WithSecurityContext` annotation requires we specify a `SecurityContextFactory` that will create a new `SecurityContext` given our `@WithMockCustomUser` annotation.
-You can find our `WithMockCustomUserSecurityContextFactory` implementation below:
+您可以看到`@WithMockCustomUser`使用`@WithSecurityContext`注释进行了注释。
+这是Spring Security Test支持的信号，我们打算为该测试创建一个`SecurityContext`。
+`@WithSecurityContext`注释要求我们指定一个`SecurityContextFactory`，它会根据我们的`@WithMockCustomUser`注释创建一个新的`SecurityContext`。
+您可以在下面找到我们的`WithMockCustomUserSecurityContextFactory`实施：
 
 [source,java]
 ----
@@ -290,10 +290,10 @@ public class WithMockCustomUserSecurityContextFactory
 }
 ----
 
-We can now annotate a test class or a test method with our new annotation and Spring Security's `WithSecurityContextTestExecutionListener` will ensure that our `SecurityContext` is populated appropriately.
+我们现在可以使用新注释标注测试类或测试方法，并且Spring Security的`WithSecurityContextTestExecutionListener`将确保我们的`SecurityContext`适当地填充。
 
-When creating your own `WithSecurityContextFactory` implementations, it is nice to know that they can be annotated with standard Spring annotations.
-For example, the `WithUserDetailsSecurityContextFactory` uses the `@Autowired` annotation to acquire the `UserDetailsService`:
+创建自己的`WithSecurityContextFactory`实现时，很高兴知道它们可以使用标准的Spring注释进行注释。
+例如，`WithUserDetailsSecurityContextFactory`使用`@Autowired`注释来获取`UserDetailsService`：
 
 [source,java]
 ----
@@ -319,9 +319,9 @@ final class WithUserDetailsSecurityContextFactory
 }
 ----
 
-By default the `SecurityContext` is set during the `TestExecutionListener.beforeTestMethod` event.
-This is the equivalent of happening before JUnit's `@Before`.
-You can change this to happen during the `TestExecutionListener.beforeTestExecution` event which is after JUnit's `@Before` but before the test method is invoked.
+默认情况下，在`TestExecutionListener.beforeTestMethod`事件期间设置`SecurityContext`。
+这与JUnit的`@Before`之前发生的情况相同。
+您可以将此更改为在JUnit的`@Before`之后但在调用测试方法之前的`TestExecutionListener.beforeTestExecution`事件期间发生。
 
 [source,java]
 ----
@@ -330,18 +330,18 @@ You can change this to happen during the `TestExecutionListener.beforeTestExecut
 
 
 [[test-method-meta-annotations]]
-=== Test Meta Annotations
+=== 测试元注释
 
-If you reuse the same user within your tests often, it is not ideal to have to repeatedly specify the attributes.
-For example, if there are many tests related to an administrative user with the username "admin" and the roles `ROLE_USER` and `ROLE_ADMIN` you would have to write:
+如果您经常在测试中重复使用同一用户，那么不得不重复指定属性。
+例如，如果有许多与使用用户名"admin"和角色`ROLE_USER`和`ROLE_ADMIN`的管理用户相关的测试，您必须编写这些测试：
 
 [source,java]
 ----
 @WithMockUser(username="admin",roles={"USER","ADMIN"})
 ----
 
-Rather than repeating this everywhere, we can use a meta annotation.
-For example, we could create a meta annotation named `WithMockAdmin`:
+我们可以使用元注释，而不是随处重复。
+例如，我们可以创建一个名为`WithMockAdmin`的元注释：
 
 [source,java]
 ----
@@ -350,7 +350,7 @@ For example, we could create a meta annotation named `WithMockAdmin`:
 public @interface WithMockAdmin { }
 ----
 
-Now we can use `@WithMockAdmin` in the same way as the more verbose `@WithMockUser`.
+现在我们可以像`@WithMockUser`一样使用`@WithMockAdmin`。
 
-Meta annotations work with any of the testing annotations described above.
-For example, this means we could create a meta annotation for `@WithUserDetails("admin")` as well.
+元注释可与上述任何测试注释一起使用。
+例如，这意味着我们也可以为`@WithUserDetails("admin")`创建元注释。

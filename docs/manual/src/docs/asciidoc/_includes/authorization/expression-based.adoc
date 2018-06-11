@@ -1,83 +1,83 @@
 
 [[el-access]]
-== Expression-Based Access Control
-Spring Security 3.0 introduced the ability to use Spring EL expressions as an authorization mechanism in addition to the simple use of configuration attributes and access-decision voters which have seen before.
-Expression-based access control is built on the same architecture but allows complicated Boolean logic to be encapsulated in a single expression.
+== 基于表达式的访问控制
+Spring Security 3.0引入了使用Spring EL表达式作为授权机制的能力，以及简单使用以前见过的配置属性和访问决策选项。
+基于表达式的访问控制建立在相同的体系结构上，但允许将复杂的布尔逻辑封装在单个表达式中。
 
 
-=== Overview
-Spring Security uses Spring EL for expression support and you should look at how that works if you are interested in understanding the topic in more depth.
-Expressions are evaluated with a "root object" as part of the evaluation context.
-Spring Security uses specific classes for web and method security as the root object, in order to provide built-in expressions and access to values such as the current principal.
+=== 概述
+Spring Security使用Spring EL进行表达式支持，如果您有兴趣更深入地理解该主题，您应该看看它是如何工作的。
+作为评估上下文的一部分，表达式使用"root object"进行评估。
+Spring Security使用Web和方法安全性的特定类作为根对象，以便提供内置表达式和对当前主体等值的访问。
 
 
 [[el-common-built-in]]
-==== Common Built-In Expressions
-The base class for expression root objects is `SecurityExpressionRoot`.
-This provides some common expressions which are available in both web and method security.
+==== 常用内置表达式
+表达式根对象的基类是`SecurityExpressionRoot`。
+这提供了可用于Web和方法安全性的一些常用表达式。
 
 [[common-expressions]]
-.Common built-in expressions
+。常见的内置表达式
 |===
-| Expression | Description
+|表达式|描述
 
 | `hasRole([role])`
-| Returns `true` if the current principal has the specified role.
-By default if the supplied role does not start with 'ROLE_' it will be added.
-This can be customized by modifying the `defaultRolePrefix` on `DefaultWebSecurityExpressionHandler`.
+|如果当前主体具有指定的角色，则返回`true`。
+默认情况下，如果提供的角色不以“ROLE_”开头，它将被添加。
+这可以通过修改`DefaultWebSecurityExpressionHandler`上的`defaultRolePrefix`进行自定义。
 
 | `hasAnyRole([role1,role2])`
-| Returns `true` if the current principal has any of the supplied roles (given as a comma-separated list of strings).
-By default if the supplied role does not start with 'ROLE_' it will be added.
-This can be customized by modifying the `defaultRolePrefix` on `DefaultWebSecurityExpressionHandler`.
+|如果当前主体具有任何提供的角色（作为逗号分隔的字符串列表），则返回`true`。
+默认情况下，如果提供的角色不以“ROLE_”开头，它将被添加。
+这可以通过修改`DefaultWebSecurityExpressionHandler`上的`defaultRolePrefix`进行自定义。
 
 | `hasAuthority([authority])`
-| Returns `true` if the current principal has the specified authority.
+|如果当前委托人具有指定的权限，则返回`true`。
 
 | `hasAnyAuthority([authority1,authority2])`
-| Returns `true` if the current principal has any of the supplied roles (given as a comma-separated list of strings)
+|如果当前主体具有任何提供的角色（作为逗号分隔的字符串列表），则返回`true`;
 
 | `principal`
-| Allows direct access to the principal object representing the current user
+|允许直接访问表示当前用户的主体对象
 
 | `authentication`
-| Allows direct access to the current `Authentication` object obtained from the `SecurityContext`
+|允许直接访问从`SecurityContext`获取的当前`Authentication`对象
 
 | `permitAll`
-| Always evaluates to `true`
+|始终评估为`true`
 
 | `denyAll`
-| Always evaluates to `false`
+|始终评估为`false`
 
 | `isAnonymous()`
-| Returns `true` if the current principal is an anonymous user
+|如果当前主体是匿名用户，则返回`true`
 
 | `isRememberMe()`
-| Returns `true` if the current principal is a remember-me user
+|如果当前主体是记事本用户，则返回`true`
 
 | `isAuthenticated()`
-| Returns `true` if the user is not anonymous
+|如果用户不是匿名的，则返回`true`
 
 | `isFullyAuthenticated()`
-| Returns `true` if the user is not an anonymous or a remember-me user
+|如果用户不是匿名用户或记住我用户，则返回`true`
 
 | `hasPermission(Object target, Object permission)`
-| Returns `true` if the user has access to the provided target for the given permission.
-For example, `hasPermission(domainObject, 'read')`
+|如果用户有权访问为给定权限提供的目标，则返回`true`。
+例如，`hasPermission(domainObject, 'read')`
 
 | `hasPermission(Object targetId, String targetType, Object permission)`
-| Returns `true` if the user has access to the provided target for the given permission.
-For example, `hasPermission(1, 'com.example.domain.Message', 'read')`
+|如果用户有权访问为给定权限提供的目标，则返回`true`。
+例如，`hasPermission(1, 'com.example.domain.Message', 'read')`
 |===
 
 
 
 [[el-access-web]]
-=== Web Security Expressions
-To use expressions to secure individual URLs, you would first need to set the `use-expressions` attribute in the `<http>` element to `true`.
-Spring Security will then expect the `access` attributes of the `<intercept-url>` elements to contain Spring EL expressions.
-The expressions should evaluate to a Boolean, defining whether access should be allowed or not.
-For example:
+=== 网络安全表达式
+要使用表达式保护单个网址，您首先需要将`<http>`元素中的`use-expressions`属性设置为`true`。
+然后，Spring Security将期望`<intercept-url>`元素的`access`属性包含Spring EL表达式。
+表达式应评估为布尔值，定义是否允许访问。
+例如：
 
 [source,xml]
 ----
@@ -90,19 +90,19 @@ For example:
 
 ----
 
-Here we have defined that the "admin" area of an application (defined by the URL pattern) should only be available to users who have the granted authority "admin" and whose IP address matches a local subnet.
-We've already seen the built-in `hasRole` expression in the previous section.
-The expression `hasIpAddress` is an additional built-in expression which is specific to web security.
-It is defined by the `WebSecurityExpressionRoot` class, an instance of which is used as the expression root object when evaluation web-access expressions.
-This object also directly exposed the `HttpServletRequest` object under the name `request` so you can invoke the request directly in an expression.
-If expressions are being used, a `WebExpressionVoter` will be added to the `AccessDecisionManager` which is used by the namespace.
-So if you aren't using the namespace and want to use expressions, you will have to add one of these to your configuration.
+这里我们已经定义应用程序的"admin"区域（由URL模式定义）应该只对拥有授予权限"admin"并且其IP地址与本地子网匹配的用户可用。
+我们已经在上一节中看到了内置的`hasRole`表达式。
+表达式`hasIpAddress`是特定于Web安全性的附加内置表达式。
+它由`WebSecurityExpressionRoot`类定义，其中的一个实例在评估Web访问表达式时用作表达式根对象。
+该对象还直接公开名为`request`的{​​{0}}对象，以便您可以直接在表达式中调用请求。
+如果正在使用表达式，则`WebExpressionVoter`将被添加到名称空间所使用的`AccessDecisionManager`。
+因此，如果您不使用名称空间并想使用表达式，则必须将其中一个添加到您的配置中。
 
 [[el-access-web-beans]]
-==== Referring to Beans in Web Security Expressions
+==== 在Web安全表达式中引用Beans
 
-If you wish to extend the expressions that are available, you can easily refer to any Spring Bean you expose.
-For example, assuming you have a Bean with the name of `webSecurity` that contains the following method signature:
+如果你想扩展可用的表达式，你可以很容易地引用你公开的任何Spring Bean。
+例如，假设您的名称为`webSecurity`的Bean包含以下方法签名：
 
 [source,java]
 ----
@@ -113,7 +113,7 @@ public class WebSecurity {
 }
 ----
 
-You could refer to the method using:
+你可以参考使用的方法：
 
 [source,xml]
 ----
@@ -124,7 +124,7 @@ You could refer to the method using:
 </http>
 ----
 
-or in Java configuration
+或者在Java配置中
 
 
 [source,java]
@@ -136,13 +136,13 @@ http
 ----
 
 [[el-access-web-path-variables]]
-==== Path Variables in Web Security Expressions
+Web安全表达式中的==== 路径变量
 
-At times it is nice to be able to refer to path variables within a URL.
-For example, consider a RESTful application that looks up a user by id from the URL path in the format `/user/{userId}`.
+有时能够在URL中引用路径变量是很好的。
+例如，考虑一个REST式应用程序，该应用程序通过URL路径以`/user/{userId}`的格式通过id查找用户。
 
-You can easily refer to the path variable by placing it in the pattern.
-For example, if you had a Bean with the name of `webSecurity` that contains the following method signature:
+通过将其放入模式中，您可以轻松地引用路径变量。
+例如，如果您有名为`webSecurity`的Bean包含以下方法签名：
 
 [source,java]
 ----
@@ -153,7 +153,7 @@ public class WebSecurity {
 }
 ----
 
-You could refer to the method using:
+你可以参考使用的方法：
 
 [source,xml]
 ----
@@ -164,7 +164,7 @@ You could refer to the method using:
 </http>
 ----
 
-or in Java configuration
+或者在Java配置中
 
 [source,java]
 ----
@@ -174,28 +174,28 @@ http
 				...
 ----
 
-In both configurations URLs that match would pass in the path variable (and convert it) into checkUserId method.
-For example, if the URL were `/user/123/resource`, then the id passed in would be `123`.
+在这两种配置中，匹配的URL将传入路径变量（并将其转换为checkUserId方法）。
+例如，如果网址为`/user/123/resource`，则传入的ID为`123`。
 
-=== Method Security Expressions
-Method security is a bit more complicated than a simple allow or deny rule.
-Spring Security 3.0 introduced some new annotations in order to allow comprehensive support for the use of expressions.
+=== 方法安全表达式
+方法安全性比简单的允许或拒绝规则复杂一点。
+Spring Security 3.0引入了一些新的注释，以便全面支持表达式的使用。
 
 
 [[el-pre-post-annotations]]
-==== @Pre and @Post Annotations
-There are four annotations which support expression attributes to allow pre and post-invocation authorization checks and also to support filtering of submitted collection arguments or return values.
-They are `@PreAuthorize`, `@PreFilter`, `@PostAuthorize` and `@PostFilter`.
-Their use is enabled through the `global-method-security` namespace element:
+====  @ Pre和@Post注释
+有四个注释支持表达式属性以允许调用前和调用后授权检查，并支持对提交的集合参数或返回值进行过滤。
+他们是`@PreAuthorize`，`@PreFilter`，`@PostAuthorize`和`@PostFilter`。
+通过`global-method-security`命名空间元素启用它们的使用：
 
 [source,xml]
 ----
 <global-method-security pre-post-annotations="enabled"/>
 ----
 
-===== Access Control using @PreAuthorize and @PostAuthorize
-The most obviously useful annotation is `@PreAuthorize` which decides whether a method can actually be invoked or not.
-For example (from the"Contacts" sample application)
+使用@PreAuthorize和@PostAuthorize的===== 访问控制
+最明显有用的注释是`@PreAuthorize`，它决定一个方法是否可以被实际调用。
+例如（来自"Contacts"示例应用程序）
 
 [source,java]
 ----
@@ -203,9 +203,9 @@ For example (from the"Contacts" sample application)
 public void create(Contact contact);
 ----
 
-which means that access will only be allowed for users with the role "ROLE_USER".
-Obviously the same thing could easily be achieved using a traditional configuration and a simple configuration attribute for the required role.
-But what about:
+这意味着只有具有角色"ROLE_USER"的用户才能访问。
+显然，使用传统配置和简单配置属性来实现所需角色可以轻松实现同样的目的。
+但是关于：
 
 [source,java]
 ----
@@ -213,17 +213,17 @@ But what about:
 public void deletePermission(Contact contact, Sid recipient, Permission permission);
 ----
 
-Here we're actually using a method argument as part of the expression to decide whether the current user has the "admin"permission for the given contact.
-The built-in `hasPermission()` expression is linked into the Spring Security ACL module through the application context, as we'll<<el-permission-evaluator,see below>>.
-You can access any of the method arguments by name as expression variables.
+这里我们实际上使用方法参数作为表达式的一部分来决定当前用户是否具有给定联系人的"admin"权限。
+内置的`hasPermission()`表达式通过应用程序上下文链接到Spring Security ACL模块中，因为我们将<<el-permission-evaluator,see below>>。
+您可以按名称访问任何方法参数作为表达式变量。
 
-There are a number of ways in which Spring Security can resolve the method arguments.
-Spring Security uses `DefaultSecurityParameterNameDiscoverer` to discover the parameter names.
-By default, the following options are tried for a method as a whole.
+Spring Security可以通过多种方式来解决方法参数。
+Spring Security使用`DefaultSecurityParameterNameDiscoverer`来发现参数名称。
+默认情况下，对于整个方法尝试以下选项。
 
-* If Spring Security's `@P` annotation is present on a single argument to the method, the value will be used.
-This is useful for interfaces compiled with a JDK prior to JDK 8 which do not contain any information about the parameter names.
-For example:
+* 如果Spring Security的`@P`注释出现在该方法的单个参数上，则会使用该值。
+这对于在JDK 8之前使用JDK编译的接口非常有用，它不包含有关参数名称的任何信息。
+例如：
 
 +
 
@@ -239,11 +239,11 @@ public void doSomething(@P("c") Contact contact);
 
 +
 
-Behind the scenes this use implemented using `AnnotationParameterNameDiscoverer` which can be customized to support the value attribute of any specified annotation.
+在幕后，使用`AnnotationParameterNameDiscoverer`实现的这种使用可以被自定义为支持任何指定注释的value属性。
 
-* If Spring Data's `@Param` annotation is present on at least one parameter for the method, the value will be used.
-This is useful for interfaces compiled with a JDK prior to JDK 8 which do not contain any information about the parameter names.
-For example:
+* 如果Spring Data的`@Param`注释至少存在于该方法的一个参数中，则将使用该值。
+这对于在JDK 8之前使用JDK编译的接口非常有用，它不包含有关参数名称的任何信息。
+例如：
 
 +
 
@@ -259,19 +259,19 @@ Contact findContactByName(@Param("n") String name);
 
 +
 
-Behind the scenes this use implemented using `AnnotationParameterNameDiscoverer` which can be customized to support the value attribute of any specified annotation.
+在幕后，使用`AnnotationParameterNameDiscoverer`实现的这种使用可以被自定义为支持任何指定注释的value属性。
 
-* If JDK 8 was used to compile the source with the -parameters argument and Spring 4+ is being used, then the standard JDK reflection API is used to discover the parameter names.
-This works on both classes and interfaces.
+* 如果使用JDK 8使用-parameters参数编译源文件，并且正在使用Spring 4+，则使用标准的JDK反射API来发现参数名称。
+这适用于类和接口。
 
-* Last, if the code was compiled with the debug symbols, the parameter names will be discovered using the debug symbols.
-This will not work for interfaces since they do not have debug information about the parameter names.
-For interfaces, annotations or the JDK 8 approach must be used.
+* 最后，如果代码是使用调试符号编译的，则参数名称将使用调试符号发现。
+这对接口不起作用，因为它们没有关于参数名称的调试信息。
+对于接口，必须使用注释或JDK 8方法。
 
-.[[el-pre-post-annotations-spel]]
+[[EL-预后注释-SPEL]]
 --
-Any Spring-EL functionality is available within the expression, so you can also access properties on the arguments.
-For example, if you wanted a particular method to only allow access to a user whose username matched that of the contact, you could write
+在表达式中可以使用任何Spring-EL功能，因此您也可以访问参数的属性。
+例如，如果您希望特定的方法只允许访问其用户名与联系人相匹配的用户，则可以编写
 --
 
 [source,java]
@@ -280,21 +280,21 @@ For example, if you wanted a particular method to only allow access to a user wh
 public void doSomething(Contact contact);
 ----
 
-Here we are accessing another built-in expression, `authentication`, which is the `Authentication` stored in the security context.
-You can also access its "principal" property directly, using the expression `principal`.
-The value will often be a `UserDetails` instance, so you might use an expression like `principal.username` or `principal.enabled`.
+在这里，我们正在访问另一个内置表达式`authentication`，它是存储在安全上下文中的`Authentication`。
+您还可以使用表达式`principal`直接访问其"principal"属性。
+该值通常是`UserDetails`实例，因此您可以使用表达式`principal.username`或`principal.enabled`。
 
-.[[el-pre-post-annotations-post]]
+[[EL-预后注释-交]]
 --
-Less commonly, you may wish to perform an access-control check after the method has been invoked.
-This can be achieved using the `@PostAuthorize` annotation.
-To access the return value from a method, use the built-in name `returnObject` in the expression.
+通常情况下，您可能希望在调用该方法后执行访问控制检查。
+这可以使用`@PostAuthorize`注释来实现。
+要从方法访问返回值，请使用表达式中的内置名称`returnObject`。
 --
 
-===== Filtering using @PreFilter and @PostFilter
-As you may already be aware, Spring Security supports filtering of collections and arrays and this can now be achieved using expressions.
-This is most commonly performed on the return value of a method.
-For example:
+===== 使用@PreFilter和@PostFilter进行过滤
+正如您可能已经知道的那样，Spring Security支持对集合和数组进行过滤，现在可以使用表达式来实现这一点。
+这通常是对方法的返回值执行的。
+例如：
 
 [source,java]
 ----
@@ -303,27 +303,27 @@ For example:
 public List<Contact> getAll();
 ----
 
-When using the `@PostFilter` annotation, Spring Security iterates through the returned collection and removes any elements for which the supplied expression is false.
-The name `filterObject` refers to the current object in the collection.
-You can also filter before the method call, using `@PreFilter`, though this is a less common requirement.
-The syntax is just the same, but if there is more than one argument which is a collection type then you have to select one by name using the `filterTarget` property of this annotation.
+当使用`@PostFilter`注释时，Spring Security遍历返回的集合并移除提供的表达式为false的所有元素。
+名称`filterObject`引用集合中的当前对象。
+您也可以在方法调用之前使用`@PreFilter`进行过滤，尽管这是一种不太常见的要求。
+语法相同，但如果有多个参数是集合类型，则必须使用此批注的`filterTarget`属性通过名称选择一个参数。
 
-Note that filtering is obviously not a substitute for tuning your data retrieval queries.
-If you are filtering large collections and removing many of the entries then this is likely to be inefficient.
+请注意，过滤显然不能替代您的数据检索查询。
+如果您要过滤大量集合并删除很多条目，那么这可能效率不高。
 
 
 [[el-method-built-in]]
-==== Built-In Expressions
-There are some built-in expressions which are specific to method security, which we have already seen in use above.
-The `filterTarget` and `returnValue` values are simple enough, but the use of the `hasPermission()` expression warrants a closer look.
+==== 内置表达式
+有一些特定于方法安全的内置表达式，我们已经在上面看到了这些内置表达式。
+`filterTarget`和`returnValue`值非常简单，但使用`hasPermission()`表达式需要仔细观察。
 
 
 [[el-permission-evaluator]]
-===== The PermissionEvaluator interface
-`hasPermission()` expressions are delegated to an instance of `PermissionEvaluator`.
-It is intended to bridge between the expression system and Spring Security's ACL system, allowing you to specify authorization constraints on domain objects, based on abstract permissions.
-It has no explicit dependencies on the ACL module, so you could swap that out for an alternative implementation if required.
-The interface has two methods:
+=====  PermissionEvaluator接口
+`hasPermission()`表达式被委派给`PermissionEvaluator`的一个实例。
+它旨在桥接表达式系统和Spring Security的ACL系统，允许您根据抽象权限指定域对象的授权约束。
+它对ACL模块没有明确的依赖关系，所以如果需要的话，你可以将它交换出来用于替代实现。
+界面有两种方法：
 
 [source,java]
 ----
@@ -334,15 +334,15 @@ boolean hasPermission(Authentication authentication, Serializable targetId,
 							String targetType, Object permission);
 ----
 
-which map directly to the available versions of the expression, with the exception that the first argument (the `Authentication` object) is not supplied.
-The first is used in situations where the domain object, to which access is being controlled, is already loaded.
-Then expression will return true if the current user has the given permission for that object.
-The second version is used in cases where the object is not loaded, but its identifier is known.
-An abstract "type" specifier for the domain object is also required, allowing the correct ACL permissions to be loaded.
-This has traditionally been the Java class of the object, but does not have to be as long as it is consistent with how the permissions are loaded.
+它直接映射到表达式的可用版本，但不提供第一个参数（`Authentication`对象）。
+第一种用于已经加载访问控制的域对象的情况。
+然后，如果当前用户具有该对象的给定权限，表达式将返回true。
+第二个版本用于未加载对象但标识符已知的情况。
+还需要域对象的抽象"type"说明符，以允许加载正确的ACL权限。
+传统上，这是对象的Java类，但不一定要与加载权限的方式一致。
 
-To use `hasPermission()` expressions, you have to explicitly configure a `PermissionEvaluator` in your application context.
-This would look something like this:
+要使用`hasPermission()`表达式，您必须在应用程序上下文中显式配置`PermissionEvaluator`。
+这看起来像这样：
 
 [source,xml]
 ----
@@ -356,22 +356,22 @@ This would look something like this:
 </bean>
 ----
 
-Where `myPermissionEvaluator` is the bean which implements `PermissionEvaluator`.
-Usually this will be the implementation from the ACL module which is called `AclPermissionEvaluator`.
-See the "Contacts" sample application configuration for more details.
+`myPermissionEvaluator`是实现`PermissionEvaluator`的bean。
+通常这将是来自名为`AclPermissionEvaluator`的ACL模块的实现。
+有关更多详细信息，请参阅"Contacts"示例应用程序配置。
 
-===== Method Security Meta Annotations
+===== 方法安全元注释
 
-You can make use of meta annotations for method security to make your code more readable.
-This is especially convenient if you find that you are repeating the same complex expression throughout your code base.
-For example, consider the following:
+您可以使用元注释来进行方法安全性，以使您的代码更具可读性。
+如果您发现在整个代码库中重复相同的复杂表达式，这一点尤其方便。
+例如，请考虑以下几点：
 
 [source,java]
 ----
 @PreAuthorize("#contact.name == authentication.name")
 ----
 
-Instead of repeating this everywhere, we can create a meta annotation that can be used instead.
+我们可以创建一个可用来代替的元注释，而不是随处重复。
 
 [source,java]
 ----
@@ -380,6 +380,6 @@ Instead of repeating this everywhere, we can create a meta annotation that can b
 public @interface ContactPermission {}
 ----
 
-Meta annotations can be used for any of the Spring Security method security annotations.
-In order to remain compliant with the specification JSR-250 annotations do not support meta annotations.
+元注释可用于任何Spring Security方法安全注释。
+为了保持与规范兼容，JSR-250注释不支持元注释。
 

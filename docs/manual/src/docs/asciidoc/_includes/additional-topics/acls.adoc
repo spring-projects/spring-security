@@ -1,152 +1,152 @@
 [[domain-acls]]
-== Domain Object Security (ACLs)
+== 域对象安全性（ACL）
 
 [[domain-acls-overview]]
-=== Overview
-Complex applications often will find the need to define access permissions not simply at a web request or method invocation level.
-Instead, security decisions need to comprise both who (`Authentication`), where (`MethodInvocation`) and what (`SomeDomainObject`).
-In other words, authorization decisions also need to consider the actual domain object instance subject of a method invocation.
+=== 概述
+复杂的应用程序通常会发现需要定义访问权限，而不仅仅是在Web请求或方法调用级别。
+相反，安全决策需要包括谁（`Authentication`），哪里（`MethodInvocation`）和什么（`SomeDomainObject`）。
+换句话说，授权决策还需要考虑方法调用的实际域对象实例主题。
 
-Imagine you're designing an application for a pet clinic.
-There will be two main groups of users of your Spring-based application: staff of the pet clinic, as well as the pet clinic's customers.
-The staff will have access to all of the data, whilst your customers will only be able to see their own customer records.
-To make it a little more interesting, your customers can allow other users to see their customer records, such as their "puppy preschool" mentor or president of their local "Pony Club".
-Using Spring Security as the foundation, you have several approaches that can be used:
+想象一下，你正在为宠物诊所设计一个应用程序。
+您的基于Spring的应用程序将有两个主要用户组：宠物诊所的员工以及宠物诊所的客户。
+员工可以访问所有数据，而客户只能看到他们自己的客户记录。
+为了让它更有趣，您的客户可以允许其他用户查看他们的客户记录，例如他们的"puppy preschool"指导或本地"Pony Club"的总裁。
+使用Spring Security作为基础，您可以使用以下几种方法：
 
-* Write your business methods to enforce the security.
-You could consult a collection within the `Customer` domain object instance to determine which users have access.
-By using the `SecurityContextHolder.getContext().getAuthentication()`, you'll be able to access the `Authentication` object.
-* Write an `AccessDecisionVoter` to enforce the security from the `GrantedAuthority[]` s stored in the `Authentication` object.
-This would mean your `AuthenticationManager` would need to populate the `Authentication` with custom ``GrantedAuthority[]``s representing each of the `Customer` domain object instances the principal has access to.
-* Write an `AccessDecisionVoter` to enforce the security and open the target `Customer` domain object directly.
-This would mean your voter needs access to a DAO that allows it to retrieve the `Customer` object.
-It would then access the `Customer` object's collection of approved users and make the appropriate decision.
+* 编写您的业务方法以强化安全性。
+您可以咨询`Customer`域对象实例中的集合以确定哪些用户有权访问。
+通过使用`SecurityContextHolder.getContext().getAuthentication()`，您可以访问`Authentication`对象。
+* 编写一个`AccessDecisionVoter`以强制存储在`Authentication`对象中的`GrantedAuthority[]`的安全性。
+这意味着您的`AuthenticationManager`需要使用代表主体有权访问的每个`Customer`域对象实例的自定义``GrantedAuthority[]``填充`Authentication`。
+* 编写一个`AccessDecisionVoter`来强制执行安全性，并直接打开目标`Customer`域对象。
+这意味着你的选民需要访问一个DAO，它允许它检索`Customer`对象。
+然后，它将访问`Customer`对象的已批准用户集合并作出适当的决定。
 
 
-Each one of these approaches is perfectly legitimate.
-However, the first couples your authorization checking to your business code.
-The main problems with this include the enhanced difficulty of unit testing and the fact it would be more difficult to reuse the `Customer` authorization logic elsewhere.
-Obtaining the `GrantedAuthority[]` s from the `Authentication` object is also fine, but will not scale to large numbers of `Customer` s.
-If a user might be able to access 5,000 `Customer` s (unlikely in this case, but imagine if it were a popular vet for a large Pony Club!) the amount of memory consumed and time required to construct the `Authentication` object would be undesirable.
-The final method, opening the `Customer` directly from external code, is probably the best of the three.
-It achieves separation of concerns, and doesn't misuse memory or CPU cycles, but it is still inefficient in that both the `AccessDecisionVoter` and the eventual business method itself will perform a call to the DAO responsible for retrieving the `Customer` object.
-Two accesses per method invocation is clearly undesirable.
-In addition, with every approach listed you'll need to write your own access control list (ACL) persistence and business logic from scratch.
+这些方法中的每一种都是完全合法的。
+但是，第一次将您的授权检查与您的业务代码耦合在一起。
+其中的主要问题包括单元测试的难度增加以及在其他地方重新使用`Customer`授权逻辑更加困难。
+从`Authentication`对象获取`GrantedAuthority[]`也很好，但不会扩展到大量的`Customer`。
+如果用户可能能够访问5,000个`Customer`（在这种情况下不太可能，但想象一下，如果它是大型Pony Club的受欢迎兽医！）所需的内存消耗量以及构建{{1 }}对象将是不可取的。
+最后的方法，直接从外部代码打开`Customer`，可能是三者中最好的。
+它实现了关注点的分离，并且不会滥用内存或CPU周期，但它仍然效率低下，`AccessDecisionVoter`和最终的业务方法本身都会执行对DAO的调用，负责检索{{1 }}对象。
+每个方法调用两次访问显然是不可取的。
+另外，列出的每种方法都需要从头开始编写自己的访问控制列表（ACL）持久性和业务逻辑。
 
-Fortunately, there is another alternative, which we'll talk about below.
+幸运的是，还有另一种选择，我们将在下面讨论。
 
 
 [[domain-acls-key-concepts]]
-=== Key Concepts
-Spring Security's ACL services are shipped in the `spring-security-acl-xxx.jar`.
-You will need to add this JAR to your classpath to use Spring Security's domain object instance security capabilities.
+=== 重要概念
+Spring Security的ACL服务在`spring-security-acl-xxx.jar`中提供。
+您需要将此JAR添加到您的类路径中以使用Spring Security的域对象实例安全功能。
 
-Spring Security's domain object instance security capabilities centre on the concept of an access control list (ACL).
-Every domain object instance in your system has its own ACL, and the ACL records details of who can and can't work with that domain object.
-With this in mind, Spring Security delivers three main ACL-related capabilities to your application:
+Spring Security的域对象实例安全功能以访问控制列表（ACL）的概念为中心。
+系统中的每个域对象实例都有自己的ACL，ACL记录了谁可以使用该域对象的详细信息。
+考虑到这一点，Spring Security为您的应用程序提供了三个与ACL相关的主要功能：
 
-* A way of efficiently retrieving ACL entries for all of your domain objects (and modifying those ACLs)
-* A way of ensuring a given principal is permitted to work with your objects, before methods are called
-* A way of ensuring a given principal is permitted to work with your objects (or something they return), after methods are called
+* 有效检索所有域对象的ACL条目（并修改这些ACL）的方法
+* 在调用方法之前，确保给定委托人被允许与您的对象一起工作
+* 确保给定主体的方法可以在调用方法后与您的对象（或返回的对象）一起工作
 
-As indicated by the first bullet point, one of the main capabilities of the Spring Security ACL module is providing a high-performance way of retrieving ACLs.
-This ACL repository capability is extremely important, because every domain object instance in your system might have several access control entries, and each ACL might inherit from other ACLs in a tree-like structure (this is supported out-of-the-box by Spring Security, and is very commonly used).
-Spring Security's ACL capability has been carefully designed to provide high performance retrieval of ACLs, together with pluggable caching, deadlock-minimizing database updates, independence from ORM frameworks (we use JDBC directly), proper encapsulation, and transparent database updating.
+正如第一个要点所指出的，Spring Security ACL模块的主要功能之一是提供了一种检索ACL的高性能方法。
+此ACL存储库功能非常重要，因为系统中的每个域对象实例都可能有多个访问控制条目，并且每个ACL可能以树状结构从其他ACL继承（这由Spring支持的开箱即用安全性，并且非常常用）。
+Spring Security的ACL功能经过精心设计，可提供ACL的高性能检索，以及可插拔缓存，死锁最小化数据库更新，独立于ORM框架（我们直接使用JDBC），适当的封装和透明的数据库更新。
 
-Given databases are central to the operation of the ACL module, let's explore the four main tables used by default in the implementation.
-The tables are presented below in order of size in a typical Spring Security ACL deployment, with the table with the most rows listed last:
-
-
-
-* ACL_SID allows us to uniquely identify any principal or authority in the system ("SID" stands for "security identity").
-The only columns are the ID, a textual representation of the SID, and a flag to indicate whether the textual                   representation refers to a principal name or a `GrantedAuthority`.
-Thus, there is a single row for each unique principal or `GrantedAuthority`.
-When used in the context of receiving a permission, a SID is generally called a "recipient".
-
-* ACL_CLASS allows us to uniquely identify any domain object class in the system.
-The only columns are the ID and the Java class name.
-Thus, there is a single row for each unique Class we wish to store ACL permissions for.
-
-* ACL_OBJECT_IDENTITY stores information for each unique domain object instance in the system.
-Columns include the ID, a foreign key to the ACL_CLASS table, a unique identifier so we know which ACL_CLASS instance we're providing information for, the parent, a foreign key to the ACL_SID table to represent the owner of the domain object instance, and whether we allow ACL entries to inherit from any parent ACL.
-We have a single row for every domain object instance we're storing ACL permissions for.
-
-* Finally, ACL_ENTRY stores the individual permissions assigned to each recipient.
-Columns include a foreign key to the ACL_OBJECT_IDENTITY, the recipient (ie a foreign key to ACL_SID), whether we'll be auditing or not, and the integer bit mask that represents the actual permission being granted or denied.
-We have a single row for every recipient that receives a permission to work with a domain object.
+鉴于数据库是ACL模块操作的核心，我们来研究实现中默认使用的四个主表。
+下表按照典型的Spring Security ACL部署中的大小顺序列出，其中最后一行列出的表格最多：
 
 
 
+*  ACL_SID允许我们唯一标识系统中的任何主体或权限（"SID"代表"security identity"）。
+唯一的列是ID，SID的文本表示，以及用于指示文本表示是指主体名称还是`GrantedAuthority`的标志。
+因此，每个唯一主体或`GrantedAuthority`都有一行。
+当在接收权限的上下文中使用时，SID通常称为"recipient"。
 
-As mentioned in the last paragraph, the ACL system uses integer bit masking.
-Don't worry, you need not be aware of the finer points of bit shifting to use the ACL system, but suffice to say that we have 32 bits we can switch on or off.
-Each of these bits represents a permission, and by default the permissions are read (bit 0), write (bit 1), create (bit 2), delete (bit 3) and administer (bit 4).
-It's easy to implement your own `Permission` instance if you wish to use other permissions, and the remainder of the ACL framework will operate without knowledge of your extensions.
+*  ACL_CLASS允许我们唯一标识系统中的任何域对象类。
+唯一的列是ID和Java类名。
+因此，对于我们希望存储ACL权限的每个唯一类，都有一行。
 
-It is important to understand that the number of domain objects in your system has absolutely no bearing on the fact we've chosen to use integer bit masking.
-Whilst you have 32 bits available for permissions, you could have billions of domain object instances (which will mean billions of rows in ACL_OBJECT_IDENTITY and quite probably ACL_ENTRY).
-We make this point because we've found sometimes people mistakenly believe they need a bit for each potential domain object, which is not the case.
+*  ACL_OBJECT_IDENTITY存储系统中每个唯一域对象实例的信息。
+列包括ID，ACL_CLASS表的外键，唯一标识符，因此我们知道哪些ACL_CLASS实例正在提供信息，父项，ACL_SID表的外键以表示域对象实例的所有者，以及我们是否允许ACL条目从任何父级ACL继承。
+对于我们存储ACL权限的每个域对象实例，我们都有一行。
 
-Now that we've provided a basic overview of what the ACL system does, and what it looks like at a table structure, let's explore the key interfaces.
-The key interfaces are:
-
-
-* `Acl`: Every domain object has one and only one `Acl` object, which internally holds the `AccessControlEntry` s as well as knows the owner of the `Acl`.
-An Acl does not refer directly to the domain object, but instead to an `ObjectIdentity`.
-The `Acl` is stored in the ACL_OBJECT_IDENTITY table.
-
-* `AccessControlEntry`: An `Acl` holds multiple `AccessControlEntry` s, which are often abbreviated as ACEs in the framework.
-Each ACE refers to a specific tuple of `Permission`, `Sid` and `Acl`.
-An ACE can also be granting or non-granting and contain audit settings.
-The ACE is stored in the ACL_ENTRY table.
-
-* `Permission`: A permission represents a particular immutable bit mask, and offers convenience functions for bit masking and outputting information.
-The basic permissions presented above (bits 0 through 4) are contained in the `BasePermission` class.
-
-* `Sid`: The ACL module needs to refer to principals and `GrantedAuthority[]` s.
-A level of indirection is provided by the `Sid` interface, which is an abbreviation of "security identity".
-Common classes include `PrincipalSid` (to represent the principal inside an `Authentication` object) and `GrantedAuthoritySid`.
-The security identity information is stored in the ACL_SID table.
-
-* `ObjectIdentity`: Each domain object is represented internally within the ACL module by an `ObjectIdentity`.
-The default implementation is called `ObjectIdentityImpl`.
-
-* `AclService`: Retrieves the `Acl` applicable for a given `ObjectIdentity`.
-In the included implementation (`JdbcAclService`), retrieval operations are delegated to a `LookupStrategy`.
-The `LookupStrategy` provides a highly optimized strategy for retrieving ACL information, using batched retrievals `(BasicLookupStrategy`) and supporting custom implementations that leverage materialized views, hierarchical queries and similar performance-centric, non-ANSI SQL capabilities.
-
-* `MutableAclService`: Allows a modified `Acl` to be presented for persistence.
-It is not essential to use this interface if you do not wish.
+* 最后，ACL_ENTRY存储分配给每个收件人的个人权限。
+列包括ACL_OBJECT_IDENTITY的外键，收件人（即ACL_SID的外键），是否将进行审计以及表示实际权限被授予或拒绝的整数位掩码。
+对于每个收到与域对象一起使用权限的收件人，我们都有一行。
 
 
 
-Please note that our out-of-the-box AclService and related database classes all use ANSI SQL.
-This should therefore work with all major databases.
-At the time of writing, the system had been successfully tested using Hypersonic SQL, PostgreSQL, Microsoft SQL Server and Oracle.
 
-Two samples ship with Spring Security that demonstrate the ACL module.
-The first is the Contacts Sample, and the other is the Document Management System (DMS) Sample.
-We suggest taking a look over these for examples.
+如最后一段所述，ACL系统使用整数位掩码。
+不用担心，您不需要意识到使用ACL系统时移位的更多细节，但足以说我们有32位可以打开或关闭。
+这些位中的每一个都表示权限，默认情况下会读取权限（位0），写入（位1），创建（位2），删除（位3）和管理权（位4）。
+如果您希望使用其他权限，则很容易实现您自己的`Permission`实例，而ACL框架的其余部分将在不知道您的扩展的情况下运行。
+
+理解系统中域对象的数量与我们选择使用整数位掩码的事实完全没有关系。
+虽然您有32位可用于权限，但您可能拥有数十亿个域对象实例（这将意味着ACL_OBJECT_IDENTITY中的数十亿行，很可能是ACL_ENTRY）。
+我们提出这一点是因为我们发现，有时候人们错误地认为他们需要一点点为每个潜在的领域对象，情况并非如此。
+
+现在我们已经提供了ACL系统的基本概述，以及它在表结构中的外观，让我们来探索关键接口。
+关键接口是：
+
+
+*  `Acl`：每个域对象都有且仅有一个`Acl`对象，它在内部保存`AccessControlEntry`，并且知道`Acl`的所有者。
+Acl不直接引用域对象，而是引用`ObjectIdentity`。
+`Acl`存储在ACL_OBJECT_IDENTITY表中。
+
+*  `AccessControlEntry`：`Acl`包含多个`AccessControlEntry`，在框架中通常缩写为ACE。
+每个ACE指的是`Permission`，`Sid`和`Acl`的特定元组。
+ACE也可以是授予或不授予，并包含审计设置。
+ACE存储在ACL_ENTRY表中。
+
+*  `Permission`：许可表示特定的不可变位掩码，并为位掩码和输出信息提供便利功能。
+上面介绍的基本权限（比特0到4）包含在`BasePermission`类中。
+
+*  `Sid`：ACL模块需要引用主体和`GrantedAuthority[]`。
+间接级别由`Sid`接口提供，该接口是"security identity"的缩写。
+常用的类包括`PrincipalSid`（用于表示`Authentication`对象内的主体）和`GrantedAuthoritySid`。
+安全标识信息存储在ACL_SID表中​​。
+
+*  `ObjectIdentity`：每个域对象在ACL模块内由`ObjectIdentity`表示。
+默认实现称为`ObjectIdentityImpl`。
+
+*  `AclService`：检索适用于给定`ObjectIdentity`的`Acl`。
+在包含的实现（`JdbcAclService`）中，检索操作被委托给`LookupStrategy`。
+`LookupStrategy`为检索ACL信息提供了一种高度优化的策略，使用批量检索`(BasicLookupStrategy`），并支持利用实体化视图，分层查询和类似以性能为中心的非ANSI SQL功能的自定义实现。
+
+*  `MutableAclService`：允许修改`Acl`以提供持久性。
+如果你不希望的话，使用这个接口并不重要。
+
+
+
+请注意，我们开箱即用的AclService和相关的数据库类都使用ANSI SQL。
+因此这应该适用于所有主要数据库。
+在撰写本文时，系统已经成功通过Hypersonic SQL，PostgreSQL，Microsoft SQL Server和Oracle测试。
+
+Spring Security附带两个样本，演示ACL模块。
+第一个是联系人示例，另一个是文档管理系统（DMS）示例。
+我们建议看看这些例子。
 
 
 [[domain-acls-getting-started]]
-=== Getting Started
-To get starting using Spring Security's ACL capability, you will need to store your ACL information somewhere.
-This necessitates the instantiation of a `DataSource` using Spring.
-The `DataSource` is then injected into a `JdbcMutableAclService` and `BasicLookupStrategy` instance.
-The latter provides high-performance ACL retrieval capabilities, and the former provides mutator capabilities.
-Refer to one of the samples that ship with Spring Security for an example configuration.
-You'll also need to populate the database with the four ACL-specific tables listed in the last section (refer to the ACL samples for the appropriate SQL statements).
+=== 入门
+要开始使用Spring Security的ACL功能，您需要将ACL信息存储在某处。
+这需要使用Spring来实例化`DataSource`。
+然后将`DataSource`注入到`JdbcMutableAclService`和`BasicLookupStrategy`实例中。
+后者提供了高性能的ACL检索功能，前者提供了增强功能。
+有关示例配置，请参阅Spring Security附带的示例之一。
+您还需要使用最后一节中列出的四个ACL特定的表来填充数据库（有关适当的SQL语句，请参阅ACL示例）。
 
-Once you've created the required schema and instantiated `JdbcMutableAclService`, you'll next need to ensure your domain model supports interoperability with the Spring Security ACL package.
-Hopefully `ObjectIdentityImpl` will prove sufficient, as it provides a large number of ways in which it can be used.
-Most people will have domain objects that contain a `public Serializable getId()` method.
-If the return type is long, or compatible with long (eg an int), you will find you need not give further consideration to `ObjectIdentity` issues.
-Many parts of the ACL module rely on long identifiers.
-If you're not using long (or an int, byte etc), there is a very good chance you'll need to reimplement a number of classes.
-We do not intend to support non-long identifiers in Spring Security's ACL module, as longs are already compatible with all database sequences, the most common identifier data type, and are of sufficient length to accommodate all common usage scenarios.
+一旦创建了所需的模式并实例化`JdbcMutableAclService`，接下来需要确保您的域模型支持与Spring Security ACL包的互操作性。
+希望`ObjectIdentityImpl`将被证明是足够的，因为它提供了很多方法来使用它。
+大多数人将拥有包含`public Serializable getId()`方法的域对象。
+如果返回类型很长，或者与长整型（例如int）兼容，您会发现不需要进一步考虑`ObjectIdentity`问题。
+ACL模块的很多部分都依赖于长标识符。
+如果你不使用long（或int，byte等），那么你很有可能需要重新实现一些类。
+我们不打算在Spring Security的ACL模块中支持非长标识符，因为longs已经与所有数据库序列（最常见的标识符数据类型）兼容，并且具有足够的长度以容纳所有常见的使用场景。
 
-The following fragment of code shows how to create an `Acl`, or modify an existing `Acl`:
+以下代码片段显示了如何创建`Acl`或修改现有的`Acl`：
 
 [source,java]
 ----
@@ -170,24 +170,24 @@ aclService.updateAcl(acl);
 
 
 
-In the example above, we're retrieving the ACL associated with the "Foo" domain object with identifier number 44.
-We're then adding an ACE so that a principal named "Samantha" can "administer" the object.
-The code fragment is relatively self-explanatory, except the insertAce method.
-The first argument to the insertAce method is determining at what position in the Acl the new entry will be inserted.
-In the example above, we're just putting the new ACE at the end of the existing ACEs.
-The final argument is a Boolean indicating whether the ACE is granting or denying.
-Most of the time it will be granting (true), but if it is denying (false), the permissions are effectively being blocked.
+在上面的示例中，我们检索与标识号为44的"Foo"域对象关联的ACL。
+然后，我们添加一个ACE，使得名为"Samantha"的主体可以"administer"该对象。
+代码片段相对不言自明，除了insertAce方法外。
+insertAce方法的第一个参数是确定Acl中的哪个位置将插入新条目。
+在上面的示例中，我们只是将新ACE放在现有ACE的末尾。
+最后一个参数是布尔值，表示ACE是否授予或拒绝。
+大多数时候它会授予（true），但是如果拒绝（false），则权限将被有效阻止。
 
-Spring Security does not provide any special integration to automatically create, update or delete ACLs as part of your DAO or repository operations.
-Instead, you will need to write code like shown above for your individual domain objects.
-It's worth considering using AOP on your services layer to automatically integrate the ACL information with your services layer operations.
-We've found this quite an effective approach in the past.
+作为DAO或存储库操作的一部分，Spring Security不提供任何特殊集成来自动创建，更新或删除ACL。
+相反，你将需要为你的单个域对象编写如上所示的代码。
+值得考虑在服务层使用AOP来自动将ACL信息与服务层操作集成。
+过去我们发现这是一个非常有效的方法。
 
-Once you've used the above techniques to store some ACL information in the database, the next step is to actually use the ACL information as part of authorization decision logic.
-You have a number of choices here.
-You could write your own `AccessDecisionVoter` or `AfterInvocationProvider` that respectively fires before or after a method invocation.
-Such classes would use `AclService` to retrieve the relevant ACL and then call `Acl.isGranted(Permission[] permission, Sid[] sids, boolean administrativeMode)` to decide whether permission is granted or denied.
-Alternately, you could use our `AclEntryVoter`, `AclEntryAfterInvocationProvider` or `AclEntryAfterInvocationCollectionFilteringProvider` classes.
-All of these classes provide a declarative-based approach to evaluating ACL information at runtime, freeing you from needing to write any code.
-Please refer to the sample applications to learn how to use these classes.
+一旦您使用上述技术将一些ACL信息存储在数据库中，下一步就是将ACL信息实际用作授权决策逻辑的一部分。
+你在这里有很多选择。
+您可以编写自己的`AccessDecisionVoter`或`AfterInvocationProvider`，分别在方法调用之前或之后触发。
+这些类将使用`AclService`来检索相关的ACL，然后调用`Acl.isGranted(Permission[] permission, Sid[] sids, boolean administrativeMode)`来决定是否授予或拒绝权限。
+或者，您可以使用我们的`AclEntryVoter`，`AclEntryAfterInvocationProvider`或`AclEntryAfterInvocationCollectionFilteringProvider`类。
+所有这些类都提供了一种基于声明的方法来在运行时评估ACL信息，从而不需要编写任何代码。
+请参阅示例应用程序以了解如何使用这些类。
 

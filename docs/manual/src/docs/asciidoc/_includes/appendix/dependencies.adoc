@@ -1,261 +1,261 @@
 
 
 [[appendix-dependencies]]
-== Spring Security Dependencies
-This appendix provides a reference of the modules in Spring Security and the additional dependencies that they require in order to function in a running application.
-We don't include dependencies that are only used when building or testing Spring Security itself.
-Nor do we include transitive dependencies which are required by external dependencies.
+==  Spring安全性依赖关系
+本附录提供了Spring Security中的模块参考，以及为了在正在运行的应用程序中运行而需要的其他依赖关系。
+我们不包含仅在构建或测试Spring Security本身时使用的依赖关系。
+我们也不包括外部依赖所需的传递依赖。
 
-The version of Spring required is listed on the project website, so the specific versions are omitted for Spring dependencies below.
-Note that some of the dependencies listed as "optional" below may still be required for other non-security functionality in a Spring application.
-Also dependencies listed as "optional" may not actually be marked as such in the project's Maven POM files if they are used in most applications.
-They are "optional" only in the sense that you don't need them unless you are using the specified functionality.
+项目网站上列出了所需的Spring版本，因此下面的Spring依赖关系省略了特定版本。
+请注意，Spring应用程序中的其他非安全功能仍需要下面列出的一些依赖项"optional"。
+如果项目的Maven POM文件在大多数应用程序中使用，则也可能实际上未将其标记为"optional"。
+只有在您不需要它们的情况下，它们才是"optional"，除非您使用指定的功能。
 
-Where a module depends on another Spring Security module, the non-optional dependencies of the module it depends on are also assumed to be required and are not listed separately.
+如果一个模块依赖于另一个Spring Security模块，那么它所依赖的模块的非可选依赖关系也被假定为必需的，并且不会单独列出。
 
 
-=== spring-security-core
+=== 弹簧安全芯
 
-The core module must be included in any project using Spring Security.
+核心模块必须包含在使用Spring Security的任何项目中。
 
-.Core Dependencies
+。核心依赖
 |===
-| Dependency | Version | Description
+|依赖| |版本|描述
 
-| ehcache
+|的Ehcache
 | 1.6.2
-| Required if the Ehcache-based user cache implementation is used (optional).
+|如果使用基于Ehcache的用户缓存实现（可选），则为必需。
 
-| spring-aop
+|春天的AOP
 |
-| Method security is based on Spring AOP
+|方法安全性基于Spring AOP
 
-| spring-beans
+|弹簧豆
 |
-| Required for Spring configuration
+| Spring配置需要
 
-| spring-expression
+|弹簧表达
 |
-| Required for expression-based method security (optional)
+|基于表达式的方法安全性（可选）
 
-| spring-jdbc
+|弹簧JDBC
 |
-| Required if using a database to store user data (optional).
+|如果使用数据库存储用户数据（可选），则为必需。
 
-| spring-tx
+|春天-TX
 |
-| Required if using a database to store user data (optional).
+|如果使用数据库存储用户数据（可选），则为必需。
 
 | aspectjrt
 | 1.6.10
-| Required if using AspectJ support (optional).
+|如果使用AspectJ支持（可选），则为必需。
 
-| jsr250-api
+| JSR250的API
 | 1.0
-| Required if you are using JSR-250 method-security annotations (optional).
+|如果您使用JSR-250方法安全性注释（可选），则为必需。
 |===
 
-=== spring-security-remoting
-This module is typically required in web applications which use the Servlet API.
+=== 弹簧安全远程处理
+在使用Servlet API的Web应用程序中通常需要此模块。
 
-.Remoting Dependencies
+.Remoting依赖关系
 |===
-| Dependency | Version | Description
+|依赖| |版本|描述
 
-| spring-security-core
+|弹簧安全核心
 |
 |
 
-| spring-web
+|弹簧网
 |
-| Required for clients which use HTTP remoting support.
-|===
-
-=== spring-security-web
-This module is typically required in web applications which use the Servlet API.
-
-.Web Dependencies
-|===
-| Dependency | Version | Description
-
-| spring-security-core
-|
-|
-
-| spring-web
-|
-| Spring web support classes are used extensively.
-
-| spring-jdbc
-|
-| Required for JDBC-based persistent remember-me token repository (optional).
-
-| spring-tx
-|
-| Required by remember-me persistent token repository implementations (optional).
+|对于使用HTTP远程支持的客户端是必需的。
 |===
 
-=== spring-security-ldap
-This module is only required if you are using LDAP authentication.
+=== 弹簧安全的web
+在使用Servlet API的Web应用程序中通常需要此模块。
 
-.LDAP Dependencies
+.Web依赖关系
 |===
-| Dependency | Version | Description
+|依赖| |版本|描述
 
-| spring-security-core
+|弹簧安全核心
 |
 |
 
-| spring-ldap-core
+|弹簧网
+|
+| Spring Web支持类被广泛使用。
+
+|弹簧JDBC
+|
+|基于JDBC的持久性记忆-Me标记库（可选）是必需的。
+
+|春天-TX
+|
+|记住 - 持久性标记库实现（可选）是必需的。
+|===
+
+=== 弹簧安全LDAP
+只有在使用LDAP认证时才需要此模块。
+
+.LDAP相关性
+|===
+|依赖| |版本|描述
+
+|弹簧安全核心
+|
+|
+
+|弹簧LDAP的芯
 | 1.3.0
-| LDAP support is based on Spring LDAP.
+| LDAP支持基于Spring LDAP。
 
-| spring-tx
+|春天-TX
 |
-| Data exception classes are required.
+|数据异常类是必需的。
 
-| apache-ds footnote:[The modules `apacheds-core`, `apacheds-core-entry`, `apacheds-protocol-shared`, `apacheds-protocol-ldap` and `apacheds-server-jndi` are required.
+| apache-ds脚注：[模块`apacheds-core`，`apacheds-core-entry`，`apacheds-protocol-shared`，`apacheds-protocol-ldap`和`apacheds-server-jndi`是必需的。
 ]
 | 1.5.5
-| Required if you are using an embedded LDAP server (optional).
+|如果您正在使用嵌入式LDAP服务器（可选），则为必需。
 
-| shared-ldap
+|共享LDAP
 | 0.9.15
-| Required if you are using an embedded LDAP server (optional).
+|如果您正在使用嵌入式LDAP服务器（可选），则为必需。
 
 | ldapsdk
 | 4.1
-| Mozilla LdapSDK.
-Used for decoding LDAP password policy controls if you are using password-policy functionality with OpenLDAP, for example.
+| Mozilla LdapSDK。
+例如，如果您使用OpenLDAP的密码策略功能，则用于解码LDAP密码策略控件。
 |===
 
 
-=== spring-security-config
-This module is required if you are using Spring Security namespace configuration.
+=== 弹簧安全配置
+如果您使用Spring Security命名空间配置，则此模块是必需的。
 
-.Config Dependencies
+配置依赖
 |===
-| Dependency | Version | Description
+|依赖| |版本|描述
 
-| spring-security-core
+|弹簧安全核心
 |
 |
 
-| spring-security-web
+|弹簧安全网
 |
-| Required if you are using any web-related namespace configuration (optional).
+|如果您使用任何与Web相关的命名空间配置（可选），则为必需。
 
-| spring-security-ldap
+|弹簧安全LDAP
 |
-| Required if you are using the LDAP namespace options (optional).
+|如果您使用LDAP名称空间选项（可选），则为必需。
 
-| spring-security-openid
+|弹簧安全的OpenID
 |
-| Required if you are using OpenID authentication (optional).
+|如果您使用OpenID身份验证（可选），则为必需。
 
 | aspectjweaver
 | 1.6.10
-| Required if using the protect-pointcut namespace syntax (optional).
+|如果使用protect-pointcut命名空间语法（可选），则为必需。
 |===
 
 
-=== spring-security-acl
-The ACL module.
+=== 弹簧安全的访问控制列表
+ACL模块。
 
-.ACL Dependencies
+.ACL依赖关系
 |===
-| Dependency | Version | Description
+|依赖| |版本|描述
 
-| spring-security-core
+|弹簧安全核心
 |
 |
 
-| ehcache
+|的Ehcache
 | 1.6.2
-| Required if the Ehcache-based ACL cache implementation is used (optional if you are using your own implementation).
+|如果使用基于Ehcache的ACL缓存实现（如果您使用自己的实现，则为可选）时是必需的。
 
-| spring-jdbc
+|弹簧JDBC
 |
-| Required if you are using the default JDBC-based AclService (optional if you implement your own).
+|如果您使用默认的基于JDBC的AclService，则为必需（如果您自己实现，则为可选）。
 
-| spring-tx
+|春天-TX
 |
-| Required if you are using the default JDBC-based AclService (optional if you implement your own).
+|如果您使用默认的基于JDBC的AclService，则为必需（如果您自己实现，则为可选）。
 |===
 
-=== spring-security-cas
-The CAS module provides integration with JA-SIG CAS.
+=== 弹簧安全-CAS
+CAS模块提供与JA-SIG CAS的集成。
 
-.CAS Dependencies
+.CAS依赖关系
 |===
-| Dependency | Version | Description
+|依赖| |版本|描述
 
-| spring-security-core
-|
-|
-
-| spring-security-web
+|弹簧安全核心
 |
 |
 
-| cas-client-core
+|弹簧安全网
+|
+|
+
+| CAS客户端核心
 | 3.1.12
-| The JA-SIG CAS Client.
-This is the basis of the Spring Security integration.
+| JA-SIG CAS客户端。
+这是Spring Security集成的基础。
 
-| ehcache
+|的Ehcache
 | 1.6.2
-| Required if you are using the Ehcache-based ticket cache (optional).
+|如果您使用基于Ehcache的票证缓存（可选），则为必需。
 |===
 
-=== spring-security-openid
-The OpenID module.
+=== 弹簧安全的OpenID
+OpenID模块。
 
-.OpenID Dependencies
+.OpenID相关性
 |===
-| Dependency | Version | Description
+|依赖| |版本|描述
 
-| spring-security-core
+|弹簧安全核心
 |
 |
 
-| spring-security-web
+|弹簧安全网
 |
 |
 
 | openid4java-nodeps
 | 0.9.6
-| Spring Security's OpenID integration uses OpenID4Java.
+| Spring Security的OpenID集成使用OpenID4Java。
 
-| httpclient
+| HttpClient的
 | 4.1.1
-| openid4java-nodeps depends on HttpClient 4.
+| openid4java-nodeps依赖于HttpClient 4。
 
-| guice
+|吉斯
 | 2.0
-| openid4java-nodeps depends on Guice 2.
+| openid4java-nodeps依赖于Guice 2。
 |===
 
-=== spring-security-taglibs
-Provides Spring Security's JSP tag implementations.
+=== 弹簧安全标记库
+提供Spring Security的JSP标记实现。
 
-.Taglib Dependencies
+.Taglib相关性
 |===
-| Dependency | Version | Description
+|依赖| |版本|描述
 
-| spring-security-core
-|
-|
-
-| spring-security-web
+|弹簧安全核心
 |
 |
 
-| spring-security-acl
+|弹簧安全网
 |
-| Required if you are using the `accesscontrollist` tag or `hasPermission()` expressions with ACLs (optional).
+|
 
-| spring-expression
+|弹簧安全ACL
 |
-| Required if you are using SPEL expressions in your tag access constraints.
+|如果您使用带有ACL的`accesscontrollist`标签或`hasPermission()`表达式（可选），则必需。
+
+|弹簧表达
+|
+|如果您在标签访问限制中使用SPEL表达式，则为必需。
 |===

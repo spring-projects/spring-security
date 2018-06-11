@@ -1,15 +1,15 @@
 
 [[data]]
-= Spring Data Integration
+= 春季数据集成
 
-Spring Security provides Spring Data integration that allows referring to the current user within your queries.
-It is not only useful but necessary to include the user in the queries to support paged results since filtering the results afterwards would not scale.
+Spring Security提供了Spring Data集成，允许在查询中引用当前用户。
+这不仅有用，而且必须将用户包含在查询中以支持分页结果，因为之后过滤结果不会扩展。
 
 [[data-configuration]]
-== Spring Data & Spring Security Configuration
+==  Spring Data＆Spring安全配置
 
-To use this support, provide a bean of type `SecurityEvaluationContextExtension`.
-In Java Configuration, this would look like:
+要使用此支持，请提供一个`SecurityEvaluationContextExtension`类型的bean。
+在Java配置中，这看起来像：
 
 [source,java]
 ----
@@ -19,7 +19,7 @@ public SecurityEvaluationContextExtension securityEvaluationContextExtension() {
 }
 ----
 
-In XML Configuration, this would look like:
+在XML配置中，这看起来像：
 
 [source,xml]
 ----
@@ -27,10 +27,10 @@ In XML Configuration, this would look like:
 ----
 
 [[data-query]]
-== Security Expressions within @Query
+@Query中的== 安全表达式
 
-Now Spring Security can be used within your queries.
-For example:
+现在Spring Security可以用在您的查询中。
+例如：
 
 [source,java]
 ----
@@ -41,6 +41,6 @@ public interface MessageRepository extends PagingAndSortingRepository<Message,Lo
 }
 ----
 
-This checks to see if the `Authentication.getPrincipal().getId()` is equal to the recipient of the `Message`.
-Note that this example assumes you have customized the principal to be an Object that has an id property.
-By exposing the `SecurityEvaluationContextExtension` bean, all of the <<common-expressions,Common Security Expressions>> are available within the Query.
+这将检查`Authentication.getPrincipal().getId()`是否等于`Message`的收件人。
+请注意，此示例假定您已将主体自定义为具有id属性的对象。
+通过公开`SecurityEvaluationContextExtension` bean，所有<<common-expressions,Common Security Expressions>>在查询中都可用。

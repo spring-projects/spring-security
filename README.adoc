@@ -1,66 +1,66 @@
-image::https://badges.gitter.im/Join%20Chat.svg[Gitter,link=https://gitter.im/spring-projects/spring-security?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge]
+image::https://badges.gitter.im/Join%20Chat.svg[小胶质，链接= HTTPS：？//gitter.im/spring-projects/spring-security utm_source =徽章＆utm_medium =徽章＆utm_campaign = PR-徽章＆的utm_content =徽章]
 
-image:https://travis-ci.org/spring-projects/spring-security.svg?branch=master["Build Status", link="https://travis-ci.org/spring-projects/spring-security"]
+image:https://travis-ci.org/spring-projects/spring-security.svg?branch=master[“构建状态”，link="https://travis-ci.org/spring-projects/spring-security"]
 
-= Spring Security
+=  Spring Security
 
-Spring Security provides security services for the http://docs.spring.io[Spring IO Platform]. Spring Security 5.0 requires Spring 5.0 as
-a minimum and also requires Java 8.
+Spring Security为 http://docs.spring.io[Spring IO平台]提供安全服务。 Spring Security 5.0需要Spring 5.0
+最低也需要Java 8。
 
-For a detailed list of features and access to the latest release, please visit http://spring.io/projects[Spring projects].
+有关功能的详细列表和最新版本的访问权限，请访问 http://spring.io/projects[春季项目]。
 
-== Code of Conduct
-This project adheres to the Contributor Covenant link:CODE_OF_CONDUCT.adoc[code of conduct].
-By participating, you  are expected to uphold this code. Please report unacceptable behavior to spring-code-of-conduct@pivotal.io.
+== 行为准则
+该项目遵守贡献者公约 link:CODE_OF_CONDUCT.adoc[行为守则]。
+通过参与，您需要维护这些代码。请将不可接受的行为报告给spring-code-of-conduct@pivotal.io。
 
-== Downloading Artifacts
-See https://github.com/spring-projects/spring-framework/wiki/Downloading-Spring-artifacts[downloading Spring artifacts] for Maven repository information.
+== 下载工件
+有关Maven存储库信息，请参阅https://github.com/spring-projects/spring-framework/wiki/Downloading-Spring-artifacts[下载Spring工件]。
 
-== Documentation
-Be sure to read the http://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/[Spring Security Reference].
-Extensive JavaDoc for the Spring Security code is also available in the http://docs.spring.io/spring-security/site/docs/current/apidocs/[Spring Security API Documentation].
+== 文档
+请务必阅读 http://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/[Spring安全参考]。
+http://docs.spring.io/spring-security/site/docs/current/apidocs/[Spring Security API文档]中还提供了Spring Security代码的广泛JavaDoc。
 
-== Quick Start
-We recommend you visit http://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/[Spring Security Reference] and read the "Getting Started" page.
+== 快速入门
+我们建议您访问 http://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/[Spring安全参考]并阅读"Getting Started"页面。
 
-== Building from Source
-Spring Security uses a http://gradle.org[Gradle]-based build system.
-In the instructions below, http://vimeo.com/34436402[`./gradlew`] is invoked from the root of the source tree and serves as
-a cross-platform, self-contained bootstrap mechanism for the build.
+从源构建== 
+Spring Security使用基于 http://gradle.org[摇篮]的构建系统。
+在以下说明中，从源码树的根目录调用 http://vimeo.com/34436402[`/ gradlew`]并作为
+一个跨平台的，独立的引导机制。
 
-=== Prerequisites
-http://help.github.com/set-up-git-redirect[Git] and the http://www.oracle.com/technetwork/java/javase/downloads[JDK8 build].
+=== 先决条件
+http://help.github.com/set-up-git-redirect[混帐]和 http://www.oracle.com/technetwork/java/javase/downloads[JDK8构建]。
 
-Be sure that your `JAVA_HOME` environment variable points to the `jdk1.8.0` folder extracted from the JDK download.
+确保您的`JAVA_HOME`环境变量指向从JDK下载中提取的`jdk1.8.0`文件夹。
 
-=== Check out sources
+=== 查看来源
 [indent=0]
 ----
 git clone git@github.com:spring-projects/spring-security.git
 ----
 
-=== Install all spring-\* jars into your local Maven cache
+=== 将所有spring  -  \ * jar安装到本地Maven缓存中
 [indent=0]
 ----
 ./gradlew install
 ----
 
-=== Compile and test; build all jars, distribution zips, and docs
+=== 编译和测试;构建所有罐子，分配拉链和文档
 [indent=0]
 ----
 ./gradlew build
 ----
 
-Discover more commands with `./gradlew tasks`.
-See also the https://github.com/spring-projects/spring-framework/wiki/Gradle-build-and-release-FAQ[Gradle build and release FAQ].
+使用`./gradlew tasks`发现更多命令。
+另请参阅https://github.com/spring-projects/spring-framework/wiki/Gradle-build-and-release-FAQ[Gradle构建和发布常见问题]。
 
-== Getting Support
-Check out the http://stackoverflow.com/questions/tagged/spring-security[Spring Security tags on Stack Overflow].
-http://spring.io/services[Commercial support] is available too.
+== 获得支持
+查看 http://stackoverflow.com/questions/tagged/spring-security[Spring堆栈溢出的安全标签]。
+http://spring.io/services[商业支持]也可用。
 
-== Contributing
-http://help.github.com/send-pull-requests[Pull requests] are welcome; see the https://github.com/spring-projects/spring-security/blob/master/CONTRIBUTING.md[contributor guidelines] for details.
+== 贡献
+欢迎 http://help.github.com/send-pull-requests[拉请求];有关详细信息，请参阅https://github.com/spring-projects/spring-security/blob/master/CONTRIBUTING.md[contributor准则]。
 
-== License
-Spring Security is Open Source software released under the
-http://www.apache.org/licenses/LICENSE-2.0.html[Apache 2.0 license].
+== 许可
+Spring Security是在开源软件下发布的
+http://www.apache.org/licenses/LICENSE-2.0.html[Apache 2.0许可证].

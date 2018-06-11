@@ -1,76 +1,76 @@
 
 [[jaas]]
-== Java Authentication and Authorization Service (JAAS) Provider
+==  Java认证和授权服务（JAAS）提供程序
 
 
-=== Overview
-Spring Security provides a package able to delegate authentication requests to the Java Authentication and Authorization Service (JAAS).
-This package is discussed in detail below.
+=== 概述
+Spring Security提供了一个能够将身份验证请求委托给Java身份验证和授权服务（JAAS）的软件包。
+这个包在下面详细讨论。
 
 
 [[jaas-abstractjaasauthenticationprovider]]
-=== AbstractJaasAuthenticationProvider
-The `AbstractJaasAuthenticationProvider` is the basis for the provided JAAS `AuthenticationProvider` implementations.
-Subclasses must implement a method that creates the `LoginContext`.
-The `AbstractJaasAuthenticationProvider` has a number of dependencies that can be injected into it that are discussed below.
+===  AbstractJaasAuthenticationProvider
+`AbstractJaasAuthenticationProvider`是提供的JAAS `AuthenticationProvider`实现的基础。
+子类必须实现一个创建`LoginContext`的方法。
+`AbstractJaasAuthenticationProvider`有许多可以注入的依赖关系，下面将对此进行讨论。
 
 
 [[jaas-callbackhandler]]
-==== JAAS CallbackHandler
-Most JAAS `LoginModule` s require a callback of some sort.
-These callbacks are usually used to obtain the username and password from the user.
+====  JAAS CallbackHandler
+大多数JAAS `LoginModule`都需要进行某种回调。
+这些回调通常用于从用户获取用户名和密码。
 
-In a Spring Security deployment, Spring Security is responsible for this user interaction (via the authentication mechanism).
-Thus, by the time the authentication request is delegated through to JAAS, Spring Security's authentication mechanism will already have fully-populated an `Authentication` object containing all the information required by the JAAS `LoginModule`.
+在Spring Security部署中，Spring Security负责此用户交互（通过身份验证机制）。
+因此，在认证请求委派给JAAS时，Spring Security的认证机制将已经完全填充了`Authentication`对象，其中包含JAAS `LoginModule`所需的全部信息。
 
-Therefore, the JAAS package for Spring Security provides two default callback handlers, `JaasNameCallbackHandler` and `JaasPasswordCallbackHandler`.
-Each of these callback handlers implement `JaasAuthenticationCallbackHandler`.
-In most cases these callback handlers can simply be used without understanding the internal mechanics.
+因此，Spring Security的JAAS包提供了两个默认回调处理程序`JaasNameCallbackHandler`和`JaasPasswordCallbackHandler`。
+每个回调处理程序都实现`JaasAuthenticationCallbackHandler`。
+在大多数情况下，这些回调处理程序可以在不理解内部机制的情况下使用。
 
-For those needing full control over the callback behavior, internally `AbstractJaasAuthenticationProvider` wraps these `JaasAuthenticationCallbackHandler` s with an `InternalCallbackHandler`.
-The `InternalCallbackHandler` is the class that actually implements JAAS normal `CallbackHandler` interface.
-Any time that the JAAS `LoginModule` is used, it is passed a list of application context configured `InternalCallbackHandler` s.
-If the `LoginModule` requests a callback against the `InternalCallbackHandler` s, the callback is in-turn passed to the `JaasAuthenticationCallbackHandler` s being wrapped.
+对于需要完全控制回调行为的用户，内部`AbstractJaasAuthenticationProvider`用`InternalCallbackHandler`包装这些`JaasAuthenticationCallbackHandler`。
+`InternalCallbackHandler`是实际实现JAAS普通`CallbackHandler`接口的类。
+无论何时使用JAAS `LoginModule`，它都会传递一个配置应用程序上下文的列表`InternalCallbackHandler`。
+如果`LoginModule`请求对`InternalCallbackHandler`进行回调，则回调将被传递给被封装的`JaasAuthenticationCallbackHandler`。
 
 
 [[jaas-authoritygranter]]
-==== JAAS AuthorityGranter
-JAAS works with principals.
-Even "roles" are represented as principals in JAAS.
-Spring Security, on the other hand, works with `Authentication` objects.
-Each `Authentication` object contains a single principal, and multiple `GrantedAuthority` s.
-To facilitate mapping between these different concepts, Spring Security's JAAS package includes an `AuthorityGranter` interface.
+JAAS AuthorityGranter ==== 
+JAAS与校长合作。
+甚至"roles"在JAAS中都被表示为主体。
+另一方面，Spring Security使用`Authentication`对象。
+每个`Authentication`对象包含一个主体和多个`GrantedAuthority`。
+为了促进这些不同概念之间的映射，Spring Security的JAAS包中包含一个`AuthorityGranter`接口。
 
-An `AuthorityGranter` is responsible for inspecting a JAAS principal and returning a set of `String` s, representing the authorities assigned to the principal.
-For each returned authority string, the `AbstractJaasAuthenticationProvider` creates a `JaasGrantedAuthority` (which implements Spring Security's `GrantedAuthority` interface) containing the authority string and the JAAS principal that the `AuthorityGranter` was passed.
-The `AbstractJaasAuthenticationProvider` obtains the JAAS principals by firstly successfully authenticating the user's credentials using the JAAS `LoginModule`, and then accessing the `LoginContext` it returns.
-A call to `LoginContext.getSubject().getPrincipals()` is made, with each resulting principal passed to each `AuthorityGranter` defined against the `AbstractJaasAuthenticationProvider.setAuthorityGranters(List)` property.
+`AuthorityGranter`负责检查JAAS校长并返回一组`String`，代表分配给校长的当局。
+对于每个返回的授权字符串，`AbstractJaasAuthenticationProvider`创建一个`JaasGrantedAuthority`（它实现了Spring Security的`GrantedAuthority`接口），该接口包含授权字符串和`AuthorityGranter`传递的JAAS主体。
+`AbstractJaasAuthenticationProvider`通过首先使用JAAS `LoginModule`成功验证用户的凭证，然后访问它返回的`LoginContext`来获取JAAS主体。
+对`LoginContext.getSubject().getPrincipals()`进行调用，并将每个结果主体传递给针对`AbstractJaasAuthenticationProvider.setAuthorityGranters(List)`属性定义的每个`AuthorityGranter`。
 
-Spring Security does not include any production `AuthorityGranter` s given that every JAAS principal has an implementation-specific meaning.
-However, there is a `TestAuthorityGranter` in the unit tests that demonstrates a simple `AuthorityGranter` implementation.
+考虑到每个JAAS主体都具有特定于实现的含义，Spring Security不包括任何生产`AuthorityGranter`。
+但是，单元测试中有一个`TestAuthorityGranter`，它演示了一个简单的`AuthorityGranter`实现。
 
 
 [[jaas-defaultjaasauthenticationprovider]]
-=== DefaultJaasAuthenticationProvider
-The `DefaultJaasAuthenticationProvider` allows a JAAS `Configuration` object to be injected into it as a dependency.
-It then creates a `LoginContext` using the injected JAAS `Configuration`.
-This means that `DefaultJaasAuthenticationProvider` is not bound any particular implementation of `Configuration` as `JaasAuthenticationProvider` is.
+===  DefaultJaasAuthenticationProvider
+`DefaultJaasAuthenticationProvider`允许将JAAS `Configuration`对象作为依赖注入到该对象中。
+然后使用注入的JAAS `Configuration`创建一个`LoginContext`。
+这意味着`DefaultJaasAuthenticationProvider`没有像`JaasAuthenticationProvider`那样绑定`Configuration`的任何特定实现。
 
 
 [[jaas-inmemoryconfiguration]]
-==== InMemoryConfiguration
-In order to make it easy to inject a `Configuration` into `DefaultJaasAuthenticationProvider`, a default in-memory implementation named `InMemoryConfiguration` is provided.
-The implementation constructor accepts a `Map` where each key represents a login configuration name and the value represents an `Array` of `AppConfigurationEntry` s.
-`InMemoryConfiguration` also supports a default `Array` of `AppConfigurationEntry` objects that will be used if no mapping is found within the provided `Map`.
-For details, refer to the class level javadoc of `InMemoryConfiguration`.
+====  InMemoryConfiguration
+为了便于`Configuration`注入`DefaultJaasAuthenticationProvider`，提供了名为`InMemoryConfiguration`的默认内存中实现。
+实现构造函数接受`Map`，其中每个键表示登录配置名称，值表示`AppConfigurationEntry`的`Array`。
+`InMemoryConfiguration`还支持`AppConfigurationEntry`对象的默认`Array`，如果未在所提供的`Map`内找到映射，则将使用该对象。
+有关详细信息，请参阅`InMemoryConfiguration`的类级别javadoc。
 
 
 [[jaas-djap-config]]
-==== DefaultJaasAuthenticationProvider Example Configuration
-While the Spring configuration for `InMemoryConfiguration` can be more verbose than the standarad JAAS configuration files, using it in conjuction with `DefaultJaasAuthenticationProvider` is more flexible than `JaasAuthenticationProvider` since it not dependant on the default `Configuration` implementation.
+====  DefaultJaasAuthenticationProvider示例配置
+尽管`InMemoryConfiguration`的Spring配置可能比标准JAAS配置文件更详细，但与`DefaultJaasAuthenticationProvider`结合使用会比`JaasAuthenticationProvider`更灵活，因为它不依赖于默认的{{3 }}实现。
 
-An example configuration of `DefaultJaasAuthenticationProvider` using `InMemoryConfiguration` is provided below.
-Note that custom implementations of `Configuration` can easily be injected into `DefaultJaasAuthenticationProvider` as well.
+下面提供了使用`InMemoryConfiguration`的{​​{0}}的示例配置。
+请注意，`Configuration`的自定义实现也可以很容易地注入到`DefaultJaasAuthenticationProvider`中。
 
 
 [source,xml]
@@ -117,12 +117,12 @@ class="org.springframework.security.authentication.jaas.DefaultJaasAuthenticatio
 
 
 [[jaas-jaasauthenticationprovider]]
-=== JaasAuthenticationProvider
-The `JaasAuthenticationProvider` assumes the default `Configuration` is an instance of http://download.oracle.com/javase/1.4.2/docs/guide/security/jaas/spec/com/sun/security/auth/login/ConfigFile.html[ ConfigFile].
-This assumption is made in order to attempt to update the `Configuration`.
-The `JaasAuthenticationProvider` then uses the default `Configuration` to create the `LoginContext`.
+===  JaasAuthenticationProvider
+`JaasAuthenticationProvider`假定默认`Configuration`是 http://download.oracle.com/javase/1.4.2/docs/guide/security/jaas/spec/com/sun/security/auth/login/ConfigFile.html[ 通过ConfigFile]的一个实例。
+这个假设是为了试图更新`Configuration`而做出的。
+`JaasAuthenticationProvider`然后使用默认的`Configuration`创建`LoginContext`。
 
-Let's assume we have a JAAS login configuration file, `/WEB-INF/login.conf`, with the following contents:
+假设我们有一个JAAS登录配置文件`/WEB-INF/login.conf`，其中包含以下内容：
 
 [source,txt]
 ----
@@ -131,8 +131,8 @@ JAASTest {
 };
 ----
 
-Like all Spring Security beans, the `JaasAuthenticationProvider` is configured via the application context.
-The following definitions would correspond to the above JAAS login configuration file:
+像所有Spring Security bean一样，`JaasAuthenticationProvider`通过应用程序上下文进行配置。
+以下定义将对应于上述JAAS登录配置文件：
 
 [source,xml]
 ----
@@ -158,14 +158,14 @@ class="org.springframework.security.authentication.jaas.JaasAuthenticationProvid
 ----
 
 [[jaas-apiprovision]]
-=== Running as a Subject
-If configured, the `JaasApiIntegrationFilter` will attempt to run as the `Subject` on the `JaasAuthenticationToken`.
-This means that the `Subject` can be accessed using:
+作为主题运行=== 
+如果已配置，则`JaasApiIntegrationFilter`将尝试以`JaasAuthenticationToken`上的`Subject`身份运行。
+这意味着可以使用以下方式访问`Subject`：
 
 [source,java]
 ----
 Subject subject = Subject.getSubject(AccessController.getContext());
 ----
 
-This integration can easily be configured using the <<nsa-http-jaas-api-provision,jaas-api-provision>> attribute.
-This feature is useful when integrating with legacy or external API's that rely on the JAAS Subject being populated.
+这种集成可以使用<<nsa-http-jaas-api-provision,jaas-api-provision>>属性轻松配置。
+当与依赖JAAS主题被填充的遗留或外部API集成时，此功能非常有用。

@@ -1,16 +1,16 @@
 [[new]]
-== What's New in Spring Security 5.1
+==  Spring Security 5.1的新增功能
 
-Spring Security 5.1 provides a number of new features.
-Below are the highlights of the release.
+Spring Security 5.1提供了许多新功能。
+以下是该版本的亮点。
 
-=== New Features
+=== 新功能
 
 * <<test-method>>
-** Support for customizing when the `SecurityContext` is setup in the test
-For example, `@WithMockUser(setupBefore = TestExecutionEvent.TEST_EXECUTION)` will setup a user after JUnit's `@Before` and before the test executes.
-** `@WithUserDetails` now works with `ReactiveUserDetailsService`
-* <<jackson>> - added support for `BadCredentialsException`
+** 支持在测试中设置`SecurityContext`时进行自定义
+例如，`@WithMockUser(setupBefore = TestExecutionEvent.TEST_EXECUTION)`会在JUnit的`@Before`之后并且在执行测试之前设置一个用户。
+**  `@WithUserDetails`现在可以与`ReactiveUserDetailsService`一起使用
+*  <<jackson>>  - 增加了对`BadCredentialsException`的支持
 * <<mvc-authentication-principal>>
-** Supports resolving beans in WebFlux (was already supported in Spring MVC)
-** Supports resolving `errorOnInvalidType` in WebFlux (was already supported in Spring MVC)
+** 支持在WebFlux中解析bean（已经在Spring MVC中受支持）
+** 支持解决WebFlux中的`errorOnInvalidType`（已经在Spring MVC中受支持）

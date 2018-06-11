@@ -1,157 +1,157 @@
 [[appendix-namespace]]
-== The Security Namespace
-This appendix provides a reference to the elements available in the security namespace and information on the underlying beans they create (a knowledge of the individual classes and how they work together is assumed - you can find more information in the project Javadoc and elsewhere in this document).
-If you haven't used the namespace before, please read the <<ns-config,introductory chapter>> on namespace configuration, as this is intended as a supplement to the information there.
-Using a good quality XML editor while editing a configuration based on the schema is recommended as this will provide contextual information on which elements and attributes are available as well as comments explaining their purpose.
-The namespace is written in http://www.relaxng.org/[RELAX NG] Compact format and later converted into an XSD schema.
-If you are familiar with this format, you may wish to examine the https://raw.githubusercontent.com/spring-projects/spring-security/master/config/src/main/resources/org/springframework/security/config/spring-security-4.1.rnc[schema file] directly.
+== 安全名称空间
+本附录提供了对安全性命名空间中可用元素的引用以及他们创建的底层bean的信息（假定了解各个类以及它们如何一起工作 - 您可以在项目Javadoc和本文档中的其他地方找到更多信息）。
+如果您之前没有使用过命名空间，请阅读命名空间配置上的<<ns-config,introductory chapter>>，因为这是对此处信息的补充。
+建议在编辑基于模式的配置时使用高质量的XML编辑器，因为这将提供关于哪些元素和属性可用的上下文信息以及解释其用途的注释。
+命名空间是用 http://www.relaxng.org/[RELAX NG]压缩格式编写的，后来转换为XSD模式。
+如果您熟悉这种格式，您可能希望查看https://raw.githubusercontent.com/spring-projects/spring-security/master/config/src/main/resources/org/springframework/security/config/ spring-security-4.1.rnc [模式文件]直接。
 
 [[nsa-web]]
-=== Web Application Security
+===  Web应用程序安全性
 
 [[nsa-debug]]
 ==== <debug>
-Enables Spring Security debugging infrastructure.
-This will provide human-readable (multi-line) debugging information to monitor requests coming into the security filters.
-This may include sensitive information, such as request parameters or headers, and should only be used in a development environment.
+启用S​​pring Security调试基础架构。
+这将提供可读的（多行）调试信息来监视进入安全过滤器的请求。
+这可能包括敏感信息，如请求参数或标题，并且只能在开发环境中使用。
 
 [[nsa-http]]
 ==== <http>
-If you use an `<http>` element within your application, a `FilterChainProxy` bean named "springSecurityFilterChain" is created and the configuration within the element is used to build a filter chain within
+如果您在应用程序中使用`<http>`元素，则会创建一个名为"springSecurityFilterChain"的`FilterChainProxy` bean，并使用元素内的配置在内部构建过滤器链
 `FilterChainProxy`.
-As of Spring Security 3.1, additional `http` elements can be used to add extra filter chains footnote:[See the pass:specialcharacters,macros[<<ns-web-xml,introductory chapter>>] for how to set up the mapping from your `web.xml` ].
-Some core filters are always created in a filter chain and others will be added to the stack depending on the attributes and child elements which are present.
-The positions of the standard filters are fixed (see
-<<filter-stack,the filter order table>> in the namespace introduction), removing a common source of errors with previous versions of the framework when users had to configure the filter chain explicitly in the
-`FilterChainProxy` bean.
-You can, of course, still do this if you need full control of the configuration.
+从Spring Security 3.1开始，可以使用额外的`http`元素添加额外的过滤器链脚注：[请参阅pass：specialcharacters，宏[<<ns-web-xml,introductory chapter>>]了解如何设置来自{{2 }}]。
+一些核心过滤器总是在过滤器链中创建，而其他核心过滤器将根据存在的属性和子元素添加到堆栈中。
+标准过滤器的位置是固定的（请参阅
+命名空间简介中的<<filter-stack,the filter order table>>），当用户必须显式配置过滤器链时，用以前版本的框架消除常见的错误来源
+`FilterChainProxy` bean。
+当然，如果您需要完全控制配置，您仍然可以这样做。
 
 
-All filters which require a reference to the `AuthenticationManager` will be automatically injected with the internal instance created by the namespace configuration (see the <<ns-auth-manager,introductory chapter>> for more on the `AuthenticationManager`).
+所有需要引用`AuthenticationManager`的过滤器将自动注入由命名空间配置创建的内部实例（有关`AuthenticationManager`的更多信息，请参阅<<ns-auth-manager,introductory chapter>>）。
 
-Each `<http>` namespace block always creates an `SecurityContextPersistenceFilter`, an `ExceptionTranslationFilter` and a `FilterSecurityInterceptor`.
-These are fixed and cannot be replaced with alternatives.
+每个`<http>`命名空间块始终创建一个`SecurityContextPersistenceFilter`，一个`ExceptionTranslationFilter`和一个`FilterSecurityInterceptor`。
+这些是固定的，不能用替代品替代。
 
 
 [[nsa-http-attributes]]
-===== <http> Attributes
-The attributes on the `<http>` element control some of the properties on the core filters.
+=====  <http>属性
+`<http>`元素上的属性控制核心过滤器的一些属性。
 
 
 [[nsa-http-access-decision-manager-ref]]
 * **access-decision-manager-ref**
-Optional attribute specifying the ID of the `AccessDecisionManager` implementation which should be used for authorizing HTTP requests.
-By default an `AffirmativeBased` implementation is used for with a `RoleVoter` and an `AuthenticatedVoter`.
+可选属性，指定应用于授权HTTP请求的`AccessDecisionManager`实现的ID。
+默认情况下，`AffirmativeBased`实现用于`RoleVoter`和`AuthenticatedVoter`。
 
 
 [[nsa-http-authentication-manager-ref]]
 * **authentication-manager-ref**
-A reference to the `AuthenticationManager` used for the `FilterChain` created by this http element.
+对由此http元素创建的`FilterChain`使用的`AuthenticationManager`的引用。
 
 
 [[nsa-http-auto-config]]
 * **auto-config**
-Automatically registers a login form, BASIC authentication, logout services.
-If set to "true", all of these capabilities are added (although you can still customize the configuration of each by providing the respective element).
-If unspecified, defaults to "false".
-Use of this attribute is not recommended.
-Use explicit configuration elements instead to avoid confusion.
+自动注册登录表单，BASIC认证，注销服务。
+如果设置为"true"，则会添加所有这些功能（尽管您仍然可以通过提供相应的元素来自定义每个功能的配置）。
+如果未指定，则默认为"false"。
+不建议使用此属性。
+使用显式配置元素来避免混淆。
 
 
 [[nsa-http-create-session]]
 * **create-session**
-Controls the eagerness with which an HTTP session is created by Spring Security classes.
-Options include:
+控制Spring安全类创建HTTP会话的热切程度。
+选项包括：
 
-** `always` - Spring Security will proactively create a session if one does not exist.
-** `ifRequired` - Spring Security will only create a session only if one is required (default value).
-** `never` - Spring Security will never create a session, but will make use of one if the application does.
-** `stateless` - Spring Security will not create a session and ignore the session for obtaining a Spring `Authentication`.
+**  `always`  - 如果Spring Security不存在，Spring会主动创建一个会话。
+**  `ifRequired`  -  Spring Security只会在需要时创建一个会话（默认值）。
+**  `never`  -  Spring Security永远不会创建一个会话，但如果应用程序会使用一个会话。
+**  `stateless`  -  Spring Security不会创建会话并忽略会话以获取Spring `Authentication`。
 
 [[nsa-http-disable-url-rewriting]]
 * **disable-url-rewriting**
-Prevents session IDs from being appended to URLs in the application.
-Clients must use cookies if this attribute is set to `true`.
-The default is `true`.
+防止将会话ID附加到应用程序中的URL上。
+如果此属性设置为`true`，则客户端必须使用Cookie。
+默认值是`true`。
 
 
 [[nsa-http-entry-point-ref]]
 * **entry-point-ref**
-Normally the `AuthenticationEntryPoint` used will be set depending on which authentication mechanisms have been configured.
-This attribute allows this behaviour to be overridden by defining a customized `AuthenticationEntryPoint` bean which will start the authentication process.
+通常，所使用的`AuthenticationEntryPoint`将根据已配置的认证机制进行设置。
+此属性允许通过定义将启动身份验证过程的自定义`AuthenticationEntryPoint` bean来覆盖此行为。
 
 
 [[nsa-http-jaas-api-provision]]
 * **jaas-api-provision**
-If available, runs the request as the `Subject` acquired from the `JaasAuthenticationToken` which is implemented by adding a `JaasApiIntegrationFilter` bean to the stack.
-Defaults to `false`.
+如果可用，请将请求作为从`JaasAuthenticationToken`获取的`Subject`来运行，该`JaasAuthenticationToken`通过将`JaasApiIntegrationFilter` bean添加到堆栈来实现。
+默认为`false`。
 
 
 [[nsa-http-name]]
 * **name**
-A bean identifier, used for referring to the bean elsewhere in the context.
+一个bean标识符，用于在上下文中的其他地方引用bean。
 
 
 [[nsa-http-once-per-request]]
 * **once-per-request**
-Corresponds to the `observeOncePerRequest` property of `FilterSecurityInterceptor`.
-Defaults to `true`.
+对应于`FilterSecurityInterceptor`的{​​{0}}属性。
+默认为`true`。
 
 
 [[nsa-http-pattern]]
 * **pattern**
-Defining a pattern for the <<nsa-http,http>> element controls the requests which will be filtered through the list of filters which it defines.
-The interpretation is dependent on the configured <<nsa-http-request-matcher,request-matcher>>.
-If no pattern is defined, all requests will be matched, so the most specific patterns should be declared first.
+为<<nsa-http,http>>元素定义模式控制将通过其定义的过滤器列表进行过滤的请求。
+解释取决于配置的<<nsa-http-request-matcher,request-matcher>>。
+如果未定义模式，则所有请求都将匹配，因此应首先声明最具体的模式。
 
 
 [[nsa-http-realm]]
 * **realm**
-Sets the realm name used for basic authentication (if enabled).
-Corresponds to the `realmName` property on `BasicAuthenticationEntryPoint`.
+设置用于基本身份验证的领域名称（如果启用）。
+对应`BasicAuthenticationEntryPoint`上的`realmName`属性。
 
 
 [[nsa-http-request-matcher]]
 * **request-matcher**
-Defines the `RequestMatcher` strategy used in the `FilterChainProxy` and the beans created by the `intercept-url` to match incoming requests.
-Options are currently `mvc`, `ant`, `regex` and `ciRegex`, for Spring MVC, ant, regular-expression and case-insensitive regular-expression respectively.
-A separate instance is created for each <<nsa-intercept-url,intercept-url>> element using its <<nsa-intercept-url-pattern,pattern>>, <<nsa-intercept-url-method,method>> and <<nsa-intercept-url-servlet-path,servlet-path>> attributes.
-Ant paths are matched using an `AntPathRequestMatcher`, regular expressions are matched using a `RegexRequestMatcher` and for Spring MVC path matching the `MvcRequestMatcher` is used.
-See the Javadoc for these classes for more details on exactly how the matching is performed.
-Ant paths are the default strategy.
+定义`FilterChainProxy`中使用的`RequestMatcher`策略和`intercept-url`创建的bean匹配传入请求。
+对于Spring MVC，ant，正则表达式和不区分大小写的正则表达式，选项分别为`mvc`，`ant`，`regex`和`ciRegex`。
+使用其<<nsa-intercept-url-pattern,pattern>>，<<nsa-intercept-url-method,method>>和<<nsa-intercept-url-servlet-path,servlet-path>>属性为每个<<nsa-intercept-url,intercept-url>>元素创建单独的实例。
+使用`AntPathRequestMatcher`匹配Ant路径，使用`RegexRequestMatcher`匹配正则表达式，并使用匹配`MvcRequestMatcher`的Spring MVC路径。
+有关这些类的详细信息，请参阅Javadoc以了解如何执行匹配。
+Ant路径是默认策略。
 
 
 [[nsa-http-request-matcher-ref]]
 * **request-matcher-ref**
-A reference to a bean that implements `RequestMatcher` that will determine if this `FilterChain` should be used.
-This is a more powerful alternative to <<nsa-http-pattern,pattern>>.
+对实现`RequestMatcher`的bean的引用，它将确定是否应使用此`FilterChain`。
+这是<<nsa-http-pattern,pattern>>的更强大替代方案。
 
 
 [[nsa-http-security]]
 * **security**
-A request pattern can be mapped to an empty filter chain, by setting this attribute to `none`.
-No security will be applied and none of Spring Security's features will be available.
+通过将此属性设置为`none`，可将请求模式映射到空的过滤器链。
+没有安全性将被应用，Spring Security的功能都不可用。
 
 
 [[nsa-http-security-context-repository-ref]]
 * **security-context-repository-ref**
-Allows injection of a custom `SecurityContextRepository` into the `SecurityContextPersistenceFilter`.
+允许在`SecurityContextPersistenceFilter`中注入自定义`SecurityContextRepository`。
 
 
 [[nsa-http-servlet-api-provision]]
 * **servlet-api-provision**
-Provides versions of `HttpServletRequest` security methods such as `isUserInRole()` and `getPrincipal()` which are implemented by adding a `SecurityContextHolderAwareRequestFilter` bean to the stack.
-Defaults to `true`.
+提供`HttpServletRequest`安全方法的版本，例如`isUserInRole()`和`getPrincipal()`，这些方法通过在堆栈中添加一个`SecurityContextHolderAwareRequestFilter` bean来实现。
+默认为`true`。
 
 
 [[nsa-http-use-expressions]]
 * **use-expressions**
-Enables EL-expressions in the `access` attribute, as described in the chapter on <<el-access-web,expression-based access-control>>.
-The default value is true.
+如<<el-access-web,expression-based access-control>>一章所述，在`access`属性中启用EL表达式。
+默认值是true。
 
 
 [[nsa-http-children]]
-===== Child Elements of <http>
+<http>的{​​{0}}子元素
 * <<nsa-access-denied-handler,access-denied-handler>>
 * <<nsa-anonymous,anonymous>>
 * <<nsa-cors,cors>>
@@ -174,99 +174,99 @@ The default value is true.
 
 [[nsa-access-denied-handler]]
 ==== <access-denied-handler>
-This element allows you to set the `errorPage` property for the default `AccessDeniedHandler` used by the `ExceptionTranslationFilter`, using the <<nsa-access-denied-handler-error-page,error-page>> attribute, or to supply your own implementation using the<<nsa-access-denied-handler-ref,ref>> attribute.
-This is discussed in more detail in the section on the <<access-denied-handler,ExceptionTranslationFilter>>.
+此元素允许您使用<<nsa-access-denied-handler-error-page,error-page>>属性为`ExceptionTranslationFilter`使用的默认`AccessDeniedHandler`设置`errorPage`属性，或者使用{{4 }}属性。
+这在<<access-denied-handler,ExceptionTranslationFilter>>的部分有更详细的讨论。
 
 
 [[nsa-access-denied-handler-parents]]
-===== Parent Elements of <access-denied-handler>
+<access-denied-handler>的{​​{0}}父元素
 
 * <<nsa-http,http>>
 
 [[nsa-access-denied-handler-attributes]]
-===== <access-denied-handler> Attributes
+=====  <access-denied-handler>属性
 
 
 [[nsa-access-denied-handler-error-page]]
 * **error-page**
-The access denied page that an authenticated user will be redirected to if they request a page which they don't have the authority to access.
+访问被拒绝的页面，认证用户将被重定向到，如果他们请求他们没有权限访问的页面。
 
 
 [[nsa-access-denied-handler-ref]]
 * **ref**
-Defines a reference to a Spring bean of type `AccessDeniedHandler`.
+定义对`AccessDeniedHandler`类型的Spring bean的引用。
 
 
 [[nsa-cors]]
 ==== <cors>
-This element allows for configuring a `CorsFilter`.
-If no `CorsFilter` or `CorsConfigurationSource` is specified and Spring MVC is on the classpath, a `HandlerMappingIntrospector` is used as the `CorsConfigurationSource`.
+该元素允许配置`CorsFilter`。
+如果未指定`CorsFilter`或`CorsConfigurationSource`，并且Spring MVC位于类路径中，则`HandlerMappingIntrospector`将用作`CorsConfigurationSource`。
 
 [[nsa-cors-attributes]]
-===== <cors> Attributes
-The attributes on the `<cors>` element control the headers element.
+=====  <cors>属性
+`<cors>`元素上的属性控制标题元素。
 
 [[nsa-cors-ref]]
 * **ref**
-Optional attribute that specifies the bean name of a `CorsFilter`.
+可选属性，指定`CorsFilter`的bean名称。
 
 [[nsa-cors-configuration-source-ref]]
 * **cors-configuration-source-ref**
-Optional attribute that specifies the bean name of a `CorsConfigurationSource` to be injected into a `CorsFilter` created by the XML namespace.
+可选属性，指定要注入到由XML命名空间创建的`CorsFilter`中的`CorsConfigurationSource`的bean名称。
 
 [[nsa-cors-parents]]
-===== Parent Elements of <cors>
+<cors>的{​​{0}}父元素
 
 * <<nsa-http,http>>
 
 [[nsa-headers]]
 ==== <headers>
-This element allows for configuring additional (security) headers to be send with the response.
-It enables easy configuration for several headers and also allows for setting custom headers through the <<nsa-header,header>> element.
-Additional information, can be found in the <<headers,Security Headers>> section of the reference.
+该元素允许配置附加（安全）头与响应一起发送。
+它可以轻松配置多个标题，还可以通过<<nsa-header,header>>元素设置自定义标题。
+其他信息可以在参考文献的<<headers,Security Headers>>部分找到。
 
-** `Cache-Control`, `Pragma`, and `Expires` - Can be set using the <<nsa-cache-control,cache-control>> element.
-This ensures that the browser does not cache your secured pages.
-** `Strict-Transport-Security` - Can be set using the <<nsa-hsts,hsts>> element.
-This ensures that the browser automatically requests HTTPS for future requests.
-** `X-Frame-Options` - Can be set using the <<nsa-frame-options,frame-options>> element.
-The http://en.wikipedia.org/wiki/Clickjacking#X-Frame-Options[X-Frame-Options] header can be used to prevent clickjacking attacks.
-** `X-XSS-Protection` - Can be set using the <<nsa-xss-protection,xss-protection>> element.
-The http://en.wikipedia.org/wiki/Cross-site_scripting[X-XSS-Protection ] header can be used by browser to do basic control.
-** `X-Content-Type-Options` - Can be set using the <<nsa-content-type-options,content-type-options>> element.
-The http://blogs.msdn.com/b/ie/archive/2008/09/02/ie8-security-part-vi-beta-2-update.aspx[X-Content-Type-Options] header prevents Internet Explorer from MIME-sniffing a response away from the declared content-type.
-This also applies to Google Chrome, when downloading extensions.
-** `Public-Key-Pinning` or `Public-Key-Pinning-Report-Only` - Can be set using the <<nsa-hpkp,hpkp>> element.
-This allows HTTPS websites to resist impersonation by attackers using mis-issued or otherwise fraudulent certificates.
-** `Content-Security-Policy` or `Content-Security-Policy-Report-Only` - Can be set using the <<nsa-content-security-policy,content-security-policy>> element.
-https://www.w3.org/TR/CSP2/[Content Security Policy (CSP)] is a mechanism that web applications can leverage to mitigate content injection vulnerabilities, such as cross-site scripting (XSS).
-** `Referrer-Policy` - Can be set using the <<nsa-referrer-policy,referrer-policy>> element, https://www.w3.org/TR/referrer-policy/[Referrer-Policy] is a mechanism that web applications can leverage to manage the referrer field, which contains the last page the user was on.
+**  `Cache-Control`，`Pragma`和`Expires`  - 可以使用<<nsa-cache-control,cache-control>>元素进行设置。
+这可确保浏览器不会缓存受保护的页面。
+**  `Strict-Transport-Security`  - 可以使用<<nsa-hsts,hsts>>元素进行设置。
+这可确保浏览器自动为未来的请求请求HTTPS。
+**  `X-Frame-Options`  - 可以使用<<nsa-frame-options,frame-options>>元素进行设置。
+http://en.wikipedia.org/wiki/Clickjacking#X-Frame-Options[X-框架，选项]标头可用于防止点击劫持攻击。
+**  `X-XSS-Protection`  - 可以使用<<nsa-xss-protection,xss-protection>>元素进行设置。
+浏览器可以使用 http://en.wikipedia.org/wiki/Cross-site_scripting[X-XSS-保护]标题进行基本控制。
+**  `X-Content-Type-Options`  - 可以使用<<nsa-content-type-options,content-type-options>>元素进行设置。
+http://blogs.msdn.com/b/ie/archive/2008/09/02/ie8-security-part-vi-beta-2-update.aspx[X-Content-Type的选项]标题阻止Internet Explorer从MIME中嗅探到已声明的内容类型的响应。
+在下载扩展程序时，这也适用于Google Chrome。
+**  `Public-Key-Pinning`或`Public-Key-Pinning-Report-Only`  - 可以使用<<nsa-hpkp,hpkp>>元素进行设置。
+这使得HTTPS网站能够抵御攻击者使用错误发布或其他欺诈性证书的冒充行为。
+**  `Content-Security-Policy`或`Content-Security-Policy-Report-Only`  - 可以使用<<nsa-content-security-policy,content-security-policy>>元素进行设置。
+https://www.w3.org/TR/CSP2/ [内容安全策略（CSP）]是Web应用程序可以利用的机制来缓解内容注入漏洞，例如跨站点脚本（XSS）。
+**  `Referrer-Policy`  - 可以使用<<nsa-referrer-policy,referrer-policy>>元素进行设置，https://www.w3.org/TR/referrer-policy/[Referrer-Policy]是一种Web应用程序可以利用来管理引荐来源字段，其中包含用户所在的最后一页。
 
 [[nsa-headers-attributes]]
-===== <headers> Attributes
-The attributes on the `<headers>` element control the headers element.
+=====  <headers>属性
+`<headers>`元素上的属性控制标题元素。
 
 
 [[nsa-headers-defaults-disabled]]
 * **defaults-disabled**
-Optional attribute that specifies to disable the default Spring Security's HTTP response headers.
-The default is false (the default headers are included).
+可选属性，用于指定禁用默认Spring Security的HTTP响应标头。
+默认值为false（包含默认标题）。
 
 [[nsa-headers-disabled]]
 * **disabled**
-Optional attribute that specifies to disable Spring Security's HTTP response headers.
-The default is false (the headers are enabled).
+可选属性，指定禁用Spring Security的HTTP响应标头。
+默认值为false（标题已启用）。
 
 
 [[nsa-headers-parents]]
-===== Parent Elements of <headers>
+<headers>的{​​{0}}父元素
 
 * <<nsa-http,http>>
 
 
 
 [[nsa-headers-children]]
-===== Child Elements of <headers>
+<headers>的{​​{0}}子元素
 
 
 * <<nsa-cache-control,cache-control>>
@@ -283,20 +283,20 @@ The default is false (the headers are enabled).
 
 [[nsa-cache-control]]
 ==== <cache-control>
-Adds `Cache-Control`, `Pragma`, and `Expires` headers to ensure that the browser does not cache your secured pages.
+添加`Cache-Control`，`Pragma`和`Expires`标头，以确保浏览器不会缓存受保护的页面。
 
 
 [[nsa-cache-control-attributes]]
-===== <cache-control> Attributes
+=====  <cache-control>属性
 
 [[nsa-cache-control-disabled]]
 * **disabled**
-Specifies if Cache Control should be disabled.
-Default false.
+指定是否应禁用缓存控制。
+默认为false。
 
 
 [[nsa-cache-control-parents]]
-===== Parent Elements of <cache-control>
+<cache-control>的{​​{0}}父元素
 
 
 * <<nsa-headers,headers>>
@@ -305,38 +305,38 @@ Default false.
 
 [[nsa-hsts]]
 ==== <hsts>
-When enabled adds the http://tools.ietf.org/html/rfc6797[Strict-Transport-Security] header to the response for any secure request.
-This allows the server to instruct browsers to automatically use HTTPS for future requests.
+启用后，将 http://tools.ietf.org/html/rfc6797[严格，运输和安全]标头添加到任何安全请求的响应中。
+这允许服务器指示浏览器为将来的请求自动使用HTTPS。
 
 
 [[nsa-hsts-attributes]]
-===== <hsts> Attributes
+=====  <hsts>属性
 
 [[nsa-hsts-disabled]]
 * **disabled**
-Specifies if Strict-Transport-Security should be disabled.
-Default false.
+指定是否应禁用Strict-Transport-Security。
+默认为false。
 
 [[nsa-hsts-include-subdomains]]
 * **include-sub-domains**
-Specifies if subdomains should be included.
-Default true.
+指定是否应包含子域。
+默认为true。
 
 
 [[nsa-hsts-max-age-seconds]]
 * **max-age-seconds**
-Specifies the maximum amount of time the host should be considered a Known HSTS Host.
-Default one year.
+指定主机应被视为已知HSTS主机的最长时间。
+默认一年。
 
 
 [[nsa-hsts-request-matcher-ref]]
 * **request-matcher-ref**
-The RequestMatcher instance to be used to determine if the header should be set.
-Default is if HttpServletRequest.isSecure() is true.
+RequestMatcher实例用于确定是否应设置标题。
+如果HttpServletRequest.isSecure（）为true，则默认为。
 
 
 [[nsa-hsts-parents]]
-===== Parent Elements of <hsts>
+<hsts>的{​​{0}}父元素
 
 * <<nsa-headers,headers>>
 
@@ -344,73 +344,73 @@ Default is if HttpServletRequest.isSecure() is true.
 
 [[nsa-hpkp]]
 ==== <hpkp>
-When enabled adds the https://tools.ietf.org/html/rfc7469[Public Key Pinning Extension for HTTP] header to the response for any secure request.
-This allows HTTPS websites to resist impersonation by attackers using mis-issued or otherwise fraudulent certificates.
+启用后，将针对任何安全请求的https://tools.ietf.org/html/rfc7469[Public Key Pinning Extension for HTTP]标头添加到响应中。
+这使得HTTPS网站能够抵御攻击者使用错误发布或其他欺诈性证书的冒充行为。
 
 
 [[nsa-hpkp-attributes]]
-===== <hpkp> Attributes
+=====  <hpkp>属性
 
 [[nsa-hpkp-disabled]]
 * **disabled**
-Specifies if HTTP Public Key Pinning (HPKP) should be disabled.
-Default true.
+指定是否应禁用HTTP公钥关联（HPKP）。
+默认为true。
 
 [[nsa-hpkp-include-subdomains]]
 * **include-sub-domains**
-Specifies if subdomains should be included.
-Default false.
+指定是否应包含子域。
+默认为false。
 
 
 [[nsa-hpkp-max-age-seconds]]
 * **max-age-seconds**
-Sets the value for the max-age directive of the Public-Key-Pins header.
-Default 60 days.
+设置Public-Key-Pins标头的max-age指令的值。
+默认60天。
 
 
 [[nsa-hpkp-report-only]]
 * **report-only**
-Specifies if the browser should only report pin validation failures.
-Default true.
+指定浏览器是否应报告引脚验证失败。
+默认为true。
 
 
 [[nsa-hpkp-report-uri]]
 * **report-uri**
-Specifies the URI to which the browser should report pin validation failures.
+指定浏览器应报告引脚验证失败的URI。
 
 
 [[nsa-hpkp-parents]]
-===== Parent Elements of <hpkp>
+<hpkp>的{​​{0}}父元素
 
 * <<nsa-headers,headers>>
 
 
 [[nsa-pins]]
 ==== <pins>
-The list of pins
+引脚列表
 
 
 [[nsa-pins-children]]
-===== Child Elements of <pins>
+<pins>的{​​{0}}子元素
 
 * <<nsa-pin,pin>>
 
 
 [[nsa-pin]]
 ==== <pin>
-A pin is specified using the base64-encoded SPKI fingerprint as value and the cryptographic hash algorithm as attribute
+使用base64编码的SPKI指纹作为值并将加密散列算法用作属性来指定针脚
 
 [[nsa-pin-attributes]]
-===== <pin> Attributes
+=====  <pin>属性
 
 [[nsa-pin-algorithm]]
 * **algorithm**
-The cryptographic hash algorithm.
-Default is SHA256.
+密码散列算法。
+默认是SHA256。
 
 
 [[nsa-pin-parents]]
-===== Parent Elements of <pin>
+<pin>的{​​{0}}父元素
 
 * <<nsa-pins,pins>>
 
@@ -418,23 +418,23 @@ Default is SHA256.
 
 [[nsa-content-security-policy]]
 ==== <content-security-policy>
-When enabled adds the https://www.w3.org/TR/CSP2/[Content Security Policy (CSP)] header to the response.
-CSP is a mechanism that web applications can leverage to mitigate content injection vulnerabilities, such as cross-site scripting (XSS).
+启用后，将https://www.w3.org/TR/CSP2/ [内容安全策略（CSP）]标头添加到响应中。
+CSP是Web应用程序可以利用的机制来缓解内容注入漏洞，例如跨站点脚本（XSS）。
 
 [[nsa-content-security-policy-attributes]]
-===== <content-security-policy> Attributes
+=====  <content-security-policy>属性
 
 [[nsa-content-security-policy-policy-directives]]
 * **policy-directives**
-The security policy directive(s) for the Content-Security-Policy header or if report-only is set to true, then the Content-Security-Policy-Report-Only header is used.
+Content-Security-Policy头的安全策略指令或者仅report-only设置为true，则使用Content-Security-Policy-Report-Only头。
 
 [[nsa-content-security-policy-report-only]]
 * **report-only**
-Set to true, to enable the Content-Security-Policy-Report-Only header for reporting policy violations only.
-Defaults to false.
+设置为true，仅启用仅用于报告策略违规的Content-Security-Policy-Report-Only标头。
+默认为false。
 
 [[nsa-content-security-policy-parents]]
-===== Parent Elements of <content-security-policy>
+<content-security-policy>的{​​{0}}父元素
 
 * <<nsa-headers,headers>>
 
@@ -442,18 +442,18 @@ Defaults to false.
 
 [[nsa-referrer-policy]]
 ==== <referrer-policy>
-When enabled adds the https://www.w3.org/TR/referrer-policy/[Referrer Policy] header to the response.
+启用后，将https://www.w3.org/TR/referrer-policy/[Referrer Policy]标头添加到响应中。
 
 [[nsa-referrer-policy-attributes]]
-===== <referrer-policy> Attributes
+=====  <referrer-policy>属性
 
 [[nsa-referrer-policy-policy]]
 * **policy**
-The policy for the Referrer-Policy header.
-Default "no-referrer".
+Referrer-Policy标头的策略。
+默认"no-referrer"。
 
 [[nsa-referrer-policy-parents]]
-===== Parent Elements of <referrer-policy>
+<referrer-policy>的{​​{0}}父元素
 
 * <<nsa-headers,headers>>
 
@@ -461,63 +461,63 @@ Default "no-referrer".
 
 [[nsa-frame-options]]
 ==== <frame-options>
-When enabled adds the http://tools.ietf.org/html/draft-ietf-websec-x-frame-options[X-Frame-Options header] to the response, this allows newer browsers to do some security checks and prevent http://en.wikipedia.org/wiki/Clickjacking[clickjacking] attacks.
+启用后，将 http://tools.ietf.org/html/draft-ietf-websec-x-frame-options[X-Frame-Options标题]添加到响应中，这允许较新的浏览器执行一些安全检查并防止 http://en.wikipedia.org/wiki/Clickjacking[点击劫持]攻击。
 
 
 [[nsa-frame-options-attributes]]
-===== <frame-options> Attributes
+=====  <frame-options>属性
 
 [[nsa-frame-options-disabled]]
 * **disabled**
-If disabled, the X-Frame-Options header will not be included.
-Default false.
+如果禁用，则不包括X-Frame-Options标头。
+默认为false。
 
 [[nsa-frame-options-policy]]
 * **policy**
-** `DENY` The page cannot be displayed in a frame, regardless of the site attempting to do so.
-This is the default when frame-options-policy is specified.
-** `SAMEORIGIN` The page can only be displayed in a frame on the same origin as the page itself
-** `ALLOW-FROM origin` The page can only be displayed in a frame on the specified origin.
+**  `DENY`无论站点尝试这样做，页面都不能显示在框架中。
+这是指定frame-options-policy时的默认值。
+**  `SAMEORIGIN`该页面只能以与页面本身相同的原点显示在框架中
+**  `ALLOW-FROM origin`页面只能显示在指定原点的框架中。
 
 +
 
-In other words, if you specify DENY, not only will attempts to load the page in a frame fail when loaded from other sites, attempts to do so will fail when loaded from the same site.
-On the other hand, if you specify SAMEORIGIN, you can still use the page in a frame as long as the site including it in a frame it is the same as the one serving the page.
+换句话说，如果你指定了DENY，那么当从其他站点加载时，不仅会尝试在一个框架中加载页面，当从同一站点加载时，尝试这样做将失败。
+另一方面，如果指定了SAMEORIGIN，只要网站将其包含在一个框架中，就可以使用该框架中的页面，即可与该页面提供的页面相同。
 
 [[nsa-frame-options-strategy]]
 * **strategy**
-Select the `AllowFromStrategy` to use when using the ALLOW-FROM policy.
+选择使用ALLOW-FROM策略时要使用的`AllowFromStrategy`。
 
-** `static` Use a single static ALLOW-FROM value.
-The value can be set through the <<nsa-frame-options-value,value>> attribute.
-** `regexp` Use a regelur expression to validate incoming requests and if they are allowed.
-The regular expression can be set through the <<nsa-frame-options-value,value>> attribute.
-The request parameter used to retrieve the value to validate can be specified using the <<nsa-frame-options-from-parameter,from-parameter>>.
-** `whitelist` A comma-seperated list containing the allowed domains.
-The comma-seperated list can be set through the <<nsa-frame-options-value,value>> attribute.
-The request parameter used to retrieve the value to validate can be specified using the <<nsa-frame-options-from-parameter,from-parameter>>.
+**  `static`使用单个静态ALLOW-FROM值。
+该值可以通过<<nsa-frame-options-value,value>>属性进行设置。
+**  `regexp`使用regelur表达式来验证传入的请求，以及它们是否被允许。
+正则表达式可以通过<<nsa-frame-options-value,value>>属性设置。
+用于检索要验证的值的请求参数可以使用<<nsa-frame-options-from-parameter,from-parameter>>指定。
+**  `whitelist`包含允许的域的逗号分隔列表。
+逗号分隔列表可以通过<<nsa-frame-options-value,value>>属性设置。
+用于检索要验证的值的请求参数可以使用<<nsa-frame-options-from-parameter,from-parameter>>指定。
 
 
 
 
 [[nsa-frame-options-ref]]
 * **ref**
-Instead of using one of the predefined strategies it is also possible to use a custom `AllowFromStrategy`.
-The reference to this bean can be specified through this ref attribute.
+也可以使用自定义`AllowFromStrategy`，而不是使用其中一种预定义的策略。
+这个bean的引用可以通过这个ref属性来指定。
 
 
 [[nsa-frame-options-value]]
 * **value**
-The value to use when ALLOW-FROM is used a <<nsa-frame-options-strategy,strategy>>.
+使用ALLOW-FROM时使用的值是<<nsa-frame-options-strategy,strategy>>。
 
 
 [[nsa-frame-options-from-parameter]]
 * **from-parameter**
-Specify the name of the request parameter to use when using regexp or whitelist for the ALLOW-FROM strategy.
+指定ALLOW-FROM策略使用正则表达式或白名单时要使用的请求参数的名称。
 
 
 [[nsa-frame-options-parents]]
-===== Parent Elements of <frame-options>
+<frame-options>的{​​{0}}父元素
 
 * <<nsa-headers,headers>>
 
@@ -525,34 +525,34 @@ Specify the name of the request parameter to use when using regexp or whitelist 
 
 [[nsa-xss-protection]]
 ==== <xss-protection>
-Adds the http://blogs.msdn.com/b/ie/archive/2008/07/02/ie8-security-part-iv-the-xss-filter.aspx[X-XSS-Protection header] to the response to assist in protecting against http://en.wikipedia.org/wiki/Cross-site_scripting#Non-Persistent[reflected / Type-1 Cross-Site Scripting (XSS)] attacks.
-This is in no-way a full protection to XSS attacks!
+将 http://blogs.msdn.com/b/ie/archive/2008/07/02/ie8-security-part-iv-the-xss-filter.aspx[X-XSS-Protection头]添加到回复中，以帮助防范 http://en.wikipedia.org/wiki/Cross-site_scripting#Non-Persistent[反射/ Type-1跨站点脚本（XSS）]次攻击。
+这绝对不能完全保护XSS攻击！
 
 
 [[nsa-xss-protection-attributes]]
-===== <xss-protection> Attributes
+=====  <xss-protection>属性
 
 
 [[nsa-xss-protection-disabled]]
 * **xss-protection-disabled**
-Do not include the header for http://en.wikipedia.org/wiki/Cross-site_scripting#Non-Persistent[reflected / Type-1 Cross-Site Scripting (XSS)] protection.
+请勿包含 http://en.wikipedia.org/wiki/Cross-site_scripting#Non-Persistent[反射/ Type-1跨站点脚本（XSS）]保护的标题。
 
 
 [[nsa-xss-protection-enabled]]
 * **xss-protection-enabled**
-Explicitly enable or disable http://en.wikipedia.org/wiki/Cross-site_scripting#Non-Persistent[reflected / Type-1 Cross-Site Scripting (XSS)] protection.
+显式启用或禁用 http://en.wikipedia.org/wiki/Cross-site_scripting#Non-Persistent[反射/ Type-1跨站点脚本（XSS）]保护。
 
 
 [[nsa-xss-protection-block]]
 * **xss-protection-block**
-When true and xss-protection-enabled is true, adds mode=block to the header.
-This indicates to the browser that the page should not be loaded at all.
-When false and xss-protection-enabled is true, the page will still be rendered when an reflected attack is detected but the response will be modified to protect against the attack.
-Note that there are sometimes ways of bypassing this mode which can often times make blocking the page more desirable.
+当true和xss-protection-enabled为true时，将mode = block添加到标题。
+这向浏览器表明该页面不应该被加载。
+当false和xss-protection-enabled为真时，当检测到反射攻击时，页面仍将呈现，但响应将被修改以防止攻击。
+请注意，有时会绕过此模式，这通常会使页面更加受欢迎。
 
 
 [[nsa-xss-protection-parents]]
-===== Parent Elements of <xss-protection>
+<xss-protection>的{​​{0}}父元素
 
 * <<nsa-headers,headers>>
 
@@ -560,20 +560,20 @@ Note that there are sometimes ways of bypassing this mode which can often times 
 
 [[nsa-content-type-options]]
 ==== <content-type-options>
-Add the X-Content-Type-Options header with the value of nosniff to the response.
-This http://blogs.msdn.com/b/ie/archive/2008/09/02/ie8-security-part-vi-beta-2-update.aspx[disables MIME-sniffing] for IE8+ and Chrome extensions.
+将值为nosniff的X-Content-Type-Options标头添加到响应中。
+http://blogs.msdn.com/b/ie/archive/2008/09/02/ie8-security-part-vi-beta-2-update.aspx[禁用MIME嗅探]适用于IE8 +和Chrome扩展程序。
 
 
 [[nsa-content-type-options-attributes]]
-===== <content-type-options> Attributes
+=====  <content-type-options>属性
 
 [[nsa-content-type-options-disabled]]
 * **disabled**
-Specifies if Content Type Options should be disabled.
-Default false.
+指定是否应禁用内容类型选项。
+默认为false。
 
 [[nsa-content-type-options-parents]]
-===== Parent Elements of <content-type-options>
+<content-type-options>的{​​{0}}父元素
 
 
 * <<nsa-headers,headers>>
@@ -582,30 +582,30 @@ Default false.
 
 [[nsa-header]]
 ==== <header>
-Add additional headers to the response, both the name and value need to be specified.
+将其他标题添加到响应中，需要指定名称和值。
 
 
 [[nsa-header-attributes]]
-===== <header-attributes> Attributes
+=====  <header-attributes>属性
 
 
 [[nsa-header-name]]
 * **header-name**
-The `name` of the header.
+标题的`name`。
 
 
 [[nsa-header-value]]
 * **value**
-The `value` of the header to add.
+要添加的标题的`value`。
 
 
 [[nsa-header-ref]]
 * **ref**
-Reference to a custom implementation of the `HeaderWriter` interface.
+引用`HeaderWriter`界面的自定义实现。
 
 
 [[nsa-header-parents]]
-===== Parent Elements of <header>
+<header>的{​​{0}}父元素
 
 
 * <<nsa-headers,headers>>
@@ -614,12 +614,12 @@ Reference to a custom implementation of the `HeaderWriter` interface.
 
 [[nsa-anonymous]]
 ==== <anonymous>
-Adds an `AnonymousAuthenticationFilter` to the stack and an `AnonymousAuthenticationProvider`.
-Required if you are using the `IS_AUTHENTICATED_ANONYMOUSLY` attribute.
+将`AnonymousAuthenticationFilter`添加到堆栈并添加`AnonymousAuthenticationProvider`。
+如果您使用`IS_AUTHENTICATED_ANONYMOUSLY`属性，则为必需。
 
 
 [[nsa-anonymous-parents]]
-===== Parent Elements of <anonymous>
+<anonymous>的{​​{0}}父元素
 
 
 * <<nsa-http,http>>
@@ -627,46 +627,46 @@ Required if you are using the `IS_AUTHENTICATED_ANONYMOUSLY` attribute.
 
 
 [[nsa-anonymous-attributes]]
-===== <anonymous> Attributes
+=====  <anonymous>属性
 
 
 [[nsa-anonymous-enabled]]
 * **enabled**
-With the default namespace setup, the anonymous "authentication" facility is automatically enabled.
-You can disable it using this property.
+通过默认名称空间设置，匿名"authentication"设施将自动启用。
+您可以使用此属性禁用它。
 
 
 [[nsa-anonymous-granted-authority]]
 * **granted-authority**
-The granted authority that should be assigned to the anonymous request.
-Commonly this is used to assign the anonymous request particular roles, which can subsequently be used in authorization decisions.
-If unset, defaults to `ROLE_ANONYMOUS`.
+应该分配给匿名请求的授予权限。
+通常这是用来分配匿名请求的特定角色，随后可以用于授权决策。
+如果未设置，则默认为`ROLE_ANONYMOUS`。
 
 
 [[nsa-anonymous-key]]
 * **key**
-The key shared between the provider and filter.
-This generally does not need to be set.
-If unset, it will default to a secure randomly generated value.
-This means setting this value can improve startup time when using the anonymous functionality since secure random values can take a while to be generated.
+提供者和过滤器之间共享的关键。
+这通常不需要设置。
+如果未设置，它将默认为安全随机生成的值。
+这意味着设置此值可以改善使用匿名功能时的启动时间，因为安全随机值可能需要一段时间才能生成。
 
 
 [[nsa-anonymous-username]]
 * **username**
-The username that should be assigned to the anonymous request.
-This allows the principal to be identified, which may be important for logging and auditing.
-if unset, defaults to `anonymousUser`.
+应分配给匿名请求的用户名。
+这样可以识别委托人，这对于记录和审计可能很重要。
+如果未设置，则默认为`anonymousUser`。
 
 
 [[nsa-csrf]]
 ==== <csrf>
-This element will add http://en.wikipedia.org/wiki/Cross-site_request_forgery[Cross Site Request Forger (CSRF)] protection to the application.
-It also updates the default RequestCache to only replay "GET" requests upon successful authentication.
-Additional information can be found in the <<csrf,Cross Site Request Forgery (CSRF)>> section of the reference.
+该元素将为应用程序添加 http://en.wikipedia.org/wiki/Cross-site_request_forgery[跨站请求伪造（CSRF）]保护。
+它还将默认的RequestCache更新为仅在成功验证后重播"GET"请求。
+其他信息可以在参考文献的<<csrf,Cross Site Request Forgery (CSRF)>>部分找到。
 
 
 [[nsa-csrf-parents]]
-===== Parent Elements of <csrf>
+<csrf>的{​​{0}}父元素
 
 
 * <<nsa-http,http>>
@@ -674,35 +674,35 @@ Additional information can be found in the <<csrf,Cross Site Request Forgery (CS
 
 
 [[nsa-csrf-attributes]]
-===== <csrf> Attributes
+=====  <csrf>属性
 
 [[nsa-csrf-disabled]]
 * **disabled**
-Optional attribute that specifies to disable Spring Security's CSRF protection.
-The default is false (CSRF protection is enabled).
-It is highly recommended to leave CSRF protection enabled.
+可选属性，指定禁用Spring Security的CSRF保护。
+默认值为false（启用CSRF保护）。
+强烈建议启用CSRF保护。
 
 [[nsa-csrf-token-repository-ref]]
 * **token-repository-ref**
-The CsrfTokenRepository to use.
-The default is `HttpSessionCsrfTokenRepository`.
+使用CsrfTokenRepository。
+默认值是`HttpSessionCsrfTokenRepository`。
 
 
 [[nsa-csrf-request-matcher-ref]]
 * **request-matcher-ref**
-The RequestMatcher instance to be used to determine if CSRF should be applied.
-Default is any HTTP method except "GET", "TRACE", "HEAD", "OPTIONS".
+要用来确定是否应用CSRF的RequestMatcher实例。
+默认值是除"GET"，"TRACE"，"HEAD"，"OPTIONS"以外的任何HTTP方法。
 
 
 [[nsa-custom-filter]]
 ==== <custom-filter>
-This element is used to add a filter to the filter chain.
-It doesn't create any additional beans but is used to select a bean of type `javax.servlet.Filter` which is already defined in the application context and add that at a particular position in the filter chain maintained by Spring Security.
-Full details can be found in the <<ns-custom-filters, namespace chapter>>.
+该元素用于向过滤器链添加过滤器。
+它不会创建任何额外的bean，但用​​于选择已在应用程序上下文中定义的`javax.servlet.Filter`类型的bean，并将其添加到由Spring Security维护的过滤器链中的特定位置。
+完整的详细信息可以在<<ns-custom-filters, namespace chapter>>中找到。
 
 
 [[nsa-custom-filter-parents]]
-===== Parent Elements of <custom-filter>
+<custom-filter>的{​​{0}}父元素
 
 
 * <<nsa-http,http>>
@@ -710,40 +710,40 @@ Full details can be found in the <<ns-custom-filters, namespace chapter>>.
 
 
 [[nsa-custom-filter-attributes]]
-===== <custom-filter> Attributes
+=====  <custom-filter>属性
 
 
 [[nsa-custom-filter-after]]
 * **after**
-The filter immediately after which the custom-filter should be placed in the chain.
-This feature will only be needed by advanced users who wish to mix their own filters into the security filter chain and have some knowledge of the standard Spring Security filters.
-The filter names map to specific Spring Security implementation filters.
+紧随其后的过滤器应放置在链中。
+只有希望将自己的过滤器组合到安全过滤器链中并具有标准Spring Security过滤器知识的高级用户才需要此功能。
+筛选器名称映射到特定的Spring Security实现筛选器。
 
 
 [[nsa-custom-filter-before]]
 * **before**
-The filter immediately before which the custom-filter should be placed in the chain
+自定义过滤器应该放置在链中之前的过滤器
 
 
 [[nsa-custom-filter-position]]
 * **position**
-The explicit position at which the custom-filter should be placed in the chain.
-Use if you are replacing a standard filter.
+自定义过滤器应放置在链中的显式位置。
+如果您要更换标准过滤器，请使用此选项
 
 
 [[nsa-custom-filter-ref]]
 * **ref**
-Defines a reference to a Spring bean that implements `Filter`.
+定义对实现`Filter`的Spring bean的引用。
 
 
 [[nsa-expression-handler]]
 ==== <expression-handler>
-Defines the `SecurityExpressionHandler` instance which will be used if expression-based access-control is enabled.
-A default implementation (with no ACL support) will be used if not supplied.
+定义如果启用基于表达式的访问控制，将使用的`SecurityExpressionHandler`实例。
+如果不提供，将使用默认实现（不支持ACL）。
 
 
 [[nsa-expression-handler-parents]]
-===== Parent Elements of <expression-handler>
+<expression-handler>的{​​{0}}父元素
 
 
 * <<nsa-global-method-security,global-method-security>>
@@ -753,26 +753,26 @@ A default implementation (with no ACL support) will be used if not supplied.
 
 
 [[nsa-expression-handler-attributes]]
-===== <expression-handler> Attributes
+=====  <expression-handler>属性
 
 
 [[nsa-expression-handler-ref]]
 * **ref**
-Defines a reference to a Spring bean that implements `SecurityExpressionHandler`.
+定义对实现`SecurityExpressionHandler`的Spring bean的引用。
 
 
 [[nsa-form-login]]
 ==== <form-login>
-Used to add an `UsernamePasswordAuthenticationFilter` to the filter stack and an `LoginUrlAuthenticationEntryPoint` to the application context to provide authentication on demand.
-This will always take precedence over other namespace-created entry points.
-If no attributes are supplied, a login page will be generated automatically at the URL "/login" footnote:[
-This feature is really just provided for convenience and is not intended for production (where a view technology will have been chosen and can be used to render a customized login page).
-The class `DefaultLoginPageGeneratingFilter` is responsible for rendering the login page and will provide login forms for both normal form login and/or OpenID if required.
-] The behaviour can be customized using the <<nsa-form-login-attributes, `<form-login>` Attributes>>.
+用于将`UsernamePasswordAuthenticationFilter`添加到过滤器堆栈，并将`LoginUrlAuthenticationEntryPoint`添加到应用程序上下文以根据需要提供身份验证。
+这将始终优先于其他命名空间创建的入口点。
+如果未提供任何属性，则会在URL "/login"脚注中自动生成登录页面：[
+此功能实际上只是为了方便而提供的，并不适用于生产（视图技术将被选择并可用于呈现定制登录页面）。
+类`DefaultLoginPageGeneratingFilter`负责呈现登录页面，并在必要时为常规表单登录和/或OpenID提供登录表单。
+]行为可以使用<<nsa-form-login-attributes, `<form-login>` Attributes>>进行自定义。
 
 
 [[nsa-form-login-parents]]
-===== Parent Elements of <form-login>
+<form-login>的{​​{0}}父元素
 
 
 * <<nsa-http,http>>
@@ -780,89 +780,89 @@ The class `DefaultLoginPageGeneratingFilter` is responsible for rendering the lo
 
 
 [[nsa-form-login-attributes]]
-===== <form-login> Attributes
+=====  <form-login>属性
 
 
 [[nsa-form-login-always-use-default-target]]
 * **always-use-default-target**
-If set to `true`, the user will always start at the value given by <<nsa-form-login-default-target-url,default-target-url>>, regardless of how they arrived at the login page.
-Maps to the `alwaysUseDefaultTargetUrl` property of `UsernamePasswordAuthenticationFilter`.
-Default value is `false`.
+如果设置为`true`，则用户始终以<<nsa-form-login-default-target-url,default-target-url>>给定的值开始，而不管它们是如何到达登录页面的。
+映射到`UsernamePasswordAuthenticationFilter`的{​​{0}}属性。
+默认值是`false`。
 
 
 [[nsa-form-login-authentication-details-source-ref]]
 * **authentication-details-source-ref**
-Reference to an `AuthenticationDetailsSource` which will be used by the authentication filter
+引用将由认证过滤器使用的`AuthenticationDetailsSource`
 
 
 [[nsa-form-login-authentication-failure-handler-ref]]
 * **authentication-failure-handler-ref**
-Can be used as an alternative to <<nsa-form-login-authentication-failure-url,authentication-failure-url>>, giving you full control over the navigation flow after an authentication failure.
-The value should be the name of an `AuthenticationFailureHandler` bean in the application context.
+可以用作<<nsa-form-login-authentication-failure-url,authentication-failure-url>>的替代方法，让您在验​​证失败后完全控制导航流。
+该值应该是应用程序上下文中的`AuthenticationFailureHandler` bean的名称。
 
 
 [[nsa-form-login-authentication-failure-url]]
 * **authentication-failure-url**
-Maps to the `authenticationFailureUrl` property of `UsernamePasswordAuthenticationFilter`.
-Defines the URL the browser will be redirected to on login failure.
-Defaults to `/login?error`, which will be automatically handled by the automatic login page generator, re-rendering the login page with an error message.
+映射到`UsernamePasswordAuthenticationFilter`的{​​{0}}属性。
+定义浏览器在登录失败时将被重定向到的URL。
+默认为`/login?error`，将由自动登录页面生成器自动处理，并用错误消息重新呈现登录页面。
 
 
 [[nsa-form-login-authentication-success-handler-ref]]
 * **authentication-success-handler-ref**
-This can be used as an alternative to <<nsa-form-login-default-target-url,default-target-url>> and <<nsa-form-login-always-use-default-target,always-use-default-target>>, giving you full control over the navigation flow after a successful authentication.
-The value should be the name of an `AuthenticationSuccessHandler` bean in the application context.
-By default, an implementation of `SavedRequestAwareAuthenticationSuccessHandler` is used and injected with the <<nsa-form-login-default-target-url,default-target-url >>.
+这可以用作<<nsa-form-login-default-target-url,default-target-url>>和<<nsa-form-login-always-use-default-target,always-use-default-target>>的替代方案，让您在成功验证后完全控制导航流程。
+该值应该是应用程序上下文中的`AuthenticationSuccessHandler` bean的名称。
+默认情况下，使用`SavedRequestAwareAuthenticationSuccessHandler`的实现，并使用<<nsa-form-login-default-target-url,default-target-url >>注入。
 
 
 [[nsa-form-login-default-target-url]]
 * **default-target-url**
-Maps to the `defaultTargetUrl` property of `UsernamePasswordAuthenticationFilter`.
-If not set, the default value is "/" (the application root).
-A user will be taken to this URL after logging in, provided they were not asked to login while attempting to access a secured resource, when they will be taken to the originally requested URL.
+映射到`UsernamePasswordAuthenticationFilter`的{​​{0}}属性。
+如果未设置，则默认值为"/"（应用程序根目录）。
+如果用户在尝试访问受保护的资源时没有被要求登录，并将其带到最初请求的URL，则用户将在登录后进入该URL。
 
 
 [[nsa-form-login-login-page]]
 * **login-page**
-The URL that should be used to render the login page.
-Maps to the `loginFormUrl` property of the `LoginUrlAuthenticationEntryPoint`.
-Defaults to "/login".
+应该用于呈现登录页面的URL。
+映射到`LoginUrlAuthenticationEntryPoint`的{​​{0}}属性。
+默认为"/login"。
 
 
 [[nsa-form-login-login-processing-url]]
 * **login-processing-url**
-Maps to the `filterProcessesUrl` property of `UsernamePasswordAuthenticationFilter`.
-The default value is "/login".
+映射到`UsernamePasswordAuthenticationFilter`的{​​{0}}属性。
+默认值是"/login"。
 
 
 [[nsa-form-login-password-parameter]]
 * **password-parameter**
-The name of the request parameter which contains the password.
-Defaults to "password".
+包含密码的请求参数的名称。
+默认为"password"。
 
 
 [[nsa-form-login-username-parameter]]
 * **username-parameter**
-The name of the request parameter which contains the username.
-Defaults to "username".
+包含用户名的请求参数的名称。
+默认为"username"。
 
 [[nsa-form-login-authentication-success-forward-url]]
 * **authentication-success-forward-url**
-Maps a `ForwardAuthenticationSuccessHandler` to `authenticationSuccessHandler` property of `UsernamePasswordAuthenticationFilter`.
+将`ForwardAuthenticationSuccessHandler`映射到`UsernamePasswordAuthenticationFilter`的`authenticationSuccessHandler`属性。
 
 
 [[nsa-form-login-authentication-failure-forward-url]]
 * **authentication-failure-forward-url**
-Maps a `ForwardAuthenticationFailureHandler` to `authenticationFailureHandler` property of `UsernamePasswordAuthenticationFilter`.
+将`ForwardAuthenticationFailureHandler`映射到`UsernamePasswordAuthenticationFilter`的`authenticationFailureHandler`属性。
 
 [[nsa-http-basic]]
 ==== <http-basic>
-Adds a `BasicAuthenticationFilter` and `BasicAuthenticationEntryPoint` to the configuration.
-The latter will only be used as the configuration entry point if form-based login is not enabled.
+向配置添加`BasicAuthenticationFilter`和`BasicAuthenticationEntryPoint`。
+如果未启用基于表单的登录，后者将仅用作配置入口点。
 
 
 [[nsa-http-basic-parents]]
-===== Parent Elements of <http-basic>
+<http-basic>的{​​{0}}父元素
 
 
 * <<nsa-http,http>>
@@ -870,45 +870,45 @@ The latter will only be used as the configuration entry point if form-based logi
 
 
 [[nsa-http-basic-attributes]]
-===== <http-basic> Attributes
+=====  <http-basic>属性
 
 
 [[nsa-http-basic-authentication-details-source-ref]]
 * **authentication-details-source-ref**
-Reference to an `AuthenticationDetailsSource` which will be used by the authentication filter
+引用将由认证过滤器使用的`AuthenticationDetailsSource`
 
 
 [[nsa-http-basic-entry-point-ref]]
 * **entry-point-ref**
-Sets the `AuthenticationEntryPoint` which is used by the `BasicAuthenticationFilter`.
+设置`BasicAuthenticationFilter`使用的`AuthenticationEntryPoint`。
 
 
 [[nsa-http-firewall]]
-==== <http-firewall> Element
-This is a top-level element which can be used to inject a custom implementation of `HttpFirewall` into the `FilterChainProxy` created by the namespace.
-The default implementation should be suitable for most applications.
+====  <http-firewall>元素
+这是一个顶级元素，可用于将`HttpFirewall`的自定义实现注入到名称空间创建的`FilterChainProxy`中。
+默认实现应该适用于大多数应用程序。
 
 
 [[nsa-http-firewall-attributes]]
-===== <http-firewall> Attributes
+=====  <http-firewall>属性
 
 
 [[nsa-http-firewall-ref]]
 * **ref**
-Defines a reference to a Spring bean that implements `HttpFirewall`.
+定义对实现`HttpFirewall`的Spring bean的引用。
 
 
 [[nsa-intercept-url]]
 ==== <intercept-url>
-This element is used to define the set of URL patterns that the application is interested in and to configure how they should be handled.
-It is used to construct the `FilterInvocationSecurityMetadataSource` used by the `FilterSecurityInterceptor`.
-It is also responsible for configuring a `ChannelProcessingFilter` if particular URLs need to be accessed by HTTPS, for example.
-When matching the specified patterns against an incoming request, the matching is done in the order in which the elements are declared.
-So the most specific patterns should come first and the most general should come last.
+此元素用于定义应用程序感兴趣的一组URL模式并配置应该如何处理它们。
+它用于构造`FilterSecurityInterceptor`使用的`FilterInvocationSecurityMetadataSource`。
+例如，如果特定的URL需要通过HTTPS访问，它还负责配置`ChannelProcessingFilter`。
+当针对传入请求匹配指定模式时，匹配按声明元素的顺序完成。
+所以最具体的模式应该是第一位的，最普通的模式应该是最后一位。
 
 
 [[nsa-intercept-url-parents]]
-===== Parent Elements of <intercept-url>
+<intercept-url>的{​​{0}}父元素
 
 
 * <<nsa-filter-security-metadata-source,filter-security-metadata-source>>
@@ -917,68 +917,68 @@ So the most specific patterns should come first and the most general should come
 
 
 [[nsa-intercept-url-attributes]]
-===== <intercept-url> Attributes
+=====  <intercept-url>属性
 
 
 [[nsa-intercept-url-access]]
 * **access**
-Lists the access attributes which will be stored in the `FilterInvocationSecurityMetadataSource` for the defined URL pattern/method combination.
-This should be a comma-separated list of the security configuration attributes (such as role names).
+列出将存储在定义的URL模式/方法组合的`FilterInvocationSecurityMetadataSource`中的访问属性。
+这应该是安全配置属性（如角色名称）的以逗号分隔的列表。
 
 
 [[nsa-intercept-url-filters]]
 * **filters**
-Can only take the value "none".
-This will cause any matching request to bypass the Spring Security filter chain entirely.
-None of the rest of the `<http>` configuration will have any effect on the request and there will be no security context available for its duration.
-Access to secured methods during the request will fail.
+只能取值"none"。
+这将导致任何匹配请求完全绕过Spring Security过滤器链。
+`<http>`配置的其余部分都不会对请求产生任何影响，并且在其持续时间内不会有可用的安全上下文。
+请求期间访问受保护的方法将失败。
 
-NOTE: This property is invalid for <<nsa-filter-security-metadata-source,filter-security-metadata-source>>
+注意：此属性对<<nsa-filter-security-metadata-source,filter-security-metadata-source>>无效
 
 [[nsa-intercept-url-method]]
 * **method**
-The HTTP Method which will be used in combination with the pattern and servlet path (optional) to match an incoming request.
-If omitted, any method will match.
-If an identical pattern is specified with and without a method, the method-specific match will take precedence.
+HTTP方法将与模式和servlet路径（可选）结合使用以匹配传入的请求。
+如果省略，任何方法都会匹配。
+如果使用和不使用方法指定了相同的模式，则特定于方法的匹配将优先。
 
 
 [[nsa-intercept-url-pattern]]
 * **pattern**
-The pattern which defines the URL path.
-The content will depend on the `request-matcher` attribute from the containing http element, so will default to ant path syntax.
+定义URL路径的模式。
+内容将取决于来自包含http元素的`request-matcher`属性，所以默认为ant路径语法。
 
 
 [[nsa-intercept-url-request-matcher-ref]]
 * **request-matcher-ref**
-A reference to a `RequestMatcher` that will be used to determine if this `<intercept-url>` is used.
+对`RequestMatcher`的引用，将用于确定是否使用此`<intercept-url>`。
 
 
 [[nsa-intercept-url-requires-channel]]
 * **requires-channel**
-Can be "http" or "https" depending on whether a particular URL pattern should be accessed over HTTP or HTTPS respectively.
-Alternatively the value "any" can be used when there is no preference.
-If this attribute is present on any `<intercept-url>` element, then a `ChannelProcessingFilter` will be added to the filter stack and its additional dependencies added to the application context.
+可以是"http"或"https"，具体取决于是否应分别通过HTTP或HTTPS访问特定的URL模式。
+或者，当没有偏好时，可以使用值"any"。
+如果此属性出现在任何`<intercept-url>`元素上，则`ChannelProcessingFilter`将被添加到过滤器堆栈，并将其附加依赖项添加到应用程序上下文中。
 
-If a `<port-mappings>` configuration is added, this will be used to by the `SecureChannelProcessor` and `InsecureChannelProcessor` beans to determine the ports used for redirecting to HTTP/HTTPS.
+如果添加了`<port-mappings>`配置，`SecureChannelProcessor`和`InsecureChannelProcessor` bean将用于确定用于重定向到HTTP / HTTPS的端口。
 
-NOTE: This property is invalid for <<nsa-filter-security-metadata-source,filter-security-metadata-source>>
+注意：此属性对<<nsa-filter-security-metadata-source,filter-security-metadata-source>>无效
 
 [[nsa-intercept-url-servlet-path]]
 * **servlet-path**
-The servlet path which will be used in combination with the pattern and HTTP method to match an incoming request.
-This attribute is only applicable when <<nsa-http-request-matcher,request-matcher>> is 'mvc'.
-In addition, the value is only required in the following 2 use cases: 1) There are 2 or more `HttpServlet` 's registered in the `ServletContext` that have mappings starting with `'/'` and are different; 2) The pattern starts with the same value of a registered `HttpServlet` path, excluding the default (root) `HttpServlet` `'/'`.
+将与模式和HTTP方法结合使用以匹配传入请求的servlet路径。
+此属性仅适用于<<nsa-http-request-matcher,request-matcher>>为'mvc'时。
+此外，该值仅在以下两种用例中需要：1）`ServletContext`中注册的`HttpServlet`中有2个或更多`HttpServlet`映射的映射以`'/'`开头，且映射不同; 2）该模式以注册`HttpServlet`路径的相同值开始，不包括默认（根）`HttpServlet` `'/'`。
 
-NOTE: This property is invalid for <<nsa-filter-security-metadata-source,filter-security-metadata-source>>
+注意：此属性对<<nsa-filter-security-metadata-source,filter-security-metadata-source>>无效
 
 
 [[nsa-jee]]
 ==== <jee>
-Adds a J2eePreAuthenticatedProcessingFilter to the filter chain to provide integration with container authentication.
+将J2eePreAuthenticatedProcessingFilter添加到过滤器链以提供与容器验证的集成。
 
 
 [[nsa-jee-parents]]
-===== Parent Elements of <jee>
+<jee>的{​​{0}}父元素
 
 
 * <<nsa-http,http>>
@@ -986,27 +986,27 @@ Adds a J2eePreAuthenticatedProcessingFilter to the filter chain to provide integ
 
 
 [[nsa-jee-attributes]]
-===== <jee> Attributes
+=====  <jee>属性
 
 
 [[nsa-jee-mappable-roles]]
 * **mappable-roles**
-A comma-separate list of roles to look for in the incoming HttpServletRequest.
+在传入的HttpServletRequest中查找的逗号分隔列表。
 
 
 [[nsa-jee-user-service-ref]]
 * **user-service-ref**
-A reference to a user-service (or UserDetailsService bean) Id
+对用户服务（或UserDetailsS​​ervice bean）Id的引用
 
 
 [[nsa-logout]]
 ==== <logout>
-Adds a `LogoutFilter` to the filter stack.
-This is configured with a `SecurityContextLogoutHandler`.
+将`LogoutFilter`添加到过滤器堆栈。
+这是使用`SecurityContextLogoutHandler`配置的。
 
 
 [[nsa-logout-parents]]
-===== Parent Elements of <logout>
+<logout>的{​​{0}}父元素
 
 
 * <<nsa-http,http>>
@@ -1014,53 +1014,53 @@ This is configured with a `SecurityContextLogoutHandler`.
 
 
 [[nsa-logout-attributes]]
-===== <logout> Attributes
+=====  <logout>属性
 
 
 [[nsa-logout-delete-cookies]]
 * **delete-cookies**
-A comma-separated list of the names of cookies which should be deleted when the user logs out.
+用户注销时应删除的Cookie的名称的逗号分隔列表。
 
 
 [[nsa-logout-invalidate-session]]
 * **invalidate-session**
-Maps to the `invalidateHttpSession` of the `SecurityContextLogoutHandler`.
-Defaults to "true", so the session will be invalidated on logout.
+映射到`SecurityContextLogoutHandler`的{​​{0}}。
+默认为"true"，所以会话将在注销时失效。
 
 
 [[nsa-logout-logout-success-url]]
 * **logout-success-url**
-The destination URL which the user will be taken to after logging out.
-Defaults to <form-login-login-page>/?logout (i.e. /login?logout)
+注销后用户将访问的目标网址。
+默认为<form-login-login-page> /？注销（即/ login？注销）
 
 +
 
-Setting this attribute will inject the `SessionManagementFilter` with a `SimpleRedirectInvalidSessionStrategy` configured with the attribute value.
-When an invalid session ID is submitted, the strategy will be invoked, redirecting to the configured URL.
+设置此属性将为`SessionManagementFilter`注入配置了属性值的`SimpleRedirectInvalidSessionStrategy`。
+当提交无效的会话ID时，该策略将被调用，重定向到配置的URL。
 
 
 [[nsa-logout-logout-url]]
 * **logout-url**
-The URL which will cause a logout (i.e. which will be processed by the filter).
-Defaults to "/logout".
+将导致注销（即将由过滤器处理）的URL。
+默认为"/logout"。
 
 
 [[nsa-logout-success-handler-ref]]
 * **success-handler-ref**
-May be used to supply an instance of `LogoutSuccessHandler` which will be invoked to control the navigation after logging out.
+可用于提供`LogoutSuccessHandler`的实例，该实例将在注销后调用以控制导航。
 
 
 [[nsa-openid-login]]
 ==== <openid-login>
-Similar to `<form-login>` and has the same attributes.
-The default value for `login-processing-url` is "/login/openid".
-An `OpenIDAuthenticationFilter` and `OpenIDAuthenticationProvider` will be registered.
-The latter requires a reference to a `UserDetailsService`.
-Again, this can be specified by `id`, using the `user-service-ref` attribute, or will be located automatically in the application context.
+与`<form-login>`类似，具有相同的属性。
+`login-processing-url`的默认值是"/login/openid"。
+一个`OpenIDAuthenticationFilter`和`OpenIDAuthenticationProvider`将被注册。
+后者需要引用`UserDetailsService`。
+再次，这可以使用`user-service-ref`属性由`id`指定，或者将自动定位到应用程序上下文中。
 
 
 [[nsa-openid-login-parents]]
-===== Parent Elements of <openid-login>
+<openid-login>的{​​{0}}父元素
 
 
 * <<nsa-http,http>>
@@ -1068,99 +1068,99 @@ Again, this can be specified by `id`, using the `user-service-ref` attribute, or
 
 
 [[nsa-openid-login-attributes]]
-===== <openid-login> Attributes
+=====  <openid-login>属性
 
 
 [[nsa-openid-login-always-use-default-target]]
 * **always-use-default-target**
-Whether the user should always be redirected to the default-target-url after login.
+登录后是否应始终将用户重定向到default-target-url。
 
 
 [[nsa-openid-login-authentication-details-source-ref]]
 * **authentication-details-source-ref**
-Reference to an AuthenticationDetailsSource which will be used by the authentication filter
+引用将由认证过滤器使用的AuthenticationDetailsS​​ource
 
 
 [[nsa-openid-login-authentication-failure-handler-ref]]
 * **authentication-failure-handler-ref**
-Reference to an AuthenticationFailureHandler bean which should be used to handle a failed authentication request.
-Should not be used in combination with authentication-failure-url as the implementation should always deal with navigation to the subsequent destination
+引用一个AuthenticationFailureHandler bean，它应该用来处理失败的认证请求。
+不应该与authentication-failure-url结合使用，因为实现应始终处理导航到后续目标
 
 
 [[nsa-openid-login-authentication-failure-url]]
 * **authentication-failure-url**
-The URL for the login failure page.
-If no login failure URL is specified, Spring Security will automatically create a failure login URL at /login?login_error and a corresponding filter to render that login failure URL when requested.
+登录失败页面的URL。
+如果未指定登录失败URL，则Spring Security将自动在/ login？login_error中创建失败登录URL，并在请求时使用相应的筛选器呈现该登录失败URL。
 
 
 [[nsa-openid-login-authentication-success-forward-url]]
 * **authentication-success-forward-url**
-Maps a `ForwardAuthenticationSuccessHandler` to `authenticationSuccessHandler` property of `UsernamePasswordAuthenticationFilter`.
+将`ForwardAuthenticationSuccessHandler`映射到`UsernamePasswordAuthenticationFilter`的`authenticationSuccessHandler`属性。
 
 
 [[nsa-openid-login-authentication-failure-forward-url]]
 * **authentication-failure-forward-url**
-Maps a `ForwardAuthenticationFailureHandler` to `authenticationFailureHandler` property of `UsernamePasswordAuthenticationFilter`.
+将`ForwardAuthenticationFailureHandler`映射到`UsernamePasswordAuthenticationFilter`的`authenticationFailureHandler`属性。
 
 
 [[nsa-openid-login-authentication-success-handler-ref]]
 * **authentication-success-handler-ref**
-Reference to an AuthenticationSuccessHandler bean which should be used to handle a successful authentication request.
-Should not be used in combination with <<nsa-openid-login-default-target-url,default-target-url>> (or <<nsa-openid-login-always-use-default-target, always-use-default-target>>) as the implementation should always deal with navigation to the subsequent destination
+引用应该用于处理成功认证请求的AuthenticationSuccessHandler bean。
+不应与<<nsa-openid-login-default-target-url,default-target-url>>（或<<nsa-openid-login-always-use-default-target, always-use-default-target>>）结合使用，因为实施应始终处理导航到后续目标
 
 
 [[nsa-openid-login-default-target-url]]
 * **default-target-url**
-The URL that will be redirected to after successful authentication, if the user's previous action could not be resumed.
-This generally happens if the user visits a login page without having first requested a secured operation that triggers authentication.
-If unspecified, defaults to the root of the application.
+如果用户以前的操作无法恢复，则在成功验证后将重定向到的URL。
+这通常发生在用户访问登录页面而未首先请求触发认证的安全操作时。
+如果未指定，则默认为应用程序的根目录。
 
 
 [[nsa-openid-login-login-page]]
 * **login-page**
-The URL for the login page.
-If no login URL is specified, Spring Security will automatically create a login URL at /login and a corresponding filter to render that login URL when requested.
+登录页面的URL。
+如果没有指定登录URL，Spring Security将自动在/ login上创建一个登录URL，并在请求时提供相应的过滤器来呈现该登录URL。
 
 
 [[nsa-openid-login-login-processing-url]]
 * **login-processing-url**
-The URL that the login form is posted to.
-If unspecified, it defaults to /login.
+登录表单发布到的URL。
+如果未指定，则默认为/ login。
 
 
 [[nsa-openid-login-password-parameter]]
 * **password-parameter**
-The name of the request parameter which contains the password.
-Defaults to "password".
+包含密码的请求参数的名称。
+默认为"password"。
 
 
 [[nsa-openid-login-user-service-ref]]
 * **user-service-ref**
-A reference to a user-service (or UserDetailsService bean) Id
+对用户服务（或UserDetailsS​​ervice bean）Id的引用
 
 
 [[nsa-openid-login-username-parameter]]
 * **username-parameter**
-The name of the request parameter which contains the username.
-Defaults to "username".
+包含用户名的请求参数的名称。
+默认为"username"。
 
 
 [[nsa-openid-login-children]]
-===== Child Elements of <openid-login>
+<openid-login>的{​​{0}}子元素
 * <<nsa-attribute-exchange,attribute-exchange>>
 
 
 
 [[nsa-attribute-exchange]]
 ==== <attribute-exchange>
-The `attribute-exchange` element defines the list of attributes which should be requested from the identity provider.
-An example can be found in the <<ns-openid,OpenID Support>> section of the namespace configuration chapter.
-More than one can be used, in which case each must have an `identifier-match` attribute, containing a regular expression which is matched against the supplied OpenID identifier.
-This allows different attribute lists to be fetched from different providers (Google, Yahoo etc).
+`attribute-exchange`元素定义应从身份提供商请求的属性列表。
+可以在名称空间配置章节的<<ns-openid,OpenID Support>>部分中找到示例。
+可以使用多于一个，在这种情况下，每个都必须具有`identifier-match`属性，其中包含与提供的OpenID标识符相匹配的正则表达式。
+这允许从不同的提供者（谷歌，雅虎等）获取不同的属性列表。
 
 
 [[nsa-attribute-exchange-parents]]
-===== Parent Elements of <attribute-exchange>
+<attribute-exchange>的{​​{0}}父元素
 
 
 * <<nsa-openid-login,openid-login>>
@@ -1168,16 +1168,16 @@ This allows different attribute lists to be fetched from different providers (Go
 
 
 [[nsa-attribute-exchange-attributes]]
-===== <attribute-exchange> Attributes
+=====  <attribute-exchange>属性
 
 
 [[nsa-attribute-exchange-identifier-match]]
 * **identifier-match**
-A regular expression which will be compared against the claimed identity, when deciding which attribute-exchange configuration to use during authentication.
+一个正则表达式，在决定在认证过程中使用哪种属性交换配置时，将与所称身份进行比较。
 
 
 [[nsa-attribute-exchange-children]]
-===== Child Elements of <attribute-exchange>
+<attribute-exchange>的{​​{0}}子元素
 
 
 * <<nsa-openid-attribute,openid-attribute>>
@@ -1186,11 +1186,11 @@ A regular expression which will be compared against the claimed identity, when d
 
 [[nsa-openid-attribute]]
 ==== <openid-attribute>
-Attributes used when making an OpenID AX http://openid.net/specs/openid-attribute-exchange-1_0.html#fetch_request[ Fetch Request]
+制作OpenID AX时使用的属性 http://openid.net/specs/openid-attribute-exchange-1_0.html#fetch_request[ 获取请求]
 
 
 [[nsa-openid-attribute-parents]]
-===== Parent Elements of <openid-attribute>
+<openid-attribute>的{​​{0}}父元素
 
 
 * <<nsa-attribute-exchange,attribute-exchange>>
@@ -1198,46 +1198,46 @@ Attributes used when making an OpenID AX http://openid.net/specs/openid-attribut
 
 
 [[nsa-openid-attribute-attributes]]
-===== <openid-attribute> Attributes
+=====  <openid-attribute>属性
 
 
 [[nsa-openid-attribute-count]]
 * **count**
-Specifies the number of attributes that you wish to get back.
-For example, return 3 emails.
-The default value is 1.
+指定您希望返回的属性数量。
+例如，返回3封电子邮件。
+默认值是1。
 
 
 [[nsa-openid-attribute-name]]
 * **name**
-Specifies the name of the attribute that you wish to get back.
-For example, email.
+指定您希望返回的属性的名称。
+例如，电子邮件。
 
 
 [[nsa-openid-attribute-required]]
 * **required**
-Specifies if this attribute is required to the OP, but does not error out if the OP does not return the attribute.
-Default is false.
+指定OP是否需要此属性，但如果OP未返回属性，则不会出错。
+默认为false。
 
 
 [[nsa-openid-attribute-type]]
 * **type**
-Specifies the attribute type.
-For example, http://axschema.org/contact/email.
-See your OP's documentation for valid attribute types.
+指定属性类型。
+例如，http://axschema.org/contact/email。
+查看您的OP的文档以获取有效的属性类型。
 
 
 [[nsa-port-mappings]]
 ==== <port-mappings>
-By default, an instance of `PortMapperImpl` will be added to the configuration for use in redirecting to secure and insecure URLs.
-This element can optionally be used to override the default mappings which that class defines.
-Each child `<port-mapping>` element defines a pair of HTTP:HTTPS ports.
-The default mappings are 80:443 and 8080:8443.
-An example of overriding these can be found in the <<ns-requires-channel,namespace introduction>>.
+默认情况下，{{}}的实例将被添加到配置中，以用于重定向到安全和不安全的URL。
+此元素可以选择用于覆盖该类定义的默认映射。
+每个子`<port-mapping>`元素定义一对HTTP：HTTPS端口。
+默认映射是80：443和8080：8443。
+覆盖这些的示例可以在<<ns-requires-channel,namespace introduction>>中找到。
 
 
 [[nsa-port-mappings-parents]]
-===== Parent Elements of <port-mappings>
+<port-mappings>的{​​{0}}父元素
 
 
 * <<nsa-http,http>>
@@ -1245,7 +1245,7 @@ An example of overriding these can be found in the <<ns-requires-channel,namespa
 
 
 [[nsa-port-mappings-children]]
-===== Child Elements of <port-mappings>
+<port-mappings>的{​​{0}}子元素
 
 
 * <<nsa-port-mapping,port-mapping>>
@@ -1254,11 +1254,11 @@ An example of overriding these can be found in the <<ns-requires-channel,namespa
 
 [[nsa-port-mapping]]
 ==== <port-mapping>
-Provides a method to map http ports to https ports when forcing a redirect.
+提供强制重定向时将http端口映射到https端口的方法。
 
 
 [[nsa-port-mapping-parents]]
-===== Parent Elements of <port-mapping>
+<port-mapping>的{​​{0}}父元素
 
 
 * <<nsa-port-mappings,port-mappings>>
@@ -1266,27 +1266,27 @@ Provides a method to map http ports to https ports when forcing a redirect.
 
 
 [[nsa-port-mapping-attributes]]
-===== <port-mapping> Attributes
+=====  <port-mapping>属性
 
 
 [[nsa-port-mapping-http]]
 * **http**
-The http port to use.
+要使用的http端口。
 
 
 [[nsa-port-mapping-https]]
 * **https**
-The https port to use.
+要使用的https端口。
 
 
 [[nsa-remember-me]]
 ==== <remember-me>
-Adds the `RememberMeAuthenticationFilter` to the stack.
-This in turn will be configured with either a `TokenBasedRememberMeServices`, a `PersistentTokenBasedRememberMeServices` or a user-specified bean implementing `RememberMeServices` depending on the attribute settings.
+将`RememberMeAuthenticationFilter`添加到堆栈。
+这反过来会根据属性设置配置为`TokenBasedRememberMeServices`，`PersistentTokenBasedRememberMeServices`或用户指定的实现`RememberMeServices`的bean。
 
 
 [[nsa-remember-me-parents]]
-===== Parent Elements of <remember-me>
+<remember-me>的{​​{0}}父元素
 
 
 * <<nsa-http,http>>
@@ -1294,111 +1294,111 @@ This in turn will be configured with either a `TokenBasedRememberMeServices`, a 
 
 
 [[nsa-remember-me-attributes]]
-===== <remember-me> Attributes
+=====  <remember-me>属性
 
 
 [[nsa-remember-me-authentication-success-handler-ref]]
 * **authentication-success-handler-ref**
-Sets the `authenticationSuccessHandler` property on the `RememberMeAuthenticationFilter` if custom navigation is required.
-The value should be the name of a `AuthenticationSuccessHandler` bean in the application context.
+如果需要自定义导航，请在`RememberMeAuthenticationFilter`上设置`authenticationSuccessHandler`属性。
+该值应该是应用程序上下文中的`AuthenticationSuccessHandler` bean的名称。
 
 
 [[nsa-remember-me-data-source-ref]]
 * **data-source-ref**
-A reference to a `DataSource` bean.
-If this is set, `PersistentTokenBasedRememberMeServices` will be used and configured with a `JdbcTokenRepositoryImpl` instance.
+对`DataSource` bean的引用。
+如果已设置，将使用`PersistentTokenBasedRememberMeServices`并使用`JdbcTokenRepositoryImpl`实例进行配置。
 
 
 [[nsa-remember-me-remember-me-parameter]]
 * **remember-me-parameter**
-The name of the request parameter which toggles remember-me authentication.
-Defaults to "remember-me".
-Maps to the "parameter" property of `AbstractRememberMeServices`.
+切换记住我身份验证的请求参数的名称。
+默认为"remember-me"。
+映射到`AbstractRememberMeServices`的{​​{0}}属性。
 
 
 [[nsa-remember-me-remember-me-cookie]]
 * **remember-me-cookie**
-The name of cookie which store the token for remember-me authentication.
-Defaults to "remember-me".
-Maps to the "cookieName" property of `AbstractRememberMeServices`.
+存储记忆我认证令牌的cookie的名称。
+默认为"remember-me"。
+映射到`AbstractRememberMeServices`的{​​{0}}属性。
 
 
 [[nsa-remember-me-key]]
 * **key**
-Maps to the "key" property of `AbstractRememberMeServices`.
-Should be set to a unique value to ensure that remember-me cookies are only valid within the one application footnote:[
-This doesn't affect the use of `PersistentTokenBasedRememberMeServices`, where the tokens are stored on the server side.
+映射到`AbstractRememberMeServices`的{​​{0}}属性。
+应设置为唯一值以确保记忆我的Cookie仅在一个应用程序脚注中有效：[
+这不会影响使用`PersistentTokenBasedRememberMeServices`，其中令牌存储在服务器端。
 ].
-If this is not set a secure random value will be generated.
-Since generating secure random values can take a while, setting this value explicitly can help improve startup times when using the remember-me functionality.
+如果未设置，则会生成安全随机值。
+由于生成安全随机值可能需要一段时间，因此使用记忆功能时，明确设置此值可帮助改善启动时间。
 
 
 [[nsa-remember-me-services-alias]]
 * **services-alias**
-Exports the internally defined `RememberMeServices` as a bean alias, allowing it to be used by other beans in the application context.
+将内部定义的`RememberMeServices`作为bean别名导出，使其可以被应用程序上下文中的其他bean使用。
 
 
 [[nsa-remember-me-services-ref]]
 * **services-ref**
-Allows complete control of the `RememberMeServices` implementation that will be used by the filter.
-The value should be the `id` of a bean in the application context which implements this interface.
-Should also implement `LogoutHandler` if a logout filter is in use.
+允许完整控制过滤器将使用的`RememberMeServices`实施。
+该值应该是应用程序上下文中实现此接口的bean的`id`。
+如果正在使用注销过滤器，还应该实现`LogoutHandler`。
 
 
 [[nsa-remember-me-token-repository-ref]]
 * **token-repository-ref**
-Configures a `PersistentTokenBasedRememberMeServices` but allows the use of a custom `PersistentTokenRepository` bean.
+配置`PersistentTokenBasedRememberMeServices`，但允许使用自定义`PersistentTokenRepository` bean。
 
 
 [[nsa-remember-me-token-validity-seconds]]
 * **token-validity-seconds**
-Maps to the `tokenValiditySeconds` property of `AbstractRememberMeServices`.
-Specifies the period in seconds for which the remember-me cookie should be valid.
-By default it will be valid for 14 days.
+映射到`AbstractRememberMeServices`的{​​{0}}属性。
+指定remember-me Cookie应该有效的时间段（以秒为单位）。
+默认情况下，它将在14天内有效。
 
 
 [[nsa-remember-me-use-secure-cookie]]
 * **use-secure-cookie**
-It is recommended that remember-me cookies are only submitted over HTTPS and thus should be flagged as "secure".
-By default, a secure cookie will be used if the connection over which the login request is made is secure (as it should be).
-If you set this property to `false`, secure cookies will not be used.
-Setting it to `true` will always set the secure flag on the cookie.
-This attribute maps to the `useSecureCookie` property of `AbstractRememberMeServices`.
+建议记住我的cookies仅通过HTTPS提交，因此应该标记为"secure"。
+默认情况下，如果进行登录请求的连接安全（应该是），将使用安全cookie。
+如果您将此属性设置为`false`，则不会使用安全cookie。
+将其设置为`true`将始终在cookie上设置安全标志。
+该属性映射到`AbstractRememberMeServices`的{​​{0}}属性。
 
 
 [[nsa-remember-me-user-service-ref]]
 * **user-service-ref**
-The remember-me services implementations require access to a `UserDetailsService`, so there has to be one defined in the application context.
-If there is only one, it will be selected and used automatically by the namespace configuration.
-If there are multiple instances, you can specify a bean `id` explicitly using this attribute.
+Remember-me服务实现需要访问`UserDetailsService`，因此必须在应用程序上下文中定义一个。
+如果只有一个，它将被命名空间配置自动选择和使用。
+如果存在多个实例，则可以使用此属性显式指定一个bean `id`。
 
 
 [[nsa-request-cache]]
-==== <request-cache> Element
-Sets the `RequestCache` instance which will be used by the `ExceptionTranslationFilter` to store request information before invoking an `AuthenticationEntryPoint`.
+====  <request-cache>元素
+在调用`AuthenticationEntryPoint`之前，设置将`ExceptionTranslationFilter`用于存储请求信息的`RequestCache`实例。
 
 
 [[nsa-request-cache-parents]]
-===== Parent Elements of <request-cache>
+<request-cache>的{​​{0}}父元素
 
 * <<nsa-http,http>>
 
 [[nsa-request-cache-attributes]]
-===== <request-cache> Attributes
+=====  <request-cache>属性
 
 
 [[nsa-request-cache-ref]]
 * **ref**
-Defines a reference to a Spring bean that is a `RequestCache`.
+定义对`RequestCache`的Spring bean的引用。
 
 
 [[nsa-session-management]]
 ==== <session-management>
-Session-management related functionality is implemented by the addition of a `SessionManagementFilter` to the filter stack.
+会话管理相关功能通过在过滤器堆栈中添加`SessionManagementFilter`来实现。
 
 
 [[nsa-session-management-parents]]
-===== Parent Elements of <session-management>
+<session-management>的{​​{0}}父元素
 
 
 * <<nsa-http,http>>
@@ -1406,49 +1406,49 @@ Session-management related functionality is implemented by the addition of a `Se
 
 
 [[nsa-session-management-attributes]]
-===== <session-management> Attributes
+=====  <session-management>属性
 
 
 [[nsa-session-management-invalid-session-url]]
 * **invalid-session-url**
-Setting this attribute will inject the `SessionManagementFilter` with a `SimpleRedirectInvalidSessionStrategy` configured with the attribute value.
-When an invalid session ID is submitted, the strategy will be invoked, redirecting to the configured URL.
+设置此属性将为`SessionManagementFilter`注入配置了属性值的`SimpleRedirectInvalidSessionStrategy`。
+当提交无效的会话ID时，该策略将被调用，重定向到配置的URL。
 
 [[nsa-session-management-invalid-session-strategy-ref]]
 * **invalid-session-url**
-Allows injection of the InvalidSessionStrategy instance used by the SessionManagementFilter.
-Use either this or the `invalid-session-url` attribute but not both.
+允许注入SessionManagementFilter使用的InvalidSessionStrategy实例。
+使用这个或`invalid-session-url`属性，但不能同时使用这两个属性。
 
 [[nsa-session-management-session-authentication-error-url]]
 * **session-authentication-error-url**
-Defines the URL of the error page which should be shown when the SessionAuthenticationStrategy raises an exception.
-If not set, an unauthorized (401) error code will be returned to the client.
-Note that this attribute doesn't apply if the error occurs during a form-based login, where the URL for authentication failure will take precedence.
+定义在SessionAuthenticationStrategy引发异常时应显示的错误页面的URL。
+如果未设置，未经授权的（401）错误代码将返回给客户端。
+请注意，如果在基于表单的登录期间发生错误，则此属性不适用，其中用于身份验证失败的URL将优先。
 
 
 [[nsa-session-management-session-authentication-strategy-ref]]
 * **session-authentication-strategy-ref**
-Allows injection of the SessionAuthenticationStrategy instance used by the SessionManagementFilter
+允许注入SessionManagementFilter使用的SessionAuthenticationStrategy实例
 
 
 [[nsa-session-management-session-fixation-protection]]
 * **session-fixation-protection**
-Indicates how session fixation protection will be applied when a user authenticates.
-If set to "none", no protection will be applied.
-"newSession" will create a new empty session, with only Spring Security-related attributes migrated.
-"migrateSession" will create a new session and copy all session attributes to the new session.
-In Servlet 3.1 (Java EE 7) and newer containers, specifying "changeSessionId" will keep the existing session and use the container-supplied session fixation protection (HttpServletRequest#changeSessionId()).
-Defaults to "changeSessionId" in Servlet 3.1 and newer containers, "migrateSession" in older containers.
-Throws an exception if "changeSessionId" is used in older containers.
+指示用户验证时如何应用会话修复保护。
+如果设置为"none"，则不会应用保护。
+"newSession"将创建一个新的空会话，只迁移与Spring Security相关的属性。
+"migrateSession"将创建一个新会话并将所有会话属性复制到新会话。
+在Servlet 3.1（Java EE 7）和更新的容器中，指定"changeSessionId"将保留现有会话并使用容器提供的会话固定保护（HttpServletRequest＃changeSessionId（））。
+在较旧的容器中，Servlet 3.1和较新的容器"migrateSession"中的默认值为"changeSessionId"。
+如果在较旧的容器中使用"changeSessionId"，则会引发异常。
 
 +
 
-If session fixation protection is enabled, the `SessionManagementFilter` is injected with an appropriately configured `DefaultSessionAuthenticationStrategy`.
-See the Javadoc for this class for more details.
+如果启用会话修复保护，则`SessionManagementFilter`注入适当配置的`DefaultSessionAuthenticationStrategy`。
+有关更多详细信息，请参阅此类的Javadoc。
 
 
 [[nsa-session-management-children]]
-===== Child Elements of <session-management>
+<session-management>的{​​{0}}子元素
 
 
 * <<nsa-concurrency-control,concurrency-control>>
@@ -1457,14 +1457,14 @@ See the Javadoc for this class for more details.
 
 [[nsa-concurrency-control]]
 ==== <concurrency-control>
-Adds support for concurrent session control, allowing limits to be placed on the number of active sessions a user can have.
-A `ConcurrentSessionFilter` will be created, and a `ConcurrentSessionControlAuthenticationStrategy` will be used with the `SessionManagementFilter`.
-If a `form-login` element has been declared, the strategy object will also be injected into the created authentication filter.
-An instance of `SessionRegistry` (a `SessionRegistryImpl` instance unless the user wishes to use a custom bean) will be created for use by the strategy.
+增加对并发会话控制的支持，允许限制用户可以拥有的活动会话的数量。
+`ConcurrentSessionFilter`将被创建，`ConcurrentSessionControlAuthenticationStrategy`将被用于`SessionManagementFilter`。
+如果声明了`form-login`元素，则策略对象也将被注入到创建的认证过滤器中。
+`SessionRegistry`（`SessionRegistryImpl`实例的实例，除非用户希望使用自定义bean）将被创建以供策略使用。
 
 
 [[nsa-concurrency-control-parents]]
-===== Parent Elements of <concurrency-control>
+<concurrency-control>的{​​{0}}父元素
 
 
 * <<nsa-session-management,session-management>>
@@ -1472,53 +1472,53 @@ An instance of `SessionRegistry` (a `SessionRegistryImpl` instance unless the us
 
 
 [[nsa-concurrency-control-attributes]]
-===== <concurrency-control> Attributes
+=====  <concurrency-control>属性
 
 
 [[nsa-concurrency-control-error-if-maximum-exceeded]]
 * **error-if-maximum-exceeded**
-If set to "true" a `SessionAuthenticationException` will be raised when a user attempts to exceed the maximum allowed number of sessions.
-The default behaviour is to expire the original session.
+如果设置为"true"，则当用户尝试超出允许的最大会话数时，将引发`SessionAuthenticationException`。
+默认行为是过期原始会话。
 
 
 [[nsa-concurrency-control-expired-url]]
 * **expired-url**
-The URL a user will be redirected to if they attempt to use a session which has been "expired" by the concurrent session controller because the user has exceeded the number of allowed sessions and has logged in again elsewhere.
-Should be set unless `exception-if-maximum-exceeded` is set.
-If no value is supplied, an expiry message will just be written directly back to the response.
+如果用户尝试使用并发会话控制器中"expired"的会话，则用户将被重定向到的URL，因为用户已超出允许的会话数并已在别处再次登录。
+除非`exception-if-maximum-exceeded`被设置，否则应该被设置。
+如果没有提供任何值，过期消息将直接写回响应。
 
 [[nsa-concurrency-control-expired-session-strategy-ref]]
 * **expired-url**
-Allows injection of the ExpiredSessionStrategy instance used by the ConcurrentSessionFilter
+允许注入由ConcurrentSessionFilter使用的ExpiredSessionStrategy实例
 
 [[nsa-concurrency-control-max-sessions]]
 * **max-sessions**
-Maps to the `maximumSessions` property of `ConcurrentSessionControlAuthenticationStrategy`.
-Specify `-1` as the value to support unlimited sessions.
+映射到`ConcurrentSessionControlAuthenticationStrategy`的{​​{0}}属性。
+指定`-1`作为支持无限制会话的值。
 
 
 [[nsa-concurrency-control-session-registry-alias]]
 * **session-registry-alias**
-It can also be useful to have a reference to the internal session registry for use in your own beans or an admin interface.
-You can expose the internal bean using the `session-registry-alias` attribute, giving it a name that you can use elsewhere in your configuration.
+引用内部会话注册表以便在您自己的Bean或管理界面中使用也很有用。
+您可以使用`session-registry-alias`属性公开内部bean，给它一个名称，您可以在配置中的其他位置使用该名称。
 
 
 [[nsa-concurrency-control-session-registry-ref]]
 * **session-registry-ref**
-The user can supply their own `SessionRegistry` implementation using the `session-registry-ref` attribute.
-The other concurrent session control beans will be wired up to use it.
+用户可以使用`session-registry-ref`属性提供他们自己的`SessionRegistry`实施。
+其他并发会话控制bean将被连接起来使用它。
 
 
 [[nsa-x509]]
 ==== <x509>
-Adds support for X.509 authentication.
-An `X509AuthenticationFilter` will be added to the stack and an `Http403ForbiddenEntryPoint` bean will be created.
-The latter will only be used if no other authentication mechanisms are in use (its only functionality is to return an HTTP 403 error code).
-A `PreAuthenticatedAuthenticationProvider` will also be created which delegates the loading of user authorities to a `UserDetailsService`.
+添加对X.509认证的支持。
+一个`X509AuthenticationFilter`将被添加到堆栈中并创建一个`Http403ForbiddenEntryPoint` bean。
+只有在没有使用其他身份验证机制时才会使用后者（它的唯一功能是返回HTTP 403错误代码）。
+还会创建`PreAuthenticatedAuthenticationProvider`，将用户权限的加载委派给`UserDetailsService`。
 
 
 [[nsa-x509-parents]]
-===== Parent Elements of <x509>
+<x509>的{​​{0}}父元素
 
 
 * <<nsa-http,http>>
@@ -1526,42 +1526,42 @@ A `PreAuthenticatedAuthenticationProvider` will also be created which delegates 
 
 
 [[nsa-x509-attributes]]
-===== <x509> Attributes
+=====  <x509>属性
 
 
 [[nsa-x509-authentication-details-source-ref]]
 * **authentication-details-source-ref**
-A reference to an `AuthenticationDetailsSource`
+对`AuthenticationDetailsSource`的引用
 
 
 [[nsa-x509-subject-principal-regex]]
 * **subject-principal-regex**
-Defines a regular expression which will be used to extract the username from the certificate (for use with the `UserDetailsService`).
+定义一个正则表达式，用于从证书中提取用户名（用于`UserDetailsService`）。
 
 
 [[nsa-x509-user-service-ref]]
 * **user-service-ref**
-Allows a specific `UserDetailsService` to be used with X.509 in the case where multiple instances are configured.
-If not set, an attempt will be made to locate a suitable instance automatically and use that.
+在配置多个实例的情况下，允许特定的`UserDetailsService`与X.509一起使用。
+如果未设置，则会尝试自动找到合适的实例并使用它。
 
 
 [[nsa-filter-chain-map]]
 ==== <filter-chain-map>
-Used to explicitly configure a FilterChainProxy instance with a FilterChainMap
+用于使用FilterChainMap显式配置FilterChainProxy实例
 
 
 [[nsa-filter-chain-map-attributes]]
-===== <filter-chain-map> Attributes
+=====  <filter-chain-map>属性
 
 
 [[nsa-filter-chain-map-request-matcher]]
 * **request-matcher**
-Defines the strategy to use for matching incoming requests.
-Currently the options are 'ant' (for ant path patterns), 'regex' for regular expressions and 'ciRegex' for case-insensitive regular expressions.
+定义用于匹配传入请求的策略。
+目前选项是'ant'（用于蚂蚁路径模式），正则表达式用'regex'，不区分大小写的正则表达式用'ciRegex'。
 
 
 [[nsa-filter-chain-map-children]]
-===== Child Elements of <filter-chain-map>
+<filter-chain-map>的{​​{0}}子元素
 
 
 * <<nsa-filter-chain,filter-chain>>
@@ -1570,12 +1570,12 @@ Currently the options are 'ant' (for ant path patterns), 'regex' for regular exp
 
 [[nsa-filter-chain]]
 ==== <filter-chain>
-Used within to define a specific URL pattern and the list of filters which apply to the URLs matching that pattern.
-When multiple filter-chain elements are assembled in a list in order to configure a FilterChainProxy, the most specific patterns must be placed at the top of the list, with most general ones at the bottom.
+用于定义特定的URL模式以及适用于与该模式匹配的URL的过滤器列表。
+当为了配置FilterChainProxy而在列表中组装多个过滤器链元素时，最具体的模式必须放置在列表的顶部，最常见的模式位于最下面。
 
 
 [[nsa-filter-chain-parents]]
-===== Parent Elements of <filter-chain>
+<filter-chain>的{​​{0}}父元素
 
 
 * <<nsa-filter-chain-map,filter-chain-map>>
@@ -1583,104 +1583,104 @@ When multiple filter-chain elements are assembled in a list in order to configur
 
 
 [[nsa-filter-chain-attributes]]
-===== <filter-chain> Attributes
+=====  <filter-chain>属性
 
 
 [[nsa-filter-chain-filters]]
 * **filters**
-A comma separated list of references to Spring beans that implement `Filter`.
-The value "none" means that no `Filter` should be used for this `FilterChain`.
+实现`Filter`的Spring bean引用的逗号分隔列表。
+值"none"表示不应为此`FilterChain`使用`Filter`。
 
 
 [[nsa-filter-chain-pattern]]
 * **pattern**
-A pattern that creates RequestMatcher in combination with the <<nsa-filter-chain-map-request-matcher,request-matcher>>
+与<<nsa-filter-chain-map-request-matcher,request-matcher>>结合创建RequestMatcher的模式
 
 
 [[nsa-filter-chain-request-matcher-ref]]
 * **request-matcher-ref**
-A reference to a `RequestMatcher` that will be used to determine if any `Filter` from the `filters` attribute should be invoked.
+对`RequestMatcher`的引用将用于确定是否应该调用`filters`属性中的任何`Filter`。
 
 
 [[nsa-filter-security-metadata-source]]
 ==== <filter-security-metadata-source>
-Used to explicitly configure a FilterSecurityMetadataSource bean for use with a FilterSecurityInterceptor.
-Usually only needed if you are configuring a FilterChainProxy explicitly, rather than using the<http> element.
-The intercept-url elements used should only contain pattern, method and access attributes.
-Any others will result in a configuration error.
+用于显式配置FilterSecurityMetadataSource bean以用于FilterSecurityInterceptor。
+通常只需要在显式配置FilterChainProxy时使用，而不是使用<http>元素。
+所使用的intercept-url元素应该只包含模式，方法和访问属性。
+任何其他将导致配置错误。
 
 
 [[nsa-filter-security-metadata-source-attributes]]
-===== <filter-security-metadata-source> Attributes
+=====  <filter-security-metadata-source>属性
 
 
 [[nsa-filter-security-metadata-source-id]]
 * **id**
-A bean identifier, used for referring to the bean elsewhere in the context.
+一个bean标识符，用于在上下文中的其他地方引用bean。
 
 
 [[nsa-filter-security-metadata-source-request-matcher]]
 * **request-matcher**
-Defines the strategy use for matching incoming requests.
-Currently the options are 'ant' (for ant path patterns), 'regex' for regular expressions and 'ciRegex' for case-insensitive regular expressions.
+定义匹配传入请求的策略用法。
+目前选项是'ant'（用于蚂蚁路径模式），正则表达式用'regex'，不区分大小写的正则表达式用'ciRegex'。
 
 
 [[nsa-filter-security-metadata-source-use-expressions]]
 * **use-expressions**
-Enables the use of expressions in the 'access' attributes in <intercept-url> elements rather than the traditional list of configuration attributes.
-Defaults to 'true'.
-If enabled, each attribute should contain a single Boolean expression.
-If the expression evaluates to 'true', access will be granted.
+在<intercept-url>元素的“访问”属性中启用表达式，而不是使用传统的配置属性列表。
+默认为'true'。
+如果启用，每个属性应包含一个布尔表达式。
+如果表达式评估为“真”，则将授予访问权限。
 
 
 [[nsa-filter-security-metadata-source-children]]
-===== Child Elements of <filter-security-metadata-source>
+<filter-security-metadata-source>的{​​{0}}子元素
 
 
 * <<nsa-intercept-url,intercept-url>>
 
 [[nsa-websocket-security]]
-=== WebSocket Security
+===  WebSocket安全性
 
-Spring Security 4.0+ provides support for authorizing messages.
-One concrete example of where this is useful is to provide authorization in WebSocket based applications.
+Spring Security 4.0+提供了对授权消息的支持。
+其中有用的一个具体示例是在基于WebSocket的应用程序中提供授权。
 
 [[nsa-websocket-message-broker]]
 ==== <websocket-message-broker>
 
-The websocket-message-broker element has two different modes.
-If the <<nsa-websocket-message-broker-id,websocket-message-broker@id>> is not specified, then it will do the following things:
+websocket-message-broker元素有两种不同的模式。
+如果没有指定<<nsa-websocket-message-broker-id,websocket-message-broker@id>>，那么它将执行以下操作：
 
-* Ensure that any SimpAnnotationMethodMessageHandler has the AuthenticationPrincipalArgumentResolver registered as a custom argument resolver.
-This allows the use of `@AuthenticationPrincipal` to resolve the principal of the current `Authentication`
-* Ensures that the SecurityContextChannelInterceptor is automatically registered for the clientInboundChannel.
-This populates the SecurityContextHolder with the user that is found in the Message
-* Ensures that a ChannelSecurityInterceptor is registered with the clientInboundChannel.
-This allows authorization rules to be specified for a message.
-* Ensures that a CsrfChannelInterceptor is registered with the clientInboundChannel.
-This ensures that only requests from the original domain are enabled.
-* Ensures that a CsrfTokenHandshakeInterceptor is registered with WebSocketHttpRequestHandler, TransportHandlingSockJsService, or DefaultSockJsService.
-This ensures that the expected CsrfToken from the HttpServletRequest is copied into the WebSocket Session attributes.
+* 确保任何SimpAnnotationMethodMessageHandler都将AuthenticationPrincipalArgumentResolver注册为自定义参数解析器。
+这允许使用`@AuthenticationPrincipal`来解析当前`Authentication`的主体
+* 确保SecurityContextChannelInterceptor自动注册clientInboundChannel。
+这将使用消息中找到的用户填充SecurityContextHolder
+* 确保ChannelSecurityInterceptor向clientInboundChannel注册。
+这允许为消息指定授权规则。
+* 确保CsrfChannelInterceptor向clientInboundChannel注册。
+这确保只有来自原始域的请求被启用。
+* 确保向WebSocketHttpRequestHandler，TransportHandlingSockJsService或DefaultSockJsService注册CsrfTokenHandshakeInterceptor。
+这可确保将来自HttpServletRequest的预期CsrfToken复制到WebSocket会话属性中。
 
-If additional control is necessary, the id can be specified and a ChannelSecurityInterceptor will be assigned to the specified id.
-All the wiring with Spring's messaging infrastructure can then be done manually.
-This is more cumbersome, but provides greater control over the configuration.
+如果需要额外控制，则可以指定id，并将ChannelSecurityInterceptor分配给指定的ID。
+Spring的消息传递基础设施的所有接线都可以手动完成。
+这比较麻烦，但是可以更好地控制配置。
 
 
 [[nsa-websocket-message-broker-attributes]]
-===== <websocket-message-broker> Attributes
+=====  <websocket-message-broker>属性
 
 [[nsa-websocket-message-broker-id]]
-* **id** A bean identifier, used for referring to the ChannelSecurityInterceptor bean elsewhere in the context.
-If specified, Spring Security requires explicit configuration within Spring Messaging.
-If not specified, Spring Security will automatically integrate with the messaging infrastructure as described in <<nsa-websocket-message-broker>>
+*  **id**一个bean标识符，用于引用上下文中其他位置的ChannelSecurityInterceptor bean。
+如果指定，Spring Security需要在Spring Messaging中进行显式配置。
+如果未指定，Spring Security将自动与消息传递基础结构集成，如<<nsa-websocket-message-broker>>中所述
 
 [[nsa-websocket-message-broker-same-origin-disabled]]
-* **same-origin-disabled** Disables the requirement for CSRF token to be present in the Stomp headers (default false).
-Changing the default is useful if it is necessary to allow other origins to make SockJS connections.
+*  **same-origin-disabled**禁用要求在Stomp头文件中存在CSRF标记（默认为false）。
+如果需要允许其他来源进行SockJS连接，则更改默认值很有用。
 
 [[nsa-websocket-message-broker-children]]
-===== Child Elements of <websocket-message-broker>
+<websocket-message-broker>的{​​{0}}子元素
 
 
 * <<nsa-expression-handler,expression-handler>>
@@ -1689,71 +1689,71 @@ Changing the default is useful if it is necessary to allow other origins to make
 [[nsa-intercept-message]]
 ==== <intercept-message>
 
-Defines an authorization rule for a message.
+定义消息的授权规则。
 
 
 [[nsa-intercept-message-parents]]
-===== Parent Elements of <intercept-message>
+<intercept-message>的{​​{0}}父元素
 
 
 * <<nsa-websocket-message-broker,websocket-message-broker>>
 
 
 [[nsa-intercept-message-attributes]]
-===== <intercept-message> Attributes
+=====  <intercept-message>属性
 
 [[nsa-intercept-message-pattern]]
-* **pattern** An ant based pattern that matches on the Message destination.
-For example, "/**" matches any Message with a destination; "/admin/**" matches any Message that has a destination that starts with "/admin/**".
+*  **pattern**与消息目标匹配的基于蚂蚁的模式。
+例如，"/**"将任何消息与目标匹配; "/admin/**"匹配任何以"/admin/**"开头的消息。
 
 [[nsa-intercept-message-type]]
-* **type** The type of message to match on.
-Valid values are defined in SimpMessageType (i.e. CONNECT, CONNECT_ACK, HEARTBEAT, MESSAGE, SUBSCRIBE, UNSUBSCRIBE, DISCONNECT, DISCONNECT_ACK, OTHER).
+*  **type**匹配的消息类型。
+有效值在SimpMessageType中定义（即CONNECT，CONNECT_ACK，HEARTBEAT，MESSAGE，SUBSCRIBE，UNSUBSCRIBE，DISCONNECT，DISCONNECT_ACK，OTHER）。
 
 [[nsa-intercept-message-access]]
-* **access** The expression used to secure the Message.
-For example, "denyAll" will deny access to all of the matching Messages; "permitAll" will grant access to all of the matching Messages; "hasRole('ADMIN') requires the current user to have the role 'ROLE_ADMIN' for the matching Messages.
+*  **access**用于保护消息的表达式。
+例如，"denyAll"将拒绝访问所有匹配的消息; "permitAll"将授予对所有匹配邮件的访问权限; “hasRole（'ADMIN'）要求当前用户具有匹配消息的角色'ROLE_ADMIN'。
 
 [[nsa-authentication]]
-=== Authentication Services
-Before Spring Security 3.0, an `AuthenticationManager` was automatically registered internally.
-Now you must register one explicitly using the `<authentication-manager>` element.
-This creates an instance of Spring Security's `ProviderManager` class, which needs to be configured with a list of one or more `AuthenticationProvider` instances.
-These can either be created using syntax elements provided by the namespace, or they can be standard bean definitions, marked for addition to the list using the `authentication-provider` element.
+=== 身份验证服务
+在Spring Security 3.0之前，`AuthenticationManager`在内部自动注册。
+现在您必须使用`<authentication-manager>`元素明确注册一个。
+这将创建Spring Security的`ProviderManager`类，它需要与一个或多个`AuthenticationProvider`实例列表配置的一个实例。
+这些既可以使用由命名空间提供语法元素来创建，或者它们可以是标准的bean定义，标记为除了使用`authentication-provider`元素列表。
 
 
 [[nsa-authentication-manager]]
 ==== <authentication-manager>
-Every Spring Security application which uses the namespace must have include this element somewhere.
-It is responsible for registering the `AuthenticationManager` which provides authentication services to the application.
-All elements which create `AuthenticationProvider` instances should be children of this element.
+每个使用名称空间的Spring Security应用程序都必须包含此元素。
+它负责注册为应用程序提供认证服务的`AuthenticationManager`。
+所有创建`AuthenticationProvider`实例的元素都应该是此元素的子元素。
 
 
 [[nsa-authentication-manager-attributes]]
-===== <authentication-manager> Attributes
+=====  <authentication-manager>属性
 
 
 [[nsa-authentication-manager-alias]]
 * **alias**
-This attribute allows you to define an alias name for the internal instance for use in your own configuration.
-Its use is described in the<<ns-auth-manager,namespace introduction>>.
+该属性允许您为内部实例定义一个别名，以便在您自己的配置中使用。
+它的使用在<<ns-auth-manager,namespace introduction>>中进行了描述。
 
 
 [[nsa-authentication-manager-erase-credentials]]
 * **erase-credentials**
-If set to true, the AuthenticationManager will attempt to clear any credentials data in the returned Authentication object, once the user has been authenticated.
-Literally it maps to the `eraseCredentialsAfterAuthentication` property of the `ProviderManager`.
-This is discussed in the <<core-services-erasing-credentials,Core Services>> chapter.
+如果设置为true，将AuthenticationManager会试图清除在返回的认证对象的任何凭证数据，一旦用户通过验证。
+从字面上看，它映射到`ProviderManager`的{​​{0}}属性。
+这在<<core-services-erasing-credentials,Core Services>>章节中讨论。
 
 
 [[nsa-authentication-manager-id]]
 * **id**
-This attribute allows you to define an id for the internal instance for use in your own configuration.
-It is the same as the alias element, but provides a more consistent experience with elements that use the id attribute.
+该属性允许您为内部实例定义一个id，以便在您自己的配置中使用。
+它与alias元素相同，但对使用id属性的元素提供更一致的体验。
 
 
 [[nsa-authentication-manager-children]]
-===== Child Elements of <authentication-manager>
+<authentication-manager>的{​​{0}}子元素
 
 
 * <<nsa-authentication-provider,authentication-provider>>
@@ -1763,14 +1763,14 @@ It is the same as the alias element, but provides a more consistent experience w
 
 [[nsa-authentication-provider]]
 ==== <authentication-provider>
-Unless used with a `ref` attribute, this element is shorthand for configuring a <<core-services-dao-provider,DaoAuthenticationProvider>>.
-`DaoAuthenticationProvider` loads user information from a `UserDetailsService` and compares the username/password combination with the values supplied at login.
-The `UserDetailsService` instance can be defined either by using an available namespace element (`jdbc-user-service` or by using the `user-service-ref` attribute to point to a bean defined elsewhere in the application context).
-You can find examples of these variations in the <<ns-auth-providers,namespace introduction>>.
+除非与`ref`属性一起使用，否则此元素是配置<<core-services-dao-provider,DaoAuthenticationProvider>>的简写。
+`DaoAuthenticationProvider`从`UserDetailsService`加载用户信息，并将用户名/密码组合与登录时提供的值进行比较。
+通过使用可用的命名空间元素（`jdbc-user-service`或使用`user-service-ref`属性指向应用程序上下文中定义的其他位置）可以定义`UserDetailsService`实例。
+您可以在<<ns-auth-providers,namespace introduction>>中找到这些变体的示例。
 
 
 [[nsa-authentication-provider-parents]]
-===== Parent Elements of <authentication-provider>
+<authentication-provider>的{​​{0}}父元素
 
 
 * <<nsa-authentication-manager,authentication-manager>>
@@ -1778,14 +1778,14 @@ You can find examples of these variations in the <<ns-auth-providers,namespace i
 
 
 [[nsa-authentication-provider-attributes]]
-===== <authentication-provider> Attributes
+=====  <authentication-provider>属性
 
 
 [[nsa-authentication-provider-ref]]
 * **ref**
-Defines a reference to a Spring bean that implements `AuthenticationProvider`.
+定义对实现`AuthenticationProvider`的Spring bean的引用。
 
-If you have written your own `AuthenticationProvider` implementation (or want to configure one of Spring Security's own implementations as a traditional bean for some reason, then you can use the following syntax to add it to the internal list of `ProviderManager`:
+如果您编写了自己的`AuthenticationProvider`实现（或者由于某种原因想要将Spring Security自己的实现配置为传统bean，那么您可以使用以下语法将其添加到{{1} }：
 
 [source,xml]
 ----
@@ -1802,11 +1802,11 @@ If you have written your own `AuthenticationProvider` implementation (or want to
 
 [[nsa-authentication-provider-user-service-ref]]
 * **user-service-ref**
-A reference to a bean that implements UserDetailsService that may be created using the standard bean element or the custom user-service element.
+对实现UserDetailsS​​ervice的bean的引用，可以使用标准bean元素或自定义用户服务元素创建。
 
 
 [[nsa-authentication-provider-children]]
-===== Child Elements of <authentication-provider>
+<authentication-provider>的{​​{0}}子元素
 
 
 * <<nsa-jdbc-user-service,jdbc-user-service>>
@@ -1818,18 +1818,18 @@ A reference to a bean that implements UserDetailsService that may be created usi
 
 [[nsa-jdbc-user-service]]
 ==== <jdbc-user-service>
-Causes creation of a JDBC-based UserDetailsService.
+导致创建基于JDBC的UserDetailsS​​ervice。
 
 
 [[nsa-jdbc-user-service-attributes]]
-===== <jdbc-user-service> Attributes
+=====  <jdbc-user-service>属性
 
 
 [[nsa-jdbc-user-service-authorities-by-username-query]]
 * **authorities-by-username-query**
-An SQL statement to query for a user's granted authorities given a username.
+一个SQL语句，用于查询给定用户名的用户授予的权限。
 
-The default is
+默认是
 
 [source]
 ----
@@ -1841,18 +1841,18 @@ select username, authority from authorities where username = ?
 
 [[nsa-jdbc-user-service-cache-ref]]
 * **cache-ref**
-Defines a reference to a cache for use with a UserDetailsService.
+定义对用于UserDetailsS​​ervice的缓存的引用。
 
 
 [[nsa-jdbc-user-service-data-source-ref]]
 * **data-source-ref**
-The bean ID of the DataSource which provides the required tables.
+提供所需表的DataSource的bean ID。
 
 
 [[nsa-jdbc-user-service-group-authorities-by-username-query]]
 * **group-authorities-by-username-query**
-An SQL statement to query user's group authorities given a username.
-The default is
+提供用户名的用户组权限查询的SQL语句。
+默认是
 
 +
 
@@ -1871,19 +1871,19 @@ gm.username = ? and g.id = ga.group_id and g.id = gm.group_id
 
 [[nsa-jdbc-user-service-id]]
 * **id**
-A bean identifier, used for referring to the bean elsewhere in the context.
+一个bean标识符，用于在上下文中的其他地方引用bean。
 
 
 [[nsa-jdbc-user-service-role-prefix]]
 * **role-prefix**
-A non-empty string prefix that will be added to role strings loaded from persistent storage (default is "ROLE_").
-Use the value "none" for no prefix in cases where the default is non-empty.
+将添加到从永久存储器加载的角色字符串的非空字符串前缀（缺省值为"ROLE_"）。
+在默认值非空的情况下，使用值"none"作为无前缀。
 
 
 [[nsa-jdbc-user-service-users-by-username-query]]
 * **users-by-username-query**
-An SQL statement to query a username, password, and enabled status given a username.
-The default is
+提供用户名的SQL语句，用于查询用户名，密码和启用状态。
+默认是
 
 +
 
@@ -1897,12 +1897,12 @@ select username, password, enabled from users where username = ?
 
 [[nsa-password-encoder]]
 ==== <password-encoder>
-Authentication providers can optionally be configured to use a password encoder as described in the <<ns-password-encoder,namespace introduction>>.
-This will result in the bean being injected with the appropriate `PasswordEncoder` instance.
+如<<ns-password-encoder,namespace introduction>>中所述，身份验证提供程序可以选择配置为使用密码编码器。
+这将导致bean被注入适当的`PasswordEncoder`实例。
 
 
 [[nsa-password-encoder-parents]]
-===== Parent Elements of <password-encoder>
+<password-encoder>的{​​{0}}父元素
 
 
 * <<nsa-authentication-provider,authentication-provider>>
@@ -1911,38 +1911,38 @@ This will result in the bean being injected with the appropriate `PasswordEncode
 
 
 [[nsa-password-encoder-attributes]]
-===== <password-encoder> Attributes
+=====  <password-encoder>属性
 
 
 [[nsa-password-encoder-hash]]
 * **hash**
-Defines the hashing algorithm used on user passwords.
-We recommend strongly against using MD4, as it is a very weak hashing algorithm.
+定义用户密码上使用的哈希算法。
+我们强烈建议不要使用MD4，因为它是一个非常弱的哈希算法。
 
 
 [[nsa-password-encoder-ref]]
 * **ref**
-Defines a reference to a Spring bean that implements `PasswordEncoder`.
+定义对实现`PasswordEncoder`的Spring bean的引用。
 
 
 [[nsa-user-service]]
 ==== <user-service>
-Creates an in-memory UserDetailsService from a properties file or a list of "user" child elements.
-Usernames are converted to lower-case internally to allow for case-insensitive lookups, so this should not be used if case-sensitivity is required.
+根据属性文件或"user"子元素列表创建内存中的UserDetailsS​​ervice。
+用户名在内部转换为小写字母以允许不区分大小写的查找，因此如果需要区分大小写，则不应使用此名称。
 
 
 [[nsa-user-service-attributes]]
-===== <user-service> Attributes
+=====  <user-service>属性
 
 
 [[nsa-user-service-id]]
 * **id**
-A bean identifier, used for referring to the bean elsewhere in the context.
+一个bean标识符，用于在上下文中的其他地方引用bean。
 
 
 [[nsa-user-service-properties]]
 * **properties**
-The location of a Properties file where each line is in the format of
+属性文件的位置，每行的格式为
 
 +
 
@@ -1955,7 +1955,7 @@ username=password,grantedAuthority[,grantedAuthority][,enabled|disabled]
 
 
 [[nsa-user-service-children]]
-===== Child Elements of <user-service>
+<user-service>的{​​{0}}子元素
 
 
 * <<nsa-user,user>>
@@ -1964,11 +1964,11 @@ username=password,grantedAuthority[,grantedAuthority][,enabled|disabled]
 
 [[nsa-user]]
 ==== <user>
-Represents a user in the application.
+代表应用程序中的用户。
 
 
 [[nsa-user-parents]]
-===== Parent Elements of <user>
+<user>的{​​{0}}父元素
 
 
 * <<nsa-user-service,user-service>>
@@ -1976,116 +1976,116 @@ Represents a user in the application.
 
 
 [[nsa-user-attributes]]
-===== <user> Attributes
+=====  <user>属性
 
 
 [[nsa-user-authorities]]
 * **authorities**
-One of more authorities granted to the user.
-Separate authorities with a comma (but no space).
-For example, "ROLE_USER,ROLE_ADMINISTRATOR"
+授予用户的更多权限之一。
+用逗号分隔当局（但没有空格）。
+例如，"ROLE_USER,ROLE_ADMINISTRATOR"
 
 
 [[nsa-user-disabled]]
 * **disabled**
-Can be set to "true" to mark an account as disabled and unusable.
+可以设置为"true"将帐户标记为禁用且不可用。
 
 
 [[nsa-user-locked]]
 * **locked**
-Can be set to "true" to mark an account as locked and unusable.
+可以设置为"true"将帐户标记为已锁定且不可用。
 
 
 [[nsa-user-name]]
 * **name**
-The username assigned to the user.
+分配给用户的用户名。
 
 
 [[nsa-user-password]]
 * **password**
-The password assigned to the user.
-This may be hashed if the corresponding authentication provider supports hashing (remember to set the "hash" attribute of the "user-service" element).
-This attribute be omitted in the case where the data will not be used for authentication, but only for accessing authorities.
-If omitted, the namespace will generate a random value, preventing its accidental use for authentication.
-Cannot be empty.
+分配给用户的密码。
+如果相应的身份验证提供程序支持散列，则可能会散列（请记住设置"user-service"元素的"hash"属性）。
+在数据不用于认证的情况下，该属性将被省略，但仅用于访问权限。
+如果省略，名称空间将生成一个随机值，从而防止意外使用身份验证。
+不能为空。
 
 
 [[nsa-method-security]]
-=== Method Security
+=== 方法安全性
 
 
 [[nsa-global-method-security]]
 ==== <global-method-security>
-This element is the primary means of adding support for securing methods on Spring Security beans.
-Methods can be secured by the use of annotations (defined at the interface or class level) or by defining a set of pointcuts as child elements, using AspectJ syntax.
+这个元素是添加对Spring Security bean上的方法的支持的主要手段。
+通过使用注解（在接口或类级别定义）或通过使用AspectJ语法将一组切入点定义为子元素，可以保护方法。
 
 
 [[nsa-global-method-security-attributes]]
-===== <global-method-security> Attributes
+=====  <global-method-security>属性
 
 
 [[nsa-global-method-security-access-decision-manager-ref]]
 * **access-decision-manager-ref**
-Method security uses the same `AccessDecisionManager` configuration as web security, but this can be overridden using this attribute.
-By default an AffirmativeBased implementation is used for with a RoleVoter and an AuthenticatedVoter.
+方法安全性使用与Web安全性相同的`AccessDecisionManager`配置，但可以使用此属性覆盖此配置。
+默认情况下，AffirmativeBased实现用于RoleVoter和AuthenticatedVoter。
 
 
 [[nsa-global-method-security-authentication-manager-ref]]
 * **authentication-manager-ref**
-A reference to an `AuthenticationManager` that should be used for method security.
+应该用于方法安全性的`AuthenticationManager`的引用。
 
 
 [[nsa-global-method-security-jsr250-annotations]]
 * **jsr250-annotations**
-Specifies whether JSR-250 style attributes are to be used (for example "RolesAllowed").
-This will require the javax.annotation.security classes on the classpath.
-Setting this to true also adds a `Jsr250Voter` to the `AccessDecisionManager`, so you need to make sure you do this if you are using a custom implementation and want to use these annotations.
+指定是否使用JSR-250样式属性（例如"RolesAllowed"）。
+这将需要类路径上的javax.annotation.security类。
+将此设置为true还会向`AccessDecisionManager`添加`Jsr250Voter`，因此如果您使用自定义实现并希望使用这些注释，则需要确保您执行此操作。
 
 
 [[nsa-global-method-security-metadata-source-ref]]
 * **metadata-source-ref**
-An external `MethodSecurityMetadataSource` instance can be supplied which will take priority over other sources (such as the default annotations).
+可以提供外部`MethodSecurityMetadataSource`实例，该实例将优先于其他来源（例如默认注释）。
 
 
 [[nsa-global-method-security-mode]]
 * **mode**
-This attribute can be set to "aspectj" to specify that AspectJ should be used instead of the default Spring AOP.
-Secured methods must be woven with the `AnnotationSecurityAspect` from the `spring-security-aspects` module.
+该属性可以设置为"aspectj"来指定应该使用AspectJ来代替默认的Spring AOP。
+安全方法必须与`spring-security-aspects`模块中的`AnnotationSecurityAspect`交织在一起。
 
-It is important to note that AspectJ follows Java's rule that annotations on interfaces are not inherited.
-This means that methods that define the Security annotations on the interface will not be secured.
-Instead, you must place the Security annotation on the class when using AspectJ.
+需要注意的是，AspectJ遵循Java的规则，即接口上的注释不会被继承。
+这意味着在接口上定义安全注释的方法将不会受到保护。
+相反，使用AspectJ时，您必须将安全注释放在类上。
 
 
 [[nsa-global-method-security-order]]
 * **order**
-Allows the advice "order" to be set for the method security interceptor.
+允许为方法安全拦截器设置建议"order"。
 
 
 [[nsa-global-method-security-pre-post-annotations]]
 * **pre-post-annotations**
-Specifies whether the use of Spring Security's pre and post invocation annotations (@PreFilter, @PreAuthorize, @PostFilter, @PostAuthorize) should be enabled for this application context.
-Defaults to "disabled".
+指定是否应该为此应用程序上下文启用Spring Security的前后调用注释（@PreFilter，@PreAuthorize，@PostFilter，@PostAuthorize）。
+默认为"disabled"。
 
 
 [[nsa-global-method-security-proxy-target-class]]
 * **proxy-target-class**
-If true, class based proxying will be used instead of interface based proxying.
+如果为true，则将使用基于类的代理，而不是基于接口的代理。
 
 
 [[nsa-global-method-security-run-as-manager-ref]]
 * **run-as-manager-ref**
-A reference to an optional `RunAsManager` implementation which will be used by the configured `MethodSecurityInterceptor`
+对配置的`MethodSecurityInterceptor`将使用的可选`RunAsManager`实现的引用
 
 
 [[nsa-global-method-security-secured-annotations]]
 * **secured-annotations**
-Specifies whether the use of Spring Security's @Secured annotations should be enabled for this application context.
-Defaults to "disabled".
+指定是否应该为此应用程序上下文启用对Spring Security的@Secured注释的使用。
+默认为"disabled"。
 
 
 [[nsa-global-method-security-children]]
-===== Child Elements of <global-method-security>
+<global-method-security>的{​​{0}}子元素
 
 
 * <<nsa-after-invocation-provider,after-invocation-provider>>
@@ -2097,12 +2097,12 @@ Defaults to "disabled".
 
 [[nsa-after-invocation-provider]]
 ==== <after-invocation-provider>
-This element can be used to decorate an `AfterInvocationProvider` for use by the security interceptor maintained by the `<global-method-security>` namespace.
-You can define zero or more of these within the `global-method-security` element, each with a `ref` attribute pointing to an `AfterInvocationProvider` bean instance within your application context.
+此元素可用于修饰由`<global-method-security>`名称空间维护的安全拦截器使用的`AfterInvocationProvider`。
+您可以在`global-method-security`元素中定义零个或多个元素，每个元素的`ref`属性指向您的应用程序上下文中的`AfterInvocationProvider` bean实例。
 
 
 [[nsa-after-invocation-provider-parents]]
-===== Parent Elements of <after-invocation-provider>
+<after-invocation-provider>的{​​{0}}父元素
 
 
 * <<nsa-global-method-security,global-method-security>>
@@ -2110,22 +2110,22 @@ You can define zero or more of these within the `global-method-security` element
 
 
 [[nsa-after-invocation-provider-attributes]]
-===== <after-invocation-provider> Attributes
+=====  <after-invocation-provider>属性
 
 
 [[nsa-after-invocation-provider-ref]]
 * **ref**
-Defines a reference to a Spring bean that implements `AfterInvocationProvider`.
+定义对实现`AfterInvocationProvider`的Spring bean的引用。
 
 
 [[nsa-pre-post-annotation-handling]]
 ==== <pre-post-annotation-handling>
-Allows the default expression-based mechanism for handling Spring Security's pre and post invocation annotations (@PreFilter, @PreAuthorize, @PostFilter, @PostAuthorize) to be replaced entirely.
-Only applies if these annotations are enabled.
+允许基于表达式的默认机制来处理Spring Security的前后调用注释（@PreFilter，@PreAuthorize，@PostFilter，@PostAuthorize）完全被替换。
+仅在启用这些注释时适用。
 
 
 [[nsa-pre-post-annotation-handling-parents]]
-===== Parent Elements of <pre-post-annotation-handling>
+<pre-post-annotation-handling>的{​​{0}}父元素
 
 
 * <<nsa-global-method-security,global-method-security>>
@@ -2133,7 +2133,7 @@ Only applies if these annotations are enabled.
 
 
 [[nsa-pre-post-annotation-handling-children]]
-===== Child Elements of <pre-post-annotation-handling>
+<pre-post-annotation-handling>的{​​{0}}子元素
 
 
 * <<nsa-invocation-attribute-factory,invocation-attribute-factory>>
@@ -2144,11 +2144,11 @@ Only applies if these annotations are enabled.
 
 [[nsa-invocation-attribute-factory]]
 ==== <invocation-attribute-factory>
-Defines the PrePostInvocationAttributeFactory instance which is used to generate pre and post invocation metadata from the annotated methods.
+定义PrePostInvocationAttributeFactory实例，该实例用于从注释的方法中生成前后调用元数据。
 
 
 [[nsa-invocation-attribute-factory-parents]]
-===== Parent Elements of <invocation-attribute-factory>
+<invocation-attribute-factory>的{​​{0}}父元素
 
 
 * <<nsa-pre-post-annotation-handling,pre-post-annotation-handling>>
@@ -2156,21 +2156,21 @@ Defines the PrePostInvocationAttributeFactory instance which is used to generate
 
 
 [[nsa-invocation-attribute-factory-attributes]]
-===== <invocation-attribute-factory> Attributes
+=====  <invocation-attribute-factory>属性
 
 
 [[nsa-invocation-attribute-factory-ref]]
 * **ref**
-Defines a reference to a Spring bean Id.
+定义对Spring bean Id的引用。
 
 
 [[nsa-post-invocation-advice]]
 ==== <post-invocation-advice>
-Customizes the `PostInvocationAdviceProvider` with the ref as the `PostInvocationAuthorizationAdvice` for the <pre-post-annotation-handling> element.
+使用ref自定义`PostInvocationAdviceProvider`作为<pre-post-annotation-handling>元素的`PostInvocationAuthorizationAdvice`。
 
 
 [[nsa-post-invocation-advice-parents]]
-===== Parent Elements of <post-invocation-advice>
+<post-invocation-advice>的{​​{0}}父元素
 
 
 * <<nsa-pre-post-annotation-handling,pre-post-annotation-handling>>
@@ -2178,21 +2178,21 @@ Customizes the `PostInvocationAdviceProvider` with the ref as the `PostInvocatio
 
 
 [[nsa-post-invocation-advice-attributes]]
-===== <post-invocation-advice> Attributes
+=====  <post-invocation-advice>属性
 
 
 [[nsa-post-invocation-advice-ref]]
 * **ref**
-Defines a reference to a Spring bean Id.
+定义对Spring bean Id的引用。
 
 
 [[nsa-pre-invocation-advice]]
 ==== <pre-invocation-advice>
-Customizes the `PreInvocationAuthorizationAdviceVoter` with the ref as the `PreInvocationAuthorizationAdviceVoter` for the <pre-post-annotation-handling> element.
+使用ref自定义`PreInvocationAuthorizationAdviceVoter`作为<pre-post-annotation-handling>元素的`PreInvocationAuthorizationAdviceVoter`。
 
 
 [[nsa-pre-invocation-advice-parents]]
-===== Parent Elements of <pre-invocation-advice>
+<pre-invocation-advice>的{​​{0}}父元素
 
 
 * <<nsa-pre-post-annotation-handling,pre-post-annotation-handling>>
@@ -2200,23 +2200,23 @@ Customizes the `PreInvocationAuthorizationAdviceVoter` with the ref as the `PreI
 
 
 [[nsa-pre-invocation-advice-attributes]]
-===== <pre-invocation-advice> Attributes
+=====  <pre-invocation-advice>属性
 
 
 [[nsa-pre-invocation-advice-ref]]
 * **ref**
-Defines a reference to a Spring bean Id.
+定义对Spring bean Id的引用。
 
 
 [[nsa-protect-pointcut]]
-==== Securing Methods using
+==== 使用的安全方法
 `<protect-pointcut>`
-Rather than defining security attributes on an individual method or class basis using the `@Secured` annotation, you can define cross-cutting security constraints across whole sets of methods and interfaces in your service layer using the `<protect-pointcut>` element.
-You can find an example in the <<ns-protect-pointcut,namespace introduction>>.
+您可以使用`<protect-pointcut>`元素在服务层中的整套方法和接口中定义横切安全约束，而不是使用`@Secured`批注在单个方法或类基础上定义安全属性。
+您可以在<<ns-protect-pointcut,namespace introduction>>中找到示例。
 
 
 [[nsa-protect-pointcut-parents]]
-===== Parent Elements of <protect-pointcut>
+<protect-pointcut>的{​​{0}}父元素
 
 
 * <<nsa-global-method-security,global-method-security>>
@@ -2224,37 +2224,37 @@ You can find an example in the <<ns-protect-pointcut,namespace introduction>>.
 
 
 [[nsa-protect-pointcut-attributes]]
-===== <protect-pointcut> Attributes
+=====  <protect-pointcut>属性
 
 
 [[nsa-protect-pointcut-access]]
 * **access**
-Access configuration attributes list that applies to all methods matching the pointcut, e.g.
+访问适用于与切点匹配的所有方法的配置属性列表，例如
 "ROLE_A,ROLE_B"
 
 
 [[nsa-protect-pointcut-expression]]
 * **expression**
-An AspectJ expression, including the 'execution' keyword.
-For example, 'execution(int com.foo.TargetObject.countLength(String))' (without the quotes).
+一个AspectJ表达式，包括'执行'关键字。
+例如，'execution（int com.foo.TargetObject.countLength（String））'（不带引号）。
 
 
 [[nsa-intercept-methods]]
 ==== <intercept-methods>
-Can be used inside a bean definition to add a security interceptor to the bean and set up access configuration attributes for the bean's methods
+可以在bean定义内部使用，将安全拦截器添加到bean中，并为bean的方法设置访问配置属性
 
 
 [[nsa-intercept-methods-attributes]]
-===== <intercept-methods> Attributes
+=====  <intercept-methods>属性
 
 
 [[nsa-intercept-methods-access-decision-manager-ref]]
 * **access-decision-manager-ref**
-Optional AccessDecisionManager bean ID to be used by the created method security interceptor.
+可选的AccessDecisionManager bean ID由创建的方法安全拦截器使用。
 
 
 [[nsa-intercept-methods-children]]
-===== Child Elements of <intercept-methods>
+<intercept-methods>的{​​{0}}子元素
 
 
 * <<nsa-protect,protect>>
@@ -2263,28 +2263,28 @@ Optional AccessDecisionManager bean ID to be used by the created method security
 
 [[nsa-method-security-metadata-source]]
 ==== <method-security-metadata-source>
-Creates a MethodSecurityMetadataSource instance
+创建一个MethodSecurityMetadataSource实例
 
 
 [[nsa-method-security-metadata-source-attributes]]
-===== <method-security-metadata-source> Attributes
+=====  <method-security-metadata-source>属性
 
 
 [[nsa-method-security-metadata-source-id]]
 * **id**
-A bean identifier, used for referring to the bean elsewhere in the context.
+一个bean标识符，用于在上下文中的其他地方引用bean。
 
 
 [[nsa-method-security-metadata-source-use-expressions]]
 * **use-expressions**
-Enables the use of expressions in the 'access' attributes in <intercept-url> elements rather than the traditional list of configuration attributes.
-Defaults to 'false'.
-If enabled, each attribute should contain a single Boolean expression.
-If the expression evaluates to 'true', access will be granted.
+在<intercept-url>元素的“访问”属性中启用表达式，而不是使用传统的配置属性列表。
+默认为'false'。
+如果启用，每个属性应包含一个布尔表达式。
+如果表达式评估为“真”，则将授予访问权限。
 
 
 [[nsa-method-security-metadata-source-children]]
-===== Child Elements of <method-security-metadata-source>
+<method-security-metadata-source>的{​​{0}}子元素
 
 
 * <<nsa-protect,protect>>
@@ -2293,12 +2293,12 @@ If the expression evaluates to 'true', access will be granted.
 
 [[nsa-protect]]
 ==== <protect>
-Defines a protected method and the access control configuration attributes that apply to it.
-We strongly advise you NOT to mix "protect" declarations with any services provided "global-method-security".
+定义受保护的方法以及应用于其的访问控制配置属性。
+我们强烈建议您不要将"protect"声明与提供的任何服务"global-method-security"混合使用。
 
 
 [[nsa-protect-parents]]
-===== Parent Elements of <protect>
+<protect>的{​​{0}}父元素
 
 
 * <<nsa-intercept-methods,intercept-methods>>
@@ -2307,96 +2307,96 @@ We strongly advise you NOT to mix "protect" declarations with any services provi
 
 
 [[nsa-protect-attributes]]
-===== <protect> Attributes
+=====  <protect>属性
 
 
 [[nsa-protect-access]]
 * **access**
-Access configuration attributes list that applies to the method, e.g.
+访问适用于该方法的配置属性列表，例如
 "ROLE_A,ROLE_B".
 
 
 [[nsa-protect-method]]
 * **method**
-A method name
+方法名称
 
 
 [[nsa-ldap]]
-=== LDAP Namespace Options
-LDAP is covered in some details in <<ldap,its own chapter>>.
-We will expand on that here with some explanation of how the namespace options map to Spring beans.
-The LDAP implementation uses Spring LDAP extensively, so some familiarity with that project's API may be useful.
+===  LDAP命名空间选项
+<<ldap,its own chapter>>中详细介绍了LDAP。
+我们将在这里扩展一些关于命名空间选项如何映射到Spring bean的解释。
+LDAP实现广泛使用Spring LDAP，所以熟悉该项目的API可能会有用。
 
 
 [[nsa-ldap-server]]
-==== Defining the LDAP Server using the
-`<ldap-server>` Element
-This element sets up a Spring LDAP `ContextSource` for use by the other LDAP beans, defining the location of the LDAP server and other information (such as a username and password, if it doesn't allow anonymous access) for connecting to it.
-It can also be used to create an embedded server for testing.
-Details of the syntax for both options are covered in the <<ldap-server,LDAP chapter>>.
-The actual `ContextSource` implementation is `DefaultSpringSecurityContextSource` which extends Spring LDAP's `LdapContextSource` class.
-The `manager-dn` and `manager-password` attributes map to the latter's `userDn` and `password` properties respectively.
+==== 使用。定义LDAP服务器
+`<ldap-server>`元素
+此元素设置一个供其他LDAP Bean使用的Spring LDAP `ContextSource`，定义LDAP服务器的位置和其他信息（如用户名和密码，如果不允许匿名访问）来连接到它。
+它也可以用来创建一个用于测试的嵌入式服务器。
+<<ldap-server,LDAP chapter>>中介绍了这两种选项的语法细节。
+实际的`ContextSource`实现是`DefaultSpringSecurityContextSource`，它扩展了Spring LDAP的`LdapContextSource`类。
+`manager-dn`和`manager-password`属性分别映射到后者的`userDn`和`password`属性。
 
-If you only have one server defined in your application context, the other LDAP namespace-defined beans will use it automatically.
-Otherwise, you can give the element an "id" attribute and refer to it from other namespace beans using the `server-ref` attribute.
-This is actually the bean `id` of the `ContextSource` instance, if you want to use it in other traditional Spring beans.
+如果您的应用程序上下文中只定义了一个服务器，则其他LDAP名称空间定义的bean将自动使用它。
+否则，可以给该元素一个"id"属性，并使用`server-ref`属性从其他名称空间bean中引用该属性。
+这实际上是`ContextSource`实例的bean `id`，如果您想在其他传统Spring bean中使用它。
 
 
 [[nsa-ldap-server-attributes]]
-===== <ldap-server> Attributes
+=====  <ldap-server>属性
 
 
 [[nsa-ldap-server-id]]
 * **id**
-A bean identifier, used for referring to the bean elsewhere in the context.
+一个bean标识符，用于在上下文中的其他地方引用bean。
 
 
 [[nsa-ldap-server-ldif]]
 * **ldif**
-Explicitly specifies an ldif file resource to load into an embedded LDAP server.
-The ldiff is should be a Spring resource pattern (i.e. classpath:init.ldiff).
-The default is classpath*:*.ldiff
+明确指定要加载到嵌入式LDAP服务器的ldif文件资源。
+ldiff应该是一个Spring资源模式（即classpath：init.ldiff）。
+缺省值是类路径*:* .ldiff
 
 
 [[nsa-ldap-server-manager-dn]]
 * **manager-dn**
-Username (DN) of the "manager" user identity which will be used to authenticate to a (non-embedded) LDAP server.
-If omitted, anonymous access will be used.
+用于认证（非嵌入式）LDAP服务器的"manager"用户身份的用户名（DN）。
+如果省略，将使用匿名访问。
 
 
 [[nsa-ldap-server-manager-password]]
 * **manager-password**
-The password for the manager DN.
-This is required if the manager-dn is specified.
+经理DN的密码。
+如果指定了manager-dn，则这是必需的。
 
 
 [[nsa-ldap-server-port]]
 * **port**
-Specifies an IP port number.
-Used to configure an embedded LDAP server, for example.
-The default value is 33389.
+指定一个IP端口号。
+例如，用于配置嵌入式LDAP服务器。
+默认值是33389。
 
 
 [[nsa-ldap-server-root]]
 * **root**
-Optional root suffix for the embedded LDAP server.
-Default is "dc=springframework,dc=org"
+嵌入式LDAP服务器的可选根后缀。
+默认值是"dc=springframework,dc=org"
 
 
 [[nsa-ldap-server-url]]
 * **url**
-Specifies the ldap server URL when not using the embedded LDAP server.
+指定不使用嵌入式LDAP服务器时的ldap服务器URL。
 
 
 [[nsa-ldap-authentication-provider]]
 ==== <ldap-authentication-provider>
-This element is shorthand for the creation of an `LdapAuthenticationProvider` instance.
-By default this will be configured with a `BindAuthenticator` instance and a `DefaultAuthoritiesPopulator`.
-As with all namespace authentication providers, it must be included as a child of the `authentication-provider` element.
+此元素是创建`LdapAuthenticationProvider`实例的简写。
+默认情况下，这将配置一个`BindAuthenticator`实例和一个`DefaultAuthoritiesPopulator`。
+与所有名称空间身份验证提供程序一样，它必须作为`authentication-provider`元素的子项包含在内。
 
 
 [[nsa-ldap-authentication-provider-parents]]
-===== Parent Elements of <ldap-authentication-provider>
+<ldap-authentication-provider>的{​​{0}}父元素
 
 
 * <<nsa-authentication-manager,authentication-manager>>
@@ -2404,92 +2404,92 @@ As with all namespace authentication providers, it must be included as a child o
 
 
 [[nsa-ldap-authentication-provider-attributes]]
-===== <ldap-authentication-provider> Attributes
+=====  <ldap-authentication-provider>属性
 
 
 [[nsa-ldap-authentication-provider-group-role-attribute]]
 * **group-role-attribute**
-The LDAP attribute name which contains the role name which will be used within Spring Security.
-Maps to the ``DefaultLdapAuthoritiesPopulator``'s `groupRoleAttribute` property.
-Defaults to "cn".
+包含将在Spring Security中使用的角色名称的LDAP属性名称。
+映射到``DefaultLdapAuthoritiesPopulator``的`groupRoleAttribute`属性。
+默认为"cn"。
 
 
 [[nsa-ldap-authentication-provider-group-search-base]]
 * **group-search-base**
-Search base for group membership searches.
-Maps to the ``DefaultLdapAuthoritiesPopulator``'s `groupSearchBase` constructor argument.
-Defaults to "" (searching from the root).
+搜索基地以查找组成员资格。
+映射到``DefaultLdapAuthoritiesPopulator``的`groupSearchBase`构造函数参数。
+默认为""（从根目录搜索）。
 
 
 [[nsa-ldap-authentication-provider-group-search-filter]]
 * **group-search-filter**
-Group search filter.
-Maps to the ``DefaultLdapAuthoritiesPopulator``'s `groupSearchFilter` property.
-Defaults to (uniqueMember={0}).
-The substituted parameter is the DN of the user.
+组搜索过滤器。
+映射到``DefaultLdapAuthoritiesPopulator``的`groupSearchFilter`属性。
+默认为（uniqueMember = {0}）。
+替代参数是用户的DN。
 
 
 [[nsa-ldap-authentication-provider-role-prefix]]
 * **role-prefix**
-A non-empty string prefix that will be added to role strings loaded from persistent.
-Maps to the ``DefaultLdapAuthoritiesPopulator``'s `rolePrefix` property.
-Defaults to "ROLE_".
-Use the value "none" for no prefix in cases where the default is non-empty.
+将添加到从持久性加载的角色字符串的非空字符串前缀。
+映射到``DefaultLdapAuthoritiesPopulator``的`rolePrefix`属性。
+默认为"ROLE_"。
+在默认值非空的情况下，使用值"none"作为无前缀。
 
 
 [[nsa-ldap-authentication-provider-server-ref]]
 * **server-ref**
-The optional server to use.
-If omitted, and a default LDAP server is registered (using <ldap-server> with no Id), that server will be used.
+要使用的可选服务器。
+如果省略，并且注册了默认LDAP服务器（使用不带ID的<ldap-server>），则将使用该服务器。
 
 
 [[nsa-ldap-authentication-provider-user-context-mapper-ref]]
 * **user-context-mapper-ref**
-Allows explicit customization of the loaded user object by specifying a UserDetailsContextMapper bean which will be called with the context information from the user's directory entry
+允许通过指定一个UserDetailsContextMapper bean明确定制加载的用户对象，该用户对象的目录条目中的上下文信息将被调用
 
 
 [[nsa-ldap-authentication-provider-user-details-class]]
 * **user-details-class**
-Allows the objectClass of the user entry to be specified.
-If set, the framework will attempt to load standard attributes for the defined class into the returned UserDetails object
+允许指定用户条目的objectClass。
+如果设置，框架将尝试将已定义类的标准属性加载到返回的UserDetails对象中
 
 
 [[nsa-ldap-authentication-provider-user-dn-pattern]]
 * **user-dn-pattern**
-If your users are at a fixed location in the directory (i.e. you can work out the DN directly from the username without doing a directory search), you can use this attribute to map directly to the DN.
-It maps directly to the `userDnPatterns` property of `AbstractLdapAuthenticator`.
-The value is a specific pattern used to build the user's DN, for example "uid={0},ou=people".
-The key "{0}" must be present and will be substituted with the username.
+如果您的用户位于目录中的固定位置（即，您可以直接从用户名计算出DN而不进行目录搜索），则可以使用此属性直接映射到DN。
+它直接映射到`AbstractLdapAuthenticator`的{​​{0}}属性。
+该值是用于构建用户DN的特定模式，例如"uid={0},ou=people"。
+密钥"{0}"必须存在，并将用用户名代替。
 
 
 [[nsa-ldap-authentication-provider-user-search-base]]
 * **user-search-base**
-Search base for user searches.
-Defaults to "".
-Only used with a 'user-search-filter'.
+用户搜索的搜索基地。
+默认为""。
+仅与“用户搜索过滤器”一起使用。
 
 +
 
-If you need to perform a search to locate the user in the directory, then you can set these attributes to control the search.
-The `BindAuthenticator` will be configured with a `FilterBasedLdapUserSearch` and the attribute values map directly to the first two arguments of that bean's constructor.
-If these attributes aren't set and no `user-dn-pattern` has been supplied as an alternative, then the default search values of `user-search-filter="(uid={0})"` and `user-search-base=""` will be used.
+如果您需要执行搜索以在目录中找到用户，则可以设置这些属性来控制搜索。
+`BindAuthenticator`将配置为`FilterBasedLdapUserSearch`，属性值直接映射到该bean构造函数的前两个参数。
+如果未设置这些属性并且未提供`user-dn-pattern`作为替代，则将使用`user-search-filter="(uid={0})"`和`user-search-base=""`的默认搜索值。
 
 
 [[nsa-ldap-authentication-provider-user-search-filter]]
 * **user-search-filter**
-The LDAP filter used to search for users (optional).
-For example "(uid={0})".
-The substituted parameter is the user's login name.
+用于搜索用户的LDAP过滤器（可选）。
+例如"(uid={0})"。
+替换参数是用户的登录名。
 
 +
 
-If you need to perform a search to locate the user in the directory, then you can set these attributes to control the search.
-The `BindAuthenticator` will be configured with a `FilterBasedLdapUserSearch` and the attribute values map directly to the first two arguments of that bean's constructor.
-If these attributes aren't set and no `user-dn-pattern` has been supplied as an alternative, then the default search values of `user-search-filter="(uid={0})"` and `user-search-base=""` will be used.
+如果您需要执行搜索以在目录中找到用户，则可以设置这些属性来控制搜索。
+`BindAuthenticator`将配置为`FilterBasedLdapUserSearch`，属性值直接映射到该bean构造函数的前两个参数。
+如果未设置这些属性并且未提供`user-dn-pattern`作为替代，则将使用`user-search-filter="(uid={0})"`和`user-search-base=""`的默认搜索值。
 
 
 [[nsa-ldap-authentication-provider-children]]
-===== Child Elements of <ldap-authentication-provider>
+<ldap-authentication-provider>的{​​{0}}子元素
 
 
 * <<nsa-password-compare,password-compare>>
@@ -2498,11 +2498,11 @@ If these attributes aren't set and no `user-dn-pattern` has been supplied as an 
 
 [[nsa-password-compare]]
 ==== <password-compare>
-This is used as child element to `<ldap-provider>` and switches the authentication strategy from `BindAuthenticator` to `PasswordComparisonAuthenticator`.
+这被用作子元素`<ldap-provider>`，并切换来自所述认证策略`BindAuthenticator`到`PasswordComparisonAuthenticator`。
 
 
 [[nsa-password-compare-parents]]
-===== Parent Elements of <password-compare>
+<password-compare>的{​​{0}}父元素
 
 
 * <<nsa-ldap-authentication-provider,ldap-authentication-provider>>
@@ -2510,23 +2510,23 @@ This is used as child element to `<ldap-provider>` and switches the authenticati
 
 
 [[nsa-password-compare-attributes]]
-===== <password-compare> Attributes
+=====  <password-compare>属性
 
 
 [[nsa-password-compare-hash]]
 * **hash**
-Defines the hashing algorithm used on user passwords.
-We recommend strongly against using MD4, as it is a very weak hashing algorithm.
+定义用户密码上使用的哈希算法。
+我们强烈建议不要使用MD4，因为它是一个非常弱的哈希算法。
 
 
 [[nsa-password-compare-password-attribute]]
 * **password-attribute**
-The attribute in the directory which contains the user password.
-Defaults to "userPassword".
+包含用户密码的目录中的属性。
+默认为"userPassword"。
 
 
 [[nsa-password-compare-children]]
-===== Child Elements of <password-compare>
+<password-compare>的{​​{0}}子元素
 
 
 * <<nsa-password-encoder,password-encoder>>
@@ -2535,77 +2535,77 @@ Defaults to "userPassword".
 
 [[nsa-ldap-user-service]]
 ==== <ldap-user-service>
-This element configures an LDAP `UserDetailsService`.
-The class used is `LdapUserDetailsService` which is a combination of a `FilterBasedLdapUserSearch` and a `DefaultLdapAuthoritiesPopulator`.
-The attributes it supports have the same usage as in `<ldap-provider>`.
+此元件配置一个LDAP `UserDetailsService`。
+使用的类是`LdapUserDetailsService`，它是的组合的`FilterBasedLdapUserSearch`和`DefaultLdapAuthoritiesPopulator`。
+它支持的属性具有相同的使用如在`<ldap-provider>`。
 
 
 [[nsa-ldap-user-service-attributes]]
-===== <ldap-user-service> Attributes
+=====  <ldap-user-service>属性
 
 
 [[nsa-ldap-user-service-cache-ref]]
 * **cache-ref**
-Defines a reference to a cache for use with a UserDetailsService.
+定义对用于UserDetailsS​​ervice的缓存的引用。
 
 
 [[nsa-ldap-user-service-group-role-attribute]]
 * **group-role-attribute**
-The LDAP attribute name which contains the role name which will be used within Spring Security.
-Defaults to "cn".
+包含将在Spring Security中使用的角色名称的LDAP属性名称。
+默认为"cn"。
 
 
 [[nsa-ldap-user-service-group-search-base]]
 * **group-search-base**
-Search base for group membership searches.
-Defaults to "" (searching from the root).
+搜索基地以查找组成员资格。
+默认为""（从根目录搜索）。
 
 
 [[nsa-ldap-user-service-group-search-filter]]
 * **group-search-filter**
-Group search filter.
-Defaults to (uniqueMember={0}).
-The substituted parameter is the DN of the user.
+组搜索过滤器。
+默认为（uniqueMember = {0}）。
+替代参数是用户的DN。
 
 
 [[nsa-ldap-user-service-id]]
 * **id**
-A bean identifier, used for referring to the bean elsewhere in the context.
+一个bean标识符，用于在上下文中的其他地方引用bean。
 
 
 [[nsa-ldap-user-service-role-prefix]]
 * **role-prefix**
-A non-empty string prefix that will be added to role strings loaded from persistent storage (e.g.
+一个非空字符串前缀，将被添加到从永久存储器加载的角色字符串中（例如，
 "ROLE_").
-Use the value "none" for no prefix in cases where the default is non-empty.
+在默认值非空的情况下，使用值"none"作为无前缀。
 
 
 [[nsa-ldap-user-service-server-ref]]
 * **server-ref**
-The optional server to use.
-If omitted, and a default LDAP server is registered (using <ldap-server> with no Id), that server will be used.
+要使用的可选服务器。
+如果省略，并且注册了默认LDAP服务器（使用不带ID的<ldap-server>），则将使用该服务器。
 
 
 [[nsa-ldap-user-service-user-context-mapper-ref]]
 * **user-context-mapper-ref**
-Allows explicit customization of the loaded user object by specifying a UserDetailsContextMapper bean which will be called with the context information from the user's directory entry
+允许通过指定一个UserDetailsContextMapper bean明确定制加载的用户对象，该用户对象的目录条目中的上下文信息将被调用
 
 
 [[nsa-ldap-user-service-user-details-class]]
 * **user-details-class**
-Allows the objectClass of the user entry to be specified.
-If set, the framework will attempt to load standard attributes for the defined class into the returned UserDetails object
+允许指定用户条目的objectClass。
+如果设置，框架将尝试将已定义类的标准属性加载到返回的UserDetails对象中
 
 
 [[nsa-ldap-user-service-user-search-base]]
 * **user-search-base**
-Search base for user searches.
-Defaults to "".
-Only used with a 'user-search-filter'.
+用户搜索的搜索基地。
+默认为""。
+仅与“用户搜索过滤器”一起使用。
 
 
 [[nsa-ldap-user-service-user-search-filter]]
 * **user-search-filter**
-The LDAP filter used to search for users (optional).
-For example "(uid={0})".
-The substituted parameter is the user's login name.
+用于搜索用户的LDAP过滤器（可选）。
+例如"(uid={0})"。
+替换参数是用户的登录名。

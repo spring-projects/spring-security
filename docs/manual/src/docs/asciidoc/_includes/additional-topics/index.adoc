@@ -1,7 +1,7 @@
 
 [[advanced-topics]]
-= Additional Topics
-In this part we cover features which require knowledge of previous chapters as well as some of the more advanced and less-commonly used features of the framework.
+其他主题= 
+在本部分中，我们将介绍需要了解以前章节的功能以及框架的一些更先进和较少使用的功能。
 
 include::acls.adoc[]
 

@@ -1,43 +1,43 @@
 [[preface]]
-= Preface
-Spring Security provides a comprehensive security solution for Java EE-based enterprise software applications.
-As you will discover as you venture through this reference guide, we have tried to provide you a useful and highly configurable security system.
+= 前言
+Spring Security为基于Java EE的企业软件应用程序提供了全面的安全解决方案。
+正如您在参考指南中发现的那样，我们试图为您提供一个有用且高度可配置的安全系统。
 
-Security is an ever-moving target, and it's important to pursue a comprehensive, system-wide approach.
-In security circles we encourage you to adopt "layers of security", so that each layer tries to be as secure as possible in its own right, with successive layers providing additional security.
-The "tighter" the security of each layer, the more robust and safe your application will be.
-At the bottom level you'll need to deal with issues such as transport security and system identification, in order to mitigate man-in-the-middle attacks.
-Next you'll generally utilise firewalls, perhaps with VPNs or IP security to ensure only authorised systems can attempt to connect.
-In corporate environments you may deploy a DMZ to separate public-facing servers from backend database and application servers.
-Your operating system will also play a critical part, addressing issues such as running processes as non-privileged users and maximising file system security.
-An operating system will usually also be configured with its own firewall.
-Hopefully somewhere along the way you'll be trying to prevent denial of service and brute force attacks against the system.
-An intrusion detection system will also be especially useful for monitoring and responding to attacks, with such systems able to take protective action such as blocking offending TCP/IP addresses in real-time.
-Moving to the higher layers, your Java Virtual Machine will hopefully be configured to minimize the permissions granted to different Java types, and then your application will add its own problem domain-specific security configuration.
-Spring Security makes this latter area - application security - much easier.
+安全是一个不断变化的目标，追求全面的系统范围方法非常重要。
+在安全圈中，我们鼓励您采用"layers of security"，以便每个图层都尽可能保证安全，连续图层提供更高的安全性。
+每个图层的"tighter"安全性，您的应用程序将更加健壮和安全。
+在底层，您需要处理诸如传输安全和系统识别等问题，以缓解中间人攻击。
+接下来，您通常会使用防火墙，可能是VPN或IP安全性，以确保只有经过授权的系统才能尝试连接。
+在企业环境中，您可以部署一个DMZ，将面向公众的服务器与后端数据库和应用程序服务器分开。
+您的操作系统也将扮演重要角色，解决诸如以无特权用户身份运行进程等问题并最大限度提高文件系统安全性。
+操作系统通常也会配置自己的防火墙。
+希望在这个过程中你会试图阻止对系统的拒绝服务和暴力攻击。
+入侵检测系统对于监视和响应攻击也特别有用，因为这些系统能够采取保护措施，例如实时阻止侵入TCP / IP地址。
+转移到更高层，您的Java虚拟机将有望配置为最大限度地减少授予不同Java类型的权限，然后您的应用程序将添加自己的问题特定于域的安全配置。
+Spring Security使后面的这个领域 - 应用程序的安全性更容易。
 
-Of course, you will need to properly address all security layers mentioned above, together with managerial factors that encompass every layer.
-A non-exhaustive list of such managerial factors would include security bulletin monitoring, patching, personnel vetting, audits, change control, engineering management systems, data backup, disaster recovery, performance benchmarking, load monitoring, centralised logging, incident response procedures etc.
+当然，您需要正确处理上面提到的所有安全层，以及包含每个层的管理因素。
+这些管理因素的非详尽清单将包括安全公告监控，修补，人员审查，审计，变更控制，工程管理系统，数据备份，灾难恢复，性能基准测试，负载监控，集中式日志记录，事件响应程序等。
 
-With Spring Security being focused on helping you with the enterprise application security layer, you will find that there are as many different requirements as there are business problem domains.
-A banking application has different needs from an ecommerce application.
-An ecommerce application has different needs from a corporate sales force automation tool.
-These custom requirements make application security interesting, challenging and rewarding.
+由于Spring Security专注于帮助企业应用程序安全层，因此您会发现有多少不同的需求与业务问题域相同。
+银行应用程序对电子商务应用程序有不同的需求。
+电子商务应用程序对企业销售人员自动化工具有不同的需求。
+这些自定义要求使应用程序安全性变得有趣，富有挑战性和有益。
 
-Please read <<getting-started>>, in its entirety to begin with.
-This will introduce you to the framework and the namespace-based configuration system with which you can get up and running quite quickly.
-To get more of an understanding of how Spring Security works, and some of the classes you might need to use, you should then read <<overall-architecture>>.
-The remaining parts of this guide are structured in a more traditional reference style, designed to be read on an as-required basis.
-We'd also recommend that you read up as much as possible on application security issues in general.
-Spring Security is not a panacea which will solve all security issues.
-It is important that the application is designed with security in mind from the start.
-Attempting to retrofit it is not a good idea.
-In particular, if you are building a web application, you should be aware of the many potential vulnerabilities such as cross-site scripting, request-forgery and session-hijacking which you should be taking into account from the start.
-The OWASP web site (http://www.owasp.org/) maintains a top ten list of web application vulnerabilities as well as a lot of useful reference information.
+请首先阅读<<getting-started>>。
+这将向您介绍框架和基于命名空间的配置系统，您可以使用该系统快速启动和运行。
+为了更好地理解Spring Security的工作原理以及您可能需要使用的某些类，请阅读<<overall-architecture>>。
+本指南的其余部分采用更传统的参考样式，旨在根据需要进行阅读。
+我们还建议您尽可能多地阅读应用程序安全问题。
+Spring Security不是解决所有安全问题的万能药。
+从一开始，应用程序的设计就要考虑到安全性，这一点很重要。
+试图改造它并不是一个好主意。
+特别是，如果您正在构建Web应用程序，则应该意识到许多潜在的漏洞，例如跨站脚本，请求伪造和会话劫持，您应该从一开始就考虑这些漏洞。
+OWASP网站（http://www.owasp.org/）维护着十大Web应用程序漏洞列表以及大量有用的参考信息。
 
-We hope that you find this reference guide useful, and we welcome your feedback and <<jira,suggestions>>.
+我们希望您发现此参考指南很有用，我们欢迎您的反馈和<<jira,suggestions>>。
 
-Finally, welcome to the Spring Security <<community,community>>.
+最后，欢迎来到Spring Security <<community,community>>。
 
 include::getting-started.adoc[]
 
