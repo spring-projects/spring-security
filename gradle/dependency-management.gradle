@@ -163,7 +163,7 @@ dependencyManagement {
 		dependency 'org.hibernate:hibernate-core:5.2.12.Final'
 		dependency 'org.hibernate:hibernate-entitymanager:5.2.16.Final'
 		dependency 'org.hibernate:hibernate-validator:6.0.9.Final'
-		dependency 'org.hsqldb:hsqldb:2.4.0'
+		dependency 'org.hsqldb:hsqldb:2.4.1'
 		dependency 'org.jasig.cas.client:cas-client-core:3.5.0'
 		dependency 'org.javassist:javassist:3.22.0-CR2'
 		dependency 'org.jboss.logging:jboss-logging:3.3.1.Final'
