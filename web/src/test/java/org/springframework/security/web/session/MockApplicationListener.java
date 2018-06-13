@@ -32,6 +32,7 @@ public class MockApplicationListener implements ApplicationListener<ApplicationE
 
 	private HttpSessionCreatedEvent createdEvent;
 	private HttpSessionDestroyedEvent destroyedEvent;
+	private HttpSessionIdChangedEvent sessionIdChangedEvent;
 
 	// ~ Methods
 	// ========================================================================================================
@@ -51,6 +52,9 @@ public class MockApplicationListener implements ApplicationListener<ApplicationE
 		else if (event instanceof HttpSessionDestroyedEvent) {
 			destroyedEvent = (HttpSessionDestroyedEvent) event;
 		}
+		else if (event instanceof HttpSessionIdChangedEvent) {
+			sessionIdChangedEvent = (HttpSessionIdChangedEvent) event;
+		}
 	}
 
 	public void setCreatedEvent(HttpSessionCreatedEvent createdEvent) {
@@ -59,5 +63,13 @@ public class MockApplicationListener implements ApplicationListener<ApplicationE
 
 	public void setDestroyedEvent(HttpSessionDestroyedEvent destroyedEvent) {
 		this.destroyedEvent = destroyedEvent;
+	}
+
+	public void setSessionIdChangedEvent(HttpSessionIdChangedEvent sessionIdChangedEvent) {
+		this.sessionIdChangedEvent = sessionIdChangedEvent;
+	}
+
+	public HttpSessionIdChangedEvent getSessionIdChangedEvent() {
+		return sessionIdChangedEvent;
 	}
 }

@@ -25,6 +25,7 @@ import org.springframework.security.web.context.support.SecurityWebApplicationCo
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSessionEvent;
+import javax.servlet.http.HttpSessionIdListener;
 import javax.servlet.http.HttpSessionListener;
 
 /**
@@ -44,7 +45,7 @@ import javax.servlet.http.HttpSessionListener;
  *
  * @author Ray Krueger
  */
-public class HttpSessionEventPublisher implements HttpSessionListener {
+public class HttpSessionEventPublisher implements HttpSessionListener, HttpSessionIdListener {
 	// ~ Static fields/initializers
 	// =====================================================================================
 
@@ -82,6 +83,18 @@ public class HttpSessionEventPublisher implements HttpSessionListener {
 	 */
 	public void sessionDestroyed(HttpSessionEvent event) {
 		HttpSessionDestroyedEvent e = new HttpSessionDestroyedEvent(event.getSession());
+		Log log = LogFactory.getLog(LOGGER_NAME);
+
+		if (log.isDebugEnabled()) {
+			log.debug("Publishing event: " + e);
+		}
+
+		getContext(event.getSession().getServletContext()).publishEvent(e);
+	}
+
+	@Override
+	public void sessionIdChanged(HttpSessionEvent event, String oldSessionId) {
+		HttpSessionIdChangedEvent e = new HttpSessionIdChangedEvent(event.getSession(), oldSessionId);
 		Log log = LogFactory.getLog(LOGGER_NAME);
 
 		if (log.isDebugEnabled()) {
