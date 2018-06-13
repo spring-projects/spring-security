@@ -70,6 +70,33 @@ public class SessionRegistryImplTests {
 	}
 
 	@Test
+	public void sessionIdChangedEventRemovesOldSessionAndAddsANewSession() {
+		Object principal = "Some principal object";
+		final String sessionId = "zzzz";
+		final String newSessionId = "123";
+
+		// Register new Session
+		sessionRegistry.registerNewSession(sessionId, principal);
+
+		// De-register session via an ApplicationEvent
+		sessionRegistry.onApplicationEvent(new SessionIdChangedEvent("") {
+			@Override
+			public String getOldSessionId() {
+				return sessionId;
+			}
+
+			@Override
+			public String getNewSessionId() {
+				return newSessionId;
+			}
+		});
+
+		assertThat(sessionRegistry.getSessionInformation(sessionId)).isNull();
+		assertThat(sessionRegistry.getSessionInformation(newSessionId)).isNotNull();
+		assertThat(sessionRegistry.getSessionInformation(newSessionId).getPrincipal()).isEqualTo(principal);
+	}
+
+	@Test
 	public void testMultiplePrincipals() {
 		Object principal1 = "principal_1";
 		Object principal2 = "principal_2";
