@@ -21,6 +21,7 @@ import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2ClientConfigurer;
+import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 
 /**
  * An {@link AbstractHttpConfigurer} that provides support for the
@@ -40,6 +41,8 @@ public final class OAuth2Configurer<B extends HttpSecurityBuilder<B>>
 
 	private OAuth2ClientConfigurer<B> clientConfigurer;
 
+	private OAuth2ResourceServerConfigurer<B> resourceServerConfigurer;
+
 	/**
 	 * Returns the {@link OAuth2ClientConfigurer} for configuring OAuth 2.0 Client support.
 	 *
@@ -52,10 +55,26 @@ public final class OAuth2Configurer<B extends HttpSecurityBuilder<B>>
 		return this.clientConfigurer;
 	}
 
+	/**
+	 * Returns the {@link OAuth2ResourceServerConfigurer} for configuring OAuth 2.0 Resource Server support.
+	 *
+	 * @return the {@link OAuth2ResourceServerConfigurer}
+	 */
+	public OAuth2ResourceServerConfigurer<B> resourceServer() {
+		if (this.resourceServerConfigurer == null) {
+			this.initResourceServerConfigurer();
+		}
+		return this.resourceServerConfigurer;
+	}
+
 	@Override
 	public void init(B builder) throws Exception {
 		if (this.clientConfigurer != null) {
 			this.clientConfigurer.init(builder);
+		}
+
+		if (this.resourceServerConfigurer != null) {
+			this.resourceServerConfigurer.init(builder);
 		}
 	}
 
@@ -64,11 +83,21 @@ public final class OAuth2Configurer<B extends HttpSecurityBuilder<B>>
 		if (this.clientConfigurer != null) {
 			this.clientConfigurer.configure(builder);
 		}
+
+		if (this.resourceServerConfigurer != null) {
+			this.resourceServerConfigurer.configure(builder);
+		}
 	}
 
 	private void initClientConfigurer() {
 		this.clientConfigurer = new OAuth2ClientConfigurer<>();
 		this.clientConfigurer.setBuilder(this.getBuilder());
 		this.clientConfigurer.addObjectPostProcessor(this.objectPostProcessor);
+	}
+
+	private void initResourceServerConfigurer() {
+		this.resourceServerConfigurer = new OAuth2ResourceServerConfigurer<>();
+		this.resourceServerConfigurer.setBuilder(this.getBuilder());
+		this.resourceServerConfigurer.addObjectPostProcessor(this.objectPostProcessor);
 	}
 }

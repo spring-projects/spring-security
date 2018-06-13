@@ -13,6 +13,7 @@ dependencies {
 	optional project(':spring-security-messaging')
 	optional project(':spring-security-oauth2-client')
 	optional project(':spring-security-oauth2-jose')
+	optional project(':spring-security-oauth2-resource-server')
 	optional project(':spring-security-openid')
 	optional project(':spring-security-web')
 	optional 'io.projectreactor:reactor-core'
