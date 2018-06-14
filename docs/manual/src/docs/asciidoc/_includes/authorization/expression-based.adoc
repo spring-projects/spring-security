@@ -35,7 +35,7 @@ This can be customized by modifying the `defaultRolePrefix` on `DefaultWebSecuri
 | Returns `true` if the current principal has the specified authority.
 
 | `hasAnyAuthority([authority1,authority2])`
-| Returns `true` if the current principal has any of the supplied roles (given as a comma-separated list of strings)
+| Returns `true` if the current principal has any of the supplied authorities (given as a comma-separated list of strings)
 
 | `principal`
 | Allows direct access to the principal object representing the current user
