@@ -90,6 +90,7 @@ public class SessionFixationProtectionStrategy extends
 		}
 
 		Map<String, Object> attributesToMigrate = extractAttributes(session);
+		int originMaxInactiveInterval = session.getMaxInactiveInterval();
 
 		session.invalidate();
 		session = request.getSession(true); // we now have a new session
@@ -99,6 +100,7 @@ public class SessionFixationProtectionStrategy extends
 		}
 
 		transferAttributes(attributesToMigrate, session);
+		session.setMaxInactiveInterval(originMaxInactiveInterval);
 		return session;
 	}
 
