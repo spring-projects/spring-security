@@ -108,6 +108,12 @@ public class RegexRequestMatcherTests {
 		assertThat(matcher.matches(request)).isFalse();
 	}
 
+	@Test
+	public void toStringThenFormatted() {
+		RegexRequestMatcher matcher = new RegexRequestMatcher("/blah", "GET");
+		assertThat(matcher.toString()).isEqualTo("Regex [pattern='/blah', GET]");
+	}
+
 	private HttpServletRequest createRequestWithNullMethod(String path) {
 		when(request.getQueryString()).thenReturn("doesntMatter");
 		when(request.getServletPath()).thenReturn(path);

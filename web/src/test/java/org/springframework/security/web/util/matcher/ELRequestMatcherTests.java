@@ -90,4 +90,10 @@ public class ELRequestMatcherTests {
 		assertThat(requestMatcher.matches(request)).isFalse();
 	}
 
+	@Test
+	public void toStringThenFormatted() {
+		ELRequestMatcher requestMatcher = new ELRequestMatcher(
+				"hasHeader('User-Agent','MSIE')");
+		assertThat(requestMatcher.toString()).isEqualTo("EL [el=\"hasHeader('User-Agent','MSIE')\"]");
+	}
 }

@@ -216,4 +216,31 @@ public class MvcRequestMatcherTests {
 				new HttpRequestMethodNotSupportedException(this.request.getMethod()));
 		assertThat(this.matcher.matches(this.request)).isTrue();
 	}
+
+	@Test
+	public void toStringWhenAll() {
+		this.matcher.setMethod(HttpMethod.GET);
+		this.matcher.setServletPath("/spring");
+
+		assertThat(this.matcher.toString()).isEqualTo("Mvc [pattern='/path', servletPath='/spring', GET]");
+	}
+
+	@Test
+	public void toStringWhenHttpMethod() {
+		this.matcher.setMethod(HttpMethod.GET);
+
+		assertThat(this.matcher.toString()).isEqualTo("Mvc [pattern='/path', GET]");
+	}
+
+	@Test
+	public void toStringWhenServletPath() {
+		this.matcher.setServletPath("/spring");
+
+		assertThat(this.matcher.toString()).isEqualTo("Mvc [pattern='/path', servletPath='/spring']");
+	}
+
+	@Test
+	public void toStringWhenOnlyPattern() {
+		assertThat(this.matcher.toString()).isEqualTo("Mvc [pattern='/path']");
+	}
 }
