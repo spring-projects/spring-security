@@ -130,4 +130,18 @@ public final class RegexRequestMatcher implements RequestMatcher {
 
 		return null;
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Regex [pattern='").append(this.pattern).append("'");
+
+		if (this.httpMethod != null) {
+			sb.append(", ").append(this.httpMethod);
+		}
+
+		sb.append("]");
+
+		return sb.toString();
+	}
 }

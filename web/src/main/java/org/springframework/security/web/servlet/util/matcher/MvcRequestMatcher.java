@@ -123,6 +123,24 @@ public class MvcRequestMatcher implements RequestMatcher, RequestVariablesExtrac
 		return this.servletPath;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Mvc [pattern='").append(this.pattern).append("'");
+
+		if (this.servletPath != null) {
+			sb.append(", servletPath='").append(this.servletPath).append("'");
+		}
+
+		if (this.method != null) {
+			sb.append(", ").append(this.method);
+		}
+
+		sb.append("]");
+
+		return sb.toString();
+	}
+
 	private class DefaultMatcher implements RequestMatcher, RequestVariablesExtractor {
 
 		private final UrlPathHelper pathHelper = new UrlPathHelper();

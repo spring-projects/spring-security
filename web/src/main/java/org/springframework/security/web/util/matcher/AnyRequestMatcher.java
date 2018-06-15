@@ -44,6 +44,11 @@ public final class AnyRequestMatcher implements RequestMatcher {
 		return 1;
 	}
 
+	@Override
+	public String toString() {
+		return "any request";
+	}
+
 	private AnyRequestMatcher() {
 	}
 }

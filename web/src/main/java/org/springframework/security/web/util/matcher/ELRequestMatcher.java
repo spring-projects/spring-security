@@ -65,4 +65,11 @@ public class ELRequestMatcher implements RequestMatcher {
 		return new StandardEvaluationContext(new ELRequestMatcherContext(request));
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("EL [el=\"").append(this.expression.getExpressionString()).append("\"");
+		sb.append("]");
+		return sb.toString();
+	}
 }
