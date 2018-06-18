@@ -15,6 +15,7 @@
  */
 package org.springframework.security.config.annotation.web.configurers.oauth2;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -34,49 +35,40 @@ import org.springframework.security.config.annotation.web.configurers.oauth2.cli
 public final class OAuth2Configurer<B extends HttpSecurityBuilder<B>>
 		extends AbstractHttpConfigurer<OAuth2Configurer<B>, B> {
 
-	private final OAuth2ClientConfigurer<B> clientConfigurer = new OAuth2ClientConfigurer<>();
-	private boolean clientEnabled;
+	@Autowired
+	private ObjectPostProcessor<Object> objectPostProcessor;
+
+	private OAuth2ClientConfigurer<B> clientConfigurer;
 
 	/**
 	 * Returns the {@link OAuth2ClientConfigurer} for configuring OAuth 2.0 Client support.
 	 *
 	 * @return the {@link OAuth2ClientConfigurer}
-	 * @throws Exception
 	 */
-	public OAuth2ClientConfigurer<B> client() throws Exception {
-		this.clientEnabled = true;
+	public OAuth2ClientConfigurer<B> client() {
+		if (this.clientConfigurer == null) {
+			this.initClientConfigurer();
+		}
 		return this.clientConfigurer;
 	}
 
 	@Override
 	public void init(B builder) throws Exception {
-		if (this.clientEnabled) {
+		if (this.clientConfigurer != null) {
 			this.clientConfigurer.init(builder);
 		}
 	}
 
 	@Override
 	public void configure(B builder) throws Exception {
-		if (this.clientEnabled) {
+		if (this.clientConfigurer != null) {
 			this.clientConfigurer.configure(builder);
 		}
 	}
 
-	@Override
-	public void setBuilder(B builder) {
-		this.clientConfigurer.setBuilder(builder);
-		super.setBuilder(builder);
-	}
-
-	@Override
-	public void addObjectPostProcessor(ObjectPostProcessor<?> objectPostProcessor) {
-		this.clientConfigurer.addObjectPostProcessor(objectPostProcessor);
-		super.addObjectPostProcessor(objectPostProcessor);
-	}
-
-	@Override
-	public OAuth2Configurer<B> withObjectPostProcessor(ObjectPostProcessor<?> objectPostProcessor) {
-		this.clientConfigurer.withObjectPostProcessor(objectPostProcessor);
-		return super.withObjectPostProcessor(objectPostProcessor);
+	private void initClientConfigurer() {
+		this.clientConfigurer = new OAuth2ClientConfigurer<>();
+		this.clientConfigurer.setBuilder(this.getBuilder());
+		this.clientConfigurer.addObjectPostProcessor(this.objectPostProcessor);
 	}
 }
