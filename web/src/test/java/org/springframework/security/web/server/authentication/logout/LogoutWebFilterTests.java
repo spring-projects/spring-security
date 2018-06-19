@@ -68,9 +68,7 @@ public class LogoutWebFilterTests {
 
 	@Test
 	public void multipleLogoutHandlers() {
-		this.logoutWebFilter.setLogoutHandler(this.handler1);
-		this.logoutWebFilter.addLogoutHandler(this.handler2);
-		this.logoutWebFilter.addLogoutHandler(this.handler3);
+		this.logoutWebFilter.setLogoutHandler(new DelegatingServerLogoutHandler(this.handler1, this.handler2, this.handler3));
 
 		assertThat(getLogoutHandler())
 				.isNotNull()

@@ -92,6 +92,7 @@ import org.springframework.security.web.server.authentication.ServerAuthenticati
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.authentication.ServerFormLoginAuthenticationConverter;
 import org.springframework.security.web.server.authentication.ServerHttpBasicAuthenticationConverter;
+import org.springframework.security.web.server.authentication.logout.DelegatingServerLogoutHandler;
 import org.springframework.security.web.server.authentication.logout.LogoutWebFilter;
 import org.springframework.security.web.server.authentication.logout.ServerLogoutHandler;
 import org.springframework.security.web.server.authentication.logout.ServerLogoutSuccessHandler;
@@ -2360,7 +2361,20 @@ public class ServerHttpSecurity {
 		 * @see #logoutHandler(ServerLogoutHandler)
 		 */
 		public LogoutSpec additionalLogoutHandler(ServerLogoutHandler logoutHandler) {
-			this.logoutWebFilter.addLogoutHandler(logoutHandler);
+			ServerLogoutHandler currentLogoutHandler = this.logoutWebFilter.getLogoutHandler();
+
+			if (currentLogoutHandler != null) {
+				if (currentLogoutHandler instanceof DelegatingServerLogoutHandler) {
+					((DelegatingServerLogoutHandler) currentLogoutHandler).addDelegate(logoutHandler);
+				}
+				else {
+					logoutHandler(new DelegatingServerLogoutHandler(currentLogoutHandler, logoutHandler));
+				}
+			}
+			else {
+				logoutHandler(logoutHandler);
+			}
+
 			return this;
 		}
 

@@ -88,7 +88,6 @@ public class LogoutWebFilter implements WebFilter {
 	/**
 	 * Sets the {@link ServerLogoutHandler}. The default is {@link SecurityContextServerLogoutHandler}.
 	 * @param logoutHandler The handler to use
-	 * @see #addLogoutHandler(ServerLogoutHandler)
 	 */
 	public void setLogoutHandler(ServerLogoutHandler logoutHandler) {
 		Assert.notNull(logoutHandler, "logoutHandler must not be null");
@@ -96,25 +95,12 @@ public class LogoutWebFilter implements WebFilter {
 	}
 
 	/**
-	 * Adds an additional {@link ServerLogoutHandler} to use.
-	 * @param logoutHandler The additional handler to use
-	 * @see #setLogoutHandler(ServerLogoutHandler)
+	 * Gets the {@link ServerLogoutHandler}
+	 * @return The current {@link ServerLogoutHandler}
 	 * @since 5.1
 	 */
-	public void addLogoutHandler(ServerLogoutHandler logoutHandler) {
-		Assert.notNull(logoutHandler, "logoutHandler must not be null");
-
-		if (this.logoutHandler != null) {
-			if (this.logoutHandler instanceof DelegatingServerLogoutHandler) {
-				((DelegatingServerLogoutHandler) this.logoutHandler).addDelegate(logoutHandler);
-			}
-			else {
-				this.logoutHandler = new DelegatingServerLogoutHandler(this.logoutHandler, logoutHandler);
-			}
-		}
-		else {
-			setLogoutHandler(logoutHandler);
-		}
+	public ServerLogoutHandler getLogoutHandler() {
+		return this.logoutHandler;
 	}
 
 	public void setRequiresLogoutMatcher(ServerWebExchangeMatcher requiresLogoutMatcher) {
