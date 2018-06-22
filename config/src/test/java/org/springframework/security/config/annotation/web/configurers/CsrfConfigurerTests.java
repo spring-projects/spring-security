@@ -29,8 +29,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.test.SpringTestRule;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
@@ -51,22 +53,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.head;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -75,6 +67,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *
  * @author Rob Winch
  * @author Eleftheria Stein
+ * @author Michael Vitz
+ * @author Sam Simmons
  */
 public class CsrfConfigurerTests {
 	@Rule
@@ -601,6 +595,66 @@ public class CsrfConfigurerTests {
 					.withUser(PasswordEncodedUser.user());
 			// @formatter:on
 		}
+	}
+
+	@EnableWebSecurity
+	static class NullAuthenticationStrategy extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.csrf()
+					.sessionAuthenticationStrategy(null);
+			// @formatter:on
+		}
+	}
+
+	@Test
+	public void getWhenNullAuthenticationStrategyThenException() {
+		assertThatThrownBy(() -> this.spring.register(NullAuthenticationStrategy.class).autowire())
+				.isInstanceOf(BeanCreationException.class)
+				.hasRootCauseInstanceOf(IllegalArgumentException.class);
+	}
+
+	@EnableWebSecurity
+	static class CsrfAuthenticationStrategyConfig extends WebSecurityConfigurerAdapter {
+		static SessionAuthenticationStrategy STRATEGY;
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.formLogin()
+					.and()
+					.csrf()
+					.sessionAuthenticationStrategy(STRATEGY);
+			// @formatter:on
+		}
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+					.inMemoryAuthentication()
+					.withUser(PasswordEncodedUser.user());
+			// @formatter:on
+		}
+	}
+
+	@Test
+	public void csrfAuthenticationStrategyConfiguredThenStrategyUsed() throws Exception {
+		CsrfAuthenticationStrategyConfig.STRATEGY = mock(SessionAuthenticationStrategy.class);
+
+		this.spring.register(CsrfAuthenticationStrategyConfig.class).autowire();
+
+		this.mvc.perform(post("/login")
+				.with(csrf())
+				.param("username", "user")
+				.param("password", "password"))
+				.andExpect(redirectedUrl("/"));
+
+		verify(CsrfAuthenticationStrategyConfig.STRATEGY, atLeastOnce())
+				.onAuthentication(any(Authentication.class), any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
 	@RestController
