@@ -20,6 +20,7 @@ import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
+import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,20 +30,27 @@ import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.powermock.api.mockito.PowerMockito.*;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static org.powermock.api.mockito.PowerMockito.when;
+import static org.powermock.api.mockito.PowerMockito.whenNew;
 
 /**
  * Tests for {@link NimbusJwtDecoderJwkSupport}.
  *
  * @author Joe Grandja
+ * @author Josh Cummings
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({NimbusJwtDecoderJwkSupport.class, JWTParser.class})
 public class NimbusJwtDecoderJwkSupportTests {
 	private static final String JWK_SET_URL = "https://provider.com/oauth2/keys";
 	private static final String JWS_ALGORITHM = JwsAlgorithms.RS256;
+
+	private String unsignedToken = "eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJleHAiOi0yMDMzMjI0OTcsImp0aSI6IjEyMyIsInR5cCI6IkpXVCJ9.";
 
 	@Test
 	public void constructorWhenJwkSetUrlIsNullThenThrowIllegalArgumentException() {
@@ -72,7 +80,7 @@ public class NimbusJwtDecoderJwkSupportTests {
 	// gh-5168
 	@Test
 	public void decodeWhenExpClaimNullThenDoesNotThrowException() throws Exception {
-		JWT jwt = mock(JWT.class);
+		SignedJWT jwt = mock(SignedJWT.class);
 		JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.parse(JWS_ALGORITHM)).build();
 		when(jwt.getHeader()).thenReturn(header);
 
@@ -87,5 +95,15 @@ public class NimbusJwtDecoderJwkSupportTests {
 
 		NimbusJwtDecoderJwkSupport jwtDecoder = new NimbusJwtDecoderJwkSupport(JWK_SET_URL, JWS_ALGORITHM);
 		assertThatCode(() -> jwtDecoder.decode("encoded-jwt")).doesNotThrowAnyException();
+	}
+
+	// gh-5457
+	@Test
+	public void decodeWhenPlainJwtThenExceptionDoesNotMentionClass() throws Exception {
+		NimbusJwtDecoderJwkSupport jwtDecoder = new NimbusJwtDecoderJwkSupport(JWK_SET_URL, JWS_ALGORITHM);
+
+		assertThatCode(() -> jwtDecoder.decode(this.unsignedToken))
+				.isInstanceOf(JwtException.class)
+				.hasMessageContaining("Unsupported algorithm of none");
 	}
 }
