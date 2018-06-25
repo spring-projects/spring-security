@@ -15,10 +15,6 @@
  */
 package org.springframework.security.oauth2.client.oidc.userinfo;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -35,6 +31,10 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * An implementation of an {@link OAuth2UserService} that supports OpenID Connect 1.0 Provider's.
@@ -62,7 +62,14 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 			userInfo = new OidcUserInfo(oauth2User.getAttributes());
 
 			// http://openid.net/specs/openid-connect-core-1_0.html#UserInfoResponse
-			// Due to the possibility of token substitution attacks (see Section 16.11),
+
+			// 1) The sub (subject) Claim MUST always be returned in the UserInfo Response
+			if (userInfo.getSubject() == null) {
+				OAuth2Error oauth2Error = new OAuth2Error(INVALID_USER_INFO_RESPONSE_ERROR_CODE);
+				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+			}
+
+			// 2) Due to the possibility of token substitution attacks (see Section 16.11),
 			// the UserInfo Response is not guaranteed to be about the End-User
 			// identified by the sub (subject) element of the ID Token.
 			// The sub Claim in the UserInfo Response MUST be verified to exactly match
