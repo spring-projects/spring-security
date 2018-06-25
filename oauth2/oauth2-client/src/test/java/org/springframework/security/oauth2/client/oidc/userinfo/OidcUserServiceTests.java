@@ -168,6 +168,37 @@ public class OidcUserServiceTests {
 		assertThat(userAuthority.getUserInfo()).isEqualTo(user.getUserInfo());
 	}
 
+	// gh-5447
+	@Test
+	public void loadUserWhenUserInfoSuccessResponseAndUserInfoSubjectIsNullThenThrowOAuth2AuthenticationException() throws Exception {
+		this.exception.expect(OAuth2AuthenticationException.class);
+		this.exception.expectMessage(containsString("invalid_user_info_response"));
+
+		MockWebServer server = new MockWebServer();
+
+		String userInfoResponse = "{\n" +
+				"	\"email\": \"full_name@provider.com\",\n" +
+				"	\"name\": \"full name\"\n" +
+				"}\n";
+		server.enqueue(new MockResponse()
+				.setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+				.setBody(userInfoResponse));
+
+		server.start();
+
+		String userInfoUri = server.url("/user").toString();
+
+		when(this.userInfoEndpoint.getUri()).thenReturn(userInfoUri);
+		when(this.userInfoEndpoint.getUserNameAttributeName()).thenReturn(StandardClaimNames.EMAIL);
+		when(this.accessToken.getTokenValue()).thenReturn("access-token");
+
+		try {
+			this.userService.loadUser(new OidcUserRequest(this.clientRegistration, this.accessToken, this.idToken));
+		} finally {
+			server.shutdown();
+		}
+	}
+
 	@Test
 	public void loadUserWhenUserInfoSuccessResponseAndUserInfoSubjectNotSameAsIdTokenSubjectThenThrowOAuth2AuthenticationException() throws Exception {
 		this.exception.expect(OAuth2AuthenticationException.class);
