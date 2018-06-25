@@ -26,6 +26,7 @@ import com.nimbusds.jose.util.ResourceRetriever;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
+import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
@@ -95,11 +96,26 @@ public final class NimbusJwtDecoderJwkSupport implements JwtDecoder {
 
 	@Override
 	public Jwt decode(String token) throws JwtException {
+		JWT jwt = this.parse(token);
+		if ( jwt instanceof SignedJWT ) {
+			return this.createJwt(token, jwt);
+		}
+
+		throw new JwtException("Unsupported algorithm of " + jwt.getHeader().getAlgorithm());
+	}
+
+	private JWT parse(String token) {
+		try {
+			return JWTParser.parse(token);
+		} catch (Exception ex) {
+			throw new JwtException("An error occurred while attempting to decode the Jwt: " + ex.getMessage(), ex);
+		}
+	}
+
+	private Jwt createJwt(String token, JWT parsedJwt) {
 		Jwt jwt;
 
 		try {
-			JWT parsedJwt = JWTParser.parse(token);
-
 			// Verify the signature
 			JWTClaimsSet jwtClaimsSet = this.jwtProcessor.process(parsedJwt, null);
 
