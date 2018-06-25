@@ -119,8 +119,9 @@ public final class NimbusJwkReactiveJwtDecoder implements ReactiveJwtDecoder {
 					.createSelector(parsedToken.getHeader());
 			return this.reactiveJwkSource.get(selector)
 				.map(jwkList -> createJwkSet(parsedToken, jwkList))
-				.map(set -> createJwt(parsedToken, set));
-		} catch (Exception ex) {
+				.map(set -> createJwt(parsedToken, set))
+				.onErrorMap(e -> new JwtException("An error occurred while attempting to decode the Jwt: ", e));
+		} catch (RuntimeException ex) {
 			throw new JwtException("An error occurred while attempting to decode the Jwt: " + ex.getMessage(), ex);
 		}
 	}
