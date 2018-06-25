@@ -17,6 +17,7 @@ package org.springframework.security.config.annotation.web.configuration;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -101,7 +102,8 @@ public class OAuth2ClientConfigurationTests {
 	public void loadContextWhenOAuth2AuthorizedClientServiceRegisteredTwiceThenThrowNoUniqueBeanDefinitionException() {
 		assertThatThrownBy(() -> this.spring.register(OAuth2AuthorizedClientServiceRegisteredTwiceConfig.class).autowire())
 				.hasRootCauseInstanceOf(NoUniqueBeanDefinitionException.class)
-				.hasMessageContaining("Only one matching @Bean of type " + OAuth2AuthorizedClientService.class.getName() + " should be registered.");
+				.hasMessageContaining("Expected single matching bean of type '" + OAuth2AuthorizedClientService.class.getName() +
+					"' but found 2: authorizedClientService1,authorizedClientService2");
 	}
 
 	@EnableWebMvc
@@ -110,11 +112,13 @@ public class OAuth2ClientConfigurationTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().authenticated()
 					.and()
 				.oauth2Login();
+			// @formatter:on
 		}
 
 		@Bean
@@ -129,6 +133,68 @@ public class OAuth2ClientConfigurationTests {
 
 		@Bean
 		public OAuth2AuthorizedClientService authorizedClientService2() {
+			return mock(OAuth2AuthorizedClientService.class);
+		}
+	}
+
+	@Test
+	public void loadContextWhenClientRegistrationRepositoryNotRegisteredThenThrowNoSuchBeanDefinitionException() {
+		assertThatThrownBy(() -> this.spring.register(ClientRegistrationRepositoryNotRegisteredConfig.class).autowire())
+				.hasRootCauseInstanceOf(NoSuchBeanDefinitionException.class)
+				.hasMessageContaining("No qualifying bean of type '" + ClientRegistrationRepository.class.getName() + "' available");
+	}
+
+	@EnableWebMvc
+	@EnableWebSecurity
+	static class ClientRegistrationRepositoryNotRegisteredConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().authenticated()
+					.and()
+				.oauth2Login();
+			// @formatter:on
+		}
+	}
+
+	@Test
+	public void loadContextWhenClientRegistrationRepositoryRegisteredTwiceThenThrowNoUniqueBeanDefinitionException() {
+		assertThatThrownBy(() -> this.spring.register(ClientRegistrationRepositoryRegisteredTwiceConfig.class).autowire())
+				.hasRootCauseInstanceOf(NoUniqueBeanDefinitionException.class)
+				.hasMessageContaining("Expected single matching bean of type '" + ClientRegistrationRepository.class.getName() +
+						"' but found 2: clientRegistrationRepository1,clientRegistrationRepository2");
+	}
+
+	@EnableWebMvc
+	@EnableWebSecurity
+	static class ClientRegistrationRepositoryRegisteredTwiceConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().authenticated()
+					.and()
+				.oauth2Login();
+			// @formatter:on
+		}
+
+		@Bean
+		public ClientRegistrationRepository clientRegistrationRepository1() {
+			return mock(ClientRegistrationRepository.class);
+		}
+
+		@Bean
+		public ClientRegistrationRepository clientRegistrationRepository2() {
+			return mock(ClientRegistrationRepository.class);
+		}
+
+		@Bean
+		public OAuth2AuthorizedClientService authorizedClientService() {
 			return mock(OAuth2AuthorizedClientService.class);
 		}
 	}

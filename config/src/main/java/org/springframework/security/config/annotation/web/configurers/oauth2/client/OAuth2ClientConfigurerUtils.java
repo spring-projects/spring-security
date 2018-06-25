@@ -16,6 +16,7 @@
 package org.springframework.security.config.annotation.web.configurers.oauth2.client;
 
 import org.springframework.beans.factory.BeanFactoryUtils;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
@@ -23,6 +24,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.util.StringUtils;
 
 import java.util.Map;
 
@@ -47,7 +49,16 @@ final class OAuth2ClientConfigurerUtils {
 	}
 
 	private static <B extends HttpSecurityBuilder<B>> ClientRegistrationRepository getClientRegistrationRepositoryBean(B builder) {
-		return builder.getSharedObject(ApplicationContext.class).getBean(ClientRegistrationRepository.class);
+		Map<String, ClientRegistrationRepository> clientRegistrationRepositoryMap = BeanFactoryUtils.beansOfTypeIncludingAncestors(
+				builder.getSharedObject(ApplicationContext.class), ClientRegistrationRepository.class);
+		if (clientRegistrationRepositoryMap.isEmpty()) {
+			throw new NoSuchBeanDefinitionException(ClientRegistrationRepository.class);
+		} else if (clientRegistrationRepositoryMap.size() > 1) {
+			throw new NoUniqueBeanDefinitionException(ClientRegistrationRepository.class, clientRegistrationRepositoryMap.size(),
+					"Expected single matching bean of type '" + ClientRegistrationRepository.class.getName() + "' but found " +
+							clientRegistrationRepositoryMap.size() + ": " + StringUtils.collectionToCommaDelimitedString(clientRegistrationRepositoryMap.keySet()));
+		}
+		return clientRegistrationRepositoryMap.values().iterator().next();
 	}
 
 	static <B extends HttpSecurityBuilder<B>> OAuth2AuthorizedClientService getAuthorizedClientService(B builder) {
@@ -67,7 +78,8 @@ final class OAuth2ClientConfigurerUtils {
 				builder.getSharedObject(ApplicationContext.class), OAuth2AuthorizedClientService.class);
 		if (authorizedClientServiceMap.size() > 1) {
 			throw new NoUniqueBeanDefinitionException(OAuth2AuthorizedClientService.class, authorizedClientServiceMap.size(),
-				"Only one matching @Bean of type " + OAuth2AuthorizedClientService.class.getName() + " should be registered.");
+				"Expected single matching bean of type '" + OAuth2AuthorizedClientService.class.getName() + "' but found " +
+					authorizedClientServiceMap.size() + ": " + StringUtils.collectionToCommaDelimitedString(authorizedClientServiceMap.keySet()));
 		}
 		return (!authorizedClientServiceMap.isEmpty() ? authorizedClientServiceMap.values().iterator().next() : null);
 	}
