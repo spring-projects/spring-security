@@ -102,7 +102,7 @@ public final class NimbusJwkReactiveJwtDecoder implements ReactiveJwtDecoder {
 		if (jwt instanceof SignedJWT) {
 			return this.decode((SignedJWT) jwt);
 		}
-		return Mono.empty();
+		throw new JwtException("Unsupported algorithm of " + jwt.getHeader().getAlgorithm());
 	}
 
 	private JWT parse(String token) {
@@ -129,11 +129,8 @@ public final class NimbusJwkReactiveJwtDecoder implements ReactiveJwtDecoder {
 		try {
 			return this.jwtProcessor.process(parsedToken, new JWKContext(jwkList));
 		}
-		catch (BadJOSEException e) {
-			throw new RuntimeException(e);
-		}
-		catch (JOSEException e) {
-			throw new RuntimeException(e);
+		catch (BadJOSEException | JOSEException e) {
+			throw new JwtException("Failed to validate the token", e);
 		}
 	}
 
