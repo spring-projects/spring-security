@@ -57,7 +57,6 @@ final class OAuth2ClientConfiguration {
 
 	@Configuration
 	static class OAuth2ClientWebMvcSecurityConfiguration implements WebMvcConfigurer {
-		@Autowired(required = false)
 		private OAuth2AuthorizedClientService authorizedClientService;
 
 		@Override
@@ -66,6 +65,13 @@ final class OAuth2ClientConfiguration {
 				OAuth2AuthorizedClientArgumentResolver authorizedClientArgumentResolver =
 						new OAuth2AuthorizedClientArgumentResolver(this.authorizedClientService);
 				argumentResolvers.add(authorizedClientArgumentResolver);
+			}
+		}
+
+		@Autowired(required = false)
+		public void setAuthorizedClientService(List<OAuth2AuthorizedClientService> authorizedClientServices) {
+			if (authorizedClientServices.size() == 1) {
+				this.authorizedClientService = authorizedClientServices.get(0);
 			}
 		}
 	}
