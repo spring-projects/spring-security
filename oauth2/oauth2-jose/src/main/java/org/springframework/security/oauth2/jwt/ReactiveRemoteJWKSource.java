@@ -34,7 +34,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author Rob Winch
  * @since 5.1
  */
-class ReactiveRemoteJWKSource {
+class ReactiveRemoteJWKSource implements ReactiveJWKSource {
 	/**
 	 * The cached JWK set.
 	 */
@@ -48,7 +48,7 @@ class ReactiveRemoteJWKSource {
 		this.jwkSetURL = jwkSetURL;
 	}
 
-	Mono<List<JWK>> get(JWKSelector jwkSelector) {
+	public Mono<List<JWK>> get(JWKSelector jwkSelector) {
 		return this.cachedJWKSet.get()
 				.switchIfEmpty(getJWKSet())
 				.flatMap(jwkSet -> get(jwkSelector, jwkSet))

@@ -38,7 +38,7 @@ import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.security.oauth2.jwt.NimbusJwkReactiveJwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -220,7 +220,7 @@ public class OidcReactiveAuthenticationManager implements
 					);
 					throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 				}
-				jwtDecoder = new NimbusJwkReactiveJwtDecoder(clientRegistration.getProviderDetails().getJwkSetUri());
+				jwtDecoder = new NimbusReactiveJwtDecoder(clientRegistration.getProviderDetails().getJwkSetUri());
 				this.jwtDecoders.put(clientRegistration.getRegistrationId(), jwtDecoder);
 			}
 			return jwtDecoder;
