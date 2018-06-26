@@ -22,6 +22,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.security.KeyFactory;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
  * @author Rob Winch
  * @since 5.1
  */
-public class NimbusJwkReactiveJwtDecoderTests {
+public class NimbusReactiveJwtDecoderTests {
 
 	private String expired = "eyJraWQiOiJrZXktaWQtMSIsImFsZyI6IlJTMjU2In0.eyJzY29wZSI6Im1lc3NhZ2U6cmVhZCIsImV4cCI6MTUyOTkzNzYzMX0.Dt5jFOKkB8zAmjciwvlGkj4LNStXWH0HNIfr8YYajIthBIpVgY5Hg_JL8GBmUFzKDgyusT0q60OOg8_Pdi4Lu-VTWyYutLSlNUNayMlyBaVEWfyZJnh2_OwMZr1vRys6HF-o1qZldhwcfvczHg61LwPa1ISoqaAltDTzBu9cGISz2iBUCuR0x71QhbuRNyJdjsyS96NqiM_TspyiOSxmlNch2oAef1MssOQ23CrKilIvEDsz_zk5H94q7rH0giWGdEHCENESsTJS0zvzH6r2xIWjd5WnihFpCPkwznEayxaEhrdvJqT_ceyXCIfY4m3vujPQHNDG0UshpwvDuEbPUg";
 
@@ -51,14 +55,14 @@ public class NimbusJwkReactiveJwtDecoderTests {
 		+ "}";
 
 	private MockWebServer server;
-	private NimbusJwkReactiveJwtDecoder decoder;
+	private NimbusReactiveJwtDecoder decoder;
 
 	@Before
 	public void setup() throws Exception {
 		this.server = new MockWebServer();
 		this.server.start();
 		this.server.enqueue(new MockResponse().setBody(jwkSet));
-		this.decoder = new NimbusJwkReactiveJwtDecoder(this.server.url("/certs").toString());
+		this.decoder = new NimbusReactiveJwtDecoder(this.server.url("/certs").toString());
 	}
 
 	@After
@@ -71,6 +75,18 @@ public class NimbusJwkReactiveJwtDecoderTests {
 		Jwt jwt = this.decoder.decode(this.messageReadToken).block();
 
 		assertThat(jwt.getClaims().get("scope")).isEqualTo("message:read");
+	}
+
+	@Test
+	public void decodeWhenRSAPublicKeyThenSuccess() throws Exception {
+		byte[] bytes = Base64.getDecoder().decode("MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqL48v1clgFw+Evm145pmh8nRYiNt72Gupsshn7Qs8dxEydCRp1DPOV/PahPk1y2nvldBNIhfNL13JOAiJ6BTiF+2ICuICAhDArLMnTH61oL1Hepq8W1xpa9gxsnL1P51thvfmiiT4RTW57koy4xIWmIp8ZXXfYgdH2uHJ9R0CQBuYKe7nEOObjxCFWC8S30huOfW2cYtv0iB23h6w5z2fDLjddX6v/FXM7ktcokgpm3/XmvT/+bL6/GGwz9k6kJOyMTubecr+WT//le8ikY66zlplYXRQh6roFfFCL21Pt8xN5zrk+0AMZUnmi8F2S2ztSBmAVJ7H71ELXsURBVZpwIDAQAB");
+		RSAPublicKey publicKey = (RSAPublicKey) KeyFactory.getInstance("RSA")
+				.generatePublic(new X509EncodedKeySpec(bytes));
+		this.decoder = new NimbusReactiveJwtDecoder(publicKey);
+		String noKeyId = "eyJhbGciOiJSUzI1NiJ9.eyJzY29wZSI6IiIsImV4cCI6OTIyMzM3MjAwNjA5NjM3NX0.hNVuHSUkxdLZrDfqdmKcOi0ggmNaDuB4ZPxPtJl1gwBiXzIGN6Hwl24O2BfBZiHFKUTQDs4_RvzD71mEG3DvUrcKmdYWqIB1l8KNmxQLUDG-cAPIpJmRJgCh50tf8OhOE_Cb9E1HcsOUb47kT9iz-VayNBcmo6BmyZLdEGhsdGBrc3Mkz2dd_0PF38I2Hf_cuSjn9gBjFGtiPEXJvob3PEjVTSx_zvodT8D9p3An1R3YBZf5JSd1cQisrXgDX2k1Jmf7UKKWzgfyCgnEtRWWbsUdPqo3rSEY9GDC1iSQXsFTTC1FT_JJDkwzGf011fsU5O_Ko28TARibmKTCxAKNRQ";
+
+		assertThatCode(() -> this.decoder.decode(noKeyId).block())
+			.doesNotThrowAnyException();
 	}
 
 	@Test
@@ -96,7 +112,7 @@ public class NimbusJwkReactiveJwtDecoderTests {
 
 	@Test
 	public void decodeWhenInvalidJwkSetUrlThenFail() {
-		this.decoder = new NimbusJwkReactiveJwtDecoder("http://localhost:1280/certs");
+		this.decoder = new NimbusReactiveJwtDecoder("http://localhost:1280/certs");
 		assertThatCode(() -> this.decoder.decode(this.messageReadToken).block())
 				.isInstanceOf(JwtException.class);
 	}
