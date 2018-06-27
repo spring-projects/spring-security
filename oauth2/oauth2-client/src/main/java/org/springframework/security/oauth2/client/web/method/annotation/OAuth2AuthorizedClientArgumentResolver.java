@@ -23,15 +23,17 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.ClientAuthorizationRequiredException;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * An implementation of a {@link HandlerMethodArgumentResolver} that is capable
@@ -54,16 +56,16 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * @see RegisteredOAuth2AuthorizedClient
  */
 public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMethodArgumentResolver {
-	private final OAuth2AuthorizedClientService authorizedClientService;
+	private final OAuth2AuthorizedClientRepository authorizedClientRepository;
 
 	/**
 	 * Constructs an {@code OAuth2AuthorizedClientArgumentResolver} using the provided parameters.
 	 *
-	 * @param authorizedClientService the authorized client service
+	 * @param authorizedClientRepository the authorized client repository
 	 */
-	public OAuth2AuthorizedClientArgumentResolver(OAuth2AuthorizedClientService authorizedClientService) {
-		Assert.notNull(authorizedClientService, "authorizedClientService cannot be null");
-		this.authorizedClientService = authorizedClientService;
+	public OAuth2AuthorizedClientArgumentResolver(OAuth2AuthorizedClientRepository authorizedClientRepository) {
+		Assert.notNull(authorizedClientRepository, "authorizedClientRepository cannot be null");
+		this.authorizedClientRepository = authorizedClientRepository;
 	}
 
 	@Override
@@ -98,15 +100,8 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 					"It must be provided via @RegisteredOAuth2AuthorizedClient(\"client1\") or @RegisteredOAuth2AuthorizedClient(registrationId = \"client1\").");
 		}
 
-		if (principal == null) {
-			// An Authentication is required given that an OAuth2AuthorizedClient is associated to a Principal
-			throw new IllegalStateException("Unable to resolve the Authorized Client with registration identifier \"" +
-					clientRegistrationId + "\". An \"authenticated\" or \"unauthenticated\" session is required. " +
-					"To allow for unauthenticated access, ensure HttpSecurity.anonymous() is configured.");
-		}
-
-		OAuth2AuthorizedClient authorizedClient = this.authorizedClientService.loadAuthorizedClient(
-			clientRegistrationId, principal.getName());
+		OAuth2AuthorizedClient authorizedClient = this.authorizedClientRepository.loadAuthorizedClient(
+			clientRegistrationId, principal, webRequest.getNativeRequest(HttpServletRequest.class));
 		if (authorizedClient == null) {
 			throw new ClientAuthorizationRequiredException(clientRegistrationId);
 		}
