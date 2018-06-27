@@ -18,16 +18,19 @@ package org.springframework.security.oauth2.client.web.method.annotation;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.MethodParameter;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.ClientAuthorizationRequiredException;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.util.ReflectionUtils;
+import org.springframework.web.context.request.ServletWebRequest;
 
+import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
@@ -43,16 +46,19 @@ import static org.mockito.Mockito.when;
  * @author Joe Grandja
  */
 public class OAuth2AuthorizedClientArgumentResolverTests {
-	private OAuth2AuthorizedClientService authorizedClientService;
+	private OAuth2AuthorizedClientRepository authorizedClientRepository;
 	private OAuth2AuthorizedClientArgumentResolver argumentResolver;
 	private OAuth2AuthorizedClient authorizedClient;
+	private MockHttpServletRequest request;
 
 	@Before
 	public void setUp() {
-		this.authorizedClientService = mock(OAuth2AuthorizedClientService.class);
-		this.argumentResolver = new OAuth2AuthorizedClientArgumentResolver(this.authorizedClientService);
+		this.authorizedClientRepository = mock(OAuth2AuthorizedClientRepository.class);
+		this.argumentResolver = new OAuth2AuthorizedClientArgumentResolver(this.authorizedClientRepository);
 		this.authorizedClient = mock(OAuth2AuthorizedClient.class);
-		when(this.authorizedClientService.loadAuthorizedClient(anyString(), any())).thenReturn(this.authorizedClient);
+		this.request = new MockHttpServletRequest();
+		when(this.authorizedClientRepository.loadAuthorizedClient(anyString(), any(), any(HttpServletRequest.class)))
+				.thenReturn(this.authorizedClient);
 		SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
 		securityContext.setAuthentication(mock(Authentication.class));
 		SecurityContextHolder.setContext(securityContext);
@@ -104,7 +110,7 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 		securityContext.setAuthentication(authentication);
 		SecurityContextHolder.setContext(securityContext);
 		MethodParameter methodParameter = this.getMethodParameter("registrationIdEmpty", OAuth2AuthorizedClient.class);
-		this.argumentResolver.resolveArgument(methodParameter, null, null, null);
+		this.argumentResolver.resolveArgument(methodParameter, null, new ServletWebRequest(this.request), null);
 	}
 
 	@Test
@@ -121,14 +127,16 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 	@Test
 	public void resolveArgumentWhenOAuth2AuthorizedClientFoundThenResolves() throws Exception {
 		MethodParameter methodParameter = this.getMethodParameter("paramTypeAuthorizedClient", OAuth2AuthorizedClient.class);
-		assertThat(this.argumentResolver.resolveArgument(methodParameter, null, null, null)).isSameAs(this.authorizedClient);
+		assertThat(this.argumentResolver.resolveArgument(
+				methodParameter, null, new ServletWebRequest(this.request), null)).isSameAs(this.authorizedClient);
 	}
 
 	@Test
 	public void resolveArgumentWhenOAuth2AuthorizedClientNotFoundThenThrowClientAuthorizationRequiredException() throws Exception {
-		when(this.authorizedClientService.loadAuthorizedClient(anyString(), any())).thenReturn(null);
+		when(this.authorizedClientRepository.loadAuthorizedClient(anyString(), any(), any(HttpServletRequest.class)))
+				.thenReturn(null);
 		MethodParameter methodParameter = this.getMethodParameter("paramTypeAuthorizedClient", OAuth2AuthorizedClient.class);
-		assertThatThrownBy(() -> this.argumentResolver.resolveArgument(methodParameter, null, null, null))
+		assertThatThrownBy(() -> this.argumentResolver.resolveArgument(methodParameter, null, new ServletWebRequest(this.request), null))
 				.isInstanceOf(ClientAuthorizationRequiredException.class);
 	}
 
