@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.web.AuthenticatedPrincipalOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.method.annotation.OAuth2AuthorizedClientArgumentResolver;
 import org.springframework.util.ClassUtils;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -63,7 +64,8 @@ final class OAuth2ClientConfiguration {
 		public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
 			if (this.authorizedClientService != null) {
 				OAuth2AuthorizedClientArgumentResolver authorizedClientArgumentResolver =
-						new OAuth2AuthorizedClientArgumentResolver(this.authorizedClientService);
+						new OAuth2AuthorizedClientArgumentResolver(
+								new AuthenticatedPrincipalOAuth2AuthorizedClientRepository(this.authorizedClientService));
 				argumentResolvers.add(authorizedClientArgumentResolver);
 			}
 		}

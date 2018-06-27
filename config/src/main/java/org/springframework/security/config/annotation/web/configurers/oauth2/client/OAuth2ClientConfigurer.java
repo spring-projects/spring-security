@@ -24,6 +24,7 @@ import org.springframework.security.oauth2.client.endpoint.NimbusAuthorizationCo
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.AuthenticatedPrincipalOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationCodeGrantFilter;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
@@ -287,9 +288,10 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>> exte
 		AuthenticationManager authenticationManager = builder.getSharedObject(AuthenticationManager.class);
 
 		OAuth2AuthorizationCodeGrantFilter authorizationCodeGrantFilter = new OAuth2AuthorizationCodeGrantFilter(
-			OAuth2ClientConfigurerUtils.getClientRegistrationRepository(builder),
-			OAuth2ClientConfigurerUtils.getAuthorizedClientService(builder),
-			authenticationManager);
+				OAuth2ClientConfigurerUtils.getClientRegistrationRepository(builder),
+				new AuthenticatedPrincipalOAuth2AuthorizedClientRepository(
+						OAuth2ClientConfigurerUtils.getAuthorizedClientService(builder)),
+				authenticationManager);
 
 		if (authorizationCodeGrantConfigurer.authorizationEndpointConfig.authorizationRequestRepository != null) {
 			authorizationCodeGrantFilter.setAuthorizationRequestRepository(
