@@ -102,4 +102,55 @@ public class OAuth2AccessTokenResponseTests {
 		assertThat(tokenResponse.getRefreshToken().getTokenValue()).isEqualTo(REFRESH_TOKEN_VALUE);
 		assertThat(tokenResponse.getAdditionalParameters()).isEqualTo(additionalParameters);
 	}
+
+	@Test
+	public void buildWhenResponseThenAllAttributesAreSet() {
+		Instant expiresAt = Instant.now().plusSeconds(5);
+		Set<String> scopes = new LinkedHashSet<>(Arrays.asList("scope1", "scope2"));
+		Map<String, Object> additionalParameters = new HashMap<>();
+		additionalParameters.put("param1", "value1");
+		additionalParameters.put("param2", "value2");
+
+		OAuth2AccessTokenResponse tokenResponse = OAuth2AccessTokenResponse
+				.withToken(TOKEN_VALUE)
+				.tokenType(OAuth2AccessToken.TokenType.BEARER)
+				.expiresIn(expiresAt.toEpochMilli())
+				.scopes(scopes)
+				.refreshToken(REFRESH_TOKEN_VALUE)
+				.additionalParameters(additionalParameters)
+				.build();
+
+		OAuth2AccessTokenResponse withResponse = OAuth2AccessTokenResponse.withResponse(tokenResponse)
+				.build();
+
+		assertThat(withResponse.getAccessToken().getTokenValue()).isEqualTo(tokenResponse.getAccessToken().getTokenValue());
+		assertThat(withResponse.getAccessToken().getTokenType()).isEqualTo(OAuth2AccessToken.TokenType.BEARER);
+		assertThat(withResponse.getAccessToken().getIssuedAt()).isEqualTo(tokenResponse.getAccessToken().getIssuedAt());
+		assertThat(withResponse.getAccessToken().getExpiresAt()).isEqualTo(tokenResponse.getAccessToken().getExpiresAt());
+		assertThat(withResponse.getAccessToken().getScopes()).isEqualTo(tokenResponse.getAccessToken().getScopes());
+		assertThat(withResponse.getRefreshToken().getTokenValue()).isEqualTo(tokenResponse.getRefreshToken().getTokenValue());
+		assertThat(withResponse.getAdditionalParameters()).isEqualTo(tokenResponse.getAdditionalParameters());
+	}
+
+	@Test
+	public void buildWhenResponseAndRefreshNullThenRefreshNull() {
+		Instant expiresAt = Instant.now().plusSeconds(5);
+		Set<String> scopes = new LinkedHashSet<>(Arrays.asList("scope1", "scope2"));
+		Map<String, Object> additionalParameters = new HashMap<>();
+		additionalParameters.put("param1", "value1");
+		additionalParameters.put("param2", "value2");
+
+		OAuth2AccessTokenResponse tokenResponse = OAuth2AccessTokenResponse
+				.withToken(TOKEN_VALUE)
+				.tokenType(OAuth2AccessToken.TokenType.BEARER)
+				.expiresIn(expiresAt.toEpochMilli())
+				.scopes(scopes)
+				.additionalParameters(additionalParameters)
+				.build();
+
+		OAuth2AccessTokenResponse withResponse = OAuth2AccessTokenResponse.withResponse(tokenResponse)
+				.build();
+
+		assertThat(withResponse.getRefreshToken()).isNull();
+	}
 }

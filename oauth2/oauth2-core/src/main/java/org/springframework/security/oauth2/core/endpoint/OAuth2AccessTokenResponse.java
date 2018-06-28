@@ -21,6 +21,7 @@ import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Map;
@@ -82,6 +83,15 @@ public final class OAuth2AccessTokenResponse {
 	}
 
 	/**
+	 * Returns a new {@link Builder}, initialized with the provided response
+	 * @param response the response to intialize the builder with
+	 * @return the {@link Builder}
+	 */
+	public static Builder withResponse(OAuth2AccessTokenResponse response) {
+		return new Builder(response);
+	}
+
+	/**
 	 * A builder for {@link OAuth2AccessTokenResponse}.
 	 */
 	public static class Builder {
@@ -91,6 +101,21 @@ public final class OAuth2AccessTokenResponse {
 		private Set<String> scopes;
 		private String refreshToken;
 		private Map<String, Object> additionalParameters;
+
+		private Instant issuedAt;
+		private Instant expiresAt;
+
+		private Builder(OAuth2AccessTokenResponse response) {
+			OAuth2AccessToken accessToken = response.getAccessToken();
+			this.tokenValue = accessToken.getTokenValue();
+			this.tokenType = accessToken.getTokenType();
+			this.expiresAt = accessToken.getExpiresAt();
+			this.issuedAt = accessToken.getIssuedAt();
+			this.scopes = accessToken.getScopes();
+			this.refreshToken = response.getRefreshToken() == null ?
+					null : response.getRefreshToken().getTokenValue();
+			this.additionalParameters = response.getAdditionalParameters();
+		}
 
 		private Builder(String tokenValue) {
 			this.tokenValue = tokenValue;
@@ -157,14 +182,9 @@ public final class OAuth2AccessTokenResponse {
 		 * @return a {@link OAuth2AccessTokenResponse}
 		 */
 		public OAuth2AccessTokenResponse build() {
-			Instant issuedAt = Instant.now();
+			Instant issuedAt = getIssuedAt();
 
-			// expires_in is RECOMMENDED, as per spec https://tools.ietf.org/html/rfc6749#section-5.1
-			// Therefore, expires_in may not be returned in the Access Token response which would result in the default value of 0.
-			// For these instances, default the expiresAt to +1 second from issuedAt time.
-			Instant expiresAt = this.expiresIn > 0 ?
-				issuedAt.plusSeconds(this.expiresIn) :
-				issuedAt.plusSeconds(1);
+			Instant expiresAt = getExpiresAt();
 
 			OAuth2AccessTokenResponse accessTokenResponse = new OAuth2AccessTokenResponse();
 			accessTokenResponse.accessToken = new OAuth2AccessToken(
@@ -180,6 +200,29 @@ public final class OAuth2AccessTokenResponse {
 			accessTokenResponse.additionalParameters = Collections.unmodifiableMap(
 				CollectionUtils.isEmpty(this.additionalParameters) ? Collections.emptyMap() : this.additionalParameters);
 			return accessTokenResponse;
+		}
+
+		private Instant getIssuedAt() {
+			if (this.issuedAt == null) {
+				this.issuedAt = Instant.now();
+			}
+			return this.issuedAt;
+		}
+
+		/**
+		 * expires_in is RECOMMENDED, as per spec https://tools.ietf.org/html/rfc6749#section-5.1
+		 * Therefore, expires_in may not be returned in the Access Token response which would result in the default value of 0.
+		 * For these instances, default the expiresAt to +1 second from issuedAt time.
+		 * @return
+		 */
+		private Instant getExpiresAt() {
+			if (this.expiresAt == null) {
+				Instant issuedAt = getIssuedAt();
+				this.expiresAt = this.expiresIn > 0 ?
+								issuedAt.plusSeconds(this.expiresIn) :
+								issuedAt.plusSeconds(1);
+			}
+			return this.expiresAt;
 		}
 	}
 }
