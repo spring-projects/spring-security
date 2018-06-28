@@ -4,5 +4,9 @@ dependencies {
 	compile project(':spring-security-core')
 	compile springCoreDependency
 
+	optional 'com.fasterxml.jackson.core:jackson-databind'
+	optional 'com.nimbusds:oauth2-oidc-sdk'
+	optional 'org.springframework:spring-webflux'
+
 	testCompile powerMock2Dependencies
 }
