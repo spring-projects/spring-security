@@ -127,7 +127,7 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 			JWKSelector selector = this.jwkSelectorFactory
 					.createSelector(parsedToken.getHeader());
 			return this.reactiveJwkSource.get(selector)
-				.map(jwkList -> createJwkSet(parsedToken, jwkList))
+				.map(jwkList -> createClaimsSet(parsedToken, jwkList))
 				.map(set -> createJwt(parsedToken, set))
 				.onErrorMap(e -> new JwtException("An error occurred while attempting to decode the Jwt: ", e));
 		} catch (RuntimeException ex) {
@@ -135,7 +135,7 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 		}
 	}
 
-	private JWTClaimsSet createJwkSet(JWT parsedToken, List<JWK> jwkList) {
+	private JWTClaimsSet createClaimsSet(JWT parsedToken, List<JWK> jwkList) {
 		try {
 			return this.jwtProcessor.process(parsedToken, new JWKContext(jwkList));
 		}
