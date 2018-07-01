@@ -88,7 +88,7 @@ public class OAuth2AuthorizationCodeGrantApplicationTests {
 		MvcResult mvcResult = this.mockMvc.perform(get("/repos").with(user("user")))
 			.andExpect(status().is3xxRedirection())
 			.andReturn();
-		assertThat(mvcResult.getResponse().getRedirectedUrl()).matches("https://github.com/login/oauth/authorize\\?response_type=code&client_id=your-app-client-id&scope=public_repo&state=.{15,}&redirect_uri=http://localhost/github-repos");
+		assertThat(mvcResult.getResponse().getRedirectedUrl()).matches("https://github.com/login/oauth/authorize\\?response_type=code&client_id=your-app-client-id&scope=public_repo&state=.{15,}&redirect_uri=http%3A%2F%2Flocalhost%2Fgithub-repos");
 	}
 
 	@Test
