@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package org.springframework.security.oauth2.client.web;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -29,16 +28,21 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter.AUTHORIZATION_REQUIRED_EXCEPTION_ATTR_NAME;
 
 /**
  * Tests for {@link OAuth2AuthorizationRequestRedirectFilter}.
@@ -111,6 +115,12 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 	}
 
 	@Test
+	public void setAuthorizationRequestResolverWhenAuthorizationRequestResolverIsNullThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() -> this.filter.setAuthorizationRequestResolver(null))
+				.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
 	public void setAuthorizationRequestRepositoryWhenAuthorizationRequestRepositoryIsNullThenThrowIllegalArgumentException() {
 		assertThatThrownBy(() -> this.filter.setAuthorizationRequestRepository(null))
 				.isInstanceOf(IllegalArgumentException.class);
@@ -165,7 +175,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 
 		verifyZeroInteractions(filterChain);
 
-		assertThat(response.getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=http://localhost/login/oauth2/code/registration-1");
+		assertThat(response.getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fregistration-1");
 	}
 
 	@Test
@@ -201,7 +211,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 
 		verifyZeroInteractions(filterChain);
 
-		assertThat(response.getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?response_type=token&client_id=client-3&scope=openid%20profile%20email&state=.{15,}&redirect_uri=http://localhost/authorize/oauth2/implicit/registration-3");
+		assertThat(response.getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?response_type=token&client_id=client-3&scope=openid\\+profile\\+email&state=.{15,}&redirect_uri=http%3A%2F%2Flocalhost%2Fauthorize%2Foauth2%2Fimplicit%2Fregistration-3");
 	}
 
 	@Test
@@ -239,75 +249,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 
 		verifyZeroInteractions(filterChain);
 
-		assertThat(response.getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=http://localhost/login/oauth2/code/registration-1");
-	}
-
-	@Test
-	public void doFilterWhenAuthorizationRequestRedirectUriTemplatedThenRedirectUriExpanded() throws Exception {
-		String requestUri = OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI +
-			"/" + this.registration2.getRegistrationId();
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
-		request.setServletPath(requestUri);
-		MockHttpServletResponse response = new MockHttpServletResponse();
-		FilterChain filterChain = mock(FilterChain.class);
-
-		AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
-				mock(AuthorizationRequestRepository.class);
-		this.filter.setAuthorizationRequestRepository(authorizationRequestRepository);
-
-		this.filter.doFilter(request, response, filterChain);
-
-		ArgumentCaptor<OAuth2AuthorizationRequest> authorizationRequestArgCaptor =
-			ArgumentCaptor.forClass(OAuth2AuthorizationRequest.class);
-
-		verifyZeroInteractions(filterChain);
-		verify(authorizationRequestRepository).saveAuthorizationRequest(
-			authorizationRequestArgCaptor.capture(), any(HttpServletRequest.class), any(HttpServletResponse.class));
-
-		OAuth2AuthorizationRequest authorizationRequest = authorizationRequestArgCaptor.getValue();
-
-		assertThat(authorizationRequest.getRedirectUri()).isNotEqualTo(
-			this.registration2.getRedirectUriTemplate());
-		assertThat(authorizationRequest.getRedirectUri()).isEqualTo(
-			"http://localhost/login/oauth2/code/registration-2");
-	}
-
-	@Test
-	public void doFilterWhenAuthorizationRequestIncludesPort80ThenExpandedRedirectUriExcludesPort() throws Exception {
-		String requestUri = OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI +
-			"/" + this.registration1.getRegistrationId();
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
-		request.setScheme("http");
-		request.setServerName("example.com");
-		request.setServerPort(80);
-		request.setServletPath(requestUri);
-		MockHttpServletResponse response = new MockHttpServletResponse();
-		FilterChain filterChain = mock(FilterChain.class);
-
-		this.filter.doFilter(request, response, filterChain);
-
-		verifyZeroInteractions(filterChain);
-
-		assertThat(response.getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=http://example.com/login/oauth2/code/registration-1");
-	}
-
-	@Test
-	public void doFilterWhenAuthorizationRequestIncludesPort443ThenExpandedRedirectUriExcludesPort() throws Exception {
-		String requestUri = OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI +
-			"/" + this.registration1.getRegistrationId();
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
-		request.setScheme("https");
-		request.setServerName("example.com");
-		request.setServerPort(443);
-		request.setServletPath(requestUri);
-		MockHttpServletResponse response = new MockHttpServletResponse();
-		FilterChain filterChain = mock(FilterChain.class);
-
-		this.filter.doFilter(request, response, filterChain);
-
-		verifyZeroInteractions(filterChain);
-
-		assertThat(response.getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=https://example.com/login/oauth2/code/registration-1");
+		assertThat(response.getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fregistration-1");
 	}
 
 	@Test
@@ -325,13 +267,13 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 
 		verify(filterChain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 
-		assertThat(response.getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=http://localhost/authorize/oauth2/code/registration-1");
-
+		assertThat(response.getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=http%3A%2F%2Flocalhost%2Fauthorize%2Foauth2%2Fcode%2Fregistration-1");
 		verify(this.requestCache).saveRequest(any(HttpServletRequest.class), any(HttpServletResponse.class));
+		assertThat(request.getAttribute(AUTHORIZATION_REQUIRED_EXCEPTION_ATTR_NAME)).isNull();
 	}
 
 	@Test
-	public void doFilterWhenNotAuthorizationRequestAndClientAuthorizationRequiredExceptionThrownThenRedirectUriIsAuthorize() throws Exception {
+	public void doFilterWhenNotAuthorizationRequestAndClientAuthorizationRequiredExceptionThrownButAuthorizationRequestNotResolvedThenStatusInternalServerError() throws Exception {
 		String requestUri = "/path";
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
 		request.setServletPath(requestUri);
@@ -340,61 +282,81 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 
 		doThrow(new ClientAuthorizationRequiredException(this.registration1.getRegistrationId()))
 				.when(filterChain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
+		this.filter.setAuthorizationRequestResolver(req -> null);
 
 		this.filter.doFilter(request, response, filterChain);
 
 		verify(filterChain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 
-		assertThat(response.getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=http://localhost/authorize/oauth2/code/registration-1");
-	}
-
-	@Test
-	public void doFilterWhenAuthorizationRequestOAuth2LoginThenRedirectUriIsLogin() throws Exception {
-		String requestUri = OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI +
-				"/" + this.registration2.getRegistrationId();
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
-		request.setServletPath(requestUri);
-		MockHttpServletResponse response = new MockHttpServletResponse();
-		FilterChain filterChain = mock(FilterChain.class);
-
-		this.filter.doFilter(request, response, filterChain);
-
 		verifyZeroInteractions(filterChain);
 
-		assertThat(response.getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-2&scope=openid%20profile%20email&state=.{15,}&redirect_uri=http://localhost/login/oauth2/code/registration-2");
+		assertThat(response.getStatus()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
+		assertThat(response.getErrorMessage()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
 	}
 
+	// gh-4911
 	@Test
-	public void doFilterWhenAuthorizationRequestHasActionParameterAuthorizeThenRedirectUriIsAuthorize() throws Exception {
+	public void doFilterWhenAuthorizationRequestAndAdditionalParametersProvidedThenAuthorizationRequestIncludesAdditionalParameters() throws Exception {
 		String requestUri = OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI +
 				"/" + this.registration1.getRegistrationId();
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
-		request.addParameter("action", "authorize");
 		request.setServletPath(requestUri);
+		request.addParameter("idp", "https://other.provider.com");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain filterChain = mock(FilterChain.class);
+
+		OAuth2AuthorizationRequestResolver defaultAuthorizationRequestResolver = new DefaultOAuth2AuthorizationRequestResolver(
+				this.clientRegistrationRepository, OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI);
+
+		this.filter.setAuthorizationRequestResolver(req -> {
+			OAuth2AuthorizationRequest defaultAuthorizationRequest = defaultAuthorizationRequestResolver.resolve(req);
+			Map<String, Object> additionalParameters = new HashMap<>(defaultAuthorizationRequest.getAdditionalParameters());
+			additionalParameters.put("idp", req.getParameter("idp"));
+			return OAuth2AuthorizationRequest.from(defaultAuthorizationRequest)
+					.additionalParameters(additionalParameters)
+					.build();
+		});
 
 		this.filter.doFilter(request, response, filterChain);
 
 		verifyZeroInteractions(filterChain);
 
-		assertThat(response.getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=http://localhost/authorize/oauth2/code/registration-1");
+		assertThat(response.getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fregistration-1&idp=https%3A%2F%2Fother.provider.com");
 	}
 
+	// gh-4911, gh-5244
 	@Test
-	public void doFilterWhenAuthorizationRequestHasActionParameterLoginThenRedirectUriIsLogin() throws Exception {
+	public void doFilterWhenAuthorizationRequestAndCustomAuthorizationRequestUriSetThenCustomAuthorizationRequestUriUsed() throws Exception {
 		String requestUri = OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI +
-				"/" + this.registration2.getRegistrationId();
+				"/" + this.registration1.getRegistrationId();
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
-		request.addParameter("action", "login");
 		request.setServletPath(requestUri);
+		String loginHintParamName = "login_hint";
+		request.addParameter(loginHintParamName, "user@provider.com");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain filterChain = mock(FilterChain.class);
+
+		OAuth2AuthorizationRequestResolver defaultAuthorizationRequestResolver = new DefaultOAuth2AuthorizationRequestResolver(
+				this.clientRegistrationRepository, OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI);
+
+		this.filter.setAuthorizationRequestResolver(req -> {
+			OAuth2AuthorizationRequest defaultAuthorizationRequest = defaultAuthorizationRequestResolver.resolve(req);
+			Map<String, Object> additionalParameters = new HashMap<>(defaultAuthorizationRequest.getAdditionalParameters());
+			additionalParameters.put(loginHintParamName, req.getParameter(loginHintParamName));
+			URI customAuthorizationRequestUri = UriComponentsBuilder
+					.fromUri(defaultAuthorizationRequest.getAuthorizationRequestUri())
+					.queryParam(loginHintParamName, additionalParameters.get(loginHintParamName))
+					.build(true).toUri();
+			return OAuth2AuthorizationRequest.from(defaultAuthorizationRequest)
+					.additionalParameters(additionalParameters)
+					.authorizationRequestUri(customAuthorizationRequestUri)
+					.build();
+		});
 
 		this.filter.doFilter(request, response, filterChain);
 
 		verifyZeroInteractions(filterChain);
 
-		assertThat(response.getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-2&scope=openid%20profile%20email&state=.{15,}&redirect_uri=http://localhost/login/oauth2/code/registration-2");
+		assertThat(response.getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fregistration-1&login_hint=user@provider\\.com");
 	}
 }

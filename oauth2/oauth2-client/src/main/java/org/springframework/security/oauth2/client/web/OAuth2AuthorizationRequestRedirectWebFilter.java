@@ -87,7 +87,6 @@ public class OAuth2AuthorizationRequestRedirectWebFilter implements WebFilter {
 			ClientAuthorizationRequiredException.class.getName() + ".AUTHORIZATION_REQUIRED_EXCEPTION";
 	private final ServerWebExchangeMatcher authorizationRequestMatcher;
 	private final ReactiveClientRegistrationRepository clientRegistrationRepository;
-	private final OAuth2AuthorizationRequestUriBuilder authorizationRequestUriBuilder = new OAuth2AuthorizationRequestUriBuilder();
 	private final ServerRedirectStrategy authorizationRedirectStrategy = new DefaultServerRedirectStrategy();
 	private final StringKeyGenerator stateGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder());
 	private ReactiveAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
@@ -184,7 +183,7 @@ public class OAuth2AuthorizationRequestRedirectWebFilter implements WebFilter {
 						.saveAuthorizationRequest(authorizationRequest, exchange);
 			}
 
-			URI redirectUri = this.authorizationRequestUriBuilder.build(authorizationRequest);
+			URI redirectUri = authorizationRequest.getAuthorizationRequestUri();
 			return saveAuthorizationRequest
 					.then(this.authorizationRedirectStrategy.sendRedirect(exchange, redirectUri));
 		});

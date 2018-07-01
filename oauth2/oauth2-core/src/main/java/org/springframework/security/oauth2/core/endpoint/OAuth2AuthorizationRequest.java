@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,20 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 /**
@@ -50,6 +56,7 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 	private Set<String> scopes;
 	private String state;
 	private Map<String, Object> additionalParameters;
+	private URI authorizationRequestUri;
 
 	private OAuth2AuthorizationRequest() {
 	}
@@ -127,6 +134,16 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 	}
 
 	/**
+	 * Returns the {@code URI} of the OAuth 2.0 Authorization Request.
+	 *
+	 * @since 5.1
+	 * @return the {@code URI} of the OAuth 2.0 Authorization Request
+	 */
+	public URI getAuthorizationRequestUri() {
+		return this.authorizationRequestUri;
+	}
+
+	/**
 	 * Returns a new {@link Builder}, initialized with the authorization code grant type.
 	 *
 	 * @return the {@link Builder}
@@ -145,6 +162,64 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 	}
 
 	/**
+	 * Returns a new {@link Builder}, initialized with the values
+	 * from the provided {@code authorizationRequest}.
+	 *
+	 * @since 5.1
+	 * @param authorizationRequest the authorization request used for initializing the {@link Builder}
+	 * @return the {@link Builder}
+	 */
+	public static Builder from(OAuth2AuthorizationRequest authorizationRequest) {
+		Assert.notNull(authorizationRequest, "authorizationRequest cannot be null");
+
+		return new Builder(authorizationRequest.getGrantType())
+				.authorizationUri(authorizationRequest.getAuthorizationUri())
+				.clientId(authorizationRequest.getClientId())
+				.redirectUri(authorizationRequest.getRedirectUri())
+				.scopes(authorizationRequest.getScopes())
+				.state(authorizationRequest.getState())
+				.additionalParameters(authorizationRequest.getAdditionalParameters());
+	}
+
+	/**
+	 * Returns a {@code URI} representation for the provided {@code authorizationRequest}.
+	 *
+	 * @since 5.1
+	 * @param authorizationRequest the authorization request
+	 * @return a {@code URI} representation of the authorization request
+	 */
+	public static URI asUri(OAuth2AuthorizationRequest authorizationRequest) {
+		Assert.notNull(authorizationRequest, "authorizationRequest cannot be null");
+
+		Map<String, String> parameters = new LinkedHashMap<>();
+		parameters.put(OAuth2ParameterNames.RESPONSE_TYPE, authorizationRequest.getResponseType().getValue());
+		parameters.put(OAuth2ParameterNames.CLIENT_ID, authorizationRequest.getClientId());
+		if (!CollectionUtils.isEmpty(authorizationRequest.getScopes())) {
+			parameters.put(OAuth2ParameterNames.SCOPE,
+					StringUtils.collectionToDelimitedString(authorizationRequest.getScopes(), " "));
+		}
+		if (authorizationRequest.getState() != null) {
+			parameters.put(OAuth2ParameterNames.STATE, authorizationRequest.getState());
+		}
+		if (authorizationRequest.getRedirectUri() != null) {
+			parameters.put(OAuth2ParameterNames.REDIRECT_URI, authorizationRequest.getRedirectUri());
+		}
+		authorizationRequest.getAdditionalParameters().entrySet().stream()
+				.filter(e -> !e.getKey().equals(OAuth2ParameterNames.REGISTRATION_ID))
+				.forEach(e -> parameters.put(e.getKey(), e.getValue().toString()));
+
+		try {
+			StringJoiner queryParams = new StringJoiner("&");
+			for (String paramName : parameters.keySet()) {
+				queryParams.add(paramName + "=" + URLEncoder.encode(parameters.get(paramName), "UTF-8"));
+			}
+			return new URI(authorizationRequest.getAuthorizationUri() + "?" + queryParams.toString());
+		} catch (UnsupportedEncodingException | URISyntaxException ex) {
+			throw new IllegalArgumentException("Unable to convert authorizationRequest to a URI: " + ex.getMessage(), ex);
+		}
+	}
+
+	/**
 	 * A builder for {@link OAuth2AuthorizationRequest}.
 	 */
 	public static class Builder {
@@ -156,6 +231,7 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 		private Set<String> scopes;
 		private String state;
 		private Map<String, Object> additionalParameters;
+		private URI authorizationRequestUri;
 
 		private Builder(AuthorizationGrantType authorizationGrantType) {
 			Assert.notNull(authorizationGrantType, "authorizationGrantType cannot be null");
@@ -248,6 +324,18 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 		}
 
 		/**
+		 * Sets the {@code URI} of the OAuth 2.0 Authorization Request.
+		 *
+		 * @since 5.1
+		 * @param authorizationRequestUri the {@code URI} of the OAuth 2.0 Authorization Request
+		 * @return the {@link Builder}
+		 */
+		public Builder authorizationRequestUri(URI authorizationRequestUri) {
+			this.authorizationRequestUri = authorizationRequestUri;
+			return this;
+		}
+
+		/**
 		 * Builds a new {@link OAuth2AuthorizationRequest}.
 		 *
 		 * @return a {@link OAuth2AuthorizationRequest}
@@ -272,6 +360,10 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 			authorizationRequest.additionalParameters = Collections.unmodifiableMap(
 				CollectionUtils.isEmpty(this.additionalParameters) ?
 					Collections.emptyMap() : new LinkedHashMap<>(this.additionalParameters));
+			authorizationRequest.authorizationRequestUri =
+					this.authorizationRequestUri != null ?
+						this.authorizationRequestUri : asUri(authorizationRequest);
+
 			return authorizationRequest;
 		}
 	}
