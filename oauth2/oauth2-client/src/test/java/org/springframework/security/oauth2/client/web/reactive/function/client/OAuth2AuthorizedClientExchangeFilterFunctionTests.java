@@ -31,7 +31,6 @@ import org.springframework.http.codec.ResourceHttpMessageWriter;
 import org.springframework.http.codec.ServerSentEventHttpMessageWriter;
 import org.springframework.http.codec.json.Jackson2JsonEncoder;
 import org.springframework.http.codec.multipart.MultipartHttpMessageWriter;
-import org.springframework.http.codec.xml.Jaxb2XmlEncoder;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.mock.http.client.reactive.MockClientHttpRequest;
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -281,7 +280,6 @@ public class OAuth2AuthorizedClientExchangeFilterFunctionTests {
 		messageWriters.add(new EncoderHttpMessageWriter<>(new ByteBufferEncoder()));
 		messageWriters.add(new EncoderHttpMessageWriter<>(CharSequenceEncoder.textPlainOnly()));
 		messageWriters.add(new ResourceHttpMessageWriter());
-		messageWriters.add(new EncoderHttpMessageWriter<>(new Jaxb2XmlEncoder()));
 		Jackson2JsonEncoder jsonEncoder = new Jackson2JsonEncoder();
 		messageWriters.add(new EncoderHttpMessageWriter<>(jsonEncoder));
 		messageWriters.add(new ServerSentEventHttpMessageWriter(jsonEncoder));
