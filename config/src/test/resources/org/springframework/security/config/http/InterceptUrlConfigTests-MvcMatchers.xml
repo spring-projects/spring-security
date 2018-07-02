@@ -16,15 +16,25 @@
   -->
 
 <b:beans xmlns:b="http://www.springframework.org/schema/beans"
-		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		 xmlns="http://www.springframework.org/schema/security"
-		 xsi:schemaLocation="
+		xmlns:mvc="http://www.springframework.org/schema/mvc"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xmlns="http://www.springframework.org/schema/security"
+		xsi:schemaLocation="
 			http://www.springframework.org/schema/security
 			http://www.springframework.org/schema/security/spring-security.xsd
 			http://www.springframework.org/schema/beans
-			http://www.springframework.org/schema/beans/spring-beans.xsd">
-	<user-service>
-		<user name="user" password="{noop}password" authorities="ROLE_USER"/>
-		<user name="admin" password="{noop}password" authorities="ROLE_ADMIN"/>
-	</user-service>
+			http://www.springframework.org/schema/beans/spring-beans.xsd
+			http://www.springframework.org/schema/mvc
+			http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+	<http auto-config="true" request-matcher="mvc">
+		<intercept-url pattern="/path" access="denyAll"/>
+		<http-basic/>
+	</http>
+
+	<mvc:annotation-driven/>
+
+	<b:bean name="path" class="org.springframework.security.config.http.InterceptUrlConfigTests.PathController"/>
+
+	<b:import resource="userservice.xml"/>
 </b:beans>
