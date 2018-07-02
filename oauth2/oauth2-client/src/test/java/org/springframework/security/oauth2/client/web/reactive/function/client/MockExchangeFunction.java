@@ -43,6 +43,9 @@ public class MockExchangeFunction implements ExchangeFunction {
 	public List<ClientRequest> getRequests() {
 		return this.requests;
 	}
+
+	public ClientResponse getResponse() {
+		return this.response;
 	}
 
 	@Override
