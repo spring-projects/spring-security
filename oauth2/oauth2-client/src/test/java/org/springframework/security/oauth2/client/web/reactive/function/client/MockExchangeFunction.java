@@ -24,23 +24,31 @@ import org.springframework.web.reactive.function.client.ExchangeFunction;
 
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Rob Winch
  * @since 5.1
  */
 public class MockExchangeFunction implements ExchangeFunction {
-	private ClientRequest request;
+	private List<ClientRequest> requests = new ArrayList<>();
 
 	private ClientResponse response = mock(ClientResponse.class);
 
 	public ClientRequest getRequest() {
-		return this.request;
+		return this.requests.get(this.requests.size() - 1);
+	}
+
+	public List<ClientRequest> getRequests() {
+		return this.requests;
+	}
 	}
 
 	@Override
 	public Mono<ClientResponse> exchange(ClientRequest request) {
 		return Mono.defer(() -> {
-			this.request = request;
+			this.requests.add(request);
 			return Mono.just(this.response);
 		});
 	}
