@@ -161,7 +161,7 @@ public class OAuth2AuthorizedClientExchangeFilterFunctionTests {
 				.attributes(oauth2AuthorizedClient(authorizedClient))
 				.build();
 
-		TestingAuthenticationToken authentication = new TestingAuthenticationToken("test","this");
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken("test", "this");
 		this.function.filter(request, this.exchange)
 				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication))
 				.block();
