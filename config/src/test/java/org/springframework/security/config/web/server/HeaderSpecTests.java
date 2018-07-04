@@ -110,8 +110,9 @@ public class HeaderSpecTests {
 	public void headersWhenHstsCustomThenCustomHstsWritten() {
 		this.expectedHeaders.remove(StrictTransportSecurityServerHttpHeadersWriter.STRICT_TRANSPORT_SECURITY);
 		this.expectedHeaders.add(StrictTransportSecurityServerHttpHeadersWriter.STRICT_TRANSPORT_SECURITY, "max-age=60");
-		this.headers.hsts().maxAge(Duration.ofSeconds(60));
-		this.headers.hsts().includeSubdomains(false);
+		this.headers.hsts()
+					.maxAge(Duration.ofSeconds(60))
+					.includeSubdomains(false);
 
 		assertHeaders();
 	}
