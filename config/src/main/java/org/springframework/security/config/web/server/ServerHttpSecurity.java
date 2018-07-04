@@ -1439,16 +1439,18 @@ public class ServerHttpSecurity {
 			 * Configures the max age. Default is one year.
 			 * @param maxAge the max age
 			 */
-			public void maxAge(Duration maxAge) {
+			public HstsSpec maxAge(Duration maxAge) {
 				HeaderSpec.this.hsts.setMaxAge(maxAge);
+				return this;
 			}
 
 			/**
 			 * Configures if subdomains should be included. Default is true
 			 * @param includeSubDomains if subdomains should be included
 			 */
-			public void includeSubdomains(boolean includeSubDomains) {
+			public HstsSpec includeSubdomains(boolean includeSubDomains) {
 				HeaderSpec.this.hsts.setIncludeSubDomains(includeSubDomains);
+				return this;
 			}
 
 			/**
