@@ -15,17 +15,13 @@
  */
 package org.springframework.security.oauth2.server.resource.authentication;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -35,7 +31,6 @@ import org.springframework.security.oauth2.server.resource.BearerTokenAuthentica
 import org.springframework.security.oauth2.server.resource.BearerTokenError;
 import org.springframework.security.oauth2.server.resource.BearerTokenErrorCodes;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
 /**
  * An {@link AuthenticationProvider} implementation of the {@link Jwt}-encoded
@@ -64,10 +59,7 @@ import org.springframework.util.StringUtils;
 public final class JwtAuthenticationProvider implements AuthenticationProvider {
 	private final JwtDecoder jwtDecoder;
 
-	private static final Collection<String> WELL_KNOWN_SCOPE_ATTRIBUTE_NAMES =
-			Arrays.asList("scope", "scp");
-
-	private static final String SCOPE_AUTHORITY_PREFIX = "SCOPE_";
+	private final JwtConverter jwtConverter = new JwtConverter();
 
 	public JwtAuthenticationProvider(JwtDecoder jwtDecoder) {
 		Assert.notNull(jwtDecoder, "jwtDecoder cannot be null");
@@ -101,16 +93,7 @@ public final class JwtAuthenticationProvider implements AuthenticationProvider {
 			}
 			throw new OAuth2AuthenticationException(invalidToken, failed);
 		}
-
-		Collection<GrantedAuthority> authorities =
-				this.getScopes(jwt)
-						.stream()
-						.map(authority -> SCOPE_AUTHORITY_PREFIX + authority)
-						.map(SimpleGrantedAuthority::new)
-						.collect(Collectors.toList());
-
-		JwtAuthenticationToken token = new JwtAuthenticationToken(jwt, authorities);
-
+		JwtAuthenticationToken token = this.jwtConverter.convert(jwt);
 		token.setDetails(bearer.getDetails());
 
 		return token;
@@ -130,22 +113,5 @@ public final class JwtAuthenticationProvider implements AuthenticationProvider {
 				HttpStatus.UNAUTHORIZED,
 				message,
 				"https://tools.ietf.org/html/rfc6750#section-3.1");
-	}
-
-	private static Collection<String> getScopes(Jwt jwt) {
-		for ( String attributeName : WELL_KNOWN_SCOPE_ATTRIBUTE_NAMES ) {
-			Object scopes = jwt.getClaims().get(attributeName);
-			if (scopes instanceof String) {
-				if (StringUtils.hasText((String) scopes)) {
-					return Arrays.asList(((String) scopes).split(" "));
-				} else {
-					return Collections.emptyList();
-				}
-			} else if (scopes instanceof Collection) {
-				return (Collection<String>) scopes;
-			}
-		}
-
-		return Collections.emptyList();
 	}
 }
