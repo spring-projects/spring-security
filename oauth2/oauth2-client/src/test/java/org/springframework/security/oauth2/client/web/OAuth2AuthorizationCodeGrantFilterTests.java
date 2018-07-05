@@ -314,7 +314,7 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 		this.filter.doFilter(request, response, filterChain);
 
 		OAuth2AuthorizedClient authorizedClient = this.authorizedClientRepository.loadAuthorizedClient(
-				this.registration1.getRegistrationId(), anonymousPrincipal.getName(), request);
+				this.registration1.getRegistrationId(), anonymousPrincipal, request);
 		assertThat(authorizedClient).isNotNull();
 
 		assertThat(authorizedClient.getClientRegistration()).isEqualTo(this.registration1);

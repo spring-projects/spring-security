@@ -113,8 +113,8 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 		assertThatThrownBy(() -> resolveArgument(methodParameter))
 				.isInstanceOf(IllegalStateException.class)
 				.hasMessage("Unable to resolve the Authorized Client with registration identifier \"client1\". " +
-						"An \"authenticated\" or \"unauthenticated\" session is required. " +
-						"To allow for unauthenticated access, ensure ServerHttpSecurity.anonymous() is configured.");
+						"An \"authenticated\" or \"anonymous\" request is required. " +
+						"To allow for anonymous access, ensure ServerHttpSecurity.anonymous() is configured.");
 	}
 
 	@Test

@@ -41,7 +41,7 @@ public final class HttpSessionOAuth2AuthorizedClientRepository implements OAuth2
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T extends OAuth2AuthorizedClient> T loadAuthorizedClient(String clientRegistrationId, String principalName,
+	public <T extends OAuth2AuthorizedClient> T loadAuthorizedClient(String clientRegistrationId, Authentication principal,
 																		HttpServletRequest request) {
 		Assert.hasText(clientRegistrationId, "clientRegistrationId cannot be empty");
 		Assert.notNull(request, "request cannot be null");
@@ -60,16 +60,19 @@ public final class HttpSessionOAuth2AuthorizedClientRepository implements OAuth2
 	}
 
 	@Override
-	public void removeAuthorizedClient(String clientRegistrationId, String principalName,
+	public void removeAuthorizedClient(String clientRegistrationId, Authentication principal,
 										HttpServletRequest request, HttpServletResponse response) {
 		Assert.hasText(clientRegistrationId, "clientRegistrationId cannot be empty");
 		Assert.notNull(request, "request cannot be null");
 		Map<String, OAuth2AuthorizedClient> authorizedClients = this.getAuthorizedClients(request);
-		authorizedClients.remove(clientRegistrationId);
 		if (!authorizedClients.isEmpty()) {
-			request.getSession().setAttribute(this.sessionAttributeName, authorizedClients);
-		} else {
-			request.getSession().removeAttribute(this.sessionAttributeName);
+			if (authorizedClients.remove(clientRegistrationId) != null) {
+				if (!authorizedClients.isEmpty()) {
+					request.getSession().setAttribute(this.sessionAttributeName, authorizedClients);
+				} else {
+					request.getSession().removeAttribute(this.sessionAttributeName);
+				}
+			}
 		}
 	}
 

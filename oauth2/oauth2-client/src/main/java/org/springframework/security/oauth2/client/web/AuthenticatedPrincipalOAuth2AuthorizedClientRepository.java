@@ -15,9 +15,9 @@
  */
 package org.springframework.security.oauth2.client.web;
 
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.util.Assert;
@@ -29,8 +29,9 @@ import javax.servlet.http.HttpServletResponse;
  * An implementation of an {@link OAuth2AuthorizedClientRepository} that
  * delegates to the provided {@link OAuth2AuthorizedClientService} if the current
  * {@code Principal} is authenticated, otherwise,
- * to a {@code HttpSession}-backed {@link OAuth2AuthorizedClientRepository}
+ * to the default (or provided) {@link OAuth2AuthorizedClientRepository}
  * if the current request is unauthenticated (or anonymous).
+ * The default {@code OAuth2AuthorizedClientRepository} is {@link HttpSessionOAuth2AuthorizedClientRepository}.
  *
  * @author Joe Grandja
  * @since 5.1
@@ -40,9 +41,9 @@ import javax.servlet.http.HttpServletResponse;
  * @see HttpSessionOAuth2AuthorizedClientRepository
  */
 public final class AuthenticatedPrincipalOAuth2AuthorizedClientRepository implements OAuth2AuthorizedClientRepository {
+	private final AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
 	private final OAuth2AuthorizedClientService authorizedClientService;
-	protected OAuth2AuthorizedClientRepository httpSessionAuthorizedClientRepository =
-			new HttpSessionOAuth2AuthorizedClientRepository();
+	private OAuth2AuthorizedClientRepository anonymousAuthorizedClientRepository = new HttpSessionOAuth2AuthorizedClientRepository();
 
 	/**
 	 * Constructs a {@code AuthenticatedPrincipalOAuth2AuthorizedClientRepository} using the provided parameters.
@@ -54,40 +55,50 @@ public final class AuthenticatedPrincipalOAuth2AuthorizedClientRepository implem
 		this.authorizedClientService = authorizedClientService;
 	}
 
+	/**
+	 * Sets the {@link OAuth2AuthorizedClientRepository} used for requests that are unauthenticated (or anonymous).
+	 * The default is {@link HttpSessionOAuth2AuthorizedClientRepository}.
+	 *
+	 * @param anonymousAuthorizedClientRepository the repository used for requests that are unauthenticated (or anonymous)
+	 */
+	public final void setAnonymousAuthorizedClientRepository(OAuth2AuthorizedClientRepository anonymousAuthorizedClientRepository) {
+		Assert.notNull(anonymousAuthorizedClientRepository, "anonymousAuthorizedClientRepository cannot be null");
+		this.anonymousAuthorizedClientRepository = anonymousAuthorizedClientRepository;
+	}
+
 	@Override
-	public <T extends OAuth2AuthorizedClient> T loadAuthorizedClient(String clientRegistrationId, String principalName,
+	public <T extends OAuth2AuthorizedClient> T loadAuthorizedClient(String clientRegistrationId, Authentication principal,
 																		HttpServletRequest request) {
-		if (this.isCurrentPrincipalAuthenticated()) {
-			return this.authorizedClientService.loadAuthorizedClient(clientRegistrationId, principalName);
+		if (this.isPrincipalAuthenticated(principal)) {
+			return this.authorizedClientService.loadAuthorizedClient(clientRegistrationId, principal.getName());
 		} else {
-			return this.httpSessionAuthorizedClientRepository.loadAuthorizedClient(clientRegistrationId, principalName, request);
+			return this.anonymousAuthorizedClientRepository.loadAuthorizedClient(clientRegistrationId, principal, request);
 		}
 	}
 
 	@Override
 	public void saveAuthorizedClient(OAuth2AuthorizedClient authorizedClient, Authentication principal,
 										HttpServletRequest request, HttpServletResponse response) {
-		if (this.isCurrentPrincipalAuthenticated()) {
+		if (this.isPrincipalAuthenticated(principal)) {
 			this.authorizedClientService.saveAuthorizedClient(authorizedClient, principal);
 		} else {
-			this.httpSessionAuthorizedClientRepository.saveAuthorizedClient(authorizedClient, principal, request, response);
+			this.anonymousAuthorizedClientRepository.saveAuthorizedClient(authorizedClient, principal, request, response);
 		}
 	}
 
 	@Override
-	public void removeAuthorizedClient(String clientRegistrationId, String principalName,
+	public void removeAuthorizedClient(String clientRegistrationId, Authentication principal,
 										HttpServletRequest request, HttpServletResponse response) {
-		if (this.isCurrentPrincipalAuthenticated()) {
-			this.authorizedClientService.removeAuthorizedClient(clientRegistrationId, principalName);
+		if (this.isPrincipalAuthenticated(principal)) {
+			this.authorizedClientService.removeAuthorizedClient(clientRegistrationId, principal.getName());
 		} else {
-			this.httpSessionAuthorizedClientRepository.removeAuthorizedClient(clientRegistrationId, principalName, request, response);
+			this.anonymousAuthorizedClientRepository.removeAuthorizedClient(clientRegistrationId, principal, request, response);
 		}
 	}
 
-	private boolean isCurrentPrincipalAuthenticated() {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+	private boolean isPrincipalAuthenticated(Authentication authentication) {
 		return authentication != null &&
-				!AnonymousAuthenticationToken.class.isAssignableFrom(authentication.getClass()) &&
+				!this.authenticationTrustResolver.isAnonymous(authentication) &&
 				authentication.isAuthenticated();
 	}
 }

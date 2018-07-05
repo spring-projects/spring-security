@@ -45,16 +45,16 @@ public interface OAuth2AuthorizedClientRepository {
 
 	/**
 	 * Returns the {@link OAuth2AuthorizedClient} associated to the
-	 * provided client registration identifier and End-User's {@code Principal} name
+	 * provided client registration identifier and End-User {@link Authentication} (Resource Owner)
 	 * or {@code null} if not available.
 	 *
 	 * @param clientRegistrationId the identifier for the client's registration
-	 * @param principalName the name of the End-User {@code Principal} (Resource Owner)
+	 * @param principal the End-User {@link Authentication} (Resource Owner)
 	 * @param request the {@code HttpServletRequest}
 	 * @param <T> a type of OAuth2AuthorizedClient
 	 * @return the {@link OAuth2AuthorizedClient} or {@code null} if not available
 	 */
-	<T extends OAuth2AuthorizedClient> T loadAuthorizedClient(String clientRegistrationId, String principalName,
+	<T extends OAuth2AuthorizedClient> T loadAuthorizedClient(String clientRegistrationId, Authentication principal,
 																HttpServletRequest request);
 
 	/**
@@ -71,14 +71,14 @@ public interface OAuth2AuthorizedClientRepository {
 
 	/**
 	 * Removes the {@link OAuth2AuthorizedClient} associated to the
-	 * provided client registration identifier and End-User's {@code Principal} name.
+	 * provided client registration identifier and End-User {@link Authentication} (Resource Owner).
 	 *
 	 * @param clientRegistrationId the identifier for the client's registration
-	 * @param principalName the name of the End-User {@code Principal} (Resource Owner)
+	 * @param principal the End-User {@link Authentication} (Resource Owner)
 	 * @param request the {@code HttpServletRequest}
 	 * @param response the {@code HttpServletResponse}
 	 */
-	void removeAuthorizedClient(String clientRegistrationId, String principalName,
+	void removeAuthorizedClient(String clientRegistrationId, Authentication principal,
 								HttpServletRequest request, HttpServletResponse response);
 
 }
