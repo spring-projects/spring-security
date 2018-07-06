@@ -197,6 +197,34 @@ public class OAuth2LoginConfigurerTests {
 		assertThat(authentication.getAuthorities()).last().hasToString("ROLE_OAUTH2_USER");
 	}
 
+	// gh-5488
+	@Test
+	public void oAuth2LoginConfigLoginProcessingUrl() throws Exception {
+		// setup application context
+		loadConfig(OAuth2LoginConfigLoginProcessingUrl.class);
+
+		// setup authorization request
+		OAuth2AuthorizationRequest authorizationRequest = createOAuth2AuthorizationRequest();
+		this.request.setServletPath("/login/oauth2/google");
+		this.authorizationRequestRepository.saveAuthorizationRequest(
+				authorizationRequest, this.request, this.response);
+
+		// setup authentication parameters
+		this.request.setParameter("code", "code123");
+		this.request.setParameter("state", authorizationRequest.getState());
+
+		// perform test
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
+
+		// assertions
+		Authentication authentication = this.securityContextRepository
+				.loadContext(new HttpRequestResponseHolder(this.request, this.response))
+				.getAuthentication();
+		assertThat(authentication.getAuthorities()).hasSize(1);
+		assertThat(authentication.getAuthorities()).first()
+				.isInstanceOf(OAuth2UserAuthority.class).hasToString("ROLE_USER");
+	}
+
 	@Test
 	public void oidcLogin() throws Exception {
 		// setup application context
@@ -362,6 +390,19 @@ public class OAuth2LoginConfigurerTests {
 		@Bean
 		GrantedAuthoritiesMapper grantedAuthoritiesMapper() {
 			return createGrantedAuthoritiesMapper();
+		}
+	}
+
+	@EnableWebSecurity
+	static class OAuth2LoginConfigLoginProcessingUrl extends CommonWebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+					.oauth2Login()
+					.clientRegistrationRepository(
+							new InMemoryClientRegistrationRepository(CLIENT_REGISTRATION))
+					.loginProcessingUrl("/login/oauth2/*");
+			super.configure(http);
 		}
 	}
 
