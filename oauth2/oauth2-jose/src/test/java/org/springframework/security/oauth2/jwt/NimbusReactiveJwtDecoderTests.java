@@ -22,6 +22,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.net.UnknownHostException;
 import java.security.KeyFactory;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.X509EncodedKeySpec;
@@ -73,6 +74,16 @@ public class NimbusReactiveJwtDecoderTests {
 	}
 
 	@Test
+	public void decodeWhenInvalidUrl() {
+		this.decoder = new NimbusReactiveJwtDecoder("https://s");
+
+		assertThatCode(() -> this.decoder.decode(this.messageReadToken).block())
+			.isInstanceOf(IllegalStateException.class)
+			.hasCauseInstanceOf(UnknownHostException.class);
+
+	}
+
+	@Test
 	public void decodeWhenMessageReadScopeThenSuccess() {
 		Jwt jwt = this.decoder.decode(this.messageReadToken).block();
 
@@ -116,7 +127,7 @@ public class NimbusReactiveJwtDecoderTests {
 	public void decodeWhenInvalidJwkSetUrlThenFail() {
 		this.decoder = new NimbusReactiveJwtDecoder("http://localhost:1280/certs");
 		assertThatCode(() -> this.decoder.decode(this.messageReadToken).block())
-				.isInstanceOf(JwtException.class);
+				.isInstanceOf(IllegalStateException.class);
 	}
 
 	@Test
