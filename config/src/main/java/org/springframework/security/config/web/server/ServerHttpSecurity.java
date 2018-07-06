@@ -20,6 +20,7 @@ import static org.springframework.security.web.server.DelegatingServerAuthentica
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.security.interfaces.RSAPublicKey;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,6 +55,11 @@ import org.springframework.security.oauth2.client.userinfo.DefaultReactiveOAuth2
 import org.springframework.security.oauth2.client.userinfo.ReactiveOAuth2UserService;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectWebFilter;
 import org.springframework.security.oauth2.client.web.ServerOAuth2LoginAuthenticationTokenConverter;
+import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
+import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtReactiveAuthenticationManager;
+import org.springframework.security.oauth2.server.resource.web.server.BearerTokenServerAuthenticationEntryPoint;
+import org.springframework.security.oauth2.server.resource.web.server.ServerBearerTokenAuthenticationConverter;
 import org.springframework.security.web.server.DelegatingServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.MatcherSecurityWebFilterChain;
 import org.springframework.security.web.server.SecurityWebFilterChain;
@@ -184,6 +190,8 @@ public class ServerHttpSecurity {
 	private FormLoginSpec formLogin;
 
 	private OAuth2LoginSpec oauth2Login;
+
+	private OAuth2Spec oauth2;
 
 	private LogoutSpec logout = new LogoutSpec();
 
@@ -449,6 +457,140 @@ public class ServerHttpSecurity {
 	}
 
 	/**
+	 * Configures OAuth2 support. An example configuration is provided below:
+	 *
+	 * <pre class="code">
+	 *  &#064;Bean
+	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+	 *      http
+	 *          // ...
+	 *          .oauth2()
+	 *              .resourceServer()
+	 *                  .jwt()
+	 *                      .jwkSeturi(jwkSetUri);
+	 *      return http.build();
+	 *  }
+	 * </pre>
+	 *
+	 * @return the {@link HttpBasicSpec} to customize
+	 */
+	public OAuth2Spec oauth2() {
+		if (this.oauth2 == null) {
+			this.oauth2 = new OAuth2Spec();
+		}
+		return this.oauth2;
+	}
+
+	/**
+	 * Configures OAuth2 Support
+	 *
+	 * @since 5.1
+	 */
+	public class OAuth2Spec {
+		private ResourceServerSpec resourceServer;
+
+		public ResourceServerSpec resourceServer() {
+			if (this.resourceServer == null) {
+				this.resourceServer = new ResourceServerSpec();
+			}
+			return this.resourceServer;
+		}
+
+		/**
+		 * Configures OAuth2 Resource Server Support
+		 */
+		public class ResourceServerSpec {
+			private JwtSpec jwt;
+
+			public JwtSpec jwt() {
+				if (this.jwt == null) {
+					this.jwt = new JwtSpec();
+				}
+				return this.jwt;
+			}
+
+			protected void configure(ServerHttpSecurity http) {
+				if (this.jwt != null) {
+					this.jwt.configure(http);
+				}
+			}
+
+			/**
+			 * Configures JWT Resource Server Support
+			 */
+			public class JwtSpec {
+				private ReactiveJwtDecoder jwtDecoder;
+
+				/**
+				 * Configures the {@link ReactiveJwtDecoder} to use
+				 * @param jwtDecoder the decoder to use
+				 * @return the {@code JwtSpec} for additional configuration
+				 */
+				public JwtSpec jwtDecoder(ReactiveJwtDecoder jwtDecoder) {
+					this.jwtDecoder = jwtDecoder;
+					return this;
+				}
+
+				/**
+				 * Configures a {@link ReactiveJwtDecoder} that leverages the provided {@link RSAPublicKey}
+				 *
+				 * @param publicKey the public key to use.
+				 * @return the {@code JwtSpec} for additional configuration
+				 */
+				public JwtSpec publicKey(RSAPublicKey publicKey) {
+					this.jwtDecoder = new NimbusReactiveJwtDecoder(publicKey);
+					return this;
+				}
+
+				/**
+				 * Configures a {@link ReactiveJwtDecoder} using
+				 * <a target="_blank" href="https://tools.ietf.org/html/rfc7517">JSON Web Key (JWK)</a> URL
+				 * @param jwkSetUri the URL to use.
+				 * @return the {@code JwtSpec} for additional configuration
+				 */
+				public JwtSpec jwkSetUri(String jwkSetUri) {
+					this.jwtDecoder = new NimbusReactiveJwtDecoder(jwkSetUri);
+					return this;
+				}
+
+				public ResourceServerSpec and() {
+					return ResourceServerSpec.this;
+				}
+
+				protected void configure(ServerHttpSecurity http) {
+					BearerTokenServerAuthenticationEntryPoint entryPoint = new BearerTokenServerAuthenticationEntryPoint();
+					JwtReactiveAuthenticationManager authenticationManager = new JwtReactiveAuthenticationManager(
+							this.jwtDecoder);
+					AuthenticationWebFilter oauth2 = new AuthenticationWebFilter(authenticationManager);
+					oauth2.setAuthenticationConverter(new ServerBearerTokenAuthenticationConverter());
+					oauth2.setAuthenticationFailureHandler(new ServerAuthenticationEntryPointFailureHandler(entryPoint));
+					http
+						.exceptionHandling()
+							.authenticationEntryPoint(entryPoint)
+							.and()
+						.addFilterAt(oauth2, SecurityWebFiltersOrder.AUTHENTICATION);
+				}
+			}
+
+			public OAuth2Spec and() {
+				return OAuth2Spec.this;
+			}
+		}
+
+		public ServerHttpSecurity and() {
+			return ServerHttpSecurity.this;
+		}
+
+		protected void configure(ServerHttpSecurity http) {
+			if (this.resourceServer != null) {
+				this.resourceServer.configure(http);
+			}
+		}
+
+		private OAuth2Spec() {}
+	}
+
+	/**
 	 * Configures HTTP Response Headers. The default headers are:
 	 *
 	 * <pre>
@@ -644,6 +786,9 @@ public class ServerHttpSecurity {
 		}
 		if (this.oauth2Login != null) {
 			this.oauth2Login.configure(this);
+		}
+		if (this.oauth2 != null) {
+			this.oauth2.configure(this);
 		}
 		this.loginPage.configure(this);
 		if(this.logout != null) {
