@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -124,6 +124,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 	private final RedirectionEndpointConfig redirectionEndpointConfig = new RedirectionEndpointConfig();
 	private final UserInfoEndpointConfig userInfoEndpointConfig = new UserInfoEndpointConfig();
 	private String loginPage;
+	private String loginProcessingUrl = OAuth2LoginAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI;
 
 	/**
 	 * Sets the repository of client registrations.
@@ -153,6 +154,13 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 	public OAuth2LoginConfigurer<B> loginPage(String loginPage) {
 		Assert.hasText(loginPage, "loginPage cannot be empty");
 		this.loginPage = loginPage;
+		return this;
+	}
+
+	@Override
+	public OAuth2LoginConfigurer<B> loginProcessingUrl(String loginProcessingUrl) {
+		Assert.hasText(loginProcessingUrl, "loginProcessingUrl cannot be empty");
+		this.loginProcessingUrl = loginProcessingUrl;
 		return this;
 	}
 
@@ -378,9 +386,9 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 			new OAuth2LoginAuthenticationFilter(
 				OAuth2ClientConfigurerUtils.getClientRegistrationRepository(this.getBuilder()),
 				OAuth2ClientConfigurerUtils.getAuthorizedClientService(this.getBuilder()),
-				OAuth2LoginAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI);
+				this.loginProcessingUrl);
 		this.setAuthenticationFilter(authenticationFilter);
-		this.loginProcessingUrl(OAuth2LoginAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI);
+		super.loginProcessingUrl(this.loginProcessingUrl);
 		if (this.loginPage != null) {
 			super.loginPage(this.loginPage);
 		}
