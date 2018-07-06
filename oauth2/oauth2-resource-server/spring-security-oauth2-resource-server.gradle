@@ -7,8 +7,13 @@ dependencies {
 	compile springCoreDependency
 
 	optional project(':spring-security-oauth2-jose')
-
-	testCompile 'com.squareup.okhttp3:mockwebserver'
+	optional 'io.projectreactor:reactor-core'
+	optional 'org.springframework:spring-webflux'
 
 	provided 'javax.servlet:javax.servlet-api'
+
+	testCompile 'com.squareup.okhttp3:mockwebserver'
+	testCompile 'com.fasterxml.jackson.core:jackson-databind'
+	testCompile 'io.projectreactor.netty:reactor-netty'
+	testCompile 'io.projectreactor:reactor-test'
 }
