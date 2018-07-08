@@ -17,6 +17,7 @@
 package org.springframework.security.authentication;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.MFAUserDetails;
 
 /**
  * Basic implementation of {@link MFATokenEvaluator}.
@@ -32,8 +33,7 @@ import org.springframework.security.core.Authentication;
 public class MFATokenEvaluatorImpl implements MFATokenEvaluator {
 
 	private Class<? extends Authentication> multiFactorClass = MultiFactorAuthenticationToken.class;
-
-	Class<? extends Authentication> getMultiFactorClass() { return multiFactorClass; }
+	private boolean singleFactorAuthenticationAllowed = true;
 
 	@Override
 	public boolean isMultiFactorAuthentication(Authentication authentication) {
@@ -44,6 +44,33 @@ public class MFATokenEvaluatorImpl implements MFATokenEvaluator {
 		return multiFactorClass.isAssignableFrom(authentication.getClass());
 	}
 
+	@Override
+	public boolean isSingleFactorAuthenticationAllowed(Authentication authentication) {
+		if(singleFactorAuthenticationAllowed && authentication.getPrincipal() instanceof MFAUserDetails){
+			MFAUserDetails webAuthnUserDetails = (MFAUserDetails) authentication.getPrincipal();
+			return webAuthnUserDetails.isSingleFactorAuthenticationAllowed();
+		}
+		return false;
+	}
+
+	Class<? extends Authentication> getMultiFactorClass() { return multiFactorClass; }
+
 	public void setMultiFactorClass(Class<? extends Authentication> multiFactorClass) {this.multiFactorClass = multiFactorClass; }
+
+	/**
+	 * Check if single factor authentication is allowed
+	 * @return true if single factor authentication is allowed
+	 */
+	public boolean isSingleFactorAuthenticationAllowed() {
+		return singleFactorAuthenticationAllowed;
+	}
+
+	/**
+	 * Set single factor authentication is allowed
+	 * @param singleFactorAuthenticationAllowed true if single factor authentication is allowed
+	 */
+	public void setSingleFactorAuthenticationAllowed(boolean singleFactorAuthenticationAllowed) {
+		this.singleFactorAuthenticationAllowed = singleFactorAuthenticationAllowed;
+	}
 
 }
