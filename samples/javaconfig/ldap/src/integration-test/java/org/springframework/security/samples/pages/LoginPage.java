@@ -37,7 +37,7 @@ public class LoginPage {
 	}
 
 	public LoginPage assertAt() {
-		assertThat(this.webDriver.getTitle()).isEqualTo("Login Page");
+		assertThat(this.webDriver.getTitle()).isEqualTo("Please sign in");
 		return this;
 	}
 
@@ -49,7 +49,7 @@ public class LoginPage {
 		private WebDriver webDriver;
 		private WebElement username;
 		private WebElement password;
-		@FindBy(css = "input[type=submit]")
+		@FindBy(css = "button[type=submit]")
 		private WebElement submit;
 
 		public LoginForm(WebDriver webDriver) {

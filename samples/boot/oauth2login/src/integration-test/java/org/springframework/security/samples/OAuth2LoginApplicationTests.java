@@ -218,7 +218,7 @@ public class OAuth2LoginApplicationTests {
 		page = this.webClient.getPage(new URL(authorizationResponseUri));
 		assertThat(page.getBaseURL()).isEqualTo(loginErrorPageUrl);
 
-		HtmlElement errorElement = page.getBody().getFirstByXPath("p");
+		HtmlElement errorElement = page.getBody().getFirstByXPath("div");
 		assertThat(errorElement).isNotNull();
 		assertThat(errorElement.asText()).contains("authorization_request_not_found");
 	}
@@ -248,7 +248,7 @@ public class OAuth2LoginApplicationTests {
 		page = this.webClient.getPage(new URL(authorizationResponseUri));
 		assertThat(page.getBaseURL()).isEqualTo(loginErrorPageUrl);
 
-		HtmlElement errorElement = page.getBody().getFirstByXPath("p");
+		HtmlElement errorElement = page.getBody().getFirstByXPath("div");
 		assertThat(errorElement).isNotNull();
 		assertThat(errorElement.asText()).contains("authorization_request_not_found");
 	}
@@ -284,13 +284,13 @@ public class OAuth2LoginApplicationTests {
 		page = this.webClient.getPage(new URL(authorizationResponseUri));
 		assertThat(page.getBaseURL()).isEqualTo(loginErrorPageUrl);
 
-		HtmlElement errorElement = page.getBody().getFirstByXPath("p");
+		HtmlElement errorElement = page.getBody().getFirstByXPath("div");
 		assertThat(errorElement).isNotNull();
 		assertThat(errorElement.asText()).contains("invalid_redirect_uri_parameter");
 	}
 
 	private void assertLoginPage(HtmlPage page) throws Exception {
-		assertThat(page.getTitleText()).isEqualTo("Login Page");
+		assertThat(page.getTitleText()).isEqualTo("Please sign in");
 
 		int expectedClients = 4;
 
