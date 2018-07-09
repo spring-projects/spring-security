@@ -53,15 +53,33 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
 			request.requestURI = "/login"
 			springSecurityFilterChain.doFilter(request,response,chain)
 		then:
-			response.getContentAsString() == """<html><head><title>Login Page</title></head><body onload='document.f.username.focus();'>
-<h3>Login with Username and Password</h3><form name='f' action='/login' method='POST'>
-<table>
-	<tr><td>User:</td><td><input type='text' name='username' value=''></td></tr>
-	<tr><td>Password:</td><td><input type='password' name='password'/></td></tr>
-	<tr><td colspan='2'><input name="submit" type="submit" value="Login"/></td></tr>
-	<input name="${csrfToken.parameterName}" type="hidden" value="${csrfToken.token}" />
-</table>
-</form></body></html>"""
+			response.getContentAsString() == """<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Please sign in</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+    <link href="http://getbootstrap.com/docs/4.0/examples/signin/signin.css" rel="stylesheet" crossorigin="anonymous"/>
+  </head>
+  <body>
+     <div class="container">
+      <form class="form-signin" method="post" action="/login">
+        <h2 class="form-signin-heading">Please sign in</h2>
+        <p>
+          <label for="username" class="sr-only">Username</label>
+          <input type="text" id="username" name="username" class="form-control" placeholder="Username" required autofocus>
+        </p>
+        <p>
+          <label for="password" class="sr-only">Password</label>
+          <input type="password" id="password" name="password" class="form-control" placeholder="Password" required>
+        </p>
+<input name="${csrfToken.parameterName}" type="hidden" value="${csrfToken.token}" />
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+      </form>
+</body></html>"""
 		when: "fail to log in"
 			super.setup()
 			request.servletPath = "/login"
@@ -77,15 +95,33 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
 			request.queryString = "error"
 			springSecurityFilterChain.doFilter(request,response,chain)
 		then:
-			response.getContentAsString() == """<html><head><title>Login Page</title></head><body onload='document.f.username.focus();'>
-<p style='color:red;'>Your login attempt was not successful, try again.<br/><br/>Reason: Bad credentials</p><h3>Login with Username and Password</h3><form name='f' action='/login' method='POST'>
-<table>
-	<tr><td>User:</td><td><input type='text' name='username' value=''></td></tr>
-	<tr><td>Password:</td><td><input type='password' name='password'/></td></tr>
-	<tr><td colspan='2'><input name="submit" type="submit" value="Login"/></td></tr>
-	<input name="${csrfToken.parameterName}" type="hidden" value="${csrfToken.token}" />
-</table>
-</form></body></html>"""
+			response.getContentAsString() == """<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Please sign in</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+    <link href="http://getbootstrap.com/docs/4.0/examples/signin/signin.css" rel="stylesheet" crossorigin="anonymous"/>
+  </head>
+  <body>
+     <div class="container">
+      <form class="form-signin" method="post" action="/login">
+        <h2 class="form-signin-heading">Please sign in</h2>
+<div class="alert alert-danger" role="alert">Bad credentials</div>        <p>
+          <label for="username" class="sr-only">Username</label>
+          <input type="text" id="username" name="username" class="form-control" placeholder="Username" required autofocus>
+        </p>
+        <p>
+          <label for="password" class="sr-only">Password</label>
+          <input type="password" id="password" name="password" class="form-control" placeholder="Password" required>
+        </p>
+<input name="${csrfToken.parameterName}" type="hidden" value="${csrfToken.token}" />
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+      </form>
+</body></html>"""
 		when: "login success"
 			super.setup()
 			request.servletPath = "/login"
@@ -106,15 +142,33 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
 			request.method = "GET"
 			springSecurityFilterChain.doFilter(request,response,chain)
 		then: "sent to default success page"
-			response.getContentAsString() == """<html><head><title>Login Page</title></head><body onload='document.f.username.focus();'>
-<p style='color:green;'>You have been logged out</p><h3>Login with Username and Password</h3><form name='f' action='/login' method='POST'>
-<table>
-	<tr><td>User:</td><td><input type='text' name='username' value=''></td></tr>
-	<tr><td>Password:</td><td><input type='password' name='password'/></td></tr>
-	<tr><td colspan='2'><input name="submit" type="submit" value="Login"/></td></tr>
-	<input name="${csrfToken.parameterName}" type="hidden" value="${csrfToken.token}" />
-</table>
-</form></body></html>"""
+			response.getContentAsString() == """<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Please sign in</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+    <link href="http://getbootstrap.com/docs/4.0/examples/signin/signin.css" rel="stylesheet" crossorigin="anonymous"/>
+  </head>
+  <body>
+     <div class="container">
+      <form class="form-signin" method="post" action="/login">
+        <h2 class="form-signin-heading">Please sign in</h2>
+<div class="alert alert-success" role="alert">You have been signed out</div>        <p>
+          <label for="username" class="sr-only">Username</label>
+          <input type="text" id="username" name="username" class="form-control" placeholder="Username" required autofocus>
+        </p>
+        <p>
+          <label for="password" class="sr-only">Password</label>
+          <input type="password" id="password" name="password" class="form-control" placeholder="Password" required>
+        </p>
+<input name="${csrfToken.parameterName}" type="hidden" value="${csrfToken.token}" />
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+      </form>
+</body></html>"""
 	}
 
 	@Configuration
@@ -191,16 +245,34 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
 			request.requestURI = "/login"
 			springSecurityFilterChain.doFilter(request,response,chain)
 		then:
-			response.getContentAsString() == """<html><head><title>Login Page</title></head><body onload='document.f.username.focus();'>
-<h3>Login with Username and Password</h3><form name='f' action='/login' method='POST'>
-<table>
-	<tr><td>User:</td><td><input type='text' name='username' value=''></td></tr>
-	<tr><td>Password:</td><td><input type='password' name='password'/></td></tr>
-	<tr><td><input type='checkbox' name='remember-me'/></td><td>Remember me on this computer.</td></tr>
-	<tr><td colspan='2'><input name="submit" type="submit" value="Login"/></td></tr>
-	<input name="${csrfToken.parameterName}" type="hidden" value="${csrfToken.token}" />
-</table>
-</form></body></html>"""
+			response.getContentAsString() == """<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Please sign in</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+    <link href="http://getbootstrap.com/docs/4.0/examples/signin/signin.css" rel="stylesheet" crossorigin="anonymous"/>
+  </head>
+  <body>
+     <div class="container">
+      <form class="form-signin" method="post" action="/login">
+        <h2 class="form-signin-heading">Please sign in</h2>
+        <p>
+          <label for="username" class="sr-only">Username</label>
+          <input type="text" id="username" name="username" class="form-control" placeholder="Username" required autofocus>
+        </p>
+        <p>
+          <label for="password" class="sr-only">Password</label>
+          <input type="password" id="password" name="password" class="form-control" placeholder="Password" required>
+        </p>
+<p><input type='checkbox' name='remember-me'/> Remember me on this computer.</p>
+<input name="${csrfToken.parameterName}" type="hidden" value="${csrfToken.token}" />
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+      </form>
+</body></html>"""
 	}
 
 	@Configuration
@@ -224,13 +296,29 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
 			request.requestURI = "/login"
 			springSecurityFilterChain.doFilter(request,response,chain)
 		then:
-			response.getContentAsString() == """<html><head><title>Login Page</title></head><h3>Login with OpenID Identity</h3><form name='oidf' action='/login/openid' method='POST'>
-<table>
-	<tr><td>Identity:</td><td><input type='text' size='30' name='openid_identifier'/></td></tr>
-	<tr><td colspan='2'><input name="submit" type="submit" value="Login"/></td></tr>
-</table>
-	<input name="${csrfToken.parameterName}" type="hidden" value="${csrfToken.token}" />
-</form></body></html>"""
+			response.getContentAsString() == """<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Please sign in</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+    <link href="http://getbootstrap.com/docs/4.0/examples/signin/signin.css" rel="stylesheet" crossorigin="anonymous"/>
+  </head>
+  <body>
+     <div class="container">
+      <form name="oidf" class="form-signin" method="post" action="/login/openid">
+        <h2 class="form-signin-heading">Login with OpenID Identity</h2>
+        <p>
+          <label for="username" class="sr-only">Identity</label>
+          <input type="text" id="username" name="openid_identifier" class="form-control" placeholder="Username" required autofocus>
+        </p>
+<input name="${csrfToken.parameterName}" type="hidden" value="${csrfToken.token}" />
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+      </form>
+</body></html>"""
 	}
 
 	@Configuration
@@ -252,23 +340,44 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
 			request.requestURI = "/login"
 			springSecurityFilterChain.doFilter(request,response,chain)
 		then:
-			response.getContentAsString() == """<html><head><title>Login Page</title></head><body onload='document.f.username.focus();'>
-<h3>Login with Username and Password</h3><form name='f' action='/login' method='POST'>
-<table>
-	<tr><td>User:</td><td><input type='text' name='username' value=''></td></tr>
-	<tr><td>Password:</td><td><input type='password' name='password'/></td></tr>
-	<tr><td><input type='checkbox' name='remember-me'/></td><td>Remember me on this computer.</td></tr>
-	<tr><td colspan='2'><input name="submit" type="submit" value="Login"/></td></tr>
-	<input name="${csrfToken.parameterName}" type="hidden" value="${csrfToken.token}" />
-</table>
-</form><h3>Login with OpenID Identity</h3><form name='oidf' action='/login/openid' method='POST'>
-<table>
-	<tr><td>Identity:</td><td><input type='text' size='30' name='openid_identifier'/></td></tr>
-	<tr><td><input type='checkbox' name='remember-me'></td><td>Remember me on this computer.</td></tr>
-	<tr><td colspan='2'><input name="submit" type="submit" value="Login"/></td></tr>
-</table>
-	<input name="${csrfToken.parameterName}" type="hidden" value="${csrfToken.token}" />
-</form></body></html>"""
+			response.getContentAsString() == """<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Please sign in</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+    <link href="http://getbootstrap.com/docs/4.0/examples/signin/signin.css" rel="stylesheet" crossorigin="anonymous"/>
+  </head>
+  <body>
+     <div class="container">
+      <form class="form-signin" method="post" action="/login">
+        <h2 class="form-signin-heading">Please sign in</h2>
+        <p>
+          <label for="username" class="sr-only">Username</label>
+          <input type="text" id="username" name="username" class="form-control" placeholder="Username" required autofocus>
+        </p>
+        <p>
+          <label for="password" class="sr-only">Password</label>
+          <input type="password" id="password" name="password" class="form-control" placeholder="Password" required>
+        </p>
+<p><input type='checkbox' name='remember-me'/> Remember me on this computer.</p>
+<input name="${csrfToken.parameterName}" type="hidden" value="${csrfToken.token}" />
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+      </form>
+      <form name="oidf" class="form-signin" method="post" action="/login/openid">
+        <h2 class="form-signin-heading">Login with OpenID Identity</h2>
+        <p>
+          <label for="username" class="sr-only">Identity</label>
+          <input type="text" id="username" name="openid_identifier" class="form-control" placeholder="Username" required autofocus>
+        </p>
+<p><input type='checkbox' name='remember-me'/> Remember me on this computer.</p>
+<input name="${csrfToken.parameterName}" type="hidden" value="${csrfToken.token}" />
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+      </form>
+</body></html>"""
 	}
 
 	@Configuration

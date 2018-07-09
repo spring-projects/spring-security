@@ -122,7 +122,8 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 		boolean isLogoutSuccess = queryParams.containsKey("logout");
 		return "      <form class=\"form-signin\" method=\"post\" action=\"/login\">\n"
 				+ "        <h2 class=\"form-signin-heading\">Please sign in</h2>\n"
-				+ createError(isError) + createLogoutSuccess(isLogoutSuccess)
+				+ createError(isError)
+				+ createLogoutSuccess(isLogoutSuccess)
 				+ "        <p>\n"
 				+ "          <label for=\"username\" class=\"sr-only\">Username</label>\n"
 				+ "          <input type=\"text\" id=\"username\" name=\"username\" class=\"form-control\" placeholder=\"Username\" required autofocus>\n"

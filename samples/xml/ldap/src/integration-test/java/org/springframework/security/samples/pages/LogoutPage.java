@@ -27,8 +27,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Michael Simons
  */
 public class LogoutPage extends LoginPage {
-	@FindBy(css = "p")
-	private WebElement p;
+	@FindBy(css = "div[role=alert]")
+	private WebElement alert;
 
 	public LogoutPage(WebDriver webDriver) {
 		super(webDriver);
@@ -38,7 +38,7 @@ public class LogoutPage extends LoginPage {
 	public LogoutPage assertAt() {
 		super.assertAt();
 
-		assertThat(p.getText()).isEqualTo("You have been logged out");
+		assertThat(this.alert.getText()).isEqualTo("You have been signed out");
 		return this;
 	}
 }
