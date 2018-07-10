@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.springframework.security.oauth2.core;
 
 import org.junit.Test;
+import org.springframework.util.SerializationUtils;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -66,6 +67,22 @@ public class OAuth2AccessTokenTests {
 		OAuth2AccessToken accessToken = new OAuth2AccessToken(
 			TOKEN_TYPE, TOKEN_VALUE, ISSUED_AT, EXPIRES_AT, SCOPES);
 
+		assertThat(accessToken.getTokenType()).isEqualTo(TOKEN_TYPE);
+		assertThat(accessToken.getTokenValue()).isEqualTo(TOKEN_VALUE);
+		assertThat(accessToken.getIssuedAt()).isEqualTo(ISSUED_AT);
+		assertThat(accessToken.getExpiresAt()).isEqualTo(EXPIRES_AT);
+		assertThat(accessToken.getScopes()).isEqualTo(SCOPES);
+	}
+
+	// gh-5492
+	@Test
+	public void constructorWhenCreatedThenIsSerializableAndDeserializable() {
+		OAuth2AccessToken accessToken = new OAuth2AccessToken(
+				TOKEN_TYPE, TOKEN_VALUE, ISSUED_AT, EXPIRES_AT, SCOPES);
+		byte[] serialized = SerializationUtils.serialize(accessToken);
+		accessToken = (OAuth2AccessToken) SerializationUtils.deserialize(serialized);
+
+		assertThat(serialized).isNotNull();
 		assertThat(accessToken.getTokenType()).isEqualTo(TOKEN_TYPE);
 		assertThat(accessToken.getTokenValue()).isEqualTo(TOKEN_VALUE);
 		assertThat(accessToken.getIssuedAt()).isEqualTo(ISSUED_AT);
