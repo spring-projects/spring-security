@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -165,8 +165,9 @@ public class ClientRegistrationTests {
 			.build();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void buildWhenAuthorizationCodeGrantScopeIsNullThenThrowIllegalArgumentException() {
+	// gh-5494
+	@Test
+	public void buildWhenAuthorizationCodeGrantScopeIsNullThenScopeNotRequired() {
 		ClientRegistration.withRegistrationId(REGISTRATION_ID)
 			.clientId(CLIENT_ID)
 			.clientSecret(CLIENT_SECRET)
@@ -260,6 +261,21 @@ public class ClientRegistrationTests {
 			.build();
 	}
 
+	// gh-5494
+	@Test
+	public void buildWhenAuthorizationCodeGrantScopeIsNullThenJwkSetUriNotRequired() {
+		ClientRegistration.withRegistrationId(REGISTRATION_ID)
+				.clientId(CLIENT_ID)
+				.clientSecret(CLIENT_SECRET)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.redirectUriTemplate(REDIRECT_URI)
+				.authorizationUri(AUTHORIZATION_URI)
+				.tokenUri(TOKEN_URI)
+				.clientName(CLIENT_NAME)
+				.build();
+	}
+
 	@Test
 	public void buildWhenImplicitGrantAllAttributesProvidedThenAllAttributesAreSet() {
 		ClientRegistration registration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
@@ -316,8 +332,9 @@ public class ClientRegistrationTests {
 			.build();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void buildWhenImplicitGrantScopeIsNullThenThrowIllegalArgumentException() {
+	// gh-5494
+	@Test
+	public void buildWhenImplicitGrantScopeIsNullThenScopeNotRequired() {
 		ClientRegistration.withRegistrationId(REGISTRATION_ID)
 			.clientId(CLIENT_ID)
 			.authorizationGrantType(AuthorizationGrantType.IMPLICIT)

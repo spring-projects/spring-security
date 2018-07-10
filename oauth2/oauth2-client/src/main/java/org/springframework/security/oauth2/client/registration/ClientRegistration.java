@@ -463,10 +463,9 @@ public final class ClientRegistration {
 			Assert.hasText(this.clientSecret, "clientSecret cannot be empty");
 			Assert.notNull(this.clientAuthenticationMethod, "clientAuthenticationMethod cannot be null");
 			Assert.hasText(this.redirectUriTemplate, "redirectUriTemplate cannot be empty");
-			Assert.notEmpty(this.scopes, "scopes cannot be empty");
 			Assert.hasText(this.authorizationUri, "authorizationUri cannot be empty");
 			Assert.hasText(this.tokenUri, "tokenUri cannot be empty");
-			if (this.scopes.contains(OidcScopes.OPENID)) {
+			if (this.scopes != null && this.scopes.contains(OidcScopes.OPENID)) {
 				// OIDC Clients need to verify/validate the ID Token
 				Assert.hasText(this.jwkSetUri, "jwkSetUri cannot be empty");
 			}
@@ -479,7 +478,6 @@ public final class ClientRegistration {
 			Assert.hasText(this.registrationId, "registrationId cannot be empty");
 			Assert.hasText(this.clientId, "clientId cannot be empty");
 			Assert.hasText(this.redirectUriTemplate, "redirectUriTemplate cannot be empty");
-			Assert.notEmpty(this.scopes, "scopes cannot be empty");
 			Assert.hasText(this.authorizationUri, "authorizationUri cannot be empty");
 			Assert.hasText(this.clientName, "clientName cannot be empty");
 		}
