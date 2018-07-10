@@ -15,8 +15,10 @@
  */
 package org.springframework.security.oauth2.core;
 
+import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.Assert;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Set;
@@ -90,7 +92,8 @@ public class OAuth2AccessToken extends AbstractOAuth2Token {
 	 *
 	 * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-7.1">Section 7.1 Access Token Types</a>
 	 */
-	public static final class TokenType {
+	public static final class TokenType implements Serializable {
+		private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 		public static final TokenType BEARER = new TokenType("Bearer");
 		private final String value;
 
