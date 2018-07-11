@@ -210,6 +210,7 @@ public class ServerHttpSecurity {
 	 *
 	 * @param matcher the ServerExchangeMatcher that determines which requests apply to this HttpSecurity instance.
 	 *                Default is all requests.
+	 * @return the {@link ServerHttpSecurity} to continue configuring
 	 */
 	public ServerHttpSecurity securityMatcher(ServerWebExchangeMatcher matcher) {
 		Assert.notNull(matcher, "matcher cannot be null");
@@ -743,7 +744,7 @@ public class ServerHttpSecurity {
 
 		/**
 		 * Disables authorization.
-		 * @return the {@link ServerHttpSecurity} to continue configuring
+		 * @return the {@link Access} to continue configuring
 		 */
 		@Override
 		public Access anyExchange() {
@@ -1420,7 +1421,7 @@ public class ServerHttpSecurity {
 
 			/**
 			 * Disables frame options response header
-			 * @return the {@link ServerHttpSecurity} to continue configuring
+			 * @return the {@link HeaderSpec} to continue configuring
 			 */
 			public HeaderSpec disable() {
 				HeaderSpec.this.writers.remove(HeaderSpec.this.frameOptions);
@@ -1438,6 +1439,7 @@ public class ServerHttpSecurity {
 			/**
 			 * Configures the max age. Default is one year.
 			 * @param maxAge the max age
+			 * @return the {@link HstsSpec} to continue configuring
 			 */
 			public HstsSpec maxAge(Duration maxAge) {
 				HeaderSpec.this.hsts.setMaxAge(maxAge);
@@ -1447,6 +1449,7 @@ public class ServerHttpSecurity {
 			/**
 			 * Configures if subdomains should be included. Default is true
 			 * @param includeSubDomains if subdomains should be included
+			 * @return the {@link HstsSpec} to continue configuring
 			 */
 			public HstsSpec includeSubdomains(boolean includeSubDomains) {
 				HeaderSpec.this.hsts.setIncludeSubDomains(includeSubDomains);
@@ -1463,7 +1466,7 @@ public class ServerHttpSecurity {
 
 			/**
 			 * Disables strict transport security response header
-			 * @return the {@link ServerHttpSecurity} to continue configuring
+			 * @return the {@link HeaderSpec} to continue configuring
 			 */
 			public HeaderSpec disable() {
 				HeaderSpec.this.writers.remove(HeaderSpec.this.hsts);
@@ -1480,7 +1483,7 @@ public class ServerHttpSecurity {
 		public class XssProtectionSpec {
 			/**
 			 * Disables the x-xss-protection response header
-			 * @return
+			 * @return the {@link HeaderSpec} to continue configuring
 			 */
 			public HeaderSpec disable() {
 				HeaderSpec.this.writers.remove(HeaderSpec.this.xss);
@@ -1509,7 +1512,7 @@ public class ServerHttpSecurity {
 		/**
 		 * Configures the logout handler. Default is {@code SecurityContextServerLogoutHandler}
 		 * @param logoutHandler
-		 * @return
+		 * @return the {@link LogoutSpec} to configure
 		 */
 		public LogoutSpec logoutHandler(ServerLogoutHandler logoutHandler) {
 			this.logoutWebFilter.setLogoutHandler(logoutHandler);
