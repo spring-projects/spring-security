@@ -16,6 +16,7 @@
 package org.springframework.security.oauth2.client.registration;
 
 import org.junit.Test;
+import org.springframework.security.oauth2.core.AuthenticationMethod;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 
@@ -52,6 +53,7 @@ public class ClientRegistrationTests {
 			.scope(SCOPES.toArray(new String[0]))
 			.authorizationUri(AUTHORIZATION_URI)
 			.tokenUri(TOKEN_URI)
+			.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
 			.jwkSetUri(JWK_SET_URI)
 			.clientName(CLIENT_NAME)
 			.build();
@@ -68,6 +70,7 @@ public class ClientRegistrationTests {
 			.scope(SCOPES.toArray(new String[0]))
 			.authorizationUri(AUTHORIZATION_URI)
 			.tokenUri(TOKEN_URI)
+			.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
 			.jwkSetUri(JWK_SET_URI)
 			.clientName(CLIENT_NAME)
 			.build();
@@ -81,6 +84,7 @@ public class ClientRegistrationTests {
 		assertThat(registration.getScopes()).isEqualTo(SCOPES);
 		assertThat(registration.getProviderDetails().getAuthorizationUri()).isEqualTo(AUTHORIZATION_URI);
 		assertThat(registration.getProviderDetails().getTokenUri()).isEqualTo(TOKEN_URI);
+		assertThat(registration.getProviderDetails().getUserInfoEndpoint().getAuthenticationMethod()).isEqualTo(AuthenticationMethod.FORM);
 		assertThat(registration.getProviderDetails().getJwkSetUri()).isEqualTo(JWK_SET_URI);
 		assertThat(registration.getClientName()).isEqualTo(CLIENT_NAME);
 	}
@@ -96,6 +100,7 @@ public class ClientRegistrationTests {
 			.scope(SCOPES.toArray(new String[0]))
 			.authorizationUri(AUTHORIZATION_URI)
 			.tokenUri(TOKEN_URI)
+			.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
 			.jwkSetUri(JWK_SET_URI)
 			.clientName(CLIENT_NAME)
 			.build();
@@ -112,6 +117,7 @@ public class ClientRegistrationTests {
 			.scope(SCOPES.toArray(new String[0]))
 			.authorizationUri(AUTHORIZATION_URI)
 			.tokenUri(TOKEN_URI)
+			.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
 			.jwkSetUri(JWK_SET_URI)
 			.clientName(CLIENT_NAME)
 			.build();
@@ -128,6 +134,7 @@ public class ClientRegistrationTests {
 			.scope(SCOPES.toArray(new String[0]))
 			.authorizationUri(AUTHORIZATION_URI)
 			.tokenUri(TOKEN_URI)
+			.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
 			.jwkSetUri(JWK_SET_URI)
 			.clientName(CLIENT_NAME)
 			.build();
@@ -144,6 +151,7 @@ public class ClientRegistrationTests {
 			.scope(SCOPES.toArray(new String[0]))
 			.authorizationUri(AUTHORIZATION_URI)
 			.tokenUri(TOKEN_URI)
+			.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
 			.jwkSetUri(JWK_SET_URI)
 			.clientName(CLIENT_NAME)
 			.build();
@@ -160,6 +168,7 @@ public class ClientRegistrationTests {
 			.scope(SCOPES.toArray(new String[0]))
 			.authorizationUri(AUTHORIZATION_URI)
 			.tokenUri(TOKEN_URI)
+			.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
 			.jwkSetUri(JWK_SET_URI)
 			.clientName(CLIENT_NAME)
 			.build();
@@ -177,6 +186,7 @@ public class ClientRegistrationTests {
 			.scope((String[]) null)
 			.authorizationUri(AUTHORIZATION_URI)
 			.tokenUri(TOKEN_URI)
+			.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
 			.jwkSetUri(JWK_SET_URI)
 			.clientName(CLIENT_NAME)
 			.build();
@@ -193,6 +203,7 @@ public class ClientRegistrationTests {
 			.scope(SCOPES.toArray(new String[0]))
 			.authorizationUri(null)
 			.tokenUri(TOKEN_URI)
+			.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
 			.jwkSetUri(JWK_SET_URI)
 			.clientName(CLIENT_NAME)
 			.build();
@@ -209,6 +220,7 @@ public class ClientRegistrationTests {
 			.scope(SCOPES.toArray(new String[0]))
 			.authorizationUri(AUTHORIZATION_URI)
 			.tokenUri(null)
+			.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
 			.jwkSetUri(JWK_SET_URI)
 			.clientName(CLIENT_NAME)
 			.build();
@@ -225,6 +237,7 @@ public class ClientRegistrationTests {
 			.scope(SCOPES.toArray(new String[0]))
 			.authorizationUri(AUTHORIZATION_URI)
 			.tokenUri(TOKEN_URI)
+			.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
 			.jwkSetUri(null)
 			.clientName(CLIENT_NAME)
 			.build();
@@ -241,6 +254,7 @@ public class ClientRegistrationTests {
 			.scope(SCOPES.toArray(new String[0]))
 			.authorizationUri(AUTHORIZATION_URI)
 			.tokenUri(TOKEN_URI)
+			.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
 			.jwkSetUri(JWK_SET_URI)
 			.clientName(null)
 			.build();
@@ -256,6 +270,7 @@ public class ClientRegistrationTests {
 			.redirectUriTemplate(REDIRECT_URI)
 			.scope("scope1")
 			.authorizationUri(AUTHORIZATION_URI)
+			.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
 			.tokenUri(TOKEN_URI)
 			.clientName(CLIENT_NAME)
 			.build();
@@ -284,6 +299,7 @@ public class ClientRegistrationTests {
 			.redirectUriTemplate(REDIRECT_URI)
 			.scope(SCOPES.toArray(new String[0]))
 			.authorizationUri(AUTHORIZATION_URI)
+			.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
 			.clientName(CLIENT_NAME)
 			.build();
 
@@ -293,6 +309,7 @@ public class ClientRegistrationTests {
 		assertThat(registration.getRedirectUriTemplate()).isEqualTo(REDIRECT_URI);
 		assertThat(registration.getScopes()).isEqualTo(SCOPES);
 		assertThat(registration.getProviderDetails().getAuthorizationUri()).isEqualTo(AUTHORIZATION_URI);
+		assertThat(registration.getProviderDetails().getUserInfoEndpoint().getAuthenticationMethod()).isEqualTo(AuthenticationMethod.FORM);
 		assertThat(registration.getClientName()).isEqualTo(CLIENT_NAME);
 	}
 
@@ -304,6 +321,7 @@ public class ClientRegistrationTests {
 			.redirectUriTemplate(REDIRECT_URI)
 			.scope(SCOPES.toArray(new String[0]))
 			.authorizationUri(AUTHORIZATION_URI)
+			.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
 			.clientName(CLIENT_NAME)
 			.build();
 	}
@@ -316,6 +334,7 @@ public class ClientRegistrationTests {
 			.redirectUriTemplate(REDIRECT_URI)
 			.scope(SCOPES.toArray(new String[0]))
 			.authorizationUri(AUTHORIZATION_URI)
+			.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
 			.clientName(CLIENT_NAME)
 			.build();
 	}
@@ -328,6 +347,7 @@ public class ClientRegistrationTests {
 			.redirectUriTemplate(null)
 			.scope(SCOPES.toArray(new String[0]))
 			.authorizationUri(AUTHORIZATION_URI)
+			.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
 			.clientName(CLIENT_NAME)
 			.build();
 	}
@@ -341,6 +361,7 @@ public class ClientRegistrationTests {
 			.redirectUriTemplate(REDIRECT_URI)
 			.scope((String[]) null)
 			.authorizationUri(AUTHORIZATION_URI)
+			.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
 			.clientName(CLIENT_NAME)
 			.build();
 	}
@@ -353,6 +374,7 @@ public class ClientRegistrationTests {
 			.redirectUriTemplate(REDIRECT_URI)
 			.scope(SCOPES.toArray(new String[0]))
 			.authorizationUri(null)
+			.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
 			.clientName(CLIENT_NAME)
 			.build();
 	}
@@ -365,6 +387,7 @@ public class ClientRegistrationTests {
 			.redirectUriTemplate(REDIRECT_URI)
 			.scope(SCOPES.toArray(new String[0]))
 			.authorizationUri(AUTHORIZATION_URI)
+			.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
 			.clientName(null)
 			.build();
 	}
