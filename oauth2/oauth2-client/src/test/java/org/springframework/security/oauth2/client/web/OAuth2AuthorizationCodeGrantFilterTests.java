@@ -15,6 +15,7 @@
  */
 package org.springframework.security.oauth2.client.web;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -80,7 +81,7 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 	private OAuth2AuthorizationCodeGrantFilter filter;
 
 	@Before
-	public void setUp() {
+	public void setup() {
 		this.registration1 = ClientRegistration.withRegistrationId("registration-1")
 			.clientId("client-1")
 			.clientSecret("secret")
@@ -107,6 +108,11 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 		SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
 		securityContext.setAuthentication(authentication);
 		SecurityContextHolder.setContext(securityContext);
+	}
+
+	@After
+	public void cleanup() {
+		SecurityContextHolder.clearContext();
 	}
 
 	@Test

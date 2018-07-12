@@ -15,7 +15,6 @@
  */
 package org.springframework.security.oauth2.client.web;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -24,8 +23,6 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 
@@ -57,11 +54,6 @@ public class AuthenticatedPrincipalOAuth2AuthorizedClientRepositoryTests {
 		this.response = new MockHttpServletResponse();
 	}
 
-	@After
-	public void cleanup() {
-		SecurityContextHolder.clearContext();
-	}
-
 	@Test
 	public void constructorWhenAuthorizedClientServiceIsNullThenThrowIllegalArgumentException() {
 		assertThatThrownBy(() -> new AuthenticatedPrincipalOAuth2AuthorizedClientRepository(null))
@@ -76,24 +68,21 @@ public class AuthenticatedPrincipalOAuth2AuthorizedClientRepositoryTests {
 
 	@Test
 	public void loadAuthorizedClientWhenAuthenticatedPrincipalThenLoadFromService() {
-		this.setupAuthenticatedPrincipal();
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		Authentication authentication = this.createAuthenticatedPrincipal();
 		this.authorizedClientRepository.loadAuthorizedClient(this.registrationId, authentication, this.request);
 		verify(this.authorizedClientService).loadAuthorizedClient(this.registrationId, this.principalName);
 	}
 
 	@Test
 	public void loadAuthorizedClientWhenAnonymousPrincipalThenLoadFromAnonymousRepository() {
-		this.setupAnonymousPrincipal();
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		Authentication authentication = this.createAnonymousPrincipal();
 		this.authorizedClientRepository.loadAuthorizedClient(this.registrationId, authentication, this.request);
 		verify(this.anonymousAuthorizedClientRepository).loadAuthorizedClient(this.registrationId, authentication, this.request);
 	}
 
 	@Test
 	public void saveAuthorizedClientWhenAuthenticatedPrincipalThenSaveToService() {
-		this.setupAuthenticatedPrincipal();
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		Authentication authentication = this.createAuthenticatedPrincipal();
 		OAuth2AuthorizedClient authorizedClient = mock(OAuth2AuthorizedClient.class);
 		this.authorizedClientRepository.saveAuthorizedClient(authorizedClient, authentication, this.request, this.response);
 		verify(this.authorizedClientService).saveAuthorizedClient(authorizedClient, authentication);
@@ -101,8 +90,7 @@ public class AuthenticatedPrincipalOAuth2AuthorizedClientRepositoryTests {
 
 	@Test
 	public void saveAuthorizedClientWhenAnonymousPrincipalThenSaveToAnonymousRepository() {
-		this.setupAnonymousPrincipal();
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		Authentication authentication = this.createAnonymousPrincipal();
 		OAuth2AuthorizedClient authorizedClient = mock(OAuth2AuthorizedClient.class);
 		this.authorizedClientRepository.saveAuthorizedClient(authorizedClient, authentication, this.request, this.response);
 		verify(this.anonymousAuthorizedClientRepository).saveAuthorizedClient(authorizedClient, authentication, this.request, this.response);
@@ -110,33 +98,25 @@ public class AuthenticatedPrincipalOAuth2AuthorizedClientRepositoryTests {
 
 	@Test
 	public void removeAuthorizedClientWhenAuthenticatedPrincipalThenRemoveFromService() {
-		this.setupAuthenticatedPrincipal();
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		Authentication authentication = this.createAuthenticatedPrincipal();
 		this.authorizedClientRepository.removeAuthorizedClient(this.registrationId, authentication, this.request, this.response);
 		verify(this.authorizedClientService).removeAuthorizedClient(this.registrationId, this.principalName);
 	}
 
 	@Test
 	public void removeAuthorizedClientWhenAnonymousPrincipalThenRemoveFromAnonymousRepository() {
-		this.setupAnonymousPrincipal();
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		Authentication authentication = this.createAnonymousPrincipal();
 		this.authorizedClientRepository.removeAuthorizedClient(this.registrationId, authentication, this.request, this.response);
 		verify(this.anonymousAuthorizedClientRepository).removeAuthorizedClient(this.registrationId, authentication, this.request, this.response);
 	}
 
-	private void setupAuthenticatedPrincipal() {
+	private Authentication createAuthenticatedPrincipal() {
 		TestingAuthenticationToken authentication = new TestingAuthenticationToken(this.principalName, "password");
 		authentication.setAuthenticated(true);
-		SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
-		securityContext.setAuthentication(authentication);
-		SecurityContextHolder.setContext(securityContext);
+		return authentication;
 	}
 
-	private void setupAnonymousPrincipal() {
-		AnonymousAuthenticationToken anonymousPrincipal =
-				new AnonymousAuthenticationToken("key-1234", "anonymousUser", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
-		SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
-		securityContext.setAuthentication(anonymousPrincipal);
-		SecurityContextHolder.setContext(securityContext);
+	private Authentication createAnonymousPrincipal() {
+		return new AnonymousAuthenticationToken("key-1234", "anonymousUser", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
 	}
 }

@@ -15,6 +15,7 @@
  */
 package org.springframework.security.oauth2.client.web.method.annotation;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.MethodParameter;
@@ -52,7 +53,7 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 	private MockHttpServletRequest request;
 
 	@Before
-	public void setUp() {
+	public void setup() {
 		this.authorizedClientRepository = mock(OAuth2AuthorizedClientRepository.class);
 		this.argumentResolver = new OAuth2AuthorizedClientArgumentResolver(this.authorizedClientRepository);
 		this.authorizedClient = mock(OAuth2AuthorizedClient.class);
@@ -62,6 +63,11 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 		SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
 		securityContext.setAuthentication(mock(Authentication.class));
 		SecurityContextHolder.setContext(securityContext);
+	}
+
+	@After
+	public void cleanup() {
+		SecurityContextHolder.clearContext();
 	}
 
 	@Test

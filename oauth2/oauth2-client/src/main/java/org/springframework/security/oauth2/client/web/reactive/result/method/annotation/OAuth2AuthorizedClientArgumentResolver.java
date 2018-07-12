@@ -92,7 +92,7 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 							clientRegistrationId.flatMap(id -> Mono.error(new IllegalStateException(
 									"Unable to resolve the Authorized Client with registration identifier \""
 											+ id
-											+ "\". An \"authenticated\" or \"anonymous\" request is required. To allow for anonymous access, ensure ServerHttpSecurity.anonymous() is configured."))))
+											+ "\". An \"authenticated\" or \"unauthenticated\" session is required. To allow for unauthenticated access, ensure ServerHttpSecurity.anonymous() is configured."))))
 					.flatMap(zipped -> {
 						String registrationId = zipped.getT1();
 						String username = zipped.getT2();
