@@ -139,7 +139,7 @@ public final class SecurityMockMvcRequestBuilders {
 		 * Specifies the URL to POST to. Default is "/login"
 		 *
 		 * @param loginProcessingUrl the URL to POST to. Default is "/login"
-		 * @return
+		 * @return the {@link FormLoginRequestBuilder} for additional customizations
 		 */
 		public FormLoginRequestBuilder loginProcessingUrl(String loginProcessingUrl) {
 			this.loginProcessingUrl = loginProcessingUrl;

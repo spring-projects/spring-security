@@ -122,7 +122,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 * invokes {@link SecurityConfigurerAdapter#setBuilder(SecurityBuilder)}.
 	 *
 	 * @param configurer
-	 * @return
+	 * @return the {@link SecurityConfigurerAdapter} for further customizations
 	 * @throws Exception
 	 */
 	@SuppressWarnings("unchecked")
@@ -140,7 +140,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 * are not considered.
 	 *
 	 * @param configurer
-	 * @return
+	 * @return the {@link SecurityConfigurerAdapter} for further customizations
 	 * @throws Exception
 	 */
 	public <C extends SecurityConfigurer<O, B>> C apply(C configurer) throws Exception {
@@ -172,7 +172,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 
 	/**
 	 * Gets the shared objects
-	 * @return
+	 * @return the shared Objects
 	 */
 	public Map<Class<? extends Object>, Object> getSharedObjects() {
 		return Collections.unmodifiableMap(this.sharedObjects);
@@ -214,7 +214,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 * List if not found. Note that object hierarchies are not considered.
 	 *
 	 * @param clazz the {@link SecurityConfigurer} class to look for
-	 * @return
+	 * @return a list of {@link SecurityConfigurer}s for further customization
 	 */
 	@SuppressWarnings("unchecked")
 	public <C extends SecurityConfigurer<O, B>> List<C> getConfigurers(Class<C> clazz) {
@@ -230,7 +230,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 * List if not found. Note that object hierarchies are not considered.
 	 *
 	 * @param clazz the {@link SecurityConfigurer} class to look for
-	 * @return
+	 * @return a list of {@link SecurityConfigurer}s for further customization
 	 */
 	@SuppressWarnings("unchecked")
 	public <C extends SecurityConfigurer<O, B>> List<C> removeConfigurers(Class<C> clazz) {
@@ -246,7 +246,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 * found. Note that object hierarchies are not considered.
 	 *
 	 * @param clazz
-	 * @return
+	 * @return the {@link SecurityConfigurer} for further customizations
 	 */
 	@SuppressWarnings("unchecked")
 	public <C extends SecurityConfigurer<O, B>> C getConfigurer(Class<C> clazz) {
@@ -359,7 +359,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	/**
 	 * Subclasses must implement this method to build the object that is being returned.
 	 *
-	 * @return
+	 * @return the Object to be buit or null if the implementation allows it
 	 */
 	protected abstract O performBuild() throws Exception;
 

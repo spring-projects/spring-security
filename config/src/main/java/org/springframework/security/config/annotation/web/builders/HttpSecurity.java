@@ -327,7 +327,7 @@ public final class HttpSecurity extends
 	 * }
 	 * </pre>
 	 *
-	 * @return
+	 * @return the {@link HeadersConfigurer} for further customizations
 	 * @throws Exception
 	 * @see HeadersConfigurer
 	 */
@@ -643,7 +643,7 @@ public final class HttpSecurity extends
 	 *
 	 * @see #requestMatcher(RequestMatcher)
 	 *
-	 * @return
+	 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further customizations
 	 * @throws Exception
 	 */
 	public ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry authorizeRequests()
@@ -763,7 +763,7 @@ public final class HttpSecurity extends
 	 * }
 	 * </pre>
 	 *
-	 * @return
+	 * @return the {@link LogoutConfigurer} for further customizations
 	 * @throws Exception
 	 */
 	public LogoutConfigurer<HttpSecurity> logout() throws Exception {
@@ -826,7 +826,7 @@ public final class HttpSecurity extends
 	 * }
 	 * </pre>
 	 *
-	 * @return
+	 * @return the {@link AnonymousConfigurer} for further customizations
 	 * @throws Exception
 	 */
 	public AnonymousConfigurer<HttpSecurity> anonymous() throws Exception {
@@ -890,7 +890,7 @@ public final class HttpSecurity extends
 	 *
 	 * @see FormLoginConfigurer#loginPage(String)
 	 *
-	 * @return
+	 * @return the {@link FormLoginConfigurer} for further customizations
 	 * @throws Exception
 	 */
 	public FormLoginConfigurer<HttpSecurity> formLogin() throws Exception {

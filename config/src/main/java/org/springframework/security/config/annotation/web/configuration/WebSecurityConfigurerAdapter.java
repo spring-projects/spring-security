@@ -257,7 +257,7 @@ public abstract class WebSecurityConfigurerAdapter implements
 	 * {@link AuthenticationManagerBuilder} that was passed in. Otherwise, autowire the
 	 * {@link AuthenticationManager} by type.
 	 *
-	 * @return
+	 * @return the {@link AuthenticationManager} to use
 	 * @throws Exception
 	 */
 	protected AuthenticationManager authenticationManager() throws Exception {
@@ -291,7 +291,7 @@ public abstract class WebSecurityConfigurerAdapter implements
 	 *
 	 * To change the instance returned, developers should change
 	 * {@link #userDetailsService()} instead
-	 * @return
+	 * @return the {@link UserDetailsService}
 	 * @throws Exception
 	 * @see #userDetailsService()
 	 */
@@ -308,7 +308,7 @@ public abstract class WebSecurityConfigurerAdapter implements
 	 * {@link ApplicationContext}. Developers should override this method when changing
 	 * the instance of {@link #userDetailsServiceBean()}.
 	 *
-	 * @return
+	 * @return the {@link UserDetailsService} to use
 	 */
 	protected UserDetailsService userDetailsService() {
 		AuthenticationManagerBuilder globalAuthBuilder = context

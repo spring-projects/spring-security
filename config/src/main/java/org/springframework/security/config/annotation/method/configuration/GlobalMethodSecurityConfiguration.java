@@ -118,7 +118,7 @@ public class GlobalMethodSecurityConfiguration
 	 * {@link MethodInterceptor}.
 	 * </p>
 	 *
-	 * @return
+	 * @return the {@link MethodInterceptor}.
 	 * @throws Exception
 	 */
 	@Bean
@@ -204,7 +204,7 @@ public class GlobalMethodSecurityConfiguration
 	 * {@link AfterInvocationManager}
 	 * </p>
 	 *
-	 * @return
+	 * @return the {@link AfterInvocationManager} to use
 	 */
 	protected AfterInvocationManager afterInvocationManager() {
 		if (prePostEnabled()) {
@@ -225,7 +225,7 @@ public class GlobalMethodSecurityConfiguration
 	 * Provide a custom {@link RunAsManager} for the default implementation of
 	 * {@link #methodSecurityInterceptor()}. The default is null.
 	 *
-	 * @return
+	 * @return the {@link RunAsManager} to use
 	 */
 	protected RunAsManager runAsManager() {
 		return null;
@@ -241,7 +241,7 @@ public class GlobalMethodSecurityConfiguration
 	 * <li>{@link AuthenticatedVoter}</li>
 	 * </ul>
 	 *
-	 * @return
+	 * @return the {@link AccessDecisionManager} to use
 	 */
 	protected AccessDecisionManager accessDecisionManager() {
 		List<AccessDecisionVoter<? extends Object>> decisionVoters = new ArrayList<AccessDecisionVoter<? extends Object>>();
@@ -270,7 +270,7 @@ public class GlobalMethodSecurityConfiguration
 	 * {@link MethodSecurityExpressionHandler}
 	 * </p>
 	 *
-	 * @return
+	 * @return the {@link MethodSecurityExpressionHandler} to use
 	 */
 	protected MethodSecurityExpressionHandler createExpressionHandler() {
 		return defaultMethodExpressionHandler;
@@ -307,7 +307,7 @@ public class GlobalMethodSecurityConfiguration
 	 * {@link #configure(AuthenticationManagerBuilder)} was not overridden, then an
 	 * {@link AuthenticationManager} is attempted to be autowired by type.
 	 *
-	 * @return
+	 * @return the {@link AuthenticationManager} to use
 	 */
 	protected AuthenticationManager authenticationManager() throws Exception {
 		if (authenticationManager == null) {
@@ -346,7 +346,7 @@ public class GlobalMethodSecurityConfiguration
 	 * {@link #customMethodSecurityMetadataSource()} and the attributes on
 	 * {@link EnableGlobalMethodSecurity}.
 	 *
-	 * @return
+	 * @return the {@link MethodSecurityMetadataSource}
 	 */
 	@Bean
 	public MethodSecurityMetadataSource methodSecurityMetadataSource() {
@@ -379,7 +379,7 @@ public class GlobalMethodSecurityConfiguration
 	 * Creates the {@link PreInvocationAuthorizationAdvice} to be used. The default is
 	 * {@link ExpressionBasedPreInvocationAdvice}.
 	 *
-	 * @return
+	 * @return the {@link PreInvocationAuthorizationAdvice}
 	 */
 	@Bean
 	public PreInvocationAuthorizationAdvice preInvocationAuthorizationAdvice() {

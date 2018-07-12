@@ -45,7 +45,7 @@ public final class PortMapperConfigurer<H extends HttpSecurityBuilder<H>> extend
 	/**
 	 * Allows specifying the {@link PortMapper} instance.
 	 * @param portMapper
-	 * @return
+	 * @return the {@link PortMapperConfigurer} for further customizations
 	 */
 	public PortMapperConfigurer<H> portMapper(PortMapper portMapper) {
 		this.portMapper = portMapper;
