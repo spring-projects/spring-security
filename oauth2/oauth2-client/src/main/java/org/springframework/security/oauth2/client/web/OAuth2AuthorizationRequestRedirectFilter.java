@@ -49,14 +49,17 @@ import java.io.IOException;
  * <p>
  * By default, this {@code Filter} responds to authorization requests
  * at the {@code URI} {@code /oauth2/authorization/{registrationId}}
- * using the associated {@link OAuth2AuthorizationRequestResolver}.
+ * using the default {@link OAuth2AuthorizationRequestResolver}.
  * The {@code URI} template variable {@code {registrationId}} represents the
  * {@link ClientRegistration#getRegistrationId() registration identifier} of the client
  * that is used for initiating the OAuth 2.0 Authorization Request.
  *
  * <p>
- * <b>NOTE:</b> The default base {@code URI} {@code /oauth2/authorization} may be overridden
- * via it's constructor {@link #OAuth2AuthorizationRequestRedirectFilter(ClientRegistrationRepository, String)}.
+ * The default base {@code URI} {@code /oauth2/authorization} may be overridden
+ * via the constructor {@link #OAuth2AuthorizationRequestRedirectFilter(ClientRegistrationRepository, String)},
+ * or alternatively, an {@code OAuth2AuthorizationRequestResolver} may be provided to the constructor
+ * {@link #OAuth2AuthorizationRequestRedirectFilter(OAuth2AuthorizationRequestResolver)}
+ * to override the resolving of authorization requests.
 
  * @author Joe Grandja
  * @author Rob Winch
@@ -109,12 +112,12 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 	}
 
 	/**
-	 * Sets the resolver used for resolving {@link OAuth2AuthorizationRequest}'s.
+	 * Constructs an {@code OAuth2AuthorizationRequestRedirectFilter} using the provided parameters.
 	 *
 	 * @since 5.1
 	 * @param authorizationRequestResolver the resolver used for resolving authorization requests
 	 */
-	public final void setAuthorizationRequestResolver(OAuth2AuthorizationRequestResolver authorizationRequestResolver) {
+	public OAuth2AuthorizationRequestRedirectFilter(OAuth2AuthorizationRequestResolver authorizationRequestResolver) {
 		Assert.notNull(authorizationRequestResolver, "authorizationRequestResolver cannot be null");
 		this.authorizationRequestResolver = authorizationRequestResolver;
 	}

@@ -28,6 +28,7 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.util.ClassUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.FilterChain;
@@ -35,6 +36,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.lang.reflect.Constructor;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -104,7 +106,9 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 
 	@Test
 	public void constructorWhenClientRegistrationRepositoryIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2AuthorizationRequestRedirectFilter(null))
+		Constructor<OAuth2AuthorizationRequestRedirectFilter> constructor = ClassUtils.getConstructorIfAvailable(
+				OAuth2AuthorizationRequestRedirectFilter.class, ClientRegistrationRepository.class);
+		assertThatThrownBy(() -> constructor.newInstance(null))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
@@ -115,8 +119,10 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 	}
 
 	@Test
-	public void setAuthorizationRequestResolverWhenAuthorizationRequestResolverIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.filter.setAuthorizationRequestResolver(null))
+	public void constructorWhenAuthorizationRequestResolverIsNullThenThrowIllegalArgumentException() {
+		Constructor<OAuth2AuthorizationRequestRedirectFilter> constructor = ClassUtils.getConstructorIfAvailable(
+				OAuth2AuthorizationRequestRedirectFilter.class, OAuth2AuthorizationRequestResolver.class);
+		assertThatThrownBy(() -> constructor.newInstance(null))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
@@ -282,9 +288,11 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 
 		doThrow(new ClientAuthorizationRequiredException(this.registration1.getRegistrationId()))
 				.when(filterChain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
-		this.filter.setAuthorizationRequestResolver(req -> null);
 
-		this.filter.doFilter(request, response, filterChain);
+		OAuth2AuthorizationRequestResolver resolver = req -> null;
+		OAuth2AuthorizationRequestRedirectFilter filter = new OAuth2AuthorizationRequestRedirectFilter(resolver);
+
+		filter.doFilter(request, response, filterChain);
 
 		verify(filterChain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 
@@ -308,16 +316,17 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 		OAuth2AuthorizationRequestResolver defaultAuthorizationRequestResolver = new DefaultOAuth2AuthorizationRequestResolver(
 				this.clientRegistrationRepository, OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI);
 
-		this.filter.setAuthorizationRequestResolver(req -> {
+		OAuth2AuthorizationRequestResolver resolver = req -> {
 			OAuth2AuthorizationRequest defaultAuthorizationRequest = defaultAuthorizationRequestResolver.resolve(req);
 			Map<String, Object> additionalParameters = new HashMap<>(defaultAuthorizationRequest.getAdditionalParameters());
 			additionalParameters.put("idp", req.getParameter("idp"));
 			return OAuth2AuthorizationRequest.from(defaultAuthorizationRequest)
 					.additionalParameters(additionalParameters)
 					.build();
-		});
+		};
+		OAuth2AuthorizationRequestRedirectFilter filter = new OAuth2AuthorizationRequestRedirectFilter(resolver);
 
-		this.filter.doFilter(request, response, filterChain);
+		filter.doFilter(request, response, filterChain);
 
 		verifyZeroInteractions(filterChain);
 
@@ -339,7 +348,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 		OAuth2AuthorizationRequestResolver defaultAuthorizationRequestResolver = new DefaultOAuth2AuthorizationRequestResolver(
 				this.clientRegistrationRepository, OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI);
 
-		this.filter.setAuthorizationRequestResolver(req -> {
+		OAuth2AuthorizationRequestResolver resolver = req -> {
 			OAuth2AuthorizationRequest defaultAuthorizationRequest = defaultAuthorizationRequestResolver.resolve(req);
 			Map<String, Object> additionalParameters = new HashMap<>(defaultAuthorizationRequest.getAdditionalParameters());
 			additionalParameters.put(loginHintParamName, req.getParameter(loginHintParamName));
@@ -351,9 +360,10 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 					.additionalParameters(additionalParameters)
 					.authorizationRequestUri(customAuthorizationRequestUri)
 					.build();
-		});
+		};
+		OAuth2AuthorizationRequestRedirectFilter filter = new OAuth2AuthorizationRequestRedirectFilter(resolver);
 
-		this.filter.doFilter(request, response, filterChain);
+		filter.doFilter(request, response, filterChain);
 
 		verifyZeroInteractions(filterChain);
 
