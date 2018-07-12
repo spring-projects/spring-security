@@ -188,7 +188,7 @@ public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>> e
 		 * Sets the {@link ChannelProcessor} instances to use in
 		 * {@link ChannelDecisionManagerImpl}
 		 * @param channelProcessors
-		 * @return
+		 * @return the {@link ChannelSecurityConfigurer} for further customizations
 		 */
 		public ChannelRequestMatcherRegistry channelProcessors(
 				List<ChannelProcessor> channelProcessors) {
@@ -200,7 +200,7 @@ public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>> e
 		 * Return the {@link SecurityBuilder} when done using the
 		 * {@link SecurityConfigurer}. This is useful for method chaining.
 		 *
-		 * @return
+		 * @return the type of {@link HttpSecurityBuilder} that is being configured
 		 */
 		public H and() {
 			return ChannelSecurityConfigurer.this.and();

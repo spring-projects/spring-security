@@ -88,7 +88,7 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 
 	/**
 	 * Creates the Spring Security Filter Chain
-	 * @return
+	 * @return the {@link Filter} that represents the security filter chain
 	 * @throws Exception
 	 */
 	@Bean(name = AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME)

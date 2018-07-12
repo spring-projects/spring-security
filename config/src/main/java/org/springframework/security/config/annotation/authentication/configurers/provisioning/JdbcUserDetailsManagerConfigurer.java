@@ -63,7 +63,7 @@ public class JdbcUserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B
 	 * Populates the {@link DataSource} to be used. This is the only required attribute.
 	 *
 	 * @param dataSource the {@link DataSource} to be used. Cannot be null.
-	 * @return
+	 * @return The {@link JdbcUserDetailsManagerConfigurer} used for additional customizations
 	 * @throws Exception
 	 */
 	public JdbcUserDetailsManagerConfigurer<B> dataSource(DataSource dataSource)
@@ -142,7 +142,7 @@ public class JdbcUserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B
 	 * storage (default is "").
 	 *
 	 * @param rolePrefix
-	 * @return
+	 * @return The {@link JdbcUserDetailsManagerConfigurer} used for additional customizations
 	 * @throws Exception
 	 */
 	public JdbcUserDetailsManagerConfigurer<B> rolePrefix(String rolePrefix)

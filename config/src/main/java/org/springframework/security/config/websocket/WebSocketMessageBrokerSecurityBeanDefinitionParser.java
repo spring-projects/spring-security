@@ -110,7 +110,7 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 	/**
 	 * @param element
 	 * @param parserContext
-	 * @return
+	 * @return the {@link BeanDefinition}
 	 */
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
 		BeanDefinitionRegistry registry = parserContext.getRegistry();

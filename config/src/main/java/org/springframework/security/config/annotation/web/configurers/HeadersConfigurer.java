@@ -442,7 +442,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 		 * application.
 		 * </p>
 		 *
-		 * @return
+		 * @return the {@link HeadersConfigurer} for additional customization.
 		 */
 		public HeadersConfigurer<H> sameOrigin() {
 			writer = new XFrameOptionsHeaderWriter(XFrameOptionsMode.SAMEORIGIN);

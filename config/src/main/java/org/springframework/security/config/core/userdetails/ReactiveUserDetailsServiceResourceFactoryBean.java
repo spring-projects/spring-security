@@ -57,7 +57,6 @@ public class ReactiveUserDetailsServiceResourceFactoryBean
 	 * Sets the location of a Resource that is a Properties file in the format defined in {@link UserDetailsResourceFactoryBean}.
 	 *
 	 * @param resourceLocation the location of the properties file that contains the users (i.e. "classpath:users.properties")
-	 * @return the UserDetailsResourceFactoryBean
 	 */
 	public void setResourceLocation(String resourceLocation) {
 		this.userDetails.setResourceLocation(resourceLocation);

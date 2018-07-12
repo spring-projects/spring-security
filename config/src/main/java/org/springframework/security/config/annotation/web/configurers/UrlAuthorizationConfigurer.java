@@ -99,7 +99,7 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>> 
 	 * The StandardInterceptUrlRegistry is what users will interact with after applying
 	 * the {@link UrlAuthorizationConfigurer}.
 	 *
-	 * @return
+	 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further customizations
 	 */
 	public StandardInterceptUrlRegistry getRegistry() {
 		return REGISTRY;
@@ -198,7 +198,7 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>> 
 	 * provided {@link ConfigAttribute} instances
 	 * @param configAttributes the {@link ConfigAttribute} instances that should be mapped
 	 * by the {@link RequestMatcher} instances
-	 * @return the {@link UrlAuthorizationConfigurer} for further customizations
+	 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further customizations
 	 */
 	private StandardInterceptUrlRegistry addMapping(
 			Iterable<? extends RequestMatcher> requestMatchers,
