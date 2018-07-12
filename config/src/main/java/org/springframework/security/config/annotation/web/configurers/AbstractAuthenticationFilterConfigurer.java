@@ -181,7 +181,7 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 
 	/**
 	 * Equivalent of invoking permitAll(true)
-	 * @return
+	 * @return the {@link FormLoginConfigurer} for additional customization
 	 */
 	public final T permitAll() {
 		return permitAll(true);
@@ -364,7 +364,7 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	/**
 	 * Gets the URL to send users to if authentication fails
 	 *
-	 * @return
+	 * @return the URL to send users if authentication fails (e.g. "/login?error").
 	 */
 	protected final String getFailureUrl() {
 		return failureUrl;

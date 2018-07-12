@@ -479,7 +479,7 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 			/**
 			 * The OpenID attribute type.
 			 * @param type
-			 * @return
+			 * @return the {@link AttributeConfigurer} for further customizations
 			 */
 			public AttributeConfigurer type(String type) {
 				this.type = type;

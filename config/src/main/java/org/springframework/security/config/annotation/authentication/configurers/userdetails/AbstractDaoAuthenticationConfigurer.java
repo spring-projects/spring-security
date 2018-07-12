@@ -69,7 +69,7 @@ abstract class AbstractDaoAuthenticationConfigurer<B extends ProviderManagerBuil
 	 * {@link DaoAuthenticationProvider}. The default is to use plain text.
 	 *
 	 * @param passwordEncoder The {@link PasswordEncoder} to use.
-	 * @return
+	 * @return the {@link AbstractDaoAuthenticationConfigurer} for further customizations
 	 */
 	@SuppressWarnings("unchecked")
 	public C passwordEncoder(PasswordEncoder passwordEncoder) {

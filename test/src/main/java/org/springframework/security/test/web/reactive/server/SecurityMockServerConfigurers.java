@@ -139,7 +139,7 @@ public class SecurityMockServerConfigurers {
 	}
 
 	/**
-	 * Updates the WebServerExchange using {@code {@link SecurityMockServerConfigurers#mockUser(UserDetails)}. Defaults to use a
+	 * Updates the WebServerExchange using {@code {@link SecurityMockServerConfigurers#mockUser(UserDetails)}}. Defaults to use a
 	 * password of "password" and granted authorities of "ROLE_USER".
 	 */
 	public static class UserExchangeMutator implements WebTestClientConfigurer, MockServerConfigurer {

@@ -235,7 +235,7 @@ public final class WebSecurity extends
 
 	/**
 	 * Gets the {@link SecurityExpressionHandler} to be used.
-	 * @return
+	 * @return the {@link SecurityExpressionHandler} for further customizations
 	 */
 	public SecurityExpressionHandler<FilterInvocation> getExpressionHandler() {
 		return expressionHandler;
@@ -243,7 +243,7 @@ public final class WebSecurity extends
 
 	/**
 	 * Gets the {@link WebInvocationPrivilegeEvaluator} to be used.
-	 * @return
+	 * @return the {@link WebInvocationPrivilegeEvaluator} for further customizations
 	 */
 	public WebInvocationPrivilegeEvaluator getPrivilegeEvaluator() {
 		if (privilegeEvaluator != null) {

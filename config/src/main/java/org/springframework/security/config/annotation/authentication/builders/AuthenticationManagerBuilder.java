@@ -258,7 +258,7 @@ public class AuthenticationManagerBuilder
 	 * default configuration in the {@link SecurityConfigurer#configure(SecurityBuilder)}
 	 * method.
 	 *
-	 * @return
+	 * @return true, if {@link AuthenticationManagerBuilder} is configured, otherwise false
 	 */
 	public boolean isConfigured() {
 		return !authenticationProviders.isEmpty() || parentAuthenticationManager != null;

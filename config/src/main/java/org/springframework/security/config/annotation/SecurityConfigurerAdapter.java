@@ -51,7 +51,7 @@ public abstract class SecurityConfigurerAdapter<O, B extends SecurityBuilder<O>>
 	 * Return the {@link SecurityBuilder} when done using the {@link SecurityConfigurer}.
 	 * This is useful for method chaining.
 	 *
-	 * @return
+	 * @return the {@link SecurityBuilder} for further customizations
 	 */
 	public B and() {
 		return getBuilder();
