@@ -33,6 +33,7 @@ import org.springframework.security.web.authentication.preauth.x509.X509Authenti
 import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter;
 import org.springframework.security.web.authentication.switchuser.SwitchUserFilter;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
+import org.springframework.security.web.authentication.ui.DefaultLogoutPageGeneratingFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.authentication.www.DigestAuthenticationFilter;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
@@ -100,6 +101,8 @@ final class FilterComparator implements Comparator<Filter>, Serializable {
 				"org.springframework.security.openid.OpenIDAuthenticationFilter", order);
 		order += STEP;
 		put(DefaultLoginPageGeneratingFilter.class, order);
+		order += STEP;
+		put(DefaultLogoutPageGeneratingFilter.class, order);
 		order += STEP;
 		put(ConcurrentSessionFilter.class, order);
 		order += STEP;

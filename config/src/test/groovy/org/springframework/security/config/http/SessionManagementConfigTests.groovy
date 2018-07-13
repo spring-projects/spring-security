@@ -420,7 +420,7 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
 			csrf(disabled:true)
 		}
 		createAppContext()
-		def filter = getFilters("/someurl")[10]
+		def filter = getFilters("/someurl")[11]
 
 		expect:
 		filter instanceof SessionManagementFilter

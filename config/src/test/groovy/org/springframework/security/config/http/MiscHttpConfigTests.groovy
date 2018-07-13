@@ -15,6 +15,7 @@
  */
 package org.springframework.security.config.http
 
+import org.springframework.security.web.authentication.ui.DefaultLogoutPageGeneratingFilter
 import org.springframework.security.web.csrf.CsrfFilter
 import org.springframework.security.web.header.HeaderWriterFilter
 
@@ -113,6 +114,7 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
 		Object authProcFilter = filters.next();
 		assert authProcFilter instanceof UsernamePasswordAuthenticationFilter
 		assert filters.next() instanceof DefaultLoginPageGeneratingFilter
+		assert filters.next() instanceof DefaultLogoutPageGeneratingFilter
 		assert filters.next() instanceof BasicAuthenticationFilter
 		assert filters.next() instanceof RequestCacheAwareFilter
 		assert filters.next() instanceof SecurityContextHolderAwareRequestFilter
@@ -189,7 +191,7 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
 		createAppContext()
 
 		expect:
-		getFilters("/anything")[8] instanceof AnonymousAuthenticationFilter
+		getFilters("/anything")[9] instanceof AnonymousAuthenticationFilter
 	}
 
 	def anonymousFilterIsRemovedIfDisabledFlagSet() {
@@ -200,7 +202,7 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
 		createAppContext()
 
 		expect:
-		!(getFilters("/anything").get(5) instanceof AnonymousAuthenticationFilter)
+		!(getFilters("/anything").get(9) instanceof AnonymousAuthenticationFilter)
 	}
 
 	def anonymousCustomAttributesAreSetCorrectly() {

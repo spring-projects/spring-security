@@ -19,9 +19,13 @@ import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
+import org.springframework.security.web.authentication.ui.DefaultLogoutPageGeneratingFilter;
 import org.springframework.security.web.csrf.CsrfToken;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
+import java.util.Map;
+import java.util.function.Function;
 
 /**
  * Adds a Filter that will generate a login page if one is not specified otherwise when
@@ -66,15 +70,19 @@ public final class DefaultLoginPageConfigurer<H extends HttpSecurityBuilder<H>> 
 
 	private DefaultLoginPageGeneratingFilter loginPageGeneratingFilter = new DefaultLoginPageGeneratingFilter();
 
+	private DefaultLogoutPageGeneratingFilter logoutPageGeneratingFilter = new DefaultLogoutPageGeneratingFilter();
+
 	@Override
 	public void init(H http) throws Exception {
-		this.loginPageGeneratingFilter.setResolveHiddenInputs( request -> {
+		Function<HttpServletRequest, Map<String, String>> hiddenInputs = request -> {
 			CsrfToken token = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
-			if(token == null) {
+			if (token == null) {
 				return Collections.emptyMap();
 			}
 			return Collections.singletonMap(token.getParameterName(), token.getToken());
-		});
+		};
+		this.loginPageGeneratingFilter.setResolveHiddenInputs(hiddenInputs);
+		this.logoutPageGeneratingFilter.setResolveHiddenInputs(hiddenInputs);
 		http.setSharedObject(DefaultLoginPageGeneratingFilter.class,
 				loginPageGeneratingFilter);
 	}
@@ -92,6 +100,7 @@ public final class DefaultLoginPageConfigurer<H extends HttpSecurityBuilder<H>> 
 		if (loginPageGeneratingFilter.isEnabled() && authenticationEntryPoint == null) {
 			loginPageGeneratingFilter = postProcess(loginPageGeneratingFilter);
 			http.addFilter(loginPageGeneratingFilter);
+			http.addFilter(this.logoutPageGeneratingFilter);
 		}
 	}
 

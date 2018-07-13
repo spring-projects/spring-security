@@ -146,6 +146,7 @@ public interface HttpSecurityBuilder<H extends HttpSecurityBuilder<H>> extends
 	 * <li>{@link ConcurrentSessionFilter}</li>
 	 * <li>{@link OpenIDAuthenticationFilter}</li>
 	 * <li>{@link org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter}</li>
+	 * <li>{@link org.springframework.security.web.authentication.ui.DefaultLogoutPageGeneratingFilter}</li>
 	 * <li>{@link ConcurrentSessionFilter}</li>
 	 * <li>{@link DigestAuthenticationFilter}</li>
 	 * <li>{@link BasicAuthenticationFilter}</li>
