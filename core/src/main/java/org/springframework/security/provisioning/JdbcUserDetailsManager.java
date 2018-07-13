@@ -37,6 +37,7 @@ import org.springframework.util.Assert;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -121,6 +122,13 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 	private AuthenticationManager authenticationManager;
 
 	private UserCache userCache = new NullUserCache();
+
+	public JdbcUserDetailsManager() {
+	}
+
+	public JdbcUserDetailsManager(DataSource dataSource) {
+		setDataSource(dataSource);
+	}
 
 	// ~ Methods
 	// ========================================================================================================
