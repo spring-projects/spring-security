@@ -22,6 +22,7 @@ import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -85,6 +86,16 @@ public class FormLoginBeanDefinitionParserTests {
 	}
 
 	@Test
+	public void getLogoutWhenAutoConfigThenShowsDefaultLogoutPage()
+			throws Exception {
+
+		this.spring.configLocations(this.xml("AutoConfig")).autowire();
+
+		this.mvc.perform(get("/logout"))
+				.andExpect(content().string(containsString("action=\"/logout\"")));
+	}
+
+	@Test
 	public void getLoginWhenConfiguredWithCustomAttributesThenLoginPageReflects()
 			throws Exception {
 
@@ -118,6 +129,8 @@ public class FormLoginBeanDefinitionParserTests {
 						+ "</body></html>";
 
 		this.mvc.perform(get("/login")).andExpect(content().string(expectedContent));
+
+		this.mvc.perform(get("/logout")).andExpect(status().is3xxRedirection());
 	}
 
 	@Test

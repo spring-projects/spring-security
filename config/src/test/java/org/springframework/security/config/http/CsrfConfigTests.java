@@ -528,7 +528,8 @@ public class CsrfConfigTests {
 				this.xml("CsrfEnabled")
 			).autowire();
 
-		this.mvc.perform(get("/logout")).andExpect(status().isNotFound());
+		this.mvc.perform(get("/logout"))
+			.andExpect(status().isOk()); // renders form to log out but does not perform a redirect
 
 		// still logged in
 		this.mvc.perform(get("/authenticated")).andExpect(status().isOk());

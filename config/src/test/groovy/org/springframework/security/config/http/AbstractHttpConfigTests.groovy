@@ -28,7 +28,7 @@ import javax.servlet.http.HttpServletRequest
  *
  */
 abstract class AbstractHttpConfigTests extends AbstractXmlConfigTests {
-	final int AUTO_CONFIG_FILTERS = 14;
+	final int AUTO_CONFIG_FILTERS = 15;
 
 	def httpAutoConfig(Closure c) {
 		xml.http(['auto-config': 'true', 'use-expressions':false], c)
