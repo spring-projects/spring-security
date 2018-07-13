@@ -267,6 +267,19 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 		validateInput();
 		String key = getKey();
 		RememberMeServices rememberMeServices = getRememberMeServices(http, key);
+		if (rememberMeServices instanceof AbstractRememberMeServices) {
+			 /*
+         	  * To avoid CookieTheftException in PersistentTokenBasedRememberMeServices.processAutoLoginCookie(...), 
+         	  * override the key or config it twice like below:
+         	  * 
+         	  * <code>
+         	  *     http.rememberMe()
+         	  *      .key(key) 
+         	  *      .rememberMeServices(new PersistentTokenBasedRememberMeServices(key, userDetailsService, tokenRepository));
+         	  * </code>
+         	  */
+			key = rememberMeServices.getKey();
+		}
 		http.setSharedObject(RememberMeServices.class, rememberMeServices);
 		LogoutConfigurer<H> logoutConfigurer = http.getConfigurer(LogoutConfigurer.class);
 		if (logoutConfigurer != null && this.logoutHandler != null) {
