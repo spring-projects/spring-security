@@ -278,7 +278,7 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
          	  *      .rememberMeServices(new PersistentTokenBasedRememberMeServices(key, userDetailsService, tokenRepository));
          	  * </code>
          	  */
-			key = rememberMeServices.getKey();
+			key = ((AbstractRememberMeServices) rememberMeServices).getKey();
 		}
 		http.setSharedObject(RememberMeServices.class, rememberMeServices);
 		LogoutConfigurer<H> logoutConfigurer = http.getConfigurer(LogoutConfigurer.class);
