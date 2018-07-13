@@ -37,7 +37,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Constructor;
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -352,10 +351,10 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 			OAuth2AuthorizationRequest defaultAuthorizationRequest = defaultAuthorizationRequestResolver.resolve(req);
 			Map<String, Object> additionalParameters = new HashMap<>(defaultAuthorizationRequest.getAdditionalParameters());
 			additionalParameters.put(loginHintParamName, req.getParameter(loginHintParamName));
-			URI customAuthorizationRequestUri = UriComponentsBuilder
-					.fromUri(defaultAuthorizationRequest.getAuthorizationRequestUri())
+			String customAuthorizationRequestUri = UriComponentsBuilder
+					.fromUriString(defaultAuthorizationRequest.getAuthorizationRequestUri())
 					.queryParam(loginHintParamName, additionalParameters.get(loginHintParamName))
-					.build(true).toUri();
+					.build(true).toUriString();
 			return OAuth2AuthorizationRequest.from(defaultAuthorizationRequest)
 					.additionalParameters(additionalParameters)
 					.authorizationRequestUri(customAuthorizationRequestUri)

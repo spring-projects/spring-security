@@ -130,8 +130,7 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 		assertThat(authorizationRequest.getState()).isNotNull();
 		assertThat(authorizationRequest.getAdditionalParameters())
 				.containsExactly(entry(OAuth2ParameterNames.REGISTRATION_ID, clientRegistration.getRegistrationId()));
-		assertThat(authorizationRequest.getAuthorizationRequestUri())
-				.isEqualTo(OAuth2AuthorizationRequest.asUri(authorizationRequest));
+		assertThat(authorizationRequest.getAuthorizationRequestUri()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fregistration-1");
 	}
 
 	@Test
@@ -175,7 +174,7 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 		request.setServletPath(requestUri);
 
 		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(request);
-		assertThat(authorizationRequest.getAuthorizationRequestUri().toString()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=http%3A%2F%2Fexample.com%2Flogin%2Foauth2%2Fcode%2Fregistration-1");
+		assertThat(authorizationRequest.getAuthorizationRequestUri()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=http%3A%2F%2Fexample.com%2Flogin%2Foauth2%2Fcode%2Fregistration-1");
 	}
 
 	@Test
@@ -189,7 +188,7 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 		request.setServletPath(requestUri);
 
 		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(request);
-		assertThat(authorizationRequest.getAuthorizationRequestUri().toString()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=https%3A%2F%2Fexample.com%2Flogin%2Foauth2%2Fcode%2Fregistration-1");
+		assertThat(authorizationRequest.getAuthorizationRequestUri()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=https%3A%2F%2Fexample.com%2Flogin%2Foauth2%2Fcode%2Fregistration-1");
 	}
 
 	@Test
@@ -203,7 +202,7 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 				new ClientAuthorizationRequiredException(clientRegistration.getRegistrationId()));
 
 		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(request);
-		assertThat(authorizationRequest.getAuthorizationRequestUri().toString()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=http%3A%2F%2Flocalhost%2Fauthorize%2Foauth2%2Fcode%2Fregistration-1");
+		assertThat(authorizationRequest.getAuthorizationRequestUri()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=http%3A%2F%2Flocalhost%2Fauthorize%2Foauth2%2Fcode%2Fregistration-1");
 	}
 
 	@Test
@@ -214,7 +213,7 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 		request.setServletPath(requestUri);
 
 		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(request);
-		assertThat(authorizationRequest.getAuthorizationRequestUri().toString()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-2&scope=openid\\+profile\\+email&state=.{15,}&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fregistration-2");
+		assertThat(authorizationRequest.getAuthorizationRequestUri()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-2&scope=openid\\+profile\\+email&state=.{15,}&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fregistration-2");
 	}
 
 	@Test
@@ -226,7 +225,7 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 		request.setServletPath(requestUri);
 
 		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(request);
-		assertThat(authorizationRequest.getAuthorizationRequestUri().toString()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=http%3A%2F%2Flocalhost%2Fauthorize%2Foauth2%2Fcode%2Fregistration-1");
+		assertThat(authorizationRequest.getAuthorizationRequestUri()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=http%3A%2F%2Flocalhost%2Fauthorize%2Foauth2%2Fcode%2Fregistration-1");
 	}
 
 	@Test
@@ -238,6 +237,6 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 		request.setServletPath(requestUri);
 
 		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(request);
-		assertThat(authorizationRequest.getAuthorizationRequestUri().toString()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-2&scope=openid\\+profile\\+email&state=.{15,}&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fregistration-2");
+		assertThat(authorizationRequest.getAuthorizationRequestUri()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-2&scope=openid\\+profile\\+email&state=.{15,}&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fregistration-2");
 	}
 }

@@ -23,8 +23,6 @@ import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.Collections;
@@ -56,7 +54,7 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 	private Set<String> scopes;
 	private String state;
 	private Map<String, Object> additionalParameters;
-	private URI authorizationRequestUri;
+	private String authorizationRequestUri;
 
 	private OAuth2AuthorizationRequest() {
 	}
@@ -134,12 +132,16 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 	}
 
 	/**
-	 * Returns the {@code URI} of the OAuth 2.0 Authorization Request.
+	 * Returns the {@code URI} string representation of the OAuth 2.0 Authorization Request.
+	 *
+	 * <p>
+	 * <b>NOTE:</b> The {@code URI} string is encoded in the
+	 * {@code application/x-www-form-urlencoded} MIME format.
 	 *
 	 * @since 5.1
-	 * @return the {@code URI} of the OAuth 2.0 Authorization Request
+	 * @return the {@code URI} string representation of the OAuth 2.0 Authorization Request
 	 */
-	public URI getAuthorizationRequestUri() {
+	public String getAuthorizationRequestUri() {
 		return this.authorizationRequestUri;
 	}
 
@@ -182,44 +184,6 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 	}
 
 	/**
-	 * Returns a {@code URI} representation for the provided {@code authorizationRequest}.
-	 *
-	 * @since 5.1
-	 * @param authorizationRequest the authorization request
-	 * @return a {@code URI} representation of the authorization request
-	 */
-	public static URI asUri(OAuth2AuthorizationRequest authorizationRequest) {
-		Assert.notNull(authorizationRequest, "authorizationRequest cannot be null");
-
-		Map<String, String> parameters = new LinkedHashMap<>();
-		parameters.put(OAuth2ParameterNames.RESPONSE_TYPE, authorizationRequest.getResponseType().getValue());
-		parameters.put(OAuth2ParameterNames.CLIENT_ID, authorizationRequest.getClientId());
-		if (!CollectionUtils.isEmpty(authorizationRequest.getScopes())) {
-			parameters.put(OAuth2ParameterNames.SCOPE,
-					StringUtils.collectionToDelimitedString(authorizationRequest.getScopes(), " "));
-		}
-		if (authorizationRequest.getState() != null) {
-			parameters.put(OAuth2ParameterNames.STATE, authorizationRequest.getState());
-		}
-		if (authorizationRequest.getRedirectUri() != null) {
-			parameters.put(OAuth2ParameterNames.REDIRECT_URI, authorizationRequest.getRedirectUri());
-		}
-		authorizationRequest.getAdditionalParameters().entrySet().stream()
-				.filter(e -> !e.getKey().equals(OAuth2ParameterNames.REGISTRATION_ID))
-				.forEach(e -> parameters.put(e.getKey(), e.getValue().toString()));
-
-		try {
-			StringJoiner queryParams = new StringJoiner("&");
-			for (String paramName : parameters.keySet()) {
-				queryParams.add(paramName + "=" + URLEncoder.encode(parameters.get(paramName), "UTF-8"));
-			}
-			return new URI(authorizationRequest.getAuthorizationUri() + "?" + queryParams.toString());
-		} catch (UnsupportedEncodingException | URISyntaxException ex) {
-			throw new IllegalArgumentException("Unable to convert authorizationRequest to a URI: " + ex.getMessage(), ex);
-		}
-	}
-
-	/**
 	 * A builder for {@link OAuth2AuthorizationRequest}.
 	 */
 	public static class Builder {
@@ -231,7 +195,7 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 		private Set<String> scopes;
 		private String state;
 		private Map<String, Object> additionalParameters;
-		private URI authorizationRequestUri;
+		private String authorizationRequestUri;
 
 		private Builder(AuthorizationGrantType authorizationGrantType) {
 			Assert.notNull(authorizationGrantType, "authorizationGrantType cannot be null");
@@ -324,13 +288,17 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 		}
 
 		/**
-		 * Sets the {@code URI} of the OAuth 2.0 Authorization Request.
+		 * Sets the {@code URI} string representation of the OAuth 2.0 Authorization Request.
+		 *
+		 * <p>
+		 * <b>NOTE:</b> The {@code URI} string is <b>required</b> to be encoded in the
+		 * {@code application/x-www-form-urlencoded} MIME format.
 		 *
 		 * @since 5.1
-		 * @param authorizationRequestUri the {@code URI} of the OAuth 2.0 Authorization Request
+		 * @param authorizationRequestUri the {@code URI} string representation of the OAuth 2.0 Authorization Request
 		 * @return the {@link Builder}
 		 */
-		public Builder authorizationRequestUri(URI authorizationRequestUri) {
+		public Builder authorizationRequestUri(String authorizationRequestUri) {
 			this.authorizationRequestUri = authorizationRequestUri;
 			return this;
 		}
@@ -361,10 +329,41 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 				CollectionUtils.isEmpty(this.additionalParameters) ?
 					Collections.emptyMap() : new LinkedHashMap<>(this.additionalParameters));
 			authorizationRequest.authorizationRequestUri =
-					this.authorizationRequestUri != null ?
-						this.authorizationRequestUri : asUri(authorizationRequest);
+					StringUtils.hasText(this.authorizationRequestUri) ?
+						this.authorizationRequestUri : this.buildAuthorizationRequestUri();
 
 			return authorizationRequest;
+		}
+
+		private String buildAuthorizationRequestUri() {
+			Map<String, String> parameters = new LinkedHashMap<>();
+			parameters.put(OAuth2ParameterNames.RESPONSE_TYPE, this.responseType.getValue());
+			parameters.put(OAuth2ParameterNames.CLIENT_ID, this.clientId);
+			if (!CollectionUtils.isEmpty(this.scopes)) {
+				parameters.put(OAuth2ParameterNames.SCOPE,
+						StringUtils.collectionToDelimitedString(this.scopes, " "));
+			}
+			if (this.state != null) {
+				parameters.put(OAuth2ParameterNames.STATE, this.state);
+			}
+			if (this.redirectUri != null) {
+				parameters.put(OAuth2ParameterNames.REDIRECT_URI, this.redirectUri);
+			}
+			if (!CollectionUtils.isEmpty(this.additionalParameters)) {
+				this.additionalParameters.entrySet().stream()
+						.filter(e -> !e.getKey().equals(OAuth2ParameterNames.REGISTRATION_ID))
+						.forEach(e -> parameters.put(e.getKey(), e.getValue().toString()));
+			}
+
+			try {
+				StringJoiner queryParams = new StringJoiner("&");
+				for (String paramName : parameters.keySet()) {
+					queryParams.add(paramName + "=" + URLEncoder.encode(parameters.get(paramName), "UTF-8"));
+				}
+				return this.authorizationUri + "?" + queryParams.toString();
+			} catch (UnsupportedEncodingException ex) {
+				throw new IllegalArgumentException("Unable to build authorization request uri: " + ex.getMessage(), ex);
+			}
 		}
 	}
 }

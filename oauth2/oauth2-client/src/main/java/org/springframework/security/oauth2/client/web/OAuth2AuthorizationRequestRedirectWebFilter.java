@@ -183,7 +183,9 @@ public class OAuth2AuthorizationRequestRedirectWebFilter implements WebFilter {
 						.saveAuthorizationRequest(authorizationRequest, exchange);
 			}
 
-			URI redirectUri = authorizationRequest.getAuthorizationRequestUri();
+			URI redirectUri = UriComponentsBuilder
+					.fromUriString(authorizationRequest.getAuthorizationRequestUri())
+					.build(true).toUri();
 			return saveAuthorizationRequest
 					.then(this.authorizationRedirectStrategy.sendRedirect(exchange, redirectUri));
 		});
