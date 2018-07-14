@@ -216,6 +216,12 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 		return prefixEncodedPassword.substring(start + 1, end);
 	}
 
+	@Override
+	public boolean upgradeEncoding(String encodedPassword) {
+		String id = extractId(encodedPassword);
+		return !this.idForEncode.equalsIgnoreCase(id);
+	}
+
 	private String extractEncodedPassword(String prefixEncodedPassword) {
 		int start = prefixEncodedPassword.indexOf(SUFFIX);
 		return prefixEncodedPassword.substring(start + 1);

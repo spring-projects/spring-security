@@ -593,6 +593,11 @@ public abstract class WebSecurityConfigurerAdapter implements
 			return getPasswordEncoder().matches(rawPassword, encodedPassword);
 		}
 
+		@Override
+		public boolean upgradeEncoding(String encodedPassword) {
+			return getPasswordEncoder().upgradeEncoding(encodedPassword);
+		}
+
 		private PasswordEncoder getPasswordEncoder() {
 			if (this.passwordEncoder != null) {
 				return this.passwordEncoder;

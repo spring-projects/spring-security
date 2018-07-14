@@ -198,4 +198,29 @@ public class DelegatingPasswordEncoderTests {
 	public void matchesWhenRawPasswordNotNullAndEncodedPasswordNullThenThrowsIllegalArgumentException() {
 		this.passwordEncoder.matches(this.rawPassword, null);
 	}
+
+	@Test
+	public void upgradeEncodingWhenEncodedPasswordNullThenTrue() {
+		assertThat(this.passwordEncoder.upgradeEncoding(null)).isTrue();
+	}
+
+	@Test
+	public void upgradeEncodingWhenNullIdThenTrue() {
+		assertThat(this.passwordEncoder.upgradeEncoding(this.encodedPassword)).isTrue();
+	}
+
+	@Test
+	public void upgradeEncodingWhenIdInvalidFormatThenTrue() {
+		assertThat(this.passwordEncoder.upgradeEncoding("{bcrypt"+ this.encodedPassword)).isTrue();
+	}
+
+	@Test
+	public void upgradeEncodingWhenSameIdThenFalse() {
+		assertThat(this.passwordEncoder.upgradeEncoding(this.bcryptEncodedPassword)).isFalse();
+	}
+
+	@Test
+	public void upgradeEncodingWhenDifferentIdThenTrue() {
+		assertThat(this.passwordEncoder.upgradeEncoding(this.noopEncodedPassword)).isTrue();
+	}
 }
