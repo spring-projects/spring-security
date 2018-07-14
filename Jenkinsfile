@@ -58,7 +58,7 @@ try {
 				checkout scm
 				try {
 					withEnv(["JAVA_HOME=${ tool 'jdk9' }"]) {
-						sh "./gradlew clean test --no-daemon --stacktrace"
+						sh "./gradlew clean test --refresh-dependencies --no-daemon --stacktrace"
 					}
 				} catch(Exception e) {
 					currentBuild.result = 'FAILED: jdk9'
@@ -73,7 +73,7 @@ try {
 				checkout scm
 				try {
 					withEnv(["JAVA_HOME=${ tool 'jdk10' }"]) {
-						sh "./gradlew clean test --no-daemon --stacktrace"
+						sh "./gradlew clean test --refresh-dependencies --no-daemon --stacktrace"
 					}
 				} catch(Exception e) {
 					currentBuild.result = 'FAILED: jdk10'
@@ -88,7 +88,7 @@ try {
 				 checkout scm
 				 try {
 					 withEnv(["JAVA_HOME=${ tool 'jdk11' }"]) {
-						 sh "./gradlew clean test --no-daemon --stacktrace"
+						 sh "./gradlew clean test --refresh-dependencies --no-daemon --stacktrace"
 					 }
 				 } catch(Exception e) {
 					 currentBuild.result = 'FAILED: jdk11'
