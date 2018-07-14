@@ -269,12 +269,12 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 		RememberMeServices rememberMeServices = getRememberMeServices(http, key);
 		if (rememberMeServices instanceof AbstractRememberMeServices) {
 			 /*
-         	  * To avoid CookieTheftException in PersistentTokenBasedRememberMeServices.processAutoLoginCookie(...), 
+         	  * To avoid CookieTheftException in PersistentTokenBasedRememberMeServices.processAutoLoginCookie(...),
          	  * override the key or config it twice like below:
-         	  * 
+         	  *
          	  * <code>
          	  *     http.rememberMe()
-         	  *      .key(key) 
+         	  *      .key(key)
          	  *      .rememberMeServices(new PersistentTokenBasedRememberMeServices(key, userDetailsService, tokenRepository));
          	  * </code>
          	  */
