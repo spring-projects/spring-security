@@ -16,14 +16,6 @@
 
 package org.springframework.security.config.annotation.web.reactive;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.csrf;
-import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.basicAuthentication;
-import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.Credentials.basicAuthenticationCredentials;
-
-import java.nio.charset.StandardCharsets;
-import java.security.Principal;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -69,8 +61,15 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.config.EnableWebFlux;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.result.view.AbstractView;
-
 import reactor.core.publisher.Mono;
+
+import java.nio.charset.StandardCharsets;
+import java.security.Principal;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.csrf;
+import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.Credentials.basicAuthenticationCredentials;
+import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.basicAuthentication;
 
 /**
  * @author Rob Winch

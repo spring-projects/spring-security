@@ -22,6 +22,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.userdetails.UserDetailsPasswordService;
 
 /**
  * Lazily initializes the global authentication with a {@link UserDetailsService} if it is
@@ -65,11 +66,15 @@ class InitializeUserDetailsBeanManagerConfigurer
 			}
 
 			PasswordEncoder passwordEncoder = getBeanOrNull(PasswordEncoder.class);
+			UserDetailsPasswordService passwordManager = getBeanOrNull(UserDetailsPasswordService.class);
 
 			DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
 			provider.setUserDetailsService(userDetailsService);
 			if (passwordEncoder != null) {
 				provider.setPasswordEncoder(passwordEncoder);
+			}
+			if (passwordManager != null) {
+				provider.setUserDetailsPasswordService(passwordManager);
 			}
 			provider.afterPropertiesSet();
 

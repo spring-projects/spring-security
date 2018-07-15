@@ -52,6 +52,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.core.userdetails.UserDetailsPasswordService;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,6 +61,8 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.startsWith;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -392,6 +395,35 @@ public class AuthenticationConfigurationTests {
 		@Bean
 		PasswordEncoder passwordEncoder() {
 			return new BCryptPasswordEncoder();
+		}
+	}
+
+	@Test
+	public void getAuthenticationWhenUserDetailsServiceAndPasswordManagerThenManagerUsed() throws Exception {
+		UserDetails user = new User("user", "{noop}password",
+				AuthorityUtils.createAuthorityList("ROLE_USER"));
+		this.spring.register(UserDetailsPasswordManagerBeanConfig.class).autowire();
+		UserDetailsPasswordManagerBeanConfig.Manager manager = this.spring.getContext().getBean(UserDetailsPasswordManagerBeanConfig.Manager.class);
+		AuthenticationManager am = this.spring.getContext().getBean(AuthenticationConfiguration.class).getAuthenticationManager();
+		when(manager.loadUserByUsername("user")).thenReturn(User.withUserDetails(user).build(), User.withUserDetails(user).build());
+		when(manager.updatePassword(any(), any())).thenReturn(user);
+
+		am.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
+
+		verify(manager).updatePassword(eq(user), startsWith("{bcrypt}"));
+	}
+
+	@Configuration
+	@Import({AuthenticationConfiguration.class, ObjectPostProcessorConfiguration.class})
+	static class UserDetailsPasswordManagerBeanConfig {
+		Manager manager = mock(Manager.class);
+
+		@Bean
+		UserDetailsService userDetailsService() {
+			return this.manager;
+		}
+
+		interface Manager extends UserDetailsService, UserDetailsPasswordService {
 		}
 	}
 
