@@ -59,7 +59,9 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -172,6 +174,62 @@ public class WebSecurityConfigurerAdapterTests {
 		@Override
 		public void onApplicationEvent(AuthenticationSuccessEvent event) {
 			EVENTS.add(event);
+		}
+	}
+
+	@Test
+	public void loadConfigWhenInMemoryConfigureProtectedThenPasswordUpgraded() throws Exception {
+		this.spring.register(InMemoryConfigureProtectedConfig.class).autowire();
+
+		this.mockMvc.perform(formLogin())
+				.andExpect(status().is3xxRedirection());
+
+		UserDetailsService uds = this.spring.getContext()
+				.getBean(UserDetailsService.class);
+		assertThat(uds.loadUserByUsername("user").getPassword()).startsWith("{bcrypt}");
+	}
+
+	@EnableWebSecurity
+	static class InMemoryConfigureProtectedConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.inMemoryAuthentication()
+					.withUser(PasswordEncodedUser.user());
+		}
+
+		@Override
+		@Bean
+		public UserDetailsService userDetailsServiceBean() throws Exception {
+			return super.userDetailsServiceBean();
+		}
+	}
+
+	@Test
+	public void loadConfigWhenInMemoryConfigureGlobalThenPasswordUpgraded() throws Exception {
+		this.spring.register(InMemoryConfigureGlobalConfig.class).autowire();
+
+		this.mockMvc.perform(formLogin())
+				.andExpect(status().is3xxRedirection());
+
+		UserDetailsService uds = this.spring.getContext()
+				.getBean(UserDetailsService.class);
+		assertThat(uds.loadUserByUsername("user").getPassword()).startsWith("{bcrypt}");
+	}
+
+	@EnableWebSecurity
+	static class InMemoryConfigureGlobalConfig extends WebSecurityConfigurerAdapter {
+		@Autowired
+		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.inMemoryAuthentication()
+					.withUser(PasswordEncodedUser.user());
+		}
+
+		@Override
+		@Bean
+		public UserDetailsService userDetailsServiceBean() throws Exception {
+			return super.userDetailsServiceBean();
 		}
 	}
 
