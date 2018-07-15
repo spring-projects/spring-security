@@ -110,7 +110,7 @@ public class SpringSecurityCoreVersion {
 		Properties properties = new Properties();
 		try {
 			properties.load(SpringSecurityCoreVersion.class.getClassLoader().getResourceAsStream("META-INF/spring-security.versions"));
-		} catch (IOException e) {
+		} catch (IOException | NullPointerException e) {
 			return null;
 		}
 		return properties.getProperty("org.springframework:spring-core");
