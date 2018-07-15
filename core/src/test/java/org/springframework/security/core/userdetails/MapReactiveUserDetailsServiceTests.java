@@ -71,4 +71,10 @@ public class MapReactiveUserDetailsServiceTests {
 	public void findByUsernameWhenNotFoundThenEmpty() {
 		assertThat((users.findByUsername("notfound"))).isEqualTo(Mono.empty());
 	}
+
+	@Test
+	public void updatePassword() {
+		users.updatePassword(USER_DETAILS, "new").block();
+		assertThat(users.findByUsername(USER_DETAILS.getUsername()).block().getPassword()).isEqualTo("new");
+	}
 }
