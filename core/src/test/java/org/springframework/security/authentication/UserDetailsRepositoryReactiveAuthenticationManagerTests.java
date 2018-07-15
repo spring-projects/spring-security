@@ -115,7 +115,6 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 	public void authenticateWhenPasswordServiceAndBadCredentialsThenNotUpdated() {
 		when(this.userDetailsService.findByUsername(any())).thenReturn(Mono.just(this.user));
 		when(this.encoder.matches(any(), any())).thenReturn(false);
-		when(this.userDetailsPasswordService.updatePassword(any(), any())).thenReturn(Mono.just(this.user));
 		this.manager.setPasswordEncoder(this.encoder);
 		this.manager.setUserDetailsPasswordService(this.userDetailsPasswordService);
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
@@ -132,7 +131,6 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 		when(this.userDetailsService.findByUsername(any())).thenReturn(Mono.just(this.user));
 		when(this.encoder.matches(any(), any())).thenReturn(true);
 		when(this.encoder.upgradeEncoding(any())).thenReturn(false);
-		when(this.userDetailsPasswordService.updatePassword(any(), any())).thenReturn(Mono.just(this.user));
 		this.manager.setPasswordEncoder(this.encoder);
 		this.manager.setUserDetailsPasswordService(this.userDetailsPasswordService);
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(

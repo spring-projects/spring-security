@@ -238,6 +238,34 @@ public class EnableWebFluxSecurityTests {
 	}
 
 	@Test
+	public void passwordUpdateManagerUsed() {
+		this.spring.register(MapReactiveUserDetailsServiceConfig.class).autowire();
+		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.springSecurityFilterChain).build();
+
+		client
+				.get()
+				.uri("/")
+				.headers(h -> h.setBasicAuth("user", "password"))
+				.exchange()
+				.expectStatus().isOk();
+
+		ReactiveUserDetailsService users = this.spring.getContext().getBean(ReactiveUserDetailsService.class);
+		assertThat(users.findByUsername("user").block().getPassword()).startsWith("{bcrypt}");
+	}
+
+	@EnableWebFluxSecurity
+	static class MapReactiveUserDetailsServiceConfig {
+		@Bean
+		public MapReactiveUserDetailsService userDetailsService() {
+			return new MapReactiveUserDetailsService(User.withUsername("user")
+					.password("{noop}password")
+					.roles("USER")
+					.build()
+			);
+		}
+	}
+
+	@Test
 	public void formLoginWorks() {
 		this.spring.register(Config.class).autowire();
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(
