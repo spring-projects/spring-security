@@ -78,7 +78,7 @@ public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint,
 			ServletException {
 
 		final String urlEncodedService = createServiceUrl(servletRequest, response);
-		final String redirectUrl = createRedirectUrl(urlEncodedService);
+		final String redirectUrl = createRedirectUrl(servletRequest, urlEncodedService);
 
 		preCommence(servletRequest, response);
 
@@ -107,7 +107,7 @@ public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint,
 	 * @param serviceUrl the service url that should be included.
 	 * @return the redirect url. CANNOT be NULL.
 	 */
-	protected String createRedirectUrl(final String serviceUrl) {
+	protected String createRedirectUrl(final HttpServletRequest request, final String serviceUrl) {
 		return CommonUtils.constructRedirectUrl(this.loginUrl,
 				this.serviceProperties.getServiceParameter(), serviceUrl,
 				this.serviceProperties.isSendRenew(), false);
