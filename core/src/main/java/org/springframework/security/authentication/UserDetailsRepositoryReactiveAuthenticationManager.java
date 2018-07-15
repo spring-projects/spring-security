@@ -18,7 +18,9 @@ package org.springframework.security.authentication;
 
 import org.springframework.security.core.Authentication;
 
+import org.springframework.security.core.userdetails.ReactiveUserDetailsPasswordService;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.Assert;
@@ -38,6 +40,8 @@ public class UserDetailsRepositoryReactiveAuthenticationManager implements React
 
 	private PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
+	private ReactiveUserDetailsPasswordService userDetailsPasswordService;
+
 	private Scheduler scheduler = Schedulers.parallel();
 
 	public UserDetailsRepositoryReactiveAuthenticationManager(ReactiveUserDetailsService userDetailsService) {
@@ -48,11 +52,21 @@ public class UserDetailsRepositoryReactiveAuthenticationManager implements React
 	@Override
 	public Mono<Authentication> authenticate(Authentication authentication) {
 		final String username = authentication.getName();
+		final String presentedPassword = (String) authentication.getCredentials();
 		return this.userDetailsService.findByUsername(username)
 				.publishOn(this.scheduler)
-				.filter( u -> this.passwordEncoder.matches((String) authentication.getCredentials(), u.getPassword()))
+				.filter(u -> this.passwordEncoder.matches(presentedPassword, u.getPassword()))
 				.switchIfEmpty(Mono.defer(() -> Mono.error(new BadCredentialsException("Invalid Credentials"))))
-				.map( u -> new UsernamePasswordAuthenticationToken(u, u.getPassword(), u.getAuthorities()) );
+				.flatMap(u -> {
+					boolean upgradeEncoding = this.userDetailsPasswordService != null
+							&& this.passwordEncoder.upgradeEncoding(u.getPassword());
+					if (upgradeEncoding) {
+						String newPassword = this.passwordEncoder.encode(presentedPassword);
+						return this.userDetailsPasswordService.updatePassword(u, newPassword);
+					}
+					return Mono.just(u);
+				})
+				.map(u -> new UsernamePasswordAuthenticationToken(u, u.getPassword(), u.getAuthorities()) );
 	}
 
 	/**
@@ -79,5 +93,14 @@ public class UserDetailsRepositoryReactiveAuthenticationManager implements React
 	public void setScheduler(Scheduler scheduler) {
 		Assert.notNull(scheduler, "scheduler cannot be null");
 		this.scheduler = scheduler;
+	}
+
+	/**
+	 * Sets the service to use for upgrading passwords on successful authentication.
+	 * @param userDetailsPasswordService the service to use
+	 */
+	public void setUserDetailsPasswordService(
+			ReactiveUserDetailsPasswordService userDetailsPasswordService) {
+		this.userDetailsPasswordService = userDetailsPasswordService;
 	}
 }

@@ -22,6 +22,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.ReactiveUserDetailsPasswordService;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -32,7 +33,9 @@ import reactor.core.scheduler.Schedulers;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 /**
@@ -46,6 +49,9 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 
 	@Mock
 	private PasswordEncoder encoder;
+
+	@Mock
+	private ReactiveUserDetailsPasswordService userDetailsPasswordService;
 
 	@Mock
 	private Scheduler scheduler;
@@ -79,10 +85,61 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 		this.manager.setScheduler(this.scheduler);
 		this.manager.setPasswordEncoder(this.encoder);
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-			this.user, this.user.getPassword());
+				this.user, this.user.getPassword());
 
 		Authentication result = this.manager.authenticate(token).block();
 
 		verify(this.scheduler).schedule(any());
+	}
+
+	@Test
+	public void authenticateWhenPasswordServiceThenUpdated() {
+		String encodedPassword = "encoded";
+		when(this.userDetailsService.findByUsername(any())).thenReturn(Mono.just(this.user));
+		when(this.encoder.matches(any(), any())).thenReturn(true);
+		when(this.encoder.upgradeEncoding(any())).thenReturn(true);
+		when(this.encoder.encode(any())).thenReturn(encodedPassword);
+		when(this.userDetailsPasswordService.updatePassword(any(), any())).thenReturn(Mono.just(this.user));
+		this.manager.setPasswordEncoder(this.encoder);
+		this.manager.setUserDetailsPasswordService(this.userDetailsPasswordService);
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+				this.user, this.user.getPassword());
+
+		Authentication result = this.manager.authenticate(token).block();
+
+		verify(this.encoder).encode(this.user.getPassword());
+		verify(this.userDetailsPasswordService).updatePassword(eq(this.user), eq(encodedPassword));
+	}
+
+	@Test
+	public void authenticateWhenPasswordServiceAndBadCredentialsThenNotUpdated() {
+		when(this.userDetailsService.findByUsername(any())).thenReturn(Mono.just(this.user));
+		when(this.encoder.matches(any(), any())).thenReturn(false);
+		when(this.userDetailsPasswordService.updatePassword(any(), any())).thenReturn(Mono.just(this.user));
+		this.manager.setPasswordEncoder(this.encoder);
+		this.manager.setUserDetailsPasswordService(this.userDetailsPasswordService);
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+				this.user, this.user.getPassword());
+
+		assertThatThrownBy(() -> this.manager.authenticate(token).block())
+			.isInstanceOf(BadCredentialsException.class);
+
+		verifyZeroInteractions(this.userDetailsPasswordService);
+	}
+
+	@Test
+	public void authenticateWhenPasswordServiceAndUpgradeFalseThenNotUpdated() {
+		when(this.userDetailsService.findByUsername(any())).thenReturn(Mono.just(this.user));
+		when(this.encoder.matches(any(), any())).thenReturn(true);
+		when(this.encoder.upgradeEncoding(any())).thenReturn(false);
+		when(this.userDetailsPasswordService.updatePassword(any(), any())).thenReturn(Mono.just(this.user));
+		this.manager.setPasswordEncoder(this.encoder);
+		this.manager.setUserDetailsPasswordService(this.userDetailsPasswordService);
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+				this.user, this.user.getPassword());
+
+		Authentication result = this.manager.authenticate(token).block();
+
+		verifyZeroInteractions(this.userDetailsPasswordService);
 	}
 }
