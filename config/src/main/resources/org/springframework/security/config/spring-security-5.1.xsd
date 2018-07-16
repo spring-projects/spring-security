@@ -2721,6 +2721,7 @@
          <xs:enumeration value="LOGIN_PAGE_FILTER"/>
          <xs:enumeration value="LOGOUT_PAGE_FILTER"/>
          <xs:enumeration value="DIGEST_AUTH_FILTER"/>
+         <xs:enumeration value="BEARER_TOKEN_AUTH_FILTER"/>
          <xs:enumeration value="BASIC_AUTH_FILTER"/>
          <xs:enumeration value="REQUEST_CACHE_FILTER"/>
          <xs:enumeration value="SERVLET_API_SUPPORT_FILTER"/>

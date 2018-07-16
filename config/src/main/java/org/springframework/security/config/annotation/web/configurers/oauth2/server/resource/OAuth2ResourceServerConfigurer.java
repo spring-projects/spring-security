@@ -33,7 +33,6 @@ import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthen
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 
@@ -132,7 +131,7 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		filter.setBearerTokenResolver(bearerTokenResolver);
 		filter = postProcess(filter);
 
-		http.addFilterBefore(filter, BasicAuthenticationFilter.class);
+		http.addFilter(filter);
 
 		JwtDecoder decoder = this.jwtConfigurer.getJwtDecoder();
 
