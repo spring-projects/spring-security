@@ -18,8 +18,8 @@ package org.springframework.security.config.annotation.web.configurers.oauth2.se
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
@@ -51,7 +51,19 @@ import org.springframework.util.Assert;
  * </ul>
  *
  * <p>
- * When using {@link #jwt()}, a Jwk Set Uri must be supplied via {@link JwtConfigurer#jwkSetUri}
+ * When using {@link #jwt()}, either
+ *
+ * <ul>
+ * <li>
+ * supply a Jwk Set Uri via {@link JwtConfigurer#jwkSetUri}, or
+ * </li>
+ * <li>
+ * supply a {@link JwtDecoder} instance via {@link JwtConfigurer#decoder}, or
+ * </li>
+ * <li>
+ * expose a {@link JwtDecoder} bean
+ * </li>
+ * </ul>
  *
  * <h2>Security Filters</h2>
  *
@@ -77,10 +89,6 @@ import org.springframework.util.Assert;
  * <li>{@link AuthenticationManager}</li>
  * </ul>
  *
- * If {@link #jwt()} isn't supplied, then the {@link BearerTokenAuthenticationFilter} is still added, but without
- * any OAuth 2.0 {@link AuthenticationProvider}s. This is useful if needing to switch out Spring Security's Jwt support
- * for a custom one.
- *
  * @author Josh Cummings
  * @since 5.1
  * @see BearerTokenAuthenticationFilter
@@ -100,9 +108,14 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 	private BearerTokenAccessDeniedHandler accessDeniedHandler
 			= new BearerTokenAccessDeniedHandler();
 
-	private JwtConfigurer jwtConfigurer = new JwtConfigurer();
+	private JwtConfigurer jwtConfigurer;
 
 	public JwtConfigurer jwt() {
+		if ( this.jwtConfigurer == null ) {
+			ApplicationContext context = this.getBuilder().getSharedObject(ApplicationContext.class);
+			this.jwtConfigurer = new JwtConfigurer(context);
+		}
+
 		return this.jwtConfigurer;
 	}
 
@@ -133,32 +146,47 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 
 		http.addFilter(filter);
 
+		if ( this.jwtConfigurer == null ) {
+			throw new IllegalStateException("Jwt is the only supported format for bearer tokens " +
+					"in Spring Security and no Jwt configuration was found. Make sure to specify " +
+					"a jwk set uri by doing http.oauth2().resourceServer().jwt().jwkSetUri(uri), or wire a " +
+					"JwtDecoder instance by doing http.oauth2().resourceServer().jwt().decoder(decoder), or " +
+					"expose a JwtDecoder instance as a bean and do http.oauth2().resourceServer().jwt().");
+		}
+
 		JwtDecoder decoder = this.jwtConfigurer.getJwtDecoder();
 
-		if (decoder != null) {
-			JwtAuthenticationProvider provider =
-					new JwtAuthenticationProvider(decoder);
-			provider = postProcess(provider);
+		JwtAuthenticationProvider provider =
+				new JwtAuthenticationProvider(decoder);
+		provider = postProcess(provider);
 
-			http.authenticationProvider(provider);
-		} else {
-			throw new IllegalStateException("Jwt is the only supported format for bearer tokens " +
-					"in Spring Security and no instance of JwtDecoder could be found. Make sure to specify " +
-					"a jwk set uri by doing http.oauth2().resourceServer().jwt().jwkSetUri(uri)");
-		}
+		http.authenticationProvider(provider);
 	}
 
 	public class JwtConfigurer {
+		private final ApplicationContext context;
+
 		private JwtDecoder decoder;
 
-		private JwtConfigurer() {}
+		JwtConfigurer(ApplicationContext context) {
+			this.context = context;
+		}
+
+		public OAuth2ResourceServerConfigurer<H> decoder(JwtDecoder decoder) {
+			this.decoder = decoder;
+			return OAuth2ResourceServerConfigurer.this;
+		}
 
 		public OAuth2ResourceServerConfigurer<H> jwkSetUri(String uri) {
 			this.decoder = new NimbusJwtDecoderJwkSupport(uri);
 			return OAuth2ResourceServerConfigurer.this;
 		}
 
-		private JwtDecoder getJwtDecoder() {
+		JwtDecoder getJwtDecoder() {
+			if ( this.decoder == null ) {
+				return this.context.getBean(JwtDecoder.class);
+			}
+
 			return this.decoder;
 		}
 	}
