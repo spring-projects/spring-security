@@ -155,6 +155,7 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 		Map<String, String> uriVariables = new HashMap<>();
 		uriVariables.put("registrationId", clientRegistration.getRegistrationId());
 		String baseUrl = UriComponentsBuilder.fromHttpUrl(UrlUtils.buildFullRequestUrl(request))
+				.replaceQuery(null)
 				.replacePath(request.getContextPath())
 				.build()
 				.toUriString();
