@@ -44,6 +44,7 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
@@ -178,6 +179,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 	 */
 	public class AuthorizationEndpointConfig {
 		private String authorizationRequestBaseUri;
+		private OAuth2AuthorizationRequestResolver authorizationRequestResolver;
 		private AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository;
 
 		private AuthorizationEndpointConfig() {
@@ -192,6 +194,19 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		public AuthorizationEndpointConfig baseUri(String authorizationRequestBaseUri) {
 			Assert.hasText(authorizationRequestBaseUri, "authorizationRequestBaseUri cannot be empty");
 			this.authorizationRequestBaseUri = authorizationRequestBaseUri;
+			return this;
+		}
+
+		/**
+		 * Sets the resolver used for resolving {@link OAuth2AuthorizationRequest}'s.
+		 *
+		 * @since 5.1
+		 * @param authorizationRequestResolver the resolver used for resolving {@link OAuth2AuthorizationRequest}'s
+		 * @return the {@link AuthorizationEndpointConfig} for further configuration
+		 */
+		public AuthorizationEndpointConfig authorizationRequestResolver(OAuth2AuthorizationRequestResolver authorizationRequestResolver) {
+			Assert.notNull(authorizationRequestResolver, "authorizationRequestResolver cannot be null");
+			this.authorizationRequestResolver = authorizationRequestResolver;
 			return this;
 		}
 
@@ -444,13 +459,19 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 
 	@Override
 	public void configure(B http) throws Exception {
-		String authorizationRequestBaseUri = this.authorizationEndpointConfig.authorizationRequestBaseUri;
-		if (authorizationRequestBaseUri == null) {
-			authorizationRequestBaseUri = OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
-		}
+		OAuth2AuthorizationRequestRedirectFilter authorizationRequestFilter;
 
-		OAuth2AuthorizationRequestRedirectFilter authorizationRequestFilter = new OAuth2AuthorizationRequestRedirectFilter(
-			OAuth2ClientConfigurerUtils.getClientRegistrationRepository(this.getBuilder()), authorizationRequestBaseUri);
+		if (this.authorizationEndpointConfig.authorizationRequestResolver != null) {
+			authorizationRequestFilter = new OAuth2AuthorizationRequestRedirectFilter(
+					this.authorizationEndpointConfig.authorizationRequestResolver);
+		} else {
+			String authorizationRequestBaseUri = this.authorizationEndpointConfig.authorizationRequestBaseUri;
+			if (authorizationRequestBaseUri == null) {
+				authorizationRequestBaseUri = OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
+			}
+			authorizationRequestFilter = new OAuth2AuthorizationRequestRedirectFilter(
+					OAuth2ClientConfigurerUtils.getClientRegistrationRepository(this.getBuilder()), authorizationRequestBaseUri);
+		}
 
 		if (this.authorizationEndpointConfig.authorizationRequestRepository != null) {
 			authorizationRequestFilter.setAuthorizationRequestRepository(

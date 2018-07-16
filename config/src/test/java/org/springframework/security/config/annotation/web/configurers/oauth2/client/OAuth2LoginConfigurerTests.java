@@ -42,7 +42,9 @@ import org.springframework.security.oauth2.client.registration.InMemoryClientReg
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
+import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
@@ -105,11 +107,9 @@ public class OAuth2LoginConfigurerTests {
 	@Before
 	public void setup() {
 		this.request = new MockHttpServletRequest("GET", "");
+		this.request.setServletPath("/login/oauth2/code/google");
 		this.response = new MockHttpServletResponse();
 		this.filterChain = new MockFilterChain();
-
-		this.request.setMethod("GET");
-		this.request.setServletPath("/login/oauth2/code/google");
 	}
 
 	@After
@@ -223,6 +223,20 @@ public class OAuth2LoginConfigurerTests {
 		assertThat(authentication.getAuthorities()).hasSize(1);
 		assertThat(authentication.getAuthorities()).first()
 				.isInstanceOf(OAuth2UserAuthority.class).hasToString("ROLE_USER");
+	}
+
+	// gh-5521
+	@Test
+	public void oauth2LoginWithCustomAuthorizationRequestParameters() throws Exception {
+		loadConfig(OAuth2LoginConfigCustomAuthorizationRequestResolver.class);
+
+		String requestUri = "/oauth2/authorization/google";
+		this.request = new MockHttpServletRequest("GET", requestUri);
+		this.request.setServletPath(requestUri);
+
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
+
+		assertThat(this.response.getRedirectedUrl()).matches("https://accounts.google.com/o/oauth2/v2/auth\\?response_type=code&client_id=clientId&scope=openid\\+profile\\+email&state=.{15,}&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fgoogle&custom-param1=custom-value1");
 	}
 
 	@Test
@@ -403,6 +417,35 @@ public class OAuth2LoginConfigurerTests {
 						new InMemoryClientRegistrationRepository(CLIENT_REGISTRATION))
 					.loginProcessingUrl("/login/oauth2/*");
 			super.configure(http);
+		}
+	}
+
+	@EnableWebSecurity
+	static class OAuth2LoginConfigCustomAuthorizationRequestResolver extends CommonWebSecurityConfigurerAdapter {
+		private ClientRegistrationRepository clientRegistrationRepository =
+				new InMemoryClientRegistrationRepository(CLIENT_REGISTRATION);
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.oauth2Login()
+					.clientRegistrationRepository(this.clientRegistrationRepository)
+					.authorizationEndpoint()
+						.authorizationRequestResolver(this.getAuthorizationRequestResolver());
+			super.configure(http);
+		}
+
+		private OAuth2AuthorizationRequestResolver getAuthorizationRequestResolver() {
+			OAuth2AuthorizationRequestResolver defaultAuthorizationRequestResolver =
+					new DefaultOAuth2AuthorizationRequestResolver(this.clientRegistrationRepository, "/oauth2/authorization");
+			return request -> {
+				OAuth2AuthorizationRequest defaultAuthorizationRequest = defaultAuthorizationRequestResolver.resolve(request);
+				Map<String, Object> additionalParameters = new HashMap<>(defaultAuthorizationRequest.getAdditionalParameters());
+				additionalParameters.put("custom-param1", "custom-value1");
+				return OAuth2AuthorizationRequest.from(defaultAuthorizationRequest)
+						.additionalParameters(additionalParameters)
+						.build();
+			};
 		}
 	}
 

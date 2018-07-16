@@ -37,7 +37,9 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
+import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -74,6 +76,8 @@ public class OAuth2ClientConfigurerTests {
 
 	private static OAuth2AuthorizedClientService authorizedClientService;
 
+	private static OAuth2AuthorizationRequestResolver authorizationRequestResolver;
+
 	private static OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient;
 
 	private static RequestCache requestCache;
@@ -103,6 +107,8 @@ public class OAuth2ClientConfigurerTests {
 			.build();
 		clientRegistrationRepository = new InMemoryClientRegistrationRepository(this.registration1);
 		authorizedClientService = new InMemoryOAuth2AuthorizedClientService(clientRegistrationRepository);
+		authorizationRequestResolver = new DefaultOAuth2AuthorizationRequestResolver(
+				clientRegistrationRepository, "/oauth2/authorization");
 
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("access-token-1234")
 				.tokenType(OAuth2AccessToken.TokenType.BEARER)
@@ -173,6 +179,28 @@ public class OAuth2ClientConfigurerTests {
 		verify(requestCache).saveRequest(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
+	// gh-5521
+	@Test
+	public void configureWhenCustomAuthorizationRequestResolverSetThenAuthorizationRequestIncludesCustomParameters() throws Exception {
+		// Override default resolver
+		OAuth2AuthorizationRequestResolver defaultAuthorizationRequestResolver = authorizationRequestResolver;
+		authorizationRequestResolver = request -> {
+			OAuth2AuthorizationRequest defaultAuthorizationRequest = defaultAuthorizationRequestResolver.resolve(request);
+			Map<String, Object> additionalParameters = new HashMap<>(defaultAuthorizationRequest.getAdditionalParameters());
+			additionalParameters.put("param1", "value1");
+			return OAuth2AuthorizationRequest.from(defaultAuthorizationRequest)
+					.additionalParameters(additionalParameters)
+					.build();
+		};
+
+		this.spring.register(OAuth2ClientConfig.class).autowire();
+
+		MvcResult mvcResult = this.mockMvc.perform(get("/oauth2/authorization/registration-1"))
+				.andExpect(status().is3xxRedirection())
+				.andReturn();
+		assertThat(mvcResult.getResponse().getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=http%3A%2F%2Flocalhost%2Fclient-1&param1=value1");
+	}
+
 	@EnableWebSecurity
 	@EnableWebMvc
 	static class OAuth2ClientConfig extends WebSecurityConfigurerAdapter {
@@ -188,6 +216,9 @@ public class OAuth2ClientConfigurerTests {
 				.oauth2()
 					.client()
 						.authorizationCodeGrant()
+							.authorizationEndpoint()
+								.authorizationRequestResolver(authorizationRequestResolver)
+								.and()
 							.tokenEndpoint()
 								.accessTokenResponseClient(accessTokenResponseClient);
 		}
