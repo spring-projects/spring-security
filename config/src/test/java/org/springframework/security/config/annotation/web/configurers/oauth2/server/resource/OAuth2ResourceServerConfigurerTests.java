@@ -25,6 +25,10 @@ import javax.annotation.PreDestroy;
 
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
+import org.hamcrest.core.AllOf;
+import org.hamcrest.core.StringContains;
+import org.hamcrest.core.StringEndsWith;
+import org.hamcrest.core.StringStartsWith;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -115,7 +119,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 		this.mvc.perform(get("/").with(bearerToken(token)))
 				.andExpect(status().isUnauthorized())
-				.andExpect(invalidTokenHeader("An error occurred while attempting to decode the Jwt: Expired JWT"));
+				.andExpect(invalidTokenHeader("An error occurred while attempting to decode the Jwt"));
 	}
 
 	@Test
@@ -141,8 +145,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 		this.mvc.perform(get("/").with(bearerToken(token)))
 				.andExpect(status().isUnauthorized())
-				.andExpect(invalidTokenHeader("An error occurred while attempting to decode the Jwt: " +
-						"Couldn't retrieve remote JWK set: Connection refused (Connection refused)"));
+				.andExpect(invalidTokenHeader("An error occurred while attempting to decode the Jwt"));
 	}
 
 	@Test
@@ -166,8 +169,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 		this.mvc.perform(get("/").with(bearerToken(token)))
 				.andExpect(status().isUnauthorized())
-				.andExpect(invalidTokenHeader("An error occurred while attempting to decode the Jwt: " +
-						"Malformed payload"));
+				.andExpect(invalidTokenHeader("An error occurred while attempting to decode the Jwt: Malformed payload"));
 	}
 
 	@Test
@@ -192,8 +194,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 		this.mvc.perform(get("/").with(bearerToken(token)))
 				.andExpect(status().isUnauthorized())
-				.andExpect(invalidTokenHeader("An error occurred while attempting to decode the Jwt: " +
-						"JWT before use time"));
+				.andExpect(invalidTokenHeader("An error occurred while attempting to decode the Jwt"));
 	}
 
 	@Test
@@ -313,8 +314,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.mvc.perform(get("/")
 				.with(bearerToken(token)))
 				.andExpect(status().isUnauthorized())
-				.andExpect(invalidTokenHeader("An error occurred while attempting to decode the Jwt: " +
-						"Signed JWT rejected: Another algorithm expected, or no matching key(s) found"));
+				.andExpect(invalidTokenHeader("An error occurred while attempting to decode the Jwt"));
 	}
 
 	@Test
@@ -456,7 +456,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.mvc.perform(post("/authenticated")
 				.with(bearerToken(token)))
 				.andExpect(status().isUnauthorized())
-				.andExpect(invalidTokenHeader("An error occurred while attempting to decode the Jwt: Expired JWT"));
+				.andExpect(invalidTokenHeader("An error occurred while attempting to decode the Jwt"));
 	}
 
 	// -- Resource Server should not create sessions
@@ -785,17 +785,29 @@ public class OAuth2ResourceServerConfigurerTests {
 	}
 
 	private static ResultMatcher invalidRequestHeader(String message) {
-		return header().string(HttpHeaders.WWW_AUTHENTICATE, "Bearer " +
-				"error=\"invalid_request\", " +
-				"error_description=\"" + message + "\", " +
-				"error_uri=\"https://tools.ietf.org/html/rfc6750#section-3.1\"");
+		return header().string(HttpHeaders.WWW_AUTHENTICATE,
+				AllOf.allOf(
+						new StringStartsWith("Bearer " +
+								"error=\"invalid_request\", " +
+								"error_description=\""),
+						new StringContains(message),
+						new StringEndsWith(", " +
+								"error_uri=\"https://tools.ietf.org/html/rfc6750#section-3.1\"")
+						)
+				);
 	}
 
 	private static ResultMatcher invalidTokenHeader(String message) {
-		return header().string(HttpHeaders.WWW_AUTHENTICATE, "Bearer " +
-					"error=\"invalid_token\", " +
-					"error_description=\"" + message + "\", " +
-					"error_uri=\"https://tools.ietf.org/html/rfc6750#section-3.1\"");
+		return header().string(HttpHeaders.WWW_AUTHENTICATE,
+				AllOf.allOf(
+						new StringStartsWith("Bearer " +
+								"error=\"invalid_token\", " +
+								"error_description=\""),
+						new StringContains(message),
+						new StringEndsWith(", " +
+								"error_uri=\"https://tools.ietf.org/html/rfc6750#section-3.1\"")
+				)
+		);
 	}
 
 	private static ResultMatcher insufficientScopeHeader(String scope) {
