@@ -30,7 +30,7 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.TransientAuthentication;
+import org.springframework.security.core.Transient;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -445,7 +445,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 	}
 
 	private boolean isTransientAuthentication(Authentication authentication) {
-		return AnnotationUtils.getAnnotation(authentication.getClass(), TransientAuthentication.class) != null;
+		return AnnotationUtils.getAnnotation(authentication.getClass(), Transient.class) != null;
 	}
 
 	/**

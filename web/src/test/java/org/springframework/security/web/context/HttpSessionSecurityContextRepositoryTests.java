@@ -37,7 +37,7 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.TestingAuthenticationToken;
-import org.springframework.security.core.TransientAuthentication;
+import org.springframework.security.core.Transient;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -674,7 +674,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 		assertThat(session).isNull();
 	}
 
-	@TransientAuthentication
+	@Transient
 	private static class SomeTransientAuthentication extends AbstractAuthenticationToken {
 		public SomeTransientAuthentication() {
 			super(null);
@@ -697,7 +697,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 
 	@Target(ElementType.TYPE)
 	@Retention(RetentionPolicy.RUNTIME)
-	@TransientAuthentication
+	@Transient
 	public @interface TestTransientAuthentication {
 	}
 
