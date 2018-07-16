@@ -146,7 +146,7 @@ public class NimbusJwtDecoderJwkSupportTests {
 	}
 
 	@Test
-	public void decodeWhenJwkEndpointIsUnresponsiveThenReturnsStockException() throws Exception {
+	public void decodeWhenJwkEndpointIsUnresponsiveThenRetrunsJwtException() throws Exception {
 		try ( MockWebServer server = new MockWebServer() ) {
 			server.enqueue(new MockResponse().setBody(MALFORMED_JWK_SET));
 			String jwkSetUrl = server.url("/.well-known/jwks.json").toString();
@@ -157,8 +157,7 @@ public class NimbusJwtDecoderJwkSupportTests {
 
 			assertThatCode(() -> decoder.decode(SIGNED_JWT))
 					.isInstanceOf(JwtException.class)
-					.hasMessage("An error occurred while attempting to decode the Jwt: " +
-							"Couldn't retrieve remote JWK set: Connection refused (Connection refused)");
+					.hasMessageContaining("An error occurred while attempting to decode the Jwt");
 		}
 	}
 }
