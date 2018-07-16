@@ -19,7 +19,6 @@ import java.io.Serializable;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.servlet.Filter;
 
 import org.springframework.security.web.access.ExceptionTranslationFilter;
@@ -107,6 +106,9 @@ final class FilterComparator implements Comparator<Filter>, Serializable {
 		put(ConcurrentSessionFilter.class, order);
 		order += STEP;
 		put(DigestAuthenticationFilter.class, order);
+		order += STEP;
+		filterToOrder.put(
+				"org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationFilter", order);
 		order += STEP;
 		put(BasicAuthenticationFilter.class, order);
 		order += STEP;
