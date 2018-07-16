@@ -325,7 +325,7 @@ Alternatively, a good idea is to examine the libraries that are included in the 
 
 [[spring-security-core]]
 ===== Core - spring-security-core.jar
-Contains core authentication and access-contol classes and interfaces, remoting support and basic provisioning APIs.
+Contains core authentication and access-control classes and interfaces, remoting support and basic provisioning APIs.
 Required by any application which uses Spring Security.
 Supports standalone applications, remote clients, method (service layer) security and JDBC user provisioning.
 Contains the top-level packages:
