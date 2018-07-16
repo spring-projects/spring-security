@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.springframework.security.config.annotation.web.configurers;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
@@ -105,7 +104,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	private Integer maximumSessions;
 	private String expiredUrl;
 	private boolean maxSessionsPreventsLogin;
-	private SessionCreationPolicy sessionPolicy = SessionCreationPolicy.IF_REQUIRED;
+	private SessionCreationPolicy sessionPolicy;
 	private boolean enableSessionUrlRewriting;
 	private String invalidSessionUrl;
 	private String sessionAuthenticationErrorUrl;
@@ -549,7 +548,14 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link SessionCreationPolicy}
 	 */
 	SessionCreationPolicy getSessionCreationPolicy() {
-		return this.sessionPolicy;
+		if (this.sessionPolicy != null) {
+			return this.sessionPolicy;
+		}
+
+		SessionCreationPolicy sessionPolicy =
+				getBuilder().getSharedObject(SessionCreationPolicy.class);
+		return sessionPolicy == null ?
+				SessionCreationPolicy.IF_REQUIRED : sessionPolicy;
 	}
 
 	/**
@@ -558,8 +564,9 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return true if the {@link SessionCreationPolicy} allows session creation
 	 */
 	private boolean isAllowSessionCreation() {
-		return SessionCreationPolicy.ALWAYS == this.sessionPolicy
-				|| SessionCreationPolicy.IF_REQUIRED == this.sessionPolicy;
+		SessionCreationPolicy sessionPolicy = getSessionCreationPolicy();
+		return SessionCreationPolicy.ALWAYS == sessionPolicy
+				|| SessionCreationPolicy.IF_REQUIRED == sessionPolicy;
 	}
 
 	/**
@@ -567,7 +574,8 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return
 	 */
 	private boolean isStateless() {
-		return SessionCreationPolicy.STATELESS == this.sessionPolicy;
+		SessionCreationPolicy sessionPolicy = getSessionCreationPolicy();
+		return SessionCreationPolicy.STATELESS == sessionPolicy;
 	}
 
 	/**

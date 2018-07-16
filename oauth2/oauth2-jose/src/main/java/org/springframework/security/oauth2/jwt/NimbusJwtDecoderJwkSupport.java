@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,15 @@
  */
 package org.springframework.security.oauth2.jwt;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.text.ParseException;
+import java.time.Instant;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.RemoteKeySourceException;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.jwk.source.RemoteJWKSet;
 import com.nimbusds.jose.proc.JWSKeySelector;
@@ -29,14 +37,9 @@ import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
+
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.util.Assert;
-
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.time.Instant;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 /**
  * An implementation of a {@link JwtDecoder} that &quot;decodes&quot; a
@@ -48,6 +51,7 @@ import java.util.Map;
  * <b>NOTE:</b> This implementation uses the Nimbus JOSE + JWT SDK internally.
  *
  * @author Joe Grandja
+ * @author Josh Cummings
  * @since 5.0
  * @see JwtDecoder
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7519">JSON Web Token (JWT)</a>
@@ -56,6 +60,9 @@ import java.util.Map;
  * @see <a target="_blank" href="https://connect2id.com/products/nimbus-jose-jwt">Nimbus JOSE + JWT SDK</a>
  */
 public final class NimbusJwtDecoderJwkSupport implements JwtDecoder {
+	private static final String DECODING_ERROR_MESSAGE_TEMPLATE =
+			"An error occurred while attempting to decode the Jwt: %s";
+
 	private final URL jwkSetUrl;
 	private final JWSAlgorithm jwsAlgorithm;
 	private final ConfigurableJWTProcessor<SecurityContext> jwtProcessor;
@@ -108,7 +115,7 @@ public final class NimbusJwtDecoderJwkSupport implements JwtDecoder {
 		try {
 			return JWTParser.parse(token);
 		} catch (Exception ex) {
-			throw new JwtException("An error occurred while attempting to decode the Jwt: " + ex.getMessage(), ex);
+			throw new JwtException(String.format(DECODING_ERROR_MESSAGE_TEMPLATE, ex.getMessage()), ex);
 		}
 	}
 
@@ -135,8 +142,18 @@ public final class NimbusJwtDecoderJwkSupport implements JwtDecoder {
 
 			jwt = new Jwt(token, issuedAt, expiresAt, headers, jwtClaimsSet.getClaims());
 
+		} catch (RemoteKeySourceException ex) {
+			if (ex.getCause() instanceof ParseException) {
+				throw new JwtException(String.format(DECODING_ERROR_MESSAGE_TEMPLATE, "Malformed Jwk set"));
+			} else {
+				throw new JwtException(String.format(DECODING_ERROR_MESSAGE_TEMPLATE, ex.getMessage()), ex);
+			}
 		} catch (Exception ex) {
-			throw new JwtException("An error occurred while attempting to decode the Jwt: " + ex.getMessage(), ex);
+			if (ex.getCause() instanceof ParseException) {
+				throw new JwtException(String.format(DECODING_ERROR_MESSAGE_TEMPLATE, "Malformed payload"));
+			} else {
+				throw new JwtException(String.format(DECODING_ERROR_MESSAGE_TEMPLATE, ex.getMessage()), ex);
+			}
 		}
 
 		return jwt;
