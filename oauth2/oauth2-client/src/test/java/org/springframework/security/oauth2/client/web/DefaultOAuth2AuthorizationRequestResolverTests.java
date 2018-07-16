@@ -163,6 +163,22 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 				"http://localhost/login/oauth2/code/" + clientRegistration.getRegistrationId());
 	}
 
+	// gh-5520
+	@Test
+	public void resolveWhenAuthorizationRequestRedirectUriTemplatedThenRedirectUriExpandedExcludesQueryString() {
+		ClientRegistration clientRegistration = this.registration2;
+		String requestUri = this.authorizationRequestBaseUri + "/" + clientRegistration.getRegistrationId();
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
+		request.setServletPath(requestUri);
+		request.setQueryString("foo=bar");
+
+		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(request);
+		assertThat(authorizationRequest.getRedirectUri()).isNotEqualTo(
+				clientRegistration.getRedirectUriTemplate());
+		assertThat(authorizationRequest.getRedirectUri()).isEqualTo(
+				"http://localhost/login/oauth2/code/" + clientRegistration.getRegistrationId());
+	}
+
 	@Test
 	public void resolveWhenAuthorizationRequestIncludesPort80ThenExpandedRedirectUriExcludesPort() {
 		ClientRegistration clientRegistration = this.registration1;
