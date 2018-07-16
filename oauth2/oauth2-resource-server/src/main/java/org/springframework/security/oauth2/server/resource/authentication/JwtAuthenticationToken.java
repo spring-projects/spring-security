@@ -20,7 +20,7 @@ import java.util.Map;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
-import org.springframework.security.core.TransientAuthentication;
+import org.springframework.security.core.Transient;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 /**
@@ -32,7 +32,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
  * @see AbstractOAuth2TokenAuthenticationToken
  * @see Jwt
  */
-@TransientAuthentication
+@Transient
 public class JwtAuthenticationToken extends AbstractOAuth2TokenAuthenticationToken<Jwt> {
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 

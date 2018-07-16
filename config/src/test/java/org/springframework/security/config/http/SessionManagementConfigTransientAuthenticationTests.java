@@ -24,7 +24,7 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.TransientAuthentication;
+import org.springframework.security.core.Transient;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -75,7 +75,7 @@ public class SessionManagementConfigTransientAuthenticationTests {
 		}
 	}
 
-	@TransientAuthentication
+	@Transient
 	static class SomeTransientAuthentication extends AbstractAuthenticationToken {
 		SomeTransientAuthentication() {
 			super(null);
