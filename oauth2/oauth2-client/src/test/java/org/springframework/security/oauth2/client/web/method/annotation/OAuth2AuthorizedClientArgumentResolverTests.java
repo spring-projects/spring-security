@@ -120,17 +120,6 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 	}
 
 	@Test
-	public void resolveArgumentWhenParameterTypeOAuth2AuthorizedClientAndCurrentAuthenticationNullThenThrowIllegalStateException() throws Exception {
-		SecurityContextHolder.clearContext();
-		MethodParameter methodParameter = this.getMethodParameter("paramTypeAuthorizedClient", OAuth2AuthorizedClient.class);
-		assertThatThrownBy(() -> this.argumentResolver.resolveArgument(methodParameter, null, null, null))
-				.isInstanceOf(IllegalStateException.class)
-				.hasMessage("Unable to resolve the Authorized Client with registration identifier \"client1\". " +
-						"An \"authenticated\" or \"anonymous\" request is required. " +
-						"To allow for anonymous access, ensure HttpSecurity.anonymous() is configured.");
-	}
-
-	@Test
 	public void resolveArgumentWhenOAuth2AuthorizedClientFoundThenResolves() throws Exception {
 		MethodParameter methodParameter = this.getMethodParameter("paramTypeAuthorizedClient", OAuth2AuthorizedClient.class);
 		assertThat(this.argumentResolver.resolveArgument(

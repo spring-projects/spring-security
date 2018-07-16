@@ -100,13 +100,6 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 					"It must be provided via @RegisteredOAuth2AuthorizedClient(\"client1\") or @RegisteredOAuth2AuthorizedClient(registrationId = \"client1\").");
 		}
 
-		if (principal == null) {
-			// An Authentication is required given that an OAuth2AuthorizedClient is associated to a Principal
-			throw new IllegalStateException("Unable to resolve the Authorized Client with registration identifier \"" +
-					clientRegistrationId + "\". An \"authenticated\" or \"anonymous\" request is required. " +
-					"To allow for anonymous access, ensure HttpSecurity.anonymous() is configured.");
-		}
-
 		OAuth2AuthorizedClient authorizedClient = this.authorizedClientRepository.loadAuthorizedClient(
 			clientRegistrationId, principal, webRequest.getNativeRequest(HttpServletRequest.class));
 		if (authorizedClient == null) {
