@@ -64,11 +64,17 @@ import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoderJwkSupport;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
+import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
@@ -85,6 +91,7 @@ import org.springframework.web.context.support.GenericWebApplicationContext;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.core.StringStartsWith.startsWith;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -784,7 +791,100 @@ public class OAuth2ResourceServerConfigurerTests {
 				.isInstanceOf(NoUniqueBeanDefinitionException.class);
 	}
 
+	// -- exception handling
+
+	@Test
+	public void requestWhenRealmNameConfiguredThenUsesOnUnauthenticated()
+			throws Exception {
+
+		this.spring.register(RealmNameConfiguredOnEntryPoint.class, JwtDecoderConfig.class).autowire();
+
+		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
+		when(decoder.decode(anyString())).thenThrow(JwtException.class);
+
+		this.mvc.perform(get("/authenticated")
+				.with(bearerToken("invalid_token")))
+				.andExpect(status().isUnauthorized())
+				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, startsWith("Bearer realm=\"myRealm\"")));
+	}
+
+	@Test
+	public void requestWhenRealmNameConfiguredThenUsesOnAccessDenied()
+			throws Exception {
+
+		this.spring.register(RealmNameConfiguredOnAccessDeniedHandler.class, JwtDecoderConfig.class).autowire();
+
+		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
+		when(decoder.decode(anyString())).thenReturn(JWT);
+
+		this.mvc.perform(get("/authenticated")
+				.with(bearerToken("insufficiently_scoped")))
+				.andExpect(status().isForbidden())
+				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, startsWith("Bearer realm=\"myRealm\"")));
+	}
+
+	@Test
+	public void authenticationEntryPointWhenGivenNullThenThrowsException() {
+		ApplicationContext context = mock(ApplicationContext.class);
+		OAuth2ResourceServerConfigurer configurer = new OAuth2ResourceServerConfigurer(context);
+		assertThatCode(() -> configurer.authenticationEntryPoint(null))
+				.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void accessDeniedHandlerWhenGivenNullThenThrowsException() {
+		ApplicationContext context = mock(ApplicationContext.class);
+		OAuth2ResourceServerConfigurer configurer = new OAuth2ResourceServerConfigurer(context);
+		assertThatCode(() -> configurer.accessDeniedHandler(null))
+				.isInstanceOf(IllegalArgumentException.class);
+	}
+
 	// -- In combination with other authentication providers
+
+	@Test
+	public void requestWhenBasicAndResourceServerEntryPointsThenMatchedByRequest()
+			throws Exception {
+
+		this.spring.register(BasicAndResourceServerConfig.class, JwtDecoderConfig.class).autowire();
+
+		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
+		when(decoder.decode(anyString())).thenThrow(JwtException.class);
+
+		this.mvc.perform(get("/authenticated")
+				.with(httpBasic("some", "user")))
+				.andExpect(status().isUnauthorized())
+				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, startsWith("Basic")));
+
+		this.mvc.perform(get("/authenticated"))
+				.andExpect(status().isUnauthorized())
+				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, startsWith("Basic")));
+
+		this.mvc.perform(get("/authenticated")
+				.with(bearerToken("invalid_token")))
+				.andExpect(status().isUnauthorized())
+				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, startsWith("Bearer")));
+	}
+
+	@Test
+	public void requestWhenDefaultAndResourceServerAccessDeniedHandlersThenMatchedByRequest()
+			throws Exception {
+
+		this.spring.register(ExceptionHandlingAndResourceServerWithAccessDeniedHandlerConfig.class,
+				JwtDecoderConfig.class).autowire();
+
+		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
+		when(decoder.decode(anyString())).thenReturn(JWT);
+
+		this.mvc.perform(get("/authenticated")
+				.with(httpBasic("basic-user", "basic-password")))
+				.andExpect(status().isForbidden())
+				.andExpect(header().doesNotExist(HttpHeaders.WWW_AUTHENTICATE));
+
+		this.mvc.perform(get("/authenticated")
+				.with(bearerToken("insufficiently_scoped")))
+				.andExpect(status().isForbidden())
+				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, startsWith("Bearer")));
+	}
 
 	@Test
 	public void getWhenAlsoUsingHttpBasicThenCorrectProviderEngages()
@@ -898,6 +998,85 @@ public class OAuth2ResourceServerConfigurerTests {
 				.oauth2()
 					.resourceServer();
 			// @formatter:on
+		}
+	}
+
+	@EnableWebSecurity
+	static class RealmNameConfiguredOnEntryPoint extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().authenticated()
+					.and()
+				.oauth2()
+					.resourceServer()
+						.authenticationEntryPoint(authenticationEntryPoint())
+						.jwt();
+			// @formatter:on
+		}
+
+		AuthenticationEntryPoint authenticationEntryPoint() {
+			BearerTokenAuthenticationEntryPoint entryPoint =
+					new BearerTokenAuthenticationEntryPoint();
+			entryPoint.setRealmName("myRealm");
+			return entryPoint;
+		}
+	}
+
+	@EnableWebSecurity
+	static class RealmNameConfiguredOnAccessDeniedHandler extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().denyAll()
+					.and()
+				.oauth2()
+					.resourceServer()
+						.accessDeniedHandler(accessDeniedHandler())
+						.jwt();
+			// @formatter:on
+		}
+
+		AccessDeniedHandler accessDeniedHandler() {
+			BearerTokenAccessDeniedHandler accessDeniedHandler =
+					new BearerTokenAccessDeniedHandler();
+			accessDeniedHandler.setRealmName("myRealm");
+			return accessDeniedHandler;
+		}
+	}
+
+	@EnableWebSecurity
+	static class ExceptionHandlingAndResourceServerWithAccessDeniedHandlerConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().denyAll()
+					.and()
+				.exceptionHandling()
+					.defaultAccessDeniedHandlerFor(new AccessDeniedHandlerImpl(), request -> false)
+					.and()
+				.httpBasic()
+					.and()
+				.oauth2()
+					.resourceServer()
+						.jwt();
+			// @formatter:on
+		}
+
+		@Bean
+		public UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(
+					org.springframework.security.core.userdetails.User.withDefaultPasswordEncoder()
+							.username("basic-user")
+							.password("basic-password")
+							.roles("USER")
+							.build());
 		}
 	}
 
