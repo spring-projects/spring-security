@@ -73,7 +73,7 @@ public enum CommonOAuth2Provider {
 			builder.scope("public_profile", "email");
 			builder.authorizationUri("https://www.facebook.com/v2.8/dialog/oauth");
 			builder.tokenUri("https://graph.facebook.com/v2.8/oauth/access_token");
-			builder.userInfoUri("https://graph.facebook.com/me");
+			builder.userInfoUri("https://graph.facebook.com/me?fields=id,name,email");
 			builder.userNameAttributeName("id");
 			builder.clientName("Facebook");
 			return builder;
