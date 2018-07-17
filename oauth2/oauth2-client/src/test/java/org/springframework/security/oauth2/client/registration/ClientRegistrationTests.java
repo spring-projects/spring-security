@@ -351,4 +351,24 @@ public class ClientRegistrationTests {
 			.clientName(null)
 			.build();
 	}
+
+	@Test
+	public void buildWhenOverrideRegistrationIdThenOverridden() {
+		String overriddenId = "override";
+		ClientRegistration registration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
+				.registrationId(overriddenId)
+				.clientId(CLIENT_ID)
+				.clientSecret(CLIENT_SECRET)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.redirectUriTemplate(REDIRECT_URI)
+				.scope(SCOPES.toArray(new String[0]))
+				.authorizationUri(AUTHORIZATION_URI)
+				.tokenUri(TOKEN_URI)
+				.jwkSetUri(JWK_SET_URI)
+				.clientName(CLIENT_NAME)
+				.build();
+
+		assertThat(registration.getRegistrationId()).isEqualTo(overriddenId);
+	}
 }

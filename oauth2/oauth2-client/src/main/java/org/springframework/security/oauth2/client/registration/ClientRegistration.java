@@ -258,6 +258,17 @@ public final class ClientRegistration {
 		/**
 		 * Sets the client identifier.
 		 *
+		 * @param registrationId the registration id
+		 * @return the {@link Builder}
+		 */
+		public Builder registrationId(String registrationId) {
+			this.registrationId = registrationId;
+			return this;
+		}
+
+		/**
+		 * Sets the client identifier.
+		 *
 		 * @param clientId the client identifier
 		 * @return the {@link Builder}
 		 */
