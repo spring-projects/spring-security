@@ -89,7 +89,7 @@ public class CommonOAuth2ProviderTests {
 		assertThat(providerDetails.getTokenUri())
 			.isEqualTo("https://graph.facebook.com/v2.8/oauth/access_token");
 		assertThat(providerDetails.getUserInfoEndpoint().getUri())
-			.isEqualTo("https://graph.facebook.com/me");
+			.isEqualTo("https://graph.facebook.com/me?fields=id,name,email");
 		assertThat(providerDetails.getUserInfoEndpoint().getUserNameAttributeName())
 			.isEqualTo("id");
 		assertThat(providerDetails.getJwkSetUri()).isNull();
