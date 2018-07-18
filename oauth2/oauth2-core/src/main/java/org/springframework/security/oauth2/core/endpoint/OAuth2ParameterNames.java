@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,11 @@ package org.springframework.security.oauth2.core.endpoint;
 public interface OAuth2ParameterNames {
 
 	/**
+	 * {@code grant_type} - used in Access Token Request.
+	 */
+	String GRANT_TYPE = "grant_type";
+
+	/**
 	 * {@code response_type} - used in Authorization Request.
 	 */
 	String RESPONSE_TYPE = "response_type";
@@ -34,6 +39,11 @@ public interface OAuth2ParameterNames {
 	 * {@code client_id} - used in Authorization Request and Access Token Request.
 	 */
 	String CLIENT_ID = "client_id";
+
+	/**
+	 * {@code client_secret} - used in Access Token Request.
+	 */
+	String CLIENT_SECRET = "client_secret";
 
 	/**
 	 * {@code redirect_uri} - used in Authorization Request and Access Token Request.
@@ -54,6 +64,26 @@ public interface OAuth2ParameterNames {
 	 * {@code code} - used in Authorization Response and Access Token Request.
 	 */
 	String CODE = "code";
+
+	/**
+	 * {@code access_token} - used in Authorization Response and Access Token Response.
+	 */
+	String ACCESS_TOKEN = "access_token";
+
+	/**
+	 * {@code token_type} - used in Authorization Response and Access Token Response.
+	 */
+	String TOKEN_TYPE = "token_type";
+
+	/**
+	 * {@code expires_in} - used in Authorization Response and Access Token Response.
+	 */
+	String EXPIRES_IN = "expires_in";
+
+	/**
+	 * {@code refresh_token} - used in Access Token Request and Access Token Response.
+	 */
+	String REFRESH_TOKEN = "refresh_token";
 
 	/**
 	 * {@code error} - used in Authorization Response and Access Token Response.

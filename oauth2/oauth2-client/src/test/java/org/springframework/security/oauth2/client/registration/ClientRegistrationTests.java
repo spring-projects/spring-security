@@ -25,6 +25,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Tests for {@link ClientRegistration}.
@@ -410,5 +411,92 @@ public class ClientRegistrationTests {
 				.build();
 
 		assertThat(registration.getRegistrationId()).isEqualTo(overriddenId);
+	}
+
+	@Test
+	public void buildWhenClientCredentialsGrantAllAttributesProvidedThenAllAttributesAreSet() {
+		ClientRegistration registration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
+				.clientId(CLIENT_ID)
+				.clientSecret(CLIENT_SECRET)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+				.scope(SCOPES.toArray(new String[0]))
+				.tokenUri(TOKEN_URI)
+				.clientName(CLIENT_NAME)
+				.build();
+
+		assertThat(registration.getRegistrationId()).isEqualTo(REGISTRATION_ID);
+		assertThat(registration.getClientId()).isEqualTo(CLIENT_ID);
+		assertThat(registration.getClientSecret()).isEqualTo(CLIENT_SECRET);
+		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC);
+		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.CLIENT_CREDENTIALS);
+		assertThat(registration.getScopes()).isEqualTo(SCOPES);
+		assertThat(registration.getProviderDetails().getTokenUri()).isEqualTo(TOKEN_URI);
+		assertThat(registration.getClientName()).isEqualTo(CLIENT_NAME);
+	}
+
+	@Test
+	public void buildWhenClientCredentialsGrantRegistrationIdIsNullThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() ->
+				ClientRegistration.withRegistrationId(null)
+						.clientId(CLIENT_ID)
+						.clientSecret(CLIENT_SECRET)
+						.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+						.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+						.tokenUri(TOKEN_URI)
+						.build()
+		).isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void buildWhenClientCredentialsGrantClientIdIsNullThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() ->
+				ClientRegistration.withRegistrationId(REGISTRATION_ID)
+						.clientId(null)
+						.clientSecret(CLIENT_SECRET)
+						.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+						.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+						.tokenUri(TOKEN_URI)
+						.build()
+		).isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void buildWhenClientCredentialsGrantClientSecretIsNullThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() ->
+				ClientRegistration.withRegistrationId(REGISTRATION_ID)
+						.clientId(CLIENT_ID)
+						.clientSecret(null)
+						.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+						.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+						.tokenUri(TOKEN_URI)
+						.build()
+		).isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void buildWhenClientCredentialsGrantClientAuthenticationMethodIsNullThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() ->
+				ClientRegistration.withRegistrationId(REGISTRATION_ID)
+						.clientId(CLIENT_ID)
+						.clientSecret(CLIENT_SECRET)
+						.clientAuthenticationMethod(null)
+						.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+						.tokenUri(TOKEN_URI)
+						.build()
+		).isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void buildWhenClientCredentialsGrantTokenUriIsNullThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() ->
+				ClientRegistration.withRegistrationId(REGISTRATION_ID)
+						.clientId(CLIENT_ID)
+						.clientSecret(CLIENT_SECRET)
+						.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+						.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+						.tokenUri(null)
+						.build()
+		).isInstanceOf(IllegalArgumentException.class);
 	}
 }

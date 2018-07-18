@@ -448,7 +448,9 @@ public final class ClientRegistration {
 		 */
 		public ClientRegistration build() {
 			Assert.notNull(this.authorizationGrantType, "authorizationGrantType cannot be null");
-			if (AuthorizationGrantType.IMPLICIT.equals(this.authorizationGrantType)) {
+			if (AuthorizationGrantType.CLIENT_CREDENTIALS.equals(this.authorizationGrantType)) {
+				this.validateClientCredentialsGrantType();
+			} else if (AuthorizationGrantType.IMPLICIT.equals(this.authorizationGrantType)) {
 				this.validateImplicitGrantType();
 			} else {
 				this.validateAuthorizationCodeGrantType();
@@ -506,6 +508,16 @@ public final class ClientRegistration {
 			Assert.hasText(this.redirectUriTemplate, "redirectUriTemplate cannot be empty");
 			Assert.hasText(this.authorizationUri, "authorizationUri cannot be empty");
 			Assert.hasText(this.clientName, "clientName cannot be empty");
+		}
+
+		private void validateClientCredentialsGrantType() {
+			Assert.isTrue(AuthorizationGrantType.CLIENT_CREDENTIALS.equals(this.authorizationGrantType),
+					() -> "authorizationGrantType must be " + AuthorizationGrantType.CLIENT_CREDENTIALS.getValue());
+			Assert.hasText(this.registrationId, "registrationId cannot be empty");
+			Assert.hasText(this.clientId, "clientId cannot be empty");
+			Assert.hasText(this.clientSecret, "clientSecret cannot be empty");
+			Assert.notNull(this.clientAuthenticationMethod, "clientAuthenticationMethod cannot be null");
+			Assert.hasText(this.tokenUri, "tokenUri cannot be empty");
 		}
 	}
 }
