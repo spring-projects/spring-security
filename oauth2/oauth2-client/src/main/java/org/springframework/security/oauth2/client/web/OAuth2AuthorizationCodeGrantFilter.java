@@ -15,6 +15,7 @@
  */
 package org.springframework.security.oauth2.client.web;
 
+import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -36,7 +37,6 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
-import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
@@ -145,8 +145,10 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 		if (authorizationRequest == null) {
 			return false;
 		}
-		String requestUrl = UrlUtils.buildFullRequestUrl(request.getScheme(), request.getServerName(),
-				request.getServerPort(), request.getRequestURI(), null);
+		String requestUrl = UriComponentsBuilder.fromHttpRequest(new ServletServerHttpRequest(request))
+				.replaceQuery(null)
+				.build()
+				.toUriString();
 		MultiValueMap<String, String> params = OAuth2AuthorizationResponseUtils.toMultiMap(request.getParameterMap());
 		if (requestUrl.equals(authorizationRequest.getRedirectUri()) &&
 				OAuth2AuthorizationResponseUtils.isAuthorizationResponse(params)) {
