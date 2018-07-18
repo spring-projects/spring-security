@@ -22,6 +22,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.web.header.Header;
 import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.util.ReflectionUtils;
@@ -59,7 +60,7 @@ public final class CacheControlHeadersWriter implements HeaderWriter {
 	@Override
 	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
 		if (hasHeader(response, CACHE_CONTROL) || hasHeader(response, EXPIRES)
-				|| hasHeader(response, PRAGMA)) {
+				|| hasHeader(response, PRAGMA) || response.getStatus() == HttpStatus.NOT_MODIFIED.value()) {
 			return;
 		}
 		this.delegate.writeHeaders(request, response);

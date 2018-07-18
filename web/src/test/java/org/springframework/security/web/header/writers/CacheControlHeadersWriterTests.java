@@ -23,6 +23,7 @@ import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareOnlyThisForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.util.ReflectionUtils;
@@ -123,5 +124,15 @@ public class CacheControlHeadersWriterTests {
 		assertThat(this.response.getHeaderValues("Expires")).containsOnly("mock");
 		assertThat(this.response.getHeaderValue("Cache-Control")).isNull();
 		assertThat(this.response.getHeaderValue("Pragma")).isNull();
+	}
+
+	@Test
+	// gh-5534
+	public void writeHeadersDisabledIfNotModified() {
+		this.response.setStatus(HttpStatus.NOT_MODIFIED.value());
+
+		this.writer.writeHeaders(this.request, this.response);
+
+		assertThat(this.response.getHeaderNames()).isEmpty();
 	}
 }

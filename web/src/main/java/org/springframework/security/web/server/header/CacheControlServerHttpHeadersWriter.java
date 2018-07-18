@@ -16,6 +16,7 @@
 package org.springframework.security.web.server.header;
 
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ServerWebExchange;
 
 import reactor.core.publisher.Mono;
@@ -61,6 +62,9 @@ public class CacheControlServerHttpHeadersWriter implements ServerHttpHeadersWri
 
 	@Override
 	public Mono<Void> writeHttpHeaders(ServerWebExchange exchange) {
+		if (exchange.getResponse().getStatusCode() == HttpStatus.NOT_MODIFIED) {
+			return Mono.empty();
+		}
 		return CACHE_HEADERS.writeHttpHeaders(exchange);
 	}
 
