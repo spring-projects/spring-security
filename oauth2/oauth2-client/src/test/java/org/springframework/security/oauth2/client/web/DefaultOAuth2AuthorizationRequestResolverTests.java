@@ -207,6 +207,65 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 		assertThat(authorizationRequest.getAuthorizationRequestUri()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=https%3A%2F%2Fexample.com%2Flogin%2Foauth2%2Fcode%2Fregistration-1");
 	}
 
+	// gh-5535
+	@Test
+	public void resolveWhenAuthorizationRequestRedirectUriTemplatedThenRedirectUriXForwardedHeader() {
+		ClientRegistration clientRegistration = this.registration2;
+		String requestUri = this.authorizationRequestBaseUri + "/" + clientRegistration.getRegistrationId();
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
+		request.setServletPath(requestUri);
+		request.setScheme("http");
+		request.setServerName("localhost");
+		request.setServerPort(80);
+		request.addHeader("X-Forwarded-Proto", "https");
+		request.addHeader("X-Forwarded-Host", "192.168.0.1");
+		request.addHeader("X-Forwarded-Port", "443");
+
+		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(request);
+		assertThat(authorizationRequest.getRedirectUri()).isNotEqualTo(
+				clientRegistration.getRedirectUriTemplate());
+		assertThat(authorizationRequest.getRedirectUri()).isEqualTo(
+				"https://192.168.0.1/login/oauth2/code/" + clientRegistration.getRegistrationId());
+	}
+
+	// gh-5535
+	@Test
+	public void resolveWhenAuthorizationRequestRedirectUriTemplatedThenRedirectUriForwardedIPv4HostHeader() {
+		ClientRegistration clientRegistration = this.registration2;
+		String requestUri = this.authorizationRequestBaseUri + "/" + clientRegistration.getRegistrationId();
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
+		request.setServletPath(requestUri);
+		request.setScheme("http");
+		request.setServerName("localhost");
+		request.setServerPort(80);
+		request.addHeader("Forwarded", "host=192.168.0.1");
+
+		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(request);
+		assertThat(authorizationRequest.getRedirectUri()).isNotEqualTo(
+				clientRegistration.getRedirectUriTemplate());
+		assertThat(authorizationRequest.getRedirectUri()).isEqualTo(
+				"http://192.168.0.1/login/oauth2/code/" + clientRegistration.getRegistrationId());
+	}
+
+	// gh-5535
+	@Test
+	public void resolveWhenAuthorizationRequestRedirectUriTemplatedThenRedirectUriForwardedIPv6HostHeader() {
+		ClientRegistration clientRegistration = this.registration2;
+		String requestUri = this.authorizationRequestBaseUri + "/" + clientRegistration.getRegistrationId();
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
+		request.setServletPath(requestUri);
+		request.setScheme("http");
+		request.setServerName("localhost");
+		request.setServerPort(80);
+		request.addHeader("Forwarded", "host=[1abc:2abc:3abc::5ABC:6abc]");
+
+		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(request);
+		assertThat(authorizationRequest.getRedirectUri()).isNotEqualTo(
+				clientRegistration.getRedirectUriTemplate());
+		assertThat(authorizationRequest.getRedirectUri()).isEqualTo(
+				"http://[1abc:2abc:3abc::5ABC:6abc]/login/oauth2/code/" + clientRegistration.getRegistrationId());
+	}
+
 	@Test
 	public void resolveWhenClientAuthorizationRequiredExceptionAvailableThenRedirectUriIsAuthorize() {
 		ClientRegistration clientRegistration = this.registration1;

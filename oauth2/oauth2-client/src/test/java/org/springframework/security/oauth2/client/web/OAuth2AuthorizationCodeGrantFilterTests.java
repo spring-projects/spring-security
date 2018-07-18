@@ -189,6 +189,60 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 		verify(filterChain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
+	// gh-5535
+	@Test
+	public void doFilterWhenAuthorizationResponseUrlForwardedHeaderMatchWithAuthorizationRequestRedirectUri() throws Exception {
+		String requestUri = "/callback/client-1";
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
+		request.setScheme("http");
+		request.setServerName("192.168.0.1");
+		request.setServerPort(80);
+		request.setServletPath(requestUri);
+		request.addParameter(OAuth2ParameterNames.CODE, "code");
+		request.addParameter(OAuth2ParameterNames.STATE, "state");
+
+		HttpServletResponse response = mock(HttpServletResponse.class);
+		FilterChain filterChain = mock(FilterChain.class);
+
+		this.setUpAuthorizationRequest(request, response, this.registration1);
+		this.setUpAuthenticationResult(this.registration1);
+		request.setServerName("localhost");
+		request.addHeader("Forwarded", "host=192.168.0.1");
+
+		this.filter.doFilter(request, response, filterChain);
+
+		verify(filterChain, never()).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
+	}
+
+	// gh-5535
+	@Test
+	public void doFilterWhenAuthorizationResponseUrlXForwardedHeaderMatchWithAuthorizationRequestRedirectUri() throws Exception {
+		String requestUri = "/callback/client-1";
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
+		request.setScheme("https");
+		request.setServerName("192.168.0.1");
+		request.setServerPort(443);
+		request.setServletPath(requestUri);
+		request.addParameter(OAuth2ParameterNames.CODE, "code");
+		request.addParameter(OAuth2ParameterNames.STATE, "state");
+
+		HttpServletResponse response = mock(HttpServletResponse.class);
+		FilterChain filterChain = mock(FilterChain.class);
+
+		this.setUpAuthorizationRequest(request, response, this.registration1);
+		this.setUpAuthenticationResult(this.registration1);
+		request.setScheme("http");
+		request.setServerName("localhost");
+		request.setServerPort(80);
+		request.addHeader("X-Forwarded-Proto", "https");
+		request.addHeader("X-Forwarded-Host", "192.168.0.1");
+		request.addHeader("X-Forwarded-Port", "443");
+
+		this.filter.doFilter(request, response, filterChain);
+
+		verify(filterChain, never()).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
+	}
+
 	@Test
 	public void doFilterWhenAuthorizationResponseValidThenAuthorizationRequestRemoved() throws Exception {
 		String requestUri = "/callback/client-1";
