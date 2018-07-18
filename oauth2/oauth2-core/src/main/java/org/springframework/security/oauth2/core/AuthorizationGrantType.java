@@ -38,6 +38,7 @@ public final class AuthorizationGrantType implements Serializable {
 	public static final AuthorizationGrantType AUTHORIZATION_CODE = new AuthorizationGrantType("authorization_code");
 	public static final AuthorizationGrantType IMPLICIT = new AuthorizationGrantType("implicit");
 	public static final AuthorizationGrantType REFRESH_TOKEN = new AuthorizationGrantType("refresh_token");
+	public static final AuthorizationGrantType CLIENT_CREDENTIALS = new AuthorizationGrantType("client_credentials");
 	private final String value;
 
 	/**
