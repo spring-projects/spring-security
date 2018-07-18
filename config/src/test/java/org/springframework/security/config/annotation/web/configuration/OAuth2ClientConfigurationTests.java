@@ -99,6 +99,11 @@ public class OAuth2ClientConfigurationTests {
 		}
 
 		@Bean
+		public ClientRegistrationRepository clientRegistrationRepository() {
+			return mock(ClientRegistrationRepository.class);
+		}
+
+		@Bean
 		public OAuth2AuthorizedClientRepository authorizedClientRepository() {
 			return AUTHORIZED_CLIENT_REPOSITORY;
 		}
