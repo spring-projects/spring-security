@@ -42,9 +42,11 @@ import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserServ
 import org.springframework.security.oauth2.client.userinfo.DelegatingOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.client.web.AuthenticatedPrincipalOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
@@ -92,7 +94,7 @@ import java.util.Map;
  *
  * <ul>
  * <li>{@link ClientRegistrationRepository} (required)</li>
- * <li>{@link OAuth2AuthorizedClientService} (optional)</li>
+ * <li>{@link OAuth2AuthorizedClientRepository} (optional)</li>
  * <li>{@link GrantedAuthoritiesMapper} (optional)</li>
  * </ul>
  *
@@ -102,7 +104,7 @@ import java.util.Map;
  *
  * <ul>
  * <li>{@link ClientRegistrationRepository}</li>
- * <li>{@link OAuth2AuthorizedClientService}</li>
+ * <li>{@link OAuth2AuthorizedClientRepository}</li>
  * <li>{@link GrantedAuthoritiesMapper}</li>
  * <li>{@link DefaultLoginPageGeneratingFilter} - if {@link #loginPage(String)} is not configured
  * and {@code DefaultLoginPageGeneratingFilter} is available, than a default login page will be made available</li>
@@ -115,6 +117,7 @@ import java.util.Map;
  * @see OAuth2AuthorizationRequestRedirectFilter
  * @see OAuth2LoginAuthenticationFilter
  * @see ClientRegistrationRepository
+ * @see OAuth2AuthorizedClientRepository
  * @see AbstractAuthenticationFilterConfigurer
  */
 public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> extends
@@ -140,6 +143,19 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 	}
 
 	/**
+	 * Sets the repository for authorized client(s).
+	 *
+	 * @since 5.1
+	 * @param authorizedClientRepository the authorized client repository
+	 * @return the {@link OAuth2LoginConfigurer} for further configuration
+	 */
+	public OAuth2LoginConfigurer<B> authorizedClientRepository(OAuth2AuthorizedClientRepository authorizedClientRepository) {
+		Assert.notNull(authorizedClientRepository, "authorizedClientRepository cannot be null");
+		this.getBuilder().setSharedObject(OAuth2AuthorizedClientRepository.class, authorizedClientRepository);
+		return this;
+	}
+
+	/**
 	 * Sets the service for authorized client(s).
 	 *
 	 * @param authorizedClientService the authorized client service
@@ -147,7 +163,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 	 */
 	public OAuth2LoginConfigurer<B> authorizedClientService(OAuth2AuthorizedClientService authorizedClientService) {
 		Assert.notNull(authorizedClientService, "authorizedClientService cannot be null");
-		this.getBuilder().setSharedObject(OAuth2AuthorizedClientService.class, authorizedClientService);
+		this.authorizedClientRepository(new AuthenticatedPrincipalOAuth2AuthorizedClientRepository(authorizedClientService));
 		return this;
 	}
 
@@ -400,7 +416,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		OAuth2LoginAuthenticationFilter authenticationFilter =
 			new OAuth2LoginAuthenticationFilter(
 				OAuth2ClientConfigurerUtils.getClientRegistrationRepository(this.getBuilder()),
-				OAuth2ClientConfigurerUtils.getAuthorizedClientService(this.getBuilder()),
+				OAuth2ClientConfigurerUtils.getAuthorizedClientRepository(this.getBuilder()),
 				this.loginProcessingUrl);
 		this.setAuthenticationFilter(authenticationFilter);
 		super.loginProcessingUrl(this.loginProcessingUrl);

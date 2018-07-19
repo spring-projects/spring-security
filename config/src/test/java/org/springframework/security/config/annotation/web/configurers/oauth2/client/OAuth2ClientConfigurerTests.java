@@ -23,6 +23,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -36,10 +37,12 @@ import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCo
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.AuthenticatedPrincipalOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -61,6 +64,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
@@ -75,6 +79,8 @@ public class OAuth2ClientConfigurerTests {
 	private static ClientRegistrationRepository clientRegistrationRepository;
 
 	private static OAuth2AuthorizedClientService authorizedClientService;
+
+	private static OAuth2AuthorizedClientRepository authorizedClientRepository;
 
 	private static OAuth2AuthorizationRequestResolver authorizationRequestResolver;
 
@@ -107,6 +113,7 @@ public class OAuth2ClientConfigurerTests {
 			.build();
 		clientRegistrationRepository = new InMemoryClientRegistrationRepository(this.registration1);
 		authorizedClientService = new InMemoryOAuth2AuthorizedClientService(clientRegistrationRepository);
+		authorizedClientRepository = new AuthenticatedPrincipalOAuth2AuthorizedClientRepository(authorizedClientService);
 		authorizationRequestResolver = new DefaultOAuth2AuthorizationRequestResolver(
 				clientRegistrationRepository, "/oauth2/authorization");
 
@@ -153,17 +160,18 @@ public class OAuth2ClientConfigurerTests {
 		MockHttpSession session = (MockHttpSession) request.getSession();
 
 		String principalName = "user1";
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken(principalName, "password");
 
 		this.mockMvc.perform(get("/client-1")
 			.param(OAuth2ParameterNames.CODE, "code")
 			.param(OAuth2ParameterNames.STATE, "state")
-			.with(user(principalName))
+			.with(authentication(authentication))
 			.session(session))
 			.andExpect(status().is3xxRedirection())
 			.andExpect(redirectedUrl("http://localhost/client-1"));
 
-		OAuth2AuthorizedClient authorizedClient = authorizedClientService.loadAuthorizedClient(
-			this.registration1.getRegistrationId(), principalName);
+		OAuth2AuthorizedClient authorizedClient = authorizedClientRepository.loadAuthorizedClient(
+			this.registration1.getRegistrationId(), authentication, request);
 		assertThat(authorizedClient).isNotNull();
 	}
 
@@ -229,8 +237,8 @@ public class OAuth2ClientConfigurerTests {
 		}
 
 		@Bean
-		public OAuth2AuthorizedClientService authorizedClientService() {
-			return authorizedClientService;
+		public OAuth2AuthorizedClientRepository authorizedClientRepository() {
+			return authorizedClientRepository;
 		}
 
 		@RestController
