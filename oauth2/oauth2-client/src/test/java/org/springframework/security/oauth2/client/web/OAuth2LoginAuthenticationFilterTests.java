@@ -70,10 +70,12 @@ public class OAuth2LoginAuthenticationFilterTests {
 	private ClientRegistration registration2;
 	private String principalName1 = "principal-1";
 	private ClientRegistrationRepository clientRegistrationRepository;
+	private OAuth2AuthorizedClientRepository authorizedClientRepository;
 	private OAuth2AuthorizedClientService authorizedClientService;
 	private AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository;
 	private AuthenticationFailureHandler failureHandler;
 	private AuthenticationManager authenticationManager;
+	private OAuth2LoginAuthenticationToken loginAuthentication;
 	private OAuth2LoginAuthenticationFilter filter;
 
 	@Before
@@ -107,11 +109,12 @@ public class OAuth2LoginAuthenticationFilterTests {
 		this.clientRegistrationRepository = new InMemoryClientRegistrationRepository(
 			this.registration1, this.registration2);
 		this.authorizedClientService = new InMemoryOAuth2AuthorizedClientService(this.clientRegistrationRepository);
+		this.authorizedClientRepository = new AuthenticatedPrincipalOAuth2AuthorizedClientRepository(this.authorizedClientService);
 		this.authorizationRequestRepository = new HttpSessionOAuth2AuthorizationRequestRepository();
 		this.failureHandler = mock(AuthenticationFailureHandler.class);
 		this.authenticationManager = mock(AuthenticationManager.class);
-		this.filter = spy(new OAuth2LoginAuthenticationFilter(
-			this.clientRegistrationRepository, this.authorizedClientService));
+		this.filter = spy(new OAuth2LoginAuthenticationFilter(this.clientRegistrationRepository,
+				this.authorizedClientRepository, OAuth2LoginAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI));
 		this.filter.setAuthorizationRequestRepository(this.authorizationRequestRepository);
 		this.filter.setAuthenticationFailureHandler(this.failureHandler);
 		this.filter.setAuthenticationManager(this.authenticationManager);
@@ -130,8 +133,15 @@ public class OAuth2LoginAuthenticationFilterTests {
 	}
 
 	@Test
+	public void constructorWhenAuthorizedClientRepositoryIsNullThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() -> new OAuth2LoginAuthenticationFilter(this.clientRegistrationRepository,
+				(OAuth2AuthorizedClientRepository) null, OAuth2LoginAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI))
+				.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
 	public void constructorWhenFilterProcessesUrlIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2LoginAuthenticationFilter(this.clientRegistrationRepository, this.authorizedClientService, null))
+		assertThatThrownBy(() -> new OAuth2LoginAuthenticationFilter(this.clientRegistrationRepository, this.authorizedClientRepository, null))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
@@ -276,8 +286,8 @@ public class OAuth2LoginAuthenticationFilterTests {
 
 		this.filter.doFilter(request, response, filterChain);
 
-		OAuth2AuthorizedClient authorizedClient = this.authorizedClientService.loadAuthorizedClient(
-			this.registration1.getRegistrationId(), this.principalName1);
+		OAuth2AuthorizedClient authorizedClient = this.authorizedClientRepository.loadAuthorizedClient(
+			this.registration1.getRegistrationId(), this.loginAuthentication, request);
 		assertThat(authorizedClient).isNotNull();
 		assertThat(authorizedClient.getClientRegistration()).isEqualTo(this.registration1);
 		assertThat(authorizedClient.getPrincipalName()).isEqualTo(this.principalName1);
@@ -289,7 +299,7 @@ public class OAuth2LoginAuthenticationFilterTests {
 	public void doFilterWhenCustomFilterProcessesUrlThenFilterProcesses() throws Exception {
 		String filterProcessesUrl = "/login/oauth2/custom/*";
 		this.filter = spy(new OAuth2LoginAuthenticationFilter(
-			this.clientRegistrationRepository, this.authorizedClientService, filterProcessesUrl));
+			this.clientRegistrationRepository, this.authorizedClientRepository, filterProcessesUrl));
 		this.filter.setAuthenticationManager(this.authenticationManager);
 
 		String requestUri = "/login/oauth2/custom/" + this.registration2.getRegistrationId();
@@ -324,13 +334,15 @@ public class OAuth2LoginAuthenticationFilterTests {
 	private void setUpAuthenticationResult(ClientRegistration registration) {
 		OAuth2User user = mock(OAuth2User.class);
 		when(user.getName()).thenReturn(this.principalName1);
-		OAuth2LoginAuthenticationToken loginAuthentication = mock(OAuth2LoginAuthenticationToken.class);
-		when(loginAuthentication.getPrincipal()).thenReturn(user);
-		when(loginAuthentication.getAuthorities()).thenReturn(AuthorityUtils.createAuthorityList("ROLE_USER"));
-		when(loginAuthentication.getClientRegistration()).thenReturn(registration);
-		when(loginAuthentication.getAuthorizationExchange()).thenReturn(mock(OAuth2AuthorizationExchange.class));
-		when(loginAuthentication.getAccessToken()).thenReturn(mock(OAuth2AccessToken.class));
-		when(loginAuthentication.getRefreshToken()).thenReturn(mock(OAuth2RefreshToken.class));
-		when(this.authenticationManager.authenticate(any(Authentication.class))).thenReturn(loginAuthentication);
+		this.loginAuthentication = mock(OAuth2LoginAuthenticationToken.class);
+		when(this.loginAuthentication.getPrincipal()).thenReturn(user);
+		when(this.loginAuthentication.getName()).thenReturn(this.principalName1);
+		when(this.loginAuthentication.getAuthorities()).thenReturn(AuthorityUtils.createAuthorityList("ROLE_USER"));
+		when(this.loginAuthentication.getClientRegistration()).thenReturn(registration);
+		when(this.loginAuthentication.getAuthorizationExchange()).thenReturn(mock(OAuth2AuthorizationExchange.class));
+		when(this.loginAuthentication.getAccessToken()).thenReturn(mock(OAuth2AccessToken.class));
+		when(this.loginAuthentication.getRefreshToken()).thenReturn(mock(OAuth2RefreshToken.class));
+		when(this.loginAuthentication.isAuthenticated()).thenReturn(true);
+		when(this.authenticationManager.authenticate(any(Authentication.class))).thenReturn(this.loginAuthentication);
 	}
 }

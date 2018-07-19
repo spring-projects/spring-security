@@ -20,8 +20,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.type.AnnotationMetadata;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
-import org.springframework.security.oauth2.client.web.AuthenticatedPrincipalOAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.method.annotation.OAuth2AuthorizedClientArgumentResolver;
 import org.springframework.util.ClassUtils;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -58,22 +57,21 @@ final class OAuth2ClientConfiguration {
 
 	@Configuration
 	static class OAuth2ClientWebMvcSecurityConfiguration implements WebMvcConfigurer {
-		private OAuth2AuthorizedClientService authorizedClientService;
+		private OAuth2AuthorizedClientRepository authorizedClientRepository;
 
 		@Override
 		public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
-			if (this.authorizedClientService != null) {
+			if (this.authorizedClientRepository != null) {
 				OAuth2AuthorizedClientArgumentResolver authorizedClientArgumentResolver =
-						new OAuth2AuthorizedClientArgumentResolver(
-								new AuthenticatedPrincipalOAuth2AuthorizedClientRepository(this.authorizedClientService));
+						new OAuth2AuthorizedClientArgumentResolver(this.authorizedClientRepository);
 				argumentResolvers.add(authorizedClientArgumentResolver);
 			}
 		}
 
 		@Autowired(required = false)
-		public void setAuthorizedClientService(List<OAuth2AuthorizedClientService> authorizedClientServices) {
-			if (authorizedClientServices.size() == 1) {
-				this.authorizedClientService = authorizedClientServices.get(0);
+		public void setAuthorizedClientRepository(List<OAuth2AuthorizedClientRepository> authorizedClientRepositories) {
+			if (authorizedClientRepositories.size() == 1) {
+				this.authorizedClientRepository = authorizedClientRepositories.get(0);
 			}
 		}
 	}

@@ -21,22 +21,27 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
+import javax.servlet.http.HttpServletRequest;
+
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -57,18 +62,20 @@ public class OAuth2ClientConfigurationTests {
 	public void requestWhenAuthorizedClientFoundThenMethodArgumentResolved() throws Exception {
 		String clientRegistrationId = "client1";
 		String principalName = "user1";
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken(principalName, "password");
 
-		OAuth2AuthorizedClientService authorizedClientService = mock(OAuth2AuthorizedClientService.class);
+		OAuth2AuthorizedClientRepository authorizedClientRepository = mock(OAuth2AuthorizedClientRepository.class);
 		OAuth2AuthorizedClient authorizedClient = mock(OAuth2AuthorizedClient.class);
-		when(authorizedClientService.loadAuthorizedClient(clientRegistrationId, principalName)).thenReturn(authorizedClient);
+		when(authorizedClientRepository.loadAuthorizedClient(
+				eq(clientRegistrationId), eq(authentication), any(HttpServletRequest.class))).thenReturn(authorizedClient);
 
 		OAuth2AccessToken accessToken = mock(OAuth2AccessToken.class);
 		when(authorizedClient.getAccessToken()).thenReturn(accessToken);
 
-		OAuth2AuthorizedClientArgumentResolverConfig.AUTHORIZED_CLIENT_SERVICE = authorizedClientService;
+		OAuth2AuthorizedClientArgumentResolverConfig.AUTHORIZED_CLIENT_REPOSITORY = authorizedClientRepository;
 		this.spring.register(OAuth2AuthorizedClientArgumentResolverConfig.class).autowire();
 
-		this.mockMvc.perform(get("/authorized-client").with(user(principalName)))
+		this.mockMvc.perform(get("/authorized-client").with(authentication(authentication)))
 			.andExpect(status().isOk())
 			.andExpect(content().string("resolved"));
 	}
@@ -76,7 +83,7 @@ public class OAuth2ClientConfigurationTests {
 	@EnableWebMvc
 	@EnableWebSecurity
 	static class OAuth2AuthorizedClientArgumentResolverConfig extends WebSecurityConfigurerAdapter {
-		static OAuth2AuthorizedClientService AUTHORIZED_CLIENT_SERVICE;
+		static OAuth2AuthorizedClientRepository AUTHORIZED_CLIENT_REPOSITORY;
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
@@ -92,23 +99,23 @@ public class OAuth2ClientConfigurationTests {
 		}
 
 		@Bean
-		public OAuth2AuthorizedClientService authorizedClientService() {
-			return AUTHORIZED_CLIENT_SERVICE;
+		public OAuth2AuthorizedClientRepository authorizedClientRepository() {
+			return AUTHORIZED_CLIENT_REPOSITORY;
 		}
 	}
 
 	// gh-5321
 	@Test
-	public void loadContextWhenOAuth2AuthorizedClientServiceRegisteredTwiceThenThrowNoUniqueBeanDefinitionException() {
-		assertThatThrownBy(() -> this.spring.register(OAuth2AuthorizedClientServiceRegisteredTwiceConfig.class).autowire())
+	public void loadContextWhenOAuth2AuthorizedClientRepositoryRegisteredTwiceThenThrowNoUniqueBeanDefinitionException() {
+		assertThatThrownBy(() -> this.spring.register(OAuth2AuthorizedClientRepositoryRegisteredTwiceConfig.class).autowire())
 				.hasRootCauseInstanceOf(NoUniqueBeanDefinitionException.class)
-				.hasMessageContaining("Expected single matching bean of type '" + OAuth2AuthorizedClientService.class.getName() +
-					"' but found 2: authorizedClientService1,authorizedClientService2");
+				.hasMessageContaining("Expected single matching bean of type '" + OAuth2AuthorizedClientRepository.class.getName() +
+					"' but found 2: authorizedClientRepository1,authorizedClientRepository2");
 	}
 
 	@EnableWebMvc
 	@EnableWebSecurity
-	static class OAuth2AuthorizedClientServiceRegisteredTwiceConfig extends WebSecurityConfigurerAdapter {
+	static class OAuth2AuthorizedClientRepositoryRegisteredTwiceConfig extends WebSecurityConfigurerAdapter {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
@@ -127,13 +134,13 @@ public class OAuth2ClientConfigurationTests {
 		}
 
 		@Bean
-		public OAuth2AuthorizedClientService authorizedClientService1() {
-			return mock(OAuth2AuthorizedClientService.class);
+		public OAuth2AuthorizedClientRepository authorizedClientRepository1() {
+			return mock(OAuth2AuthorizedClientRepository.class);
 		}
 
 		@Bean
-		public OAuth2AuthorizedClientService authorizedClientService2() {
-			return mock(OAuth2AuthorizedClientService.class);
+		public OAuth2AuthorizedClientRepository authorizedClientRepository2() {
+			return mock(OAuth2AuthorizedClientRepository.class);
 		}
 	}
 
@@ -194,8 +201,8 @@ public class OAuth2ClientConfigurationTests {
 		}
 
 		@Bean
-		public OAuth2AuthorizedClientService authorizedClientService() {
-			return mock(OAuth2AuthorizedClientService.class);
+		public OAuth2AuthorizedClientRepository authorizedClientRepository() {
+			return mock(OAuth2AuthorizedClientRepository.class);
 		}
 	}
 }

@@ -29,6 +29,7 @@ import org.springframework.security.oauth2.client.web.AuthorizationRequestReposi
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationCodeGrantFilter;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.util.Assert;
@@ -63,7 +64,7 @@ import org.springframework.util.Assert;
  *
  * <ul>
  * <li>{@link ClientRegistrationRepository} (required)</li>
- * <li>{@link OAuth2AuthorizedClientService} (optional)</li>
+ * <li>{@link OAuth2AuthorizedClientRepository} (optional)</li>
  * </ul>
  *
  * <h2>Shared Objects Used</h2>
@@ -72,7 +73,7 @@ import org.springframework.util.Assert;
  *
  * <ul>
  * <li>{@link ClientRegistrationRepository}</li>
- * <li>{@link OAuth2AuthorizedClientService}</li>
+ * <li>{@link OAuth2AuthorizedClientRepository}</li>
  * </ul>
  *
  * @author Joe Grandja
@@ -80,7 +81,7 @@ import org.springframework.util.Assert;
  * @see OAuth2AuthorizationRequestRedirectFilter
  * @see OAuth2AuthorizationCodeGrantFilter
  * @see ClientRegistrationRepository
- * @see OAuth2AuthorizedClientService
+ * @see OAuth2AuthorizedClientRepository
  * @see AbstractHttpConfigurer
  */
 public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>> extends
@@ -101,6 +102,18 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>> exte
 	}
 
 	/**
+	 * Sets the repository for authorized client(s).
+	 *
+	 * @param authorizedClientRepository the authorized client repository
+	 * @return the {@link OAuth2ClientConfigurer} for further configuration
+	 */
+	public OAuth2ClientConfigurer<B> authorizedClientRepository(OAuth2AuthorizedClientRepository authorizedClientRepository) {
+		Assert.notNull(authorizedClientRepository, "authorizedClientRepository cannot be null");
+		this.getBuilder().setSharedObject(OAuth2AuthorizedClientRepository.class, authorizedClientRepository);
+		return this;
+	}
+
+	/**
 	 * Sets the service for authorized client(s).
 	 *
 	 * @param authorizedClientService the authorized client service
@@ -108,7 +121,7 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>> exte
 	 */
 	public OAuth2ClientConfigurer<B> authorizedClientService(OAuth2AuthorizedClientService authorizedClientService) {
 		Assert.notNull(authorizedClientService, "authorizedClientService cannot be null");
-		this.getBuilder().setSharedObject(OAuth2AuthorizedClientService.class, authorizedClientService);
+		this.authorizedClientRepository(new AuthenticatedPrincipalOAuth2AuthorizedClientRepository(authorizedClientService));
 		return this;
 	}
 
@@ -309,8 +322,7 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>> exte
 
 		OAuth2AuthorizationCodeGrantFilter authorizationCodeGrantFilter = new OAuth2AuthorizationCodeGrantFilter(
 				OAuth2ClientConfigurerUtils.getClientRegistrationRepository(builder),
-				new AuthenticatedPrincipalOAuth2AuthorizedClientRepository(
-						OAuth2ClientConfigurerUtils.getAuthorizedClientService(builder)),
+				OAuth2ClientConfigurerUtils.getAuthorizedClientRepository(builder),
 				authenticationManager);
 
 		if (authorizationCodeGrantConfigurer.authorizationEndpointConfig.authorizationRequestRepository != null) {
