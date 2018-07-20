@@ -26,8 +26,10 @@ import java.util.Set;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.core.AuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
@@ -99,9 +101,22 @@ public class DefaultReactiveOAuth2UserService implements ReactiveOAuth2UserServi
 			ParameterizedTypeReference<Map<String, Object>> typeReference = new ParameterizedTypeReference<Map<String, Object>>() {
 			};
 
-			Mono<Map<String, Object>> userAttributes = this.webClient.get()
-					.uri(userInfoUri)
-					.headers(bearerToken(userRequest.getAccessToken().getTokenValue()))
+			AuthenticationMethod authenticationMethod = userRequest.getClientRegistration().getProviderDetails()
+					.getUserInfoEndpoint().getAuthenticationMethod();
+			WebClient.RequestHeadersSpec<?> requestHeadersSpec;
+			if (AuthenticationMethod.FORM.equals(authenticationMethod)) {
+				requestHeadersSpec = this.webClient.post()
+						.uri(userInfoUri)
+						.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+						.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+						.syncBody("access_token=" + userRequest.getAccessToken().getTokenValue());
+			} else {
+				requestHeadersSpec = this.webClient.get()
+						.uri(userInfoUri)
+						.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+						.headers(bearerToken(userRequest.getAccessToken().getTokenValue()));
+			}
+			Mono<Map<String, Object>> userAttributes = requestHeadersSpec
 					.retrieve()
 					.onStatus(s -> s != HttpStatus.OK, response -> {
 						return parse(response).map(userInfoErrorResponse -> {

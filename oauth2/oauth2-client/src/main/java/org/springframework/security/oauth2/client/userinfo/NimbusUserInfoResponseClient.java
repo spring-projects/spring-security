@@ -32,6 +32,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.core.AuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
@@ -79,8 +80,11 @@ final class NimbusUserInfoResponseClient {
 													OAuth2AccessToken oauth2AccessToken) throws OAuth2AuthenticationException {
 		URI userInfoUri = URI.create(clientRegistration.getProviderDetails().getUserInfoEndpoint().getUri());
 		BearerAccessToken accessToken = new BearerAccessToken(oauth2AccessToken.getTokenValue());
+		AuthenticationMethod authenticationMethod = clientRegistration.getProviderDetails().getUserInfoEndpoint().getAuthenticationMethod();
+		HTTPRequest.Method httpMethod = AuthenticationMethod.FORM.equals(authenticationMethod)
+				? HTTPRequest.Method.POST : HTTPRequest.Method.GET;
 
-		UserInfoRequest userInfoRequest = new UserInfoRequest(userInfoUri, accessToken);
+		UserInfoRequest userInfoRequest = new UserInfoRequest(userInfoUri, httpMethod, accessToken);
 		HTTPRequest httpRequest = userInfoRequest.toHTTPRequest();
 		httpRequest.setAccept(MediaType.APPLICATION_JSON_VALUE);
 		httpRequest.setConnectTimeout(30000);
