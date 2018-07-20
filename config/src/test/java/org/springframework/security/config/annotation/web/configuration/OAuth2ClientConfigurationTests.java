@@ -171,8 +171,7 @@ public class OAuth2ClientConfigurationTests {
 	public void loadContextWhenClientRegistrationRepositoryRegisteredTwiceThenThrowNoUniqueBeanDefinitionException() {
 		assertThatThrownBy(() -> this.spring.register(ClientRegistrationRepositoryRegisteredTwiceConfig.class).autowire())
 				.hasRootCauseInstanceOf(NoUniqueBeanDefinitionException.class)
-				.hasMessageContaining("Expected single matching bean of type '" + ClientRegistrationRepository.class.getName() +
-						"' but found 2: clientRegistrationRepository1,clientRegistrationRepository2");
+				.hasMessageContaining("expected single matching bean but found 2: clientRegistrationRepository1,clientRegistrationRepository2");
 	}
 
 	@EnableWebMvc
