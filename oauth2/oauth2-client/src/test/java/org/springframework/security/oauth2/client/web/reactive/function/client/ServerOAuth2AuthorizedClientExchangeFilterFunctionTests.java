@@ -62,18 +62,18 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.security.oauth2.client.web.reactive.function.client.OAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient;
+import static org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient;
 
 /**
  * @author Rob Winch
  * @since 5.1
  */
 @RunWith(MockitoJUnitRunner.class)
-public class OAuth2AuthorizedClientExchangeFilterFunctionTests {
+public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	@Mock
 	private ReactiveOAuth2AuthorizedClientService authorizedClientService;
 
-	private OAuth2AuthorizedClientExchangeFilterFunction function = new OAuth2AuthorizedClientExchangeFilterFunction();
+	private ServerOAuth2AuthorizedClientExchangeFilterFunction function = new ServerOAuth2AuthorizedClientExchangeFilterFunction();
 
 	private MockExchangeFunction exchange = new MockExchangeFunction();
 
@@ -151,7 +151,7 @@ public class OAuth2AuthorizedClientExchangeFilterFunctionTests {
 				this.accessToken.getTokenValue(),
 				issuedAt,
 				accessTokenExpiresAt);
-		this.function = new OAuth2AuthorizedClientExchangeFilterFunction(this.authorizedClientService);
+		this.function = new ServerOAuth2AuthorizedClientExchangeFilterFunction(this.authorizedClientService);
 
 		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", issuedAt, refreshTokenExpiresAt);
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.github,
@@ -200,7 +200,7 @@ public class OAuth2AuthorizedClientExchangeFilterFunctionTests {
 				this.accessToken.getTokenValue(),
 				issuedAt,
 				accessTokenExpiresAt);
-		this.function = new OAuth2AuthorizedClientExchangeFilterFunction(this.authorizedClientService);
+		this.function = new ServerOAuth2AuthorizedClientExchangeFilterFunction(this.authorizedClientService);
 
 		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", issuedAt, refreshTokenExpiresAt);
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.github,
@@ -232,7 +232,7 @@ public class OAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 	@Test
 	public void filterWhenRefreshTokenNullThenShouldRefreshFalse() {
-		this.function = new OAuth2AuthorizedClientExchangeFilterFunction(this.authorizedClientService);
+		this.function = new ServerOAuth2AuthorizedClientExchangeFilterFunction(this.authorizedClientService);
 
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.github,
 				"principalName", this.accessToken);
@@ -254,7 +254,7 @@ public class OAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 	@Test
 	public void filterWhenNotExpiredThenShouldRefreshFalse() {
-		this.function = new OAuth2AuthorizedClientExchangeFilterFunction(this.authorizedClientService);
+		this.function = new ServerOAuth2AuthorizedClientExchangeFilterFunction(this.authorizedClientService);
 
 		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", this.accessToken.getIssuedAt(), this.accessToken.getExpiresAt());
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.github,

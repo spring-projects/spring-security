@@ -57,7 +57,7 @@ import static org.springframework.security.web.http.SecurityHeaders.bearerToken;
  * @author Rob Winch
  * @since 5.1
  */
-public final class OAuth2AuthorizedClientExchangeFilterFunction implements ExchangeFilterFunction {
+public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements ExchangeFilterFunction {
 	/**
 	 * The request attribute name used to locate the {@link OAuth2AuthorizedClient}.
 	 */
@@ -69,9 +69,9 @@ public final class OAuth2AuthorizedClientExchangeFilterFunction implements Excha
 
 	private ReactiveOAuth2AuthorizedClientService authorizedClientService;
 
-	public OAuth2AuthorizedClientExchangeFilterFunction() {}
+	public ServerOAuth2AuthorizedClientExchangeFilterFunction() {}
 
-	public OAuth2AuthorizedClientExchangeFilterFunction(ReactiveOAuth2AuthorizedClientService authorizedClientService) {
+	public ServerOAuth2AuthorizedClientExchangeFilterFunction(ReactiveOAuth2AuthorizedClientService authorizedClientService) {
 		this.authorizedClientService = authorizedClientService;
 	}
 
@@ -97,7 +97,7 @@ public final class OAuth2AuthorizedClientExchangeFilterFunction implements Excha
 	 *
 	 * <ul>
 	 * <li>The ReactiveOAuth2AuthorizedClientService on the
-	 * {@link OAuth2AuthorizedClientExchangeFilterFunction} is not null</li>
+	 * {@link ServerOAuth2AuthorizedClientExchangeFilterFunction} is not null</li>
 	 * <li>A refresh token is present on the OAuth2AuthorizedClient</li>
 	 * <li>The access token will be expired in
 	 * {@link #setAccessTokenExpiresSkew(Duration)}</li>
