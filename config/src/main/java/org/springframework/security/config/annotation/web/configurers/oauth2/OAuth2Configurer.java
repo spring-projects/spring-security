@@ -16,6 +16,7 @@
 package org.springframework.security.config.annotation.web.configurers.oauth2;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -96,7 +97,8 @@ public final class OAuth2Configurer<B extends HttpSecurityBuilder<B>>
 	}
 
 	private void initResourceServerConfigurer() {
-		this.resourceServerConfigurer = new OAuth2ResourceServerConfigurer<>();
+		ApplicationContext context = getBuilder().getSharedObject(ApplicationContext.class);
+		this.resourceServerConfigurer = new OAuth2ResourceServerConfigurer<>(context);
 		this.resourceServerConfigurer.setBuilder(this.getBuilder());
 		this.resourceServerConfigurer.addObjectPostProcessor(this.objectPostProcessor);
 	}
