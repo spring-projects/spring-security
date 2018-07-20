@@ -66,6 +66,8 @@ import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoderJwkSupport;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
+import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -526,6 +528,107 @@ public class OAuth2ResourceServerConfigurerTests {
 		assertThat(result.getRequest().getSession(false)).isNotNull();
 	}
 
+	// -- custom bearer token resolver
+
+	@Test
+	public void requestWhenBearerTokenResolverAllowsRequestBodyThenEitherHeaderOrRequestBodyIsAccepted()
+			throws Exception {
+
+		this.spring.register(AllowBearerTokenInRequestBodyConfig.class, JwtDecoderConfig.class,
+				BasicController.class).autowire();
+
+		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
+		when(decoder.decode(anyString())).thenReturn(JWT);
+
+		this.mvc.perform(get("/authenticated")
+				.with(bearerToken(JWT_TOKEN)))
+				.andExpect(status().isOk())
+				.andExpect(content().string(JWT_SUBJECT));
+
+		this.mvc.perform(post("/authenticated")
+				.param("access_token", JWT_TOKEN))
+				.andExpect(status().isOk())
+				.andExpect(content().string(JWT_SUBJECT));
+	}
+
+	@Test
+	public void requestWhenBearerTokenResolverAllowsQueryParameterThenEitherHeaderOrQueryParameterIsAccepted()
+			throws Exception {
+
+		this.spring.register(AllowBearerTokenAsQueryParameterConfig.class, JwtDecoderConfig.class,
+				BasicController.class).autowire();
+
+		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
+		when(decoder.decode(anyString())).thenReturn(JWT);
+
+		this.mvc.perform(get("/authenticated")
+				.with(bearerToken(JWT_TOKEN)))
+				.andExpect(status().isOk())
+				.andExpect(content().string(JWT_SUBJECT));
+
+		this.mvc.perform(get("/authenticated")
+				.param("access_token", JWT_TOKEN))
+				.andExpect(status().isOk())
+				.andExpect(content().string(JWT_SUBJECT));
+	}
+
+	@Test
+	public void getBearerTokenResolverWhenDuplicateResolverBeansAndAnotherOnTheDslThenTheDslOneIsUsed() {
+		BearerTokenResolver resolverBean = mock(BearerTokenResolver.class);
+		BearerTokenResolver resolver = mock(BearerTokenResolver.class);
+
+		GenericWebApplicationContext context = new GenericWebApplicationContext();
+		context.registerBean("resolverOne", BearerTokenResolver.class, () -> resolverBean);
+		context.registerBean("resolverTwo", BearerTokenResolver.class, () -> resolverBean);
+		this.spring.context(context).autowire();
+
+		OAuth2ResourceServerConfigurer oauth2 = new OAuth2ResourceServerConfigurer(context);
+
+		oauth2.bearerTokenResolver(resolver);
+
+		assertThat(oauth2.getBearerTokenResolver()).isEqualTo(resolver);
+	}
+
+	@Test
+	public void getBearerTokenResolverWhenDuplicateResolverBeansThenWiringException() {
+		BearerTokenResolver resolverBean = mock(BearerTokenResolver.class);
+
+		GenericWebApplicationContext context = new GenericWebApplicationContext();
+		context.registerBean("resolverOne", BearerTokenResolver.class, () -> resolverBean);
+		context.registerBean("resolverTwo", BearerTokenResolver.class, () -> resolverBean);
+		this.spring.context(context).autowire();
+
+		OAuth2ResourceServerConfigurer oauth2 = new OAuth2ResourceServerConfigurer(context);
+
+		assertThatCode(() -> oauth2.getBearerTokenResolver())
+				.isInstanceOf(NoUniqueBeanDefinitionException.class);
+	}
+
+	@Test
+	public void getBearerTokenResolverWhenResolverBeanAndAnotherOnTheDslThenTheDslOneIsUsed() {
+		BearerTokenResolver resolver = mock(BearerTokenResolver.class);
+		BearerTokenResolver resolverBean = mock(BearerTokenResolver.class);
+
+		GenericWebApplicationContext context = new GenericWebApplicationContext();
+		context.registerBean(BearerTokenResolver.class, () -> resolverBean);
+		this.spring.context(context).autowire();
+
+		OAuth2ResourceServerConfigurer oauth2 = new OAuth2ResourceServerConfigurer(context);
+		oauth2.bearerTokenResolver(resolver);
+
+		assertThat(oauth2.getBearerTokenResolver()).isEqualTo(resolver);
+	}
+
+	@Test
+	public void getBearerTokenResolverWhenNoResolverSpecifiedThenTheDefaultIsUsed() {
+		ApplicationContext context =
+				this.spring.context(new GenericWebApplicationContext()).getContext();
+
+		OAuth2ResourceServerConfigurer oauth2 = new OAuth2ResourceServerConfigurer(context);
+
+		assertThat(oauth2.getBearerTokenResolver()).isInstanceOf(DefaultBearerTokenResolver.class);
+	}
+
 	// -- custom jwt decoder
 
 	@Test
@@ -564,7 +667,7 @@ public class OAuth2ResourceServerConfigurerTests {
 	@Test
 	public void getJwtDecoderWhenConfiguredWithDecoderAndJwkSetUriThenLastOneWins() {
 		OAuth2ResourceServerConfigurer.JwtConfigurer jwtConfigurer =
-				new OAuth2ResourceServerConfigurer().new JwtConfigurer(null);
+				new OAuth2ResourceServerConfigurer(null).jwt();
 
 		JwtDecoder decoder = mock(JwtDecoder.class);
 
@@ -574,7 +677,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		assertThat(jwtConfigurer.getJwtDecoder()).isEqualTo(decoder);
 
 		jwtConfigurer =
-				new OAuth2ResourceServerConfigurer().new JwtConfigurer(null);
+				new OAuth2ResourceServerConfigurer(null).jwt();
 
 		jwtConfigurer.decoder(decoder);
 		jwtConfigurer.jwkSetUri(JWK_SET_URI);
@@ -593,7 +696,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		when(context.getBean(JwtDecoder.class)).thenReturn(decoderBean);
 
 		OAuth2ResourceServerConfigurer.JwtConfigurer jwtConfigurer =
-				new OAuth2ResourceServerConfigurer().new JwtConfigurer(context);
+				new OAuth2ResourceServerConfigurer(context).jwt();
 		jwtConfigurer.decoder(decoder);
 
 		assertThat(jwtConfigurer.getJwtDecoder()).isEqualTo(decoder);
@@ -607,7 +710,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		when(context.getBean(JwtDecoder.class)).thenReturn(decoder);
 
 		OAuth2ResourceServerConfigurer.JwtConfigurer jwtConfigurer =
-				new OAuth2ResourceServerConfigurer().new JwtConfigurer(context);
+				new OAuth2ResourceServerConfigurer(context).jwt();
 
 		jwtConfigurer.jwkSetUri(JWK_SET_URI);
 
@@ -627,7 +730,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.spring.context(context).autowire();
 
 		OAuth2ResourceServerConfigurer.JwtConfigurer jwtConfigurer =
-				new OAuth2ResourceServerConfigurer().new JwtConfigurer(context);
+				new OAuth2ResourceServerConfigurer(context).jwt();
 		jwtConfigurer.decoder(decoder);
 
 		assertThat(jwtConfigurer.getJwtDecoder()).isEqualTo(decoder);
@@ -644,7 +747,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.spring.context(context).autowire();
 
 		OAuth2ResourceServerConfigurer.JwtConfigurer jwtConfigurer =
-				new OAuth2ResourceServerConfigurer().new JwtConfigurer(context);
+				new OAuth2ResourceServerConfigurer(context).jwt();
 
 		assertThatCode(() -> jwtConfigurer.getJwtDecoder())
 				.isInstanceOf(NoUniqueBeanDefinitionException.class);
@@ -834,6 +937,53 @@ public class OAuth2ResourceServerConfigurerTests {
 	}
 
 	@EnableWebSecurity
+	static class AllowBearerTokenInRequestBodyConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().authenticated()
+					.and()
+				.oauth2()
+					.resourceServer()
+						.bearerTokenResolver(allowRequestBody())
+						.jwt();
+			// @formatter:on
+		}
+
+		private BearerTokenResolver allowRequestBody() {
+			DefaultBearerTokenResolver resolver = new DefaultBearerTokenResolver();
+			resolver.setAllowFormEncodedBodyParameter(true);
+			return resolver;
+		}
+	}
+
+	@EnableWebSecurity
+	static class AllowBearerTokenAsQueryParameterConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().authenticated()
+					.and()
+				.oauth2()
+					.resourceServer()
+						.jwt();
+			// @formatter:on
+		}
+
+		@Bean
+		BearerTokenResolver allowQueryParameter() {
+			DefaultBearerTokenResolver resolver = new DefaultBearerTokenResolver();
+			resolver.setAllowUriQueryParameter(true);
+			return resolver;
+		}
+	}
+
+
+	@EnableWebSecurity
 	static class CustomJwtDecoderOnDsl extends WebSecurityConfigurerAdapter {
 		JwtDecoder decoder = mock(JwtDecoder.class);
 
@@ -873,6 +1023,14 @@ public class OAuth2ResourceServerConfigurerTests {
 
 		@Bean
 		public JwtDecoder decoder() {
+			return mock(JwtDecoder.class);
+		}
+	}
+
+	@Configuration
+	static class JwtDecoderConfig {
+		@Bean
+		public JwtDecoder jwtDecoder() {
 			return mock(JwtDecoder.class);
 		}
 	}
