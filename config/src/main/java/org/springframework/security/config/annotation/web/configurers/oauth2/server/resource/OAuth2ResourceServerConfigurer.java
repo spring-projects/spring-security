@@ -25,6 +25,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.annotation.web.configurers.ExceptionHandlingConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoderJwkSupport;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
@@ -47,6 +48,7 @@ import org.springframework.util.Assert;
  * The following configuration options are available:
  *
  * <ul>
+ * <li>{@link #bearerTokenResolver(BearerTokenResolver)} - customizes how to resolve a bearer token from the request</li>
  * <li>{@link #jwt()} - enables Jwt-encoded bearer token support</li>
  * </ul>
  *
@@ -99,7 +101,11 @@ import org.springframework.util.Assert;
 public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<H>> extends
 		AbstractHttpConfigurer<OAuth2ResourceServerConfigurer<H>, H> {
 
-	private BearerTokenResolver bearerTokenResolver = new DefaultBearerTokenResolver();
+	private final ApplicationContext context;
+
+	private BearerTokenResolver bearerTokenResolver;
+	private JwtConfigurer jwtConfigurer;
+
 	private BearerTokenRequestMatcher requestMatcher = new BearerTokenRequestMatcher();
 
 	private BearerTokenAuthenticationEntryPoint authenticationEntryPoint
@@ -108,12 +114,20 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 	private BearerTokenAccessDeniedHandler accessDeniedHandler
 			= new BearerTokenAccessDeniedHandler();
 
-	private JwtConfigurer jwtConfigurer;
+	public OAuth2ResourceServerConfigurer(ApplicationContext context) {
+		Assert.notNull(context, "context cannot be null");
+		this.context = context;
+	}
+
+	public OAuth2ResourceServerConfigurer<H> bearerTokenResolver(BearerTokenResolver bearerTokenResolver) {
+		Assert.notNull(bearerTokenResolver, "bearerTokenResolver cannot be null");
+		this.bearerTokenResolver = bearerTokenResolver;
+		return this;
+	}
 
 	public JwtConfigurer jwt() {
 		if ( this.jwtConfigurer == null ) {
-			ApplicationContext context = this.getBuilder().getSharedObject(ApplicationContext.class);
-			this.jwtConfigurer = new JwtConfigurer(context);
+			this.jwtConfigurer = new JwtConfigurer(this.context);
 		}
 
 		return this.jwtConfigurer;
@@ -231,17 +245,28 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		csrf.ignoringRequestMatchers(this.requestMatcher);
 	}
 
-	private BearerTokenResolver getBearerTokenResolver() {
+	BearerTokenResolver getBearerTokenResolver() {
+		if ( this.bearerTokenResolver == null ) {
+			if ( this.context.getBeanNamesForType(BearerTokenResolver.class).length > 0 ) {
+				this.bearerTokenResolver = this.context.getBean(BearerTokenResolver.class);
+			} else {
+				this.bearerTokenResolver = new DefaultBearerTokenResolver();
+			}
+		}
+
 		return this.bearerTokenResolver;
 	}
 
 	private static final class BearerTokenRequestMatcher implements RequestMatcher {
-		private BearerTokenResolver bearerTokenResolver
-				= new DefaultBearerTokenResolver();
+		private BearerTokenResolver bearerTokenResolver;
 
 		@Override
 		public boolean matches(HttpServletRequest request) {
-			return this.bearerTokenResolver.resolve(request) != null;
+			try {
+				return this.bearerTokenResolver.resolve(request) != null;
+			} catch ( OAuth2AuthenticationException e ) {
+				return false;
+			}
 		}
 
 		public void setBearerTokenResolver(BearerTokenResolver tokenResolver) {
