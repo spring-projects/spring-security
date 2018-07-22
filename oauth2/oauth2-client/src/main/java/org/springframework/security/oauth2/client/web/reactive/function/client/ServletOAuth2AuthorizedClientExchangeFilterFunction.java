@@ -23,6 +23,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.ClientAuthorizationRequiredException;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -150,7 +151,13 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 	 * @return the {@link Consumer} to populate the attributes
 	 */
 	public static Consumer<Map<String, Object>> oauth2AuthorizedClient(OAuth2AuthorizedClient authorizedClient) {
-		return attributes -> attributes.put(OAUTH2_AUTHORIZED_CLIENT_ATTR_NAME, authorizedClient);
+		return attributes -> {
+			if (authorizedClient == null) {
+				attributes.remove(OAUTH2_AUTHORIZED_CLIENT_ATTR_NAME);
+			} else {
+				attributes.put(OAUTH2_AUTHORIZED_CLIENT_ATTR_NAME, authorizedClient);
+			}
+		};
 	}
 
 	/**
@@ -262,6 +269,9 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 			OAuth2AuthorizedClient authorizedClient = this.authorizedClientRepository
 					.loadAuthorizedClient(clientRegistrationId, authentication,
 							request);
+			if (authorizedClient == null) {
+				throw new ClientAuthorizationRequiredException(clientRegistrationId);
+			}
 			oauth2AuthorizedClient(authorizedClient).accept(attrs);
 		}
 	}
