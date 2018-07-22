@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 
 /**
  * Implementations of this interface are capable of resolving
- * an {@link OAuth2AuthorizationRequest} from the provided {@code HttpServletRequest}.
+ * an {@link OAuth2AuthorizationRequest} from the provided {@code HttpServletRequest} and registrationId.
  * Used by the {@link OAuth2AuthorizationRequestRedirectFilter} for resolving Authorization Requests.
  *
  * @author Joe Grandja
@@ -33,11 +33,12 @@ public interface OAuth2AuthorizationRequestResolver {
 
 	/**
 	 * Returns the {@link OAuth2AuthorizationRequest} resolved from
-	 * the provided {@code HttpServletRequest} or {@code null} if not available.
+	 * the provided {@code HttpServletRequest}, registrationId or {@code null} if not available.
 	 *
 	 * @param request the {@code HttpServletRequest}
+	 * @param registrationId the registrationId
 	 * @return the resolved {@link OAuth2AuthorizationRequest} or {@code null} if not available
 	 */
-	OAuth2AuthorizationRequest resolve(HttpServletRequest request);
+	OAuth2AuthorizationRequest resolve(HttpServletRequest request, String registrationId);
 
 }

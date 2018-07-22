@@ -431,15 +431,17 @@ public class OAuth2LoginConfigurerTests {
 				.oauth2Login()
 					.clientRegistrationRepository(this.clientRegistrationRepository)
 					.authorizationEndpoint()
+						.baseUri("/oauth2/authorization")
 						.authorizationRequestResolver(this.getAuthorizationRequestResolver());
 			super.configure(http);
 		}
 
 		private OAuth2AuthorizationRequestResolver getAuthorizationRequestResolver() {
 			OAuth2AuthorizationRequestResolver defaultAuthorizationRequestResolver =
-					new DefaultOAuth2AuthorizationRequestResolver(this.clientRegistrationRepository, "/oauth2/authorization");
-			return request -> {
-				OAuth2AuthorizationRequest defaultAuthorizationRequest = defaultAuthorizationRequestResolver.resolve(request);
+					new DefaultOAuth2AuthorizationRequestResolver(this.clientRegistrationRepository);
+			return (request, registrationId) -> {
+				OAuth2AuthorizationRequest defaultAuthorizationRequest = defaultAuthorizationRequestResolver
+						.resolve(request, registrationId);
 				Map<String, Object> additionalParameters = new HashMap<>(defaultAuthorizationRequest.getAdditionalParameters());
 				additionalParameters.put("custom-param1", "custom-value1");
 				return OAuth2AuthorizationRequest.from(defaultAuthorizationRequest)

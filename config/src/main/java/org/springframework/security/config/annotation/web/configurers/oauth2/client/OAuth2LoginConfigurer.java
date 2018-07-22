@@ -477,14 +477,14 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 	public void configure(B http) throws Exception {
 		OAuth2AuthorizationRequestRedirectFilter authorizationRequestFilter;
 
+		String authorizationRequestBaseUri = this.authorizationEndpointConfig.authorizationRequestBaseUri;
+		if (authorizationRequestBaseUri == null) {
+			authorizationRequestBaseUri = OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
+		}
 		if (this.authorizationEndpointConfig.authorizationRequestResolver != null) {
 			authorizationRequestFilter = new OAuth2AuthorizationRequestRedirectFilter(
-					this.authorizationEndpointConfig.authorizationRequestResolver);
+					this.authorizationEndpointConfig.authorizationRequestResolver, authorizationRequestBaseUri);
 		} else {
-			String authorizationRequestBaseUri = this.authorizationEndpointConfig.authorizationRequestBaseUri;
-			if (authorizationRequestBaseUri == null) {
-				authorizationRequestBaseUri = OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
-			}
 			authorizationRequestFilter = new OAuth2AuthorizationRequestRedirectFilter(
 					OAuth2ClientConfigurerUtils.getClientRegistrationRepository(this.getBuilder()), authorizationRequestBaseUri);
 		}

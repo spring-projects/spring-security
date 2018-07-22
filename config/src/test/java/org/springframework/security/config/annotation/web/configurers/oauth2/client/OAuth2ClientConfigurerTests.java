@@ -114,8 +114,7 @@ public class OAuth2ClientConfigurerTests {
 		clientRegistrationRepository = new InMemoryClientRegistrationRepository(this.registration1);
 		authorizedClientService = new InMemoryOAuth2AuthorizedClientService(clientRegistrationRepository);
 		authorizedClientRepository = new AuthenticatedPrincipalOAuth2AuthorizedClientRepository(authorizedClientService);
-		authorizationRequestResolver = new DefaultOAuth2AuthorizationRequestResolver(
-				clientRegistrationRepository, "/oauth2/authorization");
+		authorizationRequestResolver = new DefaultOAuth2AuthorizationRequestResolver(clientRegistrationRepository);
 
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("access-token-1234")
 				.tokenType(OAuth2AccessToken.TokenType.BEARER)
@@ -192,8 +191,9 @@ public class OAuth2ClientConfigurerTests {
 	public void configureWhenCustomAuthorizationRequestResolverSetThenAuthorizationRequestIncludesCustomParameters() throws Exception {
 		// Override default resolver
 		OAuth2AuthorizationRequestResolver defaultAuthorizationRequestResolver = authorizationRequestResolver;
-		authorizationRequestResolver = request -> {
-			OAuth2AuthorizationRequest defaultAuthorizationRequest = defaultAuthorizationRequestResolver.resolve(request);
+		authorizationRequestResolver = (request, registrationId) -> {
+			OAuth2AuthorizationRequest defaultAuthorizationRequest = defaultAuthorizationRequestResolver
+					.resolve(request,  registrationId);
 			Map<String, Object> additionalParameters = new HashMap<>(defaultAuthorizationRequest.getAdditionalParameters());
 			additionalParameters.put("param1", "value1");
 			return OAuth2AuthorizationRequest.from(defaultAuthorizationRequest)
@@ -225,6 +225,7 @@ public class OAuth2ClientConfigurerTests {
 					.client()
 						.authorizationCodeGrant()
 							.authorizationEndpoint()
+								.baseUri("/oauth2/authorization")
 								.authorizationRequestResolver(authorizationRequestResolver)
 								.and()
 							.tokenEndpoint()
