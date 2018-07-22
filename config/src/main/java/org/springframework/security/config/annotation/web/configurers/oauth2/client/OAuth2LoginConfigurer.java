@@ -54,15 +54,23 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequ
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -420,10 +428,24 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 				this.loginProcessingUrl);
 		this.setAuthenticationFilter(authenticationFilter);
 		super.loginProcessingUrl(this.loginProcessingUrl);
+
 		if (this.loginPage != null) {
+			// Set custom login page
 			super.loginPage(this.loginPage);
+			super.init(http);
+		} else {
+			Map<String, String> loginUrlToClientName = this.getLoginLinks();
+			if (loginUrlToClientName.size() == 1) {
+				// Setup auto-redirect to provider login page
+				// when only 1 client is configured
+				this.updateAuthenticationDefaults();
+				this.updateAccessDefaults(http);
+				String providerLoginPage = loginUrlToClientName.keySet().iterator().next();
+				this.registerAuthenticationEntryPoint(http, this.getLoginEntryPoint(http, providerLoginPage));
+			} else {
+				super.init(http);
+			}
 		}
-		super.init(http);
 
 		OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient =
 			this.tokenEndpointConfig.accessTokenResponseClient;
@@ -529,9 +551,9 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 
 	private GrantedAuthoritiesMapper getGrantedAuthoritiesMapperBean() {
 		Map<String, GrantedAuthoritiesMapper> grantedAuthoritiesMapperMap =
-			BeanFactoryUtils.beansOfTypeIncludingAncestors(
-				this.getBuilder().getSharedObject(ApplicationContext.class),
-				GrantedAuthoritiesMapper.class);
+				BeanFactoryUtils.beansOfTypeIncludingAncestors(
+						this.getBuilder().getSharedObject(ApplicationContext.class),
+						GrantedAuthoritiesMapper.class);
 		return (!grantedAuthoritiesMapperMap.isEmpty() ? grantedAuthoritiesMapperMap.values().iterator().next() : null);
 	}
 
@@ -541,29 +563,51 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 			return;
 		}
 
+		loginPageGeneratingFilter.setOauth2LoginEnabled(true);
+		loginPageGeneratingFilter.setOauth2AuthenticationUrlToClientName(this.getLoginLinks());
+		loginPageGeneratingFilter.setLoginPageUrl(this.getLoginPage());
+		loginPageGeneratingFilter.setFailureUrl(this.getFailureUrl());
+	}
+
+	@SuppressWarnings("unchecked")
+	private Map<String, String> getLoginLinks() {
 		Iterable<ClientRegistration> clientRegistrations = null;
 		ClientRegistrationRepository clientRegistrationRepository =
-			OAuth2ClientConfigurerUtils.getClientRegistrationRepository(this.getBuilder());
+				OAuth2ClientConfigurerUtils.getClientRegistrationRepository(this.getBuilder());
 		ResolvableType type = ResolvableType.forInstance(clientRegistrationRepository).as(Iterable.class);
 		if (type != ResolvableType.NONE && ClientRegistration.class.isAssignableFrom(type.resolveGenerics()[0])) {
 			clientRegistrations = (Iterable<ClientRegistration>) clientRegistrationRepository;
 		}
 		if (clientRegistrations == null) {
-			return;
+			return Collections.emptyMap();
 		}
 
 		String authorizationRequestBaseUri = this.authorizationEndpointConfig.authorizationRequestBaseUri != null ?
-			this.authorizationEndpointConfig.authorizationRequestBaseUri :
-			OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
-		Map<String, String> authenticationUrlToClientName = new HashMap<>();
+				this.authorizationEndpointConfig.authorizationRequestBaseUri :
+				OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
+		Map<String, String> loginUrlToClientName = new HashMap<>();
+		clientRegistrations.forEach(registration -> loginUrlToClientName.put(
+				authorizationRequestBaseUri + "/" + registration.getRegistrationId(),
+				registration.getClientName()));
 
-		clientRegistrations.forEach(registration -> authenticationUrlToClientName.put(
-			authorizationRequestBaseUri + "/" + registration.getRegistrationId(),
-			registration.getClientName()));
-		loginPageGeneratingFilter.setOauth2LoginEnabled(true);
-		loginPageGeneratingFilter.setOauth2AuthenticationUrlToClientName(authenticationUrlToClientName);
-		loginPageGeneratingFilter.setLoginPageUrl(this.getLoginPage());
-		loginPageGeneratingFilter.setFailureUrl(this.getFailureUrl());
+		return loginUrlToClientName;
+	}
+
+	private AuthenticationEntryPoint getLoginEntryPoint(B http, String providerLoginPage) {
+		RequestMatcher loginPageMatcher = new AntPathRequestMatcher(this.getLoginPage());
+		RequestMatcher faviconMatcher = new AntPathRequestMatcher("/favicon.ico");
+		RequestMatcher defaultEntryPointMatcher = this.getAuthenticationEntryPointMatcher(http);
+		RequestMatcher defaultLoginPageMatcher = new AndRequestMatcher(
+				new OrRequestMatcher(loginPageMatcher, faviconMatcher), defaultEntryPointMatcher);
+
+		LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints = new LinkedHashMap<>();
+		entryPoints.put(new NegatedRequestMatcher(defaultLoginPageMatcher),
+				new LoginUrlAuthenticationEntryPoint(providerLoginPage));
+
+		DelegatingAuthenticationEntryPoint loginEntryPoint = new DelegatingAuthenticationEntryPoint(entryPoints);
+		loginEntryPoint.setDefaultEntryPoint(this.getAuthenticationEntryPoint());
+
+		return loginEntryPoint;
 	}
 
 	private static class OidcAuthenticationRequestChecker implements AuthenticationProvider {
