@@ -16,15 +16,25 @@
   -->
 
 <b:beans xmlns:b="http://www.springframework.org/schema/beans"
-		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		 xmlns="http://www.springframework.org/schema/security"
-		 xsi:schemaLocation="
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xmlns="http://www.springframework.org/schema/security"
+		xsi:schemaLocation="
 			http://www.springframework.org/schema/security
 			http://www.springframework.org/schema/security/spring-security.xsd
 			http://www.springframework.org/schema/beans
 			http://www.springframework.org/schema/beans/spring-beans.xsd">
-	<user-service id="us">
-		<user name="user" password="{noop}password" authorities="ROLE_USER"/>
-		<user name="admin" password="{noop}password" authorities="ROLE_ADMIN"/>
-	</user-service>
+
+	<http auto-config="true">
+		<intercept-url pattern="/authenticated" access="authenticated"/>
+		<remember-me
+				key="ourkey"
+				token-validity-seconds="-1"
+				data-source-ref="dataSource"/>
+	</http>
+
+	<b:bean name="dataSource" class="org.springframework.security.TestDataSource">
+		<b:constructor-arg value="tokendb"/>
+	</b:bean>
+
+	<b:import resource="userservice.xml"/>
 </b:beans>
