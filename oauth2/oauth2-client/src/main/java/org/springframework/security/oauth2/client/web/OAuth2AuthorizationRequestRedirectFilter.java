@@ -26,6 +26,7 @@ import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.util.ThrowableAnalyzer;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -58,7 +59,7 @@ import java.io.IOException;
  * The default base {@code URI} {@code /oauth2/authorization} may be overridden
  * via the constructor {@link #OAuth2AuthorizationRequestRedirectFilter(ClientRegistrationRepository, String)},
  * or alternatively, an {@code OAuth2AuthorizationRequestResolver} may be provided to the constructor
- * {@link #OAuth2AuthorizationRequestRedirectFilter(OAuth2AuthorizationRequestResolver)}
+ * {@link #OAuth2AuthorizationRequestRedirectFilter(OAuth2AuthorizationRequestResolver, String)}
  * to override the resolving of authorization requests.
 
  * @author Joe Grandja
@@ -81,9 +82,11 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 	public static final String DEFAULT_AUTHORIZATION_REQUEST_BASE_URI = "/oauth2/authorization";
 	static final String AUTHORIZATION_REQUIRED_EXCEPTION_ATTR_NAME =
 			ClientAuthorizationRequiredException.class.getName() + ".AUTHORIZATION_REQUIRED_EXCEPTION";
+	private static final String REGISTRATION_ID_URI_VARIABLE_NAME = "registrationId";
 	private final ThrowableAnalyzer throwableAnalyzer = new DefaultThrowableAnalyzer();
 	private final RedirectStrategy authorizationRedirectStrategy = new DefaultRedirectStrategy();
-	private OAuth2AuthorizationRequestResolver authorizationRequestResolver;
+	private final AntPathRequestMatcher authorizationRequestMatcher;
+	private final OAuth2AuthorizationRequestResolver authorizationRequestResolver;
 	private AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
 		new HttpSessionOAuth2AuthorizationRequestRepository();
 	private RequestCache requestCache = new HttpSessionRequestCache();
@@ -103,12 +106,9 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 	 * @param clientRegistrationRepository the repository of client registrations
 	 * @param authorizationRequestBaseUri the base {@code URI} used for authorization requests
 	 */
-	public OAuth2AuthorizationRequestRedirectFilter(ClientRegistrationRepository clientRegistrationRepository,
-													String authorizationRequestBaseUri) {
-		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
-		Assert.hasText(authorizationRequestBaseUri, "authorizationRequestBaseUri cannot be empty");
-		this.authorizationRequestResolver = new DefaultOAuth2AuthorizationRequestResolver(
-				clientRegistrationRepository, authorizationRequestBaseUri);
+	public OAuth2AuthorizationRequestRedirectFilter(
+			ClientRegistrationRepository clientRegistrationRepository, String authorizationRequestBaseUri) {
+		this(new DefaultOAuth2AuthorizationRequestResolver(clientRegistrationRepository), authorizationRequestBaseUri);
 	}
 
 	/**
@@ -117,9 +117,13 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 	 * @since 5.1
 	 * @param authorizationRequestResolver the resolver used for resolving authorization requests
 	 */
-	public OAuth2AuthorizationRequestRedirectFilter(OAuth2AuthorizationRequestResolver authorizationRequestResolver) {
+	public OAuth2AuthorizationRequestRedirectFilter(
+			OAuth2AuthorizationRequestResolver authorizationRequestResolver, String authorizationRequestBaseUri) {
 		Assert.notNull(authorizationRequestResolver, "authorizationRequestResolver cannot be null");
+		Assert.hasText(authorizationRequestBaseUri, "authorizationRequestBaseUri cannot be empty");
 		this.authorizationRequestResolver = authorizationRequestResolver;
+		this.authorizationRequestMatcher = new AntPathRequestMatcher(
+				authorizationRequestBaseUri + "/{" + REGISTRATION_ID_URI_VARIABLE_NAME + "}");
 	}
 
 	/**
@@ -146,12 +150,15 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-
 		try {
-			OAuth2AuthorizationRequest authorizationRequest = this.authorizationRequestResolver.resolve(request);
-			if (authorizationRequest != null) {
-				this.sendRedirectForAuthorization(request, response, authorizationRequest);
-				return;
+			String registrationId = this.resolveRegistrationId(request);
+			if (registrationId != null) {
+				OAuth2AuthorizationRequest authorizationRequest = this.authorizationRequestResolver
+						.resolve(request, registrationId);
+				if (authorizationRequest != null) {
+					this.sendRedirectForAuthorization(request, response, authorizationRequest);
+					return;
+				}
 			}
 		} catch (Exception failed) {
 			this.unsuccessfulRedirectForAuthorization(request, response, failed);
@@ -170,7 +177,8 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 			if (authzEx != null) {
 				try {
 					request.setAttribute(AUTHORIZATION_REQUIRED_EXCEPTION_ATTR_NAME, authzEx);
-					OAuth2AuthorizationRequest authorizationRequest = this.authorizationRequestResolver.resolve(request);
+					OAuth2AuthorizationRequest authorizationRequest = this.authorizationRequestResolver
+							.resolve(request, authzEx.getClientRegistrationId());
 					if (authorizationRequest == null) {
 						throw authzEx;
 					}
@@ -192,6 +200,14 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 				throw new RuntimeException(ex);
 			}
 		}
+	}
+
+	private String resolveRegistrationId(HttpServletRequest request) {
+		if (this.authorizationRequestMatcher.matches(request)) {
+			return this.authorizationRequestMatcher
+					.extractUriTemplateVariables(request).get(REGISTRATION_ID_URI_VARIABLE_NAME);
+		}
+		return null;
 	}
 
 	private void sendRedirectForAuthorization(HttpServletRequest request, HttpServletResponse response,

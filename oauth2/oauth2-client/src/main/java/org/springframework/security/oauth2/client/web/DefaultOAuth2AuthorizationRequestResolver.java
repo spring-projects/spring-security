@@ -17,14 +17,12 @@ package org.springframework.security.oauth2.client.web;
 
 import org.springframework.security.crypto.keygen.Base64StringKeyGenerator;
 import org.springframework.security.crypto.keygen.StringKeyGenerator;
-import org.springframework.security.oauth2.client.ClientAuthorizationRequiredException;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.web.util.UrlUtils;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -37,12 +35,7 @@ import static org.springframework.security.oauth2.client.web.OAuth2Authorization
 
 /**
  * An implementation of an {@link OAuth2AuthorizationRequestResolver} that attempts to
- * resolve an {@link OAuth2AuthorizationRequest} from the provided {@code HttpServletRequest}
- * using the default request {@code URI} pattern {@code /oauth2/authorization/{registrationId}}.
- *
- * <p>
- * <b>NOTE:</b> The default base {@code URI} {@code /oauth2/authorization} may be overridden
- * via it's constructor {@link #DefaultOAuth2AuthorizationRequestResolver(ClientRegistrationRepository, String)}.
+ * resolve an {@link OAuth2AuthorizationRequest} from the provided {@code HttpServletRequest} and registrationId.
  *
  * @author Joe Grandja
  * @since 5.1
@@ -50,33 +43,16 @@ import static org.springframework.security.oauth2.client.web.OAuth2Authorization
  * @see OAuth2AuthorizationRequestRedirectFilter
  */
 public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2AuthorizationRequestResolver {
-	private static final String REGISTRATION_ID_URI_VARIABLE_NAME = "registrationId";
 	private final ClientRegistrationRepository clientRegistrationRepository;
-	private final AntPathRequestMatcher authorizationRequestMatcher;
 	private final StringKeyGenerator stateGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder());
 
-	/**
-	 * Constructs a {@code DefaultOAuth2AuthorizationRequestResolver} using the provided parameters.
-	 *
-	 * @param clientRegistrationRepository the repository of client registrations
-	 * @param authorizationRequestBaseUri the base {@code URI} used for resolving authorization requests
-	 */
-	public DefaultOAuth2AuthorizationRequestResolver(ClientRegistrationRepository clientRegistrationRepository,
-														String authorizationRequestBaseUri) {
+	public DefaultOAuth2AuthorizationRequestResolver(ClientRegistrationRepository clientRegistrationRepository) {
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
-		Assert.hasText(authorizationRequestBaseUri, "authorizationRequestBaseUri cannot be empty");
 		this.clientRegistrationRepository = clientRegistrationRepository;
-		this.authorizationRequestMatcher = new AntPathRequestMatcher(
-				authorizationRequestBaseUri + "/{" + REGISTRATION_ID_URI_VARIABLE_NAME + "}");
 	}
 
 	@Override
-	public OAuth2AuthorizationRequest resolve(HttpServletRequest request) {
-		String registrationId = this.resolveRegistrationId(request);
-		if (registrationId == null) {
-			return null;
-		}
-
+	public OAuth2AuthorizationRequest resolve(HttpServletRequest request, String registrationId) {
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(registrationId);
 		if (clientRegistration == null) {
 			throw new IllegalArgumentException("Invalid Client Registration with Id: " + registrationId);
@@ -109,21 +85,6 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 				.build();
 
 		return authorizationRequest;
-	}
-
-	private String resolveRegistrationId(HttpServletRequest request) {
-		// Check for ClientAuthorizationRequiredException which may have been set
-		// in the request by OAuth2AuthorizationRequestRedirectFilter
-		ClientAuthorizationRequiredException authzEx =
-				(ClientAuthorizationRequiredException) request.getAttribute(AUTHORIZATION_REQUIRED_EXCEPTION_ATTR_NAME);
-		if (authzEx != null) {
-			return authzEx.getClientRegistrationId();
-		}
-		if (this.authorizationRequestMatcher.matches(request)) {
-			return this.authorizationRequestMatcher
-					.extractUriTemplateVariables(request).get(REGISTRATION_ID_URI_VARIABLE_NAME);
-		}
-		return null;
 	}
 
 	private String resolveRedirectUriAction(HttpServletRequest request, ClientRegistration clientRegistration) {

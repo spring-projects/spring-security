@@ -298,7 +298,8 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>> exte
 
 		if (authorizationCodeGrantConfigurer.authorizationEndpointConfig.authorizationRequestResolver != null) {
 			authorizationRequestFilter = new OAuth2AuthorizationRequestRedirectFilter(
-					authorizationCodeGrantConfigurer.authorizationEndpointConfig.authorizationRequestResolver);
+					authorizationCodeGrantConfigurer.authorizationEndpointConfig.authorizationRequestResolver,
+					authorizationCodeGrantConfigurer.authorizationEndpointConfig.authorizationRequestBaseUri);
 		} else {
 			String authorizationRequestBaseUri = authorizationCodeGrantConfigurer.authorizationEndpointConfig.authorizationRequestBaseUri;
 			if (authorizationRequestBaseUri == null) {
