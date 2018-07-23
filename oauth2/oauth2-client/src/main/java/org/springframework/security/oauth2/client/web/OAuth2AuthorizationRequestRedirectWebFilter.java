@@ -199,6 +199,7 @@ public class OAuth2AuthorizationRequestRedirectWebFilter implements WebFilter {
 
 		String baseUrl = UriComponentsBuilder.fromHttpRequest(new ServerHttpRequestDecorator(request))
 				.replacePath(request.getPath().contextPath().value())
+				.replaceQuery(null)
 				.build()
 				.toUriString();
 		uriVariables.put("baseUrl", baseUrl);
