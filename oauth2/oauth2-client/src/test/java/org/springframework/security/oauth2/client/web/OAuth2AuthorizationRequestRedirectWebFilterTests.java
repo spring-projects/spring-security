@@ -135,6 +135,26 @@ public class OAuth2AuthorizationRequestRedirectWebFilterTests {
 		verify(this.authzRequestRepository).saveAuthorizationRequest(any(), any());
 	}
 
+	// gh-5520
+	@Test
+	public void filterWhenDoesMatchThenResolveRedirectUriExpandedExcludesQueryString() {
+		FluxExchangeResult<String> result = this.client.get()
+				.uri("https://example.com/oauth2/authorization/github?foo=bar").exchange()
+				.expectStatus().is3xxRedirection().returnResult(String.class);
+		result.assertWithDiagnostics(() -> {
+			URI location = result.getResponseHeaders().getLocation();
+			assertThat(location)
+					.hasScheme("https")
+					.hasHost("github.com")
+					.hasPath("/login/oauth/authorize")
+					.hasParameter("response_type", "code")
+					.hasParameter("client_id", "clientId")
+					.hasParameter("scope", "read:user")
+					.hasParameter("state")
+					.hasParameter("redirect_uri", "https://example.com/login/oauth2/code/github");
+		});
+	}
+
 	@Test
 	public void filterWhenExceptionThenRedirected() {
 		FilteringWebHandler webHandler = new FilteringWebHandler(e -> Mono.error(new ClientAuthorizationRequiredException(this.github.getRegistrationId())), Arrays.asList(this.filter));
