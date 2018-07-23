@@ -25,6 +25,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.annotation.web.configurers.ExceptionHandlingConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoderJwkSupport;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
@@ -114,10 +115,12 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 			= new BearerTokenAccessDeniedHandler();
 
 	public OAuth2ResourceServerConfigurer(ApplicationContext context) {
+		Assert.notNull(context, "context cannot be null");
 		this.context = context;
 	}
 
 	public OAuth2ResourceServerConfigurer<H> bearerTokenResolver(BearerTokenResolver bearerTokenResolver) {
+		Assert.notNull(bearerTokenResolver, "bearerTokenResolver cannot be null");
 		this.bearerTokenResolver = bearerTokenResolver;
 		return this;
 	}
@@ -259,7 +262,11 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 
 		@Override
 		public boolean matches(HttpServletRequest request) {
-			return this.bearerTokenResolver.resolve(request) != null;
+			try {
+				return this.bearerTokenResolver.resolve(request) != null;
+			} catch ( OAuth2AuthenticationException e ) {
+				return false;
+			}
 		}
 
 		public void setBearerTokenResolver(BearerTokenResolver tokenResolver) {

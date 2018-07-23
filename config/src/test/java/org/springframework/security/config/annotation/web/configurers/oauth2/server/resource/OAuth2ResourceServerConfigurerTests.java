@@ -84,9 +84,11 @@ import org.springframework.web.context.support.GenericWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -573,6 +575,41 @@ public class OAuth2ResourceServerConfigurerTests {
 	}
 
 	@Test
+	public void requestWhenBearerTokenResolverAllowsRequestBodyAndRequestContainsTwoTokensThenInvalidRequest()
+			throws Exception {
+
+		this.spring.register(AllowBearerTokenInRequestBodyConfig.class, JwtDecoderConfig.class,
+				BasicController.class).autowire();
+
+		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
+		when(decoder.decode(anyString())).thenReturn(JWT);
+
+		this.mvc.perform(post("/authenticated")
+				.param("access_token", JWT_TOKEN)
+				.with(bearerToken(JWT_TOKEN))
+				.with(csrf()))
+				.andExpect(status().isBadRequest())
+				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, containsString("invalid_request")));
+	}
+
+	@Test
+	public void requestWhenBearerTokenResolverAllowsQueryParameterAndRequestContainsTwoTokensThenInvalidRequest()
+			throws Exception {
+
+		this.spring.register(AllowBearerTokenAsQueryParameterConfig.class, JwtDecoderConfig.class,
+				BasicController.class).autowire();
+
+		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
+		when(decoder.decode(anyString())).thenReturn(JWT);
+
+		this.mvc.perform(get("/authenticated")
+				.with(bearerToken(JWT_TOKEN))
+				.param("access_token", JWT_TOKEN))
+				.andExpect(status().isBadRequest())
+				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, containsString("invalid_request")));
+	}
+
+	@Test
 	public void getBearerTokenResolverWhenDuplicateResolverBeansAndAnotherOnTheDslThenTheDslOneIsUsed() {
 		BearerTokenResolver resolverBean = mock(BearerTokenResolver.class);
 		BearerTokenResolver resolver = mock(BearerTokenResolver.class);
@@ -591,17 +628,9 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Test
 	public void getBearerTokenResolverWhenDuplicateResolverBeansThenWiringException() {
-		BearerTokenResolver resolverBean = mock(BearerTokenResolver.class);
-
-		GenericWebApplicationContext context = new GenericWebApplicationContext();
-		context.registerBean("resolverOne", BearerTokenResolver.class, () -> resolverBean);
-		context.registerBean("resolverTwo", BearerTokenResolver.class, () -> resolverBean);
-		this.spring.context(context).autowire();
-
-		OAuth2ResourceServerConfigurer oauth2 = new OAuth2ResourceServerConfigurer(context);
-
-		assertThatCode(() -> oauth2.getBearerTokenResolver())
-				.isInstanceOf(NoUniqueBeanDefinitionException.class);
+		assertThatCode(() -> this.spring.register(MultipleBearerTokenResolverBeansConfig.class).autowire())
+				.isInstanceOf(BeanCreationException.class)
+				.hasRootCauseInstanceOf(NoUniqueBeanDefinitionException.class);
 	}
 
 	@Test
@@ -666,8 +695,10 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Test
 	public void getJwtDecoderWhenConfiguredWithDecoderAndJwkSetUriThenLastOneWins() {
+		ApplicationContext context = mock(ApplicationContext.class);
+
 		OAuth2ResourceServerConfigurer.JwtConfigurer jwtConfigurer =
-				new OAuth2ResourceServerConfigurer(null).jwt();
+				new OAuth2ResourceServerConfigurer(context).jwt();
 
 		JwtDecoder decoder = mock(JwtDecoder.class);
 
@@ -677,7 +708,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		assertThat(jwtConfigurer.getJwtDecoder()).isEqualTo(decoder);
 
 		jwtConfigurer =
-				new OAuth2ResourceServerConfigurer(null).jwt();
+				new OAuth2ResourceServerConfigurer(context).jwt();
 
 		jwtConfigurer.decoder(decoder);
 		jwtConfigurer.jwkSetUri(JWK_SET_URI);
@@ -982,6 +1013,35 @@ public class OAuth2ResourceServerConfigurerTests {
 		}
 	}
 
+	@EnableWebSecurity
+	static class MultipleBearerTokenResolverBeansConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().authenticated()
+					.and()
+				.oauth2()
+					.resourceServer()
+						.jwt();
+			// @formatter:on
+		}
+
+		@Bean
+		BearerTokenResolver resolverOne() {
+			DefaultBearerTokenResolver resolver = new DefaultBearerTokenResolver();
+			resolver.setAllowUriQueryParameter(true);
+			return resolver;
+		}
+
+		@Bean
+		BearerTokenResolver resolverTwo() {
+			DefaultBearerTokenResolver resolver = new DefaultBearerTokenResolver();
+			resolver.setAllowFormEncodedBodyParameter(true);
+			return resolver;
+		}
+	}
 
 	@EnableWebSecurity
 	static class CustomJwtDecoderOnDsl extends WebSecurityConfigurerAdapter {
