@@ -338,6 +338,44 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 		assertThat(authorizedClients.values().iterator().next()).isSameAs(authorizedClient);
 	}
 
+	@Test
+	public void doFilterWhenAuthorizationResponseSuccessAndAnonymousAccessNullAuthenticationThenAuthorizedClientSavedToHttpSession() throws Exception {
+		SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+		SecurityContextHolder.setContext(securityContext);		// null Authentication
+
+		String requestUri = "/callback/client-1";
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
+		request.setServletPath(requestUri);
+		request.addParameter(OAuth2ParameterNames.CODE, "code");
+		request.addParameter(OAuth2ParameterNames.STATE, "state");
+
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		FilterChain filterChain = mock(FilterChain.class);
+
+		this.setUpAuthorizationRequest(request, response, this.registration1);
+		this.setUpAuthenticationResult(this.registration1);
+
+		this.filter.doFilter(request, response, filterChain);
+
+		OAuth2AuthorizedClient authorizedClient = this.authorizedClientRepository.loadAuthorizedClient(
+				this.registration1.getRegistrationId(), null, request);
+		assertThat(authorizedClient).isNotNull();
+
+		assertThat(authorizedClient.getClientRegistration()).isEqualTo(this.registration1);
+		assertThat(authorizedClient.getPrincipalName()).isEqualTo("anonymousUser");
+		assertThat(authorizedClient.getAccessToken()).isNotNull();
+
+		HttpSession session = request.getSession(false);
+		assertThat(session).isNotNull();
+
+		@SuppressWarnings("unchecked")
+		Map<String, OAuth2AuthorizedClient> authorizedClients = (Map<String, OAuth2AuthorizedClient>)
+				session.getAttribute(HttpSessionOAuth2AuthorizedClientRepository.class.getName() + ".AUTHORIZED_CLIENTS");
+		assertThat(authorizedClients).isNotEmpty();
+		assertThat(authorizedClients).hasSize(1);
+		assertThat(authorizedClients.values().iterator().next()).isSameAs(authorizedClient);
+	}
+
 	private void setUpAuthorizationRequest(HttpServletRequest request, HttpServletResponse response,
 											ClientRegistration registration) {
 		Map<String, Object> additionalParameters = new HashMap<>();
