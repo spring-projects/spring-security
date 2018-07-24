@@ -158,7 +158,8 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 	private void processAuthorizationResponse(HttpServletRequest request, HttpServletResponse response)
 		throws ServletException, IOException {
 
-		OAuth2AuthorizationRequest authorizationRequest = this.authorizationRequestRepository.removeAuthorizationRequest(request);
+		OAuth2AuthorizationRequest authorizationRequest =
+				this.authorizationRequestRepository.removeAuthorizationRequest(request, response);
 
 		String registrationId = (String) authorizationRequest.getAdditionalParameters().get(OAuth2ParameterNames.REGISTRATION_ID);
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(registrationId);

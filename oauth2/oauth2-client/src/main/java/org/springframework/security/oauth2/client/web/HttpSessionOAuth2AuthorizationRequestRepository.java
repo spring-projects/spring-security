@@ -58,7 +58,7 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository implements Au
 		Assert.notNull(request, "request cannot be null");
 		Assert.notNull(response, "response cannot be null");
 		if (authorizationRequest == null) {
-			this.removeAuthorizationRequest(request);
+			this.removeAuthorizationRequest(request, response);
 			return;
 		}
 		String state = authorizationRequest.getState();
@@ -83,6 +83,12 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository implements Au
 			request.getSession().removeAttribute(this.sessionAttributeName);
 		}
 		return originalRequest;
+	}
+
+	@Override
+	public OAuth2AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request, HttpServletResponse response) {
+		Assert.notNull(response, "response cannot be null");
+		return this.removeAuthorizationRequest(request);
 	}
 
 	/**
