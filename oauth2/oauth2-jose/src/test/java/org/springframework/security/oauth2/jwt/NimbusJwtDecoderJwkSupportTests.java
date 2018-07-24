@@ -15,6 +15,8 @@
  */
 package org.springframework.security.oauth2.jwt;
 
+import java.util.Arrays;
+
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jwt.JWT;
@@ -30,16 +32,25 @@ import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+
 import org.springframework.http.RequestEntity;
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.web.client.RestTemplate;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.*;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static org.powermock.api.mockito.PowerMockito.spy;
+import static org.powermock.api.mockito.PowerMockito.when;
+import static org.powermock.api.mockito.PowerMockito.whenNew;
 
 /**
  * Tests for {@link NimbusJwtDecoderJwkSupport}.
@@ -172,6 +183,49 @@ public class NimbusJwtDecoderJwkSupportTests {
 			assertThatCode(() -> jwtDecoder.decode(SIGNED_JWT)).doesNotThrowAnyException();
 			verify(restTemplate).exchange(any(RequestEntity.class), eq(String.class));
 			server.shutdown();
+		}
+	}
+
+	@Test
+	public void decodeWhenJwtFailsValidationThenReturnsCorrespondingErrorMessage() throws Exception {
+		try ( MockWebServer server = new MockWebServer() ) {
+			server.enqueue(new MockResponse().setBody(JWK_SET));
+			String jwkSetUrl = server.url("/.well-known/jwks.json").toString();
+
+			NimbusJwtDecoderJwkSupport decoder = new NimbusJwtDecoderJwkSupport(jwkSetUrl);
+
+			OAuth2Error failure = new OAuth2Error("mock-error", "mock-description", "mock-uri");
+
+			OAuth2TokenValidator<Jwt> jwtValidator = mock(OAuth2TokenValidator.class);
+			when(jwtValidator.validate(any(Jwt.class))).thenReturn(OAuth2TokenValidatorResult.failure(failure));
+			decoder.setJwtValidator(jwtValidator);
+
+			assertThatCode(() -> decoder.decode(SIGNED_JWT))
+					.isInstanceOf(JwtValidationException.class)
+					.hasMessageContaining("mock-description");
+		}
+	}
+
+	@Test
+	public void decodeWhenJwtValidationHasTwoErrorsThenJwtExceptionMessageShowsFirstError() throws Exception {
+		try ( MockWebServer server = new MockWebServer() ) {
+			server.enqueue(new MockResponse().setBody(JWK_SET));
+			String jwkSetUrl = server.url("/.well-known/jwks.json").toString();
+
+			NimbusJwtDecoderJwkSupport decoder = new NimbusJwtDecoderJwkSupport(jwkSetUrl);
+
+			OAuth2Error firstFailure = new OAuth2Error("mock-error", "mock-description", "mock-uri");
+			OAuth2Error secondFailure = new OAuth2Error("another-error", "another-description", "another-uri");
+			OAuth2TokenValidatorResult result = OAuth2TokenValidatorResult.failure(firstFailure, secondFailure);
+
+			OAuth2TokenValidator<Jwt> jwtValidator = mock(OAuth2TokenValidator.class);
+			when(jwtValidator.validate(any(Jwt.class))).thenReturn(result);
+			decoder.setJwtValidator(jwtValidator);
+
+			assertThatCode(() -> decoder.decode(SIGNED_JWT))
+					.isInstanceOf(JwtValidationException.class)
+					.hasMessageContaining("mock-description")
+					.hasFieldOrPropertyWithValue("errors", Arrays.asList(firstFailure, secondFailure));
 		}
 	}
 }

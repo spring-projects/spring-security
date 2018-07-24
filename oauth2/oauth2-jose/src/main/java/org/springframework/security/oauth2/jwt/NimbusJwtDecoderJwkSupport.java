@@ -15,6 +15,15 @@
  */
 package org.springframework.security.oauth2.jwt;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.text.ParseException;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.RemoteKeySourceException;
 import com.nimbusds.jose.jwk.source.JWKSource;
@@ -30,24 +39,18 @@ import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
-
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.text.ParseException;
-import java.time.Instant;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 /**
  * An implementation of a {@link JwtDecoder} that "decodes" a
@@ -74,6 +77,8 @@ public final class NimbusJwtDecoderJwkSupport implements JwtDecoder {
 	private final JWSAlgorithm jwsAlgorithm;
 	private final ConfigurableJWTProcessor<SecurityContext> jwtProcessor;
 	private final RestOperationsResourceRetriever jwkSetRetriever = new RestOperationsResourceRetriever();
+
+	private OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDelegatingJwtValidator();
 
 	/**
 	 * Constructs a {@code NimbusJwtDecoderJwkSupport} using the provided parameters.
@@ -104,15 +109,29 @@ public final class NimbusJwtDecoderJwkSupport implements JwtDecoder {
 			new JWSVerificationKeySelector<>(this.jwsAlgorithm, jwkSource);
 		this.jwtProcessor = new DefaultJWTProcessor<>();
 		this.jwtProcessor.setJWSKeySelector(jwsKeySelector);
+
+		// Spring Security validates the claim set independent from Nimbus
+		this.jwtProcessor.setJWTClaimsSetVerifier((claims, context) -> {});
 	}
 
 	@Override
 	public Jwt decode(String token) throws JwtException {
 		JWT jwt = this.parse(token);
 		if (jwt instanceof SignedJWT) {
-			return this.createJwt(token, jwt);
+			Jwt createdJwt = this.createJwt(token, jwt);
+			return this.validateJwt(createdJwt);
 		}
 		throw new JwtException("Unsupported algorithm of " + jwt.getHeader().getAlgorithm());
+	}
+
+	/**
+	 * Use this {@link Jwt} Validator
+	 *
+	 * @param jwtValidator - the Jwt Validator to use
+	 */
+	public void setJwtValidator(OAuth2TokenValidator<Jwt> jwtValidator) {
+		Assert.notNull(jwtValidator, "jwtValidator cannot be null");
+		this.jwtValidator = jwtValidator;
 	}
 
 	private JWT parse(String token) {
@@ -158,6 +177,18 @@ public final class NimbusJwtDecoderJwkSupport implements JwtDecoder {
 			} else {
 				throw new JwtException(String.format(DECODING_ERROR_MESSAGE_TEMPLATE, ex.getMessage()), ex);
 			}
+		}
+
+		return jwt;
+	}
+
+	private Jwt validateJwt(Jwt jwt){
+		OAuth2TokenValidatorResult result = this.jwtValidator.validate(jwt);
+		if (result.hasErrors()) {
+			String description = result.getErrors().iterator().next().getDescription();
+			throw new JwtValidationException(
+					String.format(DECODING_ERROR_MESSAGE_TEMPLATE, description),
+					result.getErrors());
 		}
 
 		return jwt;
