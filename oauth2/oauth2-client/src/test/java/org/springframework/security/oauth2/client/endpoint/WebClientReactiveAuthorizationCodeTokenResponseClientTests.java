@@ -44,10 +44,10 @@ import okhttp3.mockwebserver.MockWebServer;
  * @author Rob Winch
  * @since 5.1
  */
-public class NimbusReactiveAuthorizationCodeTokenResponseClientTests {
+public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 	private ClientRegistration.Builder clientRegistration;
 
-	private NimbusReactiveAuthorizationCodeTokenResponseClient tokenResponseClient = new NimbusReactiveAuthorizationCodeTokenResponseClient();
+	private WebClientReactiveAuthorizationCodeTokenResponseClient tokenResponseClient = new WebClientReactiveAuthorizationCodeTokenResponseClient();
 
 	private MockWebServer server;
 
