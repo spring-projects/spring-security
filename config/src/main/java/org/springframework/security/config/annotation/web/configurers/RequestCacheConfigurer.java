@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -113,11 +115,26 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>> exte
 		if (result != null) {
 			return result;
 		}
+		result = getBeanOrNull(RequestCache.class);
+		if (result != null) {
+			return result;
+		}
 		HttpSessionRequestCache defaultCache = new HttpSessionRequestCache();
 		defaultCache.setRequestMatcher(createDefaultSavedRequestMatcher(http));
 		return defaultCache;
 	}
 
+	private <T> T getBeanOrNull(Class<T> type) {
+		ApplicationContext context = getBuilder().getSharedObject(ApplicationContext.class);
+		if (context == null) {
+			return null;
+		}
+		try {
+			return context.getBean(type);
+		} catch (NoSuchBeanDefinitionException e) {
+			return null;
+		}
+	}
 	@SuppressWarnings("unchecked")
 	private RequestMatcher createDefaultSavedRequestMatcher(H http) {
 		ContentNegotiationStrategy contentNegotiationStrategy = http
