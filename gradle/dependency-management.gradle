@@ -1,7 +1,7 @@
 dependencyManagement {
 	imports {
 		mavenBom 'io.projectreactor:reactor-bom:Bismuth-SR10'
-		mavenBom 'org.springframework:spring-framework-bom:5.0.7.RELEASE'
+		mavenBom 'org.springframework:spring-framework-bom:5.0.8.RELEASE'
 		mavenBom 'org.springframework.data:spring-data-releasetrain:Kay-SR7'
 	}
 	dependencies {
