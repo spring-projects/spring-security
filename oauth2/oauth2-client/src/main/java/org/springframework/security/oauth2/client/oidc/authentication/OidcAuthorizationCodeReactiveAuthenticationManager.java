@@ -73,7 +73,7 @@ import java.util.function.Function;
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.3">Section 4.1.3 Access Token Request</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.4">Section 4.1.4 Access Token Response</a>
  */
-public class OidcReactiveAuthenticationManager implements
+public class OidcAuthorizationCodeReactiveAuthenticationManager implements
 		ReactiveAuthenticationManager {
 
 	private static final String INVALID_STATE_PARAMETER_ERROR_CODE = "invalid_state_parameter";
@@ -91,7 +91,7 @@ public class OidcReactiveAuthenticationManager implements
 
 	private Function<ClientRegistration, ReactiveJwtDecoder> decoderFactory = new DefaultDecoderFactory();
 
-	public OidcReactiveAuthenticationManager(
+	public OidcAuthorizationCodeReactiveAuthenticationManager(
 			ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient,
 			ReactiveOAuth2UserService<OidcUserRequest, OidcUser> userService,
 			ReactiveOAuth2AuthorizedClientService authorizedClientService) {

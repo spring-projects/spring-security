@@ -46,7 +46,7 @@ import org.springframework.security.oauth2.client.InMemoryReactiveOAuth2Authoriz
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginReactiveAuthenticationManager;
 import org.springframework.security.oauth2.client.endpoint.NimbusReactiveAuthorizationCodeTokenResponseClient;
-import org.springframework.security.oauth2.client.oidc.authentication.OidcReactiveAuthenticationManager;
+import org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizationCodeReactiveAuthenticationManager;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcReactiveOAuth2UserService;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
@@ -382,7 +382,7 @@ public class ServerHttpSecurity {
 			boolean oidcAuthenticationProviderEnabled = ClassUtils.isPresent(
 					"org.springframework.security.oauth2.jwt.JwtDecoder", this.getClass().getClassLoader());
 			if (oidcAuthenticationProviderEnabled) {
-				OidcReactiveAuthenticationManager oidc = new OidcReactiveAuthenticationManager(client, new OidcReactiveOAuth2UserService(), authorizedClientService);
+				OidcAuthorizationCodeReactiveAuthenticationManager oidc = new OidcAuthorizationCodeReactiveAuthenticationManager(client, new OidcReactiveOAuth2UserService(), authorizedClientService);
 				manager = new DelegatingReactiveAuthenticationManager(oidc, manager);
 			}
 
