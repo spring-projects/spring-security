@@ -16,8 +16,6 @@
 
 package org.springframework.security.oauth2.client.web;
 
-import java.util.function.Function;
-
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
@@ -27,6 +25,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExch
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+import org.springframework.security.web.server.authentication.AuthenticationConverter;
 import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
@@ -40,10 +39,9 @@ import reactor.core.publisher.Mono;
  * converter does not validate any errors it only performs a conversion.
  * @author Rob Winch
  * @since 5.1
- * @see org.springframework.security.web.server.authentication.AuthenticationWebFilter#setAuthenticationConverter(Function)
+ * @see org.springframework.security.web.server.authentication.AuthenticationWebFilter#setAuthenticationConverter(AuthenticationConverter)
  */
-public class ServerOAuth2LoginAuthenticationTokenConverter implements
-		Function<ServerWebExchange, Mono<Authentication>> {
+public class ServerOAuth2LoginAuthenticationTokenConverter implements AuthenticationConverter {
 
 	static final String AUTHORIZATION_REQUEST_NOT_FOUND_ERROR_CODE = "authorization_request_not_found";
 

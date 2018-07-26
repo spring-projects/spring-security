@@ -16,12 +16,12 @@
 package org.springframework.security.web.server;
 
 import java.util.Base64;
-import java.util.function.Function;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.web.server.authentication.AuthenticationConverter;
 import org.springframework.web.server.ServerWebExchange;
 
 import reactor.core.publisher.Mono;
@@ -32,7 +32,7 @@ import reactor.core.publisher.Mono;
  * @author Rob Winch
  * @since 5.0
  */
-public class ServerHttpBasicAuthenticationConverter implements Function<ServerWebExchange, Mono<Authentication>> {
+public class ServerHttpBasicAuthenticationConverter implements AuthenticationConverter {
 
 	public static final String BASIC = "Basic ";
 
