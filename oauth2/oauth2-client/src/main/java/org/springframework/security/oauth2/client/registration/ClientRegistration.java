@@ -269,7 +269,7 @@ public final class ClientRegistration {
 		}
 
 		/**
-		 * Sets the client identifier.
+		 * Sets the registration id.
 		 *
 		 * @param registrationId the registration id
 		 * @return the {@link Builder}
