@@ -19,6 +19,7 @@ package org.springframework.security.config.annotation.web.configurers;
 import org.junit.Rule;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -67,6 +68,27 @@ public class FormLoginConfigurerTests {
 				.formLogin().and()
 				.requestCache()
 					.requestCache(this.requestCache);
+		}
+	}
+
+	@Test
+	public void requestCacheAsBean() throws Exception {
+		this.spring.register(RequestCacheBeanConfig.class,
+				AuthenticationTestConfiguration.class).autowire();
+
+		RequestCache requestCache = this.spring.getContext().getBean(RequestCache.class);
+
+		this.mockMvc.perform(formLogin())
+				.andExpect(authenticated());
+
+		verify(requestCache).getRequest(any(), any());
+	}
+
+	@EnableWebSecurity
+	static class RequestCacheBeanConfig {
+		@Bean
+		RequestCache requestCache() {
+			return mock(RequestCache.class);
 		}
 	}
 }
