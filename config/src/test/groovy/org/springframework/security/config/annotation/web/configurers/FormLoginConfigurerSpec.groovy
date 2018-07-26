@@ -57,7 +57,7 @@ import spock.lang.Unroll
  *
  * @author Rob Winch
  */
-class FormLoginConfigurerTests extends BaseSpringSpec {
+class FormLoginConfigurerSpec extends BaseSpringSpec {
 	def "Form Login"() {
 		when: "load formLogin()"
 			context = new AnnotationConfigApplicationContext(FormLoginConfig)
