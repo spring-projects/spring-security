@@ -32,6 +32,7 @@ import org.springframework.security.web.authentication.SavedRequestAwareAuthenti
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
@@ -65,7 +66,8 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 
 	private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource;
 
-	private AuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
+	private SavedRequestAwareAuthenticationSuccessHandler defaultSuccessHandler = new SavedRequestAwareAuthenticationSuccessHandler();
+	private AuthenticationSuccessHandler successHandler = this.defaultSuccessHandler;
 
 	private LoginUrlAuthenticationEntryPoint authenticationEntryPoint;
 
@@ -128,6 +130,7 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 		SavedRequestAwareAuthenticationSuccessHandler handler = new SavedRequestAwareAuthenticationSuccessHandler();
 		handler.setDefaultTargetUrl(defaultSuccessUrl);
 		handler.setAlwaysUseDefaultTargetUrl(alwaysUse);
+		this.defaultSuccessHandler = handler;
 		return successHandler(handler);
 	}
 
@@ -277,6 +280,11 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 		PortMapper portMapper = http.getSharedObject(PortMapper.class);
 		if (portMapper != null) {
 			authenticationEntryPoint.setPortMapper(portMapper);
+		}
+
+		RequestCache requestCache = http.getSharedObject(RequestCache.class);
+		if (requestCache != null) {
+			this.defaultSuccessHandler.setRequestCache(requestCache);
 		}
 
 		authFilter.setAuthenticationManager(http
