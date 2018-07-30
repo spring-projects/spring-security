@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.springframework.http.codec.ServerCodecConfigurer;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.http.server.reactive.MockServerHttpResponse;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
@@ -176,6 +177,23 @@ public class WebSessionOAuth2ReactiveAuthorizationRequestRepositoryTests {
 				.map(WebSession::getAttributes)
 				.map(Map::isEmpty))
 				.expectNext(true)
+				.verifyComplete();
+	}
+
+	// gh-5599
+	@Test
+	public void removeAuthorizationRequestWhenStateMissingThenNoErrors() {
+		MockServerHttpRequest otherState = MockServerHttpRequest.get("/")
+				.queryParam(OAuth2ParameterNames.STATE, "other")
+				.build();
+		ServerWebExchange otherStateExchange = this.exchange.mutate()
+				.request(otherState)
+				.build();
+		Mono<OAuth2AuthorizationRequest> saveAndRemove = this.repository
+				.saveAuthorizationRequest(this.authorizationRequest, this.exchange)
+				.then(this.repository.removeAuthorizationRequest(otherStateExchange));
+
+		StepVerifier.create(saveAndRemove)
 				.verifyComplete();
 	}
 

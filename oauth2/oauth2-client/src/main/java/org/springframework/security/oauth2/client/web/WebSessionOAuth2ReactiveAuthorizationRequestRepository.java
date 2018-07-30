@@ -84,7 +84,11 @@ public final class WebSessionOAuth2ReactiveAuthorizationRequestRepository implem
 				if (stateToAuthzRequest.isEmpty()) {
 					sessionAttrs.remove(this.sessionAttributeName);
 				}
-				sink.next(removedValue);
+				if (removedValue == null) {
+					sink.complete();
+				} else {
+					sink.next(removedValue);
+				}
 			});
 	}
 
