@@ -15,19 +15,16 @@
  */
 package sample;
 
-import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.Credentials.basicAuthenticationCredentials;
-
-import java.util.Map;
 import java.util.function.Consumer;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.web.reactive.function.client.ExchangeFilterFunctions;
 
 /**
  * @author Rob Winch
@@ -37,13 +34,8 @@ import org.springframework.web.reactive.function.client.ExchangeFilterFunctions;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class HelloWebfluxMethodApplicationITests {
 
-	WebTestClient rest;
-
 	@Autowired
-	public void setRest(WebTestClient rest) {
-		this.rest = rest
-				.mutateWith((b, h, c) -> b.filter(ExchangeFilterFunctions.basicAuthentication()));
-	}
+	WebTestClient rest;
 
 
 	@Test
@@ -60,7 +52,7 @@ public class HelloWebfluxMethodApplicationITests {
 		this.rest
 				.get()
 				.uri("/message")
-				.attributes(robsCredentials())
+				.headers(robsCredentials())
 				.exchange()
 				.expectStatus().isEqualTo(HttpStatus.FORBIDDEN);
 	}
@@ -70,18 +62,18 @@ public class HelloWebfluxMethodApplicationITests {
 		this.rest
 				.get()
 				.uri("/message")
-				.attributes(adminCredentials())
+				.headers(adminCredentials())
 				.exchange()
 				.expectStatus().isOk()
 				.expectBody(String.class).isEqualTo("Hello World!");
 	}
 
-	private Consumer<Map<String, Object>> robsCredentials() {
-		return basicAuthenticationCredentials("rob", "rob");
+	private Consumer<HttpHeaders> robsCredentials() {
+		return httpHeaders -> httpHeaders.setBasicAuth("rob", "rob");
 	}
 
-	private Consumer<Map<String, Object>> adminCredentials() {
-		return basicAuthenticationCredentials("admin", "admin");
+	private Consumer<HttpHeaders> adminCredentials() {
+		return httpHeaders -> httpHeaders.setBasicAuth("admin", "admin");
 	}
 }
 

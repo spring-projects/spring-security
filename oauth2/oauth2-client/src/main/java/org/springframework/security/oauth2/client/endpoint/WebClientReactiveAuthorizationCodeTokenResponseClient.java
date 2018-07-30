@@ -23,12 +23,10 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenRespon
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
 import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.ExchangeFilterFunctions;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import static org.springframework.security.oauth2.core.web.reactive.function.OAuth2BodyExtractors.oauth2AccessTokenResponse;
-import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.Credentials.basicAuthenticationCredentials;
 
 /**
  * An implementation of an {@link ReactiveOAuth2AccessTokenResponseClient} that &quot;exchanges&quot;
@@ -49,7 +47,6 @@ import static org.springframework.web.reactive.function.client.ExchangeFilterFun
  */
 public class WebClientReactiveAuthorizationCodeTokenResponseClient implements ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> {
 	private WebClient webClient = WebClient.builder()
-			.filter(ExchangeFilterFunctions.basicAuthentication())
 			.build();
 
 	@Override
@@ -66,7 +63,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClient implements Re
 			return this.webClient.post()
 					.uri(tokenUri)
 					.accept(MediaType.APPLICATION_JSON)
-					.attributes(basicAuthenticationCredentials(clientRegistration.getClientId(), clientRegistration.getClientSecret()))
+					.headers(headers -> headers.setBasicAuth(clientRegistration.getClientId(), clientRegistration.getClientSecret()))
 					.body(body)
 					.exchange()
 					.flatMap(response -> response.body(oauth2AccessTokenResponse()))

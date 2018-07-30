@@ -40,7 +40,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.basicAuthentication;
 
 /**
  * @author Rob Winch
@@ -92,12 +91,9 @@ public class ServerHttpSecurityTests {
 
 		WebTestClient client = buildClient();
 
-		EntityExchangeResult<String> result = client
-			.mutate()
-			.filter(basicAuthentication("rob", "rob"))
-			.build()
-			.get()
+		EntityExchangeResult<String> result = client.get()
 			.uri("/")
+			.headers(headers -> headers.setBasicAuth("rob", "rob"))
 			.exchange()
 			.expectStatus().isOk()
 			.expectHeader().valueMatches(HttpHeaders.CACHE_CONTROL, ".+")

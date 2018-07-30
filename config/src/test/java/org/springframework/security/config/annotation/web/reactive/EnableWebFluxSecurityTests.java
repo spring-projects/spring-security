@@ -68,8 +68,6 @@ import java.security.Principal;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.csrf;
-import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.Credentials.basicAuthenticationCredentials;
-import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.basicAuthentication;
 
 /**
  * @author Rob Winch
@@ -122,11 +120,10 @@ public class EnableWebFluxSecurityTests {
 
 		WebTestClient client = WebTestClientBuilder
 			.bindToWebFilters(this.springSecurityFilterChain)
-			.filter(basicAuthentication())
 			.build();
 
 		FluxExchangeResult<String> result = client.get()
-			.attributes(basicAuthenticationCredentials("user", "password"))
+			.headers(headers -> headers.setBasicAuth("user", "password"))
 			.exchange()
 			.expectStatus()
 			.isOk()
@@ -171,13 +168,12 @@ public class EnableWebFluxSecurityTests {
 					.flatMap( principal -> exchange.getResponse()
 						.writeWith(Mono.just(toDataBuffer(principal.getName()))))
 		)
-		.filter(basicAuthentication())
 		.build();
 
 		client
 			.get()
 			.uri("/")
-			.attributes(basicAuthenticationCredentials("user", "password"))
+			.headers(headers -> headers.setBasicAuth("user", "password"))
 			.exchange()
 			.expectStatus().isOk()
 			.expectBody(String.class).consumeWith( result -> assertThat(result.getResponseBody()).isEqualTo("user"));
@@ -208,13 +204,12 @@ public class EnableWebFluxSecurityTests {
 					.flatMap( principal -> exchange.getResponse()
 						.writeWith(Mono.just(toDataBuffer(principal.getName()))))
 		)
-		.filter(basicAuthentication())
 		.build();
 
 		client
 			.get()
 			.uri("/")
-			.attributes(basicAuthenticationCredentials("user", "password"))
+			.headers(headers -> headers.setBasicAuth("user", "password"))
 			.exchange()
 			.expectStatus().isOk()
 			.expectBody(String.class).consumeWith( result -> assertThat(result.getResponseBody()).isEqualTo("user"));
