@@ -25,8 +25,6 @@ import org.springframework.security.web.server.authentication.RedirectServerAuth
 import org.springframework.security.web.server.authorization.HttpStatusServerAccessDeniedHandler;
 import org.springframework.security.web.server.authorization.ServerAccessDeniedHandler;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.Credentials.basicAuthenticationCredentials;
-import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.basicAuthentication;
 
 /**
  * @author Denys Ivano
@@ -96,13 +94,12 @@ public class ExceptionHandlingSpecTests {
 
 		WebTestClient client = WebTestClientBuilder
 			.bindToWebFilters(securityWebFilter)
-			.filter(basicAuthentication())
 			.build();
 
 		client
 			.get()
 			.uri("/admin")
-			.attributes(basicAuthenticationCredentials("user", "password"))
+			.headers(headers -> headers.setBasicAuth("user", "password"))
 			.exchange()
 			.expectStatus().isForbidden();
 	}
@@ -122,13 +119,12 @@ public class ExceptionHandlingSpecTests {
 
 		WebTestClient client = WebTestClientBuilder
 			.bindToWebFilters(securityWebFilter)
-			.filter(basicAuthentication())
 			.build();
 
 		client
 			.get()
 			.uri("/admin")
-			.attributes(basicAuthenticationCredentials("user", "password"))
+			.headers(headers -> headers.setBasicAuth("user", "password"))
 			.exchange()
 			.expectStatus().isBadRequest();
 	}

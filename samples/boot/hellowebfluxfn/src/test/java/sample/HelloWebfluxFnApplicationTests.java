@@ -17,10 +17,7 @@ package sample;
 
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockUser;
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.springSecurity;
-import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.basicAuthentication;
-import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.Credentials.basicAuthenticationCredentials;
 
-import java.util.Map;
 import java.util.function.Consumer;
 
 import org.junit.Test;
@@ -29,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -50,7 +48,6 @@ public class HelloWebfluxFnApplicationTests {
 				.bindToApplicationContext(context)
 				.apply(springSecurity())
 				.configureClient()
-				.filter(basicAuthentication())
 				.build();
 	}
 
@@ -68,7 +65,7 @@ public class HelloWebfluxFnApplicationTests {
 		this.rest
 			.get()
 			.uri("/")
-			.attributes(userCredentials())
+			.headers(userCredentials())
 			.exchange()
 			.expectStatus().isOk()
 			.expectBody().json("{\"message\":\"Hello user!\"}");
@@ -79,7 +76,7 @@ public class HelloWebfluxFnApplicationTests {
 		this.rest
 			.get()
 			.uri("/")
-			.attributes(invalidCredentials())
+			.headers(invalidCredentials())
 			.exchange()
 			.expectStatus().isUnauthorized()
 			.expectBody().isEmpty();
@@ -107,11 +104,11 @@ public class HelloWebfluxFnApplicationTests {
 			.expectBody().json("{\"message\":\"Hello user!\"}");
 	}
 
-	private Consumer<Map<String, Object>> userCredentials() {
-		return basicAuthenticationCredentials("user", "user");
+	private Consumer<HttpHeaders> userCredentials() {
+		return httpHeaders -> httpHeaders.setBasicAuth("user", "user");
 	}
 
-	private Consumer<Map<String, Object>> invalidCredentials() {
-		return basicAuthenticationCredentials("user", "INVALID");
+	private Consumer<HttpHeaders> invalidCredentials() {
+		return httpHeaders -> httpHeaders.setBasicAuth("user", "INVALID");
 	}
 }
