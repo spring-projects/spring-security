@@ -214,6 +214,28 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 		}
 	}
 
+	// gh-5594
+	@Test
+	public void getTokenResponseWhenServerErrorResponseThenThrowOAuth2AuthenticationException() throws Exception {
+		this.exception.expect(OAuth2AuthenticationException.class);
+		this.exception.expectMessage(containsString("server_error"));
+
+		MockWebServer server = new MockWebServer();
+
+		server.enqueue(new MockResponse().setResponseCode(500));
+		server.start();
+
+		String tokenUri = server.url("/oauth2/token").toString();
+		when(this.providerDetails.getTokenUri()).thenReturn(tokenUri);
+
+		try {
+			this.tokenResponseClient.getTokenResponse(
+					new OAuth2AuthorizationCodeGrantRequest(this.clientRegistration, this.authorizationExchange));
+		} finally {
+			server.shutdown();
+		}
+	}
+
 	@Test
 	public void getTokenResponseWhenSuccessResponseAndNotBearerTokenTypeThenThrowOAuth2AuthenticationException() throws Exception {
 		this.exception.expect(OAuth2AuthenticationException.class);
