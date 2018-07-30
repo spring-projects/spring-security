@@ -92,4 +92,13 @@ public class ClaimAccessorTests {
 		assertThat(this.claimAccessor.getClaimAsInstant(claimName)).isBetween(
 				expectedClaimValue.minusSeconds(1), expectedClaimValue.plusSeconds(1));
 	}
+
+	// gh-5608
+	@Test
+	public void getClaimAsStringWhenValueIsNullThenReturnNull() {
+		String claimName = "claim-with-null-value";
+		this.claims.put(claimName, null);
+
+		assertThat(this.claimAccessor.getClaimAsString(claimName)).isEqualTo(null);
+	}
 }
