@@ -16,7 +16,6 @@
 
 package org.springframework.security.oauth2.client.userinfo;
 
-import static org.springframework.security.web.http.SecurityHeaders.bearerToken;
 
 import java.net.UnknownHostException;
 import java.util.HashSet;
@@ -114,7 +113,7 @@ public class DefaultReactiveOAuth2UserService implements ReactiveOAuth2UserServi
 				requestHeadersSpec = this.webClient.get()
 						.uri(userInfoUri)
 						.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-						.headers(bearerToken(userRequest.getAccessToken().getTokenValue()));
+						.headers(headers -> headers.setBearerAuth(userRequest.getAccessToken().getTokenValue()));
 			}
 			Mono<Map<String, Object>> userAttributes = requestHeadersSpec
 					.retrieve()

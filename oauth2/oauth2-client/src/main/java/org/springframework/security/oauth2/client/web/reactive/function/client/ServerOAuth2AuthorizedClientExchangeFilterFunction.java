@@ -48,7 +48,6 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import static org.springframework.security.oauth2.core.web.reactive.function.OAuth2BodyExtractors.oauth2AccessTokenResponse;
-import static org.springframework.security.web.http.SecurityHeaders.bearerToken;
 
 /**
  * Provides an easy mechanism for using an {@link OAuth2AuthorizedClient} to make OAuth2 requests by including the
@@ -190,7 +189,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 
 	private ClientRequest bearer(ClientRequest request, OAuth2AuthorizedClient authorizedClient) {
 		return ClientRequest.from(request)
-					.headers(bearerToken(authorizedClient.getAccessToken().getTokenValue()))
+					.headers(headers -> headers.setBearerAuth(authorizedClient.getAccessToken().getTokenValue()))
 					.build();
 	}
 
