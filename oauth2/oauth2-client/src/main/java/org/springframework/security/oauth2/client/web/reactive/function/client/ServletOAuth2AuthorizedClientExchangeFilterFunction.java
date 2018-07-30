@@ -45,11 +45,9 @@ import reactor.core.scheduler.Schedulers;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Base64;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
@@ -290,7 +288,7 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 				.getProviderDetails().getTokenUri();
 		ClientRequest refreshRequest = ClientRequest.create(HttpMethod.POST, URI.create(tokenUri))
 				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-				.headers(httpBasic(clientRegistration.getClientId(), clientRegistration.getClientSecret()))
+				.headers(headers -> headers.setBasicAuth(clientRegistration.getClientId(), clientRegistration.getClientSecret()))
 				.body(refreshTokenBody(authorizedClient.getRefreshToken().getTokenValue()))
 				.build();
 		return next.exchange(refreshRequest)
@@ -307,16 +305,6 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 					return result;
 				})
 				.publishOn(Schedulers.elastic());
-	}
-
-	private static Consumer<HttpHeaders> httpBasic(String username, String password) {
-		return httpHeaders -> {
-			String credentialsString = username + ":" + password;
-			byte[] credentialBytes = credentialsString.getBytes(StandardCharsets.ISO_8859_1);
-			byte[] encodedBytes = Base64.getEncoder().encode(credentialBytes);
-			String encodedCredentials = new String(encodedBytes, StandardCharsets.ISO_8859_1);
-			httpHeaders.set(HttpHeaders.AUTHORIZATION, "Basic " + encodedCredentials);
-		};
 	}
 
 	private boolean shouldRefresh(OAuth2AuthorizedClient authorizedClient) {

@@ -37,11 +37,9 @@ import org.springframework.web.reactive.function.client.ExchangeFunction;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Base64;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
@@ -148,7 +146,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 				.getProviderDetails().getTokenUri();
 		ClientRequest request = ClientRequest.create(HttpMethod.POST, URI.create(tokenUri))
 				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-				.headers(httpBasic(clientRegistration.getClientId(), clientRegistration.getClientSecret()))
+				.headers(headers -> headers.setBasicAuth(clientRegistration.getClientId(), clientRegistration.getClientSecret()))
 				.body(refreshTokenBody(authorizedClient.getRefreshToken().getTokenValue()))
 				.build();
 		return next.exchange(request)
@@ -159,16 +157,6 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 						.defaultIfEmpty(new PrincipalNameAuthentication(authorizedClient.getPrincipalName()))
 						.flatMap(principal -> this.authorizedClientService.saveAuthorizedClient(result, principal))
 						.thenReturn(result));
-	}
-
-	private static Consumer<HttpHeaders> httpBasic(String username, String password) {
-		return httpHeaders -> {
-			String credentialsString = username + ":" + password;
-			byte[] credentialBytes = credentialsString.getBytes(StandardCharsets.ISO_8859_1);
-			byte[] encodedBytes = Base64.getEncoder().encode(credentialBytes);
-			String encodedCredentials = new String(encodedBytes, StandardCharsets.ISO_8859_1);
-			httpHeaders.set(HttpHeaders.AUTHORIZATION, "Basic " + encodedCredentials);
-		};
 	}
 
 	private boolean shouldRefresh(OAuth2AuthorizedClient authorizedClient) {
