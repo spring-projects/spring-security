@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,13 +53,17 @@ public interface ClaimAccessor {
 	}
 
 	/**
-	 * Returns the claim value as a {@code String} or {@code null} if it does not exist.
+	 * Returns the claim value as a {@code String} or {@code null} if it does not exist or is equal to {@code null}.
 	 *
 	 * @param claim the name of the claim
-	 * @return the claim value or {@code null} if it does not exist
+	 * @return the claim value or {@code null} if it does not exist or is equal to {@code null}
 	 */
 	default String getClaimAsString(String claim) {
-		return (this.containsClaim(claim) ? this.getClaims().get(claim).toString() : null);
+		if (!this.containsClaim(claim)) {
+			return null;
+		}
+		Object claimValue = this.getClaims().get(claim);
+		return (claimValue != null ? claimValue.toString() : null);
 	}
 
 	/**
