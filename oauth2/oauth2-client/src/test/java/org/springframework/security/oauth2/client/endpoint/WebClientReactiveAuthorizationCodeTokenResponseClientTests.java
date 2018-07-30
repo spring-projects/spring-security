@@ -187,6 +187,17 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 			.hasMessageContaining("unauthorized_client");
 	}
 
+	// gh-5594
+	@Test
+	public void getTokenResponseWhenServerErrorResponseThenThrowOAuth2AuthenticationException() throws Exception {
+		String accessTokenErrorResponse = "{}";
+		this.server.enqueue(jsonResponse(accessTokenErrorResponse).setResponseCode(HttpStatus.INTERNAL_SERVER_ERROR.value()));
+
+		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest()).block())
+				.isInstanceOf(OAuth2AuthenticationException.class)
+				.hasMessageContaining("server_error");
+	}
+
 	@Test
 	public void getTokenResponseWhenSuccessResponseAndNotBearerTokenTypeThenThrowOAuth2AuthenticationException() throws Exception {
 		String accessTokenSuccessResponse = "{\n" +

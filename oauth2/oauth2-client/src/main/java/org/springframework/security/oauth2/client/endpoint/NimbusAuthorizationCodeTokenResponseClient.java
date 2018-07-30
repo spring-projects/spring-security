@@ -37,6 +37,7 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.util.CollectionUtils;
 
@@ -111,8 +112,15 @@ public class NimbusAuthorizationCodeTokenResponseClient implements OAuth2AccessT
 		if (!tokenResponse.indicatesSuccess()) {
 			TokenErrorResponse tokenErrorResponse = (TokenErrorResponse) tokenResponse;
 			ErrorObject errorObject = tokenErrorResponse.getErrorObject();
-			OAuth2Error oauth2Error = new OAuth2Error(errorObject.getCode(), errorObject.getDescription(),
-				(errorObject.getURI() != null ? errorObject.getURI().toString() : null));
+			OAuth2Error oauth2Error;
+			if (errorObject == null) {
+				oauth2Error = new OAuth2Error(OAuth2ErrorCodes.SERVER_ERROR);
+			} else {
+				oauth2Error = new OAuth2Error(
+						errorObject.getCode() != null ? errorObject.getCode() : OAuth2ErrorCodes.SERVER_ERROR,
+						errorObject.getDescription(),
+						errorObject.getURI() != null ? errorObject.getURI().toString() : null);
+			}
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 		}
 
