@@ -111,6 +111,10 @@ import org.springframework.security.web.server.util.matcher.ServerWebExchangeMat
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
+import org.springframework.web.cors.reactive.CorsConfigurationSource;
+import org.springframework.web.cors.reactive.CorsProcessor;
+import org.springframework.web.cors.reactive.CorsWebFilter;
+import org.springframework.web.cors.reactive.DefaultCorsProcessor;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
@@ -180,6 +184,8 @@ public class ServerHttpSecurity {
 	private HeaderSpec headers = new HeaderSpec();
 
 	private CsrfSpec csrf = new CsrfSpec();
+
+	private CorsSpec cors = new CorsSpec();
 
 	private ExceptionHandlingSpec exceptionHandling = new ExceptionHandlingSpec();
 
@@ -297,6 +303,80 @@ public class ServerHttpSecurity {
 			this.csrf = new CsrfSpec();
 		}
 		return this.csrf;
+	}
+
+	/**
+	 * Configures CORS headers. By default if a {@link CorsConfigurationSource} Bean is found, it will be used
+	 * to create a {@link CorsWebFilter}. If {@link CorsSpec#configurationSource(CorsConfigurationSource)} is invoked
+	 * it will be used instead. If neither has been configured, the Cors configuration will do nothing.
+	 * @return the {@link CorsSpec} to customize
+	 */
+	public CorsSpec cors() {
+		if (this.cors == null) {
+			this.cors = new CorsSpec();
+		}
+		return this.cors;
+	}
+
+	/**
+	 * Configures CORS support within Spring Security. This ensures that the {@link CorsWebFilter} is place in the
+	 * correct order.
+	 */
+	public class CorsSpec {
+		private CorsWebFilter corsFilter;
+
+		/**
+		 * Configures the {@link CorsConfigurationSource} to be used
+		 * @param source the source to use
+		 * @return the {@link CorsSpec} for additional configuration
+		 */
+		public CorsSpec configurationSource(CorsConfigurationSource source) {
+			this.corsFilter = new CorsWebFilter(source);
+			return this;
+		}
+
+		/**
+		 * Disables CORS support within Spring Security.
+		 * @return the {@link ServerHttpSecurity} to continue configuring
+		 */
+		public ServerHttpSecurity disable() {
+			ServerHttpSecurity.this.cors = null;
+			return ServerHttpSecurity.this;
+		}
+
+		/**
+		 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}
+		 * @return the {@link ServerHttpSecurity} to continue configuring
+		 */
+		public ServerHttpSecurity and() {
+			return ServerHttpSecurity.this;
+		}
+
+		protected void configure(ServerHttpSecurity http) {
+			CorsWebFilter corsFilter = getCorsFilter();
+			if (corsFilter != null) {
+				http.addFilterAt(this.corsFilter, SecurityWebFiltersOrder.CORS);
+			}
+		}
+
+		private CorsWebFilter getCorsFilter() {
+			if (this.corsFilter != null) {
+				return this.corsFilter;
+			}
+
+			CorsConfigurationSource source = getBeanOrNull(CorsConfigurationSource.class);
+			if (source == null) {
+				return null;
+			}
+			CorsProcessor processor = getBeanOrNull(CorsProcessor.class);
+			if (processor == null) {
+				processor = new DefaultCorsProcessor();
+			}
+			this.corsFilter = new CorsWebFilter(source, processor);
+			return this.corsFilter;
+		}
+
+		private CorsSpec() {}
 	}
 
 	/**
@@ -781,6 +861,9 @@ public class ServerHttpSecurity {
 		}
 		if(this.csrf != null) {
 			this.csrf.configure(this);
+		}
+		if (this.cors != null) {
+			this.cors.configure(this);
 		}
 		if(this.httpBasic != null) {
 			this.httpBasic.authenticationManager(this.authenticationManager);
