@@ -79,6 +79,22 @@ public class ServerHttpBasicAuthenticationConverterTests {
 		assertThat(authentication.getCredentials()).isEqualTo("password");
 	}
 
+	@Test
+	public void applyWhenLowercaseSchemeThenAuthentication() {
+		Mono<Authentication> result = apply(this.request.header(HttpHeaders.AUTHORIZATION, "basic dXNlcjpwYXNzd29yZA=="));
+
+		UsernamePasswordAuthenticationToken authentication = result.cast(UsernamePasswordAuthenticationToken.class).block();
+		assertThat(authentication.getPrincipal()).isEqualTo("user");
+		assertThat(authentication.getCredentials()).isEqualTo("password");
+	}
+
+	@Test
+	public void applyWhenWrongSchemeThenAuthentication() {
+		Mono<Authentication> result = apply(this.request.header(HttpHeaders.AUTHORIZATION, "token dXNlcjpwYXNzd29yZA=="));
+
+		assertThat(result.block()).isNull();
+	}
+
 	private Mono<Authentication> apply(MockServerHttpRequest.BaseBuilder<?> request) {
 		return this.converter.apply(MockServerWebExchange.from(this.request.build()));
 	}
