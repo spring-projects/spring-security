@@ -6,6 +6,7 @@ dependencies {
 	compile springCoreDependency
 	compile 'com.nimbusds:nimbus-jose-jwt'
 
+	optional 'com.nimbusds:oauth2-oidc-sdk'
 	optional 'io.projectreactor:reactor-core'
 	optional 'org.springframework:spring-webflux'
 
