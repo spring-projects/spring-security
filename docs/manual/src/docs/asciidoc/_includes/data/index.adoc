@@ -8,7 +8,7 @@ It is not only useful but necessary to include the user in the queries to suppor
 [[data-configuration]]
 == Spring Data & Spring Security Configuration
 
-To use this support, provide a bean of type `SecurityEvaluationContextExtension`.
+To use this support, add `org.springframework.security:spring-security-data` dependency and provide a bean of type `SecurityEvaluationContextExtension`.
 In Java Configuration, this would look like:
 
 [source,java]
