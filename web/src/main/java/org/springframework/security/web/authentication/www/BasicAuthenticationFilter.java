@@ -154,7 +154,7 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 
 		String header = request.getHeader("Authorization");
 
-		if (header == null || !header.startsWith("Basic ")) {
+		if (header == null || !header.toLowerCase().startsWith("basic ")) {
 			chain.doFilter(request, response);
 			return;
 		}
