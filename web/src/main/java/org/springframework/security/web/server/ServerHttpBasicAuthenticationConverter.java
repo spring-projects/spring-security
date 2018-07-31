@@ -41,7 +41,7 @@ public class ServerHttpBasicAuthenticationConverter implements ServerAuthenticat
 		ServerHttpRequest request = exchange.getRequest();
 
 		String authorization = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-		if(authorization == null) {
+		if(authorization == null || !authorization.toLowerCase().startsWith("basic ")) {
 			return Mono.empty();
 		}
 
