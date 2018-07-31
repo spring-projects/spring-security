@@ -109,10 +109,23 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 
 	private OAuth2AuthorizedClientRepository authorizedClientRepository;
 
+	private boolean defaultOAuth2AuthorizedClient;
+
 	public ServletOAuth2AuthorizedClientExchangeFilterFunction() {}
 
 	public ServletOAuth2AuthorizedClientExchangeFilterFunction(OAuth2AuthorizedClientRepository authorizedClientRepository) {
 		this.authorizedClientRepository = authorizedClientRepository;
+	}
+
+	/**
+	 * If true, a default {@link OAuth2AuthorizedClient} can be discovered from the current Authentication. It is
+	 * recommended to be cautious with this feature since all HTTP requests will receive the access token if it can be
+	 * resolved from the current Authentication.
+	 * @param defaultOAuth2AuthorizedClient true if a default {@link OAuth2AuthorizedClient} should be used, else false.
+	 *                                      Default is false.
+	 */
+	public void setDefaultOAuth2AuthorizedClient(boolean defaultOAuth2AuthorizedClient) {
+		this.defaultOAuth2AuthorizedClient = defaultOAuth2AuthorizedClient;
 	}
 
 	/**
@@ -251,13 +264,16 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 	}
 
 	private void populateDefaultOAuth2AuthorizedClient(Map<String, Object> attrs) {
-		if (this.authorizedClientRepository == null || attrs.containsKey(OAUTH2_AUTHORIZED_CLIENT_ATTR_NAME)) {
+		if (this.authorizedClientRepository == null
+				|| attrs.containsKey(OAUTH2_AUTHORIZED_CLIENT_ATTR_NAME)) {
 			return;
 		}
 
 		Authentication authentication = getAuthentication(attrs);
 		String clientRegistrationId = getClientRegistrationId(attrs);
-		if (clientRegistrationId == null  && authentication instanceof OAuth2AuthenticationToken) {
+		if (clientRegistrationId == null
+				&& this.defaultOAuth2AuthorizedClient
+				&& authentication instanceof OAuth2AuthenticationToken) {
 			clientRegistrationId = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
 		}
 		if (clientRegistrationId != null) {
