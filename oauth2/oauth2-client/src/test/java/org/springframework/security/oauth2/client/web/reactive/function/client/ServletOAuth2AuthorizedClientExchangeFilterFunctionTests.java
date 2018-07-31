@@ -207,8 +207,9 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	}
 
 	@Test
-	public void defaultRequestOAuth2AuthorizedClientWhenAuthenticationAndClientRegistrationIdNullThenOAuth2AuthorizedClient() {
+	public void defaultRequestOAuth2AuthorizedClientWhenDefaultTrueAndAuthenticationAndClientRegistrationIdNullThenOAuth2AuthorizedClient() {
 		this.function = new ServletOAuth2AuthorizedClientExchangeFilterFunction(this.authorizedClientRepository);
+		this.function.setDefaultOAuth2AuthorizedClient(true);
 		OAuth2User user = mock(OAuth2User.class);
 		List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_USER");
 		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(user, authorities, "id");
@@ -221,6 +222,19 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 		assertThat(getOAuth2AuthorizedClient(attrs)).isEqualTo(authorizedClient);
 		verify(this.authorizedClientRepository).loadAuthorizedClient(eq(token.getAuthorizedClientRegistrationId()), any(), any());
+	}
+
+	@Test
+	public void defaultRequestOAuth2AuthorizedClientWhenDefaultFalseAndAuthenticationAndClientRegistrationIdNullThenOAuth2AuthorizedClient() {
+		this.function = new ServletOAuth2AuthorizedClientExchangeFilterFunction(this.authorizedClientRepository);
+		OAuth2User user = mock(OAuth2User.class);
+		List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_USER");
+		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(user, authorities, "id");
+		authentication(token).accept(this.result);
+
+		Map<String, Object> attrs = getDefaultRequestAttributes();
+
+		assertThat(getOAuth2AuthorizedClient(attrs)).isNull();
 	}
 
 	@Test
