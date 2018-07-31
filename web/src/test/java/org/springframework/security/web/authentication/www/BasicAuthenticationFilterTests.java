@@ -156,6 +156,26 @@ public class BasicAuthenticationFilterTests {
 				.isEqualTo("rod");
 	}
 
+	// gh-5586
+	@Test
+	public void doFilterWhenSchemeLowercaseThenCaseInsensitveMatchWorks() throws Exception {
+		String token = "rod:koala";
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("Authorization",
+				"basic " + new String(Base64.encodeBase64(token.getBytes())));
+		request.setServletPath("/some_file.html");
+
+		// Test
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+		FilterChain chain = mock(FilterChain.class);
+		filter.doFilter(request, new MockHttpServletResponse(), chain);
+
+		verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
+		assertThat(SecurityContextHolder.getContext().getAuthentication().getName())
+				.isEqualTo("rod");
+	}
+
 	@Test
 	public void testOtherAuthorizationSchemeIsIgnored() throws Exception {
 
