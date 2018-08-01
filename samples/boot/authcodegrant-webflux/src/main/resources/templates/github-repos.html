@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<title>Spring Security - OAuth 2.0 Authorization Code Grant</title>
+	<meta charset="utf-8" />
+</head>
+<body>
+<div style="float: right" th:fragment="logout">
+	<div style="float:left">
+		<span style="font-weight:bold">User: </span><span th:text="${username}"></span>
+	</div>
+	<div style="float:none">&nbsp;</div>
+	<div style="float:right">
+		<a href="/logout">Log Out</a>
+	</div>
+</div>
+<h1>GitHub Repositories</h1>
+<div>
+	<ul>
+		<li th:each="repo : ${repos}">
+			<span style="font-weight:bold" th:text="${repo.name}"></span>: <span th:text="${repo.url}"></span>
+		</li>
+	</ul>
+</div>
+</body>
+</html>
