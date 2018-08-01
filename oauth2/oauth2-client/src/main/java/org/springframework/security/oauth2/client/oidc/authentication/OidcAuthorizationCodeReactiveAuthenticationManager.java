@@ -19,9 +19,6 @@ import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
-import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.ReactiveOAuth2AccessTokenResponseClient;
@@ -85,22 +82,17 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements
 
 	private final ReactiveOAuth2UserService<OidcUserRequest, OidcUser> userService;
 
-	private final ReactiveOAuth2AuthorizedClientService authorizedClientService;
-
 	private GrantedAuthoritiesMapper authoritiesMapper = (authorities -> authorities);
 
 	private Function<ClientRegistration, ReactiveJwtDecoder> decoderFactory = new DefaultDecoderFactory();
 
 	public OidcAuthorizationCodeReactiveAuthenticationManager(
 			ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient,
-			ReactiveOAuth2UserService<OidcUserRequest, OidcUser> userService,
-			ReactiveOAuth2AuthorizedClientService authorizedClientService) {
+			ReactiveOAuth2UserService<OidcUserRequest, OidcUser> userService) {
 		Assert.notNull(accessTokenResponseClient, "accessTokenResponseClient cannot be null");
 		Assert.notNull(userService, "userService cannot be null");
-		Assert.notNull(authorizedClientService, "authorizedClientService");
 		this.accessTokenResponseClient = accessTokenResponseClient;
 		this.userService = userService;
-		this.authorizedClientService = authorizedClientService;
 	}
 
 	@Override
@@ -157,7 +149,7 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements
 		this.decoderFactory = decoderFactory;
 	}
 
-	private Mono<OAuth2AuthenticationToken> authenticationResult(OAuth2LoginAuthenticationToken authorizationCodeAuthentication, OAuth2AccessTokenResponse accessTokenResponse) {
+	private Mono<OAuth2LoginAuthenticationToken> authenticationResult(OAuth2LoginAuthenticationToken authorizationCodeAuthentication, OAuth2AccessTokenResponse accessTokenResponse) {
 		OAuth2AccessToken accessToken = accessTokenResponse.getAccessToken();
 		ClientRegistration clientRegistration = authorizationCodeAuthentication.getClientRegistration();
 		Map<String, Object> additionalParameters = accessTokenResponse.getAdditionalParameters();
@@ -173,26 +165,16 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements
 		return createOidcToken(clientRegistration, accessTokenResponse)
 				.map(idToken ->  new OidcUserRequest(clientRegistration, accessToken, idToken, additionalParameters))
 				.flatMap(this.userService::loadUser)
-				.flatMap(oauth2User -> {
+				.map(oauth2User -> {
 					Collection<? extends GrantedAuthority> mappedAuthorities =
 							this.authoritiesMapper.mapAuthorities(oauth2User.getAuthorities());
 
-					OAuth2LoginAuthenticationToken authenticationResult = new OAuth2LoginAuthenticationToken(
+					return new OAuth2LoginAuthenticationToken(
 							authorizationCodeAuthentication.getClientRegistration(),
 							authorizationCodeAuthentication.getAuthorizationExchange(),
 							oauth2User,
 							mappedAuthorities,
 							accessToken);
-					OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
-							authenticationResult.getClientRegistration(),
-							authenticationResult.getName(),
-							authenticationResult.getAccessToken());
-					OAuth2AuthenticationToken result =  new OAuth2AuthenticationToken(
-							authenticationResult.getPrincipal(),
-							authenticationResult.getAuthorities(),
-							authenticationResult.getClientRegistration().getRegistrationId());
-					return this.authorizedClientService.saveAuthorizedClient(authorizedClient, authenticationResult)
-							.thenReturn(result);
 				});
 	}
 

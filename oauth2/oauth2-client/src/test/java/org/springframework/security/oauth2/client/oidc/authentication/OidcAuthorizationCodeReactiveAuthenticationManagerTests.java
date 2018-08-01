@@ -24,7 +24,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
@@ -73,9 +72,6 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 	private ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient;
 
 	@Mock
-	private ReactiveOAuth2AuthorizedClientService authorizedClientService;
-
-	@Mock
 	private ReactiveJwtDecoder jwtDecoder;
 
 	private ClientRegistration.Builder registration = TestClientRegistrations.clientRegistration()
@@ -92,33 +88,20 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 
 	@Before
 	public void setup() {
-		this.manager = new OidcAuthorizationCodeReactiveAuthenticationManager(this.accessTokenResponseClient, this.userService,
-				this.authorizedClientService);
-		when(this.authorizedClientService.saveAuthorizedClient(any(), any())).thenReturn(
-				Mono.empty());
+		this.manager = new OidcAuthorizationCodeReactiveAuthenticationManager(this.accessTokenResponseClient, this.userService);
 	}
 
 	@Test
 	public void constructorWhenNullAccessTokenResponseClientThenIllegalArgumentException() {
 		this.accessTokenResponseClient = null;
-		assertThatThrownBy(() -> new OidcAuthorizationCodeReactiveAuthenticationManager(this.accessTokenResponseClient, this.userService,
-				this.authorizedClientService))
+		assertThatThrownBy(() -> new OidcAuthorizationCodeReactiveAuthenticationManager(this.accessTokenResponseClient, this.userService))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void constructorWhenNullUserServiceThenIllegalArgumentException() {
 		this.userService = null;
-		assertThatThrownBy(() -> new OidcAuthorizationCodeReactiveAuthenticationManager(this.accessTokenResponseClient, this.userService,
-				this.authorizedClientService))
-				.isInstanceOf(IllegalArgumentException.class);
-	}
-
-	@Test
-	public void constructorWhenNullAuthorizedClientServiceThenIllegalArgumentException() {
-		this.authorizedClientService = null;
-		assertThatThrownBy(() -> new OidcAuthorizationCodeReactiveAuthenticationManager(this.accessTokenResponseClient, this.userService,
-				this.authorizedClientService))
+		assertThatThrownBy(() -> new OidcAuthorizationCodeReactiveAuthenticationManager(this.accessTokenResponseClient, this.userService))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 

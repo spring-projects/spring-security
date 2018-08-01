@@ -15,20 +15,6 @@
  */
 package org.springframework.security.config.web.server;
 
-import static org.springframework.security.web.server.DelegatingServerAuthenticationEntryPoint.DelegateEntry;
-
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.security.interfaces.RSAPublicKey;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.Ordered;
@@ -55,6 +41,9 @@ import org.springframework.security.oauth2.client.userinfo.DefaultReactiveOAuth2
 import org.springframework.security.oauth2.client.userinfo.ReactiveOAuth2UserService;
 import org.springframework.security.oauth2.client.web.server.OAuth2AuthorizationRequestRedirectWebFilter;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2LoginAuthenticationTokenConverter;
+import org.springframework.security.oauth2.client.web.server.AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.client.web.server.authentication.OAuth2LoginAuthenticationWebFilter;
 import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtReactiveAuthenticationManager;
@@ -118,8 +107,21 @@ import org.springframework.web.cors.reactive.DefaultCorsProcessor;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
-
 import reactor.core.publisher.Mono;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.security.interfaces.RSAPublicKey;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.springframework.security.web.server.DelegatingServerAuthenticationEntryPoint.DelegateEntry;
 
 
 /**
@@ -445,7 +447,7 @@ public class ServerHttpSecurity {
 	public class OAuth2LoginSpec {
 		private ReactiveClientRegistrationRepository clientRegistrationRepository;
 
-		private ReactiveOAuth2AuthorizedClientService authorizedClientService;
+		private ServerOAuth2AuthorizedClientRepository authorizedClientRepository;
 
 		public OAuth2LoginSpec clientRegistrationRepository(ReactiveClientRegistrationRepository clientRegistrationRepository) {
 			this.clientRegistrationRepository = clientRegistrationRepository;
@@ -453,7 +455,12 @@ public class ServerHttpSecurity {
 		}
 
 		public OAuth2LoginSpec authorizedClientService(ReactiveOAuth2AuthorizedClientService authorizedClientService) {
-			this.authorizedClientService = authorizedClientService;
+			this.authorizedClientRepository = new AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository(authorizedClientService);
+			return this;
+		}
+
+		public OAuth2LoginSpec authorizedClientRepository(ServerOAuth2AuthorizedClientRepository authorizedClientRepository) {
+			this.authorizedClientRepository = authorizedClientRepository;
 			return this;
 		}
 
@@ -468,22 +475,21 @@ public class ServerHttpSecurity {
 
 		protected void configure(ServerHttpSecurity http) {
 			ReactiveClientRegistrationRepository clientRegistrationRepository = getClientRegistrationRepository();
-			ReactiveOAuth2AuthorizedClientService authorizedClientService = getAuthorizedClientService();
+			ServerOAuth2AuthorizedClientRepository authorizedClientRepository = getAuthorizedClientRepository();
 			OAuth2AuthorizationRequestRedirectWebFilter oauthRedirectFilter = new OAuth2AuthorizationRequestRedirectWebFilter(clientRegistrationRepository);
 
 			WebClientReactiveAuthorizationCodeTokenResponseClient client = new WebClientReactiveAuthorizationCodeTokenResponseClient();
 			ReactiveOAuth2UserService userService = new DefaultReactiveOAuth2UserService();
-			ReactiveAuthenticationManager manager = new OAuth2LoginReactiveAuthenticationManager(client, userService,
-					authorizedClientService);
+			ReactiveAuthenticationManager manager = new OAuth2LoginReactiveAuthenticationManager(client, userService);
 
 			boolean oidcAuthenticationProviderEnabled = ClassUtils.isPresent(
 					"org.springframework.security.oauth2.jwt.JwtDecoder", this.getClass().getClassLoader());
 			if (oidcAuthenticationProviderEnabled) {
-				OidcAuthorizationCodeReactiveAuthenticationManager oidc = new OidcAuthorizationCodeReactiveAuthenticationManager(client, new OidcReactiveOAuth2UserService(), authorizedClientService);
+				OidcAuthorizationCodeReactiveAuthenticationManager oidc = new OidcAuthorizationCodeReactiveAuthenticationManager(client, new OidcReactiveOAuth2UserService());
 				manager = new DelegatingReactiveAuthenticationManager(oidc, manager);
 			}
 
-			AuthenticationWebFilter authenticationFilter = new AuthenticationWebFilter(manager);
+			AuthenticationWebFilter authenticationFilter = new OAuth2LoginAuthenticationWebFilter(manager, authorizedClientRepository);
 			authenticationFilter.setRequiresAuthenticationMatcher(new PathPatternParserServerWebExchangeMatcher("/login/oauth2/code/{registrationId}"));
 			authenticationFilter.setServerAuthenticationConverter(new ServerOAuth2LoginAuthenticationTokenConverter(clientRegistrationRepository));
 
@@ -532,14 +538,27 @@ public class ServerHttpSecurity {
 			return this.clientRegistrationRepository;
 		}
 
+		private ServerOAuth2AuthorizedClientRepository getAuthorizedClientRepository() {
+			ServerOAuth2AuthorizedClientRepository result = this.authorizedClientRepository;
+			if (result == null) {
+				result = getBeanOrNull(ServerOAuth2AuthorizedClientRepository.class);
+			}
+			if (result == null) {
+				ReactiveOAuth2AuthorizedClientService authorizedClientService = getAuthorizedClientService();
+				if (authorizedClientService != null) {
+					result = new AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository(
+							authorizedClientService);
+				}
+			}
+			return result;
+		}
+
 		private ReactiveOAuth2AuthorizedClientService getAuthorizedClientService() {
-			if (this.authorizedClientService == null) {
-				this.authorizedClientService = getBeanOrNull(ReactiveOAuth2AuthorizedClientService.class);
+			ReactiveOAuth2AuthorizedClientService service = getBeanOrNull(ReactiveOAuth2AuthorizedClientService.class);
+			if (service == null) {
+				service = new InMemoryReactiveOAuth2AuthorizedClientService(getClientRegistrationRepository());
 			}
-			if (this.authorizedClientService == null) {
-				this.authorizedClientService = new InMemoryReactiveOAuth2AuthorizedClientService(getClientRegistrationRepository());
-			}
-			return this.authorizedClientService;
+			return service;
 		}
 
 		private OAuth2LoginSpec() {}
