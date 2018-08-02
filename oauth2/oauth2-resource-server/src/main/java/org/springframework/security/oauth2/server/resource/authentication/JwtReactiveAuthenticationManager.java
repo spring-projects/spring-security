@@ -36,7 +36,7 @@ import reactor.core.publisher.Mono;
  * @since 5.1
  */
 public class JwtReactiveAuthenticationManager implements ReactiveAuthenticationManager {
-	private final JwtConverter jwtConverter = new JwtConverter();
+	private final JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
 
 	private final ReactiveJwtDecoder jwtDecoder;
 
@@ -52,7 +52,7 @@ public class JwtReactiveAuthenticationManager implements ReactiveAuthenticationM
 				.cast(BearerTokenAuthenticationToken.class)
 				.map(BearerTokenAuthenticationToken::getToken)
 				.flatMap(this.jwtDecoder::decode)
-				.map(this.jwtConverter::convert)
+				.map(this.jwtAuthenticationConverter::convert)
 				.cast(Authentication.class)
 				.onErrorMap(JwtException.class, this::onError);
 	}

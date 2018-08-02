@@ -16,36 +16,41 @@
 
 package org.springframework.security.oauth2.server.resource.authentication;
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.util.StringUtils;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.stream.Collectors;
 
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.util.StringUtils;
+
 /**
  * @author Rob Winch
+ * @author Josh Cummings
  * @since 5.1
  */
-class JwtConverter {
+public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 	private static final String SCOPE_AUTHORITY_PREFIX = "SCOPE_";
 
 	private static final Collection<String> WELL_KNOWN_SCOPE_ATTRIBUTE_NAMES =
 			Arrays.asList("scope", "scp");
 
 
-	JwtAuthenticationToken convert(Jwt jwt) {
-		Collection<GrantedAuthority> authorities =
-				this.getScopes(jwt)
+	public final AbstractAuthenticationToken convert(Jwt jwt) {
+		Collection<GrantedAuthority> authorities = extractAuthorities(jwt);
+		return new JwtAuthenticationToken(jwt, authorities);
+	}
+
+	protected Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
+		return this.getScopes(jwt)
 						.stream()
 						.map(authority -> SCOPE_AUTHORITY_PREFIX + authority)
 						.map(SimpleGrantedAuthority::new)
 						.collect(Collectors.toList());
-
-		return new JwtAuthenticationToken(jwt, authorities);
 	}
 
 	private Collection<String> getScopes(Jwt jwt) {

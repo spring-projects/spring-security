@@ -16,21 +16,18 @@
 package org.springframework.security.oauth2.server.resource.authentication;
 
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Predicate;
 
-import org.assertj.core.util.Maps;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -41,6 +38,7 @@ import org.springframework.security.oauth2.server.resource.BearerTokenErrorCodes
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -51,6 +49,9 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class JwtAuthenticationProviderTests {
 	@Mock
+	Converter<Jwt, JwtAuthenticationToken> jwtAuthenticationConverter;
+
+	@Mock
 	JwtDecoder jwtDecoder;
 
 	JwtAuthenticationProvider provider;
@@ -59,6 +60,7 @@ public class JwtAuthenticationProviderTests {
 	public void setup() {
 		this.provider =
 				new JwtAuthenticationProvider(this.jwtDecoder);
+		this.provider.setJwtAuthenticationConverter(jwtAuthenticationConverter);
 	}
 
 	@Test
@@ -70,6 +72,7 @@ public class JwtAuthenticationProviderTests {
 		Jwt jwt = this.jwt(claims);
 
 		when(this.jwtDecoder.decode("token")).thenReturn(jwt);
+		when(this.jwtAuthenticationConverter.convert(jwt)).thenReturn(new JwtAuthenticationToken(jwt));
 
 		JwtAuthenticationToken authentication =
 				(JwtAuthenticationToken) this.provider.authenticate(token);
@@ -89,112 +92,6 @@ public class JwtAuthenticationProviderTests {
 	}
 
 	@Test
-	public void authenticateWhenTokenHasScopeAttributeThenTranslatedToAuthorities() {
-		BearerTokenAuthenticationToken token = this.authentication();
-
-		Jwt jwt = this.jwt(Maps.newHashMap("scope", "message:read message:write"));
-
-		when(this.jwtDecoder.decode(token.getToken())).thenReturn(jwt);
-
-		JwtAuthenticationToken authentication =
-				(JwtAuthenticationToken) this.provider.authenticate(token);
-
-		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
-
-		assertThat(authorities).containsExactly(
-				new SimpleGrantedAuthority("SCOPE_message:read"),
-				new SimpleGrantedAuthority("SCOPE_message:write"));
-	}
-
-	@Test
-	public void authenticateWhenTokenHasEmptyScopeAttributeThenTranslatedToNoAuthorities() {
-		BearerTokenAuthenticationToken token = this.authentication();
-
-		Jwt jwt = this.jwt(Maps.newHashMap("scope", ""));
-
-		when(this.jwtDecoder.decode(token.getToken())).thenReturn(jwt);
-
-		JwtAuthenticationToken authentication =
-				(JwtAuthenticationToken) this.provider.authenticate(token);
-
-		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
-
-		assertThat(authorities).containsExactly();
-	}
-
-	@Test
-	public void authenticateWhenTokenHasScpAttributeThenTranslatedToAuthorities() {
-		BearerTokenAuthenticationToken token = this.authentication();
-
-		Jwt jwt = this.jwt(Maps.newHashMap("scp", Arrays.asList("message:read", "message:write")));
-
-		when(this.jwtDecoder.decode(token.getToken())).thenReturn(jwt);
-
-		JwtAuthenticationToken authentication =
-				(JwtAuthenticationToken) this.provider.authenticate(token);
-
-		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
-
-		assertThat(authorities).containsExactly(
-				new SimpleGrantedAuthority("SCOPE_message:read"),
-				new SimpleGrantedAuthority("SCOPE_message:write"));
-	}
-
-	@Test
-	public void authenticateWhenTokenHasEmptyScpAttributeThenTranslatedToNoAuthorities() {
-		BearerTokenAuthenticationToken token = this.authentication();
-
-		Jwt jwt = this.jwt(Maps.newHashMap("scp", Arrays.asList()));
-
-		when(this.jwtDecoder.decode(token.getToken())).thenReturn(jwt);
-
-		JwtAuthenticationToken authentication =
-				(JwtAuthenticationToken) this.provider.authenticate(token);
-
-		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
-
-		assertThat(authorities).containsExactly();
-	}
-
-	@Test
-	public void authenticateWhenTokenHasBothScopeAndScpThenScopeAttributeIsTranslatedToAuthorities() {
-		BearerTokenAuthenticationToken token = this.authentication();
-
-		Map<String, Object> claims = Maps.newHashMap("scp", Arrays.asList("message:read", "message:write"));
-		claims.put("scope", "missive:read missive:write");
-		Jwt jwt = this.jwt(claims);
-
-		when(this.jwtDecoder.decode(token.getToken())).thenReturn(jwt);
-
-		JwtAuthenticationToken authentication =
-				(JwtAuthenticationToken) this.provider.authenticate(token);
-
-		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
-
-		assertThat(authorities).containsExactly(
-				new SimpleGrantedAuthority("SCOPE_missive:read"),
-				new SimpleGrantedAuthority("SCOPE_missive:write"));
-	}
-
-	@Test
-	public void authenticateWhenTokenHasEmptyScopeAndNonEmptyScpThenScopeAttributeIsTranslatedToNoAuthorities() {
-		BearerTokenAuthenticationToken token = this.authentication();
-
-		Map<String, Object> claims = Maps.newHashMap("scp", Arrays.asList("message:read", "message:write"));
-		claims.put("scope", "");
-		Jwt jwt = this.jwt(claims);
-
-		when(this.jwtDecoder.decode(token.getToken())).thenReturn(jwt);
-
-		JwtAuthenticationToken authentication =
-				(JwtAuthenticationToken) this.provider.authenticate(token);
-
-		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
-
-		assertThat(authorities).containsExactly();
-	}
-
-	@Test
 	public void authenticateWhenDecoderThrowsIncompatibleErrorMessageThenWrapsWithGenericOne() {
 		BearerTokenAuthenticationToken token = this.authentication();
 
@@ -205,6 +102,23 @@ public class JwtAuthenticationProviderTests {
 				.hasFieldOrPropertyWithValue(
 						"error.description",
 						"An error occurred while attempting to decode the Jwt: Invalid token");
+	}
+
+	@Test
+	public void authenticateWhenConverterReturnsAuthenticationThenProviderPropagatesIt() {
+		BearerTokenAuthenticationToken token = this.authentication();
+		Object details = mock(Object.class);
+		token.setDetails(details);
+
+		Jwt jwt = this.jwt(Collections.singletonMap("some", "value"));
+		JwtAuthenticationToken authentication = new JwtAuthenticationToken(jwt);
+
+		when(this.jwtDecoder.decode(token.getToken())).thenReturn(jwt);
+		when(this.jwtAuthenticationConverter.convert(jwt)).thenReturn(authentication);
+
+		assertThat(this.provider.authenticate(token))
+				.isEqualTo(authentication)
+				.hasFieldOrPropertyWithValue("details", details);
 	}
 
 	@Test

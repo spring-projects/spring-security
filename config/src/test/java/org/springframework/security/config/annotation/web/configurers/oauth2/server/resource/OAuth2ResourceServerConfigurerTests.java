@@ -24,6 +24,7 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -47,12 +48,14 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.util.ReflectionUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -62,6 +65,7 @@ import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
@@ -71,8 +75,9 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoderJwkSupport;
 import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoderJwkSupport;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
@@ -102,6 +107,7 @@ import static org.hamcrest.core.StringStartsWith.startsWith;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
@@ -125,6 +131,8 @@ public class OAuth2ResourceServerConfigurerTests {
 	private static final Map<String, Object> JWT_CLAIMS = Collections.singletonMap(JwtClaimNames.SUB, JWT_SUBJECT);
 	private static final Jwt JWT = new Jwt(JWT_TOKEN, Instant.MIN, Instant.MAX, JWT_HEADERS, JWT_CLAIMS);
 	private static final String JWK_SET_URI = "https://mock.org";
+	private static final JwtAuthenticationToken JWT_AUTHENTICATION_TOKEN =
+			new JwtAuthenticationToken(JWT, Collections.emptyList());
 
 	@Autowired(required = false)
 	MockMvc mvc;
@@ -898,6 +906,45 @@ public class OAuth2ResourceServerConfigurerTests {
 				.andExpect(invalidTokenHeader("Jwt expired at"));
 	}
 
+	// -- converter
+
+	@Test
+	public void requestWhenJwtAuthenticationConverterConfiguredOnDslThenIsUsed()
+			throws Exception {
+
+		this.spring.register(JwtDecoderConfig.class, JwtAuthenticationConverterConfiguredOnDsl.class,
+				BasicController.class).autowire();
+
+		Converter<Jwt, JwtAuthenticationToken> jwtAuthenticationConverter =
+				this.spring.getContext().getBean(JwtAuthenticationConverterConfiguredOnDsl.class)
+						.getJwtAuthenticationConverter();
+		when(jwtAuthenticationConverter.convert(JWT)).thenReturn(JWT_AUTHENTICATION_TOKEN);
+
+		JwtDecoder jwtDecoder = this.spring.getContext().getBean(JwtDecoder.class);
+		when(jwtDecoder.decode(anyString())).thenReturn(JWT);
+
+		this.mvc.perform(get("/")
+				.with(bearerToken(JWT_TOKEN)))
+				.andExpect(status().isOk());
+
+		verify(jwtAuthenticationConverter).convert(JWT);
+	}
+
+	@Test
+	public void requestWhenJwtAuthenticationConverterCustomizedAuthoritiesThenThoseAuthoritiesArePropagated()
+			throws Exception {
+
+		this.spring.register(JwtDecoderConfig.class, CustomAuthorityMappingConfig.class, BasicController.class)
+				.autowire();
+
+		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
+		when(decoder.decode(JWT_TOKEN)).thenReturn(JWT);
+
+		this.mvc.perform(get("/requires-read-scope")
+				.with(bearerToken(JWT_TOKEN)))
+				.andExpect(status().isOk());
+	}
+
 	// -- In combination with other authentication providers
 
 	@Test
@@ -1136,6 +1183,59 @@ public class OAuth2ResourceServerConfigurerTests {
 							.password("basic-password")
 							.roles("USER")
 							.build());
+		}
+	}
+
+	@EnableWebSecurity
+	static class JwtAuthenticationConverterConfiguredOnDsl extends WebSecurityConfigurerAdapter {
+		private final Converter<Jwt, JwtAuthenticationToken> jwtAuthenticationConverter = mock(Converter.class);
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+
+			http
+				.authorizeRequests()
+					.anyRequest().authenticated()
+					.and()
+				.oauth2()
+					.resourceServer()
+						.jwt()
+							.jwtAuthenticationConverter(getJwtAuthenticationConverter());
+
+			// @formatter:on
+		}
+
+		Converter<Jwt, JwtAuthenticationToken> getJwtAuthenticationConverter() {
+			return this.jwtAuthenticationConverter;
+		}
+	}
+
+	@EnableWebSecurity
+	static class CustomAuthorityMappingConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+
+			http
+				.authorizeRequests()
+					.antMatchers("/requires-read-scope").access("hasAuthority('message:read')")
+					.and()
+				.oauth2()
+					.resourceServer()
+						.jwt()
+							.jwtAuthenticationConverter(getJwtAuthenticationConverter());
+
+			// @formatter:on
+		}
+
+		Converter<Jwt, AbstractAuthenticationToken> getJwtAuthenticationConverter() {
+			return new JwtAuthenticationConverter() {
+				@Override
+				protected Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
+					return Collections.singletonList(new SimpleGrantedAuthority("message:read"));
+				}
+			};
 		}
 	}
 

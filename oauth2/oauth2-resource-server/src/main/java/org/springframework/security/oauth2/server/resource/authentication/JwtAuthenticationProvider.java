@@ -17,7 +17,9 @@ package org.springframework.security.oauth2.server.resource.authentication;
 
 import java.util.Collection;
 
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -59,7 +61,7 @@ import org.springframework.util.Assert;
 public final class JwtAuthenticationProvider implements AuthenticationProvider {
 	private final JwtDecoder jwtDecoder;
 
-	private final JwtConverter jwtConverter = new JwtConverter();
+	private Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter = new JwtAuthenticationConverter();
 
 	private static final OAuth2Error DEFAULT_INVALID_TOKEN =
 			invalidToken("An error occurred while attempting to decode the Jwt: Invalid token");
@@ -91,7 +93,7 @@ public final class JwtAuthenticationProvider implements AuthenticationProvider {
 			throw new OAuth2AuthenticationException(invalidToken, invalidToken.getDescription(), failed);
 		}
 
-		JwtAuthenticationToken token = this.jwtConverter.convert(jwt);
+		AbstractAuthenticationToken token = this.jwtAuthenticationConverter.convert(jwt);
 		token.setDetails(bearer.getDetails());
 
 		return token;
@@ -103,6 +105,13 @@ public final class JwtAuthenticationProvider implements AuthenticationProvider {
 	@Override
 	public boolean supports(Class<?> authentication) {
 		return BearerTokenAuthenticationToken.class.isAssignableFrom(authentication);
+	}
+
+	public void setJwtAuthenticationConverter(
+			Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter) {
+
+		Assert.notNull(jwtAuthenticationConverter, "jwtAuthenticationConverter cannot be null");
+		this.jwtAuthenticationConverter = jwtAuthenticationConverter;
 	}
 
 	private static OAuth2Error invalidToken(String message) {
