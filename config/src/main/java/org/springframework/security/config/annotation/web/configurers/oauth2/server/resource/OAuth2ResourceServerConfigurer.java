@@ -19,6 +19,8 @@ package org.springframework.security.config.annotation.web.configurers.oauth2.se
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -26,8 +28,10 @@ import org.springframework.security.config.annotation.web.configurers.CsrfConfig
 import org.springframework.security.config.annotation.web.configurers.ExceptionHandlingConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoderJwkSupport;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationFilter;
@@ -68,6 +72,15 @@ import org.springframework.util.Assert;
  * </li>
  * <li>
  * expose a {@link JwtDecoder} bean
+ * </li>
+ * </ul>
+ *
+ * Also with {@link #jwt()} consider
+ *
+ * <ul>
+ * <li>
+ * customizing the conversion from a {@link Jwt} to an {@link org.springframework.security.core.Authentication} with
+ * {@link JwtConfigurer#jwtAuthenticationConverter(Converter)}
  * </li>
  * </ul>
  *
@@ -182,9 +195,12 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		}
 
 		JwtDecoder decoder = this.jwtConfigurer.getJwtDecoder();
+		Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter =
+				this.jwtConfigurer.getJwtAuthenticationConverter();
 
 		JwtAuthenticationProvider provider =
 				new JwtAuthenticationProvider(decoder);
+		provider.setJwtAuthenticationConverter(jwtAuthenticationConverter);
 		provider = postProcess(provider);
 
 		http.authenticationProvider(provider);
@@ -194,6 +210,9 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		private final ApplicationContext context;
 
 		private JwtDecoder decoder;
+
+		private Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter =
+				new JwtAuthenticationConverter();
 
 		JwtConfigurer(ApplicationContext context) {
 			this.context = context;
@@ -209,8 +228,19 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 			return this;
 		}
 
+		public JwtConfigurer jwtAuthenticationConverter
+				(Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter) {
+
+			this.jwtAuthenticationConverter = jwtAuthenticationConverter;
+			return this;
+		}
+
 		public OAuth2ResourceServerConfigurer<H> and() {
 			return OAuth2ResourceServerConfigurer.this;
+		}
+
+		Converter<Jwt, ? extends AbstractAuthenticationToken> getJwtAuthenticationConverter() {
+			return this.jwtAuthenticationConverter;
 		}
 
 		JwtDecoder getJwtDecoder() {
