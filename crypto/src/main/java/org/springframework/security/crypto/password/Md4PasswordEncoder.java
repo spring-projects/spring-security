@@ -71,7 +71,7 @@ import java.util.Base64;
  * @author Rob winch
  * @since 5.0
  * @deprecated Digest based password encoding is not considered secure. Instead use an
- * adaptive one way funciton like BCryptPasswordEncoder, Pbkdf2PasswordEncoder, or
+ * adaptive one way function like BCryptPasswordEncoder, Pbkdf2PasswordEncoder, or
  * SCryptPasswordEncoder. Even better use {@link DelegatingPasswordEncoder} which supports
  * password upgrades. There are no plans to remove this support. It is deprecated to indicate
  * that this is a legacy implementation and using it is considered insecure.
