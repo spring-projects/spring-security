@@ -31,6 +31,7 @@ import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.client.InMemoryReactiveOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeReactiveAuthenticationManager;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginReactiveAuthenticationManager;
 import org.springframework.security.oauth2.client.endpoint.WebClientReactiveAuthorizationCodeTokenResponseClient;
 import org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizationCodeReactiveAuthenticationManager;
@@ -43,6 +44,7 @@ import org.springframework.security.oauth2.client.web.server.OAuth2Authorization
 import org.springframework.security.oauth2.client.web.server.AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizationCodeAuthenticationTokenConverter;
+import org.springframework.security.oauth2.client.web.server.OAuth2AuthorizationCodeGrantWebFilter;
 import org.springframework.security.oauth2.client.web.server.authentication.OAuth2LoginAuthenticationWebFilter;
 import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
@@ -575,7 +577,7 @@ public class ServerHttpSecurity {
 	 *          .oauth2()
 	 *              .resourceServer()
 	 *                  .jwt()
-	 *                      .jwkSeturi(jwkSetUri);
+	 *                      .jwkSetUri(jwkSetUri);
 	 *      return http.build();
 	 *  }
 	 * </pre>
@@ -596,6 +598,106 @@ public class ServerHttpSecurity {
 	 */
 	public class OAuth2Spec {
 		private ResourceServerSpec resourceServer;
+
+		private OAuth2ClientSpec client;
+
+		/**
+		 * Configures the OAuth2 client.
+		 *
+		 * <pre class="code">
+		 *  &#064;Bean
+		 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+		 *      http
+		 *          // ...
+		 *          .oauth2()
+		 *              .client()
+		 *                  .clientRegistrationRepository(clientRegistrationRepository)
+		 *                  .authorizedClientRepository(authorizedClientRepository);
+		 *      return http.build();
+		 *  }
+		 * </pre>
+		 *
+		 *
+		 * @return the {@link OAuth2ClientSpec} to customize
+		 */
+		public OAuth2ClientSpec client() {
+			if (this.client == null) {
+				this.client = new OAuth2ClientSpec();
+			}
+			return this.client;
+		}
+
+		public class OAuth2ClientSpec {
+			private ReactiveClientRegistrationRepository clientRegistrationRepository;
+
+			private ServerOAuth2AuthorizedClientRepository authorizedClientRepository;
+
+			/**
+			 * Configures the {@link ReactiveClientRegistrationRepository}. Default is to look the value up as a Bean.
+			 * @param clientRegistrationRepository the repository to use
+			 * @return the {@link OAuth2ClientSpec} to customize
+			 */
+			public OAuth2ClientSpec clientRegistrationRepository(ReactiveClientRegistrationRepository clientRegistrationRepository) {
+				this.clientRegistrationRepository = clientRegistrationRepository;
+				return this;
+			}
+
+			/**
+			 * Configures the {@link ReactiveClientRegistrationRepository}. Default is to look the value up as a Bean.
+			 * @param authorizedClientRepository the repository to use
+			 * @return the {@link OAuth2ClientSpec} to customize
+			 */
+			public OAuth2ClientSpec authorizedClientRepository(ServerOAuth2AuthorizedClientRepository authorizedClientRepository) {
+				this.authorizedClientRepository = authorizedClientRepository;
+				return this;
+			}
+
+			protected void configure(ServerHttpSecurity http) {
+				ReactiveClientRegistrationRepository clientRegistrationRepository = getClientRegistrationRepository();
+				ServerOAuth2AuthorizedClientRepository authorizedClientRepository = getAuthorizedClientRepository();
+				ReactiveAuthenticationManager authenticationManager = new OAuth2AuthorizationCodeReactiveAuthenticationManager(new WebClientReactiveAuthorizationCodeTokenResponseClient());
+				OAuth2AuthorizationCodeGrantWebFilter codeGrantWebFilter = new OAuth2AuthorizationCodeGrantWebFilter(authenticationManager,
+						clientRegistrationRepository,
+						authorizedClientRepository);
+
+				OAuth2AuthorizationRequestRedirectWebFilter oauthRedirectFilter = new OAuth2AuthorizationRequestRedirectWebFilter(
+						clientRegistrationRepository);
+				http.addFilterAt(codeGrantWebFilter, SecurityWebFiltersOrder.AUTHENTICATION);
+				http.addFilterAt(oauthRedirectFilter, SecurityWebFiltersOrder.HTTP_BASIC);
+			}
+
+			private ReactiveClientRegistrationRepository getClientRegistrationRepository() {
+				if (this.clientRegistrationRepository != null) {
+					return this.clientRegistrationRepository;
+				}
+				return getBeanOrNull(ReactiveClientRegistrationRepository.class);
+			}
+
+			private ServerOAuth2AuthorizedClientRepository getAuthorizedClientRepository() {
+				if (this.authorizedClientRepository != null) {
+					return this.authorizedClientRepository;
+				}
+				ServerOAuth2AuthorizedClientRepository result = getBeanOrNull(ServerOAuth2AuthorizedClientRepository.class);
+				if (result == null) {
+					ReactiveOAuth2AuthorizedClientService authorizedClientService = getAuthorizedClientService();
+					if (authorizedClientService != null) {
+						result = new AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository(
+								authorizedClientService);
+					}
+				}
+				return result;
+			}
+
+			private ReactiveOAuth2AuthorizedClientService getAuthorizedClientService() {
+				ReactiveOAuth2AuthorizedClientService service = getBeanOrNull(ReactiveOAuth2AuthorizedClientService.class);
+				if (service == null) {
+					service = new InMemoryReactiveOAuth2AuthorizedClientService(getClientRegistrationRepository());
+				}
+				return service;
+			}
+
+			private OAuth2ClientSpec() {}
+		}
 
 		public ResourceServerSpec resourceServer() {
 			if (this.resourceServer == null) {
@@ -692,6 +794,9 @@ public class ServerHttpSecurity {
 		protected void configure(ServerHttpSecurity http) {
 			if (this.resourceServer != null) {
 				this.resourceServer.configure(http);
+			}
+			if (this.client != null) {
+				this.client.configure(http);
 			}
 		}
 
