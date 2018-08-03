@@ -93,42 +93,14 @@ public class DefaultClientCredentialsTokenResponseClient implements OAuth2Access
 
 		Assert.notNull(clientCredentialsGrantRequest, "clientCredentialsGrantRequest cannot be null");
 
-		ClientRegistration clientRegistration = clientCredentialsGrantRequest.getClientRegistration();
-
-		// Headers
-		HttpHeaders headers = new HttpHeaders();
-		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-		if (ClientAuthenticationMethod.BASIC.equals(clientRegistration.getClientAuthenticationMethod())) {
-			headers.setBasicAuth(clientRegistration.getClientId(), clientRegistration.getClientSecret());
-		}
-
-		// Form parameters
-		MultiValueMap<String, String> formParameters = new LinkedMultiValueMap<>();
-		formParameters.add(OAuth2ParameterNames.GRANT_TYPE, clientCredentialsGrantRequest.getGrantType().getValue());
-		if (!CollectionUtils.isEmpty(clientRegistration.getScopes())) {
-			formParameters.add(OAuth2ParameterNames.SCOPE,
-					StringUtils.collectionToDelimitedString(clientRegistration.getScopes(), " "));
-		}
-		if (ClientAuthenticationMethod.POST.equals(clientRegistration.getClientAuthenticationMethod())) {
-			formParameters.add(OAuth2ParameterNames.CLIENT_ID, clientRegistration.getClientId());
-			formParameters.add(OAuth2ParameterNames.CLIENT_SECRET, clientRegistration.getClientSecret());
-		}
-
-		// Request
-		URI uri = UriComponentsBuilder.fromUriString(clientRegistration.getProviderDetails().getTokenUri())
-				.build()
-				.toUri();
-		RequestEntity<MultiValueMap<String, String>> request =
-				new RequestEntity<>(formParameters, headers, HttpMethod.POST, uri);
-
-		ParameterizedTypeReference<Map<String, String>> typeReference =
-				new ParameterizedTypeReference<Map<String, String>>() {};
+		// Build request
+		RequestEntity<MultiValueMap<String, String>> request = this.buildRequest(clientCredentialsGrantRequest);
 
 		// Exchange
 		ResponseEntity<Map<String, String>> response;
 		try {
-			response = this.restOperations.exchange(request, typeReference);
+			response = this.restOperations.exchange(
+					request, new ParameterizedTypeReference<Map<String, String>>() {});
 		} catch (Exception ex) {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_TOKEN_REQUEST_ERROR_CODE,
 					"An error occurred while sending the Access Token Request: " + ex.getMessage(), null);
@@ -152,7 +124,7 @@ public class DefaultClientCredentialsTokenResponseClient implements OAuth2Access
 			tokenResponse = this.parseTokenResponse(responseParameters);
 		} catch (Exception ex) {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_TOKEN_RESPONSE_ERROR_CODE,
-				"An error occurred parsing the Access Token response (200 OK): " + ex.getMessage(), null);
+					"An error occurred parsing the Access Token response (200 OK): " + ex.getMessage(), null);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString(), ex);
 		}
 
@@ -172,21 +144,51 @@ public class DefaultClientCredentialsTokenResponseClient implements OAuth2Access
 			// If AccessTokenResponse.scope is empty, then default to the scope
 			// originally requested by the client in the Token Request
 			tokenResponse = OAuth2AccessTokenResponse.withResponse(tokenResponse)
-					.scopes(clientRegistration.getScopes())
+					.scopes(clientCredentialsGrantRequest.getClientRegistration().getScopes())
 					.build();
 		}
 
 		return tokenResponse;
 	}
 
-	/**
-	 * Sets the {@link RestOperations} used when requesting the access token response.
-	 *
-	 * @param restOperations the {@link RestOperations} used when requesting the access token response
-	 */
-	public final void setRestOperations(RestOperations restOperations) {
-		Assert.notNull(restOperations, "restOperations cannot be null");
-		this.restOperations = restOperations;
+	private RequestEntity<MultiValueMap<String, String>> buildRequest(OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest) {
+		HttpHeaders headers = this.buildHeaders(clientCredentialsGrantRequest);
+		MultiValueMap<String, String> formParameters = this.buildFormParameters(clientCredentialsGrantRequest);
+		URI uri = UriComponentsBuilder.fromUriString(clientCredentialsGrantRequest.getClientRegistration().getProviderDetails().getTokenUri())
+				.build()
+				.toUri();
+
+		return new RequestEntity<>(formParameters, headers, HttpMethod.POST, uri);
+	}
+
+	private HttpHeaders buildHeaders(OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest) {
+		ClientRegistration clientRegistration = clientCredentialsGrantRequest.getClientRegistration();
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+		if (ClientAuthenticationMethod.BASIC.equals(clientRegistration.getClientAuthenticationMethod())) {
+			headers.setBasicAuth(clientRegistration.getClientId(), clientRegistration.getClientSecret());
+		}
+
+		return headers;
+	}
+
+	private MultiValueMap<String, String> buildFormParameters(OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest) {
+		ClientRegistration clientRegistration = clientCredentialsGrantRequest.getClientRegistration();
+
+		MultiValueMap<String, String> formParameters = new LinkedMultiValueMap<>();
+		formParameters.add(OAuth2ParameterNames.GRANT_TYPE, clientCredentialsGrantRequest.getGrantType().getValue());
+		if (!CollectionUtils.isEmpty(clientRegistration.getScopes())) {
+			formParameters.add(OAuth2ParameterNames.SCOPE,
+					StringUtils.collectionToDelimitedString(clientRegistration.getScopes(), " "));
+		}
+		if (ClientAuthenticationMethod.POST.equals(clientRegistration.getClientAuthenticationMethod())) {
+			formParameters.add(OAuth2ParameterNames.CLIENT_ID, clientRegistration.getClientId());
+			formParameters.add(OAuth2ParameterNames.CLIENT_SECRET, clientRegistration.getClientSecret());
+		}
+
+		return formParameters;
 	}
 
 	private OAuth2Error parseErrorResponse(Map<String, String> responseParameters) {
@@ -242,6 +244,16 @@ public class DefaultClientCredentialsTokenResponseClient implements OAuth2Access
 				.scopes(scopes)
 				.additionalParameters(additionalParameters)
 				.build();
+	}
+
+	/**
+	 * Sets the {@link RestOperations} used when requesting the access token response.
+	 *
+	 * @param restOperations the {@link RestOperations} used when requesting the access token response
+	 */
+	public final void setRestOperations(RestOperations restOperations) {
+		Assert.notNull(restOperations, "restOperations cannot be null");
+		this.restOperations = restOperations;
 	}
 
 	private static class NoOpResponseErrorHandler implements ResponseErrorHandler {
