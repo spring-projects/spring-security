@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.expression.BeanFactoryResolver;
 import org.springframework.core.ReactiveAdapterRegistry;
@@ -39,6 +40,7 @@ import org.springframework.web.reactive.result.method.annotation.ArgumentResolve
  * @author Rob Winch
  * @since 5.0
  */
+@Configuration
 class ServerHttpSecurityConfiguration implements WebFluxConfigurer {
 	private static final String BEAN_NAME_PREFIX = "org.springframework.security.config.annotation.web.reactive.HttpSecurityConfiguration.";
 	private static final String HTTPSECURITY_BEAN_NAME = BEAN_NAME_PREFIX + "httpSecurity";
