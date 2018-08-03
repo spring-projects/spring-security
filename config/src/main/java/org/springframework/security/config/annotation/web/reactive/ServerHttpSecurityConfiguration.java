@@ -18,6 +18,7 @@ package org.springframework.security.config.annotation.web.reactive;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.ReactiveAdapterRegistry;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
@@ -35,6 +36,7 @@ import static org.springframework.security.config.web.server.ServerHttpSecurity.
  * @author Rob Winch
  * @since 5.0
  */
+@Configuration
 class ServerHttpSecurityConfiguration implements WebFluxConfigurer {
 	private static final String BEAN_NAME_PREFIX = "org.springframework.security.config.annotation.web.reactive.HttpSecurityConfiguration.";
 	private static final String HTTPSECURITY_BEAN_NAME = BEAN_NAME_PREFIX + "httpSecurity";
