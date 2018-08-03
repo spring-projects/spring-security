@@ -98,25 +98,18 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 									NativeWebRequest webRequest,
 									@Nullable WebDataBinderFactory binderFactory) throws Exception {
 
-		RegisteredOAuth2AuthorizedClient authorizedClientAnnotation = AnnotatedElementUtils.findMergedAnnotation(
-				parameter.getParameter(), RegisteredOAuth2AuthorizedClient.class);
-		Authentication principal = SecurityContextHolder.getContext().getAuthentication();
-
-		String clientRegistrationId = null;
-		if (!StringUtils.isEmpty(authorizedClientAnnotation.registrationId())) {
-			clientRegistrationId = authorizedClientAnnotation.registrationId();
-		} else if (!StringUtils.isEmpty(authorizedClientAnnotation.value())) {
-			clientRegistrationId = authorizedClientAnnotation.value();
-		} else if (principal != null && OAuth2AuthenticationToken.class.isAssignableFrom(principal.getClass())) {
-			clientRegistrationId = ((OAuth2AuthenticationToken) principal).getAuthorizedClientRegistrationId();
-		}
+		String clientRegistrationId = this.resolveClientRegistrationId(parameter);
 		if (StringUtils.isEmpty(clientRegistrationId)) {
 			throw new IllegalArgumentException("Unable to resolve the Client Registration Identifier. " +
-					"It must be provided via @RegisteredOAuth2AuthorizedClient(\"client1\") or @RegisteredOAuth2AuthorizedClient(registrationId = \"client1\").");
+					"It must be provided via @RegisteredOAuth2AuthorizedClient(\"client1\") or " +
+					"@RegisteredOAuth2AuthorizedClient(registrationId = \"client1\").");
 		}
 
+		Authentication principal = SecurityContextHolder.getContext().getAuthentication();
+		HttpServletRequest servletRequest = webRequest.getNativeRequest(HttpServletRequest.class);
+
 		OAuth2AuthorizedClient authorizedClient = this.authorizedClientRepository.loadAuthorizedClient(
-			clientRegistrationId, principal, webRequest.getNativeRequest(HttpServletRequest.class));
+				clientRegistrationId, principal, servletRequest);
 		if (authorizedClient != null) {
 			return authorizedClient;
 		}
@@ -131,22 +124,50 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 		}
 
 		if (AuthorizationGrantType.CLIENT_CREDENTIALS.equals(clientRegistration.getAuthorizationGrantType())) {
-			OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest =
-					new OAuth2ClientCredentialsGrantRequest(clientRegistration);
-			OAuth2AccessTokenResponse tokenResponse =
-					this.clientCredentialsTokenResponseClient.getTokenResponse(clientCredentialsGrantRequest);
-
-			authorizedClient = new OAuth2AuthorizedClient(
-					clientRegistration,
-					(principal != null ? principal.getName() : "anonymousUser"),
-					tokenResponse.getAccessToken());
-
-			this.authorizedClientRepository.saveAuthorizedClient(
-					authorizedClient,
-					principal,
-					webRequest.getNativeRequest(HttpServletRequest.class),
-					webRequest.getNativeResponse(HttpServletResponse.class));
+			HttpServletResponse servletResponse = webRequest.getNativeResponse(HttpServletResponse.class);
+			authorizedClient = this.authorizeClientCredentialsClient(clientRegistration, servletRequest, servletResponse);
 		}
+
+		return authorizedClient;
+	}
+
+	private String resolveClientRegistrationId(MethodParameter parameter) {
+		RegisteredOAuth2AuthorizedClient authorizedClientAnnotation = AnnotatedElementUtils.findMergedAnnotation(
+				parameter.getParameter(), RegisteredOAuth2AuthorizedClient.class);
+
+		Authentication principal = SecurityContextHolder.getContext().getAuthentication();
+
+		String clientRegistrationId = null;
+		if (!StringUtils.isEmpty(authorizedClientAnnotation.registrationId())) {
+			clientRegistrationId = authorizedClientAnnotation.registrationId();
+		} else if (!StringUtils.isEmpty(authorizedClientAnnotation.value())) {
+			clientRegistrationId = authorizedClientAnnotation.value();
+		} else if (principal != null && OAuth2AuthenticationToken.class.isAssignableFrom(principal.getClass())) {
+			clientRegistrationId = ((OAuth2AuthenticationToken) principal).getAuthorizedClientRegistrationId();
+		}
+
+		return clientRegistrationId;
+	}
+
+	private OAuth2AuthorizedClient authorizeClientCredentialsClient(ClientRegistration clientRegistration,
+																	HttpServletRequest request, HttpServletResponse response) {
+		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest =
+				new OAuth2ClientCredentialsGrantRequest(clientRegistration);
+		OAuth2AccessTokenResponse tokenResponse =
+				this.clientCredentialsTokenResponseClient.getTokenResponse(clientCredentialsGrantRequest);
+
+		Authentication principal = SecurityContextHolder.getContext().getAuthentication();
+
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
+				clientRegistration,
+				(principal != null ? principal.getName() : "anonymousUser"),
+				tokenResponse.getAccessToken());
+
+		this.authorizedClientRepository.saveAuthorizedClient(
+				authorizedClient,
+				principal,
+				request,
+				response);
 
 		return authorizedClient;
 	}
