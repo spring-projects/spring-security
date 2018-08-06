@@ -103,7 +103,7 @@ public class SecurityContextLoginModuleTests {
 		this.module.login();
 		assertThat(this.module.logout()).as("Should return true as it succeeds").isTrue();
 		assertThat(this.module.getAuthentication()).as("Authentication should be null")
-				.isEqualTo(null);
+				.isNull();
 
 		assertThat(this.subject.getPrincipals().contains(this.auth))
 				.withFailMessage(

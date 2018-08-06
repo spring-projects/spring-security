@@ -99,6 +99,6 @@ public class ClaimAccessorTests {
 		String claimName = "claim-with-null-value";
 		this.claims.put(claimName, null);
 
-		assertThat(this.claimAccessor.getClaimAsString(claimName)).isEqualTo(null);
+		assertThat(this.claimAccessor.getClaimAsString(claimName)).isNull();
 	}
 }
