@@ -16,15 +16,15 @@
 
 package org.springframework.security.oauth2.server.resource.authentication;
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.util.StringUtils;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.stream.Collectors;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.core.ScopeClaimAccessor;
+import org.springframework.security.oauth2.jwt.Jwt;
 
 /**
  * @author Rob Winch
@@ -49,16 +49,11 @@ class JwtConverter {
 	}
 
 	private Collection<String> getScopes(Jwt jwt) {
+		ScopeClaimAccessor claimAccessor = () -> jwt.getClaims();
 		for ( String attributeName : WELL_KNOWN_SCOPE_ATTRIBUTE_NAMES ) {
-			Object scopes = jwt.getClaims().get(attributeName);
-			if (scopes instanceof String) {
-				if (StringUtils.hasText((String) scopes)) {
-					return Arrays.asList(((String) scopes).split(" "));
-				} else {
-					return Collections.emptyList();
-				}
-			} else if (scopes instanceof Collection) {
-				return (Collection<String>) scopes;
+			Collection<String> scopes = claimAccessor.getScope(attributeName);
+			if (scopes != null) {
+				return scopes;
 			}
 		}
 

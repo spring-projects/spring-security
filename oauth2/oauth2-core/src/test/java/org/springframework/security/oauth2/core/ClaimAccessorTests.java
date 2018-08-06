@@ -15,15 +15,17 @@
  */
 package org.springframework.security.oauth2.core;
 
-import org.junit.Before;
-import org.junit.Test;
-
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.Before;
+import org.junit.Test;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 /**
  * Tests for {@link ClaimAccessor}.
@@ -100,5 +102,23 @@ public class ClaimAccessorTests {
 		this.claims.put(claimName, null);
 
 		assertThat(this.claimAccessor.getClaimAsString(claimName)).isEqualTo(null);
+	}
+
+	@Test
+	public void getClaimAsStringCollectionWhenNullDelimiterPassedThenThrowsIllegalArgumentException() {
+		String claimName = "list-claim";
+		this.claims.put(claimName, Arrays.asList("some", "values"));
+
+		assertThatCode(() -> this.claimAccessor.getClaimAsStringCollection(claimName, null))
+				.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void getClaimAsStringCollectionWhenCustomDelimiterPassedThenIsUsedToGenerateCollection() {
+		String claimName = "delimited-string";
+		this.claims.put(claimName, "a,string,delimited,by,commas");
+
+		assertThat(this.claimAccessor.getClaimAsStringCollection(claimName, ","))
+				.containsExactly("a", "string", "delimited", "by", "commas");
 	}
 }
