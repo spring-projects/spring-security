@@ -108,7 +108,7 @@ public class SimpleUrlAuthenticationSuccessHandlerTests {
 		SimpleUrlAuthenticationSuccessHandler ash = new SimpleUrlAuthenticationSuccessHandler();
 		ash.setTargetUrlParameter("targetUrl");
 		ash.setTargetUrlParameter(null);
-		assertThat(ash.getTargetUrlParameter()).isEqualTo(null);
+		assertThat(ash.getTargetUrlParameter()).isNull();
 	}
 
 	@Test

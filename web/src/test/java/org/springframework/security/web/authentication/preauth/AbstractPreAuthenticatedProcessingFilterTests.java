@@ -147,7 +147,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(),
 				new MockFilterChain());
 
-		assertThat(SecurityContextHolder.getContext().getAuthentication()).isEqualTo(null);
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
 
 	@Test

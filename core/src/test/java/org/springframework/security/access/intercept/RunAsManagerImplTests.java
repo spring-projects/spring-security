@@ -52,7 +52,7 @@ public class RunAsManagerImplTests {
 
 		Authentication resultingToken = runAs.buildRunAs(inputToken, new Object(),
 				SecurityConfig.createList("SOMETHING_WE_IGNORE"));
-		assertThat(resultingToken).isEqualTo(null);
+		assertThat(resultingToken).isNull();
 	}
 
 	@Test

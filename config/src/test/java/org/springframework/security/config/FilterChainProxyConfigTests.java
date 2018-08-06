@@ -108,7 +108,7 @@ public class FilterChainProxyConfigTests {
 	public void pathWithNoMatchHasNoFilters() throws Exception {
 		FilterChainProxy filterChainProxy = appCtx.getBean(
 				"newFilterChainProxyNoDefaultPath", FilterChainProxy.class);
-		assertThat(filterChainProxy.getFilters("/nomatch")).isEqualTo(null);
+		assertThat(filterChainProxy.getFilters("/nomatch")).isNull();
 	}
 
 	// SEC-1235
