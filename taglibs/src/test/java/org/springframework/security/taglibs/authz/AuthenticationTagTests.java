@@ -101,7 +101,7 @@ public class AuthenticationTagTests {
 		authenticationTag.setProperty("principal");
 		assertThat(authenticationTag.doStartTag()).isEqualTo(Tag.SKIP_BODY);
 		assertThat(authenticationTag.doEndTag()).isEqualTo(Tag.EVAL_PAGE);
-		assertThat(authenticationTag.getLastMessage()).isEqualTo(null);
+		assertThat(authenticationTag.getLastMessage()).isNull();
 	}
 
 	@Test

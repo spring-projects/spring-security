@@ -154,11 +154,11 @@ public class EhCacheBasedAclCacheTests {
 
 		Object retrieved1 = FieldUtils.getProtectedFieldValue("aclAuthorizationStrategy",
 				retrieved);
-		assertThat(retrieved1).isEqualTo(null);
+		assertThat(retrieved1).isNull();
 
 		Object retrieved2 = FieldUtils.getProtectedFieldValue(
 				"permissionGrantingStrategy", retrieved);
-		assertThat(retrieved2).isEqualTo(null);
+		assertThat(retrieved2).isNull();
 	}
 
 	@Test

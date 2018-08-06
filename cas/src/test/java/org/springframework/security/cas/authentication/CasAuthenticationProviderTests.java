@@ -353,7 +353,7 @@ public class CasAuthenticationProviderTests {
 		assertThat(cap.supports(TestingAuthenticationToken.class)).isFalse();
 
 		// Try it anyway
-		assertThat(cap.authenticate(token)).isEqualTo(null);
+		assertThat(cap.authenticate(token)).isNull();
 	}
 
 	@Test
@@ -370,7 +370,7 @@ public class CasAuthenticationProviderTests {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
 				"some_normal_user", "password",
 				AuthorityUtils.createAuthorityList("ROLE_A"));
-		assertThat(cap.authenticate(token)).isEqualTo(null);
+		assertThat(cap.authenticate(token)).isNull();
 	}
 
 	@Test

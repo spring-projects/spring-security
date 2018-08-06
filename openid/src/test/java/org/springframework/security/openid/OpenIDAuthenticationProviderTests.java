@@ -216,7 +216,7 @@ public class OpenIDAuthenticationProviderTests {
 
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
 				USERNAME, "password");
-		assertThat(provider.authenticate(token)).isEqualTo(null);
+		assertThat(provider.authenticate(token)).isNull();
 	}
 
 	/*
