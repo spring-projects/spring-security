@@ -199,13 +199,17 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 			this.context = context;
 		}
 
-		public OAuth2ResourceServerConfigurer<H> decoder(JwtDecoder decoder) {
+		public JwtConfigurer decoder(JwtDecoder decoder) {
 			this.decoder = decoder;
-			return OAuth2ResourceServerConfigurer.this;
+			return this;
 		}
 
-		public OAuth2ResourceServerConfigurer<H> jwkSetUri(String uri) {
+		public JwtConfigurer jwkSetUri(String uri) {
 			this.decoder = new NimbusJwtDecoderJwkSupport(uri);
+			return this;
+		}
+
+		public OAuth2ResourceServerConfigurer<H> and() {
 			return OAuth2ResourceServerConfigurer.this;
 		}
 
