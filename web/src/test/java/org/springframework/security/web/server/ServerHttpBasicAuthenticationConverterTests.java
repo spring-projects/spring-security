@@ -89,7 +89,7 @@ public class ServerHttpBasicAuthenticationConverterTests {
 	}
 
 	@Test
-	public void applyWhenWrongSchemeThenAuthentication() {
+	public void applyWhenWrongSchemeThenEmpty() {
 		Mono<Authentication> result = convert(this.request.header(HttpHeaders.AUTHORIZATION, "token dXNlcjpwYXNzd29yZA=="));
 
 		assertThat(result.block()).isNull();
