@@ -18,7 +18,6 @@ package org.springframework.security.oauth2.client.oidc.userinfo;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,6 +31,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.core.AuthenticationMethod;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -51,6 +51,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -96,6 +97,14 @@ public class OidcUserServiceTests {
 		idTokenClaims.put(IdTokenClaimNames.SUB, "subject1");
 		when(this.idToken.getClaims()).thenReturn(idTokenClaims);
 		when(this.idToken.getSubject()).thenReturn("subject1");
+
+		this.userService.setOauth2UserService(new DefaultOAuth2UserService());
+	}
+
+	@Test
+	public void setOauth2UserServiceWhenNullThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() -> this.userService.setOauth2UserService(null))
+				.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
