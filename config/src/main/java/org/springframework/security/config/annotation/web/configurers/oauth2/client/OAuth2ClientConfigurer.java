@@ -26,6 +26,7 @@ import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCo
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.AuthenticatedPrincipalOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
+import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationCodeGrantFilter;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
@@ -160,7 +161,7 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>> exte
 		 * Configuration options for the Authorization Server's Authorization Endpoint.
 		 */
 		public class AuthorizationEndpointConfig {
-			private String authorizationRequestBaseUri;
+			private String authorizationRequestBaseUri = OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
 			private OAuth2AuthorizationRequestResolver authorizationRequestResolver;
 			private AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository;
 
@@ -212,6 +213,52 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>> exte
 			 */
 			public AuthorizationCodeGrantConfigurer and() {
 				return AuthorizationCodeGrantConfigurer.this;
+			}
+
+			private OAuth2AuthorizationRequestResolver getAuthorizationRequestResolver() {
+				if (this.authorizationRequestResolver != null) {
+					return this.authorizationRequestResolver;
+				}
+				ClientRegistrationRepository clientRegistrationRepository = OAuth2ClientConfigurerUtils
+						.getClientRegistrationRepository(getBuilder());
+				return new DefaultOAuth2AuthorizationRequestResolver(clientRegistrationRepository,
+						this.authorizationRequestBaseUri);
+			}
+
+			private OAuth2AuthorizationRequestRedirectFilter createAuthorizationRequestRedirectFilter(B builder) {
+				OAuth2AuthorizationRequestResolver resolver = getAuthorizationRequestResolver();
+				OAuth2AuthorizationRequestRedirectFilter authorizationRequestFilter = new OAuth2AuthorizationRequestRedirectFilter(resolver);
+
+				if (this.authorizationRequestRepository != null) {
+					authorizationRequestFilter.setAuthorizationRequestRepository(
+							this.authorizationRequestRepository);
+				}
+				RequestCache requestCache = builder.getSharedObject(RequestCache.class);
+				if (requestCache != null) {
+					authorizationRequestFilter.setRequestCache(requestCache);
+				}
+				return authorizationRequestFilter;
+			}
+
+			private OAuth2AuthorizationCodeGrantFilter createAuthorizationCodeGrantFilter(B builder) {
+				AuthenticationManager authenticationManager = builder.getSharedObject(AuthenticationManager.class);
+				OAuth2AuthorizationCodeGrantFilter authorizationCodeGrantFilter = new OAuth2AuthorizationCodeGrantFilter(
+						OAuth2ClientConfigurerUtils.getClientRegistrationRepository(builder),
+						OAuth2ClientConfigurerUtils.getAuthorizedClientRepository(builder),
+						authenticationManager);
+
+				if (this.authorizationRequestRepository != null) {
+					authorizationCodeGrantFilter.setAuthorizationRequestRepository(
+							this.authorizationRequestRepository);
+				}
+				return authorizationCodeGrantFilter;
+			}
+
+			private void configure(B builder) {
+				OAuth2AuthorizationRequestRedirectFilter authorizationRequestFilter = createAuthorizationRequestRedirectFilter(builder);
+				builder.addFilter(postProcess(authorizationRequestFilter));
+				OAuth2AuthorizationCodeGrantFilter authorizationCodeGrantFilter = createAuthorizationCodeGrantFilter(builder);
+				builder.addFilter(postProcess(authorizationCodeGrantFilter));
 			}
 		}
 
@@ -267,42 +314,7 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>> exte
 		}
 
 		private void configure(B builder) {
-			OAuth2AuthorizationRequestRedirectFilter authorizationRequestFilter;
-
-			if (this.authorizationEndpointConfig.authorizationRequestResolver != null) {
-				authorizationRequestFilter = new OAuth2AuthorizationRequestRedirectFilter(
-						this.authorizationEndpointConfig.authorizationRequestResolver);
-			} else {
-				String authorizationRequestBaseUri = this.authorizationEndpointConfig.authorizationRequestBaseUri;
-				if (authorizationRequestBaseUri == null) {
-					authorizationRequestBaseUri = OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
-				}
-				authorizationRequestFilter = new OAuth2AuthorizationRequestRedirectFilter(
-						OAuth2ClientConfigurerUtils.getClientRegistrationRepository(builder), authorizationRequestBaseUri);
-			}
-
-			if (this.authorizationEndpointConfig.authorizationRequestRepository != null) {
-				authorizationRequestFilter.setAuthorizationRequestRepository(
-						this.authorizationEndpointConfig.authorizationRequestRepository);
-			}
-			RequestCache requestCache = builder.getSharedObject(RequestCache.class);
-			if (requestCache != null) {
-				authorizationRequestFilter.setRequestCache(requestCache);
-			}
-			builder.addFilter(postProcess(authorizationRequestFilter));
-
-			AuthenticationManager authenticationManager = builder.getSharedObject(AuthenticationManager.class);
-
-			OAuth2AuthorizationCodeGrantFilter authorizationCodeGrantFilter = new OAuth2AuthorizationCodeGrantFilter(
-					OAuth2ClientConfigurerUtils.getClientRegistrationRepository(builder),
-					OAuth2ClientConfigurerUtils.getAuthorizedClientRepository(builder),
-					authenticationManager);
-
-			if (this.authorizationEndpointConfig.authorizationRequestRepository != null) {
-				authorizationCodeGrantFilter.setAuthorizationRequestRepository(
-						this.authorizationEndpointConfig.authorizationRequestRepository);
-			}
-			builder.addFilter(postProcess(authorizationCodeGrantFilter));
+			this.authorizationEndpointConfig.configure(builder);
 		}
 	}
 
