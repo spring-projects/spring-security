@@ -11,6 +11,7 @@ dependencies {
 	optional 'io.projectreactor:reactor-core'
 	optional 'org.springframework:spring-webflux'
 
+	testCompile project(path: ':spring-security-oauth2-core', configuration: 'tests')
 	testCompile powerMock2Dependencies
 	testCompile 'com.squareup.okhttp3:mockwebserver'
 	testCompile 'com.fasterxml.jackson.core:jackson-databind'
