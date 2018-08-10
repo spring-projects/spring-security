@@ -27,9 +27,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.oauth2.client.ClientAuthorizationRequiredException;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
-import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.util.ReflectionUtils;
 import reactor.core.publisher.Hooks;
 import reactor.core.publisher.Mono;
@@ -51,7 +51,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class OAuth2AuthorizedClientArgumentResolverTests {
 	@Mock
-	private ReactiveOAuth2AuthorizedClientService authorizedClientService;
+	private ServerOAuth2AuthorizedClientRepository authorizedClientRepository;
 	private OAuth2AuthorizedClientArgumentResolver argumentResolver;
 	private OAuth2AuthorizedClient authorizedClient;
 
@@ -59,9 +59,9 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 
 	@Before
 	public void setUp() {
-		this.argumentResolver = new OAuth2AuthorizedClientArgumentResolver(this.authorizedClientService);
+		this.argumentResolver = new OAuth2AuthorizedClientArgumentResolver(this.authorizedClientRepository);
 		this.authorizedClient = mock(OAuth2AuthorizedClient.class);
-		when(this.authorizedClientService.loadAuthorizedClient(anyString(), any())).thenReturn(Mono.just(this.authorizedClient));
+		when(this.authorizedClientRepository.loadAuthorizedClient(anyString(), any(), any())).thenReturn(Mono.just(this.authorizedClient));
 		Hooks.onOperatorDebug();
 	}
 
@@ -100,21 +100,16 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 	@Test
 	public void resolveArgumentWhenRegistrationIdEmptyAndOAuth2AuthenticationThenResolves() {
 		this.authentication = mock(OAuth2AuthenticationToken.class);
-		when(this.authentication.getName()).thenReturn("client1");
 		when(((OAuth2AuthenticationToken) this.authentication).getAuthorizedClientRegistrationId()).thenReturn("client1");
 		MethodParameter methodParameter = this.getMethodParameter("registrationIdEmpty", OAuth2AuthorizedClient.class);
 		resolveArgument(methodParameter);
 	}
 
 	@Test
-	public void resolveArgumentWhenParameterTypeOAuth2AuthorizedClientAndCurrentAuthenticationNullThenThrowIllegalStateException() {
+	public void resolveArgumentWhenParameterTypeOAuth2AuthorizedClientAndCurrentAuthenticationNullThenResolves() {
 		this.authentication = null;
 		MethodParameter methodParameter = this.getMethodParameter("paramTypeAuthorizedClient", OAuth2AuthorizedClient.class);
-		assertThatThrownBy(() -> resolveArgument(methodParameter))
-				.isInstanceOf(IllegalStateException.class)
-				.hasMessage("Unable to resolve the Authorized Client with registration identifier \"client1\". " +
-						"An \"authenticated\" or \"unauthenticated\" session is required. " +
-						"To allow for unauthenticated access, ensure ServerHttpSecurity.anonymous() is configured.");
+		assertThat(resolveArgument(methodParameter)).isSameAs(this.authorizedClient);
 	}
 
 	@Test
@@ -125,7 +120,7 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 
 	@Test
 	public void resolveArgumentWhenOAuth2AuthorizedClientNotFoundThenThrowClientAuthorizationRequiredException() {
-		when(this.authorizedClientService.loadAuthorizedClient(anyString(), any())).thenReturn(Mono.empty());
+		when(this.authorizedClientRepository.loadAuthorizedClient(anyString(), any(), any())).thenReturn(Mono.empty());
 		MethodParameter methodParameter = this.getMethodParameter("paramTypeAuthorizedClient", OAuth2AuthorizedClient.class);
 		assertThatThrownBy(() -> resolveArgument(methodParameter))
 				.isInstanceOf(ClientAuthorizationRequiredException.class);

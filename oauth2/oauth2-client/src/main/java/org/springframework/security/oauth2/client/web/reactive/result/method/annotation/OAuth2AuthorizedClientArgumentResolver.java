@@ -18,14 +18,16 @@ package org.springframework.security.oauth2.client.web.reactive.result.method.an
 
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.AnnotatedElementUtils;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.oauth2.client.ClientAuthorizationRequiredException;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
-import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.BindingContext;
@@ -54,16 +56,16 @@ import reactor.core.publisher.Mono;
  * @see RegisteredOAuth2AuthorizedClient
  */
 public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMethodArgumentResolver {
-	private final ReactiveOAuth2AuthorizedClientService authorizedClientService;
+	private final ServerOAuth2AuthorizedClientRepository authorizedClientRepository;
 
 	/**
 	 * Constructs an {@code OAuth2AuthorizedClientArgumentResolver} using the provided parameters.
 	 *
-	 * @param authorizedClientService the authorized client service
+	 * @param authorizedClientRepository the authorized client repository
 	 */
-	public OAuth2AuthorizedClientArgumentResolver(ReactiveOAuth2AuthorizedClientService authorizedClientService) {
-		Assert.notNull(authorizedClientService, "authorizedClientService cannot be null");
-		this.authorizedClientService = authorizedClientService;
+	public OAuth2AuthorizedClientArgumentResolver(ServerOAuth2AuthorizedClientRepository authorizedClientRepository) {
+		Assert.notNull(authorizedClientRepository, "authorizedClientRepository cannot be null");
+		this.authorizedClientRepository = authorizedClientRepository;
 	}
 
 	@Override
@@ -84,20 +86,22 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 					.switchIfEmpty(Mono.defer(() -> Mono.error(new IllegalArgumentException(
 							"Unable to resolve the Client Registration Identifier. It must be provided via @RegisteredOAuth2AuthorizedClient(\"client1\") or @RegisteredOAuth2AuthorizedClient(registrationId = \"client1\")."))));
 
-			Mono<String> principalName = ReactiveSecurityContextHolder.getContext()
-					.map(SecurityContext::getAuthentication).map(Authentication::getName);
+			Mono<Authentication> principal = ReactiveSecurityContextHolder.getContext()
+					.map(SecurityContext::getAuthentication)
+					.defaultIfEmpty(new AnonymousAuthenticationToken("key", "anonymous",
+							AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS")));
 
 			Mono<OAuth2AuthorizedClient> authorizedClient = Mono
-					.zip(clientRegistrationId, principalName).switchIfEmpty(
+					.zip(clientRegistrationId, principal).switchIfEmpty(
 							clientRegistrationId.flatMap(id -> Mono.error(new IllegalStateException(
 									"Unable to resolve the Authorized Client with registration identifier \""
 											+ id
 											+ "\". An \"authenticated\" or \"unauthenticated\" session is required. To allow for unauthenticated access, ensure ServerHttpSecurity.anonymous() is configured."))))
 					.flatMap(zipped -> {
 						String registrationId = zipped.getT1();
-						String username = zipped.getT2();
-						return this.authorizedClientService
-								.loadAuthorizedClient(registrationId, username).switchIfEmpty(Mono.defer(() -> Mono
+						Authentication authentication = zipped.getT2();
+						return this.authorizedClientRepository
+								.loadAuthorizedClient(registrationId, authentication, exchange).switchIfEmpty(Mono.defer(() -> Mono
 										.error(new ClientAuthorizationRequiredException(
 												registrationId))));
 					}).cast(OAuth2AuthorizedClient.class);
