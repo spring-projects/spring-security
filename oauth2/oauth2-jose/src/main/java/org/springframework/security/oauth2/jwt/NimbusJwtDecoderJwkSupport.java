@@ -40,6 +40,7 @@ import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -78,7 +79,10 @@ public final class NimbusJwtDecoderJwkSupport implements JwtDecoder {
 	private final ConfigurableJWTProcessor<SecurityContext> jwtProcessor;
 	private final RestOperationsResourceRetriever jwkSetRetriever = new RestOperationsResourceRetriever();
 
+	private Converter<Map<String, Object>, Map<String, Object>> claimSetConverter =
+			MappedJwtClaimSetConverter.withDefaults(Collections.emptyMap());
 	private OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDefault();
+
 
 	/**
 	 * Constructs a {@code NimbusJwtDecoderJwkSupport} using the provided parameters.
@@ -134,6 +138,16 @@ public final class NimbusJwtDecoderJwkSupport implements JwtDecoder {
 		this.jwtValidator = jwtValidator;
 	}
 
+	/**
+	 * Use the following {@link Converter} for manipulating the JWT's claim set
+	 *
+	 * @param claimSetConverter the {@link Converter} to use
+	 */
+	public final void setClaimSetConverter(Converter<Map<String, Object>, Map<String, Object>> claimSetConverter) {
+		Assert.notNull(claimSetConverter, "claimSetConverter cannot be null");
+		this.claimSetConverter = claimSetConverter;
+	}
+
 	private JWT parse(String token) {
 		try {
 			return JWTParser.parse(token);
@@ -149,22 +163,12 @@ public final class NimbusJwtDecoderJwkSupport implements JwtDecoder {
 			// Verify the signature
 			JWTClaimsSet jwtClaimsSet = this.jwtProcessor.process(parsedJwt, null);
 
-			Instant expiresAt = null;
-			if (jwtClaimsSet.getExpirationTime() != null) {
-				expiresAt = jwtClaimsSet.getExpirationTime().toInstant();
-			}
-			Instant issuedAt = null;
-			if (jwtClaimsSet.getIssueTime() != null) {
-				issuedAt = jwtClaimsSet.getIssueTime().toInstant();
-			} else if (expiresAt != null) {
-				// Default to expiresAt - 1 second
-				issuedAt = Instant.from(expiresAt).minusSeconds(1);
-			}
-
 			Map<String, Object> headers = new LinkedHashMap<>(parsedJwt.getHeader().toJSONObject());
+			Map<String, Object> claims = this.claimSetConverter.convert(jwtClaimsSet.getClaims());
 
-			jwt = new Jwt(token, issuedAt, expiresAt, headers, jwtClaimsSet.getClaims());
-
+			Instant expiresAt = (Instant) claims.get(JwtClaimNames.EXP);
+			Instant issuedAt = (Instant) claims.get(JwtClaimNames.IAT);
+			jwt = new Jwt(token, issuedAt, expiresAt, headers, claims);
 		} catch (RemoteKeySourceException ex) {
 			if (ex.getCause() instanceof ParseException) {
 				throw new JwtException(String.format(DECODING_ERROR_MESSAGE_TEMPLATE, "Malformed Jwk set"));
