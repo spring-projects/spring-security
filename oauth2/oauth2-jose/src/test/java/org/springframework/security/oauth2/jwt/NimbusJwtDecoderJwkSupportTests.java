@@ -16,6 +16,8 @@
 package org.springframework.security.oauth2.jwt;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
 
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -33,6 +35,7 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.RequestEntity;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
@@ -40,6 +43,7 @@ import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.web.client.RestTemplate;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -227,5 +231,29 @@ public class NimbusJwtDecoderJwkSupportTests {
 					.hasMessageContaining("mock-description")
 					.hasFieldOrPropertyWithValue("errors", Arrays.asList(firstFailure, secondFailure));
 		}
+	}
+
+	@Test
+	public void decodeWhenUsingSignedJwtThenReturnsClaimsGivenByClaimSetConverter() throws Exception {
+		try ( MockWebServer server = new MockWebServer() ) {
+			server.enqueue(new MockResponse().setBody(JWK_SET));
+			String jwkSetUrl = server.url("/.well-known/jwks.json").toString();
+
+			NimbusJwtDecoderJwkSupport decoder = new NimbusJwtDecoderJwkSupport(jwkSetUrl);
+
+			Converter<Map<String, Object>, Map<String, Object>> claimSetConverter = mock(Converter.class);
+			when(claimSetConverter.convert(any(Map.class))).thenReturn(Collections.singletonMap("custom", "value"));
+			decoder.setClaimSetConverter(claimSetConverter);
+
+			Jwt jwt = decoder.decode(SIGNED_JWT);
+			assertThat(jwt.getClaims().size()).isEqualTo(1);
+			assertThat(jwt.getClaims().get("custom")).isEqualTo("value");
+		}
+	}
+
+	@Test
+	public void setClaimSetConverterWhenIsNullThenThrowsIllegalArgumentException() {
+		assertThatCode(() -> jwtDecoder.setClaimSetConverter(null))
+				.isInstanceOf(IllegalArgumentException.class);
 	}
 }
