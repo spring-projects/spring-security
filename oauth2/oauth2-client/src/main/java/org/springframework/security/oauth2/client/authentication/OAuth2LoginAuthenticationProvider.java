@@ -30,6 +30,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.Assert;
 
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * An implementation of an {@link AuthenticationProvider} for OAuth 2.0 Login,
@@ -101,9 +102,10 @@ public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider
 					authorizationCodeAuthentication.getAuthorizationExchange()));
 
 		OAuth2AccessToken accessToken = accessTokenResponse.getAccessToken();
+		Map<String, Object> additionalParameters = accessTokenResponse.getAdditionalParameters();
 
-		OAuth2User oauth2User = this.userService.loadUser(
-			new OAuth2UserRequest(authorizationCodeAuthentication.getClientRegistration(), accessToken));
+		OAuth2User oauth2User = this.userService.loadUser(new OAuth2UserRequest(
+				authorizationCodeAuthentication.getClientRegistration(), accessToken, additionalParameters));
 
 		Collection<? extends GrantedAuthority> mappedAuthorities =
 			this.authoritiesMapper.mapAuthorities(oauth2User.getAuthorities());

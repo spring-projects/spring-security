@@ -159,10 +159,10 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements
 
 	private Mono<OAuth2AuthenticationToken> authenticationResult(OAuth2LoginAuthenticationToken authorizationCodeAuthentication, OAuth2AccessTokenResponse accessTokenResponse) {
 		OAuth2AccessToken accessToken = accessTokenResponse.getAccessToken();
-
 		ClientRegistration clientRegistration = authorizationCodeAuthentication.getClientRegistration();
+		Map<String, Object> additionalParameters = accessTokenResponse.getAdditionalParameters();
 
-		if (!accessTokenResponse.getAdditionalParameters().containsKey(OidcParameterNames.ID_TOKEN)) {
+		if (!additionalParameters.containsKey(OidcParameterNames.ID_TOKEN)) {
 			OAuth2Error invalidIdTokenError = new OAuth2Error(
 					INVALID_ID_TOKEN_ERROR_CODE,
 					"Missing (required) ID Token in Token Response for Client Registration: " + clientRegistration.getRegistrationId(),
@@ -171,7 +171,7 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements
 		}
 
 		return createOidcToken(clientRegistration, accessTokenResponse)
-				.map(idToken ->  new OidcUserRequest(clientRegistration, accessToken, idToken))
+				.map(idToken ->  new OidcUserRequest(clientRegistration, accessToken, idToken, additionalParameters))
 				.flatMap(this.userService::loadUser)
 				.flatMap(oauth2User -> {
 					Collection<? extends GrantedAuthority> mappedAuthorities =

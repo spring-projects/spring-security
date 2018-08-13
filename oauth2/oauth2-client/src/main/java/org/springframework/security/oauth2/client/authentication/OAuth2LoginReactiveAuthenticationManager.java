@@ -16,6 +16,7 @@
 package org.springframework.security.oauth2.client.authentication;
 
 import java.util.Collection;
+import java.util.Map;
 
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -109,7 +110,9 @@ public class OAuth2LoginReactiveAuthenticationManager implements
 
 	private Mono<OAuth2AuthenticationToken> authenticationResult(OAuth2LoginAuthenticationToken authorizationCodeAuthentication, OAuth2AccessTokenResponse accessTokenResponse) {
 		OAuth2AccessToken accessToken = accessTokenResponse.getAccessToken();
-		OAuth2UserRequest userRequest = new OAuth2UserRequest(authorizationCodeAuthentication.getClientRegistration(), accessToken);
+		Map<String, Object> additionalParameters = accessTokenResponse.getAdditionalParameters();
+		OAuth2UserRequest userRequest = new OAuth2UserRequest(
+				authorizationCodeAuthentication.getClientRegistration(), accessToken, additionalParameters);
 		return this.userService.loadUser(userRequest)
 				.flatMap(oauth2User -> {
 					Collection<? extends GrantedAuthority> mappedAuthorities =

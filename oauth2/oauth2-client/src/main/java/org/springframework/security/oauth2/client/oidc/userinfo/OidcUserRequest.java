@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,9 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.util.Assert;
+
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * Represents a request the {@link OidcUserService} uses
@@ -45,7 +48,22 @@ public class OidcUserRequest extends OAuth2UserRequest {
 	public OidcUserRequest(ClientRegistration clientRegistration,
 							OAuth2AccessToken accessToken, OidcIdToken idToken) {
 
-		super(clientRegistration, accessToken);
+		this(clientRegistration, accessToken, idToken, Collections.emptyMap());
+	}
+
+	/**
+	 * Constructs an {@code OidcUserRequest} using the provided parameters.
+	 *
+	 * @since 5.1
+	 * @param clientRegistration the client registration
+	 * @param accessToken the access token credential
+	 * @param idToken the ID Token
+	 * @param additionalParameters the additional parameters, may be empty
+	 */
+	public OidcUserRequest(ClientRegistration clientRegistration, OAuth2AccessToken accessToken,
+							OidcIdToken idToken, Map<String, Object> additionalParameters) {
+
+		super(clientRegistration, accessToken, additionalParameters);
 		Assert.notNull(idToken, "idToken cannot be null");
 		this.idToken = idToken;
 	}

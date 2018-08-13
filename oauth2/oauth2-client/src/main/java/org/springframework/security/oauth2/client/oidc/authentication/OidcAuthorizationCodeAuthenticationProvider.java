@@ -139,19 +139,18 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 
 		ClientRegistration clientRegistration = authorizationCodeAuthentication.getClientRegistration();
 
-		if (!accessTokenResponse.getAdditionalParameters().containsKey(OidcParameterNames.ID_TOKEN)) {
+		Map<String, Object> additionalParameters = accessTokenResponse.getAdditionalParameters();
+		if (!additionalParameters.containsKey(OidcParameterNames.ID_TOKEN)) {
 			OAuth2Error invalidIdTokenError = new OAuth2Error(
 				INVALID_ID_TOKEN_ERROR_CODE,
 				"Missing (required) ID Token in Token Response for Client Registration: " + clientRegistration.getRegistrationId(),
 				null);
 			throw new OAuth2AuthenticationException(invalidIdTokenError, invalidIdTokenError.toString());
 		}
-
 		OidcIdToken idToken = createOidcToken(clientRegistration, accessTokenResponse);
 
-		OidcUser oidcUser = this.userService.loadUser(
-			new OidcUserRequest(clientRegistration, accessTokenResponse.getAccessToken(), idToken));
-
+		OidcUser oidcUser = this.userService.loadUser(new OidcUserRequest(
+				clientRegistration, accessTokenResponse.getAccessToken(), idToken, additionalParameters));
 		Collection<? extends GrantedAuthority> mappedAuthorities =
 			this.authoritiesMapper.mapAuthorities(oidcUser.getAuthorities());
 
