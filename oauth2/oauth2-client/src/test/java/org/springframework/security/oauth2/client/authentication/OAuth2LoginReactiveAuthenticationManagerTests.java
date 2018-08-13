@@ -23,11 +23,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -164,7 +167,7 @@ public class OAuth2LoginReactiveAuthenticationManagerTests {
 	}
 
 	@Test
-	public void authenticationWhenOAuth2UserNotFoundThenSuccess() {
+	public void authenticationWhenOAuth2UserFoundThenSuccess() {
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("foo")
 				.tokenType(OAuth2AccessToken.TokenType.BEARER)
 				.build();
@@ -177,6 +180,27 @@ public class OAuth2LoginReactiveAuthenticationManagerTests {
 		assertThat(result.getPrincipal()).isEqualTo(user);
 		assertThat(result.getAuthorities()).containsOnlyElementsOf(user.getAuthorities());
 		assertThat(result.isAuthenticated()).isTrue();
+	}
+
+	// gh-5368
+	@Test
+	public void authenticateWhenTokenSuccessResponseThenAdditionalParametersAddedToUserRequest() {
+		Map<String, Object> additionalParameters = new HashMap<>();
+		additionalParameters.put("param1", "value1");
+		additionalParameters.put("param2", "value2");
+		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("foo")
+				.tokenType(OAuth2AccessToken.TokenType.BEARER)
+				.additionalParameters(additionalParameters)
+				.build();
+		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
+		DefaultOAuth2User user = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"), Collections.singletonMap("user", "rob"), "user");
+		ArgumentCaptor<OAuth2UserRequest> userRequestArgCaptor = ArgumentCaptor.forClass(OAuth2UserRequest.class);
+		when(this.userService.loadUser(userRequestArgCaptor.capture())).thenReturn(Mono.just(user));
+
+		this.manager.authenticate(loginToken()).block();
+
+		assertThat(userRequestArgCaptor.getValue().getAdditionalParameters())
+				.containsAllEntriesOf(accessTokenResponse.getAdditionalParameters());
 	}
 
 	private OAuth2LoginAuthenticationToken loginToken() {

@@ -19,6 +19,7 @@ package org.springframework.security.oauth2.client.oidc.authentication;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -215,6 +216,39 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 		assertThat(result.getPrincipal()).isEqualTo(user);
 		assertThat(result.getAuthorities()).containsOnlyElementsOf(user.getAuthorities());
 		assertThat(result.isAuthenticated()).isTrue();
+	}
+
+	// gh-5368
+	@Test
+	public void authenticateWhenTokenSuccessResponseThenAdditionalParametersAddedToUserRequest() {
+		Map<String, Object> additionalParameters = new HashMap<>();
+		additionalParameters.put(OidcParameterNames.ID_TOKEN, this.idToken.getTokenValue());
+		additionalParameters.put("param1", "value1");
+		additionalParameters.put("param2", "value2");
+		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("foo")
+				.tokenType(OAuth2AccessToken.TokenType.BEARER)
+				.additionalParameters(additionalParameters)
+				.build();
+
+		Map<String, Object> claims = new HashMap<>();
+		claims.put(IdTokenClaimNames.ISS, "https://issuer.example.com");
+		claims.put(IdTokenClaimNames.SUB, "rob");
+		claims.put(IdTokenClaimNames.AUD, Arrays.asList("clientId"));
+		Instant issuedAt = Instant.now();
+		Instant expiresAt = Instant.from(issuedAt).plusSeconds(3600);
+		Jwt idToken = new Jwt("id-token", issuedAt, expiresAt, claims, claims);
+
+		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
+		DefaultOidcUser user = new DefaultOidcUser(AuthorityUtils.createAuthorityList("ROLE_USER"), this.idToken);
+		ArgumentCaptor<OidcUserRequest> userRequestArgCaptor = ArgumentCaptor.forClass(OidcUserRequest.class);
+		when(this.userService.loadUser(userRequestArgCaptor.capture())).thenReturn(Mono.just(user));
+		when(this.jwtDecoder.decode(any())).thenReturn(Mono.just(idToken));
+		this.manager.setDecoderFactory(c -> this.jwtDecoder);
+
+		this.manager.authenticate(loginToken()).block();
+
+		assertThat(userRequestArgCaptor.getValue().getAdditionalParameters())
+				.containsAllEntriesOf(accessTokenResponse.getAdditionalParameters());
 	}
 
 	private OAuth2LoginAuthenticationToken loginToken() {

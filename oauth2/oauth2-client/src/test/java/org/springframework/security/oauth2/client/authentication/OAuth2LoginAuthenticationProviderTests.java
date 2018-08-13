@@ -20,6 +20,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.stubbing.Answer;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -35,17 +36,20 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
-import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -164,11 +168,7 @@ public class OAuth2LoginAuthenticationProviderTests {
 
 	@Test
 	public void authenticateWhenLoginSuccessThenReturnAuthentication() {
-		OAuth2AccessToken accessToken = mock(OAuth2AccessToken.class);
-		OAuth2RefreshToken refreshToken = mock(OAuth2RefreshToken.class);
-		OAuth2AccessTokenResponse accessTokenResponse = mock(OAuth2AccessTokenResponse.class);
-		when(accessTokenResponse.getAccessToken()).thenReturn(accessToken);
-		when(accessTokenResponse.getRefreshToken()).thenReturn(refreshToken);
+		OAuth2AccessTokenResponse accessTokenResponse = this.accessTokenSuccessResponse();
 		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(accessTokenResponse);
 
 		OAuth2User principal = mock(OAuth2User.class);
@@ -187,15 +187,13 @@ public class OAuth2LoginAuthenticationProviderTests {
 		assertThat(authentication.getAuthorities()).isEqualTo(authorities);
 		assertThat(authentication.getClientRegistration()).isEqualTo(this.clientRegistration);
 		assertThat(authentication.getAuthorizationExchange()).isEqualTo(this.authorizationExchange);
-		assertThat(authentication.getAccessToken()).isEqualTo(accessToken);
-		assertThat(authentication.getRefreshToken()).isEqualTo(refreshToken);
+		assertThat(authentication.getAccessToken()).isEqualTo(accessTokenResponse.getAccessToken());
+		assertThat(authentication.getRefreshToken()).isEqualTo(accessTokenResponse.getRefreshToken());
 	}
 
 	@Test
 	public void authenticateWhenAuthoritiesMapperSetThenReturnMappedAuthorities() {
-		OAuth2AccessToken accessToken = mock(OAuth2AccessToken.class);
-		OAuth2AccessTokenResponse accessTokenResponse = mock(OAuth2AccessTokenResponse.class);
-		when(accessTokenResponse.getAccessToken()).thenReturn(accessToken);
+		OAuth2AccessTokenResponse accessTokenResponse = this.accessTokenSuccessResponse();
 		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(accessTokenResponse);
 
 		OAuth2User principal = mock(OAuth2User.class);
@@ -215,5 +213,43 @@ public class OAuth2LoginAuthenticationProviderTests {
 				new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
 
 		assertThat(authentication.getAuthorities()).isEqualTo(mappedAuthorities);
+	}
+
+	// gh-5368
+	@Test
+	public void authenticateWhenTokenSuccessResponseThenAdditionalParametersAddedToUserRequest() {
+		OAuth2AccessTokenResponse accessTokenResponse = this.accessTokenSuccessResponse();
+		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(accessTokenResponse);
+
+		OAuth2User principal = mock(OAuth2User.class);
+		List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_USER");
+		when(principal.getAuthorities()).thenAnswer(
+				(Answer<List<GrantedAuthority>>) invocation -> authorities);
+		ArgumentCaptor<OAuth2UserRequest> userRequestArgCaptor = ArgumentCaptor.forClass(OAuth2UserRequest.class);
+		when(this.userService.loadUser(userRequestArgCaptor.capture())).thenReturn(principal);
+
+		this.authenticationProvider.authenticate(
+				new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
+
+		assertThat(userRequestArgCaptor.getValue().getAdditionalParameters()).containsAllEntriesOf(
+				accessTokenResponse.getAdditionalParameters());
+	}
+
+	private OAuth2AccessTokenResponse accessTokenSuccessResponse() {
+		Instant expiresAt = Instant.now().plusSeconds(5);
+		Set<String> scopes = new LinkedHashSet<>(Arrays.asList("scope1", "scope2"));
+		Map<String, Object> additionalParameters = new HashMap<>();
+		additionalParameters.put("param1", "value1");
+		additionalParameters.put("param2", "value2");
+
+		return OAuth2AccessTokenResponse
+				.withToken("access-token-1234")
+				.tokenType(OAuth2AccessToken.TokenType.BEARER)
+				.expiresIn(expiresAt.getEpochSecond())
+				.scopes(scopes)
+				.refreshToken("refresh-token-1234")
+				.additionalParameters(additionalParameters)
+				.build();
+
 	}
 }
