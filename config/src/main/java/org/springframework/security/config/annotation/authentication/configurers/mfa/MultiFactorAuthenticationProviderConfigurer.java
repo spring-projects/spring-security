@@ -26,35 +26,35 @@ import org.springframework.security.config.annotation.authentication.ProviderMan
  * @param <B> the type of the {@link SecurityBuilder}
  */
 public class MultiFactorAuthenticationProviderConfigurer<B extends ProviderManagerBuilder<B>>
-        extends SecurityConfigurerAdapter<AuthenticationManager, B> {
+		extends SecurityConfigurerAdapter<AuthenticationManager, B> {
 
-    //~ Instance fields
-    // ================================================================================================
-    private AuthenticationProvider authenticationProvider;
-    private MFATokenEvaluator mfaTokenEvaluator = new MFATokenEvaluatorImpl();
+	//~ Instance fields
+	// ================================================================================================
+	private AuthenticationProvider authenticationProvider;
+	private MFATokenEvaluator mfaTokenEvaluator = new MFATokenEvaluatorImpl();
 
-    /**
-     * Constructor
-     * @param authenticationProvider {@link AuthenticationProvider} to be delegated
-     */
-    public MultiFactorAuthenticationProviderConfigurer(AuthenticationProvider authenticationProvider) {
-        this.authenticationProvider = authenticationProvider;
-    }
+	/**
+	 * Constructor
+	 * @param authenticationProvider {@link AuthenticationProvider} to be delegated
+	 */
+	public MultiFactorAuthenticationProviderConfigurer(AuthenticationProvider authenticationProvider) {
+		this.authenticationProvider = authenticationProvider;
+	}
 
 
 	public static MultiFactorAuthenticationProviderConfigurer multiFactorAuthenticationProvider(AuthenticationProvider authenticationProvider){
 		return new MultiFactorAuthenticationProviderConfigurer(authenticationProvider);
 	}
 
-    @Override
-    public void configure(B builder) {
-        MultiFactorAuthenticationProvider multiFactorAuthenticationProvider = new MultiFactorAuthenticationProvider(authenticationProvider, mfaTokenEvaluator);
-        multiFactorAuthenticationProvider = postProcess(multiFactorAuthenticationProvider);
-        builder.authenticationProvider(multiFactorAuthenticationProvider);
-    }
+	@Override
+	public void configure(B builder) {
+		MultiFactorAuthenticationProvider multiFactorAuthenticationProvider = new MultiFactorAuthenticationProvider(authenticationProvider, mfaTokenEvaluator);
+		multiFactorAuthenticationProvider = postProcess(multiFactorAuthenticationProvider);
+		builder.authenticationProvider(multiFactorAuthenticationProvider);
+	}
 
-    public MultiFactorAuthenticationProviderConfigurer<B> mfaTokenEvaluator(MFATokenEvaluator mfaTokenEvaluator) {
-        this.mfaTokenEvaluator = mfaTokenEvaluator;
-        return this;
-    }
+	public MultiFactorAuthenticationProviderConfigurer<B> mfaTokenEvaluator(MFATokenEvaluator mfaTokenEvaluator) {
+		this.mfaTokenEvaluator = mfaTokenEvaluator;
+		return this;
+	}
 }

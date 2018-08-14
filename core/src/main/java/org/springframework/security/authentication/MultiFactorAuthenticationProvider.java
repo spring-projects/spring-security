@@ -30,56 +30,56 @@ import java.util.Collections;
 public class MultiFactorAuthenticationProvider implements AuthenticationProvider {
 
 
-    // ~ Instance fields
-    // ================================================================================================
-    protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
+	// ~ Instance fields
+	// ================================================================================================
+	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
-    /**
-     * {@link AuthenticationProvider} to be delegated
-     */
-    private AuthenticationProvider authenticationProvider;
-    private MFATokenEvaluator mfaTokenEvaluator;
+	/**
+	 * {@link AuthenticationProvider} to be delegated
+	 */
+	private AuthenticationProvider authenticationProvider;
+	private MFATokenEvaluator mfaTokenEvaluator;
 
-    /**
-     * Constructor
-     * @param authenticationProvider {@link AuthenticationProvider} to be delegated
-     */
-    public MultiFactorAuthenticationProvider(AuthenticationProvider authenticationProvider, MFATokenEvaluator mfaTokenEvaluator) {
-        Assert.notNull(authenticationProvider, "authenticationProvider must be set");
+	/**
+	 * Constructor
+	 * @param authenticationProvider {@link AuthenticationProvider} to be delegated
+	 */
+	public MultiFactorAuthenticationProvider(AuthenticationProvider authenticationProvider, MFATokenEvaluator mfaTokenEvaluator) {
+		Assert.notNull(authenticationProvider, "authenticationProvider must be set");
 		Assert.notNull(mfaTokenEvaluator, "mfaTokenEvaluator must be set");
-        this.authenticationProvider = authenticationProvider;
-        this.mfaTokenEvaluator = mfaTokenEvaluator;
-    }
+		this.authenticationProvider = authenticationProvider;
+		this.mfaTokenEvaluator = mfaTokenEvaluator;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Authentication authenticate(Authentication authentication) {
-        if (!supports(authentication.getClass())) {
-            throw new IllegalArgumentException("Not supported AuthenticationToken " + authentication.getClass() + " was attempted");
-        }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Authentication authenticate(Authentication authentication) {
+		if (!supports(authentication.getClass())) {
+			throw new IllegalArgumentException("Not supported AuthenticationToken " + authentication.getClass() + " was attempted");
+		}
 
-        Authentication result = authenticationProvider.authenticate(authentication);
+		Authentication result = authenticationProvider.authenticate(authentication);
 
-        if(mfaTokenEvaluator.isSingleFactorAuthenticationAllowed(result)){
-            return result;
-        }
+		if(mfaTokenEvaluator.isSingleFactorAuthenticationAllowed(result)){
+			return result;
+		}
 
-        return new MultiFactorAuthenticationToken(
-                result.getPrincipal(),
-                result.getCredentials(),
-                Collections.emptyList() // result.getAuthorities() is not used as not to inherit authorities from result
-        );
-    }
+		return new MultiFactorAuthenticationToken(
+				result.getPrincipal(),
+				result.getCredentials(),
+				Collections.emptyList() // result.getAuthorities() is not used as not to inherit authorities from result
+		);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean supports(Class<?> authentication) {
-        return authenticationProvider.supports(authentication);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean supports(Class<?> authentication) {
+		return authenticationProvider.supports(authentication);
+	}
 
 	/**
 	 * {@link AuthenticationProvider} to be delegated
