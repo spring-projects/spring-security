@@ -124,21 +124,22 @@ public class ClientRegistrationTests {
 			.build();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void buildWhenAuthorizationCodeGrantClientSecretIsNullThenThrowIllegalArgumentException() {
-		ClientRegistration.withRegistrationId(REGISTRATION_ID)
-			.clientId(CLIENT_ID)
-			.clientSecret(null)
-			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-			.redirectUriTemplate(REDIRECT_URI)
-			.scope(SCOPES.toArray(new String[0]))
-			.authorizationUri(AUTHORIZATION_URI)
-			.tokenUri(TOKEN_URI)
-			.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
-			.jwkSetUri(JWK_SET_URI)
-			.clientName(CLIENT_NAME)
-			.build();
+	@Test
+	public void buildWhenAuthorizationCodeGrantClientSecretIsNullThenDefaultToEmpty() {
+		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
+				.clientId(CLIENT_ID)
+				.clientSecret(null)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.redirectUriTemplate(REDIRECT_URI)
+				.scope(SCOPES.toArray(new String[0]))
+				.authorizationUri(AUTHORIZATION_URI)
+				.tokenUri(TOKEN_URI)
+				.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
+				.jwkSetUri(JWK_SET_URI)
+				.clientName(CLIENT_NAME)
+				.build();
+		assertThat(clientRegistration.getClientSecret()).isEqualTo("");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -462,16 +463,15 @@ public class ClientRegistrationTests {
 	}
 
 	@Test
-	public void buildWhenClientCredentialsGrantClientSecretIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() ->
-				ClientRegistration.withRegistrationId(REGISTRATION_ID)
-						.clientId(CLIENT_ID)
-						.clientSecret(null)
-						.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-						.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-						.tokenUri(TOKEN_URI)
-						.build()
-		).isInstanceOf(IllegalArgumentException.class);
+	public void buildWhenClientCredentialsGrantClientSecretIsNullThenDefaultToEmpty() {
+		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
+				.clientId(CLIENT_ID)
+				.clientSecret(null)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+				.tokenUri(TOKEN_URI)
+				.build();
+		assertThat(clientRegistration.getClientSecret()).isEqualTo("");
 	}
 
 	@Test

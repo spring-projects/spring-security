@@ -20,6 +20,7 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -463,7 +464,7 @@ public final class ClientRegistration {
 
 			clientRegistration.registrationId = this.registrationId;
 			clientRegistration.clientId = this.clientId;
-			clientRegistration.clientSecret = this.clientSecret;
+			clientRegistration.clientSecret = StringUtils.hasText(this.clientSecret) ? this.clientSecret : "";
 			clientRegistration.clientAuthenticationMethod = this.clientAuthenticationMethod;
 			clientRegistration.authorizationGrantType = this.authorizationGrantType;
 			clientRegistration.redirectUriTemplate = this.redirectUriTemplate;
@@ -488,7 +489,6 @@ public final class ClientRegistration {
 					() -> "authorizationGrantType must be " + AuthorizationGrantType.AUTHORIZATION_CODE.getValue());
 			Assert.hasText(this.registrationId, "registrationId cannot be empty");
 			Assert.hasText(this.clientId, "clientId cannot be empty");
-			Assert.hasText(this.clientSecret, "clientSecret cannot be empty");
 			Assert.notNull(this.clientAuthenticationMethod, "clientAuthenticationMethod cannot be null");
 			Assert.hasText(this.redirectUriTemplate, "redirectUriTemplate cannot be empty");
 			Assert.hasText(this.authorizationUri, "authorizationUri cannot be empty");
@@ -515,7 +515,6 @@ public final class ClientRegistration {
 					() -> "authorizationGrantType must be " + AuthorizationGrantType.CLIENT_CREDENTIALS.getValue());
 			Assert.hasText(this.registrationId, "registrationId cannot be empty");
 			Assert.hasText(this.clientId, "clientId cannot be empty");
-			Assert.hasText(this.clientSecret, "clientSecret cannot be empty");
 			Assert.notNull(this.clientAuthenticationMethod, "clientAuthenticationMethod cannot be null");
 			Assert.hasText(this.tokenUri, "tokenUri cannot be empty");
 		}
