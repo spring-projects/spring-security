@@ -18,7 +18,6 @@ package org.springframework.security.oauth2.client.registration;
 import org.springframework.security.oauth2.core.AuthenticationMethod;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
-import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -479,7 +478,8 @@ public final class ClientRegistration {
 			providerDetails.jwkSetUri = this.jwkSetUri;
 			clientRegistration.providerDetails = providerDetails;
 
-			clientRegistration.clientName = this.clientName;
+			clientRegistration.clientName = StringUtils.hasText(this.clientName) ?
+					this.clientName : this.registrationId;
 
 			return clientRegistration;
 		}
@@ -489,15 +489,9 @@ public final class ClientRegistration {
 					() -> "authorizationGrantType must be " + AuthorizationGrantType.AUTHORIZATION_CODE.getValue());
 			Assert.hasText(this.registrationId, "registrationId cannot be empty");
 			Assert.hasText(this.clientId, "clientId cannot be empty");
-			Assert.notNull(this.clientAuthenticationMethod, "clientAuthenticationMethod cannot be null");
 			Assert.hasText(this.redirectUriTemplate, "redirectUriTemplate cannot be empty");
 			Assert.hasText(this.authorizationUri, "authorizationUri cannot be empty");
 			Assert.hasText(this.tokenUri, "tokenUri cannot be empty");
-			if (this.scopes != null && this.scopes.contains(OidcScopes.OPENID)) {
-				// OIDC Clients need to verify/validate the ID Token
-				Assert.hasText(this.jwkSetUri, "jwkSetUri cannot be empty");
-			}
-			Assert.hasText(this.clientName, "clientName cannot be empty");
 		}
 
 		private void validateImplicitGrantType() {
@@ -507,7 +501,6 @@ public final class ClientRegistration {
 			Assert.hasText(this.clientId, "clientId cannot be empty");
 			Assert.hasText(this.redirectUriTemplate, "redirectUriTemplate cannot be empty");
 			Assert.hasText(this.authorizationUri, "authorizationUri cannot be empty");
-			Assert.hasText(this.clientName, "clientName cannot be empty");
 		}
 
 		private void validateClientCredentialsGrantType() {
@@ -515,7 +508,6 @@ public final class ClientRegistration {
 					() -> "authorizationGrantType must be " + AuthorizationGrantType.CLIENT_CREDENTIALS.getValue());
 			Assert.hasText(this.registrationId, "registrationId cannot be empty");
 			Assert.hasText(this.clientId, "clientId cannot be empty");
-			Assert.notNull(this.clientAuthenticationMethod, "clientAuthenticationMethod cannot be null");
 			Assert.hasText(this.tokenUri, "tokenUri cannot be empty");
 		}
 	}
