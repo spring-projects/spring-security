@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-package org.springframework.security.config.oauth2.client.oidc;
+package org.springframework.security.oauth2.client.registration;
+
+import java.util.Arrays;
+import java.util.Map;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,22 +26,20 @@ import okhttp3.mockwebserver.MockWebServer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 
-import java.util.Arrays;
-import java.util.Map;
-
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author Rob Winch
  * @since 5.1
  */
-public class OidcConfigurationProviderTests {
+public class ClientRegistrationsTest {
 
 	/**
 	 * Contains all optional parameters that are found in ClientRegistration
@@ -162,7 +163,6 @@ public class OidcConfigurationProviderTests {
 	 * We currently only support authorization_code, so verify we have a meaningful error until we add support.
 	 * @throws Exception
 	 */
-	@Test
 	public void issuerWhenGrantTypesSupportedInvalidThenException() throws Exception {
 		this.response.put("grant_types_supported", Arrays.asList("implicit"));
 
@@ -204,7 +204,7 @@ public class OidcConfigurationProviderTests {
 
 	@Test
 	public void issuerWhenEmptyStringThenMeaningfulErrorMessage() {
-		assertThatThrownBy(() -> OidcConfigurationProvider.issuer(""))
+		assertThatThrownBy(() -> ClientRegistrations.fromOidcIssuerLocation(""))
 				.hasMessageContaining("Unable to resolve the OpenID Configuration with the provided Issuer of \"\"");
 	}
 
@@ -216,7 +216,7 @@ public class OidcConfigurationProviderTests {
 				.setBody(body)
 				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 		this.server.enqueue(mockResponse);
-		assertThatThrownBy(() -> OidcConfigurationProvider.issuer(this.issuer))
+		assertThatThrownBy(() -> ClientRegistrations.fromOidcIssuerLocation(this.issuer))
 				.hasMessageContaining("The Issuer \"https://example.com\" provided in the OpenID Configuration did not match the requested issuer \"" + this.issuer + "\"");
 	}
 
@@ -229,7 +229,7 @@ public class OidcConfigurationProviderTests {
 				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 		this.server.enqueue(mockResponse);
 
-		return OidcConfigurationProvider.issuer(this.issuer)
+		return ClientRegistrations.fromOidcIssuerLocation(this.issuer)
 			.clientId("client-id")
 			.clientSecret("client-secret")
 			.build();
