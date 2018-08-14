@@ -14,32 +14,32 @@
  * limitations under the License.
  */
 
-package org.springframework.security.config.oauth2.client.oidc;
+package org.springframework.security.oauth2.client.registration;
 
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
-
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
-import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
-import org.springframework.security.oauth2.core.oidc.OidcScopes;
-import org.springframework.web.client.RestTemplate;
 
 import com.nimbusds.oauth2.sdk.GrantType;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
+import org.springframework.security.oauth2.core.oidc.OidcScopes;
+import org.springframework.web.client.RestTemplate;
+
 /**
  * Allows creating a {@link ClientRegistration.Builder} from an
  * <a href="https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig">OpenID Provider Configuration</a>.
  *
  * @author Rob Winch
+ * @author Josh Cummings
  * @since 5.1
  */
-public final class OidcConfigurationProvider {
+public class ClientRegistrations {
 
 	/**
 	 * Creates a {@link ClientRegistration.Builder}  using the provided
@@ -59,7 +59,7 @@ public final class OidcConfigurationProvider {
 	 * Example usage:
 	 * </p>
 	 * <pre>
-	 * ClientRegistration registration = OidcConfigurationProvider.issuer("https://example.com")
+	 * ClientRegistration registration = ClientRegistrations.fromOidcIssuerLocation("https://example.com")
 	 *     .clientId("client-id")
 	 *     .clientSecret("client-secret")
 	 *     .build();
@@ -67,7 +67,7 @@ public final class OidcConfigurationProvider {
 	 * @param issuer the <a href="http://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
 	 * @return a {@link ClientRegistration.Builder} that was initialized by the OpenID Provider Configuration.
 	 */
-	public static ClientRegistration.Builder issuer(String issuer) {
+	public static ClientRegistration.Builder fromOidcIssuerLocation(String issuer) {
 		String openidConfiguration = getOpenidConfiguration(issuer);
 		OIDCProviderMetadata metadata = parse(openidConfiguration);
 		String metadataIssuer = metadata.getIssuer().getValue();
@@ -135,5 +135,6 @@ public final class OidcConfigurationProvider {
 		}
 	}
 
-	private OidcConfigurationProvider() {}
+	private ClientRegistrations() {}
+
 }
