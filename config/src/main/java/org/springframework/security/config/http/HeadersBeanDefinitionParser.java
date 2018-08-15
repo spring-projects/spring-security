@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.http;
 
 import java.net.URI;
@@ -47,6 +48,7 @@ import org.w3c.dom.Node;
  * @author Marten Deinum
  * @author Tim Ysewyn
  * @author Eddú Meléndez
+ * @author Vedran Pavic
  * @since 3.2
  */
 public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
@@ -85,6 +87,7 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 
 	private static final String CONTENT_SECURITY_POLICY_ELEMENT = "content-security-policy";
 	private static final String REFERRER_POLICY_ELEMENT = "referrer-policy";
+	private static final String FEATURE_POLICY_ELEMENT = "feature-policy";
 
 	private static final String ALLOW_FROM = "ALLOW-FROM";
 
@@ -113,6 +116,8 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 		parseContentSecurityPolicyElement(disabled, element, parserContext);
 
 		parseReferrerPolicyElement(element, parserContext);
+
+		parseFeaturePolicyElement(element, parserContext);
 
 		parseHeaderElements(element);
 
@@ -310,6 +315,32 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 		if (StringUtils.hasLength(policy)) {
 			headersWriter.addConstructorArgValue(ReferrerPolicy.get(policy));
 		}
+		headerWriters.add(headersWriter.getBeanDefinition());
+	}
+
+	private void parseFeaturePolicyElement(Element element, ParserContext context) {
+		Element featurePolicyElement = (element == null) ? null
+				: DomUtils.getChildElementByTagName(element, FEATURE_POLICY_ELEMENT);
+		if (featurePolicyElement != null) {
+			addFeaturePolicy(featurePolicyElement, context);
+		}
+	}
+
+	private void addFeaturePolicy(Element featurePolicyElement, ParserContext context) {
+		BeanDefinitionBuilder headersWriter = BeanDefinitionBuilder
+				.genericBeanDefinition(FeaturePolicyHeaderWriter.class);
+
+		String policyDirectives = featurePolicyElement
+				.getAttribute(ATT_POLICY_DIRECTIVES);
+		if (!StringUtils.hasText(policyDirectives)) {
+			context.getReaderContext().error(
+					ATT_POLICY_DIRECTIVES + " requires a 'value' to be set.",
+					featurePolicyElement);
+		}
+		else {
+			headersWriter.addConstructorArgValue(policyDirectives);
+		}
+
 		headerWriters.add(headersWriter.getBeanDefinition());
 	}
 

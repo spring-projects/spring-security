@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.web.configurers;
 
 import java.net.URI;
@@ -58,6 +59,7 @@ import org.springframework.util.Assert;
  * @author Tim Ysewyn
  * @author Joe Grandja
  * @author Eddú Meléndez
+ * @author Vedran Pavic
  * @since 3.2
  */
 public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
@@ -81,6 +83,8 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 	private final ContentSecurityPolicyConfig contentSecurityPolicy = new ContentSecurityPolicyConfig();
 
 	private final ReferrerPolicyConfig referrerPolicy = new ReferrerPolicyConfig();
+
+	private final FeaturePolicyConfig featurePolicy = new FeaturePolicyConfig();
 
 	/**
 	 * Creates a new instance
@@ -775,6 +779,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 		addIfNotNull(writers, hpkp.writer);
 		addIfNotNull(writers, contentSecurityPolicy.writer);
 		addIfNotNull(writers, referrerPolicy.writer);
+		addIfNotNull(writers, featurePolicy.writer);
 		writers.addAll(headerWriters);
 		return writers;
 	}
@@ -848,4 +853,44 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 		}
 
 	}
+
+	/**
+	 * Allows configuration for <a href="https://wicg.github.io/feature-policy/">Feature
+	 * Policy</a>.
+	 * <p>
+	 * Calling this method automatically enables (includes) the {@code Feature-Policy}
+	 * header in the response using the supplied policy directive(s).
+	 * <p>
+	 * Configuration is provided to the {@link FeaturePolicyHeaderWriter} which is
+	 * responsible for writing the header.
+	 *
+	 * @see FeaturePolicyHeaderWriter
+	 * @since 5.1
+	 * @return the {@link FeaturePolicyHeaderWriter} for additional configuration
+	 * @throws IllegalArgumentException if policyDirectives is {@code null} or empty
+	 */
+	public FeaturePolicyConfig featurePolicy(String policyDirectives) {
+		this.featurePolicy.writer = new FeaturePolicyHeaderWriter(policyDirectives);
+		return featurePolicy;
+	}
+
+	public final class FeaturePolicyConfig {
+
+		private FeaturePolicyHeaderWriter writer;
+
+		private FeaturePolicyConfig() {
+		}
+
+		/**
+		 * Allows completing configuration of Feature Policy and continuing configuration
+		 * of headers.
+		 *
+		 * @return the {@link HeadersConfigurer} for additional configuration
+		 */
+		public HeadersConfigurer<H> and() {
+			return HeadersConfigurer.this;
+		}
+
+	}
+
 }
