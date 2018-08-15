@@ -15,10 +15,11 @@
  */
 package org.springframework.security;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-
-import java.util.*;
 
 /**
  * @author Luke Taylor
@@ -41,5 +42,13 @@ public class BeanNameCollectingPostProcessor implements BeanPostProcessor {
 			afterInitPostProcessedBeans.add(beanName);
 		}
 		return bean;
+	}
+
+	public Set<String> getBeforeInitPostProcessedBeans() {
+		return beforeInitPostProcessedBeans;
+	}
+
+	public Set<String> getAfterInitPostProcessedBeans() {
+		return afterInitPostProcessedBeans;
 	}
 }
