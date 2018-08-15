@@ -241,6 +241,7 @@ This allows HTTPS websites to resist impersonation by attackers using mis-issued
 ** `Content-Security-Policy` or `Content-Security-Policy-Report-Only` - Can be set using the <<nsa-content-security-policy,content-security-policy>> element.
 https://www.w3.org/TR/CSP2/[Content Security Policy (CSP)] is a mechanism that web applications can leverage to mitigate content injection vulnerabilities, such as cross-site scripting (XSS).
 ** `Referrer-Policy` - Can be set using the <<nsa-referrer-policy,referrer-policy>> element, https://www.w3.org/TR/referrer-policy/[Referrer-Policy] is a mechanism that web applications can leverage to manage the referrer field, which contains the last page the user was on.
+** `Feature-Policy` - Can be set using the <<nsa-feature-policy,feature-policy>> element, https://wicg.github.io/feature-policy/[Feature-Policy] is a mechanism that allows web developers to selectively enable, disable, and modify the behavior of certain APIs and web features in the browser.
 
 [[nsa-headers-attributes]]
 ===== <headers> Attributes
@@ -272,6 +273,7 @@ The default is false (the headers are enabled).
 * <<nsa-cache-control,cache-control>>
 * <<nsa-content-security-policy,content-security-policy>>
 * <<nsa-content-type-options,content-type-options>>
+* <<nsa-feature-policy,feature-policy>>
 * <<nsa-frame-options,frame-options>>
 * <<nsa-header,header>>
 * <<nsa-hpkp,hpkp>>
@@ -454,6 +456,24 @@ Default "no-referrer".
 
 [[nsa-referrer-policy-parents]]
 ===== Parent Elements of <referrer-policy>
+
+* <<nsa-headers,headers>>
+
+
+
+[[nsa-feature-policy]]
+==== <feature-policy>
+When enabled adds the https://wicg.github.io/feature-policy/[Feature Policy] header to the response.
+
+[[nsa-feature-policy-attributes]]
+===== <feature-policy> Attributes
+
+[[nsa-feature-policy-policy-directives]]
+* **policy-directives**
+The security policy directive(s) for the Feature-Policy header.
+
+[[nsa-feature-policy-parents]]
+===== Parent Elements of <feature-policy>
 
 * <<nsa-headers,headers>>
 
