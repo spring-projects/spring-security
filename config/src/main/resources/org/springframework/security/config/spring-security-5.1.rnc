@@ -743,7 +743,7 @@ csrf-options.attlist &=
 
 headers =
 ## Element for configuration of the HeaderWritersFilter. Enables easy setting for the X-Frame-Options, X-XSS-Protection and X-Content-Type-Options headers.
-element headers { headers-options.attlist, (cache-control? & xss-protection? & hsts? & frame-options? & content-type-options? & hpkp? & content-security-policy? & referrer-policy? & header*)}
+element headers { headers-options.attlist, (cache-control? & xss-protection? & hsts? & frame-options? & content-type-options? & hpkp? & content-security-policy? & referrer-policy? & feature-policy? & header*)}
 headers-options.attlist &=
 	## Specifies if the default headers should be disabled. Default false.
 	attribute defaults-disabled {xsd:boolean}?
@@ -820,6 +820,13 @@ referrer-policy =
 referrer-options.attlist &=
 	## The policies for the Referrer-Policy header.
 	attribute policy {"no-referrer","no-referrer-when-downgrade","same-origin","origin","strict-origin","origin-when-cross-origin","strict-origin-when-cross-origin","unsafe-url"}?
+
+feature-policy =
+	## Adds support for Feature Policy
+	element feature-policy {feature-options.attlist}
+feature-options.attlist &=
+	## The security policy directive(s) for the Feature-Policy header.
+	attribute policy-directives {xsd:token}?
 
 cache-control =
 	## Adds Cache-Control no-cache, no-store, must-revalidate, Pragma no-cache, and Expires 0 for every request

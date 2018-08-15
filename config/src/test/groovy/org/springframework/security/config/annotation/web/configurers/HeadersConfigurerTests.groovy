@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.web.configurers
 
 import org.springframework.beans.factory.BeanCreationException
@@ -20,14 +21,17 @@ import org.springframework.security.config.annotation.BaseSpringSpec
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
+
 import static org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy
 
 /**
+ * Tests for {@link HeadersConfigurer}.
  *
  * @author Rob Winch
  * @author Tim Ysewyn
  * @author Joe Grandja
  * @author Eddú Meléndez
+ * @author Vedran Pavic
  */
 class HeadersConfigurerTests extends BaseSpringSpec {
 
@@ -494,6 +498,47 @@ class HeadersConfigurerTests extends BaseSpringSpec {
 					.headers()
 					.defaultsDisabled()
 					.referrerPolicy(ReferrerPolicy.SAME_ORIGIN);
+		}
+	}
+
+	def "headers.featurePolicy default header"() {
+		setup:
+		loadConfig(FeaturePolicyDefaultConfig)
+		request.secure = true
+		when:
+		springSecurityFilterChain.doFilter(request, response, chain)
+		then:
+		responseHeaders == ['Feature-Policy': 'geolocation \'self\'']
+	}
+
+	@EnableWebSecurity
+	static class FeaturePolicyDefaultConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+					.headers()
+					.defaultsDisabled()
+					.featurePolicy("geolocation 'self'");
+		}
+	}
+
+	def "headers.featurePolicy empty policyDirectives"() {
+		when:
+		loadConfig(FeaturePolicyInvalidConfig)
+		then:
+		thrown(BeanCreationException)
+	}
+
+	@EnableWebSecurity
+	static class FeaturePolicyInvalidConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+					.headers()
+					.defaultsDisabled()
+					.featurePolicy("");
 		}
 	}
 
