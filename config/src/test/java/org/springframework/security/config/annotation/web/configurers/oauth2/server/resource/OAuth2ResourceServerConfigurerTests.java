@@ -20,7 +20,10 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -60,12 +63,16 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoderJwkSupport;
+import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
@@ -92,6 +99,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.core.StringStartsWith.startsWith;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -839,6 +847,57 @@ public class OAuth2ResourceServerConfigurerTests {
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
+	// -- token validator
+
+	@Test
+	public void requestWhenCustomJwtValidatorFailsThenCorrespondingErrorMessage()
+		throws Exception {
+
+		this.spring.register(WebServerConfig.class, CustomJwtValidatorConfig.class).autowire();
+		this.authz.enqueue(this.jwks("Default"));
+		String token = this.token("ValidNoScopes");
+
+		OAuth2TokenValidator<Jwt> jwtValidator =
+				this.spring.getContext().getBean(CustomJwtValidatorConfig.class)
+						.getJwtValidator();
+
+		OAuth2Error error = new OAuth2Error("custom-error", "custom-description", "custom-uri");
+
+		when(jwtValidator.validate(any(Jwt.class))).thenReturn(OAuth2TokenValidatorResult.failure(error));
+
+		this.mvc.perform(get("/")
+				.with(bearerToken(token)))
+				.andExpect(status().isUnauthorized())
+				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, containsString("custom-description")));
+	}
+
+	@Test
+	public void requestWhenClockSkewSetThenTimestampWindowRelaxedAccordingly()
+		throws Exception {
+
+		this.spring.register(WebServerConfig.class, UnexpiredJwtClockSkewConfig.class, BasicController.class).autowire();
+		this.authz.enqueue(this.jwks("Default"));
+		String token = this.token("ExpiresAt4687177990");
+
+		this.mvc.perform(get("/")
+				.with(bearerToken(token)))
+				.andExpect(status().isOk());
+	}
+
+	@Test
+	public void requestWhenClockSkewSetButJwtStillTooLateThenReportsExpired()
+			throws Exception {
+
+		this.spring.register(WebServerConfig.class, ExpiredJwtClockSkewConfig.class, BasicController.class).autowire();
+		this.authz.enqueue(this.jwks("Default"));
+		String token = this.token("ExpiresAt4687177990");
+
+		this.mvc.perform(get("/")
+				.with(bearerToken(token)))
+				.andExpect(status().isUnauthorized())
+				.andExpect(invalidTokenHeader("Jwt expired at"));
+	}
+
 	// -- In combination with other authentication providers
 
 	@Test
@@ -1263,6 +1322,80 @@ public class OAuth2ResourceServerConfigurerTests {
 		@Bean
 		public JwtDecoder decoder() {
 			return mock(JwtDecoder.class);
+		}
+	}
+
+	@EnableWebSecurity
+	static class CustomJwtValidatorConfig extends WebSecurityConfigurerAdapter {
+		@Value("${mock.jwk-set-uri}") String uri;
+
+		private final OAuth2TokenValidator<Jwt> jwtValidator = mock(OAuth2TokenValidator.class);
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			NimbusJwtDecoderJwkSupport jwtDecoder =
+					new NimbusJwtDecoderJwkSupport(this.uri);
+			jwtDecoder.setJwtValidator(this.jwtValidator);
+
+			// @formatter:off
+			http
+				.oauth2()
+					.resourceServer()
+						.jwt()
+							.decoder(jwtDecoder);
+			// @formatter:on
+		}
+
+		public OAuth2TokenValidator<Jwt> getJwtValidator() {
+			return this.jwtValidator;
+		}
+	}
+
+	@EnableWebSecurity
+	static class UnexpiredJwtClockSkewConfig extends WebSecurityConfigurerAdapter {
+		@Value("${mock.jwk-set-uri}") String uri;
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			Clock nearlyAnHourFromTokenExpiry =
+					Clock.fixed(Instant.ofEpochMilli(4687181540000L), ZoneId.systemDefault());
+			JwtTimestampValidator jwtValidator = new JwtTimestampValidator(Duration.ofHours(1));
+			jwtValidator.setClock(nearlyAnHourFromTokenExpiry);
+
+			NimbusJwtDecoderJwkSupport jwtDecoder = new NimbusJwtDecoderJwkSupport(this.uri);
+			jwtDecoder.setJwtValidator(jwtValidator);
+
+			// @formatter:off
+			http
+				.oauth2()
+					.resourceServer()
+						.jwt()
+							.decoder(jwtDecoder);
+			// @formatter:on
+		}
+	}
+
+	@EnableWebSecurity
+	static class ExpiredJwtClockSkewConfig extends WebSecurityConfigurerAdapter {
+		@Value("${mock.jwk-set-uri}") String uri;
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			Clock justOverOneHourAfterExpiry =
+					Clock.fixed(Instant.ofEpochMilli(4687181595000L), ZoneId.systemDefault());
+			JwtTimestampValidator jwtValidator = new JwtTimestampValidator(Duration.ofHours(1));
+			jwtValidator.setClock(justOverOneHourAfterExpiry);
+
+			NimbusJwtDecoderJwkSupport jwtDecoder = new NimbusJwtDecoderJwkSupport(this.uri);
+			jwtDecoder.setJwtValidator(jwtValidator);
+
+			// @formatter:off
+			http
+				.oauth2()
+					.resourceServer()
+						.jwt()
+							.decoder(jwtDecoder);
+			// @formatter:on
 		}
 	}
 

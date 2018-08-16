@@ -61,6 +61,9 @@ public final class JwtAuthenticationProvider implements AuthenticationProvider {
 
 	private final JwtConverter jwtConverter = new JwtConverter();
 
+	private static final OAuth2Error DEFAULT_INVALID_TOKEN =
+			invalidToken("An error occurred while attempting to decode the Jwt: Invalid token");
+
 	public JwtAuthenticationProvider(JwtDecoder jwtDecoder) {
 		Assert.notNull(jwtDecoder, "jwtDecoder cannot be null");
 
@@ -84,15 +87,10 @@ public final class JwtAuthenticationProvider implements AuthenticationProvider {
 		try {
 			jwt = this.jwtDecoder.decode(bearer.getToken());
 		} catch (JwtException failed) {
-			OAuth2Error invalidToken;
-			try {
-				invalidToken = invalidToken(failed.getMessage());
-			} catch ( IllegalArgumentException malformed ) {
-				// some third-party library error messages are not suitable for RFC 6750's error message charset
-				invalidToken = invalidToken("An error occurred while attempting to decode the Jwt: Invalid token");
-			}
-			throw new OAuth2AuthenticationException(invalidToken, failed);
+			OAuth2Error invalidToken = invalidToken(failed.getMessage());
+			throw new OAuth2AuthenticationException(invalidToken, invalidToken.getDescription(), failed);
 		}
+
 		JwtAuthenticationToken token = this.jwtConverter.convert(jwt);
 		token.setDetails(bearer.getDetails());
 
@@ -108,10 +106,15 @@ public final class JwtAuthenticationProvider implements AuthenticationProvider {
 	}
 
 	private static OAuth2Error invalidToken(String message) {
-		return new BearerTokenError(
-				BearerTokenErrorCodes.INVALID_TOKEN,
-				HttpStatus.UNAUTHORIZED,
-				message,
-				"https://tools.ietf.org/html/rfc6750#section-3.1");
+		try {
+			return new BearerTokenError(
+					BearerTokenErrorCodes.INVALID_TOKEN,
+					HttpStatus.UNAUTHORIZED,
+					message,
+					"https://tools.ietf.org/html/rfc6750#section-3.1");
+		} catch (IllegalArgumentException malformed) {
+			// some third-party library error messages are not suitable for RFC 6750's error message charset
+			return DEFAULT_INVALID_TOKEN;
+		}
 	}
 }
