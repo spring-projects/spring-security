@@ -393,6 +393,31 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 
 	}
 
+	@Test(expected = IllegalArgumentException.class)
+	public void setContextEnvironmentPropertiesNull() {
+		provider.setContextEnvironmentProperties(null);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void setContextEnvironmentPropertiesEmpty() {
+		provider.setContextEnvironmentProperties(new Hashtable<String, Object>());
+	}
+
+	@Test
+	public void contextEnvironmentPropertiesUsed() throws Exception {
+		Hashtable<String, Object> env = new Hashtable<>();
+
+		env.put("java.naming.ldap.factory.socket", "unknown.package.NonExistingSocketFactory");
+		provider.setContextEnvironmentProperties(env);
+
+		try {
+			provider.authenticate(joe);
+		}
+		catch (org.springframework.ldap.CommunicationException expected) {
+			assertThat(expected.getCause()).isNotInstanceOf(ClassNotFoundException.class);
+		}
+	}
+
 	ContextFactory createContextFactoryThrowing(final NamingException e) {
 		return new ContextFactory() {
 			@Override
