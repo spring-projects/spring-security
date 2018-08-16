@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.servlet.ServletException;
@@ -30,6 +31,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.core.ClaimAccessor;
 import org.springframework.security.oauth2.server.resource.BearerTokenErrorCodes;
 import org.springframework.security.oauth2.server.resource.authentication.AbstractOAuth2TokenAuthenticationToken;
 import org.springframework.security.web.access.AccessDeniedHandler;
@@ -106,18 +108,17 @@ public final class BearerTokenAccessDeniedHandler implements AccessDeniedHandler
 	}
 
 	private static String getScope(AbstractOAuth2TokenAuthenticationToken token) {
-
-		Map<String, Object> attributes = token.getTokenAttributes();
+		ClaimAccessor claimAccessor = () -> token.getTokenAttributes();
 
 		for (String attributeName : WELL_KNOWN_SCOPE_ATTRIBUTE_NAMES) {
-			Object scopes = attributes.get(attributeName);
-			if (scopes instanceof String) {
-				return (String) scopes;
-			} else if (scopes instanceof Collection) {
-				Collection coll = (Collection) scopes;
-				return (String) coll.stream()
-						.map(String::valueOf)
-						.collect(Collectors.joining(" "));
+			List<String> asList = claimAccessor.getClaimAsStringList(attributeName);
+			if (asList != null) {
+				return asList.stream().collect(Collectors.joining(" "));
+			}
+
+			String asString = claimAccessor.getClaimAsString(attributeName);
+			if (asString != null) {
+				return asString;
 			}
 		}
 

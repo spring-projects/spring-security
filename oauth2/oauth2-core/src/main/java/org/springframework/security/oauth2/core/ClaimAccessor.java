@@ -15,16 +15,21 @@
  */
 package org.springframework.security.oauth2.core;
 
-import org.springframework.util.Assert;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * An &quot;accessor&quot; for a set of claims that may be used for assertions.
@@ -149,5 +154,36 @@ public interface ClaimAccessor {
 		List<String> claimValues = new ArrayList<>();
 		((List<?>) this.getClaims().get(claim)).forEach(e -> claimValues.add(e.toString()));
 		return claimValues;
+	}
+
+
+	/**
+	 * Coerce a claim into a collection of strings, splitting the string claim by a
+	 * {@code delimiter}, if the claim is not already a {@link Collection}.
+	 *
+	 * @param claim
+	 * @param delimiter
+	 * @return the claim in the form of a collection
+	 *
+	 * @since 5.1
+	 */
+	default Collection<String> getClaimAsStringCollection(String claim, String delimiter) {
+		Assert.notNull(delimiter, "delimiter cannot be null");
+
+		Collection<String> asList = this.getClaimAsStringList(claim);
+		if (asList != null) {
+			return asList;
+		}
+
+		String asString = this.getClaimAsString(claim);
+		if (asString == null) {
+			return null;
+		}
+
+		if (StringUtils.hasText(asString)) {
+			return Stream.of(asString.split(delimiter)).collect(Collectors.toList());
+		} else {
+			return Collections.emptyList();
+		}
 	}
 }
