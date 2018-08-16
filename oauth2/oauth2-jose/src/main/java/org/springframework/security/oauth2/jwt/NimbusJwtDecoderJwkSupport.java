@@ -78,7 +78,7 @@ public final class NimbusJwtDecoderJwkSupport implements JwtDecoder {
 	private final ConfigurableJWTProcessor<SecurityContext> jwtProcessor;
 	private final RestOperationsResourceRetriever jwkSetRetriever = new RestOperationsResourceRetriever();
 
-	private OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDelegatingJwtValidator();
+	private OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDefault();
 
 	/**
 	 * Constructs a {@code NimbusJwtDecoderJwkSupport} using the provided parameters.
