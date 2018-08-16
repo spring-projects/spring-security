@@ -107,6 +107,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends
 	private final String url;
 	private boolean convertSubErrorCodesToExceptions;
 	private String searchFilter = "(&(objectClass=user)(userPrincipalName={0}))";
+	private Hashtable<String, Object> contextEnvironmentProperties = null;
 
 	// Only used to allow tests to substitute a mock LdapContext
 	ContextFactory contextFactory = new ContextFactory();
@@ -190,7 +191,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends
 		// TODO. add DNS lookup based on domain
 		final String bindUrl = url;
 
-		Hashtable<String, String> env = new Hashtable<>();
+		Hashtable<String, Object> env = new Hashtable<>();
 		env.put(Context.SECURITY_AUTHENTICATION, "simple");
 		String bindPrincipal = createBindPrincipal(username);
 		env.put(Context.SECURITY_PRINCIPAL, bindPrincipal);
@@ -198,6 +199,10 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends
 		env.put(Context.SECURITY_CREDENTIALS, password);
 		env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
 		env.put(Context.OBJECT_FACTORIES, DefaultDirObjectFactory.class.getName());
+
+		if(contextEnvironmentProperties != null) {
+			env.putAll(contextEnvironmentProperties);
+		}
 
 		try {
 			return contextFactory.createContext(env);
@@ -396,6 +401,16 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends
 	public void setSearchFilter(String searchFilter) {
 		Assert.hasText(searchFilter, "searchFilter must have text");
 		this.searchFilter = searchFilter;
+	}
+
+	/**
+	 * Allows a custom environment properties to be used to create initial LDAP context.
+	 *
+	 * @param contextFactory
+	 */
+	public void setContextEnvironmentProperties(Hashtable<String, Object> environment) {
+		Assert.notEmpty(environment, "environment must not be empty");
+		this.contextEnvironmentProperties = new Hashtable<>(environment);
 	}
 
 	static class ContextFactory {
