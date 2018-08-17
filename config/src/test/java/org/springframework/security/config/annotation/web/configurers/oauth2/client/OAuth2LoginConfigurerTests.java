@@ -44,7 +44,6 @@ import org.springframework.security.oauth2.client.registration.InMemoryClientReg
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
-import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
@@ -78,6 +77,9 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for {@link OAuth2LoginConfigurer}.
@@ -236,6 +238,15 @@ public class OAuth2LoginConfigurerTests {
 	@Test
 	public void oauth2LoginWithCustomAuthorizationRequestParameters() throws Exception {
 		loadConfig(OAuth2LoginConfigCustomAuthorizationRequestResolver.class);
+		OAuth2AuthorizationRequestResolver resolver = this.context.getBean(
+				OAuth2LoginConfigCustomAuthorizationRequestResolver.class).resolver;
+		OAuth2AuthorizationRequest result = OAuth2AuthorizationRequest.authorizationCode()
+				.authorizationUri("https://accounts.google.com/authorize")
+				.clientId("client-id")
+				.state("adsfa")
+				.authorizationRequestUri("https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=clientId&scope=openid+profile+email&state=state&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fgoogle&custom-param1=custom-value1")
+				.build();
+		when(resolver.resolve(any())).thenReturn(result);
 
 		String requestUri = "/oauth2/authorization/google";
 		this.request = new MockHttpServletRequest("GET", requestUri);
@@ -243,7 +254,7 @@ public class OAuth2LoginConfigurerTests {
 
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
 
-		assertThat(this.response.getRedirectedUrl()).matches("https://accounts.google.com/o/oauth2/v2/auth\\?response_type=code&client_id=clientId&scope=openid\\+profile\\+email&state=.{15,}&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fgoogle&custom-param1=custom-value1");
+		assertThat(this.response.getRedirectedUrl()).isEqualTo("https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=clientId&scope=openid+profile+email&state=state&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fgoogle&custom-param1=custom-value1");
 	}
 
 	// gh-5347
@@ -492,27 +503,16 @@ public class OAuth2LoginConfigurerTests {
 		private ClientRegistrationRepository clientRegistrationRepository =
 				new InMemoryClientRegistrationRepository(GOOGLE_CLIENT_REGISTRATION);
 
+		OAuth2AuthorizationRequestResolver resolver = mock(OAuth2AuthorizationRequestResolver.class);
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			http
 				.oauth2Login()
 					.clientRegistrationRepository(this.clientRegistrationRepository)
 					.authorizationEndpoint()
-						.authorizationRequestResolver(this.getAuthorizationRequestResolver());
+						.authorizationRequestResolver(this.resolver);
 			super.configure(http);
-		}
-
-		private OAuth2AuthorizationRequestResolver getAuthorizationRequestResolver() {
-			OAuth2AuthorizationRequestResolver defaultAuthorizationRequestResolver =
-					new DefaultOAuth2AuthorizationRequestResolver(this.clientRegistrationRepository, "/oauth2/authorization");
-			return request -> {
-				OAuth2AuthorizationRequest defaultAuthorizationRequest = defaultAuthorizationRequestResolver.resolve(request);
-				Map<String, Object> additionalParameters = new HashMap<>(defaultAuthorizationRequest.getAdditionalParameters());
-				additionalParameters.put("custom-param1", "custom-value1");
-				return OAuth2AuthorizationRequest.from(defaultAuthorizationRequest)
-						.additionalParameters(additionalParameters)
-						.build();
-			};
 		}
 	}
 

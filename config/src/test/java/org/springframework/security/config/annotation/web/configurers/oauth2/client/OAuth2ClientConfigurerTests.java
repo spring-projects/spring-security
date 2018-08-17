@@ -192,21 +192,16 @@ public class OAuth2ClientConfigurerTests {
 	public void configureWhenCustomAuthorizationRequestResolverSetThenAuthorizationRequestIncludesCustomParameters() throws Exception {
 		// Override default resolver
 		OAuth2AuthorizationRequestResolver defaultAuthorizationRequestResolver = authorizationRequestResolver;
-		authorizationRequestResolver = request -> {
-			OAuth2AuthorizationRequest defaultAuthorizationRequest = defaultAuthorizationRequestResolver.resolve(request);
-			Map<String, Object> additionalParameters = new HashMap<>(defaultAuthorizationRequest.getAdditionalParameters());
-			additionalParameters.put("param1", "value1");
-			return OAuth2AuthorizationRequest.from(defaultAuthorizationRequest)
-					.additionalParameters(additionalParameters)
-					.build();
-		};
+		authorizationRequestResolver = mock(OAuth2AuthorizationRequestResolver.class);
+		when(authorizationRequestResolver.resolve(any())).thenAnswer(invocation -> defaultAuthorizationRequestResolver.resolve(invocation.getArgument(0)));
 
 		this.spring.register(OAuth2ClientConfig.class).autowire();
 
-		MvcResult mvcResult = this.mockMvc.perform(get("/oauth2/authorization/registration-1"))
+		this.mockMvc.perform(get("/oauth2/authorization/registration-1"))
 				.andExpect(status().is3xxRedirection())
 				.andReturn();
-		assertThat(mvcResult.getResponse().getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=http%3A%2F%2Flocalhost%2Fclient-1&param1=value1");
+
+		verify(authorizationRequestResolver).resolve(any());
 	}
 
 	@EnableWebSecurity

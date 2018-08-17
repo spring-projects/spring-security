@@ -79,8 +79,6 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 	 * The default base {@code URI} used for authorization requests.
 	 */
 	public static final String DEFAULT_AUTHORIZATION_REQUEST_BASE_URI = "/oauth2/authorization";
-	static final String AUTHORIZATION_REQUIRED_EXCEPTION_ATTR_NAME =
-			ClientAuthorizationRequiredException.class.getName() + ".AUTHORIZATION_REQUIRED_EXCEPTION";
 	private final ThrowableAnalyzer throwableAnalyzer = new DefaultThrowableAnalyzer();
 	private final RedirectStrategy authorizationRedirectStrategy = new DefaultRedirectStrategy();
 	private OAuth2AuthorizationRequestResolver authorizationRequestResolver;
@@ -169,8 +167,7 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 				.getFirstThrowableOfType(ClientAuthorizationRequiredException.class, causeChain);
 			if (authzEx != null) {
 				try {
-					request.setAttribute(AUTHORIZATION_REQUIRED_EXCEPTION_ATTR_NAME, authzEx);
-					OAuth2AuthorizationRequest authorizationRequest = this.authorizationRequestResolver.resolve(request);
+					OAuth2AuthorizationRequest authorizationRequest = this.authorizationRequestResolver.resolve(request, authzEx.getClientRegistrationId());
 					if (authorizationRequest == null) {
 						throw authzEx;
 					}
@@ -178,8 +175,6 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 					this.requestCache.saveRequest(request, response);
 				} catch (Exception failed) {
 					this.unsuccessfulRedirectForAuthorization(request, response, failed);
-				} finally {
-					request.removeAttribute(AUTHORIZATION_REQUIRED_EXCEPTION_ATTR_NAME);
 				}
 				return;
 			}

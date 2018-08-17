@@ -17,7 +17,6 @@ package org.springframework.security.oauth2.client.web;
 
 import org.springframework.security.crypto.keygen.Base64StringKeyGenerator;
 import org.springframework.security.crypto.keygen.StringKeyGenerator;
-import org.springframework.security.oauth2.client.ClientAuthorizationRequiredException;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -33,8 +32,6 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter.AUTHORIZATION_REQUIRED_EXCEPTION_ATTR_NAME;
-
 /**
  * An implementation of an {@link OAuth2AuthorizationRequestResolver} that attempts to
  * resolve an {@link OAuth2AuthorizationRequest} from the provided {@code HttpServletRequest}
@@ -45,6 +42,7 @@ import static org.springframework.security.oauth2.client.web.OAuth2Authorization
  * via it's constructor {@link #DefaultOAuth2AuthorizationRequestResolver(ClientRegistrationRepository, String)}.
  *
  * @author Joe Grandja
+ * @author Rob Winch
  * @since 5.1
  * @see OAuth2AuthorizationRequestResolver
  * @see OAuth2AuthorizationRequestRedirectFilter
@@ -73,6 +71,28 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 	@Override
 	public OAuth2AuthorizationRequest resolve(HttpServletRequest request) {
 		String registrationId = this.resolveRegistrationId(request);
+		String redirectUriAction = getAction(request, "login");
+		return resolve(request, registrationId, redirectUriAction);
+	}
+
+	@Override
+	public OAuth2AuthorizationRequest resolve(HttpServletRequest request, String registrationId) {
+		if (registrationId == null) {
+			return null;
+		}
+		String redirectUriAction = getAction(request, "authorize");
+		return resolve(request, registrationId, redirectUriAction);
+	}
+
+	private String getAction(HttpServletRequest request, String defaultAction) {
+		String action = request.getParameter("action");
+		if (action == null) {
+			return defaultAction;
+		}
+		return action;
+	}
+
+	private OAuth2AuthorizationRequest resolve(HttpServletRequest request, String registrationId, String redirectUriAction) {
 		if (registrationId == null) {
 			return null;
 		}
@@ -93,7 +113,6 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 					") for Client Registration with Id: " + clientRegistration.getRegistrationId());
 		}
 
-		String redirectUriAction = this.resolveRedirectUriAction(request, clientRegistration);
 		String redirectUriStr = this.expandRedirectUri(request, clientRegistration, redirectUriAction);
 
 		Map<String, Object> additionalParameters = new HashMap<>();
@@ -112,41 +131,11 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 	}
 
 	private String resolveRegistrationId(HttpServletRequest request) {
-		// Check for ClientAuthorizationRequiredException which may have been set
-		// in the request by OAuth2AuthorizationRequestRedirectFilter
-		ClientAuthorizationRequiredException authzEx =
-				(ClientAuthorizationRequiredException) request.getAttribute(AUTHORIZATION_REQUIRED_EXCEPTION_ATTR_NAME);
-		if (authzEx != null) {
-			return authzEx.getClientRegistrationId();
-		}
 		if (this.authorizationRequestMatcher.matches(request)) {
 			return this.authorizationRequestMatcher
 					.extractUriTemplateVariables(request).get(REGISTRATION_ID_URI_VARIABLE_NAME);
 		}
 		return null;
-	}
-
-	private String resolveRedirectUriAction(HttpServletRequest request, ClientRegistration clientRegistration) {
-		String action = null;
-		if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(clientRegistration.getAuthorizationGrantType())) {
-			String loginAction = "login";
-			String authorizeAction = "authorize";
-			String actionParameter = request.getParameter("action");
-			if (request.getAttribute(AUTHORIZATION_REQUIRED_EXCEPTION_ATTR_NAME) != null) {
-				// Check for ClientAuthorizationRequiredException which may have been set
-				// in the request by OAuth2AuthorizationRequestRedirectFilter
-				action = authorizeAction;
-			} else if (actionParameter == null) {
-				action = loginAction;		// Default
-			} else {
-				if (actionParameter.equalsIgnoreCase(loginAction)) {
-					action = loginAction;
-				} else {
-					action = authorizeAction;
-				}
-			}
-		}
-		return action;
 	}
 
 	private String expandRedirectUri(HttpServletRequest request, ClientRegistration clientRegistration, String action) {
