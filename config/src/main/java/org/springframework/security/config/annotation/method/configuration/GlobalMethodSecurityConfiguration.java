@@ -23,9 +23,12 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -81,7 +84,7 @@ import org.springframework.util.Assert;
  */
 @Configuration
 public class GlobalMethodSecurityConfiguration
-		implements ImportAware, SmartInitializingSingleton {
+		implements ImportAware, SmartInitializingSingleton, BeanFactoryAware {
 	private static final Log logger = LogFactory
 			.getLog(GlobalMethodSecurityConfiguration.class);
 	private ObjectPostProcessor<Object> objectPostProcessor = new ObjectPostProcessor<Object>() {
@@ -96,9 +99,8 @@ public class GlobalMethodSecurityConfiguration
 	private AuthenticationManagerBuilder auth;
 	private boolean disableAuthenticationRegistry;
 	private AnnotationAttributes enableMethodSecurity;
-	private ApplicationContext context;
+	private BeanFactory context;
 	private MethodSecurityExpressionHandler expressionHandler;
-	private Jsr250MethodSecurityMetadataSource jsr250MethodSecurityMetadataSource;
 	private MethodSecurityInterceptor methodSecurityInterceptor;
 
 	/**
@@ -180,11 +182,10 @@ public class GlobalMethodSecurityConfiguration
 	}
 
 	private <T> T getSingleBeanOrNull(Class<T> type) {
-		String[] beanNamesForType = this.context.getBeanNamesForType(type);
-		if (beanNamesForType == null || beanNamesForType.length != 1) {
-			return null;
-		}
-		return this.context.getBean(beanNamesForType[0], type);
+		try {
+			return context.getBean(type);
+		} catch (NoSuchBeanDefinitionException e) {}
+		return null;
 	}
 
 	private void initializeMethodSecurityInterceptor() throws Exception {
@@ -366,8 +367,9 @@ public class GlobalMethodSecurityConfiguration
 		if (jsr250Enabled()) {
 			GrantedAuthorityDefaults grantedAuthorityDefaults =
 					getSingleBeanOrNull(GrantedAuthorityDefaults.class);
+			Jsr250MethodSecurityMetadataSource jsr250MethodSecurityMetadataSource = this.context.getBean(Jsr250MethodSecurityMetadataSource.class);
 			if (grantedAuthorityDefaults != null) {
-				this.jsr250MethodSecurityMetadataSource.setDefaultRolePrefix(
+				jsr250MethodSecurityMetadataSource.setDefaultRolePrefix(
 						grantedAuthorityDefaults.getRolePrefix());
 			}
 			sources.add(jsr250MethodSecurityMetadataSource);
@@ -406,12 +408,6 @@ public class GlobalMethodSecurityConfiguration
 	}
 
 	@Autowired(required = false)
-	public void setJsr250MethodSecurityMetadataSource(
-			Jsr250MethodSecurityMetadataSource jsr250MethodSecurityMetadataSource) {
-		this.jsr250MethodSecurityMetadataSource = jsr250MethodSecurityMetadataSource;
-	}
-
-	@Autowired(required = false)
 	public void setMethodSecurityExpressionHandler(
 			List<MethodSecurityExpressionHandler> handlers) {
 		if (handlers.size() != 1) {
@@ -422,9 +418,9 @@ public class GlobalMethodSecurityConfiguration
 		this.expressionHandler = handlers.get(0);
 	}
 
-	@Autowired
-	public void setApplicationContext(ApplicationContext context) {
-		this.context = context;
+	@Override
+	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+		this.context = beanFactory;
 	}
 
 	private AuthenticationConfiguration getAuthenticationConfiguration() {
