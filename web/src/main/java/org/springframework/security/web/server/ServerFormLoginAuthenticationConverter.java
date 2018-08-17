@@ -17,7 +17,7 @@ package org.springframework.security.web.server;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.web.server.authentication.AuthenticationConverter;
+import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
 import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
@@ -31,14 +31,14 @@ import reactor.core.publisher.Mono;
  * @author Rob Winch
  * @since 5.0
  */
-public class ServerFormLoginAuthenticationConverter implements AuthenticationConverter {
+public class ServerFormLoginAuthenticationConverter implements ServerAuthenticationConverter {
 
 	private String usernameParameter = "username";
 
 	private String passwordParameter = "password";
 
 	@Override
-	public Mono<Authentication> apply(ServerWebExchange exchange) {
+	public Mono<Authentication> convert(ServerWebExchange exchange) {
 		return exchange.getFormData()
 			.map( data -> createAuthentication(data));
 	}

@@ -21,7 +21,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.web.server.authentication.AuthenticationConverter;
+import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
 import org.springframework.web.server.ServerWebExchange;
 
 import reactor.core.publisher.Mono;
@@ -32,12 +32,12 @@ import reactor.core.publisher.Mono;
  * @author Rob Winch
  * @since 5.0
  */
-public class ServerHttpBasicAuthenticationConverter implements AuthenticationConverter {
+public class ServerHttpBasicAuthenticationConverter implements ServerAuthenticationConverter {
 
 	public static final String BASIC = "Basic ";
 
 	@Override
-	public Mono<Authentication> apply(ServerWebExchange exchange) {
+	public Mono<Authentication> convert(ServerWebExchange exchange) {
 		ServerHttpRequest request = exchange.getRequest();
 
 		String authorization = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);

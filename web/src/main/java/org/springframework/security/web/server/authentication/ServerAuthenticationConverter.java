@@ -16,8 +16,6 @@
 
 package org.springframework.security.web.server.authentication;
 
-import java.util.function.Function;
-
 import org.springframework.security.core.Authentication;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -32,5 +30,11 @@ import reactor.core.publisher.Mono;
  * @since 5.1
  */
 @FunctionalInterface
-public interface AuthenticationConverter extends Function<ServerWebExchange, Mono<Authentication>> {
+public interface ServerAuthenticationConverter {
+	/**
+	 * Converts a {@link ServerWebExchange} to an {@link Authentication}
+	 * @param exchange The {@link ServerWebExchange}
+	 * @return A {@link Mono} representing an {@link Authentication}
+	 */
+	Mono<Authentication> convert(ServerWebExchange exchange);
 }
