@@ -80,20 +80,6 @@ public class OAuth2AuthorizationRequestRedirectWebFilterTests {
 	}
 
 	@Test
-	public void constructorWhenAuthorizationRequestBaseUriNullThenIllegalArgumentException() {
-		String authorizationRequestBaseUri = null;
-		assertThatThrownBy(() -> new OAuth2AuthorizationRequestRedirectWebFilter(this.clientRepository, authorizationRequestBaseUri))
-				.isInstanceOf(IllegalArgumentException.class);
-	}
-
-	@Test
-	public void constructorWhenAuthorizationRequestBaseUriEmptyThenIllegalArgumentException() {
-		String authorizationRequestBaseUri = "";
-		assertThatThrownBy(() -> new OAuth2AuthorizationRequestRedirectWebFilter(this.clientRepository, authorizationRequestBaseUri))
-				.isInstanceOf(IllegalArgumentException.class);
-	}
-
-	@Test
 	public void filterWhenDoesNotMatchThenClientRegistrationRepositoryNotSubscribed() {
 		this.client.get()
 				.exchange()
