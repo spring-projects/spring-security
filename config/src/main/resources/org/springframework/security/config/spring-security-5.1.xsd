@@ -2467,17 +2467,19 @@
   </xs:attributeGroup>
   <xs:element name="feature-policy">
       <xs:annotation>
-          <xs:documentation>Adds support for Feature Policy</xs:documentation>
+         <xs:documentation>Adds support for Feature Policy
+                </xs:documentation>
       </xs:annotation>
       <xs:complexType>
-          <xs:attributeGroup ref="security:feature-options.attlist"/>
+         <xs:attributeGroup ref="security:feature-options.attlist"/>
       </xs:complexType>
-  </xs:element>
+   </xs:element>
   <xs:attributeGroup name="feature-options.attlist">
       <xs:attribute name="policy-directives" type="xs:token">
-          <xs:annotation>
-              <xs:documentation>The security policy directive(s) for the Feature-Policy header.</xs:documentation>
-          </xs:annotation>
+         <xs:annotation>
+            <xs:documentation>The security policy directive(s) for the Feature-Policy header.
+                </xs:documentation>
+         </xs:annotation>
       </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="cache-control">
