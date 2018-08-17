@@ -129,6 +129,6 @@ public class ServerBearerTokenAuthenticationConverterTests {
 
 	private BearerTokenAuthenticationToken convertToToken(MockServerHttpRequest request) {
 		MockServerWebExchange exchange = MockServerWebExchange.from(request);
-		return this.converter.apply(exchange).cast(BearerTokenAuthenticationToken.class).block();
+		return this.converter.convert(exchange).cast(BearerTokenAuthenticationToken.class).block();
 	}
 }

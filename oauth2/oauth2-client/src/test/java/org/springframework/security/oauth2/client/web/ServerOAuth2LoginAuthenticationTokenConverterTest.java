@@ -141,6 +141,6 @@ public class ServerOAuth2LoginAuthenticationTokenConverterTest {
 
 	private OAuth2LoginAuthenticationToken applyConverter() {
 		MockServerWebExchange exchange = MockServerWebExchange.from(this.request);
-		return (OAuth2LoginAuthenticationToken) this.converter.apply(exchange).block();
+		return (OAuth2LoginAuthenticationToken) this.converter.convert(exchange).block();
 	}
 }

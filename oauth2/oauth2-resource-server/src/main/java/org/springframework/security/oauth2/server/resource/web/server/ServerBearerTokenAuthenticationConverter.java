@@ -25,11 +25,11 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.BearerTokenError;
 import org.springframework.security.oauth2.server.resource.BearerTokenErrorCodes;
+import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -41,13 +41,12 @@ import java.util.regex.Pattern;
  * @since 5.1
  * @see <a href="https://tools.ietf.org/html/rfc6750#section-2" target="_blank">RFC 6750 Section 2: Authenticated Requests</a>
  */
-public class ServerBearerTokenAuthenticationConverter implements
-		Function<ServerWebExchange, Mono<Authentication>> {
+public class ServerBearerTokenAuthenticationConverter implements ServerAuthenticationConverter {
 	private static final Pattern authorizationPattern = Pattern.compile("^Bearer (?<token>[a-zA-Z0-9-._~+/]+)=*$");
 
 	private boolean allowUriQueryParameter = false;
 
-	public Mono<Authentication> apply(ServerWebExchange exchange) {
+	public Mono<Authentication> convert(ServerWebExchange exchange) {
 		return Mono.justOrEmpty(this.token(exchange.getRequest()))
 			.map(BearerTokenAuthenticationToken::new);
 	}
