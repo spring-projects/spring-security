@@ -67,7 +67,7 @@ public class AuthenticationWebFilter implements WebFilter {
 
 	private ServerAuthenticationSuccessHandler authenticationSuccessHandler = new WebFilterChainServerAuthenticationSuccessHandler();
 
-	private Function<ServerWebExchange, Mono<Authentication>> authenticationConverter = new ServerHttpBasicAuthenticationConverter();
+	private ServerAuthenticationConverter authenticationConverter = new ServerHttpBasicAuthenticationConverter();
 
 	private ServerAuthenticationFailureHandler authenticationFailureHandler = new ServerAuthenticationEntryPointFailureHandler(new HttpBasicServerAuthenticationEntryPoint());
 
@@ -88,7 +88,7 @@ public class AuthenticationWebFilter implements WebFilter {
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 		return this.requiresAuthenticationMatcher.matches(exchange)
 			.filter( matchResult -> matchResult.isMatch())
-			.flatMap( matchResult -> this.authenticationConverter.apply(exchange))
+			.flatMap( matchResult -> this.authenticationConverter.convert(exchange))
 			.switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
 			.flatMap( token -> authenticate(exchange, chain, token));
 	}
@@ -138,8 +138,24 @@ public class AuthenticationWebFilter implements WebFilter {
 	 * that no authentication attempt should be made. The default converter is
 	 * {@link ServerHttpBasicAuthenticationConverter}
 	 * @param authenticationConverter the converter to use
+	 * @deprecated As of 5.1 in favor of {@link #setAuthenticationConverter(ServerAuthenticationConverter)}
+	 * @see #setAuthenticationConverter(ServerAuthenticationConverter)
 	 */
+	@Deprecated
 	public void setAuthenticationConverter(Function<ServerWebExchange, Mono<Authentication>> authenticationConverter) {
+		Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
+		setAuthenticationConverter((ServerAuthenticationConverter) authenticationConverter);
+	}
+
+	/**
+	 * Sets the strategy used for converting from a {@link ServerWebExchange} to an {@link Authentication} used for
+	 * authenticating with the provided {@link ReactiveAuthenticationManager}. If the result is empty, then it signals
+	 * that no authentication attempt should be made. The default converter is
+	 * {@link ServerHttpBasicAuthenticationConverter}
+	 * @param authenticationConverter the converter to use
+	 * @since 5.1
+	 */
+	public void setAuthenticationConverter(ServerAuthenticationConverter authenticationConverter) {
 		Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
 		this.authenticationConverter = authenticationConverter;
 	}
@@ -156,7 +172,7 @@ public class AuthenticationWebFilter implements WebFilter {
 
 	/**
 	 * Sets the matcher used to determine when creating an {@link Authentication} from
-	 * {@link #setAuthenticationConverter(Function)} to be authentication. If the converter returns an empty
+	 * {@link #setAuthenticationConverter(ServerAuthenticationConverter)} to be authentication. If the converter returns an empty
 	 * result, then no authentication is attempted. The default is any request
 	 * @param requiresAuthenticationMatcher the matcher to use. Cannot be null.
 	 */
