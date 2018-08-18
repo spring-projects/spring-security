@@ -32,7 +32,7 @@ create unique index ix_auth_username on authorities (username,authority);
 [source]
 ----
 CREATE TABLE USERS (
-    USERNAME NVARCHAR2(128) NOT NULL PRIMARY KEY,
+    USERNAME NVARCHAR2(128) PRIMARY KEY,
     PASSWORD NVARCHAR2(128) NOT NULL,
     ENABLED CHAR(1) CHECK (ENABLED IN ('Y','N') ) NOT NULL
 );
