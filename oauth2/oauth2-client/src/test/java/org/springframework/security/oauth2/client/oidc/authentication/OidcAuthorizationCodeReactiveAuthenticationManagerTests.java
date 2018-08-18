@@ -24,7 +24,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.ReactiveOAuth2AccessTokenResponseClient;
@@ -182,7 +182,7 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 		when(this.jwtDecoder.decode(any())).thenReturn(Mono.just(idToken));
 		this.manager.setDecoderFactory(c -> this.jwtDecoder);
 
-		OAuth2AuthenticationToken result = (OAuth2AuthenticationToken) this.manager.authenticate(loginToken()).block();
+		OAuth2LoginAuthenticationToken result = (OAuth2LoginAuthenticationToken) this.manager.authenticate(loginToken()).block();
 
 		assertThat(result.getPrincipal()).isEqualTo(user);
 		assertThat(result.getAuthorities()).containsOnlyElementsOf(user.getAuthorities());
@@ -192,6 +192,7 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 	// gh-5368
 	@Test
 	public void authenticateWhenTokenSuccessResponseThenAdditionalParametersAddedToUserRequest() {
+		ClientRegistration clientRegistration = this.registration.build();
 		Map<String, Object> additionalParameters = new HashMap<>();
 		additionalParameters.put(OidcParameterNames.ID_TOKEN, this.idToken.getTokenValue());
 		additionalParameters.put("param1", "value1");
@@ -204,7 +205,7 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 		Map<String, Object> claims = new HashMap<>();
 		claims.put(IdTokenClaimNames.ISS, "https://issuer.example.com");
 		claims.put(IdTokenClaimNames.SUB, "rob");
-		claims.put(IdTokenClaimNames.AUD, Arrays.asList("clientId"));
+		claims.put(IdTokenClaimNames.AUD, Arrays.asList(clientRegistration.getClientId()));
 		Instant issuedAt = Instant.now();
 		Instant expiresAt = Instant.from(issuedAt).plusSeconds(3600);
 		Jwt idToken = new Jwt("id-token", issuedAt, expiresAt, claims, claims);
@@ -222,7 +223,7 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 				.containsAllEntriesOf(accessTokenResponse.getAdditionalParameters());
 	}
 
-	private OAuth2LoginAuthenticationToken loginToken() {
+	private OAuth2AuthorizationCodeAuthenticationToken loginToken() {
 		ClientRegistration clientRegistration = this.registration.build();
 		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest
 				.authorizationCode()
@@ -237,6 +238,6 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 				.build();
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(authorizationRequest,
 				authorizationResponse);
-		return new OAuth2LoginAuthenticationToken(clientRegistration, authorizationExchange);
+		return new OAuth2AuthorizationCodeAuthenticationToken(clientRegistration, authorizationExchange);
 	}
 }

@@ -112,7 +112,12 @@ class OAuth2AccessTokenResponseBodyExtractor
 
 		Map<String, Object> additionalParameters = new LinkedHashMap<>(accessTokenResponse.getCustomParameters());
 
-		return OAuth2AccessTokenResponse.withToken(accessToken.getValue()).tokenType(accessTokenType).expiresIn(expiresIn).scopes(scopes)
-				.refreshToken(refreshToken).additionalParameters(additionalParameters).build();
+		return OAuth2AccessTokenResponse.withToken(accessToken.getValue())
+				.tokenType(accessTokenType)
+				.expiresIn(expiresIn)
+				.scopes(scopes)
+				.refreshToken(refreshToken)
+				.additionalParameters(additionalParameters)
+				.build();
 	}
 }

@@ -16,13 +16,6 @@
 
 package org.springframework.security.oauth2.client.web.server;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
-import java.util.Collections;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,7 +23,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
-import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -39,15 +32,21 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
-
 import reactor.core.publisher.Mono;
+
+import java.util.Collections;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
  * @since 5.1
  */
 @RunWith(MockitoJUnitRunner.class)
-public class ServerOAuth2LoginAuthenticationTokenConverterTest {
+public class ServerOAuth2AuthorizationCodeAuthenticationTokenConverterTest {
 	@Mock
 	private ReactiveClientRegistrationRepository clientRegistrationRepository;
 
@@ -79,11 +78,11 @@ public class ServerOAuth2LoginAuthenticationTokenConverterTest {
 
 	private final MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/");
 
-	private ServerOAuth2LoginAuthenticationTokenConverter converter;
+	private ServerOAuth2AuthorizationCodeAuthenticationTokenConverter converter;
 
 	@Before
 	public void setup() {
-		this.converter = new ServerOAuth2LoginAuthenticationTokenConverter(this.clientRegistrationRepository);
+		this.converter = new ServerOAuth2AuthorizationCodeAuthenticationTokenConverter(this.clientRegistrationRepository);
 		this.converter.setAuthorizationRequestRepository(this.authorizationRequestRepository);
 	}
 
@@ -102,8 +101,7 @@ public class ServerOAuth2LoginAuthenticationTokenConverterTest {
 
 		assertThatThrownBy(() -> applyConverter())
 				.isInstanceOf(OAuth2AuthenticationException.class)
-				.hasMessageContaining(
-						ServerOAuth2LoginAuthenticationTokenConverter.CLIENT_REGISTRATION_NOT_FOUND_ERROR_CODE);
+				.hasMessageContaining(ServerOAuth2AuthorizationCodeAuthenticationTokenConverter.CLIENT_REGISTRATION_NOT_FOUND_ERROR_CODE);
 	}
 
 	@Test
@@ -113,8 +111,7 @@ public class ServerOAuth2LoginAuthenticationTokenConverterTest {
 
 		assertThatThrownBy(() -> applyConverter())
 				.isInstanceOf(OAuth2AuthenticationException.class)
-				.hasMessageContaining(
-						ServerOAuth2LoginAuthenticationTokenConverter.CLIENT_REGISTRATION_NOT_FOUND_ERROR_CODE);
+				.hasMessageContaining(ServerOAuth2AuthorizationCodeAuthenticationTokenConverter.CLIENT_REGISTRATION_NOT_FOUND_ERROR_CODE);
 	}
 
 	@Test
@@ -133,7 +130,7 @@ public class ServerOAuth2LoginAuthenticationTokenConverterTest {
 		when(this.authorizationRequestRepository.removeAuthorizationRequest(any())).thenReturn(Mono.just(this.authorizationRequest.build()));
 		when(this.clientRegistrationRepository.findByRegistrationId(any())).thenReturn(Mono.just(this.clientRegistration));
 
-		OAuth2LoginAuthenticationToken result = applyConverter();
+		OAuth2AuthorizationCodeAuthenticationToken result = applyConverter();
 
 		OAuth2AuthorizationResponse exchange = result
 				.getAuthorizationExchange().getAuthorizationResponse();
@@ -141,8 +138,8 @@ public class ServerOAuth2LoginAuthenticationTokenConverterTest {
 		assertThat(exchange.getCode()).isEqualTo("code");
 	}
 
-	private OAuth2LoginAuthenticationToken applyConverter() {
+	private OAuth2AuthorizationCodeAuthenticationToken applyConverter() {
 		MockServerWebExchange exchange = MockServerWebExchange.from(this.request);
-		return (OAuth2LoginAuthenticationToken) this.converter.convert(exchange).block();
+		return (OAuth2AuthorizationCodeAuthenticationToken) this.converter.convert(exchange).block();
 	}
 }

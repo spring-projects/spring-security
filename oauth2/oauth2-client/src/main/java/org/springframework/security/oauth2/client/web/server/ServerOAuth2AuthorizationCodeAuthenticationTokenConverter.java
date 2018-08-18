@@ -17,6 +17,7 @@
 package org.springframework.security.oauth2.client.web.server;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -30,7 +31,6 @@ import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.util.UriComponentsBuilder;
-
 import reactor.core.publisher.Mono;
 
 /**
@@ -40,7 +40,7 @@ import reactor.core.publisher.Mono;
  * @since 5.1
  * @see org.springframework.security.web.server.authentication.AuthenticationWebFilter#setServerAuthenticationConverter(ServerAuthenticationConverter)
  */
-public class ServerOAuth2LoginAuthenticationTokenConverter
+public class ServerOAuth2AuthorizationCodeAuthenticationTokenConverter
 		implements ServerAuthenticationConverter {
 
 	static final String AUTHORIZATION_REQUEST_NOT_FOUND_ERROR_CODE = "authorization_request_not_found";
@@ -52,7 +52,7 @@ public class ServerOAuth2LoginAuthenticationTokenConverter
 
 	private final ReactiveClientRegistrationRepository clientRegistrationRepository;
 
-	public ServerOAuth2LoginAuthenticationTokenConverter(
+	public ServerOAuth2AuthorizationCodeAuthenticationTokenConverter(
 			ReactiveClientRegistrationRepository clientRegistrationRepository) {
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
 		this.clientRegistrationRepository = clientRegistrationRepository;
@@ -83,7 +83,7 @@ public class ServerOAuth2LoginAuthenticationTokenConverter
 		});
 	}
 
-	private Mono<OAuth2LoginAuthenticationToken> authenticationRequest(ServerWebExchange exchange, OAuth2AuthorizationRequest authorizationRequest) {
+	private Mono<OAuth2AuthorizationCodeAuthenticationToken> authenticationRequest(ServerWebExchange exchange, OAuth2AuthorizationRequest authorizationRequest) {
 		return Mono.just(authorizationRequest)
 				.map(OAuth2AuthorizationRequest::getAdditionalParameters)
 				.flatMap(additionalParams -> {
@@ -96,7 +96,7 @@ public class ServerOAuth2LoginAuthenticationTokenConverter
 				.switchIfEmpty(oauth2AuthenticationException(CLIENT_REGISTRATION_NOT_FOUND_ERROR_CODE))
 				.map(clientRegistration -> {
 					OAuth2AuthorizationResponse authorizationResponse = convertResponse(exchange);
-					OAuth2LoginAuthenticationToken authenticationRequest = new OAuth2LoginAuthenticationToken(
+					OAuth2AuthorizationCodeAuthenticationToken authenticationRequest = new OAuth2AuthorizationCodeAuthenticationToken(
 							clientRegistration, new OAuth2AuthorizationExchange(authorizationRequest, authorizationResponse));
 					return authenticationRequest;
 				});

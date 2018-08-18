@@ -87,7 +87,7 @@ public class OAuth2AuthorizationCodeReactiveAuthenticationManager implements
 			OAuth2AuthorizationExchange exchange = token.getAuthorizationExchange();
 			OAuth2AccessToken accessToken = accessTokenResponse.getAccessToken();
 			OAuth2RefreshToken refreshToken = accessTokenResponse.getRefreshToken();
-			return new OAuth2AuthorizationCodeAuthenticationToken(registration, exchange, accessToken, refreshToken);
+			return new OAuth2AuthorizationCodeAuthenticationToken(registration, exchange, accessToken, refreshToken, accessTokenResponse.getAdditionalParameters());
 		};
 	}
 }

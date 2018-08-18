@@ -178,7 +178,7 @@ public class OAuth2LoginReactiveAuthenticationManagerTests {
 				.containsAllEntriesOf(accessTokenResponse.getAdditionalParameters());
 	}
 
-	private OAuth2LoginAuthenticationToken loginToken() {
+	private OAuth2AuthorizationCodeAuthenticationToken loginToken() {
 		ClientRegistration clientRegistration = this.registration.build();
 		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest
 				.authorizationCode()
@@ -193,6 +193,6 @@ public class OAuth2LoginReactiveAuthenticationManagerTests {
 				.build();
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(authorizationRequest,
 				authorizationResponse);
-		return new OAuth2LoginAuthenticationToken(clientRegistration, authorizationExchange);
+		return new OAuth2AuthorizationCodeAuthenticationToken(clientRegistration, authorizationExchange);
 	}
 }

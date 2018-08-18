@@ -19,6 +19,7 @@ import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.ReactiveOAuth2AccessTokenResponseClient;
@@ -98,7 +99,7 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements
 	@Override
 	public Mono<Authentication> authenticate(Authentication authentication) {
 		return Mono.defer(() -> {
-			OAuth2LoginAuthenticationToken authorizationCodeAuthentication = (OAuth2LoginAuthenticationToken) authentication;
+			OAuth2AuthorizationCodeAuthenticationToken authorizationCodeAuthentication = (OAuth2AuthorizationCodeAuthenticationToken) authentication;
 
 			// Section 3.1.2.1 Authentication Request - http://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
 			// scope REQUIRED. OpenID Connect requests MUST contain the "openid" scope value.
@@ -149,7 +150,7 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements
 		this.decoderFactory = decoderFactory;
 	}
 
-	private Mono<OAuth2LoginAuthenticationToken> authenticationResult(OAuth2LoginAuthenticationToken authorizationCodeAuthentication, OAuth2AccessTokenResponse accessTokenResponse) {
+	private Mono<OAuth2LoginAuthenticationToken> authenticationResult(OAuth2AuthorizationCodeAuthenticationToken authorizationCodeAuthentication, OAuth2AccessTokenResponse accessTokenResponse) {
 		OAuth2AccessToken accessToken = accessTokenResponse.getAccessToken();
 		ClientRegistration clientRegistration = authorizationCodeAuthentication.getClientRegistration();
 		Map<String, Object> additionalParameters = accessTokenResponse.getAdditionalParameters();
