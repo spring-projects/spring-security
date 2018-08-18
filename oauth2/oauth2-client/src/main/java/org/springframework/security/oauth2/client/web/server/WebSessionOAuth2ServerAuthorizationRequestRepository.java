@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package org.springframework.security.oauth2.client.web;
+package org.springframework.security.oauth2.client.web.server;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.Assert;
@@ -29,7 +30,7 @@ import org.springframework.web.server.WebSession;
 import reactor.core.publisher.Mono;
 
 /**
- * An implementation of an {@link ReactiveAuthorizationRequestRepository} that stores
+ * An implementation of an {@link ServerAuthorizationRequestRepository} that stores
  * {@link OAuth2AuthorizationRequest} in the {@code WebSession}.
  *
  * @author Rob Winch
@@ -37,10 +38,11 @@ import reactor.core.publisher.Mono;
  * @see AuthorizationRequestRepository
  * @see OAuth2AuthorizationRequest
  */
-public final class WebSessionOAuth2ReactiveAuthorizationRequestRepository implements ReactiveAuthorizationRequestRepository<OAuth2AuthorizationRequest> {
+public final class WebSessionOAuth2ServerAuthorizationRequestRepository
+		implements ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> {
 
 	private static final String DEFAULT_AUTHORIZATION_REQUEST_ATTR_NAME =
-			WebSessionOAuth2ReactiveAuthorizationRequestRepository.class.getName() +  ".AUTHORIZATION_REQUEST";
+			WebSessionOAuth2ServerAuthorizationRequestRepository.class.getName() +  ".AUTHORIZATION_REQUEST";
 
 	private final String sessionAttributeName = DEFAULT_AUTHORIZATION_REQUEST_ATTR_NAME;
 

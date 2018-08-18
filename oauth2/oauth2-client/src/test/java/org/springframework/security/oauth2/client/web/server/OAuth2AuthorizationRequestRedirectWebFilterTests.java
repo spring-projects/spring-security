@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.oauth2.client.web;
+package org.springframework.security.oauth2.client.web.server;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -52,7 +52,7 @@ public class OAuth2AuthorizationRequestRedirectWebFilterTests {
 	private ReactiveClientRegistrationRepository clientRepository;
 
 	@Mock
-	private ReactiveAuthorizationRequestRepository<OAuth2AuthorizationRequest> authzRequestRepository;
+	private ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authzRequestRepository;
 
 	private ClientRegistration github = ClientRegistration.withRegistrationId("github")
 			.redirectUriTemplate("{baseUrl}/{action}/oauth2/code/{registrationId}")

@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-package org.springframework.security.oauth2.client.web;
+package org.springframework.security.oauth2.client.web.server;
 
+import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
+import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -38,7 +41,7 @@ import reactor.core.publisher.Mono;
  *
  * @param <T> The type of OAuth 2.0 Authorization Request
  */
-public interface ReactiveAuthorizationRequestRepository<T extends OAuth2AuthorizationRequest> {
+public interface ServerAuthorizationRequestRepository<T extends OAuth2AuthorizationRequest> {
 
 	/**
 	 * Returns the {@link OAuth2AuthorizationRequest} associated to the provided {@code HttpServletRequest}

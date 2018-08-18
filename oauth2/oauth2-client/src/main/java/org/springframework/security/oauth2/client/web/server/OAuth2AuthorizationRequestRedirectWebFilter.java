@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.client.web;
+package org.springframework.security.oauth2.client.web.server;
 
 import java.net.URI;
 import java.util.Base64;
@@ -29,6 +29,7 @@ import org.springframework.security.oauth2.client.ClientAuthorizationRequiredExc
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
@@ -89,8 +90,8 @@ public class OAuth2AuthorizationRequestRedirectWebFilter implements WebFilter {
 	private final ReactiveClientRegistrationRepository clientRegistrationRepository;
 	private final ServerRedirectStrategy authorizationRedirectStrategy = new DefaultServerRedirectStrategy();
 	private final StringKeyGenerator stateGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder());
-	private ReactiveAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
-		new WebSessionOAuth2ReactiveAuthorizationRequestRepository();
+	private ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
+		new WebSessionOAuth2ServerAuthorizationRequestRepository();
 
 	/**
 	 * Constructs an {@code OAuth2AuthorizationRequestRedirectFilter} using the provided parameters.
@@ -122,7 +123,8 @@ public class OAuth2AuthorizationRequestRedirectWebFilter implements WebFilter {
 	 *
 	 * @param authorizationRequestRepository the repository used for storing {@link OAuth2AuthorizationRequest}'s
 	 */
-	public final void setAuthorizationRequestRepository(ReactiveAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
+	public final void setAuthorizationRequestRepository(
+			ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
 		Assert.notNull(authorizationRequestRepository, "authorizationRequestRepository cannot be null");
 		this.authorizationRequestRepository = authorizationRequestRepository;
 	}

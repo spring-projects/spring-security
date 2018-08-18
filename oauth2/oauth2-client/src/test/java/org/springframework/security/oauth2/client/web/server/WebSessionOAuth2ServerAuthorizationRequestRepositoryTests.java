@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.oauth2.client.web;
+package org.springframework.security.oauth2.client.web.server;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -40,10 +40,10 @@ import reactor.test.StepVerifier;
  * @author Rob Winch
  * @since 5.1
  */
-public class WebSessionOAuth2ReactiveAuthorizationRequestRepositoryTests {
+public class WebSessionOAuth2ServerAuthorizationRequestRepositoryTests {
 
-	private WebSessionOAuth2ReactiveAuthorizationRequestRepository repository =
-			new WebSessionOAuth2ReactiveAuthorizationRequestRepository();
+	private WebSessionOAuth2ServerAuthorizationRequestRepository repository =
+			new WebSessionOAuth2ServerAuthorizationRequestRepository();
 
 	private OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
 			.authorizationUri("https://example.com/oauth2/authorize")

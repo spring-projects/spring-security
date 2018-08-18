@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.oauth2.client.web;
+package org.springframework.security.oauth2.client.web.server;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -52,7 +52,7 @@ public class ServerOAuth2LoginAuthenticationTokenConverterTest {
 	private ReactiveClientRegistrationRepository clientRegistrationRepository;
 
 	@Mock
-	private ReactiveAuthorizationRequestRepository authorizationRequestRepository;
+	private ServerAuthorizationRequestRepository authorizationRequestRepository;
 
 	private String clientRegistrationId = "github";
 

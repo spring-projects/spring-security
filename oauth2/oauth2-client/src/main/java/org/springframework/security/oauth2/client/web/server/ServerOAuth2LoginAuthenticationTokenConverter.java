@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.oauth2.client.web;
+package org.springframework.security.oauth2.client.web.server;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken;
@@ -47,8 +47,8 @@ public class ServerOAuth2LoginAuthenticationTokenConverter
 
 	static final String CLIENT_REGISTRATION_NOT_FOUND_ERROR_CODE = "client_registration_not_found";
 
-	private ReactiveAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
-			new WebSessionOAuth2ReactiveAuthorizationRequestRepository();
+	private ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
+			new WebSessionOAuth2ServerAuthorizationRequestRepository();
 
 	private final ReactiveClientRegistrationRepository clientRegistrationRepository;
 
@@ -59,12 +59,12 @@ public class ServerOAuth2LoginAuthenticationTokenConverter
 	}
 
 	/**
-	 * Sets the {@link ReactiveAuthorizationRequestRepository} to be used. The default is
-	 * {@link WebSessionOAuth2ReactiveAuthorizationRequestRepository}.
+	 * Sets the {@link ServerAuthorizationRequestRepository} to be used. The default is
+	 * {@link WebSessionOAuth2ServerAuthorizationRequestRepository}.
 	 * @param authorizationRequestRepository the repository to use.
 	 */
 	public void setAuthorizationRequestRepository(
-			ReactiveAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
+			ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
 		Assert.notNull(authorizationRequestRepository, "authorizationRequestRepository cannot be null");
 		this.authorizationRequestRepository = authorizationRequestRepository;
 	}
@@ -110,6 +110,7 @@ public class ServerOAuth2LoginAuthenticationTokenConverter
 				.build()
 				.toUriString();
 
-		return OAuth2AuthorizationResponseUtils.convert(queryParams, redirectUri);
+		return OAuth2AuthorizationResponseUtils
+				.convert(queryParams, redirectUri);
 	}
 }
