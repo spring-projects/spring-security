@@ -26,9 +26,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.AuthenticationMethod;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -63,19 +62,8 @@ public class DefaultReactiveOAuth2UserServiceTests {
 
 		String userInfoUri = this.server.url("/user").toString();
 
-		this.clientRegistration = ClientRegistration.withRegistrationId("github")
-				.redirectUriTemplate("{baseUrl}/{action}/oauth2/code/{registrationId}")
-				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-				.scope("read:user")
-				.authorizationUri("https://github.com/login/oauth/authorize")
-				.tokenUri("https://github.com/login/oauth/access_token")
-				.userInfoUri(userInfoUri)
-				.userInfoAuthenticationMethod(AuthenticationMethod.HEADER)
-				.userNameAttributeName("user-name")
-				.clientName("GitHub")
-				.clientId("clientId")
-				.clientSecret("clientSecret");
+		this.clientRegistration = TestClientRegistrations.clientRegistration()
+				.userInfoUri(userInfoUri);
 	}
 
 	@After
@@ -118,7 +106,7 @@ public class DefaultReactiveOAuth2UserServiceTests {
 	@Test
 	public void loadUserWhenUserInfoSuccessResponseThenReturnUser() throws Exception {
 		String userInfoResponse = "{\n" +
-				"	\"user-name\": \"user1\",\n" +
+				"	\"id\": \"user1\",\n" +
 				"   \"first-name\": \"first\",\n" +
 				"   \"last-name\": \"last\",\n" +
 				"   \"middle-name\": \"middle\",\n" +
@@ -131,7 +119,7 @@ public class DefaultReactiveOAuth2UserServiceTests {
 
 		assertThat(user.getName()).isEqualTo("user1");
 		assertThat(user.getAttributes().size()).isEqualTo(6);
-		assertThat(user.getAttributes().get("user-name")).isEqualTo("user1");
+		assertThat(user.getAttributes().get("id")).isEqualTo("user1");
 		assertThat(user.getAttributes().get("first-name")).isEqualTo("first");
 		assertThat(user.getAttributes().get("last-name")).isEqualTo("last");
 		assertThat(user.getAttributes().get("middle-name")).isEqualTo("middle");
@@ -150,7 +138,7 @@ public class DefaultReactiveOAuth2UserServiceTests {
 	public void loadUserWhenAuthenticationMethodHeaderSuccessResponseThenHttpMethodGet() throws Exception {
 		this.clientRegistration.userInfoAuthenticationMethod(AuthenticationMethod.HEADER);
 		String userInfoResponse = "{\n" +
-				"	\"user-name\": \"user1\",\n" +
+				"	\"id\": \"user1\",\n" +
 				"   \"first-name\": \"first\",\n" +
 				"   \"last-name\": \"last\",\n" +
 				"   \"middle-name\": \"middle\",\n" +
@@ -172,7 +160,7 @@ public class DefaultReactiveOAuth2UserServiceTests {
 	public void loadUserWhenAuthenticationMethodFormSuccessResponseThenHttpMethodPost() throws Exception {
 		this.clientRegistration.userInfoAuthenticationMethod( AuthenticationMethod.FORM);
 		String userInfoResponse = "{\n" +
-				"	\"user-name\": \"user1\",\n" +
+				"	\"id\": \"user1\",\n" +
 				"   \"first-name\": \"first\",\n" +
 				"   \"last-name\": \"last\",\n" +
 				"   \"middle-name\": \"middle\",\n" +
@@ -193,7 +181,7 @@ public class DefaultReactiveOAuth2UserServiceTests {
 	@Test
 	public void loadUserWhenUserInfoSuccessResponseInvalidThenThrowOAuth2AuthenticationException() throws Exception {
 		String userInfoResponse = "{\n" +
-				"	\"user-name\": \"user1\",\n" +
+				"	\"id\": \"user1\",\n" +
 				"   \"first-name\": \"first\",\n" +
 				"   \"last-name\": \"last\",\n" +
 				"   \"middle-name\": \"middle\",\n" +

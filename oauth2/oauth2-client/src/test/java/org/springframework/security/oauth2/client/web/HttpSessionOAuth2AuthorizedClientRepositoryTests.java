@@ -21,8 +21,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 
 import javax.servlet.http.HttpSession;
@@ -38,37 +37,15 @@ import static org.mockito.Mockito.mock;
  * @author Joe Grandja
  */
 public class HttpSessionOAuth2AuthorizedClientRepositoryTests {
-	private String registrationId1 = "registration-1";
-	private String registrationId2 = "registration-2";
 	private String principalName1 = "principalName-1";
 
-	private ClientRegistration registration1 = ClientRegistration.withRegistrationId(this.registrationId1)
-			.clientId("client-1")
-			.clientSecret("secret")
-			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-			.redirectUriTemplate("{baseUrl}/login/oauth2/code/{registrationId}")
-			.scope("user")
-			.authorizationUri("https://provider.com/oauth2/authorize")
-			.tokenUri("https://provider.com/oauth2/token")
-			.userInfoUri("https://provider.com/oauth2/user")
-			.userNameAttributeName("id")
-			.clientName("client-1")
-			.build();
+	private ClientRegistration registration1 = TestClientRegistrations.clientRegistration().build();
 
-	private ClientRegistration registration2 = ClientRegistration.withRegistrationId(this.registrationId2)
-			.clientId("client-2")
-			.clientSecret("secret")
-			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-			.redirectUriTemplate("{baseUrl}/login/oauth2/code/{registrationId}")
-			.scope("openid", "profile", "email")
-			.authorizationUri("https://provider.com/oauth2/authorize")
-			.tokenUri("https://provider.com/oauth2/token")
-			.userInfoUri("https://provider.com/oauth2/userinfo")
-			.jwkSetUri("https://provider.com/oauth2/keys")
-			.clientName("client-2")
-			.build();
+	private ClientRegistration registration2 = TestClientRegistrations.clientRegistration2().build();
+
+	private String registrationId1 = this.registration1.getRegistrationId();
+
+	private String registrationId2 = this.registration2.getRegistrationId();
 
 	private HttpSessionOAuth2AuthorizedClientRepository authorizedClientRepository =
 			new HttpSessionOAuth2AuthorizedClientRepository();

@@ -28,8 +28,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
@@ -58,19 +57,8 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 
 		String tokenUri = this.server.url("/oauth2/token").toString();
 
-		this.clientRegistration = ClientRegistration.withRegistrationId("github")
-				.redirectUriTemplate("https://example.com/oauth2/code/github")
-				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-				.scope("read:user")
-				.authorizationUri("https://github.com/login/oauth/authorize")
-				.tokenUri(tokenUri)
-				.userInfoUri("https://api.example.com/user")
-				.userNameAttributeName("user-name")
-				.clientName("GitHub")
-				.clientId("clientId")
-				.jwkSetUri("https://example.com/oauth2/jwk")
-				.clientSecret("clientSecret");
+		this.clientRegistration = TestClientRegistrations.clientRegistration()
+				.tokenUri(tokenUri);
 	}
 
 	@After

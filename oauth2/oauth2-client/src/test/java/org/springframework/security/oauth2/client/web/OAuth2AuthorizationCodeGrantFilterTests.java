@@ -38,8 +38,7 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authoriza
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
@@ -82,19 +81,7 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 
 	@Before
 	public void setup() {
-		this.registration1 = ClientRegistration.withRegistrationId("registration-1")
-			.clientId("client-1")
-			.clientSecret("secret")
-			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-			.redirectUriTemplate("{baseUrl}/callback/client-1")
-			.scope("user")
-			.authorizationUri("https://provider.com/oauth2/authorize")
-			.tokenUri("https://provider.com/oauth2/token")
-			.userInfoUri("https://provider.com/oauth2/user")
-			.userNameAttributeName("id")
-			.clientName("client-1")
-			.build();
+		this.registration1 = TestClientRegistrations.clientRegistration().build();
 		this.clientRegistrationRepository = new InMemoryClientRegistrationRepository(this.registration1);
 		this.authorizedClientService = new InMemoryOAuth2AuthorizedClientService(this.clientRegistrationRepository);
 		this.authorizedClientRepository = new AuthenticatedPrincipalOAuth2AuthorizedClientRepository(this.authorizedClientService);

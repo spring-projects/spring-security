@@ -38,8 +38,7 @@ import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
@@ -77,18 +76,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 	private MockExchangeFunction exchange = new MockExchangeFunction();
 
-	private ClientRegistration github = ClientRegistration.withRegistrationId("github")
-			.redirectUriTemplate("{baseUrl}/{action}/oauth2/code/{registrationId}")
-			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-			.scope("read:user")
-			.authorizationUri("https://github.com/login/oauth/authorize")
-			.tokenUri("https://github.com/login/oauth/access_token")
-			.userInfoUri("https://api.github.com/user")
-			.userNameAttributeName("id")
-			.clientName("GitHub")
-			.clientId("clientId")
-			.clientSecret("clientSecret")
+	private ClientRegistration registration = TestClientRegistrations.clientRegistration()
 			.build();
 
 	private OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
@@ -108,7 +96,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 	@Test
 	public void filterWhenAuthorizedClientThenAuthorizationHeader() {
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.github,
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration,
 				"principalName", this.accessToken);
 		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
 				.attributes(oauth2AuthorizedClient(authorizedClient))
@@ -121,7 +109,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 	@Test
 	public void filterWhenExistingAuthorizationThenSingleAuthorizationHeader() {
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.github,
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration,
 				"principalName", this.accessToken);
 		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
 				.header(HttpHeaders.AUTHORIZATION, "Existing")
@@ -154,7 +142,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		this.function = new ServerOAuth2AuthorizedClientExchangeFilterFunction(this.authorizedClientService);
 
 		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", issuedAt, refreshTokenExpiresAt);
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.github,
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration,
 				"principalName", this.accessToken, refreshToken);
 		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
 				.attributes(oauth2AuthorizedClient(authorizedClient))
@@ -171,8 +159,8 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		assertThat(requests).hasSize(2);
 
 		ClientRequest request0 = requests.get(0);
-		assertThat(request0.headers().getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo("Basic Y2xpZW50SWQ6Y2xpZW50U2VjcmV0");
-		assertThat(request0.url().toASCIIString()).isEqualTo("https://github.com/login/oauth/access_token");
+		assertThat(request0.headers().getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo("Basic Y2xpZW50LWlkOmNsaWVudC1zZWNyZXQ=");
+		assertThat(request0.url().toASCIIString()).isEqualTo("https://example.com/login/oauth/access_token");
 		assertThat(request0.method()).isEqualTo(HttpMethod.POST);
 		assertThat(getBody(request0)).isEqualTo("grant_type=refresh_token&refresh_token=refresh-token");
 
@@ -203,7 +191,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		this.function = new ServerOAuth2AuthorizedClientExchangeFilterFunction(this.authorizedClientService);
 
 		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", issuedAt, refreshTokenExpiresAt);
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.github,
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration,
 				"principalName", this.accessToken, refreshToken);
 		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
 				.attributes(oauth2AuthorizedClient(authorizedClient))
@@ -218,8 +206,8 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		assertThat(requests).hasSize(2);
 
 		ClientRequest request0 = requests.get(0);
-		assertThat(request0.headers().getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo("Basic Y2xpZW50SWQ6Y2xpZW50U2VjcmV0");
-		assertThat(request0.url().toASCIIString()).isEqualTo("https://github.com/login/oauth/access_token");
+		assertThat(request0.headers().getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo("Basic Y2xpZW50LWlkOmNsaWVudC1zZWNyZXQ=");
+		assertThat(request0.url().toASCIIString()).isEqualTo("https://example.com/login/oauth/access_token");
 		assertThat(request0.method()).isEqualTo(HttpMethod.POST);
 		assertThat(getBody(request0)).isEqualTo("grant_type=refresh_token&refresh_token=refresh-token");
 
@@ -234,7 +222,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	public void filterWhenRefreshTokenNullThenShouldRefreshFalse() {
 		this.function = new ServerOAuth2AuthorizedClientExchangeFilterFunction(this.authorizedClientService);
 
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.github,
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration,
 				"principalName", this.accessToken);
 		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
 				.attributes(oauth2AuthorizedClient(authorizedClient))
@@ -257,7 +245,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		this.function = new ServerOAuth2AuthorizedClientExchangeFilterFunction(this.authorizedClientService);
 
 		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", this.accessToken.getIssuedAt(), this.accessToken.getExpiresAt());
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.github,
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration,
 				"principalName", this.accessToken, refreshToken);
 		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
 				.attributes(oauth2AuthorizedClient(authorizedClient))

@@ -23,10 +23,9 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.ReactiveOAuth2UserService;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
@@ -57,17 +56,8 @@ public class OidcReactiveOAuth2UserServiceTests {
 	@Mock
 	private ReactiveOAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService;
 
-	private ClientRegistration.Builder registration = ClientRegistration.withRegistrationId("id")
-			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-			.authorizationUri("https://example.com/oauth2/authorize")
-			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-			.userInfoUri("https://example.com/users/me")
-			.clientId("client-id")
-			.clientName("client-name")
-			.clientSecret("client-secret")
-			.redirectUriTemplate("{baseUrl}/login/oauth2/code/{registrationId}")
-			.scope("user")
-			.tokenUri("https://example.com/oauth/access_token");
+	private ClientRegistration.Builder registration = TestClientRegistrations.clientRegistration()
+			.userNameAttributeName(IdTokenClaimNames.SUB);
 
 	private OidcIdToken idToken = new OidcIdToken("token123", Instant.now(),
 			Instant.now().plusSeconds(3600), Collections
@@ -77,7 +67,7 @@ public class OidcReactiveOAuth2UserServiceTests {
 			"token",
 			Instant.now(),
 			Instant.now().plus(Duration.ofDays(1)),
-			Collections.singleton("user"));
+			Collections.singleton("read:user"));
 
 	private OidcReactiveOAuth2UserService userService = new OidcReactiveOAuth2UserService();
 

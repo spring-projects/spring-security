@@ -19,8 +19,7 @@ package org.springframework.security.oauth2.client.oidc.authentication;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
@@ -38,17 +37,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
  * @since 5.1
  */
 public class OidcTokenValidatorTests {
-	private ClientRegistration.Builder registration = ClientRegistration.withRegistrationId("client-foo-bar")
-		.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-		.authorizationUri("https://example.com/oauth2/authorize")
-		.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-		.userInfoUri("https://example.com/users/me")
-		.clientId("client-id")
-		.clientName("client-name")
-		.clientSecret("client-secret")
-		.redirectUriTemplate("{baseUrl}/login/oauth2/code/{registrationId}")
-		.scope("user")
-		.tokenUri("https://example.com/oauth/access_token");
+	private ClientRegistration.Builder registration = TestClientRegistrations.clientRegistration();
 
 	private Map<String, Object> claims = new HashMap<>();
 	private Instant issuedAt = Instant.now();

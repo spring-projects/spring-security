@@ -35,6 +35,7 @@ import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuth
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
+import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -80,32 +81,8 @@ public class OAuth2LoginAuthenticationFilterTests {
 
 	@Before
 	public void setUp() {
-		this.registration1 = ClientRegistration.withRegistrationId("registration-1")
-			.clientId("client-1")
-			.clientSecret("secret")
-			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-			.redirectUriTemplate("{baseUrl}/login/oauth2/code/{registrationId}")
-			.scope("user")
-			.authorizationUri("https://provider.com/oauth2/authorize")
-			.tokenUri("https://provider.com/oauth2/token")
-			.userInfoUri("https://provider.com/oauth2/user")
-			.userNameAttributeName("id")
-			.clientName("client-1")
-			.build();
-		this.registration2 = ClientRegistration.withRegistrationId("registration-2")
-			.clientId("client-2")
-			.clientSecret("secret")
-			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-			.redirectUriTemplate("{baseUrl}/login/oauth2/code/{registrationId}")
-			.scope("openid", "profile", "email")
-			.authorizationUri("https://provider.com/oauth2/authorize")
-			.tokenUri("https://provider.com/oauth2/token")
-			.userInfoUri("https://provider.com/oauth2/userinfo")
-			.jwkSetUri("https://provider.com/oauth2/keys")
-			.clientName("client-2")
-			.build();
+		this.registration1 = TestClientRegistrations.clientRegistration().build();
+		this.registration2 = TestClientRegistrations.clientRegistration2().build();
 		this.clientRegistrationRepository = new InMemoryClientRegistrationRepository(
 			this.registration1, this.registration2);
 		this.authorizedClientService = new InMemoryOAuth2AuthorizedClientService(this.clientRegistrationRepository);

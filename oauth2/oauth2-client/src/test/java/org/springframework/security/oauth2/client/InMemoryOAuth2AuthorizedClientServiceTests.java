@@ -20,8 +20,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,53 +33,17 @@ import static org.mockito.Mockito.when;
  * @author Joe Grandja
  */
 public class InMemoryOAuth2AuthorizedClientServiceTests {
-	private String registrationId1 = "registration-1";
-	private String registrationId2 = "registration-2";
-	private String registrationId3 = "registration-3";
 	private String principalName1 = "principal-1";
 	private String principalName2 = "principal-2";
 
-	private ClientRegistration registration1 = ClientRegistration.withRegistrationId(this.registrationId1)
-		.clientId("client-1")
-		.clientSecret("secret")
-		.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-		.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-		.redirectUriTemplate("{baseUrl}/login/oauth2/code/{registrationId}")
-		.scope("user")
-		.authorizationUri("https://provider.com/oauth2/authorize")
-		.tokenUri("https://provider.com/oauth2/token")
-		.userInfoUri("https://provider.com/oauth2/user")
-		.userNameAttributeName("id")
-		.clientName("client-1")
-		.build();
+	private ClientRegistration registration1 = TestClientRegistrations.clientRegistration().build();
 
-	private ClientRegistration registration2 = ClientRegistration.withRegistrationId(this.registrationId2)
-		.clientId("client-2")
-		.clientSecret("secret")
-		.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-		.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-		.redirectUriTemplate("{baseUrl}/login/oauth2/code/{registrationId}")
-		.scope("openid", "profile", "email")
-		.authorizationUri("https://provider.com/oauth2/authorize")
-		.tokenUri("https://provider.com/oauth2/token")
-		.userInfoUri("https://provider.com/oauth2/userinfo")
-		.jwkSetUri("https://provider.com/oauth2/keys")
-		.clientName("client-2")
-		.build();
+	private ClientRegistration registration2 = TestClientRegistrations.clientRegistration2().build();
 
-	private ClientRegistration registration3 = ClientRegistration.withRegistrationId(this.registrationId3)
-		.clientId("client-3")
-		.clientSecret("secret")
-		.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-		.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-		.redirectUriTemplate("{baseUrl}/login/oauth2/code/{registrationId}")
-		.scope("openid", "profile")
-		.authorizationUri("https://provider.com/oauth2/authorize")
-		.tokenUri("https://provider.com/oauth2/token")
-		.userInfoUri("https://provider.com/oauth2/userinfo")
-		.jwkSetUri("https://provider.com/oauth2/keys")
-		.clientName("client-3")
-		.build();
+	private ClientRegistration registration3 = TestClientRegistrations.clientRegistration()
+			.clientId("client-3")
+			.registrationId("registration-3")
+			.build();
 
 	private ClientRegistrationRepository clientRegistrationRepository =
 		new InMemoryClientRegistrationRepository(this.registration1, this.registration2, this.registration3);
@@ -101,7 +64,7 @@ public class InMemoryOAuth2AuthorizedClientServiceTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void loadAuthorizedClientWhenPrincipalNameIsNullThenThrowIllegalArgumentException() {
-		this.authorizedClientService.loadAuthorizedClient(this.registrationId1, null);
+		this.authorizedClientService.loadAuthorizedClient(this.registration1.getRegistrationId(), null);
 	}
 
 	@Test
@@ -114,7 +77,7 @@ public class InMemoryOAuth2AuthorizedClientServiceTests {
 	@Test
 	public void loadAuthorizedClientWhenClientRegistrationFoundButNotAssociatedToPrincipalThenReturnNull() {
 		OAuth2AuthorizedClient authorizedClient = this.authorizedClientService.loadAuthorizedClient(
-			this.registrationId1, "principal-not-found");
+			this.registration1.getRegistrationId(), "principal-not-found");
 		assertThat(authorizedClient).isNull();
 	}
 
@@ -128,7 +91,7 @@ public class InMemoryOAuth2AuthorizedClientServiceTests {
 		this.authorizedClientService.saveAuthorizedClient(authorizedClient, authentication);
 
 		OAuth2AuthorizedClient loadedAuthorizedClient = this.authorizedClientService.loadAuthorizedClient(
-			this.registrationId1, this.principalName1);
+			this.registration1.getRegistrationId(), this.principalName1);
 		assertThat(loadedAuthorizedClient).isEqualTo(authorizedClient);
 	}
 
@@ -152,7 +115,7 @@ public class InMemoryOAuth2AuthorizedClientServiceTests {
 		this.authorizedClientService.saveAuthorizedClient(authorizedClient, authentication);
 
 		OAuth2AuthorizedClient loadedAuthorizedClient = this.authorizedClientService.loadAuthorizedClient(
-			this.registrationId3, this.principalName2);
+			this.registration3.getRegistrationId(), this.principalName2);
 		assertThat(loadedAuthorizedClient).isEqualTo(authorizedClient);
 	}
 
@@ -163,7 +126,7 @@ public class InMemoryOAuth2AuthorizedClientServiceTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void removeAuthorizedClientWhenPrincipalNameIsNullThenThrowIllegalArgumentException() {
-		this.authorizedClientService.removeAuthorizedClient(this.registrationId2, null);
+		this.authorizedClientService.removeAuthorizedClient(this.registration3.getRegistrationId(), null);
 	}
 
 	@Test
@@ -176,13 +139,13 @@ public class InMemoryOAuth2AuthorizedClientServiceTests {
 		this.authorizedClientService.saveAuthorizedClient(authorizedClient, authentication);
 
 		OAuth2AuthorizedClient loadedAuthorizedClient = this.authorizedClientService.loadAuthorizedClient(
-			this.registrationId2, this.principalName2);
+			this.registration2.getRegistrationId(), this.principalName2);
 		assertThat(loadedAuthorizedClient).isNotNull();
 
-		this.authorizedClientService.removeAuthorizedClient(this.registrationId2, this.principalName2);
+		this.authorizedClientService.removeAuthorizedClient(this.registration2.getRegistrationId(), this.principalName2);
 
 		loadedAuthorizedClient = this.authorizedClientService.loadAuthorizedClient(
-			this.registrationId2, this.principalName2);
+			this.registration2.getRegistrationId(), this.principalName2);
 		assertThat(loadedAuthorizedClient).isNull();
 	}
 }

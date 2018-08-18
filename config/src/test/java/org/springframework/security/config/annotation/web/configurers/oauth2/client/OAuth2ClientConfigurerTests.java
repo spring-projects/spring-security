@@ -37,6 +37,7 @@ import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCo
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
+import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.client.web.AuthenticatedPrincipalOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
@@ -98,7 +99,8 @@ public class OAuth2ClientConfigurerTests {
 
 	@Before
 	public void setup() {
-		this.registration1 = ClientRegistration.withRegistrationId("registration-1")
+		this.registration1 = TestClientRegistrations.clientRegistration()
+			.registrationId("registration-1")
 			.clientId("client-1")
 			.clientSecret("secret")
 			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)

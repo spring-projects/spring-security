@@ -24,8 +24,8 @@ import org.springframework.security.oauth2.client.ClientAuthorizationRequiredExc
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
+import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.util.ClassUtils;
@@ -60,41 +60,12 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 
 	@Before
 	public void setUp() {
-		this.registration1 = ClientRegistration.withRegistrationId("registration-1")
-			.clientId("client-1")
-			.clientSecret("secret")
-			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-			.redirectUriTemplate("{baseUrl}/{action}/oauth2/code/{registrationId}")
-			.scope("user")
-			.authorizationUri("https://provider.com/oauth2/authorize")
-			.tokenUri("https://provider.com/oauth2/token")
-			.userInfoUri("https://provider.com/oauth2/user")
-			.userNameAttributeName("id")
-			.clientName("client-1")
-			.build();
-		this.registration2 = ClientRegistration.withRegistrationId("registration-2")
-			.clientId("client-2")
-			.clientSecret("secret")
-			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-			.redirectUriTemplate("{baseUrl}/{action}/oauth2/code/{registrationId}")
-			.scope("openid", "profile", "email")
-			.authorizationUri("https://provider.com/oauth2/authorize")
-			.tokenUri("https://provider.com/oauth2/token")
-			.userInfoUri("https://provider.com/oauth2/userinfo")
-			.jwkSetUri("https://provider.com/oauth2/keys")
-			.clientName("client-2")
-			.build();
-		this.registration3 = ClientRegistration.withRegistrationId("registration-3")
-			.clientId("client-3")
+		this.registration1 = TestClientRegistrations.clientRegistration().build();
+		this.registration2 = TestClientRegistrations.clientRegistration2().build();
+		this.registration3 = TestClientRegistrations.clientRegistration()
+			.registrationId("registration-3")
 			.authorizationGrantType(AuthorizationGrantType.IMPLICIT)
 			.redirectUriTemplate("{baseUrl}/authorize/oauth2/implicit/{registrationId}")
-			.scope("openid", "profile", "email")
-			.authorizationUri("https://provider.com/oauth2/authorize")
-			.tokenUri("https://provider.com/oauth2/token")
-			.userInfoUri("https://provider.com/oauth2/userinfo")
-			.clientName("client-3")
 			.build();
 		this.clientRegistrationRepository = new InMemoryClientRegistrationRepository(
 			this.registration1, this.registration2, this.registration3);
@@ -180,7 +151,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 
 		verifyZeroInteractions(filterChain);
 
-		assertThat(response.getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fregistration-1");
+		assertThat(response.getRedirectedUrl()).matches("https://example.com/login/oauth/authorize\\?response_type=code&client_id=client-id&scope=read%3Auser&state=.{15,}&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fregistration-id");
 	}
 
 	@Test
@@ -216,7 +187,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 
 		verifyZeroInteractions(filterChain);
 
-		assertThat(response.getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?response_type=token&client_id=client-3&scope=openid\\+profile\\+email&state=.{15,}&redirect_uri=http%3A%2F%2Flocalhost%2Fauthorize%2Foauth2%2Fimplicit%2Fregistration-3");
+		assertThat(response.getRedirectedUrl()).matches("https://example.com/login/oauth/authorize\\?response_type=token&client_id=client-id&scope=read%3Auser&state=.{15,}&redirect_uri=http%3A%2F%2Flocalhost%2Fauthorize%2Foauth2%2Fimplicit%2Fregistration-3");
 	}
 
 	@Test
@@ -254,7 +225,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 
 		verifyZeroInteractions(filterChain);
 
-		assertThat(response.getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fregistration-1");
+		assertThat(response.getRedirectedUrl()).matches("https://example.com/login/oauth/authorize\\?response_type=code&client_id=client-id&scope=read%3Auser&state=.{15,}&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fregistration-id");
 	}
 
 	@Test
@@ -272,7 +243,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 
 		verify(filterChain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 
-		assertThat(response.getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=http%3A%2F%2Flocalhost%2Fauthorize%2Foauth2%2Fcode%2Fregistration-1");
+		assertThat(response.getRedirectedUrl()).matches("https://example.com/login/oauth/authorize\\?response_type=code&client_id=client-id&scope=read%3Auser&state=.{15,}&redirect_uri=http%3A%2F%2Flocalhost%2Fauthorize%2Foauth2%2Fcode%2Fregistration-id");
 		verify(this.requestCache).saveRequest(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
@@ -327,7 +298,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 
 		verifyZeroInteractions(filterChain);
 
-		assertThat(response.getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fregistration-1&idp=https%3A%2F%2Fother.provider.com");
+		assertThat(response.getRedirectedUrl()).matches("https://example.com/login/oauth/authorize\\?response_type=code&client_id=client-id&scope=read%3Auser&state=.{15,}&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fregistration-id&idp=https%3A%2F%2Fother.provider.com");
 	}
 
 	// gh-4911, gh-5244
@@ -368,6 +339,6 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 
 		verifyZeroInteractions(filterChain);
 
-		assertThat(response.getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fregistration-1&login_hint=user@provider\\.com");
+		assertThat(response.getRedirectedUrl()).matches("https://example.com/login/oauth/authorize\\?response_type=code&client_id=client-id&scope=read%3Auser&state=.{15,}&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fregistration-id&login_hint=user@provider\\.com");
 	}
 }

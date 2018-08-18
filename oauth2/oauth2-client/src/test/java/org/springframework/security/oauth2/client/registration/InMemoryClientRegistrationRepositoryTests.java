@@ -17,8 +17,6 @@
 package org.springframework.security.oauth2.client.registration;
 
 import org.junit.Test;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,17 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 5.0
  */
 public class InMemoryClientRegistrationRepositoryTests {
-	private ClientRegistration registration = ClientRegistration.withRegistrationId("id")
-		.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-		.authorizationUri("https://example.com/oauth2/authorize")
-		.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-		.clientId("client-id")
-		.clientName("client-name")
-		.clientSecret("client-secret")
-		.redirectUriTemplate("{baseUrl}/login/oauth2/code/{registrationId}")
-		.scope("user")
-		.tokenUri("https://example.com/oauth/access_token")
-		.build();
+	private ClientRegistration registration = TestClientRegistrations.clientRegistration().build();
 
 	private InMemoryClientRegistrationRepository clients = new InMemoryClientRegistrationRepository(this.registration);
 

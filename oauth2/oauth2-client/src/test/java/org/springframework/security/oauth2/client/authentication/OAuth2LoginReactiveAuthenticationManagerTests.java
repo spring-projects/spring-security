@@ -39,6 +39,7 @@ import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClient
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.ReactiveOAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.ReactiveOAuth2UserService;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -70,19 +71,7 @@ public class OAuth2LoginReactiveAuthenticationManagerTests {
 	@Mock
 	private ReactiveOAuth2AuthorizedClientService authorizedClientService;
 
-	private ClientRegistration.Builder registration = ClientRegistration.withRegistrationId("github")
-			.redirectUriTemplate("{baseUrl}/{action}/oauth2/code/{registrationId}")
-			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-			.scope("read:user")
-			.authorizationUri("https://github.com/login/oauth/authorize")
-			.tokenUri("https://github.com/login/oauth/access_token")
-			.userInfoUri("https://api.github.com/user")
-			.userNameAttributeName("id")
-			.clientName("GitHub")
-			.clientId("clientId")
-			.jwkSetUri("https://example.com/oauth2/jwk")
-			.clientSecret("clientSecret");
+	private ClientRegistration.Builder registration = TestClientRegistrations.clientRegistration();
 
 	OAuth2AuthorizationResponse.Builder authorizationResponseBldr = OAuth2AuthorizationResponse
 			.success("code")

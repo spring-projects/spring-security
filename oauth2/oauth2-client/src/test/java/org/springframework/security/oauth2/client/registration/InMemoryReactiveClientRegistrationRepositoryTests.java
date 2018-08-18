@@ -23,8 +23,6 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 
 import reactor.test.StepVerifier;
 
@@ -34,25 +32,13 @@ import reactor.test.StepVerifier;
  */
 public class InMemoryReactiveClientRegistrationRepositoryTests {
 
-	private ClientRegistration github = ClientRegistration.withRegistrationId("github")
-			.redirectUriTemplate("{baseUrl}/{action}/oauth2/code/{registrationId}")
-			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-			.scope("read:user")
-			.authorizationUri("https://github.com/login/oauth/authorize")
-			.tokenUri("https://github.com/login/oauth/access_token")
-			.userInfoUri("https://api.github.com/user")
-			.userNameAttributeName("id")
-			.clientName("GitHub")
-			.clientId("clientId")
-			.clientSecret("clientSecret")
-			.build();
+	private ClientRegistration registration = TestClientRegistrations.clientRegistration().build();
 
 	private InMemoryReactiveClientRegistrationRepository repository;
 
 	@Before
 	public void setup() {
-		this.repository = new InMemoryReactiveClientRegistrationRepository(this.github);
+		this.repository = new InMemoryReactiveClientRegistrationRepository(this.registration);
 	}
 
 	@Test
@@ -84,20 +70,20 @@ public class InMemoryReactiveClientRegistrationRepositoryTests {
 
 	@Test
 	public void findByRegistrationIdWhenValidIdThenFound() {
-		StepVerifier.create(this.repository.findByRegistrationId(this.github.getRegistrationId()))
-				.expectNext(this.github)
+		StepVerifier.create(this.repository.findByRegistrationId(this.registration.getRegistrationId()))
+				.expectNext(this.registration)
 				.verifyComplete();
 	}
 
 	@Test
 	public void findByRegistrationIdWhenNotValidIdThenEmpty() {
-		StepVerifier.create(this.repository.findByRegistrationId(this.github.getRegistrationId() + "invalid"))
+		StepVerifier.create(this.repository.findByRegistrationId(this.registration.getRegistrationId() + "invalid"))
 				.verifyComplete();
 	}
 
 	@Test
 	public void iteratorWhenContainsGithubThenContains() {
 		assertThat(this.repository.iterator())
-			.containsOnly(this.github);
+			.containsOnly(this.registration);
 	}
 }

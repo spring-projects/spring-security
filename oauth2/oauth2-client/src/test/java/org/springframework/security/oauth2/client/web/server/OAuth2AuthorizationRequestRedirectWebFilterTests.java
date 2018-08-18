@@ -24,8 +24,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.oauth2.client.ClientAuthorizationRequiredException;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.test.web.reactive.server.FluxExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -54,19 +53,7 @@ public class OAuth2AuthorizationRequestRedirectWebFilterTests {
 	@Mock
 	private ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authzRequestRepository;
 
-	private ClientRegistration github = ClientRegistration.withRegistrationId("github")
-			.redirectUriTemplate("{baseUrl}/{action}/oauth2/code/{registrationId}")
-			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-			.scope("read:user")
-			.authorizationUri("https://github.com/login/oauth/authorize")
-			.tokenUri("https://github.com/login/oauth/access_token")
-			.userInfoUri("https://api.github.com/user")
-			.userNameAttributeName("id")
-			.clientName("GitHub")
-			.clientId("clientId")
-			.clientSecret("clientSecret")
-			.build();
+	private ClientRegistration registration = TestClientRegistrations.clientRegistration().build();
 
 	private OAuth2AuthorizationRequestRedirectWebFilter filter;
 
@@ -79,8 +66,8 @@ public class OAuth2AuthorizationRequestRedirectWebFilterTests {
 		FilteringWebHandler webHandler = new FilteringWebHandler(e -> e.getResponse().setComplete(), Arrays.asList(this.filter));
 
 		this.client = WebTestClient.bindToWebHandler(webHandler).build();
-		when(this.clientRepository.findByRegistrationId(this.github.getRegistrationId())).thenReturn(
-				Mono.just(this.github));
+		when(this.clientRepository.findByRegistrationId(this.registration.getRegistrationId())).thenReturn(
+				Mono.just(this.registration));
 		when(this.authzRequestRepository.saveAuthorizationRequest(any(), any())).thenReturn(
 				Mono.empty());
 	}
@@ -118,19 +105,19 @@ public class OAuth2AuthorizationRequestRedirectWebFilterTests {
 	@Test
 	public void filterWhenDoesMatchThenClientRegistrationRepositoryNotSubscribed() {
 		FluxExchangeResult<String> result = this.client.get()
-				.uri("https://example.com/oauth2/authorization/github").exchange()
+				.uri("https://example.com/oauth2/authorization/registration-id").exchange()
 				.expectStatus().is3xxRedirection().returnResult(String.class);
 		result.assertWithDiagnostics(() -> {
 			URI location = result.getResponseHeaders().getLocation();
 			assertThat(location)
 					.hasScheme("https")
-					.hasHost("github.com")
+					.hasHost("example.com")
 					.hasPath("/login/oauth/authorize")
 					.hasParameter("response_type", "code")
-					.hasParameter("client_id", "clientId")
+					.hasParameter("client_id", "client-id")
 					.hasParameter("scope", "read:user")
 					.hasParameter("state")
-					.hasParameter("redirect_uri", "https://example.com/login/oauth2/code/github");
+					.hasParameter("redirect_uri", "https://example.com/login/oauth2/code/registration-id");
 		});
 		verify(this.authzRequestRepository).saveAuthorizationRequest(any(), any());
 	}
@@ -139,25 +126,26 @@ public class OAuth2AuthorizationRequestRedirectWebFilterTests {
 	@Test
 	public void filterWhenDoesMatchThenResolveRedirectUriExpandedExcludesQueryString() {
 		FluxExchangeResult<String> result = this.client.get()
-				.uri("https://example.com/oauth2/authorization/github?foo=bar").exchange()
+				.uri("https://example.com/oauth2/authorization/registration-id?foo=bar").exchange()
 				.expectStatus().is3xxRedirection().returnResult(String.class);
 		result.assertWithDiagnostics(() -> {
 			URI location = result.getResponseHeaders().getLocation();
 			assertThat(location)
 					.hasScheme("https")
-					.hasHost("github.com")
+					.hasHost("example.com")
 					.hasPath("/login/oauth/authorize")
 					.hasParameter("response_type", "code")
-					.hasParameter("client_id", "clientId")
+					.hasParameter("client_id", "client-id")
 					.hasParameter("scope", "read:user")
 					.hasParameter("state")
-					.hasParameter("redirect_uri", "https://example.com/login/oauth2/code/github");
+					.hasParameter("redirect_uri", "https://example.com/login/oauth2/code/registration-id");
 		});
 	}
 
 	@Test
 	public void filterWhenExceptionThenRedirected() {
-		FilteringWebHandler webHandler = new FilteringWebHandler(e -> Mono.error(new ClientAuthorizationRequiredException(this.github.getRegistrationId())), Arrays.asList(this.filter));
+		FilteringWebHandler webHandler = new FilteringWebHandler(e -> Mono.error(new ClientAuthorizationRequiredException(this.registration
+				.getRegistrationId())), Arrays.asList(this.filter));
 		this.client = WebTestClient.bindToWebHandler(webHandler).build();
 		FluxExchangeResult<String> result = this.client.get()
 				.uri("https://example.com/foo").exchange()
