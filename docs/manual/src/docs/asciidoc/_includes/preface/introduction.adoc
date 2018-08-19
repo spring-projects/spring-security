@@ -16,7 +16,7 @@ Whilst mentioning these standards, it's important to recognise that they are not
 Therefore, if you switch server environments, it is typically a lot of work to reconfigure your application's security in the new target environment.
 Using Spring Security overcomes these problems, and also brings you dozens of other useful, customisable security features.
 
-As you probably know two major areas of application security are "authentication" and "authorization" (or "access-control").
+As you probably know two major areas of application security are _authentication_ and _authorization_ (or _access-control_).
 These are the two main areas that Spring Security targets.
 "Authentication" is the process of establishing a principal is who they claim to be (a "principal" generally means a user, device or some other system which can perform an action in your application).
 "Authorization" refers to the process of deciding whether a principal is allowed to perform an action within your application.
@@ -121,11 +121,9 @@ There was also a related issue of adding new JARs to the container's classpath, 
 
 Acegi Security-specific authentication services were subsequently introduced.
 Around a year later, Acegi Security became an official Spring Framework subproject.
-The 1.
-0.
-0 final release was published in May 2006 - after more than two and a half years of active use in numerous production software projects and many hundreds of improvements and community contributions.
+The 1.0.0 final release was published in May 2006 - after more than two and a half years of active use in numerous production software projects and many hundreds of improvements and community contributions.
 
-Acegi Security became an official Spring Portfolio project towards the end of 2007 and was rebranded as "Spring Security".
+Acegi Security became an official Spring Portfolio project towards the end of 2007 and was rebranded as _Spring Security_.
 
 Today Spring Security enjoys a strong and active open source community.
 There are thousands of messages about Spring Security on the support forums.
