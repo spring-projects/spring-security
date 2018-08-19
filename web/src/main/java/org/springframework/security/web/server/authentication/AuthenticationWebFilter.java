@@ -138,13 +138,13 @@ public class AuthenticationWebFilter implements WebFilter {
 	 * that no authentication attempt should be made. The default converter is
 	 * {@link ServerHttpBasicAuthenticationConverter}
 	 * @param authenticationConverter the converter to use
-	 * @deprecated As of 5.1 in favor of {@link #setAuthenticationConverter(ServerAuthenticationConverter)}
-	 * @see #setAuthenticationConverter(ServerAuthenticationConverter)
+	 * @deprecated As of 5.1 in favor of {@link #setServerAuthenticationConverter(ServerAuthenticationConverter)}
+	 * @see #setServerAuthenticationConverter(ServerAuthenticationConverter)
 	 */
 	@Deprecated
 	public void setAuthenticationConverter(Function<ServerWebExchange, Mono<Authentication>> authenticationConverter) {
 		Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
-		setAuthenticationConverter((ServerAuthenticationConverter) authenticationConverter);
+		setServerAuthenticationConverter(authenticationConverter::apply);
 	}
 
 	/**
@@ -155,7 +155,8 @@ public class AuthenticationWebFilter implements WebFilter {
 	 * @param authenticationConverter the converter to use
 	 * @since 5.1
 	 */
-	public void setAuthenticationConverter(ServerAuthenticationConverter authenticationConverter) {
+	public void setServerAuthenticationConverter(
+			ServerAuthenticationConverter authenticationConverter) {
 		Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
 		this.authenticationConverter = authenticationConverter;
 	}
@@ -172,7 +173,7 @@ public class AuthenticationWebFilter implements WebFilter {
 
 	/**
 	 * Sets the matcher used to determine when creating an {@link Authentication} from
-	 * {@link #setAuthenticationConverter(ServerAuthenticationConverter)} to be authentication. If the converter returns an empty
+	 * {@link #setServerAuthenticationConverter(ServerAuthenticationConverter)} to be authentication. If the converter returns an empty
 	 * result, then no authentication is attempted. The default is any request
 	 * @param requiresAuthenticationMatcher the matcher to use. Cannot be null.
 	 */

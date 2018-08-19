@@ -16,6 +16,7 @@
 package org.springframework.security.web.server;
 
 import java.util.Base64;
+import java.util.function.Function;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -32,7 +33,9 @@ import reactor.core.publisher.Mono;
  * @author Rob Winch
  * @since 5.0
  */
-public class ServerHttpBasicAuthenticationConverter implements ServerAuthenticationConverter {
+public class ServerHttpBasicAuthenticationConverter implements
+		ServerAuthenticationConverter,
+		Function<ServerWebExchange, Mono<Authentication>> {
 
 	public static final String BASIC = "Basic ";
 
@@ -59,6 +62,18 @@ public class ServerHttpBasicAuthenticationConverter implements ServerAuthenticat
 		String password = userParts[1];
 
 		return Mono.just(new UsernamePasswordAuthenticationToken(username, password));
+	}
+
+	/**
+	 * Alias for {@link #convert(ServerWebExchange)}
+	 * @param exchange the {@link ServerWebExchange} to use
+	 * @return the {@link Authentication}
+	 * @deprecated Use {@link #convert(ServerWebExchange)}
+	 */
+	@Override
+	@Deprecated
+	public Mono<Authentication> apply(ServerWebExchange exchange) {
+		return convert(exchange);
 	}
 
 	private byte[] base64Decode(String value) {

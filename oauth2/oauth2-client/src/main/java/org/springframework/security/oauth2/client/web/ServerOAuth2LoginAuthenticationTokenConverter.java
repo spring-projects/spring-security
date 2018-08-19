@@ -38,9 +38,10 @@ import reactor.core.publisher.Mono;
  * converter does not validate any errors it only performs a conversion.
  * @author Rob Winch
  * @since 5.1
- * @see org.springframework.security.web.server.authentication.AuthenticationWebFilter#setAuthenticationConverter(ServerAuthenticationConverter)
+ * @see org.springframework.security.web.server.authentication.AuthenticationWebFilter#setServerAuthenticationConverter(ServerAuthenticationConverter)
  */
-public class ServerOAuth2LoginAuthenticationTokenConverter implements ServerAuthenticationConverter {
+public class ServerOAuth2LoginAuthenticationTokenConverter
+		implements ServerAuthenticationConverter {
 
 	static final String AUTHORIZATION_REQUEST_NOT_FOUND_ERROR_CODE = "authorization_request_not_found";
 

@@ -485,7 +485,7 @@ public class ServerHttpSecurity {
 
 			AuthenticationWebFilter authenticationFilter = new AuthenticationWebFilter(manager);
 			authenticationFilter.setRequiresAuthenticationMatcher(new PathPatternParserServerWebExchangeMatcher("/login/oauth2/code/{registrationId}"));
-			authenticationFilter.setAuthenticationConverter(new ServerOAuth2LoginAuthenticationTokenConverter(clientRegistrationRepository));
+			authenticationFilter.setServerAuthenticationConverter(new ServerOAuth2LoginAuthenticationTokenConverter(clientRegistrationRepository));
 
 			RedirectServerAuthenticationSuccessHandler redirectHandler = new RedirectServerAuthenticationSuccessHandler();
 
@@ -651,7 +651,7 @@ public class ServerHttpSecurity {
 					JwtReactiveAuthenticationManager authenticationManager = new JwtReactiveAuthenticationManager(
 							this.jwtDecoder);
 					AuthenticationWebFilter oauth2 = new AuthenticationWebFilter(authenticationManager);
-					oauth2.setAuthenticationConverter(new ServerBearerTokenAuthenticationConverter());
+					oauth2.setServerAuthenticationConverter(new ServerBearerTokenAuthenticationConverter());
 					oauth2.setAuthenticationFailureHandler(new ServerAuthenticationEntryPointFailureHandler(entryPoint));
 					http
 						.exceptionHandling()

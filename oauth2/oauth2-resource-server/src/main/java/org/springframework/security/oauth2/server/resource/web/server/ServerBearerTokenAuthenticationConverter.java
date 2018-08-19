@@ -41,7 +41,8 @@ import java.util.regex.Pattern;
  * @since 5.1
  * @see <a href="https://tools.ietf.org/html/rfc6750#section-2" target="_blank">RFC 6750 Section 2: Authenticated Requests</a>
  */
-public class ServerBearerTokenAuthenticationConverter implements ServerAuthenticationConverter {
+public class ServerBearerTokenAuthenticationConverter
+		implements ServerAuthenticationConverter {
 	private static final Pattern authorizationPattern = Pattern.compile("^Bearer (?<token>[a-zA-Z0-9-._~+/]+)=*$");
 
 	private boolean allowUriQueryParameter = false;

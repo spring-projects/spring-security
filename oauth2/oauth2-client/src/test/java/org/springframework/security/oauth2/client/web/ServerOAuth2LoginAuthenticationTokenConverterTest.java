@@ -102,7 +102,8 @@ public class ServerOAuth2LoginAuthenticationTokenConverterTest {
 
 		assertThatThrownBy(() -> applyConverter())
 				.isInstanceOf(OAuth2AuthenticationException.class)
-				.hasMessageContaining(ServerOAuth2LoginAuthenticationTokenConverter.CLIENT_REGISTRATION_NOT_FOUND_ERROR_CODE);
+				.hasMessageContaining(
+						ServerOAuth2LoginAuthenticationTokenConverter.CLIENT_REGISTRATION_NOT_FOUND_ERROR_CODE);
 	}
 
 	@Test
@@ -112,7 +113,8 @@ public class ServerOAuth2LoginAuthenticationTokenConverterTest {
 
 		assertThatThrownBy(() -> applyConverter())
 				.isInstanceOf(OAuth2AuthenticationException.class)
-				.hasMessageContaining(ServerOAuth2LoginAuthenticationTokenConverter.CLIENT_REGISTRATION_NOT_FOUND_ERROR_CODE);
+				.hasMessageContaining(
+						ServerOAuth2LoginAuthenticationTokenConverter.CLIENT_REGISTRATION_NOT_FOUND_ERROR_CODE);
 	}
 
 	@Test

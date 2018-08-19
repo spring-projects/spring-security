@@ -24,6 +24,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
 
+import java.util.function.Function;
+
 /**
  * Converts a ServerWebExchange into a UsernamePasswordAuthenticationToken from the form
  * data HTTP parameters.
@@ -31,7 +33,9 @@ import org.springframework.web.server.ServerWebExchange;
  * @author Rob Winch
  * @since 5.0
  */
-public class ServerFormLoginAuthenticationConverter implements ServerAuthenticationConverter {
+public class ServerFormLoginAuthenticationConverter implements
+		ServerAuthenticationConverter,
+		Function<ServerWebExchange, Mono<Authentication>> {
 
 	private String usernameParameter = "username";
 
@@ -41,6 +45,18 @@ public class ServerFormLoginAuthenticationConverter implements ServerAuthenticat
 	public Mono<Authentication> convert(ServerWebExchange exchange) {
 		return exchange.getFormData()
 			.map( data -> createAuthentication(data));
+	}
+
+	/**
+	 * Alias for {@link #convert(ServerWebExchange)}
+	 * @param exchange the {@link ServerWebExchange} to use
+	 * @return the {@link Authentication}
+	 * @deprecated Use {@link #convert(ServerWebExchange)}
+	 */
+	@Override
+	@Deprecated
+	public Mono<Authentication> apply(ServerWebExchange exchange) {
+		return convert(exchange);
 	}
 
 	private UsernamePasswordAuthenticationToken createAuthentication(
