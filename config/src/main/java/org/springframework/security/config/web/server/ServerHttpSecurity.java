@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.web.server;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.security.interfaces.RSAPublicKey;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import reactor.core.publisher.Mono;
 
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -40,11 +55,11 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.userinfo.DefaultReactiveOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.ReactiveOAuth2UserService;
-import org.springframework.security.oauth2.client.web.server.OAuth2AuthorizationRequestRedirectWebFilter;
 import org.springframework.security.oauth2.client.web.server.AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository;
-import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
-import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizationCodeAuthenticationTokenConverter;
 import org.springframework.security.oauth2.client.web.server.OAuth2AuthorizationCodeGrantWebFilter;
+import org.springframework.security.oauth2.client.web.server.OAuth2AuthorizationRequestRedirectWebFilter;
+import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizationCodeAuthenticationTokenConverter;
+import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.server.authentication.OAuth2LoginAuthenticationWebFilter;
 import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
@@ -85,6 +100,8 @@ import org.springframework.security.web.server.header.CacheControlServerHttpHead
 import org.springframework.security.web.server.header.CompositeServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.ContentTypeOptionsServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.HttpHeaderWriterWebFilter;
+import org.springframework.security.web.server.header.ReferrerPolicyServerHttpHeadersWriter;
+import org.springframework.security.web.server.header.ReferrerPolicyServerHttpHeadersWriter.ReferrerPolicy;
 import org.springframework.security.web.server.header.ServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.StrictTransportSecurityServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.XFrameOptionsServerHttpHeadersWriter;
@@ -109,22 +126,8 @@ import org.springframework.web.cors.reactive.DefaultCorsProcessor;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
-import reactor.core.publisher.Mono;
-
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.security.interfaces.RSAPublicKey;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import static org.springframework.security.web.server.DelegatingServerAuthenticationEntryPoint.DelegateEntry;
-
 
 /**
  * A {@link ServerHttpSecurity} is similar to Spring Security's {@code HttpSecurity} but for WebFlux.
@@ -178,6 +181,7 @@ import static org.springframework.security.web.server.DelegatingServerAuthentica
  * }
  *
  * @author Rob Winch
+ * @author Vedran Pavic
  * @since 5.0
  */
 public class ServerHttpSecurity {
@@ -1659,6 +1663,8 @@ public class ServerHttpSecurity {
 
 		private XXssProtectionServerHttpHeadersWriter xss = new XXssProtectionServerHttpHeadersWriter();
 
+		private ReferrerPolicyServerHttpHeadersWriter referrerPolicy = new ReferrerPolicyServerHttpHeadersWriter();
+
 		/**
 		 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}
 		 * @return the {@link ServerHttpSecurity} to continue configuring
@@ -1720,6 +1726,14 @@ public class ServerHttpSecurity {
 		 */
 		public XssProtectionSpec xssProtection() {
 			return new XssProtectionSpec();
+		}
+
+		/**
+		 * Configures {@code Referrer-Policy} response header.
+		 * @return the {@link ReferrerPolicySpec} to configure
+		 */
+		public ReferrerPolicySpec referrerPolicy() {
+			return new ReferrerPolicySpec();
 		}
 
 		/**
@@ -1854,11 +1868,45 @@ public class ServerHttpSecurity {
 			private XssProtectionSpec() {}
 		}
 
+		/**
+		 * Configures {@code Referrer-Policy} response header.
+		 *
+		 * @see #referrerPolicy()
+		 * @since 5.1
+		 */
+		public class ReferrerPolicySpec {
+
+			/**
+			 * Set the policy to be used in the response header. Defaults to the
+			 * {@link ReferrerPolicy#NO_REFERRER} header.
+			 * @param referrerPolicy the policy
+			 * @return the {@link HeaderSpec} to continue configuring
+			 */
+			public HeaderSpec referrerPolicy(ReferrerPolicy referrerPolicy) {
+				HeaderSpec.this.referrerPolicy.setPolicy(referrerPolicy);
+				return HeaderSpec.this;
+			}
+
+			/**
+			 * Allows method chaining to continue configuring the
+			 * {@link ServerHttpSecurity}.
+			 * @return the {@link HeaderSpec} to continue configuring
+			 */
+			public HeaderSpec and() {
+				return HeaderSpec.this;
+			}
+
+			private ReferrerPolicySpec() {
+			}
+
+		}
+
 		private HeaderSpec() {
 			this.writers = new ArrayList<>(
-				Arrays.asList(this.cacheControl, this.contentTypeOptions, this.hsts,
-					this.frameOptions, this.xss));
+					Arrays.asList(this.cacheControl, this.contentTypeOptions, this.hsts,
+							this.frameOptions, this.xss, this.referrerPolicy));
 		}
+
 	}
 
 	/**
