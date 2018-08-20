@@ -39,7 +39,7 @@ import org.springframework.web.client.RestTemplate;
  * @author Josh Cummings
  * @since 5.1
  */
-public class ClientRegistrations {
+public final class ClientRegistrations {
 
 	/**
 	 * Creates a {@link ClientRegistration.Builder}  using the provided
