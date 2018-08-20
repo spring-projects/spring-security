@@ -102,6 +102,8 @@ import org.springframework.security.web.server.header.ContentSecurityPolicyServe
 import org.springframework.security.web.server.header.ContentTypeOptionsServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.FeaturePolicyServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.HttpHeaderWriterWebFilter;
+import org.springframework.security.web.server.header.ReferrerPolicyServerHttpHeadersWriter;
+import org.springframework.security.web.server.header.ReferrerPolicyServerHttpHeadersWriter.ReferrerPolicy;
 import org.springframework.security.web.server.header.ServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.StrictTransportSecurityServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.XFrameOptionsServerHttpHeadersWriter;
@@ -1667,6 +1669,8 @@ public class ServerHttpSecurity {
 
 		private ContentSecurityPolicyServerHttpHeadersWriter contentSecurityPolicy = new ContentSecurityPolicyServerHttpHeadersWriter();
 
+		private ReferrerPolicyServerHttpHeadersWriter referrerPolicy = new ReferrerPolicyServerHttpHeadersWriter();
+
 		/**
 		 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}
 		 * @return the {@link ServerHttpSecurity} to continue configuring
@@ -1746,6 +1750,14 @@ public class ServerHttpSecurity {
 		 */
 		public FeaturePolicySpec featurePolicy(String policyDirectives) {
 			return new FeaturePolicySpec(policyDirectives);
+		}
+
+		/**
+		 * Configures {@code Referrer-Policy} response header.
+		 * @return the {@link ReferrerPolicySpec} to configure
+		 */
+		public ReferrerPolicySpec referrerPolicy() {
+			return new ReferrerPolicySpec();
 		}
 
 		/**
@@ -1937,10 +1949,44 @@ public class ServerHttpSecurity {
 
 		}
 
+		/**
+		 * Configures {@code Referrer-Policy} response header.
+		 *
+		 * @see #referrerPolicy()
+		 * @since 5.1
+		 */
+		public class ReferrerPolicySpec {
+
+			/**
+			 * Set the policy to be used in the response header. Defaults to the
+			 * {@link ReferrerPolicy#NO_REFERRER} header.
+			 * @param referrerPolicy the policy
+			 * @return the {@link HeaderSpec} to continue configuring
+			 */
+			public HeaderSpec referrerPolicy(ReferrerPolicy referrerPolicy) {
+				HeaderSpec.this.referrerPolicy.setPolicy(referrerPolicy);
+				return HeaderSpec.this;
+			}
+
+			/**
+			 * Allows method chaining to continue configuring the
+			 * {@link ServerHttpSecurity}.
+			 * @return the {@link HeaderSpec} to continue configuring
+			 */
+			public HeaderSpec and() {
+				return HeaderSpec.this;
+			}
+
+			private ReferrerPolicySpec() {
+			}
+
+		}
+
 		private HeaderSpec() {
 			this.writers = new ArrayList<>(
 					Arrays.asList(this.cacheControl, this.contentTypeOptions, this.hsts,
-							this.frameOptions, this.xss, this.featurePolicy, this.contentSecurityPolicy));
+							this.frameOptions, this.xss, this.featurePolicy, this.contentSecurityPolicy,
+							this.referrerPolicy));
 		}
 
 	}

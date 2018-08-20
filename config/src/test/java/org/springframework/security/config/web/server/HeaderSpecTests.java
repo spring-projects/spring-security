@@ -30,6 +30,8 @@ import org.springframework.security.test.web.reactive.server.WebTestClientBuilde
 import org.springframework.security.web.server.header.ContentSecurityPolicyServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.ContentTypeOptionsServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.FeaturePolicyServerHttpHeadersWriter;
+import org.springframework.security.web.server.header.ReferrerPolicyServerHttpHeadersWriter;
+import org.springframework.security.web.server.header.ReferrerPolicyServerHttpHeadersWriter.ReferrerPolicy;
 import org.springframework.security.web.server.header.StrictTransportSecurityServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.XFrameOptionsServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.XXssProtectionServerHttpHeadersWriter;
@@ -167,6 +169,15 @@ public class HeaderSpecTests {
 				policyDirectives);
 
 		this.headers.contentSecurityPolicy(policyDirectives);
+
+		assertHeaders();
+	}
+
+	@Test
+	public void headersWhenReferrerPolicyEnabledThenFeaturePolicyWritten() {
+		this.expectedHeaders.add(ReferrerPolicyServerHttpHeadersWriter.REFERRER_POLICY,
+				ReferrerPolicy.NO_REFERRER.getPolicy());
+		this.headers.referrerPolicy();
 
 		assertHeaders();
 	}
