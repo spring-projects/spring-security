@@ -39,6 +39,19 @@ try {
 			}
 		}
 	},
+	snapshots: {
+		stage('Snapshot Tests') {
+			node {
+				checkout scm
+				try {
+					sh "./gradlew clean test -PspringVersion='5.+' -PreactorVersion=Californium-BUILD-SNAPSHOT -PspringDataVersion=Lovelace-BUILD-SNAPSHOT --refresh-dependencies --no-daemon --stacktrace"
+				} catch(Exception e) {
+					currentBuild.result = 'FAILED: snapshots'
+					throw e
+				}
+			}
+		}
+	},
 	jdk9: {
 		stage('JDK 9') {
 			node {
