@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,36 +16,41 @@
 
 package org.springframework.security.config.web.server;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.http.HttpHeaders;
-import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
-import org.springframework.security.web.server.header.ContentTypeOptionsServerHttpHeadersWriter;
-import org.springframework.security.web.server.header.StrictTransportSecurityServerHttpHeadersWriter;
-import org.springframework.security.web.server.header.XFrameOptionsServerHttpHeadersWriter;
-import org.springframework.security.web.server.header.XXssProtectionServerHttpHeadersWriter;
-import org.springframework.test.web.reactive.server.FluxExchangeResult;
-import org.springframework.test.web.reactive.server.WebTestClient;
-
 import java.time.Duration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.junit.Before;
+import org.junit.Test;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
+import org.springframework.security.web.server.header.ContentTypeOptionsServerHttpHeadersWriter;
+import org.springframework.security.web.server.header.FeaturePolicyServerHttpHeadersWriter;
+import org.springframework.security.web.server.header.StrictTransportSecurityServerHttpHeadersWriter;
+import org.springframework.security.web.server.header.XFrameOptionsServerHttpHeadersWriter;
+import org.springframework.security.web.server.header.XXssProtectionServerHttpHeadersWriter;
+import org.springframework.test.web.reactive.server.FluxExchangeResult;
+import org.springframework.test.web.reactive.server.WebTestClient;
+
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 /**
+ * Tests for {@link ServerHttpSecurity.HeaderSpec}.
+ *
  * @author Rob Winch
+ * @author Vedran Pavic
  * @since 5.0
  */
 public class HeaderSpecTests {
 
-	ServerHttpSecurity.HeaderSpec headers = ServerHttpSecurity.http().headers();
+	private ServerHttpSecurity.HeaderSpec headers = ServerHttpSecurity.http().headers();
 
-	HttpHeaders expectedHeaders = new HttpHeaders();
+	private HttpHeaders expectedHeaders = new HttpHeaders();
 
-	Set<String> headerNamesNotPresent = new HashSet<>();
+	private Set<String> headerNamesNotPresent = new HashSet<>();
 
 	@Before
 	public void setup() {
@@ -139,6 +144,16 @@ public class HeaderSpecTests {
 	public void headersWhenXssProtectionDisableThenXssProtectionNotWritten() {
 		expectHeaderNamesNotPresent("X-Xss-Protection");
 		this.headers.xssProtection().disable();
+
+		assertHeaders();
+	}
+
+	@Test
+	public void headersWhenFeaturePolicyEnabledThenFeaturePolicyWritten() {
+		String policyDirectives = "Feature-Policy";
+		this.expectedHeaders.add(FeaturePolicyServerHttpHeadersWriter.FEATURE_POLICY,
+				policyDirectives);
+		this.headers.featurePolicy(policyDirectives);
 
 		assertHeaders();
 	}
