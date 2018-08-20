@@ -98,6 +98,7 @@ import org.springframework.security.web.server.csrf.CsrfWebFilter;
 import org.springframework.security.web.server.csrf.ServerCsrfTokenRepository;
 import org.springframework.security.web.server.header.CacheControlServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.CompositeServerHttpHeadersWriter;
+import org.springframework.security.web.server.header.ContentSecurityPolicyServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.ContentTypeOptionsServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.FeaturePolicyServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.HttpHeaderWriterWebFilter;
@@ -1664,6 +1665,8 @@ public class ServerHttpSecurity {
 
 		private FeaturePolicyServerHttpHeadersWriter featurePolicy = new FeaturePolicyServerHttpHeadersWriter();
 
+		private ContentSecurityPolicyServerHttpHeadersWriter contentSecurityPolicy = new ContentSecurityPolicyServerHttpHeadersWriter();
+
 		/**
 		 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}
 		 * @return the {@link ServerHttpSecurity} to continue configuring
@@ -1725,6 +1728,15 @@ public class ServerHttpSecurity {
 		 */
 		public XssProtectionSpec xssProtection() {
 			return new XssProtectionSpec();
+		}
+
+		/**
+		 * Configures {@code Content-Security-Policy} response header.
+		 * @param policyDirectives the policy directive(s)
+		 * @return the {@link ContentSecurityPolicySpec} to configure
+		 */
+		public ContentSecurityPolicySpec contentSecurityPolicy(String policyDirectives) {
+			return new ContentSecurityPolicySpec(policyDirectives);
 		}
 
 		/**
@@ -1869,6 +1881,40 @@ public class ServerHttpSecurity {
 		}
 
 		/**
+		 * Configures {@code Content-Security-Policy} response header.
+		 *
+		 * @see #contentSecurityPolicy(String)
+		 * @since 5.1
+		 */
+		public class ContentSecurityPolicySpec {
+
+			/**
+			 * Whether to include the {@code Content-Security-Policy-Report-Only} header in
+			 * the response. Otherwise, defaults to the {@code Content-Security-Policy} header.
+			 * @param reportOnly whether to only report policy violations
+			 * @return the {@link HeaderSpec} to continue configuring
+			 */
+			public HeaderSpec reportOnly(boolean reportOnly) {
+				HeaderSpec.this.contentSecurityPolicy.setReportOnly(reportOnly);
+				return HeaderSpec.this;
+			}
+
+			/**
+			 * Allows method chaining to continue configuring the
+			 * {@link ServerHttpSecurity}.
+			 * @return the {@link HeaderSpec} to continue configuring
+			 */
+			public HeaderSpec and() {
+				return HeaderSpec.this;
+			}
+
+			private ContentSecurityPolicySpec(String policyDirectives) {
+				HeaderSpec.this.contentSecurityPolicy.setPolicyDirectives(policyDirectives);
+			}
+
+		}
+
+		/**
 		 * Configures {@code Feature-Policy} response header.
 		 *
 		 * @see #featurePolicy(String)
@@ -1894,7 +1940,7 @@ public class ServerHttpSecurity {
 		private HeaderSpec() {
 			this.writers = new ArrayList<>(
 					Arrays.asList(this.cacheControl, this.contentTypeOptions, this.hsts,
-							this.frameOptions, this.xss, this.featurePolicy));
+							this.frameOptions, this.xss, this.featurePolicy, this.contentSecurityPolicy));
 		}
 
 	}

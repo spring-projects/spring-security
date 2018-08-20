@@ -27,6 +27,7 @@ import org.junit.Test;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
+import org.springframework.security.web.server.header.ContentSecurityPolicyServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.ContentTypeOptionsServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.FeaturePolicyServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.StrictTransportSecurityServerHttpHeadersWriter;
@@ -153,7 +154,19 @@ public class HeaderSpecTests {
 		String policyDirectives = "Feature-Policy";
 		this.expectedHeaders.add(FeaturePolicyServerHttpHeadersWriter.FEATURE_POLICY,
 				policyDirectives);
+
 		this.headers.featurePolicy(policyDirectives);
+
+		assertHeaders();
+	}
+
+	@Test
+	public void headersWhenContentSecurityPolicyEnabledThenFeaturePolicyWritten() {
+		String policyDirectives = "default-src 'self'";
+		this.expectedHeaders.add(ContentSecurityPolicyServerHttpHeadersWriter.CONTENT_SECURITY_POLICY,
+				policyDirectives);
+
+		this.headers.contentSecurityPolicy(policyDirectives);
 
 		assertHeaders();
 	}
