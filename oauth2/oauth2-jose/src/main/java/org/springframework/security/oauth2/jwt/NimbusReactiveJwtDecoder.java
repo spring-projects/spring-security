@@ -15,6 +15,12 @@
  */
 package org.springframework.security.oauth2.jwt;
 
+import java.security.interfaces.RSAPublicKey;
+import java.time.Instant;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.JWK;
@@ -32,18 +38,13 @@ import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTProcessor;
-import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
-import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
 
-import java.security.interfaces.RSAPublicKey;
-import java.time.Instant;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
+import org.springframework.util.Assert;
 
 /**
- * An implementation of a {@link JwtDecoder} that &quot;decodes&quot; a
+ * An implementation of a {@link ReactiveJwtDecoder} that &quot;decodes&quot; a
  * JSON Web Token (JWT) and additionally verifies it's digital signature if the JWT is a
  * JSON Web Signature (JWS). The public key used for verification is obtained from the
  * JSON Web Key (JWK) Set {@code URL} supplied via the constructor.
@@ -53,7 +54,7 @@ import java.util.Map;
  *
  * @author Rob Winch
  * @since 5.1
- * @see JwtDecoder
+ * @see ReactiveJwtDecoder
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7519">JSON Web Token (JWT)</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7515">JSON Web Signature (JWS)</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7517">JSON Web Key (JWK)</a>
