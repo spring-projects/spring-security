@@ -161,23 +161,10 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>> exte
 		 * Configuration options for the Authorization Server's Authorization Endpoint.
 		 */
 		public class AuthorizationEndpointConfig {
-			private String authorizationRequestBaseUri = OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
 			private OAuth2AuthorizationRequestResolver authorizationRequestResolver;
 			private AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository;
 
 			private AuthorizationEndpointConfig() {
-			}
-
-			/**
-			 * Sets the base {@code URI} used for authorization requests.
-			 *
-			 * @param authorizationRequestBaseUri the base {@code URI} used for authorization requests
-			 * @return the {@link AuthorizationEndpointConfig} for further configuration
-			 */
-			public AuthorizationEndpointConfig baseUri(String authorizationRequestBaseUri) {
-				Assert.hasText(authorizationRequestBaseUri, "authorizationRequestBaseUri cannot be empty");
-				this.authorizationRequestBaseUri = authorizationRequestBaseUri;
-				return this;
 			}
 
 			/**
@@ -222,7 +209,7 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>> exte
 				ClientRegistrationRepository clientRegistrationRepository = OAuth2ClientConfigurerUtils
 						.getClientRegistrationRepository(getBuilder());
 				return new DefaultOAuth2AuthorizationRequestResolver(clientRegistrationRepository,
-						this.authorizationRequestBaseUri);
+						OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI);
 			}
 
 			private OAuth2AuthorizationRequestRedirectFilter createAuthorizationRequestRedirectFilter(B builder) {
