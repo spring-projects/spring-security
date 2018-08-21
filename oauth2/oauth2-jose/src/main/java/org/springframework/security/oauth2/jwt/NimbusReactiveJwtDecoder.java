@@ -40,6 +40,8 @@ import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTProcessor;
 import reactor.core.publisher.Mono;
 
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.util.Assert;
 
@@ -67,6 +69,8 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 
 	private final JWKSelectorFactory jwkSelectorFactory;
 
+	private OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDefault();
+
 	public NimbusReactiveJwtDecoder(RSAPublicKey publicKey) {
 		JWSAlgorithm algorithm = JWSAlgorithm.parse(JwsAlgorithms.RS256);
 
@@ -77,6 +81,7 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 				new JWSVerificationKeySelector<>(algorithm, jwkSource);
 		DefaultJWTProcessor jwtProcessor = new DefaultJWTProcessor<>();
 		jwtProcessor.setJWSKeySelector(jwsKeySelector);
+		jwtProcessor.setJWTClaimsSetVerifier((claims, context) -> {});
 
 		this.jwtProcessor = jwtProcessor;
 		this.reactiveJwkSource = new ReactiveJWKSourceAdapter(jwkSource);
@@ -98,12 +103,23 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 
 		DefaultJWTProcessor<JWKContext> jwtProcessor = new DefaultJWTProcessor<>();
 		jwtProcessor.setJWSKeySelector(jwsKeySelector);
+		jwtProcessor.setJWTClaimsSetVerifier((claims, context) -> {});
 		this.jwtProcessor = jwtProcessor;
 
 		this.reactiveJwkSource = new ReactiveRemoteJWKSource(jwkSetUrl);
 
 		this.jwkSelectorFactory = new JWKSelectorFactory(algorithm);
 
+	}
+
+	/**
+	 * Use the provided {@link OAuth2TokenValidator} to validate incoming {@link Jwt}s.
+	 *
+	 * @param jwtValidator the {@link OAuth2TokenValidator} to use
+	 */
+	public void setJwtValidator(OAuth2TokenValidator<Jwt> jwtValidator) {
+		Assert.notNull(jwtValidator, "jwtValidator cannot be null");
+		this.jwtValidator = jwtValidator;
 	}
 
 	@Override
@@ -131,7 +147,8 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 				.onErrorMap(e -> new IllegalStateException("Could not obtain the keys", e))
 				.map(jwkList -> createClaimsSet(parsedToken, jwkList))
 				.map(set -> createJwt(parsedToken, set))
-				.onErrorMap(e -> !(e instanceof IllegalStateException), e -> new JwtException("An error occurred while attempting to decode the Jwt: ", e));
+				.map(this::validateJwt)
+				.onErrorMap(e -> !(e instanceof IllegalStateException) && !(e instanceof JwtException), e -> new JwtException("An error occurred while attempting to decode the Jwt: ", e));
 		} catch (RuntimeException ex) {
 			throw new JwtException("An error occurred while attempting to decode the Jwt: " + ex.getMessage(), ex);
 		}
@@ -162,6 +179,17 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 		Map<String, Object> headers = new LinkedHashMap<>(parsedJwt.getHeader().toJSONObject());
 
 		return new Jwt(parsedJwt.getParsedString(), issuedAt, expiresAt, headers, jwtClaimsSet.getClaims());
+	}
+
+	private Jwt validateJwt(Jwt jwt) {
+		OAuth2TokenValidatorResult result = this.jwtValidator.validate(jwt);
+
+		if ( result.hasErrors() ) {
+			String message = result.getErrors().iterator().next().getDescription();
+			throw new JwtValidationException(message, result.getErrors());
+		}
+
+		return jwt;
 	}
 
 	private static RSAKey rsaKey(RSAPublicKey publicKey) {

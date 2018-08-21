@@ -16,12 +16,6 @@
 
 package org.springframework.security.oauth2.jwt;
 
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.net.UnknownHostException;
 import java.security.KeyFactory;
 import java.security.interfaces.RSAPublicKey;
@@ -29,8 +23,21 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.Date;
 
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -114,7 +121,7 @@ public class NimbusReactiveJwtDecoderTests {
 	@Test
 	public void decodeWhenExpiredThenFail() {
 		assertThatCode(() -> this.decoder.decode(this.expired).block())
-				.isInstanceOf(JwtException.class);
+				.isInstanceOf(JwtValidationException.class);
 	}
 
 	@Test
@@ -154,5 +161,25 @@ public class NimbusReactiveJwtDecoderTests {
 		assertThatCode(() -> this.decoder.decode(this.unsignedToken).block())
 				.isInstanceOf(JwtException.class)
 				.hasMessage("Unsupported algorithm of none");
+	}
+
+	@Test
+	public void decodeWhenUsingCustomValidatorThenValidatorIsInvoked() {
+		OAuth2TokenValidator jwtValidator = mock(OAuth2TokenValidator.class);
+		this.decoder.setJwtValidator(jwtValidator);
+
+		OAuth2Error error = new OAuth2Error("mock-error", "mock-description", "mock-uri");
+		OAuth2TokenValidatorResult result = OAuth2TokenValidatorResult.failure(error);
+		when(jwtValidator.validate(any(Jwt.class))).thenReturn(result);
+
+		assertThatCode(() -> this.decoder.decode(messageReadToken).block())
+				.isInstanceOf(JwtException.class)
+				.hasMessageContaining("mock-description");
+	}
+
+	@Test
+	public void setJwtValidatorWhenGivenNullThrowsIllegalArgumentException() {
+		assertThatCode(() -> this.decoder.setJwtValidator(null))
+				.isInstanceOf(IllegalArgumentException.class);
 	}
 }
