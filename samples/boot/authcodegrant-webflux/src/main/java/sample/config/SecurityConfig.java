@@ -40,8 +40,7 @@ public class SecurityConfig {
 				.and()
 			.formLogin()
 				.and()
-			.oauth2()
-				.client();
+			.oauth2Client();
 		return http.build();
 	}
 

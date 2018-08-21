@@ -45,10 +45,9 @@ public class SecurityConfig {
 			.authorizeExchange()
 				.anyExchange().authenticated()
 				.and()
-			.oauth2()
-				.resourceServer()
-					.jwt()
-						.jwkSetUri(jwkSetUri);
+			.oauth2ResourceServer()
+				.jwt()
+					.jwkSetUri(jwkSetUri);
 		return http.build();
 	}
 
@@ -59,10 +58,9 @@ public class SecurityConfig {
 			.authorizeExchange()
 				.anyExchange().authenticated()
 				.and()
-			.oauth2()
-				.resourceServer()
-					.jwt()
-						.publicKey(publicKey());
+			.oauth2ResourceServer()
+				.jwt()
+					.publicKey(publicKey());
 		return http.build();
 	}
 

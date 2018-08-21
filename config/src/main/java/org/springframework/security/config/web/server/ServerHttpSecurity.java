@@ -207,7 +207,9 @@ public class ServerHttpSecurity {
 
 	private OAuth2LoginSpec oauth2Login;
 
-	private OAuth2Spec oauth2;
+	private OAuth2ResourceServerSpec resourceServer;
+
+	private OAuth2ClientSpec client;
 
 	private LogoutSpec logout = new LogoutSpec();
 
@@ -573,240 +575,188 @@ public class ServerHttpSecurity {
 	}
 
 	/**
-	 * Configures OAuth2 support. An example configuration is provided below:
+	 * Configures the OAuth2 client.
 	 *
 	 * <pre class="code">
 	 *  &#064;Bean
 	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
-	 *          .oauth2()
-	 *              .resourceServer()
-	 *                  .jwt()
-	 *                      .jwkSetUri(jwkSetUri);
+	 *          .oauth2Client()
+	 *              .clientRegistrationRepository(clientRegistrationRepository)
+	 *              .authorizedClientRepository(authorizedClientRepository);
 	 *      return http.build();
 	 *  }
 	 * </pre>
 	 *
-	 * @return the {@link HttpBasicSpec} to customize
+	 *
+	 * @return the {@link OAuth2ClientSpec} to customize
 	 */
-	public OAuth2Spec oauth2() {
-		if (this.oauth2 == null) {
-			this.oauth2 = new OAuth2Spec();
+	public OAuth2ClientSpec oauth2Client() {
+		if (this.client == null) {
+			this.client = new OAuth2ClientSpec();
 		}
-		return this.oauth2;
+		return this.client;
+	}
+
+	public class OAuth2ClientSpec {
+		private ReactiveClientRegistrationRepository clientRegistrationRepository;
+
+		private ServerOAuth2AuthorizedClientRepository authorizedClientRepository;
+
+		/**
+		 * Configures the {@link ReactiveClientRegistrationRepository}. Default is to look the value up as a Bean.
+		 * @param clientRegistrationRepository the repository to use
+		 * @return the {@link OAuth2ClientSpec} to customize
+		 */
+		public OAuth2ClientSpec clientRegistrationRepository(ReactiveClientRegistrationRepository clientRegistrationRepository) {
+			this.clientRegistrationRepository = clientRegistrationRepository;
+			return this;
+		}
+
+		/**
+		 * Configures the {@link ReactiveClientRegistrationRepository}. Default is to look the value up as a Bean.
+		 * @param authorizedClientRepository the repository to use
+		 * @return the {@link OAuth2ClientSpec} to customize
+		 */
+		public OAuth2ClientSpec authorizedClientRepository(ServerOAuth2AuthorizedClientRepository authorizedClientRepository) {
+			this.authorizedClientRepository = authorizedClientRepository;
+			return this;
+		}
+
+		protected void configure(ServerHttpSecurity http) {
+			ReactiveClientRegistrationRepository clientRegistrationRepository = getClientRegistrationRepository();
+			ServerOAuth2AuthorizedClientRepository authorizedClientRepository = getAuthorizedClientRepository();
+			ReactiveAuthenticationManager authenticationManager = new OAuth2AuthorizationCodeReactiveAuthenticationManager(new WebClientReactiveAuthorizationCodeTokenResponseClient());
+			OAuth2AuthorizationCodeGrantWebFilter codeGrantWebFilter = new OAuth2AuthorizationCodeGrantWebFilter(authenticationManager,
+					clientRegistrationRepository,
+					authorizedClientRepository);
+
+			OAuth2AuthorizationRequestRedirectWebFilter oauthRedirectFilter = new OAuth2AuthorizationRequestRedirectWebFilter(
+					clientRegistrationRepository);
+			http.addFilterAt(codeGrantWebFilter, SecurityWebFiltersOrder.AUTHENTICATION);
+			http.addFilterAt(oauthRedirectFilter, SecurityWebFiltersOrder.HTTP_BASIC);
+		}
+
+		private ReactiveClientRegistrationRepository getClientRegistrationRepository() {
+			if (this.clientRegistrationRepository != null) {
+				return this.clientRegistrationRepository;
+			}
+			return getBeanOrNull(ReactiveClientRegistrationRepository.class);
+		}
+
+		private ServerOAuth2AuthorizedClientRepository getAuthorizedClientRepository() {
+			if (this.authorizedClientRepository != null) {
+				return this.authorizedClientRepository;
+			}
+			ServerOAuth2AuthorizedClientRepository result = getBeanOrNull(ServerOAuth2AuthorizedClientRepository.class);
+			if (result == null) {
+				ReactiveOAuth2AuthorizedClientService authorizedClientService = getAuthorizedClientService();
+				if (authorizedClientService != null) {
+					result = new AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository(
+							authorizedClientService);
+				}
+			}
+			return result;
+		}
+
+		private ReactiveOAuth2AuthorizedClientService getAuthorizedClientService() {
+			ReactiveOAuth2AuthorizedClientService service = getBeanOrNull(ReactiveOAuth2AuthorizedClientService.class);
+			if (service == null) {
+				service = new InMemoryReactiveOAuth2AuthorizedClientService(getClientRegistrationRepository());
+			}
+			return service;
+		}
+
+		private OAuth2ClientSpec() {}
+	}
+
+	public OAuth2ResourceServerSpec oauth2ResourceServer() {
+		if (this.resourceServer == null) {
+			this.resourceServer = new OAuth2ResourceServerSpec();
+		}
+		return this.resourceServer;
 	}
 
 	/**
-	 * Configures OAuth2 Support
-	 *
-	 * @since 5.1
+	 * Configures OAuth2 Resource Server Support
 	 */
-	public class OAuth2Spec {
-		private OAuth2ResourceServerSpec resourceServer;
+	public class OAuth2ResourceServerSpec {
+		private JwtSpec jwt;
 
-		private OAuth2ClientSpec client;
-
-		/**
-		 * Configures the OAuth2 client.
-		 *
-		 * <pre class="code">
-		 *  &#064;Bean
-		 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
-		 *      http
-		 *          // ...
-		 *          .oauth2()
-		 *              .client()
-		 *                  .clientRegistrationRepository(clientRegistrationRepository)
-		 *                  .authorizedClientRepository(authorizedClientRepository);
-		 *      return http.build();
-		 *  }
-		 * </pre>
-		 *
-		 *
-		 * @return the {@link OAuth2ClientSpec} to customize
-		 */
-		public OAuth2ClientSpec client() {
-			if (this.client == null) {
-				this.client = new OAuth2ClientSpec();
+		public JwtSpec jwt() {
+			if (this.jwt == null) {
+				this.jwt = new JwtSpec();
 			}
-			return this.client;
+			return this.jwt;
 		}
 
-		public class OAuth2ClientSpec {
-			private ReactiveClientRegistrationRepository clientRegistrationRepository;
+		protected void configure(ServerHttpSecurity http) {
+			if (this.jwt != null) {
+				this.jwt.configure(http);
+			}
+		}
 
-			private ServerOAuth2AuthorizedClientRepository authorizedClientRepository;
+		/**
+		 * Configures JWT Resource Server Support
+		 */
+		public class JwtSpec {
+			private ReactiveJwtDecoder jwtDecoder;
 
 			/**
-			 * Configures the {@link ReactiveClientRegistrationRepository}. Default is to look the value up as a Bean.
-			 * @param clientRegistrationRepository the repository to use
-			 * @return the {@link OAuth2ClientSpec} to customize
+			 * Configures the {@link ReactiveJwtDecoder} to use
+			 * @param jwtDecoder the decoder to use
+			 * @return the {@code JwtSpec} for additional configuration
 			 */
-			public OAuth2ClientSpec clientRegistrationRepository(ReactiveClientRegistrationRepository clientRegistrationRepository) {
-				this.clientRegistrationRepository = clientRegistrationRepository;
+			public JwtSpec jwtDecoder(ReactiveJwtDecoder jwtDecoder) {
+				this.jwtDecoder = jwtDecoder;
 				return this;
 			}
 
 			/**
-			 * Configures the {@link ReactiveClientRegistrationRepository}. Default is to look the value up as a Bean.
-			 * @param authorizedClientRepository the repository to use
-			 * @return the {@link OAuth2ClientSpec} to customize
+			 * Configures a {@link ReactiveJwtDecoder} that leverages the provided {@link RSAPublicKey}
+			 *
+			 * @param publicKey the public key to use.
+			 * @return the {@code JwtSpec} for additional configuration
 			 */
-			public OAuth2ClientSpec authorizedClientRepository(ServerOAuth2AuthorizedClientRepository authorizedClientRepository) {
-				this.authorizedClientRepository = authorizedClientRepository;
+			public JwtSpec publicKey(RSAPublicKey publicKey) {
+				this.jwtDecoder = new NimbusReactiveJwtDecoder(publicKey);
 				return this;
 			}
 
-			protected void configure(ServerHttpSecurity http) {
-				ReactiveClientRegistrationRepository clientRegistrationRepository = getClientRegistrationRepository();
-				ServerOAuth2AuthorizedClientRepository authorizedClientRepository = getAuthorizedClientRepository();
-				ReactiveAuthenticationManager authenticationManager = new OAuth2AuthorizationCodeReactiveAuthenticationManager(new WebClientReactiveAuthorizationCodeTokenResponseClient());
-				OAuth2AuthorizationCodeGrantWebFilter codeGrantWebFilter = new OAuth2AuthorizationCodeGrantWebFilter(authenticationManager,
-						clientRegistrationRepository,
-						authorizedClientRepository);
-
-				OAuth2AuthorizationRequestRedirectWebFilter oauthRedirectFilter = new OAuth2AuthorizationRequestRedirectWebFilter(
-						clientRegistrationRepository);
-				http.addFilterAt(codeGrantWebFilter, SecurityWebFiltersOrder.AUTHENTICATION);
-				http.addFilterAt(oauthRedirectFilter, SecurityWebFiltersOrder.HTTP_BASIC);
-			}
-
-			private ReactiveClientRegistrationRepository getClientRegistrationRepository() {
-				if (this.clientRegistrationRepository != null) {
-					return this.clientRegistrationRepository;
-				}
-				return getBeanOrNull(ReactiveClientRegistrationRepository.class);
-			}
-
-			private ServerOAuth2AuthorizedClientRepository getAuthorizedClientRepository() {
-				if (this.authorizedClientRepository != null) {
-					return this.authorizedClientRepository;
-				}
-				ServerOAuth2AuthorizedClientRepository result = getBeanOrNull(ServerOAuth2AuthorizedClientRepository.class);
-				if (result == null) {
-					ReactiveOAuth2AuthorizedClientService authorizedClientService = getAuthorizedClientService();
-					if (authorizedClientService != null) {
-						result = new AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository(
-								authorizedClientService);
-					}
-				}
-				return result;
-			}
-
-			private ReactiveOAuth2AuthorizedClientService getAuthorizedClientService() {
-				ReactiveOAuth2AuthorizedClientService service = getBeanOrNull(ReactiveOAuth2AuthorizedClientService.class);
-				if (service == null) {
-					service = new InMemoryReactiveOAuth2AuthorizedClientService(getClientRegistrationRepository());
-				}
-				return service;
-			}
-
-			private OAuth2ClientSpec() {}
-		}
-
-		public OAuth2ResourceServerSpec resourceServer() {
-			if (this.resourceServer == null) {
-				this.resourceServer = new OAuth2ResourceServerSpec();
-			}
-			return this.resourceServer;
-		}
-
-		/**
-		 * Configures OAuth2 Resource Server Support
-		 */
-		public class OAuth2ResourceServerSpec {
-			private JwtSpec jwt;
-
-			public JwtSpec jwt() {
-				if (this.jwt == null) {
-					this.jwt = new JwtSpec();
-				}
-				return this.jwt;
-			}
-
-			protected void configure(ServerHttpSecurity http) {
-				if (this.jwt != null) {
-					this.jwt.configure(http);
-				}
-			}
-
 			/**
-			 * Configures JWT Resource Server Support
+			 * Configures a {@link ReactiveJwtDecoder} using
+			 * <a target="_blank" href="https://tools.ietf.org/html/rfc7517">JSON Web Key (JWK)</a> URL
+			 * @param jwkSetUri the URL to use.
+			 * @return the {@code JwtSpec} for additional configuration
 			 */
-			public class JwtSpec {
-				private ReactiveJwtDecoder jwtDecoder;
-
-				/**
-				 * Configures the {@link ReactiveJwtDecoder} to use
-				 * @param jwtDecoder the decoder to use
-				 * @return the {@code JwtSpec} for additional configuration
-				 */
-				public JwtSpec jwtDecoder(ReactiveJwtDecoder jwtDecoder) {
-					this.jwtDecoder = jwtDecoder;
-					return this;
-				}
-
-				/**
-				 * Configures a {@link ReactiveJwtDecoder} that leverages the provided {@link RSAPublicKey}
-				 *
-				 * @param publicKey the public key to use.
-				 * @return the {@code JwtSpec} for additional configuration
-				 */
-				public JwtSpec publicKey(RSAPublicKey publicKey) {
-					this.jwtDecoder = new NimbusReactiveJwtDecoder(publicKey);
-					return this;
-				}
-
-				/**
-				 * Configures a {@link ReactiveJwtDecoder} using
-				 * <a target="_blank" href="https://tools.ietf.org/html/rfc7517">JSON Web Key (JWK)</a> URL
-				 * @param jwkSetUri the URL to use.
-				 * @return the {@code JwtSpec} for additional configuration
-				 */
-				public JwtSpec jwkSetUri(String jwkSetUri) {
-					this.jwtDecoder = new NimbusReactiveJwtDecoder(jwkSetUri);
-					return this;
-				}
-
-				public OAuth2ResourceServerSpec and() {
-					return OAuth2ResourceServerSpec.this;
-				}
-
-				protected void configure(ServerHttpSecurity http) {
-					BearerTokenServerAuthenticationEntryPoint entryPoint = new BearerTokenServerAuthenticationEntryPoint();
-					JwtReactiveAuthenticationManager authenticationManager = new JwtReactiveAuthenticationManager(
-							this.jwtDecoder);
-					AuthenticationWebFilter oauth2 = new AuthenticationWebFilter(authenticationManager);
-					oauth2.setServerAuthenticationConverter(new ServerBearerTokenAuthenticationConverter());
-					oauth2.setAuthenticationFailureHandler(new ServerAuthenticationEntryPointFailureHandler(entryPoint));
-					http
-						.exceptionHandling()
-							.authenticationEntryPoint(entryPoint)
-							.and()
-						.addFilterAt(oauth2, SecurityWebFiltersOrder.AUTHENTICATION);
-				}
+			public JwtSpec jwkSetUri(String jwkSetUri) {
+				this.jwtDecoder = new NimbusReactiveJwtDecoder(jwkSetUri);
+				return this;
 			}
 
-			public OAuth2Spec and() {
-				return OAuth2Spec.this;
+			public OAuth2ResourceServerSpec and() {
+				return OAuth2ResourceServerSpec.this;
+			}
+
+			protected void configure(ServerHttpSecurity http) {
+				BearerTokenServerAuthenticationEntryPoint entryPoint = new BearerTokenServerAuthenticationEntryPoint();
+				JwtReactiveAuthenticationManager authenticationManager = new JwtReactiveAuthenticationManager(
+						this.jwtDecoder);
+				AuthenticationWebFilter oauth2 = new AuthenticationWebFilter(authenticationManager);
+				oauth2.setServerAuthenticationConverter(new ServerBearerTokenAuthenticationConverter());
+				oauth2.setAuthenticationFailureHandler(new ServerAuthenticationEntryPointFailureHandler(entryPoint));
+				http
+					.exceptionHandling()
+						.authenticationEntryPoint(entryPoint)
+						.and()
+					.addFilterAt(oauth2, SecurityWebFiltersOrder.AUTHENTICATION);
 			}
 		}
 
 		public ServerHttpSecurity and() {
 			return ServerHttpSecurity.this;
 		}
-
-		protected void configure(ServerHttpSecurity http) {
-			if (this.resourceServer != null) {
-				this.resourceServer.configure(http);
-			}
-			if (this.client != null) {
-				this.client.configure(http);
-			}
-		}
-
-		private OAuth2Spec() {}
 	}
 
 	/**
@@ -1009,8 +959,11 @@ public class ServerHttpSecurity {
 		if (this.oauth2Login != null) {
 			this.oauth2Login.configure(this);
 		}
-		if (this.oauth2 != null) {
-			this.oauth2.configure(this);
+		if (this.resourceServer != null) {
+			this.resourceServer.configure(this);
+		}
+		if (this.client != null) {
+			this.client.configure(this);
 		}
 		this.loginPage.configure(this);
 		if(this.logout != null) {

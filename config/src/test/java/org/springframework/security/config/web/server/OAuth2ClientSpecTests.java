@@ -95,8 +95,7 @@ public class OAuth2ClientSpecTests {
 		@Bean
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			http
-				.oauth2()
-					.client();
+				.oauth2Client();
 			return http.build();
 		}
 
