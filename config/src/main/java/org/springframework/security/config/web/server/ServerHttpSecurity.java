@@ -603,7 +603,7 @@ public class ServerHttpSecurity {
 	 * @since 5.1
 	 */
 	public class OAuth2Spec {
-		private ResourceServerSpec resourceServer;
+		private OAuth2ResourceServerSpec resourceServer;
 
 		private OAuth2ClientSpec client;
 
@@ -705,9 +705,9 @@ public class ServerHttpSecurity {
 			private OAuth2ClientSpec() {}
 		}
 
-		public ResourceServerSpec resourceServer() {
+		public OAuth2ResourceServerSpec resourceServer() {
 			if (this.resourceServer == null) {
-				this.resourceServer = new ResourceServerSpec();
+				this.resourceServer = new OAuth2ResourceServerSpec();
 			}
 			return this.resourceServer;
 		}
@@ -715,7 +715,7 @@ public class ServerHttpSecurity {
 		/**
 		 * Configures OAuth2 Resource Server Support
 		 */
-		public class ResourceServerSpec {
+		public class OAuth2ResourceServerSpec {
 			private JwtSpec jwt;
 
 			public JwtSpec jwt() {
@@ -769,8 +769,8 @@ public class ServerHttpSecurity {
 					return this;
 				}
 
-				public ResourceServerSpec and() {
-					return ResourceServerSpec.this;
+				public OAuth2ResourceServerSpec and() {
+					return OAuth2ResourceServerSpec.this;
 				}
 
 				protected void configure(ServerHttpSecurity http) {
