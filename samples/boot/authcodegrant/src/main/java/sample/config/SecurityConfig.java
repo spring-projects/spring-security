@@ -42,8 +42,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.formLogin()
 				.and()
 			.oauth2()
-				.client()
-					.authorizationCodeGrant();
+				.client();
 	}
 
 	@Bean

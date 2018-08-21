@@ -221,11 +221,8 @@ public class OAuth2ClientConfigurerTests {
 				.oauth2()
 					.client()
 						.authorizationCodeGrant()
-							.authorizationEndpoint()
-								.authorizationRequestResolver(authorizationRequestResolver)
-								.and()
-							.tokenEndpoint()
-								.accessTokenResponseClient(accessTokenResponseClient);
+							.authorizationRequestResolver(authorizationRequestResolver)
+							.accessTokenResponseClient(accessTokenResponseClient);
 		}
 
 		@Bean

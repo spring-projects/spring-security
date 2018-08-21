@@ -150,8 +150,7 @@ public class OAuth2AuthorizationCodeGrantApplicationTests {
 				.oauth2()
 					.client()
 						.authorizationCodeGrant()
-							.tokenEndpoint()
-								.accessTokenResponseClient(this.accessTokenResponseClient());
+							.accessTokenResponseClient(this.accessTokenResponseClient());
 		}
 		// @formatter:on
 
