@@ -107,7 +107,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends
 	private final String url;
 	private boolean convertSubErrorCodesToExceptions;
 	private String searchFilter = "(&(objectClass=user)(userPrincipalName={0}))";
-	private Hashtable<String, Object> contextEnvironmentProperties = null;
+	private Map<String, Object> contextEnvironmentProperties = new HashMap<>();
 
 	// Only used to allow tests to substitute a mock LdapContext
 	ContextFactory contextFactory = new ContextFactory();
@@ -199,10 +199,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends
 		env.put(Context.SECURITY_CREDENTIALS, password);
 		env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
 		env.put(Context.OBJECT_FACTORIES, DefaultDirObjectFactory.class.getName());
-
-		if(contextEnvironmentProperties != null) {
-			env.putAll(contextEnvironmentProperties);
-		}
+		env.putAll(this.contextEnvironmentProperties);
 
 		try {
 			return contextFactory.createContext(env);
@@ -406,9 +403,9 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends
 	/**
 	 * Allows a custom environment properties to be used to create initial LDAP context.
 	 *
-	 * @param contextFactory
+	 * @param environment the additional environment parameters to use when creating the LDAP Context
 	 */
-	public void setContextEnvironmentProperties(Hashtable<String, Object> environment) {
+	public void setContextEnvironmentProperties(Map<String, Object> environment) {
 		Assert.notEmpty(environment, "environment must not be empty");
 		this.contextEnvironmentProperties = new Hashtable<>(environment);
 	}
