@@ -175,7 +175,7 @@ public final class AntPathRequestMatcher
 
 		String pathInfo = request.getPathInfo();
 		if (pathInfo != null) {
-			url = StringUtils.hasLength(url) ? pathInfo : url + pathInfo;
+			url = StringUtils.hasLength(url) ? url + pathInfo : pathInfo;
 		}
 
 		return url;
