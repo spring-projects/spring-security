@@ -42,6 +42,7 @@ import javax.naming.OperationNotSupportedException;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.ldap.InitialLdapContext;
+import java.io.Serializable;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -221,6 +222,8 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends
 			logger.debug("Authentication for " + bindPrincipal + " failed:" + exception);
 		}
 
+		handleResolveObj(exception);
+
 		int subErrorCode = parseSubErrorCode(exception.getMessage());
 
 		if (subErrorCode <= 0) {
@@ -233,6 +236,14 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends
 
 		if (convertSubErrorCodesToExceptions) {
 			raiseExceptionForErrorCode(subErrorCode, exception);
+		}
+	}
+
+	private void handleResolveObj(NamingException exception) {
+		Object resolvedObj = exception.getResolvedObj();
+		boolean serializable = resolvedObj instanceof Serializable;
+		if (resolvedObj != null && !serializable) {
+			exception.setResolvedObj(null);
 		}
 	}
 
