@@ -16,6 +16,12 @@
 
 package org.springframework.security.web.server.csrf;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
+import reactor.core.publisher.Mono;
+
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.web.server.authorization.HttpStatusServerAccessDeniedHandler;
@@ -25,11 +31,6 @@ import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
-import reactor.core.publisher.Mono;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * <p>
@@ -57,7 +58,9 @@ import java.util.Set;
  * @since 5.0
  */
 public class CsrfWebFilter implements WebFilter {
-	private ServerWebExchangeMatcher requireCsrfProtectionMatcher = new DefaultRequireCsrfProtectionMatcher();
+	public static final ServerWebExchangeMatcher DEFAULT_CSRF_MATCHER = new DefaultRequireCsrfProtectionMatcher();
+
+	private ServerWebExchangeMatcher requireCsrfProtectionMatcher = DEFAULT_CSRF_MATCHER;
 
 	private ServerCsrfTokenRepository csrfTokenRepository = new WebSessionServerCsrfTokenRepository();
 
