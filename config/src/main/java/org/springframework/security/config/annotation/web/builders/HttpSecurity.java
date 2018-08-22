@@ -48,8 +48,9 @@ import org.springframework.security.config.annotation.web.configurers.SecurityCo
 import org.springframework.security.config.annotation.web.configurers.ServletApiConfigurer;
 import org.springframework.security.config.annotation.web.configurers.SessionManagementConfigurer;
 import org.springframework.security.config.annotation.web.configurers.X509Configurer;
-import org.springframework.security.config.annotation.web.configurers.oauth2.OAuth2Configurer;
+import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2ClientConfigurer;
 import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer;
+import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.config.annotation.web.configurers.openid.OpenIDLoginConfigurer;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -111,6 +112,7 @@ import java.util.Map;
  * </pre>
  *
  * @author Rob Winch
+ * @author Joe Grandja
  * @since 3.2
  * @see EnableWebSecurity
  */
@@ -978,7 +980,6 @@ public final class HttpSecurity extends
 	 * <p>
 	 * For more advanced configuration, see {@link OAuth2LoginConfigurer} for available options to customize the defaults.
 	 *
-	 * @author Joe Grandja
 	 * @since 5.0
 	 * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">Section 4.1 Authorization Code Grant</a>
 	 * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth">Section 3.1 Authorization Code Flow</a>
@@ -992,15 +993,29 @@ public final class HttpSecurity extends
 	}
 
 	/**
-	 * Configures support for the <a target="_blank" href="https://tools.ietf.org/html/rfc6749">OAuth 2.0 Authorization Framework</a>.
+	 * Configures OAuth 2.0 Client support.
 	 *
-	 * @author Joe Grandja
 	 * @since 5.1
-	 * @return the {@link OAuth2Configurer} for further customizations
+	 * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-1.1">OAuth 2.0 Authorization Framework</a>
+	 * @return the {@link OAuth2ClientConfigurer} for further customizations
 	 * @throws Exception
 	 */
-	public OAuth2Configurer<HttpSecurity> oauth2() throws Exception {
-		OAuth2Configurer<HttpSecurity> configurer = getOrApply(new OAuth2Configurer<>());
+	public OAuth2ClientConfigurer<HttpSecurity> oauth2Client() throws Exception {
+		OAuth2ClientConfigurer<HttpSecurity> configurer = getOrApply(new OAuth2ClientConfigurer<>());
+		this.postProcess(configurer);
+		return configurer;
+	}
+
+	/**
+	 * Configures OAuth 2.0 Resource Server support.
+	 *
+	 * @since 5.1
+	 * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-1.1">OAuth 2.0 Authorization Framework</a>
+	 * @return the {@link OAuth2ResourceServerConfigurer} for further customizations
+	 * @throws Exception
+	 */
+	public OAuth2ResourceServerConfigurer<HttpSecurity> oauth2ResourceServer() throws Exception {
+		OAuth2ResourceServerConfigurer<HttpSecurity> configurer = getOrApply(new OAuth2ResourceServerConfigurer<>(getContext()));
 		this.postProcess(configurer);
 		return configurer;
 	}

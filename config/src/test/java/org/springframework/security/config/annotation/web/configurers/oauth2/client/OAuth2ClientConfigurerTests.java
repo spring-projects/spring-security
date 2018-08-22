@@ -218,11 +218,10 @@ public class OAuth2ClientConfigurerTests {
 				.requestCache()
 					.requestCache(requestCache)
 					.and()
-				.oauth2()
-					.client()
-						.authorizationCodeGrant()
-							.authorizationRequestResolver(authorizationRequestResolver)
-							.accessTokenResponseClient(accessTokenResponseClient);
+				.oauth2Client()
+					.authorizationCodeGrant()
+						.authorizationRequestResolver(authorizationRequestResolver)
+						.accessTokenResponseClient(accessTokenResponseClient);
 		}
 
 		@Bean

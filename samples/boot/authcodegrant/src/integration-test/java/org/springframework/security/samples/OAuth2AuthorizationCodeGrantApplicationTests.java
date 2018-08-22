@@ -147,10 +147,9 @@ public class OAuth2AuthorizationCodeGrantApplicationTests {
 				.authorizeRequests()
 					.anyRequest().authenticated()
 					.and()
-				.oauth2()
-					.client()
-						.authorizationCodeGrant()
-							.accessTokenResponseClient(this.accessTokenResponseClient());
+				.oauth2Client()
+					.authorizationCodeGrant()
+						.accessTokenResponseClient(this.accessTokenResponseClient());
 		}
 		// @formatter:on
 

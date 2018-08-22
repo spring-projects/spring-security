@@ -36,10 +36,9 @@ public class OAuth2ResourceServerSecurityConfiguration extends WebSecurityConfig
 				.antMatchers("/message/**").access("hasAuthority('SCOPE_message:read')")
 				.anyRequest().authenticated()
 				.and()
-			.oauth2()
-				.resourceServer()
-					.jwt()
-						.jwkSetUri(this.jwkSetUri);
+			.oauth2ResourceServer()
+				.jwt()
+					.jwkSetUri(this.jwkSetUri);
 		// @formatter:on
 	}
 }

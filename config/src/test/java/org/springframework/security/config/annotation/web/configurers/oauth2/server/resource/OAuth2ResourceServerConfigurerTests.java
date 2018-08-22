@@ -1043,10 +1043,9 @@ public class OAuth2ResourceServerConfigurerTests {
 					.antMatchers("/requires-read-scope").access("hasAuthority('SCOPE_message:read')")
 					.anyRequest().authenticated()
 					.and()
-				.oauth2()
-					.resourceServer()
-						.jwt()
-							.jwkSetUri(this.uri);
+				.oauth2ResourceServer()
+					.jwt()
+						.jwkSetUri(this.uri);
 			// @formatter:on
 		}
 	}
@@ -1064,10 +1063,9 @@ public class OAuth2ResourceServerConfigurerTests {
 					.anyRequest().authenticated()
 					.and()
 				.csrf().disable()
-				.oauth2()
-					.resourceServer()
-						.jwt()
-							.jwkSetUri(this.uri);
+				.oauth2ResourceServer()
+					.jwt()
+						.jwkSetUri(this.uri);
 			// @formatter:on
 		}
 	}
@@ -1084,10 +1082,9 @@ public class OAuth2ResourceServerConfigurerTests {
 				.authorizeRequests()
 					.anyRequest().authenticated()
 					.and()
-				.oauth2()
-					.resourceServer()
-						.jwt()
-							.jwkSetUri(this.uri);
+				.oauth2ResourceServer()
+					.jwt()
+						.jwkSetUri(this.uri);
 			// @formatter:on
 		}
 	}
@@ -1101,8 +1098,7 @@ public class OAuth2ResourceServerConfigurerTests {
 				.authorizeRequests()
 					.anyRequest().authenticated()
 					.and()
-				.oauth2()
-					.resourceServer();
+				.oauth2ResourceServer();
 			// @formatter:on
 		}
 	}
@@ -1116,10 +1112,9 @@ public class OAuth2ResourceServerConfigurerTests {
 				.authorizeRequests()
 					.anyRequest().authenticated()
 					.and()
-				.oauth2()
-					.resourceServer()
-						.authenticationEntryPoint(authenticationEntryPoint())
-						.jwt();
+				.oauth2ResourceServer()
+					.authenticationEntryPoint(authenticationEntryPoint())
+					.jwt();
 			// @formatter:on
 		}
 
@@ -1140,10 +1135,9 @@ public class OAuth2ResourceServerConfigurerTests {
 				.authorizeRequests()
 					.anyRequest().denyAll()
 					.and()
-				.oauth2()
-					.resourceServer()
-						.accessDeniedHandler(accessDeniedHandler())
-						.jwt();
+				.oauth2ResourceServer()
+					.accessDeniedHandler(accessDeniedHandler())
+					.jwt();
 			// @formatter:on
 		}
 
@@ -1169,9 +1163,8 @@ public class OAuth2ResourceServerConfigurerTests {
 					.and()
 				.httpBasic()
 					.and()
-				.oauth2()
-					.resourceServer()
-						.jwt();
+				.oauth2ResourceServer()
+					.jwt();
 			// @formatter:on
 		}
 
@@ -1198,10 +1191,9 @@ public class OAuth2ResourceServerConfigurerTests {
 				.authorizeRequests()
 					.anyRequest().authenticated()
 					.and()
-				.oauth2()
-					.resourceServer()
-						.jwt()
-							.jwtAuthenticationConverter(getJwtAuthenticationConverter());
+				.oauth2ResourceServer()
+					.jwt()
+						.jwtAuthenticationConverter(getJwtAuthenticationConverter());
 
 			// @formatter:on
 		}
@@ -1221,10 +1213,9 @@ public class OAuth2ResourceServerConfigurerTests {
 				.authorizeRequests()
 					.antMatchers("/requires-read-scope").access("hasAuthority('message:read')")
 					.and()
-				.oauth2()
-					.resourceServer()
-						.jwt()
-							.jwtAuthenticationConverter(getJwtAuthenticationConverter());
+				.oauth2ResourceServer()
+					.jwt()
+						.jwtAuthenticationConverter(getJwtAuthenticationConverter());
 
 			// @formatter:on
 		}
@@ -1252,10 +1243,9 @@ public class OAuth2ResourceServerConfigurerTests {
 					.and()
 				.httpBasic()
 					.and()
-				.oauth2()
-					.resourceServer()
-						.jwt()
-							.jwkSetUri(this.uri);
+				.oauth2ResourceServer()
+					.jwt()
+						.jwkSetUri(this.uri);
 			// @formatter:on
 		}
 
@@ -1279,9 +1269,8 @@ public class OAuth2ResourceServerConfigurerTests {
 				.authorizeRequests()
 					.anyRequest().authenticated()
 					.and()
-				.oauth2()
-					.resourceServer()
-						.jwt(); // missing key configuration, e.g. jwkSetUri
+				.oauth2ResourceServer()
+					.jwt(); // missing key configuration, e.g. jwkSetUri
 			// @formatter:on
 		}
 	}
@@ -1297,10 +1286,9 @@ public class OAuth2ResourceServerConfigurerTests {
 				.sessionManagement()
 					.sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
 					.and()
-				.oauth2()
-					.resourceServer()
-						.jwt()
-							.jwkSetUri(this.uri);
+				.oauth2ResourceServer()
+					.jwt()
+						.jwkSetUri(this.uri);
 			// @formatter:on
 		}
 	}
@@ -1314,10 +1302,9 @@ public class OAuth2ResourceServerConfigurerTests {
 				.authorizeRequests()
 					.anyRequest().authenticated()
 					.and()
-				.oauth2()
-					.resourceServer()
-						.bearerTokenResolver(allowRequestBody())
-						.jwt();
+				.oauth2ResourceServer()
+					.bearerTokenResolver(allowRequestBody())
+					.jwt();
 			// @formatter:on
 		}
 
@@ -1337,9 +1324,8 @@ public class OAuth2ResourceServerConfigurerTests {
 				.authorizeRequests()
 					.anyRequest().authenticated()
 					.and()
-				.oauth2()
-					.resourceServer()
-						.jwt();
+				.oauth2ResourceServer()
+					.jwt();
 			// @formatter:on
 		}
 
@@ -1360,9 +1346,8 @@ public class OAuth2ResourceServerConfigurerTests {
 				.authorizeRequests()
 					.anyRequest().authenticated()
 					.and()
-				.oauth2()
-					.resourceServer()
-						.jwt();
+				.oauth2ResourceServer()
+					.jwt();
 			// @formatter:on
 		}
 
@@ -1392,10 +1377,9 @@ public class OAuth2ResourceServerConfigurerTests {
 				.authorizeRequests()
 					.anyRequest().authenticated()
 					.and()
-				.oauth2()
-					.resourceServer()
-						.jwt()
-							.decoder(decoder());
+				.oauth2ResourceServer()
+					.jwt()
+						.decoder(decoder());
 			// @formatter:on
 		}
 
@@ -1413,9 +1397,8 @@ public class OAuth2ResourceServerConfigurerTests {
 				.authorizeRequests()
 					.anyRequest().authenticated()
 					.and()
-				.oauth2()
-					.resourceServer()
-						.jwt();
+				.oauth2ResourceServer()
+					.jwt();
 			// @formatter:on
 		}
 
@@ -1439,10 +1422,9 @@ public class OAuth2ResourceServerConfigurerTests {
 
 			// @formatter:off
 			http
-				.oauth2()
-					.resourceServer()
-						.jwt()
-							.decoder(jwtDecoder);
+				.oauth2ResourceServer()
+					.jwt()
+						.decoder(jwtDecoder);
 			// @formatter:on
 		}
 
@@ -1467,10 +1449,9 @@ public class OAuth2ResourceServerConfigurerTests {
 
 			// @formatter:off
 			http
-				.oauth2()
-					.resourceServer()
-						.jwt()
-							.decoder(jwtDecoder);
+				.oauth2ResourceServer()
+					.jwt()
+						.decoder(jwtDecoder);
 			// @formatter:on
 		}
 	}
@@ -1491,10 +1472,9 @@ public class OAuth2ResourceServerConfigurerTests {
 
 			// @formatter:off
 			http
-				.oauth2()
-					.resourceServer()
-						.jwt()
-							.decoder(jwtDecoder);
+				.oauth2ResourceServer()
+					.jwt()
+						.decoder(jwtDecoder);
 			// @formatter:on
 		}
 	}
