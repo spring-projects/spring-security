@@ -741,8 +741,9 @@ public class ServerHttpSecurity {
 
 			protected void configure(ServerHttpSecurity http) {
 				BearerTokenServerAuthenticationEntryPoint entryPoint = new BearerTokenServerAuthenticationEntryPoint();
+				ReactiveJwtDecoder jwtDecoder = this.getJwtDecoder();
 				JwtReactiveAuthenticationManager authenticationManager = new JwtReactiveAuthenticationManager(
-						this.jwtDecoder);
+						jwtDecoder);
 				AuthenticationWebFilter oauth2 = new AuthenticationWebFilter(authenticationManager);
 				oauth2.setServerAuthenticationConverter(new ServerBearerTokenAuthenticationConverter());
 				oauth2.setAuthenticationFailureHandler(new ServerAuthenticationEntryPointFailureHandler(entryPoint));
@@ -751,6 +752,13 @@ public class ServerHttpSecurity {
 						.authenticationEntryPoint(entryPoint)
 						.and()
 					.addFilterAt(oauth2, SecurityWebFiltersOrder.AUTHENTICATION);
+			}
+
+			protected ReactiveJwtDecoder getJwtDecoder() {
+				if (this.jwtDecoder == null) {
+					return getBean(ReactiveJwtDecoder.class);
+				}
+				return this.jwtDecoder;
 			}
 		}
 
@@ -2012,6 +2020,13 @@ public class ServerHttpSecurity {
 		}
 
 		private LogoutSpec() {}
+	}
+
+	private <T> T getBean(Class<T> beanClass) {
+		if (this.context == null) {
+			return null;
+		}
+		return this.context.getBean(beanClass);
 	}
 
 	private <T> T getBeanOrNull(Class<T> beanClass) {
