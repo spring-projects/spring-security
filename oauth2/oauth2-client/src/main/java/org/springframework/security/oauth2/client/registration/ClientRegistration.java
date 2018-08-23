@@ -24,7 +24,9 @@ import org.springframework.util.StringUtils;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -153,6 +155,7 @@ public final class ClientRegistration {
 		private String tokenUri;
 		private UserInfoEndpoint userInfoEndpoint = new UserInfoEndpoint();
 		private String jwkSetUri;
+		private Map<String, Object> configurationMetadata = Collections.emptyMap();
 
 		private ProviderDetails() {
 		}
@@ -191,6 +194,16 @@ public final class ClientRegistration {
 		 */
 		public String getJwkSetUri() {
 			return this.jwkSetUri;
+		}
+
+		/**
+		 * Returns a {@code Map} of the metadata describing the provider's configuration.
+		 *
+		 * @since 5.1
+		 * @return a {@code Map} of the metadata describing the provider's configuration
+		 */
+		public Map<String, Object> getConfigurationMetadata() {
+			return this.configurationMetadata;
 		}
 
 		/**
@@ -262,6 +275,7 @@ public final class ClientRegistration {
 		private AuthenticationMethod userInfoAuthenticationMethod = AuthenticationMethod.HEADER;
 		private String userNameAttributeName;
 		private String jwkSetUri;
+		private Map<String, Object> configurationMetadata = Collections.emptyMap();
 		private String clientName;
 
 		private Builder(String registrationId) {
@@ -431,6 +445,20 @@ public final class ClientRegistration {
 		}
 
 		/**
+		 * Sets the metadata describing the provider's configuration.
+		 *
+		 * @since 5.1
+		 * @param configurationMetadata the metadata describing the provider's configuration
+		 * @return the {@link Builder}
+		 */
+		public Builder providerConfigurationMetadata(Map<String, Object> configurationMetadata) {
+			if (configurationMetadata != null) {
+				this.configurationMetadata = new LinkedHashMap<>(configurationMetadata);
+			}
+			return this;
+		}
+
+		/**
 		 * Sets the logical name of the client or registration.
 		 *
 		 * @param clientName the client or registration name
@@ -476,6 +504,7 @@ public final class ClientRegistration {
 			providerDetails.userInfoEndpoint.authenticationMethod = this.userInfoAuthenticationMethod;
 			providerDetails.userInfoEndpoint.userNameAttributeName = this.userNameAttributeName;
 			providerDetails.jwkSetUri = this.jwkSetUri;
+			providerDetails.configurationMetadata = Collections.unmodifiableMap(this.configurationMetadata);
 			clientRegistration.providerDetails = providerDetails;
 
 			clientRegistration.clientName = StringUtils.hasText(this.clientName) ?

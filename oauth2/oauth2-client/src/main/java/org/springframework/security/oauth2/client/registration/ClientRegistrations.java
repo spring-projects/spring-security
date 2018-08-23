@@ -16,20 +16,21 @@
 
 package org.springframework.security.oauth2.client.registration;
 
-import java.net.URI;
-import java.util.Collections;
-import java.util.List;
-
 import com.nimbusds.oauth2.sdk.GrantType;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
-
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.web.client.RestTemplate;
+
+import java.net.URI;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Allows creating a {@link ClientRegistration.Builder} from an
@@ -83,6 +84,8 @@ public final class ClientRegistrations {
 			throw new IllegalArgumentException("Only AuthorizationGrantType.AUTHORIZATION_CODE is supported. The issuer \"" + issuer + "\" returned a configuration of " + grantTypes);
 		}
 		List<String> scopes = getScopes(metadata);
+		Map<String, Object> configurationMetadata = new LinkedHashMap<>(metadata.toJSONObject());
+
 		return ClientRegistration.withRegistrationId(name)
 				.userNameAttributeName(IdTokenClaimNames.SUB)
 				.scope(scopes)
@@ -91,6 +94,7 @@ public final class ClientRegistrations {
 				.redirectUriTemplate("{baseUrl}/{action}/oauth2/code/{registrationId}")
 				.authorizationUri(metadata.getAuthorizationEndpointURI().toASCIIString())
 				.jwkSetUri(metadata.getJWKSetURI().toASCIIString())
+				.providerConfigurationMetadata(configurationMetadata)
 				.userInfoUri(metadata.getUserInfoEndpointURI().toASCIIString())
 				.tokenUri(metadata.getTokenEndpointURI().toASCIIString())
 				.clientName(issuer);

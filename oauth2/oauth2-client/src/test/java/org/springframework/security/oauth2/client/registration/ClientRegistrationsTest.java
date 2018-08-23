@@ -16,9 +16,6 @@
 
 package org.springframework.security.oauth2.client.registration;
 
-import java.util.Arrays;
-import java.util.Map;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.mockwebserver.MockResponse;
@@ -26,11 +23,13 @@ import okhttp3.mockwebserver.MockWebServer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+
+import java.util.Arrays;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -131,6 +130,10 @@ public class ClientRegistrationsTest {
 		assertThat(provider.getAuthorizationUri()).isEqualTo("https://example.com/o/oauth2/v2/auth");
 		assertThat(provider.getTokenUri()).isEqualTo("https://example.com/oauth2/v4/token");
 		assertThat(provider.getJwkSetUri()).isEqualTo("https://example.com/oauth2/v3/certs");
+		assertThat(provider.getConfigurationMetadata()).containsKeys("authorization_endpoint", "claims_supported",
+				"code_challenge_methods_supported", "id_token_signing_alg_values_supported", "issuer", "jwks_uri",
+				"response_types_supported", "revocation_endpoint", "scopes_supported", "subject_types_supported",
+				"grant_types_supported", "token_endpoint", "token_endpoint_auth_methods_supported", "userinfo_endpoint");
 		assertThat(provider.getUserInfoEndpoint().getUri()).isEqualTo("https://example.com/oauth2/v3/userinfo");
 	}
 
