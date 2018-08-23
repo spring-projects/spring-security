@@ -21,7 +21,9 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,6 +44,13 @@ public class ClientRegistrationTests {
 	private static final String TOKEN_URI = "https://provider.com/oauth2/token";
 	private static final String JWK_SET_URI = "https://provider.com/oauth2/keys";
 	private static final String CLIENT_NAME = "Client 1";
+	private static final Map<String, Object> PROVIDER_CONFIGURATION_METADATA = new LinkedHashMap<>();
+
+	static {
+		PROVIDER_CONFIGURATION_METADATA.put("config-1", "value-1");
+		PROVIDER_CONFIGURATION_METADATA.put("config-2", "value-2");
+	}
+
 
 	@Test(expected = IllegalArgumentException.class)
 	public void buildWhenAuthorizationGrantTypeIsNullThenThrowIllegalArgumentException() {
@@ -73,6 +82,7 @@ public class ClientRegistrationTests {
 			.tokenUri(TOKEN_URI)
 			.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
 			.jwkSetUri(JWK_SET_URI)
+			.providerConfigurationMetadata(PROVIDER_CONFIGURATION_METADATA)
 			.clientName(CLIENT_NAME)
 			.build();
 
@@ -87,6 +97,7 @@ public class ClientRegistrationTests {
 		assertThat(registration.getProviderDetails().getTokenUri()).isEqualTo(TOKEN_URI);
 		assertThat(registration.getProviderDetails().getUserInfoEndpoint().getAuthenticationMethod()).isEqualTo(AuthenticationMethod.FORM);
 		assertThat(registration.getProviderDetails().getJwkSetUri()).isEqualTo(JWK_SET_URI);
+		assertThat(registration.getProviderDetails().getConfigurationMetadata()).isEqualTo(PROVIDER_CONFIGURATION_METADATA);
 		assertThat(registration.getClientName()).isEqualTo(CLIENT_NAME);
 	}
 
