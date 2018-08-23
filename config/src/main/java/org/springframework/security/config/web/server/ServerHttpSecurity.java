@@ -741,7 +741,7 @@ public class ServerHttpSecurity {
 
 			protected void configure(ServerHttpSecurity http) {
 				BearerTokenServerAuthenticationEntryPoint entryPoint = new BearerTokenServerAuthenticationEntryPoint();
-				ReactiveJwtDecoder jwtDecoder = this.getJwtDecoder();
+				ReactiveJwtDecoder jwtDecoder = getJwtDecoder();
 				JwtReactiveAuthenticationManager authenticationManager = new JwtReactiveAuthenticationManager(
 						jwtDecoder);
 				AuthenticationWebFilter oauth2 = new AuthenticationWebFilter(authenticationManager);
