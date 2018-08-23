@@ -48,6 +48,7 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.support.GenericWebApplicationContext;
 import org.springframework.web.reactive.DispatcherHandler;
@@ -158,6 +159,25 @@ public class OAuth2ResourceServerSpecTests {
 				.headers(headers -> headers.setBearerAuth(this.messageReadTokenWithKid))
 				.exchange()
 				.expectStatus().isOk();
+	}
+
+	@Test
+	public void postWhenSignedThenReturnsOk() {
+		this.spring.register(PublicKeyConfig.class, RootController.class).autowire();
+
+		this.client.post()
+				.headers(headers -> headers.setBearerAuth(this.messageReadToken))
+				.exchange()
+				.expectStatus().isOk();
+	}
+
+	@Test
+	public void postWhenMissingTokenThenReturnsForbidden() {
+		this.spring.register(PublicKeyConfig.class, RootController.class).autowire();
+
+		this.client.post()
+				.exchange()
+				.expectStatus().isForbidden();
 	}
 
 	@Test
@@ -301,7 +321,12 @@ public class OAuth2ResourceServerSpecTests {
 	@RestController
 	static class RootController {
 		@GetMapping
-		Mono<String> root() {
+		Mono<String> get() {
+			return Mono.just("ok");
+		}
+
+		@PostMapping
+		Mono<String> post() {
 			return Mono.just("ok");
 		}
 	}
