@@ -65,6 +65,7 @@ import org.springframework.security.oauth2.client.web.server.authentication.OAut
 import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtReactiveAuthenticationManager;
+import org.springframework.security.oauth2.server.resource.web.access.server.BearerTokenServerAccessDeniedHandler;
 import org.springframework.security.oauth2.server.resource.web.server.BearerTokenServerAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.server.ServerBearerTokenAuthenticationConverter;
 import org.springframework.security.web.server.DelegatingServerAuthenticationEntryPoint;
@@ -90,6 +91,7 @@ import org.springframework.security.web.server.authorization.AuthorizationWebFil
 import org.springframework.security.web.server.authorization.DelegatingReactiveAuthorizationManager;
 import org.springframework.security.web.server.authorization.ExceptionTranslationWebFilter;
 import org.springframework.security.web.server.authorization.ServerAccessDeniedHandler;
+import org.springframework.security.web.server.authorization.ServerWebExchangeDelegatingServerAccessDeniedHandler;
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
 import org.springframework.security.web.server.context.ReactorContextWebFilter;
 import org.springframework.security.web.server.context.SecurityContextServerWebExchangeWebFilter;
@@ -229,6 +231,9 @@ public class ServerHttpSecurity {
 	private List<DelegateEntry> defaultEntryPoints = new ArrayList<>();
 
 	private ServerAccessDeniedHandler accessDeniedHandler;
+
+	private List<ServerWebExchangeDelegatingServerAccessDeniedHandler.DelegateEntry>
+			defaultAccessDeniedHandlers = new ArrayList<>();
 
 	private List<WebFilter> webFilters = new ArrayList<>();
 
@@ -687,6 +692,9 @@ public class ServerHttpSecurity {
 	 * Configures OAuth2 Resource Server Support
 	 */
 	public class OAuth2ResourceServerSpec {
+		private BearerTokenServerAuthenticationEntryPoint entryPoint = new BearerTokenServerAuthenticationEntryPoint();
+		private BearerTokenServerAccessDeniedHandler accessDeniedHandler = new BearerTokenServerAccessDeniedHandler();
+
 		private JwtSpec jwt;
 
 		public JwtSpec jwt() {
@@ -752,9 +760,10 @@ public class ServerHttpSecurity {
 						new ServerBearerTokenAuthenticationConverter();
 				this.bearerTokenServerWebExchangeMatcher.setBearerTokenConverter(bearerTokenConverter);
 
+				registerDefaultAccessDeniedHandler(http);
+				registerDefaultAuthenticationEntryPoint(http);
 				registerDefaultCsrfOverride(http);
 
-				BearerTokenServerAuthenticationEntryPoint entryPoint = new BearerTokenServerAuthenticationEntryPoint();
 				ReactiveJwtDecoder jwtDecoder = getJwtDecoder();
 				JwtReactiveAuthenticationManager authenticationManager = new JwtReactiveAuthenticationManager(
 						jwtDecoder);
@@ -763,9 +772,6 @@ public class ServerHttpSecurity {
 				oauth2.setAuthenticationFailureHandler(new ServerAuthenticationEntryPointFailureHandler(entryPoint));
 
 				http
-					.exceptionHandling()
-						.authenticationEntryPoint(entryPoint)
-						.and()
 					.addFilterAt(oauth2, SecurityWebFiltersOrder.AUTHENTICATION);
 			}
 
@@ -774,6 +780,28 @@ public class ServerHttpSecurity {
 					return getBean(ReactiveJwtDecoder.class);
 				}
 				return this.jwtDecoder;
+			}
+
+			private void registerDefaultAccessDeniedHandler(ServerHttpSecurity http) {
+				if ( http.exceptionHandling != null ) {
+					http.defaultAccessDeniedHandlers.add(
+							new ServerWebExchangeDelegatingServerAccessDeniedHandler.DelegateEntry(
+									this.bearerTokenServerWebExchangeMatcher,
+									new BearerTokenServerAccessDeniedHandler()
+							)
+					);
+				}
+			}
+
+			private void registerDefaultAuthenticationEntryPoint(ServerHttpSecurity http) {
+				if ( http.exceptionHandling != null ) {
+					http.defaultEntryPoints.add(
+							new DelegateEntry(
+									this.bearerTokenServerWebExchangeMatcher,
+									new BearerTokenServerAuthenticationEntryPoint()
+							)
+					);
+				}
 			}
 
 			private void registerDefaultCsrfOverride(ServerHttpSecurity http) {
@@ -1033,8 +1061,10 @@ public class ServerHttpSecurity {
 				exceptionTranslationWebFilter.setAuthenticationEntryPoint(
 					authenticationEntryPoint);
 			}
-			if (this.accessDeniedHandler != null) {
-				exceptionTranslationWebFilter.setAccessDeniedHandler(this.accessDeniedHandler);
+			ServerAccessDeniedHandler accessDeniedHandler = getAccessDeniedHandler();
+			if (accessDeniedHandler != null) {
+				exceptionTranslationWebFilter.setAccessDeniedHandler(
+						accessDeniedHandler);
 			}
 			this.addFilterAt(exceptionTranslationWebFilter, SecurityWebFiltersOrder.EXCEPTION_TRANSLATION);
 			this.authorizeExchange.configure(this);
@@ -1074,6 +1104,20 @@ public class ServerHttpSecurity {
 		}
 		DelegatingServerAuthenticationEntryPoint result = new DelegatingServerAuthenticationEntryPoint(this.defaultEntryPoints);
 		result.setDefaultEntryPoint(this.defaultEntryPoints.get(this.defaultEntryPoints.size() - 1).getEntryPoint());
+		return result;
+	}
+
+	private ServerAccessDeniedHandler getAccessDeniedHandler() {
+		if (this.accessDeniedHandler != null || this.defaultAccessDeniedHandlers.isEmpty()) {
+			return this.accessDeniedHandler;
+		}
+		if (this.defaultAccessDeniedHandlers.size() == 1) {
+			return this.defaultAccessDeniedHandlers.get(0).getAccessDeniedHandler();
+		}
+		ServerWebExchangeDelegatingServerAccessDeniedHandler result =
+				new ServerWebExchangeDelegatingServerAccessDeniedHandler(this.defaultAccessDeniedHandlers);
+		result.setDefaultAccessDeniedHandler(this.defaultAccessDeniedHandlers
+				.get(this.defaultAccessDeniedHandlers.size() - 1).getAccessDeniedHandler());
 		return result;
 	}
 

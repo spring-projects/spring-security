@@ -172,6 +172,17 @@ public class OAuth2ResourceServerSpecTests {
 	}
 
 	@Test
+	public void getWhenTokenHasInsufficientScopeThenReturnsInsufficientScope() {
+		this.spring.register(DenyAllConfig.class, RootController.class).autowire();
+
+		this.client.get()
+				.headers(headers -> headers.setBearerAuth(this.messageReadToken))
+				.exchange()
+				.expectStatus().isForbidden()
+				.expectHeader().value(HttpHeaders.WWW_AUTHENTICATE, startsWith("Bearer error=\"insufficient_scope\""));
+	}
+
+	@Test
 	public void postWhenMissingTokenThenReturnsForbidden() {
 		this.spring.register(PublicKeyConfig.class, RootController.class).autowire();
 
@@ -248,21 +259,16 @@ public class OAuth2ResourceServerSpecTests {
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) throws Exception {
 			// @formatter:off
 			http
+				.authorizeExchange()
+					.anyExchange().hasAuthority("SCOPE_message:read")
+					.and()
 				.oauth2ResourceServer()
 					.jwt()
-						.publicKey(this.publicKey());
+						.publicKey(publicKey());
 			// @formatter:on
 
+
 			return http.build();
-		}
-
-		RSAPublicKey publicKey() throws NoSuchAlgorithmException, InvalidKeySpecException {
-			String modulus = "26323220897278656456354815752829448539647589990395639665273015355787577386000316054335559633864476469390247312823732994485311378484154955583861993455004584140858982659817218753831620205191028763754231454775026027780771426040997832758235764611119743390612035457533732596799927628476322029280486807310749948064176545712270582940917249337311592011920620009965129181413510845780806191965771671528886508636605814099711121026468495328702234901200169245493126030184941412539949521815665744267183140084667383643755535107759061065656273783542590997725982989978433493861515415520051342321336460543070448417126615154138673620797";
-			String exponent = "65537";
-
-			RSAPublicKeySpec spec = new RSAPublicKeySpec(new BigInteger(modulus), new BigInteger(exponent));
-			KeyFactory factory = KeyFactory.getInstance("RSA");
-			return (RSAPublicKey) factory.generatePublic(spec);
 		}
 	}
 
@@ -318,6 +324,25 @@ public class OAuth2ResourceServerSpecTests {
 		}
 	}
 
+	@EnableWebFlux
+	@EnableWebFluxSecurity
+	static class DenyAllConfig {
+		@Bean
+		SecurityWebFilterChain authorization(ServerHttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeExchange()
+					.anyExchange().denyAll()
+					.and()
+				.oauth2ResourceServer()
+					.jwt()
+						.publicKey(publicKey());
+			// @formatter:on
+
+			return http.build();
+		}
+	}
+
 	@RestController
 	static class RootController {
 		@GetMapping
@@ -329,6 +354,16 @@ public class OAuth2ResourceServerSpecTests {
 		Mono<String> post() {
 			return Mono.just("ok");
 		}
+	}
+
+
+	private static RSAPublicKey publicKey() throws NoSuchAlgorithmException, InvalidKeySpecException {
+		String modulus = "26323220897278656456354815752829448539647589990395639665273015355787577386000316054335559633864476469390247312823732994485311378484154955583861993455004584140858982659817218753831620205191028763754231454775026027780771426040997832758235764611119743390612035457533732596799927628476322029280486807310749948064176545712270582940917249337311592011920620009965129181413510845780806191965771671528886508636605814099711121026468495328702234901200169245493126030184941412539949521815665744267183140084667383643755535107759061065656273783542590997725982989978433493861515415520051342321336460543070448417126615154138673620797";
+		String exponent = "65537";
+
+		RSAPublicKeySpec spec = new RSAPublicKeySpec(new BigInteger(modulus), new BigInteger(exponent));
+		KeyFactory factory = KeyFactory.getInstance("RSA");
+		return (RSAPublicKey) factory.generatePublic(spec);
 	}
 
 	private GenericWebApplicationContext autowireWebServerGenericWebApplicationContext() {
