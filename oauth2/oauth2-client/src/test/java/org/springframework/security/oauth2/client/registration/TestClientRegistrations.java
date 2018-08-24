@@ -54,4 +54,11 @@ public class TestClientRegistrations {
 				.clientId("client-id-2")
 				.clientSecret("client-secret");
 	}
+
+	public static ClientRegistration.Builder clientCredentials() {
+		return clientRegistration()
+				.registrationId("client-credentials")
+				.clientId("client-id")
+				.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS);
+	}
 }
