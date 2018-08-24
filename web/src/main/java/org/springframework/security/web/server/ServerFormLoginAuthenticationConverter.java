@@ -15,7 +15,6 @@
  */
 package org.springframework.security.web.server;
 
-import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
 
@@ -32,9 +31,11 @@ import java.util.function.Function;
  *
  * @author Rob Winch
  * @since 5.0
+ * @deprecated use {@link org.springframework.security.web.server.authentication.ServerFormLoginAuthenticationConverter}
+ * instead.
  */
+@Deprecated
 public class ServerFormLoginAuthenticationConverter implements
-		ServerAuthenticationConverter,
 		Function<ServerWebExchange, Mono<Authentication>> {
 
 	private String usernameParameter = "username";
@@ -42,21 +43,10 @@ public class ServerFormLoginAuthenticationConverter implements
 	private String passwordParameter = "password";
 
 	@Override
-	public Mono<Authentication> convert(ServerWebExchange exchange) {
-		return exchange.getFormData()
-			.map( data -> createAuthentication(data));
-	}
-
-	/**
-	 * Alias for {@link #convert(ServerWebExchange)}
-	 * @param exchange the {@link ServerWebExchange} to use
-	 * @return the {@link Authentication}
-	 * @deprecated Use {@link #convert(ServerWebExchange)}
-	 */
-	@Override
 	@Deprecated
 	public Mono<Authentication> apply(ServerWebExchange exchange) {
-		return convert(exchange);
+		return exchange.getFormData()
+				.map( data -> createAuthentication(data));
 	}
 
 	private UsernamePasswordAuthenticationToken createAuthentication(

@@ -22,7 +22,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
 import org.springframework.web.server.ServerWebExchange;
 
 import reactor.core.publisher.Mono;
@@ -32,15 +31,18 @@ import reactor.core.publisher.Mono;
  *
  * @author Rob Winch
  * @since 5.0
+ * @deprecated Use {@link org.springframework.security.web.server.authentication.ServerHttpBasicAuthenticationConverter}
+ * instead.
  */
+@Deprecated
 public class ServerHttpBasicAuthenticationConverter implements
-		ServerAuthenticationConverter,
 		Function<ServerWebExchange, Mono<Authentication>> {
 
 	public static final String BASIC = "Basic ";
 
 	@Override
-	public Mono<Authentication> convert(ServerWebExchange exchange) {
+	@Deprecated
+	public Mono<Authentication> apply(ServerWebExchange exchange) {
 		ServerHttpRequest request = exchange.getRequest();
 
 		String authorization = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
@@ -49,7 +51,7 @@ public class ServerHttpBasicAuthenticationConverter implements
 		}
 
 		String credentials = authorization.length() <= BASIC.length() ?
-			"" : authorization.substring(BASIC.length(), authorization.length());
+				"" : authorization.substring(BASIC.length(), authorization.length());
 		byte[] decodedCredentials = base64Decode(credentials);
 		String decodedAuthz = new String(decodedCredentials);
 		String[] userParts = decodedAuthz.split(":");
@@ -62,18 +64,6 @@ public class ServerHttpBasicAuthenticationConverter implements
 		String password = userParts[1];
 
 		return Mono.just(new UsernamePasswordAuthenticationToken(username, password));
-	}
-
-	/**
-	 * Alias for {@link #convert(ServerWebExchange)}
-	 * @param exchange the {@link ServerWebExchange} to use
-	 * @return the {@link Authentication}
-	 * @deprecated Use {@link #convert(ServerWebExchange)}
-	 */
-	@Override
-	@Deprecated
-	public Mono<Authentication> apply(ServerWebExchange exchange) {
-		return convert(exchange);
 	}
 
 	private byte[] base64Decode(String value) {
