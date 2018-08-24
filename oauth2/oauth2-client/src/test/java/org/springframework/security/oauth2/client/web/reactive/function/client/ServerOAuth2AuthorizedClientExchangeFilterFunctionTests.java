@@ -36,9 +36,9 @@ import org.springframework.mock.http.client.reactive.MockClientHttpRequest;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
-import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
+import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
@@ -70,7 +70,7 @@ import static org.springframework.security.oauth2.client.web.reactive.function.c
 @RunWith(MockitoJUnitRunner.class)
 public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	@Mock
-	private ReactiveOAuth2AuthorizedClientService authorizedClientService;
+	private ServerOAuth2AuthorizedClientRepository auth2AuthorizedClientRepository;
 
 	private ServerOAuth2AuthorizedClientExchangeFilterFunction function = new ServerOAuth2AuthorizedClientExchangeFilterFunction();
 
@@ -124,7 +124,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 	@Test
 	public void filterWhenRefreshRequiredThenRefresh() {
-		when(this.authorizedClientService.saveAuthorizedClient(any(), any())).thenReturn(Mono.empty());
+		when(this.auth2AuthorizedClientRepository.saveAuthorizedClient(any(), any(), any())).thenReturn(Mono.empty());
 		OAuth2AccessTokenResponse response = OAuth2AccessTokenResponse.withToken("token-1")
 				.tokenType(OAuth2AccessToken.TokenType.BEARER)
 				.expiresIn(3600)
@@ -139,7 +139,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				this.accessToken.getTokenValue(),
 				issuedAt,
 				accessTokenExpiresAt);
-		this.function = new ServerOAuth2AuthorizedClientExchangeFilterFunction(this.authorizedClientService);
+		this.function = new ServerOAuth2AuthorizedClientExchangeFilterFunction(this.auth2AuthorizedClientRepository);
 
 		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", issuedAt, refreshTokenExpiresAt);
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration,
@@ -153,7 +153,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication))
 				.block();
 
-		verify(this.authorizedClientService).saveAuthorizedClient(any(), eq(authentication));
+		verify(this.auth2AuthorizedClientRepository).saveAuthorizedClient(any(), eq(authentication), any());
 
 		List<ClientRequest> requests = this.exchange.getRequests();
 		assertThat(requests).hasSize(2);
@@ -173,7 +173,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 	@Test
 	public void filterWhenRefreshRequiredAndEmptyReactiveSecurityContextThenSaved() {
-		when(this.authorizedClientService.saveAuthorizedClient(any(), any())).thenReturn(Mono.empty());
+		when(this.auth2AuthorizedClientRepository.saveAuthorizedClient(any(), any(), any())).thenReturn(Mono.empty());
 		OAuth2AccessTokenResponse response = OAuth2AccessTokenResponse.withToken("token-1")
 				.tokenType(OAuth2AccessToken.TokenType.BEARER)
 				.expiresIn(3600)
@@ -188,7 +188,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				this.accessToken.getTokenValue(),
 				issuedAt,
 				accessTokenExpiresAt);
-		this.function = new ServerOAuth2AuthorizedClientExchangeFilterFunction(this.authorizedClientService);
+		this.function = new ServerOAuth2AuthorizedClientExchangeFilterFunction(this.auth2AuthorizedClientRepository);
 
 		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", issuedAt, refreshTokenExpiresAt);
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration,
@@ -200,7 +200,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		this.function.filter(request, this.exchange)
 				.block();
 
-		verify(this.authorizedClientService).saveAuthorizedClient(any(), any());
+		verify(this.auth2AuthorizedClientRepository).saveAuthorizedClient(any(), any(), any());
 
 		List<ClientRequest> requests = this.exchange.getRequests();
 		assertThat(requests).hasSize(2);
@@ -220,7 +220,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 	@Test
 	public void filterWhenRefreshTokenNullThenShouldRefreshFalse() {
-		this.function = new ServerOAuth2AuthorizedClientExchangeFilterFunction(this.authorizedClientService);
+		this.function = new ServerOAuth2AuthorizedClientExchangeFilterFunction(this.auth2AuthorizedClientRepository);
 
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration,
 				"principalName", this.accessToken);
@@ -242,7 +242,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 	@Test
 	public void filterWhenNotExpiredThenShouldRefreshFalse() {
-		this.function = new ServerOAuth2AuthorizedClientExchangeFilterFunction(this.authorizedClientService);
+		this.function = new ServerOAuth2AuthorizedClientExchangeFilterFunction(this.auth2AuthorizedClientRepository);
 
 		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", this.accessToken.getIssuedAt(), this.accessToken.getExpiresAt());
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration,
