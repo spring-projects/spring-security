@@ -20,11 +20,12 @@ import org.springframework.security.oauth2.core.AuthenticationMethod;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -39,18 +40,21 @@ public class ClientRegistrationTests {
 	private static final String CLIENT_ID = "client-1";
 	private static final String CLIENT_SECRET = "secret";
 	private static final String REDIRECT_URI = "https://example.com";
-	private static final Set<String> SCOPES = new LinkedHashSet<>(Arrays.asList("openid", "profile", "email"));
+	private static final Set<String> SCOPES = Collections.unmodifiableSet(
+			Stream.of("openid", "profile", "email").collect(Collectors.toSet()));
 	private static final String AUTHORIZATION_URI = "https://provider.com/oauth2/authorization";
 	private static final String TOKEN_URI = "https://provider.com/oauth2/token";
 	private static final String JWK_SET_URI = "https://provider.com/oauth2/keys";
 	private static final String CLIENT_NAME = "Client 1";
-	private static final Map<String, Object> PROVIDER_CONFIGURATION_METADATA = new LinkedHashMap<>();
+	private static final Map<String, Object> PROVIDER_CONFIGURATION_METADATA =
+			Collections.unmodifiableMap(createProviderConfigurationMetadata());
 
-	static {
-		PROVIDER_CONFIGURATION_METADATA.put("config-1", "value-1");
-		PROVIDER_CONFIGURATION_METADATA.put("config-2", "value-2");
+	private static Map<String, Object> createProviderConfigurationMetadata() {
+		Map<String, Object> configurationMetadata = new LinkedHashMap<>();
+		configurationMetadata.put("config-1", "value-1");
+		configurationMetadata.put("config-2", "value-2");
+		return configurationMetadata;
 	}
-
 
 	@Test(expected = IllegalArgumentException.class)
 	public void buildWhenAuthorizationGrantTypeIsNullThenThrowIllegalArgumentException() {
