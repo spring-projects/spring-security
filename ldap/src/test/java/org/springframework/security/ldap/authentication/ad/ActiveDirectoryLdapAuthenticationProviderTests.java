@@ -412,9 +412,10 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 
 		try {
 			provider.authenticate(joe);
+			fail("CommunicationException was expected with a root cause of ClassNotFoundException");
 		}
 		catch (org.springframework.ldap.CommunicationException expected) {
-			assertThat(expected.getCause()).isNotInstanceOf(ClassNotFoundException.class);
+			assertThat(expected.getRootCause()).isInstanceOf(ClassNotFoundException.class);
 		}
 	}
 
