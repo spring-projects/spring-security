@@ -15,41 +15,25 @@
  */
 package org.springframework.security.oauth2.client.endpoint;
 
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.ClientHttpResponse;
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.http.converter.FormHttpMessageConverter;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.security.oauth2.client.http.OAuth2ErrorResponseErrorHandler;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
-import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
-import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
-import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+import org.springframework.security.oauth2.core.http.converter.OAuth2AccessTokenResponseHttpMessageConverter;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.util.StringUtils;
 import org.springframework.web.client.ResponseErrorHandler;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import java.io.IOException;
-import java.net.URI;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * The default implementation of an {@link OAuth2AccessTokenResponseClient}
@@ -65,25 +49,18 @@ import java.util.stream.Stream;
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.4.2">Section 4.4.2 Access Token Request (Client Credentials Grant)</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.4.3">Section 4.4.3 Access Token Response (Client Credentials Grant)</a>
  */
-public class DefaultClientCredentialsTokenResponseClient implements OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> {
-	private static final String INVALID_TOKEN_REQUEST_ERROR_CODE = "invalid_token_request";
-
+public final class DefaultClientCredentialsTokenResponseClient implements OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> {
 	private static final String INVALID_TOKEN_RESPONSE_ERROR_CODE = "invalid_token_response";
 
-	private static final String[] TOKEN_RESPONSE_PARAMETER_NAMES = {
-			OAuth2ParameterNames.ACCESS_TOKEN,
-			OAuth2ParameterNames.TOKEN_TYPE,
-			OAuth2ParameterNames.EXPIRES_IN,
-			OAuth2ParameterNames.SCOPE,
-			OAuth2ParameterNames.REFRESH_TOKEN
-	};
+	private Converter<OAuth2ClientCredentialsGrantRequest, RequestEntity<?>> requestEntityConverter =
+			new OAuth2ClientCredentialsGrantRequestEntityConverter();
 
 	private RestOperations restOperations;
 
 	public DefaultClientCredentialsTokenResponseClient() {
-		RestTemplate restTemplate = new RestTemplate();
-		// Disable the ResponseErrorHandler as errors are handled directly within this class
-		restTemplate.setErrorHandler(new NoOpResponseErrorHandler());
+		RestTemplate restTemplate = new RestTemplate(Arrays.asList(
+				new FormHttpMessageConverter(), new OAuth2AccessTokenResponseHttpMessageConverter()));
+		restTemplate.setErrorHandler(new OAuth2ErrorResponseErrorHandler());
 		this.restOperations = restTemplate;
 	}
 
@@ -93,50 +70,18 @@ public class DefaultClientCredentialsTokenResponseClient implements OAuth2Access
 
 		Assert.notNull(clientCredentialsGrantRequest, "clientCredentialsGrantRequest cannot be null");
 
-		// Build request
-		RequestEntity<MultiValueMap<String, String>> request = this.buildRequest(clientCredentialsGrantRequest);
+		RequestEntity<?> request = this.requestEntityConverter.convert(clientCredentialsGrantRequest);
 
-		// Exchange
-		ResponseEntity<Map<String, String>> response;
+		ResponseEntity<OAuth2AccessTokenResponse> response;
 		try {
-			response = this.restOperations.exchange(
-					request, new ParameterizedTypeReference<Map<String, String>>() {});
-		} catch (Exception ex) {
-			OAuth2Error oauth2Error = new OAuth2Error(INVALID_TOKEN_REQUEST_ERROR_CODE,
-					"An error occurred while sending the Access Token Request: " + ex.getMessage(), null);
+			response = this.restOperations.exchange(request, OAuth2AccessTokenResponse.class);
+		} catch (RestClientException ex) {
+			OAuth2Error oauth2Error = new OAuth2Error(INVALID_TOKEN_RESPONSE_ERROR_CODE,
+					"An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response: " + ex.getMessage(), null);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString(), ex);
 		}
 
-		Map<String, String> responseParameters = response.getBody();
-
-		// Check for Error Response
-		if (response.getStatusCodeValue() != 200) {
-			OAuth2Error oauth2Error = this.parseErrorResponse(responseParameters);
-			if (oauth2Error == null) {
-				oauth2Error = new OAuth2Error(OAuth2ErrorCodes.SERVER_ERROR);
-			}
-			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
-		}
-
-		// Success Response
-		OAuth2AccessTokenResponse tokenResponse;
-		try {
-			tokenResponse = this.parseTokenResponse(responseParameters);
-		} catch (Exception ex) {
-			OAuth2Error oauth2Error = new OAuth2Error(INVALID_TOKEN_RESPONSE_ERROR_CODE,
-					"An error occurred parsing the Access Token response (200 OK): " + ex.getMessage(), null);
-			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString(), ex);
-		}
-
-		if (tokenResponse == null) {
-			// This should never happen as long as the provider
-			// implements a Successful Response as defined in Section 5.1
-			// https://tools.ietf.org/html/rfc6749#section-5.1
-			OAuth2Error oauth2Error = new OAuth2Error(INVALID_TOKEN_RESPONSE_ERROR_CODE,
-					"An error occurred parsing the Access Token response (200 OK). " +
-							"Missing required parameters: access_token and/or token_type", null);
-			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
-		}
+		OAuth2AccessTokenResponse tokenResponse = response.getBody();
 
 		if (CollectionUtils.isEmpty(tokenResponse.getAccessToken().getScopes())) {
 			// As per spec, in Section 5.1 Successful Access Token Response
@@ -151,120 +96,31 @@ public class DefaultClientCredentialsTokenResponseClient implements OAuth2Access
 		return tokenResponse;
 	}
 
-	private RequestEntity<MultiValueMap<String, String>> buildRequest(OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest) {
-		HttpHeaders headers = this.buildHeaders(clientCredentialsGrantRequest);
-		MultiValueMap<String, String> formParameters = this.buildFormParameters(clientCredentialsGrantRequest);
-		URI uri = UriComponentsBuilder.fromUriString(clientCredentialsGrantRequest.getClientRegistration().getProviderDetails().getTokenUri())
-				.build()
-				.toUri();
-
-		return new RequestEntity<>(formParameters, headers, HttpMethod.POST, uri);
-	}
-
-	private HttpHeaders buildHeaders(OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest) {
-		ClientRegistration clientRegistration = clientCredentialsGrantRequest.getClientRegistration();
-
-		HttpHeaders headers = new HttpHeaders();
-		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-		if (ClientAuthenticationMethod.BASIC.equals(clientRegistration.getClientAuthenticationMethod())) {
-			headers.setBasicAuth(clientRegistration.getClientId(), clientRegistration.getClientSecret());
-		}
-
-		return headers;
-	}
-
-	private MultiValueMap<String, String> buildFormParameters(OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest) {
-		ClientRegistration clientRegistration = clientCredentialsGrantRequest.getClientRegistration();
-
-		MultiValueMap<String, String> formParameters = new LinkedMultiValueMap<>();
-		formParameters.add(OAuth2ParameterNames.GRANT_TYPE, clientCredentialsGrantRequest.getGrantType().getValue());
-		if (!CollectionUtils.isEmpty(clientRegistration.getScopes())) {
-			formParameters.add(OAuth2ParameterNames.SCOPE,
-					StringUtils.collectionToDelimitedString(clientRegistration.getScopes(), " "));
-		}
-		if (ClientAuthenticationMethod.POST.equals(clientRegistration.getClientAuthenticationMethod())) {
-			formParameters.add(OAuth2ParameterNames.CLIENT_ID, clientRegistration.getClientId());
-			formParameters.add(OAuth2ParameterNames.CLIENT_SECRET, clientRegistration.getClientSecret());
-		}
-
-		return formParameters;
-	}
-
-	private OAuth2Error parseErrorResponse(Map<String, String> responseParameters) {
-		if (CollectionUtils.isEmpty(responseParameters) ||
-				!responseParameters.containsKey(OAuth2ParameterNames.ERROR)) {
-			return null;
-		}
-
-		String errorCode = responseParameters.get(OAuth2ParameterNames.ERROR);
-		String errorDescription = responseParameters.get(OAuth2ParameterNames.ERROR_DESCRIPTION);
-		String errorUri = responseParameters.get(OAuth2ParameterNames.ERROR_URI);
-
-		return new OAuth2Error(errorCode, errorDescription, errorUri);
-	}
-
-	private OAuth2AccessTokenResponse parseTokenResponse(Map<String, String> responseParameters) {
-		if (CollectionUtils.isEmpty(responseParameters) ||
-				!responseParameters.containsKey(OAuth2ParameterNames.ACCESS_TOKEN) ||
-				!responseParameters.containsKey(OAuth2ParameterNames.TOKEN_TYPE)) {
-			return null;
-		}
-
-		String accessToken = responseParameters.get(OAuth2ParameterNames.ACCESS_TOKEN);
-
-		OAuth2AccessToken.TokenType accessTokenType = null;
-		if (OAuth2AccessToken.TokenType.BEARER.getValue().equalsIgnoreCase(
-				responseParameters.get(OAuth2ParameterNames.TOKEN_TYPE))) {
-			accessTokenType = OAuth2AccessToken.TokenType.BEARER;
-		}
-
-		long expiresIn = 0;
-		if (responseParameters.containsKey(OAuth2ParameterNames.EXPIRES_IN)) {
-			try {
-				expiresIn = Long.valueOf(responseParameters.get(OAuth2ParameterNames.EXPIRES_IN));
-			} catch (NumberFormatException ex) { }
-		}
-
-		Set<String> scopes = Collections.emptySet();
-		if (responseParameters.containsKey(OAuth2ParameterNames.SCOPE)) {
-			String scope = responseParameters.get(OAuth2ParameterNames.SCOPE);
-			scopes = Arrays.stream(StringUtils.delimitedListToStringArray(scope, " ")).collect(Collectors.toSet());
-		}
-
-		Map<String, Object> additionalParameters = new LinkedHashMap<>();
-		Set<String> tokenResponseParameterNames = Stream.of(TOKEN_RESPONSE_PARAMETER_NAMES).collect(Collectors.toSet());
-		responseParameters.entrySet().stream()
-				.filter(e -> !tokenResponseParameterNames.contains(e.getKey()))
-				.forEach(e -> additionalParameters.put(e.getKey(), e.getValue()));
-
-		return OAuth2AccessTokenResponse.withToken(accessToken)
-				.tokenType(accessTokenType)
-				.expiresIn(expiresIn)
-				.scopes(scopes)
-				.additionalParameters(additionalParameters)
-				.build();
+	/**
+	 * Sets the {@link Converter} used for converting the {@link OAuth2ClientCredentialsGrantRequest}
+	 * to a {@link RequestEntity} representation of the OAuth 2.0 Access Token Request.
+	 *
+	 * @param requestEntityConverter the {@link Converter} used for converting to a {@link RequestEntity} representation of the Access Token Request
+	 */
+	public void setRequestEntityConverter(Converter<OAuth2ClientCredentialsGrantRequest, RequestEntity<?>> requestEntityConverter) {
+		Assert.notNull(requestEntityConverter, "requestEntityConverter cannot be null");
+		this.requestEntityConverter = requestEntityConverter;
 	}
 
 	/**
-	 * Sets the {@link RestOperations} used when requesting the access token response.
+	 * Sets the {@link RestOperations} used when requesting the OAuth 2.0 Access Token Response.
 	 *
-	 * @param restOperations the {@link RestOperations} used when requesting the access token response
+	 * <p>
+	 * <b>NOTE:</b> At a minimum, the supplied {@code restOperations} must be configured with the following:
+	 * <ol>
+	 *  <li>{@link HttpMessageConverter}'s - {@link FormHttpMessageConverter} and {@link OAuth2AccessTokenResponseHttpMessageConverter}</li>
+	 *  <li>{@link ResponseErrorHandler} - {@link OAuth2ErrorResponseErrorHandler}</li>
+	 * </ol>
+	 *
+	 * @param restOperations the {@link RestOperations} used when requesting the Access Token Response
 	 */
-	public final void setRestOperations(RestOperations restOperations) {
+	public void setRestOperations(RestOperations restOperations) {
 		Assert.notNull(restOperations, "restOperations cannot be null");
 		this.restOperations = restOperations;
-	}
-
-	private static class NoOpResponseErrorHandler implements ResponseErrorHandler {
-
-		@Override
-		public boolean hasError(ClientHttpResponse response) throws IOException {
-			return false;
-		}
-
-		@Override
-		public void handleError(ClientHttpResponse response) throws IOException {
-		}
 	}
 }
