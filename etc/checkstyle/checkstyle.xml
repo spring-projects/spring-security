@@ -4,12 +4,12 @@
 <module name="Checker">
 	<!-- Suppressions -->
 	<module name="SuppressionFilter">
-		<property name="file" value="${configDir}/suppressions.xml"/>
+		<property name="file" value="${config_loc}/suppressions.xml"/>
 	</module>
 
 	<!-- Root Checks -->
 	<module name="RegexpHeader">
-		<property name="headerFile" value="${configDir}/header.txt"/>
+		<property name="headerFile" value="${config_loc}/header.txt"/>
 		<property name="fileExtensions" value="java"/>
 	</module>
 
