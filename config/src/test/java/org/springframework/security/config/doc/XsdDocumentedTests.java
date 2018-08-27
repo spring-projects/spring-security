@@ -193,24 +193,24 @@ public class XsdDocumentedTests {
 
 		List<String> lines = Files.readAllLines(Paths.get(this.referenceLocation));
 		for ( String line : lines ) {
-			if(line.matches("^\\[\\[.*\\]\\]$")) {
+			if (line.matches("^\\[\\[.*\\]\\]$")) {
 				String id = line.substring(2, line.length() - 2);
 
-				if(id.endsWith("-children")) {
+				if (id.endsWith("-children")) {
 					docAttrName = id.substring(0, id.length() - 9);
 					currentDocAttrNameToElmt = docAttrNameToChildren;
-				} else if(id.endsWith("-parents")) {
+				} else if (id.endsWith("-parents")) {
 					docAttrName = id.substring(0, id.length() - 8);
 					currentDocAttrNameToElmt = docAttrNameToParents;
-				} else if(docAttrName != null && !id.startsWith(docAttrName)) {
+				} else if (docAttrName != null && !id.startsWith(docAttrName)) {
 					currentDocAttrNameToElmt = null;
 					docAttrName = null;
 				}
 			}
 
-			if(docAttrName != null && currentDocAttrNameToElmt != null) {
+			if (docAttrName != null && currentDocAttrNameToElmt != null) {
 				String expression = "^\\* <<(nsa-.*),.*>>$";
-				if(line.matches(expression)) {
+				if (line.matches(expression)) {
 					String elmtId = line.replaceAll(expression, "$1");
 					currentDocAttrNameToElmt
 							.computeIfAbsent(docAttrName, key -> new ArrayList<>())

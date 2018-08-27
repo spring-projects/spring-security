@@ -189,7 +189,7 @@ public class GlobalMethodSecurityConfiguration
 	}
 
 	private void initializeMethodSecurityInterceptor() throws Exception {
-		if(this.methodSecurityInterceptor == null) {
+		if (this.methodSecurityInterceptor == null) {
 			return;
 		}
 		this.methodSecurityInterceptor.setAuthenticationManager(authenticationManager());

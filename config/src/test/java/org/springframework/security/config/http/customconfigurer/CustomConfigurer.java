@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ public class CustomConfigurer extends SecurityConfigurerAdapter<DefaultSecurityF
 				.antMatchers(permitAllPattern).permitAll()
 				.anyRequest().authenticated();
 
-		if(http.getConfigurer(FormLoginConfigurer.class) == null) {
+		if (http.getConfigurer(FormLoginConfigurer.class) == null) {
 			// only apply if formLogin() was not invoked by the user
 			http
 				.formLogin()

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,7 +77,7 @@ final class HtmlUnitWebTestClient {
 		String requestBody = webRequest.getRequestBody();
 		if (requestBody == null) {
 			List<NameValuePair> params = webRequest.getRequestParameters();
-			if(params != null && !params.isEmpty()) {
+			if (params != null && !params.isEmpty()) {
 				return request.body(BodyInserters.fromFormData(formData(params)));
 			}
 			return request;
@@ -153,7 +153,7 @@ final class HtmlUnitWebTestClient {
 			URI location = response.headers().asHttpHeaders().getLocation();
 			String host = request.url().getHost();
 			String scheme = request.url().getScheme();
-			if(location != null) {
+			if (location != null) {
 				String redirectUrl = location.toASCIIString();
 				if (location.getHost() == null) {
 					redirectUrl = scheme+ "://" + host + location.toASCIIString();
@@ -180,7 +180,7 @@ final class HtmlUnitWebTestClient {
 				.doOnSuccess( response -> {
 					response.cookies().values().forEach( cookies -> {
 						cookies.forEach( cookie -> {
-							if(cookie.getMaxAge().isZero()) {
+							if (cookie.getMaxAge().isZero()) {
 								this.cookies.remove(cookie.getName());
 							} else {
 								this.cookies.put(cookie.getName(), cookie);

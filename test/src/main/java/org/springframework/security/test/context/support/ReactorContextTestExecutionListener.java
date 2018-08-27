@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -81,7 +81,7 @@ public class ReactorContextTestExecutionListener
 			@Override
 			public Context currentContext() {
 				Context context = delegate.currentContext();
-				if(context.hasKey(CONTEXT_DEFAULTED_ATTR_NAME)) {
+				if (context.hasKey(CONTEXT_DEFAULTED_ATTR_NAME)) {
 					return context;
 				}
 				context = context.put(CONTEXT_DEFAULTED_ATTR_NAME, Boolean.TRUE);

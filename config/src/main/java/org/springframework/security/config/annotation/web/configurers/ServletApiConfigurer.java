@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -94,9 +94,9 @@ public final class ServletApiConfigurer<H extends HttpSecurityBuilder<H>> extend
 			securityContextRequestFilter.setTrustResolver(trustResolver);
 		}
 		ApplicationContext context = http.getSharedObject(ApplicationContext.class);
-		if(context != null) {
+		if (context != null) {
 			String[] grantedAuthorityDefaultsBeanNames = context.getBeanNamesForType(GrantedAuthorityDefaults.class);
-			if(grantedAuthorityDefaultsBeanNames.length == 1) {
+			if (grantedAuthorityDefaultsBeanNames.length == 1) {
 				GrantedAuthorityDefaults grantedAuthorityDefaults = context.getBean(grantedAuthorityDefaultsBeanNames[0], GrantedAuthorityDefaults.class);
 				securityContextRequestFilter.setRolePrefix(grantedAuthorityDefaults.getRolePrefix());
 			}

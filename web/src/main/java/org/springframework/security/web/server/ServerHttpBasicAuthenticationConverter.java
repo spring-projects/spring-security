@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ public class ServerHttpBasicAuthenticationConverter implements
 		ServerHttpRequest request = exchange.getRequest();
 
 		String authorization = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-		if(authorization == null || !authorization.toLowerCase().startsWith("basic ")) {
+		if (authorization == null || !authorization.toLowerCase().startsWith("basic ")) {
 			return Mono.empty();
 		}
 
@@ -56,7 +56,7 @@ public class ServerHttpBasicAuthenticationConverter implements
 		String decodedAuthz = new String(decodedCredentials);
 		String[] userParts = decodedAuthz.split(":");
 
-		if(userParts.length != 2) {
+		if (userParts.length != 2) {
 			return Mono.empty();
 		}
 

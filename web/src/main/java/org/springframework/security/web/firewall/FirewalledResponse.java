@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ class FirewalledResponse extends HttpServletResponseWrapper {
 
 	@Override
 	public void addCookie(Cookie cookie) {
-		if(cookie != null) {
+		if (cookie != null) {
 			validateCrlf(SET_COOKIE_HEADER, cookie.getName());
 			validateCrlf(SET_COOKIE_HEADER, cookie.getValue());
 			validateCrlf(SET_COOKIE_HEADER, cookie.getPath());

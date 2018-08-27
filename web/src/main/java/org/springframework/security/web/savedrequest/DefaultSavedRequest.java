@@ -492,7 +492,7 @@ public class DefaultSavedRequest implements SavedRequest {
 
 		public DefaultSavedRequest build() {
 			DefaultSavedRequest savedRequest = new DefaultSavedRequest(this);
-			if(!ObjectUtils.isEmpty(this.cookies)) {
+			if (!ObjectUtils.isEmpty(this.cookies)) {
 				for (SavedCookie cookie : this.cookies) {
 					savedRequest.addCookie(cookie.getCookie());
 				}

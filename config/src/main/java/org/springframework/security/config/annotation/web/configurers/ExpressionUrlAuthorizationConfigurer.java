@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -213,18 +213,18 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 				defaultHandler.setTrustResolver(trustResolver);
 			}
 			ApplicationContext context = http.getSharedObject(ApplicationContext.class);
-			if(context != null) {
+			if (context != null) {
 				String[] roleHiearchyBeanNames = context.getBeanNamesForType(RoleHierarchy.class);
-				if(roleHiearchyBeanNames.length == 1) {
+				if (roleHiearchyBeanNames.length == 1) {
 					defaultHandler.setRoleHierarchy(context.getBean(roleHiearchyBeanNames[0], RoleHierarchy.class));
 				}
 				String[] grantedAuthorityDefaultsBeanNames = context.getBeanNamesForType(GrantedAuthorityDefaults.class);
-				if(grantedAuthorityDefaultsBeanNames.length == 1) {
+				if (grantedAuthorityDefaultsBeanNames.length == 1) {
 					GrantedAuthorityDefaults grantedAuthorityDefaults = context.getBean(grantedAuthorityDefaultsBeanNames[0], GrantedAuthorityDefaults.class);
 					defaultHandler.setDefaultRolePrefix(grantedAuthorityDefaults.getRolePrefix());
 				}
 				String[] permissionEvaluatorBeanNames = context.getBeanNamesForType(PermissionEvaluator.class);
-				if(permissionEvaluatorBeanNames.length == 1) {
+				if (permissionEvaluatorBeanNames.length == 1) {
 					PermissionEvaluator permissionEvaluator = context.getBean(permissionEvaluatorBeanNames[0], PermissionEvaluator.class);
 					defaultHandler.setPermissionEvaluator(permissionEvaluator);
 				}

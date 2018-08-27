@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -137,20 +137,20 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 	 */
 	public DelegatingPasswordEncoder(String idForEncode,
 		Map<String, PasswordEncoder> idToPasswordEncoder) {
-		if(idForEncode == null) {
+		if (idForEncode == null) {
 			throw new IllegalArgumentException("idForEncode cannot be null");
 		}
-		if(!idToPasswordEncoder.containsKey(idForEncode)) {
+		if (!idToPasswordEncoder.containsKey(idForEncode)) {
 			throw new IllegalArgumentException("idForEncode " + idForEncode + "is not found in idToPasswordEncoder " + idToPasswordEncoder);
 		}
-		for(String id : idToPasswordEncoder.keySet()) {
-			if(id == null) {
+		for (String id : idToPasswordEncoder.keySet()) {
+			if (id == null) {
 				continue;
 			}
-			if(id.contains(PREFIX)) {
+			if (id.contains(PREFIX)) {
 				throw new IllegalArgumentException("id " + id + " cannot contain " + PREFIX);
 			}
-			if(id.contains(SUFFIX)) {
+			if (id.contains(SUFFIX)) {
 				throw new IllegalArgumentException("id " + id + " cannot contain " + SUFFIX);
 			}
 		}
@@ -175,7 +175,7 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 	 */
 	public void setDefaultPasswordEncoderForMatches(
 		PasswordEncoder defaultPasswordEncoderForMatches) {
-		if(defaultPasswordEncoderForMatches == null) {
+		if (defaultPasswordEncoderForMatches == null) {
 			throw new IllegalArgumentException("defaultPasswordEncoderForMatches cannot be null");
 		}
 		this.defaultPasswordEncoderForMatches = defaultPasswordEncoderForMatches;
@@ -188,12 +188,12 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 
 	@Override
 	public boolean matches(CharSequence rawPassword, String prefixEncodedPassword) {
-		if(rawPassword == null && prefixEncodedPassword == null) {
+		if (rawPassword == null && prefixEncodedPassword == null) {
 			return true;
 		}
 		String id = extractId(prefixEncodedPassword);
 		PasswordEncoder delegate = this.idToPasswordEncoder.get(id);
-		if(delegate == null) {
+		if (delegate == null) {
 			return this.defaultPasswordEncoderForMatches
 				.matches(rawPassword, prefixEncodedPassword);
 		}
@@ -206,11 +206,11 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 			return null;
 		}
 		int start = prefixEncodedPassword.indexOf(PREFIX);
-		if(start != 0) {
+		if (start != 0) {
 			return null;
 		}
 		int end = prefixEncodedPassword.indexOf(SUFFIX, start);
-		if(end < 0) {
+		if (end < 0) {
 			return null;
 		}
 		return prefixEncodedPassword.substring(start + 1, end);

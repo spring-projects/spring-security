@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ public class HttpInterceptUrlTests {
 
 	@After
 	public void close() {
-		if(context != null) {
+		if (context != null) {
 			context.close();
 		}
 	}
@@ -57,7 +57,7 @@ public class HttpInterceptUrlTests {
 	}
 
 	private void loadConfig(String... configLocations) {
-		for(int i=0; i<configLocations.length; i++) {
+		for (int i=0; i<configLocations.length; i++) {
 			configLocations[i] = getClass().getName().replaceAll("\\.", "/") + "-" + configLocations[i];
 		}
 		XmlWebApplicationContext context = new XmlWebApplicationContext();

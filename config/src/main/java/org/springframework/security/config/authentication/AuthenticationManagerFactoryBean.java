@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ public class AuthenticationManagerFactoryBean implements
 			}
 
 			UserDetailsService uds = getBeanOrNull(UserDetailsService.class);
-			if(uds == null) {
+			if (uds == null) {
 				throw new NoSuchBeanDefinitionException(BeanIds.AUTHENTICATION_MANAGER,
 					MISSING_BEAN_ERROR_MESSAGE);
 			}
