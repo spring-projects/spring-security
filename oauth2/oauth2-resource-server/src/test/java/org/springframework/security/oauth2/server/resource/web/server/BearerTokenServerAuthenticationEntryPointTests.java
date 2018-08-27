@@ -91,6 +91,14 @@ public class BearerTokenServerAuthenticationEntryPointTests {
 		assertThat(getResponse().getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
 	}
 
+	@Test
+	public void commenceWhenNoSubscriberThenNothingHappens() {
+		this.entryPoint.commence(this.exchange, new BadCredentialsException(""));
+
+		assertThat(getResponse().getHeaders()).isEmpty();
+		assertThat(getResponse().getStatusCode()).isNull();
+	}
+
 	private MockServerHttpResponse getResponse() {
 		return this.exchange.getResponse();
 	}

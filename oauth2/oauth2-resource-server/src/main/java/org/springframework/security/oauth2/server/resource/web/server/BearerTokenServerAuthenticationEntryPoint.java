@@ -58,14 +58,16 @@ public final class BearerTokenServerAuthenticationEntryPoint implements
 
 	@Override
 	public Mono<Void> commence(ServerWebExchange exchange, AuthenticationException authException) {
-		HttpStatus status = getStatus(authException);
+		return Mono.defer(() -> {
+			HttpStatus status = getStatus(authException);
 
-		Map<String, String> parameters = createParameters(authException);
-		String wwwAuthenticate = computeWWWAuthenticateHeaderValue(parameters);
-		ServerHttpResponse response = exchange.getResponse();
-		response.getHeaders().set(HttpHeaders.WWW_AUTHENTICATE, wwwAuthenticate);
-		response.setStatusCode(status);
-		return response.setComplete();
+			Map<String, String> parameters = createParameters(authException);
+			String wwwAuthenticate = computeWWWAuthenticateHeaderValue(parameters);
+			ServerHttpResponse response = exchange.getResponse();
+			response.getHeaders().set(HttpHeaders.WWW_AUTHENTICATE, wwwAuthenticate);
+			response.setStatusCode(status);
+			return response.setComplete();
+		});
 	}
 
 	private Map<String, String> createParameters(AuthenticationException authException) {
