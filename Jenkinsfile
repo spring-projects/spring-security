@@ -19,7 +19,7 @@ try {
 					currentBuild.result = 'FAILED: check'
 					throw e
 				} finally {
-					junit '**/build/*-results/*.xml'
+					junit '**/build/test-results/*/*.xml'
 				}
 			}
 		}
