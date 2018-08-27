@@ -72,7 +72,7 @@ class ServerHttpSecurityConfiguration implements WebFluxConfigurer {
 	public AuthenticationPrincipalArgumentResolver authenticationPrincipalArgumentResolver() {
 		AuthenticationPrincipalArgumentResolver resolver = new AuthenticationPrincipalArgumentResolver(
 			this.adapterRegistry);
-		if(this.beanFactory != null) {
+		if (this.beanFactory != null) {
 			resolver.setBeanResolver(new BeanFactoryResolver(this.beanFactory));
 		}
 		return resolver;
@@ -89,13 +89,13 @@ class ServerHttpSecurityConfiguration implements WebFluxConfigurer {
 	}
 
 	private ReactiveAuthenticationManager authenticationManager() {
-		if(this.authenticationManager != null) {
+		if (this.authenticationManager != null) {
 			return this.authenticationManager;
 		}
-		if(this.reactiveUserDetailsService != null) {
+		if (this.reactiveUserDetailsService != null) {
 			UserDetailsRepositoryReactiveAuthenticationManager manager =
 				new UserDetailsRepositoryReactiveAuthenticationManager(this.reactiveUserDetailsService);
-			if(this.passwordEncoder != null) {
+			if (this.passwordEncoder != null) {
 				manager.setPasswordEncoder(this.passwordEncoder);
 			}
 			manager.setUserDetailsPasswordService(this.userDetailsPasswordService);

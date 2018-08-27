@@ -561,7 +561,7 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 		public final void setApplicationContext(ApplicationContext applicationContext)
 				throws BeansException {
 			String[] grantedAuthorityDefaultsBeanNames = applicationContext.getBeanNamesForType(GrantedAuthorityDefaults.class);
-			if(grantedAuthorityDefaultsBeanNames.length == 1) {
+			if (grantedAuthorityDefaultsBeanNames.length == 1) {
 				GrantedAuthorityDefaults grantedAuthorityDefaults = applicationContext.getBean(grantedAuthorityDefaultsBeanNames[0], GrantedAuthorityDefaults.class);
 				this.rolePrefix = grantedAuthorityDefaults.getRolePrefix();
 			}

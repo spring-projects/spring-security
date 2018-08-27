@@ -123,10 +123,10 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
 
 	private String getPassword(DirContextOperations user) {
 		Object passwordAttrValue = user.getObjectAttribute(this.passwordAttributeName);
-		if(passwordAttrValue == null) {
+		if (passwordAttrValue == null) {
 			return null;
 		}
-		if(passwordAttrValue instanceof byte[]) {
+		if (passwordAttrValue instanceof byte[]) {
 			return new String((byte[]) passwordAttrValue);
 		}
 		return String.valueOf(passwordAttrValue);

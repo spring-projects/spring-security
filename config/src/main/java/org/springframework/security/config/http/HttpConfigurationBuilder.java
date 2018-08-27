@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -252,7 +252,7 @@ class HttpConfigurationBuilder {
 
 		String repoRef = httpElt.getAttribute(ATT_SECURITY_CONTEXT_REPOSITORY);
 		String disableUrlRewriting = httpElt.getAttribute(ATT_DISABLE_URL_REWRITING);
-		if(!StringUtils.hasText(disableUrlRewriting)) {
+		if (!StringUtils.hasText(disableUrlRewriting)) {
 			disableUrlRewriting = "true";
 		}
 

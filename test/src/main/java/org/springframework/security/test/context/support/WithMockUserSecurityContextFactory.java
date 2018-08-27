@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ final class WithMockUserSecurityContextFactory implements
 			grantedAuthorities.add(new SimpleGrantedAuthority(authority));
 		}
 
-		if(grantedAuthorities.isEmpty()) {
+		if (grantedAuthorities.isEmpty()) {
 			for (String role : withUser.roles()) {
 				if (role.startsWith("ROLE_")) {
 					throw new IllegalArgumentException("roles cannot start with ROLE_ Got "
@@ -59,7 +59,7 @@ final class WithMockUserSecurityContextFactory implements
 				}
 				grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + role));
 			}
-		} else if(!(withUser.roles().length == 1 && "USER".equals(withUser.roles()[0]))) {
+		} else if (!(withUser.roles().length == 1 && "USER".equals(withUser.roles()[0]))) {
 			throw new IllegalStateException("You cannot define roles attribute "+ Arrays.asList(withUser.roles())+" with authorities attribute "+ Arrays.asList(withUser.authorities()));
 		}
 

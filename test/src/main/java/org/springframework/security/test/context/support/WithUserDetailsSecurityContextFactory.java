@@ -67,7 +67,7 @@ final class WithUserDetailsSecurityContextFactory implements
 	}
 
 	private UserDetailsService findUserDetailsService(String beanName) {
-		if(reactorPresent) {
+		if (reactorPresent) {
 			UserDetailsService reactive = findAndAdaptReactiveUserDetailsService(beanName);
 			if (reactive != null) {
 				return reactive;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -162,11 +162,11 @@ public class MessageDigestPasswordEncoder implements PasswordEncoder {
 
 	private String extractSalt(String prefixEncodedPassword) {
 		int start = prefixEncodedPassword.indexOf(PREFIX);
-		if(start != 0) {
+		if (start != 0) {
 			return "";
 		}
 		int end = prefixEncodedPassword.indexOf(SUFFIX, start);
-		if(end < 0) {
+		if (end < 0) {
 			return "";
 		}
 		return prefixEncodedPassword.substring(start, end + 1);

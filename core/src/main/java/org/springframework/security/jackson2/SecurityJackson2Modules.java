@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2015-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,7 +75,7 @@ public final class SecurityJackson2Modules {
 	}
 
 	public static void enableDefaultTyping(ObjectMapper mapper) {
-		if(mapper != null) {
+		if (mapper != null) {
 			TypeResolverBuilder<?> typeBuilder = mapper.getDeserializationConfig().getDefaultTyper(null);
 			if (typeBuilder == null) {
 				mapper.setDefaultTyping(createWhitelistedDefaultTyping());
@@ -89,13 +89,13 @@ public final class SecurityJackson2Modules {
 		try {
 			Class<? extends Module> securityModule = (Class<? extends Module>) ClassUtils.forName(className, loader);
 			if (securityModule != null) {
-				if(logger.isDebugEnabled()) {
+				if (logger.isDebugEnabled()) {
 					logger.debug("Loaded module " + className + ", now registering");
 				}
 				instance = securityModule.newInstance();
 			}
 		} catch (Exception e) {
-			if(logger.isDebugEnabled()) {
+			if (logger.isDebugEnabled()) {
 				logger.debug("Cannot load module " + className, e);
 			}
 		}
@@ -195,15 +195,15 @@ public final class SecurityJackson2Modules {
 			DeserializationConfig config = (DeserializationConfig) context.getConfig();
 			JavaType result = delegate.typeFromId(context, id);
 			String className = result.getRawClass().getName();
-			if(isWhitelisted(className)) {
+			if (isWhitelisted(className)) {
 				return delegate.typeFromId(context, id);
 			}
 			boolean isExplicitMixin = config.findMixInClassFor(result.getRawClass()) != null;
-			if(isExplicitMixin) {
+			if (isExplicitMixin) {
 				return result;
 			}
 			JacksonAnnotation jacksonAnnotation = AnnotationUtils.findAnnotation(result.getRawClass(), JacksonAnnotation.class);
-			if(jacksonAnnotation != null) {
+			if (jacksonAnnotation != null) {
 				return result;
 			}
 			throw new IllegalArgumentException("The class with " + id + " and name of " + className + " is not whitelisted. " +

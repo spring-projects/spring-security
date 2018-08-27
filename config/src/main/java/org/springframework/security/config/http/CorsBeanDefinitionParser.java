@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,17 +39,17 @@ public class CorsBeanDefinitionParser {
 	private static final String ATT_REF = "ref";
 
 	public BeanMetadataElement parse(Element element, ParserContext parserContext) {
-		if(element == null) {
+		if (element == null) {
 			return null;
 		}
 
 		String filterRef = element.getAttribute(ATT_REF);
-		if(StringUtils.hasText(filterRef)) {
+		if (StringUtils.hasText(filterRef)) {
 			return new RuntimeBeanReference(filterRef);
 		}
 
 		BeanMetadataElement configurationSource = getSource(element, parserContext);
-		if(configurationSource == null) {
+		if (configurationSource == null) {
 			throw new BeanCreationException("Could not create CorsFilter");
 		}
 
@@ -66,7 +66,7 @@ public class CorsBeanDefinitionParser {
 
 		boolean mvcPresent = ClassUtils.isPresent(HANDLER_MAPPING_INTROSPECTOR,
 				getClass().getClassLoader());
-		if(!mvcPresent) {
+		if (!mvcPresent) {
 			return null;
 		}
 

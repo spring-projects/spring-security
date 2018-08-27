@@ -479,7 +479,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	private ConcurrentSessionFilter createConccurencyFilter(H http) {
 		SessionInformationExpiredStrategy expireStrategy = getExpiredSessionStrategy();
 		SessionRegistry sessionRegistry = getSessionRegistry(http);
-		if(expireStrategy == null) {
+		if (expireStrategy == null) {
 			return new ConcurrentSessionFilter(sessionRegistry);
 		}
 

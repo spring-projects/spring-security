@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,7 +83,7 @@ public final class XFrameOptionsHeaderWriter implements HeaderWriter {
 	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
 		if (XFrameOptionsMode.ALLOW_FROM.equals(frameOptionsMode)) {
 			String allowFromValue = this.allowFromStrategy.getAllowFromValue(request);
-			if(XFrameOptionsMode.DENY.getMode().equals(allowFromValue)) {
+			if (XFrameOptionsMode.DENY.getMode().equals(allowFromValue)) {
 				response.setHeader(XFRAME_OPTIONS_HEADER, XFrameOptionsMode.DENY.getMode());
 			} else if (allowFromValue != null) {
 				response.setHeader(XFRAME_OPTIONS_HEADER,

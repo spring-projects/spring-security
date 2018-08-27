@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -149,7 +149,7 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 			return false;
 		}
 
-		if(logger.isDebugEnabled()) {
+		if (logger.isDebugEnabled()) {
 			logger.debug("Pre-authenticated principal has changed to " + principal + " and will be reauthenticated");
 		}
 		return true;
@@ -205,7 +205,7 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 			return false;
 		}
 
-		if(!principalChanged(request, currentUser)) {
+		if (!principalChanged(request, currentUser)) {
 			return false;
 		}
 
@@ -242,7 +242,7 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 					authResult, this.getClass()));
 		}
 
-		if(authenticationSuccessHandler != null) {
+		if (authenticationSuccessHandler != null) {
 			authenticationSuccessHandler.onAuthenticationSuccess(request, response, authResult);
 		}
 	}
@@ -262,7 +262,7 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 		}
 		request.setAttribute(WebAttributes.AUTHENTICATION_EXCEPTION, failed);
 
-		if(authenticationFailureHandler != null) {
+		if (authenticationFailureHandler != null) {
 			authenticationFailureHandler.onAuthenticationFailure(request, response, failed);
 		}
 	}

@@ -183,7 +183,7 @@ public class HeaderSpecTests {
 	}
 
 	private void expectHeaderNamesNotPresent(String... headerNames) {
-		for(String headerName : headerNames) {
+		for (String headerName : headerNames) {
 			this.expectedHeaders.remove(headerName);
 			this.headerNamesNotPresent.add(headerName);
 		}

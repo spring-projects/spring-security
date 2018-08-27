@@ -137,7 +137,7 @@ public final class UrlUtils {
 	 * defined in RFC 1738.
 	 */
 	public static boolean isAbsoluteUrl(String url) {
-		if(url == null) {
+		if (url == null) {
 			return false;
 		}
 		final Pattern ABSOLUTE_URL = Pattern.compile("\\A[a-z0-9.+-]+://.*",

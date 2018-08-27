@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ class MethodSecurityMetadataSourceAdvisorRegistrar implements
 
 		MultiValueMap<String, Object> attributes = importingClassMetadata.getAllAnnotationAttributes(EnableGlobalMethodSecurity.class.getName());
 		Integer order = (Integer) attributes.getFirst("order");
-		if(order != null) {
+		if (order != null) {
 			advisor.addPropertyValue("order", order);
 		}
 

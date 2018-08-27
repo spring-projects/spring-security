@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -100,7 +100,7 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 	 * @since 5.0
 	 */
 	public void setAlgorithm(SecretKeyFactoryAlgorithm secretKeyFactoryAlgorithm) {
-		if(secretKeyFactoryAlgorithm == null) {
+		if (secretKeyFactoryAlgorithm == null) {
 			throw new IllegalArgumentException("secretKeyFactoryAlgorithm cannot be null");
 		}
 		String algorithmName = secretKeyFactoryAlgorithm.name();
@@ -131,7 +131,7 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 	}
 
 	private String encode(byte[] bytes) {
-		if(this.encodeHashAsBase64) {
+		if (this.encodeHashAsBase64) {
 			return Base64.getEncoder().encodeToString(bytes);
 		}
 		return String.valueOf(Hex.encode(bytes));
@@ -160,7 +160,7 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 	}
 
 	private byte[] decode(String encodedBytes) {
-		if(this.encodeHashAsBase64) {
+		if (this.encodeHashAsBase64) {
 			return Base64.getDecoder().decode(encodedBytes);
 		}
 		return Hex.decode(encodedBytes);

@@ -316,7 +316,7 @@ public class ServerHttpSecurity {
 	 * @return the {@link CsrfSpec} to customize
 	 */
 	public CsrfSpec csrf() {
-		if(this.csrf == null) {
+		if (this.csrf == null) {
 			this.csrf = new CsrfSpec();
 		}
 		return this.csrf;
@@ -416,7 +416,7 @@ public class ServerHttpSecurity {
 	 * @return the {@link HttpBasicSpec} to customize
 	 */
 	public HttpBasicSpec httpBasic() {
-		if(this.httpBasic == null) {
+		if (this.httpBasic == null) {
 			this.httpBasic = new HttpBasicSpec();
 		}
 		return this.httpBasic;
@@ -446,7 +446,7 @@ public class ServerHttpSecurity {
 	 * @return the {@link FormLoginSpec} to customize
 	 */
 	public FormLoginSpec formLogin() {
-		if(this.formLogin == null) {
+		if (this.formLogin == null) {
 			this.formLogin = new FormLoginSpec();
 		}
 		return this.formLogin;
@@ -850,7 +850,7 @@ public class ServerHttpSecurity {
 	 * @return the {@link HeaderSpec} to customize
 	 */
 	public HeaderSpec headers() {
-		if(this.headers == null) {
+		if (this.headers == null) {
 			this.headers = new HeaderSpec();
 		}
 		return this.headers;
@@ -875,7 +875,7 @@ public class ServerHttpSecurity {
 	 * @return the {@link ExceptionHandlingSpec} to customize
 	 */
 	public ExceptionHandlingSpec exceptionHandling() {
-		if(this.exceptionHandling == null) {
+		if (this.exceptionHandling == null) {
 			this.exceptionHandling = new ExceptionHandlingSpec();
 		}
 		return this.exceptionHandling;
@@ -913,7 +913,7 @@ public class ServerHttpSecurity {
 	 * @return the {@link AuthorizeExchangeSpec} to customize
 	 */
 	public AuthorizeExchangeSpec authorizeExchange() {
-		if(this.authorizeExchange == null) {
+		if (this.authorizeExchange == null) {
 			this.authorizeExchange = new AuthorizeExchangeSpec();
 		}
 		return this.authorizeExchange;
@@ -983,30 +983,30 @@ public class ServerHttpSecurity {
 	 * @return the {@link SecurityWebFilterChain
 	 */
 	public SecurityWebFilterChain build() {
-		if(this.built != null) {
+		if (this.built != null) {
 			throw new IllegalStateException("This has already been built with the following stacktrace. " + buildToString());
 		}
 		this.built = new RuntimeException("First Build Invocation").fillInStackTrace();
-		if(this.headers != null) {
+		if (this.headers != null) {
 			this.headers.configure(this);
 		}
 		WebFilter securityContextRepositoryWebFilter = securityContextRepositoryWebFilter();
-		if(securityContextRepositoryWebFilter != null) {
+		if (securityContextRepositoryWebFilter != null) {
 			this.webFilters.add(securityContextRepositoryWebFilter);
 		}
-		if(this.csrf != null) {
+		if (this.csrf != null) {
 			this.csrf.configure(this);
 		}
 		if (this.cors != null) {
 			this.cors.configure(this);
 		}
-		if(this.httpBasic != null) {
+		if (this.httpBasic != null) {
 			this.httpBasic.authenticationManager(this.authenticationManager);
 			this.httpBasic.configure(this);
 		}
-		if(this.formLogin != null) {
+		if (this.formLogin != null) {
 			this.formLogin.authenticationManager(this.authenticationManager);
-			if(this.securityContextRepository != null) {
+			if (this.securityContextRepository != null) {
 				this.formLogin.securityContextRepository(this.securityContextRepository);
 			}
 			this.formLogin.configure(this);
@@ -1021,19 +1021,19 @@ public class ServerHttpSecurity {
 			this.client.configure(this);
 		}
 		this.loginPage.configure(this);
-		if(this.logout != null) {
+		if (this.logout != null) {
 			this.logout.configure(this);
 		}
 		this.requestCache.configure(this);
 		this.addFilterAt(new SecurityContextServerWebExchangeWebFilter(), SecurityWebFiltersOrder.SECURITY_CONTEXT_SERVER_WEB_EXCHANGE);
-		if(this.authorizeExchange != null) {
+		if (this.authorizeExchange != null) {
 			ServerAuthenticationEntryPoint authenticationEntryPoint = getAuthenticationEntryPoint();
 			ExceptionTranslationWebFilter exceptionTranslationWebFilter = new ExceptionTranslationWebFilter();
-			if(authenticationEntryPoint != null) {
+			if (authenticationEntryPoint != null) {
 				exceptionTranslationWebFilter.setAuthenticationEntryPoint(
 					authenticationEntryPoint);
 			}
-			if(this.accessDeniedHandler != null) {
+			if (this.accessDeniedHandler != null) {
 				exceptionTranslationWebFilter.setAccessDeniedHandler(this.accessDeniedHandler);
 			}
 			this.addFilterAt(exceptionTranslationWebFilter, SecurityWebFiltersOrder.EXCEPTION_TRANSLATION);
@@ -1042,7 +1042,7 @@ public class ServerHttpSecurity {
 		AnnotationAwareOrderComparator.sort(this.webFilters);
 		List<WebFilter> sortedWebFilters = new ArrayList<>();
 		this.webFilters.forEach( f -> {
-			if(f instanceof OrderedWebFilter) {
+			if (f instanceof OrderedWebFilter) {
 				f = ((OrderedWebFilter) f).webFilter;
 			}
 			sortedWebFilters.add(f);
@@ -1066,10 +1066,10 @@ public class ServerHttpSecurity {
 	}
 
 	private ServerAuthenticationEntryPoint getAuthenticationEntryPoint() {
-		if(this.authenticationEntryPoint != null || this.defaultEntryPoints.isEmpty()) {
+		if (this.authenticationEntryPoint != null || this.defaultEntryPoints.isEmpty()) {
 			return this.authenticationEntryPoint;
 		}
-		if(this.defaultEntryPoints.size() == 1) {
+		if (this.defaultEntryPoints.size() == 1) {
 			return this.defaultEntryPoints.get(0).getEntryPoint();
 		}
 		DelegatingServerAuthenticationEntryPoint result = new DelegatingServerAuthenticationEntryPoint(this.defaultEntryPoints);
@@ -1087,7 +1087,7 @@ public class ServerHttpSecurity {
 
 	private WebFilter securityContextRepositoryWebFilter() {
 		ServerSecurityContextRepository repository = this.securityContextRepository;
-		if(repository == null) {
+		if (repository == null) {
 			return null;
 		}
 		WebFilter result = new ReactorContextWebFilter(repository);
@@ -1130,10 +1130,10 @@ public class ServerHttpSecurity {
 
 		@Override
 		protected Access registerMatcher(ServerWebExchangeMatcher matcher) {
-			if(this.anyExchangeRegistered) {
+			if (this.anyExchangeRegistered) {
 				throw new IllegalStateException("Cannot register " + matcher + " which would be unreachable because anyExchange() has already been registered.");
 			}
-			if(this.matcher != null) {
+			if (this.matcher != null) {
 				throw new IllegalStateException("The matcher " + matcher + " does not have an access rule defined");
 			}
 			this.matcher = matcher;
@@ -1141,7 +1141,7 @@ public class ServerHttpSecurity {
 		}
 
 		protected void configure(ServerHttpSecurity http) {
-			if(this.matcher != null) {
+			if (this.matcher != null) {
 				throw new IllegalStateException("The matcher " + this.matcher + " does not have an access rule defined");
 			}
 			AuthorizationWebFilter result = new AuthorizationWebFilter(this.managerBldr.build());
@@ -1446,7 +1446,7 @@ public class ServerHttpSecurity {
 				this.authenticationManager);
 			authenticationFilter.setAuthenticationFailureHandler(new ServerAuthenticationEntryPointFailureHandler(this.entryPoint));
 			authenticationFilter.setAuthenticationConverter(new ServerHttpBasicAuthenticationConverter());
-			if(this.securityContextRepository != null) {
+			if (this.securityContextRepository != null) {
 				authenticationFilter.setSecurityContextRepository(this.securityContextRepository);
 			}
 			http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.HTTP_BASIC);
@@ -1596,16 +1596,16 @@ public class ServerHttpSecurity {
 		}
 
 		protected void configure(ServerHttpSecurity http) {
-			if(this.authenticationEntryPoint == null) {
+			if (this.authenticationEntryPoint == null) {
 				this.isEntryPointExplicit = false;
 				loginPage("/login");
 			} else {
 				this.isEntryPointExplicit = true;
 			}
-			if(http.requestCache != null) {
+			if (http.requestCache != null) {
 				ServerRequestCache requestCache = http.requestCache.requestCache;
 				this.defaultSuccessHandler.setRequestCache(requestCache);
-				if(this.defaultEntryPoint != null) {
+				if (this.defaultEntryPoint != null) {
 					this.defaultEntryPoint.setRequestCache(requestCache);
 				}
 			}

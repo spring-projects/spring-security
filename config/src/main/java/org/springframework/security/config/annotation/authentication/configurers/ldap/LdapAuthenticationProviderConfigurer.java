@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -158,7 +158,7 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	 * @throws Exception if errors in {@link SimpleAuthorityMapper#afterPropertiesSet()}
 	 */
 	protected GrantedAuthoritiesMapper getAuthoritiesMapper() throws Exception {
-		if(authoritiesMapper != null) {
+		if (authoritiesMapper != null) {
 			return authoritiesMapper;
 		}
 

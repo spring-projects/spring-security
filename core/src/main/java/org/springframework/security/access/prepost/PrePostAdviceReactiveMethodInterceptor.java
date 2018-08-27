@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,14 +90,14 @@ public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor
 
 		PostInvocationAttribute attr = findPostInvocationAttribute(attributes);
 
-		if(Mono.class.isAssignableFrom(returnType)) {
+		if (Mono.class.isAssignableFrom(returnType)) {
 			return toInvoke
 				.flatMap( auth -> this.<Mono<?>>proceed(invocation)
 					.map( r -> attr == null ? r : this.postAdvice.after(auth, invocation, attr, r))
 				);
 		}
 
-		if(Flux.class.isAssignableFrom(returnType)) {
+		if (Flux.class.isAssignableFrom(returnType)) {
 			return toInvoke
 				.flatMapMany( auth -> this.<Flux<?>>proceed(invocation)
 					.map( r -> attr == null ? r : this.postAdvice.after(auth, invocation, attr, r))

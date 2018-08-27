@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -295,7 +295,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 
 	private String renderHiddenInputs(HttpServletRequest request) {
 		StringBuilder sb = new StringBuilder();
-		for(Map.Entry<String, String> input : this.resolveHiddenInputs.apply(request).entrySet()) {
+		for (Map.Entry<String, String> input : this.resolveHiddenInputs.apply(request).entrySet()) {
 			sb.append("<input name=\"").append(input.getKey()).append("\" type=\"hidden\" value=\"").append(input.getValue()).append("\" />\n");
 		}
 		return sb.toString();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -215,7 +215,7 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>> extends
 					.setAuthenticationDetailsSource(this.authenticationDetailsSource);
 		}
 		RememberMeServices rememberMeServices = http.getSharedObject(RememberMeServices.class);
-		if(rememberMeServices != null) {
+		if (rememberMeServices != null) {
 			basicAuthenticationFilter.setRememberMeServices(rememberMeServices);
 		}
 		basicAuthenticationFilter = postProcess(basicAuthenticationFilter);

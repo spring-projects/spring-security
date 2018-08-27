@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2016 the original author or authors.
+ * Copyright 2012-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ class GrantedAuthorityDefaultsParserUtils {
 		public final void setApplicationContext(ApplicationContext applicationContext)
 				throws BeansException {
 			String[] grantedAuthorityDefaultsBeanNames = applicationContext.getBeanNamesForType(GrantedAuthorityDefaults.class);
-			if(grantedAuthorityDefaultsBeanNames.length == 1) {
+			if (grantedAuthorityDefaultsBeanNames.length == 1) {
 				GrantedAuthorityDefaults grantedAuthorityDefaults = applicationContext.getBean(grantedAuthorityDefaultsBeanNames[0], GrantedAuthorityDefaults.class);
 				this.rolePrefix = grantedAuthorityDefaults.getRolePrefix();
 			}
