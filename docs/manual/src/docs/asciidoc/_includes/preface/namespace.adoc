@@ -130,7 +130,7 @@ The `<intercept-url>` element defines a `pattern` which is matched against the U
 You can also use regular-expression matching as an alternative (see the namespace appendix for more details).
 The `access` attribute defines the access requirements for requests matching the given pattern.
 With the default configuration, this is typically a comma-separated list of roles, one of which a user must have to be allowed to make the request.
-The prefix"ROLE_" is a marker which indicates that a simple comparison with the user's authorities should be made.
+The prefix "ROLE_" is a marker which indicates that a simple comparison with the user's authorities should be made.
 In other words, a normal role-based check should be used.
 Access-control in Spring Security is not limited to the use of simple roles (hence the use of the prefix to differentiate between different types of security attributes).
 We'll see later how the interpretation can vary footnote:[The interpretation of the comma-separated values in the `access` attribute depends on the implementation of the pass:specialcharacters,macros[<<ns-access-manager,AccessDecisionManager>>] which is used.
