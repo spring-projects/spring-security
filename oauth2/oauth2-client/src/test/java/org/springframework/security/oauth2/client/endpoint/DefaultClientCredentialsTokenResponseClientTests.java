@@ -50,9 +50,7 @@ public class DefaultClientCredentialsTokenResponseClientTests {
 	public void setup() throws Exception {
 		this.server = new MockWebServer();
 		this.server.start();
-
 		String tokenUri = this.server.url("/oauth2/token").toString();
-
 		this.clientRegistration = ClientRegistration.withRegistrationId("registration-1")
 				.clientId("client-1")
 				.clientSecret("secret")
@@ -66,6 +64,12 @@ public class DefaultClientCredentialsTokenResponseClientTests {
 	@After
 	public void cleanup() throws Exception {
 		this.server.shutdown();
+	}
+
+	@Test
+	public void setRequestEntityConverterWhenConverterIsNullThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() -> this.tokenResponseClient.setRequestEntityConverter(null))
+				.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
@@ -103,8 +107,8 @@ public class DefaultClientCredentialsTokenResponseClientTests {
 
 		RecordedRequest recordedRequest = this.server.takeRequest();
 		assertThat(recordedRequest.getMethod()).isEqualTo(HttpMethod.POST.toString());
-		assertThat(recordedRequest.getHeader(HttpHeaders.ACCEPT)).isEqualTo(MediaType.APPLICATION_JSON.toString());
-		assertThat(recordedRequest.getHeader(HttpHeaders.CONTENT_TYPE)).startsWith(MediaType.APPLICATION_FORM_URLENCODED.toString());
+		assertThat(recordedRequest.getHeader(HttpHeaders.ACCEPT)).isEqualTo(MediaType.APPLICATION_JSON_UTF8_VALUE);
+		assertThat(recordedRequest.getHeader(HttpHeaders.CONTENT_TYPE)).isEqualTo(MediaType.APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8");
 
 		String formParameters = recordedRequest.getBody().readUtf8();
 		assertThat(formParameters).contains("grant_type=client_credentials");
@@ -178,7 +182,8 @@ public class DefaultClientCredentialsTokenResponseClientTests {
 
 		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(clientCredentialsGrantRequest))
 				.isInstanceOf(OAuth2AuthenticationException.class)
-				.hasMessageContaining("[invalid_token_response] An error occurred parsing the Access Token response (200 OK): tokenType cannot be null");
+				.hasMessageContaining("[invalid_token_response] An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response")
+				.hasMessageContaining("tokenType cannot be null");
 	}
 
 	@Test
@@ -193,7 +198,8 @@ public class DefaultClientCredentialsTokenResponseClientTests {
 
 		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(clientCredentialsGrantRequest))
 				.isInstanceOf(OAuth2AuthenticationException.class)
-				.hasMessageContaining("[invalid_token_response] An error occurred parsing the Access Token response (200 OK). Missing required parameters: access_token and/or token_type");
+				.hasMessageContaining("[invalid_token_response] An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response")
+				.hasMessageContaining("tokenType cannot be null");
 	}
 
 	@Test
@@ -232,21 +238,6 @@ public class DefaultClientCredentialsTokenResponseClientTests {
 	}
 
 	@Test
-	public void getTokenResponseWhenTokenUriMalformedThenThrowOAuth2AuthenticationException() {
-		String malformedTokenUri = "http:\\provider.com\\oauth2\\token";
-		ClientRegistration clientRegistration = this.from(this.clientRegistration)
-				.tokenUri(malformedTokenUri)
-				.build();
-
-		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest =
-				new OAuth2ClientCredentialsGrantRequest(clientRegistration);
-
-		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(clientCredentialsGrantRequest))
-				.isInstanceOf(OAuth2AuthenticationException.class)
-				.hasMessageContaining("[invalid_token_request] An error occurred while sending the Access Token Request:");
-	}
-
-	@Test
 	public void getTokenResponseWhenTokenUriInvalidThenThrowOAuth2AuthenticationException() {
 		String invalidTokenUri = "http://invalid-provider.com/oauth2/token";
 		ClientRegistration clientRegistration = this.from(this.clientRegistration)
@@ -258,7 +249,7 @@ public class DefaultClientCredentialsTokenResponseClientTests {
 
 		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(clientCredentialsGrantRequest))
 				.isInstanceOf(OAuth2AuthenticationException.class)
-				.hasMessageContaining("[invalid_token_request] An error occurred while sending the Access Token Request:");
+				.hasMessageContaining("[invalid_token_response] An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response");
 	}
 
 	@Test
@@ -278,7 +269,7 @@ public class DefaultClientCredentialsTokenResponseClientTests {
 
 		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(clientCredentialsGrantRequest))
 				.isInstanceOf(OAuth2AuthenticationException.class)
-				.hasMessageContaining("[invalid_token_request] An error occurred while sending the Access Token Request:");
+				.hasMessageContaining("[invalid_token_response] An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response");
 	}
 
 	@Test
@@ -305,7 +296,7 @@ public class DefaultClientCredentialsTokenResponseClientTests {
 
 		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(clientCredentialsGrantRequest))
 				.isInstanceOf(OAuth2AuthenticationException.class)
-				.hasMessageContaining("[server_error]");
+				.hasMessage("[invalid_token_response] An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response: 500 Server Error");
 	}
 
 	private MockResponse jsonResponse(String json) {
