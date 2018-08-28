@@ -714,10 +714,22 @@ public class ServerHttpSecurity {
 		 * Configures JWT Resource Server Support
 		 */
 		public class JwtSpec {
+			private ReactiveAuthenticationManager authenticationManager;
 			private ReactiveJwtDecoder jwtDecoder;
 
 			private BearerTokenServerWebExchangeMatcher bearerTokenServerWebExchangeMatcher =
 					new BearerTokenServerWebExchangeMatcher();
+
+			/**
+			 * Configures the {@link ReactiveAuthenticationManager} to use
+			 * @param authenticationManager the authentication manager to use
+			 * @return the {@code JwtSpec} for additional configuration
+			 */
+			public JwtSpec authenticationManager(ReactiveAuthenticationManager authenticationManager) {
+				Assert.notNull(authenticationManager, "authenticationManager cannot be null");
+				this.authenticationManager = authenticationManager;
+				return this;
+			}
 
 			/**
 			 * Configures the {@link ReactiveJwtDecoder} to use
@@ -764,9 +776,7 @@ public class ServerHttpSecurity {
 				registerDefaultAuthenticationEntryPoint(http);
 				registerDefaultCsrfOverride(http);
 
-				ReactiveJwtDecoder jwtDecoder = getJwtDecoder();
-				JwtReactiveAuthenticationManager authenticationManager = new JwtReactiveAuthenticationManager(
-						jwtDecoder);
+				ReactiveAuthenticationManager authenticationManager = getAuthenticationManager();
 				AuthenticationWebFilter oauth2 = new AuthenticationWebFilter(authenticationManager);
 				oauth2.setServerAuthenticationConverter(bearerTokenConverter);
 				oauth2.setAuthenticationFailureHandler(new ServerAuthenticationEntryPointFailureHandler(entryPoint));
@@ -782,6 +792,17 @@ public class ServerHttpSecurity {
 				return this.jwtDecoder;
 			}
 
+			private ReactiveAuthenticationManager getAuthenticationManager() {
+				if (this.authenticationManager != null) {
+					return this.authenticationManager;
+				}
+
+				ReactiveJwtDecoder jwtDecoder = getJwtDecoder();
+				ReactiveAuthenticationManager authenticationManager =
+						new JwtReactiveAuthenticationManager(jwtDecoder);
+				return authenticationManager;
+			}
+
 			private void registerDefaultAccessDeniedHandler(ServerHttpSecurity http) {
 				if ( http.exceptionHandling != null ) {
 					http.defaultAccessDeniedHandlers.add(
@@ -794,7 +815,7 @@ public class ServerHttpSecurity {
 			}
 
 			private void registerDefaultAuthenticationEntryPoint(ServerHttpSecurity http) {
-				if ( http.exceptionHandling != null ) {
+				if (http.exceptionHandling != null) {
 					http.defaultEntryPoints.add(
 							new DelegateEntry(
 									this.bearerTokenServerWebExchangeMatcher,

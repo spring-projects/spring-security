@@ -39,8 +39,12 @@ import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.test.SpringTestRule;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
@@ -57,6 +61,7 @@ import org.springframework.web.reactive.config.EnableWebFlux;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.hamcrest.core.StringStartsWith.startsWith;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -159,6 +164,23 @@ public class OAuth2ResourceServerSpecTests {
 				.headers(headers -> headers.setBearerAuth(this.messageReadTokenWithKid))
 				.exchange()
 				.expectStatus().isOk();
+	}
+
+
+	@Test
+	public void getWhenUsingCustomAuthenticationManagerThenUsesItAccordingly() {
+		this.spring.register(CustomAuthenticationManagerConfig.class).autowire();
+
+		ReactiveAuthenticationManager authenticationManager = this.spring.getContext().getBean(
+				ReactiveAuthenticationManager.class);
+		when(authenticationManager.authenticate(any(Authentication.class)))
+				.thenReturn(Mono.error(new OAuth2AuthenticationException(new OAuth2Error("mock-failure"))));
+
+		this.client.get()
+				.headers(headers -> headers.setBearerAuth(this.messageReadToken))
+				.exchange()
+				.expectStatus().isUnauthorized()
+				.expectHeader().value(HttpHeaders.WWW_AUTHENTICATE, startsWith("Bearer error=\"mock-failure\""));
 	}
 
 	@Test
@@ -343,6 +365,27 @@ public class OAuth2ResourceServerSpecTests {
 		}
 	}
 
+	@EnableWebFlux
+	@EnableWebFluxSecurity
+	static class CustomAuthenticationManagerConfig {
+		@Bean
+		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
+			// @formatter:off
+			http
+				.oauth2ResourceServer()
+					.jwt()
+						.authenticationManager(authenticationManager());
+			// @formatter:on
+
+			return http.build();
+		}
+
+		@Bean
+		ReactiveAuthenticationManager authenticationManager() {
+			return mock(ReactiveAuthenticationManager.class);
+		}
+	}
+
 	@RestController
 	static class RootController {
 		@GetMapping
@@ -355,7 +398,6 @@ public class OAuth2ResourceServerSpecTests {
 			return Mono.just("ok");
 		}
 	}
-
 
 	private static RSAPublicKey publicKey() throws NoSuchAlgorithmException, InvalidKeySpecException {
 		String modulus = "26323220897278656456354815752829448539647589990395639665273015355787577386000316054335559633864476469390247312823732994485311378484154955583861993455004584140858982659817218753831620205191028763754231454775026027780771426040997832758235764611119743390612035457533732596799927628476322029280486807310749948064176545712270582940917249337311592011920620009965129181413510845780806191965771671528886508636605814099711121026468495328702234901200169245493126030184941412539949521815665744267183140084667383643755535107759061065656273783542590997725982989978433493861515415520051342321336460543070448417126615154138673620797";
