@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.springframework.security.oauth2.client.userinfo;
 
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,7 +28,6 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -60,12 +60,15 @@ public class CustomUserTypesOAuth2UserServiceTests {
 	private ClientRegistration.ProviderDetails.UserInfoEndpoint userInfoEndpoint;
 	private OAuth2AccessToken accessToken;
 	private CustomUserTypesOAuth2UserService userService;
+	private MockWebServer server;
 
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
 
 	@Before
 	public void setUp() throws Exception {
+		this.server = new MockWebServer();
+		this.server.start();
 		this.clientRegistration = mock(ClientRegistration.class);
 		this.providerDetails = mock(ClientRegistration.ProviderDetails.class);
 		this.userInfoEndpoint = mock(ClientRegistration.ProviderDetails.UserInfoEndpoint.class);
@@ -80,6 +83,11 @@ public class CustomUserTypesOAuth2UserServiceTests {
 		this.userService = new CustomUserTypesOAuth2UserService(customUserTypes);
 	}
 
+	@After
+	public void cleanup() throws Exception {
+		this.server.shutdown();
+	}
+
 	@Test
 	public void constructorWhenCustomUserTypesIsNullThenThrowIllegalArgumentException() {
 		this.exception.expect(IllegalArgumentException.class);
@@ -90,6 +98,18 @@ public class CustomUserTypesOAuth2UserServiceTests {
 	public void constructorWhenCustomUserTypesIsEmptyThenThrowIllegalArgumentException() {
 		this.exception.expect(IllegalArgumentException.class);
 		new CustomUserTypesOAuth2UserService(Collections.emptyMap());
+	}
+
+	@Test
+	public void setRequestEntityConverterWhenNullThenThrowIllegalArgumentException() {
+		this.exception.expect(IllegalArgumentException.class);
+		this.userService.setRequestEntityConverter(null);
+	}
+
+	@Test
+	public void setRestOperationsWhenNullThenThrowIllegalArgumentException() {
+		this.exception.expect(IllegalArgumentException.class);
+		this.userService.setRestOperations(null);
 	}
 
 	@Test
@@ -107,29 +127,21 @@ public class CustomUserTypesOAuth2UserServiceTests {
 	}
 
 	@Test
-	public void loadUserWhenUserInfoSuccessResponseThenReturnUser() throws Exception {
-		MockWebServer server = new MockWebServer();
-
+	public void loadUserWhenUserInfoSuccessResponseThenReturnUser() {
 		String userInfoResponse = "{\n" +
 			"	\"id\": \"12345\",\n" +
 			"   \"name\": \"first last\",\n" +
 			"   \"login\": \"user1\",\n" +
 			"   \"email\": \"user1@example.com\"\n" +
 			"}\n";
-		server.enqueue(new MockResponse()
-			.setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-			.setBody(userInfoResponse));
+		this.server.enqueue(jsonResponse(userInfoResponse));
 
-		server.start();
-
-		String userInfoUri = server.url("/user").toString();
+		String userInfoUri = this.server.url("/user").toString();
 
 		when(this.userInfoEndpoint.getUri()).thenReturn(userInfoUri);
 		when(this.accessToken.getTokenValue()).thenReturn("access-token");
 
 		OAuth2User user = this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessToken));
-
-		server.shutdown();
 
 		assertThat(user.getName()).isEqualTo("first last");
 		assertThat(user.getAttributes().size()).isEqualTo(4);
@@ -143,11 +155,9 @@ public class CustomUserTypesOAuth2UserServiceTests {
 	}
 
 	@Test
-	public void loadUserWhenUserInfoSuccessResponseInvalidThenThrowOAuth2AuthenticationException() throws Exception {
+	public void loadUserWhenUserInfoSuccessResponseInvalidThenThrowOAuth2AuthenticationException() {
 		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("invalid_user_info_response"));
-
-		MockWebServer server = new MockWebServer();
+		this.exception.expectMessage(containsString("[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource"));
 
 		String userInfoResponse = "{\n" +
 			"	\"id\": \"12345\",\n" +
@@ -155,48 +165,35 @@ public class CustomUserTypesOAuth2UserServiceTests {
 			"   \"login\": \"user1\",\n" +
 			"   \"email\": \"user1@example.com\"\n";
 //			"}\n";		// Make the JSON invalid/malformed
-		server.enqueue(new MockResponse()
-			.setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-			.setBody(userInfoResponse));
+		this.server.enqueue(jsonResponse(userInfoResponse));
 
-		server.start();
-
-		String userInfoUri = server.url("/user").toString();
+		String userInfoUri = this.server.url("/user").toString();
 
 		when(this.userInfoEndpoint.getUri()).thenReturn(userInfoUri);
 		when(this.accessToken.getTokenValue()).thenReturn("access-token");
 
-		try {
-			this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessToken));
-		} finally {
-			server.shutdown();
-		}
+		this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessToken));
 	}
 
 	@Test
-	public void loadUserWhenUserInfoErrorResponseThenThrowOAuth2AuthenticationException() throws Exception {
+	public void loadUserWhenServerErrorThenThrowOAuth2AuthenticationException() {
 		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("invalid_user_info_response"));
+		this.exception.expectMessage(containsString("[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource: 500 Server Error"));
 
-		MockWebServer server = new MockWebServer();
-		server.enqueue(new MockResponse().setResponseCode(500));
-		server.start();
+		this.server.enqueue(new MockResponse().setResponseCode(500));
 
-		String userInfoUri = server.url("/user").toString();
+		String userInfoUri = this.server.url("/user").toString();
 
 		when(this.userInfoEndpoint.getUri()).thenReturn(userInfoUri);
 		when(this.accessToken.getTokenValue()).thenReturn("access-token");
 
-		try {
-			this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessToken));
-		} finally {
-			server.shutdown();
-		}
+		this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessToken));
 	}
 
 	@Test
-	public void loadUserWhenUserInfoUriInvalidThenThrowAuthenticationServiceException() throws Exception {
-		this.exception.expect(AuthenticationServiceException.class);
+	public void loadUserWhenUserInfoUriInvalidThenThrowOAuth2AuthenticationException() {
+		this.exception.expect(OAuth2AuthenticationException.class);
+		this.exception.expectMessage(containsString("[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource"));
 
 		String userInfoUri = "http://invalid-provider.com/user";
 
@@ -204,6 +201,12 @@ public class CustomUserTypesOAuth2UserServiceTests {
 		when(this.accessToken.getTokenValue()).thenReturn("access-token");
 
 		this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessToken));
+	}
+
+	private MockResponse jsonResponse(String json) {
+		return new MockResponse()
+				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+				.setBody(json);
 	}
 
 	public static class CustomOAuth2User implements OAuth2User {
