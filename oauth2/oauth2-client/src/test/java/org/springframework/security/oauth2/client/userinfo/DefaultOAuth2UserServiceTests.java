@@ -18,7 +18,7 @@ package org.springframework.security.oauth2.client.userinfo;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
-
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,7 +30,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -59,18 +58,38 @@ public class DefaultOAuth2UserServiceTests {
 	private ClientRegistration.ProviderDetails.UserInfoEndpoint userInfoEndpoint;
 	private OAuth2AccessToken accessToken;
 	private DefaultOAuth2UserService userService = new DefaultOAuth2UserService();
+	private MockWebServer server;
 
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
 
 	@Before
-	public void setUp() throws Exception {
+	public void setup() throws Exception {
+		this.server = new MockWebServer();
+		this.server.start();
 		this.clientRegistration = mock(ClientRegistration.class);
 		this.providerDetails = mock(ClientRegistration.ProviderDetails.class);
 		this.userInfoEndpoint = mock(ClientRegistration.ProviderDetails.UserInfoEndpoint.class);
 		when(this.clientRegistration.getProviderDetails()).thenReturn(this.providerDetails);
 		when(this.providerDetails.getUserInfoEndpoint()).thenReturn(this.userInfoEndpoint);
 		this.accessToken = mock(OAuth2AccessToken.class);
+	}
+
+	@After
+	public void cleanup() throws Exception {
+		this.server.shutdown();
+	}
+
+	@Test
+	public void setRequestEntityConverterWhenNullThenThrowIllegalArgumentException() {
+		this.exception.expect(IllegalArgumentException.class);
+		this.userService.setRequestEntityConverter(null);
+	}
+
+	@Test
+	public void setRestOperationsWhenNullThenThrowIllegalArgumentException() {
+		this.exception.expect(IllegalArgumentException.class);
+		this.userService.setRestOperations(null);
 	}
 
 	@Test
@@ -99,9 +118,7 @@ public class DefaultOAuth2UserServiceTests {
 	}
 
 	@Test
-	public void loadUserWhenUserInfoSuccessResponseThenReturnUser() throws Exception {
-		MockWebServer server = new MockWebServer();
-
+	public void loadUserWhenUserInfoSuccessResponseThenReturnUser() {
 		String userInfoResponse = "{\n" +
 			"	\"user-name\": \"user1\",\n" +
 			"   \"first-name\": \"first\",\n" +
@@ -110,13 +127,9 @@ public class DefaultOAuth2UserServiceTests {
 			"   \"address\": \"address\",\n" +
 			"   \"email\": \"user1@example.com\"\n" +
 			"}\n";
-		server.enqueue(new MockResponse()
-			.setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-			.setBody(userInfoResponse));
+		this.server.enqueue(jsonResponse(userInfoResponse));
 
-		server.start();
-
-		String userInfoUri = server.url("/user").toString();
+		String userInfoUri = this.server.url("/user").toString();
 
 		when(this.userInfoEndpoint.getUri()).thenReturn(userInfoUri);
 		when(this.userInfoEndpoint.getAuthenticationMethod()).thenReturn(AuthenticationMethod.HEADER);
@@ -124,8 +137,6 @@ public class DefaultOAuth2UserServiceTests {
 		when(this.accessToken.getTokenValue()).thenReturn("access-token");
 
 		OAuth2User user = this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessToken));
-
-		server.shutdown();
 
 		assertThat(user.getName()).isEqualTo("user1");
 		assertThat(user.getAttributes().size()).isEqualTo(6);
@@ -144,11 +155,9 @@ public class DefaultOAuth2UserServiceTests {
 	}
 
 	@Test
-	public void loadUserWhenUserInfoSuccessResponseInvalidThenThrowOAuth2AuthenticationException() throws Exception {
+	public void loadUserWhenUserInfoSuccessResponseInvalidThenThrowOAuth2AuthenticationException() {
 		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("invalid_user_info_response"));
-
-		MockWebServer server = new MockWebServer();
+		this.exception.expectMessage(containsString("[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource"));
 
 		String userInfoResponse = "{\n" +
 			"	\"user-name\": \"user1\",\n" +
@@ -158,52 +167,83 @@ public class DefaultOAuth2UserServiceTests {
 			"   \"address\": \"address\",\n" +
 			"   \"email\": \"user1@example.com\"\n";
 //			"}\n";		// Make the JSON invalid/malformed
-		server.enqueue(new MockResponse()
-			.setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-			.setBody(userInfoResponse));
+		this.server.enqueue(jsonResponse(userInfoResponse));
 
-		server.start();
-
-		String userInfoUri = server.url("/user").toString();
+		String userInfoUri = this.server.url("/user").toString();
 
 		when(this.userInfoEndpoint.getUri()).thenReturn(userInfoUri);
 		when(this.userInfoEndpoint.getAuthenticationMethod()).thenReturn(AuthenticationMethod.HEADER);
 		when(this.userInfoEndpoint.getUserNameAttributeName()).thenReturn("user-name");
 		when(this.accessToken.getTokenValue()).thenReturn("access-token");
 
-		try {
-			this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessToken));
-		} finally {
-			server.shutdown();
-		}
+		this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessToken));
 	}
 
 	@Test
-	public void loadUserWhenUserInfoErrorResponseThenThrowOAuth2AuthenticationException() throws Exception {
+	public void loadUserWhenUserInfoErrorResponseWwwAuthenticateHeaderThenThrowOAuth2AuthenticationException() {
 		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("invalid_user_info_response"));
+		this.exception.expectMessage(containsString("[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource"));
+		this.exception.expectMessage(containsString("Error Code: insufficient_scope, Error Description: The access token expired"));
 
-		MockWebServer server = new MockWebServer();
-		server.enqueue(new MockResponse().setResponseCode(500));
-		server.start();
+		String wwwAuthenticateHeader = "Bearer realm=\"auth-realm\" error=\"insufficient_scope\" error_description=\"The access token expired\"";
 
-		String userInfoUri = server.url("/user").toString();
+		MockResponse response = new MockResponse();
+		response.setHeader(HttpHeaders.WWW_AUTHENTICATE, wwwAuthenticateHeader);
+		response.setResponseCode(400);
+		this.server.enqueue(response);
+
+		String userInfoUri = this.server.url("/user").toString();
 
 		when(this.userInfoEndpoint.getUri()).thenReturn(userInfoUri);
 		when(this.userInfoEndpoint.getAuthenticationMethod()).thenReturn(AuthenticationMethod.HEADER);
 		when(this.userInfoEndpoint.getUserNameAttributeName()).thenReturn("user-name");
 		when(this.accessToken.getTokenValue()).thenReturn("access-token");
 
-		try {
-			this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessToken));
-		} finally {
-			server.shutdown();
-		}
+		this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessToken));
 	}
 
 	@Test
-	public void loadUserWhenUserInfoUriInvalidThenThrowAuthenticationServiceException() throws Exception {
-		this.exception.expect(AuthenticationServiceException.class);
+	public void loadUserWhenUserInfoErrorResponseThenThrowOAuth2AuthenticationException() {
+		this.exception.expect(OAuth2AuthenticationException.class);
+		this.exception.expectMessage(containsString("[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource"));
+		this.exception.expectMessage(containsString("Error Code: invalid_token"));
+
+		String userInfoErrorResponse = "{\n" +
+				"   \"error\": \"invalid_token\"\n" +
+				"}\n";
+		this.server.enqueue(jsonResponse(userInfoErrorResponse).setResponseCode(400));
+
+		String userInfoUri = this.server.url("/user").toString();
+
+		when(this.userInfoEndpoint.getUri()).thenReturn(userInfoUri);
+		when(this.userInfoEndpoint.getAuthenticationMethod()).thenReturn(AuthenticationMethod.HEADER);
+		when(this.userInfoEndpoint.getUserNameAttributeName()).thenReturn("user-name");
+		when(this.accessToken.getTokenValue()).thenReturn("access-token");
+
+		this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessToken));
+	}
+
+	@Test
+	public void loadUserWhenServerErrorThenThrowOAuth2AuthenticationException() {
+		this.exception.expect(OAuth2AuthenticationException.class);
+		this.exception.expectMessage(containsString("[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource: 500 Server Error"));
+
+		this.server.enqueue(new MockResponse().setResponseCode(500));
+
+		String userInfoUri = this.server.url("/user").toString();
+
+		when(this.userInfoEndpoint.getUri()).thenReturn(userInfoUri);
+		when(this.userInfoEndpoint.getAuthenticationMethod()).thenReturn(AuthenticationMethod.HEADER);
+		when(this.userInfoEndpoint.getUserNameAttributeName()).thenReturn("user-name");
+		when(this.accessToken.getTokenValue()).thenReturn("access-token");
+
+		this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessToken));
+	}
+
+	@Test
+	public void loadUserWhenUserInfoUriInvalidThenThrowOAuth2AuthenticationException() {
+		this.exception.expect(OAuth2AuthenticationException.class);
+		this.exception.expectMessage(containsString("[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource"));
 
 		String userInfoUri = "http://invalid-provider.com/user";
 
@@ -218,8 +258,6 @@ public class DefaultOAuth2UserServiceTests {
 	// gh-5294
 	@Test
 	public void loadUserWhenUserInfoSuccessResponseThenAcceptHeaderJson() throws Exception {
-		MockWebServer server = new MockWebServer();
-
 		String userInfoResponse = "{\n" +
 				"	\"user-name\": \"user1\",\n" +
 				"   \"first-name\": \"first\",\n" +
@@ -228,13 +266,9 @@ public class DefaultOAuth2UserServiceTests {
 				"   \"address\": \"address\",\n" +
 				"   \"email\": \"user1@example.com\"\n" +
 				"}\n";
-		server.enqueue(new MockResponse()
-				.setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-				.setBody(userInfoResponse));
+		this.server.enqueue(jsonResponse(userInfoResponse));
 
-		server.start();
-
-		String userInfoUri = server.url("/user").toString();
+		String userInfoUri = this.server.url("/user").toString();
 
 		when(this.userInfoEndpoint.getUri()).thenReturn(userInfoUri);
 		when(this.userInfoEndpoint.getAuthenticationMethod()).thenReturn(AuthenticationMethod.HEADER);
@@ -242,16 +276,13 @@ public class DefaultOAuth2UserServiceTests {
 		when(this.accessToken.getTokenValue()).thenReturn("access-token");
 
 		this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessToken));
-		server.shutdown();
-		assertThat(server.takeRequest(1, TimeUnit.SECONDS).getHeader(HttpHeaders.ACCEPT))
-				.isEqualTo(MediaType.APPLICATION_JSON_VALUE);
+		assertThat(this.server.takeRequest(1, TimeUnit.SECONDS).getHeader(HttpHeaders.ACCEPT))
+				.isEqualTo(MediaType.APPLICATION_JSON_UTF8_VALUE);
 	}
 
 	// gh-5500
 	@Test
 	public void loadUserWhenAuthenticationMethodHeaderSuccessResponseThenHttpMethodGet() throws Exception {
-		MockWebServer server = new MockWebServer();
-
 		String userInfoResponse = "{\n" +
 				"	\"user-name\": \"user1\",\n" +
 				"   \"first-name\": \"first\",\n" +
@@ -260,13 +291,9 @@ public class DefaultOAuth2UserServiceTests {
 				"   \"address\": \"address\",\n" +
 				"   \"email\": \"user1@example.com\"\n" +
 				"}\n";
-		server.enqueue(new MockResponse()
-				.setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-				.setBody(userInfoResponse));
+		this.server.enqueue(jsonResponse(userInfoResponse));
 
-		server.start();
-
-		String userInfoUri = server.url("/user").toString();
+		String userInfoUri = this.server.url("/user").toString();
 
 		when(this.userInfoEndpoint.getUri()).thenReturn(userInfoUri);
 		when(this.userInfoEndpoint.getAuthenticationMethod()).thenReturn(AuthenticationMethod.HEADER);
@@ -274,18 +301,15 @@ public class DefaultOAuth2UserServiceTests {
 		when(this.accessToken.getTokenValue()).thenReturn("access-token");
 
 		this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessToken));
-		server.shutdown();
-		RecordedRequest request = server.takeRequest();
+		RecordedRequest request = this.server.takeRequest();
 		assertThat(request.getMethod()).isEqualTo(HttpMethod.GET.name());
-		assertThat(request.getHeader(HttpHeaders.ACCEPT)).isEqualTo(MediaType.APPLICATION_JSON_VALUE);
+		assertThat(request.getHeader(HttpHeaders.ACCEPT)).isEqualTo(MediaType.APPLICATION_JSON_UTF8_VALUE);
 		assertThat(request.getHeader(HttpHeaders.AUTHORIZATION)).isEqualTo("Bearer " + this.accessToken.getTokenValue());
 	}
 
 	// gh-5500
 	@Test
 	public void loadUserWhenAuthenticationMethodFormSuccessResponseThenHttpMethodPost() throws Exception {
-		MockWebServer server = new MockWebServer();
-
 		String userInfoResponse = "{\n" +
 				"	\"user-name\": \"user1\",\n" +
 				"   \"first-name\": \"first\",\n" +
@@ -294,13 +318,9 @@ public class DefaultOAuth2UserServiceTests {
 				"   \"address\": \"address\",\n" +
 				"   \"email\": \"user1@example.com\"\n" +
 				"}\n";
-		server.enqueue(new MockResponse()
-				.setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-				.setBody(userInfoResponse));
+		this.server.enqueue(jsonResponse(userInfoResponse));
 
-		server.start();
-
-		String userInfoUri = server.url("/user").toString();
+		String userInfoUri = this.server.url("/user").toString();
 
 		when(this.userInfoEndpoint.getUri()).thenReturn(userInfoUri);
 		when(this.userInfoEndpoint.getAuthenticationMethod()).thenReturn(AuthenticationMethod.FORM);
@@ -308,11 +328,16 @@ public class DefaultOAuth2UserServiceTests {
 		when(this.accessToken.getTokenValue()).thenReturn("access-token");
 
 		this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessToken));
-		server.shutdown();
-		RecordedRequest request = server.takeRequest();
+		RecordedRequest request = this.server.takeRequest();
 		assertThat(request.getMethod()).isEqualTo(HttpMethod.POST.name());
-		assertThat(request.getHeader(HttpHeaders.ACCEPT)).isEqualTo(MediaType.APPLICATION_JSON_VALUE);
+		assertThat(request.getHeader(HttpHeaders.ACCEPT)).isEqualTo(MediaType.APPLICATION_JSON_UTF8_VALUE);
 		assertThat(request.getHeader(HttpHeaders.CONTENT_TYPE)).contains(MediaType.APPLICATION_FORM_URLENCODED_VALUE);
 		assertThat(request.getBody().readUtf8()).isEqualTo("access_token=" + this.accessToken.getTokenValue());
+	}
+
+	private MockResponse jsonResponse(String json) {
+		return new MockResponse()
+				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+				.setBody(json);
 	}
 }
