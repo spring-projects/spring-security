@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import reactor.core.publisher.Mono;
+import reactor.util.context.Context;
 
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -68,6 +69,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtRea
 import org.springframework.security.oauth2.server.resource.web.access.server.BearerTokenServerAccessDeniedHandler;
 import org.springframework.security.oauth2.server.resource.web.server.BearerTokenServerAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.server.ServerBearerTokenAuthenticationConverter;
+import org.springframework.security.web.PortMapper;
 import org.springframework.security.web.server.DelegatingServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.MatcherSecurityWebFilterChain;
 import org.springframework.security.web.server.SecurityWebFilterChain;
@@ -115,11 +117,13 @@ import org.springframework.security.web.server.savedrequest.NoOpServerRequestCac
 import org.springframework.security.web.server.savedrequest.ServerRequestCache;
 import org.springframework.security.web.server.savedrequest.ServerRequestCacheWebFilter;
 import org.springframework.security.web.server.savedrequest.WebSessionServerRequestCache;
+import org.springframework.security.web.server.transport.HttpsRedirectWebFilter;
 import org.springframework.security.web.server.ui.LoginPageGeneratingWebFilter;
 import org.springframework.security.web.server.ui.LogoutPageGeneratingWebFilter;
 import org.springframework.security.web.server.util.matcher.AndServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.MediaTypeServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.NegatedServerWebExchangeMatcher;
+import org.springframework.security.web.server.util.matcher.OrServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcherEntry;
@@ -133,7 +137,6 @@ import org.springframework.web.cors.reactive.DefaultCorsProcessor;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
-import reactor.util.context.Context;
 
 import static org.springframework.security.web.server.DelegatingServerAuthenticationEntryPoint.DelegateEntry;
 import static org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher.MatchResult.match;
@@ -198,6 +201,8 @@ public class ServerHttpSecurity {
 	private ServerWebExchangeMatcher securityMatcher = ServerWebExchangeMatchers.anyExchange();
 
 	private AuthorizeExchangeSpec authorizeExchange;
+
+	private HttpsRedirectSpec httpsRedirectSpec;
 
 	private HeaderSpec headers = new HeaderSpec();
 
@@ -284,6 +289,42 @@ public class ServerHttpSecurity {
 		Assert.notNull(securityContextRepository, "securityContextRepository cannot be null");
 		this.securityContextRepository = securityContextRepository;
 		return this;
+	}
+
+	/**
+	 * Configures HTTPS redirection rules. If the default is used:
+	 *
+	 * <pre class="code">
+	 *  &#064;Bean
+	 * 	public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+	 * 	    http
+	 * 	        // ...
+	 * 	        .redirectToHttps();
+	 * 	    return http.build();
+	 * 	}
+	 * </pre>
+	 *
+	 * Then all non-HTTPS requests will be redirected to HTTPS.
+	 *
+	 * Typically, all requests should be HTTPS; however, the focus for redirection can also be narrowed:
+	 *
+	 * <pre class="code">
+	 *  &#064;Bean
+	 * 	public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+	 * 	    http
+	 * 	        // ...
+	 * 	        .redirectToHttps()
+	 * 	            .httpsRedirectWhen(serverWebExchange ->
+	 * 	            	serverWebExchange.getRequest().getHeaders().containsKey("X-Requires-Https"))
+	 * 	    return http.build();
+	 * 	}
+	 * </pre>
+	 *
+	 * @return the {@link HttpsRedirectSpec} to customize
+	 */
+	public HttpsRedirectSpec redirectToHttps() {
+		this.httpsRedirectSpec = new HttpsRedirectSpec();
+		return this.httpsRedirectSpec;
 	}
 
 	/**
@@ -1044,6 +1085,9 @@ public class ServerHttpSecurity {
 		if (securityContextRepositoryWebFilter != null) {
 			this.webFilters.add(securityContextRepositoryWebFilter);
 		}
+		if (this.httpsRedirectSpec != null) {
+			this.httpsRedirectSpec.configure(this);
+		}
 		if (this.csrf != null) {
 			this.csrf.configure(this);
 		}
@@ -1274,6 +1318,61 @@ public class ServerHttpSecurity {
 				AuthorizeExchangeSpec.this.matcher = null;
 				return AuthorizeExchangeSpec.this;
 			}
+		}
+	}
+
+	/**
+	 * Configures HTTPS redirection rules
+	 *
+	 * @author Josh Cummings
+	 * @since 5.1
+	 * @see #redirectToHttps()
+	 */
+	public class HttpsRedirectSpec {
+		private ServerWebExchangeMatcher serverWebExchangeMatcher;
+		private PortMapper portMapper;
+
+		/**
+		 * Configures when this filter should redirect to https
+		 *
+		 * By default, the filter will redirect whenever an exchange's scheme is not https
+		 *
+		 * @param matchers the list of conditions that, when any are met, the filter should redirect to https
+		 * @return the {@link HttpsRedirectSpec} for additional configuration
+		 */
+		public HttpsRedirectSpec httpsRedirectWhen(ServerWebExchangeMatcher... matchers) {
+			this.serverWebExchangeMatcher = new OrServerWebExchangeMatcher(matchers);
+			return this;
+		}
+
+		/**
+		 * Configures a custom HTTPS port to redirect to
+		 *
+		 * @param portMapper the {@link PortMapper} to use
+		 * @return the {@link HttpsRedirectSpec} for additional configuration
+		 */
+		public HttpsRedirectSpec portMapper(PortMapper portMapper) {
+			this.portMapper = portMapper;
+			return this;
+		}
+
+		protected void configure(ServerHttpSecurity http) {
+			HttpsRedirectWebFilter httpsRedirectWebFilter = new HttpsRedirectWebFilter();
+			if (this.serverWebExchangeMatcher != null) {
+				httpsRedirectWebFilter.setRequiresHttpsRedirectMatcher(this.serverWebExchangeMatcher);
+			}
+			if (this.portMapper != null) {
+				httpsRedirectWebFilter.setPortMapper(this.portMapper);
+			}
+			http.addFilterAt(httpsRedirectWebFilter, SecurityWebFiltersOrder.HTTPS_REDIRECT);
+		}
+
+		/**
+		 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}
+		 * @return the {@link ServerHttpSecurity} to continue configuring
+		 */
+		public ServerHttpSecurity and() {
+			return ServerHttpSecurity.this;
 		}
 	}
 
