@@ -24,6 +24,10 @@ public enum SecurityWebFiltersOrder {
 	FIRST(Integer.MIN_VALUE),
 	HTTP_HEADERS_WRITER,
 	/**
+	 * {@link org.springframework.security.web.server.transport.HttpsRedirectWebFilter}
+	 */
+	HTTPS_REDIRECT,
+	/**
 	 * {@link org.springframework.web.cors.reactive.CorsWebFilter}
 	 */
 	CORS,
