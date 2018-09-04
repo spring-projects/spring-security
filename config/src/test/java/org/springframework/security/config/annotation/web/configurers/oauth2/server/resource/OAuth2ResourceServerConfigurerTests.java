@@ -115,6 +115,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
@@ -525,7 +526,7 @@ public class OAuth2ResourceServerConfigurerTests {
 	}
 
 	@Test
-	public void requestWhenUsingDefaultsAndNoBearerTokenThenSessionIsNotCreated()
+	public void requestWhenUsingDefaultsAndNoBearerTokenThenSessionIsCreated()
 			throws Exception {
 
 		this.spring.register(DefaultConfig.class, BasicController.class).autowire();
@@ -534,7 +535,7 @@ public class OAuth2ResourceServerConfigurerTests {
 				.andExpect(status().isUnauthorized())
 				.andReturn();
 
-		assertThat(result.getRequest().getSession(false)).isNull();
+		assertThat(result.getRequest().getSession(false)).isNotNull();
 	}
 
 	@Test
@@ -972,6 +973,32 @@ public class OAuth2ResourceServerConfigurerTests {
 	}
 
 	@Test
+	public void requestWhenFormLoginAndResourceServerEntryPointsThenSessionCreatedByRequest()
+			throws Exception {
+
+		this.spring.register(FormAndResourceServerConfig.class, JwtDecoderConfig.class).autowire();
+
+		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
+		when(decoder.decode(anyString())).thenThrow(JwtException.class);
+
+		MvcResult result =
+				this.mvc.perform(get("/authenticated"))
+						.andExpect(status().isFound())
+						.andExpect(redirectedUrl("http://localhost/login"))
+						.andReturn();
+
+		assertThat(result.getRequest().getSession(false)).isNotNull();
+
+		result =
+				this.mvc.perform(get("/authenticated")
+						.with(bearerToken("token")))
+						.andExpect(status().isUnauthorized())
+						.andReturn();
+
+		assertThat(result.getRequest().getSession(false)).isNull();
+	}
+
+	@Test
 	public void requestWhenDefaultAndResourceServerAccessDeniedHandlersThenMatchedByRequest()
 			throws Exception {
 
@@ -1257,6 +1284,27 @@ public class OAuth2ResourceServerConfigurerTests {
 							.password("basic-password")
 							.roles("USER")
 							.build());
+		}
+	}
+
+	@EnableWebSecurity
+	static class FormAndResourceServerConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().authenticated()
+					.and()
+				.formLogin()
+					.and()
+				.oauth2ResourceServer()
+					.jwt();
+		}
+
+		@Bean
+		JwtDecoder jwtDecoder() {
+			return mock(JwtDecoder.class);
 		}
 	}
 

@@ -159,12 +159,6 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 	}
 
 	@Override
-	public void setBuilder(H http) {
-		super.setBuilder(http);
-		initSessionCreationPolicy(http);
-	}
-
-	@Override
 	public void init(H http) throws Exception {
 		registerDefaultAccessDeniedHandler(http);
 		registerDefaultEntryPoint(http);
@@ -249,12 +243,6 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 			}
 
 			return this.decoder;
-		}
-	}
-
-	private void initSessionCreationPolicy(H http) {
-		if (http.getSharedObject(SessionCreationPolicy.class) == null) {
-			http.setSharedObject(SessionCreationPolicy.class, SessionCreationPolicy.STATELESS);
 		}
 	}
 
