@@ -25,6 +25,7 @@ import org.springframework.util.StringUtils;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -155,7 +156,7 @@ public final class ClientRegistration {
 		private String tokenUri;
 		private UserInfoEndpoint userInfoEndpoint = new UserInfoEndpoint();
 		private String jwkSetUri;
-		private Map<String, Object> configurationMetadata;
+		private Map<String, Object> configurationMetadata = Collections.emptyMap();
 
 		private ProviderDetails() {
 		}
@@ -275,7 +276,7 @@ public final class ClientRegistration {
 		private AuthenticationMethod userInfoAuthenticationMethod = AuthenticationMethod.HEADER;
 		private String userNameAttributeName;
 		private String jwkSetUri;
-		private Map<String, Object> configurationMetadata;
+		private Map<String, Object> configurationMetadata = Collections.emptyMap();
 		private String clientName;
 
 		private Builder(String registrationId) {
@@ -452,7 +453,9 @@ public final class ClientRegistration {
 		 * @return the {@link Builder}
 		 */
 		public Builder providerConfigurationMetadata(Map<String, Object> configurationMetadata) {
-			this.configurationMetadata = configurationMetadata;
+			if (!CollectionUtils.isEmpty(configurationMetadata)) {
+				this.configurationMetadata = new LinkedHashMap<>(configurationMetadata);
+			}
 			return this;
 		}
 
@@ -502,10 +505,7 @@ public final class ClientRegistration {
 			providerDetails.userInfoEndpoint.authenticationMethod = this.userInfoAuthenticationMethod;
 			providerDetails.userInfoEndpoint.userNameAttributeName = this.userNameAttributeName;
 			providerDetails.jwkSetUri = this.jwkSetUri;
-			providerDetails.configurationMetadata = Collections.unmodifiableMap(
-					CollectionUtils.isEmpty(this.configurationMetadata) ?
-							Collections.emptyMap() :
-							this.configurationMetadata);
+			providerDetails.configurationMetadata = Collections.unmodifiableMap(this.configurationMetadata);
 			clientRegistration.providerDetails = providerDetails;
 
 			clientRegistration.clientName = StringUtils.hasText(this.clientName) ?
