@@ -54,7 +54,7 @@ public class OAuth2ErrorResponseErrorHandler implements ResponseErrorHandler {
 
 		// A Bearer Token Error may be in the WWW-Authenticate response header
 		// See https://tools.ietf.org/html/rfc6750#section-3
-		OAuth2Error	oauth2Error = this.readErrorFromWwwAuthenticate(response.getHeaders());
+		OAuth2Error oauth2Error = this.readErrorFromWwwAuthenticate(response.getHeaders());
 		if (oauth2Error == null) {
 			oauth2Error = this.oauth2ErrorConverter.read(OAuth2Error.class, response);
 		}
