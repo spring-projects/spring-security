@@ -55,6 +55,6 @@ class X509ConfigurerTests extends BaseSpringSpec {
 					.and()
 				.x509()
 		then:
-			http.getConfigurer(X509Configurer).subjectPrincipalRegex == ".*"
+			http.getConfigurer(X509Configurer).x509PrincipalExtractor.subjectDnPattern.toString() == ".*"
 	}
 }
