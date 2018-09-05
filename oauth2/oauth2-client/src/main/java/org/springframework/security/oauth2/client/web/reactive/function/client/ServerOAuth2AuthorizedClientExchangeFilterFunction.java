@@ -27,6 +27,7 @@ import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.oauth2.client.ClientAuthorizationRequiredException;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.ReactiveOAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.WebClientReactiveClientCredentialsTokenResponseClient;
@@ -85,6 +86,8 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 	private Clock clock = Clock.systemUTC();
 
 	private Duration accessTokenExpiresSkew = Duration.ofMinutes(1);
+
+	private boolean defaultOAuth2AuthorizedClient;
 
 	private ReactiveOAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> clientCredentialsTokenResponseClient =
 			new WebClientReactiveClientCredentialsTokenResponseClient();
@@ -175,6 +178,17 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 	}
 
 	/**
+	 * If true, a default {@link OAuth2AuthorizedClient} can be discovered from the current Authentication. It is
+	 * recommended to be cautious with this feature since all HTTP requests will receive the access token if it can be
+	 * resolved from the current Authentication.
+	 * @param defaultOAuth2AuthorizedClient true if a default {@link OAuth2AuthorizedClient} should be used, else false.
+	 *                                      Default is false.
+	 */
+	public void setDefaultOAuth2AuthorizedClient(boolean defaultOAuth2AuthorizedClient) {
+		this.defaultOAuth2AuthorizedClient = defaultOAuth2AuthorizedClient;
+	}
+
+	/**
 	 * Sets the {@link ReactiveOAuth2AccessTokenResponseClient} to be used for getting an {@link OAuth2AuthorizedClient} for
 	 * client_credentials grant.
 	 * @param clientCredentialsTokenResponseClient the client to use
@@ -216,14 +230,25 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 		if (this.authorizedClientRepository == null) {
 			return Mono.empty();
 		}
-		String clientRegistrationId = (String) request.attributes().get(CLIENT_REGISTRATION_ID_ATTR_NAME);
-		if (clientRegistrationId == null) {
-			return Mono.empty();
-		}
+
 		ServerWebExchange exchange = (ServerWebExchange) request.attributes().get(SERVER_WEB_EXCHANGE_ATTR_NAME);
 		return currentAuthentication()
-			.flatMap(principal -> loadAuthorizedClient(clientRegistrationId, exchange, principal)
-		);
+			.flatMap(principal -> clientRegistrationId(request, principal)
+					.flatMap(clientRegistrationId -> loadAuthorizedClient(clientRegistrationId, exchange, principal))
+			);
+	}
+
+	private Mono<String> clientRegistrationId(ClientRequest request, Authentication authentication) {
+		return Mono.justOrEmpty(request.attributes().get(CLIENT_REGISTRATION_ID_ATTR_NAME))
+				.cast(String.class)
+				.switchIfEmpty(clientRegistrationId(authentication));
+	}
+
+	private Mono<String> clientRegistrationId(Authentication authentication) {
+		return Mono.justOrEmpty(authentication)
+				.filter(t -> this.defaultOAuth2AuthorizedClient && t instanceof OAuth2AuthenticationToken)
+				.cast(OAuth2AuthenticationToken.class)
+				.map(OAuth2AuthenticationToken::getAuthorizedClientRegistrationId);
 	}
 
 	private Mono<OAuth2AuthorizedClient> loadAuthorizedClient(String clientRegistrationId,
