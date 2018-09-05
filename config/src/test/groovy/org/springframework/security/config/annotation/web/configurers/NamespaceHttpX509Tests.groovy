@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.config.annotation.web.configurers;
+package org.springframework.security.config.annotation.web.configurers
+
+import sun.security.x509.X500Name
 
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
@@ -159,6 +161,38 @@ public class NamespaceHttpX509Tests extends BaseSpringSpec {
 					.and()
 				.x509()
 					.subjectPrincipalRegex('CN=(.*?)@example.com(?:,|$)');
+		}
+	}
+
+	def "http/x509@custom-principal-extractor"() {
+		setup:
+    		X509Certificate certificate = loadCert("rodatexampledotcom.cer")
+	    	loadConfig(CustomPrincipalExtractorConfig)
+		when:
+	    	request.setAttribute("javax.servlet.request.X509Certificate", [certificate] as X509Certificate[] )
+	    	springSecurityFilterChain.doFilter(request, response, chain)
+		then:
+	    	response.status == 200
+	    	authentication().name == 'rod@example.com'
+	}
+
+	@EnableWebSecurity
+	public static class CustomPrincipalExtractorConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth.
+					inMemoryAuthentication()
+					.withUser("rod@example.com").password("password").roles("USER","ADMIN");
+		}
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+					.authorizeRequests()
+					.anyRequest().hasRole("USER")
+					.and()
+					.x509()
+					.x509PrincipalExtractor{ (it.subjectDN as X500Name).commonName }
 		}
 	}
 
