@@ -211,24 +211,25 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
-	 * Allows explicitly specifying the {@link SessionAuthenticationStrategy}. The default
-	 * is to use {@link SessionFixationProtectionStrategy}. If restricting the maximum
-	 * number of sessions is configured, then
+	 * Allows explicitly specifying the {@link SessionAuthenticationStrategy}.
+	 * The default is to use {@link SessionFixationProtectionStrategy} for Servlet 3.1 or
+	 * {@link ChangeSessionIdAuthenticationStrategy} for Servlet 3.1+.
+	 * If restricting the maximum number of sessions is configured, then
 	 * {@link CompositeSessionAuthenticationStrategy} delegating to
 	 * {@link ConcurrentSessionControlAuthenticationStrategy},
-	 * {@link SessionFixationProtectionStrategy} (the default) OR
-	 * {@link SessionAuthenticationStrategy} the supplied sessionAuthenticationStrategy,
+	 * the default OR supplied {@code SessionAuthenticationStrategy} and
 	 * {@link RegisterSessionAuthenticationStrategy}.
 	 *
+	 * <p>
 	 * NOTE: Supplying a custom {@link SessionAuthenticationStrategy} will override the
-	 * default provided {@link SessionFixationProtectionStrategy}.
+	 * default session fixation strategy.
 	 *
 	 * @param sessionAuthenticationStrategy
 	 * @return the {@link SessionManagementConfigurer} for further customizations
 	 */
 	public SessionManagementConfigurer<H> sessionAuthenticationStrategy(
 			SessionAuthenticationStrategy sessionAuthenticationStrategy) {
-		this.sessionFixationAuthenticationStrategy = sessionAuthenticationStrategy;
+		this.providedSessionAuthenticationStrategy = sessionAuthenticationStrategy;
 		return this;
 	}
 
@@ -592,8 +593,8 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		List<SessionAuthenticationStrategy> delegateStrategies = this.sessionAuthenticationStrategies;
 		SessionAuthenticationStrategy defaultSessionAuthenticationStrategy;
 		if (this.providedSessionAuthenticationStrategy == null) {
-			// If a user provided SessionAuthenticationStrategy is not supplied
-			// then default to SessionFixationProtectionStrategy
+			// If the user did not provide a SessionAuthenticationStrategy
+			// then default to sessionFixationAuthenticationStrategy
 			defaultSessionAuthenticationStrategy = postProcess(
 					this.sessionFixationAuthenticationStrategy);
 		}
