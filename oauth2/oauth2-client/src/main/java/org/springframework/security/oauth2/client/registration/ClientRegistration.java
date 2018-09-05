@@ -453,7 +453,7 @@ public final class ClientRegistration {
 		 * @return the {@link Builder}
 		 */
 		public Builder providerConfigurationMetadata(Map<String, Object> configurationMetadata) {
-			if (!CollectionUtils.isEmpty(configurationMetadata)) {
+			if (configurationMetadata != null) {
 				this.configurationMetadata = new LinkedHashMap<>(configurationMetadata);
 			}
 			return this;
