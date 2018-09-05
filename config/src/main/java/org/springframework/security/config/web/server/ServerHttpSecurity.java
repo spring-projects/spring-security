@@ -133,6 +133,7 @@ import org.springframework.web.cors.reactive.DefaultCorsProcessor;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
+import reactor.util.context.Context;
 
 import static org.springframework.security.web.server.DelegatingServerAuthenticationEntryPoint.DelegateEntry;
 import static org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher.MatchResult.match;
@@ -1098,6 +1099,7 @@ public class ServerHttpSecurity {
 			}
 			sortedWebFilters.add(f);
 		});
+		sortedWebFilters.add(0, new ServerWebExchangeReactorContextWebFilter());
 		return new MatcherSecurityWebFilterChain(getSecurityMatcher(), sortedWebFilters);
 	}
 
@@ -2189,6 +2191,17 @@ public class ServerHttpSecurity {
 		public String toString() {
 			return "OrderedWebFilter{" + "webFilter=" + this.webFilter + ", order=" + this.order
 				+ '}';
+		}
+	}
+
+	/**
+	 * Workaround https://jira.spring.io/projects/SPR/issues/SPR-17213
+	 */
+	static class ServerWebExchangeReactorContextWebFilter implements WebFilter {
+		@Override
+		public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+			return chain.filter(exchange)
+					.subscriberContext(Context.of(ServerWebExchange.class, exchange));
 		}
 	}
 }

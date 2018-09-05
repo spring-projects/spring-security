@@ -27,12 +27,16 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.web.reactive.ServerHttpSecurityConfigurationBuilder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
+import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.WebFilterChainProxy;
 import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.FluxExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import reactor.test.publisher.TestPublisher;
 
@@ -117,9 +121,33 @@ public class ServerHttpSecurityTests {
 			.expectBody().isEmpty();
 	}
 
+	@Test
+	public void buildWhenServerWebExchangeFromContextThenFound() {
+		SecurityWebFilterChain filter = this.http.build();
+
+		WebTestClient client = WebTestClient.bindToController(new SubscriberContextController())
+				.webFilter(new WebFilterChainProxy(filter))
+				.build();
+
+		client.get().uri("/foo/bar")
+				.exchange()
+				.expectBody(String.class).isEqualTo("/foo/bar");
+	}
+
 	private WebTestClient buildClient() {
 		WebFilterChainProxy springSecurityFilterChain = new WebFilterChainProxy(
 			this.http.build());
 		return WebTestClientBuilder.bindToWebFilters(springSecurityFilterChain).build();
+	}
+
+	@RestController
+	private static class SubscriberContextController {
+		@GetMapping("/**")
+		Mono<String> pathWithinApplicationFromContext() {
+			return Mono.subscriberContext()
+				.filter(c -> c.hasKey(ServerWebExchange.class))
+				.map(c -> c.get(ServerWebExchange.class))
+				.map(e -> e.getRequest().getPath().pathWithinApplication().value());
+		}
 	}
 }
