@@ -292,6 +292,46 @@ public class ClientRegistrationTests {
 	}
 
 	@Test
+	public void buildWhenAuthorizationCodeGrantProviderConfigurationMetadataIsNullThenDefaultToEmpty() {
+		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
+				.clientId(CLIENT_ID)
+				.clientSecret(CLIENT_SECRET)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.redirectUriTemplate(REDIRECT_URI)
+				.scope(SCOPES.toArray(new String[0]))
+				.authorizationUri(AUTHORIZATION_URI)
+				.tokenUri(TOKEN_URI)
+				.userInfoAuthenticationMethod(AuthenticationMethod.HEADER)
+				.providerConfigurationMetadata(null)
+				.jwkSetUri(JWK_SET_URI)
+				.clientName(CLIENT_NAME)
+				.build();
+		assertThat(clientRegistration.getProviderDetails().getConfigurationMetadata()).isNotNull();
+		assertThat(clientRegistration.getProviderDetails().getConfigurationMetadata()).isEmpty();
+	}
+
+	@Test
+	public void buildWhenAuthorizationCodeGrantProviderConfigurationMetadataEmptyThenIsEmpty() {
+		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
+				.clientId(CLIENT_ID)
+				.clientSecret(CLIENT_SECRET)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.redirectUriTemplate(REDIRECT_URI)
+				.scope(SCOPES.toArray(new String[0]))
+				.authorizationUri(AUTHORIZATION_URI)
+				.tokenUri(TOKEN_URI)
+				.userInfoAuthenticationMethod(AuthenticationMethod.HEADER)
+				.providerConfigurationMetadata(Collections.emptyMap())
+				.jwkSetUri(JWK_SET_URI)
+				.clientName(CLIENT_NAME)
+				.build();
+		assertThat(clientRegistration.getProviderDetails().getConfigurationMetadata()).isNotNull();
+		assertThat(clientRegistration.getProviderDetails().getConfigurationMetadata()).isEmpty();
+	}
+
+	@Test
 	public void buildWhenImplicitGrantAllAttributesProvidedThenAllAttributesAreSet() {
 		ClientRegistration registration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
 			.clientId(CLIENT_ID)
