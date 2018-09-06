@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.server.AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.reactive.result.method.annotation.OAuth2AuthorizedClientArgumentResolver;
@@ -53,15 +54,23 @@ final class ReactiveOAuth2ClientImportSelector implements ImportSelector {
 
 	@Configuration
 	static class OAuth2ClientWebFluxSecurityConfiguration implements WebFluxConfigurer {
+		private ReactiveClientRegistrationRepository clientRegistrationRepository;
+
 		private ServerOAuth2AuthorizedClientRepository authorizedClientRepository;
 
 		private ReactiveOAuth2AuthorizedClientService authorizedClientService;
 
 		@Override
 		public void configureArgumentResolvers(ArgumentResolverConfigurer configurer) {
-			if (this.authorizedClientRepository != null) {
-				configurer.addCustomResolver(new OAuth2AuthorizedClientArgumentResolver(getAuthorizedClientRepository()));
+			if (this.authorizedClientRepository != null && this.clientRegistrationRepository != null) {
+				configurer.addCustomResolver(new OAuth2AuthorizedClientArgumentResolver(this.clientRegistrationRepository, getAuthorizedClientRepository()));
 			}
+		}
+
+		@Autowired(required = false)
+		public void setClientRegistrationRepository(
+				ReactiveClientRegistrationRepository clientRegistrationRepository) {
+			this.clientRegistrationRepository = clientRegistrationRepository;
 		}
 
 		@Autowired(required = false)
