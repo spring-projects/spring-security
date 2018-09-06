@@ -23,6 +23,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.http.OAuth2ErrorResponseErrorHandler;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -105,7 +106,7 @@ public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2UserReq
 		ResponseEntity<Map<String, Object>> response;
 		try {
 			response = this.restOperations.exchange(request, PARAMETERIZED_RESPONSE_TYPE);
-		} catch (OAuth2AuthenticationException ex) {
+		} catch (OAuth2AuthorizationException ex) {
 			OAuth2Error oauth2Error = ex.getError();
 			StringBuilder errorDetails = new StringBuilder();
 			errorDetails.append("Error details: [");
