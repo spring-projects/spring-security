@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.server.resource.authentication;
 
+import reactor.core.publisher.Mono;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -27,7 +29,6 @@ import org.springframework.security.oauth2.server.resource.BearerTokenAuthentica
 import org.springframework.security.oauth2.server.resource.BearerTokenError;
 import org.springframework.security.oauth2.server.resource.BearerTokenErrorCodes;
 import org.springframework.util.Assert;
-import reactor.core.publisher.Mono;
 
 /**
  * A {@link ReactiveAuthenticationManager} for Jwt tokens.
@@ -35,7 +36,7 @@ import reactor.core.publisher.Mono;
  * @author Rob Winch
  * @since 5.1
  */
-public class JwtReactiveAuthenticationManager implements ReactiveAuthenticationManager {
+public final class JwtReactiveAuthenticationManager implements ReactiveAuthenticationManager {
 	private final JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
 
 	private final ReactiveJwtDecoder jwtDecoder;
