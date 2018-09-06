@@ -16,6 +16,7 @@
 
 package org.springframework.security.oauth2.client.web.reactive.function.client;
 
+import com.sun.security.ntlm.Server;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -211,12 +212,23 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 
 	@Override
 	public Mono<ClientResponse> filter(ClientRequest request, ExchangeFunction next) {
-		ServerWebExchange exchange = (ServerWebExchange) request.attributes().get(SERVER_WEB_EXCHANGE_ATTR_NAME);
 		return authorizedClient(request)
-				.flatMap(authorizedClient -> refreshIfNecessary(next, authorizedClient, exchange))
+				.flatMap(authorizedClient -> refreshIfNecessary(next, authorizedClient, request))
 				.map(authorizedClient -> bearer(request, authorizedClient))
 				.flatMap(next::exchange)
 				.switchIfEmpty(next.exchange(request));
+	}
+
+	private Mono<ServerWebExchange> serverWebExchange(ClientRequest request) {
+		ServerWebExchange exchange = (ServerWebExchange) request.attributes().get(SERVER_WEB_EXCHANGE_ATTR_NAME);
+		return Mono.justOrEmpty(exchange)
+				.switchIfEmpty(serverWebExchange());
+	}
+
+	private Mono<ServerWebExchange> serverWebExchange() {
+		return Mono.subscriberContext()
+			.filter(c -> c.hasKey(ServerWebExchange.class))
+			.map(c -> c.get(ServerWebExchange.class));
 	}
 
 	private Mono<OAuth2AuthorizedClient> authorizedClient(ClientRequest request) {
@@ -231,10 +243,9 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 			return Mono.empty();
 		}
 
-		ServerWebExchange exchange = (ServerWebExchange) request.attributes().get(SERVER_WEB_EXCHANGE_ATTR_NAME);
 		return currentAuthentication()
 			.flatMap(principal -> clientRegistrationId(request, principal)
-					.flatMap(clientRegistrationId -> loadAuthorizedClient(clientRegistrationId, exchange, principal))
+					.flatMap(clientRegistrationId -> serverWebExchange(request).flatMap(exchange -> loadAuthorizedClient(clientRegistrationId, exchange, principal)))
 			);
 	}
 
@@ -289,9 +300,10 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 			});
 	}
 
-	private Mono<OAuth2AuthorizedClient> refreshIfNecessary(ExchangeFunction next, OAuth2AuthorizedClient authorizedClient, ServerWebExchange exchange) {
+	private Mono<OAuth2AuthorizedClient> refreshIfNecessary(ExchangeFunction next, OAuth2AuthorizedClient authorizedClient, ClientRequest request) {
 		if (shouldRefresh(authorizedClient)) {
-			return refreshAuthorizedClient(next, authorizedClient, exchange);
+			return serverWebExchange(request)
+				.flatMap(exchange -> refreshAuthorizedClient(next, authorizedClient, exchange));
 		}
 		return Mono.just(authorizedClient);
 	}

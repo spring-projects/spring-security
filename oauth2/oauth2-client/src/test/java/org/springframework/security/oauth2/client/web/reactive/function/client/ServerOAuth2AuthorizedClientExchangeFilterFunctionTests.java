@@ -49,7 +49,9 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.client.ClientRequest;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+import reactor.util.context.Context;
 
 import java.net.URI;
 import java.time.Duration;
@@ -82,6 +84,9 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 	@Mock
 	private ReactiveClientRegistrationRepository clientRegistrationRepository;
+
+	@Mock
+	private ServerWebExchange serverWebExchange;
 
 	private ServerOAuth2AuthorizedClientExchangeFilterFunction function = new ServerOAuth2AuthorizedClientExchangeFilterFunction();
 
@@ -350,6 +355,30 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		assertThat(requests).hasSize(1);
 
 		verifyZeroInteractions(this.clientRegistrationRepository, this.authorizedClientRepository);
+	}
+
+	@Test
+	public void filterWhenClientRegistrationIdAndServerWebExchangeFromContextThenServerWebExchangeFromContext() {
+		this.function = new ServerOAuth2AuthorizedClientExchangeFilterFunction(this.clientRegistrationRepository, this.authorizedClientRepository);
+
+		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", this.accessToken.getIssuedAt(), this.accessToken.getExpiresAt());
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration,
+				"principalName", this.accessToken, refreshToken);
+		when(this.authorizedClientRepository.loadAuthorizedClient(any(), any(), any())).thenReturn(Mono.just(authorizedClient));
+		when(this.clientRegistrationRepository.findByRegistrationId(any())).thenReturn(Mono.just(this.registration));
+		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
+				.attributes(clientRegistrationId(this.registration.getRegistrationId()))
+				.build();
+
+		this.function.filter(request, this.exchange)
+				.subscriberContext(serverWebExchange())
+				.block();
+
+		verify(this.authorizedClientRepository).loadAuthorizedClient(eq(this.registration.getRegistrationId()), any(), eq(this.serverWebExchange));
+	}
+
+	private Context serverWebExchange() {
+		return Context.of(ServerWebExchange.class, this.serverWebExchange);
 	}
 
 	private static String getBody(ClientRequest request) {
