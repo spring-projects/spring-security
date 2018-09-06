@@ -25,6 +25,9 @@ import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCo
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.Assert;
@@ -92,14 +95,20 @@ public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider
 			return null;
 		}
 
-		OAuth2AuthorizationExchangeValidator.validate(
-			authorizationCodeAuthentication.getAuthorizationExchange());
+		OAuth2AccessTokenResponse accessTokenResponse;
+		try {
+			OAuth2AuthorizationExchangeValidator.validate(
+					authorizationCodeAuthentication.getAuthorizationExchange());
 
-		OAuth2AccessTokenResponse accessTokenResponse =
-			this.accessTokenResponseClient.getTokenResponse(
-				new OAuth2AuthorizationCodeGrantRequest(
-					authorizationCodeAuthentication.getClientRegistration(),
-					authorizationCodeAuthentication.getAuthorizationExchange()));
+			accessTokenResponse = this.accessTokenResponseClient.getTokenResponse(
+					new OAuth2AuthorizationCodeGrantRequest(
+							authorizationCodeAuthentication.getClientRegistration(),
+							authorizationCodeAuthentication.getAuthorizationExchange()));
+
+		} catch (OAuth2AuthorizationException ex) {
+			OAuth2Error oauth2Error = ex.getError();
+			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+		}
 
 		OAuth2AccessToken accessToken = accessTokenResponse.getAccessToken();
 		Map<String, Object> additionalParameters = accessTokenResponse.getAdditionalParameters();

@@ -25,7 +25,7 @@ import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCo
 import org.springframework.security.oauth2.client.endpoint.ReactiveOAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
@@ -67,24 +67,24 @@ public class OAuth2AuthorizationCodeReactiveAuthenticationManagerTests {
 	}
 
 	@Test
-	public void authenticateWhenErrorThenOAuth2AuthenticationException() {
+	public void authenticateWhenErrorThenOAuth2AuthorizationException() {
 		this.authorizationResponse = TestOAuth2AuthorizationResponses.error();
 		assertThatCode(() -> authenticate())
-				.isInstanceOf(OAuth2AuthenticationException.class);
+				.isInstanceOf(OAuth2AuthorizationException.class);
 	}
 
 	@Test
-	public void authenticateWhenStateNotEqualThenOAuth2AuthenticationException() {
+	public void authenticateWhenStateNotEqualThenOAuth2AuthorizationException() {
 		this.authorizationRequest.state("notequal");
 		assertThatCode(() -> authenticate())
-				.isInstanceOf(OAuth2AuthenticationException.class);
+				.isInstanceOf(OAuth2AuthorizationException.class);
 	}
 
 	@Test
-	public void authenticateWhenRedirectUriNotEqualThenOAuth2AuthenticationException() {
+	public void authenticateWhenRedirectUriNotEqualThenOAuth2AuthorizationException() {
 		this.authorizationRequest.redirectUri("https://example.org/notequal");
 		assertThatCode(() -> authenticate())
-				.isInstanceOf(OAuth2AuthenticationException.class);
+				.isInstanceOf(OAuth2AuthorizationException.class);
 	}
 
 	@Test
@@ -106,11 +106,11 @@ public class OAuth2AuthorizationCodeReactiveAuthenticationManagerTests {
 	}
 
 	@Test
-	public void authenticateWhenOAuth2AuthenticationExceptionThenOAuth2AuthenticationException() {
-		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.error(() -> new OAuth2AuthenticationException(new OAuth2Error("error"))));
+	public void authenticateWhenOAuth2AuthorizationExceptionThenOAuth2AuthorizationException() {
+		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.error(() -> new OAuth2AuthorizationException(new OAuth2Error("error"))));
 
 		assertThatCode(() -> authenticate())
-				.isInstanceOf(OAuth2AuthenticationException.class);
+				.isInstanceOf(OAuth2AuthorizationException.class);
 	}
 
 	private OAuth2AuthorizationCodeAuthenticationToken authenticate() {

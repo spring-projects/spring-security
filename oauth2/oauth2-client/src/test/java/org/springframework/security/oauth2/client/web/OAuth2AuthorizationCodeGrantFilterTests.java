@@ -40,7 +40,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
@@ -196,7 +196,7 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 	}
 
 	@Test
-	public void doFilterWhenAuthenticationFailsThenHandleOAuth2AuthenticationException() throws Exception {
+	public void doFilterWhenAuthorizationFailsThenHandleOAuth2AuthorizationException() throws Exception {
 		String requestUri = "/callback/client-1";
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
 		request.setServletPath(requestUri);
@@ -209,7 +209,7 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 		this.setUpAuthorizationRequest(request, response, this.registration1);
 		OAuth2Error error = new OAuth2Error(OAuth2ErrorCodes.INVALID_GRANT);
 		when(this.authenticationManager.authenticate(any(Authentication.class)))
-			.thenThrow(new OAuth2AuthenticationException(error, error.toString()));
+			.thenThrow(new OAuth2AuthorizationException(error));
 
 		this.filter.doFilter(request, response, filterChain);
 

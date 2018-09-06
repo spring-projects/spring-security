@@ -26,7 +26,7 @@ import net.minidev.json.JSONObject;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ReactiveHttpInputMessage;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
@@ -70,7 +70,7 @@ class OAuth2AccessTokenResponseBodyExtractor
 		catch (ParseException pe) {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_TOKEN_RESPONSE_ERROR_CODE,
 					"An error occurred parsing the Access Token response: " + pe.getMessage(), null);
-			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString(), pe);
+			throw new OAuth2AuthorizationException(oauth2Error, pe);
 		}
 	}
 
@@ -90,7 +90,7 @@ class OAuth2AccessTokenResponseBodyExtractor
 					errorObject.getDescription(),
 					errorObject.getURI() != null ? errorObject.getURI().toString() : null);
 		}
-		return Mono.error(new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString()));
+		return Mono.error(new OAuth2AuthorizationException(oauth2Error));
 	}
 
 	private static OAuth2AccessTokenResponse oauth2AccessTokenResponse(AccessTokenResponse accessTokenResponse) {

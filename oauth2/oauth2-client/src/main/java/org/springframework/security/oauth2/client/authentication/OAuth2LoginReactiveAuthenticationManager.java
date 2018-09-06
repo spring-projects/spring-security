@@ -24,6 +24,8 @@ import org.springframework.security.oauth2.client.endpoint.ReactiveOAuth2AccessT
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.ReactiveOAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
@@ -88,6 +90,7 @@ public class OAuth2LoginReactiveAuthenticationManager implements
 			}
 
 			return this.authorizationCodeManager.authenticate(token)
+					.onErrorMap(OAuth2AuthorizationException.class, e -> new OAuth2AuthenticationException(e.getError(), e.getError().toString()))
 					.cast(OAuth2AuthorizationCodeAuthenticationToken.class)
 					.flatMap(this::onSuccess);
 		});

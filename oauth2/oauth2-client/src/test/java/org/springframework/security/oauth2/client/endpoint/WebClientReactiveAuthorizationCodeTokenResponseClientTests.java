@@ -16,11 +16,8 @@
 
 package org.springframework.security.oauth2.client.endpoint;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
-import java.time.Instant;
-
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,14 +27,16 @@ import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
 
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
+import java.time.Instant;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author Rob Winch
@@ -120,8 +119,8 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 //	}
 //
 //	@Test
-//	public void getTokenResponseWhenSuccessResponseInvalidThenThrowOAuth2AuthenticationException() throws Exception {
-//		this.exception.expect(OAuth2AuthenticationException.class);
+//	public void getTokenResponseWhenSuccessResponseInvalidThenThrowOAuth2AuthorizationException() throws Exception {
+//		this.exception.expect(OAuth2AuthorizationException.class);
 //		this.exception.expectMessage(containsString("invalid_token_response"));
 //
 //		MockWebServer server = new MockWebServer();
@@ -163,7 +162,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 //	}
 //
 	@Test
-	public void getTokenResponseWhenErrorResponseThenThrowOAuth2AuthenticationException() throws Exception {
+	public void getTokenResponseWhenErrorResponseThenThrowOAuth2AuthorizationException() throws Exception {
 		String accessTokenErrorResponse = "{\n" +
 				"   \"error\": \"unauthorized_client\"\n" +
 				"}\n";
@@ -171,23 +170,23 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 		this.server.enqueue(jsonResponse(accessTokenErrorResponse).setResponseCode(HttpStatus.INTERNAL_SERVER_ERROR.value()));
 
 		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest()).block())
-			.isInstanceOf(OAuth2AuthenticationException.class)
+			.isInstanceOf(OAuth2AuthorizationException.class)
 			.hasMessageContaining("unauthorized_client");
 	}
 
 	// gh-5594
 	@Test
-	public void getTokenResponseWhenServerErrorResponseThenThrowOAuth2AuthenticationException() throws Exception {
+	public void getTokenResponseWhenServerErrorResponseThenThrowOAuth2AuthorizationException() throws Exception {
 		String accessTokenErrorResponse = "{}";
 		this.server.enqueue(jsonResponse(accessTokenErrorResponse).setResponseCode(HttpStatus.INTERNAL_SERVER_ERROR.value()));
 
 		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest()).block())
-				.isInstanceOf(OAuth2AuthenticationException.class)
+				.isInstanceOf(OAuth2AuthorizationException.class)
 				.hasMessageContaining("server_error");
 	}
 
 	@Test
-	public void getTokenResponseWhenSuccessResponseAndNotBearerTokenTypeThenThrowOAuth2AuthenticationException() throws Exception {
+	public void getTokenResponseWhenSuccessResponseAndNotBearerTokenTypeThenThrowOAuth2AuthorizationException() throws Exception {
 		String accessTokenSuccessResponse = "{\n" +
 				"	\"access_token\": \"access-token-1234\",\n" +
 				"   \"token_type\": \"not-bearer\",\n" +
@@ -197,7 +196,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
 
 		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest()).block())
-				.isInstanceOf(OAuth2AuthenticationException.class)
+				.isInstanceOf(OAuth2AuthorizationException.class)
 				.hasMessageContaining("invalid_token_response");
 	}
 

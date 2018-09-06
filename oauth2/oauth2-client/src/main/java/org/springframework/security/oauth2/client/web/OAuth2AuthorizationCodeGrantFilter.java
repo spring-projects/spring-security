@@ -24,7 +24,7 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authoriza
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
@@ -177,7 +177,7 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 		try {
 			authenticationResult = (OAuth2AuthorizationCodeAuthenticationToken)
 				this.authenticationManager.authenticate(authenticationRequest);
-		} catch (OAuth2AuthenticationException ex) {
+		} catch (OAuth2AuthorizationException ex) {
 			OAuth2Error error = ex.getError();
 			UriComponentsBuilder uriBuilder = UriComponentsBuilder
 				.fromUriString(authorizationResponse.getRedirectUri())
