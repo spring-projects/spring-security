@@ -15,6 +15,8 @@
  */
 package org.springframework.security.oauth2.client;
 
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.util.Assert;
 
 /**
@@ -25,7 +27,8 @@ import org.springframework.util.Assert;
  * @since 5.1
  * @see OAuth2AuthorizedClient
  */
-public class ClientAuthorizationRequiredException extends OAuth2ClientException {
+public class ClientAuthorizationRequiredException extends OAuth2AuthorizationException {
+	private static final String CLIENT_AUTHORIZATION_REQUIRED_ERROR_CODE = "client_authorization_required";
 	private final String clientRegistrationId;
 
 	/**
@@ -34,17 +37,8 @@ public class ClientAuthorizationRequiredException extends OAuth2ClientException 
 	 * @param clientRegistrationId the identifier for the client's registration
 	 */
 	public ClientAuthorizationRequiredException(String clientRegistrationId) {
-		this(clientRegistrationId, "Authorization required for Client Registration Id: " + clientRegistrationId);
-	}
-
-	/**
-	 * Constructs a {@code ClientAuthorizationRequiredException} using the provided parameters.
-	 *
-	 * @param clientRegistrationId the identifier for the client's registration
-	 * @param message the detail message
-	 */
-	public ClientAuthorizationRequiredException(String clientRegistrationId, String message) {
-		super(message);
+		super(new OAuth2Error(CLIENT_AUTHORIZATION_REQUIRED_ERROR_CODE,
+				"Authorization required for Client Registration Id: " + clientRegistrationId, null));
 		Assert.hasText(clientRegistrationId, "clientRegistrationId cannot be empty");
 		this.clientRegistrationId = clientRegistrationId;
 	}
