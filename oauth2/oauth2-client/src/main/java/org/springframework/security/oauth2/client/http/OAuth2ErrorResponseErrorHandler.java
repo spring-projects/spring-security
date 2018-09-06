@@ -19,7 +19,7 @@ import com.nimbusds.oauth2.sdk.token.BearerTokenError;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.http.converter.OAuth2ErrorHttpMessageConverter;
@@ -59,7 +59,7 @@ public class OAuth2ErrorResponseErrorHandler implements ResponseErrorHandler {
 			oauth2Error = this.oauth2ErrorConverter.read(OAuth2Error.class, response);
 		}
 
-		throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+		throw new OAuth2AuthorizationException(oauth2Error);
 	}
 
 	private OAuth2Error readErrorFromWwwAuthenticate(HttpHeaders headers) {
