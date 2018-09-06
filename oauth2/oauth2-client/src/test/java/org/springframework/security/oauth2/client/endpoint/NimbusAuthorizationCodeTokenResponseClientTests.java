@@ -27,11 +27,10 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
@@ -145,8 +144,8 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 	}
 
 	@Test
-	public void getTokenResponseWhenSuccessResponseInvalidThenThrowOAuth2AuthenticationException() throws Exception {
-		this.exception.expect(OAuth2AuthenticationException.class);
+	public void getTokenResponseWhenSuccessResponseInvalidThenThrowOAuth2AuthorizationException() throws Exception {
+		this.exception.expect(OAuth2AuthorizationException.class);
 		this.exception.expectMessage(containsString("invalid_token_response"));
 
 		MockWebServer server = new MockWebServer();
@@ -177,8 +176,8 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 	}
 
 	@Test
-	public void getTokenResponseWhenTokenUriInvalidThenThrowAuthenticationServiceException() throws Exception {
-		this.exception.expect(AuthenticationServiceException.class);
+	public void getTokenResponseWhenTokenUriInvalidThenThrowOAuth2AuthorizationException() throws Exception {
+		this.exception.expect(OAuth2AuthorizationException.class);
 
 		String tokenUri = "http://invalid-provider.com/oauth2/token";
 		when(this.providerDetails.getTokenUri()).thenReturn(tokenUri);
@@ -188,8 +187,8 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 	}
 
 	@Test
-	public void getTokenResponseWhenErrorResponseThenThrowOAuth2AuthenticationException() throws Exception {
-		this.exception.expect(OAuth2AuthenticationException.class);
+	public void getTokenResponseWhenErrorResponseThenThrowOAuth2AuthorizationException() throws Exception {
+		this.exception.expect(OAuth2AuthorizationException.class);
 		this.exception.expectMessage(containsString("unauthorized_client"));
 
 		MockWebServer server = new MockWebServer();
@@ -216,8 +215,8 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 
 	// gh-5594
 	@Test
-	public void getTokenResponseWhenServerErrorResponseThenThrowOAuth2AuthenticationException() throws Exception {
-		this.exception.expect(OAuth2AuthenticationException.class);
+	public void getTokenResponseWhenServerErrorResponseThenThrowOAuth2AuthorizationException() throws Exception {
+		this.exception.expect(OAuth2AuthorizationException.class);
 		this.exception.expectMessage(containsString("server_error"));
 
 		MockWebServer server = new MockWebServer();
@@ -237,8 +236,8 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 	}
 
 	@Test
-	public void getTokenResponseWhenSuccessResponseAndNotBearerTokenTypeThenThrowOAuth2AuthenticationException() throws Exception {
-		this.exception.expect(OAuth2AuthenticationException.class);
+	public void getTokenResponseWhenSuccessResponseAndNotBearerTokenTypeThenThrowOAuth2AuthorizationException() throws Exception {
+		this.exception.expect(OAuth2AuthorizationException.class);
 		this.exception.expectMessage(containsString("invalid_token_response"));
 
 		MockWebServer server = new MockWebServer();

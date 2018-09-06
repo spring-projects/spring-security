@@ -28,7 +28,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
@@ -87,30 +87,30 @@ public class ServerOAuth2AuthorizationCodeAuthenticationTokenConverterTest {
 	}
 
 	@Test
-	public void applyWhenAuthorizationRequestEmptyThenOAuth2AuthenticationException() {
+	public void applyWhenAuthorizationRequestEmptyThenOAuth2AuthorizationException() {
 		when(this.authorizationRequestRepository.removeAuthorizationRequest(any())).thenReturn(Mono.empty());
 
 		assertThatThrownBy(() -> applyConverter())
-				.isInstanceOf(OAuth2AuthenticationException.class);
+				.isInstanceOf(OAuth2AuthorizationException.class);
 	}
 
 	@Test
-	public void applyWhenAdditionalParametersMissingThenOAuth2AuthenticationException() {
+	public void applyWhenAdditionalParametersMissingThenOAuth2AuthorizationException() {
 		this.authorizationRequest.additionalParameters(Collections.emptyMap());
 		when(this.authorizationRequestRepository.removeAuthorizationRequest(any())).thenReturn(Mono.just(this.authorizationRequest.build()));
 
 		assertThatThrownBy(() -> applyConverter())
-				.isInstanceOf(OAuth2AuthenticationException.class)
+				.isInstanceOf(OAuth2AuthorizationException.class)
 				.hasMessageContaining(ServerOAuth2AuthorizationCodeAuthenticationTokenConverter.CLIENT_REGISTRATION_NOT_FOUND_ERROR_CODE);
 	}
 
 	@Test
-	public void applyWhenClientRegistrationMissingThenOAuth2AuthenticationException() {
+	public void applyWhenClientRegistrationMissingThenOAuth2AuthorizationException() {
 		when(this.authorizationRequestRepository.removeAuthorizationRequest(any())).thenReturn(Mono.just(this.authorizationRequest.build()));
 		when(this.clientRegistrationRepository.findByRegistrationId(any())).thenReturn(Mono.empty());
 
 		assertThatThrownBy(() -> applyConverter())
-				.isInstanceOf(OAuth2AuthenticationException.class)
+				.isInstanceOf(OAuth2AuthorizationException.class)
 				.hasMessageContaining(ServerOAuth2AuthorizationCodeAuthenticationTokenConverter.CLIENT_REGISTRATION_NOT_FOUND_ERROR_CODE);
 	}
 

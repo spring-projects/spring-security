@@ -18,7 +18,6 @@ package org.springframework.security.oauth2.client.endpoint;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
@@ -50,9 +49,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClient implements Re
 			.build();
 
 	@Override
-	public Mono<OAuth2AccessTokenResponse> getTokenResponse(OAuth2AuthorizationCodeGrantRequest authorizationGrantRequest)
-			throws OAuth2AuthenticationException {
-
+	public Mono<OAuth2AccessTokenResponse> getTokenResponse(OAuth2AuthorizationCodeGrantRequest authorizationGrantRequest) {
 		return Mono.defer(() -> {
 			ClientRegistration clientRegistration = authorizationGrantRequest.getClientRegistration();
 

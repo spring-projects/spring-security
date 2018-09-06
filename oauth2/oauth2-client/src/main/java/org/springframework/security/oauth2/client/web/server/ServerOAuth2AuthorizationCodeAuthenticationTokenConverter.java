@@ -20,7 +20,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
@@ -79,7 +79,7 @@ public class ServerOAuth2AuthorizationCodeAuthenticationTokenConverter
 	private <T> Mono<T> oauth2AuthenticationException(String errorCode) {
 		return Mono.defer(() -> {
 			OAuth2Error oauth2Error = new OAuth2Error(errorCode);
-			return Mono.error(new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString()));
+			return Mono.error(new OAuth2AuthorizationException(oauth2Error));
 		});
 	}
 

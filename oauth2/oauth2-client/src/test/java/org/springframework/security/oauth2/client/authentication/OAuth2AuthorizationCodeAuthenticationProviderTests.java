@@ -24,7 +24,7 @@ import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResp
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
@@ -85,7 +85,7 @@ public class OAuth2AuthorizationCodeAuthenticationProviderTests {
 	}
 
 	@Test
-	public void authenticateWhenAuthorizationErrorResponseThenThrowOAuth2AuthenticationException() {
+	public void authenticateWhenAuthorizationErrorResponseThenThrowOAuth2AuthorizationException() {
 		when(this.authorizationResponse.statusError()).thenReturn(true);
 		when(this.authorizationResponse.getError()).thenReturn(new OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST));
 
@@ -93,11 +93,11 @@ public class OAuth2AuthorizationCodeAuthenticationProviderTests {
 			this.authenticationProvider.authenticate(
 					new OAuth2AuthorizationCodeAuthenticationToken(
 							this.clientRegistration, this.authorizationExchange));
-		}).isInstanceOf(OAuth2AuthenticationException.class).hasMessageContaining(OAuth2ErrorCodes.INVALID_REQUEST);
+		}).isInstanceOf(OAuth2AuthorizationException.class).hasMessageContaining(OAuth2ErrorCodes.INVALID_REQUEST);
 	}
 
 	@Test
-	public void authenticateWhenAuthorizationResponseStateNotEqualAuthorizationRequestStateThenThrowOAuth2AuthenticationException() {
+	public void authenticateWhenAuthorizationResponseStateNotEqualAuthorizationRequestStateThenThrowOAuth2AuthorizationException() {
 		when(this.authorizationRequest.getState()).thenReturn("12345");
 		when(this.authorizationResponse.getState()).thenReturn("67890");
 
@@ -105,11 +105,11 @@ public class OAuth2AuthorizationCodeAuthenticationProviderTests {
 			this.authenticationProvider.authenticate(
 					new OAuth2AuthorizationCodeAuthenticationToken(
 							this.clientRegistration, this.authorizationExchange));
-		}).isInstanceOf(OAuth2AuthenticationException.class).hasMessageContaining("invalid_state_parameter");
+		}).isInstanceOf(OAuth2AuthorizationException.class).hasMessageContaining("invalid_state_parameter");
 	}
 
 	@Test
-	public void authenticateWhenAuthorizationResponseRedirectUriNotEqualAuthorizationRequestRedirectUriThenThrowOAuth2AuthenticationException() {
+	public void authenticateWhenAuthorizationResponseRedirectUriNotEqualAuthorizationRequestRedirectUriThenThrowOAuth2AuthorizationException() {
 		when(this.authorizationRequest.getRedirectUri()).thenReturn("http://example.com");
 		when(this.authorizationResponse.getRedirectUri()).thenReturn("http://example2.com");
 
@@ -117,7 +117,7 @@ public class OAuth2AuthorizationCodeAuthenticationProviderTests {
 			this.authenticationProvider.authenticate(
 					new OAuth2AuthorizationCodeAuthenticationToken(
 							this.clientRegistration, this.authorizationExchange));
-		}).isInstanceOf(OAuth2AuthenticationException.class).hasMessageContaining("invalid_redirect_uri_parameter");
+		}).isInstanceOf(OAuth2AuthorizationException.class).hasMessageContaining("invalid_redirect_uri_parameter");
 	}
 
 	@Test
