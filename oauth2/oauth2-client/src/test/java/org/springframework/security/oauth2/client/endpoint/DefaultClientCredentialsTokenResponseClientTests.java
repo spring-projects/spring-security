@@ -28,7 +28,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 
 import java.time.Instant;
@@ -169,7 +169,7 @@ public class DefaultClientCredentialsTokenResponseClientTests {
 	}
 
 	@Test
-	public void getTokenResponseWhenSuccessResponseAndNotBearerTokenTypeThenThrowOAuth2AuthenticationException() {
+	public void getTokenResponseWhenSuccessResponseAndNotBearerTokenTypeThenThrowOAuth2AuthorizationException() {
 		String accessTokenSuccessResponse = "{\n" +
 				"	\"access_token\": \"access-token-1234\",\n" +
 				"   \"token_type\": \"not-bearer\",\n" +
@@ -181,13 +181,13 @@ public class DefaultClientCredentialsTokenResponseClientTests {
 				new OAuth2ClientCredentialsGrantRequest(this.clientRegistration);
 
 		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(clientCredentialsGrantRequest))
-				.isInstanceOf(OAuth2AuthenticationException.class)
+				.isInstanceOf(OAuth2AuthorizationException.class)
 				.hasMessageContaining("[invalid_token_response] An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response")
 				.hasMessageContaining("tokenType cannot be null");
 	}
 
 	@Test
-	public void getTokenResponseWhenSuccessResponseAndMissingTokenTypeParameterThenThrowOAuth2AuthenticationException() {
+	public void getTokenResponseWhenSuccessResponseAndMissingTokenTypeParameterThenThrowOAuth2AuthorizationException() {
 		String accessTokenSuccessResponse = "{\n" +
 				"	\"access_token\": \"access-token-1234\"\n" +
 				"}\n";
@@ -197,7 +197,7 @@ public class DefaultClientCredentialsTokenResponseClientTests {
 				new OAuth2ClientCredentialsGrantRequest(this.clientRegistration);
 
 		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(clientCredentialsGrantRequest))
-				.isInstanceOf(OAuth2AuthenticationException.class)
+				.isInstanceOf(OAuth2AuthorizationException.class)
 				.hasMessageContaining("[invalid_token_response] An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response")
 				.hasMessageContaining("tokenType cannot be null");
 	}
@@ -238,7 +238,7 @@ public class DefaultClientCredentialsTokenResponseClientTests {
 	}
 
 	@Test
-	public void getTokenResponseWhenTokenUriInvalidThenThrowOAuth2AuthenticationException() {
+	public void getTokenResponseWhenTokenUriInvalidThenThrowOAuth2AuthorizationException() {
 		String invalidTokenUri = "http://invalid-provider.com/oauth2/token";
 		ClientRegistration clientRegistration = this.from(this.clientRegistration)
 				.tokenUri(invalidTokenUri)
@@ -248,12 +248,12 @@ public class DefaultClientCredentialsTokenResponseClientTests {
 				new OAuth2ClientCredentialsGrantRequest(clientRegistration);
 
 		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(clientCredentialsGrantRequest))
-				.isInstanceOf(OAuth2AuthenticationException.class)
+				.isInstanceOf(OAuth2AuthorizationException.class)
 				.hasMessageContaining("[invalid_token_response] An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response");
 	}
 
 	@Test
-	public void getTokenResponseWhenMalformedResponseThenThrowOAuth2AuthenticationException() {
+	public void getTokenResponseWhenMalformedResponseThenThrowOAuth2AuthorizationException() {
 		String accessTokenSuccessResponse = "{\n" +
 				"	\"access_token\": \"access-token-1234\",\n" +
 				"   \"token_type\": \"bearer\",\n" +
@@ -268,12 +268,12 @@ public class DefaultClientCredentialsTokenResponseClientTests {
 				new OAuth2ClientCredentialsGrantRequest(this.clientRegistration);
 
 		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(clientCredentialsGrantRequest))
-				.isInstanceOf(OAuth2AuthenticationException.class)
+				.isInstanceOf(OAuth2AuthorizationException.class)
 				.hasMessageContaining("[invalid_token_response] An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response");
 	}
 
 	@Test
-	public void getTokenResponseWhenErrorResponseThenThrowOAuth2AuthenticationException() {
+	public void getTokenResponseWhenErrorResponseThenThrowOAuth2AuthorizationException() {
 		String accessTokenErrorResponse = "{\n" +
 				"   \"error\": \"unauthorized_client\"\n" +
 				"}\n";
@@ -283,19 +283,19 @@ public class DefaultClientCredentialsTokenResponseClientTests {
 				new OAuth2ClientCredentialsGrantRequest(this.clientRegistration);
 
 		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(clientCredentialsGrantRequest))
-				.isInstanceOf(OAuth2AuthenticationException.class)
+				.isInstanceOf(OAuth2AuthorizationException.class)
 				.hasMessageContaining("[unauthorized_client]");
 	}
 
 	@Test
-	public void getTokenResponseWhenServerErrorResponseThenThrowOAuth2AuthenticationException() {
+	public void getTokenResponseWhenServerErrorResponseThenThrowOAuth2AuthorizationException() {
 		this.server.enqueue(new MockResponse().setResponseCode(500));
 
 		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest =
 				new OAuth2ClientCredentialsGrantRequest(this.clientRegistration);
 
 		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(clientCredentialsGrantRequest))
-				.isInstanceOf(OAuth2AuthenticationException.class)
+				.isInstanceOf(OAuth2AuthorizationException.class)
 				.hasMessage("[invalid_token_response] An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response: 500 Server Error");
 	}
 

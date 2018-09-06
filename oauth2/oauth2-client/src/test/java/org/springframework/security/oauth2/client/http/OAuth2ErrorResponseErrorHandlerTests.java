@@ -19,7 +19,7 @@ import org.junit.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.http.client.MockClientHttpResponse;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -42,7 +42,7 @@ public class OAuth2ErrorResponseErrorHandlerTests {
 				errorResponse.getBytes(), HttpStatus.BAD_REQUEST);
 
 		assertThatThrownBy(() -> this.errorHandler.handleError(response))
-				.isInstanceOf(OAuth2AuthenticationException.class)
+				.isInstanceOf(OAuth2AuthorizationException.class)
 				.hasMessage("[unauthorized_client] The client is not authorized");
 	}
 
@@ -55,7 +55,7 @@ public class OAuth2ErrorResponseErrorHandlerTests {
 		response.getHeaders().add(HttpHeaders.WWW_AUTHENTICATE, wwwAuthenticateHeader);
 
 		assertThatThrownBy(() -> this.errorHandler.handleError(response))
-				.isInstanceOf(OAuth2AuthenticationException.class)
+				.isInstanceOf(OAuth2AuthorizationException.class)
 				.hasMessage("[insufficient_scope] The access token expired");
 	}
 }

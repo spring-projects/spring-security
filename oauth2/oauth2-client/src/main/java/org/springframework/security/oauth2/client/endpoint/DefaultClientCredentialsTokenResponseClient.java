@@ -22,7 +22,7 @@ import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.security.oauth2.client.http.OAuth2ErrorResponseErrorHandler;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.http.converter.OAuth2AccessTokenResponseHttpMessageConverter;
@@ -65,9 +65,7 @@ public final class DefaultClientCredentialsTokenResponseClient implements OAuth2
 	}
 
 	@Override
-	public OAuth2AccessTokenResponse getTokenResponse(OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest)
-			throws OAuth2AuthenticationException {
-
+	public OAuth2AccessTokenResponse getTokenResponse(OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest) {
 		Assert.notNull(clientCredentialsGrantRequest, "clientCredentialsGrantRequest cannot be null");
 
 		RequestEntity<?> request = this.requestEntityConverter.convert(clientCredentialsGrantRequest);
@@ -78,7 +76,7 @@ public final class DefaultClientCredentialsTokenResponseClient implements OAuth2
 		} catch (RestClientException ex) {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_TOKEN_RESPONSE_ERROR_CODE,
 					"An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response: " + ex.getMessage(), null);
-			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString(), ex);
+			throw new OAuth2AuthorizationException(oauth2Error, ex);
 		}
 
 		OAuth2AccessTokenResponse tokenResponse = response.getBody();
