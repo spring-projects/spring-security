@@ -78,7 +78,7 @@ dependencyManagement {
 		dependency 'javax.servlet.jsp:javax.servlet.jsp-api:2.3.2-b02'
 		dependency 'javax.servlet:javax.servlet-api:4.0.1'
 		dependency 'javax.validation:validation-api:2.0.1.Final'
-		dependency 'javax.xml.bind:jaxb-api:2.3.0'
+		dependency 'javax.xml.bind:jaxb-api:2.4.0-b180830.0359'
 		dependency 'junit:junit:4.12'
 		dependency 'ldapsdk:ldapsdk:4.1'
 		dependency 'net.bytebuddy:byte-buddy-agent:1.7.9'
