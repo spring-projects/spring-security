@@ -35,7 +35,7 @@ import java.util.Map;
  * @author Rob Winch
  * @since 5.1
  */
-public class UnauthenticatedServerOAuth2AuthorizedClientRepository implements ServerOAuth2AuthorizedClientRepository {
+public class UnAuthenticatedServerOAuth2AuthorizedClientRepository implements ServerOAuth2AuthorizedClientRepository {
 	private final AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
 
 	private Map<String, OAuth2AuthorizedClient> clientRegistrationIdToAuthorizedClient = new HashMap<>();

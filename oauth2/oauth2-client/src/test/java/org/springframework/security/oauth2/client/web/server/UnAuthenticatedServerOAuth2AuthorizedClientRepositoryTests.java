@@ -36,9 +36,9 @@ import static org.assertj.core.api.Assertions.*;
 /**
  * @author Rob Winch
  */
-public class UnauthenticatedServerOAuth2AuthorizedClientRepositoryTests {
-	private UnauthenticatedServerOAuth2AuthorizedClientRepository repository =
-		new UnauthenticatedServerOAuth2AuthorizedClientRepository();
+public class UnAuthenticatedServerOAuth2AuthorizedClientRepositoryTests {
+	private UnAuthenticatedServerOAuth2AuthorizedClientRepository repository =
+		new UnAuthenticatedServerOAuth2AuthorizedClientRepository();
 
 	private ClientRegistration clientRegistration = TestClientRegistrations.clientCredentials().build();
 
