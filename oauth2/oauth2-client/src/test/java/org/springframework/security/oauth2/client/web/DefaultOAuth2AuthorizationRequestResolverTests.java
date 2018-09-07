@@ -27,9 +27,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequ
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponseType;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.entry;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * Tests for {@link DefaultOAuth2AuthorizationRequestResolver}.
@@ -225,5 +223,38 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 
 		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(request);
 		assertThat(authorizationRequest.getAuthorizationRequestUri()).matches("https://example.com/login/oauth/authorize\\?response_type=code&client_id=client-id-2&scope=read%3Auser&state=.{15,}&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fregistration-id-2");
+	}
+
+	//gh-5760
+	@Test
+	public void resolveWhenAuthorizationUriHasQueryParametersThenAuthorizationURIIncludesAdditionalQueryParameters() {
+		String queryParams = "queryparam=test&queryparam2=test&queryparam3=a test with spaces";
+		ClientRegistration clientRegistration = this.registration2;
+		String requestUri = this.authorizationRequestBaseUri + "/" + clientRegistration.getRegistrationId()+"?"+queryParams;
+
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
+		request.setServletPath(requestUri);
+
+		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(request);
+
+		assertThat(authorizationRequest.getAdditionalParameters()).isNotEmpty();
+		assertThat(authorizationRequest.getAdditionalParameters().size()).isEqualTo(4);
+		assertThat(authorizationRequest.getAuthorizationRequestUri()).matches("https://example.com/login/oauth/authorize\\?response_type=code&client_id=client-id-2&scope=read%3Auser&state=.{15,}&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fregistration-id-2&queryparam=test&queryparam3=a\\+test\\+with\\+spaces&queryparam2=test");
+	}
+
+	@Test
+	public void resolveWhenAuthorizationUriIsMalformedWithMultipleQueryParametersThenIgnoresBadInput() {
+		String queryParams = "queryparam=test&queryparam2=test?badparam=param";
+		ClientRegistration clientRegistration = this.registration2;
+		String requestUri = this.authorizationRequestBaseUri + "/" + clientRegistration.getRegistrationId()+"?"+queryParams;
+
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
+		request.setServletPath(requestUri);
+
+		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(request);
+
+		assertThat(authorizationRequest.getAdditionalParameters()).isNotEmpty();
+		assertThat(authorizationRequest.getAdditionalParameters().size()).isEqualTo(3);
+		assertThat(authorizationRequest.getAuthorizationRequestUri()).matches("https://example.com/login/oauth/authorize\\?response_type=code&client_id=client-id-2&scope=read%3Auser&state=.{15,}&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fregistration-id-2&queryparam=test&queryparam2=test");
 	}
 }
