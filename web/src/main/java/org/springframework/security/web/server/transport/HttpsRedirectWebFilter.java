@@ -90,7 +90,7 @@ public final class HttpsRedirectWebFilter implements WebFilter {
 		this.requiresHttpsRedirectMatcher = requiresHttpsRedirectMatcher;
 	}
 
-	private Boolean isInsecure(ServerWebExchange exchange) {
+	private boolean isInsecure(ServerWebExchange exchange) {
 		return !"https".equals(exchange.getRequest().getURI().getScheme());
 	}
 
