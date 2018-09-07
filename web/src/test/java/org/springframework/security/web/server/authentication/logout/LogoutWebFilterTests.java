@@ -63,7 +63,7 @@ public class LogoutWebFilterTests {
 				.isInstanceOf(ServerLogoutHandler.class)
 				.isNotInstanceOf(SecurityContextServerLogoutHandler.class)
 				.extracting(ServerLogoutHandler::getClass)
-				.containsExactly(this.handler2.getClass());
+				.isEqualTo(this.handler2.getClass());
 	}
 
 	@Test
@@ -73,12 +73,11 @@ public class LogoutWebFilterTests {
 		assertThat(getLogoutHandler())
 				.isNotNull()
 				.isExactlyInstanceOf(DelegatingServerLogoutHandler.class)
-				.extracting(delegatingLogoutHandler ->
-						((Collection<ServerLogoutHandler>) ReflectionTestUtils.getField(delegatingLogoutHandler, DelegatingServerLogoutHandler.class, "delegates"))
-								.stream()
-								.map(ServerLogoutHandler::getClass)
-								.collect(Collectors.toList()))
-				.containsExactly(Arrays.asList(this.handler1.getClass(), this.handler2.getClass(), this.handler3.getClass()));
+				.extracting(delegatingLogoutHandler -> ((Collection<ServerLogoutHandler>) ReflectionTestUtils.getField(delegatingLogoutHandler, DelegatingServerLogoutHandler.class, "delegates"))
+						.stream()
+						.map(ServerLogoutHandler::getClass)
+						.collect(Collectors.toList()))
+				.isEqualTo(Arrays.asList(this.handler1.getClass(), this.handler2.getClass(), this.handler3.getClass()));
 	}
 
 	private ServerLogoutHandler getLogoutHandler() {
