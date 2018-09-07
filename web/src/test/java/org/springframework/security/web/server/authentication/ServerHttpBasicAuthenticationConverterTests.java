@@ -80,6 +80,15 @@ public class ServerHttpBasicAuthenticationConverterTests {
 	}
 
 	@Test
+	public void applyWhenUserPasswordHasColon() {
+		Mono<Authentication> result = apply(this.request.header(HttpHeaders.AUTHORIZATION, "Basic dXNlcm5hbWU6cGFzczp3b3Jk"));
+
+		UsernamePasswordAuthenticationToken authentication = result.cast(UsernamePasswordAuthenticationToken.class).block();
+		assertThat(authentication.getPrincipal()).isEqualTo("user");
+		assertThat(authentication.getCredentials()).isEqualTo("pass:word");
+	}
+
+	@Test
 	public void applyWhenLowercaseSchemeThenAuthentication() {
 		Mono<Authentication> result = apply(this.request.header(HttpHeaders.AUTHORIZATION, "basic dXNlcjpwYXNzd29yZA=="));
 
