@@ -363,7 +363,7 @@ public class GlobalMethodSecurityConfiguration
 		boolean isJsr250Enabled = jsr250Enabled();
 
 		if (!isPrePostEnabled && !isSecureEnabled && !isJsr250Enabled) {
-			logger.warn("In the composition of all global method configuration, " +
+			throw new IllegalStateException("In the composition of all global method configuration, " +
 					"no annotation support was actually activated");
 		}
 

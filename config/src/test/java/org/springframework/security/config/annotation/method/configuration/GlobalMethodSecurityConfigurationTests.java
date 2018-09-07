@@ -17,8 +17,10 @@ package org.springframework.security.config.annotation.method.configuration;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.UnsatisfiedDependencyException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.AdviceMode;
@@ -64,12 +66,16 @@ import static org.mockito.Mockito.when;
 /**
  *
  * @author Rob Winch
+ * @author Artsiom Yudovin
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SecurityTestExecutionListeners
 public class GlobalMethodSecurityConfigurationTests {
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
+
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
 
 	@Autowired(required = false)
 	private MethodSecurityService service;
@@ -83,6 +89,17 @@ public class GlobalMethodSecurityConfigurationTests {
 
 	@Autowired(required = false)
 	MockEventListener<AbstractAuthenticationEvent> events;
+
+	@Test
+	public void illegalStateGlobalMethodSecurity() {
+		this.thrown.expect(UnsatisfiedDependencyException.class);
+		this.spring.register(IllegalStateGlobalMethodSecurityConfig.class).autowire();
+	}
+
+	@EnableGlobalMethodSecurity
+	public static class IllegalStateGlobalMethodSecurityConfig extends GlobalMethodSecurityConfiguration {
+
+	}
 
 	@Test
 	public void methodSecurityAuthenticationManagerPublishesEvent() {
