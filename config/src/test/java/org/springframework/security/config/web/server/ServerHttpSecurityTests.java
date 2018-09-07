@@ -16,6 +16,11 @@
 
 package org.springframework.security.config.web.server;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -56,11 +61,6 @@ import org.springframework.web.server.WebFilter;
 
 import reactor.core.publisher.Mono;
 import reactor.test.publisher.TestPublisher;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -175,7 +175,7 @@ public class ServerHttpSecurityTests {
 		assertThat(getWebFilter(securityWebFilterChain, CsrfWebFilter.class))
 				.get()
 				.extracting(CsrfWebFilter::getCsrfTokenRepository)
-				.containsExactly(this.csrfTokenRepository);
+				.isEqualTo(this.csrfTokenRepository);
 
 		Optional<ServerLogoutHandler> logoutHandler = getWebFilter(securityWebFilterChain, LogoutWebFilter.class)
 				.map(logoutWebFilter -> (ServerLogoutHandler) ReflectionTestUtils.getField(logoutWebFilter, LogoutWebFilter.class, "logoutHandler"));
@@ -187,7 +187,7 @@ public class ServerHttpSecurityTests {
 						((List<ServerLogoutHandler>) ReflectionTestUtils.getField(delegatingLogoutHandler, DelegatingServerLogoutHandler.class, "delegates")).stream()
 								.map(ServerLogoutHandler::getClass)
 								.collect(Collectors.toList()))
-				.containsExactly(Arrays.asList(SecurityContextServerLogoutHandler.class, CsrfServerLogoutHandler.class));
+				.isEqualTo(Arrays.asList(SecurityContextServerLogoutHandler.class, CsrfServerLogoutHandler.class));
 	}
 
 	private <T extends WebFilter> Optional<T> getWebFilter(SecurityWebFilterChain filterChain, Class<T> filterClass) {
