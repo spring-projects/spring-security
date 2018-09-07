@@ -127,7 +127,7 @@ configure(coreModuleProjects) {
 		}
 	}
 	dependencies {
-		jacoco "org.jacoco:org.jacoco.agent:0.7.5.201505241946:runtime"
+		jacoco "org.jacoco:org.jacoco.agent:0.7.9:runtime"
 	}
 	test {
 		jvmArgs "-javaagent:${configurations.jacoco.asPath}=destfile=${buildDir}/jacoco.exec,includes=${project.group}.*"
