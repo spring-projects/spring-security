@@ -162,7 +162,7 @@ dependencyManagement {
 		dependency 'org.eclipse.jetty:jetty-servlet:9.4.7.v20170914'
 		dependency 'org.eclipse.jetty:jetty-util:9.4.7.v20170914'
 		dependency 'org.eclipse.jetty:jetty-xml:9.4.7.v20170914'
-		dependency 'org.eclipse.persistence:javax.persistence:2.2.0'
+		dependency 'org.eclipse.persistence:javax.persistence:2.2.1'
 		dependency 'org.gebish:geb-ast:0.10.0'
 		dependency 'org.gebish:geb-core:0.10.0'
 		dependency 'org.gebish:geb-implicit-assertions:0.10.0'
