@@ -17,12 +17,13 @@
 package org.springframework.security.web.server.authentication;
 
 import org.junit.Test;
+import reactor.core.publisher.Mono;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -80,8 +81,8 @@ public class ServerHttpBasicAuthenticationConverterTests {
 	}
 
 	@Test
-	public void applyWhenUserPasswordHasColon() {
-		Mono<Authentication> result = apply(this.request.header(HttpHeaders.AUTHORIZATION, "Basic dXNlcm5hbWU6cGFzczp3b3Jk"));
+	public void applyWhenUserPasswordHasColonThenAuthentication() {
+		Mono<Authentication> result = apply(this.request.header(HttpHeaders.AUTHORIZATION, "Basic dXNlcjpwYXNzOndvcmQ="));
 
 		UsernamePasswordAuthenticationToken authentication = result.cast(UsernamePasswordAuthenticationToken.class).block();
 		assertThat(authentication.getPrincipal()).isEqualTo("user");
