@@ -1300,11 +1300,7 @@ public class OAuth2ResourceServerConfigurerTests {
 					.and()
 				.oauth2ResourceServer()
 					.jwt();
-		}
-
-		@Bean
-		JwtDecoder jwtDecoder() {
-			return mock(JwtDecoder.class);
+			// @formatter:on
 		}
 	}
 
