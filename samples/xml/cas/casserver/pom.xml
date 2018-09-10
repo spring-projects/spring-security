@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-samples-xml-casserver</artifactId>
-  <version>4.2.7.RELEASE</version>
+  <version>4.2.8.RELEASE</version>
   <packaging>war</packaging>
   <name>spring-security-samples-xml-casserver</name>
   <description>spring-security-samples-xml-casserver</description>
@@ -39,7 +39,7 @@
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-framework-bom</artifactId>
-        <version>4.3.18.RELEASE</version>
+        <version>4.3.19.RELEASE</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -56,7 +56,7 @@
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <version>1.1.2</version>
+      <version>1.1.11</version>
       <scope>test</scope>
     </dependency>
     <dependency>
