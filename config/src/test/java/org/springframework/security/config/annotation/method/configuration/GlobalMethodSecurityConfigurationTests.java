@@ -15,10 +15,16 @@
  */
 package org.springframework.security.config.annotation.method.configuration;
 
+import java.lang.reflect.Proxy;
+import java.util.HashMap;
+import java.util.Map;
+import javax.sql.DataSource;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.UnsatisfiedDependencyException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +37,7 @@ import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor;
+import org.springframework.security.access.method.MethodSecurityMetadataSource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
@@ -48,11 +55,6 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
-
-import javax.sql.DataSource;
-import java.lang.reflect.Proxy;
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -91,7 +93,7 @@ public class GlobalMethodSecurityConfigurationTests {
 	MockEventListener<AbstractAuthenticationEvent> events;
 
 	@Test
-	public void illegalStateGlobalMethodSecurity() {
+	public void configureWhenGlobalMethodSecurityIsMissingMetadataSourceThenException() {
 		this.thrown.expect(UnsatisfiedDependencyException.class);
 		this.spring.register(IllegalStateGlobalMethodSecurityConfig.class).autowire();
 	}
@@ -99,6 +101,20 @@ public class GlobalMethodSecurityConfigurationTests {
 	@EnableGlobalMethodSecurity
 	public static class IllegalStateGlobalMethodSecurityConfig extends GlobalMethodSecurityConfiguration {
 
+	}
+
+	@Test
+	public void configureWhenGlobalMethodSecurityHasCustomMetadataSourceThenNoEnablingAttributeIsNeeded() {
+		this.spring.register(CustomMetadataSourceConfig.class).autowire();
+	}
+
+	@EnableGlobalMethodSecurity
+	public static class CustomMetadataSourceConfig extends GlobalMethodSecurityConfiguration {
+		@Bean
+		@Override
+		protected MethodSecurityMetadataSource customMethodSecurityMetadataSource() {
+			return mock(MethodSecurityMetadataSource.class);
+		}
 	}
 
 	@Test
