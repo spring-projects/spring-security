@@ -11,5 +11,3 @@ To use the Spring Security test support, you must include `spring-security-test-
 include::method.adoc[]
 
 include::mockmvc.adoc[]
-
-include::webtestclient.adoc[]

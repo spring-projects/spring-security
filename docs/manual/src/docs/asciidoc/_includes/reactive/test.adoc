@@ -1,8 +1,8 @@
 [[test-webflux]]
-= WebFlux Support
+= Reactive Test Support
 
 [[test-erms]]
-== Reactive Method Security
+== Testing Reactive Method Security
 
 For example, we can test our example from <<jc-erms>> using the same setup and annotations we did in <<test-method>>.
 Here is a minimal sample of what we can do:

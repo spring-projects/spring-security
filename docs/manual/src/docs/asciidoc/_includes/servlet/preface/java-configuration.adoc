@@ -1,6 +1,6 @@
 
 [[jc]]
-== Java Configuration
+= Java Configuration
 
 General support for http://docs.spring.io/spring/docs/3.1.x/spring-framework-reference/html/beans.html#beans-java[Java Configuration] was added to Spring Framework in Spring 3.1.
 Since Spring Security 3.2 there has been Spring Security Java Configuration support which enables users to easily configure Spring Security without the use of any XML.
@@ -9,7 +9,7 @@ If you are familiar with the <<ns-config>> then you should find quite a few simi
 
 NOTE: Spring Security provides https://github.com/spring-projects/spring-security/tree/master/samples/javaconfig[lots of sample applications] which demonstrate the use of Spring Security Java Configuration.
 
-=== Hello Web Security Java Configuration
+== Hello Web Security Java Configuration
 
 The first step is to create our Spring Security Java Configuration.
 The configuration creates a Servlet Filter known as the `springSecurityFilterChain` which is responsible for all the security (protecting the application URLs, validating submitted username and passwords, redirecting to the log in form, etc) within your application.
@@ -58,7 +58,7 @@ You can find a summary of the features below:
 ** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#login(java.lang.String,%20java.lang.String)[HttpServletRequest.html#login(java.lang.String, java.lang.String)]
 ** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#logout()[HttpServletRequest.html#logout()]
 
-==== AbstractSecurityWebApplicationInitializer
+=== AbstractSecurityWebApplicationInitializer
 
 The next step is to register the `springSecurityFilterChain` with the war.
 This can be done in Java Configuration with http://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/mvc.html#mvc-container-config[Spring's WebApplicationInitializer support] in a Servlet 3.0+ environment.
@@ -68,7 +68,7 @@ The way in which we use `AbstractSecurityWebApplicationInitializer` differs depe
 * <<abstractsecuritywebapplicationinitializer-without-existing-spring>> - Use these instructions if you are not using Spring already
 * <<abstractsecuritywebapplicationinitializer-with-spring-mvc>> - Use these instructions if you are already using Spring
 
-==== AbstractSecurityWebApplicationInitializer without Existing Spring
+=== AbstractSecurityWebApplicationInitializer without Existing Spring
 
 If you are not using Spring or Spring MVC, you will need to pass in the `WebSecurityConfig` into the superclass to ensure the configuration is picked up.
 You can find an example below:
@@ -91,7 +91,7 @@ The `SecurityWebApplicationInitializer` will do the following things:
 * Automatically register the springSecurityFilterChain Filter for every URL in your application
 * Add a ContextLoaderListener that loads the <<jc-hello-wsca,WebSecurityConfig>>.
 
-==== AbstractSecurityWebApplicationInitializer with Spring MVC
+=== AbstractSecurityWebApplicationInitializer with Spring MVC
 
 If we were using Spring elsewhere in our application we probably already had a `WebApplicationInitializer` that is loading our Spring Configuration.
 If we use the previous configuration we would get an error.
@@ -128,7 +128,7 @@ public class MvcWebApplicationInitializer extends
 ----
 
 [[jc-httpsecurity]]
-=== HttpSecurity
+== HttpSecurity
 
 Thus far our <<jc-hello-wsca,WebSecurityConfig>> only contains information about how to authenticate our users.
 How does Spring Security know that we want to require all users to be authenticated? How does Spring Security know we want to support form based authentication? The reason for this is that the `WebSecurityConfigurerAdapter` provides a default configuration in the `configure(HttpSecurity http)` method that looks like:
@@ -168,7 +168,7 @@ If you read the code it also makes sense.
 I want to configure authorized requests __and__ configure form login __and__ configure HTTP Basic authentication.
 
 [[jc-form]]
-=== Java Configuration and Form Login
+== Java Configuration and Form Login
 You might be wondering where the login form came from when you were prompted to log in, since we made no mention of any HTML files or JSPs.
 Since Spring Security's default configuration does not explicitly set a URL for the login page, Spring Security generates one automatically, based on the features that are enabled and using standard values for the URL which processes the submitted login, the default target URL the user will be sent to after logging in and so on.
 
@@ -235,7 +235,7 @@ We could easily update our configuration if some of the defaults do not meet our
 <6> We must <<csrf-include-csrf-token>> To learn more read the <<csrf>> section of the reference
 
 [[jc-authorize-requests]]
-=== Authorize Requests
+== Authorize Requests
 Our examples have only required users to be authenticated and have done so for every URL in our application.
 We can specify custom requirements for our URLs by adding multiple children to our `http.authorizeRequests()` method.
 For example:
@@ -266,7 +266,7 @@ You will notice that since we are using the `hasRole` expression we do not need 
 <5> Any URL that has not already been matched on only requires that the user be authenticated
 
 [[jc-logout]]
-=== Handling Logouts
+== Handling Logouts
 
 When using the `{security-api-url}org/springframework/security/config/annotation/web/configuration/WebSecurityConfigurerAdapter.html[WebSecurityConfigurerAdapter]`, logout capabilities are automatically applied.
 The default is that accessing the URL `/logout` will log the user out by:
@@ -315,10 +315,10 @@ For more information, please consult the {security-api-url}org/springframework/s
 This is a shortcut for adding a `CookieClearingLogoutHandler` explicitly.
 
 [NOTE]
-====
+===
 Logouts can of course also be configured using the XML Namespace notation.
 Please see the documentation for the <<nsa-logout, logout element>> in the Spring Security XML Namespace section for further details.
-====
+===
 
 Generally, in order to customize logout functionality, you can add
 `{security-api-url}org/springframework/security/web/authentication/logout/LogoutHandler.html[LogoutHandler]`
@@ -329,7 +329,7 @@ For many common scenarios, these handlers are applied under the
 covers when using the fluent API.
 
 [[jc-logout-handler]]
-==== LogoutHandler
+=== LogoutHandler
 
 Generally, `{security-api-url}org/springframework/security/web/authentication/logout/LogoutHandler.html[LogoutHandler]`
 implementations indicate classes that are able to participate in logout handling.
@@ -351,7 +351,7 @@ E.g. `deleteCookies()` allows specifying the names of one or more cookies to be 
 This is a shortcut compared to adding a `CookieClearingLogoutHandler`.
 
 [[jc-logout-success-handler]]
-==== LogoutSuccessHandler
+=== LogoutSuccessHandler
 
 The `LogoutSuccessHandler` is called after a successful logout by the `LogoutFilter`, to handle e.g.
 redirection or forwarding to the appropriate destination.
@@ -373,7 +373,7 @@ Instead of redirecting to a URL upon the successful logout, this `LogoutSuccessH
 If not configured a status code 200 will be returned by default.
 
 [[jc-logout-references]]
-==== Further Logout-Related References
+=== Further Logout-Related References
 
 - <<ns-logout, Logout Handling>>
 - <<test-logout, Testing Logout>>
@@ -385,7 +385,7 @@ If not configured a status code 200 will be returned by default.
 
 
 [[jc-oauth2login]]
-=== OAuth 2.0 Login
+== OAuth 2.0 Login
 
 The OAuth 2.0 Login feature provides an application with the capability to have users log in to the application by using their existing account at an OAuth 2.0 Provider (e.g.
 GitHub) or OpenID Connect 1.0 Provider (such as Google).
@@ -394,7 +394,7 @@ OAuth 2.0 Login implements the use cases: "Login with Google" or "Login with Git
 NOTE: OAuth 2.0 Login is implemented by using the *Authorization Code Grant*, as specified in the https://tools.ietf.org/html/rfc6749#section-4.1[OAuth 2.0 Authorization Framework] and http://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth[OpenID Connect Core 1.0].
 
 [[jc-oauth2login-sample-boot]]
-==== Spring Boot 2.0 Sample
+=== Spring Boot 2.0 Sample
 
 Spring Boot 2.0 brings full auto-configuration capabilities for OAuth 2.0 Login.
 
@@ -407,7 +407,7 @@ This section shows how to configure the {gh-samples-url}/boot/oauth2login[*OAuth
 
 
 [[jc-oauth2login-sample-initial-setup]]
-===== Initial setup
+==== Initial setup
 
 To use Google's OAuth 2.0 authentication system for login, you must set up a project in the Google API Console to obtain OAuth 2.0 credentials.
 
@@ -418,7 +418,7 @@ Follow the instructions on the https://developers.google.com/identity/protocols/
 After completing the "Obtain OAuth 2.0 credentials" instructions, you should have a new OAuth Client with credentials consisting of a Client ID and a Client Secret.
 
 [[jc-oauth2login-sample-redirect-uri]]
-===== Setting the redirect URI
+==== Setting the redirect URI
 
 The redirect URI is the path in the application that the end-user's user-agent is redirected back to after they have authenticated with Google and have granted access to the OAuth Client _(<<jc-oauth2login-sample-initial-setup,created in the previous step>>)_ on the Consent page.
 
@@ -428,7 +428,7 @@ TIP: The default redirect URI template is `{baseUrl}/login/oauth2/code/{registra
 The *_registrationId_* is a unique identifier for the <<jc-oauth2login-client-registration,ClientRegistration>>.
 
 [[jc-oauth2login-sample-application-config]]
-===== Configure `application.yml`
+==== Configure `application.yml`
 
 Now that you have a new OAuth Client with Google, you need to configure the application to use the OAuth Client for the _authentication flow_.
 To do so:
@@ -448,16 +448,16 @@ spring:
 ----
 +
 .OAuth Client properties
-====
+===
 <1> `spring.security.oauth2.client.registration` is the base property prefix for OAuth Client properties.
 <2> Following the base property prefix is the ID for the <<jc-oauth2login-client-registration,ClientRegistration>>, such as google.
-====
+===
 
 . Replace the values in the `client-id` and `client-secret` property with the OAuth 2.0 credentials you created earlier.
 
 
 [[jc-oauth2login-sample-boot-application]]
-===== Boot up the application
+==== Boot up the application
 
 Launch the Spring Boot 2.0 sample and go to `http://localhost:8080`.
 You are then redirected to the default _auto-generated_ login page, which displays a link for Google.
@@ -471,7 +471,7 @@ Click *Allow* to authorize the OAuth Client to access your email address and bas
 At this point, the OAuth Client retrieves your email address and basic profile information from the http://openid.net/specs/openid-connect-core-1_0.html#UserInfo[UserInfo Endpoint] and establishes an authenticated session.
 
 [[jc-oauth2login-client-registration]]
-==== ClientRegistration
+=== ClientRegistration
 
 `ClientRegistration` is a representation of a client registered with an OAuth 2.0 or OpenID Connect 1.0 Provider.
 
@@ -528,7 +528,7 @@ The name may be used in certain scenarios, such as when displaying the name of t
 <13> `userNameAttributeName`: The name of the attribute returned in the UserInfo Response that references the Name or Identifier of the end-user.
 
 [[jc-oauth2login-boot-property-mappings]]
-==== Spring Boot 2.0 Property Mappings
+=== Spring Boot 2.0 Property Mappings
 
 The following table outlines the mapping of the Spring Boot 2.0 OAuth Client properties to the `ClientRegistration` properties.
 
@@ -576,7 +576,7 @@ The following table outlines the mapping of the Spring Boot 2.0 OAuth Client pro
 |===
 
 [[jc-oauth2login-client-registration-repo]]
-==== ClientRegistrationRepository
+=== ClientRegistrationRepository
 
 The `ClientRegistrationRepository` serves as a repository for OAuth 2.0 / OpenID Connect 1.0 `ClientRegistration`(s).
 
@@ -617,7 +617,7 @@ public class OAuth2LoginController {
 ----
 
 [[jc-oauth2login-common-oauth2-provider]]
-==== CommonOAuth2Provider
+=== CommonOAuth2Provider
 
 `CommonOAuth2Provider` pre-defines a set of default client properties for a number of well known providers: Google, GitHub, Facebook, and Okta.
 
@@ -664,7 +664,7 @@ spring:
 <2> The `provider` property is set to `google`, which will leverage the auto-defaulting of client properties set in `CommonOAuth2Provider.GOOGLE.getBuilder()`.
 
 [[jc-oauth2login-custom-provider-properties]]
-==== Configuring Custom Provider Properties
+=== Configuring Custom Provider Properties
 
 There are some OAuth 2.0 Providers that support multi-tenancy, which results in different protocol endpoints for each tenant (or sub-domain).
 
@@ -696,7 +696,7 @@ spring:
 <1> The base property (`spring.security.oauth2.client.provider.okta`) allows for custom configuration of protocol endpoint locations.
 
 [[jc-oauth2login-override-boot-autoconfig]]
-==== Overriding Spring Boot 2.0 Auto-configuration
+=== Overriding Spring Boot 2.0 Auto-configuration
 
 The Spring Boot 2.0 Auto-configuration class for OAuth Client support is `OAuth2ClientAutoConfiguration`.
 
@@ -713,7 +713,7 @@ If you need to override the auto-configuration based on your specific requiremen
 
 
 [[jc-oauth2login-register-clientregistrationrepository-bean]]
-===== Register a `ClientRegistrationRepository` `@Bean`
+==== Register a `ClientRegistrationRepository` `@Bean`
 
 The following example shows how to register a `ClientRegistrationRepository` `@Bean`:
 
@@ -748,7 +748,7 @@ public class OAuth2LoginConfig {
 
 
 [[jc-oauth2login-provide-websecurityconfigureradapter]]
-===== Provide a `WebSecurityConfigurerAdapter`
+==== Provide a `WebSecurityConfigurerAdapter`
 
 The following example shows how to provide a `WebSecurityConfigurerAdapter` with `@EnableWebSecurity` and enable OAuth 2.0 login through `httpSecurity.oauth2Login()`:
 
@@ -770,7 +770,7 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 
 
 [[jc-oauth2login-completely-override-autoconfiguration]]
-===== Completely Override the Auto-configuration
+==== Completely Override the Auto-configuration
 
 The following example shows how to completely override the auto-configuration by both registering a `ClientRegistrationRepository` `@Bean` and providing a `WebSecurityConfigurerAdapter`, both of which were described in the two preceding sections.
 
@@ -817,7 +817,7 @@ public class OAuth2LoginConfig {
 ----
 
 [[jc-oauth2login-javaconfig-wo-boot]]
-==== Java Configuration without Spring Boot 2.0
+=== Java Configuration without Spring Boot 2.0
 
 If you are not able to use Spring Boot 2.0 and would like to configure one of the pre-defined providers in `CommonOAuth2Provider` (for example, Google), apply the following configuration:
 
@@ -859,7 +859,7 @@ public class OAuth2LoginConfig {
 ----
 
 [[jc-oauth2login-authorized-client]]
-==== OAuth2AuthorizedClient / OAuth2AuthorizedClientService
+=== OAuth2AuthorizedClient / OAuth2AuthorizedClientService
 
 `OAuth2AuthorizedClient` is a representation of an Authorized Client.
 A client is considered to be authorized when the end-user (Resource Owner) has granted authorization to the client to access its protected resources.
@@ -904,7 +904,7 @@ public class OAuth2LoginController {
 
 
 [[jc-oauth2login-resources]]
-==== Additional Resources
+=== Additional Resources
 
 The following additional resources describe advanced configuration options:
 
@@ -921,13 +921,13 @@ The following additional resources describe advanced configuration options:
 ** <<oauth2login-advanced-oidc-user-service, OpenID Connect 1.0 UserService>>
 
 [[jc-authentication]]
-=== Authentication
+== Authentication
 
 Thus far we have only taken a look at the most basic authentication configuration.
 Let's take a look at a few slightly more advanced options for configuring authentication.
 
 [[jc-authentication-inmemory]]
-==== In-Memory Authentication
+=== In-Memory Authentication
 
 We have already seen an example of configuring in-memory authentication for a single user.
 Below is an example to configure multiple users:
@@ -946,7 +946,7 @@ public UserDetailsService userDetailsService() throws Exception {
 ----
 
 [[jc-authentication-jdbc]]
-==== JDBC Authentication
+=== JDBC Authentication
 
 You can find the updates to support JDBC based authentication.
 The example below assumes that you have already defined a `DataSource` within your application.
@@ -970,7 +970,7 @@ public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception 
 }
 ----
 
-==== LDAP Authentication
+=== LDAP Authentication
 
 You can find the updates to support LDAP based authentication.
 The https://github.com/spring-projects/spring-security/tree/master/samples/javaconfig/ldap[ldap-javaconfig] sample provides a complete example of using LDAP based authentication.
@@ -1038,7 +1038,7 @@ uniqueMember: uid=admin,ou=people,dc=springframework,dc=org
 ----
 
 [[jc-authentication-authenticationprovider]]
-==== AuthenticationProvider
+=== AuthenticationProvider
 
 You can define custom authentication by exposing a custom `AuthenticationProvider` as a bean.
 For example, the following will customize authentication assuming that `SpringAuthenticationProvider` implements `AuthenticationProvider`:
@@ -1054,7 +1054,7 @@ public SpringAuthenticationProvider springAuthenticationProvider() {
 ----
 
 [[jc-authentication-userdetailsservice]]
-==== UserDetailsService
+=== UserDetailsService
 
 You can define custom authentication by exposing a custom `UserDetailsService` as a bean.
 For example, the following will customize authentication assuming that `SpringDataUserDetailsService` implements `UserDetailsService`:
@@ -1080,7 +1080,7 @@ public BCryptPasswordEncoder passwordEncoder() {
 }
 ----
 
-=== Multiple HttpSecurity
+== Multiple HttpSecurity
 
 We can configure multiple HttpSecurity instances just as we can have multiple `<http>` blocks.
 The key is to extend the `WebSecurityConfigurationAdapter` multiple times.
@@ -1137,14 +1137,14 @@ This configuration is considered after `ApiWebSecurityConfigurationAdapter` sinc
 
 
 [[jc-method]]
-=== Method Security
+== Method Security
 
 From version 2.0 onwards Spring Security has improved support substantially for adding security to your service layer methods.
 It provides support for JSR-250 annotation security as well as the framework's original `@Secured` annotation.
 From 3.0 you can also make use of new <<el-access,expression-based annotations>>.
 You can apply security to a single bean, using the `intercept-methods` element to decorate the bean declaration, or you can secure multiple beans across the entire service layer using the AspectJ style pointcuts.
 
-==== EnableGlobalMethodSecurity
+=== EnableGlobalMethodSecurity
 
 We can enable annotation-based security using the `@EnableGlobalMethodSecurity` annotation on any `@Configuration` instance.
 For example, the following would enable Spring Security's `@Secured` annotation.
@@ -1214,7 +1214,7 @@ public Account post(Account account, double amount);
 }
 ----
 
-==== GlobalMethodSecurityConfiguration
+=== GlobalMethodSecurityConfiguration
 
 Sometimes you may need to perform operations that are more complicated than are possible with the `@EnableGlobalMethodSecurity` annotation allow.
 For these instances, you can extend the `GlobalMethodSecurityConfiguration` ensuring that the `@EnableGlobalMethodSecurity` annotation is present on your subclass.
@@ -1234,7 +1234,7 @@ public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
 
 For additional information about methods that can be overridden, refer to the `GlobalMethodSecurityConfiguration` Javadoc.
 
-=== Post Processing Configured Objects
+== Post Processing Configured Objects
 
 Spring Security's Java Configuration does not expose every property of every object that it configures.
 This simplifies the configuration for a majority of users.
@@ -1262,7 +1262,7 @@ protected void configure(HttpSecurity http) throws Exception {
 ----
 
 [[jc-custom-dsls]]
-=== Custom DSLs
+== Custom DSLs
 
 You can provide your own custom DSLs in Spring Security.
 For example, you might have something that looks like this:
