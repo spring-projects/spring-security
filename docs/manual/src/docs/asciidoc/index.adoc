@@ -2,24 +2,15 @@
 Ben Alex; Luke Taylor; Rob Winch; Gunnar Hillert; Joe Grandja; Jay Bryant
 :include-dir: _includes
 :security-api-url: http://docs.spring.io/spring-security/site/docs/current/apidocs/
+:source-indent: 0
+:tabsize: 2
 
 Spring Security is a powerful and highly customizable authentication and access-control framework.
 It is the de-facto standard for securing Spring-based applications.
 
-include::{include-dir}/preface/index.adoc[]
 
-include::{include-dir}/architecture/index.adoc[]
+include::{include-dir}/servlet/index.adoc[]
 
-include::{include-dir}/test/index.adoc[]
-
-include::{include-dir}/web/index.adoc[]
-
-include::{include-dir}/authorization/index.adoc[]
-
-include::{include-dir}/additional-topics/index.adoc[]
-
-include::{include-dir}/data/index.adoc[]
-
-include::{include-dir}/appendix/index.adoc[]
+include::{include-dir}/reactive/index.adoc[]
 
 

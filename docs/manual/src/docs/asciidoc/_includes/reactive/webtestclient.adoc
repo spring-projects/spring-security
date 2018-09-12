@@ -1,8 +1,8 @@
 [[test-webflux]]
-== WebFlux Support
+= WebFlux Support
 
 [[test-erms]]
-=== Reactive Method Security
+== Reactive Method Security
 
 For example, we can test our example from <<jc-erms>> using the same setup and annotations we did in <<test-method>>.
 Here is a minimal sample of what we can do:
@@ -41,7 +41,7 @@ public class HelloWorldMessageServiceTests {
 ----
 
 [[test-webtestclient]]
-=== WebTestClientSupport
+== WebTestClientSupport
 
 Spring Security provides integration with `WebTestClient`.
 The basic setup looks like this:
@@ -70,7 +70,7 @@ public class HelloWebfluxMethodApplicationTests {
 }
 ----
 
-==== Authentication
+=== Authentication
 
 After applying the Spring Security support to `WebTestClient` we can use either annotations or `mutateWith` support.
 For example:
@@ -134,7 +134,7 @@ public void messageWhenMutateWithMockAdminThenOk() throws Exception {
 ----
 
 
-==== CSRF Support
+=== CSRF Support
 
 Spring Security also provides support for CSRF testing with `WebTestClient`.
 For example:
