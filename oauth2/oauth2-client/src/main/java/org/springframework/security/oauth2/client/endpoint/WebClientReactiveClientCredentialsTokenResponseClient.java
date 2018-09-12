@@ -19,7 +19,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.CollectionUtils;
@@ -52,9 +51,7 @@ public class WebClientReactiveClientCredentialsTokenResponseClient implements Re
 			.build();
 
 	@Override
-	public Mono<OAuth2AccessTokenResponse> getTokenResponse(OAuth2ClientCredentialsGrantRequest authorizationGrantRequest)
-			throws OAuth2AuthenticationException {
-
+	public Mono<OAuth2AccessTokenResponse> getTokenResponse(OAuth2ClientCredentialsGrantRequest authorizationGrantRequest) {
 		return Mono.defer(() -> {
 			ClientRegistration clientRegistration = authorizationGrantRequest.getClientRegistration();
 

@@ -72,11 +72,11 @@ public class ServerOAuth2AuthorizationCodeAuthenticationTokenConverter
 	@Override
 	public Mono<Authentication> convert(ServerWebExchange serverWebExchange) {
 		return this.authorizationRequestRepository.removeAuthorizationRequest(serverWebExchange)
-			.switchIfEmpty(oauth2AuthenticationException(AUTHORIZATION_REQUEST_NOT_FOUND_ERROR_CODE))
+			.switchIfEmpty(oauth2AuthorizationException(AUTHORIZATION_REQUEST_NOT_FOUND_ERROR_CODE))
 			.flatMap(authorizationRequest -> authenticationRequest(serverWebExchange, authorizationRequest));
 	}
 
-	private <T> Mono<T> oauth2AuthenticationException(String errorCode) {
+	private <T> Mono<T> oauth2AuthorizationException(String errorCode) {
 		return Mono.defer(() -> {
 			OAuth2Error oauth2Error = new OAuth2Error(errorCode);
 			return Mono.error(new OAuth2AuthorizationException(oauth2Error));
@@ -89,11 +89,11 @@ public class ServerOAuth2AuthorizationCodeAuthenticationTokenConverter
 				.flatMap(additionalParams -> {
 					String id = (String) additionalParams.get(OAuth2ParameterNames.REGISTRATION_ID);
 					if (id == null) {
-						return oauth2AuthenticationException(CLIENT_REGISTRATION_NOT_FOUND_ERROR_CODE);
+						return oauth2AuthorizationException(CLIENT_REGISTRATION_NOT_FOUND_ERROR_CODE);
 					}
 					return this.clientRegistrationRepository.findByRegistrationId(id);
 				})
-				.switchIfEmpty(oauth2AuthenticationException(CLIENT_REGISTRATION_NOT_FOUND_ERROR_CODE))
+				.switchIfEmpty(oauth2AuthorizationException(CLIENT_REGISTRATION_NOT_FOUND_ERROR_CODE))
 				.map(clientRegistration -> {
 					OAuth2AuthorizationResponse authorizationResponse = convertResponse(exchange);
 					OAuth2AuthorizationCodeAuthenticationToken authenticationRequest = new OAuth2AuthorizationCodeAuthenticationToken(
