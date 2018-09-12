@@ -25,6 +25,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
@@ -96,12 +97,6 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 		if (registrationId == null) {
 			return null;
 		}
-		String[] params = new String[0];
-		if (registrationId.contains("?")) {
-			String[] explodedURI = registrationId.split("\\?");
-			registrationId = registrationId.split("\\?")[0];
-			params = explodedURI[1].split("&");
-		}
 
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(registrationId);
 		if (clientRegistration == null) {
@@ -123,9 +118,15 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 
 		Map<String, Object> additionalParameters = new HashMap<>();
 		additionalParameters.put(OAuth2ParameterNames.REGISTRATION_ID, clientRegistration.getRegistrationId());
-		for(String param : params){
+
+		String queryString = request.getQueryString();
+		String[] params = new String[0];
+		if (!StringUtils.isEmpty(queryString)) {
+			params = queryString.split("&");
+		}
+		for (String param : params){
 			int idx = param.indexOf("=");
-			additionalParameters.put(param.substring(0, idx),param.substring(idx + 1));
+			additionalParameters.put(param.substring(0, idx), param.substring(idx + 1));
 		}
 
 		OAuth2AuthorizationRequest authorizationRequest = builder
