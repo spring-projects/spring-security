@@ -47,7 +47,7 @@ public class OAuth2AuthorizationServerApplicationTests {
 
 		this.mvc.perform(post("/oauth/token")
 			.param("grant_type", "password")
-			.param("username", "user")
+			.param("username", "subject")
 			.param("password", "password")
 			.header("Authorization", "Basic cmVhZGVyOnNlY3JldA=="))
 				.andExpect(status().isOk());
