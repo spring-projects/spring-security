@@ -22,9 +22,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
-import org.springframework.security.oauth2.client.web.AuthenticatedPrincipalOAuth2AuthorizedClientRepository;
-import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 /**
@@ -45,11 +42,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.oauth2Login()
 				.and()
 			.oauth2Client();
-	}
-
-	@Bean
-	public OAuth2AuthorizedClientRepository authorizedClientRepository(OAuth2AuthorizedClientService authorizedClientService) {
-		return new AuthenticatedPrincipalOAuth2AuthorizedClientRepository(authorizedClientService);
 	}
 
 	@Bean
