@@ -1,6 +1,7 @@
 = OAuth 2.0 Resource Server Sample
 
-This sample demonstrates integrations with a handful of different authorization servers.
+This sample demonstrates integrating Resource Server with a mock Authorization Server, though it can be modified to integrate
+with your favorite Authorization Server.
 
 With it, you can run the integration tests or run the application as a stand-alone service to explore how you can
 secure your own service with OAuth 2.0 Bearer Tokens using Spring Security.
@@ -10,160 +11,102 @@ secure your own service with OAuth 2.0 Bearer Tokens using Spring Security.
 To run the tests, do:
 
 ```bash
-../../../gradlew integrationTest
+./gradlew integrationTest
 ```
 
-Or import the project into your IDE and run `OAuth2ResourceServerApplicationTests` from there.
+Or import the project into your IDE and run `ServerOAuth2ResourceServerApplicationTests` from there.
 
 === What is it doing?
 
-By default, the tests are pointing at a demonstration Okta instance. The test that performs a valid round trip does so
-by querying the Okta Authorization Server using the client_credentials grant type to get a valid JWT token. Then, the test
-makes a query to the Resource Server with that token. The Resource Server subsquently verifies with Okta and
-authorizes the request, returning the phrase
+By default, the tests are pointing at a mock Authorization Server instance.
+
+The tests are configured with a set of hard-coded tokens originally obtained from the mock Authorization Server,
+and each makes a query to the Resource Server with their corresponding token.
+
+The Resource Server subsquently verifies with the Authorization Server and authorizes the request, returning the phrase
 
 ```bash
-Hello, {subject}!
+Hello, subject!
 ```
 
-where subject is the value of the `sub` field in the JWT returned by the Authorization Server.
+where "subject" is the value of the `sub` field in the JWT returned by the Authorization Server.
 
 == 2. Running the app
 
 To run as a stand-alone application, do:
 
 ```bash
-../../../gradlew bootRun
+./gradlew bootRun
 ```
 
-Or import the project into your IDE and run `OAuth2ResourceServerApplication` from there.
+Or import the project into your IDE and run `ServerOAuth2ResourceServerApplication` from there.
 
-Once it is up, you can retreive a valid JWT token from the authorization server, and then hit the endpoint:
+Once it is up, you can use the following token:
 
 ```bash
-curl -H "Authorization: Bearer {token}" localhost:8081
+export TOKEN=eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJzdWJqZWN0IiwiZXhwIjo0NjgzODA1MTI4fQ.ULEPdHG-MK5GlrTQMhgqcyug2brTIZaJIrahUeq9zaiwUSdW83fJ7W1IDd2Z3n4a25JY2uhEcoV95lMfccHR6y_2DLrNvfta22SumY9PEDF2pido54LXG6edIGgarnUbJdR4rpRe_5oRGVa8gDx8FnuZsNv6StSZHAzw5OsuevSTJ1UbJm4UfX3wiahFOQ2OI6G-r5TB2rQNdiPHuNyzG5yznUqRIZ7-GCoMqHMaC-1epKxiX8gYXRROuUYTtcMNa86wh7OVDmvwVmFioRcR58UWBRoO1XQexTtOQq_t8KYsrPZhb9gkyW8x2bAQF-d0J0EJY8JslaH6n4RBaZISww
+```
+
+And then make this request:
+
+```bash
+curl -H "Authorization: Bearer $TOKEN" localhost:8080
 ```
 
 Which will respond with the phrase:
 
 ```bash
-Hello, {subject}!
+Hello, subject!
 ```
 
 where `subject` is the value of the `sub` field in the JWT returned by the Authorization Server.
 
-=== How do I obtain a valid JWT token?
-
-Getting a valid JWT token from an Authorization Server will vary, depending on your setup. However, it will typically
-look something like this:
+Or this:
 
 ```bash
-curl --user {client id}:{client password} -d "grant_type=client_credentials" {auth server endpoint}/token
+export TOKEN=eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJzdWJqZWN0Iiwic2NvcGUiOiJtZXNzYWdlOnJlYWQiLCJleHAiOjQ2ODM4MDUxNDF9.h-j6FKRFdnTdmAueTZCdep45e6DPwqM68ZQ8doIJ1exi9YxAlbWzOwId6Bd0L5YmCmp63gGQgsBUBLzwnZQ8kLUgUOBEC3UzSWGRqMskCY9_k9pX0iomX6IfF3N0PaYs0WPC4hO1s8wfZQ-6hKQ4KigFi13G9LMLdH58PRMK0pKEvs3gCbHJuEPw-K5ORlpdnleUTQIwINafU57cmK3KocTeknPAM_L716sCuSYGvDl6xUTXO7oPdrXhS_EhxLP6KxrpI1uD4Ea_5OWTh7S0Wx5LLDfU6wBG1DowN20d374zepOIEkR-Jnmr_QlR44vmRqS5ncrF-1R0EGcPX49U6A
+
+curl -H "Authorization: Bearer $TOKEN" localhost:8080/message
 ```
 
-which will respond with a JSON payload containing the `access_token` among other things:
+Will respond with:
 
 ```bash
-{ "access_token" : "{the access token}", "token_type" : "Bearer", "expires_in" : "{an expiry}", "scope" : "{a list of scopes}" }
+secret message
 ```
 
-For example, the following can be used to hit the sample Okta endpoint for a valid JWT token:
+== 2. Testing against other Authorization Servers
 
-```bash
-curl --user 0oaf5u5g4m6CW4x6z0h7:HR7edRoo3glhF06HTxonOKZvO4I2BWYcC_ocOHlv -d "grant_type=client_credentials" https://dev-805262.oktapreview.com/oauth2/default/v1/token
-```
+_In order to use this sample, your Authorization Server must support JWTs that either use the "scope" or "scp" attribute._
 
-Which will give a response similar to this (formatting mine):
-
-```json
-{
-  "access_token": "eyJraWQiOiJFRjBFWDFFWHZGc1hGaDhuYkRGazNJN0hMUDBsZnJnc0JKMVdBWmkwRmI0IiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULmtQSUdfMEVMQmM3NVFMN3c4ZHBMVFRtNXZFVFd3d1R2dzJ3aXNISGRMbjgiLCJpc3MiOiJodHRwczovL2Rldi04MDUyNjIub2t0YXByZXZpZXcuY29tL29hdXRoMi9kZWZhdWx0IiwiYXVkIjoicmVzb3VyY2Utc2VydmVyIiwiaWF0IjoxNTI4ODYwMTkxLCJleHAiOjE1Mjg4NjM3OTEsImNpZCI6IjBvYWY1dTVnNG02Q1c0eDZ6MGg3Iiwic2NwIjpbIm9rIl0sInN1YiI6IjBvYWY1dTVnNG02Q1c0eDZ6MGg3In0.G_F9MQ3pqCy-YwfcNhryoPG5E1q4tQ7gV8OIDizR3QouUgrqT7MQsLQCTtGGLF2Fi0qq0Pr-V-wWa2MkyvcboEAhnfYi4rd3UmMrRTrNana6pVZjVWB_uj88-mZ57lFRnoYMCFbepmCxmY6D6p354H964xXWdtY7d6fw7F88DRDWMGQE0iQjMuUDg4izptVcK9db7uMonYTT1PFvOBQfwcn1zCeDVQgZFe7gjQA71CV9M6CIAXYDrpzp_hs95xco7Q3ncN3J7ZkCebLcUL6MdJS2nVuX6D6eC9PrtmCj06mb0-ydlzBSIUCPMaMQk9EhlEM_qK3d1iimCQnwo6KsIQ",
-  "token_type": "Bearer",
-  "expires_in": 3600,
-  "scope": "ok"
-}
-```
-
-Then, using that access token:
-
-```bash
-curl -H  "Authorization: Bearer eyJraWQiOiJFRjBFWDFFWHZGc1hGaDhuYkRGazNJN0hMUDBsZnJnc0JKMVdBWmkwRmI0IiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULmtQSUdfMEVMQmM3NVFMN3c4ZHBMVFRtNXZFVFd3d1R2dzJ3aXNISGRMbjgiLCJpc3MiOiJodHRwczovL2Rldi04MDUyNjIub2t0YXByZXZpZXcuY29tL29hdXRoMi9kZWZhdWx0IiwiYXVkIjoicmVzb3VyY2Utc2VydmVyIiwiaWF0IjoxNTI4ODYwMTkxLCJleHAiOjE1Mjg4NjM3OTEsImNpZCI6IjBvYWY1dTVnNG02Q1c0eDZ6MGg3Iiwic2NwIjpbIm9rIl0sInN1YiI6IjBvYWY1dTVnNG02Q1c0eDZ6MGg3In0.G_F9MQ3pqCy-YwfcNhryoPG5E1q4tQ7gV8OIDizR3QouUgrqT7MQsLQCTtGGLF2Fi0qq0Pr-V-wWa2MkyvcboEAhnfYi4rd3UmMrRTrNana6pVZjVWB_uj88-mZ57lFRnoYMCFbepmCxmY6D6p354H964xXWdtY7d6fw7F88DRDWMGQE0iQjMuUDg4izptVcK9db7uMonYTT1PFvOBQfwcn1zCeDVQgZFe7gjQA71CV9M6CIAXYDrpzp_hs95xco7Q3ncN3J7ZkCebLcUL6MdJS2nVuX6D6eC9PrtmCj06mb0-ydlzBSIUCPMaMQk9EhlEM_qK3d1iimCQnwo6KsIQ" \
-  localhost:8081
-```
-
-I get:
-
-```bash
-Hello, 0oaf5u5g4m6CW4x6z0h7!
-```
-
-== 3. Testing against other Authorization Servers
-
-The sample is already prepared to demonstrate integrations with a handful of other Authorization Servers. Do exercise
-one, simply uncomment two commented out sections, both in the application.yml file:
+To change the sample to point at your Authorization Server, simply find this property in the `application.yml`:
 
 ```yaml
 spring:
   security:
     oauth2:
       resourceserver:
-        issuer:
+        jwt:
+          jwk-set-uri: ${mockwebserver.url}/.well-known/jwks.json
 ```
 
-First, find the above section in the application.yml. Beneath it, you will see sections for each Authorization Server
-already prepared with the one for Okta commented out:
+And change the property to your Authorization Server's JWK set endpoint:
 
 ```yaml
-#          master: #keycloak
-#            issuer: http://localhost:8080/auth/realms/master
-#            jwk-set-uri: http://localhost:8080/auth/realms/master/protocol/openid-connect/certs
-          okta:
-            issuer: https://dev-805262.oktapreview.com/oauth2/default
-            jwk-set-uri: https://dev-805262.oktapreview.com/oauth2/default/v1/keys
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: https://dev-123456.oktapreview.com/oauth2/default/v1/keys
 ```
 
-Comment out the `okta` section and uncomment the desired section.
+And then you can run the app the same as before:
 
-Second, find the following section, which the sample needs in order to retreive a valid token from the Authorization
-Server:
-
-```yaml
-#  ### keycloak
-#  token-uri: http://localhost:8080/auth/realms/master/protocol/openid-connect/token
-#  token-body:
-#    grant_type: client_credentials
-#  client-id: service
-#  client-password: 9114712b-be55-4dab-b270-04734abda1c4
-#  container:
-#    config-file-name: keycloak.config
-#    docker-file-name: keycloak.docker
-  ### okta
-  token-uri: https://dev-805262.oktapreview.com/oauth2/default/v1/token
-  token-body:
-    grant_type: client_credentials
-  client-id: 0oaf5u5g4m6CW4x6z0h7
-  client-password: HR7edRoo3glhF06HTxonOKZvO4I2BWYcC_ocOHlv
+```bash
+./gradlew bootRun
 ```
 
-Comment out the `okta` section and uncomment the desired section.
-
-=== How can I test with my own Authorization Server instance?
-
-To test with your own Okta or other Authorization Server instance, simply provide the following information:
-
-```yaml
-spring.security.oauth2.resourceserver.issuer.name.uri: the issuer uri
-spring.security.oauth2.resourceserver.issuer.name.jwk-set-uri: the jwk key uri
-```
-
-And indicate, using the sample.provider properties, how the sample should generate a valid JWT token:
-
-```yaml
-sample.provider.token-uri: the token endpoint
-sample.provider.token-body.grant_type: the grant to use
-sample.provider.token-body.another_property: another_value
-sample.provider.client-id: the client id
-sample.provider.client-password: the client password, only required for confidential clients
-```
-
-You can provide values for any OAuth 2.0-compliant Authorization Server.
+Make sure to obtain valid tokens from your Authorization Server in order to play with the sample Resource Server.
+To use the `/` endpoint, any valid token from your Authorization Server will do.
+To use the `/message` endpoint, the token should have the `message:read` scope.

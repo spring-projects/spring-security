@@ -79,18 +79,26 @@ secret message
 
 _In order to use this sample, your Authorization Server must support JWTs that either use the "scope" or "scp" attribute._
 
-_Additionally, remember that if your authorization server is running locally on port 8080, you'll need to change the sample's port in the `application.yml` by adding something like `server.port: 8082`._
-
 To change the sample to point at your Authorization Server, simply find this property in the `application.yml`:
 
 ```yaml
-sample.jwk-set-uri: mock://localhost:8081/.well-known/jwks.json
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${mockwebserver.url}/.well-known/jwks.json
 ```
 
 And change the property to your Authorization Server's JWK set endpoint:
 
 ```yaml
-sample.jwk-set-uri: https://dev-123456.oktapreview.com/oauth2/default/v1/keys
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: https://dev-123456.oktapreview.com/oauth2/default/v1/keys
 ```
 
 And then you can run the app the same as before:

@@ -7,6 +7,7 @@ dependencies {
 	compile project(':spring-security-oauth2-resource-server')
 
 	compile 'org.springframework.boot:spring-boot-starter-webflux'
+	compile 'com.squareup.okhttp3:mockwebserver'
 
 	testCompile project(':spring-security-test')
 	testCompile 'org.springframework.boot:spring-boot-starter-test'

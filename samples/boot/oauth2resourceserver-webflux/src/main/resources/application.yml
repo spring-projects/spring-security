@@ -1,11 +1,6 @@
-logging:
-  level:
-    root: INFO
-    org.springframework.web: INFO
-    org.springframework.security: INFO
-#    org.springframework.boot.autoconfigure: DEBUG
-
-sample:
-# By default this sample uses a hard coded public key in SecurityConfig
-# To use a JWK Set URI, uncomment and change the value below
-#  jwk-set-uri: https://example.com/oauth2/default/v1/keys
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${mockwebserver.url}/.well-known/jwks.json

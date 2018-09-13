@@ -15,7 +15,6 @@
  */
 package sample;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -25,20 +24,17 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
  */
 @EnableWebSecurity
 public class OAuth2ResourceServerSecurityConfiguration extends WebSecurityConfigurerAdapter {
-	@Value("${sample.jwk-set-uri}")
-	String jwkSetUri;
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		// @formatter:off
 		http
 			.authorizeRequests()
-				.antMatchers("/message/**").access("hasAuthority('SCOPE_message:read')")
+				.antMatchers("/message/**").hasAuthority("SCOPE_message:read")
 				.anyRequest().authenticated()
 				.and()
 			.oauth2ResourceServer()
-				.jwt()
-					.jwkSetUri(this.jwkSetUri);
+				.jwt();
 		// @formatter:on
 	}
 }
