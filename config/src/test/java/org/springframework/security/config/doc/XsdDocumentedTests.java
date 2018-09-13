@@ -47,7 +47,7 @@ public class XsdDocumentedTests {
 		"nsa-method-security",
 		"nsa-web");
 
-	String referenceLocation = "../docs/manual/src/docs/asciidoc/_includes/appendix/namespace.adoc";
+	String referenceLocation = "../docs/manual/src/docs/asciidoc/_includes/servlet/appendix/namespace.adoc";
 
 	String schema31xDocumentLocation = "org/springframework/security/config/spring-security-3.1.xsd";
 	String schemaDocumentLocation = "org/springframework/security/config/spring-security-5.1.xsd";
