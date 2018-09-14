@@ -29,6 +29,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
@@ -512,6 +517,64 @@ public class ServerHttpSecurity {
 
 		private ServerOAuth2AuthorizedClientRepository authorizedClientRepository;
 
+		private ReactiveAuthenticationManager authenticationManager;
+
+		private ServerAuthenticationConverter authenticationConverter;
+
+		/**
+		 * Configures the {@link ReactiveAuthenticationManager} to use. The default is
+		 * {@link OAuth2AuthorizationCodeReactiveAuthenticationManager}
+		 * @param authenticationManager the manager to use
+		 * @return the {@link OAuth2LoginSpec} to customize
+		 */
+		public OAuth2LoginSpec authenticationManager(ReactiveAuthenticationManager authenticationManager) {
+			this.authenticationManager = authenticationManager;
+			return this;
+		}
+
+		/**
+		 * Gets the {@link ReactiveAuthenticationManager} to use. First tries an explicitly configured manager, and
+		 * defaults to {@link OAuth2AuthorizationCodeReactiveAuthenticationManager}
+		 *
+		 * @return the {@link ReactiveAuthenticationManager} to use
+		 */
+		private ReactiveAuthenticationManager getAuthenticationManager() {
+			if (this.authenticationManager == null) {
+				this.authenticationManager = createDefault();
+			}
+			return this.authenticationManager;
+		}
+
+		private ReactiveAuthenticationManager createDefault() {
+			WebClientReactiveAuthorizationCodeTokenResponseClient client = new WebClientReactiveAuthorizationCodeTokenResponseClient();
+			ReactiveAuthenticationManager result = new OAuth2LoginReactiveAuthenticationManager(client, getOauth2UserService());
+
+			boolean oidcAuthenticationProviderEnabled = ClassUtils.isPresent(
+					"org.springframework.security.oauth2.jwt.JwtDecoder", this.getClass().getClassLoader());
+			if (oidcAuthenticationProviderEnabled) {
+				OidcAuthorizationCodeReactiveAuthenticationManager oidc = new OidcAuthorizationCodeReactiveAuthenticationManager(client, getOidcUserService());
+				result = new DelegatingReactiveAuthenticationManager(oidc, result);
+			}
+			return result;
+		}
+
+		/**
+		 * Sets the converter to use
+		 * @param authenticationConverter the converter to use
+		 * @return the {@link OAuth2LoginSpec} to customize
+		 */
+		public OAuth2LoginSpec authenticationConverter(ServerAuthenticationConverter authenticationConverter) {
+			this.authenticationConverter = authenticationConverter;
+			return this;
+		}
+
+		private ServerAuthenticationConverter getAuthenticationConverter(ReactiveClientRegistrationRepository clientRegistrationRepository) {
+			if (this.authenticationConverter == null) {
+				this.authenticationConverter = new ServerOAuth2AuthorizationCodeAuthenticationTokenConverter(clientRegistrationRepository);
+			}
+			return this.authenticationConverter;
+		}
+
 		public OAuth2LoginSpec clientRegistrationRepository(ReactiveClientRegistrationRepository clientRegistrationRepository) {
 			this.clientRegistrationRepository = clientRegistrationRepository;
 			return this;
@@ -541,21 +604,11 @@ public class ServerHttpSecurity {
 			ServerOAuth2AuthorizedClientRepository authorizedClientRepository = getAuthorizedClientRepository();
 			OAuth2AuthorizationRequestRedirectWebFilter oauthRedirectFilter = new OAuth2AuthorizationRequestRedirectWebFilter(clientRegistrationRepository);
 
-			WebClientReactiveAuthorizationCodeTokenResponseClient client = new WebClientReactiveAuthorizationCodeTokenResponseClient();
-			ReactiveOAuth2UserService userService = new DefaultReactiveOAuth2UserService();
-			ReactiveAuthenticationManager manager = new OAuth2LoginReactiveAuthenticationManager(client, userService);
-
-			boolean oidcAuthenticationProviderEnabled = ClassUtils.isPresent(
-					"org.springframework.security.oauth2.jwt.JwtDecoder", this.getClass().getClassLoader());
-			if (oidcAuthenticationProviderEnabled) {
-				OidcAuthorizationCodeReactiveAuthenticationManager oidc = new OidcAuthorizationCodeReactiveAuthenticationManager(client, new OidcReactiveOAuth2UserService());
-				manager = new DelegatingReactiveAuthenticationManager(oidc, manager);
-			}
+			ReactiveAuthenticationManager manager = getAuthenticationManager();
 
 			AuthenticationWebFilter authenticationFilter = new OAuth2LoginAuthenticationWebFilter(manager, authorizedClientRepository);
 			authenticationFilter.setRequiresAuthenticationMatcher(createAttemptAuthenticationRequestMatcher());
-			authenticationFilter.setServerAuthenticationConverter(new ServerOAuth2AuthorizationCodeAuthenticationTokenConverter(clientRegistrationRepository));
-
+			authenticationFilter.setServerAuthenticationConverter(getAuthenticationConverter(clientRegistrationRepository));
 			RedirectServerAuthenticationSuccessHandler redirectHandler = new RedirectServerAuthenticationSuccessHandler();
 
 			authenticationFilter.setAuthenticationSuccessHandler(redirectHandler);
@@ -589,6 +642,27 @@ public class ServerHttpSecurity {
 					.switchIfEmpty(ServerWebExchangeMatcher.MatchResult.match());
 			return new AndServerWebExchangeMatcher(loginPathMatcher, notAuthenticatedMatcher);
 		}
+
+		private ReactiveOAuth2UserService<OidcUserRequest, OidcUser> getOidcUserService() {
+			ResolvableType type = ResolvableType.forClassWithGenerics(ReactiveOAuth2UserService.class, OidcUserRequest.class, OidcUser.class);
+			ReactiveOAuth2UserService<OidcUserRequest, OidcUser> bean = getBeanOrNull(type);
+			if (bean == null) {
+				return new OidcReactiveOAuth2UserService();
+			}
+
+			return bean;
+		}
+
+		private ReactiveOAuth2UserService<OAuth2UserRequest, OAuth2User> getOauth2UserService() {
+			ResolvableType type = ResolvableType.forClassWithGenerics(ReactiveOAuth2UserService.class, OAuth2UserRequest.class, OAuth2User.class);
+			ReactiveOAuth2UserService<OAuth2UserRequest, OAuth2User> bean = getBeanOrNull(type);
+			if (bean == null) {
+				return new DefaultReactiveOAuth2UserService();
+			}
+
+			return bean;
+		}
+
 		private Map<String, String> getLinks() {
 			Iterable<ClientRegistration> registrations = getBeanOrNull(ResolvableType.forClassWithGenerics(Iterable.class, ClientRegistration.class));
 			if (registrations == null) {
@@ -662,7 +736,52 @@ public class ServerHttpSecurity {
 	public class OAuth2ClientSpec {
 		private ReactiveClientRegistrationRepository clientRegistrationRepository;
 
+		private ServerAuthenticationConverter authenticationConverter;
+
 		private ServerOAuth2AuthorizedClientRepository authorizedClientRepository;
+
+		private ReactiveAuthenticationManager authenticationManager;
+
+		/**
+		 * Sets the converter to use
+		 * @param authenticationConverter the converter to use
+		 * @return the {@link OAuth2ClientSpec} to customize
+		 */
+		public OAuth2ClientSpec authenticationConverter(ServerAuthenticationConverter authenticationConverter) {
+			this.authenticationConverter = authenticationConverter;
+			return this;
+		}
+
+		private ServerAuthenticationConverter getAuthenticationConverter() {
+			if (this.authenticationConverter == null) {
+				this.authenticationConverter = new ServerOAuth2AuthorizationCodeAuthenticationTokenConverter(getClientRegistrationRepository());
+			}
+			return this.authenticationConverter;
+		}
+
+		/**
+		 * Configures the {@link ReactiveAuthenticationManager} to use. The default is
+		 * {@link OAuth2AuthorizationCodeReactiveAuthenticationManager}
+		 * @param authenticationManager the manager to use
+		 * @return the {@link OAuth2ClientSpec} to customize
+		 */
+		public OAuth2ClientSpec authenticationManager(ReactiveAuthenticationManager authenticationManager) {
+			this.authenticationManager = authenticationManager;
+			return this;
+		}
+
+		/**
+		 * Gets the {@link ReactiveAuthenticationManager} to use. First tries an explicitly configured manager, and
+		 * defaults to {@link OAuth2AuthorizationCodeReactiveAuthenticationManager}
+		 *
+		 * @return the {@link ReactiveAuthenticationManager} to use
+		 */
+		private ReactiveAuthenticationManager getAuthenticationManager() {
+			if (this.authenticationManager == null) {
+				this.authenticationManager = new OAuth2AuthorizationCodeReactiveAuthenticationManager(new WebClientReactiveAuthorizationCodeTokenResponseClient());
+			}
+			return this.authenticationManager;
+		}
 
 		/**
 		 * Configures the {@link ReactiveClientRegistrationRepository}. Default is to look the value up as a Bean.
@@ -687,9 +806,10 @@ public class ServerHttpSecurity {
 		protected void configure(ServerHttpSecurity http) {
 			ReactiveClientRegistrationRepository clientRegistrationRepository = getClientRegistrationRepository();
 			ServerOAuth2AuthorizedClientRepository authorizedClientRepository = getAuthorizedClientRepository();
-			ReactiveAuthenticationManager authenticationManager = new OAuth2AuthorizationCodeReactiveAuthenticationManager(new WebClientReactiveAuthorizationCodeTokenResponseClient());
+			ServerAuthenticationConverter authenticationConverter = getAuthenticationConverter();
+			ReactiveAuthenticationManager authenticationManager = getAuthenticationManager();
 			OAuth2AuthorizationCodeGrantWebFilter codeGrantWebFilter = new OAuth2AuthorizationCodeGrantWebFilter(authenticationManager,
-					clientRegistrationRepository,
+					authenticationConverter,
 					authorizedClientRepository);
 
 			OAuth2AuthorizationRequestRedirectWebFilter oauthRedirectFilter = new OAuth2AuthorizationRequestRedirectWebFilter(
