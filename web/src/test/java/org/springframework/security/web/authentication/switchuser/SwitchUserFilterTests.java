@@ -40,6 +40,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.util.FieldUtils;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 
 import javax.servlet.FilterChain;
 import java.util.*;
@@ -113,12 +114,58 @@ public class SwitchUserFilterTests {
 	}
 
 	@Test
+	// gh-4249
+	public void requiresExitUserWhenEndsWithThenDoesNotMatch() {
+		SwitchUserFilter filter = new SwitchUserFilter();
+		filter.setExitUserUrl("/j_spring_security_my_exit_user");
+
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setRequestURI("/foo/bar/j_spring_security_my_exit_user");
+
+		assertThat(filter.requiresExitUser(request)).isFalse();
+	}
+
+	@Test
+	public void requiresExitUserWhenMatcherThenWorks() {
+		SwitchUserFilter filter = new SwitchUserFilter();
+		filter.setExitUserMatcher(AnyRequestMatcher.INSTANCE);
+
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setRequestURI("/foo/bar/j_spring_security_my_exit_user");
+
+		assertThat(filter.requiresExitUser(request)).isTrue();
+	}
+
+	@Test
 	public void requiresSwitchMatchesCorrectly() {
 		SwitchUserFilter filter = new SwitchUserFilter();
 		filter.setSwitchUserUrl("/j_spring_security_my_switch_user");
 
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setRequestURI("/j_spring_security_my_switch_user");
+
+		assertThat(filter.requiresSwitchUser(request)).isTrue();
+	}
+
+	@Test
+	// gh-4249
+	public void requiresSwitchUserWhenEndsWithThenDoesNotMatch() {
+		SwitchUserFilter filter = new SwitchUserFilter();
+		filter.setSwitchUserUrl("/j_spring_security_my_exit_user");
+
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setRequestURI("/foo/bar/j_spring_security_my_exit_user");
+
+		assertThat(filter.requiresSwitchUser(request)).isFalse();
+	}
+
+	@Test
+	public void requiresSwitchUserWhenMatcherThenWorks() {
+		SwitchUserFilter filter = new SwitchUserFilter();
+		filter.setSwitchUserMatcher(AnyRequestMatcher.INSTANCE);
+
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setRequestURI("/foo/bar/j_spring_security_my_exit_user");
 
 		assertThat(filter.requiresSwitchUser(request)).isTrue();
 	}
@@ -218,6 +265,7 @@ public class SwitchUserFilterTests {
 	@Test
 	public void defaultProcessesFilterUrlMatchesUrlWithPathParameter() {
 		MockHttpServletRequest request = createMockSwitchRequest();
+		request.setContextPath("/webapp");
 		SwitchUserFilter filter = new SwitchUserFilter();
 		filter.setSwitchUserUrl("/login/impersonate");
 
@@ -351,6 +399,7 @@ public class SwitchUserFilterTests {
 		// http request
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setRequestURI("/webapp/login/impersonate");
+		request.setContextPath("/webapp");
 		request.addParameter(SwitchUserFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY,
 				"jacklord");
 
