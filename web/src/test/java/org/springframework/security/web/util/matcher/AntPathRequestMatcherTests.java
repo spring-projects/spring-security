@@ -24,6 +24,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.web.util.UrlPathHelper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -37,6 +38,14 @@ public class AntPathRequestMatcherTests {
 
 	@Mock
 	private HttpServletRequest request;
+
+	@Test
+	public void matchesWhenUrlPathHelperThenMatchesOnRequestUri() {
+		AntPathRequestMatcher matcher = new AntPathRequestMatcher("/foo/bar", null, true, new UrlPathHelper());
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/foo/bar");
+
+		assertThat(matcher.matches(request)).isTrue();
+	}
 
 	@Test
 	public void singleWildcardMatchesAnyPath() {

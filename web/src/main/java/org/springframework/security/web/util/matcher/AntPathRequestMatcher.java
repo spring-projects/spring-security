@@ -27,6 +27,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+import org.springframework.web.util.UrlPathHelper;
 
 /**
  * Matcher which compares a pre-defined ant-style pattern against the URL (
@@ -62,6 +63,8 @@ public final class AntPathRequestMatcher
 	private final HttpMethod httpMethod;
 	private final boolean caseSensitive;
 
+	private final UrlPathHelper urlPathHelper;
+
 	/**
 	 * Creates a matcher with the specific pattern which will match all HTTP methods in a
 	 * case insensitive manner.
@@ -95,6 +98,21 @@ public final class AntPathRequestMatcher
 	 */
 	public AntPathRequestMatcher(String pattern, String httpMethod,
 			boolean caseSensitive) {
+		this(pattern, httpMethod, caseSensitive, null);
+	}
+
+	/**
+	 * Creates a matcher with the supplied pattern which will match the specified Http
+	 * method
+	 *
+	 * @param pattern the ant pattern to use for matching
+	 * @param httpMethod the HTTP method. The {@code matches} method will return false if
+	 * the incoming request doesn't doesn't have the same method.
+	 * @param caseSensitive true if the matcher should consider case, else false
+	 * @param urlPathHelper if non-null, will be used for extracting the path from the HttpServletRequest
+	 */
+	public AntPathRequestMatcher(String pattern, String httpMethod,
+			boolean caseSensitive, UrlPathHelper urlPathHelper) {
 		Assert.hasText(pattern, "Pattern cannot be null or empty");
 		this.caseSensitive = caseSensitive;
 
@@ -120,6 +138,7 @@ public final class AntPathRequestMatcher
 		this.pattern = pattern;
 		this.httpMethod = StringUtils.hasText(httpMethod) ? HttpMethod.valueOf(httpMethod)
 				: null;
+		this.urlPathHelper = urlPathHelper;
 	}
 
 	/**
@@ -171,6 +190,9 @@ public final class AntPathRequestMatcher
 	}
 
 	private String getRequestPath(HttpServletRequest request) {
+		if (this.urlPathHelper != null) {
+			return this.urlPathHelper.getPathWithinApplication(request);
+		}
 		String url = request.getServletPath();
 
 		String pathInfo = request.getPathInfo();
