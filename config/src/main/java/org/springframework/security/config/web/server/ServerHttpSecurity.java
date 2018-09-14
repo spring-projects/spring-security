@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
@@ -552,7 +553,7 @@ public class ServerHttpSecurity {
 			}
 
 			AuthenticationWebFilter authenticationFilter = new OAuth2LoginAuthenticationWebFilter(manager, authorizedClientRepository);
-			authenticationFilter.setRequiresAuthenticationMatcher(new PathPatternParserServerWebExchangeMatcher("/login/oauth2/code/{registrationId}"));
+			authenticationFilter.setRequiresAuthenticationMatcher(createAttemptAuthenticationRequestMatcher());
 			authenticationFilter.setServerAuthenticationConverter(new ServerOAuth2AuthorizationCodeAuthenticationTokenConverter(clientRegistrationRepository));
 
 			RedirectServerAuthenticationSuccessHandler redirectHandler = new RedirectServerAuthenticationSuccessHandler();
@@ -581,6 +582,13 @@ public class ServerHttpSecurity {
 			http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION);
 		}
 
+		private ServerWebExchangeMatcher createAttemptAuthenticationRequestMatcher() {
+			PathPatternParserServerWebExchangeMatcher loginPathMatcher = new PathPatternParserServerWebExchangeMatcher("/login/oauth2/code/{registrationId}");
+			ServerWebExchangeMatcher notAuthenticatedMatcher = e  -> ReactiveSecurityContextHolder.getContext()
+					.flatMap(p -> ServerWebExchangeMatcher.MatchResult.notMatch())
+					.switchIfEmpty(ServerWebExchangeMatcher.MatchResult.match());
+			return new AndServerWebExchangeMatcher(loginPathMatcher, notAuthenticatedMatcher);
+		}
 		private Map<String, String> getLinks() {
 			Iterable<ClientRegistration> registrations = getBeanOrNull(ResolvableType.forClassWithGenerics(Iterable.class, ClientRegistration.class));
 			if (registrations == null) {
@@ -686,7 +694,7 @@ public class ServerHttpSecurity {
 
 			OAuth2AuthorizationRequestRedirectWebFilter oauthRedirectFilter = new OAuth2AuthorizationRequestRedirectWebFilter(
 					clientRegistrationRepository);
-			http.addFilterAt(codeGrantWebFilter, SecurityWebFiltersOrder.AUTHENTICATION);
+			http.addFilterAt(codeGrantWebFilter, SecurityWebFiltersOrder.OAUTH2_AUTHORIZATION_CODE);
 			http.addFilterAt(oauthRedirectFilter, SecurityWebFiltersOrder.HTTP_BASIC);
 		}
 
