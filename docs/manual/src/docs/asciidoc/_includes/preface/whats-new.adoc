@@ -14,3 +14,32 @@ For example, `@WithMockUser(setupBefore = TestExecutionEvent.TEST_EXECUTION)` wi
 * <<mvc-authentication-principal>>
 ** Supports resolving beans in WebFlux (was already supported in Spring MVC)
 ** Supports resolving `errorOnInvalidType` in WebFlux (was already supported in Spring MVC)
+* OAuth 2.0 Client
+* OAuth 2.0 Resource Server
+** Supports https://github.com/spring-projects/spring-security/tree/master/samples/boot/oauth2resourceserver[JWT-encoded bearer tokens]
+** Supports configuration using an OIDC Provider Configuration endpoint
+** Supports custom JWT decoding
+** Supports custom authority mapping
+** Supports custom JWT validation
+** Supports custom error handling
+* OAuth 2.0 Resource Server WebFlux
+** Supports JWT-encoded bearer tokens
+** Supports configuration using an OIDC Provider Configuration endpoint
+** Supports custom JWT decoding
+** Supports custom authority mapping
+** Supports custom JWT validation
+** Supports static key configuration
+* <<spring-security-core>> - Support was added for `@Transient` authentication tokens
+* <<csrf>> - Support was added for disabling csrf by `RequestMatcher`
+* <<access-denied-handler>> - Support was added for selecting an `AccessDeniedHandler` by `RequestMatcher`
+* <<headers>>
+** Support for `Content-Security-Policy` and `Referrer-Policy` were added for WebFlux (already supported in Servlets)
+** Support for `Feature-Policy` were added
+* <<cors>>
+** Support for CORS was added for WebFlux (already supported in Servlets)
+* Redirecting to HTTPS
+** Support for HTTPS redirect was added
+* Web Client
+* <<ldap>> - added support for setting up an `LdapContext` from custom environment variables
+* <<x509>> - added support for deriving the X.509 principal via a strategy
+* The Look and Feel for the default login and logout pages was modernized
