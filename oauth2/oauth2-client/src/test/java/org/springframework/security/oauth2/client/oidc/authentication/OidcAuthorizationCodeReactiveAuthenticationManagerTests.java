@@ -189,6 +189,36 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 		assertThat(result.isAuthenticated()).isTrue();
 	}
 
+	@Test
+	public void authenticationWhenRefreshTokenThenRefreshTokenInAuthorizedClient() {
+		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("foo")
+				.tokenType(OAuth2AccessToken.TokenType.BEARER)
+				.additionalParameters(Collections.singletonMap(OidcParameterNames.ID_TOKEN, this.idToken.getTokenValue()))
+				.refreshToken("refresh-token")
+				.build();
+
+		Map<String, Object> claims = new HashMap<>();
+		claims.put(IdTokenClaimNames.ISS, "https://issuer.example.com");
+		claims.put(IdTokenClaimNames.SUB, "rob");
+		claims.put(IdTokenClaimNames.AUD, Arrays.asList("client-id"));
+		Instant issuedAt = Instant.now();
+		Instant expiresAt = Instant.from(issuedAt).plusSeconds(3600);
+		Jwt idToken = new Jwt("id-token", issuedAt, expiresAt, claims, claims);
+
+		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
+		DefaultOidcUser user = new DefaultOidcUser(AuthorityUtils.createAuthorityList("ROLE_USER"), this.idToken);
+		when(this.userService.loadUser(any())).thenReturn(Mono.just(user));
+		when(this.jwtDecoder.decode(any())).thenReturn(Mono.just(idToken));
+		this.manager.setDecoderFactory(c -> this.jwtDecoder);
+
+		OAuth2LoginAuthenticationToken result = (OAuth2LoginAuthenticationToken) this.manager.authenticate(loginToken()).block();
+
+		assertThat(result.getPrincipal()).isEqualTo(user);
+		assertThat(result.getAuthorities()).containsOnlyElementsOf(user.getAuthorities());
+		assertThat(result.isAuthenticated()).isTrue();
+		assertThat(result.getRefreshToken().getTokenValue()).isNotNull();
+	}
+
 	// gh-5368
 	@Test
 	public void authenticateWhenTokenSuccessResponseThenAdditionalParametersAddedToUserRequest() {

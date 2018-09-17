@@ -177,7 +177,8 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements
 							authorizationCodeAuthentication.getAuthorizationExchange(),
 							oauth2User,
 							mappedAuthorities,
-							accessToken);
+							accessToken,
+							accessTokenResponse.getRefreshToken());
 				});
 	}
 
