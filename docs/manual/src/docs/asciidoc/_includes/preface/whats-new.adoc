@@ -6,35 +6,36 @@ Below are the highlights of the release.
 
 === Servlet
 
-* https://github.com/spring-projects/spring-security/tree/master/samples/boot/oauth2webclient[OAuth 2.0 Client]
+* {gh-samples-url}/boot/oauth2webclient[OAuth 2.0 Client]
 ** Customizable Authorize and Token requests
 ** `authorization_code` grant support
 ** `client_credentials` grant support
-* OAuth 2.0 Resource Server - support for https://github.com/spring-projects/spring-security/tree/master/samples/boot/oauth2resourceserver[JWT-encoded bearer tokens]
-* https://github.com/spring-projects/spring-security/tree/master/samples/boot/oauth2webclient[OAuth 2.0 Web Client Extensions] - Supports `authorization_code`, `client_credentials`, and `refresh_token` grants
-* <<core-services-password-encoding>> - New service to support password upgrades
+* OAuth 2.0 Resource Server - support for {gh-samples-url}/boot/oauth2resourceserver[JWT-encoded bearer tokens]
+* {gh-samples-url}/boot/oauth2webclient[OAuth 2.0 Web Client Extensions] - Supports `authorization_code`, `client_credentials`, and `refresh_token` grants
 * <<request-matching>> - Protection against HTTP Verb Tampering and Cross-site Tracing
 * <<exception-translation-filter>> - Support for selecting an `AccessDeniedHandler` by `RequestMatcher`
 * <<csrf>> - Support for disabling csrf by `RequestMatcher`
-* <<headers>> - Support for `Feature-Policy`
+* <<headers-feature>>
 * <<session-mgmt>> - Support for `@Transient` authentication tokens
 * A modern look-and-feel for the default log in page
 
 === WebFlux
 
-* https://github.com/spring-projects/spring-security/tree/master/samples/boot/oauth2webclient-webflux[OAuth 2.0 Client]
-** Customizable Authorize requests
-** `authorization_code` grant support
-** `client_credentials` grant support
-* OAuth 2.0 Resource Server - support for https://github.com/spring-projects/spring-security/tree/master/samples/boot/oauth2resourceserver-webflux[JWT-encoded bearer tokens]
-* https://github.com/spring-projects/spring-security/tree/master/samples/boot/oauth2webclient-webflux[OAuth 2.0 Web Client Extensions] - Supports `authorization_code`, `client_credentials`, and `refresh_token` grants
+* Added <<webflux-oauth2,OAuth2>> support
+** Added <<webflux-oauth2-client,OAuth2 Client>> support
+** Added<<webflux-oauth2-resource-server,OAuth2 Resource Server>> support
+** Added OAuth2 <<webclient,WebClient>> integration
 * <<test-method>> - `@WithUserDetails` now works with `ReactiveUserDetailsService`
 * <<cors>> - Support for CORS was added
-* <<headers>> - Support for `Content-Security-Policy`, `Feature-Policy`, and `Referrer-Policy`
+* Added support for the following <<webflux-headers,HTTP headers>>
+** <<webflux-headers-csp,Content Security Policy>>
+** <<webflux-headers-feature,Feature Policy>>
+** <<webflux-headers-referrer,Referrer Policy>>
 * Support for redirecting to HTTPS
 
 === Integrations
 
+* <<core-services-password-encoding>> - New service to support password upgrades
 * <<jackson>> - Support for `BadCredentialsException`
 * <<test-method>> - Support for customizing when the `SecurityContext` is setup in the test.
 For example, `@WithMockUser(setupBefore = TestExecutionEvent.TEST_EXECUTION)` will setup a user after JUnit's `@Before` and before the test executes.

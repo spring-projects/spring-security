@@ -1,3 +1,4 @@
+[[webflux-oauth2]]
 = OAuth2 WebFlux
 
 Spring Security provides OAuth2 and WebFlux integration for reactive applications.
