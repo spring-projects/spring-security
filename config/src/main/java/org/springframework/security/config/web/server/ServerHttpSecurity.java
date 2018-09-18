@@ -2059,6 +2059,15 @@ public class ServerHttpSecurity {
 
 		/**
 		 * Configures {@code Referrer-Policy} response header.
+		 * @param referrerPolicy the policy to use
+		 * @return the {@link ReferrerPolicySpec} to configure
+		 */
+		public HeaderSpec referrerPolicy(ReferrerPolicy referrerPolicy) {
+			return referrerPolicy().referrerPolicy(referrerPolicy);
+		}
+
+		/**
+		 * Configures {@code Referrer-Policy} response header.
 		 * @return the {@link ReferrerPolicySpec} to configure
 		 */
 		public ReferrerPolicySpec referrerPolicy() {
@@ -2108,18 +2117,18 @@ public class ServerHttpSecurity {
 			 * The mode to configure. Default is
 			 * {@link org.springframework.security.web.server.header.XFrameOptionsServerHttpHeadersWriter.Mode#DENY}
 			 * @param mode the mode to use
-			 * @return the {@link FrameOptionsSpec} to configure
+			 * @return the {@link HeaderSpec} to configure
 			 */
-			public FrameOptionsSpec mode(XFrameOptionsServerHttpHeadersWriter.Mode mode) {
+			public HeaderSpec mode(XFrameOptionsServerHttpHeadersWriter.Mode mode) {
 				HeaderSpec.this.frameOptions.setMode(mode);
-				return this;
+				return and();
 			}
 
 			/**
 			 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}
 			 * @return the {@link HeaderSpec} to continue configuring
 			 */
-			public HeaderSpec and() {
+			private HeaderSpec and() {
 				return HeaderSpec.this;
 			}
 
@@ -2129,7 +2138,7 @@ public class ServerHttpSecurity {
 			 */
 			public HeaderSpec disable() {
 				HeaderSpec.this.writers.remove(HeaderSpec.this.frameOptions);
-				return HeaderSpec.this;
+				return and();
 			}
 
 			private FrameOptionsSpec() {}
