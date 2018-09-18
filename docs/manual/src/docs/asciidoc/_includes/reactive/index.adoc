@@ -2,6 +2,8 @@
 
 include::webflux.adoc[leveloffset=+1]
 
+include::oauth2/index.adoc[leveloffset=+1]
+
 include::webclient.adoc[leveloffset=+1]
 
 include::method.adoc[leveloffset=+1]
