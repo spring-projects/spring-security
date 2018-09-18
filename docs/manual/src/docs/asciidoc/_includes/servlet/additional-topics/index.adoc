@@ -11,6 +11,8 @@ include::ldap.adoc[]
 
 include::oauth2.adoc[]
 
+include::webclient.adoc[]
+
 include::jsp-taglibs.adoc[]
 
 include::jaas.adoc[]

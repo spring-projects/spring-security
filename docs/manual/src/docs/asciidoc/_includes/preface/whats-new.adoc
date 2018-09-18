@@ -39,7 +39,7 @@ For example, `@WithMockUser(setupBefore = TestExecutionEvent.TEST_EXECUTION)` wi
 ** Support for CORS was added for WebFlux (already supported in Servlets)
 * Redirecting to HTTPS
 ** Support for HTTPS redirect was added
-* Web Client
+* WebClient + OAuth2 Support for <<servlet-webclient,Servlet>> and <<webclient,Reactive>> environments
 * <<ldap>> - added support for setting up an `LdapContext` from custom environment variables
 * <<x509>> - added support for deriving the X.509 principal via a strategy
 * The Look and Feel for the default login and logout pages was modernized
