@@ -4,42 +4,44 @@
 Spring Security 5.1 provides a number of new features.
 Below are the highlights of the release.
 
-=== New Features
+=== Servlet
 
-* <<test-method>>
-** Support for customizing when the `SecurityContext` is setup in the test
+* https://github.com/spring-projects/spring-security/tree/master/samples/boot/oauth2webclient[OAuth 2.0 Client]
+** Customizable Authorize and Token requests
+** `authorization_code` grant support
+** `client_credentials` grant support
+* OAuth 2.0 Resource Server - support for https://github.com/spring-projects/spring-security/tree/master/samples/boot/oauth2resourceserver[JWT-encoded bearer tokens]
+* https://github.com/spring-projects/spring-security/tree/master/samples/boot/oauth2webclient[OAuth 2.0 Web Client Extensions] - Supports `authorization_code`, `client_credentials`, and `refresh_token` grants
+* <<core-services-password-encoding>> - New service to support password upgrades
+* <<request-matching>> - Protection against HTTP Verb Tampering and Cross-site Tracing
+* <<exception-translation-filter>> - Support for selecting an `AccessDeniedHandler` by `RequestMatcher`
+* <<csrf>> - Support for disabling csrf by `RequestMatcher`
+* <<headers>> - Support for `Feature-Policy`
+* <<session-mgmt>> - Support for `@Transient` authentication tokens
+* A modern look-and-feel for the default log in page
+
+=== WebFlux
+
+* https://github.com/spring-projects/spring-security/tree/master/samples/boot/oauth2webclient-webflux[OAuth 2.0 Client]
+** Customizable Authorize requests
+** `authorization_code` grant support
+** `client_credentials` grant support
+* OAuth 2.0 Resource Server - support for https://github.com/spring-projects/spring-security/tree/master/samples/boot/oauth2resourceserver-webflux[JWT-encoded bearer tokens]
+* https://github.com/spring-projects/spring-security/tree/master/samples/boot/oauth2webclient-webflux[OAuth 2.0 Web Client Extensions] - Supports `authorization_code`, `client_credentials`, and `refresh_token` grants
+* <<test-method>> - `@WithUserDetails` now works with `ReactiveUserDetailsService`
+* <<cors>> - Support for CORS was added
+* <<headers>> - Support for `Content-Security-Policy`, `Feature-Policy`, and `Referrer-Policy`
+* Support for redirecting to HTTPS
+
+=== Integrations
+
+* <<jackson>> - Support for `BadCredentialsException`
+* <<test-method>> - Support for customizing when the `SecurityContext` is setup in the test.
 For example, `@WithMockUser(setupBefore = TestExecutionEvent.TEST_EXECUTION)` will setup a user after JUnit's `@Before` and before the test executes.
-** `@WithUserDetails` now works with `ReactiveUserDetailsService`
-* <<jackson>> - added support for `BadCredentialsException`
+* <<ldap>> - Support for setting up an `LdapContext` from custom environment variables
+* <<x509>> - Support for deriving the X.509 principal via a strategy
 * <<mvc-authentication-principal>>
-** Supports resolving beans in WebFlux (was already supported in Spring MVC)
-** Supports resolving `errorOnInvalidType` in WebFlux (was already supported in Spring MVC)
-* OAuth 2.0 Client
-* OAuth 2.0 Resource Server
-** Supports https://github.com/spring-projects/spring-security/tree/master/samples/boot/oauth2resourceserver[JWT-encoded bearer tokens]
-** Supports configuration using an OIDC Provider Configuration endpoint
-** Supports custom JWT decoding
-** Supports custom authority mapping
-** Supports custom JWT validation
-** Supports custom error handling
-* OAuth 2.0 Resource Server WebFlux
-** Supports JWT-encoded bearer tokens
-** Supports configuration using an OIDC Provider Configuration endpoint
-** Supports custom JWT decoding
-** Supports custom authority mapping
-** Supports custom JWT validation
-** Supports static key configuration
-* <<spring-security-core>> - Support was added for `@Transient` authentication tokens
-* <<csrf>> - Support was added for disabling csrf by `RequestMatcher`
-* <<access-denied-handler>> - Support was added for selecting an `AccessDeniedHandler` by `RequestMatcher`
-* <<headers>>
-** Support for `Content-Security-Policy` and `Referrer-Policy` were added for WebFlux (already supported in Servlets)
-** Support for `Feature-Policy` were added
-* <<cors>>
-** Support for CORS was added for WebFlux (already supported in Servlets)
-* Redirecting to HTTPS
-** Support for HTTPS redirect was added
-* WebClient + OAuth2 Support for <<servlet-webclient,Servlet>> and <<webclient,Reactive>> environments
-* <<ldap>> - added support for setting up an `LdapContext` from custom environment variables
-* <<x509>> - added support for deriving the X.509 principal via a strategy
-* The Look and Feel for the default login and logout pages was modernized
+** Support for resolving beans in WebFlux (support already exists for Spring MVC)
+** Support for resolving `errorOnInvalidType` in WebFlux (support already exists for Spring MVC)
+
+
