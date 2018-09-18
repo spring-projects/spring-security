@@ -51,7 +51,7 @@ import java.lang.annotation.Target;
 @Documented
 public @interface Secured {
 	/**
-	 * Returns the list of security configuration attributes (e.g. ROLE_USER, ROLE_ADMIN).
+	 * Returns the list of security configuration attributes (e.g.&nbsp;ROLE_USER, ROLE_ADMIN).
 	 *
 	 * @return String[] The secure method attributes
 	 */
