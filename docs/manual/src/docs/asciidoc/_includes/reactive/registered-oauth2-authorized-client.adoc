@@ -3,7 +3,7 @@
 
 Spring Security allows resolving an access token using `@RegisteredOAuth2AuthorizedClient`.
 
-[[NOTE]]
+[NOTE]
 ====
 A working example can be found in {gh-samples-url}/boot/oauth2webclient-webflux[*OAuth 2.0 WebClient WebFlux sample*].
 ====

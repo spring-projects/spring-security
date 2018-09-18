@@ -4,7 +4,7 @@
 Spring Security provides OAuth2 Resource Server support with JWT tokens.
 
 
-[[NOTE]]
+[NOTE]
 ====
 A complete working example can be found in {gh-samples-url}/boot/oauth2resourceserver-webflux[*OAuth 2.0 Resource Server WebFlux sample*].
 ====
