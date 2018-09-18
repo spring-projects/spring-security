@@ -1,4 +1,5 @@
-= Access Token
+[[webflux-oauth2-client]]
+= OAuth2 Client
 
 Spring Security's OAuth Support allows obtaining an access token without authenticating.
 A basic configuration with Spring Boot can be seen below:
@@ -31,4 +32,4 @@ SecurityWebFilterChain configure(ServerHttpSecurity http) throws Exception {
 }
 ----
 
-You can now leverage Spring Security's <<webclient>> support to obtain and use the access token.
+You can now leverage Spring Security's <<webclient>> or <<webflux-roac,@RegisteredOAuth2AuthorizedClient>> support to obtain and use the access token.

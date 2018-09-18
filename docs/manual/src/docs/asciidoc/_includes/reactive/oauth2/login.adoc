@@ -34,7 +34,7 @@ After completing the "Obtain OAuth 2.0 credentials" instructions, you should hav
 [[webflux-oauth2-login-sample-redirect]]
 === Setting the redirect URI
 
-The redirect URI is the path in the application that the end-user's user-agent is redirected back to after they have authenticated with Google and have granted access to the OAuth Client _(<<jc-oauth2login-sample-initial-setup,created in the previous step>>)_ on the Consent page.
+The redirect URI is the path in the application that the end-user's user-agent is redirected back to after they have authenticated with Google and have granted access to the OAuth Client _(<<webflux-oauth2-login-sample-setup,created in the previous step>>)_ on the Consent page.
 
 In the "Set a redirect URI" sub-section, ensure that the *Authorized redirect URIs* field is set to `http://localhost:8080/login/oauth2/code/google`.
 
