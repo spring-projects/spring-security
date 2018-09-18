@@ -5,3 +5,5 @@ Spring Security provides OAuth2 and WebFlux integration for reactive application
 include::login.adoc[leveloffset=+1]
 
 include::access-token.adoc[leveloffset=+1]
+
+include::resource-server.adoc[leveloffset=+1]

@@ -1,0 +1,47 @@
+[[webflux-oauth2-resource-server]]
+= OAuth2 Resource Server
+
+Spring Security provides OAuth2 Resource Server support with JWT tokens.
+
+
+[[NOTE]]
+====
+A complete working example can be found in {gh-samples-url}/boot/oauth2resourceserver-webflux[*OAuth 2.0 Resource Server WebFlux sample*].
+====
+
+The first step is to expose a `ReactiveJwtDecoder` as a `@Bean`.
+In a Spring Boot application this can be done using:
+
+[source,yml]
+----
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://idp.example.com/auth/realms/demo
+----
+
+The `issuer-uri` instructs Spring Security to leverage the endpoint at `https://idp.example.com/auth/realms/demo/.well-known/openid-configuration` to discover the configuration.
+The above is all that is necessary to get a minimal Resource Server configured.
+When new keys are made available, Spring Security will automatically rotate the keys used to validate the JWT tokens.
+
+By default each scope is mapped to an authority with the prefix `SCOPE_`.
+For example, the following requires the scope of `message:read` for any URL that starts with `/messages/`.
+
+[source,java]
+----
+@Bean
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+	http
+		.authorizeExchange()
+			.pathMatchers("/message/**").hasAuthority("SCOPE_message:read")
+			.anyExchange().authenticated()
+			.and()
+		.oauth2ResourceServer()
+			.jwt();
+	return http.build();
+}
+----
+
+
