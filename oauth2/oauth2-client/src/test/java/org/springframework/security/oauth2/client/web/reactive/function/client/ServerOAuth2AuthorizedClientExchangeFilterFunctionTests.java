@@ -301,6 +301,29 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	}
 
 	@Test
+	public void filterWhenDefaultClientRegistrationIdThenAuthorizedClientResolved() {
+		this.function.setDefaultClientRegistrationId(this.registration.getRegistrationId());
+		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", this.accessToken.getIssuedAt(), this.accessToken.getExpiresAt());
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration,
+				"principalName", this.accessToken, refreshToken);
+		when(this.authorizedClientRepository.loadAuthorizedClient(any(), any(), any())).thenReturn(Mono.just(authorizedClient));
+		when(this.clientRegistrationRepository.findByRegistrationId(any())).thenReturn(Mono.just(this.registration));
+		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
+				.build();
+
+		this.function.filter(request, this.exchange).block();
+
+		List<ClientRequest> requests = this.exchange.getRequests();
+		assertThat(requests).hasSize(1);
+
+		ClientRequest request0 = requests.get(0);
+		assertThat(request0.headers().getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo("Bearer token-0");
+		assertThat(request0.url().toASCIIString()).isEqualTo("https://example.com");
+		assertThat(request0.method()).isEqualTo(HttpMethod.GET);
+		assertThat(getBody(request0)).isEmpty();
+	}
+
+	@Test
 	public void filterWhenClientRegistrationIdFromAuthenticationThenAuthorizedClientResolved() {
 		this.function.setDefaultOAuth2AuthorizedClient(true);
 

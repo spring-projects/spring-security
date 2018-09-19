@@ -189,6 +189,15 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 	}
 
 	/**
+	 * If set, will be used as the default {@link ClientRegistration#getRegistrationId()}. It is
+	 * recommended to be cautious with this feature since all HTTP requests will receive the access token.
+	 * @param clientRegistrationId the id to use
+	 */
+	public void setDefaultClientRegistrationId(String clientRegistrationId) {
+		this.authorizedClientResolver.setDefaultClientRegistrationId(clientRegistrationId);
+	}
+
+	/**
 	 * Sets the {@link ReactiveOAuth2AccessTokenResponseClient} to be used for getting an {@link OAuth2AuthorizedClient} for
 	 * client_credentials grant.
 	 * @param clientCredentialsTokenResponseClient the client to use

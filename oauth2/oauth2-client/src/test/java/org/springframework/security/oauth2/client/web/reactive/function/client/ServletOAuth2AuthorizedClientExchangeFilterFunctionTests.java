@@ -297,6 +297,28 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	}
 
 	@Test
+	public void defaultRequestWhenDefaultClientRegistrationIdThenAuthorizedClient() {
+		this.registration = TestClientRegistrations.clientCredentials().build();
+		this.function = new ServletOAuth2AuthorizedClientExchangeFilterFunction(this.clientRegistrationRepository,
+				this.authorizedClientRepository);
+		this.function.setDefaultClientRegistrationId(this.registration.getRegistrationId());
+		this.function.setClientCredentialsTokenResponseClient(this.clientCredentialsTokenResponseClient);
+		when(this.clientRegistrationRepository.findByRegistrationId(any())).thenReturn(this.registration);
+		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses
+				.accessTokenResponse().build();
+		when(this.clientCredentialsTokenResponseClient.getTokenResponse(any())).thenReturn(
+				accessTokenResponse);
+
+		Map<String, Object> attrs = getDefaultRequestAttributes();
+		OAuth2AuthorizedClient authorizedClient = getOAuth2AuthorizedClient(attrs);
+
+		assertThat(authorizedClient.getAccessToken()).isEqualTo(accessTokenResponse.getAccessToken());
+		assertThat(authorizedClient.getClientRegistration()).isEqualTo(this.registration);
+		assertThat(authorizedClient.getPrincipalName()).isEqualTo("anonymousUser");
+		assertThat(authorizedClient.getRefreshToken()).isEqualTo(accessTokenResponse.getRefreshToken());
+	}
+
+	@Test
 	public void defaultRequestWhenClientIdNotFoundThenIllegalArgumentException() {
 		this.registration = TestClientRegistrations.clientCredentials().build();
 		this.function = new ServletOAuth2AuthorizedClientExchangeFilterFunction(this.clientRegistrationRepository,

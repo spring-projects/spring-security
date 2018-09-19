@@ -121,6 +121,8 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 
 	private boolean defaultOAuth2AuthorizedClient;
 
+	private String defaultClientRegistrationId;
+
 	public ServletOAuth2AuthorizedClientExchangeFilterFunction() {}
 
 	public ServletOAuth2AuthorizedClientExchangeFilterFunction(
@@ -150,6 +152,16 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 	 */
 	public void setDefaultOAuth2AuthorizedClient(boolean defaultOAuth2AuthorizedClient) {
 		this.defaultOAuth2AuthorizedClient = defaultOAuth2AuthorizedClient;
+	}
+
+
+	/**
+	 * If set, will be used as the default {@link ClientRegistration#getRegistrationId()}. It is
+	 * recommended to be cautious with this feature since all HTTP requests will receive the access token.
+	 * @param clientRegistrationId the id to use
+	 */
+	public void setDefaultClientRegistrationId(String clientRegistrationId) {
+		this.defaultClientRegistrationId = clientRegistrationId;
 	}
 
 	/**
@@ -295,6 +307,9 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 
 		Authentication authentication = getAuthentication(attrs);
 		String clientRegistrationId = getClientRegistrationId(attrs);
+		if (clientRegistrationId == null) {
+			clientRegistrationId = this.defaultClientRegistrationId;
+		}
 		if (clientRegistrationId == null
 				&& this.defaultOAuth2AuthorizedClient
 				&& authentication instanceof OAuth2AuthenticationToken) {
