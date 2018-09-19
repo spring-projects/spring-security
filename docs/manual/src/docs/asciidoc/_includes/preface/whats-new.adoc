@@ -26,7 +26,7 @@ Below are the highlights of the release.
 ** Added<<webflux-oauth2-resource-server,OAuth2 Resource Server>> support
 ** Added OAuth2 <<webclient,WebClient>> integration
 * <<test-method>> - `@WithUserDetails` now works with `ReactiveUserDetailsService`
-* <<cors>> - Support for CORS was added
+* Added <<webflux-cors,CORS>> support
 * Added support for the following <<webflux-headers,HTTP headers>>
 ** <<webflux-headers-csp,Content Security Policy>>
 ** <<webflux-headers-feature,Feature Policy>>
