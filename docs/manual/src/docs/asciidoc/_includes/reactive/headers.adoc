@@ -1,9 +1,9 @@
 
 [[webflux-headers]]
-== Security HTTP Response Headers
+ Security HTTP Response Headers
 This section discusses Spring Security's support for adding various security headers to the response of WebFlux.
 
-=== Default Security Headers
+= Default Security Headers
 Spring Security allows users to easily inject the default security headers to assist in protecting their application.
 The default for Spring Security is to include the following headers:
 
@@ -82,7 +82,7 @@ SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 ----
 
 [[webflux-headers-cache-control]]
-==== Cache Control
+== Cache Control
 In the past Spring Security required you to provide your own cache control for your web application.
 This seemed reasonable at the time, but browser caches have evolved to include caches for secure connections as well.
 This means that a user may view an authenticated page, log out, and then a malicious user can use the browser history to view the cached page.
@@ -114,17 +114,17 @@ SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 ----
 
 [[webflux-headers-content-type-options]]
-==== Content Type Options
+== Content Type Options
 Historically browsers, including Internet Explorer, would try to guess the content type of a request using http://en.wikipedia.org/wiki/Content_sniffing[content sniffing].
 This allowed browsers to improve the user experience by guessing the content type on resources that had not specified the content type.
 For example, if a browser encountered a JavaScript file that did not have the content type specified, it would be able to guess the content type and then execute it.
 
 [NOTE]
-====
+==
 There are many additional things one should do (i.e. only display the document in a distinct domain, ensure Content-Type header is set, sanitize the document, etc) when allowing content to be uploaded.
 However, these measures are out of the scope of what Spring Security provides.
 It is also important to point out when disabling content sniffing, you must specify the content type in order for things to work properly.
-====
+==
 
 The problem with content sniffing is that this allowed malicious users to use polyglots (i.e. a file that is valid as multiple content types) to execute XSS attacks.
 For example, some sites may allow users to submit a valid postscript document to a website and view it.
@@ -153,7 +153,7 @@ SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 ----
 
 [[webflux-headers-hsts]]
-==== HTTP Strict Transport Security (HSTS)
+== HTTP Strict Transport Security (HSTS)
 When you type in your bank's website, do you enter mybank.example.com or do you enter https://mybank.example.com[]?
 If you omit the https protocol, you are potentially vulnerable to http://en.wikipedia.org/wiki/Man-in-the-middle_attack[Man in the Middle attacks].
 Even if the website performs a redirect to https://mybank.example.com a malicious user could intercept the initial HTTP request and manipulate the response (i.e. redirect to https://mibank.example.com and steal their credentials).
@@ -163,10 +163,10 @@ Once mybank.example.com is added as a http://tools.ietf.org/html/rfc6797#section
 This greatly reduces the possibility of a Man in the Middle attack occurring.
 
 [NOTE]
-====
+==
 In accordance with http://tools.ietf.org/html/rfc6797#section-7.2[RFC6797], the HSTS header is only injected into HTTPS responses.
 In order for the browser to acknowledge the header, the browser must first trust the CA that signed the SSL certificate used to make the connection (not just the SSL certificate).
-====
+==
 
 One way for a site to be marked as a HSTS host is to have the host preloaded into the browser.
 Another is to add the "Strict-Transport-Security" header to the response.
@@ -198,16 +198,16 @@ SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 
 
 [[webflux-headers-frame-options]]
-==== X-Frame-Options
+== X-Frame-Options
 Allowing your website to be added to a frame can be a security issue.
 For example, using clever CSS styling users could be tricked into clicking on something that they were not intending (http://www.youtube.com/watch?v=3mk0RySeNsU[video demo]).
 For example, a user that is logged into their bank might click a button that grants access to other users.
 This sort of attack is known as http://en.wikipedia.org/wiki/Clickjacking[Clickjacking].
 
 [NOTE]
-====
+==
 Another modern approach to dealing with clickjacking is to use <<webflux-headers-csp>>.
-====
+==
 
 There are a number ways to mitigate clickjacking attacks.
 For example, to protect legacy browsers from clickjacking attacks you can use https://www.owasp.org/index.php/Clickjacking_Defense_Cheat_Sheet#Best-for-now_Legacy_Browser_Frame_Breaking_Script[frame breaking code].
@@ -239,7 +239,7 @@ SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 ----
 
 [[webflux-headers-xss-protection]]
-==== X-XSS-Protection
+== X-XSS-Protection
 Some browsers have built in support for filtering out https://www.owasp.org/index.php/Testing_for_Reflected_Cross_site_scripting_(OWASP-DV-001)[reflected XSS attacks].
 This is by no means foolproof, but does assist in XSS protection.
 
@@ -271,17 +271,17 @@ SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 ----
 
 [[webflux-headers-csp]]
-==== Content Security Policy (CSP)
+== Content Security Policy (CSP)
 
 https://www.w3.org/TR/CSP2/[Content Security Policy (CSP)] is a mechanism that web applications can leverage to mitigate content injection vulnerabilities, such as cross-site scripting (XSS).
 CSP is a declarative policy that provides a facility for web application authors to declare and ultimately inform the client (user-agent) about the sources from which the web application expects to load resources.
 
 [NOTE]
-====
+==
 Content Security Policy is not intended to solve all content injection vulnerabilities.
 Instead, CSP can be leveraged to help reduce the harm caused by content injection attacks.
 As a first line of defense, web application authors should validate their input and encode their output.
-====
+==
 
 A web application may employ the use of CSP by including one of the following HTTP headers in the response:
 
@@ -324,7 +324,7 @@ Content-Security-Policy-Report-Only: script-src 'self' https://trustedscripts.ex
 If the site violates this policy, by attempting to load a script from _evil.com_, the user-agent will send a violation report to the declared URL specified by the _report-uri_ directive, but still allow the violating resource to load nevertheless.
 
 [[webflux-headers-csp-configure]]
-===== Configuring Content Security Policy
+=== Configuring Content Security Policy
 
 It's important to note that Spring Security *_does not add_* Content Security Policy by default.
 The web application author must declare the security policy(s) to enforce and/or monitor for the protected resources.
@@ -366,7 +366,7 @@ SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 ----
 
 [[webflux-headers-csp-links]]
-===== Additional Resources
+=== Additional Resources
 
 Applying Content Security Policy to a web application is often a non-trivial undertaking.
 The following resources may provide further assistance in developing effective security policies for your site.
@@ -378,7 +378,7 @@ https://developer.mozilla.org/en-US/docs/Web/Security/CSP[CSP Guide - Mozilla De
 https://www.w3.org/TR/CSP2/[W3C Candidate Recommendation]
 
 [[webflux-headers-referrer]]
-==== Referrer Policy
+== Referrer Policy
 
 https://www.w3.org/TR/referrer-policy[Referrer Policy] is a mechanism that web applications can leverage to manage the referrer field, which contains the last page the user was on.
 
@@ -392,7 +392,7 @@ Referrer-Policy: same-origin
 The Referrer-Policy response header instructs the browser to let the destination knows the source where the user was previously.
 
 [[webflux-headers-referrer-configure]]
-===== Configuring Referrer Policy
+=== Configuring Referrer Policy
 
 Spring Security *_doesn't add_* Referrer Policy header by default.
 
@@ -412,7 +412,7 @@ SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 
 
 [[webflux-headers-feature]]
-==== Feature Policy
+== Feature Policy
 
 https://wicg.github.io/feature-policy/[Feature Policy] is a mechanism that allows web developers to selectively enable, disable, and modify the behavior of certain APIs and web features in the browser.
 
@@ -425,7 +425,7 @@ With Feature Policy, developers can opt-in to a set of "policies" for the browse
 These policies restrict what APIs the site can access or modify the browser's default behavior for certain features.
 
 [[webflux-headers-feature-configure]]
-===== Configuring Feature Policy
+=== Configuring Feature Policy
 
 Spring Security *_doesn't add_* Feature Policy header by default.
 
