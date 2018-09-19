@@ -70,25 +70,48 @@ class RequestCacheConfigurerTests extends BaseSpringSpec {
 
 	def "RequestCache disables faviocon.ico"() {
 		setup:
-			loadConfig(RequestCacheDefautlsConfig)
-			request.servletPath = "/favicon.ico"
-			request.requestURI = "/favicon.ico"
-			request.method = "GET"
+		loadConfig(RequestCacheDefautlsConfig)
+		request.servletPath = "/favicon.ico"
+		request.requestURI = "/favicon.ico"
+		request.method = "GET"
 		when: "request favicon.ico"
-			springSecurityFilterChain.doFilter(request,response,chain)
+		springSecurityFilterChain.doFilter(request,response,chain)
 		then: "sent to the login page"
-			response.status == HttpServletResponse.SC_MOVED_TEMPORARILY
-			response.redirectedUrl == "http://localhost/login"
+		response.status == HttpServletResponse.SC_MOVED_TEMPORARILY
+		response.redirectedUrl == "http://localhost/login"
 		when: "authenticate successfully"
-			super.setupWeb(request.session)
-			request.servletPath = "/login"
-			request.setParameter("username","user")
-			request.setParameter("password","password")
-			request.method = "POST"
-			springSecurityFilterChain.doFilter(request,response,chain)
+		super.setupWeb(request.session)
+		request.servletPath = "/login"
+		request.setParameter("username","user")
+		request.setParameter("password","password")
+		request.method = "POST"
+		springSecurityFilterChain.doFilter(request,response,chain)
 		then: "sent to default URL since it was favicon.ico"
-			response.status == HttpServletResponse.SC_MOVED_TEMPORARILY
-			response.redirectedUrl == "/"
+		response.status == HttpServletResponse.SC_MOVED_TEMPORARILY
+		response.redirectedUrl == "/"
+	}
+
+	def "RequestCache disables faviocon.png"() {
+		setup:
+		loadConfig(RequestCacheDefautlsConfig)
+		request.servletPath = "/favicon.png"
+		request.requestURI = "/favicon.png"
+		request.method = "GET"
+		when: "request favicon.ico"
+		springSecurityFilterChain.doFilter(request,response,chain)
+		then: "sent to the login page"
+		response.status == HttpServletResponse.SC_MOVED_TEMPORARILY
+		response.redirectedUrl == "http://localhost/login"
+		when: "authenticate successfully"
+		super.setupWeb(request.session)
+		request.servletPath = "/login"
+		request.setParameter("username","user")
+		request.setParameter("password","password")
+		request.method = "POST"
+		springSecurityFilterChain.doFilter(request,response,chain)
+		then: "sent to default URL since it was favicon.ico"
+		response.status == HttpServletResponse.SC_MOVED_TEMPORARILY
+		response.redirectedUrl == "/"
 	}
 
 	def "SEC-2321: RequestCache disables application/json"() {

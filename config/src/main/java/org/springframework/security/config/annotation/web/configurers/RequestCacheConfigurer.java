@@ -144,7 +144,7 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>> exte
 		}
 
 		RequestMatcher notFavIcon = new NegatedRequestMatcher(new AntPathRequestMatcher(
-				"/**/favicon.ico"));
+				"/**/favicon.*"));
 
 		MediaTypeRequestMatcher jsonRequest = new MediaTypeRequestMatcher(
 				contentNegotiationStrategy, MediaType.APPLICATION_JSON);
