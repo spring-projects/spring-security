@@ -19,7 +19,11 @@ package org.springframework.security.web.server.savedrequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.security.web.server.util.matcher.AndServerWebExchangeMatcher;
+import org.springframework.security.web.server.util.matcher.MediaTypeServerWebExchangeMatcher;
+import org.springframework.security.web.server.util.matcher.NegatedServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.util.Assert;
@@ -28,6 +32,7 @@ import org.springframework.web.server.WebSession;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
+import java.util.Collections;
 
 /**
  * An implementation of {@link ServerRequestCache} that saves the
@@ -45,8 +50,7 @@ public class WebSessionServerRequestCache implements ServerRequestCache {
 
 	private String sessionAttrName = DEFAULT_SAVED_REQUEST_ATTR;
 
-	private ServerWebExchangeMatcher saveRequestMatcher = ServerWebExchangeMatchers.pathMatchers(
-		HttpMethod.GET, "/**");
+	private ServerWebExchangeMatcher saveRequestMatcher = createDefaultRequestMacher();
 
 	/**
 	 * Sets the matcher to determine if the request should be saved. The default is to match
@@ -87,5 +91,13 @@ public class WebSessionServerRequestCache implements ServerRequestCache {
 
 	private static String pathInApplication(ServerHttpRequest request) {
 		return request.getPath().pathWithinApplication().value();
+	}
+
+	private static ServerWebExchangeMatcher createDefaultRequestMacher() {
+		ServerWebExchangeMatcher get = ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, "/**");
+		ServerWebExchangeMatcher notFavicon = new NegatedServerWebExchangeMatcher(ServerWebExchangeMatchers.pathMatchers("/favicon.*"));
+		MediaTypeServerWebExchangeMatcher html = new MediaTypeServerWebExchangeMatcher(MediaType.TEXT_HTML);
+		html.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
+		return new AndServerWebExchangeMatcher(get, notFavicon, html);
 	}
 }

@@ -17,6 +17,7 @@
 package org.springframework.security.web.server.savedrequest;
 
 import org.junit.Test;
+import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
@@ -35,12 +36,22 @@ public class WebSessionServerRequestCacheTests {
 
 	@Test
 	public void saveRequestGetRequestWhenGetThenFound() {
-		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/secured/"));
+		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/secured/").accept(MediaType.TEXT_HTML));
 		this.cache.saveRequest(exchange).block();
 
 		URI saved = this.cache.getRedirectUri(exchange).block();
 
 		assertThat(saved).isEqualTo(exchange.getRequest().getURI());
+	}
+
+	@Test
+	public void saveRequestGetRequestWhenFaviconThenNotFound() {
+		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/favicon.png").accept(MediaType.TEXT_HTML));
+		this.cache.saveRequest(exchange).block();
+
+		URI saved = this.cache.getRedirectUri(exchange).block();
+
+		assertThat(saved).isNull();
 	}
 
 	@Test
@@ -64,7 +75,7 @@ public class WebSessionServerRequestCacheTests {
 
 	@Test
 	public void saveRequestRemoveRequestWhenThenFound() {
-		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/secured/"));
+		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/secured/").accept(MediaType.TEXT_HTML));
 		this.cache.saveRequest(exchange).block();
 
 		ServerHttpRequest saved = this.cache.removeMatchingRequest(exchange).block();
