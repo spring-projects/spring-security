@@ -31,7 +31,7 @@ Below are the highlights of the release.
 ** <<webflux-headers-csp,Content Security Policy>>
 ** <<webflux-headers-feature,Feature Policy>>
 ** <<webflux-headers-referrer,Referrer Policy>>
-* Support for redirecting to HTTPS
+* <<webflux-redirect-https,Redirect to HTTPS>>
 
 === Integrations
 

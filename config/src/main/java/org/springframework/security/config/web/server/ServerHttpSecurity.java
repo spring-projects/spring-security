@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
@@ -1471,6 +1472,22 @@ public class ServerHttpSecurity {
 		public HttpsRedirectSpec httpsRedirectWhen(ServerWebExchangeMatcher... matchers) {
 			this.serverWebExchangeMatcher = new OrServerWebExchangeMatcher(matchers);
 			return this;
+		}
+
+		/**
+		 * Configures when this filter should redirect to https
+		 *
+		 * By default, the filter will redirect whenever an exchange's scheme is not https
+		 *
+		 * @param when determines when to redirect to https
+		 * @return the {@link HttpsRedirectSpec} for additional configuration
+		 */
+		public HttpsRedirectSpec httpsRedirectWhen(
+				Function<ServerWebExchange, Boolean> when) {
+			ServerWebExchangeMatcher matcher = e -> when.apply(e) ?
+					ServerWebExchangeMatcher.MatchResult.match() :
+					ServerWebExchangeMatcher.MatchResult.notMatch();
+			return httpsRedirectWhen(matcher);
 		}
 
 		/**
