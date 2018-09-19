@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,10 @@
  */
 package org.springframework.security.oauth2.core;
 
+import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.Assert;
+
+import java.io.Serializable;
 
 /**
  * The authentication method used when authenticating the client with the authorization server.
@@ -24,7 +27,8 @@ import org.springframework.util.Assert;
  * @since 5.0
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-2.3">Section 2.3 Client Authentication</a>
  */
-public final class ClientAuthenticationMethod {
+public final class ClientAuthenticationMethod implements Serializable {
+	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 	public static final ClientAuthenticationMethod BASIC = new ClientAuthenticationMethod("basic");
 	public static final ClientAuthenticationMethod POST = new ClientAuthenticationMethod("post");
 	private final String value;

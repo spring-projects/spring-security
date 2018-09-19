@@ -16,10 +16,13 @@
 package org.springframework.security.oauth2.client;
 
 import org.springframework.lang.Nullable;
+import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.util.Assert;
+
+import java.io.Serializable;
 
 /**
  * A representation of an OAuth 2.0 &quot;Authorized Client&quot;.
@@ -37,7 +40,8 @@ import org.springframework.util.Assert;
  * @see OAuth2AccessToken
  * @see OAuth2RefreshToken
  */
-public class OAuth2AuthorizedClient {
+public class OAuth2AuthorizedClient implements Serializable {
+	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 	private final ClientRegistration clientRegistration;
 	private final String principalName;
 	private final OAuth2AccessToken accessToken;

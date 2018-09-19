@@ -15,12 +15,14 @@
  */
 package org.springframework.security.oauth2.client.registration;
 
+import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.oauth2.core.AuthenticationMethod;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -36,7 +38,8 @@ import java.util.Set;
  * @since 5.0
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-2">Section 2 Client Registration</a>
  */
-public final class ClientRegistration {
+public final class ClientRegistration implements Serializable {
+	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 	private String registrationId;
 	private String clientId;
 	private String clientSecret;
@@ -150,7 +153,8 @@ public final class ClientRegistration {
 	/**
 	 * Details of the Provider.
 	 */
-	public class ProviderDetails {
+	public class ProviderDetails implements Serializable {
+		private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 		private String authorizationUri;
 		private String tokenUri;
 		private UserInfoEndpoint userInfoEndpoint = new UserInfoEndpoint();
@@ -209,7 +213,8 @@ public final class ClientRegistration {
 		/**
 		 * Details of the UserInfo Endpoint.
 		 */
-		public class UserInfoEndpoint {
+		public class UserInfoEndpoint implements Serializable {
+			private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 			private String uri;
 			private AuthenticationMethod authenticationMethod = AuthenticationMethod.HEADER;
 			private String userNameAttributeName;
@@ -261,7 +266,8 @@ public final class ClientRegistration {
 	/**
 	 * A builder for {@link ClientRegistration}.
 	 */
-	public static class Builder {
+	public static class Builder implements Serializable {
+		private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 		private String registrationId;
 		private String clientId;
 		private String clientSecret;
