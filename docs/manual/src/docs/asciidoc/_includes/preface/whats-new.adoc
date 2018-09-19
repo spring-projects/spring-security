@@ -6,24 +6,26 @@ Below are the highlights of the release.
 
 === Servlet
 
+* Automatic password storage upgrades through {security-api-url}org/springframework/security/core/userdetails/UserDetailsPasswordService.html[UserDetailsPasswordService]
 * {gh-samples-url}/boot/oauth2webclient[OAuth 2.0 Client]
 ** Customizable Authorize and Token requests
 ** `authorization_code` grant support
 ** `client_credentials` grant support
 * OAuth 2.0 Resource Server - support for {gh-samples-url}/boot/oauth2resourceserver[JWT-encoded bearer tokens]
-* {gh-samples-url}/boot/oauth2webclient[OAuth 2.0 Web Client Extensions] - Supports `authorization_code`, `client_credentials`, and `refresh_token` grants
-* <<request-matching>> - Protection against HTTP Verb Tampering and Cross-site Tracing
-* <<exception-translation-filter>> - Support for selecting an `AccessDeniedHandler` by `RequestMatcher`
-* <<csrf>> - Support for disabling csrf by `RequestMatcher`
-* <<headers-feature>>
-* <<session-mgmt>> - Support for `@Transient` authentication tokens
+* Added OAuth2 <<servlet-webclient,WebClient>> integration
+* <<request-matching,HTTP Firewall>> protects against HTTP Verb Tampering and Cross-site Tracing
+* <<exception-translation-filter,ExceptionTranslationFilter>> support for selecting an `AccessDeniedHandler` by `RequestMatcher`
+* <<csrf,CSRF>> support for excluding certain requests
+* Added Support for <<headers-feature,Feature Policy>>
+* Added {security-api-url}core/src/main/java/org/springframework/security/core/Transient.java[@Transient] authentication tokens
 * A modern look-and-feel for the default log in page
 
 === WebFlux
 
+* Automatic password storage upgrades through {security-api-url}org/springframework/security/core/userdetails/ReactiveUserDetailsPasswordService.html[ReactiveUserDetailsPasswordService]
 * Added <<webflux-oauth2,OAuth2>> support
 ** Added <<webflux-oauth2-client,OAuth2 Client>> support
-** Added<<webflux-oauth2-resource-server,OAuth2 Resource Server>> support
+** Added <<webflux-oauth2-resource-server,OAuth2 Resource Server>> support
 ** Added OAuth2 <<webclient,WebClient>> integration
 * <<test-method>> - `@WithUserDetails` now works with `ReactiveUserDetailsService`
 * Added <<webflux-cors,CORS>> support
@@ -32,17 +34,17 @@ Below are the highlights of the release.
 ** <<webflux-headers-feature,Feature Policy>>
 ** <<webflux-headers-referrer,Referrer Policy>>
 * <<webflux-redirect-https,Redirect to HTTPS>>
+* Improvements for {security-api-url}org/springframework/security/core/annotation/AuthenticationPrincipal.html[@AuthenticationPrincipal]
+** Support for resolving beans
+** Support for resolving `errorOnInvalidType`
 
 === Integrations
 
-* <<core-services-password-encoding>> - New service to support password upgrades
-* <<jackson>> - Support for `BadCredentialsException`
+* <<jackson,Jackson Support>> works with `BadCredentialsException`
 * <<test-method>> - Support for customizing when the `SecurityContext` is setup in the test.
 For example, `@WithMockUser(setupBefore = TestExecutionEvent.TEST_EXECUTION)` will setup a user after JUnit's `@Before` and before the test executes.
 * <<ldap>> - Support for setting up an `LdapContext` from custom environment variables
 * <<x509>> - Support for deriving the X.509 principal via a strategy
-* <<mvc-authentication-principal>>
-** Support for resolving beans in WebFlux (support already exists for Spring MVC)
-** Support for resolving `errorOnInvalidType` in WebFlux (support already exists for Spring MVC)
+
 
 
