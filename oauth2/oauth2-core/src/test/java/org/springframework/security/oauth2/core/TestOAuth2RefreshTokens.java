@@ -16,7 +16,6 @@
 
 package org.springframework.security.oauth2.core;
 
-import java.time.Duration;
 import java.time.Instant;
 
 /**
@@ -25,7 +24,6 @@ import java.time.Instant;
  */
 public class TestOAuth2RefreshTokens {
 	public static OAuth2RefreshToken refreshToken() {
-		return new OAuth2RefreshToken("refresh-token", Instant.now(),
-				Instant.now().plus(Duration.ofDays(1)));
+		return new OAuth2RefreshToken("refresh-token", Instant.now());
 	}
 }

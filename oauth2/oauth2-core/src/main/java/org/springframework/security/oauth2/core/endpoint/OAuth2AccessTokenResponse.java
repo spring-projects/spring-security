@@ -189,12 +189,7 @@ public final class OAuth2AccessTokenResponse {
 			accessTokenResponse.accessToken = new OAuth2AccessToken(
 				this.tokenType, this.tokenValue, issuedAt, expiresAt, this.scopes);
 			if (StringUtils.hasText(this.refreshToken)) {
-				// The Access Token response does not return an expires_in for the Refresh Token,
-				// therefore, we'll default to +1 second from issuedAt time.
-				// NOTE:
-				// The expiry or invalidity of a Refresh Token can only be determined by performing
-				// the refresh_token grant and if it fails than likely it has expired or has been invalidated.
-				accessTokenResponse.refreshToken = new OAuth2RefreshToken(this.refreshToken, issuedAt, issuedAt.plusSeconds(1));
+				accessTokenResponse.refreshToken = new OAuth2RefreshToken(this.refreshToken, issuedAt);
 			}
 			accessTokenResponse.additionalParameters = Collections.unmodifiableMap(
 				CollectionUtils.isEmpty(this.additionalParameters) ? Collections.emptyMap() : this.additionalParameters);
