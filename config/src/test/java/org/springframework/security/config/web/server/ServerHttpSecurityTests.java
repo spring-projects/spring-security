@@ -34,6 +34,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import reactor.core.publisher.Mono;
+import reactor.test.publisher.TestPublisher;
+
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.web.reactive.ServerHttpSecurityConfigurationBuilder;
@@ -58,9 +61,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
-
-import reactor.core.publisher.Mono;
-import reactor.test.publisher.TestPublisher;
 
 /**
  * @author Rob Winch
@@ -174,7 +174,7 @@ public class ServerHttpSecurityTests {
 
 		assertThat(getWebFilter(securityWebFilterChain, CsrfWebFilter.class))
 				.get()
-				.extracting(CsrfWebFilter::getCsrfTokenRepository)
+				.extracting(csrfWebFilter -> ReflectionTestUtils.getField(csrfWebFilter, "csrfTokenRepository"))
 				.isEqualTo(this.csrfTokenRepository);
 
 		Optional<ServerLogoutHandler> logoutHandler = getWebFilter(securityWebFilterChain, LogoutWebFilter.class)

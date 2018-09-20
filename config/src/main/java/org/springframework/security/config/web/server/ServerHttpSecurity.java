@@ -27,14 +27,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
-import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
@@ -53,6 +48,7 @@ import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.oauth2.client.InMemoryReactiveOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeReactiveAuthenticationManager;
@@ -60,9 +56,11 @@ import org.springframework.security.oauth2.client.authentication.OAuth2LoginReac
 import org.springframework.security.oauth2.client.endpoint.WebClientReactiveAuthorizationCodeTokenResponseClient;
 import org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizationCodeReactiveAuthenticationManager;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcReactiveOAuth2UserService;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.userinfo.DefaultReactiveOAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.ReactiveOAuth2UserService;
 import org.springframework.security.oauth2.client.web.server.AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.server.OAuth2AuthorizationCodeGrantWebFilter;
@@ -70,6 +68,8 @@ import org.springframework.security.oauth2.client.web.server.OAuth2Authorization
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizationCodeAuthenticationTokenConverter;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.server.authentication.OAuth2LoginAuthenticationWebFilter;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtReactiveAuthenticationManager;
@@ -87,6 +87,7 @@ import org.springframework.security.web.server.authentication.HttpBasicServerAut
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationFailureHandler;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
+import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
 import org.springframework.security.web.server.authentication.ServerAuthenticationEntryPointFailureHandler;
 import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler;
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
@@ -94,6 +95,7 @@ import org.springframework.security.web.server.authentication.ServerFormLoginAut
 import org.springframework.security.web.server.authentication.ServerHttpBasicAuthenticationConverter;
 import org.springframework.security.web.server.authentication.logout.DelegatingServerLogoutHandler;
 import org.springframework.security.web.server.authentication.logout.LogoutWebFilter;
+import org.springframework.security.web.server.authentication.logout.SecurityContextServerLogoutHandler;
 import org.springframework.security.web.server.authentication.logout.ServerLogoutHandler;
 import org.springframework.security.web.server.authentication.logout.ServerLogoutSuccessHandler;
 import org.springframework.security.web.server.authorization.AuthorizationContext;
@@ -110,6 +112,7 @@ import org.springframework.security.web.server.context.WebSessionServerSecurityC
 import org.springframework.security.web.server.csrf.CsrfServerLogoutHandler;
 import org.springframework.security.web.server.csrf.CsrfWebFilter;
 import org.springframework.security.web.server.csrf.ServerCsrfTokenRepository;
+import org.springframework.security.web.server.csrf.WebSessionServerCsrfTokenRepository;
 import org.springframework.security.web.server.header.CacheControlServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.CompositeServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.ContentSecurityPolicyServerHttpHeadersWriter;
@@ -1540,6 +1543,7 @@ public class ServerHttpSecurity {
 	 */
 	public class CsrfSpec {
 		private CsrfWebFilter filter = new CsrfWebFilter();
+		private ServerCsrfTokenRepository csrfTokenRepository = new WebSessionServerCsrfTokenRepository();
 
 		private boolean specifiedRequireCsrfProtectionMatcher;
 
@@ -1565,7 +1569,7 @@ public class ServerHttpSecurity {
 		 */
 		public CsrfSpec csrfTokenRepository(
 			ServerCsrfTokenRepository csrfTokenRepository) {
-			this.filter.setCsrfTokenRepository(csrfTokenRepository);
+			this.csrfTokenRepository = csrfTokenRepository;
 			return this;
 		}
 
@@ -1602,7 +1606,10 @@ public class ServerHttpSecurity {
 		}
 
 		protected void configure(ServerHttpSecurity http) {
-			http.logout().additionalLogoutHandler(new CsrfServerLogoutHandler(this.filter.getCsrfTokenRepository()));
+			Optional.ofNullable(this.csrfTokenRepository).ifPresent(serverCsrfTokenRepository -> {
+				this.filter.setCsrfTokenRepository(serverCsrfTokenRepository);
+				http.logout().logoutHandler(new CsrfServerLogoutHandler(serverCsrfTokenRepository));
+			});
 			http.addFilterAt(this.filter, SecurityWebFiltersOrder.CSRF);
 		}
 
@@ -2341,38 +2348,16 @@ public class ServerHttpSecurity {
 	 */
 	public final class LogoutSpec {
 		private LogoutWebFilter logoutWebFilter = new LogoutWebFilter();
+		private List<ServerLogoutHandler> logoutHandlers = new ArrayList<>(Arrays.asList(new SecurityContextServerLogoutHandler()));
 
 		/**
 		 * Configures the logout handler. Default is {@code SecurityContextServerLogoutHandler}
 		 * @param logoutHandler
 		 * @return the {@link LogoutSpec} to configure
-		 * @see #additionalLogoutHandler(ServerLogoutHandler)
 		 */
 		public LogoutSpec logoutHandler(ServerLogoutHandler logoutHandler) {
-			this.logoutWebFilter.setLogoutHandler(logoutHandler);
-			return this;
-		}
-
-		/**
-		 * Configutes an additional logout handler.
-		 * @param logoutHandler The additional handler to use
-		 * @return This instance
-		 * @since 5.1
-		 * @see #logoutHandler(ServerLogoutHandler)
-		 */
-		public LogoutSpec additionalLogoutHandler(ServerLogoutHandler logoutHandler) {
-			ServerLogoutHandler currentLogoutHandler = this.logoutWebFilter.getLogoutHandler();
-
-			if (currentLogoutHandler != null) {
-				if (currentLogoutHandler instanceof DelegatingServerLogoutHandler) {
-					((DelegatingServerLogoutHandler) currentLogoutHandler).addDelegate(logoutHandler);
-				}
-				else {
-					logoutHandler(new DelegatingServerLogoutHandler(currentLogoutHandler, logoutHandler));
-				}
-			}
-			else {
-				logoutHandler(logoutHandler);
+			if (logoutHandler != null) {
+				this.logoutHandlers.add(logoutHandler);
 			}
 
 			return this;
@@ -2422,7 +2407,19 @@ public class ServerHttpSecurity {
 			return and();
 		}
 
+		private Optional<ServerLogoutHandler> createLogoutHandler() {
+			if (this.logoutHandlers.isEmpty()) {
+				return Optional.empty();
+			}
+			else if (this.logoutHandlers.size() == 1) {
+				return Optional.of(this.logoutHandlers.get(0));
+			}
+
+			return Optional.of(new DelegatingServerLogoutHandler(this.logoutHandlers));
+		}
+
 		protected void configure(ServerHttpSecurity http) {
+			createLogoutHandler().ifPresent(this.logoutWebFilter::setLogoutHandler);
 			http.addFilterAt(this.logoutWebFilter, SecurityWebFiltersOrder.LOGOUT);
 		}
 

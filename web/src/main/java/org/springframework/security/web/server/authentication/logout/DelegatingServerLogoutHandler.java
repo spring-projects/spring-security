@@ -22,13 +22,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
+import reactor.core.publisher.Mono;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.util.Assert;
-
-import reactor.core.publisher.Mono;
 
 /**
  * Delegates to a collection of {@link ServerLogoutHandler} implementations.
@@ -49,22 +48,12 @@ public class DelegatingServerLogoutHandler implements ServerLogoutHandler {
 		this.delegates.addAll(delegates);
 	}
 
-	/**
-	 * Adds a delegate {@link ServerLogoutHandler}
-	 *
-	 * @param delegate The delegate to add
-	 */
-	public void addDelegate(ServerLogoutHandler delegate) {
-		Assert.notNull(delegate, "delegate cannot be null");
-		this.delegates.add(delegate);
-	}
-
 	@Override
 	public Mono<Void> logout(WebFilterExchange exchange, Authentication authentication) {
-		Stream<Mono<Void>> results = this.delegates.stream()
+		return Mono.when(this.delegates.stream()
 				.filter(Objects::nonNull)
-				.map(delegate -> delegate.logout(exchange, authentication));
-
-		return Mono.when(results.collect(Collectors.toList()));
+				.map(delegate -> delegate.logout(exchange, authentication))
+				.collect(Collectors.toList())
+		);
 	}
 }

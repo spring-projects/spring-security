@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.server.authentication.logout;
 
+import reactor.core.publisher.Mono;
+
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -28,8 +30,6 @@ import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
-
-import reactor.core.publisher.Mono;
 
 /**
  * If the request matches, logs an authenticated user out by delegating to a
@@ -92,15 +92,6 @@ public class LogoutWebFilter implements WebFilter {
 	public void setLogoutHandler(ServerLogoutHandler logoutHandler) {
 		Assert.notNull(logoutHandler, "logoutHandler must not be null");
 		this.logoutHandler = logoutHandler;
-	}
-
-	/**
-	 * Gets the {@link ServerLogoutHandler}
-	 * @return The current {@link ServerLogoutHandler}
-	 * @since 5.1
-	 */
-	public ServerLogoutHandler getLogoutHandler() {
-		return this.logoutHandler;
 	}
 
 	public void setRequiresLogoutMatcher(ServerWebExchangeMatcher requiresLogoutMatcher) {

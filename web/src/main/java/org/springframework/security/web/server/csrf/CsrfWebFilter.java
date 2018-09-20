@@ -78,15 +78,6 @@ public class CsrfWebFilter implements WebFilter {
 		this.csrfTokenRepository = csrfTokenRepository;
 	}
 
-	/**
-	 * Gets the {@link ServerCsrfTokenRepository}
-	 * @return The {@link ServerCsrfTokenRepository}
-	 * @since 5.1
-	 */
-	public ServerCsrfTokenRepository getCsrfTokenRepository() {
-		return this.csrfTokenRepository;
-	}
-
 	public void setRequireCsrfProtectionMatcher(
 		ServerWebExchangeMatcher requireCsrfProtectionMatcher) {
 		Assert.notNull(requireCsrfProtectionMatcher, "requireCsrfProtectionMatcher cannot be null");
