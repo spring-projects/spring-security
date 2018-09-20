@@ -41,10 +41,10 @@ Below are the highlights of the release.
 === Integrations
 
 * <<jackson,Jackson Support>> works with `BadCredentialsException`
-* <<test-method>> - Support for customizing when the `SecurityContext` is setup in the test.
+* `@WithMockUser` <<test-method-withmockuser,supports>> customizing when the `SecurityContext` is setup in the test.
 For example, `@WithMockUser(setupBefore = TestExecutionEvent.TEST_EXECUTION)` will setup a user after JUnit's `@Before` and before the test executes.
-* <<ldap>> - Support for setting up an `LdapContext` from custom environment variables
-* <<x509>> - Support for deriving the X.509 principal via a strategy
+* <<ldap,LDAP Authentication>> can be configured with custom environment variables
+* <<x509,X.509 Authentication>> supports deriving the principal as a strategy
 
 
 
