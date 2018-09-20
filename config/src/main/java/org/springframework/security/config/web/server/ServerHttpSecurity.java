@@ -29,12 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
-import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
@@ -53,6 +47,7 @@ import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.oauth2.client.InMemoryReactiveOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeReactiveAuthenticationManager;
@@ -60,9 +55,11 @@ import org.springframework.security.oauth2.client.authentication.OAuth2LoginReac
 import org.springframework.security.oauth2.client.endpoint.WebClientReactiveAuthorizationCodeTokenResponseClient;
 import org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizationCodeReactiveAuthenticationManager;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcReactiveOAuth2UserService;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.userinfo.DefaultReactiveOAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.ReactiveOAuth2UserService;
 import org.springframework.security.oauth2.client.web.server.AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.server.OAuth2AuthorizationCodeGrantWebFilter;
@@ -70,6 +67,8 @@ import org.springframework.security.oauth2.client.web.server.OAuth2Authorization
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizationCodeAuthenticationTokenConverter;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.server.authentication.OAuth2LoginAuthenticationWebFilter;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtReactiveAuthenticationManager;
@@ -87,6 +86,7 @@ import org.springframework.security.web.server.authentication.HttpBasicServerAut
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationFailureHandler;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
+import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
 import org.springframework.security.web.server.authentication.ServerAuthenticationEntryPointFailureHandler;
 import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler;
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
@@ -2087,8 +2087,8 @@ public class ServerHttpSecurity {
 		 * @param referrerPolicy the policy to use
 		 * @return the {@link ReferrerPolicySpec} to configure
 		 */
-		public HeaderSpec referrerPolicy(ReferrerPolicy referrerPolicy) {
-			return referrerPolicy().referrerPolicy(referrerPolicy);
+		public ReferrerPolicySpec referrerPolicy(ReferrerPolicy referrerPolicy) {
+			return new ReferrerPolicySpec(referrerPolicy);
 		}
 
 		/**
@@ -2292,20 +2292,10 @@ public class ServerHttpSecurity {
 		 * Configures {@code Referrer-Policy} response header.
 		 *
 		 * @see #referrerPolicy()
+		 * @see #referrerPolicy(ReferrerPolicy)
 		 * @since 5.1
 		 */
 		public class ReferrerPolicySpec {
-
-			/**
-			 * Set the policy to be used in the response header. Defaults to the
-			 * {@link ReferrerPolicy#NO_REFERRER} header.
-			 * @param referrerPolicy the policy
-			 * @return the {@link HeaderSpec} to continue configuring
-			 */
-			public HeaderSpec referrerPolicy(ReferrerPolicy referrerPolicy) {
-				HeaderSpec.this.referrerPolicy.setPolicy(referrerPolicy);
-				return HeaderSpec.this;
-			}
 
 			/**
 			 * Allows method chaining to continue configuring the
@@ -2317,6 +2307,10 @@ public class ServerHttpSecurity {
 			}
 
 			private ReferrerPolicySpec() {
+			}
+
+			private ReferrerPolicySpec(ReferrerPolicy referrerPolicy) {
+				HeaderSpec.this.referrerPolicy.setPolicy(referrerPolicy);
 			}
 
 		}
