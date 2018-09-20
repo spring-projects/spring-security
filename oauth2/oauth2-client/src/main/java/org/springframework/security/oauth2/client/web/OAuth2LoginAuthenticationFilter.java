@@ -34,8 +34,10 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResp
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -192,7 +194,10 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 		String code = request.getParameter(OAuth2ParameterNames.CODE);
 		String errorCode = request.getParameter(OAuth2ParameterNames.ERROR);
 		String state = request.getParameter(OAuth2ParameterNames.STATE);
-		String redirectUri = request.getRequestURL().toString();
+		String redirectUri = UriComponentsBuilder.fromHttpUrl(UrlUtils.buildFullRequestUrl(request))
+			.replaceQuery(null)
+			.build()
+			.toUriString();
 
 		if (StringUtils.hasText(code)) {
 			return OAuth2AuthorizationResponse.success(code)
