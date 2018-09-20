@@ -15,11 +15,14 @@
  */
 package org.springframework.security.oauth2.jwt;
 
-import com.nimbusds.oauth2.sdk.ParseException;
-import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
-
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.RequestEntity;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import java.net.URI;
+import java.util.Map;
 
 /**
  * Allows creating a {@link JwtDecoder} from an
@@ -42,9 +45,11 @@ public final class JwtDecoders {
 	 * @return a {@link JwtDecoder} that was initialized by the OpenID Provider Configuration.
 	 */
 	public static JwtDecoder fromOidcIssuerLocation(String oidcIssuerLocation) {
-		String openidConfiguration = getOpenidConfiguration(oidcIssuerLocation);
-		OIDCProviderMetadata metadata = parse(openidConfiguration);
-		String metadataIssuer = metadata.getIssuer().getValue();
+		Map<String, Object> openidConfiguration = getOpenidConfiguration(oidcIssuerLocation);
+		String metadataIssuer = "(unavailable)";
+		if (openidConfiguration.containsKey("issuer")) {
+			metadataIssuer = openidConfiguration.get("issuer").toString();
+		}
 		if (!oidcIssuerLocation.equals(metadataIssuer)) {
 			throw new IllegalStateException("The Issuer \"" + metadataIssuer + "\" provided in the OpenID Configuration " +
 					"did not match the requested issuer \"" + oidcIssuerLocation + "\"");
@@ -54,28 +59,24 @@ public final class JwtDecoders {
 				JwtValidators.createDefaultWithIssuer(oidcIssuerLocation);
 
 		NimbusJwtDecoderJwkSupport jwtDecoder =
-				new NimbusJwtDecoderJwkSupport(metadata.getJWKSetURI().toASCIIString());
+				new NimbusJwtDecoderJwkSupport(openidConfiguration.get("jwks_uri").toString());
 		jwtDecoder.setJwtValidator(jwtValidator);
 
 		return jwtDecoder;
 	}
 
-	private static String getOpenidConfiguration(String issuer) {
+	private static Map<String, Object> getOpenidConfiguration(String issuer) {
+		ParameterizedTypeReference<Map<String, Object>> typeReference = new ParameterizedTypeReference<Map<String, Object>>() {};
 		RestTemplate rest = new RestTemplate();
 		try {
-			return rest.getForObject(issuer + "/.well-known/openid-configuration", String.class);
+			URI uri = UriComponentsBuilder.fromUriString(issuer + "/.well-known/openid-configuration")
+					.build()
+					.toUri();
+			RequestEntity<Void> request = RequestEntity.get(uri).build();
+			return rest.exchange(request, typeReference).getBody();
 		} catch(RuntimeException e) {
 			throw new IllegalArgumentException("Unable to resolve the OpenID Configuration with the provided Issuer of " +
 					"\"" + issuer + "\"", e);
-		}
-	}
-
-	private static OIDCProviderMetadata parse(String body) {
-		try {
-			return OIDCProviderMetadata.parse(body);
-		}
-		catch (ParseException e) {
-			throw new RuntimeException(e);
 		}
 	}
 

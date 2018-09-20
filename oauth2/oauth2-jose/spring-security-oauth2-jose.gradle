@@ -6,11 +6,11 @@ dependencies {
 	compile springCoreDependency
 	compile 'com.nimbusds:nimbus-jose-jwt'
 
-	optional 'com.nimbusds:oauth2-oidc-sdk'
 	optional 'io.projectreactor:reactor-core'
 	optional 'org.springframework:spring-webflux'
 
 	testCompile powerMock2Dependencies
 	testCompile 'com.squareup.okhttp3:mockwebserver'
 	testCompile 'io.projectreactor.netty:reactor-netty'
+	testCompile 'com.fasterxml.jackson.core:jackson-databind'
 }
