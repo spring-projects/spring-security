@@ -358,13 +358,23 @@ public class GlobalMethodSecurityConfiguration
 		if (customMethodSecurityMetadataSource != null) {
 			sources.add(customMethodSecurityMetadataSource);
 		}
-		if (prePostEnabled()) {
+
+		boolean isPrePostEnabled = prePostEnabled();
+		boolean isSecureEnabled = securedEnabled();
+		boolean isJsr250Enabled = jsr250Enabled();
+
+		if (!isPrePostEnabled && !isSecureEnabled && !isJsr250Enabled) {
+			throw new IllegalStateException("In the composition of all global method configuration, " +
+					"no annotation support was actually activated");
+		}
+
+		if (isPrePostEnabled) {
 			sources.add(new PrePostAnnotationSecurityMetadataSource(attributeFactory));
 		}
-		if (securedEnabled()) {
+		if (isSecureEnabled) {
 			sources.add(new SecuredAnnotationSecurityMetadataSource());
 		}
-		if (jsr250Enabled()) {
+		if (isJsr250Enabled) {
 			GrantedAuthorityDefaults grantedAuthorityDefaults =
 					getSingleBeanOrNull(GrantedAuthorityDefaults.class);
 			Jsr250MethodSecurityMetadataSource jsr250MethodSecurityMetadataSource = this.context.getBean(Jsr250MethodSecurityMetadataSource.class);
