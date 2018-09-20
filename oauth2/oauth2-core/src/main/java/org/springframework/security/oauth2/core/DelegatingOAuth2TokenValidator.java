@@ -17,6 +17,7 @@
 package org.springframework.security.oauth2.core;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 
 import org.springframework.util.Assert;
@@ -34,10 +35,25 @@ public final class DelegatingOAuth2TokenValidator<T extends AbstractOAuth2Token>
 
 	private final Collection<OAuth2TokenValidator<T>> tokenValidators;
 
+	/**
+	 * Constructs a {@code DelegatingOAuth2TokenValidator} using the provided validators.
+	 *
+	 * @param tokenValidators the {@link Collection} of {@link OAuth2TokenValidator}s to use
+	 */
 	public DelegatingOAuth2TokenValidator(Collection<OAuth2TokenValidator<T>> tokenValidators) {
 		Assert.notNull(tokenValidators, "tokenValidators cannot be null");
 
 		this.tokenValidators = new ArrayList<>(tokenValidators);
+	}
+
+	/**
+	 * Constructs a {@code DelegatingOAuth2TokenValidator} using the provided validators.
+	 *
+	 * @param tokenValidators the collection of {@link OAuth2TokenValidator}s to use
+	 */
+	@SafeVarargs
+	public DelegatingOAuth2TokenValidator(OAuth2TokenValidator<T>... tokenValidators) {
+		this(Arrays.asList(tokenValidators));
 	}
 
 	/**

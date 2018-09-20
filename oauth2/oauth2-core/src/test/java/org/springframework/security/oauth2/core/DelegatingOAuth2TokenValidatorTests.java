@@ -16,20 +16,16 @@
 package org.springframework.security.oauth2.core;
 
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Collection;
 
 import org.junit.Test;
-
-import org.springframework.security.oauth2.core.AbstractOAuth2Token;
-import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
-import org.springframework.security.oauth2.core.OAuth2Error;
-import org.springframework.security.oauth2.core.OAuth2TokenValidator;
-import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -44,7 +40,7 @@ public class DelegatingOAuth2TokenValidatorTests {
 	@Test
 	public void validateWhenNoValidatorsConfiguredThenReturnsSuccessfulResult() {
 		DelegatingOAuth2TokenValidator<AbstractOAuth2Token> tokenValidator =
-				new DelegatingOAuth2TokenValidator<>(Collections.emptyList());
+				new DelegatingOAuth2TokenValidator<>();
 		AbstractOAuth2Token token = mock(AbstractOAuth2Token.class);
 
 		assertThat(tokenValidator.validate(token).hasErrors()).isFalse();
@@ -84,7 +80,7 @@ public class DelegatingOAuth2TokenValidatorTests {
 				.thenReturn(OAuth2TokenValidatorResult.failure(otherDetail));
 
 		DelegatingOAuth2TokenValidator<AbstractOAuth2Token> tokenValidator =
-				new DelegatingOAuth2TokenValidator<>(Arrays.asList(firstFailure, secondFailure));
+				new DelegatingOAuth2TokenValidator<>(firstFailure, secondFailure);
 		AbstractOAuth2Token token = mock(AbstractOAuth2Token.class);
 
 		OAuth2TokenValidatorResult result =
@@ -117,7 +113,32 @@ public class DelegatingOAuth2TokenValidatorTests {
 
 	@Test
 	public void constructorWhenInvokedWithNullValidatorListThenThrowsIllegalArgumentException() {
-		assertThatCode(() -> new DelegatingOAuth2TokenValidator<>(null))
+		assertThatCode(() -> new DelegatingOAuth2TokenValidator<>
+				((Collection<OAuth2TokenValidator<AbstractOAuth2Token>>) null))
 				.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void constructorsWhenInvokedWithSameInputsThenResultInSameOutputs() {
+		OAuth2TokenValidator<AbstractOAuth2Token> firstSuccess = mock(OAuth2TokenValidator.class);
+		OAuth2TokenValidator<AbstractOAuth2Token> secondSuccess = mock(OAuth2TokenValidator.class);
+
+		when(firstSuccess.validate(any(AbstractOAuth2Token.class)))
+				.thenReturn(OAuth2TokenValidatorResult.success());
+		when(secondSuccess.validate(any(AbstractOAuth2Token.class)))
+				.thenReturn(OAuth2TokenValidatorResult.success());
+
+		DelegatingOAuth2TokenValidator<AbstractOAuth2Token> firstValidator =
+				new DelegatingOAuth2TokenValidator<>(Arrays.asList(firstSuccess, secondSuccess));
+		DelegatingOAuth2TokenValidator<AbstractOAuth2Token> secondValidator =
+				new DelegatingOAuth2TokenValidator<>(firstSuccess, secondSuccess);
+
+		AbstractOAuth2Token token = mock(AbstractOAuth2Token.class);
+
+		firstValidator.validate(token);
+		secondValidator.validate(token);
+
+		verify(firstSuccess, times(2)).validate(token);
+		verify(secondSuccess, times(2)).validate(token);
 	}
 }
