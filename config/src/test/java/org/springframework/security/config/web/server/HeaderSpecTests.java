@@ -182,6 +182,15 @@ public class HeaderSpecTests {
 		assertHeaders();
 	}
 
+	@Test
+	public void headersWhenReferrerPolicyCustomEnabledThenFeaturePolicyCustomWritten() {
+		this.expectedHeaders.add(ReferrerPolicyServerHttpHeadersWriter.REFERRER_POLICY,
+				ReferrerPolicy.NO_REFERRER_WHEN_DOWNGRADE.getPolicy());
+		this.headers.referrerPolicy(ReferrerPolicy.NO_REFERRER_WHEN_DOWNGRADE);
+
+		assertHeaders();
+	}
+
 	private void expectHeaderNamesNotPresent(String... headerNames) {
 		for (String headerName : headerNames) {
 			this.expectedHeaders.remove(headerName);
