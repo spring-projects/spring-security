@@ -1608,7 +1608,7 @@ public class ServerHttpSecurity {
 		protected void configure(ServerHttpSecurity http) {
 			Optional.ofNullable(this.csrfTokenRepository).ifPresent(serverCsrfTokenRepository -> {
 				this.filter.setCsrfTokenRepository(serverCsrfTokenRepository);
-				http.logout().logoutHandler(new CsrfServerLogoutHandler(serverCsrfTokenRepository));
+				http.logout().addLogoutHandler(new CsrfServerLogoutHandler(serverCsrfTokenRepository));
 			});
 			http.addFilterAt(this.filter, SecurityWebFiltersOrder.CSRF);
 		}
@@ -2350,10 +2350,14 @@ public class ServerHttpSecurity {
 		 * @return the {@link LogoutSpec} to configure
 		 */
 		public LogoutSpec logoutHandler(ServerLogoutHandler logoutHandler) {
-			if (logoutHandler != null) {
-				this.logoutHandlers.add(logoutHandler);
-			}
+			Assert.notNull(logoutHandler, "logoutHandler cannot be null");
+			this.logoutHandlers.clear();
+			return addLogoutHandler(logoutHandler);
+		}
 
+		private LogoutSpec addLogoutHandler(ServerLogoutHandler logoutHandler) {
+			Assert.notNull(logoutHandler, "logoutHandler cannot be null");
+			this.logoutHandlers.add(logoutHandler);
 			return this;
 		}
 
