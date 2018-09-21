@@ -124,7 +124,7 @@ public class OAuth2AuthorizationCodeGrantWebFilter implements WebFilter {
 		Assert.notNull(authorizedClientRepository, "authorizedClientRepository cannot be null");
 		this.authenticationManager = authenticationManager;
 		this.authorizedClientRepository = authorizedClientRepository;
-		this.requiresAuthenticationMatcher = new PathPatternParserServerWebExchangeMatcher("/authorize/oauth2/code/{registrationId}");
+		this.requiresAuthenticationMatcher = new PathPatternParserServerWebExchangeMatcher("/{action}/oauth2/code/{registrationId}");
 		this.authenticationConverter = authenticationConverter;
 		this.authenticationSuccessHandler = new RedirectServerAuthenticationSuccessHandler();
 		this.authenticationFailureHandler = (webFilterExchange, exception) -> Mono.error(exception);
