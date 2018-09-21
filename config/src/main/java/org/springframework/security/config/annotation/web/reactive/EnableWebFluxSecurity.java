@@ -54,6 +54,7 @@ import java.lang.annotation.Target;
  * <pre class="code">
  * &#064;EnableWebFluxSecurity
  * public class MyExplicitSecurityConfiguration {
+ *     // @formatter:off
  *     &#064;Bean
  *     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
  *          http
@@ -64,7 +65,9 @@ import java.lang.annotation.Target;
  *                    .formLogin();
  *          return http.build();
  *     }
+ *     // @formatter:on
  *
+ *     // @formatter:off
  *     &#064;Bean
  *     public MapReactiveUserDetailsService userDetailsService() {
  *          UserDetails user = User.withDefaultPasswordEncoder()
@@ -74,6 +77,7 @@ import java.lang.annotation.Target;
  *               .build();
  *          return new MapReactiveUserDetailsService(user);
  *     }
+ *     // @formatter:on
  * }
  *
  * @author Rob Winch
