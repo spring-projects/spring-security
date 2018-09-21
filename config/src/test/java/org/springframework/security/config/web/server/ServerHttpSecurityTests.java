@@ -16,12 +16,27 @@
 
 package org.springframework.security.config.web.server;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.apache.http.HttpHeaders;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import reactor.core.publisher.Mono;
+import reactor.test.publisher.TestPublisher;
+
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.web.reactive.ServerHttpSecurityConfigurationBuilder;
@@ -29,21 +44,23 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.WebFilterChainProxy;
+import org.springframework.security.web.server.authentication.logout.DelegatingServerLogoutHandler;
+import org.springframework.security.web.server.authentication.logout.LogoutWebFilter;
+import org.springframework.security.web.server.authentication.logout.SecurityContextServerLogoutHandler;
+import org.springframework.security.web.server.authentication.logout.ServerLogoutHandler;
 import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
+import org.springframework.security.web.server.csrf.CsrfServerLogoutHandler;
+import org.springframework.security.web.server.csrf.CsrfWebFilter;
+import org.springframework.security.web.server.csrf.ServerCsrfTokenRepository;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.FluxExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
-import reactor.test.publisher.TestPublisher;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
+import org.springframework.web.server.WebFilter;
 
 /**
  * @author Rob Winch
@@ -55,6 +72,8 @@ public class ServerHttpSecurityTests {
 	private ServerSecurityContextRepository contextRepository;
 	@Mock
 	private ReactiveAuthenticationManager authenticationManager;
+	@Mock
+	private ServerCsrfTokenRepository csrfTokenRepository;
 
 	private ServerHttpSecurity http;
 
@@ -132,6 +151,51 @@ public class ServerHttpSecurityTests {
 		client.get().uri("/foo/bar")
 				.exchange()
 				.expectBody(String.class).isEqualTo("/foo/bar");
+	}
+
+	@Test
+	public void csrfServerLogoutHandlerNotAppliedIfCsrfIsntEnabled() {
+		SecurityWebFilterChain securityWebFilterChain = this.http.csrf().disable().build();
+
+		assertThat(getWebFilter(securityWebFilterChain, CsrfWebFilter.class))
+				.isNotPresent();
+
+		Optional<ServerLogoutHandler> logoutHandler = getWebFilter(securityWebFilterChain, LogoutWebFilter.class)
+				.map(logoutWebFilter -> (ServerLogoutHandler) ReflectionTestUtils.getField(logoutWebFilter, LogoutWebFilter.class, "logoutHandler"));
+
+		assertThat(logoutHandler)
+				.get()
+				.isExactlyInstanceOf(SecurityContextServerLogoutHandler.class);
+	}
+
+	@Test
+	public void csrfServerLogoutHandlerAppliedIfCsrfIsEnabled() {
+		SecurityWebFilterChain securityWebFilterChain = this.http.csrf().csrfTokenRepository(this.csrfTokenRepository).and().build();
+
+		assertThat(getWebFilter(securityWebFilterChain, CsrfWebFilter.class))
+				.get()
+				.extracting(csrfWebFilter -> ReflectionTestUtils.getField(csrfWebFilter, "csrfTokenRepository"))
+				.isEqualTo(this.csrfTokenRepository);
+
+		Optional<ServerLogoutHandler> logoutHandler = getWebFilter(securityWebFilterChain, LogoutWebFilter.class)
+				.map(logoutWebFilter -> (ServerLogoutHandler) ReflectionTestUtils.getField(logoutWebFilter, LogoutWebFilter.class, "logoutHandler"));
+
+		assertThat(logoutHandler)
+				.get()
+				.isExactlyInstanceOf(DelegatingServerLogoutHandler.class)
+				.extracting(delegatingLogoutHandler ->
+						((List<ServerLogoutHandler>) ReflectionTestUtils.getField(delegatingLogoutHandler, DelegatingServerLogoutHandler.class, "delegates")).stream()
+								.map(ServerLogoutHandler::getClass)
+								.collect(Collectors.toList()))
+				.isEqualTo(Arrays.asList(SecurityContextServerLogoutHandler.class, CsrfServerLogoutHandler.class));
+	}
+
+	private <T extends WebFilter> Optional<T> getWebFilter(SecurityWebFilterChain filterChain, Class<T> filterClass) {
+		return (Optional<T>) filterChain.getWebFilters()
+				.filter(Objects::nonNull)
+				.filter(filter -> filter.getClass().isAssignableFrom(filterClass))
+				.singleOrEmpty()
+				.blockOptional();
 	}
 
 	private WebTestClient buildClient() {
