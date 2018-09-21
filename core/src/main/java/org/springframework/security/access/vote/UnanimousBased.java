@@ -64,7 +64,6 @@ public class UnanimousBased extends AbstractAccessDecisionManager {
 			Collection<ConfigAttribute> attributes) throws AccessDeniedException {
 
 		int grant = 0;
-		int abstain = 0;
 
 		List<ConfigAttribute> singleAttributeList = new ArrayList<>(1);
 		singleAttributeList.add(null);
@@ -91,8 +90,6 @@ public class UnanimousBased extends AbstractAccessDecisionManager {
 							"Access is denied"));
 
 				default:
-					abstain++;
-
 					break;
 				}
 			}

@@ -68,7 +68,6 @@ public class ConsensusBased extends AbstractAccessDecisionManager {
 			Collection<ConfigAttribute> configAttributes) throws AccessDeniedException {
 		int grant = 0;
 		int deny = 0;
-		int abstain = 0;
 
 		for (AccessDecisionVoter voter : getDecisionVoters()) {
 			int result = voter.vote(authentication, object, configAttributes);
@@ -89,8 +88,6 @@ public class ConsensusBased extends AbstractAccessDecisionManager {
 				break;
 
 			default:
-				abstain++;
-
 				break;
 			}
 		}
