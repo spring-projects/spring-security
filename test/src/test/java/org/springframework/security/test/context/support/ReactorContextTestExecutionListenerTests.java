@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,9 +85,7 @@ public class ReactorContextTestExecutionListenerTests {
 	@Test
 	public void beforeTestMethodWhenAuthenticationThenReactorContextHasAuthentication() throws Exception {
 		TestingAuthenticationToken expectedAuthentication = new TestingAuthenticationToken("user", "password", "ROLE_USER");
-		SecurityContextImpl context = new SecurityContextImpl();
-		context.setAuthentication(expectedAuthentication);
-		TestSecurityContextHolder.setContext(context);
+		TestSecurityContextHolder.setAuthentication(expectedAuthentication);
 
 		this.listener.beforeTestMethod(this.testContext);
 
@@ -127,7 +125,7 @@ public class ReactorContextTestExecutionListenerTests {
 	public void beforeTestMethodWhenExistingAuthenticationThenReactorContextHasOriginalAuthentication() throws Exception {
 		TestingAuthenticationToken expectedAuthentication = new TestingAuthenticationToken("user", "password", "ROLE_USER");
 		TestingAuthenticationToken contextHolder = new TestingAuthenticationToken("contextHolder", "password", "ROLE_USER");
-		TestSecurityContextHolder.setContext(new SecurityContextImpl(contextHolder));
+		TestSecurityContextHolder.setAuthentication(contextHolder);
 
 		this.listener.beforeTestMethod(this.testContext);
 
@@ -146,7 +144,7 @@ public class ReactorContextTestExecutionListenerTests {
 	public void beforeTestMethodWhenClearThenReactorContextDoesNotOverride() throws Exception {
 		TestingAuthenticationToken expectedAuthentication = new TestingAuthenticationToken("user", "password", "ROLE_USER");
 		TestingAuthenticationToken contextHolder = new TestingAuthenticationToken("contextHolder", "password", "ROLE_USER");
-		TestSecurityContextHolder.setContext(new SecurityContextImpl(contextHolder));
+		TestSecurityContextHolder.setAuthentication(contextHolder);
 
 		this.listener.beforeTestMethod(this.testContext);
 
@@ -187,7 +185,7 @@ public class ReactorContextTestExecutionListenerTests {
 	@Test
 	public void checkSecurityContextResolutionWhenSubscribedContextCalledOnTheDifferentThreadThanWithSecurityContextTestExecutionListener() throws Exception {
 		TestingAuthenticationToken contextHolder = new TestingAuthenticationToken("contextHolder", "password", "ROLE_USER");
-		TestSecurityContextHolder.setContext(new SecurityContextImpl(contextHolder));
+		TestSecurityContextHolder.setAuthentication(contextHolder);
 
 		this.listener.beforeTestMethod(this.testContext);
 
