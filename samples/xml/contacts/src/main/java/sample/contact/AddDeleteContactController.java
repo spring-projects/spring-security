@@ -69,7 +69,7 @@ public class AddDeleteContactController {
 	}
 
 	@RequestMapping(value = "/secure/del.htm", method = RequestMethod.GET)
-	public ModelAndView handleRequest(@RequestParam("contactId") int contactId) {
+	public ModelAndView delContact(@RequestParam("contactId") int contactId) {
 		Contact contact = contactManager.getById(Long.valueOf(contactId));
 		contactManager.delete(contact);
 
