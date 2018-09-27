@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -87,7 +87,7 @@ public class DefaultPermissionGrantingStrategy implements PermissionGrantingStra
 
 				for (AccessControlEntry ace : aces) {
 
-					if ((ace.getPermission().getMask() == p.getMask())
+					if (comparePermissionMasks(ace, p)
 							&& ace.getSid().equals(sid)) {
 						// Found a matching ACE, so its authorization decision will
 						// prevail
@@ -140,6 +140,27 @@ public class DefaultPermissionGrantingStrategy implements PermissionGrantingStra
 			throw new NotFoundException(
 					"Unable to locate a matching ACE for passed permissions and SIDs");
 		}
+	}
+
+	/**
+	 * Compares an ACE Permission to the given Permission.
+	 * By default, we compare the Permission masks for exact match.
+	 * Subclasses of this strategy can override this behavior and implement
+	 * more sophisticated comparisons, e.g. a bitwise comparison for ACEs that grant access.
+	 * <pre>{@code
+	 * if (ace.isGranting() && p.getMask() != 0) {
+	 *    return (ace.getPermission().getMask() & p.getMask()) != 0;
+	 * } else {
+	 *    return ace.getPermission().getMask() == p.getMask();
+	 * }
+	 * }</pre>
+	 * 
+	 * @param ace the ACE from the Acl holding the mask.
+	 * @param p the Permission we are checking against.
+	 * @return true, if the respective masks are considered to be equal.
+	 */
+	protected boolean comparePermissionMasks(AccessControlEntry ace, Permission p) {
+		return ace.getPermission().getMask() == p.getMask();
 	}
 
 }
