@@ -55,5 +55,5 @@ public @interface Secured {
 	 *
 	 * @return String[] The secure method attributes
 	 */
-	public String[]value();
+	public String[] value();
 }
