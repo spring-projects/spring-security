@@ -154,7 +154,7 @@ public class DefaultPermissionGrantingStrategy implements PermissionGrantingStra
 	 *    return ace.getPermission().getMask() == p.getMask();
 	 * }
 	 * }</pre>
-	 * 
+	 *
 	 * @param ace the ACE from the Acl holding the mask.
 	 * @param p the Permission we are checking against.
 	 * @return true, if the respective masks are considered to be equal.
