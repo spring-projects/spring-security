@@ -87,7 +87,7 @@ public class DefaultPermissionGrantingStrategy implements PermissionGrantingStra
 
 				for (AccessControlEntry ace : aces) {
 
-					if (comparePermissionMasks(ace, p)
+					if (isGranted(ace, p)
 							&& ace.getSid().equals(sid)) {
 						// Found a matching ACE, so its authorization decision will
 						// prevail
@@ -159,7 +159,7 @@ public class DefaultPermissionGrantingStrategy implements PermissionGrantingStra
 	 * @param p the Permission we are checking against.
 	 * @return true, if the respective masks are considered to be equal.
 	 */
-	protected boolean comparePermissionMasks(AccessControlEntry ace, Permission p) {
+	protected boolean isGranted(AccessControlEntry ace, Permission p) {
 		return ace.getPermission().getMask() == p.getMask();
 	}
 

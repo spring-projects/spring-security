@@ -49,6 +49,7 @@ public class AclImplTests {
 	PermissionGrantingStrategy pgs;
 	AuditLogger mockAuditLogger;
 	ObjectIdentity objectIdentity = new ObjectIdentityImpl(TARGET_CLASS, 100);
+	private DefaultPermissionFactory permissionFactory;
 
 	// ~ Methods
 	// ========================================================================================================
@@ -60,6 +61,7 @@ public class AclImplTests {
 		mockAuditLogger = mock(AuditLogger.class);
 		pgs = new DefaultPermissionGrantingStrategy(mockAuditLogger);
 		auth.setAuthenticated(true);
+		permissionFactory = new DefaultPermissionFactory();
 	}
 
 	@After
@@ -559,8 +561,38 @@ public class AclImplTests {
 		childAcl.setParent(changeParentAcl);
 	}
 
+	// SEC-2342
+	@Test
+	public void maskPermissionGrantingStrategy() {
+		DefaultPermissionGrantingStrategy maskPgs = new MaskPermissionGrantingStrategy(mockAuditLogger);
+		MockAclService service = new MockAclService();
+		AclImpl acl = new AclImpl(objectIdentity, 1, authzStrategy, maskPgs, null, null,
+				true, new PrincipalSid("joe"));
+		Permission permission = permissionFactory.buildFromMask(BasePermission.READ.getMask() | BasePermission.WRITE.getMask());
+		Sid sid = new PrincipalSid("ben");
+		acl.insertAce(0, permission, sid, true);
+		service.updateAcl(acl);
+		List<Permission> permissions = Arrays.asList(BasePermission.READ);
+		List<Sid> sids = Arrays.asList(sid);
+		assertThat(acl.isGranted(permissions, sids, false)).isTrue();
+	}
+
 	// ~ Inner Classes
 	// ==================================================================================================
+
+	private static class MaskPermissionGrantingStrategy extends DefaultPermissionGrantingStrategy {
+		public MaskPermissionGrantingStrategy(AuditLogger auditLogger) {
+			super(auditLogger);
+		}
+
+		@Override
+		protected boolean isGranted(AccessControlEntry ace, Permission p) {
+			if (p.getMask() != 0) {
+				return (p.getMask() & ace.getPermission().getMask()) != 0;
+			}
+			return super.isGranted(ace, p);
+		}
+	}
 
 	private class MockAclService implements MutableAclService {
 		public MutableAcl createAcl(ObjectIdentity objectIdentity)
