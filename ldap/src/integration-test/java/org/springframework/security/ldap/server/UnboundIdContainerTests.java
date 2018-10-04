@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,19 @@ public class UnboundIdContainerTests {
 		try {
 			server.afterPropertiesSet();
 			assertThat(server.getPort()).isEqualTo(ports.get(0));
+		} finally {
+			server.destroy();
+		}
+	}
+
+	@Test
+	public void afterPropertiesSetWhenPortIsZeroThenRandomPortIsSelected() throws Exception {
+		UnboundIdContainer server = new UnboundIdContainer("dc=springframework,dc=org", null);
+		server.setPort(0);
+
+		try {
+			server.afterPropertiesSet();
+			assertThat(server.getPort()).isNotEqualTo(0);
 		} finally {
 			server.destroy();
 		}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -103,6 +103,7 @@ public class UnboundIdContainer implements InitializingBean, DisposableBean, Lif
 			directoryServer.add(entry);
 			importLdif(directoryServer);
 			directoryServer.startListening();
+			this.port = directoryServer.getListenPort();
 			this.directoryServer = directoryServer;
 			this.running = true;
 		} catch (LDAPException ex) {
