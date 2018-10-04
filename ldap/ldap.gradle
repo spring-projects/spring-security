@@ -13,7 +13,8 @@ dependencies {
 			 "org.apache.directory.server:apacheds-protocol-ldap:$apacheDsVersion",
 			 "org.apache.directory.server:apacheds-server-jndi:$apacheDsVersion",
 			 'org.apache.directory.shared:shared-ldap:0.9.15',
-			 'ldapsdk:ldapsdk:4.1'
+			 'ldapsdk:ldapsdk:4.1',
+			 'com.unboundid:unboundid-ldapsdk:4.0.8'
 
 	compile ("org.springframework.ldap:spring-ldap-core:$springLdapVersion") {
 		exclude(group: 'commons-logging', module: 'commons-logging')
@@ -28,7 +29,8 @@ dependencies {
 }
 
 integrationTest {
-	include('**/ApacheDSServerIntegrationTests.class', '**/ApacheDSEmbeddedLdifTests.class')
+	include('**/ApacheDSServerIntegrationTests.class', '**/ApacheDSEmbeddedLdifTests.class',
+		'**/LdapUserDetailsManagerModifyPasswordTests.class')
 //	  exclude('**/OpenLDAPIntegrationTestSuite.class')
 	maxParallelForks = 1
 }
