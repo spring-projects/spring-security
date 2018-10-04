@@ -30,6 +30,7 @@ import reactor.core.publisher.Mono;
  * A Reactive {@link ClientRegistrationRepository} that stores {@link ClientRegistration}(s) in-memory.
  *
  * @author Rob Winch
+ * @author Vedran Pavic
  * @since 5.1
  * @see ClientRegistrationRepository
  * @see ClientRegistration
@@ -64,6 +65,18 @@ public final class InMemoryReactiveClientRegistrationRepository
 				.collect(Collectors.toConcurrentMap(ClientRegistration::getRegistrationId, Function.identity()));
 	}
 
+	/**
+	 * Constructs an {@code InMemoryReactiveClientRegistrationRepository} using the provided {@code Map}
+	 * of {@link ClientRegistration#getRegistrationId() registration id} to {@link ClientRegistration}.
+	 * <b>NOTE:</b> The supplied {@code Map} must be a non-blocking {@code Map}.
+	 *
+	 * @since 5.2
+	 * @param registrations the {@code Map} of client registration(s)
+	 */
+	public InMemoryReactiveClientRegistrationRepository(Map<String, ClientRegistration> registrations) {
+		Assert.notNull(registrations, "registrations cannot be null");
+		this.clientIdToClientRegistration = registrations;
+	}
 
 	@Override
 	public Mono<ClientRegistration> findByRegistrationId(String registrationId) {
