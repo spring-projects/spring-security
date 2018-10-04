@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ import static java.util.stream.Collectors.toConcurrentMap;
  *
  * @author Joe Grandja
  * @author Rob Winch
+ * @author Vedran Pavic
  * @since 5.0
  * @see ClientRegistrationRepository
  * @see ClientRegistration
@@ -56,11 +57,25 @@ public final class InMemoryClientRegistrationRepository implements ClientRegistr
 	 * @param registrations the client registration(s)
 	 */
 	public InMemoryClientRegistrationRepository(List<ClientRegistration> registrations) {
+		this(createRegistrationsMap(registrations));
+	}
+
+	private static Map<String, ClientRegistration> createRegistrationsMap(List<ClientRegistration> registrations) {
 		Assert.notEmpty(registrations, "registrations cannot be empty");
 		Collector<ClientRegistration, ?, ConcurrentMap<String, ClientRegistration>> collector =
-			toConcurrentMap(ClientRegistration::getRegistrationId, Function.identity());
-		this.registrations = registrations.stream()
-			.collect(collectingAndThen(collector, Collections::unmodifiableMap));
+				toConcurrentMap(ClientRegistration::getRegistrationId, Function.identity());
+		return registrations.stream().collect(collectingAndThen(collector, Collections::unmodifiableMap));
+	}
+
+	/**
+	 * Constructs an {@code InMemoryReactiveClientRegistrationRepository} backed by a {@link Map} of client ids to
+	 * {@link ClientRegistration}s.
+	 *
+	 * @param registrations the map of client registration(s)
+	 */
+	public InMemoryClientRegistrationRepository(Map<String, ClientRegistration> registrations) {
+		Assert.notNull(registrations, "registrations cannot be null");
+		this.registrations = registrations;
 	}
 
 	@Override
