@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,13 @@
  */
 package org.springframework.security.ldap.userdetails;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
-
 import javax.naming.Context;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
@@ -32,10 +33,13 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
+import javax.naming.ldap.ExtendedRequest;
+import javax.naming.ldap.ExtendedResponse;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.ldap.core.AttributesMapperCallbackHandler;
 import org.springframework.ldap.core.ContextExecutor;
@@ -70,6 +74,7 @@ import org.springframework.util.Assert;
  * setup.
  *
  * @author Luke Taylor
+ * @author Josh Cummings
  * @since 2.0
  */
 public class LdapUserDetailsManager implements UserDetailsManager {
@@ -123,6 +128,8 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 
 	private String[] attributesToRetrieve;
 
+	private boolean usePasswordModifyExtensionOperation = false;
+
 	public LdapUserDetailsManager(ContextSource contextSource) {
 		template = new LdapTemplate(contextSource);
 	}
@@ -157,8 +164,21 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 	/**
 	 * Changes the password for the current user. The username is obtained from the
 	 * security context.
+	 *
+	 * There are two supported strategies for modifying the user's password depending on
+	 * the capabilities of the corresponding LDAP server.
+	 *
 	 * <p>
-	 * If the old password is supplied, the update will be made by rebinding as the user,
+	 * Configured one way, this method will modify the user's password via the
+	 * <a target="_blank" href="https://tools.ietf.org/html/rfc3062">
+	 *     LDAP Password Modify Extended Operation
+	 * </a>.
+	 *
+	 * See {@link LdapUserDetailsManager#setUsePasswordModifyExtensionOperation(boolean)} for details.
+	 * </p>
+	 *
+	 * <p>
+	 * By default, though, if the old password is supplied, the update will be made by rebinding as the user,
 	 * thus modifying the password using the user's permissions. If
 	 * <code>oldPassword</code> is null, the update will be attempted using a standard
 	 * read/write context supplied by the context source.
@@ -178,38 +198,13 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 
 		logger.debug("Changing password for user '" + username);
 
-		final DistinguishedName dn = usernameMapper.buildDn(username);
-		final ModificationItem[] passwordChange = new ModificationItem[] { new ModificationItem(
-				DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(passwordAttributeName,
-						newPassword)) };
+		DistinguishedName userDn = usernameMapper.buildDn(username);
 
-		if (oldPassword == null) {
-			template.modifyAttributes(dn, passwordChange);
-			return;
+		if (usePasswordModifyExtensionOperation) {
+			changePasswordUsingExtensionOperation(userDn, oldPassword, newPassword);
+		} else {
+			changePasswordUsingAttributeModification(userDn, oldPassword, newPassword);
 		}
-
-		template.executeReadWrite(new ContextExecutor() {
-
-			public Object executeWithContext(DirContext dirCtx) throws NamingException {
-				LdapContext ctx = (LdapContext) dirCtx;
-				ctx.removeFromEnvironment("com.sun.jndi.ldap.connect.pool");
-				ctx.addToEnvironment(Context.SECURITY_PRINCIPAL,
-						LdapUtils.getFullDn(dn, ctx).toString());
-				ctx.addToEnvironment(Context.SECURITY_CREDENTIALS, oldPassword);
-				// TODO: reconnect doesn't appear to actually change the credentials
-				try {
-					ctx.reconnect(null);
-				}
-				catch (javax.naming.AuthenticationException e) {
-					throw new BadCredentialsException(
-							"Authentication for password change failed.");
-				}
-
-				ctx.modifyAttributes(dn, passwordChange);
-
-				return null;
-			}
-		});
 	}
 
 	/**
@@ -413,5 +408,175 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 
 	public void setRoleMapper(AttributesMapper roleMapper) {
 		this.roleMapper = roleMapper;
+	}
+
+	/**
+	 * Sets the method by which a user's password gets modified.
+	 *
+	 * If set to {@code true}, then {@link LdapUserDetailsManager#changePassword} will modify
+	 * the user's password by way of the
+	 * <a target="_blank" href="https://tools.ietf.org/html/rfc3062">Password Modify Extension Operation</a>.
+	 *
+	 * If set to {@code false}, then {@link LdapUserDetailsManager#changePassword} will modify
+	 * the user's password by directly modifying attributes on the corresponding entry.
+	 *
+	 * Before using this setting, ensure that the corresponding LDAP server supports this extended operation.
+	 *
+	 * By default, {@code usePasswordModifyExtensionOperation} is false.
+	 *
+	 * @param usePasswordModifyExtensionOperation
+	 * @since 4.2.9
+	 */
+	public void setUsePasswordModifyExtensionOperation(boolean usePasswordModifyExtensionOperation) {
+		this.usePasswordModifyExtensionOperation = usePasswordModifyExtensionOperation;
+	}
+
+	private void changePasswordUsingAttributeModification
+			(DistinguishedName userDn, String oldPassword, String newPassword) {
+
+		final ModificationItem[] passwordChange = new ModificationItem[] { new ModificationItem(
+				DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(passwordAttributeName,
+				newPassword)) };
+
+		if (oldPassword == null) {
+			template.modifyAttributes(userDn, passwordChange);
+			return;
+		}
+
+		template.executeReadWrite(dirCtx -> {
+			LdapContext ctx = (LdapContext) dirCtx;
+			ctx.removeFromEnvironment("com.sun.jndi.ldap.connect.pool");
+			ctx.addToEnvironment(Context.SECURITY_PRINCIPAL,
+					LdapUtils.getFullDn(userDn, ctx).toString());
+			ctx.addToEnvironment(Context.SECURITY_CREDENTIALS, oldPassword);
+			// TODO: reconnect doesn't appear to actually change the credentials
+			try {
+				ctx.reconnect(null);
+			} catch (javax.naming.AuthenticationException e) {
+				throw new BadCredentialsException(
+						"Authentication for password change failed.");
+			}
+
+			ctx.modifyAttributes(userDn, passwordChange);
+
+			return null;
+		});
+
+	}
+
+	private void changePasswordUsingExtensionOperation
+			(DistinguishedName userDn, String oldPassword, String newPassword) {
+
+		template.executeReadWrite(dirCtx -> {
+			LdapContext ctx = (LdapContext) dirCtx;
+
+			String userIdentity = LdapUtils.getFullDn(userDn, ctx).encode();
+			PasswordModifyRequest request =
+					new PasswordModifyRequest(userIdentity, oldPassword, newPassword);
+
+			try {
+				return ctx.extendedOperation(request);
+			} catch (javax.naming.AuthenticationException e) {
+				throw new BadCredentialsException(
+						"Authentication for password change failed.");
+			}
+		});
+	}
+
+	/**
+	 * An implementation of the
+	 * <a target="_blank" href="https://tools.ietf.org/html/rfc3062">
+	 *    LDAP Password Modify Extended Operation
+	 * </a>
+	 * client request.
+	 *
+	 * Can be directed at any LDAP server that supports the Password Modify Extended Operation.
+	 *
+	 * @author Josh Cummings
+	 * @since 4.2.9
+	 */
+	private static class PasswordModifyRequest implements ExtendedRequest {
+		private static final byte SEQUENCE_TYPE = 48;
+
+		private static final String PASSWORD_MODIFY_OID = "1.3.6.1.4.1.4203.1.11.1";
+		private static final byte USER_IDENTITY_OCTET_TYPE = -128;
+		private static final byte OLD_PASSWORD_OCTET_TYPE = -127;
+		private static final byte NEW_PASSWORD_OCTET_TYPE = -126;
+
+		private final ByteArrayOutputStream value = new ByteArrayOutputStream();
+
+		public PasswordModifyRequest(String userIdentity, String oldPassword, String newPassword) {
+			ByteArrayOutputStream elements = new ByteArrayOutputStream();
+
+			if (userIdentity != null) {
+				berEncode(USER_IDENTITY_OCTET_TYPE, userIdentity.getBytes(), elements);
+			}
+
+			if (oldPassword != null) {
+				berEncode(OLD_PASSWORD_OCTET_TYPE, oldPassword.getBytes(), elements);
+			}
+
+			if (newPassword != null) {
+				berEncode(NEW_PASSWORD_OCTET_TYPE, newPassword.getBytes(), elements);
+			}
+
+			berEncode(SEQUENCE_TYPE, elements.toByteArray(), this.value);
+		}
+
+		@Override
+		public String getID() {
+			return PASSWORD_MODIFY_OID;
+		}
+
+		@Override
+		public byte[] getEncodedValue() {
+			return this.value.toByteArray();
+		}
+
+		@Override
+		public ExtendedResponse createExtendedResponse(String id, byte[] berValue, int offset, int length) {
+			return null;
+		}
+
+		/**
+		 * Only minimal support for
+		 * <a target="_blank" href="https://www.itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf">
+		 *     BER encoding
+		 * </a>; just what is necessary for the Password Modify request.
+		 *
+		 */
+		private void berEncode(byte type, byte[] src, ByteArrayOutputStream dest) {
+			int length = src.length;
+
+			dest.write(type);
+
+			if (length < 128) {
+				dest.write(length);
+			} else if ((length & 0x0000_00FF) == length) {
+				dest.write((byte) 0x81);
+				dest.write((byte) (length & 0xFF));
+			} else if ((length & 0x0000_FFFF) == length) {
+				dest.write((byte) 0x82);
+				dest.write((byte) ((length >> 8) & 0xFF));
+				dest.write((byte) (length & 0xFF));
+			} else if ((length & 0x00FF_FFFF) == length) {
+				dest.write((byte) 0x83);
+				dest.write((byte) ((length >> 16) & 0xFF));
+				dest.write((byte) ((length >> 8) & 0xFF));
+				dest.write((byte) (length & 0xFF));
+			} else {
+				dest.write((byte) 0x84);
+				dest.write((byte) ((length >> 24) & 0xFF));
+				dest.write((byte) ((length >> 16) & 0xFF));
+				dest.write((byte) ((length >> 8) & 0xFF));
+				dest.write((byte) (length & 0xFF));
+			}
+
+			try {
+				dest.write(src);
+			} catch (IOException e) {
+				throw new IllegalArgumentException("Failed to BER encode provided value of type: " + type);
+			}
+		}
 	}
 }

@@ -20,12 +20,15 @@ dependencies {
 		exclude(group: 'org.springframework.data', module: 'spring-data-commons')
 	}
 
+	testCompile project(':spring-security-test')
 	testCompile 'org.slf4j:jcl-over-slf4j'
 	testCompile 'org.slf4j:slf4j-api'
 }
 
 integrationTest {
-	include('**/ApacheDSServerIntegrationTests.class', '**/ApacheDSEmbeddedLdifTests.class')
+	include('**/ApacheDSServerIntegrationTests.class',
+		'**/ApacheDSEmbeddedLdifTests.class',
+		'**/LdapUserDetailsManagerModifyPasswordTests.class')
 //	  exclude('**/OpenLDAPIntegrationTestSuite.class')
 	maxParallelForks = 1
 }
