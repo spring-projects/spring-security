@@ -23,7 +23,10 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.PreDestroy;
 
 import okhttp3.mockwebserver.MockResponse;
@@ -39,15 +42,21 @@ import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverterAdapter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -211,6 +220,16 @@ public class OAuth2ResourceServerSpecTests {
 		this.client.post()
 				.exchange()
 				.expectStatus().isForbidden();
+	}
+
+	@Test
+	public void getWhenSignedAndCustomConverterThenConverts() {
+		this.spring.register(CustomJwtAuthenticationConverterConfig.class, RootController.class).autowire();
+
+		this.client.get()
+				.headers(headers -> headers.setBearerAuth(this.messageReadToken))
+				.exchange()
+				.expectStatus().isOk();
 	}
 
 	@Test
@@ -385,6 +404,41 @@ public class OAuth2ResourceServerSpecTests {
 			return mock(ReactiveAuthenticationManager.class);
 		}
 	}
+
+	@EnableWebFlux
+	@EnableWebFluxSecurity
+	static class CustomJwtAuthenticationConverterConfig {
+		@Bean
+		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeExchange()
+					.anyExchange().hasAuthority("message:read")
+					.and()
+				.oauth2ResourceServer()
+					.jwt()
+						.jwtAuthenticationConverter(jwtAuthenticationConverter())
+						.publicKey(publicKey());
+			// @formatter:on
+
+			return http.build();
+		}
+
+		@Bean
+		Converter<Jwt, Mono<AbstractAuthenticationToken>> jwtAuthenticationConverter() {
+			JwtAuthenticationConverter converter = new JwtAuthenticationConverter() {
+				@Override
+				protected Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
+					String[] claims = ((String) jwt.getClaims().get("scope")).split(" ");
+					return Stream.of(claims).map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+				}
+			};
+
+			return new ReactiveJwtAuthenticationConverterAdapter(converter);
+		}
+	}
+
+
 
 	@RestController
 	static class RootController {

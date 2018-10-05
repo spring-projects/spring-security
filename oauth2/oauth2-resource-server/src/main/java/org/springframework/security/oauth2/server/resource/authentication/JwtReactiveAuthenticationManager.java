@@ -18,11 +18,14 @@ package org.springframework.security.oauth2.server.resource.authentication;
 
 import reactor.core.publisher.Mono;
 
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
@@ -37,7 +40,8 @@ import org.springframework.util.Assert;
  * @since 5.1
  */
 public final class JwtReactiveAuthenticationManager implements ReactiveAuthenticationManager {
-	private final JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+	private Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> jwtAuthenticationConverter
+			= new ReactiveJwtAuthenticationConverterAdapter(new JwtAuthenticationConverter());
 
 	private final ReactiveJwtDecoder jwtDecoder;
 
@@ -53,9 +57,21 @@ public final class JwtReactiveAuthenticationManager implements ReactiveAuthentic
 				.cast(BearerTokenAuthenticationToken.class)
 				.map(BearerTokenAuthenticationToken::getToken)
 				.flatMap(this.jwtDecoder::decode)
-				.map(this.jwtAuthenticationConverter::convert)
+				.flatMap(this.jwtAuthenticationConverter::convert)
 				.cast(Authentication.class)
 				.onErrorMap(JwtException.class, this::onError);
+	}
+
+	/**
+	 * Use the given {@link Converter} for converting a {@link Jwt} into an {@link AbstractAuthenticationToken}.
+	 *
+	 * @param jwtAuthenticationConverter the {@link Converter} to use
+	 */
+	public void setJwtAuthenticationConverter(
+			Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> jwtAuthenticationConverter) {
+
+		Assert.notNull(jwtAuthenticationConverter, "jwtAuthenticationConverter cannot be null");
+		this.jwtAuthenticationConverter = jwtAuthenticationConverter;
 	}
 
 	private OAuth2AuthenticationException onError(JwtException e) {
